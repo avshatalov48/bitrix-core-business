@@ -36,6 +36,8 @@ Loc::loadMessages(__FILE__);
 class TemplateTable extends ORM\Data\DataManager
 {
 	const LOCAL_DIR_IMG = '/images/sender/preset/template/';
+	public const PER_PAGE_LIMIT = 9;
+	private static array $loadedTemplates = [];
 
 	/**
 	 * Handler of event that return array of templates
@@ -53,6 +55,11 @@ class TemplateTable extends ORM\Data\DataManager
 			return $resultList;
 		}
 
+		if (!empty(self::$loadedTemplates[$templateId]))
+		{
+			return self::$loadedTemplates[$templateId];
+		}
+
 		$localPathOfIcon = static::LOCAL_DIR_IMG . 'my.png';
 		//$fullPathOfIcon = Loader::getLocal($localPathOfIcon);
 
@@ -67,8 +74,15 @@ class TemplateTable extends ORM\Data\DataManager
 			$filter['ACTIVE'] = 'Y';
 		}
 
-		$templateDb = static::getList(array('filter' => $filter, 'order' => array('ID' => 'DESC')));
-		while($template = $templateDb->fetch())
+		$templateDb = static::getList([
+			'filter' => $filter,
+			'order' => ['ID' => 'DESC'],
+			'limit' => self::PER_PAGE_LIMIT,
+		]);
+
+		$count = static::getCount($filter);
+
+		while ($template = $templateDb->fetch())
 		{
 			$resultList[] = array(
 				'TYPE' => 'USER',
@@ -85,10 +99,11 @@ class TemplateTable extends ORM\Data\DataManager
 						'CODE' => 'SUBJECT',
 						'VALUE' => $template['NAME'],
 					),
-				)
+				),
+				'COUNT' => $count,
 			);
 		}
-
+		self::$loadedTemplates[$templateId] = $resultList;
 		return $resultList;
 	}
 

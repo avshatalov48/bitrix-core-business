@@ -14,29 +14,28 @@
 /** @var string $componentPath */
 /** @var CBitrixComponent $component */
 
-$itemsCount = count($arResult['ITEMS']);
-$converter = CBXPunycode::GetConverter();
-
-if ($itemsCount <= 0)
+if (!isset($arResult['ITEMS']))
 {
 	echo GetMessage('BCLMMSL_MONITORING_NO_DATA2');
 	return;
 }
+
+$itemsCount = count($arResult['ITEMS']);
+$converter = CBXPunycode::GetConverter();
 
 if ($arResult['HAVE_PROBLEM'])
 {
 	$sectionClass = $buttonClass = 'yellow';
 	$iconStyle = 'badicon';
 	$statusClass = 'bad';
-	$siteListClass = $itemsCount <= 2 ? 'one' : 'two';
 }
 else
 {
 	$sectionClass = $buttonClass = 'blue';
 	$iconStyle = 'goodicon';
 	$statusClass = 'good';
-	$siteListClass = $itemsCount <= 2 ? 'one' : 'two';
 }
+$siteListClass = $itemsCount <= 2 ? 'one' : 'two';
 
 ?>
 <div class="security_wrap">
@@ -94,7 +93,7 @@ else
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	app.setPageTitle({title: "<?=GetMessage('BCLMMSL_TITLE')?>"});
 	var bcmm = new BX.BitrixCloud.MobileMonitor(app, {});
 	BX.addCustomEvent('onAfterBCMMSiteDelete', function (params){ bcmm.showRefreshing(); location.reload(true); });

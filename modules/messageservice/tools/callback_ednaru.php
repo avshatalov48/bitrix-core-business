@@ -2,6 +2,7 @@
 
 use Bitrix\ImConnector\Library;
 use Bitrix\Main\Application;
+use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
 use Bitrix\MessageService\Providers\Edna\WhatsApp\EdnaRuIncomingMessage;
@@ -72,6 +73,10 @@ else if (isset($messageFields['userInfo']) && Loader::includeModule('imconnector
 		Application::JOB_PRIORITY_NORMAL
 	);
 
+}
+else if (isset($messageFields['approveStatus']) && Loader::includeModule('messageservice'))
+{
+	\Bitrix\MessageService\Providers\Edna\WhatsApp\Utils::cleanTemplatesCache();
 }
 // endregion
 \Bitrix\Main\Application::getInstance()->terminate();

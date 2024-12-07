@@ -28,6 +28,11 @@ export const UserListPopup = {
 			type: Array,
 			required: true,
 		},
+		contextDialogId: {
+			type: String,
+			required: false,
+			default: '',
+		},
 		withAngle: {
 			type: Boolean,
 			required: false,
@@ -80,7 +85,12 @@ export const UserListPopup = {
 			@close="$emit('close')"
 			:id="id"
 		>
-			<UserListContent :userIds="userIds" :loading="loading" :adjustPopupFunction="adjustPosition"/>
+			<UserListContent 
+				:userIds="userIds"
+				:contextDialogId="contextDialogId"
+				:loading="loading" 
+				:adjustPopupFunction="adjustPosition"
+			/>
 		</MessengerPopup>
 	`,
 };

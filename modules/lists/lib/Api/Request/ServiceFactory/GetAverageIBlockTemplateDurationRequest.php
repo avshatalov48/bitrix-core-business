@@ -8,6 +8,7 @@ class GetAverageIBlockTemplateDurationRequest
 		public /*readonly*/ int $iBlockId,
 		public /*readonly*/ int $autoExecuteType,
 		public /*readonly*/ bool $isNeedCheckPermissions = true,
+		public /*readonly*/ bool $isNeedRound = true,
 	)
 	{}
 }

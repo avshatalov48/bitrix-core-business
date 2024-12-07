@@ -364,7 +364,7 @@ class LocationMulti extends Input\Base
 
 		$result = ob_get_contents();
 		$result = '
-			<script type="text/javascript">				
+			<script>				
 				var bxInputdeliveryLocMultiStep3 = function()
 				{				
 					BX.loadScript("/bitrix/components/bitrix/sale.location.selector.system/templates/.default/script.js", function(){

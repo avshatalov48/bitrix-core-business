@@ -1,8 +1,8 @@
 import { EventEmitter } from 'main.core.events';
 
-import { SidebarDetailBlock, EventType } from 'im.v2.const';
+import { SidebarDetailBlock, EventType, Layout } from 'im.v2.const';
 
-import './chat-favourites.css';
+import './css/chat-favourites.css';
 
 import type { ImModelChat } from 'im.v2.model';
 
@@ -32,6 +32,12 @@ export const ChatFavourites = {
 		{
 			return this.dialog.chatId;
 		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
+		},
 	},
 	methods:
 	{
@@ -58,7 +64,11 @@ export const ChatFavourites = {
 		},
 	},
 	template: `
-		<div class="bx-im-sidebar-chat-favourites__container" @click="onFavouriteClick">
+		<div 
+			class="bx-im-sidebar-chat-favourites__container" 
+			:class="{'--copilot': isCopilotLayout}"
+			@click="onFavouriteClick"
+		>
 			<div class="bx-im-sidebar-chat-favourites__title">
 				<div class="bx-im-sidebar-chat-favourites__icon"></div>
 				<div class="bx-im-sidebar-chat-favourites__title-text">

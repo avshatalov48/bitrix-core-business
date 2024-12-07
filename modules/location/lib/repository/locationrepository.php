@@ -52,6 +52,18 @@ class LocationRepository
 	}
 
 	/**
+	 * @param string $externalId
+	 * @param string $sourceCode
+	 * @param string $languageId
+	 * @param int $searchScope
+	 * @return Entity\Location|bool|null
+	 */
+	public function findByCoords(float $lat, float $lng, int $zoom, string $languageId, int $searchScope)
+	{
+		return $this->findStrategy->findByCoords($lat, $lng, $zoom, $languageId, $searchScope);
+	}
+
+	/**
 	 * @param string $text
 	 * @param string $languageId
 	 * @param int $searchScope
@@ -101,11 +113,7 @@ class LocationRepository
 		return $this->findStrategy->findParents($location, $languageId, $searchScope);
 	}
 
-	/**
-	 * @param Entity\Location\Parents $parents
-	 * @return Result
-	 */
-	public function saveParents(Entity\Location\Parents $parents)
+	public function saveParents(Entity\Location\Parents $parents): Result
 	{
 		return $this->saveStrategy->saveParents($parents);
 	}

@@ -1,0 +1,6 @@
+.bx-im-sidebar-multidialog-detail__container {
+	display: flex;
+	flex-direction: column;
+	padding: 10px 16px;
+	gap: 10px;
+}

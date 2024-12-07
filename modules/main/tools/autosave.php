@@ -7,8 +7,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 if(!$USER->IsAuthorized() || !check_bitrix_sessid())
 	die();
 
-CUtil::JSPostUnescape();
-
 $arFormData = $_REQUEST['form_data'] ?? null;
 
 $AUTOSAVE = new CAutoSave();

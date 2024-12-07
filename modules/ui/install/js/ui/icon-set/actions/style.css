@@ -17,6 +17,7 @@
 	--ui-icon-set__path_chevron-left: url('/bitrix/js/ui/icon-set/actions/images/chevron-to-the-left.svg');
 	--ui-icon-set__path_chevron-right: url('/bitrix/js/ui/icon-set/actions/images/chevron-to-the-right.svg');
 	--ui-icon-set__path_collapse: url('/bitrix/js/ui/icon-set/actions/images/collapse.svg');
+	--ui-icon-set__path_collapse-diagonal: url('/bitrix/js/ui/icon-set/actions/images/collapse-diagonal.svg');
 	--ui-icon-set__path_connection: url('/bitrix/js/ui/icon-set/actions/images/connection.svg');
 	--ui-icon-set__path_conversion-1: url('/bitrix/js/ui/icon-set/actions/images/conversion-1.svg');
 	--ui-icon-set__path_conversion-2: url('/bitrix/js/ui/icon-set/actions/images/conversion-2.svg');
@@ -37,6 +38,7 @@
 	--ui-icon-set__path_download: url('/bitrix/js/ui/icon-set/actions/images/download.svg');
 	--ui-icon-set__path_download-2: url('/bitrix/js/ui/icon-set/actions/images/download-2.svg');
 	--ui-icon-set__path_expand-1: url('/bitrix/js/ui/icon-set/actions/images/expand-1.svg');
+	--ui-icon-set__path_expand-diagonal: url('/bitrix/js/ui/icon-set/actions/images/expand-diagonal.svg');
 	--ui-icon-set__path_expand-to-full-screen: url('/bitrix/js/ui/icon-set/actions/images/expand-to-full-screen.svg');
 	--ui-icon-set__path_forward: url('/bitrix/js/ui/icon-set/actions/images/forward.svg');
 	--ui-icon-set__path_forward-2: url('/bitrix/js/ui/icon-set/actions/images/forward-2.svg');
@@ -179,6 +181,10 @@
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_collapse);
 }
 
+.ui-icon-set.--collapse-diagonal {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_collapse-diagonal);
+}
+
 .ui-icon-set.--connection {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_connection);
 }
@@ -261,6 +267,10 @@
 
 .ui-icon-set.--expand-1 {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_expand-1);
+}
+
+.ui-icon-set.--expand-diagonal {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_expand-diagonal);
 }
 
 .ui-icon-set.--expand-to-full-screen {

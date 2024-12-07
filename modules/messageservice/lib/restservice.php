@@ -1,8 +1,7 @@
-<?
+<?php
 namespace Bitrix\MessageService;
 
 use \Bitrix\Main\Loader;
-use Bitrix\MessageService\Context\User;
 use \Bitrix\Rest\AppTable;
 use Bitrix\Rest\HandlerHelper;
 use \Bitrix\Rest\RestException;
@@ -22,8 +21,11 @@ class RestService extends \IRestService
 
 	const ERROR_SENDER_ALREADY_INSTALLED = 'ERROR_SENDER_ALREADY_INSTALLED';
 	const ERROR_SENDER_ADD_FAILURE = 'ERROR_SENDER_ADD_FAILURE';
+	const ERROR_SENDER_UPDATE_FAILURE = 'ERROR_SENDER_UPDATE_FAILURE';
 	const ERROR_SENDER_VALIDATION_FAILURE = 'ERROR_SENDER_VALIDATION_FAILURE';
 	const ERROR_SENDER_NOT_FOUND = 'ERROR_SENDER_NOT_FOUND';
+	const ERROR_SENDER_CODE_REQUIRED = 'ERROR_SENDER_CODE_REQUIRED';
+	const ERROR_SENDER_OTHER_PARAMS_REQUIRED = 'ERROR_SENDER_OTHER_PARAMS_REQUIRED';
 
 	const ERROR_MESSAGE_NOT_FOUND = 'ERROR_MESSAGE_NOT_FOUND';
 	const ERROR_MESSAGE_STATUS_INCORRECT = 'ERROR_MESSAGE_STATUS_INCORRECT';
@@ -33,6 +35,7 @@ class RestService extends \IRestService
 		return [
 			static::SCOPE => [
 			'messageservice.sender.add' => [__CLASS__, 'addSender'],
+			'messageservice.sender.update' => [__CLASS__, 'updateSender'],
 			'messageservice.sender.delete' => [__CLASS__, 'deleteSender'],
 			'messageservice.sender.list' => [__CLASS__, 'getSenderList'],
 
@@ -146,6 +149,101 @@ class RestService extends \IRestService
 			AddEventToStatFile(
 				'messageservice',
 				'addProvider' . $params['TYPE'],
+				uniqid($app['CODE'], true),
+				$app['CODE']
+			);
+		}
+
+		return true;
+	}
+
+	/**
+	 * @param array $params Input params.
+	 * @param int $n Offset.
+	 * @param CRestServer $server Rest server instance.
+	 * @return bool
+	 * @throws \Exception
+	 */
+	public static function updateSender($params, $n, $server)
+	{
+		global $USER;
+
+		if (!$server->getClientId())
+		{
+			throw new AccessException("Application context required");
+		}
+
+		self::checkAdminPermissions();
+		$params = array_change_key_case($params, CASE_UPPER);
+
+		if (empty($params['CODE']))
+		{
+			throw new RestException('CODE is required!', self::ERROR_SENDER_CODE_REQUIRED);
+		}
+
+		if (empty($params['NAME']) && empty($params['DESCRIPTION']) && empty($params['HANDLER']))
+		{
+			throw new RestException('At least one other parameter is required!', self::ERROR_SENDER_OTHER_PARAMS_REQUIRED);
+		}
+
+		if (!empty($params['HANDLER']))
+		{
+			self::validateSenderHandler($params['HANDLER'], $server);
+		}
+
+		unset($params['TYPE']);
+
+		$params['APP_ID'] = $server->getClientId();
+
+		$iterator = Internal\Entity\RestAppTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'=APP_ID' => $params['APP_ID'],
+				'=CODE' => $params['CODE']
+			]
+		]);
+		$result = $iterator->fetch();
+		if (!$result)
+		{
+			throw new RestException('Sender not found!', self::ERROR_SENDER_NOT_FOUND);
+		}
+
+		if (!empty($params['NAME']) || !empty($params['DESCRIPTION']))
+		{
+			$senderLang = [
+				'APP_ID' => $result['ID'],
+			];
+
+			if (!empty($params['NAME']))
+			{
+				$senderLang['NAME'] = $params['NAME'];
+			}
+
+			if (!empty($params['DESCRIPTION']))
+			{
+				$senderLang['DESCRIPTION'] = $params['DESCRIPTION'];
+			}
+
+			unset($params['NAME'], $params['DESCRIPTION']);
+
+			static::updateSenderLang($senderLang, $server->getClientId());
+		}
+
+		$params['AUTHOR_ID'] = $USER->getId();
+		$params = array_filter($params);
+		$updateResult = Internal\Entity\RestAppTable::update($result['ID'], $params);
+
+		if ($updateResult->getErrors())
+		{
+			throw new RestException('Sender update error!', self::ERROR_SENDER_UPDATE_FAILURE);
+		}
+
+		$app = \Bitrix\Rest\AppTable::getByClientId($params['APP_ID']);
+		if ($app['CODE'])
+		{
+			AddEventToStatFile(
+				'messageservice',
+				'updateProvider' . ($params['TYPE'] ?? ''),
 				uniqid($app['CODE'], true),
 				$app['CODE']
 			);
@@ -442,6 +540,64 @@ class RestService extends \IRestService
 		foreach ($langData as $toAdd)
 		{
 			Internal\Entity\RestAppLangTable::add($toAdd);
+		}
+	}
+
+	private static function updateSenderLang($langFields, $clientId)
+	{
+		$fields = ['NAME', 'DESCRIPTION'];
+
+		foreach ($fields as $field)
+		{
+			if (isset($langFields[$field]) && !is_array($langFields[$field]))
+			{
+				$langData['**'][$field] = $langFields[$field];
+			}
+
+			if (is_array($langFields[$field]))
+			{
+				foreach ($langFields[$field] as $lang => $name)
+				{
+					$langData[$lang][$field] = $name;
+				}
+			}
+		}
+
+		$appNames = static::getAppNames($clientId);
+		foreach ($appNames as $langId => $appName)
+		{
+			if (isset($langData[$langId]))
+			{
+				$langData[$langId]['APP_NAME'] = $appName;
+			}
+		}
+
+		foreach ($langData as $lang => $toUpdate)
+		{
+			if (empty(array_intersect_key($toUpdate, array_flip($fields))))
+			{
+				continue;
+			}
+
+			$toUpdate['APP_ID'] =  $langFields['APP_ID'];
+			$toUpdate['LANGUAGE_ID'] = $lang;
+
+			$existingLang = Internal\Entity\RestAppLangTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'=APP_ID' => $langFields['APP_ID'],
+					'=LANGUAGE_ID' => $lang
+				]
+			])->fetch();
+
+			if ($existingLang)
+			{
+				Internal\Entity\RestAppLangTable::update($existingLang['ID'], $toUpdate);
+			}
+			else
+			{
+				Internal\Entity\RestAppLangTable::add($toUpdate);
+			}
 		}
 	}
 

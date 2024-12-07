@@ -12,7 +12,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 ?><!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="<?= LANGUAGE_ID?>" lang="<?= LANGUAGE_ID?>">
 <head>
-	<script type="text/javascript">
+	<script>
 		// Prevent loading page without header and footer
 		if (window === window.top)
 		{

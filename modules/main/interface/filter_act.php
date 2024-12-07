@@ -15,8 +15,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 	{
 		case "save_filter":
 
-			CUtil::decodeURIComponent($_POST);
-
 			$arFields = array(
 					"USER_ID" => $uid,
 					"FILTER_ID" => $_POST['filter_id'],

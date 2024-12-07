@@ -1,4 +1,5 @@
-import {Type} from 'main.core';
+import { Type } from 'main.core';
+import { sendData } from 'ui.analytics';
 
 const ENTITY_TYPE = 'mail';
 
@@ -118,6 +119,20 @@ export class Secretary
 				});
 			}
 		}
+	}
+
+	onTaskAction(event, element)
+	{
+		const analyticsData = {
+			tool: 'tasks',
+			category: 'task_operations',
+			event: event,
+			type: 'task',
+			c_section: 'mail',
+			c_element: element,
+		};
+
+		sendData(analyticsData);
 	}
 
 	subscribe()

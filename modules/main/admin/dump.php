@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -71,6 +71,7 @@ if (isset($_REQUEST['ajax_mode']) && $_REQUEST['ajax_mode'] == 'Y')
 			BX('db_stat_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_stat"))?>)";
 			BX('db_search_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_search"))?>)";
 			BX('db_event_size').innerHTML = "(<?=CFile::FormatSize(getTableSize("^b_event_log$"))?>)";
+			EndDump();
 		</script>
 		<?
 		die();
@@ -113,8 +114,6 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 		if ($encrypt && !empty($_REQUEST['dump_encrypt_key']))
 		{
 			$NS['dump_encrypt_key'] =  $_REQUEST['dump_encrypt_key'];
-//			if (!defined('BX_UTF') || !BX_UTF)
-//				$NS['dump_encrypt_key'] = $APPLICATION->ConvertCharset('windows-1251','utf-8',$NS['dump_encrypt_key']);
 			COption::SetOptionInt("main", "dump_encrypt", 1);
 		}
 		else
@@ -244,7 +243,7 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 			else
 				$prefix = str_replace('/', '', COption::GetOptionString("main", "server_name", ""));
 
-			$arc_name = CBackup::GetArcName(preg_match('#^[a-z0-9\.\-]+$#i', $prefix) ? substr($prefix, 0, 20).'_' : '');
+			$arc_name = CBackup::GetArcName(preg_match('#^[a-z0-9.\-]+$#i', $prefix) ? substr($prefix, 0, 20).'_' : '');
 			$NS['dump_name'] = $arc_name.".sql";
 			$NS['arc_name'] = $arc_name.(!empty($NS['dump_encrypt_key']) ? ".enc" : ".tar").($bUseCompression ? ".gz" : '');
 		}
@@ -485,6 +484,11 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 							$tar->prefix = 'bitrix/backup/sites/'.$f['LID'].'/';
 							$DirScan->arSkip[$DOCUMENT_ROOT_SITE.'/bitrix'] = true;
 							$DirScan->arSkip[$DOCUMENT_ROOT_SITE.'/upload'] = true;
+							if (is_link($DOCUMENT_ROOT_SITE.'/local'))
+							{
+								// if it's a link, we need it only the first time
+								$DirScan->arSkip[$DOCUMENT_ROOT_SITE.'/local'] = true;
+							}
 						}
 					}
 				}
@@ -747,8 +751,11 @@ elseif(isset($_REQUEST['process']) && $_REQUEST['process'] == "Y")
 								}
 								else
 								{
-									$ob = new CBitrixCloudBackup;
-									$ob->clearOptions();
+									if ($bBitrixCloud)
+									{
+										$ob = new CBitrixCloudBackup;
+										$ob->clearOptions();
+									}
 									$name = CTar::getFirstName($NS['arc_name']);
 									while(file_exists($name))
 									{
@@ -928,7 +935,7 @@ CAdminFileDialog::ShowScript(
 	)
 );
 ?>
-<script language="JavaScript">
+<script>
 var counter_started = false;
 var counter_sec = 0;
 
@@ -1539,8 +1546,6 @@ echo EndNote();
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_admin.php");
 
-#################################################
-################## FUNCTIONS
 function IntOption($name, $def = 0)
 {
 	static $CACHE;
@@ -1603,4 +1608,3 @@ function RaiseErrorAndDie($strError, $bRepeat = false)
 	echo '<script>EndDump();</script>';
 	die();
 }
-?>

@@ -193,7 +193,7 @@ else
 	}
 }
 
-?><script type="text/javascript">
+?><script>
 	var gdSaleProductsTabControl_<?=$arGadgetParams["RND_STRING"]?> = false;
 	BX.ready(function(){
 		gdSaleProductsTabControl_<?=$arGadgetParams["RND_STRING"]?> = new gdTabControl('bx_gd_tabset_sale_products_<?=$arGadgetParams["RND_STRING"]?>');

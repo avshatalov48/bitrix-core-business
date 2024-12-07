@@ -75,14 +75,6 @@ foreach($res as $photo):
 			$title = $photo['album_name'].' - '.$photo['description'];
 		$title = trim($title, ' -');
 		$detailUrl = $photo['detail_url'];
-
-		if (!defined("BX_UTF"))
-		{
-			$title = $GLOBALS["APPLICATION"]->ConvertCharset($title, 'Windows-1251', 'UTF-8');
-			$photo['author_name'] = $GLOBALS["APPLICATION"]->ConvertCharset($photo['author_name'], 'Windows-1251', 'UTF-8');
-			$detailUrl = $GLOBALS["APPLICATION"]->ConvertCharset($detailUrl, 'Windows-1251', 'UTF-8');
-			$photo['src'] = $GLOBALS["APPLICATION"]->ConvertCharset($photo['src'], 'Windows-1251', 'UTF-8');
-		}
 ?>
 		<track>
 			<title><?= $title?></title>

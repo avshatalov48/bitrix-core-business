@@ -1,0 +1,8 @@
+.ui-image-stack-steps-step-stack {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 32px;
+	height: 32px;
+}

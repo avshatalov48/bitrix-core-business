@@ -388,7 +388,7 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 							$month = (int)$parsedDate["MM"];
 							$year = (int)$parsedDate["YYYY"];
 
-							$val = $day.' '.toLower(Loc::getMessage('MONTH_'.$month.'_S'));
+							$val = $day.' '.mb_strtolower(Loc::getMessage('MONTH_'.$month.'_S'));
 							if ($userFields['PERSONAL_GENDER'] === 'M')
 							{
 								$val .= ' '.$year;
@@ -739,14 +739,6 @@ class CUITooltipComponentAjaxController extends \Bitrix\Main\Engine\Controller
 	private function getCurrentUserPermissions()
 	{
 		$result = CSocNetUserPerms::initUserPerms($this->getCurrentUser()->getID(), $this->getUserId(), CSocNetUser::isCurrentUserModuleAdmin());
-
-		if (
-			!Loader::includeModule("video")
-			|| !CVideo::canUserMakeCall()
-		)
-		{
-			$result["Operations"]["videocall"] = false;
-		}
 
 		if (!Loader::includeModule("im"))
 		{

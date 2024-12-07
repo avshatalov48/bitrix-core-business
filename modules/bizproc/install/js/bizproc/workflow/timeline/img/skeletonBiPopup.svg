@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="455" height="243" fill="none">
+    <rect width="403" height="183" x="30" y="28" fill="#fff" fill-opacity=".8" rx="22" shape-rendering="crispEdges"/>
+    <rect width="402" height="182" x="30.5" y="28.5" stroke="#E6E7E9" rx="21.5" shape-rendering="crispEdges"/>
+    <rect width="119" height="25" x="71.5" y="157.5" stroke="#C6CDD3" rx="12.5"/>
+    <g id="d" fill="#EDEEF0" filter="url(#a)">
+        <rect width="176" height="16" x="144" y="58" rx="2"/>
+        <rect width="286" height="8" x="72" y="100" rx="2"/>
+        <rect width="286" height="8" x="72" y="114" rx="2"/>
+        <rect width="201" height="8" x="72" y="128" rx="2"/>
+        <rect width="76.504" height="6.5" x="92.748" y="166.426" rx="2"/>
+    </g>
+    <defs>
+        <filter id="a" width="463" height="245" x="0" y="-2" color-interpolation-filters="sRGB"
+                filterUnits="userSpaceOnUse">
+            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+            <feGaussianBlur in="BackgroundImageFix" stdDeviation="15"/>
+            <feComposite in2="SourceAlpha" operator="in" result="effect2"/>
+            <feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+            <feOffset dy="2"/>
+            <feGaussianBlur stdDeviation="15"/>
+            <feComposite in2="hardAlpha" operator="out"/>
+            <feColorMatrix values="0 0 0 0 0.027451 0 0 0 0 0.247059 0 0 0 0 0.403922 0 0 0 0.09 0"/>
+            <feBlend in2="effect2" result="effect3"/>
+            <feBlend in="SourceGraphic" in2="effect3" result="shape"/>
+        </filter>
+    </defs>
+    <rect id="e" width="100%" height="100%" fill="url(#b)" mask="url(#c)"/>
+    <mask id="c" fill="#fff">
+        <use xlink:href="#d"/>
+    </mask>
+    <linearGradient id="b" x1="66.6%" x2="33.3%" y1="50%" y2="50%">
+        <stop offset="0%" stop-color="#dfe0e3" stop-opacity="0"/>
+        <stop offset="0%" stop-color="#dfe0e3" stop-opacity="0"/>
+        <stop offset="50%" stop-color="#dfe0e3"/>
+        <stop offset="100%" stop-color="#dfe0e3" stop-opacity="0"/>
+    </linearGradient>
+    <animate xlink:href="#e" attributeName="x" begin="0s" dur="1s" from="-100%" repeatCount="indefinite" to="100%"/>
+</svg>

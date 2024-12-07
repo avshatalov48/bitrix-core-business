@@ -33,7 +33,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST["GRID_ID"])
 	}
 	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savesettings")
 	{
-		CUtil::decodeURIComponent($_POST);
 		$gridOptions->SetViewSettings($_POST['view_id'], $_POST);
 
 		if(
@@ -63,7 +62,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST["GRID_ID"])
 	}
 	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savefilter")
 	{
-		CUtil::decodeURIComponent($_POST);
 		$gridOptions->SetFilterSettings($_POST['filter_id'], $_POST);
 	}
 	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "delfilter")

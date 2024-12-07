@@ -28,7 +28,7 @@
 					content: options.value,
 					placeholder: options.placeholder,
 					description: options.description,
-					textOnly: true,
+					textOnly: options.textOnly || true,
 					onInput: options.onInput,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
@@ -101,7 +101,9 @@
 					attribute: options.attribute,
 					attrKey: options.attrKey,
 					uploadParams: this.uploadParams,
-					disabled: BX.Text.toBoolean(options.disabled)
+					dimensions: options.dimensions || false,
+					disabled: BX.Text.toBoolean(options.disabled),
+					disableLink: options.disableLink || false,
 				});
 			}
 
@@ -115,8 +117,9 @@
 						type: "icon",
 						src: "",
 						alt: "",
-						classList: "classList" in options.value ? options.value.classList : []
+						classList: "classList" in options.value ? options.value.classList : [],
 					},
+					disableLink: options.disableLink || false,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
 					attribute: options.attribute,
@@ -158,27 +161,56 @@
 
 			if (options.type === "dynamic_source")
 			{
+				let items = BX.Landing.UI.Form.DynamicCardsForm.getSourceItems();
+				if (options.sources && BX.Type.isArray(options.sources))
+				{
+					items = items.filter(item => (options.sources.indexOf(item.value) !== -1));
+				}
+				let title = BX.Landing.Loc.getMessage('LANDING_CARDS__SOURCE_FIELD_TITLE');
+				if (options.title && BX.Type.isString(options.title))
+				{
+					title = options.title;
+				}
+				let stubText = '';
+				if (options.stubText && BX.Type.isString(options.stubText))
+				{
+					stubText = options.stubText;
+				}
+				let useLink = false;
+				if (options.useLink && BX.Type.isString(options.useLink))
+				{
+					useLink = BX.Text.toBoolean(options.useLink);
+				}
+				let linkType = '';
+				if (options.linkType && BX.Type.isString(options.linkType))
+				{
+					linkType = options.linkType;
+				}
 
-				options = assign({}, options, {
-					title: options.name,
-					content: options.value,
+				let value = options.value;
+				if (!value)
+				{
+					const [firstItem] = items;
+					value = {
+						source: firstItem.value,
+						filter: firstItem.filter,
+					};
+				}
+
+				return new BX.Landing.UI.Field.SourceField({
 					selector: this.selector,
 					onChange: this.onChangeHandler,
 					onValueChange: this.onValueChangeHandler,
-					options: this.linkOptions,
-					textOnly: true,
-					currentPageOnly: options.currentPageOnly,
-					allowedTypes: [
-						'block'
-					],
-					disableCustomURL: true,
-					disallowType: true,
-					customPlaceholder: BX.Landing.Loc.getMessage('LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER'),
-					panelTitle: BX.Landing.Loc.getMessage('LANDING_BLOCK__BLOCK_SOURCE_PLACEHOLDER'),
-					disabled: BX.Text.toBoolean(options.disabled)
+					attribute: options.attribute,
+					title,
+					hideSort: options.hideSort || false,
+					value,
+					items,
+					stubText,
+					useLink,
+					linkType,
+					showValueInHeader: false,
 				});
-
-				return new BX.Landing.UI.Field.LinkUrl(options);
 			}
 
 			if (options.type === "slider" || options.type === "range-slider")
@@ -214,12 +246,12 @@
 				});
 			}
 
-			// todo: need save Backward compatibility for "pallette"?
 			if (options.type === "color")
 			{
 				return new BX.Landing.UI.Field.ColorField({
 					title: options.name,
 					selector: this.selector,
+					contentRoot: BX.Landing.PageObject.getStylePanelContent(),
 					subtype: options.subtype,
 					// items: options.items,
 					content: options.value,
@@ -346,6 +378,18 @@
 					attrKey: options.attrKey,
 					property: options.property,
 					disabled: BX.Text.toBoolean(options.disabled)
+				});
+			}
+
+			if (options.type === "user-select")
+			{
+				return new BX.Landing.UI.Field.UserSelect({
+					title: options.name,
+					selector: this.selector,
+					userId: options.value ?? 0,
+					onChange: this.onChangeHandler,
+					onValueChange: this.onValueChangeHandler,
+					attribute: options.attribute,
 				});
 			}
 		}

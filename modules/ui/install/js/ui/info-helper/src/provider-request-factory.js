@@ -1,18 +1,21 @@
 import { ajax } from 'main.core';
+import { ProviderRequestFactoryConfiguration } from './types/configurations';
 import { ProvidersType } from './types/providers-type';
 
 export class ProviderRequestFactory
 {
-	#type: ProvidersType.SLIDER | ProvidersType.POPUP;
-	#code: string;
+	#type: ProvidersType.SLIDER | ProvidersType.POPUP ;
+	#code: ?string;
+	#featureId: ?string;
 	static controller: string = 'ui.infoHelper.getInitParams';
 
-	constructor(type: string, code: string = null)
+	constructor(configuration: ProviderRequestFactoryConfiguration)
 	{
-		if ((type === ProvidersType.SLIDER) || (type === ProvidersType.POPUP))
+		if ((configuration.type === ProvidersType.SLIDER) || (configuration.type === ProvidersType.POPUP))
 		{
-			this.#type = type;
-			this.#code = code;
+			this.#type = configuration.type;
+			this.#code = configuration.code ?? null;
+			this.#featureId = configuration.featureId ?? null;
 		}
 		else
 		{
@@ -27,6 +30,7 @@ export class ProviderRequestFactory
 				type: this.#type,
 				code: this.#code,
 				currentUrl: window.location.href,
+				featureId: this.#featureId,
 			},
 		});
 	}

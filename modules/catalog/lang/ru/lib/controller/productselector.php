@@ -5,3 +5,6 @@ $MESS['PRODUCT_SELECTOR_ERROR_NO_PERMISSIONS_FOR_UPDATE'] = 'Недостато�
 $MESS['PRODUCT_SELECTOR_ERROR_WRONG_IBLOCK_ID'] = 'Неверный ID каталога';
 $MESS['PRODUCT_SELECTOR_ERROR_PRODUCT_NOT_EXIST'] = 'Товар не существует';
 $MESS['PRODUCT_SELECTOR_ERROR_SKU_NOT_EXIST'] = 'Вариация не существует';
+$MESS['PRODUCT_SELECTOR_PRODUCT_TAX_INCLUDED'] = 'Да';
+$MESS['PRODUCT_SELECTOR_PRODUCT_TAX_NOT_INCLUDED'] = 'Нет';
+$MESS['PRODUCT_SELECTOR_PRODUCT_NOT_TAX'] = 'Без НДС';

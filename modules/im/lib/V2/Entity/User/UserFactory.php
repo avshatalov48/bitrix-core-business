@@ -32,6 +32,7 @@ class UserFactory
 		'LANGUAGE_ID',
 		'WORK_PHONE',
 		'PERSONAL_MOBILE',
+		'PERSONAL_PHONE',
 		'COLOR' => 'ST.COLOR',
 		'STATUS' => 'ST.STATUS',
 	];
@@ -60,9 +61,7 @@ class UserFactory
 		$cachedUser = $cache->getVars();
 		if ($cachedUser !== false)
 		{
-			$userData = $this->prepareUserData($cachedUser);
-
-			return $this->initUser($userData);
+			return $this->initUser($cachedUser);
 		}
 
 		$userData = $this->getUserFromDb($id);
@@ -72,14 +71,16 @@ class UserFactory
 			return new NullUser();
 		}
 
-		$this->saveInCache($cache, $userData);
 		$userData = $this->prepareUserData($userData);
+		$this->saveInCache($cache, $userData);
 
 		return $this->initUser($userData);
 	}
 
 	public function initUser(array $userData): User
 	{
+		$userData = $this->prepareNonCachedUserData($userData);
+
 		if ($userData['IS_BOT'])
 		{
 			return UserBot::initByArray($userData);
@@ -117,19 +118,31 @@ class UserFactory
 		$preparedUserData['IS_NETWORK'] = $this->isNetwork($userData);
 		$preparedUserData['IS_BOT'] = $this->isBot($userData);
 		$preparedUserData['IS_CONNECTOR'] = $this->isConnector($userData);
-		$preparedUserData['ABSENT'] = \CIMContactList::formatAbsentResult((int)$userData['ID']) ?: null;
 		$preparedUserData['LANGUAGE_ID'] = $userData['LANGUAGE_ID'] ?? null;
 
 		if (Loader::includeModule('voximplant'))
 		{
 			$preparedUserData['WORK_PHONE'] = CVoxImplantPhone::Normalize($userData['WORK_PHONE']) ?: null;
 			$preparedUserData['PERSONAL_MOBILE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_MOBILE']) ?: null;
+			$preparedUserData['PERSONAL_PHONE'] = CVoxImplantPhone::Normalize($userData['PERSONAL_PHONE']) ?: null;
 		}
 
 		if (Loader::includeModule('intranet'))
 		{
-			$preparedUserData['INNER_PHONE'] = $userData['UF_PHONE_INNER'] ?? null;
+			$innerPhone = preg_replace("/[^0-9\#\*]/i", "", $userData['UF_PHONE_INNER'] ?? '');
+			if ($innerPhone)
+			{
+				$preparedUserData['INNER_PHONE'] = $innerPhone;
+			}
 		}
+
+		return $preparedUserData;
+	}
+
+	protected function prepareNonCachedUserData(array $userData): array
+	{
+		$preparedUserData = $userData;
+		$preparedUserData['ABSENT'] = \CIMContactList::formatAbsentResult((int)$userData['ID']) ?: null;
 
 		return $preparedUserData;
 	}
@@ -153,8 +166,18 @@ class UserFactory
 
 		if (Loader::includeModule('intranet'))
 		{
-			$query->addSelect('UF_DEPARTMENT');
-			$query->addSelect('UF_PHONE_INNER');
+			$query
+				->addSelect('UF_DEPARTMENT')
+				->addSelect('UF_PHONE_INNER')
+				->addSelect('UF_ZOOM')
+				->addSelect('UF_SKYPE')
+				->addSelect('UF_SKYPE_LINK')
+			;
+		}
+
+		if (Loader::includeModule('voximplant'))
+		{
+			$query->addSelect('UF_VI_PHONE');
 		}
 
 		return $query->fetch() ?: null;
@@ -245,7 +268,7 @@ class UserFactory
 		$cacheSubDir = $id % 100;
 		$cacheSubSubDir = ($id % 10000) / 100;
 
-		return "/bx/imc/userdata_v5/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
+		return "/bx/imc/userdata_v7/{$cacheSubDir}/{$cacheSubSubDir}/{$id}";
 	}
 
 	//endregion

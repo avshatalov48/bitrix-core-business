@@ -1629,20 +1629,11 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "editSpacesPost",
 	    value: function editSpacesPost(postId, groupId) {
-	      if (main_core.Type.isUndefined(window.listPostForms)) {
-	        window.listPostForms = new Map();
-	      }
-	      if (window.listPostForms.has(postId)) {
-	        var postForm = window.listPostForms.get(postId);
-	        postForm.show();
-	      } else {
-	        var _postForm = new socialnetwork_postForm.PostForm({
-	          postId: postId,
-	          groupId: groupId
-	        });
-	        window.listPostForms.set(postId, _postForm);
-	        _postForm.show();
-	      }
+	      var postForm = new socialnetwork_postForm.PostForm({
+	        postId: postId,
+	        groupId: groupId
+	      });
+	      postForm.show();
 	    }
 	  }]);
 	  return Post$$1;
@@ -2898,6 +2889,7 @@ this.BX = this.BX || {};
 	    this.entryData = {};
 	    this.feedInitialized = false;
 	    this.moreButtonDataList = new Map();
+	    this.currentScrollPosition = 0;
 	  }
 	  babelHelpers.createClass(Feed, [{
 	    key: "initOnce",
@@ -2955,6 +2947,27 @@ this.BX = this.BX || {};
 	      if (noTasksNotificationReadButton) {
 	        main_core.Event.bind(noTasksNotificationReadButton, 'click', this.setNoTasksNotificationRead.bind(this));
 	      }
+	      main_core.Event.bind(document, 'fullscreenchange', this.handleFullScreenChange.bind(this));
+	      main_core.Event.bind(document, 'scroll', this.handleScrollChange.bind(this));
+	    }
+	  }, {
+	    key: "handleFullScreenChange",
+	    value: function handleFullScreenChange() {
+	      if (!this.getFullScreenElement()) {
+	        window.scrollTo(0, this.currentScrollPosition);
+	      }
+	    }
+	  }, {
+	    key: "handleScrollChange",
+	    value: function handleScrollChange() {
+	      if (!this.getFullScreenElement()) {
+	        this.currentScrollPosition = window.scrollY;
+	      }
+	    }
+	  }, {
+	    key: "getFullScreenElement",
+	    value: function getFullScreenElement() {
+	      return document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement || document.msFullscreenElement || null;
 	    }
 	  }, {
 	    key: "init",

@@ -29,6 +29,11 @@ class OpenLineLiveChat extends EntityChat
 		return;
 	}
 
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return true;
+	}
+
 	protected function getDefaultEntityType(): string
 	{
 		return self::ENTITY_TYPE_LIVECHAT;

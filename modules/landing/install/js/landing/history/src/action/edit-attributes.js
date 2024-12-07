@@ -30,8 +30,8 @@ export default function editAttributes(entry)
 							[entry.params.selector]: {
 								attrs: {
 									[entry.params.attribute]: entry.params.value,
-								}
-							}
+								},
+							},
 						});
 					})
 					.then(highlight.bind(null, block.node, false, false))

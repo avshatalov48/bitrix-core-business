@@ -29,7 +29,7 @@ class ReplayedMessageCollection extends MessageCollection
 		return new PopupData([
 			new UserPopupItem($this->getUserIds()),
 			new FilePopupItem($this->getFiles()),
-			new ReminderPopupItem($this->getReminders())
+			//new ReminderPopupItem($this->getReminders())
 		], $excludedList);
 	}
 

@@ -91,7 +91,7 @@ if($arParams["arUserField"]["MULTIPLE"] == "Y"):
 <?
 endif; //multiple
 ?>
-<script type="text/javascript">
+<script>
 	BX.addCustomEvent('onAutoSaveRestore',
 	function(ob, data)
 	{

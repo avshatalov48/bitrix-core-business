@@ -1,7 +1,6 @@
-<?
-use Bitrix\Main\Localization\Loc;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
 
 class CCatalogActionCtrlBasketProductFields extends CCatalogCondCtrlIBlockFields
 {

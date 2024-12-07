@@ -28,7 +28,7 @@ if (\Bitrix\Main\Loader::includeModule('intranet'))
 </div>
 
 
-<script type="text/javascript">
+<script>
 	BX.message({
 		'VISUALCONSTRUCTOR_DASHBOARD_GO_TO_DEFAULT': "<?=\Bitrix\Main\Localization\Loc::getMessage('VISUALCONSTRUCTOR_DASHBOARD_GO_TO_DEFAULT')?>"
 	});

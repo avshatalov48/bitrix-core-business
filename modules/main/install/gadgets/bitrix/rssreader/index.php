@@ -1,6 +1,10 @@
 <?php
+
+use Bitrix\Main\Web\Json;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
-CUtil::InitJSCore(array());
+
+CUtil::InitJSCore();
 
 global $APPLICATION;
 
@@ -11,7 +15,7 @@ $idAttr = preg_replace('/[^a-z0-9\\-_]/i', '_', $id);
 ?>
 <div id="rss_container_<?=$idAttr?>">
 </div>
-<script type="text/javascript">
+<script>
 
 	lastWaitRSS = [];
 
@@ -81,7 +85,7 @@ $idAttr = preg_replace('/[^a-z0-9\\-_]/i', '_', $id);
 		var url = '/bitrix/gadgets/bitrix/rssreader/getdata.php';
 		var params = {
 			'id': '<?=CUtil::JSEscape($id)?>',
-			'params': <?=CUtil::PhpToJSObject(BXGadget::getDesktopParams($arParams))?>,
+			'params': <?= Json::encode(BXGadget::getDesktopParams($arParams)) ?>,
 			'lang': '<?=LANGUAGE_ID?>',
 			'sessid': BX.bitrix_sessid()
 		};

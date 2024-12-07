@@ -11,7 +11,6 @@
 	top: 5px;
 	transform: translate(-100%, 14px);
 	max-width: 42px; /* sync this value (+margin) with minLabelWidth in dialog.js */
-	transition: max-width 300ms ease;
 }
 
 /* Chrome sub-pixel bug */
@@ -26,11 +25,14 @@
     right: -1px;
 }
 
+
 .ui-selector-tab-labels--animate-show {
+	transition: max-width 300ms ease;
 	transition-delay: 500ms;
 }
 
 .ui-selector-tab-labels--animate-hide {
+	transition: max-width 300ms ease;
 	transition-delay: 100ms;
 }
 

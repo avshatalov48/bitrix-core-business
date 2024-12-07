@@ -252,11 +252,7 @@ BX.ready(function(){
 
 	window["SBPC"] = {
 		form : BX('<?=$formParams["FORM_ID"]?>'),
-		actionUrl : '<?=(
-			$arParams["SEF"] === "Y"
-				? '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL='.str_replace("%23", "#", urlencode($arResult["urlToPost"]))
-				: CUtil::JSEscape($arResult["urlToPost"])
-		)?>',
+		actionUrl : '<?= CUtil::JSEscape($arResult["urlToPost"]) ?>',
 		editorId : '<?=$formParams["LHE"]["id"]?>',
 
 		jsMPFName : 'PlEditor<?=$formParams["FORM_ID"]?>'

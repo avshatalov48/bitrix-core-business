@@ -67,7 +67,7 @@ $productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
 					</div>
 					<?php
 				}
-				elseif (!empty($createUrl))
+				elseif (!empty($createUrl) && !$arResult['IS_EXTERNAL_CATALOG'])
 				{
 					?>
 					<a class="ui-btn ui-btn-light-border"
@@ -137,7 +137,7 @@ $productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
 					</div>
 					<?php
 				}
-				elseif (!empty($createUrl))
+				elseif (!empty($createUrl) && !$arResult['IS_EXTERNAL_CATALOG'])
 				{
 					?>
 					<a class="ui-btn ui-btn-light-border"
@@ -167,23 +167,46 @@ $productListConfig['hiddenFields'] = $arResult['HIDDEN_FIELDS'];
 		<?php
 	}
 	?>
+
+	<?php
+		function formatTotalAmount(float $total, string $currencyId, string $fieldName): string
+		{
+			$formattedValue =
+				'<span class="catalog-document-product-list-result-grid-total-sum" data-total="' . $fieldName . '">'
+				. \CCurrencyLang::CurrencyFormat($total, $currencyId, false)
+				. '</span>'
+			;
+
+			return \CCurrencyLang::getPriceControl($formattedValue, $currencyId);
+		}
+
+	?>
+
 	<div class="catalog-document-total-wrapper catalog-document-product-list-page-content">
 		<div class="catalog-document-product-list-result-container" id="<?=$settings['TOTAL_SUM_CONTAINER_ID']?>">
 			<table class="catalog-document-product-list-payment-side-table">
+				<?php if ($settings['IS_DISPLAY_TOTAL_SUM_DETAILS']): ?>
+					<tr class="catalog-document-product-list-payment-side-table-row">
+						<td><?=Loc::getMessage('CATALOG_PRODUCT_SUM_TOTAL_BEFORE_TAX')?>:</td>
+						<td class="catalog-document-product-list-result-grid-total">
+							<?= formatTotalAmount($arResult['TOTAL_SUM_BEFORE_TAX'], $currency['ID'], 'totalBeforeTax') ?>
+						</td>
+					</tr>
+					<tr class="catalog-document-product-list-payment-side-table-row">
+						<td class="catalog-document-product-list-payment-side-table-td-border">
+							<?=Loc::getMessage('CATALOG_PRODUCT_SUM_TOTAL_TAX')?>:
+						</td>
+						<td class="catalog-document-product-list-payment-side-table-td-border catalog-document-product-list-result-grid-total">
+							<?= formatTotalAmount($arResult['TOTAL_TAX'], $currency['ID'], 'totalTax') ?>
+						</td>
+					</tr>
+				<?php endif; ?>
 				<tr class="catalog-document-product-list-payment-side-table-row">
 					<td class="catalog-document-product-list-result-grid-total-big">
 						<?=Loc::getMessage('CATALOG_PRODUCT_SUM_TOTAL')?>:
 					</td>
 					<td class="catalog-document-product-list-result-grid-total catalog-document-product-list-result-grid-total-big">
-					<?php
-						$formattedValue =
-							'<span data-total="totalCost" class="catalog-document-product-list-result-grid-total-sum">'
-							. \CCurrencyLang::CurrencyFormat($arResult['TOTAL_SUM'],  $currency['ID'], false)
-							. '</span>'
-						;
-
-						echo \CCurrencyLang::getPriceControl($formattedValue, $currency['ID']);
-					?>
+						<?= formatTotalAmount($arResult['TOTAL_SUM'], $currency['ID'], 'totalCost') ?>
 					</td>
 				</tr>
 			</table>

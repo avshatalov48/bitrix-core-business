@@ -19,17 +19,19 @@ export class PageObject
 		return PageObject.instance;
 	}
 
-	static getRootWindow(): ?Window
+	static getRootWindow(): Window
 	{
 		return this.cache.remember('rootWindow', () => {
-			if (document.body.querySelector('.landing-ui-view'))
+			const frames = window.top.frames;
+			for (let i = frames.length - 1; i >= 0; i--)
 			{
-				return window;
-			}
-
-			if (window.parent.document.body.querySelector('.landing-ui-view'))
-			{
-				return window.parent;
+				try
+				{
+					if (frames[i].document.body && frames[i].document.body.querySelector('.landing-ui-view'))
+					{
+						return frames[i];
+					}
+				} catch (e) {}
 			}
 
 			return window.top;

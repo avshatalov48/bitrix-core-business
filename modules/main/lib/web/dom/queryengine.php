@@ -137,7 +137,7 @@ abstract class QueryEngine
 
 									case self::FILTER_OPERATION_END:
 
-										if(mb_substr($attrValue, -mb_strlen($operationValue)) !== $operationValue)
+										if(!str_ends_with($attrValue, $operationValue))
 										{
 											return false;
 										}
@@ -145,7 +145,7 @@ abstract class QueryEngine
 
 									case self::FILTER_OPERATION_START:
 
-										if(mb_strpos($attrValue, $operationValue) !== 0)
+										if(!str_starts_with($attrValue, $operationValue))
 										{
 											return false;
 										}

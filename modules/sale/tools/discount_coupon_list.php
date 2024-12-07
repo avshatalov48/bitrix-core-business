@@ -20,7 +20,6 @@ $selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/
 if ($prologAbsent)
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
-	CUtil::JSPostUnescape();
 	Loader::includeModule('sale');
 
 	$discountID = 0;
@@ -555,7 +554,7 @@ if (!$couponsReadOnly)
 }
 if (!isset($_REQUEST["mode"]) || ($_REQUEST["mode"] != 'excel' && $_REQUEST["mode"] != 'subsettings'))
 {
-	?><script type="text/javascript">
+	?><script>
 	function ShowNewCoupons(id, multi)
 	{
 		var PostParams = {

@@ -44,7 +44,6 @@ $subPropValue = (int)$request->get('subPropValue');
 $subTmpId = (int)$request->get('subTmpId');
 $iBlockId = (int)$request->get('iBlockId');
 $arSKUInfo = CCatalogSku::GetInfoByOfferIBlock($subIBlockId);
-CUtil::decodeURIComponent($_POST['PRODUCT_NAME']);
 $parentProductName = trim($_POST['PRODUCT_NAME']);
 
 $useStoreControl = Catalog\Config\State::isUsedInventoryManagement();
@@ -123,7 +122,7 @@ CURRENCYCELL;
 function __showPopup($element_id, $items)
 {
 	echo
-		'<script type="text/javascript">
+		'<script>
 			var currentWindow = top.window;
 			if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 			{
@@ -371,10 +370,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $elementAdd && check_bitrix_sessid()
 	if ($request->getPost('AJAX_MODE') === 'Y')
 	{
 		$APPLICATION->RestartBuffer();
-		foreach($arPropertyValue as &$value)
-			foreach($value as &$value2)
-				if(!defined("BX_UTF"))
-					$value2 = CharsetConverter::ConvertCharset($value2, "utf-8", LANG_CHARSET);
 
 		echo CUtil::PhpToJSObject(array($arPropertyValue));
 		exit;
@@ -572,7 +567,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && $elementAdd && check_bitrix_sessid()
 		if($idNewElement)
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				var currentWindow = top.window;
 				if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 				{
@@ -668,7 +663,7 @@ else
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?>
-<script type="text/javascript">
+<script>
 	BX('edit_edit_table').className += ' adm-shop-page-table';
 
 	var CellTPL = [];
@@ -894,7 +889,7 @@ else
 			<div class="adm-detail-title-view-tab"><?= GetMessage("IB_SEG_SELECTED_PROPERTIES") ?></div>
 			<input type="hidden" value="0" id="generator_property_table_max_id">
 			<div class="adm-shop-table-block" id="generator_property_table">
-				<script type="text/javascript">
+				<script>
 					<?php
 					foreach($arResult as $key => $arProperty)
 					{
@@ -929,7 +924,7 @@ else
 					?>
 					<span class="adm-btn" onclick="obPropertyTable.addPropertyImages();" id="ib_seg_add_images_button"><?= GetMessage("IB_SEG_ADD_PICTURES") ?></span>
 						<span class="adm-shop-bar-btn-wrap" id="ib_seg_property_span">
-							<script type="text/javascript">
+							<script>
 								addProperty(<?=CUtil::PhpToJSObject($arFileProperties)?>);
 							</script>
 						</span>

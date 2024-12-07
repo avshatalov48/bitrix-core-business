@@ -11,7 +11,7 @@ class Context
 	/**
 	 * Provides the user context for the action.
 	 * If it is null the current user will be used.
-	 * @param int|User|null $contextUser
+	 * @param int|User|\Bitrix\Im\User|null $contextUser
 	 */
 	public function setUser($contextUser): self
 	{
@@ -20,6 +20,10 @@ class Context
 			$this->setUserId((int)$contextUser);
 		}
 		elseif ($contextUser instanceof User)
+		{
+			$this->setUserId($contextUser->getId());
+		}
+		elseif ($contextUser instanceof \Bitrix\Im\User)
 		{
 			$this->setUserId($contextUser->getId());
 		}

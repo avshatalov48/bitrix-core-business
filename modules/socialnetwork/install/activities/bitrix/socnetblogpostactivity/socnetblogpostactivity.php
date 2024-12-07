@@ -94,7 +94,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 		{
 			$micro = 'Y';
 			$title = trim(preg_replace(
-				["/\n+/is" . BX_UTF_PCRE_MODIFIER, '/\s+/is' . BX_UTF_PCRE_MODIFIER],
+				["/\n+/isu", '/\s+/isu'],
 				' ',
 				blogTextParser::killAllTags($this->PostMessage)
 			));
@@ -167,7 +167,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 			if (class_exists(\Bitrix\Disk\Integration\Bizproc\File::class))
 			{
-				$this->attachFiles($newId);
+				$this->attachFiles($newId, $ownerId);
 			}
 			$this->addTags($postFields);
 
@@ -216,7 +216,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 		return CBPActivityExecutionStatus::Closed;
 	}
 
-	private function attachFiles(int $postId)
+	private function attachFiles(int $postId, int $ownerId)
 	{
 		if (!\Bitrix\Main\Loader::includeModule('disk'))
 		{
@@ -246,6 +246,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 			[
 				'HAS_PROPS' => 'Y',
 				'UF_BLOG_POST_FILE' => $fileIds,
+				'AUTHOR_ID' => $ownerId,
 			]
 		);
 	}
@@ -751,16 +752,16 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 			&& class_exists(\Bitrix\Disk\Integration\Bizproc\File::class)
 		) {
 			$map['AttachmentType'] = [
-				'Name' => Loc::getMessage('SNBPA_POST_ATTACHMENT_TYPE'),
+				'Name' => Loc::getMessage('SNBPA_POST_ATTACHMENT_TYPE_1'),
 				'FieldName' => 'attachment_type',
 				'Type' => \Bitrix\Bizproc\FieldType::SELECT,
 				'Options' => [
-					static::ATTACHMENT_TYPE_FILE => Loc::getMessage('SNBPA_ATTACHMENT_FILE'),
+					static::ATTACHMENT_TYPE_FILE => Loc::getMessage('SNBPA_ATTACHMENT_FILE_1'),
 					static::ATTACHMENT_TYPE_DISK => Loc::getMessage('SNBPA_ATTACHMENT_DISK'),
 				],
 			];
 			$map['Attachment'] = [
-				'Name' => Loc::getMessage('SNBPA_POST_ATTACHMENT'),
+				'Name' => Loc::getMessage('SNBPA_POST_ATTACHMENT_1'),
 				'FieldName' => 'attachment',
 				'Type' => \Bitrix\Bizproc\FieldType::FILE,
 				'Multiple' => true,
@@ -772,7 +773,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 	private function logDebug($title, $ownerId, $usersTo)
 	{
-		if (!method_exists($this, 'getDebugInfo'))
+		if (!$this->workflow->isDebug())
 		{
 			return;
 		}
@@ -791,7 +792,7 @@ class CBPSocnetBlogPostActivity extends CBPActivity
 
 	private function logDebugPost($url)
 	{
-		if (!method_exists($this, 'getDebugInfo'))
+		if (!$this->workflow->isDebug())
 		{
 			return;
 		}

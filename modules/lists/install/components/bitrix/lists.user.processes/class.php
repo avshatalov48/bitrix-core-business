@@ -106,16 +106,32 @@ class ListsSelectElementComponent extends CBitrixComponent
 		$this->arResult['DATA'] = [];
 		$this->arResult['COMMENTS_COUNT'] = [];
 
+		$pageNavigation = new \Bitrix\Main\UI\PageNavigation($this->arResult['GRID_ID']);
+		$pageNavigation->setPageSize($gridOptions->getNavParams()['nPageSize']);
+		$pageNavigation->initFromUri();
+
 		$elementObject = CIBlockElement::getList(
 			$gridSort['sort'],
 			$filter,
 			false,
-			$gridOptions->getNavParams(),
+			[
+				'nOffset' => $pageNavigation->getOffset(),
+				'nTopCount' => $pageNavigation->getLimit() + 1,
+			],
 			$selectFields
 		);
+
+		$pageNavigation->allowAllRecords(false);
+		$pageNavigation->setRecordCount($pageNavigation->getOffset() + $elementObject->AffectedRowsCount());
+
 		$path = rtrim(SITE_DIR, '/');
 		while ($element = $elementObject->fetch())
 		{
+			if (array_key_last($this->arResult['DATA']) + 1 >= $pageNavigation->getLimit())
+			{
+				break;
+			}
+
 			$documentState = $this->getActualElementState(
 				BizprocDocument::getDocumentComplexId($iblockTypeId, $element['ID'])
 			);
@@ -161,17 +177,8 @@ class ListsSelectElementComponent extends CBitrixComponent
 
 		$this->arResult['COUNTERS'] = ['all' => 0];
 
-		$this->arResult['NAV_OBJECT'] = $elementObject;
-		$componentObject = null;
-		$this->arResult['GRID_ENABLE_NEXT_PAGE'] = ($elementObject->PAGEN < $elementObject->NavPageCount);
-		$this->arResult['NAV_STRING'] = $elementObject->getPageNavStringEx(
-			$componentObject,
-			'',
-			'grid',
-			false,
-			null,
-			$gridOptions->getNavParams()
-		);
+		$this->arResult['NAV_OBJECT'] = $pageNavigation;
+
 		$this->arResult['GRID_PAGE_SIZES'] = [
 			['NAME' => '5', 'VALUE' => '5'],
 			['NAME' => '10', 'VALUE' => '10'],

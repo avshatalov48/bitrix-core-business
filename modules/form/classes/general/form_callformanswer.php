@@ -2,17 +2,9 @@
 
 class CAllFormAnswer
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormAnswer<br>File: ".__FILE__;
-	}
-
 	public static function Copy($ID, $NEW_QUESTION_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Copy<br>Line: ";
 		$ID = intval($ID);
 		$NEW_QUESTION_ID = intval($NEW_QUESTION_ID);
 		$rsAnswer = CFormAnswer::GetByID($ID);
@@ -39,11 +31,10 @@ class CAllFormAnswer
 	public static function Delete($ID, $QUESTION_ID=false)
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Delete<br>Line: ";
 		$ID = intval($ID);
-		$DB->Query("DELETE FROM b_form_answer WHERE ID='".$ID."'", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_form_answer WHERE ID='".$ID."'");
 		if (intval($QUESTION_ID)>0) $str = " FIELD_ID = ".intval($QUESTION_ID)." and ";
-		$DB->Query("DELETE FROM b_form_result_answer WHERE ".$str." ANSWER_ID='".$ID."'", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_form_result_answer WHERE ".$str." ANSWER_ID='".$ID."'");
 		return true;
 	}
 
@@ -72,7 +63,6 @@ class CAllFormAnswer
 
 	public static function GetList($QUESTION_ID, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
 		$QUESTION_ID = intval($QUESTION_ID);
 		$arSqlSearch = Array();
@@ -156,14 +146,13 @@ class CAllFormAnswer
 			$strSqlOrder
 			";
 		//echo "<pre>$strSql</pre>";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $strError;
 		$ID = intval($ID);
 		$strSql = "
@@ -186,18 +175,17 @@ class CAllFormAnswer
 				ID='$ID'
 			";
 		//echo $strSql;
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function CheckFields($arFields, $ANSWER_ID=false)
 	{
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: CheckFields<br>Line: ";
-		global $DB, $strError, $APPLICATION, $USER;
+		global $strError;
 		$str = "";
 		$ANSWER_ID = intval($ANSWER_ID);
 
-		if (intval($arFields["QUESTION_ID"])>0) $arFields["FIELD_ID"] = $arFields["QUESTION_ID"];
+		if (intval($arFields["QUESTION_ID"] ?? 0) > 0) $arFields["FIELD_ID"] = $arFields["QUESTION_ID"];
 		else $arFields["QUESTION_ID"] = $arFields["FIELD_ID"];
 
 		if ($ANSWER_ID<=0 && intval($arFields["QUESTION_ID"])<=0)
@@ -216,8 +204,7 @@ class CAllFormAnswer
 
 	public static function Set($arFields, $ANSWER_ID=false)
 	{
-		$err_mess = (CAllFormAnswer::err_mess())."<br>Function: Set<br>Line: ";
-		global $DB, $USER, $strError, $APPLICATION;
+		global $DB;
 
 		$ANSWER_ID = intval($ANSWER_ID);
 
@@ -253,13 +240,12 @@ class CAllFormAnswer
 
 			if ($ANSWER_ID>0)
 			{
-				$DB->Update("b_form_answer", $arFields_i, "WHERE ID='".$ANSWER_ID."'", $err_mess.__LINE__);
+				$DB->Update("b_form_answer", $arFields_i, "WHERE ID='".$ANSWER_ID."'");
 
 				$arFields_u = array();
 				$arFields_u["ANSWER_TEXT"] = $arFields_i["MESSAGE"];
 				$arFields_u["ANSWER_VALUE"] = $arFields_i["VALUE"];
-				if (intval($CURRENT_FIELD_ID)>0) $str = " FIELD_ID = ".intval($CURRENT_FIELD_ID)." and ";
-				$DB->Update("b_form_result_answer", $arFields_u, "WHERE ".$str." ANSWER_ID='".$ANSWER_ID."'", $err_mess.__LINE__);
+				$DB->Update("b_form_result_answer", $arFields_u, "WHERE ANSWER_ID='".$ANSWER_ID."'");
 			}
 			else
 			{
@@ -268,7 +254,7 @@ class CAllFormAnswer
 
 				$arFields_i["FIELD_ID"] = "'".intval($arFields["QUESTION_ID"])."'";
 
-				$ANSWER_ID = $DB->Insert("b_form_answer", $arFields_i, $err_mess.__LINE__);
+				$ANSWER_ID = $DB->Insert("b_form_answer", $arFields_i);
 				$ANSWER_ID = intval($ANSWER_ID);
 			}
 			return $ANSWER_ID;

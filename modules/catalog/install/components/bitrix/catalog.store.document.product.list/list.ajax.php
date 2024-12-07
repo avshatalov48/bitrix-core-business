@@ -3,8 +3,6 @@
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
 
@@ -38,11 +36,9 @@ if (
 
 global $APPLICATION;
 $APPLICATION->ShowAjaxHead();
-CUtil::JSPostUnescape();
 
 $componentName = 'bitrix:catalog.store.document.product.list';
 $request = Context::getCurrent()->getRequest();
-$request->addFilter(new PostDecodeFilter);
 
 $params = [];
 

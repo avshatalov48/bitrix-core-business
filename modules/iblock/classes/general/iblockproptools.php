@@ -245,6 +245,7 @@ class CIBlockPropertyTools
 				'ACTIVE' => 'Y',
 				'SORT' => 500,
 				'MULTIPLE' => 'N',
+				'IS_REQIRED' => 'N',
 				'USER_TYPE' => null,
 			];
 			if (!empty($fields))

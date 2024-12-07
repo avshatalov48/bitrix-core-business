@@ -28,7 +28,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 
 if($res !== false):
 ?>
-<script type="text/javascript">
+<script>
 	if (!window.parent.window.result)
 		window.parent.window.result = new Array();
 	window.parent.window.result['done'] = true;

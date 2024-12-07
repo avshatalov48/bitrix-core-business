@@ -65,7 +65,7 @@ class BizprocWorkflowEditAjaxController extends Main\Engine\Controller
 		$response->setStatus('200 OK');
 		$response->addHeader('Content-Type', 'application/force-download; name="bp-'.$templateId.'.bpt"');
 		$response->addHeader('Content-Transfer-Encoding', 'binary');
-		$response->addHeader('Content-Length', Main\Text\BinaryString::getLength($datum));
+		$response->addHeader('Content-Length', strlen($datum));
 		$response->addHeader('Content-Disposition', "attachment; filename=\"bp-".$templateId.".bpt\"");
 		$response->addHeader('Cache-Control', "must-revalidate, post-check=0, pre-check=0");
 		$response->addHeader('Expires', "0");
@@ -88,7 +88,7 @@ class BizprocWorkflowEditAjaxController extends Main\Engine\Controller
 		$serializedUserParams = serialize($userParams);
 
 		$maxLength = 16777215;//pow(2, 24) - 1; //mysql mediumtext column length
-		if (Main\Text\BinaryString::getLength($serializedUserParams) > $maxLength)
+		if (strlen($serializedUserParams) > $maxLength)
 		{
 			return AjaxJson::createError(new Main\ErrorCollection([
 				new Main\Error(Main\Localization\Loc::getMessage('BIZPROC_USER_PARAMS_SAVE_ERROR'))

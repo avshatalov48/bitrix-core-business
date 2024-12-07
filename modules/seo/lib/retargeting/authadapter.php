@@ -81,7 +81,14 @@ class AuthAdapter
 	{
 		if (!SeoService::isRegistered())
 		{
-			SeoService::register();
+			try
+			{
+				SeoService::register();
+			}
+			catch (SystemException $e)
+			{
+				return '';
+			}
 		}
 
 		$authorizeData = SeoService::getAuthorizeData(

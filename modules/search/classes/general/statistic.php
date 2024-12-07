@@ -11,7 +11,7 @@ class CSearchStatistic
 
 	function __construct($phrase = "", $tags = "")
 	{
-		$phrase = ToLower(trim($phrase, " \t\n\r"));
+		$phrase = mb_strtolower(trim($phrase, " \t\n\r"));
 		if ($l = mb_strlen($phrase))
 		{
 			if ($l > 250)
@@ -259,7 +259,7 @@ class CSearchStatistic
 			";
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function CleanUpAgent()

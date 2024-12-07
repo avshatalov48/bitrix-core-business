@@ -8,6 +8,7 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Localization;
 use Bitrix\Sale\Basket\RefreshFactory;
 use Bitrix\Sale\Internals;
@@ -251,6 +252,7 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	{
 		return [
 			'PRICE' => 'PRICE',
+			'BASE_PRICE' => 'BASE_PRICE',
 			'VAT_INCLUDED' => 'VAT_INCLUDED',
 			'VAT_RATE' => 'VAT_RATE'
 		];
@@ -897,16 +899,25 @@ abstract class BasketItemBase extends Internals\CollectableEntity
 	 * @return float|int
 	 * @throws Main\ArgumentNullException
 	 */
-	public function getVat()
+	public function getVat(): float|int
+	{
+		return PriceMaths::roundPrecision($this->getVatUnit() * $this->getQuantity());
+	}
+
+	/**
+	 * @param bool $withRound
+	 * @return float|int
+	 * @throws ArgumentNullException
+	 */
+	public function getVatUnit(bool $withRound = true): float|int
 	{
 		$calculator = new VatCalculator((float)$this->getVatRate());
-		$vat = $calculator->calc(
+
+		return $calculator->calc(
 			$this->getPrice(),
 			$this->isVatInPrice(),
-			false
+			$withRound
 		);
-
-		return PriceMaths::roundPrecision($vat * $this->getQuantity());
 	}
 
 	/**

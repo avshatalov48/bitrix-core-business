@@ -126,7 +126,7 @@ export class Reminder extends EventEmitter
 					}
 				},
 				{
-					id: 'custom',
+					id: 'custom-reminder',
 					label: Loc.getMessage("EC_REMIND1_CUSTOM"),
 					dataset: {
 						mode: 'custom'
@@ -181,7 +181,7 @@ export class Reminder extends EventEmitter
 
 		this.values.forEach((item) => {
 			if (item.mode === 'time-menu'
-				|| item.mode === 'custom'
+				|| item.mode === 'custom-reminder'
 				|| !BX.util.in_array(item.value, this.selectedValues))
 			{
 				let menuItem = {};
@@ -219,9 +219,9 @@ export class Reminder extends EventEmitter
 				}
 				else if (item.dataset && item.dataset.mode === 'custom')
 				{
-					menuItem.id = 'custom';
+					menuItem.id = 'custom-reminder';
 					menuItem.text = item.label;
-					menuItem.items = [{id: 'tmp', text: 'tmp'}];
+					menuItem.items = [{ id: 'tmp', text: '' }];
 				}
 				else
 				{
@@ -512,7 +512,7 @@ export class Reminder extends EventEmitter
 				{
 					this.adjustTimeSubmenuPopup(submenuPopup);
 				}
-				else if (/^menu-popup-popup-submenu-custom$/.test(submenuPopup.getId()))
+				else if (/^menu-popup-popup-submenu-custom-reminder$/.test(submenuPopup.getId()))
 				{
 					this.adjustCalendarSubmenuPopup(submenuPopup);
 				}
@@ -531,7 +531,7 @@ export class Reminder extends EventEmitter
 				if (/^menu-popup-popup-submenu-time-menu-day-\d$/.test(submenuPopup.getId()))
 				{
 				}
-				else if (/^menu-popup-popup-submenu-custom$/.test(submenuPopup.getId()))
+				else if (/^menu-popup-popup-submenu-custom-reminder$/.test(submenuPopup.getId()))
 				{
 					let layout = submenuPopup.bindElement;
 					let textNode = layout.querySelector('.menu-popup-item-text');
@@ -588,14 +588,13 @@ export class Reminder extends EventEmitter
 				calendarControl.popup_year.destroy();
 				calendarControl.popup_year = null;
 			}
-			
 
 			calendarControl.Show({
 				node: input,
 				value: Util.formatDateTime(Util.getUsableDateTime(new Date())),
 				field: input,
 				bTime: true,
-				bHideTime: false
+				bHideTime: false,
 			});
 
 			let calendarPopup = calendarControl.popup;

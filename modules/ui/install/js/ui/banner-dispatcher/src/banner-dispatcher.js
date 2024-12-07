@@ -1,35 +1,48 @@
-import { LaunchPriority, } from 'ui.auto-launch';
+import { LaunchPriority, type LaunchItemOptions, type LaunchItemCallback } from 'ui.auto-launch';
 import { Queue } from './queue';
 
-const criticalQueue = new Queue(LaunchPriority.CRITICAL, 1);
-const highQueue = new Queue(LaunchPriority.HIGH, 5, true);
-const normalQueue = new Queue(LaunchPriority.NORMAL, 5, true);
+const criticalQueue = new Queue(LaunchPriority.CRITICAL, 0);
+const highQueue = new Queue(LaunchPriority.HIGH, 1);
+const normalQueue = new Queue(LaunchPriority.NORMAL, 1, true);
+const lowQueue = new Queue(LaunchPriority.LOW, 5, true);
 
 export const BannerDispatcher = {
 	critical: {
-		toQueue: (promise) => {
-			criticalQueue.add(promise);
-		}
+		toQueue: (callback: LaunchItemCallback, options: LaunchItemOptions = {}) => {
+			criticalQueue.add(callback, {
+				allowLaunchAfterOthers: true,
+				forceShowOnTop: true,
+				...options,
+			});
+		},
 	},
 	high: {
-		toQueue: (promise) => {
-			highQueue.add(promise);
-		}
+		toQueue: (callback: LaunchItemCallback, options: LaunchItemOptions = {}) => {
+			highQueue.add(callback, {
+				allowLaunchAfterOthers: true,
+				...options,
+			});
+		},
 	},
 	normal: {
-		toQueue: (promise) => {
-			normalQueue.add(promise);
-		}
+		toQueue: (callback: LaunchItemCallback, options: LaunchItemOptions = {}) => {
+			normalQueue.add(callback, options);
+		},
+	},
+	low: {
+		toQueue: (callback: LaunchItemCallback, options: LaunchItemOptions = {}) => {
+			lowQueue.add(callback, options);
+		},
 	},
 
-	toQueue: (promise) => {
-		normalQueue.add(promise);
+	toQueue: (callback: LaunchItemCallback, options: LaunchItemOptions = {}) => {
+		normalQueue.add(callback, options);
 	},
 
 	only(priorityList: Array<LaunchPriority>)
 	{
 		const priorityValues = Object.values(LaunchPriority);
-		priorityValues.filter((priorityValue) => {
+		priorityValues.forEach((priorityValue) => {
 			if (!priorityList.includes(priorityValue))
 			{
 				switch (priorityValue)
@@ -43,8 +56,11 @@ export const BannerDispatcher = {
 					case LaunchPriority.NORMAL:
 						normalQueue.stop();
 						break;
+					case LaunchPriority.LOW:
+						lowQueue.stop();
+						break;
 				}
 			}
 		});
-	}
+	},
 };

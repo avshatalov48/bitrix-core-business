@@ -17,7 +17,7 @@ abstract class DiscussionsFilter
 {
 	private int $groupId;
 	private const LIVEFEED_CODE = 'LIVEFEED';
-	public const POPUP_OFFSET_LEFT = 13;
+	public const POPUP_OFFSET_LEFT = 0;
 
 	public function __construct(?int $groupId)
 	{

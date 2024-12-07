@@ -168,7 +168,7 @@ if(!empty($errors))
 	CAdminMessage::ShowMessage(join("\n", $errors));
 }
 ?>
-<script type="text/javascript">
+<script>
 window.bxCurrentControl = null;
 function PutString(str)
 {

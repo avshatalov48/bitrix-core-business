@@ -59,9 +59,6 @@ class Request
 		$http->setHeader("Content-Type", "application/json; charset=utf-8");
 		$http->setHeader("Authorization", "Basic ".base64_encode($this->apiLogin.":".$this->apiKey));
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$data = $APPLICATION->ConvertCharsetArray($data, SITE_CHARSET, 'utf-8');
-
 		$jsonData = json_encode($data);
 		$result = $http->post($this->constructApiUrl($controller, $action), $jsonData);
 		$errors = $http->getError();
@@ -87,9 +84,6 @@ class Request
 			$resData = $http->getResult();
 
 			$decodedResult = json_decode($resData, $assoc);
-
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$decodedResult = $APPLICATION->ConvertCharsetArray($decodedResult, 'utf-8', SITE_CHARSET);
 		}
 
 		return $decodedResult;

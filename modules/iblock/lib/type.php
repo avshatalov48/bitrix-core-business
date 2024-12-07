@@ -169,6 +169,11 @@ class TypeTable extends ORM\Data\DataManager
 		$result = TypeLanguageTable::deleteByIblockTypeId($id["ID"]);
 	}
 
+	/**
+	 * Clean legacy cache for \CIBlockType.
+	 *
+	 * @return void
+	 */
 	public static function cleanCache(): void
 	{
 		parent::cleanCache();
@@ -176,7 +181,9 @@ class TypeTable extends ORM\Data\DataManager
 		$application = Main\Application::getInstance();
 		$managedCache = $application->getManagedCache();
 		$managedCache->cleanDir(self::getTableName());
-		unset($managedCache);
-		unset($application);
+		unset(
+			$managedCache,
+			$application,
+		);
 	}
 }

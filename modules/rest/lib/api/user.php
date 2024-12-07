@@ -615,7 +615,6 @@ class User extends \IRestService
 		)
 		{
 			$filteredUserIDs = \CExtranet::getMyGroupsUsersSimple(\CExtranet::getExtranetSiteID());
-			$filteredUserIDs[] = $USER->getID();
 
 			if (\CExtranet::isIntranetUser())
 			{
@@ -625,15 +624,26 @@ class User extends \IRestService
 					|| !\CSocNetUser::IsCurrentUserModuleAdmin(\CSite::getDefSite(), false)
 				)
 				{
-					$filter[] = array(
-						'LOGIC' => 'OR',
-						'!UF_DEPARTMENT' => false,
-						'ID' => $filteredUserIDs
-					);
+					if (!empty($filteredUserIDs))
+					{
+						$filter[] = [
+							'LOGIC' => 'OR',
+							'!UF_DEPARTMENT' => false,
+							'ID' => $filteredUserIDs
+						];
+					}
+					else
+					{
+						$filter[] = [
+							'LOGIC' => 'AND',
+							'!UF_DEPARTMENT' => false,
+						];
+					}
 				}
 			}
 			else
 			{
+				$filteredUserIDs[] = $USER->getId();
 				$filter["ID"] = (isset($filter["ID"]) ? array_intersect((is_array($filter["ID"]) ? $filter["ID"] : array($filter["ID"])), $filteredUserIDs) : $filteredUserIDs);
 			}
 		}

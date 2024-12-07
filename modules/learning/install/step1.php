@@ -4,7 +4,7 @@
 <input type="hidden" name="id" value="learning">
 <input type="hidden" name="install" value="Y">
 <input type="hidden" name="step" value="2">
-<script type="text/javascript">
+<script>
 <!--
 function ChangeInstallPublic(val)
 {
@@ -72,7 +72,7 @@ function OnChangeSite()
 			</td>
 		</tr>
 	</table>
-	<script language="JavaScript">
+	<script>
 	<!--
 	ChangeInstallPublic(false);
 	//-->

@@ -80,7 +80,7 @@ if ($arResult)
 			?>
 			<tbody>
 				<tr>
-					<td colspan="3"><?=ShowNote(GetMessage("SPCAS1_NO_ACT"))?></td>
+					<td colspan="3"><? ShowNote(GetMessage("SPCAS1_NO_ACT"))?></td>
 				</tr>
 			</tbody>
 			<?
@@ -91,6 +91,6 @@ if ($arResult)
 }
 else
 {
-	?><?=ShowError(GetMessage("SPCAS1_UNACTIVE_AFF"))?><?
+	?><? ShowError(GetMessage("SPCAS1_UNACTIVE_AFF"))?><?
 }
 ?>

@@ -9,6 +9,7 @@
 $pageId = "group_marketplace";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 if (\Bitrix\Main\Loader::includeModule('rest'))
 {

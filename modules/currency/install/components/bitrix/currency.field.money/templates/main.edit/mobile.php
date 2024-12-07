@@ -5,19 +5,22 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Text\HtmlFilter;
+
 /**
  * @var MoneyUfComponent $component
  * @var array $arResult
+ * @var array $arParams
  */
 
 $isFirst = true;
 $nodes = [];
 
-foreach($arResult['value'] as $item)
+foreach ($arResult['value'] as $item)
 {
-	if(!$isFirst)
+	if (!$isFirst)
 	{
-		print $component->getHtmlBuilder()->getMultipleValuesSeparator();
+		echo $component->getHtmlBuilder()->getMultipleValuesSeparator();
 	}
 	$isFirst = false;
 	$nodes[] = $item['attrList']['id'];
@@ -30,15 +33,16 @@ foreach($arResult['value'] as $item)
 	>
 		<div name="<?= $item['attrList']['name'] ?>">
 			<input <?= $component->getHtmlBuilder()->buildTagAttributes($item['attrList']) ?>>
-			<input type="hidden" id="<?= $id ?>_input_currency" value="<?= $item['currentValue'] ?>">
+			<input type="hidden" id="<?= $id ?>_input_currency" value="<?= HtmlFilter::encode($item['currentValue']) ?>">
 
 			<label
 				id="<?= $id ?>_value"
 				class="text"
 			>
 				<?= (
-				$item['currentValue'] !== '' ?
-					$item['currentValue'] : $component->getEmptyValueCaption()
+					$item['currentValue'] !== ''
+						? HtmlFilter::encode($item['currentValue'])
+						: $component->getEmptyValueCaption()
 				)
 				?>
 			</label>
@@ -48,11 +52,11 @@ foreach($arResult['value'] as $item)
 				hidden
 			>
 				<?php
-				foreach($arResult['currencies'] as $currency)
+				foreach ($arResult['currencies'] as $currency)
 				{
 					?>
 					<option
-						value="<?= $currency ?>"
+						value="<?= HtmlFilter::encode($currency) ?>"
 						<?= ($currency === $item['currentCurrency'] ? 'selected ' : '') ?>
 					><?= $currency ?></option>
 					<?php
@@ -74,15 +78,14 @@ foreach($arResult['value'] as $item)
 	<?php
 }
 
-if(
+if (
 	$arResult['userField']['MULTIPLE'] === 'Y'
 	&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 )
 {
-	print $component->getHtmlBuilder()->getMobileCloneButton($arResult['fieldName']);
+	echo $component->getHtmlBuilder()->getMobileCloneButton($arResult['fieldName']);
 }
 ?>
-
 <script>
 	BX.ready(function ()
 	{
@@ -92,7 +95,7 @@ if(
 				'nodes' => $nodes,
 				'restrictedMode' => true,
 				'formId' => $arParams['additionalParameters']['formId'],
-				'gridId' => $arParams['additionalParameters']['gridId']
+				'gridId' => $arParams['additionalParameters']['gridId'],
 			])?>
 		);
 	});

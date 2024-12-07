@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Access\Rule;
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Rule\Traits\SharingTrait;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Sharing\SharingEventManager;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;

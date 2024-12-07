@@ -1,0 +1,11 @@
+.bx-im-chat-forms-sections-owner__container {
+	width: 80%;
+}
+
+.bx-im-chat-forms-sections-owner__container .ui-tag-selector-add-button-caption::before {
+	display: none;
+}
+
+.bx-im-chat-forms-sections-owner__container .ui-tag-selector-add-button-caption {
+	margin-left: 7px;
+}

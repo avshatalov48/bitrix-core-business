@@ -753,10 +753,6 @@ else
 										return;
 									}
 
-									setTimeout(function() {
-										BX.Livefeed.MoreButton.recalcPostsList();
-									}, 1000);
-
 									BX.Livefeed.FeedInstance.addMoreButton(
 										'log_entry_<?= $arEvent['EVENT']['ID'] ?>',
 										{
@@ -1088,11 +1084,6 @@ else
 									{
 										return;
 									}
-
-
-									setTimeout(function() {
-										BX.Livefeed.MoreButton.recalcPostsList();
-									}, 1000);
 
 									BX.Livefeed.FeedInstance.addMoreButton(
 										'log_entry_<?= $arEvent['EVENT']['ID'] ?>',

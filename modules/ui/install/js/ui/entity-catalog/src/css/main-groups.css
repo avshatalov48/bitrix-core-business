@@ -28,6 +28,11 @@
 	overflow-y: scroll;
 }
 
+.bx-firefox .ui-entity-catalog__main-groups-content {
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
 .ui-entity-catalog__main-groups-content::-webkit-scrollbar-track {
 	background: transparent;
 }

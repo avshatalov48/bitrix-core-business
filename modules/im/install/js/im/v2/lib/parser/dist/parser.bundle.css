@@ -63,12 +63,13 @@
 	color: var(--bx-im-message-quote__color_time);
 }
 
-.bx-im-message-quote.--with-context {
+.bx-im-message-quote:not([data-context="none"]) {
 	cursor: pointer;
 	-webkit-user-select: none;
 	        user-select: none;
 }
-.--with-context .bx-im-message-quote__text {
+
+.bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__text {
 	text-overflow: ellipsis;
 	overflow: hidden;
 	display: -webkit-box;
@@ -76,20 +77,23 @@
 	-webkit-box-orient: vertical;
 	word-break: break-word;
 }
-.--with-context .bx-im-message-quote__text pre {
+
+.bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__text pre {
 	font: var(--ui-font-size-sm) var(--im-font-family-system);
 	line-height: var(--ui-font-line-height-md);
 	margin: 0;
 	white-space: pre-wrap;
 }
-.--with-context .bx-im-message-quote__wrap::before {
-	/*border-left-color: var(--bx-im-message-quote-with-context__border-color);*/
+
+.bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__wrap::before {
 	background: var(--bx-im-message-quote-with-context__border-color);
 }
-.--with-context .bx-im-message-quote__name-text {
+
+.bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__name-text {
 	color: var(--bx-im-message-quote-with-context__color_name);
 }
-.--with-context .bx-im-message-quote__name-time {
+
+.bx-im-message-quote:not([data-context="none"]) .bx-im-message-quote__name-time {
 	display: none;
 }
 

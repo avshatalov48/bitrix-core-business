@@ -97,12 +97,12 @@ export const ChatTitle = {
 		},
 		dialogName(): string
 		{
-			let resultText = this.dialog.name;
-			if (!this.dialogId && this.text)
+			if (this.text)
 			{
-				resultText = this.text;
+				return Text.encode(this.text);
 			}
 
+			let resultText = this.dialog.name;
 			if (this.isUser)
 			{
 				if (this.onlyFirstName)
@@ -259,7 +259,7 @@ export const ChatTitle = {
 				<strong v-if="isSelfChat && showItsYou">
 					<span class="bx-im-chat-title__text --self">({{ $Bitrix.Loc.getMessage('IM_LIST_RECENT_CHAT_SELF') }})</span>
 				</strong>
-				<div v-if="withMute && isChatMuted" class="bx-im-chat-title__muted-icon"></div>
+				<span v-if="withMute && isChatMuted" class="bx-im-chat-title__muted-icon"></span>
 			</span>
 		</div>
 	`,

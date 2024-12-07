@@ -357,7 +357,7 @@ class CB24Updater
 						continue;
 					}
 
-					if (substr($dir, 0, 7) == "updater")
+					if (str_starts_with($dir, "updater"))
 					{
 						if (is_file($this->updatersDir.$moduleId."/".$dir))
 						{

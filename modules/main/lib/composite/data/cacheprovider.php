@@ -1,8 +1,6 @@
 <?
 namespace Bitrix\Main\Composite\Data;
 
-use Bitrix\Main;
-
 abstract class CacheProvider
 {
 	abstract public function isCacheable();

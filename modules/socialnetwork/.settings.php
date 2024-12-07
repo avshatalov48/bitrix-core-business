@@ -74,9 +74,23 @@ return [
 						'className' => EntitySelector\ProjectRolesProvider::class,
 					],
 				],
+				[
+					'entityId' => 'site-groups',
+					'provider' => [
+						'moduleId' => 'socialnetwork',
+						'className' => EntitySelector\SiteGroupsProvider::class,
+					],
+				],
 			],
 			'extensions' => ['socialnetwork.entity-selector'],
 		],
 		'readonly' => true,
-	]
+	],
+	'services' => [
+		'value' => [
+			'socialnetwork.group.service' => [
+				'className' => \Bitrix\Socialnetwork\Control\GroupService::class,
+			],
+		],
+	],
 ];

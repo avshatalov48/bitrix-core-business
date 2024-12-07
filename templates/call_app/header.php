@@ -22,4 +22,4 @@ $darkClass = \CIMSettings::GetSetting(CIMSettings::SETTINGS, 'isCurrentThemeDark
 	<?$APPLICATION->ShowHeadScripts();?>
 	<title><?$APPLICATION->ShowTitle()?></title>
 </head>
-<body class="<?=$APPLICATION->ShowProperty("BodyClass");?>">
+<body class="<? $APPLICATION->ShowProperty("BodyClass"); ?>">

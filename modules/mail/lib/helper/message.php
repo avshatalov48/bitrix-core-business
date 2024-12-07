@@ -13,6 +13,7 @@ use Bitrix\Main\Security;
 use Bitrix\Mail\Internals;
 use Bitrix\Mail\Helper\MessageAccess as AccessHelper;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Config\Ini;
 
 class Message
 {
@@ -599,7 +600,7 @@ class Message
 		return $validColumns;
 	}
 
-	public static function isolateSelector($matches)
+	public static function isolateSelector($matches): string
 	{
 		$head = $matches['head'];
 		$body = $matches['body'];
@@ -607,8 +608,9 @@ class Message
 		$wrapper = '#mail-message-wrapper ';
 		if(substr($head,0,1)==='@') $wrapper ='';
 		$closure = $matches['closure'];
-		$head = preg_replace('%([\.#])([a-z][-_a-z0-9]+)%msi', '$1'.$prefix.'$2', $head);
-		return $wrapper.$head.$body.$closure;
+		$head = preg_replace('%([\.#])([a-z][-_a-z0-9]+)%mi', '$1'.$prefix.'$2', $head);
+
+		return $wrapper.preg_replace('/,/', ', ' . $wrapper . ' ', $head).$body.$closure;
 	}
 
 	public static function isolateStylesInTheTag($matches)
@@ -621,7 +623,7 @@ class Message
 		$bodySelector = preg_replace($bodySelectorPattern, '$2'.$wrapper.'$4', $styles);
 		//cut off body selector
 		$styles = preg_replace($bodySelectorPattern, '$1$5', $styles);
-		$styles = preg_replace('#(^|\s)(body)\s*({)#isU', '$1mail-msg-view-body$3', $styles);
+		$styles = preg_replace('#(^|\s)(body)\s*({)#iU', '$1mail-msg-view-body$3', $styles);
 		$styles = preg_replace_callback('%(?:^|\s)(?<head>[@#\.]?[a-z].*?\{)(?<body>.*?)(?<closure>\})%msi', 'static::isolateSelector', $styles);
 		return  $openingTag.$bodySelector.$styles.$closingTag;
 	}
@@ -635,15 +637,33 @@ class Message
 
 	public static function isolateMessageStyles($messageHtml)
 	{
+		Ini::adjustPcreBacktrackLimit(strlen($messageHtml)*2);
+
 		//isolates the positioning of the element
 		$messageHtml = preg_replace('%((?:^|\s)position(?:^|\s)?:(?:^|\s)?)(absolute|fixed|inherit)%', '$1relative', $messageHtml);
+
 		//remove media queries
-		$messageHtml = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%msi', '', $messageHtml);
+		$messageHtmlAfterClearingFromMedia = preg_replace('%@media\b[^{]*({((?:[^{}]+|(?1))*)})%mi', '', $messageHtml);
+
+		/*
+		 	If due to strong nesting it was not possible to delete media,
+			then we make them invalid for the browser by deactivating them.
+		*/
+		if (is_null($messageHtmlAfterClearingFromMedia))
+		{
+			$messageHtml = preg_replace('/@media/i', '@mail-message-disabled-media', $messageHtml);
+		}
+		else
+		{
+			$messageHtml = $messageHtmlAfterClearingFromMedia;
+		}
+
 		//remove loading fonts
-		$messageHtml = preg_replace('%@font-face\b[^{]*({(?>[^{}]++|(?1))*})%msi', '', $messageHtml);
+		$messageHtml = preg_replace('%@font-face\b[^{]*({(?>[^{}]++|(?1))*})%mi', '', $messageHtml);
+
 		$messageHtml = static::isolateStylesInTheBody($messageHtml);
-		$messageHtml = preg_replace_callback('|(?<openingTag><style[^>]*>)(?<styles>.*)(?<closingTag><\/style>)|isU', 'static::isolateStylesInTheTag',$messageHtml);
-		return $messageHtml;
+
+		return preg_replace_callback('|(?<openingTag><style[^>]*>)(?<styles>.*)(?<closingTag><\/style>)|isU', 'static::isolateStylesInTheTag', $messageHtml);
 	}
 
 	public static function sanitizeHtml($html, $isolateStyles = false)

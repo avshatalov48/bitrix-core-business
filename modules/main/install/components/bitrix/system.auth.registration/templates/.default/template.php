@@ -1,10 +1,12 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -63,9 +65,9 @@ new BX.PhoneAuth({
 	errorContainerId: 'bx_register_error',
 	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
 	data:
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'signedData' => $arResult["SIGNED_DATA"],
-		])?>,
+		]) ?>,
 	onError:
 		function(response)
 		{
@@ -122,7 +124,7 @@ new BX.PhoneAuth({
 					<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
 				</span>
 				</noscript>
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </script>
 <?endif?>
@@ -225,7 +227,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 
 <p><a href="<?=$arResult["AUTH_AUTH_URL"]?>" rel="nofollow"><b><?=GetMessage("AUTH_AUTH")?></b></a></p>
 
-<script type="text/javascript">
+<script>
 document.bform.USER_NAME.focus();
 </script>
 

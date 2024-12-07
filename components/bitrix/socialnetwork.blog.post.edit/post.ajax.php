@@ -1,4 +1,5 @@
-<?
+<?php
+
 define("PUBLIC_AJAX_MODE", true);
 define("NO_KEEP_STATISTIC", "Y");
 define("NO_AGENT_STATISTIC","Y");
@@ -36,8 +37,6 @@ if (check_bitrix_sessid())
 
 		if (isset($_POST['LD_SEARCH']) && $_POST['LD_SEARCH'] == 'Y')
 		{
-			CUtil::decodeURIComponent($_POST);
-
 			echo CUtil::PhpToJsObject(Array(
 				'USERS' => CSocNetLogDestination::SearchUsers($_POST['SEARCH'], $nameTemplate, false, IsModuleInstalled("extranet")),
 			));
@@ -59,32 +58,32 @@ if (check_bitrix_sessid())
 			{
 				IncludeModuleLangFile(__FILE__);
 				global $USER;
-				$listsPerm = CListPermissions::CheckAccess($USER, COption::GetOptionString("lists", "livefeed_iblock_type_id"), false);
-				if($listsPerm < 0)
+
+				$service = \Bitrix\Lists\Api\Service\ServiceFactory\ServiceFactory::getServiceByIBlockTypeId(
+					\Bitrix\Lists\Api\Service\ServiceFactory\ProcessService::getIBlockTypeId(),
+					$USER->GetID() ?? 0
+				);
+				if (!$service)
 				{
-					switch($listsPerm)
-					{
-						case CListPermissions::WRONG_IBLOCK_TYPE:
-							echo CUtil::PhpToJsObject(Array('success' => false,'error' => GetMessage("CC_BLL_WRONG_IBLOCK_TYPE")));
-							die();
-						case CListPermissions::WRONG_IBLOCK:
-							echo CUtil::PhpToJsObject(Array('success' => false,'error' => GetMessage("CC_BLL_WRONG_IBLOCK")));
-							die();
-						case CListPermissions::LISTS_FOR_SONET_GROUP_DISABLED:
-							echo CUtil::PhpToJsObject(Array('success' => false,'error' => GetMessage("CC_BLL_LISTS_FOR_SONET_GROUP_DISABLED")));
-							die();
-						default:
-							echo CUtil::PhpToJsObject(Array('success' => false,'error' => GetMessage("CC_BLL_UNKNOWN_ERROR")));
-							die();
-					}
-				}
-				elseif($listsPerm <= CListPermissions::ACCESS_DENIED)
-				{
-					echo CUtil::PhpToJsObject(Array('success' => false,'error' => GetMessage("CC_BLL_ACCESS_DENIED")));
+					echo \Bitrix\Main\Web\Json::encode(['success' => false, 'error' => \Bitrix\Main\Localization\Loc::getMessage('CC_BLL_WRONG_IBLOCK_TYPE')]);
 					die();
 				}
 
-				$permissions = array();
+				$checkAccessResponse = $service->checkIBlockTypePermission();
+				$listsPerm = $checkAccessResponse->getPermission();
+				if (!$checkAccessResponse->isSuccess())
+				{
+					echo \Bitrix\Main\Web\Json::encode(['success' => false, 'error' => $checkAccessResponse->getErrorMessages()[0]]);
+					die();
+				}
+
+				if ($listsPerm <= CListPermissions::ACCESS_DENIED)
+				{
+					echo \Bitrix\Main\Web\Json::encode(['success' => false, 'error' => \Bitrix\Main\Localization\Loc::getMessage('CC_BLL_ACCESS_DENIED')]);
+					die();
+				}
+
+				$permissions = [];
 				$admin = false;
 				if($listsPerm >= CListPermissions::IS_ADMIN)
 				{
@@ -92,7 +91,6 @@ if (check_bitrix_sessid())
 					$permissions['market'] = GetMessage("CC_BLL_TITLE_MARKETPLACE_NEW");
 					$permissions['settings'] = GetMessage("CC_BLL_TITLE_SETTINGS");
 					$admin = true;
-
 				}
 				elseif($listsPerm >= CListPermissions::CAN_READ)
 				{
@@ -100,28 +98,34 @@ if (check_bitrix_sessid())
 					$permissions['settings'] = GetMessage("CC_BLL_TITLE_SETTINGS");
 				}
 
-				$listData = array();
-				$siteId = true;
-				if (!empty($_POST['siteId']))
-					$siteId = $_POST['siteId'];
-				$lists = CIBlock::getList(
-					array("SORT" => "ASC","NAME" => "ASC"),
-					array("ACTIVE" => "Y","TYPE" => COption::GetOptionString("lists", "livefeed_iblock_type_id"), 'SITE_ID' => $siteId)
-				);
-				while($list = $lists->fetch())
+				$listData = [];
+				$canOpenInSlider = method_exists($service, 'getAddElementLiveFeedCatalog');
+				$catalogResponse = ($canOpenInSlider ? $service->getAddElementLiveFeedCatalog() : $service->getCatalog());
+				if ($catalogResponse->isSuccess())
 				{
-					if(CLists::getLiveFeed($list['ID']))
+					foreach ($catalogResponse->getCatalog() as $list)
 					{
-						$listData[$list['ID']]['ID'] = $list['ID'];
+						if (!$canOpenInSlider && !CLists::getLiveFeed($list['ID']))
+						{
+							continue;
+						}
+
+						$data = [
+							'ID' => $list['ID'],
+							'NAME' => $list['NAME'],
+							'DESCRIPTION' => $list['DESCRIPTION'],
+							'CODE' => $list['CODE'],
+							'PICTURE' => '<img src="/bitrix/images/lists/default.png" width="36" height="30" border="0" />',
+							'PICTURE_SMALL' => '<img src="/bitrix/images/lists/default.png" width="19" height="16" border="0" />',
+							'IBLOCK_TYPE_ID' => \Bitrix\Lists\Api\Service\ServiceFactory\ProcessService::getIBlockTypeId(),
+						];
 
 						$shortName = mb_substr($list['NAME'], 0, 50);
-						if($shortName == $list['NAME'])
-							$listData[$list['ID']]['NAME'] = $list['NAME'];
-						else
-							$listData[$list['ID']]['NAME'] = $shortName.'...';
+						if ($shortName !== $list['NAME'])
+						{
+							$data['NAME'] = $shortName . '...';
+						}
 
-						$listData[$list['ID']]['DESCRIPTION'] = $list['DESCRIPTION'];
-						$listData[$list['ID']]['CODE'] = $list['CODE'];
 						if($list['PICTURE'] > 0)
 						{
 							$imageFile = CFile::GetFileArray($list['PICTURE']);
@@ -129,30 +133,29 @@ if (check_bitrix_sessid())
 							{
 								$imageFile = CFile::ResizeImageGet(
 									$imageFile,
-									array("width" => 36, "height" => 30),
+									['width' => 36, 'height' => 30],
 									BX_RESIZE_IMAGE_PROPORTIONAL,
 									false
 								);
-								$listData[$list['ID']]['PICTURE'] = '<img src="'.$imageFile["src"].'" width="36" height="30" border="0" />';
-								$listData[$list['ID']]['PICTURE_SMALL'] = '<img src="'.$imageFile["src"].'" width="19" height="16" border="0" />';
+
+								$data['PICTURE'] = '<img src="' . $imageFile["src"] . '" width="36" height="30" border="0" />';
+								$data['PICTURE_SMALL'] = '<img src="' . $imageFile["src"] . '" width="19" height="16" border="0" />';
 							}
 						}
-						else
-						{
-							$listData[$list['ID']]['PICTURE'] = '<img src="/bitrix/images/lists/default.png" width="36" height="30" border="0" />';
-							$listData[$list['ID']]['PICTURE_SMALL'] = '<img src="/bitrix/images/lists/default.png" width="19" height="16" border="0" />';
-						}
+
+						$listData[$list['ID']] = $data;
 					}
 				}
-				$listData= array_values($listData);
-				echo CUtil::PhpToJsObject(
-					array(
-						'success' => true,
-						'lists' => $listData,
-						'permissions' => $permissions,
-						'admin' => $admin
-					)
-				);
+
+				$listData = array_values($listData);
+
+				echo \Bitrix\Main\Web\Json::encode([
+					'success' => true,
+					'lists' => $listData,
+					'permissions' => $permissions,
+					'admin' => $admin,
+					'canOpenInSlider' => $canOpenInSlider,
+				]);
 			}
 			else
 			{
@@ -171,4 +174,3 @@ else
 	));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

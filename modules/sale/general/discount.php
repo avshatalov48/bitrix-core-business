@@ -1407,7 +1407,7 @@ class CAllSaleDiscount
 			'PRICE_TO',
 		);
 
-		$strAction = ToUpper($strAction);
+		$strAction = mb_strtoupper($strAction);
 		if (!array_key_exists('CONDITIONS', $arFields) && !array_key_exists('ACTIONS', $arFields))
 		{
 			$strSiteCurrency = '';
@@ -1662,7 +1662,7 @@ class CAllSaleDiscount
 		$arMsg = array();
 		$boolResult = true;
 
-		$strAction = ToUpper($strAction);
+		$strAction = mb_strtoupper($strAction);
 		if (array_key_exists('CONDITIONS', $arFields) && !empty($arFields['CONDITIONS']))
 		{
 			$arConditions = false;

@@ -451,8 +451,6 @@ if (empty($user_alias)):
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
-					$APPLICATION->GetException();
-					$GLOBALS["USER_FIELD_MANAGER"]->arFieldsCache = array();
 				}
 			}
 			$arFields = Array(

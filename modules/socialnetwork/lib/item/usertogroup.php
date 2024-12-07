@@ -196,13 +196,15 @@ class UserToGroup
 			"NOTIFY_MODULE" => "socialnetwork",
 			"NOTIFY_EVENT" => "invite_group",
 			"NOTIFY_TAG" => "SOCNET|INVITE_GROUP|" . $userId . '|' . $relationId,
-			"NOTIFY_MESSAGE" => Loc::getMessage(($groupItem->isProject() ? "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM_PROJECT" : "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM"), [
+			"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(($groupItem->isProject() ? "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM_PROJECT" : "SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM"), [
 					"#GROUP_NAME#" => "<a href=\"".$groupUrlData['DOMAIN'] . $groupUrlData['URL'] . "\" class=\"bx-notifier-item-action\">" . htmlspecialcharsEx($groupFields["NAME"]) . '</a>',
-				]
+				],
+				$languageId
 			),
-			"NOTIFY_MESSAGE_OUT" => Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM", [
+			"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage("SOCIALNETWORK_ITEM_USERTOGROUP_AUTO_MEMBER_ADD_IM", [
 						"#GROUP_NAME#" => htmlspecialcharsEx($groupFields["NAME"]),
-					]
+					],
+					$languageId
 				) . ' (' . $groupUrlData['SERVER_NAME'] . $groupUrlData['URL'] . ')'
 		];
 

@@ -122,7 +122,13 @@ class Converter
 			{
 				if(preg_match('/'.$entity['pattern'].'/i', $code, $matches))
 				{
-					$result[] = [ $entityId, (int)$matches['itemId'] ];
+					$closure = $entity['itemId'] ?? null;
+
+					$entityType = is_callable($closure)
+						? $closure($matches['prefix'], $matches['itemId'])
+						: $matches['itemId'];
+
+					$result[] = [$entityId, $entityType];
 				}
 			}
 		}

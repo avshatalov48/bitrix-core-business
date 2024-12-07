@@ -1,4 +1,5 @@
 // @flow
+
 'use strict';
 
 import { Loc, Tag } from 'main.core';
@@ -12,10 +13,10 @@ export default class IcloudSyncWizard extends SyncWizard
 	STAGE_1_CODE = 'icloud-to-b24';
 	STAGE_2_CODE = 'b24-events-to-icloud';
 	STAGE_3_CODE = 'b24-to-icloud';
-	
-	constructor()
+
+	constructor(options = {})
 	{
-		super();
+		super(options);
 		this.setEventNamespace('BX.Calendar.Sync.Interface.IcloudSyncWizard');
 		this.setAccountName(Loc.getMessage('CALENDAR_TITLE_ICLOUD'));
 		this.setSyncStages();
@@ -44,6 +45,7 @@ export default class IcloudSyncWizard extends SyncWizard
 				${this.getNewEventCardWrapper()}
 			</div>
 		`;
+
 		return this.finalCheckWrapper;
 	}
 
@@ -52,16 +54,16 @@ export default class IcloudSyncWizard extends SyncWizard
 		this.syncStagesList = [
 			new SyncStageUnit({
 				name: this.STAGE_1_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_1')
+				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_1'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_2_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_2')
+				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_2'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_3_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_3')
-			})
+				title: Loc.getMessage('CAL_SYNC_STAGE_ICLOUD_3'),
+			}),
 		];
 	}
 
@@ -79,7 +81,7 @@ export default class IcloudSyncWizard extends SyncWizard
 			}
 			else if (
 				stateData.stage === 'import_finished'
-			    && (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
+				&& (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
 			)
 			{
 				stage.setDone();
@@ -89,9 +91,16 @@ export default class IcloudSyncWizard extends SyncWizard
 				stage.setDone();
 				if (stage.name === this.STAGE_3_CODE)
 				{
-					this.setActiveStatusFinished();
-					this.showButtonWrapper();
-					this.showInfoStatusWrapper();
+					if (this.mode === 'reconnecting')
+					{
+						this.handleCloseWizard();
+					}
+					else
+					{
+						this.setActiveStatusFinished();
+						this.showButtonWrapper();
+						this.showInfoStatusWrapper();
+					}
 					this.showConfetti();
 
 					this.emit('onConnectionCreated');

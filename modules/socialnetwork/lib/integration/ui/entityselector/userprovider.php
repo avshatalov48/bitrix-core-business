@@ -37,6 +37,7 @@ class UserProvider extends BaseProvider
 		UserToGroupTable::ROLE_REQUEST
 	];
 	protected const MAX_USERS_IN_RECENT_TAB = 50;
+	protected const SEARCH_LIMIT = 100;
 
 	protected const ENTITY_ID = 'user';
 
@@ -145,6 +146,18 @@ class UserProvider extends BaseProvider
 			$this->options['inviteGuestLink'] = $options['inviteGuestLink'];
 		}
 
+		$this->options['lockGuestLinkFeatureId'] = '';
+		if (isset($options['lockGuestLinkFeatureId']) && is_string($options['lockGuestLinkFeatureId']))
+		{
+			$this->options['lockGuestLinkFeatureId'] = $options['lockGuestLinkFeatureId'];
+		}
+
+		$this->options['lockGuestLink'] = false;
+		if (isset($options['lockGuestLink']) && is_bool($options['lockGuestLink']))
+		{
+			$this->options['lockGuestLink'] = $options['lockGuestLink'];
+		}
+
 		// User Whitelist
 		if (isset($options['userId']))
 		{
@@ -184,6 +197,21 @@ class UserProvider extends BaseProvider
 		if (isset($options['fillDialog']) && is_bool($options['fillDialog']))
 		{
 			$this->options['fillDialog'] = $options['fillDialog'];
+		}
+
+		$this->options['maxUsersInRecentTab'] = static::MAX_USERS_IN_RECENT_TAB;
+		if (isset($options['maxUsersInRecentTab']) && is_int($options['maxUsersInRecentTab']))
+		{
+			$this->options['maxUsersInRecentTab'] = max(
+				1,
+				min($options['maxUsersInRecentTab'], static::MAX_USERS_IN_RECENT_TAB)
+			);
+		}
+
+		$this->options['searchLimit'] = static::SEARCH_LIMIT;
+		if (isset($options['searchLimit']) && is_int($options['searchLimit']))
+		{
+			$this->options['searchLimit'] = max(1, min($options['searchLimit'], static::SEARCH_LIMIT));
 		}
 	}
 
@@ -239,7 +267,7 @@ class UserProvider extends BaseProvider
 		// Preload first 50 users ('doSearch' method has to have the same filter).
 		$preloadedUsers = $this->getPreloadedUsersCollection();
 
-		if ($preloadedUsers->count() < self::MAX_USERS_IN_RECENT_TAB)
+		if ($preloadedUsers->count() < $this->options['maxUsersInRecentTab'])
 		{
 			// Turn off the user search
 			$entity = $dialog->getEntity(static::ENTITY_ID);
@@ -257,7 +285,7 @@ class UserProvider extends BaseProvider
 		$this->fillRecentUsers($recentUsers, $recentIds, $preloadedUsers);
 
 		// Global Recent Items
-		if ($recentUsers->count() < self::MAX_USERS_IN_RECENT_TAB)
+		if ($recentUsers->count() < $this->options['maxUsersInRecentTab'])
 		{
 			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems(static::ENTITY_ID);
 			$recentGlobalIds = [];
@@ -266,7 +294,7 @@ class UserProvider extends BaseProvider
 			{
 				$recentGlobalIds = array_map('intval', array_keys($recentGlobalItems));
 				$recentGlobalIds = array_values(array_diff($recentGlobalIds, $recentUsers->getIdList()));
-				$recentGlobalIds = array_slice($recentGlobalIds, 0, self::MAX_USERS_IN_RECENT_TAB - $recentUsers->count());
+				$recentGlobalIds = array_slice($recentGlobalIds, 0, $this->options['maxUsersInRecentTab'] - $recentUsers->count());
 			}
 
 			$this->fillRecentUsers($recentUsers, $recentGlobalIds, $preloadedUsers);
@@ -308,6 +336,10 @@ class UserProvider extends BaseProvider
 					'c' => 'bitrix:intranet.invitation',
 					'mode' => Router::COMPONENT_MODE_AJAX,
 					'analyticsLabel[source]' => $this->options['analyticsSource'],
+					'analyticsLabel[tool]' => 'Invitation',
+					'analyticsLabel[category]' => 'invitation',
+					'analyticsLabel[event]' => 'drawer_open',
+					'analyticsLabel[c_section]' => $this->options['analyticsSource'],
 				]);
 			}
 
@@ -336,6 +368,12 @@ class UserProvider extends BaseProvider
 					$footerOptions['inviteEmployeeScope'] = ($employeeInvitationAvailable ? 'I' : '').($extranetInvitationAvailable ? 'E' : '');
 				}
 
+				if ($inviteGuestLink && $this->options['lockGuestLink'])
+				{
+					$footerOptions['lockGuestLink'] = true;
+					$footerOptions['lockGuestLinkFeatureId'] = $this->options['lockGuestLinkFeatureId'] ?? '';
+				}
+
 				$dialog->setFooter('BX.SocialNetwork.EntitySelector.Footer', $footerOptions);
 			}
 		}
@@ -345,7 +383,7 @@ class UserProvider extends BaseProvider
 	{
 		return $this->getUserCollection([
 			'order' => ['ID' => 'asc'],
-			'limit' => self::MAX_USERS_IN_RECENT_TAB
+			'limit' => $this->options['maxUsersInRecentTab'],
 		]);
 	}
 
@@ -384,25 +422,24 @@ class UserProvider extends BaseProvider
 	{
 		$atom = '=_0-9a-z+~\'!\$&*^`|\\#%/?{}-';
 		$isEmailLike = (bool)preg_match('#^['.$atom.']+(\\.['.$atom.']+)*@#i', $searchQuery->getQuery());
-		$limit = 100;
 
 		if ($isEmailLike)
 		{
 			$items = $this->getUserItems([
 				'searchByEmail' => $searchQuery->getQuery(),
 				'myEmailUsers' => false,
-				'limit' => $limit
+				'limit' => $this->options['searchLimit'],
 			]);
 		}
 		else
 		{
 			$items = $this->getUserItems([
 				'searchQuery' => $searchQuery->getQuery(),
-				'limit' => $limit
+				'limit' => $this->options['searchLimit'],
 			]);
 		}
 
-		$limitExceeded = $limit <= count($items);
+		$limitExceeded = ($this->options['searchLimit'] <= count($items));
 		if ($limitExceeded)
 		{
 			$searchQuery->setCacheable(false);

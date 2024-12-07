@@ -581,7 +581,7 @@ if($USER->CanDoOperation('install_updates') || (in_array(LANGUAGE_ID, array("ru"
 					$ht->setProxy($proxyAddr, $proxyPort, $proxyUserName, $proxyPassword);
 				}
 
-				if($res = $ht->get("http://marketplace.1c-bitrix.ru/data_export.php"))
+				if($res = $ht->get("https://marketplace.1c-bitrix.ru/data_export.php"))
 				{
 					if($ht->getStatus() == "200")
 					{
@@ -708,7 +708,7 @@ if($USER->CanDoOperation('install_updates') || (in_array(LANGUAGE_ID, array("ru"
 			"page_icon"   => "update_page_icon",
 			"text"        => GetMessage("MAIN_MENU_UPDATES_NEW"),
 			"url"         => "update_system.php?lang=".LANGUAGE_ID,
-			"more_url"    => array("sysupdate_log.php", "sysupdate.php", "update_system.php", "buy_support.php"),
+			"more_url"    => array("sysupdate_log.php", "update_system.php", "buy_support.php"),
 			"title"       => GetMessage("MAIN_MENU_UPDATES_NEW_ALT"),
 		);
 	}

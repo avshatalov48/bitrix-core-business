@@ -42,6 +42,8 @@ export class Controller
 					canEdit: response.data?.ACTIONS?.EDIT,
 					canInvite: response.data?.ACTIONS?.INVITE,
 					canLeave: response.data?.ACTIONS?.LEAVE,
+					canFollow: response.data?.ACTIONS?.FOLLOW,
+					canPin: response.data?.ACTIONS?.PIN,
 					canEditFeatures: response.data?.ACTIONS?.EDIT_FEATURES,
 				},
 				counters: response.data?.COUNTERS,
@@ -135,12 +137,12 @@ export class Controller
 		});
 	}
 
-	static changeFeatures(groupId: number, features: Array<GroupFeature>): Promise
+	static changeFeature(groupId: number, feature: GroupFeature): Promise
 	{
-		return ajax.runAction('socialnetwork.api.workgroup.setFeatures', {
+		return ajax.runAction('socialnetwork.api.workgroup.setFeature', {
 			data: {
 				groupId,
-				features,
+				feature,
 			},
 		});
 	}

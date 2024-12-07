@@ -9,8 +9,6 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Localization;
-
 /**
  * Context of current request.
  */

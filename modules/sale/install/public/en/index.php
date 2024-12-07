@@ -12,6 +12,6 @@ $APPLICATION->SetTitle("Personal section");
 		can continue shopping, or check out.
 	<li>The Orders page shows all orders made by a user. A user can view their status and details on
 		each order. This page was created using the <b>User's Orders</b> component (<i>e-Store
-		–&gt; Personal section</i>).</li>
+		Â–&gt; Personal section</i>).</li>
 </ul>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/footer.php");?>

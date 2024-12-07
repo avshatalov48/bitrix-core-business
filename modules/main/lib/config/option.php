@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Config;
@@ -200,6 +200,10 @@ class Option
 			// prevents recursion and cache miss
 			self::$options[$moduleId] = ["-" => []];
 
+			// prevents recursion on early stages with cluster module installed
+			$pool = Main\Application::getInstance()->getConnectionPool();
+			$pool->useMasterOnly(true);
+
 			$query = "
 				SELECT NAME, VALUE
 				FROM b_option
@@ -228,7 +232,11 @@ class Option
 					self::$options[$moduleId][$ar["SITE_ID"]][$ar["NAME"]] = $ar["VALUE"];
 				}
 			}
-			catch(Main\DB\SqlQueryException $e){}
+			catch(Main\DB\SqlQueryException)
+			{
+			}
+
+			$pool->useMasterOnly(false);
 
 			if($cacheTtl !== false)
 			{
@@ -375,6 +383,7 @@ class Option
 	 * 		name - the name of the option;
 	 * 		site_id - the site ID (can be empty).
 	 * @throws Main\ArgumentNullException
+	 * @throws Main\ArgumentException
 	 */
 	public static function delete($moduleId, array $filter = array())
 	{
@@ -387,27 +396,37 @@ class Option
 		$sqlHelper = $con->getSqlHelper();
 
 		$deleteForSites = true;
-		$sqlWhere = $sqlWhereSite = "";
+		$sqlWhere = '';
+		$sqlWhereSite = '';
 
-		if (isset($filter["name"]))
+		foreach ($filter as $field => $value)
 		{
-			if ($filter["name"] == '')
+			switch ($field)
 			{
-				throw new Main\ArgumentNullException("filter[name]");
+				case "name":
+					if ($value == '')
+					{
+						throw new Main\ArgumentNullException("filter[name]");
+					}
+					$sqlWhere .= " AND NAME = '{$sqlHelper->forSql($value)}'";
+					break;
+
+				case "site_id":
+					if ($value != '')
+					{
+						$sqlWhereSite = " AND SITE_ID = '{$sqlHelper->forSql($value, 2)}'";
+					}
+					else
+					{
+						$deleteForSites = false;
+					}
+					break;
+
+				default:
+					throw new Main\ArgumentException("filter[{$field}]");
 			}
-			$sqlWhere .= " AND NAME = '{$sqlHelper->forSql($filter["name"])}'";
 		}
-		if (isset($filter["site_id"]))
-		{
-			if($filter["site_id"] <> "")
-			{
-				$sqlWhereSite = " AND SITE_ID = '{$sqlHelper->forSql($filter["site_id"], 2)}'";
-			}
-			else
-			{
-				$deleteForSites = false;
-			}
-		}
+
 		if($moduleId == 'main')
 		{
 			$sqlWhere .= "

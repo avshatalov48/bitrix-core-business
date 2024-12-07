@@ -433,7 +433,6 @@ class CAccess
 			$cl = new static::$arAuthProviders[$arParams["provider"]]["CLASS"];
 			if (is_callable([$cl, "AjaxRequest"]))
 			{
-				CUtil::JSPostUnescape();
 				return call_user_func_array([$cl, "AjaxRequest"], [$this->arParams]);
 			}
 		}
@@ -569,6 +568,67 @@ class CAccess
 			$res = [];
 		}
 		return $res;
+	}
+
+	/**
+	 * @internal
+	 * @param int $lastId
+	 * @return string
+	 */
+	public static function deleteDuplicatesAgent(int $lastId = 0)
+	{
+		$connection = Main\Application::getConnection();
+
+		if (!($connection instanceof Main\DB\MysqlCommonConnection))
+		{
+			return '';
+		}
+
+		if ($connection->getIndexName('b_user_access', ['USER_ID', 'ACCESS_CODE'], true) === 'ux_ua_user_access')
+		{
+			return '';
+		}
+
+		$codes = $connection->query("
+			select ID, USER_ID, ACCESS_CODE
+			from b_user_access 
+			where ID > {$lastId}
+			order by ID
+			limit 10000
+		");
+
+		$id = null;
+		while ($code = $codes->fetch())
+		{
+			$id = $code['ID'];
+
+			$connection->query("
+				delete from b_user_access
+				where ID > {$id}
+					and USER_ID = {$code['USER_ID']}
+					and ACCESS_CODE = '{$code['ACCESS_CODE']}'
+			");
+		}
+
+		if ($id !== null)
+		{
+			return "CAccess::deleteDuplicatesAgent({$id});";
+		}
+
+		try
+		{
+			$connection->query("
+				alter table b_user_access
+				drop index ix_ua_user_access,
+				add UNIQUE INDEX ux_ua_user_access (USER_ID, ACCESS_CODE) 
+			");
+		}
+		catch (Main\DB\SqlQueryException)
+		{
+			return "CAccess::deleteDuplicatesAgent();";
+		}
+
+		return '';
 	}
 }
 

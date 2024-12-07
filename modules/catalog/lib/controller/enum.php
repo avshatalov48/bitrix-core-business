@@ -26,7 +26,7 @@ final class Enum extends Controller
 			$r[] = ['ID'=>$id, 'NAME'=>$name];
 		}
 
-		return ['ENUM'=>$r];
+		return [$this->getServiceItemName() => $r];
 	}
 
 	public function getRoundTypesAction(): array
@@ -39,7 +39,7 @@ final class Enum extends Controller
 			$r[] = ['ID'=>$id, 'NAME'=>$name];
 		}
 
-		return ['ENUM'=>$r];
+		return [$this->getServiceItemName() => $r];
 	}
 
 	/**
@@ -56,13 +56,13 @@ final class Enum extends Controller
 			];
 		}
 
-		return ['ENUM' => $result];
+		return [$this->getServiceItemName() => $result];
 	}
 
 	public function getProductPropertyTypesAction(): array
 	{
 		return [
-			'ENUM' => self::getProductPropertyTypes(),
+			$this->getServiceItemName() => self::getProductPropertyTypes(),
 		];
 	}
 

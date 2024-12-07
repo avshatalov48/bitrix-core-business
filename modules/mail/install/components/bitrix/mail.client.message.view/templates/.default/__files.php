@@ -62,6 +62,10 @@ if (!empty($message['__files'])):
 				<div class="mail-msg-view-file-link-info"><?=htmlspecialcharsbx($item['size']) ?></div>
 			</div>
 		<?php endforeach ?>
+		<div id="mail_msg_<?=$message['ID'] ?>_refresh_files_button" class="mail-msg-view-file-item mail-msg-refresh-files-button">
+			<div class="mail-msg-refresh-files-button-icon"></div>
+			<span><?=Loc::getMessage('MAIL_MESSAGE_REFRESH_FILES');?></span>
+		</div>
 	</div>
 	<?php if (\Bitrix\Main\Loader::includeModule('disk') && count($diskFiles) > 1 && ZipNginx\Configuration::isEnabled()): ?>
 		<div class="mail-msg-view-file-archive-block">

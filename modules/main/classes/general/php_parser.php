@@ -83,15 +83,15 @@ class PHPParser
 	{
 		$found = false;
 		$paramsList = "";
-		if (mb_strtolower(mb_substr($params, 0, 6)) == 'array(')
+		if (mb_strtolower(substr($params, 0, 6)) == 'array(')
 		{
 			$found = true;
-			$paramsList = mb_substr($params, 6);
+			$paramsList = substr($params, 6);
 		}
-		elseif(mb_substr($params, 0, 1) == "[")
+		elseif(str_starts_with($params, "["))
 		{
 			$found = true;
-			$paramsList = mb_substr($params, 1);
+			$paramsList = substr($params, 1);
 		}
 		if($found)
 		{
@@ -127,12 +127,12 @@ class PHPParser
 	// Parse string and check if it is a component call. Return call params array
 	public static function CheckForComponent($str)
 	{
-		if(mb_substr($str, 0, 5) == "<?"."php")
-			$str = mb_substr($str, 5);
+		if(str_starts_with($str, "<?php"))
+			$str = substr($str, 5);
 		else
-			$str = mb_substr($str, 2);
+			$str = substr($str, 2);
 
-		$str = mb_substr($str, 0, -2);
+		$str = substr($str, 0, -2);
 
 		$bSlashed = false;
 		$bInString = false;
@@ -313,10 +313,12 @@ class PHPParser
 		$instruction = "";
 
 		//mb_substr is catastrophic slow, so in UTF we use array of characters
-		if(defined("BX_UTF"))
-			$allChars = preg_split('//u', $scriptContent, -1, PREG_SPLIT_NO_EMPTY);
-		else
-			$allChars = &$scriptContent;
+		$allChars = preg_split('//u', $scriptContent, -1, PREG_SPLIT_NO_EMPTY);
+
+		if ($allChars === false)
+		{
+			return [];
+		}
 
 		$scriptContentLength = mb_strlen($scriptContent);
 		$arAllStr = array();
@@ -460,12 +462,12 @@ class PHPParser
 	// Components 2. Parse string and check if it is a component call. Return call params array
 	public static function CheckForComponent2($str)
 	{
-		if (mb_substr($str, 0, 5) == "<?"."php")
-			$str = mb_substr($str, 5);
+		if (str_starts_with($str, "<?php"))
+			$str = substr($str, 5);
 		else
-			$str = mb_substr($str, 2);
+			$str = substr($str, 2);
 
-		$str = mb_substr($str, 0, -2);
+		$str = substr($str, 0, -2);
 
 		$bSlashed = false;
 		$bInString = false;
@@ -630,17 +632,17 @@ class PHPParser
 						if($ti)
 						{
 							// begin ($i) and end ($ti) of comment
-							// ïğîâåğèì ÷òî ğàíüøå êîíåö ñêğèïòà èëè êîíåö êîììåíòàğèÿ (íàïğèìåğ â îäíîé ñòğîêå "//comment ? >")
+							// Ğ¿Ñ€Ğ¾Ğ²ĞµÑ€Ğ¸Ğ¼ Ñ‡Ñ‚Ğ¾ Ñ€Ğ°Ğ½ÑŒÑˆĞµ ĞºĞ¾Ğ½ĞµÑ† ÑĞºÑ€Ğ¸Ğ¿Ñ‚Ğ° Ğ¸Ğ»Ğ¸ ĞºĞ¾Ğ½ĞµÑ† ĞºĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ñ (Ğ½Ğ°Ğ¿Ñ€Ğ¸Ğ¼ĞµÑ€ Ğ² Ğ¾Ğ´Ğ½Ğ¾Ğ¹ ÑÑ‚Ñ€Ğ¾ĞºĞµ "//comment ? >")
 							if($ti>$posnext && mb_substr($filesrc, $i + 1, 1) != "*")
 							{
-								// ñêğèïò çàêîí÷èëñÿ ğàíüøå êîììåíòàğèÿ
-								// âûğåæåì ñêğèïò
+								// ÑĞºÑ€Ğ¸Ğ¿Ñ‚ Ğ·Ğ°ĞºĞ¾Ğ½Ñ‡Ğ¸Ğ»ÑÑ Ñ€Ğ°Ğ½ÑŒÑˆĞµ ĞºĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ñ
+								// Ğ²Ñ‹Ñ€ĞµĞ¶ĞµĞ¼ ÑĞºÑ€Ğ¸Ğ¿Ñ‚
 								$arScripts[] = array($p, $posnext, mb_substr($filesrc, $p, $posnext - $p));
 								break;
 							}
 							else
 							{
-								// êîììåíòàğèé çàêîí÷èëñÿ ğàíüøå ñêğèïòà
+								// ĞºĞ¾Ğ¼Ğ¼ĞµĞ½Ñ‚Ğ°Ñ€Ğ¸Ğ¹ Ğ·Ğ°ĞºĞ¾Ğ½Ñ‡Ğ¸Ğ»ÑÑ Ñ€Ğ°Ğ½ÑŒÑˆĞµ ÑĞºÑ€Ğ¸Ğ¿Ñ‚Ğ°
 								$i = $ti - 1;
 							}
 						}
@@ -688,8 +690,8 @@ class PHPParser
 
 	public static function PreparePHP($str)
 	{
-		if(mb_substr($str, 0, 2) == "={" && mb_substr($str, -1, 1) == "}" && mb_strlen($str) > 3)
-			return mb_substr($str, 2, -1);
+		if(str_starts_with($str, "={") && str_ends_with($str, "}") && mb_strlen($str) > 3)
+			return substr($str, 2, -1);
 
 		return '"'.EscapePHPString($str).'"';
 	}

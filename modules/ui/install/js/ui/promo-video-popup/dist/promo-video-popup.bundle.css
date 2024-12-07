@@ -1,0 +1,94 @@
+.ui__promo-video-popup {
+	transition: 0.2s ease-in-out transform, 0.2s opacity ease-in-out;
+	opacity: 0;
+	-webkit-backdrop-filter: blur(2px);
+	        backdrop-filter: blur(2px);
+}
+
+.ui__promo-video-popup.--from-top {
+	transform: translate(0, -10px);
+}
+
+.ui__promo-video-popup.--from-right {
+	transform: translate(10px, 0);
+}
+
+.ui__promo-video-popup .popup-window-close-icon {
+	top: 12px;
+	right: 12px;
+}
+
+.ui__promo-video-popup-content {
+	--ui__promo-video-popup_title-color: var(--ui-color-base-50);
+	--ui__promo-video-popup_icon-color: var(--ui-color-primary);
+}
+
+.ui__promo-video-popup-content_header {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 10px;
+}
+
+.ui__promo-video-popup-content_header-icon {
+	width: 20px;
+	height: 20px;
+	margin-right: 8px;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	border-radius: var(--ui-border-radius-2xs);
+	background-color: var(--ui__promo-video-popup_icon-color);
+}
+
+.ui__promo-video-popup-content_header-title {
+	font-size: var(--ui-font-size-xl);
+	font-weight: var(--ui-font-weight-normal);
+	line-height: var(--ui-font-line-height-3xs);
+	color: var(--ui__promo-video-popup_title-color);
+}
+
+.ui__promo-video-popup-content_promo-text {
+	margin-bottom: 16px;
+	font-size: var(--ui-font-size-4xl);
+	font-weight: var(--ui-font-weight-medium);
+	line-height: var(--ui-font-line-height-3xs);
+}
+
+.ui__promo-video-popup-content_promo-video-wrapper {
+	display: flex;
+	box-sizing: border-box;
+	min-height: 255px;
+	border-radius: 10px;
+}
+
+.ui__promo-video-popup-content_promo-video {
+	display: flex;
+	max-width: 100%;
+	height: auto;
+	border-radius: 10px;
+}
+
+.ui__promo-video-popup.--close-left {
+	transform: translate(-10px, 0);
+	opacity: 0;
+}
+
+.ui__promo-video-popup.--close-bottom {
+	transform: translate(0, 10px);
+	opacity: 0;
+}
+
+.ui__promo-video-popup.--close {
+	opacity: 0;
+}
+
+.ui__promo-video-popup.--show {
+	opacity: 1;
+	transform: translate(0, 0);
+}
+
+.ui__promo-video-popup-content_footer {
+	margin-top: 20px;
+}

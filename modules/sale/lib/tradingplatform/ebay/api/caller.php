@@ -53,10 +53,6 @@ class Caller
 		if($certId <> '')
 			$this->http->setHeader("X-EBAY-API-CERT-NAME", $certId);
 
-
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$data = Encoding::convertEncodingArray($data, SITE_CHARSET, 'UTF-8');
-
 		$result = @$this->http->post($this->apiUrl, $data);
 		$errors = $this->http->getError();
 

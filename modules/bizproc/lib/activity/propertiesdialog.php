@@ -1,27 +1,30 @@
 <?php
+
 namespace Bitrix\Bizproc\Activity;
+
 use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\ArgumentException;
 
 class PropertiesDialog
 {
-	protected $activityFile;
-	protected $dialogFileName = 'properties_dialog.php';
-	protected $map;
+	protected string $activityFile;
+	protected string $dialogFileName = 'properties_dialog.php';
+	protected ?array $map = null; //compatible Null
 	protected $mapCallback;
-	protected $documentType;
-	protected $activityName;
-	protected $workflowTemplate;
-	protected $workflowParameters;
-	protected $workflowVariables;
-	protected $currentValues;
-	protected $formName;
-	protected $siteId;
+	protected ?array $documentType = null; //compatible Null
+	protected ?string $activityName = null; //compatible Null
+	protected ?array $workflowTemplate = null; //compatible Null
+	protected ?array $workflowParameters = null; //compatible Null
+	protected ?array $workflowVariables = null; //compatible Null
+	protected array $workflowConstants = [];
+	protected mixed $currentValues = null; //compatible Null
+	protected ?string $formName = null; //compatible Null
+	protected ?string $siteId = null; //compatible Null
 	protected $renderer;
-	protected $context;
+	protected array $context = [];
 
 	/** @var array */
-	protected $runtimeData = array();
+	protected $runtimeData = [];
 
 	public function __construct($activityFile, array $data = null)
 	{
@@ -30,19 +33,41 @@ class PropertiesDialog
 		if (is_array($data))
 		{
 			if (isset($data['documentType']) && is_array($data['documentType']))
+			{
 				$this->setDocumentType($data['documentType']);
+			}
 			if (isset($data['activityName']))
+			{
 				$this->setActivityName($data['activityName']);
+			}
 			if (isset($data['workflowTemplate']) && is_array($data['workflowTemplate']))
+			{
 				$this->setWorkflowTemplate($data['workflowTemplate']);
+			}
 			if (isset($data['workflowParameters']) && is_array($data['workflowParameters']))
+			{
 				$this->setWorkflowParameters($data['workflowParameters']);
+			}
+			if (isset($data['workflowVariables']) && is_array($data['workflowVariables']))
+			{
+				$this->setWorkflowVariables($data['workflowVariables']);
+			}
+			if (isset($data['workflowConstants']) && is_array($data['workflowConstants']))
+			{
+				$this->setWorkflowConstants($data['workflowConstants']);
+			}
 			if (isset($data['currentValues']) && is_array($data['currentValues']))
+			{
 				$this->setCurrentValues($data['currentValues']);
+			}
 			if (isset($data['formName']))
+			{
 				$this->setFormName($data['formName']);
+			}
 			if (isset($data['siteId']))
+			{
 				$this->setSiteId($data['siteId']);
+			}
 		}
 	}
 
@@ -54,11 +79,12 @@ class PropertiesDialog
 	public function setActivityFile(string $file): self
 	{
 		$this->activityFile = $file;
+
 		return $this;
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?array
 	 */
 	public function getDocumentType()
 	{
@@ -88,7 +114,7 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?string
 	 */
 	public function getActivityName()
 	{
@@ -107,7 +133,7 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?array
 	 */
 	public function getWorkflowTemplate()
 	{
@@ -126,7 +152,7 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?array
 	 */
 	public function getWorkflowParameters()
 	{
@@ -145,11 +171,23 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?array
 	 */
 	public function getWorkflowVariables()
 	{
 		return $this->workflowVariables;
+	}
+
+	public function setWorkflowConstants(array $workflowConstants): static
+	{
+		$this->workflowConstants = $workflowConstants;
+
+		return $this;
+	}
+
+	public function getWorkflowConstants(): array
+	{
+		return $this->workflowConstants;
 	}
 
 	/**
@@ -162,7 +200,7 @@ class PropertiesDialog
 		if (!is_array($this->currentValues))
 		{
 			// Get current values from saved activity properties.
-			$this->currentValues = array();
+			$this->currentValues = [];
 			$currentActivity = \CBPWorkflowTemplateLoader::findActivityByName(
 				$workflowTemplate,
 				$this->getActivityName()
@@ -251,10 +289,11 @@ class PropertiesDialog
 			{
 				$default = $valueKey['Default'];
 			}
-			$valueKey = isset($valueKey['FieldName']) ? $valueKey['FieldName'] : '';
+			$valueKey = $valueKey['FieldName'] ?? '';
 		}
 
 		$values = $this->getCurrentValues();
+
 		return (is_array($values) && isset($values[$valueKey])) ? $values[$valueKey] : $default;
 	}
 
@@ -270,7 +309,7 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?string
 	 */
 	public function getFormName()
 	{
@@ -289,7 +328,7 @@ class PropertiesDialog
 	}
 
 	/**
-	 * @return mixed
+	 * @return ?string
 	 */
 	public function getSiteId()
 	{
@@ -323,7 +362,9 @@ class PropertiesDialog
 	public function setMapCallback($callback)
 	{
 		if (!is_callable($callback))
+		{
 			throw new ArgumentException('Wrong callable argument.');
+		}
 
 		$this->mapCallback = $callback;
 
@@ -340,7 +381,7 @@ class PropertiesDialog
 			$this->map = call_user_func($this->mapCallback, $this);
 		}
 
-		return is_array($this->map) ? $this->map : array();
+		return $this->map ?? [];
 	}
 
 	/**
@@ -362,6 +403,7 @@ class PropertiesDialog
 		{
 			return new FieldType($field, $this->getDocumentType(), $typeClass);
 		}
+
 		return null;
 	}
 
@@ -395,7 +437,9 @@ class PropertiesDialog
 	public function setRenderer($callable)
 	{
 		if (!is_callable($callable))
+		{
 			throw new ArgumentException('Wrong callable argument.');
+		}
 
 		$this->renderer = $callable;
 	}
@@ -404,7 +448,7 @@ class PropertiesDialog
 	{
 		if ($this->renderer !== null)
 		{
-			return call_user_func($this->renderer, $this);
+			return (string)call_user_func($this->renderer, $this);
 		}
 
 		$runtime = \CBPRuntime::getRuntime();
@@ -413,12 +457,14 @@ class PropertiesDialog
 		return (string)$runtime->executeResourceFile(
 			$this->activityFile,
 			$this->dialogFileName,
-			array_merge(array(
-				'dialog' => $this,
-				//compatible parameters
-				'arCurrentValues' => $this->getCurrentValues($this->dialogFileName === 'properties_dialog.php'),
-				'formName' => $this->getFormName()
-				), $this->getRuntimeData()
+			array_merge(
+				[
+					'dialog' => $this,
+					//compatible parameters
+					'arCurrentValues' => $this->getCurrentValues($this->dialogFileName === 'properties_dialog.php'),
+					'formName' => $this->getFormName(),
+				],
+				$this->getRuntimeData()
 			)
 		);
 	}
@@ -449,8 +495,10 @@ class PropertiesDialog
 	public function setDialogFileName($dialogFileName)
 	{
 		$dialogFileName = (string)$dialogFileName;
-		if (mb_strpos($dialogFileName, '.') === false)
+		if (!str_contains($dialogFileName, '.'))
+		{
 			$dialogFileName .= '.php';
+		}
 
 		$this->dialogFileName = $dialogFileName;
 
@@ -484,5 +532,129 @@ class PropertiesDialog
 		$this->runtimeData = $runtimeData;
 
 		return $this;
+	}
+
+	public function getTemplateExpressions(): array
+	{
+		return [
+			'parameters' => FieldType::normalizePropertyList($this->getWorkflowParameters() ?? []),
+			'variables' => FieldType::normalizePropertyList($this->getWorkflowVariables() ?? []),
+			'constants' => FieldType::normalizePropertyList($this->getWorkflowConstants()),
+			'global_variables' => FieldType::normalizePropertyList($this->getGlobalVariables()),
+			'global_constants' => FieldType::normalizePropertyList($this->getGlobalConstants()),
+			'return_activities' => $this->getReturnProperties(),
+		];
+	}
+
+	private function getGlobalConstants(): array
+	{
+		$documentType = $this->getDocumentType();
+		if ($documentType)
+		{
+			return \Bitrix\Bizproc\Workflow\Type\GlobalConst::getAll($documentType);
+		}
+
+		return [];
+	}
+
+	private function getGlobalVariables(): array
+	{
+		$documentType = $this->getDocumentType();
+		if ($documentType)
+		{
+			return \Bitrix\Bizproc\Workflow\Type\GlobalVar::getAll($documentType);
+		}
+
+		return [];
+	}
+
+	private function getReturnProperties(): array
+	{
+		$documentType = $this->getDocumentType();
+		$template = $this->getWorkflowTemplate();
+
+		if (!is_array($documentType) || !is_array($template))
+		{
+			return [];
+		}
+
+		$runtime = \CBPRuntime::getRuntime();
+		$activities = $runtime->searchActivitiesByType('activity', $documentType);
+		$result = [];
+		$this->extractChildProperties($template, $activities, $result);
+
+		return $result;
+	}
+
+	private function extractChildProperties(array $children, array $activities, &$result): void
+	{
+		foreach ($children as $child)
+		{
+			$childType = mb_strtolower($child["Type"]);
+			if (
+				isset($activities[$childType]['RETURN'])
+				&& is_array($activities[$childType]['RETURN'])
+				&& count($activities[$childType]['RETURN']) > 0
+			)
+			{
+				$childProps = [];
+				foreach ($activities[$childType]['RETURN'] as $propId => $prop)
+				{
+					$childProps[] = [
+						'Id' => $propId,
+						'Name' => $prop['NAME'],
+						'Type' => $prop['TYPE'],
+					];
+				}
+
+				if (count($childProps) > 0)
+				{
+					$result[] = [
+						'Id' => $child['Name'],
+						'Type' => $child['Type'],
+						'Title' => $child['Properties']['Title'],
+						'Return' => $childProps,
+					];
+				}
+			}
+			elseif (
+				isset($activities[$childType]['ADDITIONAL_RESULT'])
+				&& is_array($activities[$childType]['ADDITIONAL_RESULT'])
+			)
+			{
+				$additionalProps = [];
+				foreach ($activities[$childType]['ADDITIONAL_RESULT'] as $propertyKey)
+				{
+					if (!isset($child['Properties'][$propertyKey]) || !is_array($child['Properties'][$propertyKey]))
+					{
+						continue;
+					}
+
+					foreach ($child['Properties'][$propertyKey] as $fieldId => $fieldData)
+					{
+						$additionalProps[] = [
+							'Id' => $fieldId,
+							'Name' => $fieldData['Name'],
+							'Type' => $fieldData['Type'],
+						];
+					}
+				}
+
+				if (count($additionalProps) > 0)
+				{
+					$result[] = [
+						'Id' => $child['Name'],
+						'Type' => $child['Type'],
+						'Title' => $child['Properties']['Title'],
+						'Return' => $additionalProps,
+					];
+				}
+			}
+
+			if (is_array($child['Children']))
+			{
+				$this->extractChildProperties($child['Children'], $activities, $result);
+			}
+		}
 	}
 }

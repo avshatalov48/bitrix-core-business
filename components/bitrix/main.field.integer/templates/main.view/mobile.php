@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 /**
@@ -46,13 +48,13 @@ $isFirst = true;
 <script>
 	BX.ready(function () {
 		new BX.Mobile.Field.Integer(
-			<?=CUtil::PhpToJSObject([
+			<?= Json::encode([
 				'name' => 'BX.Mobile.Field.Integer',
 				'nodes' => $nodes,
 				'restrictedMode' => true,
 				'formId' => $arParams['additionalParameters']['formId'],
 				'gridId' => $arParams['additionalParameters']['gridId']
-			])?>
+			]) ?>
 		);
 	});
 </script>

@@ -1,6 +1,8 @@
-<?
+<?php
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
-use \Bitrix\Main\Localization\Loc;
+
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Converter;
 use Bitrix\Main\Web\Json;
 
@@ -287,7 +289,7 @@ $this->addExternalJs($templateFolder."/utils.js");
 	const init = () => {
 		BX.Main.interfaceButtonsManager.init({
 			containerId: '<?=$arResult["ID"]?>',
-			disableSettings: '<?=CUtil::PhpToJSObject($arParams["DISABLE_SETTINGS"])?>',
+			disableSettings: '<?= Json::encode($arParams["DISABLE_SETTINGS"])?>',
 			theme: '<?=CUtil::JSEscape($arParams["THEME"])?>',
 			maxItemLength: <?=(int)$arParams['MAX_ITEM_LENGTH']?>,
 			ajaxSettings: {

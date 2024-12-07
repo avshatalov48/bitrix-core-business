@@ -21,10 +21,11 @@ export class PullRequests extends EventEmitter
 			workgroup_pin_changed: this.#pinChanged.bind(this),
 			user_spaces_counter: this.#updateCounters.bind(this),
 			workgroup_update: this.#onChangeSpace.bind(this),
-			space_user_role_change: this.#onChangeUserRole.bind(this),
 			workgroup_subscribe_changed: this.#onChangeSubscription.bind(this),
+			space_user_role_change: this.#onChangeUserRole.bind(this),
 			recent_activity_update: this.#onRecentActivityUpdate.bind(this),
 			recent_activity_delete: this.#onRecentActivityDelete.bind(this),
+			recent_activity_remove_from_space: this.#onRecentActivityRemoveFromSpace.bind(this),
 		};
 	}
 
@@ -68,7 +69,7 @@ export class PullRequests extends EventEmitter
 	#onRecentActivityUpdate(data): void
 	{
 		this.emit(EventTypes.recentActivityUpdate, {
-			recentActivityData: data.recentActivityData,
+			recentActivities: data,
 		});
 	}
 
@@ -77,6 +78,13 @@ export class PullRequests extends EventEmitter
 		this.emit(EventTypes.recentActivityDelete, {
 			typeId: data.typeId,
 			entityId: data.entityId,
+		});
+	}
+
+	#onRecentActivityRemoveFromSpace(data): void
+	{
+		this.emit(EventTypes.recentActivityRemoveFromSpace, {
+			spaceIds: data.spaceIdsToReload,
 		});
 	}
 }

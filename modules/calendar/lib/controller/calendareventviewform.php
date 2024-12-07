@@ -61,12 +61,11 @@ class CalendarEventViewForm extends Controller
 		$responseParams['userIndex'] = \CCalendarEvent::getUserIndex();
 		$responseParams['userSettings'] = UserSettings::get($userId);
 		$responseParams['plannerFeatureEnabled'] = Bitrix24Manager::isPlannerFeatureEnabled();
-		$responseParams['entryUrl'] = \CHTTP::urlAddParams(
-			\CCalendar::GetPath($entry['CAL_TYPE'], $entry['OWNER_ID'], true),
-			[
-				'EVENT_ID' => (int)$entry['ID'],
-				'EVENT_DATE' => urlencode($entry['DATE_FROM'])
-			]
+		$responseParams['entryUrl'] = \CCalendar::getEntryUrl(
+			$entry['CAL_TYPE'],
+			$entry['OWNER_ID'],
+			$entry['ID'],
+			$entry['DATE_FROM']
 		);
 		$responseParams['dayOfWeekMonthFormat'] = (
 			\Bitrix\Main\Context::getCurrent()
@@ -215,6 +214,7 @@ class CalendarEventViewForm extends Controller
 		$params['location'] = htmlspecialcharsbx(\CCalendar::GetTextLocation($event['LOCATION'] ?? null));
 
 		$params['canEditCalendar'] = $event['permissions']['edit'];
+		$params['canAttendeeEditCalendar'] = $event['permissions']['editLocation'] || $event['permissions']['editAttendees'];
 		$params['canDeleteEvent'] = $event['permissions']['delete'];
 
 		$params['showComments'] = $viewComments;

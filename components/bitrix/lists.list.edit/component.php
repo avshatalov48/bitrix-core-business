@@ -18,6 +18,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var string $parentComponentPath */
 /** @var string $parentComponentTemplate */
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
@@ -195,7 +196,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				$arSites[] = $ar["SITE_ID"];
 			}
 		}
-		$arFields["SITE_ID"] = $arSites;
+		$arFields["SITE_ID"] = array_values(array_unique($arSites));
 
 		if(isset($_FILES["PICTURE"]))
 		{
@@ -258,6 +259,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 		}
 
 		//Update existing or add new
+		$connection = Application::getConnection();
+		$connection->startTransaction();
 		$ob = new CIBlock;
 		if($arIBlock)
 		{
@@ -284,6 +287,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 				$obList->Save();
 			}
 		}
+
+		if ($res)
+		{
+			$connection->commitTransaction();
+		}
+		else
+		{
+			$connection->rollbackTransaction();
+		}
+		unset($connection);
 
 		if($res)
 		{
@@ -328,7 +341,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid())
 			$list = new CList($res);
 			$list->ActualizeDocumentAdminPage(str_replace(
 				array("#list_id#", "#group_id#"),
-				array($arResult["IBLOCK_ID"], $arParams["SOCNET_GROUP_ID"]),
+				array($res, $arParams["SOCNET_GROUP_ID"]),
 				$arParams["LIST_ELEMENT_URL"]
 			));
 

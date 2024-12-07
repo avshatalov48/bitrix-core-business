@@ -125,7 +125,7 @@
 			this.hasFiles = false;
 			this.code = params.code;
 		},
-		Editor: function(map, container, previewContainer, imager)
+		Editor:function (map, container, previewContainer, imager)
 		{
 			this.activeGroupId = false;
 			this.previewContainer = previewContainer;
@@ -191,7 +191,7 @@
 			}
 		},
 		Controls: {
-			Base: function(options)
+			Base:function(options)
 			{
 				this.langs = options.langs;
 				this.params = options.params;
@@ -212,7 +212,7 @@
 					this.onCreate();
 				}
 			},
-			Select: function(options)
+			Select:function(options)
 			{
 				BX.Mobile.Controls.Select.superclass.constructor.apply(this, [options]);
 

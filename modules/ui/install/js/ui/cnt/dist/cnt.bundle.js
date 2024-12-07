@@ -27,7 +27,8 @@ this.BX = this.BX || {};
 
 	let _ = t => t,
 	  _t,
-	  _t2;
+	  _t2,
+	  _t3;
 	var _getBorderClassname = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getBorderClassname");
 	class Counter {
 	  constructor(options) {
@@ -38,10 +39,12 @@ this.BX = this.BX || {};
 	    this.container = null;
 	    this.counterContainer = null;
 	    this.animate = main_core.Type.isBoolean(this.options.animate) ? this.options.animate : false;
+	    this.isDouble = main_core.Type.isBoolean(this.options.isDouble) ? this.options.isDouble : false;
 	    this.value = main_core.Type.isNumber(this.options.value) ? this.options.value : 0;
 	    this.maxValue = main_core.Type.isNumber(this.options.maxValue) ? this.options.maxValue : 99;
 	    this.size = main_core.Type.isString(this.options.size) ? this.options.size : BX.UI.Counter.Size.MEDIUM;
 	    this.color = main_core.Type.isString(this.options.color) ? this.options.color : BX.UI.Counter.Color.PRIMARY;
+	    this.secondaryColor = main_core.Type.isString(this.options.secondaryColor) ? this.options.secondaryColor : BX.UI.Counter.Color.PRIMARY;
 	    this.border = main_core.Type.isBoolean(this.options.border) ? this.options.border : false;
 	  }
 
@@ -95,6 +98,21 @@ this.BX = this.BX || {};
 	      this.animate = animate;
 	    }
 	    return this;
+	  }
+	  createSecondaryContainer() {
+	    if (this.isDouble) {
+	      this.secondaryContainer = main_core.Tag.render(_t || (_t = _`
+				<div class="ui-counter-secondary"></div>
+			`));
+	    }
+	    main_core.Dom.append(this.secondaryContainer, this.container);
+	  }
+	  setSecondaryColor() {
+	    if (this.secondaryContainer === null) {
+	      this.createSecondaryContainer();
+	    }
+	    main_core.Dom.removeClass(this.secondaryContainer, this.secondaryColor);
+	    main_core.Dom.addClass(this.secondaryContainer, this.secondaryColor);
 	  }
 	  setBorder(border) {
 	    if (!main_core.Type.isBoolean(border)) {
@@ -162,7 +180,7 @@ this.BX = this.BX || {};
 	  }
 	  getCounterContainer() {
 	    if (this.counterContainer === null) {
-	      this.counterContainer = main_core.Tag.render(_t || (_t = _`
+	      this.counterContainer = main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="ui-counter-inner">${0}</div>
 			`), this.getValue());
 	    }
@@ -170,12 +188,14 @@ this.BX = this.BX || {};
 	  }
 	  createContainer() {
 	    if (this.container === null) {
-	      this.container = main_core.Tag.render(_t2 || (_t2 = _`
+	      this.container = main_core.Tag.render(_t3 || (_t3 = _`
 				<div class="ui-counter">${0}</div>
 			`), this.getCounterContainer());
 	      this.setSize(this.size);
 	      this.setColor(this.color);
 	      this.setBorder(this.border);
+	      this.createSecondaryContainer();
+	      this.setSecondaryColor();
 	    }
 	    return this.container;
 	  }
@@ -197,6 +217,7 @@ this.BX = this.BX || {};
 	  destroy() {
 	    main_core.Dom.remove(this.container);
 	    this.container = null;
+	    this.secondaryContainer = null;
 	    this.finished = false;
 	    this.textAfterContainer = null;
 	    this.textBeforeContainer = null;

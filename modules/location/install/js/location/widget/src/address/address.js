@@ -183,7 +183,7 @@ export default class Address extends EventEmitter
 			this.#storeAsLastAddress();
 		}
 
-		if (addressId > 0)
+		if (this.#address && addressId > 0)
 		{
 			this.#address.id = addressId;
 		}
@@ -378,7 +378,7 @@ export default class Address extends EventEmitter
 	{
 		if (!Type.isDomNode(props.controlWrapper))
 		{
-			BX.debug('props.controlWrapper  must be instance of Element');
+			BX.debug('props.controlWrapper must be instance of Element');
 		}
 
 		this.#controlWrapper = props.controlWrapper;
@@ -387,7 +387,7 @@ export default class Address extends EventEmitter
 		{
 			if (!Type.isDomNode(props.inputNode))
 			{
-				BX.debug('props.inputNode  must be instance of Element');
+				BX.debug('props.inputNode must be instance of Element');
 			}
 
 			this.#inputNode = props.inputNode;

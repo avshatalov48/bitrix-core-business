@@ -120,7 +120,7 @@ class CAdminInformer
 	<span class="adm-informer-arrow"></span>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready( function(){BX.adminInformer.Init('.$visibleCount.'); } );
 </script>';
 
@@ -246,7 +246,7 @@ class CAdminInformer
 						if($module["TMS"]+3600*24*14 < time())
 						{
 							$script = "
-							<script type=\"text/javascript\">
+							<script>
 							function hideMpAnswer(el, module)
 							{
 								if(el.parentNode.parentNode.parentNode)
@@ -268,7 +268,7 @@ class CAdminInformer
 								'COLOR' => 'green',
 								'FOOTER' => "<a href=\"javascript:void(0)\" onclick=\"hideMpAnswer(this, '".CUtil::JSEscape($module["ID"])."')\" ".
 									"style=\"float: right !important; font-size: 0.8em !important;\">".GetMessage("top_panel_ai_marketplace_hide")."</a>".
-									"<a href=\"http://marketplace.1c-bitrix.".LANGUAGE_ID."/solutions/".$module["ID"]."/#tab-rating-link\" target=\"_blank\" ".
+									"<a href=\"https://marketplace.1c-bitrix.".LANGUAGE_ID."/solutions/".$module["ID"]."/#tab-rating-link\" target=\"_blank\" ".
 									"onclick=\"hideMpAnswer(this, '".CUtil::JSEscape($module["ID"])."')\">".GetMessage("top_panel_ai_marketplace_add")."</a>",
 								'ALERT' => true,
 								'HTML' => GetMessage("top_panel_ai_marketplace_descr", array("#NAME#" => $module["NAME"], "#ID#" => $module["ID"])).$script,

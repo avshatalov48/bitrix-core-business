@@ -283,7 +283,7 @@ class CSaleExport
 
 		return html_entity_decode(
 			strip_tags(
-				preg_replace('/(<br[^>]*>)+/is'.BX_UTF_PCRE_MODIFIER, "\n", $value)
+				preg_replace('/(<br[^>]*>)+/isu', "\n", $value)
 			)
 		);
 	}
@@ -647,7 +647,16 @@ class CSaleExport
 			{
 				if($prop->getProperty()['MULTIPLE'] == 'Y')
                 {
-					$curVal = explode(",", $prop->getValue());
+					$propertyValue = $prop->getValue();
+					$curVal = [];
+					if (is_string($propertyValue))
+					{
+						$curVal = explode(',', $propertyValue);
+					}
+					elseif (is_array($propertyValue))
+					{
+						$curVal = $propertyValue;
+					}
 					foreach($curVal as $vm)
 					{
 						$arVal = CSaleOrderPropsVariant::GetByValue($prop->getField('ORDER_PROPS_ID'), $vm);
@@ -735,7 +744,7 @@ class CSaleExport
 		}
 
 		$systemCodes1C = array_flip(self::$systemCodes[$personType['DOMAIN']]);
-		
+
 		foreach($agentParams as $k => $v)
 		{
 			if(mb_strpos($k, "REKV_") !== false)
@@ -807,7 +816,7 @@ class CSaleExport
 
 		return $agent;
 	}
-	
+
 	public static function getSite()
 	{
 		$arCharSets = array();
@@ -1247,7 +1256,7 @@ class CSaleExport
 			if (self::$crmMode)
 			{
 				$c = ob_get_clean();
-				$c = CharsetConverter::ConvertCharset($c, $arCharSets[$arOrder["LID"]], "utf-8");
+				$c = \Bitrix\Main\Text\Encoding::convertEncoding($c, $arCharSets[$arOrder["LID"]], "utf-8");
 				echo $c;
 				$_SESSION["BX_CML2_EXPORT"][$lastOrderPrefix][] = $arOrder["ID"];
 			}
@@ -1346,7 +1355,6 @@ class CSaleExport
 
 	public static function UnZip($file_name, $last_zip_entry = "", $interval = 0)
 	{
-		global $APPLICATION;
 		$start_time = time();
 
 		$io = CBXVirtualIo::GetInstance();
@@ -1380,7 +1388,7 @@ class CSaleExport
 			{
 
 				$file_name = trim(str_replace("\\", "/", trim($entry_name)), "/");
-				$file_name = $APPLICATION->ConvertCharset($file_name, "cp866", LANG_CHARSET);
+				$file_name = \Bitrix\Main\Text\Encoding::convertEncoding($file_name, "cp866", LANG_CHARSET);
 
 				$bBadFile = HasScriptExtension($file_name)
 					|| IsFileUnsafe($file_name)
@@ -1576,7 +1584,7 @@ class CSaleExport
 
 		return $xml_id;
 	}
-	
+
 	protected static function outputXmlMarkingCodeGroup($arBasket)
 	{
 		?>
@@ -1585,7 +1593,7 @@ class CSaleExport
 		</<?=CSaleExport::getTagName("SALE_EXPORT_MARKING_CODE_GROUP")?>>
 		<?
 	}
-	
+
 	protected static function outputXmlMarkingCode($shipmentItemId, $order)
 	{
 		$list = [];
@@ -1638,7 +1646,7 @@ class CSaleExport
 			}
 		}
 		if(count($list)>0)
-		{			
+		{
 		?>
 		<<?=CSaleExport::getTagName("SALE_EXPORT_MARKING_MARKINGS")?>>
 			<?
@@ -1652,7 +1660,7 @@ class CSaleExport
 				}
 			?>
 		</<?=CSaleExport::getTagName("SALE_EXPORT_MARKING_MARKINGS")?>>
-		<?			
+		<?
 		}
 	}
 
@@ -1728,16 +1736,16 @@ class CSaleExport
 				<?
 
             	static::outputXmlUnit($arBasket);
-            	
+
 				if($type == 'Order')
 				{
 					static::outputXmlMarkingCodeGroup($arBasket);
 				}
 				elseif($type == 'Shipment')
-				{	
-					static::outputXmlMarkingCode($arBasket['SALE_INTERNALS_BASKET_SHIPMENT_ITEM_ID'], $order);					
+				{
+					static::outputXmlMarkingCode($arBasket['SALE_INTERNALS_BASKET_SHIPMENT_ITEM_ID'], $order);
 				}
-				
+
 				if(DoubleVal($arBasket["DISCOUNT_PRICE"]) > 0)
 			 	{
 					?>

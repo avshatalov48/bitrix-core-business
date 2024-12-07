@@ -181,12 +181,9 @@ class StoreProvider extends BaseProvider
 		$stores = [];
 		while ($store = $storeRaw->fetch())
 		{
-			$store['PRODUCT_AMOUNT'] = 0;
-			if (isset($storeProducts[$store['ID']]))
-			{
-				$store['PRODUCT_AMOUNT'] = $storeProducts[$store['ID']]['AMOUNT'];
-				$store['PRODUCT_RESERVED'] = $storeProducts[$store['ID']]['RESERVED'];
-			}
+
+			$store['PRODUCT_AMOUNT'] = $storeProducts[$store['ID']]['AMOUNT'] ?? 0;
+			$store['PRODUCT_RESERVED'] = $storeProducts[$store['ID']]['RESERVED'] ?? 0;
 
 			if ($store['IMAGE_ID'] !== null)
 			{
@@ -244,7 +241,7 @@ class StoreProvider extends BaseProvider
 
 	private function makeItem($store): Item
 	{
-		$title = $store['TITLE'];
+		$title = trim((string)$store['TITLE']);
 		if ($title === '')
 		{
 			$title = ($this->isUseAddressAsTitle())
@@ -253,7 +250,7 @@ class StoreProvider extends BaseProvider
 			;
 		}
 
-		$item = new Item([
+		return new Item([
 			'id' => $store['ID'],
 			'sort' => $store['SORT'],
 			'entityId' => self::ENTITY_ID,
@@ -273,7 +270,5 @@ class StoreProvider extends BaseProvider
 				'availableAmount' => (float)$store['PRODUCT_AMOUNT'] - (float)$store['PRODUCT_RESERVED'],
 			],
 		]);
-
-		return $item;
 	}
 }

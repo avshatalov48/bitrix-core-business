@@ -67,7 +67,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_R
 ob_start();
 foreach ($arParams["UPLOADS"] as $v)
 {
-	if (in_array($v["USER_TYPE_ID"], array("file", "webdav_element", "disk_file")))
+	if (isset($v["USER_TYPE_ID"]) && in_array($v["USER_TYPE_ID"], array("file", "webdav_element", "disk_file")))
 	{
 		$additionalParameters = [
 			'arUserField' => $v,
@@ -136,7 +136,7 @@ foreach ($arParams["UPLOADS"] as $v)
 				'MODULE_ID' => $v["MODULE_ID"],
 				'ALLOW_UPLOAD' => $v["ALLOW_UPLOAD"],
 				'ALLOW_UPLOAD_EXT' => $v["ALLOW_UPLOAD_EXT"],
-				'INPUT_CAPTION' => $v["INPUT_CAPTION"]
+				'INPUT_CAPTION' => $v["INPUT_CAPTION"] ?? '',
 			),
 			null,
 			array("HIDE_ICONS" => true)
@@ -145,7 +145,7 @@ foreach ($arParams["UPLOADS"] as $v)
 		$arParams["UPLOADS_CID"][$cid] = array(
 			"storage" => "bfile",
 			"parser" => 'file',
-			"postfix" => $v["POSTFIX"]
+			"postfix" => $v["POSTFIX"] ?? '',
 		);
 	}
 }

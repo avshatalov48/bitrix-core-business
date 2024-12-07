@@ -35,28 +35,15 @@ abstract class RequestEntity implements \JsonSerializable
 				continue;
 			}
 
-			$result[$this->castToUnderscore($name)] = $this->convertValueEncoding($value);
+			$result[$this->castToUnderscore($name)] = $value;
 		}
 
 		foreach ($this->options as $optionCode => $optionValue)
 		{
-			$result[$optionCode] = $this->convertValueEncoding($optionValue);
+			$result[$optionCode] = $optionValue;
 		}
 
 		return $result;
-	}
-
-	/**
-	 * @param $value
-	 * @return array|bool|\SplFixedArray|string
-	 */
-	private function convertValueEncoding($value)
-	{
-		return Encoding::convertEncoding(
-			$value,
-			SITE_CHARSET,
-			'UTF-8'
-		);
 	}
 
 	/**

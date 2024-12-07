@@ -270,7 +270,7 @@ if(!empty($arParams["FORM_ID"]) && !empty($arParams["TAB_ID"]))
 
 $arResult["CURRENT_URL"] = $uri->getUri();
 
-$sep = (strpos($arResult["CURRENT_URL"], "?") !== false? "&":"?");
+$sep = (str_contains($arResult["CURRENT_URL"], "?") ? "&":"?");
 
 $sortBy = key($arParams["SORT"]);
 $sortOrder = current($arParams["SORT"]);
@@ -307,8 +307,10 @@ foreach($arResult["HEADERS"] as $header)
 	{
 		$arResult["ALLOW_EDIT"] = true;
 		$arResult["ALLOW_INLINE_EDIT"] = true;
-		if($header["type"] == "date")
+		if (isset($header['type']) && $header['type'] === 'date')
+		{
 			$arResult["EDIT_DATE"] = true;
+		}
 	}
 
 	$arResult["COLS_EDIT_META"][$header["id"]] = [

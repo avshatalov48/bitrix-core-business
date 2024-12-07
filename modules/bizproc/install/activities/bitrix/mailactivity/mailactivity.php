@@ -10,6 +10,7 @@ use Bitrix\Mail;
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\Encoding;
 
 class CBPMailActivity extends CBPActivity
 {
@@ -96,14 +97,12 @@ class CBPMailActivity extends CBPActivity
 
 		if (!$this->IsPropertyExists('DirrectMail') || $this->DirrectMail == 'Y')
 		{
-			global $APPLICATION;
-
-			$strMailUserTo = $APPLICATION->ConvertCharset($strMailUserTo, SITE_CHARSET, $charset);
+			$strMailUserTo = Encoding::convertEncoding($strMailUserTo, SITE_CHARSET, $charset);
 			$strMailUserTo = Main\Mail\Mail::encodeMimeString($strMailUserTo, $charset);
 
-			$mailSubject = $APPLICATION->ConvertCharset($mailSubject, SITE_CHARSET, $charset);
+			$mailSubject = Encoding::convertEncoding($mailSubject, SITE_CHARSET, $charset);
 
-			$mailText = $APPLICATION->ConvertCharset(
+			$mailText = Encoding::convertEncoding(
 				CBPHelper::ConvertTextForMail($mailText),
 				SITE_CHARSET,
 				$charset

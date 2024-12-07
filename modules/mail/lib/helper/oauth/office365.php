@@ -47,7 +47,7 @@ class Office365 extends Mail\Helper\OAuth
 
 	public function getControllerUrl()
 	{
-		return \CSocServOffice365OAuth::CONTROLLER_URL;
+		return \CSocServOffice365OAuth::getControllerUrl();
 	}
 
 }
@@ -199,7 +199,7 @@ if (Main\Loader::includeModule('socialservices'))
 			return [
 				'access_token' => $this->access_token,
 				'refresh_token' => $this->refresh_token,
-				'expires_in' => $this->accessTokenExpires + time(),
+				'expires_in' => Mail\Helper\OAuth::convertTokenExpiresToUnixtimeIfNeed($this->accessTokenExpires),
 			];
 		}
 

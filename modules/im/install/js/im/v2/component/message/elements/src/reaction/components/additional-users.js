@@ -22,7 +22,11 @@ export const AdditionalUsers = {
 		bindElement: {
 			type: Object,
 			required: true
-		}
+		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
 	},
 	emits: ['close'],
 	data()
@@ -87,6 +91,7 @@ export const AdditionalUsers = {
 			:showPopup="showPopup"
 			:loading="loadingAdditionalUsers"
 			:userIds="additionalUsers"
+			:contextDialogId="contextDialogId"
 			:bindElement="bindElement || {}"
 			:withAngle="false"
 			:offsetLeft="-112"

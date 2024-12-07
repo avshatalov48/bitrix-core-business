@@ -46,13 +46,13 @@ class ElementProperty extends Base
 			if (isset($this->elementLinkProperties[$entity]))
 			{
 				if (!is_object($this->elementLinkProperties[$entity]))
-					$this->elementLinkProperties[$entity] = new Element($this->elementLinkProperties[$entity]);
+					$this->elementLinkProperties[$entity] = Element::getInstance($this->elementLinkProperties[$entity]);
 				return $this->elementLinkProperties[$entity];
 			}
 			elseif (isset($this->sectionLinkProperties[$entity]))
 			{
 				if (!is_object($this->sectionLinkProperties[$entity]))
-					$this->sectionLinkProperties[$entity] = new Element($this->sectionLinkProperties[$entity]);
+					$this->sectionLinkProperties[$entity] = Element::getInstance($this->sectionLinkProperties[$entity]);
 				return $this->sectionLinkProperties[$entity];
 			}
 		}
@@ -233,7 +233,6 @@ class ElementProperty extends Base
 		{
 			$this->fields = array();
 			$this->fieldMap = array();
-
 			$propertyList = \CIBlockElement::getProperty(
 				$this->iblockId,
 				$this->id,

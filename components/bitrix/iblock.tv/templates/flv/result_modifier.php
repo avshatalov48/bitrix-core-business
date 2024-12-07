@@ -1,5 +1,13 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
+
 	//path to component
 	$PathToComponent = $this->GetFolder();
 
@@ -14,10 +22,10 @@
 
 	//prepare list and 1st Item
 	$FirstItem = false;
-	$strPlayList = '';
-	$strPlayList .='
+	$strPlayList = '
 		jsPublicTVCollector.list['.$arResult['PREFIX'].'] =
-		[';
+		['
+	;
 	$i = 0;
 	foreach ($arResult['SECTIONS'] as $keySection=>$valSection)
 	{
@@ -78,4 +86,3 @@
 	$arResult['CORRECTION']["WMV"] = 20;
 	//wmv + 20
 	//flv + 24
-?>

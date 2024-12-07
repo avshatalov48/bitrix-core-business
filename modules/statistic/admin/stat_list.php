@@ -1231,7 +1231,7 @@ $oFilter = new CAdminFilter($sFilterID, array());
 
 <p><?echo GetMessage("STAT_SERVER_TIME")."&nbsp;&nbsp;".GetTime(time(),"FULL")?></p>
 
-<script type="text/javascript">
+<script>
 var currentTable = null;
 var cached = [];
 function selectTabWithFilter(filter, table, url, force)

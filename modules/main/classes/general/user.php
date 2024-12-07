@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main;
@@ -189,17 +189,10 @@ class CAllUser extends CDBResult
 		);
 	}
 
-	/**
-	 * @deprecated Does nothing.
-	 */
-	public static function err_mess()
-	{
-	}
-
 	public function Add($arFields)
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
-		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER;
+		global $DB, $USER_FIELD_MANAGER;
 
 		$ID = 0;
 		if (!$this->CheckFields($arFields))
@@ -338,12 +331,7 @@ class CAllUser extends CDBResult
 		if ($ID > 0 && defined("BX_COMP_MANAGED_CACHE"))
 		{
 			$isRealUser = empty($arFields['EXTERNAL_AUTH_ID']) || !in_array($arFields['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
-
-			$CACHE_MANAGER->ClearByTag("USER_CARD_" . intval($ID / TAGGED_user_card_size));
-			$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_CARD" : "EXTERNAL_USER_CARD");
-
-			$CACHE_MANAGER->ClearByTag("USER_NAME_" . $ID);
-			$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_NAME" : "EXTERNAL_USER_NAME");
+			static::clearTagCache($ID, $isRealUser);
 		}
 
 		Main\UserTable::indexRecord($ID);
@@ -1556,7 +1544,7 @@ class CAllUser extends CDBResult
 				}
 
 				$languageId = '';
-				if ($arUser['LANGUAGE_ID'] === '')
+				if (empty($arUser['LANGUAGE_ID']))
 				{
 					$arUser['LANGUAGE_ID'] = LANGUAGE_ID;
 					$languageId = ", LANGUAGE_ID='" . $DB->ForSql(LANGUAGE_ID) . "'";
@@ -1697,27 +1685,6 @@ class CAllUser extends CDBResult
 	}
 
 	/**
-	 * @deprecated Does nothing.
-	 */
-	public function GetSessionHash()
-	{
-	}
-
-	/**
-	 * @deprecated Does nothing.
-	 */
-	public function GetPasswordHash($PASSWORD_HASH)
-	{
-	}
-
-	/**
-	 * @deprecated Does nothing.
-	 */
-	public function SavePasswordHash()
-	{
-	}
-
-	/**
 	 * Authenticates the user and then authorizes him
 	 * @param string $login
 	 * @param string $password
@@ -1728,6 +1695,11 @@ class CAllUser extends CDBResult
 	public function Login($login, $password, $remember = 'N', $password_original = 'Y')
 	{
 		global $APPLICATION;
+
+		if (!is_string($login) || !is_string($password) || !is_string($remember) || !is_string($password_original))
+		{
+			return false;
+		}
 
 		$result_message = true;
 		$user_id = 0;
@@ -1917,7 +1889,7 @@ class CAllUser extends CDBResult
 			"FROM b_user U  " .
 			"WHERE U.LOGIN='" . $DB->ForSQL($arParams["LOGIN"]) . "' ";
 
-		if (isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '')
+		if (!empty($arParams["EXTERNAL_AUTH_ID"]))
 		{
 			//external user
 			$strSql .= " AND EXTERNAL_AUTH_ID='" . $DB->ForSql($arParams["EXTERNAL_AUTH_ID"]) . "'";
@@ -2324,29 +2296,26 @@ class CAllUser extends CDBResult
 				"WHERE LOGIN='" . $DB->ForSql($arParams["LOGIN"]) . "'" .
 				(
 					// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeUserChangePassword event
-				$arParams["EXTERNAL_AUTH_ID"] != '' ?
-					"	AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' " :
-					"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+					!empty($arParams["EXTERNAL_AUTH_ID"])
+						? " AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' "
+						: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 				)
 			);
 			CTimeZone::Enable();
 
 			if (!($res = $db_check->Fetch()))
 			{
-				return ["MESSAGE" => GetMessage('LOGIN_NOT_FOUND1'), "TYPE" => "ERROR", "FIELD" => "LOGIN"];
+				if ($arParams["CHECKWORD"] != '')
+				{
+					return ["MESSAGE" => GetMessage("CHECKWORD_INCORRECT1") . "<br>", "TYPE" => "ERROR", "FIELD" => "CHECKWORD"];
+				}
+				return ["MESSAGE" => GetMessage("main_change_pass_incorrect_pass") . "<br>", "TYPE" => "ERROR", "FIELD" => "CURRENT_PASSWORD"];
 			}
 
 			$userId = $res["ID"];
 		}
 
 		$policy = static::getPolicy($userId);
-		$arPolicy = $policy->getValues();
-
-		$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy);
-		if (!empty($passwordErrors))
-		{
-			return ["MESSAGE" => implode("<br>", $passwordErrors) . "<br>", "TYPE" => "ERROR"];
-		}
 
 		if (!$phoneAuth)
 		{
@@ -2399,15 +2368,8 @@ class CAllUser extends CDBResult
 							}
 						}
 					}
-
-					if ($passwordCorrect)
+					else
 					{
-						$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $arPolicy, $res["ID"]);
-						if (!empty($passwordErrors))
-						{
-							return ["MESSAGE" => implode("<br>", $passwordErrors) . "<br>", "TYPE" => "ERROR"];
-						}
-
 						$APPLICATION->SetNeedCAPTHA(false);
 					}
 				}
@@ -2432,6 +2394,12 @@ class CAllUser extends CDBResult
 					$arParams["SITE_ID"] = SITE_ID;
 				}
 			}
+		}
+
+		$passwordErrors = static::CheckPasswordAgainstPolicy($arParams["PASSWORD"], $policy->getValues(), $userId);
+		if (!empty($passwordErrors))
+		{
+			return ["MESSAGE" => implode("<br>", $passwordErrors) . "<br>", "TYPE" => "ERROR"];
 		}
 
 		// change the password
@@ -2573,9 +2541,9 @@ class CAllUser extends CDBResult
 				"WHERE ID = '" . $ID . "'" .
 				(
 					// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeSendUserInfo event
-				isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '' ?
-					"	AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' " :
-					"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+					!empty($arParams["EXTERNAL_AUTH_ID"])
+						? " AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' "
+						: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 				);
 
 			$DB->Query($strSql);
@@ -2586,9 +2554,9 @@ class CAllUser extends CDBResult
 			"FROM b_user u " .
 			"WHERE ID='" . $ID . "'" .
 			(
-			isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '' ?
-				"	AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' " :
-				"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+				!empty($arParams["EXTERNAL_AUTH_ID"])
+					? " AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' "
+					: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 			)
 		);
 
@@ -2716,9 +2684,9 @@ class CAllUser extends CDBResult
 						"	AND (ACTIVE='Y' OR NOT(CONFIRM_CODE IS NULL OR CONFIRM_CODE='')) " .
 						(
 							// $arParams["EXTERNAL_AUTH_ID"] can be changed in the OnBeforeUserSendPassword event
-						isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '' ?
-							"	AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' " :
-							"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+							!empty($arParams["EXTERNAL_AUTH_ID"])
+								? " AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' "
+								: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 						);
 				}
 				if ($arParams["EMAIL"] != '')
@@ -2733,9 +2701,9 @@ class CAllUser extends CDBResult
 						"WHERE EMAIL='" . $DB->ForSQL($arParams["EMAIL"]) . "' " .
 						"	AND (ACTIVE='Y' OR NOT(CONFIRM_CODE IS NULL OR CONFIRM_CODE='')) " .
 						(
-						isset($arParams["EXTERNAL_AUTH_ID"]) && $arParams["EXTERNAL_AUTH_ID"] != '' ?
-							"	AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' " :
-							"	AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
+							!empty($arParams["EXTERNAL_AUTH_ID"])
+								? " AND EXTERNAL_AUTH_ID='" . $DB->ForSQL($arParams["EXTERNAL_AUTH_ID"]) . "' "
+								: " AND (EXTERNAL_AUTH_ID IS NULL OR EXTERNAL_AUTH_ID='') "
 						);
 				}
 				$res = $DB->Query($strSql);
@@ -3773,7 +3741,7 @@ class CAllUser extends CDBResult
 		}
 		else
 		{
-			$rs = static::GetList('id', 'asc', ["ID_EQUAL_EXACT" => intval($ID)], ["SELECT" => ["UF_*"]]);
+			$rs = static::GetList('', '', ["ID_EQUAL_EXACT" => intval($ID)], ["SELECT" => ["UF_*"]]);
 			if ($userID > 0 && $ID == $userID)
 			{
 				self::$CURRENT_USER = [$rs->Fetch()];
@@ -3793,7 +3761,7 @@ class CAllUser extends CDBResult
 	public function Update($ID, $arFields, $authActions = true)
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
-		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $USER;
+		global $DB, $USER_FIELD_MANAGER, $USER;
 
 		$ID = intval($ID);
 
@@ -4091,34 +4059,10 @@ class CAllUser extends CDBResult
 
 			if (defined("BX_COMP_MANAGED_CACHE"))
 			{
-				$userData = Main\UserTable::getById($ID)->fetch();
+				$userData = Main\UserTable::getList(['select' => ['EXTERNAL_AUTH_ID'], 'filter' => ['=ID' => $ID]])->fetch();
 				$isRealUser = !$userData['EXTERNAL_AUTH_ID'] || !in_array($userData['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
 
-				$CACHE_MANAGER->ClearByTag("USER_CARD_" . intval($ID / TAGGED_user_card_size));
-				$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_CARD" : "EXTERNAL_USER_CARD");
-
-				static $arNameFields = [
-					"NAME", "LAST_NAME", "SECOND_NAME",
-					"ACTIVE",
-					"LOGIN", "EMAIL",
-					"PERSONAL_GENDER", "PERSONAL_PHOTO", "WORK_POSITION", "PERSONAL_PROFESSION", "PERSONAL_WWW", "PERSONAL_BIRTHDAY", "TITLE",
-					"EXTERNAL_AUTH_ID", "UF_DEPARTMENT",
-					"AUTO_TIME_ZONE", "TIME_ZONE", "TIME_ZONE_OFFSET",
-				];
-				$bClear = false;
-				foreach ($arNameFields as $val)
-				{
-					if (isset($arFields[$val]))
-					{
-						$bClear = true;
-						break;
-					}
-				}
-				if ($bClear)
-				{
-					$CACHE_MANAGER->ClearByTag("USER_NAME_" . $ID);
-					$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_NAME" : "EXTERNAL_USER_NAME");
-				}
+				static::clearTagCache($ID, $isRealUser, $arFields);
 			}
 		}
 
@@ -4309,14 +4253,14 @@ class CAllUser extends CDBResult
 
 	public static function Delete($ID)
 	{
-		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $CACHE_MANAGER;
+		global $DB, $APPLICATION, $USER_FIELD_MANAGER;
 
 		$ID = intval($ID);
 
 		$rsUser = $DB->Query("
-			SELECT ID, LOGIN, NAME, LAST_NAME, EXTERNAL_AUTH_ID, PERSONAL_PHOTO, WORK_LOGO 
-			FROM b_user 
-			WHERE ID = {$ID} 
+			SELECT ID, LOGIN, NAME, LAST_NAME, EXTERNAL_AUTH_ID, PERSONAL_PHOTO, WORK_LOGO
+			FROM b_user
+			WHERE ID = {$ID}
 				AND ID <> 1
 		");
 		$arUser = $rsUser->Fetch();
@@ -4373,7 +4317,7 @@ class CAllUser extends CDBResult
 
 		ShortCode::deleteByUser($ID);
 
-		CHotKeys::GetInstance()->DeleteByUser($ID);
+		CHotKeys::DeleteByUser($ID);
 
 		UserPasswordTable::deleteByFilter($userFilter);
 
@@ -4399,12 +4343,7 @@ class CAllUser extends CDBResult
 		if (defined("BX_COMP_MANAGED_CACHE"))
 		{
 			$isRealUser = !$arUser['EXTERNAL_AUTH_ID'] || !in_array($arUser['EXTERNAL_AUTH_ID'], Main\UserTable::getExternalUserTypes());
-
-			$CACHE_MANAGER->ClearByTag("USER_CARD_" . intval($ID / TAGGED_user_card_size));
-			$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_CARD" : "EXTERNAL_USER_CARD");
-
-			$CACHE_MANAGER->ClearByTag("USER_NAME_" . $ID);
-			$CACHE_MANAGER->ClearByTag($isRealUser ? "USER_NAME" : "EXTERNAL_USER_CARD");
+			static::clearTagCache($ID, $isRealUser);
 		}
 
 		static::clearUserGroupCache($ID);
@@ -4484,7 +4423,7 @@ class CAllUser extends CDBResult
 	 */
 	public static function getPolicy($userId)
 	{
-		global $DB, $CACHE_MANAGER;
+		global $DB;
 
 		static $cache = [];
 
@@ -4766,11 +4705,11 @@ class CAllUser extends CDBResult
 
 		static $arAlowedOperations = ['fm_delete_file', 'fm_rename_folder', 'fm_view_permission'];
 
-		if (mb_substr($arPath[1], -10) == "/.htaccess" && !$USER->CanDoOperation('edit_php') && !in_array($op_name, $arAlowedOperations))
+		if (str_ends_with($arPath[1], "/.htaccess") && !$USER->CanDoOperation('edit_php') && !in_array($op_name, $arAlowedOperations))
 		{
 			return false;
 		}
-		if (mb_substr($arPath[1], -12) == "/.access.php")
+		if (str_ends_with($arPath[1], "/.access.php"))
 		{
 			return false;
 		}
@@ -5780,6 +5719,7 @@ class CAllUser extends CDBResult
 	 * @param string $phoneNumber
 	 * @param string $smsTemplate
 	 * @param string|null $siteId
+	 *
 	 * @return Main\Result
 	 */
 	public static function SendPhoneCode($phoneNumber, $smsTemplate, $siteId = null)
@@ -5896,6 +5836,47 @@ class CAllUser extends CDBResult
 			$this->context = Authentication\Context::jsonDecode((string)$this->GetParam('CONTEXT'));
 		}
 		return $this->context;
+	}
+
+	protected static function clearTagCache(int $ID, bool $realUser, array $fields = null)
+	{
+		global $CACHE_MANAGER;
+
+		$CACHE_MANAGER->ClearByTag('USER_CARD_' . intval($ID / TAGGED_user_card_size));
+		if ($realUser)
+		{
+			$CACHE_MANAGER->ClearByTag('USER_CARD');
+		}
+
+		static $nameFields = [
+			'NAME', 'LAST_NAME', 'SECOND_NAME',
+			'ACTIVE', 'LOGIN', 'EMAIL',
+			'PERSONAL_GENDER', 'PERSONAL_PHOTO', 'WORK_POSITION', 'PERSONAL_PROFESSION', 'PERSONAL_WWW', 'PERSONAL_BIRTHDAY', 'TITLE',
+			'EXTERNAL_AUTH_ID', 'UF_DEPARTMENT',
+			'AUTO_TIME_ZONE', 'TIME_ZONE', 'TIME_ZONE_OFFSET',
+		];
+
+		$clearName = true;
+		if ($fields !== null)
+		{
+			$clearName = false;
+			foreach ($nameFields as $val)
+			{
+				if (isset($fields[$val]))
+				{
+					$clearName = true;
+					break;
+				}
+			}
+		}
+		if ($clearName)
+		{
+			$CACHE_MANAGER->ClearByTag('USER_NAME_' . $ID);
+			if ($realUser)
+			{
+				$CACHE_MANAGER->ClearByTag('USER_NAME');
+			}
+		}
 	}
 }
 

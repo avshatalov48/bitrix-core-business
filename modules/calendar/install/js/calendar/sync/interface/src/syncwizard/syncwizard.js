@@ -1,4 +1,5 @@
 // @flow
+
 'use strict';
 
 import { Cache, Dom, Event, Loc, Tag, Text, Type } from 'main.core';
@@ -19,7 +20,7 @@ export default class SyncWizard extends EventEmitter
 	MIN_UPDATE_STATE_DELAY = 1500; // in ms
 	CONFETTI_DELAY = 1000;
 
-	constructor()
+	constructor(options = {})
 	{
 		super();
 		this.setEventNamespace('BX.Calendar.Sync.Interface.SyncWizard');
@@ -29,28 +30,44 @@ export default class SyncWizard extends EventEmitter
 		this.pullWizardEventHandler = this.handlePullNewEvent.bind(this);
 		this.lastUpdateStateTimestamp = Date.now();
 		this.logoIconClass = '';
+
+		this.mode = Type.isStringFilled(options.mode) ? this.getValidatedMode(options.mode) : 'default';
+	}
+
+	getValidatedMode(mode: string): string
+	{
+		if (['default', 'reconnect'].includes(mode))
+		{
+			return mode;
+		}
+
+		return 'default';
 	}
 
 	openSlider()
 	{
-		BX.SidePanel.Instance.open(this.SLIDER_NAME, {
-			contentCallback: slider => {
-				return new Promise((resolve, reject) => {
-					resolve(this.getContent());
-				});
-			},
-			allowChangeHistory: false,
-			events: {
-				onLoad: () => {
-					this.displaySyncStages();
-					this.bindButtonsHandlers();
+		const content = this.getContent();
+		if (this.mode !== 'reconnect')
+		{
+			BX.SidePanel.Instance.open(this.SLIDER_NAME, {
+				contentCallback: (slider) => {
+					return new Promise((resolve, reject) => {
+						resolve(content);
+					});
 				},
-				onDestroy: this.handleCloseWizard.bind(this)
-			},
-			cacheable: false,
-			width: this.SLIDER_WIDTH,
-			loader: this.LOADER_NAME,
-		});
+				allowChangeHistory: false,
+				events: {
+					onLoad: () => {
+						this.displaySyncStages();
+						this.bindButtonsHandlers();
+					},
+					onDestroy: this.handleCloseWizard.bind(this),
+				},
+				cacheable: false,
+				width: this.SLIDER_WIDTH,
+				loader: this.LOADER_NAME,
+			});
+		}
 
 		this.slider = BX.SidePanel.Instance.getTopSlider();
 		this.syncIsFinished = false;

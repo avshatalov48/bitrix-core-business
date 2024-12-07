@@ -20,14 +20,9 @@ class CDatabase extends CAllDatabase
 
 	public $type = "PGSQL";
 
-	protected function ConnectInternal()
-	{
-		throw new \Bitrix\Main\NotImplementedException("Use d7 connection.");
-	}
-
 	public function ToNumber($expr)
 	{
-		return "CASE WHEN " . $expr . "~E'^\\d+$' THEN " . $expr . "::integer ELSE 0 END";
+		return "CASE WHEN " . $expr . "~E'^[0-9]+$' THEN " . $expr . "::integer ELSE 0 END";
 	}
 
 	public function DateFormatToDB($format, $field = false)
@@ -424,7 +419,7 @@ class CDatabase extends CAllDatabase
 
 		$row = $res->Fetch();
 
-		return array_shift($row);
+		return intval(array_shift($row));
 	}
 
 	public function Add($tablename, $arFields, $arCLOBFields = Array(), $strFileDir="", $ignore_errors=false, $error_position="", $arOptions=array())
@@ -442,7 +437,7 @@ class CDatabase extends CAllDatabase
 			{
 				$strSql = "INSERT INTO ".$tablename."(".$arInsert[0].") VALUES (".$arInsert[1].") RETURNING ID";
 				$row = $this->Query($strSql, $ignore_errors, $error_position, $arOptions)->Fetch();
-				return array_shift($row);
+				return intval(array_shift($row));
 			}
 			else
 			{

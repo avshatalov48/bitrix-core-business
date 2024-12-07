@@ -109,7 +109,7 @@ export const MentionPopupContent = {
 				return false;
 			}
 
-			return this.searchResult.length === 0 && this.preparedQuery.length > 0;
+			return this.itemsToShow.length === 0 && this.preparedQuery.length > 0;
 		},
 		searchConfig(): JsonObject
 		{
@@ -253,6 +253,7 @@ export const MentionPopupContent = {
 				mentionText,
 				mentionReplacement,
 				textToReplace: this.query,
+				dialogId: this.dialogId,
 			});
 		},
 		getMentionText(dialogId: string): string
@@ -332,9 +333,10 @@ export const MentionPopupContent = {
 			>
 				<div class="bx-im-mention-popup-content__items">
 					<MentionItem
-						v-for="(dialogId, index) in itemsToShow"
+						v-for="(itemDialogId, index) in itemsToShow"
 						:data-index="index"
-						:dialogId="dialogId"
+						:dialogId="itemDialogId"
+						:contextDialogId="dialogId"
 						:query="query"
 						:selected="selectedIndex === index"
 						@itemClick="onItemClick"

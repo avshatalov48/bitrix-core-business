@@ -33,6 +33,23 @@ class Limitation
 		return $limits;
 	}
 
+	public static function hasDailyLimits(): bool
+	{
+		foreach (SmsManager::getSenders() as $sender)
+		{
+			foreach ($sender->getFromList() as $from)
+			{
+				$limit = static::getDailyLimit($sender->getId(), $from['id']);
+				if (isset($limit) && $limit > 0)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
 	public static function getDailyLimit($senderId, $fromId)
 	{
 		$key = $senderId . ':' . $fromId;

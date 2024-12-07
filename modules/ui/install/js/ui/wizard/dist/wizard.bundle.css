@@ -17,7 +17,7 @@
 .sign-wizard__stages_item {
 	display: inline-block;
 	color: rgba(82, 92, 105, .5);
-	padding-right: 20px;
+	padding-right: 30px;
 	position: relative;
 	font-family: "OpenSans-SemiBold", "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-size: 14px;
@@ -37,7 +37,7 @@
 	position: absolute;
 	width: 5px;
 	height: 5px;
-	right: 8px;
+	right: 13px;
 	top: 10px;
 	transform: rotate(45deg);
 }

@@ -1,9 +1,15 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 
 /********************************************************************
 				Get data from cache
@@ -39,7 +45,10 @@ if (empty($arParams["PERMISSION"]))
 	}
 }
 if ($arParams["PERMISSION"] < "R")
-	return ShowError(GetMessage("P_DENIED_ACCESS"));
+{
+	ShowError(GetMessage("P_DENIED_ACCESS"));
+	return;
+}
 
 $arParams["SET_STATUS_404"] = "Y";
 

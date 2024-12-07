@@ -258,7 +258,7 @@ if ($iblockExists)
 		'PARENT' => 'LIST_SETTINGS',
 		'NAME' => GetMessage('CP_BC_TPL_PRODUCT_ROW_VARIANTS'),
 		'TYPE' => 'CUSTOM',
-		'BIG_DATA' => 'Y',
+		'BIG_DATA' => \Bitrix\Main\Analytics\Catalog::isOn() ? 'Y' : 'N',
 		'COUNT_PARAM_NAME' => 'PAGE_ELEMENT_COUNT',
 		'JS_FILE' => CatalogSectionComponent::getSettingsScript('/bitrix/components/bitrix/catalog.section', 'dragdrop_add'),
 		'JS_EVENT' => 'initDraggableAddControl',
@@ -1072,33 +1072,36 @@ if (ModuleManager::isModuleInstalled("sale"))
 		'DEFAULT' => 'Y'
 	);
 
-	$arTemplateParameters['USE_BIG_DATA'] = array(
-		'PARENT' => 'BIG_DATA_SETTINGS',
-		'NAME' => GetMessage('CP_BC_TPL_USE_BIG_DATA'),
-		'TYPE' => 'CHECKBOX',
-		'DEFAULT' => 'Y',
-		'REFRESH' => 'Y'
-	);
-	if (!isset($arCurrentValues['USE_BIG_DATA']) || $arCurrentValues['USE_BIG_DATA'] == 'Y')
+	if (\Bitrix\Main\Analytics\Catalog::isOn())
 	{
-		$rcmTypeList = array(
-			'personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL'),
-			'bestsell' => GetMessage('CP_BC_TPL_RCM_BESTSELLERS'),
-			'similar_sell' => GetMessage('CP_BC_TPL_RCM_SOLD_WITH'),
-			'similar_view' => GetMessage('CP_BC_TPL_RCM_VIEWED_WITH'),
-			'similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR'),
-			'any_similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR_ANY'),
-			'any_personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL_WBEST'),
-			'any' => GetMessage('CP_BC_TPL_RCM_RAND')
-		);
-		$arTemplateParameters['BIG_DATA_RCM_TYPE'] = array(
+		$arTemplateParameters['USE_BIG_DATA'] = array(
 			'PARENT' => 'BIG_DATA_SETTINGS',
-			'NAME' => GetMessage('CP_BC_TPL_BIG_DATA_RCM_TYPE'),
-			'TYPE' => 'LIST',
-			'DEFAULT' => 'personal',
-			'VALUES' => $rcmTypeList
+			'NAME' => GetMessage('CP_BC_TPL_USE_BIG_DATA'),
+			'TYPE' => 'CHECKBOX',
+			'DEFAULT' => 'Y',
+			'REFRESH' => 'Y'
 		);
-		unset($rcmTypeList);
+		if (!isset($arCurrentValues['USE_BIG_DATA']) || $arCurrentValues['USE_BIG_DATA'] === 'Y')
+		{
+			$rcmTypeList = array(
+				'personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL'),
+				'bestsell' => GetMessage('CP_BC_TPL_RCM_BESTSELLERS'),
+				'similar_sell' => GetMessage('CP_BC_TPL_RCM_SOLD_WITH'),
+				'similar_view' => GetMessage('CP_BC_TPL_RCM_VIEWED_WITH'),
+				'similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR'),
+				'any_similar' => GetMessage('CP_BC_TPL_RCM_SIMILAR_ANY'),
+				'any_personal' => GetMessage('CP_BC_TPL_RCM_PERSONAL_WBEST'),
+				'any' => GetMessage('CP_BC_TPL_RCM_RAND')
+			);
+			$arTemplateParameters['BIG_DATA_RCM_TYPE'] = array(
+				'PARENT' => 'BIG_DATA_SETTINGS',
+				'NAME' => GetMessage('CP_BC_TPL_BIG_DATA_RCM_TYPE'),
+				'TYPE' => 'LIST',
+				'DEFAULT' => 'personal',
+				'VALUES' => $rcmTypeList
+			);
+			unset($rcmTypeList);
+		}
 	}
 }
 

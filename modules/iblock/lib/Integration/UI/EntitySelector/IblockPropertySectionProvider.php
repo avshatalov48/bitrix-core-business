@@ -10,7 +10,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 
 class IblockPropertySectionProvider extends BaseProvider
 {
-	private const ENTITY_ID = 'iblock-property-section';
+	public const ENTITY_ID = 'iblock-property-section';
 	private const ELEMENTS_LIMIT = 100;
 
 	public function __construct(array $options = [])

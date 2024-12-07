@@ -45,7 +45,7 @@ if($loc = $res->fetch())
 	<td width="40%">&nbsp;</td>
 	<td width="60%"><input type="button" value="<?=\Bitrix\Main\Localization\Loc::getMessage('SALE_DLVRS_ADDL_LOC_TAB_B_COMP')?>" onclick="BX.Sale.Handler.Delivery.Additional.startLocationsCompare();"><br></td>
 </tr>
-<script language="JavaScript">
+<script>
 	BX.message({
 		SALE_DLVRS_ADD_LOC_COMP_TITLE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_TITLE")?>',
 		SALE_DLVRS_ADD_LOC_COMP_CLOSE: '<?=\Bitrix\Main\Localization\Loc::getMessage("SALE_DLVRS_ADD_LOC_COMP_CLOSE")?>',

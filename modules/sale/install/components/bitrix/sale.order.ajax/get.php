@@ -12,8 +12,6 @@ require_once($_SERVER["DOCUMENT_ROOT"].'/bitrix/modules/main/include/prolog_befo
 
 Loader::includeModule('sale');
 
-CUtil::JSPostUnescape();
-
 $result = array(
 	'ERRORS' => array(),
 	'DATA' => array()

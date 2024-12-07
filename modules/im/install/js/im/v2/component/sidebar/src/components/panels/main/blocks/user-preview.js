@@ -1,6 +1,6 @@
 import { hint } from 'ui.vue3.directives.hint';
 
-import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 import { ChatActionType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { AddToChat } from 'im.v2.component.entity-selector';
@@ -17,7 +17,7 @@ import type { ImModelChat, ImModelUser } from 'im.v2.model';
 export const UserPreview = {
 	name: 'UserPreview',
 	directives: { hint },
-	components: { Avatar, ChatTitle, MessengerButton, AddToChat, AutoDelete },
+	components: { ChatAvatar, ChatTitle, MessengerButton, AddToChat, AutoDelete },
 	props: {
 		dialogId: {
 			type: String,
@@ -83,9 +83,10 @@ export const UserPreview = {
 	template: `
 		<div class="bx-im-sidebar-main-preview__scope">
 			<div class="bx-im-sidebar-main-preview-personal-chat__avatar-container">
-				<Avatar
+				<ChatAvatar
+					:avatarDialogId="dialogId"
+					:contextDialogId="dialogId"
 					:size="AvatarSize.XXXL"
-					:dialogId="dialogId"
 					class="bx-im-sidebar-main-preview-personal-chat__avatar"
 				/>
 				<a :href="userLink" target="_blank">

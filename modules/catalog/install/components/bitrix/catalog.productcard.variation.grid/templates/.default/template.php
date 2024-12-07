@@ -31,11 +31,12 @@ $createPropertyId = $containerId.'_create_property';
 $createPropertyHintId = $createPropertyId.'_hint';
 
 $isProduct = $arParams['VARIATION_ID_LIST'] === null;
+$isCatalogHidden = $arResult['IS_CATALOG_HIDDEN'];
 ?>
 <div class="catalog-variation-grid" id="<?=$containerId?>">
 	<div class="catalog-variation-grid-content">
 		<?php
-		if ($isProduct)
+		if ($isProduct && !$isCatalogHidden)
 		{
 			$disabledClass = $arResult['CAN_HAVE_SKU'] ? '' : ' ui-btn-disabled';
 			?>
@@ -92,6 +93,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 				'ACTION_PANEL' => $isProduct ? $arResult['GRID']['ACTION_PANEL'] : false,
 				'HANDLE_RESPONSE_ERRORS' => true,
 				'ENABLE_FIELDS_SEARCH' => $arResult['GRID']['ENABLE_FIELDS_SEARCH'],
+				'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => $arResult['GRID']['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'],
 			],
 			$component
 		);

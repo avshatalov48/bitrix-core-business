@@ -215,12 +215,15 @@ class Factory
 	public function createCrmDealLink(
 		int $ownerId,
 		int $entityId,
+		?array $memberIds = [],
 		?int $contactId = null,
 		?int $contactType = null,
 		?string $channelId = null,
-		?string $senderId = null
+		?string $senderId = null,
 	): CrmDealLink
 	{
+		$memberHash = $this->generateMembersHash($ownerId, $memberIds);
+
 		$crmDealLink = (new CrmDealLink())
 			->setOwnerId($ownerId)
 			->setEntityId($entityId)
@@ -237,6 +240,14 @@ class Factory
 			)
 			->setFrequentUse(1)
 		;
+
+		if ($memberHash !== null)
+		{
+			$crmDealLink
+				->setMembers($this->getMembersFromIds($memberIds))
+				->setMembersHash($memberHash)
+			;
+		}
 
 		$rule = (new Rule\Factory())->getRuleBySharingLink($crmDealLink);
 		$crmDealLink->setSharingRule($rule);
@@ -262,10 +273,16 @@ class Factory
 		$userJointLink = (new UserLink())
 			->setUserId($userId)
 			->setActive(true)
-			->setMembers($this->getMembersFromIds($memberIds))
-			->setMembersHash($memberHash)
 			->setFrequentUse(1)
 		;
+
+		if ($memberHash !== null)
+		{
+			$userJointLink
+				->setMembers($this->getMembersFromIds($memberIds))
+				->setMembersHash($memberHash)
+			;
+		}
 
 		(new UserLinkMapper())->create($userJointLink);
 
@@ -295,18 +312,30 @@ class Factory
 		$users = UserTable::query()
 			->whereIn('ID', $memberIds)
 			->where('IS_REAL_USER', 'Y')
-			->setSelect(['NAME', 'LAST_NAME', 'ID'])
+			->setSelect(['NAME', 'LAST_NAME', 'ID', 'PERSONAL_PHOTO'])
 			->exec()
 			->fetchCollection()
 		;
 
 		foreach ($users as $user)
 		{
+			$avatar = '';
+			if (!empty($user->getPersonalPhoto()))
+			{
+				$file = \CFile::ResizeImageGet(
+					$user->getPersonalPhoto(),
+					['width' => 100, 'height' => 100],
+					BX_RESIZE_IMAGE_EXACT,
+				);
+				$avatar = !empty($file['src']) ? $file['src'] : '';
+			}
+
 			$member = new Member();
 			$member
 				->setId($user->getId())
 				->setName($user->getName())
 				->setLastName($user->getLastName())
+				->setAvatar($avatar)
 			;
 			$result[] = $member;
 		}
@@ -314,8 +343,13 @@ class Factory
 		return $result;
 	}
 
-	public function generateMembersHash(int $userId, array $memberIds): string
+	public function generateMembersHash(int $userId, array $memberIds): ?string
 	{
+		if (empty($memberIds))
+		{
+			return null;
+		}
+
 		$memberIds = array_map(static function ($memberId) {
 			return (int)$memberId;
 		}, $memberIds);
@@ -335,15 +369,20 @@ class Factory
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public function getEventLinkByEventId(int $eventId): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	public function getEventLinkByEventId(int $eventId, bool $searchActiveOnly = true): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
-		$sharingLinkEO = SharingLinkTable::query()
+		$query = SharingLinkTable::query()
 			->setSelect(['*'])
 			->where('OBJECT_ID', $eventId)
 			->where('OBJECT_TYPE', Helper::EVENT_SHARING_TYPE)
-			->where('ACTIVE', 'Y')
-			->exec()->fetchObject()
 		;
+
+		if ($searchActiveOnly)
+		{
+			$query->where('ACTIVE', 'Y');
+		}
+
+		$sharingLinkEO = $query->exec()->fetchObject();
 
 		if ($sharingLinkEO === null)
 		{
@@ -393,10 +432,13 @@ class Factory
 	public function getCrmDealLink(
 		int $entityId,
 		int $ownerId,
+		?array $memberIds = [],
 		?int $contactId = null,
-		?int $contactType = null
+		?int $contactType = null,
 	): ?\Bitrix\Calendar\Core\Base\EntityInterface
 	{
+		$memberHash = $this->generateMembersHash($ownerId, $memberIds);
+
 		$sharingLinkEO = SharingLinkTable::query()
 			->setSelect(self::SELECT)
 			->where('OBJECT_ID', $entityId)
@@ -406,7 +448,27 @@ class Factory
 			->where('CONTACT_ID', $contactId)
 			->where('CONTACT_TYPE', $contactType)
 			->where('DATE_CREATE', '>=', (new DateTime())->setTime(0, 0))
-			->whereNull('MEMBERS.MEMBER_ID')
+			->where('MEMBERS_HASH', $memberHash)
+			->exec()->fetchObject();
+
+		if ($sharingLinkEO === null)
+		{
+			return null;
+		}
+
+		return (new CrmDealLinkMapper())->getByEntityObject($sharingLinkEO);
+	}
+
+	public function getLastSentCrmDealLink(int $ownerId): ?\Bitrix\Calendar\Core\Base\EntityInterface
+	{
+		$sharingLinkEO = SharingLinkTable::query()
+			->setSelect(['*'])
+			->where('OBJECT_TYPE', Helper::CRM_DEAL_SHARING_TYPE)
+			->where('OWNER_ID', $ownerId)
+			->whereNotNull('CONTACT_ID')
+			->whereNotNull('CONTACT_TYPE')
+			->setOrder(['ID' => 'desc'])
+			->setLimit(1)
 			->exec()->fetchObject();
 
 		if ($sharingLinkEO === null)
@@ -423,6 +485,7 @@ class Factory
 			->setSelect(self::SELECT)
 			->where('MEMBERS_HASH', $membersHash)
 			->where('ACTIVE', 'Y')
+			->where('OBJECT_TYPE', Helper::USER_SHARING_TYPE)
 			->exec()->fetchObject()
 		;
 

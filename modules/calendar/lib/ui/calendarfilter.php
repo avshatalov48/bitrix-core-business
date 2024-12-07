@@ -277,8 +277,8 @@ class CalendarFilter
 		$result = [];
 
 		$sectionList = \CCalendar::getSectionList([
-			'CAL_TYPE' => $type,
-			'OWNER_ID' => $ownerId,
+			'CAL_TYPE' => $type === 'user' ? ['user', 'open_event'] : $type,
+			'OWNER_ID' => array_unique([(int)$ownerId, 0]),
 			'checkPermissions' => true,
 			'getPermissions' => true,
 		]);
@@ -369,7 +369,7 @@ class CalendarFilter
 		$entries = [];
 		$filter = [
 			'OWNER_ID' => $ownerId,
-			'CAL_TYPE' => $type,
+			'CAL_TYPE' => $type === 'user' ? ['user', 'open_event'] : $type,
 			'ACTIVE_SECTION' => 'Y',
 		];
 

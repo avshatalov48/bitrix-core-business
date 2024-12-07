@@ -2,9 +2,6 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Config;
-use Bitrix\Main\Localization;
-
 /**
  * Class HttpContext extends Context with http specific methods.
  * @package Bitrix\Main

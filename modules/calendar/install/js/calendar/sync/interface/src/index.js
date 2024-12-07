@@ -1,5 +1,6 @@
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
+import 'ui.icon-set.actions';
 import "./css/syncinterface.css";
 import SyncPanel from "./syncpanel";
 import SyncPanelUnit from "./syncpanelunit";

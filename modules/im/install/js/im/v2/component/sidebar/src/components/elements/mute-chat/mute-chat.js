@@ -1,15 +1,14 @@
 import { hint } from 'ui.vue3.directives.hint';
 
-import { ChatActionType } from 'im.v2.const';
+import { ChatActionType, Layout } from 'im.v2.const';
 import { Core } from 'im.v2.application.core';
 import { ChatService } from 'im.v2.provider.service';
 import { PermissionManager } from 'im.v2.lib.permission';
 import { Toggle, ToggleSize } from 'im.v2.component.elements';
 
-import type { JsonObject } from 'main.core';
 import type { ImModelChat } from 'im.v2.model';
 
-import './mute-chat.css';
+import './css/mute-chat.css';
 
 // @vue/component
 export const MuteChat = {
@@ -22,11 +21,6 @@ export const MuteChat = {
 			type: String,
 			required: true,
 		},
-	},
-	data(): JsonObject {
-		return {
-			autoDeleteEnabled: false,
-		};
 	},
 	computed:
 	{
@@ -71,6 +65,12 @@ export const MuteChat = {
 				},
 			};
 		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
+		},
 	},
 	methods:
 	{
@@ -108,14 +108,14 @@ export const MuteChat = {
 		<div
 			v-if="isGroupChat"
 			class="bx-im-sidebar-mute-chat__container"
-			:class="[canBeMuted ? '' : '--not-active']"
+			:class="{'--not-active': !canBeMuted, '--copilot': isCopilotLayout}"
 			v-hint="hintMuteNotAvailable"
 		>
 			<div class="bx-im-sidebar-mute-chat__title">
 				<div class="bx-im-sidebar-mute-chat__title-text bx-im-sidebar-mute-chat__icon">
 					{{ loc('IM_SIDEBAR_ENABLE_NOTIFICATION_TITLE_2') }}
 				</div>
-				<Toggle :size="ToggleSize.M" :isEnabled="!isChatMuted" @change="muteActionHandler" />
+				<Toggle :size="ToggleSize.M" :isEnabled="!isChatMuted" @click="muteActionHandler" />
 			</div>
 		</div>
 	`,

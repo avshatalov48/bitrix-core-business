@@ -1,0 +1,5 @@
+/** @module bbcode/formatter */
+jn.define('bbcode/formatter', (require, exports, module) => {
+    const Model = require('bbcode/model');
+    const { BBCodeParser } = require('bbcode/parser');
+    const { Type } = require('type');

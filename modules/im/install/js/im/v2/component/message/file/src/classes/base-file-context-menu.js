@@ -6,10 +6,12 @@ import { Utils } from 'im.v2.lib.utils';
 import { PopupType } from 'im.v2.const';
 
 import type { MenuItem } from 'im.v2.lib.menu';
-import type { ImModelFile } from 'im.v2.model';
+import type { ImModelFile, ImModelMessage } from 'im.v2.model';
 
 export class BaseFileContextMenu extends BaseMenu
 {
+	context: ImModelMessage & {dialogId: string, fileId: number};
+
 	id: String = PopupType.messageBaseFileMenu;
 	diskService: DiskService;
 
@@ -72,12 +74,11 @@ export class BaseFileContextMenu extends BaseMenu
 
 	#getMessageFile(): ?ImModelFile
 	{
-		if (this.context.files.length === 0)
+		if (!this.context.fileId)
 		{
 			return null;
 		}
 
-		// for now, we have only one file in one message. In the future we need to change this logic.
-		return this.store.getters['files/get'](this.context.files[0]);
+		return this.store.getters['files/get'](this.context.fileId);
 	}
 }

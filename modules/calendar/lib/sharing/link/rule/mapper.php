@@ -64,7 +64,11 @@ class Mapper
 		{
 			$from = $rangeArray['from'] ?? $this->getDefaultFrom();
 			$to = $rangeArray['to'] ?? $this->getDefaultTo();
-			$weekdays = $rangeArray['weekdays'] ?? $this->getWorkdays();
+			$weekdays =
+				is_array($rangeArray['weekdays'] ?? null)
+					? $rangeArray['weekdays']
+					: $this->getWorkdays()
+			;
 			$ranges[] = (new Range())
 				->setFrom($from)
 				->setTo($to)

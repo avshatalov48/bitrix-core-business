@@ -231,7 +231,7 @@ $curJsId = $this->randString();
 			)
 		);
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function(){
 				new BX.Catalog.SetConstructor(<?=CUtil::PhpToJSObject($arJsParams, false, true, true)?>);
 			});

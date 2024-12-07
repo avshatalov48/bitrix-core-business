@@ -7,7 +7,9 @@
 	background: #fff;
 	border: 1px solid #c6cdd3;
 	border-radius: var(--ui-tile-selector-selector-border-radius, var(--ui-border-radius-2xs, 2px));
-	font: 13px/29px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	font-size: var(--ui-font-size-sm);
+	font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	line-height: 29px !important;
 }
 
 .ui-tile-selector-selector-wrap.readonly {
@@ -16,10 +18,16 @@
 	background: none;
 }
 
-.ui-tile-selector-input,
+.ui-tile-selector-selector-wrap .ui-tile-selector-selector {
+	line-height: inherit;
+}
+
+.ui-tile-selector-selector-wrap .ui-tile-selector-input,
+.ui-tile-selector-selector-wrap .ui-tile-selector-input[type="text"],
 .ui-tile-selector-select-container,
 .ui-tile-selector-selector-wrap .ui-tile-selector-item,
 .ui-tile-selector-selector-wrap .ui-tile-selector-more {
+	box-sizing: border-box;
 	display: inline-block;
 	vertical-align: top;
 	position: relative;
@@ -30,6 +38,10 @@
 .ui-tile-selector-select-container {
 	display: inline-flex;
 	align-items: center;
+}
+
+.ui-tile-selector-selector-wrap .ui-tile-selector-item {
+	line-height: inherit;
 }
 
 .ui-tile-selector-item,

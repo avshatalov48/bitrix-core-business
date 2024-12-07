@@ -3,10 +3,8 @@
 namespace Bitrix\Sale\Cashbox;
 
 use Bitrix\Main;
-use Bitrix\Main\Text;
 use Bitrix\Main\Localization;
 use Bitrix\Main\PhoneNumber;
-use Bitrix\Sale\Cashbox\Errors;
 use Bitrix\Sale\Result;
 use Bitrix\Catalog;
 
@@ -448,7 +446,7 @@ class CashboxOrangeData
 		$header .= "Accept: application/json\r\n";
 		$header .= "Content-Type: application/json\r\n";
 		$header .= "X-Signature: ".$sign."\r\n";
-		$header .= sprintf("Content-length: %s\r\n", Text\BinaryString::getLength($data));
+		$header .= sprintf("Content-length: %s\r\n", strlen($data));
 		$header .= "\r\n";
 
 		return $header;

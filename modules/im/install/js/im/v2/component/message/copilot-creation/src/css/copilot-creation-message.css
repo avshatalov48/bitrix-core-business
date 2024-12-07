@@ -1,0 +1,58 @@
+.bx-im-message-copilot-creation__container {
+	--im-message-copilot-creation__background-color_container: rgba(var(--im-color-palette-black-solid-rgb), 0.3);
+	--im-message-copilot-creation__background-color_action-border: rgba(var(--im-color-palette-white-base-rgb), 0.25);
+	--im-message-copilot-creation__background-color_action-hover: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__font-color_title: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__font-color_text: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__font-color_text-hover: rgba(var(--im-color-palette-gray-90-rgb), 0.9);
+	--im-message-copilot-creation__font-color_action-text: var(--im-color-palette-white-base);
+
+	display: flex;
+	flex-direction: column;
+	padding: 12px;
+	border-radius: 16px;
+	background-color: var(--im-message-copilot-creation__background-color_container);
+}
+
+.bx-im-message-copilot-creation__title {
+	margin-bottom: 4px;
+	font: var(--im-font-size-2xl) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-message-copilot-creation__font-color_title);
+}
+
+.bx-im-message-copilot-creation__text {
+	margin-bottom: 12px;
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-message-copilot-creation__font-color_text);
+	white-space: pre-line;
+}
+
+.bx-im-message-copilot-creation__actions {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+	align-items: center;
+}
+
+.bx-im-message-copilot-creation__action {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 32px;
+	padding: 7px 12px;
+	border: 1px solid var(--im-message-copilot-creation__background-color_action-border);
+	border-radius: 99px;
+	cursor: pointer;
+
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	color: var(--im-message-copilot-creation__font-color_action-text);
+}
+
+.bx-im-message-copilot-creation__action:hover {
+	background-color: var(--im-message-copilot-creation__background-color_action-hover);
+}
+
+.bx-im-message-copilot-creation__action:hover {
+	color: var(--im-message-copilot-creation__font-color_text-hover);
+}

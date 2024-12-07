@@ -1,24 +1,33 @@
-import { Type } from 'main.core';
+import { Type, Text } from 'main.core';
 import { LabelColor } from 'ui.label';
 
 import { Utils } from 'im.v2.lib.utils';
 import { ImModelSidebarTaskItem } from 'im.v2.model';
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+import { highlightText } from 'im.v2.lib.text-highlighter';
 
 import './css/task-item.css';
 
 // @vue/component
 export const TaskItem = {
 	name: 'TaskItem',
-	components: { Avatar, AvatarSize },
+	components: { ChatAvatar, AvatarSize },
 	props: {
 		task: {
 			type: Object,
 			required: true,
 		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
+		searchQuery: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): { showContextButton: boolean } {
 		return {
 			showContextButton: false,
 		};
@@ -32,7 +41,12 @@ export const TaskItem = {
 		},
 		taskTitle(): string
 		{
-			return this.taskItem.task.title;
+			if (this.searchQuery.length === 0)
+			{
+				return Text.encode(this.taskItem.task.title);
+			}
+
+			return highlightText(Text.encode(this.taskItem.task.title), this.searchQuery);
 		},
 		taskAuthorDialogId(): string
 		{
@@ -93,13 +107,19 @@ export const TaskItem = {
 			@mouseleave="showContextButton = false"
 		>
 			<div class="bx-im-sidebar-task-item__content" @click="onTaskClick">
-				<div class="bx-im-sidebar-task-item__header-text" :title="taskTitle">
-					{{ taskTitle }}
-				</div>
+				<div class="bx-im-sidebar-task-item__header-text" :title="taskTitle" v-html="taskTitle"></div>
 				<div class="bx-im-sidebar-task-item__detail-container">
-					<Avatar :size="AvatarSize.XS" :dialogId="taskAuthorDialogId" />
+					<ChatAvatar 
+						:size="AvatarSize.XS"
+						:avatarDialogId="taskAuthorDialogId"
+						:contextDialogId="contextDialogId"
+					/>
 					<div class="bx-im-sidebar-task-item__forward-small-icon bx-im-sidebar__forward-small-icon"></div>
-					<Avatar :size="AvatarSize.XS" :dialogId="taskResponsibleDialogId" />
+					<ChatAvatar 
+						:avatarDialogId="taskResponsibleDialogId" 
+						:contextDialogId="contextDialogId" 
+						:size="AvatarSize.XS" 
+					/>
 					<div class="bx-im-sidebar-task-item__status-text" :class="statusColorClass">
 						{{taskDeadlineText}}
 					</div>

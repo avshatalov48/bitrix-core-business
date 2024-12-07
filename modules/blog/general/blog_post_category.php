@@ -77,7 +77,7 @@ class CAllBlogPostCategory
 			"SELECT C.ID, C.BLOG_ID, C.POST_ID, C.CATEGORY_ID ".
 			"FROM b_blog_post_category C ".
 			"WHERE C.ID = ".$ID."";
-		$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbResult = $DB->Query($strSql);
 		if ($arResult = $dbResult->Fetch())
 		{
 			return $arResult;

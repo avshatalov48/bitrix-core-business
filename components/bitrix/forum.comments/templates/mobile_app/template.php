@@ -3,7 +3,6 @@
  * @var array $arParams
  * @var array $arResult
  * @var CMain $APPLICATION
- * @var CUser $USER
  * @var CBitrixComponentTemplate $this
  */
 
@@ -93,7 +92,7 @@ $arResult["OUTPUT_LIST"] = $APPLICATION->IncludeComponent(
 					"empty_get_comments")),
 			"FIELDS" => array(
 			)
-		)
+		),
 	),
 	$this->__component
 );

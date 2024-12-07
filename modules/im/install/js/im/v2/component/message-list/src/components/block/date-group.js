@@ -2,9 +2,8 @@ import { DialogBlockType as BlockType } from 'im.v2.const';
 
 import { DateGroupTitle } from './date-group-title';
 
-import { type FormattedCollectionItem } from '../../classes/collection-manager';
-
 import type { JsonObject } from 'main.core';
+import type { DateGroupItem } from '../../classes/collection-manager/collection-manager';
 
 // @vue/component
 export const DateGroup = {
@@ -24,14 +23,14 @@ export const DateGroup = {
 	computed:
 	{
 		BlockType: () => BlockType,
-		dateGroup(): FormattedCollectionItem
+		dateGroup(): DateGroupItem
 		{
 			return this.item;
 		},
 	},
 	template: `
 		<div class="bx-im-message-list-date-group__container">
-			<DateGroupTitle :title="dateGroup.date.title" />
+			<DateGroupTitle :title="dateGroup.dateTitle" />
 			<template v-for="dateGroupItem in dateGroup.items" >
 				<slot
 					name="dateGroupItem"

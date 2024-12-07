@@ -7,28 +7,35 @@ use Bitrix\Main\Web\Json;
 
 class Utils
 {
+	protected static array $descriptionCache = [];
 	/**
 	 * @param $entityIdentifier
 	 * @param string $defaultNamespace
 	 * @return array["name", "namespace","fullname", "defaultFullname"]
 	 */
-	public static function extractEntityDescription($entityIdentifier, $defaultNamespace = "bitrix")
+	public static function extractEntityDescription($entityIdentifier, string $defaultNamespace = "bitrix"): array
 	{
 		$namespace = $defaultNamespace;
 		$name = $entityIdentifier;
+		$cacheId =  "$namespace:$name";
 
-		if(mb_strpos($entityIdentifier, ":"))
+		if(!isset(self::$descriptionCache[$cacheId]))
 		{
-			[$namespace, $name] = explode(":", $entityIdentifier);
+			if (strpos($entityIdentifier, ":"))
+			{
+				[$namespace, $name] = explode(":", $entityIdentifier);
+			}
+
+			self::$descriptionCache[$cacheId] = [
+				"name" => $name,
+				"namespace" => $namespace,
+				"fullname" => "$namespace:$name",
+				"relativePath" => "$namespace/$name",
+				"defaultFullname" => $namespace && $namespace != "bitrix" ? "$namespace:$name" : $name
+			];
 		}
 
-		return [
-			"name" => $name,
-			"namespace" => $namespace,
-			"fullname" => "$namespace:$name",
-			"relativePath" => "$namespace/$name",
-			"defaultFullname" => $namespace && $namespace != "bitrix" ? "$namespace:$name" : $name
-		];
+		return self::$descriptionCache[$cacheId];
 	}
 
 	/**
@@ -43,11 +50,6 @@ class Utils
 	}
 
 	public static function getFileHash(File $file) {
-		if ($file->isExists())
-		{
-			return hash_file('md5', $file->getPhysicalPath());
-		}
-
-		return "";
+		return filectime($file->getPhysicalPath()) ?? "";
 	}
 }

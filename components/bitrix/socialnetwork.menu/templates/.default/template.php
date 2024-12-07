@@ -42,7 +42,7 @@ else
 		var langMenuConfirm1 = '<?=CUtil::JSEscape(GetMessage("SONET_SM_TDEF_CONF1"))?>';
 		var langMenuConfirm2 = '<?=CUtil::JSEscape(GetMessage("SONET_SM_TDEF_CONF2"))?>';
 		</script>
-		<script type="text/javascript" src="/bitrix/components/bitrix/socialnetwork.menu/script.js?v=<?=filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/socialnetwork.menu/script.js');?>"></script>
+		<script src="/bitrix/components/bitrix/socialnetwork.menu/script.js?v=<?=filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/socialnetwork.menu/script.js');?>"></script>
 		<div id="antiselect" style="height:100%; width:100%; left: 0; top: 0; position: absolute; -moz-user-select: none !important; display: none; background-color:#FFFFFF; -moz-opacity: 0.01;"></div>
 		<?
 	}

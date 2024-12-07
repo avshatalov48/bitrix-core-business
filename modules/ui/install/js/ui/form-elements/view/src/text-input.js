@@ -7,6 +7,7 @@ export class TextInput extends BaseField
 	hintTitle: string;
 	placeholder: string;
 	#inputNode: HTMLElement;
+	#maxlength: number;
 
 	constructor(params)
 	{
@@ -14,19 +15,13 @@ export class TextInput extends BaseField
 		this.defaultValue = Type.isStringFilled(params.value) ? params.value : '';
 		this.hintTitle = Type.isStringFilled(params.hintTitle) ? params.hintTitle : '';
 		this.placeholder = Type.isStringFilled(params.placeholder) ? params.placeholder : '';
+		this.#maxlength = Type.isInteger(params.maxlength) ? params.maxlength : 255;
 		this.inputDefaultWidth = Type.isBoolean(params.inputDefaultWidth) ? params.inputDefaultWidth : '';
-		this.#inputNode = Tag.render`<input 
-			value="${Text.encode(this.defaultValue)}" 
-			name="${Text.encode(this.getName())}" 
-			type="text" 
-			class="ui-ctl-element ${this.isEnable() ? '' : '--readonly'}" 
-			placeholder="${Text.encode(this.placeholder)}"
-			${this.isEnable() ? '' : 'readonly'}
-		>`;
+		this.inputType = Type.isStringFilled(params.type) ? params.type : 'text';
 
 		if (!this.isEnable())
 		{
-			Event.bind(this.#inputNode, 'click', (event) => {
+			Event.bind(this.getInputNode(), 'click', (event) => {
 				event.preventDefault();
 				if (!Type.isNil(this.getHelpMessage()))
 				{
@@ -37,7 +32,7 @@ export class TextInput extends BaseField
 
 		if (this.isEnable())
 		{
-			this.getInputNode().addEventListener('keydown', () => {
+			this.getInputNode().addEventListener('input', () => {
 				this.getInputNode().form.dispatchEvent(new window.Event('change'));
 			});
 		}
@@ -48,9 +43,31 @@ export class TextInput extends BaseField
 		return 'text_';
 	}
 
+	getValue(): string
+	{
+		return this.getInputNode().value;
+	}
+
 	getInputNode(): HTMLElement
 	{
+		this.#inputNode ??= this.#renderInputNode();
+
 		return this.#inputNode;
+	}
+
+	#renderInputNode(): HTMLElement
+	{
+		return Tag.render`
+			<input
+				value="${Text.encode(this.defaultValue)}" 
+				name="${Text.encode(this.getName())}" 
+				type="${this.inputType}" 
+				class="ui-ctl-element ${this.isEnable() ? '' : '--readonly'}" 
+				placeholder="${Text.encode(this.placeholder)}"
+				maxlength="${parseInt(this.#maxlength, 10)}"
+				${this.isEnable() ? '' : 'readonly'}
+			>
+		`;
 	}
 
 	renderContentField(): HTMLElement
@@ -58,23 +75,23 @@ export class TextInput extends BaseField
 		const lockElement = !this.isEnable ? this.renderLockElement() : null;
 
 		return Tag.render`
-		<div id="${this.getId()}" class="ui-section__field-selector">
-			<div class="ui-section__field-container">
-				<div class="ui-section__field-label_box">
-					<label for="${this.getName()}" class="ui-section__field-label">
-						${this.getLabel()}
-					</label> 
-					${lockElement}
+			<div id="${this.getId()}" class="ui-section__field-selector">
+				<div class="ui-section__field-container">
+					<div class="ui-section__field-label_box">
+						<label for="${this.getName()}" class="ui-section__field-label">
+							${this.getLabel()}
+						</label> 
+						${lockElement}
+					</div>
+					<div class="ui-ctl ui-ctl-textbox ui-ctl-block ${this.inputDefaultWidth ? '' : 'ui-ctl-w100'}">
+						${this.getInputNode()}
+					</div>
+					${this.renderErrors()}
 				</div>
-				<div class="ui-ctl ui-ctl-textbox ui-ctl-block ${this.inputDefaultWidth ? '' : 'ui-ctl-w100'}">
-					${this.getInputNode()}
+				<div class="ui-section__hint">
+					${this.hintTitle}
 				</div>
-				${this.renderErrors()}
 			</div>
-			<div class="ui-section__hint">
-				${this.hintTitle}
-			</div>
-		</div>
 		`;
 	}
 }

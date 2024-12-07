@@ -1,4 +1,4 @@
-import { DefaultMessageContent, MessageHeader, ReactionSelector, MessageKeyboard } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, MessageHeader, ReactionSelector, MessageKeyboard, MessageFooter } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 
 import { Reply } from './components/reply';
@@ -12,6 +12,7 @@ export const DefaultMessage = {
 	name: 'DefaultMessage',
 	components: {
 		MessageHeader,
+		MessageFooter,
 		BaseMessage,
 		DefaultMessageContent,
 		ReactionSelector,
@@ -52,7 +53,7 @@ export const DefaultMessage = {
 		},
 	},
 	template: `
-		<BaseMessage :item="item" :dialogId="dialogId">
+		<BaseMessage :item="item" :dialogId="dialogId" :afterMessageWidthLimit="false">
 			<template #before-message v-if="$slots['before-message']">
 				<slot name="before-message"></slot>
 			</template>
@@ -60,8 +61,8 @@ export const DefaultMessage = {
 				<MessageHeader :withTitle="withTitle" :item="item" />
 				<Reply v-if="isReply" :dialogId="dialogId" :replyId="message.replyId" :isForward="isForward" />
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
+			<MessageFooter :item="item" :dialogId="dialogId" />
 			<template #after-message v-if="hasKeyboard">
 				<MessageKeyboard :item="item" :dialogId="dialogId" />
 			</template>

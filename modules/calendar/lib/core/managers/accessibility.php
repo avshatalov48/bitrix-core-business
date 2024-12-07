@@ -5,6 +5,7 @@ namespace Bitrix\Calendar\Core\Managers;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\EventAccessController;
 use Bitrix\Calendar\Access\Model\EventModel;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Sharing\Helper;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
@@ -13,6 +14,7 @@ use Bitrix\Main\Type\DateTime;
 
 class Accessibility
 {
+	private array $canSeeNameCache = [];
 	private bool $checkPermissions = true;
 	private int $skipEventId = 0;
 
@@ -112,7 +114,10 @@ class Accessibility
 			'arFilter' => [
 				'FROM_LIMIT' => $from,
 				'TO_LIMIT' => $to,
-				'CAL_TYPE' => 'user',
+				'CAL_TYPE' => [
+					Dictionary::CALENDAR_TYPE['user'],
+					Dictionary::CALENDAR_TYPE['open_event'],
+				],
 				'OWNER_ID' => $userIds,
 				'ACTIVE_SECTION' => 'Y'
 			],
@@ -184,10 +189,19 @@ class Accessibility
 	private function canSeeName(array $event): bool
 	{
 		$currentUserId = \CCalendar::GetUserId();
-		$accessController = new EventAccessController($currentUserId);
-		$eventModel = EventModel::createFromArray($event);
+		$eventId = (int)$event['ID'];
+		$cachedValue = $this->canSeeNameCache[$eventId] ?? null;
 
-		return !$this->isPrivate($event) && $accessController->check(ActionDictionary::ACTION_EVENT_VIEW_TITLE, $eventModel);
+		if ($cachedValue === null)
+		{
+			$accessController = new EventAccessController($currentUserId);
+			$eventModel = EventModel::createFromArray($event);
+
+			$canViewTitle = $accessController->check(ActionDictionary::ACTION_EVENT_VIEW_TITLE, $eventModel);
+			$this->canSeeNameCache[$eventId] = !$this->isPrivate($event) && $canViewTitle;
+		}
+
+		return $this->canSeeNameCache[$eventId];
 	}
 
 	private function isPrivate(array $event): bool

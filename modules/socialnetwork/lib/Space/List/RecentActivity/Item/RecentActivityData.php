@@ -14,6 +14,7 @@ final class RecentActivityData implements Arrayable
 	private ?int $entityId = null;
 	private ?DateTime $dateTime = null;
 	private ?string $description = '';
+	private ?int $secondaryEntityId = null;
 
 	public function setId(?int $id): self
 	{
@@ -99,6 +100,18 @@ final class RecentActivityData implements Arrayable
 		return $this->description;
 	}
 
+	public function setSecondaryEntityId(?int $secondaryEntityId): self
+	{
+		$this->secondaryEntityId = $secondaryEntityId;
+
+		return $this;
+	}
+
+	public function getSecondaryEntityId(): ?int
+	{
+		return $this->secondaryEntityId;
+	}
+
 	public function toArray(): array
 	{
 		return [
@@ -106,6 +119,7 @@ final class RecentActivityData implements Arrayable
 			'userId' => $this->userId,
 			'typeId' => $this->typeId,
 			'entityId' => $this->entityId,
+			'secondaryEntityId' => $this->secondaryEntityId,
 			'timestamp' => $this->dateTime?->getTimestamp(),
 			'description' => $this->description,
 		];

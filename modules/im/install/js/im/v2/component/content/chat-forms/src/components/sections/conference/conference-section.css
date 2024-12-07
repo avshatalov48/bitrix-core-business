@@ -1,0 +1,18 @@
+.bx-im-chat-forms-chat-settings__type-select {
+	--im-chat-forms-chat-settings__font_toggle-label: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	--im-chat-forms-chat-settings__font-color_toggle-label: var(--im-color-palette-gray-80);
+
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-chat-forms-chat-settings__type-select_label {
+	margin-left: 10px;
+	font: var(--im-chat-forms-chat-settings__font_toggle-label);
+	color: var(--im-chat-forms-chat-settings__font-color_toggle-label);
+	cursor: pointer;
+}
+
+.bx-im-chat-forms-chat-settings__password-container {
+	margin-top: 14px;
+}

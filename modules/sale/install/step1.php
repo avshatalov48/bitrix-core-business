@@ -1,7 +1,7 @@
 <?
 if(!IsModuleInstalled("currency"))
 {
-	echo CAdminMessage::ShowMessage(GetMessage("SALE_INSTALL_CURRENCY"));
+	CAdminMessage::ShowMessage(GetMessage("SALE_INSTALL_CURRENCY"));
 	?>
 	<form action="<?echo $APPLICATION->GetCurPage()?>">
 	<p>
@@ -21,7 +21,7 @@ else
 		<input type="hidden" name="install" value="Y">
 		<input type="hidden" name="step" value="2">
 
-		<script language="JavaScript">
+		<script>
 		<!--
 		function ChangeInstallPublic(val)
 		{
@@ -53,7 +53,7 @@ else
 			</tr>
 		</table>		
 
-		<script language="JavaScript">
+		<script>
 		<!--
 		ChangeInstallPublic(false);
 		//-->

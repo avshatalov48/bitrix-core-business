@@ -871,6 +871,21 @@ In addition to the Google Terms of Service (http://www.google.com/accounts/TOS),
 				->setProductUrl('https://github.com/nikic/PHP-Parser/')
 				->setLicence(static::LICENCE_BSD3)
 				->setLicenceUrl('https://github.com/nikic/PHP-Parser/blob/4.x/LICENSE'),
+
+			// ui/install/js/ui/linkify
+			// mobile/install/mobileapp/mobile/extensions/bitrix/linkify
+			(new static("Linkify"))
+				->setCopyright('Copyright (c) 2021 SoapBox Innovations Inc')
+				->setProductUrl('https://github.com/Hypercontext/linkifyjs')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/Hypercontext/linkifyjs/blob/main/LICENSE'),
+
+			// ui/install/js/ui/lexical
+			(new static("Lexical"))
+				->setCopyright('Copyright (c) Meta Platforms, Inc. and affiliates.')
+				->setProductUrl('https://github.com/facebook/lexical/')
+				->setLicence(static::LICENCE_MIT)
+				->setLicenceUrl('https://github.com/facebook/lexical/blob/main/LICENSE'),
 		];
 	}
 }

@@ -20,16 +20,25 @@ export class ActionsButton
 		button: HTMLElement,
 	};
 
+	#empty: boolean;
+
 	#actionsMenu: Menu;
 
 	constructor(params: Params)
 	{
 		this.#layout = {};
 		this.#params = params;
+
+		this.#empty = this.#getActionsMenu().getMenuItems().length === 0;
 	}
 
 	render(): HTMLElement
 	{
+		if (this.#empty)
+		{
+			return Tag.render`<div></div>`;
+		}
+
 		this.#layout.button = new Button({
 			text: Loc.getMessage('SN_GROUP_SETTINGS_ACTIONS'),
 			color: ButtonColor.SUCCESS,
@@ -62,27 +71,33 @@ export class ActionsButton
 			closeByEsc: true,
 		});
 
-		menu.addMenuItem({
-			text: this.#getPinText(),
-			dataset: { id: 'sn-group-settings__actions-pin' },
-			onclick: (event, item) => {
-				this.#params.isPin = !this.#params.isPin;
-				item.setText(this.#getPinText());
-				this.#params.pinChanged(this.#params.isPin);
-				menu.close();
-			},
-		});
+		if (this.#params.actions.canPin)
+		{
+			menu.addMenuItem({
+				text: this.#getPinText(),
+				dataset: { id: 'sn-group-settings__actions-pin' },
+				onclick: (event, item) => {
+					this.#params.isPin = !this.#params.isPin;
+					item.setText(this.#getPinText());
+					this.#params.pinChanged(this.#params.isPin);
+					menu.close();
+				},
+			});
+		}
 
-		menu.addMenuItem({
-			text: this.#getFollowText(),
-			dataset: { id: 'sn-group-settings__actions-follow' },
-			onclick: (event, item) => {
-				this.#params.isSubscribed = !this.#params.isSubscribed;
-				item.setText(this.#getFollowText());
-				this.#params.followChanged(this.#params.isSubscribed);
-				menu.close();
-			},
-		});
+		if (this.#params.actions.canFollow)
+		{
+			menu.addMenuItem({
+				text: this.#getFollowText(),
+				dataset: { id: 'sn-group-settings__actions-follow' },
+				onclick: (event, item) => {
+					this.#params.isSubscribed = !this.#params.isSubscribed;
+					item.setText(this.#getFollowText());
+					this.#params.followChanged(this.#params.isSubscribed);
+					menu.close();
+				},
+			});
+		}
 
 		if (this.#params.actions.canLeave)
 		{

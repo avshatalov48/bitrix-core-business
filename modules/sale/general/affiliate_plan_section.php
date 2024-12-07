@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main;
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["SALE_AFFILIATE_PLAN_SECTION"] = Array();
@@ -106,15 +108,17 @@ class CAllSaleAffiliatePlanSection
 	{
 		global $DB;
 
-		$planID = intval($planID);
+		$planID = (int)$planID;
 		if ($planID <= 0)
-			return False;
-
-		$strSectionIDs = "0";
-		for ($i = 0; $i < count($arSectionIDs); $i++)
 		{
-			if (intval($arSectionIDs[$i]) > 0)
-				$strSectionIDs .= ",".intval($arSectionIDs[$i]);
+			return false;
+		}
+
+		$strSectionIDs = '0';
+		Main\Type\Collection::normalizeArrayValuesByInt($arSectionIDs);
+		if (!empty($arSectionIDs))
+		{
+			$strSectionIDs .= ',' . implode(',', $arSectionIDs);
 		}
 
 		return $DB->Query("DELETE FROM b_sale_affiliate_plan_section WHERE PLAN_ID = ".$planID." AND ID NOT IN (".$strSectionIDs.")", true);
@@ -150,7 +154,7 @@ class CAllSaleAffiliatePlanSection
 		}
 
 		$strSql = "UPDATE b_sale_affiliate_plan_section SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		unset($GLOBALS["SALE_AFFILIATE_PLAN_SECTION"]["SALE_AFFILIATE_PLAN_SECTION_CACHE_".$ID]);
 
@@ -171,12 +175,12 @@ class CAllSaleAffiliatePlanSection
 		}
 		else
 		{
-			$strSql = 
+			$strSql =
 				"SELECT APS.ID, APS.PLAN_ID, APS.MODULE_ID, APS.SECTION_ID, APS.RATE, APS.RATE_TYPE, APS.RATE_CURRENCY ".
 				"FROM b_sale_affiliate_plan_section APS ".
 				"WHERE APS.ID = ".$ID." ";
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$GLOBALS["SALE_AFFILIATE_PLAN_SECTION"]["SALE_AFFILIATE_PLAN_SECTION_CACHE_".$ID] = $res;

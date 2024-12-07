@@ -56,9 +56,7 @@ class OutgoingManager
 	public function __construct(Connection $connection)
 	{
 		$this->connection = $connection;
-		$context = new Context([
-			'connection' => $connection,
-		]);
+		$context = new Context(['connection' => $connection]);
 		$this->factory = FactoryBuilder::create($connection->getVendor()->getCode(), $connection, $context);
 		$this->syncManager = new VendorSynchronization($this->factory);
 		$this->mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
@@ -229,40 +227,46 @@ class OutgoingManager
 	 */
 	public function exportSection(Core\Section\Section $section): Result
 	{
-		$sectionContext = new SectionContext();
-		if ($link = $this->getSectionLink($section))
+		$result = new Result();
+		try
 		{
-			if ($link->isActive())
+			$sectionContext = new SectionContext();
+			if ($link = $this->getSectionLink($section))
 			{
-				$result = $this->syncManager->updateSection($section, $sectionContext);
-				if ($result->isSuccess())
+				if ($link->isActive())
 				{
-					$result->setData(array_merge($result->getData(), [
-						'sectionConnection' => $link,
-					]));
-				}
-				else if (
-					!$result->isSuccess()
-					&& $result->getData()['error'] === 404
-					&& $section->getExternalType() === 'local'
-				)
-				{
-					$this->deleteSectionConnection($link);
-					$sectionContext->setSectionConnection(null);
-					$result = $this->syncManager->createSection($section, $sectionContext);
+					$result = $this->syncManager->updateSection($section, $sectionContext);
+					if ($result->isSuccess())
+					{
+						$result->setData(array_merge($result->getData(), [
+							'sectionConnection' => $link,
+						]));
+					}
+					else if (
+						!$result->isSuccess()
+						&& $result->getData()['error'] === 404
+						&& $section->getExternalType() === 'local'
+					)
+					{
+						$this->deleteSectionConnection($link);
+						$sectionContext->setSectionConnection(null);
+						$result = $this->syncManager->createSection($section, $sectionContext);
+					}
 				}
 			}
 			else
 			{
-				$result = new Result();
+				$result = $this->syncManager->createSection($section, $sectionContext);
 			}
 		}
-		else
+		catch (Core\Base\BaseException $exception)
 		{
-			$result = $this->syncManager->createSection($section, $sectionContext);
+			$result->addError(new Error($exception->getMessage()));
 		}
-
-		return $result;
+		finally
+		{
+			return $result;
+		}
 	}
 
 	/**
@@ -283,45 +287,56 @@ class OutgoingManager
 		$mainResult = new Result();
 		$sectionContext = new SectionContext();
 
-		if ($link = $this->getSectionLink($section))
+		try
 		{
-			$sectionContext->setSectionConnection($link);
-			if ($link->isActive())
+			if ($link = $this->getSectionLink($section))
 			{
-				$result = $this->syncManager->updateSection($section, $sectionContext);
-				if ($result->isSuccess())
+				$sectionContext->setSectionConnection($link);
+				if ($link->isActive())
 				{
-					$resultData['updated'] = $link;
+					$result = $this->syncManager->updateSection($section, $sectionContext);
+					if ($result->isSuccess())
+					{
+						$resultData['updated'] = $link;
+					}
+					else
+					{
+						$resultData['error'] = $link;
+					}
 				}
 				else
 				{
-					$resultData['error'] = $link;
+					$resultData['skipped'] = $link;
 				}
 			}
-			else
+			elseif ($section->getExternalType() !== Core\Section\Section::LOCAL_EXTERNAL_TYPE)
 			{
-				$resultData['skipped'] = $link;
-			}
-		}
-		elseif ($section->getExternalType() !== Core\Section\Section::LOCAL_EXTERNAL_TYPE)
-		{
-			$resultData['skipped'] = $section;
-		}
-		else
-		{
-			$result = $this->syncManager->createSection($section, $sectionContext);
-			if (!empty($result->getData()['sectionConnection']))
-			{
-				$resultData['exported'] = $result->getData()['sectionConnection'];
+				$resultData['skipped'] = $section;
 			}
 			else
 			{
-				$result->addError(new Error('Error of export section'));
-				$resultData['section'] = $section;
+				$result = $this->syncManager->createSection($section, $sectionContext);
+				if (!empty($result->getData()['sectionConnection']))
+				{
+					$resultData['exported'] = $result->getData()['sectionConnection'];
+				}
+				else
+				{
+					$result->addError(new Error('Error of export section'));
+					$resultData['section'] = $section;
+				}
 			}
-		}
 
-		return $mainResult->setData($resultData);
+			$mainResult->setData($resultData);
+		}
+		catch (Core\Base\BaseException $exception)
+		{
+			$mainResult->addError(new Error($exception->getMessage()));
+		}
+		finally
+		{
+			return $mainResult;
+		}
 	}
 
 	/**
@@ -369,15 +384,13 @@ class OutgoingManager
 			'=SECTION_ID' => $section->getId(),
 			'=CONNECTION_ID' => $this->connection->getId(),
 		]);
-		switch ($map->count())
+
+		return match ($map->count())
 		{
-			case 0:
-				return null;
-			case 1:
-				return $map->fetch();
-			default:
-				throw new Core\Base\BaseException('More than 1 SectionConnections found.');
-		}
+			0 => null,
+			1 => $map->fetch(),
+			default => throw new Core\Base\BaseException('More than 1 SectionConnections found.'),
+		};
 	}
 
 	/**

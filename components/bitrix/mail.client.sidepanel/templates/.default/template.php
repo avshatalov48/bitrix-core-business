@@ -11,7 +11,7 @@ $APPLICATION->restartBuffer();
 ?><!DOCTYPE html>
 <html>
 	<head>
-		<script type="text/javascript">
+		<script>
 			if (window === window.top)
 			{
 				window.location = '<?=CUtil::jsEscape($APPLICATION->getCurPageParam('', array('IFRAME'))) ?>';

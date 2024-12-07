@@ -11,7 +11,7 @@ import { MessengerSlider } from 'im.v2.lib.slider';
 import { LinesService } from 'im.v2.provider.service';
 
 export const Opener = {
-	async openChat(dialogId: string | number = ''): Promise
+	async openChat(dialogId: string | number = '', messageId: number = 0): Promise
 	{
 		const preparedDialogId = dialogId.toString();
 		if (Utils.dialog.isLinesExternalId(preparedDialogId))
@@ -20,11 +20,15 @@ export const Opener = {
 		}
 
 		await MessengerSlider.getInstance().openSlider();
-
-		await LayoutManager.getInstance().setLayout({
+		const layoutParams = {
 			name: Layout.chat.name,
 			entityId: preparedDialogId,
-		});
+		};
+		if (messageId > 0)
+		{
+			layoutParams.contextId = messageId;
+		}
+		await LayoutManager.getInstance().setLayout(layoutParams);
 		EventEmitter.emit(EventType.layout.onOpenChat, { dialogId: preparedDialogId });
 
 		return Promise.resolve();
@@ -47,7 +51,7 @@ export const Opener = {
 		});
 	},
 
-	async openCopilot(dialogId: string = ''): Promise
+	async openCopilot(dialogId: string = '', contextId = 0): Promise
 	{
 		const preparedDialogId = dialogId.toString();
 
@@ -56,6 +60,7 @@ export const Opener = {
 		return LayoutManager.getInstance().setLayout({
 			name: Layout.copilot.name,
 			entityId: preparedDialogId,
+			contextId,
 		});
 	},
 
@@ -167,7 +172,7 @@ export const Opener = {
 
 	openNewTab(path)
 	{
-		if (DesktopApi.isChatTab() && DesktopApi.isFeatureSupported(DesktopFeature.openNewTab))
+		if (DesktopApi.isChatTab() && DesktopApi.isFeatureSupported(DesktopFeature.openNewTab.id))
 		{
 			DesktopApi.createImTab(`${path}&${GetParameter.desktopChatTabMode}=Y`);
 		}

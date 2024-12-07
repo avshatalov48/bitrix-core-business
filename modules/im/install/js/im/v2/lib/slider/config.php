@@ -25,6 +25,5 @@ return [
 		'ui.notification',
 		'im.v2.lib.opener',
 	],
-	'settings' => ['v2enabled' => !\Bitrix\Im\Settings::isLegacyChatActivated()],
 	'skip_core' => false,
 ];

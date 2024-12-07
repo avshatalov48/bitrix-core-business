@@ -10,7 +10,7 @@ $routes->setRouter(new Router);
 /** @var RoutingConfigurator $routes */
 
 $routes->middleware(['roleDeterminant'])->prefix('servicelines')->group(function (RoutingConfigurator $routes) {
-	//Получение всех возможных типов коммуникаций
+	//РџРѕР»СѓС‡РµРЅРёРµ РІСЃРµС… РІРѕР·РјРѕР¶РЅС‹С… С‚РёРїРѕРІ РєРѕРјРјСѓРЅРёРєР°С†РёР№
 	$routes->get('/handbook/profiles', [API\ServiceLines\Handbook::class, 'profiles']);
 
 	$routes
@@ -18,10 +18,10 @@ $routes->middleware(['roleDeterminant'])->prefix('servicelines')->group(function
 		->middleware(['serviceLineDeterminant'])
 		->where('serviceCode', '[a-zA-Z]')
 		->group(function (RoutingConfigurator $routes) {
-			//Получение полей
+			//РџРѕР»СѓС‡РµРЅРёРµ РїРѕР»РµР№
 			$routes->get('/handbook/{serviceCode}/rulesForFields', [API\ServiceLines\Handbook::class, 'rulesForFields']);
 
-			//Значения отрисованной формы
+			//Р—РЅР°С‡РµРЅРёСЏ РѕС‚СЂРёСЃРѕРІР°РЅРЅРѕР№ С„РѕСЂРјС‹
 			$routes->get('/handbook/{serviceCode}/enumFields', [API\ServiceLines\Handbook::class, 'enumFields']);
 		});
 });

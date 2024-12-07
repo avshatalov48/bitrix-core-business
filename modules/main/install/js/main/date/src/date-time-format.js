@@ -316,6 +316,7 @@ export class DateTimeFormat
 		{
 			if (q === this._getMessage('MON_' + i).toUpperCase()
 				|| q === this._getMessage('MONTH_' + i).toUpperCase()
+				|| q === this._getMessage('MONTH_' + i + '_S').toUpperCase()
 				|| q === wordMonthCut[i - 1].toUpperCase()
 				|| q === wordMonth[i - 1].toUpperCase())
 			{

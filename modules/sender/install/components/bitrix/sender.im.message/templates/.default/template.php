@@ -22,7 +22,7 @@ $containerId = 'sender-im-message-editor';
 	'ai.picker',
 ]);
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Im.Message.init(<?=Json::encode([
 			'containerId' => $containerId,

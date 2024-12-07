@@ -6,6 +6,8 @@ use Bitrix\Main\Loader;
 use Bitrix\Pull;
 use Bitrix\Rest\EventOfflineTable;
 use Bitrix\Main\EventManager;
+use Bitrix\Rest\Tools\Diagnostics\Event\Logger;
+use Bitrix\Rest\Tools\Diagnostics\Event\LogType;
 use Bitrix\Rest\Tools\Diagnostics\LoggerManager;
 
 class ProviderOffline implements ProviderOfflineInterface
@@ -100,21 +102,16 @@ class ProviderOffline implements ProviderOfflineInterface
 			}
 			else
 			{
-				$logger = LoggerManager::getInstance()->getLogger();
-				if ($logger)
-				{
-					$logger->debug(
-						"\n{delimiter}\n"
-						. "{date} - {host}\n{delimiter}\n"
-						. "Event skipped because initializer is current application. \n"
-						. "auth: {serverAuthData}"
-						. "app: {application}\n",
-						[
-							'serverAuthData' => $serverAuthData,
-							'application' => $application,
-						]
-					);
-				}
+				LoggerManager::getInstance()->getLogger()?->info(
+					"\n{delimiter}\n"
+					. "{date} - {host}\n{delimiter}\n"
+					. "Event skipped because initializer is current application. \n"
+					. "auth: {serverAuthData}"
+					. "app: {application}\n", [
+					'serverAuthData' => $serverAuthData,
+					'application' => $application,
+					'MESSAGE' => LogType::OFFLINE_EVENT_SKIPPED->value,
+				]);
 			}
 		}
 

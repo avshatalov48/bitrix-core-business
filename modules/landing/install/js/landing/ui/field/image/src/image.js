@@ -1,13 +1,13 @@
-import {Dom, Type, Runtime} from 'main.core';
+import { Dom, Type, Runtime, Event } from 'main.core';
 import {Loc} from 'landing.loc';
-import {Main} from 'landing.main'
+import {Main} from 'landing.main';
+import {StylePanel} from 'landing.ui.panel.stylepanel';
 import {TextField} from 'landing.ui.field.textfield';
 import {ImageUploader} from 'landing.imageuploader';
 import {BaseButton} from 'landing.ui.button.basebutton';
 import {AiImageButton} from 'landing.ui.button.aiimagebutton';
-import {PageObject} from 'landing.pageobject';
 import {Env} from 'landing.env';
-import {Picker} from 'ai.picker';
+import type { Copilot as CopilotType } from 'ai.copilot';
 
 import 'ui.fonts.opensans';
 // todo: remove most likely
@@ -16,6 +16,14 @@ import './css/style.css';
 
 export class Image extends TextField
 {
+	imageCopilot: CopilotType;
+	copilotBindElement: ?HTMLElement = null;
+	aiButton = null;
+	copilotContext = null;
+	copilotCategory = null;
+	useCopilotInIframe = false;
+	copilotFinishInitPromise = new Promise(() => {});
+
 	static CONTEXT_TYPE_CONTENT = 'content';
 	static CONTEXT_TYPE_STYLE = 'style';
 
@@ -121,15 +129,49 @@ export class Image extends TextField
 		this.right = Image.createRightLayout();
 
 		// ai images
-		this.aiButton = null;
-		this.aiPicker = null;
 		if (
 			this.isAiImageAvailable
 			&& (this.type === "background" || this.type === "image")
 		)
 		{
+			this.useCopilotInIframe = this.uploadParams.action === 'Landing::uploadFile';
+			this.defineCopilotCategory();
+			const copilotOptions = {
+				moduleId: 'landing',
+				contextId: this.getAiContext(),
+				category: this.copilotCategory,
+				useText: false,
+				useImage: true,
+				autoHide: true,
+			};
+
+			this.copilotContext = this.useCopilotInIframe ? BX : top.BX;
+			this.stylePanel = StylePanel.getInstance().layout;
+			this.stylePanelContent = StylePanel.getInstance().content;
+			this.copilotContext.Runtime.loadExtension('ai.copilot').then(({ Copilot, CopilotEvents}) => {
+				this.imageCopilot = new Copilot(copilotOptions);
+
+				this.imageCopilot.subscribe(CopilotEvents.FINISH_INIT, this.imageCopilotFinishInitHandler.bind(this));
+				this.imageCopilot.subscribe(CopilotEvents.IMAGE_COMPLETION_RESULT, this.imageCopilotImageResultHandler.bind(this));
+				this.imageCopilot.subscribe(CopilotEvents.IMAGE_SAVE, this.imageCopilotSaveImageHandler.bind(this));
+				this.imageCopilot.subscribe(CopilotEvents.IMAGE_CANCEL, this.imageCopilotCancelImageHandler.bind(this));
+
+				Event.bind(this.stylePanelContent, 'scroll', this.onScrollContentPanel.bind(this));
+				Event.bind(this.stylePanel, 'click', this.onClickStylePanel.bind(this));
+				Event.EventEmitter.subscribe('BX.Landing.UI.Panel.ContentEdit:onClick', this.onClickContentPanel.bind(this));
+				Event.EventEmitter.subscribe('BX.Landing.UI.Panel.BasePanel:onHide', this.closeCopilot.bind(this));
+				Event.EventEmitter.subscribe('BX.Landing.UI.Panel.BasePanel:onClick', this.onClickContentPanel.bind(this));
+				Event.EventEmitter.subscribe('BX.Landing.UI.Panel.BasePanel:onScroll', this.onScrollContentPanel.bind(this));
+				this.imageCopilot.init();
+			});
+
 			this.aiButton = Image.createAiButton(this.compactMode);
-			this.aiButton.on("click", () => {
+
+			this.aiButton = Image.createAiButton(this.compactMode);
+			this.aiButtonContainer = Dom.create('div', {});
+			BX.Dom.addClass(this.aiButtonContainer, 'landing-ui-button-ai-image-container');
+			this.aiButtonContainer.appendChild(this.aiButton.layout);
+			BX.bind(this.aiButtonContainer, 'click', () => {
 				if (this.isAiImageActive)
 				{
 					this.onAiClick();
@@ -139,7 +181,7 @@ export class Image extends TextField
 					BX.UI.InfoHelper.show(this.aiUnactiveInfoCode);
 				}
 			});
-			this.right.appendChild(this.aiButton.layout);
+			this.right.appendChild(this.aiButtonContainer);
 		}
 
 		this.right.appendChild(this.uploadButton.layout);
@@ -359,9 +401,7 @@ export class Image extends TextField
 	static createAiButton(compactMode: boolean = false)
 	{
 		return new AiImageButton("ai", {
-			text: Loc.getMessage(
-				"LANDING_FIELD_IMAGE_AI_BUTTON" + (compactMode ? '_COMPACT' : '')
-			),
+			text: 'CoPilot',
 			className: "landing-ui-field-image-ai-button" + (compactMode ? ' --compact' : ''),
 		});
 	}
@@ -486,9 +526,10 @@ export class Image extends TextField
 		this.onFileChange(event.currentTarget.files[0]);
 	}
 
-	onAiClick()
+	async onAiClick()
 	{
-		this.getAiPicker().image()
+		await this.copilotFinishInitPromise;
+		this.showCopilot();
 	}
 
 	/**
@@ -499,47 +540,120 @@ export class Image extends TextField
 		return this.aiButton;
 	}
 
-	getAiPicker(): Picker
+	showCopilot()
 	{
-		if (!this.aiPicker)
-		{
-			const demoPrompt =
-				this.contextType === Image.CONTEXT_TYPE_CONTENT
-					? 'large, heart shaped bouquet of red roses on a white background'
-					: 'background, smooth, blue color'
-			;
-			const Picker = top.BX.AI ? top.BX.AI.Picker : BX.AI.Picker;
-			this.aiPicker = new Picker({
-				startMessage: demoPrompt,
-				moduleId: 'landing',
-				contextId: this.getAiContext(),
-				analyticLabel: 'landing_image',
-				history: true,
-				popupContainer: PageObject.getRootWindow().document.body,
-				onSelect: (url: string) => {
-					const proxyUrl = BX.util.add_url_param("/bitrix/tools/landing/proxy.php", {
-						"sessid": BX.bitrix_sessid(),
-						"url": url
-					});
-					BX.Landing.Utils.urlToBlob(proxyUrl)
-						.then(blob => {
-							blob.lastModifiedDate = new Date();
-							blob.name = url.slice(url.lastIndexOf('/') + 1);
+		this.copilotBindElement = this.dropzone.hidden ? this.preview : this.dropzone;
+		this.imageCopilot.show({
+			width: 500,
+			bindElement: this.aiButtonContainer,
+		});
+		this.imageCopilot.adjustPosition({});
+	}
 
-							return blob;
-						})
-						.then(this.upload.bind(this))
-						.then(this.setValue.bind(this))
-						.then(this.hideLoader.bind(this))
-				},
-				onTariffRestriction: () => {
-					BX.UI.InfoHelper.show('limit_sites_ImageAssistant_AI');
-				},
+	imageCopilotFinishInitHandler()
+	{
+		this.copilotFinishInitPromise = Promise.resolve();
+	}
+
+	imageCopilotImageResultHandler(e)
+	{
+		const data = e.getData();
+		this.imageCopilotUrl = encodeURI(data.imageUrl);
+		if (this.copilotBindElement === this.dropzone)
+		{
+			this.showPreview();
+		}
+		Dom.addClass(this.preview, '--shown');
+		Dom.style(this.preview, 'background-image', `url("${this.imageCopilotUrl}")`);
+		Dom.style(this.preview, 'background-size', 'contain');
+	}
+
+	imageCopilotSaveImageHandler()
+	{
+		const url = this.imageCopilotUrl;
+		const proxyUrl = BX.util.add_url_param("/bitrix/tools/landing/proxy.php", {
+			"sessid": BX.bitrix_sessid(),
+			"url": url,
+		});
+		BX.Landing.Utils.urlToBlob(proxyUrl)
+			.then(blob => {
+				blob.lastModifiedDate = new Date();
+				blob.name = url.slice(url.lastIndexOf('/') + 1);
+
+				return blob;
+			})
+			.then(this.upload.bind(this))
+			.then(this.setValue.bind(this))
+			.then(this.hideLoader.bind(this))
+			.then(() => {
+				Dom.removeClass(this.preview, '--shown');
 			});
-			this.aiPicker.setLangSpace('image');
+
+		this.closeCopilot();
+	}
+
+	imageCopilotCancelImageHandler()
+	{
+		if (this.copilotBindElement === this.dropzone)
+		{
+			this.showDropzone();
+		}
+		else
+		{
+			Dom.removeClass(this.preview, '--shown');
+			Dom.style(this.preview, 'background-image', `url("${this.input.innerText.trim()}")`);
+		}
+	}
+
+	closeCopilot()
+	{
+		if (this.imageCopilot.isShown())
+		{
+			this.imageCopilot.hide();
+			Event.EventEmitter.unsubscribe('BX.Landing.UI.Panel.BasePanel:onHide', this.closeCopilot.bind(this));
+			Event.unbind(this.stylePanel, 'click', this.onClickStylePanel.bind(this));
+		}
+	}
+
+	onClickStylePanel(event)
+	{
+		if (!this.aiButton.layout.contains(event.target))
+		{
+			this.closeCopilot();
+		}
+	}
+
+	onClickContentPanel(event)
+	{
+		const target = event.getData().event.target;
+		if (!this.aiButton.layout.contains(target))
+		{
+			this.closeCopilot();
+		}
+	}
+
+	onScrollContentPanel()
+	{
+		if (Boolean(this.imageCopilot?.isShown()) === false)
+		{
+			return;
 		}
 
-		return this.aiPicker;
+		if (this.imageCopilot.getPosition().inputField.top < 133)
+		{
+			this.imageCopilot.adjustPosition({ hide: true });
+		}
+		else
+		{
+			this.imageCopilot.adjustPosition({ hide: false });
+		}
+	}
+
+	defineCopilotCategory()
+	{
+		this.copilotCategory = this.contextType === 'style' ? 'landing_designer'
+			: (this.useCopilotInIframe ? 'landing_setting'
+				: 'landing_editor');
 	}
 
 	getAiContext(): string

@@ -27,7 +27,10 @@ UI\Extension::load([
 	'ui.entity-selector',
 	'socialnetwork.common',
 	'intranet_theme_picker',
+	'ui.lottie',
 ]);
+
+$messages = Loc::loadLanguageFile(__FILE__);
 
 if (empty($arResult['TAB']))
 {
@@ -132,6 +135,8 @@ else
 				}
 				?>
 			});
+
+			BX.message(<?= \Bitrix\Main\Web\Json::encode($messages) ?>);
 
 			BX.ready(
 				function()

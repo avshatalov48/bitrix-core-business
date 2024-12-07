@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 (function (exports,main_core,calendar_sharing_publicV2,calendar_util,main_date) {

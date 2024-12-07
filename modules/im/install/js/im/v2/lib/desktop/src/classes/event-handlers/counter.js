@@ -1,10 +1,10 @@
-import {Core} from 'im.v2.application.core';
-import {EventType} from 'im.v2.const';
+import { Core } from 'im.v2.application.core';
+import { EventType } from 'im.v2.const';
 
-import {DesktopApi} from 'im.v2.lib.desktop-api';
-import {EventEmitter} from 'main.core.events';
+import { DesktopApi } from 'im.v2.lib.desktop-api';
+import { EventEmitter } from 'main.core.events';
 
-import type {Store} from 'ui.vue3.vuex';
+import type { Store } from 'ui.vue3.vuex';
 
 export class CounterHandler
 {
@@ -19,6 +19,7 @@ export class CounterHandler
 	{
 		this.#store = Core.getStore();
 
+		this.#onCounterChange();
 		this.#subscribeToCountersChange();
 	}
 

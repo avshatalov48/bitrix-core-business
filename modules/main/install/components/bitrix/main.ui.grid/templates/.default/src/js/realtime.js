@@ -1,5 +1,5 @@
-import {EventEmitter} from 'main.core.events';
-import {Dom, Reflection, Type, Event, Tag, Text} from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { Dom, Reflection, Type, Event, Tag, Text } from 'main.core';
 
 type RealtimeOptions = {
 	grid: BX.Main.grid,
@@ -19,7 +19,9 @@ type AddRowOptions = {
 		[colId: string]: {
 			type: $Values<BX.Grid.Counters.Type>,
 			color?: $Values<BX.Grid.Counters.Color>,
+			secondaryColor?: $Values<BX.Grid.Counters.Color>,
 			value: string | number,
+			isDouble?: boolean,
 		},
 	},
 };
@@ -37,12 +39,12 @@ export class Realtime extends EventEmitter
 	{
 		super();
 		this.setEventNamespace('BX.Grid.Realtime');
-		this.options = {...options};
+		this.options = { ...options };
 	}
 
 	addRow(options: AddRowOptions)
 	{
-		const {grid} = this.options;
+		const { grid } = this.options;
 		const row = grid.getTemplateRow();
 		row.makeCountable();
 		grid.hideEmptyStub();
@@ -78,6 +80,8 @@ export class Realtime extends EventEmitter
 				{
 					acc[columnId] = {
 						...counter,
+						isDouble: counter.isDouble ?? false,
+						secondaryColor: counter.secondaryColor,
 						animation: Text.toBoolean(counter.animation),
 					};
 				}

@@ -20,6 +20,26 @@ class Base
 	/** @var array[string]string  */
 	protected $fieldMap = array();
 
+	/** @var array[int]Base  */
+	protected static $instance = [];
+	/**
+	 * @param integer $id Entity identifier.
+	 */
+	protected static function getInstance($id)
+	{
+		$class = get_called_class();
+		if (!isset(static::$instance[$class]))
+		{
+			static::$instance[$class] = [];
+		}
+		if (!isset(static::$instance[$class][$id]))
+		{
+			static::$instance[$class][$id] = new static($id);
+		}
+		return static::$instance[$class][$id];
+	}
+
+
 	/**
 	 * @param integer $id Entity identifier.
 	 */

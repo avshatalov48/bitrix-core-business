@@ -168,7 +168,7 @@ class CSiteTemplate
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_CONTENT_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_CONTENT_NA"));
 		}
-		elseif(isset($arFields["CONTENT"]) && strpos($arFields["CONTENT"], "#WORK_AREA#") === false)
+		elseif(isset($arFields["CONTENT"]) && !str_contains($arFields["CONTENT"], "#WORK_AREA#"))
 		{
 			$this->LAST_ERROR .= GetMessage("MAIN_TEMPLATE_WORKAREA_NA")." ";
 			$arMsg[] = array("id"=>"CONTENT", "text"=> GetMessage("MAIN_TEMPLATE_WORKAREA_NA"));
@@ -337,16 +337,6 @@ class CSiteTemplate
 				default:
 					if(($p = mb_strpos($file["NAME"], ".menu_template.php"))!==false)
 						$file["DESCRIPTION"] = str_replace("#MENU_TYPE#", mb_substr($file["NAME"], 0, $p), GetMessage("MAIN_TEMPLATE_MENU"));
-					elseif(($p = mb_strpos($file["NAME"], "authorize_registration.php"))!==false)
-						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_AUTH_REG");
-					elseif(($p = mb_strpos($file["NAME"], "forgot_password.php"))!==false)
-						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_SEND_PWD");
-					elseif(($p = mb_strpos($file["NAME"], "change_password.php"))!==false)
-						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_CHN_PWD");
-					elseif(($p = mb_strpos($file["NAME"], "authorize.php"))!==false)
-						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_AUTH");
-					elseif(($p = mb_strpos($file["NAME"], "registration.php"))!==false)
-						$file["DESCRIPTION"] = GetMessage("MAIN_TEMPLATE_REG");
 			}
 			$arRes[] = $file;
 		}

@@ -1,7 +1,6 @@
 <?php
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock\UserField\Types\ElementType;
 

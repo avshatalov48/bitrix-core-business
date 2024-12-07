@@ -3,27 +3,34 @@
 namespace Bitrix\Rest\Tools\Diagnostics;
 
 use Bitrix\Main;
-use Bitrix\Intranet\CurrentUser;
-use Bitrix\Main\Config\Option;
 use Bitrix\Rest\LogTable;
 use Exception;
 
 final class RestServerProcessLogger
 {
-	private ?int $requestId = null;
+	private ?int $requestLogId;
 
-	public function __construct(private \CRestServer $restServer)
+	public function __construct(private readonly \CRestServer $restServer)
 	{
 	}
 
-	/**
-	 * @throws Exception
-	 */
 	public function logRequest(): void
 	{
-		if (!is_null($this->restServer) && $this->shouldLog())
+		if (!is_null($this->restServer))
 		{
-			$this->addRequestEntry();
+			$request = Main\Context::getCurrent()?->getRequest();
+			$logger = LoggerManager::getInstance()->getLogger();
+			$logger?->info('Start', [
+				'CLIENT_ID' => $this->restServer->getClientId(),
+				'PASSWORD_ID' => $this->restServer->getPasswordId(),
+				'SCOPE' => $this->restServer->getScope(),
+				'METHOD' => $this->restServer->getMethod(),
+				'REQUEST_METHOD' => $request->getRequestMethod(),
+				'REQUEST_URI' => $request->getRequestUri(),
+				'REQUEST_AUTH' => $this->restServer->getAuth(),
+				'REQUEST_DATA' => $this->restServer->getQuery(),
+			]);
+			$this->requestLogId = $logger instanceof DataBaseLogger ? $logger->getLogId() : null;
 		}
 	}
 
@@ -32,7 +39,7 @@ final class RestServerProcessLogger
 	 */
 	public function logResponse(mixed $responseData): bool
 	{
-		if (is_null($this->requestId))
+		if (is_null($this->requestLogId))
 		{
 			return false;
 		}
@@ -42,45 +49,9 @@ final class RestServerProcessLogger
 		$fields = [
 			'RESPONSE_STATUS' => \CHTTP::GetLastStatus(),
 			'RESPONSE_DATA' => $responseData,
+			'MESSAGE' => 'Successful response',
 		];
 
-		return LogTable::update($this->requestId, $fields)->isSuccess();
-	}
-
-	private function shouldLog(): bool
-	{
-		$logEndTime = (int)Option::get('rest', 'log_end_time', 0);
-
-		if ($logEndTime < time())
-		{
-			return false;
-		}
-
-		$logOptions = @unserialize(
-			Option::get('rest', 'log_filters', ''),
-			[
-				'allowed_classes' => false
-			]
-		);
-
-		if (!is_array($logOptions))
-		{
-			$logOptions = [];
-		}
-
-		return !((isset($logOptions['client_id']) && $this->restServer->getClientId() !== $logOptions['client_id'])
-			|| (isset($logOptions['password_id']) && $this->restServer->getPasswordId() !== $logOptions['password_id'])
-			|| (isset($logOptions['scope']) && $this->restServer->getScope() !== $logOptions['scope'])
-			|| (isset($logOptions['method']) && $this->restServer->getMethod() !== $logOptions['method'])
-			|| (isset($logOptions['user_id']) && CurrentUser::get()->getId() !== $logOptions['user_id']));
-	}
-
-	/**
-	 * @throws Exception
-	 */
-	private function addRequestEntry(): void
-	{
-		$request = Main\Context::getCurrent()?->getRequest();
-		$this->requestId = LogTable::addEntry($this->restServer, $request);
+		return LogTable::update($this->requestLogId, $fields)->isSuccess();
 	}
 }

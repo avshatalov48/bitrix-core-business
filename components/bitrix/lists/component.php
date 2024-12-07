@@ -101,7 +101,7 @@ if($arParams["SEF_MODE"] == "Y")
 	if(isset($_GET['livefeed']) && $_GET['livefeed'] == 'y')
 	{
 		$componentPage = 'list_element_edit';
-		$arVariables = array('list_id' => $_GET['list_id'], 'element_id' => $_GET['element_id'], 'section_id' => 0);
+		$arVariables = array('list_id' => $_GET['list_id'] ?? null, 'element_id' => $_GET['element_id'] ?? null, 'section_id' => 0);
 	}
 	elseif(isset($_GET['bp_constants']) && $_GET['bp_constants'] == 'y')
 	{

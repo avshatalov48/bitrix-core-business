@@ -24,11 +24,11 @@ if ($_REQUEST['MAP_DATA'])
 	}
 }
 ?>
-<script type="text/javascript" src="/bitrix/components/bitrix/map.google.search/settings/settings_load.js"></script>
-<script type="text/javascript">
+<script src="/bitrix/components/bitrix/map.google.search/settings/settings_load.js"></script>
+<script>
 BX.loadCSS('/bitrix/components/bitrix/map.google.search/settings/settings.css');
 var arPositionData = <?echo is_array($arData) && count($arData) > 0 ? CUtil::PhpToJsObject($arData) : '{}'?>;
-window._global_BX_UTF = <?echo defined('BX_UTF') && BX_UTF == true ? 'true' : 'false'?>;
+window._global_BX_UTF = true;
 BX.message({
 	google_noname: '<?echo CUtil::JSEscape(GetMessage('MYMV_SET_NONAME'))?>',
 	google_MAP_VIEW_ROADMAP: '<?echo CUtil::JSEscape(GetMessage('MYMS_PARAM_INIT_MAP_TYPE_MAP'))?>',
@@ -78,7 +78,7 @@ $APPLICATION->IncludeComponent('bitrix:map.google.system', '', array(
 			</ul>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 if (null != window.jsGoogleCESearch)
 	jsGoogleCESearch.clear();
 

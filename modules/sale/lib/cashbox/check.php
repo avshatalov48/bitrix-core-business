@@ -662,6 +662,7 @@ abstract class Check extends AbstractCheck
 			'QUANTITY' => (float)$basketItem->getQuantity(),
 			'MEASURE_CODE' => $basketItem->getField('MEASURE_CODE'),
 			'VAT' => $this->getProductVatId($basketItem),
+			'VAT_SUM' => $basketItem->getVat(),
 			'PAYMENT_OBJECT' => $this->getPaymentObject($basketItem),
 		];
 
@@ -792,7 +793,7 @@ abstract class Check extends AbstractCheck
 				$hex = '0'.$hex;
 			}
 
-			$result = ToUpper($hex).$result;
+			$result = mb_strtoupper($hex).$result;
 		}
 
 		return $result;
@@ -814,7 +815,7 @@ abstract class Check extends AbstractCheck
 				$hex = '0'.$hex;
 			}
 
-			$result .= ToUpper($hex);
+			$result .= mb_strtoupper($hex);
 		}
 
 		return $result;

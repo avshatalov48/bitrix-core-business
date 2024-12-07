@@ -419,15 +419,8 @@ if ($arResult["SHOW_PANEL"]["ATTACH"] == "Y")
 
 if ($arResult["SHOW_PANEL"]["CAPTCHA"] == "Y")
 {
-	include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 	$cpt = new CCaptcha();
-	$captchaPass = COption::GetOptionString("main", "captcha_password", "");
-	if ($captchaPass == '')
-	{
-		$captchaPass = randString(10);
-		COption::SetOptionString("main", "captcha_password", $captchaPass);
-	}
-	$cpt->SetCodeCrypt($captchaPass);
+	$cpt->SetCodeCrypt();
 	$arResult["DATA"]["CAPTCHA_CODE"] = $cpt->GetCodeCrypt();
 }
 //************* Paths **********************************************/

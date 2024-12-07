@@ -3,8 +3,7 @@
 function ClearCategoryTable()
 { 
 	global $DB;
-	$err_mess = "<br>Module: support<br>File: options<br>Function: ClearCategoryTable<br>Line: ";
-	$DB->Query("DELETE FROM b_ticket_sla_2_category", false, $err_mess.__LINE__);
+	$DB->Query("DELETE FROM b_ticket_sla_2_category");
 	$arrSLA = array();
 	$strSql = "
 		SELECT
@@ -12,14 +11,14 @@ function ClearCategoryTable()
 		FROM
 			b_ticket_sla SLA
 	";
-	$z = $DB->Query( $strSql, false, $err_mess . __LINE__ );
+	$z = $DB->Query($strSql);
 	while( $zr = $z->Fetch() ) 
 	{
 		$arFields_i = array(
 			"SLA_ID"		=> intval($zr["ID"]),
 			"CATEGORY_ID"	=> 0,
 		);
-		$ID = $DB->Insert( "b_ticket_sla_2_category", $arFields_i, $err_mess . __LINE__ );
+		$ID = $DB->Insert( "b_ticket_sla_2_category", $arFields_i);
 	}
 		
 }
@@ -29,7 +28,7 @@ IncludeModuleLangFile(__FILE__);
 $SUP_RIGHT = $APPLICATION->GetGroupRight($module_id);
 if ($SUP_RIGHT>="R") :
 
-if ($REQUEST_METHOD=="GET" && $SUP_RIGHT>="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="GET" && $SUP_RIGHT>="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("support");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -38,7 +37,7 @@ if ($REQUEST_METHOD=="GET" && $SUP_RIGHT>="W" && $RestoreDefaults <> '' && check
 }
 $message = false;
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/include.php");
-if($REQUEST_METHOD=="POST" && $Update <> '' && $SUP_RIGHT>="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $SUP_RIGHT>="W" && check_bitrix_sessid())
 {
 	$SUPPORT_DIR = str_replace("\\", "/", $SUPPORT_DIR);
 	$SUPPORT_DIR = str_replace("//", "/", $SUPPORT_DIR);
@@ -55,7 +54,7 @@ if($REQUEST_METHOD=="POST" && $Update <> '' && $SUP_RIGHT>="W" && check_bitrix_s
 	COption::SetOptionString($module_id, "SHOW_COMMENTS_IN_TICKET_LIST", $SHOW_COMMENTS_IN_TICKET_LIST ?: 'N');
 	COption::SetOptionString($module_id, "SOURCE_MAIL", $SOURCE_MAIL);
 	COption::SetOptionString($module_id, "REINDEX_MSG_S", $REINDEX_MSG_S);
-	if (preg_match_all('|#|'.BX_UTF_PCRE_MODIFIER, $SUPERTICKET_COUPON_FORMAT, $_tmp) && is_array($_tmp[0]) && count($_tmp[0]) >= 6)
+	if (preg_match_all('|#|u', $SUPERTICKET_COUPON_FORMAT, $_tmp) && is_array($_tmp[0]) && count($_tmp[0]) >= 6)
 	{
 		COption::SetOptionString($module_id, "SUPERTICKET_COUPON_FORMAT", $SUPERTICKET_COUPON_FORMAT);
 	}
@@ -295,7 +294,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td valign="top">&nbsp;</td>
 		<td valign="top">
-			<script type="text/javascript">
+			<script>
 				var reindexAlreadyRunning = false;
 				var reindexStep = 0;
 				function callbackFnRAOK(datum)
@@ -338,7 +337,7 @@ $tabControl->BeginNextTab();
 <?$tabControl->BeginNextTab();?>
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");?>
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))
@@ -392,7 +391,7 @@ $tabControl->BeginNextTab();
 			<input type="button" value="<?=GetMessage('SUP_SEARCH_NDX_STOP')?>" style="display: none;" id="sup_search_ndx_stop">
 		</p>
 
-		<script type="text/javascript">
+		<script>
 		BX.ready(function() {
 
 			// start

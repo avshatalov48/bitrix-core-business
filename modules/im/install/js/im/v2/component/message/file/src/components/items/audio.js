@@ -1,6 +1,5 @@
 import { AudioPlayer } from 'im.v2.component.elements';
 
-import { MessageType } from 'im.v2.const';
 import { ProgressBar } from './progress-bar';
 
 import '../../css/items/audio.css';
@@ -32,10 +31,6 @@ export const AudioItem = {
 		{
 			return this.item;
 		},
-		playerBackgroundType(): string
-		{
-			return this.messageType === MessageType.self ? 'dark' : 'light';
-		},
 		isLoaded(): boolean
 		{
 			return this.file.progress === 100;
@@ -46,6 +41,7 @@ export const AudioItem = {
 			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
 			<AudioPlayer
 				:id="file.id"
+				:messageId="messageId"
 				:src="file.urlShow"
 				:file="file"
 				:timelineType="Math.floor(Math.random() * 5)"

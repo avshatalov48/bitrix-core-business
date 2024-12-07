@@ -451,7 +451,7 @@ $strContID = 'cat_top_cont_'.$strRand;
 								);
 							}
 							?>
-								<script type="text/javascript">
+								<script>
 							var <? echo $strObName; ?> = new JCCatalogTopSlider(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 								</script>
 							<?
@@ -690,7 +690,7 @@ $strContID = 'cat_top_cont_'.$strRand;
 								);
 							}
 							?>
-								<script type="text/javascript">
+								<script>
 							var <? echo $strObName; ?> = new JCCatalogTopSlider(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 								</script>
 							<?
@@ -759,7 +759,7 @@ $strContID = 'cat_top_cont_'.$strRand;
 								);
 							}
 							?>
-								<script type="text/javascript">
+								<script>
 							var <? echo $strObName; ?> = new JCCatalogTopSlider(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 								</script>
 								<?
@@ -802,7 +802,7 @@ $strContID = 'cat_top_cont_'.$strRand;
 			);
 		}
 		?>
-		<script type="text/javascript">
+		<script>
 			var ob<? echo $strContID; ?> = new JCCatalogTopSliderList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script>
 		<?

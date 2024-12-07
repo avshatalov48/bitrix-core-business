@@ -129,7 +129,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Stores file hashes to the database.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param array $files File list as it returned by \CCloudStorageBucket::ListFiles.
 	 *
 	 * @return \Bitrix\Main\DB\Result
@@ -167,7 +167,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Sync file hashes to the database. Adds new keys and removes missing between $files[last_key] and $lastKey.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param string $path File list relative path.
 	 * @param array $files File list as it returned by CCloudStorageBucket::ListFiles.
 	 * @param string $prevLastKey Last key returned by previous call to CCloudStorageBucket::ListFiles.
@@ -253,7 +253,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Sync file hashes to the database. Removes all keys beyond the $prevLastKey.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param string $path File list relative path.
 	 * @param string $prevLastKey Last key returned by last call to CCloudStorageBucket::ListFiles.
 	 *
@@ -278,7 +278,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Add a file hash to the database.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param string $path Path to the file.
 	 * @param array $fileInfo File info as it returned by CCloudStorageBucket::GetFileInfo.
 	 *
@@ -299,7 +299,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Returns last stored key for given bucket.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 *
 	 * @return string
 	 */
@@ -315,7 +315,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Clears all stored file hashes for the bucket.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 *
 	 * @return \Bitrix\Main\DB\Result
 	 */
@@ -331,7 +331,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Clears a stored file hashe for the filePath for the bucket.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param string $filePath File path.
 	 *
 	 * @return \Bitrix\Main\DB\Result
@@ -353,7 +353,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Returns file listing with "folders", sizes and modification times.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param string $path Directory path.
 	 * @param array $order How to sort.
 	 * @param array $filter Additional filter.
@@ -369,7 +369,7 @@ class FileHashTable extends DataManager
 		$query->setSelect([
 			new ExpressionField(
 				'FILE_TYPE',
-				'if(locate(\'/\', substring(%s, length(\'' . $sqlHelper->forSql($path) . '\')+1)) > 0, \'D\', \'F\')',
+				'case when position(\'/\' in substring(%s, length(\'' . $sqlHelper->forSql($path) . '\')+1)) > 0 then \'D\' else \'F\' end',
 				['FILE_PATH']
 			),
 			new ExpressionField(
@@ -407,25 +407,30 @@ class FileHashTable extends DataManager
 	/**
 	 * Returns duplicate files by bucket, hash, and size.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param array $filter Additional filter to pass to FileHashTable.
 	 * @param array $order Sort order.
-	 * @param integer $limit Records count.
+	 * @param int $limit Records count.
 	 * @return \Bitrix\Main\DB\Result
 	 * @see \Bitrix\Main\File\Internal\FileHashTable
 	 */
 	public static function duplicateList($bucketId, $filter, $order, $limit = 0)
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
-
+		$helper = $connection->getSqlHelper();
 		$query = \Bitrix\Main\File\Internal\FileHashTable::query();
+		$query->registerRuntimeField('FILE_PATH', [
+			'expression' => [
+				$helper->getConcatFunction('%s', "'/'", '%s'), 'FILE.SUBDIR', 'FILE.FILE_NAME'
+			]
+		]);
 		$query->setSelect([
 			'FILE_HASH',
 			'FILE_SIZE',
 			new ExpressionField(
 				'FILE_COUNT',
-				'COUNT(distinct %s, %s)',
-				['FILE.SUBDIR', 'FILE.FILE_NAME']
+				'COUNT(distinct %s)',
+				['FILE_PATH']
 			),
 			new ExpressionField(
 				'FILE_ID_MIN',
@@ -457,7 +462,7 @@ class FileHashTable extends DataManager
 	/**
 	 * Returns duplicate files list by bucket, hash, and size.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param array $fileHash File hash.
 	 * @param array $fileSize File size.
 	 * @return array
@@ -490,33 +495,35 @@ class FileHashTable extends DataManager
 	/**
 	 * Returns duplicates summary statistics.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @return array
 	 */
 	public static function getDuplicatesStat($bucketId)
 	{
 		$bucketId = intval($bucketId);
 		$connection = \Bitrix\Main\Application::getConnection();
-		$sql = "
+		$helper = $connection->getSqlHelper();
+		$sql = '
 			select sum(DUP_COUNT) DUP_COUNT, sum(DUP_SIZE) DUP_SIZE
 			from (
 				select
 					b_file_hash.FILE_SIZE
 					,b_file_hash.FILE_HASH
-					,count(distinct b_file.SUBDIR, b_file.FILE_NAME)-1 DUP_COUNT
-					,(count(distinct b_file.SUBDIR, b_file.FILE_NAME)-1) * b_file_hash.FILE_SIZE DUP_SIZE
+					,count(distinct ' . $helper->getConcatFunction('b_file.SUBDIR', "'/'", 'b_file.FILE_NAME') . ')-1 DUP_COUNT
+					,(count(distinct ' . $helper->getConcatFunction('b_file.SUBDIR', "'/'", 'b_file.FILE_NAME') . ")-1) * b_file_hash.FILE_SIZE DUP_SIZE
 				from
 					b_file_hash
 					inner join b_file on
 						b_file.ID = b_file_hash.FILE_ID
 				where
-					b_file.HANDLER_ID = " . $bucketId . "
+					b_file.HANDLER_ID = '" . $bucketId . "'
 				group by
 					b_file_hash.FILE_SIZE, b_file_hash.FILE_HASH
 				having
-					count(distinct b_file.SUBDIR, b_file.FILE_NAME) > 1
+					count(distinct " . $helper->getConcatFunction('b_file.SUBDIR', "'/'", 'b_file.FILE_NAME') . ') > 1
 			) t
-		";
+		';
+
 		return $connection->query($sql)->fetch();
 	}
 
@@ -524,15 +531,19 @@ class FileHashTable extends DataManager
 	 * Copies file hash information from clouds module table to the main module.
 	 * Returns an array with copy statistics information.
 	 *
-	 * @param integer $lastKey Where to start.
-	 * @param integer $pageSize Batch size.
+	 * @param int $lastKey Where to start.
+	 * @param int $pageSize Batch size.
 	 * @return array
 	 */
 	public static function copyToFileHash($lastKey, $pageSize)
 	{
+		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$lastKey = (int)$lastKey;
 		$pageSize = (int)$pageSize;
-		$sql = "
+		$sql = '
 			SELECT
 				b_file.ID as FILE_ID
 				,b_clouds_file_hash.FILE_SIZE as FILE_SIZE
@@ -540,18 +551,17 @@ class FileHashTable extends DataManager
 			FROM
 				b_file
 				INNER JOIN b_clouds_file_hash ON
-					b_clouds_file_hash.BUCKET_ID = b_file.HANDLER_ID
-					AND b_clouds_file_hash.FILE_PATH = concat('/', b_file.SUBDIR, '/', b_file.FILE_NAME)
+					b_clouds_file_hash.BUCKET_ID = ' . $DB->ToNumber('b_file.HANDLER_ID') . '
+					AND b_clouds_file_hash.FILE_PATH = ' . $helper->getConcatFunction("'/'", 'b_file.SUBDIR', "'/'", 'b_file.FILE_NAME') . '
 				LEFT JOIN b_file_duplicate ON
 					b_file_duplicate.DUPLICATE_ID = b_file.ID
 			WHERE
-				b_file.ID > " . $lastKey . "
+				b_file.ID > ' . $lastKey . '
 				AND b_file_duplicate.DUPLICATE_ID is null
 			ORDER BY b_file.ID
-			LIMIT " . $pageSize . "
-		";
+			LIMIT ' . $pageSize . '
+		';
 
-		$connection = \Bitrix\Main\Application::getConnection();
 		$fileIds = $connection->query('
 			SELECT
 				min(FILE_ID) as FILE_ID_MIN
@@ -562,7 +572,13 @@ class FileHashTable extends DataManager
 
 		if ($fileIds['FILE_ID_CNT'] > 0)
 		{
-			$connection->queryExecute('INSERT IGNORE INTO b_file_hash '.$sql);
+			$sql = $helper->getInsertIgnore(
+				'b_file_hash',
+				'(FILE_ID, FILE_SIZE, FILE_HASH)',
+				$sql
+			);
+
+			$connection->query($sql);
 		}
 
 		return $fileIds;
@@ -571,9 +587,9 @@ class FileHashTable extends DataManager
 	/**
 	 * Checks candidates from file duplicates delete. Returns future file original identifier.
 	 *
-	 * @param integer $bucketId Clouds storage bucket identifier.
+	 * @param int $bucketId Clouds storage bucket identifier.
 	 * @param array &$fileIds Array of file identifiers candidates for duplicate delete.
-	 * @return false|integer
+	 * @return false|int
 	 */
 	public static function prepareDuplicates($bucketId, &$fileIds)
 	{

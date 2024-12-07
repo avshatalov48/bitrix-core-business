@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Iblock\Copy\Implement\Children;
 
+use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
@@ -10,6 +11,8 @@ class Field implements Child
 
 	private $enumRatio = [];
 	private $enumTmpMap = [];
+
+	private array $fieldRatio = [];
 
 	/**
 	 * @var Result
@@ -21,11 +24,23 @@ class Field implements Child
 		$this->result = new Result();
 	}
 
+	/**
+	 * Returns lists values map from old iblock to new iblock
+	 *
+	 * @return array
+	 */
 	public function getEnumRatio()
 	{
 		return $this->enumRatio;
 	}
 
+	/**
+	 * Copy iblock fields and properties.
+	 *
+	 * @param int $iblockId Source iblock id.
+	 * @param int $copiedIblockId Destination iblock id.
+	 * @return Result
+	 */
 	public function copy($iblockId, $copiedIblockId): Result
 	{
 		$fields = $this->getFieldsToCopy($iblockId);
@@ -56,6 +71,7 @@ class Field implements Child
 	private function getProperty($iblockId)
 	{
 		$fields = [];
+		$this->fieldRatio[$iblockId] ??= [];
 
 		$queryObject = \CIBlock::getProperties($iblockId);
 		while ($property = $queryObject->fetch())
@@ -70,21 +86,28 @@ class Field implements Child
 	{
 		foreach ($properties as $propertyField)
 		{
+			$iblockId = $propertyField["IBLOCK_ID"];
 			$propertyField["IBLOCK_ID"] = $copiedIblockId;
 
 			$property = new \CIBlockProperty;
 			$propertyId = $property->add($propertyField);
 			if ($propertyId)
 			{
-				if ($propertyField["PROPERTY_TYPE"] == "L" && is_array($propertyField["LIST"]))
+				if (
+					$propertyField['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST
+					&& !empty($propertyField['LIST'])
+					&& is_array($propertyField['LIST'])
+				)
 				{
 					$this->addPropertyList($propertyId, $propertyField["LIST"]);
 				}
+				$this->fieldRatio[$iblockId][$propertyField['ID']] = $propertyId;
 			}
 
-			if (!empty($property->LAST_ERROR))
+			$error = $property->getLastError();
+			if ($error !== '')
 			{
-				$this->result->addError(new Error($property->LAST_ERROR, self::FIELD_COPY_ERROR));
+				$this->result->addError(new Error($error, self::FIELD_COPY_ERROR));
 			}
 		}
 	}
@@ -132,6 +155,7 @@ class Field implements Child
 		if (array_key_exists($fieldId, $this->enumTmpMap))
 		{
 			$enumTmpMap = $this->enumTmpMap[$fieldId];
+			$this->enumRatio[$iblockId] ??= [];
 			if (!is_array($this->enumRatio[$iblockId]))
 			{
 				$this->enumRatio[$iblockId] = [];
@@ -146,5 +170,29 @@ class Field implements Child
 				}
 			}
 		}
+	}
+
+	/**
+	 * Returns properties map from old iblock to new iblock.
+	 *
+	 * @return array
+	 */
+	public function getFieldRatio(): array
+	{
+		return $this->fieldRatio;
+	}
+
+	/**
+	 * Add property relation from old iblock to new iblock.
+	 *
+	 * @param int $iblockId Old iblock id.
+	 * @param int $fieldId Old property id.
+	 * @param int $newFieldId New property id.
+	 * @return void
+	 */
+	public function setFieldRatio(int $iblockId, int $fieldId, int $newFieldId): void
+	{
+		$this->fieldRatio[$iblockId] ??= [];
+		$this->fieldRatio[$iblockId][$fieldId] = $newFieldId;
 	}
 }

@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
@@ -65,6 +65,8 @@ class MainUserConsentViewComponent extends CBitrixComponent
 		else
 		{
 			$this->arResult['TEXT'] = $agreement->getText();
+			$this->arResult['IS_HTML'] = $agreement->isAgreementTextHtml();
+			$this->arResult['HTML'] = $this->arResult['IS_HTML'] ? $agreement->getHtml() : '';
 		}
 
 		return true;
@@ -80,7 +82,7 @@ class MainUserConsentViewComponent extends CBitrixComponent
 
 	public function executeComponent()
 	{
-		$this->errors = new \Bitrix\Main\ErrorCollection();
+		$this->errors = new ErrorCollection();
 		$this->initParams();
 		if (!$this->checkRequiredParams())
 		{

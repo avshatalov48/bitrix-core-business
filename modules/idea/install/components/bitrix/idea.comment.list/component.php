@@ -888,7 +888,7 @@ if(((!empty($arPost) && ($arPost["PUBLISH_STATUS"] == BLOG_PUBLISH_STATUS_PUBLIS
 
 									$arUsrTmp["Blog"] = CBlog::GetByOwnerID(intval($arComment["AUTHOR_ID"]), $arParams["GROUP_ID"]);
 
-									if($arUsrTmp["AUTHOR_ID"] == $arUsrTmp["AUTHOR_ID"])
+									if($arComment["AUTHOR_ID"] == $arPost["AUTHOR_ID"])
 										$arUsrTmp["AuthorIsPostAuthor"] = "Y";
 
 									$arResult["USER_CACHE"][$arComment["AUTHOR_ID"]] = $arUsrTmp;

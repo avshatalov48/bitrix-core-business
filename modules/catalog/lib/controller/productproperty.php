@@ -11,7 +11,16 @@ use Bitrix\Main\UI\PageNavigation;
 
 final class ProductProperty extends ProductPropertyBase
 {
+	use GetAction; // default getAction realization
+
+	private const LIST_NAME = 'PRODUCT_PROPERTIES';
+
 	private string $customUserType = '';
+
+	protected function getServiceListName(): string
+	{
+		return self::LIST_NAME;
+	}
 
 	// region Actions
 
@@ -20,17 +29,24 @@ final class ProductProperty extends ProductPropertyBase
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRODUCT_PROPERTY' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
+	 * @param PageNavigation $pageNavigation
 	 * @param array $select
 	 * @param array $filter
 	 * @param array $order
-	 * @param PageNavigation $pageNavigation
+	 * @param bool $__calculateTotalCount
 	 * @return Page
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
+	public function listAction(
+		PageNavigation $pageNavigation,
+		array $select = [],
+		array $filter = [],
+		array $order = [],
+		bool $__calculateTotalCount = true
+	): Page
 	{
 		if (!isset($filter['IBLOCK_ID']))
 		{
@@ -41,32 +57,21 @@ final class ProductProperty extends ProductPropertyBase
 			$iblockId = (int)($filter['IBLOCK_ID']);
 			if (!$this->isIblockCatalog($iblockId))
 			{
-				return new Page('PRODUCT_PROPERTIES', [], 0);
+				return new Page($this->getServiceListName(), [], 0);
 			}
 		}
 
 		return new Page(
-			'PRODUCT_PROPERTIES',
+			$this->getServiceListName(),
 			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
+			$__calculateTotalCount ? $this->count($filter) : 0
 		);
 	}
 
 	/**
-	 * @param int $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction(int $id): ?array
-	{
-		$r = $this->exists($id);
-		if ($r->isSuccess())
-		{
-			return ['PRODUCT_PROPERTY' => $this->get($id)];
-		}
-
-		$this->addErrors($r->getErrors());
-		return null;
-	}
 
 	/**
 	 * @param array $fields
@@ -77,6 +82,7 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$this->isIblockCatalog((int)$fields['IBLOCK_ID']))
 		{
 			$this->addError(new Error('The specified iblock is not a product catalog'));
+
 			return null;
 		}
 
@@ -84,6 +90,7 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$iblockPermissionsCheckResult->isSuccess())
 		{
 			$this->addErrors($iblockPermissionsCheckResult->getErrors());
+
 			return null;
 		}
 
@@ -91,31 +98,34 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$typeCheckResult->isSuccess())
 		{
 			$this->addErrors($typeCheckResult->getErrors());
+
 			return null;
 		}
 
 		$this->processCustomTypesBeforeAdd($fields);
 
-		$application = self::getApplication();
-		$application->ResetException();
-
-		$addResult = (new \CIBlockProperty())->Add($fields);
+		$property = new \CIBlockProperty();
+		$addResult = $property->Add($fields);
 		if (!$addResult)
 		{
-			if ($application->GetException())
+			$error = $property->getLastError();
+			if ($error !== '')
 			{
-				$this->addError(new Error($application->GetException()->GetString()));
+				$this->addError(new Error($error));
 			}
 			else
 			{
 				$this->addError(new Error('Error adding property'));
 			}
+
 			return null;
 		}
 
 		$this->processCustomTypesAfterAdd((int)$addResult, $fields);
 
-		return ['PRODUCT_PROPERTY' => $this->get($addResult)];
+		return [
+			$this->getServiceItemName() => $this->get($addResult),
+		];
 	}
 
 	/**
@@ -129,6 +139,7 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$existsResult->isSuccess())
 		{
 			$this->addErrors($existsResult->getErrors());
+
 			return null;
 		}
 
@@ -141,27 +152,30 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$typeCheckResult->isSuccess())
 		{
 			$this->addErrors($typeCheckResult->getErrors());
+
 			return null;
 		}
 
-		$application = self::getApplication();
-		$application->ResetException();
-
-		$updateResult = (new \CIBlockProperty())->Update($id, $fields);
+		$property = new \CIBlockProperty();
+		$updateResult = $property->Update($id, $fields);
 		if (!$updateResult)
 		{
-			if ($application->GetException())
+			$error = $property->getLastError();
+			if ($error !== '')
 			{
-				$this->addError(new Error($application->GetException()->GetString()));
+				$this->addError(new Error($error));
 			}
 			else
 			{
 				$this->addError(new Error('Error updating product property'));
 			}
+
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY' => $this->get($id)];
+		return [
+			$this->getServiceItemName() => $this->get($id),
+		];
 	}
 
 	/**
@@ -174,6 +188,7 @@ final class ProductProperty extends ProductPropertyBase
 		if (!$existsResult->isSuccess())
 		{
 			$this->addErrors($existsResult->getErrors());
+
 			return null;
 		}
 
@@ -183,14 +198,16 @@ final class ProductProperty extends ProductPropertyBase
 		$deleteResult = \CIBlockProperty::Delete($id);
 		if (!$deleteResult)
 		{
-			if ($application->GetException())
+			$exception = $application->GetException();
+			if ($exception)
 			{
-				$this->addError(new Error($application->GetException()->GetString()));
+				$this->addError(new Error($exception->GetString()));
 			}
 			else
 			{
 				$this->addError(new Error('Error deleting product property'));
 			}
+
 			return null;
 		}
 
@@ -216,7 +233,7 @@ final class ProductProperty extends ProductPropertyBase
 		$property = $this->get($id);
 		if (!$property || !$this->isIblockCatalog((int)$property['IBLOCK_ID']))
 		{
-			$result->addError(new Error('Property does not exist'));
+			$result->addError($this->getErrorEntityNotExists());
 		}
 
 		return $result;

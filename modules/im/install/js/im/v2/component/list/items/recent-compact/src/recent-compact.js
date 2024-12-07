@@ -48,8 +48,8 @@ export const RecentList = {
 			});
 
 			return [...filteredCollection].sort((a, b) => {
-				const firstDate = this.$store.getters['recent/getMessageDate'](a.dialogId);
-				const secondDate = this.$store.getters['recent/getMessageDate'](b.dialogId);
+				const firstDate = this.$store.getters['recent/getSortDate'](a.dialogId);
+				const secondDate = this.$store.getters['recent/getSortDate'](b.dialogId);
 
 				return secondDate - firstDate;
 			});

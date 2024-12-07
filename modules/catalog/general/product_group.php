@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CAllCatalogProductGroups
@@ -34,7 +34,7 @@ class CAllCatalogProductGroups
 			return false;
 
 		$strSql = "SELECT ID, PRODUCT_ID, GROUP_ID, ACCESS_LENGTH, ACCESS_LENGTH_TYPE FROM b_catalog_product2group WHERE ID = ".$ID;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 
@@ -56,7 +56,7 @@ class CAllCatalogProductGroups
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_product2group SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		return $ID;

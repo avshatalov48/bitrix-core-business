@@ -284,7 +284,7 @@ class CAdminNotify
 			$sOrder = 'AN.ID DESC';
 		}
 
-		$strSqlOrder = ' ORDER BY ' . TrimEx($sOrder, ',');
+		$strSqlOrder = ' ORDER BY ' . trim($sOrder, ', ');
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 
 		$strSql = "SELECT " . $strSelect . " FROM b_admin_notify AN " . $strFrom . " WHERE " . $strSqlSearch . " " . $strSqlOrder;

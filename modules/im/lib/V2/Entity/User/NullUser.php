@@ -2,6 +2,9 @@
 
 namespace Bitrix\Im\V2\Entity\User;
 
+use Bitrix\Im\V2\Chat\ChatError;
+use Bitrix\Im\V2\Result;
+
 class NullUser extends User
 {
 
@@ -10,14 +13,19 @@ class NullUser extends User
 		return null;
 	}
 
+	public function getName(): ?string
+	{
+		return \Bitrix\Im\User::formatFullNameFromDatabase([]);
+	}
+
 	public function isOnlineDataFilled(bool $withStatus): bool
 	{
 		return true;
 	}
 
-	protected function checkAccessWithoutCaching(User $otherUser): bool
+	protected function checkAccessInternal(User $otherUser): Result
 	{
-		return false;
+		return (new Result())->addError(new ChatError(ChatError::ACCESS_DENIED));
 	}
 
 	public function isExist(): bool

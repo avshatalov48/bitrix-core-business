@@ -92,6 +92,7 @@ class Event
 	{
 		$validFields = [
 			'GROUP_ID',
+			'PREVIOUS_GROUP_ID',
 			'NAME',
 			'PROJECT_DATE_START',
 			'PROJECT_DATE_FINISH',
@@ -111,6 +112,7 @@ class Event
 			'SPACE_ID',
 			'TYPE_ID',
 			'ENTITY_ID',
+			'ENTITY_TYPE_ID',
 			'ID',
 			'ATTENDEES_CODES',
 			'EVENT_ID',
@@ -120,6 +122,15 @@ class Event
 			'INITIATED_BY_TYPE',
 			'OLD_INITIATED_BY_TYPE',
 			'LOG_RIGHTS',
+			'LOG_RIGHTS_BEFORE_UPDATE',
+			'OLD_MEMBERS',
+			'NEW_MEMBERS',
+			'ATTENDEES_BEFORE_UPDATE',
+			'ATTENDEES_AFTER_UPDATE',
+			'ATTENDEES_CODES_BEFORE_UPDATE',
+			'ATTENDEES_CODES_AFTER_UPDATE',
+			'COMMENT_ID',
+			'MESSAGE_ID',
 		];
 
 		if (!empty($data['TASK_ID']))

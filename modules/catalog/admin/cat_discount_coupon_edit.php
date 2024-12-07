@@ -290,7 +290,7 @@ $tabControl->Show();
 echo BeginNote();
 ?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> <? echo GetMessage('DSC_CPN_ONE_ORDER_NOTE');
 echo EndNote();
-?><script type="text/javascript">
+?><script>
 BX.ready(function(){
 	var obCouponValue = BX('COUPON'),
 		obCouponBtn = BX('COUPON_GENERATE');

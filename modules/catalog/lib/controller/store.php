@@ -1,44 +1,33 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
-
 
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\StoreTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 final class Store extends Controller
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+	use CheckExists; // default implementation of existence check
+
 	//region Actions
 	public function getFieldsAction(): array
 	{
-		return ['STORE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		$accessFilter = $this->accessController->getEntityFilter(
-			ActionDictionary::ACTION_STORE_VIEW,
-			get_class($this->getEntityTable())
-		);
-		if ($accessFilter)
-		{
-			$filter = [
-				$accessFilter,
-				$filter,
-			];
-		}
+	/**
+	 * public function listAction
+	 * @see ListAction::listAction
+	 */
 
-		return new Page(
-			'STORES',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
+	/**
+	 * public function getAction
+	 * @see GetAction::getAction
+	 */
 
 	public function addAction(array $fields)
 	{
@@ -111,30 +100,6 @@ final class Store extends Controller
 		return $result;
 	}
 
-	public function getAction($id)
-	{
-		$r = $this->exists($id);
-		if($r->isSuccess())
-		{
-			return ['STORE'=>$this->get($id)];
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-			return null;
-		}
-	}
-	//endregion
-
-	protected function exists($id)
-	{
-		$r = new Result();
-		if(isset($this->get($id)['ID']) == false)
-			$r->addError(new Error('Store is not exists'));
-
-		return $r;
-	}
-
 	protected function getEntityTable()
 	{
 		return new StoreTable();
@@ -167,5 +132,27 @@ final class Store extends Controller
 			$r->addError(new Error('Access Denied', 200040300010));
 		}
 		return $r;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @param array $params
+	 * @return array
+	 */
+	protected function modifyListActionParameters(array $params): array
+	{
+		$accessFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_VIEW,
+			get_class($this->getEntityTable())
+		);
+		if ($accessFilter)
+		{
+			$params['filter'] = [
+				$accessFilter,
+				$params['filter'],
+			];
+		}
+
+		return $params;
 	}
 }

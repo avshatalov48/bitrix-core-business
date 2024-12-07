@@ -119,7 +119,7 @@ class CDeliveryDHLUSA
 			require('dhl_usa/country.php');
 		}
 	
-		$arLocation['COUNTRY_DHLUSA'] = $arDHLUSACountryList[ToUpper($arLocation['COUNTRY_NAME'])];
+		$arLocation['COUNTRY_DHLUSA'] = $arDHLUSACountryList[mb_strtoupper($arLocation['COUNTRY_NAME'])];
 		
 		return $arLocation;
 	}

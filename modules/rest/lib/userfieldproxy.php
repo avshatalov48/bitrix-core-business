@@ -404,6 +404,11 @@ abstract class UserFieldProxy
 						}
 					}
 
+					if(isset($item['XML_ID']) && is_string($item['XML_ID']) && $item['XML_ID'] != '')
+					{
+						$effectiveItem['XML_ID'] = $item['XML_ID'];
+					}
+
 					$effectiveListItems[$itemKey] = &$effectiveItem;
 					unset($effectiveItem);
 				}
@@ -611,7 +616,8 @@ abstract class UserFieldProxy
 						'ID' => $enum['ID'],
 						'SORT' => $enum['SORT'],
 						'VALUE' => $enum['VALUE'],
-						'DEF' => $enum['DEF']
+						'DEF' => $enum['DEF'],
+						'XML_ID' => $enum['XML_ID'],
 					);
 				}
 			}

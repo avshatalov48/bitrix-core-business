@@ -2278,7 +2278,7 @@ class CCatalogAdminProductSetEdit
 				'SEARCH_PAGE' => (defined('SELF_FOLDER_URL') ? '/shop/settings/' : '/bitrix/admin/').'cat_product_search_dialog.php',
 			);
 			?>
-<script type="text/javascript">
+<script>
 if (!window.ob<?=$blockName; ?>)
 {
 	window.ob<?=$blockName; ?> = new JCCatTblEditExt(<? echo CUtil::PhpToJSObject($arJSParams); ?>);

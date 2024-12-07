@@ -1,5 +1,9 @@
-<?
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -10,19 +14,22 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
-use Bitrix\Main\Loader,
-	Bitrix\Main,
-	Bitrix\Iblock;
+use Bitrix\Main\Loader;
+use Bitrix\Iblock;
 
-if(!isset($arParams["CACHE_TIME"]))
-	$arParams["CACHE_TIME"] = 36000000;
+$arParams['CACHE_TIME'] = (int)($arParams['CACHE_TIME'] ?? 36000000);
 
-$arParams["IBLOCK_TYPE"] = trim($arParams["IBLOCK_TYPE"]);
-if(!is_array($arParams["IBLOCKS"]))
-	$arParams["IBLOCKS"] = array($arParams["IBLOCKS"]);
+$arParams['IBLOCK_TYPE'] = trim((string)($arParams['IBLOCK_TYPE'] ?? ''));
+$arParams['IBLOCKS'] ??= [];
+if (!is_array($arParams['IBLOCKS']))
+{
+	$arParams['IBLOCKS'] = [$arParams['IBLOCKS']];
+}
 foreach($arParams["IBLOCKS"] as $key=>$val)
-	if(!$val)
+{
+	if (!$val)
 		unset($arParams["IBLOCKS"][$key]);
+}
 
 $arParams["IBLOCK_SORT_BY"] = trim($arParams["IBLOCK_SORT_BY"]);
 if(!in_array($arParams["IBLOCK_SORT_BY"], array("SORT","NAME","ID")))
@@ -206,7 +213,6 @@ if($this->startResultCache(false, ($arParams["CACHE_GROUPS"]==="N"? false: $USER
 	}
 	unset($arIBlock);
 
-	$this->setResultCacheKeys(array(
-	));
+	$this->setResultCacheKeys([]);
 	$this->includeComponentTemplate();
 }

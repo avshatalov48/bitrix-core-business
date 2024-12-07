@@ -435,7 +435,11 @@
 					{
 						return;
 					}
-					if ((xhr.status === 200 || xhr.status === 0) && xhr.response)
+					if (
+						(xhr.status === 200 || xhr.status === 0)
+						&& BX.Type.isBlob(xhr.response)
+						&& /^image\/[\d.a-z-]+$/i.test(xhr.response.type)
+					)
 					{
 						console.log('resize image');
 						this.resizedSrc = URL.createObjectURL(xhr.response);

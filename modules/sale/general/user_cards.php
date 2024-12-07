@@ -156,7 +156,7 @@ class CAllSaleUserCards
 
 	public static function CryptData($data, $type)
 	{
-		$type = ToUpper($type);
+		$type = mb_strtoupper($type);
 		if ($type != "D")
 			$type = "E";
 

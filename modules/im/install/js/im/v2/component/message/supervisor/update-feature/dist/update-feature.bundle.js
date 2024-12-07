@@ -3,42 +3,156 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base) {
+(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics) {
 	'use strict';
 
 	const EnableFeatures = Object.freeze({
 	  copilot: 'copilot',
-	  newsLine: 'newsLine',
-	  chatCalls: 'chatCalls',
+	  newsLine: 'news',
+	  chatCalls: 'instant_messenger',
 	  calendar: 'calendar',
-	  documents: 'documents',
+	  documents: 'docs',
 	  mail: 'mail',
-	  groups: 'groups',
+	  groups: 'workgroups',
 	  tasks: 'tasks',
 	  crm: 'crm',
 	  marketing: 'marketing',
 	  automation: 'automation',
-	  warehouseAccounting: 'warehouseAccounting',
+	  warehouseAccounting: 'inventory_management',
 	  sign: 'sign',
-	  websitesStores: 'websitesStores'
+	  scrum: 'scrum',
+	  invoices: 'invoices',
+	  saleshub: 'saleshub',
+	  websitesStores: 'sites',
+	  checkIn: 'checkIn',
+	  checkInGeo: 'checkInGeo'
 	});
 	const UpdateFeatures = Object.freeze({
-	  tariff: 'tariff'
+	  collaborativeDocumentEditing: 'limit_office_no_document',
+	  leadsCRM: 'limit_crm_lead_unlimited',
+	  mailBoxNumber: 'limit_contact_center_mail_box_number',
+	  enterpriseAdmin: 'info_enterprise_admin',
+	  loginHistory: 'limit_office_login_history',
+	  crmHistory: 'limit_crm_history_view',
+	  tasksRobots: 'limit_tasks_robots',
+	  crmAnalytics: 'limit_crm_analytics_max_number',
+	  crmInvoices: 'limit_crm_free_invoices'
 	});
 
-	const onOpenTariffSettings = () => BX.SidePanel.Instance.open(`${window.location.origin}/settings/license_all.php`);
+	const onOpenPriceTable = featureId => {
+	  return () => {
+	    im_v2_lib_analytics.Analytics.getInstance().onOpenPriceTable(featureId);
+	    BX.SidePanel.Instance.open(`${window.location.origin}/settings/license_all.php`);
+	  };
+	};
 	const onHelpClick = ARTICLE_CODE => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
 	const metaData = {
-	  [UpdateFeatures.tariff]: {
-	    title: 'default title',
-	    description: 'default description',
+	  [UpdateFeatures.collaborativeDocumentEditing]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.collaborativeDocumentEditing}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.collaborativeDocumentEditing}`),
 	    detailButton: {
-	      text: 'button text',
-	      callback: onOpenTariffSettings
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.collaborativeDocumentEditing)
 	    },
 	    infoButton: {
-	      text: 'button text',
-	      callback: () => onHelpClick('12925062')
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('20338924')
+	    }
+	  },
+	  [UpdateFeatures.crmAnalytics]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.crmAnalytics}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.crmAnalytics}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.crmAnalytics)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('9673603')
+	    }
+	  },
+	  [UpdateFeatures.crmHistory]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.crmHistory}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.crmHistory}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.crmHistory)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('17301310')
+	    }
+	  },
+	  [UpdateFeatures.leadsCRM]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.leadsCRM}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.leadsCRM}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.leadsCRM)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('1357950')
+	    }
+	  },
+	  [UpdateFeatures.crmInvoices]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.crmInvoices}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.crmInvoices}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.crmInvoices)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('17614982')
+	    }
+	  },
+	  [UpdateFeatures.enterpriseAdmin]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.enterpriseAdmin}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.enterpriseAdmin}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.enterpriseAdmin)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('17994262')
+	    }
+	  },
+	  [UpdateFeatures.loginHistory]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.loginHistory}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.loginHistory}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.loginHistory)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('19124604')
+	    }
+	  },
+	  [UpdateFeatures.mailBoxNumber]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.mailBoxNumber}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.mailBoxNumber}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.mailBoxNumber)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('19083990')
+	    }
+	  },
+	  [UpdateFeatures.tasksRobots]: {
+	    title: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_${UpdateFeatures.tasksRobots}`),
+	    description: main_core.Loc.getMessage(`IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_${UpdateFeatures.tasksRobots}`),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'),
+	      callback: onOpenPriceTable(UpdateFeatures.tasksRobots)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'),
+	      callback: () => onHelpClick('17784680')
 	    }
 	  }
 	};
@@ -109,5 +223,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SupervisorUpdateFeatureMessage = SupervisorUpdateFeatureMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib));
 //# sourceMappingURL=update-feature.bundle.js.map

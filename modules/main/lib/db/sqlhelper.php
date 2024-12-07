@@ -333,7 +333,6 @@ abstract class SqlHelper
 
 		$tableFields = $this->connection->getTableFields($tableName);
 
-		// one registry
 		$tableFields = array_change_key_case($tableFields, CASE_UPPER);
 		$fields = array_change_key_case($fields, CASE_UPPER);
 
@@ -840,6 +839,22 @@ abstract class SqlHelper
 	}
 
 	/**
+	 * Returns case insensitive like expression.
+	 * <p>
+	 * All parameters are SQL unsafe.
+	 *
+	 * @abstract
+	 * @param string $field Database field or expression.
+	 * @param string $value String to match.
+	 *
+	 * @return string
+	 */
+	public function getIlikeOperator($field, $value)
+	{
+		throw new Main\NotImplementedException('Method should be implemented in a child class.');
+	}
+
+	/**
 	 * Returns identifier for usage in VALUES.
 	 *
 	 * @abstract
@@ -1043,5 +1058,129 @@ abstract class SqlHelper
 	protected function getOrderByField(string $field, array $values, callable $callback, bool $quote = true): string
 	{
 		return $quote ? $this->quote($field) : $field;
+	}
+
+	/**
+	 * @param string $sql
+	 * @param int $maxLevel
+	 * @return array
+	 */
+	public function getQueryTables(string $sql, int $maxLevel = -1) : array
+	{
+		$level = 0;
+		$tables = [];
+
+		$escaped = false;
+		$singleQuotes = false;
+		$doubleQuotes = false;
+
+		$isFrom = [0 => false];
+		$isTable = [0 => false];
+		$isIf = [0 => false];
+
+		$sql = preg_replace('/\s\s+/m', ' ', $sql);
+		$sql = preg_replace('/(HOUR|MINUTE|SECOND|YEAR|QUARTER|WEEK|MICROSECOND)(\s+)FROM/is', 'XXX_FROM', $sql);
+
+		foreach (preg_split('/([,()"\'\\\\]|\s+)/s', $sql, -1, PREG_SPLIT_DELIM_CAPTURE) as $token)
+		{
+			if ($maxLevel > -1 && $level > $maxLevel)
+			{
+				break;
+			}
+
+			$token = trim($token, "` ;\t\n\r");
+			if ($token === '\\')
+			{
+				$escaped = !$escaped;
+				continue;
+			}
+
+			if ($token === '"' && !$escaped)
+			{
+				$doubleQuotes = !$doubleQuotes;
+				continue;
+			}
+
+			if ($token === '\'' && !$escaped)
+			{
+				$singleQuotes = !$singleQuotes;
+				continue;
+			}
+
+			if ($token && !$doubleQuotes && !$singleQuotes)
+			{
+				if ($token === '(')
+				{
+					$isTable[$level] = false;
+					$level++;
+					$isFrom[$level] = false;
+					$isTable[$level] = false;
+					$isIf[$level] = false;
+				}
+				elseif ($token === ')')
+				{
+					$isTable[$level] = false;
+					if ($level > 0)
+					{
+						$level--;
+					}
+				}
+				else
+				{
+					switch (strtoupper($token))
+					{
+						case 'INTO':
+							$isTable[$level] = true;
+							break;
+						case 'FROM':
+						case 'UPDATE':
+						case 'TABLE':
+						case 'TRUNCATE':
+							$isFrom[$level] = true;
+							$isTable[$level] = true;
+							break;
+						case 'EXISTS':
+							if ($isIf[$level])
+							{
+								$isFrom[$level] = true;
+								$isTable[$level] = true;
+							}
+							break;
+
+						case 'WHERE':
+						case 'GROUP':
+						case 'HAVING':
+						case 'ORDER':
+						case 'LIMIT':
+						case 'SET':
+							$isFrom[$level] = false;
+							break;
+						case ',':
+						case 'JOIN':
+						case 'STRAIGHT_JOIN':
+							if ($isFrom[$level])
+							{
+								$isTable[$level] = true;
+							}
+							break;
+						case 'IF':
+							$isIf[$level] = true;
+							$isTable[$level] = false;
+							break;
+						case 'TEMPORARY':
+							$isTable[$level] = false;
+							break;
+						default:
+							if ($isTable[$level])
+							{
+								$tables[$token] = $token;
+								$isTable[$level] = false;
+							}
+					}
+				}
+			}
+		}
+
+		return $tables;
 	}
 }

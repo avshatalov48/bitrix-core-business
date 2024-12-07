@@ -1359,6 +1359,7 @@ this.BX = this.BX || {};
 	      this.emit('onBeforeShow');
 	      this.showOverlay();
 	      this.getPopupContainer().style.display = 'block';
+	      main_core.Dom.addClass(this.getPopupContainer(), '--open');
 	      if (this.shouldFrontOnShow()) {
 	        this.bringToFront();
 	      }
@@ -1415,6 +1416,7 @@ this.BX = this.BX || {};
 	        }
 	        _this5.hideOverlay();
 	        _this5.getPopupContainer().style.display = 'none';
+	        main_core.Dom.removeClass(_this5.getPopupContainer(), '--open');
 	        main_core.Dom.removeClass(_this5.getPopupContainer(), _this5.animationCloseClassName);
 	        _this5.unbindClosingByEsc();
 	        if (_this5.isCompatibleMode()) {

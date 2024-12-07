@@ -4,12 +4,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Config\Option;
-use \Bitrix\Main\Error;
-use \Bitrix\Main\ModuleManager;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Security\Mfa;
+use Bitrix\Main\Application;
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\Error;
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Security\Mfa;
 
 Loc::loadMessages(__FILE__);
 

@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Calendar\Rooms;
+use Bitrix\Calendar\Integration\Bitrix24\FeatureDictionary;
 use Bitrix\Calendar\Integration\Bitrix24Manager;
+use Bitrix\Main\LoaderException;
 
 class PermissionManager
 {
@@ -43,10 +45,11 @@ class PermissionManager
 
 	/**
 	 * @return bool
+	 * @throws LoaderException
 	 */
 	public static function isLocationFeatureEnabled(): bool
 	{
-		return Bitrix24Manager::isFeatureEnabled('calendar_location');
+		return Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_LOCATION);
 	}
 
 	/**

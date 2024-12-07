@@ -374,10 +374,7 @@ class MysqliSqlHelper extends SqlHelper
 		$insert = $this->prepareInsert($tableName, $insertFields);
 		$update = $this->prepareUpdate($tableName, $updateFields);
 
-		if (
-			$insert && $insert[0] != "" && $insert[1] != ""
-			&& $update && $update[1] != ""
-		)
+		if (!empty($insert[0]) && !empty($insert[1]) && !empty($update[0]))
 		{
 			$sql = "
 				INSERT INTO ".$this->quote($tableName)." (".$insert[0].")
@@ -477,6 +474,14 @@ class MysqliSqlHelper extends SqlHelper
 	public function getRegexpOperator($field, $regexp)
 	{
 		return $field . ' regexp ' . $regexp;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
+	public function getIlikeOperator($field, $value)
+	{
+		return $field . ' LIKE ' . $value;
 	}
 
 	/**

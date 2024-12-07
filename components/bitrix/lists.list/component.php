@@ -432,7 +432,7 @@ $arResult["ELEMENTS_HEADERS"] = array(
 	)
 );
 $ignoreSortFields = array("S:Money", "PREVIEW_TEXT", "DETAIL_TEXT", "S:ECrm", "S:map_yandex");
-$arSelect = array("ID", "IBLOCK_ID");
+$arSelect = ["ID", "IBLOCK_ID", 'CREATED_BY'];
 $arProperties = array();
 $arResult["FIELDS"] = $listFields = $obList->GetFields();
 foreach($listFields as $FIELD_ID => $arField)
@@ -815,7 +815,7 @@ $rsElements = CIBlockElement::getList(
 
 if ($arResult["BIZPROC"] == "Y")
 {
-	$arUserGroupsForBP = CUser::GetUserGroup($USER->GetID());
+	$arUserGroupsForBP = \Bitrix\Main\Engine\CurrentUser::get()->getUserGroups();
 	$arDocumentStatesForBP = CBPWorkflowTemplateLoader::GetDocumentTypeStates(
 		BizprocDocument::generateDocumentComplexType($arParams["IBLOCK_TYPE_ID"], $arIBlock["ID"])
 	);
@@ -1136,7 +1136,9 @@ while ($obElement = $rsElements->GetNextElement())
 		{
 			$currentUserGroups = $arResult["USER_GROUPS"];
 			if($data["CREATED_BY"] == $GLOBALS["USER"]->GetID())
+			{
 				$currentUserGroups[] = "author";
+			}
 
 			$listProcesses = array();
 			foreach($documentStates as $documentState)

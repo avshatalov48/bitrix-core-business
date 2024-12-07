@@ -524,7 +524,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -558,7 +558,7 @@ class CIMRestService extends IRestService
 			throw new \Bitrix\Rest\RestException('Message not found', \Bitrix\Im\V2\Message\MessageError::MESSAGE_NOT_FOUND, \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!$message->getChat()->hasAccess())
+		if (!$message->getChat()->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -992,6 +992,14 @@ class CIMRestService extends IRestService
 		{
 			$config['ONLY_COPILOT'] = 'Y';
 		}
+		if (isset($arParams['ONLY_CHANNEL']) && $arParams['ONLY_CHANNEL'] === 'Y')
+		{
+			$config['ONLY_CHANNEL'] = 'Y';
+		}
+		if (isset($arParams['CAN_MANAGE_MESSAGES']) && $arParams['CAN_MANAGE_MESSAGES'] === 'Y')
+		{
+			$config['CAN_MANAGE_MESSAGES'] = 'Y';
+		}
 		if ($skipChatParam === 'Y')
 		{
 			$config['SKIP_CHAT'] = 'Y';
@@ -1015,6 +1023,15 @@ class CIMRestService extends IRestService
 		if ($parseText === 'Y')
 		{
 			$config['PARSE_TEXT'] = 'Y';
+		}
+
+		if (isset($arParams['DATE_LAST_ACTIVITY']) && $arParams['DATE_LAST_ACTIVITY'])
+		{
+			try
+			{
+				$config['LAST_MESSAGE_DATE'] = new \Bitrix\Main\Type\DateTime($arParams['DATE_LAST_ACTIVITY'], \DateTimeInterface::RFC3339);
+			}
+			catch (Exception $e){}
 		}
 
 		if (isset($arParams['LAST_MESSAGE_DATE']) && $arParams['LAST_MESSAGE_DATE'])
@@ -1283,7 +1300,7 @@ class CIMRestService extends IRestService
 		{
 			if (is_string($arParams['USERS']))
 			{
-				$arParams['USERS'] = \CUtil::JsObjectToPhp($arParams['USERS']);
+				$arParams['USERS'] = \CUtil::JsObjectToPhp($arParams['USERS'], true);
 			}
 			if (!is_array($arParams['USERS']))
 			{
@@ -1344,6 +1361,14 @@ class CIMRestService extends IRestService
 			{
 				$add['ENTITY_ID'] = $arParams['ENTITY_ID'];
 			}
+		}
+
+		if (isset($arParams['COPILOT_MAIN_ROLE']))
+		{
+			$add['CHAT_PARAMS'][] = [
+				'PARAM_NAME' => \Bitrix\Im\V2\Chat\Param\Params::COPILOT_MAIN_ROLE,
+				'PARAM_VALUE' => $arParams['COPILOT_MAIN_ROLE']
+			];
 		}
 
 		global $USER;
@@ -1988,7 +2013,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2024,7 +2049,7 @@ class CIMRestService extends IRestService
 		$chatId = $url->getChatId();
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2061,7 +2086,7 @@ class CIMRestService extends IRestService
 		$chatId = $arParams['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2097,7 +2122,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2134,7 +2159,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2186,7 +2211,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2215,14 +2240,14 @@ class CIMRestService extends IRestService
 
 		$chat = $message->getChat();
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		if ($chat->getStartId() > $messageId)
 		{
-			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$markResult = $message->markAsFavorite();
@@ -2279,7 +2304,7 @@ class CIMRestService extends IRestService
 		$chatId = $arParams['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2312,7 +2337,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2341,7 +2366,7 @@ class CIMRestService extends IRestService
 		$chatId = $task->getChatId();
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_TASK))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2399,14 +2424,14 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException('Message ID and chat ID can`t be empty together', 'CHAT_ID_MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		if (isset($messageId) && $messageId < $chat->getStartId())
 		{
-			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$taskService = new \Bitrix\Im\V2\Link\Task\TaskService();
@@ -2453,7 +2478,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2506,7 +2531,7 @@ class CIMRestService extends IRestService
 			throw new \Bitrix\Rest\RestException('CALENDAR_ID can`t be empty', 'CALENDAR_ID_EMPTY', \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_MEETING))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2517,7 +2542,7 @@ class CIMRestService extends IRestService
 
 			if ($messageId < $startId)
 			{
-				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 			}
 		}
 
@@ -2567,7 +2592,7 @@ class CIMRestService extends IRestService
 		$chatId = $calendar->getChatId();
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(\Bitrix\Im\V2\Chat\Permission::ACTION_CREATE_MEETING))
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2625,7 +2650,7 @@ class CIMRestService extends IRestService
 			throw new Bitrix\Rest\RestException('Message ID and chat ID can`t be empty together', 'CHAT_ID_MESSAGE_ID_EMPTY', CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2636,7 +2661,7 @@ class CIMRestService extends IRestService
 
 			if ($messageId < $startId)
 			{
-				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+				throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 			}
 		}
 
@@ -2729,7 +2754,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2765,14 +2790,14 @@ class CIMRestService extends IRestService
 
 		$chat = $message->getChat();
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		if ($chat->getStartId() > $messageId)
 		{
-			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$pinResult = $message->pin();
@@ -2807,7 +2832,7 @@ class CIMRestService extends IRestService
 
 		$chat = $message->getChat();
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2856,7 +2881,7 @@ class CIMRestService extends IRestService
 		$chatId = $filter['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -2893,14 +2918,14 @@ class CIMRestService extends IRestService
 
 		$chat = $message->getChat();
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		if ($chat->getStartId() > $messageId)
 		{
-			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::MESSAGE_ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
+			throw new \Bitrix\Rest\RestException('You do not have access to this message', \Bitrix\Im\V2\Message\MessageError::ACCESS_DENIED, \CRestServer::STATUS_FORBIDDEN);
 		}
 
 		$addResult = $message->addToReminder($dateRemind);
@@ -3193,7 +3218,7 @@ class CIMRestService extends IRestService
 		if (isset($arParams['REPLY_ID']) && (int)$arParams['REPLY_ID'] > 0)
 		{
 			$message = new \Bitrix\Im\V2\Message((int)$arParams['REPLY_ID']);
-			if (!$message->hasAccess())
+			if (!$message->checkAccess()->isSuccess())
 			{
 				throw new Bitrix\Rest\RestException("Action unavailable", "REPLY_ACCESS_ERROR", CRestServer::STATUS_FORBIDDEN);
 			}
@@ -3604,14 +3629,22 @@ class CIMRestService extends IRestService
 			$arParams['TYPE'] = 'USER';
 		}
 
-		$arParams['MESSAGE'] = trim($arParams['MESSAGE']);
+		$arParams['MESSAGE'] = isset($arParams['MESSAGE']) && is_string($arParams['MESSAGE'])
+			? trim($arParams['MESSAGE'])
+			: ''
+		;
+
 		if ($arParams['MESSAGE'] == '')
 		{
 			throw new Bitrix\Rest\RestException("Message can't be empty", "MESSAGE_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
 		}
 
 		$messageOut = "";
-		$arParams['MESSAGE_OUT'] = trim($arParams['MESSAGE_OUT']);
+		$arParams['MESSAGE_OUT'] = isset($arParams['MESSAGE_OUT']) && is_string($arParams['MESSAGE_OUT'])
+			? trim($arParams['MESSAGE_OUT'])
+			: ''
+		;
+
 		if ($arParams['TYPE'] == 'SYSTEM')
 		{
 			$fromUserId = 0;
@@ -4028,7 +4061,7 @@ class CIMRestService extends IRestService
 		$chatId = $arParams['CHAT_ID'];
 		$chat = \Bitrix\Im\V2\Chat::getInstance($chatId);
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			throw new \Bitrix\Rest\RestException('You do not have access to this chat', Bitrix\Im\V2\Rest\RestError::ACCESS_ERROR, \CRestServer::STATUS_FORBIDDEN);
 		}
@@ -4116,8 +4149,8 @@ class CIMRestService extends IRestService
 
 		$arParams['SILENT_MODE'] = $arParams['SILENT_MODE'] == 'Y';
 
-		$chatRelation = CIMChat::GetRelationById($chatId, false, true, false);
-		if (!$chatRelation[CIMDisk::GetUserId()])
+		$chatRelation = \Bitrix\Im\V2\Chat::getInstance($chatId)->getRelations();
+		if (!$chatRelation->hasUser(CIMDisk::GetUserId(), $chatId))
 		{
 			throw new Bitrix\Rest\RestException("You don't have access to this chat", "ACCESS_ERROR", CRestServer::STATUS_WRONG_REQUEST);
 		}
@@ -6910,7 +6943,13 @@ class CIMRestService extends IRestService
 
 		//4. add to dialog
 		$chat = new CIMChat(0);
-		$chat->AddUser($aliasData['ENTITY_ID'], $userData['ID']);
+		$chat->AddUser(
+			chatId: $aliasData['ENTITY_ID'],
+			userId: $userData['ID'],
+			hideHistory: null,
+			skipMessage: true,
+			skipRecent: true
+		);
 		if ($exception = $APPLICATION->GetException())
 		{
 			if ($exception->GetID() !== 'NOTHING_TO_ADD')
@@ -6964,8 +7003,18 @@ class CIMRestService extends IRestService
 		}
 
 		$params = array_change_key_case($params, CASE_UPPER);
+		if (empty($params['NAME']))
+		{
+			throw new Bitrix\Rest\RestException("User NAME can't be empty", "USER_NAME_EMPTY", CRestServer::STATUS_WRONG_REQUEST);
+		}
 
+		/** @var \CUser $USER */
 		global $USER;
+
+		if ($USER->GetParam("NAME") == $params['NAME'])
+		{
+			return;
+		}
 
 		$userManager = new \CUser;
 		$userManager->Update($USER->GetID(), [
@@ -7226,7 +7275,13 @@ class CIMRestService extends IRestService
 			if ($currentUserId && !$isUserInChat)
 			{
 				$chat = new \CIMChat(0);
-				$addingResult = $chat->AddUser($conference->getChatId(), $currentUserId);
+				$addingResult = $chat->AddUser(
+					chatId: $conference->getChatId(),
+					userId: $currentUserId,
+					hideHistory: null,
+					skipMessage: true,
+					skipRecent: true
+				);
 				if (!$addingResult)
 				{
 					throw new Bitrix\Rest\RestException("Error during adding user to chat", "ADDING_TO_CHAT_ERROR", CRestServer::STATUS_WRONG_REQUEST);

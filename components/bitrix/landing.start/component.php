@@ -287,7 +287,6 @@ if (
 			'SORT' => 500,
 			'CONDITION' => $condition
 		));
-		Manager::getCacheManager()->clean('b_site_template');
 		if ($componentPage == 'landing_view')
 		{
 			\localRedirect(Manager::getApplication()->getCurPage());

@@ -1,9 +1,8 @@
-import { Loc, Dom, Type, Tag, Event, Cache, Runtime } from 'main.core';
+import { Loc, Dom, Type, Tag, Event, Cache, Runtime, Uri } from 'main.core';
 import { BaseEvent } from 'main.core.events';
 import { PULL as Pull } from 'pull.client';
 import { Meetings } from 'tasks.scrum.meetings';
 import { Methodology } from 'tasks.scrum.methodology';
-import type { GroupData } from './group-settings';
 import { PullRequests } from './pull-requests';
 import { Chat } from './chat';
 import { Invite } from './invite';
@@ -11,6 +10,8 @@ import { Logo, LogoData } from 'socialnetwork.logo';
 import { Settings } from './settings';
 import { VideoCall } from './video-call';
 import { Controller } from 'socialnetwork.controller';
+
+import type { GroupData } from 'socialnetwork.group-settings';
 
 import './css/menu.css';
 
@@ -21,13 +22,16 @@ type Params = {
 	groupMembersList: any,
 	logo?: LogoData,
 	pathToFeatures?: string,
+	pathToDiscussions?: string,
 	pathToUsers?: string,
 	pathToInvite?: string,
 	pathToScrumTeamSpeed?: string,
 	pathToScrumBurnDown?: string,
 	pathToGroupTasksTask?: string,
 	canInvite: boolean,
+	availableFeatures: { [option: 'discussions' | 'tasks' | 'calendar' | 'files']: boolean },
 	isNew?: boolean,
+	isMember?: boolean,
 };
 
 export class Menu
@@ -45,6 +49,7 @@ export class Menu
 
 	#logo: LogoData;
 	#settings: ?Settings;
+	#pathToDiscussions: string;
 
 	#chat: Chat;
 	#discussionAhaMomentShown = false;
@@ -96,7 +101,10 @@ export class Menu
 
 	renderToolbarTo(container: HTMLElement)
 	{
-		Dom.append(this.#renderVideoCall(), container);
+		if (this.#getParam('isMember'))
+		{
+			Dom.append(this.#renderVideoCall(), container);
+		}
 
 		if (this.#getParam('canInvite'))
 		{
@@ -108,8 +116,21 @@ export class Menu
 
 	renderScrumToolbarTo(container: HTMLElement)
 	{
-		Dom.append(this.#renderScrumVideoCall(), container);
-		Dom.append(this.#renderScrumElements(), container);
+		const availableFeatures = this.#getParam('availableFeatures');
+
+		if (
+			this.#getParam('isMember')
+			&& availableFeatures.tasks
+			&& availableFeatures.calendar
+		)
+		{
+			Dom.append(this.#renderScrumVideoCall(), container);
+		}
+
+		if (availableFeatures.tasks)
+		{
+			Dom.append(this.#renderScrumElements(), container);
+		}
 
 		if (this.#getParam('canInvite'))
 		{
@@ -133,6 +154,7 @@ export class Menu
 		);
 		pullRequests.subscribe('update', this.#update.bind(this));
 		pullRequests.subscribe('updateCounters', this.#updateCounters.bind(this));
+		pullRequests.subscribe('updateMenuItem', this.#updateMenuItem.bind(this));
 
 		Pull.subscribe(pullRequests);
 	}
@@ -205,6 +227,82 @@ export class Menu
 		}
 	}
 
+	#updateMenuItem(baseEvent: BaseEvent)
+	{
+		const data = baseEvent.getData();
+		if (Type.isUndefined(data.FEATURE))
+		{
+			return;
+		}
+
+		const feature = data.FEATURE;
+		const spaceId = parseInt(data.GROUP_ID, 10);
+
+		if (!spaceId)
+		{
+			return;
+		}
+
+		const featureName = feature.featureName;
+		const featureId = `spaces_group_menu_${spaceId}_${featureName}`;
+		const menu = BX.Main.interfaceButtonsManager.getById(`spaces_group_menu_${spaceId}`);
+		const menuItem = menu.getItemById(featureId);
+
+		if (data.ACTION === 'add')
+		{
+			const itemMenuData = this.#prepareData(baseEvent);
+			menu.addMenuItem(itemMenuData);
+		}
+
+		if (data.ACTION === 'delete')
+		{
+			const activeItem = menu.getActive();
+
+			if (activeItem.DATA_ID === featureName)
+			{
+				const uri = new Uri(this.#pathToDiscussions);
+				top.BX.Socialnetwork.Spaces.space.reloadPageContent(uri.toString());
+			}
+
+			menu.deleteMenuItem(menuItem);
+		}
+
+		if (data.ACTION === 'change')
+		{
+			const featureText = feature.customName ?? feature.name;
+			menu.updateMenuItemText(menuItem, featureText);
+		}
+	}
+
+	#prepareData(baseEvent: BaseEvent): Object
+	{
+		const data = baseEvent.getData();
+		if (Type.isUndefined(data.FEATURE))
+		{
+			return;
+		}
+
+		const feature = data.FEATURE;
+		const spaceId = parseInt(data.GROUP_ID, 10);
+		const featureName = feature.featureName;
+		const featureId = `spaces_group_menu_${spaceId}_${featureName}`;
+		let name = feature.name;
+
+		if (feature.customName)
+		{
+			name = feature.customName.length > 0 ? feature.customName : feature.name;
+		}
+
+		return {
+			counterId: featureId,
+			dataId: featureName,
+			id: featureId,
+			onClick: `top.BX.Socialnetwork.Spaces.space.reloadPageContent("/spaces/group/${spaceId}/${featureName}/");`,
+			text: name,
+			url: '',
+		};
+	}
+
 	#setAvatar(avatar: string)
 	{
 		this.#logo = {
@@ -227,6 +325,7 @@ export class Menu
 		}
 
 		this.#logo = params.logo;
+		this.#pathToDiscussions = params.pathToDiscussions;
 	}
 
 	#initServices(params: Params)
@@ -587,6 +686,8 @@ export class Menu
 		{
 			this.#settings = new Settings({
 				bindElement: event.target,
+				availableFeatures: this.#getParam('availableFeatures'),
+				isMember: this.#getParam('isMember'),
 				type: this.#getParam('type'),
 				entityId: this.#getParam('entityId'),
 				logo: this.#logo,

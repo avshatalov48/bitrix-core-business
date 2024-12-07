@@ -257,7 +257,7 @@ class CAllSaleOrderUserProps
 			"SELECT * ".
 			"FROM b_sale_user_props ".
 			"WHERE ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -309,7 +309,7 @@ class CAllSaleOrderUserProps
 			"	".$strUpdate.", ".
 			"	DATE_UPDATE = ".$DB->GetNowFunction()." ".
 			"WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -322,7 +322,7 @@ class CAllSaleOrderUserProps
 			"FROM b_sale_user_props UP ".
 			"	LEFT JOIN b_sale_user_props_value UPV ON (UP.ID = UPV.USER_PROPS_ID) ".
 			"WHERE UPV.ID IS NULL ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		while ($res = $db_res->Fetch())
 		{
 			$DB->Query("DELETE FROM b_sale_user_props WHERE ID = ".$res["ID"]."");

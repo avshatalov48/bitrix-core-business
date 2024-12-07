@@ -74,6 +74,7 @@
 
 .ui-tile-uploader-item--added,
 .ui-tile-uploader-item--loading,
+.ui-tile-uploader-item--preparing,
 .ui-tile-uploader-item--pending {
 	--ui-tile-uploader-item-state-bgcolor: #e7e8e8;
 	--ui-tile-uploader-item-status-color: #525c69;

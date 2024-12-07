@@ -46,16 +46,16 @@ class Section extends Stepper
 				return !$this->isQueueEmpty();
 			}
 
-			$sectionId = ($queueOption["sectionId"] ?: 0);
-			$copiedSectionId = ($queueOption["copiedSectionId"] ?: 0);
-			$errorOffset = ($queueOption["errorOffset"] ?: 0);
+			$sectionId = ($queueOption["sectionId"] ?? 0);
+			$copiedSectionId = ($queueOption["copiedSectionId"] ?? 0);
+			$errorOffset = ($queueOption["errorOffset"] ?? 0);
 
 			$limit = 5;
 			$offset = $this->getOffset($copiedSectionId) + $errorOffset;
 
-			$enumRatio = ($queueOption["enumRatio"] ?: []);
-			$sectionsRatio = ($queueOption["sectionsRatio"] ?: []);
-			$mapIdsCopiedElements = ($queueOption["mapIdsCopiedElements"] ?: []);
+			$enumRatio = ($queueOption["enumRatio"] ?? []);
+			$sectionsRatio = ($queueOption["sectionsRatio"] ?? []);
+			$mapIdsCopiedElements = ($queueOption["mapIdsCopiedElements"] ?? []);
 
 			if ($sectionId)
 			{

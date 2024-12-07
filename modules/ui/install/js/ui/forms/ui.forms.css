@@ -53,7 +53,7 @@
 	height: var(--ui-field-size);
 	outline: none;
 	border: 1px solid rgb(var(--ui-field-color-border-default));
-	border-radius: var(--ui-border-radius-3xs);
+	border-radius: var(--ui-border-radius-2xs);
 	background-color: var(--ui-color-palette-white-base);
 	color: var(--ui-color-palette-black-base);
 	vertical-align: middle;
@@ -64,6 +64,11 @@
 	transition: border .3s ease, background-color .3s ease, color .3s ease, padding .3s ease;
 	flex: 1;
 	appearance: none;
+}
+
+.ui-ctl-element.--error,
+.ui-tag-selector-outer-container.--error {
+	border-color: var(--ui-field-color-danger);
 }
 
 .ui-ctl-element::placeholder {
@@ -154,6 +159,12 @@ div.ui-ctl-element {
 .ui-ctl-no-padding .ui-ctl-element {
 	padding-right: 0 !important;
 	padding-left: 0 !important;
+}
+
+.ui-entity-editor-content-block .feed-add-post{
+	border: 1px solid #bbc4cd;
+	border-radius: var(--ui-field-border-radius);
+	overflow: hidden;
 }
 
 /*endregion*/
@@ -608,6 +619,11 @@ button.ui-ctl-after:active {
 /*calendar*/
 .ui-ctl-icon-calendar {
 	background-image: url(/bitrix/js/ui/forms/images/calendar.svg);
+}
+
+/*calendar*/
+.ui-ctl-icon-calendar-dot {
+	background-image: url(/bitrix/js/ui/forms/images/calendar-dot.svg);
 }
 
 /*clock*/

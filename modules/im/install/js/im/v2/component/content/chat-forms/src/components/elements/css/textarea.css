@@ -1,0 +1,45 @@
+.bx-im-content-create-chat__textarea_container {
+	--im-create-chat-textarea__font_placeholder: var(--im-font-size-md)/17px var(--im-font-family-system);
+	--im-create-chat-textarea__font-color_placeholder: #aab0b8;
+
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	border-radius: 0;
+}
+
+.bx-im-content-create-chat__textarea_container .ui-ctl-textarea {
+	min-height: 100%;
+}
+
+.bx-im-content-create-chat__textarea_container .ui-ctl-textarea textarea.ui-ctl-element {
+	padding: 12px;
+}
+
+.bx-im-content-create-chat__textarea_container .ui-ctl-textarea,
+.bx-im-content-create-chat__textarea_container .ui-ctl-textarea textarea.ui-ctl-element {
+	width: 100%;
+	height: 100%;
+	min-height: 100%;
+	border-radius: 0;
+}
+
+.bx-im-content-create-chat__textarea_container.--no-border .ui-ctl-textarea textarea.ui-ctl-element {
+	border: none;
+}
+
+.bx-im-content-create-chat__textarea::placeholder {
+	font: var(--im-create-chat-textarea__font_placeholder);
+	color: var(--im-create-chat-textarea__font-color_placeholder);
+}
+
+/* rounded */
+.bx-im-content-create-chat__textarea_container.--rounded {
+	border-radius: var(--im-border-radius-sm);
+}
+
+.bx-im-content-create-chat__textarea_container.--rounded .ui-ctl-textarea,
+.bx-im-content-create-chat__textarea_container.--rounded .ui-ctl-textarea textarea.ui-ctl-element {
+	border-radius: var(--im-border-radius-sm);
+}
+/* end rounded */

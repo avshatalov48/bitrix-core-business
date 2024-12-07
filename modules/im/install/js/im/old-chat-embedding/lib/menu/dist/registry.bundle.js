@@ -285,7 +285,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    return userCounter > 1 && userCounter <= BX.Call.Util.getUserLimit();
 	  }
 	  hasActiveCall() {
-	    return BX.MessengerProxy.getCallController().hasActiveCall();
+	    return false;
 	  }
 	  getCurrentUserId() {
 	    return this.store.state.application.common.userId;
@@ -394,6 +394,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    };
 	  }
 	  getCallItem() {
+	    return null;
 	    const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
 	    if (!dialog) {
 	      return null;

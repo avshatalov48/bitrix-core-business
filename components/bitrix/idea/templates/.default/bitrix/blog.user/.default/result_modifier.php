@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/result_modifier.php");
 $arResult["USER_IDEA_LINK"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_USER_IDEAS"], array("user_id" => $arResult["arUser"]["ID"]));
 
 //Prepare data

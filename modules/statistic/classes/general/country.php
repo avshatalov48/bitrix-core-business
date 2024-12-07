@@ -4,7 +4,6 @@ class CCountry
 {
 	public static function GetList($by = 's_name', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
@@ -100,7 +99,7 @@ class CCountry
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -108,7 +107,6 @@ class CCountry
 	// returns arrays needed to plot graph and diagram
 	public static function GetGraphArray($arFilter, &$arLegend)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		global $arCountryColor;
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
@@ -173,7 +171,7 @@ class CCountry
 				D.DATE_STAT, D.COUNTRY_ID
 		";
 
-		$rsD = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsD = $DB->Query($strSql);
 		while ($arD = $rsD->Fetch())
 		{
 			$arrDays[$arD["DATE_STAT"]]["D"] = $arD["DAY"];

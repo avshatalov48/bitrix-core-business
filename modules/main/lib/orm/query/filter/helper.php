@@ -91,21 +91,8 @@ class Helper
 	 */
 	public static function splitWords($string)
 	{
-		static $encoding = null;
-		if($encoding === null)
-		{
-			$encoding = strtolower(\Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
-		}
-
-		if($encoding <> "utf-8")
-		{
-			$string = Text\Encoding::convertEncoding($string, $encoding, "UTF-8");
-		}
-		else
-		{
-			//mysql [1064] syntax error, unexpected $end
-			$string = Text\UtfSafeString::escapeInvalidUtf($string);
-		}
+		//mysql [1064] syntax error, unexpected $end
+		$string = Text\UtfSafeString::escapeInvalidUtf($string);
 
 		//split to words by any non-word symbols
 		$values = preg_split("/[^\\p{L}\\d_]/u", $string);
@@ -119,10 +106,6 @@ class Helper
 		);
 		$values = array_unique($values);
 
-		if($encoding <> "utf-8")
-		{
-			$values = Text\Encoding::convertEncoding($values, "UTF-8", $encoding);
-		}
 		return $values;
 	}
 }

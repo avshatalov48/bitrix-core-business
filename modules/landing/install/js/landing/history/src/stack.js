@@ -116,8 +116,7 @@ export default class Stack
 		)
 		{
 			const entitiesToClearFuture = [];
-			this.items.forEach((item, index) =>
-			{
+			this.items.forEach((item, index) => {
 				const step = index + 1;
 				if (step >= this.step)
 				{
@@ -140,7 +139,7 @@ export default class Stack
 				const promises = [];
 				entitiesToClearFuture.forEach(entityId => {
 					promises.push(backend.action('History::clearFutureForLanding', {
-						landingId: entityId
+						landingId: entityId,
 					}));
 				});
 

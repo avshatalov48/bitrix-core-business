@@ -27,7 +27,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 	}
 	?>
 	</span>
-	<span	id="<?= $arResult['controlNodeIdJs'] ?>"></span>
+	<span id="<?= $arResult['controlNodeIdJs'] ?>" class="iblock-element-selector-wrapper"></span>
 	<?php
 	$script = <<<EOT
 	<script>
@@ -97,6 +97,8 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 						node: BX('{$arResult['controlNodeIdJs']}').firstChild
 					});
 			}));
+			
+			BX.fireEvent(BX('{$arResult['controlNodeIdJs']}'), 'click');
 		});
 	</script>
 EOT;

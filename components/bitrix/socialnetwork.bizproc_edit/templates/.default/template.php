@@ -53,7 +53,7 @@ else
 	<?
 	}
 	else
-		echo ShowError(GetMessage("BPAT_TASK_LOST"));
+		ShowError(GetMessage("BPAT_TASK_LOST"));
 	
 }
 ?>

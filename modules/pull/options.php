@@ -444,7 +444,7 @@ $arExcludeSites = CPullOptions::GetExcludeSites();
 	<?endif;?>
 
 	<?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 BX.bind(BX('push_enable'), 'change', function(){
 	BX('push_message_per_hit').disabled = !this.checked;
 });
@@ -680,6 +680,6 @@ function RestoreDefaults()
 <?$tabControl->End();?>
 </form>
 <?=BeginNote();?>
-	<?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC")?> <a href="<?=(LANGUAGE_ID == "ru"? "http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033": "http://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=26&LESSON_ID=5144")?>" target="_blank"><?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC_LINK")?></a>.
+	<?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC")?> <a href="<?=(LANGUAGE_ID == "ru"? "https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=41&LESSON_ID=2033": "https://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=26&LESSON_ID=5144")?>" target="_blank"><?=Loc::getMessage("PULL_OPTIONS_NGINX_DOC_LINK")?></a>.
 <?=EndNote();?>
 </div>

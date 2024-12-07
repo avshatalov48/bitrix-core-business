@@ -4,6 +4,7 @@ namespace Bitrix\Bizproc\Script\Entity;
 
 use Bitrix\Bizproc\Script\Queue\Status;
 use Bitrix\Main;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 
 /**
  * Class ScriptQueueTable
@@ -80,8 +81,26 @@ class ScriptQueueTable extends Main\Entity\DataManager
 	 */
 	public static function getDocumentCounters(int $queueId): array
 	{
-		$all = (int) ScriptQueueDocumentTable::getCount(['=QUEUE_ID' => $queueId]);
-		$queued = (int) ScriptQueueDocumentTable::getCount(['=QUEUE_ID' => $queueId, '=STATUS' => Status::QUEUED]);
+		$scriptQueueRows =
+			ScriptQueueDocumentTable::query()
+				->addSelect('STATUS')
+				->addSelect(new ExpressionField('CNT', 'COUNT(1)'))
+				->where('QUEUE_ID', $queueId)
+				->setGroup('STATUS')
+				->exec()
+				->fetchAll();
+		;
+
+		$all = 0;
+		$queued = 0;
+		foreach ($scriptQueueRows as $scriptGroupByStatus)
+		{
+			$all += (int)$scriptGroupByStatus['CNT'];
+			if ((int)$scriptGroupByStatus['STATUS'] === Status::QUEUED)
+			{
+				$queued = (int)$scriptGroupByStatus['CNT'];
+			}
+		}
 
 		return [
 			'all' => $all,

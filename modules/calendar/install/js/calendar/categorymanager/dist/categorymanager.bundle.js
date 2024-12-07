@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,calendar_sectionmanager,main_core,calendar_util) {
 	'use strict';

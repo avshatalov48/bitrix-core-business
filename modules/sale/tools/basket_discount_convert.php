@@ -45,8 +45,6 @@ if (
 	&& ($request['operation'] == 'Y' || $request['getCount'] == 'Y' || $request['clearTags'] == 'Y')
 )
 {
-	CUtil::JSPostUnescape();
-
 	$filter = array();
 	$filter = CSaleBasketDiscountConvert::checkFilter($request);
 
@@ -218,7 +216,7 @@ else
 		)
 	);
 	?>
-<script type="text/javascript">
+<script>
 	var jsBasketDiscountConverter = new BX.Sale.Admin.StepOperations.StepOperationsFilter(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
 	BX.ready(function(){
 		var filterType = BX('filter_type'),

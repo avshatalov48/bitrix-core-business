@@ -6,6 +6,22 @@ use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
+/**
+ * Class NotifyEmailTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_NotifyEmail_Query query()
+ * @method static EO_NotifyEmail_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_NotifyEmail_Result getById($id)
+ * @method static EO_NotifyEmail_Result getList(array $parameters = array())
+ * @method static EO_NotifyEmail_Entity getEntity()
+ * @method static \Bitrix\Idea\EO_NotifyEmail createObject($setDefaultValues = true)
+ * @method static \Bitrix\Idea\EO_NotifyEmail_Collection createCollection()
+ * @method static \Bitrix\Idea\EO_NotifyEmail wakeUpObject($row)
+ * @method static \Bitrix\Idea\EO_NotifyEmail_Collection wakeUpCollection($rows)
+ */
 class NotifyEmailTable extends Entity\DataManager
 {
 	const SUBSCRIBE_TYPE_ALL = 'ALL';
@@ -69,11 +85,16 @@ class NotifyEmailTable extends Entity\DataManager
 					'=this.USER_ID' =>  'ref.ID'
 				),
 			),
+			new \Bitrix\Main\Entity\ExpressionField(
+				'LOWER_ENTITY_CODE',
+				'LOWER(%s)',
+				'ENTITY_CODE'
+			),
 			'ASCENDED_CATEGORIES' => array(
 				'data_type' => 'Bitrix\Iblock\Section',
 				'reference' => array(
 					'=this.ENTITY_TYPE' =>  array('?', 'CATEGORY'),
-					'=this.ENTITY_CODE' => 'ref.CODE'
+					'=this.LOWER_ENTITY_CODE' => 'ref.CODE'
 				),
 			)
 		);
@@ -232,7 +253,7 @@ class NotifyEmail
 			}
 			else if (is_string($category) && ($categories = \CIdeaManagment::getInstance()->idea()->getCategoryList()) && !empty($categories))
 			{
-				$category = ToUpper($category);
+				$category = mb_strtoupper($category);
 				if (array_key_exists($category, $categories))
 				{
 					$return = array();

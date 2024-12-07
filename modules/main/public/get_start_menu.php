@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Web\Json;
+
 define("NO_KEEP_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -35,28 +38,28 @@ function __GetSubmenu($menu)
 
 			$aItem = array(
 				"TEXT"=>$item["text"],
-				"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? $item["title"] : ''),
+				"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? ($item["title"] ?? '') : ''),
 				"ICON"=>$item["icon"] ?? '',
 			);
 			if (isset($item["url"]) && $item["url"] <> "")
 			{
 				$link = htmlspecialcharsback($item["url"]);
-				if(mb_strpos($link, "/bitrix/admin/") !== 0)
+				if(!str_starts_with($link, "/bitrix/admin/"))
 					$link = "/bitrix/admin/".$link;
 
 				if (!empty($_REQUEST['back_url_pub']))
-					$link .= (mb_strpos($link, '?') > 0 ? '&' : '?')."back_url_pub=".urlencode($_REQUEST["back_url_pub"]);
+					$link .= (str_contains($link, '?') ? '&' : '?')."back_url_pub=".urlencode($_REQUEST["back_url_pub"]);
 
 				$aItem['LINK'] = $link;
 
 				if (!$bSkipRecent)
-					$aItem['ONCLICK'] = 'BX.admin.startMenuRecent('.CUtil::PhpToJsObject($aItem).')';
+					$aItem['ONCLICK'] = 'BX.admin.startMenuRecent(' . Json::encode($aItem) . ')';
 			}
 
 			if (isset($item["items"]) && is_array($item["items"]) && !empty($item["items"]))
 			{
 				$aItem["MENU"] = __GetSubmenu($item["items"]);
-				if (isset($item["url"]) && $item["url"] <> "" && $aUserOpt['start_menu_title'] <> 'N')
+				if (!empty($item["url"]) && ($aUserOpt['start_menu_title'] ?? null) <> 'N')
 					$aItem["TITLE"] .= ' '.GetMessage("get_start_menu_dbl");
 			}
 			elseif (isset($item["dynamic"]) && $item["dynamic"] == true)
@@ -64,7 +67,7 @@ function __GetSubmenu($menu)
 				$aItem["MENU_URL"] = '/bitrix/admin/get_start_menu.php?mode=dynamic&lang='.LANGUAGE_ID.'&admin_mnu_module_id='.urlencode($item['module_id']).'&admin_mnu_menu_id='.urlencode($item['items_id']).($bSkipRecent?'&skip_recent=Y':'').(!empty($_REQUEST["back_url_pub"]) ? '&back_url_pub='.urlencode($_REQUEST["back_url_pub"]):'').'&'.bitrix_sessid_get();
 				$aItem['MENU_PRELOAD'] = false;
 
-				if(isset($item["url"]) && $item["url"] <> "" && $aUserOpt['start_menu_title'] <> 'N')
+				if(!empty($item["url"]) && ($aUserOpt['start_menu_title'] ?? null) <> 'N')
 					$aItem["TITLE"] .= ' '.GetMessage("get_start_menu_dbl");
 			}
 
@@ -100,8 +103,6 @@ if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_recent")
 
 		$aRecent = CUserOptions::GetOption("start_menu", "recent", array());
 
-		CUtil::decodeURIComponent($_REQUEST["text"]);
-		CUtil::decodeURIComponent($_REQUEST["title"]);
 		$aLink = array("url"=>$_REQUEST["url"], "text"=>$_REQUEST["text"], "title"=>$_REQUEST["title"], "icon"=>$_REQUEST["icon"]);
 
 		if(($pos = array_search($aLink, $aRecent)) !== false)
@@ -154,7 +155,7 @@ else
 	{
 		$aPopup[] = array(
 			"TEXT"=>$menu["text"],
-			"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? $menu["title"].' '.GetMessage("get_start_menu_dbl"):''),
+			"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? ($menu["title"] ?? '').' '.GetMessage("get_start_menu_dbl") : ''),
 			"GLOBAL_ICON"=>'adm-menu-'.$menu["menu_id"],
 			"LINK"=> isset($menu['url']) && $menu['url'] ? '/bitrix/admin/'.$menu['url'] : '',
 			"MENU"=>__GetSubmenu($menu["items"])
@@ -167,17 +168,17 @@ else
 		$aFav = array(
 			array(
 				"TEXT"=>GetMessage("get_start_menu_add_fav"),
-				"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? GetMessage("get_start_menu_add_fav_title"):''),
+				"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? GetMessage("get_start_menu_add_fav_title"):''),
 				"ACTION"=>"BX.admin.startMenuFavAdd(".(!empty($_REQUEST["back_url_pub"]) ? "'".CUtil::JSEscape($_REQUEST["back_url_pub"])."'":"").");"
 			),
 			array(
 				"TEXT"=>GetMessage("get_start_menu_org_fav"),
-				"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? GetMessage("get_start_menu_org_fav_title"):''),
+				"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? GetMessage("get_start_menu_org_fav_title"):''),
 				"LINK"=> BX_ROOT."/admin/favorite_list.php?lang=".LANGUAGE_ID."&back_url_pub=".urlencode($_REQUEST["back_url_pub"] ?? '')
 			),
 		);
 
-		$aFav[1]["ONCLICK"] = 'BX.admin.startMenuRecent('.CUtil::PhpToJsObject($aFav[1]).')';
+		$aFav[1]["ONCLICK"] = 'BX.admin.startMenuRecent(' . Json::encode($aFav[1]) . ')';
 
 		$db_fav = CFavorites::GetList(array("COMMON"=>"ASC", "SORT"=>"ASC", "NAME"=>"ASC"), array("MENU_FOR_USER"=>$USER->GetID(), "LANGUAGE_ID"=>LANGUAGE_ID));
 		$prevCommon = "";
@@ -193,7 +194,7 @@ else
 			}
 
 			$sTitle = '';
-			if($aUserOpt['start_menu_title'] <> 'N')
+			if(!isset($aUserOpt['start_menu_title']) || $aUserOpt['start_menu_title'] <> 'N')
 			{
 				$sTitle = $db_fav_arr["COMMENTS"];
 				$sTitle = (mb_strlen($sTitle) > 100? mb_substr($sTitle, 0, 100)."..." : $sTitle);
@@ -216,7 +217,7 @@ else
 					$aItem["LINK"] = '/bitrix/admin/'.$aItem["LINK"];
 				}
 
-				$aItem["ONCLICK"] = 'BX.admin.startMenuRecent('.CUtil::PhpToJsObject($aItem).')';
+				$aItem["ONCLICK"] = 'BX.admin.startMenuRecent(' . Json::encode($aItem) . ')';
 			}
 
 			if ($db_fav_arr['MENU_ID'])
@@ -238,7 +239,7 @@ else
 		$aPopup[] = array("SEPARATOR"=>true);
 		$aPopup[] = array(
 			"TEXT"=>GetMessage("get_start_menu_fav"),
-			"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? GetMessage("get_start_menu_fav_title"):''),
+			"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? GetMessage("get_start_menu_fav_title"):''),
 			"GLOBAL_ICON" => 'adm-menu-favorites',
 			"MENU"=>$aFav,
 		);
@@ -253,7 +254,7 @@ else
 			$aPopup[] = array("SEPARATOR"=>true);
 
 			$nLinks = 5;
-			if($aUserOpt["start_menu_links"] <> "")
+			if(!empty($aUserOpt["start_menu_links"]))
 				$nLinks = intval($aUserOpt["start_menu_links"]);
 
 			$i = 0;
@@ -265,12 +266,12 @@ else
 
 				$aItem = array(
 					"TEXT"=>htmlspecialcharsbx($recent["text"]),
-					"TITLE"=>($aUserOpt['start_menu_title'] <> 'N'? htmlspecialcharsbx($recent["title"]):''),
+					"TITLE"=>(($aUserOpt['start_menu_title'] ?? null) <> 'N'? htmlspecialcharsbx($recent["title"]):''),
 					"GLOBAL_ICON"=>htmlspecialcharsbx($recent["icon"]),
 					"LINK"=>$recent["url"],
 				);
 
-				$aItem["ONCLICK"] = 'BX.admin.startMenuRecent('.CUtil::PhpToJsObject($aItem).')';
+				$aItem["ONCLICK"] = 'BX.admin.startMenuRecent(' . Json::encode($aItem) . ')';
 
 				$aPopup[] = $aItem;
 			}

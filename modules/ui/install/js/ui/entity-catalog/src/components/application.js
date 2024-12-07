@@ -85,6 +85,7 @@ export const Application = {
 			return this.selectedGroup?.compare ? items.sort(this.selectedGroup.compare) : items;
 		},
 		...mapWritableState(useGlobalState, {
+			searchQuery: 'searchQuery',
 			searching: 'searchApplied',
 			filtersApplied: 'filtersApplied',
 			globalGroup: 'currentGroup',
@@ -147,6 +148,7 @@ export const Application = {
 		{
 			const queryString = event.getData().queryString.toLowerCase();
 			this.lastSearchString = queryString;
+			this.searchQuery = queryString || '';
 
 			if (!Type.isStringFilled(queryString))
 			{
@@ -254,6 +256,9 @@ export const Application = {
 				<template #main-content-filter-stub-title v-if="$slots['main-content-filter-stub-title']">
 					<slot name="main-content-filter-stub-title"/>
 				</template>
+				<template #main-content-search-stub>
+					<slot name="main-content-search-stub"></slot>
+				</template>
 				<template #main-content-search-not-found-stub>
 					<slot name="main-content-search-not-found-stub"/>
 				</template>
@@ -265,6 +270,9 @@ export const Application = {
 				</template>
 				<template #item="itemSlotProps">
 					<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
+				</template>
+				<template #main-content-footer>
+					<slot name="main-content-footer"/>
 				</template>
 			</MainContent>
 			<Teleport v-if="getFilterNode()" :to="getFilterNode()">

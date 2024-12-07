@@ -64,9 +64,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST["Update"]) && check
 
 	$arHandlersData = json_decode($arHandlersData, true);
 
-	if('utf-8' != mb_strtolower(SITE_CHARSET))
-		$arHandlersData = $APPLICATION->ConvertCharsetArray($arHandlersData, 'utf-8', SITE_CHARSET);
-
 	if ($arHandlersData)
 	{
 
@@ -392,11 +389,11 @@ foreach ($arDeliveryInfo[$SITE_ID]["CONFIG"]["CONFIG"] as $config_id => $arConfi
 	}
 }
 ?>
-<script language="JavaScript">
+<script>
 var arStructure = <?=CUtil::PhpToJSObject($arDeliveryInfo)?>;
 
 </script>
-<script language="javascript">
+<script>
 var cur_site = '<?=htmlspecialcharsbx(CUtil::JSEscape($siteList[0]["ID"]))?>';
 function changeSiteList(value)
 {
@@ -722,7 +719,7 @@ $tabControl->BeginNextTab();
 			'HANDLER[DESCRIPTION]',
 			isset($arDeliveryInfo[$SITE_ID]["DESCRIPTION"]) ? $arDeliveryInfo[$SITE_ID]["DESCRIPTION"] : '',
 			'hndl_dscr');?>
-		<script language="JavaScript">setLHEClass('bxlhe_frame_hndl_dscr'); </script>
+		<script>setLHEClass('bxlhe_frame_hndl_dscr'); </script>
 	</td>
 </tr>
 <tr>
@@ -887,7 +884,7 @@ function printProfileInfo($SID, $profileId, $arProfile, $baseCurrency)
 				'HANDLER[PROFILES]['.htmlspecialcharsbx($profileId).'][DESCRIPTION]',
 				isset($arProfile["DESCRIPTION"]) ? $arProfile["DESCRIPTION"] : '',
 				'hndl_dscr_'.$profileId);?>
-				<script language="JavaScript">setLHEClass('bxlhe_frame_hndl_dscr_<?=$profileId?>'); </script>
+				<script>setLHEClass('bxlhe_frame_hndl_dscr_<?=$profileId?>'); </script>
 			</td>
 		</tr>
 		<tr>

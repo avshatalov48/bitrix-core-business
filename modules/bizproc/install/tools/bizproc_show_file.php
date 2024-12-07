@@ -81,11 +81,7 @@ else
 
 if (strcmp($checkName, $rawName) !== 0)
 {
-	//mantis http://jabber.bx/view.php?id=62749
-	//IE send no-encoded GET params in cp1251 on utf-8 site
-	$rawName = $GLOBALS['APPLICATION']->ConvertCharSet($rawName, 'cp1251', 'utf8');
-	if (strcmp($checkName, $rawName) !== 0)
-		die("Error3");
+	die("Error3");
 }
 
 if ($arImg["SUBDIR"] == '')

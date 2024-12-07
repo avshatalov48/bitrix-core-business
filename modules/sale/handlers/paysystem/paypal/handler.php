@@ -227,7 +227,7 @@ class PayPalHandler
 		PaySystem\Logger::addDebugInfo('PayPal: payPalSum='.$payPalSum."; paymentSum=".$paymentSum);
 
 		if ($paymentSum == $payPalSum
-			&& ToLower($keys["receiver_email"]) == ToLower($this->getBusinessValue($payment, "PAYPAL_BUSINESS"))
+			&& mb_strtolower($keys["receiver_email"]) == mb_strtolower($this->getBusinessValue($payment, "PAYPAL_BUSINESS"))
 			&& $keys["payment_status"] == "Completed"
 		)
 		{
@@ -288,7 +288,7 @@ class PayPalHandler
 		PaySystem\Logger::addDebugInfo('PayPal: payPalSum='.$payPalSum."; paymentSum=".$paymentSum);
 
 		if ($paymentSum == $payPalSum
-			&& ToLower($request->get("receiver_email")) == ToLower($this->getBusinessValue($payment, "PAYPAL_BUSINESS"))
+			&& mb_strtolower($request->get("receiver_email")) == mb_strtolower($this->getBusinessValue($payment, "PAYPAL_BUSINESS"))
 			&& $request->get("payment_status") == "Completed"
 			&& $payment->getField("PAY_VOUCHER_NUM") != $request->get('txn_id')
 		)
@@ -521,7 +521,7 @@ class PayPalHandler
 			$keyArray[urldecode($key)] = urldecode($val);
 			if ($this->prePaymentSetting['ENCODING'])
 			{
-				$keyArray[urldecode($key)] = $APPLICATION->ConvertCharset($keyArray[urldecode($key)], $this->prePaymentSetting['ENCODING'], SITE_CHARSET);
+				$keyArray[urldecode($key)] = \Bitrix\Main\Text\Encoding::convertEncoding($keyArray[urldecode($key)], $this->prePaymentSetting['ENCODING'], SITE_CHARSET);
 			}
 		}
 
@@ -583,7 +583,6 @@ class PayPalHandler
 
 		if($this->prePaymentSetting['TOKEN'])
 		{
-			global $APPLICATION;
 			$url = "https://api-3t.".$this->prePaymentSetting['DOMAIN']."paypal.com/nvp";
 			$arFields = array(
 					"METHOD" => "GetExpressCheckoutDetails",
@@ -618,13 +617,13 @@ class PayPalHandler
 
 					if(!empty($orderProps))
 					{
-						$arFields["PAYMENTREQUEST_0_SHIPTONAME"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTONAME"], SITE_CHARSET, "utf-8");
-						$arFields["PAYMENTREQUEST_0_SHIPTOSTREET"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTREET"], SITE_CHARSET, "utf-8");
-						$arFields["PAYMENTREQUEST_0_SHIPTOSTREET2"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTREET2"], SITE_CHARSET, "utf-8");
-						$arFields["PAYMENTREQUEST_0_SHIPTOCITY"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOCITY"], SITE_CHARSET, "utf-8");
-						$arFields["PAYMENTREQUEST_0_SHIPTOSTATE"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTATE"], SITE_CHARSET, "utf-8");
+						$arFields["PAYMENTREQUEST_0_SHIPTONAME"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTONAME"];
+						$arFields["PAYMENTREQUEST_0_SHIPTOSTREET"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTREET"];
+						$arFields["PAYMENTREQUEST_0_SHIPTOSTREET2"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTREET2"];
+						$arFields["PAYMENTREQUEST_0_SHIPTOCITY"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOCITY"];
+						$arFields["PAYMENTREQUEST_0_SHIPTOSTATE"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOSTATE"];
 						$arFields["PAYMENTREQUEST_0_SHIPTOZIP"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOZIP"];
-						$arFields["PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE"] = $APPLICATION->ConvertCharset($orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE"], SITE_CHARSET, "utf-8");
+						$arFields["PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE"] = $orderProps["PP_SOURCE"]["PAYMENTREQUEST_0_SHIPTOCOUNTRYCODE"];
 					}
 
 					if(!empty($orderData["BASKET_ITEMS"]))
@@ -632,7 +631,7 @@ class PayPalHandler
 						$arFields["PAYMENTREQUEST_0_ITEMAMT"] = number_format($this->prePaymentSetting['ORDER_PRICE']-$this->prePaymentSetting['DELIVERY_PRICE'], 2, ".", "");
 						foreach($orderData["BASKET_ITEMS"] as $i => $val)
 						{
-							$arFields["L_PAYMENTREQUEST_0_NAME".$i] = $APPLICATION->ConvertCharset($val["NAME"], SITE_CHARSET, "utf-8");
+							$arFields["L_PAYMENTREQUEST_0_NAME".$i] = $val["NAME"];
 							$arFields["L_PAYMENTREQUEST_0_AMT".$i] = number_format($val["PRICE"], 2, ".", "");
 							$arFields["L_PAYMENTREQUEST_0_QTY".$i] = $val["QUANTITY"];
 							$arFields["L_PAYMENTREQUEST_0_NUMBER".$i] = $val["PRODUCT_ID"];
@@ -720,7 +719,7 @@ class PayPalHandler
 					"CANCELURL" => $this->prePaymentSetting['SERVER_NAME'].$APPLICATION->GetCurPageParam("paypal=Y&paypal_error=Y", array("paypal", "paypal_error")),
 					"PAYMENTREQUEST_0_PAYMENTACTION" => "Authorization",
 					"PAYMENTREQUEST_0_DESC" => "Order payment for ".$this->prePaymentSetting['SERVER_NAME'],
-					"LOCALECODE" => ToUpper(LANGUAGE_ID),
+					"LOCALECODE" => mb_strtoupper(LANGUAGE_ID),
 					"buttonsource" => "Bitrix_Cart",
 				);
 
@@ -729,7 +728,7 @@ class PayPalHandler
 				$arFields["PAYMENTREQUEST_0_ITEMAMT"] = number_format($orderData["AMOUNT"], 2, ".", "");
 				foreach($orderData["BASKET_ITEMS"] as $k => $val)
 				{
-					$arFields["L_PAYMENTREQUEST_0_NAME".$k] = $APPLICATION->ConvertCharset($val["NAME"], SITE_CHARSET, "utf-8");
+					$arFields["L_PAYMENTREQUEST_0_NAME".$k] = $val["NAME"];
 					$arFields["L_PAYMENTREQUEST_0_AMT".$k] = number_format($val["PRICE"], 2, ".", "");
 					$arFields["L_PAYMENTREQUEST_0_QTY".$k] = $val["QUANTITY"];
 				}

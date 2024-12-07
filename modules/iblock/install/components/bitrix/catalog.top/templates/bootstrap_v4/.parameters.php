@@ -60,7 +60,7 @@ if (!empty($viewModeValue))
 	$dir = trim(preg_replace(
 		"'[\\\\/]+'",
 		"/",
-		__DIR__.'/'.ToLower($arCurrentValues['VIEW_MODE'] ?? 'SECTION').'/themes/'
+		__DIR__.'/'.mb_strtolower($arCurrentValues['VIEW_MODE'] ?? 'SECTION').'/themes/'
 	));
 	if (is_dir($dir))
 	{

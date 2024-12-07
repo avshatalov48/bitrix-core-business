@@ -15,7 +15,7 @@ global $errors;
 
 if (!is_array($errors) && $errors == '' || is_array($errors) && count($errors) <= 0)
 {
-	echo \CAdminMessage::ShowNote(Loc::getMessage('MOD_INST_OK'));
+	CAdminMessage::ShowNote(Loc::getMessage('MOD_INST_OK'));
 }
 else
 {

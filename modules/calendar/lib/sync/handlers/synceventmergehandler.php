@@ -47,14 +47,10 @@ class SyncEventMergeHandler extends Core\Handlers\HandlerBase
 
 		$externalEventConnection = $externalSyncEvent->getEventConnection();
 
-		if ($externalEventConnection)
-		{
-			$externalEventConnection
-				->setId($eventConnectionId)
-				->setVersion($localEvent->getVersion())
-				->setRetryCount(0)
-			;
-		}
+		$externalEventConnection?->setId($eventConnectionId)
+			->setVersion($localEvent->getVersion())
+			->setRetryCount(0)
+		;
 
 		return $externalSyncEvent;
 	}

@@ -8,7 +8,6 @@ use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Event;
 
@@ -79,13 +78,6 @@ abstract class Controller
 	{
 		try
 		{
-			//todo move in processBeforeAction()
-			if($this->request->isPost())
-			{
-				\CUtil::jSPostUnescape();
-				$this->request->addFilter(new PostDecodeFilter);
-			}
-
 			$this->resolveAction();
 			$this->checkAction();
 

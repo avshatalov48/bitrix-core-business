@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2015 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -652,7 +654,7 @@ $variables = array(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 var settingsDialog<?=$arParams["GRID_ID"]?>;
 var viewsDialog<?=$arParams["GRID_ID"]?>;
 var filtersDialog<?=$arParams["GRID_ID"]?>;
@@ -663,12 +665,12 @@ jsDD.Enable();
 if(!window['bxGrid_<?=$arParams["GRID_ID"]?>'])
 	bxGrid_<?=$arParams["GRID_ID"]?> = new BxInterfaceGrid('<?=$arParams["GRID_ID"]?>');
 
-bxGrid_<?=$arParams["GRID_ID"]?>.oActions = <?=CUtil::PhpToJsObject($jsActions)?>;
-bxGrid_<?=$arParams["GRID_ID"]?>.oColsMeta = <?=CUtil::PhpToJsObject($arResult["COLS_EDIT_META"])?>;
-bxGrid_<?=$arParams["GRID_ID"]?>.oEditData = <?=CUtil::PhpToJsObject($arResult["DATA_FOR_EDIT"])?>;
-bxGrid_<?=$arParams["GRID_ID"]?>.oColsNames = <?=CUtil::PhpToJsObject(htmlspecialcharsback($arResult["COLS_NAMES"]))?>;
-bxGrid_<?=$arParams["GRID_ID"]?>.oOptions = <?=CUtil::PhpToJsObject($arResult["OPTIONS"])?>;
-bxGrid_<?=$arParams["GRID_ID"]?>.vars = <?=CUtil::PhpToJsObject($variables)?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oActions = <?= Json::encode($jsActions) ?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oColsMeta = <?= Json::encode($arResult["COLS_EDIT_META"]) ?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oEditData = <?= Json::encode($arResult["DATA_FOR_EDIT"]) ?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oColsNames = <?= Json::encode(htmlspecialcharsback($arResult["COLS_NAMES"])) ?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oOptions = <?= Json::encode($arResult["OPTIONS"]) ?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.vars = <?= Json::encode($variables) ?>;
 bxGrid_<?=$arParams["GRID_ID"]?>.menu = new PopupMenu('bxMenu_<?=$arParams["GRID_ID"]?>', 1010);
 bxGrid_<?=$arParams["GRID_ID"]?>.settingsMenu = [
 	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_views_setup"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_views_setup_title"))?>', 'DEFAULT':true, 'ONCLICK':'bxGrid_<?=$arParams["GRID_ID"]?>.EditCurrentView()', 'DISABLED':<?=($USER->IsAuthorized()? 'false':'true')?>, 'ICONCLASS':'grid-settings'},
@@ -711,7 +713,7 @@ endforeach;
 BX.ready(function(){bxGrid_<?=$arParams["GRID_ID"]?>.InitTable()});
 
 <?if(!empty($arParams["FILTER"])):?>
-bxGrid_<?=$arParams["GRID_ID"]?>.oFilterRows = <?=CUtil::PhpToJsObject($arResult["FILTER_ROWS"])?>;
+bxGrid_<?=$arParams["GRID_ID"]?>.oFilterRows = <?= Json::encode($arResult["FILTER_ROWS"])?>;
 bxGrid_<?=$arParams["GRID_ID"]?>.filterMenu = [
 	{'TEXT': '<?=CUtil::JSEscape(GetMessage("interface_grid_flt_rows"))?>', 'TITLE': '<?=CUtil::JSEscape(GetMessage("interface_grid_flt_rows_title"))?>', 'MENU':[
 <?foreach($arParams["FILTER"] as $field):?>

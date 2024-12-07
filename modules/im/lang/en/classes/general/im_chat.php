@@ -1,4 +1,6 @@
 <?php
+$MESS["IM_CHANNEL_JOIN_F"] = "#USER_1_NAME# invited #USER_2_NAME# to the channel.";
+$MESS["IM_CHANNEL_JOIN_M"] = "#USER_1_NAME# invited #USER_2_NAME# to the channel.";
 $MESS["IM_CHAT_ACCESS_DENIED_EXTEND_USERS"] = "Insufficient permission to add chat members.";
 $MESS["IM_CHAT_ACCESS_DENIED_KICK_USERS"] = "Insufficient permission to kick chat members.";
 $MESS["IM_CHAT_CHANGE_COLOR_F"] = "#USER_NAME# changed chat color to \"#CHAT_COLOR#\"";

@@ -6,12 +6,12 @@ $APPLICATION->SetTitle("sale.account.pay");
 
 <!---->
 	<div class="bx-sap">
-		<h2>Пополнение счета</h2>
+		<h2>РџРѕРїРѕР»РЅРµРЅРёРµ СЃС‡РµС‚Р°</h2>
 
 		<div class="container-fluid">
 			<div class="row">
 				<div class="col-xs-12 bx-sap-block">
-					<h3 class="bx-sap-title">Фиксированный платеж</h3>
+					<h3 class="bx-sap-title">Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ РїР»Р°С‚РµР¶</h3>
 					<div class="bx-sap-fixedpay-container">
 						<ul class="bx-sap-fixedpay-list">
 							<li>100</li>
@@ -25,7 +25,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 			</div>
 			<div class="row">
 				<div class="col-xs-12 bx-sap-block form-horizontal">
-					<h3 class="bx-sap-title">Сумма</h3>
+					<h3 class="bx-sap-title">РЎСѓРјРјР°</h3>
 					<div class="" style="max-width: 200px;">
 						<div class="form-group" style="margin-bottom: 0;">
 							<div class="col-sm-9">
@@ -39,7 +39,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 			</div>
 			<div class="row">
 				<div class="col-xs-12 bx-sap-block">
-					<h3 class="bx-sap-title">Метод оплаты</h3>
+					<h3 class="bx-sap-title">РњРµС‚РѕРґ РѕРїР»Р°С‚С‹</h3>
 					<div>
 						<div class="bx-soa-pp row">
 							<div class="col-md-7 col-sm-8 col-xs-12 bx-soa-pp-item-container">
@@ -52,12 +52,12 @@ $APPLICATION->SetTitle("sale.account.pay");
 												 value="4">
 										<div class="bx-soa-pp-company-image"
 											 style="
-											 		background-image: url(/upload/sale/paysystem/logotip/5b8/5b8538f5ec25775365aa346a10547adb.gif); /*Картинка по умолчанию 150px шириной*/
-											 		background-image: -webkit-image-set(url(150px.jpg) 1x, url(230px.jpg) 2x); /*картинка для обычного 150px для ретины 300px*/
+											 		background-image: url(/upload/sale/paysystem/logotip/5b8/5b8538f5ec25775365aa346a10547adb.gif); /*РљР°СЂС‚РёРЅРєР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ 150px С€РёСЂРёРЅРѕР№*/
+											 		background-image: -webkit-image-set(url(150px.jpg) 1x, url(230px.jpg) 2x); /*РєР°СЂС‚РёРЅРєР° РґР»СЏ РѕР±С‹С‡РЅРѕРіРѕ 150px РґР»СЏ СЂРµС‚РёРЅС‹ 300px*/
 
 											 		"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Яндекс.Деньги</div>
+									<div class="bx-soa-pp-company-smalltitle">РЇРЅРґРµРєСЃ.Р”РµРЅСЊРіРё</div>
 								</div>
 								<div class="bx-soa-pp-company col-lg-3 col-sm-4 col-xs-6">
 									<div class="bx-soa-pp-company-graf-container">
@@ -69,7 +69,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 										<div class="bx-soa-pp-company-image"
 											 style="background-image: url(/upload/sale/paysystem/logotip/3fe/3fe185a7bd98ff1fc8d8a850e606c977.gif);"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Банковские карты</div>
+									<div class="bx-soa-pp-company-smalltitle">Р‘Р°РЅРєРѕРІСЃРєРёРµ РєР°СЂС‚С‹</div>
 								</div>
 								<div class="bx-soa-pp-company col-lg-3 col-sm-4 col-xs-6 bx-selected">
 									<div class="bx-soa-pp-company-graf-container">
@@ -81,7 +81,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 										<div class="bx-soa-pp-company-image"
 											 style="background-image: url(/upload/sale/paysystem/logotip/f58/f586e0454a76f17b222fa04231d3fe2e.gif);"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Терминалы</div>
+									<div class="bx-soa-pp-company-smalltitle">РўРµСЂРјРёРЅР°Р»С‹</div>
 								</div>
 								<div class="bx-soa-pp-company col-lg-3 col-sm-4 col-xs-6">
 									<div class="bx-soa-pp-company-graf-container">
@@ -93,7 +93,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 										<div class="bx-soa-pp-company-image"
 											 style="background-image: url(/upload/sale/paysystem/logotip/397/397f1ad6b92a31dda47824684e58ca51.gif);"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Наличные курьеру</div>
+									<div class="bx-soa-pp-company-smalltitle">РќР°Р»РёС‡РЅС‹Рµ РєСѓСЂСЊРµСЂСѓ</div>
 								</div>
 								<div class="bx-soa-pp-company col-lg-3 col-sm-4 col-xs-6">
 									<div class="bx-soa-pp-company-graf-container">
@@ -105,7 +105,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 										<div class="bx-soa-pp-company-image"
 											 style="background-image: url(/upload/sale/paysystem/logotip/25f/25ffaf55ef53096ad9a89d2c5e86be1d.png);"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Наложенный платеж</div>
+									<div class="bx-soa-pp-company-smalltitle">РќР°Р»РѕР¶РµРЅРЅС‹Р№ РїР»Р°С‚РµР¶</div>
 								</div>
 								<div class="bx-soa-pp-company col-lg-3 col-sm-4 col-xs-6">
 									<div class="bx-soa-pp-company-graf-container">
@@ -117,7 +117,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 										<div class="bx-soa-pp-company-image"
 											 style="background-image: url(/upload/sale/paysystem/logotip/38c/38ca4261cc65971dd1bd732615707c20.gif);"></div>
 									</div>
-									<div class="bx-soa-pp-company-smalltitle">Сбербанк</div>
+									<div class="bx-soa-pp-company-smalltitle">РЎР±РµСЂР±Р°РЅРє</div>
 								</div>
 							</div>
 						</div>
@@ -126,7 +126,7 @@ $APPLICATION->SetTitle("sale.account.pay");
 			</div>
 			<div class="row">
 				<div class="col-xs-12">
-					<a href="" class="btn btn-default btn-lg">Купить</a>
+					<a href="" class="btn btn-default btn-lg">РљСѓРїРёС‚СЊ</a>
 				</div>
 			</div>
 		</div>

@@ -77,6 +77,7 @@ final class SpaceUserRecentActivityTable extends DataManager
 			(new DatetimeField('DATETIME'))
 				->configureRequired()
 			,
+			(new IntegerField('SECONDARY_ENTITY_ID')),
 		];
 	}
 

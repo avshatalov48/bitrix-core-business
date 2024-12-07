@@ -194,7 +194,7 @@ class Group extends CopyImplementer
 
 		foreach ($this->features as $feature)
 		{
-			//todo Perhaps it’s worth making the parameters not in the array, but in the object.
+			//todo Perhaps itâ€™s worth making the parameters not in the array, but in the object.
 			// Until I made a decision, I do not want to write this to the interface.
 			if (method_exists($feature, "setProjectTerm"))
 			{

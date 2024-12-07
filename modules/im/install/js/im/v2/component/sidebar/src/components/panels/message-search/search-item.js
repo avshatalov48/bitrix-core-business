@@ -1,7 +1,7 @@
 import { Text } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 import { EventType } from 'im.v2.const';
 import { Parser } from 'im.v2.lib.parser';
 import { highlightText } from 'im.v2.lib.text-highlighter';
@@ -13,7 +13,7 @@ import type { ImModelMessage } from 'im.v2.model';
 // @vue/component
 export const SearchItem = {
 	name: 'SearchItem',
-	components: { Avatar, ChatTitle },
+	components: { ChatAvatar, ChatTitle },
 	props:
 	{
 		messageId: {
@@ -76,9 +76,10 @@ export const SearchItem = {
 			<div class="bx-im-message-search-item__header-container">
 				<div class="bx-im-message-search-item__author-container">
 					<template v-if="!isSystem">
-						<Avatar
+						<ChatAvatar
 							:size="AvatarSize.XS"
-							:dialogId="authorDialogId"
+							:avatarDialogId="authorDialogId"
+							:contextDialogId="dialogId"
 							class="bx-im-message-search-item__author-avatar"
 						/>
 						<ChatTitle 

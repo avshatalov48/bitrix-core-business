@@ -70,7 +70,7 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 ?><br /><div class="search-page">
 <form action="" method="get">
 	<input type="hidden" name="tags" value="<?echo $arResult["REQUEST"]["TAGS"]?>" />
-<?if($arParams["USE_SUGGEST"] === "Y"):
+<?if(isset($arParams["USE_SUGGEST"]) && $arParams["USE_SUGGEST"] === "Y"):
 	if(mb_strlen($arResult["REQUEST"]["~QUERY"]) && is_object($arResult["NAV_RESULT"]))
 	{
 		$arResult["FILTER_MD5"] = $arResult["NAV_RESULT"]->GetFilterMD5();
@@ -193,14 +193,14 @@ endif;?>
 		</tr>
 	</table>
 <?elseif(count($arResult["SEARCH"])>0):?>
-	<?if($arParams["DISPLAY_TOP_PAGER"] != "N") echo $arResult["NAV_STRING"]?>
+	<?if(!isset($arParams["DISPLAY_TOP_PAGER"]) || $arParams["DISPLAY_TOP_PAGER"] != "N") echo $arResult["NAV_STRING"]?>
 	<br /><hr />
 	<?foreach($arResult["SEARCH"] as $arItem):?>
 		<a href="<?echo $arItem["URL"]?>"><?echo $arItem["TITLE_FORMATED"]?></a>
 		<p><?echo $arItem["BODY_FORMATED"]?></p>
 		<?if (
 			$arParams["SHOW_RATING"] == "Y"
-			&& $arItem["RATING_TYPE_ID"] <> ''
+			&& !empty($arItem["RATING_TYPE_ID"])
 			&& $arItem["RATING_ENTITY_ID"] > 0
 		):?>
 			<div class="search-item-rate"><?
@@ -243,7 +243,7 @@ endif;?>
 		endif;
 		?><hr />
 	<?endforeach;?>
-	<?if($arParams["DISPLAY_BOTTOM_PAGER"] != "N") echo $arResult["NAV_STRING"]?>
+	<?if(!isset($arParams["DISPLAY_BOTTOM_PAGER"]) || $arParams["DISPLAY_BOTTOM_PAGER"] != "N") echo $arResult["NAV_STRING"]?>
 	<br />
 	<p>
 	<?if($arResult["REQUEST"]["HOW"]=="d"):?>

@@ -63,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && ($_POST["save"] <> '' || $_POST["apply
 			$errorMessage .= GetMessage("STPC_EMPTY_PAY_SYS").". ";
 
 		$CARD_TYPE = Trim($_REQUEST["CARD_TYPE"]);
-		$CARD_TYPE = ToUpper($CARD_TYPE);
+		$CARD_TYPE = mb_strtoupper($CARD_TYPE);
 		if ($CARD_TYPE == '')
 			$errorMessage .= GetMessage("STPC_EMPTY_CARD_TYPE").". ";
 

@@ -21,30 +21,34 @@ final class CurrentUser
 	 * Returns the fully qualified name of this class.
 	 * @return string
 	 */
-	public static function className()
+	public static function className(): string
 	{
-		return get_called_class();
+		return self::class;
 	}
 
 	/**
 	 * Returns current user by global $USER.
-	 * @return static
+	 * @return self
 	 */
-	public static function get()
+	public static function get(): self
 	{
 		global $USER;
-		$self = new static();
-		$self->cuser = $USER;
+
+		$self = new self();
+		if ($USER instanceof \CUser)
+		{
+			$self->cuser = $USER;
+		}
 
 		return $self;
 	}
 
 	/**
-	 * @return int|null
+	 * @return string|int|null
 	 */
 	public function getId()
 	{
-		return $this->cuser->getId();
+		return $this->cuser?->getId();
 	}
 
 	/**
@@ -52,7 +56,7 @@ final class CurrentUser
 	 */
 	public function getLogin()
 	{
-		return $this->cuser->getLogin();
+		return $this->cuser?->getLogin();
 	}
 
 	/**
@@ -60,7 +64,7 @@ final class CurrentUser
 	 */
 	public function getEmail()
 	{
-		return $this->cuser->getEmail();
+		return $this->cuser?->getEmail();
 	}
 
 	/**
@@ -68,7 +72,7 @@ final class CurrentUser
 	 */
 	public function getFullName()
 	{
-		return $this->cuser->getFullName();
+		return $this->cuser?->getFullName();
 	}
 
 	/**
@@ -76,7 +80,7 @@ final class CurrentUser
 	 */
 	public function getFirstName()
 	{
-		return $this->cuser->getFirstName();
+		return $this->cuser?->getFirstName();
 	}
 
 	/**
@@ -84,7 +88,7 @@ final class CurrentUser
 	 */
 	public function getLastName()
 	{
-		return $this->cuser->getLastName();
+		return $this->cuser?->getLastName();
 	}
 
 	/**
@@ -92,39 +96,40 @@ final class CurrentUser
 	 */
 	public function getSecondName()
 	{
-		return $this->cuser->getSecondName();
+		return $this->cuser?->getSecondName();
 	}
 
 	/**
 	 * @return array
 	 */
-	public function getUserGroups()
+	public function getUserGroups(): array
 	{
-		return $this->cuser->getUserGroupArray();
+		$groups = $this->cuser?->getUserGroupArray();
+		return is_array($groups) ? $groups : [];
 	}
 
 	/**
 	 * @return string
 	 */
-	public function getFormattedName()
+	public function getFormattedName(): string
 	{
-		return $this->cuser->getFormattedName(false, false);
+		return (string)$this->cuser?->getFormattedName(false, false);
 	}
 
 	/**
 	 * @param string $operationName
 	 * @return boolean
 	 */
-	public function canDoOperation($operationName)
+	public function canDoOperation($operationName): bool
 	{
-		return $this->cuser->canDoOperation($operationName);
+		return (bool)$this->cuser?->canDoOperation($operationName);
 	}
 
 	/**
 	 * @return boolean
 	 */
-	public function isAdmin()
+	public function isAdmin(): bool
 	{
-		return $this->cuser->isAdmin();
+		return (bool)$this->cuser?->isAdmin();
 	}
 }

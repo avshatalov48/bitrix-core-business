@@ -826,6 +826,7 @@ export default class Item
 			textColor: this.getTagTextColor(),
 			bgColor: this.getTagBgColor(),
 			fontWeight: this.getTagFontWeight(),
+			onclick: this.getTagOption('onclick'),
 		};
 	}
 

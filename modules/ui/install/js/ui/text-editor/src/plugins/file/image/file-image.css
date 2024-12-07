@@ -1,0 +1,17 @@
+.ui-text-editor-file-image-component {
+	display: inline-block;
+}
+
+.ui-text-editor-file-image-component img {
+	max-width: 100%;
+	object-fit: contain;
+}
+
+.ui-text-editor-file-image-component.--selected img {
+	outline: 2px solid rgb(60,132,244);
+	user-select: none;
+}
+
+.ui-text-editor-file-image-component.--draggable img {
+	cursor: grab;
+}

@@ -510,28 +510,37 @@
 						return;
 					}
 
+					const children = [];
+
+					item.items.forEach((child) => {
+						if (
+							child.value !== undefined
+							&& child.text !== undefined
+							&& child.value.length > 0
+							&& child.text.length > 0
+						)
+						{
+							children.push(
+								{
+									supertitle: item.text,
+									id: child.value,
+									entityId: child.text,
+									title: child.text,
+									customData: {
+										field: child.value,
+									},
+									tabs: ['recents'],
+								},
+							)
+						}
+					});
+
 					result.push({
 						id: item.value,
 						entityId: item.text,
 						title: item.text,
 						tabs: ['recents'],
-						children: item.items.map((children) => {
-							if ((children.value === undefined) || (children.text === undefined))
-							{
-								return;
-							}
-
-							return {
-								supertitle: item.text,
-								id: children.value,
-								entityId: children.text,
-								title: children.text,
-								customData: {
-									field: children.value,
-								},
-								tabs: ['recents'],
-							}
-						})
+						children,
 					});
 				});
 
@@ -703,6 +712,28 @@
 		});
 
 		BX.onCustomEvent(field.form, 'MailForm::from::change', [field]);
+		const senderInputNode = BX(`${field.fieldId}_value`);
+		let senderButtonTextNode = null;
+
+		if (senderInputNode)
+		{
+			senderButtonTextNode = senderInputNode.parentNode.querySelector('.sender-selector-button-text');
+		}
+
+		if (BX.UI.Mail?.SenderSelector && senderButtonTextNode)
+		{
+			const observer = new MutationObserver(() => {
+				BX.onCustomEvent(field.form, 'MailForm::from::change', [field]);
+			});
+
+			observer.observe(senderButtonTextNode, {
+				childList: true,
+				subtree: true,
+			});
+
+			return;
+		}
+
 		var selector = BX.findChildByClassName(field.params.__row, 'main-mail-form-field-value-menu', true);
 		BX.bind(selector, 'click', function()
 		{
@@ -951,17 +982,24 @@
 		field.quoteNode = document.createElement('div');
 		if (field.form.options.foldQuote || field.params.value)
 		{
-			const quoteContentNode = document.createElement('div');
-			quoteContentNode.setAttribute('id', field.form.quoteNodeId);
-			if (field.params.value)
+			if (field.form.formId.includes('_crm_mail_template_edit_form_') && field.params.value)
 			{
-				quoteContentNode.innerHTML = field.params.value;
+				field.quoteNode.innerHTML = field.params.value;
 			}
 			else
 			{
-				quoteContentNode.innerHTML = '<br>';
+				const quoteContentNode = document.createElement('div');
+				quoteContentNode.setAttribute('id', field.form.quoteNodeId);
+				if (field.params.value)
+				{
+					quoteContentNode.innerHTML = field.params.value;
+				}
+				else
+				{
+					quoteContentNode.innerHTML = '<br>';
+				}
+				BX.Dom.append(quoteContentNode, field.quoteNode);
 			}
-			BX.Dom.append(quoteContentNode, field.quoteNode);
 		}
 		field.quoteNode.__folded = field.form.options.foldQuote ?? false;
 
@@ -1126,7 +1164,16 @@
 	BXMainMailFormField.__types['from'].setValue = function(field, value)
 	{
 		var input = BX(field.fieldId+'_value');
-		var selector = BX.findChildByClassName(field.params.__row, 'main-mail-form-field-value-menu', true);
+		let selector = BX.findChildByClassName(field.params.__row, 'sender-selector-button-text', true);
+		if (!selector)
+		{
+			selector = BX.findChildByClassName(field.params.__row, 'main-mail-form-field-value-menu', true);
+		}
+
+		if (!selector)
+		{
+			return;
+		}
 
 		if (!value.trim())
 		{
@@ -1579,27 +1626,53 @@
 
 	BXMainMailForm.prototype.appendCalendarLinkButton = function(params)
 	{
-		if (BX.type.isNotEmptyObject(params)
+		if (
+			BX.type.isNotEmptyObject(params)
 			&& BX.type.isBoolean(params.showCalendarSharingButton)
-			&& !this.calendarSharingLinkButton)
+			&& !this.calendarSharingLinkButton
+		)
 		{
 			const id = 'calendar-sharing-link';
-			this.postForm.getToolbar().insertAfter({
-				BODY: `<i></i>${BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_SELECT')}`,
-				ID: id,
-			});
+			const ownerType = this.options.ownerType ?? null;
+			const sharingFeatureLimitEnable = params.sharingFeatureLimitEnable
+				|| (params.crmSharingFeatureLimitEnable && ownerType === 'DEAL')
+			;
+			if (sharingFeatureLimitEnable)
+			{
+				this.postForm.getToolbar().insertAfter({
+					BODY: `<i></i>${BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_SELECT')}`,
+					ID: id,
+				});
+			}
+			else
+			{
+				this.postForm.getToolbar().insertAfter({
+					BODY: `<div class="--locked"><i></i>${BX.Loc.getMessage('MAIN_MAIL_FORM_EDITOR_CALENDAR_SHARING_SELECT')}</div>`,
+					ID: id,
+				});
+			}
+
 			this.calendarSharingLinkButton = this.getSelectButton(id);
-			BX.Event.bind(this.calendarSharingLinkButton, 'click', this.insertCalendarSharingLink.bind(this));
-			this.calendarSharingLoader = new BX.Loader({
-				target: this.calendarSharingLinkButton,
-				size: 20,
-				mode: 'inline',
-				offset: {
-					left: '4%',
-					top: '-2%',
-				},
-			});
-			this.initPopupOpenCalendar();
+			if (sharingFeatureLimitEnable)
+			{
+				BX.Event.bind(this.calendarSharingLinkButton, 'click', this.insertCalendarSharingLink.bind(this));
+				this.calendarSharingLoader = new BX.Loader({
+					target: this.calendarSharingLinkButton,
+					size: 20,
+					mode: 'inline',
+					offset: {
+						left: '4%',
+						top: '-2%',
+					},
+				});
+				this.initPopupOpenCalendar();
+			}
+			else
+			{
+				BX.Event.bind(this.calendarSharingLinkButton, 'click', () => {
+					this.showCalendarSharingLimit(ownerType);
+				});
+			}
 		}
 	};
 
@@ -1641,6 +1714,26 @@
 			}
 			this.calendarSharingLoader.hide();
 		});
+	};
+
+	BXMainMailForm.prototype.showCalendarSharingLimit = function(ownerType)
+	{
+		if (ownerType === 'DEAL')
+		{
+			BX.UI.InfoHelper.show('limit_crm_calendar_free_slots');
+		}
+		else
+		{
+			BX.Runtime.loadExtension('ui.info-helper')
+				.then(({ FeaturePromotersRegistry }) => {
+					if (FeaturePromotersRegistry)
+					{
+						FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_sharing' }).show();
+					}
+				})
+				.catch((error) => {})
+			;
+		}
 	};
 
 	BXMainMailForm.prototype.insertCalendarSharingMessage = function(sharingLinkNode)
@@ -1788,7 +1881,6 @@
 					autoSave: true,
 					simpleMode: true,
 					steps: [{
-						target: this.calendarSharingLinkButton,
 						position: 'top',
 						title: titleText,
 						text: tourText,
@@ -1798,8 +1890,13 @@
 				const guidePopup = guide.getPopup();
 				guidePopup.setWidth(400);
 				setTimeout(() => {
-					window.scrollTo(0, this.calendarSharingLinkButton.getBoundingClientRect().y + window.pageYOffset);
-					guide.start();
+					const step = guide.getCurrentStep();
+					if (step)
+					{
+						guide.scrollToTarget(this.calendarSharingLinkButton);
+						step.setTarget(this.calendarSharingLinkButton);
+						guide.start();
+					}
 				}, 1500);
 			}
 		});

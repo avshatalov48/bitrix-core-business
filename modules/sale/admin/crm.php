@@ -278,8 +278,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 			"SITE_NAME" => COption::GetOptionString("main", "site_name", ""),
 		);
 		$body1 = http_build_query($body);
-		if (!defined("BX_UTF"))
-			$body1 = CharsetConverter::ConvertCharset($body1, SITE_CHARSET, "UTF-8");
 
 		list($arResponseHeaders, $responseBody) = __CrmSaleQuery($crmUrlScheme, $crmUrlHost, $crmUrlPort, $crmLogin, $crmPassword, "", $body1, $errorMessageTmp);
 		if (!empty($errorMessageTmp))
@@ -291,7 +289,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 		$isUTF = CUtil::DetectUTF8($responseBody);
 		if (!$isUTF && SITE_CHARSET == "UTF-8")
 		{
-			$responseBody = CharsetConverter::ConvertCharset($responseBody, SITE_CHARSET, "CP1251");
+			$responseBody = \Bitrix\Main\Text\Encoding::convertEncoding($responseBody, SITE_CHARSET, "CP1251");
 		}
 
 		if (mb_strpos($responseBody, "bsid=") !== false)
@@ -301,8 +299,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 
 			$body["sessid"] = mb_substr($responseBody, $p1 + 5, $p2 - $p1 - 5);
 			$body1 = http_build_query($body);
-			if (!defined("BX_UTF"))
-				$body1 = CharsetConverter::ConvertCharset($body1, SITE_CHARSET, "UTF-8");
 
 			$cookies = [];
 			$cookieRe = '/^Set-Cookie:(.+?)=(.+?);/';
@@ -327,16 +323,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y" && $saleModul
 		list($httpVersion, $statusCode, $reasonPhrase) = explode(' ', $arResponseHeaders[0], 3);
 		$responseBody = ltrim($responseBody);
 
-		if(!defined("BX_UTF"))
-			$responseBody = $APPLICATION->ConvertCharset($responseBody, "UTF-8", LANG_CHARSET);
-
 		if (($statusCode == 401) || (mb_strpos($responseBody, "form_auth") !== false) || (mb_strpos($responseBody, "Permission denied") !== false))
 		{
 			$errorMessage .= GetMessage("SPTEN_SCRM_ERR_AUTH")."<br />";
 		}
 		else
 		{
-			$rcode = ToUpper(mb_substr($responseBody, 0, 2));
+			$rcode = mb_strtoupper(mb_substr($responseBody, 0, 2));
 			if ($rcode == "ER")
 				$errorMessage .= mb_substr($responseBody, 2)."<br />";
 			elseif ($rcode != "OK")
@@ -577,7 +570,7 @@ if ($_REQUEST["success"] == "Y")
 			<div class="crm-admin-button-text"><?= GetMessage("SPTEN_SCRM_REG_BTN_24_HINT") ?></div>
 		</span>
 	</div>
-	<script type="text/javascript">
+	<script>
 		function SaleCrmAdminShowRegForm(v)
 		{
 			document.getElementById("id_new_crm_reg_form").style.display = v ? "" : "none";
@@ -612,7 +605,7 @@ if ($_REQUEST["success"] == "Y")
 						<br/>
 						<br/>
 						<input type="checkbox" class="crm-admin-set-checkbox" id="id_CRM_BUS_USER_SET_C" name="CRM_BUS_USER_SET_C" value="Y"<?= ($_REQUEST["CRM_BUS_USER_SET_C"] == "Y") ? " checked" : "" ?> onclick="SaleCrmAdminShowRegFormUser(this.checked)"/><label for="id_CRM_BUS_USER_SET_C"><span class="crm-admin-set-checkbox-label"><?= GetMessage("SPTEN_SCRM_CRM_BUS_USER_SET") ?></span></label>
-						<script type="text/javascript">
+						<script>
 							function SaleCrmAdminShowRegFormUser(v)
 							{
 								document.getElementById("id_CRM_BUS_USER_SET_C_login").style.display = v ? "none" : "";
@@ -649,7 +642,7 @@ if ($_REQUEST["success"] == "Y")
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $do_create_link == "Y")
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		SaleCrmAdminShowRegForm(true);
 		SaleCrmAdminShowRegFormUser(<?= ($_REQUEST["CRM_BUS_USER_SET_C"] == "Y") ? "true" : "false" ?>);
 	</script>

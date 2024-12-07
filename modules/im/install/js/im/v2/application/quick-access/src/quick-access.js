@@ -88,7 +88,9 @@ export class QuickAccessApplication
 		else if (urlParams.has(GetParameter.openChat))
 		{
 			const dialogId = urlParams.get(GetParameter.openChat);
-			Messenger.openChat(dialogId);
+			let messageId = urlParams.get(GetParameter.openMessage);
+			messageId = messageId ? Number(messageId) : 0;
+			Messenger.openChat(dialogId, messageId);
 		}
 		else if (urlParams.has(GetParameter.openSettings))
 		{

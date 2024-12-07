@@ -128,6 +128,18 @@ else
 		</div>
 	<?endif?>
 	</div>
+	<script type="text/javascript">
+		BX.ready(() => {
+			setTimeout(() => {
+				void BX.ajax.runAction('bizproc.workflow.comment.markAsRead', {
+					data: {
+						workflowId: '<?= CUtil::JSEscape($arResult['WorkflowState']['ID']) ?>',
+						userId: BX.message('USER_ID'),
+					},
+				});
+			}, 200);
+		});
+	</script>
 <?
 }
 ?>

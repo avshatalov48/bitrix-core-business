@@ -1,3 +1,9 @@
+.bx-im-attach-grid__item {
+	--im-attach-grid__color-primary: var(--im-color-palette-blue-70);
+	--im-attach-grid__color-alert: var(--im-color-palette-red-50);
+	--im-attach-grid__color-secondary: rgba(var(--im-color-palette-gray-90-rgb), 0.7);
+}
+
 /* common */
 .bx-im-attach-grid__name {
 	font-weight: var(--ui-font-weight-bold);
@@ -10,6 +16,18 @@
 
 .bx-im-attach-grid__value.--link:hover {
 	text-decoration: underline;
+}
+
+.bx-im-attach-grid__value.--link a.primary {
+	color: var(--im-attach-grid__color-primary);
+}
+
+.bx-im-attach-grid__value.--link a.secondary {
+	color: var(--im-attach-grid__color-secondary);
+}
+
+.bx-im-attach-grid__value.--link a.alert {
+	color: var(--im-attach-grid__color-alert);
 }
 /* end common */
 
@@ -51,6 +69,18 @@
 
 .bx-im-attach-grid__value {
 	word-break: break-word;
+}
+
+.bx-im-attach-grid__value.primary {
+	color: var(--im-attach-grid__color-primary);
+}
+
+.bx-im-attach-grid__value.secondary {
+	color: var(--im-attach-grid__color-secondary);
+}
+
+.bx-im-attach-grid__value.alert {
+	color: var(--im-attach-grid__color-alert);
 }
 
 .bx-im-attach-grid__item.--row table .bx-im-attach-grid__value {

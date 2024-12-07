@@ -14,7 +14,7 @@
 	$sError = false;
 	$TYPE = (isset($TYPE) && $TYPE == "T" ? "T" : "W");
 /*******************************************************************/
-	if ($REQUEST_METHOD=="POST" && $Update <> '' && (CFilterUnquotableWords::FilterPerm()) && check_bitrix_sessid())
+	if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && (CFilterUnquotableWords::FilterPerm()) && check_bitrix_sessid())
 	{
 		$erMsg = array(); $arFields = array();
 		$APPLICATION->ResetException();

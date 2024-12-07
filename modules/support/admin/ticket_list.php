@@ -20,10 +20,10 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/admin/t
 
 $err_mess = "File: ".__FILE__."<br>Line: ";
 /***************************************************************************
-									Функции
+									Р¤СѓРЅРєС†РёРё
 ***************************************************************************/
 
-function CheckFilter() // проверка введенных полей
+function CheckFilter() // РїСЂРѕРІРµСЂРєР° РІРІРµРґРµРЅРЅС‹С… РїРѕР»РµР№
 {
 	global $strError, $arFilterFields;
 	reset($arFilterFields); foreach ($arFilterFields as $f) global $$f;
@@ -32,7 +32,7 @@ function CheckFilter() // проверка введенных полей
 
 	if (trim($find_date_create1) <> '' || trim($find_date_create2) <> '')
 	{
-		// Дата создания
+		// Р”Р°С‚Р° СЃРѕР·РґР°РЅРёСЏ
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_create1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_create2,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -61,7 +61,7 @@ function CheckFilter() // проверка введенных полей
 
 	if (trim($find_date_timestamp1) <> '' || trim($find_date_timestamp2) <> '')
 	{
-		// Дата изменения
+		// Р”Р°С‚Р° РёР·РјРµРЅРµРЅРёСЏ
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_timestamp1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_timestamp2,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -90,7 +90,7 @@ function CheckFilter() // проверка введенных полей
 
 	if (trim($find_date_close1) <> '' || trim($find_date_close2) <> '')
 	{
-		// Дата закрытия
+		// Р”Р°С‚Р° Р·Р°РєСЂС‹С‚РёСЏ
 		$date_1_ok = false;
 		$date1_stm = MkDateTime(ConvertDateTime($find_date_close1,"D.M.Y"),"d.m.Y");
 		$date2_stm = MkDateTime(ConvertDateTime($find_date_close2,"D.M.Y")." 23:59","d.m.Y H:i");
@@ -117,7 +117,7 @@ function CheckFilter() // проверка введенных полей
 		}
 	}
 
-	// сообщений
+	// СЃРѕРѕР±С‰РµРЅРёР№
 	if (intval($find_messages1)>0 and intval($find_messages2)>0 and $find_messages1>$find_messages2)
 	{
 		//$str .= GetMessage("SUP_MESSAGES1_MESSAGES2")."<br>";
@@ -272,7 +272,7 @@ function Support_GetSLAInfo($ID, &$name, &$description, $safe_for_html=true)
 }
 
 /***************************************************************************
-							Обработка GET | POST
+							РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ****************************************************************************/
 $arrUsers = array();
 $TICKET_LIST_URL = $TICKET_LIST_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
@@ -297,7 +297,7 @@ if ($bADS)
 else
 	$oSort = new CAdminSorting($sTableID, "s_timestamp", "desc");
 
-$lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
+$lAdmin = new CAdminList($sTableID, $oSort);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 
 $arFilterHeads = array();
 
@@ -481,7 +481,7 @@ $arFilterFields = Array(
 );
 
 $USER_FIELD_MANAGER->AdminListAddFilterFields( $entity_id, $arFilterFields );
-$lAdmin->InitFilter($arFilterFields);//инициализация фильтра
+$lAdmin->InitFilter($arFilterFields);//РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РёР»СЊС‚СЂР°
 
 
 
@@ -561,7 +561,7 @@ else
 	}
 }
 
-// обработка действий групповых и одиночных
+// РѕР±СЂР°Р±РѕС‚РєР° РґРµР№СЃС‚РІРёР№ РіСЂСѓРїРїРѕРІС‹С… Рё РѕРґРёРЅРѕС‡РЅС‹С…
 if($arID = $lAdmin->GroupAction())
 {
 	if($_REQUEST['action_target']=='selected')
@@ -633,7 +633,7 @@ if($arID = $lAdmin->GroupAction())
 
 $get_extra_names = "N";
 
-// инициализация списка - выборка данных
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР° - РІС‹Р±РѕСЂРєР° РґР°РЅРЅС‹С…
 $TICKET_DICTIONARY = CTicketDictionary::GetDropDownArray();
 
 $arHeaders = Array();
@@ -688,7 +688,7 @@ if ($bADS)
 
 $USER_FIELD_MANAGER->AdminListAddHeaders( $entity_id, $arHeaders );
 
-// заголовок списка
+// Р·Р°РіРѕР»РѕРІРѕРє СЃРїРёСЃРєР°
 $lAdmin->AddHeaders($arHeaders);
 
 $get_user_name = "N";
@@ -709,10 +709,10 @@ $rsData = CTicket::GetList(
 
 $rsData = new CAdminResult($rsData, $sTableID);
 
-// установка строки навигации
+// СѓСЃС‚Р°РЅРѕРІРєР° СЃС‚СЂРѕРєРё РЅР°РІРёРіР°С†РёРё
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("SUP_PAGES")));
 
-// построение списка
+// РїРѕСЃС‚СЂРѕРµРЅРёРµ СЃРїРёСЃРєР°
 $arRows = array();
 
 $aUserIDs = array();
@@ -1066,7 +1066,7 @@ foreach($arRows as $k => $v)
 }
 
 
-// "подвал" списка
+// "РїРѕРґРІР°Р»" СЃРїРёСЃРєР°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),

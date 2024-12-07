@@ -15,6 +15,7 @@ use Bitrix\Main\Access\Exception\RoleRelationSaveException;
 use Bitrix\Main\Access\Exception\RoleSaveException;
 use Bitrix\Main\Access\Permission\PermissionDictionary;
 use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlExpression;
 
 abstract class RoleUtil
 {
@@ -166,12 +167,19 @@ abstract class RoleUtil
 		]);
 
 		$connection = Application::getConnection();
-		$helper = $connection->getSqlHelper();
 
 		$query = [];
 		foreach ($permissions as $id => $value)
 		{
-			$query[] = '('. $this->roleId .', \''. $helper->forSql(trim($id)) .'\', '. (int) $value .')';
+			$expression = new SqlExpression(
+				'(?i, ?s, ?i)',
+				$this->roleId,
+				trim($id),
+				$value,
+			);
+			$expression->setConnection($connection);
+
+			$query[] = $expression->compile();
 		}
 
 		if (empty($query))
@@ -179,12 +187,13 @@ abstract class RoleUtil
 			return;
 		}
 
-		$query = '
-			INSERT INTO '. $helper->quote($permissionClass::getTableName()) .'
-				(ROLE_ID, PERMISSION_ID, ' . $helper->quote('VALUE') . ')
-				VALUES
-				'. implode(',', $query) .'
-		';
+		$expression = new SqlExpression(
+			'INSERT INTO ?# (ROLE_ID, PERMISSION_ID, VALUE) VALUES ' . implode(',', $query),
+			$permissionClass::getTableName(),
+		);
+		$expression->setConnection($connection);
+
+		$query = $expression->compile();
 
 		try
 		{
@@ -204,7 +213,6 @@ abstract class RoleUtil
 	public function updateRoleRelations(array $roleRelations)
 	{
 		$connection = Application::getConnection();
-		$helper = $connection->getSqlHelper();
 
 		$roleRelationsClass = static::getRoleRelationTableClass();
 		$roleRelationsClass::deleteList([
@@ -219,7 +227,14 @@ abstract class RoleUtil
 				throw new RoleRelationSaveException();
 			}
 
-			$query[] = '('. $this->roleId .', \''. $helper->forSql(trim($code)) .'\')';
+			$expression = new SqlExpression(
+				'(?i, ?s)',
+				$this->roleId,
+				trim($code),
+			);
+			$expression->setConnection($connection);
+
+			$query[] = $expression->compile();
 		}
 
 		if (empty($query))
@@ -227,12 +242,13 @@ abstract class RoleUtil
 			return;
 		}
 
-		$query = '
-			INSERT INTO '. $helper->quote($roleRelationsClass::getTableName()) .'
-				(ROLE_ID, RELATION)
-				VALUES
-				'. implode(',', $query) .'
-		';
+		$expression = new SqlExpression(
+			'INSERT INTO ?# (ROLE_ID, RELATION) VALUES ' . implode(',', $query),
+			$roleRelationsClass::getTableName(),
+		);
+		$expression->setConnection($connection);
+
+		$query = $expression->compile();
 
 		try
 		{

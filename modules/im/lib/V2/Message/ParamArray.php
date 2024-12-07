@@ -294,13 +294,17 @@ class ParamArray extends Collection implements MessageParameter, RegistryEntry
 
 	public function setMessageId(int $messageId): self
 	{
+		if ($this->messageId !== $messageId)
+		{
+			$this->markChanged();
+		}
+
 		$this->messageId = $messageId;
+
 		foreach ($this as $value)
 		{
 			$value->setMessageId($this->messageId);
 		}
-
-		$this->markChanged();
 
 		return $this;
 	}

@@ -72,7 +72,7 @@ $APPLICATION->IncludeComponent("bitrix:forum.interface", "filter_simple",
 if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
-	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+	<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;

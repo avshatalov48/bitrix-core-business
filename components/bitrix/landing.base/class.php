@@ -314,6 +314,32 @@ class LandingBaseComponent extends \CBitrixComponent
 					'date_to' => $tariffDate ?: null
 				],
 				'PORTAL_URI' => 'https://bitrix24.team'
+			],
+			'landing-feedback-mainpage' => [
+				'ID' => 'landing-feedback-mainpage',
+				'VIEW_TARGET' => null,
+				'FORMS' => [
+					['zones' => ['ru'], 'id' => 2767, 'lang' => 'ru', 'sec' => '8ybuip'],
+					['zones' => ['kz'], 'id' => 2768, 'lang' => 'ru', 'sec' => 'ga494z'],
+					['zones' => ['by'], 'id' => 2769, 'lang' => 'ru', 'sec' => 'gs4uy1'],
+					['zones' => ['en'], 'id' => 2770, 'lang' => 'en', 'sec' => 'af0ljd'],
+					['zones' => ['de'], 'id' => 2771, 'lang' => 'de', 'sec' => '0wz58m'],
+					['zones' => ['la', 'co', 'mx'], 'id' => 2772, 'lang' => 'es', 'sec' => 'g50y3x'],
+					['zones' => ['pl'], 'id' => 2773, 'lang' => 'pl', 'sec' => 'q0vn83'],
+					['zones' => ['br'], 'id' => 2774, 'lang' => 'br', 'sec' => 'bglwot'],
+					['zones' => ['it'], 'id' => 2775, 'lang' => 'it', 'sec' => 'ct7o1m'],
+					['zones' => ['fr'], 'id' => 2776, 'lang' => 'fr', 'sec' => 'fxqhd2'],
+					['zones' => ['tr'], 'id' => 2777, 'lang' => 'tr', 'sec' => '7mn6x4'],
+					['zones' => ['vn'], 'id' => 2778, 'lang' => 'vn', 'sec' => '5grn3a'],
+				],
+				'PRESETS' => [
+					'url' => defined('BX24_HOST_NAME') ? BX24_HOST_NAME : $_SERVER['SERVER_NAME'],
+					'tarif' => $b24 ? \CBitrix24::getLicenseType() : '',
+					'city' => $b24 ? implode(' / ', $this->getUserGeoData()) : '',
+					'partner_id' => $partnerId,
+					'date_to' => $tariffDate ?: null,
+				],
+				'PORTAL_URI' => 'https://bitrix24.team'
 			]
 		];
 
@@ -803,17 +829,29 @@ class LandingBaseComponent extends \CBitrixComponent
 
 		if (!array_key_exists($code, $codes))
 		{
+			$type = $this->arParams['TYPE'];
+			$specialType = mb_strtoupper($this->arResult['SPECIAL_TYPE'] ?? '');
+
 			if ($version)
 			{
-				$mess = Loc::getMessage($code . '_' . $version . '_' . $this->arParams['TYPE'], $replace);
+				$mess =
+					Loc::getMessage($code . '_' . $version . '_' . $specialType, $replace)
+					?? Loc::getMessage($code . '_' . $version . '_' . $type, $replace)
+				;
 				if (!$mess)
 				{
-					$mess = Loc::getMessage($code . '_' . $this->arParams['TYPE'], $replace);
+					$mess =
+						Loc::getMessage($code . '_' . $specialType, $replace)
+						?? Loc::getMessage($code . '_' . $type, $replace)
+					;
 				}
 			}
 			else
 			{
-				$mess = Loc::getMessage($code . '_' . $this->arParams['TYPE'], $replace);
+				$mess =
+					Loc::getMessage($code . '_' . $specialType, $replace)
+					?? Loc::getMessage($code . '_' . $type, $replace)
+				;
 			}
 
 			if (!$mess)
@@ -1175,7 +1213,7 @@ class LandingBaseComponent extends \CBitrixComponent
 
 		if ($meta['SITE_SPECIAL'] === 'Y')
 		{
-			return Site\Type::getSiteTypeForms($meta['SITE_CODE']);
+			return Site\Type::getSiteSpecialType($meta['SITE_CODE']);
 		}
 
 		return null;
@@ -1457,7 +1495,7 @@ class LandingBaseComponent extends \CBitrixComponent
 			$landing = \Bitrix\Landing\Landing::createInstance($this->arParams['LANDING_ID']);
 			if (
 				$landing->exist()
-				&& $this->getSpecialTypeSiteByLanding($landing) === 'crm_forms'
+				&& $this->getSpecialTypeSiteByLanding($landing) === Site\Type::PSEUDO_SCOPE_CODE_FORMS
 			)
 			{
 				return true;

@@ -4,7 +4,8 @@ import { BuilderModel } from 'ui.vue3.vuex';
 
 import { Layout, EventType } from 'im.v2.const';
 
-import { SettingsModel } from './nested-modules/settings';
+import { SettingsModel } from './nested-modules/settings/settings';
+import { TariffRestrictionsModel } from './nested-modules/tariff-restrictions/tariff-restrictions';
 
 import type { ActionTree, GetterTree, MutationTree } from 'ui.vue3.vuex';
 
@@ -13,7 +14,7 @@ type ApplicationState = {
 		name: string,
 		entityId: string,
 		contextId: number,
-	}
+	},
 };
 
 export class ApplicationModel extends BuilderModel
@@ -27,6 +28,7 @@ export class ApplicationModel extends BuilderModel
 	{
 		return {
 			settings: SettingsModel,
+			tariffRestrictions: TariffRestrictionsModel,
 		};
 	}
 
@@ -51,7 +53,7 @@ export class ApplicationModel extends BuilderModel
 			},
 			/** @function application/isChatOpen */
 			isChatOpen: (state) => (dialogId: string): boolean => {
-				const allowedLayouts = [Layout.chat.name, Layout.copilot.name];
+				const allowedLayouts = [Layout.chat.name, Layout.copilot.name, Layout.channel.name];
 				if (!allowedLayouts.includes(state.layout.name))
 				{
 					return false;

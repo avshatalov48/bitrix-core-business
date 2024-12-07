@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,calendar_sync_manager,calendar_entry,ui_tilegrid,ui_forms,main_core_events,ui_dialogs_messagebox,main_core,calendar_util,main_popup) {
+(function (exports,ui_designTokens,ui_fonts_opensans,ui_iconSet_actions,calendar_sync_manager,ui_qrauthorization,calendar_entry,ui_tilegrid,ui_forms,main_core_events,ui_dialogs_messagebox,main_core,calendar_util,main_popup) {
 	'use strict';
 
 	let _ = t => t,
@@ -309,22 +310,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  _t7$1,
 	  _t8,
 	  _t9,
-	  _t10;
+	  _t10,
+	  _t11;
 	class SyncPanelUnit {
 	  constructor(options) {
+	    this.COUNTER_FAILED = 1;
 	    this.logoClassName = '';
 	    this.options = options;
 	    this.connectionProvider = this.options.connectionProvider;
 	  }
 	  getConnectionTemplate() {
 	    if (!this.connectionTemplate) {
-	      this.connectionTemplate = this.connectionProvider.getClassTemplateItem().createInstance(this.connectionProvider);
+	      this.connectionTemplate = this.connectionProvider.getClassTemplateItem().createInstance(this.connectionProvider, this.connectionProvider.getConnection());
 	    }
 	    return this.connectionTemplate;
 	  }
 	  renderTo(outerWrapper) {
 	    if (main_core.Type.isElementNode(outerWrapper)) {
-	      outerWrapper.appendChild(this.getContent());
+	      main_core.Dom.append(this.getContent(), outerWrapper);
 	    }
 	  }
 	  getContent() {
@@ -361,6 +364,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  setSyncStatus(mode) {
 	    this.unitNode.className = 'calendar-sync__calendar-item';
+	    this.syncInfoWrap.className = 'calendar-sync__account-info';
 	    switch (mode) {
 	      case this.connectionProvider.STATUS_REFUSED:
 	        main_core.Dom.addClass(this.unitNode, '--refused');
@@ -371,8 +375,17 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        this.setSyncInfoStatusText(this.formatSyncTime(this.connectionProvider.getSyncDate()));
 	        break;
 	      case this.connectionProvider.STATUS_FAILED:
-	        main_core.Dom.addClass(this.unitNode, '--error');
-	        this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR'));
+	        if (this.connectionProvider.doSupportReconnectionScenario()) {
+	          main_core.Dom.addClass(this.unitNode, '--error-reconnect');
+	          main_core.Dom.addClass(this.syncInfoWrap, '--error-reconnect');
+	          const connectionType = this.connectionProvider.getFailedConnectionName();
+	          this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR_RECONNECT', {
+	            '#TYPE#': connectionType === 'iCloud' ? 'iCloud' : main_core.Text.capitalize(connectionType)
+	          }), false);
+	        } else {
+	          main_core.Dom.addClass(this.unitNode, '--error');
+	          this.setSyncInfoStatusText(main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR'));
+	        }
 	        break;
 	      case this.connectionProvider.STATUS_PENDING:
 	        main_core.Dom.addClass(this.unitNode, '--pending');
@@ -390,7 +403,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	          this.setSyncInfoStatusText('');
 	        }
 	        break;
+	      default:
+	        break;
 	    }
+	    this.refreshButton();
 	  }
 	  setSyncInfoStatusText(text, upperCase = true) {
 	    const syncInfoStatusText = this.syncInfoWrap.querySelector('[data-role="sync_info_text"]');
@@ -409,8 +425,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  refreshButton() {
 	    main_core.Dom.clean(this.buttonsWrap);
-	    this.button = this.buttonsWrap.appendChild(this.getButton());
-	    this.moreButton = this.buttonsWrap.appendChild(this.getMoreButton());
+	    main_core.Dom.append(this.getButton(), this.buttonsWrap);
+	    main_core.Dom.append(this.getMoreButton(), this.buttonsWrap);
 	  }
 	  getButton() {
 	    if (this.connectionProvider.isGoogleApplicationRefused) {
@@ -421,38 +437,57 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        this.button = main_core.Tag.render(_t5$2 || (_t5$2 = _$2`
 					<a data-role="status-success" class="ui-btn ui-btn-icon-success ui-btn-link">
 						${0}
-					</a>`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS'));
+					</a>
+				`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS'));
 	        break;
 	      case this.connectionProvider.STATUS_FAILED:
-	        this.button = main_core.Tag.render(_t6$1 || (_t6$1 = _$2`
-					<a data-role="status-failed" class="ui-btn ui-btn-icon-fail ui-btn-link">
-						${0}
-					</a>`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED'));
+	        if (this.connectionProvider.doSupportReconnectionScenario()) {
+	          const failedConnectionsCount = this.connectionProvider.getFailedConnectionsCount();
+	          this.button = main_core.Tag.render(_t6$1 || (_t6$1 = _$2`
+						<button data-role="status-failed-reconnect" class="ui-btn ui-btn-light-border ui-btn-round">
+							<div class="ui-icon-set --refresh-6 calendar-sync__calendar-item_buttons-error"></div>
+								${0}
+							<div class="calendar-sync__calendar-item_buttons-counter">${0}</div>
+						</button>
+					`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT'), failedConnectionsCount);
+	          main_core.Event.bind(this.button, 'click', () => this.getConnectionTemplate().reconnect());
+	        } else {
+	          this.button = main_core.Tag.render(_t7$1 || (_t7$1 = _$2`
+						<a data-role="status-failed" class="ui-btn ui-btn-icon-fail ui-btn-link">
+							${0}
+						</a>
+					`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED'));
+	        }
 	        break;
 	      case this.connectionProvider.STATUS_PENDING:
-	        this.button = main_core.Tag.render(_t7$1 || (_t7$1 = _$2`
+	        this.button = main_core.Tag.render(_t8 || (_t8 = _$2`
 					<a data-role="status-pending" class="ui-btn ui-btn-disabled ui-btn-link">
 						${0}
-					</a>`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_PENDING'));
+					</a>
+				`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_PENDING'));
 	        break;
 	      case this.connectionProvider.STATUS_NOT_CONNECTED:
-	        this.button = main_core.Tag.render(_t8 || (_t8 = _$2`
+	        this.button = main_core.Tag.render(_t9 || (_t9 = _$2`
 					<a data-role="status-not_connected" class="ui-btn ui-btn-success ui-btn-round">
 						${0}
-					</a>`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_NOT_CONNECTED'));
+					</a>
+				`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_NOT_CONNECTED'));
 	        main_core.Event.bind(this.button, 'click', this.handleItemClick.bind(this));
 	        break;
 	      case this.connectionProvider.STATUS_SYNCHRONIZING:
-	        this.button = main_core.Tag.render(_t9 || (_t9 = _$2`
+	        this.button = main_core.Tag.render(_t10 || (_t10 = _$2`
 					<a data-role="status-not_connected" class="ui-btn ui-btn-success ui-btn-round ui-btn-clock ui-btn-disabled">
 						${0}
-					</a>`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS'));
+					</a>
+				`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS'));
+	        break;
+	      default:
 	        break;
 	    }
 	    return this.button;
 	  }
 	  getMoreButton() {
-	    this.moreButton = main_core.Tag.render(_t10 || (_t10 = _$2`
+	    this.moreButton = main_core.Tag.render(_t11 || (_t11 = _$2`
 			<div
 				data-role="more-button" 
 				class="ui-btn ui-btn-round ui-btn-light-border calendar-sync__calendar-item--more"
@@ -465,7 +500,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    const status = this.connectionProvider.getStatus();
 	    if ([this.connectionProvider.STATUS_SUCCESS, this.connectionProvider.STATUS_FAILED, this.connectionProvider.STATUS_REFUSED].includes(status)) {
 	      if (this.connectionProvider.hasMenu()) {
-	        this.connectionProvider.showMenu(this.button);
+	        this.connectionProvider.showMenu(getComputedStyle(this.moreButton).display !== 'none' ? this.moreButton : this.button);
 	      } else if (this.connectionProvider.getConnectStatus()) {
 	        this.connectionProvider.openActiveConnectionSlider(this.connectionProvider.getConnection());
 	      } else {
@@ -480,10 +515,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    let timestamp = date;
 	    if (main_core.Type.isDate(date)) {
 	      timestamp = Math.round(date.getTime() / 1000);
-	      const secondsAgo = parseInt((now - date) / 1000);
+	      const secondsAgo = parseInt((now - date) / 1000, 10);
 	      if (secondsAgo < 60) {
 	        return main_core.Loc.getMessage('CAL_JUST');
 	      }
+	    }
+	    if (timestamp === null) {
+	      return main_core.Loc.getMessage('CAL_JUST');
 	    }
 	    return BX.date.format([["tommorow", "tommorow, H:i:s"], ["i", "iago"], ["H", "Hago"], ["d", "dago"], ["m100", "mago"], ["m", "mago"], ["-", ""]], timestamp);
 	  }
@@ -654,11 +692,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    grid.draw();
 	  }
 	  refresh(status, connectionsProviders) {
+	    var _this$auxiliarySyncPa;
 	    this.status = status;
 	    this.connectionsProviders = connectionsProviders;
 	    main_core.Dom.replace(document.querySelector('#calendar-sync-status-block'), this.blockStatusContent);
 	    this.displayConnectionUnits();
-	    this.auxiliarySyncPanel.refresh(status, connectionsProviders);
+	    (_this$auxiliarySyncPa = this.auxiliarySyncPanel) == null ? void 0 : _this$auxiliarySyncPa.refresh(status, connectionsProviders);
 	  }
 	}
 
@@ -812,180 +851,54 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
+	class MobileSyncBanner {
+	  constructor(options = {}) {
+	    this.zIndex = 3100;
+	    this.DOM = {};
+	    this.QRC = null;
+	    this.type = options.type;
+	    this.helpDeskCode = options.helpDeskCode || '11828176';
+	    this.alreadyConnectedToNew = this.type === 'android' ? calendar_util.Util.isGoogleConnected() : calendar_util.Util.isIcloudConnected();
+	    this.qrAuth = null;
+	  }
+	  show() {
+	    var _this$qrAuth;
+	    (_this$qrAuth = this.qrAuth) != null ? _this$qrAuth : this.qrAuth = new ui_qrauthorization.QrAuthorization({
+	      title: main_core.Loc.getMessage('SYNC_BANNER_MOBILE_TITLE'),
+	      content: main_core.Loc.getMessage('SYNC_MOBILE_NOTICE'),
+	      intent: this.type ? 'calendar_sync_slider' : 'calendar_sync_banner',
+	      showFishingWarning: true,
+	      showBottom: false
+	    });
+	    this.qrAuth.show();
+	  }
+	}
+
 	let _$6 = t => t,
 	  _t$6,
 	  _t2$6,
 	  _t3$6,
 	  _t4$6,
-	  _t5$5;
-	class MobileSyncBanner {
-	  constructor(options = {}) {
-	    this.zIndex = 3100;
-	    this.DOM = {};
-	    this.QRCODE_SIZE = 186;
-	    this.QRCODE_COLOR_LIGHT = '#ffffff';
-	    this.QRCODE_COLOR_DARK = '#000000';
-	    this.QRCODE_WRAP_CLASS = 'calendar-sync-slider-qr-container';
-	    this.QRC = null;
-	    this.type = options.type;
-	    this.helpDeskCode = options.helpDeskCode || '11828176';
-	    this.alreadyConnectedToNew = this.type === 'android' ? calendar_util.Util.isGoogleConnected() : calendar_util.Util.isIcloudConnected();
-	  }
-	  show() {}
-	  showInPopup() {
-	    this.popup = new main_popup.Popup({
-	      className: 'calendar-sync-qr-popup',
-	      draggable: true,
-	      content: this.getContainer(),
-	      width: 580,
-	      zIndexAbsolute: this.zIndex,
-	      cacheable: false,
-	      closeByEsc: true,
-	      closeIcon: true
-	    });
-	    this.popup.show();
-	    this.initQrCode().then(this.drawQRCode.bind(this));
-	  }
-	  close() {
-	    this.popup.close();
-	  }
-	  getContainer() {
-	    this.DOM.container = main_core.Tag.render(_t$6 || (_t$6 = _$6`
-			<div class="calendar-sync-qr-popup-content">
-				<div class="calendar-sync-qr-popup-title">
-					${0}
-				</div>
-				<div class="calendar-sync-slider-content">
-					<img class="calendar-sync-slider-phone-img" src="/bitrix/images/calendar/sync/qr-background.svg" alt="">
-					${0}
-					${0}
-				</div>
-			</div>
-		`), this.getTitle(), this.getQrContainer(), this.getInstructionContainer());
-	    calendar_util.Util.initHintNode(this.DOM.container.querySelector('.calendar-notice-mobile-banner'));
-	    return this.DOM.container;
-	  }
-	  getQrContainer() {
-	    if (!this.DOM.qrContainer) {
-	      this.DOM.qrContainer = main_core.Tag.render(_t2$6 || (_t2$6 = _$6`
-				<div class="calendar-sync-slider-qr">
-					<div class="${0}">${0}</div>
-					<span class="calendar-sync-slider-logo"></span>
-				</div>
-			`), this.QRCODE_WRAP_CLASS, calendar_util.Util.getLoader(this.QRCODE_SIZE));
-	    }
-	    return this.DOM.qrContainer;
-	  }
-	  getInstructionContainer() {
-	    if (!this.DOM.instructionContainer) {
-	      this.DOM.instructionContainer = main_core.Tag.render(_t3$6 || (_t3$6 = _$6`
-				<div class="calendar-sync-slider-instruction">
-					<!--<div class="calendar-sync-slider-instruction-subtitle"></div>-->
-					${0}
-					<div class="calendar-sync-slider-instruction-notice">${0}</div>
-					<a href="javascript:void(0);" 
-							onclick="BX.Helper.show('redirect=detail&code=' + ${0},{zIndex:3100,}); event.preventDefault();" 
-							class="ui-btn ui-btn-success ui-btn-round">
-						${0}
-					</a>
-				</div>
-			`), this.getInstructionTextContainer(), main_core.Loc.getMessage('SYNC_MOBILE_NOTICE'), this.getHelpdeskCode(), main_core.Loc.getMessage('SYNC_MOBILE_ABOUT_BTN'));
-	    }
-	    return this.DOM.instructionContainer;
-	  }
-	  getInstructionTextContainer() {
-	    if (!this.DOM.instructionTextContainer) {
-	      this.DOM.instructionTextContainer = main_core.Tag.render(_t4$6 || (_t4$6 = _$6`
-				<div class="calendar-sync-slider-instruction-title">
-					${0} 
-					${0}
-				</div>
-			`), main_core.Loc.getMessage('SYNC_MOBILE_NOTICE_HOW_TO') + ' ', this.type !== 'iphone' ? this.getAndroidHintIcon() : '');
-	    }
-	    return this.DOM.instructionTextContainer;
-	  }
-	  getAndroidHintIcon() {
-	    if (!this.DOM.androidHintIcon) {
-	      this.DOM.androidHintIcon = main_core.Tag.render(_t5$5 || (_t5$5 = _$6`
-			<span 
-				class="calendar-notice-mobile-banner" 
-				data-hint="${0}" 
-				data-hint-no-icon="Y">
-			</span>`), main_core.Loc.getMessage('CAL_ANDROID_QR_CODE_HINT'));
-	    }
-	    return this.DOM.androidHintIcon;
-	  }
-	  getInnerContainer() {
-	    return this.DOM.container.querySelector('.' + this.QRCODE_WRAP_CLASS);
-	  }
-	  initQrCode() {
-	    return new Promise(resolve => {
-	      main_core.Runtime.loadExtension(['main.qrcode']).then(() => {
-	        if (typeof QRCode !== 'undefined') {
-	          resolve();
-	        }
-	      });
-	    });
-	  }
-	  drawQRCode(wrap) {
-	    if (!main_core.Type.isDomNode(wrap)) {
-	      wrap = this.getInnerContainer();
-	    }
-	    this.getMobileSyncUrl().then(link => {
-	      main_core.Dom.clean(wrap);
-	      this.QRC = new QRCode(wrap, {
-	        text: link,
-	        width: this.getSize(),
-	        height: this.getSize(),
-	        colorDark: this.QRCODE_COLOR_DARK,
-	        colorLight: this.QRCODE_COLOR_LIGHT,
-	        correctLevel: QRCode.CorrectLevel.H
-	      });
-	    });
-	  }
-	  getTitle() {
-	    return main_core.Loc.getMessage('SYNC_BANNER_MOBILE_TITLE');
-	  }
-	  getMobileSyncUrl() {
-	    return new Promise((resolve, reject) => {
-	      BX.ajax.runAction('calendar.api.syncajax.getAuthLink', {
-	        data: {
-	          type: this.type ? 'slider' : 'banner'
-	        }
-	      }).then(response => {
-	        resolve(response.data.link);
-	      }, reject);
-	    });
-	  }
-	  getSize() {
-	    return this.QRCODE_SIZE;
-	  }
-	  getDetailHelpUrl() {
-	    return 'https://helpdesk.bitrix24.ru/open/' + this.getHelpdeskCode();
-	  }
-	  getHelpdeskCode() {
-	    return this.helpDeskCode;
-	  }
-	}
-
-	let _$7 = t => t,
-	  _t$7,
-	  _t2$7,
-	  _t3$7,
-	  _t4$7,
-	  _t5$6,
+	  _t5$5,
 	  _t6$4,
 	  _t7$3,
 	  _t8$1,
 	  _t9$1,
 	  _t10$1,
-	  _t11,
+	  _t11$1,
 	  _t12,
-	  _t13;
+	  _t13,
+	  _t14,
+	  _t15,
+	  _t16,
+	  _t17,
+	  _t18;
 	class InterfaceTemplate extends main_core_events.EventEmitter {
 	  constructor(options) {
 	    super();
+	    this.COUNTER_FAILED = 1;
 	    this.sliderWidth = 840;
+	    this.IS_UPDATING = false;
 	    this.setEventNamespace('BX.Calendar.Sync.Interface.InterfaceTemplate');
 	    this.title = options.title;
 	    this.helpdeskCode = options.helpDeskCode;
@@ -1005,7 +918,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return new this(provider, connection);
 	  }
 	  getInfoConnectionContent() {
-	    return main_core.Tag.render(_t$7 || (_t$7 = _$7`
+	    return main_core.Tag.render(_t$6 || (_t$6 = _$6`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
 				<div class="calendar-sync-header">
 					<span class="calendar-sync-header-text">${0}</span>
@@ -1015,28 +928,43 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 		`), this.getHeaderTitle(), this.getContentInfoBody());
 	  }
 	  getContentActiveBodyHeader() {
-	    this.disconnectButton = this.getDisconnectButton();
-	    main_core.Event.bind(this.disconnectButton, 'click', this.handleDisconnectButton.bind(this));
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
-	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t2$7 || (_t2$7 = _$7`
+	    const syncTime = timestamp ? `${calendar_util.Util.formatDateUsable(timestamp)} ${BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp)}` : '';
+	    return main_core.Tag.render(_t2$6 || (_t2$6 = _$6`
 			<div class="calendar-sync__account ${0}">
 				<div class="calendar-sync__account-logo">
 					<div class="calendar-sync__account-logo--image ${0}"></div>
 				</div>
 				<div class="calendar-sync__account-content">
 					${0}
-					<div class="calendar-sync__account-info">
-						<div class="calendar-sync__account-info--icon --animate"></div>
-						${0}
-					</div>
+					${0}
 				</div>
 				${0}
 			</div>
-			`), this.getSyncStatusClassName(), this.getLogoIconClass(), BX.util.htmlspecialchars(this.connection.getConnectionName()), syncTime, this.disconnectButton);
+		`), this.getSyncStatusClassName(), this.getLogoIconClass(), BX.util.htmlspecialchars(this.connection.getConnectionName()), this.getAccountInfo(syncTime), this.getActionButton());
+	  }
+	  getAccountInfo(syncTime) {
+	    if (this.connection.status === false && this.provider.getStatus() === 'failed' && this.provider.doSupportReconnectionScenario()) {
+	      const connectionType = main_core.Text.encode(this.provider.getFailedConnectionName());
+	      return main_core.Tag.render(_t3$6 || (_t3$6 = _$6`
+				<div class="calendar-sync__account-info calendar-sync__account-info-template-reconnection">
+					<div class="calendar-sync__account-info--icon --animate"></div>
+					${0}
+				</div>
+			`), main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR_RECONNECT', {
+	        '#TYPE#': connectionType === 'iCloud' ? 'iCloud' : main_core.Text.capitalize(connectionType)
+	      }));
+	    }
+	    return main_core.Tag.render(_t4$6 || (_t4$6 = _$6`
+			<div class="calendar-sync__account-info">
+				<div class="calendar-sync__account-info--icon --animate"></div>
+				${0}
+			</div>
+		`), syncTime);
 	  }
 	  getActiveConnectionContent() {
-	    return main_core.Tag.render(_t3$7 || (_t3$7 = _$7`
+	    this.disconnectButton = this.getDisconnectButton();
+	    return main_core.Tag.render(_t5$5 || (_t5$5 = _$6`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
 				<div class="calendar-sync-header">
 					<span class="calendar-sync-header-text">${0}</span>
@@ -1048,16 +976,89 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 						</div>
 					</div>
 				</div>
+				<div class="calendar-sync__disconnect-button-container">
+					${0}
+				</div>
 			</div>
-		`), this.getHeaderTitle(), this.getContentActiveBody());
+		`), this.getHeaderTitle(), this.getContentActiveBody(), this.disconnectButton);
+	  }
+	  getActionButton() {
+	    if (this.connection.status === false && this.provider.getStatus() === 'failed' && this.provider.doSupportReconnectionScenario()) {
+	      this.actionButton = main_core.Tag.render(_t6$4 || (_t6$4 = _$6`
+				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+					<div class="ui-icon-set --refresh-4"></div>
+					${0}
+					<div class="calendar-sync__account-counter">${0}</div>
+				</button>
+			`), main_core.Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT'), this.COUNTER_FAILED);
+	      main_core.Event.bind(this.actionButton, 'click', () => this.reconnect());
+	    } else if (this.provider.getStatus() === 'pending') {
+	      this.actionButton = main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
+				<button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round calendar-sync__account-btn">
+					<div class="calendar-sync__account-counter">${0}</div>
+				</button>
+			`), this.COUNTER_FAILED);
+	    } else {
+	      const {
+	        root,
+	        icon
+	      } = main_core.Tag.render(_t8$1 || (_t8$1 = _$6`
+				<button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+					<div ref="icon" class="ui-icon-set --refresh-4"></div>
+					${0}
+				</button>
+			`), main_core.Loc.getMessage('CAL_REFRESH'));
+	      this.actionButton = root;
+	      this.actionButtonIcon = icon;
+	      main_core.Event.bind(this.actionButton, 'click', () => this.updateConnection());
+	    }
+	    return this.actionButton;
+	  }
+	  updateConnection() {
+	    if (this.IS_UPDATING) {
+	      return;
+	    }
+	    this.onUpdateConnectionStart();
+	    return new Promise(resolve => {
+	      BX.ajax.runAction('calendar.api.syncajax.updateConnection', {
+	        data: {
+	          type: 'user',
+	          requestUid: calendar_util.Util.registerRequestId()
+	        }
+	      }).then(response => {
+	        main_core_events.EventEmitter.emit('BX.Calendar.Sync.Interface.InterfaceTemplate:onRefresh', {
+	          data: response.data,
+	          event: {
+	            doRefreshMainSlider: true
+	          }
+	        });
+	        this.onUpdateConnectionEnd();
+	        resolve();
+	      });
+	    });
+	  }
+	  onUpdateConnectionStart() {
+	    this.IS_UPDATING = true;
+	    main_core.Dom.addClass(this.actionButtonIcon, '--hidden');
+	    main_core.Dom.addClass(this.actionButton, 'ui-btn-clock');
+	    main_core.Dom.addClass(this.disconnectButton, 'ui-btn-disabled');
+	    main_core.Dom.addClass(this.sectionListNode, '--disabled');
+	  }
+	  onUpdateConnectionEnd() {
+	    this.IS_UPDATING = false;
+	    main_core.Dom.removeClass(this.actionButtonIcon, '--hidden');
+	    main_core.Dom.removeClass(this.actionButton, 'ui-btn-clock');
+	    main_core.Dom.removeClass(this.disconnectButton, 'ui-btn-disabled');
+	    main_core.Dom.removeClass(this.sectionListNode, '--disabled');
+	    this.provider.closeSlider();
 	  }
 	  getContentInfoBody() {
-	    return main_core.Tag.render(_t4$7 || (_t4$7 = _$7`
+	    return main_core.Tag.render(_t9$1 || (_t9$1 = _$6`
 			${0}
 		`), this.getContentInfoBodyHeader());
 	  }
 	  getContentActiveBody() {
-	    return main_core.Tag.render(_t5$6 || (_t5$6 = _$7`
+	    return main_core.Tag.render(_t10$1 || (_t10$1 = _$6`
 			${0}
 			${0}
 			${0}
@@ -1065,12 +1066,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  showHelp(event) {
 	    if (top.BX.Helper) {
-	      top.BX.Helper.show("redirect=detail&code=" + this.helpdeskCode);
+	      top.BX.Helper.show(`redirect=detail&code=${this.helpdeskCode}`);
 	      event.preventDefault();
 	    }
 	  }
 	  getHelpdeskLink() {
-	    return 'https://helpdesk.bitrix24.ru/open/' + this.helpdeskCode;
+	    return `https://helpdesk.bitrix24.ru/open/${this.helpdeskCode}`;
 	  }
 	  getHeaderTitle() {
 	    return this.title;
@@ -1080,7 +1081,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getContentInfoBodyHeader() {
 	    if (!this.infoBodyHeader) {
-	      this.infoBodyHeader = main_core.Tag.render(_t6$4 || (_t6$4 = _$7`
+	      this.infoBodyHeader = main_core.Tag.render(_t11$1 || (_t11$1 = _$6`
 				<div class="calendar-sync-slider-section calendar-sync-slider-section-flex-wrap">
 					<div class="calendar-sync-slider-header-icon ${0}"></div>
 					<div class="calendar-sync-slider-header">
@@ -1100,7 +1101,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.infoBodyHeader;
 	  }
 	  getContentInfoBodyHeaderHelper() {
-	    return main_core.Tag.render(_t7$3 || (_t7$3 = _$7`
+	    return main_core.Tag.render(_t12 || (_t12 = _$6`
 			<div class="calendar-sync-slider-info">
 				<span class="calendar-sync-slider-info-text">
 					<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${0}">
@@ -1117,18 +1118,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    } else {
 	      main_core.Event.bind(mobileSyncButton, 'click', this.handleMobileButtonConnectClick.bind(this));
 	    }
-	    return main_core.Tag.render(_t8$1 || (_t8$1 = _$7`
-				<div class="calendar-sync-slider-section-warning calendar-sync-slider-section-col">
-					<div class="ui-alert ui-alert-warning ui-alert-icon-info">
-						<span class="ui-alert-message">${0}
-						</span>
-					</div>
-					<div class="calendar-sync-button-warning">${0}</div>
+	    return main_core.Tag.render(_t13 || (_t13 = _$6`
+			<div class="calendar-sync-slider-section-warning calendar-sync-slider-section-col">
+				<div class="ui-alert ui-alert-warning ui-alert-icon-info">
+					<span class="ui-alert-message">${0}
+					</span>
 				</div>
-			`), this.warningText, mobileSyncButton);
+				<div class="calendar-sync-button-warning">${0}</div>
+			</div>
+		`), this.warningText, mobileSyncButton);
 	  }
 	  getMobileSyncControlButton() {
-	    return main_core.Tag.render(_t9$1 || (_t9$1 = _$7`
+	    return main_core.Tag.render(_t14 || (_t14 = _$6`
 			<button class="ui-btn ui-btn-success ui-btn-sm ui-btn-round">
 				${0}
 			</button>
@@ -1159,44 +1160,66 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	  }
 	  refresh(connection) {
+	    var _this$statusBlock2;
 	    this.connection = connection;
 	    if (this.connection) {
-	      this.statusBlock.setStatus(this.connection.getStatus()).setConnections([this.connection]);
+	      var _this$statusBlock;
+	      (_this$statusBlock = this.statusBlock) == null ? void 0 : _this$statusBlock.setStatus(this.connection.getStatus()).setConnections([this.connection]);
 	    }
-	    main_core.Dom.replace(document.getElementById('status-info-block'), this.statusBlock.getContent());
+	    main_core.Dom.replace(document.getElementById('status-info-block'), (_this$statusBlock2 = this.statusBlock) == null ? void 0 : _this$statusBlock2.getContent());
+	  }
+	  reconnect() {
+	    if (!this.provider.doSupportReconnectionScenario()) {
+	      return;
+	    }
+	    this.provider.startReconnecting();
+	    this.handleConnectButton();
+	    this.provider.closeSlider();
 	  }
 	  handleConnectButton() {}
 	  getDisconnectButton() {
-	    return main_core.Tag.render(_t10$1 || (_t10$1 = _$7`
-			<button class="ui-btn ui-btn-light-border calendar-sync__account-btn">${0}</button>
+	    // <button class="ui-btn ui-btn-primary ui-btn-round calendar-sync__account-btn">
+	    // 	<div class="ui-icon-set --refresh-4"></div>
+	    // 	${Loc.getMessage('CAL_SYNC_DISCONNECT_BUTTON')}
+	    // 	<div class="calendar-sync__account-counter">${this.COUNTER_FAILED}</div>
+	    // </button>
+	    //
+	    // <button class="ui-btn ui-btn-primary ui-btn-clock ui-btn-round">${Loc.getMessage('CAL_SYNC_DISCONNECT_BUTTON')}</button>
+	    const button = main_core.Tag.render(_t15 || (_t15 = _$6`
+			<button class="ui-btn ui-btn-light-border ui-btn-round calendar-sync__account-btn">
+				${0}
+			</button>
 		`), main_core.Loc.getMessage('CAL_SYNC_DISCONNECT_BUTTON'));
+	    main_core.Event.bind(button, 'click', this.handleDisconnectButton.bind(this));
+	    return button;
 	  }
 	  getSyncStatusClassName() {
-	    return this.provider.getStatus() === "success" ? '--complete' : '--error';
+	    return this.provider.getStatus() === 'success' || this.connection.status === true ? '--complete' : this.provider.doSupportReconnectionScenario() ? '--error-reconnect' : '--error';
 	  }
 	  getContentActiveBodySectionsHeader() {
-	    return main_core.Tag.render(_t11 || (_t11 = _$7`
+	    return main_core.Tag.render(_t16 || (_t16 = _$6`
 			<div class="calendar-sync__account-desc">${0}</div>
 		`), main_core.Loc.getMessage('CAL_SYNC_SELECTED_LIST_TITLE'));
 	  }
 	  getContentActiveBodySectionsManager() {
-	    return main_core.Tag.render(_t12 || (_t12 = _$7`
+	    this.sectionListNode = main_core.Tag.render(_t17 || (_t17 = _$6`
 			<div class="calendar-sync__account-check-list">
 				${0}
 			</div>
 		`), this.getContentActiveBodySections());
+	    return this.sectionListNode;
 	  }
 	  getContentActiveBodySections() {
 	    const sectionList = [];
 	    this.sectionList.forEach(section => {
-	      sectionList.push(main_core.Tag.render(_t13 || (_t13 = _$7`
+	      sectionList.push(main_core.Tag.render(_t18 || (_t18 = _$6`
 				<label class="calendar-sync__account-check-list-label">
 					<input type="checkbox" class="calendar-sync__account-check-list-input"
 						value="${0}" 
 						onclick="${0}" ${0}/>
 					<span class="calendar-sync__account-check-list-text">${0}</span>
 				</label>
-			`), BX.util.htmlspecialchars(section['ID']), this.onClickCheckSection.bind(this), section['ACTIVE'] === 'Y' ? 'checked' : '', BX.util.htmlspecialchars(section['NAME'])));
+			`), BX.util.htmlspecialchars(section.ID), this.onClickCheckSection.bind(this), section.ACTIVE === 'Y' ? 'checked' : '', BX.util.htmlspecialchars(section.NAME)));
 	    });
 	    return sectionList;
 	  }
@@ -1229,15 +1252,23 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	InterfaceTemplate.SLIDER_WIDTH = 606;
 	InterfaceTemplate.SLIDER_PREFIX = 'calendar:connection-sync-';
 
-	let _$8 = t => t,
-	  _t$8,
-	  _t2$8;
+	let _$7 = t => t,
+	  _t$7,
+	  _t2$7;
 	class CaldavInterfaceTemplate extends InterfaceTemplate {
 	  constructor(options) {
 	    super(options);
 	  }
 	  getContentInfoBody() {
-	    const formObject = new ConnectionControls();
+	    let options = null;
+	    if (this.connection !== null) {
+	      options = {
+	        server: this.connection.addParams.server,
+	        userName: this.connection.addParams.userName,
+	        connectionName: this.connection.connectionName
+	      };
+	    }
+	    const formObject = new ConnectionControls(options);
 	    const formBlock = formObject.getWrapper();
 	    const form = formObject.getForm();
 	    const button = formObject.getAddButton();
@@ -1251,7 +1282,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    main_core.Dom.append(button, buttonWrapper);
 	    main_core.Dom.append(buttonWrapper, form);
 	    main_core.Dom.append(form, formBlock);
-	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
+	    return main_core.Tag.render(_t$7 || (_t$7 = _$7`
 			${0}
 			${0}
 		`), bodyHeader, formBlock);
@@ -1266,7 +1297,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    const form = formObject.getForm();
 	    const bodyHeader = this.getContentActiveBodyHeader();
 	    main_core.Dom.append(form, formBlock);
-	    return main_core.Tag.render(_t2$8 || (_t2$8 = _$8`
+	    return main_core.Tag.render(_t2$7 || (_t2$7 = _$7`
 			${0}
 			${0}
 		`), bodyHeader, formBlock);
@@ -1316,6 +1347,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	    messageBox.show();
 	  }
+	  handleConnectButton() {
+	    this.provider.openInfoConnectionSlider(this.provider.getFirstFailedConnection());
+	  }
 	}
 
 	class CaldavTemplate extends CaldavInterfaceTemplate {
@@ -1337,11 +1371,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$9 = t => t,
-	  _t$9,
-	  _t2$9,
-	  _t3$8,
-	  _t4$8;
+	let _$8 = t => t,
+	  _t$8,
+	  _t2$8,
+	  _t3$7,
+	  _t4$7;
 	class ExchangeTemplate extends InterfaceTemplate {
 	  constructor(provider, connection = null) {
 	    super({
@@ -1361,7 +1395,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	  }
 	  getContentActiveBody() {
-	    return main_core.Tag.render(_t$9 || (_t$9 = _$9`
+	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
 			${0}
 			${0}
 			${0}
@@ -1370,7 +1404,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  getContentActiveBodyHeader() {
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
 	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t2$9 || (_t2$9 = _$9`
+	    return main_core.Tag.render(_t2$8 || (_t2$8 = _$8`
 			<div class="calendar-sync__account ${0}">
 				<div class="calendar-sync__account-logo">
 					<div class="calendar-sync__account-logo--image ${0}"></div>
@@ -1386,14 +1420,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 			`), this.getSyncStatusClassName(), this.getLogoIconClass(), BX.util.htmlspecialchars(this.connection.getConnectionName()), syncTime);
 	  }
 	  getContentBody() {
-	    return main_core.Tag.render(_t3$8 || (_t3$8 = _$9`
+	    return main_core.Tag.render(_t3$7 || (_t3$7 = _$8`
 			<div class="calendar-sync__account-desc">
 				${0}
 			</div>
 		`), main_core.Loc.getMessage('CAL_EXCHANGE_SELECTED_DESCRIPTION'));
 	  }
 	  getHelpdeskBlock() {
-	    return main_core.Tag.render(_t4$8 || (_t4$8 = _$9`
+	    return main_core.Tag.render(_t4$7 || (_t4$7 = _$8`
 			<div>
 				<a class="calendar-sync-slider-info-link" href="javascript:void(0);" onclick="${0}">
 					${0}
@@ -1403,26 +1437,26 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$a = t => t,
-	  _t$a,
-	  _t2$a,
-	  _t3$9,
-	  _t4$9,
-	  _t5$7,
+	let _$9 = t => t,
+	  _t$9,
+	  _t2$9,
+	  _t3$8,
+	  _t4$8,
+	  _t5$6,
 	  _t6$5,
 	  _t7$4,
 	  _t8$2,
 	  _t9$2,
 	  _t10$2,
-	  _t11$1,
+	  _t11$2,
 	  _t12$1,
 	  _t13$1,
-	  _t14,
-	  _t15;
+	  _t14$1,
+	  _t15$1;
 	class SyncWizard extends main_core_events.EventEmitter {
 	  // in ms
 
-	  constructor() {
+	  constructor(options = {}) {
 	    super();
 	    this.TYPE = 'undefined';
 	    this.SLIDER_NAME = 'calendar:sync-wizard-slider';
@@ -1439,32 +1473,42 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.pullWizardEventHandler = this.handlePullNewEvent.bind(this);
 	    this.lastUpdateStateTimestamp = Date.now();
 	    this.logoIconClass = '';
+	    this.mode = main_core.Type.isStringFilled(options.mode) ? this.getValidatedMode(options.mode) : 'default';
+	  }
+	  getValidatedMode(mode) {
+	    if (['default', 'reconnect'].includes(mode)) {
+	      return mode;
+	    }
+	    return 'default';
 	  }
 	  openSlider() {
-	    BX.SidePanel.Instance.open(this.SLIDER_NAME, {
-	      contentCallback: slider => {
-	        return new Promise((resolve, reject) => {
-	          resolve(this.getContent());
-	        });
-	      },
-	      allowChangeHistory: false,
-	      events: {
-	        onLoad: () => {
-	          this.displaySyncStages();
-	          this.bindButtonsHandlers();
+	    const content = this.getContent();
+	    if (this.mode !== 'reconnect') {
+	      BX.SidePanel.Instance.open(this.SLIDER_NAME, {
+	        contentCallback: slider => {
+	          return new Promise((resolve, reject) => {
+	            resolve(content);
+	          });
 	        },
-	        onDestroy: this.handleCloseWizard.bind(this)
-	      },
-	      cacheable: false,
-	      width: this.SLIDER_WIDTH,
-	      loader: this.LOADER_NAME
-	    });
+	        allowChangeHistory: false,
+	        events: {
+	          onLoad: () => {
+	            this.displaySyncStages();
+	            this.bindButtonsHandlers();
+	          },
+	          onDestroy: this.handleCloseWizard.bind(this)
+	        },
+	        cacheable: false,
+	        width: this.SLIDER_WIDTH,
+	        loader: this.LOADER_NAME
+	      });
+	    }
 	    this.slider = BX.SidePanel.Instance.getTopSlider();
 	    this.syncIsFinished = false;
 	    this.errorStatus = false;
 	  }
 	  getContent() {
-	    return main_core.Tag.render(_t$a || (_t$a = _$a`
+	    return main_core.Tag.render(_t$9 || (_t$9 = _$9`
 			<div class="calendar-sync__wrapper calendar-sync__scope">
 				<div class="calendar-sync__content --border-radius">
 					<div class="calendar-sync__content-block --space-bottom">
@@ -1481,7 +1525,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 		`), this.getTitleWrapper(), this.getSyncStagesWrapper(), this.getInfoStatusWrapper(), this.getErrorWrapper(), this.getFinalCheckWrapper(), this.getHelpLinkWrapper(), this.getButtonWrapper());
 	  }
 	  getTitleWrapper() {
-	    this.syncTitleWrapper = main_core.Tag.render(_t2$a || (_t2$a = _$a`
+	    this.syncTitleWrapper = main_core.Tag.render(_t2$9 || (_t2$9 = _$9`
 			<div class="calendar-sync__account">
 				<div class="calendar-sync__account-logo">
 					<div class="calendar-sync__account-logo--image ${0}"></div>
@@ -1498,11 +1542,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.syncTitleWrapper;
 	  }
 	  getSyncStagesWrapper() {
-	    this.syncStagesWrapper = main_core.Tag.render(_t3$9 || (_t3$9 = _$a`<div class="calendar-sync-stages-wrap"></div>`));
+	    this.syncStagesWrapper = main_core.Tag.render(_t3$8 || (_t3$8 = _$9`<div class="calendar-sync-stages-wrap"></div>`));
 	    return this.syncStagesWrapper;
 	  }
 	  getInfoStatusWrapper() {
-	    this.infoStatusWrapper = main_core.Tag.render(_t4$9 || (_t4$9 = _$a`
+	    this.infoStatusWrapper = main_core.Tag.render(_t4$8 || (_t4$8 = _$9`
 			<div class="calendar-sync__content-block --space-bottom-xl" style="display: none;">
 				<div class="calendar-sync__notification">
 					<div class="calendar-sync__notification-title">${0}</div>
@@ -1513,7 +1557,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.infoStatusWrapper;
 	  }
 	  getErrorWrapper() {
-	    this.errorWrapper = main_core.Tag.render(_t5$7 || (_t5$7 = _$a`
+	    this.errorWrapper = main_core.Tag.render(_t5$6 || (_t5$6 = _$9`
 			<div class="calendar-sync__content-block --space-bottom-xl" style="display: none;">
 				<div class="calendar-sync__error">
 					<div class="calendar-sync__notification-message">
@@ -1527,19 +1571,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.errorWrapper;
 	  }
 	  getHelpLinkWrapper() {
-	    this.helpLinkWrapper = main_core.Tag.render(_t6$5 || (_t6$5 = _$a`
+	    this.helpLinkWrapper = main_core.Tag.render(_t6$5 || (_t6$5 = _$9`
 			<div class="calendar-sync__content-block" style="display: none;"></div>
 		`));
 	    return this.helpLinkWrapper;
 	  }
 	  getFinalCheckWrapper() {
-	    this.finalCheckWrapper = main_core.Tag.render(_t7$4 || (_t7$4 = _$a`
+	    this.finalCheckWrapper = main_core.Tag.render(_t7$4 || (_t7$4 = _$9`
 			<div class="calendar-sync__content-block" style="display: none;"></div>
 		`));
 	    return this.finalCheckWrapper;
 	  }
 	  getButtonWrapper() {
-	    this.buttonWrapper = main_core.Tag.render(_t8$2 || (_t8$2 = _$a`
+	    this.buttonWrapper = main_core.Tag.render(_t8$2 || (_t8$2 = _$9`
 			<div style="display: none" class="calendar-sync__content-block --align-center">
 				<a class="ui-btn ui-btn-lg ui-btn-primary ui-btn-round" data-role="continue_btn">
 					${0}
@@ -1555,13 +1599,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.buttonWrapper;
 	  }
 	  getNewEventCardWrapper() {
-	    this.newEventCardWrapper = main_core.Tag.render(_t9$2 || (_t9$2 = _$a`
+	    this.newEventCardWrapper = main_core.Tag.render(_t9$2 || (_t9$2 = _$9`
 			<div class="calendar-sync__content-block --space-bottom" style="display: none;"></div>
 		`));
 	    return this.newEventCardWrapper;
 	  }
 	  getSkeletonWrapper() {
-	    this.skeletonWrapper = main_core.Tag.render(_t10$2 || (_t10$2 = _$a`
+	    this.skeletonWrapper = main_core.Tag.render(_t10$2 || (_t10$2 = _$9`
 			<div class="calendar-sync__content-block --space-bottom">
 					<div class="calendar-sync__balloon --skeleton">
 						<div class="calendar-sync__balloon__skeleton-box">
@@ -1584,7 +1628,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    const alreadyConnected = Object.values(this.connectionsProviders).filter(item => {
 	      return item.mainPanel && item.status;
 	    }).length > 0;
-	    return main_core.Tag.render(_t11$1 || (_t11$1 = _$a`
+	    return main_core.Tag.render(_t11$2 || (_t11$2 = _$9`
 			<div class="calendar-sync__content-text --icon-check${0}">
 				${0}
 			</div>
@@ -1592,7 +1636,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAccountNameNode() {
 	    if (!main_core.Type.isElementNode(this.accountNameNode)) {
-	      this.accountNameNode = main_core.Tag.render(_t12$1 || (_t12$1 = _$a`
+	      this.accountNameNode = main_core.Tag.render(_t12$1 || (_t12$1 = _$9`
 			<div class="calendar-sync__account-title">${0}</div>
 		`), this.getAccountName());
 	    }
@@ -1606,7 +1650,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getActiveStatusNode() {
 	    if (!main_core.Type.isElementNode(this.activeStatusNode)) {
-	      this.activeStatusNode = main_core.Tag.render(_t13$1 || (_t13$1 = _$a`
+	      this.activeStatusNode = main_core.Tag.render(_t13$1 || (_t13$1 = _$9`
 				<span class="calendar-active-status-node-carousel">
 					<span class="calendar-active-status-node-phrase">
 						${0}
@@ -1646,7 +1690,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  animateNextStatus(carousel, phraseText) {
 	    const currentPhraseNode = carousel.firstElementChild;
-	    const nextPhraseNode = main_core.Tag.render(_t14 || (_t14 = _$a`
+	    const nextPhraseNode = main_core.Tag.render(_t14$1 || (_t14$1 = _$9`
 			<span class="calendar-active-status-node-phrase">${0}</span>
 		`), phraseText);
 	    carousel.append(nextPhraseNode);
@@ -1856,7 +1900,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    const timeFrom = calendar_util.Util.formatTime(from.getHours(), from.getMinutes());
 	    const timeTo = calendar_util.Util.formatTime(to.getHours(), to.getMinutes());
 	    const timeField = entry.isFullDay() ? main_core.Loc.getMessage('CAL_WIZARD_FULL_DAY') : timeFrom + ' - ' + timeTo;
-	    this.newEventCard = main_core.Tag.render(_t15 || (_t15 = _$a`
+	    this.newEventCard = main_core.Tag.render(_t15$1 || (_t15$1 = _$9`
 			<div class="calendar-sync__balloon --calendar ${0}">
 				<div class="calendar-sync__content-text">
 					${0}
@@ -1938,8 +1982,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$b = t => t,
-	  _t$b;
+	let _$a = t => t,
+	  _t$a;
 	class SyncStageUnit {
 	  constructor(options) {
 	    this.name = options.name || '';
@@ -1953,7 +1997,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    main_core_events.EventEmitter.emit('BX.Calendar.Sync.Interface.SyncStageUnit:onRenderDone');
 	  }
 	  getContent() {
-	    this.contentNode = main_core.Tag.render(_t$b || (_t$b = _$b`
+	    this.contentNode = main_core.Tag.render(_t$a || (_t$a = _$a`
 			<div class="calendar-sync__content-block --space-bottom-xl">
 				<div class="calendar-sync__content-text --icon-check --disabled">${0}</div>
 			</div>
@@ -1961,22 +2005,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.contentNode;
 	  }
 	  setDone() {
+	    var _this$contentNode;
 	    this.doneStatus = true;
-	    main_core.Dom.removeClass(this.contentNode.querySelector('.--icon-check'), '--disabled');
+	    main_core.Dom.removeClass((_this$contentNode = this.contentNode) == null ? void 0 : _this$contentNode.querySelector('.--icon-check'), '--disabled');
 	  }
 	  setUndone() {
+	    var _this$contentNode2;
 	    this.doneStatus = false;
-	    main_core.Dom.addClass(this.contentNode.querySelector('.--icon-check'), '--disabled');
+	    main_core.Dom.addClass((_this$contentNode2 = this.contentNode) == null ? void 0 : _this$contentNode2.querySelector('.--icon-check'), '--disabled');
 	  }
 	}
 
-	let _$c = t => t,
-	  _t$c,
-	  _t2$b,
-	  _t3$a;
+	let _$b = t => t,
+	  _t$b,
+	  _t2$a,
+	  _t3$9;
 	class GoogleSyncWizard extends SyncWizard {
-	  constructor() {
-	    super();
+	  constructor(options = {}) {
+	    super(options);
 	    this.TYPE = 'google';
 	    this.SLIDER_NAME = 'calendar:sync-wizard-google';
 	    this.STAGE_1_CODE = 'google-to-b24';
@@ -1989,24 +2035,24 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.logoIconClass = '--google';
 	  }
 	  getHelpLinkWrapper() {
-	    let link;
-	    this.helpLinkWrapper = main_core.Tag.render(_t$c || (_t$c = _$c`
+	    let link = '';
+	    this.helpLinkWrapper = main_core.Tag.render(_t$b || (_t$b = _$b`
 			<div class="calendar-sync__content-block --align-center --space-bottom" style="display: none;">
 				${0}
 			</div>
-		`), link = main_core.Tag.render(_t2$b || (_t2$b = _$c`<a href="#" class="calendar-sync__content-link">
+		`), link = main_core.Tag.render(_t2$a || (_t2$a = _$b`<a href="#" class="calendar-sync__content-link">
 					${0}
 				</a>`), main_core.Loc.getMessage('CAL_SYNC_NO_GOOGLE_ON_PHONE')));
 	    main_core.Event.bind(link, 'click', () => {
 	      const helper = calendar_util.Util.getBX().Helper;
 	      if (helper) {
-	        helper.show("redirect=detail&code=" + this.GOOGLE_ON_MOBILE_HELPDESK);
+	        helper.show(`redirect=detail&code=${this.GOOGLE_ON_MOBILE_HELPDESK}`);
 	      }
 	    });
 	    return this.helpLinkWrapper;
 	  }
 	  getFinalCheckWrapper() {
-	    this.finalCheckWrapper = main_core.Tag.render(_t3$a || (_t3$a = _$c`
+	    this.finalCheckWrapper = main_core.Tag.render(_t3$9 || (_t3$9 = _$b`
 			<div style="display: none;">
 				<div class="calendar-sync__content-block --space-bottom">
 					<div class="calendar-sync__balloon --progress">
@@ -2045,9 +2091,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      } else if (stateData.stage === 'export_finished') {
 	        stage.setDone();
 	        if (stage.name === this.STAGE_3_CODE) {
-	          this.setActiveStatusFinished();
-	          this.showButtonWrapper();
-	          this.showInfoStatusWrapper();
+	          if (this.mode === 'reconnecting') {
+	            this.handleCloseWizard();
+	          } else {
+	            this.setActiveStatusFinished();
+	            this.showButtonWrapper();
+	            this.showInfoStatusWrapper();
+	          }
 	          this.showConfetti();
 	          this.emit('onConnectionCreated');
 	        }
@@ -2094,7 +2144,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.provider.saveConnection();
 	      this.openSyncWizard();
 	      this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
+	      this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SYNCHRONIZING);
 	      this.provider.getInterfaceUnit().refreshButton();
+	      if (this.provider.isReconnecting()) {
+	        this.provider.emit('onReconnecting');
+	      }
 	      main_core.Event.unbind(window, 'hashchange', this.handleSuccessConnectionDebounce);
 	      main_core.Event.unbind(window, 'message', this.handleSuccessConnectionDebounce);
 	    }
@@ -2143,12 +2197,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    if (this.provider.hasSetSyncGoogleSettings()) {
 	      this.createConnection();
 	    } else {
+	      this.provider.endReconnecting();
 	      this.showAlertPopup();
 	    }
 	  }
 	  openSyncWizard() {
 	    if (!this.wizard) {
-	      this.wizard = new GoogleSyncWizard();
+	      const mode = this.provider.isStartedReconnecting ? 'reconnect' : 'default';
+	      this.wizard = new GoogleSyncWizard({
+	        mode
+	      });
 	      this.wizard.openSlider();
 	      this.provider.setActiveWizard(this.wizard);
 	    }
@@ -2158,18 +2216,18 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$d = t => t,
-	  _t$d,
-	  _t2$c,
-	  _t3$b,
-	  _t4$a,
-	  _t5$8,
+	let _$c = t => t,
+	  _t$c,
+	  _t2$b,
+	  _t3$a,
+	  _t4$9,
+	  _t5$7,
 	  _t6$6,
 	  _t7$5,
 	  _t8$3,
 	  _t9$3,
 	  _t10$3,
-	  _t11$2;
+	  _t11$3;
 	class IcloudAuthDialog extends main_core_events.EventEmitter {
 	  constructor(options = {}) {
 	    super();
@@ -2286,7 +2344,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    cancelButton.setDisabled(false);
 	  }
 	  getContainer() {
-	    this.DOM.container = main_core.Tag.render(_t$d || (_t$d = _$d`
+	    this.DOM.container = main_core.Tag.render(_t$c || (_t$c = _$c`
 			<div>
 				${0}
 				<div class="calendar-sync__auth-popup--row" id="calendar-apple-id-block">
@@ -2311,7 +2369,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppleInfoBlock() {
 	    if (!this.DOM.appleInfo) {
-	      this.DOM.appleInfo = main_core.Tag.render(_t2$c || (_t2$c = _$d`
+	      this.DOM.appleInfo = main_core.Tag.render(_t2$b || (_t2$b = _$c`
 				<div class="calendar-sync__auth-popup--info">
 					<div class="calendar-sync__auth-popup--logo-image --icloud"></div>
 					<div class="calendar-sync__auth-popup--logo-text">${0}</div>
@@ -2322,7 +2380,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppleIdTitle() {
 	    if (!this.DOM.appleIdTitle) {
-	      this.DOM.appleIdTitle = main_core.Tag.render(_t3$b || (_t3$b = _$d`
+	      this.DOM.appleIdTitle = main_core.Tag.render(_t3$a || (_t3$a = _$c`
 			<p class="calendar-sync__auth-popup--label-text">
 				${0}
 			</p>
@@ -2332,7 +2390,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppPasswordTitle() {
 	    if (!this.DOM.appPasswordTitle) {
-	      this.DOM.appPasswordTitle = main_core.Tag.render(_t4$a || (_t4$a = _$d`
+	      this.DOM.appPasswordTitle = main_core.Tag.render(_t4$9 || (_t4$9 = _$c`
 				<p class="calendar-sync__auth-popup--label-text">
 					${0}
 				</p>
@@ -2342,7 +2400,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppleIdError() {
 	    if (!this.DOM.appleIdError) {
-	      this.DOM.appleIdError = main_core.Tag.render(_t5$8 || (_t5$8 = _$d`
+	      this.DOM.appleIdError = main_core.Tag.render(_t5$7 || (_t5$7 = _$c`
 				<div class="calendar-sync__auth-popup--label-text --error">
 					${0}
 				</div>
@@ -2352,7 +2410,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppPasswordError() {
 	    if (!this.DOM.appPasswordError) {
-	      this.DOM.appPasswordError = main_core.Tag.render(_t6$6 || (_t6$6 = _$d`
+	      this.DOM.appPasswordError = main_core.Tag.render(_t6$6 || (_t6$6 = _$c`
 				<div class="calendar-sync__auth-popup--label-text --error">
 					${0}
 				</div>
@@ -2369,7 +2427,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppleIdInput() {
 	    if (!this.DOM.appleIdInput) {
-	      this.DOM.appleIdInput = main_core.Tag.render(_t7$5 || (_t7$5 = _$d`
+	      this.DOM.appleIdInput = main_core.Tag.render(_t7$5 || (_t7$5 = _$c`
 				<input
 					type="text"
 					placeholder="${0}"
@@ -2393,7 +2451,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getAppPasswordInput() {
 	    if (!this.DOM.appPasswordInput) {
-	      this.DOM.appPasswordInput = main_core.Tag.render(_t8$3 || (_t8$3 = _$d`
+	      this.DOM.appPasswordInput = main_core.Tag.render(_t8$3 || (_t8$3 = _$c`
 				<input
 					type="password"
 					placeholder="${0}"
@@ -2407,7 +2465,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getShowHidePasswordIcon() {
 	    if (!this.DOM.showHidePasswordIcon) {
-	      this.DOM.showHidePasswordIcon = main_core.Tag.render(_t9$3 || (_t9$3 = _$d`
+	      this.DOM.showHidePasswordIcon = main_core.Tag.render(_t9$3 || (_t9$3 = _$c`
 				<div class="ui-ctl-after calendar-sync__auth-popup--icon-adjust-password"></div>
 			`));
 	      main_core.Event.bind(this.DOM.showHidePasswordIcon, 'click', this.switchPasswordVisibility.bind(this));
@@ -2416,7 +2474,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getLearnMoreButton() {
 	    if (!this.DOM.learnMoreButton) {
-	      this.DOM.learnMoreButton = main_core.Tag.render(_t10$3 || (_t10$3 = _$d`
+	      this.DOM.learnMoreButton = main_core.Tag.render(_t10$3 || (_t10$3 = _$c`
 				<span class="calendar-sync__auth-popup--learn-more">${0}</span>
 			`), main_core.Loc.getMessage('CAL_ICLOUD_AUTH_APPPASS_ABOUT'));
 	      main_core.Event.bind(this.DOM.learnMoreButton, 'click', this.openHelpDesk.bind(this));
@@ -2425,7 +2483,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  initAlertBlock() {
 	    if (!this.DOM.alertBlock) {
-	      this.DOM.alertBlock = main_core.Tag.render(_t11$2 || (_t11$2 = _$d`
+	      this.DOM.alertBlock = main_core.Tag.render(_t11$3 || (_t11$3 = _$c`
 				<div class="ui-alert ui-alert-danger calendar-sync__auth-error">
 	                <span class="ui-alert-message">${0}</span>
 				</div>
@@ -2525,11 +2583,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$e = t => t,
-	  _t$e;
+	let _$d = t => t,
+	  _t$d;
 	class IcloudSyncWizard extends SyncWizard {
-	  constructor() {
-	    super();
+	  constructor(options = {}) {
+	    super(options);
 	    this.TYPE = 'icloud';
 	    this.SLIDER_NAME = 'calendar:sync-wizard-icloud';
 	    this.STAGE_1_CODE = 'icloud-to-b24';
@@ -2544,7 +2602,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return '';
 	  }
 	  getFinalCheckWrapper() {
-	    this.finalCheckWrapper = main_core.Tag.render(_t$e || (_t$e = _$e`
+	    this.finalCheckWrapper = main_core.Tag.render(_t$d || (_t$d = _$d`
 			<div style="display: none;">
 				<div class="calendar-sync__content-block --space-bottom">
 					<div class="calendar-sync__balloon --progress">
@@ -2583,9 +2641,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      } else if (stateData.stage === 'export_finished') {
 	        stage.setDone();
 	        if (stage.name === this.STAGE_3_CODE) {
-	          this.setActiveStatusFinished();
-	          this.showButtonWrapper();
-	          this.showInfoStatusWrapper();
+	          if (this.mode === 'reconnecting') {
+	            this.handleCloseWizard();
+	          } else {
+	            this.setActiveStatusFinished();
+	            this.showButtonWrapper();
+	            this.showInfoStatusWrapper();
+	          }
 	          this.showConfetti();
 	          this.emit('onConnectionCreated');
 	        }
@@ -2597,8 +2659,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$f = t => t,
-	  _t$f;
+	let _$e = t => t,
+	  _t$e;
 	class WarnSyncIcloudDialog {
 	  constructor(options = {}) {
 	    this.zIndex = 3100;
@@ -2639,7 +2701,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.popup.show();
 	  }
 	  getContainer() {
-	    this.DOM.container = main_core.Tag.render(_t$f || (_t$f = _$f`
+	    this.DOM.container = main_core.Tag.render(_t$e || (_t$e = _$e`
 			<div>
 				${0}
 			</div>
@@ -2701,6 +2763,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.sectionList = [];
 	  }
 	  createConnection(data) {
+	    this.provider.setWizardSyncMode(true);
+	    this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SYNCHRONIZING);
 	    BX.ajax.runAction('calendar.api.syncajax.createIcloudConnection', {
 	      data: {
 	        appleId: data.appleId,
@@ -2710,7 +2774,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      const result = response.data;
 	      if (result.status === 'success' && result.connectionId) {
 	        this.openSyncWizard(data.appleId);
-	        this.syncCalendarsWithIcloud(result.connectionId);
+	        void this.syncCalendarsWithIcloud(result.connectionId);
 	      }
 	    }, () => {
 	      this.authDialog.showErrorAuthorizationAlert();
@@ -2725,6 +2789,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        }
 	      }).then(response => {
 	        this.provider.setStatus(this.provider.STATUS_SUCCESS);
+	        this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SUCCESS);
 	        if (connectionId) {
 	          this.provider.getConnection().setId(connectionId);
 	          this.provider.getConnection().setStatus(true);
@@ -2785,7 +2850,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  openSyncWizard(appleId) {
 	    this.provider.setWizardSyncMode(true);
-	    this.wizard = new IcloudSyncWizard();
+	    const mode = this.provider.isStartedReconnecting ? 'reconnect' : 'default';
+	    this.wizard = new IcloudSyncWizard({
+	      mode
+	    });
 	    this.wizard.openSlider();
 	    this.provider.setActiveWizard(this.wizard);
 	    main_core_events.EventEmitter.subscribeOnce('BX.Calendar.Sync.Interface.SyncStageUnit:onRenderDone', () => {
@@ -2801,11 +2869,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$g = t => t,
-	  _t$g;
+	let _$f = t => t,
+	  _t$f;
 	class Office365SyncWizard extends SyncWizard {
-	  constructor() {
-	    super();
+	  constructor(options = {}) {
+	    super(options);
 	    this.TYPE = 'office365';
 	    this.SLIDER_NAME = 'calendar:sync-wizard-office365';
 	    this.STAGE_1_CODE = 'office365-to-b24';
@@ -2820,7 +2888,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return '';
 	  }
 	  getFinalCheckWrapper() {
-	    this.finalCheckWrapper = main_core.Tag.render(_t$g || (_t$g = _$g`
+	    this.finalCheckWrapper = main_core.Tag.render(_t$f || (_t$f = _$f`
 			<div style="display: none;">
 				<div class="calendar-sync__content-block --space-bottom">
 					<div class="calendar-sync__balloon --progress">
@@ -2858,9 +2926,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        stage.setDone();
 	      } else if (stateData.stage === 'export_finished') {
 	        stage.setDone();
-	        this.setActiveStatusFinished();
-	        this.showButtonWrapper();
-	        this.showInfoStatusWrapper();
+	        if (this.mode === 'reconnecting') {
+	          this.handleCloseWizard();
+	        } else {
+	          this.setActiveStatusFinished();
+	          this.showButtonWrapper();
+	          this.showInfoStatusWrapper();
+	        }
 	        this.showConfetti();
 	        this.emit('onConnectionCreated');
 	      }
@@ -2905,7 +2977,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.provider.saveConnection();
 	      this.openSyncWizard();
 	      this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
+	      this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SYNCHRONIZING);
 	      this.provider.getInterfaceUnit().refreshButton();
+	      if (this.provider.isReconnecting()) {
+	        this.provider.emit('onReconnecting');
+	      }
 	      main_core.Event.unbind(window, 'hashchange', this.handleSuccessConnectionDebounce);
 	    }
 	  }
@@ -2922,7 +2998,10 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    }
 	  }
 	  openSyncWizard() {
-	    this.wizard = new Office365SyncWizard();
+	    const mode = this.provider.isStartedReconnecting ? 'reconnect' : 'default';
+	    this.wizard = new Office365SyncWizard({
+	      mode
+	    });
 	    this.wizard.openSlider();
 	    this.provider.setActiveWizard(this.wizard);
 	  }
@@ -2966,12 +3045,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$h = t => t,
-	  _t$h,
-	  _t2$d,
-	  _t3$c,
-	  _t4$b,
-	  _t5$9,
+	let _$g = t => t,
+	  _t$g,
+	  _t2$c,
+	  _t3$b,
+	  _t4$a,
+	  _t5$8,
 	  _t6$7;
 	class MacTemplate extends InterfaceTemplate {
 	  constructor(provider, connection = null) {
@@ -3002,13 +3081,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.portalAddress;
 	  }
 	  getContentInfoBody() {
-	    return main_core.Tag.render(_t$h || (_t$h = _$h`
+	    return main_core.Tag.render(_t$g || (_t$g = _$g`
 			${0}
 			${0}
 		`), this.getContentInfoBodyHeader(), this.getContentInfoWarning());
 	  }
 	  getActiveConnectionContent() {
-	    return main_core.Tag.render(_t2$d || (_t2$d = _$h`
+	    return main_core.Tag.render(_t2$c || (_t2$c = _$g`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
 				<div class="calendar-sync-header">
 					<span class="calendar-sync-header-text">${0}</span>
@@ -3018,7 +3097,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 		`), this.getHeaderTitle(), this.getContentActiveBody());
 	  }
 	  getContentActiveBody() {
-	    return main_core.Tag.render(_t3$c || (_t3$c = _$h`
+	    return main_core.Tag.render(_t3$b || (_t3$b = _$g`
 			${0}
 			<div class="calendar-sync-slider-section calendar-sync-slider-section-banner">
 				${0}
@@ -3028,7 +3107,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  getContentActiveBodyHeader() {
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
 	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t4$b || (_t4$b = _$h`
+	    return main_core.Tag.render(_t4$a || (_t4$a = _$g`
 			<div class="calendar-sync-slider-section">
 				<div class="calendar-sync-slider-header-icon ${0}"></div>
 				<div class="calendar-sync-slider-header">
@@ -3043,7 +3122,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getContentInfoBodyHeaderHelper() {
 	    if (!this.headerHelper) {
-	      this.headerHelper = main_core.Tag.render(_t5$9 || (_t5$9 = _$h`
+	      this.headerHelper = main_core.Tag.render(_t5$8 || (_t5$8 = _$g`
 				<div class="calendar-sync-slider-info">
 					<span class="calendar-sync-slider-info-text">
 						<a class="calendar-sync-slider-info-link">
@@ -3061,7 +3140,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    main_core.Dom.append(this.getContentBodyConnect(), this.infoBodyHeader);
 	  }
 	  getContentBodyConnect() {
-	    return main_core.Tag.render(_t6$7 || (_t6$7 = _$h`
+	    return main_core.Tag.render(_t6$7 || (_t6$7 = _$g`
 			<div class="calendar-sync-slider-section calendar-sync-slider-section-col">
 				<div class="calendar-sync-slider-header calendar-sync-slider-header-divide">
 					<div class="calendar-sync-slider-subtitle">${0}</div>
@@ -3169,12 +3248,14 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$i = t => t,
-	  _t$i,
-	  _t2$e,
-	  _t3$d,
-	  _t4$c,
-	  _t5$a;
+	let _$h = t => t,
+	  _t$h,
+	  _t2$d,
+	  _t3$c,
+	  _t4$b,
+	  _t5$9,
+	  _t6$8,
+	  _t7$6;
 	class MobileInterfaceTemplate extends InterfaceTemplate {
 	  constructor(options) {
 	    super(options);
@@ -3187,68 +3268,87 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    }
 	  }
 	  getContentInfoBody() {
-	    return main_core.Tag.render(_t$i || (_t$i = _$i`
+	    return main_core.Tag.render(_t$h || (_t$h = _$h`
 			${0}
 			${0}
 		`), this.getContentInfoBodyHeader(), this.getContentInfoWarning());
 	  }
 	  getContentInfoBodyHeaderHelper() {
 	    if (!this.headerHelper) {
-	      this.headerHelper = main_core.Tag.render(_t2$e || (_t2$e = _$i`
+	      this.headerHelper = main_core.Tag.render(_t2$d || (_t2$d = _$h`
 				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">
-						<a class="calendar-sync-slider-info-link">
-							${0}
-						</a>
-					</span>
+					${0}
 				</div>
-			`), main_core.Loc.getMessage('CAL_CONNECT_PHONE'));
-	      main_core.Event.bind(this.headerHelper, 'click', this.showMobileSyncBanner.bind(this));
+			`), this.getContentInfoBodyHeaderHelperConnect());
 	    }
 	    return this.headerHelper;
 	  }
+	  getContentInfoBodyHeaderHelperConnect() {
+	    if (!this.headerHelperConnect) {
+	      this.headerHelperConnect = main_core.Tag.render(_t3$c || (_t3$c = _$h`
+				<div class="calendar-sync-slider-info-text">
+					<a class="calendar-sync-slider-info-link">
+						${0}
+					</a>
+				</div>
+			`), main_core.Loc.getMessage('CAL_CONNECT_PHONE'));
+	      main_core.Event.bind(this.headerHelperConnect, 'click', this.showMobileSyncBanner.bind(this));
+	    }
+	    return this.headerHelperConnect;
+	  }
 	  showMobileSyncBanner() {
-	    this.headerHelper.style.display = 'none';
-	    main_core.Dom.append(this.getContentBodyConnect(), this.infoBodyHeader);
+	    this.banner.show();
 	  }
 	  getContentActiveBody() {
-	    return main_core.Tag.render(_t3$d || (_t3$d = _$i`
+	    return main_core.Tag.render(_t4$b || (_t4$b = _$h`
+			${0}			
 			${0}
-			<div class="calendar-sync-slider-section calendar-sync-slider-section-banner">
-				${0}
-			</div>
-		`), this.getContentActiveBodyHeader(), this.getContentBodyConnect());
+		`), this.getContentActiveBodyHeader(), this.getContentInfoWarning());
 	  }
 	  getContentActiveBodyHeader() {
 	    const timestamp = this.connection.getSyncDate().getTime() / 1000;
 	    const syncTime = timestamp ? calendar_util.Util.formatDateUsable(timestamp) + ' ' + BX.date.format(calendar_util.Util.getTimeFormatShort(), timestamp) : '';
-	    return main_core.Tag.render(_t4$c || (_t4$c = _$i`
+	    return main_core.Tag.render(_t5$9 || (_t5$9 = _$h`
 			<div class="calendar-sync-slider-section">
 				<div class="calendar-sync-slider-header-icon ${0}"></div>
 				<div class="calendar-sync-slider-header">
-				<div class="calendar-sync-slider-title">${0}</div>
-				<div class="calendar-sync-slider-info">
-					<span class="calendar-sync-slider-info-text">${0}</span>
-					<span class="calendar-sync-slider-info-time">${0}</span>
+					<div class="calendar-sync-slider-title">${0}</div>
+					<div class="calendar-sync-slider-info">
+						<span class="calendar-sync-slider-info-text">${0}</span>
+						<span class="calendar-sync-slider-info-time">${0}</span>
+					</div>
+					<div class="calendar-sync-slider-desc">${0}</div>
+					${0}
 				</div>
-				<div class="calendar-sync-slider-desc">${0}</div>
-					<a class="calendar-sync-slider-link" href="javascript:void(0);" onclick="${0}">${0}</a>
-				</div>
-			</div>`), this.sliderIconClass, this.titleActiveHeader, main_core.Loc.getMessage('CAL_SYNC_LAST_SYNC_DATE'), syncTime, main_core.Loc.getMessage('CAL_SYNC_DISABLE'), this.showHelp.bind(this), main_core.Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC'));
-	  }
-	  getContentBodyConnect() {
-	    this.banner.initQrCode().then(this.banner.drawQRCode.bind(this.banner));
-	    return this.banner.getContainer();
+			</div>`), this.sliderIconClass, this.titleActiveHeader, main_core.Loc.getMessage('CAL_SYNC_LAST_SYNC_DATE'), syncTime, main_core.Loc.getMessage('CAL_SYNC_DISABLE'), this.getContentInfoBodyHeaderHelper());
 	  }
 	  getActiveConnectionContent() {
-	    return main_core.Tag.render(_t5$a || (_t5$a = _$i`
+	    return main_core.Tag.render(_t6$8 || (_t6$8 = _$h`
 			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
-				<div class="calendar-sync-header">
+				<div class="calendar-sync-header" style="justify-content: start;">
 					<span class="calendar-sync-header-text">${0}</span>
+					${0}
 				</div>
 				${0}
 			</div>
-		`), this.getHeaderTitle(), this.getContentActiveBody());
+		`), this.getHeaderTitle(), this.getHeaderHint(), this.getContentActiveBody());
+	  }
+	  getInfoConnectionContent() {
+	    return main_core.Tag.render(_t7$6 || (_t7$6 = _$h`
+			<div class="calendar-sync-wrap calendar-sync-wrap-detail">
+				<div class="calendar-sync-header" style="justify-content: start;">
+					<span class="calendar-sync-header-text">${0}</span>
+					${0}
+				</div>
+				${0}
+			</div>
+		`), this.getHeaderTitle(), this.getHeaderHint(), this.getContentInfoBody());
+	  }
+	  getHeaderHint() {
+	    var _this$hintNode;
+	    (_this$hintNode = this.hintNode) != null ? _this$hintNode : this.hintNode = BX.UI.Hint.createNode(main_core.Loc.getMessage('CAL_TEXT_ABOUT_WORK_SYNC'));
+	    main_core.Event.bind(this.hintNode, 'click', this.showHelp.bind(this));
+	    return this.hintNode;
 	  }
 	}
 
@@ -3356,9 +3456,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	}
 
-	let _$j = t => t,
-	  _t$j,
-	  _t2$f;
+	let _$i = t => t,
+	  _t$i,
+	  _t2$e;
 	var _showSuccessCopyNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSuccessCopyNotification");
 	var _showFailedCopyNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showFailedCopyNotification");
 	var _showResultNotification = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showResultNotification");
@@ -3393,7 +3493,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	  }
 	  getContent() {
-	    return main_core.Tag.render(_t$j || (_t$j = _$j`
+	    return main_core.Tag.render(_t$i || (_t$i = _$i`
 			<div class="calendar-ical-popup-wrapper">
 				<h3>${0}</h3>
 				<div class="calendar-ical-popup-label-text"><span>${0}</span></div>
@@ -3433,7 +3533,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return options.calendarPath + (options.calendarPath.indexOf('?') >= 0 ? '&' : '?') + 'action=export' + options.sectionLink;
 	  }
 	  getLinkBlock() {
-	    return main_core.Tag.render(_t2$f || (_t2$f = _$j`
+	    return main_core.Tag.render(_t2$e || (_t2$e = _$i`
 				<div class="calendar-ical-popup-link-block">
 					<a class="ui-link ui-link-primary " target="_blank" href="${0}">
 						${0}
@@ -3537,5 +3637,5 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	exports.Office365template = Office365template;
 	exports.IcloudAuthDialog = IcloudAuthDialog;
 
-}((this.BX.Calendar.Sync.Interface = this.BX.Calendar.Sync.Interface || {}),BX,BX,BX.Calendar.Sync.Manager,BX.Calendar,BX,BX,BX.Event,BX.UI.Dialogs,BX,BX.Calendar,BX.Main));
+}((this.BX.Calendar.Sync.Interface = this.BX.Calendar.Sync.Interface || {}),BX,BX,BX,BX.Calendar.Sync.Manager,BX.UI,BX.Calendar,BX,BX,BX.Event,BX.UI.Dialogs,BX,BX.Calendar,BX.Main));
 //# sourceMappingURL=syncinterface.bundle.js.map

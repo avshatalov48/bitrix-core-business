@@ -1,4 +1,4 @@
-<?
+<?php
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
@@ -219,8 +219,6 @@ if(
 	&& check_bitrix_sessid()
 )
 {
-	$adminSidePanelHelper->decodeUriComponent();
-
 	$DB->StartTransaction();
 	$bs = new CIBlockSection;
 
@@ -531,10 +529,10 @@ if(
 		{
 			if ($bAutocomplete)
 			{
-				?><script type="text/javascript">
-				window.opener.<? echo $strLookup; ?>.AddValue(<? echo $ID;?>);
+				?><script>
+				window.opener.<?= $strLookup; ?>.AddValue(<?= $ID; ?>);
 				window.close();
-				</script><?
+				</script><?php
 				CMain::FinalActions();
 			}
 			elseif($return_url <> '')
@@ -572,7 +570,7 @@ if(
 						"nobuttons" => "Y",
 					)
 				);
-				?><script type="text/javascript">
+				?><script>
 						top.BX.ajax.post('<?=CUtil::JSEscape($url); ?>',
 							{},
 							function (result) {
@@ -582,7 +580,7 @@ if(
 							}
 						);
 					</script>';
-				<?
+				<?php
 				CMain::FinalActions();
 			}
 			else
@@ -766,9 +764,8 @@ $tabControl->BeginPrologContent();
 		border-color:rgba(0,0,0,0.05) rgba(204,213,215,1) rgba(207,216,217,1) rgba(207,216,218,1);
 	}
 </style>
-<?
-if(method_exists($USER_FIELD_MANAGER, 'showscript'))
-	echo $USER_FIELD_MANAGER->ShowScript();
+<?php
+echo $USER_FIELD_MANAGER->ShowScript();
 CAdminCalendar::ShowScript();
 if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && $bFileman)
 {
@@ -796,8 +793,8 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 {
 	CJSCore::Init(array('translit'));
 	?>
-	<script type="text/javascript">
-		var linked=<?if($bLinked) echo 'true'; else echo 'false';?>;
+	<script>
+		var linked=<?= ($bLinked ? 'true' : 'false'); ?>;
 		function set_linked()
 		{
 			linked=!linked;
@@ -837,12 +834,12 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 				if(from && to && oldValue != from.value)
 				{
 					BX.translit(from.value, {
-						'max_len' : <?echo intval($arTranslit['TRANS_LEN'])?>,
-						'change_case' : '<?echo $arTranslit['TRANS_CASE']?>',
-						'replace_space' : '<?echo $arTranslit['TRANS_SPACE']?>',
-						'replace_other' : '<?echo $arTranslit['TRANS_OTHER']?>',
-						'delete_repeat_replace' : <?echo $arTranslit['TRANS_EAT'] == 'Y'? 'true': 'false'?>,
-						'use_google' : <?echo $arTranslit['USE_GOOGLE'] == 'Y'? 'true': 'false'?>,
+						'max_len' : <?= (int)$arTranslit['TRANS_LEN']; ?>,
+						'change_case' : '<?= $arTranslit['TRANS_CASE']; ?>',
+						'replace_space' : '<?= $arTranslit['TRANS_SPACE']; ?>',
+						'replace_other' : '<?= $arTranslit['TRANS_OTHER']; ?>',
+						'delete_repeat_replace' : <?= ($arTranslit['TRANS_EAT'] === 'Y'? 'true': 'false'); ?>,
+						'use_google' : <?= ($arTranslit['USE_GOOGLE'] === 'Y' ? 'true': 'false'); ?>,
 						'callback' : function(result){to.value = result; setTimeout('transliterate()', 250);}
 					});
 					oldValue = from.value;
@@ -859,13 +856,13 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 		}
 		transliterate();
 	</script>
-	<?
+	<?php
 }
 ?>
-<script type="text/javascript">
+<script>
 	var InheritedPropertiesTemplates = new JCInheritedPropertiesTemplates(
-		'<?echo $tabControl->GetName()?>_form',
-		'<?=$selfFolderUrl?>iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?echo $IBLOCK_ID;?>&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
+		'<?= $tabControl->GetName(); ?>_form',
+		'<?=$selfFolderUrl?>iblock_templates.ajax.php?ENTITY_TYPE=S&IBLOCK_ID=<?= $IBLOCK_ID; ?>&ENTITY_ID=<?= (int)$ID; ?>&bxpublic=y'
 	);
 	BX.ready(function(){
 		setTimeout(function(){
@@ -873,20 +870,23 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 		}, 1000);
 	});
 </script>
-<?
+<?php
 
 $tabControl->EndPrologContent();
 
 $tabControl->BeginEpilogContent();
 ?>
 <?=bitrix_sessid_post()?>
-<?echo GetFilterHiddens("find_");?>
-<input type="hidden" name="linked_state" id="linked_state" value="<?if($bLinked) echo 'Y'; else echo 'N';?>">
+<?= GetFilterHiddens("find_"); ?>
+<input type="hidden" name="linked_state" id="linked_state" value="<?= ($bLinked ? 'Y' : 'N'); ?>">
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="ID" value="<?echo $ID?>">
-<?if($return_url <> ''):?>
+<input type="hidden" name="ID" value="<?= $ID; ?>">
+<?php
+if($return_url <> ''):
+	?>
 	<input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>">
-<?endif;
+	<?php
+endif;
 
 $tabControl->EndEpilogContent();
 $customTabber->SetErrorState($bVarsFromForm);
@@ -907,24 +907,27 @@ $tabControl->Begin(array(
 	"FORM_ACTION" => $urlBuilder->getSectionSaveUrl(null, $arEditLinkParams)
 ));
 $tabControl->BeginNextFormTab();
-?>
-	<?$tabControl->BeginCustomField("ID", "ID:");?>
-<?if($ID>0):?>
-	<tr>
-		<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-		<td width="60%"><?echo $str_ID?></td>
-	</tr>
-<?endif;?>
-	<?$tabControl->EndCustomField("ID", '');?>
 
-	<?$tabControl->BeginCustomField("DATE_CREATE", GetMessage("IBSEC_E_CREATED"));?>
-<?if($ID>0):?>
-		<?if($str_DATE_CREATE <> ''):?>
+$tabControl->BeginCustomField("ID", "ID:");
+if ($ID>0):
+	?>
+	<tr>
+		<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+		<td width="60%"><?= $str_ID; ?></td>
+	</tr>
+<?php
+endif;
+$tabControl->EndCustomField("ID", '');
+
+$tabControl->BeginCustomField("DATE_CREATE", GetMessage("IBSEC_E_CREATED"));
+if($ID>0):
+		if($str_DATE_CREATE <> ''):
+			?>
 			<tr>
-				<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-				<td width="60%"><?echo $str_DATE_CREATE?><?
+				<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+				<td width="60%"><?= $str_DATE_CREATE; ?><?php
 				if(intval($str_CREATED_BY)>0):
-					?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_CREATED_BY?>"><?echo $str_CREATED_BY?></a>]<?
+					?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_CREATED_BY?>"><?= $str_CREATED_BY; ?></a>]<?php
 					$rsUser = CUser::GetByID($str_CREATED_BY);
 					$arUser = $rsUser->Fetch();
 					if($arUser):
@@ -933,17 +936,19 @@ $tabControl->BeginNextFormTab();
 				endif;
 				?></td>
 			</tr>
-		<?endif;?>
-<?endif;?>
-	<?$tabControl->EndCustomField("DATE_CREATE", '');?>
+			<?php
+		endif;
+endif;
+$tabControl->EndCustomField("DATE_CREATE", '');
 
-	<?$tabControl->BeginCustomField("TIMESTAMP_X", GetMessage("IBSEC_E_LAST_UPDATE"));?>
-<?if($ID>0):?>
+$tabControl->BeginCustomField("TIMESTAMP_X", GetMessage("IBSEC_E_LAST_UPDATE"));
+if($ID>0):
+	?>
 	<tr>
-		<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-		<td width="60%"><?echo $str_TIMESTAMP_X?><?
+		<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+		<td width="60%"><?= $str_TIMESTAMP_X; ?><?php
 		if(intval($str_MODIFIED_BY)>0):
-			?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_MODIFIED_BY?>"><?echo $str_MODIFIED_BY?></a>]<?
+			?>&nbsp;&nbsp;&nbsp;[<a href="user_edit.php?lang=<?=LANGUAGE_ID?>&amp;ID=<?=$str_MODIFIED_BY?>"><?= $str_MODIFIED_BY?></a>]<?php
 			if(intval($str_CREATED_BY) != intval($str_MODIFIED_BY))
 			{
 				$rsUser = CUser::GetByID($str_MODIFIED_BY);
@@ -954,10 +959,11 @@ $tabControl->BeginNextFormTab();
 			endif;
 		endif?></td>
 	</tr>
-<?endif;?>
-	<?$tabControl->EndCustomField("TIMESTAMP_X", '');?>
+	<?php
+endif;
 
-<?
+$tabControl->EndCustomField("TIMESTAMP_X", '');
+
 $tabControl->AddCheckBoxField(
 	'ACTIVE',
 	GetMessage('IBSEC_E_ACTIVE'),
@@ -971,20 +977,32 @@ $tabControl->AddCheckBoxField(
 
 $tabControl->BeginCustomField("IBLOCK_SECTION_ID", GetMessage("IBSEC_E_PARENT_SECTION").":");?>
 	<tr>
-		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
+		<td><?= $tabControl->GetCustomLabelHTML(); ?></td>
 		<td>
-		<?$l = CIBlockSection::GetTreeList(Array("IBLOCK_ID"=>$IBLOCK_ID), array("ID", "NAME", "DEPTH_LEVEL"));?>
+		<?php
+		$l = CIBlockSection::GetTreeList(Array("IBLOCK_ID"=>$IBLOCK_ID), array("ID", "NAME", "DEPTH_LEVEL"));
+		$l = CIBlockSection::GetTreeList(
+			['IBLOCK_ID' => $IBLOCK_ID],
+			[
+				'ID',
+				'NAME',
+				'DEPTH_LEVEL',
+			]
+		);
+		?>
 		<select name="IBLOCK_SECTION_ID" >
-			<option value="0"><?echo GetMessage("IBLOCK_UPPER_LEVEL")?></option>
-		<?
+			<option value="0"><?= GetMessage("IBLOCK_UPPER_LEVEL"); ?></option>
+		<?php
 			while($a = $l->Fetch()):
-				?><option value="<?echo intval($a["ID"])?>"<?if($str_IBLOCK_SECTION_ID==$a["ID"])echo " selected"?>><?echo str_repeat(".", $a["DEPTH_LEVEL"])?><?echo htmlspecialcharsbx($a["NAME"])?></option><?
+				$margin = max((int)$a['DEPTH_LEVEL'], 1);
+				?><option value="<?= (int)$a["ID"]; ?>"<?= ($str_IBLOCK_SECTION_ID==$a["ID"] ? ' selected' : ''); ?>><?= str_repeat(".", $margin) . htmlspecialcharsbx($a["NAME"]); ?></option><?php
 			endwhile;
+			unset($a, $l);
 		?>
 		</select>
 		</td>
 	</tr>
-<?
+<?php
 $tabControl->EndCustomField("IBLOCK_SECTION_ID", '<input type="hidden" id="IBLOCK_SECTION_ID" name="IBLOCK_SECTION_ID" value="'.$str_IBLOCK_SECTION_ID.'">');
 
 if($arTranslit["TRANSLITERATION"] == "Y")
@@ -992,12 +1010,12 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 	$tabControl->BeginCustomField("NAME", GetMessage("IBLOCK_FIELD_NAME").":", true);
 	?>
 		<tr id="tr_NAME">
-			<td><?echo $tabControl->GetCustomLabelHTML()?></td>
+			<td><?= $tabControl->GetCustomLabelHTML(); ?></td>
 			<td nowrap>
-				<input type="text" size="70" name="NAME" id="NAME" maxlength="255" value="<?echo $str_NAME?>"><img id="name_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
+				<input type="text" size="70" name="NAME" id="NAME" maxlength="255" value="<?= $str_NAME; ?>"><img id="name_link" title="<?= GetMessage("IBSEC_E_LINK_TIP"); ?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?= ($bLinked ? 'link.gif' : 'unlink.gif'); ?>" onclick="set_linked()" />
 			</td>
 		</tr>
-	<?
+	<?php
 	$tabControl->EndCustomField("NAME",
 		'<input type="hidden" name="NAME" id="NAME" value="'.$str_NAME.'">'
 	);
@@ -1005,13 +1023,13 @@ if($arTranslit["TRANSLITERATION"] == "Y")
 	$tabControl->BeginCustomField("CODE", GetMessage("IBLOCK_FIELD_CODE").":", $arIBlock["FIELDS"]["SECTION_CODE"]["IS_REQUIRED"] === "Y");
 	?>
 		<tr id="tr_CODE">
-			<td><?echo $tabControl->GetCustomLabelHTML()?></td>
+			<td><?= $tabControl->GetCustomLabelHTML(); ?></td>
 			<td nowrap>
 
-				<input type="text" size="70" name="CODE" id="CODE" maxlength="255" value="<?echo $str_CODE?>"><img id="code_link" title="<?echo GetMessage("IBSEC_E_LINK_TIP")?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?if($bLinked) echo 'link.gif'; else echo 'unlink.gif';?>" onclick="set_linked()" />
+				<input type="text" size="70" name="CODE" id="CODE" maxlength="255" value="<?= $str_CODE; ?>"><img id="code_link" title="<?= GetMessage("IBSEC_E_LINK_TIP"); ?>" class="linked" src="/bitrix/themes/.default/icons/iblock/<?= ($bLinked ? 'link.gif' : 'unlink.gif'); ?>" onclick="set_linked()" />
 			</td>
 		</tr>
-	<?
+	<?php
 	$tabControl->EndCustomField("CODE",
 		'<input type="hidden" name="CODE" id="CODE" value="'.$str_CODE.'">'
 	);
@@ -1026,8 +1044,8 @@ if($bVarsFromForm && !array_key_exists("PICTURE", $_REQUEST) && $arSection)
 	$str_PICTURE = intval($arSection["PICTURE"]);
 ?>
 	<tr class="adm-detail-file-row">
-		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
-		<td><?
+		<td><?= $tabControl->GetCustomLabelHTML(); ?></td>
+		<td><?php
 			echo \Bitrix\Main\UI\FileInput::createInstance(array(
 				"name" => "PICTURE",
 				"description" => true,
@@ -1042,27 +1060,29 @@ if($bVarsFromForm && !array_key_exists("PICTURE", $_REQUEST) && $arSection)
 			?>
 		</td>
 	</tr>
-<?
+<?php
 $tabControl->EndCustomField("PICTURE", '');
 
 $tabControl->BeginCustomField("DESCRIPTION", GetMessage("IBSEC_E_DESCRIPTION"), $arIBlock["FIELDS"]["SECTION_DESCRIPTION"]["IS_REQUIRED"] === "Y");
 ?>
 	<tr class="heading">
-		<td colspan="2"><?echo $tabControl->GetCustomLabelHTML()?></td>
+		<td colspan="2"><?= $tabControl->GetCustomLabelHTML(); ?></td>
 	</tr>
 
-	<?if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && $bFileman):?>
+<?php
+if(COption::GetOptionString("iblock", "use_htmledit") === "Y" && $bFileman):?>
 	<tr id="tr_DESCRIPTION_EDITOR">
 		<td colspan="2" align="center">
-			<?CFileMan::AddHTMLEditorFrame(
+			<?php
+			CFileMan::AddHTMLEditorFrame(
 				"DESCRIPTION",
 				$str_DESCRIPTION,
 				"DESCRIPTION_TYPE",
 				$str_DESCRIPTION_TYPE,
-				array(
+				[
 					'height' => 450,
 					'width' => '100%'
-				),
+				],
 				"N",
 				0,
 				"",
@@ -1070,15 +1090,18 @@ $tabControl->BeginCustomField("DESCRIPTION", GetMessage("IBSEC_E_DESCRIPTION"), 
 				$arIBlock["LID"],
 				true,
 				false,
-				array(
+				[
 					'hideTypeSelector' => $arIBlock["FIELDS"]["SECTION_DESCRIPTION_TYPE_ALLOW_CHANGE"]["DEFAULT_VALUE"] === "N",
-				)
-			);?>
+				]
+			);
+			?>
 		</td>
 	</tr>
-	<?else:?>
+	<?php
+else:
+	?>
 	<tr id="tr_DESCRIPTION_TYPE">
-		<td><?echo GetMessage("IBSEC_E_DESC_TYPE")?></td>
+		<td><?= GetMessage("IBSEC_E_DESC_TYPE"); ?></td>
 		<td>
 			<?php
 			$isHtml = $str_DESCRIPTION_TYPE === 'html';
@@ -1096,10 +1119,11 @@ $tabControl->BeginCustomField("DESCRIPTION", GetMessage("IBSEC_E_DESCRIPTION"), 
 	</tr>
 	<tr id="tr_DESCRIPTION">
 		<td colspan="2" align="center">
-			<textarea cols="60" rows="15"  name="DESCRIPTION" style="width:100%"><?echo $str_DESCRIPTION?></textarea>
+			<textarea cols="60" rows="15"  name="DESCRIPTION" style="width:100%"><?= $str_DESCRIPTION; ?></textarea>
 		</td>
 	</tr>
-	<?endif;
+	<?php
+endif;
 $tabControl->EndCustomField("DESCRIPTION",
 	'<input type="hidden" name="DESCRIPTION" value="'.$str_DESCRIPTION.'">'.
 	'<input type="hidden" name="DESCRIPTION_TYPE" value="'.$str_DESCRIPTION_TYPE.'">'
@@ -1111,10 +1135,10 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_SECTION", GetMessage("IBSEC_E_SEO_F
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_META_TITLE", GetMessage("IBSEC_E_SEO_META_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_META_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_META_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))
 );
@@ -1122,47 +1146,44 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_META_TITLE",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_META_KEYWORDS", GetMessage("IBSEC_E_SEO_META_KEYWORDS"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_META_KEYWORDS",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))
 );
-?>
-<?
+
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_META_DESCRIPTION", GetMessage("IBSEC_E_SEO_META_DESCRIPTION"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_META_DESCRIPTION",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))
 );
-?>
-<?
+
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_PAGE_TITLE", GetMessage("IBSEC_E_SEO_SECTION_PAGE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PAGE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_SECTION_OVERWRITE"))
 );
-?>
-<?
+
 $tabControl->AddSection("IPROPERTY_TEMPLATES_ELEMENT", GetMessage("IBSEC_E_SEO_FOR_ELEMENTS"));
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_TITLE", GetMessage("IBSEC_E_SEO_META_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_META_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1170,10 +1191,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_TITLE",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_KEYWORDS", GetMessage("IBSEC_E_SEO_META_KEYWORDS"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_KEYWORDS",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1181,10 +1202,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_KEYWORDS",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_DESCRIPTION", GetMessage("IBSEC_E_SEO_META_DESCRIPTION"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_DESCRIPTION",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1192,10 +1213,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_META_DESCRIPTION",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_PAGE_TITLE", GetMessage("IBSEC_E_SEO_PAGE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PAGE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1204,10 +1225,10 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_SECTIONS_PICTURE", GetMessage("IBSE
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_ALT", GetMessage("IBSEC_E_SEO_FILE_ALT"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_ALT",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1215,10 +1236,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_ALT",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_TITLE", GetMessage("IBSEC_E_SEO_FILE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1226,10 +1247,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_TITLE",
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_NAME", GetMessage("IBSEC_E_SEO_FILE_NAME"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_PICTURE_FILE_NAME",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1238,10 +1259,10 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_SECTIONS_DETAIL_PICTURE", GetMessag
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_ALT", GetMessage("IBSEC_E_SEO_FILE_ALT"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_ALT",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1249,10 +1270,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_ALT
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_TITLE", GetMessage("IBSEC_E_SEO_FILE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1260,10 +1281,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_TIT
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_NAME", GetMessage("IBSEC_E_SEO_FILE_NAME"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_SECTION_DETAIL_PICTURE_FILE_NAME",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "SECTION_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1272,10 +1293,10 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_ELEMENTS_PREVIEW_PICTURE", GetMessa
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_ALT", GetMessage("IBSEC_E_SEO_FILE_ALT"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_ALT",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1283,10 +1304,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_AL
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_TITLE", GetMessage("IBSEC_E_SEO_FILE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1294,10 +1315,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_TI
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_NAME", GetMessage("IBSEC_E_SEO_FILE_NAME"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_PREVIEW_PICTURE_FILE_NAME",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_PREVIEW_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1306,10 +1327,10 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_ELEMENTS_DETAIL_PICTURE", GetMessag
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_ALT", GetMessage("IBSEC_E_SEO_FILE_ALT"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_ALT",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1317,10 +1338,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_ALT
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_TITLE", GetMessage("IBSEC_E_SEO_FILE_TITLE"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE")); ?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_TITLE",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1328,10 +1349,10 @@ $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_TIT
 $tabControl->BeginCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_NAME", GetMessage("IBSEC_E_SEO_FILE_NAME"));
 ?>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo $tabControl->GetCustomLabelHTML()?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
+	<td width="40%"><?= $tabControl->GetCustomLabelHTML(); ?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))?></td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_TEMPLATES_ELEMENT_DETAIL_PICTURE_FILE_NAME",
 	IBlockInheritedPropertyHidden($IBLOCK_ID, "ELEMENT_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E", GetMessage("IBSEC_E_SEO_ELEMENT_OVERWRITE"))
 );
@@ -1340,12 +1361,12 @@ $tabControl->AddSection("IPROPERTY_TEMPLATES_MANAGEMENT", GetMessage("IBSEC_E_SE
 $tabControl->BeginCustomField("IPROPERTY_CLEAR_VALUES", GetMessage("IBSEC_E_SEO_CLEAR_VALUES"));
 ?>
 <tr>
-	<td width="40%"><label for="IPROPERTY_CLEAR_VALUES"><?echo $tabControl->GetCustomLabelHTML()?></label></td>
+	<td width="40%"><label for="IPROPERTY_CLEAR_VALUES"><?= $tabControl->GetCustomLabelHTML(); ?></label></td>
 	<td width="60%">
 		<input type="checkbox" id="IPROPERTY_CLEAR_VALUES" name="IPROPERTY_CLEAR_VALUES" value="Y" />
 	</td>
 </tr>
-<?
+<?php
 $tabControl->EndCustomField("IPROPERTY_CLEAR_VALUES",
 	'<input type="hidden" name="IPROPERTY_CLEAR_VALUES" value="N">'
 );
@@ -1375,8 +1396,8 @@ if($bVarsFromForm && !array_key_exists("DETAIL_PICTURE", $_REQUEST) && $arSectio
 	$str_DETAIL_PICTURE = intval($arSection["DETAIL_PICTURE"]);
 ?>
 	<tr class="adm-detail-file-row">
-		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
-		<td><?
+		<td><?= $tabControl->GetCustomLabelHTML(); ?></td>
+		<td><?php
 			echo \Bitrix\Main\UI\FileInput::createInstance(array(
 				"name" => "DETAIL_PICTURE",
 				"description" => true,
@@ -1391,7 +1412,7 @@ if($bVarsFromForm && !array_key_exists("DETAIL_PICTURE", $_REQUEST) && $arSectio
 			?>
 		</td>
 	</tr>
-<?
+<?php
 $tabControl->EndCustomField("DETAIL_PICTURE", '');
 
 //Add user fields tab only when there is fields defined or user has rights for adding new field
@@ -1416,7 +1437,7 @@ if(
 					<a target="_top" href="<?=$userFieldUrl?>"><?= $tabControl->GetCustomLabelHTML()?></a>
 				</td>
 			</tr>
-		<?
+		<?php
 		$tabControl->EndCustomField("USER_FIELDS_ADD", '');
 	}
 
@@ -1485,11 +1506,11 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 	$tabControl->BeginCustomField("SECTION_PROPERTY", GetMessage("IBSEC_E_SECTION_PROPERTY_FIELD"));
 	?>
 		<tr><td align="right" colspan="2">
-				<a id="modeChangeToTree" href="javascript:setMode(BX('table_SECTION_PROPERTY'), 'tree')"><?echo GetMessage("IBSEC_E_PROP_TREE_MODE");?></a>
-				<a id="modeChangeToFlat" style="display: none;" href="javascript:setMode(BX('table_SECTION_PROPERTY'), 'flat')"><?echo GetMessage("IBSEC_E_PROP_FLAT_MODE");?></a>
+				<a id="modeChangeToTree" href="javascript:setMode(BX('table_SECTION_PROPERTY'), 'tree')"><?= GetMessage("IBSEC_E_PROP_TREE_MODE"); ?></a>
+				<a id="modeChangeToFlat" style="display: none;" href="javascript:setMode(BX('table_SECTION_PROPERTY'), 'flat')"><?= GetMessage("IBSEC_E_PROP_FLAT_MODE"); ?></a>
 		</td></tr>
 		<tr><td align="center" colspan="2">
-			<? echo $editor->getEditorHtml(); ?>
+			<?= $editor->getEditorHtml(); ?>
 			<table class="internal" id="table_SECTION_PROPERTY" style="border-left: none !important; border-right: none !important;">
 			<tr
 				id="tr_HEADING"
@@ -1499,16 +1520,16 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				prop_id="0"
 				left_margin="-1"
 				>
-				<td class="internal-left"><?echo GetMessage("IBSEC_E_PROP_TABLE_NAME");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_CODE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_TYPE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT");?></td>
-				<td class="internal-right"><?echo GetMessage("IBSEC_E_PROP_TABLE_ACTION");?></td>
+				<td class="internal-left"><?= GetMessage("IBSEC_E_PROP_TABLE_NAME"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_CODE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_TYPE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT"); ?></td>
+				<td class="internal-right"><?= GetMessage("IBSEC_E_PROP_TABLE_ACTION"); ?></td>
 			</tr>
-			<?
+			<?php
 			if(CIBlockRights::UserHasRightTo($IBLOCK_ID, $IBLOCK_ID, "iblock_edit"))
 				$arShadow = $arHidden = array(
 					-1 => GetMessage("IBSEC_E_PROP_SELECT_CHOOSE"),
@@ -1548,15 +1569,16 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				$maxMargin = $parent["LEFT_MARGIN"];
 			?>
 				<tr
-					id="tr_PARENT_<?echo $parent["ID"]?>"
+					id="tr_PARENT_<?= $parent['ID']; ?>"
 					mode="tree"
 					prop_sort="0"
 					prop_id="0"
-					left_margin="<?echo $parent["LEFT_MARGIN"];?>"
+					left_margin="<?= $parent['LEFT_MARGIN']; ?>"
 					style="display:none; border:none;"
 					>
 					<td align="left" colspan="4" style="background-color:#f5f9f9; border: none;">
-						<?if ($parent["ID"] > 0)
+						<?php
+						if ($parent['ID'] > 0)
 						{
 							$localUrl = CIBlock::GetAdminSectionEditLink(
 								$IBLOCK_ID,
@@ -1569,8 +1591,8 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 							if (!$adminSidePanelHelper->isPublicFrame())
 								$localUrl = $adminSidePanelHelper->setDefaultQueryParams($localUrl);
 							?>
-							<br><br><a href="<?=$localUrl; ?>"><? echo htmlspecialcharsex($parent["TITLE"]) ?></a>
-							<?
+							<br><br><a href="<?=$localUrl; ?>"><?= htmlspecialcharsex($parent['TITLE']); ?></a>
+							<?php
 						}
 						else
 						{
@@ -1584,31 +1606,31 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 							if (!$adminSidePanelHelper->isPublicFrame())
 								$localUrl = $adminSidePanelHelper->setDefaultQueryParams($localUrl);
 							?>
-							<br><br><a href="<?=$localUrl; ?>"><?echo htmlspecialcharsex($parent["TITLE"])?></a>
-						<?
+							<br><br><a href="<?=$localUrl; ?>"><?= htmlspecialcharsex($parent['TITLE']) ?></a>
+						<?php
 						}
 						?>
 					</td>
 				</tr>
 				<tr
-					id="tr_PARENTHEADER_<?echo $parent["ID"]?>"
+					id="tr_PARENTHEADER_<?= $parent['ID']; ?>"
 					class="heading"
 					mode="tree"
 					prop_sort="1"
 					prop_id="-1"
-					left_margin="<?echo $parent["LEFT_MARGIN"];?>"
+					left_margin="<?= $parent['LEFT_MARGIN']; ?>"
 					style="display:none"
 					>
-					<td class="internal-left"><?echo GetMessage("IBSEC_E_PROP_TABLE_NAME");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_CODE");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_TYPE");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED");?></td>
-					<td><?echo GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT");?></td>
-					<td class="internal-right"><?echo GetMessage("IBSEC_E_PROP_TABLE_ACTION");?></td>
+					<td class="internal-left"><?= GetMessage("IBSEC_E_PROP_TABLE_NAME"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_CODE"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_TYPE"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED"); ?></td>
+					<td><?= GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT"); ?></td>
+					<td class="internal-right"><?= GetMessage("IBSEC_E_PROP_TABLE_ACTION"); ?></td>
 				</tr>
-			<?
+			<?php
 			}
 
 			$rsProps =  CIBlockProperty::GetList(array("SORT"=>"ASC",'ID' => 'ASC'), array("IBLOCK_ID" => $arIBlock["ID"], "CHECK_PERMISSIONS" => "N", "ACTIVE"=>"Y"));
@@ -1634,21 +1656,25 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				unset($propName);
 			?>
 			<tr
-				id="tr_SECTION_PROPERTY_<?echo $arProp["ID"]?>"
-				mode="<?echo (is_array($arLink)? "both": "none");?>"
-				prop_sort="<?echo $arProp["SORT"]?>"
-				prop_id="<?echo $arProp["ID"]?>"
-				left_margin="<?echo is_array($arLink)? $arLink["LEFT_MARGIN"]: $maxMargin;?>"
-				<?if(!is_array($arLink)) echo 'style="display:none"';?>
+				id="tr_SECTION_PROPERTY_<?= $arProp['ID']; ?>"
+				mode="<?= (is_array($arLink) ? 'both' : 'none'); ?>"
+				prop_sort="<?= $arProp['SORT']; ?>"
+				prop_id="<?= $arProp['ID']; ?>"
+				left_margin="<?= (is_array($arLink) ? $arLink["LEFT_MARGIN"] : $maxMargin); ?>"
+				<?= (!is_array($arLink) ? ' style="display:none"' : ''); ?>
 				>
 				<td align="left" class="internal-left">
-					<?if(!is_array($arLink) || $arLink["INHERITED"] == "N"):?>
-					<input type="hidden" name="SECTION_PROPERTY[<?echo $arProp["ID"]?>][SHOW]" id="hidden_SECTION_PROPERTY_<?echo $arProp["ID"]?>" value="<?echo is_array($arLink)? "Y": "N";?>">
-					<?endif?>
-					<?echo htmlspecialcharsex($arProp["NAME"])?>
+				<?php
+				if (!is_array($arLink) || $arLink["INHERITED"] == "N"):
+					?>
+					<input type="hidden" name="SECTION_PROPERTY[<?= $arProp['ID']; ?>][SHOW]" id="hidden_SECTION_PROPERTY_<?= $arProp['ID']; ?>" value="<?= (is_array($arLink) ? 'Y': 'N'); ?>">
+					<?php
+				endif;
+				echo htmlspecialcharsex($arProp["NAME"]);
+				?>
 				</td>
-				<td align="left"><?echo htmlspecialcharsex($arProp["CODE"])?></td>
-				<td align="left"><?
+				<td align="left"><?= htmlspecialcharsex($arProp["CODE"]); ?></td>
+				<td align="left"><?php
 					if($arProp['PROPERTY_TYPE'] == "S" && !$arProp['USER_TYPE'])
 						echo GetMessage("IBLOCK_PROP_S");
 					elseif($arProp['PROPERTY_TYPE'] == "N" && !$arProp['USER_TYPE'])
@@ -1666,11 +1692,11 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					else
 						echo GetMessage("IBSEC_E_PROP_TYPE_S");
 				?></td>
-				<td style="text-align:center"><?
+				<td style="text-align:center"><?php
 					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.(is_array($arLink) && $arLink["SMART_FILTER"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
-					<?
+					<?php
 					$displayTypes = CIBlockSectionPropertyLink::getDisplayTypes($arProp["PROPERTY_TYPE"], $arProp["USER_TYPE"]);
 					if ($displayTypes)
 					{
@@ -1700,11 +1726,11 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					}
 					?>
 				</td>
-				<td style="text-align:center"><?
+				<td style="text-align:center"><?php
 					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] == "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.(is_array($arLink) && $arLink["DISPLAY_EXPANDED"] == "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
-				<?
+				<?php
 					if (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
 						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
@@ -1719,40 +1745,50 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 						echo '&nbsp;';
 					}
 				?></td>
-				<td align="left" class="internal-right"><?
+				<td align="left" class="internal-right"><?php
 					if(!is_array($arLink) || $arLink["INHERITED"] == "N")
 						echo '<a class="bx-action-href" href="javascript:deleteSectionProperty('.$arProp['ID'].', \'select_SECTION_PROPERTY\', \'shadow_SECTION_PROPERTY\', \'table_SECTION_PROPERTY\')">'.GetMessage("IBSEC_E_PROP_TABLE_ACTION_HIDE").'</a>';
 					else
 						echo '&nbsp;';
 				?></td>
 			</tr>
-			<?endwhile?>
+			<?php
+			endwhile;
+			?>
 			<tr
 				id="tr_FOOTER"
-				mode="<?echo ($rows == 0)? 'both': 'none';?>"
-				prop_sort="<?echo $maxSort + 1?>"
+				mode="<?= ($rows == 0 ? 'both': 'none'); ?>"
+				prop_sort="<?= ($maxSort + 1); ?>"
 				prop_id="0"
-				left_margin="<?echo $maxMargin + 1?>"
-				<?echo ($rows == 0)? '': 'style="display:none"';?>
+				left_margin="<?= ($maxMargin + 1); ?>"
+				<?= ($rows == 0 ? '': 'style="display:none"'); ?>
 				>
 				<td align="center" colspan="8">
-					<?echo GetMessage("IBSEC_E_PROP_TABLE_EMPTY")?>
+					<?= GetMessage("IBSEC_E_PROP_TABLE_EMPTY"); ?>
 				</td>
 			</tr>
 			</table><br>
 			<select id="shadow_SECTION_PROPERTY" style="display:none">
-			<?foreach($arShadow as $key => $value):?>
-				<option value="<?echo htmlspecialcharsex($key)?>"><?echo htmlspecialcharsbx($value)?></option>
-			<?endforeach?>
+			<?php
+			foreach($arShadow as $key => $value):
+				?>
+				<option value="<?= htmlspecialcharsex($key); ?>"><?= htmlspecialcharsbx($value); ?></option>
+				<?php
+			endforeach;
+			?>
 			</select>
 			<select id="select_SECTION_PROPERTY">
-			<?foreach($arHidden as $key => $value):?>
-				<option value="<?echo htmlspecialcharsex($key)?>"><?echo htmlspecialcharsbx($value)?></option>
-			<?endforeach?>
+			<?php
+			foreach($arHidden as $key => $value):
+				?>
+				<option value="<?= htmlspecialcharsex($key); ?>"><?= htmlspecialcharsbx($value); ?></option>
+				<?php
+			endforeach;
+			?>
 			</select>
-			<input type="button" value="<?echo GetMessage("IBSEC_E_PROP_TABLE_ACTION_ADD")?>" onclick="javascript:addSectionProperty(<?echo $arIBlock["ID"];?>, 'select_SECTION_PROPERTY', 'shadow_SECTION_PROPERTY', 'table_SECTION_PROPERTY')">
-			<script type="text/javascript">
-			<?echo CIBlockSectionPropertyLink::getDisplayTypesJsFunction();?>
+			<input type="button" value="<?= GetMessage("IBSEC_E_PROP_TABLE_ACTION_ADD"); ?>" onclick="javascript:addSectionProperty(<?= $arIBlock["ID"]; ?>, 'select_SECTION_PROPERTY', 'shadow_SECTION_PROPERTY', 'table_SECTION_PROPERTY')">
+			<script>
+			<?= CIBlockSectionPropertyLink::getDisplayTypesJsFunction(); ?>
 			var last_mode = 'flat';
 			var target_id = '';
 			var target_select_id = '';
@@ -1781,7 +1817,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					target_select_id = select_id;
 					target_shadow_id = shadow_id;
 					(new BX.CAdminDialog({
-						'content_url' : '<?=$selfFolderUrl?>iblock_edit_property.php?lang=<?echo LANGUAGE_ID?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
+						'content_url' : '<?=$selfFolderUrl?>iblock_edit_property.php?lang=<?= LANGUAGE_ID; ?>&IBLOCK_ID='+iblock_id+'&ID=n0&bxpublic=Y&from_module=iblock&return_url=section_edit',
 						'width' : 700,
 						'height' : 400,
 						'buttons': [BX.CAdminDialog.btnSave, BX.CAdminDialog.btnCancel]
@@ -1832,7 +1868,7 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					row.setAttribute('mode', 'both');
 					row.setAttribute('prop_sort', sortnum);
 					row.setAttribute('prop_id', id);
-					row.setAttribute('left_margin', <?echo intval($str_LEFT_MARGIN)?>);
+					row.setAttribute('left_margin', <?= (int)$str_LEFT_MARGIN; ?>);
 
 					var cell, c = 0;
 
@@ -1890,13 +1926,13 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 
 					row.insertCell(-1);
 					cell = row.cells[++c];
-					cell.innerHTML = '<?echo CUtil::JSEscape($editor->getControlHtml('SECTION_PROPERTY[#ID#][FILTER_HINT]', '', 255))?>'.replace('#ID#', id) || '&nbsp;';
+					cell.innerHTML = '<?= CUtil::JSEscape($editor->getControlHtml('SECTION_PROPERTY[#ID#][FILTER_HINT]', '', 255)); ?>'.replace('#ID#', id) || '&nbsp;';
 
 					row.insertCell(-1);
 					cell = row.cells[++c];
 					cell.align = 'left';
 					cell.className = 'internal-right';
-					cell.innerHTML = '<a class="bx-action-href" href="javascript:deleteSectionProperty('+id+', \''+target_select_id+'\', \''+target_shadow_id+'\', \''+target_id+'\')"><?echo GetMessageJS("IBSEC_E_PROP_TABLE_ACTION_HIDE")?></a>';
+					cell.innerHTML = '<a class="bx-action-href" href="javascript:deleteSectionProperty('+id+', \''+target_select_id+'\', \''+target_shadow_id+'\', \''+target_id+'\')"><?= GetMessageJS("IBSEC_E_PROP_TABLE_ACTION_HIDE"); ?></a>';
 
 					setMode(tbl, last_mode);
 					animateTR(row);
@@ -2002,40 +2038,42 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					}
 				}
 			}
-			<?
+			<?php
 			$userSettings = CUserOptions::getOption('iblock', 'section_property');
 			if (isset($userSettings["mode"]) && $userSettings["mode"] === "tree"):
 			?>
 			BX.ready(function(){
 				setMode(BX('table_SECTION_PROPERTY'), 'tree');
 			});
-			<?endif;?>
+			<?php
+			endif;
+			?>
 			</script>
 		</td></tr>
-
-		<?
+		<?php
 		$arCatalog = false;
 		if (Loader::includeModule("catalog"))
+		{
 			$arCatalog = CCatalogSku::GetInfoByProductIBlock($IBLOCK_ID);
-
+		}
 		if (is_array($arCatalog))
 		{
 		?>
 		<tr class="heading">
-			<td align="center" colspan="3"><?echo GetMessage("IBSEC_E_PROP_SKU_SECTION");?></td>
+			<td align="center" colspan="3"><?= GetMessage("IBSEC_E_PROP_SKU_SECTION"); ?></td>
 		</tr>
 		<tr><td align="center" colspan="2">
 			<table class="internal" id="table_SKU_SECTION_PROPERTY">
 			<tr class="heading">
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_NAME");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_CODE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_TYPE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT");?></td>
-				<td><?echo GetMessage("IBSEC_E_PROP_TABLE_ACTION");?></td></tr>
-			<?
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_NAME"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_CODE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_TYPE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_SMART_FILTER"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_TYPE"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_DISPLAY_EXPANDED"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_FILTER_HINT"); ?></td>
+				<td><?= GetMessage("IBSEC_E_PROP_TABLE_ACTION"); ?></td></tr>
+			<?php
 			if(CIBlockRights::UserHasRightTo($arCatalog["IBLOCK_ID"], $arCatalog["IBLOCK_ID"], "iblock_edit"))
 				$arShadow = $arHidden = array(
 					-1 => GetMessage("IBSEC_E_PROP_SELECT_CHOOSE"),
@@ -2077,15 +2115,19 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 				}
 				unset($propName);
 			?>
-			<tr id="tr_SECTION_PROPERTY_<?echo $arProp["ID"]?>" <?if(!is_array($arLink)) echo 'style="display:none"';?>>
+			<tr id="tr_SECTION_PROPERTY_<?= $arProp['ID']; ?>"<?= (!is_array($arLink) ? ' style="display:none"' : ''); ?>>
 				<td align="left">
-					<?if(!is_array($arLink) || $arLink["INHERITED"] == "N"):?>
-					<input type="hidden" name="SECTION_PROPERTY[<?echo $arProp["ID"]?>][SHOW]" id="hidden_SECTION_PROPERTY_<?echo $arProp["ID"]?>" value="<?echo is_array($arLink)? "Y": "N";?>">
-					<?endif?>
-					<?echo htmlspecialcharsex($arProp["NAME"])?>
+				<?php
+				if (!is_array($arLink) || $arLink["INHERITED"] === "N"):
+					?>
+					<input type="hidden" name="SECTION_PROPERTY[<?= $arProp['ID']; ?>][SHOW]" id="hidden_SECTION_PROPERTY_<?= $arProp['ID']; ?>" value="<?= (is_array($arLink)? 'Y': 'N'); ?>">
+					<?php
+				endif;
+				echo htmlspecialcharsex($arProp["NAME"]);
+				?>
 				</td>
-				<td align="left"><?echo htmlspecialcharsex($arProp["CODE"])?></td>
-				<td align="left"><?
+				<td align="left"><?= htmlspecialcharsex($arProp["CODE"]); ?></td>
+				<td align="left"><?php
 					if($arProp['PROPERTY_TYPE'] == "S" && !$arProp['USER_TYPE'])
 						echo GetMessage("IBLOCK_PROP_S");
 					elseif($arProp['PROPERTY_TYPE'] == "N" && !$arProp['USER_TYPE'])
@@ -2103,11 +2145,11 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					else
 						echo GetMessage("IBSEC_E_PROP_TYPE_S");
 				?></td>
-				<td align="center"><?
+				<td align="center"><?php
 					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][SMART_FILTER]" '.(is_array($arLink) && $arLink["SMART_FILTER"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
 				<td>
-					<?
+					<?php
 					$displayTypes = CIBlockSectionPropertyLink::getDisplayTypes($arProp["PROPERTY_TYPE"], $arProp["USER_TYPE"]);
 					if ($displayTypes)
 					{
@@ -2137,10 +2179,10 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 					}
 					?>
 				</td>
-				<td align="center"><?
+				<td align="center"><?php
 					echo '<input type="checkbox" value="Y" '.((is_array($arLink) && $arLink["INHERITED"] === "Y")? 'disabled="disabled"': '').' name="SECTION_PROPERTY['.$arProp['ID'].'][DISPLAY_EXPANDED]" '.(is_array($arLink) && $arLink["DISPLAY_EXPANDED"] === "Y"? 'checked="checked"': '').'>';
 				?></td>
-				<td><?
+				<td><?php
 					if (!is_array($arLink) || $arLink["INHERITED"] == "N")
 					{
 						$filterHint = (is_array($arLink) ? (string)$arLink['FILTER_HINT'] : '');
@@ -2155,36 +2197,44 @@ if($arIBlock["SECTION_PROPERTY"] === "Y")
 						echo '&nbsp;';
 					}
 				?></td>
-				<td align="left"><?
+				<td align="left"><?php
 					if(!is_array($arLink) || $arLink["INHERITED"] == "N")
 						echo '<a class="bx-action-href" href="javascript:deleteSectionProperty('.$arProp['ID'].', \'select_SKU_SECTION_PROPERTY\', \'shadow_SKU_SECTION_PROPERTY\', \'table_SKU_SECTION_PROPERTY\')">'.GetMessage("IBSEC_E_PROP_TABLE_ACTION_HIDE").'</a>';
 					else
 						echo '&nbsp;';
 				?></td>
 			</tr>
-			<?endwhile?>
-			<tr <?echo ($rows == 0)? '': 'style="display:none"';?>>
+			<?php
+			endwhile;
+			?>
+			<tr<?= ($rows == 0 ? '': ' style="display:none"'); ?>>
 				<td align="center" colspan="8">
-					<?echo GetMessage("IBSEC_E_PROP_TABLE_EMPTY")?>
+					<?= GetMessage("IBSEC_E_PROP_TABLE_EMPTY"); ?>
 				</td>
 			</tr>
 			</table>
 			<select id="shadow_SKU_SECTION_PROPERTY" style="display:none">
-			<?foreach($arShadow as $key => $value):?>
-				<option value="<?echo htmlspecialcharsex($key)?>"><?echo htmlspecialcharsbx($value)?></option>
-			<?endforeach?>
+			<?php
+			foreach($arShadow as $key => $value):
+				?>
+				<option value="<?= htmlspecialcharsex($key); ?>"><?= htmlspecialcharsbx($value); ?></option>
+				<?php
+			endforeach;
+			?>
 			</select>
 			<select id="select_SKU_SECTION_PROPERTY">
-			<?foreach($arHidden as $key => $value):?>
-				<option value="<?echo htmlspecialcharsex($key)?>"><?echo htmlspecialcharsbx($value)?></option>
-			<?endforeach?>
+			<?php
+			foreach($arHidden as $key => $value):
+				?>
+				<option value="<?= htmlspecialcharsex($key); ?>"><?= htmlspecialcharsbx($value); ?></option>
+				<?php
+			endforeach;
+			?>
 			</select>
-			<input type="button" value="<?echo GetMessage("IBSEC_E_PROP_TABLE_ACTION_ADD")?>" onclick="javascript:addSectionProperty(<?echo $arCatalog["IBLOCK_ID"];?>, 'select_SKU_SECTION_PROPERTY', 'shadow_SKU_SECTION_PROPERTY', 'table_SKU_SECTION_PROPERTY')">
+			<input type="button" value="<?= GetMessage("IBSEC_E_PROP_TABLE_ACTION_ADD"); ?>" onclick="javascript:addSectionProperty(<?= $arCatalog["IBLOCK_ID"]; ?>, 'select_SKU_SECTION_PROPERTY', 'shadow_SKU_SECTION_PROPERTY', 'table_SKU_SECTION_PROPERTY')">
 		</td></tr>
-			<?
+			<?php
 		}
-		?>
-	<?
 	$tabControl->EndCustomField("SECTION_PROPERTY", '');
 }
 

@@ -26,7 +26,7 @@ define("BX_FILE_CHECKER_REGION_PERSONAL_ROOT", 4);
 define("BX_FILE_CHECKER_REGION_PUBLIC", 8);
 
 if (!defined("START_EXEC_TIME"))
-	define("START_EXEC_TIME", getmicrotime());
+	define("START_EXEC_TIME", microtime(true));
 
 class CFileChecker
 {
@@ -228,7 +228,7 @@ class CFileChecker
 				$arTs["StatNum"]++;
 			}
 
-			if ($arTs["MaxExecutionTime"] > 0 && (getmicrotime() - START_EXEC_TIME > $arTs["MaxExecutionTime"]))
+			if ($arTs["MaxExecutionTime"] > 0 && (microtime(true) - START_EXEC_TIME > $arTs["MaxExecutionTime"]))
 			{
 				$arTs["StartPoint"] = $path."/".$arFiles[$i];
 				return false;
@@ -1203,7 +1203,7 @@ class CFileCheckerUtil
 		$cipher = "";
 		$a = 0;
 		$j = 0;
-		$data_len = defined("BX_UTF")? mb_strlen($data, 'latin1') : mb_strlen($data);
+		$data_len = strlen($data);
 		for ($i = $startPosition; $i < $data_len; $i++)
 		{
 			$a = ($a + 1) % 256;
@@ -1212,9 +1212,7 @@ class CFileCheckerUtil
 			$box[$a] = $box[$j];
 			$box[$j] = $temp;
 			$k = $box[(($box[$a] + $box[$j]) % 256)];
-			$cipherby = ord(
-					defined("BX_UTF")? mb_substr($data, $i, 1, 'latin1') : mb_substr($data, $i, 1)
-			) ^ $k;
+			$cipherby = ord(substr($data, $i, 1)) ^ $k;
 			$cipher .= chr($cipherby);
 		}
 
@@ -1598,7 +1596,7 @@ if ($tabStep > 2)
 
 $tabControl = new CAdminTabControl("tabControl", $arTabs, false, true);
 ?>
-<script language="JavaScript">
+<script>
 <!--
 	function FCPrepareString(str)
 	{
@@ -1690,7 +1688,7 @@ if ($tabStep > 2 && $_REQUEST["action"] == "verify" && $canVerify)
 		</tr>
 		<tr>
 			<td colspan="2">
-				<script language="JavaScript">
+				<script>
 				<!--
 					function CFDeleteLog(ts)
 					{
@@ -1728,7 +1726,7 @@ if ($tabStep > 2 && $_REQUEST["action"] == "verify" && $canVerify)
 					if (count($arFiles) > 0)
 					{
 						?>
-						<script language="JavaScript">
+						<script>
 						<!--
 							function CFTrClick(v)
 							{
@@ -1851,7 +1849,7 @@ if(
 ):
 ?>
 
-	<script language="JavaScript">
+	<script>
 	<!--
 		var updRand = 1;
 		var globalCounter = 0;
@@ -1963,7 +1961,7 @@ if(
 		</td>
 	</tr>
 
-	<script language="JavaScript">
+	<script>
 	<!--
 	var fcProgressBarDiv;
 	var FCPBdone = document.getElementById('FCPBdone');
@@ -2074,7 +2072,7 @@ $tabControl->Buttons();
 <?$tabControl->End();?>
 </form>
 
-<script type="text/javascript">
+<script>
 <!--
 <?if ($tabStep == 1):?>
 	tabControl.SelectTab("tabSign");

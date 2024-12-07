@@ -213,7 +213,7 @@
 
 .intranet-button-list-widget {
 	border: 1px solid #b3b8be;
-	border-radius: 3px 3px 2px 2px;
+	border-radius: var(--ui-border-radius-md, 3px 3px 2px 2px);
 	-moz-box-sizing: border-box;
 	-webkit-box-sizing: border-box;
 	overflow: hidden;

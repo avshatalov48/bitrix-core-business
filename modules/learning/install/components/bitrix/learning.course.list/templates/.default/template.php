@@ -1,5 +1,6 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 
+<?php if (IsModuleInstalled('search')): ?>
 <div style="float: left; padding-top: 2px;"><?=GetMessage("SEARCH_LABEL")?>&nbsp;</div><?$APPLICATION->IncludeComponent(
 	"bitrix:search.form",
 	"flat",
@@ -8,6 +9,7 @@
 	),
 	$component
 );?>
+<?php endif; ?>
 <br />
 <?if (!empty($arResult["COURSES"])):?>
 <div class="learning-course-list">

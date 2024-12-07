@@ -15,10 +15,13 @@ Extension::load([
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'ui.buttons',
+	'ui.sidepanel-content',
 ]);
 
 Asset::getInstance()->addJS('/bitrix/components/bitrix/mail.client.config.dirs/templates/.default/script.js');
 $APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/mail.client.config.dirs/templates/.default/style.css');
+$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
+$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."workarea-transparent no-background");
 
 $mailboxId = isset($arResult['MAILBOX_ID']) ? $arResult['MAILBOX_ID'] : '';
 $maxLevelDirs = isset($arResult['MAX_LEVEL_DIRS']) ? $arResult['MAX_LEVEL_DIRS'] : 0;
@@ -31,60 +34,65 @@ $spam = isset($arResult['SPAM']) ? $arResult['SPAM'] : null;
 
 <form>
 	<div class="mail-connect mail-connect-slider">
-		<div class="mail-config-dirs-title-block">
-			<div class="mail-config-dirs-title"><?php echo Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SYNC') ?></div>
-		</div>
-
-		<div class="mail-config-dirs">
-			<?php echo $dirsTree; ?>
-		</div>
-
-		<div class="mail-config-dirs-title-block">
-			<div class="mail-config-dirs-title"><?php echo Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_FOR') ?></div>
-		</div>
-
-		<div class="mail-config-dirs-section-block">
-			<div class="mail-connect-option-email mail-connect-form-check-hidden">
-				<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_OUTCOME_SAVE')) ?>
-
-				<label
-					class="mail-config-dirs-singleselect"
-					data-type="<?php echo MailboxDirectoryTable::TYPE_OUTCOME ?>"
-					data-id="mail-client-config-dirs-outcome"
-				>
-					<?php echo ($outcome instanceof MailboxDirectory) ? $outcome->getFormattedName() : sprintf('<span>%s</span>',
-						Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
-					) ?>
-				</label>
+		<div class="ui-slider-section">
+			<div class="mail-config-dirs-title-block">
+				<div class="mail-config-dirs-title"><?php echo Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SYNC') ?></div>
 			</div>
-			<div class="mail-connect-option-email mail-connect-form-check-hidden">
-				<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_TRASH_SAVE')) ?>
-
-				<label
-					class="mail-config-dirs-singleselect"
-					data-type="<?php echo MailboxDirectoryTable::TYPE_TRASH ?>"
-					data-id="mail-client-config-dirs-trash"
-				>
-					<?php echo ($trash instanceof MailboxDirectory) ? $trash->getFormattedName() : sprintf('<span>%s</span>',
-						Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
-					) ?>
-				</label>
-			</div>
-			<div class="mail-connect-option-email mail-connect-form-check-hidden">
-				<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SPAM_SAVE')) ?>
-
-				<label
-					class="mail-config-dirs-singleselect"
-					data-type="<?php echo MailboxDirectoryTable::TYPE_SPAM ?>"
-					data-id="mail-client-config-dirs-spam"
-				>
-					<?php echo ($spam instanceof MailboxDirectory) ? $spam->getFormattedName() : sprintf('<span>%s</span>',
-						Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
-					) ?>
-				</label>
+			<div class="mail-config-dirs-section-block">
+				<div class="mail-config-dirs">
+					<?php echo $dirsTree; ?>
+				</div>
 			</div>
 		</div>
-	</div>
+
+		<div class="mail-connect mail-connect-slider">
+			<div class="ui-slider-section">
+				<div class="mail-config-dirs-title-block">
+					<div class="mail-config-dirs-title"><?php echo Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_FOR') ?></div>
+				</div>
+				<div class="mail-config-dirs-section-block">
+					<div class="mail-connect-option-email mail-connect-form-check-hidden">
+						<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_OUTCOME_SAVE')) ?>
+
+						<label
+								class="mail-config-dirs-singleselect"
+								data-type="<?php echo MailboxDirectoryTable::TYPE_OUTCOME ?>"
+								data-id="mail-client-config-dirs-outcome"
+						>
+							<?php echo ($outcome instanceof MailboxDirectory) ? $outcome->getFormattedName() : sprintf('<span>%s</span>',
+								Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
+							) ?>
+						</label>
+					</div>
+					<div class="mail-connect-option-email mail-connect-form-check-hidden">
+						<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_TRASH_SAVE')) ?>
+
+						<label
+								class="mail-config-dirs-singleselect"
+								data-type="<?php echo MailboxDirectoryTable::TYPE_TRASH ?>"
+								data-id="mail-client-config-dirs-trash"
+						>
+							<?php echo ($trash instanceof MailboxDirectory) ? $trash->getFormattedName() : sprintf('<span>%s</span>',
+								Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
+							) ?>
+						</label>
+					</div>
+					<div class="mail-connect-option-email mail-connect-form-check-hidden">
+						<?php echo \CUtil::jsEscape(Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_SPAM_SAVE')) ?>
+
+						<label
+								class="mail-config-dirs-singleselect"
+								data-type="<?php echo MailboxDirectoryTable::TYPE_SPAM ?>"
+								data-id="mail-client-config-dirs-spam"
+						>
+							<?php echo ($spam instanceof MailboxDirectory) ? $spam->getFormattedName() : sprintf('<span>%s</span>',
+								Loc::getMessage('MAIL_CLIENT_CONFIG_DIRS_NOT_SPECIFIED')
+							) ?>
+						</label>
+					</div>
+				</div>
+			</div>
+		</div>
 
 	<div class="mail-connect-footer mail-connect-footer-fixed">
 		<div class="main-connect-form-error" id="mail_connect_form_error"></div>

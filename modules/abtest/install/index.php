@@ -45,12 +45,13 @@ class ABTest extends CModule
 	function installDB()
 	{
 		global $DB, $APPLICATION;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$this->errors = false;
-		if (!$DB->query("SELECT 'x' FROM b_abtest", true))
+		if (!$DB->TableExists('b_abtest'))
 		{
 			$createTestTemplates = true;
-			$this->errors = $DB->runSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/mysql/install.sql');
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/' . $connection->getType() . '/install.sql');
 		}
 
 		if ($this->errors !== false)
@@ -202,13 +203,14 @@ class ABTest extends CModule
 	function uninstallDB($arParams = array())
 	{
 		global $APPLICATION, $DB, $errors;
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$this->errors = false;
 
 		if (!$arParams['savedata'])
 		{
 			$this->errors = $DB->runSQLBatch(
-				$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/mysql/uninstall.sql'
+				$_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/abtest/install/db/' . $connection->getType() . '/uninstall.sql'
 			);
 		}
 

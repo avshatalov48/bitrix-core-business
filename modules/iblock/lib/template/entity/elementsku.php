@@ -46,7 +46,7 @@ class ElementSku extends Base
 			{
 				if ($this->skuIblockId && $this->skuList)
 				{
-					$this->property = new ElementSkuProperty($this->fields["ID"]);
+					$this->property = ElementSkuProperty::getInstance($this->fields["ID"]);
 					$this->property->setIblockId($this->skuIblockId);
 				}
 			}
@@ -60,7 +60,7 @@ class ElementSku extends Base
 			{
 				if ($this->skuIblockId && $this->skuList)
 				{
-					$this->price = new ElementSkuPrice($this->fields["ID"]);
+					$this->price = ElementSkuPrice::getInstance($this->fields["ID"]);
 				}
 			}
 

@@ -54,7 +54,7 @@ if ($arResult['SHOW_ERRORS'] === 'Y' && $arResult['ERROR'] && !empty($arResult['
 					<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
 				</span>
 				</noscript>
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure<?=$arResult["RND"]?>').style.display = 'inline-block';
 </script>
 <?endif?>

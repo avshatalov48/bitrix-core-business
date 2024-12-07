@@ -536,7 +536,7 @@ class CIBlockSectionPropertyLink
 		//KLMNO - for radio buttons
 		//PQRST - for drop down
 		//UWXYZ - reserved
-		$js = '
+		return '
 		function getDisplayTypes(property_type, user_type)
 		{
 			if (
@@ -582,7 +582,6 @@ class CIBlockSectionPropertyLink
 			return result;
 		}
 		';
-		return $js;
 	}
 
 	public static function _sort($a, $b): int

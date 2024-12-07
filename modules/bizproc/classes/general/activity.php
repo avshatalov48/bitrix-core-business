@@ -890,8 +890,8 @@ abstract class CBPActivity
 			$m = mb_strtolower($m);
 			if (isset($typesMap[$m]))
 			{
-				$typeName = $m;
-				$typeClass = $typesMap[$m];
+				$typeName ??= $m;
+				$typeClass ??= $typesMap[$m];
 			}
 			else
 			{
@@ -1197,7 +1197,9 @@ abstract class CBPActivity
 	public static function load($stream)
 	{
 		if ($stream == '')
-			throw new Exception("stream");
+		{
+			throw new CBPArgumentNullException("stream");
+		}
 
 		return CBPRuntime::GetRuntime()->unserializeWorkflowStream($stream);
 	}
@@ -1322,7 +1324,7 @@ abstract class CBPActivity
 	{
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 		{
-			throw new Exception("Activity '" . $code . "' is not valid");
+			throw new CBPArgumentOutOfRangeException("Activity '" . $code . "' is not valid");
 		}
 
 		$classname = 'CBP' . $code;
@@ -1350,7 +1352,12 @@ abstract class CBPActivity
 
 		if (preg_match("#[^a-zA-Z0-9_]#", $code))
 		{
-			throw new Exception("Activity '".$code."' is not valid");
+			throw new CBPArgumentOutOfRangeException("Activity '".$code."' is not valid");
+		}
+
+		if (strpos($code, 'CBP') === 0)
+		{
+			$code = mb_substr($code, 3);
 		}
 
 		$classname = 'CBP'.$code;
@@ -1385,7 +1392,7 @@ abstract class CBPActivity
 		{
 			if ($this->executionStatus != CBPActivityExecutionStatus::Canceling)
 			{
-				throw new Exception("InvalidCancelActivityState");
+				throw new CBPInvalidOperationException("InvalidCancelActivityState");
 			}
 
 			$this->executionResult = CBPActivityExecutionResult::Canceled;
@@ -1417,10 +1424,12 @@ abstract class CBPActivity
 				{
 					foreach ($this->arActivities as $activity)
 					{
-						if (($activity->executionStatus != CBPActivityExecutionStatus::Initialized)
-							&& ($activity->executionStatus != CBPActivityExecutionStatus::Closed))
+						if (
+							($activity->executionStatus != CBPActivityExecutionStatus::Initialized)
+							&& ($activity->executionStatus != CBPActivityExecutionStatus::Closed)
+						)
 						{
-							throw new Exception('ActiveChildExist');
+							throw new CBPInvalidOperationException('ActiveChildExist');
 						}
 					}
 				}
@@ -1444,7 +1453,7 @@ abstract class CBPActivity
 			}
 		}
 
-		throw new Exception('InvalidCloseActivityState');
+		throw new CBPInvalidOperationException('InvalidCloseActivityState');
 	}
 
 	protected function writeToTrackingService($message = "", $modifiedBy = 0, $trackingType = -1)
@@ -1503,6 +1512,11 @@ abstract class CBPActivity
 
 	protected function writeDebugInfo(array $map)
 	{
+		if (!$this->workflow->isDebug())
+		{
+			return;
+		}
+
 		/** @var CBPDocumentService $documentService */
 		$documentService = $this->workflow->GetService("DocumentService");
 

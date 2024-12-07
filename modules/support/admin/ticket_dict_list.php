@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -23,11 +23,11 @@ InitSorting();
 $err_mess = "File: ".__FILE__."<br>Line: ";
 
 /***************************************************************************
-								Ôóíêöèè
+								Ð¤ÑƒÐ½ÐºÑ†Ð¸Ð¸
 ****************************************************************************/
 
 /***************************************************************************
-							Îáðàáîòêà GET | POST
+							ÐžÐ±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° GET | POST
 ****************************************************************************/
 if (
 	!isset($find_type) ||
@@ -38,8 +38,8 @@ if (
 
 
 $sTableID = "t_dict_list_".mb_strtolower($find_type);
-$oSort = new CAdminSorting($sTableID, "s_c_sort", "asc");// èíèöèàëèçàöèÿ ñîðòèðîâêè
-$lAdmin = new CAdminList($sTableID, $oSort);// èíèöèàëèçàöèÿ ñïèñêà
+$oSort = new CAdminSorting($sTableID, "s_c_sort", "asc");// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
+$lAdmin = new CAdminList($sTableID, $oSort);// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 
 
 $oFilter = new CAdminFilter(
@@ -77,7 +77,7 @@ $arFilterFields = Array(
 	"find_default"
 	);
 
-$lAdmin->InitFilter($arFilterFields);//èíèöèàëèçàöèÿ ôèëüòðà
+$lAdmin->InitFilter($arFilterFields);//Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 
 
 InitBVar($find_id_exact_match);
@@ -106,7 +106,7 @@ $arFilter = Array(
 
 
 
-if ($bAdmin=="Y" && $lAdmin->EditAction()) //åñëè èäåò ñîõðàíåíèå ñî ñïèñêà
+if ($bAdmin=="Y" && $lAdmin->EditAction()) //ÐµÑÐ»Ð¸ Ð¸Ð´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ðµ ÑÐ¾ ÑÐ¿Ð¸ÑÐºÐ°
 {
 
 	foreach($FIELDS as $ID => $arFields)
@@ -164,7 +164,7 @@ if($bAdmin=="Y" && $arID = $lAdmin->GroupAction())
 		}
 	}
 }
-// åñëè áûëà íàæàòà êíîïêà "Ñîõðàíèòü èçìåíåíèÿ"
+// ÐµÑÐ»Ð¸ Ð±Ñ‹Ð»Ð° Ð½Ð°Ð¶Ð°Ñ‚Ð° ÐºÐ½Ð¾Ð¿ÐºÐ° "Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ"
 
 if ($find_type=="C" || 
 	$find_type=="K" || 
@@ -178,7 +178,7 @@ $rsData = CTicketDictionary::GetList($by, $order, $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
-// óñòàíîâêà ñòðîêè íàâèãàöèè
+// ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° ÑÑ‚Ñ€Ð¾ÐºÐ¸ Ð½Ð°Ð²Ð¸Ð³Ð°Ñ†Ð¸Ð¸
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("SUP_PAGES")));
 
 //$tdic = CTicketDictionary::GetList($by, $order, $arFilter, $is_filtered);
@@ -196,7 +196,7 @@ if ($show_responsible_column=="Y")
 
 $lAdmin->AddHeaders($arHeaders);
 
-// ïîñòðîåíèå ñïèñêà
+// Ð¿Ð¾ÑÑ‚Ñ€Ð¾ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ°
 $arRows = array();
 $arSiteArrayForAllDict = CTicketDictionary::GetSiteArrayForAllDictionaries();
 $arRespUserIDs = array();
@@ -258,7 +258,7 @@ while($ar = $rs->Fetch())
 {
 	$arRespUsersProp[$ar["ID"]] = $ar;
 }
-// Åùå îäèí ïðîõîä äëÿ îòâåòñòâåííûõ ïîëüçîâàòåëåé
+// Ð•Ñ‰Ðµ Ð¾Ð´Ð¸Ð½ Ð¿Ñ€Ð¾Ñ…Ð¾Ð´ Ð´Ð»Ñ Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÐµÐ½Ð½Ñ‹Ñ… Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹
 foreach($arRows as $k => $v)
 {
 	$str = "&nbsp;";
@@ -266,13 +266,13 @@ foreach($arRows as $k => $v)
 	if ($rUserID > 0 && array_key_exists($rUserID, $arRespUsersProp)):
 		$arUserPr = $arRespUsersProp[$rUserID];
 		$str = '[<a title="' . GetMessage("SUP_USER_PROFILE") . '" href="/bitrix/admin/user_edit.php?lang=' . LANG . '&ID=' . $rUserID . '">' .
-			$rUserID.'</a>] (' . $arUserPr["LOGIN"] . ') ' . $arUserPr["NAME"] . "  " . $arUserPr["LAST_NAME"];
+			$rUserID.'</a>] (' . htmlspecialcharsbx($arUserPr["LOGIN"]) . ') ' . htmlspecialcharsbx($arUserPr["NAME"]) . "  " . htmlspecialcharsbx($arUserPr["LAST_NAME"]);
 
 	endif;
 	$v["objRow"]->AddViewField("RESPONSIBLE_USER_ID", $str);
 }
 
-// "ïîäâàë" ñïèñêà
+// "Ð¿Ð¾Ð´Ð²Ð°Ð»" ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),

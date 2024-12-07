@@ -36,6 +36,7 @@
 }
 
 .ui-progressbar-track {
+	position: relative;
 	width: 100%;
 	height: var(--ui-current-bar-size);
 	border-radius: calc(var(--ui-current-bar-size) / 2);
@@ -159,4 +160,24 @@
 
 .ui-progressbar-lg { --ui-current-bar-size: var(--ui-progressbar-size-lg) }
 
+/*endregion*/
+
+/*region Infinite Loading*/
+
+.ui-progressbar-bar.infinite-loading {
+	position: absolute;
+	animation: ui-progressbar-loading 2s infinite;
+}
+
+@keyframes ui-progressbar-loading {
+	0% {
+		left: -100%;
+	}
+	50% {
+		left: 100%;
+	}
+	100% {
+		left: -100%;
+	}
+}
 /*endregion*/

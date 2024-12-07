@@ -1,14 +1,14 @@
 import 'main.date';
-import { type JsonObject } from 'main.core';
 
 import { Core } from 'im.v2.application.core';
 import { ChatType, Settings, Layout } from 'im.v2.const';
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 
 import { MessageText } from './components/message-text';
 import { ItemCounter } from './components/item-counter';
 import { MessageStatus } from './components/message-status';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
+import { ChannelManager } from 'im.v2.lib.channel';
 
 import './css/recent-item.css';
 
@@ -17,16 +17,12 @@ import type { ImModelRecentItem, ImModelChat, ImModelMessage } from 'im.v2.model
 // @vue/component
 export const RecentItem = {
 	name: 'RecentItem',
-	components: { Avatar, ChatTitle, MessageText, MessageStatus, ItemCounter },
+	components: { ChatAvatar, ChatTitle, MessageText, MessageStatus, ItemCounter },
 	props: {
 		item: {
 			type: Object,
 			required: true,
 		},
-	},
-	data(): JsonObject
-	{
-		return {};
 	},
 	computed:
 	{
@@ -42,7 +38,7 @@ export const RecentItem = {
 				return this.loc('IM_LIST_RECENT_BIRTHDAY_DATE');
 			}
 
-			return this.formatDate(this.message.date);
+			return this.formatDate(this.itemDate);
 		},
 		formattedCounter(): string
 		{
@@ -60,6 +56,10 @@ export const RecentItem = {
 		{
 			return this.$store.getters['recent/getMessage'](this.recentItem.dialogId);
 		},
+		itemDate(): Date
+		{
+			return this.$store.getters['recent/getSortDate'](this.recentItem.dialogId);
+		},
 		isUser(): boolean
 		{
 			return this.dialog.type === ChatType.user;
@@ -68,9 +68,14 @@ export const RecentItem = {
 		{
 			return !this.isUser;
 		},
+		isChannel(): boolean
+		{
+			return ChannelManager.isChannel(this.recentItem.dialogId);
+		},
 		isChatSelected(): boolean
 		{
-			if (this.layout.name !== Layout.chat.name)
+			const canBeSelected = [Layout.chat.name, Layout.updateChat.name];
+			if (!canBeSelected.includes(this.layout.name))
 			{
 				return false;
 			}
@@ -131,14 +136,18 @@ export const RecentItem = {
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
-	// language=Vue
 	template: `
 		<div :data-id="recentItem.dialogId" :class="wrapClasses" class="bx-im-list-recent-item__wrap">
 			<div :class="itemClasses" class="bx-im-list-recent-item__container">
 				<div class="bx-im-list-recent-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-item__avatar_invitation"></div>
 					<div v-else class="bx-im-list-recent-item__avatar_content">
-						<Avatar :dialogId="recentItem.dialogId" :size="AvatarSize.XL" :withSpecialTypeIcon="!isSomeoneTyping" />
+						<ChatAvatar 
+							:avatarDialogId="recentItem.dialogId" 
+							:contextDialogId="recentItem.dialogId" 
+							:size="AvatarSize.XL" 
+							:withSpecialTypeIcon="!isSomeoneTyping" 
+						/>
 						<div v-if="isSomeoneTyping" class="bx-im-list-recent-item__avatar_typing"></div>
 					</div>
 				</div>

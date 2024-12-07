@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Text\Encoding;
+
 IncludeModuleLangFile(__FILE__);
 
 $GLOBALS["BLOG_TRACKBACK"] = Array();
@@ -95,7 +97,7 @@ class CAllBlogTrackback
 				"	".$DB->DateToCharFunction("T.POST_DATE", "FULL")." as POST_DATE ".
 				"FROM b_blog_trackback T ".
 				"WHERE T.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_TRACKBACK"]["BLOG_TRACKBACK_CACHE_".$ID] = $arResult;
@@ -264,10 +266,10 @@ class CAllBlogTrackback
 			
 			if ($charset != $serverCharset)
 			{
-				$arParams["title"] = $GLOBALS["APPLICATION"]->ConvertCharset($arParams["title"], $charset, $serverCharset);
-				$arParams["url"] = $GLOBALS["APPLICATION"]->ConvertCharset($arParams["url"], $charset, $serverCharset);
-				$arParams["excerpt"] = $GLOBALS["APPLICATION"]->ConvertCharset($arParams["excerpt"], $charset, $serverCharset);
-				$arParams["blog_name"] = $GLOBALS["APPLICATION"]->ConvertCharset($arParams["blog_name"], $charset, $serverCharset);
+				$arParams["title"] = Encoding::convertEncoding($arParams["title"], $charset, $serverCharset);
+				$arParams["url"] = Encoding::convertEncoding($arParams["url"], $charset, $serverCharset);
+				$arParams["excerpt"] = Encoding::convertEncoding($arParams["excerpt"], $charset, $serverCharset);
+				$arParams["blog_name"] = Encoding::convertEncoding($arParams["blog_name"], $charset, $serverCharset);
 			}
 
 			$arFields = array(

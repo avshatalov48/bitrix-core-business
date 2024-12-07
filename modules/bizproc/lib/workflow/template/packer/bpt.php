@@ -54,11 +54,11 @@ class Bpt extends BasePacker
 
 		return [
 			"VERSION" => 2,
-			"TEMPLATE" => self::ConvertArrayCharset($tplData["TEMPLATE"], static::DIRECTION_EXPORT),
-			"PARAMETERS" => self::ConvertArrayCharset($tplData["PARAMETERS"], static::DIRECTION_EXPORT),
-			"VARIABLES" => self::ConvertArrayCharset($tplData["VARIABLES"], static::DIRECTION_EXPORT),
-			"CONSTANTS" => self::ConvertArrayCharset($tplData["CONSTANTS"], static::DIRECTION_EXPORT),
-			"DOCUMENT_FIELDS" => self::ConvertArrayCharset($documentFields, static::DIRECTION_EXPORT),
+			"TEMPLATE" => $tplData["TEMPLATE"],
+			"PARAMETERS" => $tplData["PARAMETERS"],
+			"VARIABLES" => $tplData["VARIABLES"],
+			"CONSTANTS" => $tplData["CONSTANTS"],
+			"DOCUMENT_FIELDS" => $documentFields,
 		];
 	}
 
@@ -95,13 +95,7 @@ class Bpt extends BasePacker
 
 		if (array_key_exists("VERSION", $datumTmp) && $datumTmp["VERSION"] == 2)
 		{
-			$datumTmp["TEMPLATE"] = self::ConvertArrayCharset($datumTmp["TEMPLATE"], static::DIRECTION_IMPORT);
-			$datumTmp["PARAMETERS"] = self::ConvertArrayCharset($datumTmp["PARAMETERS"], static::DIRECTION_IMPORT);
-			$datumTmp["VARIABLES"] = self::ConvertArrayCharset($datumTmp["VARIABLES"], static::DIRECTION_IMPORT);
-			$datumTmp["CONSTANTS"] = isset($datumTmp["CONSTANTS"])?
-				self::ConvertArrayCharset($datumTmp["CONSTANTS"], static::DIRECTION_IMPORT)
-				: array();
-			$datumTmp["DOCUMENT_FIELDS"] = self::ConvertArrayCharset($datumTmp["DOCUMENT_FIELDS"], static::DIRECTION_IMPORT);
+			$datumTmp["CONSTANTS"] = $datumTmp["CONSTANTS"] ?? [];
 		}
 
 		/** @var Tpl $tpl */
@@ -216,46 +210,5 @@ class Bpt extends BasePacker
 		}
 
 		return $conditions;
-	}
-
-	private static function convertValueCharset($s, $direction)
-	{
-		if ("utf-8" == mb_strtolower(LANG_CHARSET))
-			return $s;
-
-		if (is_numeric($s))
-			return $s;
-
-		if ($direction == static::DIRECTION_EXPORT)
-		{
-			$s = Main\Text\Encoding::convertEncoding($s, LANG_CHARSET, "UTF-8");
-		}
-		else
-		{
-			$s = Main\Text\Encoding::convertEncoding($s, "UTF-8", LANG_CHARSET);
-		}
-
-		return $s;
-	}
-
-	private static function convertArrayCharset($value, $direction = self::DIRECTION_EXPORT)
-	{
-		if (is_array($value))
-		{
-			$valueNew = array();
-			foreach ($value as $k => $v)
-			{
-				$k = self::ConvertValueCharset($k, $direction);
-				$v = self::ConvertArrayCharset($v, $direction);
-				$valueNew[$k] = $v;
-			}
-			$value = $valueNew;
-		}
-		else
-		{
-			$value = self::ConvertValueCharset($value, $direction);
-		}
-
-		return $value;
 	}
 }

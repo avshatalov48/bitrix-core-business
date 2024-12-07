@@ -13,7 +13,6 @@ use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\FieldTypeMask;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
-use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\StringHelper;
 

@@ -81,22 +81,26 @@ if (
 }
 
 //USER INFO
-$userFIO = "";
+$userFIO = '';
 $dbUser = CUser::GetByID($ID);
-if($arUser = $dbUser->ExtractFields("u_"))
+$arUser = $dbUser->ExtractFields("u_");
+if ($arUser)
 {
-	if (strval(trim($u_LAST_NAME)) != '')
+	$u_LAST_NAME = trim((string)($u_LAST_NAME ?? ''));
+	if ($u_LAST_NAME !== '')
 	{
-		$userFIO .= (strval($userFIO) != '' ? " " : "") . $u_LAST_NAME;
+		$userFIO .= ($userFIO !== '' ? " " : "") . $u_LAST_NAME;
 	}
-	if (strval(trim($u_NAME)) != '')
+	$u_NAME = trim((string)($u_NAME ?? ''));
+	if ($u_NAME !== '')
 	{
-		$userFIO .= (strval($userFIO) != '' ? " " : "") . $u_NAME;
+		$userFIO .= ($userFIO !== '' ? " " : "") . $u_NAME;
 	}
 
-	if (strval(trim($u_SECOND_NAME)) != '')
+	$u_SECOND_NAME = trim((string)$u_SECOND_NAME ?? '');
+	if ($u_SECOND_NAME !== '')
 	{
-		$userFIO .= (strval($userFIO) != '' ? " " : "") . $u_SECOND_NAME;
+		$userFIO .= ($userFIO !== '' ? " " : "") . $u_SECOND_NAME;
 	}
 }
 
@@ -411,14 +415,14 @@ if (isset($_REQUEST['apply']) && isset($_REQUEST['action']) && $saleModulePermis
 						{
 							if ($adminSidePanelHelper->isPublicSidePanel())
 							{
-								echo "<script language=\"JavaScript\">";
+								echo "<script>";
 								echo "top.window.parent.location.href = '/shop/orders/details/0/?USER_ID=".CUtil::JSEscape($ID)."&lang=" . LANGUAGE_ID . "&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
 								echo "</script>";
 								exit;
 							}
 							else
 							{
-								echo "<script language=\"JavaScript\">";
+								echo "<script>";
 								echo "window.parent.location.href = '".$selfFolderUrl."sale_order_create.php?USER_ID=".CUtil::JSEscape($ID)."&lang=" . LANGUAGE_ID . "&SITE_ID=".CUtil::JSEscape($LID).CUtil::JSEscape($urlProduct)."';";
 								echo "</script>";
 								exit;
@@ -617,12 +621,16 @@ if(!empty($arUser))
 		$row->AddField("NAME", "[".$arProfList["ID"]."] <a target=\"_top\" href=\"".$profileEditUrl."\">".$arProfList["NAME"]."</a>");
 		$row->AddField("PERSON_TYPE_ID", htmlspecialcharsbx($arPErsonTypes[$arProfList["PERSON_TYPE_ID"]]["NAME"]));
 
-		if (count($arSites) > 1)
-			$row->AddField("LID", "[".$arProfList["LID"]."] ".htmlspecialcharsbx($arSites[$arProfList["LID"]]["NAME"])."");
+		if (count($arSites) > 1 && isset($arProfList["LID"]))
+		{
+			$row->AddField("LID", "[" . $arProfList["LID"] . "] " . htmlspecialcharsbx($arSites[$arProfList["LID"]]["NAME"]) . "");
+		}
 	}
 
-	if($_REQUEST["table_id"]==$sTableID_tab2)
+	if (($_REQUEST["table_id"] ?? null) == $sTableID_tab2)
+	{
 		$lAdmin_tab2->CheckListMode();
+	}
 	//END BUYERS PROFILE
 
 
@@ -649,12 +657,18 @@ if(!empty($arUser))
 	$lAdmin_tab3->InitFilter($arFilterFields);
 
 	if (!isset($_REQUEST["by"]) || !in_array($by, $orderClass::getAvailableFields()))
-		$arOrderSort = array("DATE_INSERT" => "DESC");
+	{
+		$arOrderSort = ["DATE_INSERT" => "DESC"];
+	}
 	else
+	{
 		$arOrderSort[$by] = $order;
 
-	if ($by == "PAYED")
-		$arOrderSort["DATE_PAYED"] = $order;
+		if ($by == "PAYED")
+		{
+			$arOrderSort["DATE_PAYED"] = $order;
+		}
+	}
 
 	$arOrderFilter = array("USER_ID" => $ID);
 
@@ -704,7 +718,7 @@ if(!empty($arUser))
 			$filter_date_order_to = "";
 	}
 
-	if(trim($filter_date_order_from_DAYS_TO_BACK) <> '')
+	if(trim((string)($filter_date_order_from_DAYS_TO_BACK ?? '')) <> '')
 	{
 		$dateBack = intval($filter_date_order_from_DAYS_TO_BACK);
 		$arOrderFilter["DATE_FROM"] = ConvertTimeStamp(AddToTimeStamp(array("DD" => "-".$dateBack), mktime(0, 0, 0, date("n"), date("j"), date("Y"))), "SHORT");
@@ -769,7 +783,7 @@ if(!empty($arUser))
 
 	$usePageNavigation = true;
 
-	$navyParams = CDBResult::GetNavParams(CAdminResult::GetNavSize($sTableID));
+	$navyParams = CDBResult::GetNavParams(CAdminResult::GetNavSize($sTableID_tab3));
 	if ($navyParams['SHOW_ALL'])
 	{
 		$usePageNavigation = false;
@@ -1042,8 +1056,10 @@ if(!empty($arUser))
 		$row->AddActions($arActions);
 	}
 
-	if($_REQUEST["table_id"]==$sTableID_tab3)
+	if (($_REQUEST["table_id"] ?? '') == $sTableID_tab3)
+	{
 		$lAdmin_tab3->CheckListMode();
+	}
 	//END BUYERS ORDER
 
 	if (!$adminSidePanelHelper->isPublicSidePanel())
@@ -1341,8 +1357,10 @@ if(!empty($arUser))
 			$row->AddActions($arActions);
 		}
 
-		if($_REQUEST["table_id"]==$sTableID_tab7)
+		if (($_REQUEST["table_id"] ?? '') == $sTableID_tab7)
+		{
 			$lAdmin_tab7->CheckListMode();
+			}
 		//END BUYERS ORDER
 	}
 
@@ -1372,7 +1390,7 @@ if(!empty($arUser))
 	if ($filter_basket_lid <> '')
 		$arBasketFilter["LID"] = trim($filter_basket_lid);
 
-	if (trim($basket_name_product) <> '')
+	if (trim((string)($basket_name_product ?? '')) <> '')
 		$arBasketFilter["%NAME"] = $basket_name_product;
 
 	CAdminMessage::ShowNote($basketMessage);
@@ -1495,8 +1513,10 @@ if(!empty($arUser))
 		);
 	}
 
-	if($_REQUEST["table_id"]==$sTableID_tab4)
+	if (($_REQUEST["table_id"] ?? '') == $sTableID_tab4)
+	{
 		$lAdmin_tab4->CheckListMode();
+	}
 	//END BUYERS BASKET
 
 
@@ -1524,16 +1544,16 @@ if(!empty($arUser))
 
 	$arFilter = array();
 	$arFuserItems = CSaleUser::GetList(array("USER_ID" => $ID));
-	$arFilter["FUSER_ID"] = $arFuserItems["ID"];
+	$arFilter["FUSER_ID"] = $arFuserItems["ID"] ?? null;
 
 	if ($filter_viewed_lid <> '')
 		$arFilter["LID"] = trim($filter_viewed_lid);
 
-	if(trim($filter_date_visit_from) <> '')
+	if (trim((string)($filter_date_visit_from ?? '')) <> '')
 	{
 		$arFilter["DATE_FROM"] = FmtDate($filter_date_visit_from,"D.M.Y");
 	}
-	if(trim($filter_date_visit_to) <> '')
+	if (trim((string)($filter_date_visit_to ?? '')) <> '')
 	{
 		if ($arDate = ParseDateTime($filter_date_visit_to, CSite::GetDateFormat("FULL", SITE_ID)))
 		{
@@ -1553,7 +1573,7 @@ if(!empty($arUser))
 		}
 	}
 
-	if(trim($filter_date_visit_from_DAYS_TO_BACK) <> '')
+	if (trim((string)($filter_date_visit_from_DAYS_TO_BACK ?? '')) <> '')
 	{
 		$dateBack = intval($filter_date_visit_from_DAYS_TO_BACK);
 		$arFilter["DATE_FROM"] = ConvertTimeStamp(AddToTimeStamp(array("DD" => "-".$dateBack), mktime(0, 0, 0, date("n"), date("j"), date("Y"))), "SHORT");
@@ -1774,8 +1794,10 @@ if(!empty($arUser))
 			$row->AddActions($arActions);
 	}
 
-	if($_REQUEST["table_id"]==$sTableID_tab5)
+	if (($_REQUEST["table_id"] ?? '') == $sTableID_tab5)
+	{
 		$lAdmin_tab5->CheckListMode();
+	}
 
 	//END VIEWED
 
@@ -2010,8 +2032,10 @@ if(!empty($arUser))
 			'deactivate' => Loc::getMessage('CS_ACTION_DEACTIVATE'),
 		));
 
-		if($_REQUEST["table_id"] == $sTableID_tab6)
+		if (($_REQUEST["table_id"] ?? '') == $sTableID_tab6)
+		{
 			$lAdmin_tab6->checkListMode();
+		}
 	}
 	//END SUBSCRIPTION PRODUCTS
 
@@ -2500,7 +2524,6 @@ if(!empty($arUser))
 						<tr>
 							<td><?echo GetMessage("BUYER_F_NAME_PRODUCT")?>:</td>
 							<td>
-								<? CUtil::DecodeUriComponent($filter_order_prod_name);?>
 								<input type="text" name="filter_order_prod_name" value="<?=htmlspecialcharsbx($filter_order_prod_name)?>" size="42">
 							</td>
 						</tr>
@@ -2605,7 +2628,6 @@ if(!empty($arUser))
 						<tr>
 							<td><?echo GetMessage("BUYER_F_NAME_PRODUCT")?>:</td>
 							<td>
-								<? CUtil::DecodeUriComponent($filter_order_prod_name);?>
 								<input type="text" name="filter_order_prod_name" value="<?=htmlspecialcharsbx($filter_order_prod_name)?>" size="42">
 							</td>
 						</tr>
@@ -2671,7 +2693,6 @@ if(!empty($arUser))
 					<tr>
 						<td><?=GetMessage('BUYER_BASKET_F_NAME')?>:</td>
 						<td>
-							<? CUtil::DecodeUriComponent($basket_name_product);?>
 							<input type="text" name="basket_name_product" size="48" value="<?=htmlspecialcharsbx($basket_name_product)?>" >
 						</td>
 					</tr>

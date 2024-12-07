@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,main_core) {
+(function (exports,main_core,ui_analytics) {
 	'use strict';
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
@@ -81,7 +81,8 @@ this.BX = this.BX || {};
 	        _classPrivateMethodGet(_this2, _displayErrors, _displayErrors2).call(_this2, response.errors);
 	      }).then(function (response) {
 	        if (response.data && response.data.eventId) {
-	          new (window.top.BX || window.BX).Calendar.SliderLoader(response.data.eventId).show();
+	          var sliderLoader = new (window.top.BX || window.BX).Calendar.SliderLoader(response.data.eventId);
+	          sliderLoader.show();
 	          var grid = new BX.Mail.MessageGrid();
 	          grid.reloadTable();
 	        }
@@ -101,6 +102,19 @@ this.BX = this.BX || {};
 	          });
 	        }
 	      }
+	    }
+	  }, {
+	    key: "onTaskAction",
+	    value: function onTaskAction(event, element) {
+	      var analyticsData = {
+	        tool: 'tasks',
+	        category: 'task_operations',
+	        event: event,
+	        type: 'task',
+	        c_section: 'mail',
+	        c_element: element
+	      };
+	      ui_analytics.sendData(analyticsData);
 	    }
 	  }, {
 	    key: "subscribe",
@@ -137,5 +151,5 @@ this.BX = this.BX || {};
 
 	exports.Secretary = Secretary;
 
-}((this.BX.Mail = this.BX.Mail || {}),BX));
+}((this.BX.Mail = this.BX.Mail || {}),BX,BX.UI.Analytics));
 //# sourceMappingURL=secretary.bundle.js.map

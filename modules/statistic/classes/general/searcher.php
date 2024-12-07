@@ -16,7 +16,6 @@ class CAllSearcher
 	// returns arrays needed to plot site indexing graph
 	public static function GetGraphArray($arFilter, &$arrLegend)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array("D.SEARCHER_ID <> 1");
 
@@ -58,7 +57,7 @@ class CAllSearcher
 		$summa = $arFilter["SUMMA"]=="Y" ? "Y" : "N";
 		$strSql = CSearcher::GetGraphArray_SQL($strSqlSearch);
 
-		$rsD = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsD = $DB->Query($strSql);
 		while ($arD = $rsD->Fetch())
 		{
 			$arrDays[$arD["DATE_STAT"]]["D"] = $arD["DAY"];
@@ -90,7 +89,6 @@ class CAllSearcher
 
 	public static function GetDomainList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array("P.SEARCHER_ID <> 1");
 
@@ -153,18 +151,17 @@ class CAllSearcher
 			$strSqlOrder
 			";
 
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 
 		return $rs;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		$strSql = "SELECT S.* FROM b_stat_searcher S WHERE S.ID = '$ID'";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 }

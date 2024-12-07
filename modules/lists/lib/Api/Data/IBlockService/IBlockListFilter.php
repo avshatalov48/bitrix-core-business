@@ -32,7 +32,7 @@ class IBlockListFilter extends Filter
 
 	public function setIBLockTypeId(string $iBlockTypeId): static
 	{
-		return $this->setField('TYPE', $iBlockTypeId);
+		return $this->setField('TYPE', $iBlockTypeId, '=');
 	}
 
 	public function setSite($siteId): static

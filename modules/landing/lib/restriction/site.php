@@ -469,14 +469,14 @@ class Site
 		Rights::setGlobalOff();
 		$sites = SiteCore::getList([
 			'select' => [
-				'ID', 'DATE_CREATE'
+				'ID'
 			],
 			'filter' => [
 				'ACTIVE' => 'Y',
 				'DELETED' => 'N'
 			],
 			 'order' => [
-				'DATE_CREATE' => 'ASC'
+				'ID' => 'ASC'
 			]
 		]);
 		$ids = [];

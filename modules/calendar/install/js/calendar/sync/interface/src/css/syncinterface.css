@@ -20,7 +20,6 @@
 	font-weight: var(--ui-font-weight-light, 300);
 	color: #333;
 	display: inline-block;
-	padding: 0 10px 0 0;
 	height: 30px;
 	white-space: nowrap;
 	overflow: hidden;
@@ -528,6 +527,7 @@
 	color: #9b9b9b;
 	border-bottom: 1px dashed rgba(155, 155, 155, .4);
 	transition: all .2s linear;
+	cursor: pointer;
 }
 
 .calendar-sync-slider-link:hover {
@@ -649,7 +649,8 @@ span.calendar-sync-slider-info-text {
 }
 
 .calendar-sync-slider-header-icon-caldav {
-	background-image: url(/bitrix/images/calendar/sync/caldav.svg);
+	background-image: url(../image/calendar_sync__icon-header-logo.svg);
+	background-size: 80%;
 }
 
 .calendar-sync-slider-header-icon-yandex {
@@ -1083,7 +1084,24 @@ span.calendar-sync-slider-info-text {
 }
 
 .calendar-sync__account-btn {
+	--ui-icon-set__icon-color: var(--ui-color-on-primary);
 	align-self: center;
+}
+
+.calendar-sync__account-counter {
+	position: absolute;
+	top: -3px;
+	right: -4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 21px;
+	height: 16px;
+	border-radius: var(--ui-border-radius-sm);
+	color: var(--ui-color-on-primary);
+	font-size: var(--ui-font-size-3xs);
+	font-weight: var(--ui-font-weight-bold);
+	background: #ff5752;
 }
 
 .calendar-sync__content-block {
@@ -1175,6 +1193,7 @@ span.calendar-sync-slider-info-text {
 	box-sizing: border-box;
 	user-select: none;
 	overflow: hidden;
+	box-shadow: 0px 2px 6px 0px rgba(74, 81, 89, 0.08);
 }
 
 .calendar-sync__calendar-item:last-child {
@@ -1281,7 +1300,9 @@ span.calendar-sync-slider-info-text {
 .calendar-sync__account.--complete .calendar-sync__account-logo,
 .calendar-sync__account.--complete .calendar-sync__account-logo--image,
 .calendar-sync__account.--error .calendar-sync__account-logo,
-.calendar-sync__account.--error .calendar-sync__account-logo--image {
+.calendar-sync__account.--error .calendar-sync__account-logo--image,
+.calendar-sync__account.--error-reconnect .calendar-sync__account-logo,
+.calendar-sync__account.--error-reconnect .calendar-sync__account-logo--image {
 	max-width: 66px;
 	width: 66px;
 	height: 66px;
@@ -1290,19 +1311,21 @@ span.calendar-sync-slider-info-text {
 }
 
 .calendar-sync__calendar-item.--error {
-	border: 2px solid #FF5752 !important;
+	/*border: 2px solid #FF5752 !important;*/
 	box-shadow: 0 4px 13px var(--graphite_alpha_04);
 }
 
 .calendar-sync__calendar-item.--error .calendar-sync__calendar-item--logo-image,
-.calendar-sync__account.--error .calendar-sync__account-logo--image {
-	border: 2px solid #ff5752;
-	background-color: rgba(255, 81, 74, .15);
+.calendar-sync__account.--error .calendar-sync__account-logo--image,
+.calendar-sync__account.--error-reconnect .calendar-sync__account-logo--image {
+	/*border: 2px solid #ff5752;*/
+	background-color: unset;
+	border: 2px solid #edeef0;
 }
 
 .calendar-sync__calendar-item.--refused:before,
 .calendar-sync__calendar-item.--complete:before,
-.calendar-sync__calendar-item.--error:before,
+/*.calendar-sync__calendar-item.--error:before,*/
 .calendar-sync__calendar-item.--active:before {
 	display: none;
 }
@@ -1367,7 +1390,7 @@ span.calendar-sync-slider-info-text {
 }
 
 .calendar-sync__calendar-item--logo-image.--caldav {
-	background-image: url(../image/calendar-sync__icon-caldav.svg);
+	background-image: url(../image/calendar_sync__icon-header-logo.svg);
 	background-position: 16px center;
 	background-size: 36px;
 }
@@ -1402,6 +1425,17 @@ span.calendar-sync-slider-info-text {
 	background-image: url("data:image/svg+xml,%3Csvg width='14' height='11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M13.012 9.434 7.852.841a1.007 1.007 0 0 0-1.733 0L.959 9.434c-.406.677.085 1.53.871 1.53h10.32a1.01 1.01 0 0 0 .862-1.53Zm-6.767-5.6c0-.38.305-.684.686-.684h.093c.38 0 .685.304.685.685v2.563c0 .38-.305.685-.685.685H6.93a.682.682 0 0 1-.686-.685V3.835Zm1.599 4.974c0 .474-.389.863-.863.863a.866.866 0 0 1-.862-.863c0-.474.389-.863.862-.863.474 0 .863.39.863.863Z' fill='%23FF5752'/%3E%3C/svg%3E");
 }
 
+.calendar-sync__calendar-item--title .calendar-sync__account-info.--error-reconnect .calendar-sync__account-info--icon,
+.calendar-sync__account.--error-reconnect .calendar-sync__account-info .calendar-sync__account-info--icon {
+	animation: none;
+	display: block;
+	width: 29px;
+	margin-right: 6px;
+	height: 20px;
+	background-image: url(../image/calendar-sync__icon-type-error-reconnect.svg);
+	align-self: flex-start;
+}
+
 .calendar-sync__calendar-item--title .calendar-sync__account-info.--error .calendar-sync__account-info--icon.--animate,
 .calendar-sync__account.--error .calendar-sync__account-info .calendar-sync__account-info--icon.--animate {
 	animation: none;
@@ -1414,7 +1448,29 @@ span.calendar-sync-slider-info-text {
 .calendar-sync__calendar-item--buttons {
 	display: flex;
 	align-items: center;
+	padding: 3px 0;
 	overflow: hidden;
+}
+
+.calendar-sync__calendar-item_buttons-counter {
+	position: absolute;
+	top: -3px;
+	right: -4px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 21px;
+	height: 16px;
+	border-radius: var(--ui-border-radius-sm);
+	color: var(--ui-color-on-primary);
+	font-size: var(--ui-font-size-3xs);
+	font-weight: var(--ui-font-weight-bold);
+	background: #ff5752;
+}
+
+.calendar-sync__calendar-item_buttons-error {
+	margin-right: 7px;
+	margin-left: -7px;
 }
 
 .calendar-sync__calendar-item--more {
@@ -1429,10 +1485,12 @@ span.calendar-sync-slider-info-text {
 
 .calendar-sync__calendar-item.--refused .calendar-sync__calendar-item--more,
 .calendar-sync__calendar-item.--error .calendar-sync__calendar-item--more,
+.calendar-sync__calendar-item.--error-reconnect .calendar-sync__calendar-item--more,
 .calendar-sync__calendar-item.--complete .calendar-sync__calendar-item--more {
 	display: block;
 	width: 34px;
 	height: 26px;
+	margin-left: 35px;
 }
 
 .calendar-sync__calendar-item--more.--active,
@@ -1445,6 +1503,11 @@ span.calendar-sync-slider-info-text {
 [data-role="status-success"] {
 	cursor: auto;
 	pointer-events: none;
+}
+
+.calendar-sync__calendar-item.--error-reconnect [data-role=sync_info_text] {
+	line-height: 13px;
+	font-size: 11px;
 }
 
 .calendar-sync__steps {
@@ -1585,6 +1648,11 @@ span.calendar-sync-slider-info-text {
 	color: var(--light-gray);
 }
 
+.calendar-sync__account-info-template-reconnection {
+	padding-top: 11px;
+	line-height: 13px;
+}
+
 .calendar-sync__account-desc {
 	display: block;
 	margin-bottom: 30px;
@@ -1622,7 +1690,8 @@ span.calendar-sync-slider-info-text {
 	animation: none;
 }
 
-.calendar-sync__account-check-list.--error {
+.calendar-sync__account-check-list.--error,
+.calendar-sync__account-check-list.--disabled {
 	opacity: .4;
 	pointer-events: none;
 }
@@ -2038,4 +2107,14 @@ span.calendar-sync-slider-info-text {
 
 .calendar-sync-btn-icon-refused:after {
 	background-image: url("data:image/svg+xml,%3Csvg width='18' height='16' viewBox='0 0 18 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M4.35587 15.1945C4.75833 15.4743 5.31136 15.3748 5.5911 14.9723L14.518 2.12946C14.7977 1.727 14.6982 1.17397 14.2958 0.894232L13.9209 0.633677C13.5185 0.353937 12.9654 0.453416 12.6857 0.855871L3.75882 13.6987C3.47908 14.1012 3.57856 14.6542 3.98102 14.934L4.35587 15.1945Z' fill='%23FFE1A6'/%3E%3Cpath d='M4.89227 9.67063L3.69279 11.3963C2.98718 10.3449 2.57564 9.0795 2.57564 7.71639L0.343262 7.71629L3.64609 4.40372L6.53698 7.30442L6.25127 7.71546H4.46988C4.46988 8.41344 4.62099 9.07532 4.89227 9.67063Z' fill='%23FFE1A6'/%3E%3Cpath d='M13.938 7.71506L12.0829 7.71627L11.7686 8.16847L14.6331 11.0722L18 7.71677H15.8322C15.8322 6.3318 15.4074 5.04424 14.6809 3.97863L13.4877 5.6953C13.7765 6.30864 13.938 6.99345 13.938 7.71506Z' fill='%23FFE1A6'/%3E%3Cpath d='M7.61654 14.142L8.81228 12.4217C8.94146 12.4322 9.07212 12.4376 9.20403 12.4376C10.3255 12.4376 11.3556 12.0484 12.1663 11.3971L13.5111 12.7426C12.3524 13.7338 10.8482 14.3326 9.20407 14.3326C8.65688 14.3326 8.12517 14.2666 7.61654 14.142Z' fill='%23FFE1A6'/%3E%3Cpath d='M9.54181 2.98145L10.7411 1.25603C10.2477 1.1384 9.73302 1.07612 9.20381 1.07612C7.51029 1.07612 5.96478 1.71129 4.79321 2.75589L6.13638 4.09825C6.96251 3.39431 8.03381 2.96951 9.20389 2.96951C9.31751 2.96951 9.43019 2.97354 9.54181 2.98145Z' fill='%23FFE1A6'/%3E%3C/svg%3E%0A");
+}
+
+.calendar-sync__disconnect-button-container {
+	display: flex;
+	justify-content: center;
+	padding-top: 20px;
+}
+
+.calendar-sync__account-btn .ui-icon-set.--hidden {
+	opacity: 0;
 }

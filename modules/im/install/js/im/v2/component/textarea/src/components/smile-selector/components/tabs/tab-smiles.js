@@ -18,6 +18,13 @@ export type SmilesConfig = {
 // @vue/component
 export const TabSmiles = {
 	name: 'SmilesContent',
+	props:
+	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
+	},
 	emits: ['close'],
 	data(): SmilesConfig
 	{
@@ -107,11 +114,15 @@ export const TabSmiles = {
 			const ratio = 1.75;
 			const width = `${smile.width * ratio}px`;
 			const height = `${smile.height * ratio}px`;
+
 			return {width, height};
 		},
 		onSmileClick(smileCode: string, event: PointerEvent)
 		{
-			EventEmitter.emit(EventType.textarea.insertText, {text: smileCode});
+			EventEmitter.emit(EventType.textarea.insertText, {
+				text: smileCode,
+				dialogId: this.dialogId,
+			});
 			if (!Utils.key.isAltOrOption(event))
 			{
 				this.$emit('close');

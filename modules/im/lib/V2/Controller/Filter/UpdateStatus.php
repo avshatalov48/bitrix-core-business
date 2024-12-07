@@ -13,6 +13,16 @@ class UpdateStatus extends Base
 {
 	public function onAfterAction(Event $event): void
 	{
+		$this->updateStatus();
+	}
+
+	public function onBeforeAction(Event $event)
+	{
+		$this->updateStatus(false);
+	}
+
+	private function updateStatus(bool $desktopCache = true): void
+	{
 		$userId = (int)CurrentUser::get()->getId();
 		if (!$userId)
 		{
@@ -33,7 +43,7 @@ class UpdateStatus extends Base
 
 		if ($this->isDesktop())
 		{
-			\CIMMessenger::SetDesktopStatusOnline($userId);
+			\CIMMessenger::SetDesktopStatusOnline($userId, $desktopCache);
 		}
 	}
 

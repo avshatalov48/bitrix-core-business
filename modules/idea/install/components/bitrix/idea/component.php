@@ -102,10 +102,10 @@ if ($arParams["SEF_MODE"] == "Y")
 	CComponentEngine::InitComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 	foreach ($arUrlTemplates as $url => $value)
 	{
-			if($arParams["PATH_TO_".ToUpper($url)] == '')
-				$arResult["PATH_TO_".ToUpper($url)] = $arParams["SEF_FOLDER"].$value;
+			if($arParams["PATH_TO_".mb_strtoupper($url)] == '')
+				$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["SEF_FOLDER"].$value;
 			else
-				$arResult["PATH_TO_".ToUpper($url)] = $arParams["PATH_TO_".ToUpper($url)];
+				$arResult["PATH_TO_".mb_strtoupper($url)] = $arParams["PATH_TO_".mb_strtoupper($url)];
 	}
 
 	$arResult["PATH_TO_BLOG_CATEGORY"] = $arParams["SEF_FOLDER"].$arUrlTemplates["blog"].(mb_strpos($arParams["SEF_FOLDER"].$arUrlTemplates["blog"], "?") === false ? "?" : "&")."tag=#category_id#";
@@ -133,8 +133,8 @@ else
 			foreach($arNotSefParams[1] as $subURLParam)
 				$subURL .= '&'.htmlspecialcharsbx($arVariableAliases[$subURLParam]).'=#'.$subURLParam.'#';
 
-		if($arParams["PATH_TO_".ToUpper($url)] == '')
-			$arResult["PATH_TO_".ToUpper($url)] = htmlspecialcharsbx($APPLICATION->GetCurPage())."?".htmlspecialcharsbx($arVariableAliases["page"])."=".$url.$subURL;
+		if($arParams["PATH_TO_".mb_strtoupper($url)] == '')
+			$arResult["PATH_TO_".mb_strtoupper($url)] = htmlspecialcharsbx($APPLICATION->GetCurPage())."?".htmlspecialcharsbx($arVariableAliases["page"])."=".$url.$subURL;
 	}
 
 		$arResult["PATH_TO_BLOG_CATEGORY"] = htmlspecialcharsbx($APPLICATION->GetCurPage()).'?tag=#category_id#';
@@ -166,7 +166,7 @@ $arResult = array_merge(
 		"ACTIONS" => array(),
 		"IS_CORPORTAL" => IsModuleInstalled('intranet')?"Y":"N",
 		"IS_AJAX" => $_REQUEST["AJAX"] == 'IDEA'?'Y':"N",
-		"LIFE_SEARCH_QUERY" => (CUtil::decodeURIComponent($_REQUEST["LIFE_SEARCH_QUERY"]) || true ? $_REQUEST["LIFE_SEARCH_QUERY"] : ""),
+		"LIFE_SEARCH_QUERY" => $_REQUEST["LIFE_SEARCH_QUERY"] ?? '',
 		//"USER_PERMISSION" => array(),
 	),
 	$arResult

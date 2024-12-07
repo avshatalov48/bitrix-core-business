@@ -139,6 +139,7 @@ export default class Image extends BaseControl
 			.action(
 				"Landing\\Block::updateNodes",
 				{
+					lid: this.options.block.lid,
 					block: this.options.block.id,
 					data: data,
 				},

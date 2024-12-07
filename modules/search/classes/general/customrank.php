@@ -78,7 +78,7 @@ class CSearchCustomRank
 				b_search_custom_rank CR
 			".$sFilter.$sOrder;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetByID($ID)
@@ -92,7 +92,7 @@ class CSearchCustomRank
 			WHERE CR.ID = ".$ID."
 		";
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function Delete($ID)
@@ -100,7 +100,7 @@ class CSearchCustomRank
 		$DB = CDatabase::GetModuleConnection('search');
 		$ID = intval($ID);
 
-		return $DB->Query("DELETE FROM b_search_custom_rank WHERE ID=".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query("DELETE FROM b_search_custom_rank WHERE ID=".$ID);
 	}
 
 	function CheckFields($arFields)
@@ -144,7 +144,7 @@ class CSearchCustomRank
 			$strSql =
 				"UPDATE b_search_custom_rank SET ".$strUpdate." ".
 				"WHERE ID=".$ID;
-			return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return $DB->Query($strSql);
 		}
 		return true;
 	}
@@ -156,7 +156,7 @@ class CSearchCustomRank
 			UPDATE b_search_custom_rank
 			SET APPLIED='N'
 		";
-		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query($strSql);
 		if ($rs)
 		{
 			$strSql = "
@@ -164,7 +164,7 @@ class CSearchCustomRank
 				SET CUSTOM_RANK=0
 				WHERE CUSTOM_RANK<>0
 			";
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 		}
 		return $rs;
 	}
@@ -202,7 +202,7 @@ class CSearchCustomRank
 				".($ar["PARAM2"] != ""? "AND PARAM2='".$DB->ForSQL($ar["PARAM2"])."'": "")."
 				".($ar["ITEM_ID"] != ""? "AND ITEM_ID='".$DB->ForSQL($ar["ITEM_ID"])."'": "")."
 			";
-			$upd = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$upd = $DB->Query($strSql);
 			if ($upd)
 				$upd = $this->Update($ar["ID"], array("APPLIED" => "Y"));
 			else
@@ -217,7 +217,7 @@ class CSearchCustomRank
 				FROM b_search_custom_rank
 				GROUP BY APPLIED
 			";
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 			while ($ar = $rs->Fetch())
 				if ($ar["APPLIED"] == "Y")
 					$res["DONE"] = $ar["C"];

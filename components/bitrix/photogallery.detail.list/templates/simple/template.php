@@ -43,7 +43,7 @@ $arParams["GALLERY_AVATAR_SIZE"] = intval(intVal($arParams["GALLERY_AVATAR_SIZE"
 if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="photo-info-box photo-error">
-	<?=ShowError($arResult["ERROR_MESSAGE"])?>
+	<? ShowError($arResult["ERROR_MESSAGE"]) ?>
 </div>
 <?
 endif;

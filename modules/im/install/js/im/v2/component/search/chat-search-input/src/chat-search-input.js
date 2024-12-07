@@ -17,8 +17,8 @@ export const ChatSearchInput = {
 			required: false,
 		},
 		delayForFocusOnStart: {
-			type: Number,
-			default: 0,
+			type: [Number, null],
+			default: null,
 		},
 		withIcon: {
 			type: Boolean,

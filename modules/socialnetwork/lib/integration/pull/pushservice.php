@@ -96,7 +96,7 @@ class PushService
 	{
 		$this->registry[] = [
 			'TAG' => $parameters['TAG'] ?? '',
-			'RECIPIENTS' => $parameters['RECIPIENTS'],
+			'RECIPIENTS' => $parameters['RECIPIENTS'] ?? [],
 			'PARAMS' => $parameters['PARAMS'],
 		];
 	}
@@ -107,7 +107,14 @@ class PushService
 		{
 			if (isset($event['TAG']) && $event['TAG'] !== '')
 			{
-				\CPullWatch::AddToStack($event['TAG'], $event['PARAMS']);
+				$eventName = $event['PARAMS']['eventName'] ?? null;
+				$userId = $event['PARAMS']['userId'] ?? null;
+				$isPullUnsubscribe = $eventName === PushCommand::PULL_UNSUBSCRIBE;
+
+				($isPullUnsubscribe && $userId)
+					? \CPullWatch::Delete($userId, $event['TAG'])
+					: \CPullWatch::AddToStack($event['TAG'], $event['PARAMS'])
+				;
 			}
 			else
 			{
@@ -115,5 +122,4 @@ class PushService
 			}
 		}
 	}
-
 }

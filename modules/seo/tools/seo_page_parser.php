@@ -7,8 +7,6 @@ if (!$USER->CanDoOperation('seo_tools'))
 IncludeModuleLangFile(__FILE__);
 CModule::IncludeModule('seo');
 
-CUtil::JSPostUnescape();
-
 Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
 $arCallbacks = array('set_stats' => 'window.BXSetStats', 'set_keywords_stats' => 'window.BXUpdateKeywordsStats');

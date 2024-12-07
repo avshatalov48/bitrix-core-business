@@ -52,7 +52,10 @@ export const ForwardContent = {
 			const { dialogId } = event;
 
 			await Messenger.openChat(dialogId);
-			EventEmitter.emit(EventType.textarea.insertForward, { messageId: this.messageId });
+			EventEmitter.emit(EventType.textarea.insertForward, {
+				messageId: this.messageId,
+				dialogId
+			});
 			this.$emit('close');
 		},
 	},

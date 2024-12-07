@@ -14,6 +14,7 @@ class CBPSetStateTitleActivity
 	{
 		$rootActivity = $this->GetRootActivity();
 		$stateService = $this->workflow->GetService("StateService");
+		$stateTitle = is_string($this->TargetStateTitle) ? $this->TargetStateTitle : '';
 		if($rootActivity instanceof CBPStateMachineWorkflowActivity)
 		{
 			$arState = $stateService->GetWorkflowState($this->GetWorkflowInstanceId());
@@ -26,19 +27,16 @@ class CBPSetStateTitleActivity
 
 			$stateService->SetStateTitle(
 				$this->GetWorkflowInstanceId(),
-				$activity->Title.($this->TargetStateTitle!=''?": ".$this->TargetStateTitle:'')
+				$activity->Title . ($stateTitle ? ": " . $stateTitle : '')
 			);
 		}
-		else
+		elseif ($stateTitle)
 		{
-			if($this->TargetStateTitle!='')
-			{
-				$stateService->SetStateTitle(
-					$this->GetWorkflowInstanceId(),
-					$this->TargetStateTitle
-				);
-				$rootActivity->SetCustomStatusMode();
-			}
+			$stateService->SetStateTitle(
+				$this->GetWorkflowInstanceId(),
+				$stateTitle
+			);
+			$rootActivity->SetCustomStatusMode();
 		}
 
 		return CBPActivityExecutionStatus::Closed;

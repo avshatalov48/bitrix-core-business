@@ -1,17 +1,24 @@
-import { Text } from 'main.core';
+import { Loc, Text } from 'main.core';
 
 import { ChatType } from 'im.v2.const';
 import { highlightText } from 'im.v2.lib.text-highlighter';
-import { Avatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
 
 import '../css/mention-item.css';
 
 import type { ImModelChat, ImModelRecentItem, ImModelUser } from 'im.v2.model';
 
+const ItemTextByChatType = {
+	[ChatType.openChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
+	[ChatType.generalChannel]: Loc.getMessage('IM_TEXTAREA_MENTION_OPEN_CHANNEL_TYPE'),
+	[ChatType.channel]: Loc.getMessage('IM_TEXTAREA_MENTION_PRIVATE_CHANNEL_TYPE'),
+	default: Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE'),
+};
+
 // @vue/component
 export const MentionItem = {
 	name: 'MentionItem',
-	components: { Avatar, ChatTitleWithHighlighting },
+	components: { ChatAvatar, ChatTitleWithHighlighting },
 	props:
 	{
 		dialogId: {
@@ -25,6 +32,10 @@ export const MentionItem = {
 		selected: {
 			type: Boolean,
 			default: false,
+		},
+		contextDialogId: {
+			type: String,
+			required: true,
 		},
 	},
 	emits: ['itemClick', 'itemHover'],
@@ -67,7 +78,7 @@ export const MentionItem = {
 		},
 		chatItemText(): string
 		{
-			return this.$Bitrix.Loc.getMessage('IM_TEXTAREA_MENTION_CHAT_TYPE');
+			return ItemTextByChatType[this.dialog.type] ?? ItemTextByChatType.default;
 		},
 	},
 	methods:
@@ -84,7 +95,12 @@ export const MentionItem = {
 			:class="{'--selected': selected}"
 			@mouseover="$emit('itemHover')"
 		>
-			<Avatar :dialogId="dialogId" :size="AvatarSize.M" class="bx-im-mention-item__avatar-container" />
+			<ChatAvatar 
+				:avatarDialogId="dialogId"
+				:contextDialogId="dialogId"
+				:size="AvatarSize.M" 
+				class="bx-im-mention-item__avatar-container" 
+			/>
 			<div class="bx-im-mention-item__content-container">
 				<ChatTitleWithHighlighting 
 					:dialogId="dialogId" 

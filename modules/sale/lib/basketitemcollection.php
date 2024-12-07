@@ -71,9 +71,6 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 
 	/**
 	 * @param array $itemList
-	 * @throws NotImplementedException
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 */
 	public function loadFromArray(array $itemList)
 	{
@@ -83,7 +80,7 @@ abstract class BasketItemCollection extends Internals\EntityCollection
 		foreach ($itemList as $item)
 		{
 			$basketItem = $itemClassName::load($this, $item);
-			$this->addItem($basketItem);
+			$this->bindItem($basketItem);
 		}
 
 		$controller = Internals\CustomFieldsController::getInstance();

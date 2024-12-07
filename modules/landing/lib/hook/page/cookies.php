@@ -193,11 +193,16 @@ class Cookies extends \Bitrix\Landing\Hook\Page
 		}
 		else
 		{
-			Manager::setPageView('AfterHeadOpen',
-				'<script data-skip-moving="true">
-					' . $functionBody . '
-				</script>'
-			);
+			{
+				$scriptContent = '<script data-skip-moving="true">' . $functionBody . '</script>';
+
+				if ($cookieCode === 'ym')
+				{
+					$scriptContent = '<!-- Yandex.Metrika counter -->' . "\n" . $scriptContent . "\n" . '<!-- /Yandex.Metrika counter -->';
+				}
+
+				Manager::setPageView('AfterHeadOpen', $scriptContent);
+			}
 		}
 	}
 

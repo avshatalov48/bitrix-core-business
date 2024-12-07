@@ -360,15 +360,14 @@
 				BX.Mail.Home.Grid.reloadTable();
 			}
 		},
-		onPopupMenuFirstShow: function (popupWindow)
+		onPopupMenuFirstShow(popupWindow)
 		{
 			BX.bind(
 				popupWindow.contentContainer,
 				'click',
-				function ()
-				{
+				() => {
 					popupWindow.close();
-				}
+				},
 			);
 		},
 		onSettingsToggleClick: function ()
@@ -386,17 +385,28 @@
 
 			popup.popupWindow.isShown() ? popup.close() : popup.show();
 		},
-		onMailboxMenuClick: function ()
+		onMailboxMenuClick()
 		{
-			var popup = BX.Main.MenuManager.create(
+			const popup = BX.Main.MenuManager.create(
 				this.mailboxPopupMenuId,
 				this.mailboxMenuToggle,
 				this.mailboxMenu,
 				{
 					events: {
-						onPopupFirstShow: this.onPopupMenuFirstShow
-					}
-				}
+						onPopupFirstShow: () => {
+							popup.getMenuItems().forEach((menuItem) => {
+								if (menuItem.options.dataset?.isLocked !== true)
+								{
+									BX.Event.bind(menuItem.getContainer(), 'click', () => {
+										popup.close();
+									});
+								}
+							});
+						},
+						onPopupClose: this.onMailboxListClose.bind(this),
+						onPopupDestroy: this.onMailboxListClose.bind(this),
+					},
+				},
 			);
 
 			popup.popupWindow.isShown() ? popup.close() : popup.show();
@@ -859,5 +869,22 @@
 				}
 			}
 		},
+
+		setActiveFeaturePromoter(activeFeaturePromoter)
+		{
+			this.activeFeaturePromoter = activeFeaturePromoter;
+		},
+
+		onMailboxListClose()
+		{
+			if (
+				this.activeFeaturePromoter
+				&& BX.Type.isFunction(this.activeFeaturePromoter.close)
+			)
+			{
+				this.activeFeaturePromoter.close();
+				this.activeFeaturePromoter = null;
+			}
+		}
 	};
 })();

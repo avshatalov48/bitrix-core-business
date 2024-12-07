@@ -17,7 +17,6 @@ if (!empty($siteId) && is_string($siteId))
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 $request = Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 
 if (!check_bitrix_sessid() && !$request->isPost())
 {
@@ -34,7 +33,7 @@ if(empty($templateName))
 $params = [];
 $params['ACCOUNT_NUMBER'] = (string)($orderData['order'] ?? '');
 $params['PAYMENT_NUMBER'] = (string)($orderData['payment'] ?? '');
-$params['PATH_TO_PAYMENT'] = $orderData['path_to_payment'] <> '' ? htmlspecialcharsbx($orderData['path_to_payment']) : "";
+$params['PATH_TO_PAYMENT'] = htmlspecialcharsbx((string)($orderData['path_to_payment'] ?? ''));
 $params['REFRESH_PRICES'] = ($orderData['refresh_prices'] ?? 'N') === 'Y' ? 'Y' : 'N';
 $params['RETURN_URL'] = (string)($orderData['return_url'] ?? '');
 if (CBXFeatures::IsFeatureEnabled('SaleAccounts'))

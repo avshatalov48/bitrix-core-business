@@ -175,7 +175,7 @@ class CAllSalePaySystemAction
 	public static function OnEventLogGetAuditTypes()
 	{
 		return array(
-			"PAY_SYSTEM_ACTION_ALARM" => "[PAY_SYSTEM_ACTION_ALARM] ".GetMessage("SKGPSA_ALARM_EVENT_LOG")
+			"PAY_SYSTEM_ACTION_ALARM" => "[PAY_SYSTEM_ACTION_ALARM] ".GetMessage("SKGPSA_ALARM_EVENT_LOG_MSGVER_1")
 		);
 	}
 
@@ -756,7 +756,7 @@ class CAllSalePaySystemAction
 
 				//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-				$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query($strSql);
 				if ($arRes = $dbRes->Fetch())
 					return $arRes["CNT"];
 				else
@@ -785,7 +785,7 @@ class CAllSalePaySystemAction
 				if ($arSqls["GROUPBY"] <> '')
 					$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-				$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query($strSql_tmp);
 				$cnt = 0;
 				if ($arSqls["GROUPBY"] == '')
 				{
@@ -805,7 +805,7 @@ class CAllSalePaySystemAction
 			{
 				if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"])>0)
 					$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
-				$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query($strSql);
 			}
 		}
 
@@ -994,7 +994,7 @@ class CAllSalePaySystemAction
 			$strSql =
 				"INSERT INTO b_sale_pay_system_action(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 
@@ -1086,7 +1086,7 @@ class CAllSalePaySystemAction
 
 			$strUpdate = $DB->PrepareUpdate("b_sale_pay_system_action", $arFields);
 			$strSql = "UPDATE b_sale_pay_system_action SET ".$strUpdate." WHERE ID = ".$ID."";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			return $ID;
 		}
@@ -1739,7 +1739,6 @@ class CAllSalePaySystemAction
 				'PAYMENT_YMPayment' => 'ASSIST_PAYMENT_YMPayment',
 				'PAYMENT_WebMoneyPayment' => 'ASSIST_PAYMENT_WebMoneyPayment',
 				'PAYMENT_QIWIPayment' => 'ASSIST_PAYMENT_QIWIPayment',
-				'PAYMENT_AssistIDCCPayment' => 'ASSIST_PAYMENT_AssistIDCCPayment',
 				'DELAY' => 'ASSIST_DELAY',
 				'DEMO' => 'PS_IS_TEST',
 				'AUTOPAY' => 'PS_CHANGE_STATUS_PAY',
@@ -1936,7 +1935,7 @@ class CAllSalePaySystemAction
 			)
 		);
 
-		$handlerAliases = $psAliases[ToLower($handler)];
+		$handlerAliases = $psAliases[mb_strtolower($handler)];
 		if (is_array($handlerAliases))
 			return array_merge($psAliases['general'], $handlerAliases);
 

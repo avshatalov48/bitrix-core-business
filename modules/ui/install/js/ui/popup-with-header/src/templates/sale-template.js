@@ -1,5 +1,6 @@
 import { Cache, Dom, Tag } from 'main.core';
-import { Button } from 'ui.buttons';
+import { Button, ButtonTag } from 'ui.buttons';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 import type {
 	ButtonConfig,
 	MoreLinkConfig,
@@ -56,7 +57,7 @@ export class SaleTemplate extends BaseTemplate
 					</div>
 					<div>
 						${config.description ? this.#getDescription(config.description) : null}
-						${config.more ? this.#getMoreLink(config.more) : null}
+						${config.more ? this.#getMoreLink(config.more, config.button) : null}
 					</div>
 				</div>
 				<div class="ui-popupconstructor-content-item-wrapper_button">
@@ -105,10 +106,24 @@ export class SaleTemplate extends BaseTemplate
 		return description;
 	}
 
-	#getMoreLink(config: MoreLinkConfig): HTMLElement
+	#getMoreLink(config: MoreLinkConfig, configMainButton: ButtonConfig): HTMLElement
 	{
 		const onclick = () => {
-			top.BX.Helper.show(`redirect=detail&code=${config.code}`);
+			if (config.code)
+			{
+				FeaturePromotersRegistry.getPromoter({
+					code: config.code,
+				}).show();
+			}
+			else if (config.articleId)
+			{
+				top.BX.Helper.show(`redirect=detail&code=${config.articleId}`);
+			}
+
+			if (this.options?.analyticsCallback)
+			{
+				this.options.analyticsCallback('click-more', configMainButton.url);
+			}
 		};
 
 		const moreLink = Tag.render`
@@ -121,14 +136,22 @@ export class SaleTemplate extends BaseTemplate
 
 	#getButton(config: ButtonConfig): HTMLElement
 	{
+		const buttonTag = config.target ? ButtonTag.BUTTON : ButtonTag.LINK;
+
 		const button = new Button({
 			round: true,
 			text: config.text,
 			size: Button.Size.EXTRA_SMALL,
 			color: Button.Color.SUCCESS,
 			noCaps: true,
-			link: config.url,
+			tag: buttonTag,
+			link: config.target ? null : config.url,
 			onclick: () => {
+				if (config.target)
+				{
+					window.open(config.url, config.target);
+				}
+
 				if (this.options?.analyticsCallback)
 				{
 					this.options.analyticsCallback('click-button', config.url);

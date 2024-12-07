@@ -1,0 +1,56 @@
+.bx-im-role-item__container {
+	--im-role-role-item__color-name: var(--im-color-palette-black-base);
+	--im-role-role-item__color-description: var(--im-color-palette-gray-60);
+	--im-role-role-item__background_color-container-hover: #f7f7f7;
+
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	width: 100%;
+	height: 57px;
+	padding: 10px 22px 9px 11px;
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-2xs);
+	cursor: pointer;
+	border-radius: 6px;
+}
+
+.bx-im-role-item__container:hover {
+	background-color: var(--im-role-role-item__background_color-container-hover);
+}
+
+.bx-im-role-item__avatar {
+	width: 32px;
+	height: 32px;
+	flex-shrink: 0;
+}
+
+.bx-im-role-item__avatar img {
+	width: 100%;
+	height: 100%;
+	border-radius: 50%;
+}
+
+.bx-im-role-item__info {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	overflow: hidden;
+}
+
+.bx-im-role-item__name {
+	font-size: var(--im-font-size-lg);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-role-role-item__color-name);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-role-item__description {
+	font-size: var(--im-font-size-sm);
+	color: var(--im-role-role-item__color-description);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}

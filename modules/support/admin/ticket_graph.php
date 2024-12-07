@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -19,16 +19,16 @@ if($bAdmin!="Y" && $bSupportTeam!="Y" && $bDemo!="Y") $APPLICATION->AuthForm(Get
 include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
-// создаем изображение
+// СЃРѕР·РґР°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 $ImageHendle = CreateImageHandle($width, $height);
 
-$arrX=Array(); // массив точек графика по X
-$arrY=Array(); // массив точек графика по Y
-$arrayX=Array(); // массив точек на оси X (деления)
-$arrayY=Array(); // массив точек на оси Y (деления)
+$arrX=Array(); // РјР°СЃСЃРёРІ С‚РѕС‡РµРє РіСЂР°С„РёРєР° РїРѕ X
+$arrY=Array(); // РјР°СЃСЃРёРІ С‚РѕС‡РµРє РіСЂР°С„РёРєР° РїРѕ Y
+$arrayX=Array(); // РјР°СЃСЃРёРІ С‚РѕС‡РµРє РЅР° РѕСЃРё X (РґРµР»РµРЅРёСЏ)
+$arrayY=Array(); // РјР°СЃСЃРёРІ С‚РѕС‡РµРє РЅР° РѕСЃРё Y (РґРµР»РµРЅРёСЏ)
 
 /******************************************************
-                Собираем точки графика
+                РЎРѕР±РёСЂР°РµРј С‚РѕС‡РєРё РіСЂР°С„РёРєР°
 *******************************************************/
 
 $arFilter = Array(
@@ -50,11 +50,11 @@ while ($rsTickets->ExtractFields("f_",false))
 {
 	$date = mktime(0,0,0,$f_CREATE_MONTH,$f_CREATE_DAY,$f_CREATE_YEAR);
 	$date_tmp = 0;
-	// если даты пропущены (идут не по порядку) то
+	// РµСЃР»Рё РґР°С‚С‹ РїСЂРѕРїСѓС‰РµРЅС‹ (РёРґСѓС‚ РЅРµ РїРѕ РїРѕСЂСЏРґРєСѓ) С‚Рѕ
 	$next_date = AddTime($prev_date,1,"D");
 	if ($date>$next_date && intval($prev_date)>0) 
 	{
-		// заполняем пропущенные даты
+		// Р·Р°РїРѕР»РЅСЏРµРј РїСЂРѕРїСѓС‰РµРЅРЅС‹Рµ РґР°С‚С‹
 		$date_tmp = $next_date;
 		while ($date_tmp<$date)
 		{
@@ -72,7 +72,7 @@ while ($rsTickets->ExtractFields("f_",false))
 	$prev_date = $date;
 }
 /******************************************************
-                 Формируем ось X
+                 Р¤РѕСЂРјРёСЂСѓРµРј РѕСЃСЊ X
 *******************************************************/
 
 $arrayX = GetArrayX($arrX, $MinX, $MaxX);
@@ -111,7 +111,7 @@ if ($find_mess=="Y" || $find_overdue_mess=="Y")
 }
 
 /******************************************************
-                 Формируем ось Y
+                 Р¤РѕСЂРјРёСЂСѓРµРј РѕСЃСЊ Y
 *******************************************************/
 $arrY = array();
 if ($find_all=="Y")				$arrY = array_merge($arrY,$arrY_all);
@@ -125,13 +125,13 @@ $arrayY = GetArrayY($arrY, $MinY, $MaxY);
 //EchoGraphData($arrayX, $MinX, $MaxX, $arrayY, $MinY, $MaxY, $arrX, $arrY);
 
 /******************************************************
-                Рисуем координатную сетку
+                Р РёСЃСѓРµРј РєРѕРѕСЂРґРёРЅР°С‚РЅСѓСЋ СЃРµС‚РєСѓ
 *******************************************************/
 
 DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHendle);
 
 /******************************************************
-                     Рисуем графики
+                     Р РёСЃСѓРµРј РіСЂР°С„РёРєРё
 *******************************************************/
 
 if ($find_all=="Y")
@@ -150,7 +150,7 @@ if ($find_overdue_mess=="Y")
 	Graf($arrX, $arrY_overdue_mess, $ImageHendle, $MinX, $MaxX, $MinY, $MaxY, $arrColor["OVERDUE_MESSAGES"]);	
 
 /******************************************************
-                Отображаем изображение
+                РћС‚РѕР±СЂР°Р¶Р°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 *******************************************************/
 
 ShowImageHeader($ImageHendle);

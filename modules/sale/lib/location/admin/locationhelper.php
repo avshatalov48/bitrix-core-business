@@ -82,7 +82,7 @@ final class LocationHelper extends NameHelper
 		$columns = static::getColumns('list');
 		foreach($columns as $code => &$col)
 		{
-			$col['DEFAULT'] = in_array($code, array('ID', 'TYPE_ID', 'NAME_'.ToUpper(LANGUAGE_ID), 'SORT'));
+			$col['DEFAULT'] = in_array($code, array('ID', 'TYPE_ID', 'NAME_'.mb_strtoupper(LANGUAGE_ID), 'SORT'));
 		}
 
 		return $columns;

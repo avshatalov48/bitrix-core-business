@@ -1,0 +1,40 @@
+.ui-image-stack-steps-step {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	margin-right: 24px;
+	min-width: 68px;
+	height: 76px;
+	z-index: 1;
+}
+
+.ui-image-stack-steps-step:before {
+	content: '';
+	position: absolute;
+	top: 52%;
+	left: 0;
+	height: 1px;
+	width: calc(100% + 24px) ;
+	background: var(--ui-color-base-10);
+	transform: translateY(-50%);
+	z-index: -1;
+}
+
+.ui-image-stack-steps-step:first-child:before {
+	left: 25px;
+}
+
+.ui-image-stack-steps-step:last-child:before {
+	/*left: -25px;*/
+	width: calc(100% - 25px);
+}
+
+.ui-image-stack-steps-step:only-child:before {
+	display: none;
+}
+
+.ui-image-stack-steps .ui-image-stack-steps-step:last-child:not(:last-child:has(.ui-image-stack-steps-step-progress-box)) {
+	margin-right: 0;
+}

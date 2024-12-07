@@ -7,7 +7,7 @@ $arResult['USER_PROPERTY'] = array(
 
 $parent = $this->__component->GetParent();
 if (is_object($parent) && $parent->__name <> '')
-	$arParams["~PATH_TO_GROUP_WIKI"] = $parent->arResult["PATH_TO_GROUP_WIKI_INDEX"];
+	$arParams["~PATH_TO_GROUP_WIKI"] = $parent->arResult["PATH_TO_GROUP_WIKI_INDEX"] ?? null;
 
 //Code below searches for appropriate icon for search index item.
 //All filenames should be lowercase.
@@ -110,18 +110,18 @@ if (array_key_exists("PATH_TO_GROUP_TASKS_SECTION", $arParams))
 	$arParams["~PATH_TO_GROUP_TASKS_SECTION"] = htmlspecialcharsback($arParams["PATH_TO_GROUP_TASKS_SECTION"]);
 }
 
-$strParams = "q=".urlencode($_REQUEST["q"]);
+$strParams = "q=".urlencode($_REQUEST["q"] ?? '');
 
-if($_REQUEST["where"] !== false && trim($_REQUEST["where"]) <> '')
-	$strParams .= "&amp;where=".urlencode(trim($_REQUEST["where"]));
-if($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] !== false && trim($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"]) <> '')
-	$strParams .= "&amp;".$arParams["FILTER_NAME"]."=".urlencode(trim($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"]));
-if($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] !== false && trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"]) <> '')
-	$strParams .= "&amp;".$arParams["FILTER_DATE_NAME"]."_from"."=".urlencode(trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"]));
-if($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] !== false && trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"]) <> '')
-	$strParams .= "&amp;".$arParams["FILTER_DATE_NAME"]."_to"."=".urlencode(trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"]));
-if($_REQUEST["tags"] !== false && trim($_REQUEST["tags"]) <> '')
-	$strParams .= "&amp;tags=".urlencode(trim($_REQUEST["tags"]));
+if(($_REQUEST["where"] ?? null) !== false && trim($_REQUEST["where"] ?? '') <> '')
+	$strParams .= "&amp;where=".urlencode(trim($_REQUEST["where"] ?? ''));
+if(($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] ?? null) !== false && trim($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] ?? '') <> '')
+	$strParams .= "&amp;".$arParams["FILTER_NAME"]."=".urlencode(trim($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] ?? ''));
+if(($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] ?? null) !== false && trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] ?? '') <> '')
+	$strParams .= "&amp;".$arParams["FILTER_DATE_NAME"]."_from"."=".urlencode(trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] ?? ''));
+if(($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] ?? null) !== false && trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] ?? '') <> '')
+	$strParams .= "&amp;".$arParams["FILTER_DATE_NAME"]."_to"."=".urlencode(trim($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] ?? ''));
+if(($_REQUEST["tags"] ?? null) !== false && trim($_REQUEST["tags"] ?? '') <> '')
+	$strParams .= "&amp;tags=".urlencode(trim($_REQUEST["tags"] ?? ''));
 
 $params_to_kill = array("q", "how", "where", "tags");
 $params_to_kill[] = $arParams["FILTER_NAME"];
@@ -209,7 +209,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 						$strUrl = "";
 						
 						if (!$bWiki)
-							$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".toUpper($element_type)], array("group_id" => $arParams["SOCNET_GROUP_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
+							$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".mb_strtoupper($element_type)], array("group_id" => $arParams["SOCNET_GROUP_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
 
 						$k = 0;
 						foreach($arElement["SECTION_PATH"] as $arPath)
@@ -217,7 +217,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 							if ($k > 0)
 							{
 								$strUrl .= $arPath["NAME"]."/";
-								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".toUpper($element_type)."_SECTION"], array(
+								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".mb_strtoupper($element_type)."_SECTION"], array(
 											"group_id" => $arParams["SOCNET_GROUP_ID"], 
 											"path" => rtrim($strUrl, "/"),
 											"section_id" => $arPath["ID"],
@@ -360,7 +360,7 @@ if(CModule::IncludeModule('intranet'))
 		if($arIBlock)
 			$arResult["STRUCTURE_PAGE"] = CIBlock::ReplaceDetailURL($arIBlock["LIST_PAGE_URL"], $arIBlock, true);
 	}
-	$arResult["STRUCTURE_FILTER"] = trim($arParams["STRUCTURE_FILTER"]);
+	$arResult["STRUCTURE_FILTER"] = trim($arParams["STRUCTURE_FILTER"] ?? '');
 	if($arResult["STRUCTURE_FILTER"] == '')
 		$arResult["STRUCTURE_FILTER"] = "structure";
 

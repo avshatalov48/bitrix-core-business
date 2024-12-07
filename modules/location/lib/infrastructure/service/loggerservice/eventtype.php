@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Location\Infrastructure\Service\LoggerService;
 
 class EventType

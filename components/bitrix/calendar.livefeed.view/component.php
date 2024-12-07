@@ -7,7 +7,8 @@ if (!isset($arParams["CALENDAR_TYPE"]))
 
 if(!CModule::IncludeModule("calendar") || !class_exists("CCalendar"))
 {
-	return ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+	return;
 }
 $arParams['EVENT_ID'] = (int)$arParams['EVENT_ID'];
 $arResult['EVENT'] = false;
@@ -116,6 +117,11 @@ if (!isset($arParams['EVENT_TEMPLATE_URL']))
 	$arParams['EVENT_TEMPLATE_URL'] = $editUrl.((mb_strpos($editUrl, "?") === false) ? '?' : '&').'EVENT_ID=#EVENT_ID#';
 }
 
+$uri = new \Bitrix\Main\Web\Uri($arParams['EVENT_TEMPLATE_URL']);
+if ($uri->getAuthority())
+{
+	$arParams['EVENT_TEMPLATE_URL'] = explode($uri->getAuthority(), $arParams['EVENT_TEMPLATE_URL'])[1];
+}
 
 $fromDateTs = CCalendar::Timestamp($arResult['EVENT']['DATE_FROM']);
 if ($arResult['EVENT']['DT_SKIP_TIME'] !== "Y")

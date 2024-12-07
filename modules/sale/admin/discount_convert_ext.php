@@ -46,8 +46,6 @@ if (
 	&& check_bitrix_sessid()
 )
 {
-	CUtil::JSPostUnescape();
-
 	$params = array(
 		'sessID' => $request['ajaxSessionID'],
 		'maxExecutionTime' => $request['maxExecutionTime'],
@@ -158,7 +156,7 @@ else
 		)
 	);
 ?>
-<script type="text/javascript">
+<script>
 	var jsStepOperations = new BX.Catalog.StepOperations(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
 </script>
 <?

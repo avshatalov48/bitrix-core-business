@@ -2,7 +2,8 @@
 
 namespace Bitrix\Socialnetwork\Internals\EventService\Recepients;
 
-use Bitrix\Socialnetwork\Access\User\UserModel;
+use Bitrix\Socialnetwork\Permission\User\UserModel;
+use Bitrix\Socialnetwork\Internals\Space\LiveWatch\LiveWatchService;
 
 class Recepient
 {
@@ -23,6 +24,11 @@ class Recepient
 	public function isOnline(): bool
 	{
 		return $this->isOnline;
+	}
+
+	public function isWatchingSpaces(): bool
+	{
+		return $this->isOnline && LiveWatchService::getInstance()->isUserWatchingSpaces($this->id);
 	}
 
 	public function getAccessCodes(): array

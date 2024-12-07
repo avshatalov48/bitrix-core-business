@@ -4,6 +4,6 @@
 	border-radius: 16px 0 0 16px;
 }
 
-.bx-im-message-update-features__image-wrapper.--tariff {
+.bx-im-message-update-features__image-wrapper {
 	background-image: url("./images/supervisor-tariff-expansion.svg");
 }

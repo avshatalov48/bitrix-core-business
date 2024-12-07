@@ -6,6 +6,7 @@ CModule::IncludeModule('sale');
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page;
 use Bitrix\Sale\Cashbox;
+use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 
 $publicMode = $adminPage->publicMode;
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
@@ -62,7 +63,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 			array(
 				'select' => array('ID'),
 				'filter' => $filter,
-				'order' => array(ToUpper($by) => ToUpper($order))
+				'order' => array(mb_strtoupper($by) => mb_strtoupper($order))
 			)
 		);
 
@@ -259,11 +260,26 @@ if ($saleModulePermissions == "W")
 	);
 	if (!$publicMode)
 	{
-		$aContext[] = array(
-			"TEXT" => GetMessage("SALE_CASHBOX_GENERATE_LINK"),
-			"ICON" => "btn_new",
-			'ONCLICK' => 'BX.Sale.Cashbox.generateConnectionLink()'
-		);
+		$physicalCashboxData = CashboxTable::getRow([
+			'select' => ['ID'],
+			'filter' => [
+				'@HANDLER' => [
+					'\Bitrix\Sale\Cashbox\CashboxBitrixV3',
+					'\Bitrix\Sale\Cashbox\CashboxBitrixV2',
+					'\Bitrix\Sale\Cashbox\CashboxBitrix',
+				],
+			],
+		]);
+
+		if ($physicalCashboxData)
+		{
+			$aContext[] = array(
+				"TEXT" => GetMessage("SALE_CASHBOX_GENERATE_LINK"),
+				"ICON" => "btn_new",
+				'ONCLICK' => 'BX.Sale.Cashbox.generateConnectionLink()'
+			);
+		}
+
 		/** @global CUser $USER */
 		global $USER;
 		if($USER->CanDoOperation("install_updates"))
@@ -292,7 +308,7 @@ if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 else
 {
 	?>
-	<script language="JavaScript">
+	<script>
 		BX.message(
 			{
 				SALE_CASHBOX_COPY: "<?=Loc::getMessage("SALE_CASHBOX_COPY")?>",
@@ -442,8 +458,20 @@ else
 		}
 	}
 
-	$lAdmin->DisplayFilter($filterFields);
-	$lAdmin->DisplayList();
+	$filterParams = [
+		'CONFIG' => [
+			'popupWidth' => 800,
+		],
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayFilter($filterFields, $filterParams);
+
+	$listParams = [
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayList($listParams);
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

@@ -524,7 +524,7 @@ class CashboxBitrix extends Cashbox
 				{
 					$settings['PAYMENT_TYPE']['ITEMS'][$type] = array(
 						'TYPE' => 'STRING',
-						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_BITRIX_SETTINGS_P_TYPE_LABEL_'.ToUpper($type)),
+						'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_BITRIX_SETTINGS_P_TYPE_LABEL_'.mb_strtoupper($type)),
 						'VALUE' => $value
 					);
 				}

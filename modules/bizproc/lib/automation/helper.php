@@ -6,11 +6,13 @@ use Bitrix\Bizproc\Automation\Engine\DelayInterval;
 use Bitrix\Disk;
 use Bitrix\Main\Loader;
 use Bitrix\Bizproc;
+use Bitrix\Bizproc\WorkflowTemplateTable;
 
 class Helper
 {
 	const CURRENT_DATE_BASIS = '{=System:Date}';
 	const CURRENT_DATETIME_BASIS = '{=System:Now}';
+	private const CACHE_TTL = 3600;
 
 	protected static $maps;
 	protected static $documentFields;
@@ -831,13 +833,23 @@ class Helper
 	public static function countAllRobots(array $documentType, array $statuses): int
 	{
 		$cnt = 0;
-		foreach ($statuses as $status)
+		$result = WorkflowTemplateTable::getList([
+			'filter' => [
+				'=MODULE_ID' => $documentType[0],
+				'=ENTITY' => $documentType[1],
+				'=DOCUMENT_TYPE' => $documentType[2],
+				'@DOCUMENT_STATUS' => $statuses,
+			],
+			'select' => ['TEMPLATE'],
+			'cache' => ['ttl' => self::CACHE_TTL],
+		]);
+		while ($row = $result->fetchObject())
 		{
-			$template = new Engine\Template($documentType, $status);
-			if ($template->getId() > 0)
-			{
-				$cnt += count($template->getActivatedRobots());
-			}
+			$row['MODULE_ID'] = $documentType[0];
+			$row['ENTITY'] = $documentType[1];
+			$row['DOCUMENT_TYPE'] = $documentType[2];
+			$template = \Bitrix\Bizproc\Automation\Engine\Template::createByTpl($row);
+			$cnt += count($template->getActivatedRobots());
 		}
 
 		return $cnt;

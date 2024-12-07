@@ -45,82 +45,82 @@ class CSqlUtil
 	public static function GetFilterOperation($key)
 	{
 		$strNegative = "N";
-		if (mb_substr($key, 0, 1) == "!")
+		if (str_starts_with($key, "!"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strNegative = "Y";
 		}
 
 		$strOrNull = "N";
-		if (mb_substr($key, 0, 1) == "+")
+		if (str_starts_with($key, "+"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOrNull = "Y";
 		}
 
-		if (mb_substr($key, 0, 2) == ">=")
+		if (str_starts_with($key, ">="))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = ">=";
 		}
-		elseif (mb_substr($key, 0, 1) == ">")
+		elseif (str_starts_with($key, ">"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = ">";
 		}
-		elseif (mb_substr($key, 0, 2) == "<=")
+		elseif (str_starts_with($key, "<="))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = "<=";
 		}
-		elseif (mb_substr($key, 0, 1) == "<")
+		elseif (str_starts_with($key, "<"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "<";
 		}
-		elseif (mb_substr($key, 0, 1) == "@")
+		elseif (str_starts_with($key, "@"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "IN";
 		}
-		elseif (mb_substr($key, 0, 2) == "=%")
+		elseif (str_starts_with($key, "=%"))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = "RLIKE";
 		}
-		elseif (mb_substr($key, 0, 2) == "%=")
+		elseif (str_starts_with($key, "%="))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = "LLIKE";
 		}
-		elseif (mb_substr($key, 0, 1) == "%")
+		elseif (str_starts_with($key, "%"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "LIKE";
 		}
-		elseif (mb_substr($key, 0, 1) == "?")
+		elseif (str_starts_with($key, "?"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "QUERY";
 		}
-		elseif (mb_substr($key, 0, 2) == "*=")
+		elseif (str_starts_with($key, "*="))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = "FTI";
 		}
-		elseif (mb_substr($key, 0, 2) == "*%")
+		elseif (str_starts_with($key, "*%"))
 		{
-			$key = mb_substr($key, 2);
+			$key = substr($key, 2);
 			$strOperation = "FTL";
 		}
-		elseif (mb_substr($key, 0, 1) == "*")
+		elseif (str_starts_with($key, "*"))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "FT";
 		}
-		elseif (mb_substr($key, 0, 1) == "=")
+		elseif (str_starts_with($key, "="))
 		{
-			$key = mb_substr($key, 1);
+			$key = substr($key, 1);
 			$strOperation = "=";
 		}
 		else
@@ -593,20 +593,16 @@ class CSqlUtil
 										{
 											if($strOperation === "LIKE")
 											{
-												if(is_array($val))
-													$arSqlSearch_tmp[] = "(".$fieldName." LIKE '%".implode("%' ESCAPE '!' OR ".$fieldName." LIKE '%", self::ForLike($val))."%' ESCAPE '!')";
-												elseif($val == '')
-													$arSqlSearch_tmp[] = $fieldName;
+												if($val == '')
+													$arSqlSearch_tmp[] = "({$fieldName} IS NULL OR {$fieldName} = '')";
 												else
 													$arSqlSearch_tmp[] = $fieldName." LIKE '%".self::ForLike($val)."%' ESCAPE '!'";
 
 											}
 											elseif($strOperation === "RLIKE" || $strOperation === "LLIKE")
 											{
-												if(is_array($val))
-													$arSqlSearch_tmp[] = "(".$fieldName." LIKE '".implode("' OR ". $fieldName." LIKE '", $DB->ForSql($val))."')";
-												elseif($val == '')
-													$arSqlSearch_tmp[] = $fieldName;
+												if($val == '')
+													$arSqlSearch_tmp[] = "({$fieldName} IS NULL OR {$fieldName} = '')";
 												else
 													$arSqlSearch_tmp[] = $fieldName." LIKE '".$DB->ForSql($val)."'";
 											}

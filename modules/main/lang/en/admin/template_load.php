@@ -13,5 +13,4 @@ $MESS ['MAIN_TEMPLATE_LOAD_SITE_ID_N'] = "(none)";
 $MESS ['MAIN_TEMPLATE_LOAD_GOTO_EDIT'] = "Go to template editing page after save:";
 $MESS ['MAIN_TEMPLATE_LOAD_SUBMIT'] = "Upload";
 $MESS ['MAIN_TEMPLATE_LOAD_WARN_UTF'] = "Please note that all site template files should have UTF-8 encoding.";
-$MESS ['MAIN_TEMPLATE_LOAD_WARN_NON_UTF'] = "Please note that site template files encoding should match the site encoding.";
 ?>

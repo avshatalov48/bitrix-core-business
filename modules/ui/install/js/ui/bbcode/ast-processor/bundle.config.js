@@ -6,7 +6,7 @@ const path = require('path');
 module.exports = {
 	input: 'src/ast-processor.js',
 	output: 'dist/ast-processor.bundle.js',
-	namespace: 'BX.UI.Bbcode',
+	namespace: 'BX.UI.BBCode',
 	browserslist: true,
 	plugins: {
 		custom: [

@@ -37,7 +37,6 @@ class CAllStatEvent
 	///////////////////////////////////////////////////////////////////
 	public static function AddCurrent($event1, $event2="", $event3="", $money="", $currency="", $goto="", $chargeback="N", $site_id=false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$event1 = trim($event1);
@@ -147,14 +146,14 @@ class CAllStatEvent
 		if (intval($_SESSION["SESS_LAST_ADV_ID"])>0 && intval($_SESSION["SESS_ADV_ID"])<=0)
 			$arFields["ADV_BACK"]="'Y'";
 
-		$eid = $DB->Insert("b_stat_event_list", $arFields, $err_mess.__LINE__);
+		$eid = $DB->Insert("b_stat_event_list", $arFields);
 
 		// in case of first occurence
 		if ($arEventType["DATE_ENTER"] == '')
 		{
 			// set date of the first event
 			$arFields =  Array("DATE_ENTER"=>$DB->GetNowFunction());
-			$DB->Update("b_stat_event",$arFields,"WHERE ID='".$EVENT_ID."'",$err_mess.__LINE__);
+			$DB->Update("b_stat_event",$arFields,"WHERE ID='".$EVENT_ID."'");
 		}
 
 		// day counter update
@@ -163,7 +162,7 @@ class CAllStatEvent
 			"COUNTER" => "COUNTER + 1",
 			"MONEY" => "MONEY + ".$money
 		);
-		$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".$EVENT_ID."' and ".CStatistics::DBDateCompare("DATE_STAT"),$err_mess.__LINE__);
+		$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".$EVENT_ID."' and ".CStatistics::DBDateCompare("DATE_STAT"));
 		// there was no records updated
 		if (intval($rows)<=0)
 		{
@@ -175,43 +174,43 @@ class CAllStatEvent
 				"COUNTER" => 1,
 				"MONEY" => $money
 			);
-			$DB->Insert("b_stat_event_day",$arFields_i, $err_mess.__LINE__);
+			$DB->Insert("b_stat_event_day",$arFields_i);
 		}
 		elseif (intval($rows)>1) // more than one record for event
 		{
 			// delete
 			$strSql = "SELECT ID FROM b_stat_event_day WHERE EVENT_ID='".$EVENT_ID."' and  ".CStatistics::DBDateCompare("DATE_STAT")." ORDER BY ID";
 			$i = 0;
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while ($ar = $rs->Fetch())
 			{
 				$i++;
 				if ($i > 1)
 				{
 					$strSql = "DELETE FROM b_stat_event_day WHERE ID = ".$ar["ID"];
-					$DB->Query($strSql, false, $err_mess.__LINE__);
+					$DB->Query($strSql);
 				}
 			}
 		}
 
 		// guest counter
 		$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-		$DB->Update("b_stat_guest", $arFields, "WHERE ID=".intval($_SESSION["SESS_GUEST_ID"]), $err_mess.__LINE__,false,false,false);
+		$DB->Update("b_stat_guest", $arFields, "WHERE ID=".intval($_SESSION["SESS_GUEST_ID"]), '',false,false,false);
 
 		// session counter
 		$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-		$DB->Update("b_stat_session", $arFields, "WHERE ID=".intval($_SESSION["SESS_SESSION_ID"]), $err_mess.__LINE__,false,false,false);
+		$DB->Update("b_stat_session", $arFields, "WHERE ID=".intval($_SESSION["SESS_SESSION_ID"]), '',false,false,false);
 
 		// events counter
 		$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-		$DB->Update("b_stat_day", $arFields, "WHERE ".CStatistics::DBDateCompare("DATE_STAT"), $err_mess.__LINE__,false,false,false);
+		$DB->Update("b_stat_day", $arFields, "WHERE ".CStatistics::DBDateCompare("DATE_STAT"), '',false,false,false);
 
 		// when site defined
 		if ($site_id <> '')
 		{
 			// update site
 			$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-			$DB->Update("b_stat_day_site", $arFields, "WHERE SITE_ID='".$DB->ForSql($site_id,2)."' and ".CStatistics::DBDateCompare("DATE_STAT"), $err_mess.__LINE__);
+			$DB->Update("b_stat_day_site", $arFields, "WHERE SITE_ID='".$DB->ForSql($site_id,2)."' and ".CStatistics::DBDateCompare("DATE_STAT"));
 		}
 
 		// there is advertising compaign defined
@@ -224,7 +223,7 @@ class CAllStatEvent
 				$arFields = array(
 					"REVENUE" => "REVENUE ".$sign." ".$money,
 				);
-				$DB->Update("b_stat_adv", $arFields, "WHERE ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."'",$err_mess.__LINE__,false,false,false);
+				$DB->Update("b_stat_adv", $arFields, "WHERE ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."'",'',false,false,false);
 			}
 
 			if (intval($_SESSION["SESS_ADV_ID"])>0)
@@ -242,7 +241,7 @@ class CAllStatEvent
 				);
 			}
 
-			$rows = $DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."' and EVENT_ID='".$EVENT_ID."'",$err_mess.__LINE__);
+			$rows = $DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."' and EVENT_ID='".$EVENT_ID."'");
 			if(intval($rows) <= 0)
 			{
 				$arFields = Array(
@@ -259,7 +258,7 @@ class CAllStatEvent
 					$arFields["COUNTER_BACK"] = "1";
 					$arFields["MONEY_BACK"] = $money;
 				}
-				$DB->Insert("b_stat_adv_event", $arFields, $err_mess.__LINE__);
+				$DB->Insert("b_stat_adv_event", $arFields);
 			}
 
 			if (intval($_SESSION["SESS_ADV_ID"])>0)
@@ -277,7 +276,7 @@ class CAllStatEvent
 				);
 			}
 
-			$rows = $DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."' and EVENT_ID='".$EVENT_ID."' and ".CStatistics::DBDateCompare("DATE_STAT"),$err_mess.__LINE__,false,false,false);
+			$rows = $DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."' and EVENT_ID='".$EVENT_ID."' and ".CStatistics::DBDateCompare("DATE_STAT"),'',false,false,false);
 			if(intval($rows) <= 0)
 			{
 				$arFields = Array(
@@ -295,20 +294,20 @@ class CAllStatEvent
 					$arFields["COUNTER_BACK"] = "1";
 					$arFields["MONEY_BACK"] = $money;
 				}
-				$DB->Insert("b_stat_adv_event_day", $arFields, $err_mess.__LINE__);
+				$DB->Insert("b_stat_adv_event_day", $arFields);
 			}
 			elseif(intval($rows) > 1)
 			{
 				$strSql = "SELECT ID FROM b_stat_adv_event_day WHERE ADV_ID='".intval($_SESSION["SESS_LAST_ADV_ID"])."' and EVENT_ID='".$EVENT_ID."' and ".CStatistics::DBDateCompare("DATE_STAT")." ORDER BY ID";
 				$i = 0;
-				$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$rs = $DB->Query($strSql);
 				while ($ar = $rs->Fetch())
 				{
 					$i++;
 					if ($i>1)
 					{
 						$strSql = "DELETE FROM b_stat_adv_event_day WHERE ID = ".$ar["ID"];
-						$DB->Query($strSql, false, $err_mess.__LINE__);
+						$DB->Query($strSql);
 					}
 				}
 			}
@@ -441,7 +440,6 @@ class CAllStatEvent
 
 	public static function GetListUniqueCheck($arFilter=Array(), $LIMIT=1)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$strSqlSearch = "";
@@ -496,7 +494,7 @@ class CAllStatEvent
 				".$strSqlSearch."
 		";
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql, $LIMIT), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql, $LIMIT));
 		return $res;
 	}
 }

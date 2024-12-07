@@ -1,2 +1,0 @@
-<?php
-$MESS["LANDING_CMP_NAMESPACE_NAME"] = "Sites24";

@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2006 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
@@ -205,14 +205,14 @@ class CCrypt
 		}
 		else
 		{
-			$cipherLength = mb_strlen($cipher);
+			$cipherLength = strlen($cipher);
 			for ($i = 0; $i < $cipherLength; $i = $i + $blockSize)
 			{
-				$block = mb_substr($cipher, $i, $blockSize);
+				$block = substr($cipher, $i, $blockSize);
 				$block = $this->cipher->__Decrypt($block);
 
-				while (mb_substr($block, 0, 1) == "\0")
-					$block = mb_substr($block, 1);
+				while (str_starts_with($block, "\0"))
+					$block = substr($block, 1);
 
 				$text .= $block;
 			}
@@ -263,18 +263,18 @@ class CCrypt
 		}
 		else
 		{
-			$cipherLength = mb_strlen($cipher);
+			$cipherLength = strlen($cipher);
 			$lastCipher = $this->iv;
 
 			for ($i = 0; $i < $cipherLength; $i = $i + $blockSize)
 			{
-				$block = mb_substr($cipher, $i, $blockSize);
+				$block = substr($cipher, $i, $blockSize);
 
 				$decryptBlock = $lastCipher ^ $this->cipher->__Decrypt($block);
 				$lastCipher = $block;
 
-				while (mb_substr($decryptBlock, 0, 1) == "\0")
-					$decryptBlock = mb_substr($decryptBlock, 1);
+				while (str_starts_with($decryptBlock, "\0"))
+					$decryptBlock = substr($decryptBlock, 1);
 
 				$text .= $decryptBlock;
 			}
@@ -427,8 +427,8 @@ class CSteganos
 		if (function_exists("gzuncompress"))
 		{
 			$data1 = gzuncompress($this->data);
-			if ($data1 && mb_substr($data1, 0, 4) == "BCDW")
-				$this->data = mb_substr($data1, 4);
+			if ($data1 && str_starts_with($data1, "BCDW"))
+				$this->data = substr($data1, 4);
 		}
 	}
 

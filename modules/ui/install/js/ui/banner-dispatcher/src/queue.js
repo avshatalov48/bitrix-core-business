@@ -1,4 +1,4 @@
-import { LaunchPriority, AutoLauncher } from 'ui.auto-launch'
+import { LaunchPriority, AutoLauncher, type LaunchItemOptions, type LaunchItemCallback } from 'ui.auto-launch';
 import { Type, Text } from 'main.core';
 
 export class Queue
@@ -11,12 +11,12 @@ export class Queue
 
 	constructor(priority: LaunchPriority, delay: number, launchPerHit: boolean = false)
 	{
-		this.#delay = parseInt(delay) * 1000;
+		this.#delay = parseInt(delay, 10) * 1000;
 		this.#priority = priority;
 		this.#launchPerHit = launchPerHit;
 	}
 
-	add(callback: function): void
+	add(callback: LaunchItemCallback, options: LaunchItemOptions = {}): void
 	{
 		if (this.#enough)
 		{
@@ -28,15 +28,17 @@ export class Queue
 			throw new TypeError('Unexpected type "promise" argument, expected Promise or callback');
 		}
 		const allowLaunchAfterOthers = !(this.#launchPerHit && Object.values(this.#itemList).length > 0);
-		const id = Text.getRandom();
+
+		const id = Type.isStringFilled(options.id) ? options.id : Text.getRandom();
 		this.#itemList[id] = callback;
 
 		AutoLauncher.register(callback, {
+			...options,
 			delay: this.#delay,
 			priority: this.#priority,
-			allowLaunchAfterOthers: allowLaunchAfterOthers,
-			id: id
-		})
+			allowLaunchAfterOthers,
+			id,
+		});
 	}
 
 	getItems(): Object

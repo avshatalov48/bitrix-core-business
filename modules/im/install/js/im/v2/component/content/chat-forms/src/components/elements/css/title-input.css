@@ -1,0 +1,31 @@
+.bx-im-chat-forms-title-input__container {
+	--im-chat-forms-title-input__background-color_input-border: rgba(var(--im-color-palette-gray-70-rgb), 0.2);
+	--im-chat-forms-title-input__background-color_input-selection: rgba(var(--im-color-palette-blue-60-rgb), 0.3);
+	--im-chat-forms-title-input__font_input: var(--im-font-size-5xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	--im-chat-forms-title-input__font-color_input: var(--im-color-palette-black-base);
+	--im-chat-forms-title-input__font-color_input-placeholder: var(--im-color-palette-gray-50);
+
+	flex-grow: 1;
+}
+
+.bx-im-chat-forms-title-input__input {
+	width: 100%;
+	padding: 11px;
+	background: none;
+	border: none;
+	outline: none;
+	border-bottom: 1px solid var(--im-chat-forms-title-input__background-color_input-border);
+	font: var(--im-chat-forms-title-input__font_input);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-chat-forms-title-input__font-color_input);
+}
+
+.bx-im-chat-forms-title-input__input::placeholder {
+	font: var(--im-chat-forms-title-input__font_input);
+	color: var(--im-chat-forms-title-input__font-color_input-placeholder);
+	font-weight: var(--im-font-weight-medium);
+}
+
+.bx-im-chat-forms-title-input__input::selection {
+	background: var(--im-chat-forms-title-input__background-color_input-selection);
+}

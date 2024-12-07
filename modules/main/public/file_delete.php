@@ -221,7 +221,6 @@ else
 //Delete File
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]) && $strWarning == "")
 {
-	CUtil::JSPostUnescape();
 	CModule::IncludeModule("fileman");
 
 	$f = $io->GetFile($absoluteFilePath);

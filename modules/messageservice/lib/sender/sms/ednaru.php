@@ -2,6 +2,8 @@
 
 namespace Bitrix\MessageService\Sender\Sms;
 
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Base;
@@ -37,10 +39,23 @@ class Ednaru extends Sender\BaseConfigurable
 
 	public static function isSupported()
 	{
+		if (\Bitrix\Main\Config\Option::get('messageservice', 'force_enable') === 'Y')
+		{
+			return parent::isSupported();
+		}
+
+		/** @todo remove this check and disable option 'disable_international' in next update */
 		if (
 			RegionHelper::isInternational()
-			&& \COption::GetOptionString('messageservice', self::DISABLE_INTERNATIONAL) === 'Y'
+			&& \Bitrix\Main\Application::getInstance()->getLicense()->getRegion() !== 'kz'
+			&& (new \Bitrix\Main\Type\DateTime('2024-05-29 00:00:00', 'Y-m-d H:i:s'))->getTimestamp() > time()
 		)
+		{
+			return false;
+		}
+
+		/** @todo force disable region by */
+		if (\Bitrix\Main\Application::getInstance()->getLicense()->getRegion() === 'by')
 		{
 			return false;
 		}
@@ -75,8 +90,14 @@ class Ednaru extends Sender\BaseConfigurable
 		{
 			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$this, 'refreshFromList']);
 			\Bitrix\Main\Application::getInstance()->addBackgroundJob([$this, 'addRefreshFromListAgent']);
+			\CAgent::AddAgent(static::class . "::registerAutoTemplatesAgent();", 'messageservice', 'N', 10);
 		}
 		return $result;
+	}
+
+	public function resetCallback(): Result
+	{
+		return $this->registrar->resetCallback();
 	}
 
 	public function getOwnerInfo(): array
@@ -119,6 +140,7 @@ class Ednaru extends Sender\BaseConfigurable
 	public function refreshFromList(): void
 	{
 		$this->utils->updateSavedChannelList($this->initiator->getChannelType());
+		$this->utils->clearCache(Providers\CacheManager::CHANNEL_CACHE_ENTITY_ID);
 	}
 
 	public static function resolveStatus($serviceStatus): ?int
@@ -126,9 +148,9 @@ class Ednaru extends Sender\BaseConfigurable
 		return (new WhatsApp\StatusResolver())->resolveStatus($serviceStatus);
 	}
 
-	public function getLineId(): ?int
+	public function getLineId(?int $subjectId = null): ?int
 	{
-		return (new WhatsApp\ConnectorLine($this->utils))->getLineId();
+		return (new WhatsApp\ConnectorLine($this->utils))->getLineId($subjectId);
 	}
 
 	public function getCallbackUrl(): string
@@ -197,6 +219,11 @@ class Ednaru extends Sender\BaseConfigurable
 		return $this;
 	}
 
+	public function sendTemplate(string $name, string $text, array $examples = [], ?string $langCode = null): Result
+	{
+		return $this->utils->sendTemplate($name, $text, $examples, $langCode);
+	}
+
 	/**
 	 * Adds agent for execution.
 	 * @return void
@@ -225,5 +252,51 @@ class Ednaru extends Sender\BaseConfigurable
 		$sender->refreshFromList();
 
 		return __METHOD__ . '();';
+	}
+
+	/**
+	 * @return string
+	 */
+	public static function  checkAutoTemplatesAgent(): string
+	{
+		$sender = new static();
+		if (!$sender::isSupported() || !$sender->isRegistered())
+		{
+			return '';
+		}
+
+		\CAgent::AddAgent(static::class . "::registerAutoTemplatesAgent();", 'messageservice', 'N', 10);
+
+		return '';
+	}
+
+	public static function registerAutoTemplatesAgent(): string
+	{
+		if (!Loader::includeModule('messageservice') || !($languageId = Loc::getCurrentLang()))
+		{
+			return '';
+		}
+
+		$notificationsApiClient = new \Bitrix\Messageservice\ApiClient();
+		$listTemplatesResult = $notificationsApiClient->listAutoTemplates($languageId);
+		if ($listTemplatesResult->isSuccess())
+		{
+			$templates = $listTemplatesResult->getData();
+			$sender = Sender\SmsManager::getSenderById(self::ID);
+			if (!$sender::isSupported() || !$sender->isRegistered())
+			{
+				return '';
+			}
+
+			foreach ($templates as $template)
+			{
+				$template['EXAMPLES'] = is_array($template['EXAMPLES']) ? $template['EXAMPLES'] : [];
+				$sender->sendTemplate($template['NAME'], $template['CONTENT'], $template['EXAMPLES'], $template['LANGUAGE_ID']);
+			}
+
+			\Bitrix\MessageService\Internal\Entity\TemplateTable::refreshTemplates($templates);
+		}
+
+		return '';
 	}
 }

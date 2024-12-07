@@ -1,0 +1,112 @@
+.calendar-open-events-list-categories {
+	display: flex;
+	flex-direction: column;
+	min-width: 330px;
+	max-width: 330px;
+	border-right: 1px solid var(--ui-color-base-15);
+}
+
+.calendar-open-events-list-categories.--filter {
+	opacity: 0.5;
+	filter: grayscale(0.4);
+	pointer-events: none;
+	user-select: none;
+}
+
+.calendar-open-events-list-category-list {
+	flex: 1;
+}
+
+.calendar-open-events-list-category {
+	padding: 3px;
+}
+
+.calendar-open-events-list-category:not(:last-child) {
+	border-bottom: 1px solid var(--ui-color-base-15);
+}
+
+.calendar-open-events-list-category.--banned {
+	opacity: 0.5;
+}
+
+.calendar-open-events-list-category.--selected .calendar-open-events-list-category-inner {
+	background-color: var(--ui-color-accent-light-blue);
+}
+
+.calendar-open-events-list-category.--all-category {
+	background-color: var(--ui-color-base-02);
+}
+
+.calendar-open-events-list-category-inner {
+	padding: 9px 11px 9px 21px;
+	border-radius: 8px;
+	cursor: pointer;
+}
+
+.calendar-open-events-list-category-inner:hover {
+	background-color: var(--ui-color-base-04);
+}
+
+.calendar-open-events-list-category-title {
+	display: flex;
+	align-items: center;
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-base-default);
+}
+
+.calendar-open-events-list-category-title .ui-icon-set {
+	--ui-icon-set__icon-size: 22px;
+	--ui-icon-set__icon-color: var(--ui-color-base-default);
+	transition: none;
+}
+
+.calendar-open-events-list-category.--selected .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-palette-white-base);
+}
+
+.calendar-open-events-list-category-title-name {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	gap: 5px;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.calendar-open-events-list-category-title-name span {
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.calendar-open-events-list-category-title-name .ui-icon-set {
+	--ui-icon-set__icon-size: 16px;
+	--ui-icon-set__icon-color: var(--ui-color-base-50);
+	margin-top: 1px;
+}
+
+.calendar-open-events-list-category.--selected .calendar-open-events-list-category-title-name .ui-icon-set {
+	--ui-icon-set__icon-color: rgba(var(--ui-color-on-primary-rgb), 0.5);
+}
+
+.calendar-open-events-list-category.--selected .calendar-open-events-list-category-title-name {
+	color: var(--ui-color-palette-white-base);
+}
+
+.calendar-open-events-list-category-info {
+	margin-top: 5px;
+	font-size: var(--ui-font-size-xs);
+	color: var(--ui-color-base-50);
+}
+
+.calendar-open-events-list-category.--selected .calendar-open-events-list-category-info {
+	color: var(--ui-color-palette-white-base);
+}
+
+.calendar-open-events-list-category-info span {
+	color: var(--ui-color-text-subtle);
+}
+
+.calendar-open-events-list-category.--selected .calendar-open-events-list-category-info span {
+	color: var(--ui-color-palette-white-base);
+}

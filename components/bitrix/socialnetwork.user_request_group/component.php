@@ -276,14 +276,6 @@ else
 						)
 						{
 							if (
-								isset($_POST["ajax_request"])
-								&& $_POST["ajax_request"] == "Y"
-							)
-							{
-								CUtil::JSPostUnescape();
-							}
-
-							if (
 								!CSocNetUserToGroup::SendRequestToBeMember($USER->GetID(), $arResult["Group"]["ID"], "", "", $bAutoSubscribe)
 								&& ($e = $APPLICATION->GetException())
 							)
@@ -322,11 +314,6 @@ else
 							&& check_bitrix_sessid()
 						)
 						{
-							if (isset($_POST["ajax_request"]) && $_POST["ajax_request"] == "Y")
-							{
-								CUtil::JSPostUnescape();
-							}
-
 							$errorMessage = "";
 
 							if ($_POST["MESSAGE"] == '')

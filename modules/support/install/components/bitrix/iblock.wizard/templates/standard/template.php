@@ -1,4 +1,4 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
+<?php if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <a href="?"><?=GetMessage('WZ_TICKET_LIST')?></a>
 <br><br>
 <div class="wizard">
@@ -13,7 +13,7 @@ if ($arResult['ERROR'])
 elseif($arResult['MESSAGE'])
 	echo '<div><font class=wizard_oktext>'.$arResult['MESSAGE'].'</font></div>';
 
-	
+$arHelp = [];
 ?>
 <table class="data-table" cellspacing=0 cellpadding=0 border=0 width=100%>
 <tr>
@@ -40,7 +40,7 @@ elseif($arResult['MESSAGE'])
 	<td style="border:none" align=left>
 		<table cellspacing=0 cellpadding=8 border=0>
 			<?
-			if (count($arResult['FIELDS']))
+			if (!empty($arResult['FIELDS']) && is_array($arResult['FIELDS']))
 			{
 				$i=0;
 				foreach($arResult['FIELDS'] as $num=>$f)
@@ -145,7 +145,7 @@ elseif($arResult['MESSAGE'])
 </tr>
 </table>
 <?
-	if (count($arResult['HIDDEN']))
+	if (!empty($arResult['HIDDEN']) && is_array($arResult['HIDDEN']))
 	{
 		foreach($arResult['HIDDEN'] as $k=>$v)
 		{
@@ -161,18 +161,19 @@ elseif($arResult['MESSAGE'])
 <?
 
 // Help
-if (count($arHelp))
+if (!empty($arHelp))
 {
 ?>
 	<br>
 	<table cellspacing=4 cellpadding=2 style="background-color:#FFFFEF;border:1px solid #d7d7be;" width="100%">
-<?
-	foreach($arHelp as $i=>$help)
-		echo '<tr><td valign=top><font class=smalltext><b>'.$i.'.</b></font></td><td><font class=smalltext><a name="note'.$i.'"></a> ' . $help . '</font></td></tr>';
+<?php
+	foreach($arHelp as $i => $help)
+	{
+		echo '<tr><td valign=top><font class=smalltext><b>' . $i . '.</b></font></td><td><font class=smalltext><a name="note' . $i . '"></a> ' . $help . '</font></td></tr>';
+	}
 ?>
 	</table>
-<?
+<?php
 }
 ?>
 </div>
-

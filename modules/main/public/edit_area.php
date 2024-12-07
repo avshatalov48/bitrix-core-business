@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
@@ -44,7 +46,7 @@ class CEditArea
 		$areaId = $this->__GetAreaId();
 
 		if ($this->bDrawIcons)
-			$res .= '<script type="text/javascript">if(window.BX&&BX.admin)BX.admin.setComponentBorder(\'bx_incl_area_'.$areaId.'\')</script>';
+			$res .= '<script>if(window.BX&&BX.admin)BX.admin.setComponentBorder(\'bx_incl_area_'.$areaId.'\')</script>';
 
 		$this->includeLevel--;
 		return $res;
@@ -213,7 +215,7 @@ class CEditArea
 
 				$this->bDrawIcons = true;
 
-				$res = '<script type="text/javascript">if(window.BX)BX.ready(function() {(new BX.'.(isset($arParams['COMPONENT_ID']) && $arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'('.CUtil::PhpToJsObject($arJSParams).')).Show()});</script>';
+				$res = '<script>if(window.BX)BX.ready(function() {(new BX.'.(isset($arParams['COMPONENT_ID']) && $arParams['COMPONENT_ID'] == 'page_edit_control' ? 'CPageOpener' : 'CMenuOpener').'(' . Json::encode($arJSParams) . ')).Show()});</script>';
 			}
 			else
 			{
@@ -290,7 +292,7 @@ class CEditArea
 
 	function __GetEditAreas()
 	{
-		$res = '<script type="text/javascript">';
+		$res = '<script>';
 		$res_ready = '';
 		foreach ($this->arEditAreas as $areaId => $arIcons)
 		{
@@ -305,7 +307,7 @@ class CEditArea
 				'menu' => $arJSIcons
 			);
 
-			$res_ready .= '(new BX.CMenuOpener('.CUtil::PhpToJsObject($arJSParams).')).Show();'."\r\n";
+			$res_ready .= '(new BX.CMenuOpener('. Json::encode($arJSParams).')).Show();'."\r\n";
 			$res_ready .= 'BX.admin.setComponentBorder(\''.CUtil::JSEscape($areaId).'\');'."\r\n";
 		}
 

@@ -194,7 +194,7 @@ class Block extends \Bitrix\Main\Update\Stepper
 			'order' => [
 				'ID' => 'asc'
 			],
-			'limit' => $limit
+			'limit' => $limit ?: null,
 		]);
 		while ($row = $res->fetch())
 		{

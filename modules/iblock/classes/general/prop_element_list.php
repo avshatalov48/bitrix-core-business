@@ -316,6 +316,9 @@ class CIBlockPropertyElementList
 						$viewMode = 'ELEMENT_TEMPLATE';
 						$resultKey = '~NAME';
 						break;
+					case 'BIZPROC':
+						$viewMode = 'BIZPROC';
+						break;
 				}
 			}
 

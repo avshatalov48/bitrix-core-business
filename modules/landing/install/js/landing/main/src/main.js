@@ -137,7 +137,7 @@ export class Main extends EventEmitter
 
 	isCrmFormPage(): boolean
 	{
-		return Env.getInstance().getOptions().specialType === 'crm_forms';
+		return Env.getInstance().getSpecialType() === 'crm_forms';
 	}
 
 	isDesignBlockMode()
@@ -458,6 +458,11 @@ export class Main extends EventEmitter
 	 */
 	appendBlock(data, withoutAnimation)
 	{
+		if (!this.isAllowedAppendBlock(data))
+		{
+			return Tag.render``;
+		}
+
 		const block = Tag.render`${data.content}`;
 		block.id = `block${data.id}`;
 
@@ -472,6 +477,34 @@ export class Main extends EventEmitter
 		this.insertToBlocksFlow(block);
 
 		return block;
+	}
+
+	/**
+	 * Check if the block can be appended
+	 * @param {addBlockResponse} data
+	 * @returns {boolean} - Returns true if the block can be appended, otherwise false
+	 */
+	isAllowedAppendBlock(data)
+	{
+		const type = BX.Landing.Env.getInstance().getType().toLowerCase();
+		let allowedBlockTypes = data.manifest.block.type ?? [];
+		if (
+			type === 'mainpage'
+			|| allowedBlockTypes.includes('mainpage')
+		)
+		{
+			if (Type.isString(allowedBlockTypes))
+			{
+				allowedBlockTypes = [allowedBlockTypes];
+			}
+
+			if (!allowedBlockTypes.includes(type))
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 
@@ -1007,7 +1040,6 @@ export class Main extends EventEmitter
 	onAddBlock(blockCode, restoreId, preventHistory: ?boolean  = false)
 	{
 		const id = Text.toNumber(restoreId);
-
 		this.hideBlocksPanel();
 
 		return this.showBlockLoader()
@@ -1027,6 +1059,7 @@ export class Main extends EventEmitter
 				void this.hideBlockLoader();
 				this.enableAddBlockButtons();
 				BX.onCustomEvent('BX.Landing.Block:onAfterAdd', res);
+				this.sendAnalyticsData('onAddBlock', res);
 				return p;
 			});
 	}
@@ -1119,6 +1152,11 @@ export class Main extends EventEmitter
 			});
 		}
 
+		if (BX.type.isObject(data.lang))
+		{
+			Loc.setMessage(data.lang);
+		}
+
 		let loadedScripts = 0;
 		const scriptsCount = (data.js.length + ext.SCRIPT.length + ext.STYLE.length + data.css.length);
 		let resPromise = null;
@@ -1172,9 +1210,19 @@ export class Main extends EventEmitter
 			resPromise = Promise.resolve(data);
 		}
 
-		return resPromise;
-	}
+		return resPromise.then(data => {
+			if (BX.type.isArray(data.assetStrings))
+			{
+				const head = document.head;
+				data.assetStrings.forEach(string => {
+					const element = Tag.render`${string}`;
+					Dom.insertAfter(element, head.lastChild);
+				});
+			}
 
+			return data;
+		});
+	}
 
 	/**
 	 * Executes block scripts
@@ -1318,6 +1366,7 @@ export class Main extends EventEmitter
 		{
 			this.adjustEmptyAreas();
 		}
+		this.sendAnalyticsData('onDeleteBlock', block);
 	}
 
 
@@ -1351,5 +1400,69 @@ export class Main extends EventEmitter
 	reloadSlider(url: string): Promise<any>
 	{
 		return SliderHacks.reloadSlider(url, window.parent);
+	}
+
+	sendAnalyticsData(action, data)
+	{
+		const code = data.manifest.code;
+		const block = this.getBlockFromRepository(code);
+		let analyticsCategory = '';
+		let p2 = '';
+		let analyticsEvent = '';
+		const type = BX.Landing.Env.getInstance().getType();
+		if (type === 'MAINPAGE')
+		{
+			analyticsCategory = 'vibe';
+			if (action === 'onAddBlock')
+			{
+				analyticsEvent = 'add_widget';
+			}
+
+			if (action === 'onDeleteBlock')
+			{
+				analyticsEvent = 'delete_widget';
+			}
+			const widgetCode = code.replaceAll(/[._]/g, '-');
+			p2 = `widget-id_${widgetCode}`;
+		}
+		else
+		{
+			analyticsCategory = 'site'; // site ||  shop || kb
+			if (action === 'onAddBlock')
+			{
+				analyticsEvent = 'add_block';
+			}
+
+			if (action === 'onDeleteBlock')
+			{
+				analyticsEvent = 'delete_block';
+			}
+			const blockCode = code.replaceAll(/[._]/g, '-');
+			p2 = `widget-id_${blockCode}`;
+		}
+		let itemType = '';
+		let p1 = '';
+		if (block.repo_id)
+		{
+			itemType = 'partner'; // partner || local
+			if (block.app_code)
+			{
+				p1 = block.app_code.replaceAll(/[._]/g, '-'); // appCode || local
+			}
+		}
+		else
+		{
+			itemType = 'system';
+			p1 = 'system';
+		}
+
+		BX.UI.Analytics.sendData({
+			tool: 'landing',
+			category: analyticsCategory,
+			event: analyticsEvent,
+			type: itemType,
+			p1,
+			p2,
+		});
 	}
 }

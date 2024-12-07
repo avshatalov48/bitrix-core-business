@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Main\UI;
-use \Bitrix\Main\Security\Sign\Signer;
+
+use Bitrix\Main\Security\Sign\Signer;
 
 class FileInputUnclouder
 {

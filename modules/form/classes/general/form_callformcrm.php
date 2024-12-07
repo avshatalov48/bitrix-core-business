@@ -1,4 +1,5 @@
-<?
+<?php
+
 abstract class CAllFormCrm
 {
 	const LINK_AUTO = 'A';
@@ -82,6 +83,7 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 				));
 			}
 		}
+		return null;
 	}
 
 	public static function SetForm($FORM_ID, $arParams)
@@ -206,37 +208,43 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 			if (intval($arRes['FIELD_ID']) > 0)
 			{
 				$bFound = false;
-				foreach ($arAnswers as $sid => $arAnswer)
+				foreach ($arAnswers as $arAnswer)
 				{
-					foreach ($arAnswer as $answer_id => $arAns)
+					foreach ($arAnswer as $arAns)
 					{
 						if ($arAns['FIELD_ID'] == $arRes['FIELD_ID'])
 						{
 							$bFound = true;
 							if ($arCrmFields[$arRes['CRM_FIELD']])
 							{
-								$value = '';
-								switch ($arCrmFields[$arRes['CRM_FIELD']]['TYPE'])
+								if ($arRes['CRM_FIELD'] === 'SOURCE_ID')
 								{
-									case 'enum':
-										$value = $arAns['ANSWER_TEXT'];
-										break;
-									case 'boolean':
-										$value = 'Y';
-										break;
-									default:
-										$value = ($arAns['USER_TEXT'] <> ''
-											? $arAns['USER_TEXT']
-											: (
-											$arAns['ANSWER_TEXT'] <> ''
-												? $arAns['ANSWER_TEXT']
-												: $arAns['VALUE']
-											)
-										);
-										break;
+									$value = $arAns['VALUE'] ?: $arAns['ANSWER_TEXT'];
+								}
+								else
+								{
+									switch ($arCrmFields[$arRes['CRM_FIELD']]['TYPE'])
+									{
+										case 'enum':
+											$value = $arAns['ANSWER_TEXT'];
+											break;
+										case 'boolean':
+											$value = 'Y';
+											break;
+										default:
+											$value = ($arAns['USER_TEXT'] <> ''
+												? $arAns['USER_TEXT']
+												: (
+												$arAns['ANSWER_TEXT'] <> ''
+													? $arAns['ANSWER_TEXT']
+													: $arAns['VALUE']
+												)
+											);
+											break;
+									}
 								}
 
-								if($arCrmFields[$arRes['CRM_FIELD']]['MULTIPLE'] === "true")
+								if(isset($arCrmFields[$arRes['CRM_FIELD']]['MULTIPLE']) && $arCrmFields[$arRes['CRM_FIELD']]['MULTIPLE'] === "true")
 								{
 									$arLeadFields[$arRes['CRM_FIELD']] .=
 										(empty($arLeadFields[$arRes['CRM_FIELD']]) ? '' : ',').$value;
@@ -279,6 +287,11 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 					break;
 				}
 			}
+		}
+
+		if (empty($arLeadFields['SOURCE_ID']))
+		{
+			$arLeadFields['SOURCE_ID'] = 'WEB';
 		}
 
 		$result = $ob->AddLead($arLeadFields);
@@ -751,7 +764,7 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 		return array("FIELD" => $key, "NEGATIVE" => $strNegative, "OPERATION" => $strOperation, "OR_NULL" => $strOrNull);
 	}
 
-	protected static function PrepareSql(&$arFields, $arOrder, &$arFilter, $arGroupBy, $arSelectFields)
+	protected static function PrepareSql($arFields, $arOrder, $arFilter, $arGroupBy, $arSelectFields)
 	{
 		global $DB;
 
@@ -802,7 +815,7 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 		}
 		else
 		{
-			if (isset($arSelectFields) && !is_array($arSelectFields) && is_string($arSelectFields) && $arSelectFields <> '' && array_key_exists($arSelectFields, $arFields))
+			if (isset($arSelectFields) && is_string($arSelectFields) && $arSelectFields <> '' && array_key_exists($arSelectFields, $arFields))
 				$arSelectFields = array($arSelectFields);
 
 			if (!isset($arSelectFields)
@@ -1056,8 +1069,6 @@ WHERE fcl.FORM_ID='".intval($FORM_ID)."' AND fc.ACTIVE='Y'";
 
 			if ($order != "ASC")
 				$order = "DESC";
-			else
-				$order = "ASC";
 
 			if (array_key_exists($by, $arFields))
 			{
@@ -1110,6 +1121,7 @@ class CFormCrmSender
 	const FIELDS_CACHE_TTL = 2592000;
 
 	private $ID;
+	private $CACHE_ID;
 	private $arLink;
 	private $arCRMFields;
 
@@ -1206,8 +1218,6 @@ class CFormCrmSender
 
 	private function _query($method, $params = array())
 	{
-		global $APPLICATION;
-
 		if ($this->arLink)
 		{
 			if (!$method)
@@ -1228,7 +1238,6 @@ class CFormCrmSender
 			}
 
 			$arPostFields = array_merge($params, $arPostFields);
-			$arPostFields = $APPLICATION->ConvertCharsetArray($arPostFields, LANG_CHARSET, 'UTF-8');
 
 			$obHTTP = new CHTTP();
 			$result_text = $obHTTP->Post($this->arLink['URL'], $arPostFields);
@@ -1237,10 +1246,6 @@ class CFormCrmSender
 			if ($version_header == '' || version_compare($version_header, "11.5.0") < 0)
 			{
 				$result_text = '{"error":"500","error_message":"'.GetMessage('FORM_CRM_VERSION_FAILURE').'"}';
-			}
-			else
-			{
-				$result_text = $APPLICATION->ConvertCharset($result_text, 'UTF-8', LANG_CHARSET);
 			}
 
 			$this->lastResult = new _CFormCrmSenderResult($result_text);
@@ -1292,7 +1297,7 @@ class _CFormCrmSenderResult
 	public function field($field)
 	{
 		$this->_process();
-		return $this->result[$field];
+		return $this->result[$field] ?? null;
 	}
 
 	private function _process()
@@ -1301,7 +1306,7 @@ class _CFormCrmSenderResult
 		{
 			if ($this->result_text <> '')
 			{
-				$this->result = CUtil::JsObjectToPhp($this->result_text);
+				$this->result = CUtil::JsObjectToPhp($this->result_text, true);
 
 				if (!is_array($this->result))
 				{
@@ -1321,4 +1326,3 @@ class _CFormCrmSenderResult
 		}
 	}
 }
-?>

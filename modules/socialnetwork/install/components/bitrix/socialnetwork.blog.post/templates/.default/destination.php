@@ -21,7 +21,7 @@ UI\Extension::load([ 'ui.entity-selector' ]);
 	});
 
 	var socBPDest = {
-		shareUrl : '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=<?=str_replace("%23", "#", urlencode($arParams["PATH_TO_POST"]))?>'
+		shareUrl : '<?= CUtil::JSEscape($arParams["PATH_TO_POST"]) ?>'
 	};
 
 </script><?

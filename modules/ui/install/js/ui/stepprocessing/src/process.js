@@ -311,7 +311,7 @@ export class Process
 		}
 		else if (this.endpointType === EndpointType.Component)
 		{
-			params.data.mode = this.componentMode;
+			params.mode = this.componentMode;
 			if ('signedParameters' in params.data)
 			{
 				params.signedParameters = params.data.signedParameters;
@@ -380,7 +380,7 @@ export class Process
 			}
 			else if (this.endpointType === EndpointType.Component)
 			{
-				params.data.mode = this.componentMode;
+				params.mode = this.componentMode;
 				if ('signedParameters' in params.data)
 				{
 					params.signedParameters = params.data.signedParameters;
@@ -437,7 +437,7 @@ export class Process
 			}
 			else if (this.endpointType === EndpointType.Component)
 			{
-				params.data.mode = this.componentMode;
+				params.mode = this.componentMode;
 				if ('signedParameters' in params.data)
 				{
 					params.signedParameters = params.data.signedParameters;
@@ -1129,7 +1129,8 @@ export class Process
 					stop: BX.delegate(this.stop, this),
 					dialogShown: (typeof(this.handlers.dialogShown) == 'function' ? this.handlers.dialogShown : null),
 					dialogClosed: (typeof(this.handlers.dialogClosed) == 'function' ? this.handlers.dialogClosed : null)
-				}
+				},
+				popupOptions: this.options.popupOptions,
 			});
 		}
 

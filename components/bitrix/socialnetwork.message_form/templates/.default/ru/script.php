@@ -5,7 +5,7 @@ $path = str_replace(array("\\", "//"), "/", __DIR__."/../lang/".LANGUAGE_ID."/sc
 $MESS1 =& $MESS;
 $GLOBALS["MESS"] = $MESS1 + $GLOBALS["MESS"];
 ?>
-<script type="text/javascript">
+<script>
 var bSendForm = false;
 
 if (typeof oErrors != "object")

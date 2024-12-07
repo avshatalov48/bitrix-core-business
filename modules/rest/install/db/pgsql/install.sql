@@ -79,6 +79,7 @@ CREATE TABLE b_rest_log (
   TIMESTAMP_X timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   CLIENT_ID varchar(45),
   PASSWORD_ID int,
+  EVENT_ID int,
   SCOPE varchar(50),
   METHOD varchar(255),
   REQUEST_METHOD varchar(10),
@@ -87,6 +88,7 @@ CREATE TABLE b_rest_log (
   REQUEST_DATA text,
   RESPONSE_STATUS varchar(20),
   RESPONSE_DATA text,
+  MESSAGE text,
   PRIMARY KEY (ID)
 );
 

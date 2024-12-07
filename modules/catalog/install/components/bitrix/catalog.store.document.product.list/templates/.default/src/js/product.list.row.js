@@ -8,8 +8,10 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import { ProductSelector } from 'catalog.product-selector';
 import { StoreSelector } from 'catalog.store-selector';
 import { PopupMenu } from 'main.popup';
+
 import { PriceCalculator } from './price.calculator';
 import { AccessDeniedInput } from './access.denied.input';
+import { FieldScheme, ProductCalculator} from 'catalog.product-calculator';
 
 type Action = {
 	type: string,
@@ -618,6 +620,63 @@ export class Row
 		return this.getField('AMOUNT', 1);
 	}
 
+	isPriceNetto(): boolean
+	{
+		return this.getEditor().isTaxAllowed() && !this.isTaxIncluded();
+	}
+
+	getPrice(): number
+	{
+		return this.getField('PRICE', 0);
+	}
+
+	getPriceExclusive(): number
+	{
+		return this.getField('PRICE_EXCLUSIVE', 0);
+	}
+
+	getPriceNetto(): number
+	{
+		return this.getField('PRICE_NETTO', 0);
+	}
+
+	getPriceBrutto(): number
+	{
+		return this.getField('PRICE_BRUTTO', 0);
+	}
+
+	getQuantity(): number
+	{
+		return this.getField('QUANTITY', 0);
+	}
+
+	getTaxIncluded(): 'Y' | 'N'
+	{
+		return this.getField('TAX_INCLUDED', 'N');
+	}
+
+	isTaxIncluded(): boolean
+	{
+		return this.getTaxIncluded() === 'Y';
+	}
+
+	getTaxRate(): number
+	{
+		return this.getField('TAX_RATE', 0);
+	}
+
+	getVatRate(): number
+	{
+		return this.getField('TAX_RATE', 0) / 100;
+	}
+
+	getTaxSum(): number
+	{
+		return this.isTaxIncluded()
+			? this.getPrice() * this.getQuantity() * (1 - 1 / (1 + this.getVatRate()))
+			: this.getPriceExclusive() * this.getQuantity() * this.getVatRate();
+	}
+
 	updateFieldByEvent(fieldCode: string, event: UIEvent): void
 	{
 		const target = event.target;
@@ -690,6 +749,11 @@ export class Row
 			case 'COMMENT':
 				this.changeComment(value, mode);
 				break;
+
+			case 'TAX_RATE_FORMATTED':
+			case 'TAX_INCLUDED_FORMATTED':
+				this.updateUiField(code, value);
+				break;
 		}
 	}
 
@@ -761,6 +825,29 @@ export class Row
 			extra,
 			extraType: Text.toNumber(this.getModel().getField('BASE_PRICE_EXTRA_RATE')),
 		});
+	}
+
+	#getProductCalculator(): ProductCalculator
+	{
+		return this.getModel()
+			.getCalculator()
+			.setFields(this.#getCalculateProductFields())
+			.setSettings(this.getEditor().getSettings())
+			;
+	}
+
+	#getCalculateProductFields(): FieldScheme
+	{
+		return {
+			'PRICE': this.getPrice(),
+			'BASE_PRICE': this.getBasePrice(),
+			'PRICE_EXCLUSIVE': this.getPriceExclusive(),
+			'PRICE_NETTO': this.getPriceNetto(),
+			'PRICE_BRUTTO': this.getPriceBrutto(),
+			'QUANTITY': this.getQuantity(),
+			'TAX_INCLUDED': this.getTaxIncluded(),
+			'TAX_RATE': this.getTaxRate()
+		};
 	}
 
 	changeExtraType(value, mode = MODE_SET)
@@ -1112,6 +1199,8 @@ export class Row
 		this.addActionProductChange();
 		this.addActionUpdateTotal();
 
+		const calculatedFields = this.#getProductCalculator().calculateBasePrice(value);
+		this.setFields(calculatedFields);
 		this.updateRowTotalPrice();
 	}
 
@@ -1243,6 +1332,8 @@ export class Row
 			this.addActionProductChange();
 			this.addActionUpdateTotal();
 
+			const calculatedFields = this.#getProductCalculator().calculateQuantity(value);
+			this.setFields(calculatedFields);
 			this.updateRowTotalPrice();
 
 			if (this.getEditor().getSettingValue('isCalculableStorePurchasingPrice'))
@@ -1489,6 +1580,10 @@ export class Row
 				value = CurrencyCore.currencyFormat(value, this.getEditor().getCurrencyId(), true);
 				this.updateUiHtmlField(uiName, value);
 				break;
+
+			case 'tax':
+				this.updateUiHtmlField(uiName, value);
+				break;
 		}
 	}
 
@@ -1504,6 +1599,12 @@ export class Row
 			case 'PURCHASING_PRICE':
 			case 'TOTAL_PRICE':
 				result = field;
+				break;
+			case 'TAX_RATE_FORMATTED':
+				result = 'TAX_RATE';
+				break;
+			case 'TAX_INCLUDED_FORMATTED':
+				result = 'TAX_INCLUDED';
 				break;
 		}
 
@@ -1527,6 +1628,12 @@ export class Row
 		if (field === 'AMOUNT')
 		{
 			return 'input';
+		}
+
+		const taxFields = ['TAX_RATE_FORMATTED', 'TAX_INCLUDED_FORMATTED'];
+		if (taxFields.includes(field))
+		{
+			return 'tax';
 		}
 
 		return null;

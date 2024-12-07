@@ -4,13 +4,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllTicketReminder
 {
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CAllTicketReminder<br>File: ".__FILE__;
-	}
-	
 	public static function ConvertResponseTimeUnit($rt, $rtu)
 	{
 		switch($rtu)
@@ -25,12 +18,11 @@ class CAllTicketReminder
 	public static function RecalculateLastMessageDeadline($RSD = true)
 	{
 		global $DB;
-		$err_mess = (self::err_mess())."<br>Function: RecalculateLastMessage<br>Line: ";
 
 		$DB->StartUsingMasterOnly();
 
 		$strSql = "SELECT count(*) C FROM b_ticket";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		$resC = $rs->Fetch();
 		if(!is_array($resC))
 		{
@@ -118,8 +110,7 @@ class CAllTicketReminder
 	public static function RecalculateSupportDeadline($arFilter = array())
 	{
 		global $DB;
-		$err_mess = (CAllTicketReminder::err_mess())."<br>Function: RecalculateSupportDeadline<br>Line: ";	
-		
+
 		$arSqlSearch = Array();
 		if(!is_array($arFilter)) $arFilter = array();
 		foreach($arFilter as $key => $val)
@@ -159,7 +150,7 @@ class CAllTicketReminder
 			WHERE
 				$strSqlSearch
 		";
-		$rsTicket = $DB->Query($strSql, false, $err_mess . __LINE__);
+		$rsTicket = $DB->Query($strSql);
 		while($arTicket = $rsTicket->Fetch())
 		{
 			self::RecalculateSupportDeadlineForOneTicket($arTicket);
@@ -171,7 +162,7 @@ class CAllTicketReminder
 	public static function RecalculateSupportDeadlineForOneTicket($arTicket, $arFields = array(), $dateType = array("EVENT"=>array(CTicket::IGNORE)))
 	{
 		global $DB;
-		$err_mess = (CAllTicketReminder::err_mess())."<br>Function: RecalculateSupportDeadlineForOneTicket<br>Line: ";	
+
 		$currDateTS = time() + CTimeZone::GetOffset();
 		$ts2010 = mktime(0, 0, 0, 1, 1, 2010);
 		$supportDeadlineNotify = 0;
@@ -183,7 +174,7 @@ class CAllTicketReminder
 		{
 			if($ticketID > 0 && count($arFields) > 0)
 			{
-				$DB->Update("b_ticket", $arFields, "WHERE ID='" . $ticketID . "'", $err_mess . __LINE__);
+				$DB->Update("b_ticket", $arFields, "WHERE ID='" . $ticketID . "'");
 			}
 			return;
 		}
@@ -285,15 +276,13 @@ class CAllTicketReminder
 			}
 		}
 
-		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $ticketID . "'", $err_mess . __LINE__);
+		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $ticketID . "'");
 	}
 
 	public static function SupportDeadline($arrTicket)
 	{
-
 		global $MESS, $DB;
 
-		$err_mess = (CAllTicketReminder::err_mess())."<br>Function: supportDeadline<br>Line: ";
 		$rsSite = CSite::GetByID($arrTicket["SITE_ID"]);
 		$arSite = $rsSite->Fetch();
 
@@ -320,7 +309,7 @@ class CAllTicketReminder
 			}
 		}
 
-		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $arrTicket["ID"] . "'", $err_mess . __LINE__);
+		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $arrTicket["ID"] . "'");
 
 		// add message log
 		$message = str_replace("#ID#", $arrTicket["TM_ID"], GetMessage("SUP_MESSAGE_OVERDUE_LOG"));
@@ -357,7 +346,6 @@ class CAllTicketReminder
 		//SUPPORT_DEADLINE			= EXPIRATION_DATE
 		//SUPPORT_DEADLINE_STMP		= EXPIRATION_DATE_STMP
 
-		$err_mess = (CAllTicketReminder::err_mess())."<br>Function: SupportDeadlineNotify<br>Line: ";
 		$rs = CTicket::GetByID($arrTicket0["ID"], false, "N");
 		if(!($arTicket = $rs->Fetch())) return false;
 		
@@ -408,7 +396,7 @@ class CAllTicketReminder
 				$email = trim($email);
 				if($email <> '')
 				{
-					preg_match_all("#[<\[\(](.*?)[>\]\)]#i" . BX_UTF_PCRE_MODIFIER, $email, $arr);
+					preg_match_all("#[<\[\(](.*?)[>\]\)]#iu", $email, $arr);
 					if(is_array($arr[1]) && count($arr[1]) > 0)
 					{
 						foreach($arr[1] as $email)
@@ -488,7 +476,7 @@ class CAllTicketReminder
 			"EXPIRATION_DATE"			=> $arMessage["EXPIRATION_DATE"],
 			"REMAINED_TIME"				=> $strRemainedTime,
 
-			"OWNER_EMAIL"				=> TrimEx($ownerEmail,","),
+			"OWNER_EMAIL"				=> trim(trim($ownerEmail), ","),
 			"OWNER_USER_ID"				=> $arTicket["OWNER_USER_ID"],
 			"OWNER_USER_NAME"			=> $arTicket["OWNER_NAME"],
 			"OWNER_USER_LOGIN"			=> $arTicket["OWNER_LOGIN"],
@@ -496,13 +484,13 @@ class CAllTicketReminder
 			"OWNER_TEXT"				=> $ownerText,
 			"OWNER_SID"					=> $arTicket["OWNER_SID"],
 
-			"SUPPORT_EMAIL"				=> TrimEx($support_email,","),
+			"SUPPORT_EMAIL"				=> trim(trim($support_email), ","),
 			"RESPONSIBLE_USER_ID"		=> $arTicket["RESPONSIBLE_USER_ID"],
 			"RESPONSIBLE_USER_NAME"		=> $arTicket["RESPONSIBLE_NAME"],
 			"RESPONSIBLE_USER_LOGIN"	=> $arTicket["RESPONSIBLE_LOGIN"],
 			"RESPONSIBLE_USER_EMAIL"	=> $arTicket["RESPONSIBLE_EMAIL"],
 			"RESPONSIBLE_TEXT"			=> $responsibleText,
-			"SUPPORT_ADMIN_EMAIL"		=> TrimEx($support_admin_email,","),
+			"SUPPORT_ADMIN_EMAIL"		=> trim(trim($support_admin_email), ","),
 
 			"CREATED_USER_ID"			=> $arTicket["CREATED_USER_ID"],
 			"CREATED_USER_LOGIN"		=> $arTicket["CREATED_LOGIN"],
@@ -538,10 +526,10 @@ class CAllTicketReminder
 
 		// event for notification
 
-		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $arTicket["ID"] . "'", $err_mess . __LINE__);
+		$DB->Update("b_ticket", $arFields, "WHERE ID='" . $arTicket["ID"] . "'");
 
 		$arFields = array("NOTIFY_AGENT_DONE" => "'Y'");
-		$DB->Update("b_ticket_message", $arFields, "WHERE ID='" . $arMessage["ID"] . "'", $err_mess . __LINE__);
+		$DB->Update("b_ticket_message", $arFields, "WHERE ID='" . $arMessage["ID"] . "'");
 	}
 
 	public static function AgentFunction()
@@ -551,7 +539,6 @@ class CAllTicketReminder
 		//SUPPORT_DEADLINE
 		//SUPPORT_DEADLINE_NOTIFY
 		global $DB;
-		$err_mess = (CAllTicketReminder::err_mess())."<br>Function: AgentFunction<br>Line: ";
 
 		CTimeZone::Disable();
 		$cyrrDateTime = $DB->CharToDateFunction(GetTime(time(), "FULL"));
@@ -575,7 +562,7 @@ class CAllTicketReminder
 				AND T.IS_NOTIFIED = 'N'
 				AND T.DATE_CLOSE IS NULL
 		";
-		$rsTicket = $DB->Query($strSql, false, $err_mess . __LINE__);
+		$rsTicket = $DB->Query($strSql);
 		while($arrTicket = $rsTicket->Fetch())
 		{
 			self::SupportDeadlineNotify($arrTicket);
@@ -599,7 +586,7 @@ class CAllTicketReminder
 				AND T.IS_OVERDUE = 'N'
 				AND T.DATE_CLOSE IS NULL
 		";
-		$rsTicket = $DB->Query($strSql, false, $err_mess . __LINE__);
+		$rsTicket = $DB->Query($strSql);
 		
 		while($arrTicket = $rsTicket->Fetch())
 		{

@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -46,9 +46,9 @@ $aTabs[]=array("DIV" => "edit6", "TAB" => GetMessage("FORM_COMMENT_TOP"), "ICON"
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $message = null;
 
-$WEB_FORM_ID = intval($_REQUEST['WEB_FORM_ID']);
-$ID = intval($_REQUEST['ID']);
-$copy_id = intval($_REQUEST['copy_id']);
+$WEB_FORM_ID = intval($_REQUEST['WEB_FORM_ID'] ?? 0);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$copy_id = intval($_REQUEST['copy_id'] ?? 0);
 
 $arForm = CForm::GetByID_admin($WEB_FORM_ID);
 
@@ -77,22 +77,22 @@ if ($copy_id > 0 && $F_RIGHT >= 30 && check_bitrix_sessid())
 	}
 }
 
-if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT>=30 && check_bitrix_sessid())
+if ((!empty($_REQUEST['save']) || !empty($_REQUEST['apply'])) && $_SERVER['REQUEST_METHOD']=="POST" && $F_RIGHT>=30 && check_bitrix_sessid())
 {
 	$arIMAGE = $_FILES["IMAGE_ID"];
 	$arIMAGE["MODULE_ID"] = "form";
-	$arIMAGE["del"] = $_REQUEST['IMAGE_ID_del'];
+	$arIMAGE["del"] = $_REQUEST['IMAGE_ID_del'] ?? null;
 
 	$ACTIVE 	= $_REQUEST['ACTIVE'];
 	$TITLE 		= $_REQUEST['TITLE'];
 	$TITLE_TYPE = $_REQUEST['TITLE_TYPE'];
 	$SID 		= $_REQUEST['SID'];
 	$C_SORT 	= $_REQUEST['C_SORT'];
-	$REQUIRED 	= $_REQUEST['REQUIRED'];
-	$FIELD_TYPE = $_REQUEST['FIELD_TYPE'];
+	$REQUIRED 	= $_REQUEST['REQUIRED'] ?? null;
+	$FIELD_TYPE = $_REQUEST['FIELD_TYPE'] ?? null;
 	$COMMENTS 	= $_REQUEST['COMMENTS'];
 	$IN_EXCEL_TABLE 	= $_REQUEST['IN_EXCEL_TABLE'];
-	$IN_RESULTS_TABLE 	= $_REQUEST['IN_RESULTS_TABLE'];
+	$IN_RESULTS_TABLE 	= $_REQUEST['IN_RESULTS_TABLE'] ?? null;
 	$FILTER_TITLE 		= $_REQUEST['FILTER_TITLE'];
 	$RESULTS_TABLE_TITLE = $_REQUEST['RESULTS_TABLE_TITLE'];
 
@@ -128,14 +128,14 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 
 			$arrA = array();
 			$arrA["ID"] 		= $_REQUEST["ANSWER_ID_".$pid];
-			$arrA["DELETE"] 	= $_REQUEST["del_".$pid];
+			$arrA["DELETE"] 	= $_REQUEST["del_".$pid] ?? null;
 			$arrA["MESSAGE"] 	= $_REQUEST["MESSAGE_".$pid];
 			$arrA["VALUE"] 		= $_REQUEST["VALUE_".$pid];
 			$arrA["C_SORT"] 	= $_REQUEST["C_SORT_".$pid];
 			$arrA["ACTIVE"] 	= $_REQUEST["ACTIVE_".$pid];
 			$arrA["FIELD_TYPE"] 	= $_REQUEST["FIELD_TYPE_".$pid];
-			$arrA["FIELD_WIDTH"]	= $_REQUEST["FIELD_WIDTH_".$pid];
-			$arrA["FIELD_HEIGHT"] 	= $_REQUEST["FIELD_HEIGHT_".$pid];
+			$arrA["FIELD_WIDTH"]	= $_REQUEST["FIELD_WIDTH_".$pid] ?? null;
+			$arrA["FIELD_HEIGHT"] 	= $_REQUEST["FIELD_HEIGHT_".$pid] ?? null;
 			$arrA["FIELD_PARAM"] 	= $_REQUEST["FIELD_PARAM_".$pid];
 
 			if ($arrA['MESSAGE'] != '' && $arrA['DELETE'] !== 'Y')
@@ -152,9 +152,9 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 
 	if ($additional!="Y")
 	{
-		$arFields["arFILTER_USER"] 			= $_REQUEST['arFILTER_USER'];
-		$arFields["arFILTER_ANSWER_TEXT"] 	= $_REQUEST['arFILTER_ANSWER_TEXT'];
-		$arFields["arFILTER_ANSWER_VALUE"] 	= $_REQUEST['arFILTER_ANSWER_VALUE'];
+		$arFields["arFILTER_USER"] 			= $_REQUEST['arFILTER_USER'] ?? null;
+		$arFields["arFILTER_ANSWER_TEXT"] 	= $_REQUEST['arFILTER_ANSWER_TEXT'] ?? null;
+		$arFields["arFILTER_ANSWER_VALUE"] 	= $_REQUEST['arFILTER_ANSWER_VALUE'] ?? null;
 	}
 	else
 	{
@@ -350,7 +350,7 @@ if($strError)
 
 if ($additional!="Y"):
 ?>
-<script language="JavaScript">
+<script>
 function FormSubmit()
 {
 	return jsFormValidatorSettings.PrepareToSubmit();
@@ -360,7 +360,7 @@ function FormSubmit()
 endif;
 ?>
 <form name="form1" method="POST" action="" enctype="multipart/form-data"<?if ($additional!="Y"):?> onSubmit="return FormSubmit();"<?endif?>>
-<script type="text/javascript">
+<script>
 function FIELD_TYPE_CHANGE(i)
 {
 	v = document.getElementById("FIELD_TYPE_"+i)[document.getElementById("FIELD_TYPE_"+i).selectedIndex].value;
@@ -639,7 +639,7 @@ BX.ready(function() {
 					<td nowrap="nowrap"><input <?if ($ftype!="text" && $ftype!="textarea" && $ftype!="image" && $ftype!="date" && $ftype != 'email') echo "disabled"?> type="text" id="FIELD_WIDTH_<?=$i?>" name="FIELD_WIDTH_<?=$i?>" value="<?=$width?>" size="3" /></td>
 					<td nowrap="nowrap"><input <?if ($ftype!="textarea" && $ftype!="multiselect") echo "disabled"?> type="text" id="FIELD_HEIGHT_<?=$i?>" name="FIELD_HEIGHT_<?=$i?>" value="<?=$height?>" size="3" /></td>
 					<td nowrap="nowrap"><input type="text" name="FIELD_PARAM_<?=$i?>" value="<?=$param?>" size="8" /></td>
-					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (${"C_SORT_".$i} <> '' && $message <> '') ? htmlspecialcharsbx(${"C_SORT_".$i}) : $s?>" size="3" /></td>
+					<td nowrap="nowrap"><input type="text" name="C_SORT_<?=$i?>" value="<?echo (!empty(${"C_SORT_".$i}) && $message <> '') ? htmlspecialcharsbx(${"C_SORT_".$i}) : $s?>" size="3" /></td>
 					<td><?
 					echo InputType("checkbox", "ACTIVE_".$i, "Y", "Y", false);?></td>
 					<td>&nbsp;</td>
@@ -668,7 +668,7 @@ BX.ready(function() {
 	if ($rsValidators->SelectedRowsCount() > 0)
 	{
 ?>
-	<script language="javascript">
+	<script>
 	var arValidatorsType = [];
 	var arValidators = [];
 <?
@@ -682,7 +682,7 @@ BX.ready(function() {
 
 		?>
 
-	arValidators['<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>'] = {NAME:'<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>', DESCRIPTION:'<?=CUtil::JSEscape($arValidatorInfo["DESCRIPTION"])?>', HAS_SETTINGS:'<?=is_callable($arValidatorInfo['SETTINGS']) > 0 ? "Y" : "N"?>'};
+	arValidators['<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>'] = {NAME:'<?=CUtil::JSEscape($arValidatorInfo["NAME"])?>', DESCRIPTION:'<?=CUtil::JSEscape($arValidatorInfo["DESCRIPTION"])?>', HAS_SETTINGS:'<?=is_callable($arValidatorInfo['SETTINGS'] ?? null) > 0 ? "Y" : "N"?>'};
 <?
 
 		foreach ($arValidatorInfo["TYPES"] as $type)
@@ -696,7 +696,7 @@ BX.ready(function() {
 	}
 ?>
 	</script>
-	<script language="JavaScript">
+	<script>
 var arCurrentValidators = new Array();
 <?
 if (is_array($arCurrentValidators) && count($arCurrentValidators) > 0)
@@ -734,10 +734,10 @@ if (is_array($arCurrentValidators) && count($arCurrentValidators) > 0)
 ?>
 	</script>
 	<script>
-var _global_BX_UTF = <?if (defined('BX_UTF') && BX_UTF === true):?>true<?else:?>false<?endif?>;
+var _global_BX_UTF = true;
 	</script>
 	<script src="/bitrix/js/form/form_validators.js?<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/form/form_validators.js')?>"></script>
-	<script language="JavaScript">
+	<script>
 BX.message({
 	WND_TITLE:'<?=CUtil::JSEscape(GetMessage('FORM_VAL_PROPS_TITLE'))?>',
 
@@ -763,7 +763,7 @@ var jsFormValidatorSettings = new CFormValidatorSettings(false);
 	<tr>
 		<td colspan="2" align="center" id="validators_current"></td>
 	</tr>
-	<script language="JavaScript">
+	<script>
 jsFormValidatorSettings.UpdateAll();
 </script>
 <?
@@ -816,17 +816,17 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?echo GetMessage("FORM_FILTER_FOR_USER")?><br><img src="/bitrix/images/form/mouse.gif" width="44" height="21" border=0 alt="" /></td>
 		<td><?
-		echo SelectBoxMFromArray("arFILTER_USER[]",array("REFERENCE"=>$arrUSER["reference"], "REFERENCE_ID"=>$arrUSER["reference_id"]), $arrFilter["USER"],"",false,"5");?></td>
+		echo SelectBoxMFromArray("arFILTER_USER[]",array("REFERENCE"=>$arrUSER["reference"], "REFERENCE_ID"=>$arrUSER["reference_id"]), $arrFilter["USER"] ?? false);?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("FORM_FILTER_FOR_ANSWER_TEXT")?><br><img src="/bitrix/images/form/mouse.gif" width="44" height="21" border=0 alt=""></td>
 		<td><?
-		echo SelectBoxMFromArray("arFILTER_ANSWER_TEXT[]",array("REFERENCE"=>$arrANSWER_TEXT["reference"], "REFERENCE_ID"=>$arrANSWER_TEXT["reference_id"]), $arrFilter["ANSWER_TEXT"],"",false,"5");?></td>
+		echo SelectBoxMFromArray("arFILTER_ANSWER_TEXT[]",array("REFERENCE"=>$arrANSWER_TEXT["reference"], "REFERENCE_ID"=>$arrANSWER_TEXT["reference_id"]), $arrFilter["ANSWER_TEXT"] ?? false);?></td>
 	</tr>
 	<tr>
 		<td><?echo GetMessage("FORM_FILTER_FOR_ANSWER_VALUE")?><br><img src="/bitrix/images/form/mouse.gif" width="44" height="21" border=0 alt=""></td>
 		<td><?
-		echo SelectBoxMFromArray("arFILTER_ANSWER_VALUE[]",array("REFERENCE"=>$arrANSWER_VALUE["reference"], "REFERENCE_ID"=>$arrANSWER_VALUE["reference_id"]), $arrFilter["ANSWER_VALUE"],"",false,"5");?></td>
+		echo SelectBoxMFromArray("arFILTER_ANSWER_VALUE[]",array("REFERENCE"=>$arrANSWER_VALUE["reference"], "REFERENCE_ID"=>$arrANSWER_VALUE["reference_id"]), $arrFilter["ANSWER_VALUE"] ?? false);?></td>
 	</tr>
 	<?
 	else:

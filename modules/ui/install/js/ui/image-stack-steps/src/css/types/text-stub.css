@@ -1,0 +1,14 @@
+.ui-image-stack-steps-text-skeleton-area {
+	display: block;
+	width: 40px;
+	height: 13px;
+	align-content: center;
+}
+
+.ui-image-stack-steps-text-skeleton-area-stub {
+	display: block;
+	height: 6px;
+	background: var(--ui-color-base-10);
+	border-radius: var(--ui-border-radius-lg);
+	margin-top: 2px;
+}

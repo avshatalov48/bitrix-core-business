@@ -1,0 +1,9 @@
+.ui-image-stack-steps {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+}
+
+.ui-image-stack-steps {
+	--ui-background-dark-grey: #7b8691;
+}

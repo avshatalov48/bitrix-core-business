@@ -11,7 +11,7 @@ return [
 	'rel' => [
 		'main.core.events',
 		'ui.vue3.vuex',
-		'im.call',
+		'call.core',
 		'im.public',
 		'im.v2.lib.slider',
 		'im.v2.lib.logger',
@@ -26,4 +26,7 @@ return [
 		'im_call_compatible',
 	],
 	'skip_core' => false,
+	'settings' => [
+		'callInstalled' => \Bitrix\Main\ModuleManager::isModuleInstalled('call'),
+	],
 ];

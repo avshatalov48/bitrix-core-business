@@ -115,29 +115,16 @@ class CAllSearchTitle extends CDBResult
 
 			$r["NAME"] = htmlspecialcharsEx($r["TITLE"]);
 
-			$preg_template = "/(^|[^".$this->_arStemFunc["pcre_letters"]."])(".str_replace("/", "\\/", implode("|", array_map('preg_quote', array_keys($this->_arPhrase)))).")/i".BX_UTF_PCRE_MODIFIER;
-			if (preg_match_all($preg_template, ToUpper($r["NAME"]), $arMatches, PREG_OFFSET_CAPTURE))
+			$preg_template = "/(^|[^".$this->_arStemFunc["pcre_letters"]."])(".str_replace("/", "\\/", implode("|", array_map('preg_quote', array_keys($this->_arPhrase)))).")/iu";
+			if (preg_match_all($preg_template, mb_strtoupper($r["NAME"]), $arMatches, PREG_OFFSET_CAPTURE))
 			{
 				$c = count($arMatches[2]);
-				if (defined("BX_UTF"))
+				for ($j = $c - 1; $j >= 0; $j--)
 				{
-					for ($j = $c - 1; $j >= 0; $j--)
-					{
-						$prefix = mb_substr($r["NAME"], 0, $arMatches[2][$j][1], 'latin1');
-						$instr = mb_substr($r["NAME"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0], 'latin1'), 'latin1');
-						$suffix = mb_substr($r["NAME"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0], 'latin1'), mb_strlen($r["NAME"], 'latin1'), 'latin1');
-						$r["NAME"] = $prefix."<b>".$instr."</b>".$suffix;
-					}
-				}
-				else
-				{
-					for ($j = $c - 1; $j >= 0; $j--)
-					{
-						$prefix = mb_substr($r["NAME"], 0, $arMatches[2][$j][1]);
-						$instr = mb_substr($r["NAME"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0]));
-						$suffix = mb_substr($r["NAME"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0]));
-						$r["NAME"] = $prefix."<b>".$instr."</b>".$suffix;
-					}
+					$prefix = substr($r["NAME"], 0, $arMatches[2][$j][1]);
+					$instr = substr($r["NAME"], $arMatches[2][$j][1], strlen($arMatches[2][$j][0]));
+					$suffix = substr($r["NAME"], $arMatches[2][$j][1] + strlen($arMatches[2][$j][0]), strlen($r["NAME"]));
+					$r["NAME"] = $prefix."<b>".$instr."</b>".$suffix;
 				}
 			}
 		}

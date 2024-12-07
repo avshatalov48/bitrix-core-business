@@ -1,0 +1,7 @@
+.ui-image-stack-steps-text {
+	color: var(--ui-color-base-50);
+	font-size: var(--ui-font-size-3xs);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}

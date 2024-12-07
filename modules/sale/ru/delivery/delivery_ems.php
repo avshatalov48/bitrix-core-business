@@ -97,30 +97,10 @@ class CDeliveryEMS
 		return ($arSettings["category"] == 'doc' ? 'doc' : 'att');
 	}
 
-	public static function ConvertCharsetArray($arData, $charset_from, $charset_to)
-	{
-		if (!is_array($arData))
-			return $GLOBALS['APPLICATION']->ConvertCharset($arData, $charset_from, $charset_to);
-
-		foreach ($arData as $key => $value)
-		{
-			$arData[$key] = CDeliveryEMS::ConvertCharsetArray($value, $charset_from, $charset_to);
-		}
-
-		return $arData;
-	}
-
 	public static function JsObjectToPhp($data)
 	{
-		$data = $GLOBALS['APPLICATION']->ConvertCharset($data, LANG_CHARSET, 'utf-8');
-
 		// json_decode recognize only UTF strings
 		$arResult = json_decode($data, true);
-
-		if (is_array($arResult))
-		{
-			$arResult = CDeliveryEMS::ConvertCharsetArray($arResult, 'utf-8', LANG_CHARSET);
-		}
 
 		return $arResult;
 	}
@@ -132,17 +112,17 @@ class CDeliveryEMS
 		foreach ($arParams as $key => $value)
 			$arQuery[] = $key.'='.urlencode($value);
 
+		$error_number = 0;
+		$error_text = "";
 		$data = QueryGetData(
 			'www.emspost.ru',
 			80,
 			'/api/rest',
 			implode("&", $arQuery),
-			$error_number = 0,
-			$error_text = "",
+			$error_number,
+			$error_text,
 			'GET'
 		);
-
-		$data = $GLOBALS['APPLICATION']->ConvertCharset($data, 'utf-8', LANG_CHARSET);
 
 		if (($pos = mb_strpos($data, "\n")) !== false)
 		{
@@ -175,10 +155,10 @@ class CDeliveryEMS
 						require_once(__DIR__.'/ems/city.php');
 				}
 
-				$arLocation['CITY_NAME_ORIG'] = ToUpper($arLocation['CITY_NAME_ORIG']);
-				$arLocation['CITY_SHORT_NAME'] = ToUpper($arLocation['CITY_SHORT_NAME']);
-				$arLocation['CITY_NAME_LANG'] = ToUpper($arLocation['CITY_NAME_LANG']);
-				$arLocation['CITY_NAME'] = ToUpper($arLocation['CITY_NAME']);
+				$arLocation['CITY_NAME_ORIG'] = mb_strtoupper($arLocation['CITY_NAME_ORIG']);
+				$arLocation['CITY_SHORT_NAME'] = mb_strtoupper($arLocation['CITY_SHORT_NAME']);
+				$arLocation['CITY_NAME_LANG'] = mb_strtoupper($arLocation['CITY_NAME_LANG']);
+				$arLocation['CITY_NAME'] = mb_strtoupper($arLocation['CITY_NAME']);
 
 				if (is_array($arEMSCityList))
 				{
@@ -187,7 +167,7 @@ class CDeliveryEMS
 							$arEMSCityList[$arLocation['CITY_SHORT_NAME']] ? $arEMSCityList[$arLocation['CITY_SHORT_NAME']] : (
 								$arEMSCityList[$arLocation['CITY_NAME_LANG']] ? $arEMSCityList[$arLocation['CITY_NAME_LANG']] : (
 									$arEMSCityList[$arLocation['CITY_NAME']] ? $arEMSCityList[$arLocation['CITY_NAME']] : (
-										$arEMSCityList[ToUpper($arLocation['CITY_NAME'])] ? $arEMSCityList[ToUpper($arLocation['CITY_NAME'])] : ''
+										$arEMSCityList[mb_strtoupper($arLocation['CITY_NAME'])] ? $arEMSCityList[mb_strtoupper($arLocation['CITY_NAME'])] : ''
 									)
 								)
 							)
@@ -230,14 +210,14 @@ class CDeliveryEMS
 				elseif($arLocation['REGION_NAME_ORIG'] == 'Крым')
 					$arLocation['REGION_NAME_ORIG']  = 'КРЫМ РЕСПУБЛИКА';
 
-				$arLocation['REGION_NAME_ORIG'] = preg_replace('/\sОБЛ$/i'.BX_UTF_PCRE_MODIFIER, ' ОБЛАСТЬ', ToUpper($arLocation['REGION_NAME_ORIG']));
-				$arLocation['REGION_NAME_ORIG'] = preg_replace('/\sРЕСП$/'.BX_UTF_PCRE_MODIFIER, ' РЕСПУБЛИКА', ToUpper($arLocation['REGION_NAME_ORIG']));
-				$arLocation['REGION_NAME_ORIG'] = preg_replace('/^(РЕСПУБЛИКА)\s*(.*)$/'.BX_UTF_PCRE_MODIFIER, '$2 $1', ToUpper($arLocation['REGION_NAME_ORIG']));
+				$arLocation['REGION_NAME_ORIG'] = preg_replace('/\sОБЛ$/iu', ' ОБЛАСТЬ', mb_strtoupper($arLocation['REGION_NAME_ORIG']));
+				$arLocation['REGION_NAME_ORIG'] = preg_replace('/\sРЕСП$/u', ' РЕСПУБЛИКА', mb_strtoupper($arLocation['REGION_NAME_ORIG']));
+				$arLocation['REGION_NAME_ORIG'] = preg_replace('/^(РЕСПУБЛИКА)\s*(.*)$/u', '$2 $1', mb_strtoupper($arLocation['REGION_NAME_ORIG']));
 
-				$arLocation['REGION_NAME_ORIG'] = ToUpper($arLocation['REGION_NAME_ORIG']);
-				$arLocation['REGION_SHORT_NAME'] = ToUpper($arLocation['REGION_SHORT_NAME']);
-				$arLocation['REGION_NAME_LANG'] = ToUpper($arLocation['REGION_NAME_LANG']);
-				$arLocation['REGION_NAME'] = ToUpper($arLocation['REGION_NAME']);
+				$arLocation['REGION_NAME_ORIG'] = mb_strtoupper($arLocation['REGION_NAME_ORIG']);
+				$arLocation['REGION_SHORT_NAME'] = mb_strtoupper($arLocation['REGION_SHORT_NAME']);
+				$arLocation['REGION_NAME_LANG'] = mb_strtoupper($arLocation['REGION_NAME_LANG']);
+				$arLocation['REGION_NAME'] = mb_strtoupper($arLocation['REGION_NAME']);
 
 				if (is_array($arEMSRegionList))
 				{
@@ -246,7 +226,7 @@ class CDeliveryEMS
 						$arEMSRegionList[$arLocation['REGION_SHORT_NAME']] ? $arEMSRegionList[$arLocation['REGION_SHORT_NAME']] : (
 						$arEMSRegionList[$arLocation['REGION_NAME_LANG']] ? $arEMSRegionList[$arLocation['REGION_NAME_LANG']] : (
 						$arEMSRegionList[$arLocation['REGION_NAME']] ? $arEMSRegionList[$arLocation['REGION_NAME']] : (
-						$arEMSRegionList[ToUpper($arLocation['REGION_NAME'])] ? $arEMSRegionList[ToUpper($arLocation['REGION_NAME'])] : ''
+						$arEMSRegionList[mb_strtoupper($arLocation['REGION_NAME'])] ? $arEMSRegionList[mb_strtoupper($arLocation['REGION_NAME'])] : ''
 						)
 						)
 						)
@@ -277,7 +257,7 @@ class CDeliveryEMS
 						$arEMSCountryList[$arLocation['COUNTRY_SHORT_NAME']] ? $arEMSCountryList[$arLocation['COUNTRY_SHORT_NAME']] : (
 							$arEMSCountryList[$arLocation['COUNTRY_NAME_LANG']] ? $arEMSCountryList[$arLocation['COUNTRY_NAME_LANG']] : (
 								$arEMSCountryList[$arLocation['COUNTRY_NAME']] ? $arEMSCountryList[$arLocation['COUNTRY_NAME']] : (
-									$arEMSCountryList[ToUpper($arLocation['COUNTRY_NAME'])] ? $arEMSCountryList[ToUpper($arLocation['COUNTRY_NAME'])] : ''
+									$arEMSCountryList[mb_strtoupper($arLocation['COUNTRY_NAME'])] ? $arEMSCountryList[mb_strtoupper($arLocation['COUNTRY_NAME'])] : ''
 								)
 							)
 						)
@@ -549,18 +529,18 @@ class CDeliveryEMS
 	public static function __IsRussian($arLocation)
 	{
 		return
-			(ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIAN FEDERATION"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIAN FEDERATION"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIAN FEDERATION"
+			(mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIAN FEDERATION"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIAN FEDERATION"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIAN FEDERATION"
 			|| ($arLocation["COUNTRY_NAME_LANG"] === null && $arLocation["COUNTRY_NAME_ORIG"] === null)
 		);
 	}

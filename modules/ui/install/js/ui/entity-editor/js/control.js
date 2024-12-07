@@ -4043,10 +4043,18 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 	{
 		for(var i = 0, length = this._fields.length; i < length; i++)
 		{
-			var field = this._fields[i];
+			let field = this._fields[i];
 			if(field.getId() === childId)
 			{
 				return field;
+			}
+			if ("getActiveControlById" in field && BX.Type.isFunction(field["getActiveControlById"]))
+			{
+				let child = field.getActiveControlById(childId);
+				if (child)
+				{
+					return child;
+				}
 			}
 		}
 		return null;
@@ -4351,9 +4359,13 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 			scrollIntoView: true
 		});
 
-		if (this._fieldConfigurator instanceof BX.UI.EntityEditorUserFieldConfigurator)
+		if (BX.Type.isObject(params.mandatoryConfigurator))
 		{
 			this._mandatoryConfigurator = params.mandatoryConfigurator;
+		}
+
+		if (this._fieldConfigurator instanceof BX.UI.EntityEditorUserFieldConfigurator)
+		{
 			BX.addCustomEvent(this._fieldConfigurator, "onSave", BX.delegate(this.onUserFieldConfigurationSave, this));
 			BX.addCustomEvent(this._fieldConfigurator, "onCancel", BX.delegate(this.onFieldConfigurationCancel, this));
 		}
@@ -4445,6 +4457,14 @@ if(typeof BX.UI.EntityEditorSection === "undefined")
 								);
 								field.removeAttributeConfiguration(attributeTypeId);
 							}
+							const attrConfigs = BX.Runtime.clone(
+								field.getSchemeElement().getDataParam("attrConfigs", [])
+							);
+							BX.onCustomEvent(
+								this._editor,
+								this._editor.eventsNamespace + ":onFieldModifyAttributeConfigs",
+								[ this, { field: field, attrConfigs: attrConfigs } ]
+							);
 						}
 						this._mandatoryConfigurator = null;
 						this._visibilityConfigurator = null;
@@ -7191,7 +7211,7 @@ if(typeof BX.UI.EntityEditorTextarea === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -8855,19 +8875,12 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 				throw "BX.UI.EntityEditorHtml: Editor instance is required for create layout.";
 			}
 
-			var htmlEditorConfig = this._editor.getHtmlEditorConfig(name);
-			if(!htmlEditorConfig)
-			{
-				throw "BX.UI.EntityEditorHtml: Could not find HTML editor config.";
-			}
-
-			this._htmlEditorContainer = BX(BX.prop.getString(htmlEditorConfig, "containerId"));
+			this.createEditor();
 			if(!BX.type.isElementNode(this._htmlEditorContainer))
 			{
 				throw "BX.UI.EntityEditorHtml: Could not find HTML editor container.";
 			}
 
-			this._htmlEditor = BXHtmlEditor.Get(BX.prop.getString(htmlEditorConfig, "id"));
 			if(!this._htmlEditor)
 			{
 				throw "BX.UI.EntityEditorHtml: Could not find HTML editor instance.";
@@ -8990,24 +9003,7 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 
 		if(this._mode === BX.UI.EntityEditorMode.edit)
 		{
-			this._isEditorInitialized = !!this._htmlEditor.inited;
-			if(this._isEditorInitialized)
-			{
-				this.prepareEditor();
-			}
-			else
-			{
-				BX.addCustomEvent(
-					this._htmlEditor,
-					"OnCreateIframeAfter",
-					this._editorInitializationHandler
-				);
-				setTimeout(function() {
-					this._htmlEditor.Init();
-				}.bind(this), 0);
-			}
-
-			window.top.setTimeout(BX.delegate(this.bindChangeEvent, this), 1000);
+			this.initEditor();
 			this.initializeDragDropAbilities();
 		}
 		else
@@ -9132,6 +9128,38 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 		);
 		this.prepareEditor();
 	};
+	BX.UI.EntityEditorHtml.prototype.createEditor = function()
+	{
+		const htmlEditorConfig = this._editor.getHtmlEditorConfig(this.getName());
+		if(!htmlEditorConfig)
+		{
+			throw "BX.UI.EntityEditorHtml: Could not find HTML editor config.";
+		}
+
+		this._htmlEditorContainer = BX(BX.prop.getString(htmlEditorConfig, "containerId"));
+		this._htmlEditor = BXHtmlEditor.Get(BX.prop.getString(htmlEditorConfig, "id"));
+	};
+	BX.UI.EntityEditorHtml.prototype.initEditor = function()
+	{
+		this._isEditorInitialized = !!this._htmlEditor.inited;
+		if(this._isEditorInitialized)
+		{
+			this.prepareEditor();
+		}
+		else
+		{
+			BX.addCustomEvent(
+				this._htmlEditor,
+				"OnCreateIframeAfter",
+				this._editorInitializationHandler
+			);
+			setTimeout(function() {
+				this._htmlEditor.Init();
+			}.bind(this), 0);
+		}
+
+		window.top.setTimeout(BX.delegate(this.bindChangeEvent, this), 1000);
+	};
 	BX.UI.EntityEditorHtml.prototype.prepareEditor = function()
 	{
 		this._htmlEditorContainer.style.display = "";
@@ -9208,7 +9236,7 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 		}
 
 		var isValid = !(this.isRequired() || this.isRequiredByAttribute())
-			|| BX.UI.EntityEditorHtml.isNotEmptyValue(this._htmlEditor.GetContent());
+			|| BX.UI.EntityEditorHtml.isNotEmptyValue(this.getContent());
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));
@@ -9232,18 +9260,27 @@ if(typeof BX.UI.EntityEditorHtml === "undefined")
 			BX.removeClass(this._htmlEditorContainer, "ui-entity-editor-content-error");
 		}
 	};
+	BX.UI.EntityEditorHtml.prototype.getContent = function()
+	{
+		return this._htmlEditor.GetContent();
+	};
+
+	BX.UI.EntityEditorHtml.prototype.setContent = function(content)
+	{
+		this._htmlEditor.SetContent(content);
+	};
 	BX.UI.EntityEditorHtml.prototype.save = function()
 	{
 		if(this._htmlEditor)
 		{
-			var value = this._input.value = this._htmlEditor.GetContent();
+			var value = this._input.value = this.getContent();
 			this._model.setField(this.getName(), value);
 		}
 	};
 	BX.UI.EntityEditorHtml.prototype.getRuntimeValue = function()
 	{
 		return (this._mode === BX.UI.EntityEditorMode.edit && this._input
-				? this._htmlEditor.GetContent() : ""
+				? this.getContent() : ""
 		);
 	};
 	BX.UI.EntityEditorHtml.isNotEmptyValue = function(value)
@@ -9313,9 +9350,175 @@ if (typeof BX.UI.EntityEditorBB === 'undefined')
 			}
 		}
 	};
+	BX.UI.EntityEditorBB.prototype.getRelatedDataKeys = function ()
+	{
+		return [this.getDataKey(), `${this.getDataKey()}_HTML`];
+	};
 	BX.UI.EntityEditorBB.create = function(id, settings)
 	{
 		var self = new BX.UI.EntityEditorBB();
+		self.initialize(id, settings);
+		return self;
+	};
+}
+
+if (typeof BX.UI.EntityEditorBBCode === 'undefined')
+{
+	BX.UI.EntityEditorBBCode = function()
+	{
+		BX.UI.EntityEditorBBCode.superclass.constructor.apply(this);
+
+		this._htmlFormatter = null;
+	};
+
+	BX.extend(BX.UI.EntityEditorBBCode, BX.UI.EntityEditorBB);
+
+	BX.UI.EntityEditorBBCode.prototype.layout = function(options)
+	{
+		if (this._hasLayout)
+		{
+			return;
+		}
+
+		BX.UI.EntityEditorBB.superclass.layout.apply(this, [options]);
+
+		if (this._mode !== BX.UI.EntityEditorMode.edit) // view mode
+		{
+			let contentNode = null;
+			if (this._innerWrapper)
+			{
+				contentNode = this._innerWrapper.querySelector('.ui-entity-editor-content-block-inner-html');
+			}
+
+			if (contentNode)
+			{
+				const formatter = this.getHtmlFormatter();
+				const result = formatter.format({ source: this.getValue() });
+
+				const fieldIcon = new BX.UI.EntityFieldIcon({
+					editor: this._editor,
+					mode: this.getMode(),
+					fieldId: this.getId(),
+					fieldType: 'string',
+					fieldInnerWrapper: this._innerWrapper,
+				});
+
+				const iconNode = fieldIcon.getIconNode();
+				if (iconNode)
+				{
+					result.appendChild(iconNode);
+				}
+
+				contentNode.innerHTML = '';
+				contentNode.appendChild(result);
+			}
+		}
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.getHtmlFormatter = function()
+	{
+		if (this._htmlFormatter === null)
+		{
+			this._htmlFormatter = new BX.UI.BBCode.Formatter.HtmlFormatter({ containerMode: 'collapsed' });
+		}
+
+		return this._htmlFormatter;
+	}
+	BX.UI.EntityEditorBBCode.prototype.focus = function()
+	{
+		this._htmlEditor.focus();
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.release = function()
+	{
+		if (this._htmlEditorContainer)
+		{
+			const stub = BX.create(
+				'DIV',
+				{
+					style:
+						{
+							height: this._htmlEditorContainer.offsetHeight + 'px',
+							border: '1px solid #bbc4cd',
+							boxSizing: 'border-box',
+						},
+				},
+			);
+			this._htmlEditorContainer.parentNode.insertBefore(stub, this._htmlEditorContainer);
+		}
+
+		if (this._htmlEditor)
+		{
+			this._htmlEditor.destroy();
+			this._htmlEditor = null;
+		}
+
+		BX.Dom.remove(this._htmlEditorContainer);
+		this._htmlEditorContainer = null;
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.getContent = function()
+	{
+		return this._htmlEditor.getText();
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.setContent = function(content)
+	{
+		this._htmlEditor.setText(content);
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.createEditor = function()
+	{
+		const editorOptions = this._schemeElement.getDataObjectParam('editorOptions', {});
+		this._htmlEditorContainer = BX.Tag.render`<div></div>`;
+		this._htmlEditor = new BX.UI.TextEditor.BasicEditor({
+			removePlugins: ['BlockToolbar'],
+			minHeight: 100,
+			maxHeight: 300,
+			...editorOptions,
+			content: this.getStringValue(""),
+			events: {
+				onChange: (event) => {
+					const { isInitialChange } = event.getData();
+					if (!isInitialChange)
+					{
+						this.onChange();
+					}
+				},
+			},
+		});
+
+		this._htmlEditor.renderTo(this._htmlEditorContainer);
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.initEditor = function()
+	{
+		// do nothing
+	}
+
+	BX.UI.EntityEditorBBCode.prototype.prepareEditor = function()
+	{
+		// do nothing
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.onEditorInitialized = function()
+	{
+		// do nothing
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.bindChangeEvent = function()
+	{
+		// do nothing
+	};
+
+	BX.UI.EntityEditorBBCode.prototype.unbindChangeEvent = function()
+	{
+		// do nothing
+	};
+
+	BX.UI.EntityEditorBBCode.create = function(id, settings)
+	{
+		var self = new BX.UI.EntityEditorBBCode();
 		self.initialize(id, settings);
 		return self;
 	};
@@ -9937,7 +10140,7 @@ if(typeof BX.UI.EntityEditorLink === "undefined")
 			return this.executeValidators(result);
 		}
 
-		var isValid = !this.isRequired() || BX.util.trim(this._input.value) !== "";
+		var isValid = !(this.isRequired() || this.isRequiredByAttribute()) || BX.util.trim(this._input.value) !== "";
 		if(!isValid)
 		{
 			result.addError(BX.UI.EntityValidationError.create({ field: this }));

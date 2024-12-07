@@ -22,15 +22,15 @@ ClearVars();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/tar_gz.php");
 
 set_time_limit(0);
-$STEP = intval($STEP);
+$STEP = isset($_REQUEST['STEP']) ? intval($_REQUEST['STEP']) : 0;
 if ($STEP <= 0)
 	$STEP = 1;
-if ($REQUEST_METHOD == "POST" && $backButton <> '')
+if ($_SERVER['REQUEST_METHOD'] == "POST" && $backButton <> '')
 	$STEP = $STEP - 2;
-if ($REQUEST_METHOD == "POST" && $backButton2 <> '')
+if ($_SERVER['REQUEST_METHOD'] == "POST" && $backButton2 <> '')
 	$STEP = 1;
 
-$COURSE_ID = intval($COURSE_ID);
+$COURSE_ID = isset($_REQUEST['COURSE_ID']) ? intval($_REQUEST['COURSE_ID']) : 0;
 $strError = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 {
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $STEP > 1 && check_bitrix_sessid())
 		// was: $res = CCourse::GetList(Array("sort" => "asc"),Array("ID" => $COURSE_ID,"MIN_PERMISSION" => "W"));
 		// TODO: think about better way of rights check (for every exported lesson, I think).
 		$res = CCourse::GetList(Array("sort" => "asc"),Array("ID" => $COURSE_ID,'ACCESS_OPERATIONS' => CLearnAccess::OP_LESSON_READ | CLearnAccess::OP_LESSON_WRITE));
-		
+
 		if (!$arCourse = $res->GetNext())
 			$strError .= GetMessage("LEARNING_BAD_COURSE")."<br>";
 
@@ -273,8 +273,7 @@ $tabControl->End();
 
 </form>
 
-<script language="JavaScript">
-<!--
+<script>
 <?if ($STEP < 2):?>
 tabControl.SelectTab("edit1");
 tabControl.DisableTab("edit2");
@@ -288,7 +287,6 @@ tabControl.SelectTab("edit3");
 tabControl.DisableTab("edit1");
 tabControl.DisableTab("edit2");
 <?endif;?>
-//-->
 </script>
 
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

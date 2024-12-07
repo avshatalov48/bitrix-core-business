@@ -74,16 +74,16 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 
 		$result = [];
 
+		Extension::load(['catalog.config.settings']);
+
 		if (AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS))
 		{
 			if (!\CCrmSaleHelper::isWithOrdersMode())
 			{
-				Extension::load(['crm.config.catalog']);
-
 				$result[] = [
 					'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_INVENTORY_MANAGEMENT_SETTINGS'),
 					'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_INVENTORY_MANAGEMENT_SETTINGS'),
-					'ONCLICK' => 'BX.Crm.Config.Catalog.Slider.open(\'shop\')',
+					'ONCLICK' => 'BX.Catalog.Config.Slider.open(\'shop\')',
 				];
 			}
 		}
@@ -95,7 +95,7 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 			$result[] = [
 				'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_ACCESS_RIGHTS'),
 				'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_ACCESS_RIGHTS'),
-				'ONCLICK' => "BX.SidePanel.Instance.open('" . \CUtil::JSEscape('/shop/settings/permissions/') . "')"
+				'ONCLICK' => 'BX.Catalog.Config.Slider.openRigthsSlider()',
 			];
 		}
 		else
@@ -116,9 +116,9 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 		$result[] = [
 			'TEXT' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_SEO'),
 			'TITLE' => Loc::getMessage('CATALOG_SHOP_BUILDER_CONTEXT_MENU_ITEM_SEO'),
-			'ONCLICK' => "BX.SidePanel.Instance.open('"
+			'ONCLICK' => "BX.Catalog.Config.Slider.openSeoSlider('"
 				. \CUtil::JSEscape($this->getCatalogSeoUrl())
-				. "', {cacheable: false, allowChangeHistory: false, width: 1000})"
+				. "')"
 			,
 		];
 
@@ -298,11 +298,11 @@ class ShopBuilder extends AdminPage\CatalogBuilder
 
 	protected function getSettingsSlider(): string
 	{
-		\Bitrix\Main\UI\Extension::load(['crm.config.catalog']);
+		\Bitrix\Main\UI\Extension::load(['catalog.config.settings']);
 
 		return '<script>'
 			. 'BX.ready(function() {' . "\n"
-			. ' BX.Crm.Config.Catalog.Slider.open(\'shop\');' . "\n"
+			. ' BX.Catalog.Config.Slider.open(\'shop\');' . "\n"
 			. '});' . "\n"
 			. '</script>'
 			;

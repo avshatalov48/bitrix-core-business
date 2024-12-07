@@ -6,13 +6,9 @@ use Bitrix\Main\Result;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\UI\Helpdesk;
 
-class Popup implements FeaturePromoterProvider
+class Popup extends BaseProvider
 {
 	private const HELPDESK_PATH = '/widget2/restrictive_popup.php';
-
-	public function __construct(private string $code, private string $currentUrl = '')
-	{
-	}
 
 	public function getRendererParameters(): array
 	{
@@ -34,8 +30,8 @@ class Popup implements FeaturePromoterProvider
 	private function loadConfigurationFromHelpdesk(): Result
 	{
 		$helpdeskRequest = new Helpdesk\Request(self::HELPDESK_PATH, [
-			'url' => $this->currentUrl,
-			'code' => $this->code,
+			'url' => $this->configuration->currentUrl,
+			'code' => $this->configuration->code,
 		]);
 
 		return $helpdeskRequest->send();

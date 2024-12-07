@@ -16,6 +16,7 @@ use Bitrix\Socialnetwork\ComponentHelper;
 
 $pageId = "";
 include("util_group_menu.php");
+include("util_group_limit.php");
 
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],

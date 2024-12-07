@@ -204,7 +204,7 @@ class Helper
 		if ((string)$postFields['TITLE'] === '')
 		{
 			$postFields['MICRO'] = 'Y';
-			$postFields['TITLE'] = preg_replace([ "/\n+/is" . BX_UTF_PCRE_MODIFIER, "/\s+/is" . BX_UTF_PCRE_MODIFIER ], ' ', \blogTextParser::killAllTags($postFields['DETAIL_TEXT']));
+			$postFields['TITLE'] = preg_replace([ "/\n+/isu", "/\s+/isu" ], ' ', \blogTextParser::killAllTags($postFields['DETAIL_TEXT']));
 			$postFields['TITLE'] = trim($postFields['TITLE'], " \t\n\r\0\x0B\xA0");
 		}
 
@@ -545,7 +545,7 @@ class Helper
 		)
 		{
 			$updateFields['MICRO'] = 'Y';
-			$updateFields['TITLE'] = preg_replace([ "/\n+/is" . BX_UTF_PCRE_MODIFIER, "/\s+/is" . BX_UTF_PCRE_MODIFIER ], ' ', \blogTextParser::killAllTags($params['POST_MESSAGE']));
+			$updateFields['TITLE'] = preg_replace([ "/\n+/isu", "/\s+/isu" ], ' ', \blogTextParser::killAllTags($params['POST_MESSAGE']));
 			$updateFields['TITLE'] = trim($updateFields['TITLE'], " \t\n\r\0\x0B\xA0");
 		}
 

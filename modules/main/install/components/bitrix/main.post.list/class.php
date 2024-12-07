@@ -24,6 +24,7 @@ final class MainPostList extends CBitrixComponent
 	private $sign;
 	static $users = array();
 	public $exemplarId;
+	private $user;
 
 	public function __construct($component = null)
 	{
@@ -75,7 +76,7 @@ final class MainPostList extends CBitrixComponent
 	protected function joinToPull()
 	{
 		$text = "";
-		if ($this->getUser() && $this->getUser()->isAuthorized()
+		if ($this->getUser()?->isAuthorized()
 			&& Loader::includeModule("pull")
 			&& \CPullOptions::GetNginxStatus()
 		)
@@ -627,7 +628,7 @@ HTML;
 							?>id="<?=$id?>" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVQIW2N88f7jfwAJWAPJBTw90AAAAABJRU5ErkJggg==" <?
 							?>data-src="<?=$thumbnail?>" border="0"></div><?
 					}
-				?><script>BitrixMobile.LazyLoad.registerImages(<?=CUtil::PhpToJSObject($ids)?>, oMSL.checkVisibility);</script><?
+				?><script>BitrixMobile.LazyLoad.registerImages(<?= Json::encode($ids) ?>, oMSL.checkVisibility);</script><?
 				?></div><?
 				$result["MOBILE"]["AFTER"] = preg_replace("/[\n\t]/", "", ob_get_clean()).$result["MOBILE"]["AFTER"];
 			}
@@ -738,7 +739,6 @@ HTML;
 
 	public function parseTemplate(array $res, array $arParams, $template)
 	{
-		global $USER;
 		static $extranetSiteId = null;
 
 		$todayString = ConvertTimeStamp();
@@ -802,7 +802,7 @@ HTML;
 					$strParams .= ($i > 0 ? '&' : '').urlencode($key).'='.urlencode($value);
 					$i++;
 				}
-				$authorUrl .= (strpos($authorUrl, '?') === false ? '?' : '&').$strParams;
+				$authorUrl .= (!str_contains($authorUrl, '?') ? '?' : '&').$strParams;
 			}
 		}
 
@@ -1048,7 +1048,7 @@ HTML;
 					$path .= ($arParams["NAV_RESULT"]->NavPageNomer - 1);
 				else
 					$path .= ($arParams["NAV_RESULT"]->NavPageNomer + 1);
-				$arParams["NAV_STRING"] .= (strpos($arParams["NAV_STRING"], "?") === false ? "?" : "&").$path;
+				$arParams["NAV_STRING"] .= (!str_contains($arParams["NAV_STRING"], "?") ? "?" : "&").$path;
 			}
 		}
 		if (!empty($arParams["RECORDS"]))
@@ -1399,26 +1399,24 @@ HTML;
 		return $APPLICATION;
 	}
 
-	protected function getUser()
+	protected function getUser(): ?\CUser
 	{
-		global $USER;
-		return $USER;
-	}
-
-	protected function getUserId()
-	{
-		static $userId = null;
-		if (is_null($userId))
+		if (!isset($this->user))
 		{
-			$userId = 0;
-
+			$this->user = null;
 			global $USER;
-			if (($USER instanceof \CUser) && $USER->IsAuthorized())
+			if (($USER instanceof \CUser))
 			{
-				$userId = $USER->GetID();
+				$this->user = $USER;
 			}
 		}
-		return $userId;
+
+		return $this->user;
+	}
+
+	protected function getUserId(): ?int
+	{
+		return $this->getUser()?->getId();
 	}
 
 	public function getDateTimeFormatted($timestamp, $arFormatParams)
@@ -1428,5 +1426,56 @@ HTML;
 			'DATETIME_FORMAT' => ($arFormatParams["DATE_TIME_FORMAT"] ?? false),
 			'DATETIME_FORMAT_WITHOUT_YEAR' => ($arFormatParams["DATE_TIME_FORMAT_WITHOUT_YEAR"] ?? false)
 		));
+	}
+
+	public function getAvatar()
+	{
+		global $USER;
+
+		static $avatar = null;
+
+		if ($avatar == null)
+		{
+			$avatar = '/bitrix/images/1.gif';
+			if ($USER?->IsAuthorized())
+			{
+				$u = CUser::GetByID($USER->GetID())->Fetch();
+				if (
+					intval($u["PERSONAL_PHOTO"]) <= 0
+					&& \Bitrix\Main\ModuleManager::isModuleInstalled('socialnetwork')
+				)
+				{
+					switch ($u["PERSONAL_GENDER"])
+					{
+						case "M":
+							$suffix = "male";
+							break;
+						case "F":
+							$suffix = "female";
+							break;
+						default:
+							$suffix = "unknown";
+					}
+					$u["PERSONAL_PHOTO"] = COption::GetOptionInt("socialnetwork", "default_user_picture_".$suffix, false, SITE_ID);
+				}
+
+				if ($u["PERSONAL_PHOTO"])
+				{
+					$res = CFile::ResizeImageGet(
+						$u["PERSONAL_PHOTO"],
+						array('width' => 100, 'height' => 100),
+						BX_RESIZE_IMAGE_EXACT,
+						false,
+						false,
+						true
+					);
+					if ($res["src"])
+					{
+						$avatar = $res["src"];
+					}
+				}
+			}
+		}
+		return $avatar;
 	}
 }

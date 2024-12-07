@@ -1,0 +1,19 @@
+.bx-im-chat-forms-button-panel__container {
+	--im-chat-forms-button-panel__background-color_container: var(--im-color-palette-white-base);
+
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	height: 71px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: var(--im-chat-forms-button-panel__background-color_container);
+	box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.03);
+	z-index: 11;
+}
+
+.bx-im-chat-forms-button-panel__create-button {
+	margin-right: 18px;
+}

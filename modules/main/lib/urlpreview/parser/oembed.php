@@ -48,7 +48,7 @@ class Oembed extends Parser
 				!$rawMetadata
 				|| $httpClient->getStatus() === 403
 			)
-			&& mb_strpos($this->metadataUrl, 'http://') === 0)
+			&& str_starts_with($this->metadataUrl, 'http://'))
 		{
 			if(!$isHttpClientPassed)
 			{
@@ -78,7 +78,12 @@ class Oembed extends Parser
 
 			if($document->getImage() == '' && !empty($parsedMetadata['thumbnail_url']))
 			{
-				$document->setImage($parsedMetadata['thumbnail_url']);
+				$image = $parsedMetadata['thumbnail_url'];
+				if (is_array($image))
+				{
+					$image = reset($image);
+				}
+				$document->setImage($image);
 			}
 
 			if($document->getEmdbed() == '' && !empty($parsedMetadata['html']))
@@ -113,8 +118,8 @@ class Oembed extends Parser
 
 		foreach($linkElements[0] as $linkElement)
 		{
-			$typeJson = (strpos($linkElement, $this::OEMBED_TYPE_JSON) !== false);
-			$typeXml = (strpos($linkElement, $this::OEMBED_TYPE_XML) !== false);
+			$typeJson = (str_contains($linkElement, $this::OEMBED_TYPE_JSON));
+			$typeXml = (str_contains($linkElement, $this::OEMBED_TYPE_XML));
 			if($typeJson || $typeXml)
 			{
 				if(preg_match('/href=[\'"](.+?)[\'"]/', $linkElement, $attributes))

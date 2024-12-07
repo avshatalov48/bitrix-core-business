@@ -16,7 +16,6 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\StoreDocumentFileTable;
@@ -31,7 +30,6 @@ if (!Loader::includeModule('catalog'))
 }
 
 $request = Context::getCurrent()->getRequest();
-$request->addFilter(new PostDecodeFilter);
 
 if (!$request->isPost() || !check_bitrix_sessid())
 {
@@ -215,7 +213,6 @@ switch ($action)
 		);
 		if ($contractorsProvider)
 		{
-			CUtil::JSPostUnescape(); // because method used $_POST
 			$contractorsProvider::processDocumentCardAjaxActions($action);
 		}
 		break;

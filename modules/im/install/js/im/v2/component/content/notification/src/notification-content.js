@@ -7,6 +7,7 @@ import { Logger } from 'im.v2.lib.logger';
 import { NotificationTypesCodes, Settings } from 'im.v2.const';
 import { NotificationService } from 'im.v2.provider.service';
 import { UserListPopup, Loader } from 'im.v2.component.elements';
+import { Utils } from 'im.v2.lib.utils';
 
 import { NotificationItem } from './components/notification-item';
 import { NotificationPlaceholder } from './components/notification-placeholder';
@@ -213,12 +214,6 @@ export const NotificationContent = {
 			this.notificationReadService.addToReadQueue(notificationIds);
 			this.notificationReadService.read();
 		},
-		oneScreenRemaining(event): boolean
-		{
-			const target = event.target;
-
-			return target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
-		},
 		searchOnServer(event)
 		{
 			this.notificationSearchService.loadFirstPage(event).then((result) => {
@@ -270,7 +265,7 @@ export const NotificationContent = {
 		onScrollNotifications(event)
 		{
 			if (
-				!this.oneScreenRemaining(event)
+				!Utils.dom.isOneScreenRemaining(event.target)
 				|| !this.notificationService.hasMoreItemsToLoad
 				|| this.isInitialLoading
 				|| this.isNextPageLoading
@@ -287,7 +282,7 @@ export const NotificationContent = {
 		onScrollSearchResult(event)
 		{
 			if (
-				!this.oneScreenRemaining(event)
+				!Utils.dom.isOneScreenRemaining(event.target)
 				|| !this.notificationSearchService.hasMoreItemsToLoad
 				|| this.isInitialLoading
 				|| this.isNextPageLoading

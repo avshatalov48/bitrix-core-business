@@ -155,7 +155,12 @@ class SenderTable extends Entity\DataManager
 					}
 
 					return $value;
-				})
+				}),
+			(new Fields\StringField('PARENT_MODULE_ID'))
+				->configureDefaultValue('main')
+				->configureSize(50),
+			(new Fields\IntegerField('PARENT_ID'))
+				->configureNullable(),
 		];
 	}
 

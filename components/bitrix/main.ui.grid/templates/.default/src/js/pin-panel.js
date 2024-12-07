@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -20,7 +20,7 @@
 	};
 
 	BX.Grid.PinPanel.prototype = {
-		init: function(parent) {
+		init(parent) {
 			this.parent = parent;
 			this.offset = 10;
 			this.animationDuration = 200;
@@ -28,12 +28,12 @@
 			this.bindOnRowsEvents();
 		},
 
-		destroy: function()
+		destroy()
 		{
 			this.unbindOnRowsEvents();
 		},
 
-		bindOnRowsEvents: function()
+		bindOnRowsEvents()
 		{
 			BX.addCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
 			BX.addCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
@@ -42,7 +42,7 @@
 			BX.addCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
 		},
 
-		unbindOnRowsEvents: function()
+		unbindOnRowsEvents()
 		{
 			BX.removeCustomEvent('Grid::thereSelectedRows', BX.proxy(this._onThereSelectedRows, this));
 			BX.removeCustomEvent('Grid::allRowsSelected', BX.proxy(this._onThereSelectedRows, this));
@@ -51,29 +51,30 @@
 			BX.removeCustomEvent('Grid::updated', BX.proxy(this._onNoSelectedRows, this));
 		},
 
-		bindOnWindowEvents: function()
+		bindOnWindowEvents()
 		{
 			BX.bind(window, 'resize', BX.proxy(this._onResize, this));
-			document.addEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({passive: true}));
+			document.addEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({ passive: true }));
 		},
 
-		unbindOnWindowEvents: function()
+		unbindOnWindowEvents()
 		{
 			BX.unbind(window, 'resize', BX.proxy(this._onResize, this));
-			document.removeEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({passive: true}));
+			document.removeEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({ passive: true }));
 		},
 
-		getPanel: function() {
+		getPanel() {
 			this.panel = this.panel || this.parent.getActionsPanel().getPanel();
+
 			return this.panel;
 		},
 
-		getScrollBottom: function()
+		getScrollBottom()
 		{
 			return (BX.scrollTop(window) + this.getWindowHeight());
 		},
 
-		getPanelRect: function()
+		getPanelRect()
 		{
 			if (!BX.type.isPlainObject(this.panelRect))
 			{
@@ -83,35 +84,37 @@
 			return this.panelRect;
 		},
 
-		getPanelPrevBottom: function()
+		getPanelPrevBottom()
 		{
-			var prev = BX.previousSibling(this.getPanel());
+			const prev = BX.previousSibling(this.getPanel());
+
 			return BX.pos(prev).bottom + parseFloat(BX.style(prev, 'margin-bottom'));
 		},
 
-		getWindowHeight: function()
+		getWindowHeight()
 		{
 			this.windowHeight = this.windowHeight || BX.height(window);
+
 			return this.windowHeight;
 		},
 
-		pinPanel: function(withAnimation)
+		pinPanel(withAnimation)
 		{
-			var panel = this.getPanel();
-			var width = BX.width(this.getPanel().parentNode);
-			var height = BX.height(this.getPanel().parentNode);
-			var bodyRect = BX.pos(this.parent.getBody());
-			var offset = this.getStartDiffPanelPosition();
+			const panel = this.getPanel();
+			const width = BX.width(this.getPanel().parentNode);
+			const height = BX.height(this.getPanel().parentNode);
+			const bodyRect = BX.pos(this.parent.getBody());
+			const offset = this.getStartDiffPanelPosition();
 
-			panel.parentNode.style.setProperty('height', height + 'px');
+			panel.parentNode.style.setProperty('height', `${height}px`);
 
-			panel.style.setProperty('transform', 'translateY('+ offset + 'px)');
+			panel.style.setProperty('transform', `translateY(${offset}px)`);
 			panel.classList.add('main-grid-fixed-bottom');
-			panel.style.setProperty('width', width + 'px');
+			panel.style.setProperty('width', `${width}px`);
 			panel.style.removeProperty('position');
 			panel.style.removeProperty('top');
 
-			requestAnimationFrame(function() {
+			requestAnimationFrame(() => {
 				if (withAnimation !== false)
 				{
 					panel.style.setProperty('transition', 'transform 200ms ease');
@@ -125,7 +128,7 @@
 				this.absolutePin = true;
 				panel.style.removeProperty('transition');
 				panel.style.setProperty('position', 'absolute');
-				panel.style.setProperty('top', bodyRect.top + 'px');
+				panel.style.setProperty('top', `${bodyRect.top}px`);
 			}
 
 			if (!this.isNeedPinAbsolute() && this.absolutePin)
@@ -137,22 +140,22 @@
 			this.pinned = true;
 		},
 
-		unpinPanel: function(withAnimation)
+		unpinPanel(withAnimation)
 		{
-			var panel = this.getPanel();
-			var panelRect = BX.pos(panel);
-			var parentRect = BX.pos(panel.parentNode);
-			var offset = Math.abs(panelRect.bottom - parentRect.bottom);
+			const panel = this.getPanel();
+			const panelRect = BX.pos(panel);
+			const parentRect = BX.pos(panel.parentNode);
+			const offset = Math.abs(panelRect.bottom - parentRect.bottom);
 
 			if (withAnimation !== false)
 			{
 				panel.style.setProperty('transition', 'transform 200ms ease');
 			}
 
-			var translateOffset = offset < panelRect.height ? offset + 'px' : '100%';
-			panel.style.setProperty('transform', 'translateY('+translateOffset+')');
+			const translateOffset = offset < panelRect.height ? `${offset}px` : '100%';
+			panel.style.setProperty('transform', `translateY(${translateOffset})`);
 
-			var delay = function(cb, delay)
+			const delay = function(cb, delay)
 			{
 				if (withAnimation !== false)
 				{
@@ -162,7 +165,7 @@
 				cb();
 			};
 
-			delay(function() {
+			delay(() => {
 				panel.parentNode.style.removeProperty('height');
 				panel.classList.remove('main-grid-fixed-bottom');
 				panel.style.removeProperty('transition');
@@ -170,45 +173,45 @@
 				panel.style.removeProperty('width');
 				panel.style.removeProperty('position');
 				panel.style.removeProperty('top');
-			}, withAnimation !== false ? 200 : 0);
+			}, withAnimation === false ? 0 : 200);
 
 			this.pinned = false;
 		},
 
-		isSelectedRows: function()
+		isSelectedRows()
 		{
 			return this.isSelected;
 		},
 
-		isNeedPinAbsolute: function()
+		isNeedPinAbsolute()
 		{
 			return (
 				((BX.pos(this.parent.getBody()).top + this.getPanelRect().height) >= this.getScrollBottom())
 			);
 		},
 
-		isNeedPin: function()
+		isNeedPin()
 		{
 			return (this.getScrollBottom() - this.getPanelRect().height) <= this.getPanelPrevBottom();
 		},
 
-		adjustPanelPosition: function()
+		adjustPanelPosition()
 		{
-			var scrollX = window.pageXOffset;
-			this.lastScrollX = this.lastScrollX !== null ? this.lastScrollX : scrollX;
+			const scrollX = window.pageXOffset;
+			this.lastScrollX = this.lastScrollX === null ? scrollX : this.lastScrollX;
 
 			BX.Grid.Utils.requestAnimationFrame(BX.proxy(function() {
 				if (scrollX !== this.lastScrollX)
 				{
-					var panelPos = this.getPanelRect();
-					BX.style(this.getPanel(), 'left', panelPos.left - scrollX + 'px');
+					const panelPos = this.getPanelRect();
+					BX.style(this.getPanel(), 'left', `${panelPos.left - scrollX}px`);
 				}
 			}, this));
 
 			this.lastScrollX = scrollX;
 		},
 
-		pinController: function(withAnimation)
+		pinController(withAnimation)
 		{
 			if (this.getPanel())
 			{
@@ -224,14 +227,14 @@
 			}
 		},
 
-		getEndDiffPanelPosition: function()
+		getEndDiffPanelPosition()
 		{
-			var panelPos = BX.pos(this.getPanel());
-			var prevPanelPos = BX.pos(BX.previousSibling(this.getPanel()));
-			var scrollTop = BX.scrollTop(window);
-			var scrollBottom = scrollTop + BX.height(window);
-			var diff = panelPos.height + this.offset;
-			var prevPanelBottom = (prevPanelPos.bottom + parseFloat(BX.style(this.getPanel(), 'margin-top')));
+			const panelPos = BX.pos(this.getPanel());
+			const prevPanelPos = BX.pos(BX.previousSibling(this.getPanel()));
+			const scrollTop = BX.scrollTop(window);
+			const scrollBottom = scrollTop + BX.height(window);
+			let diff = panelPos.height + this.offset;
+			const prevPanelBottom = (prevPanelPos.bottom + parseFloat(BX.style(this.getPanel(), 'margin-top')));
 
 			if (prevPanelBottom < scrollBottom && (prevPanelBottom + panelPos.height) > scrollBottom)
 			{
@@ -241,12 +244,12 @@
 			return diff;
 		},
 
-		getStartDiffPanelPosition: function()
+		getStartDiffPanelPosition()
 		{
-			var panelPos = BX.pos(this.getPanel());
-			var scrollTop = BX.scrollTop(window);
-			var scrollBottom = scrollTop + BX.height(window);
-			var diff = panelPos.height;
+			const panelPos = BX.pos(this.getPanel());
+			const scrollTop = BX.scrollTop(window);
+			const scrollBottom = scrollTop + BX.height(window);
+			let diff = panelPos.height;
 
 			if (panelPos.bottom > scrollBottom && panelPos.top < scrollBottom)
 			{
@@ -256,12 +259,12 @@
 			return diff;
 		},
 
-		isPinned: function()
+		isPinned()
 		{
 			return this.pinned;
 		},
 
-		_onThereSelectedRows: function()
+		_onThereSelectedRows()
 		{
 			this.bindOnWindowEvents();
 			this.isSelected = true;
@@ -275,10 +278,9 @@
 				this.lastIsSelected = true;
 				this.pinController();
 			}
-
 		},
 
-		_onNoSelectedRows: function()
+		_onNoSelectedRows()
 		{
 			this.unbindOnWindowEvents();
 			this.isSelected = false;
@@ -286,17 +288,17 @@
 			this.lastIsSelected = false;
 		},
 
-		_onScroll: function()
+		_onScroll()
 		{
 			this.pinController(false);
 		},
 
-		_onResize: function()
+		_onResize()
 		{
 			this.windowHeight = BX.height(window);
 			this.panel = this.parent.getActionsPanel().getPanel();
 			this.panelRect = this.getPanel().getBoundingClientRect();
 			this.pinController(false);
-		}
+		},
 	};
 })();

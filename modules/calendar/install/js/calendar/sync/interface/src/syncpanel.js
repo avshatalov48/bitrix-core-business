@@ -206,6 +206,6 @@ export default class SyncPanel
 		this.connectionsProviders = connectionsProviders;
 		Dom.replace(document.querySelector('#calendar-sync-status-block'), this.blockStatusContent);
 		this.displayConnectionUnits();
-		this.auxiliarySyncPanel.refresh(status, connectionsProviders);
+		this.auxiliarySyncPanel?.refresh(status, connectionsProviders);
 	}
 }

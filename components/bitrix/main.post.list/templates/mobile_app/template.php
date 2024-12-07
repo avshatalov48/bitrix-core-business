@@ -13,7 +13,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * @var CUser $USER
  * @var MainPostList $this->__component
  */
+
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 global $USER;
 
@@ -410,37 +412,37 @@ if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Control
 						CREATETASK : '<?=$arParams["RIGHTS"]["CREATETASK"]?>'
 					},
 					sign : '<?=$arParams["SIGN"]?>',
-					ajax : <?=CUtil::PhpToJSObject($ajaxParams)?>
+					ajax : <?= Json::encode($ajaxParams)?>,
 			},
 			{
-				VIEW_URL : '<?=CUtil::JSEscape($arParams["~VIEW_URL"])?>',
-				EDIT_URL : '<?=CUtil::JSEscape($arParams["~EDIT_URL"])?>',
-				MODERATE_URL : '<?=CUtil::JSEscape($arParams["~MODERATE_URL"])?>',
-				DELETE_URL : '<?=CUtil::JSEscape($arParams["~DELETE_URL"])?>',
-				AUTHOR_URL : '<?=CUtil::JSEscape($arParams["~AUTHOR_URL"])?>',
-				AUTHOR_URL_PARAMS: <?=(isset($arParams["AUTHOR_URL_PARAMS"]) ? CUtil::PhpToJSObject($arParams["AUTHOR_URL_PARAMS"]) : '{}')?>,
+				VIEW_URL: '<?=CUtil::JSEscape($arParams["~VIEW_URL"])?>',
+				EDIT_URL: '<?=CUtil::JSEscape($arParams["~EDIT_URL"])?>',
+				MODERATE_URL: '<?=CUtil::JSEscape($arParams["~MODERATE_URL"])?>',
+				DELETE_URL: '<?=CUtil::JSEscape($arParams["~DELETE_URL"])?>',
+				AUTHOR_URL: '<?=CUtil::JSEscape($arParams["~AUTHOR_URL"])?>',
+				AUTHOR_URL_PARAMS: <?=(isset($arParams["AUTHOR_URL_PARAMS"]) ? Json::encode($arParams["AUTHOR_URL_PARAMS"]) : '{}') ?>,
 
-				AVATAR_SIZE : '<?=CUtil::JSEscape($arParams["AVATAR_SIZE"])?>',
-				NAME_TEMPLATE : '<?=CUtil::JSEscape($arParams["~NAME_TEMPLATE"])?>',
-				SHOW_LOGIN : '<?=CUtil::JSEscape($arParams["SHOW_LOGIN"])?>',
+				AVATAR_SIZE: '<?=CUtil::JSEscape($arParams["AVATAR_SIZE"])?>',
+				NAME_TEMPLATE: '<?=CUtil::JSEscape($arParams["~NAME_TEMPLATE"])?>',
+				SHOW_LOGIN: '<?=CUtil::JSEscape($arParams["SHOW_LOGIN"])?>',
 
-				DATE_TIME_FORMAT : '<?=CUtil::JSEscape($arParams["~DATE_TIME_FORMAT"])?>',
-				LAZYLOAD : '<?=$arParams["LAZYLOAD"]?>',
+				DATE_TIME_FORMAT: '<?=CUtil::JSEscape($arParams["~DATE_TIME_FORMAT"])?>',
+				LAZYLOAD: '<?=$arParams["LAZYLOAD"]?>',
 
-				SHOW_POST_FORM : '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
-				BIND_VIEWER : '<?=$arParams["BIND_VIEWER"]?>',
-				USE_LIVE : <?=(isset($arParams["USE_LIVE"]) && !$arParams["USE_LIVE"] ? 'false' : 'true')?>,
+				SHOW_POST_FORM: '<?=CUtil::JSEscape($arParams["SHOW_POST_FORM"])?>',
+				BIND_VIEWER: '<?=$arParams["BIND_VIEWER"]?>',
+				USE_LIVE: <?=(isset($arParams["USE_LIVE"]) && !$arParams["USE_LIVE"] ? 'false' : 'true')?>,
 			},
 			{
 				id : '<?=CUtil::JSEscape($arParams["FORM"]["ID"])?>',
 				url : '<?=CUtil::JSEscape($arParams["FORM"]["URL"])?>',
-				fields : <?=CUtil::PhpToJSObject($arParams["FORM"]["FIELDS"])?>
+				fields : <?= Json::encode($arParams["FORM"]["FIELDS"]) ?>
 			}
 			);
 			BX.removeCustomEvent("main.post.list/mobile", f);
 		}, scripts = [];
 		BX.addCustomEvent("main.post.list/mobile", f);
-		if (BX["MPL"])
+		if (BX.MPL)
 		{
 			f();
 			return;

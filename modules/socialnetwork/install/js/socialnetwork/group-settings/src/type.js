@@ -3,6 +3,8 @@ export type Perms = {
 	canInvite: boolean,
 	canLeave: boolean,
 	canEditFeatures: boolean,
+	canFollow: boolean,
+	canPin: boolean,
 }
 
 export type Member = {

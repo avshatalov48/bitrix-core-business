@@ -27,3 +27,5 @@ if (array_key_exists('payload', $data))
 {
 	Cashbox\CashboxAtolFarm::applyCheckResult($data);
 }
+
+\Bitrix\Main\Application::getInstance()->end();

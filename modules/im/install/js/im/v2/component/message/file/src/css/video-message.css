@@ -1,26 +1,24 @@
-.bx-im-message-video__scope {
-	--im-message-video__background-color_content: #f1f4f6;
-}
-
 .bx-im-message-video__container {
 	position: relative;
 	max-width: 420px;
 	display: flex;
 	flex-direction: column;
+	border-radius: inherit;
 }
 
 .bx-im-message-video__content {
-	display: flex;
-	justify-content: center;
 	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
 	width: 100%;
-	background-color: var(--im-message-video__background-color_content);
 	border-radius: 6px;
 }
 
-.bx-im-message-video__content-with-menu {
-	display: flex;
-	justify-content: center;
+.bx-im-message-video__header {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 10px 19px 10px 14px;
 }
 
 .bx-im-message-video__message-status-container {
@@ -29,48 +27,22 @@
 	bottom: 8px;
 }
 
-.bx-im-message-video__default-message-container {
+.bx-im-message-video__bottom-container {
 	padding: var(--im-message-base__padding_body);
 }
 
+/* External reaction list */
 .bx-im-message-video__reaction-list-container {
 	display: flex;
 	justify-content: flex-end;
-	margin-top: 4px;
 }
 
-.--transparent .bx-im-message-video__reaction-list-container {
-	margin-right: 54px;
-}
-
-.--opponent .bx-im-message-video__reaction-list-container,
+.bx-im-message-base__wrap.--opponent .bx-im-message-video__reaction-list-container,
 .bx-im-content-chat__container.--left-align .bx-im-message-video__reaction-list-container {
 	justify-content: flex-start;
 }
 
-.--transparent .bx-im-message-video__container {
-	align-items: flex-end;
+.bx-im-message-video__reaction-list-container > .bx-im-reaction-list__container {
+	margin-top: 4px;
 }
-
-.--opponent .--transparent .bx-im-message-video__container,
-.bx-im-content-chat__container.--left-align .--transparent .bx-im-message-video__container {
-	align-items: flex-start;
-}
-
-.bx-im-message-video__content-with-header {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-}
-
-.bx-im-message-video__header {
-	background: var(--im-message-base__background-color);
-	border-top-left-radius: 6px;
-	border-top-right-radius: 6px;
-	padding: 10px 19px 18px 14px;
-	margin-bottom: -6px;
-}
-
-.--self .bx-im-message-video__header {
-	background: var(--im-message-base__background-color_self);
-}
+/* End external reaction list */

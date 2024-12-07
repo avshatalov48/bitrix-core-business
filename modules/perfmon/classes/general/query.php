@@ -532,7 +532,8 @@ class CPerfQuery
 			}
 
 			$table = new CPerfomanceTable;
-			$arIndexes = $table->GetIndexes($suggest_table->name);
+			$table->Init($suggest_table->name);
+			$arIndexes = $table->GetIndexes();
 			foreach ($arIndexes as $index_name => $arColumns)
 			{
 				$arIndexes[$index_name] = implode(',', $arColumns);
@@ -754,17 +755,17 @@ class CPerfQuery
 	public static function remove_literals($sql)
 	{
 		return preg_replace('/(
-				"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"                           # match double quoted string
+				"[^"\\\\]*(?:\\\\.[^"\\\\]*)*"                                    # match double quoted string
 				|
-				\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'                       # match single quoted string
+				\'[^\'\\\\]*(?:\\\\.[^\'\\\\]*)*\'                                # match single quoted string
 				|
-				(?s:\\/\\*.*?\\*\\/)                                     # multi line comments
+				(?s:\\/\\*.*?\\*\\/)                                              # multi line comments
 				|
-				\\/\\/.*?\\n                                             # single line comments
+				\\/\\/.*?\\n                                                      # single line comments
 				|
-				(?<![A-Za-z_])([0-9]+\\.[0-9]+|[0-9]+)(?![A-Za-z_])                       # an number
+				(?<![A-Za-z_])([0-9]+\\.[0-9]+|[0-9]+)(?![A-Za-z_])               # an number
 				|
-				(?i:\\sIN\\s*\\(\\s*[0-9.]+(?:\\s*,\\s*[0-9.])*\\s*\\))  # in (1, 2, 3)
+				(?i:\\sIN\\s*\\(\\s*[0-9.]+(?:\\s*,\\s*[0-9.])*\\s*\\))           # in (1, 2, 3)
 				|
 				(?i:\\sIN\\s*\\(\\s*[\'].+?[\'](?:\\s*,\\s*[\'].+?[\'])*\\s*\\))  # in (\'a\', \'b\', \'c\')
 			)/x', '', $sql);

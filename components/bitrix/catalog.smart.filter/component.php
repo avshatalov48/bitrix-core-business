@@ -1068,7 +1068,7 @@ if ($arParams["XML_EXPORT"] === "Y" && ($_REQUEST["mode"] ?? '') === "xml")
 		$bufferCount--;
 	}
 	header("Content-Type: text/xml; charset=utf-8");
-	CMain::FinalActions(\Bitrix\Main\Text\Encoding::convertEncoding($xml, LANG_CHARSET, "utf-8"));
+	CMain::FinalActions($xml);
 }
 elseif(isset($_REQUEST["ajax"]) && $_REQUEST["ajax"] === "y")
 {

@@ -48,8 +48,6 @@ abstract class PropertyValueCollectionBase extends EntityPropertyValueCollection
 	/**
 	 * @param OrderBase $order
 	 * @return PropertyValueCollectionBase
-	 * @throws Main\ArgumentException
-	 * @throws Main\SystemException
 	 */
 	public static function load(OrderBase $order)
 	{
@@ -67,7 +65,7 @@ abstract class PropertyValueCollectionBase extends EntityPropertyValueCollection
 		foreach ($props as $prop)
 		{
 			$prop->setCollection($propertyCollection);
-			$propertyCollection->addItem($prop);
+			$propertyCollection->bindItem($prop);
 		}
 
 		return $propertyCollection;
@@ -84,7 +82,6 @@ abstract class PropertyValueCollectionBase extends EntityPropertyValueCollection
 	/**
 	 * @param CollectableEntity $property
 	 * @return CollectableEntity|Result
-	 * @throws Main\ArgumentTypeException
 	 */
 	public function addItem(CollectableEntity $property)
 	{

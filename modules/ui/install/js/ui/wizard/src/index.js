@@ -3,7 +3,7 @@ import './style.css';
 
 export type Metadata = {
 	[key: string]: {
-		get content(): HTMLElement | HTMLElement[];
+		get content(): HTMLElement;
 		title: string;
 		beforeCompletion?: () => Promise<boolean>;
 	};
@@ -13,13 +13,13 @@ export type WizardOptions = {
 	back?: {
 		className?: string;
 		titles?: {
-			[$Keys<Metadata>]: string;
+			[$Keys<typeof Metadata>]: string;
 		};
 	};
 	next?: {
 		className?: string;
 		titles?: {
-			[$Keys<Metadata>]: string;
+			[$Keys<typeof Metadata>]: string;
 		};
 	};
 	complete?: {
@@ -33,7 +33,7 @@ export type WizardOptions = {
 export class Wizard
 {
 	#metadata: Metadata;
-	#order: Array<$Keys<Metadata>>;
+	#order: Array<$Keys<typeof Metadata>>;
 	#options: WizardOptions;
 	#stepIndex: number;
 	#stepNode: HTMLElement;
@@ -60,31 +60,34 @@ export class Wizard
 			'sign-wizard__footer_button',
 		];
 		const { back = {}, next = {}, complete = {}, swapButtons = false } = this.#options ?? {};
-		const { title: completeTitle, onComplete } = complete;
-		const backClassName = (back.className ?? '').split(' ');
-		const nextClassName = (next.className ?? '').split(' ');
-		const completeClassName = (complete.className ?? '').split(' ');
+		const { title: completeTitle, onComplete, className: completeClassName } = complete;
+		const backClassList = (back.className ?? '').split(' ');
+		const nextClassList = (next.className ?? '').split(' ');
+		const completeClassList = (completeClassName ?? '').split(' ');
 		const backButton = {
 			id: 'back',
 			title: Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK'),
 			method: () => this.#onPrevStep(),
-			buttonClassList: [...classList, ...backClassName]
+			buttonClassList: [...classList, ...backClassList],
 		};
 		const buttons = [
 			{
 				id: 'next',
 				title: Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT'),
 				method: () => this.#onNextStep(),
-				buttonClassList: [...classList, ...nextClassName]
+				buttonClassList: [...classList, ...nextClassList],
 			},
 			{
 				id: 'complete',
 				title: completeTitle ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_COMPLETE'),
 				method: async () => {
 					const completed = await this.#tryCompleteStep('complete');
-					completed && onComplete?.();
+					if (completed && onComplete)
+					{
+						onComplete();
+					}
 				},
-				buttonClassList: [...classList, ...completeClassName]
+				buttonClassList: [...classList, ...completeClassList],
 			},
 		];
 		if (swapButtons)
@@ -101,7 +104,7 @@ export class Wizard
 				title,
 				method,
 				buttonClassList = classList,
-				id
+				id,
 			} = button;
 
 			const node = Tag.render`
@@ -162,14 +165,17 @@ export class Wizard
 		}
 	}
 
-	#renderButtonTitle(backButton: HTMLElement, nextButton: HTMLElement)
+	#getButtonsTitle(): { [key: string]: string; }
 	{
 		const { back = {}, next = {} } = this.#options ?? {};
 		const stepName = this.#order[this.#stepIndex];
 		const backTitle = back.titles?.[stepName] ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_BACK');
 		const nextTitle = next.titles?.[stepName] ?? Loc.getMessage('SIGN_WIZARD_FOOTER_BUTTON_NEXT');
-		backButton.textContent = backTitle;
-		nextButton.textContent = nextTitle;
+
+		return {
+			backTitle,
+			nextTitle,
+		};
 	}
 
 	#renderNavigationButtons()
@@ -180,7 +186,9 @@ export class Wizard
 		Dom.removeClass(backButton, '--hide');
 		Dom.removeClass(nextButton, '--hide');
 		Dom.addClass(completeButton, '--hide');
-		this.#renderButtonTitle(backButton, nextButton);
+		const { nextTitle, backTitle } = this.#getButtonsTitle(backButton, nextButton);
+		backButton.textContent = backTitle;
+		nextButton.textContent = nextTitle;
 		if (isFirstStep)
 		{
 			Dom.addClass(backButton, '--hide');

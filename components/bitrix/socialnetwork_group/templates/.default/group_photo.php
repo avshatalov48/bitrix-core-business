@@ -16,6 +16,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 $pageId = "group_photo";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $sliderComponentList = [
 	'bitrix:photogallery.user',

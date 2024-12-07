@@ -238,14 +238,7 @@ class QiwiHandler extends PaySystem\ServiceHandler implements PaySystem\ICheckab
 		header("Pragma: no-cache");
 		$xml = '<?xml version="1.0" encoding="UTF-8"?><result><result_code>'.$this->getErrorCodeValue($data['CODE']).'</result_code></result>';
 
-		$charsetConverter = \CharsetConverter::getInstance();
-
-		$instance = Application::getInstance();
-		$context = $instance->getContext();
-		$culture = $context->getCulture();
-		$siteCharset = $culture->getCharset();
-
-		echo  $charsetConverter->ConvertCharset($xml, $siteCharset, "utf-8");
+		echo $xml;
 		die();
 	}
 

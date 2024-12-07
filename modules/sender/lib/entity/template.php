@@ -7,9 +7,9 @@
  */
 namespace Bitrix\Sender\Entity;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sender\TemplateTable;
-use Bitrix\Tasks\Exception;
 
 Loc::loadMessages(__FILE__);
 
@@ -48,6 +48,18 @@ class Template extends Base
 	 */
 	protected function saveData($id, array $data)
 	{
+		$sizeInBytes = mb_strlen($data['CONTENT'] ?? "");
+		$sizeInKilobytes = $sizeInBytes / 1024;
+		$limitInKilobytes = 2.4 * 1024;
+
+		if ($sizeInKilobytes > $limitInKilobytes)
+		{
+			$this->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_MAIL_BODY_LIMIT')));
+
+			return null;
+		}
+
+
 		return $this->saveByEntity(TemplateTable::getEntity(), $id, $data);
 	}
 

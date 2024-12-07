@@ -13,5 +13,4 @@ $MESS ['MAIN_TEMPLATE_LOAD_SITE_ID_N'] = "(не привязывать)";
 $MESS ['MAIN_TEMPLATE_LOAD_GOTO_EDIT'] = "Перейти после сохранения на страницу редактирования шаблона:";
 $MESS ['MAIN_TEMPLATE_LOAD_SUBMIT'] = "Загрузить";
 $MESS ['MAIN_TEMPLATE_LOAD_WARN_UTF'] = "Обратите внимание, файлы шаблона должны быть в кодировке UTF-8.";
-$MESS ['MAIN_TEMPLATE_LOAD_WARN_NON_UTF'] = "Обратите внимание, кодировка файлов шаблона должна соответствовать кодировке сайта.";
 ?>

@@ -1,5 +1,5 @@
 <?php
-$MESS["BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE"] = "Text for \"Decline\" button in task";
+$MESS["BPAR_PD_TASK_BUTTON_CANCEL_MESSAGE_MSGVER_1"] = "Text for \"Decline\" button in assignment";
 $MESS["BPRIA_PD_CANCEL_TYPE"] = "Can be declined by";
 $MESS["BPRIA_PD_CANCEL_TYPE_ALL"] = "All employees";
 $MESS["BPRIA_PD_CANCEL_TYPE_ANY"] = "Any employee";

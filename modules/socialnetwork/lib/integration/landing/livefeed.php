@@ -551,8 +551,8 @@ class Livefeed extends Landing\Source\DataLoader
 					}
 				}
 
-				$imgPattern = '/\[IMG\s+WIDTH\s*=\s*\d+\s+HEIGHT\s*=\s*\d+\s*\](.+?)\[\/IMG\]/is'.BX_UTF_PCRE_MODIFIER;
-				$videoPattern = '/\[VIDEO[^\]]*](.+?)\[\/VIDEO\]/is'.BX_UTF_PCRE_MODIFIER;
+				$imgPattern = '/\[IMG\s+WIDTH\s*=\s*\d+\s+HEIGHT\s*=\s*\d+\s*\](.+?)\[\/IMG\]/isu';
+				$videoPattern = '/\[VIDEO[^\]]*](.+?)\[\/VIDEO\]/isu';
 				$detailText = \Bitrix\Socialnetwork\Helper\Mention::clear($row['DETAIL_TEXT']);
 
 				if (
@@ -590,17 +590,17 @@ class Livefeed extends Landing\Source\DataLoader
 					$clearedText
 				);
 				$clearedText = preg_replace(
-					'/\[URL(.*?)]([^\]\s]{20,})\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
+					'/\[URL(.*?)]([^\]\s]{20,})\[\/URL\]/isu',
 					'',
 					$clearedText
 				);
 				$clearedText = preg_replace(
-					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
+					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/isu',
 					'\\2',
 					$clearedText
 				);
 				$clearedText = preg_replace(
-					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/is'.BX_UTF_PCRE_MODIFIER,
+					'/\[URL(.*?)]((?:[^\]\s]{1,19}\s+)+)\[\/URL\]/isu',
 					'\\2',
 					$clearedText
 				);

@@ -41,7 +41,7 @@ $dictionaryTimeList = array(
 	),
 );
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Letter.Chain.init(<?=Json::encode([
 			'containerId' => $containerId,

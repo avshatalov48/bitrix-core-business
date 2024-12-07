@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Access\Rule;
 
 use Bitrix\Calendar\Access\Model\EventModel;
 use Bitrix\Calendar\Access\Model\SectionModel;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
@@ -27,6 +28,16 @@ class EventEditLocationRule extends \Bitrix\Main\Access\Rule\AbstractRule
 		if ($this->user->isAdmin() || $this->user->isSocNetAdmin($item->getSectionType()))
 		{
 			return true;
+		}
+
+		if ($item->getSectionType() === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			return $this->user->getUserId() === $item->getCreatedBy();
+		}
+
+		if ($item->getOwnerId() !== $this->user->getUserId())
+		{
+			return false;
 		}
 
 		$section = SectionModel::createFromEventModel($item);

@@ -11,6 +11,7 @@ use Bitrix\Main\Result;
 
 class Sharing
 {
+	public const FEATURE_NAME = 'calendar_sharing';
 	public const ERROR_CODE_100010 = 100010;
 	public const ERROR_CODE_100020 = 100020;
 
@@ -295,7 +296,7 @@ class Sharing
 	{
 		$settings = [];
 		$linkInfo = $this->getLinkInfo();
-		
+
 		if (!empty($linkInfo))
 		{
 			$calendarSettings = \CCalendar::GetSettings();
@@ -311,7 +312,7 @@ class Sharing
 				],
 			];
 		}
-		
+
 		return $settings;
 	}
 

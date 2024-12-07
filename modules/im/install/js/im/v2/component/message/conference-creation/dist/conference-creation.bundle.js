@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,ui_notification,im_public,im_v2_component_elements,im_v2_component_message_base) {
+(function (exports,ui_notification,im_public,im_v2_component_elements,im_v2_component_message_base,im_v2_lib_analytics) {
 	'use strict';
 
 	const BUTTON_COLOR = '#00ace3';
@@ -54,6 +54,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onStartButtonClick() {
+	      im_v2_lib_analytics.Analytics.getInstance().onStartConferenceClick({
+	        element: im_v2_lib_analytics.Analytics.AnalyticsElement.initialBanner,
+	        chatId: this.chatId
+	      });
 	      im_public.Messenger.openConference({
 	        code: this.dialog.public.code
 	      });
@@ -73,7 +77,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withDefaultContextMenu="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
 			class="bx-im-message-conference-creation__scope"
 		>
@@ -116,5 +121,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ConferenceCreationMessage = ConferenceCreationMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib));
 //# sourceMappingURL=conference-creation.bundle.js.map

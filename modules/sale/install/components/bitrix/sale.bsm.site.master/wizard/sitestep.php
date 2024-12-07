@@ -701,8 +701,8 @@ class SiteStep extends \CWizardStep
 
 		<div class="adm-bsm-site-master-form-row">
 			<a href="javascript:void(0)"
-			   class="adm-bsm-site-master-form-action-fill"
-			   id="DOC_ROOT_LINK">
+				class="adm-bsm-site-master-form-action-fill"
+				id="DOC_ROOT_LINK">
 				<?=Loc::getMessage("SALE_BSM_WIZARD_SITESTEP_MAIN_DOC_ROOT_SET")?>
 			</a>
 		</div>
@@ -939,7 +939,6 @@ class SiteStep extends \CWizardStep
 				'define("ADDITIONAL_INSTALL", true);'.
 				'define("WIZARD_DEFAULT_TONLY", true);'.
 				'define("PRE_LANGUAGE_ID","'.$siteData["LANGUAGE_ID"].'");'.
-				'define("PRE_INSTALL_CHARSET","'.$siteData["CHARSET"].'");'.
 				'include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard/wizard.php");'.
 				'?'.'>';
 

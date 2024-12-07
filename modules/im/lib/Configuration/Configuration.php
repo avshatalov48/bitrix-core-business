@@ -79,6 +79,8 @@ class Configuration
 		$notifySettings = Notification::getSimpleNotifySettings($generalDefaultSettings);
 		Notification::setSettings($defaultGroupId, $notifySettings);
 
+		Option::set('im', self::DEFAULT_PRESET_SETTING_NAME, (int)$defaultGroupId);
+
 		if (Loader::includeModule('intranet'))
 		{
 			$topDepartmentId = Department::getTopDepartmentId();
@@ -87,8 +89,6 @@ class Configuration
 				'ACCESS_CODE' => $topDepartmentId ? 'DR' . $topDepartmentId : 'AU'
 			]);
 		}
-
-		Option::set('im', self::DEFAULT_PRESET_SETTING_NAME, (int)$defaultGroupId);
 
 		return (int)$defaultGroupId;
 	}

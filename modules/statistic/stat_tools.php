@@ -106,18 +106,18 @@ function __GetReferringSite(
 function __SetReferer($referer, $syn)
 {
 	stat_session_register($referer);
-	global $$referer;
+	global ${$referer};
 	if (!isset($_SESSION[$referer]) || $_SESSION[$referer] == '')
 	{
-		$_SESSION[$referer] = $$referer;
+		$_SESSION[$referer] = ${$referer};
 		$arr=explode(",",COption::GetOptionString("statistic", $syn));
 		foreach ($arr as $s)
 		{
 			$s = trim($s);
-			global $$s;
-			if ($$s <> '')
+			global ${$s};
+			if (${$s} <> '')
 			{
-				$_SESSION[$referer] = $$s;
+				$_SESSION[$referer] = ${$s};
 				break;
 			}
 		}
@@ -380,7 +380,7 @@ function GetStatisticBaseCurrency()
 
 function CleanUpResultCsv(&$item)
 {
-	$item = TrimEx($item, "\"");
+	$item = trim(trim($item), "\"");
 }
 
 function PrepareResultQuotes(&$item)
@@ -404,7 +404,7 @@ function LoadEventsBySteps(
 	if ($fp = fopen($csvfile,"rb"))
 	{
 		if($next_pos>0) fseek($fp, $next_pos);
-		$start = getmicrotime();
+		$start = microtime(true);
 		$next_line = intval($next_line);
 		$read_lines = 0;
 		$step_loaded = 0;
@@ -478,7 +478,7 @@ function LoadEventsBySteps(
 						CStatEvent::AddByID($EVENT_ID, $EVENT3, $DATE_ENTER, $PARAMETER, $RES_MONEY, "", $CHARGEBACK);
 						$step_loaded++;
 					}
-					$end = getmicrotime();
+					$end = microtime(true);
 					if (intval($time_step)>0 && ($end-$start)>intval($time_step))
 					{
 						$all_loaded = "N";
@@ -1081,50 +1081,6 @@ function StatAdminListFormatURL($url, $arOptions = array())
 
 	return $htmlA.$url_display.'</a>';
 }
-
-function is_utf8_url($url)
-{
-	//http://mail.nl.linux.org/linux-utf8/1999-09/msg00110.html
-	if(preg_match_all("/(%[0-9A-F]{2})/i", $url, $match))
-	{
-		$arBytes = array();
-		foreach($match[1] as $hex)
-			$arBytes[] = hexdec(mb_substr($hex, 1));
-		$is_utf = 0;
-		foreach($arBytes as $i => $byte)
-		{
-			if( ($byte & 0xC0) == 0x80 )
-			{
-				if( ($i > 0) && (($arBytes[$i-1] & 0xC0) == 0xC0) )
-					$is_utf++;
-				elseif( ($i > 0) && (($arBytes[$i-1] & 0x80) == 0x00) )
-					$is_utf--;
-			}
-			elseif( ($i > 0) && (($arBytes[$i-1] & 0xC0) == 0xC0) )
-			{
-					$is_utf--;
-			}
-		}
-		return $is_utf > 0;
-	}
-	else
-	{
-		return false;
-	}
-}
-/*
-$arTest = array(
-	"http://bsm6.business.ru.mysql.max/bitrix/admin/php_command_line.php?lang=ru", //ASCII
-	"http://www.yandex.ru/yandsearch?text=%D0%B1%D1%8B%D0%BB%D0%BE+", //Yndex utf
-	"http://www.yandex.ru/yandsearch?text=%E1%E8%F2&rpt=rad", //Yandex koi
-	"http://www.google.cn/search?hl=zh-CN&ie=GB2312&q=%CB%F9%D3%D0%CD%F8%D2%B3&btnG=Google+%CB%D1%CB%F7&meta=", //China multibyte
-	"http://www.google.ru/search?hl=ru&q=%D0%BF%D1%80%D0%B8%D0%B2%D0%B5%D1%82&btnG=%D0%9F%D0%BE%D0%B8%D1%81%D0%BA+%D0%B2+Google&lr=&aq=f", //russian utf
-);
-foreach($arTest as $test)
-{
-	echo $test,":",(is_utf8_url($test)? "Y": "N"),"<hr>\n";
-}
-*/
 
 class CStatisticSort
 {

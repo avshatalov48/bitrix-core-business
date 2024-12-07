@@ -1,13 +1,20 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 // To remember: only active user $USER can create new photogallery
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 if (!CModule::IncludeModule("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 if (!$GLOBALS["USER"]->IsAuthorized())
 {
 	CModule::IncludeModule("photogallery");
-	return ShowError(PhotoShowError(array("code" => 110)));
+	ShowError(PhotoShowError(array("code" => 110)));
+	return;
 }
 
 /********************************************************************
@@ -272,8 +279,6 @@ elseif (!empty($_REQUEST["save"]))
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
-					$APPLICATION->GetException();
-					$GLOBALS["USER_FIELD_MANAGER"]->arFieldsCache = array();
 				}
 			}
 			if (empty($arUserFields) || empty($arUserFields["UF_GALLERY_SIZE"]))
@@ -299,7 +304,6 @@ elseif (!empty($_REQUEST["save"]))
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
-					$GLOBALS["USER_FIELD_MANAGER"]->arFieldsCache = array();
 				}
 			}
 			if (empty($arUserFields) || empty($arUserFields["UF_GALLERY_RECALC"]))
@@ -324,7 +328,6 @@ elseif (!empty($_REQUEST["save"]))
 					$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 					$obUserField  = new CUserTypeEntity;
 					$obUserField->Add($arFields);
-					$GLOBALS["USER_FIELD_MANAGER"]->arFieldsCache = array();
 				}
 			}
 

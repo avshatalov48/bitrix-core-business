@@ -3,6 +3,8 @@
 namespace Bitrix\Iblock\Filter\DataProvider\Element;
 
 use Bitrix\Iblock\Filter\DataProvider\Settings\ElementSettings;
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertyElementProvider;
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Localization\Loc;
@@ -113,9 +115,14 @@ class ElementFilterFields
 			PropertyTable::TYPE_STRING => 'string',
 			PropertyTable::TYPE_NUMBER => 'number',
 			PropertyTable::TYPE_LIST => 'list',
+			PropertyTable::TYPE_ELEMENT => 'entity_selector',
+			PropertyTable::TYPE_SECTION => 'entity_selector',
 			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DIRECTORY => 'entity_selector',
 			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DATE => 'date',
 			PropertyTable::TYPE_STRING . ':' . PropertyTable::USER_TYPE_DATETIME => 'datetime',
+			PropertyTable::TYPE_ELEMENT . ':' . PropertyTable::USER_TYPE_ELEMENT_AUTOCOMPLETE => 'entity_selector',
+			PropertyTable::TYPE_ELEMENT . ':' . PropertyTable::USER_TYPE_SKU => 'entity_selector',
+			PropertyTable::TYPE_SECTION . ':' . PropertyTable::USER_TYPE_SECTION_AUTOCOMPLETE => 'entity_selector',
 		];
 
 		$iterator = PropertyTable::getList([
@@ -152,11 +159,7 @@ class ElementFilterFields
 				continue;
 			}
 
-			$fullType =
-				empty($row['USER_TYPE'])
-					? $row['PROPERTY_TYPE']
-					: $row['PROPERTY_TYPE'] . ':' . $row['USER_TYPE']
-			;
+			$fullType = $this->getFullPropertyType($row);
 
 			$fieldType = $typesMap[$fullType] ?? null;
 			if (!$fieldType)
@@ -170,13 +173,18 @@ class ElementFilterFields
 				'name' => $row['NAME'],
 			];
 
-			if ($fullType === PropertyTable::TYPE_LIST)
+			if ($row['USER_TYPE'] === '')
 			{
-				$field['partial'] = true;
+				switch ($row['PROPERTY_TYPE'])
+				{
+					case PropertyTable::TYPE_LIST:
+					case PropertyTable::TYPE_ELEMENT:
+					case PropertyTable::TYPE_SECTION:
+						$field['partial'] = true;
+						break;
+				}
 			}
-			elseif (
-				$row['USER_TYPE'] !== ''
-			)
+			else
 			{
 				$userType = $this->userTypeList[$row['USER_TYPE']];
 				if (isset($userType['GetUIFilterProperty']) && is_callable($userType['GetUIFilterProperty']))
@@ -448,6 +456,12 @@ class ElementFilterFields
 						];
 					}
 					break;
+				case PropertyTable::TYPE_ELEMENT:
+					$description = $this->getElementPropertyDescription($row);
+					break;
+				case PropertyTable::TYPE_SECTION:
+					$description = $this->getSectionPropertyDescription($row);
+					break;
 			}
 		}
 		else
@@ -506,5 +520,55 @@ class ElementFilterFields
 				? $row['PROPERTY_TYPE']
 				: $row['PROPERTY_TYPE'] . ':' . $row['USER_TYPE']
 		;
+	}
+
+	private function getElementPropertyDescription(array $property): array
+	{
+		return [
+			'type' => 'entity_selector',
+			'params' => [
+				'multiple' => 'Y',
+				'dialogOptions' => [
+					'entities' => [
+						[
+							'id' => IblockPropertyElementProvider::ENTITY_ID,
+							'dynamicLoad' => true,
+							'dynamicSearch' => true,
+							'options' => [
+								'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
+							],
+						],
+					],
+					'searchOptions' => [
+						'allowCreateItem' => false,
+					],
+				],
+			],
+		];
+	}
+
+	private function getSectionPropertyDescription(array $property): array
+	{
+		return [
+			'type' => 'entity_selector',
+			'params' => [
+				'multiple' => 'Y',
+				'dialogOptions' => [
+					'entities' => [
+						[
+							'id' => IblockPropertySectionProvider::ENTITY_ID,
+							'dynamicLoad' => true,
+							'dynamicSearch' => true,
+							'options' => [
+								'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
+							],
+						],
+					],
+					'searchOptions' => [
+						'allowCreateItem' => false,
+					],
+				],
+			],
+		];
 	}
 }

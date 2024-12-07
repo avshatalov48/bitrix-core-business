@@ -26,6 +26,7 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 		)
 	);
 
+	$max_val = 0;
 	if(($arUserType["PROPERTY_TYPE"] !== "F") || (!$bCopy))
 	{
 		foreach($values as $key=>$val)
@@ -67,9 +68,9 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 		}
 	}
 
-	if(!$bVarsFromForm && !$bMultiple)
+	if(!$bVarsFromForm)
 	{
-		$bDefaultValue = is_array($property_fields["DEFAULT_VALUE"]) || mb_strlen($property_fields["DEFAULT_VALUE"]);
+		$bDefaultValue = isset($property_fields["DEFAULT_VALUE"]) && (is_array($property_fields["DEFAULT_VALUE"]) || mb_strlen($property_fields["DEFAULT_VALUE"]));
 
 		if($property_fields["MULTIPLE"]=="Y")
 		{
@@ -120,7 +121,7 @@ function _ShowUserPropertyField($name, $property_fields, $values, $bInitDef = fa
 		}
 		$max_val += $cnt;
 	}
-	if($property_fields["MULTIPLE"]=="Y" && $arUserType["USER_TYPE"] !== "HTML" && !$bMultiple)
+	if($property_fields["MULTIPLE"]=="Y" && $arUserType["USER_TYPE"] !== "HTML")
 	{
 		$html .= '<tr><td><input type="button" value="'.GetMessage("LEARNING_USER_SELECTOR_ADD").'" onClick="learningJs.addNewRow(\'tb'.md5($name).'\')"></td></tr>';
 	}

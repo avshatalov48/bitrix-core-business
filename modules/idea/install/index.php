@@ -59,11 +59,13 @@ Class idea extends CModule
 
 	function InstallDB()
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
 
+		$connection = \Bitrix\Main\Application::getConnection();
+
 		if(!$DB->Query("SELECT 'x' FROM b_idea_email_subscribe", true))
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/db/".ToLower($DBType)."/install.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/db/" . $connection->getType() . "/install.sql");
 
 		if($this->errors !== false)
 		{
@@ -194,15 +196,17 @@ Class idea extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $DBType, $APPLICATION;
+		global $DB, $APPLICATION;
 		$this->errors = false;
+
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$arSQLErrors = array();
 
 		if(array_key_exists("savedata", $arParams) && $arParams["savedata"] != "Y")
 		{
 			$this->UnInstallUserFields();
-			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/db/".ToLower($DBType)."/uninstall.sql");
+			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/".$this->MODULE_ID."/install/db/" . $connection->getType() . "/uninstall.sql");
 		}
 		if(!empty($this->errors))
 		{
@@ -245,10 +249,7 @@ Class idea extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$this->MODULE_ID."/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 		return true;
 	}
 

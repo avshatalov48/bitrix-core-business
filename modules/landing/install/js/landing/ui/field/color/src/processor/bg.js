@@ -52,8 +52,10 @@ export default class Bg extends BgColor
 		this.overlayOpacity.subscribe('onChange', this.onOverlayOpacityChange.bind(this));
 		this.overlayPrimary = new Primary();
 		this.overlayPrimary.subscribe('onChange', this.onOverlayPrimaryChange.bind(this));
-		const overlayZeroingOptions= {};
-		overlayZeroingOptions.textCode = 'LANDING_FIELD_COLOR_OVERLAY_ZEROING_TITLE_2';
+		const overlayZeroingOptions = {
+			textCode: 'LANDING_FIELD_COLOR_OVERLAY_ZEROING_TITLE_2',
+			styleNode: options.styleNode,
+		};
 		this.overlayZeroing = new Zeroing(overlayZeroingOptions);
 		this.overlayZeroing.subscribe('onChange', this.overlayZeroingChange.bind(this));
 

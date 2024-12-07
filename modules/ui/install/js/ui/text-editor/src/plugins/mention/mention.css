@@ -1,0 +1,4 @@
+.ui-text-editor-mention-popup__hidden {
+	visibility: hidden;
+	pointer-events: none;
+}

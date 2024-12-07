@@ -10,7 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LD_BLOCK_STORE_CATALOG_FLT_NAME'),
 		'section' => array('store'),
-		'type' => 'null',
+		'system' => true,
 		'html' => false,
 		'namespace' => 'bitrix',
 	),

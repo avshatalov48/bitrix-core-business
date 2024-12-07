@@ -3,6 +3,8 @@
 	--im-sidebar-task-item__background-color_completed-task-container: #eef2f4;
 	--im-sidebar-task-item__color_task-title-text: #525c69;
 	--im-sidebar-task-item__color_task-title-text-hover: #2066b0;
+	--im-sidebar-task-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-sidebar-task-item__background-color_highlight: #faf16d;
 }
 
 .bx-im-sidebar-task-item__container {
@@ -35,6 +37,11 @@
 	overflow: hidden;
 	margin-bottom: 8px;
 	max-width: 90%;
+}
+
+.bx-im-sidebar-task-item__header-text .--highlight {
+	color: var(--im-sidebar-task-item__color_highlight);
+	background-color: var(--im-sidebar-task-item__background-color_highlight);
 }
 
 .bx-im-sidebar-task-item__container:hover .bx-im-sidebar-task-item__header-text {

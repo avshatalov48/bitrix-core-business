@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Web\DOM;
 
 
@@ -14,19 +15,17 @@ class CssParser
 	public static function parse($css, $sort = false)
 	{
 		$result = static::parseCss($css);
-		if($sort)
+		if ($sort)
 		{
 			return static::sortSelectors($result);
 		}
-		else
-		{
-			return $result;
-		}
+
+		return $result;
 	}
 
 	public static function parseCss($css)
 	{
-		$result = array();
+		$result = [];
 
 		// remove comments
 		$css = preg_replace('!/\*[^*]*\*+([^/][^*]*\*+)*/!','', $css);
@@ -49,10 +48,10 @@ class CssParser
 			foreach(explode(',', $selectorList) as $selector)
 			{
 				$selector = trim($selector);
-				$result[] = array(
+				$result[] = [
 					'SELECTOR' => $selector,
 					'STYLE' => static::getDeclarationArray($declaration),
-				);
+				];
 			}
 		}
 
@@ -75,7 +74,7 @@ class CssParser
 			return '';
 		}
 
-		$cssList = array();
+		$cssList = [];
 		foreach($document->getHead()->getChildNodes() as $child)
 		{
 			/** @var $child Element */
@@ -91,7 +90,7 @@ class CssParser
 
 	public static function getDeclarationArray($declarationBlock, $singleStyle = true)
 	{
-		$styleList = array();
+		$styleList = [];
 		$declarationBlock = trim($declarationBlock);
 		if($declarationBlock)
 		{
@@ -158,7 +157,6 @@ class CssParser
 		return $result;
 	}
 
-
 	public static function sortSelectors($styleList)
 	{
 		foreach($styleList as $k => $v)
@@ -167,8 +165,7 @@ class CssParser
 			$styleList[$k]['SORT'][] = $k;
 		}
 
-		usort($styleList, function ($first, $second)
-		{
+		usort($styleList, function ($first, $second) {
 			$a = $first['SORT'];
 			$b = $second['SORT'];
 
@@ -193,10 +190,10 @@ class CssParser
 
 	public static function getSelectorSort($selector)
 	{
-		return array(
+		return [
 			preg_match_all('/#\w/i', $selector, $result),
 			preg_match_all('/\.\w/i', $selector, $result),
-			preg_match_all('/^\w|\ \w|\(\w|\:[^not]/i', $selector, $result)
-		);
+			preg_match_all('/^\w|\ \w|\(\w|\:[^not]/i', $selector, $result),
+		];
 	}
 }

@@ -43,7 +43,9 @@ class CreateUserFilterStepper extends Main\Update\Stepper
 			return self::FINISH_EXECUTION;
 		}
 
-		$newLastTs = strtotime(end($queryRows)['MODIFIED']);
+		/** @var Main\Type\DateTime $lastModified */
+		$lastModified = end($queryRows)['MODIFIED'];
+		$newLastTs = ($lastModified?->getTimestamp()) ?? $lastTs;
 		if ($newLastTs === $lastTs)
 		{
 			--$newLastTs;

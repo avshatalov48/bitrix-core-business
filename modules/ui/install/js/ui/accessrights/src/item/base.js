@@ -1,11 +1,22 @@
-import ColumnItemOptions from "../columnitem";
-import {Tag} from 'main.core';
+import ColumnItemOptions from '../columnitem';
+import { Tag } from 'main.core';
 
-export default class Base {
+export interface ChangerOpts {
+	replaceNullValueTo: ?string;
+}
+
+export default class Base
+{
+	changerOptions: ?ChangerOpts;
+
 	constructor(options: ColumnItemOptions)
 	{
-		this.currentValue = options.currentValue || null;
-		this.identificator = 'col-' + Math.random();
+		this.changerOptions = options.changerOptions || {};
+
+		const defaultValue = this.changerOptions.replaceNullValueTo || null;
+
+		this.currentValue = options.currentValue || defaultValue;
+		this.identificator = `col-${Math.random()}`;
 		this.parentContainer = options.container;
 		this.grid = options.grid;
 		this.text = options.text;
@@ -16,8 +27,7 @@ export default class Base {
 	}
 
 	bindEvents()
-	{
-	}
+	{}
 
 	render(): HTMLElement
 	{

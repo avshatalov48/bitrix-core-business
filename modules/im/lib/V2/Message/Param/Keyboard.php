@@ -30,7 +30,6 @@ class Keyboard extends Param
 		elseif (!empty($value))
 		{
 			$this->keyboard = Im\Bot\Keyboard::getKeyboardByJson($value);
-			$this->isValid = $this->keyboard !== null;
 		}
 
 		if (isset($this->keyboard))

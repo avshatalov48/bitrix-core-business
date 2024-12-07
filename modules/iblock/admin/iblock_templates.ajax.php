@@ -23,7 +23,6 @@ $request = Main\Context::getCurrent()->getRequest();
 $iblockId = (int)$request->get('IBLOCK_ID');
 $id = (int)$request->get('ID');
 
-CUtil::jSPostUnescape();
 if ($iblockId > 0 && check_bitrix_sessid())
 {
 	$section_id = 0;

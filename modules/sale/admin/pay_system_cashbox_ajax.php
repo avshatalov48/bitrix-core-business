@@ -49,10 +49,5 @@ if ($saleModulePermissions >= 'W' && check_bitrix_sessid())
 	}
 }
 
-if (mb_strtolower(SITE_CHARSET) !== 'utf-8')
-{
-	$arResult = Main\Text\Encoding::convertEncoding($arResult, SITE_CHARSET, 'utf-8');
-}
-
 header('Content-Type: application/json');
 die(json_encode($arResult));

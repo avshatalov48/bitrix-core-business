@@ -140,7 +140,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_adm
 <?$lAdmin->DisplayList();?>
 
 
-<script language="JavaScript">
+<script>
 <!--
 function setTargetValue(id, field)
 {

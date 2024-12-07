@@ -6,7 +6,7 @@
 		&& typeof this.BX.Vue3.Vuex !== 'undefined'
 	)
 	{
-		var currentVersion = '4.0.2';
+		var currentVersion = '4.1.0';
 
 		if (this.BX.Vue3.Vuex.version !== currentVersion)
 		{

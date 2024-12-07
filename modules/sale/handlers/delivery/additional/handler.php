@@ -702,7 +702,7 @@ class AdditionalHandler extends Base
 		\Bitrix\Main\UI\Extension::load("main.core");
 		Asset::getInstance()->addJs("/bitrix/js/sale/additional_delivery.js");
 		Asset::getInstance()->addString('<link rel="stylesheet" type="text/css" href="/bitrix/css/sale/additional_delivery.css">');
-		Asset::getInstance()->addString('<script language="javascript">
+		Asset::getInstance()->addString('<script>
 			if(top.BX)
 			{
 				BX.addCustomEvent(

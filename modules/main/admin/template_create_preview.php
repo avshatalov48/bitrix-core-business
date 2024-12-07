@@ -28,7 +28,6 @@ $ID = $_REQUEST["ID"];
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_sessid())
 {
-	CUtil::decodeURIComponent($_POST);
 	$CONTENT = $_POST["CONTENT"];
 	$STYLES = $_POST["STYLES"];
 	$TEMPLATE_STYLES = $_POST["TEMPLATE_STYLES"];
@@ -56,8 +55,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (mb_substr($src, 0, 5) == "<?php")
-					$src = '<?'.mb_substr($src, 5);
+				if (str_starts_with($src, "<?php"))
+					$src = '<?'.substr($src, 5);
 
 				//If it's Component 2 - we handle it's params, non components2 will be erased
 				$comp2_begin = '<?$APPLICATION->INCLUDECOMPONENT(';
@@ -73,7 +72,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 						//all php fragments wraped by ={}
 						foreach ($arParams as $param_name => $paramval)
 						{
-							if (mb_substr($paramval, 0, 2) == '={' && mb_substr($paramval, -1) == '}')
+							if (str_starts_with($paramval, '={') && str_ends_with($paramval, '}'))
 								$arPHPparams[] = $param_name;
 						}
 
@@ -169,8 +168,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 					continue;
 				}
 				//Trim php tags
-				$src = mb_substr($src, ((mb_substr($src, 0, 5) == "<?"."php")? 5 : 2));
-				$src = mb_substr($src, 0, -2);
+				$src = substr($src, ((str_starts_with($src, "<?php"))? 5 : 2));
+				$src = substr($src, 0, -2);
 
 				$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
 
@@ -250,7 +249,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && ($edit_php || $lpa) && check_bitrix_s
 
 	checkError($strWaring);
 	?>
-<script type="text/javascript" bxrunfirst="true">
+<script bxrunfirst="true">
 BX.adminPanel.closeWait();
 __status = true;
 </script>
@@ -259,8 +258,8 @@ __status = true;
 
 function unifyPHPfragment($str)
 {
-	if (mb_substr($str, -1) == ';')
-		$str = mb_substr($str, 0, -1);
+	if (str_ends_with($str, ';'))
+		$str = substr($str, 0, -1);
 	$str = mb_strtolower($str);
 	$str = preg_replace("/\\s/i", "", $str);
 	return $str;
@@ -279,7 +278,7 @@ function checkError($strWaring)
 	echo 'ERROR';
 
 	?>
-<script type="text/javascript" bxrunfirst="true">
+<script bxrunfirst="true">
 BX.adminPanel.closeWait();
 __status = false;
 strWarning = '<?=CUtil::JSEscape($strWaring)?>';

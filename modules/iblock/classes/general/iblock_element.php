@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Iblock\PropertyTable;
+
 class _CIBElement
 {
 	var $fields;
@@ -30,13 +33,17 @@ class _CIBElement
 
 				$arProp['VALUE'] = $this->fields['PROPERTY_'.$arProp['ID']];
 				$arProp['DESCRIPTION'] = $this->fields['DESCRIPTION_' . $arProp['ID']] ?? '';
-				if($arProp["MULTIPLE"]=="N")
+				if ($arProp['MULTIPLE'] === 'N')
 				{
-					if($arProp["PROPERTY_TYPE"]=="L")
+					if ($arProp['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
 					{
-						$arProp["VALUE_ENUM_ID"] = $val = $arProp["VALUE"];
-						$arEnum = CIBlockPropertyEnum::GetByID($val);
-						if($arEnum!==false)
+						$arProp['VALUE_ENUM_ID'] = $arProp['VALUE'];
+						$arEnum =
+							$arProp['VALUE']
+								? CIBlockPropertyEnum::GetByID($arProp['VALUE'])
+								: false
+						;
+						if ($arEnum !== false)
 						{
 							$arProp["~VALUE"] = $arEnum["VALUE"];
 							if(
@@ -62,7 +69,7 @@ class _CIBElement
 					}
 					elseif(is_array($arProp["VALUE"]) || mb_strlen($arProp["VALUE"]))
 					{
-						if ($arProp['PROPERTY_TYPE'] == 'N')
+						if ($arProp['PROPERTY_TYPE'] === PropertyTable::TYPE_NUMBER)
 						{
 							$arProp['VALUE'] = htmlspecialcharsEx(CIBlock::NumberFormat($arProp['VALUE']));
 						}
@@ -81,16 +88,18 @@ class _CIBElement
 				{
 					$arList = $arProp["VALUE"];
 					$arListTilda = $this->fields["~PROPERTY_".$arProp["ID"]];
-					if($arProp["PROPERTY_TYPE"]=="L")
+					if ($arProp['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
 					{
-						$arProp["~VALUE"] = $arProp["VALUE"] = $arProp["VALUE_ENUM_ID"] = false;
-						$arProp["VALUE_XML_ID"] = false;
-						foreach($arList as $key=>$val)
+						$arProp['VALUE_ENUM_ID'] = false;
+						$arProp['VALUE'] = false;
+						$arProp['~VALUE'] =false;
+						$arProp['VALUE_XML_ID'] = false;
+						foreach($arList as $key => $val)
 						{
-							if($val <> '')
+							if ($val)
 							{
 								$arEnum = CIBlockPropertyEnum::GetByID($key);
-								if($arEnum!==false)
+								if ($arEnum !== false)
 								{
 									$xml_id = htmlspecialcharsEx($arEnum["XML_ID"]);
 									$sort = $arEnum["SORT"];
@@ -101,7 +110,7 @@ class _CIBElement
 									$sort = false;
 								}
 
-								if(is_array($arProp["VALUE"]))
+								if (is_array($arProp['VALUE']))
 								{
 
 									$arProp["VALUE_ENUM_ID"][] = $key;

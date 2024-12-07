@@ -82,8 +82,6 @@ class RestClient
 
 		if (!is_array($additionalParams))
 			$additionalParams = array();
-		else
-			$additionalParams = Encoding::convertEncodingArray($additionalParams, LANG_CHARSET, "utf-8");
 
 		$additionalParams['version'] = $this->version;
 		$additionalParams['client_id'] = $this->accessSettings['client_id'];

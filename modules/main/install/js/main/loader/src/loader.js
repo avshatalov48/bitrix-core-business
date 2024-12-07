@@ -92,7 +92,7 @@ export class Loader
 		remove(this.layout);
 	}
 
-	setOptions({target, size, color, offset, mode})
+	setOptions({target, size, color, offset, mode, strokeWidth})
 	{
 		const layoutStyles = new Map();
 		const circleStyles = new Map();
@@ -141,6 +141,11 @@ export class Loader
 		{
 			addClass(this.layout, 'main-ui-loader-custom');
 			removeClass(this.layout, 'main-ui-loader-inline');
+		}
+
+		if (type.isNumber(strokeWidth))
+		{
+			circleStyles.set('stroke-width', strokeWidth);
 		}
 
 		layoutStyles.forEach((value, key) => {

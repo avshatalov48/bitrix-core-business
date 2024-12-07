@@ -1,0 +1,16 @@
+:root {
+	--ui-typography-font-family: var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	--ui-typography-font-size: 15px;
+	--ui-typography-line-height: var(--ui-font-line-height-lg);
+	--ui-typography-border-radius: var(--ui-border-radius-md);
+	--ui-typography-space-inline: var(--ui-space-inline-sm) var(--ui-space-inline-md);
+	--ui-typography-block-space-stack: var(--ui-space-stack-md);
+	--ui-typography-block-space-inline: var(--ui-space-stack-md);
+
+	--ui-typography-color-text: var(--ui-color-text-primary);
+	--ui-typography-color-link: var(--ui-color-link-primary-base);
+}
+
+.ui-typography-container.--collapsed {
+	margin: calc(var(--ui-typography-block-space-stack) * -1) 0;
+}

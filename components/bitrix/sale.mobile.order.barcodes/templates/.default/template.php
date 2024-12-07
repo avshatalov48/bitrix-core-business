@@ -75,7 +75,7 @@ $APPLICATION->IncludeComponent(
 	<div id="smob_data_div"></div>
 </form>
 
-<script type="text/javascript">
+<script>
 
 	BX.message({
 		"SMOB_CHECK_ERROR": "<?=GetMessage("SMOB_CHECK_ERROR")?>",

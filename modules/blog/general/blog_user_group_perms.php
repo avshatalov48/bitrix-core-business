@@ -171,7 +171,7 @@ class CAllBlogUserGroupPerms
 				"	GP.PERMS, GP.AUTOSET ".
 				"FROM b_blog_user_group_perms GP ".
 				"WHERE GP.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_USER_GROUP_PERMS"]["BLOG_USER_GROUP_PERMS_CACHE_".$ID] = $arResult;

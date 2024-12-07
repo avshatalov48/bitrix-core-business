@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -36,8 +36,8 @@ $bSimple = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : fal
 // Wow.... It was funny....
 // if (intval($WEB_FORM_ID)>0 && intval($WEB_FORM_ID)<=0) $WEB_FORM_ID = intval($WEB_FORM_ID);
 
-$WEB_FORM_ID = intval($WEB_FORM_ID);
-$RESULT_ID = intval($RESULT_ID);
+$WEB_FORM_ID = intval($_REQUEST['WEB_FORM_ID'] ?? 0);
+$RESULT_ID = intval($_REQUEST['RESULT_ID'] ?? 0);
 
 if ($RESULT_ID > 0)
 {
@@ -334,7 +334,7 @@ if ($can_edit) :
 
 	$arUser = null;
 	$rsUser = null;
-	if (intval($arrVALUES['USER_ID'] <= 0))
+	if (intval($arrVALUES['USER_ID'] ?? 0) <= 0)
 	{
 		if ($RESULT_ID > 0)
 		{

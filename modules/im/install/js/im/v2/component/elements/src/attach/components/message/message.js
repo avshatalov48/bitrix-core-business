@@ -1,9 +1,8 @@
-import {Color} from 'im.v2.const';
-import {Parser} from 'im.v2.lib.parser';
+import { Parser } from 'im.v2.lib.parser';
 
 import './message.css';
 
-import type {AttachMessageConfig} from 'im.v2.const';
+import type { AttachMessageConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachMessage = {
@@ -12,12 +11,8 @@ export const AttachMessage = {
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -25,12 +20,12 @@ export const AttachMessage = {
 		{
 			return this.config;
 		},
-		message()
+		message(): string
 		{
 			return Parser.decodeText(this.internalConfig.message);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-attach-message__container" v-html="message"></div>
-	`
+	`,
 };

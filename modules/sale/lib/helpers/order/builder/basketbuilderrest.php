@@ -23,8 +23,8 @@ final class BasketBuilderRest extends BasketBuilder
 	{
 		return (mb_strpos($basketCode, 'n') === 0);
 	}
-	// ïåðåîïðåäåëÿåì ðîäèòåëüñêèé ìåòîä,
-	// êàê âðåìåííîå ðåøåíèå ò.ê. â àäìèíêå íå ïîääåðæèâàåòñÿ ðàáîòà ñ êîðçèíîé â êîòîðîé îäèíàêîâûé òîâàð
+	// Ð¿ÐµÑ€ÐµÐ¾Ð¿Ñ€ÐµÐ´ÐµÐ»ÑÐµÐ¼ Ñ€Ð¾Ð´Ð¸Ñ‚ÐµÐ»ÑŒÑÐºÐ¸Ð¹ Ð¼ÐµÑ‚Ð¾Ð´,
+	// ÐºÐ°Ðº Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾Ðµ Ñ€ÐµÑˆÐµÐ½Ð¸Ðµ Ñ‚.Ðº. Ð² Ð°Ð´Ð¼Ð¸Ð½ÐºÐµ Ð½Ðµ Ð¿Ð¾Ð´Ð´ÐµÑ€Ð¶Ð¸Ð²Ð°ÐµÑ‚ÑÑ Ñ€Ð°Ð±Ð¾Ñ‚Ð° Ñ ÐºÐ¾Ñ€Ð·Ð¸Ð½Ð¾Ð¹ Ð² ÐºÐ¾Ñ‚Ð¾Ñ€Ð¾Ð¹ Ð¾Ð´Ð¸Ð½Ð°ÐºÐ¾Ð²Ñ‹Ð¹ Ñ‚Ð¾Ð²Ð°Ñ€
 	protected function getExistsItem($moduleId, $productId, array $properties = array())
 	{
 		return null;
@@ -39,8 +39,10 @@ final class BasketBuilderRest extends BasketBuilder
 	{
 		foreach($this->formData["PRODUCT"] as $basketCode => $productData)
 		{
-			if($productData["IS_SET_ITEM"] == "Y")
+			if (($productData['IS_SET_ITEM'] ?? null) === 'Y')
+			{
 				continue;
+			}
 
 			if(!isset($productData["PROPS"]) || !is_array($productData["PROPS"]))
 				$productData["PROPS"] = array();

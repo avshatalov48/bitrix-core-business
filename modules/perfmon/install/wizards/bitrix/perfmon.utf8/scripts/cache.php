@@ -74,7 +74,7 @@ if ($lines > $displayLinesCount)
 
 if (is_string($path))
 {
-	echo '<script>BX.Wizard.Utf8.action(\'cache\', ' . CUtil::PhpToJSObject(mb_substr($path, mb_strlen($_SERVER['DOCUMENT_ROOT']))) . ')</script>';
+	echo '<script>BX.Wizard.Utf8.action(\'cache\', ' . \Bitrix\Main\Web\Json::encode(mb_substr($path, mb_strlen($_SERVER['DOCUMENT_ROOT']))) . ')</script>';
 }
 else
 {

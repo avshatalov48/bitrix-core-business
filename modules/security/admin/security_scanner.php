@@ -24,7 +24,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST"
 	{
 		if(isset($_POST["results"]) && is_array($_POST["results"]))
 		{
-			CUtil::JSPostUnescape();
 			$resultsForSave = $_POST["results"];
 		}
 		else

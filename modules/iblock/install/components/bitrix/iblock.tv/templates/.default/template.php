@@ -1,4 +1,9 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 /** @var array $arParams */
 /** @var array $arResult */
 /** @global CMain $APPLICATION */
@@ -28,7 +33,8 @@ foreach ($arResult["SECTIONS"] as $arSection)
 }
 ?>
 	<div id="bx_tv_block_<?=$arResult['PREFIX']?>" style="width: <?=$arParams['WIDTH']?>px;">
-		<?$APPLICATION->IncludeComponent(
+		<?php
+		$APPLICATION->IncludeComponent(
 			"bitrix:player",
 			"",
 			Array(

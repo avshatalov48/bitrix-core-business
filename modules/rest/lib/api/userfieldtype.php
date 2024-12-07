@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Rest\Api;
 
-
-use Bitrix\Main\ArgumentNullException;
 use Bitrix\Rest\AccessException;
 use Bitrix\Rest\AppTable;
 use Bitrix\Rest\AuthTypeException;
@@ -199,7 +197,7 @@ class UserFieldType extends \IRestService
 
 		if($userTypeId == '')
 		{
-			throw new ArgumentNullException("USER_TYPE_ID");
+			throw new Exceptions\ArgumentNullException("USER_TYPE_ID");
 		}
 
 		$updateFields = array();
@@ -284,7 +282,7 @@ class UserFieldType extends \IRestService
 		}
 		else
 		{
-			throw new ArgumentNullException('HANDLER|TITLE|DESCRIPTION');
+			throw new Exceptions\ArgumentNullException('HANDLER|TITLE|DESCRIPTION');
 		}
 
 		return true;
@@ -300,7 +298,7 @@ class UserFieldType extends \IRestService
 
 		if($userTypeId == '')
 		{
-			throw new ArgumentNullException("USER_TYPE_ID");
+			throw new Exceptions\ArgumentNullException("USER_TYPE_ID");
 		}
 
 		$dbRes = PlacementTable::getList(array(

@@ -11,13 +11,11 @@
 use Bitrix\Bitrix24\Feature;
 use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\Engine\Access\LoadLimiter;
 use Bitrix\Rest\RestException;
 use Bitrix\Rest\AccessException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Rest\Tools\Diagnostics\RestServerProcessLogger;
 use Bitrix\Socialservices\Bitrix24Signer;
 use Bitrix\Rest\NonLoggedExceptionDecorator;
@@ -764,7 +762,6 @@ class CRestServer
 				return $this->outputJson($data);
 			break;
 			case 'xml':
-				$data = Encoding::convertEncoding($data, LANG_CHARSET, 'utf-8');
 				return $this->outputXml(array('response' => $data));
 			break;
 		}

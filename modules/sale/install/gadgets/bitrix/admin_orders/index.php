@@ -355,7 +355,7 @@ $date_this_month2 = $date_today;
 $date_last_month2 = ConvertTimeStamp(AddToTimeStamp(array("DD" => -1, "MM" => 0, "YYYY" => 0, "HH" => 0, "MI" => 0, "SS" => 0), mktime(0, 0, 0, date("n"), 1, date("Y"))));
 $date_before_last_month2 = ConvertTimeStamp(AddToTimeStamp(array("MM" => -1, "DD" => -1, "YYYY" => 0, "HH" => 0, "MI" => 0, "SS" => 0), mktime(0, 0, 0, date("n"), 1, date("Y"))));
 
-?><script type="text/javascript">
+?><script>
 	var gdSaleTabControl_<?=$arGadgetParams["RND_STRING"]?> = false;
 </script><?
 
@@ -672,7 +672,7 @@ $tabControl = new CAdminViewTabControl("saleTabControl_".$arGadgetParams["RND_ST
 		}
 	?></div>
 </div>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		gdSaleTabControl_<?=$arGadgetParams["RND_STRING"]?> = new gdTabControl('bx_gd_tabset_sale_<?=$arGadgetParams["RND_STRING"]?>');
 	});

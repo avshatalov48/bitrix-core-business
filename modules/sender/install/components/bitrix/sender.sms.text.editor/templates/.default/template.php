@@ -23,7 +23,7 @@ $containerId = 'bx-sender-sms-text-editor';
 ]);
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.SMS.TextEditor.init(<?=Json::encode(array(
 			'containerId' => $containerId,

@@ -250,7 +250,7 @@ class CHTMLEditor
 			}
 		}
 
-		if (!isset($siteId) && defined(SITE_ID))
+		if (!isset($siteId) && defined('SITE_ID'))
 		{
 			$siteId = SITE_ID;
 			$res = CSite::GetByID($siteId);
@@ -377,24 +377,22 @@ class CHTMLEditor
 
 		$arParams["lazyLoad"] = isset($arParams["lazyLoad"]) ? $arParams["lazyLoad"] : false;
 
-		$arParams['copilotParams'] ??= null;
-		if (empty($arParams['copilotParams']) && $this->GetAiCategory($this->id, $this->name) !== null)
+		$arParams['copilotParams'] ??= [];
+		if ($this->GetAiCategory($this->id, $this->name) !== null)
 		{
-			$arParams['copilotParams'] = [
-				'moduleId' => 'main',
-				'contextId' => 'bxhtmled_copilot',
-				'category' => $this->GetAiCategory($this->id, $this->name),
-			];
+			$arParams['copilotParams']['category'] ??= $this->GetAiCategory($this->id, $this->name);
+			$arParams['copilotParams']['contextId'] ??= 'bxhtmled_copilot';
+			$arParams['copilotParams']['moduleId'] ??= 'main';
 		}
 
-		if (is_array($arParams['copilotParams']))
+		if (!empty($arParams['copilotParams']['category']))
 		{
 			$arParams['copilotParams']['invitationLineMode'] ??= 'lastLine';
 		}
 
 		$arParams['isCopilotEnabled'] ??= null;
 		$isCopilotEnabled = ($arParams['isCopilotEnabled'] !== false)
-			&& is_array($arParams['copilotParams'])
+			&& !empty($arParams['copilotParams']['category'])
 			&& ($arParams['isCopilotTextEnabledBySettings'] ?? true)
 			&& $this->isCopilotEnabled()
 			&& !$this->bAllowPhp
@@ -566,12 +564,6 @@ class CHTMLEditor
 	public function isCopilotEnabled(): bool
 	{
 		if (!Loader::includeModule('ai'))
-		{
-			return false;
-		}
-
-		$isCopilotFeatureEnabled = \COption::GetOptionString('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y';
-		if (!$isCopilotFeatureEnabled)
 		{
 			return false;
 		}
@@ -1441,10 +1433,8 @@ class CHTMLEditor
 		$server_name = rtrim($server_name, '/');
 		if (!preg_match('/^[a-z0-9\.\-]+$/i', $server_name)) // cyrillic domain hack
 		{
-			$converter = new CBXPunycode(defined('BX_UTF') && BX_UTF === true ? 'UTF-8' : 'windows-1251');
+			$converter = new CBXPunycode('UTF-8');
 			$host = $converter->Encode($server_name);
-			if (!preg_match('#--p1ai$#', $host)) // trying to guess
-				$host = $converter->Encode(CharsetConverter::ConvertCharset($server_name, 'utf-8', 'windows-1251'));
 			$server_name = $host;
 		}
 

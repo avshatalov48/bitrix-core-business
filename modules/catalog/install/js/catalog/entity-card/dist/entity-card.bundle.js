@@ -1,7 +1,7 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,ui_entityEditor,ui_feedback_form,ui_hint,ui_fonts_opensans,ui_designTokens,translit,ui_notification,main_popup,main_core,main_core_events,catalog_storeUse,catalog_toolAvailabilityManager) {
+(function (exports,ui_entityEditor,ui_feedback_form,ui_hint,ui_fonts_opensans,ui_designTokens,translit,ui_notification,main_popup,main_core,main_core_events,catalog_toolAvailabilityManager) {
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6;
@@ -985,12 +985,13 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  }, {
 	    key: "onGridUpdated",
 	    value: function onGridUpdated(event) {
-	      var _this2 = this;
+	      var _this$getGrid2,
+	        _this2 = this;
 	      var _event$getCompatData3 = event.getCompatData(),
 	        _event$getCompatData4 = babelHelpers.slicedToArray(_event$getCompatData3, 1),
 	        grid = _event$getCompatData4[0];
 	      this.checkEditorToolbar();
-	      if (grid.getId() === this.getGrid().getId()) {
+	      if (grid.getId() === ((_this$getGrid2 = this.getGrid()) === null || _this$getGrid2 === void 0 ? void 0 : _this$getGrid2.getId())) {
 	        setTimeout(function () {
 	          _this2.gridStore.loadEditedRows();
 	        }, 0 // delay for re-render grid
@@ -3563,14 +3564,7 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      var hintNode = main_core.Type.isStringFilled(item.hint) ? main_core.Tag.render(_templateObject7$2 || (_templateObject7$2 = babelHelpers.taggedTemplateLiteral(["<span class=\"catalog-entity-setting-hint\" data-hint=\"", "\"></span>"])), item.hint) : '';
 	      var setting = main_core.Tag.render(_templateObject8$2 || (_templateObject8$2 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<label class=\"ui-ctl-block ui-entity-editor-popup-create-field-item ui-ctl-w100\">\n\t\t\t\t\t<div class=\"ui-ctl-w10\" style=\"text-align: center\">", "</div>\n\t\t\t\t\t<div class=\"ui-ctl-w75\">\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-title ", "\">", "", "</span>\n\t\t\t\t\t\t<span class=\"ui-entity-editor-popup-create-field-item-desc\">", "</span>\n\t\t\t\t\t</div>\n\t\t\t\t</label>\n\t\t\t"])), input, item.disabled ? 'catalog-entity-disabled-setting' : '', item.title, hintNode, item.desc);
 	      BX.UI.Hint.init(setting);
-	      if (item.id === 'SLIDER') {
-	        main_core.Event.bind(setting, 'change', function (event) {
-	          new catalog_storeUse.StoreSlider().open(item.url, {}).then(function () {
-	            _this4.reloadGrid();
-	            _this4.getCardSettingsPopup().close();
-	          })["catch"](function () {});
-	        });
-	      } else if (item.id === 'SEO') {
+	      if (item.id === 'SEO') {
 	        main_core.Event.bind(setting, 'click', function (event) {
 	          BX.SidePanel.Instance.open(item.url, {
 	            cacheable: false,
@@ -3750,5 +3744,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.EntityCard = EntityCard;
 	exports.BaseCard = BaseCard;
 
-}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX,BX,BX,BX,BX,BX,BX.Main,BX,BX.Event,BX.Catalog.StoreUse,BX.Catalog));
+}((this.BX.Catalog.EntityCard = this.BX.Catalog.EntityCard || {}),BX,BX.UI.Feedback,BX,BX,BX,BX,BX,BX.Main,BX,BX.Event,BX.Catalog));
 //# sourceMappingURL=entity-card.bundle.js.map

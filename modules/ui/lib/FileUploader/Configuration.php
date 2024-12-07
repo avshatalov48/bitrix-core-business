@@ -225,13 +225,40 @@ class Configuration
 		return $this;
 	}
 
-	public static function getImageExtensions(): array
+	public static function getImageExtensions(bool $withDot = true): array
 	{
 		$imageExtensions = explode(',', \CFile::getImageExtensions());
 
-		return array_map(function($extension) {
-			return '.' . ltrim($extension);
+		return array_map(function($extension) use($withDot) {
+			return ($withDot ? '.' : '') . trim($extension);
 		}, $imageExtensions);
+	}
+
+	public static function getVideoExtensions(bool $withDot = true): array
+	{
+		$extensions = [
+			'avi',
+			'wmv',
+			'mp4',
+			'mov',
+			'webm',
+			'flv',
+			'm4v',
+			'mkv',
+			'vob',
+			'3gp',
+			'ogv',
+			'h264',
+		];
+
+		if ($withDot)
+		{
+			return array_map(function($extension) {
+				return '.' . $extension;
+			}, $extensions);
+		}
+
+		return $extensions;
 	}
 
 	public function getIgnoredFileNames(): array

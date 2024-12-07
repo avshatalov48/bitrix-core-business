@@ -106,6 +106,9 @@ export const MainContent = {
 						<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
 					</template>
 				</ItemList>
+				<div class="ui-entity-catalog__main-content-footer">
+					<slot name="main-content-footer"/>
+				</div>
 			</div>
 		</div>
 	`,

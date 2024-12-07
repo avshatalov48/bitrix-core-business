@@ -23,7 +23,7 @@ class CRatingsComponentsWiki
 	public static function BeforeIndex($arParams)
 	{
 		if (
-			$arParams['PARAM1'] == 'wiki' 
+			($arParams['PARAM1'] ?? null) == 'wiki'
 			&& intval($arParams['PARAM2']) > 0 
 			&& intval($arParams['ITEM_ID']) > 0
 		)

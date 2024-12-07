@@ -2291,7 +2291,7 @@ abstract class OrderDiscountBase
 			return $result;
 		$orderName = '\\'.mb_substr($action, 0, $key);
 
-		preg_match_all("/".$orderName."(?:,|\))/".BX_UTF_PCRE_MODIFIER, $action, $list);
+		preg_match_all("/".$orderName."(?:,|\))/u", $action, $list);
 		if (isset($list[0]) && is_array($list[0]))
 			$result = count($list[0]) <= 2;
 

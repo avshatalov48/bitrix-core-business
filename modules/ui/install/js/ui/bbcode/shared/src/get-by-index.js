@@ -15,4 +15,4 @@ export function getByIndex<T>(array: Array<T>, index: number): ?T
 	const preparedIndex = index < 0 ? array.length + index : index;
 
 	return array[preparedIndex];
-};
+}

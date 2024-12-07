@@ -22,7 +22,7 @@ final class FileStorage extends AbstractStorage
 	public function write($content, $md5)
 	{
 		$written = false;
-		
+
 		if ($this->cacheFile)
 		{
 			$tempFile = new File($this->cacheFile->getPhysicalPath().".tmp");
@@ -180,7 +180,7 @@ final class FileStorage extends AbstractStorage
 	public static function deleteRecursive($relativePath = "", $validTime = 0)
 	{
 		$bytes = 0.0;
-		if (strpos($relativePath, "..") !== false)
+		if (str_contains($relativePath, ".."))
 		{
 			return $bytes;
 		}
@@ -214,7 +214,11 @@ final class FileStorage extends AbstractStorage
 				$bytes += self::deleteRecursive($relativePath."/".$file, $validTime);
 			}
 			closedir($handle);
-			@rmdir($absPath);
+
+			if ($baseDir !== $absPath)
+			{
+				@rmdir($absPath);
+			}
 		}
 
 		return doubleval($bytes);

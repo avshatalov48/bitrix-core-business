@@ -25,7 +25,7 @@ class CSocNetLogSmartFilter extends CAllSocNetLogSmartFilter
 			['USER_ID' => $user_id, 'TYPE' => $type,],
 			['TYPE' => $type,]
 		);
-		$res = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSQL);
 
 		if ($res)
 		{

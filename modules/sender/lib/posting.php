@@ -403,13 +403,18 @@ class PostingReadTable extends Entity\DataManager
 		$data = $event->getParameters();
 		$data = $data['fields'];
 
-		// update read flag of recipient
-		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_READ' => 'Y']);
+		$isRead = Model\Posting\RecipientTable::getList([
+			'filter' => [
+				'=ID' => $data['RECIPIENT_ID'],
+				'=IS_READ' => 'Y',
+			],
+		])->fetch();
 
-		// update read counter of posting
-		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
-		if($resultDb->getSelectedRowsCount() == 1)
+		if (!$isRead)
 		{
+			Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_READ' => 'Y']);
+
+			// update read counter of posting
 			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_READ' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_READ')
 			));
@@ -499,19 +504,18 @@ class PostingClickTable extends Entity\DataManager
 		$data = $event->getParameters();
 		$data = $data['fields'];
 
-		// update click flag of recipient
-		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_CLICK' => 'Y']);
+		$isClicked = Model\Posting\RecipientTable::getList([
+			'filter' => [
+				'=ID' => $data['RECIPIENT_ID'],
+				'=IS_CLICK' => 'Y',
+			],
+		])->fetch();
 
-		// update click counter of posting
-		$resultDb = static::getList(
-			array(
-				'filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID']),
-				'limit' => 2,
-			)
-		);
-
-		if($resultDb->getSelectedRowsCount() == 1)
+		if (!$isClicked)
 		{
+			Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_CLICK' => 'Y']);
+
+			// update click counter of posting
 			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_CLICK' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_CLICK')
 			));
@@ -601,19 +605,22 @@ class PostingUnsubTable extends Entity\DataManager
 		$result = new Entity\EventResult;
 		$data = $event->getParameters();
 		$data = $data['fields'];
+		$isUnsub = Model\Posting\RecipientTable::getList([
+			'filter' => [
+				'=ID' => $data['RECIPIENT_ID'],
+				'=IS_UNSUB' => 'Y',
+			],
+		])->fetch();
 
-		// update unsub flag of recipient
-		Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_UNSUB' => 'Y']);
-
-		// update unsub counter of posting
-		$resultDb = static::getList(array('filter' => array('RECIPIENT_ID' => $data['RECIPIENT_ID'])));
-		if($resultDb->getSelectedRowsCount() == 1)
+		if (!$isUnsub)
 		{
+			Model\Posting\RecipientTable::update($data['RECIPIENT_ID'], ['IS_UNSUB' => 'Y']);
+
+			// update unsub counter of posting
 			Model\PostingTable::update($data['POSTING_ID'], array(
 				'COUNT_UNSUB' => new \Bitrix\Main\DB\SqlExpression('?# + 1', 'COUNT_UNSUB')
 			));
 		}
-
 		return $result;
 	}
 

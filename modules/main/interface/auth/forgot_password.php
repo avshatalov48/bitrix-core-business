@@ -43,7 +43,7 @@ $bNeedCaptcha = (COption::GetOptionString("main", "captcha_restoring_password", 
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 var obForgMsg = new BX.authFormForgotPasswordMessage('forgot_password_message', {url:''}),
 	obForg = new BX.authFormForgotPassword('forgot_password', {
 		url: '<?echo CUtil::JSEscape($authUrl."?forgot_password=yes".(($s=DeleteParam(array("forgot_password"))) == ""? "":"&".$s))?>',

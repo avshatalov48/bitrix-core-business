@@ -14,6 +14,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 $pageId = "";
 include("util_group_menu.php");
+include("util_group_limit.php");
 
 $componentParameters = array(
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],

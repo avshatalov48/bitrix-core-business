@@ -87,7 +87,6 @@ class FeedGarbageCollector
 				'@ENTITY_TYPE' => $types,
 			],
 			'limit' => $this->getLimit(),
-			'order' => ['ID' => 'ASC'],
 		])->fetchAll();
 		if (empty($logIds))
 		{
@@ -126,6 +125,6 @@ class FeedGarbageCollector
 
 	private function getLimit(): int
 	{
-		return (int)Option::get('socialnetwork', 'FeedGarbageCollectorAgentLimit', 1000);
+		return (int)Option::get('socialnetwork', 'FeedGarbageCollectorAgentLimit', 20);
 	}
 }

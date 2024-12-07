@@ -1,0 +1,61 @@
+.bx-im-sidebar-multidialog-preview__scope {
+	--im-sidebar-multidialog-preview__color_questions-counter: #babec3;
+	--im-sidebar-multidialog-preview__color_new-message-counter: #fff;
+	--im-sidebar-multidialog-preview__background-color_new-message-counter: #00ade3;
+}
+
+.bx-im-sidebar-multidialog-preview__container {
+	display: grid;
+	grid-template-columns: auto auto;
+	overflow: hidden;
+	gap: 20px;
+	justify-content: space-between;
+	align-items: center;
+	height: 52px;
+	padding: 16px;
+	cursor: pointer;
+}
+
+.bx-im-sidebar-multidialog-preview__container:hover .bx-im-sidebar__forward-icon {
+	opacity: 0.7;
+}
+
+.bx-im-sidebar-multidialog-preview__questions-container {
+	display: flex;
+	gap: 4px;
+	align-items: center;
+	font-size: 15px;
+	font-weight: 600;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-multidialog-preview__questions-text {
+	color: var(--im-color-palette-black-base);
+	text-overflow: ellipsis;
+	overflow: hidden;
+	white-space: nowrap;
+}
+
+.bx-im-sidebar-multidialog-preview__questions-count {
+	color: var(--im-sidebar-multidialog-preview__color_questions-counter);
+}
+
+.bx-im-sidebar-multidialog-preview__new-message-container {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+
+.bx-im-sidebar-multidialog-preview__new-message-counter {
+	background: var(--im-sidebar-multidialog-preview__background-color_new-message-counter);
+	border-radius: 9px;
+	height: 18px;
+	min-width: 18px;
+	font-size: 12px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 0 5px;
+	width: fit-content;
+	color: var(--im-sidebar-multidialog-preview__color_new-message-counter);
+}

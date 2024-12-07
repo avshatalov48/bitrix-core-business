@@ -109,7 +109,11 @@ class CurrencyLangTable extends Main\Entity\DataManager
 				'title' => Loc::getMessage('CURRENCY_LANG_ENTITY_CREATED_BY_FIELD')
 			)),
 			'DATE_CREATE' => new Main\Entity\DatetimeField('DATE_CREATE', array(
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					}
+				,
 				'title' => Loc::getMessage('CURRENCY_LANG_ENTITY_DATE_CREATE_FIELD')
 			)),
 			'MODIFIED_BY' => new Main\Entity\IntegerField('MODIFIED_BY', array(
@@ -117,7 +121,11 @@ class CurrencyLangTable extends Main\Entity\DataManager
 			)),
 			'TIMESTAMP_X' => new Main\Entity\DatetimeField('TIMESTAMP_X', array(
 				'required' => true,
-				'default_value' => function(){ return new Main\Type\DateTime(); },
+				'default_value' => function()
+					{
+						return new Main\Type\DateTime();
+					}
+				,
 				'title' => Loc::getMessage('CURRENCY_LANG_ENTITY_TIMESTAMP_X_FIELD')
 			)),
 			'CREATED_BY_USER' => array(
@@ -235,5 +243,11 @@ class CurrencyLangTable extends Main\Entity\DataManager
 		unset($helper, $conn);
 
 		static::cleanCache();
+	}
+
+	public static function cleanCache(): void
+	{
+		parent::cleanCache();
+		CurrencyTable::cleanCache();
 	}
 }

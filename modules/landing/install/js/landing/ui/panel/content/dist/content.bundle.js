@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,landing_main,landing_ui_panel_base,main_core) {
+(function (exports,ui_designTokens,ui_fonts_opensans,landing_ui_panel_base,main_core) {
 	'use strict';
 
 	function getDeltaFromEvent(event) {
@@ -313,6 +314,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	        if (this.disableScroll) {
 	          main_core.Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 	        }
+	        main_core.Event.bind(this.layout, 'click', this.onContentClick.bind(this));
+	        main_core.Event.bind(this.content, 'scroll', this.onContentScroll.bind(this));
 	        void BX.Landing.Utils.Show(this.overlay);
 	        return BX.Landing.Utils.Show(this.layout).then(function () {
 	          _this4.state = 'shown';
@@ -321,9 +324,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return Promise.resolve(true);
 	    }
 	  }, {
+	    key: "onContentClick",
+	    value: function onContentClick(event) {
+	      this.emit('onClick', {
+	        event: event
+	      });
+	    }
+	  }, {
+	    key: "onContentScroll",
+	    value: function onContentScroll(event) {
+	      this.emit('onScroll');
+	    }
+	  }, {
 	    key: "hide",
 	    value: function hide() {
 	      var _this5 = this;
+	      this.emit('onHide');
 	      if (this.isShown()) {
 	        if (this.shouldAdjustActionsPanels()) {
 	          main_core.Dom.removeClass(document.body, 'landing-ui-hide-action-panels');
@@ -446,5 +462,5 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 
 	exports.Content = Content;
 
-}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing,BX.Landing.UI.Panel,BX));
+}((this.BX.Landing.UI.Panel = this.BX.Landing.UI.Panel || {}),BX,BX,BX.Landing.UI.Panel,BX));
 //# sourceMappingURL=content.bundle.js.map

@@ -437,25 +437,38 @@ export const CallBackground = {
 		},
 		// endregion component events
 		// region desktop interactions
+		onSetCallBackgroundHandle(id, source)
+		{
+			return DesktopApi.setCallBackground(id, source)
+				.then((id) =>
+					{
+						if (id === 'none' && this.selectedBackgroundId !== 'none')
+						{
+							Logger.warn('CallBackground: background settings limit exceeded');
+							this.selectedBackgroundId = Action.type.none;
+						}
+					}
+				);
+		},
 		setCallBackground(backgroundInstance: Background): Promise
 		{
-			Logger.warn('CallBackground: set background', backgroundInstance);
+			Logger.warn('CallBackground: trying set background', backgroundInstance);
 			if (!this.isDesktop)
 			{
 				return;
 			}
 
-			return DesktopApi.setCallBackground(backgroundInstance.id, backgroundInstance.background);
+			return this.onSetCallBackgroundHandle(backgroundInstance.id, backgroundInstance.background);
 		},
 		setCallBlur(action: Action): Promise
 		{
-			Logger.warn('CallBackground: set blur', action);
+			Logger.warn('CallBackground: trying set blur', action);
 			if (!this.isDesktop)
 			{
 				return;
 			}
 
-			return DesktopApi.setCallBackground(action.id, action.background);
+			return this.onSetCallBackgroundHandle(action.id, action.background);
 		},
 		removeCallBackground(): Promise
 		{
@@ -464,7 +477,7 @@ export const CallBackground = {
 				return;
 			}
 
-			return DesktopApi.setCallBackground(Action.type.none, Action.type.none);
+			return this.onSetCallBackgroundHandle(Action.type.none, Action.type.none);
 		},
 		setCallMask(mask: Mask)
 		{

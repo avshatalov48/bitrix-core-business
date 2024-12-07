@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2004 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 global $MESS;
@@ -26,7 +26,7 @@ $arAllOptions = array(
 
 if($MOD_RIGHT>="W" && check_bitrix_sessid())
 {
-	if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '')
+	if ($_SERVER['REQUEST_METHOD']=="GET" && $RestoreDefaults <> '')
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -34,7 +34,7 @@ if($MOD_RIGHT>="W" && check_bitrix_sessid())
 			$APPLICATION->DelGroupRight($module_id, array($zr["ID"]));
 	}
 
-	if($REQUEST_METHOD=="POST" && $Update <> '')
+	if($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '')
 	{
 		for($i=0; $i<count($arAllOptions); $i++)
 		{
@@ -63,6 +63,8 @@ $tabControl->BeginNextTab();
 		$Option = $arAllOptions[$i];
 		$val = COption::GetOptionString("mail", $Option[0], $Option[2]);
 		$type = $Option[3];
+		$isDisabled = $Option[0] === 'sync_old_limit2' && \Bitrix\Main\Application::getConnection()->getType() === 'pgsql';
+		$hint = $isDisabled ? GetMessage('MAIL_SYNC_OLD_LIMIT_POSTGRESQL') : '';
 	?>
 		<tr>
 			<td valign="top" width="50%"><?if($type[0]=="checkbox")
@@ -73,7 +75,7 @@ $tabControl->BeginNextTab();
 					<?if($type[0]=="checkbox"):?>
 						<input type="checkbox" name="<?echo htmlspecialcharsbx($Option[0])?>" id="<?echo htmlspecialcharsbx($Option[0])?>" value="Y"<?if($val=="Y")echo" checked";?>>
 					<?elseif($type[0]=="text"):?>
-						<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>">
+						<input type="text" size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?echo htmlspecialcharsbx($Option[0])?>"<?php if($isDisabled): ?> disabled="disabled"<?php endif; ?> title="<?= htmlspecialcharsbx($hint) ?>">
 					<?elseif($type[0]=="textarea"):?>
 						<textarea rows="<?echo $type[1]?>" cols="<?echo $type[2]?>" name="<?echo htmlspecialcharsbx($Option[0])?>"><?echo htmlspecialcharsbx($val)?></textarea>
 					<?endif?>
@@ -235,7 +237,7 @@ setTimeout("Stats()", 0);
 
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");?>
 <?$tabControl->Buttons();?>
-<script type="text/javascript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

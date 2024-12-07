@@ -1,4 +1,4 @@
-import {Type, Tag, Loc, Event} from 'main.core';
+import { Type, Tag, Loc, Event, Runtime } from 'main.core';
 import {PopupComponentsMaker} from 'ui.popupcomponentsmaker';
 
 import {Widget} from './widget';
@@ -14,6 +14,7 @@ export class WorkgroupWidget extends Widget
 		this.projectTypeCode = (Type.isStringFilled(params.projectTypeCode) ? params.projectTypeCode : '');
 		this.urls = (Type.isPlainObject(params.urls) ? params.urls : {});
 		this.perms = (Type.isPlainObject(params.perms) ? params.perms : {});
+		this.editRolesAllowed = Type.isBoolean(params.editRolesAllowed) ? params.editRolesAllowed : false;
 	}
 
 	getData(params)
@@ -184,19 +185,32 @@ export class WorkgroupWidget extends Widget
 
 		const hint = (!canOpen ? `data-hint="${Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE_NO_PERMISSIONS')}" data-hint-no-icon` : '');
 
+		const contentClass = (
+			this.editRolesAllowed
+				? 'sonet-common-widget-item-content'
+				: 'sonet-common-widget-item-content-lock'
+		);
+		const hiddenClass = (
+			this.editRolesAllowed
+				? '--hidden'
+				: ''
+		);
+
 		const node = Tag.render`
 			<div class="sonet-common-widget-item" ${hint}>
 				<div class="sonet-common-widget-item-container">
 					<div class="sonet-common-widget-icon ui-icon ui-icon-service-light-roles-rights"><i></i></div>
-					<div class="sonet-common-widget-item-content">
-						<div class="sonet-common-widget-item-title">${Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE')}</div>
+					<div class="${contentClass}">
+						<div class="sonet-common-widget-item-title">
+							${Loc.getMessage('SONET_EXT_COMMON_WORKGROUP_WIDGET_ROLES_TITLE')}
+						</div>
+						<div class="sonet-common-widget-item-tariff-lock ${hiddenClass}"></div>
 					</div>
 				</div>
 			</div>
 		`;
 
 		Event.bind(node, 'click', () => {
-
 			if (
 				!canOpen
 				|| !Type.isStringFilled(this.urls.features)
@@ -205,10 +219,27 @@ export class WorkgroupWidget extends Widget
 				return;
 			}
 
-			BX.SidePanel.Instance.open(this.urls.features, {
-				width: 800,
-				loader: 'group-features-loader'
-			});
+			if (this.editRolesAllowed)
+			{
+				BX.SidePanel.Instance.open(this.urls.features, {
+					width: 800,
+					loader: 'group-features-loader',
+				});
+			}
+			else
+			{
+				// eslint-disable-next-line promise/catch-or-return
+				Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+					const { Limit } = exports;
+					Limit.showInstance({
+						featureId: 'socialnetwork_projects_access_permissions',
+						limitAnalyticsLabels: {
+							module: 'socialnetwork',
+							source: 'projectWidget',
+						},
+					});
+				});
+			}
 
 			this.hide();
 		});

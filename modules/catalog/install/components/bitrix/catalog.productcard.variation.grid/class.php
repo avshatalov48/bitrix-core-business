@@ -371,21 +371,21 @@ class CatalogProductVariationGridComponent
 
 	private function processGridActions(Request $request): void
 	{
-		$actionButton = 'action_button_'.$this->getGridId();
+		$actionButton = 'action_button_' . $this->getGridId();
 		$gridGroupAction = $request[$actionButton] ?? null;
 		$gridItemAction = $request['action'] ?? null;
 		$gridAction = $request['grid_action'] ?? null;
 
-		if ($gridGroupAction && $gridGroupAction === 'delete')
+		if ($gridGroupAction === 'delete')
 		{
 			$ids = $request['ID'] ?? [];
-			$actionAllRows = 'action_all_rows_'.$this->getGridId();
+			$actionAllRows = 'action_all_rows_' . $this->getGridId();
 			$allRows = ($request[$actionAllRows] ?? 'N') === 'Y';
 
 			$this->processGridDelete($ids, $allRows);
 			$this->checkGridStateCurrentPage();
 		}
-		elseif ($gridItemAction && $gridItemAction === 'deleteRow')
+		elseif ($gridItemAction === 'deleteRow')
 		{
 			$id = $request['id'] ?? null;
 
@@ -515,6 +515,7 @@ class CatalogProductVariationGridComponent
 		$this->arResult['GRID'] = $this->getGridData();
 		$this->arResult['STORE_AMOUNT'] = $this->getStoreAmount();
 		$this->arResult['IS_SHOWED_STORE_RESERVE'] = \Bitrix\Catalog\Config\State::isShowedStoreReserve();
+		$this->arResult['IS_CATALOG_HIDDEN'] = \Bitrix\Catalog\Config\State::isExternalCatalog();
 		$this->arResult['RESERVED_DEALS_SLIDER_LINK'] = $this->getReservedDealsSliderLink();
 		$this->arResult['SUPPORTED_AJAX_FIELDS'] = $form ? $form->getGridSupportedAjaxColumns() : [];
 	}
@@ -578,12 +579,33 @@ class CatalogProductVariationGridComponent
 
 	public function getGridOptionsSorting(): array
 	{
-		return $this->getGridOptions()
-			->getSorting([
-				'sort' => ['NAME' => 'ASC'],
-				'vars' => ['by' => 'by', 'order' => 'order'],
-			])
+		$default = [
+			'sort' => [
+				'NAME' => 'ASC',
+			],
+			'vars' => [
+				'by' => 'by',
+				'order' => 'order',
+			],
+		];
+		$sorting = $this->getGridOptions()
+			->getSorting($default)
 		;
+
+		$field = array_key_first($sorting['sort']);
+		if (
+			$field !== null
+			&& trim($field) === 'PROPERTY_'
+		)
+		{
+			$field = null;
+		}
+		if ($field === null)
+		{
+			$sorting['sort'] = $default['sort'];
+		}
+
+		return $sorting;
 	}
 
 	protected function getVariationLink(?int $skuId): ?string
@@ -891,6 +913,10 @@ class CatalogProductVariationGridComponent
 			'SHOW_PAGESIZE' => true,
 			'SHOW_ACTION_PANEL' => !$this->getProduct()->isSimple() && !$isReadOnly,
 			'ENABLE_FIELDS_SEARCH' => 'Y',
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+			'CONFIG' => [
+				'popupWidth' => 800,
+			],
 		];
 	}
 

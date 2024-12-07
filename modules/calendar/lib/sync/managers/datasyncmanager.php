@@ -6,6 +6,8 @@ use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Managers\EventOriginalRecursion;
 use Bitrix\Calendar\Core\Mappers\Factory;
+use Bitrix\Calendar\Internals\Counter\CounterService;
+use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Internals\EventConnectionTable;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Sync\Builders\BuilderConnectionFromDM;
@@ -91,10 +93,16 @@ class DataSyncManager
 			return true;
 		}
 
+		$userIds = [];
 		$connections = $this->getConnections($userId);
 		foreach ($connections as $connection)
 		{
 			$connection = $this->createConnectionObject($connection);
+			$ownerId = $connection->getOwner()?->getId();
+			if ($ownerId)
+			{
+				$userIds[] = $ownerId;
+			}
 			$result = $this->syncConnection($connection);
 			if ($result->isSuccess())
 			{
@@ -113,6 +121,8 @@ class DataSyncManager
 				]);
 			}
 		}
+
+		CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => $userIds]);
 
 		return true;
 	}

@@ -2,16 +2,8 @@
 
 class CAllFormField
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormField<br>File: ".__FILE__;
-	}
-
 	public static function GetList($WEB_FORM_ID, $get_fields, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = (CAllFormField::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$str = "";
@@ -107,14 +99,13 @@ class CAllFormField
 			and FORM_ID='$WEB_FORM_ID'
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = (CAllFormField::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB;
 		$ID = intval($ID);
 		$strSql = "
@@ -125,7 +116,7 @@ class CAllFormField
 			FROM b_form_field F
 			WHERE F.ID = $ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
@@ -133,7 +124,6 @@ class CAllFormField
 	{
 		$FORM_ID = intval($FORM_ID);
 
-		$err_mess = (CAllFormField::err_mess())."<br>Function: GetBySID<br>Line: ";
 		global $DB;
 		$strSql = "
 			SELECT
@@ -146,7 +136,7 @@ class CAllFormField
 		if ($FORM_ID > 0)
 			$strSql .= " AND F.FORM_ID='".$DB->ForSql($FORM_ID)."'";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -154,10 +144,9 @@ class CAllFormField
 	public static function GetNextSort($WEB_FORM_ID)
 	{
 		global $DB;
-		$err_mess = (CAllFormField::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$strSql = "SELECT max(C_SORT) as MAX_SORT FROM b_form_field WHERE FORM_ID='$WEB_FORM_ID'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return (intval($zr["MAX_SORT"])+100);
 	}
@@ -165,7 +154,6 @@ class CAllFormField
 	public static function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormField::err_mess())."<br>Function: Copy<br>Line: ";
 		$ID = intval($ID);
 		$NEW_FORM_ID = intval($NEW_FORM_ID);
 		$rsField = CFormField::GetByID($ID);
@@ -202,11 +190,11 @@ class CAllFormField
 
 
 						$strSql = "SELECT 'x' FROM b_form WHERE SID='".$DB->ForSql($SID,50)."'";
-						$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$z = $DB->Query($strSql);
 						if (!($zr = $z->Fetch()))
 						{
 							$strSql = "SELECT 'x' FROM b_form_field WHERE SID='".$DB->ForSql($SID,50)."' AND FORM_ID='".$arField["FORM_ID"]."'";
-							$t = $DB->Query($strSql, false, $err_mess.__LINE__);
+							$t = $DB->Query($strSql);
 							if (!($tr = $t->Fetch())) break;
 						}
 					}
@@ -274,7 +262,6 @@ class CAllFormField
 	public static function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormField::err_mess())."<br>Function: Delete<br>Line: ";
 		$ID = intval($ID);
 
 		$rsField = CFormField::GetByID($ID);
@@ -290,15 +277,15 @@ class CAllFormField
 				CFormValidator::Clear($ID);
 
 				$strSql = "SELECT IMAGE_ID FROM b_form_field WHERE ID='$ID' and IMAGE_ID>0";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr = $z->Fetch())
 					CFile::Delete($zr["IMAGE_ID"]);
 
-				$DB->Query("DELETE FROM b_form_answer WHERE FIELD_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_answer WHERE FIELD_ID='$ID'");
 
-				$DB->Query("DELETE FROM b_form_field_filter WHERE FIELD_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_field_filter WHERE FIELD_ID='$ID'");
 
-				$DB->Query("DELETE FROM b_form_field WHERE ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_field WHERE ID='$ID'");
 
 				return true;
 			}
@@ -311,7 +298,6 @@ class CAllFormField
 	public static function Reset($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormField::err_mess())."<br>Function: Reset<br>Line: ";
 		$ID = intval($ID);
 
 		$rsField = CFormField::GetByID($ID);
@@ -322,7 +308,7 @@ class CAllFormField
 			$F_RIGHT = ($CHECK_RIGHTS!="Y") ? 30 : CForm::GetPermission($WEB_FORM_ID);
 			if ($F_RIGHT>=30)
 			{
-				$DB->Query("DELETE FROM b_form_result_answer WHERE FIELD_ID='".$ID."'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_result_answer WHERE FIELD_ID='".$ID."'");
 
 				return true;
 			}
@@ -410,7 +396,6 @@ class CAllFormField
 
 	public static function GetFilterList($WEB_FORM_ID, $arFilter=Array())
 	{
-		$err_mess = (CAllFormField::err_mess())."<br>Function: GetFilterList<br>Line: ";
 		global $DB;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$arSqlSearch = Array();
@@ -471,13 +456,12 @@ class CAllFormField
 			and L.FIELD_ID = F.ID
 			ORDER BY F.C_SORT, L.PARAMETER_NAME, L.FILTER_TYPE desc
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function CheckFields(&$arFields, $FIELD_ID, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllFormField::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError;
 		$str = "";
 		$FIELD_ID = intval($FIELD_ID);
@@ -508,7 +492,7 @@ class CAllFormField
 					else
 					{
 						$strSql = "SELECT ID, ADDITIONAL FROM b_form_field WHERE SID='".$DB->ForSql(trim($arFields["SID"]),50)."' and ID<>'".$FIELD_ID."' AND FORM_ID='".$DB->ForSql($arFields["FORM_ID"])."'";
-						$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$z = $DB->Query($strSql);
 						if ($zr = $z->Fetch())
 						{
 							$s = ($zr["ADDITIONAL"]=="Y") ?
@@ -520,7 +504,7 @@ class CAllFormField
 						else
 						{
 							$strSql = "SELECT ID FROM b_form WHERE SID='".$DB->ForSql(trim($arFields["SID"]),50)."'";
-							$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+							$z = $DB->Query($strSql);
 							if ($zr = $z->Fetch())
 							{
 								$s = str_replace("#TYPE#", GetMessage("FORM_TYPE_FORM"), GetMessage("FORM_ERROR_WRONG_SID"));
@@ -531,7 +515,10 @@ class CAllFormField
 					}
 				}
 
-				$str .= CFile::CheckImageFile($arFields["arIMAGE"]);
+				if (isset($arFields["arIMAGE"]))
+				{
+					$str .= CFile::CheckImageFile($arFields["arIMAGE"]);
+				}
 			}
 			else $str .= GetMessage("FORM_ERROR_ACCESS_DENIED");
 		}
@@ -542,7 +529,6 @@ class CAllFormField
 
 	public static function Set($arFields, $FIELD_ID=false, $CHECK_RIGHTS="Y", $UPDATE_FILTER="Y")
 	{
-		$err_mess = (CAllFormField::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB;
 
 		if (CFormField::CheckFields($arFields, $FIELD_ID, $CHECK_RIGHTS))
@@ -593,7 +579,7 @@ class CAllFormField
 			if (is_set($arFields, "RESULTS_TABLE_TITLE"))
 				$arFields_i["RESULTS_TABLE_TITLE"] = "'".$DB->ForSql($arFields["RESULTS_TABLE_TITLE"],2000)."'";
 
-			if ($arFields["arIMAGE"]["name"] <> '' || $arFields["arIMAGE"]["del"] <> '')
+			if (!empty($arFields["arIMAGE"]["name"]) || !empty($arFields["arIMAGE"]["del"]))
 			{
 				if (!array_key_exists("MODULE_ID", $arFields["arIMAGE"]) || $arFields["arIMAGE"]["MODULE_ID"] == '')
 					$arFields["arIMAGE"]["MODULE_ID"] = "form";
@@ -607,18 +593,17 @@ class CAllFormField
 
 			if ($FIELD_ID>0)
 			{
-				$DB->Update("b_form_field", $arFields_i, "WHERE ID='".$FIELD_ID."'", $err_mess.__LINE__);
+				$DB->Update("b_form_field", $arFields_i, "WHERE ID='".$FIELD_ID."'");
 			}
 			else
 			{
 				$arFields_i["FORM_ID"] = "'".intval($arFields["FORM_ID"])."'";
-				$FIELD_ID = $DB->Insert("b_form_field", $arFields_i, $err_mess.__LINE__);
+				$FIELD_ID = $DB->Insert("b_form_field", $arFields_i);
 			}
-
 
 			if ($FIELD_ID>0)
 			{
-				if ($arFields["ADDITIONAL"]!="Y" && is_set($arFields, "arANSWER"))
+				if ((!isset($arFields["ADDITIONAL"]) || $arFields["ADDITIONAL"] != "Y") && is_set($arFields, "arANSWER"))
 				{
 					$arANSWER = $arFields["arANSWER"];
 					if (is_array($arANSWER) && count($arANSWER)>0)
@@ -659,7 +644,7 @@ class CAllFormField
 				if ($UPDATE_FILTER == 'Y')
 				{
 					$in_filter="N";
-					$DB->Query("UPDATE b_form_field SET IN_FILTER='N' WHERE ID='".$FIELD_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("UPDATE b_form_field SET IN_FILTER='N' WHERE ID='".$FIELD_ID."'");
 					$arrFilterType = array(
 						"arFILTER_USER"			=> "USER",
 						"arFILTER_ANSWER_TEXT"	=> "ANSWER_TEXT",
@@ -672,7 +657,7 @@ class CAllFormField
 						if (is_set($arFields, $key))
 						{
 							$strSql = "DELETE FROM b_form_field_filter WHERE FIELD_ID='".$FIELD_ID."' and PARAMETER_NAME='".$value."'";
-							$DB->Query($strSql, false, $err_mess.__LINE__);
+							$DB->Query($strSql);
 							if (is_array($arFields[$key]))
 							{
 								reset($arFields[$key]);
@@ -683,7 +668,7 @@ class CAllFormField
 										"FILTER_TYPE"		=> "'".$DB->ForSql($type,50)."'",
 										"PARAMETER_NAME"	=> "'".$value."'",
 									);
-									$DB->Insert("b_form_field_filter",$arFields_i, $err_mess.__LINE__);
+									$DB->Insert("b_form_field_filter",$arFields_i);
 									$in_filter="Y";
 								}
 							}
@@ -691,7 +676,7 @@ class CAllFormField
 					}
 
 					if ($in_filter=="Y")
-						$DB->Query("UPDATE b_form_field SET IN_FILTER='Y' WHERE ID='".$FIELD_ID."'", false, $err_mess.__LINE__);
+						$DB->Query("UPDATE b_form_field SET IN_FILTER='Y' WHERE ID='".$FIELD_ID."'");
 				}
 			}
 			return $FIELD_ID;

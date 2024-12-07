@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Web\DOM;
 
 class Document extends Node
@@ -9,7 +10,7 @@ class Document extends Node
 	/** @var $queryEngine QueryEngine */
 	protected $queryEngine;
 
-	/*
+	/**
 	 * @return void
 	 */
 	public function __construct()
@@ -23,7 +24,7 @@ class Document extends Node
 		$this->setParser(Parser::getHtmlParser());
 	}
 
-	/*
+	/**
 	 * @param string $source
 	 * @return void
 	 */
@@ -32,7 +33,7 @@ class Document extends Node
 		$this->parser->parse($source, $this);
 	}
 
-	/*
+	/**
 	 * @param null|Node $node
 	 * @return string
 	 */
@@ -66,13 +67,11 @@ class Document extends Node
 
 			return $result;
 		}
-		else
-		{
-			return $node->getOuterHTML();
-		}
+		
+		return $node->getOuterHTML();
 	}
 
-	/*
+	/**
 	 * @return QueryEngine
 	 */
 	public function getQueryEngine()
@@ -85,7 +84,7 @@ class Document extends Node
 		return $this->queryEngine;
 	}
 
-	/*
+	/**
 	 * @param QueryEngine $engine
 	 * @return void
 	 */
@@ -94,7 +93,7 @@ class Document extends Node
 		$this->queryEngine = $engine;
 	}
 
-	/*
+	/**
 	 * @return Parser
 	 */
 	public function getParser()
@@ -102,7 +101,7 @@ class Document extends Node
 		return $this->parser;
 	}
 
-	/*
+	/**
 	 * @param Parser $parser
 	 * @return void
 	 */
@@ -111,7 +110,7 @@ class Document extends Node
 		$this->parser = $parser;
 	}
 
-	/*
+	/**
 	 * Changes the ownerDocument of a node, its children, as well as the attached attribute nodes if there are any.
 	 * If the node has a parent it is first removed from its parent child list.
 	 * This effectively allows moving a subtree from one document to another.
@@ -145,13 +144,13 @@ class Document extends Node
 		}
 	}
 
-	/*
+	/**
 	 * @param string $tagName
 	 * @return Element
 	 */
 	public function createElement($tagName)
 	{
-		static $classByTag = array();
+		static $classByTag = [];
 
 		$tagName = mb_strtoupper($tagName);
 		$elementClass = "Bitrix\\Main\\Web\\DOM\\Element\\" . $tagName;
@@ -179,10 +178,11 @@ class Document extends Node
 		}
 
 		$node->setOwnerDocument($this);
+
 		return $node;
 	}
 
-	/*
+	/**
 	 * @param string $name
 	 * @param string $value
 	 * @return Attr
@@ -191,10 +191,11 @@ class Document extends Node
 	{
 		$node = new Attr($name, $value);
 		$node->setOwnerDocument($this);
+
 		return $node;
 	}
 
-	/*
+	/**
 	 * @param string $comment
 	 * @return Comment
 	 */
@@ -202,10 +203,11 @@ class Document extends Node
 	{
 		$node = new Comment($comment);
 		$node->setOwnerDocument($this);
+
 		return $node;
 	}
 
-	/*
+	/**
 	 * @param string $text
 	 * @return Text
 	 */
@@ -213,10 +215,11 @@ class Document extends Node
 	{
 		$node = new Text($text);
 		$node->setOwnerDocument($this);
+
 		return $node;
 	}
 
-	/*
+	/**
 	 * @return null
 	 */
 	public function createDocumentFragment()
@@ -224,25 +227,27 @@ class Document extends Node
 		throw new DomException('Not implemented');
 	}
 
-	/*
+	/**
 	 * @return null|Node
 	 */
 	public function getElementById($id)
 	{
 		$resultList = $this->getElementsByAttr('id', $id, 1);
+
 		return (!empty($resultList)) ? current($resultList) : null;
 	}
 
-	/*
+	/**
 	 * @return null|Node
 	 */
 	public function getElementByClassName($className)
 	{
 		$resultList = $this->getElementsByClassName($className, 1);
+
 		return (!empty($resultList)) ? current($resultList) : null;
 	}
 
-	/*
+	/**
 	 * @return array|NodeList
 	 */
 	public function getElementsByName($name)
@@ -255,83 +260,77 @@ class Document extends Node
 		return null;
 	}
 
-	/*
+	/**
 	 * @return array|NodeList
 	 */
 	public function getElementsByAttr($attrName, $attrValue = null, $limit = 0)
 	{
 		$attrName = mb_strtolower($attrName);
 		$nodeList = $this->getQueryEngine()->walk(
-			array(
-				array(
-					QueryEngine::FILTER_ATTR_VALUE => array(
-						array(
+			[
+				[
+					QueryEngine::FILTER_ATTR_VALUE => [
+						[
 							'name' => $attrName,
 							'value' => $attrValue,
 							'operation' => QueryEngine::FILTER_OPERATION_EQUAL,
-						)
-					)
-				)
-			),
-			null, $this, $limit
+						],
+					],
+				],
+			],
+			null, $this, $limit,
 		);
 
 		if(Node::$isNodeListAsArray)
 		{
 			return $nodeList;
 		}
-		else
-		{
-			return new NodeList($nodeList);
-		}
+		
+		return new NodeList($nodeList);
 	}
 
-	/*
+	/**
 	 * @return array|NodeList
 	 */
 	public function getElementsByTagName($tagName)
 	{
 		$tagName = mb_strtoupper($tagName);
 		$nodeList = $this->getQueryEngine()->walk(
-			array(
-				array(QueryEngine::FILTER_NODE_NAME => $tagName)
-			),
-			null, $this
+			[
+				[QueryEngine::FILTER_NODE_NAME => $tagName],
+			],
+			null, $this,
 		);
 
 		if(Node::$isNodeListAsArray)
 		{
 			return $nodeList;
 		}
-		else
-		{
-			return new NodeList($nodeList);
-		}
+		
+		return new NodeList($nodeList);
 	}
 
-	/*
+	/**
 	 * @return array|NodeList
 	 */
 	public function getElementsByClassName($className, $limit = 0)
 	{
 		$nodeList = $this->getQueryEngine()->walk(
-			array(
-				array(QueryEngine::FILTER_ATTR_CLASS_NAME => $className)
-			),
-			null, $this, $limit
+			[
+				[QueryEngine::FILTER_ATTR_CLASS_NAME => $className],
+			],
+			null, $this, $limit,
 		);
 
 		if(Node::$isNodeListAsArray)
 		{
 			return $nodeList;
 		}
-		else
-		{
-			return new NodeList($nodeList);
-		}
+
+		return new NodeList($nodeList);
 	}
 
-	/*
+	/**
 	 * @return null|Element
 	 */
 	public function getDocumentElement()
@@ -348,7 +347,7 @@ class Document extends Node
 		return null;
 	}
 
-	/*
+	/**
 	 * Get HEAD element
 	 * @return null|Element
 	 */
@@ -371,7 +370,7 @@ class Document extends Node
 		return null;
 	}
 
-	/*
+	/**
 	 * Get BODY element
 	 * @return null|Element
 	 */

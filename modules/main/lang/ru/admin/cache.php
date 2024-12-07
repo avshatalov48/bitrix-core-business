@@ -68,7 +68,7 @@ $MESS["main_cache_managed_const"] = "Определена константа BX_
 $MESS["main_cache_managed_turn_on"] = "Включить управляемый кеш";
 $MESS["main_cache_managed_note"] = "		Технология управляемого кеширования <b>Сache Dependencies</b> автоматически обновляет кеш компонентов при изменении данных.
 		Если управляемое кеширование включено, вам не потребуется вручную обновлять кеш компонентов при изменении новостей или товаров, изменения сразу станут видны посетителям сайта.
-		<br><br>Узнайте подробнее о технологии <a href=\"http://dev.1c-bitrix.ru/community/blogs/rsv/2074.php\">Сache Dependencies</a> на нашем сайте.
+		<br><br>Узнайте подробнее о технологии <a href=\"https://dev.1c-bitrix.ru/community/blogs/rsv/2074.php\">Сache Dependencies</a> на нашем сайте.
 	<br><br>
 	<span style=\"color:grey\">Замечание: не все компоненты могут поддерживать управляемое кеширование.</span>";
 $MESS["cache_admin_note5"] = "В данной редакции HTML кеш всегда включен.";

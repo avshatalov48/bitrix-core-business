@@ -1,12 +1,7 @@
-.bx-im-message-search-detail__scope {
-	--im-sidebar-message-search-detail__height_header: 64px;
-}
-
 .bx-im-message-search-detail__container {
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll;
-	height: calc(100% - var(--im-sidebar-message-search-detail__height_header));
 }
 
 .bx-im-message-search-detail__date-group_container {
@@ -21,4 +16,8 @@
 
 .bx-im-message-search-detail__container .bx-im-sidebar-detail-empty-state__container {
 	margin-top: 82px;
+}
+
+.bx-im-message-search-detail__tariff-limit-container {
+	margin: 6px 12px 0 15px;
 }

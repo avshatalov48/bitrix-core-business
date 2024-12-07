@@ -47,13 +47,7 @@ class Common
 
 	public static function jsonEncode($array = [])
 	{
-		$option = null;
-		if (\Bitrix\Main\Application::isUtfMode())
-		{
-			$option = JSON_UNESCAPED_UNICODE;
-		}
-
-		return \Bitrix\Main\Web\Json::encode($array, $option);
+		return \Bitrix\Main\Web\Json::encode($array, JSON_UNESCAPED_UNICODE);
 	}
 
 	public static function getCacheUserPostfix($id)
@@ -134,6 +128,7 @@ class Common
 			// deprecated
 			'im_revision' => \Bitrix\Im\Revision::getWeb(),
 			'im_revision_mobile' => \Bitrix\Im\Revision::getMobile(),
+			'is_shared_event' => false,
 		];
 
 		if (ActionUuid::getInstance()->getValue() !== null)

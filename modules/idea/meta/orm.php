@@ -141,18 +141,6 @@ namespace Bitrix\Idea {
 }
 namespace Bitrix\Idea {
 	/**
-	 * @method static EO_NotifyEmail_Query query()
-	 * @method static EO_NotifyEmail_Result getByPrimary($primary, array $parameters = array())
-	 * @method static EO_NotifyEmail_Result getById($id)
-	 * @method static EO_NotifyEmail_Result getList(array $parameters = array())
-	 * @method static EO_NotifyEmail_Entity getEntity()
-	 * @method static \Bitrix\Idea\EO_NotifyEmail createObject($setDefaultValues = true)
-	 * @method static \Bitrix\Idea\EO_NotifyEmail_Collection createCollection()
-	 * @method static \Bitrix\Idea\EO_NotifyEmail wakeUpObject($row)
-	 * @method static \Bitrix\Idea\EO_NotifyEmail_Collection wakeUpCollection($rows)
-	 */
-	class NotifyEmailTable extends \Bitrix\Main\ORM\Data\DataManager {}
-	/**
 	 * Common methods:
 	 * ---------------
 	 *

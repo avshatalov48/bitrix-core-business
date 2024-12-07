@@ -910,7 +910,8 @@ abstract class EntityObject implements ArrayAccess
 		switch ($name)
 		{
 			case 'authContext':
-				return $this->defineAuthContext($value);
+				$this->defineAuthContext($value);
+				return;
 			case 'entity':
 			case 'primary':
 			case 'dataClass':
@@ -1095,7 +1096,8 @@ abstract class EntityObject implements ArrayAccess
 
 			if ($this->entity->hasField($fieldName))
 			{
-				return $this->sysAddToCollection($fieldName, $value);
+				$this->sysAddToCollection($fieldName, $value);
+				return;
 			}
 		}
 
@@ -1187,7 +1189,8 @@ abstract class EntityObject implements ArrayAccess
 
 			if ($this->entity->hasField($fieldName))
 			{
-				return $this->sysRemoveAllFromCollection($fieldName);
+				$this->sysRemoveAllFromCollection($fieldName);
+				return;
 			}
 		}
 
@@ -1218,7 +1221,8 @@ abstract class EntityObject implements ArrayAccess
 
 			if ($this->entity->hasField($fieldName))
 			{
-				return $this->sysRemoveFromCollection($fieldName, $value);
+				$this->sysRemoveFromCollection($fieldName, $value);
+				return;
 			}
 		}
 

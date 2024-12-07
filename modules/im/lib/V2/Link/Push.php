@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\V2\Link;
 
+use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Rest\RestAdapter;
 use Bitrix\Main\Application;
@@ -13,7 +14,6 @@ class Push
 	protected const MODULE_ID = 'im';
 
 	protected array $events;
-	protected array $recipientByChatId;
 	private static Push $instance;
 	private bool $isJobPlanned = false;
 
@@ -43,28 +43,35 @@ class Push
 
 	protected function send(array $params, string $eventName, array $endpoint): void
 	{
+		$pull = [
+			'module_id' => self::MODULE_ID,
+			'command' => $eventName,
+			'params' => $params,
+			'extra' => \Bitrix\Im\Common::getPullExtra(),
+		];
+		$event = ['params' => $pull];
 		if (isset($endpoint['CHAT_ID']))
 		{
-			$recipient = $this->getRecipientByChatId((int)$endpoint['CHAT_ID']);
+			$chat = Chat::getInstance((int)$endpoint['CHAT_ID']);
+			if ($chat->getType() === Chat::IM_TYPE_COMMENT)
+			{
+				$event['tag'] = 'IM_PUBLIC_COMMENT_' . $chat->getParentChatId();
+			}
+			else
+			{
+				$event['recipient'] = $chat->getRelations()->getUserIds();
+			}
 		}
 		elseif (isset($endpoint['RECIPIENT']))
 		{
-			$recipient = $endpoint['RECIPIENT'];
+			$event['recipient'] = $endpoint['RECIPIENT'];
 		}
 		else
 		{
 			return;
 		}
 
-		$this->events[] = [
-			'recipient' => $recipient,
-			'params' => [
-				'module_id' => self::MODULE_ID,
-				'command' => $eventName,
-				'params' => $params,
-				'extra' => \Bitrix\Im\Common::getPullExtra(),
-			],
-		];
+		$this->events[] = $event;
 
 		$this->deferRun();
 	}
@@ -77,7 +84,14 @@ class Push
 		}
 		foreach ($this->events as $event)
 		{
-			\Bitrix\Pull\Event::add($event['recipient'], $event['params']);
+			if (isset($event['recipient']))
+			{
+				\Bitrix\Pull\Event::add($event['recipient'], $event['params']);
+			}
+			if (isset($event['tag']))
+			{
+				\CPullWatch::AddToStack($event['tag'], $event['params']);
+			}
 		}
 		$this->isJobPlanned = false;
 		$this->events = [];
@@ -92,18 +106,5 @@ class Push
 			});
 			$this->isJobPlanned = true;
 		}
-	}
-
-	protected function getRecipientByChatId(int $chatId): array
-	{
-		if (isset($this->recipientByChatId[$chatId]))
-		{
-			return $this->recipientByChatId[$chatId];
-		}
-
-		$relations = \Bitrix\Im\Chat::getRelation($chatId, ['SELECT' => ['ID', 'USER_ID'], 'WITHOUT_COUNTERS' => 'Y']);
-		$this->recipientByChatId[$chatId] = array_keys($relations);
-
-		return $this->recipientByChatId[$chatId];
 	}
 }

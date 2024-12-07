@@ -173,7 +173,7 @@ $sPageName = CWikiUtils::htmlspecialcharsback($arParams['ELEMENT_NAME']);
 $sCatName = '';
 if (CWikiUtils::IsCategoryPage($sPageName, $sCatName))
 {
-	$sPageName = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $sPageName);
+	$sPageName = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $sPageName);
 	$arParams['ELEMENT_NAME'] = CWikiUtils::UnlocalizeCategoryName($arParams['ELEMENT_NAME']);
 }
 
@@ -236,7 +236,7 @@ if ((empty($arResult['ELEMENT']) || !$bNotPage ) && $arResult['WIKI_oper']!="del
 		$arResult['ELEMENT']['ID'] = $arParams['ELEMENT_ID'];
 		$sPageName = $arResult['ELEMENT']['NAME'];
 		if (CWikiUtils::IsCategoryPage($sPageName, $sCatName))
-			$sPageName = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $sPageName);
+			$sPageName = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $sPageName);
 	}
 	else
 	{
@@ -313,7 +313,6 @@ else if ($arResult['IMAGE_UPLOAD'] == 'Y' && isset($_POST['do_upload']))
 	if (!empty($_FILES['FILE_ID']) && $_FILES['FILE_ID']['size'] > 0)
 	{
 		$file = $_FILES['FILE_ID'];
-		$file['name'] =  Encoding::convertEncoding($file['name'], 'UTF-8', Context::getCurrent()->getCulture()->getCharset());
 		$iCheckResult = CFile::CheckImageFile($file);
 		if ($iCheckResult == '')
 		{
@@ -418,7 +417,7 @@ else
 									$rsFile = CFile::GetByID($_imgID);
 									$arFile = $rsFile->Fetch();
 									$CWiki->deleteImage($_imgID, $arResult['ELEMENT']['ID'], $arParams['IBLOCK_ID']);
-									$arFields['DETAIL_TEXT'] = preg_replace('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):('.$_imgID.'|'.preg_quote($arFile['ORIGINAL_NAME'], '/').')\]\]?/iU'.BX_UTF_PCRE_MODIFIER, '', $arFields['DETAIL_TEXT']);
+									$arFields['DETAIL_TEXT'] = preg_replace('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):('.$_imgID.'|'.preg_quote($arFile['ORIGINAL_NAME'], '/').')\]\]?/iUu', '', $arFields['DETAIL_TEXT']);
 								}
 							}
 						}
@@ -428,7 +427,7 @@ else
 						$CWiki->Update($arParams['ELEMENT_ID'], $arFields);
 
 						//we should not post content of wiki page to feed if it redirects to another page
-						if(preg_match("/^\#(REDIRECT|".GetMessage('WIKI_REDIRECT').")\s*\[\[(.*)\]\]/iU".BX_UTF_PCRE_MODIFIER, $arFields['DETAIL_TEXT']))
+						if(preg_match("/^\#(REDIRECT|".GetMessage('WIKI_REDIRECT').")\s*\[\[(.*)\]\]/iUu", $arFields['DETAIL_TEXT']))
 							$bPageRedirect = true;
 						else
 							$bPageRedirect = false;
@@ -864,16 +863,7 @@ else
 	);
 	$arResult['~PATH_TO_POST_EDIT'] = rawurldecode($arResult['PATH_TO_POST_EDIT']);
 
-	//because it can change the page name, and hence the path for the parameter "Action" in tag "Form"
-	if (mb_strpos(POST_FORM_ACTION_URI, 'SEF_APPLICATION_CUR_PAGE_URL=') !== false)
-	{
-		$arResult['PATH_TO_POST_EDIT_SUBMIT'] = CHTTP::urlAddParams(
-			CHTTP::urlDeleteParams(POST_FORM_ACTION_URI, array('SEF_APPLICATION_CUR_PAGE_URL')),
-			array('SEF_APPLICATION_CUR_PAGE_URL' => rawurlencode($arResult['~PATH_TO_POST_EDIT']))
-		);
-	}
-	else
-		$arResult['PATH_TO_POST_EDIT_SUBMIT'] = $arResult['PATH_TO_POST_EDIT'];
+	$arResult['PATH_TO_POST_EDIT_SUBMIT'] = $arResult['PATH_TO_POST_EDIT'];
 
 	$sCatName = '';
 	$arResult["IS_CATEGORY_PAGE"] = CWikiUtils::IsCategoryPage($arResult['ELEMENT']['NAME_LOCALIZE'], $sCatName);

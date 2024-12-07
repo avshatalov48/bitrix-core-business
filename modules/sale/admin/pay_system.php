@@ -78,7 +78,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 			array(
 				'select' => array('ID'),
 				'filter' => $filter,
-				'order' => array(ToUpper($by) => ToUpper($order))
+				'order' => array(mb_strtoupper($by) => mb_strtoupper($order))
 			)
 		);
 
@@ -160,8 +160,8 @@ $params = array(
 );
 
 global $by, $order;
-if (isset($by) && ToUpper($by) != 'LID' && ToUpper($by) != 'CURRENCY')
-	$params['order'] = array(ToUpper($by) => ToUpper($order));
+if (isset($by) && mb_strtoupper($by) != 'LID' && mb_strtoupper($by) != 'CURRENCY')
+	$params['order'] = array(mb_strtoupper($by) => mb_strtoupper($order));
 
 $dbRes = \Bitrix\Sale\PaySystem\Manager::getList($params);
 
@@ -253,13 +253,23 @@ while ($arCCard = $dbRes->NavNext(false))
 			'=CLASS_NAME' => '\\'.\Bitrix\Sale\Services\PaySystem\Restrictions\PersonType::class
 		)
 	));
+	$restriction = $dbRestriction->fetch();
 
-	 if ($restriction = $dbRestriction->fetch())
-	 {
-		 $ptRes = \Bitrix\Sale\PersonTypeTable::getList(array('select' => array('NAME'), 'filter' => array('ID' => $restriction['PARAMS']['PERSON_TYPE_ID'])));
-		 while ($personType = $ptRes->fetch())
-		    $pTypes .= "<div>".$personType['NAME']."</div>";
-	 }
+	if (is_array($restriction))
+	{
+		$ptRes = \Bitrix\Sale\PersonTypeTable::getList([
+			'select' => [
+				'NAME',
+			],
+			'filter' => [
+				'ID' => $restriction['PARAMS']['PERSON_TYPE_ID'],
+			],
+		]);
+		while ($personType = $ptRes->fetch())
+		{
+			$pTypes .= '<div>' . $personType['NAME'] . '</div>';
+		}
+	}
 
 	$row->AddField("PERSON_TYPES", $pTypes);
 
@@ -356,8 +366,20 @@ if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 }
 else
 {
-	$lAdmin->DisplayFilter($filterFields);
-	$lAdmin->DisplayList();
+	$filterParams = [
+		'CONFIG' => [
+			'popupWidth' => 800,
+		],
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayFilter($filterFields, $filterParams);
+
+	$listParams = [
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayList($listParams);
 }
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

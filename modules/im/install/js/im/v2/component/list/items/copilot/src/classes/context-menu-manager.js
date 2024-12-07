@@ -10,9 +10,9 @@ export class CopilotRecentMenu extends RecentMenu
 	getMenuItems(): MenuItem[]
 	{
 		return [
-			this.getOpenItem(),
 			this.getPinMessageItem(),
 			this.getHideItem(),
+			this.getLeaveItem(),
 		];
 	}
 
@@ -30,7 +30,7 @@ export class CopilotRecentMenu extends RecentMenu
 	getHideItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_LIST_COPILOT_MENU_HIDE'),
+			text: Loc.getMessage('IM_LIB_MENU_HIDE_MSGVER_1'),
 			onclick: () => {
 				this.getRecentService().hideChat(this.context.dialogId);
 				this.menuInstance.close();

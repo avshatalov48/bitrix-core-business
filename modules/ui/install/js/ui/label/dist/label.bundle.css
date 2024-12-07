@@ -140,7 +140,7 @@ a.ui-label:not(.ui-label-fill):hover,
 
 .ui-label-yellow {
 	--ui-label-background-color: var(--ui-color-accent-yellow);
-	--ui-label-color: var(--ui-color-palette-orange-80);
+	--ui-label-color: var(--ui-color-palette-orange-80-rgb);
 }
 
 .ui-label-lightyellow {
@@ -152,7 +152,23 @@ a.ui-label:not(.ui-label-fill):hover,
 .ui-label-lavender {
 	--ui-label-background-color: rgba(231, 216, 250, 1);
 	--ui-label-background-color-hover: rgba(231, 216, 250, 1);
-	--ui-label-color: rgba(142, 82, 236, 1);
+	--ui-label-color: 142, 82, 236;
+}
+
+.ui-label-copilot-light {
+	--ui-label-background-color: var(--ui-color-copilot-secondary, #b095dc);
+	--ui-label-background-color-hover: var(--ui-color-copilot-secondary, #b095dc);
+	--ui-label-color: var(--ui-color-on-primary-rgb);
+}
+
+.ui-label-copilot-light-reverse {
+	--ui-label-background-color: var(--ui-color-background-primary);
+	--ui-label-background-color-hover: var(--ui-color-background-primary);
+	--ui-label-color: var(--ui-color-copilot-primary-rgb);
+}
+
+.ui-label-copilot-light-reverse:not(.ui-label-fill) {
+	--ui-label-color: var(--ui-color-copilot-primary-rgb);
 }
 
 .ui-label-light {

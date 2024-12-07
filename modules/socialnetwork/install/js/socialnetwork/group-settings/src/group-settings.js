@@ -29,6 +29,7 @@ export class GroupSettings extends EventEmitter
 {
 	#groupData: GroupData;
 	#logo: LogoData;
+
 	#circle: any;
 	#layout: {
 		wrap: HTMLElement,
@@ -51,6 +52,7 @@ export class GroupSettings extends EventEmitter
 
 		this.#groupData = params.groupData;
 		this.#logo = params.logo;
+
 		if (this.#isAvatar(this.#groupData.avatar))
 		{
 			this.#logo.id = encodeURI(this.#groupData.avatar);
@@ -192,7 +194,9 @@ export class GroupSettings extends EventEmitter
 				this.#groupData.isSubscribed = isSubscribed;
 				Controller.setSubscription(this.#groupData.id, this.#groupData.isSubscribed);
 			},
-			leave: () => Controller.leaveGroup(this.#groupData.id).then(() => Controller.openCommonSpace()),
+			leave: () => Controller
+				.leaveGroup(this.#groupData.id)
+				.then(() => Controller.openCommonSpace()),
 			delete: () => {
 				Controller.deleteGroup(this.#groupData.id).then((response) => {
 					const errorMessage = response.data;

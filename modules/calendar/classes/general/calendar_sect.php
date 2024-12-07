@@ -4,6 +4,7 @@ use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Internals\EventTable;
+use Bitrix\Calendar\Internals\SectionConnectionTable;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Factories\FactoriesCollection;
 use Bitrix\Calendar\Sync\Factories\FactoryInterface;
@@ -16,6 +17,7 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Loader;
+use Bitrix\Calendar\OpenEvents;
 use Bitrix\Calendar\Util;
 use Bitrix\Calendar\Rooms;
 use Bitrix\Main\Localization\Loc;
@@ -36,6 +38,8 @@ class CCalendarSect
 	public const OPERATION_EDIT_ACCESS = 'calendar_edit_access';
 
 	public static $sendPush = true;
+	public static $sectionConnectionCache = [];
+	public static $sectionAccessCache = [];
 
 	private static
 		$sections,
@@ -202,7 +206,7 @@ class CCalendarSect
 
 				$section['EXPORT'] = [
 					'ALLOW' => true,
-					'LINK' => self::GetExportLink($section['ID'], $sectionType, $section['OWNER_ID'])
+					'LINK' => self::GetExportLink($section['ID'], $sectionType, $section['OWNER_ID'] ?? null)
 				];
 
 				if ($sectionType === 'user')
@@ -414,8 +418,8 @@ class CCalendarSect
 
 		while ($section = $query->fetch())
 		{
-			$section['COLOR'] = CCalendar::Color($section['COLOR']);
-			$section['NAME'] = Emoji::decode($section['NAME']);
+			$section['COLOR'] = CCalendar::Color($section['COLOR'] ?? '');
+			$section['NAME'] = Emoji::decode($section['NAME'] ?? '');
 
 			if (!empty($section['DATE_CREATE']))
 			{
@@ -442,6 +446,18 @@ class CCalendarSect
 			return [];
 		}
 
+		$noCacheForSectionIds = array_diff($sectionIdList, array_keys(self::$sectionAccessCache));
+		if (!$noCacheForSectionIds)
+		{
+			$result = [];
+			foreach ($sectionIdList as $sectionId)
+			{
+				$result[$sectionId] = self::$sectionAccessCache[$sectionId];
+			}
+
+			return $result;
+		}
+
 		$accessQuery = \Bitrix\Calendar\Internals\AccessTable::query()
 			->setSelect([
 				'ACCESS_CODE',
@@ -460,6 +476,12 @@ class CCalendarSect
 			}
 
 			$sections[$access['SECT_ID']]['ACCESS'][$access['ACCESS_CODE']] = (int)$access['TASK_ID'];
+		}
+
+		foreach ($sectionIdList as $sectionId)
+		{
+			unset(self::$sectionAccessCache[$sectionId]);
+			self::$sectionAccessCache[$sectionId] = $sections[$sectionId];
 		}
 
 		return $sections;
@@ -600,7 +622,7 @@ class CCalendarSect
 				$strLimit";
 
 		$result = [];
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		while ($sect = $res->Fetch())
 		{
@@ -783,7 +805,7 @@ class CCalendarSect
 						$sqlSearch
 					))";
 
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 
 			while($arRes = $res->Fetch())
 			{
@@ -832,7 +854,7 @@ class CCalendarSect
 						CS.CAL_TYPE='user'
 					)";
 
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 			}
 
 			while($arRes = $res->Fetch())
@@ -1148,7 +1170,7 @@ class CCalendarSect
 				AND (CE.DELETED='N' and CE.DELETED is not null)";
 		}
 
-		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql );
 		while($ev = $res->Fetch())
 		{
 			if ((int)$ev['ID'] === (int)$ev['PARENT_ID'])
@@ -1175,7 +1197,7 @@ class CCalendarSect
 
 		if (!empty($meetingIds))
 		{
-			$DB->Query("DELETE from b_calendar_event WHERE PARENT_ID in (".implode(',', $meetingIds).")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE from b_calendar_event WHERE PARENT_ID in (".implode(',', $meetingIds).")");
 		}
 
 		//delete section in services
@@ -1186,11 +1208,11 @@ class CCalendarSect
 		// Del link from table
 		if (!Util::isSectionStructureConverted())
 		{
-			$DB->Query("DELETE FROM b_calendar_event_sect WHERE SECT_ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query("DELETE FROM b_calendar_event_sect WHERE SECT_ID=".$id);
 		}
 
 		// Del from
-		$DB->Query("DELETE FROM b_calendar_section WHERE ID=".$id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_section WHERE ID=".$id);
 
 		CCalendarEvent::DeleteEmpty($id);
 		self::CleanAccessTable($id);
@@ -1292,7 +1314,7 @@ class CCalendarSect
 	public static function SavePermissions($sectId, $taskPerm)
 	{
 		global $DB;
-		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".(int)$sectId."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".(int)$sectId."'");
 
 		if (is_array($taskPerm))
 		{
@@ -1312,7 +1334,7 @@ class CCalendarSect
 					]
 				);
 				$strSql = "INSERT INTO b_calendar_access(".$insert[0].") VALUES(".$insert[1].")";
-				$DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql );
 			}
 		}
 	}
@@ -1347,8 +1369,8 @@ class CCalendarSect
 			LEFT JOIN b_calendar_access CAP ON CAP.SECT_ID = '.$helper->castToChar('SC.ID').'
 			WHERE SC.ID in ('.$s.')'
 		;
-		
-		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+
+		$res = $DB->Query($strSql );
 		while($arRes = $res->Fetch())
 		{
 			if ($arRes['ID'] > 0)
@@ -1489,7 +1511,7 @@ class CCalendarSect
 		$strIds = implode(',', $strIds);
 
 		$strSql = "SELECT ID, CAL_DAV_CON FROM b_calendar_section WHERE ID in (".$strIds.")";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		while ($arRes = $res->Fetch())
 		{
@@ -1890,8 +1912,6 @@ class CCalendarSect
 		}
 
 		$res .= 'END:VCALENDAR';
-		if (!defined('BX_UTF') || BX_UTF !== true)
-			$res = $APPLICATION->ConvertCharset($res, LANG_CHARSET, 'UTF-8');
 
 		return $res;
 	}
@@ -1920,7 +1940,7 @@ class CCalendarSect
 				SELECT ".$DB->DateToCharFunction("CS.TIMESTAMP_X")." as TIMESTAMP_X
 				FROM b_calendar_section CS
 				WHERE ID=".$sectionId;
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 
 			if($sect = $res->Fetch())
 				return $sect['TIMESTAMP_X'];
@@ -1953,7 +1973,7 @@ class CCalendarSect
 			"UPDATE b_calendar_section SET ".
 				$DB->PrepareUpdate("b_calendar_section", array('TIMESTAMP_X' => FormatDate(CCalendar::DFormat(true), time()))).
 			" WHERE ID in (".$strIds.")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 	}
 
@@ -2031,6 +2051,11 @@ class CCalendarSect
 		$sectionId = false;
 		$autoCreated = false;
 
+		if (empty($type))
+		{
+			$type = 'user';
+		}
+
 		$res = self::GetList([
 			'arFilter' => [
 				'CAL_TYPE' => $type,
@@ -2063,7 +2088,11 @@ class CCalendarSect
 			$sectionId = $section['ID'];
 		}
 
-		return array('sectionId' => $sectionId, 'autoCreated' => $autoCreated, 'section' => $section);
+		return [
+			'sectionId' => $sectionId,
+			'autoCreated' => $autoCreated,
+			'section' => $section
+		];
 	}
 
 	public static function HandlePermission($section = [])
@@ -2108,8 +2137,7 @@ class CCalendarSect
 
 		global $DB;
 
-		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID = '" . $sectionId  . "'", false,
-			"FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID = '" . $sectionId  . "'");
 	}
 
 	/**
@@ -2130,7 +2158,7 @@ class CCalendarSect
 	{
 		global $DB;
 		$count = 0;
-		$res = $DB->Query('select count(*) as c  from b_calendar_section', false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query('select count(*) as c  from b_calendar_section');
 
 		if($res = $res->Fetch())
 		{
@@ -2215,7 +2243,7 @@ class CCalendarSect
 				->registerRuntimeField(
 					new \Bitrix\Main\Entity\ReferenceField(
 						'LINK',
-						\Bitrix\Calendar\Internals\SectionConnectionTable::class,
+						SectionConnectionTable::class,
 						['=this.ID' => 'ref.SECTION_ID'],
 						['join_type' => 'INNER']
 					),
@@ -2258,6 +2286,15 @@ class CCalendarSect
 			}
 		}
 
+		if (
+			in_array($type, ['user', \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['open_event']], true)
+			&& OpenEvents\Feature::getInstance()->isAvailable()
+		)
+		{
+			$type = ['user', \Bitrix\Calendar\Core\Event\Tools\Dictionary::CALENDAR_TYPE['open_event']];
+			$ownerId = [$ownerId, 0];
+		}
+
 		$sectionList = CCalendar::getSectionList([
 			'CAL_TYPE' => $type,
 			'OWNER_ID' => $ownerId,
@@ -2276,9 +2313,6 @@ class CCalendarSect
 		{
 			if (!in_array((int)$section['ID'], $sectionIdList))
 			{
-				// if ($isNotInternalUser)
-
-
 				if (in_array($section['ID'], $followedSectionList))
 				{
 					$section['SUPERPOSED'] = true;
@@ -2294,6 +2328,52 @@ class CCalendarSect
 		}
 
 		return $sections;
+	}
+
+	/**
+	 * @param array $sectionIdList
+	 * @return array
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 */
+	public static function getSectionConnectionList(array $sectionIdList): array
+	{
+		$noCacheForSectionIds = array_diff($sectionIdList, array_keys(self::$sectionConnectionCache));
+
+		if (!$noCacheForSectionIds)
+		{
+			$result = [];
+			foreach ($sectionIdList as $sectionId)
+			{
+				$result = [...$result, ...self::$sectionConnectionCache[$sectionId]];
+			}
+
+			return $result;
+		}
+
+		$sectionConnections = SectionConnectionTable::query()
+			->setSelect([
+				'SECTION_ID',
+				'CONNECTION_ID',
+				'ACTIVE',
+				'IS_PRIMARY',
+			])
+			->whereIn('SECTION_ID', $sectionIdList)
+			->fetchCollection()
+		;
+
+		foreach ($sectionIdList as $sectionId)
+		{
+			self::$sectionConnectionCache[$sectionId] = [];
+		}
+
+		foreach ($sectionConnections as $sectionConnection)
+		{
+			self::$sectionConnectionCache[$sectionConnection->getSectionId()][] = $sectionConnection;
+		}
+
+		return $sectionConnections->getAll();
 	}
 }
 ?>

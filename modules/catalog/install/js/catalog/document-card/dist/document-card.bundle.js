@@ -1,8 +1,101 @@
 /* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
-(function (exports,catalog_entityCard,ui_buttons,main_core_events,currency_currencyCore,ui_entitySelector,main_popup,catalog_storeUse,ui_feedback_form,main_core) {
+(function (exports,catalog_entityCard,catalog_storeEnableWizard,main_popup,ui_buttons,currency_currencyCore,ui_entitySelector,main_core_events,ui_feedback_form,main_core) {
 	'use strict';
+
+	var StoreDocumentFieldConfigurator = /*#__PURE__*/function (_BX$UI$EntityEditorFi) {
+	  babelHelpers.inherits(StoreDocumentFieldConfigurator, _BX$UI$EntityEditorFi);
+	  function StoreDocumentFieldConfigurator() {
+	    babelHelpers.classCallCheck(this, StoreDocumentFieldConfigurator);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(StoreDocumentFieldConfigurator).apply(this, arguments));
+	  }
+	  babelHelpers.createClass(StoreDocumentFieldConfigurator, [{
+	    key: "getOptionContainer",
+	    value: function getOptionContainer() {
+	      var optionContainer = babelHelpers.get(babelHelpers.getPrototypeOf(StoreDocumentFieldConfigurator.prototype), "getOptionContainer", this).call(this);
+	      this._isRequiredCheckBox = this.getField().getData().requiredIsEditable ? this.getIsRequiredCheckBox() : null;
+	      return optionContainer;
+	    }
+	  }, {
+	    key: "onSaveButtonClick",
+	    value: function onSaveButtonClick() {
+	      this.getField().getSchemeElement()._isRequired = this._isRequiredCheckBox.checked;
+	      babelHelpers.get(babelHelpers.getPrototypeOf(StoreDocumentFieldConfigurator.prototype), "onSaveButtonClick", this).call(this);
+	      BX.ajax.runComponentAction('bitrix:catalog.store.document.detail', 'changeRequired', {
+	        mode: 'class',
+	        data: {
+	          documentType: this.getEditor().getModel().getData().DOC_TYPE,
+	          fieldName: this.getField()._id,
+	          required: this.getField().isRequired() ? 'Y' : 'N'
+	        }
+	      });
+	    }
+	  }, {
+	    key: "getIsRequiredCheckBox",
+	    value: function getIsRequiredCheckBox() {
+	      var checkBox = this.createOption({
+	        caption: main_core.Loc.getMessage('UI_ENTITY_EDITOR_UF_REQUIRED_FIELD')
+	      });
+	      checkBox.checked = this._field && this._field.isRequired();
+	      return checkBox;
+	    }
+	  }], [{
+	    key: "create",
+	    value: function create(id, settings) {
+	      var self = new this();
+	      self.initialize(id, settings);
+	      return self;
+	    }
+	  }]);
+	  return StoreDocumentFieldConfigurator;
+	}(BX.UI.EntityEditorFieldConfigurator);
+	main_core.Reflection.namespace('BX.Catalog').StoreDocumentFieldConfigurator = StoreDocumentFieldConfigurator;
+
+	var StoreDocumentFieldConfigurationManager = /*#__PURE__*/function (_BX$UI$EntityConfigur) {
+	  babelHelpers.inherits(StoreDocumentFieldConfigurationManager, _BX$UI$EntityConfigur);
+	  function StoreDocumentFieldConfigurationManager() {
+	    babelHelpers.classCallCheck(this, StoreDocumentFieldConfigurationManager);
+	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(StoreDocumentFieldConfigurationManager).apply(this, arguments));
+	  }
+	  babelHelpers.createClass(StoreDocumentFieldConfigurationManager, [{
+	    key: "getSimpleFieldConfigurator",
+	    value: function getSimpleFieldConfigurator(params, parent) {
+	      var typeId = '';
+	      var field = main_core.Type.isObject(params.field) ? params.field : null;
+	      if (field) {
+	        typeId = field.getType();
+	        field.setVisible(false);
+	        var userType = field.getSchemeElement().getData().userType;
+	        userType = main_core.Type.isString(userType) ? userType : false;
+	        if (userType) {
+	          typeId = userType;
+	        }
+	      } else {
+	        typeId = main_core.Type.isString(params.TypeId) ? params.TypeId : BX.UI.EntityUserFieldType.string;
+	      }
+	      this._fieldConfigurator = StoreDocumentFieldConfigurator.create('', {
+	        editor: this._editor,
+	        schemeElement: null,
+	        model: parent._model,
+	        mode: BX.UI.EntityEditorMode.edit,
+	        parent: parent,
+	        typeId: typeId,
+	        field: field,
+	        mandatoryConfigurator: null
+	      });
+	      return this._fieldConfigurator;
+	    }
+	  }], [{
+	    key: "create",
+	    value: function create(id, settings) {
+	      var self = new this();
+	      self.initialize(id, settings);
+	      return self;
+	    }
+	  }]);
+	  return StoreDocumentFieldConfigurationManager;
+	}(BX.UI.EntityConfigurationManager);
 
 	var ProductListController = /*#__PURE__*/function (_BX$UI$EntityEditorCo) {
 	  babelHelpers.inherits(ProductListController, _BX$UI$EntityEditorCo);
@@ -261,63 +354,6 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    }
 	  }]);
 	  return ControllersFactory;
-	}();
-
-	var DocumentModel = /*#__PURE__*/function (_BX$UI$EntityModel) {
-	  babelHelpers.inherits(DocumentModel, _BX$UI$EntityModel);
-	  function DocumentModel(id, settings) {
-	    var _this;
-	    babelHelpers.classCallCheck(this, DocumentModel);
-	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DocumentModel).call(this));
-	    _this.initialize(id, settings);
-	    return _this;
-	  }
-	  babelHelpers.createClass(DocumentModel, [{
-	    key: "isCaptionEditable",
-	    value: function isCaptionEditable() {
-	      return true;
-	    }
-	  }, {
-	    key: "getCaption",
-	    value: function getCaption() {
-	      var title = this.getField("TITLE");
-	      return BX.type.isString(title) ? title : "";
-	    }
-	  }, {
-	    key: "setCaption",
-	    value: function setCaption(caption) {
-	      this.setField("TITLE", caption);
-	    }
-	  }, {
-	    key: "prepareCaptionData",
-	    value: function prepareCaptionData(data) {
-	      data["TITLE"] = this.getField("TITLE", "");
-	    }
-	  }]);
-	  return DocumentModel;
-	}(BX.UI.EntityModel);
-
-	var ModelFactory = /*#__PURE__*/function () {
-	  function ModelFactory() {
-	    var _this = this;
-	    babelHelpers.classCallCheck(this, ModelFactory);
-	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorModelFactory:onInitialize', function (event) {
-	      var _event$getCompatData = event.getCompatData(),
-	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
-	        eventArgs = _event$getCompatData2[1];
-	      eventArgs.methods['store_document'] = _this.factory.bind(_this);
-	    });
-	  }
-	  babelHelpers.createClass(ModelFactory, [{
-	    key: "factory",
-	    value: function factory(type, controlId, settings) {
-	      if (type === 'store_document') {
-	        return new DocumentModel(controlId, settings);
-	      }
-	      return null;
-	    }
-	  }]);
-	  return ModelFactory;
 	}();
 
 	/**
@@ -750,6 +786,63 @@ this.BX.Catalog = this.BX.Catalog || {};
 	  return FieldsFactory;
 	}();
 
+	var DocumentModel = /*#__PURE__*/function (_BX$UI$EntityModel) {
+	  babelHelpers.inherits(DocumentModel, _BX$UI$EntityModel);
+	  function DocumentModel(id, settings) {
+	    var _this;
+	    babelHelpers.classCallCheck(this, DocumentModel);
+	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DocumentModel).call(this));
+	    _this.initialize(id, settings);
+	    return _this;
+	  }
+	  babelHelpers.createClass(DocumentModel, [{
+	    key: "isCaptionEditable",
+	    value: function isCaptionEditable() {
+	      return true;
+	    }
+	  }, {
+	    key: "getCaption",
+	    value: function getCaption() {
+	      var title = this.getField("TITLE");
+	      return BX.type.isString(title) ? title : "";
+	    }
+	  }, {
+	    key: "setCaption",
+	    value: function setCaption(caption) {
+	      this.setField("TITLE", caption);
+	    }
+	  }, {
+	    key: "prepareCaptionData",
+	    value: function prepareCaptionData(data) {
+	      data["TITLE"] = this.getField("TITLE", "");
+	    }
+	  }]);
+	  return DocumentModel;
+	}(BX.UI.EntityModel);
+
+	var ModelFactory = /*#__PURE__*/function () {
+	  function ModelFactory() {
+	    var _this = this;
+	    babelHelpers.classCallCheck(this, ModelFactory);
+	    main_core_events.EventEmitter.subscribe('BX.UI.EntityEditorModelFactory:onInitialize', function (event) {
+	      var _event$getCompatData = event.getCompatData(),
+	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
+	        eventArgs = _event$getCompatData2[1];
+	      eventArgs.methods['store_document'] = _this.factory.bind(_this);
+	    });
+	  }
+	  babelHelpers.createClass(ModelFactory, [{
+	    key: "factory",
+	    value: function factory(type, controlId, settings) {
+	      if (type === 'store_document') {
+	        return new DocumentModel(controlId, settings);
+	      }
+	      return null;
+	    }
+	  }]);
+	  return ModelFactory;
+	}();
+
 	var _templateObject$1, _templateObject2$1, _templateObject3$1;
 	function _classStaticPrivateFieldSpecGet(receiver, classConstructor, descriptor) { _classCheckPrivateStaticAccess(receiver, classConstructor); _classCheckPrivateStaticFieldDescriptor(descriptor, "get"); return _classApplyDescriptorGet(receiver, descriptor); }
 	function _classApplyDescriptorGet(receiver, descriptor) { if (descriptor.get) { return descriptor.get.call(receiver); } return descriptor.value; }
@@ -888,7 +981,10 @@ this.BX.Catalog = this.BX.Catalog || {};
 	    key: "openMasterSlider",
 	    value: function openMasterSlider() {
 	      var card = this;
-	      new catalog_storeUse.StoreSlider().open(this.masterSliderUrl, {
+	      new catalog_storeEnableWizard.EnableWizardOpener().open(this.masterSliderUrl, {
+	        urlParams: {
+	          analyticsContextSection: catalog_storeEnableWizard.AnalyticsContextList.DOCUMENT_CARD
+	        },
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -952,6 +1048,23 @@ this.BX.Catalog = this.BX.Catalog || {};
 	      this.subscribeToEntityCreateEvent();
 	      this.subscribeToBeforeEntityRedirectEvent();
 	      this.subscribeToCreateUserFieldEvent();
+	      this.subscribeToFieldConfiguratorEvent();
+	    }
+	  }, {
+	    key: "subscribeToFieldConfiguratorEvent",
+	    value: function subscribeToFieldConfiguratorEvent() {
+	      main_core_events.EventEmitter.subscribe('BX.UI.EntityConfigurationManager:onInitialize', this.onConfigurationManagerInit.bind(this));
+	    }
+	  }, {
+	    key: "onConfigurationManagerInit",
+	    value: function onConfigurationManagerInit(event) {
+	      var _event$getCompatData = event.getCompatData(),
+	        _event$getCompatData2 = babelHelpers.slicedToArray(_event$getCompatData, 2),
+	        eventArgs = _event$getCompatData2[1];
+	      if (!eventArgs.type || eventArgs.type === 'editor') {
+	        eventArgs.configurationFieldManager = StoreDocumentFieldConfigurationManager.create(this.id, eventArgs);
+	      }
+	      event.stopImmediatePropagation();
 	    }
 	  }, {
 	    key: "subscribeToCreateUserFieldEvent",
@@ -1466,5 +1579,5 @@ this.BX.Catalog = this.BX.Catalog || {};
 	exports.FeedbackButton = Button;
 	exports.Slider = Slider;
 
-}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.UI,BX.Event,BX.Currency,BX.UI.EntitySelector,BX.Main,BX.Catalog.StoreUse,BX,BX));
+}((this.BX.Catalog.DocumentCard = this.BX.Catalog.DocumentCard || {}),BX.Catalog.EntityCard,BX.Catalog.Store,BX.Main,BX.UI,BX.Currency,BX.UI.EntitySelector,BX.Event,BX.UI.Feedback,BX));
 //# sourceMappingURL=document-card.bundle.js.map

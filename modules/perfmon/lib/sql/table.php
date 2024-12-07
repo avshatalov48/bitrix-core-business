@@ -5,6 +5,7 @@ use Bitrix\Main\NotSupportedException;
 
 class Table extends BaseObject
 {
+	public $checkExists = false;
 	/** @var Collection */
 	public $columns = null;
 	/** @var Collection */
@@ -96,8 +97,7 @@ class Table extends BaseObject
 	 */
 	public function createColumn(Tokenizer $tokenizer)
 	{
-		$column = Column::create($tokenizer);
-		$column->setParent($this);
+		$column = Column::create($tokenizer, $this);
 		$this->columns->add($column);
 		return $this;
 	}
@@ -113,13 +113,16 @@ class Table extends BaseObject
 	public function modifyColumn(Tokenizer $tokenizer)
 	{
 		$column = Column::create($tokenizer);
-		$column->setParent($this);
-		$columnIndex = $this->columns->searchIndex($column->name);
-		if ($columnIndex === null)
+		if ($column !== null)
 		{
-			throw new NotSupportedException('Column ' . $this->name . '.' . $column->name . ' not found line:' . $tokenizer->getCurrentToken()->line);
+			$column->setParent($this);
+			$columnIndex = $this->columns->searchIndex($column->name);
+			if ($columnIndex === null)
+			{
+				throw new NotSupportedException('Column ' . $this->name . '.' . $column->name . ' not found line:' . $tokenizer->getCurrentToken()->line);
+			}
+			$this->columns->set($columnIndex, $column);
 		}
-		$this->columns->set($columnIndex, $column);
 		return $this;
 	}
 
@@ -135,6 +138,7 @@ class Table extends BaseObject
 	 */
 	public static function create(Tokenizer $tokenizer)
 	{
+		$checkExists = false;
 		$tokenizer->skipWhiteSpace();
 
 		if ($tokenizer->testUpperText('IF'))
@@ -149,10 +153,12 @@ class Table extends BaseObject
 			if ($tokenizer->testUpperText('EXISTS'))
 			{
 				$tokenizer->skipWhiteSpace();
+				$checkExists = true;
 			}
 		}
 
 		$table = new Table($tokenizer->getCurrentToken()->text);
+		$table->checkExists = $checkExists;
 
 		$tokenizer->nextToken();
 		$tokenizer->skipWhiteSpace();
@@ -325,7 +331,7 @@ class Table extends BaseObject
 			}
 		}
 
-		$result[] = 'CREATE TABLE ' . $this->name . "(\n\t" . implode(",\n\t", $items) . "\n)" . $this->body;
+		$result[] = 'CREATE TABLE ' . ($this->checkExists ? 'IF NOT EXISTS ' : '') . $this->name . "(\n\t" . implode(",\n\t", $items) . "\n)" . $this->body;
 
 		if ($dbType !== 'MYSQL')
 		{

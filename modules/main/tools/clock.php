@@ -63,7 +63,7 @@ class CClock
 				?>
 				<input type="hidden" id="<?=$inputId?>" name="<?=$inputName?>"  value="<?=$initTime?>" />
 				<div id="<?=$inputId?>_clock"></div>
-				<script type="text/javascript">
+				<script>
 					if (!window.bxClockLoaders)
 					{
 						window.bxClockLoaders = [];

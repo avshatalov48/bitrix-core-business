@@ -24,6 +24,7 @@ use Bitrix\Socialnetwork\EO_WorkgroupPin;
 use Bitrix\Socialnetwork\FeatureTable;
 use Bitrix\Socialnetwork\FeaturePermTable;
 use Bitrix\Socialnetwork\Integration\Pull\PushService;
+use Bitrix\Socialnetwork\Integration\Pull;
 use Bitrix\Socialnetwork\WorkgroupPinTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -534,13 +535,26 @@ class Workgroup
 
 	public static function isGroupCopyFeatureEnabled(): bool
 	{
-		return
-			!ModuleManager::isModuleInstalled('bitrix24')
-			|| (
-				Loader::includeModule('bitrix24')
-				&& \Bitrix\Bitrix24\Feature::isFeatureEnabled('socnet_group_copy')
-			)
-		;
+		$isB24Installed = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
+		
+		if (!$isB24Installed)
+		{
+			return true;
+		}
+		
+		return Feature::isFeatureEnabled(Feature::PROJECTS_COPY);
+	}
+
+	public static function isProjectAccessFeatureEnabled(): bool
+	{
+		$isB24Installed = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
+
+		if (!$isB24Installed)
+		{
+			return true;
+		}
+
+		return Feature::isFeatureEnabled(Feature::PROJECTS_ACCESS_PERMISSIONS);
 	}
 
 	public static function setArchive(array $fields = []): bool
@@ -1259,6 +1273,11 @@ class Workgroup
 			throw new \Exception($errorMessage, 100);
 		}
 
+		(new Pull\Unsubscribe())->resetByTags(
+			(new Pull\Tag())->getTasksProjects($groupId),
+			[$userId]
+		);
+
 		return true;
 	}
 
@@ -1939,7 +1958,7 @@ class Workgroup
 		{
 			$result['group-landing'] = [
 				'SORT' => $sort += 10,
-				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2'),
+				'NAME' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2_MSGVER_1'),
 				'DESCRIPTION' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2_MSGVER_2'),
 				'DESCRIPTION2' => Loc::getMessage('SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2_MSGVER_2'),
 				'VISIBLE' => 'N',
@@ -2389,7 +2408,7 @@ class Workgroup
 
 		foreach ($features as $feature)
 		{
-			$activeFeaturesList = \CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $ids, $feature);
+			$activeFeaturesList = (array)\CSocNetFeatures::isActiveFeature(SONET_ENTITY_GROUP, $ids, $feature);
 			$filteredIds = array_keys(array_filter($activeFeaturesList, static function($val) { return $val; }));
 
 			if (

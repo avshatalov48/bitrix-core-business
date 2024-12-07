@@ -234,9 +234,6 @@ else
 			
 			$arResult["Urls"]["VideoCall"] = CComponentEngine::MakePathFromTemplate($arParams["PATH_TO_VIDEO_CALL"], array("user_id" => $arResult["User"]["ID"]));
 			
-			if(!CModule::IncludeModule("video"))
-				$arResult["CurrentUserPerms"]["Operations"]["videocall"] = false;
-
 			$arResult["IS_ONLINE"] = ($arResult["User"]["IS_ONLINE"] == "Y");
 
 			if ($arResult["User"]['PERSONAL_BIRTHDAY'] <> '')

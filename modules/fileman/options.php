@@ -24,7 +24,7 @@ function isValidLang($lang)
 	return $is_valid_lang;
 }
 
-if ($REQUEST_METHOD=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && ($RestoreDefaults ?? null) <> '' && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="GET" && $USER->CanDoOperation('fileman_edit_all_settings') && ($RestoreDefaults ?? null) <> '' && check_bitrix_sessid())
 {
 	COption::RemoveOption("fileman");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -39,7 +39,7 @@ IncludeModuleLangFile(__FILE__);
 //Default file extensions;
 $script_files_default = "php,php3,php4,php5,php6,phtml,pl,asp,aspx,cgi,exe,ico,shtm,shtml";
 
-if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_edit_all_settings') && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_edit_all_settings') && check_bitrix_sessid())
 {
 	if($default_edit!="html" && $default_edit!="php")
 		$default_edit="text";
@@ -446,7 +446,7 @@ if($REQUEST_METHOD == "POST" && $Update <> '' && $USER->CanDoOperation('fileman_
 }
 
 
-if ($REQUEST_METHOD=="GET" && isset($_GET['load_dic']) &&
+if ($_SERVER['REQUEST_METHOD']=="GET" && isset($_GET['load_dic']) &&
 	$USER->CanDoOperation('fileman_edit_all_settings') &&
 	COption::GetOptionString($module_id, "use_editor_3", "N") == "Y")
 {

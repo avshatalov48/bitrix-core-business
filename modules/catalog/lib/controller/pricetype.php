@@ -1,19 +1,17 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
 
-
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Rest\Event\EventBindInterface;
 use Bitrix\Rest\RestException;
 
 final class PriceType extends Controller implements EventBindInterface
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+	use CheckExists; // default implementation of existence check
 	use PriceTypeRights;
 
 	const EVENT_ON_ADD = 'OnGroupAdd';
@@ -50,7 +48,7 @@ final class PriceType extends Controller implements EventBindInterface
 			return null;
 		}
 
-		return ['PRICE_TYPE' => $this->get($addResult)];
+		return [$this->getServiceItemName() => $this->get($addResult)];
 	}
 
 	/**
@@ -84,7 +82,7 @@ final class PriceType extends Controller implements EventBindInterface
 			return null;
 		}
 
-		return ['PRICE_TYPE' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**
@@ -125,42 +123,18 @@ final class PriceType extends Controller implements EventBindInterface
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRICE_TYPE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		return new Page(
-			'PRICE_TYPES',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
-	 * @param $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction($id): ?array
-	{
-		$r = $this->exists($id);
-		if ($r->isSuccess())
-		{
-			return ['PRICE_TYPE' => $this->get($id)];
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-			return null;
-		}
-	}
 	//endregion
 
 	/**
@@ -169,20 +143,6 @@ final class PriceType extends Controller implements EventBindInterface
 	protected function getEntityTable()
 	{
 		return new \Bitrix\Catalog\GroupTable();
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function exists($id)
-	{
-		$r = new Result();
-		if (isset($this->get($id)['ID']) == false)
-		{
-			$r->addError(new Error('Price type is not exists'));
-		}
-
-		return $r;
 	}
 
 	// rest-event region
@@ -206,13 +166,13 @@ final class PriceType extends Controller implements EventBindInterface
 	}
 
 	/**
-	 * @param array $arParams
-	 * @param array $arHandler
+	 * @param array $params
+	 * @param array $handler
 	 * @return array[]
 	 */
-	public static function processItemEvent(array $arParams, array $arHandler): array
+	public static function processItemEvent(array $params, array $handler): array
 	{
-		$id = $arParams[0] ?? null;
+		$id = $params[0] ?? null;
 		if (!$id)
 		{
 			throw new RestException('id not found trying to process event');
@@ -220,7 +180,7 @@ final class PriceType extends Controller implements EventBindInterface
 
 		return [
 			'FIELDS' => [
-				'ID' => $id
+				'ID' => $id,
 			],
 		];
 	}

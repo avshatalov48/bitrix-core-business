@@ -47,7 +47,7 @@ export class CallHelper
 
 	hasActiveCall(): boolean
 	{
-		return BX.MessengerProxy.getCallController().hasActiveCall();
+		return false;
 	}
 
 	getCurrentUserId(): number

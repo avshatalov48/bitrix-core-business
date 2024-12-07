@@ -572,8 +572,8 @@ abstract class ReportProductList extends ProductList
 					'NAME' => $product['FIELDS']['NAME'],
 					'IBLOCK_ID' => $product['FIELDS']['IBLOCK_ID'],
 					'SKU_IBLOCK_ID' => $product['FIELDS']['OFFERS_IBLOCK_ID'],
-					'SKU_ID' => $product['FIELDS']['OFFER_ID'],
-					'BASE_PRICE_ID' => $product['FIELDS']['BASE_PRICE_ID'],
+					'SKU_ID' => $product['FIELDS']['OFFER_ID'] ?? null,
+					'BASE_PRICE_ID' => $product['FIELDS']['BASE_PRICE_ID'] ?? null,
 				],
 				'SKU_TREE' => $product['FIELDS']['SKU_TREE'],
 				'MODE' => 'view',
@@ -719,6 +719,11 @@ abstract class ReportProductList extends ProductList
 				'TO' => $userFilter['<=REPORT_INTERVAL'],
 			];
 		}
+
+		$filter['@PRODUCT.TYPE'] = [
+			ProductTable::TYPE_PRODUCT,
+			ProductTable::TYPE_OFFER,
+		];
 
 		return $filter;
 	}

@@ -80,7 +80,7 @@ class CAllBlogSitePath
 				"SELECT P.ID, P.SITE_ID, P.PATH, P.TYPE ".
 				"FROM b_blog_site_path P ".
 				"WHERE P.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH_CACHE_".$ID] = $arResult;
@@ -110,7 +110,7 @@ class CAllBlogSitePath
 				"SELECT P.ID, P.SITE_ID, P.PATH, P.TYPE ".
 				"FROM b_blog_site_path P ".
 				"WHERE P.SITE_ID = '".$DB->ForSql($siteID)."' AND P.TYPE is null";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			while($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_SITE_PATH"]["BLOG_SITE_PATH1_CACHE_".$siteID] = $arResult;

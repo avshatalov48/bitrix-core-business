@@ -60,24 +60,25 @@ $blogModulePermissions = CMain::getGroupRight('blog');
 
 $arResult['SELECTOR_VERSION'] = (int)($arParams['SELECTOR_VERSION'] ?? 1);
 
-$arResult["SHOW_FULL_FORM"] = (
-	(
-		!empty($_POST)
-		&& (
-			!isset($_POST["TYPE"])
-			|| $_POST['TYPE'] !== 'AUTH'
-		)
-	)
-	|| $arParams["ID"] > 0
-	|| !empty($_REQUEST["WFILES"])
-	|| !empty($_REQUEST["bp_setting"])
-	|| $arResult['startVideoRecorder']
-	|| (
-		!empty($arParams["PAGE_ID"])
-		&& in_array($arParams["PAGE_ID"], array('user_blog_post_edit_profile', 'user_blog_post_edit_grat', 'user_blog_post_edit_post'))
-	)
-	|| $arResult['SELECTOR_VERSION'] >= 3
-);
+$arResult["SHOW_FULL_FORM"] = true;
+// $arResult["SHOW_FULL_FORM"] = (
+// 	(
+// 		!empty($_POST)
+// 		&& (
+// 			!isset($_POST["TYPE"])
+// 			|| $_POST['TYPE'] !== 'AUTH'
+// 		)
+// 	)
+// 	|| $arParams["ID"] > 0
+// 	|| !empty($_REQUEST["WFILES"])
+// 	|| !empty($_REQUEST["bp_setting"])
+// 	|| $arResult['startVideoRecorder']
+// 	|| (
+// 		!empty($arParams["PAGE_ID"])
+// 		&& in_array($arParams["PAGE_ID"], array('user_blog_post_edit_profile', 'user_blog_post_edit_grat', 'user_blog_post_edit_post'))
+// 	)
+// 	|| $arResult['SELECTOR_VERSION'] >= 3
+// );
 
 $arResult["ALLOW_EMAIL_INVITATION"] = (
 	ModuleManager::isModuleInstalled('mail')
@@ -544,8 +545,8 @@ if (
 {
 	$arPost = CBlogTools::htmlspecialcharsExArray($arPost);
 
-	$arPost['DETAIL_TEXT'] = preg_replace("/\[tag\](.+?)\[\/tag\]/is".BX_UTF_PCRE_MODIFIER, "\\1", $arPost['DETAIL_TEXT']);
-	$arPost['~DETAIL_TEXT'] = preg_replace("/\[tag\](.+?)\[\/tag\]/is".BX_UTF_PCRE_MODIFIER, "\\1", $arPost['~DETAIL_TEXT']);
+	$arPost['DETAIL_TEXT'] = preg_replace("/\[tag\](.+?)\[\/tag\]/isu", "\\1", $arPost['DETAIL_TEXT']);
+	$arPost['~DETAIL_TEXT'] = preg_replace("/\[tag\](.+?)\[\/tag\]/isu", "\\1", $arPost['~DETAIL_TEXT']);
 
 	$arResult["Post"] = $arPost;
 	if ($arParams['SET_TITLE'] === 'Y')
@@ -659,6 +660,16 @@ else
 }
 
 if (
+	$arParams['ID'] > 0
+	&& $arResult['perms'] >= BLOG_PERMS_FULL
+	&& (int) $arPost['BLOG_ID'] !== (int) $arBlog['ID']
+)
+{
+	$blog = \CBlog::getByID($arPost['BLOG_ID']);
+	$arBlog = $blog ?: $arBlog;
+}
+
+if (
 	isset($_GET['delete_blog_post_id'])
 	&& (int) $_GET['delete_blog_post_id'] > 0
 	&& $_GET['ajax_blog_post_delete'] === 'Y')
@@ -713,7 +724,7 @@ if (
 	|| (
 		$arParams["ID"] > 0
 		&& $arResult["perms"] >= BLOG_PERMS_FULL
-		&& (int)$arPost['BLOG_ID'] === (int)$arBlog['ID']
+		&& (int) $arPost['BLOG_ID'] === (int) $arBlog['ID']
 	)
 )
 {
@@ -751,17 +762,7 @@ if (
 		)
 	)
 	{
-		if (check_bitrix_sessid())
-		{
-			if (
-				isset($_POST['decode'])
-				&& $_POST['decode'] === 'Y'
-			)
-			{
-				CUtil::JSPostUnescape();
-			}
-		}
-		else
+		if (!check_bitrix_sessid())
 		{
 			$arResult["ERROR_MESSAGE"] .= GetMessage("BPE_SESS");
 		}
@@ -1056,26 +1057,23 @@ if (
 						"BACKGROUND_CODE" => false
 					);
 
-					if (\Bitrix\Main\Config\Configuration::getValue("utf_mode") === true)
+					$conn = \Bitrix\Main\Application::getConnection();
+					$table = \Bitrix\Blog\PostTable::getTableName();
+
+					if (
+						$arFields['TITLE'] <> ''
+						&& !$conn->isUtf8mb4($table, 'TITLE')
+					)
 					{
-						$conn = \Bitrix\Main\Application::getConnection();
-						$table = \Bitrix\Blog\PostTable::getTableName();
+						$arFields['TITLE'] = \Bitrix\Main\Text\Emoji::encode($arFields['TITLE']);
+					}
 
-						if (
-							$arFields['TITLE'] <> ''
-							&& !$conn->isUtf8mb4($table, 'TITLE')
-						)
-						{
-							$arFields['TITLE'] = \Bitrix\Main\Text\Emoji::encode($arFields['TITLE']);
-						}
-
-						if (
-							$arFields['DETAIL_TEXT'] <> ''
-							&& !$conn->isUtf8mb4($table, 'DETAIL_TEXT')
-						)
-						{
-							$arFields['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::encode($arFields['DETAIL_TEXT']);
-						}
+					if (
+						$arFields['DETAIL_TEXT'] <> ''
+						&& !$conn->isUtf8mb4($table, 'DETAIL_TEXT')
+					)
+					{
+						$arFields['DETAIL_TEXT'] = \Bitrix\Main\Text\Emoji::encode($arFields['DETAIL_TEXT']);
 					}
 
 					if (
@@ -1126,12 +1124,12 @@ if (
 					)
 					{
 						$arFields["MICRO"] = "Y";
-						$arFields["TITLE"] = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", blogTextParser::killAllTags($arFields["DETAIL_TEXT"]));
+						$arFields["TITLE"] = preg_replace(array("/\n+/isu", "/\s+/isu"), " ", blogTextParser::killAllTags($arFields["DETAIL_TEXT"]));
 
 						$parser = new CTextParser();
 						$parser->allow = array('CLEAR_SMILES' => 'Y');
 
-						$arFields["TITLE"] = preg_replace("/&nbsp;/is".BX_UTF_PCRE_MODIFIER, "", $parser->convertText($arFields["TITLE"]));
+						$arFields["TITLE"] = preg_replace("/&nbsp;/isu", "", $parser->convertText($arFields["TITLE"]));
 						$arFields["TITLE"] = trim($arFields["TITLE"], " \t\n\r\0\x0B\xA0");
 
 						$checkTitle = true;
@@ -1696,6 +1694,39 @@ if (
 								$bAdd = true;
 								$bNeedMail = false;
 							}
+
+							$analytics = \Bitrix\Socialnetwork\Helper\Analytics::getInstance();
+
+							$postType = '';
+							switch($this->request->get('changePostFormTab'))
+							{
+								case 'message':
+									$postType = $analytics::TYPE_POST;
+
+									break;
+								case 'vote':
+									$postType = $analytics::TYPE_POLL;
+
+									break;
+								case 'grat':
+									$postType = $analytics::TYPE_APPRECIATION;
+
+									break;
+								case 'important':
+									$postType = $analytics::TYPE_ANNOUNCEMENT;
+
+									break;
+							}
+
+							$analytics->onPostCreate(
+								$arParams['SOCNET_GROUP_ID'] > 0
+									? $analytics::SECTION_PROJECT
+									: $analytics::SECTION_FEED
+								,
+								'',
+								$newID > 0,
+								$postType,
+							);
 						}
 
 						if ((int)$newID > 0)
@@ -2670,7 +2701,7 @@ if (
 
 				if (empty($arResult['PostToShow']['FEED_DESTINATION']['SELECTED']))
 				{
-					$arResult['FATAL_MESSAGE'] .= Loc::getMessage('BLOG_SONET_MODULE_NOT_AVAIBLE');
+					$arResult['FATAL_MESSAGE'] = Loc::getMessage('BLOG_SONET_MODULE_NOT_AVAIBLE');
 				}
 			}
 			elseif ($bDefaultToAll)

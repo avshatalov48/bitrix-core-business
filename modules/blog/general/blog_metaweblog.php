@@ -624,7 +624,7 @@ class CBlogMetaWeblog
 					$dbCategory = CBlogCategory::GetList(Array(), Array("BLOG_ID" => $blogId));
 					while($arCat = $dbCategory->Fetch())
 					{
-						$arCatBlog[ToLower($arCat["NAME"])] = $arCat["ID"];
+						$arCatBlog[mb_strtolower($arCat["NAME"])] = $arCat["ID"];
 					}
 
 					if (intval($arBlog["SOCNET_GROUP_ID"]) > 0 && CModule::IncludeModule("socialnetwork") && method_exists("CSocNetGroup", "GetSite"))
@@ -640,10 +640,10 @@ class CBlogMetaWeblog
 					foreach($arCategory as $tg)
 					{
 						$tg = trim($tg);
-						if(!in_array($arCatBlog[ToLower($tg)], $CATEGORYtmp))
+						if(!in_array($arCatBlog[mb_strtolower($tg)], $CATEGORYtmp))
 						{
-							if(intval($arCatBlog[ToLower($tg)]) > 0)
-								$CATEGORYtmp[] = $arCatBlog[ToLower($tg)];
+							if(intval($arCatBlog[mb_strtolower($tg)]) > 0)
+								$CATEGORYtmp[] = $arCatBlog[mb_strtolower($tg)];
 							else
 							{
 								$CATEGORYtmp[] = CBlogCategory::Add(array("BLOG_ID" => $blogId, "NAME" => $tg));
@@ -828,16 +828,16 @@ class CBlogMetaWeblog
 					$dbCategory = CBlogCategory::GetList(Array(), Array("BLOG_ID" => $arPost["BLOG_ID"]));
 					while($arCat = $dbCategory->Fetch())
 					{
-						$arCatBlog[ToLower($arCat["NAME"])] = $arCat["ID"];
+						$arCatBlog[mb_strtolower($arCat["NAME"])] = $arCat["ID"];
 					}
 
 					foreach($arCategory as $tg)
 					{
 						$tg = trim($tg);
-						if(!in_array($arCatBlog[ToLower($tg)], $CATEGORYtmp))
+						if(!in_array($arCatBlog[mb_strtolower($tg)], $CATEGORYtmp))
 						{
-							if(intval($arCatBlog[ToLower($tg)]) > 0)
-								$CATEGORYtmp[] = $arCatBlog[ToLower($tg)];
+							if(intval($arCatBlog[mb_strtolower($tg)]) > 0)
+								$CATEGORYtmp[] = $arCatBlog[mb_strtolower($tg)];
 							else
 							{
 								$CATEGORYtmp[] = CBlogCategory::Add(array("BLOG_ID" => $arPost["BLOG_ID"], "NAME" => $tg));

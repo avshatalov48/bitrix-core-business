@@ -192,7 +192,6 @@ class MessageMail implements Message\iBase, Message\iMailable
 				'type' => Message\ConfigurationOption::TYPE_CHECKBOX,
 				'code' => 'TRACK_MAIL',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL'),
-				'hint' => Loc::getMessage('SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_TRACK_MAIL_HINT'),
 				'group' => Message\ConfigurationOption::GROUP_ADDITIONAL,
 				'show_in_list' => false,
 				'required' => false,
@@ -358,6 +357,19 @@ class MessageMail implements Message\iBase, Message\iMailable
 			$result = new Result();
 			$result->addError(new Error($exception->getMessage()));
 
+			return $result;
+		}
+
+		$sizeInBytes = mb_strlen($mailBody);
+		$sizeInKilobytes = $sizeInBytes / 1024;
+		$limitInKilobytes = 2.4 * 1024;
+		$saveAsTemplate = $this->configuration->get('save_as_template') === 'Y';
+
+		if ($saveAsTemplate && $sizeInKilobytes > $limitInKilobytes)
+		{
+			$result = new Result();
+
+			$result->addError(new Error(Loc::getMessage('SENDER_INTEGRATION_MAIL_BODY_LIMIT')));
 			return $result;
 		}
 

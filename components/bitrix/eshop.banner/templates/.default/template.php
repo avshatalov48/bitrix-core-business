@@ -1,9 +1,8 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 /** @var array $arParams */
 /** @var array $arResult */
-/** @global CMain $APPLICATION */
 /** @global CUser $USER */
-/** @global CDatabase $DB */
 /** @var CBitrixComponentTemplate $this */
 /** @var string $templateName */
 /** @var string $templateFile */
@@ -13,14 +12,16 @@
 $this->setFrameMode(true);
 ?>
 <div class="marketplace-banner">
-	<a href="http://marketplace.1c-bitrix.ru/?utm_source=demoshop&utm_medium=referral&utm_campaign=marketplace" target="_blank" class="marketplace-banner-link">
-		<?=GetMessage("ESHOP_BANNER_CONTENT")?>
+	<a href="https://marketplace.1c-bitrix.ru/?utm_source=demoshop&utm_medium=referral&utm_campaign=marketplace" target="_blank" class="marketplace-banner-link">
+		<?= GetMessage("ESHOP_BANNER_CONTENT"); ?>
 	</a>
-	<?if ($USER->IsAdmin()):?>
+	<?php
+	if ($USER->IsAdmin()):
+	?>
 	<a href="javascript:void(0)"
-	   class="marketplace-banner-close"
-	   onclick="eshopBannerClose(this.parentNode);">
-			<?=GetMessage("ESHOP_BANNER_CLOSE")?>
+		class="marketplace-banner-close"
+		onclick="eshopBannerClose(this.parentNode);">
+			<?= GetMessage("ESHOP_BANNER_CLOSE"); ?>
 	</a>
 
 	<script>
@@ -39,5 +40,7 @@ $this->setFrameMode(true);
 			);
 		}
 	</script>
-	<?endif?>
+	<?php
+	endif;
+	?>
 </div>

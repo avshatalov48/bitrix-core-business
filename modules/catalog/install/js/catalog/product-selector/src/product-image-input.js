@@ -1,6 +1,7 @@
-import {Runtime, Tag, Text, Type, Dom} from 'main.core';
+import { Runtime, Tag, Text, Type } from 'main.core';
+import { ProductSelector } from 'catalog.product-selector';
+
 import './component.css';
-import {ProductSelector} from 'catalog.product-selector';
 
 export class ProductImageInput
 {
@@ -48,12 +49,12 @@ export class ProductImageInput
 	restoreDefaultInputHtml(): void
 	{
 		const defaultInput = `
-			<div class='ui-image-input-container ui-image-input-img--disabled'>
-				<div class='adm-fileinput-wrapper '>
-					<div class='adm-fileinput-area mode-pict adm-fileinput-drag-area'></div>
+			<div class="ui-image-input-container ui-image-input-img--disabled">
+				<div class="adm-fileinput-wrapper">
+					<div class="adm-fileinput-area mode-pict adm-fileinput-drag-area"></div>
 				</div>
 			</div>
-`		;
+		`;
 
 		this.selector.getModel()?.getImageCollection().setEditInput(defaultInput);
 		this.selector.getModel()?.getImageCollection().setPreview(defaultInput);
@@ -72,11 +73,9 @@ export class ProductImageInput
 	layout(): HTMLElement
 	{
 		const imageContainer = Tag.render`<div></div>`;
-		const html =
-			this.isViewMode()
-				? this.selector.getModel()?.getImageCollection()?.getPreview()
-				: this.selector.getModel()?.getImageCollection()?.getEditInput()
-		;
+		const html = this.isViewMode()
+			? this.selector.getModel()?.getImageCollection()?.getPreview()
+			: this.selector.getModel()?.getImageCollection()?.getEditInput();
 
 		Runtime.html(imageContainer, html);
 

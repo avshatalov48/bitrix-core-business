@@ -3,7 +3,7 @@ import { LaunchPriority } from './launch-priority';
 import Launcher from './launcher';
 import LaunchItem from './launch-item';
 
-import type { LaunchItemOptions } from './launch-item-options';
+import type { LaunchItemOptions, LaunchItemCallback, LaunchItemContext } from './launch-item-options';
 
 export {
 	AutoLauncher,
@@ -14,4 +14,6 @@ export {
 
 export type {
 	LaunchItemOptions,
+	LaunchItemCallback,
+	LaunchItemContext,
 };

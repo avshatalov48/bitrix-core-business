@@ -62,16 +62,24 @@ class Sanitizer
 	{
 		return str_replace(
 			[
-				'<st yle ', '<st yle	',
-				' st yle="','	st yle="',
-				' st yle=\'','	st yle=\'',
+				'<st yle>',
+				'<st yle ',
+				'<st yle	',
+				' st yle="',
+				'	st yle="',
+				' st yle=\'',
+				'	st yle=\'',
 			],
 			[
-				'<style ', '<style	',
-				' style="','	style="',
-				' style=\'','	style=\'',
+				'<style>',
+				'<style ',
+				'<style	',
+				' style="',
+				'	style="',
+				' style=\'',
+				'	style=\'',
 			],
-			$html
+			$html,
 		);
 	}
 

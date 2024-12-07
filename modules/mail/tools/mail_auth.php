@@ -63,8 +63,8 @@ $APPLICATION->restartBuffer();
 header('Content-Type: application/x-javascript; charset=UTF-8');
 echo json_encode(array(
 	'result'  => $error === false ? $link : 'error',
-	'error'   => CharsetConverter::convertCharset($error, SITE_CHARSET, 'UTF-8'),
-	'backurl' => $backurl
+	'error'   => $error,
+	'backurl' => $backurl,
 ));
 
 require $_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_after.php';

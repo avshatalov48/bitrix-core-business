@@ -1,0 +1,18 @@
+.ui-countdown {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	margin: 10px;
+	width: 60px;
+	color: var(--ui-color-palette-gray-90);
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.ui-countdown__icon {
+	--ui-icon-set__icon-color: var(--ui-color-palette-gray-90);
+}
+
+.ui-countdown__time {
+	margin-left: 2px;
+}

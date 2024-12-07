@@ -1,13 +1,12 @@
-import string from '../../../../../../../salescenter/install/js/salescenter/deliveryselector/src/properties/string';
-import {BaseField} from "./base-field";
-import {Dom, Tag, Type} from "main.core";
+import { BaseField } from './base-field';
+import { Dom, Tag, Type } from 'main.core';
 
 export class ItemPicker extends BaseField
 {
 	#items: Array = [];
-	#selectNode: HTMLElement
-	#isMulti: boolean
-	#current
+	#selectNode: HTMLElement;
+	#isMulti: boolean;
+	#current;
 
 	constructor(params)
 	{

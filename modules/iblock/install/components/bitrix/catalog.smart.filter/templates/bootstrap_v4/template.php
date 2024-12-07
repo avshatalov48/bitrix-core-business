@@ -148,7 +148,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 							"colorAvailableInactive" => 'colorAvailableInactive_'.$key,
 						);
 						?>
-						<script type="text/javascript">
+						<script>
 							BX.ready(function(){
 								window['trackBar<?=$key?>'] = new BX.Iblock.SmartFilter(<?=CUtil::PhpToJSObject($arJsParams)?>);
 							});
@@ -284,7 +284,7 @@ if (isset($templateData['TEMPLATE_THEME']))
 										"colorAvailableInactive" => 'colorAvailableInactive_'.$key,
 									);
 									?>
-										<script type="text/javascript">
+										<script>
 											BX.ready(function(){
 												window['trackBar<?=$key?>'] = new BX.Iblock.SmartFilter(<?=CUtil::PhpToJSObject($arJsParams)?>);
 											});
@@ -736,6 +736,6 @@ if (isset($templateData['TEMPLATE_THEME']))
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	var smartFilter = new JCSmartFilter('<?echo CUtil::JSEscape($arResult["FORM_ACTION"])?>', '<?=CUtil::JSEscape($arParams["FILTER_VIEW_MODE"])?>', <?=CUtil::PhpToJSObject($arResult["JS_FILTER_PARAMS"])?>);
 </script>

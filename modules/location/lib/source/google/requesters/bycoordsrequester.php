@@ -9,11 +9,11 @@ namespace Bitrix\Location\Source\Google\Requesters;
  */
 final class ByCoordsRequester extends BaseRequester
 {
-	protected $url = 'https://maps.googleapis.com/maps/api/place/geocode/json';
+	protected $url = 'https://maps.googleapis.com/maps/api/geocode/json';
 	protected $requiredFields = ['latlng', 'language', 'key'];
 
 	protected function makeUrl(array $data): string
 	{
-		return parent::makeUrl($data).'&location_type=ROOFTOP';
+		return parent::makeUrl($data) . '&location_type=ROOFTOP';
 	}
 }

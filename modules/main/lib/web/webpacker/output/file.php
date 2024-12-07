@@ -15,7 +15,7 @@ use Bitrix\Main\Web\MimeType;
  */
 class File extends Base
 {
-	protected $id;
+	protected ?int $id = null;
 	protected $moduleId;
 	protected $uploadDir;
 	protected $dir;
@@ -78,12 +78,13 @@ class File extends Base
 	/**
 	 * Set file ID.
 	 *
-	 * @param int $id File ID.
+	 * @param int|null $id File ID.
 	 * @return $this
 	 */
-	public function setId($id)
+	public function setId(?int $id): static
 	{
 		$this->id = $id;
+
 		return $this;
 	}
 
@@ -92,7 +93,7 @@ class File extends Base
 	 *
 	 * @return int|null
 	 */
-	public function getId()
+	public function getId(): ?int
 	{
 		return $this->id;
 	}

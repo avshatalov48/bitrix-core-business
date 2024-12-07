@@ -13,6 +13,7 @@ use Bitrix\Catalog\Access\IblockRule\Factory\IblockRuleFactory;
 use Bitrix\Catalog\Access\Install\AccessInstaller\InstallStatus;
 use Bitrix\Catalog\Access\Rule\BaseRule;
 use Bitrix\Catalog\Access\Rule\VariableRule;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Main\Access\BaseAccessController;
 use Bitrix\Catalog\Access\Model\UserModel;
@@ -67,6 +68,14 @@ class AccessController extends BaseAccessController
 		if (!ModuleManager::isModuleInstalled('crm') || InstallStatus::inProgress())
 		{
 			return $this->checkLegacy($action);
+		}
+
+		if (
+			$action === ActionDictionary::ACTION_CATALOG_READ
+			&& State::isExternalCatalog()
+		)
+		{
+			return true;
 		}
 
 		$params ??= [];

@@ -43,7 +43,7 @@ else
 			"DEVICE_TYPE" => $_REQUEST["device_type"],
 			"DEVICE_ID" => $uuid,
 			"DEVICE_TOKEN" => $token,
-			"DATE_AUTH" => ConvertTimeStamp(getmicrotime(), "FULL"),
+			"DATE_AUTH" => ConvertTimeStamp(microtime(true), "FULL"),
 			"APP_ID" => $app_id
 		);
 

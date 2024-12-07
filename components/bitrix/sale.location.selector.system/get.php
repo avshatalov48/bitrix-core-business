@@ -21,8 +21,6 @@ $data = array();
 
 try
 {
-	CUtil::JSPostUnescape();
-
 	if ($request->get('REQUEST_TYPE') === 'get-path')
 	{
 		$data = CBitrixLocationSelectorSystemComponent::processGetPathRequest($_REQUEST);

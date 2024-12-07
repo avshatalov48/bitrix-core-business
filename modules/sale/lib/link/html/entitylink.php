@@ -4,6 +4,7 @@ namespace Bitrix\Sale\Link\Html;
 
 use Bitrix\Crm\Service\Container;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Text\HtmlFilter;
 use CCrmOwnerType;
 
 Loader::requireModule('crm');
@@ -104,14 +105,21 @@ class EntityLink
 	 */
 	public function render(): string
 	{
-		$href = htmlspecialcharsbx($this->href);
-		$label = $this->getLabel();
+		$href = HtmlFilter::encode($this->href);
+
+		$sanitizer = new \CBXSanitizer();
+		$sanitizer->setLevel(\CBXSanitizer::SECURE_LEVEL_HIGH);
+		$sanitizer->ApplyDoubleEncode(false);
+
+		$label = $sanitizer->SanitizeHtml($this->getLabel());
+
+		unset($sanitizer);
 
 		if (!$href)
 		{
 			return $label;
 		}
 
-		return "<a href=\"{$href}\">{$label}</a>";
+		return '<a href="' . $href . '">' . $label . '</a>';
 	}
 }

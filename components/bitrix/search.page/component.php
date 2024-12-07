@@ -27,29 +27,29 @@ if(!isset($arParams["CACHE_TIME"]))
 // activation rating
 CRatingsComponentsMain::GetShowRating($arParams);
 
-$arParams["SHOW_WHEN"] = $arParams["SHOW_WHEN"]=="Y";
-$arParams["SHOW_WHERE"] = $arParams["SHOW_WHERE"]!="N";
-if(!is_array($arParams["arrWHERE"]))
+$arParams["SHOW_WHEN"] = isset($arParams["SHOW_WHEN"]) && $arParams["SHOW_WHEN"] === "Y";
+$arParams["SHOW_WHERE"] = !isset($arParams["SHOW_WHERE"]) || $arParams["SHOW_WHERE"]!="N";
+if(!isset($arParams["arrWHERE"]) || !is_array($arParams["arrWHERE"]))
 	$arParams["arrWHERE"] = array();
 $arParams["PAGE_RESULT_COUNT"] = intval($arParams["PAGE_RESULT_COUNT"]);
-if($arParams["PAGE_RESULT_COUNT"]<=0)
+if(!isset($arParams["PAGE_RESULT_COUNT"]) || $arParams["PAGE_RESULT_COUNT"]<=0)
 	$arParams["PAGE_RESULT_COUNT"] = 50;
 
-$arParams["PAGER_TITLE"] = trim($arParams["PAGER_TITLE"]);
+$arParams["PAGER_TITLE"] = trim($arParams["PAGER_TITLE"] ?? '');
 if($arParams["PAGER_TITLE"] == '')
 	$arParams["PAGER_TITLE"] = GetMessage("SEARCH_RESULTS");
-$arParams["PAGER_SHOW_ALWAYS"] = $arParams["PAGER_SHOW_ALWAYS"]!="N";
-$arParams["USE_TITLE_RANK"] = $arParams["USE_TITLE_RANK"]=="Y";
-$arParams["PAGER_TEMPLATE"] = trim($arParams["PAGER_TEMPLATE"]);
+$arParams["PAGER_SHOW_ALWAYS"] = !isset($arParams["PAGER_SHOW_ALWAYS"]) || $arParams["PAGER_SHOW_ALWAYS"]!="N";
+$arParams["USE_TITLE_RANK"] = isset($arParams["USE_TITLE_RANK"]) && $arParams["USE_TITLE_RANK"]=="Y";
+$arParams["PAGER_TEMPLATE"] = trim($arParams["PAGER_TEMPLATE"] ?? '');
 
-if($arParams["DEFAULT_SORT"] !== "date")
+if(!isset($arParams["DEFAULT_SORT"]) || $arParams["DEFAULT_SORT"] !== "date")
 	$arParams["DEFAULT_SORT"] = "rank";
 
-if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 	$arFILTERCustom = array();
 else
 {
-	$arFILTERCustom = $GLOBALS[$arParams["FILTER_NAME"]];
+	$arFILTERCustom = $GLOBALS[$arParams["FILTER_NAME"]] ?? [];
 	if(!is_array($arFILTERCustom))
 		$arFILTERCustom = array();
 }
@@ -90,9 +90,9 @@ if(
 else
 	$to = "";
 
-$where = $arParams["SHOW_WHERE"]? trim($_REQUEST["where"]): "";
+$where = $arParams["SHOW_WHERE"] ? trim($_REQUEST["where"] ?? ''): "";
 
-$how = trim($_REQUEST["how"]);
+$how = trim($_REQUEST["how"] ?? '');
 if($how == "d")
 	$how = "d";
 elseif($how == "r")
@@ -149,8 +149,11 @@ if($obCache->StartDataCache($arParams["CACHE_TIME"], $this->GetCacheID(), "/".SI
 	// Creating of an array for drop-down list
 	foreach($arParams["arrWHERE"] as $code)
 	{
-		list($module_id, $part_id) = explode("_", $code, 2);
-		if($module_id <> '')
+		$parts = explode("_", $code, 2);
+		$module_id = $parts[0] ?? '';
+		$part_id = $parts[1] ?? '';
+
+		if(!empty($module_id))
 		{
 			if($part_id == '')
 			{
@@ -205,7 +208,7 @@ $arResult["REQUEST"]["TO"] = htmlspecialcharsbx($to);
 
 if($q!==false)
 {
-	if($arParams["USE_LANGUAGE_GUESS"] == "N" || isset($_REQUEST["spell"]))
+	if((isset($arParams["USE_LANGUAGE_GUESS"]) && $arParams["USE_LANGUAGE_GUESS"] == "N") || isset($_REQUEST["spell"]))
 	{
 		$arResult["REQUEST"]["~QUERY"] = $q;
 		$arResult["REQUEST"]["QUERY"] = htmlspecialcharsex($q);
@@ -311,7 +314,7 @@ if($this->InitComponentTemplate($templatePage))
 		//When restart option is set we will ignore error on query with only stop words
 		$obSearch->SetOptions(array(
 			"ERROR_ON_EMPTY_STEM" => $arParams["RESTART"] != "Y",
-			"NO_WORD_LOGIC" => $arParams["NO_WORD_LOGIC"] == "Y",
+			"NO_WORD_LOGIC" => isset($arParams["NO_WORD_LOGIC"]) && $arParams["NO_WORD_LOGIC"] == "Y",
 		));
 
 		$obSearch->Search($arFilter, $aSort, $exFILTER);

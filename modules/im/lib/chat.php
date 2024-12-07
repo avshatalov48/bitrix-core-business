@@ -3,7 +3,7 @@ namespace Bitrix\Im;
 
 use Bitrix\Im\Model\BlockUserTable;
 use Bitrix\Im\V2\Chat\EntityLink;
-use Bitrix\Im\V2\Integration\AI\AIHelper;
+use Bitrix\Im\V2\Chat\GeneralChannel;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Message\Delete\DisappearService;
 use Bitrix\Im\V2\Message\ReadService;
@@ -35,10 +35,18 @@ class Chat
 
 	public static function getTypes()
 	{
-		return Array(self::TYPE_GROUP, self::TYPE_OPEN_LINE, self::TYPE_OPEN, self::TYPE_THREAD, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT);
+		return [
+			self::TYPE_GROUP,
+			self::TYPE_OPEN_LINE,
+			self::TYPE_OPEN,
+			self::TYPE_THREAD,
+			\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT,
+			\Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL,
+			\Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL,
+		];
 	}
 
-	public static function getType($chatData)
+	public static function getType($chatData, bool $camelCase = true)
 	{
 		$messageType = $chatData["TYPE"] ?? $chatData["CHAT_TYPE"] ?? '';
 		$entityType = $chatData["ENTITY_TYPE"] ?? $chatData["CHAT_ENTITY_TYPE"] ?? '';
@@ -58,24 +66,44 @@ class Chat
 
 		if ($messageType == IM_MESSAGE_PRIVATE)
 		{
-			$result = 'private';
+			$result = 'PRIVATE';
 		}
 		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
 		{
-			$result = 'copilot';
+			$result = 'COPILOT';
+		}
+		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL)
+		{
+			$result = 'CHANNEL';
+		}
+		else if (isset($chatId) && $chatId === GeneralChannel::getGeneralChannelId())
+		{
+			$result = 'GENERAL_CHANNEL';
+		}
+		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL)
+		{
+			$result = 'OPEN_CHANNEL';
+		}
+		else if ($messageType === \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT)
+		{
+			$result = 'COMMENT';
 		}
 		else if (!empty($entityType))
 		{
-			// convert to camelCase
-			$result = str_replace('_', '', lcfirst(ucwords(mb_strtolower($entityType), '_')));
+			$result = $entityType;
 		}
 		else if ($chatId && $chatId === (int)\CIMChat::GetGeneralChatId())
 		{
-			$result = 'general';
+			$result = 'GENERAL';
 		}
 		else
 		{
-			$result = $messageType == IM_MESSAGE_OPEN? 'open': 'chat';
+			$result = $messageType == IM_MESSAGE_OPEN? 'OPEN': 'CHAT';
+		}
+
+		if ($camelCase)
+		{
+			$result = Converter::toJson()->process($result);
 		}
 
 		return htmlspecialcharsbx($result);
@@ -1035,6 +1063,8 @@ class Chat
 
 		return Array(
 			'ID' => (int)$chat['ID'],
+			'PARENT_CHAT_ID' => (int)$chat['PARENT_ID'],
+			'PARENT_MESSAGE_ID' => (int)$chat['PARENT_MID'],
 			'NAME' => $chat['TITLE'],
 			'DESCRIPTION' => $chat['DESCRIPTION'],
 			'OWNER' => (int)$chat['AUTHOR_ID'],
@@ -1063,14 +1093,15 @@ class Chat
 			'PUBLIC' => $publicOption,
 			'ROLE' => mb_strtolower(self::getRole($chat)),
 			'ENTITY_LINK' => EntityLink::getInstance(\CIMChat::initChatByArray($chat))->toArray(),
-			'AI_PROVIDER' => $chatType === 'copilot' ? AIHelper::getProviderName() : null,
 			'PERMISSIONS' => [
 				'MANAGE_USERS_ADD' => mb_strtolower((string)$chat['MANAGE_USERS_ADD']),
 				'MANAGE_USERS_DELETE' => mb_strtolower((string)$chat['MANAGE_USERS_DELETE']),
 				'MANAGE_UI' => mb_strtolower((string)$chat['MANAGE_UI']),
 				'MANAGE_SETTINGS' => mb_strtolower((string)$chat['MANAGE_SETTINGS']),
+				'MANAGE_MESSAGES' => mb_strtolower((string)$chat['CAN_POST']),
 				'CAN_POST' => mb_strtolower((string)$chat['CAN_POST']),
 			],
+			'IS_NEW' => \CIMChat::isNewChat($chat['TYPE'], $chat['DATE_CREATE']),
 		);
 	}
 

@@ -7,7 +7,6 @@
  */
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Data;
 
 /**

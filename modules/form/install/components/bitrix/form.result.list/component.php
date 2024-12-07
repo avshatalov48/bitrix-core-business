@@ -130,7 +130,7 @@ if (CModule::IncludeModule("form"))
 	else $arParams["arrNOT_SHOW_TABLE"]=array();
 
 	// deleting single form result
-	$del_id = intval($_REQUEST["del_id"]);
+	$del_id = intval($_REQUEST["del_id"] ?? 0);
 
 	if ($del_id > 0 && check_bitrix_sessid())
 	{
@@ -145,7 +145,7 @@ if (CModule::IncludeModule("form"))
 	}
 
 	// deleting multiple form results
-	if ($_REQUEST["delete"] && check_bitrix_sessid())
+	if (!empty($_REQUEST["delete"]) && check_bitrix_sessid())
 	{
 		$ARR_RESULT = $_REQUEST["ARR_RESULT"];
 		if (is_array($ARR_RESULT) && count($ARR_RESULT) > 0 && check_bitrix_sessid())
@@ -258,12 +258,12 @@ if (CModule::IncludeModule("form"))
 		}
 
 		$arParams["sess_filter"] = "FORM_RESULT_LIST_".$arParams["WEB_FORM_NAME"];
-		if ($_REQUEST["set_filter"] <> '')
+		if (!empty($_REQUEST["set_filter"]))
 			InitFilterEx($FilterArr,$arParams["sess_filter"],"set");
 		else
 			InitFilterEx($FilterArr,$arParams["sess_filter"],"get");
 
-		if ($_REQUEST["del_filter"] <> '')
+		if (!empty($_REQUEST["del_filter"]))
 		{
 			DelFilterEx($FilterArr,$arParams["sess_filter"]);
 		}
@@ -322,7 +322,7 @@ if (CModule::IncludeModule("form"))
 			}
 		}
 
-		if ($_POST['save'] <> '' && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
+		if (!empty($_POST['save']) && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
 		{
 			// update results
 			if (isset($_POST["RESULT_ID"]) && is_array($_POST["RESULT_ID"]))
@@ -342,8 +342,8 @@ if (CModule::IncludeModule("form"))
 		}
 
 		// get results list
-		$arParams["by"] = $_REQUEST["by"];
-		$arParams["order"] = $_REQUEST["order"];
+		$arParams["by"] = $_REQUEST["by"] ?? '';
+		$arParams["order"] = $_REQUEST["order"] ?? '';
 
 		$rsResults = CFormResult::GetList($arParams["WEB_FORM_ID"], $arParams["by"], $arParams["order"], $arFilter);
 
@@ -462,7 +462,7 @@ if (CModule::IncludeModule("form"))
 			}
 		}
 
-		if (is_array($arResult["arrAnswers"]))
+		if (isset($arResult["arrAnswers"]) && is_array($arResult["arrAnswers"]))
 		{
 			foreach ($arResult["arrAnswers"] as $res_key => $arrResult)
 			{

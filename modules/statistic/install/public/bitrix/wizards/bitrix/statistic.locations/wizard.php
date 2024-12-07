@@ -208,7 +208,7 @@ class Step3 extends CWizardStep
 		$this->content .= '<div id="wait_message" style="display: none;"></div>';
 		$this->content .= '<div id="output"><br /></div>';
 		$this->content .= '</div>';
-		$this->content .= '<script type="text/javascript">
+		$this->content .= '<script>
 
 var nextButtonID = "'.$wizard->GetNextButtonID().'";
 var formID = "'.$wizard->GetFormName().'";

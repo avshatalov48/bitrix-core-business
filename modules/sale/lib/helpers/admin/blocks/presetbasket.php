@@ -56,7 +56,7 @@ class PresetBasket extends OrderBasket
 			"SALE_ORDER_BASKET_COUPON_STATUS", "SALE_ORDER_BASKET_COUPON_APPLY", "SALE_ORDER_BASKET_COUPON_DELETE",
 			"SALE_ORDER_BASKET_POSITION_EXISTS", "SALE_ORDER_BASKET_ADD_COUPON_ERROR"
 		);
-		$result = '<script type="text/javascript">';
+		$result = '<script>';
 
 		foreach($langPhrases as $phrase)
 			$result .= ' BX.message({'.$phrase.': "'.\CUtil::jsEscape(Loc::getMessage($phrase)).'"});';

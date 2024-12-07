@@ -2,12 +2,20 @@
 namespace Bitrix\Rest;
 
 use Bitrix\Main;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ObjectPropertyException;
+use Bitrix\Main\SystemException;
+use Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Engine\Access;
+use Bitrix\Rest\Event\Sender;
+use Bitrix\Rest\FormConfig\EventType;
 use Bitrix\Rest\Marketplace\Client;
 use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
@@ -1284,5 +1292,44 @@ class AppTable extends Main\Entity\DataManager
 		}
 
 		return $result;
+	}
+}
+
+class App
+{
+	public function __construct(
+		private string $clientId
+	)
+	{
+	}
+
+	/**
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
+	 * @throws ArgumentException
+	 */
+	public function fetchAppFormConfig(array $formData, EventType $type): string
+	{
+		$appData = AppTable::getByClientId($this->clientId);
+		if (empty($appData['URL_SETTINGS']))
+		{
+			throw new ArgumentException('Property "URL_SETTINGS" is empty', 'URL_SETTINGS');
+		}
+		$uri = new Uri($appData['URL_SETTINGS']);
+		$httpClient = new HttpClient();
+		$params = Sender::getDefaultEventParams();
+		$params['sendRefreshToken'] = true;
+		$event = [
+			'event' => $type->value,
+			'data' => $formData,
+			'auth' => Sender::getAuth(
+				$this->clientId,
+				CurrentUser::get()->getId() ?? 0,
+				[],
+				$params
+			)
+		];
+
+		return $httpClient->post($uri, $event);
 	}
 }

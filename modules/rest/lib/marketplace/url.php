@@ -283,17 +283,6 @@ namespace Bitrix\Rest\Marketplace\Urls
 		];
 	}
 
-	class LocalApplication extends Templates
-	{
-		protected $directory = "marketplace/local/";
-		protected $pages = [
-			"index" => "",
-			"list" => "list/",
-			"detail" => "detail/#ID#/",
-			"edit" => "edit/#ID#/"
-		];
-	}
-
 	class Configuration extends Templates
 	{
 		protected $directory = 'marketplace/configuration/';
@@ -470,7 +459,6 @@ namespace Bitrix\Rest\Marketplace
 
 	use Bitrix\Rest\Marketplace\Urls\Marketplace as MarketplaceUrls;
 	use Bitrix\Rest\Marketplace\Urls\Application as ApplicationUrls;
-	use Bitrix\Rest\Marketplace\Urls\LocalApplication as LocalApplicationUrls;
 	use Bitrix\Rest\Marketplace\Urls\Configuration;
 	use Bitrix\Rest\Url\DevOps;
 
@@ -493,15 +481,6 @@ namespace Bitrix\Rest\Marketplace
 		public static function getApplicationUrl($id = null)
 		{
 			return ApplicationUrls::getInstance()->getDetailUrl($id);
-		}
-
-		/**
-		 * @see \Bitrix\Rest\Url\DevOps
-		 * @deprecated
-		 */
-		public static function getApplicationAddUrl()
-		{
-			return LocalApplicationUrls::getInstance()->getIndexUrl();
 		}
 		public static function getWidgetAddUrl()
 		{

@@ -339,8 +339,20 @@ if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 }
 else
 {
-	$lAdmin->DisplayFilter($filterFields);
-	$lAdmin->DisplayList();
+	$filterParams = [
+		'CONFIG' => [
+			'popupWidth' => 800,
+		],
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayFilter($filterFields, $filterParams);
+
+	$listParams = [
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayList($listParams);
 
 	echo BeginNote();
 	?><span id="order_sum"><?php print_r($order_sum); ?></span><?php

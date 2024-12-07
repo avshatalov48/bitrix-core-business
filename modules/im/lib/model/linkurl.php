@@ -156,7 +156,7 @@ class LinkUrlTable extends DataManager
 
 	public static function deleteByFilter(array $filter)
 	{
-		LinkUrlIndexTable::deleteByFilter($filter);
+		LinkUrlIndexTable::deleteByParentFilter($filter);
 		static::defaultDeleteByFilter($filter);
 	}
 

@@ -129,7 +129,7 @@ class ArrayField extends ScalarField
 	 */
 	public function encodeJson($value)
 	{
-		return Json::encode($value);
+		return Json::encode($value, 0);
 	}
 
 	/**

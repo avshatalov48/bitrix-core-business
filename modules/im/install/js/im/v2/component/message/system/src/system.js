@@ -1,7 +1,7 @@
 import { Type } from 'main.core';
 
 import { BaseMessage } from 'im.v2.component.message.base';
-import { DefaultMessageContent, ReactionSelector } from 'im.v2.component.message.elements';
+import { DefaultMessageContent } from 'im.v2.component.message.elements';
 
 import './system.css';
 
@@ -13,7 +13,6 @@ export const SystemMessage = {
 	components: {
 		BaseMessage,
 		DefaultMessageContent,
-		ReactionSelector,
 	},
 	props: {
 		item: {
@@ -50,7 +49,6 @@ export const SystemMessage = {
 		>
 			<div class="bx-im-message-system__container">
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>
 	`,

@@ -31,6 +31,7 @@
 		this.classNameOtherAgreements = params.classNameOtherAgreements || 'bx-landing-cookies-other-agreements';
 		this.classNameButtonSave = params.classNameButtonSave || 'bx-landing-cookies-button-save';
 		this.classNameButtonCancel = params.classNameButtonCancel || 'bx-landing-cookies-button-cancel';
+		this.classNameButtonCancelSmall = params.classNameButtonCancelSmall || 'bx-landing-cookies-button-cancel-second';
 		this.classNameButtonClose = params.classNameButtonClose || 'bx-landing-cookies-button-close';
 		this.classNameCookiesSwitcher = params.classNameCookiesSwitcher || 'bx-landing-cookies-switcher';
 		this.messages = params.messages || {};
@@ -93,7 +94,7 @@
 		 */
 		getAvailableHooks: function()
 		{
-			var codes = [];
+			let codes = [];
 			this.availableCodes.map(function(code)
 			{
 				if (!BX.util.in_array(code, codes))
@@ -109,7 +110,7 @@
 		 */
 		enableAllCookies: function()
 		{
-			var hooks = this.getAvailableHooks();
+			let hooks = this.getAvailableHooks();
 			this.setStorage(hooks);
 
 			this.hideSmallPopup();
@@ -129,7 +130,7 @@
 		 */
 		actualizeFromStorage: function()
 		{
-			var storage = this.getStorage(true);
+			let storage = this.getStorage(true);
 			if (storage !== null)
 			{
 				this.showCookiesNotice();
@@ -137,8 +138,25 @@
 			else
 			{
 				this.showSmallPopup();
+				this.initializeSmallPopup();
 			}
 			this.fireEvent(storage || []);
+		},
+
+		initializeSmallPopup: function()
+		{
+			if (this.idAgreementSmallPopup)
+			{
+				this.idButtonCancelSecond = BX(this.idAgreementSmallPopup).querySelector(
+					'.' + this.classNameButtonCancelSmall
+				);
+			}
+
+			if (this.idButtonCancelSecond)
+			{
+				BX.bind(BX(this.idButtonCancelSecond), 'click', BX.delegate(this.cancelPopup, this));
+			}
+
 		},
 
 		/**
@@ -233,7 +251,7 @@
 					{
 						this.idMainAgreementContainer.innerHTML = result.data['main']['AGREEMENT_TEXT'];
 					}
-					var agreementsLoaded = false;
+					let agreementsLoaded = false;
 					if (result.data['analytic'] && this.idAnalyticAgreementsContainer)
 					{
 						agreementsLoaded = true;
@@ -321,7 +339,7 @@
 		{
 			if (this.popupModified)
 			{
-				var agreementCodes = this.getAcceptedAgreements();
+				let agreementCodes = this.getAcceptedAgreements();
 				this.setStorage(agreementCodes);
 			}
 			else
@@ -339,7 +357,7 @@
 		{
 			if (this.popupModified)
 			{
-				var agreementCodes = this.currentStorage;
+				let agreementCodes = this.currentStorage;
 				this.setStorage(agreementCodes);
 			}
 			else
@@ -388,7 +406,7 @@
 		 */
 		getStorage: function(asIs)
 		{
-			var store = this.storage.getItem(this.storageKey);
+			let store = this.storage.getItem(this.storageKey);
 			if (store) {
 				store = JSON.parse(store);
 			}
@@ -438,20 +456,20 @@
 				return;
 			}
 
-			var globalSwitchersState = {};
+			let globalSwitchersState = {};
 			this.idButtonSwitcher.map(function(node)
 			{
-				var type = BX(node).getAttribute('data-type');
+				let type = BX(node).getAttribute('data-type');
 				globalSwitchersState[type] = BX(node).getAttribute('data-state') === 'true';
 			});
-			var setToState = globalSwitchersState[type] === true;
+			let setToState = globalSwitchersState[type] === true;
 
-			for (var key in this.agreementsChckRefs)
+			for (let key in this.agreementsChckRefs)
 			{
-				var switcher = BX.UI.Switcher.getById(key);
+				let switcher = BX.UI.Switcher.getById(key);
 				if (switcher)
 				{
-					var switcherType = switcher.getNode().getAttribute('data-type');
+					let switcherType = switcher.getNode().getAttribute('data-type');
 					if (switcherType === type)
 					{
 						switcher.check(setToState);
@@ -471,13 +489,13 @@
 		{
 			if (this.idButtonSwitcher)
 			{
-				var typesChecked = {};
-				for (var key in this.agreementsChckRefs)
+				let typesChecked = {};
+				for (let key in this.agreementsChckRefs)
 				{
-					var switcher = BX.UI.Switcher.getById(key);
+					let switcher = BX.UI.Switcher.getById(key);
 					if (switcher)
 					{
-						var type = switcher.getNode().getAttribute('data-type');
+						let type = switcher.getNode().getAttribute('data-type');
 						if (switcher.isChecked())
 						{
 							typesChecked[type] = true;
@@ -486,7 +504,7 @@
 				}
 				this.idButtonSwitcher.map(function(node)
 				{
-					var type = BX.data(BX(node), 'type');
+					let type = BX.data(BX(node), 'type');
 					if (typesChecked[type] === true)
 					{
 						BX(node).textContent = this.messages.switcherOff;
@@ -517,9 +535,9 @@
 		 */
 		getAcceptedAgreements: function()
 		{
-			var codes = [];
+			let codes = [];
 
-			for (var code in this.acceptedAgreements)
+			for (let code in this.acceptedAgreements)
 			{
 				if (this.acceptedAgreements[code] === true)
 				{
@@ -535,15 +553,15 @@
 		 */
 		initCheckboxes: function()
 		{
-			var codesFromStorage = this.getStorage();
+			let codesFromStorage = this.getStorage();
 			this.currentStorage = this.getStorage();
 
-			for (var key in this.agreementsChckRefs)
+			for (let key in this.agreementsChckRefs)
 			{
-				var switcher = BX.UI.Switcher.getById(key);
+				let switcher = BX.UI.Switcher.getById(key);
 				if (switcher)
 				{
-					var checked = BX.util.in_array(key, codesFromStorage) ||
+					let checked = BX.util.in_array(key, codesFromStorage) ||
 								switcher.getNode().getAttribute('data-type') !== 'analytic';
 					switcher.check(checked);
 					this.acceptAgreement(key, checked);
@@ -560,9 +578,9 @@
 		 */
 		buildAgreements: function(node, agreements)
 		{
-			var agreementsNodes = [];
+			let agreementsNodes = [];
 
-			for (var key in agreements)
+			for (let key in agreements)
 			{
 				this.agreementsChckRefs[key] = BX.create('span', {
 					attrs: {
@@ -628,7 +646,7 @@
 		showCookiesNoticeText: function()
 		{
 			this.cookiesNotice.classList.add('bx-landing-cookies-popup-notice-full');
-			var textWidth = this.cookiesNotice.querySelector('.bx-landing-cookies-popup-notice-text').offsetWidth;
+			let textWidth = this.cookiesNotice.querySelector('.bx-landing-cookies-popup-notice-text').offsetWidth;
 			this.cookiesNotice.style.width = this.cookiesNotice.offsetWidth + textWidth + 'px';
 		},
 

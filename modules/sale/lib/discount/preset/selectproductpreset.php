@@ -2,7 +2,6 @@
 
 namespace Bitrix\Sale\Discount\Preset;
 
-
 use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
@@ -10,26 +9,27 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 
-Loc::loadMessages(__FILE__);
-
 abstract class SelectProductPreset extends BasePreset
 {
 	protected function init()
 	{
 		parent::init();
 
-		if(!Loader::includeModule('iblock'))
+		if (!Loader::includeModule('iblock'))
 		{
 			throw new SystemException('Could not include iblock module');
 		}
 
-		\CJSCore::RegisterExt('select_product_preset', array(
-			'js' => '/bitrix/js/sale/admin/discountpreset/select_product_preset.js',
-			'lang' => '/bitrix/modules/sale/lang/' . LANGUAGE_ID . '/admin/js/discountpreset/select_product_preset.php',
-			'rel' => array('core'),
-		));
+		\CJSCore::RegisterExt(
+			'select_product_preset',
+			[
+				'js' => '/bitrix/js/sale/admin/discountpreset/select_product_preset.js',
+				'lang' => '/bitrix/modules/sale/lang/' . LANGUAGE_ID . '/admin/js/discountpreset/select_product_preset.php',
+				'rel' => ['core'],
+			]
+		);
 
-		\CUtil::InitJSCore(array('select_product_preset'));
+		\CJSCore::Init(['select_product_preset']);
 	}
 
 	protected function renderElementBlock(State $state, $inputName = 'discount_product', $multi = true)
@@ -75,7 +75,7 @@ abstract class SelectProductPreset extends BasePreset
 			</div>		
 		';
 	}
-	
+
 	protected function renderSectionBlock(State $state, $inputName = 'discount_section', $multi = true)
 	{
 		$fromInputName = $inputName;
@@ -289,7 +289,7 @@ abstract class SelectProductPreset extends BasePreset
 			),
 		);
 	}
-	
+
 	protected function generateProductsData($productIds, $siteId)
 	{
 		$productData = array();
@@ -325,16 +325,16 @@ abstract class SelectProductPreset extends BasePreset
 		}
 	}
 
-	private function cleanIds($ids)
+	private function cleanIds($ids): array
 	{
-		if(empty($ids))
+		if (empty($ids))
 		{
-			return array();
+			return [];
 		}
 
 		if (!is_array($ids))
 		{
-			return array();
+			return [];
 		}
 
 		return array_filter($ids);

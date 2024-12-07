@@ -102,7 +102,7 @@ $showWait = "BX.addClass(this,'adm-nav-page-active');setTimeout(BX.delegate(func
 
 <?if (!isset($_REQUEST['admin_history'])):?>
 	<? if (isset($_REQUEST["IFRAME"]) && $_REQUEST["IFRAME"] === "Y"): ?>
-		<script type="text/javascript">
+		<script>
 			BX.adminHistory.put(
 				'<?=CUtil::JSEscape($component->replaceUrlTemplate(($arResult["ALL_RECORDS"]? "all" : $arResult["CURRENT_PAGE"]), $arResult["PAGE_SIZE"]))?>',
 				BX.proxy((<?=$navFunction?>)?<?=$navFunction?>:<?=$navFunction?>,parent.<?=$arParams["TABLE_ID"]?>),
@@ -110,7 +110,7 @@ $showWait = "BX.addClass(this,'adm-nav-page-active');setTimeout(BX.delegate(func
 			);
 		</script>
 	<? else: ?>
-		<script type="text/javascript">
+		<script>
 			top.BX.adminHistory.put(
 				'<?=CUtil::JSEscape($component->replaceUrlTemplate(($arResult["ALL_RECORDS"]? "all" : $arResult["CURRENT_PAGE"]), $arResult["PAGE_SIZE"]))?>',
 				top.BX.proxy((top.<?=$navFunction?>)?top.<?=$navFunction?>:<?=$navFunction?>,parent.<?=$arParams["TABLE_ID"]?>),

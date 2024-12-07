@@ -6,7 +6,6 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 $statDB = CDatabase::GetModuleConnection('statistic');
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","adv_list.php");
 $strError = "";
 /***************************************************************************
@@ -14,7 +13,7 @@ $strError = "";
 ***************************************************************************/
 function CheckFields()
 {
-	global $strError, $str_REFERER1, $str_REFERER2, $err_mess, $ID, $statDB;
+	global $strError, $str_REFERER1, $str_REFERER2, $ID, $statDB;
 
 	$str = "";
 	if (trim($str_REFERER1) == '' && trim($str_REFERER2) == '')
@@ -30,7 +29,7 @@ function CheckFields()
 				REFERER1".(($str_REFERER1 <> '') ? "='".$statDB->ForSql($str_REFERER1,255)."'" : " is null")."
 			and REFERER2".(($str_REFERER2 <> '') ? "='".$statDB->ForSql($str_REFERER2,255)."'" : " is null")."
 			";
-		$a = $statDB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $statDB->Query($strSql);
 		if ($a->Fetch()) $str .= GetMessage("STAT_WRONG_REFERER")."<br>";
 	}
 	$strError .= $str;
@@ -78,7 +77,7 @@ if ($base_currency <> '')
 	}
 }
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	if($EVENTS_VIEW=="NOT_REF")
 		$EVENTS_VIEW="";
@@ -111,13 +110,13 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 		$arFields["REVENUE"] = round(doubleval($REVENUE)*$rate_revenue,2);
 
 		if($ID > 0)
-			$statDB->Update("b_stat_adv",$arFields,"WHERE ID = ".$ID, $err_mess.__LINE__);
+			$statDB->Update("b_stat_adv",$arFields,"WHERE ID = ".$ID);
 		else
-			$ID = $statDB->Insert("b_stat_adv", $arFields, $err_mess.__LINE__);
+			$ID = $statDB->Insert("b_stat_adv", $arFields);
 
 		if ($strError == '')
 		{
-			$statDB->Query("DELETE FROM b_stat_adv_searcher WHERE ADV_ID = ".$ID, false, $err_mess.__LINE__);
+			$statDB->Query("DELETE FROM b_stat_adv_searcher WHERE ADV_ID = ".$ID);
 			if (is_array($arSEARCHERS))
 			{
 				foreach ($arSEARCHERS as $searcher_id)
@@ -126,11 +125,11 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 						"ADV_ID" => "'".intval($ID)."'",
 						"SEARCHER_ID" => "'".intval($searcher_id)."'",
 					);
-					$statDB->Insert("b_stat_adv_searcher",$arFields, $err_mess.__LINE__);
+					$statDB->Insert("b_stat_adv_searcher",$arFields);
 				}
 			}
 
-			$statDB->Query("DELETE FROM b_stat_adv_page WHERE ADV_ID = ".$ID, false, $err_mess.__LINE__);
+			$statDB->Query("DELETE FROM b_stat_adv_page WHERE ADV_ID = ".$ID);
 
 			$arPAGES_TO = preg_split("/[\n\r]+/", $PAGES_TO);
 			if (is_array($arPAGES_TO))
@@ -146,7 +145,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 							"PAGE" => "'".$statDB->ForSql($page_to, 2000)."'",
 							"C_TYPE" => "'TO'",
 							);
-						$statDB->Insert("b_stat_adv_page",$arFields, $err_mess.__LINE__);
+						$statDB->Insert("b_stat_adv_page",$arFields);
 					}
 				}
 			}
@@ -165,7 +164,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 							"PAGE" => "'".$statDB->ForSql($page_from, 2000)."'",
 							"C_TYPE" => "'FROM'",
 							);
-						$statDB->Insert("b_stat_adv_page",$arFields, $err_mess.__LINE__);
+						$statDB->Insert("b_stat_adv_page",$arFields);
 					}
 				}
 			}
@@ -193,17 +192,17 @@ if (!($adv->ExtractFields()))
 else
 {
 	$strSql = "SELECT SEARCHER_ID FROM b_stat_adv_searcher WHERE ADV_ID = ".$ID;
-	$z = $statDB->Query($strSql, false, $err_mess.__LINE__);
+	$z = $statDB->Query($strSql);
 	while ($zr=$z->Fetch())
 		$arSEARCHERS[] = $zr["SEARCHER_ID"];
 
 	$strSql = "SELECT PAGE FROM b_stat_adv_page WHERE ADV_ID = ".$ID." and C_TYPE='TO'";
-	$z = $statDB->Query($strSql, false, $err_mess.__LINE__);
+	$z = $statDB->Query($strSql);
 	while($zr = $z->Fetch())
 		$arPAGES_TO[] = htmlspecialcharsbx($zr["PAGE"]);
 
 	$strSql = "SELECT PAGE FROM b_stat_adv_page WHERE ADV_ID = ".$ID." and C_TYPE='FROM'";
-	$z = $statDB->Query($strSql, false, $err_mess.__LINE__);
+	$z = $statDB->Query($strSql);
 	while($zr = $z->Fetch())
 		$arPAGES_FROM[] = htmlspecialcharsbx($zr["PAGE"]);
 }
@@ -335,7 +334,7 @@ $tabControl->BeginNextTab();
 		<td><?
 			$ref = $ref_id = array();
 			$strSql = "SELECT ID, NAME FROM b_stat_searcher WHERE ID>1 ORDER BY NAME";
-			$rs = $statDB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $statDB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				$ref[] = $ar["NAME"]." [".$ar["ID"]."]";

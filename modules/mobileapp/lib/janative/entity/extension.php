@@ -13,6 +13,7 @@ class Extension extends Base
 {
 	protected static array $modificationDates = [];
 	protected static array $dependencies = [];
+	protected static array $extensionCache = [];
 	protected static $paths = [];
 	public ?string $result = null;
 
@@ -22,6 +23,16 @@ class Extension extends Base
 	 * @param $identifier
 	 * @throws \Exception
 	 */
+	public static function getInstance($identifier): Extension
+	{
+		if (!isset(self::$extensionCache[$identifier]))
+		{
+			self::$extensionCache[$identifier] = new Extension($identifier);
+		}
+
+		return self::$extensionCache[$identifier];
+	}
+
 	public function __construct($identifier)
 	{
 		$identifier = Path::normalize($identifier);
@@ -142,7 +153,7 @@ JS;
 	 */
 	public static function getResolvedDependencyList($name, &$list = [], &$alreadyResolved = [], $margin = 0): array
 	{
-		$baseExtension = new Extension($name);
+		$baseExtension = Extension::getInstance($name);
 		$depsList = $baseExtension->getDependencyList();
 		$alreadyResolved[] = $name;
 		if (!empty($depsList))
@@ -150,7 +161,7 @@ JS;
 			$margin++;
 			foreach ($depsList as $ext)
 			{
-				$depExtension = new Extension($ext);
+				$depExtension = Extension::getInstance($ext);
 				$extDepsList = $depExtension->getDependencyList();
 				if (empty($extDepsList))
 				{

@@ -4,6 +4,7 @@ $MESS["IM_CHAT_APPOINT_OWNER_M"] = "#USER_1_NAME# assigned #USER_2_NAME# as owne
 $MESS["IM_CHAT_CREATE_F"] = "#USER_NAME# created a chat.";
 $MESS["IM_CHAT_CREATE_M"] = "#USER_NAME# created a chat.";
 $MESS["IM_CHAT_CREATE_WELCOME"] = "[b]Private chat created![/b][br]Communicate, share files and post comments.";
+$MESS["IM_CHAT_CREATE_WELCOME_MSGVER_1"] = "Group chat. Communicate, share files, leave comments and likes.";
 $MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# invited #USER_2_NAME# to chat.";
 $MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# invited #USER_2_NAME# to chat.";
 $MESS["IM_CHAT_NAME_FORMAT"] = "#COLOR# Chat ##NUMBER#";

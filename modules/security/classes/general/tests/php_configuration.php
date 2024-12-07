@@ -77,6 +77,18 @@ class CSecurityPhpConfigurationTest
 			"base_message_key" => "SECURITY_SITE_CHECKER_MAIL_ADD_HEADER",
 			"critical" => CSecurityCriticalLevel::LOW
 		),
+		"secure" => array(
+			"method" => "isPhpConfVarOn",
+			"params" => array("session.cookie_secure"),
+			"base_message_key" => "SECURITY_SITE_CHECKER_PHP_SECURE",
+			"critical" => CSecurityCriticalLevel::MIDDLE
+		),
+		"sameSite" => array(
+			"method" => "checkSamesite",
+			"params" => array("session.cookie_samesite"),
+			"base_message_key" => "SECURITY_SITE_CHECKER_PHP_SAMESITE",
+			"critical" => CSecurityCriticalLevel::MIDDLE
+		),
 	);
 
 	public function __construct()
@@ -190,6 +202,24 @@ class CSecurityPhpConfigurationTest
 	protected function isPhpConfVarNotEquals($name, $value)
 	{
 		return ini_get($name) != $value;
+	}
+
+	protected function checkSamesite($name)
+	{
+		$sameSite = ini_get($name);
+		$sameSite = mb_strtolower(trim($sameSite));
+
+		if ($sameSite === "" || $sameSite === "lax" || $sameSite === "strict")
+		{
+			return self::STATUS_PASSED;
+		}
+
+		if ($sameSite === "none" && $this->isPhpConfVarOn("session.cookie_secure"))
+		{
+			return self::STATUS_PASSED;
+		}
+
+		return self::STATUS_FAILED;
 	}
 
 }

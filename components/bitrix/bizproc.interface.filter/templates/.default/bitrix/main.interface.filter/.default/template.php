@@ -437,9 +437,7 @@ $isHidden = isset($arParams['HIDE_FILTER']) ? $arParams['HIDE_FILTER'] : false;
 		<?
 		endif;
 	endforeach;
-	if (!empty($_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"])):?>
-	<input type="hidden" name="SEF_APPLICATION_CUR_PAGE_URL" value="<?=htmlspecialcharsbx($_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"])?>">
-	<?endif?>
+	?>
 	<div class="bp-main-wrap-flat"<?=$isHidden ? ' style="display:none;"' : ''?>>
 		<div id="<?=htmlspecialcharsbx($containerID)?>" class="bx-filter-wrap">
 			<div class="bx-filter-wrap<?=$isFilterApplied ? ' bx-current-filter' : ''?><?=$isFilterFolded ? ' bx-filter-folded' : ''?>">

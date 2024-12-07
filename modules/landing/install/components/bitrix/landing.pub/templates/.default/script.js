@@ -66,14 +66,29 @@ this.BX.Landing = this.BX.Landing || {};
 	   */
 	  function SearchResult() {
 	    babelHelpers.classCallCheck(this, SearchResult);
+	    this.prepareSearchInput();
 	    this.scrollToFirstBlock();
 	  }
 
 	  /**
-	   * Finds first highlight word and scroll to it.
+	   * Prepare the search input field by populating it with the 'q' parameter value from the URL.
 	   * @return {void}
 	   */
 	  babelHelpers.createClass(SearchResult, [{
+	    key: "prepareSearchInput",
+	    value: function prepareSearchInput() {
+	      var params = new URLSearchParams(window.location.search);
+	      var qValue = params.get('q');
+	      var element = document.querySelector('[name="q"]');
+	      if (element && qValue) {
+	        element.value = qValue;
+	      }
+	    }
+	    /**
+	     * Finds first highlight word and scroll to it.
+	     * @return {void}
+	     */
+	  }, {
 	    key: "scrollToFirstBlock",
 	    value: function scrollToFirstBlock() {
 	      var result = document.querySelector('.landing-highlight');

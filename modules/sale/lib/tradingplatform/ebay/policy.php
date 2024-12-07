@@ -112,9 +112,6 @@ class Policy
 		$this->http->setHeader("X-EBAY-SOA-RESPONSE-DATA-FORMAT", "XML");
 		$this->http->setHeader("X-EBAY-SOA-SECURITY-TOKEN", $this->authToken);
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$data = Encoding::convertEncodingArray($data, SITE_CHARSET, 'UTF-8');
-
 		$result = $this->http->post(self::URL, $data);
 		$errors = $this->http->getError();
 
@@ -133,9 +130,6 @@ class Policy
 
 			if ($status != 200)
 				Ebay::log(Logger::LOG_LEVEL_INFO, "EBAY_POLICY_REQUEST_HTTP_ERROR", $operationName, 'HTTP error code: '.$status, $this->siteId);
-
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$result = Encoding::convertEncodingArray($result, 'UTF-8', SITE_CHARSET);
 		}
 
 		return $result;

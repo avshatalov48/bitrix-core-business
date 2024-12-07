@@ -1,4 +1,4 @@
-import { BotCommand } from 'im.v2.const';
+import { BotCommand, ColorToken } from 'im.v2.const';
 
 export type RawKeyboardButtonConfig = {
 	TEXT: string,
@@ -9,7 +9,7 @@ export type RawKeyboardButtonConfig = {
 	COMMAND_PARAMS: string,
 	DISPLAY: $Values<typeof KeyboardButtonDisplay>,
 	WIDTH: number,
-	BG_COLOR: string,
+	BG_COLOR_TOKEN?: $Values<typeof ColorToken>,
 	TEXT_COLOR: string,
 	BLOCK: 'Y' | 'N',
 	DISABLED: 'Y' | 'N',
@@ -31,7 +31,7 @@ export type KeyboardButtonConfig = {
 	commandParams?: string, // FOO|BAR
 	display: $Values<typeof KeyboardButtonDisplay>,
 	width: number,
-	bgColor?: string,
+	bgColorToken?: $Values<typeof ColorToken>,
 	textColor?: string,
 	block?: boolean,
 	disabled?: boolean,

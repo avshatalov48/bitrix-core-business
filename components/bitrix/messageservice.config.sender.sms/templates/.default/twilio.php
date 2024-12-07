@@ -33,7 +33,7 @@ if ($sender->isRegistered())
 	<div class="webform-small-button webform-small-button-transparent webform-cogwheel">
 		<span class="webform-button-icon"></span>
 	</div>
-	<script type="text/javascript">
+	<script>
 		BX.ready(
 			function ()
 			{

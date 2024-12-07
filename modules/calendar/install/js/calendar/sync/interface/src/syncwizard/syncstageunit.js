@@ -21,7 +21,7 @@ export default class SyncStageUnit
 		{
 			outerWrapper.appendChild(this.getContent());
 		}
-		
+
 		EventEmitter.emit('BX.Calendar.Sync.Interface.SyncStageUnit:onRenderDone');
 	}
 
@@ -32,18 +32,19 @@ export default class SyncStageUnit
 				<div class="calendar-sync__content-text --icon-check --disabled">${this.title}</div>
 			</div>
 		`;
+
 		return this.contentNode;
 	}
 
 	setDone()
 	{
 		this.doneStatus = true;
-		Dom.removeClass(this.contentNode.querySelector('.--icon-check'), '--disabled');
+		Dom.removeClass(this.contentNode?.querySelector('.--icon-check'), '--disabled');
 	}
 
 	setUndone()
 	{
 		this.doneStatus = false;
-		Dom.addClass(this.contentNode.querySelector('.--icon-check'), '--disabled');
+		Dom.addClass(this.contentNode?.querySelector('.--icon-check'), '--disabled');
 	}
 }

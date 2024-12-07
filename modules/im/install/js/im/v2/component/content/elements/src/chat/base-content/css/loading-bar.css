@@ -1,0 +1,42 @@
+.bx-im-content-chat__loading-bar {
+	--im-content-chat-loading-bar__background-color_gradient-background: #a6e2f5;
+	--im-content-chat-loading-bar__background-color_gradient-accent: #00ace3;
+
+	position: absolute;
+	top: -4px;
+	height: 4px;
+	width: 100%;
+
+	z-index: 110;
+	background:
+		repeating-linear-gradient(
+			to right,
+			var(--im-content-chat-loading-bar__background-color_gradient-background) 0%,
+			var(--im-content-chat-loading-bar__background-color_gradient-accent) 50%,
+			var(--im-content-chat-loading-bar__background-color_gradient-background) 100%
+		)
+		0 100%;
+	background-size: 200% auto;
+	opacity: 1;
+	animation-fill-mode: forwards;
+	animation-timing-function: linear;
+	animation: loading-bar 2s infinite;
+}
+
+@keyframes loading-bar {
+	0%   { background-position: 0 0; }
+	100% { background-position: -200% 0; }
+}
+
+.loading-bar-transition-enter-active,
+.loading-bar-transition-leave-active {
+	transition: opacity 0.2s;
+}
+
+.loading-bar-transition-enter-from {
+	opacity: 0;
+}
+
+.loading-bar-transition-leave-to {
+	opacity: 0;
+}

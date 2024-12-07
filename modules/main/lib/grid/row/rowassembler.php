@@ -2,6 +2,8 @@
 
 namespace Bitrix\Main\Grid\Row;
 
+use Generator;
+
 /**
  * Assembles row values.
  *
@@ -82,10 +84,8 @@ abstract class RowAssembler
 	/**
 	 * @return FieldAssembler[]
 	 */
-	private function getFilteredAssemblers(): array
+	private function getFilteredAssemblers(): Generator
 	{
-		$result = [];
-
 		foreach ($this->getAssemblers() as $fieldAssembler)
 		{
 			$assemblerColumnsIds = $fieldAssembler->getColumnIds();
@@ -95,16 +95,14 @@ abstract class RowAssembler
 			{
 				if (count($assemblerColumnsIds) !== count($columnsIds))
 				{
-					$result[] = $fieldAssembler->clone($columnsIds);
+					yield $fieldAssembler->clone($columnsIds);
 				}
 				else
 				{
-					$result[] = $fieldAssembler;
+					yield $fieldAssembler;
 				}
 			}
 		}
-
-		return $result;
 	}
 
 	/**

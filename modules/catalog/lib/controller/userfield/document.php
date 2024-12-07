@@ -13,9 +13,6 @@ use Bitrix\Main\UI\PageNavigation;
 
 class Document extends \Bitrix\Catalog\Controller\Controller
 {
-	protected const ITEM = 'DOCUMENT';
-	protected const LIST = 'DOCUMENTS';
-
 	public function updateAction($documentId, $fields): ?array
 	{
 		global $USER_FIELD_MANAGER;
@@ -47,7 +44,9 @@ class Document extends \Bitrix\Catalog\Controller\Controller
 
 		$USER_FIELD_MANAGER->Update($entityId, $documentId, $fields);
 
-		return [static::ITEM => $this->get($documentId)];
+		return [
+			$this->getServiceItemName() => $this->get($documentId),
+		];
 	}
 
 	private function prepareFileFieldsForUpdate(int $documentId, string $documentType, array $fields): array
@@ -84,7 +83,13 @@ class Document extends \Bitrix\Catalog\Controller\Controller
 		return null;
 	}
 
-	public function listAction(PageNavigation $pageNavigation, $select = [], $filter = [], $order = []): ?Page
+	public function listAction(
+		PageNavigation $pageNavigation,
+		$select = [],
+		$filter = [],
+		$order = [],
+		bool $__calculateTotalCount = true
+	): ?Page
 	{
 		if (!in_array('DOC_TYPE', $select, true))
 		{
@@ -121,8 +126,12 @@ class Document extends \Bitrix\Catalog\Controller\Controller
 			'offset' => $pageNavigation->getOffset(),
 			'limit' => $pageNavigation->getLimit(),
 		])->fetchAll();
-		
-		return new Page(static::LIST, $result, $tableClass::getCount($filter));
+
+		return new Page(
+			$this->getServiceListName(),
+			$result,
+			$__calculateTotalCount ? $tableClass::getCount($filter) : 0
+		);
 	}
 
 	public function addAction($fields)

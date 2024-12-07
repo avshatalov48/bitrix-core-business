@@ -1,0 +1,13 @@
+.calendar-open-events-list-item-attendee-counter {
+	display: flex;
+	align-items: center;
+	column-gap: 4px;
+	color: var(--ui-color-base-90);
+	font-size: var(--ui-font-size-xs);
+}
+
+.calendar-open-events-list-item-attendee-counter .ui-icon-set {
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+}
+

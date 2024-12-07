@@ -2,10 +2,10 @@
 
 namespace Bitrix\Calendar\Ui;
 
+use Bitrix\Calendar\Internals\Counter;
+
 class CountersManager
 {
-	private const INVITATION_COUNTER_ID = 'calendar';
-	private const COMMENTS_COUNTER_ID = 'calendar_comments';
 	private const RED_COLOR = 'DANGER';
 	private const GREEN_COLOR = 'SUCCESS';
 	private const EMPTY_COLOR = 'THEME';
@@ -14,7 +14,7 @@ class CountersManager
 
 	/**
 	 * Get list of counters available for calendar module
-	 * Implements static cache for for each user
+	 * Implements static cache for each user
 	 * @param $userId int id of the user for whom counters are requested
 	 * @return array list of counters
 	 */
@@ -22,10 +22,12 @@ class CountersManager
 	{
 		if (empty(self::$countersValues[$userId]))
 		{
+			$invites = Counter::getInstance($userId)->get(Counter\CounterDictionary::COUNTER_INVITES);
+
 			self::$countersValues[$userId] = [
 				'invitation' => [
-					'value' => \CUserCounter::GetValue($userId, self::INVITATION_COUNTER_ID),
-					'color' => self::getCounterColor(\CUserCounter::GetValue($userId, self::INVITATION_COUNTER_ID)),
+					'value' => $invites,
+					'color' => self::getCounterColor($invites),
 					'preset_id' => 'filter_calendar_meeting_status_q'
 				],
 				// 'comments' => \CUserCounter::GetValue($userId, self::COMMENTS_COUNTER_ID)

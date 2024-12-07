@@ -22,7 +22,7 @@
 ?>
 </div>
 <?if(isset($arParams["TITLE"])):?>
-	<script type="text/javascript">
+	<script>
 		app.setPageTitle({title: "<?=$arParams["TITLE"]?>"});
 	</script>
 <?endif;

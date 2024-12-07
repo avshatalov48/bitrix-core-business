@@ -63,7 +63,7 @@ class CBlogImage extends CAllBlogImage
 				$strSql =
 					"INSERT INTO b_blog_image(".$arInsert[0].") ".
 					"VALUES(".$arInsert[1].")";
-				$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$ID = intval($DB->LastID());
 
@@ -108,7 +108,7 @@ class CBlogImage extends CAllBlogImage
 				"UPDATE b_blog_image SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			unset($GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID]);
 
@@ -158,7 +158,7 @@ class CBlogImage extends CAllBlogImage
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -189,7 +189,7 @@ class CBlogImage extends CAllBlogImage
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -211,7 +211,7 @@ class CBlogImage extends CAllBlogImage
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

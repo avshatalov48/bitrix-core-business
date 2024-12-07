@@ -11,6 +11,6 @@
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.message({IDEA_SEARCH_DEFAULT:'<?=GetMessageJS("IDEA_SEARCH_DEFAULT")?>'});
 </script>

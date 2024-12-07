@@ -1,4 +1,9 @@
 .bx-im-attach-delimiter__container {
+	--im-attach-delimiter__background-color-base: var(--im-color-accent-blue);
+	--im-attach-delimiter__background-color-primary: var(--im-color-palette-blue-70);
+	--im-attach-delimiter__background-color-secondary: rgba(var(--im-color-palette-gray-90-rgb), 0.2);
+	--im-attach-delimiter__background-color-alert: var(--im-color-palette-red-50);
+
 	display: block;
 	height: 1px;
 	width: 300px;
@@ -7,4 +12,20 @@
 	margin-bottom: 7px;
 	background-color: #ccc;
 	font-size: 0;
+}
+
+.bx-im-attach-delimiter__container.base {
+	background-color: var(--im-attach-delimiter__background-color-base);
+}
+
+.bx-im-attach-delimiter__container.primary {
+	background-color: var(--im-attach-delimiter__background-color-primary);
+}
+
+.bx-im-attach-delimiter__container.secondary {
+	background-color: var(--im-attach-delimiter__background-color-secondary);
+}
+
+.bx-im-attach-delimiter__container.alert {
+	background-color: var(--im-attach-delimiter__background-color-alert);
 }

@@ -89,7 +89,7 @@ class MailboxDirectory extends \Bitrix\Mail\Internals\EO_MailboxDirectory implem
 		return false;
 	}
 
-	public function isInvisibleToCounters()
+	public function isInvisibleToCounters(): bool
 	{
 		if($this->isTrash() || $this->isSpam() || $this->isDraft() || $this->isOutcome())
 		{

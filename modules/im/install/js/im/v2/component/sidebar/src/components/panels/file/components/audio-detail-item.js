@@ -1,12 +1,12 @@
 import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
-import { Avatar, AvatarSize, AudioPlayer } from 'im.v2.component.elements';
+import { AudioPlayer } from 'im.v2.component.elements';
 
 import '../css/audio-detail-item.css';
 
 // @vue/component
 export const AudioDetailItem = {
 	name: 'AudioDetailItem',
-	components: { AudioPlayer, Avatar },
+	components: { AudioPlayer },
 	props: {
 		id: {
 			type: Number,
@@ -25,7 +25,6 @@ export const AudioDetailItem = {
 	},
 	computed:
 	{
-		AvatarSize: () => AvatarSize,
 		sidebarFileItem(): ImModelSidebarFileItem
 		{
 			return this.fileItem;
@@ -60,8 +59,9 @@ export const AudioDetailItem = {
 				:id="id"
 				:src="audioUrl" 
 				:file="file" 
+				:messageId="sidebarFileItem.messageId"
 				:timelineType="timelineType" 
-				:authorId="sidebarFileItem.authorId" 
+				:authorId="sidebarFileItem.authorId"
 				@contextMenuClick="onContextMenuClick"
 			/>
 		</div>

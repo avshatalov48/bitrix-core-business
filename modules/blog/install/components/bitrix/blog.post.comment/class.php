@@ -385,12 +385,6 @@ class CBlogPostCommentEdit extends CBitrixComponent
 
 					if(!empty($arPost["ID"]) && $_SERVER["REQUEST_METHOD"]=="POST" && !empty($_POST["post"]) && empty($_POST["preview"]))
 					{
-//						convert charset
-						if ($_POST["decode"] == "Y")
-						{
-							CUtil::JSPostUnescape();
-						}
-
 						if($this->arResult["Perm"] >= BLOG_PERMS_PREMODERATE)
 						{
 							if(check_bitrix_sessid())
@@ -824,7 +818,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 								$arAllow["CUT_ANCHOR"] = "Y";
 
 							$images = Array();
-							preg_match_all("/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/ies".BX_UTF_PCRE_MODIFIER, $_POST["comment"], $matches);
+							preg_match_all("/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/iesu", $_POST["comment"], $matches);
 							$res = CBlogImage::GetList(array(), array("POST_ID"=>$arPost["ID"], "BLOG_ID" => $arBlog["ID"], "USER_ID" => intval($user_id), "IS_COMMENT" => "Y"));
 							while($aImg = $res->Fetch())
 							{
@@ -1137,7 +1131,7 @@ class CBlogPostCommentEdit extends CBitrixComponent
 		}
 
 		$scriptStr = "
-			<script type=\"text/javascript\">
+			<script>
 				BX.ready(function(){
 					__blogLinkEntity({" .
 			CUtil::JSEscape($xmlId) . " : ['BG', " . $arParams["ID"] . ", '" . $arParams["LOG_ID"] . "']},";

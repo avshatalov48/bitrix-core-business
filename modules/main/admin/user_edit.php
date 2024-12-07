@@ -148,8 +148,6 @@ if(
 {
 	global $adminSidePanelHelper;
 
-	$adminSidePanelHelper->decodeUriComponent();
-
 	if(COption::GetOptionString('main', 'use_encrypted_auth', 'N') == 'Y')
 	{
 		//possible encrypted user password
@@ -493,7 +491,7 @@ $str_TIME_ZONE = '';
 $str_ADMIN_NOTES = '';
 
 $user = CUser::GetByID($ID);
-if(!$user->ExtractFields())
+if(!$user->NavNext(true, 'str_', true, false))
 {
 	$ID = 0;
 	$str_ACTIVE = "Y";
@@ -630,7 +628,7 @@ if($strError <> '')
 	$e = new CAdminException(array(array('text' => $strError)));
 	$message = new CAdminMessage(GetMessage("MAIN_ERROR_SAVING"), $e);
 	echo $message->Show();
-	//echo CAdminMessage::ShowMessage(Array("MESSAGE"=>$strError, "HTML"=>true, "TYPE"=>"ERROR"));
+	//CAdminMessage::ShowMessage(Array("MESSAGE"=>$strError, "HTML"=>true, "TYPE"=>"ERROR"));
 }
 
 //We have to explicitly call calendar and editor functions because
@@ -766,7 +764,7 @@ if(!CMain::IsHTTPS() && COption::GetOptionString('main', 'use_encrypted_auth', '
 					<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
 				</span>
 				</noscript>
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </script>
 <?endif?>
@@ -798,7 +796,7 @@ $tabControl->AddCheckBoxField("PASSWORD_EXPIRED", GetMessage("main_user_edit_pas
 		<tr>
 		<td><?echo $tabControl->GetCustomLabelHTML()?></td>
 		<td>
-<script type="text/javascript">
+<script>
 function BXAuthSwitch(val)
 {
 	BX('bx_user_info_event').disabled = (val != '');

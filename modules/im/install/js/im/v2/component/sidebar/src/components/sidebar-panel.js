@@ -11,6 +11,7 @@ import { MembersPanel } from './panels/members/members-panel';
 import { FavoritePanel } from './panels/info/favorite-panel';
 import { MessageSearchPanel } from './panels/message-search/message-search-panel';
 import { ChatsWithUserPanel } from './panels/chats-with-user/chats-with-user-panel';
+import { MultidialogPanel } from './panels/multidialog/multidialog-panel';
 
 import '../css/sidebar-panel.css';
 import '../css/detail.css';
@@ -30,6 +31,7 @@ export const SidebarPanel = {
 		MarketPanel,
 		MessageSearchPanel,
 		FileUnsortedPanel,
+		MultidialogPanel,
 	},
 	props:
 	{

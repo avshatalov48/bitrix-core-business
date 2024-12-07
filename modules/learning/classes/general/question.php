@@ -18,7 +18,7 @@ class CLQuestion
 				$arMsg[] = array("id"=>"FILE_ID", "text"=> $error);
 		}
 
-		if($this->LAST_ERROR == '')
+		if(empty($this->LAST_ERROR))
 		{
 			if (
 				($ID === false && !is_set($arFields, "LESSON_ID"))
@@ -146,9 +146,9 @@ class CLQuestion
 			unset($arFields["ID"]);
 
 			$arBinds=Array(
-				"DESCRIPTION"       => $arFields["DESCRIPTION"],
-				'COMMENT_TEXT'      => $arFields['COMMENT_TEXT'],
-				'INCORRECT_MESSAGE' => $arFields['INCORRECT_MESSAGE']
+				"DESCRIPTION"       => $arFields["DESCRIPTION"] ?? '',
+				'COMMENT_TEXT'      => $arFields['COMMENT_TEXT'] ?? '',
+				'INCORRECT_MESSAGE' => $arFields['INCORRECT_MESSAGE'] ?? ''
 			);
 
 			if (
@@ -168,7 +168,7 @@ class CLQuestion
 			if ($strUpdate !== '')
 			{
 				$strSql = "UPDATE b_learn_question SET ".$strUpdate." WHERE ID=".$ID;
-				$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->QueryBind($strSql, $arBinds);
 			}
 
 			foreach(GetModuleEvents('learning', 'OnAfterQuestionUpdate', true) as $arEvent)
@@ -188,7 +188,7 @@ class CLQuestion
 		if ($ID < 1) return false;
 
 		$strSql = "SELECT FILE_ID FROM b_learn_question WHERE ID = ".$ID;
-		$r = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$r = $DB->Query($strSql);
 		if (!$arQuestion = $r->Fetch())
 			return false;
 
@@ -201,13 +201,13 @@ class CLQuestion
 
 		$arAttempts = Array();
 		$strSql = "SELECT ATTEMPT_ID FROM b_learn_test_result WHERE QUESTION_ID = ".$ID;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		while($ar = $res->Fetch())
 			$arAttempts[] = $ar["ATTEMPT_ID"]; //Attempts to recount
 
 		//Results
 		$strSql = "DELETE FROM b_learn_test_result WHERE QUESTION_ID = ".$ID;
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		foreach($arAttempts as $ATTEMPT_ID)
@@ -218,7 +218,7 @@ class CLQuestion
 
 		$strSql = "DELETE FROM b_learn_question WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		$USER_FIELD_MANAGER->delete('LEARNING_QUESTIONS', $ID);
@@ -403,7 +403,7 @@ class CLQuestion
 			if (isset($arNavParams['nTopCount']) && ((int) $arNavParams['nTopCount'] > 0))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -414,7 +414,7 @@ class CLQuestion
 			}
 		}
 		else
-			$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 
 		$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields('LEARNING_QUESTIONS'));
 
@@ -441,7 +441,7 @@ class CLQuestion
 		"WHERE 1=1 ".
 		$strSqlSearch;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res_cnt = $res->Fetch();
 
 		return intval($res_cnt["C"]);

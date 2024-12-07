@@ -11,6 +11,7 @@ use Bitrix\Catalog\v2\Property\Property;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Url\ShopBuilder;
+use Bitrix\Catalog\VatTable;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
 use Bitrix\Main\Loader;
@@ -358,8 +359,11 @@ class BasketItem
 			$taxId = $this->sku->getIblockInfo()->getVatId();
 		}
 
+		$tax = $taxId ? VatTable::getRowById($taxId) : null;
+
 		$this
 			->setTaxId((int)$taxId)
+			->setTaxRate($tax ? $tax['RATE'] : null)
 			->setTaxIncluded($this->sku->getField('VAT_INCLUDED'))
 		;
 	}
@@ -556,6 +560,13 @@ class BasketItem
 	public function setTaxId(int $value): self
 	{
 		$this->fields['taxId'] = $value;
+
+		return $this;
+	}
+
+	public function setTaxRate(?float $value): self
+	{
+		$this->fields['taxRate'] = $value;
 
 		return $this;
 	}

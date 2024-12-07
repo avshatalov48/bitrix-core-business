@@ -357,7 +357,7 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 			}
 			else
 			{
-				$result->addError(new Error($element->LAST_ERROR));
+				$result->addError(new Error($element->getLastError()));
 			}
 		}
 
@@ -398,7 +398,7 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 
 			if (!$res)
 			{
-				$result->addError(new Error($element->LAST_ERROR));
+				$result->addError(new Error($element->getLastError()));
 			}
 		}
 
@@ -415,6 +415,16 @@ abstract class BaseIblockElementRepository implements IblockElementRepositoryCon
 					$result->addErrors($res->getErrors());
 				}
 			}
+		}
+
+		if ($result->isSuccess())
+		{
+			$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues(
+				\CIBlockElement::GetIBlockByID($id),
+				$id
+			);
+			$ipropValues->clearValues();
+			unset($ipropValues);
 		}
 
 		return $result;

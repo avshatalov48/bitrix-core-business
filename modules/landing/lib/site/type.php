@@ -3,23 +3,36 @@ namespace Bitrix\Landing\Site;
 
 use Bitrix\Landing\Role;
 use Bitrix\Landing\Site;
+use Bitrix\Main\Event;
+use Bitrix\SignSafe\Processing\Preview;
 
 class Type
 {
 	/**
 	 * Scope group.
 	 */
-	const SCOPE_CODE_GROUP = 'GROUP';
+	public const SCOPE_CODE_GROUP = 'GROUP';
 
 	/**
 	 * Scope knowledge.
 	 */
-	const SCOPE_CODE_KNOWLEDGE = 'KNOWLEDGE';
+	public const SCOPE_CODE_KNOWLEDGE = 'KNOWLEDGE';
+
+	/**
+	 * Scope for mainpage (welcome)
+	 */
+	public const SCOPE_CODE_MAINPAGE = 'MAINPAGE';
 
 	/**
 	 * Pseudo scope for crm forms.
 	 */
-	const PSEUDO_SCOPE_CODE_FORMS = 'crm_forms';
+	public const PSEUDO_SCOPE_CODE_FORMS = 'crm_forms';
+
+	protected const SCOPES_NOT_PUBLIC = [
+		self::SCOPE_CODE_GROUP,
+		self::SCOPE_CODE_KNOWLEDGE,
+		self::SCOPE_CODE_MAINPAGE,
+	];
 
 	/**
 	 * Current scope class name.
@@ -38,7 +51,7 @@ class Type
 	 * @param string $scope Scope code.
 	 * @return string|null
 	 */
-	protected static function getScopeClass($scope)
+	protected static function getScopeClass($scope): ?string
 	{
 		$scope = trim($scope);
 		$class = __NAMESPACE__ . '\\Scope\\' . $scope;
@@ -51,16 +64,18 @@ class Type
 	}
 
 	/**
-	 * Detects site type forms and returns it.
-	 * @param $siteCode
+	 * Detect site special type (forms or mainpage)
+	 *
+	 * @param string $siteCode
 	 * @return string|null
 	 */
-	public static function getSiteTypeForms($siteCode)
+	public static function getSiteSpecialType(string $siteCode): ?string
 	{
-		if (preg_match('#^/' . self::PSEUDO_SCOPE_CODE_FORMS . '[\d]*/$#', $siteCode))
+		if (preg_match('#^/' . self::PSEUDO_SCOPE_CODE_FORMS . '\d*/$#', $siteCode))
 		{
 			return self::PSEUDO_SCOPE_CODE_FORMS;
 		}
+
 		return null;
 	}
 
@@ -70,24 +85,20 @@ class Type
 	 * @param array $params Additional params.
 	 * @return void
 	 */
-	public static function setScope($scope, array $params = [])
+	public static function setScope($scope, array $params = []): void
 	{
-		//self::$scopeInit ||
 		if (!is_string($scope) || !$scope)
 		{
 			return;
 		}
-		//if (self::$currentScopeClass === null)
 		// always clear previous scope
-		if (true)
+		Role::setExpectedType(null);
+		self::$scopeInit = false;
+		self::$currentScopeClass = self::getScopeClass($scope);
+		if (self::$currentScopeClass)
 		{
-			Role::setExpectedType(null);
-			self::$currentScopeClass = self::getScopeClass($scope);
-			if (self::$currentScopeClass)
-			{
-				self::$scopeInit = true;
-				self::$currentScopeClass::init($params);
-			}
+			self::$scopeInit = true;
+			self::$currentScopeClass::init($params);
 		}
 	}
 
@@ -95,7 +106,7 @@ class Type
 	 * Clear selected scope.
 	 * @return void
 	 */
-	public static function clearScope()
+	public static function clearScope(): void
 	{
 		self::$scopeInit = false;
 		self::$currentScopeClass = null;
@@ -109,7 +120,8 @@ class Type
 	public static function isPublicScope(?string $scope = null): bool
 	{
 		$scope = $scope ? mb_strtoupper($scope) : self::getCurrentScopeId();
-		return !($scope === 'KNOWLEDGE' || $scope === 'GROUP');
+
+		return !in_array($scope, self::SCOPES_NOT_PUBLIC);
 	}
 
 	/**
@@ -118,12 +130,27 @@ class Type
 	 */
 	public static function getPublicationPath()
 	{
+		$path = null;
+		$scope = null;
+
 		if (self::$currentScopeClass !== null)
 		{
-			return self::$currentScopeClass::getPublicationPath();
+			$path = self::$currentScopeClass::getPublicationPath();
+			$scope = self::$currentScopeClass::getCurrentScopeId();
 		}
 
-		return null;
+		// custom for Preview
+		$event = new Event('landing', 'onGetScopePublicationPath', [
+			'scope' => $scope,
+			'path' => $path
+		]);
+		$event->send();
+		foreach ($event->getResults() as $result)
+		{
+			$path = $result->getModified()['path'] ?? $path;
+		}
+
+		return $path;
 	}
 
 	/**
@@ -150,6 +177,7 @@ class Type
 		{
 			return self::$currentScopeClass::getDomainId();
 		}
+
 		return '';
 	}
 
@@ -163,13 +191,14 @@ class Type
 		{
 			return self::$currentScopeClass::getCurrentScopeId();
 		}
+
 		return null;
 	}
 
 	/**
 	 * Returns filter value for 'TYPE' key.
 	 * @param bool $strict If strict, returns without default.
-	 * @return string|string[]
+	 * @return string|string[]|null
 	 */
 	public static function getFilterType($strict = false)
 	{
@@ -233,5 +262,23 @@ class Type
 		}
 
 		return null;
+	}
+
+	/**
+	 * Change manifest field by special conditions of site type
+	 * @param array $manifest
+	 * @return array prepared manifest
+	 */
+	public static function prepareBlockManifest(array $manifest): array
+	{
+		if (
+			self::$currentScopeClass !== null
+			&& is_callable([self::$currentScopeClass, 'prepareBlockManifest'])
+		)
+		{
+			return self::$currentScopeClass::prepareBlockManifest($manifest);
+		}
+
+		return $manifest;
 	}
 }

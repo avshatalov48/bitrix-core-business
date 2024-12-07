@@ -1,96 +1,119 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
 
-use Bitrix\Main\Loader,
-	Bitrix\Currency;
-
-if (!isset($arParams['arrCURRENCY_FROM']))
-	$arParams['arrCURRENCY_FROM'] = array();
-foreach ($arParams['arrCURRENCY_FROM'] as $key => $value)
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 {
-	if ('' === $value)
-		unset($arParams['arrCURRENCY_FROM'][$key]);
+	die();
 }
 
-$arParams['CURRENCY_BASE'] = trim($arParams['CURRENCY_BASE']);
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Config\Option;
+use Bitrix\Currency;
 
-$arParams['RATE_DAY'] = trim($arParams['RATE_DAY']);
+/**
+ * @var array $arParams
+ * @var array $arResult
+ */
 
-$arParams['SHOW_CB'] = ('Y' == $arParams['SHOW_CB'] ? 'Y' : 'N');
-if ('RUB' != $arParams['CURRENCY_BASE'] && 'RUR' != $arParams['CURRENCY_BASE'])
+$arParams['arrCURRENCY_FROM'] ??= [];
+if (!is_array($arParams['arrCURRENCY_FROM']))
+{
+	$arParams['arrCURRENCY_FROM'] = [];
+}
+
+$arParams['arrCURRENCY_FROM'] = array_filter($arParams['arrCURRENCY_FROM']);
+
+$arParams['CURRENCY_BASE'] = trim((string)($arParams['CURRENCY_BASE'] ?? ''));
+
+$arParams['RATE_DAY'] = trim((string)($arParams['RATE_DAY'] ?? ''));
+
+$arParams['SHOW_CB'] = ($arParams['SHOW_CB'] ?? null) == 'Y' ? 'Y' : 'N';
+if ($arParams['CURRENCY_BASE'] !== 'RUB' && $arParams['CURRENCY_BASE'] !== 'RUR')
+{
 	$arParams['SHOW_CB'] = 'N';
+}
 
-if (!isset($arParams["CACHE_TIME"]))
-	$arParams["CACHE_TIME"] = 86400;
-$arParams["CACHE_TIME"] = intval($arParams["CACHE_TIME"]);
+$arParams['CACHE_TIME'] = (int)($arParams['CACHE_TIME'] ?? 86400);
 
 if ($this->StartResultCache())
 {
 	if (!Loader::includeModule('currency'))
 	{
 		$this->AbortResultCache();
-		ShowError(GetMessage("CURRENCY_MODULE_NOT_INSTALLED"));
+		ShowError(Loc::getMessage('CURRENCY_MODULE_NOT_INSTALLED'));
+
 		return;
 	}
 
 	global $CACHE_MANAGER;
 
-	$arResult = array();
-	$arResult["CURRENCY"] = array();
+	$arResult = [];
+	$arResult['CURRENCY'] = [];
 
-	if ('' == $arParams["CURRENCY_BASE"])
-		$arParams["CURRENCY_BASE"] = COption::GetOptionString("sale", "default_currency");
-
-	if ('' == $arParams["CURRENCY_BASE"])
-		$arParams["CURRENCY_BASE"] = Currency\CurrencyManager::getBaseCurrency();
-
-	if ('' != $arParams["CURRENCY_BASE"])
+	if ($arParams['CURRENCY_BASE'] === '')
 	{
-		if ('' == $arParams["RATE_DAY"])
+		$arParams['CURRENCY_BASE'] = Option::get('sale', 'default_currency');
+	}
+
+	if ($arParams['CURRENCY_BASE'] === '')
+	{
+		$arParams['CURRENCY_BASE'] = Currency\CurrencyManager::getBaseCurrency();
+	}
+
+	if ($arParams['CURRENCY_BASE'] !== '')
+	{
+		if ($arParams['RATE_DAY'] === '')
 		{
-			$arResult["RATE_DAY_TIMESTAMP"] = time();
-			$arResult["RATE_DAY_SHOW"] = ConvertTimeStamp($arResult["RATE_DAY_TIMESTAMP"], 'SHORT');
+			$arResult['RATE_DAY_TIMESTAMP'] = time();
 		}
 		else
 		{
-			$arRATE_DAY_PARSED = ParseDateTime($arParams["RATE_DAY"], "YYYY-MM-DD");
-			$arRATE_DAY_PARSED['YYYY'] = intval($arRATE_DAY_PARSED['YYYY']);
-			if (1901 > $arRATE_DAY_PARSED["YYYY"] || 2038 < $arRATE_DAY_PARSED["YYYY"])
+			$arRATE_DAY_PARSED = [
+				'YYYY' => 0,
+				'MM' => 0,
+				'DD' => 0,
+			];
+			$parsed = [];
+			if (preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $arParams['RATE_DAY'], $parsed))
 			{
-				$arResult["RATE_DAY_TIMESTAMP"] = time();
-				$arResult["RATE_DAY_SHOW"] = ConvertTimeStamp($arResult["RATE_DAY_TIMESTAMP"], 'SHORT');
+				$arRATE_DAY_PARSED = [
+					'YYYY' => (int)$parsed[1],
+					'MM' => (int)$parsed[2],
+					'DD' => (int)$parsed[3],
+				];
+			}
+			if (1901 > $arRATE_DAY_PARSED['YYYY'] || 2038 < $arRATE_DAY_PARSED['YYYY'])
+			{
+				$arResult['RATE_DAY_TIMESTAMP'] = time();
 			}
 			else
 			{
-				$arResult["RATE_DAY_TIMESTAMP"] = mktime(0, 0, 0, $arRATE_DAY_PARSED["MM"], $arRATE_DAY_PARSED["DD"], $arRATE_DAY_PARSED["YYYY"]);
-				$arResult["RATE_DAY_SHOW"] = ConvertTimeStamp($arResult["RATE_DAY_TIMESTAMP"], 'SHORT');
+				$arResult['RATE_DAY_TIMESTAMP'] = mktime(
+					0,
+					0,
+					0,
+					$arRATE_DAY_PARSED['MM'],
+					$arRATE_DAY_PARSED['DD'],
+					$arRATE_DAY_PARSED['YYYY']
+				);
 			}
 		}
+		$arResult['RATE_DAY_SHOW'] = ConvertTimeStamp($arResult['RATE_DAY_TIMESTAMP'], 'SHORT');
 
-		if (!empty($arParams["arrCURRENCY_FROM"]))
+		if (!empty($arParams['arrCURRENCY_FROM']))
 		{
-			if ('Y' == $arParams["SHOW_CB"])
+			if ($arParams['SHOW_CB'] === 'Y')
 			{
-				$bWarning = false;
-
-				$obHttp = new CHTTP();
-				$obHttp->Query(
-					'GET',
-					'www.cbr.ru',
-					80,
-					"/scripts/XML_daily.asp?date_req=".date("d.m.Y", $arResult["RATE_DAY_TIMESTAMP"]),
-					false,
-					'',
-					'N'
+				$http = new Main\Web\HttpClient();
+				$http->setRedirect(true);
+				$strQueryText = $http->get(
+					'https://www.cbr.ru/scripts/XML_daily.asp?date_req=' . date('d.m.Y', $arResult['RATE_DAY_TIMESTAMP'])
 				);
 
-				$strQueryText = $obHttp->result;
-				if (empty($strQueryText))
-					$bWarning = true;
-
-				if (!$bWarning)
+				if (!empty($strQueryText))
 				{
-					if (SITE_CHARSET != "windows-1251")
-						$strQueryText = $APPLICATION->ConvertCharset($strQueryText, "windows-1251", SITE_CHARSET);
+					$strQueryText = Main\Text\Encoding::convertEncoding($strQueryText, 'windows-1251', SITE_CHARSET);
 
 					$strQueryText = preg_replace("#<!DOCTYPE[^>]+?>#i", "", $strQueryText);
 					$strQueryText = preg_replace("#<"."\\?XML[^>]+?\\?".">#i", "", $strQueryText);
@@ -99,8 +122,8 @@ if ($this->StartResultCache())
 					$objXML->LoadString($strQueryText);
 					$arData = $objXML->GetArray();
 
-					$arFields = array();
-					$arResult["CURRENCY_CBRF"] = array();
+					$arFields = [];
+					$arResult['CURRENCY_CBRF'] = [];
 
 					if (!empty($arData) && is_array($arData))
 					{
@@ -110,25 +133,23 @@ if ($this->StartResultCache())
 							{
 								if (!empty($arData["ValCurs"]["#"]["Valute"]) && is_array($arData["ValCurs"]["#"]["Valute"]))
 								{
-									$arCBVal = $arData["ValCurs"]["#"]["Valute"];
-									foreach($arCBVal as &$arOneCBVal)
+									foreach($arData["ValCurs"]["#"]["Valute"] as $arOneCBVal)
 									{
 										if (in_array($arOneCBVal["#"]["CharCode"][0]["#"], $arParams["arrCURRENCY_FROM"]))
 										{
-											$arCurrency = array(
+											$arCurrency = [
 												"CURRENCY" => $arOneCBVal["#"]["CharCode"][0]["#"],
-												"RATE_CNT" => intval($arOneCBVal["#"]["Nominal"][0]["#"]),
-												"RATE" => doubleval(str_replace(",", ".", $arOneCBVal["#"]["Value"][0]["#"]))
-											);
+												"RATE_CNT" => (int)($arOneCBVal["#"]["Nominal"][0]["#"]),
+												"RATE" => (float)(str_replace(",", ".", $arOneCBVal["#"]["Value"][0]["#"]))
+											];
 
-											$arResult["CURRENCY_CBRF"][] = array(
+											$arResult["CURRENCY_CBRF"][] = [
 												"FROM" => CCurrencyLang::CurrencyFormat($arCurrency["RATE_CNT"], $arCurrency["CURRENCY"], true),
 												"BASE" => CCurrencyLang::CurrencyFormat($arCurrency["RATE"], $arParams["CURRENCY_BASE"], true),
-											);
+											];
 										}
 									}
-									if (isset($arOneCBVal))
-										unset($arOneCBVal);
+									unset($arOneCBVal);
 								}
 							}
 						}
@@ -136,12 +157,12 @@ if ($this->StartResultCache())
 				}
 			}
 
-			$currencyList = array();
-			$iterator = Currency\CurrencyTable::getList(array(
-				'select' => array('CURRENCY', 'AMOUNT_CNT'),
-				'filter' => array('@CURRENCY' => $arParams["arrCURRENCY_FROM"]),
-				'order' => array('CURRENCY' => 'ASC')
-			));
+			$currencyList = [];
+			$iterator = Currency\CurrencyTable::getList([
+				'select' => ['CURRENCY', 'AMOUNT_CNT'],
+				'filter' => ['@CURRENCY' => $arParams["arrCURRENCY_FROM"]],
+				'order' => ['CURRENCY' => 'ASC']
+			]);
 			while ($row = $iterator->fetch())
 			{
 				$currencyList[$row['CURRENCY']] = $row['CURRENCY'];
@@ -151,21 +172,23 @@ if ($this->StartResultCache())
 					$arParams['CURRENCY_BASE'],
 					$arParams['RATE_DAY']
 				);
-				$arResult['CURRENCY'][] = array(
+				$arResult['CURRENCY'][] = [
 					'FROM' => CCurrencyLang::CurrencyFormat($row['AMOUNT_CNT'], $row['CURRENCY'], true),
 					'BASE' => CCurrencyLang::CurrencyFormat($rate, $arParams['CURRENCY_BASE'], true),
-				);
+				];
 				unset($rate);
 			}
 			unset($row, $iterator);
 
-			if (!empty($currencyList) && defined("BX_COMP_MANAGED_CACHE"))
+			if (!empty($currencyList) && defined('BX_COMP_MANAGED_CACHE'))
 			{
-				$currencyList[$arParams["CURRENCY_BASE"]] = $arParams["CURRENCY_BASE"];
+				$currencyList[$arParams['CURRENCY_BASE']] = $arParams['CURRENCY_BASE'];
 
 				$CACHE_MANAGER->StartTagCache($this->GetCachePath());
 				foreach ($currencyList as $currency)
+				{
 					$CACHE_MANAGER->RegisterTag('currency_id_'.$currency);
+				}
 				unset($currency);
 				$CACHE_MANAGER->EndTagCache();
 			}

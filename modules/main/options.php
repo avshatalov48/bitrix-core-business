@@ -1,9 +1,9 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -17,6 +17,7 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Authentication\Policy;
 use Bitrix\Main\Authentication\Device;
 use Bitrix\Main\Application;
+use Bitrix\Main\Web\Json;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -294,7 +295,7 @@ $arAllOptions = array(
 	),
 );
 
-if (\Bitrix\Main\Analytics\SiteSpeed::isOn())
+if (\Bitrix\Main\Analytics\SiteSpeed::isOn() && \Bitrix\Main\Analytics\Catalog::isOn())
 {
 	$arAllOptions["main"][] = GetMessage("MAIN_CATALOG_STAT_SETTINGS");
 	$arAllOptions["main"][] = array("gather_catalog_stat", GetMessage("MAIN_GATHER_CATALOG_STAT"), "Y", Array("checkbox", "Y"));
@@ -319,8 +320,7 @@ $allowedHostsList = unserialize(COption::GetOptionString("main", "imageeditor_pr
 
 if (!is_array($allowedHostsList) || empty($allowedHostsList))
 {
-	$allowedHostsList = [];
-	$allowedHostsList[] = '';
+	$allowedHostsList = [''];
 }
 
 $allowedWhiteListLabel = GetMessage("MAIN_OPTIONS_IMAGE_EDITOR_PROXY_WHITE_LIST");
@@ -333,7 +333,7 @@ foreach($allowedHostsList as $key => $item)
 
 $addAllowedHost = "
     <script>
-        var whiteListValues = ".CUtil::phpToJsObject($allowedHostsList).";
+        var whiteListValues = " . Json::encode($allowedHostsList) . ";
         var firstWhiteListInputs = [].slice.call(document.querySelectorAll('input[name=\'imageeditor_proxy_white_list\']'));
 
         if (firstWhiteListInputs.length)
@@ -416,16 +416,18 @@ $addAllowedHost = "
 
             var button = document.querySelector('.adm-add-allowed-host');
 
-            if (event.currentTarget.value !== 'YWL')
-            {
-                button.style.pointerEvents = 'none';
-                button.style.opacity = .4;
-            }
-            else
-            {
-            	button.removeAttribute('style');
-            }
-
+            if (button)
+			{
+				if (event.currentTarget.value !== 'YWL')
+				{
+					button.style.pointerEvents = 'none';
+					button.style.opacity = .4;
+				}
+				else
+				{
+					button.removeAttribute('style');
+				}
+			}
         }
     </script>
 ";
@@ -450,7 +452,7 @@ $access = new CAccess();
 $arNames = $access->GetNames(array_merge($arCodes, $arHideCodes));
 
 $panel = "
-<script type=\"text/javascript\">
+<script>
 
 function InsertAccess(arRights, divId, hiddenName)
 {
@@ -610,6 +612,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && !empty($_POST["Update"]) && ($USER->Can
 	COption::SetOptionString("main", "show_panel_for_users", serialize($_POST["show_panel_for_users"] ?? ''));
 	COption::SetOptionString("main", "hide_panel_for_users", serialize($_POST["hide_panel_for_users"] ?? ''));
 	COption::SetOptionString("main", "imageeditor_proxy_white_list", serialize($_POST["imageeditor_proxy_white_list"] ?? ''));
+	COption::SetOptionString("main", "cookie_name", \Bitrix\Main\Web\Cookie::normalizeName($_POST["cookie_name"]));
 
 	$module_id = "main";
 	COption::SetOptionString($module_id, "GROUP_DEFAULT_TASK", $GROUP_DEFAULT_TASK, "Task for groups by default");
@@ -848,7 +851,7 @@ foreach($arGROUPS as $group):
 </tr>
 <tr>
 	<td colspan="2">
-<script type="text/javascript">
+<script>
 function settingsSetGroupID(el)
 {
 	var tr = jsUtils.FindParentObject(el, "tr");
@@ -889,7 +892,7 @@ function settingsAddRights(a)
 
 <?$tabControl->Buttons();?>
 
-<script type="text/javascript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))
@@ -900,7 +903,7 @@ function onChangeSmsService(event)
 {
 	var select = event.target;
 	var sendersSelect = select.form.sms_default_sender;
-	var senders = <?=CUtil::PhpToJSObject($smsSenders)?>;
+	var senders = <?=Json::encode($smsSenders)?>;
 	var selected = select.options[select.selectedIndex].value;
 
 	for(var i = sendersSelect.length - 1; i >= 0; i--)
@@ -968,7 +971,7 @@ $message = null;
 if(
 	!IsModuleInstalled("controller")
 	&& $_SERVER["REQUEST_METHOD"] == "POST"
-	&& ($_POST["controller_join"] <> '' || $_POST["controller_remove"] <> '' || $_POST["controller_save_proxy"] <> '')
+	&& (!empty($_POST["controller_join"]) || !empty($_POST["controller_remove"]) || !empty($_POST["controller_save_proxy"]))
 	&& $USER->IsAdmin()
 	&& check_bitrix_sessid()
 )
@@ -976,13 +979,21 @@ if(
 	COption::SetOptionString("main", "controller_proxy_url", $_POST["controller_proxy_url"]);
 	COption::SetOptionString("main", "controller_proxy_port", $_POST["controller_proxy_port"]);
 	COption::SetOptionString("main", "controller_proxy_user", $_POST["controller_proxy_user"]);
-	COption::SetOptionString("main", "controller_proxy_password", $_POST["controller_proxy_password"]);
+
+	if (isset($_POST['controller_proxy_password_delete']) && $_POST['controller_proxy_password_delete'] == "Y")
+	{
+		COption::SetOptionString("main", "controller_proxy_password", '');
+	}
+	elseif (!empty($_POST["controller_proxy_password"]))
+	{
+		COption::SetOptionString("main", "controller_proxy_password", $_POST["controller_proxy_password"]);
+	}
 }
 
 if(
 	!IsModuleInstalled("controller")
 	&& $_SERVER["REQUEST_METHOD"] == "POST"
-	&& ($_POST["controller_join"] <> '' && $_POST["controller_save_proxy"] == '')
+	&& (!empty($_POST["controller_join"]) && empty($_POST["controller_save_proxy"]))
 	&& $USER->IsAdmin()
 	&& check_bitrix_sessid()
 	&& COption::GetOptionString("main", "controller_member", "N") != "Y"
@@ -1014,7 +1025,7 @@ $bControllerRemoveError = false;
 if(
 	!IsModuleInstalled("controller")
 	&& $_SERVER["REQUEST_METHOD"] == "POST"
-	&& ($_POST["controller_remove"] <> '' && $_POST["controller_save_proxy"] == '')
+	&& (!empty($_POST["controller_remove"]) && empty($_POST["controller_save_proxy"]))
 	&& $USER->IsAdmin()
 	&& check_bitrix_sessid()
 	&& COption::GetOptionString("main", "controller_member", "N") == "Y"
@@ -1200,7 +1211,13 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 	</tr>
 	<tr>
 		<td><?echo GetMessage("MAIN_OPTION_CONTROLLER_PROXY_PASSWORD")?></td>
-		<td><input type="password" size="30" maxlength="255" value="<?=htmlspecialcharsbx(COption::GetOptionString("main", "controller_proxy_password"));?>" name="controller_proxy_password" id="controller_proxy_password"></td>
+		<td>
+			<?php
+				$val = COption::GetOptionString("main", "controller_proxy_password");
+			?>
+			<input type="password" size="30" maxlength="255" value="" name="controller_proxy_password" id="controller_proxy_password"<?php if ($val != ''):?> placeholder="<?= GetMessage('MAIN_OPTION_CONTROLLER_PROXY_PASS_SET') ?>"<?php endif; ?> autocomplete="new-password">
+			<?php if ($val != ''):?><label><input type="checkbox" name="controller_proxy_password_delete" value="Y" title="<?= GetMessage('MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL_TITLE') ?>"> <?= GetMessage('MAIN_OPTION_CONTROLLER_PROXY_PASS_DEL') ?></label><?php endif?>
+		</td>
 	</tr>
 	<tr>
 		<td>&nbsp;</td>
@@ -1262,7 +1279,7 @@ if(COption::GetOptionString("main", "controller_member", "N")!="Y"):
 </tr>
 
 <?if ($USER->CanDoOperation('edit_other_settings')):?>
-<script language="JavaScript">
+<script>
 var result = {'stop':false, 'done':true, 'error':false, 'db':{'size': <?=intval($arParam["db"]["size"])?>}, 'files':{'size':<?=intval($arParam["files"]["size"])?>}};
 diskSpace = <?=$diskSpace?>;
 window.onStepDone = function(name){

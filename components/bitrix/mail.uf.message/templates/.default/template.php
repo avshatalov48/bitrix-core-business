@@ -104,7 +104,7 @@ $readDatetimeFormatted = !empty($message['READ_CONFIRMED']) && $message['READ_CO
 		name="<?=htmlspecialcharsbx($uf['FIELD_NAME']) ?><? if ('Y' == $uf['MULTIPLE']) echo '[]'; ?>">
 <? endif?>
 
-<script type="text/javascript">
+<script>
 
 (function ()
 {

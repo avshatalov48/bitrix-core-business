@@ -2,39 +2,21 @@
 
 namespace Bitrix\Catalog\Controller;
 
-use Bitrix\Catalog\Product\PropertyCatalogFeature;
-use Bitrix\Iblock\PropertyFeatureTable;
-use Bitrix\Iblock\PropertyTable;
 use Bitrix\Iblock\SectionPropertyTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
-use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 final class ProductPropertySection extends ProductPropertyBase
 {
+	use ListAction; // default listAction realization
+
 	private const BLANK_SECTION = 0;
 
 	// region Actions
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		$filter['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
-		$order = empty($order) ? ['IBLOCK_ID' => 'ASC'] : $order;
-
-		return new Page(
-			'PRODUCT_PROPERTY_SECTIONS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
 	 * @param int $propertyId
@@ -49,7 +31,7 @@ final class ProductPropertySection extends ProductPropertyBase
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY_SECTION' => $this->get($propertyId)];
+		return [$this->getServiceItemName() => $this->get($propertyId)];
 	}
 
 	/**
@@ -78,7 +60,7 @@ final class ProductPropertySection extends ProductPropertyBase
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY_SECTION' => $this->get($propertyId)];
+		return [$this->getServiceItemName() => $this->get($propertyId)];
 	}
 
 	// endregion
@@ -113,5 +95,18 @@ final class ProductPropertySection extends ProductPropertyBase
 			'filter' => ['=PROPERTY_ID' => $id],
 			'order' => ['IBLOCK_ID' => 'ASC'],
 		]);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @param array $params
+	 * @return array
+	 */
+	protected function modifyListActionParameters(array $params): array
+	{
+		$params['filter']['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
+		$params['order'] = empty($params['order']) ? ['IBLOCK_ID' => 'ASC'] : $params['order'];
+
+		return $params;
 	}
 }

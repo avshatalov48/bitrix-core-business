@@ -1,8 +1,15 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 define("PUBLIC_AJAX_MODE", true);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 
 IncludeModuleLangFile(__FILE__);
+
+/**
+ * @global CUser $USER
+ */
 
 if(!$USER->IsAuthorized()):
 ?>
@@ -11,7 +18,7 @@ if(!$USER->IsAuthorized()):
 	die();
 endif;
 
-$arParams = false;
+$arParams = [];
 if (isset($_REQUEST["arParams"]) && is_array($_REQUEST["arParams"]))
 {
 	$arParams = $_REQUEST["arParams"];
@@ -30,7 +37,7 @@ $access = new CAccess($arParams);
 if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "ajax")
 {
 	echo $access->AjaxRequest(array("provider"=>$_REQUEST["provider"]));
-	die();
+	CMain::FinalActions();
 }
 
 if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_lru" && check_bitrix_sessid())
@@ -39,19 +46,19 @@ if(isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "save_lru" && check_bitrix_s
 	{
 		CAccess::SaveLastRecentlyUsed($_REQUEST["LRU"]);
 	}
-	die();
+	CMain::FinalActions();
 }
 ?>
 <div class="access-container">
 <?
+$first = '';
 $arHtml = $access->GetFormHtml();
 if(!empty($arHtml)):
 ?>
 <div class="access-providers-container">
 <?
-$first = '';
 foreach($arHtml as $ID=>$provider)
-	if($provider["SELECTED"] == true)
+	if($provider["SELECTED"])
 		$first = $ID;
 
 foreach($arHtml as $ID=>$provider):
@@ -82,11 +89,10 @@ foreach($arHtml as $ID=>$provider):
 
 </div>
 
-<script type="text/javascript">
-BX.Finder(BX('access_content_container'), 'Access', <?=CUtil::PhpToJsObject(array_keys($arHtml))?>, {'text-search-wait' : '<?=CUtil::JSEscape(GetMessage("acc_dialog_wait"))?>', 'text-search-no-result' : '<?=CUtil::JSEscape(GetMessage("acc_dialog_not_found"))?>'});
+<script>
+BX.Finder(BX('access_content_container'), 'Access', <?= Json::encode(array_keys($arHtml)) ?>, {'text-search-wait' : '<?=CUtil::JSEscape(GetMessage("acc_dialog_wait"))?>', 'text-search-no-result' : '<?=CUtil::JSEscape(GetMessage("acc_dialog_not_found"))?>'});
 BX.Access.SelectProvider('<?=$first?>');
-BX.Access.obProviderNames = <?=CUtil::PhpToJsObject($access->GetProviderNames())?>;
+BX.Access.obProviderNames = <?= Json::encode($access->GetProviderNames()) ?>;
 </script>
 <?
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin_js.php");
-?>

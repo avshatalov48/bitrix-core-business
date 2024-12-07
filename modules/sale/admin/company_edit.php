@@ -342,7 +342,7 @@ $tabControl->Buttons(array(
 $tabControl->Show();
 ?>
 
-<script language="JavaScript">
+<script>
 	BX.message({
 		SALE_COMPANY_RULE_TITLE: '<?=Loc::getMessage("SALE_COMPANY_RULE_TITLE")?>',
 		SALE_COMPANY_RULE_SAVE: '<?=Loc::getMessage("SALE_COMPANY_RULE_SAVE")?>',

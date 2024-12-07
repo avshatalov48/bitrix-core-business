@@ -12,7 +12,6 @@
 	max-height: 154px;
 	background: var(--im-message-conference-creation__background-color_content);
 	border-radius: 16px;
-	margin-right: 54px;
 }
 
 .bx-im-message-base__wrap + .bx-im-message-conference-creation__scope {

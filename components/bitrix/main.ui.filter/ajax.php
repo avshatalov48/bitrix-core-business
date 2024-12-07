@@ -30,7 +30,7 @@ class CMainUIFilterAjaxController extends \Bitrix\Main\Engine\Controller
 			$request = $app->getContext()->getRequest();
 			$params = $request->getPost('params');
 			$options = new \Bitrix\Main\UI\Filter\Options(
-				$params['FILTER_ID'], null, $params['commonPresetsId']
+				$params['FILTER_ID'], null, $params['commonPresetsId'] ?? null
 			);
 		}
 

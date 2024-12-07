@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIN_ADD_PAGE_TO_FAVORITES"] = "Add a page to favorites";
 $MESS["MAIN_HELP"] = "Context help";
 $MESS["TOP_ADMIN_ENTER"] = "Administrative section";
@@ -9,6 +9,9 @@ $MESS["adm_top_panel_edit_title"] = "Switch to the include area editing mode";
 $MESS["adm_top_panel_view"] = "Public section";
 $MESS["adm_top_panel_view_public_site_title"] = "Switch to public site mode";
 $MESS["adm_top_panel_view_title"] = "Switches to the site view mode";
+$MESS["adm_top_panel_wwall_sec"] = "Site protected";
+$MESS["adm_top_panel_wwall_sec_cp"] = "Bitrix24 protected";
+$MESS["adm_top_panel_wwall_unsec"] = "Security threat";
 $MESS["admin_panel_admin"] = "Control Panel";
 $MESS["admin_panel_free"] = "free space";
 $MESS["admin_panel_hotkeys_title"] = "Customize keyboard shortcuts";
@@ -50,4 +53,3 @@ $MESS["top_panel_updates_close"] = "Close";
 $MESS["top_panel_updates_hint"] = "There are updates available";
 $MESS["top_panel_user"] = "Current user";
 $MESS["top_panel_view"] = "Browse";
-?>

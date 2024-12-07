@@ -32,10 +32,6 @@ class SaleAdminPageStub extends \CBitrixComponent
 				"page" => "/shop/orders/",
 				"title" => Loc::getMessage("SAPS_SALE_ORDER"),
 			],
-			"sale_cashbox.php" => [
-				"page" => "/shop/settings/menu_sale_cashbox/",
-				"title" => Loc::getMessage("SAPS_SALE_CASHBOX"),
-			],
 			"sale_cashbox_list.php" => [
 				"page" => "/shop/settings/sale_cashbox_list/",
 				"title" => Loc::getMessage("SAPS_SALE_CASHBOX_LIST"),

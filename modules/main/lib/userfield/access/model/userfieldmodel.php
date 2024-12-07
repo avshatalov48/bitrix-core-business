@@ -116,16 +116,18 @@ class UserFieldModel implements \Bitrix\Main\Access\AccessibleItem
 
 			$res = UserFieldPermissionTable::query()
 				->addSelect('*')
+				->setCacheTtl(3600)
 				//->where('ENTITY_TYPE_ID', $entityTypeId)
 				->exec()
-				->fetchAll();
+				->fetchAll()
+			;
 
 			foreach ($res as $row)
 			{
 				static::$permissions[$row['USER_FIELD_ID']][$row['PERMISSION_ID']][$row['ACCESS_CODE']] = (int) $row['VALUE'];
 			}
-
 		}
+
 		return static::$permissions;
 	}
 }

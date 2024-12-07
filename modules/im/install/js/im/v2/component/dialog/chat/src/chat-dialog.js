@@ -3,10 +3,15 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import { PopupManager } from 'main.popup';
 import { PullStatus } from 'pull.vue3.status';
 
+import { Analytics } from 'im.v2.lib.analytics';
 import { MessageList } from 'im.v2.component.message-list';
 import { ForwardPopup } from 'im.v2.component.entity-selector';
 import { Logger } from 'im.v2.lib.logger';
 import { CallManager } from 'im.v2.lib.call';
+import { LayoutManager } from 'im.v2.lib.layout';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { AccessManager, AccessErrorCode } from 'im.v2.lib.access';
+import { FeatureManager } from 'im.v2.lib.feature';
 import { MessageService, ChatService } from 'im.v2.provider.service';
 import {
 	DialogBlockType as BlockType,
@@ -14,21 +19,24 @@ import {
 	PopupType,
 	DialogScrollThreshold,
 	UserRole,
+	ChatActionType,
 } from 'im.v2.const';
 
 import { ScrollManager } from './classes/scroll-manager';
-import { ObserverManager } from './classes/observer-manager';
 import { PullWatchManager } from './classes/pull-watch-manager';
+import { VisibleMessagesManager } from './classes/visible-messages-manager';
 import { PinnedMessages } from './components/pinned/pinned-messages';
 import { QuoteButton } from './components/quote-button';
+import { ScrollButton } from './components/scroll-button';
+
 import './css/chat-dialog.css';
 
 import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelMessage, ImModelChat, ImModelLayout } from 'im.v2.model';
 import type { ScrollToBottomEvent } from 'im.v2.const';
 
-const FLOATING_DATE_OFFSET = 52;
-const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
+export { ScrollManager } from './classes/scroll-manager';
+export { PinnedMessages } from './components/pinned/pinned-messages';
 
 // @vue/component
 export const ChatDialog = {
@@ -37,6 +45,7 @@ export const ChatDialog = {
 		MessageList,
 		PinnedMessages,
 		QuoteButton,
+		ScrollButton,
 		PullStatus,
 		ForwardPopup,
 	},
@@ -45,9 +54,13 @@ export const ChatDialog = {
 			type: String,
 			default: '',
 		},
-		textareaHeight: {
-			type: Number,
-			default: 0,
+		saveScrollOnExit: {
+			type: Boolean,
+			default: true,
+		},
+		resetOnExit: {
+			type: Boolean,
+			default: false,
 		},
 	},
 	data(): Object
@@ -61,13 +74,10 @@ export const ChatDialog = {
 				active: false,
 				messageIsLoaded: false,
 			},
-			initialScrollCompleted: false,
 			isScrolledUp: false,
 			windowFocused: false,
 			showQuoteButton: false,
-			selectedText: null,
-			quoteButtonStyles: {},
-			quoteButtonMessage: 0,
+			messagesToRead: new Set(),
 		};
 	},
 	computed:
@@ -86,7 +96,7 @@ export const ChatDialog = {
 		},
 		messageCollection(): ImModelMessage[]
 		{
-			return this.$store.getters['messages/get'](this.dialog.chatId);
+			return this.$store.getters['messages/getByChatId'](this.dialog.chatId);
 		},
 		pinnedMessages(): ImModelMessage[]
 		{
@@ -104,27 +114,15 @@ export const ChatDialog = {
 		},
 		debouncedScrollHandler(): Function
 		{
-			const SCROLLING_DEBOUNCE_DELAY = 200;
+			const SCROLLING_DEBOUNCE_DELAY = 100;
 
 			return Runtime.debounce(this.getScrollManager().onScroll, SCROLLING_DEBOUNCE_DELAY, this.getScrollManager());
 		},
 		debouncedReadHandler(): Function
 		{
-			return Runtime.debounce(this.readVisibleMessages, 50, this);
-		},
-		formattedCounter(): string
-		{
-			if (this.dialog.counter === 0)
-			{
-				return '';
-			}
+			const READING_DEBOUNCE_DELAY = 50;
 
-			if (this.dialog.counter > 99)
-			{
-				return '99+';
-			}
-
-			return String(this.dialog.counter);
+			return Runtime.debounce(this.readQueuedMessages, READING_DEBOUNCE_DELAY, this);
 		},
 		messageListComponent(): BitrixVueComponentProps
 		{
@@ -134,35 +132,40 @@ export const ChatDialog = {
 		{
 			return this.isScrolledUp || this.dialog.hasNextPage;
 		},
+		hasCommentsOnTop(): boolean
+		{
+			return this.$store.getters['messages/comments/areOpenedForChannel'](this.dialogId);
+		},
 	},
 	watch:
 	{
-		dialogInited(newValue, oldValue)
+		dialogInited(newValue: boolean, oldValue: boolean)
 		{
 			if (!newValue || oldValue)
 			{
 				return;
 			}
 			// first opening
-			this.getPullWatchManager().onChatLoad();
+			this.getPullWatchManager().subscribe();
 			this.onChatInited();
 		},
-		textareaHeight()
-		{
-			if (this.isScrolledUp || !this.dialogInited)
+		hasCommentsOnTop: {
+			handler(newValue: boolean)
 			{
-				return;
-			}
+				const commentsWereClosed = newValue === false;
+				if (!commentsWereClosed)
+				{
+					return;
+				}
 
-			void this.$nextTick(() => {
-				this.getScrollManager().scrollToBottom();
-			});
+				this.readVisibleMessages();
+			},
+			flush: 'post',
 		},
 	},
 	created()
 	{
 		Logger.warn('Dialog: Chat created', this.dialogId);
-		this.initObserverManager();
 		this.initContextMode();
 	},
 	mounted()
@@ -171,7 +174,7 @@ export const ChatDialog = {
 		if (this.dialogInited)
 		{
 			// second+ opening
-			this.getPullWatchManager().onLoadedChatEnter();
+			this.getPullWatchManager().subscribe();
 			this.onChatInited();
 		}
 		// there are P&P messages
@@ -190,71 +193,89 @@ export const ChatDialog = {
 		if (this.dialogInited)
 		{
 			this.saveScrollPosition();
-			this.loadMessagesOnExit();
+			this.handleMessagesOnExit();
 		}
-		this.getPullWatchManager().onChatExit();
+		this.getPullWatchManager().unsubscribe();
 		this.closeDialogPopups();
 		this.forwardPopup.show = false;
 	},
 	methods:
 	{
-		readVisibleMessages()
+		async scrollOnStart()
 		{
-			if (!this.dialogInited || !this.windowFocused || this.hasVisibleCall() || this.isGuest)
+			await this.$nextTick();
+
+			// we loaded chat with context
+			if (this.contextMode.active && this.contextMode.messageIsLoaded)
 			{
+				this.getScrollManager().scrollToMessage(this.layout.contextId);
+				void this.$nextTick(() => {
+					this.highlightMessage(this.layout.contextId);
+				});
+
 				return;
 			}
 
-			this.getObserverManager().getMessagesToRead().forEach((messageId) => {
-				this.getChatService().readMessage(this.dialog.chatId, messageId);
-				this.getObserverManager().onReadMessage(messageId);
-			});
+			// chat was loaded before
+			if (this.contextMode.active && !this.contextMode.messageIsLoaded)
+			{
+				this.goToMessageContext(this.layout.contextId);
+
+				return;
+			}
+
+			// marked message
+			if (this.dialog.markedId)
+			{
+				this.getScrollManager().scrollToMessage(BlockType.newMessages);
+
+				return;
+			}
+
+			// saved position
+			if (this.dialog.savedPositionMessageId && !this.isGuest)
+			{
+				Logger.warn('Dialog: saved scroll position, scrolling to', this.dialog.savedPositionMessageId);
+				this.getScrollManager().scrollToMessage(this.dialog.savedPositionMessageId, { withDateOffset: false });
+
+				return;
+			}
+
+			const lastReadId = this.$store.getters['chats/getLastReadId'](this.dialogId);
+			const isLastMessageId = lastReadId === this.dialog.lastMessageId;
+			// unread messages and read messages before them
+			if (lastReadId > 0 && !isLastMessageId)
+			{
+				Logger.warn('Dialog: scroll to "New messages" mark, lastReadId -', lastReadId, 'lastMessageId', this.dialog.lastMessageId);
+				this.getScrollManager().scrollToMessage(BlockType.newMessages);
+
+				return;
+			}
+
+			// new chat, unread messages without read messages before them
+			const hasUnread = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
+			if (lastReadId === 0 || hasUnread)
+			{
+				this.getScrollManager().setStartScrollNeeded(false);
+				Logger.warn('Dialog: dont scroll, hasUnread -', hasUnread, 'lastReadId', lastReadId);
+
+				return;
+			}
+
+			// no unread messages
+			this.getScrollManager().scrollToBottom();
 		},
-		scrollOnStart()
+		showLoadingBar(): void
 		{
-			void this.$nextTick(() => {
-				// we loaded chat with context
-				if (this.contextMode.active && this.contextMode.messageIsLoaded)
-				{
-					this.getScrollManager().scrollToMessage(this.layout.contextId, -FLOATING_DATE_OFFSET);
-					void this.$nextTick(() => {
-						this.highlightMessage(this.layout.contextId);
-					});
-				}
-				// chat was loaded before
-				else if (this.contextMode.active && !this.contextMode.messageIsLoaded)
-				{
-					this.goToMessageContext(this.layout.contextId);
-				}
-				// marked message
-				else if (this.dialog.markedId)
-				{
-					this.getScrollManager().scrollToMessage(BlockType.newMessages, -FLOATING_DATE_OFFSET);
-				}
-				// saved position
-				else if (this.dialog.savedPositionMessageId)
-				{
-					Logger.warn('Dialog: saved scroll position, scrolling to', this.dialog.savedPositionMessageId);
-					this.getScrollManager().scrollToMessage(this.dialog.savedPositionMessageId);
-				}
-				// unread message
-				else if (this.$store.getters['chats/getLastReadId'](this.dialogId))
-				{
-					this.getScrollManager().scrollToMessage(BlockType.newMessages, -FLOATING_DATE_OFFSET);
-				}
-				// new chat with unread messages
-				else if (this.$store.getters['messages/getFirstUnread'](this.dialog.chatId))
-				{
-					Logger.warn('Dialog: new chat with unread messages, dont scroll');
-				}
-				else
-				{
-					this.getScrollManager().scrollToBottom();
-				}
-			});
+			EventEmitter.emit(EventType.dialog.showLoadingBar, { dialogId: this.dialogId });
 		},
-		async goToMessageContext(messageId: number): void
+		hideLoadingBar(): void
 		{
+			EventEmitter.emit(EventType.dialog.hideLoadingBar, { dialogId: this.dialogId });
+		},
+		async goToMessageContext(messageId: number, params: { position: string } = {}): void
+		{
+			const { position = ScrollManager.scrollPosition.messageTop } = params;
 			const hasMessage = this.$store.getters['messages/hasMessage']({
 				chatId: this.dialog.chatId,
 				messageId,
@@ -263,18 +284,29 @@ export const ChatDialog = {
 			{
 				Logger.warn('Dialog: we have this message, scrolling to it', messageId);
 
-				await this.getScrollManager().animatedScrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+				await this.getScrollManager().animatedScrollToMessage(messageId, { position });
 				this.highlightMessage(messageId);
 
 				return;
 			}
 
+			const { hasAccess, errorCode } = await AccessManager.checkMessageAccess(messageId);
+			if (!hasAccess && errorCode === AccessErrorCode.messageAccessDeniedByTariff)
+			{
+				Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({ dialogId: this.dialogId });
+				FeatureManager.chatHistory.openFeatureSlider();
+
+				return;
+			}
+
+			this.showLoadingBar();
 			await this.getMessageService().loadContext(messageId)
 				.catch((error) => {
 					Logger.error('goToMessageContext error', error);
 				});
 			await this.$nextTick();
-			this.getScrollManager().scrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+			this.hideLoadingBar();
+			this.getScrollManager().scrollToMessage(messageId, { position });
 			await this.$nextTick();
 			this.highlightMessage(messageId);
 		},
@@ -296,99 +328,83 @@ export const ChatDialog = {
 		},
 		saveScrollPosition()
 		{
-			let savedPositionMessageId = this.getObserverManager().getFirstVisibleMessage();
+			if (!this.saveScrollOnExit)
+			{
+				return;
+			}
+			let savedPositionMessageId = this.getVisibleMessagesManager().getFirstMessageId();
 			if (this.getScrollManager().isAroundBottom())
 			{
 				savedPositionMessageId = 0;
 			}
 			this.$store.dispatch('chats/update', {
 				dialogId: this.dialogId,
-				fields: {
-					savedPositionMessageId,
-				},
+				fields: { savedPositionMessageId },
 			});
 		},
-		loadMessagesOnExit()
+		handleMessagesOnExit()
 		{
+			if (this.resetOnExit)
+			{
+				this.getChatService().resetChat(this.dialogId);
+
+				return;
+			}
+
+			const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
+
 			setTimeout(() => {
 				void this.getMessageService().reloadMessageList();
 			}, LOAD_MESSAGE_ON_EXIT_DELAY);
 		},
-		/* region Init methods */
-		initContextMode()
+		/* region Reading */
+		readQueuedMessages(): void
 		{
-			if (!this.layout.contextId)
+			if (!this.messagesCanBeRead())
 			{
 				return;
 			}
 
-			this.contextMode.active = true;
-			// chat was loaded before, we didn't load context specifically
-			// if chat wasn't loaded before - we load it with context
-			this.contextMode.messageIsLoaded = !this.dialogInited;
-		},
-		initObserverManager()
-		{
-			this.observerManager = new ObserverManager();
-			this.observerManager.subscribe(ObserverManager.events.onMessageIsVisible, () => {
-				this.debouncedReadHandler();
+			[...this.messagesToRead].forEach((messageId) => {
+				this.getChatService().readMessage(this.dialog.chatId, messageId);
+				this.messagesToRead.delete(messageId);
 			});
 		},
-		getObserverManager(): ObserverManager
+		readVisibleMessages(): void
 		{
-			return this.observerManager;
-		},
-		getMessageService(): MessageService
-		{
-			if (!this.messageService)
+			if (!this.messagesCanBeRead())
 			{
-				this.messageService = new MessageService({ chatId: this.dialog.chatId });
+				return;
 			}
 
-			return this.messageService;
+			const visibleMessages = this.getVisibleMessagesManager().getVisibleMessages();
+			visibleMessages.forEach((messageId) => {
+				const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
+				if (!message || message.viewed)
+				{
+					return;
+				}
+
+				this.getChatService().readMessage(this.dialog.chatId, messageId);
+			});
 		},
-		getChatService(): ChatService
+		messagesCanBeRead(): boolean
 		{
-			if (!this.chatService)
+			if (!this.dialogInited || !this.isChatVisible())
 			{
-				this.chatService = new ChatService();
+				return false;
 			}
 
-			return this.chatService;
-		},
-		getScrollManager(): ScrollManager
-		{
-			if (!this.scrollManager)
-			{
-				this.scrollManager = new ScrollManager();
-				this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerUp, this.onScrollTriggerUp);
-				this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerDown, this.onScrollTriggerDown);
-				this.scrollManager.subscribe(ScrollManager.events.onScrollThresholdPass, (event: BaseEvent<boolean>) => {
-					this.isScrolledUp = event.getData();
-				});
-			}
+			const permissionManager = PermissionManager.getInstance();
 
-			return this.scrollManager;
+			return permissionManager.canPerformAction(ChatActionType.readMessage, this.dialogId);
 		},
-		getPullWatchManager(): PullWatchManager
-		{
-			if (!this.pullWatchManager)
-			{
-				this.pullWatchManager = new PullWatchManager(this.dialogId);
-			}
-
-			return this.pullWatchManager;
-		},
-		/* endregion Init methods */
+		/* endregion Reading */
 		/* region Event handlers */
 		onChatInited()
 		{
-			if (!this.dialog.loading)
-			{
-				this.scrollOnStart();
-				this.readVisibleMessages();
-				this.getObserverManager().setDialogInited(true);
-			}
+			this.scrollOnStart();
+			this.readVisibleMessages();
 
 			void this.$nextTick(() => {
 				this.getChatService().clearDialogMark(this.dialogId);
@@ -423,7 +439,9 @@ export const ChatDialog = {
 			}
 
 			// Load messages and save them
+			this.showLoadingBar();
 			await this.getMessageService().loadHistory();
+			this.hideLoadingBar();
 			// Messages loaded and we are at the top
 			if (this.getScrollManager().isAtTheTop())
 			{
@@ -455,7 +473,9 @@ export const ChatDialog = {
 			}
 
 			// Load messages and save them
+			this.showLoadingBar();
 			await this.getMessageService().loadUnread();
+			this.hideLoadingBar();
 			// Messages loaded and we are at the bottom
 			if (this.getScrollManager().isAroundBottom())
 			{
@@ -478,7 +498,7 @@ export const ChatDialog = {
 				if (firstUnreadId)
 				{
 					await this.$nextTick();
-					this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+					this.getScrollManager().scrollToMessage(firstUnreadId);
 
 					return;
 				}
@@ -532,7 +552,7 @@ export const ChatDialog = {
 		{
 			if (this.getScrollManager().scrollButtonClicked)
 			{
-				this.handleSecondScrollButtonClick();
+				void this.handleSecondScrollButtonClick();
 
 				return;
 			}
@@ -540,7 +560,9 @@ export const ChatDialog = {
 			this.getScrollManager().scrollButtonClicked = true;
 			if (this.dialog.counter === 0)
 			{
+				this.showLoadingBar();
 				await this.getMessageService().loadInitialMessages();
+				this.hideLoadingBar();
 				this.getScrollManager().scrollToBottom();
 
 				return;
@@ -549,11 +571,13 @@ export const ChatDialog = {
 			const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 			if (!firstUnreadId)
 			{
+				this.showLoadingBar();
 				await this.getMessageService().loadInitialMessages();
-				await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+				this.hideLoadingBar();
+				await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 			}
 
-			await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+			await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 		},
 		onWindowFocus()
 		{
@@ -573,38 +597,145 @@ export const ChatDialog = {
 			}
 			this.readVisibleMessages();
 		},
-		onChatClick(event: PointerEvent)
+		async onShowQuoteButton(event: BaseEvent<{ message: ImModelMessage, event: MouseEvent }>)
 		{
-			if (this.isGuest)
+			const { message, event: $event } = event.getData();
+			const permissionManager = PermissionManager.getInstance();
+			if (!permissionManager.canPerformAction(ChatActionType.send, this.dialogId))
 			{
-				event.stopPropagation();
+				return;
 			}
-		},
-		async onShowQuoteButton(message: ImModelMessage, event: MouseEvent)
-		{
 			this.showQuoteButton = true;
 			await this.$nextTick();
-			this.$refs.quoteButton.onMessageMouseUp(message, event);
+			this.$refs.quoteButton.onMessageMouseUp(message, $event);
 		},
-		handleSecondScrollButtonClick()
+		async handleSecondScrollButtonClick()
 		{
 			this.getScrollManager().scrollButtonClicked = false;
 			if (this.dialog.hasNextPage)
 			{
-				this.getMessageService().loadContext(this.dialog.lastMessageId).then(() => {
-					EventEmitter.emit(EventType.dialog.scrollToBottom, {
-						chatId: this.dialog.chatId,
+				this.showLoadingBar();
+				await this.getMessageService().loadContext(this.dialog.lastMessageId)
+					.catch((error) => {
+						Logger.error('ChatDialog: scroll to chat end loadContext error', error);
 					});
-				}).catch((error) => {
-					Logger.error('ChatDialog: scroll to chat end loadContext error', error);
+				this.hideLoadingBar();
+
+				EventEmitter.emit(EventType.dialog.scrollToBottom, {
+					chatId: this.dialog.chatId,
 				});
 
 				return;
 			}
 
-			void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
+			void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId, { withDateOffset: false });
+		},
+		onShowForwardPopup(event: BaseEvent)
+		{
+			const { messageId } = event.getData();
+			this.forwardPopup.messageId = messageId;
+			this.forwardPopup.show = true;
+		},
+		onCloseForwardPopup()
+		{
+			this.forwardPopup.messageId = 0;
+			this.forwardPopup.show = false;
+		},
+		onMessageIsVisible(event: BaseEvent<{ messageId: number, dialogId: string }>)
+		{
+			const { messageId, dialogId } = event.getData();
+			if (dialogId !== this.dialogId)
+			{
+				return;
+			}
+			this.getVisibleMessagesManager().setMessageAsVisible(messageId);
+
+			const message: ImModelMessage = this.$store.getters['messages/getById'](messageId);
+			if (!message.viewed && this.isChatVisible())
+			{
+				this.messagesToRead.add(messageId);
+				this.debouncedReadHandler();
+			}
+		},
+		onMessageIsNotVisible(event: BaseEvent<{ messageId: number, dialogId: string }>)
+		{
+			const { messageId, dialogId } = event.getData();
+			if (dialogId !== this.dialogId)
+			{
+				return;
+			}
+			this.getVisibleMessagesManager().setMessageAsNotVisible(messageId);
 		},
 		/* endregion Event handlers */
+		/* region Init methods */
+		initContextMode()
+		{
+			const layoutManager = LayoutManager.getInstance();
+			if (!layoutManager.isChatContextAvailable(this.dialogId))
+			{
+				return;
+			}
+
+			this.contextMode.active = true;
+			// chat was loaded before, we didn't load context specifically
+			// if chat wasn't loaded before - we load it with context
+			this.contextMode.messageIsLoaded = !this.dialogInited;
+		},
+		getMessageService(): MessageService
+		{
+			if (!this.messageService)
+			{
+				this.messageService = new MessageService({ chatId: this.dialog.chatId });
+			}
+
+			return this.messageService;
+		},
+		getChatService(): ChatService
+		{
+			if (!this.chatService)
+			{
+				this.chatService = new ChatService();
+			}
+
+			return this.chatService;
+		},
+		getScrollManager(): ScrollManager
+		{
+			if (!this.scrollManager)
+			{
+				this.scrollManager = new ScrollManager();
+				this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerUp, this.onScrollTriggerUp);
+				this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerDown, this.onScrollTriggerDown);
+				this.scrollManager.subscribe(ScrollManager.events.onScrollThresholdPass, (event: BaseEvent<boolean>) => {
+					this.isScrolledUp = event.getData();
+				});
+			}
+
+			return this.scrollManager;
+		},
+		getPullWatchManager(): PullWatchManager
+		{
+			if (!this.pullWatchManager)
+			{
+				this.pullWatchManager = new PullWatchManager(this.dialogId);
+			}
+
+			return this.pullWatchManager;
+		},
+		getVisibleMessagesManager(): VisibleMessagesManager
+		{
+			if (!this.visibleMessagesManager)
+			{
+				this.visibleMessagesManager = new VisibleMessagesManager();
+			}
+
+			return this.visibleMessagesManager;
+		},
+		/* endregion Init methods */
+		isChatVisible(): boolean
+		{
+			return this.windowFocused && !this.hasVisibleCall() && !this.hasCommentsOnTop;
+		},
 		hasVisibleCall(): boolean
 		{
 			return CallManager.getInstance().hasVisibleCall();
@@ -624,6 +755,9 @@ export const ChatDialog = {
 			EventEmitter.subscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.subscribe(EventType.call.onFold, this.onCallFold);
 			EventEmitter.subscribe(EventType.dialog.showForwardPopup, this.onShowForwardPopup);
+			EventEmitter.subscribe(EventType.dialog.showQuoteButton, this.onShowQuoteButton);
+			EventEmitter.subscribe(EventType.dialog.onMessageIsVisible, this.onMessageIsVisible);
+			EventEmitter.subscribe(EventType.dialog.onMessageIsNotVisible, this.onMessageIsNotVisible);
 
 			Event.bind(window, 'focus', this.onWindowFocus);
 			Event.bind(window, 'blur', this.onWindowBlur);
@@ -634,6 +768,9 @@ export const ChatDialog = {
 			EventEmitter.unsubscribe(EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 			EventEmitter.unsubscribe(EventType.call.onFold, this.onCallFold);
 			EventEmitter.unsubscribe(EventType.dialog.showForwardPopup, this.onShowForwardPopup);
+			EventEmitter.unsubscribe(EventType.dialog.showQuoteButton, this.onShowQuoteButton);
+			EventEmitter.unsubscribe(EventType.dialog.onMessageIsVisible, this.onMessageIsVisible);
+			EventEmitter.unsubscribe(EventType.dialog.onMessageIsNotVisible, this.onMessageIsNotVisible);
 
 			Event.unbind(window, 'focus', this.onWindowFocus);
 			Event.unbind(window, 'blur', this.onWindowBlur);
@@ -642,53 +779,44 @@ export const ChatDialog = {
 		{
 			return this.$refs.container;
 		},
-		onShowForwardPopup(event: BaseEvent)
-		{
-			const { messageId } = event.getData();
-			this.forwardPopup.messageId = messageId;
-			this.forwardPopup.show = true;
-		},
-		onCloseForwardPopup()
-		{
-			this.forwardPopup.messageId = 0;
-			this.forwardPopup.show = false;
-		},
 	},
 	template: `
 		<div class="bx-im-dialog-chat__block bx-im-dialog-chat__scope">
-			<PinnedMessages
-				v-if="pinnedMessages.length > 0"
-				:messages="pinnedMessages"
-				@messageClick="onPinnedMessageClick"
-				@messageUnpin="onPinnedMessageUnpin"
-			/>
-			<PullStatus/>
-			<div @scroll="onScroll" @click.capture="onChatClick" class="bx-im-dialog-chat__scroll-container" ref="container">
-				<component
-					:is="messageListComponent"
+			<!-- Top -->
+			<slot name="pinned-panel">
+				<PinnedMessages
+					v-if="pinnedMessages.length > 0"
 					:dialogId="dialogId"
-					:messages="messageCollection"
-					:observer="getObserverManager()"
-					@readMessages="debouncedReadHandler"
-					@showQuoteButton="onShowQuoteButton"
+					:messages="pinnedMessages"
+					@messageClick="onPinnedMessageClick"
+					@messageUnpin="onPinnedMessageUnpin"
 				/>
+			</slot>
+			<PullStatus/>
+			<!-- Message list -->
+			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
+				<slot name="message-list">
+					<component :is="messageListComponent" :dialogId="dialogId" />
+				</slot>
 			</div>
-			<Transition name="scroll-button-transition">
-				<div v-if="showScrollButton" @click="onScrollButtonClick" class="bx-im-dialog-chat__scroll-button">
-					<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">{{ formattedCounter }}</div>
-				</div>
+			<!-- Float buttons -->
+			<slot name="additional-float-button"></slot>
+			<Transition name="float-button-transition">
+				<ScrollButton v-if="showScrollButton" :dialogId="dialogId" @click="onScrollButtonClick" />
 			</Transition>
+			<!-- Absolute elements -->
 			<ForwardPopup
 				:showPopup="forwardPopup.show"
 				:messageId="forwardPopup.messageId"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">
-				<QuoteButton 
-					v-if="showQuoteButton" 
-					ref="quoteButton"
+				<QuoteButton
+					v-if="showQuoteButton"
+					:dialogId="dialogId"
 					@close="showQuoteButton = false" 
-					class="bx-im-message-base__quote-button" 
+					class="bx-im-message-base__quote-button"
+					ref="quoteButton"
 				/>
 			</Transition>
 		</div>

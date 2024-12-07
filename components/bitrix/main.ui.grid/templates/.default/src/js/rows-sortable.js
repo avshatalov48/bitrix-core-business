@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -9,26 +9,25 @@
 		this.allowInsertBeforeTarget = true;
 		this.dragItem = null;
 		this.targetItem = null;
-		this.eventName = !!eventName ? eventName : '';
+		this.eventName = eventName || '';
 		this.errorMessage = '';
 	};
 
 	BX.Grid.RowDragEvent.prototype = {
-		allowMove: function() { this.allowMoveRow = true; this.errorMessage = ''; },
-		allowInsertBefore: function() { this.allowInsertBeforeTarget = true; },
-		disallowMove: function(errorMessage) { this.allowMoveRow = false; this.errorMessage = errorMessage || ''; },
-		disallowInsertBefore: function() { this.allowInsertBeforeTarget = false; },
-		getDragItem: function() { return this.dragItem; },
-		getTargetItem: function() { return this.targetItem; },
-		getEventName: function() { return this.eventName; },
-		setDragItem: function(item) { return this.dragItem = item; },
-		setTargetItem: function(item) { return this.targetItem = item; },
-		setEventName: function(name) { return this.eventName = name; },
-		isAllowedMove: function() { return this.allowMoveRow; },
-		isAllowedInsertBefore: function() { return this.allowInsertBeforeTarget; },
-		getErrorMessage: function() { return this.errorMessage; }
+		allowMove() { this.allowMoveRow = true; this.errorMessage = ''; },
+		allowInsertBefore() { this.allowInsertBeforeTarget = true; },
+		disallowMove(errorMessage) { this.allowMoveRow = false; this.errorMessage = errorMessage || ''; },
+		disallowInsertBefore() { this.allowInsertBeforeTarget = false; },
+		getDragItem() { return this.dragItem; },
+		getTargetItem() { return this.targetItem; },
+		getEventName() { return this.eventName; },
+		setDragItem(item) { return this.dragItem = item; },
+		setTargetItem(item) { return this.targetItem = item; },
+		setEventName(name) { return this.eventName = name; },
+		isAllowedMove() { return this.allowMoveRow; },
+		isAllowedInsertBefore() { return this.allowInsertBeforeTarget; },
+		getErrorMessage() { return this.errorMessage; },
 	};
-
 
 	BX.Grid.RowsSortable = function(parent)
 	{
@@ -39,7 +38,7 @@
 	};
 
 	BX.Grid.RowsSortable.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 			this.list = this.getList();
@@ -57,11 +56,11 @@
 					BX.addCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
 				}
 
-				document.addEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({passive: true}));
+				document.addEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({ passive: true }));
 			}
 		},
 
-		destroy: function()
+		destroy()
 		{
 			if (!this.parent.getParam('ALLOW_ROWS_SORT_IN_EDIT_MODE', false))
 			{
@@ -69,52 +68,52 @@
 				BX.removeCustomEvent('Grid::noEditedRows', BX.proxy(this.enable, this));
 			}
 
-			document.removeEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({passive: true}));
+			document.removeEventListener('scroll', this.onscrollDebounceHandler, BX.Grid.Utils.listenerParams({ passive: true }));
 			this.unregisterObjects();
 		},
 
-		_onWindowScroll: function()
+		_onWindowScroll()
 		{
 			this.windowScrollTop = BX.scrollTop(window);
 			this.rowsRectList = null;
 		},
 
-		disable: function()
+		disable()
 		{
 			this.unregisterObjects();
 		},
 
-		enable: function()
+		enable()
 		{
 			this.reinit();
 		},
 
-		reinit: function()
+		reinit()
 		{
 			this.unregisterObjects();
 			this.setDefaultProps();
 			this.init(this.parent);
 		},
 
-		getList: function()
+		getList()
 		{
 			return this.parent.getRows().getSourceBodyChild();
 		},
 
-		unregisterObjects: function()
+		unregisterObjects()
 		{
 			this.list.forEach(this.unregister, this);
 		},
 
-		prepareListItems: function()
+		prepareListItems()
 		{
 			this.list.forEach(this.register, this);
 		},
 
-		register: function(row)
+		register(row)
 		{
-			var Rows = this.parent.getRows();
-			var rowInstance = Rows.get(row);
+			const Rows = this.parent.getRows();
+			const rowInstance = Rows.get(row);
 			if (rowInstance && rowInstance.isDraggable())
 			{
 				row.onbxdragstart = BX.delegate(this._onDragStart, this);
@@ -124,23 +123,23 @@
 			}
 		},
 
-		unregister: function(row)
+		unregister(row)
 		{
 			jsDD.unregisterObject(row);
 		},
 
-		getIndex: function(item)
+		getIndex(item)
 		{
 			return BX.Grid.Utils.getIndex(this.list, item);
 		},
 
-		calcOffset: function()
+		calcOffset()
 		{
-			var offset = this.dragRect.height;
+			let offset = this.dragRect.height;
 
-			if (this.additionalDragItems.length)
+			if (this.additionalDragItems.length > 0)
 			{
-				this.additionalDragItems.forEach(function(row) {
+				this.additionalDragItems.forEach((row) => {
 					offset += row.clientHeight;
 				});
 			}
@@ -148,49 +147,49 @@
 			return offset;
 		},
 
-		getTheadCells: function(sourceCells)
+		getTheadCells(sourceCells)
 		{
-			return [].map.call(sourceCells, function(cell, index) {
+			return [].map.call(sourceCells, (cell, index) => {
 				return {
 					block: '',
 					tag: 'th',
 					attrs: {
-						style: 'width: '+BX.width(sourceCells[index])+'px;'
-					}
-				}
+						style: `width: ${BX.width(sourceCells[index])}px;`,
+					},
+				};
 			});
 		},
 
-		createFake: function()
+		createFake()
 		{
-			var content = [];
+			const content = [];
 			this.cloneDragItem = BX.clone(this.dragItem);
 			this.cloneDragAdditionalDragItems = [];
 			this.cloneDragAdditionalDragItemRows = [];
 
-			var theadCellsDecl = this.getTheadCells(this.dragItem.cells);
+			const theadCellsDecl = this.getTheadCells(this.dragItem.cells);
 			content.push(this.cloneDragItem);
 
 			this.additionalDragItems.forEach(function(row) {
-				var cloneRow = BX.clone(row);
+				const cloneRow = BX.clone(row);
 				content.push(cloneRow);
 				this.cloneDragAdditionalDragItems.push(cloneRow);
 				this.cloneDragAdditionalDragItemRows.push(new BX.Grid.Row(this.parent, cloneRow));
 			}, this);
 
-			var tableWidth = BX.width(this.parent.getTable());
+			const tableWidth = BX.width(this.parent.getTable());
 
 			this.fake = BX.decl({
 				block: 'main-grid-fake-container',
 				attrs: {
-					style: 'position: absolute; top: '+this.getDragStartRect().top+'px; width: ' + tableWidth + 'px'
+					style: `position: absolute; top: ${this.getDragStartRect().top}px; width: ${tableWidth}px`,
 				},
 				content: {
 					block: 'main-grid-table',
 					mix: 'main-grid-table-fake',
 					tag: 'table',
 					attrs: {
-						style: 'width: ' + tableWidth + 'px'
+						style: `width: ${tableWidth}px`,
 					},
 					content: [
 						{
@@ -199,30 +198,31 @@
 							content: {
 								block: 'main-grid-row-head',
 								tag: 'tr',
-								content: theadCellsDecl
-							}
+								content: theadCellsDecl,
+							},
 						},
 						{
 							block: '',
 							tag: 'tbody',
-							content: content
-						}
-					]
-				}
+							content,
+						},
+					],
+				},
 			});
 
 			BX.insertAfter(this.fake, this.parent.getTable());
 
 			this.cloneDragItem = new BX.Grid.Row(this.parent, this.cloneDragItem);
+
 			return this.fake;
 		},
 
-		getDragStartRect: function()
+		getDragStartRect()
 		{
 			return BX.pos(this.dragItem, this.parent.getTable());
 		},
 
-		_onDragStart: function()
+		_onDragStart()
 		{
 			this.moved = false;
 			this.dragItem = jsDD.current_node;
@@ -238,7 +238,7 @@
 			this.dragEvent.setTargetItem(this.targetItem);
 			this.dragEvent.allowInsertBefore();
 
-			var dragRow = this.parent.getRows().get(this.dragItem);
+			const dragRow = this.parent.getRows().get(this.dragItem);
 			this.startDragDepth = dragRow.getDepth();
 			this.startDragParentId = dragRow.getParentId();
 
@@ -249,36 +249,36 @@
 			BX.onCustomEvent(window, 'BX.Main.grid:rowDragStart', [this.dragEvent, this.parent]);
 		},
 
-		getAdditionalDragItems: function(dragItem)
+		getAdditionalDragItems(dragItem)
 		{
-			var Rows = this.parent.getRows();
-			return Rows.getRowsByParentId(Rows.get(dragItem).getId(), true).map(function(row) {
+			const Rows = this.parent.getRows();
+
+			return Rows.getRowsByParentId(Rows.get(dragItem).getId(), true).map((row) => {
 				return row.getNode();
 			});
 		},
-
 
 		/**
 		 * @param {?HTMLElement} row
 		 * @param {int} offset
 		 * @param {?int} [transition] css transition-duration in ms
 		 */
-		moveRow: function(row, offset, transition)
+		moveRow(row, offset, transition)
 		{
-			if (!!row)
+			if (row)
 			{
-				var transitionDuration = BX.type.isNumber(transition) ? transition : 300;
-				row.style.transition = transitionDuration + 'ms';
-				row.style.transform = 'translate3d(0px, '+offset+'px, 0px)';
+				const transitionDuration = BX.type.isNumber(transition) ? transition : 300;
+				row.style.transition = `${transitionDuration}ms`;
+				row.style.transform = `translate3d(0px, ${offset}px, 0px)`;
 			}
 		},
 
-		getDragOffset: function()
+		getDragOffset()
 		{
 			return jsDD.y - this.dragRect.top - this.dragStartOffset;
 		},
 
-		getWindowScrollTop: function()
+		getWindowScrollTop()
 		{
 			if (this.windowScrollTop === null)
 			{
@@ -288,12 +288,12 @@
 			return this.windowScrollTop;
 		},
 
-		getSortOffset: function()
+		getSortOffset()
 		{
 			return jsDD.y;
 		},
 
-		getRowRect: function(row, index)
+		getRowRect(row, index)
 		{
 			if (!this.rowsRectList)
 			{
@@ -307,64 +307,67 @@
 			return this.rowsRectList[index];
 		},
 
-		getRowCenter: function(row, index)
+		getRowCenter(row, index)
 		{
-			var rect = this.getRowRect(row, index);
+			const rect = this.getRowRect(row, index);
+
 			return rect.top + this.getWindowScrollTop() + (rect.height / 2);
 		},
 
-		isDragToBottom: function(row, index)
+		isDragToBottom(row, index)
 		{
-			var rowCenter = this.getRowCenter(row, index);
-			var sortOffset = this.getSortOffset();
+			const rowCenter = this.getRowCenter(row, index);
+			const sortOffset = this.getSortOffset();
+
 			return index > this.dragIndex && rowCenter < sortOffset;
 		},
 
-		isMovedToBottom: function(row)
+		isMovedToBottom(row)
 		{
-			return row.style.transform === 'translate3d(0px, '+(-this.offset)+'px, 0px)';
+			return row.style.transform === `translate3d(0px, ${-this.offset}px, 0px)`;
 		},
 
-		isDragToTop: function(row, index)
+		isDragToTop(row, index)
 		{
-			var rowCenter = this.getRowCenter(row, index);
-			var sortOffset = this.getSortOffset();
+			const rowCenter = this.getRowCenter(row, index);
+			const sortOffset = this.getSortOffset();
+
 			return index < this.dragIndex && rowCenter > sortOffset;
 		},
 
-		isMovedToTop: function(row)
+		isMovedToTop(row)
 		{
-			return row.style.transform === 'translate3d(0px, '+this.offset+'px, 0px)';
+			return row.style.transform === `translate3d(0px, ${this.offset}px, 0px)`;
 		},
 
-		isDragToBack: function(row, index)
+		isDragToBack(row, index)
 		{
-			var rowCenter = this.getRowCenter(row, index);
-			var dragIndex = this.dragIndex;
-			var y = jsDD.y;
+			const rowCenter = this.getRowCenter(row, index);
+			const dragIndex = this.dragIndex;
+			const y = jsDD.y;
 
 			return (index > dragIndex && y < rowCenter) || (index < dragIndex && y > rowCenter);
 		},
 
-		isMoved: function(row)
+		isMoved(row)
 		{
 			return (row.style.transform !== 'translate3d(0px, 0px, 0px)' && row.style.transform !== '');
 		},
 
-		_onDrag: function()
+		_onDrag()
 		{
-			var dragTransitionDuration = 0;
-			var defaultOffset = 0;
+			const dragTransitionDuration = 0;
+			const defaultOffset = 0;
 
 			this.moveRow(this.dragItem, this.getDragOffset(), dragTransitionDuration);
 			this.moveRow(this.fake, this.getDragOffset(), dragTransitionDuration);
 			BX.Grid.Utils.styleForEach(this.additionalDragItems, {
-				'transition': dragTransitionDuration + 'ms',
-				'transform': 'translate3d(0px, '+(this.getDragOffset())+'px, 0px)'
+				transition: `${dragTransitionDuration}ms`,
+				transform: `translate3d(0px, ${this.getDragOffset()}px, 0px)`,
 			});
 
 			this.list.forEach(function(current, index) {
-				if (!!current && current !== this.dragItem && this.additionalDragItems.indexOf(current) === -1)
+				if (Boolean(current) && current !== this.dragItem && !this.additionalDragItems.includes(current))
 				{
 					if (this.isDragToTop(current, index) && !this.isMovedToTop(current))
 					{
@@ -419,23 +422,23 @@
 			}, this);
 		},
 
-		createError: function(target, message)
+		createError(target, message)
 		{
-			var error = BX.decl({
+			const error = BX.decl({
 				block: 'main-grid-error',
-				content: !!message ? message : ''
+				content: message || '',
 			});
 
-			!!target && target.appendChild(error);
+			Boolean(target) && target.appendChild(error);
 
-			setTimeout(function() {
+			setTimeout(() => {
 				BX.addClass(error, 'main-grid-error-show');
 			}, 0);
 
 			return error;
 		},
 
-		checkError: function(event)
+		checkError(event)
 		{
 			if (!event.isAllowedMove() && !this.error)
 			{
@@ -449,15 +452,15 @@
 			}
 		},
 
-		findNextVisible: function(list, index)
+		findNextVisible(list, index)
 		{
-			var result = null;
-			var Rows = this.parent.getRows();
+			let result = null;
+			const Rows = this.parent.getRows();
 
-			list.forEach(function(item, currentIndex) {
+			list.forEach((item, currentIndex) => {
 				if (!result && currentIndex > index)
 				{
-					var row = Rows.get(item);
+					const row = Rows.get(item);
 					if (row && row.isShown())
 					{
 						result = item;
@@ -468,22 +471,21 @@
 			return result;
 		},
 
-
 		/**
 		 * Updates row properties
 		 * @param {?HTMLTableRowElement} dragItem
 		 * @param {?HTMLTableRowElement} targetItem
 		 */
-		updateProperties: function(dragItem, targetItem)
+		updateProperties(dragItem, targetItem)
 		{
-			var Rows = this.parent.getRows();
-			var dragRow = Rows.get(dragItem);
-			var depth = 0;
-			var parentId = 0;
+			const Rows = this.parent.getRows();
+			const dragRow = Rows.get(dragItem);
+			let depth = 0;
+			let parentId = 0;
 
-			if (!!targetItem)
+			if (targetItem)
 			{
-				var targetRow = Rows.get(targetItem);
+				const targetRow = Rows.get(targetItem);
 				depth = targetRow.getDepth();
 				parentId = targetRow.getParentId();
 			}
@@ -497,26 +499,25 @@
 			}, this);
 		},
 
-
-		resetDragProperties: function()
+		resetDragProperties()
 		{
-			var dragRow = this.parent.getRows().get(this.dragItem);
+			const dragRow = this.parent.getRows().get(this.dragItem);
 			dragRow.setDepth(this.startDragDepth);
 			dragRow.setParentId(this.startDragParentId);
 		},
 
-		_onDragOver: function() {},
+		_onDragOver() {},
 
-		_onDragLeave: function() {},
+		_onDragLeave() {},
 
-		_onDragEnd: function()
+		_onDragEnd()
 		{
 			BX.onCustomEvent(window, 'BX.Main.grid:rowDragEnd', [this.dragEvent, this.parent]);
 
 			BX.removeClass(this.parent.getContainer(), this.parent.settings.get('classOnDrag'));
 			BX.removeClass(this.dragItem, this.parent.settings.get('classDragActive'));
 
-			BX.Grid.Utils.styleForEach(this.list, {'transition': '', 'transform': ''});
+			BX.Grid.Utils.styleForEach(this.list, { transition: '', transform: '' });
 
 			if (this.dragEvent.isAllowedMove())
 			{
@@ -526,8 +527,8 @@
 				this.list = this.getList();
 				this.parent.getRows().reset();
 
-				var dragItem = this.parent.getRows().get(this.dragItem);
-				var ids = this.parent.getRows().getBodyChild().map(function(row) {
+				const dragItem = this.parent.getRows().get(this.dragItem);
+				const ids = this.parent.getRows().getBodyChild().map((row) => {
 					return row.getId();
 				});
 
@@ -548,17 +549,18 @@
 			this.setDefaultProps();
 		},
 
-		sortAdditionalDragItems: function(dragItem, additional)
+		sortAdditionalDragItems(dragItem, additional)
 		{
-			additional.reduce(function(prev, current) {
-				!!current && BX.insertAfter(current, prev);
+			additional.reduce((prev, current) => {
+				Boolean(current) && BX.insertAfter(current, prev);
+
 				return current;
 			}, dragItem);
 		},
 
-		sortRows: function(current, target)
+		sortRows(current, target)
 		{
-			if (!!target)
+			if (target)
 			{
 				target.parentNode.insertBefore(current, target);
 			}
@@ -568,17 +570,17 @@
 			}
 		},
 
-		saveRowsSort: function(rows)
+		saveRowsSort(rows)
 		{
-			var data = {
+			const data = {
 				ids: rows,
-				action: this.parent.getUserOptions().getAction('GRID_SAVE_ROWS_SORT')
+				action: this.parent.getUserOptions().getAction('GRID_SAVE_ROWS_SORT'),
 			};
 
 			this.parent.getData().request(null, 'POST', data);
 		},
 
-		setDefaultProps: function()
+		setDefaultProps()
 		{
 			this.moved = false;
 			this.dragItem = null;
@@ -592,6 +594,6 @@
 			this.windowScrollTop = null;
 			this.rowsRectList = null;
 			this.error = false;
-		}
+		},
 	};
 })();

@@ -4,7 +4,6 @@ class CPage
 {
 	public static function GetDynamicList($URL, $by = 's_date', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$from_adv = "";
@@ -106,13 +105,12 @@ class CPage
 			GROUP BY D.DATE_STAT
 			$strSqlOrder
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetList($COUNTER_TYPE, $by = 's_counter', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if ($COUNTER_TYPE!="ENTER_COUNTER" && $COUNTER_TYPE!="EXIT_COUNTER")
 			$COUNTER_TYPE = "COUNTER";
@@ -241,7 +239,7 @@ class CPage
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

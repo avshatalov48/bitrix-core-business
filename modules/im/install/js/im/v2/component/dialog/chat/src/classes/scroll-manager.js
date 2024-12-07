@@ -1,12 +1,9 @@
-import {EventEmitter} from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
 
-import {Logger} from 'im.v2.lib.logger';
-import {Animation} from 'im.v2.lib.animation';
+import { Logger } from 'im.v2.lib.logger';
+import { Animation } from 'im.v2.lib.animation';
 
 const EVENT_NAMESPACE = 'BX.Messenger.v2.Dialog.ScrollManager';
-const SCROLLING_THRESHOLD = 1500;
-const POSITION_THRESHOLD = 40;
-const SCROLLED_UP_THRESHOLD = 400;
 
 export class ScrollManager extends EventEmitter
 {
@@ -16,11 +13,17 @@ export class ScrollManager extends EventEmitter
 	lastScroll: number = 0;
 	chatIsScrolledUp: boolean = false;
 	scrollButtonClicked: boolean = false;
+	startScrollNeeded: boolean = true;
 
 	static events = {
 		onScrollTriggerUp: 'onScrollTriggerUp',
 		onScrollTriggerDown: 'onScrollTriggerDown',
-		onScrollThresholdPass: 'onScrollThresholdPass'
+		onScrollThresholdPass: 'onScrollThresholdPass',
+	};
+
+	static scrollPosition = {
+		messageTop: 'messageTop',
+		messageBottom: 'messageBottom',
 	};
 
 	constructor(): ScrollManager
@@ -36,10 +39,9 @@ export class ScrollManager extends EventEmitter
 
 	onScroll(event: Event)
 	{
-		// if (this.isScrolling || !event.target || this.currentScroll === event.target.scrollTop)
 		if (this.isScrolling || !event.target)
 		{
-			return false;
+			return;
 		}
 
 		this.currentScroll = event.target.scrollTop;
@@ -50,8 +52,9 @@ export class ScrollManager extends EventEmitter
 			this.scrollButtonClicked = false;
 		}
 
+		const SCROLLING_THRESHOLD = 1500;
 		const leftSpaceBottom = event.target.scrollHeight - event.target.scrollTop - event.target.clientHeight;
-		if (isScrollingDown && this.lastScroll > 0 && leftSpaceBottom < SCROLLING_THRESHOLD)
+		if (isScrollingDown && this.isStartScrollCompleted() && leftSpaceBottom < SCROLLING_THRESHOLD)
 		{
 			this.emit(ScrollManager.events.onScrollTriggerDown);
 		}
@@ -67,6 +70,8 @@ export class ScrollManager extends EventEmitter
 
 	checkIfChatIsScrolledUp()
 	{
+		const SCROLLED_UP_THRESHOLD = 400;
+
 		const availableScrollHeight = this.container.scrollHeight - this.container.clientHeight;
 		const newFlag = this.currentScroll + SCROLLED_UP_THRESHOLD < availableScrollHeight;
 		if (newFlag !== this.chatIsScrolledUp)
@@ -88,39 +93,57 @@ export class ScrollManager extends EventEmitter
 		this.animatedScrollTo(this.container.scrollHeight - this.container.clientHeight);
 	}
 
-	scrollToMessage(messageId: number, offset: number = -10)
+	scrollToMessage(messageId: number, params: { withDateOffset: boolean, position: string } = {})
 	{
 		Logger.warn('Dialog: ScrollManager: scroll to message - ', messageId);
 		const element = this.getDomElementById(messageId);
 		if (!element)
 		{
 			Logger.warn('Dialog: ScrollManager: message not found - ', messageId);
+
 			return;
 		}
 
-		const position = element.offsetTop + offset;
-		this.forceScrollTo(position);
+		const scrollPosition = this.#getScrollPosition(element, params);
+		this.forceScrollTo(scrollPosition);
 	}
 
-	animatedScrollToMessage(messageId: number, offset: number = -10): Promise
+	setStartScrollNeeded(flag: boolean): void
+	{
+		this.startScrollNeeded = flag;
+	}
+
+	isStartScrollCompleted(): boolean
+	{
+		if (!this.startScrollNeeded)
+		{
+			return true;
+		}
+
+		return this.lastScroll > 0;
+	}
+
+	animatedScrollToMessage(messageId: number, params: { withDateOffset: boolean, position: string } = {}): Promise
 	{
 		Logger.warn('Dialog: ScrollManager: animated scroll to message - ', messageId);
 		const element = this.getDomElementById(messageId);
 		if (!element)
 		{
 			Logger.warn('Dialog: ScrollManager: message not found - ', messageId);
-			return;
+
+			return Promise.resolve();
 		}
 
-		const position = element.offsetTop + offset;
-		return this.animatedScrollTo(position);
+		const scrollPosition = this.#getScrollPosition(element, params);
+
+		return this.animatedScrollTo(scrollPosition);
 	}
 
 	forceScrollTo(position: number)
 	{
 		Logger.warn('Dialog: ScrollManager: Force scroll to - ', position);
 		this.cancelAnimatedScroll();
-		this.container.scroll({top: position, behavior: 'instant'});
+		this.container.scroll({ top: position, behavior: 'instant' });
 	}
 
 	adjustScrollOnHistoryAddition(oldContainerHeight: number)
@@ -134,6 +157,7 @@ export class ScrollManager extends EventEmitter
 	animatedScrollTo(position: number): Promise
 	{
 		Logger.warn('Dialog: ScrollManager: Animated scroll to - ', position);
+
 		return new Promise((resolve) => {
 			Animation.start({
 				start: this.container.scrollTop,
@@ -143,7 +167,7 @@ export class ScrollManager extends EventEmitter
 				callback: () => {
 					this.checkIfChatIsScrolledUp();
 					resolve();
-				}
+				},
 			});
 		});
 	}
@@ -171,11 +195,30 @@ export class ScrollManager extends EventEmitter
 
 	isAroundBottom(): boolean
 	{
+		const POSITION_THRESHOLD = 40;
+
 		return this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < POSITION_THRESHOLD;
 	}
 
 	getDomElementById(id: number | string): ?HTMLElement
 	{
 		return this.container.querySelector(`[data-id="${id}"]`);
+	}
+
+	#getScrollPosition(element: HTMLElement, params: { withDateOffset: boolean, position: string } = {}): number
+	{
+		const FLOATING_DATE_OFFSET = 52;
+		const MESSAGE_BOTTOM_OFFSET = 100;
+
+		const { withDateOffset = true, position = ScrollManager.scrollPosition.messageTop } = params;
+		const offset = withDateOffset ? -FLOATING_DATE_OFFSET : -10;
+
+		let scrollPosition = element.offsetTop + offset;
+		if (position === ScrollManager.scrollPosition.messageBottom)
+		{
+			scrollPosition += element.clientHeight - MESSAGE_BOTTOM_OFFSET;
+		}
+
+		return scrollPosition;
 	}
 }

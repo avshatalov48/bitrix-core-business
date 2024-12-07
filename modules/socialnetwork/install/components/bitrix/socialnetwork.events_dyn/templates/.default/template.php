@@ -35,7 +35,7 @@ $APPLICATION->IncludeComponent("bitrix:main.user.link",
 
 $ajax_page = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 
-?><script language="JavaScript">
+?><script>
 <!--
 	BX.message({
 		sonetDynevMsgGetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.events_dyn/get_message_2.php')?>',

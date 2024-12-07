@@ -13,7 +13,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Web\PostDecodeFilter;
 use CBitrixComponent;
 use CMain;
 use Iterator;
@@ -304,7 +303,6 @@ abstract class GridComponent extends CBitrixComponent
 	protected function processActionsGrid(): void
 	{
 		$request = Context::getCurrent()->getRequest();
-		$request->addFilter(new PostDecodeFilter);
 
 		$actionName = 'action_button_' . $this->getGridProvider()->getId();
 		$action = $request->getPost($actionName);

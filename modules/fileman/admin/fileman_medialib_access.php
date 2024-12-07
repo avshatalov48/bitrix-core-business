@@ -36,7 +36,7 @@ while($arRes = $db_groups->Fetch())
 	$arGroups[] = $arRes;
 $i = 0;
 
-if($REQUEST_METHOD=="POST" && $saveperm <> '' && check_bitrix_sessid()) // TODO: access
+if($_SERVER['REQUEST_METHOD']=="POST" && $saveperm <> '' && check_bitrix_sessid()) // TODO: access
 {
 	$arTaskPerm = array();
 	for ($i = 0, $l = count($arGroups); $i < $l; $i++)

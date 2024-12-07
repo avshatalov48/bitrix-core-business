@@ -16,6 +16,9 @@
 	--im-link-item__background_calendar-icon: #688800 url('./images/calendar.svg') no-repeat center;
 	--im-link-item__background_landing-icon: #2fc6f6 url('./images/knowledge-base.svg') no-repeat center;
 	--im-link-item__background_common-icon: #a8adb4 url('./images/common-link.svg') no-repeat center;
+
+	--im-link-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-link-item__background-color_highlight: #faf16d;
 }
 
 .bx-im-link-item__container {
@@ -58,6 +61,11 @@
 	color: var(--im-link-item__color_description-text);
 	min-height: 32px;
 	margin-bottom: 2px;
+}
+
+.bx-im-link-item__description-text .--highlight {
+	color: var(--im-link-item__color_highlight);
+	background-color: var(--im-link-item__background-color_highlight);
 }
 
 .bx-im-link-item__description-text:hover {

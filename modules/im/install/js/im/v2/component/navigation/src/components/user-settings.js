@@ -1,6 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { Settings, UserStatus as UserStatusType } from 'im.v2.const';
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
 
 import { UserSettingsPopup } from './settings/user-settings-popup';
 import { UserStatusPopup } from './status/user-status-popup';
@@ -11,7 +11,7 @@ import '../css/user-status.css';
 // @vue/component
 export const UserSettings = {
 	name: 'UserSettings',
-	components: { UserSettingsPopup, UserStatusPopup, Avatar },
+	components: { UserSettingsPopup, UserStatusPopup, ChatAvatar },
 	data(): Object
 	{
 		return {
@@ -22,9 +22,9 @@ export const UserSettings = {
 	computed:
 	{
 		AvatarSize: () => AvatarSize,
-		currentUserId(): number
+		currentUserDialogId(): string
 		{
-			return Core.getUserId();
+			return Core.getUserId().toString();
 		},
 		userStatus(): string
 		{
@@ -51,7 +51,11 @@ export const UserSettings = {
 	template: `
 		<div class="bx-im-navigation__user">
 			<div @click="onAvatarClick" class="bx-im-navigation__user_avatar" ref="avatar">
-				<Avatar :dialogId="currentUserId.toString()" :size="AvatarSize.M" />
+				<ChatAvatar 
+					:avatarDialogId="currentUserDialogId"
+					:contextDialogId="currentUserDialogId" 
+					:size="AvatarSize.M" 
+				/>
 				<div @click.stop="onStatusClick" :class="'--' + userStatus" class="bx-im-navigation__user_status" ref="status"></div>
 			</div>
 			<UserStatusPopup

@@ -1,4 +1,4 @@
-import { Runtime, ajax as Ajax, Type, Loc } from 'main.core';
+import { Runtime, ajax as Ajax, Type, Loc, type AjaxResponse } from 'main.core';
 
 import Tab from './tab';
 import SearchEngine from '../../search/search-engine';
@@ -261,10 +261,11 @@ export default class SearchTab extends Tab
 		{
 			return;
 		}
-		/*if (this.queryXhr)
-		{
-			this.queryXhr.abort();
-		}*/
+
+		// if (this.queryXhr)
+		// {
+		// 	this.queryXhr.abort();
+		// }
 
 		this.addCacheQuery(searchQuery);
 
@@ -272,19 +273,18 @@ export default class SearchTab extends Tab
 		this.getSearchLoader().show();
 
 		Ajax.runAction('ui.entityselector.doSearch', {
-				json: {
-					dialog: this.getDialog().getAjaxJson(),
-					searchQuery: searchQuery.getAjaxJson()
-				},
-				onrequeststart: (xhr) => {
-					this.queryXhr = xhr;
-				},
-				getParameters: {
-					context: this.getDialog().getContext()
-				}
-			})
-			.then(response => {
-
+			json: {
+				dialog: this.getDialog().getAjaxJson(),
+				searchQuery: searchQuery.getAjaxJson(),
+			},
+			onrequeststart: (xhr) => {
+				this.queryXhr = xhr;
+			},
+			getParameters: {
+				context: this.getDialog().getContext(),
+			},
+		})
+			.then((response: AjaxResponse) => {
 				this.getSearchLoader().hide();
 
 				if (!response || !response.data || !response.data.dialog || !response.data.dialog.items)
@@ -299,6 +299,10 @@ export default class SearchTab extends Tab
 				if (response.data.searchQuery && response.data.searchQuery.cacheable === false)
 				{
 					this.removeCacheQuery(searchQuery);
+					if (this.getLastSearchQuery()?.getQuery() !== searchQuery.getQuery())
+					{
+						this.loadWithDebounce();
+					}
 				}
 
 				if (Type.isArrayFilled(response.data.dialog.items))
@@ -316,7 +320,7 @@ export default class SearchTab extends Tab
 
 					const matchResults = SearchEngine.matchItems(
 						Array.from(items.values()),
-						this.getLastSearchQuery()
+						this.getLastSearchQuery(),
 					);
 					this.appendResults(matchResults);
 

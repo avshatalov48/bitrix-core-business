@@ -294,6 +294,24 @@
 
 .ui-tour-popup {
 	padding: 17px 25px 22px 25px;
+	display: flex;
+	flex-direction: row;
+}
+
+.ui-tour-popup.--final {
+	flex-direction: column;
+}
+
+.ui-tour-popup-icon {
+	position: relative;
+	z-index: 1;
+	display: inline-block;
+	width: 40px;
+	height: 40px;
+	margin-right: 8px;
+	flex-shrink: 0;
+	background-position: center;
+	background-repeat: no-repeat;
 }
 
 .ui-tour-popup-footer-btn {

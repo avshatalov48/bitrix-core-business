@@ -7,7 +7,23 @@ export class SearchResult
 	 */
 	constructor()
 	{
+		this.prepareSearchInput();
 		this.scrollToFirstBlock();
+	}
+
+	/**
+	 * Prepare the search input field by populating it with the 'q' parameter value from the URL.
+	 * @return {void}
+	 */
+	prepareSearchInput()
+	{
+		const params = new URLSearchParams(window.location.search);
+		const qValue = params.get('q');
+		const element = document.querySelector('[name="q"]');
+		if (element && qValue)
+		{
+			element.value = qValue;
+		}
 	}
 
 	/**

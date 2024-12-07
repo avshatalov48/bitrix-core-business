@@ -3,7 +3,6 @@ class CSearcherHit
 {
 	public static function GetList($by = 's_date_hit', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 
@@ -97,7 +96,7 @@ class CSearcherHit
 			".$strSqlOrder."
 		";
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}

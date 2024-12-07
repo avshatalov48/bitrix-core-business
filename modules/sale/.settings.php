@@ -20,7 +20,8 @@ return array(
 			'sale.basketReservation' => [
 				'className' => \Bitrix\Sale\Reservation\BasketReservationService::class,
 				// TODO: 'autowire' => true,
-				'constructorParams' => static function() {
+				'constructorParams' => static function()
+				{
 					return [
 						new \Bitrix\Sale\Reservation\BasketReservationHistoryService(),
 					];
@@ -32,6 +33,9 @@ return array(
 			'sale.paysystem.manager' => [
 				'className' => \Bitrix\Sale\PaySystem\Manager::class
 			],
+			'sale.entityLabel' => [
+				'className' => \Bitrix\Sale\Label\EntityLabelService::class,
+			]
 		],
 	],
 );

@@ -15,9 +15,12 @@ return [
 	'rel' => [
 		'ui.vue3.directives.hint',
 		'ui.dialogs.messagebox',
+		'ui.info-helper',
 		'im.v2.lib.slider',
 		'im.v2.lib.call',
 		'im.v2.lib.phone',
+		'im.v2.lib.feature',
+		'im.v2.lib.analytics',
 		'im.v2.component.elements',
 		'im.v2.lib.utils',
 		'im.v2.lib.logger',
@@ -35,8 +38,4 @@ return [
 		'im.v2.lib.market',
 	],
 	'skip_core' => false,
-	'settings' => [
-		'copilotActive' => \Bitrix\Im\V2\Chat\CopilotChat::isAvailable(),
-		'v2' => !\Bitrix\Im\Settings::isLegacyChatActivated(),
-	]
 ];

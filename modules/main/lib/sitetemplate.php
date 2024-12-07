@@ -1,17 +1,9 @@
 <?php
+
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
-
-class SiteTemplate
-{
-	protected $id;
-
-	public function __construct($id)
-	{
-		$this->id = $id;
-	}
-}
+use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class SiteTemplateTable
@@ -31,6 +23,8 @@ class SiteTemplate
  */
 class SiteTemplateTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_site_template';
@@ -60,6 +54,14 @@ class SiteTemplateTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\Site',
 				'reference' => array('=this.SITE_ID' => 'ref.LID'),
 			),
+			(new Fields\ExpressionField(
+				'EMPTY_CONDITION',
+				"CASE
+					WHEN %s IS NULL OR %s = '' THEN 1
+					ELSE 2
+				END",
+				['CONDITION', 'CONDITION']
+			)),
 		);
 	}
 }

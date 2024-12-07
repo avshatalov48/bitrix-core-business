@@ -53,6 +53,6 @@ endif;
 ?>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 BX.adminLogin.registerForm(new BX.authFormOtp('otp', {url: '<?echo CUtil::JSEscape($authUrl.(($s=DeleteParam(array("logout", "login"))) == ""? "":"?".$s));?>'}));
 </script>

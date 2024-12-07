@@ -211,7 +211,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 						$strUrl = "";
 						
 						if (!$bWiki)
-							$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".toUpper($element_type)], array("group_id" => $arParams["SOCNET_GROUP_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
+							$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".mb_strtoupper($element_type)], array("group_id" => $arParams["SOCNET_GROUP_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
 
 						$k = 0;
 						foreach($arElement["SECTION_PATH"] as $arPath)
@@ -219,7 +219,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 							if ($k > 0)
 							{
 								$strUrl .= $arPath["NAME"]."/";
-								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".toUpper($element_type)."_SECTION"], array(
+								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_".mb_strtoupper($element_type)."_SECTION"], array(
 											"group_id" => $arParams["SOCNET_GROUP_ID"], 
 											"path" => rtrim($strUrl, "/"),
 											"section_id" => $arPath["ID"],

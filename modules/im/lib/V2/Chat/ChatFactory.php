@@ -2,6 +2,8 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Im\Model\ChatTable;
+use Bitrix\Im\V2\Analytics\ChatAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Result;
@@ -136,6 +138,11 @@ class ChatFactory
 		return GeneralChat::get();
 	}
 
+	public function getGeneralChannel(): ?ChannelChat
+	{
+		return GeneralChannel::get();
+	}
+
 	/**
 	 * @return Chat|Chat\PrivateChat|null
 	 */
@@ -190,6 +197,10 @@ class ChatFactory
 				$chat = new GeneralChat($params);
 				break;
 
+			case $entityType === Chat::ENTITY_TYPE_GENERAL_CHANNEL:
+				$chat = new GeneralChannel($params);
+				break;
+
 			case $type === Chat::IM_TYPE_OPEN_LINE:
 			case $entityType === Chat::ENTITY_TYPE_LINE:
 				$chat = new OpenLineChat($params);
@@ -203,8 +214,12 @@ class ChatFactory
 				$chat = new VideoConfChat($params);
 				break;
 
-			case $entityType === Chat::IM_TYPE_CHANNEL:
+			case $type === Chat::IM_TYPE_CHANNEL:
 				$chat = new ChannelChat($params);
+				break;
+
+			case $type === Chat::IM_TYPE_OPEN_CHANNEL:
+				$chat = new OpenChannelChat($params);
 				break;
 
 			case $type === Chat::IM_TYPE_OPEN:
@@ -390,7 +405,7 @@ class ChatFactory
 				return $result->setResult($this->filterNonCachedFields($cachedChat));
 			}
 
-			$chat = \Bitrix\Im\Model\ChatTable::getByPrimary((int)$params['CHAT_ID'])->fetch();
+			$chat = $this->getRawById($chatId);
 
 			if ($chat)
 			{
@@ -456,6 +471,24 @@ class ChatFactory
 		return $chat;
 	}
 
+	private function getRawById(int $id): ?array
+	{
+		$chat = ChatTable::query()
+			->setSelect(['*', '_ALIAS' => 'ALIAS.ALIAS'])
+			->where('ID', $id)
+			->fetch()
+		;
+
+		if (!$chat)
+		{
+			return null;
+		}
+
+		$chat['ALIAS'] = $chat['_ALIAS'];
+
+		return $chat;
+	}
+
 	//endregion
 
 	//region Add new chat
@@ -473,14 +506,24 @@ class ChatFactory
 		$params['TYPE'] = $params['TYPE'] ?? Chat::IM_TYPE_CHAT;
 
 		// Temporary workaround for Open chat type
-		if ($params['SEARCHABLE'] === 'Y' && $params['TYPE'] === Chat::IM_TYPE_CHAT)
+		if (($params['SEARCHABLE'] ?? 'N') === 'Y')
 		{
-			$params['TYPE'] = Chat::IM_TYPE_OPEN;
+			if ($params['TYPE'] === Chat::IM_TYPE_CHAT)
+			{
+				$params['TYPE'] = Chat::IM_TYPE_OPEN;
+			}
+			elseif ($params['TYPE'] === Chat::IM_TYPE_CHANNEL)
+			{
+				$params['TYPE'] = Chat::IM_TYPE_OPEN_CHANNEL;
+			}
+			else
+			{
+				$params['SEARCHABLE'] = 'N';
+			}
 		}
-		else
-		{
-			$params['SEARCHABLE'] = 'N';
-		}
+
+		$analytics = new ChatAnalytics();
+		$analytics->blockSingleUserEvents();
 
 		switch ($params['ENTITY_TYPE'])
 		{
@@ -492,6 +535,9 @@ class ChatFactory
 				break;
 			case Chat::ENTITY_TYPE_GENERAL:
 				$addResult = (new GeneralChat())->add($params);
+				break;
+			case Chat::ENTITY_TYPE_GENERAL_CHANNEL:
+				$addResult = (new GeneralChannel())->add($params);
 				break;
 			case Chat::ENTITY_TYPE_LIVECHAT:
 				$addResult = (new OpenLineLiveChat())->add($params);
@@ -513,6 +559,9 @@ class ChatFactory
 					case Chat::IM_TYPE_CHANNEL:
 						$addResult = (new ChannelChat())->add($params);
 						break;
+					case Chat::IM_TYPE_OPEN_CHANNEL:
+						$addResult = (new OpenChannelChat())->add($params);
+						break;
 					case Chat::IM_TYPE_PRIVATE:
 						$addResult = (new PrivateChat)->add($params);
 						break;
@@ -531,6 +580,11 @@ class ChatFactory
 					default:
 						$addResult->addError(new ChatError(ChatError::CREATION_ERROR));
 				}
+		}
+
+		if ($addResult->hasResult())
+		{
+			$analytics->addSubmitCreateNew($addResult);
 		}
 
 		return $addResult;
@@ -562,7 +616,7 @@ class ChatFactory
 	{
 		$cacheSubDir = $id % 100;
 
-		return "/bx/imc/chatdata/5/{$cacheSubDir}/{$id}";
+		return "/bx/imc/chatdata/6/{$cacheSubDir}/{$id}";
 	}
 
 	//endregion

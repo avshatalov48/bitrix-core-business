@@ -4,8 +4,8 @@ import { BuilderModel } from 'ui.vue3.vuex';
 import { Core } from 'im.v2.application.core';
 import { Color, ChatType, UserRole } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
+import { formatFieldsWithConfig } from 'im.v2.model';
 
-import { formatFieldsWithConfig } from '../utils/validate';
 import { chatFieldsConfig } from './format/field-config';
 
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
@@ -74,8 +74,12 @@ export class ChatsModel extends BuilderModel
 				manageSettings: UserRole.none,
 				manageUsersAdd: UserRole.none,
 				manageUsersDelete: UserRole.none,
-				canPost: UserRole.none,
+				manageMessages: UserRole.none,
 			},
+			tariffRestrictions: {
+				isHistoryLimitExceeded: false,
+			},
+			parentChatId: 0,
 		};
 	}
 
@@ -98,12 +102,19 @@ export class ChatsModel extends BuilderModel
 				return state.collection[dialogId];
 			},
 			/** @function chats/getByChatId */
-			getByChatId: (state: ChatState) => (chatId: number | string) => {
+			getByChatId: (state: ChatState) => (chatId: number | string, getBlank: boolean = false) => {
 				const preparedChatId = Number.parseInt(chatId, 10);
 
-				return Object.values(state.collection).find((item) => {
+				const chat = Object.values(state.collection).find((item) => {
 					return item.chatId === preparedChatId;
 				});
+
+				if (!chat && getBlank)
+				{
+					return this.getElementState();
+				}
+
+				return chat;
 			},
 			/** @function chats/getQuoteId */
 			getQuoteId: (state: ChatState) => (dialogId: string) => {
@@ -130,9 +141,14 @@ export class ChatsModel extends BuilderModel
 					return 0;
 				}
 
-				const { lastReadId, lastMessageId } = state.collection[dialogId];
+				const { lastReadId } = state.collection[dialogId];
+				const lastReadIdMessage = Core.getStore().getters['messages/getById'](lastReadId);
+				if (!lastReadIdMessage)
+				{
+					return 0;
+				}
 
-				return lastReadId === lastMessageId ? 0 : lastReadId;
+				return lastReadId;
 			},
 			/** @function chats/getInitialMessageId */
 			getInitialMessageId: (state: ChatState) => (dialogId: string): number => {
@@ -148,6 +164,15 @@ export class ChatsModel extends BuilderModel
 				}
 
 				return Math.min(lastReadId, markedId);
+			},
+			/** @function chats/isSupport */
+			isSupport: (state: ChatState) => (dialogId: string): boolean => {
+				if (!state.collection[dialogId])
+				{
+					return false;
+				}
+
+				return state.collection[dialogId].type === ChatType.support24Question;
 			},
 		};
 	}

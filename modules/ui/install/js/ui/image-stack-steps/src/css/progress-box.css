@@ -1,0 +1,26 @@
+.ui-image-stack-steps-step-progress-box {
+	position: absolute;
+	top: 52%;
+	right: -20px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 16px;
+	height: 12px;
+	transform: translateY(-50%);
+}
+
+.ui-image-stack-steps-step-progress-box__icon {
+	position: relative;
+	z-index: 2;
+}
+
+.ui-image-stack-steps-step-progress-box__icon-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 16px;
+	height: 12px;
+	border-radius: var(--ui-border-radius-lg);
+	background: var(--ui-color-base-10);
+}

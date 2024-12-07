@@ -12,7 +12,12 @@ define('BX_RESIZE_IMAGE_PROPORTIONAL', 1);
 define('BX_RESIZE_IMAGE_EXACT', 2);
 
 // BX_UTF can be defined in dbconn.php
-define('BX_UTF_PCRE_MODIFIER', (defined('BX_UTF') ? 'u' : ''));
+if (!defined('BX_UTF'))
+{
+	define('BX_UTF', true);
+}
+// deprecated
+define('BX_UTF_PCRE_MODIFIER', 'u');
 
 /**
  * All constants can be defined in dbconn.php
@@ -34,14 +39,6 @@ if (!defined('CACHED_b_option'))
 {
 	define('CACHED_b_option', $_hour);
 }
-if (!defined('CACHED_b_lang_domain'))
-{
-	define('CACHED_b_lang_domain', $_hour);
-}
-if (!defined('CACHED_b_site_template'))
-{
-	define('CACHED_b_site_template', $_hour);
-}
 if (!defined('CACHED_b_event'))
 {
 	define('CACHED_b_event', $_hour);
@@ -56,7 +53,7 @@ if (!defined('CACHED_menu'))
 }
 if (!defined('CACHED_b_file'))
 {
-	define('CACHED_b_file', false);
+	define('CACHED_b_file', $_hour);
 }
 if (!defined('CACHED_b_file_bucket_size'))
 {
@@ -114,3 +111,7 @@ if (!defined('BX_CRONTAB_SUPPORT'))
 {
 	define('BX_CRONTAB_SUPPORT', defined('BX_CRONTAB'));
 }
+
+define("AM_PM_NONE", false);
+define("AM_PM_UPPER", 1);
+define("AM_PM_LOWER", 2);

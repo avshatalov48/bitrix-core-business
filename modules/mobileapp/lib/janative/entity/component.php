@@ -129,7 +129,7 @@ class Component extends Base
 			$bundleConfig = new Config("{$this->path}/dist/deps.bundle.php");
 			foreach ($bundleConfig->dynamicData as $ext)
 			{
-				$extension = new Extension($ext);
+				$extension = Extension::getInstance($ext);
 				$extensionContent .= $extension->getResultExpression();
 			}
 			$componentFilePath = "{$this->path}/dist/{$this->baseFileName}.bundle.js";
@@ -277,14 +277,13 @@ JS;
 		$deps = $this->getDependencies();
 		foreach ($deps as $ext)
 		{
-			$extension = new Extension($ext);
+			$extension = Extension::getInstance($ext);
 			$value[] = $extension->getModificationMarker();
 		}
 	}
 
 	public function getVersion(): string
     {
-		$config = $this->getConfig();
 		if (!$this->version)
 		{
 			$this->version = "1";
@@ -328,7 +327,7 @@ JS;
 		foreach ($extensions as $extension)
 		{
 			try {
-				$instance = new Extension($extension);
+				$instance = Extension::getInstance($extension);
 				$extensionPhrases = $instance->getLangMessages();
 				$langPhrases = array_merge($langPhrases, $extensionPhrases);
 			}
@@ -361,7 +360,7 @@ JS;
 
 			foreach ($dependencies as $dependency)
 			{
-				$list = (new Extension($dependency))->getComponentDependencies();
+				$list = (Extension::getInstance($dependency))->getComponentDependencies();
 				if ($list !== null) {
 					$componentDependencies = array_merge($componentDependencies, $list);
 				}
@@ -382,7 +381,7 @@ JS;
 		$deps = [];
 
 		array_walk($rootDeps, function ($ext) use (&$deps) {
-			$list = (new Extension($ext))->getDependencies();
+			$list = (Extension::getInstance($ext))->getDependencies();
 			$deps = array_merge($deps, $list);
 		});
 
@@ -397,7 +396,7 @@ JS;
 		{
             try
             {
-                $extension = new Extension($ext);
+                $extension = Extension::getInstance($ext);
 				$content .= "\n" . $extension->getContent($excludeResult);
             } catch (SystemException $e)
             {

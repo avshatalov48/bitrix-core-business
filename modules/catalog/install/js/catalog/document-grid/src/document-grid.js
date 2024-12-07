@@ -1,8 +1,7 @@
 import { ajax, Dom, Event, Extension, Loc, Tag } from 'main.core';
-import { Popup, PopupManager } from 'main.popup';
-import { Button, ButtonColor } from 'ui.buttons';
-import { StoreSlider } from 'catalog.store-use';
+import { PopupManager } from 'main.popup';
 import { MessageBox } from 'ui.dialogs.messagebox';
+import { EnableWizardOpener, AnalyticsContextList } from 'catalog.store-enable-wizard';
 
 export class DocumentGridManager
 {
@@ -38,7 +37,7 @@ export class DocumentGridManager
 		}
 
 		MessageBox.confirm(
-			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'),
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT_2'),
 			(messageBox, button) => {
 				button.setWaiting();
 				ajax.runAction(
@@ -103,7 +102,7 @@ export class DocumentGridManager
 		actionConfig.analyticsLabel.mode = 'single';
 
 		MessageBox.confirm(
-			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'),
+			Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT_2'),
 			(messageBox, button) => {
 				button.setWaiting();
 				ajax.runAction(
@@ -162,7 +161,7 @@ export class DocumentGridManager
 
 		actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 
-		let content = Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT');
+		let content = Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT_2');
 		if (settings.get('isProductBatchMethodSelected'))
 		{
 			const text = Loc.getMessage(
@@ -412,9 +411,12 @@ export class DocumentGridManager
 
 	openStoreMasterSlider()
 	{
-		new StoreSlider().open(
+		new EnableWizardOpener().open(
 			this.masterSliderUrl,
 			{
+				urlParams: {
+					analyticsContextSection: AnalyticsContextList.DOCUMENT_LIST,
+				},
 				data: {
 					openGridOnDone: false,
 				},

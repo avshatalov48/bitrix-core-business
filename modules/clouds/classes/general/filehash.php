@@ -23,23 +23,25 @@ class CCloudFileHash
 		}
 
 		$files = $bucket->ListFiles('/', true, $step_size, $last_key);
-		if ($files && $files["file"])
+		if ($files && $files['file'])
 		{
 			\Bitrix\Clouds\FileHashTable::addList($bucket_id, $files);
 		}
 
-		if (!$files || count($files["file"]) < $step_size)
+		if (!$files || count($files['file']) < $step_size)
 		{
 			//We have done with the listing proceed to save hashes to b_file_hash table.
-			return "CCloudFileHash::setFileHashAgent($bucket_id, 0, $step_size);";
+			return 'CCloudFileHash::setFileHashAgent(' . $bucket_id . ', 0, ' . $step_size . ');';
 		}
 		//Continue to read cloud hashes to the database.
-		return "CCloudFileHash::getFileHashAgent($bucket_id, $step_size);";
+		return 'CCloudFileHash::getFileHashAgent(' . $bucket_id . ', ' . $step_size . ');';
 	}
 
 	public static function setFileHashAgent($bucket_id, $last_file_id, $step_size = 1000)
 	{
-		global $DB;
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		$bucket_id = intval($bucket_id);
 		$last_file_id = intval($last_file_id);
 		$step_size = intval($step_size);
@@ -48,56 +50,52 @@ class CCloudFileHash
 			$step_size = 1000;
 		}
 
-		$rs = $DB->Query("
-			select f.ID, concat(f.SUBDIR, '/', f.FILE_NAME) FILE_PATH, f.FILE_SIZE
+		$rs = $connection->query('
+			select f.ID, f.SUBDIR, f.FILE_NAME, f.FILE_SIZE
 			from b_file f
 			LEFT JOIN b_file_hash h on h.FILE_ID = f.ID
-			where f.HANDLER_ID = $bucket_id
+			where f.HANDLER_ID = ' . $bucket_id . '
 			and h.FILE_ID is null
-			and f.ID > $last_file_id
+			and f.ID > ' . $last_file_id . '
 			ORDER BY f.ID
-			limit $step_size
-			");
-		$files = array();
-		while ($ar = $rs->Fetch())
+			limit
+			', $step_size);
+		$files = [];
+		while ($ar = $rs->fetch())
 		{
-			$files[$ar["FILE_PATH"]] = $ar["ID"];
-			$last_file_id = $ar["ID"];
+			$files[$ar['SUBDIR'] . '/' . $ar['FILE_NAME']] = $ar['ID'];
+			$last_file_id = $ar['ID'];
 		}
+
 		if (!$files)
 		{
 			return '';
 		}
 
-		$rs = \Bitrix\Clouds\FileHashTable::getList(array(
-			"filter" => array(
-				"=BUCKET_ID" => $bucket_id,
-				"=FILE_PATH" => array_keys($files),
-			),
-		));
-		$values = array();
+		$values = [];
+		$rs = \Bitrix\Clouds\FileHashTable::getList([
+			'filter' => [
+				'=BUCKET_ID' => $bucket_id,
+				'=FILE_PATH' => array_keys($files),
+			],
+		]);
 		while ($ar = $rs->fetch())
 		{
-			if (isset($files[$ar["FILE_PATH"]]))
+			if (isset($files[$ar['FILE_PATH']]))
 			{
-				$file_id = intval($files[$ar["FILE_PATH"]]);
-				$file_size = intval($ar["FILE_SIZE"]);
-				$file_hash = $DB->ForSql($ar["FILE_HASH"]);
-				$values[] = "($file_id,$file_size,'$file_hash')";
+				$values[] = [
+					'FILE_ID' => $files[$ar['FILE_PATH']],
+					'FILE_SIZE' => $ar['FILE_SIZE'],
+					'FILE_HASH' => $ar['FILE_HASH'],
+				];
 			}
 		}
-		if ($values)
+
+		foreach ($helper->prepareMergeMultiple('b_file_hash', ['FILE_ID'], $values) as $insert)
 		{
-			$DB->Query("
-				INSERT INTO b_file_hash
-				(FILE_ID, FILE_SIZE, FILE_HASH)
-				values
-				".implode(",\n", $values)."
-				ON DUPLICATE KEY UPDATE
-				FILE_SIZE=values(FILE_SIZE), FILE_HASH=values(FILE_HASH)
-			");
+			$connection->query($insert);
 		}
 
-		return "CCloudFileHash::setFileHashAgent($bucket_id, $last_file_id, $step_size);";
+		return 'CCloudFileHash::setFileHashAgent(' . $bucket_id . ', ' . $last_file_id . ', ' . $step_size . ');';
 	}
 }

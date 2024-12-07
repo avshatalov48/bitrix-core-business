@@ -1,7 +1,8 @@
 <?php
 namespace Bitrix\Im;
 
-use Bitrix\Main\Entity\ExpressionField;
+use Bitrix\Im\Model\AliasTable;
+use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;
 
 class Alias
@@ -11,7 +12,6 @@ class Alias
 	const ENTITY_TYPE_OPEN_LINE = 'LINES';
 	const ENTITY_TYPE_LIVECHAT = 'LIVECHAT';
 	const ENTITY_TYPE_VIDEOCONF = 'VIDEOCONF';
-	const ENTITY_TYPE_JITSICONF = 'JITSICONF';
 	const ENTITY_TYPE_OTHER = 'OTHER';
 
 	const CACHE_TTL = 31536000;
@@ -48,6 +48,8 @@ class Alias
 		{
 			return false;
 		}
+
+		self::cleanChatCache($entityType, (int)$entityId);
 
 		return $result->getId();
 	}
@@ -99,7 +101,20 @@ class Alias
 		if (empty($update))
 			return false;
 
+		$oldRecord = AliasTable::getByPrimary($id)->fetch();
 		\Bitrix\Im\Model\AliasTable::update($id, $update);
+		if ((int)$oldRecord['ENTITY_ID'] !== 0)
+		{
+			self::cleanChatCache($oldRecord['ENTITY_TYPE'], (int)$oldRecord['ENTITY_ID']);
+		}
+		if (
+			isset($fields['ENTITY_TYPE'], $fields['ENTITY_ID'])
+			&& (int)$fields['ENTITY_ID'] !== (int)$oldRecord['ENTITY_ID']
+			&& (int)$fields['ENTITY_ID'] !== 0
+		)
+		{
+			self::cleanChatCache($fields['ENTITY_TYPE'], (int)$fields['ENTITY_ID']);
+		}
 
 		return true;
 	}
@@ -110,16 +125,17 @@ class Alias
 		{
 			$aliasData = self::get($id);
 			if (!$aliasData)
-				return false;
+				return new Result();
 		}
 		else
 		{
-			$aliasData['ID'] = intval($id);
+			$aliasData = AliasTable::getByPrimary($id)->fetch();
 		}
 
-		\Bitrix\Im\Model\AliasTable::delete($aliasData['ID']);
+		$result = \Bitrix\Im\Model\AliasTable::delete((int)$aliasData['ID']);
+		self::cleanChatCache($aliasData['ENTITY_TYPE'], (int)$aliasData['ENTITY_ID']);
 
-		return true;
+		return $result;
 	}
 
 	public static function get($alias)
@@ -211,7 +227,7 @@ class Alias
 	{
 		$path = '/online/';
 
-		if ($type === self::ENTITY_TYPE_VIDEOCONF || $type === self::ENTITY_TYPE_JITSICONF)
+		if ($type === self::ENTITY_TYPE_VIDEOCONF)
 		{
 			$path = '/video/';
 		}
@@ -232,6 +248,14 @@ class Alias
 		else
 		{
 			return mb_substr(uniqid(),-8);
+		}
+	}
+
+	protected static function cleanChatCache(string $entityType, int $entityId): void
+	{
+		if ($entityType !== self::ENTITY_TYPE_USER)
+		{
+			\Bitrix\Im\V2\Chat::cleanCache($entityId);
 		}
 	}
 }

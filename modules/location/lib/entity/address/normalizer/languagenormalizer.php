@@ -84,12 +84,12 @@ class LanguageNormalizer implements INormalizer
 	{
 		$result = $string;
 		$implodedTitles = implode('|', $titles);
-		$regexp = '/^('.$implodedTitles.')+\s+(.*?)$/i'.BX_UTF_PCRE_MODIFIER;
+		$regexp = '/^('.$implodedTitles.')+\s+(.*?)$/iu';
 		$result = preg_replace($regexp, '$2', $result);
 
 		if($result !== null)
 		{
-			$regexp = '/^(.*?)\s+(' . $implodedTitles . ')+$/i' . BX_UTF_PCRE_MODIFIER;
+			$regexp = '/^(.*?)\s+(' . $implodedTitles . ')+$/iu';
 			$result = preg_replace($regexp, '$1', $result);
 		}
 

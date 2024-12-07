@@ -1,8 +1,11 @@
-<?
+<?php
 
-use \Bitrix\Sale\Internals\FacebookConversion;
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+use Bitrix\Sale\Internals\FacebookConversion;
 
 class CatalogItemComponent extends CBitrixComponent
 {

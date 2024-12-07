@@ -18,7 +18,7 @@ foreach ($arParams['FIELDS'] as $fieldID => $arField)
 	<?=CAdminMobileFilter::getHtml($arFilteredFields, isset($arParams["GET_JS"]) ? true : false);?>
 </div>
 
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage("MOBILE_APP_FILTER_TITLE")?>"});
 

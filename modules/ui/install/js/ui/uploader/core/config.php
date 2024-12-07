@@ -60,6 +60,7 @@ return [
 		'acceptedFileTypes' => empty($defaultConfig->getAcceptedFileTypes()) ? null : $defaultConfig->getAcceptedFileTypes(),
 		'ignoredFileNames' => $defaultConfig->getIgnoredFileNames(),
 
-		'imageExtensions' => Configuration::getImageExtensions(),
+		'imageExtensions' => Configuration::getImageExtensions(withDot: false),
+		'videoExtensions' => Configuration::getVideoExtensions(withDot: false),
 	],
 ];

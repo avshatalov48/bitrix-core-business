@@ -9,8 +9,6 @@ if(!function_exists("__UnEscape"))
 			array_walk($item, '__UnEscape');
 		elseif (mb_strpos($item, "%u") !== false)
 			$item = $GLOBALS["APPLICATION"]->UnJSEscape($item);
-		elseif (LANG_CHARSET != "UTF-8" && preg_match("/^.{1}/su", $item) == 1)
-			$item = $GLOBALS["APPLICATION"]->ConvertCharset($item, "UTF-8", LANG_CHARSET);
 	}
 }
 

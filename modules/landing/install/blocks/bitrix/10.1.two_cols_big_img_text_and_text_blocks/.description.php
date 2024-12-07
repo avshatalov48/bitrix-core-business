@@ -67,6 +67,10 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_CARDS_LANDINGBLOCKCARDTEXTBLOCK'),
 			'type' => ['box', 'paddings', 'border-colors', 'animation'],
 		],
+		'.landing-block-card-text-inner' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_CARDS_LANDINGBLOCKCARDTEXTBLOCK'),
+			'type' => 'box',
+		],
 		'.landing-block-node-text-block-title' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODETEXTBLOCKTITLE'),
 			'type' => 'typo',

@@ -4,11 +4,15 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Internals\ChatIndex;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Sync;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Event;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\MapBuilder;
+use Bitrix\Main\Text\Emoji;
 
 
 /**
@@ -41,9 +45,9 @@ use Bitrix\Main\Search\MapBuilder;
  *
  * <<< ORMENTITYANNOTATION
  * @method static EO_Chat_Query query()
- * @method static EO_Chat_Result getByPrimary($primary, array $parameters = array())
+ * @method static EO_Chat_Result getByPrimary($primary, array $parameters = [])
  * @method static EO_Chat_Result getById($id)
- * @method static EO_Chat_Result getList(array $parameters = array())
+ * @method static EO_Chat_Result getList(array $parameters = [])
  * @method static EO_Chat_Entity getEntity()
  * @method static \Bitrix\Im\Model\EO_Chat createObject($setDefaultValues = true)
  * @method static \Bitrix\Im\Model\EO_Chat_Collection createCollection()
@@ -90,8 +94,9 @@ class ChatTable extends Entity\DataManager
 			'DESCRIPTION' => array(
 				'data_type' => 'text',
 				//'title' => Loc::getMessage('CHAT_ENTITY_DESCRIPTION_FIELD'),
-				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
+				'save_data_modification' => array('\Bitrix\Im\Model\ChatTable', 'getSaveModificator'),
 				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
+				'nullable' => true,
 			),
 			'COLOR' => array(
 				'data_type' => 'string',
@@ -181,7 +186,7 @@ class ChatTable extends Entity\DataManager
 			),
 			'LAST_MESSAGE_STATUS' => array(
 				'data_type' => 'string',
-				'default_value' => IM_MESSAGE_STATUS_RECEIVED,
+				'default_value' => "IM_MESSAGE_STATUS_RECEIVED",
 				'validation' => array(__CLASS__, 'validateMessageStatus'),
 			),
 			'DATE_CREATE' => array(
@@ -233,6 +238,24 @@ class ChatTable extends Entity\DataManager
 		);
 	}
 
+	public static function withRelation(Query $query, ?int $userId): void
+	{
+		$join = Join::on('this.ID', 'ref.CHAT_ID');
+		if ($userId !== null)
+		{
+			$join->where('ref.USER_ID', $userId);
+		}
+		$query->registerRuntimeField(
+			'RELATION',
+			new Reference(
+				'RELATION',
+				RelationTable::class,
+				$join,
+				['join_type' => Join::TYPE_LEFT]
+			)
+		);
+	}
+
 	public static function onAfterUpdate(\Bitrix\Main\ORM\Event $event)
 	{
 		$fields = $event->getParameter("fields");
@@ -253,13 +276,11 @@ class ChatTable extends Entity\DataManager
 			Chat::cleanCache($chatId);
 		}
 
-		if (!Chat::getInstance($chatId) instanceof Chat\OpenLineChat)
-		{
-			Sync\Logger::getInstance()->add(
-				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
-				static fn () => Chat::getInstance($chatId)->getRelations()->getUserIds()
-			);
-		}
+		Sync\Logger::getInstance()->add(
+			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, $chatId),
+			static fn () => Chat::getInstance($chatId)->getRelations()->getUserIds(),
+			Chat::getInstance($chatId)->getType()
+		);
 
 		return new Entity\EventResult();
 	}
@@ -302,7 +323,14 @@ class ChatTable extends Entity\DataManager
 		}
 		$insertData = self::prepareParamsForIndex($index);
 
-		ChatIndexTable::add($insertData);
+		try
+		{
+			ChatIndexTable::add($insertData);
+		}
+		catch (SqlQueryException)
+		{
+			self::updateIndexRecord($index);
+		}
 	}
 
 	public static function updateIndexRecord(ChatIndex $index)
@@ -486,5 +514,24 @@ class ChatTable extends Entity\DataManager
 			'SEARCH_CONTENT' => MapBuilder::create()->addText(self::generateSearchContent($index))->build(),
 			'SEARCH_TITLE' => MapBuilder::create()->addText(self::generateSearchTitle($index))->build(),
 		];
+	}
+
+	public static function getSaveModificator()
+	{
+		return array(
+			array(__CLASS__, 'encode')
+		);
+	}
+
+	public static function encode($text)
+	{
+		if ($text === null)
+		{
+			return null;
+		}
+
+		return Emoji::replace($text, function ($m) {
+			return ":".bin2hex($m[0]).":";
+		});
 	}
 }

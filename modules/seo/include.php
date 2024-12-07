@@ -69,7 +69,7 @@ class CSeoEventHandlers
 				$encTitleChangerName = urlencode($APPLICATION->sDocTitleChanger['COMPONENT_NAME']);
 		}
 
-		$prop_code = ToUpper(COption::GetOptionString('seo', 'property_window_title', 'title'));
+		$prop_code = mb_strtoupper(COption::GetOptionString('seo', 'property_window_title', 'title'));
 
 		if (isset($APPLICATION->arPagePropertiesChanger[$prop_code]) && is_array($APPLICATION->arPagePropertiesChanger[$prop_code]))
 		{

@@ -1,0 +1,86 @@
+.calendar-open-events-list-events {
+	display: flex;
+	flex-direction: column;
+	position: relative;
+	overflow: hidden;
+}
+
+.calendar-open-events-list-events:not(.--updating) .main-ui-loader {
+	display: none;
+}
+
+.calendar-open-events-list-events-list {
+	flex: 1;
+	position: relative;
+}
+
+.calendar-open-events-list-item {
+	display: flex;
+	padding: 20px;
+	align-items: flex-start;
+	border-bottom: 1px solid var(--ui-color-base-15);
+}
+
+.calendar-open-events-list-item-info {
+	flex: 1;
+	display: flex;
+}
+
+.calendar-open-events-list-item-actions {
+	display: flex;
+	margin-left: auto;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	min-width: 200px;
+	margin-top: 10px;
+}
+
+.calendar-open-events-list-item-name {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	row-gap: 8px;
+	margin-top: 4px;
+	margin-right: 16px;
+}
+
+.calendar-open-events-list-event-time {
+	display: flex;
+	gap: 10px;
+	font-size: var(--ui-font-size-lg);
+	white-space: nowrap;
+}
+
+.calendar-open-events-list-event-time-datetime {
+	color: var(--ui-color-base-90);
+}
+
+.calendar-open-events-list-event-time-full-day {
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.calendar-open-events-list-event-time-full-day::first-letter {
+	text-transform: capitalize;
+}
+
+.calendar-open-events-list-event-time-recursion {
+	background-color: var(--ui-color-palette-blue-15);
+	border-radius: 16px;
+	padding: 2px 8px;
+	display: flex;
+	align-items: center;
+	cursor: default;
+}
+
+.calendar-open-events-list-event-time-recursion .ui-icon-set {
+	--ui-icon-set__icon-size: 16px;
+	--ui-icon-set__icon-color: var(--ui-color-palette-blue-90);
+}
+
+.calendar-open-events-list-event-time-rrule {
+	margin-left: 5px;
+	color: var(--ui-color-palette-blue-80);
+	font-size: var(--ui-font-size-xs);
+}

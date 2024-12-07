@@ -72,6 +72,12 @@ class WorkflowUserTable extends DataManager
 			))
 				->configureJoinType(Join::TYPE_INNER)
 			,
+			(new Reference(
+				'COMMENTS',
+				WorkflowUserCommentTable::class,
+				Join::on('this.WORKFLOW_ID', 'ref.WORKFLOW_ID')
+					->whereColumn('this.USER_ID', 'ref.USER_ID')
+			)),
 		];
 	}
 
@@ -100,14 +106,10 @@ class WorkflowUserTable extends DataManager
 		foreach ($users as $id => $user)
 		{
 			$users[$id]['WORKFLOW_STATUS'] = $workflowStatus;
+			$users[$id]['IS_AUTHOR'] ??= 0;
 		}
 
 		static::syncUsers($workflowId, $users);
-	}
-
-	private static function isLiveFeedProcess(array $documentId): bool
-	{
-		return ($documentId[0] ?? '') === 'lists' && ($documentId[1] ?? '') === 'BizprocDocument';
 	}
 
 	public static function syncOnTaskUpdated(string $workflowId): array
@@ -115,6 +117,33 @@ class WorkflowUserTable extends DataManager
 		$users = static::getTaskUsers($workflowId);
 
 		return static::syncUsers($workflowId, $users);
+	}
+
+	public static function getUserIdsByWorkflowId(string $workflowId): array
+	{
+		$result = static::getList([
+			'select' => ['USER_ID'],
+			'filter' => ['=WORKFLOW_ID' => $workflowId],
+		])->fetchAll();
+
+		$ids = array_column($result, 'USER_ID');
+		return array_map(
+			static fn($id) => (int)$id,
+			$ids,
+		);
+	}
+
+	public static function touchWorkflowUsers(string $workflowId, array $userIds): void
+	{
+		static::updateOnSync(
+			$workflowId,
+			array_fill_keys($userIds, [/* MODIFIED = new DateTime() */])
+		);
+	}
+
+	private static function isLiveFeedProcess(array $documentId): bool
+	{
+		return ($documentId[0] ?? '') === 'lists' && ($documentId[1] ?? '') === 'BizprocDocument';
 	}
 
 	private static function getTaskUsers(string $workflowId): array
@@ -153,7 +182,7 @@ class WorkflowUserTable extends DataManager
 
 		self::deleteOnSync($workflowId, $toDelete);
 		self::addOnSync($workflowId, $toAdd);
-		self::updateOnSync($workflowId, $toUpdate);
+		self::updateOnSync($workflowId, $toUpdate, $stored);
 
 		return [array_keys($toAdd), array_keys($toUpdate), array_keys($toDelete)];
 	}
@@ -187,6 +216,7 @@ class WorkflowUserTable extends DataManager
 			]);
 		}
 
+		WorkflowUserCommentTable::deleteUsersByWorkflow($deleted, $workflowId);
 		WorkflowPush::pushDeleted($workflowId, $deleted);
 	}
 
@@ -212,7 +242,7 @@ class WorkflowUserTable extends DataManager
 		WorkflowPush::pushAdded($workflowId, array_keys($toAdd));
 	}
 
-	private static function updateOnSync(string $workflowId, array $toUpdate): void
+	private static function updateOnSync(string $workflowId, array $toUpdate, ?array $stored = null): void
 	{
 		if (!$toUpdate)
 		{
@@ -223,7 +253,17 @@ class WorkflowUserTable extends DataManager
 
 		foreach ($toUpdate as $userId => $user)
 		{
-			$user['MODIFIED'] = $modified;
+			if (
+				isset($stored[$userId])
+				&& $user['TASK_STATUS'] !== static::TASK_STATUS_ACTIVE
+				&& static::isEqualUser($user, $stored[$userId])
+			)
+			{
+				unset($toUpdate[$userId]);
+				continue;
+			}
+
+			$user['MODIFIED'] ??= $modified;
 
 			static::update(
 				[
@@ -235,6 +275,15 @@ class WorkflowUserTable extends DataManager
 		}
 
 		WorkflowPush::pushUpdated($workflowId, array_keys($toUpdate));
+	}
+
+	private static function isEqualUser(array $userA, array $userB): bool
+	{
+		return (
+			($userA['IS_AUTHOR'] ?? null) === ($userB['IS_AUTHOR'] ?? null)
+			&& ($userA['WORKFLOW_STATUS'] ?? null) === ($userB['WORKFLOW_STATUS'] ?? null)
+			&& ($userA['TASK_STATUS'] ?? null) === ($userB['TASK_STATUS'] ?? null)
+		);
 	}
 
 	private static function getStoredUsers(string $workflowId): array
@@ -269,6 +318,27 @@ class WorkflowUserTable extends DataManager
 		self::deleteOnSync($workflowId, $stored);
 
 		return array_keys($stored);
+	}
+
+	public static function onDocumentDelete(array $docId): void
+	{
+		$stateIds = WorkflowStateTable::getIdsByDocument($docId, 1000);
+
+		if (!$stateIds)
+		{
+			return;
+		}
+
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$tableName = $sqlHelper->forSql(static::getTableName());
+		$sqlQuery = sprintf(
+			'DELETE from %s WHERE WORKFLOW_ID IN(%s)',
+			$tableName,
+			implode(',', array_map(fn($id) => "'{$id}'", $stateIds))
+		);
+
+		$connection->queryExecute($sqlQuery);
 	}
 
 	public static function convertUserProcesses(int $userId): void

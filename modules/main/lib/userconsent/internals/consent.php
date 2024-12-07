@@ -11,7 +11,6 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Crm\WebForm\Helper;
 
 Loc::loadMessages(__FILE__);
 

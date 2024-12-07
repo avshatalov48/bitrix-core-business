@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.Ui = this.BX.Landing.Ui || {};
@@ -274,12 +275,23 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	  return RefillActionPagesField;
 	}(ActionPagesField);
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _fieldsWithWarningStatus = /*#__PURE__*/new WeakMap();
+	var _updateLinkField = /*#__PURE__*/new WeakSet();
 	var ActionsContent = /*#__PURE__*/function (_ContentWrapper) {
 	  babelHelpers.inherits(ActionsContent, _ContentWrapper);
 	  function ActionsContent(options) {
 	    var _this;
 	    babelHelpers.classCallCheck(this, ActionsContent);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(ActionsContent).call(this, options));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _updateLinkField);
+	    _classPrivateFieldInitSpec(babelHelpers.assertThisInitialized(_this), _fieldsWithWarningStatus, {
+	      writable: true,
+	      value: new Set()
+	    });
 	    _this.setEventNamespace('BX.Landing.UI.Panel.FormSettingsPanel.ActionsContent');
 	    main_core.Dom.addClass(_this.getLayout(), 'landing-ui-actions-content-wrapper');
 	    _this.addItem(_this.getHeader());
@@ -409,10 +421,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      return this.cache.remember('successLinkField', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_SUCCESS_FIELD_TITLE'),
-	          placeholder: 'http://',
+	          footerText: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_LINK_WARNING_MESSAGE'),
+	          placeholder: 'https://',
 	          textOnly: true,
 	          content: _this4.options.formOptions.result.success.url,
-	          onInput: _this4.onChange.bind(_this4)
+	          onInput: _this4.onChange.bind(_this4),
+	          onValueChange: _this4.onLinkValueChange.bind(_this4)
 	        });
 	      });
 	    }
@@ -423,10 +437,12 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	      return this.cache.remember('failureLinkField', function () {
 	        return new landing_ui_field_textfield.TextField({
 	          title: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_FAILURE_FIELD_TITLE'),
-	          placeholder: 'http://',
+	          footerText: landing_loc.Loc.getMessage('LANDING_FORM_ACTIONS_LINK_WARNING_MESSAGE'),
+	          placeholder: 'https://',
 	          textOnly: true,
 	          content: _this5.options.formOptions.result.failure.url,
-	          onInput: _this5.onChange.bind(_this5)
+	          onInput: _this5.onChange.bind(_this5),
+	          onValueChange: _this5.onLinkValueChange.bind(_this5)
 	        });
 	      });
 	    }
@@ -544,9 +560,65 @@ this.BX.Landing.Ui.Panel.Formsettingspanel = this.BX.Landing.Ui.Panel.Formsettin
 	        }
 	      };
 	    }
+	  }, {
+	    key: "onLinkValueChange",
+	    value: function onLinkValueChange(textField) {
+	      var url = textField.getValue();
+	      var urlLength = url.length;
+	      if (urlLength === 0) {
+	        this.unsetWarningStatusToLinkField(textField);
+	        return;
+	      }
+	      if (url.trim().length !== urlLength) {
+	        url = url.trim();
+	        _classPrivateMethodGet(this, _updateLinkField, _updateLinkField2).call(this, textField, url);
+	      }
+	      var isHttps = url.startsWith('https://');
+	      if (isHttps) {
+	        this.unsetWarningStatusToLinkField(textField);
+	      } else {
+	        this.setWarningStatusToLinkField(textField);
+	      }
+	    }
+	  }, {
+	    key: "setWarningStatusToLinkField",
+	    value: function setWarningStatusToLinkField(textField) {
+	      var textFieldKey = textField.id;
+	      if (babelHelpers.classPrivateFieldGet(this, _fieldsWithWarningStatus).has(textFieldKey)) {
+	        return;
+	      }
+	      textField.setWarningStatus();
+	      textField.showFooter();
+	      babelHelpers.classPrivateFieldGet(this, _fieldsWithWarningStatus).add(textFieldKey);
+	    }
+	  }, {
+	    key: "unsetWarningStatusToLinkField",
+	    value: function unsetWarningStatusToLinkField(textField) {
+	      var textFieldKey = textField.id;
+	      if (!babelHelpers.classPrivateFieldGet(this, _fieldsWithWarningStatus).has(textFieldKey)) {
+	        return;
+	      }
+	      textField.unsetWarningStatus();
+	      textField.hideFooter();
+	      babelHelpers.classPrivateFieldGet(this, _fieldsWithWarningStatus)["delete"](textFieldKey);
+	    }
 	  }]);
 	  return ActionsContent;
 	}(landing_ui_panel_basepresetpanel.ContentWrapper);
+	function _updateLinkField2(textField, url) {
+	  var range = document.createRange();
+	  var selection = window.getSelection();
+	  var needToMove = selection.focusOffset > 1;
+	  textField.input.innerText = url;
+	  if (!needToMove) {
+	    return;
+	  }
+	  var node = selection.focusNode;
+	  range.setStart(node, node.childNodes.length);
+	  range.collapse(true);
+	  selection.removeAllRanges();
+	  selection.addRange(range);
+	}
 
 	exports.default = ActionsContent;
 

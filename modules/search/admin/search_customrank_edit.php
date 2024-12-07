@@ -202,7 +202,7 @@ $context->Show();
 
 <?CAdminMessage::ShowMessage($strError);?>
 
-<script type="text/javascript">
+<script>
 function ParamUpdate()
 {
 	var module_id = document.getElementById('MODULE_ID').value;
@@ -426,7 +426,7 @@ $tabControl->End();
 ?>
 </form>
 
-<script type="text/javascript">
+<script>
 	ParamUpdate();
 </script>
 <?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

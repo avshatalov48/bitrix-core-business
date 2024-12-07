@@ -39,16 +39,6 @@ $allowEditPrices = $allowEdit
 	&& $accessController->check(ActionDictionary::ACTION_PRICE_EDIT)
 ;
 
-if ($allowEdit)
-{
-	$SUBCAT_VAT_ID = (int)($_POST['SUBCAT_VAT_ID'] ?? 0);
-	$SUBCAT_VAT_INCLUDED = ($_POST['SUBCAT_VAT_INCLUDED'] ?? 'N');
-	if ($SUBCAT_VAT_INCLUDED !== 'Y')
-	{
-		$SUBCAT_VAT_INCLUDED = 'N';
-	}
-}
-
 if ($allowEditPrices)
 {
 	$enableQuantityRanges = Catalog\Config\Feature::isPriceQuantityRangesEnabled();
@@ -90,7 +80,7 @@ if ($allowEditPrices)
 			)
 			{
 				$arCatalogBasePrices[] = array(
-					"ID" => intval($SUBCAT_BASE_ID[$i]),
+					"ID" => (int)($SUBCAT_BASE_ID[$i] ?? 0),
 					"IND" => $i,
 					"QUANTITY_FROM" => $bUseExtForm ? intval(${"SUBCAT_BASE_QUANTITY_FROM_".$i}) : '',
 					"QUANTITY_TO" => $bUseExtForm ? intval(${"SUBCAT_BASE_QUANTITY_TO_".$i}) : '',

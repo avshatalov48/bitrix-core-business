@@ -42,7 +42,7 @@ class Step2 extends CWizardStep
 		CUtil::InitJSCore();
 
 		$this->content .= <<<EOT
-<script type="text/javascript">
+<script>
 function checkZIP()
 {
 	var obCSVFileRus = BX('loc_ussr');
@@ -69,19 +69,22 @@ function checkZIP()
 
 </script>
 EOT;
+		$allowExportFromServer = $this->isAllowedExportFromServer();
 		$this->content .= "<b>".GetMessage('WSL_STEP2_GFILE_TITLE')."</b><p>";
 
-		$this->content .= $this->ShowRadioField("locations_csv", "loc_ussr.csv", array("onchange" => "checkZIP()", "id" => "loc_ussr", "checked" => "checked"))
-			." <label for=\"loc_ussr\">".GetMessage('WSL_STEP2_GFILE_USSR')."</label><br />";
+		if ($allowExportFromServer)
+		{
+			$this->content .= $this->ShowRadioField("locations_csv", "loc_ussr.csv", array("onchange" => "checkZIP()", "id" => "loc_ussr", "checked" => "checked"))
+				." <label for=\"loc_ussr\">".GetMessage('WSL_STEP2_GFILE_USSR')."</label><br />";
 
-		$this->content .= $this->ShowRadioField("locations_csv", "loc_ua.csv", array("onchange" => "checkZIP()", "id" => "loc_ua"))
-			." <label for=\"loc_ua\">".GetMessage('WSL_STEP2_GFILE_UA')."</label><br />";
-		$this->content .= $this->ShowRadioField("locations_csv", "loc_kz.csv", array("onchange" => "checkZIP()", "id" => "loc_kz"))
-			." <label for=\"loc_kz\">".GetMessage('WSL_STEP2_GFILE_KZ')."</label><br />";
-		$this->content .= $this->ShowRadioField("locations_csv", "loc_usa.csv", array("onchange" => "checkZIP()", "id" => "loc_usa"))
-			." <label for=\"loc_usa\">".GetMessage('WSL_STEP2_GFILE_USA')."</label><br />";
-		$this->content .= $this->ShowRadioField("locations_csv", "loc_cntr.csv", array("onchange" => "checkZIP()", "id" => "loc_cntr"))
-			." <label for=\"loc_cntr\">".GetMessage('WSL_STEP2_GFILE_CNTR')."</label><br />";
+			$this->content .= $this->ShowRadioField("locations_csv", "loc_kz.csv", array("onchange" => "checkZIP()", "id" => "loc_kz"))
+				." <label for=\"loc_kz\">".GetMessage('WSL_STEP2_GFILE_KZ')."</label><br />";
+			$this->content .= $this->ShowRadioField("locations_csv", "loc_usa.csv", array("onchange" => "checkZIP()", "id" => "loc_usa"))
+				." <label for=\"loc_usa\">".GetMessage('WSL_STEP2_GFILE_USA')."</label><br />";
+			$this->content .= $this->ShowRadioField("locations_csv", "loc_cntr.csv", array("onchange" => "checkZIP()", "id" => "loc_cntr"))
+				." <label for=\"loc_cntr\">".GetMessage('WSL_STEP2_GFILE_CNTR')."</label><br />";
+		}
+
 		$this->content .= $this->ShowRadioField("locations_csv", "locations.csv", array("onchange" => "checkZIP()", "id" => "ffile"))
 			." <label for=\"ffile\">".GetMessage('WSL_STEP2_GFILE_FILE')."</label><br />"
 			."<span style=\"display:none;\" id=\"fileupload\">"."<input type=\"file\" name=\"FILE_IMPORT_UPLOAD\" value=\"\"><br />"."</span>";
@@ -90,8 +93,11 @@ EOT;
 
 		$this->content .= "</p><p>";
 
-		$this->content .= $this->ShowCheckboxField("load_zip", 'Y', array("id" => "load_zip"))
-			." <label for=\"load_zip\">".GetMessage('WSL_STEP2_GFILE_ZIP')."</label>";
+		if ($allowExportFromServer)
+		{
+			$this->content .= $this->ShowCheckboxField("load_zip", 'Y', array("id" => "load_zip"))
+				." <label for=\"load_zip\">".GetMessage('WSL_STEP2_GFILE_ZIP')."</label>";
+		}
 
 		$this->content .= "</p><p><b>".GetMessage('WSL_STEP2_GSYNC_TITLE')."</b></p><p>";
 
@@ -103,6 +109,17 @@ EOT;
 		$this->content .= "</p>";
 
 		$this->content .= '<small>'.GetMessage('WSL_STEP2_GSYNC_HINT').'</small>';
+	}
+
+	private function isAllowedExportFromServer(): bool
+	{
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+		$isBitrixSiteManagementOnly =
+			!\Bitrix\Main\Loader::includeModule('bitrix24')
+			&& !\Bitrix\Main\Loader::includeModule('intranet')
+		;
+
+		return $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
 	}
 
 	function OnPostForm()
@@ -128,7 +145,7 @@ EOT;
 					$contents = fread($fp, filesize($_FILES["FILE_IMPORT_UPLOAD"]["tmp_name"]));
 					fclose($fp);
 
-					$contents = $GLOBALS["APPLICATION"]->ConvertCharset($contents, 'windows-1251', LANG_CHARSET);
+					$contents = \Bitrix\Main\Text\Encoding::convertEncoding($contents, 'windows-1251', LANG_CHARSET);
 
 					$sTmpFilePath = CTempFile::GetDirectoryName(12, 'sale');
 					CheckDirPath($sTmpFilePath);
@@ -205,9 +222,9 @@ class Step3 extends CWizardStep
 		$this->content .= '<div id="wait_message" style="display: none;"></div>';
 		$this->content .= '<div id="error_message" style="display: none;"><br /><button onclick="RunAgain(); return false">'.GetMessage('WSL_STEP3_ERROR_TRY').'</button></div>';
 		$this->content .= '</div>';
-		$this->content .= '<script type="text/javascript" src="/bitrix/js/main/cphttprequest.js"></script>';
-		$this->content .= '<script language="JavaScript" src="'.$path.'/js/import.js"></script>';
-		$this->content .= '<script language="JavaScript">
+		$this->content .= '<script src="/bitrix/js/main/cphttprequest.js"></script>';
+		$this->content .= '<script src="'.$path.'/js/import.js"></script>';
+		$this->content .= '<script>
 
 var nextButtonID = "'.$wizard->GetNextButtonID().'";
 var formID = "'.$wizard->GetFormName().'";
@@ -261,9 +278,9 @@ class Step4 extends CWizardStep
 		$this->content .= '<div id="wait_message" style="display: none;"></div>';
 		$this->content .= '<div id="output"><br /></div>';
 		$this->content .= '</div>';
-		$this->content .= '<script type="text/javascript" src="/bitrix/js/main/cphttprequest.js"></script>';
-		$this->content .= '<script type="text/javascript" src="'.$path.'/js/import.js"></script>';
-		$this->content .= '<script type="text/javascript">
+		$this->content .= '<script src="/bitrix/js/main/cphttprequest.js"></script>';
+		$this->content .= '<script src="'.$path.'/js/import.js"></script>';
+		$this->content .= '<script>
 
 var nextButtonID = "'.$wizard->GetNextButtonID().'";
 var formID = "'.$wizard->GetFormName().'";

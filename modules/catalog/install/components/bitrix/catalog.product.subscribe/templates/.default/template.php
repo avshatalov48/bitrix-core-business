@@ -68,7 +68,7 @@ if($showSubscribe):?>
 	</span>
 	<input type="hidden" id="<?=htmlspecialcharsbx($arResult['BUTTON_ID'])?>_hidden">
 
-	<script type="text/javascript">
+	<script>
 		BX.message({
 			CPST_SUBSCRIBE_POPUP_TITLE: '<?=GetMessageJS('CPST_SUBSCRIBE_POPUP_TITLE');?>',
 			CPST_SUBSCRIBE_BUTTON_NAME: '<?=CUtil::JSEscape($subscribeBtnName); ?>',

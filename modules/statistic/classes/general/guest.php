@@ -3,7 +3,6 @@ class CAllGuest
 {
 	public static function GetList($by = 's_last_date', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 
@@ -326,7 +325,7 @@ class CAllGuest
 			".$strSqlOrder."
 		";
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}
@@ -357,7 +356,7 @@ class CAllGuest
 				LEFT JOIN b_stat_city CITY ON (CITY.ID = G.LAST_CITY_ID)
 			WHERE
 				G.ID = '$ID'
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 
 		$res = new CStatResult($res);
 		return $res;

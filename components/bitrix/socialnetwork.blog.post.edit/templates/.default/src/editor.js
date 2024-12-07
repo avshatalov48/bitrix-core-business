@@ -52,6 +52,15 @@ export default class PostFormEditor extends EventEmitter
 			createdFromEmail: !!params.createdFromEmail,
 		};
 
+		const currentUri = new Uri(location.toString());
+		const getTextFromHash = currentUri.getQueryParam('getTextFromHash') === 'Y';
+
+		if (!Type.isStringFilled(this.formParams.text) && getTextFromHash)
+		{
+			this.formParams.textFromHash = decodeURIComponent(currentUri.getFragment());
+			history.replaceState(null, null, ' ');
+		}
+
 		EventEmitter.subscribe('onInitialized', (event: BaseEvent) => {
 			const [ obj, form ] = event.getData();
 			this.onHandlerInited(obj, form);
@@ -562,7 +571,6 @@ export default class PostFormEditor extends EventEmitter
 
 		const f = window[editor.id + 'Files'];
 		const handler = LHEPostForm.getHandler(editor.id);
-		const needToReparse = [];
 
 		let node = null;
 		let controller = null;
@@ -584,7 +592,6 @@ export default class PostFormEditor extends EventEmitter
 			}
 		}
 
-		const closure = (a, b) => { return () => { a.insertFile(b); } };
 		const closure2 = (a, b, c) => { return () => {
 			if (controller)
 			{
@@ -609,56 +616,15 @@ export default class PostFormEditor extends EventEmitter
 			{
 				controller.addFile(f[intId]);
 			}
-			else
-			{
-				let id = handler.checkFile(intId, "common", f[intId]);
-				needToReparse.push(intId);
 
-				if (
-					!!id
-					&& document.getElementById(`wd-doc${intId}`)
-					&& !document.getElementById(`wd-doc${intId}`).hasOwnProperty('bx-bound'))
-				{
-					BX(`wd-doc${intId}`).setAttribute('bx-bound', 'Y');
-
-					if (
-						(node = document.getElementById(`wd-doc${intId}`).querySelector('.feed-add-img-wrap'))
-						&& node
-					)
-					{
-						Event.bind(node, 'click', closure(handler, id));
-						node.style.cursor = 'pointer';
-					}
-
-					if (
-						(node = document.getElementById(`wd-doc${intId}`).querySelector('.feed-add-img-title'))
-						&& node
-					)
-					{
-						Event.bind(node, 'click', closure(handler, id));
-						node.style.cursor = 'pointer';
-					}
-				}
-			}
-
-			if (
-				(node = document.getElementById(`wd-doc${intId}`).querySelector('.feed-add-post-del-but'))
-				&& node
-			)
+			node = document.getElementById(`wd-doc${intId}`).querySelector('.feed-add-post-del-but');
+			if (node)
 			{
 				Event.bind(node, 'click', closure2(handler, intId, f[intId].del_url));
 				node.style.cursor = "pointer";
 			}
 		}
 
-		if (needToReparse.length > 0)
-		{
-			editor.SaveContent();
-			let content = editor.GetContent();
-			content = content.replace(new RegExp('\\&\\#91\\;IMG ID=(' + needToReparse.join('|') + ')([WIDTHHEIGHT=0-9 ]*)\\&\\#93\\;','gim'), '[IMG ID=$1$2]');
-			editor.SetContent(content);
-			editor.Focus();
-		}
 		PostForm.getInstance().initedEditorsList.push(editor.id);
 
 		EventEmitter.subscribe(editor, 'OnSetViewAfter', () => {
@@ -669,6 +635,12 @@ export default class PostFormEditor extends EventEmitter
 					editor.SetContent(`${Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')}`);
 				}
 				editor.Focus(true);
+			}
+
+			if (Type.isStringFilled(this.formParams.textFromHash))
+			{
+				this.formParams.text = this.formParams.textFromHash;
+				editor.action.Exec('insertHTML', this.formParams.textFromHash);
 			}
 		});
 	}

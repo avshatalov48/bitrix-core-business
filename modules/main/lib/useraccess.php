@@ -2,8 +2,6 @@
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
-
 /**
  * Class UserAccessTable
  *
@@ -59,5 +57,10 @@ class UserAccessTable extends Entity\DataManager
 		return array(
 			new Entity\Validator\Length(null, 100),
 		);
+	}
+
+	public static function isCacheable(): bool
+	{
+		return false;
 	}
 }

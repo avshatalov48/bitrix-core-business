@@ -8,8 +8,10 @@ type CounterOptions = {
 	value: number;
 	maxValue: number;
 	color: CounterColor;
+	secondaryColor: CounterColor;
 	border: boolean;
 	size: string;
+	isDouble: boolean;
 };
 
 export default class Counter
@@ -24,10 +26,12 @@ export default class Counter
 		this.container = null;
 		this.counterContainer = null;
 		this.animate = Type.isBoolean(this.options.animate) ? this.options.animate : false;
+		this.isDouble = Type.isBoolean(this.options.isDouble) ? this.options.isDouble : false;
 		this.value = Type.isNumber(this.options.value) ? this.options.value : 0;
 		this.maxValue = Type.isNumber(this.options.maxValue) ? this.options.maxValue : 99;
 		this.size = Type.isString(this.options.size) ? this.options.size : BX.UI.Counter.Size.MEDIUM;
 		this.color = Type.isString(this.options.color) ? this.options.color : BX.UI.Counter.Color.PRIMARY;
+		this.secondaryColor = Type.isString(this.options.secondaryColor) ? this.options.secondaryColor : BX.UI.Counter.Color.PRIMARY;
 		this.border = Type.isBoolean(this.options.border) ? this.options.border : false;
 	}
 
@@ -111,6 +115,27 @@ export default class Counter
 		}
 
 		return this;
+	}
+
+	createSecondaryContainer()
+	{
+		if (this.isDouble)
+		{
+			this.secondaryContainer = Tag.render`
+				<div class="ui-counter-secondary"></div>
+			`;
+		}
+		Dom.append(this.secondaryContainer, this.container);
+	}
+
+	setSecondaryColor()
+	{
+		if (this.secondaryContainer === null)
+		{
+			this.createSecondaryContainer();
+		}
+		Dom.removeClass(this.secondaryContainer, this.secondaryColor);
+		Dom.addClass(this.secondaryContainer, this.secondaryColor);
 	}
 
 	setBorder(border: boolean): this
@@ -249,6 +274,8 @@ export default class Counter
 			this.setSize(this.size);
 			this.setColor(this.color);
 			this.setBorder(this.border);
+			this.createSecondaryContainer();
+			this.setSecondaryColor();
 		}
 
 		return this.container;
@@ -280,6 +307,7 @@ export default class Counter
 	{
 		Dom.remove(this.container);
 		this.container = null;
+		this.secondaryContainer = null;
 		this.finished = false;
 		this.textAfterContainer = null;
 		this.textBeforeContainer = null;

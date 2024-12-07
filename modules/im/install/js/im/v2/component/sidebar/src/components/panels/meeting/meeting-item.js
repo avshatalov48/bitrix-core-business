@@ -1,10 +1,11 @@
 import { DateTimeFormat } from 'main.date';
-
+import { Text } from 'main.core';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import './css/meeting-item.css';
 
 import type { ImModelSidebarMeetingItem } from 'im.v2.model';
+import { highlightText } from 'im.v2.lib.text-highlighter';
 
 // @vue/component
 export const MeetingItem = {
@@ -14,9 +15,13 @@ export const MeetingItem = {
 			type: Object,
 			required: true,
 		},
+		searchQuery: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): { showContextButton: boolean } {
 		return {
 			showContextButton: false,
 		};
@@ -29,7 +34,12 @@ export const MeetingItem = {
 		},
 		title(): string
 		{
-			return this.meetingItem.meeting.title;
+			if (this.searchQuery.length === 0)
+			{
+				return Text.encode(this.meetingItem.meeting.title);
+			}
+
+			return highlightText(Text.encode(this.meetingItem.meeting.title), this.searchQuery);
 		},
 		date(): string
 		{
@@ -81,7 +91,7 @@ export const MeetingItem = {
 			</div>
 			<div class="bx-im-sidebar-meeting-item__content-container" @click="onMeetingClick">
 				<div class="bx-im-sidebar-meeting-item__content">
-					<div class="bx-im-sidebar-meeting-item__title" :title="title">{{ title }}</div>
+					<div class="bx-im-sidebar-meeting-item__title" :title="title" v-html="title"></div>
 					<div class="bx-im-sidebar-meeting-item__date">{{ date }}</div>
 				</div>
 			</div>

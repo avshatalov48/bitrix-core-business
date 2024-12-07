@@ -31,6 +31,11 @@ class ICalMailEventManager
 			foreach ($files as $file)
 			{
 				$data = ICalMailManager::getFileContent($file['FILE_ID']);
+				if (!is_string($data))
+				{
+					continue;
+				}
+
 				$icalComponent = ICalMailManager::parseRequest($data);
 
 				if (!($icalComponent instanceof Calendar))
@@ -112,7 +117,7 @@ class ICalMailEventManager
 			],
 		])->fetchAll();
 
-		$entityValues = array_map(fn($event) => (int)$event['ID'], $events);
+		$entityValues = array_map(static fn($event) => (int)$event['ID'], $events);
 
 		$messageAccessCollection = MessageAccessTable::getList([
 			'select' => ['MESSAGE_ID', 'ENTITY_ID'],
@@ -124,11 +129,11 @@ class ICalMailEventManager
 
 		foreach ($events as $event)
 		{
-			$messageAccess = array_filter($messageAccessCollection, fn($msgAccess) => (int)$msgAccess['ENTITY_ID'] === (int)$event['ID']);
+			$messageAccess = array_filter($messageAccessCollection, static fn($msgAccess) => (int)$msgAccess['ENTITY_ID'] === (int)$event['ID']);
 			if ($messageAccess)
 			{
 				$messageId = (int)$messageAccess[0]['MESSAGE_ID'];
-				$userParams[(int)$event['OWNER_ID']] = ['messageId' => $messageId];
+				$userParams[(int)$event['OWNER_ID']] = compact('messageId');
 			}
 		}
 

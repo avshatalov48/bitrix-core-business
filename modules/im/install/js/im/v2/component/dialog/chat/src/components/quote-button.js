@@ -6,6 +6,7 @@ import { MessengerSlider } from 'im.v2.lib.slider';
 
 import '../css/quote-button.css';
 
+import type { JsonObject } from 'main.core';
 import type { ImModelMessage } from 'im.v2.model';
 
 const CONTAINER_HEIGHT = 44;
@@ -20,7 +21,13 @@ const MESSAGE_TEXT_NODE_CLASS = '.bx-im-message-default-content__text';
 // @vue/component
 export const QuoteButton = {
 	name: 'QuoteButton',
-	data()
+	props: {
+		dialogId: {
+			type: String,
+			default: '',
+		},
+	},
+	data(): JsonObject
 	{
 		return {
 			text: '',
@@ -143,7 +150,7 @@ export const QuoteButton = {
 		},
 		onQuoteClick()
 		{
-			Quote.sendQuoteEvent(this.message, this.text);
+			Quote.sendQuoteEvent(this.message, this.text, this.dialogId);
 			this.$emit('close');
 		},
 	},

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["EC_LOCATION"] = "Место";
 $MESS["EC_LOCATION_LABEL"] = "Место проведения";
 $MESS["EC_LOCATION_404"] = "нет данных";
@@ -30,6 +30,8 @@ $MESS["EC_EDIT_REC_EVENT"] = "Изменить повторяющееся соб
 $MESS["EC_REC_EV_ONLY_THIS_EVENT"] = "Только это";
 $MESS["EC_REC_EV_NEXT"] = "Это и все следующие";
 $MESS["EC_REC_EV_ALL"] = "Все повторения";
+$MESS["EC_ONLY_AUTHOR_CAN_EDIT_ALL"] = "Редактировать остальные события может только организатор";
+$MESS["EC_ONLY_AUTHOR_CAN_EDIT_NEXT"] = "Редактировать следующие события может только организатор";
 $MESS["EC_TIMEZONE"] = "Часовой пояс";
 $MESS["EC_CALENDAR_SECTION_TITLE"] = "Календарь:";
 $MESS["EC_CALENDAR_LOCATION_TITLE"] = "Переговорная:";
@@ -87,4 +89,3 @@ $MESS['EC_CONFERENCE_START'] = 'Начать видеоконференцию';
 $MESS['EC_CONFERENCE_ERROR'] = 'Не удалось начать видеоконференцию';
 
 $MESS['EC_EDIT_SHARING_EVENTS_FEATURE_POPUP_CONTENT'] = 'Пригласите на встречу коллег, если это необходимо';
-?>

@@ -353,6 +353,10 @@ Vue.component(config.templatePanelButtons,
 		{
 			return this.order.basket.length;
 		},
+		isCatalogHidden()
+		{
+			return this.options.isCatalogHidden;
+		},
 		...Vuex.mapState({
 			productList: state => state.productList,
 		})
@@ -370,12 +374,12 @@ Vue.component(config.templatePanelButtons,
 				<div class="catalog-pf-product-add-wrapper">
 					<span class="catalog-pf-product-add-link" @click="addBasketItemForm">{{localize.CATALOG_FORM_ADD_PRODUCT}}</span>
 					<span
-						v-if="hasAccessToCatalog"
+						v-if="hasAccessToCatalog && !isCatalogHidden"
 						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray"
 						@click="showDialogProductSearch"
 					>{{localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG}}</span>
 					<span
-						v-else
+						v-else-if="!isCatalogHidden"
 						class="catalog-pf-product-add-link catalog-pf-product-add-link--gray catalog-pf-product-add-link--disabled"
 						:data-hint="localize.CATALOG_FORM_ADD_PRODUCT_FROM_CATALOG_DENIED_HINT"
 						data-hint-no-icon

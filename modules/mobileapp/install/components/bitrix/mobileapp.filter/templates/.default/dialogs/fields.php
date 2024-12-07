@@ -18,7 +18,7 @@ $APPLICATION->IncludeComponent(
 );
 
 ?>
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage("MOBILE_APP_FILTER_FIELDS_LIST")?>"});
 

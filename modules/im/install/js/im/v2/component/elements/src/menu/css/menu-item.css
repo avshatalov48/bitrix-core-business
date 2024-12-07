@@ -154,3 +154,7 @@
 .bx-im-menu_item__icon.--file {
 	background-image: url('./images/file.svg');
 }
+
+.bx-im-menu_item__icon.--copilot {
+	background-image: url('./images/copilot.svg');
+}

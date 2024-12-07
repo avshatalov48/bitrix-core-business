@@ -63,6 +63,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    var phrase = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : {};
 	    var id = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : null;
+	    var type = arguments.length > 4 && arguments[4] !== undefined ? arguments[4] : null;
 	    babelHelpers.classCallCheck(this, DesignPreview);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(DesignPreview).call(this));
 	    _this.setEventNamespace('BX.Landing.SettingsForm.DesignPreview');
@@ -70,6 +71,7 @@ this.BX.Landing = this.BX.Landing || {};
 	    _this.phrase = phrase;
 	    _this.id = id;
 	    _this.options = options;
+	    _this.type = type;
 	    window.fontsProxyUrl = (_window$fontsProxyUrl = window.fontsProxyUrl) !== null && _window$fontsProxyUrl !== void 0 ? _window$fontsProxyUrl : 'fonts.googleapis.com';
 	    _this.initControls();
 	    _this.initLayout();
@@ -409,23 +411,26 @@ this.BX.Landing = this.BX.Landing || {};
 	          preparedCss += "--design-preview-bg: ".concat(bgColor, ";");
 	        }
 	      }
+	      if (this.options.background.image.defaultValue && bgPicture === '') {
+	        bgPicture = this.options.background.image.defaultValue;
+	      }
+	      if (bgPicture) {
+	        preparedCss += "background-image: url(".concat(bgPicture, ");");
+	      }
 	      if (this.controls.background.position) {
 	        if (bgPosition === 'center') {
-	          preparedCss += "background-image: url(".concat(bgPicture, ");");
 	          preparedCss += 'background-attachment: scroll;';
 	          preparedCss += 'background-position: center;';
 	          preparedCss += 'background-repeat: no-repeat;';
 	          preparedCss += 'background-size: cover;';
 	        }
 	        if (bgPosition === 'repeat') {
-	          preparedCss += "background-image: url(".concat(bgPicture, ");");
 	          preparedCss += 'background-attachment: scroll;';
 	          preparedCss += 'background-position: center;';
 	          preparedCss += 'background-repeat: repeat;';
 	          preparedCss += 'background-size: 50%;';
 	        }
 	        if (bgPosition === 'center_repeat_y') {
-	          preparedCss += "background-image: url(".concat(bgPicture, ");");
 	          preparedCss += 'background-attachment: scroll;';
 	          preparedCss += 'background-position: top;';
 	          preparedCss += 'background-repeat: repeat-y;';
@@ -448,7 +453,9 @@ this.BX.Landing = this.BX.Landing || {};
 	    key: "createLayout",
 	    value: function createLayout() {
 	      this.layout = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-design-preview-wrap\"></div>"])));
-	      this.layoutContent = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"landing-design-preview\"><h2 class=\"landing-design-preview-title\">", "</h2><h4 class=\"landing-design-preview-subtitle\">", "</h4><p class=\"landing-design-preview-text\">", "</p><p class=\"landing-design-preview-text\">", "</p><div class=\"\"><a class=\"landing-design-preview-button\">", "</a></div></div>"])), this.id, this.phrase.title, this.phrase.subtitle, this.phrase.text1, this.phrase.text2, this.phrase.button);
+	      if (this.type === null) {
+	        this.layoutContent = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["<div id=\"", "\" class=\"landing-design-preview\"><h2 class=\"landing-design-preview-title\">", "</h2><h4 class=\"landing-design-preview-subtitle\">", "</h4><p class=\"landing-design-preview-text\">", "</p><p class=\"landing-design-preview-text\">", "</p><div class=\"\"><a class=\"landing-design-preview-button\">", "</a></div></div>"])), this.id, this.phrase.title, this.phrase.subtitle, this.phrase.text1, this.phrase.text2, this.phrase.button);
+	      }
 	      main_core.Dom.append(this.layoutContent, this.layout);
 	    }
 	  }, {

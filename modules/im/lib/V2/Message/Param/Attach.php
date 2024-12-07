@@ -30,10 +30,6 @@ class Attach extends Param
 		elseif (!empty($value))
 		{
 			$this->attach = \CIMMessageParamAttach::GetAttachByJson($value);
-			if ($this->attach === null)
-			{
-				$this->isValid = false;
-			}
 		}
 
 		if (isset($this->attach))

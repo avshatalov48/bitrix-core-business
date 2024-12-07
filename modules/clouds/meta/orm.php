@@ -174,12 +174,14 @@ namespace Bitrix\Clouds {
 	class EO_CopyQueue {
 		/* @var \Bitrix\Clouds\CopyQueueTable */
 		static public $dataClass = '\Bitrix\Clouds\CopyQueueTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_CopyQueue_Collection
@@ -247,6 +249,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\CopyQueueTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -274,6 +277,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_CopyQueue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\DeleteQueueTable:clouds/lib/deletequeue.php:caa32fb4bf1178fd850b0a1078c1bfaf */
 namespace Bitrix\Clouds {
 	/**
@@ -358,12 +362,14 @@ namespace Bitrix\Clouds {
 	class EO_DeleteQueue {
 		/* @var \Bitrix\Clouds\DeleteQueueTable */
 		static public $dataClass = '\Bitrix\Clouds\DeleteQueueTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_DeleteQueue_Collection
@@ -412,6 +418,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\DeleteQueueTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -439,6 +446,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_DeleteQueue_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileBucketTable:clouds/lib/filebucket.php:702ecfe46f3f0c5a25903eabfafc18e8 */
 namespace Bitrix\Clouds {
 	/**
@@ -673,12 +681,14 @@ namespace Bitrix\Clouds {
 	class EO_FileBucket {
 		/* @var \Bitrix\Clouds\FileBucketTable */
 		static public $dataClass = '\Bitrix\Clouds\FileBucketTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_FileBucket_Collection
@@ -757,6 +767,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\FileBucketTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -784,6 +795,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_FileBucket_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileHashTable:clouds/lib/filehash.php:d4ac34d8953167e754bb4c5782f6287a */
 namespace Bitrix\Clouds {
 	/**
@@ -863,12 +875,14 @@ namespace Bitrix\Clouds {
 	class EO_FileHash {
 		/* @var \Bitrix\Clouds\FileHashTable */
 		static public $dataClass = '\Bitrix\Clouds\FileHashTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_FileHash_Collection
@@ -915,6 +929,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\FileHashTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -942,6 +957,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_FileHash_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileResizeTable:clouds/lib/fileresize.php:90d8fef504afcfd054d55550fb5df15f */
 namespace Bitrix\Clouds {
 	/**
@@ -1056,12 +1072,14 @@ namespace Bitrix\Clouds {
 	class EO_FileResize {
 		/* @var \Bitrix\Clouds\FileResizeTable */
 		static public $dataClass = '\Bitrix\Clouds\FileResizeTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_FileResize_Collection
@@ -1116,6 +1134,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\FileResizeTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -1143,6 +1162,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_FileResize_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileSaveTable:clouds/lib/filesave.php:14eb9a250d9e7026d3e9d10fc638fa1c */
 namespace Bitrix\Clouds {
 	/**
@@ -1247,12 +1267,14 @@ namespace Bitrix\Clouds {
 	class EO_FileSave {
 		/* @var \Bitrix\Clouds\FileSaveTable */
 		static public $dataClass = '\Bitrix\Clouds\FileSaveTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_FileSave_Collection
@@ -1304,6 +1326,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\FileSaveTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:
@@ -1331,6 +1354,7 @@ namespace Bitrix\Clouds {
 	 */
 	class EO_FileSave_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+
 /* ORMENTITYANNOTATION:Bitrix\Clouds\FileUploadTable:clouds/lib/fileupload.php:ee9c972b70ee447c2dbe0c8ab97298d8 */
 namespace Bitrix\Clouds {
 	/**
@@ -1475,12 +1499,14 @@ namespace Bitrix\Clouds {
 	class EO_FileUpload {
 		/* @var \Bitrix\Clouds\FileUploadTable */
 		static public $dataClass = '\Bitrix\Clouds\FileUploadTable';
+
 		/**
 		 * @param bool|array $setDefaultValues
 		 */
 		public function __construct($setDefaultValues = true) {}
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * EO_FileUpload_Collection
@@ -1541,6 +1567,7 @@ namespace Bitrix\Clouds {
 		static public $dataClass = '\Bitrix\Clouds\FileUploadTable';
 	}
 }
+
 namespace Bitrix\Clouds {
 	/**
 	 * Common methods:

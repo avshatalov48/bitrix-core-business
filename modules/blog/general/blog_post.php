@@ -567,7 +567,7 @@ class CAllBlogPost
 				"FROM b_blog_post P, b_file F ".
 				"WHERE P.ID = ".$ID." ".
 				"	AND P.ATTACH_IMG = F.ID ";
-			$z = $DB->Query($strSql, false, "FILE: ".__FILE__." LINE:".__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch())
 				CFile::Delete($zr["ID"]);
 
@@ -886,7 +886,7 @@ class CAllBlogPost
 				$postFields = $post->getFields();
 				$inlineAttachedObjectsIdList = array();
 
-				if (preg_match_all('/\[DISK\s+FILE\s+ID\s*=\s*([n]*\d+)\s*\]/is'.BX_UTF_PCRE_MODIFIER, $postFields['DETAIL_TEXT'], $matches))
+				if (preg_match_all('/\[DISK\s+FILE\s+ID\s*=\s*([n]*\d+)\s*\]/isu', $postFields['DETAIL_TEXT'], $matches))
 				{
 					if (!empty($matches[1]))
 					{
@@ -895,7 +895,7 @@ class CAllBlogPost
 						foreach($inlineFileList as $key => $value)
 						{
 							if (
-								preg_match('/^n(\d+)/is'.BX_UTF_PCRE_MODIFIER, $value, $matches)
+								preg_match('/^n(\d+)/isu', $value, $matches)
 								&& !empty($matches[1])
 								&& intval($matches[1]) > 0
 							)
@@ -1370,7 +1370,7 @@ class CAllBlogPost
 				$strSql =
 					"INSERT INTO b_blog_socnet_rights(".$arSCInsert[0].") ".
 					"VALUES(".$arSCInsert[1].")";
-				$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 				return true;
 			}
 		}
@@ -1484,7 +1484,7 @@ class CAllBlogPost
 			$strSql = "SELECT SR.ENTITY_ID, SR.ENTITY_TYPE, SR.ENTITY FROM b_blog_socnet_rights SR
 				INNER JOIN b_blog_post P ON (P.ID = SR.POST_ID)
 				WHERE SR.POST_ID=".$ID." ORDER BY SR.ENTITY ASC";
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			while($arRes = $dbRes->Fetch())
 			{
 				$arResult[$arRes["ENTITY_TYPE"]][$arRes["ENTITY_ID"]][] = $arRes["ENTITY"];
@@ -1526,7 +1526,7 @@ class CAllBlogPost
 					LIMIT 300
 					";
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		while($arRes = $dbRes->GetNext())
 		{
 			if (
@@ -1559,7 +1559,7 @@ class CAllBlogPost
 						INNER JOIN b_blog_post P ON (P.ID = SR.POST_ID)
 						WHERE SR.POST_ID=".$ID."
 						ORDER BY SR.ENTITY ASC";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		while($arRes = $dbRes->Fetch())
 		{
 			if(!in_array($arRes["ENTITY"], $arResult))
@@ -1583,12 +1583,12 @@ class CAllBlogPost
 						AND ENTITY_ID = ".$entity_id."
 						AND ENTITY <> '".$type2.$entity_id."'
 						AND ENTITY <> '".$type.$entity_id."'
-						", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						");
 		foreach($perms as $val)
 		{
 			$DB->Query("INSERT INTO b_blog_socnet_rights (POST_ID, ENTITY_TYPE, ENTITY_ID, ENTITY)
 						SELECT SR.POST_ID, SR.ENTITY_TYPE, SR.ENTITY_ID, '".$DB->ForSql($val)."' FROM b_blog_socnet_rights SR
-						WHERE SR.ENTITY = '".$type2.$entity_id."'", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						WHERE SR.ENTITY = '".$type2.$entity_id."'");
 		}
 	}
 
@@ -1610,7 +1610,7 @@ class CAllBlogPost
 			WHERE
 				SR.POST_ID IN (SELECT POST_ID FROM b_blog_socnet_rights WHERE ENTITY_TYPE='".$type."' AND ENTITY_ID=".$entity_id." AND ENTITY = '".$type.$entity_id."')
 				AND SR.ENTITY <> '".$type2.$entity_id."'
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 		while($arRes = $dbRes->Fetch())
 		{
 			$arResult[$arRes["POST_ID"]]["PERMS"][] = $arRes["ENTITY"];
@@ -2242,7 +2242,7 @@ class CAllBlogPost
 
 					if (
 						$postPerm >= BLOG_PERMS_READ
-						|| $arParams["TYPE"] == "COMMENT"
+						|| $arParams["TYPE"] === "COMMENT"
 					)
 					{
 						$arUserIdToMention[] = $val;
@@ -2254,7 +2254,7 @@ class CAllBlogPost
 
 			foreach($arUserIdToMention as $val)
 			{
-				$val = intval($val);
+				$val = (int)$val;
 				$arMessageFields["TO_USER_ID"] = $val;
 
 				if (IsModuleInstalled("extranet"))
@@ -2292,7 +2292,7 @@ class CAllBlogPost
 					);
 				}
 
-				if ($arParams["TYPE"] == "POST")
+				if ($arParams["TYPE"] === "POST")
 				{
 					$arMessageFields["NOTIFY_EVENT"] = "mention";
 					$arMessageFields["NOTIFY_TAG"] = "BLOG|POST_MENTION|".$arParams["ID"];
@@ -2300,50 +2300,56 @@ class CAllBlogPost
 
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_6".$aditGM,
 							array(
 								"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
-							)
+							),
+							$languageId
 						);
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 								"BLG_GP_IM_6".$aditGM,
 								array(
 									"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-								)
+								),
+								$languageId
 						)." ".$serverName.$url."";
-						$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_6".$aditGM,
 							array(
 								"#name#" => htmlspecialcharsbx($authorName),
 								"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-							)
+							),
+							$languageId
 						);
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_6A".$aditGM,
 							array(
-								"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_6B")."</a>"
-							)
+								"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">". Loc::getMessage("BLG_GP_IM_6B", null, $languageId) ."</a>"
+							),
+							$languageId
 						);
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_6A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_6B")
-							)
+								"#post#" => Loc::getMessage("BLG_GP_IM_6B", null, $languageId)
+							),
+							$languageId
 						)." ".$serverName.$url."";
-						$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_6A".$aditGM,
 							array(
 								"#name#" => htmlspecialcharsbx($authorName),
-								"#post#" => GetMessage("BLG_GP_IM_6B")
-							)
+								"#post#" => Loc::getMessage("BLG_GP_IM_6B", null, $languageId)
+							),
+							$languageId
 						);
 					}
 				}
-				elseif ($arParams["TYPE"] == "COMMENT")
+				elseif ($arParams["TYPE"] === "COMMENT")
 				{
 					$arMessageFields["NOTIFY_EVENT"] = "mention_comment";
 					$arMessageFields["NOTIFY_TAG"] = "BLOG|COMMENT_MENTION|".$arParams["ID"].'|'.$arParams["COMMENT_ID"];
@@ -2353,52 +2359,57 @@ class CAllBlogPost
 
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_71".$aditGM,
 							array(
 								"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
 								"#comment#" => $commentCropped
-							)
+							),
+							$languageId
 						);
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_71".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
 								"#comment#" => $arParams["BODY"]
-							)
+							),
+							$languageId
 						)." ".$serverName.$url."";
-						$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_71".$aditGM,
 							array(
 								"#name#" => htmlspecialcharsbx($authorName),
 								"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
 								"#comment#" => $commentCropped
-							)
+							),
+							$languageId
 						);
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_71A".$aditGM,
 							array(
-								"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_7B")."</a>",
+								"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_7B", null, $languageId)."</a>",
 								"#comment#" => $commentCropped
-							)
+							),
+							$languageId
 						);
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_71A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_7B"),
+								"#post#" => Loc::getMessage("BLG_GP_IM_7B", null, $languageId),
 								"#comment#" => $arParams["BODY"]
 							)
 						)." ".$serverName.$url."";
-						$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+						$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_PUSH_71A".$aditGM,
 							array(
 								"#name#" => htmlspecialcharsbx($authorName),
-								"#post#" => GetMessage("BLG_GP_IM_7B"),
+								"#post#" => Loc::getMessage("BLG_GP_IM_7B", null, $languageId),
 								"#comment#" => $commentCropped
-							)
+							),
+							$languageId
 						);
 					}
 				}
@@ -2409,8 +2420,8 @@ class CAllBlogPost
 				$arUserIDSent[] = $val;
 
 				if (
-					intval($ID) > 0
-					&& intval($arMessageFields["LOG_ID"]) > 0
+					(int)$ID > 0
+					&& (int)$arMessageFields["LOG_ID"] > 0
 				)
 				{
 					foreach(GetModuleEvents("blog", "OnBlogPostMentionNotifyIm", true) as $arEvent)
@@ -2425,7 +2436,7 @@ class CAllBlogPost
 		// notify 'to' users and an author
 		if (!empty($arUsers))
 		{
-			if($arParams["TYPE"] == "POST")
+			if($arParams["TYPE"] === "POST")
 			{
 				$arMessageFields["PUSH_PARAMS"] = array(
 					"ACTION" => "post"
@@ -2445,50 +2456,55 @@ class CAllBlogPost
 
 				if (!$bTitleEmpty)
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_1_MSGVER_1".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_1_MSGVER_1".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_1".$aditGM,
 						array(
 							"#name#" => $authorName,
 							"#title#" => $arParams["TITLE"]
-						)
+						),
+						$languageId
 					);
 				}
 				else
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_1A".$aditGM,
 						array(
-							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_1B")."</a>"
-						)
+							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_1B", null, $languageId)."</a>"
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_1A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_1B")
+								"#post#" => Loc::getMessage("BLG_GP_IM_1B", null, $languageId)
 							)
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_1A".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
-							"#post#" => GetMessage("BLG_GP_IM_1B")
-						)
+							"#post#" => Loc::getMessage("BLG_GP_IM_1B", null, $languageId)
+						),
+						$languageId
 					);
 				}
 			}
-			elseif($arParams["TYPE"] == "COMMENT")
+			elseif($arParams["TYPE"] === "COMMENT")
 			{
 				$arMessageFields["PUSH_PARAMS"] = array(
 					"ACTION" => "comment"
@@ -2511,102 +2527,114 @@ class CAllBlogPost
 
 				if (!$bTitleEmpty)
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_41".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_41".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
 								"#comment#" => $arParams["BODY"]
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."\n\n".$arParams["BODY"];
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_41".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
 							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
 
-					$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_51".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_51".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
 								"#comment#" => $arParams["BODY"]
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."\n\n".$arParams["BODY"];
-					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_51".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
 							"#title#" => htmlspecialcharsbx($arParams["TITLE"]),
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
 				}
 				else
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_41A".$aditGM,
 						array(
-							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_4B")."</a>",
+							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_4B", null, $languageId)."</a>",
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_41A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_4B"),
+								"#post#" => Loc::getMessage("BLG_GP_IM_4B", null, $languageId),
 								"#comment#" => $arParams["BODY"]
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."\n\n".$arParams["BODY"];
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_41A".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
-							"#post#" => GetMessage("BLG_GP_IM_4B"),
+							"#post#" => Loc::getMessage("BLG_GP_IM_4B", null, $languageId),
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
 
-					$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_51A".$aditGM,
 						array(
-							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_5B")."</a>",
+							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_5B", null, $languageId)."</a>",
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_51A".$aditGM,
 							Array(
-								"#post#" => GetMessage("BLG_GP_IM_5B"),
+								"#post#" => Loc::getMessage("BLG_GP_IM_5B", null, $languageId),
 								"#comment#" => $arParams["BODY"]
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."\n\n".$arParams["BODY"];
-					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_51A".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
-							"#post#" => GetMessage("BLG_GP_IM_5B"),
+							"#post#" => Loc::getMessage("BLG_GP_IM_5B", null, $languageId),
 							"#comment#" => $commentCropped
-						)
+						),
+						$languageId
 					);
 				}
 			}
-			elseif($arParams["TYPE"] == "SHARE")
+			elseif($arParams["TYPE"] === "SHARE")
 			{
 				$arMessageFields["PUSH_PARAMS"] = array(
 					"ACTION" => "share"
@@ -2626,50 +2654,56 @@ class CAllBlogPost
 
 				if (!$bTitleEmpty)
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_8".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_8".$aditGM,
 							Array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_8".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
 							"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-						)
+						),
+						$languageId
 					);
 				}
 				else
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_8A".$aditGM,
 						array(
-							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_8B")."</a>"
-						)
+							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_8B", null, $languageId)."</a>"
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_8A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_8B")
-							)
+								"#post#" => Loc::getMessage("BLG_GP_IM_8B", null, $languageId)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_8A".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
-							"#post#" => GetMessage("BLG_GP_IM_8B")
-						)
+							"#post#" => Loc::getMessage("BLG_GP_IM_8B", null, $languageId)
+						),
+						$languageId
 					);
 				}
 			}
-			elseif($arParams["TYPE"] == "SHARE2USERS")
+			elseif($arParams["TYPE"] === "SHARE2USERS")
 			{
 				$arMessageFields["PUSH_PARAMS"] = array(
 					"ACTION" => "share2users"
@@ -2689,46 +2723,52 @@ class CAllBlogPost
 
 				if (!$bTitleEmpty)
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_9".$aditGM,
 						array(
 							"#title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
-						)
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_9".$aditGM,
 							array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-							)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_9".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
 							"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-						)
+						),
+						$languageId
 					);
 				}
 				else
 				{
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_IM_9A".$aditGM,
 						array(
-							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_9B")."</a>"
-						)
+							"#post#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_9B", null, $languageId)."</a>"
+						),
+						$languageId
 					);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 							"BLG_GP_IM_9A".$aditGM,
 							array(
-								"#post#" => GetMessage("BLG_GP_IM_9B")
-							)
+								"#post#" => Loc::getMessage("BLG_GP_IM_9B", null, $languageId)
+							),
+							$languageId
 						)." ".$serverName.$arParams["URL"]."";
-					$arMessageFields["PUSH_MESSAGE"] = GetMessage(
+					$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 						"BLG_GP_PUSH_9A".$aditGM,
 						array(
 							"#name#" => htmlspecialcharsbx($authorName),
-							"#post#" => GetMessage("BLG_GP_IM_9B")
-						)
+							"#post#" => Loc::getMessage("BLG_GP_IM_9B", null, $languageId)
+						),
+						$languageId
 					);
 				}
 			}
@@ -2742,7 +2782,7 @@ class CAllBlogPost
 				in_array($v, $arUserIDSent)
 				|| (
 					!empty($arParams["EXCLUDE_USERS"])
-					&& intval($arParams["EXCLUDE_USERS"][$v]) > 0
+					&& (int)$arParams["EXCLUDE_USERS"][$v] > 0
 				)
 			)
 			{
@@ -2767,92 +2807,147 @@ class CAllBlogPost
 					: $arTmp["SERVER_NAME"]
 				);
 
-				if($arParams["TYPE"] == "POST")
+				if($arParams["TYPE"] === "POST")
 				{
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_1_MSGVER_1".$aditGM, Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_1_MSGVER_1".$aditGM, Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])))." (".$serverName.$url.")";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_1_MSGVER_1".$aditGM,
+							Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_1_MSGVER_1".$aditGM,
+							Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])),
+							$languageId
+						)." (".$serverName.$url.")";
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_1A".$aditGM, Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_1B")."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_1A".$aditGM, Array("#post#" => GetMessage("BLG_GP_IM_1B")))." (".$serverName.$url.")";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_1A".$aditGM,
+							Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_1B", null, $languageId)."</a>"),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_1A".$aditGM,
+							Array("#post#" => Loc::getMessage("BLG_GP_IM_1B", null, $languageId)),
+							$languageId
+						)." (".$serverName.$url.")";
 					}
 				}
-				elseif($arParams["TYPE"] == "COMMENT")
+				elseif($arParams["TYPE"] === "COMMENT")
 				{
 					$commentCropped = truncateText($arParams["BODY"], 100);
 
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_41".$aditGM, array(
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_41".$aditGM, array(
 							"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
 							"#comment#" => $commentCropped
-						));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_41".$aditGM, array(
+						), $languageId);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_41".$aditGM, array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
 								"#comment#" => $arParams["BODY"]
-							))." ".$serverName.$url;
-						$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = GetMessage("BLG_GP_IM_51".$aditGM, array(
+							), $languageId)." ".$serverName.$url;
+						$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_51".$aditGM, array(
 							"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
 							"#comment#" => $commentCropped
-						));
-						$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = GetMessage("BLG_GP_IM_51".$aditGM, array(
+						), $languageId);
+						$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_51".$aditGM, array(
 								"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
 								"#comment#" => $arParams["BODY"]
-							))." ".$serverName.$url;
+							), $languageId)." ".$serverName.$url;
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_41A".$aditGM, array(
-							"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_4B")."</a>",
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_41A".$aditGM, array(
+							"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_4B", null, $languageId)."</a>",
 							"#comment#" => $commentCropped
-						));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_41A".$aditGM, array(
-								"#post#" => GetMessage("BLG_GP_IM_4B"),
+						), $languageId);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_41A".$aditGM, array(
+								"#post#" => Loc::getMessage("BLG_GP_IM_4B", null, $languageId),
 								"#comment#" => $arParams["BODY"]
-							))." ".$serverName.$url;
-						$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = GetMessage("BLG_GP_IM_51A".$aditGM, array(
-							"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_5B")."</a>",
+							), $languageId)." ".$serverName.$url;
+						$arMessageFields["NOTIFY_MESSAGE_AUTHOR"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_51A".$aditGM, array(
+							"#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_5B", null, $languageId)."</a>",
 							"#comment#" => $commentCropped
-						));
-						$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = GetMessage("BLG_GP_IM_51A".$aditGM, array(
-								"#post#" => GetMessage("BLG_GP_IM_5B"),
+						), $languageId);
+						$arMessageFields["NOTIFY_MESSAGE_AUTHOR_OUT"] = fn (?string $languageId = null) => Loc::getMessage("BLG_GP_IM_51A".$aditGM, array(
+								"#post#" => Loc::getMessage("BLG_GP_IM_5B", null, $languageId),
 								"#comment#" => $arParams["BODY"]
-							))." ".$serverName.$url;
+							), $languageId)." ".$serverName.$url;
 					}
 				}
-				elseif($arParams["TYPE"] == "SHARE")
+				elseif($arParams["TYPE"] === "SHARE")
 				{
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_8".$aditGM, Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_8".$aditGM, Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])))." ".$serverName.$url."";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_8".$aditGM,
+							Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_8".$aditGM,
+							Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])),
+							$languageId
+						)." ".$serverName.$url."";
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_8A".$aditGM, Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_8B")."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_8A".$aditGM, Array("#post#" => GetMessage("BLG_GP_IM_8B")))." ".$serverName.$url."";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_8A".$aditGM,
+							Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".Loc::getMessage("BLG_GP_IM_8B", null, $languageId)."</a>"),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_8A".$aditGM,
+							Array("#post#" => Loc::getMessage("BLG_GP_IM_8B", null, $languageId)),
+							$languageId
+						)." ".$serverName.$url."";
 					}
 				}
-				elseif($arParams["TYPE"] == "SHARE2USERS")
+				elseif($arParams["TYPE"] === "SHARE2USERS")
 				{
 					if (!$bTitleEmpty)
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_9".$aditGM, Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_9".$aditGM, Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])))." ".$serverName.$url."";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_9".$aditGM,
+							Array("#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_9".$aditGM,
+							Array("#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])),
+							$languageId
+						)." ".$serverName.$url."";
 					}
 					else
 					{
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("BLG_GP_IM_9A".$aditGM, Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".GetMessage("BLG_GP_IM_9B")."</a>"));
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("BLG_GP_IM_9A".$aditGM, Array("#post#" => GetMessage("BLG_GP_IM_9B")))." ".$serverName.$url."";
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_9A".$aditGM,
+							Array("#post#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">"
+								.Loc::getMessage(
+									"BLG_GP_IM_9B",
+									null,
+									$languageId
+								)
+								."</a>"
+							),
+							$languageId
+						);
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
+							"BLG_GP_IM_9A".$aditGM,
+							Array("#post#" => Loc::getMessage("BLG_GP_IM_9B", null, $languageId)),
+							$languageId
+						)." ".$serverName.$url."";
 					}
 				}
 			}
 
 			$arMessageFieldsTmp = $arMessageFields;
-			if($arParams["TYPE"] == "COMMENT")
+			if($arParams["TYPE"] === "COMMENT")
 			{
 				if($arParams["AUTHOR_ID"] == $v)
 				{
@@ -2875,7 +2970,7 @@ class CAllBlogPost
 
 		// notify sonet groups subscribers
 		if (
-			$arParams["TYPE"] == "POST"
+			$arParams["TYPE"] === "POST"
 			&& !empty($arParams["TO_SOCNET_RIGHTS"])
 		)
 		{
@@ -2913,15 +3008,19 @@ class CAllBlogPost
 					"NOTIFY_MESSAGE" => "",
 					"FROM_USER_ID" => $arParams["FROM_USER_ID"],
 					"URL" => $arParams["URL"],
-					"MESSAGE" => GetMessage("SONET_IM_NEW_POST", Array(
-						"#title#" => "[URL=#URL#]".$title."[/URL]",
-					)),
+					"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+						"SONET_IM_NEW_POST",
+						Array("#title#" => "[URL=#URL#]".$title."[/URL]"),
+						$languageId
+					),
+					"MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage(
+						"SONET_IM_NEW_POST",
+						Array("#title#" => $title_out),
+						$languageId
+					)." #URL#",
 					"MESSAGE_CHAT" => GetMessage("SONET_IM_NEW_POST_CHAT".$aditGM, Array(
 						"#title#" => "[URL=#URL#]".$title_out."[/URL]",
 					)),
-					"MESSAGE_OUT" => GetMessage("SONET_IM_NEW_POST", Array(
-						"#title#" => $title_out
-					))." #URL#",
 					"EXCLUDE_USERS" => array_merge([$arParams["FROM_USER_ID"]], $arUserIDSent),
 					"PERMISSION" => array(
 						"FEATURE" => "blog",
@@ -2954,27 +3053,27 @@ class CAllBlogPost
 			];
 			if (!empty($authorAvatarUrl))
 			{
-				$arMessageFields["PUSH_PARAMS"]["ADVANCED_PARAMS"] = array(
+				$arMessageFieldsGrat["PUSH_PARAMS"]["ADVANCED_PARAMS"] = array(
 					'avatarUrl' => $authorAvatarUrl,
 					'senderName' => $authorName
 				);
 			}
 
-			$arMessageFieldsGrat["NOTIFY_MESSAGE"] = Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
+			$arMessageFieldsGrat["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
 				"#link_post_start#" => "<a href=\"".$urlOriginal."\" class=\"bx-notifier-item-action\">",
 				"#link_post_end#" => "</a>",
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-			]);
+			], $languageId);
 
-			$arMessageFieldsGrat["NOTIFY_MESSAGE_OUT"] = Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
+			$arMessageFieldsGrat["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage('SONET_IM_POST_GRAT_NEW', [
 				"#link_post_start#" => "",
 				"#link_post_end#" => "",
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-			])." ".$serverName.$urlOriginal."";
-			$arMessageFieldsGrat["PUSH_MESSAGE"] = Loc::getMessage('SONET_PUSH_POST_GRAT_NEW', [
+			], $languageId)." ".$serverName.$urlOriginal."";
+			$arMessageFieldsGrat["PUSH_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage('SONET_PUSH_POST_GRAT_NEW', [
 				"#name#" => htmlspecialcharsbx($authorName),
 				"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-			]);
+			], $languageId);
 
 			foreach($arParams['GRAT_DATA']['USERS'] as $gratUserId)
 			{
@@ -3046,10 +3145,8 @@ class CAllBlogPost
 					{
 						break;
 					}
-					else
-					{
-						$arGroupChecked[] = $sonetGroupId;
-					}
+
+					$arGroupChecked[] = $sonetGroupId;
 
 					if ($sonetGroupId > 0)
 					{
@@ -3057,7 +3154,7 @@ class CAllBlogPost
 							SONET_ENTITY_GROUP,
 							$sonetGroupId,
 							'blog',
-							($arParams['TYPE'] == 'POST' ? 'moderate_post' : 'moderate_comment')
+							($arParams['TYPE'] === 'POST' ? 'moderate_post' : 'moderate_comment')
 						);
 
 						if ($featureOperationPerms)
@@ -3101,27 +3198,29 @@ class CAllBlogPost
 			$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".((defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '') ? SITE_SERVER_NAME : COption::GetOptionString("main", "server_name", ""));
 			$moderationUrl = \Bitrix\Main\Config\Option::get('socialnetwork', 'workgroups_page', SITE_DIR.'workgroups/').'group/#group_id#/blog/moderation/';
 
-			if ($arParams["TYPE"] == "POST")
+			if ($arParams["TYPE"] === "POST")
 			{
 				$arMessageFields["NOTIFY_EVENT"] = "moderate_post";
 				$arMessageFields["NOTIFY_TAG"] = "BLOG|MODERATE_POST|".$arParams["POST_ID"];
 
-				$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+				$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 					(!$bTitleEmpty ? "SONET_IM_NEW_POST_TO_MODERATE_W_TITLE" : "SONET_IM_NEW_POST_TO_MODERATE_WO_TITLE"),
 					array(
 						"#link_mod_start#" => "<a href=\"#MODERATION_URL#\" class=\"bx-notifier-item-action\">",
 						"#link_mod_end#" => "</a>",
 						"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-					)
+					),
+					$languageId
 				);
 
-				$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+				$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 					(!$bTitleEmpty ? "SONET_IM_NEW_POST_TO_MODERATE_W_TITLE" : "SONET_IM_NEW_POST_TO_MODERATE_WO_TITLE"),
 					array(
 						"#link_mod_start#" => "",
 						"#link_mod_end#" => "",
 						"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-					)
+					),
+					$languageId
 				)." #SERVER_NAME##MODERATION_URL#";
 			}
 			else
@@ -3129,22 +3228,24 @@ class CAllBlogPost
 				$arMessageFields["NOTIFY_EVENT"] = "moderate_comment";
 				$arMessageFields["NOTIFY_TAG"] = "BLOG|COMMENT|".$arParams["POST_ID"].'|'.$arParams["COMMENT_ID"];
 
-				$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+				$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 					(!$bTitleEmpty ? "SONET_IM_NEW_COMMENT_TO_MODERATE_W_TITLE" : "SONET_IM_NEW_COMMENT_TO_MODERATE_WO_TITLE"),
 					array(
 						"#link_com_start#" => "<a href=\"#COMMENT_URL#\" class=\"bx-notifier-item-action\">",
 						"#link_com_end#" => "</a>",
 						"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-					)
+					),
+					$languageId
 				);
 
-				$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+				$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 						(!$bTitleEmpty ? "SONET_IM_NEW_COMMENT_TO_MODERATE_W_TITLE" : "SONET_IM_NEW_COMMENT_TO_MODERATE_WO_TITLE"),
 						array(
 							"#link_com_start#" => "",
 							"#link_com_end#" => "",
 							"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-						)
+						),
+						$languageId
 					)." #SERVER_NAME##COMMENT_URL#";
 			}
 
@@ -3183,15 +3284,18 @@ class CAllBlogPost
 						);
 					}
 
-					$arMessageFieldsCurrent["NOTIFY_MESSAGE"] = str_replace(
+					$notifyMessage = clone $arMessageFields["NOTIFY_MESSAGE"];
+					$notifyMessageOut = clone $arMessageFields["NOTIFY_MESSAGE_OUT"];
+
+					$arMessageFieldsCurrent["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => str_replace(
 						array('#MODERATION_URL#', '#COMMENT_URL#'),
 						array($userModerationUrl, $userCommentUrl),
-						$arMessageFields["NOTIFY_MESSAGE"]
+						$notifyMessage($languageId)
 					);
-					$arMessageFieldsCurrent["NOTIFY_MESSAGE_OUT"] = str_replace(
+					$arMessageFieldsCurrent["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => str_replace(
 						array('#MODERATION_URL#', '#SERVER_NAME#', '#COMMENT_URL#'),
 						array($userModerationUrl, $serverName, $userCommentUrl),
-						$arMessageFields["NOTIFY_MESSAGE_OUT"]
+						$notifyMessageOut($languageId)
 					);
 
 					CIMNotify::Add($arMessageFieldsCurrent);
@@ -3232,27 +3336,29 @@ class CAllBlogPost
 			"TO_USER_ID" => $arParams["TO_USER_ID"]
 		);
 
-		if ($arParams["TYPE"] == "POST")
+		if ($arParams["TYPE"] === "POST")
 		{
 			$arMessageFields["NOTIFY_EVENT"] = "published_post";
 			$arMessageFields["NOTIFY_TAG"] = "BLOG|POST|".$arParams["POST_ID"];
 
-			$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+			$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 				(!$bTitleEmpty ? "SONET_IM_NEW_POST_PUBLISHED_W_TITLE" : "SONET_IM_NEW_POST_PUBLISHED_WO_TITLE"),
 				array(
 					"#link_post_start#" => "<a href=\"#POST_URL#\" class=\"bx-notifier-item-action\">",
 					"#link_post_end#" => "</a>",
 					"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-				)
+				),
+				$languageId
 			);
 
-			$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+			$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 					(!$bTitleEmpty ? "SONET_IM_NEW_POST_PUBLISHED_W_TITLE" : "SONET_IM_NEW_POST_PUBLISHED_WO_TITLE"),
 					array(
 						"#link_post_start#" => "",
 						"#link_post_end#" => "",
 						"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-					)
+					),
+					$languageId
 				)." #SERVER_NAME##POST_URL#";
 		}
 		else
@@ -3260,22 +3366,24 @@ class CAllBlogPost
 			$arMessageFields["NOTIFY_EVENT"] = "published_comment";
 			$arMessageFields["NOTIFY_TAG"] = "BLOG|COMMENT|".$arParams["POST_ID"]."|".$arParams["COMMENT_ID"];
 
-			$arMessageFields["NOTIFY_MESSAGE"] = GetMessage(
+			$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Loc::getMessage(
 				(!$bTitleEmpty ? "SONET_IM_NEW_COMMENT_PUBLISHED_W_TITLE" : "SONET_IM_NEW_COMMENT_PUBLISHED_WO_TITLE"),
 				array(
 					"#link_com_start#" => "<a href=\"#COMMENT_URL#\" class=\"bx-notifier-item-action\">",
 					"#link_com_end#" => "</a>",
 					"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-				)
+				),
+				$languageId
 			);
 
-			$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage(
+			$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => Loc::getMessage(
 					(!$bTitleEmpty ? "SONET_IM_NEW_COMMENT_PUBLISHED_W_TITLE" : "SONET_IM_NEW_COMMENT_PUBLISHED_WO_TITLE"),
 					array(
 						"#link_com_start#" => "",
 						"#link_com_end#" => "",
 						"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-					)
+					),
+					$languageId
 				)." #SERVER_NAME##COMMENT_URL#";
 		}
 
@@ -3304,15 +3412,18 @@ class CAllBlogPost
 			);
 		}
 
-		$arMessageFields["NOTIFY_MESSAGE"] = str_replace(
+		$notifyMessage = clone $arMessageFields["NOTIFY_MESSAGE"];
+		$notifyMessageOut = clone $arMessageFields["NOTIFY_MESSAGE_OUT"];
+
+		$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => str_replace(
 			array('#POST_URL#', '#COMMENT_URL#'),
 			array($userPostUrl, $userCommentUrl),
-			$arMessageFields["NOTIFY_MESSAGE"]
+			$notifyMessage($languageId)
 		);
-		$arMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
+		$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => str_replace(
 			array('#POST_URL#', '#SERVER_NAME#', '#COMMENT_URL#'),
 			array($userPostUrl, $serverName, $userCommentUrl),
-			$arMessageFields["NOTIFY_MESSAGE_OUT"]
+			$notifyMessageOut($languageId)
 		);
 
 		CIMNotify::Add($arMessageFields);
@@ -3507,7 +3618,7 @@ class CAllBlogPost
 		if($postId <= 0)
 			return;
 
-		$DB->Query("DELETE FROM b_blog_socnet_rights WHERE POST_ID = ".$postId, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_blog_socnet_rights WHERE POST_ID = ".$postId);
 	}
 
 	public static function GetMentionedUserID($arFields)
@@ -3517,7 +3628,7 @@ class CAllBlogPost
 
 		if (isset($arFields["DETAIL_TEXT"]))
 		{
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $arFields["DETAIL_TEXT"], $arMention);
+			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", $arFields["DETAIL_TEXT"], $arMention);
 			if (!empty($arMention))
 			{
 				$arMentionedUserID = array_merge($arMentionedUserID, $arMention[1]);

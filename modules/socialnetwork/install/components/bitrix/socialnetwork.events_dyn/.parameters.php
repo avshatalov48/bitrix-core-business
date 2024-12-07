@@ -136,14 +136,3 @@ if (CModule::IncludeModule("intranet"))
 		"PARENT" => "URL_TEMPLATES",
 	);
 }
-
-if(IsModuleInstalled("video"))
-{
-	$arComponentParameters["PARAMETERS"]["PATH_TO_VIDEO_CALL"] = array(
-		"NAME" => GetMessage("SONET_PATH_TO_VIDEO_CALL"),
-		"DEFAULT" => "/company/personal/video/#user_id#/",
-		"PARENT" => "URL_TEMPLATES",
-	);
-}
-
-?>

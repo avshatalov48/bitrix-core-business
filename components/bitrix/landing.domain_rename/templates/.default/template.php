@@ -139,7 +139,7 @@ Loc::loadMessages(__FILE__);
 </div>
 
 <?if (Manager::isB24()):?>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		new BX.Landing.DomainNamePopup({
 			fieldId: '<?= \CUtil::jsEscape($arParams['FIELD_ID']);?>',

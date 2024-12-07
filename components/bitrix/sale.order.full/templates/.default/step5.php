@@ -56,7 +56,6 @@
 				<td width="50%" align="right"><?= GetMessage("SALE_DELIV_SUBTITLE")?>:</td>
 				<td width="50%">
 					<?
-					//echo "<pre>"; print_r($arResult); echo "</pre>";
 					if (is_array($arResult["DELIVERY"]))
 					{
 						echo $arResult["DELIVERY"]["NAME"];
@@ -67,7 +66,7 @@
 					}
 					elseif ($arResult["DELIVERY"]=="ERROR")
 					{
-						echo ShowError(GetMessage("SALE_ERROR_DELIVERY"));
+						ShowError(GetMessage("SALE_ERROR_DELIVERY"));
 					}
 					else
 					{
@@ -91,14 +90,14 @@
 						}
 						elseif ($arResult["PAY_SYSTEM"]=="ERROR")
 						{
-							echo ShowError(GetMessage("SALE_ERROR_PAY_SYS"));
+							ShowError(GetMessage("SALE_ERROR_PAY_SYS"));
 						}
 						elseif($arResult["PAYED_FROM_ACCOUNT"] != "Y")
 						{
 							echo GetMessage("STOF_NOT_SET");
 						}
-						
-						?>				
+
+						?>
 					</td>
 				</tr>
 				<?

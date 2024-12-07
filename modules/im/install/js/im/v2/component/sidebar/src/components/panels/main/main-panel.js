@@ -9,9 +9,15 @@ import { TaskPreview } from './blocks/task';
 import { MainHeader } from './blocks/header';
 import { MarketPreview } from './blocks/market';
 import { MeetingPreview } from './blocks/meeting';
+import { CopilotInfoPreview } from './blocks/copilot-info';
 import { ChatPreview } from './blocks/chat-preview';
+import { PostPreview } from './blocks/post-preview';
 import { UserPreview } from './blocks/user-preview';
+import { CopilotPreview } from './blocks/copilot-preview';
+import { SupportPreview } from './blocks/support-preview';
 import { FileUnsortedPreview } from './blocks/file-unsorted';
+import { MultidialogPreview } from './blocks/multidialog';
+import { TariffLimitPreview } from './blocks/tariff-limit';
 import { SidebarSkeleton } from '../../elements/skeleton/skeleton';
 
 import './css/main-panel.css';
@@ -25,14 +31,20 @@ export const MainPanel = {
 	components: {
 		MainHeader,
 		ChatPreview,
+		PostPreview,
 		UserPreview,
+		SupportPreview,
 		InfoPreview,
 		FilePreview,
 		TaskPreview,
 		MeetingPreview,
 		FileUnsortedPreview,
 		MarketPreview,
+		MultidialogPreview,
 		SidebarSkeleton,
+		CopilotPreview,
+		CopilotInfoPreview,
+		TariffLimitPreview,
 	},
 	props:
 	{
@@ -44,7 +56,7 @@ export const MainPanel = {
 	data(): JsonObject
 	{
 		return {
-			isLoading: false,
+			isLoading: true,
 		};
 	},
 	computed:
@@ -72,12 +84,13 @@ export const MainPanel = {
 	},
 	watch:
 	{
-		chatId(newValue: number)
+		dialogId()
 		{
-			if (newValue > 0)
-			{
-				this.initializeSidebar();
-			}
+			this.initializeSidebar();
+		},
+		dialogInited()
+		{
+			this.initializeSidebar();
 		},
 	},
 	created()
@@ -92,6 +105,11 @@ export const MainPanel = {
 		},
 		initializeSidebar()
 		{
+			if (!this.dialogInited)
+			{
+				return;
+			}
+
 			if (this.hasInitialData)
 			{
 				this.isLoading = false;
@@ -111,7 +129,7 @@ export const MainPanel = {
 	template: `
 		<div class="bx-im-sidebar-main-panel__container">
 			<MainHeader :dialogId="dialogId" />
-			<SidebarSkeleton v-if="isLoading" />
+			<SidebarSkeleton v-if="isLoading || !dialogInited" />
 			<div v-else class="bx-im-sidebar-main-panel__blocks">
 				<component
 					v-for="block in blocks"

@@ -37,7 +37,7 @@ if (Loader::requireModule('bizproc'))
 					array(
 						array('LINK_IBLOCK_ID' => $fieldType->getOptions()),
 						array('VALUE' => $value),
-						''
+						['MODE' => 'BIZPROC']
 					)
 				);
 

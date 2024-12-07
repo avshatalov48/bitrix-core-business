@@ -225,14 +225,42 @@ class HandlerService extends BaseService
 		self::checkParamsOnUpdateHandler($params);
 
 		$fields = [];
-		foreach (['CODE', 'NAME', 'DESCRIPTION', 'SETTINGS', 'PROFILES'] as $field)
+
+		$allowedFields = [
+			'CODE',
+			'NAME',
+			'DESCRIPTION',
+			'SETTINGS',
+			'PROFILES',
+			'SORT',
+		];
+
+		foreach ($allowedFields as $field)
 		{
 			if (!array_key_exists($field, $params))
 			{
 				continue;
 			}
 
-			if ($field === 'PROFILES')
+			if ($field === 'CODE')
+			{
+				$deliveryRestHandler = Internals\DeliveryRestHandlerTable::getList([
+					'filter' => [
+						'!ID' => $params['ID'],
+						'=CODE' => $params[$field],
+					]
+				])->fetch();
+				if ($deliveryRestHandler)
+				{
+					throw new RestException('Handler already exists!', self::ERROR_HANDLER_ALREADY_EXIST);
+				}
+			}
+
+			if ($field === 'SORT')
+			{
+				$value = (int)$params[$field];
+			}
+			elseif ($field === 'PROFILES')
 			{
 				$value = self::convertArrayForSaving($params[$field], '[PROFILES][]');
 			}
@@ -304,6 +332,14 @@ class HandlerService extends BaseService
 		$handlersList = array_values(Sale\Delivery\Services\Manager::getRestHandlerList());
 		foreach ($handlersList as $handler)
 		{
+			$resultItem = [
+				'ID' => (int)$handler['ID'],
+				'NAME' => (string)$handler['NAME'],
+				'CODE' => (string)$handler['CODE'],
+				'SORT' => (int)$handler['SORT'],
+				'DESCRIPTION' => (string)$handler['DESCRIPTION'],
+			];
+
 			/**
 			 * Profiles
 			 */
@@ -312,7 +348,7 @@ class HandlerService extends BaseService
 			{
 				$profiles = self::convertArrayForOutput($handler['PROFILES']);
 			}
-			$handler['PROFILES'] = $profiles;
+			$resultItem['PROFILES'] = $profiles;
 
 			/**
 			 * Settings
@@ -324,9 +360,9 @@ class HandlerService extends BaseService
 				$config = self::convertArrayForOutput($settings['CONFIG']['ITEMS']);
 			}
 			$settings['CONFIG'] = $config;
-			$handler['SETTINGS'] = $settings;
+			$resultItem['SETTINGS'] = $settings;
 
-			$result[] = $handler;
+			$result[] = $resultItem;
 		}
 
 		return $result;
@@ -341,6 +377,44 @@ class HandlerService extends BaseService
 		if (empty($profiles) || !is_array($profiles))
 		{
 			throw new RestException('Parameter PROFILES is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
+		$profileRequiredFields = [
+			'NAME',
+			'CODE',
+		];
+		$profileAllowedFields = [
+			'NAME',
+			'CODE',
+			'DESCRIPTION',
+		];
+		foreach ($profiles as $profile)
+		{
+			foreach ($profile as $key => $value)
+			{
+				if (!in_array($key, $profileAllowedFields, true))
+				{
+					$message =
+						'Unexpected profile key: ' . $key . '. Allowed keys: '
+						. implode(', ', $profileAllowedFields)
+					;
+					throw new RestException($message, self::ERROR_CHECK_FAILURE);
+				}
+			}
+
+			foreach ($profileRequiredFields as $profileRequiredField)
+			{
+				if (
+					!isset($profile[$profileRequiredField])
+					|| $profile[$profileRequiredField] === ''
+				)
+				{
+					throw new RestException(
+						'Profile field ' . $profileRequiredField . ' is not specified',
+						self::ERROR_CHECK_FAILURE
+					);
+				}
+			}
 		}
 	}
 
@@ -392,9 +466,61 @@ class HandlerService extends BaseService
 			);
 		}
 
-		if (empty($settings['CONFIG']) || !is_array($settings['CONFIG']))
+		if (isset($settings['CONFIG']))
 		{
-			throw new RestException('Parameter SETTINGS[CONFIG] is not defined', self::ERROR_CHECK_FAILURE);
+			if (!is_array($settings['CONFIG']))
+			{
+				throw new RestException(
+					'Parameter SETTINGS[CONFIG] must be of array type',
+					self::ERROR_CHECK_FAILURE
+				);
+			}
+
+			$configItemRequiredFields = [
+				'TYPE',
+				'CODE',
+				'NAME',
+			];
+
+			foreach ($settings['CONFIG'] as $configItem)
+			{
+				$configItemAllowedFields = (isset($configItem['TYPE']) && $configItem['TYPE'] === 'ENUM')
+					? [
+						'TYPE',
+						'CODE',
+						'NAME',
+						'OPTIONS',
+					]
+					: [
+						'TYPE',
+						'CODE',
+						'NAME',
+					]
+				;
+
+				foreach ($configItem as $key => $value)
+				{
+					if (!in_array($key, $configItemAllowedFields, true))
+					{
+						$message =
+							'Unexpected config item key: ' . $key . '. Allowed keys: '
+							. implode(', ', $configItemAllowedFields)
+						;
+						throw new RestException($message, self::ERROR_CHECK_FAILURE);
+					}
+				}
+
+				foreach ($configItemRequiredFields as $configItemRequiredField)
+				{
+					if (!isset($configItem[$configItemRequiredField]))
+					{
+						throw new RestException(
+							'Config item field ' . $configItemRequiredField . ' is not specified',
+							self::ERROR_CHECK_FAILURE
+						);
+					}
+				}
+			}
 		}
 	}
 

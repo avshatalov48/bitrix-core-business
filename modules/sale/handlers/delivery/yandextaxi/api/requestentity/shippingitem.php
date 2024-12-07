@@ -33,8 +33,8 @@ final class ShippingItem extends RequestEntity
 	/** @var int */
 	protected $dropoffPoint;
 
-    /** @var int */
-    protected $droppofPoint;
+	/** @var int */
+	protected $droppofPoint;
 
 	/**
 	 * @return string
@@ -172,10 +172,10 @@ final class ShippingItem extends RequestEntity
 	{
 		$this->dropoffPoint = $dropoffPoint;
 
-        /**
-         * Some Yandex API methods still use the name with this typo
-         */
-        $this->droppofPoint = $dropoffPoint;
+		/**
+		 * Some Yandex API methods still use the name with this typo
+		 */
+		$this->droppofPoint = $dropoffPoint;
 
 		return $this;
 	}

@@ -17,7 +17,7 @@ $containerId = 'BX_SENDER_STATISTICS';
 $containerId = htmlspecialcharsbx($containerId);
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		var params = <?=Json::encode(array(
 			'mailingId' => $arParams['MAILING_ID'],
@@ -308,7 +308,7 @@ $containerId = htmlspecialcharsbx($containerId);
 	);
 	?>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.Sender.Letter.Stat.init(<?=Json::encode([
 				'containerId' => $containerId,

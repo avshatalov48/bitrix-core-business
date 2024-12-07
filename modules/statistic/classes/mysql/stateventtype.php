@@ -6,7 +6,6 @@ class CStatEventType extends CAllStatEventType
 {
 	public static function GetByID($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		$strSql =	"
@@ -20,13 +19,12 @@ class CStatEventType extends CAllStatEventType
 			WHERE
 				E.ID = '$ID'
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetList($by = 's_today_counter', $order = 'desc', $arFilter = [], &$is_filtered = false, $LIMIT = false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$find_group = $arFilter["GROUP"] ?? '';
@@ -197,7 +195,7 @@ class CStatEventType extends CAllStatEventType
 
 		$limit_sql = "LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'));
 		if (intval($LIMIT)>0) $limit_sql = "LIMIT ".intval($LIMIT);
-		if ($find_group=="") // åñëè ãðóïïèðîâêà íå âûáðàíà
+		if ($find_group=="") // ÐµÑÐ»Ð¸ Ð³Ñ€ÑƒÐ¿Ð¿Ð¸Ñ€Ð¾Ð²ÐºÐ° Ð½Ðµ Ð²Ñ‹Ð±Ñ€Ð°Ð½Ð°
 		{
 			$strSql = "
 			SELECT
@@ -235,7 +233,7 @@ class CStatEventType extends CAllStatEventType
 			$strSqlOrder
 			$limit_sql
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		elseif ($find_group=="total")
 		{
@@ -272,7 +270,7 @@ class CStatEventType extends CAllStatEventType
 				'1'='1'
 				$strSqlSearch_h
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			if($ar = $res->Fetch())
 				foreach($ar as $k=>$v)
 					$arResult[$k]+=$v;
@@ -285,7 +283,7 @@ class CStatEventType extends CAllStatEventType
 			WHERE
 				$strSqlSearch
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			if($ar = $res->Fetch())
 				foreach($ar as $k=>$v)
 					$arResult[$k]+=$v;
@@ -326,7 +324,7 @@ class CStatEventType extends CAllStatEventType
 				$strSqlSearch_h
 			$strSqlOrder
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			while($ar=$res->Fetch())
 				$arResult[$ar["GROUPING_KEY"]] = $ar;
 			$strSql = "
@@ -342,7 +340,7 @@ class CStatEventType extends CAllStatEventType
 			$strSqlSearch
 			GROUP BY $group
 			";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			while($ar=$res->Fetch())
 			{
 				if(array_key_exists($ar["GROUPING_KEY"], $arResult))
@@ -379,7 +377,6 @@ class CStatEventType extends CAllStatEventType
 
 	public static function GetSimpleList($by = 's_event1', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 
@@ -452,7 +449,7 @@ class CStatEventType extends CAllStatEventType
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 		";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -460,7 +457,6 @@ class CStatEventType extends CAllStatEventType
 	public static function GetDropDownList($strSqlOrder="ORDER BY EVENT1, EVENT2")
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
@@ -469,13 +465,12 @@ class CStatEventType extends CAllStatEventType
 				b_stat_event
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetDynamicList($EVENT_ID, $by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$EVENT_ID = intval($EVENT_ID);
 		$arSqlSearch = Array();
@@ -540,7 +535,7 @@ class CStatEventType extends CAllStatEventType
 			$strSqlOrder
 		";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		$strSql = "
 			SELECT
@@ -558,7 +553,7 @@ class CStatEventType extends CAllStatEventType
 				D.EVENT_ID = $EVENT_ID
 			$strSqlSearch
 			";
-		$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $DB->Query($strSql);
 		$ar = $a->Fetch();
 		$arMaxMin["MAX_DAY"]	= $ar["MAX_DAY"];
 		$arMaxMin["MAX_MONTH"]	= $ar["MAX_MONTH"];

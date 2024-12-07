@@ -421,7 +421,7 @@ class CFileInput
 				foreach(self::$curFiles as $ind => $arFile)
 					self::DisplayFile($arFile, $ind);
 		?>
-		<script type="text/javascript">
+		<script>
 			var topWindow = BX.PageObject.getRootWindow();
 			(topWindow.BX.file_input) ? new topWindow.BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>) : new BX.file_input(<?= CUtil::PHPToJSObject($arConfig)?>)
 		</script>
@@ -521,7 +521,7 @@ class CFileInput
 		if ($hint != '')
 		{
 		?>
-		<script type="text/javascript">
+		<script>
 			new (BX.PageObject.getRootWindow()).BX.CHint({
 				parent: (BX.PageObject.getRootWindow()).BX("<?= $hintId?>"),
 				show_timeout: 10,

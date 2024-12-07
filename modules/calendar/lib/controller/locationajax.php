@@ -9,6 +9,7 @@ use Bitrix\Calendar\Access\SectionAccessController;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Rooms;
+use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\Controller;
@@ -41,7 +42,7 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -81,6 +82,14 @@ class LocationAjax extends Controller
 
 		$sectionId = (int)$this->getRequest()->getPost('id');
 		$section = \CCalendarSect::GetById($sectionId);
+
+		if (empty($section))
+		{
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
+
+			return [];
+		}
+
 		$sectionModel = SectionModel::createFromArray($section);
 		$accessController = new SectionAccessController(CCalendar::GetUserId());
 		if (
@@ -88,7 +97,7 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -128,6 +137,14 @@ class LocationAjax extends Controller
 
 		$sectionId = (int)$this->getRequest()->getPost('id');
 		$section = \CCalendarSect::GetById($sectionId);
+
+		if (empty($section))
+		{
+			$this->addError(new Error(Loc::getMessage('EC_ROOM_DELETE_ERROR')));
+
+			return [];
+		}
+
 		$sectionModel = SectionModel::createFromArray($section);
 		$accessController = new SectionAccessController(CCalendar::GetUserId());
 		if (
@@ -135,7 +152,8 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
+
 			return [];
 		}
 
@@ -180,7 +198,7 @@ class LocationAjax extends Controller
 		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -206,7 +224,7 @@ class LocationAjax extends Controller
 		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return $result;
 		}
 
@@ -289,7 +307,7 @@ class LocationAjax extends Controller
 		$accessController = new SectionAccessController(CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_SECTION_ACCESS, $sectionModel, []))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -322,7 +340,7 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -358,7 +376,7 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -394,7 +412,7 @@ class LocationAjax extends Controller
 			|| !Rooms\PermissionManager::isLocationFeatureEnabled()
 		)
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 
@@ -427,7 +445,7 @@ class LocationAjax extends Controller
 		$accessController = new TypeAccessController(CCalendar::GetUserId());
 		if (!$accessController->check(ActionDictionary::ACTION_TYPE_VIEW, $typeModel, []))
 		{
-			$this->addError(new \Bitrix\Main\Error(Loc::getMessage('EC_ACCESS_DENIED')));
+			$this->addError(new Error(Loc::getMessage('EC_ACCESS_DENIED')));
 			return [];
 		}
 

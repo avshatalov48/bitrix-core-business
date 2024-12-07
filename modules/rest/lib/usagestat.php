@@ -333,6 +333,16 @@ class UsageStatTable extends Main\Entity\DataManager
 		);
 	}
 
+	public static function logLandingWidget(string $clientId, string $type): void
+	{
+		static::increment(
+			UsageEntityTable::ENTITY_TYPE_APPLICATION,
+			$clientId,
+			UsageEntityTable::SUB_ENTITY_TYPE_LANDING_WIDGET,
+			$type
+		);
+	}
+
 	protected static function incrementByCount($entityType, $entityId, $subEntityType, $subEntityName, int $count)
 	{
 		$entityKey = static::getEntityKey($entityType, $entityId, $subEntityType, $subEntityName);

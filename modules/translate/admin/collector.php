@@ -322,7 +322,7 @@ $tabControl->End();
 
 
 ?>
-	<script type="text/javascript">
+	<script>
 
 		function tabSelect(action)
 		{

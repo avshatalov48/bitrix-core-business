@@ -220,11 +220,11 @@ class CSqlTokenizer
 		switch ($token[0])
 		{
 		case T_STRING:
-			if (preg_match("/^(${keywords})\$/i", $token[1]))
+			if (preg_match('/^(' . $keywords . ')$/i', $token[1]))
 			{
 				$token = [T_KEYWORD, mb_strtoupper($token[1])];
 			}
-			elseif (preg_match("/^(${functions})\$/i", $token[1]))
+			elseif (preg_match('/^(' . $functions . ')$/i', $token[1]))
 			{
 				$token = [T_FUNCTION, $token[1]];
 			}

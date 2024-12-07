@@ -345,7 +345,7 @@ final class ImportProcess extends Location\Util\Process
 					{
 						if(isset($this->data['types']['allowed'][$type]))
 						{
-							$this->data['requiredGroups'][] = ToLower($code);
+							$this->data['requiredGroups'][] = mb_strtolower($code);
 							break;
 						}
 					}
@@ -734,12 +734,12 @@ final class ImportProcess extends Location\Util\Process
 				{
 					foreach($langs as $lid => $f)
 					{
-						$lid = ToLower($lid);
+						$lid = mb_strtolower($lid);
 						$toAdd = static::getTranslatedName($names, $lid);
 
 						$this->hitData['HANDLES']['NAME']->insert(array(
 							'NAME' => $toAdd['NAME'],
-							'NAME_UPPER' => ToUpper($toAdd['NAME']),
+							'NAME_UPPER' => mb_strtoupper($toAdd['NAME']),
 							'LANGUAGE_ID' => $lid,
 							'LOCATION_ID' => $locationId
 						));
@@ -1376,7 +1376,7 @@ final class ImportProcess extends Location\Util\Process
 				}
 				else
 				{
-					$cLine['NAME'][ToUpper($lang)]['NAME'] = $line[$k];
+					$cLine['NAME'][mb_strtoupper($lang)]['NAME'] = $line[$k];
 				}
 
 				$expectLang = !$expectLang;
@@ -1417,7 +1417,7 @@ final class ImportProcess extends Location\Util\Process
 
 		foreach($res as $line)
 		{
-			$line['NAME'][ToUpper($lang)] = static::getTranslatedName($line['NAME'], $lang);
+			$line['NAME'][mb_strtoupper($lang)] = static::getTranslatedName($line['NAME'], $lang);
 			$result[$line['PARENT_CODE']][$line['CODE']] = $line;
 		}
 		$csv->CloseFile();
@@ -1555,7 +1555,7 @@ final class ImportProcess extends Location\Util\Process
 			$res = \Bitrix\Main\SiteTable::getList(array('filter' => array('ACTIVE' => 'Y'), 'select' => array('LANGUAGE_ID'), 'group' => array('LANGUAGE_ID')));
 			while($item = $res->fetch())
 			{
-				$langs[ToUpper($item['LANGUAGE_ID'])] = true;
+				$langs[mb_strtoupper($item['LANGUAGE_ID'])] = true;
 			}
 
 			$langs = array_unique(array_keys($langs)); // all active sites languages
@@ -1566,7 +1566,7 @@ final class ImportProcess extends Location\Util\Process
 
 	public function getRequiredLanguages()
 	{
-		$required = array(ToUpper($this->getLanguageId()));
+		$required = array(mb_strtoupper($this->getLanguageId()));
 
 		$langs = Location\Admin\NameHelper::getLanguageList();
 		if(isset($langs['en']))
@@ -1782,7 +1782,7 @@ final class ImportProcess extends Location\Util\Process
 		if($this->dbConnType == self::DB_TYPE_MYSQL)
 			$res = $this->dbConnection->query("show index from ".$tableName);
 		elseif($this->dbConnType == self::DB_TYPE_ORACLE)
-			$res = $this->dbConnection->query("SELECT INDEX_NAME as Key_name FROM USER_IND_COLUMNS WHERE TABLE_NAME = '".ToUpper($tableName)."'");
+			$res = $this->dbConnection->query("SELECT INDEX_NAME as Key_name FROM USER_IND_COLUMNS WHERE TABLE_NAME = '".mb_strtoupper($tableName)."'");
 		elseif($this->dbConnType == self::DB_TYPE_MSSQL)
 		{
 			$res = $this->dbConnection->query("SELECT si.name Key_name
@@ -1790,7 +1790,7 @@ final class ImportProcess extends Location\Util\Process
 					INNER JOIN syscolumns c ON s.id = c.id AND s.colid = c.colid
 					INNER JOIN sysobjects o ON s.id = o.Id AND o.xtype = 'U'
 					LEFT JOIN sysindexes si ON si.indid = s.indid AND si.id = s.id
-				WHERE o.name = '".ToUpper($tableName)."'");
+				WHERE o.name = '".mb_strtoupper($tableName)."'");
 		}
 
 		while($item = $res->fetch())
@@ -2065,7 +2065,7 @@ final class ImportProcess extends Location\Util\Process
 		}
 
 		if(!defined('SALE_LOCATIONS_IMPORT_SOURCE_URL'))
-			$query = 'http://'.self::DISTRIBUTOR_HOST.':'.self::DISTRIBUTOR_PORT.self::REMOTE_PATH.$fileName;
+			$query = 'https://'.self::DISTRIBUTOR_HOST.self::REMOTE_PATH.$fileName;
 		else
 			$query = 'http://'.SALE_LOCATIONS_IMPORT_SOURCE_URL.'/'.$fileName;
 
@@ -2236,7 +2236,7 @@ final class ImportProcess extends Location\Util\Process
 
 	protected static function parseQueryCode($value)
 	{
-		$value = ToLower(trim($value));
+		$value = mb_strtolower(trim($value));
 
 		if(!preg_match('#^[a-z0-9]+$#i', $value))
 			throw new Main\SystemException('Bad request parameter');
@@ -2296,7 +2296,7 @@ final class ImportProcess extends Location\Util\Process
 			{
 				foreach($langs as $lid => $f)
 				{
-					$names[ToUpper($lid)] = static::getTranslatedName($line['NAME'], $lid);
+					$names[mb_strtoupper($lid)] = static::getTranslatedName($line['NAME'], $lid);
 				}
 				$line['NAME'] = $names;
 			}

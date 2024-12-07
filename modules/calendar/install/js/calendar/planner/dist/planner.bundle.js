@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core_events,calendar_util,main_core,calendar_ui_tools_draganddrop,main_popup) {
+(function (exports,ui_infoHelper,main_core_events,calendar_util,main_core,calendar_ui_tools_draganddrop,main_popup,main_date) {
 	'use strict';
 
 	let _ = t => t,
@@ -25,6 +26,7 @@ this.BX = this.BX || {};
 	    this.getTimelineWidth = params.getTimelineWidth;
 	    this.getScaleInfo = params.getScaleInfo;
 	    this.solidStatus = params.solidStatus;
+	    this.alwaysBlue = params.alwaysBlue;
 	    this.vacationOffset = 0;
 	    this.eventDragAndDrop = new calendar_ui_tools_draganddrop.EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
 	    this.useAnimation = params.useAnimation !== false;
@@ -414,8 +416,11 @@ this.BX = this.BX || {};
 	  }
 	  checkStatus(selectorPos, checkPosition) {
 	    if (this.solidStatus) {
-	      main_core.Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
-	      main_core.Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+	      if (this.alwaysBlue) {
+	        main_core.Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
+	        main_core.Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+	        main_core.Dom.addClass(this.DOM.wrap, '--always-blue');
+	      }
 	      main_core.Dom.addClass(this.DOM.wrap, 'solid');
 	    } else {
 	      if (!selectorPos) {
@@ -446,6 +451,9 @@ this.BX = this.BX || {};
 	        }
 	      }));
 	    }
+	  }
+	  setSolid() {
+	    main_core.Dom.addClass(this.DOM.wrap, 'solid');
 	  }
 	  setSelectorStatus(status) {
 	    this.selectorIsFree = status;
@@ -806,7 +814,8 @@ this.BX = this.BX || {};
 	  _t51,
 	  _t52,
 	  _t53,
-	  _t54;
+	  _t54,
+	  _t55;
 	class Planner extends main_core_events.EventEmitter {
 	  // in days
 	  // in days
@@ -816,6 +825,7 @@ this.BX = this.BX || {};
 	  // in days
 
 	  constructor(params = {}) {
+	    var _params$entriesCount;
 	    super();
 	    this.DOM = {};
 	    this.config = {};
@@ -860,17 +870,22 @@ this.BX = this.BX || {};
 	    this.solidStatus = false;
 	    this.setEventNamespace('BX.Calendar.Planner');
 	    this.config = params;
+	    this.setEntriesCount((_params$entriesCount = params.entriesCount) != null ? _params$entriesCount : 0);
 	    this.id = params.id;
-	    this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || 'd F, l';
 	    this.userId = parseInt(params.userId || main_core.Loc.getMessage('USER_ID'));
 	    this.DOM.wrap = params.wrap;
 	    this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
 	    this.userTimezone = calendar_util.Util.getUserSettings().timezoneName;
 	    this.currentTimezone = main_core.Type.isStringFilled(params.entryTimezone) ? params.entryTimezone : this.userTimezone;
+	    this.alwaysBlue = params.alwaysBlue;
 	    this.expandTimelineDebounce = main_core.Runtime.debounce(this.expandTimeline, this.EXPAND_DELAY, this);
 	    this.showMoreUsersBind = this.showMoreUsers.bind(this);
 	    this.hideMoreUsersBind = this.hideMoreUsers.bind(this);
 	    this.setConfig(params);
+	  }
+	  static getMaxPlannerUsers() {
+	    const settings = main_core.Extension.getSettings('calendar.planner');
+	    return settings.maxPlannerUsers;
 	  }
 	  show() {
 	    if (this.currentFromDate && this.currentToDate) {
@@ -885,11 +900,11 @@ this.BX = this.BX || {};
 	      this.hideAnimation.stop();
 	      this.hideAnimation = null;
 	    }
-	    if (!this.isBuilt()) {
+	    if (this.isBuilt()) {
+	      this.resizePlannerWidth(this.width);
+	    } else {
 	      this.build();
 	      this.bindEventHandlers();
-	    } else {
-	      this.resizePlannerWidth(this.width);
 	    }
 	    this.buildTimeline();
 	    this.DOM.wrap.style.display = '';
@@ -923,6 +938,26 @@ this.BX = this.BX || {};
 	    }
 	    this.shown = true;
 	  }
+	  setEntriesCount(entriesCount) {
+	    const maxPlannerUsers = Planner.getMaxPlannerUsers();
+	    if (maxPlannerUsers > 0 && entriesCount > 0) {
+	      this.setVisible(entriesCount <= maxPlannerUsers);
+	    }
+	  }
+	  setVisible(isVisible) {
+	    if (isVisible === this.isVisible) {
+	      return;
+	    }
+	    if (isVisible) {
+	      this.DOM.wrap.parentElement.style.setProperty('display', '');
+	      this.rebuildDebounce({
+	        dontFocus: true
+	      });
+	    } else {
+	      this.DOM.wrap.parentElement.style.setProperty('display', 'none', 'important');
+	    }
+	    this.isVisible = isVisible;
+	  }
 	  setConfig(params) {
 	    var _Util$config$work_tim, _Util$config, _Util$config$work_tim2, _Util$config2;
 	    this.todayLocMessage = main_core.Loc.getMessage('EC_PLANNER_TODAY');
@@ -944,7 +979,7 @@ this.BX = this.BX || {};
 
 	    // readonly
 	    if (params.readonly !== undefined) {
-	      this.readonly = !!params.readonly;
+	      this.readonly = Boolean(params.readonly);
 	    } else if (this.readonly === undefined) {
 	      this.readonly = false;
 	    }
@@ -994,6 +1029,7 @@ this.BX = this.BX || {};
 	    this.entriesListWidth = parseInt(params.entriesListWidth) || this.entriesListWidth || 200;
 	    this.timelineCellWidth = params.timelineCellWidth || this.timelineCellWidth || 40;
 	    this.solidStatus = params.solidStatus === true;
+	    this.showWorkTimeNotice = params.showWorkTimeNotice === true;
 	    this.showEntiesHeader = params.showEntiesHeader === undefined ? true : !!params.showEntiesHeader;
 	    this.showEntryName = params.showEntryName === undefined ? true : !!params.showEntryName;
 	    if (this.isOneDayScale() && this.timelineCellWidth < 100) {
@@ -1008,6 +1044,9 @@ this.BX = this.BX || {};
 	    }
 	    if (params.locked !== undefined) {
 	      this.locked = params.locked;
+	    }
+	    if (this.isLocked()) {
+	      this.readonly = true;
 	    }
 	    this.adjustCellWidth();
 
@@ -1166,7 +1205,8 @@ this.BX = this.BX || {};
 	      },
 	      getTimelineWidth: () => {
 	        return parseInt(this.DOM.timelineInnerWrap.style.width);
-	      }
+	      },
+	      alwaysBlue: this.alwaysBlue === true
 	    });
 	    selector.subscribe('onChange', this.handleSelectorChanges.bind(this));
 	    selector.subscribe('doCheckStatus', this.doCheckSelectorStatus.bind(this));
@@ -1379,10 +1419,12 @@ this.BX = this.BX || {};
 	            //F d, l
 	            dayTitle = outerDayCont.appendChild(main_core.Tag.render(_t18 || (_t18 = _$1`
 							<div class="${0}">
-								<span>${0}</span>
+								<span>
+									${0}
+								</span>
 								<div class="calendar-planner-time-day-border"></div>
 							</div>
-						`), dayTitleClass, BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)));
+						`), dayTitleClass, main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('DAY_OF_WEEK_MONTH_FORMAT'), this.scaleData[i].timestamp / 1000)));
 	            if (date.getTime() > today.getTime()) {
 	              this.futureDayTitles.push(dayTitle.querySelector('span'));
 	            }
@@ -1687,8 +1729,9 @@ this.BX = this.BX || {};
 	    return this.scaleType === '1day';
 	  }
 	  prepareAccessibilityItem(entry) {
-	    const userOffset = calendar_util.Util.getTimeZoneOffset(this.userTimezone);
-	    const timezoneOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone);
+	    const date = calendar_util.Util.parseDate(entry.dateFrom);
+	    const userOffset = calendar_util.Util.getTimeZoneOffset(this.userTimezone, date);
+	    const timezoneOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone, date);
 	    const timeOffset = (userOffset - timezoneOffset) * 60 * 1000;
 	    return Planner.prepareAccessibilityItem(entry, timeOffset);
 	  }
@@ -2572,8 +2615,8 @@ this.BX = this.BX || {};
 	    return eventsAfter;
 	  }
 	  updateTimezone(timezone) {
-	    const currentOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone);
-	    const timezoneOffset = calendar_util.Util.getTimeZoneOffset(timezone);
+	    const currentOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone, this.currentFromDate);
+	    const timezoneOffset = calendar_util.Util.getTimeZoneOffset(timezone, this.currentFromDate);
 	    this.currentTimezone = timezone;
 	    if (currentOffset === timezoneOffset) {
 	      return;
@@ -2590,6 +2633,7 @@ this.BX = this.BX || {};
 	    if (!main_core.Type.isArray(entries)) {
 	      return;
 	    }
+	    this.setEntriesCount(entries.length);
 	    if (((_this$entries = this.entries) == null ? void 0 : _this$entries.length) !== entries.length) {
 	      this.doShowTimezoneNoticePopup = true;
 	    }
@@ -2597,12 +2641,13 @@ this.BX = this.BX || {};
 	    this.accessibility = [];
 	    this.preparedAccessibility = [];
 	    this.allEvents = [];
-	    const currentOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone);
+	    const currentOffset = calendar_util.Util.getTimeZoneOffset(this.currentTimezone, this.currentFromDate);
 	    this.entries.forEach(entry => {
-	      this.accessibility[entry.id] = accessibility[entry.id];
-	      this.preparedAccessibility[entry.id] = accessibility[entry.id].map(it => this.prepareAccessibilityItem(it));
+	      var _accessibility$entry$;
+	      this.accessibility[entry.id] = (_accessibility$entry$ = accessibility[entry.id]) != null ? _accessibility$entry$ : [];
+	      this.preparedAccessibility[entry.id] = this.accessibility[entry.id].map(it => this.prepareAccessibilityItem(it));
 	      this.allEvents.push(...this.preparedAccessibility[entry.id]);
-	      entry.timezoneOffset = calendar_util.Util.getTimeZoneOffset(entry.timezoneName);
+	      entry.timezoneOffset = calendar_util.Util.getTimeZoneOffset(entry.timezoneName, this.currentFromDate);
 	      entry.timezoneNameFormatted = calendar_util.Util.getFormattedTimezone(entry.timezoneName);
 	      entry.offset = currentOffset - entry.timezoneOffset;
 	    });
@@ -2751,6 +2796,7 @@ this.BX = this.BX || {};
 	      }));
 	      this.currentFromDate = data.dateFrom;
 	      this.currentToDate = data.dateTo;
+	      this.update(this.entries, this.accessibility);
 	      if (this.currentToDate.getHours() < this.shownScaleTimeFrom && !(this.currentToDate.getHours() === 0 && this.currentToDate.getMinutes() === 0)) {
 	        this.extendScaleTime(this.currentToDate.getHours(), false);
 	      }
@@ -2802,7 +2848,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  updateTimezoneNotice(selectorTime) {
-	    if (this.fullDayMode) {
+	    if (this.readonly || this.fullDayMode) {
 	      this.hideTimezoneNotice();
 	      return;
 	    }
@@ -2822,7 +2868,7 @@ this.BX = this.BX || {};
 	      const entryHours = this.getDateHours(entryTime);
 	      const isWarning = entryHours < this.warningHoursFrom || entryHours >= this.warningHoursTo;
 	      if (main_core.Type.isDomNode(entryNode)) {
-	        const top = parseInt(entryNode.style.top);
+	        const top = parseInt(entryNode.style.top, 10);
 	        this.selector.showTimeNode(top, calendar_util.Util.formatTime(entryTime), entry.timezoneNameFormatted, entry.id, isWarning);
 	      }
 	      this.showEntryStatusTimezone(entry, isWarning);
@@ -2846,6 +2892,9 @@ this.BX = this.BX || {};
 	    return date.getHours() + date.getMinutes() / 60;
 	  }
 	  showTimezoneNotice(count, isWarning) {
+	    if (this.readonly) {
+	      return;
+	    }
 	    this.showTimezoneNoticeCount(count, isWarning);
 	    if (isWarning) {
 	      this.showTimezoneNoticePopup();
@@ -2854,6 +2903,9 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  hideTimezoneNotice() {
+	    if (this.readonly) {
+	      return;
+	    }
 	    this.selector.clearTimeNodes();
 	    this.hideTimezoneNoticeCount();
 	    this.hideTimezoneNoticePopup();
@@ -2893,6 +2945,9 @@ this.BX = this.BX || {};
 	    this.hideSelectorPopup();
 	  }
 	  showSelectorPopup(text) {
+	    if (this.readonly) {
+	      return;
+	    }
 	    if (this.DOM.selectorPopup.style.display === 'block' && this.DOM.selectorPopup.innerText !== text) {
 	      this.DOM.selectorPopup.style.transition = 'color 200ms ease';
 	      this.DOM.selectorPopup.style.color = '#ffffff00';
@@ -2940,7 +2995,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  isWorkTimeNoticeEnabled() {
-	    return !this.solidStatus && main_core.Type.isArrayFilled(this.entries);
+	    return (!this.solidStatus || this.showWorkTimeNotice) && main_core.Type.isArrayFilled(this.entries);
 	  }
 	  getAllEvents() {
 	    return this.allEvents;
@@ -2991,7 +3046,7 @@ this.BX = this.BX || {};
 	        if (timeTo === 0) {
 	          timeTo = 24;
 	        }
-	        if (timeFrom <= this.shownScaleTimeFrom) {
+	        if (timeFrom < this.shownScaleTimeFrom) {
 	          dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
 	          ts = dateFrom.getTime();
 	          dateTo = new Date(ts + duration);
@@ -3280,15 +3335,28 @@ this.BX = this.BX || {};
 							<div class="calendar-planner-timeline-locker-icon"></div>
 							<div class="calendar-planner-timeline-text">${0}</div>
 						</div>
-						<div class="calendar-planner-timeline-locker-button">
-							<a href="javascript:void(0)" onclick="top.BX.UI.InfoHelper.show('limit_crm_calender_planner');" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">${0}</a>
-						</div>
+						${0}
 					</div>
 				</div>
-			`), main_core.Loc.getMessage('EC_PL_LOCKED_TITLE'), main_core.Loc.getMessage('EC_PL_UNLOCK_FEATURE'));
+			`), main_core.Loc.getMessage('EC_PL_LOCKED_TITLE'), this.getLockerButton());
 	    }
 	    main_core.Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
 	    this.DOM.timelineFixedWrap.appendChild(this.DOM.lockScreen);
+	  }
+	  getLockerButton() {
+	    if (!this.DOM.lockButton) {
+	      this.DOM.lockButton = main_core.Tag.render(_t55 || (_t55 = _$1`
+				<div class="calendar-planner-timeline-locker-button">
+					<div class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">${0}</div>
+				</div>
+			`), main_core.Loc.getMessage('EC_PL_UNLOCK_FEATURE'));
+	      main_core.Event.bind(this.DOM.lockButton, 'click', () => {
+	        ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	          featureId: 'calendar_events_with_planner'
+	        }).show();
+	      });
+	    }
+	    return this.DOM.lockButton;
 	  }
 	  doSegmentsIntersect(x1, x2, y1, y2) {
 	    return x1 >= y1 && x1 <= y2 || x2 >= y1 && x2 <= y2 || x1 <= y1 && x2 >= y2;
@@ -3297,9 +3365,16 @@ this.BX = this.BX || {};
 	    this.readonly = true;
 	    main_core.Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
 	  }
+	  setSolid() {
+	    this.solidStatus = true;
+	    this.selector.setSolid();
+	  }
+	  setShowWorkTimeNotice() {
+	    this.showWorkTimeNotice = true;
+	  }
 	}
 
 	exports.Planner = Planner;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Event,BX.Calendar,BX,BX.Calendar.Ui.Tools,BX.Main));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.UI,BX.Event,BX.Calendar,BX,BX.Calendar.Ui.Tools,BX.Main,BX.Main));
 //# sourceMappingURL=planner.bundle.js.map

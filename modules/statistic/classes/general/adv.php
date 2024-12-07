@@ -4,7 +4,6 @@ class CAllAdv
 {
 	public static function SetByReferer($referer1, $referer2, &$arrADV, &$ref1, &$ref2)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		// lookup campaign with referer1 and referer2
@@ -24,7 +23,7 @@ class CAllAdv
 				".$referer1_sql."
 				and ".$referer2_sql."
 		";
-		$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$w = $DB->Query($strSql);
 
 		$found = false;
 		while ($wr = $w->Fetch())
@@ -69,7 +68,7 @@ class CAllAdv
 						"DATE_FIRST" => $DB->GetNowFunction(),
 						"DATE_LAST" => $DB->GetNowFunction(),
 					);
-					$arrADV[] = $DB->Insert("b_stat_adv", $arFields, $err_mess.__LINE__);
+					$arrADV[] = $DB->Insert("b_stat_adv", $arFields);
 					$ref1 = $referer1;
 					$ref2 = $referer2;
 				}
@@ -79,7 +78,6 @@ class CAllAdv
 
 	public static function SetByPage($page, &$arrADV, &$ref1, &$ref2, $type="TO")
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$strSql = "
@@ -96,7 +94,7 @@ class CAllAdv
 				and '".$DB->ForSQL($page)."' like ".$DB->Concat("'%'", "AP.PAGE", "'%'")."
 			";
 
-		$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$w = $DB->Query($strSql);
 		while ($wr=$w->Fetch())
 		{
 			$arrADV[] = intval($wr["ID"]);
@@ -108,7 +106,6 @@ class CAllAdv
 	// returns arrays for graphics plot
 	public static function GetAnalysisGraphArray($arFilter, &$is_filtered, $DATA_TYPE="SESSION_SUMMA", &$arrLegend, &$summa, &$max)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$arSqlSearch = Array();
@@ -193,7 +190,7 @@ class CAllAdv
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = CAdv::GetAnalysisGraphArray_SQL($strSqlSearch, $DATA_TYPE);
 
-		$rsD = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsD = $DB->Query($strSql);
 		while ($arD = $rsD->Fetch())
 		{
 			switch($DATA_TYPE)
@@ -254,16 +251,15 @@ class CAllAdv
 
 	public static function Delete($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		if ($ID>0)
 		{
 			CAdv::Reset($ID);
 			$strSql = "DELETE FROM b_stat_adv_page WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv WHERE ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			return true;
 		}
 		return false;
@@ -271,24 +267,23 @@ class CAllAdv
 
 	public static function Reset($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		if ($ID>0)
 		{
 			$DB->StartTransaction();
 			$strSql = "DELETE FROM b_stat_adv_guest WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv_event WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv_searcher WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv_day WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv_event_day WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_path_adv WHERE ADV_ID=$ID";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$arFields = array(
 				"GUESTS" => 0,
 				"NEW_GUESTS" => 0,
@@ -304,7 +299,7 @@ class CAllAdv
 				"SESSIONS_BACK" => 0,
 				"HITS_BACK" => 0
 			);
-			$DB->Update("b_stat_adv",$arFields,"WHERE ID=$ID",$err_mess.__LINE__,false,false,false);
+			$DB->Update("b_stat_adv",$arFields,"WHERE ID=$ID",'',false,false,false);
 			$DB->Commit();
 			return true;
 		}

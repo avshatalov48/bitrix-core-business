@@ -15,9 +15,11 @@ use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\TemplateRef;
 use \Bitrix\Main\Event;
 use \Bitrix\Main\EventManager;
+use Bitrix\Main\Loader;
 use \Bitrix\Main\ModuleManager;
 use \Bitrix\Landing\Source\Selector;
 use \Bitrix\Landing\PublicAction\Demos;
+use Bitrix\Intranet;
 
 \CBitrixComponent::includeComponentClass('bitrix:landing.base');
 
@@ -167,7 +169,7 @@ class LandingViewComponent extends LandingBaseComponent
 	 */
 	protected function getTopPanelConfig(Landing $landing, array $site, array $rights)
 	{
-		$uiInstalled = \Bitrix\Main\Loader::includeModule('ui');
+		$uiInstalled = Loader::includeModule('ui');
 		return [
 			'type' => $this->arParams['TYPE'],
 			'id' => $landing->getId(),
@@ -662,19 +664,19 @@ class LandingViewComponent extends LandingBaseComponent
 				$options['version'] = Manager::getVersion();
 				$options['default_section'] = $this->getCurrentBlockSection($type);
 				$options['specialType'] = $this->arResult['SPECIAL_TYPE'];
-				$options['tplCode'] = $meta['TPL_CODE'] ?: null;
-				$options['params'] = (array)$params['PARAMS'];
-				$options['params']['type'] = $params['TYPE'];
-				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
-				$options['params']['sef_url']['design_block'] = $arResult['TOP_PANEL_CONFIG']['urls']['designBlock'];
 				if (
-					$options['specialType'] === Type::PSEUDO_SCOPE_CODE_FORMS &&
-					\Bitrix\Main\Loader::includeModule('crm')
+					$options['specialType'] === Type::PSEUDO_SCOPE_CODE_FORMS
+					&& Loader::includeModule('crm')
 				)
 				{
 					$formId = $this->getFormIdByLandingId($landing->getId());
 					$options['formEditorData'] = $formId ? $this->getCrmFormEditorData($formId) : [];
 				}
+				$options['tplCode'] = $meta['TPL_CODE'] ?: null;
+				$options['params'] = (array)$params['PARAMS'];
+				$options['params']['type'] = $params['TYPE'];
+				$options['params']['draftMode'] = $params['DRAFT_MODE'] == 'Y';
+				$options['params']['sef_url']['design_block'] = $arResult['TOP_PANEL_CONFIG']['urls']['designBlock'];
 				if ($options['params']['draftMode'])
 				{
 					$options['params']['editor'] = [
@@ -827,21 +829,21 @@ class LandingViewComponent extends LandingBaseComponent
 						'name' => $page['TITLE']
 					);
 				}
-				if ($mainPageId = $this->arResult['SITE']['LANDING_ID_INDEX'])
+				if ($indexPageId = $this->arResult['SITE']['LANDING_ID_INDEX'])
 				{
 					$res = Landing::getList([
 						'select' => [
 							'TITLE'
 						],
 						'filter' => [
-							'ID' => $mainPageId,
+							'ID' => $indexPageId,
 							'CHECK_PERMISSIONS' => 'N'
 						]
 				 	]);
 					if ($row = $res->fetch())
 					{
 						$options['syspages']['mainpage'] = array(
-							'landing_id' => $mainPageId,
+							'landing_id' => $indexPageId,
 							'name' => $row['TITLE']
 						);
 					}
@@ -854,72 +856,12 @@ class LandingViewComponent extends LandingBaseComponent
 						$options['params']['type'] = 'STORE';
 					}
 				}
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+				if (Loader::includeModule('bitrix24'))
 				{
 					$options['license'] = \CBitrix24::getLicenseType();
 				}
-				// unset blocks not for this type
-				foreach ($options['blocks'] as $sectionCode => &$section)
-				{
-					if (isset($section['type']) && $section['type'])
-					{
-						$section['type'] = array_map('strtoupper', (array)$section['type']);
-						if (in_array('PAGE', $section['type']))
-						{
-							$section['type'][] = 'SMN';
-						}
-						if (!in_array($options['params']['type'], $section['type']))
-						{
-							unset($options['blocks'][$sectionCode]);
-							continue;
-						}
-					}
-					foreach ($section['items'] as $code => &$block)
-					{
-						if (!empty($block['type']))
-						{
-							$block['type'] = array_map('strtoupper', (array)$block['type']);
-							if (in_array('PAGE', $block['type']))
-							{
-								$block['type'][] = 'SMN';
-							}
-						}
-						if (
-							!empty($block['type'])
-							&& !in_array($type, $block['type'], true)
-							&& ($b24 || in_array('NULL', $block['type'], true))
-						)
-						{
-							unset($section['items'][$code]);
-						}
-						if (
-							($block['type'] ?? null) === 'store' &&
-							!$isStore
-						)
-						{
-							unset($section['items'][$code]);
-						}
-						if (
-							($block['version'] ?? null) &&
-							version_compare($options['version'], $block['version']) < 0
-						)
-						{
-							$block['requires_updates'] = true;
-						}
-						else
-						{
-							$block['requires_updates'] = false;
-						}
-						if (!empty($block['only_for_license']) && $block['only_for_license'] !== $options['license'])
-						{
-							unset($section['items'][$code]);
-						}
-					}
-					unset($block);
-				}
-				unset($section);
 				// redefine options
-				if (\Bitrix\Main\Loader::includeModule('rest'))
+				if (Loader::includeModule('rest'))
 				{
 					// add placements
 					$res = \Bitrix\Rest\PlacementTable::getList(array(
@@ -1220,9 +1162,23 @@ class LandingViewComponent extends LandingBaseComponent
 			$this->arResult['FAKE_PUBLICATION'] = !$this->arResult['AUTO_PUBLICATION_ENABLED']
 			                                      || ($this->arParams['DRAFT_MODE'] === 'Y')
 			                                      || $landing->fakePublication();
+
+			if (
+				Loader::includeModule('intranet')
+				&& $this->arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE
+			)
+			{
+				$publisher = new Intranet\MainPage\Publisher();
+				$this->arResult['MAINPAGE_IS_PUBLIC'] =	$publisher->isPublished();
+				$this->arResult['AI_TEXT_AVAILABLE'] = false;
+				$this->arResult['COPILOT_AVAILABLE'] = false;
+				$this->arResult['AI_IMAGE_AVAILABLE'] = false;
+			}
+
 			if (
 				$this->arParams['TYPE'] === 'STORE'
-				&& \Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog') === 'Y'
+				&& \Bitrix\Main\Loader::includeModule('catalog')
+				&& \Bitrix\Catalog\Config\State::isExternalCatalog()
 			)
 			{
 				$landingMeta = $landing->getMeta();
@@ -1251,7 +1207,7 @@ class LandingViewComponent extends LandingBaseComponent
 				// tmp fix for checking crm rights
 				if ($this->arResult['SPECIAL_TYPE'] === \Bitrix\Landing\Site\Type::PSEUDO_SCOPE_CODE_FORMS)
 				{
-					if (\Bitrix\Main\Loader::includeModule('crm'))
+					if (Loader::includeModule('crm'))
 					{
 						if (!\Bitrix\Crm\WebForm\Manager::checkWritePermission())
 						{
@@ -1360,7 +1316,7 @@ class LandingViewComponent extends LandingBaseComponent
 				);
 
 
-				if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+				if (Loader::includeModule('bitrix24'))
 				{
 					$this->arResult['LICENSE'] = \CBitrix24::getLicenseType();
 				}
@@ -1403,7 +1359,7 @@ class LandingViewComponent extends LandingBaseComponent
 
 	private static function isFormVerified(int $formId): bool
 	{
-		if (\Bitrix\Main\Loader::includeModule('bitrix24'))
+		if (Loader::includeModule('bitrix24'))
 		{
 			$validatedLicenseType = [
 				'project',
@@ -1426,7 +1382,7 @@ class LandingViewComponent extends LandingBaseComponent
 	{
 		static $formId = null;
 
-		if ($formId === null && \Bitrix\Main\Loader::includeModule('crm'))
+		if ($formId === null && Loader::includeModule('crm'))
 		{
 			$res = \Bitrix\Crm\WebForm\Internals\LandingTable::getList([
 				'select' => [

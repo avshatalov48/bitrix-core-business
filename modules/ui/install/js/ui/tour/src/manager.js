@@ -1,8 +1,8 @@
-import { Type} from 'main.core';
+import { Type } from 'main.core';
 import { Guide } from './guide.js';
 
-class Manager {
-
+class Manager
+{
 	constructor()
 	{
 		this.guides = new Map();
@@ -17,7 +17,7 @@ class Manager {
 		const id = options.id;
 		if (!Type.isString(id) && id !== '')
 		{
-			throw new Error("'id' parameter is required.")
+			throw new Error("'id' parameter is required.");
 		}
 
 		if (this.get(id))
@@ -35,18 +35,18 @@ class Manager {
 	{
 		const guide = this.create(options);
 
-		guide.subscribe("UI.Tour.Guide:onFinish", () => {
+		guide.subscribe('UI.Tour.Guide:onFinish', () => {
 			this.handleTourFinish(guide);
 		});
 
-		if (!this.currentGuide)
+		if (this.currentGuide)
 		{
-			this.currentGuide = guide;
-			guide.start();
+			this.autoStartQueue.push(guide);
 		}
 		else
 		{
-			this.autoStartQueue.push(guide);
+			this.currentGuide = guide;
+			guide.start();
 		}
 	}
 

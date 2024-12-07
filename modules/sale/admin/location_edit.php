@@ -327,7 +327,7 @@ $tabControl->BeginNextTab();
 			<?echo GetMessage("F_COUNTRY") ?>:
 		</td>
 		<td>
-			<script language="JavaScript">
+			<script>
 			function SetEnabled(enabled)
 			{
 				if ('['+document.fform.COUNTRY_NAME.type+']'=="[undefined]")
@@ -680,7 +680,7 @@ $tabControl->BeginNextTab();
 		<?
 	endfor;
 	?>
-	<script language="JavaScript">
+	<script>
 		SetContact();
 		ResetRegion('<?=$str_WITHOUT_CITY?>');
 	</script>
@@ -690,7 +690,7 @@ $tabControl->BeginNextTab();
 		<tr>
 			<td width="40%" valign="top"><?=GetMessage('SALE_ZIP_LIST')?>:</td>
 			<td width="60%" valign="top">
-			<script language="JavaScript">
+			<script>
 			function zip_add()
 			{
 				var obContainer = document.getElementById('zip_list');
@@ -720,7 +720,7 @@ $tabControl->BeginNextTab();
 			</div>
 			<button onClick='return zip_add()'><?=GetMessage('SALE_ADD_ZIP')?></button>
 			</td>
-<script type="text/javascript">
+<script>
 BX.ready(function() {
 	BX.addCustomEvent(document.forms.fform, 'onAutoSaveRestore', function(ob, data) {
 		if (data['ZIP[]'] && BX.type.isArray(data['ZIP[]']) && data['ZIP[]'].length > <?=$cnt?>)

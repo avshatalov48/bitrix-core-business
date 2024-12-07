@@ -63,6 +63,12 @@ export class BotsModel extends BuilderModel
 
 				return null;
 			},
+			/** @function users/bots/isCopilot */
+			isCopilot: (state: BotsState, getters) => (userId: number | string): boolean => {
+				const copilotUserId = getters.getCopilotUserId;
+
+				return copilotUserId === Number.parseInt(userId, 10);
+			},
 		};
 	}
 

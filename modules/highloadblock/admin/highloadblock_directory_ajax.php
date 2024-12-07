@@ -79,8 +79,6 @@ if ($USER->IsAuthorized() && check_bitrix_sessid() && isset($_REQUEST['IBLOCK_ID
 		}
 	}
 
-	CUtil::JSPostUnescape();
-
 	$multiple = 'N';
 	if (isset($_REQUEST['multiple']) && $_REQUEST['multiple'] === 'Y')
 		$multiple = 'Y';

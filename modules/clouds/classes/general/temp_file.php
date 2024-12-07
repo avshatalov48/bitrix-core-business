@@ -2,14 +2,14 @@
 
 class CCloudTempFile
 {
-	private static $buckets = array();
+	private static $buckets = [];
 
 	/**
 	 * @return string
 	 */
 	protected static function GetAbsoluteRoot()
 	{
-		return "/tmp";
+		return '/tmp';
 	}
 
 	/**
@@ -18,7 +18,7 @@ class CCloudTempFile
 	 */
 	public static function IsTempFile($file_name)
 	{
-		return preg_match("#^".self::GetAbsoluteRoot()."/BXTEMP-#", $file_name) > 0;
+		return preg_match('#^' . self::GetAbsoluteRoot() . '/BXTEMP-#', $file_name) > 0;
 	}
 
 	protected static $shutdownRegistered = false;
@@ -27,7 +27,7 @@ class CCloudTempFile
 	{
 		if (!self::$shutdownRegistered)
 		{
-			register_shutdown_function(array('CCloudTempFile', 'Cleanup'));
+			register_shutdown_function(['CCloudTempFile', 'Cleanup']);
 			self::$shutdownRegistered = true;
 		}
 	}
@@ -40,8 +40,8 @@ class CCloudTempFile
 	public static function GetFileName($obBucket, $file_name = '')
 	{
 		$dir_name = self::GetAbsoluteRoot();
-		$file_name = rel2abs("/", "/".$file_name);
-		$temp_path = "";
+		$file_name = Rel2Abs('/', '/' . $file_name);
+		$temp_path = '';
 		$i = 0;
 		while (true)
 		{
@@ -60,14 +60,14 @@ class CCloudTempFile
 				$dir_add = md5(mt_rand());
 			}
 
-			$temp_path = $dir_name."/".$dir_add.$file_name;
+			$temp_path = $dir_name . '/' . $dir_add . $file_name;
 
 			if (!$obBucket->FileExists($temp_path))
 			{
-				self::$buckets[$obBucket->ID."|".$temp_path] = array(
-					"bucket" => $obBucket,
-					"filePath" => $temp_path,
-				);
+				self::$buckets[$obBucket->ID . '|' . $temp_path] = [
+					'bucket' => $obBucket,
+					'filePath' => $temp_path,
+				];
 				self::RegisterShutdown();
 				break;
 			}
@@ -78,11 +78,11 @@ class CCloudTempFile
 
 	/**
 	 * @param CCloudStorageBucket $obBucket
-	 * @param integer $hours_to_keep_files
+	 * @param int $hours_to_keep_files
 	 * @param string $subdir
 	 * @return string
 	 */
-	public static function GetDirectoryName($obBucket, $hours_to_keep_files = 0, $subdir = "")
+	public static function GetDirectoryName($obBucket, $hours_to_keep_files = 0, $subdir = '')
 	{
 		if ($hours_to_keep_files <= 0)
 		{
@@ -90,15 +90,15 @@ class CCloudTempFile
 		}
 
 		$temp_path = ''; //This makes code analyzers happy. $temp_path will never be empty.
-		if ($subdir === "")
+		if ($subdir === '')
 		{
-			$dir_name = self::GetAbsoluteRoot().'/BXTEMP-'.date('Y-m-d/H/', time() + 3600 * $hours_to_keep_files);
+			$dir_name = self::GetAbsoluteRoot() . '/BXTEMP-' . date('Y-m-d/H/', time() + 3600 * $hours_to_keep_files);
 			$i = 0;
 			while (true)
 			{
 				$i++;
 				$dir_add = md5(mt_rand());
-				$temp_path = $dir_name.$dir_add."/";
+				$temp_path = $dir_name . $dir_add . '/';
 
 				if (!$obBucket->FileExists($temp_path))
 				{
@@ -108,17 +108,17 @@ class CCloudTempFile
 		}
 		else //Fixed name during the session
 		{
-			$subdir = implode("/", (is_array($subdir) ? $subdir : array($subdir, bitrix_sessid())))."/";
-			while (mb_strpos($subdir, "//") !== false)
+			$subdir = implode('/', (is_array($subdir) ? $subdir : [$subdir, bitrix_sessid()])) . '/';
+			while (mb_strpos($subdir, '//') !== false)
 			{
-				$subdir = str_replace("//", "/", $subdir);
+				$subdir = str_replace('//', '/', $subdir);
 			}
 
 			$bFound = false;
 			for ($i = $hours_to_keep_files; $i > 0; $i--)
 			{
-				$dir_name = self::GetAbsoluteRoot().'/BXTEMP-'.date('Y-m-d/H/', time() + 3600 * $i);
-				$temp_path = $dir_name.$subdir;
+				$dir_name = self::GetAbsoluteRoot() . '/BXTEMP-' . date('Y-m-d/H/', time() + 3600 * $i);
+				$temp_path = $dir_name . $subdir;
 
 				$list = $obBucket->ListFiles($temp_path, true);
 				if ($list['file'] || $list['dir'])
@@ -130,17 +130,17 @@ class CCloudTempFile
 
 			if (!$bFound)
 			{
-				$dir_name = self::GetAbsoluteRoot().'/BXTEMP-'.date('Y-m-d/H/', time() + 3600 * $hours_to_keep_files);
-				$temp_path = $dir_name.$subdir;
+				$dir_name = self::GetAbsoluteRoot() . '/BXTEMP-' . date('Y-m-d/H/', time() + 3600 * $hours_to_keep_files);
+				$temp_path = $dir_name . $subdir;
 			}
 		}
 
 		if (!isset(self::$buckets[$obBucket->ID]))
 		{
-			self::$buckets[$obBucket->ID] = array(
-				"bucket" => $obBucket,
-				"filePath" => null
-			);
+			self::$buckets[$obBucket->ID] = [
+				'bucket' => $obBucket,
+				'filePath' => null
+			];
 		}
 		self::RegisterShutdown();
 
@@ -148,6 +148,7 @@ class CCloudTempFile
 	}
 
 	protected static $my_pid = '';
+
 	/**
 	 * @param bool $lock
 	 * @return bool
@@ -177,7 +178,7 @@ class CCloudTempFile
 			}
 			elseif ($obCacheLock->StartDataCache())
 			{
-				$obCacheLock->EndDataCache(array('pid' => self::$my_pid));
+				$obCacheLock->EndDataCache(['pid' => self::$my_pid]);
 			}
 		}
 		else
@@ -198,29 +199,29 @@ class CCloudTempFile
 	{
 
 		$date = new \Bitrix\Main\Type\DateTime();
-		$date->setTimeZone(new DateTimeZone("UTC"));
-		$date->add("-1D");
-		$tmp_expiration_time = $date->format('Y-m-d')."T".$date->format('H:i:s');
+		$date->setTimeZone(new DateTimeZone('UTC'));
+		$date->add('-1D');
+		$tmp_expiration_time = $date->format('Y-m-d') . 'T' . $date->format('H:i:s');
 		$now = date('Y-m-d/H/', time());
 
 		foreach ($files['file'] as $i => $filePath)
 		{
 			//Files cleanup
-			if (preg_match("#^BXTEMP-(....-..-../../)#", $filePath, $match) && $match[1] < $now)
+			if (preg_match('#^BXTEMP-(.{4}-..-../../)#', $filePath, $match) && $match[1] < $now)
 			{
 				if (!static::cleanupFilesLock())
 				{
 					return false;
 				}
-				$obBucket->DeleteFile($dir_name.$filePath);
+				$obBucket->DeleteFile($dir_name . $filePath);
 			}
-			elseif ($files["file_mtime"][$i] < $tmp_expiration_time)
+			elseif ($files['file_mtime'][$i] < $tmp_expiration_time)
 			{
 				if (!static::cleanupFilesLock())
 				{
 					return false;
 				}
-				$obBucket->DeleteFile($dir_name.$filePath);
+				$obBucket->DeleteFile($dir_name . $filePath);
 			}
 		}
 
@@ -245,7 +246,7 @@ class CCloudTempFile
 			}
 			elseif (static::cleanupFilesLock())
 			{
-				$dir_name = self::GetAbsoluteRoot()."/";
+				$dir_name = self::GetAbsoluteRoot() . '/';
 				$list = $obBucket->ListFiles($dir_name, true);
 				if ($list)
 				{

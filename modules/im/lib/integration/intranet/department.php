@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im\Integration\Intranet;
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 class Department
@@ -9,60 +10,46 @@ class Department
 
 	public static function checkModules()
 	{
-		return \Bitrix\Main\Loader::includeModule('intranet') && \Bitrix\Main\Loader::includeModule("iblock") && \Bitrix\Main\Loader::includeModule("socialnetwork");
+		return
+			Loader::includeModule('intranet')
+			&& Loader::includeModule("socialnetwork")
+		;
 	}
 
 	public static function getList()
 	{
 		if (!self::checkModules())
+		{
 			return false;
+		}
 
 		if (\Bitrix\Im\User::getInstance()->isExtranet())
-			return Array();
-
-		$departmentIblockId = (int)\Bitrix\Main\Config\Option::get('intranet', 'iblock_structure', 0);
-		if ($departmentIblockId <= 0)
-			return Array();
-
-		$cacheId = 'im_structure_'.$departmentIblockId;
-		$cachePath = '/bx/imc/intranet/department/';
-
-		$cache = \Bitrix\Main\Application::getInstance()->getCache();
-		$taggedCache = \Bitrix\Main\Application::getInstance()->getTaggedCache();
-
-		if($cache->initCache(self::CACHE_TOKEN_TTL, $cacheId, $cachePath) && false)
 		{
-			return $cache->getVars();
+			return [];
 		}
 
-		$taggedCache->startTagCache($cachePath);
+		$departments = \Bitrix\Im\V2\Integration\HumanResources\Department\Department::getInstance()->getList();
 
-		$sec = \CIBlockSection::GetList(
-			Array("left_margin"=>"asc", "SORT"=>"ASC"),
-			Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$departmentIblockId),
-			false,
-			Array('ID', 'NAME', 'DEPTH_LEVEL', 'UF_HEAD', 'IBLOCK_SECTION_ID')
-		);
-
-		$departments = Array();
-
-		while($ar = $sec->GetNext(true, false))
+		$result = [];
+		foreach ($departments as $department)
 		{
-			$departments[$ar['ID']] = Array(
-				'ID' => (int)$ar['ID'],
-				'NAME' => $ar['NAME'],
-				'FULL_NAME' => $ar['DEPTH_LEVEL'] > 1? $ar['NAME'].' / '.$departments[$ar['IBLOCK_SECTION_ID']]['FULL_NAME']: $ar['NAME'],
-				'MANAGER_USER_ID' => (int)$ar['UF_HEAD'],
-			);
+			$result[$department->id] = [
+				'ID' => $department->id,
+				'NAME' => $department->name,
+				'FULL_NAME' => $department->name,
+				'MANAGER_USER_ID' => $department->headUserID,
+			];
+
+			if (
+				$department->depthLevel > 0
+				&& isset($result[$department->parent]['FULL_NAME'])
+			)
+			{
+				$result[$department->id]['FULL_NAME'] = $department->name . ' / ' . $result[$department->parent]['FULL_NAME'];
+			}
 		}
 
-		$taggedCache->registerTag('iblock_id_'.$departmentIblockId);
-		$taggedCache->endTagCache();
-
-		$cache->startDataCache();
-		$cache->endDataCache($departments);
-
-		return $departments;
+		return $result;
 	}
 
 	public static function getGroup($params)
@@ -158,6 +145,3 @@ class Department
 		return $groups;
 	}
 }
-
-
-

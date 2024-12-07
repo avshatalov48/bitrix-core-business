@@ -6,9 +6,9 @@ interface ILearnAccessInterface
 	 * @param int operations code (taken from sum of constants with prefix OP_)
 	 * @param bool flag isUseCache (can be omitted, false by default)
 	 * @param string prefix for tables acronyms (can be omitted)
-	 * 
+	 *
 	 * @return string #sql_code# for usage in "SELECT ... WHERE LESSON_ID IN (#sql_code#)"
-	 * 
+	 *
 	 * @example
 	 * $o = CLearnAccess::GetInstance ($someUserId);
 	 * $sql = $o->SQLClauseForAccessibleLessons (CLearnAccess::OP_LESSON_READ + CLearnAccess::OP_LESSON_WRITE);
@@ -38,7 +38,7 @@ interface ILearnAccessInterface
 	 * This function include CR to access symbols when checks base rights.
 	 * @param int bitmask of operations (constants self::OP_...)
 	 * @param bool use cache
-	 * 
+	 *
 	 * @return bool true - if there is access to given operations
 	 */
 	public function IsBaseAccessForCR ($in_bitmaskRequested, $isUseCache = false);
@@ -48,7 +48,7 @@ interface ILearnAccessInterface
 	 * @param int bitmask of operations (constants self::OP_...)
 	 * @param bool use cache (false be default)
 	 * @param bool does include CR to check? (false by default)
-	 * 
+	 *
 	 * @return bool true - if there is access to given operations
 	 */
 	public function IsBaseAccess ($in_bitmaskRequested, $isUseCache = false, $checkForAuthor = false);
@@ -98,15 +98,15 @@ interface ILearnAccessInterface
 	 * $userId = $USER->GetID();
 	 * $oAccess = CLearnAccess::getInstance ($userId);
 	 * $oAccess->SetLessonsPermissions ($arPermissions);
-	 * 
+	 *
 	 */
 	public function SetLessonsPermissions ($in_arPermissions);
 
 
 	/**
-	 * This function checks access rights for user to given lesson. 
+	 * This function checks access rights for user to given lesson.
 	 * It's includes checks for base rights (shared for all lessons).
-	 * 
+	 *
 	 * @return bool true - if lesson is accessible by given user for given operations.
 	 */
 	public function IsLessonAccessible ($in_lessonId, $in_bitmaskOperations, $isUseCache = false);
@@ -119,9 +119,9 @@ interface ILearnAccessInterface
 	 * @param int id of lesson
 	 * @param int bitmask of operations (constants self::OP_...)
 	 * @param bool use cache (false be default)
-	 * 
+	 *
 	 * @return array of symbols, which has access to lesson with given operation bitmask.
-	 * 
+	 *
 	 * @example of returned array: array ('G11', 'U11', 'AU', 'CR')
 	 */
 	public static function GetSymbolsAccessibleToLesson ($in_lessonId, $in_bitmaskOperations, $isUseCache = false);
@@ -174,7 +174,7 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ( ! array_key_exists($userId, self::$instanceOfSelf) )
 			self::$instanceOfSelf[$userId] = new CLearnAccess($userId);
-		
+
 		return (self::$instanceOfSelf[$userId]);
 	}
 
@@ -206,14 +206,7 @@ class CLearnAccess implements ILearnAccessInterface
 
 	public static function GetNameForTask($taskId)
 	{
-		global $DB, $MESS;
-
-		$rc = $DB->Query("SELECT NAME FROM b_task WHERE ID = " . (int) $taskId . " AND MODULE_ID = 'learning'");
-		if ($rc === false)
-		{
-			throw new LearnException ('EA_SQLERROR',
-				LearnException::EXC_ERR_ALL_GIVEUP);
-		}
+		$rc = CTask::GetByID($taskId);
 
 		$row = $rc->Fetch();
 
@@ -242,15 +235,7 @@ class CLearnAccess implements ILearnAccessInterface
 	 */
 	public static function ListAllPossibleRights()
 	{
-		global $DB, $MESS;
-
-		$rc = $DB->Query("SELECT ID, NAME, SYS, DESCRIPTION, BINDING FROM b_task WHERE MODULE_ID = 'learning'");
-		if ($rc === false)
-		{
-			throw new LearnException ('EA_SQLERROR',
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED
-				| LearnException::EXC_ERR_ALL_GIVEUP);
-		}
+		$rc = CTask::GetList([], ['MODULE_ID' => 'learning']);
 
 		$arPossibleRights = array();
 		while ($row = $rc->Fetch())
@@ -278,8 +263,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ( ! (is_int($in_bitmaskOperations) && ($in_bitmaskOperations > 0)) )
 		{
-			throw new LearnException ('bitmask must be an integer > 0', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('bitmask must be an integer > 0',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -317,8 +302,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 			if ($rc === false)
 			{
-				throw new LearnException ('EA_SQLERROR', 
-					LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+				throw new LearnException ('EA_SQLERROR',
+					LearnException::EXC_ERR_ALL_ACCESS_DENIED
 					| LearnException::EXC_ERR_ALL_GIVEUP);
 			}
 
@@ -336,7 +321,7 @@ class CLearnAccess implements ILearnAccessInterface
 	 * This function include CR to access symbols when checks base rights.
 	 * @param int bitmask of operations (constants self::OP_...)
 	 * @param bool use cache
-	 * 
+	 *
 	 * @return bool true - if there is access to given operations
 	 */
 	public function IsBaseAccessForCR ($in_bitmaskRequested, $isUseCache = false)
@@ -349,15 +334,15 @@ class CLearnAccess implements ILearnAccessInterface
 	 * @param int bitmask of operations (constants self::OP_...)
 	 * @param bool use cache
 	 * @param bool does include CR to check? (false by default)
-	 * 
+	 *
 	 * @return bool true - if there is access to given operations
 	 */
 	public function IsBaseAccess ($in_bitmaskRequested, $isUseCache = false, $checkForAuthor = false)
 	{
 		global $USER;
 
-		if (is_object($USER) 
-			&& ( $this->userId === ((int) $USER->GetID()) ) 
+		if (is_object($USER)
+			&& ( $this->userId === ((int) $USER->GetID()) )
 			&& $USER->IsAdmin()
 		)
 		{
@@ -372,8 +357,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ( ! (is_int($in_bitmaskRequested) && ($in_bitmaskRequested > 0)) )
 		{
-			throw new LearnException ('bitmask must be an integer > 0', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('bitmask must be an integer > 0',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -407,8 +392,8 @@ class CLearnAccess implements ILearnAccessInterface
 		// Check args
 		if ( ! is_array($in_arPermPairs) )
 		{
-			throw new LearnException ('', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -422,11 +407,11 @@ class CLearnAccess implements ILearnAccessInterface
 		}
 
 		// Check rights (we can access only if is admin and logged in)
-		if ( ! (self::IsLoggedUserCanAccessModuleSettings() 
-			&& ( ((int) $USER->GetID()) === $this->userId) ) 
+		if ( ! (self::IsLoggedUserCanAccessModuleSettings()
+			&& ( ((int) $USER->GetID()) === $this->userId) )
 		)
 		{
-			throw new LearnException ('', 
+			throw new LearnException ('',
 				LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -440,8 +425,8 @@ class CLearnAccess implements ILearnAccessInterface
 		if ($rc === false)
 		{
 			$DB->Rollback();
-			throw new LearnException ('EA_SQLERROR', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('EA_SQLERROR',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_GIVEUP);
 		}
 
@@ -454,8 +439,8 @@ class CLearnAccess implements ILearnAccessInterface
 			if ($rc === false)
 			{
 				$DB->Rollback();
-				throw new LearnException ('EA_SQLERROR', 
-					LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+				throw new LearnException ('EA_SQLERROR',
+					LearnException::EXC_ERR_ALL_ACCESS_DENIED
 					| LearnException::EXC_ERR_ALL_GIVEUP);
 			}
 		}
@@ -488,8 +473,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ($rc === false)
 		{
-			throw new LearnException('EA_SQLERROR', 
-				LearnException::EXC_ERR_ALL_GIVEUP 
+			throw new LearnException('EA_SQLERROR',
+				LearnException::EXC_ERR_ALL_GIVEUP
 				| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -525,8 +510,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ($rc === false)
 		{
-			throw new LearnException('EA_SQLERROR', 
-				LearnException::EXC_ERR_ALL_GIVEUP 
+			throw new LearnException('EA_SQLERROR',
+				LearnException::EXC_ERR_ALL_GIVEUP
 				| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -549,7 +534,7 @@ class CLearnAccess implements ILearnAccessInterface
 	 * $userId = $USER->GetID();
 	 * $oAccess = CLearnAccess::getInstance ($userId);
 	 * $oAccess->SetLessonsPermissions ($arPermissions);
-	 * 
+	 *
 	 */
 	public function SetLessonsPermissions ($in_arPermissions)
 	{
@@ -558,8 +543,8 @@ class CLearnAccess implements ILearnAccessInterface
 		// Check args
 		if ( ! is_array($in_arPermissions) )
 		{
-			throw new LearnException ('', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -571,8 +556,8 @@ class CLearnAccess implements ILearnAccessInterface
 		{
 			if ( ! is_array($arPermPairs) )
 			{
-				throw new LearnException ('', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+				throw new LearnException ('',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 			}
 
@@ -583,7 +568,7 @@ class CLearnAccess implements ILearnAccessInterface
 				throw new LearnException ('', LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 
 			$isUseCacheForRights = true;	// use cache for every next request for rights
-	
+
 			// Check params & escape for SQL
 			$arPermissions[$lesson_id] = array();
 			foreach ($arPermPairs as $in_subject_id => $in_task_id)
@@ -610,8 +595,8 @@ class CLearnAccess implements ILearnAccessInterface
 			if ($rc === false)
 			{
 				$DB->Rollback();
-				throw new LearnException ('EA_SQLERROR', 
-					LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+				throw new LearnException ('EA_SQLERROR',
+					LearnException::EXC_ERR_ALL_ACCESS_DENIED
 					| LearnException::EXC_ERR_ALL_GIVEUP);
 			}
 
@@ -624,8 +609,8 @@ class CLearnAccess implements ILearnAccessInterface
 				if ($rc === false)
 				{
 					$DB->Rollback();
-					throw new LearnException ('EA_SQLERROR', 
-						LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+					throw new LearnException ('EA_SQLERROR',
+						LearnException::EXC_ERR_ALL_ACCESS_DENIED
 						| LearnException::EXC_ERR_ALL_GIVEUP);
 				}
 			}
@@ -665,8 +650,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 		if ($rc === false)
 		{
-			throw new LearnException ('EA_SQLERROR', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('EA_SQLERROR',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_GIVEUP);
 		}
 
@@ -682,9 +667,9 @@ class CLearnAccess implements ILearnAccessInterface
 	 * @param int operations code (taken from sum of constants with prefix OP_)
 	 * @param bool flag isUseCache (can be omitted, false by default)
 	 * @param string prefix for tables acronyms (can be omitted)
-	 * 
+	 *
 	 * @return string #sql_code# for usage in "SELECT ... WHERE LESSON_ID IN (#sql_code#)"
-	 * 
+	 *
 	 * @example
 	 * $o = CLearnAccess::GetInstance ($someUserId);
 	 * $sql = $o->SQLClauseForAccessibleLessons (CLearnAccess::OP_LESSON_READ + CLearnAccess::OP_LESSON_WRITE);
@@ -696,8 +681,8 @@ class CLearnAccess implements ILearnAccessInterface
 		global $DB;
 		if ( ! (is_int($in_bitmaskOperations) && ($in_bitmaskOperations > 0)) )
 		{
-			throw new LearnException ('bitmask must be an integer > 0', 
-				LearnException::EXC_ERR_ALL_ACCESS_DENIED 
+			throw new LearnException ('bitmask must be an integer > 0',
+				LearnException::EXC_ERR_ALL_ACCESS_DENIED
 				| LearnException::EXC_ERR_ALL_PARAMS);
 		}
 
@@ -714,7 +699,7 @@ class CLearnAccess implements ILearnAccessInterface
 
 		/**
 		 * There are some operations, granted on all lessons in context of some user.
-		 * So, we must adjust $in_bitmaskOperations on operations, which are already 
+		 * So, we must adjust $in_bitmaskOperations on operations, which are already
 		 * accessible by user (in both roles: as author(CR) and as just any user(Any)).
 		 * User role is unknown now, it will be known on SQL query only.
 		 */
@@ -724,8 +709,8 @@ class CLearnAccess implements ILearnAccessInterface
 		$bitmaskAvailOperationsForCR  = $this->GetBitmaskOperationsForAllLessons(array_merge($arUserAccessSymbols, array('CR')));
 
 		/**
-		 * Now, switch off bits for operations, 
-		 * that are available for current user 
+		 * Now, switch off bits for operations,
+		 * that are available for current user
 		 * on all lessons (or all own lessons for author).
 		 * Because, we must check only rights, that are not
 		 * available on all lessons yet.
@@ -774,7 +759,7 @@ class CLearnAccess implements ILearnAccessInterface
 			$sqlWhere";
 
 		return ($sql);
-		
+
 		/*
 		prev version of code:
 
@@ -792,7 +777,7 @@ class CLearnAccess implements ILearnAccessInterface
 			ON ${prfx}TTO.OPERATION_ID = ${prfx}TO.ID
 		INNER JOIN b_learn_lesson ${prfx}TLL
 			ON ${prfx}TLL.ID = ${prfx}TLR.LESSON_ID
-		WHERE 
+		WHERE
 			TO.NAME IN ($sqlOperations)
 			AND
 			(
@@ -828,12 +813,12 @@ class CLearnAccess implements ILearnAccessInterface
 				ON TTO.TASK_ID = TLRA.TASK_ID
 			INNER JOIN b_operation XTO
 				ON XTO.ID = TTO.OPERATION_ID
-			WHERE TLRA.SUBJECT_ID IN ($userAccessSymbols)", 
+			WHERE TLRA.SUBJECT_ID IN ($userAccessSymbols)",
 			true);
 		if ($rc === false)
 		{
-			throw new LearnException ('EA_SQLERROR: ', 
-				LearnException::EXC_ERR_ALL_GIVEUP 
+			throw new LearnException ('EA_SQLERROR: ',
+				LearnException::EXC_ERR_ALL_GIVEUP
 				| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -842,8 +827,8 @@ class CLearnAccess implements ILearnAccessInterface
 		{
 			if ( ! isset(self::$arOperations[$arData['OPERATION_NAME']]) )
 			{
-				throw new LearnException ('Unknown operation: ' . $arData['OPERATION_NAME'], 
-					LearnException::EXC_ERR_ALL_LOGIC 
+				throw new LearnException ('Unknown operation: ' . $arData['OPERATION_NAME'],
+					LearnException::EXC_ERR_ALL_LOGIC
 					| LearnException::EXC_ERR_ALL_GIVEUP
 					| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 			}
@@ -906,7 +891,7 @@ class CLearnAccess implements ILearnAccessInterface
 		$arCodes = $this->GetAccessCodes ($isUseCache);
 		$sql = $this->Array2CommaSeparatedListForSQL ($arCodes);
 
-		// Cache in case when $isUseCache === false too. 
+		// Cache in case when $isUseCache === false too.
 		// Because, this will refresh cache, if it exists before.
 		$cache['str' . $this->userId] = $sql;
 
@@ -931,8 +916,8 @@ class CLearnAccess implements ILearnAccessInterface
 
 			// Prevent call CAccess->UpdateCodes() multiple times per hit,
 			// except long time period (three seconds) expired.
-			if ( ($this->CAccessLastUpdated === false) 
-				|| ( (microtime(true) - $this->CAccessLastUpdated) > 3 )
+			if ( (static::$CAccessLastUpdated === false)
+				|| ( (microtime(true) - static::$CAccessLastUpdated) > 3 )
 			)
 			{
 				$isNeedCAccessUpdate = true;
@@ -949,7 +934,7 @@ class CLearnAccess implements ILearnAccessInterface
 			$oAcc->UpdateCodes();
 
 			if ($isUseCache)
-				$this->CAccessLastUpdated = microtime(true);
+				static::$CAccessLastUpdated = microtime(true);
 
 			unset ($oAcc);
 		}
@@ -957,8 +942,8 @@ class CLearnAccess implements ILearnAccessInterface
 		$rc = CAccess::GetUserCodes($this->userId);
 		if ($rc === false)
 		{
-			throw new LearnException('', 
-				LearnException::EXC_ERR_ALL_GIVEUP 
+			throw new LearnException('',
+				LearnException::EXC_ERR_ALL_GIVEUP
 				| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 
@@ -967,8 +952,8 @@ class CLearnAccess implements ILearnAccessInterface
 		{
 			if ( ( (int) $arItem['USER_ID'] ) !== $this->userId )
 			{
-				throw new LearnException('', 
-					LearnException::EXC_ERR_ALL_GIVEUP 
+				throw new LearnException('',
+					LearnException::EXC_ERR_ALL_GIVEUP
 					| LearnException::EXC_ERR_ALL_LOGIC
 					| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 			}
@@ -979,7 +964,7 @@ class CLearnAccess implements ILearnAccessInterface
 		if ( is_object($USER) && ( $this->userId === ((int) $USER->GetID()) ) )
 			$arData[] = 'AU';
 
-		// Cache in case when $isUseCache === false too. 
+		// Cache in case when $isUseCache === false too.
 		// Because, this will refresh cache, if it exists before.
 		$cache['str' . $this->userId] = $arData;
 
@@ -1020,8 +1005,8 @@ class CLearnAccess implements ILearnAccessInterface
 		if ( ! preg_match("/^[0-9]+$/", (string) $var) )
 		{
 			throw new LearnException(
-				'EA_PARAMS: can\'t b strictly casted to integer, but expected: ' . $var, 
-				LearnException::EXC_ERR_ALL_PARAMS 
+				'EA_PARAMS: can\'t b strictly casted to integer, but expected: ' . $var,
+				LearnException::EXC_ERR_ALL_PARAMS
 				| LearnException::EXC_ERR_ALL_ACCESS_DENIED);
 		}
 

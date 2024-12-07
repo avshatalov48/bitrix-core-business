@@ -1,12 +1,12 @@
 /*
-pMainObj - объект который хранит в себе все методы, создан для координации между компонентами
-	pEditorFrame - ссылка на IFRAME для визуального редактирования
-	pFrame - ссылка на таблицу, в которой все находится
-	pDocument - ccылка на родительский документ
+pMainObj - РѕР±СЉРµРєС‚ РєРѕС‚РѕСЂС‹Р№ С…СЂР°РЅРёС‚ РІ СЃРµР±Рµ РІСЃРµ РјРµС‚РѕРґС‹, СЃРѕР·РґР°РЅ РґР»СЏ РєРѕРѕСЂРґРёРЅР°С†РёРё РјРµР¶РґСѓ РєРѕРјРїРѕРЅРµРЅС‚Р°РјРё
+	pEditorFrame - СЃСЃС‹Р»РєР° РЅР° IFRAME РґР»СЏ РІРёР·СѓР°Р»СЊРЅРѕРіРѕ СЂРµРґР°РєС‚РёСЂРѕРІР°РЅРёСЏ
+	pFrame - СЃСЃС‹Р»РєР° РЅР° С‚Р°Р±Р»РёС†Сѓ, РІ РєРѕС‚РѕСЂРѕР№ РІСЃРµ РЅР°С…РѕРґРёС‚СЃСЏ
+	pDocument - ccС‹Р»РєР° РЅР° СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ РґРѕРєСѓРјРµРЅС‚
 	pEditorDocument
-	pWnd - ссылка на DIV, в котором все будет находиться
-	arToolbarSet - массив ссылок на тулбарсеты
-	pToolbar - ссылка на объект тулбара
+	pWnd - СЃСЃС‹Р»РєР° РЅР° DIV, РІ РєРѕС‚РѕСЂРѕРј РІСЃРµ Р±СѓРґРµС‚ РЅР°С…РѕРґРёС‚СЊСЃСЏ
+	arToolbarSet - РјР°СЃСЃРёРІ СЃСЃС‹Р»РѕРє РЅР° С‚СѓР»Р±Р°СЂСЃРµС‚С‹
+	pToolbar - СЃСЃС‹Р»РєР° РЅР° РѕР±СЉРµРєС‚ С‚СѓР»Р±Р°СЂР°
       - AddButton
       - CheckButton
       -
@@ -391,7 +391,7 @@ BXHTMLEditor.prototype.onLoad = function()
 
 
 	var el;
-	// добавляем все тулбары и кнопки в них
+	// РґРѕР±Р°РІР»СЏРµРј РІСЃРµ С‚СѓР»Р±Р°СЂС‹ Рё РєРЅРѕРїРєРё РІ РЅРёС…
 	for(var sToolBarId in arToolbars)
 	{
 		if(BXSearchInd(this.arToolbars, sToolBarId)<0)
@@ -420,7 +420,7 @@ BXHTMLEditor.prototype.onLoad = function()
 			this.arToolbarSet[0].AddToolbar(pToolbar, 100, 0);
 	}
 
-	// добавляем все таскбары
+	// РґРѕР±Р°РІР»СЏРµРј РІСЃРµ С‚Р°СЃРєР±Р°СЂС‹
 	pBXEventDispatcher.OnEditorEvent("OnCreate", this);
 
 	this.SetView("html");
@@ -606,14 +606,14 @@ BXHTMLEditor.prototype.SetTemplate = function (templateID, arTemplateParams)
 	if(this.pComponentTaskbar)
 		this.pComponentTaskbar.BuildList();
 
-	// изменить компоненты
+	// РёР·РјРµРЅРёС‚СЊ РєРѕРјРїРѕРЅРµРЅС‚С‹
 	this.SaveContent();
 	this.LoadContent();
 
-	// изменить стили
+	// РёР·РјРµРЅРёС‚СЊ СЃС‚РёР»Рё
 	this.oStyles.Parse(this.arTemplateParams["STYLES"]);
 
-	// внедрить стили
+	// РІРЅРµРґСЂРёС‚СЊ СЃС‚РёР»Рё
 	this.oStyles.SetToDocument(this.pEditorDocument);
 	this.OnEvent("OnTemplateChanged");
 }
@@ -840,11 +840,11 @@ BXHTMLEditor.prototype.__FFFocus = function(e)
 
 BXHTMLEditor.prototype.SetEditorContent = function(sContent)
 {
-	//ToDo: вставить обработку целой страницы вместе с <html><head>....</head><body>....</body>
+	//ToDo: РІСЃС‚Р°РІРёС‚СЊ РѕР±СЂР°Р±РѕС‚РєСѓ С†РµР»РѕР№ СЃС‚СЂР°РЅРёС†С‹ РІРјРµСЃС‚Рµ СЃ <html><head>....</head><body>....</body>
 	sContent = sContent.replace(/^[\s\S]*?<body.*?>/i, "");
 	sContent = sContent.replace(/<\/body>[\s\S]*?$/i, "");
 
-	//анализируем контент в виде текста, вырезаем PHP, заменяем на <img>, вставляем в документ
+	//Р°РЅР°Р»РёР·РёСЂСѓРµРј РєРѕРЅС‚РµРЅС‚ РІ РІРёРґРµ С‚РµРєСЃС‚Р°, РІС‹СЂРµР·Р°РµРј PHP, Р·Р°РјРµРЅСЏРµРј РЅР° <img>, РІСЃС‚Р°РІР»СЏРµРј РІ РґРѕРєСѓРјРµРЅС‚
 	try{this.pEditorDocument.designMode='off';}catch(e){}
 	this.pEditorDocument.open();
 	if(this.arConfig["bWithoutPHP"])
@@ -855,15 +855,15 @@ BXHTMLEditor.prototype.SetEditorContent = function(sContent)
 
 	if(this.bTableBorder)
 	{
-		this.bTableBorder = false; //чтобы не выйти из функции ShowTableBorder
+		this.bTableBorder = false; //С‡С‚РѕР±С‹ РЅРµ РІС‹Р№С‚Рё РёР· С„СѓРЅРєС†РёРё ShowTableBorder
 		this.ShowTableBorder(true);
 	}
 
 	//this.pEditorDocument.body.innerHTML = this.pParser.ParsePHP(sContent);
 	//alert(this.pEditorDocument.body.innerHTML);
-	//удаляем лишний мусор
+	//СѓРґР°Р»СЏРµРј Р»РёС€РЅРёР№ РјСѓСЃРѕСЂ
 	//this.pParser.MakeValid();
-	//получаем результат
+	//РїРѕР»СѓС‡Р°РµРј СЂРµР·СѓР»СЊС‚Р°С‚
 	//sContent = this.pParser.GetEditorCode();
 
 	//sContent = sContent.replace(/^[\s\S]*?<body.*?>/i, "");
@@ -871,7 +871,7 @@ BXHTMLEditor.prototype.SetEditorContent = function(sContent)
 
 	//this.pEditorWindow.document.body.innerHTML = sContent;
 
-	//при помощи DOM в нем обрабатываем дополнительные теги (якоря, ...), дорабатываем PHP скрипты
+	//РїСЂРё РїРѕРјРѕС‰Рё DOM РІ РЅРµРј РѕР±СЂР°Р±Р°С‚С‹РІР°РµРј РґРѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ С‚РµРіРё (СЏРєРѕСЂСЏ, ...), РґРѕСЂР°Р±Р°С‚С‹РІР°РµРј PHP СЃРєСЂРёРїС‚С‹
 	//this.pParser.ConvertTags();
 
 	if(BXIsIE())
@@ -983,14 +983,14 @@ BXHTMLEditor.prototype.WrapSelectionWith = function (tagName, arAttributes)
 	//oRange = this.pEditorDocument.selection.createRange();
 
 /*
-	//ставим "точку" на месте левой границы
+	//СЃС‚Р°РІРёРј "С‚РѕС‡РєСѓ" РЅР° РјРµСЃС‚Рµ Р»РµРІРѕР№ РіСЂР°РЅРёС†С‹
 	var oRangeLeft = oRange.duplicate();
 	oRangeLeft.collapse(true);
 	var tmpid = 'x' + Math.round(Math.random()*1000000) + 'x';
 	oRangeLeft.pasteHTML("<span id='L"+tmpid+"'/>");
 	var elLeft = this.pEditorDocument.getElementById('L'+tmpid);
 
-	//ставим "точку" на месте правой границы
+	//СЃС‚Р°РІРёРј "С‚РѕС‡РєСѓ" РЅР° РјРµСЃС‚Рµ РїСЂР°РІРѕР№ РіСЂР°РЅРёС†С‹
 	var oRangeRight = oRange.duplicate();
 	oRangeRight.collapse(false);
 	oRangeRight.pasteHTML("<span id='R"+tmpid+"'/>");
@@ -1085,7 +1085,7 @@ return;
 		var iMovedLeft =  - oRangeLeft.moveStart("character", -10000000);
 		//alert('L:'+iMovedLeft);
 
-		//ставим "точку" на месте правой границы
+		//СЃС‚Р°РІРёРј "С‚РѕС‡РєСѓ" РЅР° РјРµСЃС‚Рµ РїСЂР°РІРѕР№ РіСЂР°РЅРёС†С‹
 		var oRangeRight = oRange.duplicate();
 		oRangeRight.collapse(false);
 		//oRangeRight.pasteHTML("<span id='R"+tmpid+"'/>");

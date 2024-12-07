@@ -184,6 +184,10 @@ class SpacesComponent extends CBitrixComponent implements Controllerable, Errora
 
 		if ($isFrame)
 		{
+			\Bitrix\Socialnetwork\Internals\Space\LiveWatch\LiveWatchService::getInstance()->setUserAsWatchingNow(
+				\Bitrix\Socialnetwork\Helper\User::getCurrentUserId()
+			);
+
 			require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_after.php');
 
 			exit;
@@ -319,7 +323,7 @@ class SpacesComponent extends CBitrixComponent implements Controllerable, Errora
 		$urls['PATH_TO_MESSAGES_CHAT'] = $userSefFolder . 'messages/chat/#user_id#/';
 		$urls['PATH_TO_USER_BLOG_POST_IMPORTANT'] = $userSefFolder . 'user/#user_id#/blog/important/';
 		$urls['PATH_TO_SEARCH_TAG'] = isModuleInstalled('search') ? SITE_DIR . 'search/?tags=#tag#' : '';
-		$urls['PATH_TO_VIDEO_CALL'] = isModuleInstalled('video') ? $userSefFolder . 'video/#user_id#/' : '';
+		$urls['PATH_TO_VIDEO_CALL'] = '';
 		$urls['PATH_TO_COMPANY_DEPARTMENT'] = (
 			isModuleInstalled('intranet')
 				? '/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#'

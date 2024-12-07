@@ -1,10 +1,13 @@
-<?
+<?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -211,7 +214,7 @@ else:
 			"CHECK" => $arStats["CHECK"],
 		);
 	}
-	$arStates = CUtil::PhpToJsObject($arStates);
+	$arStates = Json::encode($arStates);
 	if ($arReport["INFO"]["PICTURE"])
 		$arPictureSrc = CFile::GetPath($arReport["INFO"]["PICTURE"]);
 
@@ -299,9 +302,9 @@ else:
 		</div>
 	</div>
 <?endif;?>
-	<script type="text/javascript">
+	<script>
 
-		var arStates = eval(<?=$arStates;?>);
+		var arStates = <?=$arStates;?>;
 		var Dialog = false;
 		var current = 0;
 		var next = 0;

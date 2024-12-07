@@ -1,8 +1,8 @@
 <?
 $APPLICATION->IncludeFile("support/ticket_edit/default.php", Array(
-	"ID"						=>	$_REQUEST["ID"],			// ID îáðàùåíèÿ
-	"TICKET_LIST_URL"			=>	"ticket_list.php",			// ñòðàíèöà ñïèñêà îáðàùåíèé
-	"TICKET_MESSAGE_EDIT_URL"	=>	"ticket_message_edit.php"	// ñòðàíèöà ðåäàêòèðîâàíèÿ ñîîáùåíèÿ
+	"ID"						=>	$_REQUEST["ID"],			// ID Ð¾Ð±Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ
+	"TICKET_LIST_URL"			=>	"ticket_list.php",			// ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° ÑÐ¿Ð¸ÑÐºÐ° Ð¾Ð±Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ð¹
+	"TICKET_MESSAGE_EDIT_URL"	=>	"ticket_message_edit.php"	// ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ ÑÐ¾Ð¾Ð±Ñ‰ÐµÐ½Ð¸Ñ
 	)
 );
 ?>

@@ -14,7 +14,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    ButtonComponent: im_v2_component_elements.Button,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    MessageHeader: im_v2_component_message_elements.MessageHeader
 	  },
@@ -111,7 +110,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					</div>
 				</div>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" :withAttach="false" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>
 	`

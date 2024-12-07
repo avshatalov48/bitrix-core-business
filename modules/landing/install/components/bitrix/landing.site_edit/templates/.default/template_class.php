@@ -253,7 +253,7 @@ class Template
 		$codeHoverEdit = (isset($params['imgEdit']) && $params['imgEdit']) ? $code . '_edit' : null;
 		$codeHoverEditWrapper = $codeHoverEdit ? ($codeHoverEdit . '_wrapper') : null;
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function()
 			{
 				const imageFieldWrapper = BX('<?= $this->getFieldId($codeWrapper) ?>');

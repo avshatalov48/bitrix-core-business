@@ -142,19 +142,19 @@ class CPerfCluster
 		$strRequest .= 'Host: ' . $host . "\r\n";
 		$strRequest .= "Accept-Language: en\r\n";
 
-		$socket_timeout = intval($arOptions['socket_timeout']);
+		$socket_timeout = intval($arOptions['socket_timeout'] ?? 0);
 		if ($socket_timeout <= 0)
 		{
 			$socket_timeout = 20;
 		}
 
-		$rw_timeout = intval($arOptions['rw_timeout']);
+		$rw_timeout = intval($arOptions['rw_timeout'] ?? 0);
 		if ($rw_timeout <= 0)
 		{
 			$rw_timeout = 20;
 		}
 
-		$iteration_timeout = intval($arOptions['iteration_timeout']);
+		$iteration_timeout = intval($arOptions['iteration_timeout'] ?? 0);
 		if ($iteration_timeout <= 0)
 		{
 			$iteration_timeout = 30;

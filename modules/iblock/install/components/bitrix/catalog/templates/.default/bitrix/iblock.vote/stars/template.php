@@ -70,6 +70,6 @@ $arJSParams = array(
 		</td>
 	</tr>
 </table>
-<script type="text/javascript">
+<script>
 	<?=$strObName;?> = new JCIblockVoteStars(<?=CUtil::PhpToJSObject($arJSParams, false, true, true);?>);
 </script>

@@ -31,7 +31,7 @@ var <?=$cartId?> = new BitrixSmallCart;
 		unset($arResult['COMPOSITE_STUB']);
 	$frame->end();
 ?></div>
-<script type="text/javascript">
+<script>
 	<?=$cartId?>.siteId       = '<?=SITE_ID?>';
 	<?=$cartId?>.cartId       = '<?=$cartId?>';
 	<?=$cartId?>.ajaxPath     = '<?=$componentPath?>/ajax.php';

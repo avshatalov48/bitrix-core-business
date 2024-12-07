@@ -36,14 +36,6 @@ if (
 	die();
 }
 
-if (LANG_CHARSET != "UTF-8" && isset($_REQUEST['Type']['Options']) && is_array($_REQUEST['Type']['Options']))
-{
-	$newarr = [];
-	foreach ($_REQUEST['Type']['Options'] as $k => $v)
-		$newarr[CharsetConverter::ConvertCharset($k, "UTF-8", LANG_CHARSET)] = $v;
-	$_REQUEST['Type']['Options'] = $newarr;
-}
-
 $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 $documentService = $runtime->GetService("DocumentService");

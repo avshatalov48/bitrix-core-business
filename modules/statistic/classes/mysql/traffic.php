@@ -5,7 +5,6 @@ class CTraffic extends CAllTraffic
 {
 	public static function GetSumList($DATA_TYPE, $arFilter=Array())
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = array();
 		$site_filtered = false;
@@ -132,13 +131,12 @@ class CTraffic extends CAllTraffic
 				$strSqlSearch
 			";
 
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		return $rs;
 	}
 
 	public static function GetDailyList($by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [], $is_filtered = null, $get_maxmin = "Y")
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$strSqlSearch = "";
@@ -285,7 +283,7 @@ class CTraffic extends CAllTraffic
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($get_maxmin=="Y")
 		{
@@ -305,7 +303,7 @@ class CTraffic extends CAllTraffic
 					1=1
 					".$strSqlSearch."
 				";
-			$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$a = $DB->Query($strSql);
 			$ar = $a->Fetch();
 			if (!is_array($arMaxMin))
 				$arMaxMin = array();
@@ -321,7 +319,6 @@ class CTraffic extends CAllTraffic
 
 	public static function GetCommonValues($arFilter=Array(), $bIgnoreErrors=false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$site_id = ($arFilter["SITE_ID"] ?? '');
@@ -420,7 +417,7 @@ class CTraffic extends CAllTraffic
 		";
 
 		$result = false;
-		$rs = $DB->Query($strSql, $bIgnoreErrors, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql, $bIgnoreErrors);
 		if($rs)
 		{
 			if($result = $rs->Fetch())
@@ -436,7 +433,6 @@ class CTraffic extends CAllTraffic
 
 	public static function GetRefererList($by = 'ref_today', $order = 'desc', $arFilter = [], &$is_filtered = false, $limit = 10)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$site_id = $arFilter["SITE_ID"] ?? '';
@@ -519,12 +515,11 @@ class CTraffic extends CAllTraffic
 		{
 			$strSql .= " LIMIT ".intval($limit);
 		}
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetPhraseList($s_by = 's_today', $s_order = 'desc', $arFilter = [], &$is_filtered = false, $limit = 10)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$strSqlSearch = "";
 
@@ -603,6 +598,6 @@ class CTraffic extends CAllTraffic
 		{
 			$strSql .= " LIMIT ".intval($limit);
 		}
-		return $DB->Query($strSql, false, $err_mess.__LINE__);
+		return $DB->Query($strSql);
 	}
 }

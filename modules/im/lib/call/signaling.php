@@ -31,7 +31,7 @@ class Signaling
 			'call' => $this->call->toArray(($senderId == $toUserId ? $toUserId : 0)),
 			'users' => $users,
 			'invitedUsers' => $invitedUsers,
-			'userData' => Util::getUsers($users),
+			'userData' => $this->call->getUserData(),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds([$toUserId]),
 			'isLegacyMobile' => $isLegacyMobile,
@@ -71,7 +71,7 @@ class Signaling
 				'call' => $this->call->toArray((count($toUserIds) == 1 ? $toUserId : 0)),
 				'users' => $users,
 				'invitedUsers' => $toUserIds,
-				'userData' => Util::getUsers($users),
+				'userData' => $this->call->getUserData(),
 				'senderId' => $senderId,
 				'publicIds' => $this->getPublicIds($users),
 				'isLegacyMobile' => $isLegacyMobile,
@@ -168,7 +168,7 @@ class Signaling
 		return $this->send('Call::usersJoined', $this->call->getUsers(), $config);
 	}
 
-	public function sendUsersInvited(int $senderId, array $toUserIds, array $users)
+	public function sendUsersInvited(int $senderId, array $toUserIds, array $users, bool $show)
 	{
 		$config = [
 			'call' => $this->call->toArray(),
@@ -176,6 +176,7 @@ class Signaling
 			'userData' => Util::getUsers($users),
 			'senderId' => $senderId,
 			'publicIds' => $this->getPublicIds($users),
+			'show' => $show,
 		];
 
 		return $this->send('Call::usersInvited', $toUserIds, $config);

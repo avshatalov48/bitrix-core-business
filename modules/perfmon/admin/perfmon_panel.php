@@ -147,7 +147,7 @@ elseif (isset($_REQUEST['test']) && $_REQUEST['test'] === 'cluster')
 		}
 
 		$bFinish = false;
-		$threads = intval($_GET['threads']);
+		$threads = intval($_GET['threads'] ?? 0);
 		if ($threads == 0)
 		{
 			//First clear old data
@@ -583,7 +583,7 @@ if ($RIGHT < 'R')
 }
 
 $mark_value = COption::GetOptionString('perfmon', 'mark_php_page_rate', '');
-$mark_date  = COption::GetOptionString('perfmon', 'mark_php_page_date', '');
+$mark_date = COption::GetOptionString('perfmon', 'mark_php_page_date', '');
 
 if (
 	$request->isPost()
@@ -629,7 +629,7 @@ $bComponentCache = COption::GetOptionString('main', 'component_cache_on', 'Y') =
 
 $arModulesInstalled = [];
 $rsModules = CModule::GetDropDownList();
-while ($arModule = $rsModules->Fetch())
+while ($arModule = $rsModules->fetch())
 {
 	$arModulesInstalled[] = $arModule['REFERENCE_ID'];
 }
@@ -671,8 +671,6 @@ $arConstants = [
 	'CACHED_b_iblock',
 	'CACHED_b_lang',
 	'CACHED_b_option',
-	'CACHED_b_lang_domain',
-	'CACHED_b_site_template',
 	'CACHED_b_event',
 	'CACHED_b_agent',
 	'CACHED_b_user_field',
@@ -1110,7 +1108,7 @@ function ThreadsUpdateImage(id, threads_from, threads_to)
 </script>
 
 <?php echo BeginNote()?>
-<form method="POST" Action="<?php echo $APPLICATION->GetCurPage()?>"  ENCTYPE="multipart/form-data" name="post_form1">
+<form method="POST" Action="<?php echo $APPLICATION->GetCurPage()?>" ENCTYPE="multipart/form-data" name="post_form1">
 
 <p id="mark_result_in_note" style="font-size:200%"><b>
 <?php
@@ -1148,7 +1146,7 @@ else
 </form>
 <?php echo EndNote()?>
 
-<form method="POST" Action="<?php echo $APPLICATION->GetCurPage()?>"  ENCTYPE="multipart/form-data" name="post_form">
+<form method="POST" Action="<?php echo $APPLICATION->GetCurPage()?>" ENCTYPE="multipart/form-data" name="post_form">
 <?php $tabControl->Begin();?>
 <?php $tabControl->BeginNextTab();?>
 	<tr>

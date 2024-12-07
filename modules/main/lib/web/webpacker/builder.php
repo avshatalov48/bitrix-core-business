@@ -333,7 +333,7 @@ class Builder
 
 		if (!$isRestored)
 		{
-			if (strpos($url, ':') === false && $server->getServerPort())
+			if (!str_contains($url, ':') && $server->getServerPort())
 			{
 				if (!in_array($server->getServerPort(), array('80', '443')))
 				{
@@ -347,9 +347,9 @@ class Builder
 
 		$uri = new Uri($url);
 		$url = $uri->getLocator();
-		if (mb_substr($url, -1) == '/')
+		if (str_ends_with($url, '/'))
 		{
-			$url = mb_substr($url, 0, -1);
+			$url = substr($url, 0, -1);
 		}
 
 		if ($canSave)

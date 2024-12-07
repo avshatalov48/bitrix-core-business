@@ -28,6 +28,15 @@ final class AccessService extends \Bitrix\Lists\Api\Service\AccessService
 		return $response;
 	}
 
+	public function canUserEditIBlock(int $iBlockId): CheckPermissionsResponse
+	{
+		$response = new CheckPermissionsResponse();
+		$checkPermissionsResponse = $this->checkIBlockPermission($iBlockId, IblockRight::EDIT);
+		$response->fillFromResponse($checkPermissionsResponse);
+
+		return $response;
+	}
+
 	public function canUserReadElement(int $elementId, int $sectionId = 0, int $iBlockId = null): CheckPermissionsResponse
 	{
 		$response = new CheckPermissionsResponse();

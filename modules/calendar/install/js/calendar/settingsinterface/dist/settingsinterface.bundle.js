@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,calendar_util,calendar_controls,main_core,ui_entitySelector,main_core_events,ui_messagecard) {
+(function (exports,calendar_util,calendar_controls,main_core,ui_entitySelector,main_core_events,ui_infoHelper,ui_messagecard) {
 	'use strict';
 
 	let _ = t => t,
@@ -10,7 +11,7 @@ this.BX = this.BX || {};
 	  _t5;
 	class SettingsInterface {
 	  constructor(options) {
-	    this.sliderId = "calendar:settings-slider";
+	    this.sliderId = 'calendar:settings-slider';
 	    this.name = 'SettingsInterface';
 	    this.SLIDER_WIDTH = 500;
 	    this.SLIDER_DURATION = 80;
@@ -52,7 +53,7 @@ this.BX = this.BX || {};
 	  }
 	  hide(event) {
 	    if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId) {
-	      BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
+	      BX.removeCustomEvent('SidePanel.Slider:onClose', BX.proxy(this.hide, this));
 	    }
 	  }
 	  denySliderClose() {
@@ -83,7 +84,7 @@ this.BX = this.BX || {};
 	          uid: this.uid
 	        }
 	      }).then(response => {
-	        slider.getData().set("sliderContent", response.data.html);
+	        slider.getData().set('sliderContent', response.data.html);
 	        const params = response.data.additionalParams;
 	        this.mailboxList = params.mailboxList;
 	        this.uid = params.uid;
@@ -97,7 +98,7 @@ this.BX = this.BX || {};
 	    this.sliderId = slider.getUrl();
 
 	    // Used to execute javasctipt and attach CSS from ajax responce
-	    BX.html(slider.layout.content, slider.getData().get("sliderContent"));
+	    BX.html(slider.layout.content, slider.getData().get('sliderContent'));
 	    this.initControls();
 	    this.setControlsValue();
 	  }
@@ -123,33 +124,6 @@ this.BX = this.BX || {};
 	      // this.DOM.enableLunchTime = this.DOM.content.querySelector('[data-role="enable_lunch_time"]');
 	      // this.DOM.lunchTimeSettingContainer = this.DOM.content.querySelector('#ec_lunch_time');
 	      // this.lunchTimeControl = this.initLunchTimeControl(this.DOM.lunchTimeSettingContainer);
-
-	      if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect)) {
-	        this.emailSelectorControl = new calendar_controls.EmailSelectorControl({
-	          selectNode: this.DOM.sendFromEmailSelect,
-	          allowAddNewEmail: true,
-	          mailboxList: this.mailboxList
-	        });
-	        this.DOM.emailHelpIcon = this.DOM.content.querySelector('.calendar-settings-question');
-	        if (this.DOM.emailHelpIcon && BX.Helper) {
-	          BX.Event.bind(this.DOM.emailHelpIcon, 'click', () => {
-	            BX.Helper.show("redirect=detail&code=12070142");
-	          });
-	          calendar_util.Util.initHintNode(this.DOM.emailHelpIcon);
-	        }
-	        this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
-	        this.DOM.emailWrap = this.DOM.content.querySelector('.calendar-settings-email-wrap');
-	        if (BX.Calendar.Util.isEventWithEmailGuestAllowed()) {
-	          BX.Dom.removeClass(this.DOM.emailWrap, 'lock');
-	          this.DOM.sendFromEmailSelect.disabled = false;
-	        } else {
-	          BX.Dom.addClass(this.DOM.emailWrap, 'lock');
-	          this.DOM.sendFromEmailSelect.disabled = true;
-	          BX.Event.bind(this.DOM.sendFromEmailSelect.parentNode, 'click', () => {
-	            BX.UI.InfoHelper.show('limit_calendar_invitation_by_mail');
-	          });
-	        }
-	      }
 	    }
 
 	    // General settings
@@ -178,13 +152,65 @@ this.BX = this.BX || {};
 	        this.initAccessController();
 	      }
 	    }
+	    this.handleRestrictions();
+	  }
+	  handleRestrictions() {
+	    if (this.BX.Type.isElementNode(this.DOM.syncTasks) && this.isSettingLocked(this.DOM.syncTasks)) {
+	      this.DOM.syncTasks.disabled = true;
+	      this.lockSetting(this.DOM.syncTasks);
+	    }
+	    if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect)) {
+	      this.emailSelectorControl = new calendar_controls.EmailSelectorControl({
+	        selectNode: this.DOM.sendFromEmailSelect,
+	        allowAddNewEmail: true,
+	        mailboxList: this.mailboxList
+	      });
+	      this.DOM.emailHelpIcon = this.DOM.content.querySelector('.calendar-settings-question');
+	      if (this.DOM.emailHelpIcon && BX.Helper) {
+	        BX.Event.bind(this.DOM.emailHelpIcon, 'click', () => {
+	          BX.Helper.show('redirect=detail&code=12070142');
+	        });
+	        calendar_util.Util.initHintNode(this.DOM.emailHelpIcon);
+	      }
+	      this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
+	      this.DOM.emailWrap = this.DOM.content.querySelector('.calendar-settings-email-wrap');
+	      if (BX.Calendar.Util.isEventWithEmailGuestAllowed()) {
+	        BX.Dom.removeClass(this.DOM.emailWrap, 'lock');
+	        this.DOM.sendFromEmailSelect.disabled = false;
+	      } else {
+	        BX.Dom.addClass(this.DOM.emailWrap, 'lock');
+	        this.DOM.sendFromEmailSelect.disabled = true;
+	        BX.Event.bind(this.DOM.sendFromEmailSelect.parentNode, 'click', () => {
+	          ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	            featureId: 'calendar_events_with_email_guests'
+	          }).show();
+	        });
+	      }
+	    }
+	  }
+	  isSettingLocked(node) {
+	    return this.BX.Type.isElementNode(node.closest('.calendar-field-block.--locked'));
+	  }
+	  getSettingLockCode(node) {
+	    return 'lockCode' in node.dataset ? node.dataset.lockCode : '';
+	  }
+	  lockSetting(node) {
+	    const lockBindElement = node.closest('.calendar-field-block.--locked');
+	    this.getSettingLockCode(node);
+	    BX.Event.bind(lockBindElement, 'click', () => this.showLock(this.getSettingLockCode(node)));
+	  }
+	  showLock(featureId, bindElement = null) {
+	    ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	      featureId,
+	      bindElement
+	    }).show();
 	  }
 	  initMessageControl() {
 	    const moreMessageButton = main_core.Tag.render(_t2 || (_t2 = _`
 			<a class="ui-btn ui-btn-primary">${0}</a>
 		`), main_core.Loc.getMessage('EC_LOCATION_SETTINGS_MORE_INFO'));
 	    main_core.Event.bind(moreMessageButton, 'click', () => this.openHelpDesk(this.HELP_DESK_CODE_LOCATION));
-	    const header = "";
+	    const header = '';
 	    const description = main_core.Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION');
 	    this.message = new ui_messagecard.MessageCard({
 	      id: 'locationSettingsInfo',
@@ -308,27 +334,37 @@ this.BX = this.BX || {};
 	    if (this.DOM.showDeclined) {
 	      this.DOM.showDeclined.checked = this.calendarContext.util.getUserOption('showDeclined');
 	    }
-	    var showTasks = this.calendarContext.util.getUserOption('showTasks') === 'Y';
+	    const showTasks = this.calendarContext.util.getUserOption('showTasks') === 'Y';
 	    if (this.DOM.showTasks) {
 	      this.DOM.showTasks.checked = showTasks;
-	      BX.Event.bind(this.DOM.showTasks, 'click', function () {
+	      BX.Event.bind(this.DOM.showTasks, 'click', () => {
 	        if (this.DOM.showCompletedTasks) {
 	          this.DOM.showCompletedTasks.disabled = !this.DOM.showTasks.checked;
 	          this.DOM.showCompletedTasks.checked = this.DOM.showCompletedTasks.checked && this.DOM.showTasks.checked;
 	        }
 	        if (this.DOM.syncTasks) {
-	          this.DOM.syncTasks.disabled = !this.DOM.showTasks.checked;
-	          this.DOM.syncTasks.checked = this.DOM.syncTasks.checked && this.DOM.showTasks.checked;
+	          if (this.isSettingLocked(this.DOM.syncTasks)) {
+	            this.DOM.syncTasks.checked = false;
+	            this.DOM.syncTasks.disabled = true;
+	          } else {
+	            this.DOM.syncTasks.disabled = !this.DOM.showTasks.checked;
+	            this.DOM.syncTasks.checked = this.DOM.syncTasks.checked && this.DOM.showTasks.checked;
+	          }
 	        }
-	      }.bind(this));
+	      });
 	    }
 	    if (this.DOM.showCompletedTasks) {
 	      this.DOM.showCompletedTasks.checked = this.calendarContext.util.getUserOption('showCompletedTasks') === 'Y' && this.DOM.showTasks.checked;
 	      this.DOM.showCompletedTasks.disabled = !showTasks;
 	    }
 	    if (this.DOM.syncTasks) {
-	      this.DOM.syncTasks.checked = this.calendarContext.util.getUserOption('syncTasks') === 'Y' && this.DOM.showTasks.checked;
-	      this.DOM.syncTasks.disabled = !showTasks;
+	      if (this.isSettingLocked(this.DOM.syncTasks)) {
+	        this.DOM.syncTasks.checked = false;
+	        this.DOM.syncTasks.disabled = true;
+	      } else {
+	        this.DOM.syncTasks.checked = this.calendarContext.util.getUserOption('syncTasks') === 'Y' && this.DOM.showTasks.checked;
+	        this.DOM.syncTasks.disabled = !showTasks;
+	      }
 	    }
 	    if (this.DOM.denyBusyInvitation) {
 	      this.DOM.denyBusyInvitation.checked = this.calendarContext.util.getUserOption('denyBusyInvitation');
@@ -345,6 +381,7 @@ this.BX = this.BX || {};
 	      this.DOM.workTimeEnd.value = this.settings.work_time_end;
 	      if (this.DOM.weekHolidays) {
 	        for (let i = 0; i < this.DOM.weekHolidays.options.length; i++) {
+	          // eslint-disable-next-line max-len
 	          this.DOM.weekHolidays.options[i].selected = this.settings.week_holidays.includes(this.DOM.weekHolidays.options[i].value);
 	        }
 	      }
@@ -355,7 +392,7 @@ this.BX = this.BX || {};
 	    // Access
 	    if (this.showAccessControl && main_core.Type.isElementNode(this.DOM.accessOuterWrap)) {
 	      const typeAccess = this.calendarContext.util.config.TYPE_ACCESS;
-	      for (let code in typeAccess) {
+	      for (const code in typeAccess) {
 	        if (typeAccess.hasOwnProperty(code)) {
 	          this.insertAccessRow(this.calendarContext.util.getAccessName(code), code, typeAccess[code]);
 	        }
@@ -376,7 +413,11 @@ this.BX = this.BX || {};
 	      userSettings.showTasks = this.DOM.showTasks.checked ? 'Y' : 'N';
 	    }
 	    if (this.DOM.syncTasks) {
-	      userSettings.syncTasks = this.DOM.syncTasks.checked ? 'Y' : 'N';
+	      if (this.isSettingLocked(this.DOM.syncTasks)) {
+	        userSettings.syncTasks = 'N';
+	      } else {
+	        userSettings.syncTasks = this.DOM.syncTasks.checked ? 'Y' : 'N';
+	      }
 	    }
 	    if (this.DOM.showCompletedTasks) {
 	      userSettings.showCompletedTasks = this.DOM.showCompletedTasks.checked ? 'Y' : 'N';
@@ -423,7 +464,7 @@ this.BX = this.BX || {};
 	      data.type_access = this.access;
 	    }
 	    BX.ajax.runAction('calendar.api.calendarajax.saveSettings', {
-	      data: data
+	      data
 	    }).then(() => {
 	      BX.reload();
 	    });
@@ -439,12 +480,14 @@ this.BX = this.BX || {};
 					<div class="calendar-list-slider-new-calendar-options-container">
 						${0}
 					</div>
-				</div>`), this.DOM.accessTable = main_core.Tag.render(_t4 || (_t4 = _`
+				</div>
+			`), this.DOM.accessTable = main_core.Tag.render(_t4 || (_t4 = _`
 							<table class="calendar-section-slider-access-table" />
 						`)), this.DOM.accessButton = main_core.Tag.render(_t5 || (_t5 = _`
 							<span class="calendar-list-slider-new-calendar-option-add">
 								${0}
-							</span>`), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
+							</span>
+						`), main_core.Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD'))));
 	    this.access = {};
 	    this.accessControls = {};
 	    this.accessTasks = (_this$calendarContext = this.calendarContext) == null ? void 0 : (_this$calendarContext2 = _this$calendarContext.util) == null ? void 0 : _this$calendarContext2.getTypeAccessTasks();
@@ -452,6 +495,24 @@ this.BX = this.BX || {};
 	      calendar_util.Util.setAccessNames(this.calendarContext.util.config.accessNames);
 	    }
 	    main_core.Event.bind(this.DOM.accessButton, 'click', () => {
+	      const entities = [{
+	        id: 'user'
+	      }, {
+	        id: 'department',
+	        options: {
+	          selectMode: 'usersAndDepartments'
+	        }
+	      }, {
+	        id: 'meta-user',
+	        options: {
+	          'all-users': true
+	        }
+	      }];
+	      if (calendar_util.Util.isProjectFeatureEnabled()) {
+	        entities.push({
+	          id: 'project'
+	        });
+	      }
 	      this.entitySelectorDialog = new ui_entitySelector.Dialog({
 	        targetNode: this.DOM.accessButton,
 	        context: 'CALENDAR',
@@ -464,21 +525,7 @@ this.BX = this.BX || {};
 	        popupOptions: {
 	          targetContainer: document.body
 	        },
-	        entities: [{
-	          id: 'user'
-	        }, {
-	          id: 'project'
-	        }, {
-	          id: 'department',
-	          options: {
-	            selectMode: 'usersAndDepartments'
-	          }
-	        }, {
-	          id: 'meta-user',
-	          options: {
-	            'all-users': true
-	          }
-	        }]
+	        entities
 	      });
 	      this.entitySelectorDialog.show();
 	      this.entitySelectorDialog.subscribe('onHide', this.allowSliderClose.bind(this));
@@ -530,7 +577,7 @@ this.BX = this.BX || {};
 	  insertAccessRow(title, code, value) {
 	    if (!this.accessControls[code]) {
 	      if (value === undefined) {
-	        for (let taskId in this.accessTasks) {
+	        for (const taskId in this.accessTasks) {
 	          if (this.accessTasks.hasOwnProperty(taskId) && this.accessTasks[taskId].name === 'calendar_type_edit') {
 	            value = taskId;
 	            break;
@@ -577,10 +624,10 @@ this.BX = this.BX || {};
 	      }));
 	      this.access[code] = value;
 	      this.accessControls[code] = {
-	        rowNode: rowNode,
-	        titleNode: titleNode,
-	        valueNode: valueNode,
-	        removeIcon: removeIcon
+	        rowNode,
+	        titleNode,
+	        valueNode,
+	        removeIcon
 	      };
 	    }
 	  }
@@ -591,7 +638,7 @@ this.BX = this.BX || {};
 	    this.checkTableTimeout = setTimeout(() => {
 	      if (main_core.Dom.hasClass(this.DOM.accessWrap, 'shown')) {
 	        if (this.DOM.accessWrap.offsetHeight - this.DOM.accessTable.offsetHeight < 36) {
-	          this.DOM.accessWrap.style.maxHeight = parseInt(this.DOM.accessTable.offsetHeight) + 100 + 'px';
+	          this.DOM.accessWrap.style.maxHeight = `${parseInt(this.DOM.accessTable.offsetHeight) + 100}px`;
 	        }
 	      } else {
 	        this.DOM.accessWrap.style.maxHeight = '';
@@ -606,7 +653,7 @@ this.BX = this.BX || {};
 	    (_this$accessPopupMenu2 = this.accessPopupMenu) == null ? void 0 : _this$accessPopupMenu2.destroy();
 	    const _this = this;
 	    const menuItems = [];
-	    for (let taskId in this.accessTasks) {
+	    for (const taskId in this.accessTasks) {
 	      if (this.accessTasks.hasOwnProperty(taskId)) {
 	        menuItems.push({
 	          text: this.accessTasks[taskId].title,
@@ -619,7 +666,7 @@ this.BX = this.BX || {};
 	        });
 	      }
 	    }
-	    this.accessPopupMenu = this.BX.PopupMenu.create('section-access-popup' + calendar_util.Util.randomInt(), params.node, menuItems, {
+	    this.accessPopupMenu = this.BX.PopupMenu.create(`section-access-popup${calendar_util.Util.randomInt()}`, params.node, menuItems, {
 	      closeByEsc: true,
 	      autoHide: true,
 	      offsetTop: -5,
@@ -631,13 +678,13 @@ this.BX = this.BX || {};
 	  }
 	  openHelpDesk(helpDeskCode) {
 	    if (top.BX.Helper) {
-	      top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+	      top.BX.Helper.show(`redirect=detail&code=${helpDeskCode}`);
 	    }
 	  }
 	  showMessage() {
 	    if (this.message) {
 	      this.message.show();
-	      this.DOM.accessMessageWrap.style.maxHeight = 300 + "px";
+	      this.DOM.accessMessageWrap.style.maxHeight = `${300}px`;
 	      main_core.Dom.addClass(this.DOM.accessHelpIcon, 'calendar-settings-message-arrow-target');
 	    }
 	  }
@@ -659,5 +706,5 @@ this.BX = this.BX || {};
 
 	exports.SettingsInterface = SettingsInterface;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar.Controls,BX,BX.UI.EntitySelector,BX.Event,BX.UI));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar.Controls,BX,BX.UI.EntitySelector,BX.Event,BX.UI,BX.UI));
 //# sourceMappingURL=settingsinterface.bundle.js.map

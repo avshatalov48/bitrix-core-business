@@ -7,7 +7,8 @@
 	--im-dialog-chat__background-color_pinned: var(--im-color-palette-white-base);
 	--im-dialog-chat__background-color_pinned-separator: var(--im-color-palette-gray-10);
 	--im-dialog-chat__background-color_scroll-button: var(--im-color-palette-white-base);
-	--im-dialog-chat__background-color_scroll-button-counter: var(--im-color-palette-blue-60);
+	--im-dialog-chat__background-color_scroll-button-counter: #00ace3;
+	--im-dialog-chat__background-color_scroll-button-counter-hover: var(--im-color-palette-blue-70);
 
 	--im-dialog-chat__font-color_new-message: var(--im-color-palette-gray-90);
 	--im-dialog-chat__font-color_scroll-button-counter: var(--im-color-palette-white-base);
@@ -42,13 +43,13 @@
 /* Scroll button */
 .bx-im-dialog-chat__scroll-button {
 	position: absolute;
-	bottom: 12px;
-	right: 12px;
-	width: 36px;
-	height: 36px;
+	bottom: 22px;
+	right: 20px;
+	width: 48px;
+	height: 48px;
 	border-radius: 50%;
 	background-color: var(--im-dialog-chat__background-color_scroll-button);
-	background-image: url('./images/chevron-down.svg');
+	background-image: url('./images/chevron-down.svg?v2');
 	background-position: center;
 	background-repeat: no-repeat;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -57,10 +58,10 @@
 
 .bx-im-dialog-chat__scroll-button_counter {
 	position: absolute;
-	right: 0;
-	top: -8px;
-	min-width: 18px;
-	height: 18px;
+	right: -3px;
+	top: -9px;
+	min-width: 24px;
+	height: 20px;
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -70,21 +71,32 @@
 	font: var(--im-font-size-xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-dialog-chat__font-color_scroll-button-counter);
+	transition: background-color ease 100ms;
 }
 
-.scroll-button-transition-enter-active,
-.scroll-button-transition-leave-active {
-	transition: all 0.5s;
+.bx-im-dialog-chat__scroll-button:hover {
+	background-image: url('./images/chevron-down-hover.svg');
 }
 
-.scroll-button-transition-enter-from,
-.scroll-button-transition-leave-to {
+.bx-im-dialog-chat__scroll-button:hover .bx-im-dialog-chat__scroll-button_counter {
+	background-color: var(--im-dialog-chat__background-color_scroll-button-counter-hover);
+}
+
+.float-button-transition-move,
+.float-button-transition-enter-active,
+.float-button-transition-leave-active {
+	transition: transform 0.5s, opacity 0.3s;
+}
+
+.float-button-transition-enter-from {
 	opacity: 0;
-	transform: translate3d(0, 100%, 0);
+	transform: translateY(8px);
 }
 
-.scroll-button-transition-enter-to,
-.scroll-button-transition-leave-from {
-	opacity: 1;
-	transform: translate3d(0, 0, 0);
+.float-button-transition-leave-to {
+	opacity: 0;
+}
+
+.float-button-transition-leave-active {
+	position: absolute;
 }

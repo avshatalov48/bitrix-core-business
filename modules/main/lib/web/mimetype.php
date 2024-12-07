@@ -234,7 +234,14 @@ final class MimeType
 	{
 		return self::$mimes;
 	}
-	
+
+	public static function getExtensionByMimeType(string $mimeType): ?string
+	{
+		$extension = array_search($mimeType, self::$mimes, true);
+
+		return $extension ?: null;
+	}
+
 	public static function getByFileExtension($extension)
 	{
 		$extension = strtolower($extension);
@@ -293,11 +300,11 @@ final class MimeType
 		{
 			$ct = 'application/octet-stream';
 		}
-		elseif (strpos($ct, "excel") !== false)
+		elseif (str_contains($ct, "excel"))
 		{
 			$ct = "application/vnd.ms-excel";
 		}
-		elseif (strpos($ct, "word") !== false && strpos($ct, "vnd.openxmlformats") === false)
+		elseif (str_contains($ct, "word") && !str_contains($ct, "vnd.openxmlformats"))
 		{
 			$ct = "application/msword";
 		}

@@ -20,7 +20,7 @@ right to modify the text of Licensing Agreement. It can be placed in a separate
 text file or inserted into the font file, but it must be easily viewed by users.
 
 - You may not distribute modified version of the font under the Original name 
-or à combination of Original name with any other words without explicit written 
+or Ð° combination of Original name with any other words without explicit written 
 permission from ParaType.
 
 TERMINATION & TERRITORY

@@ -1,0 +1,47 @@
+.ui-text-editor-video-dialog {
+	display: flex;
+	padding: 10px;
+	flex-direction: column;
+	align-items: start;
+}
+
+.ui-text-editor-video-dialog-form {
+	width: 300px;
+	display: flex;
+	flex: 1;
+	align-items: center;
+}
+
+.ui-text-editor-video-dialog-status {
+	font-size: var(--ui-font-size-4xs);
+	color: var(--ui-color-text-subtle);
+	margin-top: var(--ui-space-inline-3xs);
+	margin-left: var(--ui-space-inline-3xs);
+}
+
+.ui-text-editor-video-dialog-status.--error {
+	color: var(--ui-color-text-alert);
+}
+
+.ui-text-editor-video-dialog-textbox {
+	margin-right: 8px;
+}
+
+.ui-text-editor-video-dialog-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	min-width: 30px;
+	padding: 0;
+	margin-left: 5px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	opacity: 0.7;
+	border-radius: var(--ui-border-radius-3xs);
+}
+
+.ui-text-editor-video-dialog-button:hover {
+	opacity: 1;
+}

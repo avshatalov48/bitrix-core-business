@@ -170,7 +170,7 @@ class LandingSiteEditComponent extends LandingBaseFormComponent
 			$this->arResult['REGISTER'] = Register::getInstance();
 			$this->arResult['SITE_INCLUDES_SCRIPT'] = Cookies::isSiteIncludesScript($this->id);
 			$this->arResult['COOKIES_AGREEMENT'] = Cookies::getMainAgreement();
-			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteTypeForms($this->arResult['SITE']['CODE']['CURRENT']);
+			$this->arResult['SPECIAL_TYPE'] = Site\Type::getSiteSpecialType($this->arResult['SITE']['CODE']['CURRENT']);
 			// ai
 			$this->arResult['AI_TEXT_AVAILABLE'] = Connector\Ai::isTextAvailable();
 			$this->arResult['AI_TEXT_ACTIVE'] = Connector\Ai::isTextActive();

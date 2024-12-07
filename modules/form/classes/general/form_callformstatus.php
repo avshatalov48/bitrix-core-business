@@ -2,16 +2,8 @@
 
 class CAllFormStatus
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormStatus<br>File: ".__FILE__;
-	}
-
 	public static function GetPermissionList($STATUS_ID, &$arPERMISSION_VIEW, &$arPERMISSION_MOVE, &$arPERMISSION_EDIT, &$arPERMISSION_DELETE)
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissionList<br>Line: ";
 		global $DB, $strError;
 		$STATUS_ID = intval($STATUS_ID);
 		$arPERMISSION_VIEW = $arPERMISSION_MOVE = $arPERMISSION_EDIT = $arPERMISSION_DELETE = array();
@@ -24,7 +16,7 @@ class CAllFormStatus
 			WHERE
 				STATUS_ID='$STATUS_ID'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while ($zr=$z->Fetch())
 		{
 			if ($zr["PERMISSION"]=="VIEW")		$arPERMISSION_VIEW[] = $zr["GROUP_ID"];
@@ -42,8 +34,6 @@ class CAllFormStatus
 
 	public static function GetPermissions($STATUS_ID)
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetPermissions<br>Line: ";
-
 		global $DB, $USER, $strError;
 
 		$USER_ID = $USER->GetID();
@@ -72,7 +62,7 @@ class CAllFormStatus
 				AND
 					G.GROUP_ID IN (0,".$groups.")";
 
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch())
 				$arReturn[] = $zr["PERMISSION"];
 		}
@@ -82,29 +72,26 @@ class CAllFormStatus
 
 	public static function GetNextSort($WEB_FORM_ID)
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		global $DB, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$strSql = "SELECT max(C_SORT) MAX_SORT FROM b_form_status WHERE FORM_ID=$WEB_FORM_ID";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["MAX_SORT"])+100;
 	}
 
 	public static function GetDefault($WEB_FORM_ID)
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetDefault<br>Line: ";
 		global $DB, $USER, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$strSql = "SELECT ID FROM b_form_status WHERE FORM_ID=$WEB_FORM_ID and ACTIVE='Y' and DEFAULT_VALUE='Y'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["ID"]);
 	}
 
 	public static function CheckFields($arFields, $STATUS_ID, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError, $APPLICATION, $USER;
 		$str = "";
 		$STATUS_ID = intval($STATUS_ID);
@@ -135,7 +122,6 @@ class CAllFormStatus
 
 	public static function Set($arFields, $STATUS_ID=false, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
 		$STATUS_ID = intval($STATUS_ID);
 		if (CFormStatus::CheckFields($arFields, $STATUS_ID, $CHECK_RIGHTS))
@@ -177,12 +163,12 @@ class CAllFormStatus
 
 			if ($STATUS_ID>0)
 			{
-				$DB->Update("b_form_status", $arFields_i, "WHERE ID='".$STATUS_ID."'", $err_mess.__LINE__);
+				$DB->Update("b_form_status", $arFields_i, "WHERE ID='".$STATUS_ID."'");
 			}
 			else
 			{
 				$arFields_i["FORM_ID"] = "'".intval($arFields["FORM_ID"])."'";
-				$STATUS_ID = $DB->Insert("b_form_status", $arFields_i, $err_mess.__LINE__);
+				$STATUS_ID = $DB->Insert("b_form_status", $arFields_i);
 			}
 
 			$STATUS_ID = intval($STATUS_ID);
@@ -191,7 +177,7 @@ class CAllFormStatus
 			{
 				if (is_set($arFields, "arPERMISSION_VIEW"))
 				{
-					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='VIEW'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='VIEW'");
 					if (is_array($arFields["arPERMISSION_VIEW"]))
 					{
 						reset($arFields["arPERMISSION_VIEW"]);
@@ -202,14 +188,14 @@ class CAllFormStatus
 								"GROUP_ID"		=> "'".intval($gid)."'",
 								"PERMISSION"	=> "'VIEW'"
 							);
-							$DB->Insert("b_form_status_2_group",$arFields_i, $err_mess.__LINE__);
+							$DB->Insert("b_form_status_2_group",$arFields_i);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arPERMISSION_MOVE"))
 				{
-					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='MOVE'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='MOVE'");
 					if (is_array($arFields["arPERMISSION_MOVE"]))
 					{
 						reset($arFields["arPERMISSION_MOVE"]);
@@ -220,14 +206,14 @@ class CAllFormStatus
 								"GROUP_ID"		=> "'".intval($gid)."'",
 								"PERMISSION"	=> "'MOVE'"
 							);
-							$DB->Insert("b_form_status_2_group",$arFields_i, $err_mess.__LINE__);
+							$DB->Insert("b_form_status_2_group",$arFields_i);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arPERMISSION_EDIT"))
 				{
-					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='EDIT'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='EDIT'");
 					if (is_array($arFields["arPERMISSION_EDIT"]))
 					{
 						reset($arFields["arPERMISSION_EDIT"]);
@@ -238,14 +224,14 @@ class CAllFormStatus
 								"GROUP_ID"		=> "'".intval($gid)."'",
 								"PERMISSION"	=> "'EDIT'"
 							);
-							$DB->Insert("b_form_status_2_group",$arFields_i, $err_mess.__LINE__);
+							$DB->Insert("b_form_status_2_group",$arFields_i);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arPERMISSION_DELETE"))
 				{
-					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='DELETE'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='".$STATUS_ID."' and PERMISSION='DELETE'");
 					if (is_array($arFields["arPERMISSION_DELETE"]))
 					{
 						reset($arFields["arPERMISSION_DELETE"]);
@@ -256,14 +242,14 @@ class CAllFormStatus
 								"GROUP_ID"		=> "'".intval($gid)."'",
 								"PERMISSION"	=> "'DELETE'"
 							);
-							$DB->Insert("b_form_status_2_group",$arFields_i, $err_mess.__LINE__);
+							$DB->Insert("b_form_status_2_group",$arFields_i);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arMAIL_TEMPLATE"))
 				{
-					$DB->Query("DELETE FROM b_form_status_2_mail_template WHERE STATUS_ID='".$STATUS_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_status_2_mail_template WHERE STATUS_ID='".$STATUS_ID."'");
 					if (is_array($arFields["arMAIL_TEMPLATE"]))
 					{
 						reset($arFields["arMAIL_TEMPLATE"]);
@@ -275,7 +261,7 @@ class CAllFormStatus
 									'".intval($mid)."'
 								)
 								";
-							$DB->Query($strSql, false, $err_mess.__LINE__);
+							$DB->Query($strSql);
 						}
 					}
 				}
@@ -303,12 +289,12 @@ class CAllFormStatus
 			if ($RIGHT_OK=="Y")
 			{
 				$strSql = "SELECT 'x' FROM b_form_result WHERE STATUS_ID='$ID'";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				if (!$zr = $z->Fetch())
 				{
-					if ($DB->Query("DELETE FROM b_form_status WHERE ID='$ID'", false, $err_mess.__LINE__))
+					if ($DB->Query("DELETE FROM b_form_status WHERE ID='$ID'"))
 					{
-						if ($DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='$ID'", false, $err_mess.__LINE__))
+						if ($DB->Query("DELETE FROM b_form_status_2_group WHERE STATUS_ID='$ID'"))
 							return true;
 					}
 				}
@@ -324,7 +310,6 @@ class CAllFormStatus
 	public static function Copy($ID, $CHECK_RIGHTS="Y", $NEW_FORM_ID=false)
 	{
 		global $DB, $APPLICATION, $strError;
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: Copy<br>Line: ";
 		$ID = intval($ID);
 		$NEW_FORM_ID = intval($NEW_FORM_ID);
 		$rsStatus = CFormStatus::GetByID($ID);
@@ -379,7 +364,7 @@ class CAllFormStatus
 	public static function SetMailTemplate($WEB_FORM_ID, $STATUS_ID, $ADD_NEW_TEMPLATE="Y", $old_SID="", $bReturnFullInfo = false)
 	{
 		global $DB, $MESS, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: SetMailTemplate<br>Line: ";
+
 		$arrReturn = array();
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$q = CForm::GetByID($WEB_FORM_ID);
@@ -487,8 +472,6 @@ class CAllFormStatus
 
 	public static function GetMailTemplateArray($STATUS_ID)
 	{
-		$err_mess = (CAllFormStatus::err_mess())."<br>Function: GetMailTemplateArray<br>Line: ";
-
 		global $DB, $USER, $strError;
 
 		$STATUS_ID = intval($STATUS_ID);
@@ -503,7 +486,7 @@ FROM
 WHERE
 	FM.STATUS_ID='".$STATUS_ID."'
 ";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch()) $arrRes[] = $ar["MAIL_TEMPLATE_ID"];
 
 		return $arrRes;
@@ -511,7 +494,6 @@ WHERE
 
 	public static function GetTemplateList($STATUS_ID)
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetTemplateList<br>Line: ";
 		global $DB, $strError;
 
 		$STATUS_ID = intval($STATUS_ID);
@@ -528,7 +510,7 @@ WHERE
 	F.ID='".$STATUS_ID."'
 ";
 
-			$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch())
 			{
 				$MAIL_EVENT_TYPE = $zr["MAIL_EVENT_TYPE"];

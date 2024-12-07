@@ -9,6 +9,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Integration\AI\User\Author;
+use Bitrix\Socialnetwork\Livefeed\BlogPost;
 
 final class Controller
 {
@@ -84,6 +85,11 @@ final class Controller
 		$textParser = new \CTextParser();
 
 		$post = \CBlogPost::getByID($postId);
+		if (!BlogPost::canRead(['POST' => $post]))
+		{
+			return [];
+		}
+
 		if ($post)
 		{
 			self::setBlogAuthorId((int)$post['AUTHOR_ID']);

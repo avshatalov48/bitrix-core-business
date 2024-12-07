@@ -553,7 +553,7 @@ $oFilter = new CAdminFilter($sTableID."_filter", $arFindFields);
 $oFilter->SetDefaultRows($defaultFilterFields);
 
 ?>
-<script type="text/javascript">
+<script>
 var blockedFilter = false;
 
 function applyFilter(el)

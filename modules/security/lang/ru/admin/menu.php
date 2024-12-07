@@ -35,3 +35,4 @@ $MESS['SEC_MENU_TROJANS'] = 'Поиск троянов';
 $MESS['SEC_MENU_OS'] = 'Операционная система';
 $MESS['SEC_MENU_HTACCESS'] = 'Проверка .htaccess';
 $MESS['SEC_MENU_FILE_SCAN'] = 'Сканирование файлов';
+$MESS['SEC_MENU_WWALL'] = 'Монитор проактивной защиты';

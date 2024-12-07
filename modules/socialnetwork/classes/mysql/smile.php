@@ -16,7 +16,7 @@ class CSocNetSmile extends CAllSocNetSmile
 		$strSql =
 			"INSERT INTO b_sonet_smile(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		$ID = intval($DB->LastID());
 
 		$cnt = count($arFields["LANG"]);
@@ -26,7 +26,7 @@ class CSocNetSmile extends CAllSocNetSmile
 			$strSql =
 				"INSERT INTO b_sonet_smile_lang(SMILE_ID, ".$arInsert[0].") ".
 				"VALUES(".$ID.", ".$arInsert[1].")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		$CACHE_MANAGER->Clean("b_sonet_smile");
 
@@ -44,7 +44,7 @@ class CSocNetSmile extends CAllSocNetSmile
 
 		$strUpdate = $DB->PrepareUpdate("b_sonet_smile", $arFields);
 		$strSql = "UPDATE b_sonet_smile SET ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (is_set($arFields, "LANG"))
 		{
@@ -57,7 +57,7 @@ class CSocNetSmile extends CAllSocNetSmile
 				$strSql =
 					"INSERT INTO b_sonet_smile_lang(SMILE_ID, ".$arInsert[0].") ".
 					"VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		$CACHE_MANAGER->Clean("b_sonet_smile");
@@ -108,7 +108,7 @@ class CSocNetSmile extends CAllSocNetSmile
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -139,7 +139,7 @@ class CSocNetSmile extends CAllSocNetSmile
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -165,7 +165,7 @@ class CSocNetSmile extends CAllSocNetSmile
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

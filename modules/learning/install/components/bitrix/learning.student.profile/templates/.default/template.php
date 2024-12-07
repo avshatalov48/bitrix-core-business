@@ -44,10 +44,10 @@
 </tr>
 	<tr>
 		<td class="field-name"><?=GetMessage("LEARNING_PUBLIC_PROFILE");?>:</td>
-		<td><input type="checkbox" name="PUBLIC_PROFILE" value="Y" <?if ($arResult["STUDENT"]["PUBLIC_PROFILE"]=="Y") echo "checked";?>></td>
+		<td><input type="checkbox" name="PUBLIC_PROFILE" value="Y" <?if (isset($arResult["STUDENT"]["PUBLIC_PROFILE"]) && $arResult["STUDENT"]["PUBLIC_PROFILE"]=="Y") echo "checked";?>></td>
 	</tr>
 
-	<?if ($arResult["STUDENT"]["TRANSCRIPT"] <> ''):?>
+	<?if (!empty($arResult["STUDENT"]["TRANSCRIPT"])):?>
 	<tr>
 		<td class="field-name"><?=GetMessage("LEARNING_TRANSCRIPT");?>:</td>
 		<td><a href="<?=$arResult["TRANSCRIPT_DETAIL_URL"]?>"><?=$arResult["STUDENT"]["TRANSCRIPT"]?>-<?=$arResult["STUDENT"]["USER_ID"]?></a></td>
@@ -55,7 +55,7 @@
 	<?endif?>
 	<tr>
 		<td class="field-name"><?=GetMessage("LEARNING_RESUME");?>:</td>
-		<td><textarea class="typearea" name="RESUME"><?=$arResult["STUDENT"]["RESUME"]?></textarea></td>
+		<td><textarea class="typearea" name="RESUME"><?=($arResult["STUDENT"]["RESUME"] ?? '')?></textarea></td>
 	</tr>
 
 	<tr>
@@ -63,7 +63,7 @@
 		<td>
 		<input name="PERSONAL_PHOTO" size="30" type="file"><br />
 		<label><input name="PERSONAL_PHOTO_del" value="Y" type="checkbox"><?=GetMessage("LEARNING_DELETE_FILE");?></label>
-		
+
 		<?if ($arResult["USER"]["PERSONAL_PHOTO_ARRAY"]!==false):?>
 			<br /><?=CFile::ShowImage($arResult["USER"]["PERSONAL_PHOTO_ARRAY"], 200, 200, "border=0", "", true)?>
 		<?endif?>

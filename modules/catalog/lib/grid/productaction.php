@@ -470,11 +470,6 @@ class ProductAction
 					$sectionId
 				));
 			}
-			$data = $elementResult->getData();
-			if (isset($data['CONVERT_COMPLETE']))
-			{
-				$result->setData(['CONVERT_COMPLETE' => 'Y']);
-			}
 		}
 		unset($sectionId);
 		unset($sectionNames, $sectionIdList, $sectionElements);
@@ -547,11 +542,6 @@ class ProductAction
 		if (!$convertResult->isSuccess())
 		{
 			$result->addErrors($convertResult->getErrors());
-		}
-		$data = $convertResult->getData();
-		if (isset($data['CONVERT_COMPLETE']))
-		{
-			$result->setData(['CONVERT_COMPLETE' => 'Y']);
 		}
 
 		return $result;
@@ -827,8 +817,6 @@ class ProductAction
 				return $result;
 			}
 		}
-
-		$result->setData(['CONVERT_COMPLETE' => 'Y']);
 
 		return $result;
 	}

@@ -3,7 +3,6 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM;
 
 /**
  * Class UserFieldLangTable

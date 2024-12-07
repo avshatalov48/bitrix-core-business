@@ -14,5 +14,5 @@
 	</form>
 <?
 else:
-	echo ShowError($arResult["ERROR_MESSAGE"]);
+	ShowError($arResult["ERROR_MESSAGE"]);
 endif;?>

@@ -1,25 +1,19 @@
-import {Color} from 'im.v2.const';
-
-import {AttachGridItem} from './grid-item';
+import { AttachGridItem } from './grid-item';
 
 import './grid.css';
 
-import type {AttachGridConfig} from 'im.v2.const';
+import type { AttachGridConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachGrid = {
 	name: 'AttachGrid',
-	components: {AttachGridItem},
+	components: { AttachGridItem },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -36,5 +30,5 @@ export const AttachGrid = {
 				:key="index"
 			/>
 		</div>
-	`
+	`,
 };

@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 
@@ -151,9 +151,7 @@ class MainChangePasswdComponent extends MainForgotPasswdComponent
 			$request->get('USER_LOGIN')
 		)
 		{
-			$this->arResult['LAST_LOGIN'] = \CUtil::ConvertToLangCharset(
-				$request->get('USER_LOGIN')
-			);
+			$this->arResult['LAST_LOGIN'] = $request->get('USER_LOGIN');
 		}
 		else if ($request->getPost('USER_LOGIN'))
 		{

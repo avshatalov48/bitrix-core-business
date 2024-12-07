@@ -41,6 +41,8 @@ const aliasSliderUrl = 'mailAliasSlider';
 export class AliasEditor
 {
 	wasSenderUpdated: boolean = false;
+	aliasCounter: number = 0;
+	#senderNameNodes: Map = new Map();
 	constructor(options: Options)
 	{
 		this.senderId = Number(options.senderId);
@@ -98,7 +100,7 @@ export class AliasEditor
 			}
 		};
 		BX.SidePanel.Instance.open(aliasSliderUrl, {
-			width: 680,
+			width: 800,
 			cacheable: false,
 			contentCallback: () => {
 				return Layout.createContent({
@@ -161,7 +163,7 @@ export class AliasEditor
 			},
 		).then((response) => {
 			const data = response.data;
-			const senders = data.senders;
+			const senders = data.senders ?? null;
 			this.id = Number(data.id);
 			this.email = data.email;
 			this.#addSenders(senders);
@@ -309,8 +311,11 @@ export class AliasEditor
 					isOwner: true,
 					type: aliasType,
 					canEdit: true,
+					userUrl: data.userUrl ?? null,
+					avatar: data.avatar ?? null,
 				});
 				Dom.append(senderNode, this.senderList);
+				this.aliasCounter++;
 				hideInputContainer();
 			}).catch(() => {
 				hideInputContainer();
@@ -354,15 +359,15 @@ export class AliasEditor
 		}
 		Dom.append(nameContainer, itemContainer);
 		Dom.append(this.#renderSenderExtraInfoContainer(sender), itemContainer);
+		Dom.append(this.#renderSenderAuthorContainer(sender, itemContainer), itemContainer);
 		Dom.append(this.#renderSenderEditContainer(sender, itemContainer, handleShowEditInput), itemContainer);
 
-		if (
-			(sender.type === senderType && this.id === Number(sender.id))
-			|| (sender.type === mailboxSenderType && this.id === Number(sender.mailboxId))
-		)
+		if (this.#isMainSender(sender))
 		{
 			this.mainSenderNameNode = nameContainer.querySelector('.sender-item-name-text-container');
 		}
+
+		this.#senderNameNodes.set(sender.id, nameTextContainer);
 
 		return itemContainer;
 	}
@@ -463,15 +468,12 @@ export class AliasEditor
 
 	#getExtraInfoText(sender: Sender): string
 	{
-		if (
-			(sender.type === senderType && this.id === Number(sender.id))
-			|| (sender.type === mailboxSenderType && this.id === Number(sender.mailboxId))
-		)
+		if (this.#isMainSender(sender))
 		{
 			return Loc.getMessage('UI_MAIL_ALIAS_EDITOR_CURRENT_SENDER_NAME');
 		}
 
-		if ([senderType, mailboxSenderType].includes(sender.type) && sender.isOwner)
+		if ([senderType, mailboxSenderType].includes(sender.type))
 		{
 			return Loc.getMessage('UI_MAIL_ALIAS_EDITOR_ANOTHER_SENDER_NAME');
 		}
@@ -490,10 +492,8 @@ export class AliasEditor
 			<div class="sender-item-edit-container"></div>
 		`;
 
-		if (!sender.isOwner)
+		if (!sender.canEdit && !sender.isOwner)
 		{
-			Dom.append(this.#renderUserInfoNode(sender.userUrl, sender.avatar), senderEditContainer);
-
 			return senderEditContainer;
 		}
 
@@ -517,6 +517,20 @@ export class AliasEditor
 		Dom.append(this.#renderSettingsButton(sender.type, sender.id, sender.editHref), senderEditContainer);
 
 		return senderEditContainer;
+	}
+
+	#renderSenderAuthorContainer(sender: Sender, senderNode: HTMLElement): HTMLElement
+	{
+		const authorEditContainer = Tag.render`
+			<div class="sender-item-author-container"></div>
+		`;
+
+		if (sender.userUrl)
+		{
+			Dom.append(this.#renderUserInfoNode(sender.userUrl, sender.avatar ?? null), authorEditContainer);
+		}
+
+		return authorEditContainer;
 	}
 
 	#renderUserInfoNode(userUrl: string, avatar: string | null): HTMLElement
@@ -564,6 +578,9 @@ export class AliasEditor
 				{
 					this.setSender();
 				}
+				this.#senderNameNodes.delete(senderId);
+				this.aliasCounter--;
+				this.#checkAliasCounter();
 			}).catch(() => {
 				Dom.removeClass(deleteButton, 'ui-btn-wait');
 			});
@@ -638,8 +655,28 @@ export class AliasEditor
 
 		senders.sort((a, b) => a.id - b.id);
 		senders.forEach((sender: Sender) => {
+			if (!this.id)
+			{
+				if (sender.type === senderType)
+				{
+					this.id = sender.id;
+				}
+
+				if (sender.type === mailboxSenderType)
+				{
+					this.id = sender.mailboxId;
+				}
+			}
 			const senderNode = this.#renderSenderItem(sender);
-			Dom.append(senderNode, this.senderList);
+			if (this.#isMainSender(sender))
+			{
+				Dom.prepend(senderNode, this.senderList);
+			}
+			else
+			{
+				Dom.append(senderNode, this.senderList);
+			}
+			this.aliasCounter++;
 		});
 	}
 
@@ -648,9 +685,9 @@ export class AliasEditor
 		SmtpEditor.openSlider({
 			senderId: Number(senderId),
 			setSenderCallback: (id: number | string, name: string, email: string) => {
-				if (this.mainSenderNameNode)
+				if (this.#senderNameNodes.has(id))
 				{
-					this.mainSenderNameNode.innerText = name;
+					this.#senderNameNodes.get(id).innerText = name;
 				}
 				this.setSender(id, name, email);
 				this.wasSenderUpdated = true;
@@ -699,6 +736,25 @@ export class AliasEditor
 				this.mainSenderNameNode.innerText = name;
 			})
 			.catch(() => {})
+		;
+	}
+
+	#checkAliasCounter(): void
+	{
+		if (this.aliasCounter === 0)
+		{
+			const slider = BX.SidePanel.Instance.getSlider(aliasSliderUrl);
+			if (slider)
+			{
+				slider.close();
+			}
+		}
+	}
+
+	#isMainSender(sender: Sender): boolean
+	{
+		return (sender.type === senderType && this.id === Number(sender.id))
+			|| ((sender.type === mailboxSenderType) && this.id === Number(sender.mailboxId))
 		;
 	}
 }

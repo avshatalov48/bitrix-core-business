@@ -46,7 +46,7 @@ class PersonalProfile extends CBitrixComponent
 			CComponentEngine::initComponentVariables($componentPage, $arComponentVariables, $arVariableAliases, $arVariables);
 
 			foreach ($arUrlTemplates as $url => $value)
-				$this->arResult["PATH_TO_".ToUpper($url)] = $this->arParams["SEF_FOLDER"].$value;
+				$this->arResult["PATH_TO_".mb_strtoupper($url)] = $this->arParams["SEF_FOLDER"].$value;
 
 			if ($componentPage != "detail")
 				$componentPage = "list";

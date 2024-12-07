@@ -235,10 +235,16 @@ $aMenu[] = [
 			'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
 			'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
 			'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
+
 			JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
 			JSToPHP(arWorkflowVariables, 'arWorkflowVariables') + '&' +
 			JSToPHP(arWorkflowConstants, 'arWorkflowConstants') + '&' +
 			JSToPHP(arWorkflowTemplate, 'arWorkflowTemplate');
+
+		if (window.workflowTemplateTrackOn)
+		{
+			data += '&workflowTemplateTrackOn=' + encodeURIComponent(workflowTemplateTrackOn);
+		}
 
 		jsExtLoader.onajaxfinish = BCPSaveTemplateComplete;
 		jsExtLoader.startPost('<?=CUtil::JSEscape($v)?><?if(mb_strpos($v, "?")):?>&<?else:?>?<?endif?><?=bitrix_sessid_get()?>&saveajax=Y' +
@@ -259,6 +265,7 @@ $aMenu[] = [
 				'workflowTemplateAutostart=' + encodeURIComponent(workflowTemplateAutostart) + '&' +
 				'workflowTemplateIsSystem=' + encodeURIComponent(workflowTemplateIsSystem) + '&' +
 				'workflowTemplateSort=' + encodeURIComponent(workflowTemplateSort) + '&' +
+				'workflowTemplateId=' + encodeURIComponent(BPTemplateId || 0) + '&' +
 				'document_type=' + encodeURIComponent(document_type) + '&' +
 				'<?= bitrix_sessid_get() ?>' + '&' +
 				JSToPHP(arWorkflowParameters, 'arWorkflowParameters') + '&' +
@@ -361,6 +368,7 @@ $aMenu[] = [
 		var BPMESS = <?=CUtil::PhpToJSObject($JSMESS)?>;
 		var BPDesignerUseJson = true;
 		var BPTemplateIsModified = false;
+		var BPTemplateId = <?= (int)$arResult['ID'] ?>;
 
 		var CURRENT_SITE_ID = <?=CUtil::PhpToJSObject(SITE_ID)?>;
 
@@ -475,7 +483,7 @@ $aMenu[] = [
 	</script>
 
 	<? if (!$arResult['TEMPLATE_CHECK_STATUS']):
-		echo ShowError(GetMessage('BIZPROC_WFEDIT_CHECK_ERROR_1'));
+		ShowError(GetMessage('BIZPROC_WFEDIT_CHECK_ERROR_1'));
 	endif;
 	?>
 	<form>

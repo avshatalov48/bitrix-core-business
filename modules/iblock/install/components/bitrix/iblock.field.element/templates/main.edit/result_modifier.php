@@ -1,30 +1,40 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arResult */
 
 use Bitrix\Iblock\UserField\Types\ElementType;
-use Bitrix\Main\Web\Json;
 use Bitrix\Main\Page\Asset;
+use Bitrix\Main\Web\Json;
 
 $fieldName = $arResult['fieldName'];
 $value = $arResult['value'];
 
-if (empty($arResult['userField']['SETTINGS']['DISPLAY'])){
+if (empty($arResult['userField']['SETTINGS']['DISPLAY']))
+{
 	$arResult['userField']['SETTINGS']['DISPLAY'] = ElementType::DISPLAY_UI;
 }
 
 $isMultiple = ($arResult['userField']['MULTIPLE'] === 'Y');
 
-if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
+if ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_DIALOG)
 {
-	\CJSCore::Init('ui');
+	\Bitrix\Main\UI\Extension::load('iblock.userfield-selector');
+}
+elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
+{
+	\Bitrix\Main\UI\Extension::load('ui');
 
 	$startValue = [];
 	$itemList = [];
 
-	foreach($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
+	foreach ($arResult['userField']['USER_TYPE']['FIELDS'] as $key => $val)
 	{
-		if($key === '' && $isMultiple)
+		if ($key === '' && $isMultiple)
 		{
 			continue;
 		}
@@ -34,7 +44,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 			'VALUE' => $key,
 		];
 
-		if(in_array($key, $value))
+		if (in_array($key, $value))
 		{
 			$startValue[] = $item;
 		}
@@ -44,7 +54,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 
 	$arResult['params'] = Json::encode([
 		'isMulti' => $isMultiple,
-		'fieldName' => $arResult['userField']['FIELD_NAME']
+		'fieldName' => $arResult['userField']['FIELD_NAME'],
 	]);
 
 	$controlNodeId = $arResult['userField']['FIELD_NAME'] . '_control_';
@@ -52,14 +62,14 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 
 	$spanAttrList = [
 		'id' => $valueContainerId,
-		'style' => 'display: none'
+		'style' => 'display: none',
 	];
 
 	$arResult['spanAttrList'] = $spanAttrList;
 
 	$arResult['attrList'] = [];
 
-	for($i = 0, $n = count($startValue); $i < $n; $i++)
+	for ($i = 0, $n = count($startValue); $i < $n; $i++)
 	{
 		$attrList = [
 			'type' => 'hidden',
@@ -70,9 +80,9 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 		$arResult['attrList'][] = $attrList;
 	}
 
-	if(!$isMultiple)
+	if (!$isMultiple)
 	{
-		$startValue = $startValue[0];
+		$startValue = $startValue[0] ?? [];
 	}
 
 	$items = Json::encode($itemList);
@@ -93,21 +103,20 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 	$arResult['valueContainerIdJs'] = $valueContainerIdJs;
 	$arResult['htmlFieldNameJs'] = $htmlFieldNameJs;
 	$arResult['controlNodeIdJs'] = $controlNodeIdJs;
-
 }
-elseif($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_LIST)
+elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_LIST)
 {
 	$attrList = [
 		'name' => $fieldName,
 		'tabindex' => '0',
 	];
 
-	if($arResult['userField']['SETTINGS']['LIST_HEIGHT'] > 1)
+	if ($arResult['userField']['SETTINGS']['LIST_HEIGHT'] > 1)
 	{
 		$attrList['size'] = (int)$arResult['userField']['SETTINGS']['LIST_HEIGHT'];
 	}
 
-	if($isMultiple)
+	if ($isMultiple)
 	{
 		$attrList['multiple'] = 'multiple';
 	}
@@ -115,12 +124,13 @@ elseif($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_LI
 	$arResult['attrList'] = $attrList;
 }
 
-if($this->getComponent()->isMobileMode())
+if ($this->getComponent()->isMobileMode())
 {
-	Asset::getInstance()->addJs(
+	$asset = Asset::getInstance();
+	$asset->addJs(
 		'/bitrix/js/mobile/userfield/mobile_field.js'
 	);
-	Asset::getInstance()->addJs(
+	$asset->addJs(
 		'/bitrix/components/bitrix/main.field.enum/templates/main.view/mobile.js'
 	);
 }

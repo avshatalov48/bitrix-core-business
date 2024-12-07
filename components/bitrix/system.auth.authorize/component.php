@@ -1,6 +1,8 @@
 <?php
 
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
 /**
  * @global CMain $APPLICATION
  * @global CUser $USER
@@ -10,9 +12,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
  *	NOT_SHOW_LINKS - Whether to show links to register page && password restoration (Y/N)
  */
 
-use \Bitrix\Main\Security;
-use \Bitrix\Main\Controller;
-use \Bitrix\Pull;
+use Bitrix\Main\Security;
+use Bitrix\Main\Controller;
+use Bitrix\Pull;
 
 $arParams["NOT_SHOW_LINKS"] = ($arParams["NOT_SHOW_LINKS"] == "Y" ? "Y" : "N");
 if(!is_array($arParams["~AUTH_RESULT"]) && $arParams["~AUTH_RESULT"] <> '')
@@ -33,10 +35,7 @@ $arParamsToDelete = array(
 	"logout_butt",
 );
 
-if(defined("AUTH_404"))
-	$arResult["AUTH_URL"] = htmlspecialcharsback(POST_FORM_ACTION_URI);
-else
-	$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", $arParamsToDelete);
+$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", $arParamsToDelete);
 
 $custom_reg_page = COption::GetOptionString('main', 'custom_register_page');
 $arResult["AUTH_REGISTER_URL"] = ($custom_reg_page <> ''? $custom_reg_page : $APPLICATION->GetCurPageParam("register=yes", $arParamsToDelete));

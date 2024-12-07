@@ -1,19 +1,20 @@
-<?
+<?php
+
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Sale\DiscountCouponsManager,
-	Bitrix\Currency,
-	Bitrix\Catalog,
-	Bitrix\Catalog\Product\Price,
-	Bitrix\Iblock;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Currency;
+use Bitrix\Catalog;
+use Bitrix\Catalog\Product\Price;
+use Bitrix\Iblock;
 use Bitrix\Sale;
 
 if (!Loader::includeModule('sale'))
+{
 	return false;
-
-Loc::loadMessages(__FILE__);
+}
 
 /**
  * @deprecated deprecated since catalog 17.5.0
@@ -37,19 +38,19 @@ class CCatalogProductProvider implements IBXSaleProductProvider
 
 	protected static $hitCache = array();
 
-	const CATALOG_PROVIDER_EMPTY_STORE_ID = 0;
+	public const CATALOG_PROVIDER_EMPTY_STORE_ID = 0;
 
-	const CACHE_USER_GROUPS = 'USER_GROUPS';
-	const CACHE_ITEM_WITHOUT_RIGHTS = 'IBLOCK_ELEMENT_PERM_N';
-	const CACHE_ITEM_WITH_RIGHTS = 'IBLOCK_ELEMENT_PERM_Y';
-	const CACHE_IBLOCK_RIGHTS_MODE = 'IBLOCK_RIGHTS_MODE';
-	const CACHE_USER_RIGHTS = 'USER_RIGHT';
-	const CACHE_PRODUCT = 'CATALOG_PRODUCT';
-	const CACHE_VAT = 'VAT_INFO';
-	const CACHE_IBLOCK_RIGHTS = 'IBLOCK_RIGHTS';
-	const CACHE_STORE = 'CATALOG_STORE';
-	const CACHE_STORE_PRODUCT = 'CATALOG_STORE_PRODUCT';
-	const CACHE_PARENT_PRODUCT_ACTIVE = 'PARENT_PRODUCT_ACTIVE';
+	public const CACHE_USER_GROUPS = 'USER_GROUPS';
+	public const CACHE_ITEM_WITHOUT_RIGHTS = 'IBLOCK_ELEMENT_PERM_N';
+	public const CACHE_ITEM_WITH_RIGHTS = 'IBLOCK_ELEMENT_PERM_Y';
+	public const CACHE_IBLOCK_RIGHTS_MODE = 'IBLOCK_RIGHTS_MODE';
+	public const CACHE_USER_RIGHTS = 'USER_RIGHT';
+	public const CACHE_PRODUCT = 'CATALOG_PRODUCT';
+	public const CACHE_VAT = 'VAT_INFO';
+	public const CACHE_IBLOCK_RIGHTS = 'IBLOCK_RIGHTS';
+	public const CACHE_STORE = 'CATALOG_STORE';
+	public const CACHE_STORE_PRODUCT = 'CATALOG_STORE_PRODUCT';
+	public const CACHE_PARENT_PRODUCT_ACTIVE = 'PARENT_PRODUCT_ACTIVE';
 
 	/**
 	 * @param array $arParams

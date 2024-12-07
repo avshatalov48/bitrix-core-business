@@ -159,7 +159,6 @@ const UserForm = {
 						</div>
 						<div class="bx-im-component-call-intranet-name-content">
 							<div class="bx-im-component-call-intranet-name-content-left">
-								<div :style="intranetAvatarStyle" class="bx-im-component-call-intranet-name-avatar"></div>
 								<div class="bx-im-component-call-intranet-name-text">{{ user.name }}</div>
 							</div>
 							<template v-if="!isDesktop()">

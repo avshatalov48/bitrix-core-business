@@ -17,9 +17,9 @@ $MESS ['location_admin_import_tab_old'] = "Импорт из файла";
 $MESS ['LOCA_LOADING_WIZARD'] = "Запустить мастер импорта местоположений";
 $MESS ['LOCA_SAVE'] = "Загрузить";
 $MESS ['LOCA_HINT'] = 'Вы можете загрузить файлы местоположений с сайта 1C-Битрикс:<ul style="font-size: 100%">
-	<li><a href="http://www.1c-bitrix.ru/download/files/locations/loc_ussr.csv">Россия и страны СНГ</a></li>
-	<li><a href="http://www.1c-bitrix.ru/download/files/locations/loc_cntr.csv">Страны мира</a></li>
-	<li><a href="http://www.1c-bitrix.ru/download/files/locations/loc_usa.csv">США</a></li>
+	<li><a href="https://www.1c-bitrix.ru/download/files/locations/loc_ussr.csv">Россия и страны СНГ</a></li>
+	<li><a href="https://www.1c-bitrix.ru/download/files/locations/loc_cntr.csv">Страны мира</a></li>
+	<li><a href="https://www.1c-bitrix.ru/download/files/locations/loc_usa.csv">США</a></li>
 </ul>';
 $MESS ['LOCA_LOCATIONS_STATS'] = 'Статистика базы местоположений';
 $MESS ['LOCA_LOCATIONS_COUNTRY_STATS'] = "стран";

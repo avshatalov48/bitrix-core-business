@@ -5,7 +5,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 if (function_exists("FormDecode")) FormDecode();
 
-// создаем изображение
+// СЃРѕР·РґР°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 $ImageHendle = CreateImageHandle(45, 2);
 
 $dec=ReColor(isset($color) ? $color : '00000');
@@ -31,7 +31,7 @@ else
 }
 
 /******************************************************
-                Отображаем изображение
+                РћС‚РѕР±СЂР°Р¶Р°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 *******************************************************/
 
 ShowImageHeader($ImageHendle);

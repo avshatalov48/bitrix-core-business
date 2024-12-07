@@ -229,27 +229,27 @@ class LicensePopupComponent extends CBitrixComponent implements Controllerable, 
 
 	private function replaceKernelErrorMessage($kernelMessage): string
 	{
-		if (strpos($kernelMessage, 'Error verify openssl') !== false)
+		if (str_contains($kernelMessage, 'Error verify openssl'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_VERIFY_SSL_ERROR');
 		}
-		else if (strpos($kernelMessage, 'Not found license info') !== false)
+		else if (str_contains($kernelMessage, 'Not found license info'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_LICENSE_INFO_ERROR');
 		}
-		else if (strpos($kernelMessage, 'Server response is not recognized') !== false)
+		else if (str_contains($kernelMessage, 'Server response is not recognized'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_LICENSE_INFO_ERROR');
 		}
-		else if (strpos($kernelMessage, 'File open fails') !== false)
+		else if (str_contains($kernelMessage, 'File open fails'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_FILE_OPEN_ERROR');
 		}
-		else if (strpos($kernelMessage, 'Folder is not writable') !== false)
+		else if (str_contains($kernelMessage, 'Folder is not writable'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_FOLDER_WRITABLE_ERROR');
 		}
-		else if (strpos($kernelMessage, 'Unknown error') !== false)
+		else if (str_contains($kernelMessage, 'Unknown error'))
 		{
 			return Loc::getMessage('MAIN_COUPON_ACTIVATION_UNKNOWN_ERROR');
 		}

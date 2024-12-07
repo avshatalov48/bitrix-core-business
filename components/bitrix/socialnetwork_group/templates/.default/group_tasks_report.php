@@ -3,6 +3,7 @@
 $pageId = "group_tasks_report";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 ?>
 <?
 if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "tasks"))

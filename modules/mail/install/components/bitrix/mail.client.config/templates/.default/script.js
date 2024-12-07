@@ -1,13 +1,56 @@
 BX.namespace("BX.MailClientConfig");
 BX.MailClientConfig.Edit = {
 
+	isSuccessSyncStatus: null,
+	oauthUserIsEmpty: true,
+	isOauthMode: false,
 	isForbiddenToShare: false,
+	smtp: {
+		switcherChecked: false,
+		switcherDisabled: false,
+	},
+	crm: {
+		integrationAvailable: false,
+		switcherChecked: false,
+	},
+	isCrmIntegrationAvailable: false,
+	isCrmSwitcherChecked: false,
 
 	init: function(params)
 	{
 		if (BX.type.isNotEmptyObject(params))
 		{
 			this.isForbiddenToShare = params.isForbiddenToShare || false;
+			this.smtp.switcherChecked = params.isSmtpSwitcherChecked || false;
+			this.smtp.switcherDisabled = params.isSmtpSwitcherDisabled || false;
+			this.crm.switcherChecked = params.isCrmSwitcherChecked || false;
+			this.crm.integrationAvailable = params.isCrmIntegrationAvailable || false;
+			this.oauthUserIsEmpty = params.oauthUserIsEmpty || false;
+			this.isSuccessSyncStatus = null;
+			this.isOauthMode = params.isOauthMode || false;
+
+			if (params.isSuccessSyncStatus !== undefined)
+			{
+				this.isSuccessSyncStatus = params.isSuccessSyncStatus;
+			}
+		}
+
+		if (this.isSuccessSyncStatus === false)
+		{
+			if (this.isOauthMode)
+			{
+				this.showOauthAuthorizationBlock();
+				this.showOauthErrorTour();
+			}
+			else
+			{
+				this.showPasswordErrorTour();
+			}
+		}
+
+		if (this.isOauthMode && this.oauthUserIsEmpty)
+		{
+			this.showOauthAuthorizationBlock();
 		}
 
 		var selectInputs = BX.findChildrenByClassName(document, 'mail-set-singleselect', true);
@@ -32,6 +75,9 @@ BX.MailClientConfig.Edit = {
 				BX[hide?'removeClass':'addClass'](this, 'mail-set-textarea-show-open');
 			}
 		);
+
+		this.setSmtpSwitcher();
+		this.setCrmSwitcher();
 	},
 
 	singleselect: function(input)
@@ -107,6 +153,166 @@ BX.MailClientConfig.Edit = {
 			);
 
 
-	}
+	},
 
+	setBlockSwitcher(
+		switcherNodeId,
+		oldSwitcherId,
+		sectionBlockId,
+		isSwitcherChecked,
+		isSwitcherDisabled = false,
+	)
+	{
+		const switcherNode = BX(switcherNodeId);
+		const sectionBlockNode = BX(sectionBlockId);
+		if (!switcherNode || !sectionBlockNode)
+		{
+			return;
+		}
+
+		const blockItemsNode = sectionBlockNode.querySelector('.mail-connect-form-items');
+		const blockTitleNode = sectionBlockNode.querySelector('.mail-connect-title-block');
+		if (!blockItemsNode || !blockTitleNode)
+		{
+			return;
+		}
+
+		const hideBlock = () => {
+			BX.Dom.hide(blockItemsNode);
+			BX.Dom.addClass(blockTitleNode, 'mail-connect-title-hidden-block');
+			BX.Dom.removeClass(sectionBlockNode, 'mail-connect-section-block');
+		};
+
+		const showBlock = () => {
+			BX.Dom.show(blockItemsNode);
+			BX.Dom.removeClass(blockTitleNode, 'mail-connect-title-hidden-block');
+			BX.Dom.addClass(sectionBlockNode, 'mail-connect-section-block');
+		};
+
+		const oldSwitcherNode = BX(oldSwitcherId);
+		const switcher = new BX.UI.Switcher({
+			node: switcherNode,
+			checked: isSwitcherChecked,
+			size: 'small',
+			disabled: isSwitcherDisabled ?? false,
+			handlers: {
+				toggled: () => {
+					if (switcher.checked === true)
+					{
+						showBlock();
+					}
+					else
+					{
+						hideBlock();
+					}
+
+					if (oldSwitcherNode)
+					{
+						oldSwitcherNode.click();
+					}
+				},
+			},
+		});
+
+		if (!isSwitcherChecked)
+		{
+			hideBlock();
+		}
+	},
+
+	showOauthErrorTour()
+	{
+		this.oauthErrorTour = new BX.UI.Tour.Guide({
+			id: 'mail-config-oauth-error-tour',
+			simpleMode: true,
+			steps: [
+				{
+					target: '#mail_connect_mb_oauth_btn',
+					title: BX.message('MAIL_CONFIG_OAUTH_ERROR_TOUR_TITLE'),
+					text: BX.message('MAIL_CONFIG_OAUTH_ERROR_TOUR_TEXT'),
+					position: 'bottom',
+					article: '19083990',
+				},
+			],
+		});
+
+		this.oauthErrorTour.start();
+	},
+
+	showPasswordErrorTour()
+	{
+		this.oauthErrorTour = new BX.UI.Tour.Guide({
+			id: 'mail-config-password-error-tour',
+			simpleMode: true,
+			steps: [
+				{
+					target: '#mail_password_form_wrapper',
+					title: BX.message('MAIL_CONFIG_PASSWORD_ERROR_TOUR_TITLE'),
+					text: BX.message('MAIL_CONFIG_PASSWORD_ERROR_TOUR_TEXT'),
+					position: 'bottom',
+					article: '19083990',
+				},
+			],
+		});
+
+		this.oauthErrorTour.start();
+	},
+
+	showOauthAuthorizationBlock()
+	{
+		var form = BX('mail_connect_form');
+		var oauthFieldError = BX('mail-client-config-email-oauth-field-error');
+		var oauthFieldSuccess = BX('mail-client-config-email-oauth-field-success');
+		var emailOauthBlock = BX('mail-email-oauth');
+		var mailConnectOauthField = BX('mail_connect_mb_oauth_field');
+
+		if(emailOauthBlock)
+		{
+			BX.hide(emailOauthBlock);
+			BX.hide(oauthFieldError);
+			BX.hide(oauthFieldSuccess);
+		}
+
+		if (mailConnectOauthField)
+		{
+			mailConnectOauthField.value = 'N';
+		}
+
+		if (!form.elements['fields[mailbox_id]'])
+		{
+			var nameField = BX('mail_connect_mb_name_field');
+			if (!nameField['__filled'])
+			{
+				nameField.value = '';
+			}
+		}
+
+		BX.Dom.style(BX('mail_connect_mb_oauth_status'), 'display', 'none');
+		BX.Dom.style(BX('mail_connect_mb_oauth_btn'), 'display', null);
+	},
+
+	setSmtpSwitcher()
+	{
+		this.setBlockSwitcher(
+			'mail-connect-smtp-settings-title',
+			'mail_connect_mb_server_smtp_switch',
+			'mail-connect-section-smtp-block',
+			this.smtp.switcherChecked,
+			this.smtp.switcherDisabled,
+		);
+	},
+
+	setCrmSwitcher() {
+		if (!this.crm.integrationAvailable)
+		{
+			return;
+		}
+
+		this.setBlockSwitcher(
+			'mail-connect-crm-settings-title',
+			'mail_connect_mb_crm_switch',
+			'mail-connect-section-crm-block',
+			this.crm.switcherChecked,
+		);
+	},
 };

@@ -726,7 +726,7 @@ $tabControl->Buttons($arButtonsParams);
 
 $tabControl->Show();
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	var obValueType = BX('ob_value_type');
 	var obMaxDiscount = BX('tr_MAX_DISCOUNT');

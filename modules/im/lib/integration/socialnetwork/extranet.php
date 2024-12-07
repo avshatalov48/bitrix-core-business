@@ -12,7 +12,7 @@ class Extranet
 		return \Bitrix\Main\Loader::includeModule('extranet') && \Bitrix\Main\Loader::includeModule("socialnetwork");
 	}
 
-	public static function getGroup($params, $userId = null)
+	public static function getGroup($params, $userId = null, bool $filterActiveUser = true)
 	{
 		if (!self::checkModules())
 			return false;
@@ -78,24 +78,30 @@ class Extranet
 
 		$taggedCache->endTagCache();
 
+		$filter = [
+			'@GROUP_ID' => $groupIds,
+			'<=ROLE' => SONET_ROLES_USER,
+			'USER_CONFIRM_CODE' => false
+		];
+
+		if ($filterActiveUser)
+		{
+			$filter['USER_ACTIVE'] = 'Y';
+		}
+
 		$db = \CSocNetUserToGroup::GetList(
-			array(),
-			array(
-				"@GROUP_ID" => $groupIds,
-				"<=ROLE" => SONET_ROLES_USER,
-				"USER_ACTIVE" => "Y",
-				"USER_CONFIRM_CODE" => false
-			),
+			[],
+			$filter,
 			false,
 			false,
-			array("ID", "USER_ID", "GROUP_ID")
+			['ID', 'USER_ID', 'GROUP_ID']
 		);
 		while ($row = $db->GetNext(true, false))
 		{
-			if($row["USER_ID"] == $userId || !isset($groups['SG'.$row['GROUP_ID']]))
+			if($row['USER_ID'] == $userId || !isset($groups['SG'.$row['GROUP_ID']]))
 				continue;
 
-			$groups['SG'.$row['GROUP_ID']]['USERS'][] = $row["USER_ID"];
+			$groups['SG'.$row['GROUP_ID']]['USERS'][] = $row['USER_ID'];
 		}
 
 		$cache->endDataCache($groups);
@@ -103,7 +109,7 @@ class Extranet
 		return $groups;
 	}
 
-	public static function isUserInGroup($userId, $currentUserId = null)
+	public static function isUserInGroup($userId, $currentUserId = null, bool $filterActiveUser = true)
 	{
 		$currentUserId = \Bitrix\Im\Common::getUserId($currentUserId);
 		if ($currentUserId <= 0)
@@ -117,7 +123,7 @@ class Extranet
 		}
 
 		$extranetUsers = [];
-		$groups = self::getGroup([], $currentUserId);
+		$groups = self::getGroup([], $currentUserId, $filterActiveUser);
 		if (is_array($groups))
 		{
 			foreach ($groups as $group)
@@ -163,6 +169,3 @@ class Extranet
 		});
 	}
 }
-
-
-

@@ -234,7 +234,9 @@
 				button.setCollapsed(false);
 				if (button.getIcon() === button.getDataSet()['toolbarCollapsedIcon'])
 				{
-					button.setIcon(null);
+					const icon = BX.Type.isStringFilled(button.options.icon) ? button.options.icon : null;
+
+					button.setIcon(icon);
 				}
 			}
 		},

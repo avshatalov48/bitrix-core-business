@@ -44,7 +44,7 @@ namespace Bitrix\Sale\Cashbox\AdminPage\Settings
 			{
 				foreach ($settings as $group => $block)
 				{
-					$result .= '<tr class="heading"><td colspan="2">'.$block['LABEL'].'</td></tr>';
+					$result .= '<tr class="heading"><td colspan="2">' . ($block['LABEL'] ?? '') .'</td></tr>';
 
 					if ($group === 'VAT')
 					{

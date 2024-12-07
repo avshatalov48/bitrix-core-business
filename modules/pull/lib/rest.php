@@ -79,7 +79,7 @@ class Rest extends \IRestService
 		$params = array_change_key_case($params, CASE_UPPER);
 
 		$type = \CPullChannel::TYPE_PRIVATE;
-		if ($params['APPLICATION'] === 'Y')
+		if (isset($params['APPLICATION']) && $params['APPLICATION'] === 'Y')
 		{
 			$clientId = $server->getClientId();
 			if (!$clientId)
@@ -89,29 +89,31 @@ class Rest extends \IRestService
 			$type = $clientId;
 		}
 
-		$users = Array();
-		if (is_string($params['USERS']))
+		$users = [];
+		if (isset($params['USERS']))
 		{
-			$params['USERS'] = \CUtil::JsObjectToPhp($params['USERS']);
-		}
-		if (is_array($params['USERS']))
-		{
-			foreach ($params['USERS'] as $userId)
+			if (is_string($params['USERS']))
 			{
-				$userId = (int)$userId;
-				if ($userId > 0)
+				$params['USERS'] = \CUtil::JsObjectToPhp($params['USERS']);
+			}
+			if (is_array($params['USERS']))
+			{
+				foreach ($params['USERS'] as $userId)
 				{
-					$users[$userId] = $userId;
+					$userId = (int)$userId;
+					if ($userId > 0)
+					{
+						$users[$userId] = $userId;
+					}
 				}
 			}
 		}
-
 		if (empty($users))
 		{
 			throw new \Bitrix\Rest\RestException("A wrong format for the USERS field is passed", "INVALID_FORMAT", \CRestServer::STATUS_WRONG_REQUEST);
 		}
 
-		$configParams = Array();
+		$configParams = [];
 		$configParams['TYPE'] = $type;
 		$configParams['USERS'] = $users;
 		$configParams['JSON'] = true;

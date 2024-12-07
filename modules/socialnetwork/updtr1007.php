@@ -166,6 +166,6 @@ if (IsModuleInstalled("intranet"))
 	}
 }
 
-$GLOBALS["DB"]->Query("UPDATE b_sonet_log SET LOG_UPDATE = ".$GLOBALS["DB"]->IsNull("(SELECT MAX(LOG_DATE) FROM b_sonet_log_comment LC WHERE LC.LOG_ID=b_sonet_log.TMP_ID)", CDatabase::CurrentTimeFunction()), false, $err_mess.__LINE__);
-$GLOBALS["DB"]->Query("UPDATE b_sonet_log SET LOG_UPDATE = LOG_DATE WHERE NOT EXISTS (SELECT LC.ID FROM b_sonet_log_comment LC WHERE LC.LOG_ID = b_sonet_log.TMP_ID)", false, $err_mess.__LINE__);
+$GLOBALS["DB"]->Query("UPDATE b_sonet_log SET LOG_UPDATE = ".$GLOBALS["DB"]->IsNull("(SELECT MAX(LOG_DATE) FROM b_sonet_log_comment LC WHERE LC.LOG_ID=b_sonet_log.TMP_ID)", CDatabase::CurrentTimeFunction()));
+$GLOBALS["DB"]->Query("UPDATE b_sonet_log SET LOG_UPDATE = LOG_DATE WHERE NOT EXISTS (SELECT LC.ID FROM b_sonet_log_comment LC WHERE LC.LOG_ID = b_sonet_log.TMP_ID)");
 ?>

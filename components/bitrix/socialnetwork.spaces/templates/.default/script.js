@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,main_core_events,main_core) {
@@ -632,6 +633,16 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  babelHelpers.createClass(Overlay, [{
 	    key: "show",
 	    value: function show() {
+	      main_core.Dom.style(babelHelpers.classPrivateFieldGet(this, _overlay), 'display', 'block');
+	    }
+	  }, {
+	    key: "hide",
+	    value: function hide() {
+	      main_core.Dom.style(babelHelpers.classPrivateFieldGet(this, _overlay), 'display', 'none');
+	    }
+	  }, {
+	    key: "append",
+	    value: function append() {
 	      main_core.Dom.append(babelHelpers.classPrivateFieldGet(this, _overlay), document.body);
 	    }
 	  }, {
@@ -708,6 +719,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	var _disk = /*#__PURE__*/new WeakMap();
 	var _overlays = /*#__PURE__*/new WeakMap();
 	var _popupIds = /*#__PURE__*/new WeakMap();
+	var _showOverlays = /*#__PURE__*/new WeakSet();
+	var _hideOverlays = /*#__PURE__*/new WeakSet();
+	var _removeOverlays = /*#__PURE__*/new WeakSet();
 	var _blockScroll = /*#__PURE__*/new WeakSet();
 	var _unblockScroll = /*#__PURE__*/new WeakSet();
 	var _initServices = /*#__PURE__*/new WeakSet();
@@ -727,6 +741,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    _classPrivateMethodInitSpec$5(this, _initServices);
 	    _classPrivateMethodInitSpec$5(this, _unblockScroll);
 	    _classPrivateMethodInitSpec$5(this, _blockScroll);
+	    _classPrivateMethodInitSpec$5(this, _removeOverlays);
+	    _classPrivateMethodInitSpec$5(this, _hideOverlays);
+	    _classPrivateMethodInitSpec$5(this, _showOverlays);
 	    _classPrivateFieldInitSpec$5(this, _cache, {
 	      writable: true,
 	      value: new main_core.Cache.MemoryCache()
@@ -815,7 +832,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        containerWithoutOverlay: babelHelpers.classPrivateFieldGet(this, _frame).getFrameNode()
 	      });
 	      babelHelpers.classPrivateFieldGet(this, _overlays).set(popupId, topOverlay);
-	      topOverlay.show();
+	      topOverlay.append();
 	    }
 	  }, {
 	    key: "hideOverlay",
@@ -825,16 +842,24 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 	      _classPrivateMethodGet$5(this, _unblockScroll, _unblockScroll2).call(this, popupId);
 	    }
-	  }, {
-	    key: "hideOverlays",
-	    value: function hideOverlays() {
-	      babelHelpers.classPrivateFieldGet(this, _overlays).forEach(function (overlay) {
-	        return overlay.remove();
-	      });
-	    }
 	  }]);
 	  return Space;
 	}();
+	function _showOverlays2() {
+	  babelHelpers.classPrivateFieldGet(this, _overlays).forEach(function (overlay) {
+	    return overlay.show();
+	  });
+	}
+	function _hideOverlays2() {
+	  babelHelpers.classPrivateFieldGet(this, _overlays).forEach(function (overlay) {
+	    return overlay.hide();
+	  });
+	}
+	function _removeOverlays2() {
+	  babelHelpers.classPrivateFieldGet(this, _overlays).forEach(function (overlay) {
+	    return overlay.remove();
+	  });
+	}
 	function _blockScroll2(popupId) {
 	  babelHelpers.classPrivateFieldGet(this, _popupIds).add(popupId);
 	  main_core.Dom.addClass(babelHelpers.classPrivateFieldGet(this, _frame).getWindow().document.querySelector('.sn-spaces__wrapper'), '--scroll-disabled');
@@ -869,7 +894,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    }
 	  });
 	  babelHelpers.classPrivateFieldGet(this, _frame).subscribe('unload', function () {
-	    _this2.hideOverlays();
+	    _classPrivateMethodGet$5(_this2, _removeOverlays, _removeOverlays2).call(_this2);
+	  });
+	  main_core_events.EventEmitter.subscribe('SidePanel.Slider:onOpen', function () {
+	    _classPrivateMethodGet$5(_this2, _hideOverlays, _hideOverlays2).call(_this2);
+	  });
+	  main_core_events.EventEmitter.subscribe('SidePanel.Slider:onClose', function () {
+	    _classPrivateMethodGet$5(_this2, _showOverlays, _showOverlays2).call(_this2);
 	  });
 	  new MutationObserver(function () {
 	    var theme = BX.Intranet.Bitrix24.ThemePicker.Singleton.getAppliedThemeId();

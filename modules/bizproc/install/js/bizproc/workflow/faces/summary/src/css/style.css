@@ -1,0 +1,74 @@
+.bp-workflow-faces-summary-item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	min-width: 68px;
+	z-index: 1;
+	min-height: 76px;
+}
+
+.bp-workflow-faces-summary-name {
+	max-width: 75px;
+	margin-bottom: 8px;
+}
+
+.bp-workflow-faces-summary__text-area {
+	color: var(--ui-color-base-50);
+	font-size: var(--ui-font-size-3xs);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.bp-workflow-faces-summary__summary {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	height: 32px;
+}
+
+.bp-workflow-faces-summary__summary-name {
+	font-size: var(--ui-font-size-4xs);
+	color: var(--ui-color-text-primary);
+	line-height: 1;
+}
+
+.bp-workflow-faces-summary__summary-value {
+	font-size: var(--ui-font-size-4xl);
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--ui-color-text-primary);
+	line-height: 1;
+	margin-bottom: 2px;
+}
+
+.bp-workflow-faces-summary__icon-wrapper {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 32px;
+	height: 32px;
+	box-sizing: border-box;
+}
+
+.bp-workflow-faces-summary__icon.ui-icon-set {
+	--ui-icon-set__icon-size: 27px;
+	--ui-icon-set__icon-color: var(--ui-color-base-15);
+}
+
+.bp-workflow-faces-summary__duration {
+	margin-top: 5px;
+	max-width: 75px;
+}
+
+.bp-workflow-faces-summary__duration .bp-workflow-faces-summary__text-area {
+	color: var(--ui-color-link-primary-base);
+	cursor: pointer;
+}
+
+.bp-workflow-faces-summary__duration .bp-workflow-faces-summary__text-area:hover {
+	text-decoration: underline;
+}

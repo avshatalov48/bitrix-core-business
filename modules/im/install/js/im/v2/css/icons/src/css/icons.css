@@ -24,7 +24,6 @@
 	opacity: 0.7;
 }
 
-
 .bx-im-messenger__search-icon {
 	border: none;
 	width: 14px;
@@ -32,7 +31,15 @@
 	background: url('./images/search.svg') no-repeat center;
 	background-size: cover;
 }
+
 .bx-im-messenger__search-icon.--size-large {
 	width: 43px;
 	height: 43px;
+}
+
+.bx-im-messenger__lock-icon {
+	width: 18px;
+	height: 18px;
+	background: url('./images/lock.svg') no-repeat center;
+	flex-shrink: 0;
 }

@@ -4,6 +4,8 @@ import { Core } from 'im.v2.application.core';
 import { Logger } from 'im.v2.lib.logger';
 import { ChatType, ChatActionType, ChatActionGroup, UserRole } from 'im.v2.const';
 
+import { MinimalRoleForAction } from './const/action-config';
+
 import type { ImModelChat } from 'im.v2.model';
 
 type ChatTypeItem = $Keys<typeof ChatType>;
@@ -18,9 +20,19 @@ type RawPermissions = {
 	actionGroupsDefaults: {},
 };
 
+type PermissionsByRole = {
+	[operation: ActionTypeItem]: RoleItem,
+};
+
 type PermissionsByChatType = {
-	[chatType: ChatTypeItem]: {
+	[chatType: ChatTypeItem | 'default']: {
 		[operation: ActionTypeItem]: RoleItem,
+	}
+};
+
+type PermissionsGroupDefaults = {
+	[chatType: ChatTypeItem]: {
+		[group: ActionGroupItem]: RoleItem,
 	}
 };
 
@@ -30,9 +42,10 @@ export class PermissionManager
 {
 	static #instance: PermissionManager;
 
-	#chatTypePermissions: PermissionsByChatType;
-	#actionGroups: Object<ActionGroupItem, ActionGroup>;
-	#actionGroupsDefaultRoles: Object<ActionGroupItem, RoleItem>;
+	#rolePermissions: PermissionsByRole = {};
+	#chatTypePermissions: PermissionsByChatType = {};
+	#actionGroups: Object<ActionGroupItem, ActionGroup> = {};
+	#actionGroupsDefaultRoles: PermissionsGroupDefaults = {};
 
 	static getInstance(): PermissionManager
 	{
@@ -58,21 +71,45 @@ export class PermissionManager
 
 	canPerformAction(actionType: ActionTypeItem, dialogId: string): boolean
 	{
-		return this.#canPerformActionByChatType(actionType, dialogId)
+		return this.#canPerformActionByRole(actionType, dialogId)
+			&& this.#canPerformActionByChatType(actionType, dialogId)
 			&& this.#canPerformActionByChatSettings(actionType, dialogId);
 	}
 
-	getDefaultRolesForActionGroups(): Object<ActionGroupItem, RoleItem>
+	getDefaultRolesForActionGroups(chatType?: ChatTypeItem): Object<ActionGroupItem, RoleItem>
 	{
-		return this.#actionGroupsDefaultRoles;
+		if (!this.#actionGroupsDefaultRoles[chatType])
+		{
+			return this.#actionGroupsDefaultRoles[DEFAULT_TYPE];
+		}
+
+		return this.#actionGroupsDefaultRoles[chatType];
 	}
 
 	#init(rawPermissions: RawPermissions)
 	{
+		this.#rolePermissions = MinimalRoleForAction;
+		if (!rawPermissions)
+		{
+			return;
+		}
 		const { byChatType, actionGroups, actionGroupsDefaults } = rawPermissions;
 		this.#chatTypePermissions = this.#prepareChatTypePermissions(byChatType);
 		this.#actionGroups = actionGroups;
 		this.#actionGroupsDefaultRoles = actionGroupsDefaults;
+	}
+
+	#canPerformActionByRole(actionType, dialogId): boolean
+	{
+		const { role: userRole }: ImModelChat = this.#getDialog(dialogId);
+		if (Type.isUndefined(this.#rolePermissions[actionType]))
+		{
+			return true;
+		}
+
+		const minimalRole = this.#rolePermissions[actionType];
+
+		return this.#checkMinimalRole(minimalRole, userRole);
 	}
 
 	#canPerformActionByChatType(rawActionType: ActionTypeItem, dialogId: string): boolean
@@ -99,7 +136,7 @@ export class PermissionManager
 			actionType = ChatActionType.leaveOwner;
 		}
 
-		if (Type.isUndefined(this.#chatTypePermissions[chatType][actionType]))
+		if (Type.isUndefined(this.#chatTypePermissions[chatType]?.[actionType]))
 		{
 			return true;
 		}
@@ -115,11 +152,6 @@ export class PermissionManager
 		if (chatType === ChatType.user)
 		{
 			return true;
-		}
-
-		if (actionType === ChatActionType.send)
-		{
-			return this.#checkMinimalRole(chatPermissions.canPost, userRole);
 		}
 
 		const actionGroup = this.#getGroupByAction(actionType);
@@ -157,16 +189,8 @@ export class PermissionManager
 	{
 		const preparedPermissions = { ...permissionsByChatType };
 
-		preparedPermissions[ChatType.user] = {
-			[ChatActionType.avatar]: UserRole.none,
-			[ChatActionType.call]: UserRole.member,
-			[ChatActionType.extend]: UserRole.member,
-			[ChatActionType.leave]: UserRole.none,
-			[ChatActionType.leaveOwner]: UserRole.none,
-			[ChatActionType.mute]: UserRole.none,
-			[ChatActionType.rename]: UserRole.none,
-			[ChatActionType.send]: UserRole.member,
-		};
+		const SERVER_USER_CHAT_TYPE = 'private';
+		preparedPermissions[ChatType.user] = preparedPermissions[SERVER_USER_CHAT_TYPE];
 
 		return preparedPermissions;
 	}

@@ -11,5 +11,5 @@ use Bitrix\Sale\Payment;
  */
 interface IFiscalizationAware
 {
-	public function isFiscalizationEnabled(Payment $payment): ?bool;
+	public function isFiscalizationEnabled(Payment $payment): bool;
 }

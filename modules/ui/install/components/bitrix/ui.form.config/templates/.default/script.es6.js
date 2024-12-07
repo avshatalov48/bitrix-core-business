@@ -1,5 +1,5 @@
-import {Loc, Reflection, Tag, Dom, Text} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Dom, Runtime, Reflection, Tag, Text, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 const namespace = Reflection.namespace('BX.Ui.Form');
 
@@ -42,7 +42,7 @@ class ConfigItem extends EventEmitter
 		this.#scopeId = (options['scopeId'] || null);
 		this.#members = (options['members'] || null);
 		this.#node = BX(`ui-editor-config-${this.#scopeId}`);
-		this.#selectedItems = null;
+		this.#selectedItems = {};
 		this.drawingIconsLimit = (options['drawingIconsLimit'] || 10);
 		this.#moduleId = (options['moduleId'] || null);
 		this.config = (options['config'] || null);
@@ -133,7 +133,7 @@ class ConfigItem extends EventEmitter
 
 		BX.onCustomEvent(this.#reinitDialogEvent, [{
 			selectorId: this.config.popupContainer,
-			selectedItems: this.#getSelectedItems()
+			selectedItems: Runtime.clone(this.#getSelectedItems())
 		}]);
 	}
 
@@ -146,7 +146,7 @@ class ConfigItem extends EventEmitter
 
 	#getSelectedItems(): Array
 	{
-		if (this.#members && !this.#selectedItems)
+		if (this.#members && !Type.isArrayFilled(Object.keys(this.#selectedItems)))
 		{
 			let items = {};
 			for (let member in this.#members)
@@ -189,11 +189,17 @@ class ConfigItem extends EventEmitter
 
 	onAddToAccessCodes(event: Object): void
 	{
+		if (event.data.state === 'select')
+		{
+			const itemId = event.data.item.id;
+			this.#selectedItems[itemId] = event.data.entityType;
+		}
+
 		BX.ajax.runComponentAction('bitrix:ui.form.config', 'updateScopeAccessCodes', {
 			'data': {
 				moduleId: this.#moduleId,
 				scopeId: this.#scopeId,
-				accessCodes: this.#getSelectedItems()
+				accessCodes: this.#selectedItems
 			}
 		}).then(result => {
 			this.#adjust(result.data);
@@ -227,9 +233,10 @@ class ConfigItem extends EventEmitter
 
 	onRemoveFromAccessCodes(event: Object): void
 	{
+		const itemId = event.data.item.id;
+		delete this.#selectedItems[itemId]
 		this.onAddToAccessCodes(event);
 	}
-
 }
 
 namespace.Config = Config;

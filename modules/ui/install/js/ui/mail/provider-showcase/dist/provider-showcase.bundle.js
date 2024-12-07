@@ -228,6 +228,7 @@ this.BX.UI = this.BX.UI || {};
 	  this.providers.forEach(provider => {
 	    var _babelHelpers$classPr;
 	    const key = babelHelpers.classPrivateFieldLooseBase(this, _getProviderKey)[_getProviderKey](provider.name);
+	    const name = provider.name;
 	    const {
 	      root,
 	      title
@@ -240,7 +241,7 @@ this.BX.UI = this.BX.UI || {};
 						<span class="mail-provider-item-title">${0}</span>
 					</div>
 				</a>
-			`), babelHelpers.classPrivateFieldLooseBase(this, _getProviderImgSrcClass)[_getProviderImgSrcClass](key), main_core.Text.encode((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getProviderName)[_getProviderName](key)) != null ? _babelHelpers$classPr : name.charAt(0).toUpperCase()));
+			`), babelHelpers.classPrivateFieldLooseBase(this, _getProviderImgSrcClass)[_getProviderImgSrcClass](key), main_core.Text.encode((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getProviderName)[_getProviderName](key)) != null ? _babelHelpers$classPr : name[0].toUpperCase() + name.slice(1)));
 	    if (provider.name === imapServiceName) {
 	      const imapSubtitle = main_core.Tag.render(_t5 || (_t5 = _`
 					<span class="mail-provider-item-subtitle">${0}</span>
@@ -259,11 +260,16 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    } else {
 	      main_core.Event.bind(root, 'click', () => {
+	        if (this.activeFeaturePromoter) {
+	          this.activeFeaturePromoter.close();
+	          this.activeFeaturePromoter = null;
+	        }
 	        const featureRegistry = BX.Intranet ? BX.UI.FeaturePromotersRegistry : top.BX.UI.FeaturePromotersRegistry;
-	        featureRegistry.getPromoter({
+	        this.activeFeaturePromoter = featureRegistry.getPromoter({
 	          code: this.options.mailboxLimitSliderCode,
 	          bindElement: title
-	        }).show();
+	        });
+	        this.activeFeaturePromoter.show();
 	      });
 	    }
 	    main_core.Dom.append(root, this.showcaseNode);
@@ -305,7 +311,7 @@ this.BX.UI = this.BX.UI || {};
 						<span class="mail-provider-item-title">${0}</span>
 					</div>
 				</a>
-			`), babelHelpers.classPrivateFieldLooseBase(this, _getProviderImgSrcClass)[_getProviderImgSrcClass](name), main_core.Text.encode((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _getProviderName)[_getProviderName](name)) != null ? _babelHelpers$classPr2 : name.charAt(0).toUpperCase()));
+			`), babelHelpers.classPrivateFieldLooseBase(this, _getProviderImgSrcClass)[_getProviderImgSrcClass](name), main_core.Text.encode((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _getProviderName)[_getProviderName](name)) != null ? _babelHelpers$classPr2 : name[0].toUpperCase() + name.slice(1)));
 	    main_core.Dom.append(item, providerList);
 	  });
 	  main_core.Dom.append(this.promotionShowcaseNode, this.container);

@@ -8,6 +8,7 @@
 
 namespace Bitrix\Im;
 
+use Bitrix\ImBot\Bot\Giphy;
 use Bitrix\Main,
 	Bitrix\Main\Localization\Loc,
 	Bitrix\Main\DB\Exception;
@@ -694,7 +695,25 @@ class App
 			$cache->endDataCache($result);
 		}
 
-		return $result;
+		return self::filterList($result);
+	}
+
+	protected static function filterList(array $list): array
+	{
+		if (!Main\Loader::includeModule('imbot') || !Giphy::getBotId() || Giphy::isAvailable())
+		{
+			return $list;
+		}
+
+		foreach ($list as $appId => $app)
+		{
+			if ((int)$app['BOT_ID'] === Giphy::getBotId())
+			{
+				$list[$appId]['HIDDEN'] = 'Y';
+			}
+		}
+
+		return $list;
 	}
 
 	public static function getListForJs($lang = LANGUAGE_ID)

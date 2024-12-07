@@ -34,7 +34,7 @@ export const ActiveCall = {
 		},
 		isTabWithActiveCall()
 		{
-			return this.getCallController().hasActiveCall();
+			return false;
 		},
 		avatarStyle()
 		{
@@ -60,25 +60,12 @@ export const ActiveCall = {
 	{
 		onJoinClick(event)
 		{
-			if (this.joinMenu)
-			{
-				this.joinMenu.destroy();
-			}
-			this.joinMenu = this.getJoinMenu(event);
-			this.joinMenu.show();
 		},
 		onHangupClick()
 		{
-			this.getCallController().leaveCurrentCall();
 		},
 		onClick(event)
 		{
-			if (this.item.state === RecentCallStatus.joined)
-			{
-				this.getCallController().unfold();
-				return;
-			}
-
 			const item = this.$store.getters['recent/get'](this.item.dialogId);
 			if (!item)
 			{
@@ -95,35 +82,6 @@ export const ActiveCall = {
 			}
 			this.$emit('contextmenu', {item, $event: event});
 		},
-		getJoinMenu(event)
-		{
-			return MenuManager.create({
-				id: 'im-recent-active-call-join-menu',
-				bindElement: event.target,
-				darkMode: this.isDarkTheme,
-				cacheable: false,
-				items: [
-					{
-						text: Loc.getMessage('IM_RECENT_ACTIVE_CALL_JOIN_VIDEO'),
-						onclick: function() {
-							this.getCallController().joinCall(this.item.call.id, true);
-							this.joinMenu.close();
-						}.bind(this)
-					},
-					{
-						text: Loc.getMessage('IM_RECENT_ACTIVE_CALL_JOIN_AUDIO'),
-						onclick: function() {
-							this.getCallController().joinCall(this.item.call.id, false);
-							this.joinMenu.close();
-						}.bind(this)
-					}
-				]
-			});
-		},
-		getCallController()
-		{
-			return BX.MessengerProxy.getCallController();
-		}
 	},
 	template: `
 		<div :data-id="item.dialogId" class="bx-im-recent-item-wrap">

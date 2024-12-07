@@ -148,11 +148,11 @@ class Money extends TypeBase
 
 	/**
 	 * @param $userField
-	 * @param $control
+	 * @param $additionalParameters
 	 * @return string
 	 * @deprecated
 	 */
-	public static function getEditFormHtmlMulty($userField, $control)
+	public static function getEditFormHtmlMulty($userField, $additionalParameters)
 	{
 		return MoneyType::renderEditForm($userField, $additionalParameters);
 	}

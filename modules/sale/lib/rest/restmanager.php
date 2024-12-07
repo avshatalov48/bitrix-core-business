@@ -1,16 +1,16 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest;
 
-
+use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Rest\RestException;
+use Bitrix\Sale\EventActions;
 use Bitrix\Sale\Internals\Entity;
 use Bitrix\Sale\Rest\Synchronization\LoggerDiag;
 use Bitrix\Sale\Rest\Synchronization\Manager;
 use Bitrix\Sale\Rest\Synchronization\Synchronizer;
+use Bitrix\Rest\Sqs;
 
 class RestManager
 {
@@ -31,117 +31,116 @@ class RestManager
 
 		return [
 			'sale' => [
-				\CRestUtil::EVENTS=>[
-					'OnSaleOrderSaved'=>[
+				\CRestUtil::EVENTS => [
+					'OnSaleOrderSaved' => [
 						'sale',
 						'OnSaleOrderSaved',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnSaleBeforeOrderDelete'=>[
+					'OnSaleBeforeOrderDelete' => [
 						'sale',
 						'OnSaleBeforeOrderDelete',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-
-					'OnPropertyValueEntitySaved'=>[
+					'OnPropertyValueEntitySaved' => [
 						'sale',
 						'OnSalePropertyValueEntitySaved',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnPaymentEntitySaved'=>[
+					'OnPaymentEntitySaved' => [
 						'sale',
 						'OnSalePaymentEntitySaved',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnShipmentEntitySaved'=>[
+					'OnShipmentEntitySaved' => [
 						'sale',
 						'OnSaleShipmentEntitySaved',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnOrderEntitySaved'=>[
+					'OnOrderEntitySaved' => [
 						'sale',
 						'OnSaleOrderEntitySaved',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnPropertyValueDeleted'=>[
+					'OnPropertyValueDeleted' => [
 						'sale',
 						'OnSalePropertyValueDeleted',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnPaymentDeleted'=>[
+					'OnPaymentDeleted' => [
 						'sale',
 						'OnSalePaymentDeleted',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnShipmentDeleted'=>[
+					'OnShipmentDeleted' => [
 						'sale',
 						'OnSaleShipmentDeleted',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
-					'OnOrderDeleted'=>[
+					'OnOrderDeleted' => [
 						'sale',
-						'OnSaleOrderEntitySaved',
+						'OnSaleOrderDeleted',
 						[
 							RestManager::class,
-							'processEvent'
+							'processEvent',
 						],
 						[
-							'category' => \Bitrix\Rest\Sqs::CATEGORY_CRM
-						]
+							'category' => Sqs::CATEGORY_CRM,
+						],
 					],
 				]
 			]
@@ -150,88 +149,100 @@ class RestManager
 
 	public static function processEvent(array $params, array $handlerFields)
 	{
+		/** @var Event $event */
 		$event = $params[0];
+		$eventParameters = $event->getParameters();
+		/** @var Entity|null $entity */
+		$entity = $eventParameters['ENTITY'] ?? null;
 		$eventName = $handlerFields['EVENT_NAME'];
 		$eventHandler = $handlerFields['EVENT_HANDLER'];
 
 		$instance = Manager::getInstance();
+		$action = $instance->getAction();
 
-		LoggerDiag::addMessage('processEvent', var_export([
-			'processEvent [process-01]'=> [
-				'eventName'=>$eventName,
-				'action'=>$instance->getAction()
-			]
-		], true));
+		LoggerDiag::addMessage(
+			'processEvent',
+			var_export(
+				[
+					'processEvent [process-01]' => [
+						'eventName' => $eventName,
+						'action' => $action,
+					],
+				],
+				true
+			)
+		);
 
 		switch(mb_strtolower($eventName))
 		{
 			case 'onsaleordersaved':
-
-				/** @var Entity $entity */
-				$entity = $event->getParameters()['ENTITY'];
-
-				// если сохрянется через импорт, то глушим исходящие событие
-				// если локальное удаление, то тоже глушим событие т.к. событие onsaleordersaved все равно отработате при удалении
-				// проверка на deleted нужна только после вызова события onsalebeforeorderdeleterest
-				// если сохрянется локально, то глушим исходящие событие только при повторном срабатывании события сохраннения
-				if($instance->getAction() == Manager::ACTION_IMPORT || $instance->getAction() == Manager::ACTION_DELETED)
+				if (in_array($action, [Manager::ACTION_IMPORT, Manager::ACTION_DELETED], true))
 				{
-					// импорт или удаление
 					throw new RestException("Event stopped");
 				}
-				elseif($instance->isExecutedHandler($eventHandler))
+				elseif ($instance->isExecutedHandler($eventHandler))
 				{
-					//локальное срабатывание события
 					throw new RestException("Event stopped");
 				}
 
-
-				if($entity->getId() <= 0)
+				if ($entity->getId() <= 0)
 				{
 					throw new RestException("Could not find entity ID in fields of event \"{$eventName}\"");
 				}
 
-				//сообщаем внешней системе, что именно мы будем выполнять при синхронизации сохранение|удаление
-				$parameters = ['FIELDS' => ['ID' => $entity->getId(), 'XML_ID' => $entity->getField('XML_ID'), 'ACTION' => Synchronizer::MODE_SAVE]];
-
-				LoggerDiag::addMessage(mb_strtolower($eventName), var_export([
-					'processEvent [process-02]' => [
-						'parameters' => $parameters
+				$parameters = [
+					'FIELDS' => [
+						'ID' => $entity->getId(),
+						'XML_ID' => $entity->getField('XML_ID'),
+						'ACTION' => Synchronizer::MODE_SAVE,
 					]
-				], true));
+				];
 
-				// блокируем повторное исполнение обработчика, если изменения заказа порадит поледующие пересохранение заказа, например заупустятся робот
+				LoggerDiag::addMessage(
+					mb_strtolower($eventName),
+					var_export(
+						[
+							'processEvent [process-02]' => [
+								'parameters' => $parameters,
+							],
+						],
+						true
+					)
+				);
+
 				$instance->pushHandlerExecuted($eventHandler);
 
 				return $parameters;
-				break;
+
 			case 'onsalebeforeorderdelete':
-
-				/** @var Entity $entity */
-				$entity = $event->getParameters()['ENTITY'];
-
-				// если удаление через импорт, то глушим исходящие событие
-				// если локальное удаление, то отправляем исходящие сообщение во внешнюю сиситему с указанием действия
-				// если локальное удаление и событие удаления вызывают другие сущности (onpropertyvaluedeleted)
-				if($instance->getAction() == Manager::ACTION_IMPORT || $instance->getAction() == Manager::ACTION_DELETED)
+				if (in_array($action, [Manager::ACTION_IMPORT, Manager::ACTION_DELETED], true))
 				{
 					throw new RestException("Event stopped");
 				}
 
-				//TODO: chack - устанавливаем action в deleted тем самым блокируя следующие событие onsaleordersavedrest.
 				$instance->setAction(Manager::ACTION_DELETED);
 
-				//сообщаем внешней системе, что именно мы будем выполнять при синхронизации сохранение|удаление
-				$parameters = ['FIELDS' => ['ID' => $entity->getId(), 'XML_ID' => $entity->getField('XML_ID'), 'ACTION' => Synchronizer::MODE_DELETE]];
-
-				LoggerDiag::addMessage(mb_strtolower($eventName), var_export([
-					'processEvent [process-03]' => [
-						'parameters' => $parameters
+				$parameters = [
+					'FIELDS' => [
+						'ID' => $entity->getId(),
+						'XML_ID' => $entity->getField('XML_ID'),
+						'ACTION' => Synchronizer::MODE_DELETE,
 					]
-				], true));
+				];
+
+				LoggerDiag::addMessage(
+					mb_strtolower($eventName),
+					var_export(
+						[
+							'processEvent [process-03]' => [
+								'parameters' => $parameters,
+							],
+						],
+						true
+					)
+				);
 
 				return $parameters;
-				break;
 
 			case 'onpropertyvalueentitysaved':
 			case 'onpaymententitysaved':
@@ -241,29 +252,32 @@ class RestManager
 			case 'onpaymentdeleted':
 			case 'onshipmentdeleted':
 			case 'onorderdeleted':
-
-				/** @var Entity $entity */
-				$entity = $event->getParameters()['ENTITY'];
 				$entityId = 0;
-				if($entity !== null)
+				if ($entity !== null)
 				{
 					$entityId = $entity->getId();
 				}
-				elseif(isset($event->getParameters()['VALUES']))
+				elseif (isset($event->getParameters()['VALUES']))
 				{
 					$entityId = $event->getParameters()['VALUES']['ID'];
 				}
 
 				$parameters = ['FIELDS' => ['ID' => $entityId]];
 
-				LoggerDiag::addMessage(mb_strtolower($eventName), var_export([
-					'processEvent [process-04]' => [
-						'parameters' => $parameters
-					]
-				], true));
+				LoggerDiag::addMessage(
+					mb_strtolower($eventName),
+					var_export(
+						[
+							'processEvent [process-04]' => [
+								'parameters' => $parameters,
+							],
+						],
+						true
+					)
+				);
 
 				return $parameters;
-				break;
+
 			default:
 				throw new RestException("The Event \"{$eventName}\" is not supported in current context");
 		}

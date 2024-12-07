@@ -146,6 +146,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      withNewLine = false,
 	      replace = false
 	    } = config;
+	    const newSelectionPosition = textarea.selectionStart + text.length + 1;
 	    let resultText = '';
 	    if (replace) {
 	      resultText = '';
@@ -156,8 +157,42 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (textarea.value.length === 0) {
 	      resultText = text;
 	    } else {
-	      resultText = withNewLine ? `${textarea.value}${NEW_LINE}${text}` : `${textarea.value} ${text}`;
+	      const textBefore = textarea.value.slice(0, textarea.selectionStart);
+	      const textAfter = textarea.value.slice(textarea.selectionEnd);
+	      resultText = withNewLine ? `${textarea.value}${NEW_LINE}${text}` : `${textBefore} ${text} ${textAfter}`;
 	    }
+	    textarea.focus({
+	      preventScroll: true
+	    });
+	    textarea.value = resultText;
+	    textarea.selectionStart = newSelectionPosition;
+	    textarea.selectionEnd = newSelectionPosition;
+	    return resultText;
+	  },
+	  insertMention(textarea, config = {}) {
+	    const {
+	      textToInsert,
+	      textToReplace = ''
+	    } = config;
+	    const isMentionWithSymbol = textToReplace.length > 0;
+	    let resultText = '';
+	    let newSelectionPosition = textarea.selectionStart + textToInsert.length + 1;
+	    if (isMentionWithSymbol) {
+	      newSelectionPosition -= textToReplace.length;
+	      const textBefore = textarea.value.slice(0, textarea.selectionStart - textToReplace.length);
+	      const textAfter = textarea.value.slice(textarea.selectionStart);
+	      resultText = `${textBefore}${textToInsert} ${textAfter}`;
+	    } else {
+	      const textBefore = textarea.value.slice(0, textarea.selectionStart);
+	      const textAfter = textarea.value.slice(textarea.selectionEnd);
+	      resultText = `${textBefore}${textToInsert} ${textAfter}`;
+	    }
+	    textarea.focus({
+	      preventScroll: true
+	    });
+	    textarea.value = resultText;
+	    textarea.selectionStart = newSelectionPosition;
+	    textarea.selectionEnd = newSelectionPosition;
 	    return resultText;
 	  }
 	};

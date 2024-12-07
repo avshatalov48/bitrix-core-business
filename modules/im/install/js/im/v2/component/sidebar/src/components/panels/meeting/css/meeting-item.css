@@ -7,6 +7,8 @@
 	--im-sidebar-meeting-item__color_date-text: #828b95;
 	--im-sidebar-meeting-item__background_active-meeting-icon: url('./images/calendar-active-meeting.svg') no-repeat center;
 	--im-sidebar-meeting-item__background_inactive-meeting-icon: url('./images/calendar-inactive-meeting.svg') no-repeat center;
+	--im-sidebar-meeting-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-sidebar-meeting-item__background-color_highlight: #faf16d;
 }
 
 .bx-im-sidebar-meeting-item__container {
@@ -74,6 +76,11 @@
 	text-overflow: ellipsis;
 	white-space: nowrap;
 	overflow: hidden;
+}
+
+.bx-im-sidebar-meeting-item__title .--highlight {
+	color: var(--im-sidebar-meeting-item__color_highlight);
+	background-color: var(--im-sidebar-meeting-item__background-color_highlight);
 }
 
 .bx-im-sidebar-meeting-item__container:hover .bx-im-sidebar-meeting-item__title {

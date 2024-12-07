@@ -108,4 +108,16 @@
 	.landing-layout-flex .landing-main {
 		width: calc(100% - 300px);
 	}
+
+	/*
+	for mainpage templates in preview.bitrix24.site/
+	 */
+	.landing-layout-flex.landing-layout-flex-mainpage .landing-sidebar,
+	.landing-layout-breakpoint--tablet .landing-layout-flex .landing-sidebar {
+		width: 262px !important;
+	}
+	.landing-layout-flex.landing-layout-flex-mainpage .landing-main,
+	.landing-layout-breakpoint--tablet .landing-layout-flex .landing-main {
+		width: calc(100% - 262px) !important;
+	}
 }

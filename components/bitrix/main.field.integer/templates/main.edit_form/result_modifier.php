@@ -1,6 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Text\HtmlFilter;
 
@@ -8,28 +11,27 @@ use Bitrix\Main\Text\HtmlFilter;
  * @var array $arResult
  */
 
-use Bitrix\Main\UserField\Types\IntegerType;
-
 $arResult['additionalParameters']['VALIGN'] = (
 $arResult['userField']['MULTIPLE'] === 'Y' ? 'top' : 'middle'
 );
 
 foreach($arResult['value'] as $key => $value)
 {
+	$entityValueId = (int)($arResult['userField']['ENTITY_VALUE_ID'] ?? 0);
+
 	if(
-		$arResult['userField']['ENTITY_VALUE_ID'] < 1
-		&&
-		mb_strlen($arResult['userField']['SETTINGS']['DEFAULT_VALUE'])
+		$entityValueId < 1
+		&& (string)$arResult['userField']['SETTINGS']['DEFAULT_VALUE'] != ''
 	)
 	{
 		$value = HtmlFilter::encode(
-			$arResult['additionalParameters']['SETTINGS']['DEFAULT_VALUE']
+			$arResult['userField']['SETTINGS']['DEFAULT_VALUE']
 		);
 	}
 
 	$attrList = [
 		'type' => 'text',
-		'size' => $arResult['additionalParameters']['SETTINGS']['SIZE'],
+		'size' => $arResult['userField']['SETTINGS']['SIZE'] ?? 0,
 		'value' => $value,
 		'name' => str_replace('[]', '[' . $key . ']', $arResult['fieldName'])
 	];

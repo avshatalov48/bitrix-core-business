@@ -17,16 +17,19 @@ if ($RIGHT < 'R')
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
 
+/** @var \Bitrix\Main\HTTPRequest $request */
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/img.php';
 
-$width = intval($_GET['width']);
+$width = intval($request->get('width'));
 $max_width = COption::GetOptionInt('perfmon', 'max_graph_width');
 if ($width <= 0 || $width > $max_width)
 {
 	$width = $max_width;
 }
 
-$height = intval($_GET['height']);
+$height = intval($request->get('height'));
 $max_height = COption::GetOptionInt('perfmon', 'max_graph_height');
 if ($height <= 0 || $height > $max_height)
 {
@@ -36,10 +39,10 @@ if ($height <= 0 || $height > $max_height)
 // Image init
 $ImageHandle = CreateImageHandle($width, $height);
 
-$arrX    = []; // X axis points
-$arrY    = []; // Y axis points
-$arExec  = [];
-$arResp  = [];
+$arrX = []; // X axis points
+$arrY = []; // Y axis points
+$arExec = [];
+$arResp = [];
 $arPages = [];
 
 /******************************************************
@@ -69,7 +72,7 @@ while ($ar = $rsData->Fetch())
 
 if (count($arrX) > 1)
 {
-	$arrayX = GetArrayY($arrX, $MinX, $MaxX, 10, 'N', true);  // X axis grid points
+	$arrayX = GetArrayY($arrX, $MinX, $MaxX, 10, 'N', true); // X axis grid points
 	$arrayY = GetArrayY($arrY, $MinY, $MaxY, 10, 'Y', $_REQUEST['find_data_type'] == 'PAGE_EXEC_TIME' ? false : true); // Y axis grid points
 	DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle);
 	if ($_REQUEST['find_data_type'] == 'PAGE_EXEC_TIME')

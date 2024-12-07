@@ -933,10 +933,18 @@
 		pr.then(
 			function (json)
 			{
+				top.BX.onCustomEvent('MailClient:syncWasSuccessful', [{
+					mailboxId: self.mailbox.ID
+				}]);
+
 				BXMailMailbox.syncProgress(stepper, gridId, json.data);
 			},
 			function (json)
 			{
+				top.BX.onCustomEvent('MailClient:syncFailedWithErrors', [{
+					mailboxId: self.mailbox.ID
+				}]);
+
 				if(!json.errors.indexOf('Network error'))
 				{
 					BXMailMailbox.syncProgress(

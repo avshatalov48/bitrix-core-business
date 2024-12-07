@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Application;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
@@ -10,11 +11,11 @@ use Bitrix\Main\UserField\Types\DateTimeType;
 IncludeModuleLangFile(__FILE__);
 
 /**
- * Данный класс фактически является интерфейсной прослойкой между значениями
- * пользовательских свойств и сущностью к которой они привязаны.
- * @package usertype
- * @subpackage classes
- */
+* This class essentially serves as an interface layer between the values
+* of user properties and the entity to which they are attached.
+* @package usertype
+* @subpackage classes
+*/
 class CUserTypeManager
 {
 	const BASE_TYPE_INT = "int";
@@ -23,15 +24,11 @@ class CUserTypeManager
 	const BASE_TYPE_DOUBLE = "double";
 	const BASE_TYPE_DATETIME = "datetime";
 	const BASE_TYPE_STRING = "string";
-	/**
-	 * Хранит все типы пользовательских свойств.
-	 *
-	 * <p>Инициализируется при первом вызове метода GetUserType.</p>
-	 * @var array
-	 */
-	public $arUserTypes = false;
-	public $arFieldsCache = [];
-	public $arRightsCache = [];
+
+	/** @var array */
+	protected $arUserTypes = false;
+	protected $arFieldsCache = [];
+	protected $arRightsCache = [];
 	/**
 	 * @var null|array Stores relations of usertype ENTITY_ID to ORM entities. Aggregated by event main:onUserTypeEntityOrmMap.
 	 * @see CUserTypeManager::getEntityList()
@@ -45,16 +42,16 @@ class CUserTypeManager
 	}
 
 	/**
-	 * Функция возвращает метаданные типа.
-	 *
-	 * <p>Если это первый вызов функции, то выполняется системное событие OnUserTypeBuildList (main).
-	 * Зарегистрированные обработчики должны вернуть даные описания типа. В данном случае действует правило -
-	 * кто последний тот и папа. (на случай если один тип зарегились обрабатывать "несколько" классов)</p>
-	 * <p>Без параметров функция возвращает полный список типов.<p>
-	 * <p>При заданном user_type_id - возвращает массив если такой тип зарегистрирован и false если нет.<p>
-	 * @param string|bool $user_type_id необязательный. Идентификатор типа свойства.
-	 * @return array|boolean
-	 */
+	* Function to return type metadata.
+	*
+	* <p>If this is the first call to the function, the system event OnUserTypeBuildList (main) is executed.
+	* Registered handlers must return the type description data. In this case, the rule applies -
+	* the last one is the boss. (in case one type is registered to be handled by "several" classes)</p>
+	* <p>Without parameters, the function returns a complete list of types.<p>
+	* <p>When a user_type_id is specified, it returns an array if such a type is registered and false if not.<p>
+	* @param string|bool $user_type_id Optional. Property type identifier.
+	* @return array|boolean
+	*/
 	public function GetUserType($user_type_id = false)
 	{
 		if (!is_array($this->arUserTypes))
@@ -115,7 +112,7 @@ class CUserTypeManager
 
 	public function PrepareSettings($ID, $arUserField, $bCheckUserType = true)
 	{
-		$user_type_id = $arUserField["USER_TYPE_ID"];
+		$user_type_id = $arUserField['USER_TYPE_ID'] ?? null;
 		if ($ID > 0)
 		{
 			$rsUserType = CUserTypeEntity::GetList([], ["ID" => $ID]);
@@ -145,17 +142,18 @@ class CUserTypeManager
 			}
 		}
 
-		if ($arType = $this->GetUserType($user_type_id))
+		$userType = $this->GetUserType($user_type_id);
+
+		if ($userType && is_callable([$userType['CLASS_NAME'], 'preparesettings']))
 		{
-			if (is_callable([$arType["CLASS_NAME"], "preparesettings"]))
-			{
-				return call_user_func_array([$arType["CLASS_NAME"], "preparesettings"], [$arUserField]);
-			}
+			return call_user_func_array([$userType['CLASS_NAME'], 'preparesettings'], [$arUserField]);
 		}
-		else
+
+		if (!$userType)
 		{
 			return [];
 		}
+
 		return null;
 	}
 
@@ -184,54 +182,19 @@ class CUserTypeManager
 	}
 
 	/**
-	 * Функция возвращает метаданные полей определеных для сущности.
-	 *
-	 * <p>Важно! В $arUserField добалено поле ENTITY_VALUE_ID - это идентификатор экземпляра сущности
-	 * позволяющий отделить новые записи от старых и соответсвенно использовать значения по умолчанию.</p>
-	 */
+	* Function to return metadata of fields defined for an entity.
+	*
+	* <p>Important! The $arUserField includes the field ENTITY_VALUE_ID - this is the identifier of the entity instance
+	* that allows distinguishing new records from old ones and accordingly using default values.</p>
+	*/
 	public function GetUserFields($entity_id, $value_id = 0, $LANG = false, $user_id = false, $selectFields = null)
 	{
-		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
-		$value_id = intval($value_id);
-		$cacheId = $entity_id . "." . $LANG . '.' . (int)$user_id;
-
 		global $DB;
 
-		$result = [];
-		if (!array_key_exists($cacheId, $this->arFieldsCache))
-		{
-			$arFilter = ["ENTITY_ID" => $entity_id];
-			if ($LANG)
-			{
-				$arFilter["LANG"] = $LANG;
-			}
-			$rs = CUserTypeEntity::GetList([], $arFilter);
-			while ($arUserField = $rs->Fetch())
-			{
-				if ($arType = $this->GetUserType($arUserField["USER_TYPE_ID"]))
-				{
-					if ($user_id !== 0 && is_callable([$arType["CLASS_NAME"], "checkpermission"]))
-					{
-						if (!call_user_func_array([$arType["CLASS_NAME"], "checkpermission"], [$arUserField, $user_id]))
-						{
-							continue;
-						}
-					}
-					$arUserField["USER_TYPE"] = $arType;
-					$arUserField["VALUE"] = false;
-					if (!is_array($arUserField["SETTINGS"]) || empty($arUserField["SETTINGS"]))
-					{
-						$arUserField["SETTINGS"] = $this->PrepareSettings(0, $arUserField);
-					}
-					$result[$arUserField["FIELD_NAME"]] = $arUserField;
-				}
-			}
-			$this->arFieldsCache[$cacheId] = $result;
-		}
-		else
-		{
-			$result = $this->arFieldsCache[$cacheId];
-		}
+		$entity_id = static::normalizeId($entity_id);
+		$value_id = intval($value_id);
+
+		$result = $this->getEntities($entity_id, $LANG, $user_id);
 
 		if (!empty($result) && $value_id > 0)
 		{
@@ -275,15 +238,18 @@ class CUserTypeManager
 
 			if (!empty($select))
 			{
-				$rs = $DB->Query("SELECT " . implode(', ', $select) . " FROM b_uts_" . mb_strtolower($entity_id) . " WHERE VALUE_ID = " . $value_id);
+				$rs = $DB->Query("SELECT " . implode(', ', $select) . " FROM b_uts_" . strtolower($entity_id) . " WHERE VALUE_ID = " . $value_id);
 
 				if ($ar = $rs->Fetch())
 				{
 					foreach ($ar as $key => $value)
 					{
+						$result[$key]["VALUE_EXISTS"] = true;
+						$result[$key]["VALUE_RAW"] = $value;
+
 						if ($result[$key]["MULTIPLE"] == "Y")
 						{
-							if (mb_substr($value, 0, 1) !== 'a' && $value > 0)
+							if (!str_starts_with($value, 'a') && $value > 0)
 							{
 								$value = $this->LoadMultipleValues($result[$key], $value);
 							}
@@ -324,47 +290,9 @@ class CUserTypeManager
 			return $this->GetUserFields($entity_id, null, $LANG, $user_id);
 		}
 
-		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
-		$cacheId = $entity_id . "." . $LANG . '.' . (int)$user_id;
+		$entity_id = static::normalizeId($entity_id);
 
-		//global $DB;
-
-		$result = [];
-		if (!array_key_exists($cacheId, $this->arFieldsCache))
-		{
-			$arFilter = ["ENTITY_ID" => $entity_id];
-			if ($LANG)
-			{
-				$arFilter["LANG"] = $LANG;
-			}
-
-			$rs = call_user_func_array(['CUserTypeEntity', 'GetList'], [[], $arFilter]);
-			while ($arUserField = $rs->Fetch())
-			{
-				if ($arType = $this->GetUserType($arUserField["USER_TYPE_ID"]))
-				{
-					if ($user_id !== 0 && is_callable([$arType["CLASS_NAME"], "checkpermission"]))
-					{
-						if (!call_user_func_array([$arType["CLASS_NAME"], "checkpermission"], [$arUserField, $user_id]))
-						{
-							continue;
-						}
-					}
-					$arUserField["USER_TYPE"] = $arType;
-					$arUserField["VALUE"] = false;
-					if (!is_array($arUserField["SETTINGS"]) || empty($arUserField["SETTINGS"]))
-					{
-						$arUserField["SETTINGS"] = $this->PrepareSettings(0, $arUserField);
-					}
-					$result[$arUserField["FIELD_NAME"]] = $arUserField;
-				}
-			}
-			$this->arFieldsCache[$cacheId] = $result;
-		}
-		else
-		{
-			$result = $this->arFieldsCache[$cacheId];
-		}
+		$result = $this->getEntities($entity_id, $LANG, $user_id);
 
 		foreach ($readyData as $key => $value)
 		{
@@ -376,7 +304,7 @@ class CUserTypeManager
 				}
 
 				$result[$key]["VALUE"] = $this->OnAfterFetch($result[$key], $value);
-				$result[$key]["ENTITY_VALUE_ID"] = $readyData[$primaryIdName];
+				$result[$key]["ENTITY_VALUE_ID"] = $readyData[$primaryIdName] ?? null;
 			}
 		}
 
@@ -386,10 +314,11 @@ class CUserTypeManager
 	public function GetUserFieldValue($entity_id, $field_id, $value_id, $LANG = false)
 	{
 		global $DB;
-		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
-		$field_id = preg_replace("/[^0-9A-Z_]+/", "", $field_id);
+
+		$entity_id = static::normalizeId($entity_id);
+		$field_id = static::normalizeId($field_id);
 		$value_id = intval($value_id);
-		$strTableName = "b_uts_" . mb_strtolower($entity_id);
+		$strTableName = "b_uts_" . strtolower($entity_id);
 		$result = false;
 
 		$arFilter = [
@@ -466,7 +395,7 @@ class CUserTypeManager
 					$result = $eventResult->getParameters(); // [ENTITY_ID => 'SomeTable']
 					foreach ($result as $entityId => $entityClass)
 					{
-						if (mb_substr($entityClass, 0, 1) !== '\\')
+						if (!str_starts_with($entityClass, '\\'))
 						{
 							$entityClass = '\\' . $entityClass;
 						}
@@ -531,7 +460,7 @@ class CUserTypeManager
 
 		$rs = $DB->Query("
 			SELECT *
-			FROM b_utm_" . mb_strtolower($arUserField["ENTITY_ID"]) . "
+			FROM b_utm_" . strtolower($arUserField["ENTITY_ID"]) . "
 			WHERE VALUE_ID = " . intval($valueId) . "
 			AND FIELD_ID = " . $arUserField["ID"] . "
 		");
@@ -539,7 +468,7 @@ class CUserTypeManager
 		{
 			if ($arUserField["USER_TYPE"]["USER_TYPE_ID"] == "date")
 			{
-				$result[] = mb_substr($ar["VALUE_DATE"], 0, 10);
+				$result[] = substr($ar["VALUE_DATE"], 0, 10);
 			}
 			else
 			{
@@ -566,8 +495,10 @@ class CUserTypeManager
 
 	public function EditFormTab($entity_id)
 	{
+		$entity_id = static::normalizeId($entity_id);
+
 		return [
-			"DIV" => "user_fields_tab",
+			"DIV" => "user_fields_tab_" . $entity_id,
 			"TAB" => GetMessage("USER_TYPE_EDIT_TAB"),
 			"ICON" => "none",
 			"TITLE" => GetMessage("USER_TYPE_EDIT_TAB_TITLE"),
@@ -803,8 +734,8 @@ class CUserTypeManager
 				$arUserField['USER_TYPE']['BASE_TYPE'] == 'datetime'
 			)
 			{
-				$value1 = $GLOBALS['find_' . $fieldName . '_from'];
-				$value2 = $GLOBALS['find_' . $fieldName . '_to'];
+				$value1 = $GLOBALS['find_' . $fieldName . '_from'] ?? null;
+				$value2 = $GLOBALS['find_' . $fieldName . '_to'] ?? null;
 				if ($this->IsNotEmpty($value1) && \Bitrix\Main\Type\Date::isCorrect($value1))
 				{
 					$date = new \Bitrix\Main\Type\Date($value1);
@@ -877,22 +808,18 @@ class CUserTypeManager
 			}
 			elseif ($arUserField['SHOW_FILTER'] != 'N' && $arUserField['USER_TYPE']['BASE_TYPE'] == 'int')
 			{
-				switch ($arUserField['USER_TYPE_ID'])
+				if ($arUserField['USER_TYPE_ID'] == 'boolean')
 				{
-					case 'boolean':
-						if (isset($filterData[$fieldName]) && $filterData[$fieldName] === 'Y')
-						{
-							$filterData[$fieldName] = 1;
-						}
-						if (isset($filterData[$fieldName]) && $filterData[$fieldName] === 'N')
-						{
-							$filterData[$fieldName] = 0;
-						}
-						$value = $filterData[$fieldName] ?? null;
-						break;
-					default:
-						$value = $filterData[$fieldName] ?? null;
+					if (isset($filterData[$fieldName]) && $filterData[$fieldName] === 'Y')
+					{
+						$filterData[$fieldName] = 1;
+					}
+					if (isset($filterData[$fieldName]) && $filterData[$fieldName] === 'N')
+					{
+						$filterData[$fieldName] = 0;
+					}
 				}
+				$value = $filterData[$fieldName] ?? null;
 			}
 			else
 			{
@@ -950,7 +877,7 @@ class CUserTypeManager
 		}
 	}
 
-	public function AddUserFields($entity_id, $arRes, &$row)
+	public function AddUserFields($entity_id, $arRes, $row)
 	{
 		$arUserFields = $this->GetUserFields($entity_id);
 		foreach ($arUserFields as $FIELD_NAME => $arUserField)
@@ -1150,9 +1077,15 @@ class CUserTypeManager
 					return '<tr' . ($rowClass != '' ? ' class="' . $rowClass . '"' : '') . '><td class="adm-detail-valign-top">' . $strLabelHTML . '</td><td>' .
 						'<table id="table_' . $arUserField["FIELD_NAME"] . '">' . $html . '<tr><td>' . $fieldHtml . '</td></tr>' .
 						'<tr><td style="padding-top: 6px;"><input type="button" value="' . GetMessage("USER_TYPE_PROP_ADD") . '" onClick="addNewRow(\'table_' . $arUserField["FIELD_NAME"] . '\', \'' . $FIELD_NAME_X . '|' . $arUserField["FIELD_NAME"] . '|' . $arUserField["FIELD_NAME"] . '_old_id\')"></td></tr>' .
-						"<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0," . (mb_strlen($arUserField['FIELD_NAME']) + 1) . ")=='" . CUtil::JSEscape($arUserField['FIELD_NAME']) . "['){" .
-						'addNewRow(\'table_' . $arUserField["FIELD_NAME"] . '\', \'' . $FIELD_NAME_X . '|' . $arUserField["FIELD_NAME"] . '|' . $arUserField["FIELD_NAME"] . '_old_id\')' .
-						"}}})</script>" .
+						"<script>BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {
+							for (let i in data)
+							{
+								if (i.substring(0," . (mb_strlen($arUserField['FIELD_NAME']) + 1) . ")=='" . CUtil::JSEscape($arUserField['FIELD_NAME']) . "[')
+								{
+									addNewRow('table_" . $arUserField["FIELD_NAME"] . "', '" . $FIELD_NAME_X . '|' . $arUserField["FIELD_NAME"] . '|' . $arUserField["FIELD_NAME"] . "_old_id');
+								}
+							}
+						})</script>" .
 						'</table>' .
 						'</td></tr>' . $js;
 				}
@@ -1167,19 +1100,22 @@ class CUserTypeManager
 		{
 			if (is_callable([$arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml"]))
 			{
+				$useFieldComponent = ($arUserField['USER_TYPE']['USE_FIELD_COMPONENT'] ?? false) === true;
 				$html = call_user_func_array(
 						[$arUserField["USER_TYPE"]["CLASS_NAME"], "getfilterhtml"],
 						[
 							$arUserField,
 							[
-								"NAME" => $filter_name,
-								"VALUE" => htmlspecialcharsex($filter_value),
+								'NAME' => $filter_name,
+								'VALUE' => ($useFieldComponent ? $filter_value : htmlspecialcharsEx($filter_value)),
 							],
 						]
 					) . CAdminCalendar::ShowScript();
+
 				return '<tr><td>' . htmlspecialcharsbx($arUserField["LIST_FILTER_LABEL"] ?: $arUserField["FIELD_NAME"]) . ':</td><td>' . $html . '</td></tr>';
 			}
 		}
+
 		return '';
 	}
 
@@ -1703,10 +1639,10 @@ class CUserTypeManager
 	}
 
 	/**
-	 * @param       $entity_id
-	 * @param       $ID
-	 * @param       $arFields
-	 * @param bool $user_id False means current user id.
+	 * @param string $entity_id
+	 * @param int | null $ID
+	 * @param array $arFields
+	 * @param bool | int $user_id False means current user id.
 	 * @param bool $checkRequired Whether to check required fields.
 	 * @param array|null $requiredFields Conditionally required fields.
 	 * @param array|null $filteredFields Filtered fields.
@@ -1715,17 +1651,39 @@ class CUserTypeManager
 	public function CheckFields($entity_id, $ID, $arFields, $user_id = false, $checkRequired = true, array $requiredFields = null, array $filteredFields = null)
 	{
 		global $APPLICATION;
-		$requiredFieldMap = is_array($requiredFields) ? array_fill_keys($requiredFields, true) : null;
+
+		$requiredFieldMap = ($requiredFields !== null ? array_fill_keys($requiredFields, true) : null);
 		$aMsg = [];
+
 		//1 Get user typed fields list for entity
-		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID);
-		//2 Filter user typed fields
-		if (isset($filteredFields))
+		$selectFields = null;
+		if ($ID === null || $ID > 0 || !$checkRequired)
 		{
-			$arUserFields = array_filter($arUserFields, static function ($fieldName) use ($filteredFields) {
-				return in_array($fieldName, $filteredFields);
-			}, ARRAY_FILTER_USE_KEY);
+			// need to select all fields only for a new record and check required
+			$selectFields = array_keys($arFields);
+			if ($requiredFields !== null)
+			{
+				$selectFields = $selectFields + $requiredFields;
+			}
+			if ($filteredFields !== null)
+			{
+				$selectFields = array_diff($selectFields, $filteredFields);
+			}
 		}
+		$arUserFields = $this->GetUserFields($entity_id, $ID, LANGUAGE_ID, false, $selectFields);
+
+		//2 Filter user typed fields
+		if ($filteredFields !== null && $selectFields === null)
+		{
+			$arUserFields = array_filter(
+				$arUserFields,
+				static function ($fieldName) use ($filteredFields) {
+					return in_array($fieldName, $filteredFields);
+				},
+				ARRAY_FILTER_USE_KEY
+			);
+		}
+
 		//3 For each field
 		foreach ($arUserFields as $FIELD_NAME => $arUserField)
 		{
@@ -1734,10 +1692,11 @@ class CUserTypeManager
 
 			//common Check for all fields
 			$isSingleValue = ($arUserField["MULTIPLE"] === "N");
+
 			if (
 				$enableRequiredFieldCheck
 				&& (
-					(isset($ID) && $ID <= 0)
+					($ID !== null && $ID <= 0)
 					|| array_key_exists($FIELD_NAME, $arFields)
 				)
 			)
@@ -1934,6 +1893,7 @@ class CUserTypeManager
 				}
 			}
 		}
+
 		//3 Return succsess/fail flag
 		if (!empty($aMsg))
 		{
@@ -2149,18 +2109,16 @@ class CUserTypeManager
 
 	public function Update($entity_id, $ID, $arFields, $user_id = false)
 	{
-		global $DB;
+		$entity_id = static::normalizeId($entity_id);
+		$ID = (int)$ID;
 
-		$entity_id = preg_replace("/[^0-9A-Z_]+/", "", $entity_id);
-
-		$result = $this->updateUserFieldValuesByEvent($entity_id, (int)$ID, $arFields);
+		$result = $this->updateUserFieldValuesByEvent($entity_id, $ID, $arFields);
 		if ($result !== null)
 		{
 			return $result;
 		}
 
 		$arUpdate = [];
-		$arBinds = [];
 		$arInsert = [];
 		$arInsertType = [];
 		$arDelete = [];
@@ -2172,6 +2130,7 @@ class CUserTypeManager
 			if (array_key_exists($FIELD_NAME, $arFields))
 			{
 				$arUserField['VALUE_ID'] = $ID;
+
 				if ($arUserField["MULTIPLE"] == "N")
 				{
 					if (is_callable([$arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave"]))
@@ -2179,13 +2138,17 @@ class CUserTypeManager
 						$arFields[$FIELD_NAME] = call_user_func_array([$arUserField["USER_TYPE"]["CLASS_NAME"], "onbeforesave"], [$arUserField, $arFields[$FIELD_NAME], $user_id]);
 					}
 
-					if ((string)$arFields[$FIELD_NAME] !== '')
+					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $arFields[$FIELD_NAME] != $arUserField['VALUE_RAW']);
+					if ($modified)
 					{
-						$arUpdate[$FIELD_NAME] = $arFields[$FIELD_NAME];
-					}
-					else
-					{
-						$arUpdate[$FIELD_NAME] = false;
+						if ((string)$arFields[$FIELD_NAME] !== '')
+						{
+							$arUpdate[$FIELD_NAME] = $arFields[$FIELD_NAME];
+						}
+						elseif (!empty($arUserField['VALUE_EXISTS']))
+						{
+							$arUpdate[$FIELD_NAME] = null;
+						}
 					}
 				}
 				elseif (is_array($arFields[$FIELD_NAME]))
@@ -2245,58 +2208,48 @@ class CUserTypeManager
 						$serialized = serialize($arInsert[$arUserField["ID"]]);
 					}
 
-					$arBinds[$FIELD_NAME] = $arUpdate[$FIELD_NAME] = $serialized;
+					$modified = (!array_key_exists('VALUE_RAW', $arUserField) || $serialized != $arUserField['VALUE_RAW']);
+					if ($modified)
+					{
+						$arUpdate[$FIELD_NAME] = $serialized;
 
-					$arDelete[$arUserField["ID"]] = true;
+						if (!empty($arUserField['VALUE_EXISTS']))
+						{
+							$arDelete[$arUserField["ID"]] = true;
+						}
+					}
+					else
+					{
+						$arInsert[$arUserField["ID"]] = [];
+					}
 				}
 			}
 		}
 
-		$lower_entity_id = mb_strtolower($entity_id);
+		$lower_entity_id = strtolower($entity_id);
+
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
 
 		if (!empty($arUpdate))
 		{
-			$strUpdate = $DB->PrepareUpdate("b_uts_" . $lower_entity_id, $arUpdate);
+			$insertFields = $arUpdate;
+			$insertFields['VALUE_ID'] = $ID;
+			$strUpdate = $helper->prepareMerge("b_uts_" . $lower_entity_id, ['VALUE_ID'], $insertFields, $arUpdate)[0];
 		}
 		else
 		{
-			return false;
+			// nothing to insert/update
+			return true;
 		}
 
-		$DB->StartTransaction();
+		$connection->startTransaction();
 
-		$result = false;
-		if ($strUpdate <> '')
-		{
-			$result = true;
-			$rs = $DB->QueryBind("UPDATE b_uts_" . $lower_entity_id . " SET " . $strUpdate . " WHERE VALUE_ID = " . intval($ID), $arBinds);
-			$rows = $rs->AffectedRowsCount();
-		}
-		else
-		{
-			$rows = 0;
-		}
+		$connection->query($strUpdate);
 
-		if (intval($rows) <= 0)
+		foreach ($arDelete as $key => $value)
 		{
-			$rs = $DB->Query("SELECT 'x' FROM b_uts_" . $lower_entity_id . " WHERE VALUE_ID = " . intval($ID));
-			if ($rs->Fetch())
-			{
-				$rows = 1;
-			}
-		}
-
-		if ($rows <= 0)
-		{
-			$arUpdate["ID"] = $arUpdate["VALUE_ID"] = $ID;
-			$DB->Add("b_uts_" . $lower_entity_id, $arUpdate, array_keys($arBinds));
-		}
-		else
-		{
-			foreach ($arDelete as $key => $value)
-			{
-				$DB->Query("DELETE from b_utm_" . $lower_entity_id . " WHERE FIELD_ID = " . intval($key) . " AND VALUE_ID = " . intval($ID));
-			}
+			$connection->query("DELETE from b_utm_" . $lower_entity_id . " WHERE FIELD_ID = " . intval($key) . " AND VALUE_ID = " . $ID);
 		}
 
 		foreach ($arInsert as $FieldId => $arField)
@@ -2337,16 +2290,16 @@ class CUserTypeManager
 						$value = DateTimeType::charToDate($arUserFields[$userFieldName], $value);
 						break;
 					default:
-						$value = "'" . $DB->ForSql($value) . "'";
+						$value = "'" . $helper->forSql($value) . "'";
 				}
-				$DB->Query("INSERT INTO b_utm_" . $lower_entity_id . " (VALUE_ID, FIELD_ID, " . $COLUMN . ")
+				$connection->query("INSERT INTO b_utm_" . $lower_entity_id . " (VALUE_ID, FIELD_ID, " . $COLUMN . ")
 					VALUES (" . intval($ID) . ", '" . $FieldId . "', " . $value . ")");
 			}
 		}
 
-		$DB->Commit();
+		$connection->commitTransaction();
 
-		return $result;
+		return true;
 	}
 
 	public function copy($entity_id, $id, $copiedId, $entityObject, $userId = false, $ignoreList = [])
@@ -2393,6 +2346,8 @@ class CUserTypeManager
 	{
 		global $DB;
 
+		$ID = (int)$ID;
+
 		$result = $this->deleteUserFieldValuesByEvent($entity_id, $ID);
 		if ($result !== null)
 		{
@@ -2431,8 +2386,8 @@ class CUserTypeManager
 					}
 				}
 			}
-			$DB->Query("DELETE FROM b_utm_" . mb_strtolower($entity_id) . " WHERE VALUE_ID = " . intval($ID));
-			$DB->Query("DELETE FROM b_uts_" . mb_strtolower($entity_id) . " WHERE VALUE_ID = " . intval($ID));
+			$DB->Query("DELETE FROM b_utm_" . strtolower($entity_id) . " WHERE VALUE_ID = " . $ID);
+			$DB->Query("DELETE FROM b_uts_" . strtolower($entity_id) . " WHERE VALUE_ID = " . $ID);
 		}
 	}
 
@@ -2668,5 +2623,53 @@ class CUserTypeManager
 		}
 
 		return $result;
+	}
+
+	protected function getEntities($entity_id, $LANG, $user_id)
+	{
+		$cacheId = $entity_id . "." . $LANG . '.' . (int)$user_id;
+
+		$result = [];
+		if (!array_key_exists($cacheId, $this->arFieldsCache))
+		{
+			$arFilter = ["ENTITY_ID" => $entity_id];
+			if ($LANG)
+			{
+				$arFilter["LANG"] = $LANG;
+			}
+			$rs = CUserTypeEntity::GetList([], $arFilter);
+			while ($arUserField = $rs->Fetch())
+			{
+				if ($arType = $this->GetUserType($arUserField["USER_TYPE_ID"]))
+				{
+					if ($user_id !== 0 && is_callable([$arType["CLASS_NAME"], "checkpermission"]))
+					{
+						if (!call_user_func_array([$arType["CLASS_NAME"], "checkpermission"], [$arUserField, $user_id]))
+						{
+							continue;
+						}
+					}
+					$arUserField["USER_TYPE"] = $arType;
+					$arUserField["VALUE"] = false;
+					if (!is_array($arUserField["SETTINGS"]) || empty($arUserField["SETTINGS"]))
+					{
+						$arUserField["SETTINGS"] = $this->PrepareSettings(0, $arUserField);
+					}
+					$result[$arUserField["FIELD_NAME"]] = $arUserField;
+				}
+			}
+			$this->arFieldsCache[$cacheId] = $result;
+		}
+		else
+		{
+			$result = $this->arFieldsCache[$cacheId];
+		}
+
+		return $result;
+	}
+
+	protected static function normalizeId(string $id): string
+	{
+		return preg_replace("/[^0-9A-Z_]+/", "", $id);
 	}
 }

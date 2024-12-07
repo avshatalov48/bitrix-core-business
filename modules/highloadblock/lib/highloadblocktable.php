@@ -238,7 +238,7 @@ class HighloadBlockTable extends Entity\DataManager
 		}
 
 		// get file fields
-		$file_fields = array();
+		$fileFieldList = array();
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 		$fields = $USER_FIELD_MANAGER->getUserFields(static::compileEntityId($hlblock['ID']));
 
@@ -246,26 +246,26 @@ class HighloadBlockTable extends Entity\DataManager
 		{
 			if ($field['USER_TYPE']['BASE_TYPE'] === 'file')
 			{
-				$file_fields[] = $name;
+				$fileFieldList[] = $name;
 			}
 		}
 
 		// delete files
-		if (!empty($file_fields))
+		if (!empty($fileFieldList))
 		{
 			$oldEntity = static::compileEntity($hlblock);
 
 			$query = new Entity\Query($oldEntity);
 
 			// select file ids
-			$query->setSelect($file_fields);
+			$query->setSelect($fileFieldList);
 
 			// if they are not empty
 			$filter = array('LOGIC' => 'OR');
 
-			foreach ($file_fields as $file_field)
+			foreach ($fileFieldList as $fileField)
 			{
-				$filter['!'.$file_field] = false;
+				$filter['!'.$fileField] = false;
 			}
 
 			$query->setFilter($filter);
@@ -275,20 +275,20 @@ class HighloadBlockTable extends Entity\DataManager
 
 			while ($row = $iterator->fetch())
 			{
-				foreach ($file_fields as $file_field)
+				foreach ($fileFieldList as $fileField)
 				{
-					if (!empty($row[$file_field]))
+					if (!empty($row[$fileField]))
 					{
-						if (is_array($row[$file_field]))
+						if (is_array($row[$fileField]))
 						{
-							foreach ($row[$file_field] as $value)
+							foreach ($row[$fileField] as $value)
 							{
 								\CFile::delete($value);
 							}
 						}
 						else
 						{
-							\CFile::delete($row[$file_field]);
+							\CFile::delete($row[$fileField]);
 						}
 					}
 				}
@@ -390,11 +390,12 @@ class HighloadBlockTable extends Entity\DataManager
 
 	/**
 	 * @param array|int|string $hlblock Could be a block, ID or NAME of block.
+	 * @param bool $force force recompile if entity already exists
 	 *
-	 * @return Entity\Base
+	 * @return Main\ORM\Entity
 	 * @throws \Bitrix\Main\SystemException
 	 */
-	public static function compileEntity($hlblock)
+	public static function compileEntity($hlblock, bool $force = false)
 	{
 		global $USER_FIELD_MANAGER;
 
@@ -408,6 +409,11 @@ class HighloadBlockTable extends Entity\DataManager
 		}
 		unset($rawBlock);
 
+		if (class_exists($hlblock['NAME'] . 'Table') && !$force)
+		{
+			return Main\ORM\Entity::getInstance($hlblock['NAME']);
+		}
+
 		// generate entity & data manager
 		$fieldsMap = array();
 
@@ -419,25 +425,25 @@ class HighloadBlockTable extends Entity\DataManager
 		);
 
 		// build datamanager class
-		$entity_name = $hlblock['NAME'];
-		$entity_data_class = $hlblock['NAME'].'Table';
+		$entityName = $hlblock['NAME'];
+		$entityDataClass = $hlblock['NAME'].'Table';
 
-		if (class_exists($entity_data_class))
+		if (class_exists($entityDataClass))
 		{
 			// rebuild if it's already exists
-			Entity\Base::destroy($entity_data_class);
+			Main\ORM\Entity::destroy($entityDataClass);
 		}
 		else
 		{
-			$entity_table_name = $hlblock['TABLE_NAME'];
+			$entityTableName = $hlblock['TABLE_NAME'];
 
 			// make with an empty map
 			$eval = '
-				class '.$entity_data_class.' extends '.__NAMESPACE__.'\DataManager
+				class '.$entityDataClass.' extends '.__NAMESPACE__.'\DataManager
 				{
 					public static function getTableName()
 					{
-						return '.var_export($entity_table_name, true).';
+						return '.var_export($entityTableName, true).';
 					}
 
 					public static function getMap()
@@ -456,8 +462,8 @@ class HighloadBlockTable extends Entity\DataManager
 		}
 
 		// then configure and attach fields
-		/** @var \Bitrix\Main\Entity\DataManager $entity_data_class */
-		$entity = $entity_data_class::getEntity();
+		/** @var \Bitrix\Main\Entity\DataManager $entityDataClass */
+		$entity = $entityDataClass::getEntity();
 
 		/** @noinspection PhpMethodOrClassCallIsNotCaseSensitiveInspection */
 		$uFields = $USER_FIELD_MANAGER->getUserFields(static::compileEntityId($hlblock['ID']));
@@ -484,7 +490,7 @@ class HighloadBlockTable extends Entity\DataManager
 			}
 		}
 
-		return Entity\Base::getInstance($entity_name);
+		return Main\ORM\Entity::getInstance($entityName);
 	}
 
 	/**
@@ -532,20 +538,20 @@ class HighloadBlockTable extends Entity\DataManager
 			$field['USER_TYPE'] = $USER_FIELD_MANAGER->getUserType($field['USER_TYPE_ID']);
 
 			// get entity info
-			$hlblock_id = $matches[1];
-			$hlblock = HighloadBlockTable::getById($hlblock_id)->fetch();
+			$hlblockId = $matches[1];
+			$hlblock = HighloadBlockTable::getById($hlblockId)->fetch();
 
 			if (empty($hlblock))
 			{
 				$APPLICATION->throwException(sprintf(
-					'Entity "'.static::compileEntityId('%s').'" wasn\'t found.', $hlblock_id
+					'Entity "'.static::compileEntityId('%s').'" wasn\'t found.', $hlblockId
 				));
 
 				return false;
 			}
 
 			// get usertype info
-			$sql_column_type = $USER_FIELD_MANAGER->getUtsDBColumnType($field);
+			$sqlColumnType = $USER_FIELD_MANAGER->getUtsDBColumnType($field);
 
 			// create field in db
 			$connection = Application::getConnection();
@@ -553,13 +559,13 @@ class HighloadBlockTable extends Entity\DataManager
 
 			$connection->query(sprintf(
 				'ALTER TABLE %s ADD %s %s',
-				$sqlHelper->quote($hlblock['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sql_column_type
+				$sqlHelper->quote($hlblock['TABLE_NAME']), $sqlHelper->quote($field['FIELD_NAME']), $sqlColumnType
 			));
 
 			if ($field['MULTIPLE'] == 'Y')
 			{
 				// create table for this relation
-				$hlentity = static::compileEntity($hlblock);
+				$hlentity = static::compileEntity($hlblock, true);
 				$utmEntity = Entity\Base::getInstance(HighloadBlockTable::getUtmEntityClassName($hlentity, $field));
 
 				$utmEntity->createDbTable();
@@ -593,8 +599,8 @@ class HighloadBlockTable extends Entity\DataManager
 		if (preg_match(self::ENTITY_ID_MASK, $field['ENTITY_ID'], $matches))
 		{
 			// get entity info
-			$hlblock_id = $matches[1];
-			$hlblock = HighloadBlockTable::getById($hlblock_id)->fetch();
+			$hlblockId = $matches[1];
+			$hlblock = HighloadBlockTable::getById($hlblockId)->fetch();
 
 			if (empty($hlblock))
 			{

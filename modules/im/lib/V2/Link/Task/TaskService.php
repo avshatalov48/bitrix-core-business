@@ -11,6 +11,7 @@ use Bitrix\Im\V2\Link\File\TemporaryFileService;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Entity\Task\TaskError;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -203,6 +204,7 @@ class TaskService
 				$data['PARAMS'][$diskFileUFCode] = $fileIds;
 				$signer = new Signer();
 				$data['PARAMS'][$diskFileUFCode . '_SIGN'] = $signer->sign(Json::encode($fileIds), static::SIGNATURE_SALT);
+				$data['PARAMS'][$diskFileUFCode . '_DATA'] = $this->getFileDataForTask($message);
 			}
 
 			$data['PARAMS']['IM_MESSAGE_ID'] = $message->getMessageId();
@@ -258,14 +260,36 @@ class TaskService
 		return $newIds;
 	}
 
+	protected function getFileDataForTask(Message $message): array
+	{
+		$copies = $message->getFiles()->getCopies();
+		$files = [];
+
+		foreach ($copies as $copy)
+		{
+			$data = $copy->toRestFormat();
+
+			$files[] = [
+				'id' => FileUserType::NEW_FILE_PREFIX . $copy->getId(),
+				'objectId' => $data['viewerAttrs']['objectId'],
+				'name' => $data['name'],
+				'type' => $data['extension'],
+				'url' => $data['urlShow'],
+				'height' => $data['image']['height'] ?? 0,
+				'width' => $data['image']['width'] ?? 0,
+				'preview_url' => $data['urlPreview'],
+			];
+		}
+
+		return $files;
+	}
+
 	protected function getAuditors(Chat $chat): array
 	{
-		$userIds = $chat->getRelations(
-			[
-				'SELECT' => ['ID', 'USER_ID', 'CHAT_ID'],
-				'FILTER' => ['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true],
-				'LIMIT' => 50,
-			]
+		$userIds = RelationCollection::find(
+			['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true, 'CHAT_ID' => $chat->getId()],
+			limit: 50,
+			select: ['ID', 'USER_ID', 'CHAT_ID']
 		)->getUsers()->filterExtranet()->getIds();
 		unset($userIds[$this->getContext()->getUserId()]);
 

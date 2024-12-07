@@ -57,16 +57,6 @@ if (IsModuleInstalled('intranet'))
 		'PARENT' => 'ADDITIONAL_SETTINGS',
 	);
 
-	if (IsModuleInstalled("video"))
-	{
-		$arComponentParameters["PARAMETERS"]["PATH_TO_VIDEO_CALL"] = array(
-			'TYPE' => 'STRING',
-			'DEFAULT' => '/company/personal/video/#USER_ID#/',
-			'NAME' => GetMessage('CMDESKTOP_PARAMS_PATH_TO_VIDEO_CALL'),
-			'PARENT' => 'ADDITIONAL_SETTINGS',
-		);
-	}
-
 	$arComponentParameters["PARAMETERS"]["NAME_TEMPLATE"] = array(
 		'TYPE' => 'LIST',
 		'NAME' => GetMessage('CMDESKTOP_PARAMS_NAME_TEMPLATE'),

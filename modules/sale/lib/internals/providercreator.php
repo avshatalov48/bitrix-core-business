@@ -501,7 +501,7 @@ class ProviderCreator
 			if (!$methodParameters)
 			{
 				/** Use first output value for saving compatibility in provider builder calling */
-				$compatibilityOutputName = $outputNames[0];
+				$compatibilityOutputName = $outputNames[0] ?? null;
 				/** @var Sale\Result $r */
 				$r = $builder->$method($compatibilityOutputName);
 			}

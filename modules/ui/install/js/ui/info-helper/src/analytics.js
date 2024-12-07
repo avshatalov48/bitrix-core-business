@@ -1,3 +1,4 @@
+import { Uri } from 'main.core';
 import { sendData } from 'ui.analytics';
 
 export class Analytics
@@ -18,7 +19,7 @@ export class Analytics
 			category: this.#category,
 			type: this.#code,
 			event: event,
-			c_section: document.location.href,
+			c_section: (new Uri(document.location.href)).getPath(),
 			p1: additionalParameter,
 		});
 	}

@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2006 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
@@ -468,18 +468,18 @@ class CCaptcha
 		$img = $this->image;
 		$img2 = $this->InitImage();
 
-		// случайные параметры (можно поэкспериментировать с коэффициентами):
-		// частоты
+		// СЃР»СѓС‡Р°Р№РЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹ (РјРѕР¶РЅРѕ РїРѕСЌРєСЃРїРµСЂРёРјРµРЅС‚РёСЂРѕРІР°С‚СЊ СЃ РєРѕСЌС„С„РёС†РёРµРЅС‚Р°РјРё):
+		// С‡Р°СЃС‚РѕС‚С‹
 		$rand1 = mt_rand(700000, 1000000) / 15000000;
 		$rand2 = mt_rand(700000, 1000000) / 15000000;
 		$rand3 = mt_rand(700000, 1000000) / 15000000;
 		$rand4 = mt_rand(700000, 1000000) / 15000000;
-		// фазы
+		// С„Р°Р·С‹
 		$rand5 = mt_rand(0, 3141592) / 1000000;
 		$rand6 = mt_rand(0, 3141592) / 1000000;
 		$rand7 = mt_rand(0, 3141592) / 1000000;
 		$rand8 = mt_rand(0, 3141592) / 1000000;
-		// амплитуды
+		// Р°РјРїР»РёС‚СѓРґС‹
 		$rand9 = mt_rand(400, 600) / 500;
 		$rand10 = mt_rand(400, 600) / 200;
 
@@ -492,17 +492,17 @@ class CCaptcha
 		{
 			for($y = 0; $y < $height; $y++)
 			{
-				// координаты пикселя-первообраза.
+				// РєРѕРѕСЂРґРёРЅР°С‚С‹ РїРёРєСЃРµР»СЏ-РїРµСЂРІРѕРѕР±СЂР°Р·Р°.
 				$sx = $x + ( sin($x * $rand1 + $rand5) + sin($y * $rand3 + $rand6) ) * $rand9;
 				$sy = $y + ( sin($x * $rand2 + $rand7) + sin($y * $rand4 + $rand8) ) * $rand10;
 
-				// первообраз за пределами изображения
+				// РїРµСЂРІРѕРѕР±СЂР°Р· Р·Р° РїСЂРµРґРµР»Р°РјРё РёР·РѕР±СЂР°Р¶РµРЅРёСЏ
 				if($sx < 0 || $sy < 0 || $sx >= $width_1 || $sy >= $height_1)
 				{
 					$color_xy = $color_y = $color_x = $color = $this->arRealBGColor;
 				}
 				else
-				{ // цвета основного пикселя и его 3-х соседей для лучшего антиалиасинга
+				{ // С†РІРµС‚Р° РѕСЃРЅРѕРІРЅРѕРіРѕ РїРёРєСЃРµР»СЏ Рё РµРіРѕ 3-С… СЃРѕСЃРµРґРµР№ РґР»СЏ Р»СѓС‡С€РµРіРѕ Р°РЅС‚РёР°Р»РёР°СЃРёРЅРіР°
 					$rgb = imagecolorat($img, $sx, $sy);
 					$color_r = ($rgb >> 16) & 0xFF;
 					$color_g = ($rgb >> 8) & 0xFF;
@@ -523,12 +523,12 @@ class CCaptcha
 					$color_xy_g = ($rgb >> 8) & 0xFF;
 					$color_xy_b = $rgb & 0xFF;
 				}
-				// сглаживаем
-				$frsx = $sx - floor($sx); //отклонение координат первообраза от целого
+				// СЃРіР»Р°Р¶РёРІР°РµРј
+				$frsx = $sx - floor($sx); //РѕС‚РєР»РѕРЅРµРЅРёРµ РєРѕРѕСЂРґРёРЅР°С‚ РїРµСЂРІРѕРѕР±СЂР°Р·Р° РѕС‚ С†РµР»РѕРіРѕ
 				$frsy = $sy - floor($sy);
 				$frsx1 = 1 - $frsx;
 				$frsy1 = 1 - $frsy;
-				// вычисление цвета нового пикселя как пропорции от цвета основного пикселя и его соседей
+				// РІС‹С‡РёСЃР»РµРЅРёРµ С†РІРµС‚Р° РЅРѕРІРѕРіРѕ РїРёРєСЃРµР»СЏ РєР°Рє РїСЂРѕРїРѕСЂС†РёРё РѕС‚ С†РІРµС‚Р° РѕСЃРЅРѕРІРЅРѕРіРѕ РїРёРєСЃРµР»СЏ Рё РµРіРѕ СЃРѕСЃРµРґРµР№
 				$i11 = $frsx1 * $frsy1;
 				$i01 = $frsx  * $frsy1;
 				$i10 = $frsx1 * $frsy ;
@@ -637,7 +637,7 @@ class CCaptcha
 		for ($i = 0; $i < $this->codeLength; $i++)
 		{
 			$char = mb_substr($this->code, $i, 1);
-			$utf = \Bitrix\Main\Text\Encoding::convertEncoding($char, LANG_CHARSET, "utf-8");
+			$utf = $char;
 
 			$ttfFile = $_SERVER["DOCUMENT_ROOT"].$this->ttfFilesPath."/".$this->arTTFFiles[rand(1, count($this->arTTFFiles)) - 1];
 			$angle = rand($this->textAngleFrom, $this->textAngleTo);

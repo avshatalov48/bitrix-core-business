@@ -1,5 +1,5 @@
-import {EventEmitter} from "main.core.events";
-import {Dom, Event, Reflection, Tag} from 'main.core';
+import { EventEmitter } from "main.core.events";
+import { Dom, Event, Reflection, Tag, Type } from 'main.core';
 
 import Section from "./section";
 import ColumnItem from "./columnitem";
@@ -44,21 +44,30 @@ export default class Column {
 	{
 		options = options || {};
 
-		let param = {};
+		const defaultParam = {
+			group: options.group,
+			changerOptions: options.changerOptions,
+		};
+		let param = {
+			...defaultParam
+		};
 
 		if (options.type === UserGroupTitle.TYPE)
 		{
 			param = {
 				type: options.type,
 				text: options.title,
-				controller: options.controller
+				controller: options.controller,
+				...defaultParam,
 			}
 		}
 
 		if (options.type === Title.TYPE)
 		{
 			param = {
+				...defaultParam,
 				id: options.id,
+				groupHead: options.groupHead,
 				type: options.type,
 				hint: options.hint,
 				text: options.title,
@@ -69,18 +78,20 @@ export default class Column {
 		if (options.type === Toggler.TYPE)
 		{
 			param = {
+				...defaultParam,
 				type: options.type,
-				access: options.access
+				access: options.access,
 			}
 		}
 
 		if (options.type === VariableSelector.TYPE || options.type === MultiSelector.TYPE)
 		{
 			param = {
+				...defaultParam,
 				type: options.type,
 				text: options.title,
 				variables: options.variables,
-				access: options.access
+				access: options.access,
 			}
 		}
 
@@ -91,13 +102,15 @@ export default class Column {
 			param.showAvatars = options.showAvatars;
 			param.compactView = options.compactView;
 			param.hintTitle = options.hintTitle;
+			param.disableSelectAll = options.disableSelectAll || false;
 		}
 
 		if (options.type === Role.TYPE)
 		{
 			param = {
+				...defaultParam,
 				type: options.type,
-				text: options.title
+				text: options.title,
 			}
 		}
 
@@ -135,17 +148,27 @@ export default class Column {
 
 			for (let i = 0; i < accessRights.length; i++)
 			{
-				if (accessId === accessRights[i].id.toString())
+				if (accessId !== accessRights[i].id.toString())
 				{
-					if (options.type === MultiSelector.TYPE)
+					continue;
+				}
+
+				if (options.type === MultiSelector.TYPE)
+				{
+					param.currentValue = param.currentValue ?? [];
+
+					if (Type.isArray(accessRights[i].value))
 					{
-						param.currentValue = param.currentValue ?? [];
-						param.currentValue.push(accessRights[i].value);
+						param.currentValue = [...param.currentValue, ...accessRights[i].value]
 					}
 					else
 					{
-						param.currentValue = accessRights[i].value;
+						param.currentValue.push(accessRights[i].value);
 					}
+				}
+				else
+				{
+					param.currentValue = accessRights[i].value;
 				}
 			}
 		}
@@ -199,12 +222,11 @@ export default class Column {
 				Dom.append(this.getItem(this.userGroup).render(), itemsFragment);
 			}
 
-			this.items.map(
-				(data) => {
-					const item = this.getItem(data);
-					Dom.append(item.render(), itemsFragment);
-				}
-			);
+			for (const data of this.items)
+			{
+				const item = this.getItem(data);
+				Dom.append(item.render(), itemsFragment);
+			}
 
 			this.layout.container = Tag.render`<div class='ui-access-rights-column'></div>`;
 			if (this.newColumn)

@@ -3,12 +3,12 @@ $APPLICATION->SetAdditionalCSS(CUtil::GetAdditionalFileURL('/bitrix/js/mobileapp
 
 if($arResult['GET_JS'])
 {
-	echo '<script type="text/javascript">'.
+	echo '<script>'.
 			file_get_contents($_SERVER['DOCUMENT_ROOT'] . $templateFolder.'/script.js').
 		'</script>';
 }
 ?>
-<script type="text/javascript">
+<script>
 	topSwichControl = new __MATopSwitchersControl({
 							itemSelectedId: "<?=$arResult['SELECTED']?>",
 							callbackFunc: "<?=$arResult['JS_CALLBACK_FUNC']?>"
@@ -19,7 +19,7 @@ if($arResult['GET_JS'])
 		<?foreach ($arParams["ITEMS"] as $key => $text):?>
 			<li id="top_sw_<?=$key?>" <?=$arResult["SELECTED"] == $key ? 'class="current"' : ''?>>
 				<a href="javascript:void(0);"><?=$text?></a>
-				<script type="text/javascript">
+				<script>
 					topSwichControl.setFastButton("<?=$key?>");
 				</script>
 			</li>

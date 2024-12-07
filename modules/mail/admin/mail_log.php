@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2004 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -19,8 +19,8 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 $APPLICATION->SetTitle(GetMessage("MAIL_LOG_TITLE"));
 
 $sTableID = "t_mail_log";
-$oSort = new CAdminSorting($sTableID, "date_insert", "desc");// èíèöèàëèçàöèÿ ñîðòèðîâêè
-$lAdmin = new CAdminList($sTableID, $oSort);// èíèöèàëèçàöèÿ ñïèñêà
+$oSort = new CAdminSorting($sTableID, "date_insert", "desc");// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
+$lAdmin = new CAdminList($sTableID, $oSort);// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 
 $filter = new CAdminFilter(
 	$sTableID."_f_id", 
@@ -38,7 +38,7 @@ $arFilterFields = Array(
 	"find_show_filt"
 );
 
-$lAdmin->InitFilter($arFilterFields);//èíèöèàëèçàöèÿ ôèëüòðà
+$lAdmin->InitFilter($arFilterFields);//Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 
 if($find_filter_id>0 && $find_mailbox_id)
 {
@@ -85,7 +85,7 @@ if($find_show_mess=="Y")
 
 $lAdmin->AddHeaders($arHeaders);
 
-// ïîñòðîåíèå ñïèñêà
+// Ð¿Ð¾ÑÑ‚Ñ€Ð¾ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ°
 while($arRes = $log->fetch())
 {
 	$arRes = CMailLog::ConvertRow($arRes);

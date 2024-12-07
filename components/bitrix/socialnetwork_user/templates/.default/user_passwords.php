@@ -32,10 +32,22 @@ else
 	if (IsModuleInstalled("intranet"))
 	{
 		$request = Bitrix\Main\Context::getCurrent()->getRequest();
-		$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.exe";
-		if (mb_stripos($request->getUserAgent(), "Macintosh") !== false)
+
+		if (
+			\Bitrix\Main\Loader::includeModule('intranet')
+			&& method_exists(\Bitrix\Intranet\PortalSettings::class, 'getDesktopDownloadLinkByUserAgent')
+		)
 		{
-			$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg";
+			$portalSettings = \Bitrix\Intranet\Portal::getInstance()->getSettings();
+			$downloadUrl = $portalSettings->getDesktopDownloadLinkByUserAgent($request->getUserAgent());
+		}
+		else
+		{
+			$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.exe";
+			if (mb_stripos($request->getUserAgent(), "Macintosh") !== false)
+			{
+				$downloadUrl = "http://dl.bitrix24.com/b24/bitrix24_desktop.dmg";
+			}
 		}
 		?>
 		<div class="bx-apps-attached-block">

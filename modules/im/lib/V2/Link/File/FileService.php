@@ -27,6 +27,14 @@ class FileService
 		$this->isMigrationFinished = Option::get('im', 'im_link_file_migration', 'N') === 'Y';
 	}
 
+	public function save(Message $message): Result
+	{
+		$files = $message->getFiles();
+		$links = FileCollection::linkEntityToMessage($files, $message);
+
+		return $this->saveInternal($links);
+	}
+
 	/**
 	 * @param File[] $files
 	 * @param Message $message
@@ -45,7 +53,13 @@ class FileService
 		/** @var FileCollection $links */
 		$links = FileCollection::linkEntityToMessage($entities, $message);
 
-		$saveResult = $this->saveFiles($links);
+		return $this->saveInternal($links);
+	}
+
+	protected function saveInternal(FileCollection $links): Result
+	{
+		$result = new Result();
+		$saveResult = $links->save();
 
 		if ($links->count() === 0)
 		{
@@ -69,11 +83,6 @@ class FileService
 		}
 
 		return $result;
-	}
-
-	protected function saveFiles(FileCollection $fileCollection): Result
-	{
-		return $fileCollection->save();
 	}
 
 	public function deleteFilesByDiskFileId(int $diskFileId): Result

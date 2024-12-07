@@ -13,6 +13,24 @@ class ElementSkuProperty extends Base
 	protected $properties = array();
 
 	/**
+	 * @param array $id Entity identifier.
+	 */
+	protected static function getInstance($id)
+	{
+		$key = implode(',', $id);
+		$class = get_called_class();
+		if (!isset(static::$instance[$class]))
+		{
+			static::$instance[$class] = [];
+		}
+		if (!isset(static::$instance[$class][$key]))
+		{
+			static::$instance[$class][$key] = new static($id);
+		}
+		return static::$instance[$class][$key];
+	}
+
+	/**
 	 * @param array|mixed $ids Array of iblock element identifiers.
 	 */
 	public function __construct($ids)

@@ -1,7 +1,6 @@
 <?php
 
 use Bitrix\Main;
-use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserField\Types\FileType;
 

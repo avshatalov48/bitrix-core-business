@@ -67,7 +67,7 @@ Loc::loadMessages(__FILE__);
 		<input type="button" value="<?=Loc::getMessage("SALE_EBAY_SEC_ADD_CATEGORY_VARS")?>" onclick='BX.Sale.EbayCategories.addEmptyVariation();' style="margin-top: 10px;">
 	</div>
 
-	<script type="text/javascript">
+	<script>
 
 		BX.message({
 			"SALE_EBAY_SEC_REQUIRED": "<?=Loc::getMessage("SALE_EBAY_SEC_REQUIRED")?>",

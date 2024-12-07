@@ -92,9 +92,17 @@ $lists_perm = $checkPermissionResult->getPermission();
 $arResult["IBLOCK_PERM"] = $lists_perm;
 $arResult["USER_GROUPS"] = $USER->GetUserGroupArray();
 $arIBlock = CIBlock::GetArrayByID(intval($arParams["~IBLOCK_ID"]));
+
+if (empty($arIBlock))
+{
+	ShowError(\Bitrix\Main\Localization\Loc::getMessage('CC_BLEE_WRONG_IBLOCK'));
+
+	return;
+}
+
 $arResult["~IBLOCK"] = $arIBlock;
 $arResult["IBLOCK"] = htmlspecialcharsex($arIBlock);
-$arResult["IBLOCK_ID"] = $arIBlock["ID"];
+$arResult["IBLOCK_ID"] = $arIBlock["ID"] ?? null;
 
 if(isset($arParams["SOCNET_GROUP_ID"]) && $arParams["SOCNET_GROUP_ID"] > 0)
 	$arParams["SOCNET_GROUP_ID"] = intval($arParams["SOCNET_GROUP_ID"]);
@@ -110,7 +118,7 @@ else
 $bBizproc = (
 	\Bitrix\Main\Loader::includeModule('bizproc')
 	&& CLists::isBpFeatureEnabled($arParams["IBLOCK_TYPE_ID"])
-	&& ($arIBlock["BIZPROC"] != "N")
+	&& (($arIBlock["BIZPROC"] ?? null) != "N")
 );
 
 $arResult["~LISTS_URL"] = str_replace(
@@ -161,7 +169,7 @@ else
 
 $arResult["COPY_ID"] = $copy_id;
 
-$obList = new CList($arIBlock["ID"]);
+$obList = new CList($arIBlock["ID"] ?? 0);
 
 $arResult["FIELDS"] = $obList->GetFields();
 if($bBizproc)
@@ -350,6 +358,17 @@ if(!empty($arResult["EXTERNAL_CONTEXT"]))
 				}
 				$arResult["FIELDS"][$fieldId]['DEFAULT_VALUE'] = $externalDefaultValue;
 			}
+		}
+	}
+}
+
+if (is_array($_REQUEST['def'] ?? null))
+{
+	foreach($arResult["FIELDS"] as $fieldId => $field)
+	{
+		if (isset($_REQUEST['def'][$fieldId]))
+		{
+			$arResult["FIELDS"][$fieldId]['DEFAULT_VALUE'] = $_REQUEST['def'][$fieldId];
 		}
 	}
 }
@@ -1140,7 +1159,7 @@ while($arSection = $rsSections->Fetch())
 	$arResult["LIST_SECTIONS"][$arSection["ID"]] = str_repeat(" . ", $arSection["DEPTH_LEVEL"]).$arSection["NAME"];
 
 if(
-	$arResult["IBLOCK"]["RIGHTS_MODE"] == 'E'
+	($arResult["IBLOCK"]["RIGHTS_MODE"] ?? null) == 'E'
 	&& $arResult["CAN_EDIT_RIGHTS"]
 )
 {
@@ -1188,12 +1207,12 @@ $this->IncludeComponentTemplate();
 
 if($arResult["ELEMENT_ID"] && !empty($arResult["ELEMENT_FIELDS"]["NAME"]))
 {
-	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"] . ": " . $arResult["ELEMENT_FIELDS"]["NAME"]);
+	$APPLICATION->SetTitle(($arResult["IBLOCK"]["ELEMENT_NAME"] ?? '') . ": " . $arResult["ELEMENT_FIELDS"]["NAME"]);
 }
 else
 	$APPLICATION->SetTitle($arResult["IBLOCK"]["ELEMENT_NAME"]);
 
-$APPLICATION->AddChainItem($arResult["IBLOCK"]["NAME"], $arResult["~LIST_URL"]);
+$APPLICATION->AddChainItem(($arResult["IBLOCK"]["NAME"] ?? ''), $arResult["~LIST_URL"]);
 if($arResult["SECTION"])
 {
 	foreach($arResult["SECTION_PATH"] as $arPath)
@@ -1201,6 +1220,3 @@ if($arResult["SECTION"])
 		$APPLICATION->AddChainItem($arPath["NAME"], $arPath["URL"]);
 	}
 }
-
-
-?>

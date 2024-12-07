@@ -12,8 +12,6 @@ use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Security\LogicException;
 use Bitrix\Calendar\ICal\Basic\{Dictionary, ICalUtil};
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'] . BX_ROOT . '/modules/calendar/lib/ical/mailinvitation/senderrequestinvitation.php');
@@ -232,7 +230,7 @@ class OutcomingEventManager
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareRequestAttachment();
 		$this->uid = $attachmentManager->getUid();
-		$fileContent = Encoding::convertEncoding($attachmentManager->getAttachment(), SITE_CHARSET, "utf-8");
+		$fileContent = $attachmentManager->getAttachment();
 		return [[
 			'CONTENT' => $fileContent,
 			'CONTENT_TYPE' => self::CONTENT_TYPE,
@@ -369,7 +367,7 @@ class OutcomingEventManager
 	{
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareReplyAttachment();
-		$fileContent = Encoding::convertEncoding($attachmentManager->getAttachment(), SITE_CHARSET, "utf-8");
+		$fileContent = $attachmentManager->getAttachment();
 		return [[
 			'CONTENT' => $fileContent,
 			'CONTENT_TYPE' => self::CONTENT_TYPE,
@@ -389,7 +387,7 @@ class OutcomingEventManager
 	{
 		$attachmentManager = new OutcomingAttachmentManager ($this->eventFields, $this->attendees, $this->method);
 		$attachmentManager->prepareCancelAttachment();
-		$fileContent = Encoding::convertEncoding($attachmentManager->getAttachment(), SITE_CHARSET, "utf-8");
+		$fileContent = $attachmentManager->getAttachment();
 		return [[
 			'CONTENT' => $fileContent,
 			'CONTENT_TYPE' => self::CONTENT_TYPE,

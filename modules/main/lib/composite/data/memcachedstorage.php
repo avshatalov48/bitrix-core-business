@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\Main\Composite\Data;
 
-use Bitrix\Main;
 use Bitrix\Main\Composite\Helper;
 use Bitrix\Main\Composite\MemcachedResponse;
 

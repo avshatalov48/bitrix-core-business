@@ -47,7 +47,7 @@ $arComponentVariables = Array(
 );
 
 //PHP converts dots into underscores (php.net/variables.external)
-if (is_array($arParams["SEF_URL_TEMPLATES"]))
+if (isset($arParams["SEF_URL_TEMPLATES"]) && is_array($arParams["SEF_URL_TEMPLATES"]))
 {
 	foreach ($arParams["SEF_URL_TEMPLATES"] as $pageCode => $pageTemplate)
 	{
@@ -60,7 +60,7 @@ if (is_array($arParams["SEF_URL_TEMPLATES"]))
 	}
 }
 
-if ($arParams["SEF_MODE"] == "Y")
+if (isset($arParams["SEF_MODE"]) && $arParams["SEF_MODE"] === "Y")
 {
 	$arDefaultUrlTemplates404 = array(
 		"course.detail" => "course#COURSE_ID#/index",
@@ -192,7 +192,7 @@ if ($arSearchURL["query"])
 $APPLICATION->SetPageProperty("learning_search_params", $searchParams);
 
 $lessonID = 0;
-if ($arVariables["LESSON_ID"] > 0)
+if (isset($arVariables["LESSON_ID"]) && $arVariables["LESSON_ID"] > 0)
 {
 	$lessonID = intval($arVariables["LESSON_ID"]);
 }

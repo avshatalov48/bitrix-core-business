@@ -46,6 +46,7 @@ export const ViewEventSlider = {
 			isPrivate: this.params.isPrivate,
 			location: this.params.location,
 			canEditCalendar: this.params.canEditCalendar,
+			canAttendeeEditCalendar: this.params.canAttendeeEditCalendar,
 			canDeleteEvent: this.params.canDeleteEvent,
 			showComments: this.params.showComments,
 			filesView: this.getComponentHTML(this.params.filesView),
@@ -165,7 +166,20 @@ export const ViewEventSlider = {
 				}, this);
 			}
 
-			const accepted = this.attendees.y?.filter(a => parseInt(this.meetingHost.ID) !== parseInt(a.ID)) ?? [];
+			const accepted = this.attendees.y?.filter((attendee) => {
+				if (!attendee)
+				{
+					return false;
+				}
+
+				if (this.entry?.isOpenEvent())
+				{
+					return true;
+				}
+
+				return parseInt(this.meetingHost.ID, 10) !== parseInt(attendee.ID, 10);
+			}) ?? [];
+
 			if (accepted.length <= 11)
 			{
 				this.avatarUsers = accepted.slice(0, 11);
@@ -211,6 +225,7 @@ export const ViewEventSlider = {
 		handleStatusUpdate(event)
 		{
 			this.entry.data.MEETING_STATUS = event.getData().status;
+			this.curUserStatus = this.entry.data.MEETING_STATUS;
 			this.isInvited = this.entry.isInvited();
 		},
 		handlePullEvent(event: BaseEvent)
@@ -280,6 +295,7 @@ export const ViewEventSlider = {
 				this.isPrivate = newData.isPrivate;
 				this.location = newData.location;
 				this.canEditCalendar = newData.canEditCalendar;
+				this.canAttendeeEditCalendar = newData.canAttendeeEditCalendar;
 				this.canDeleteEvent = newData.canDeleteEvent;
 				this.showComments = newData.showComments;
 				this.filesView = this.getComponentHTML(newData.filesView);
@@ -379,7 +395,7 @@ export const ViewEventSlider = {
 								<div class="calendar-slider-sidebar-user-block">
 								<div v-if="isMeeting">
 									<div class="calendar-slider-sidebar-user-container-holder">
-										<div class="calendar-slider-sidebar-user-container">
+										<div class="calendar-slider-sidebar-user-container" v-if="!entry.isOpenEvent()">
 											<div class="calendar-slider-sidebar-user-block-avatar">
 												<a :href="meetingHost.URL">
 													<UserAvatar :user="meetingHost" :avatarSize="avatarSize"/>
@@ -527,6 +543,8 @@ export const ViewEventSlider = {
 									<div class="calendar-view-planner-wrap"></div>
 								</div>
 
+								<div class="calendar-slider-detail-relation" :id="id + '_view_relation_wrap'"/>
+
 								<div class="calendar-slider-detail-option">
 									<div class="calendar-slider-detail-option-block" v-if="isCrmEvent" ref="highlightCrmView">
 										<div class="calendar-slider-detail-option-name">{{$Bitrix.Loc.getMessage('EC_CRM_TITLE')}}:</div>
@@ -559,7 +577,7 @@ export const ViewEventSlider = {
 										<span :id="id + '_status_buttonset'"></span>
 
 										<div>
-											<button v-if="canEditCalendar" :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
+											<button v-show="canEditCalendar || (canAttendeeEditCalendar && ['H', 'Y'].includes(curUserStatus))" :id="id + '_but_edit'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_EDIT')}}</button>
 											<button v-if="canDeleteEvent" :id="id + '_but_del'" class="ui-btn ui-btn-light-border">{{$Bitrix.Loc.getMessage('EC_VIEW_SLIDER_DEL')}}</button>
 										</div>
 										

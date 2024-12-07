@@ -35,6 +35,8 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 
 if (!Loader::includeModule("socialnetwork"))
 {
@@ -72,6 +74,9 @@ else
 		&& Loader::includeModule('extranet')
 		&& CExtranet::IsExtranetSite()
 	);
+
+	$arResult['isExtranetForGroupsEnabled'] = Option::get('socialnetwork', 'enable_extranet_for_groups', true);
+
 	$arResult["isCurrentUserIntranet"] = (
 		!Loader::includeModule('extranet')
 		|| CExtranet::IsIntranetUser()
@@ -172,6 +177,10 @@ else
 
 
 	$arResult["CALLBACK"] = '';
+	$arResult["trialEnabled"] = [
+		'project' => false,
+		'scrum' => false,
+	];
 
 	if (($arResult['TAB'] ?? '') !== 'invite')
 	{
@@ -216,11 +225,6 @@ else
 			&& check_bitrix_sessid()
 		)
 		{
-			if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
-			{
-				CUtil::JSPostUnescape();
-			}
-
 			$moderatorIdList = [];
 			$ownerId = (int)(
 				isset($arResult['POST']['OWNER_ID'])
@@ -228,6 +232,7 @@ else
 					? $arResult['POST']['OWNER_ID']
 					: $arResult['currentUserId']
 			);
+			$leaveGroupTypeExtranet = ($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y' && $arResult['isExtranetForGroupsEnabled'];
 
 			if (
 				!array_key_exists("TAB", $arResult)
@@ -284,7 +289,15 @@ else
 				$arResult["POST"]["SUBJECT_ID"] = $_POST["GROUP_SUBJECT_ID"] ?? null;
 				$arResult['POST']['VISIBLE'] = (($_POST['GROUP_VISIBLE'] ?? null) === 'Y' ? 'Y' : 'N');
 				$arResult['POST']['OPENED'] = (($_POST['GROUP_OPENED'] ?? null) === 'Y' ? 'Y' : 'N');
-				$arResult['POST']['IS_EXTRANET_GROUP'] = (($_POST['IS_EXTRANET_GROUP'] ?? null) === 'Y' ? 'Y' : 'N');
+
+				$arResult['isExtranetGroup'] = Bitrix\Socialnetwork\Integration\Extranet\Group::isExtranetGroup($arResult['GROUP_ID'] ?? 0);
+
+				$makeGroupTypeExtranet = $arResult['isExtranetGroup'] && !$arResult['isExtranetForGroupsEnabled'];
+				if ($leaveGroupTypeExtranet || $makeGroupTypeExtranet)
+				{
+					$arResult['POST']['IS_EXTRANET_GROUP'] = 'Y';
+				}
+
 				$arResult['POST']['EXTRANET_INVITE_ACTION'] = (
 					isset($_POST['EXTRANET_INVITE_ACTION'])
 					&& $_POST['EXTRANET_INVITE_ACTION'] === 'add' ? 'add' : 'invite'
@@ -622,25 +635,22 @@ else
 					'AVATAR_TYPE' => $avatarType,
 				);
 
-				if(\Bitrix\Main\Config\Configuration::getValue("utf_mode") === true)
-				{
-					$conn = \Bitrix\Main\Application::getConnection();
-					$table = \Bitrix\Socialnetwork\WorkgroupTable::getTableName();
+				$conn = \Bitrix\Main\Application::getConnection();
+				$table = \Bitrix\Socialnetwork\WorkgroupTable::getTableName();
 
-					if (
-						((string)$arFields["NAME"] !== '')
-						&& !$conn->isUtf8mb4($table, 'NAME')
-					)
-					{
-						$arFields["NAME"] = Emoji::encode($arFields["NAME"]);
-					}
-					if (
-						((string)$arFields["DESCRIPTION"] !== '')
-						&& !$conn->isUtf8mb4($table, 'DESCRIPTION')
-					)
-					{
-						$arFields["DESCRIPTION"] = Emoji::encode($arFields["DESCRIPTION"]);
-					}
+				if (
+					((string)$arFields["NAME"] !== '')
+					&& !$conn->isUtf8mb4($table, 'NAME')
+				)
+				{
+					$arFields["NAME"] = Emoji::encode($arFields["NAME"]);
+				}
+				if (
+					((string)$arFields["DESCRIPTION"] !== '')
+					&& !$conn->isUtf8mb4($table, 'DESCRIPTION')
+				)
+				{
+					$arFields["DESCRIPTION"] = Emoji::encode($arFields["DESCRIPTION"]);
 				}
 
 				if (!empty($arImageID))
@@ -673,7 +683,15 @@ else
 						($_POST['IS_EXTRANET_GROUP'] ?? '') === 'Y'
 						&& Loader::includeModule('extranet')
 						&& !CExtranet::IsExtranetSite()
+						&& $arResult['isExtranetForGroupsEnabled']
 					)
+					{
+						$arFields["SITE_ID"][] = CExtranet::GetExtranetSiteID();
+						$arFields["VISIBLE"] = "N";
+						$arFields["OPENED"] = "N";
+					}
+
+					if ($leaveGroupTypeExtranet)
 					{
 						$arFields["SITE_ID"][] = CExtranet::GetExtranetSiteID();
 						$arFields["VISIBLE"] = "N";
@@ -725,7 +743,8 @@ else
 
 				$USER_FIELD_MANAGER->EditFormAddFields("SONET_GROUP", $arFields);
 
-				if (!empty($_POST["SCRUM_PROJECT"]))
+				$isScrumProject = !empty($_POST["SCRUM_PROJECT"]);
+				if ($isScrumProject)
 				{
 					if (preg_match('/^U(\d+)$/', $_POST["SCRUM_MASTER_CODE"], $match) && (int)$match[1] > 0)
 					{
@@ -782,6 +801,28 @@ else
 					else
 					{
 						$bFirstStepSuccess = true;
+
+						if (
+							$isScrumProject
+							&& Loader::includeModule('tasks')
+							&& !ScrumLimit::isFeatureEnabled()
+							&& ScrumLimit::canTurnOnTrial()
+						)
+						{
+							ScrumLimit::turnOnTrial();
+
+							$arResult["trialEnabled"]['scrum'] = true;
+						}
+						elseif (
+							Loader::includeModule('tasks')
+							&& !ProjectLimit::isFeatureEnabled()
+							&& ProjectLimit::canTurnOnTrial()
+						)
+						{
+							ProjectLimit::turnOnTrial();
+
+							$arResult["trialEnabled"]['project'] = true;
+						}
 					}
 				}
 				else
@@ -1634,7 +1675,8 @@ else
 							!array_key_exists("TAB", $arResult)
 								? 'create'
 								: $arResult["TAB"]
-						)
+						),
+						'trialEnabled' => $arResult["trialEnabled"],
 					]);
 					require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 					die();

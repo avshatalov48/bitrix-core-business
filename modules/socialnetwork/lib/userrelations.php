@@ -27,12 +27,17 @@ use Bitrix\Main\Entity;
  */
 class UserRelationsTable extends Entity\DataManager
 {
-	const RELATION_FRIEND = SONET_RELATIONS_FRIEND;
-	const RELATION_REQUEST = SONET_RELATIONS_REQUEST;
-	const RELATION_BAN = SONET_RELATIONS_BAN;
+	/** @see SONET_RELATIONS_FRIEND */
+	public const RELATION_FRIEND = 'F';
 
-	const INITIATED_BY_FIRST = 'F';
-	const INITIATED_BY_SECOND = 'S';
+	/** @see SONET_RELATIONS_REQUEST */
+	public const RELATION_REQUEST = 'Z';
+
+	/** @see SONET_RELATIONS_BAN */
+	public const RELATION_BAN = 'B';
+
+	public const INITIATED_BY_FIRST = 'F';
+	public const INITIATED_BY_SECOND = 'S';
 
 	public static function getFilePath()
 	{

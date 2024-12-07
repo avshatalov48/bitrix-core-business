@@ -1,19 +1,21 @@
 // @flow
 
-import {Reflection, Type} from 'main.core';
-import {CurrencyItem} from "./currency-item";
+import { Reflection, Type, Extension } from 'main.core';
+import { CurrencyItem } from './currency-item';
 
 export class CurrencyCore
 {
 	static currencies: CurrencyItem[] = [];
 
 	static defaultFormat = {
-		'FORMAT_STRING': '#',
-		'DEC_POINT': '.',
-		'THOUSANDS_SEP': ' ',
-		'DECIMALS': 2,
-		'HIDE_ZERO': 'N'
+		FORMAT_STRING: '#',
+		DEC_POINT: '.',
+		THOUSANDS_SEP: ' ',
+		DECIMALS: 2,
+		HIDE_ZERO: 'N',
 	};
+
+	static region: string = '';
 
 	static getCurrencyList(): CurrencyItem[]
 	{
@@ -34,7 +36,7 @@ export class CurrencyCore
 			return;
 		}
 
-		const innerFormat = {...this.defaultFormat, ...format};
+		const innerFormat = { ...this.defaultFormat, ...format };
 
 		if (index === -1)
 		{
@@ -102,6 +104,25 @@ export class CurrencyCore
 		this.currencies = [];
 	}
 
+	static initRegion(): void
+	{
+		if (this.region === '')
+		{
+			const settings = Extension.getSettings('currency.currency-core');
+			this.region = settings.get('region') || '-';
+		}
+	}
+
+	static checkInrFormat(currency: string): boolean
+	{
+		this.initRegion();
+
+		return (
+			currency === 'INR'
+			&& (this.region === 'hi' || this.region === 'in')
+		);
+	}
+
 	static currencyFormat(price: number, currency: string, useTemplate: boolean)
 	{
 		let result = '';
@@ -109,14 +130,35 @@ export class CurrencyCore
 		const format = this.getCurrencyFormat(currency);
 		if (Type.isObject(format))
 		{
-			format.CURRENT_DECIMALS = format.DECIMALS;
+			price = Number(price);
 
-			if (format.HIDE_ZERO === 'Y' && price == parseInt(price, 10))
+			let currentDecimals = format.DECIMALS;
+			const separator = format.SEPARATOR || format.THOUSANDS_SEP;
+
+			if (format.HIDE_ZERO === 'Y' && Type.isInteger(price))
 			{
-				format.CURRENT_DECIMALS = 0;
+				currentDecimals = 0;
 			}
 
-			result = BX.util.number_format(price, format.CURRENT_DECIMALS, format.DEC_POINT, format.THOUSANDS_SEP);
+			if (this.checkInrFormat(currency))
+			{
+				result = this.numberFormatInr(
+					price,
+					currentDecimals,
+					format.DEC_POINT,
+					separator,
+				);
+			}
+			else
+			{
+				result = BX.util.number_format(
+					price,
+					currentDecimals,
+					format.DEC_POINT,
+					separator,
+				);
+			}
+
 			if (useTemplate)
 			{
 				result = format.FORMAT_STRING.replace(/(^|[^&])#/, '$1' + result);
@@ -149,7 +191,7 @@ export class CurrencyCore
 			}
 			else
 			{
-				BX.ajax.runAction("currency.format.get", {data: {currencyId: currency}})
+				BX.ajax.runAction('currency.format.get', { data: { currencyId: currency } })
 					.then((response) => {
 						const format = response.data;
 						this.setCurrencyFormat(currency, format);
@@ -160,6 +202,50 @@ export class CurrencyCore
 					});
 			}
 		})
+	}
+
+	static numberFormatInr(value: number, decimals: number, decPoint: string, thousandsSep: string): string
+	{
+		if (Number.isNaN(decimals) || decimals < 0)
+		{
+			decimals = 2;
+		}
+		decPoint = decPoint || ',';
+		thousandsSep = thousandsSep || '.';
+
+		let sign: string = '';
+		value = (+value || 0).toFixed(decimals);
+		if (value < 0)
+		{
+			sign = '-';
+			value = -value;
+		}
+
+		let i: string = parseInt(value, 10).toString();
+
+		let km = '';
+		let kw;
+
+		if (i.length <= 3)
+		{
+			kw = i;
+		}
+		else
+		{
+			const rightTriad: string = thousandsSep + i.slice(-3);
+			const leftBlock: string = i.slice(0,-3);
+			const j = (leftBlock.length > 2 ? leftBlock.length % 2 : 0);
+
+			km = (j ? leftBlock.slice(0, j) + thousandsSep : '');
+			kw = leftBlock.slice(j).replace(/(\d{2})(?=\d)/g, "$1" + thousandsSep) + rightTriad;
+		}
+		let kd = (
+			decimals
+				? decPoint + Math.abs(value - i).toFixed(decimals).replace(/-/, '0').slice(2)
+				: ''
+		);
+
+		return sign + km + kw + kd;
 	}
 }
 

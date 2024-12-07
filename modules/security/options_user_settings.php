@@ -55,10 +55,10 @@ $jsSettings = array(
 	'availableTypes' => $availableTypesDescription
 )
 ?>
-<script type="text/javascript">
+<script>
 	BX.message(<?=Json::encode($jsMessages)?>);
 </script>
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		var settings = <?=Json::encode($jsSettings)?>;
 		new BX.Security.UserEdit.Otp(settings.userId, settings);

@@ -91,11 +91,11 @@ if (!$arRubrics)
 
 $arResult['FORM_ACTION'] = htmlspecialcharsbx(str_replace('#SITE_DIR#', LANG_DIR, $arParams['PAGE']));
 
-if ($_REQUEST['sf_EMAIL'] <> '')
+if (!empty($_REQUEST['sf_EMAIL']))
 {
 	$arResult['EMAIL'] = htmlspecialcharsbx($_REQUEST['sf_EMAIL']);
 }
-elseif ($arSubscription['EMAIL'] <> '')
+elseif (!empty($arSubscription['EMAIL']))
 {
 	$arResult['EMAIL'] = htmlspecialcharsbx($arSubscription['EMAIL']);
 }
@@ -109,11 +109,11 @@ foreach ($arRubrics as $arRubric)
 {
 	$bChecked = (
 		// user is already subscribed
-		!is_array($_REQUEST['sf_RUB_ID']) && in_array($arRubric['ID'], $arSubscriptionRubrics) ||
+		!is_array($_REQUEST['sf_RUB_ID'] ?? '') && in_array($arRubric['ID'], $arSubscriptionRubrics) ||
 		// or there is no information about user subscription
-		!is_array($_REQUEST['sf_RUB_ID']) && intval($arSubscription['ID']) == 0 ||
+		!is_array($_REQUEST['sf_RUB_ID'] ?? '') && intval($arSubscription['ID']) == 0 ||
 		// or user has checked the category and posted the form
-		is_array($_REQUEST['sf_RUB_ID']) && in_array($arRubric['ID'], $_REQUEST['sf_RUB_ID'])
+		is_array($_REQUEST['sf_RUB_ID'] ?? '') && in_array($arRubric['ID'], $_REQUEST['sf_RUB_ID'])
 	);
 
 	$arResult['RUBRICS'][] = [

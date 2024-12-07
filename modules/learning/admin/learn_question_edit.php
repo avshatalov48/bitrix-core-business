@@ -22,8 +22,8 @@ ClearVars();
 $strWarning = "";
 $message = null;
 $bVarsFromForm = false;
-$ID = intval($ID);
-$filter_lesson_id = intval($filter_lesson_id);
+$ID = isset($_REQUEST['ID']) ? intval($_REQUEST['ID']) : 0;
+$filter_lesson_id = intval($filter_lesson_id ?? 0);
 
 $lessonPath = '';
 
@@ -97,12 +97,12 @@ $aTabs = array(
 $aTabs[] = $USER_FIELD_MANAGER->EditFormTab('LEARNING_QUESTIONS');
 $tabControl = new CAdminForm("questionTabControl", $aTabs);
 
-if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
+if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST['Update']) && check_bitrix_sessid())
 {
-	$arFILE_ID = $_FILES["FILE_ID"];
-	$arFILE_ID["del"] = ${"FILE_ID_del"};
+	$arFILE_ID = $_FILES["FILE_ID"] ?? [];
+	$arFILE_ID["del"] = $_REQUEST["FILE_ID_del"] ?? '';
 	$arFILE_ID["MODULE_ID"] = "learning";
-	$arFILE_ID["description"] = ${"FILE_ID_descr"};
+	$arFILE_ID["description"] = $_REQUEST["FILE_ID_descr"] ?? '';
 
 	if ($NEW_LESSON_ID !== false)
 		$LESSON_ID = $NEW_LESSON_ID;
@@ -111,19 +111,19 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 
 	$arFields = array(
 		"LESSON_ID" => $LESSON_ID,
-		"NAME" => $NAME,
-		"QUESTION_TYPE" => $QUESTION_TYPE,
-		"SORT" => $SORT,
-		"SELF" => $SELF,
-		"ACTIVE" => $ACTIVE,
-		"CORRECT_REQUIRED" => $CORRECT_REQUIRED,
-		"POINT" => $POINT,
+		"NAME" => $_REQUEST['NAME'] ?? '',
+		"QUESTION_TYPE" => $_REQUEST['QUESTION_TYPE'] ?? '',
+		"SORT" => $_REQUEST['SORT'] ?? '',
+		"SELF" => $_REQUEST['SELF'] ?? '',
+		"ACTIVE" => $_REQUEST['ACTIVE'] ?? '',
+		"CORRECT_REQUIRED" => $_REQUEST['CORRECT_REQUIRED'] ?? '',
+		"POINT" => $_REQUEST['POINT'] ?? '',
 		"FILE_ID" => $arFILE_ID,
-		"DESCRIPTION" => $DESCRIPTION,
-		"DESCRIPTION_TYPE" => $DESCRIPTION_TYPE,
-		"INCORRECT_MESSAGE" => $INCORRECT_MESSAGE,
-		"COMMENT_TEXT" => $COMMENT_TEXT,
-		"EMAIL_ANSWER" => $EMAIL_ANSWER,
+		"DESCRIPTION" => $_REQUEST['DESCRIPTION'] ?? '',
+		"DESCRIPTION_TYPE" => $_REQUEST['DESCRIPTION_TYPE'] ?? '',
+		"INCORRECT_MESSAGE" => $_REQUEST['INCORRECT_MESSAGE'] ?? '',
+		"COMMENT_TEXT" => $_REQUEST['COMMENT_TEXT'] ?? '',
+		"EMAIL_ANSWER" => $_REQUEST['EMAIL_ANSWER'] ?? '',
 		"~TIMESTAMP_X" => $DB->CurrentTimeFunction()
 	);
 
@@ -136,7 +136,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 	else
 	{
 		// check, that default answer selected
-		if ( ($QUESTION_TYPE === 'S') && (!isset($_POST['ANSWER_CORRECT'])) )
+		if (isset($_REQUEST['QUESTION_TYPE']) && $_REQUEST['QUESTION_TYPE'] === 'S' && !isset($_POST['ANSWER_CORRECT']))
 		{
 			$res = false;
 			$message = new CAdminMessage(array(
@@ -161,7 +161,8 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 	}
 	else
 	{
-
+		$QUESTION_TYPE = $_REQUEST['QUESTION_TYPE'] ?? '';
+		$ANSWER_CORRECT = $_REQUEST['ANSWER_CORRECT'] ?? '';
 		if ($QUESTION_TYPE != "T")
 		{
 			//Answers
@@ -170,7 +171,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 			while ($a = $answers->GetNext())
 			{
 				//delete?
-				if (${"ANSWER_".$a["ID"]."_DEL"} == "Y")
+				if (isset($_REQUEST["ANSWER_".$a["ID"]."_DEL"]) && $_REQUEST["ANSWER_".$a["ID"]."_DEL"] === "Y")
 				{
 						if(!CLAnswer::Delete($a["ID"]))
 						{
@@ -183,14 +184,14 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 
 					$arFields = Array(
 						"QUESTION_ID" => $ID,
-						"SORT" => ${"ANSWER_".$a["ID"]."_SORT"},
-						"ANSWER" => ${"ANSWER_".$a["ID"]."_ANSWER"},
+						"SORT" => $_REQUEST["ANSWER_".$a["ID"]."_SORT"] ?? 0,
+						"ANSWER" => $_REQUEST["ANSWER_".$a["ID"]."_ANSWER"] ?? '',
 					);
 
 					switch ($QUESTION_TYPE)
 					{
 						case "M":
-							$arFields["CORRECT"] = (${"ANSWER_".$a["ID"]."_CORRECT"} == "Y" ? "Y" : "N");
+							$arFields["CORRECT"] = isset($_REQUEST["ANSWER_".$a["ID"]."_CORRECT"]) && $_REQUEST["ANSWER_".$a["ID"]."_CORRECT"] === "Y" ? "Y" : "N";
 						break;
 						case "S":
 						default:
@@ -210,18 +211,21 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 			//add new
 			for ($i=0; $i<500; $i++)
 			{
-				if (${"ANSWER_n".$i."_ANSWER"} == '') continue;
+				if (empty($_REQUEST["ANSWER_n".$i."_ANSWER"]))
+				{
+					continue;
+				}
 
 				$arFields = Array(
-					"SORT" => ${"ANSWER_n".$i."_SORT"},
-					"ANSWER" => ${"ANSWER_n".$i."_ANSWER"},
+					"SORT" => $_REQUEST["ANSWER_n".$i."_SORT"] ?? 0,
+					"ANSWER" => $_REQUEST["ANSWER_n".$i."_ANSWER"],
 					"QUESTION_ID" => $ID,
 				);
 
 				switch ($QUESTION_TYPE)
 				{
 					case "M":
-						$arFields["CORRECT"] = (${"ANSWER_n".$i."_CORRECT"} == "Y" ? "Y" : "N");
+						$arFields["CORRECT"] = isset($_REQUEST["ANSWER_n".$i."_CORRECT"]) && $_REQUEST["ANSWER_n".$i."_CORRECT"] === "Y" ? "Y" : "N";
 					break;
 					case "S":
 					default:
@@ -255,7 +259,9 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 		//Redirect
 		if (!$bVarsFromForm)
 		{
-			if($apply == '')
+			$from = $_REQUEST['from'] ?? '';
+			$return_url = $_REQUEST['return_url'] ?? '';
+			if (empty($_REQUEST['apply']))
 			{
 				if ($from == "learn_admin")
 				{
@@ -271,7 +277,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 						. GetFilterParams("filter_", false)
 						. "&from=learn_menu");
 				}
-				elseif ($return_url <> '')
+				elseif (!empty($return_url))
 					LocalRedirect($return_url);
 				else
 				{
@@ -280,6 +286,7 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 						. GetFilterParams("filter_", false));
 				}
 			}
+
 			LocalRedirect("/bitrix/admin/learn_question_edit.php?lang=" . LANG
 				. '&LESSON_PATH=' . $uriLessonPath
 				. "&ID=" . $ID
@@ -287,14 +294,12 @@ if (!$bBadCourse && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && che
 				. GetFilterParams("filter_", false)
 				. ($from == "learn_admin" ? "&from=learn_admin" :""));
 		}
-
-
 	}
-
 }
 
 //Defaults
 $str_SELF = "N";
+$str_NAME = "";
 $str_ACTIVE = "Y";
 $str_CORRECT_REQUIRED = "N";
 $str_COMMENT_TEXT = '';
@@ -304,6 +309,9 @@ $str_SORT = "500";
 $str_QUESTION_TYPE = "S";
 $str_POINT = 10;
 $str_EMAIL_ANSWER = "N";
+$str_INCORRECT_MESSAGE = '';
+$str_FILE_ID = 0;
+$str_DESCRIPTION = '';
 
 $result = CLQuestion::GetByID($ID);
 if(!$result->ExtractFields("str_"))
@@ -311,14 +319,14 @@ if(!$result->ExtractFields("str_"))
 
 if($bVarsFromForm)
 {
-	$ACTIVE = ($ACTIVE != "Y"? "N":"Y");
+	$ACTIVE = (!isset($_REQUEST['ACTIVE']) || $_REQUEST['ACTIVE'] != "Y" ? "N" : "Y");
 	$DB->InitTableVarsForEdit("b_learn_question", "", "str_");
 	$str_FILE_ID = 0;
 }
 
-if (isset($QUESTION_TYPE) && mb_strlen($QUESTION_TYPE) === 1)
+if (isset($_REQUEST['QUESTION_TYPE']) && mb_strlen($_REQUEST['QUESTION_TYPE']) === 1)
 {
-	$str_QUESTION_TYPE = $QUESTION_TYPE;
+	$str_QUESTION_TYPE = $_REQUEST['QUESTION_TYPE'];
 }
 
 if ($ID > 0)
@@ -343,6 +351,7 @@ if (!$bBadCourse):
 
 if ($ID > 0)
 {
+	$from = $_REQUEST['from'] ?? '';
 	$arContextPopup = Array(
 		Array(
 			"TEXT"   => GetMessage('LEARNING_SINGLE_CHOICE'),
@@ -350,7 +359,7 @@ if ($ID > 0)
 				. '&LESSON_PATH=' . $uriLessonPath
 				. GetFilterParams("filter_", false)
 				. "&QUESTION_TYPE=S"
-				. ($from=="learn_admin"?"&from=learn_admin":"")
+				. (isset($from) && $from=="learn_admin"?"&from=learn_admin":"")
 				. "'",
 
 		),
@@ -418,7 +427,7 @@ if ($message)
 CAdminFileDialog::ShowScript(Array(
 		"event" => "OpenFileBrowserWindMedia",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => ($_GET["site"] ?? ''), "PATH" =>(!empty($str_FILENAME) ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -451,7 +460,7 @@ function CustomizeEditor()
 		</table>
 	</div>
 <?php $dialogHTML = ob_get_clean()?>
-<script type="text/javascript">
+<script>
 	var pEditor;
 	var pElement;
 	function SetUrl(filename, path, site)
@@ -595,10 +604,10 @@ function CustomizeEditor()
 			}
 			else // WM
 			{
-				str = '<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /><\/script>' +
-				'<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"><\/script>' +
+				str = '<script src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /><\/script>' +
+				'<script src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"><\/script>' +
 				'<div id="' + _node.arAttributes["id"] + '">WMV Player</div>' +
-				'<script type="text/javascript">new jeroenwijering.Player(document.getElementById("' + _node.arAttributes["id"] + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
+				'<script>new jeroenwijering.Player(document.getElementById("' + _node.arAttributes["id"] + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
 
 				var arParams = {
 					"file" : bxTag.params.file,
@@ -714,8 +723,8 @@ function CustomizeEditor()
 	<?=bitrix_sessid_post()?>
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
-	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
-	<input type="hidden" name="return_url" value="<?echo htmlspecialcharsbx($return_url)?>">
+	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from ?? '')?>">
+	<input type="hidden" name="return_url" value="<?echo htmlspecialcharsbx($return_url ?? '')?>">
 	<input type="hidden" name="ID" value="<?echo $ID?>">
 	<input type="hidden" name="LESSON_PATH" value="<?php echo htmlspecialcharsbx(urldecode($uriLessonPath)); ?>">
 <?php $tabControl->EndEpilogContent();?>
@@ -897,9 +906,9 @@ function CustomizeEditor()
 				$nextNum = 0;
 				$arNewIDs = array();
 				$arNewIDsInt = array();
-				if (is_array($ANSWER_HIDDEN_ID))
+				if (isset($_REQUEST['ANSWER_HIDDEN_ID']) && is_array($_REQUEST['ANSWER_HIDDEN_ID']))
 				{
-					foreach($ANSWER_HIDDEN_ID as $id)
+					foreach($_REQUEST['ANSWER_HIDDEN_ID'] as $id)
 					{
 						if ($id[0] == "n")
 						{
@@ -983,7 +992,7 @@ function CustomizeEditor()
 				<?endwhile;?>
 				</tbody>
 				</table>
-				<script type="text/javascript">
+				<script>
 					var nextNum = <?php echo $nextNum; ?>;
 
 					function addAnswer() {
@@ -1124,7 +1133,7 @@ $tabControl->EndCustomField("UFS");
 
 $tabControl->Buttons(
 	Array("back_url" =>
-		$from == "learn_admin"
+		isset($_REQUEST['from']) &&$_REQUEST['from'] == "learn_admin"
 		?
 		"learn_unilesson_admin.php?lang=" . LANG . '&LESSON_PATH=' . $uriParentLessonPath . GetFilterParams("filter_", false) . "&from=learn_admin"
 		:
@@ -1135,7 +1144,7 @@ $tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage()."?lang=" . LAN
 $tabControl->Show();?>
 <?$tabControl->ShowWarnings($tabControl->GetName(), $message);?>
 
-<script type="text/javascript">
+<script>
 
 function OnSubmit()
 {

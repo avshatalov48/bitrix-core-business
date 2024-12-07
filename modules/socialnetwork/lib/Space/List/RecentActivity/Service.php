@@ -52,17 +52,42 @@ final class Service
 		return true;
 	}
 
-	public function deleteByEntityFields(int $userId, string $entityType, int $entityId): void
+	public function deleteByUserId(int $userId, string $entityType, int $entityId): void
 	{
-		$idsToDelete = $this->recentActivity->getIdsToDelete($userId, $entityType, $entityId);
+		$idsToDelete = $this->recentActivity->getIdsToDeleteByUserId($userId, $entityType, $entityId);
+
 		if (empty($idsToDelete))
 		{
 			return;
 		}
 
-		$this->recentActivity->delete($idsToDelete);
+		$this->recentActivity->deleteMulti($idsToDelete);
 
-		$latestActivities = $this->latestActivity->getByActivityIds($userId, $idsToDelete);
+		$latestActivities = $this->latestActivity->getByUserId($userId, $idsToDelete);
+		$this->deleteLatestActivities($latestActivities);
+
+		$this->clearCache();
+	}
+
+	public function deleteBySpaceId(int $spaceId, string $entityType, int $entityId): void
+	{
+		$idsToDelete = $this->recentActivity->getIdsToDeleteBySpaceId($spaceId, $entityType, $entityId);
+		if (empty($idsToDelete))
+		{
+			return;
+		}
+
+		$this->recentActivity->deleteMulti($idsToDelete);
+
+		$latestActivities = $this->latestActivity->getBySpaceId($spaceId, $idsToDelete);
+		$this->deleteLatestActivities($latestActivities);
+
+		$this->clearCache();
+	}
+
+	private function deleteLatestActivities(array $latestActivities): void
+	{
+		$idsToDelete = [];
 		foreach ($latestActivities as $latestActivity)
 		{
 			$newestActivity = $this->recentActivity->getNewestActivity(
@@ -77,11 +102,14 @@ final class Service
 			}
 			else
 			{
-				$this->latestActivity->delete($latestActivity->getId());
+				$idsToDelete[] = $latestActivity->getId();
 			}
 		}
 
-		$this->clearCache();
+		if (!empty($idsToDelete))
+		{
+			$this->latestActivity->deleteMulti($idsToDelete);
+		}
 	}
 
 	public function get(int $userId, int $spaceId): RecentActivityData
@@ -122,6 +150,7 @@ final class Service
 				->setTypeId($queryResult['TYPE_ID'] ?? null)
 				->setEntityId($queryResult['ENTITY_ID'] ?? null)
 				->setDateTime($queryResult['DATETIME'] ?? null)
+				->setSecondaryEntityId($queryResult['SECONDARY_ENTITY_ID'] ?? null)
 			;
 
 			$this->saveInCache($recentActivityData);

@@ -83,9 +83,9 @@ class MapBuilder
 		}
 
 		$length = mb_strlen($value);
-		if($length >= 10 && mb_substr($value, 0, 1) === '7')
+		if($length >= 10 && str_starts_with($value, '7'))
 		{
-			$altPhone = '8'.mb_substr($value, 1);
+			$altPhone = '8'.substr($value, 1);
 			$this->tokens[$altPhone] = true;
 		}
 

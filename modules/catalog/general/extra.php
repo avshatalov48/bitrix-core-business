@@ -1,8 +1,7 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Catalog;
-
-Loc::loadMessages(__FILE__);
 
 class CAllExtra
 {
@@ -28,7 +27,7 @@ class CAllExtra
 		else
 		{
 			$strSql = "SELECT ID, NAME, PERCENTAGE FROM b_catalog_extra WHERE ID = ".$ID;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$res = $db_res->Fetch();
 			if (!empty($res))
 				return $res;
@@ -76,7 +75,7 @@ class CAllExtra
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_extra SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if (isset($arFields['RECALCULATE']) && 'Y' == $arFields['RECALCULATE'])
 			{

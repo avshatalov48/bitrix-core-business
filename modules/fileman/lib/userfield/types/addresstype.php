@@ -14,7 +14,6 @@ use Bitrix\Main\IO\File;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\UserField\Types\BaseType;
 use CUserTypeManager;
 
@@ -238,8 +237,7 @@ class AddressType extends BaseType
 		$address = null;
 		try
 		{
-			$convertedValue = Encoding::convertEncoding($value, LANG_CHARSET, 'UTF-8');
-			$address = Address::fromJson($convertedValue);
+			$address = Address::fromJson($value);
 		}
 		catch (ArgumentException | \TypeError $exception)
 		{
@@ -338,9 +336,7 @@ class AddressType extends BaseType
 		$result = null;
 		try
 		{
-			$result = Address::fromJson(
-				Encoding::convertEncoding($value, LANG_CHARSET, 'UTF-8')
-			);
+			$result = Address::fromJson($value);
 		}
 		catch (\Exception | \TypeError $exception) {}
 

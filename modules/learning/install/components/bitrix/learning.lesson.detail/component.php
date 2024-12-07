@@ -60,13 +60,13 @@ if ($arGroupsPeriods['IS_EXISTS'])
 }
 
 $lastDirtyCacheTS = COption::GetOptionString(
-	'learning', 
-	CLearnCacheOfLessonTreeComponent::OPTION_TS, 
+	'learning',
+	CLearnCacheOfLessonTreeComponent::OPTION_TS,
 	time()
 );
 
 // was: if($this->StartResultCache(false, $USER->GetGroups()))
-$additionalCacheID = CLearnAccess::GetAccessSymbolsHashForSiteUser() 
+$additionalCacheID = CLearnAccess::GetAccessSymbolsHashForSiteUser()
 	. '|' . $ratingTransistor . '|' . $lastDirtyCacheTS . '|' . ($delayed === false ? 'ND' : 'D');
 if ($this->StartResultCache(false,  $additionalCacheID))
 {
@@ -77,7 +77,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 		ShowError(GetMessage("LEARNING_MODULE_NOT_FOUND"));
 		return;
 	}
-	
+
 	if ($arParams["CHECK_PERMISSIONS"] !== 'N')
 	{
 		try
@@ -120,7 +120,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 		return;
 	}
 
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arCourse['DETAIL_TEXT']))
 	{
@@ -137,7 +137,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 			$arParams['COURSE_ID']
 		);
 	}
-	
+
 	// Lesson
 	$rsLesson = CLearnLesson::GetList(
 		array(),
@@ -159,7 +159,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 	$arLesson["PREVIEW_PICTURE_ARRAY"] = CFile::GetFileArray($arLesson["PREVIEW_PICTURE"]);
 	$arLesson["DETAIL_PICTURE_ARRAY"] = CFile::GetFileArray($arLesson["DETAIL_PICTURE"]);
 
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arLesson['DETAIL_TEXT']))
 	{
@@ -225,8 +225,8 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 
 	global $CACHE_MANAGER;
 	$CACHE_MANAGER->RegisterTag('LEARN_COURSE_'.$arCourse["ID"]);
-	$CACHE_MANAGER->RegisterTag('LEARN_LESSON_'.$arLesson["ID"]);
-	
+	$CACHE_MANAGER->RegisterTag('LEARN_LESSON_'.$arLesson["LESSON_ID"]);
+
 	unset($arLesson);
 	unset($rsLesson);
 	unset($arCourse);
@@ -317,6 +317,3 @@ if ($bCanUserEdit || $bCanUserRemove)
 
 	$this->AddIncludeAreaIcons($arAreaButtons);
 }
-
-
-

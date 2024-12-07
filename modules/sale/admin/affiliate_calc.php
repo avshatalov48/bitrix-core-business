@@ -139,7 +139,7 @@ if ($request->getRequestMethod() === 'GET' && $request->get('Update') !== null &
 				if ($errorMessageTmp <> '')
 					$errorMessage .= $errorMessageTmp;
 
-				if ($max_execution_time > 0 && (getmicrotime()-START_EXEC_TIME) > $max_execution_time)
+				if ($max_execution_time > 0 && (microtime(true)-START_EXEC_TIME) > $max_execution_time)
 				{
 					$bAllAffiliatesCalc = False;
 					break;
@@ -202,7 +202,7 @@ if ($request->getRequestMethod() === 'GET' && $request->get('Update') !== null &
 				if ($errorMessageTmp <> '')
 					$errorMessage .= $errorMessageTmp;
 
-				if ($max_execution_time > 0 && (getmicrotime()-START_EXEC_TIME) > $max_execution_time)
+				if ($max_execution_time > 0 && (microtime(true)-START_EXEC_TIME) > $max_execution_time)
 				{
 					$bAllAffiliatesPay = False;
 					break;
@@ -227,7 +227,7 @@ if ($request->getRequestMethod() === 'GET' && $request->get('Update') !== null &
 				<?echo GetMessage("SAC_STEP_AUTO_HINT")?><br>
 				<?echo GetMessage("SAC_STEP_AUTO_HINT1")?>
 				<a href="<?echo $APPLICATION->GetCurPage() ?>?lang=<?echo LANG; ?>&<?echo $urlParams ?>"><?echo GetMessage("SAC_STEP_AUTO_HINT2")?></a><br>
-				<script language="JavaScript" type="text/javascript">
+				<script>
 				<!--
 				function DoNext()
 				{
@@ -289,11 +289,11 @@ if ($curLoadSessID <> '' && array_key_exists($curLoadSessID, $_SESSION) && is_ar
 
 if ($errorMessage <> '')
 {
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAC_ERROR_TITLE"), "HTML"=>true));
+	CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SAC_ERROR_TITLE"), "HTML"=>true));
 }
 elseif ($okMessage <> '')
 {
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$okMessage, "TYPE"=>"OK", "MESSAGE"=>GetMessage("SAC_SUCCESS_TITLE"), "HTML"=>true));
+	CAdminMessage::ShowMessage(Array("DETAILS"=>$okMessage, "TYPE"=>"OK", "MESSAGE"=>GetMessage("SAC_SUCCESS_TITLE"), "HTML"=>true));
 }
 ?>
 

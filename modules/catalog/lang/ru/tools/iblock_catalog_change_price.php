@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLIST_CHPRICE_PRICE_TYPE_EMPTY"] = "не выбран";
 $MESS["IBLIST_CHPRICE_HEAD_TABLE_ACTION"] = "Выберите действие";
 $MESS["IBLIST_CHPRICE_HEAD_TABLE_VALUE"] = "Введите значение";
@@ -25,4 +25,3 @@ $MESS["IBLIST_CHPRICE_ERR_BASE_PRICE_SELECTED"] = "Внимание! Вы хот
 $MESS["IBLIST_CHPRICE_ERR_EQUAL_PRICE_TYPES"] = "Тип цены-источника совпадает с типом изменяемой цены";
 $MESS["IBLIST_CHPRICE_ERR_DESTINATION_PRICE_EMPTY"] = "Не выбран тип цен для изменения";
 $MESS["IBLIST_CHPRICE_ERR_SOURCE_PRICE_EMPTY"] = "Не выбран тип цены-источника";
-?>

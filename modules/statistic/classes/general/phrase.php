@@ -3,7 +3,6 @@ class CPhrase
 {
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, &$total = 0, &$grby = '', &$max = 0)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$group = false;
 		$s = "S.NAME as SEARCHER_NAME, S.ID as SEARCHER_ID";
@@ -151,7 +150,7 @@ class CPhrase
 				and S.ID = PH.SEARCHER_ID
 				".$strSqlGroup."
 			";
-			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$c = $DB->Query($strSql);
 			$total = 0;
 			$arrCount = array();
 			while ($cr = $c->Fetch())
@@ -210,7 +209,7 @@ class CPhrase
 				$strSqlOrder .= " desc ";
 			}
 			$strSql = "SELECT sum(S.PHRASES) TOTAL, max(S.PHRASES) MAX FROM b_stat_searcher S";
-			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$c = $DB->Query($strSql);
 			$cr = $c->Fetch();
 			$total = intval($cr["TOTAL"]);
 			$max = intval($cr["MAX"]);
@@ -229,7 +228,7 @@ class CPhrase
 			";
 		}
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}

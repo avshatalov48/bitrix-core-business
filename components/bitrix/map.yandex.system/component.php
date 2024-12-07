@@ -117,7 +117,7 @@ else
 }
 
 $arParams['MAP_WIDTH'] = trim($arParams['MAP_WIDTH']);
-if (ToUpper($arParams['MAP_WIDTH']) != 'AUTO' && mb_substr($arParams['MAP_WIDTH'], -1, 1) != '%')
+if (mb_strtoupper($arParams['MAP_WIDTH']) != 'AUTO' && mb_substr($arParams['MAP_WIDTH'], -1, 1) != '%')
 {
 	$arParams['MAP_WIDTH'] = intval($arParams['MAP_WIDTH']);
 	if ($arParams['MAP_WIDTH'] <= 0) $arParams['MAP_WIDTH'] = 600;

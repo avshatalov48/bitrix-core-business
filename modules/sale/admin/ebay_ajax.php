@@ -102,8 +102,5 @@ if(isset($arResult["ERROR"]))
 else
 	$arResult["RESULT"] = "OK";
 
-if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
-
 header('Content-Type: application/json');
 die(json_encode($arResult));

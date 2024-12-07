@@ -78,7 +78,7 @@ class TradeBindingCollection extends Internals\EntityCollection
 			foreach ($bindingList as $item)
 			{
 				$item->setCollection($collection);
-				$collection->addItem($item);
+				$collection->bindItem($item);
 			}
 		}
 
@@ -127,15 +127,9 @@ class TradeBindingCollection extends Internals\EntityCollection
 	/**
 	 * @param Internals\CollectableEntity $item
 	 * @return Internals\CollectableEntity
-	 * @throws Main\NotSupportedException
 	 */
 	public function addItem(Internals\CollectableEntity $item)
 	{
-		if (!($item instanceof TradeBindingEntity))
-		{
-			throw new Main\NotSupportedException();
-		}
-
 		/** @var TradeBindingEntity $entity */
 		$entity = parent::addItem($item);
 
@@ -143,6 +137,16 @@ class TradeBindingCollection extends Internals\EntityCollection
 		$order->onTradeBindingCollectionModify(EventActions::ADD, $entity);
 
 		return  $entity;
+	}
+
+	protected function bindItem(CollectableEntity $item): CollectableEntity
+	{
+		if (!($item instanceof TradeBindingEntity))
+		{
+			throw new Main\NotSupportedException();
+		}
+
+		return parent::bindItem($item);
 	}
 
 	/**

@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.Mail = this.BX.Mail || {};
-(function (exports,mail_client_filtertoolbar,mail_client_binding,main_core_events) {
+(function (exports,mail_client_filtertoolbar,mail_client_errorbox,mail_client_binding,main_core_events) {
 	'use strict';
 
 	function _createForOfIteratorHelper(o, allowArrayLike) { var it = typeof Symbol !== "undefined" && o[Symbol.iterator] || o["@@iterator"]; if (!it) { if (Array.isArray(o) || (it = _unsupportedIterableToArray(o)) || allowArrayLike && o && typeof o.length === "number") { if (it) o = it; var i = 0; var F = function F() {}; return { s: F, n: function n() { if (i >= o.length) return { done: true }; return { done: false, value: o[i++] }; }, e: function e(_e) { throw _e; }, f: F }; } throw new TypeError("Invalid attempt to iterate non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method."); } var normalCompletion = true, didErr = false, err; return { s: function s() { it = it.call(o); }, n: function n() { var step = it.next(); normalCompletion = step.done; return step; }, e: function e(_e2) { didErr = true; err = _e2; }, f: function f() { try { if (!normalCompletion && it["return"] != null) it["return"](); } finally { if (didErr) throw err; } } }; }
@@ -18,7 +18,8 @@ this.BX.Mail = this.BX.Mail || {};
 	    var config = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {
 	      filterId: '',
 	      mailboxId: 0,
-	      syncAvailable: true
+	      syncAvailable: true,
+	      configPath: ''
 	    };
 	    babelHelpers.classCallCheck(this, Mailer);
 	    _classPrivateFieldInitSpec(this, _filter, {
@@ -61,6 +62,12 @@ this.BX.Mail = this.BX.Mail || {};
 	      document.activeElement.blur();
 	    }
 	    var mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
+	    var mailErrorBoxWrapper = document.querySelector('[data-role="mail-error-box-wrapper"]');
+	    var errorBox = new mail_client_errorbox.ErrorBox({
+	      wrapper: mailErrorBoxWrapper,
+	      errorLink: config['configPath'],
+	      currentMailboxId: babelHelpers.classPrivateFieldGet(this, _mailboxId)
+	    });
 	    var filterToolbar = new mail_client_filtertoolbar.FilterToolbar({
 	      wrapper: mailCounterWrapper,
 	      filter: babelHelpers.classPrivateFieldGet(this, _filter)
@@ -125,5 +132,5 @@ this.BX.Mail = this.BX.Mail || {};
 
 	exports.Mailer = Mailer;
 
-}((this.BX.Mail.Client = this.BX.Mail.Client || {}),BX.Mail.Client,BX.Mail.Client,BX.Event));
+}((this.BX.Mail.Client = this.BX.Mail.Client || {}),BX.Mail.Client,BX.Mail.Client,BX.Mail.Client,BX.Event));
 //# sourceMappingURL=mailer.bundle.js.map

@@ -1,0 +1,38 @@
+.ui-text-editor-block-toolbar {
+	display: block;
+	opacity: 0;
+	position: absolute;
+	left: 0;
+	top: 0;
+	will-change: transform;
+}
+
+.ui-text-editor.--read-only .ui-text-editor-block-toolbar,
+.ui-text-editor.--collapsed .ui-text-editor-block-toolbar {
+	display: none;
+}
+
+.ui-text-editor-block-drag-icon {
+	width: 16px;
+	height: 24px;
+	border-radius: 3px;
+	cursor: grab;
+	overflow: hidden;
+}
+
+.ui-text-editor-block-drag-icon:hover {
+	background-color: rgba(55, 53, 47, 0.08);
+}
+
+.ui-text-editor-block-drop-line {
+	display: block;
+	box-sizing: border-box;
+	background: deepskyblue;
+	pointer-events: none;
+	height: 4px;
+	position: absolute;
+	left: 0;
+	top: 0;
+	opacity: 0;
+	will-change: transform;
+}

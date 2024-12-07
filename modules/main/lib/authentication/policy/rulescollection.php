@@ -178,7 +178,7 @@ class RulesCollection extends Type\Dictionary
 	 */
 	public function __call($name, $arguments)
 	{
-		if (substr($name, 0, 3) == "get")
+		if (str_starts_with($name, "get"))
 		{
 			$ruleName = substr($name, 3);
 			$ruleName = Text\StringHelper::camel2snake($ruleName);

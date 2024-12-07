@@ -5,6 +5,7 @@ import { ChatConfirm } from './classes/confirm';
 
 type ConfirmParams = {
 	text: string,
+	title?: string,
 	firstButtonCaption?: string,
 	secondButtonCaption?: string,
 };
@@ -59,8 +60,46 @@ export const showNotificationsModeSwitchConfirm = (): Promise<boolean> => {
 	return showTwoButtonConfirm({ text: kickText, firstButtonCaption: yesCaption });
 };
 
+export const showExitUpdateGroupChatConfirm = (): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title: Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TITLE'),
+		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TEXT_CONFIRM'),
+	});
+};
+
+export const showExitUpdateChannelConfirm = (): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title: Loc.getMessage('IM_LIB_EXIT_UPDATE_CHANNEL_TITLE'),
+		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TEXT_CONFIRM'),
+	});
+};
+
+export const showDeleteChatConfirm = (): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title: Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TITLE'),
+		text: Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT'),
+		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT_CONFIRM'),
+	});
+};
+
+export const showDeleteChannelConfirm = (): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_TITLE'),
+		text: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_TEXT'),
+		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT_CONFIRM'),
+	});
+};
+
+export const showDeleteChannelPostConfirm = (): Promise<boolean> => {
+	return showTwoButtonConfirm({
+		title: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TITLE'),
+		text: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT'),
+		firstButtonCaption: Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM'),
+	});
+};
+
 const showTwoButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
-	const { text, firstButtonCaption = '', secondButtonCaption = '' } = params;
+	const { text = '', firstButtonCaption = '', secondButtonCaption = '', title = '' } = params;
 
 	return new Promise((resolve) => {
 		const options = {
@@ -77,6 +116,11 @@ const showTwoButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
 			},
 		};
 
+		if (Type.isStringFilled(title))
+		{
+			options.title = title;
+		}
+
 		if (Type.isStringFilled(firstButtonCaption))
 		{
 			options.yesCaption = firstButtonCaption;
@@ -92,7 +136,7 @@ const showTwoButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
 };
 
 const showSingleButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
-	const { text, firstButtonCaption = '' } = params;
+	const { text, firstButtonCaption = '', title = '' } = params;
 
 	return new Promise((resolve) => {
 		const options = {
@@ -104,6 +148,11 @@ const showSingleButtonConfirm = (params: ConfirmParams): Promise<boolean> => {
 				messageBox.close();
 			},
 		};
+
+		if (Type.isStringFilled(title))
+		{
+			options.title = title;
+		}
 
 		if (Type.isStringFilled(firstButtonCaption))
 		{

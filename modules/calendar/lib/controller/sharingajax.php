@@ -453,7 +453,7 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		}
 
 		$eventData = Sharing\SharingEventManager::getCrmEventDataFromRequest($request);
-		$eventData['eventName'] = Sharing\SharingEventManager::getSharingEventNameByUserName($userName);
+		$eventData['eventName'] = Sharing\SharingEventManager::getSharingEventNameByDealId($crmDealLink->getEntityId());
 
 		$event = Sharing\SharingEventManager::prepareEventForSave($eventData, $userId, $crmDealLink);
 
@@ -485,7 +485,8 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 		(new Sharing\Link\CrmDealLinkMapper())->update($crmDealLink);
 
 		// Create calendar sharing activity in deal
-		(new Sharing\Crm\ActivityManager($event->getId(), $crmDealLink, $userName))
+		(new Sharing\Crm\ActivityManager($event->getId(), $crmDealLink, $userName, $eventLink))
+			->setEvent($event)
 			->createCalendarSharingActivity($activityName, $event->getDescription(), $eventStart)
 		;
 
@@ -807,7 +808,7 @@ class SharingAjax extends \Bitrix\Main\Engine\Controller
 
 	public function setSortJointLinksByFrequentUseAction(string $sortByFrequentUse): void
 	{
-		$sharing = new \Bitrix\Calendar\Sharing\Sharing(\CCalendar::GetUserId());
+		$sharing = new Sharing\Sharing(\CCalendar::GetUserId());
 		$sharing->setSortJointLinksByFrequentUse($sortByFrequentUse === 'Y');
 	}
 

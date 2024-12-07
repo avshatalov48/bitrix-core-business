@@ -112,9 +112,9 @@ class ScopeManager
 		return true;
 	}
 
-	public static function cleanCache() : bool
+	public static function cleanCache() : void
 	{
-		return Cache::clearCache(true, self::CACHE_DIR);
+		Cache::clearCache(true, self::CACHE_DIR);
 	}
 
 	public function getAlias($code) : ?string

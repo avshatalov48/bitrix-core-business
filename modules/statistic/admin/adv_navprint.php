@@ -5,7 +5,7 @@ echo(' - ');
 if($this->NavPageNomer != $this->NavPageCount)
 	echo($this->NavPageNomer * $this->NavPageSize);
 else
-	echo($this->NavRecordCount); 
+	echo($this->NavRecordCount);
 echo(' '.GetMessage("nav_of").' ');
 echo($this->NavRecordCount);
 echo(")\n&nbsp;\n</font>");
@@ -17,13 +17,13 @@ if($this->NavPageNomer > 1)
 else
 	echo($sBegin.'&nbsp;|&nbsp;'.$sPrev);
 
-echo('&nbsp;|&nbsp;'); 
+echo('&nbsp;|&nbsp;');
 
 $NavRecordGroup = $nStartPage;
 while($NavRecordGroup <= $nEndPage)
 {
-	if($NavRecordGroup == $this->NavPageNomer) 
-		echo('<b>'.$NavRecordGroup.'</b>&nbsp'); 
+	if($NavRecordGroup == $this->NavPageNomer)
+		echo('<b>'.$NavRecordGroup.'</b>&nbsp');
 	else
 		echo('<a class="tablebodylink" href="'.$sUrlPath.'?PAGEN_'.$this->NavNum.'='.$NavRecordGroup.$strNavQueryString.'#nav_start'.$add_anchor.'">'.$NavRecordGroup.'</a>&nbsp;');
 	$NavRecordGroup++;

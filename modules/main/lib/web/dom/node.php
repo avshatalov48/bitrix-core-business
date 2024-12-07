@@ -18,33 +18,34 @@ abstract class Node
 
 	public static $isNodeListAsArray = true;
 
-	/*@var Document $ownerDocument*/
+	/* @var Document $ownerDocument */
 	protected $ownerDocument = null;
 
-	/*@var string $nodeType*/
+	/* @var string $nodeType*/
 	protected $nodeType = null;
 
-	/*@var string $nodeName*/
+	/* @var string $nodeName*/
 	protected $nodeName = null;
 
-	/*@var string $nodeValue*/
+	/* @var string $nodeValue*/
 	protected $nodeValue = null;
 
-	/*@var NodeList $childNodes*/
+	/* @var NodeList $childNodes*/
 	protected $childNodes = null;
 
-	/*@var Node $parentNode*/
+	/* @var Node $parentNode*/
 	protected $parentNode = null;
 
-	/*@var null|NamedNodeMap $attributes*/
+	/* @var null|NamedNodeMap $attributes*/
 	protected $attributes = null;
 
-	/*@var string $textContent*/
+	/* @var string $textContent*/
 	protected $textContent = null;
 
-	/*@var bool $bxIsAlreadyClosed*/
+	/* @var bool $bxIsAlreadyClosed*/
 	public $bxIsAlreadyClosed = false;
-	/*@var bool $bxClosable*/
+
+	/* @var bool $bxClosable*/
 	public $bxClosable = true;
 
 	public $bxNodeFoundCloseTag = false;

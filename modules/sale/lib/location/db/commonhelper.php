@@ -178,7 +178,7 @@ abstract class CommonHelper
 
 	protected static function getIndexName($tableName, $ixNamePostfix, $columns = array())
 	{
-		return 'IX_'.preg_replace('#^B_#', '', ToUpper($tableName))."_".ToUpper($ixNamePostfix);
+		return 'IX_'.preg_replace('#^B_#', '', mb_strtoupper($tableName))."_".mb_strtoupper($ixNamePostfix);
 	}
 
 	protected static function escapeArray($columns)

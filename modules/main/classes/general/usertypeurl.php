@@ -1,8 +1,6 @@
 <?php
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\Types\UrlType;
-use Bitrix\Main\UserField\TypeBase;
 
 /**
  * Class CUserTypeUrl

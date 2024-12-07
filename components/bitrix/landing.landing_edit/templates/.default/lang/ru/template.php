@@ -29,6 +29,7 @@ $MESS['LANDING_TPL_HTML_DISABLED_TITLE'] = 'Ограничение тарифа'
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME'] = 'Вид страницы в соцсетях';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE'] = 'Вид богатой ссылки';
 $MESS['LANDING_FIELD_TITLE_METAOG_NAME_GROUP'] = 'Вид богатой ссылки';
+$MESS['LANDING_FIELD_TITLE_METAOG_NAME_MAINPAGE'] = 'Вид богатой ссылки';
 $MESS['LANDING_TPL_ACTION_SETTINGS'] = 'Настроить';
 $MESS['LANDING_TPL_ACTION_INSTALL_B24'] = 'Установить модуль интеграции с Битрикс24';
 $MESS['LANDING_TPL_HOOK_METRIKA_COUNTER'] = 'Universal Analytics';

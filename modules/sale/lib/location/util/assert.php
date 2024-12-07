@@ -228,7 +228,7 @@ class Assert
 
 	public static function castTrimLC($value)
 	{
-		return ToLower(trim($value));
+		return mb_strtolower(trim($value));
 	}
 
 	// announcers

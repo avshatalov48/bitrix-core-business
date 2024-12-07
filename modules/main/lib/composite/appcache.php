@@ -204,7 +204,7 @@ JS;
 			}
 			else
 			{
-				Asset::getInstance()->addString("<script type=\"text/javascript\">".self::DEBUG_HOLDER."</script>");
+				Asset::getInstance()->addString("<script>".self::DEBUG_HOLDER."</script>");
 			}
 
 			$params = Array(
@@ -398,12 +398,12 @@ JS;
 	 */
 	private static function replaceUrlCSS($url, $cssPath)
 	{
-		if (strpos($url, "://") !== false || strpos($url, "data:") !== false)
+		if (str_contains($url, "://") || str_contains($url, "data:"))
 		{
 			return $url;
 		}
 		$url = trim(stripslashes($url), "'\" \r\n\t");
-		if (mb_substr($url, 0, 1) == "/")
+		if (str_starts_with($url, "/"))
 		{
 			return $url;
 		}
@@ -576,7 +576,7 @@ JS;
 		$cache = new \CPHPCache();
 		$cachePath = self::getCachePath($manifestId);
 
-		return $cache->CleanDir($cachePath);
+		$cache->CleanDir($cachePath);
 	}
 
 	/**

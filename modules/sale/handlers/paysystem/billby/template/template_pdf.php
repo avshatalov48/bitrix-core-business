@@ -207,7 +207,7 @@ if ($params['BILLBY_HEADER'])
 	$dateValue = $params["PAYMENT_DATE_INSERT"];
 	if ($dateValue instanceof \Bitrix\Main\Type\Date || $dateValue instanceof \Bitrix\Main\Type\DateTime)
 	{
-		$dateValue = ToLower(FormatDate('d F Y', $dateValue->getTimestamp()));
+		$dateValue = mb_strtolower(FormatDate('d F Y', $dateValue->getTimestamp()));
 		$yearPostfix = Loc::getMessage('SALE_HPS_BILLBY_YEAR_POSTFIX');
 		if (!empty($yearPostfix))
 			$dateValue .= $yearPostfix;
@@ -217,7 +217,7 @@ if ($params['BILLBY_HEADER'])
 	{
 		$timeStampValue = MakeTimeStamp($dateValue);
 		if ($timeStampValue !== false)
-			$dateValue = ToLower(FormatDate('d F Y', $timeStampValue));
+			$dateValue = mb_strtolower(FormatDate('d F Y', $timeStampValue));
 		unset($timeStampValue);
 	}
 	$pdf->SetFont($fontFamily, 'B', $fontSize * 1.6);

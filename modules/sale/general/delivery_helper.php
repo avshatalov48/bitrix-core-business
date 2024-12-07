@@ -237,7 +237,7 @@ class CSaleDeliveryHelper
 				$arTmpItems[$item["PRODUCT_ID"]]["PRICE"] = $item["PRICE"];
 
 				// set items parameters
-				$arTmpItems[$item["PRODUCT_ID"]]["SET_PARENT_ID"] = $item["SET_PARENT_ID"];
+				$arTmpItems[$item["PRODUCT_ID"]]["SET_PARENT_ID"] = $item["SET_PARENT_ID"] ?? null;
 				$arTmpItems[$item["PRODUCT_ID"]]["TYPE"] = $item["TYPE"];
 
 				if( $packVolume <= 0

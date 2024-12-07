@@ -36,7 +36,7 @@ type RawChatItem = {
 	manageUsers: string,
 	manageUi: string,
 	manageSettings: string,
-	canPost: string,
+	manageMessages: string,
 	dateMessage: string,
 }
 

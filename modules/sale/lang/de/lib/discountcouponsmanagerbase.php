@@ -19,6 +19,7 @@ $MESS["BX_SALE_DCM_ERR_BAD_USER_ID"] = "Kunden-ID ist nicht angegeben";
 $MESS["BX_SALE_DCM_ERR_ORDER_ID_ABSENT"] = "Im Bearbeitungsmodus ist keine Bestell-ID angegeben";
 $MESS["BX_SALE_DCM_ERR_ORDER_ID_EXIST"] = "Bestell-ID im Modus der Erstellung einer neuen Bestellung";
 $MESS["BX_SALE_DCM_ERR_SAVE_APPLIED"] = "Genutzte Gutscheine können nicht gespeichert werden";
+$MESS["BX_SALE_DCM_ERR_SESSION_NOT_ACCESSIBLE"] = "Sitzung ist nicht verfügbar.";
 $MESS["BX_SALE_DCM_STATUS_APPLYED"] = "benutzt";
 $MESS["BX_SALE_DCM_STATUS_ENTERED"] = "hinzugefügt";
 $MESS["BX_SALE_DCM_STATUS_FREEZE"] = "Kann nicht benutzt werden";

@@ -3,12 +3,9 @@
 use Bitrix\Forum;
 use Bitrix\Main;
 
-global $USER;
 global $APPLICATION;
-
 /**
  * @var ForumCommentsComponent $this
- * @var $USER CUser
  * @var $DB CDataBase
  * @var $arParams array
  * @var $arResult array
@@ -19,7 +16,8 @@ global $APPLICATION;
 				Input params
 ********************************************************************/
 /***************** BASE ********************************************/
-
+/** @var ?\CUser $user */
+$user = $arParams['USER'] ?? null;
 $arParams["FORUM_ID"] = (int)($arParams["FORUM_ID"]);
 $arParams["~URL_TEMPLATES_PROFILE_VIEW"] = str_replace(
 	["#USER_ID#", "#author_id#", "#AUTHOR_ID#", "#UID#", "#ID#"],
@@ -119,18 +117,18 @@ $arResult["USER"] = array(
 		"EDIT" => $this->feed->canEdit() ? "Y" : "N",
 		"ADD_MESSAGE" => ($this->feed->canAdd() ? "Y" : "N")
 ));
-if ($USER->IsAuthorized())
+if ($user?->IsAuthorized())
 {
-	$arResult["USER"]["ID"] = $USER->getID();
-	$tmpName = empty($arParams["NAME_TEMPLATE"]) ? $USER->getFormattedName(false) : CUser::FormatName($arParams["NAME_TEMPLATE"], array(
-		"NAME"			=>	$USER->GetFirstName(),
-		"LAST_NAME"		=>	$USER->GetLastName(),
-		"SECOND_NAME"	=>	$USER->GetSecondName(),
-		"LOGIN"			=>	$USER->GetLogin()
+	$arResult["USER"]["ID"] = $user?->getID();
+	$tmpName = empty($arParams["NAME_TEMPLATE"]) ? $user?->getFormattedName(false) : CUser::FormatName($arParams["NAME_TEMPLATE"], array(
+		"NAME"			=>	$user?->GetFirstName(),
+		"LAST_NAME"		=>	$user?->GetLastName(),
+		"SECOND_NAME"	=>	$user?->GetSecondName(),
+		"LOGIN"			=>	$user?->GetLogin()
 	));
 
-	$arResult["USER"]["SHOWED_NAME"] = trim($this->feed->getUser()->getParam("SHOW_NAME") == "Y" ? $tmpName : $USER->getLogin());
-	$arResult["USER"]["SHOWED_NAME"] = trim(!empty($arResult["USER"]["SHOWED_NAME"]) ? $arResult["USER"]["SHOWED_NAME"] : $USER->getLogin());
+	$arResult["USER"]["SHOWED_NAME"] = trim($this->feed->getUser()->getParam("SHOW_NAME") == "Y" ? $tmpName : $user?->getLogin());
+	$arResult["USER"]["SHOWED_NAME"] = trim(!empty($arResult["USER"]["SHOWED_NAME"]) ? $arResult["USER"]["SHOWED_NAME"] : $user?->getLogin());
 }
 
 $arResult["DO_NOT_CACHE"] = true;
@@ -306,12 +304,12 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 		}
 		if ($arResult["USER"]["RIGHTS"]["MODERATE"] !== "Y")
 		{
-			if ($USER->GetId() > 0)
+			if ($user?->GetId() > 0)
 			{
 				$filter[] = [
 					"LOGIC" => "OR",
 					"=APPROVED" => "Y",
-					"AUTHOR_ID" => $USER->GetId()
+					"AUTHOR_ID" => $user?->GetId()
 				];
 			}
 			else
@@ -546,10 +544,10 @@ if ($arResult["DO_NOT_CACHE"] || $this->StartResultCache($arParams["CACHE_TIME"]
 					$arParams["ALLOW_EDIT_OWN_MESSAGE"] === "LAST" &&
 					$res["ID"] == $arResult["TOPIC"]["ABS_LAST_MESSAGE_ID"] &&
 					$res["AUTHOR_ID"] > 0 &&
-					$res["AUTHOR_ID"] == $USER->GetId()) ||
+					$res["AUTHOR_ID"] == $user?->getId()) ||
 				($arParams["ALLOW_EDIT_OWN_MESSAGE"] === "ALL" &&
 					$res["AUTHOR_ID"] > 0 &&
-					$res["AUTHOR_ID"] == $USER->GetId())
+					$res["AUTHOR_ID"] == $user?->getId())
 			)
 			{
 				$message["PANELS"]["EDIT"] = "Y";

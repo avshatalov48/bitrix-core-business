@@ -75,13 +75,6 @@ if (IsModuleInstalled('socialnetwork'))
 		if ($arParams["PATH_TO_CONPANY_DEPARTMENT"] == '')
 			$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
 	}
-
-	if (IsModuleInstalled('video'))
-	{
-		$arParams["PATH_TO_VIDEO_CALL"] = trim($arParams["PATH_TO_VIDEO_CALL"]);
-		if ($arParams["PATH_TO_VIDEO_CALL"] == '')
-			$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#USER_ID#/";
-	}
 }
 
 $arIBlocks = array();

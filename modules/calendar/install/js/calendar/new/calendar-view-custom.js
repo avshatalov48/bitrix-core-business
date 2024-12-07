@@ -44,6 +44,8 @@
 		}));
 	};
 
+	CustomView.prototype.handleClick = () => {};
+
 	CustomView.prototype.adjustViewRangeToDate = function(date)
 	{
 		if (this.calendar.currentViewName !== this.name || !this.isBuilt)

@@ -184,7 +184,7 @@ CUtil::InitJSCore(['fx', 'ui.fonts.opensans']);
 	</div>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		var slider = new JCNewsSlider('<?=CUtil::JSEscape($this->GetEditAreaId($arResult['ID']));?>', {
 			imagesContainerClassName: 'bx-newsdetail-slider-container',

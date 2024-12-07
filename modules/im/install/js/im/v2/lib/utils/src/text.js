@@ -1,6 +1,6 @@
 import {Type, Loc, Text, Dom} from 'main.core';
 
-import { FakeMessagePrefix } from 'im.v2.const';
+import { FakeMessagePrefix, FakeDraftMessagePrefix, GetParameter } from 'im.v2.const';
 
 import { emojiRegex } from './emoji-regex';
 
@@ -123,7 +123,9 @@ export const TextUtil = {
 
 	isTempMessage(messageId): boolean
 	{
-		return TextUtil.isUuidV4(messageId) || messageId.toString().startsWith(FakeMessagePrefix);
+		return TextUtil.isUuidV4(messageId)
+			|| messageId.toString().startsWith(FakeMessagePrefix)
+			|| messageId.toString().startsWith(FakeDraftMessagePrefix);
 	},
 
 	checkUrl(url): boolean
@@ -208,5 +210,20 @@ export const TextUtil = {
 		}
 
 		return `[USER=${dialogId}]${name}[/USER]`;
+	},
+
+	getMessageLink(dialogId: string, messageId: number): string
+	{
+		return `${location.origin}/online/?${GetParameter.openChat}=${dialogId}&${GetParameter.openMessage}=${messageId}`;
+	},
+
+	async copyToClipboard(textToCopy: string): Promise
+	{
+		if (navigator.clipboard)
+		{
+			return navigator.clipboard.writeText(textToCopy);
+		}
+
+		return BX.clipboard?.copy(textToCopy) ? Promise.resolve() : Promise.reject();
 	},
 };

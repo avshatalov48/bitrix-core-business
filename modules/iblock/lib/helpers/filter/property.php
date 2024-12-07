@@ -162,10 +162,7 @@ class Property
 				{
 					try
 					{
-						global $APPLICATION;
-						$convertValue = $APPLICATION->ConvertCharset(
-							$filterData[$property['FIELD_ID']], 'UTF-8', LANG_CHARSET);
-						$currentValues = Json::decode($convertValue);
+						$currentValues = Json::decode($filterData[$property['FIELD_ID']]);
 					}
 					catch(SystemException $e)
 					{
@@ -1190,7 +1187,6 @@ class Property
 			{
 				$values = array();
 				global $APPLICATION;
-				$currentValue = $APPLICATION->ConvertCharset($currentValue, 'UTF-8', LANG_CHARSET);
 				$currentValues = Json::decode($currentValue);
 				if(is_array($currentValues))
 				{

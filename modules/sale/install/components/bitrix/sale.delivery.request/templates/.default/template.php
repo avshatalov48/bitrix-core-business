@@ -45,7 +45,7 @@ $this->addExternalJs($templateFolder.'/script.js');
 	</div>
 <?endif;?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function ()
 	{
 		BX.message({

@@ -98,6 +98,6 @@
 		</tbody>
 		</table>
 	<?else:
-		echo ShowNote(GetMessage("SALE_NO_DELAY_PROD"));
+		ShowNote(GetMessage("SALE_NO_DELAY_PROD"));
 	endif;?>
 </div>

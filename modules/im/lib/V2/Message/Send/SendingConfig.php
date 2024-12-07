@@ -10,8 +10,8 @@ namespace Bitrix\Im\V2\Message\Send;
  * @method self disableUrlPreview()
  *
  * @method bool skipUserCheck()
- * @method self enableUserCheck()
- * @method self disableUserCheck()
+ * @method self enableSkipUserCheck()
+ * @method self disableSkipUserCheck()
  *
  * @method bool sendPush()
  * @method self allowSendPush()
@@ -37,6 +37,14 @@ namespace Bitrix\Im\V2\Message\Send;
  * @method self enableSkipCommandExecution()
  * @method self disableSkipCommandExecution()
  *
+ * @method bool skipCounterIncrements()
+ * @method self enableSkipCounterIncrements()
+ * @method self disableSkipCounterIncrements()
+ *
+ * @method bool skipUrlIndex()
+ * @method self enableSkipUrlIndex()
+ * @method self disableSkipUrlIndex()
+ *
  * @method bool keepConnectorSilence()
  * @method self enableKeepConnectorSilence()
  * @method self disableKeepConnectorSilence()
@@ -52,9 +60,78 @@ namespace Bitrix\Im\V2\Message\Send;
  * @method bool skipOpenlineSession()
  * @method self enableSkipOpenlineSession()
  * @method self disableSkipOpenlineSession()
+ *
+ * @method int fakeRelation()
+ * @method self setFakeRelation(int $value)
  */
 class SendingConfig
 {
+	protected const TYPE_BOOL = 'BOOL';
+	protected const TYPE_INT = 'INT';
+
+	protected const MAP_LEGACY_TO_ACTUAL_FIELD = [
+		'URL_PREVIEW' => [
+			'actual' => 'generateUrlPreview',
+			'type' => self::TYPE_BOOL,
+		],
+		'SKIP_USER_CHECK' => [
+			'actual' => 'skipUserCheck',
+			'type' => self::TYPE_BOOL,
+		],
+		'PUSH' => [
+			'actual' => 'sendPush',
+			'type' => self::TYPE_BOOL,
+		],
+		'PUSH_IMPORTANT' => [
+			'actual' => 'sendPushImmediately',
+			'type' => self::TYPE_BOOL,
+		],
+		'RECENT_ADD' => [
+			'actual' => 'addRecent',
+			'type' => self::TYPE_BOOL,
+		],
+		'RECENT_SKIP_AUTHOR' => [
+			'actual' => 'skipAuthorAddRecent',
+			'type' => self::TYPE_BOOL,
+		],
+		'CONVERT' => [
+			'actual' => 'convertMode',
+			'type' => self::TYPE_BOOL,
+		],
+		'SKIP_COMMAND' => [
+			'actual' => 'skipCommandExecution',
+			'type' => self::TYPE_BOOL,
+		],
+		'SKIP_COUNTER_INCREMENTS' => [
+			'actual' => 'skipCounterIncrements',
+			'type' => self::TYPE_BOOL,
+		],
+		'SILENT_CONNECTOR' => [
+			'actual' => 'keepConnectorSilence',
+			'type' => self::TYPE_BOOL,
+		],
+		'SKIP_CONNECTOR' => [
+			'actual' => 'skipConnectorSend',
+			'type' => self::TYPE_BOOL,
+		],
+		'IMPORTANT_CONNECTOR' => [
+			'actual' => 'forceConnectorSend',
+			'type' => self::TYPE_BOOL,
+		],
+		'NO_SESSION_OL' => [
+			'actual' => 'skipOpenlineSession',
+			'type' => self::TYPE_BOOL,
+		],
+		'FAKE_RELATION' => [
+			'actual' => 'fakeRelation',
+			'type' => self::TYPE_INT,
+		],
+		'SKIP_URL_INDEX' => [
+			'actual' => 'skipUrlIndex',
+			'type' => self::TYPE_BOOL,
+		],
+	];
+
 	/** URL_PREVIEW - Generate URL preview attachment and insert date PUT/SEND command. */
 	private bool $generateUrlPreview = true;
 
@@ -85,6 +162,10 @@ class SendingConfig
 	/** SKIP_COMMAND - Skip command execution @see \Bitrix\Im\Command::onCommandAdd */
 	private bool $skipCommandExecution = false;
 
+	private bool $skipFireEventBeforeMessageNotifySend = false;
+
+	private bool $skipCounterIncrements = false;
+
 	/**
 	 * SILENT_CONNECTOR - Keep silent. Do not send message into OL connector to the client side.
 	 * @see \Bitrix\ImOpenLines\Connector::onMessageSend
@@ -109,164 +190,145 @@ class SendingConfig
 	 */
 	private bool $skipOpenlineSession = false;
 
-	public function __construct($args = null)
+	private int $fakeRelation = 0;
+
+	public function __construct(?array $args = null)
 	{
 		if (is_array($args))
 		{
-			$this->fill($args);
+			$this->fillByLegacy($args);
 		}
+	}
+
+	public static function create($sendingConfig): self
+	{
+		if ($sendingConfig instanceof self)
+		{
+			return $sendingConfig;
+		}
+
+		if (is_array($sendingConfig))
+		{
+			return (new static($sendingConfig));
+		}
+
+		return new static();
+	}
+
+	public function fillByLegacy(array $data): void
+	{
+		foreach ($data as $fieldName => $fieldValue)
+		{
+			if (!isset(self::MAP_LEGACY_TO_ACTUAL_FIELD[$fieldName]))
+			{
+				continue;
+			}
+
+			$fieldInfo = self::MAP_LEGACY_TO_ACTUAL_FIELD[$fieldName];
+			$actualFieldName = $fieldInfo['actual'];
+			$this->{$actualFieldName} = $this->prepareValue($fieldInfo['type'], $actualFieldName, $fieldValue);
+		}
+	}
+
+	public function isSkipFireEventBeforeMessageNotifySend(): bool
+	{
+		return $this->skipFireEventBeforeMessageNotifySend;
+	}
+
+	public function skipFireEventBeforeMessageNotifySend(bool $flag = true): self
+	{
+		$this->skipFireEventBeforeMessageNotifySend = $flag;
+
+		return $this;
 	}
 
 	//region Fields magic
 
 	public function __call(string $name, array $arguments)
 	{
-		$fields = $this->fieldMirror();
-		if (isset($fields['flags'][$name]))
+		if (isset($this->{$name}))
 		{
-			return (bool)$this->{$name};
+			return $this->{$name};
 		}
 
-		foreach ($fields['flags'] as $field => [$key, $switchOn, $switchOff])
+		$parseResult = $this->parseFunction($name, $arguments);
+
+		if (empty($parseResult))
 		{
-			if ($name == $switchOn)
-			{
-				$this->{$field} = true;
-				return $this;
-			}
-			if ($name == $switchOff)
-			{
-				$this->{$field} = false;
-				return $this;
-			}
+			return null;
 		}
 
-		return null;
+		[$fieldName, $fieldValue] = $parseResult;
+		$this->{$fieldName} = $fieldValue;
+
+		return $this;
 	}
 
-	public function toArray(): array
+	protected function parseFunction(string $name, array $arguments): array
 	{
-		$fields = $this->fieldMirror();
-		$data = [];
-		foreach ($fields['flags'] as $field => [$key,,])
+		$mapPrefixToArgument = [
+			'enable' => true,
+			'allow' => true,
+			'disable' => false,
+			'disallow' => false,
+			'set' => $arguments[0] ?? null,
+		];
+
+		foreach ($mapPrefixToArgument as $prefix => $argument)
 		{
-			$data[$key] = $this->{$field};
+			if (str_starts_with($name, $prefix))
+			{
+				return [$this->getFieldNameByFunctionName($name, $prefix), $argument];
+			}
+		}
+
+		return [];
+	}
+
+	protected function getFieldNameByFunctionName(string $name, string $prefix): string
+	{
+		return lcfirst(mb_substr($name, mb_strlen($prefix)));
+	}
+
+	public function toArray(array $options = []): array
+	{
+		$boolAsString = $options['BOOL_AS_STRING'] ?? true;
+
+		$data = [];
+		foreach (self::MAP_LEGACY_TO_ACTUAL_FIELD as $legacyFieldName => $fieldInfo)
+		{
+			$actualFieldName = $fieldInfo['actual'];
+			if ($fieldInfo['type'] === self::TYPE_BOOL && $boolAsString)
+			{
+				$data[$legacyFieldName] = $this->{$actualFieldName} ? 'Y' : 'N';
+			}
+			else
+			{
+				$data[$legacyFieldName] = $this->{$actualFieldName};
+			}
 		}
 
 		return $data;
 	}
 
-	public function fill(array $data): void
+	protected function prepareValue(string $type, string $key, $value)
 	{
-		$fields = $this->fieldMirror();
-		foreach ($data as $field => $value)
+		return match ($type)
 		{
-			if (isset($fields['flags'][$field]))
-			{
-				if (is_bool($value))
-				{
-					$this->{$field} = $value;
-				}
-				else
-				{
-					$this->{$field} = ($value === 'Y');
-				}
-			}
-		}
-		foreach ($fields['flags'] as $field => [$key,,])
-		{
-			if (isset($data[$key]))
-			{
-				if (is_bool($data[$key]))
-				{
-					$this->{$field} = $data[$key];
-				}
-				else
-				{
-					$this->{$field} = ($data[$key] === 'Y');
-				}
-			}
-		}
+			self::TYPE_BOOL => $this->prepareFlag($value),
+			self::TYPE_INT => (int)$value,
+			default => null,
+		};
 	}
 
-	private function fieldMirror(): array
+	protected function prepareFlag($value): bool
 	{
-		return [
-			'flags' => [
-				/** @see SendingConfig::$generateUrlPreview */
-				'generateUrlPreview' => [
-					'URL_PREVIEW',
-					'enableUrlPreview',
-					'disableUrlPreview',
-				],
-				/** @see SendingConfig::$skipUserCheck */
-				'skipUserCheck' => [
-					'SKIP_USER_CHECK',
-					'enableUserCheck',
-					'disableUserCheck',
-				],
-				/** @see SendingConfig::$sendPush */
-				'sendPush' => [
-					'PUSH',
-					'allowSendPush',
-					'disallowSendPush',
-				],
-				/** @see SendingConfig::$sendPushImmediately */
-				'sendPushImmediately' => [
-					'PUSH_IMPORTANT',
-					'allowPushImmediately',
-					'disallowPushImmediately',
-				],
-				/** @see SendingConfig::$addRecent */
-				'addRecent' => [
-					'RECENT_ADD',
-					'enableAddRecent',
-					'disableAddRecent',
-				],
-				/** @see SendingConfig::$skipAuthorAddRecent */
-				'skipAuthorAddRecent' => [
-					'RECENT_SKIP_AUTHOR',
-					'enableSkipAuthorAddRecent',
-					'disableSkipAuthorAddRecent',
-				],
-				/** @see SendingConfig::$convertMode */
-				'convertMode' => [
-					'CONVERT',
-					'enableConvertMode',
-					'disableConvertMode',
-				],
-				/** @see SendingConfig::$skipCommandExecution */
-				'skipCommandExecution' => [
-					'SKIP_COMMAND',
-					'enableSkipCommandExecution',
-					'disableSkipCommandExecution',
-				],
-				/** @see SendingConfig::$keepConnectorSilence */
-				'keepConnectorSilence' => [
-					'SILENT_CONNECTOR',
-					'enableKeepConnectorSilence',
-					'disableKeepConnectorSilence',
-				],
-				/** @see SendingConfig::$skipConnectorSend */
-				'skipConnectorSend' => [
-					'SKIP_CONNECTOR',
-					'enableSkipConnectorSend',
-					'disableSkipConnectorSend',
-				],
-				/** @see SendingConfig::$forceConnectorSend */
-				'forceConnectorSend' => [
-					'IMPORTANT_CONNECTOR',
-					'enableForceConnectorSend',
-					'disableForceConnectorSend',
-				],
-				/** @see SendingConfig::$skipOpenlineSession */
-				'skipOpenlineSession' => [
-					'NO_SESSION_OL',
-					'enableSkipOpenlineSession',
-					'disableSkipOpenlineSession',
-				],
-			]
-		];
+		if (is_bool($value))
+		{
+			return $value;
+		}
+
+		return $value === 'Y';
 	}
 	//endregion
 }

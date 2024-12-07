@@ -74,13 +74,14 @@ class SenderTemplateSelectorComponent extends \Bitrix\Sender\Internals\CommonSen
 				'hot' => $template['HOT'] ?? '',
 				'hint' => $template['HINT'] ?? '',
 				'rowId' => $template['CATEGORY'] ?? '',
+				'count' => $template['COUNT'] ?? 0,
 				'data' => array(
 					'templateId' => $template['ID'] ?? null,
 					'templateType' => $template['TYPE'] ?? '',
 					'messageFields' => $messageFields,
 					'segments' => $template['SEGMENTS'] ?? '',
 					'dispatch' => $template['DISPATCH'] ?? '',
-				)
+				),
 			);
 		}
 

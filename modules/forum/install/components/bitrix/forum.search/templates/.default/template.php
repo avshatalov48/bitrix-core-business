@@ -131,7 +131,7 @@ elseif ($arResult["ERROR_MESSAGE"] != ""):
 if (!empty($arResult["ERROR_MESSAGE"])): 
 ?>
 <div class="forum-note-box forum-note-error">
-	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+	<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
@@ -146,7 +146,7 @@ elseif ($arResult["EMPTY"] == "Y"):
 ?>
 <div class="forum-info-box forum-search-help">
 	<div class="forum-info-box-inner">
-		<?=ShowNote(GetMessage("F_EMPTY"), "forum-note")?>
+		<? ShowNote(GetMessage("F_EMPTY"), "forum-note")?>
 	</div>
 </div>
 <?

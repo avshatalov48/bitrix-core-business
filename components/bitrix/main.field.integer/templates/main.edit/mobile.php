@@ -1,6 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var IntegerUfComponent $component
@@ -24,8 +27,7 @@ foreach($arResult['value'] as $value)
 
 if(
 	$arResult['userField']['MULTIPLE'] === 'Y'
-	&&
-	$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+	&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 )
 {
 	print $component->getHtmlBuilder()->getMobileCloneButton($arResult['fieldName']);

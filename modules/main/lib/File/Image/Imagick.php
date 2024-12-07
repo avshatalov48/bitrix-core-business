@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
@@ -29,18 +29,18 @@ class Imagick extends Engine
 	 */
 	public function getExifData()
 	{
-		if(function_exists("exif_read_data"))
+		if (function_exists("exif_read_data"))
 		{
 			return parent::getExifData();
 		}
 
 		$result = [];
 
-		if($this->image !== null)
+		if ($this->image !== null)
 		{
 			$exif = $this->image->getImageProperties("exif:*");
 
-			foreach($exif as $name => $property)
+			foreach ($exif as $name => $property)
 			{
 				$result[substr($name, 5)] = $property;
 			}
@@ -100,7 +100,7 @@ class Imagick extends Engine
 
 			return true;
 		}
-		catch (\ImagickException $e)
+		catch (\ImagickException)
 		{
 			return false;
 		}
@@ -207,7 +207,7 @@ class Imagick extends Engine
 	 */
 	public function setOrientation($orientation)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
@@ -220,13 +220,13 @@ class Imagick extends Engine
 	 */
 	public function resize(Rectangle $source, Rectangle $destination)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
 		//need crop
-		if($source->getX() <> 0 || $source->getY() <> 0)
+		if ($source->getX() <> 0 || $source->getY() <> 0)
 		{
 			$this->crop($source);
 		}
@@ -249,7 +249,7 @@ class Imagick extends Engine
 	 */
 	public function crop(Rectangle $source)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
@@ -269,7 +269,7 @@ class Imagick extends Engine
 	 */
 	public function filter(Mask $mask)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
@@ -293,14 +293,14 @@ class Imagick extends Engine
 	 */
 	public function drawTextWatermark(TextWatermark $watermark)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
 		$font = $watermark->getFont();
 
-		if(!file_exists($font))
+		if (!file_exists($font))
 		{
 			return false;
 		}
@@ -314,14 +314,14 @@ class Imagick extends Engine
 		$draw->setFont($font);
 		$draw->setFillColor(new \ImagickPixel($watermark->getColor()->toRgba()));
 
-		if(($textWidth = $watermark->getWidth()) > 0)
+		if (($textWidth = $watermark->getWidth()) > 0)
 		{
 			$draw->setFontSize(20);
 
 			$metrics = $this->image->queryFontMetrics($draw, $utfText);
 
 			$scale = 1.0;
-			if($metrics["textWidth"] > 0)
+			if ($metrics["textWidth"] > 0)
 			{
 				$scale = $textWidth / $metrics["textWidth"];
 			}
@@ -334,7 +334,7 @@ class Imagick extends Engine
 		else
 		{
 			//in GD resolution is 96 dpi, we should increase size
-			$fontSize = $watermark->getFontSize($width) * (96/72);
+			$fontSize = $watermark->getFontSize($width) * (96 / 72);
 			$draw->setFontSize($fontSize);
 
 			$metrics = $this->image->queryFontMetrics($draw, $utfText);
@@ -344,9 +344,9 @@ class Imagick extends Engine
 
 		$watermark->alignPosition($width, $height, $position);
 
-		$fontSize *= (72/90); //back to pixels
+		$fontSize *= (72 / 90); //back to pixels
 
-		if($watermark->getVerticalAlignment() == Watermark::ALIGN_BOTTOM)
+		if ($watermark->getVerticalAlignment() == Watermark::ALIGN_BOTTOM)
 		{
 			//Try to take into consideration font's descenders.
 			//Coordinates in annotateImage are for font's *baseline*.
@@ -367,12 +367,12 @@ class Imagick extends Engine
 	 */
 	public function drawImageWatermark(ImageWatermark $watermark)
 	{
-		if($this->image === null)
+		if ($this->image === null)
 		{
 			return false;
 		}
 
-		if(($image = $this->loadWatermark($watermark)) === null)
+		if (($image = $this->loadWatermark($watermark)) === null)
 		{
 			return false;
 		}
@@ -389,7 +389,7 @@ class Imagick extends Engine
 
 		$watermarkAlpha = $watermark->getAlpha();
 
-		if(intval(round($watermarkAlpha, 2)) < 1) //1% precision
+		if (intval(round($watermarkAlpha, 2)) < 1) //1% precision
 		{
 			//apply alpha to the watermark
 			$image->image->evaluateImage(\Imagick::EVALUATE_MULTIPLY, $watermarkAlpha, \Imagick::CHANNEL_ALPHA);
@@ -398,22 +398,22 @@ class Imagick extends Engine
 		$repeat = ($watermark->getMode() == ImageWatermark::MODE_REPEAT);
 
 		$posY = $position->getY();
-		while(true)
+		while (true)
 		{
 			$posX = $position->getX();
-			while(true)
+			while (true)
 			{
 				$this->image->compositeImage($image->image, \Imagick::COMPOSITE_OVER, $posX, $posY);
 
 				$posX += $watermarkWidth;
-				if($repeat == false || $posX > $width)
+				if (!$repeat || $posX > $width)
 				{
 					break;
 				}
 			}
 
 			$posY += $watermarkHeight;
-			if($repeat == false || $posY > $height)
+			if (!$repeat || $posY > $height)
 			{
 				break;
 			}
@@ -435,10 +435,14 @@ class Imagick extends Engine
 		}
 
 		$prefix = "";
+		if ($format === null)
+		{
+			$format = $this->getInfo()?->getFormat();
+		}
 		if ($format !== null)
 		{
 			$format = static::convertFormat($format);
-			if($format !== null)
+			if ($format !== null)
 			{
 				$prefix = "{$format}:";
 			}
@@ -454,11 +458,11 @@ class Imagick extends Engine
 
 		if ($this->animated)
 		{
-			return $this->image->deconstructImages()->writeImages($prefix.$file, true);
+			return $this->image->deconstructImages()->writeImages($prefix . $file, true);
 		}
 		else
 		{
-			return $this->image->writeImage($prefix.$file);
+			return $this->image->writeImage($prefix . $file);
 		}
 	}
 
@@ -483,7 +487,7 @@ class Imagick extends Engine
 	 */
 	public function clear()
 	{
-		if($this->image !== null)
+		if ($this->image !== null)
 		{
 			$this->image->clear();
 			$this->image = null;
@@ -502,7 +506,7 @@ class Imagick extends Engine
 			File\Image::FORMAT_WEBP => "webp",
 		];
 
-		if(isset($formats[$format]))
+		if (isset($formats[$format]))
 		{
 			return $formats[$format];
 		}

@@ -5,9 +5,6 @@ use Bitrix\AI;
 use Bitrix\Main;
 
 /* @note To turn on Copilot in the main.post.form component, please, execute code:
-	\COption::SetOptionString('main', 'bitrix:main.post.form:Copilot', 'Y');
-	\COption::SetOptionString('main', 'bitrix:main.post.form:AIImage', 'Y');
-	\COption::SetOptionString('tasks', 'tasks_ai_image_available', 'N');
 	\COption::SetOptionString('socialnetwork', 'ai_base_enabled', 'N');
 */
 
@@ -72,25 +69,13 @@ final class MainPostForm extends CBitrixComponent
 		}
 
 		$engine = AI\Engine::getByCategory('image', new AI\Context('main', ''));
-		if (is_null($engine))
-		{
-			return false;
-		}
 
-		return Main\Config\Option::get('main', 'bitrix:main.post.form:AIImage', 'N') === 'Y';
+		return !is_null($engine);
 	}
 
 	public function isCopilotEnabled(): bool
 	{
 		if (!Main\Loader::includeModule('ai'))
-		{
-			return false;
-		}
-
-		if (
-			!(Main\Config\Option::get('main', 'bitrix:main.post.form:Copilot', 'N') === 'Y')
-			|| !(Main\Config\Option::get('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y')
-		)
 		{
 			return false;
 		}

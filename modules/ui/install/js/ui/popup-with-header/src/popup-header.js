@@ -19,11 +19,15 @@ export class PopupHeader extends PopupComponentsMakerItem
 	{
 		if (!this.layout.container)
 		{
-			const theme = this.#getThemePicker().getAppliedTheme();
+			const theme = this.#getThemePicker()?.getAppliedTheme();
 			this.layout.container = Tag.render`<div class="ui-popupcomponentsmaker__header">${this.getContent()}</div>`;
 			this.bacgroundNode = Tag.render`<div class="ui-popupcomponentsmaker__header-background"></div>`;
 			Dom.append(this.bacgroundNode, this.layout.container);
-			this.#applyTheme(this.bacgroundNode, theme);
+
+			if (theme)
+			{
+				this.#applyTheme(this.bacgroundNode, theme);
+			}
 
 			EventEmitter.subscribe(
 				'BX.Intranet.Bitrix24:ThemePicker:onThemeApply',
@@ -37,9 +41,9 @@ export class PopupHeader extends PopupComponentsMakerItem
 		return super.getContainer();
 	}
 
-	#getThemePicker(): BX.Intranet.Bitrix24.ThemePicker
+	#getThemePicker(): ?BX.Intranet.Bitrix24.ThemePicker
 	{
-		return BX.Intranet.Bitrix24.ThemePicker.Singleton ?? top.BX.Intranet.Bitrix24.ThemePicker.Singleton;
+		return BX.Intranet?.Bitrix24?.ThemePicker.Singleton ?? top.BX.Intranet?.Bitrix24?.ThemePicker.Singleton;
 	}
 
 	#applyTheme(container, theme): void

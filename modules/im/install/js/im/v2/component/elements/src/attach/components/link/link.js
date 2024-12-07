@@ -1,36 +1,30 @@
-import {Color} from 'im.v2.const';
-
-import {AttachLinkItem} from './link-item';
+import { AttachLinkItem } from './link-item';
 
 import './link.css';
 
-import type {AttachLinkConfig} from 'im.v2.const';
+import type { AttachLinkConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachLink = {
 	name: 'AttachLink',
-	components: {AttachLinkItem},
+	components: { AttachLinkItem },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
 		internalConfig(): AttachLinkConfig
 		{
 			return this.config;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-attach-link__container">
 			<AttachLinkItem v-for="(link, index) in internalConfig.link" :config="link" :key="index" />
 		</div>
-	`
+	`,
 };

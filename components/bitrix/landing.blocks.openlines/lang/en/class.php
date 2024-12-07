@@ -10,3 +10,4 @@ $MESS["LANDING_CMP_OL_NO_BUTTON"] = "There are no CRM widgets on your site.";
 $MESS["LANDING_CMP_OL_NO_BUTTON_CP"] = "Please check that the widgets are available and active here: \"#LINK1#CRM - CRM forms#LINK2#\".";
 $MESS["LANDING_CMP_OL_NO_BUTTON_ID"] = "No CRM widget selected";
 $MESS["LANDING_CMP_OL_NO_BUTTON_SM"] = "Please check that the module \"Bitrix24 Connector\" is installed here: \"#LINK1#Settings - System Settings - Modules#LINK2#\". Also check the Bitrix24 is connected on the \"#LINK3#Client Communications#LINK4#\" page.";
+$MESS["LANDING_CMP_OL_NO_WIDGETS"] = "This widget doesn't have any Open Channels.";

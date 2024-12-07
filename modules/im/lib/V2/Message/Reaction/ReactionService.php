@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Message\Reaction;
 
 use Bitrix\Im\Model\ReactionTable;
+use Bitrix\Im\V2\Analytics\MessageAnalytics;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Message;
@@ -66,6 +67,8 @@ class ReactionService
 
 		(new PushService())->add($reactionItem);
 
+		(new MessageAnalytics())->addAddReaction($this->message->getChatId(), $reaction);
+
 		return $result;
 	}
 
@@ -104,11 +107,12 @@ class ReactionService
 	private function sendNotification(ReactionItem $reaction): void
 	{
 		$authorId = $this->message->getAuthorId();
+		$chat = Chat::getInstance($reaction->getChatId());
 		if (
 			$authorId === 0
 			|| $authorId === $this->getContext()->getUserId()
-			|| Chat::getInstance($reaction->getChatId())->getEntityType() === 'LIVECHAT'
-			|| !Chat::getInstance($reaction->getChatId())->hasAccess($authorId)
+			|| $chat->getEntityType() === 'LIVECHAT'
+			|| !$chat->checkAccess($authorId)->isSuccess()
 		)
 		{
 			return;
@@ -146,34 +150,45 @@ class ReactionService
 
 	private function getTextNotification(ReactionItem $reaction): callable
 	{
-		$genderModifier = "_{$this->getContext()->getUser()->getGender()}";
 		$chat = Chat::getInstance($reaction->getChatId())->withContext($this->context);
-		$code = "IM_MESSAGE_REACTION{$genderModifier}";
-
-		if ($chat instanceof Chat\PrivateChat)
-		{
-			return fn (?string $languageId = null) => Loc::getMessage(
-				"{$code}_PRIVATE",
-				[
-					'#DIALOG_ID#' => $chat->getDialogContextId(),
-					'#MESSAGE_ID#' => $this->message->getMessageId(),
-					'#QOUTED_MESSAGE#' => $this->message->getForPush(),
-					'#REACTION_NAME#' => $reaction->getLocName($languageId),
-				],
-				$languageId);
-		}
+		$code = $this->getTextNotificationCode($chat);
+		$contextStart = $this->getForTextNotificationContextStart($chat);
 
 		return fn (?string $languageId = null) => Loc::getMessage(
 			$code,
 			[
-				'#DIALOG_ID#' => $chat->getDialogContextId(),
-				'#MESSAGE_ID#' => $this->message->getMessageId(),
-				'#QOUTED_MESSAGE#' => $this->message->getForPush(),
-				'#CHAT_ID#' => $this->message->getChatId(),
-				'#CHAT_TITLE#' => $chat->getTitle(),
 				'#REACTION_NAME#' => $reaction->getLocName($languageId),
+				'#CONTEXT_START#' => $contextStart,
+				'#CONTEXT_END#' => "[/CONTEXT]",
+				'#QOUTED_MESSAGE#' => $this->message->getForPush(50),
 			],
-			$languageId);
+			$languageId
+		);
+	}
+
+	protected function getTextNotificationCode(Chat $chat): string
+	{
+		$genderModifier = "_{$this->getContext()->getUser()->getGender()}";
+		$chatType = match (true)
+		{
+			$chat instanceof Chat\PrivateChat => '_PRIVATE',
+			$chat instanceof Chat\CommentChat => '_COMMENT',
+			default => '',
+		};
+
+		return "IM_MESSAGE_REACTION{$genderModifier}{$chatType}_V2";
+	}
+
+	protected function getForTextNotificationContextStart(Chat $chat): string
+	{
+		if ($chat instanceof Chat\CommentChat)
+		{
+			$parentChat = $chat->getParentChat();
+
+			return "[CONTEXT={$parentChat->getDialogContextId()}/{$chat->getParentMessageId()}]";
+		}
+
+		return "[CONTEXT={$chat->getDialogContextId()}/{$this->message->getMessageId()}]";
 	}
 
 	private function processAddForLiveChat(string $reaction): void

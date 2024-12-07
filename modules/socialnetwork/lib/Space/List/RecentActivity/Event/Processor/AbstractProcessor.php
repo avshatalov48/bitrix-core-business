@@ -9,7 +9,6 @@ use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Service;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Item\RecentActivityData;
-use Bitrix\Socialnetwork\Space\List\RecentActivity\LatestActivity;
 
 abstract class AbstractProcessor implements ProcessorInterface
 {
@@ -29,7 +28,7 @@ abstract class AbstractProcessor implements ProcessorInterface
 	abstract protected function isAvailable(): bool;
 	abstract protected function process(): void;
 
-	protected function saveRecentActivityData(int $spaceId, int $entityId): void
+	protected function saveRecentActivityData(int $spaceId, int $entityId, ?int $secondaryEntityId = null): void
 	{
 		$recentActivityData =
 			(new RecentActivityData())
@@ -38,6 +37,7 @@ abstract class AbstractProcessor implements ProcessorInterface
 				->setEntityId($entityId)
 				->setUserId($this->recipient->getId())
 				->setDateTime($this->event->getDateTime())
+				->setSecondaryEntityId($secondaryEntityId)
 		;
 
 		$isSuccess = $this->activityService->save($recentActivityData);
@@ -55,23 +55,27 @@ abstract class AbstractProcessor implements ProcessorInterface
 
 	protected function sendUpdatePush(RecentActivityData $recentActivityData): void
 	{
-		$this->sendPush(PushEventDictionary::EVENT_SPACE_RECENT_ACTIVITY_UPDATE, [
-			'recentActivityData' => $recentActivityData->toArray(),
-		]);
+		$this->sendPush(
+			PushEventDictionary::EVENT_SPACE_RECENT_ACTIVITY_UPDATE,
+			[$recentActivityData->toArray()]
+		);
 	}
 
 	private function sendPush(string $command, array $params): void
 	{
-		PushService::addEvent($this->recipient->getId(), [
-			'module_id' => PushService::MODULE_NAME,
-			'command' => $command,
-			'params' => $params,
-		]);
+		if ($this->recipient->isWatchingSpaces())
+		{
+			PushService::addEvent($this->recipient->getId(), [
+				'module_id' => PushService::MODULE_NAME,
+				'command' => $command,
+				'params' => $params,
+			]);
+		}
 	}
 
 	protected function deleteRecentActivityData(int $entityId): void
 	{
-		$this->activityService->deleteByEntityFields($this->recipient->getId(), $this->getTypeId(), $entityId);
+		$this->activityService->deleteByUserId($this->recipient->getId(), $this->getTypeId(), $entityId);
 		$this->sendDeletePush($entityId);
 	}
 

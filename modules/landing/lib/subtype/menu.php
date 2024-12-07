@@ -133,7 +133,7 @@ class Menu
 				}
 				
 				// SAVE
-				if($needSave)
+				if ($needSave)
 				{
 					$block->save();
 				}

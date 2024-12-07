@@ -47,9 +47,11 @@ class CBPCreateWorkGroup
 		$subjectId = $row['ID'];
 		unset($dbSubjects, $row);
 
+		$groupName = CBPHelper::stringify($this->GroupName);
+
 		$options = array(
 			"SITE_ID" => ($this->GroupSite ? $this->GroupSite : SITE_ID),
-			"NAME" => $this->GroupName,
+			"NAME" => $groupName,
 			"VISIBLE" => "Y",
 			"OPENED" => "N",
 			"CLOSED" => "N",

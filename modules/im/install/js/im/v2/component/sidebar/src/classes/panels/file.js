@@ -1,3 +1,5 @@
+import { Type } from 'main.core';
+
 import { RestMethod } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
 import { Core } from 'im.v2.application.core';
@@ -9,12 +11,20 @@ import type { Store } from 'ui.vue3.vuex';
 import type { JsonObject } from 'main.core';
 import type { RestClient } from 'rest.client';
 
+type QueryParams = {
+	CHAT_ID: number,
+	SUBTYPE: string,
+	LIMIT: number,
+	LAST_ID?: number,
+}
+
 const REQUEST_ITEMS_LIMIT = 50;
 
 export class File
 {
 	store: Store;
 	dialogId: string;
+	chatId: number;
 	userManager: UserManager;
 	restClient: RestClient;
 
@@ -46,9 +56,24 @@ export class File
 		};
 	}
 
-	updateModels(resultData): Promise
+	updateModels(resultData, subType: string = ''): Promise
 	{
-		const { list, users, files } = resultData;
+		const { list, users, files, tariffRestrictions = {} } = resultData;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
+		const historyLimitPromise = this.store.dispatch('sidebar/files/setHistoryLimitExceeded', {
+			chatId: this.chatId,
+			isHistoryLimitExceeded,
+		});
+
+		if (subType && !Type.isArrayFilled(list))
+		{
+			return this.store.dispatch('sidebar/files/setHasNextPage', {
+				chatId: this.chatId,
+				subType,
+				hasNextPage: false,
+			});
+		}
 
 		const addUsersPromise = this.userManager.setUsersToModel(users);
 		const setFilesPromise = this.store.dispatch('files/set', files);
@@ -85,16 +110,16 @@ export class File
 		});
 
 		return Promise.all([
-			setFilesPromise, addUsersPromise, ...setSidebarFilesPromises,
+			setFilesPromise, addUsersPromise, historyLimitPromise, ...setSidebarFilesPromises,
 		]);
 	}
 
-	loadFirstPage(subType): Promise
+	loadFirstPage(subType: string): Promise
 	{
 		return this.loadFirstPageBySubType(subType);
 	}
 
-	loadNextPage(subType): Promise
+	loadNextPage(subType: string): Promise
 	{
 		return this.loadNextPageBySubType(subType);
 	}
@@ -119,7 +144,7 @@ export class File
 		return this.requestPage(queryParams);
 	}
 
-	getQueryParams(subType: string): Object
+	getQueryParams(subType: string): QueryParams
 	{
 		const queryParams = {
 			CHAT_ID: this.chatId,
@@ -136,10 +161,10 @@ export class File
 		return queryParams;
 	}
 
-	requestPage(queryParams): Promise
+	requestPage(queryParams: QueryParams): Promise
 	{
 		return this.restClient.callMethod(RestMethod.imChatFileGet, queryParams).then((response) => {
-			return this.updateModels(response.data());
+			return this.updateModels(response.data(), queryParams.SUBTYPE);
 		}).catch((error) => {
 			console.error('SidebarInfo: imChatFileGet: page request error', error);
 		});

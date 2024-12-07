@@ -765,6 +765,11 @@ $arComponentParameters = array(
 	),
 );
 
+if (!\Bitrix\Main\Analytics\Catalog::isOn())
+{
+	unset($arComponentParameters['GROUPS']['BIG_DATA_SETTINGS']);
+}
+
 // hack for correct sort
 if (isset($templateProperties['LIST_PROPERTY_CODE_MOBILE']))
 {

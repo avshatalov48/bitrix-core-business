@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\UrlPreview\Parser;
 
-use Bitrix\Main\Context;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\UrlPreview\HtmlDocument;
 use Bitrix\Main\UrlPreview\Parser;
@@ -25,7 +24,7 @@ class SchemaOrg extends Parser
 	public function handle(HtmlDocument $document)
 	{
 		$this->documentEncoding = $document->getEncoding();
-		if(strpos($document->getHtml(), 'itemscope') === false)
+		if(!str_contains($document->getHtml(), 'itemscope'))
 			return null;
 
 		if(!$this->initializeDom($document))

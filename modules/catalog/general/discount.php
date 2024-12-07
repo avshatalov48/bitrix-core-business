@@ -13,17 +13,15 @@ use Bitrix\Sale\DiscountCouponsManager;
 use Bitrix\Sale\Discount\Context;
 use Bitrix\Sale;
 
-Loc::loadMessages(__FILE__);
-
 class CAllCatalogDiscount
 {
-	const TYPE_PERCENT = 'P';
-	const TYPE_FIX = 'F';
-	const TYPE_SALE = 'S';
+	public const TYPE_PERCENT = 'P';
+	public const TYPE_FIX = 'F';
+	public const TYPE_SALE = 'S';
 
-	const ENTITY_ID = 0;
-	const CURRENT_FORMAT = 2;
-	const OLD_FORMAT = 1;
+	public const ENTITY_ID = 0;
+	public const CURRENT_FORMAT = 2;
+	public const OLD_FORMAT = 1;
 
 	private const NOTIFY_DISCOUNT_REINDEX_ID = 'CATALOG_DISC_FORMAT';
 
@@ -3597,7 +3595,7 @@ class CAllCatalogDiscount
 
 	protected static function __ConvertOldConditions($strAction, &$arFields)
 	{
-		$strAction = ToUpper($strAction);
+		$strAction = mb_strtoupper($strAction);
 		if (!is_set($arFields, 'CONDITIONS'))
 		{
 			$arConditions = array(
@@ -3807,14 +3805,14 @@ class CAllCatalogDiscount
 				{
 					if ($boolUpdate)
 					{
-						$DB->Query("DELETE FROM ".$arParams['TABLE_ID']." WHERE DISCOUNT_ID = ".$intID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->Query("DELETE FROM ".$arParams['TABLE_ID']." WHERE DISCOUNT_ID = ".$intID);
 					}
 					if (!empty($arFields[$arParams['ENTITY_ID']]))
 					{
 						foreach ($arFields[$arParams['ENTITY_ID']] as &$intValue)
 						{
 							$strSql = "INSERT INTO ".$arParams['TABLE_ID']."(DISCOUNT_ID, ".$arParams['FIELD_ID'].") VALUES(".$intID.", ".$intValue.")";
-							$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$DB->Query($strSql);
 						}
 						if (isset($intValue))
 							unset($intValue);

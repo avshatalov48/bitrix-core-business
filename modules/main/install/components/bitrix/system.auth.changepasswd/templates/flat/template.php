@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -21,7 +24,7 @@ if($arResult["PHONE_REGISTRATION"])
 <div class="bx-authform">
 
 <?
-if(!empty($arParams["~AUTH_RESULT"])):
+if(!empty($arParams["~AUTH_RESULT"]["MESSAGE"])):
 	$text = str_replace(array("<br>", "<br />"), "\n", $arParams["~AUTH_RESULT"]["MESSAGE"]);
 ?>
 	<div class="alert <?=($arParams["~AUTH_RESULT"]["TYPE"] == "OK"? "alert-success":"alert-danger")?>"><?=nl2br(htmlspecialcharsbx($text))?></div>
@@ -68,7 +71,7 @@ if(!empty($arParams["~AUTH_RESULT"])):
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure_pass" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure_pass').style.display = '';
 </script>
 <?endif?>
@@ -95,7 +98,7 @@ document.getElementById('bx_auth_secure_pass').style.display = '';
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = '';
 </script>
 <?endif?>
@@ -109,7 +112,7 @@ document.getElementById('bx_auth_secure').style.display = '';
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure_conf" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure_conf').style.display = '';
 </script>
 <?endif?>
@@ -140,21 +143,21 @@ document.getElementById('bx_auth_secure_conf').style.display = '';
 
 	</form>
 
-<script type="text/javascript">
+<script>
 document.bform.USER_CHECKWORD.focus();
 </script>
 
 <?if($arResult["PHONE_REGISTRATION"]):?>
 
-<script type="text/javascript">
+<script>
 new BX.PhoneAuth({
 	containerId: 'bx_chpass_resend',
 	errorContainerId: 'bx_chpass_error',
 	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
 	data:
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'signedData' => $arResult["SIGNED_DATA"]
-		])?>,
+		]) ?>,
 	onError:
 		function(response)
 		{

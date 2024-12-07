@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Desktop = this.BX.Desktop || {};
 this.BX.Desktop.Field = this.BX.Desktop.Field || {};
@@ -10,7 +11,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	var Dialog = /*#__PURE__*/function () {
 	  function Dialog(params) {
 	    var _this = this;
-
 	    babelHelpers.classCallCheck(this, Dialog);
 	    babelHelpers.defineProperty(this, "targetNode", null);
 	    babelHelpers.defineProperty(this, "wrapper", null);
@@ -22,11 +22,9 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    babelHelpers.defineProperty(this, "items", new Set());
 	    babelHelpers.defineProperty(this, "messages", []);
 	    this.targetNode = document.getElementById(params.targetNodeId);
-
 	    if (this.targetNode === null) {
 	      throw new Error("Target node: ".concat(params.targetNodeId, " not found"));
 	    }
-
 	    this.fieldName = params.fieldName.toLowerCase();
 	    this.fieldNameForEvent = params.fieldNameForEvent;
 	    this.fieldTitle = params.fieldTitle;
@@ -35,50 +33,38 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    this.isMultiple = params.isMultiple === 'true';
 	    this.prepareItems(params);
 	    this.createWrappers();
-
 	    if (this.isMultiple) {
 	      main_core.Runtime.loadExtension('ui.entity-selector').then(function (exports) {
 	        _this.tagSelector = _this.getTagSelector(exports.TagSelector);
-
 	        _this.tagSelector.renderTo(_this.wrapper);
-
 	        _this.adjustLayout(false);
 	      });
 	    } else {
 	      main_core.Runtime.loadExtension('ui.entity-selector').then(function (exports) {
 	        _this.dialogSelector = _this.getDialogSelector(exports.Dialog);
-
 	        _this.prepareInput(_this.targetNode);
-
 	        main_core.Event.bind(_this.targetNode, 'click', function () {
 	          _this.show();
 	        });
-
 	        if (_this.selectedItems.size) {
 	          var selectedItems = babelHelpers.toConsumableArray(_this.selectedItems);
 	          _this.input.value = selectedItems[0].title;
 	        }
-
 	        _this.adjustLayout(false);
 	      });
 	    }
 	  }
-
 	  babelHelpers.createClass(Dialog, [{
 	    key: "prepareItems",
 	    value: function prepareItems(params) {
 	      var _this2 = this;
-
 	      var values = params.items;
-
 	      if (!Array.isArray(values)) {
 	        if (values === '') {
 	          return;
 	        }
-
 	        values = [values];
 	      }
-
 	      var entityId = this.fieldName;
 	      values.forEach(function (element) {
 	        var setItem = {
@@ -87,9 +73,7 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	          title: element.NAME,
 	          tabs: entityId
 	        };
-
 	        _this2.items.add(setItem);
-
 	        if (element.IS_SELECTED === true) {
 	          _this2.selectedItems.add(setItem);
 	        }
@@ -110,7 +94,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	          dialogSelector.hide();
 	        } else {
 	          var selectedItems = dialogSelector.getSelectedItems();
-
 	          if (!selectedItems.some(function (item) {
 	            return item.title.getText() === input.value;
 	          })) {
@@ -205,12 +188,10 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    key: "onElementSelect",
 	    value: function onElementSelect(event) {
 	      var item = this.getItemFromEventData(event);
-
 	      if (!this.isMultiple) {
 	        this.selectedItems.clear();
 	        this.input.value = item.getTitle();
 	      }
-
 	      this.selectedItems.add(this.createOption(item));
 	      this.adjustLayout();
 	    }
@@ -219,13 +200,12 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    value: function onElementDeselect(event) {
 	      var item = this.getItemFromEventData(event);
 	      var unselectedItem = this.createOption(item);
-
 	      if (!this.isMultiple) {
 	        this.selectedItems.clear();
 	        this.input.value = '';
-	      } // remove object "unselectedItem" from selectedItems array
+	      }
 
-
+	      // remove object "unselectedItem" from selectedItems array
 	      this.selectedItems = new Set(babelHelpers.toConsumableArray(this.selectedItems).filter(function (element) {
 	        return JSON.stringify(element) !== JSON.stringify(unselectedItem);
 	      }));
@@ -250,10 +230,8 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    key: "adjustLayout",
 	    value: function adjustLayout() {
 	      var _this3 = this;
-
 	      var isChanged = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : true;
 	      this.clearValueItems();
-
 	      if (this.selectedItems.size) {
 	        this.selectedItems.forEach(function (item) {
 	          _this3.adjustItem(item.id);
@@ -261,7 +239,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	      } else {
 	        this.adjustItem('');
 	      }
-
 	      if (isChanged) {
 	        BX.fireEvent(document.getElementById(this.fieldNameForEvent), 'change');
 	      }
@@ -285,7 +262,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    key: "getMessage",
 	    value: function getMessage(key) {
 	      var _this$messages$key;
-
 	      return (_this$messages$key = this.messages[key]) !== null && _this$messages$key !== void 0 ? _this$messages$key : null;
 	    }
 	  }]);
@@ -315,7 +291,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    this.params = params['params'] || {};
 	    this.bindElement();
 	  }
-
 	  babelHelpers.createClass(Ui, [{
 	    key: "bindElement",
 	    value: function bindElement() {
@@ -340,33 +315,27 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	    key: "onChange",
 	    value: function onChange(eventNode) {
 	      var controlObject;
-
 	      if (eventNode instanceof main_core_events.BaseEvent) {
 	        var data = eventNode.getData();
 	        controlObject = data[0];
 	      } else {
 	        controlObject = eventNode;
 	      }
-
 	      if (!document.getElementById(this.valueContainerId)) {
 	        return;
 	      }
-
 	      var currentValue = null;
-
 	      if (controlObject.node !== null && controlObject.node.getAttribute('data-name') === this.fieldName) {
 	        currentValue = JSON.parse(controlObject.node.getAttribute('data-value'));
 	      } else {
 	        return;
 	      }
-
 	      this.changeValue(currentValue);
 	    }
 	  }, {
 	    key: "changeValue",
 	    value: function changeValue(currentValue) {
 	      var s = '';
-
 	      if (!main_core.Type.isArray(currentValue)) {
 	        if (currentValue === null) {
 	          currentValue = [{
@@ -376,7 +345,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	          currentValue = [currentValue];
 	        }
 	      }
-
 	      if (currentValue.length > 0) {
 	        for (var i = 0; i < currentValue.length; i++) {
 	          s += "<input type=\"hidden\" name=\"".concat(this.fieldName, "\" value=\"").concat(main_core.Text.encode(currentValue[i].VALUE), "\" />");
@@ -384,7 +352,6 @@ this.BX.Desktop.Field = this.BX.Desktop.Field || {};
 	      } else {
 	        s += "<input type=\"hidden\" name=\"".concat(this.fieldName, "\" value=\"\" />");
 	      }
-
 	      document.getElementById(this.valueContainerId).innerHTML = s;
 	      BX.fireEvent(document.getElementById(this.defaultFieldName), 'change');
 	    }

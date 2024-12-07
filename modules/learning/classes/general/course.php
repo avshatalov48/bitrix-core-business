@@ -177,7 +177,7 @@ class CCourse
 			foreach($arFields["SITE_ID"] as $lang)
 					$str_LID .= ", '".$DB->ForSql($lang)."'";
 			$strSql = "DELETE FROM b_learn_course_site WHERE COURSE_ID=".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql =
 				"INSERT INTO b_learn_course_site(COURSE_ID, SITE_ID) ".
@@ -185,7 +185,7 @@ class CCourse
 				"FROM b_lang ".
 				"WHERE LID IN (".$str_LID.") ";
 
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			\Bitrix\Learning\Integration\Search::indexLesson($lessonId);
 
@@ -244,7 +244,7 @@ class CCourse
 					$str_LID .= ", '".$DB->ForSql($lang)."'";
 
 				$strSql = "DELETE FROM b_learn_course_site WHERE COURSE_ID=".$ID;
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$strSql =
 					"INSERT INTO b_learn_course_site(COURSE_ID, SITE_ID) ".
@@ -252,7 +252,7 @@ class CCourse
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_LID.") ";
 
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 			}
 
@@ -325,7 +325,7 @@ class CCourse
 		global $DB;
 		$strSql = "SELECT L.*, CS.* FROM b_learn_course_site CS, b_lang L WHERE L.LID=CS.SITE_ID AND CS.COURSE_ID=".intval($COURSE_ID);
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 

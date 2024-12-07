@@ -472,11 +472,6 @@ final class GoogleApiSync
 				"SYNCHRONIZED" => ConvertTimeStamp(time(), "FULL"),
 			]);
 		}
-
-		if (GoogleApiPush::isConnectionError($lastResult))
-		{
-			AddMessage2Log("Bad interaction with Google calendar for connectionId: " . $this->connectionId . " " .$lastResult, "calendar");
-		}
 	}
 
 	public function updateSuccessLastResultConnection(): void

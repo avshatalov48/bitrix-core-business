@@ -196,29 +196,34 @@ class ExtraServicesService extends BaseService
 
 		$fields = [];
 
-		if (!empty($params['NAME']))
+		if (array_key_exists('NAME', $params))
 		{
-			$fields['NAME'] = $params['NAME'];
+			if (empty($params['NAME']))
+			{
+				throw new RestException('Parameter NAME should not be empty', self::ERROR_CHECK_FAILURE);
+			}
+
+			$fields['NAME'] = (string)$params['NAME'];
 		}
 
-		if (!empty($params['ACTIVE']))
+		if (array_key_exists('ACTIVE', $params))
 		{
 			$fields['ACTIVE'] = $params['ACTIVE'] === 'Y' ? 'Y' : 'N';
 		}
 
-		if (isset($params['DESCRIPTION']))
+		if (array_key_exists('DESCRIPTION', $params))
 		{
-			$fields['DESCRIPTION'] = $params['DESCRIPTION'];
+			$fields['DESCRIPTION'] = (string)$params['DESCRIPTION'];
 		}
 
-		if (!empty($params['SORT']))
+		if (array_key_exists('SORT', $params))
 		{
 			$fields['SORT'] = (int)$params['SORT'];
 		}
 
-		if (isset($params['CODE']))
+		if (array_key_exists('CODE', $params))
 		{
-			$fields['CODE'] = $params['CODE'];
+			$fields['CODE'] = (string)$params['CODE'];
 		}
 
 		$internalParams = self::makeInternalParams($type, $params);

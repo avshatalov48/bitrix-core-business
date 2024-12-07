@@ -60,7 +60,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      im_public.Messenger.openLines(dialogId);
 	    } else if (urlParams.has(im_v2_const.GetParameter.openChat)) {
 	      const dialogId = urlParams.get(im_v2_const.GetParameter.openChat);
-	      im_public.Messenger.openChat(dialogId);
+	      let messageId = urlParams.get(im_v2_const.GetParameter.openMessage);
+	      messageId = messageId ? Number(messageId) : 0;
+	      im_public.Messenger.openChat(dialogId, messageId);
 	    } else if (urlParams.has(im_v2_const.GetParameter.openSettings)) {
 	      const settingsSection = urlParams.get(im_v2_const.GetParameter.openSettings);
 	      im_public.Messenger.openSettings({

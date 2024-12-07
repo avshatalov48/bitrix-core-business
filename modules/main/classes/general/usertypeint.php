@@ -1,6 +1,5 @@
 <?php
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\Types\IntegerType;
 use Bitrix\Main\UserField\TypeBase;
 

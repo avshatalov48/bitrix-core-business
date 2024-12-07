@@ -740,7 +740,7 @@ $APPLICATION->SetTitle(Loc::getMessage('ADMIN_TOOLS_TITLE_IMPORT'));
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 ?>
 <div id="tools_result_div"></div>
-<script type="text/javascript">
+<script>
 	var running = false;
 
 	function DoNext(NS)

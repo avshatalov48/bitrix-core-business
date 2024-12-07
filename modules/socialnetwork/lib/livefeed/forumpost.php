@@ -130,8 +130,8 @@ final class ForumPost extends Provider
 		$CBXSanitizer->delAllTags();
 		$title = preg_replace(
 			[
-				"/\n+/is".BX_UTF_PCRE_MODIFIER,
-				"/\s+/is".BX_UTF_PCRE_MODIFIER
+				"/\n+/isu",
+				"/\s+/isu"
 			],
 			' ',
 			\CTextParser::clearAllTags($title)
@@ -443,7 +443,7 @@ final class ForumPost extends Provider
 			return $defaultValue;
 		}
 
-		return '2';
+		return '3';
 	}
 
 	public function add($params = [])
@@ -733,40 +733,19 @@ final class ForumPost extends Provider
 			return $result;
 		}
 
-		switch($logEventId)
+		return match ($logEventId)
 		{
-			case 'tasks':
-				$result = 'tasks_comment';
-				break;
-			case 'crm_activity_add':
-				$result = 'crm_activity_add_comment';
-				break;
-			case 'calendar':
-				$result = 'calendar_comment';
-				break;
-			case 'forum':
-				$result = 'forum';
-				break;
-			case 'timeman_entry':
-				$result = 'timeman_entry_comment';
-				break;
-			case 'report':
-				$result = 'report_comment';
-				break;
-			case 'photo_photo':
-				$result = 'photo_comment';
-				break;
-			case 'wiki':
-				$result = 'wiki_comment';
-				break;
-			case 'lists_new_element':
-				$result = 'lists_new_element_comment';
-				break;
-			default:
-				$result = false;
-		}
-
-		return $result;
+			'tasks' => 'tasks_comment',
+			'crm_activity_add' => 'crm_activity_add_comment',
+			'calendar' => 'calendar_comment',
+			'forum' => 'forum',
+			'timeman_entry' => 'timeman_entry_comment',
+			'report' => 'report_comment',
+			'photo_photo' => 'photo_comment',
+			'wiki' => 'wiki_comment',
+			'lists_new_element' => 'lists_new_element_comment',
+			default => false,
+		};
 	}
 
 	private function getModuleId()
@@ -779,31 +758,16 @@ final class ForumPost extends Provider
 			return $result;
 		}
 
-		switch($logEventId)
+		return match ($logEventId)
 		{
-			case 'tasks':
-				$result = 'tasks';
-				break;
-			case 'calendar':
-				$result = 'calendar';
-				break;
-			case 'forum':
-				$result = 'forum';
-				break;
-			case 'timeman_entry':
-				$result = 'timeman';
-				break;
-			case 'photo_photo':
-				$result = 'photogallery';
-				break;
-			case 'wiki':
-				$result = 'wiki';
-				break;
-			default:
-				$result = false;
-		}
-
-		return $result;
+			'tasks' => 'tasks',
+			'calendar' => 'calendar',
+			'forum' => 'forum',
+			'timeman_entry' => 'timeman',
+			'photo_photo' => 'photogallery',
+			'wiki' => 'wiki',
+			default => false,
+		};
 	}
 
 	public function getFeedParams(): array

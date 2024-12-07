@@ -218,7 +218,7 @@ if (empty($arResult["ERROR_MESSAGE"]) && !empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="reviews-note-box reviews-note-note">
 	<a name="reviewnote"></a>
-	<div class="reviews-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"]);?></div>
+	<div class="reviews-note-box-text"><? ShowNote($arResult["OK_MESSAGE"]);?></div>
 </div>
 <?
 endif;
@@ -277,7 +277,7 @@ if (!empty($arResult["MESSAGE_VIEW"])):
 <?
 endif;
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		BX.message({
 			no_topic_name : '<?=GetMessageJS("JERROR_NO_TOPIC_NAME")?>',

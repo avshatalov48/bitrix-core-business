@@ -127,6 +127,11 @@ class CBPRandomStringActivity extends CBPActivity
 
 	public function logDebug()
 	{
+		if (!$this->workflow->isDebug())
+		{
+			return;
+		}
+
 		$debugInfo = $this->getDebugInfo([
 			'StringLength' => (int) $this->StringLength,
 			'Alphabet' => $this->Alphabet,

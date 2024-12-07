@@ -8,6 +8,7 @@ use Bitrix\Im\Model\RecentTable;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\Model\UserTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\ChannelChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\User\User;
 use Bitrix\Im\V2\Entity\User\UserBot;
@@ -16,6 +17,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Entity;
+use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree;
@@ -40,6 +42,8 @@ class RecentProvider extends BaseProvider
 	private const ENTITY_TYPE_USER = 'im-user';
 	private const ENTITY_TYPE_CHAT = 'im-chat';
 	private const WITH_CHAT_BY_USERS_OPTION = 'withChatByUsers';
+	private const ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION = 'onlyWithManageMessagesRight';
+	private const EXCLUDE_FROM_RECENT_OPTION = 'excludeFromRecent';
 	private const INCLUDE_ONLY_OPTION = 'includeOnly';
 	private const EXCLUDE_OPTION = 'exclude';
 	private const SEARCH_FLAGS_OPTION = 'searchFlags';
@@ -48,6 +52,7 @@ class RecentProvider extends BaseProvider
 	private const FLAG_BOTS = 'bots';
 	private const ALLOWED_SEARCH_FLAGS = [self::FLAG_USERS, self::FLAG_CHATS, self::FLAG_BOTS];
 	private const WITH_CHAT_BY_USERS_DEFAULT = false;
+	private const ONLY_WITH_MANAGE_MESSAGE_RIGHT_DEFAULT = false;
 	private const SEARCH_FLAGS_DEFAULT = [
 		self::FLAG_USERS => true,
 		self::FLAG_CHATS => true,
@@ -62,9 +67,18 @@ class RecentProvider extends BaseProvider
 	public function __construct(array $options = [])
 	{
 		$this->options[self::WITH_CHAT_BY_USERS_OPTION] = self::WITH_CHAT_BY_USERS_DEFAULT;
+		$this->options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION] = self::ONLY_WITH_MANAGE_MESSAGE_RIGHT_DEFAULT;
 		if (isset($options[self::WITH_CHAT_BY_USERS_OPTION]) && is_bool($options[self::WITH_CHAT_BY_USERS_OPTION]))
 		{
 			$this->options[self::WITH_CHAT_BY_USERS_OPTION] = $options[self::WITH_CHAT_BY_USERS_OPTION];
+		}
+		if (isset($options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION]) && is_bool($options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION]))
+		{
+			$this->options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION] = $options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION];
+		}
+		if (isset($options[self::EXCLUDE_FROM_RECENT_OPTION]) && is_array($options[self::EXCLUDE_FROM_RECENT_OPTION]))
+		{
+			$this->options[self::EXCLUDE_FROM_RECENT_OPTION] = $options[self::EXCLUDE_FROM_RECENT_OPTION];
 		}
 		$this->prepareSearchFlags($options);
 		parent::__construct();
@@ -150,33 +164,23 @@ class RecentProvider extends BaseProvider
 
 	private function setUserAndChatIds(array $ids): void
 	{
+		$needExcludeChats = isset($this->options[self::EXCLUDE_FROM_RECENT_OPTION][self::FLAG_CHATS]);
+		$needExcludeUsers = isset($this->options[self::EXCLUDE_FROM_RECENT_OPTION][self::FLAG_USERS]);
 		foreach ($ids as $id)
 		{
-			if ($this->isChatId($id))
+			if ($this->isChatId($id) && !$needExcludeChats)
 			{
 				$chatId = substr($id, 4);
 				$this->chatIds[$chatId] = $chatId;
 			}
-			else
+			elseif (!$needExcludeUsers)
 			{
 				$this->userIds[$id] = $id;
 			}
 		}
 	}
 
-	private function getBlankItems(array $ids, array $datesUpdate = [], array $datesCreate = []): array
-	{
-		$result = [];
-
-		foreach ($ids as $id)
-		{
-			$result[] = $this->getBlankItem($id, $datesUpdate[$id] ?? null, $datesCreate[$id] ?? null);
-		}
-
-		return $result;
-	}
-
-	private function getBlankItem(string $dialogId, ?DateTime $dateMessage = null, ?DateTime $dateCreate = null): Item
+	private function getBlankItem(string $dialogId, ?DateTime $dateMessage = null, ?DateTime $secondDate = null): Item
 	{
 		$id = $dialogId;
 		$entityType = self::ENTITY_TYPE_USER;
@@ -188,7 +192,7 @@ class RecentProvider extends BaseProvider
 		$customData = ['id' => $id];
 		$sort = 0;
 		$customData['dateMessage'] = $dateMessage;
-		$customData['dateCreateTs'] = $dateCreate instanceof DateTime ? $dateCreate->getTimestamp() : 0;
+		$customData['secondSort'] = $secondDate instanceof DateTime ? $secondDate->getTimestamp() : 0;
 		if (isset($dateMessage))
 		{
 			if ($this->sortEnable)
@@ -228,7 +232,7 @@ class RecentProvider extends BaseProvider
 		}
 		$users = new UserCollection($userIds);
 		$users->fillOnlineData();
-		Chat::fillRole($chats);
+		Chat::fillSelfRelations($chats);
 		foreach ($items as $item)
 		{
 			$customData = $item->getCustomData()->getValues();
@@ -276,7 +280,7 @@ class RecentProvider extends BaseProvider
 
 					return $aUser->isExtranet() <=> $bUser->isExtranet();
 				}
-				return (int)$b->getCustomData()->get('dateCreateTs') <=> (int)$a->getCustomData()->get('dateCreateTs');
+				return (int)$b->getCustomData()->get('secondSort') <=> (int)$a->getCustomData()->get('secondSort');
 			}
 			return $b->getSort() <=> $a->getSort();
 		});
@@ -329,7 +333,7 @@ class RecentProvider extends BaseProvider
 		$result = $this
 			->getCommonChatQuery()
 			->whereMatch('INDEX.SEARCH_TITLE', $this->preparedSearchString)
-			->setOrder(['LAST_MESSAGE_ID' => 'DESC', 'DATE_CREATE' => 'DESC'])
+			->setOrder(['IS_MEMBER' => 'DESC', 'LAST_MESSAGE_ID' => 'DESC', 'DATE_CREATE' => 'DESC'])
 			->fetchAll()
 		;
 
@@ -394,7 +398,13 @@ class RecentProvider extends BaseProvider
 		foreach ($raw as $row)
 		{
 			$dialogId = 'chat' . $row['ID'];
-			$item = $this->getBlankItem($dialogId, $row['MESSAGE_DATE_CREATE'], $row['DATE_CREATE']);
+			$messageDate = $row['MESSAGE_DATE_CREATE'] ?? null;
+			$secondDate = $row['MESSAGE_DATE_CREATE'] ?? null;
+			if (($row['IS_MEMBER'] ?? 'Y') === 'N')
+			{
+				$messageDate = null;
+			}
+			$item = $this->getBlankItem($dialogId, $messageDate, $secondDate);
 			if (!empty($additionalCustomData))
 			{
 				$customData = $item->getCustomData()->getValues();
@@ -409,13 +419,12 @@ class RecentProvider extends BaseProvider
 	private function getCommonChatQuery(string $joinType = Join::TYPE_LEFT): Query
 	{
 		$query = ChatTable::query()
-			->setSelect(['ID', 'MESSAGE_DATE_CREATE' => 'MESSAGE.DATE_CREATE', 'DATE_CREATE'])
+			->setSelect(['ID', 'IS_MEMBER', 'MESSAGE_DATE_CREATE' => 'MESSAGE.DATE_CREATE', 'DATE_CREATE'])
 			->registerRuntimeField(new Reference(
 					'RELATION',
 					RelationTable::class,
 					Join::on('this.ID', 'ref.CHAT_ID')
-						->where('ref.USER_ID', $this->getContext()->getUserId())
-						->where('ref.MESSAGE_TYPE', Chat::IM_TYPE_CHAT),
+						->where('ref.USER_ID', $this->getContext()->getUserId()),
 					['join_type' => $joinType]
 				)
 			)
@@ -427,12 +436,25 @@ class RecentProvider extends BaseProvider
 					['join_type' => Join::TYPE_LEFT]
 				)
 			)
+			->registerRuntimeField(
+				'IS_MEMBER',
+				(new ExpressionField(
+					'IS_MEMBER',
+					"CASE WHEN %s IS NULL THEN 'N' ELSE 'Y' END",
+					['RELATION.ID']
+				))->configureValueType(BooleanField::class)
+			)
 			->setLimit(self::LIMIT)
-			->whereIn('TYPE', [Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN])
+			->whereIn('TYPE', [Chat::IM_TYPE_CHAT, Chat::IM_TYPE_OPEN, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL])
 		;
 		if ($joinType === Join::TYPE_LEFT)
 		{
 			$query->where($this->getRelationFilter());
+		}
+
+		if ($this->options[self::ONLY_WITH_MANAGE_MESSAGES_RIGHT_OPTION])
+		{
+			Chat\Permission::getRoleOrmFilter($query, 'MANAGE_MESSAGES', 'RELATION', '');
 		}
 
 		return $query;
@@ -448,7 +470,7 @@ class RecentProvider extends BaseProvider
 		return Query::filter()
 			->logic('or')
 			->whereNotNull('RELATION.USER_ID')
-			->where('TYPE', Chat::IM_TYPE_OPEN)
+			->whereIn('TYPE', [Chat::IM_TYPE_OPEN, Chat::IM_TYPE_OPEN_CHANNEL])
 		;
 	}
 

@@ -343,7 +343,6 @@ function GetSectionName($ID)
 
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["BARCODE_AJAX"]) && $_REQUEST["BARCODE_AJAX"] === 'Y' && check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$barcode = (isset($_REQUEST["BARCODE"])) ? htmlspecialcharsbx($_REQUEST["BARCODE"]) : "";
 	$arBarCode = array();
 	$arElement = array();
@@ -974,7 +973,7 @@ if(!$bBadBlock)
 
 						$countField = '<input type="text" name="quantity_'.$val["ID"].'" id="quantity_'.$val["ID"].'" value="1" size="3" />';
 						$active = GetMEssage('SPS_PRODUCT_ACTIVE');
-						$act = '<script type="text/javascript">'.$arParams.'</script><input class="addBtn" type="button" onclick="SelEl(el'.$val["ID"].', '.$val["ID"].')" name="btn_select_'.$val["ID"].'" id="btn_select_'.$val["ID"].'" value="'.GetMessage("SPS_SELECT").'" />';
+						$act = '<script>'.$arParams.'</script><input class="addBtn" type="button" onclick="SelEl(el'.$val["ID"].', '.$val["ID"].')" name="btn_select_'.$val["ID"].'" id="btn_select_'.$val["ID"].'" value="'.GetMessage("SPS_SELECT").'" />';
 					}
 					else
 					{
@@ -1182,7 +1181,7 @@ if(!$bBadBlock)
 
 				$arParams = "var el".$arItems["ID"]." = ".$arParams;
 
-				$act = '<script type="text/javascript">'.$arParams.'</script><input class="addBtn" type="button" onClick="SelEl(el'.$arItems["ID"].', '.$arItems["ID"].')" name="btn_select_'.$arItems["ID"].'" id="btn_select_'.$arItems["ID"].'" value="'.GetMessage("SPS_SELECT").'">';
+				$act = '<script>'.$arParams.'</script><input class="addBtn" type="button" onClick="SelEl(el'.$arItems["ID"].', '.$arItems["ID"].')" name="btn_select_'.$arItems["ID"].'" id="btn_select_'.$arItems["ID"].'" value="'.GetMessage("SPS_SELECT").'">';
 				$countField = '<input type="text" name="quantity_'.$arItems["ID"].'" id="quantity_'.$arItems["ID"].'" value="1" size="3">';
 			}
 			else
@@ -1272,7 +1271,7 @@ if(!$bBadBlock)
 	$lAdmin->BeginEpilogContent();
 
 	?>
-	<script type="text/javascript">
+	<script>
 	<?if(!empty($arSku))
 	{
 		foreach($arSku as $k => $v)
@@ -1306,10 +1305,10 @@ CJSCore::Init(array('admin_interface'));
 $APPLICATION->AddHeadScript('/bitrix/js/main/dd.js');
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 ?>
-<script type="text/javascript">
+<script>
 BX.InitializeAdmin();
 </script>
-<script type="text/javascript">
+<script>
 function SelEl(arParams, el)
 {
 	var count = 1, i;
@@ -1622,7 +1621,7 @@ foreach($arCatalog as $submenu)
 					<td><?=$arProp["NAME"]?>:</td>
 					<td>
 						<?if(array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
-							echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
+							echo "<script>var arClearHiddenFields = [];</script>";
 							echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
 								$arProp,
 								array("VALUE" => "filter_el_property_".$arProp["ID"]),
@@ -1662,7 +1661,7 @@ foreach($arCatalog as $submenu)
 							<td><? echo $arProp["NAME"]?> (<?=GetMessage("SPS_OFFER")?>):</td>
 							<td>
 								<?if(array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
-									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
+									echo "<script>var arClearHiddenFields = [];</script>";
 									echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
 										$arProp,
 										array("VALUE" => "find_sub_el_property_".$arProp["ID"]),

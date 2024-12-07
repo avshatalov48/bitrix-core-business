@@ -33,7 +33,6 @@ $context = \Bitrix\Main\Application::getInstance()->getContext();
 	<input type="hidden" name="YMPayment" value="<?=((int)$params['ASSIST_PAYMENT_YMPayment'] == 1) ? 1 : 0;?>">
 	<input type="hidden" name="QIWIPayment" value="<?=((int)$params['ASSIST_PAYMENT_QIWIPayment'] == 1) ? 1 : 0;?>">
 	<input type="hidden" name="WMPayment" value="<?=((int)$params['ASSIST_PAYMENT_WebMoneyPayment'] == 1) ? 1 : 0;?>">
-	<input type="hidden" name="AssistIDPayment" value="<?=((int)$params['ASSIST_PAYMENT_AssistIDCCPayment'] == 1) ? 1 : 0;?>">
 
 	<input type="submit" name="Submit" class="btn btn-lg btn-success pl-4 pr-4" style="border-radius: 32px;" value="<?=Loc::getMessage("SALE_HANDLERS_PAY_SYSTEM_ASSIST_ACTION");?>">
 </form>

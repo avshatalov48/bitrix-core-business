@@ -4,7 +4,6 @@ namespace Bitrix\Main\UrlPreview\Parser;
 
 use Bitrix\Main\UrlPreview\HtmlDocument;
 use Bitrix\Main\UrlPreview\UrlPreview;
-use Bitrix\Main\Web\HttpClient;
 
 class RuTube extends OpenGraph
 {
@@ -12,7 +11,15 @@ class RuTube extends OpenGraph
 	{
 		parent::handle($document);
 
-		$video = $document->getExtraField('VIDEO');
+		// $video = $document->getExtraField('VIDEO');
+		// Rutube puts page URL instead of video URL to og:video
+		$video = (
+			$document->getMetaContent('og:video:secure_url')
+			?? $document->getMetaContent('og:video:url')
+			?? $document->getMetaContent('og:video')
+			?? ''
+		);
+
 		if (!empty($video) && $document->getExtraField('VIDEO_TYPE') === 'text/html')
 		{
 			$width = $document->getExtraField('VIDEO_WIDTH');

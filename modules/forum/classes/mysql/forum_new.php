@@ -29,15 +29,14 @@ class CForumNew extends CAllForumNew
 			return false;
 		$arInsert = $DB->PrepareInsert("b_forum", $arFields);
 		$strSql = "INSERT INTO b_forum(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		$ID = intval($DB->LastID());
 
 		if ($ID > 0)
 		{
 			foreach ($arFields["SITES"] as $key => $value)
 			{
-				$DB->Query("INSERT INTO b_forum2site (FORUM_ID, SITE_ID, PATH2FORUM_MESSAGE) VALUES(".$ID.", '".$DB->ForSql($key, 2)."', '".$DB->ForSql($value, 250)."')",
-					false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("INSERT INTO b_forum2site (FORUM_ID, SITE_ID, PATH2FORUM_MESSAGE) VALUES(".$ID.", '".$DB->ForSql($key, 2)."', '".$DB->ForSql($value, 250)."')");
 			}
 			if (is_set($arFields, "GROUP_ID") && is_array($arFields["GROUP_ID"]))
 			{
@@ -100,7 +99,7 @@ class CForumNew extends CAllForumNew
 		if ($cnt > 0)
 			$strSql .= " LIMIT 0, ".$cnt;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if (COption::GetOptionString("forum", "FILTER", "Y") == "Y")
 			$db_res = new _CMessageDBResult($db_res);
 
@@ -237,7 +236,7 @@ class CForumNew extends CAllForumNew
 		static $result = array();
 		$ResultType = (in_array($ResultType, array("timestamp", "time")) ? $ResultType : "timestamp");
 		if (empty($result)):
-			$db_res = $DB->Query("SELECT ".$DB->DateToCharFunction($DB->GetNowFunction(), "FULL")." FORUM_DATE", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query("SELECT ".$DB->DateToCharFunction($DB->GetNowFunction(), "FULL")." FORUM_DATE");
 			$res = $db_res->Fetch();
 			$result["time"] = $res["FORUM_DATE"];
 			$result["timestamp"] = MakeTimeStamp($res["FORUM_DATE"]);
@@ -276,7 +275,7 @@ class CForumGroup extends CAllForumGroup
 			return false;
 		$arInsert = $DB->PrepareInsert("b_forum_group", $arFields);
 		$strSql = "INSERT INTO b_forum_group(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		$ID = intval($DB->LastID());
 
 		if (array_key_exists("LANG", $arFields))
@@ -285,7 +284,7 @@ class CForumGroup extends CAllForumGroup
 			{
 				$arInsert = $DB->PrepareInsert("b_forum_group_lang", $l);
 				$strSql = "INSERT INTO b_forum_group_lang(FORUM_GROUP_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		CForumGroup::Resort();
@@ -321,17 +320,17 @@ class CForumGroup extends CAllForumGroup
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_forum_group SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		if (is_set($arFields, "LANG"))
 		{
-			$DB->Query("DELETE FROM b_forum_group_lang WHERE FORUM_GROUP_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_forum_group_lang WHERE FORUM_GROUP_ID = ".$ID);
 
 			foreach ($arFields["LANG"] as $l)
 			{
 				$arInsert = $DB->PrepareInsert("b_forum_group_lang", $l);
 				$strSql = "INSERT INTO b_forum_group_lang(FORUM_GROUP_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		CForumGroup::Resort();

@@ -1,0 +1,54 @@
+.bx-im-sidebar-mute-chat__container {
+	--im-sidebar-main-preview-settings__color_title: #008dba;
+	--im-sidebar-main-preview-settings__color_copilot-title: #8e52ec;
+
+	display: flex;
+	flex-direction: column;
+	padding-left: 30px;
+	height: 20px;
+}
+
+.bx-im-sidebar-mute-chat__container.--not-active {
+	opacity: 0.3;
+	cursor: not-allowed;
+}
+
+.bx-im-sidebar-mute-chat__container.--not-active .bx-im-toggle__container {
+	cursor: not-allowed;
+}
+
+.bx-im-sidebar-mute-chat__title-text {
+	position: relative;
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-main-preview-settings__color_title);
+}
+
+.bx-im-sidebar-mute-chat__title {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 20px;
+}
+
+.bx-im-sidebar-mute-chat__icon::before {
+	content: '';
+	position: absolute;
+	width: 20px;
+	height: 20px;
+	left: -30px;
+	background-repeat: no-repeat;
+	background-image: url("./images/icon.svg");
+}
+
+.bx-im-sidebar-mute-chat__container.--copilot .bx-im-toggle__enabled {
+	background-color: var(--im-sidebar-main-preview-settings__color_copilot-title);
+}
+
+.bx-im-sidebar-mute-chat__container.--copilot .bx-im-sidebar-mute-chat__title-text {
+	color: var(--im-sidebar-main-preview-settings__color_copilot-title);
+}
+
+.bx-im-sidebar-mute-chat__container.--copilot .bx-im-sidebar-mute-chat__icon::before {
+	background: url("./images/copilot-icon.svg") no-repeat center;
+}

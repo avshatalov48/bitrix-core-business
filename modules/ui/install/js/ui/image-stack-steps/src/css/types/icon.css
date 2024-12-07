@@ -1,0 +1,7 @@
+.ui-image-stack-steps-image.--icon {
+	background: var(--ui-color-palette-white-base);
+	border: 1px solid var(--ui-color-base-10);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}

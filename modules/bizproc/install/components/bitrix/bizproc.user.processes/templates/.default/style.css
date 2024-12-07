@@ -24,9 +24,6 @@
 	height: 20px;
 	margin-right: 15px;
 	padding: 13px 20px;
-	-webkit-transition: background .2s cubic-bezier(.000, .465, .750, .750);
-	-moz-transition: background .2s cubic-bezier(.000, .465, .750, .750);
-	-o-transition: background .2s cubic-bezier(.000, .465, .750, .750);
 	transition: background .2s cubic-bezier(.000, .465, .750, .750);
 	vertical-align: middle;
 	white-space: nowrap;
@@ -100,9 +97,6 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 }
 
 .bx-bizproc-table-body>td {
-	-webkit-transition: none;
-	-moz-transition: none;
-	-o-transition: none;
 	transition: none;
 }
 
@@ -118,10 +112,6 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 }
 
 .bx-bizproc-table-body:hover .bp-folder-title:after, .bx-bizproc-table-body:hover .bp-folder-title-link:after, .bx-bizproc-table-body:hover .bp-task a:after {
-	background: -webkit-gradient(linear, left top, right top, from(rgba(255, 255, 255, 0)), to(#f5f5f5), color-stop(50%, #f5f5f5));
-	background: -moz-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
-	background: -o-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
-	background: -ms-linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
 	background: linear-gradient(to right, rgba(255, 255, 255, 0), #f5f5f5 50%, #f5f5f5);
 }
 
@@ -195,17 +185,216 @@ input.bx-bizproc-btn.bx-bizproc-btn-medium {
 	color: #0069ac;
 }
 
-.bp-btn-panel {
-	display: inline-block;
-	vertical-align: middle;
-}
-.bp-btn-panel .ui-btn {
-	margin: 3px;
-}
+/* <<< bizproc.task.list */
 
 .bp-task-description {
 	position: relative;
 	display: block;
 	word-break: break-all;
 }
-/* <<< bizproc.task.list */
+
+.bp-user-processes {
+	font-family: var(--ui-font-family-system);
+	color: var(--ui-color-base-70);
+}
+
+.bp-user-processes__title-link {
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.bp-user-processes__appointment {
+	font-size: var(--ui-font-size-3xs);
+	line-height: var(--ui-font-line-height-2xl);
+	margin-bottom: var(--ui-size-sm);
+}
+
+.bp-user-processes__appointment:last-of-type {
+	margin-bottom: unset;
+}
+
+.bp-user-processes__description-box {
+
+}
+
+.bp-user-processes__description {
+	display: none;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--ui-typography-text-md-font-size);
+	line-height: var(--ui-typography-text-md-line-height);
+	/*max-height: calc( 3 * var(--ui-typography-text-md-font-size));*/
+}
+
+.bp-user-processes__description-box.--expanded .bp-user-processes__short_description {
+	display: none;
+}
+
+.bp-user-processes__description-box.--expanded .bp-user-processes__description {
+	display: inline-block;
+}
+
+.bp-user-processes__description-link {
+	display: inline-block;
+	font-weight: var(--ui-font-weight-regular);
+	color: var(--ui-color-link-primary-base);
+	cursor: pointer;
+}
+
+.bp-user-processes__activity {
+	display: block;
+	white-space: nowrap;
+}
+
+.bp-user-processes__activity .ui-counter {
+	margin-right: calc(var(--ui-space-inline-xs) - 4px);
+}
+
+.bp-user-processes__activity .ui-counter-inner {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+[data-role="bizproc-counterpanel"] {
+	margin: 10px 0;
+	color: #fff;
+}
+
+
+.bp-btn-panel-block {
+	display: flex;
+	align-items: center;
+	flex-direction: column;
+	justify-content: center;
+	gap: 12px;
+	min-height: 75px;
+	min-width: 193px;
+	vertical-align: middle;
+}
+
+.bp-btn-panel-block .ui-btn {
+	width: 160px;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bp-status-panel {
+	min-height: 75px;
+	display: flex;
+	align-items: center;
+	min-width: 193px;
+}
+
+.bp-status-item {
+	display: flex;
+	align-items: center;
+	padding: 0 6px 0 12px;
+	height: 22px;
+	/*border-radius: var(--ui-border-radius-3xl);*/
+	/*background-color: var(--ui-color-base-05);*/
+	box-sizing: border-box;
+}
+
+.bp-status-panel.--success .bp-status-item {
+	padding: 0 8px 0 8px;
+	/*background-color: #eaf6c3;*/
+}
+
+.bp-status-name {
+	display: block;
+	margin-right: 4px;
+	font-size: var(--ui-font-size-5xs);
+	font-weight: var(--ui-font-weight-bold);
+	color: var(--ui-color-base-70);
+	text-transform: uppercase;
+}
+
+.bp-status-panel.--success .bp-status-name {
+	color: #719100;
+	margin: 0 0 0 4px;
+}
+
+.bp-status-panel.--link .bp-status-name {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	margin-bottom: 10px;
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-regular);
+	color: var(--ui-color-link-primary-base);
+	text-transform: none;
+}
+
+.bp-status-panel.--success .bp-status-icon-box {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 12px;
+	height: 12px;
+	/*border-radius: var(--ui-border-radius-circle);*/
+	/*background-color: var(--ui-color-palette-green-35);*/
+}
+
+.bp-status-icon.ui-icon-set {
+	border-radius: var(--ui-border-radius-circle);
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-base-30);
+}
+
+.bp-status-panel.--success .bp-status-icon.ui-icon-set {
+	--ui-icon-set__icon-size: 8px;
+	--ui-icon-set__icon-color: var(--ui-color-palette-green-70);
+}
+
+.bp-status-panel.--link .bp-status-icon.ui-icon-set {
+	margin-right: 2px;
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-link-primary-base);
+}
+
+.bp-status-panel.--link .ui-btn {
+	margin-left: 22px;
+}
+
+.bp-btn-panel-block .ui-btn,
+.bp-btn-panel-block .ui-btn + .ui-btn {
+	margin: 0;
+}
+
+.main-grid-row .bp-task-progress-cell,
+.main-grid-row .bp-summary-cell
+{
+	background-color: #FCFCFD;
+}
+.main-grid-row:hover .bp-task-progress-cell,
+.main-grid-row:hover .bp-summary-cell
+{
+	background-color: #F2F3F5 !important;
+}
+
+.main-grid-row.main-grid-row-checked .bp-task-progress-cell,
+.main-grid-row.main-grid-row-checked .bp-summary-cell {
+	background-color: #F7FCE7 !important;
+}
+
+.main-grid-row .bp-status-completed-cell {
+	background-color: #F5FCDE;
+}
+.main-grid-row:hover .bp-status-completed-cell {
+	background-color: #EDF4D8 !important;
+}
+
+.main-grid-row.main-grid-row-checked .bp-status-completed-cell {
+	background-color: #EAF6C3 !important;
+}
+
+.bp-modified-cell {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.bp-modified-cell .bp-row-counters {
+	margin-left: -5px;
+	min-width: 34px;
+	display: inline-block;
+	text-align: center;
+}

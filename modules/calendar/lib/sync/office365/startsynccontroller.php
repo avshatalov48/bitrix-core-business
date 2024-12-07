@@ -196,6 +196,9 @@ class StartSyncController implements StartSynchronization
 	private function initConnection(): ?Connection
 	{
 		$connectionManager = new ConnectionManager();
+		$connections = $connectionManager->getConnectionsData($this->owner, [Helper::ACCOUNT_TYPE]);
+		$connectionManager->deactivateConnections($connections);
+
 		$result = $connectionManager->initConnection(
 			$this->owner,
 			Helper::ACCOUNT_TYPE,

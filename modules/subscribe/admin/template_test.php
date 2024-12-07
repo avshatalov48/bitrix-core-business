@@ -236,7 +236,7 @@ if ($bTest):
 			$strBody = '';
 		}
 ?>
-<script language="JavaScript">
+<script>
 <!--
 function hide(id)
 {
@@ -277,7 +277,7 @@ function show(id)
 </table>
 </div>
 </p>
-<script language="JavaScript">
+<script>
 <!--
 hide("INPUT");
 //-->
@@ -327,7 +327,7 @@ hide("INPUT");
 </table>
 </div>
 </p>
-<script language="JavaScript">
+<script>
 <!--
 hide("OUTPUT");
 //-->

@@ -41,7 +41,7 @@ ShowMessage($arParams["~AUTH_RESULT"]);
 
 </form>
 
-<script type="text/javascript">
+<script>
 document.bform.USER_LOGIN.focus();
 </script>
 </div>

@@ -46,7 +46,7 @@ class CAllCatalogStoreBarCode
 		if(!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_store_barcode SET ".$strUpdate." WHERE ID = ".$id." ";
-			if(!$DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if(!$DB->Query($strSql, true))
 				return false;
 		}
 

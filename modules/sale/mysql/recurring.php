@@ -33,7 +33,7 @@ class CSaleRecurring extends CAllSaleRecurring
 				"	".$DB->DateToCharFunction("SR.NEXT_DATE", "FULL")." as NEXT_DATE ".
 				"FROM b_sale_recurring SR WHERE SR.ID = ".$ID;
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$GLOBALS["SALE_RECURRING"]["SALE_RECURRING_CACHE_".$ID] = $res;
@@ -103,7 +103,7 @@ class CSaleRecurring extends CAllSaleRecurring
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -134,7 +134,7 @@ class CSaleRecurring extends CAllSaleRecurring
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -160,7 +160,7 @@ class CSaleRecurring extends CAllSaleRecurring
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -178,7 +178,7 @@ class CSaleRecurring extends CAllSaleRecurring
 		$strSql =
 			"INSERT INTO b_sale_recurring(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 

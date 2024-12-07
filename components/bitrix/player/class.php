@@ -246,10 +246,7 @@ class CBitrixPlayer extends CBitrixComponent
 			if (mb_strpos($uri->getHost(), 'xn--') === false)
 			{
 				$arErrors = array();
-				if(defined("BX_UTF"))
-					$punicodedPath = CBXPunycode::ToUnicode($uri->getHost(), $arErrors);
-				else
-					$punicodedPath = CBXPunycode::ToASCII($uri->getHost(), $arErrors);
+				$punicodedPath = CBXPunycode::ToUnicode($uri->getHost(), $arErrors);
 
 				if ($punicodedPath != $uri->getHost())
 					$uri->setHost($punicodedPath);

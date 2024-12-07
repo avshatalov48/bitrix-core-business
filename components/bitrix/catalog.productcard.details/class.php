@@ -7,7 +7,6 @@ use Bitrix\Catalog\Component\ProductForm;
 use Bitrix\Catalog\Component\ServiceForm;
 use Bitrix\Catalog\Component\StoreAmount;
 use Bitrix\Catalog\Access\ActionDictionary;
-use Bitrix\Catalog\Component\UseStore;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
@@ -41,6 +40,7 @@ use Bitrix\Catalog\v2\Barcode\Barcode;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Iblock\Component\Property\ComponentLinksBuilder;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Catalog\Store\EnableWizard\Manager;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -708,7 +708,9 @@ class CatalogProductDetailsComponent
 					$fields['PREVIEW_PICTURE'],
 					$fields['DETAIL_PICTURE'],
 					$fields['QUANTITY'],
-					$fields['QUANTITY_RESERVED']
+					$fields['QUANTITY_RESERVED'],
+					$fields['DATE_CREATE'],
+					$fields['CREATED_BY'],
 				);
 				if ($fields['TYPE'] === ProductTable::TYPE_EMPTY_SKU)
 				{
@@ -844,7 +846,7 @@ class CatalogProductDetailsComponent
 		$this->arResult['CARD_SETTINGS'] = $this->getForm()->getCardSettings();
 		$this->arResult['HIDDEN_FIELDS'] = $this->getForm()->getHiddenFields();
 		$this->arResult['IS_WITH_ORDERS_MODE'] = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
-		$this->arResult['IS_INVENTORY_MANAGEMENT_USED'] = UseStore::isUsed();
+		$this->arResult['IS_INVENTORY_MANAGEMENT_USED'] = State::isUsedInventoryManagement();
 		$this->arResult['IS_INVENTORY_MANAGEMENT_TOOL_ENABLED'] = ToolAvailabilityManager::getInstance()->checkInventoryManagementAvailability();
 
 		$this->arResult['CREATE_DOCUMENT_BUTTON'] = $this->getCreateDocumentButton();
@@ -877,6 +879,7 @@ class CatalogProductDetailsComponent
 	{
 		if (
 			!State::isUsedInventoryManagement()
+			|| Manager::isOnecMode()
 			|| !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ)
 			|| !AccessController::getCurrent()->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS)
 		)
@@ -1094,8 +1097,8 @@ class CatalogProductDetailsComponent
 				if (
 					!empty($value)
 					&& $name !== $morePhotoName
-					&& mb_substr($name, -7) !== '_custom'
-					&& mb_strpos($name, $propertyPrefix) === 0
+					&& !str_ends_with($name, '_custom')
+					&& str_starts_with($name, $propertyPrefix)
 				)
 				{
 					return true;
@@ -1114,14 +1117,13 @@ class CatalogProductDetailsComponent
 		unset($fields['ID'], $fields[$skuGridId]);
 
 		$prefixLength = mb_strlen(BaseForm::GRID_FIELD_PREFIX);
-		$propertyPrefixLength = mb_strlen(BaseForm::PROPERTY_FIELD_PREFIX);
 
 		$oldProductName = isset($fields['NAME']) ? $this->product->getName() : null;
 		foreach ($skuFields as $id => $sku)
 		{
 			foreach ($sku as $name => $value)
 			{
-				if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+				if (str_starts_with($name, BaseForm::GRID_FIELD_PREFIX))
 				{
 					unset($skuFields[$id][$name]);
 					$originalName = mb_substr($name, $prefixLength);
@@ -1137,64 +1139,6 @@ class CatalogProductDetailsComponent
 						continue;
 					}
 
-					$propertyId = (int)mb_substr($originalName, $propertyPrefixLength);
-					if ($propertyId > 0)
-					{
-						$propertySettings = CIBlockProperty::GetByID($propertyId)->Fetch();
-
-						if ($propertySettings && $propertySettings['PROPERTY_TYPE'] === 'F')
-						{
-							$gridImages = false;
-							if (isset($sku[$name . '_custom']))
-							{
-								$gridImages = true;
-								$customValue = [];
-								if (isset($sku[$name . '_custom'][$name]))
-								{
-									$customValue = $this->prepareFilePropertyFromGrid($sku[$name . '_custom']);
-								}
-								$sku[$name] = [$customValue[0]['VALUE'] ?? ''];
-								$value = [$customValue[0]['VALUE'] ?? ''];
-								unset($sku[$name . '_custom']);
-							}
-
-							if (!isset($fields[$name]))
-							{
-								$value = '';
-								$skuFields[$id][$originalName] = $value;
-
-								continue;
-							}
-
-							if (static::isNumericId($id) && !$gridImages)
-							{
-								$prefix = BaseForm::GRID_FIELD_PREFIX . BaseForm::PROPERTY_FIELD_PREFIX . $propertyId;
-								$controlId = $prefix . '_uploader_' . $id;
-								if (isset($sku[$name]) && is_array($sku[$name]))
-								{
-									$checkedField = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
-										$controlId,
-										$sku[$name]
-									);
-								}
-								else
-								{
-									$checkedField = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
-										$controlId,
-										[$sku[$name] ?? 0]
-									);
-									$checkedField = reset($checkedField);
-								}
-								$value = $checkedField;
-							}
-						}
-					}
-
-					if (!isset($sku[$name]))
-					{
-						continue;
-					}
-
 					$skuFields[$id][$originalName] = $value;
 				}
 			}
@@ -1202,7 +1146,7 @@ class CatalogProductDetailsComponent
 
 		foreach ($fields as $name => $field)
 		{
-			if (mb_strpos($name, BaseForm::GRID_FIELD_PREFIX) === 0)
+			if (str_starts_with($name, BaseForm::GRID_FIELD_PREFIX))
 			{
 				unset($fields[$name]);
 			}
@@ -1243,40 +1187,28 @@ class CatalogProductDetailsComponent
 		}
 	}
 
-	private function parsePropertyFields(&$fields): array
+	private function parsePropertyFields(&$fields, $entity, $isSku): array
 	{
 		$propertyFields = [];
 		$prefixLength = mb_strlen(BaseForm::PROPERTY_FIELD_PREFIX);
-		$propertyCollection = $this->product->getPropertyCollection();
-		$sku = $this->product->getSkuCollection()->getFirst();
-		$skuPropertyCollection = null;
-		if ($sku)
-		{
-			$skuPropertyCollection = $sku->getPropertyCollection();
-		}
-
-		$this->prepareFieldKeys($fields);
 
 		foreach ($fields as $name => $field)
 		{
 			if (
-				mb_strpos($name, BaseForm::PROPERTY_FIELD_PREFIX) === 0
-				&& mb_substr($name, -7) !== '_custom'
+				str_starts_with($name, BaseForm::PROPERTY_FIELD_PREFIX)
+				&& !str_ends_with($name, '_custom')
+				&& !str_ends_with($name, '_del')
+				&& !str_ends_with($name, '_descr')
+				&& !str_ends_with($name, '_uploader_deleted')
 			)
 			{
 				$index = mb_substr($name, $prefixLength);
 
-				$isSkuProperty = false;
+				$propertyCollection = $entity->getPropertyCollection();
 				$property = $propertyCollection->findById((int)$index);
 				if ($property === null)
 				{
 					$property = $propertyCollection->findByCode($index);
-				}
-
-				if ($property === null && $skuPropertyCollection)
-				{
-					$isSkuProperty = true;
-					$property = $skuPropertyCollection->findById((int)$index);
 				}
 
 				$propertyType = null;
@@ -1286,9 +1218,29 @@ class CatalogProductDetailsComponent
 				}
 
 				// grid file properties
-				if (!empty($fields[$name.'_custom']['isFile']))
+				if (
+					$propertyType === PropertyTable::TYPE_FILE
+					&& $isSku
+				)
 				{
-					$field = $this->prepareFilePropertyFromGrid($fields[$name.'_custom']);
+					if ($this->form->isImageProperty($property->getSettings()))
+					{
+						$field = $this->parseGridImagePropertyValues(
+							$fields[$name.'_custom'],
+							$this->getSkuPropertySavedValues($entity, $index)
+						);
+					}
+					else
+					{
+						$field = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
+							BaseForm::GRID_FIELD_PREFIX . BaseForm::PROPERTY_FIELD_PREFIX . $index . '_uploader',
+							$this->parseFilePropertyValues($fields[$name.'_custom'])
+						);
+						if ($this->copyProduct)
+						{
+							$field = $this->prepareFileValuesForCopy($field, $this->getSkuPropertySavedValues($entity, $index));
+						}
+					}
 					if (empty($field))
 					{
 						$field = '';
@@ -1298,62 +1250,83 @@ class CatalogProductDetailsComponent
 				// editor file properties
 				elseif ($propertyType === PropertyTable::TYPE_FILE)
 				{
-					$descriptions = $fields[$name.'_descr'] ?? [];
-					$deleted = $fields[$name.'_del'] ?? [];
-					if (!$isSkuProperty)
+					$isMultiple = $property->isMultiple();
+					$isImageProperty = $this->form->isImageProperty($property->getSettings());
+					if ($isImageProperty)
 					{
-						$entityId = $this->product->getId();
-						$controlId = BaseForm::PROPERTY_FIELD_PREFIX . $index . '_uploader_' . $entityId;
-
-						$editorFiles = $this->prepareFilePropertyFromEditor($fields[$name] ?? [], $descriptions, $deleted);
-						if (!$this->product->isNew())
+						$defaultDescription = $isMultiple ? [] : null;
+						$description = $fields[$name . '_descr'] ?? $defaultDescription;
+						if (!$isMultiple)
 						{
-							$editorFiles = array_column($editorFiles ?? [], 'VALUE');
-						}
-						$checkedField = [];
-
-						if ($this->form->isImageProperty($property->getSettings()) || $this->product->isNew())
-						{
-							$actualFilesCollection = $this->product->getPropertyCollection()->getValues()[$property->getId()];
-							$actualFiles = [];
-							foreach ($actualFilesCollection as $item)
-							{
-								$actualFiles[] = $item['VALUE']; // already saved images
-							}
-
-							foreach ($editorFiles as $editorFile)
-							{
-								if (is_numeric($editorFile))
-								{
-									if (in_array($editorFile, $actualFiles))
-									{
-										$checkedField[] = $editorFile; // already recorded image
-									}
-								}
-								elseif (is_array($editorFile))
-								{
-									$checkedField[] = $editorFile; // array file ['tmp_name', 'size', ...], no need to check
-								}
-							}
+							$field = [$field];
+							$description = [$description];
 						}
 						else
 						{
-							$checkedField = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
-								$controlId,
-								$editorFiles
-							);
+							if (!is_array($field) || array_key_exists('tmp_name', $field))
+							{
+								$field = [$field];
+								$description = [$description];
+							}
 						}
+
+						if (isset($fields[$name . '_del']))
+						{
+							if (is_array($fields[$name . '_del']))
+							{
+								$field = array_diff_key($field, $fields[$name . '_del']);
+							}
+							else
+							{
+								$field = [];
+							}
+						}
+
+						$field = $this->parseEditorImagePropertyValues($field, $description, $this->getPropertySavedValues($index));
+						unset($fields[$name . '_del'], $fields[$name . '_descr']);
 					}
 					else
 					{
-						$checkedField = $fields[$name];
+						if (!$isMultiple || !is_array($field))
+						{
+							$field = [$field];
+						}
+
+						if (isset($fields[$name . '_del']))
+						{
+							if (is_array($fields[$name . '_del']))
+							{
+								$deleteFiles = $fields[$name . '_del'];
+								foreach (array_keys($field) as $fileIndex)
+								{
+									if (in_array($field[$fileIndex], $deleteFiles))
+									{
+										unset($field[$fileIndex]);
+									}
+								}
+								unset($deleteFiles);
+							}
+							else
+							{
+								$field = [];
+							}
+						}
+
+						$field = \Bitrix\Main\UI\FileInputUtility::instance()->checkFiles(
+							BaseForm::PROPERTY_FIELD_PREFIX . $index . '_uploader',
+							$field
+						);
+						if ($this->copyProduct)
+						{
+							$field = $this->prepareFileValuesForCopy($field, $this->getPropertySavedValues($index));
+						}
+						unset($fields[$name . '_del'], $fields[$name . '_uploader_deleted']);
 					}
-					$field = $checkedField;
+
 					if (empty($field))
 					{
 						$field = '';
 					}
-					unset($fields[$name.'_descr']);
 				}
 				elseif (isset($property) && $property->getListType() === PropertyTable::CHECKBOX)
 				{
@@ -1408,23 +1381,134 @@ class CatalogProductDetailsComponent
 		return $propertyFields;
 	}
 
-	private function prepareFieldKeys(&$fields)
+	private function prepareFileValuesForCopy(array $values, array $savedValues): array
 	{
-		foreach ($fields as $name => $field)
+		$preparedValues = [];
+		foreach ($values as $value)
 		{
-			if (mb_substr($name, -8) === '_deleted')
+			if (in_array($value, $savedValues))
 			{
-				$explodedName = explode('_', $name);
-				$propertyId = $explodedName[count($explodedName) - 2];
-				$propertyName = BaseForm::PROPERTY_FIELD_PREFIX . $propertyId;
-				$propertyNameDel = BaseForm::PROPERTY_FIELD_PREFIX . $propertyId . '_del';
-				if (!isset($fields[$propertyName]))
-				{
-					$fields[$propertyName] = '';
-				}
-				$fields[$propertyNameDel] = $field;
+				$fileArray = CIBlock::makeFileArray(
+					$value,
+					false,
+					null,
+					['allow_file_id' => true]
+				);
+				$fileArray['COPY_FILE'] = 'Y';
+				$preparedValues[] = $fileArray;
+			}
+			else
+			{
+				$preparedValues[] = $value;
 			}
 		}
+
+		return $preparedValues;
+	}
+
+	private function parseFilePropertyValues(array $fields): array
+	{
+		$fileIds = [];
+
+		foreach($fields as $fieldKey => $fieldValue)
+		{
+			if (
+				$fieldKey === 'isFile'
+				|| str_ends_with($fieldKey, '_deleted[')
+			)
+			{
+				continue;
+			}
+
+			$fileIds[] = $fieldValue;
+		}
+
+		return $fileIds;
+	}
+
+	private function getSkuPropertySavedValues($sku, $index): array
+	{
+		if ($sku->isNew())
+		{
+			return [];
+		}
+
+		$skuId = $sku->getId();
+
+		static $propertySavedValues = [];
+		if (isset($propertySavedValues[$skuId][$index]))
+		{
+			return $propertySavedValues[$skuId][$index];
+		}
+
+		$propertySavedValues[$skuId] ??= [];
+		$propertySavedValues[$skuId][$index] = [];
+
+		if ($index === BaseForm::MORE_PHOTO)
+		{
+			$property = $sku->getPropertyCollection()->findByCode(BaseForm::MORE_PHOTO);
+		}
+		else
+		{
+			$property = $sku->getPropertyCollection()->findById((int)$index);
+		}
+		if (!$property)
+		{
+			return $propertySavedValues[$skuId][$index];
+		}
+		$propertyValues = $property->getPropertyValueCollection()->getValues();
+		if ($propertyValues)
+		{
+			$propertySavedValues[$skuId][$index] = is_array($propertyValues) ? $propertyValues : [$propertyValues];
+		}
+		else
+		{
+			$propertySavedValues[$skuId][$index] = [];
+		}
+
+		return $propertySavedValues[$skuId][$index];
+	}
+
+	private function getPropertySavedValues(string $index): array
+	{
+		if (!$this->copyProduct && $this->product->isNew())
+		{
+			return [];
+		}
+
+		static $propertySavedValues = [];
+		if (isset($propertySavedValues[$index]))
+		{
+			return $propertySavedValues[$index];
+		}
+
+		$propertySavedValues[$index] = [];
+
+		$product = $this->copyProduct ?? $this->product;
+
+		if ($index === BaseForm::MORE_PHOTO)
+		{
+			$property = $product->getPropertyCollection()->findByCode(BaseForm::MORE_PHOTO);
+		}
+		else
+		{
+			$property = $product->getPropertyCollection()->findById((int)$index);
+		}
+		if (!$property)
+		{
+			return $propertySavedValues[$index];
+		}
+		$propertyValues = $property->getPropertyValueCollection()->getValues();
+		if ($propertyValues)
+		{
+			$propertySavedValues[$index] = is_array($propertyValues) ? $propertyValues : [$propertyValues];
+		}
+		else
+		{
+			$propertySavedValues[$index] = [];
+		}
+
+		return $propertySavedValues[$index];
 	}
 
 	private function prepareDescriptionFields(&$fields): void
@@ -1619,16 +1703,56 @@ class CatalogProductDetailsComponent
 		return reset($fileProp)['VALUE'] ?? null;
 	}
 
-	private function prepareFilePropertyFromGrid($propertyFields): array
+	private function parseEditorImagePropertyValues(array $values, array $descriptions, array $savedValues): array
+	{
+		$parsedValues = [];
+		foreach ($values as $key => $value)
+		{
+			$description = $descriptions[$key] ?? null;
+			if (is_array($value))
+			{
+				$parsedValues[] = \CIBlock::makeFilePropArray($value, false, $description);
+			}
+			elseif (is_numeric($value))
+			{
+				if (is_array($savedValues) && !in_array($value, $savedValues))
+				{
+					continue;
+				}
+				if ($this->product->isNew())
+				{
+					$fileArray = CIBlock::makeFileArray(
+						$value,
+						false,
+						$description,
+						['allow_file_id' => true]
+					);
+					$fileArray['COPY_FILE'] = 'Y';
+					$parsedValues[] = $fileArray;
+				}
+				else
+				{
+					$parsedValues[] = [
+						'VALUE' => $value,
+						'DESCRIPTION' => $description ?? '',
+					];
+				}
+			}
+		}
+
+		return $parsedValues;
+	}
+
+	private function parseGridImagePropertyValues(array $propertyFields, array $savedValues): array
 	{
 		$fileProp = [];
-		$counter = 0;
 
 		foreach ($propertyFields as $key => $value)
 		{
 			if (
-				mb_substr($key, -9) === '_deleted['
-				|| mb_substr($key, -4) === '_del'
+				str_ends_with($key, '_deleted[')
+				|| str_ends_with($key, '_del')
+				|| str_ends_with($key, '_descr')
 				|| isset($propertyFields[$key . '_del'])
 			)
 			{
@@ -1643,6 +1767,10 @@ class CatalogProductDetailsComponent
 			}
 			elseif (is_numeric($value))
 			{
+				if (is_array($savedValues) && !in_array($value, $savedValues))
+				{
+					continue;
+				}
 				if ($this->product->isNew())
 				{
 					$fileArray = CIBlock::makeFileArray(
@@ -1652,7 +1780,7 @@ class CatalogProductDetailsComponent
 						['allow_file_id' => true]
 					);
 					$fileArray['COPY_FILE'] = 'Y';
-					$fileProp['n'.$counter++] = $fileArray;
+					$fileProp[] = $fileArray;
 				}
 				else
 				{
@@ -1667,82 +1795,28 @@ class CatalogProductDetailsComponent
 		return $fileProp;
 	}
 
-	private function prepareFilePropertyFromEditor($propertyFields, $descriptions, $deleted): ?array
-	{
-		if ($deleted !== null && !is_array($deleted))
-		{
-			$deleted = [$deleted];
-			$propertyFields = [$propertyFields];
-			$descriptions = [$descriptions];
-		}
-
-		if ($descriptions !== null && !is_array($descriptions))
-		{
-			$descriptions = [$descriptions];
-			$propertyFields = [$propertyFields];
-		}
-
-		if (!is_array($propertyFields))
-		{
-			$propertyFields = [$propertyFields];
-		}
-
-		if ($deleted)
-		{
-			foreach ($deleted as $key => $value)
-			{
-				if ($value === 'Y')
-				{
-					unset($propertyFields[$key], $descriptions[$key]);
-				}
-				else
-				{
-					$propertyValueKey = array_search($value, $propertyFields, true);
-					if ($propertyValueKey !== false)
-					{
-						unset($propertyFields[$propertyValueKey]);
-					}
-
-					$propertyDescriptionKey = array_search($value, $descriptions, true);
-					if ($propertyDescriptionKey !== false)
-					{
-						unset($descriptions[$propertyDescriptionKey]);
-					}
-				}
-			}
-		}
-
-		if (empty($propertyFields))
-		{
-			return null;
-		}
-
-		foreach ($propertyFields as $key => $value)
-		{
-			$propertyFields[$key.'_descr'] = $descriptions[$key] ?? '';
-		}
-
-		return $this->prepareFilePropertyFromGrid($propertyFields);
-	}
-
 	private function parsePriceFields(&$fields): array
 	{
 		$priceFields = [];
 
 		foreach ($fields as $name => $value)
 		{
-			if (mb_strpos($name, BaseForm::PRICE_FIELD_PREFIX) === 0)
+			if (str_starts_with($name, BaseForm::PRICE_FIELD_PREFIX))
 			{
 				$index = str_replace(BaseForm::PRICE_FIELD_PREFIX, '', $name);
 				if (!empty($index))
 				{
+					if (is_string($value))
+					{
+						str_replace(',', '.', $value);
+					}
 					$priceFields[$index]['PRICE'] = $value;
 				}
 
 				unset($fields[$name]);
 			}
 
-			if (mb_strpos($name, BaseForm::CURRENCY_FIELD_PREFIX) === 0)
+			if (str_starts_with($name, BaseForm::CURRENCY_FIELD_PREFIX))
 			{
 				$index = str_replace(BaseForm::CURRENCY_FIELD_PREFIX, '', $name);
 				if (!empty($index))
@@ -1844,7 +1918,7 @@ class CatalogProductDetailsComponent
 		$isSkuProduct = $this->parseIsSkuProduct($fields, $product);
 
 		$skuFields = $this->parseSkuFields($fields);
-		$propertyFields = $this->parsePropertyFields($fields);
+		$propertyFields = $this->parsePropertyFields( $fields, $product, false);
 		$this->checkCompatiblePictureFields($product, $propertyFields);
 		$sectionFields = $this->parseSectionFields($fields);
 
@@ -1946,14 +2020,17 @@ class CatalogProductDetailsComponent
 		/** @var BaseProduct $product */
 		$product = $sku->getParent();
 		$this->prepareSkuPictureFields($fields);
-		$skuPropertyFields = $this->parsePropertyFields($fields);
+		$skuPropertyFields = $this->parsePropertyFields($fields, $sku, true);
 		$this->checkCompatiblePictureFields($sku, $skuPropertyFields);
 		$skuPriceFields = $this->parsePriceFields($fields);
 		$skuMeasureRatioField = $this->parseMeasureRatioFields($fields);
 
 		if (!$this->getForm()->isPurchasingPriceAllowed())
 		{
-			unset($fields['PURCHASING_PRICE']);
+			unset(
+				$fields['PURCHASING_PRICE'],
+				$fields['PURCHASING_CURRENCY'],
+			);
 		}
 
 		if (!empty($fields))
@@ -1963,9 +2040,18 @@ class CatalogProductDetailsComponent
 				$fields['NAME'] = $product->getName();
 			}
 
-			if (isset($fields['PURCHASING_PRICE']) && $fields['PURCHASING_PRICE'] === '')
+			if (isset($fields['PURCHASING_PRICE']))
 			{
-				$fields['PURCHASING_PRICE'] = null;
+				if (is_string($fields['PURCHASING_PRICE']))
+				{
+					$fields['PURCHASING_PRICE'] = str_replace(
+						',', '.', trim($fields['PURCHASING_PRICE'])
+					);
+				}
+				if ($fields['PURCHASING_PRICE'] === '')
+				{
+					$fields['PURCHASING_PRICE'] = null;
+				}
 			}
 
 			$sku->setFields($fields);

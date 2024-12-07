@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Socialnetwork\LogCommentTable;
 
@@ -563,12 +564,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST")
 										"NOTIFY_MESSAGE" => "",
 										"FROM_USER_ID" => $arSonetFields["USER_ID"],
 										"URL" => $sURL,
-										"MESSAGE" => GetMessage("SONET_IM_NEW_TOPIC", Array(
-											"#title#" => "<a href=\"#URL#\" class=\"bx-notifier-item-action\">".$title."</a>",
-										)),
-										"MESSAGE_OUT" => GetMessage("SONET_IM_NEW_TOPIC", Array(
-											"#title#" => $title_out
-										))." (#URL#)",
+										"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+											"SONET_IM_NEW_TOPIC",
+											Array("#title#" => "<a href=\"#URL#\" class=\"bx-notifier-item-action\">".$title."</a>"),
+											$languageId
+										),
+										"MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage(
+											"SONET_IM_NEW_TOPIC",
+											Array("#title#" => $title_out),
+											$languageId
+										)." (#URL#)",
 										"EXCLUDE_USERS" => array($arSonetFields["USER_ID"])
 									);
 

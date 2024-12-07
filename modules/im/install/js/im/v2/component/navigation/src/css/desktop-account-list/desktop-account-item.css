@@ -82,4 +82,5 @@
 .bx-im-desktop-connection-list-item__context-menu {
 	align-self: center;
 	margin-right: 13px;
+	outline: none;
 }

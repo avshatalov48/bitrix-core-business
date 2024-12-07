@@ -111,7 +111,7 @@ class FavoriteCollection extends BaseLinkCollection
 		$data = new PopupData([
 			new Entity\User\UserPopupItem(),
 			new Entity\File\FilePopupItem(),
-			new ReminderPopupItem($messages->getReminders())
+			//new ReminderPopupItem($messages->getReminders())
 		], $excludedList);
 		$excludedList[] = ReminderPopupItem::class;
 

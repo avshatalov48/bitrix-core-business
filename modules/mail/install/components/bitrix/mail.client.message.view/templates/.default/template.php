@@ -68,7 +68,7 @@ if (SITE_TEMPLATE_ID == 'bitrix24' || $_REQUEST['IFRAME'] == 'Y' && $_REQUEST['I
 
 ?>
 
-<script type="text/javascript">
+<script>
 
 BX.ready(function ()
 {
@@ -222,7 +222,7 @@ $renderBindLink = function ($item)
 
 </div>
 
-<script type="text/javascript">
+<script>
 
 BX.message({
 	EMAILS_LIMIT_TO_SEND_MESSAGE: '<?=$emailsLimitToSendMessage?>',

@@ -60,7 +60,7 @@ if ($arResult['ERRORS'])
 			$errorCode
 		);
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function()
 			{
 				landingAlertMessage(
@@ -176,7 +176,7 @@ else
 			overflow: hidden;
 		}
 	</style>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function() {
 			BX.Landing.Component.View.loadEditor();
 			let deviceCode = '<?= \CUtil::jsEscape($component->request('deviceCode'))?>';

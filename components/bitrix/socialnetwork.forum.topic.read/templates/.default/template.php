@@ -39,14 +39,14 @@ if (
 if (!empty($arResult["ERROR_MESSAGE"]))
 {
 	?><div class="forum-note-box forum-note-error">
-		<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+		<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 	</div><?
 }
 
 if (!empty($arResult["OK_MESSAGE"]))
 {
 	?><div class="forum-note-box forum-note-success">
-		<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
+		<div class="forum-note-box-text"><? ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
 	</div><?
 }
 
@@ -248,14 +248,14 @@ if (
 if (!empty($arResult["ERROR_MESSAGE"]))
 {
 	?><div class="forum-note-box forum-note-error">
-		<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+		<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 	</div><?
 }
 
 if (!empty($arResult["OK_MESSAGE"]))
 {
 	?><div class="forum-note-box forum-note-success">
-		<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
+		<div class="forum-note-box-text"><? ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
 	</div><?
 }
 
@@ -277,7 +277,7 @@ if ($arResult["VIEW"] == "Y")
 	);
 }
 
-?><script type="text/javascript">
+?><script>
 	BX.ready(function() {
 		BX.viewElementBind(
 			'forum-block-container-<?=$arResult["TOPIC"]["ID"]?>',

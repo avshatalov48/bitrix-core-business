@@ -1615,7 +1615,7 @@
 
 		hide: function (event)
 		{
-			if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId)
+			if (event && event.getSlider() && event.getSlider().getUrl() === this.sliderId)
 			{
 				if (this.denyClose)
 				{
@@ -1630,7 +1630,7 @@
 
 		destroy: function (event)
 		{
-			if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId)
+			if (event && event.getSlider() && event.getSlider().getUrl() === this.sliderId)
 			{
 				BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", BX.proxy(this.destroy, this));
 				BX.SidePanel.Instance.destroy(this.sliderId);

@@ -1,4 +1,4 @@
-import {Dom} from 'main.core';
+import { Dom } from 'main.core';
 
 export const DomUtil = {
 	recursiveBackwardNodeSearch(node, className, maxNodeLevel = 10)
@@ -21,6 +21,14 @@ export const DomUtil = {
 		}
 
 		return null;
-	}
-};
+	},
 
+	isOneScreenRemaining(target: HTMLElement): boolean
+	{
+		const bottomPointOfVisibleContent = target.scrollTop + target.clientHeight;
+		const containerHeight = target.scrollHeight;
+		const oneScreenHeight = target.clientHeight;
+
+		return bottomPointOfVisibleContent >= containerHeight - oneScreenHeight;
+	},
+};

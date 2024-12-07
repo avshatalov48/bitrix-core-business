@@ -1,5 +1,7 @@
-<?
+<?php
+
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -165,8 +167,6 @@ $strWarning = "";
 //Check post values
 if($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 {
-	CUtil::JSPostUnescape();
-
 	$fileName = ($_REQUEST["fileName"] ?? "");
 	$pageTitle = ($_REQUEST["pageTitle"] ?? "");
 	$editAfterSave = (isset($_REQUEST["editAfterSave"]) && $_REQUEST["editAfterSave"] == "Y");
@@ -859,7 +859,7 @@ $popupWindow->StartButtons();
 
 <script>
 
-var bxMenuType = <?=CUtil::PhpToJSObject($arMenu)?>;
+var bxMenuType = <?= Json::encode($arMenu) ?>;
 
 window.BXChangeMenuType = function(menuType, onChange)
 {

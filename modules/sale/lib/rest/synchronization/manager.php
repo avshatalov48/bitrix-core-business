@@ -65,7 +65,7 @@ class Manager
 
 	public function pushHandlerExecuted($name)
 	{
-		$this->handlerExecuted[$name];
+		$this->handlerExecuted[$name] = true;
 	}
 
 	public function isExecutedHandler($name)

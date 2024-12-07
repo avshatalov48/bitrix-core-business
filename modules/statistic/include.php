@@ -1,4 +1,5 @@
 <?php
+
 $DB_test = CDatabase::GetModuleConnection('statistic', true);
 if(!is_object($DB_test))
 {

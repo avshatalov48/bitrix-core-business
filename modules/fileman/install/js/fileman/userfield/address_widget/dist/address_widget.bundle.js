@@ -31,7 +31,8 @@ this.BX.Fileman = this.BX.Fileman || {};
 	  _t8,
 	  _t9,
 	  _t10,
-	  _t11;
+	  _t11,
+	  _t12;
 	var _widget = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("widget");
 	var _nodes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("nodes");
 	var _wrapper$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("wrapper");
@@ -46,9 +47,15 @@ this.BX.Fileman = this.BX.Fileman || {};
 	var _isLoading = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isLoading");
 	var _isDropdownLoading = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDropdownLoading");
 	var _isDestroyed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDestroyed");
+	var _showDetailsToggle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showDetailsToggle");
+	var _getAddressControlSwitchContainer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAddressControlSwitchContainer");
 	class EditEntry extends main_core_events.EventEmitter {
 	  constructor(props) {
+	    var _props$showDetailsTog;
 	    super();
+	    Object.defineProperty(this, _getAddressControlSwitchContainer, {
+	      value: _getAddressControlSwitchContainer2
+	    });
 	    Object.defineProperty(this, _widget, {
 	      writable: true,
 	      value: void 0
@@ -105,6 +112,10 @@ this.BX.Fileman = this.BX.Fileman || {};
 	      writable: true,
 	      value: false
 	    });
+	    Object.defineProperty(this, _showDetailsToggle, {
+	      writable: true,
+	      value: true
+	    });
 	    this.setEventNamespace('Fileman.EditEntry');
 	    babelHelpers.classPrivateFieldLooseBase(this, _wrapper$1)[_wrapper$1] = props.wrapper;
 	    babelHelpers.classPrivateFieldLooseBase(this, _fieldName)[_fieldName] = props.fieldName;
@@ -112,6 +123,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _enableRemoveButton)[_enableRemoveButton] = props.enableRemoveButton;
 	    babelHelpers.classPrivateFieldLooseBase(this, _initialAddressId)[_initialAddressId] = props.initialAddressId;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showMap)[_showMap] = props.showMap;
+	    babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle)[_showDetailsToggle] = Boolean((_props$showDetailsTog = props.showDetailsToggle) != null ? _props$showDetailsTog : true);
 	    if (props.address) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _address)[_address] = props.address;
 	    }
@@ -140,8 +152,10 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].userInput = main_core.Tag.render(_t || (_t = _`<input type="text" class="ui-ctl-element" />`));
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].fieldsContainer = main_core.Tag.render(_t2 || (_t2 = _`<div class="location-fields-control-block"></div>`));
-	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle = main_core.Tag.render(_t3 || (_t3 = _`<span class="ui-link ui-link-secondary address-control-mode-switch">${0}</span>`), main_core.Loc.getMessage('ADDRESS_USERFIELD_DETAILS'));
-	    main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle, 'click', this.onDetailsToggleClick.bind(this));
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle)[_showDetailsToggle]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle = main_core.Tag.render(_t3 || (_t3 = _`<span class="ui-link ui-link-secondary address-control-mode-switch">${0}</span>`), main_core.Loc.getMessage('ADDRESS_USERFIELD_DETAILS'));
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle, 'click', this.onDetailsToggleClick.bind(this));
+	    }
 	    let inputValue = this.getInitialAddressFieldValue();
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].fieldValueInput = main_core.Tag.render(_t4 || (_t4 = _`<input type="hidden" name="${0}" value="${0}" />`), babelHelpers.classPrivateFieldLooseBase(this, _fieldFormName)[_fieldFormName], inputValue);
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].inputIcon = main_core.Tag.render(_t5 || (_t5 = _`<button type="button" class="ui-ctl-after ui-ctl-icon-clear"></button>`));
@@ -167,14 +181,12 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    const manualEditFlagNode = main_core.Tag.render(_t8 || (_t8 = _`<input type="hidden" name="${0}_manual_edit" value="Y">`), babelHelpers.classPrivateFieldLooseBase(this, _fieldName)[_fieldName]);
 	    babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout = main_core.Tag.render(_t9 || (_t9 = _`
 			<div class="edit-entry-layout-wrapper ${0}">
-				<div class="address-control-mode-switch-wrapper">
-					${0}
-				</div>
+				${0}
 				${0}
 				${0}
 				${0}
 			</div>
-		`), this.getLayoutSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].hiddenFormattedAddressInput, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper, manualEditFlagNode);
+		`), this.getLayoutSizeClass(), babelHelpers.classPrivateFieldLooseBase(this, _getAddressControlSwitchContainer)[_getAddressControlSwitchContainer](), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].hiddenFormattedAddressInput, babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper, manualEditFlagNode);
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _enableRemoveButton)[_enableRemoveButton]) {
 	      main_core.Dom.append(this.getRemoveInputButton(babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].layout), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].entryWrapper);
 	    }
@@ -330,6 +342,16 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    BX.onCustomEvent(window, 'onCrmEntityEditorUserFieldExternalChanged', [babelHelpers.classPrivateFieldLooseBase(this, _fieldName)[_fieldName]]);
 	  }
 	}
+	function _getAddressControlSwitchContainer2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle)[_showDetailsToggle]) {
+	    return null;
+	  }
+	  return main_core.Tag.render(_t12 || (_t12 = _`
+			<div class="address-control-mode-switch-wrapper">
+				${0}
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _nodes)[_nodes].detailsToggle);
+	}
 	EditEntry.onRemoveInputButtonClickedEvent = 'onRemoveInputButtonClicked';
 
 	let _$1 = t => t,
@@ -343,9 +365,11 @@ this.BX.Fileman = this.BX.Fileman || {};
 	var _isMultiple = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isMultiple");
 	var _isCompactMode$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCompactMode");
 	var _showMap$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showMap");
+	var _showDetailsToggle$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showDetailsToggle");
 	var _inputs = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("inputs");
 	class Edit extends BaseView {
 	  constructor(params) {
+	    var _params$showDetailsTo;
 	    super(params);
 	    Object.defineProperty(this, _fieldName$1, {
 	      writable: true,
@@ -375,6 +399,10 @@ this.BX.Fileman = this.BX.Fileman || {};
 	      writable: true,
 	      value: true
 	    });
+	    Object.defineProperty(this, _showDetailsToggle$1, {
+	      writable: true,
+	      value: false
+	    });
 	    Object.defineProperty(this, _inputs, {
 	      writable: true,
 	      value: []
@@ -385,6 +413,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _isMultiple)[_isMultiple] = params.isMultiple;
 	    babelHelpers.classPrivateFieldLooseBase(this, _isCompactMode$1)[_isCompactMode$1] = params.compactMode;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showMap$1)[_showMap$1] = params.showMap;
+	    babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle$1)[_showDetailsToggle$1] = Boolean((_params$showDetailsTo = params.showDetailsToggle) != null ? _params$showDetailsTo : false);
 	  }
 	  layout() {
 	    const layout = main_core.Tag.render(_t$1 || (_t$1 = _$1`<div class="address-edit-wrapper"></div>`));
@@ -425,7 +454,8 @@ this.BX.Fileman = this.BX.Fileman || {};
 	      enableRemoveButton: babelHelpers.classPrivateFieldLooseBase(this, _isMultiple)[_isMultiple],
 	      initialAddressId: (_parseInt = parseInt(address == null ? void 0 : address.id)) != null ? _parseInt : null,
 	      isCompactMode: babelHelpers.classPrivateFieldLooseBase(this, _isCompactMode$1)[_isCompactMode$1],
-	      showMap: babelHelpers.classPrivateFieldLooseBase(this, _showMap$1)[_showMap$1]
+	      showMap: babelHelpers.classPrivateFieldLooseBase(this, _showMap$1)[_showMap$1],
+	      showDetailsToggle: babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle$1)[_showDetailsToggle$1]
 	    });
 	    main_core_events.EventEmitter.subscribe(entry, EditEntry.onRemoveInputButtonClickedEvent, this.removeInput.bind(this, entry));
 	    babelHelpers.classPrivateFieldLooseBase(this, _inputs)[_inputs].push(entry);
@@ -514,11 +544,12 @@ this.BX.Fileman = this.BX.Fileman || {};
 	var _addresses$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addresses");
 	var _isMultiple$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isMultiple");
 	var _showMap$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showMap");
+	var _showDetailsToggle$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showDetailsToggle");
 	var _fieldConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("fieldConfig");
 	var _additionalProperties = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("additionalProperties");
 	class AddressField {
 	  static init(params) {
-	    var _params$showMap;
+	    var _params$showMap, _params$showDetailsTo;
 	    const mode = params.mode;
 	    const wrapper = document.getElementById(params.wrapperId);
 	    if (!wrapper) {
@@ -532,7 +563,8 @@ this.BX.Fileman = this.BX.Fileman || {};
 	      }
 	    });
 	    const showMap = (_params$showMap = params.showMap) != null ? _params$showMap : true;
-	    let addressFieldParams = {
+	    const showDetailsToggle = Boolean((_params$showDetailsTo = params.showDetailsToggle) != null ? _params$showDetailsTo : true);
+	    const addressFieldParams = {
 	      addresses: addresses,
 	      wrapper: wrapper,
 	      mode: mode,
@@ -541,7 +573,8 @@ this.BX.Fileman = this.BX.Fileman || {};
 	        fieldFormName: params.fieldFormName
 	      },
 	      isMultiple: params.isMultiple,
-	      showMap
+	      showMap,
+	      showDetailsToggle
 	    };
 	    if (params.additionalProperties) {
 	      addressFieldParams.additionalProperties = params.additionalProperties;
@@ -551,6 +584,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    main_core_events.EventEmitter.emit(this, 'BX.Fileman.UserField.AddressField:onInitiated', addressFieldParams);
 	  }
 	  constructor(params) {
+	    var _params$showDetailsTo2;
 	    Object.defineProperty(this, _mode, {
 	      writable: true,
 	      value: AddressField.VIEW_MODE
@@ -571,6 +605,10 @@ this.BX.Fileman = this.BX.Fileman || {};
 	      writable: true,
 	      value: true
 	    });
+	    Object.defineProperty(this, _showDetailsToggle$2, {
+	      writable: true,
+	      value: true
+	    });
 	    Object.defineProperty(this, _fieldConfig, {
 	      writable: true,
 	      value: {}
@@ -585,6 +623,7 @@ this.BX.Fileman = this.BX.Fileman || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _fieldConfig)[_fieldConfig] = params.fieldConfig;
 	    babelHelpers.classPrivateFieldLooseBase(this, _isMultiple$1)[_isMultiple$1] = params.isMultiple;
 	    babelHelpers.classPrivateFieldLooseBase(this, _showMap$2)[_showMap$2] = params.showMap;
+	    babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle$2)[_showDetailsToggle$2] = Boolean((_params$showDetailsTo2 = params.showDetailsToggle) != null ? _params$showDetailsTo2 : true);
 	    if (params.additionalProperties) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _additionalProperties)[_additionalProperties] = params.additionalProperties;
 	    }
@@ -607,7 +646,8 @@ this.BX.Fileman = this.BX.Fileman || {};
 	        addresses: babelHelpers.classPrivateFieldLooseBase(this, _addresses$2)[_addresses$2],
 	        isMultiple: babelHelpers.classPrivateFieldLooseBase(this, _isMultiple$1)[_isMultiple$1],
 	        compactMode: (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _additionalProperties)[_additionalProperties].compactMode) != null ? _babelHelpers$classPr : false,
-	        showMap: babelHelpers.classPrivateFieldLooseBase(this, _showMap$2)[_showMap$2]
+	        showMap: babelHelpers.classPrivateFieldLooseBase(this, _showMap$2)[_showMap$2],
+	        showDetailsToggle: babelHelpers.classPrivateFieldLooseBase(this, _showDetailsToggle$2)[_showDetailsToggle$2]
 	      });
 	    }
 	    if (view) {

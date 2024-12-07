@@ -2,6 +2,7 @@
 
 namespace Bitrix\Catalog\RestView;
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Error;
 use Bitrix\Main\ORM\Fields\ScalarField;
@@ -15,6 +16,7 @@ use Bitrix\Iblock\PropertyTable;
 use Bitrix\Rest\Integration\View\Attributes;
 use Bitrix\Rest\Integration\View\Base;
 use Bitrix\Rest\Integration\View\DataType;
+use Bitrix\Main\Config\Option;
 
 final class Product extends Base
 {
@@ -133,6 +135,9 @@ final class Product extends Base
 			],
 			'IBLOCK_SECTION_ID' => [
 				'TYPE' => DataType::TYPE_INT,
+			],
+			'IBLOCK_SECTION' => [
+				'TYPE' => DataType::TYPE_LIST,
 			],
 			'XML_ID' => [
 				'TYPE' => DataType::TYPE_STRING,
@@ -319,6 +324,32 @@ final class Product extends Base
 
 	public function isAllowedProductTypeByIBlockId($productTypeId, $iblockId): Result
 	{
+		$result = $this->getCatalogDescription((int)$iblockId);
+		if (!$result->isSuccess())
+		{
+			return $result;
+		}
+
+		$iblockData = $result->getData();
+
+		$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
+
+		if (!isset($allowedTypes[$productTypeId]))
+		{
+			$result->addError(new Error('productType is not allowed for this catalog'));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Returns catalog description, if exists.
+	 *
+	 * @param int $iblockId
+	 * @return Result
+	 */
+	public function getCatalogDescription(int $iblockId): Result
+	{
 		$result = new Result();
 
 		$iblockData = \CCatalogSku::GetInfoByIBlock($iblockId);
@@ -328,12 +359,7 @@ final class Product extends Base
 		}
 		else
 		{
-			$allowedTypes = self::getProductTypes($iblockData['CATALOG_TYPE']);
-
-			if (!isset($allowedTypes[$productTypeId]))
-			{
-				$result->addError(new Error('productType is not allowed for this catalog'));
-			}
+			$result->setData($iblockData);
 		}
 
 		return $result;
@@ -529,6 +555,12 @@ final class Product extends Base
 			'AVAILABLE' => [
 				'TYPE' => DataType::TYPE_CHAR,
 			],
+			'VAT_ID' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'VAT_INCLUDED' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
 		];
 
 		return $this->fillFieldNames($fieldList);
@@ -594,6 +626,21 @@ final class Product extends Base
 			'HEIGHT' => [
 				'TYPE' => DataType::TYPE_FLOAT,
 			],
+			'BARCODE_MULTI' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'RECUR_SCHEME_LENGTH' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'RECUR_SCHEME_TYPE' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
+			'TRIAL_PRICE_ID' => [
+				'TYPE' => DataType::TYPE_INT,
+			],
+			'WITHOUT_ORDER' => [
+				'TYPE' => DataType::TYPE_CHAR,
+			],
 		];
 
 		return $this->fillFieldNames($fieldList);
@@ -612,6 +659,49 @@ final class Product extends Base
 				],
 			],
 		];
+
+		if (Option::get('catalog', 'show_catalog_tab_with_offers') === 'Y')
+		{
+			$fieldListCatalogTabWithOffers = [
+				'PURCHASING_PRICE' => [
+					'TYPE' => DataType::TYPE_STRING,
+				],
+				'PURCHASING_CURRENCY' => [
+					'TYPE' => DataType::TYPE_STRING,
+				],
+				'VAT_ID' => [
+					'TYPE' => DataType::TYPE_INT,
+				],
+				'VAT_INCLUDED' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'QUANTITY' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'MEASURE' => [
+					'TYPE' => DataType::TYPE_INT,
+				],
+				'CAN_BUY_ZERO' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'SUBSCRIBE' => [
+					'TYPE' => DataType::TYPE_CHAR,
+				],
+				'WEIGHT' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'LENGTH' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'WIDTH' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+				'HEIGHT' => [
+					'TYPE' => DataType::TYPE_FLOAT,
+				],
+			];
+			$fieldList = array_merge($fieldList, $fieldListCatalogTabWithOffers);
+		}
 
 		return $this->fillFieldNames($fieldList);
 	}
@@ -853,13 +943,28 @@ final class Product extends Base
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
+		$productType = (int)($fields['TYPE'] ?? 0);
 
 		$propertyValues = $this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID' => $iblockId]);
-		$fieldsInfo = array_merge(
-			$this->getFields(),
-			($propertyValues->isSuccess() ? $propertyValues->getData() : [])
-		);
-		unset($propertyValues);
+		$product = $this->getFieldsCatalogProductByFilter(['IBLOCK_ID' => $iblockId, 'PRODUCT_TYPE' => $productType]);
+
+		if ($product->isSuccess())
+		{
+			$fieldsInfo = array_merge(
+				$this->getFieldsIBlockElement(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : []),
+				$this->getFieldsCatalogProductCommonFields(),
+				$product->getData()
+			);
+		}
+		else
+		{
+			$fieldsInfo = array_merge(
+				$this->getFields(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : [])
+			);
+		}
+		unset($product, $propertyValues);
 
 		return parent::internalizeFieldsAdd($fields, $fieldsInfo);
 	}
@@ -868,13 +973,28 @@ final class Product extends Base
 	{
 		// param - IBLOCK_ID is reqired in filter
 		$iblockId = (int)($fields['IBLOCK_ID'] ?? 0);
+		$productType = (int)($fields['TYPE'] ?? 0);
 
 		$propertyValues = $this->getFieldsIBlockPropertyValuesByFilter(['IBLOCK_ID' => $iblockId]);
-		$fieldsInfo = array_merge(
-			$this->getFields(),
-			($propertyValues->isSuccess() ? $propertyValues->getData() : [])
-		);
-		unset($propertyValues);
+		$product = $this->getFieldsCatalogProductByFilter(['IBLOCK_ID' => $iblockId, 'PRODUCT_TYPE' => $productType]);
+
+		if ($product->isSuccess())
+		{
+			$fieldsInfo = array_merge(
+				$this->getFieldsIBlockElement(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : []),
+				$this->getFieldsCatalogProductCommonFields(),
+				$product->getData()
+			);
+		}
+		else
+		{
+			$fieldsInfo = array_merge(
+				$this->getFields(),
+				($propertyValues->isSuccess() ? $propertyValues->getData() : [])
+			);
+		}
+		unset($product, $propertyValues);
 
 		return parent::internalizeFieldsUpdate($fields, $fieldsInfo);
 	}
@@ -1287,7 +1407,16 @@ final class Product extends Base
 
 	protected function externalizeFileValue($name, $value, $fields): array
 	{
-		$productId = ($fields['ID'] ?? 0);
+		$productId = null;
+		if (isset($fields['PRODUCT_ID']))
+		{
+			$productId = $fields['PRODUCT_ID'];
+		}
+		elseif (isset($fields['ID']))
+		{
+			$productId = $fields['ID'];
+		}
+		$productId = (int)$productId;
 
 		$data = [
 			'fields' => [
@@ -1401,6 +1530,7 @@ final class Product extends Base
 
 		$this->loadEntityFieldNames(Iblock\ElementTable::getMap());
 		$this->loadEntityFieldNames(Catalog\ProductTable::getMap());
+		$this->loadAdditionalFieldNames();
 	}
 
 	/**
@@ -1409,7 +1539,7 @@ final class Product extends Base
 	 * @param array $fieldList
 	 * @return void
 	 */
-	private function loadEntityFieldNames(array $fieldList)
+	private function loadEntityFieldNames(array $fieldList): void
 	{
 		/** @var \Bitrix\Main\ORM\Fields\Field $field */
 		foreach ($fieldList as $field)
@@ -1422,6 +1552,11 @@ final class Product extends Base
 				$this->productFieldNames[$name] = $title ?: $name;
 			}
 		}
+	}
+
+	private function loadAdditionalFieldNames(): void
+	{
+		$this->productFieldNames['IBLOCK_SECTION'] = Loc::getMessage('RESTVIEW_PRODUCT_FIELD_NAME_IBLOCK_SECTION');
 	}
 
 	/**

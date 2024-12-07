@@ -4,7 +4,6 @@ define("PUBLIC_AJAX_MODE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-CUtil::JSPostUnescape();
 
 $arResult = array();
 

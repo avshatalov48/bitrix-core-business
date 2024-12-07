@@ -20,7 +20,6 @@ use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
 $request = Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 if (!check_bitrix_sessid())
 {
 	die();

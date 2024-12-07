@@ -19,7 +19,6 @@ export class VariablesField extends TextField
 	{
 		super({...options, textOnly: true});
 		this.setEventNamespace('BX.Landing.UI.Field.VariablesField');
-		this.onButtonClick = this.onButtonClick.bind(this);
 		this.onTopDocumentClick = this.onTopDocumentClick.bind(this);
 
 		Event.bind(window.top.document, 'click', this.onTopDocumentClick);
@@ -69,7 +68,7 @@ export class VariablesField extends TextField
 			return Tag.render`
 				<div 
 					class="landing-ui-field-variables-button" 
-					onclick="${this.onButtonClick}"
+					onclick="${this.onButtonClick.bind(this)}"
 				></div>
 			`;
 		});

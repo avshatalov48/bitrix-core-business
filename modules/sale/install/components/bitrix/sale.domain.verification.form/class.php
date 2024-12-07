@@ -221,6 +221,8 @@ class SaleDomainVerificationForm extends CBitrixComponent
 			return false;
 		}
 
+		$this->arResult['closeSlider'] = true;
+
 		return true;
 	}
 

@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
@@ -6,6 +7,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Basket\RefreshFactory;
 use Bitrix\Sale\Basket\RefreshStrategy;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Internals\CollectableEntity;
 
 Loc::loadMessages(__FILE__);
 
@@ -1072,30 +1074,32 @@ abstract class BasketBase extends BasketItemCollection
 	 * @internal
 	 *
 	 * @param Internals\CollectableEntity $basketItem
-	 * @return Internals\CollectableEntity|void
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\NotSupportedException
-	 * @throws Main\ObjectNotFoundException
+	 * @return Internals\CollectableEntity
 	 */
 	public function addItem(Internals\CollectableEntity $basketItem)
 	{
 		/** @var BasketItemBase $basketItem */
 		$basketItem = parent::addItem($basketItem);
 
-		$this->basketItemIndexMap[$basketItem->getBasketCode()] = $basketItem->getInternalIndex();
-
 		$this->verifyItemSort($basketItem);
-
-		$basketItem->setCollection($this);
 
 		/** @var OrderBase $order */
 		if ($order = $this->getOrder())
 		{
 			$order->onBasketModify(EventActions::ADD, $basketItem);
 		}
+
+		return $basketItem;
+	}
+
+	protected function bindItem(CollectableEntity $basketItem): CollectableEntity
+	{
+		$basketItem = parent::bindItem($basketItem);
+
+		$this->basketItemIndexMap[$basketItem->getBasketCode()] = $basketItem->getInternalIndex();
+		$basketItem->setCollection($this);
+
+		return $basketItem;
 	}
 
 	/**

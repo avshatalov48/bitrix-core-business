@@ -4,9 +4,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\UI\Extension,
 	Bitrix\Main\Localization\Loc;
 
+if ($arResult['closeSlider']):
+?>
+	<script>
+		BX.SidePanel.Instance.getTopSlider().close();
+	</script>
+<?php
+endif;
+
 Loc::loadMessages(__FILE__);
 
 Extension::load(["ui.common", "ui.forms", "ui.alerts"]);
+\CJSCore::Init("loader");
 
 $APPLICATION->SetTitle(Loc::getMessage("SALE_DVF_TEMPLATE_TITLE"));
 
@@ -107,10 +116,14 @@ if ($arResult["SITE_LIST"])
 			</select>
 		</div>
 
-		<label class="ui-ctl ui-ctl-file-btn">
-			<input type="file" class="ui-ctl-element" name="file_validation">
-			<div class="ui-ctl-label-text"><?=Loc::getMessage("SALE_DVF_TEMPLATE_FILE_BUTTON_TITLE")?></div>
-		</label>
+		<div class="file-input-wrapper">
+			<label class="ui-ctl ui-ctl-file-btn">
+				<input type="file" class="ui-ctl-element" id="file-validation-input" name="file_validation">
+				<div class="ui-ctl-label-text"><?=Loc::getMessage("SALE_DVF_TEMPLATE_FILE_BUTTON_TITLE")?></div>
+			</label>
+
+			<div id="file-validation-label" class="ui-ctl-label-text file-validation-label"><?= Loc::getMessage("SALE_DVF_TEMPLATE_FILE_NOT_SELECTED") ?></div>
+		</div>
 		<?php
 		$buttons = [
 			'save',
@@ -145,10 +158,16 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 <script>
+	BX.message({
+		SALE_DVF_TEMPLATE_FILE_NOT_SELECTED: '<?=Loc::getMessage('SALE_DVF_TEMPLATE_FILE_NOT_SELECTED')?>',
+	});
+
 	BX.Sale.DomainVerificationForm.init({
 		saveButtonId: "ui-button-panel-save",
 		closeButtonId: "ui-button-panel-close",
 		formId: "domain-verification-form",
+		fileInputId: "file-validation-input",
+		fileLabelId: "file-validation-label",
 		signedParameters: <?=CUtil::PhpToJSObject($this->getComponent()->getSignedParameters())?>,
 	});
 </script>

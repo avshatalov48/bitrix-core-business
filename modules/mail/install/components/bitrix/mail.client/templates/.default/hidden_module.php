@@ -12,7 +12,7 @@ if ($_REQUEST['IFRAME'] == 'Y' && $_REQUEST['IFRAME_TYPE'] == 'SIDE_SLIDER')
 }
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		const slider = top.BX.SidePanel && top.BX.SidePanel.Instance.getSliderByWindow(window);

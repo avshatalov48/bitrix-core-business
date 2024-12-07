@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_SITE"] = "Не указан сайт";
 $MESS["BT_MOD_CAT_DSC_SV_ERR_BAD_SITE"] = "Указан неверный сайт";
 $MESS["BT_MOD_CAT_DSC_SV_ERR_EMPTY_NAME"] = "Отсутствует название";
@@ -18,4 +18,3 @@ $MESS["BT_CAT_CAT_DSC_SV_TYPE_FIX"] = "Фиксированная сумма";
 $MESS["BX_CAT_DISCSAVE_APPLY_MODE_R"] = "отменять скидки на товар, если накопительная скидка больше";
 $MESS["BX_CAT_DISCSAVE_APPLY_MODE_A"] = "дополнять скидки на товар";
 $MESS["BX_CAT_DISCSAVE_APPLY_MODE_D"] = "не действовать, если есть скидки на товар";
-?>

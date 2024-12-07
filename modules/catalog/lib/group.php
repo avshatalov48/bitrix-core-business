@@ -208,14 +208,13 @@ class GroupTable extends ORM\Data\DataManager
 	 */
 	public static function getBasePriceType(): ?array
 	{
-		$row = self::getList([
+		$row = self::getRow([
 			'select' => [
 				'ID',
 				'NAME',
 				'BASE',
 				'SORT',
 				'XML_ID',
-				'NAME_LANG' =>'CURRENT_LANG.NAME',
 			],
 			'filter' => [
 				'=BASE' => 'Y',
@@ -223,21 +222,35 @@ class GroupTable extends ORM\Data\DataManager
 			'cache' => [
 				'ttl' => 86400,
 			],
-		])->fetch();
-
-		if (!empty($row))
+		]);
+		if ($row === null)
 		{
-			$row['ID'] = (int)$row['ID'];
-			$row['SORT'] = (int)$row['SORT'];
-			if ($row['NAME_LANG'] === '')
-			{
-				$row['NAME_LANG'] = null;
-			}
-
-			return $row;
+			return null;
 		}
 
-		return null;
+		$row['NAME_LANG'] = null;
+		$title = GroupLangTable::getRow([
+			'select' => [
+				'NAME',
+			],
+			'filter' => [
+				'=CATALOG_GROUP_ID' => $row['ID'],
+				'=LANG' => LANGUAGE_ID,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		if ($title !== null)
+		{
+			if ($title['NAME'] === '')
+			{
+				$title['NAME'] = null;
+			}
+			$row['NAME_LANG'] = $title['NAME'];
+		}
+
+		return $row;
 	}
 
 	/**

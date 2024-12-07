@@ -6,17 +6,9 @@
 
 class CAllFormResult extends CFormResult_old
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormResult<br>File: ".__FILE__;
-	}
-
 	public static function GetFileByAnswerID($RESULT_ID, $ANSWER_ID)
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetFileByAnswerID<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		$ANSWER_ID = intval($ANSWER_ID);
 		$strSql = "
@@ -33,7 +25,7 @@ class CAllFormResult extends CFormResult_old
 				RESULT_ID='".$RESULT_ID."'
 			and ANSWER_ID='".$ANSWER_ID."'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		if ($zr = $z->Fetch()) return $zr; else return false;
 	}
 
@@ -41,8 +33,6 @@ class CAllFormResult extends CFormResult_old
 	public static function GetFileByHash($RESULT_ID, $HASH)
 	{
 		global $DB, $APPLICATION, $strError, $USER;
-
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetAnswerFile<br>Line: ";
 
 		$RESULT_ID = intval($RESULT_ID);
 		if ($RESULT_ID<=0 || trim($HASH) == '') return;
@@ -65,7 +55,7 @@ WHERE R.ID = '".$RESULT_ID."'
 AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 ";
 
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		if ($zr = $z->Fetch())
 		{
 			$F_RIGHT = CForm::GetPermission($zr['FORM_ID']);
@@ -88,19 +78,18 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// create new event
 	public static function SetEvent($RESULT_ID, $IN_EVENT1=false, $IN_EVENT2=false, $IN_EVENT3=false, $money="", $currency="", $goto="", $chargeback="N")
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetEvent<br>Line: ";
 		global $DB, $strError;
 
 		if (CModule::IncludeModule("statistic"))
 		{
 			$RESULT_ID = intval($RESULT_ID);
 			$strSql = "SELECT FORM_ID FROM b_form_result WHERE ID='".$RESULT_ID."'";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			if ($zr = $z->Fetch())
 			{
 				$WEB_FORM_ID = $zr["FORM_ID"];
 				$strSql = "SELECT SID, STAT_EVENT1, STAT_EVENT2, STAT_EVENT3 FROM b_form WHERE ID = '".$WEB_FORM_ID."'";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				$zr = $z->Fetch();
 
 				if ($IN_EVENT1===false)
@@ -137,20 +126,21 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	public static function GetDataByID($RESULT_ID, $arrFIELD_SID, &$arrRES, &$arrANSWER)
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetDataByID<br>Line: ";
 		$arrReturn = array();
 		$RESULT_ID = intval($RESULT_ID);
 		$z = CFormResult::GetByID($RESULT_ID);
 		if ($arrRES = $z->Fetch())
 		{
+			$s = '';
 			if (is_array($arrFIELD_SID) && count($arrFIELD_SID)>0)
 			{
+				$str = '';
 				foreach($arrFIELD_SID as $field) $str .= ",'".$DB->ForSql($field,50)."'";
-				$str = TrimEx($str,",");
+				$str = trim($str, ",");
 				if ($str <> '') $s = "and SID in ($str)";
 			}
-			$strSql = "SELECT ID, SID, SID as VARNAME FROM b_form_field WHERE FORM_ID='".$arrRES["FORM_ID"]."' ".$s;
-			$q = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$strSql = "SELECT ID, SID, SID as VARNAME FROM b_form_field WHERE FORM_ID='".$arrRES["FORM_ID"]."' " . $s;
+			$q = $DB->Query($strSql);
 			while ($qr = $q->Fetch())
 			{
 				$arrFIELDS[$qr["ID"]] = $qr["SID"];
@@ -184,7 +174,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// return array of result values for component
 	public static function GetDataByIDForHTML($RESULT_ID, $GET_ADDITIONAL="N")
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetDataByIDForHTML<br>Line: ";
 		global $DB, $strError;
 		$z = CFormResult::GetByID($RESULT_ID);
 		if ($zr=$z->Fetch())
@@ -303,7 +292,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// add new form result
 	public static function Add($WEB_FORM_ID, $arrVALUES=false, $CHECK_RIGHTS="Y", $USER_ID=false)
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: Add<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
 		if ($arrVALUES===false) $arrVALUES = $_REQUEST;
 
@@ -346,7 +334,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 					// check result status
 					$fname = "status_".$arForm["SID"];
-					$STATUS_ID = (intval($arrVALUES[$fname])<=0) ? CFormStatus::GetDefault($WEB_FORM_ID) : intval($arrVALUES[$fname]);
+					$STATUS_ID = (intval($arrVALUES[$fname] ?? 0) <=0) ? CFormStatus::GetDefault($WEB_FORM_ID) : intval($arrVALUES[$fname]);
 
 					if ($STATUS_ID <= 0)
 					{
@@ -434,7 +422,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								}
 
 								if ($strError == '')
-									$RESULT_ID = $DB->Insert("b_form_result", $arFields, $err_mess.__LINE__);
+									$RESULT_ID = $DB->Insert("b_form_result", $arFields);
 							}
 						}
 						else
@@ -489,8 +477,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															"ANSWER_TEXT"		=> trim($zr["MESSAGE"]),
 															"ANSWER_VALUE"		=> $zr["VALUE"]
 															);
-														$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-														$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
+														$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+														$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 														CFormResult::AddAnswer($arFields);
 													}
 													if ($FIELD_TYPE=="radio") $radio = "Y";
@@ -525,8 +513,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																	"ANSWER_TEXT"		=> trim($zr["MESSAGE"]),
 																	"ANSWER_VALUE"		=> $zr["VALUE"]
 																	);
-																$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-																$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
+																$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+																$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 																CFormResult::AddAnswer($arFields);
 															}
 														}
@@ -560,9 +548,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 													"USER_TEXT"			=> $arrVALUES[$fname]
 												);
 
-												$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-												$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-												$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+												$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+												$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+												$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 												CFormResult::AddAnswer($arFields);
 											}
 
@@ -588,9 +576,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 														"USER_DATE"			=> $USER_DATE,
 														"USER_TEXT"			=> $USER_DATE
 													);
-													$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-													$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-													$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+													$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+													$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+													$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 													CFormResult::AddAnswer($arFields);
 												}
 											}
@@ -629,9 +617,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																"USER_FILE_NAME"		=> $arIMAGE["name"],
 																"USER_FILE_SIZE"		=> $arIMAGE["size"],
 															);
-															$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-															$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-															$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+															$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+															$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+															$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 															CFormResult::AddAnswer($arFields);
 														}
 													}
@@ -677,9 +665,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															"USER_FILE_SUFFIX"		=> $fes,
 															"USER_FILE_SIZE"		=> $arFILE["size"],
 														);
-														$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-														$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-														$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+														$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+														$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+														$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 														CFormResult::AddAnswer($arFields);
 													}
 												}
@@ -728,7 +716,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// update result
 	public static function Update($RESULT_ID, $arrVALUES=false, $UPDATE_ADDITIONAL="N", $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: Update<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
 		if ($arrVALUES===false) $arrVALUES = $_REQUEST;
 
@@ -803,7 +790,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						$rows = 0;
 
 						if ($strError == '')
-							$rows = $DB->Update("b_form_result", $arFields,"WHERE ID='".$RESULT_ID."'",$err_mess.__LINE__);
+							$rows = $DB->Update("b_form_result", $arFields,"WHERE ID='".$RESULT_ID."'");
 
 						if ($bUpdateStatus)
 						{
@@ -835,7 +822,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 									RESULT_ID = $RESULT_ID
 								and USER_FILE_ID>0
 								";
-							$q = $DB->Query($strSql,false,$err_mess.__LINE__);
+							$q = $DB->Query($strSql);
 							while ($qr = $q->Fetch()) $arrFILES[$qr["ANSWER_ID"]] = $qr;
 
 							if (is_array($arrVALUES["ARR_CLS"])) $arrException = array_merge($arrException, $arrVALUES["ARR_CLS"]);
@@ -893,8 +880,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																	"ANSWER_TEXT"		=> trim($zr["MESSAGE"]),
 																	"ANSWER_VALUE"		=> $zr["VALUE"]
 																);
-																$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-																$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
+																$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+																$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 																CFormResult::AddAnswer($arFields);
 															}
 															if ($FIELD_TYPE=="radio") $radio = "Y";
@@ -929,8 +916,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																		"ANSWER_TEXT"		=> trim($zr["MESSAGE"]),
 																		"ANSWER_VALUE"		=> $zr["VALUE"]
 																		);
-																		$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-																		$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
+																		$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+																		$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 																		CFormResult::AddAnswer($arFields);
 																	}
 																}
@@ -962,9 +949,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															"ANSWER_VALUE"		=> $zr["VALUE"],
 															"USER_TEXT"			=> $arrVALUES[$fname]
 														);
-														$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-														$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-														$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+														$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+														$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+														$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 														CFormResult::AddAnswer($arFields);
 													}
 
@@ -990,9 +977,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 																"USER_DATE"			=> $USER_DATE,
 																"USER_TEXT"			=> $USER_DATE
 															);
-															$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-															$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-															$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+															$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+															$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+															$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 															CFormResult::AddAnswer($arFields);
 														}
 													}
@@ -1048,9 +1035,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															}
 															$arFields["USER_TEXT"] = $arFields["USER_FILE_NAME"];
 
-															$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-															$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-															$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+															$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+															$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+															$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 															CFormResult::AddAnswer($arFields);
 														}
 													}
@@ -1112,9 +1099,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															}
 															$arFields["USER_TEXT"] = $arFields["USER_FILE_NAME"];
 
-															$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-															$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-															$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+															$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+															$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+															$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 															CFormResult::AddAnswer($arFields);
 														}
 													}
@@ -1156,7 +1143,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												"FORM_ID"			=> $WEB_FORM_ID,
 												"FIELD_ID"			=> $FIELD_ID,
 												"USER_TEXT"			=> $arrVALUES[$fname],
-												"USER_TEXT_SEARCH"	=> ToUpper($arrVALUES[$fname])
+												"USER_TEXT_SEARCH"	=> mb_strtoupper($arrVALUES[$fname])
 											);
 											CFormResult::AddAnswer($arFields);
 											break;
@@ -1169,7 +1156,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												"FORM_ID"			=> $WEB_FORM_ID,
 												"FIELD_ID"			=> $FIELD_ID,
 												"USER_TEXT"			=> $arrVALUES[$fname],
-												"USER_TEXT_SEARCH"	=> ToUpper($arrVALUES[$fname])
+												"USER_TEXT_SEARCH"	=> mb_strtoupper($arrVALUES[$fname])
 											);
 											CFormResult::AddAnswer($arFields);
 
@@ -1187,7 +1174,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 													"FIELD_ID"			=> $FIELD_ID,
 													"USER_DATE"			=> $USER_DATE,
 													"USER_TEXT"			=> $USER_DATE,
-													"USER_TEXT_SEARCH"	=> ToUpper($USER_DATE)
+													"USER_TEXT_SEARCH"	=> mb_strtoupper($USER_DATE)
 												);
 												CFormResult::AddAnswer($arFields);
 											}
@@ -1217,7 +1204,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	public static function SetField($RESULT_ID, $FIELD_SID, $VALUE=false)
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetField<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		if (intval($RESULT_ID)>0)
 		{
@@ -1229,7 +1215,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				WHERE
 					ID = $RESULT_ID
 				";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			$zr = $z->Fetch();
 			$WEB_FORM_ID = $zr["FORM_ID"];
 			if (intval($WEB_FORM_ID)>0)
@@ -1245,7 +1231,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						FORM_ID = $WEB_FORM_ID
 					and SID = '".$DB->ForSql($FIELD_SID,50)."'
 					";
-				$q = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$q = $DB->Query($strSql);
 				if ($arField = $q->Fetch())
 				{
 					$FIELD_ID = $arField["ID"];
@@ -1261,7 +1247,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							and FIELD_ID = $FIELD_ID
 							";
 						//echo "<pre>".$strSql."</pre>";
-						$DB->Query($strSql, false, $err_mess.__LINE__);
+						$DB->Query($strSql);
 
 						if ($VALUE <> '')
 						{
@@ -1277,7 +1263,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 										"FORM_ID"			=> $WEB_FORM_ID,
 										"FIELD_ID"			=> $FIELD_ID,
 										"USER_TEXT"			=> $VALUE,
-										"USER_TEXT_SEARCH"	=> ToUpper($VALUE)
+										"USER_TEXT_SEARCH"	=> mb_strtoupper($VALUE)
 										);
 									CFormResult::AddAnswer($arFields);
 								break;
@@ -1292,7 +1278,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 											"FIELD_ID"			=> $FIELD_ID,
 											"USER_DATE"			=> $VALUE,
 											"USER_TEXT"			=> $VALUE,
-											"USER_TEXT_SEARCH"	=> ToUpper($VALUE)
+											"USER_TEXT_SEARCH"	=> mb_strtoupper($VALUE)
 											);
 										CFormResult::AddAnswer($arFields);
 									}
@@ -1313,7 +1299,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 							and FIELD_ID = $FIELD_ID
 							and USER_FILE_ID>0
 							";
-						$rsFiles = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$rsFiles = $DB->Query($strSql);
 						while ($arFile = $rsFiles->Fetch()) CFile::Delete($arFile["USER_FILE_ID"]);
 
 						$strSql = "
@@ -1323,7 +1309,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 								RESULT_ID = $RESULT_ID
 							and FIELD_ID = $FIELD_ID
 							";
-						$DB->Query($strSql, false, $err_mess.__LINE__);
+						$DB->Query($strSql);
 
 						if (is_array($VALUE) && count($VALUE)>0)
 						{
@@ -1351,8 +1337,8 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												"ANSWER_VALUE"			=> $arAnswer["VALUE"],
 											);
 											CFormResult::AddAnswer($arFields);
-											$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-											$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
+											$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+											$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
 
 										break;
 
@@ -1373,9 +1359,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 												"USER_TEXT"				=> $val,
 											);
 											CFormResult::AddAnswer($arFields);
-											$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-											$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-											$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+											$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+											$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+											$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 
 										break;
 
@@ -1394,9 +1380,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 													"USER_DATE"				=> $val
 												);
 												CFormResult::AddAnswer($arFields);
-												$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-												$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-												$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+												$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+												$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+												$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 											}
 
 										break;
@@ -1429,9 +1415,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 															"USER_TEXT"				=> $arIMAGE["name"]
 															);
 														CFormResult::AddAnswer($arFields);
-														$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-														$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-														$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+														$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+														$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+														$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 													}
 												}
 											}
@@ -1466,9 +1452,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 														"USER_TEXT"				=> $original_name,
 														);
 													CFormResult::AddAnswer($arFields);
-													$arrANSWER_TEXT[$FIELD_ID][] = ToUpper($arFields["ANSWER_TEXT"]);
-													$arrANSWER_VALUE[$FIELD_ID][] = ToUpper($arFields["ANSWER_VALUE"]);
-													$arrUSER_TEXT[$FIELD_ID][] = ToUpper($arFields["USER_TEXT"]);
+													$arrANSWER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_TEXT"]);
+													$arrANSWER_VALUE[$FIELD_ID][] = mb_strtoupper($arFields["ANSWER_VALUE"]);
+													$arrUSER_TEXT[$FIELD_ID][] = mb_strtoupper($arFields["USER_TEXT"]);
 												}
 											}
 
@@ -1513,10 +1499,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 		$strError = '';
 
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: Delete<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		$strSql = "SELECT FORM_ID FROM b_form_result WHERE ID='".$RESULT_ID."'";
-		$q = $DB->Query($strSql,false,$err_mess.__LINE__);
+		$q = $DB->Query($strSql);
 		if ($qr = $q->Fetch())
 		{
 			// rights check
@@ -1525,7 +1510,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			else
 			{
 				$strSql = "SELECT USER_ID FROM b_form_result WHERE ID='".$RESULT_ID."'";
-				$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				$zr = $z->Fetch();
 				if ($F_RIGHT>=15 && intval($USER->GetID())==$zr["USER_ID"]) $RIGHT_OK = "Y";
 			}
@@ -1558,7 +1543,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						if (CFormResult::Reset($RESULT_ID, true, "Y"))
 						{
 							// delete result
-							$DB->Query("DELETE FROM b_form_result WHERE ID='$RESULT_ID'", false, $err_mess.__LINE__);
+							$DB->Query("DELETE FROM b_form_result WHERE ID='$RESULT_ID'");
 							return true;
 						}
 					}
@@ -1574,7 +1559,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	public static function Reset($RESULT_ID, $DELETE_FILES=true, $DELETE_ADDITIONAL="N", $arrException=array())
 	{
 		global $DB, $strError;
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: Reset<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		$strExc = '';
 
@@ -1592,7 +1576,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			if ($strExc <> '') $sqlExc = " and FIELD_ID not in ('$strExc') ";
 			// delete result files
 			$strSql = "SELECT USER_FILE_ID, ANSWER_ID FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and USER_FILE_ID>0 $sqlExc";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch()) CFile::Delete($zr["USER_FILE_ID"]);
 		}
 
@@ -1600,7 +1584,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 		{
 			$sqlExc = "";
 			if ($strExc <> '') $sqlExc = " and FIELD_ID not in ('$strExc') ";
-			$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' $sqlExc", false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' $sqlExc");
 		}
 		else
 		{
@@ -1618,12 +1602,12 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 				and F.ADDITIONAL = 'N'
 				$sqlExc
 				";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr=$z->Fetch()) $arrD[] = $zr["ID"];
 			if (is_array($arrD) && count($arrD)>0) $strD = implode(",",$arrD);
 			if ($strD <> '')
 			{
-				$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and FIELD_ID in ($strD)", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_result_answer WHERE RESULT_ID='$RESULT_ID' and FIELD_ID in ($strD)");
 			}
 		}
 		return true;
@@ -1632,7 +1616,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// update result status
 	public static function SetStatus($RESULT_ID, $NEW_STATUS_ID, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: SetStatus<br>Line: ";
 		global $DB, $USER, $strError, $APPLICATION;
 		$NEW_STATUS_ID = intval($NEW_STATUS_ID);
 		$RESULT_ID = intval($RESULT_ID);
@@ -1641,7 +1624,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 			return false;
 
 		$strSql = "SELECT USER_ID, FORM_ID FROM b_form_result WHERE ID='".$RESULT_ID."'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		if ($zr = $z->Fetch())
 		{
 			$WEB_FORM_ID = intval($zr["FORM_ID"]);
@@ -1693,7 +1676,7 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 						"TIMESTAMP_X"	=> $DB->GetNowFunction(),
 						"STATUS_ID"		=> "'".intval($NEW_STATUS_ID)."'"
 						);
-					$DB->Update("b_form_result",$arFields,"WHERE ID='".$RESULT_ID."'",$err_mess.__LINE__);
+					$DB->Update("b_form_result",$arFields,"WHERE ID='".$RESULT_ID."'");
 
 					foreach (GetModuleEvents('form', 'onAfterResultStatusChange', true) as $arEvent)
 					{
@@ -1716,7 +1699,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	{
 		global $APPLICATION, $DB, $MESS, $strError;
 
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: Mail<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 
 		CTimeZone::Disable();
@@ -2051,10 +2033,9 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 	public static function GetCount($WEB_FORM_ID)
 	{
-		global $DB, $USER, $strError;
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: GetCount<br>Line: ";
+		global $DB;
 		$strSql = "SELECT count(ID) C FROM b_form_result WHERE FORM_ID=".intval($WEB_FORM_ID);
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["C"]);
 	}
@@ -2062,9 +2043,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 	// prepare array of parameters for result filter
 	public static function PrepareFilter($WEB_FORM_ID, $arFilter)
 	{
-		$err_mess = (CAllFormResult::err_mess())."<br>Function: PrepareFilter<br>Line: ";
-		global $DB, $strError;
-
 		$arrFilterReturn = $arFilter;
 
 		if (array_key_exists("FIELDS", $arFilter))
@@ -2073,8 +2051,6 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 			$rsForm = CForm::GetByID($WEB_FORM_ID);
 			$arForm = $rsForm->Fetch();
-
-			$WEB_FORM_NAME = $arForm["SID"];
 
 			if (is_array($arFilterFields) && count($arFilterFields) > 0)
 			{
@@ -2089,9 +2065,14 @@ AND RA.USER_FILE_HASH = '".$DB->ForSql($HASH, 255)."'
 
 					$FILTER_TYPE = ($arr["FILTER_TYPE"] <> '') ? $arr["FILTER_TYPE"] : "text";
 
-					if (mb_strtoupper($FILTER_TYPE) == "ANSWER_ID") $FILTER_TYPE = "dropdown";
-
-					$PARAMETER_NAME = ($arr["PARAMETER_NAME"] <> '') ? $arr["PARAMETER_NAME"] : "USER";
+					if ($FILTER_TYPE == "answer_id")
+					{
+						$PARAMETER_NAME = "ANSWER_ID";
+					}
+					else
+					{
+						$PARAMETER_NAME = ($arr["PARAMETER_NAME"] <> '') ? $arr["PARAMETER_NAME"] : "USER";
+					}
 
 					$PART = $arr["PART"];
 

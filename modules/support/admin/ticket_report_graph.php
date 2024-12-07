@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -25,9 +25,9 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 /***************************************************************************
-									Функции
+									Р¤СѓРЅРєС†РёРё
 ***************************************************************************/
-function CheckFilter() // проверка введенных полей
+function CheckFilter() // РїСЂРѕРІРµСЂРєР° РІРІРµРґРµРЅРЅС‹С… РїРѕР»РµР№
 {
 	global $arFilterFields;
 	reset($arFilterFields); foreach ($arFilterFields as $f) global $$f; 
@@ -65,14 +65,14 @@ function CheckFilter() // проверка введенных полей
 }
 
 /***************************************************************************
-								Обработка GET | POST
+								РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ****************************************************************************/
 
 
 
 $sTableID = "t_report_graph";
-$oSort = new CAdminSorting($sTableID);// инициализация сортировки
-$lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
+$oSort = new CAdminSorting($sTableID);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
+$lAdmin = new CAdminList($sTableID, $oSort);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 
 $filter = new CAdminFilter(
 	"filter_id", 
@@ -126,7 +126,7 @@ $FilterArr2 = Array(
 $arFilterFields = array_merge($FilterArr1, $FilterArr2);
 
 
-$lAdmin->InitFilter($arFilterFields);//инициализация фильтра
+$lAdmin->InitFilter($arFilterFields);//РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РёР»СЊС‚СЂР°
 
 
 
@@ -335,7 +335,7 @@ endif;
 <?
 if (!function_exists("ImageCreate")) :
 	CAdminMessage::ShowMessage(GetMessage("SUP_GD_NOT_INSTALLED"));
-	//echo ShowError(GetMessage("SUP_GD_NOT_INSTALLED")."<br>");
+	//ShowError(GetMessage("SUP_GD_NOT_INSTALLED")."<br>");
 elseif ($CLOSE_TICKETS<=0) :
 	CAdminMessage::ShowMessage(GetMessage("SUP_NOT_ENOUGH_DATA_FOR_DIAGRAM"));
 	//ShowError(GetMessage("SUP_NOT_ENOUGH_DATA_FOR_DIAGRAM"));
@@ -408,7 +408,7 @@ else :
 <?
 if (!function_exists("ImageCreate")) : 
 	CAdminMessage::ShowMessage(GetMessage("SUP_GD_NOT_INSTALLED"));
-	//echo ShowError(GetMessage("SUP_GD_NOT_INSTALLED")."<br>");
+	//ShowError(GetMessage("SUP_GD_NOT_INSTALLED")."<br>");
 elseif ($CLOSE_TICKETS<=0) :
 	CAdminMessage::ShowMessage(GetMessage("SUP_NOT_ENOUGH_DATA_FOR_DIAGRAM"));
 	//ShowError(GetMessage("SUP_NOT_ENOUGH_DATA_FOR_DIAGRAM"));

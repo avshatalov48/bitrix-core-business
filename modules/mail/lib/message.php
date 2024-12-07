@@ -413,7 +413,7 @@ class Message
 	{
 		$score = 0;
 
-		if (preg_match_all('/^([^\:\n]{1,20}):[\t\x20]+(.+)$/m'.BX_UTF_PCRE_MODIFIER, $head, $matches, PREG_SET_ORDER))
+		if (preg_match_all('/^([^\:\n]{1,20}):[\t\x20]+(.+)$/mu', $head, $matches, PREG_SET_ORDER))
 		{
 			$subject = array(
 				'value'  => $this->subject,
@@ -478,7 +478,7 @@ class Message
 			(?<date>.{5,50}\d),?\x20
 			[^\d\n]{0,20}(?<time>\d{1,2}\:\d{2}(?:\:\d{2})?\x20?(?:am|pm)?),?\x20
 			(?<from>.+):\s*$
-		/ix'.BX_UTF_PCRE_MODIFIER;
+		/ixu';
 		if (preg_match($regex, $head, $matches))
 		{
 			$matches['date'] = trim($matches['date']);
@@ -526,7 +526,7 @@ class Message
 		$fullHeadRegex = '/(?:^|\n\n)
 			(?<hr>_{20,}\n(?:[\t\x20]*\n)?)?
 			(?<head>(?:[^\:\n]{1,20}:[\t\x20]+.+(?:\n|$)){2,6})\s*$
-		/x'.BX_UTF_PCRE_MODIFIER;
+		/xu';
 		if (preg_match($fullHeadRegex, $data, $matches))
 		{
 			$score  = (int) !empty($matches['hr']);
@@ -557,7 +557,7 @@ class Message
 			(?<date>.{5,50}\d),?\x20
 			[^\d\n]{0,20}(?<time>\d{1,2}\:\d{2}(?:\:\d{2})?\x20?(?:am|pm)?),?\x20
 			(?<from>.+):\s*$
-		/ix'.BX_UTF_PCRE_MODIFIER;
+		/ixu';
 		if (preg_match($shortHeadRegex, $data, $matches))
 		{
 			$score = 0;
@@ -601,7 +601,7 @@ class Message
 			(?<date>.{5,50}\d),?\x20
 			[^\d\n]{0,20}(?<time>\d{1,2}\:\d{2}(?:\:\d{2})?\x20?(?:am|pm)?),?\x20
 			(?<from>.+):(?:\s*\n)?)
-		/ix'.BX_UTF_PCRE_MODIFIER;
+		/ixu';
 
 		$hasMarker = preg_match($shortHeadRegex, $data);
 		$fullHeadRegex = '/(?:^|\n\n)\s*
@@ -609,7 +609,7 @@ class Message
 			(?<head>(?:[\t\x20]*\n)?
 			(?<lines>(?:[^\:\n]{1,20}:[\t\x20]+.+(?:\n|$)){2,6}))
 			\s*(?:\n|$)
-		/x'.BX_UTF_PCRE_MODIFIER;
+		/xu';
 
 		if (preg_match($fullHeadRegex, $data, $matches, PREG_OFFSET_CAPTURE))
 		{

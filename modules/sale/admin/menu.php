@@ -7,6 +7,7 @@
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Main\Application;
+use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 use Bitrix\Sale\Location;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Config\Option;
@@ -155,7 +156,12 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 
 	/* Orders End*/
 
-	if (Loader::includeModule('sale') && \Bitrix\Sale\Configuration::isCanUsePersonalization())
+	$isBigDataOptionEnabled = Option::get("main", "gather_catalog_stat", "Y") === "Y";
+	if (
+		$isBigDataOptionEnabled
+		&& Loader::includeModule('sale')
+		&& \Bitrix\Sale\Configuration::isCanUsePersonalization()
+	)
 	{
 		$aMenu[] = array(
 			"parent_menu" => "global_menu_marketing",
@@ -256,7 +262,6 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				"text" => GetMessage("SALE_CASHBOX_TITLE"),
 				"title" => GetMessage("SALE_CASHBOX"),
 				"icon" => "crm-cashbox-icon",
-				"url" => $currentZone !== 'ua' ? "sale_cashbox.php?lang=".LANGUAGE_ID : '',
 				"page_icon" => "sale_page_icon_crm",
 				"items_id" => "menu_sale_cashbox",
 				"items" => [],
@@ -296,14 +301,28 @@ if ($APPLICATION->GetGroupRight("sale")!="D")
 				];
 			}
 
-			$arMenu["items"][] = [
-				"text" => GetMessage("SALE_CASHBOX_ZREPORT"),
-				"title" => GetMessage("SALE_CASHBOX_ZREPORT"),
-				"url" => "sale_cashbox_zreport.php?lang=".LANGUAGE_ID,
-				"more_url" => [],
-				"items_id" => "sale_cashbox_zreport",
-				"sort" => 304,
-			];
+			$physicalCashboxData = CashboxTable::getRow([
+				'select' => ['ID'],
+				'filter' => [
+					'@HANDLER' => [
+						'\Bitrix\Sale\Cashbox\CashboxBitrixV3',
+						'\Bitrix\Sale\Cashbox\CashboxBitrixV2',
+						'\Bitrix\Sale\Cashbox\CashboxBitrix',
+					],
+				],
+			]);
+
+			if ($physicalCashboxData)
+			{
+				$arMenu["items"][] = [
+					"text" => GetMessage("SALE_CASHBOX_ZREPORT"),
+					"title" => GetMessage("SALE_CASHBOX_ZREPORT"),
+					"url" => "sale_cashbox_zreport.php?lang=" . LANGUAGE_ID,
+					"more_url" => [],
+					"items_id" => "sale_cashbox_zreport",
+					"sort" => 304,
+				];
+			}
 
 			if ($catalogInstalled)
 			{
@@ -1123,34 +1142,39 @@ if ($APPLICATION->GetGroupRight("sale") != "D" && $USER->CanDoOperation('install
 	);
 }
 
-EventManager::getInstance()->addEventHandler("main", "OnBuildGlobalMenu", function (&$arGlobalMenu, &$arModuleMenu) {
-	if (in_array(Application::getInstance()->getContext()->getLanguage(), ["ru", "ua"])
-		&&
-		(
-			!ModuleManager::isModuleInstalled("intranet")
-			|| Option::get("sale", "~IS_CRM_SITE_MASTER_OPENED", "N") === "Y"
-		)
-	)
+EventManager::getInstance()->addEventHandler(
+	"main",
+	"OnBuildGlobalMenu",
+	function (&$arGlobalMenu, &$arModuleMenu)
 	{
-		$arGlobalMenu["global_menu_crm_site_master"] = [
-			"menu_id" => "crm-site-master",
-			"text" => GetMessage("SALE_MENU_CRM_SITE_MASTER"),
-			"title" => GetMessage("SALE_MENU_CRM_SITE_MASTER"),
-			"sort" => 475,
-			"items_id" => "global_menu_crm_site_master",
-			"help_section" => "crm-site-master",
-			"items" => [
-				[
-					"parent_menu" => "global_menu_crm_site_master",
-					"text" => GetMessage("SALE_MENU_CRM_SITE_MASTER_ITEM"),
-					"title" => GetMessage("SALE_MENU_CRM_SITE_MASTER_ITEM"),
-					"url" => "sale_crm_site_master.php?lang=".LANGUAGE_ID,
-					"icon" => "sale_crm_site_master_icon",
-					"sort" => 100,
-				]
-			],
-		];
+		if (in_array(Application::getInstance()->getContext()->getLanguage(), ["ru", "ua"])
+			&&
+			(
+				!ModuleManager::isModuleInstalled("intranet")
+				|| Option::get("sale", "~IS_CRM_SITE_MASTER_OPENED", "N") === "Y"
+			)
+		)
+		{
+			$arGlobalMenu["global_menu_crm_site_master"] = [
+				"menu_id" => "crm-site-master",
+				"text" => GetMessage("SALE_MENU_CRM_SITE_MASTER"),
+				"title" => GetMessage("SALE_MENU_CRM_SITE_MASTER"),
+				"sort" => 475,
+				"items_id" => "global_menu_crm_site_master",
+				"help_section" => "crm-site-master",
+				"items" => [
+					[
+						"parent_menu" => "global_menu_crm_site_master",
+						"text" => GetMessage("SALE_MENU_CRM_SITE_MASTER_ITEM"),
+						"title" => GetMessage("SALE_MENU_CRM_SITE_MASTER_ITEM"),
+						"url" => "sale_crm_site_master.php?lang=".LANGUAGE_ID,
+						"icon" => "sale_crm_site_master_icon",
+						"sort" => 100,
+					]
+				],
+			];
+		}
 	}
-});
+);
 
 return (!empty($aMenu) ? $aMenu : false);

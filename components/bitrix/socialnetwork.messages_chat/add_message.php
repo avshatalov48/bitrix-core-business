@@ -47,7 +47,6 @@ if (CModule::IncludeModule("socialnetwork"))
 		else
 		{
 			$message = $_REQUEST["data"];
-			CUtil::decodeURIComponent($message);
 			$message = Trim($message);
 			if ($message == '')
 			{

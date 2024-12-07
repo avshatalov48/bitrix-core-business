@@ -22,8 +22,8 @@ $MESS["LOCA_LOCATIONS_STATS"] = "Standort-Statistik";
 $MESS["LOCA_LOADING"] = "Assistent  für Standortimport";
 $MESS["LOCA_LOADING_WIZARD"] = "Assistenten des Standort-Imports starten";
 $MESS["LOCA_HINT"] = "Dateien mit Standorten können Sie von der Seite bitrixsoft herunterladen:<ul style=\"font-size: 100%\">
- <li><a href=\"http://www.1c-bitrix.ru/download/files/locations/loc_cntr.csv\">Länder</a></li>
- <li><a href=\"http://www.1c-bitrix.ru/download/files/locations/loc_usa.csv\">USA</a></li>
+ <li><a href=\"https://www.1c-bitrix.ru/download/files/locations/loc_cntr.csv\">Länder</a></li>
+ <li><a href=\"https://www.1c-bitrix.ru/download/files/locations/loc_usa.csv\">USA</a></li>
 </ul>";
 $MESS["LOCA_LOCATIONS_REGION_STATS"] = "Regionen";
 $MESS["LOCATION_CLEAR"] = "Bereinigen";

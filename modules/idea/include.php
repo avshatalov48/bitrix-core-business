@@ -1,7 +1,4 @@
-<?
-//IncludeModuleLangFile(__FILE__);
-
-global $DBType;
+<?php
 
 CModule::AddAutoloadClasses(
 	"idea",
@@ -14,5 +11,3 @@ CModule::AddAutoloadClasses(
 		"CIdeaManagmentEmailNotify" => "classes/general/idea_email_notify.php",
 	)
 );
-
-?>

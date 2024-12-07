@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Mail\Helper;
 
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Mail\MailMessageTable;
 use Bitrix\Mail\MailMessageUidTable;
@@ -70,6 +71,12 @@ class MessageEventManager
 				{
 					$this->handleRemovedEvent($fieldsData, $filter);
 				}
+			}
+
+			$oldDirMd5 = $params['MAIL_FIELDS_DATA'][0]['OLD_DIR_MD5'] ?? null;
+			if ($oldDirMd5)
+			{
+				MessageInternalDateHandler::clearStartInternalDate((int)$filter['=MAILBOX_ID'], $oldDirMd5);
 			}
 		}
 	}

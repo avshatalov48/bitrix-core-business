@@ -101,15 +101,18 @@ class SmsManager
 				continue;
 			}
 			$resultData = $result->getParameters();
-			foreach ($resultData as $sender)
+			if (is_array($resultData))
 			{
-				if (
-					$sender instanceof Base
-					&& $sender->getType() === MessageType::SMS
-					&& $sender::isSupported()
-				)
+				foreach ($resultData as $sender)
 				{
-					self::$senders[] = $sender;
+					if (
+						$sender instanceof Base
+						&& $sender->getType() === MessageType::SMS
+						&& $sender::isSupported()
+					)
+					{
+						self::$senders[] = $sender;
+					}
 				}
 			}
 		}

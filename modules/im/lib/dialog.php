@@ -152,10 +152,10 @@ class Dialog
 		{
 			$chatId = self::getChatId($dialogId, $userId);
 
-			return \Bitrix\Im\V2\Chat::getInstance($chatId)->hasAccess($userId);
+			return \Bitrix\Im\V2\Chat::getInstance($chatId)->checkAccess($userId)->isSuccess();
 		}
 
-		return \Bitrix\Im\V2\Entity\User\User::getInstance($dialogId)->hasAccess($userId);
+		return \Bitrix\Im\V2\Entity\User\User::getInstance($dialogId)->checkAccess($userId)->isSuccess();
 	}
 
 	public static function read($dialogId, $messageId = null, $userId = null)

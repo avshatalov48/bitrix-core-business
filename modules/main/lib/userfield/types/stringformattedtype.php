@@ -39,11 +39,11 @@ class StringFormattedType extends StringType
 		return [
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
 			'ROWS' => ($rows <= 1 ? 1 : ($rows > 50 ? 50 : $rows)),
-			'REGEXP' => $userField['SETTINGS']['REGEXP'],
+			'REGEXP' => $userField['SETTINGS']['REGEXP'] ?? null,
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
-			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'],
-			'PATTERN' => $userField['SETTINGS']['PATTERN'],
+			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'] ?? null,
+			'PATTERN' => $userField['SETTINGS']['PATTERN'] ?? null,
 		];
 	}
 

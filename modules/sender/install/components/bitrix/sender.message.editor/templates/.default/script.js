@@ -166,7 +166,8 @@
 		this.templateId = template.code;
 
 		var fields = {};
-		(template.messageFields || {}).reduce(function (fields, field) {
+		template.messageFields = [].concat(template.messageFields || []);
+		template.messageFields.reduce(function (fields, field) {
 			if (!field.onDemand)
 			{
 				fields[field.code] = field.value;

@@ -28,6 +28,7 @@ export const Content = {
 		'categories',
 		'options',
 		'params',
+		'context',
 	],
 
 	data()
@@ -214,10 +215,10 @@ export const Content = {
 				this.selectAll();
 			}
 		},
-		select(id: string): void
+		select(id: string, value: boolean = true): void
 		{
 			const option = this.getOptionRefs().find((item) => item.id === id);
-			option?.setValue(true);
+			option?.setValue(value);
 		},
 		selectAll()
 		{
@@ -322,6 +323,15 @@ export const Content = {
 				Type.isArrayFilled(this.dataSections)
 				&& this.dataSections.every((section) => section.value === false)
 			);
+		},
+		onToggleOption(event)
+		{
+			if (this.dataOptions.has(event.id))
+			{
+				const option = this.dataOptions.get(event.id);
+				option.value = event.isChecked;
+				this.dataOptions.set(event.id, option);
+			}
 		},
 	},
 
@@ -616,6 +626,7 @@ export const Content = {
 						v-if="dataParams.useSectioning"
 						v-for="category in categoryBySection"
 						:key="category.key"
+						:context="context"
 						:category="category"
 						:columnCount="columnCount"
 						:options="getOptionsByCategory(category.key)"
@@ -627,6 +638,7 @@ export const Content = {
 	
 					<checkbox-list-category
 						v-else
+						:context="context"
 						:columnCount="columnCount"
 						:options="getOptions()"
 						:isActiveSearch="search.length > 0"

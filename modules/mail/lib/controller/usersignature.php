@@ -19,7 +19,6 @@ class UserSignature extends Base
 	public function addAction(array $fields)
 	{
 		$unsafeFields = (array) $this->getRequest()->getPostList()->getRaw('fields');
-		\CUtil::decodeUriComponent($unsafeFields);
 
 		if (($limit = Main\Config\Option::get('mail', 'user_signatures_limit', static::USER_SIGNATURES_LIMIT)) > 0)
 		{
@@ -106,7 +105,6 @@ class UserSignature extends Base
 		}
 
 		$unsafeFields = (array) $this->getRequest()->getPostList()->getRaw('fields');
-		\CUtil::decodeUriComponent($unsafeFields);
 
 		$userSignature->set('SENDER', $fields['sender']);
 		$userSignature->set('SIGNATURE', $this->sanitize($unsafeFields['signature']));

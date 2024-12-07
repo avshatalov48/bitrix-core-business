@@ -66,7 +66,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Print <> '' && check_bitrix_sessid(
 		$PROPS_ENABLE = (!isset($_POST["PROPS_ENABLE"]) || $_POST["PROPS_ENABLE"] == 'N') ? "N" : "Y";
 
 		?>
-		<script language="JavaScript">
+		<script>
 		<?
 		$countReportId = count($REPORT_ID);
 		for ($i = 0; $i < $countReportId; $i++)
@@ -315,7 +315,7 @@ else
 								if ($file == "." || $file == ".." || $file == ".access.php")
 									continue;
 
-								if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file) && ToUpper(mb_substr($file, -4))==".PHP")
+								if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file) && mb_strtoupper(mb_substr($file, -4))==".PHP")
 								{
 									$rep_title = $file;
 									$file_contents = file_get_contents($_SERVER["DOCUMENT_ROOT"]."/bitrix/admin/reports/".$file);
@@ -361,7 +361,7 @@ else
 								continue;
 
 							if (is_file($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/".$file)
-								&& ToUpper(mb_substr($file, -4))==".PHP"
+								&& mb_strtoupper(mb_substr($file, -4))==".PHP"
 							)
 							{
 								$rep_title = $file;

@@ -39,6 +39,18 @@ if (empty($arResult['DOCUMENT_ICON']))
 		BPAT_DELEGATE_SELECT : '<?=GetMessageJS('BPAT_DELEGATE_SELECT')?>',
 		BPAT_DELEGATE_CANCEL : '<?=GetMessageJS('BPAT_DELEGATE_CANCEL')?>'
 	});
+	BX.ready(() =>
+	{
+		setTimeout(() =>
+		{
+			void BX.ajax.runAction('bizproc.workflow.comment.markAsRead', {
+				data: {
+					workflowId: '<?= CUtil::JSEscape($arResult["TASK"]["WORKFLOW_ID"]) ?>',
+					userId: BX.message('USER_ID'),
+				},
+			});
+		}, 200);
+	});
 </script>
 <?if ($arParams['POPUP']):?>
 <div class="bp-popup-title"><?=htmlspecialcharsbx($arResult["WORKFLOW_TEMPLATE_NAME"])?></div>
@@ -47,7 +59,7 @@ if (empty($arResult['DOCUMENT_ICON']))
 <div class="bp-task-page bp-lent <?if (empty($arResult["TASK"]['STARTED_BY_PHOTO_SRC'])):?>no-photo<?endif?>">
 	<?if (!empty($arResult["TASK"]['STARTED_BY_PHOTO_SRC'])):?>
 	<span class="bp-avatar" bx-tooltip-user-id="<?=(int)$arResult["TASK"]['STARTED_BY']?>" bx-tooltip-classname="intrantet-user-selector-tooltip">
-		<img src="<?=$arResult["TASK"]['STARTED_BY_PHOTO_SRC']?>" alt="">
+		<img src="<?=\Bitrix\Main\Web\Uri::urnEncode($arResult["TASK"]['STARTED_BY_PHOTO_SRC'])?>" alt="">
 	</span>
 	<?endif?>
 	<span class="bp-title"><?=$arResult["TASK"]["NAME"]?></span>

@@ -1,5 +1,5 @@
 <? require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/header.php"); ?>
-	<script type="text/javascript">
+	<script>
 		app.enableSliderMenu(true);
 	</script>
 <?

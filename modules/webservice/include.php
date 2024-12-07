@@ -46,8 +46,4 @@ CJSCore::RegisterExt('stssync', array(
 	'rel' => array('ajax')
 ));
 
-require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
-
 IncludeModuleLangFile(__FILE__);
-
-?>

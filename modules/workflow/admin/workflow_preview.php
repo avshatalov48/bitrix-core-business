@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -15,7 +15,6 @@ if($WORKFLOW_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/include.php");
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 
 /***************************************************************************
 			GET | POST handlers
@@ -24,7 +23,7 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 if($ID > 0 && check_bitrix_sessid())
 {
 	// check if document exists in database
-	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID = ".intval($ID), false, $err_mess.__LINE__);
+	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID = ".intval($ID));
 	if (!($zr=$z->Fetch()))
 	{
 		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -67,7 +66,7 @@ if($ID > 0 && check_bitrix_sessid())
 			"TIMESTAMP_X"	=> $DB->GetNowFunction(),
 			"FILENAME"		=> "'".$DB->ForSql($filename,255)."'"
 			);
-		$DB->Insert("b_workflow_preview",$arFields, $err_mess.__LINE__);
+		$DB->Insert("b_workflow_preview",$arFields);
 		// redirect to preview saved
 		if(file_exists($_SERVER["DOCUMENT_ROOT"].$filename))
 			LocalRedirect($filename);

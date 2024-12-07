@@ -126,7 +126,10 @@ CCalendarSceleton::InitJS(
 );
 
 if($ex = $APPLICATION->GetException())
-	return ShowError($ex->GetString());
+{
+	ShowError($ex->GetString());
+	return;
+}
 
 // Set title and navigation
 $arParams["SET_TITLE"] = ($arParams["SET_TITLE"] ?? null) == "Y" ? "Y" : "N";
@@ -141,9 +144,15 @@ if ($arParams["STR_TITLE"] ?? false)
 else
 {
 	if (!$arParams['OWNER_ID'] && $arParams['CALENDAR_TYPE'] == "group")
-		return ShowError(GetMessage('EC_GROUP_ID_NOT_FOUND'));
+	{
+		ShowError(GetMessage('EC_GROUP_ID_NOT_FOUND'));
+		return;
+	}
 	if (!$arParams['OWNER_ID'] && $arParams['CALENDAR_TYPE'] == "user")
-		return ShowError(GetMessage('EC_USER_ID_NOT_FOUND'));
+	{
+		ShowError(GetMessage('EC_USER_ID_NOT_FOUND'));
+		return;
+	}
 
 	if ($arParams['CALENDAR_TYPE'] == "group" || $arParams['CALENDAR_TYPE'] == "user")
 	{
@@ -203,7 +212,7 @@ if ($arParams["SET_TITLE"] == "Y" || ($bOwner && $arParams["SET_NAV_CHAIN"] == "
 {
 	CJSCore::init("spotlight");
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function ()
 		{
 			var target = BX("<?= $arParams['ID']?>-buttons-container");
@@ -235,7 +244,7 @@ else
 	{
 		CJSCore::init("spotlight");
 		?>
-		<script type="text/javascript">
+		<script>
 			//
 			BX.ready(function ()
 			{

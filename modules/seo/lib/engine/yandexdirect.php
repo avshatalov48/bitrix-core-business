@@ -8,7 +8,6 @@
 namespace Bitrix\Seo\Engine;
 
 use Bitrix\Main\ArgumentNullException;
-use Bitrix\Main\Context;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\SystemException;
@@ -19,7 +18,6 @@ use Bitrix\Seo\Adv\YandexBannerTable;
 use Bitrix\Seo\Adv\YandexCampaignTable;
 use Bitrix\Seo\Engine;
 use Bitrix\Seo\IEngine;
-use Bitrix\Main\Text;
 use Bitrix\Seo\Service;
 
 // to use Yandex.Direct Sandbox
@@ -754,10 +752,10 @@ class YandexDirect extends Engine\YandexBase implements IEngine
 			LogTable::add(array(
 				'ENGINE_ID' => $this->getId(),
 				'REQUEST_URI' => static::API_URL,
-				'REQUEST_DATA' => Text\Encoding::convertEncoding($postData, 'UTF-8', SITE_CHARSET),
+				'REQUEST_DATA' => $postData,
 				'RESPONSE_TIME' => microtime(true) - $ts,
 				'RESPONSE_STATUS' => $http->getStatus(),
-				'RESPONSE_DATA' => Text\Encoding::convertEncoding($http->getResult(), 'UTF-8', SITE_CHARSET),
+				'RESPONSE_DATA' => $http->getResult(),
 			));
 			
 			if ($http->getStatus() == 401 && !$skipRefreshAuth)

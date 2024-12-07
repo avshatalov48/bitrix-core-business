@@ -89,7 +89,7 @@ else:
 		<div class="bx-ui-slst-loader"></div>
 	</div>
 
-	<script type="text/javascript">
+	<script>
 
 		if (!window.BX && top.BX)
 			window.BX = top.BX;

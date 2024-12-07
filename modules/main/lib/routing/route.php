@@ -161,7 +161,7 @@ class Route
 
 	public function match($uriPath)
 	{
-		if (strpos($this->getUri(), '{') !== false)
+		if (str_contains($this->getUri(), '{'))
 		{
 			// compile regexp
 			$this->compile();

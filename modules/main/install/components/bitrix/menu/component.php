@@ -139,7 +139,12 @@ if($arParams["CACHE_SELECTED_ITEMS"] == false)
 //Icons
 //***************
 
-if($USER->IsAuthorized())
+$arParams["ADD_ADMIN_PANEL_BUTTONS"] = (
+	!isset($arParams["ADD_ADMIN_PANEL_BUTTONS"])
+	|| $arParams["ADD_ADMIN_PANEL_BUTTONS"] !== 'N'
+);
+
+if($USER->IsAuthorized() && $arParams["ADD_ADMIN_PANEL_BUTTONS"])
 {
 	$menuExists = ($menuDir <> '');
 	$bFileman = $USER->CanDoOperation('fileman_add_element_to_menu') && $USER->CanDoOperation('fileman_edit_menu_elements');

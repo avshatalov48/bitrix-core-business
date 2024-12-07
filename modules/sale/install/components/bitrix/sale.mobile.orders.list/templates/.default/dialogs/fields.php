@@ -21,7 +21,7 @@ $APPLICATION->IncludeComponent(
 );
 
 ?>
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage('SMOL_D_FIELDS_TITLE')?>"});
 

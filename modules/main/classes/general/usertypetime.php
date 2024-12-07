@@ -1,6 +1,5 @@
 <?php
 
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\TypeBase;
 use Bitrix\Main\UserField\Types\DateTimeType;
 

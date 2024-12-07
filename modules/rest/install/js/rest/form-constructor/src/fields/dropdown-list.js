@@ -10,7 +10,7 @@ export class DropdownList extends BaseField
 		this.readySave = true;
 	}
 
-	getContent(): HTMLElement
+	renderFieldContainer(): HTMLElement
 	{
 		const wrapper = Tag.render`
 			<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown">
@@ -37,19 +37,18 @@ export class DropdownList extends BaseField
 
 				Dom.append(itemElement, itemsWrapper);
 			});
-			// this.value = this.options.items[0].value ?? null;
 			Dom.append(itemsWrapper, wrapper);
 
-			if (this.options.hasOwnProperty('updateForm') && this.options.updateForm)
-			{
-				Event.bind(itemsWrapper, 'change', (event) => {
-					this.value = event.target.value;
+			Event.bind(itemsWrapper, 'change', (event) => {
+				this.value = event.target.value;
+				if (Object.prototype.hasOwnProperty.call(this.options, 'updateForm') && this.options.updateForm)
+				{
 					this.emit('onFieldChange', {
 						target: event.target,
-						field: this
+						field: this,
 					});
-				});
-			}
+				}
+			});
 		}
 
 		return wrapper;

@@ -24,9 +24,9 @@ $arJSCoreConfig = array(
 		'js' => $pathJS.'/core_admin_interface.js',
 		'lang' => $pathLang.'/js_core_admin_interface.php',
 		'css' => $pathCSSPanel.'/admin-public.css',
-		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ajax', 'popup', 'window', 'date', 'fx'),
+		'rel' => array('ui.design-tokens', 'ui.fonts.opensans', 'ajax', 'popup', 'window', 'date', 'fx', 'ui.date-picker'),
 		'lang_additional' => array(
-			'TITLE_PREFIX' => CUtil::JSEscape(COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"] ?? ''))
+			'TITLE_PREFIX' => COption::GetOptionString("main", "site_name", $_SERVER["SERVER_NAME"] ?? '')
 				. " - ",
 		),
 	),
@@ -198,7 +198,7 @@ $arJSCoreConfig = array(
 	'ui_date' => array(
 		'js' => $pathJS.'/core_ui_date.js',
 		'css' => $pathCSS.'/core_ui_date.css',
-		'rel' => array('ui_factory')
+		'rel' => array('ui_factory', 'ui.date-picker'),
 	),
 	'ui_factory' => array(
 		'js' => $pathJS.'/core_ui_factory.js',
@@ -460,6 +460,10 @@ $arJSCoreConfig = array(
 	),
 	'lamejs' => array(
 		'js' => '/bitrix/js/main/recorder/recorder.js'
+	),
+	'wwallPopup' => array(
+		'rel' => array('main.wwallpopup'),
+		'skip_core' => true,
 	),
 );
 

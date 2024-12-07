@@ -134,7 +134,7 @@ class CMailTools
 		{
 			$this->pcre_backtrack_limit = intval(ini_get('pcre.backtrack_limit'));
 		}
-		$text_len = defined('BX_UTF') ? mb_strlen($text, 'latin1') : mb_strlen($text);
+		$text_len = strlen($text);
 		$text_len++;
 		if ($this->pcre_backtrack_limit < $text_len)
 		{
@@ -165,7 +165,7 @@ class CMailTools
 		{
 			$this->pcre_backtrack_limit = intval(ini_get('pcre.backtrack_limit'));
 		}
-		$text_len = defined('BX_UTF') ? mb_strlen($text, 'latin1') : mb_strlen($text);
+		$text_len = strlen($text);
 		$text_len++;
 		if ($this->pcre_backtrack_limit < $text_len)
 		{

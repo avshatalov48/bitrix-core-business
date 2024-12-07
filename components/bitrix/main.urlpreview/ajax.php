@@ -38,9 +38,6 @@ if (isset($_REQUEST['action']) && $_REQUEST['action'] === 'attachUrlPreview')
 		if(!preg_match($urlPattern, $url))
 			die();
 
-		if(!\Bitrix\Main\Application::isUtfMode())
-			$url = \Bitrix\Main\Text\Encoding::convertEncoding($url, 'UTF-8', \Bitrix\Main\Context::getCurrent()->getCulture()->getCharset());
-
 		if(UrlPreview::isEnabled())
 		{
 			$urlMetadata = UrlPreview::getMetadataByUrl($url, true, false);

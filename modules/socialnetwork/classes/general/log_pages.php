@@ -49,7 +49,7 @@ class CSocNetLogPages
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 		}
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		return $dbRes;
 	}
@@ -88,7 +88,7 @@ class CSocNetLogPages
 		}
 
 		$strSQL = "DELETE FROM b_sonet_log_page WHERE ".$strWhere;
-		if ($DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__))
+		if ($DB->Query($strSQL))
 		{
 			return true;
 		}

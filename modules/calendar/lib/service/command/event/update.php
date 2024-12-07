@@ -110,19 +110,6 @@ class Update extends Base
 
 		$errors = \CCalendar::GetErrors();
 
-		if (empty($errors) && $entryFields['IS_MEETING'])
-		{
-			\Bitrix\Main\FinderDestTable::merge(
-				[
-					'CONTEXT' => Util::getUserSelectorContext(),
-					'CODE' => \Bitrix\Main\FinderDestTable::convertRights(
-						$entryFields['ATTENDEES_CODES'],
-						['U'. \CCalendar::GetUserId()]
-					)
-				]
-			);
-		}
-
 		return new Result($newId, $errors);
 	}
 

@@ -7,9 +7,12 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\AbstractProvider;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\Trait\EntityLoadTrait;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 
-final class CalendarProvider extends AbstractProvider
+class CalendarProvider extends AbstractProvider
 {
+	use EntityLoadTrait;
 
 	public function isAvailable(): bool
 	{
@@ -18,7 +21,7 @@ final class CalendarProvider extends AbstractProvider
 
 	public function getTypeId(): string
 	{
-		return 'calendar';
+		return Dictionary::ENTITY_TYPE['calendar'];
 	}
 
 	protected function fill(): void
@@ -41,7 +44,7 @@ final class CalendarProvider extends AbstractProvider
 
 		foreach ($this->recentActivityDataItems as $item)
 		{
-			$event = $this->getEntity($item->getEntityId());
+			$event = $this->getEntity($this->getEntityIdFromRecentActivityItem($item));
 
 			if (empty($event))
 			{

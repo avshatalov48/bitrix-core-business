@@ -125,7 +125,7 @@ class UrlCollection extends BaseLinkCollection
 
 		if (isset($filter['SEARCH_URL']))
 		{
-			$query->withSearchByUrl($filter['SEARCH_URL']);
+			$query->whereLike('URL', "%{$filter['SEARCH_URL']}%");
 		}
 	}
 }

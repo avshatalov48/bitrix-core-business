@@ -454,7 +454,7 @@ if (isset($_REQUEST['dir']) && check_bitrix_sessid())
 
 	$arChecked = array_merge($arSitemap['SETTINGS']['DIR'], $arSitemap['SETTINGS']['FILE']);
 
-	echo seo_getDir($bLogical, $siteId, $dir, $depth, $checked, $arChecked);
+	seo_getDir($bLogical, $siteId, $dir, $depth, $checked, $arChecked);
 	die();
 }
 
@@ -473,7 +473,7 @@ if ($bIBlock && isset($_REQUEST['iblock']) && check_bitrix_sessid())
 		|| is_array($arSitemap['SETTINGS']['IBLOCK_SECTION_ELEMENT'][$iblock])
 	)
 	{
-		echo seo_getIblock($iblock,
+		seo_getIblock($iblock,
 			$section,
 			$sectionChecked,
 			$elementChecked,
@@ -482,7 +482,7 @@ if ($bIBlock && isset($_REQUEST['iblock']) && check_bitrix_sessid())
 	}
 	else
 	{
-		echo seo_getIblock($iblock, $section, $sectionChecked, $elementChecked);
+		seo_getIblock($iblock, $section, $sectionChecked, $elementChecked);
 	}
 	die();
 }
@@ -824,7 +824,7 @@ $bChecked = isset($arSitemap['SETTINGS']['DIR'])
 
 				$arChecked = array_merge($arSitemap['SETTINGS']['DIR'], $arSitemap['SETTINGS']['FILE']);
 
-				echo seo_getDir($bLogical, $siteId, $startDir, 1, $bChecked, $arChecked);
+				seo_getDir($bLogical, $siteId, $startDir, 1, $bChecked, $arChecked);
 				?>
 		</td>
 	</tr>
@@ -1121,7 +1121,7 @@ if ($bForum)
 			if (!$bFound)
 			{
 			?>
-			<script type="text/javascript">
+			<script>
 				function setForumActive(check, cont)
 				{
 					var row = check.parentNode.parentNode;

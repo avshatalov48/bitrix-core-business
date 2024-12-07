@@ -16,8 +16,8 @@ global $USER_FIELD_MANAGER;
 $arResult["ID"] = intval($USER->GetID());
 $arResult["GROUP_POLICY"] = CUser::GetGroupPolicy($arResult["ID"]);
 
-$arParams['SEND_INFO'] = $arParams['SEND_INFO'] == 'Y' ? 'Y' : 'N';
-$arParams['CHECK_RIGHTS'] = $arParams['CHECK_RIGHTS'] == 'Y' ? 'Y' : 'N';
+$arParams['SEND_INFO'] = isset($arParams['SEND_INFO']) && $arParams['SEND_INFO'] === 'Y' ? 'Y' : 'N';
+$arParams['CHECK_RIGHTS'] = isset($arParams['CHECK_RIGHTS']) && $arParams['CHECK_RIGHTS'] === 'Y' ? 'Y' : 'N';
 
 $arParams['EDITABLE_EXTERNAL_AUTH_ID'] = isset($arParams['EDITABLE_EXTERNAL_AUTH_ID']) && is_array($arParams['EDITABLE_EXTERNAL_AUTH_ID'])
 	? $arParams['EDITABLE_EXTERNAL_AUTH_ID']
@@ -36,6 +36,7 @@ $arResult["EMAIL_REQUIRED"] = ($arResult["EMAIL_REGISTRATION"] && COption::GetOp
 $arResult["PHONE_CODE_RESEND_INTERVAL"] = CUser::PHONE_CODE_RESEND_INTERVAL;
 
 $strError = '';
+$bOk = false;
 
 if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["apply"] <> '') && check_bitrix_sessid())
 {
@@ -155,7 +156,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["
 		}
 
 		$USER_FIELD_MANAGER->EditFormAddFields("USER", $arFields);
-	
+
 		if($obUser->Update($arResult["ID"], $arFields))
 		{
 			if($arResult["PHONE_REGISTRATION"] == true && $arFields["PHONE_NUMBER"] <> '')
@@ -331,6 +332,7 @@ if($_SERVER["REQUEST_METHOD"]=="POST" && ($_REQUEST["save"] <> '' || $_REQUEST["
 	}
 }
 
+
 // verify phone code
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["code_submit_button"] <> '' && check_bitrix_sessid())
 {
@@ -382,7 +384,7 @@ if (CModule::IncludeModule("blog"))
 			$arResult["arBlogUser"][$key] = htmlspecialcharsbx($val);
 		}
 	}
-	
+
 	if (!isset($arResult["arBlogUser"]["ALLOW_POST"]) || ($arResult["arBlogUser"]["ALLOW_POST"]!="Y" && $arResult["arBlogUser"]["ALLOW_POST"]!="N"))
 		$arResult["arBlogUser"]["ALLOW_POST"] = "Y";
 }
@@ -418,15 +420,15 @@ if($strError <> '')
 			{
 				$val = htmlspecialcharsex($val);
 			}
-			if(mb_strpos($k, "forum_") === 0)
+			if(str_starts_with($k, "forum_"))
 			{
 				$arResult["arForumUser"][mb_substr($k, 6)] = $val;
 			}
-			elseif(mb_strpos($k, "blog_") === 0)
+			elseif(str_starts_with($k, "blog_"))
 			{
 				$arResult["arBlogUser"][mb_substr($k, 5)] = $val;
 			}
-			elseif(mb_strpos($k, "student_") === 0)
+			elseif(str_starts_with($k, "student_"))
 			{
 				$arResult["arStudent"][mb_substr($k, 8)] = $val;
 			}
@@ -457,7 +459,7 @@ if ($arResult["arBlogUser"]["AVATAR"] <> '')
 	$arResult["arBlogUser"]["AVATAR_HTML"] = CFile::ShowImage($arResult["arBlogUser"]["AVATAR"], 150, 150, "border=0", "", true);
 
 $arResult["IS_ADMIN"] = $USER->IsAdmin();
-$arResult['CAN_EDIT_PASSWORD'] = $arUser['EXTERNAL_AUTH_ID'] == ''
+$arResult['CAN_EDIT_PASSWORD'] = empty($arUser['EXTERNAL_AUTH_ID'])
 	|| in_array($arUser['EXTERNAL_AUTH_ID'], $arParams['EDITABLE_EXTERNAL_AUTH_ID'], true);
 
 $arCountries = GetCountryArray();
@@ -498,7 +500,7 @@ if (!empty($arParams["USER_PROPERTY"]))
 if($arParams["SET_TITLE"] == "Y")
 	$APPLICATION->SetTitle(GetMessage("PROFILE_DEFAULT_TITLE"));
 
-if($bOk) 
+if($bOk)
 	$arResult['DATA_SAVED'] = 'Y';
 
 //time zones

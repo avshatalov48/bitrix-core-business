@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_logger,main_core,im_v2_const,main_core_events) {
+(function (exports,im_v2_lib_utils,im_v2_lib_logger,main_core,im_v2_const,main_core_events) {
 	'use strict';
 
 	const lifecycleFunctions = {
@@ -38,6 +38,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  openNewTab: {
 	    id: 'openNewTab',
 	    version: 76
+	  },
+	  openPage: {
+	    id: 'openPage',
+	    version: 79
 	  }
 	};
 
@@ -56,10 +60,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return Boolean((_window$BXDesktopSyst = window.BXDesktopSystem) == null ? void 0 : _window$BXDesktopSyst.FeatureEnabled(code));
 	  },
 	  isFeatureSupported(code) {
+	    return this.isFeatureSupportedInVersion(this.getApiVersion(), code);
+	  },
+	  isFeatureSupportedInVersion(version, code) {
 	    if (!DesktopFeature[code]) {
 	      return false;
 	    }
-	    return this.getApiVersion() >= DesktopFeature[code].version;
+	    return version >= DesktopFeature[code].version;
 	  }
 	};
 
@@ -108,6 +115,61 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    var _mainWindow$BXDesktop, _mainWindow$BXDesktop2;
 	    const mainWindow = opener || top;
 	    (_mainWindow$BXDesktop = mainWindow.BXDesktopSystem) == null ? void 0 : (_mainWindow$BXDesktop2 = _mainWindow$BXDesktop.GetMainWindow()) == null ? void 0 : _mainWindow$BXDesktop2.DispatchCustomEvent(eventName, params);
+	  }
+	};
+
+	const DesktopSettingsKey = {
+	  smoothing: 'bxd_camera_smoothing',
+	  smoothing_v2: 'bxd_camera_smoothing_v2',
+	  telemetry: 'bxd_telemetry',
+	  sliderBindingsStatus: 'sliderBindingsStatus'
+	};
+	const settingsFunctions = {
+	  getCameraSmoothingStatus() {
+	    return this.getCustomSetting(DesktopSettingsKey.smoothing, '0') === '1';
+	  },
+	  setCameraSmoothingStatus(status) {
+	    const preparedStatus = status === true ? '1' : '0';
+	    if (this.getApiVersion() > 76) {
+	      this.setCustomSetting(DesktopSettingsKey.smoothing_v2, preparedStatus);
+	      return;
+	    }
+	    this.setCustomSetting(DesktopSettingsKey.smoothing, preparedStatus);
+	  },
+	  isTwoWindowMode() {
+	    var _BXDesktopSystem;
+	    return Boolean((_BXDesktopSystem = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem.IsTwoWindowsMode());
+	  },
+	  setTwoWindowMode(flag) {
+	    var _BXDesktopSystem3;
+	    if (flag === true) {
+	      var _BXDesktopSystem2;
+	      (_BXDesktopSystem2 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem2.V10();
+	      return;
+	    }
+	    (_BXDesktopSystem3 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem3.V8();
+	  },
+	  getAutostartStatus() {
+	    var _BXDesktopSystem4;
+	    return (_BXDesktopSystem4 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem4.GetProperty('autostart');
+	  },
+	  setAutostartStatus(flag) {
+	    var _BXDesktopSystem5;
+	    (_BXDesktopSystem5 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem5.SetProperty('autostart', flag);
+	  },
+	  getTelemetryStatus() {
+	    return this.getCustomSetting(DesktopSettingsKey.telemetry, '1') === '1';
+	  },
+	  setTelemetryStatus(flag) {
+	    this.setCustomSetting(DesktopSettingsKey.telemetry, flag ? '1' : '0');
+	  },
+	  setCustomSetting(name, value) {
+	    var _BXDesktopSystem6;
+	    (_BXDesktopSystem6 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem6.StoreSettings(name, value);
+	  },
+	  getCustomSetting(name, defaultValue) {
+	    var _BXDesktopSystem7;
+	    return (_BXDesktopSystem7 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem7.QuerySettings(name, defaultValue);
 	  }
 	};
 
@@ -167,6 +229,31 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const mainWindow = opener || top;
 	    return mainWindow.BXWindows.find(window => (window == null ? void 0 : window.name) === name);
 	  },
+	  openPage(url, options = {}) {
+	    const anchorElement = main_core.Dom.create({
+	      tag: 'a',
+	      attrs: {
+	        href: url
+	      }
+	    });
+	    if (anchorElement.host !== location.host) {
+	      setTimeout(() => this.hideWindow(), 100);
+	      return Promise.resolve(false);
+	    }
+	    if (!settingsFunctions.isTwoWindowMode()) {
+	      if (options.skipNativeBrowser === true) {
+	        setTimeout(() => this.hideWindow(), 100);
+	        return Promise.resolve(false);
+	      }
+	      im_v2_lib_utils.Utils.browser.openLink(anchorElement.href);
+
+	      // workaround timeout, if application is activated on hit, it cant be hidden immediately
+	      setTimeout(() => this.hideWindow(), 100);
+	      return Promise.resolve(true);
+	    }
+	    this.createTab(anchorElement.href);
+	    return Promise.resolve(true);
+	  },
 	  createTab(path) {
 	    const preparedPath = main_core.Dom.create({
 	      tag: 'a',
@@ -201,18 +288,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    (_BXDesktopWindow = BXDesktopWindow) == null ? void 0 : _BXDesktopWindow.SetProperty('position', preparedParams);
 	  },
 	  prepareHtml(html, js) {
+	    let plainHtml = '';
 	    if (main_core.Type.isDomNode(html)) {
-	      html = html.outerHTML;
+	      plainHtml = html.outerHTML;
+	    } else {
+	      plainHtml = html;
 	    }
+	    let plainJs = '';
 	    if (main_core.Type.isDomNode(js)) {
-	      js = js.outerHTML;
+	      plainJs = js.outerHTML;
+	    } else {
+	      plainJs = js;
 	    }
 	    main_core.Event.ready();
-	    if (main_core.Type.isStringFilled(js)) {
-	      js = `
+	    if (main_core.Type.isStringFilled(plainJs)) {
+	      plainJs = `
 				<script>
 					BX.ready(() => {
-						${js}
+						${plainJs}
 					});
 				</script>
 			`;
@@ -220,22 +313,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const head = document.head.outerHTML.replaceAll(/BX\.PULL\.start\([^)]*\);/g, '');
 	    return `
 			<!DOCTYPE html>
-			<html>
+			<html lang="">
 				${head}
 				<body class="im-desktop im-desktop-popup">
-					${html}${js}
+					${plainHtml}${plainJs}
 				</body>
 			</html>
 		`;
 	  },
 	  setWindowSize(width, height) {
-	    BXDesktopWindow.SetProperty("clientSize", {
+	    BXDesktopWindow.SetProperty('clientSize', {
 	      Width: width,
 	      Height: height
 	    });
 	  },
 	  setMinimumWindowSize(width, height) {
-	    BXDesktopWindow.SetProperty("minClientSize", {
+	    BXDesktopWindow.SetProperty('minClientSize', {
 	      Width: width,
 	      Height: height
 	    });
@@ -267,56 +360,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return;
 	    }
 	    (_BXDesktopSystem6 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem6.FlashIcon();
-	  }
-	};
-
-	const DesktopSettingsKey = {
-	  smoothing: 'bxd_camera_smoothing',
-	  telemetry: 'bxd_telemetry',
-	  sliderBindingsStatus: 'sliderBindingsStatus'
-	};
-	const settingsFunctions = {
-	  getCameraSmoothingStatus() {
-	    return this.getCustomSetting(DesktopSettingsKey.smoothing, '0') === '1';
-	  },
-	  setCameraSmoothingStatus(status) {
-	    const preparedStatus = status === true ? '1' : '0';
-	    this.setCustomSetting(DesktopSettingsKey.smoothing, preparedStatus);
-	  },
-	  isTwoWindowMode() {
-	    var _BXDesktopSystem;
-	    return Boolean((_BXDesktopSystem = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem.IsTwoWindowsMode());
-	  },
-	  setTwoWindowMode(flag) {
-	    var _BXDesktopSystem3;
-	    if (flag === true) {
-	      var _BXDesktopSystem2;
-	      (_BXDesktopSystem2 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem2.V10();
-	      return;
-	    }
-	    (_BXDesktopSystem3 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem3.V8();
-	  },
-	  getAutostartStatus() {
-	    var _BXDesktopSystem4;
-	    return (_BXDesktopSystem4 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem4.GetProperty('autostart');
-	  },
-	  setAutostartStatus(flag) {
-	    var _BXDesktopSystem5;
-	    (_BXDesktopSystem5 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem5.SetProperty('autostart', flag);
-	  },
-	  getTelemetryStatus() {
-	    return this.getCustomSetting(DesktopSettingsKey.telemetry, '1') === '1';
-	  },
-	  setTelemetryStatus(flag) {
-	    this.setCustomSetting(DesktopSettingsKey.telemetry, flag ? '1' : '0');
-	  },
-	  setCustomSetting(name, value) {
-	    var _BXDesktopSystem6;
-	    (_BXDesktopSystem6 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem6.StoreSettings(name, value);
-	  },
-	  getCustomSetting(name, defaultValue) {
-	    var _BXDesktopSystem7;
-	    return (_BXDesktopSystem7 = BXDesktopSystem) == null ? void 0 : _BXDesktopSystem7.QuerySettings(name, defaultValue);
 	  }
 	};
 
@@ -425,14 +468,55 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	};
 
 	const callBackgroundFunctions = {
+	  isBlur(source) {
+	    return source.toString().toLowerCase().includes('blur');
+	  },
+	  getLimitationBackground(source) {
+	    const limitation = BX.message('call_features');
+	    const defaultLimitation = {
+	      enable: true
+	    };
+	    let limitationType = '';
+	    if (source && source !== 'none') {
+	      limitationType = `${this.isBlur(source) ? 'blur_' : ''}background`;
+	    }
+	    const currentLimitation = limitationType ? limitation == null ? void 0 : limitation[`call_${limitationType}`] : null;
+	    if (!currentLimitation) {
+	      return defaultLimitation;
+	    }
+	    return {
+	      enable: currentLimitation.enable,
+	      articleCode: currentLimitation.articleCode
+	    };
+	  },
+	  openArticle(articleCode) {
+	    const infoHelper = BX.UI.InfoHelper;
+	    if (infoHelper.isOpen()) {
+	      infoHelper.close();
+	    }
+	    infoHelper.show(articleCode);
+	  },
+	  handleLimitationBackground(limitationObj, handle) {
+	    const {
+	      enable,
+	      articleCode
+	    } = limitationObj;
+	    if (enable && typeof handle === "function") {
+	      handle();
+	    }
+	    if (!enable && articleCode) {
+	      this.openArticle(articleCode);
+	    }
+	  },
 	  getBackgroundImage() {
-	    if (!this.isDesktop()) {
+	    var _this$getLimitationBa;
+	    const id = BXDesktopSystem.QuerySettings("bxd_camera_background_id") || 'none';
+	    if (!this.isDesktop() || !((_this$getLimitationBa = this.getLimitationBackground(id)) != null && _this$getLimitationBa.enable)) {
 	      return {
 	        id: 'none',
 	        source: ''
 	      };
 	    }
-	    const id = BXDesktopSystem.QuerySettings("bxd_camera_background_id") || 'none';
 	    return {
 	      id
 	    };
@@ -446,11 +530,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      source = this.prepareResourcePath(source);
 	    }
 	    var promise = new BX.Promise();
+	    const limitation = this.getLimitationBackground(source);
+	    let currentSource = '';
+	    let currentId = '';
+	    this.handleLimitationBackground(limitation, () => {
+	      currentSource = source;
+	      currentId = id;
+	    });
 	    setTimeout(() => {
 	      this.setCallMask(false);
-	      BXDesktopSystem.StoreSettings('bxd_camera_background_id', id);
-	      BXDesktopSystem.StoreSettings('bxd_camera_background', source);
-	      promise.resolve();
+	      BXDesktopSystem.StoreSettings('bxd_camera_background_id', currentId);
+	      BXDesktopSystem.StoreSettings('bxd_camera_background', currentSource);
+	      promise.resolve(currentId || "none");
 	    }, 100);
 	    return promise;
 	  }
@@ -559,5 +650,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.DesktopFeature = DesktopFeature;
 	exports.DesktopSettingsKey = DesktopSettingsKey;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Event));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Const,BX.Event));
 //# sourceMappingURL=desktop-api.bundle.js.map

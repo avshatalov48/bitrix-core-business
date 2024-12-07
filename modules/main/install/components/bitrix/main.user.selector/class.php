@@ -127,7 +127,7 @@ class MainUserSelectorComponent extends CBitrixComponent
 				? $this->arParams['UNDELETABLE']
 				: []
 		);
-		$this->arResult['IS_INPUT_MULTIPLE'] = mb_substr($this->arParams['INPUT_NAME'], -2) == '[]';
+		$this->arResult['IS_INPUT_MULTIPLE'] = str_ends_with($this->arParams['INPUT_NAME'], '[]');
 		$this->arResult['FIRE_CLICK_EVENT'] = (
 			$this->arParams['FIRE_CLICK_EVENT'] == 'Y'
 			&& empty($this->arParams['LIST'])

@@ -18,7 +18,7 @@ class PushService
 		return $enable;
 	}
 
-	public function sendInformPushPrivateChat(PrivateChat $chat, Message $message): void
+	public function sendInformPushPrivateChat(Message $message): void
 	{
 		if (!$this->isPullEnable())
 		{
@@ -26,14 +26,14 @@ class PushService
 		}
 
 		$fromUserId = $message->getAuthorId();
-		$toUserId = $chat->getCompanion()->getId();
+		$toUserId = $message->getChat()->getCompanion()->getId();
 
-		$pushFormat = new PushFormat();
+		$pushFormat = new PushFormat($message);
 
 		$pullMessage = [
 			'module_id' => 'im',
 			'command' => 'informMessage',
-			'params' => $pushFormat->formatPrivateMessage($message, $chat),
+			'params' => $pushFormat->format(),
 			'extra' => \Bitrix\Im\Common::getPullExtra(),
 		];
 

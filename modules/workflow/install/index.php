@@ -119,7 +119,7 @@ Class workflow extends CModule
 	{
 		global $DB;
 		$sIn = "'WF_STATUS_CHANGE', 'WF_NEW_DOCUMENT', 'WF_IBLOCK_STATUS_CHANGE', 'WF_NEW_IBLOCK_ELEMENT'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		$ar = $rs->Fetch();
 		if($ar["C"] <= 0)
 		{
@@ -132,8 +132,8 @@ Class workflow extends CModule
 	{
 		global $DB;
 		$sIn = "'WF_STATUS_CHANGE', 'WF_NEW_DOCUMENT', 'WF_IBLOCK_STATUS_CHANGE', 'WF_NEW_IBLOCK_ELEMENT'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ");
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		return true;
 	}
 

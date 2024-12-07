@@ -1,10 +1,13 @@
-<?
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
+	die();
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Extension;
 use Bitrix\UI\Buttons;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
+use Bitrix\Main\Web\Json;
 
 /** @var CMain $APPLICATION */
 /** @var array $arParams */
@@ -63,8 +66,8 @@ $APPLICATION->IncludeComponent(
 	BX.ready(function ()
 	{
 		BX.Main.UserConsent.List = new BX.Main.UserConsent.List({
-			pathToEdit: <?=CUtil::phpToJSObject($arParams['PATH_TO_EDIT'])?>,
-			pathToConsentList: <?=CUtil::phpToJSObject($arParams['PATH_TO_CONSENT_LIST'])?>
+			pathToEdit: <?= Json::encode($arParams['PATH_TO_EDIT']) ?>,
+			pathToConsentList: <?= Json::encode($arParams['PATH_TO_CONSENT_LIST']) ?>
 		});
 	});
 </script>

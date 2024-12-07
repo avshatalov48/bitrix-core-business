@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Web\Json;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -881,7 +883,7 @@ BX.message({
 	FILE_NODE : '<?=CUtil::JSEscape($thumb)?>'
 });
 BX.ready(function() {
-	new BX.Mobile.Grid.Form(<?=CUtil::PhpToJSObject(array(
+	new BX.Mobile.Grid.Form(<?= Json::encode(array(
 		"gridId" => $arParams["THEME_GRID_ID"],
 		"formId" => $arParams["FORM_ID"],
 		"restrictedMode" => $arParams["RESTRICTED_MODE"],
@@ -891,7 +893,7 @@ BX.ready(function() {
 			(isset($arParams["~DATE_FORMAT"]) ? array("date" => $arParams["~DATE_FORMAT"]) : array()) +
 			(isset($arParams["~TIME_FORMAT"]) ? array("time" => $arParams["~TIME_FORMAT"]) : array()),
 		"skipLoadingScreenHiding" => $arParams["SKIP_LOADING_SCREEN_HIDING"],
-	))?>);
+	)) ?>);
 });
 </script>
 </div>

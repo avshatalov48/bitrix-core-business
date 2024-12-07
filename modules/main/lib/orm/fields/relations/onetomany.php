@@ -8,10 +8,8 @@
 
 namespace Bitrix\Main\ORM\Fields\Relations;
 
-use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\FieldTypeMask;
-use Bitrix\Main\SystemException;
 
 /**
  * Performs back-reference relation

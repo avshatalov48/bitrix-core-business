@@ -8,11 +8,11 @@ class CCommentFiles extends CCommentBase
 	var $imageSize = 100;
 	protected $mfiParams = [];
 
-	function __construct(&$component)
+	public function __construct(&$component, ?\CUser $user = null)
 	{
-		parent::__construct($component);
+		parent::__construct($component, $user);
 
-		global $APPLICATION, $USER;
+		global $APPLICATION;
 
 		$arResult =& $component->arResult;
 		$arParams =& $component->arParams;
@@ -21,7 +21,7 @@ class CCommentFiles extends CCommentBase
 			"FORUM_ID" => $arParams["FORUM_ID"],
 			"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
 			"MESSAGE_ID" => 0,
-			"USER_ID" => $USER->getId(),
+			"USER_ID" => $this->getUser()?->getId(),
 			"ALLOW" => [
 				"ALLOW_UPLOAD" => ($arParams["ALLOW_UPLOAD"] == "I" ? "Y" : $arParams["ALLOW_UPLOAD"]),
 				"ALLOW_UPLOAD_EXT" => $arParams["ALLOW_UPLOAD_EXT"]
@@ -37,13 +37,13 @@ class CCommentFiles extends CCommentBase
 
 		$this->removeHandler("OnCommentFormDisplay");
 		$this->removeHandler("OnCommentsInit");
-		if ($this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] === "N")
+		if ($this->mfiParams["ALLOW"]["ALLOW_UPLOAD"] !== "Y")
 		{
 			$this->removeHandler("OnCommentAdd");
 		}
 	}
 
-	public function OnFileUploadToMFI(&$file)
+	public function saveFileIntoForumUploadedByMFI($file)
 	{
 		if (!is_array($file) || !isset($file["fileID"]))
 		{
@@ -87,10 +87,10 @@ class CCommentFiles extends CCommentBase
 			$arFilter = array(
 				"FORUM_ID" => $arParams["FORUM_ID"],
 				"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
-				"APPROVED_AND_MINE" => $GLOBALS["USER"]->GetId(),
+				"APPROVED_AND_MINE" => $this->getUser()?->getId(),
 				">MESSAGE_ID" => intval(min($res)) - 1,
 				"<MESSAGE_ID" => intval(max($res)) + 1);
-			if ($arResult["USER"]["RIGHTS"]["MODERATE"] == "Y")
+			if (($arResult["USER"]["RIGHTS"]["MODERATE"] || '') == "Y")
 				unset($arFilter["APPROVED_AND_MINE"]);
 			$db_files = CForumFiles::GetList(array("MESSAGE_ID" => "ASC"), $arFilter);
 			if ($db_files && $res = $db_files->Fetch())
@@ -180,7 +180,7 @@ class CCommentFiles extends CCommentBase
 			$arResult['DO_NOT_CACHE'] = true;
 			if ($_REQUEST['mfi_mode'] == "upload")
 			{
-				$this->addHandler("main.file.input.upload", [$this, "OnFileUploadToMFI"], "main");
+				$this->addHandler("main.file.input.upload", [$this, "saveFileIntoForumUploadedByMFI"], "main");
 			}
 		}
 	}
@@ -274,7 +274,7 @@ class CCommentFiles extends CCommentBase
 				array_key_exists("name", $file))
 			{
 				$file = ["fileID" => $fileID] + $file;
-				if ($this->OnFileUploadToMFI($file) === true)
+				if ($this->saveFileIntoForumUploadedByMFI($file) === true)
 				{
 					$arPost["FILES"][$fileID] = array("FILE_ID" => $fileID);
 				}

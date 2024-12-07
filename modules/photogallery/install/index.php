@@ -1,9 +1,13 @@
-<?global $DOCUMENT_ROOT, $MESS;
+<?php
+
+if (class_exists("photogallery"))
+{
+	return;
+}
+
 IncludeModuleLangFile(__FILE__);
 
-if (class_exists("photogallery")) return;
-
-Class photogallery extends CModule
+class photogallery extends CModule
 {
 	var $MODULE_ID = "photogallery";
 	var $MODULE_VERSION;
@@ -23,11 +27,6 @@ Class photogallery extends CModule
 		{
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
-		}
-		else
-		{
-			$this->MODULE_VERSION = FORUM_VERSION;
-			$this->MODULE_VERSION_DATE = FORUM_VERSION_DATE;
 		}
 
 		$this->MODULE_NAME = GetMessage("P_MODULE_NAME");
@@ -56,47 +55,36 @@ Class photogallery extends CModule
 		return true;
 	}
 
-	function InstallEvents()
-	{
-		return true;
-	}
-
-	function UnInstallEvents()
-	{
-		return true;
-	}
-
 	function InstallFiles()
 	{
-		if(($_ENV["COMPUTERNAME"] ?? null) != 'BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-		}
-		return true;
-	}
-
-	function UnInstallFiles()
-	{
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 		return true;
 	}
 
 	function DoInstall()
 	{
-		if (!check_bitrix_sessid())
-			return false;
 		global $APPLICATION;
+
+		if (!check_bitrix_sessid())
+		{
+			return;
+		}
+
 		if (IsModuleInstalled("iblock"))
 		{
 			$step = intval($_REQUEST["step"] ?? null);
 
 			if ($step < 2)
+			{
 				$APPLICATION->IncludeAdminFile(GetMessage("PHOTO_INSTALL"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/step1.php");
+			}
 			elseif($step == 2)
+			{
 				$APPLICATION->IncludeAdminFile(GetMessage("PHOTO_INSTALL"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/photogallery/install/step2.php");
+			}
 			elseif ($step == 3)
 			{
 				$this->InstallDB();
-				$this->InstallEvents();
 				$this->InstallFiles();
 				LocalRedirect("module_admin.php?lang=".LANGUAGE_ID);
 			}
@@ -104,7 +92,6 @@ Class photogallery extends CModule
 		elseif (!IsModuleInstalled("photogallery"))
 		{
 			$this->InstallDB();
-			$this->InstallEvents();
 			$this->InstallFiles();
 		}
 	}
@@ -112,10 +99,10 @@ Class photogallery extends CModule
 	function DoUninstall()
 	{
 		if (!check_bitrix_sessid())
-			return false;
+		{
+			return;
+		}
+
 		$this->UnInstallDB();
-		$this->UnInstallEvents();
-		$this->UnInstallFiles();
 	}
 }
-?>

@@ -144,7 +144,7 @@ class BaseTable
 	/**
 	 * Get records of table.
 	 * @param array $params Params array like ORM style.
-	 * @return \Bitrix\Main\DB\Result
+	 * @return \Bitrix\Main\ORM\Query\Result
 	 */
 	public static function getList($params = array())
 	{

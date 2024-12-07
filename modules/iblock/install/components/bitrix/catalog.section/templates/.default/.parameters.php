@@ -78,7 +78,7 @@ $arTemplateParameters['PRODUCT_ROW_VARIANTS'] = array(
 	'PARENT' => 'VISUAL',
 	'NAME' => GetMessage('CP_BCS_TPL_PRODUCT_ROW_VARIANTS'),
 	'TYPE' => 'CUSTOM',
-	'BIG_DATA' => 'Y',
+	'BIG_DATA' => \Bitrix\Main\Analytics\Catalog::isOn() ? 'Y' : 'N',
 	'COUNT_PARAM_NAME' => 'PAGE_ELEMENT_COUNT',
 	'JS_FILE' => CatalogSectionComponent::getSettingsScript($componentPath, 'dragdrop_add'),
 	'JS_EVENT' => 'initDraggableAddControl',
@@ -576,39 +576,43 @@ $arTemplateParameters['MESS_NOT_AVAILABLE_SERVICE'] = [
 	'DEFAULT' => GetMessage('CP_BCS_TPL_MESS_NOT_AVAILABLE_SERVICE_DEFAULT'),
 ];
 
-$arTemplateParameters['RCM_TYPE'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => GetMessage('CP_BCS_TPL_TYPE_TITLE'),
-	'TYPE' => 'LIST',
-	'MULTIPLE' => 'N',
-	'VALUES' => array(
-		// personal
-		'personal' => GetMessage('CP_BCS_TPL_PERSONAL'),
-		// general
-		'bestsell' => GetMessage('CP_BCS_TPL_BESTSELLERS'),
-		// item2item
-		'similar_sell' => GetMessage('CP_BCS_TPL_SOLD_WITH'),
-		'similar_view' => GetMessage('CP_BCS_TPL_VIEWED_WITH'),
-		'similar' => GetMessage('CP_BCS_TPL_SIMILAR'),
-		// randomly distributed
-		'any_similar' => GetMessage('CP_BCS_TPL_SIMILAR_ANY'),
-		'any_personal' => GetMessage('CP_BCS_TPL_PERSONAL_WBEST'),
-		'any' => GetMessage('CP_BCS_TPL_RAND')
-	),
-	'DEFAULT' => 'personal'
-);
-$arTemplateParameters['RCM_PROD_ID'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => GetMessage('CP_BCS_TPL_PRODUCT_ID_PARAM'),
-	'TYPE' => 'STRING',
-	'DEFAULT' => '={$_REQUEST["PRODUCT_ID"]}'
-);
-$arTemplateParameters['SHOW_FROM_SECTION'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => GetMessage('CP_BCS_TPL_SHOW_FROM_SECTION'),
-	'TYPE' => 'CHECKBOX',
-	'DEFAULT' => 'N'
-);
+if (\Bitrix\Main\Analytics\Catalog::isOn())
+{
+	$arTemplateParameters['RCM_TYPE'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => GetMessage('CP_BCS_TPL_TYPE_TITLE'),
+		'TYPE' => 'LIST',
+		'MULTIPLE' => 'N',
+		'VALUES' => array(
+			// personal
+			'personal' => GetMessage('CP_BCS_TPL_PERSONAL'),
+			// general
+			'bestsell' => GetMessage('CP_BCS_TPL_BESTSELLERS'),
+			// item2item
+			'similar_sell' => GetMessage('CP_BCS_TPL_SOLD_WITH'),
+			'similar_view' => GetMessage('CP_BCS_TPL_VIEWED_WITH'),
+			'similar' => GetMessage('CP_BCS_TPL_SIMILAR'),
+			// randomly distributed
+			'any_similar' => GetMessage('CP_BCS_TPL_SIMILAR_ANY'),
+			'any_personal' => GetMessage('CP_BCS_TPL_PERSONAL_WBEST'),
+			'any' => GetMessage('CP_BCS_TPL_RAND')
+		),
+		'DEFAULT' => 'personal'
+	);
+	$arTemplateParameters['RCM_PROD_ID'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => GetMessage('CP_BCS_TPL_PRODUCT_ID_PARAM'),
+		'TYPE' => 'STRING',
+		'DEFAULT' => '={$_REQUEST["PRODUCT_ID"]}'
+	);
+	$arTemplateParameters['SHOW_FROM_SECTION'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => GetMessage('CP_BCS_TPL_SHOW_FROM_SECTION'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N'
+	);
+}
+
 $arTemplateParameters['USE_ENHANCED_ECOMMERCE'] = array(
 	'PARENT' => 'ANALYTICS_SETTINGS',
 	'NAME' => GetMessage('CP_BCS_TPL_USE_ENHANCED_ECOMMERCE'),

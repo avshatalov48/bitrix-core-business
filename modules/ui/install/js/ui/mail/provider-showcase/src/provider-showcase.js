@@ -266,13 +266,14 @@ export class ProviderShowcase
 
 		this.providers.forEach((provider) => {
 			const key = this.#getProviderKey(provider.name);
+			const name = provider.name;
 			const { root, title } = Tag.render`
 				<a class="mail-provider-item mail-provider-item-available">
 					<div class="mail-provider-img-container">
 						<div class="mail-provider-img ${this.#getProviderImgSrcClass(key)}"></div>
 					</div>
 					<div class="mail-provider-item-title-container" ref="title">
-						<span class="mail-provider-item-title">${Text.encode(this.#getProviderName(key) ?? name.charAt(0).toUpperCase())}</span>
+						<span class="mail-provider-item-title">${Text.encode(this.#getProviderName(key) ?? (name[0].toUpperCase() + name.slice(1)))}</span>
 					</div>
 				</a>
 			`;
@@ -305,11 +306,18 @@ export class ProviderShowcase
 			else
 			{
 				Event.bind(root, 'click', () => {
+					if (this.activeFeaturePromoter)
+					{
+						this.activeFeaturePromoter.close();
+						this.activeFeaturePromoter = null;
+					}
+
 					const featureRegistry = BX.Intranet ? BX.UI.FeaturePromotersRegistry : top.BX.UI.FeaturePromotersRegistry;
-					featureRegistry.getPromoter({
+					this.activeFeaturePromoter = featureRegistry.getPromoter({
 						code: this.options.mailboxLimitSliderCode,
 						bindElement: title,
-					}).show();
+					});
+					this.activeFeaturePromoter.show();
 				});
 			}
 
@@ -354,7 +362,7 @@ export class ProviderShowcase
 						<div class="mail-provider-img ${this.#getProviderImgSrcClass(name)}"></div>
 					</div>
 					<div class="mail-provider-item-title-container">
-						<span class="mail-provider-item-title">${Text.encode(this.#getProviderName(name) ?? name.charAt(0).toUpperCase())}</span>
+						<span class="mail-provider-item-title">${Text.encode(this.#getProviderName(name) ?? (name[0].toUpperCase() + name.slice(1)))}</span>
 					</div>
 				</a>
 			`;

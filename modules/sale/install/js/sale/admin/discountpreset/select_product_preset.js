@@ -56,7 +56,7 @@ BX.Sale.Admin.DiscountPreset.SelectProduct = (function(){
 	SelectProduct.prototype.onClickSectionToShowPopup = function(event) {
 		var target = event.srcElement || event.target;
 		var sectionNumber = target.getAttribute('data-section-number');
-		var url = 'cat_section_search.php?land=ru&discount=Y&n=sect_' + sectionNumber;
+		const url = 'cat_section_search.php?lang=' + BX.message.LANGUAGE_ID + '&discount=Y&n=sect_' + sectionNumber;
 		window.open(url, '', 'scrollbars=yes,resizable=yes,width=900,height=600,top=' + parseInt((screen.height - 500) / 2 - 14, 10) + ',left=' + parseInt((screen.width - 600) / 2 - 5, 10));
 
 		BX.PreventDefault(event);

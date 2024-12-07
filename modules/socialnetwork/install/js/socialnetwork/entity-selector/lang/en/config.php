@@ -1,5 +1,8 @@
 <?php
+$MESS["SOCNET_ENTITY_SELECTOR_CANCEL"] = "Cancel";
+$MESS["SOCNET_ENTITY_SELECTOR_CREATE"] = "Create";
 $MESS["SOCNET_ENTITY_SELECTOR_CREATE_PROJECT"] = "Create a workgroup";
+$MESS["SOCNET_ENTITY_SELECTOR_CREATE_PROJECT_1"] = "Create project";
 $MESS["SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT"] = "<employee>Invite a user</employee><span>or</span><project>create a workgroup</project>";
 $MESS["SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT_OR_GUEST"] = "<employee>Invite a user</employee><span>or</span><project>create a workgroup</project><span>or</span><guest>invite a guest</guest>";
 $MESS["SOCNET_ENTITY_SELECTOR_INVITED_GUEST_HINT"] = "You can also add your partner or customer via the email.";

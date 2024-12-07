@@ -16,86 +16,65 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
+use Bitrix\Socialnetwork\Internals\Registry\GroupRegistry;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper;
 
 Loc::loadMessages(__FILE__);
 
-class Workgroup
+class Workgroup implements Main\Type\Contract\Arrayable
 {
-	protected const UF_ENTITY_ID = 'SONET_GROUP';
-
-	private $fields;
+	protected array $fields;
 	protected static $groupsIdToCheckList = [];
 
-	public function __construct()
+	public static function createFromId(int $groupId = 0): static
 	{
-		$this->fields = array();
+		return new static(['ID' => $groupId]);
+	}
+
+	public function __construct(array $fields = [])
+	{
+		$this->fields = $fields;
 	}
 
 	/**
+	 * @use GroupRegistry::get
+	 *
 	 * @throws ObjectPropertyException
 	 * @throws SystemException
 	 * @throws ArgumentException
 	 */
-	public static function getById($groupId = 0, $useCache = true)
+	public static function getById($groupId = 0, $useCache = true): bool|static
 	{
-		global $USER_FIELD_MANAGER;
-
-		static $cachedFields = [];
-
-		$groupItem = false;
 		$groupId = (int)$groupId;
 
-		if ($groupId > 0)
+		if ($groupId <= 0)
 		{
-			$groupItem = new Workgroup;
-			$groupFields = [];
-
-			if ($useCache && isset($cachedFields[$groupId]))
-			{
-				$groupFields = $cachedFields[$groupId];
-			}
-			else
-			{
-				$res = WorkgroupTable::getList(array(
-					'filter' => array('=ID' => $groupId)
-				));
-				if ($fields = $res->fetch())
-				{
-					$groupFields = $fields;
-
-					if ($groupFields['DATE_CREATE'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_CREATE'] = $groupFields['DATE_CREATE']->toString();
-					}
-					if ($groupFields['DATE_UPDATE'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_UPDATE'] = $groupFields['DATE_UPDATE']->toString();
-					}
-					if ($groupFields['DATE_ACTIVITY'] instanceof \Bitrix\Main\Type\DateTime)
-					{
-						$groupFields['DATE_ACTIVITY'] = $groupFields['DATE_ACTIVITY']->toString();
-					}
-
-					$uf = $USER_FIELD_MANAGER->getUserFields(self::UF_ENTITY_ID, $groupId, false, 0);
-					if (is_array($uf))
-					{
-						$groupFields = array_merge($groupFields, $uf);
-					}
-				}
-
-				$cachedFields[$groupId] = $groupFields;
-			}
-
-			$groupItem->setFields($groupFields);
+			return false;
 		}
 
-		return $groupItem;
+		$useCache = (bool)$useCache;
+
+		$registry = GroupRegistry::getInstance();
+
+		if (!$useCache)
+		{
+			$registry->invalidate($groupId);
+		}
+
+		$group = $registry->get($groupId);
+
+		if ($group === null)
+		{
+			return false; // disgusting! compatability...
+		}
+
+		return $group;
 	}
 
-	public function setFields($fields = array()): void
+	public function setFields(array $fields = []): void
 	{
 		$this->fields = $fields;
 	}
@@ -103,6 +82,74 @@ class Workgroup
 	public function getFields(): array
 	{
 		return $this->fields;
+	}
+
+	public function getId(): int
+	{
+		return (int)($this->fields['ID'] ?? 0);
+	}
+
+	public function getName(): string
+	{
+		return (string)($this->fields['NAME'] ?? '');
+	}
+
+	public function getChatId(): int
+	{
+		return (int)($this->fields['CHAT_ID'] ?? 0);
+	}
+
+	public function getOwnerId(): int
+	{
+		return (int)($this->fields['OWNER_ID'] ?? 0);
+	}
+
+	public function getSiteId(): int
+	{
+		return (string)($this->fields['SITE_ID'] ?? '');
+	}
+
+	public function getType(): ?Type
+	{
+		$type = $this->fields['TYPE'] ?? null;
+		if ($type instanceof Type)
+		{
+			return $type;
+		}
+
+		return Type::tryFrom($type);
+	}
+
+	public function getSynchronizedDepartmentIds(): array
+	{
+		$departments = $this->fields['UF_SG_DEPT'] ?? [];
+		if ($departments === [])
+		{
+			return [];
+		}
+
+		$departmentIds = $departments['VALUE'] ?? [];
+		if ($departmentIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($departmentIds, false);
+
+		return $departmentIds;
+	}
+
+	public function getUserMemberIds(): array
+	{
+		$memberIds = $this->fields['USER_MEMBERS'] ?? [];
+		if ($memberIds === [])
+		{
+			return [];
+		}
+
+		Main\Type\Collection::normalizeArrayValuesByInt($memberIds, false);
+
+		return $memberIds;
 	}
 
 	public function isProject(): bool
@@ -135,7 +182,7 @@ class Workgroup
 			$scrumTaskResponsible = $this->fields['SCRUM_TASK_RESPONSIBLE'];
 			$availableResponsibleTypes = ['A', 'M'];
 			return (
-				in_array($scrumTaskResponsible, $availableResponsibleTypes, true) ? $scrumTaskResponsible : 'A'
+			in_array($scrumTaskResponsible, $availableResponsibleTypes, true) ? $scrumTaskResponsible : 'A'
 			);
 		}
 
@@ -175,7 +222,7 @@ class Workgroup
 			$workgroupsToSync[] = array(
 				'groupId' => $groupFields["ID"],
 				'initiatorId' => (is_object($USER) ? $USER->getId() : $groupFields['OWNER_ID']),
-				'exclude' => $exclude
+				'exclude' => $exclude,
 			);
 			$workgroupsToSync = $this->reduceSyncList($workgroupsToSync);
 			Option::set('socialnetwork', 'workgroupsToSync', serialize($workgroupsToSync));
@@ -207,7 +254,7 @@ class Workgroup
 
 			$cache[$groupFields["ID"]] = array(
 				'URL_TEMPLATE' => $groupUrlTemplate ,
-				'SITE_ID' => $groupSiteId
+				'SITE_ID' => $groupSiteId,
 			);
 		}
 
@@ -232,8 +279,13 @@ class Workgroup
 		return [
 			'URL' => $groupUrl,
 			'SERVER_NAME' => $serverName,
-			'DOMAIN' => $domainName
+			'DOMAIN' => $domainName,
 		];
+	}
+
+	public function toArray(): array
+	{
+		return $this->getFields();
 	}
 
 	public static function onBeforeIBlockSectionUpdate($section)
@@ -410,11 +462,11 @@ class Workgroup
 	{
 		$groupList = array();
 		$res = WorkgroupTable::getList(array(
-			'filter' => array(
-				'=UF_SG_DEPT' => $sectionId
-			),
-			'select' => array('ID', 'UF_SG_DEPT')
-		));
+			                               'filter' => array(
+				                               '=UF_SG_DEPT' => $sectionId,
+			                               ),
+			                               'select' => array('ID', 'UF_SG_DEPT'),
+		                               ));
 		while($group = $res->fetch())
 		{
 			$groupList[] = $group;
@@ -426,7 +478,7 @@ class Workgroup
 			$departmentListNew = array_diff($departmentListOld, array($sectionId));
 
 			\CSocNetGroup::update($group['ID'], array(
-				'UF_SG_DEPT' => $departmentListNew
+				'UF_SG_DEPT' => $departmentListNew,
 			));
 
 			$groupItem = self::getById($group['ID'], false);
@@ -474,11 +526,11 @@ class Workgroup
 		else
 		{
 			$res = WorkgroupTable::getList(array(
-				'filter' => array(
-					'ID' => $groupId
-				),
-				'select' => $fieldsList
-			));
+				                               'filter' => array(
+					                               'ID' => $groupId,
+				                               ),
+				                               'select' => $fieldsList,
+			                               ));
 			$groupFieldsList = $res->fetch();
 		}
 
@@ -511,11 +563,11 @@ class Workgroup
 			)
 			{
 				$res = Main\UserTable::getList(array(
-					'filter' => array(
-						'ID' => (int)$groupFieldsList['OWNER_ID']
-					),
-					'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL')
-				));
+					                               'filter' => array(
+						                               'ID' => (int)$groupFieldsList['OWNER_ID'],
+					                               ),
+					                               'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'EMAIL'),
+				                               ));
 				if ($userFields = $res->fetch())
 				{
 					$content .= ' '.\CUser::formatName(\CSite::getNameFormat(null, $groupFieldsList['SITE_ID']), $userFields, true);
@@ -555,9 +607,9 @@ class Workgroup
 		}
 
 		$content = self::getGroupContent(array(
-			'id' => $groupId,
-			'fields' => $fields
-		));
+			                                 'id' => $groupId,
+			                                 'fields' => $fields,
+		                                 ));
 
 		$content = self::prepareToken($content);
 
@@ -587,10 +639,10 @@ class Workgroup
 						$eventContent = \CSearch::killTags($eventContent);
 					}
 					$eventContent = trim(str_replace(
-						array("\r", "\n", "\t"),
-						" ",
-						$eventContent
-					));
+						                     array("\r", "\n", "\t"),
+						                     " ",
+						                     $eventContent
+					                     ));
 
 					$eventContent = self::prepareToken($eventContent);
 					if (!empty($eventContent))

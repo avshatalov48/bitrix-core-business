@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,22 +7,34 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_BUTTON_NAME'),
-		'section' => array('tiles', 'recommended'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-button' => array(
+		'type' => ['page', 'store', 'smn', 'knowledge', 'group', 'mainpage'],
+		'section' => ['title', 'recommended', 'widgets_text'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
 			'type' => 'link',
-		),
-	),
-	'style' => array(
-		'.landing-block-node-button' => array(
+		],
+	],
+	'style' => [
+		'.landing-block-node-button' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_ONE_COL_FIX_BUTTON_NODES_LANDINGBLOCKNODEBUTTON'),
-			'type' => ['button'],
-		),
-	),
-);
+			'type' => [
+				//button
+				'button-color',
+				'button-type',
+				'button-size',
+				'button-padding',
+				'border-radius',
+				'color',
+				'color-hover',
+				'font-family',
+				'text-transform',
+			],
+		],
+	],
+];

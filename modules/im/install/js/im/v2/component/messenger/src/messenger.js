@@ -2,18 +2,21 @@ import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 import 'im.v2.css.tokens';
 import 'im.v2.css.icons';
+import 'im.v2.css.classes';
 
 import { MessengerNavigation } from 'im.v2.component.navigation';
 import { RecentListContainer } from 'im.v2.component.list.container.recent';
 import { OpenlineListContainer } from 'im.v2.component.list.container.openline';
+import { ChannelListContainer } from 'im.v2.component.list.container.channel';
 import { ChatContent } from 'im.v2.component.content.chat';
-import { CreateChatContent } from 'im.v2.component.content.create-chat';
+import { CreateChatContent, UpdateChatContent } from 'im.v2.component.content.chat-forms';
 import { OpenlinesContent } from 'im.v2.component.content.openlines';
 import { NotificationContent } from 'im.v2.component.content.notification';
 import { MarketContent } from 'im.v2.component.content.market';
 import { SettingsContent } from 'im.v2.component.content.settings';
 import { CopilotListContainer } from 'im.v2.component.list.container.copilot';
 import { CopilotContent } from 'im.v2.component.content.copilot';
+import { Analytics } from 'im.v2.lib.analytics';
 
 import { Logger } from 'im.v2.lib.logger';
 import { InitManager } from 'im.v2.lib.init';
@@ -34,9 +37,11 @@ export const Messenger = {
 	components: {
 		MessengerNavigation,
 		RecentListContainer,
+		ChannelListContainer,
 		OpenlineListContainer,
 		ChatContent,
 		CreateChatContent,
+		UpdateChatContent,
 		OpenlinesContent,
 		NotificationContent,
 		MarketContent,
@@ -47,7 +52,6 @@ export const Messenger = {
 	data(): JsonObject
 	{
 		return {
-			contextMessageId: 0,
 			openlinesContentOpened: false,
 		};
 	},
@@ -72,6 +76,10 @@ export const Messenger = {
 		isOpenline(): boolean
 		{
 			return this.layout.name === Layout.openlines.name;
+		},
+		hasList(): boolean
+		{
+			return Boolean(this.currentLayout.list);
 		},
 		containerClasses(): string[]
 		{
@@ -109,6 +117,7 @@ export const Messenger = {
 		Logger.warn('MessengerRoot created');
 
 		this.getLayoutManager().restoreLastLayout();
+		this.sendAnalytics();
 	},
 	beforeUnmount()
 	{
@@ -121,7 +130,7 @@ export const Messenger = {
 			let entityId = layoutEntityId;
 
 			const lastOpenedElement = this.getLayoutManager().getLastOpenedElement(layoutName);
-			if (lastOpenedElement)
+			if (!entityId && lastOpenedElement)
 			{
 				entityId = lastOpenedElement;
 			}
@@ -136,6 +145,10 @@ export const Messenger = {
 		{
 			return LayoutManager.getInstance();
 		},
+		sendAnalytics()
+		{
+			Analytics.getInstance().onOpenMessenger();
+		},
 	},
 	template: `
 		<div class="bx-im-messenger__scope bx-im-messenger__container" :class="containerClasses">
@@ -149,11 +162,11 @@ export const Messenger = {
 							<component :is="currentLayout.list" @selectEntity="onEntitySelect" />
 						</KeepAlive>
 					</div>
-					<div class="bx-im-messenger__content_container">
+					<div class="bx-im-messenger__content_container" :class="{'--with-list': hasList}">
 						<div v-if="openlinesContentOpened" class="bx-im-messenger__openlines_container" :class="{'--hidden': !isOpenline}">
-							<OpenlinesContent v-show="isOpenline" :entityId="entityId" :contextMessageId="contextMessageId" />
+							<OpenlinesContent v-show="isOpenline" :entityId="entityId" />
 						</div>
-						<component v-if="!isOpenline" :is="currentLayout.content" :entityId="entityId" :contextMessageId="contextMessageId" />
+						<component v-if="!isOpenline" :is="currentLayout.content" :entityId="entityId" />
 					</div>
 				</div>
 			</div>

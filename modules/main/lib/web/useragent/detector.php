@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\UserAgent;
@@ -50,22 +50,36 @@ class Detector implements DetectorInterface
 			{
 				if (str_contains($userAgent, 'Windows'))
 				{
-					return new Browser('Bitrix24.Disk', 'Windows', DeviceType::DESKTOP);
+					$platform = 'Windows';
 				}
-				return new Browser('Bitrix24.Disk', 'macOS', DeviceType::DESKTOP);
+				elseif (str_contains($userAgent, 'Linux'))
+				{
+					$platform = 'Linux';
+				}
+				else
+				{
+					$platform = 'macOS';
+				}
+
+				return new Browser('Bitrix24.Disk', $platform, DeviceType::DESKTOP);
 			}
 
 			if (str_contains($userAgent, 'BitrixDesktop'))
 			{
 				if (str_contains($userAgent, 'Windows'))
 				{
-					return new Browser('Bitrix24.Desktop', 'Windows', DeviceType::DESKTOP);
+					$platform = 'Windows';
 				}
-				if (str_contains($userAgent, 'Mac OS'))
+				elseif (str_contains($userAgent, 'Mac OS'))
 				{
-					return new Browser('Bitrix24.Desktop', 'macOS', DeviceType::DESKTOP);
+					$platform = 'macOS';
 				}
-				return new Browser('Bitrix24.Desktop', 'Linux', DeviceType::DESKTOP);
+				else
+				{
+					$platform = 'Linux';
+				}
+
+				return new Browser('Bitrix24.Desktop', $platform, DeviceType::DESKTOP);
 			}
 
 			if (str_contains($userAgent, 'BitrixMobile') || str_contains($userAgent, 'Bitrix24/'))

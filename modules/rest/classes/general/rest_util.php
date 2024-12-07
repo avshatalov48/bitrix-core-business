@@ -106,9 +106,6 @@ class CRestUtil
 			$query = array_replace($query, $postData);
 		}
 
-		// TODO: process errorMessage and output correct error message on encoding mismatch
-		$query = \Bitrix\Main\Text\Encoding::convertEncoding($query, 'UTF-8', LANG_CHARSET);
-
 		return $query;
 	}
 
@@ -122,12 +119,17 @@ class CRestUtil
 
 		if ($userId > 0)
 		{
-			if (ModuleManager::isModuleInstalled('bitrix24'))
+			if (is_object($USER) && $USER instanceof \CUser && ModuleManager::isModuleInstalled('bitrix24'))
 			{
 				return $USER->CanDoOperation('bitrix24_config', $userId);
 			}
 
 			return in_array(1, \CUser::GetUserGroup($userId));
+		}
+
+		if(!is_object($USER) || !($USER instanceof \CUser))
+		{
+			return false;
 		}
 
 		if (ModuleManager::isModuleInstalled('bitrix24'))
@@ -474,8 +476,6 @@ class CRestUtil
 			$queryParams = array();
 			parse_str($query, $queryParams);
 
-			$queryParams = \Bitrix\Main\Text\Encoding::convertEncoding($queryParams, 'utf-8', LANG_CHARSET);
-
 			$resultQueryParams = self::processBatchStructure($queryParams, $arResult);
 		}
 
@@ -549,10 +549,7 @@ class CRestUtil
 
 		if($res['user_id'] > 0)
 		{
-			$dbRes = CUser::GetByID($res['user_id']);
-			$userInfo = $dbRes->fetch();
-
-			if($userInfo && $userInfo['ACTIVE'] === 'Y' && $USER->Authorize($res['user_id'], false, false, $application_id))
+			if($USER->Authorize($res['user_id'], false, false, $application_id))
 			{
 				setSessionExpired(true);
 				return true;
@@ -571,26 +568,29 @@ class CRestUtil
 	{
 		global $USER;
 
-		$hasAccess = \CRestUtil::isAdmin();
+		$hasAccess = false;
+
+		if($appInfo === null)
+		{
+			$appInfo = \Bitrix\Rest\AppTable::getByClientId($appId);
+		}
+
+		if($appInfo)
+		{
+			if(!empty($appInfo["ACCESS"]))
+			{
+				$rights = explode(",", $appInfo["ACCESS"]);
+				$hasAccess = $USER->CanAccess($rights);
+			}
+			else
+			{
+				$hasAccess = true;
+			}
+		}
+
 		if(!$hasAccess)
 		{
-			if($appInfo === null)
-			{
-				$appInfo = \Bitrix\Rest\AppTable::getByClientId($appId);
-			}
-
-			if($appInfo)
-			{
-				if(!empty($appInfo["ACCESS"]))
-				{
-					$rights = explode(",", $appInfo["ACCESS"]);
-					$hasAccess = $USER->CanAccess($rights);
-				}
-				else
-				{
-					$hasAccess = true;
-				}
-			}
+			$hasAccess = \CRestUtil::isAdmin();
 		}
 
 		return $hasAccess;
@@ -631,10 +631,6 @@ class CRestUtil
 				if($fileName == '')
 				{
 					$fileName = Security\Random::getString(32);
-				}
-				else
-				{
-					$fileName = \Bitrix\Main\Text\Encoding::convertEncoding($fileName, LANG_CHARSET, 'utf-8');
 				}
 
 				$fileName = CTempFile::GetFileName($fileName);

@@ -36,3 +36,4 @@ $MESS["MPL_MOBILE_POPUP_BOTTOM_TEXT"] = "Поставьте мобильное �
 $MESS["MPL_HAVE_WRITTEN_MSGVER_1"] = '#AUTHOR_NAME# написал(а):';
 $MESS["MPL_HAVE_WRITTEN_M_MSGVER_1"] = '#AUTHOR_NAME# написал:';
 $MESS["MPL_HAVE_WRITTEN_F_MSGVER_1"] = '#AUTHOR_NAME# написала:';
+$MESS["MPL_QUOTE_COPILOT"] = 'CoPilot';

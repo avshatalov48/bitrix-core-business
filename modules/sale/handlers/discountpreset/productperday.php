@@ -2,7 +2,6 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
 use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -12,9 +11,6 @@ use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\SelectProductPreset;
 use Bitrix\Sale\Discount\Preset\State;
 use Bitrix\Sale\Internals;
-
-
-Loc::loadMessages(__FILE__);
 
 class ProductPerDay extends SelectProductPreset
 {
@@ -27,17 +23,20 @@ class ProductPerDay extends SelectProductPreset
 	{
 		parent::init();
 
-		if(!Main\Loader::includeModule('iblock'))
+		if (!Main\Loader::includeModule('iblock'))
 		{
 			throw new Main\SystemException('Could not include iblock module');
 		}
 
-		\CJSCore::RegisterExt('perday_preset', array(
-			'js' => '/bitrix/js/sale/admin/discountpreset/perday_preset.js',
-			'rel' => array('select_product_preset')
-		));
+		\CJSCore::RegisterExt(
+			'perday_preset',
+			[
+				'js' => '/bitrix/js/sale/admin/discountpreset/perday_preset.js',
+				'rel' => ['select_product_preset']
+			]
+		);
 
-		\CUtil::InitJSCore(array('perday_preset'));
+		\CJSCore::Init(['perday_preset']);
 	}
 
 	public function getTitle()
@@ -76,17 +75,17 @@ class ProductPerDay extends SelectProductPreset
 	public function processShowInputAmount(State $state)
 	{
 		$lid = $state->get('discount_lid');
-		$currency = \CSaleLang::getLangCurrency($lid);
+		$currency = Internals\SiteCurrencyTable::getSiteCurrency($lid);
 
-		$days = array(
+		$days = [
 			1 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_1'),
 			2 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_2'),
 			3 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_3'),
 			4 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_4'),
 			5 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_5'),
 			6 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_6'),
-			7 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_7')
-		);
+			7 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DAY_OF_WEEK_7'),
+		];
 
 		$sectionCount = count($state->get('discount_section', array()));
 
@@ -119,8 +118,8 @@ class ProductPerDay extends SelectProductPreset
 			});
 			</script>
 
-			' . $this->renderElementBlock($state) . '			
-			' . $this->renderSectionBlock($state) . '			
+			' . $this->renderElementBlock($state) . '
+			' . $this->renderSectionBlock($state) . '
 		';
 	}
 
@@ -128,7 +127,7 @@ class ProductPerDay extends SelectProductPreset
 	{
 		if(!trim($state->get('discount_value')))
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE'));
+			$this->addErrorEmptyActionValue();
 		}
 
 		if(!$state->get('discount_days'))
@@ -160,7 +159,7 @@ class ProductPerDay extends SelectProductPreset
 	{
 		$discountFields = $this->normalizeDiscountFields($discountFields);
 
-		$stateFields = array(
+		$stateFields = [
 			'discount_lid' => $discountFields['LID'],
 			'discount_name' => $discountFields['NAME'],
 			'discount_groups' => $this->getUserGroupsByDiscount($discountFields['ID']),
@@ -169,7 +168,7 @@ class ProductPerDay extends SelectProductPreset
 			'discount_days' => ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.0.DATA.value'),
 			'discount_section' => $this->getSectionsFromConditions(ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.1.CHILDREN.0.CHILDREN.0.CHILDREN')),
 			'discount_product' => $this->getProductsFromConditions(ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.1.CHILDREN.1.CHILDREN.0.CHILDREN')),
-		);
+		];
 
 		return parent::generateState($discountFields)->append($stateFields);
 	}
@@ -179,89 +178,92 @@ class ProductPerDay extends SelectProductPreset
 		$generateProductConditions = $this->generateProductConditions($state->get('discount_product'));
 		$generateSectionConditions = $this->generateSectionConditions($state->get('discount_section'));
 
-		return array_merge(parent::generateDiscount($state), array(
-			'CONDITIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-					'True' => 'True',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'CondSaleCmnDayOfWeek',
-						'DATA' => array(
-							'logic' => 'Equal',
-							'value' => $state->get('discount_days'),
-						),
-					),
-					array(
-						'CLASS_ID' => 'CondGroup',
-						'DATA' => array(
-							'All' => 'OR',
-							'True' => 'True',
-						),
-						'CHILDREN' => array(
-							$generateSectionConditions? array(
-								'CLASS_ID' => 'CondGroup',
-								'DATA' => array(
-									'All' => 'AND',
-									'True' => 'True',
-								),
-								'CHILDREN' => array(
-									array(
-										'CLASS_ID' => 'CondBsktProductGroup',
-										'DATA' => array(
-											'Found' => 'Found',
-											'All' => 'OR',
-										),
-										'CHILDREN' => $generateSectionConditions,
-									),
-								),
-							) : array(),
-							$generateProductConditions? array(
-								'CLASS_ID' => 'CondGroup',
-								'DATA' => array(
-									'All' => 'AND',
-									'True' => 'True',
-								),
-								'CHILDREN' => array(
-									array(
-										'CLASS_ID' => 'CondBsktProductGroup',
-										'DATA' => array(
-											'Found' => 'Found',
-											'All' => 'OR',
-										),
-										'CHILDREN' => $generateProductConditions,
-									),
-								),
-							) : array(),
-						),
-					),
-				),
-			),
-			'ACTIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'ActSaleBsktGrp',
-						'DATA' => array(
-							'Type' => 'Discount',
-							'Value' => $state->get('discount_value'),
-							'Unit' => $state->get('discount_type', 'CurAll'),
-							'Max' => 0,
-							'All' => 'OR',
-							'True' => 'True',
-						),
-						'CHILDREN' => array(
-							$this->generateSectionActions($state->get('discount_section')),
-							$this->generateProductActions($state->get('discount_product')),
-						),
-					),
-				),
-			),
-		));
+		return array_merge(
+			parent::generateDiscount($state),
+			[
+				'CONDITIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+						'True' => 'True',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'CondSaleCmnDayOfWeek',
+							'DATA' => [
+								'logic' => 'Equal',
+								'value' => $state->get('discount_days'),
+							],
+						],
+						[
+							'CLASS_ID' => 'CondGroup',
+							'DATA' => [
+								'All' => 'OR',
+								'True' => 'True',
+							],
+							'CHILDREN' => [
+								$generateSectionConditions? [
+									'CLASS_ID' => 'CondGroup',
+									'DATA' => [
+										'All' => 'AND',
+										'True' => 'True',
+									],
+									'CHILDREN' => [
+										[
+											'CLASS_ID' => 'CondBsktProductGroup',
+											'DATA' => [
+												'Found' => 'Found',
+												'All' => 'OR',
+											],
+											'CHILDREN' => $generateSectionConditions,
+										],
+									],
+								] : [],
+								$generateProductConditions? [
+									'CLASS_ID' => 'CondGroup',
+									'DATA' => [
+										'All' => 'AND',
+										'True' => 'True',
+									],
+									'CHILDREN' => [
+										[
+											'CLASS_ID' => 'CondBsktProductGroup',
+											'DATA' => [
+												'Found' => 'Found',
+												'All' => 'OR',
+											],
+											'CHILDREN' => $generateProductConditions,
+										],
+									],
+								] : [],
+							],
+						],
+					],
+				],
+				'ACTIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'ActSaleBsktGrp',
+							'DATA' => [
+								'Type' => 'Discount',
+								'Value' => $state->get('discount_value'),
+								'Unit' => $state->get('discount_type', 'CurAll'),
+								'Max' => 0,
+								'All' => 'OR',
+								'True' => 'True',
+							],
+							'CHILDREN' => [
+								$this->generateSectionActions($state->get('discount_section')),
+								$this->generateProductActions($state->get('discount_product')),
+							],
+						],
+					],
+				],
+			]
+		);
 	}
 }

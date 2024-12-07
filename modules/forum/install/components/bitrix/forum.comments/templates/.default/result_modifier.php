@@ -18,7 +18,6 @@ if ($arResult["OK_MESSAGE"] && mb_strpos($arResult["OK_MESSAGE"], "MID=") !== fa
 
 $arParams["SHOW_LINK_TO_MESSAGE"] = (isset($arParams["SHOW_LINK_TO_MESSAGE"]) && $arParams["SHOW_LINK_TO_MESSAGE"] === "N" ? "N" : "Y");
 $arParams["SHOW_MINIMIZED"] = "Y";
-$arParams["form_index"] = str_pad($arParams["index"], 5, "0", STR_PAD_LEFT);
 $arParams["FORM_ID"] = "COMMENTS_".$arParams["form_index"];
 $arParams["jsObjName"] = "oLHE_FC".$arParams["form_index"];
 $arParams["LheId"] = "idLHE_FC".$arParams["form_index"];

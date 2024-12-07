@@ -49,6 +49,7 @@ export class ActionManager
 	{
 		EventEmitter.emit(EventType.textarea.insertText, {
 			text: payload,
+			dialogId: this.#dialogId,
 		});
 	}
 

@@ -2,7 +2,9 @@
 
 namespace Bitrix\Mail\Internals;
 
+use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
+use Bitrix\Main\Entity\Query;
 
 /**
  * Class MailMessageAttachmentTable
@@ -22,6 +24,37 @@ use Bitrix\Main\Entity;
  */
 class MailMessageAttachmentTable extends Entity\DataManager
 {
+	private static function deleteList(array $filter): Result
+	{
+		$entity = static::getEntity();
+		$connection = $entity->getConnection();
+
+		return $connection->query(sprintf(
+			'DELETE FROM %s WHERE %s',
+			$connection->getSqlHelper()->quote($entity->getDbTableName()),
+			Query::buildFilterSql($entity, $filter)
+		));
+	}
+
+	/**
+	 * @param int $messageId
+	 * @param int[] $ids
+	 * @return Result
+	 */
+	public static function deleteByIds(int $messageId, array $ids): Result
+	{
+		return self::deleteList([
+			'=MESSAGE_ID' => $messageId,
+			'@ID' => $ids,
+		]);
+	}
+
+	public static function deleteAll(int $messageId): Result
+	{
+		return self::deleteList([
+			'=MESSAGE_ID' => $messageId,
+		]);
+	}
 
 	public static function getFilePath()
 	{

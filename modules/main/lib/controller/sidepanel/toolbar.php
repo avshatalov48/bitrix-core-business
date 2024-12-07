@@ -4,8 +4,7 @@ namespace Bitrix\Main\Controller\SidePanel;
 use Bitrix\Main\Engine\ActionFilter;
 use Bitrix\Main\Engine\JsonController;
 use Bitrix\Main\Engine\JsonPayload;
-use Bitrix\Main\Error;
-use \Bitrix\Main\SidePanel;
+use Bitrix\Main\SidePanel;
 
 class Toolbar extends JsonController
 {

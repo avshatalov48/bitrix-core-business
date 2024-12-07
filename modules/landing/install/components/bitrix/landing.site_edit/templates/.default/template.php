@@ -73,7 +73,7 @@ $domain = isset($arResult['DOMAINS'][$row['DOMAIN_ID']['CURRENT']])
 		: [];
 $availableOnlyForZoneRu = Manager::availableOnlyForZone('ru');
 $isAjax = $component->isAjax();
-$formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isFormEditor = $arResult['SPECIAL_TYPE'] === Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 
 // title
 if ($arParams['SITE_ID'])
@@ -86,7 +86,7 @@ else
 }
 
 // special for forms
-if ($formEditor)
+if ($isFormEditor)
 {
 	$formHooks = [
 		'B24BUTTON',
@@ -158,7 +158,7 @@ $uriCookies->addParams([
 ]);
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
 		<?if ($arParams['SUCCESS_SAVE']): ?>
@@ -192,7 +192,7 @@ if ($arParams['SUCCESS_SAVE'])
 }
 ?>
 <div class="landing-form-wrapper">
-	<?php if (!$formEditor): ?>
+	<?php if (!$isFormEditor): ?>
 	<form
 		method="post"
 		action="/bitrix/tools/landing/ajax.php?action=Site::uploadFile"
@@ -367,7 +367,7 @@ if ($arParams['SUCCESS_SAVE'])
 					<div class="ui-form-content">
 						<div class="ui-form-row">
 							<?php $template->showField($pageFields['B24BUTTON_COLOR'], ['additional' => 'readonly']); ?>
-							<script type="text/javascript">
+							<script>
 								BX.ready(function() {
 									new BX.Landing.B24ButtonColor(
 										BX('<?= $template->getFieldId('B24BUTTON_COLOR') ?>'),
@@ -378,7 +378,7 @@ if ($arParams['SUCCESS_SAVE'])
 						</div>
 
 						<?php $template->showField($pageFields['B24BUTTON_COLOR_VALUE'], ['title' => true]); ?>
-						<script type="text/javascript">
+						<script>
 							BX.ready(function() {
 								new BX.Landing.ColorPicker(BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>'));
 							});
@@ -405,7 +405,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<?php endif;?>
 
 			<!--Main page-->
-			<?php if (!$formEditor): ?>
+			<?php if (!$isFormEditor): ?>
 			<div class="ui-form-row ui-form-row-middle-input">
 				<div class="ui-form-label">
 					<div class="ui-ctl-label-text">
@@ -458,10 +458,10 @@ if ($arParams['SUCCESS_SAVE'])
 					<?php if ($arResult['TEMPLATES']):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="layout"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_LAYOUT') ?></span>
 					<?php endif;?>
-					<?php if (!$isIntranet && !empty($arResult['LANG_CODES']) && $row['LANG'] && !$formEditor):?>
+					<?php if (!$isIntranet && !empty($arResult['LANG_CODES']) && $row['LANG'] && !$isFormEditor):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="lang"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_LANG') ?></span>
 					<?php endif;?>
-					<?php if (!$formEditor):?>
+					<?php if (!$isFormEditor):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="404"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_404') ?></span>
 					<?php endif;?>
 					<?php if (isset($hooks['ROBOTS']) && !$isSMN):?>
@@ -476,7 +476,7 @@ if ($arParams['SUCCESS_SAVE'])
 					<?php if (isset($hooks['CSSBLOCK'])):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="css">CSS</span>
 					<?php endif;?>
-					<?php if (!$isIntranet && !$formEditor):?>
+					<?php if (!$isIntranet && !$isFormEditor):?>
 						<span class="landing-additional-alt-promo-text" data-landing-additional-option="off"><?= Loc::getMessage('LANDING_TPL_ADDITIONAL_OFF') ?></span>
 					<?php endif;?>
 					<?php if (isset($hooks['COOKIES'])):?>
@@ -732,15 +732,16 @@ if ($arParams['SUCCESS_SAVE'])
 					</div>
 					<div class="ui-form-content">
 						<?php
-						$saveRefs = '';
+						$saveRefs = [];
 						if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]))
 						{
-							$aCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
-							for ($i = 1; $i <= $aCount; $i++)
+							$areaCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
+							for ($i = 1; $i <= $areaCount; $i++)
 							{
-								$saveRefs .= $i . ':' . (isset($tplRefs[$i]) ? $tplRefs[$i] : '0') . ',';
+								$saveRefs[] = $i . ':' . ($tplRefs[$i] ?? '0');
 							}
 						}
+						$saveRefs = implode(',', $saveRefs);
 						?>
 						<input
 							type="hidden"
@@ -821,7 +822,7 @@ if ($arParams['SUCCESS_SAVE'])
 							siteId: '<?= $row['ID']['CURRENT'] ?>',
 							landingId: -1,
 							type: '<?= $arParams['TYPE'] ?>',
-							tplRefs: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
+							valueField: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
 							messages: {
 								area: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LAYOUT_AREA')) ?>'
 							},
@@ -838,7 +839,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<?php endif;?>
 
 			<!--Language-->
-			<?php if (!$isIntranet && !empty($arResult['LANG_CODES']) && $row['LANG'] && !$formEditor): ?>
+			<?php if (!$isIntranet && !empty($arResult['LANG_CODES']) && $row['LANG'] && !$isFormEditor): ?>
 				<div class="ui-form-row ui-form-row-middle-input landing-form-additional-row" data-landing-additional-detail="lang">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">
@@ -873,7 +874,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<?php endif;?>
 
 			<!--404-->
-			<?php if (!$formEditor):?>
+			<?php if (!$isFormEditor):?>
 			<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="404">
 				<div class="ui-form-label">
 					<div class="ui-ctl-label-text">
@@ -964,7 +965,7 @@ if ($arParams['SUCCESS_SAVE'])
 						$template->showField($speedFields['SPEED_USE_LAZY'], ['title' => true]);
 						?>
 					</div>
-					<script type="text/javascript">
+					<script>
 						BX.ready(function()
 						{
 							BX.Landing.NeedPublicationField([
@@ -1019,7 +1020,7 @@ if ($arParams['SUCCESS_SAVE'])
 			<?php endif;?>
 
 			<!--Off page-->
-			<?php if (!$isIntranet && !$formEditor): ?>
+			<?php if (!$isIntranet && !$isFormEditor): ?>
 				<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="off">
 					<div class="ui-form-label">
 						<div class="ui-ctl-label-text">
@@ -1426,7 +1427,7 @@ if ($arParams['SUCCESS_SAVE'])
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		new BX.Landing.EditTitleForm({
 			node: BX('<?= $template->getFieldId('EDITABLE_TITLE') ?>') ,

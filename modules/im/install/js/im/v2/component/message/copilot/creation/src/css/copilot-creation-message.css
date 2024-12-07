@@ -1,31 +1,65 @@
 .bx-im-message-copilot-creation__container {
-	--im-message-copilot-creation__background-color_container: rgba(var(--im-color-palette-black-solid-rgb), 0.3);
-	--im-message-copilot-creation__background-color_action-border: rgba(var(--im-color-palette-white-base-rgb), 0.25);
-	--im-message-copilot-creation__background-color_action-hover: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__background-color_container: rgba(var(--im-color-palette-gray-90-rgb), 0.5);
 	--im-message-copilot-creation__font-color_title: var(--im-color-palette-white-base);
-	--im-message-copilot-creation__font-color_text: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__font-color_text: rgba(255, 255, 255, 0.6);
 	--im-message-copilot-creation__font-color_text-hover: rgba(var(--im-color-palette-gray-90-rgb), 0.9);
 	--im-message-copilot-creation__font-color_action-text: var(--im-color-palette-white-base);
+	--im-message-copilot-creation__background-color_separator: rgba(255, 255, 255, 0.1);
+	--im-message-copilot-creation__background-color_action: rgba(255, 255, 255, 0.05);
+	--im-message-copilot-creation__background-color_action-hover: rgba(255, 255, 255, 0.1);
 
 	display: flex;
 	flex-direction: column;
-	padding: 12px;
+	justify-content: center;
+	padding: 24px 20px 20px;
 	border-radius: 16px;
 	background-color: var(--im-message-copilot-creation__background-color_container);
+	overflow: hidden;
+	max-width: 413px;
+	font-family: var(--im-font-family-system);
+}
+
+.bx-im-message-copilot-creation__header {
+	display: flex;
+	gap: 12px;
+}
+
+.bx-im-message-copilot-creation__info {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	overflow: hidden;
 }
 
 .bx-im-message-copilot-creation__title {
-	margin-bottom: 4px;
 	font: var(--im-font-size-2xl) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-semi-bold);
+	font-weight: var(--im-font-weight-medium);
 	color: var(--im-message-copilot-creation__font-color_title);
+	white-space: pre-line;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
 }
 
 .bx-im-message-copilot-creation__text {
-	margin-bottom: 12px;
-	font: var(--im-font-size-md) var(--im-font-family-system);
+	font: var(--im-font-size-lg) var(--im-font-family-system);
 	color: var(--im-message-copilot-creation__font-color_text);
 	white-space: pre-line;
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+
+.bx-im-message-copilot-creation__separator {
+	width: 100%;
+	padding: 10px 20px;
+}
+
+.bx-im-message-copilot-creation__separator div {
+	height: 1px;
+	background-color: var(--im-message-copilot-creation__background-color_separator);
 }
 
 .bx-im-message-copilot-creation__actions {
@@ -33,26 +67,29 @@
 	flex-wrap: wrap;
 	gap: 4px;
 	align-items: center;
+	padding-top: 4px;
 }
 
 .bx-im-message-copilot-creation__action {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	height: 32px;
-	padding: 7px 12px;
-	border: 1px solid var(--im-message-copilot-creation__background-color_action-border);
-	border-radius: 99px;
+	width: 100%;
+	height: 41px;
+	padding: 11px 10px;
+	border-radius: 10px;
 	cursor: pointer;
-
-	font: var(--im-font-size-md) var(--im-font-family-system);
-	color: var(--im-message-copilot-creation__font-color_action-text);
+	background-color: var(--im-message-copilot-creation__background-color_action);
 }
 
 .bx-im-message-copilot-creation__action:hover {
 	background-color: var(--im-message-copilot-creation__background-color_action-hover);
 }
 
-.bx-im-message-copilot-creation__action:hover {
-	color: var(--im-message-copilot-creation__font-color_text-hover);
+.bx-im-message-copilot-creation__action-text {
+	font-size: var(--im-font-size-xl);
+	color: var(--im-message-copilot-creation__font-color_action-text);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
 }

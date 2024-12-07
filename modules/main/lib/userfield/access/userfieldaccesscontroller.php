@@ -2,12 +2,10 @@
 
 namespace Bitrix\Main\UserField\Access;
 
-use Bitrix\Main\Access\Event\EventDictionary;
 use Bitrix\Main\Access\Exception\UnknownActionException;
 use Bitrix\Main\Access\User\AccessibleUser;
 use Bitrix\Main\Access\BaseAccessController;
 use Bitrix\Main\UserField\Access\Model\UserFieldModel;
-
 use Bitrix\Main\UserField\Access\Model\UserModel;
 use Bitrix\Main\Access\AccessibleItem;
 

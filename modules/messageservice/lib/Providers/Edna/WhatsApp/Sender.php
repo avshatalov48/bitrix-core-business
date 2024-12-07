@@ -2,6 +2,7 @@
 
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
+use Bitrix\Disk\File;
 use Bitrix\ImConnector\Library;
 use Bitrix\ImOpenLines\Im;
 use Bitrix\ImOpenLines\Session;
@@ -13,6 +14,20 @@ use Bitrix\MessageService\Providers\Constants\InternalOption;
 
 class Sender extends Providers\Edna\Sender
 {
+	public const AVAILABLE_CONTENT_TYPES = [
+		'image/jpeg' => 5 * 1024 * 1024,
+		'image/png' => 5 * 1024 * 1024,
+		'audio/aac' => 16 * 1024 * 1024,
+		'audio/mp4' => 16 * 1024 * 1024,
+		'audio/amr' => 16 * 1024 * 1024,
+		'audio/mpeg' => 16 * 1024 * 1024,
+		'audio/ogg' => 16 * 1024 * 1024,
+		'video/mp4' => 16 * 1024 * 1024,
+		'video/3gpp' => 16 * 1024 * 1024,
+	];
+
+	public const DOCUMENT_MAX_FILE_SIZE = 100 * 1024 * 1024;
+
 	protected Providers\OptionManager $optionManager;
 	protected Providers\SupportChecker $supportChecker;
 	protected Providers\Edna\EdnaRu $utils;
@@ -167,10 +182,76 @@ class Sender extends Providers\Edna\Sender
 	 */
 	private function getSimpleMessageContent(array $messageFields): array
 	{
-		return [
-			'contentType' => 'TEXT',
-			'text' => $messageFields['MESSAGE_BODY']
+		$contentType = Constants::CONTENT_TYPE_TEXT;
+		$messageBody = $messageFields['MESSAGE_BODY'];
+
+		if (Loader::includeModule('disk') && preg_match('/^http.+~.+$/', trim($messageBody)))
+		{
+			$fileUri = \CBXShortUri::GetUri($messageBody);
+			if ($fileUri)
+			{
+				$parsedUrl = parse_url($fileUri['URI']);
+				$queryParams = [];
+				parse_str($parsedUrl['query'], $queryParams);
+				if (isset($queryParams['FILE_ID']))
+				{
+					$diskFile = \Bitrix\Disk\File::getById((int)$queryParams['FILE_ID']);
+					if ($diskFile)
+					{
+						$contentType = $this->determineContentType($diskFile);
+						$messageBody = $fileUri['URI'];
+					}
+				}
+			}
+		}
+
+		$content = [
+			'contentType' => $contentType
 		];
+		switch ($contentType)
+		{
+			case Constants::CONTENT_TYPE_IMAGE:
+			case Constants::CONTENT_TYPE_AUDIO:
+			case Constants::CONTENT_TYPE_VIDEO:
+			case Constants::CONTENT_TYPE_DOCUMENT:
+				$content['attachment'] = [
+					'url' => $messageBody
+				];
+				break;
+			case Constants::CONTENT_TYPE_TEXT:
+			default:
+				$content['text'] = $messageBody;
+		}
+
+		return $content;
+	}
+
+	private function determineContentType(File $diskFile): string
+	{
+		$contentType = Constants::CONTENT_TYPE_TEXT;
+		$file = $diskFile->getFile();
+
+		if (is_array($file) && isset($file['CONTENT_TYPE']))
+		{
+			if (isset(self::AVAILABLE_CONTENT_TYPES[$file['CONTENT_TYPE']]))
+			{
+				$maxSize = self::AVAILABLE_CONTENT_TYPES[$file['CONTENT_TYPE']];
+				if ($diskFile->getSize() <= $maxSize)
+				{
+					$contentType = Constants::CONTENT_TYPE_MAP[$diskFile->getTypeFile()] ?? Constants::CONTENT_TYPE_DOCUMENT;
+				}
+				elseif ($diskFile->getSize() <= self::DOCUMENT_MAX_FILE_SIZE)
+				{
+					$contentType = Constants::CONTENT_TYPE_DOCUMENT;
+				}
+			}
+			elseif ($diskFile->getSize() <= self::DOCUMENT_MAX_FILE_SIZE)
+			{
+				$contentType = Constants::CONTENT_TYPE_DOCUMENT;
+			}
+		}
+
+		return $contentType;
 	}
 
 	protected function sendHSMtoChat(array $messageFields): Result
@@ -188,7 +269,7 @@ class Sender extends Providers\Edna\Sender
 		}
 
 		$from = $messageFields['MESSAGE_FROM'];
-		$lineId = $this->connectorLine->getLineId();
+		$lineId = $this->connectorLine->getLineId((int)$from);
 		$userSessionCode = $this->getSessionUserCode($lineId, $externalChatId, $from, $userId);
 		$chatId = $this->getOpenedSessionChatId($userSessionCode);
 		if (!$chatId)

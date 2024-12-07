@@ -584,7 +584,7 @@ if($message)
 
 if($bAllowSimpleActions):
 ?>
-<script type="text/javascript">
+<script>
 
 function updateBanner(btn, bannerId)
 {

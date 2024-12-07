@@ -33,7 +33,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 		<?
 	}
 }
-if(is_array($arResult["POST"]) && count($arResult["POST"])>0)
+if (is_array($arResult['POST']) && !empty($arResult['POST']))
 {
 	foreach($arResult["POST"] as $CurPost)
 	{

@@ -208,7 +208,7 @@ else
 		case "month":
 			$start = 1; $end = 12; break;
 	}
-	$graph_type_upper = ToUpper($graph_type);
+	$graph_type_upper = mb_strtoupper($graph_type);
 	$ra=array();
 	for ($i=$start; $i<=$end; $i++)
 	{

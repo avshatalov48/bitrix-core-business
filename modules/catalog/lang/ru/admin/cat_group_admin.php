@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["GROUP_TITLE"] = "Типы цен";
 $MESS["ADD_GROUP"] = "Добавить";
 $MESS["GROUP_PAGES"] = "Типы";
@@ -29,4 +29,3 @@ $MESS["BT_CAT_GROUP_ADM_TITLE_TIMESTAMP_X"] = "Дата изменения";
 $MESS["BT_CAT_GROUP_ADM_TITLE_CREATED_BY"] = "Кем создан";
 $MESS["BT_CAT_GROUP_ADM_TITLE_DATE_CREATE"] = "Дата создания";
 $MESS["BT_CAT_GROUP_ADM_ACTION_SET_BASE_PRICE"] = "Сделать базовым";
-?>

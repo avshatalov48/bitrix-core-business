@@ -3,30 +3,31 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,main_popup,pull_vue3_status,im_v2_component_messageList,im_v2_component_entitySelector,im_v2_lib_call,im_v2_provider_service,im_v2_lib_logger,im_v2_lib_animation,main_polyfill_intersectionobserver,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_rest,im_v2_lib_parser,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider) {
+(function (exports,main_popup,pull_vue3_status,im_v2_lib_analytics,im_v2_component_messageList,im_v2_component_entitySelector,im_v2_lib_call,im_v2_lib_layout,im_v2_lib_access,im_v2_lib_feature,im_v2_provider_service,main_core_events,im_v2_lib_logger,im_v2_lib_animation,im_v2_application_core,im_v2_lib_rest,im_v2_lib_channel,im_v2_const,im_v2_lib_permission,im_v2_lib_parser,main_core,im_v2_lib_quote,im_v2_lib_utils,im_v2_lib_slider) {
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.Dialog.ScrollManager';
-	const SCROLLING_THRESHOLD = 1500;
-	const POSITION_THRESHOLD = 40;
-	const SCROLLED_UP_THRESHOLD = 400;
+	var _getScrollPosition = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getScrollPosition");
 	class ScrollManager extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _getScrollPosition, {
+	      value: _getScrollPosition2
+	    });
 	    this.isScrolling = false;
 	    this.currentScroll = 0;
 	    this.lastScroll = 0;
 	    this.chatIsScrolledUp = false;
 	    this.scrollButtonClicked = false;
+	    this.startScrollNeeded = true;
 	    this.setEventNamespace(EVENT_NAMESPACE);
 	  }
 	  setContainer(container) {
 	    this.container = container;
 	  }
 	  onScroll(event) {
-	    // if (this.isScrolling || !event.target || this.currentScroll === event.target.scrollTop)
 	    if (this.isScrolling || !event.target) {
-	      return false;
+	      return;
 	    }
 	    this.currentScroll = event.target.scrollTop;
 	    const isScrollingDown = this.lastScroll < this.currentScroll;
@@ -34,8 +35,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    if (isScrollingUp) {
 	      this.scrollButtonClicked = false;
 	    }
+	    const SCROLLING_THRESHOLD = 1500;
 	    const leftSpaceBottom = event.target.scrollHeight - event.target.scrollTop - event.target.clientHeight;
-	    if (isScrollingDown && this.lastScroll > 0 && leftSpaceBottom < SCROLLING_THRESHOLD) {
+	    if (isScrollingDown && this.isStartScrollCompleted() && leftSpaceBottom < SCROLLING_THRESHOLD) {
 	      this.emit(ScrollManager.events.onScrollTriggerDown);
 	    } else if (isScrollingUp && this.currentScroll <= SCROLLING_THRESHOLD) {
 	      this.emit(ScrollManager.events.onScrollTriggerUp);
@@ -44,6 +46,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.checkIfChatIsScrolledUp();
 	  }
 	  checkIfChatIsScrolledUp() {
+	    const SCROLLED_UP_THRESHOLD = 400;
 	    const availableScrollHeight = this.container.scrollHeight - this.container.clientHeight;
 	    const newFlag = this.currentScroll + SCROLLED_UP_THRESHOLD < availableScrollHeight;
 	    if (newFlag !== this.chatIsScrolledUp) {
@@ -59,25 +62,34 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: animated scroll to bottom');
 	    this.animatedScrollTo(this.container.scrollHeight - this.container.clientHeight);
 	  }
-	  scrollToMessage(messageId, offset = -10) {
+	  scrollToMessage(messageId, params = {}) {
 	    im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: scroll to message - ', messageId);
 	    const element = this.getDomElementById(messageId);
 	    if (!element) {
 	      im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: message not found - ', messageId);
 	      return;
 	    }
-	    const position = element.offsetTop + offset;
-	    this.forceScrollTo(position);
+	    const scrollPosition = babelHelpers.classPrivateFieldLooseBase(this, _getScrollPosition)[_getScrollPosition](element, params);
+	    this.forceScrollTo(scrollPosition);
 	  }
-	  animatedScrollToMessage(messageId, offset = -10) {
+	  setStartScrollNeeded(flag) {
+	    this.startScrollNeeded = flag;
+	  }
+	  isStartScrollCompleted() {
+	    if (!this.startScrollNeeded) {
+	      return true;
+	    }
+	    return this.lastScroll > 0;
+	  }
+	  animatedScrollToMessage(messageId, params = {}) {
 	    im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: animated scroll to message - ', messageId);
 	    const element = this.getDomElementById(messageId);
 	    if (!element) {
 	      im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: message not found - ', messageId);
-	      return;
+	      return Promise.resolve();
 	    }
-	    const position = element.offsetTop + offset;
-	    return this.animatedScrollTo(position);
+	    const scrollPosition = babelHelpers.classPrivateFieldLooseBase(this, _getScrollPosition)[_getScrollPosition](element, params);
+	    return this.animatedScrollTo(scrollPosition);
 	  }
 	  forceScrollTo(position) {
 	    im_v2_lib_logger.Logger.warn('Dialog: ScrollManager: Force scroll to - ', position);
@@ -122,147 +134,66 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return this.container.scrollTop + this.container.clientHeight >= this.container.scrollHeight;
 	  }
 	  isAroundBottom() {
+	    const POSITION_THRESHOLD = 40;
 	    return this.container.scrollHeight - this.container.scrollTop - this.container.clientHeight < POSITION_THRESHOLD;
 	  }
 	  getDomElementById(id) {
 	    return this.container.querySelector(`[data-id="${id}"]`);
 	  }
 	}
+	function _getScrollPosition2(element, params = {}) {
+	  const FLOATING_DATE_OFFSET = 52;
+	  const MESSAGE_BOTTOM_OFFSET = 100;
+	  const {
+	    withDateOffset = true,
+	    position = ScrollManager.scrollPosition.messageTop
+	  } = params;
+	  const offset = withDateOffset ? -FLOATING_DATE_OFFSET : -10;
+	  let scrollPosition = element.offsetTop + offset;
+	  if (position === ScrollManager.scrollPosition.messageBottom) {
+	    scrollPosition += element.clientHeight - MESSAGE_BOTTOM_OFFSET;
+	  }
+	  return scrollPosition;
+	}
 	ScrollManager.events = {
 	  onScrollTriggerUp: 'onScrollTriggerUp',
 	  onScrollTriggerDown: 'onScrollTriggerDown',
 	  onScrollThresholdPass: 'onScrollThresholdPass'
 	};
-
-	const EVENT_NAMESPACE$1 = 'BX.Messenger.v2.Dialog.ObserverManager';
-	var _observer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observer");
-	var _observedElements = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observedElements");
-	var _visibleMessages = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("visibleMessages");
-	var _messagesToRead = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messagesToRead");
-	var _dialogInited = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogInited");
-	var _initObserver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initObserver");
-	var _getMessageIdFromElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageIdFromElement");
-	var _messageIsViewed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("messageIsViewed");
-	class ObserverManager extends main_core_events.EventEmitter {
-	  constructor() {
-	    super();
-	    Object.defineProperty(this, _messageIsViewed, {
-	      value: _messageIsViewed2
-	    });
-	    Object.defineProperty(this, _getMessageIdFromElement, {
-	      value: _getMessageIdFromElement2
-	    });
-	    Object.defineProperty(this, _initObserver, {
-	      value: _initObserver2
-	    });
-	    Object.defineProperty(this, _observer, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _observedElements, {
-	      writable: true,
-	      value: {}
-	    });
-	    Object.defineProperty(this, _visibleMessages, {
-	      writable: true,
-	      value: new Set()
-	    });
-	    Object.defineProperty(this, _messagesToRead, {
-	      writable: true,
-	      value: new Set()
-	    });
-	    Object.defineProperty(this, _dialogInited, {
-	      writable: true,
-	      value: false
-	    });
-	    this.setEventNamespace(EVENT_NAMESPACE$1);
-	    babelHelpers.classPrivateFieldLooseBase(this, _initObserver)[_initObserver]();
-	  }
-	  setDialogInited(flag) {
-	    Object.values(babelHelpers.classPrivateFieldLooseBase(this, _observedElements)[_observedElements]).forEach(element => {
-	      this.unobserveMessage(element);
-	      this.observeMessage(element);
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _dialogInited)[_dialogInited] = flag;
-	  }
-	  observeMessage(messageElement) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].observe(messageElement);
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _getMessageIdFromElement)[_getMessageIdFromElement](messageElement)) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _observedElements)[_observedElements][messageElement.dataset.id] = messageElement;
-	    }
-	  }
-	  unobserveMessage(messageElement) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].unobserve(messageElement);
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _getMessageIdFromElement)[_getMessageIdFromElement](messageElement)) {
-	      delete babelHelpers.classPrivateFieldLooseBase(this, _observedElements)[_observedElements][messageElement.dataset.id];
-	    }
-	  }
-	  onReadMessage(messageId) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead].delete(messageId);
-	  }
-	  getMessagesToRead() {
-	    return [...babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead]];
-	  }
-	  getFirstVisibleMessage() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].size === 0) {
-	      return 0;
-	    }
-	    const [firstVisibleMessage] = [...babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages]].sort((a, b) => a - b);
-	    return firstVisibleMessage;
-	  }
-	}
-	function _initObserver2() {
-	  babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer] = new IntersectionObserver(entries => {
-	    entries.forEach(entry => {
-	      const messageId = babelHelpers.classPrivateFieldLooseBase(this, _getMessageIdFromElement)[_getMessageIdFromElement](entry.target);
-	      if (!messageId || !entry.rootBounds || !babelHelpers.classPrivateFieldLooseBase(this, _dialogInited)[_dialogInited]) {
-	        return;
-	      }
-	      const messageIsFullyVisible = entry.isIntersecting && entry.intersectionRatio >= 0.99;
-	      const messageTakesHalfOfViewport = entry.intersectionRect.height >= entry.rootBounds.height / 2.2;
-	      // const messageIsBiggerThanViewport = entry.boundingClientRect.height + 20 > entry.rootBounds.height;
-	      // const messageCountsAsVisible = messageIsBiggerThanViewport && messageTakesMostOfViewport;
-	      if (messageIsFullyVisible || messageTakesHalfOfViewport) {
-	        babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].add(messageId);
-	        if (!babelHelpers.classPrivateFieldLooseBase(this, _messageIsViewed)[_messageIsViewed](entry.target)) {
-	          babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead].add(messageId);
-	          this.emit(ObserverManager.events.onMessageIsVisible);
-	        }
-	      } else {
-	        babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].delete(messageId);
-	        if (babelHelpers.classPrivateFieldLooseBase(this, _messageIsViewed)[_messageIsViewed](entry.target)) {
-	          babelHelpers.classPrivateFieldLooseBase(this, _messagesToRead)[_messagesToRead].delete(messageId);
-	        }
-	      }
-	    });
-	  }, {
-	    threshold: Array.from({
-	      length: 101
-	    }).fill(0).map((zero, index) => index * 0.01)
-	  });
-	}
-	function _getMessageIdFromElement2(messageElement) {
-	  return +messageElement.dataset.id;
-	}
-	function _messageIsViewed2(messageElement) {
-	  return messageElement.dataset['viewed'] === 'true';
-	}
-	ObserverManager.events = {
-	  onMessageIsVisible: 'onMessageIsVisible'
+	ScrollManager.scrollPosition = {
+	  messageTop: 'messageTop',
+	  messageBottom: 'messageBottom'
 	};
 
-	const TAG_PREFIX = 'IM_PUBLIC_';
+	const MESSAGES_TAG_PREFIX = 'IM_PUBLIC_';
+	const COMMENTS_TAG_PREFIX = 'IM_PUBLIC_COMMENT_';
 	var _dialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialog");
 	var _pullClient = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pullClient");
+	var _subscribeChannel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeChannel");
+	var _subscribeOpenChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("subscribeOpenChat");
 	var _requestWatchStart = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("requestWatchStart");
 	var _isGuest = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isGuest");
+	var _isChannel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isChannel");
+	var _isCommentsChat = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isCommentsChat");
 	class PullWatchManager {
 	  constructor(dialogId) {
+	    Object.defineProperty(this, _isCommentsChat, {
+	      value: _isCommentsChat2
+	    });
+	    Object.defineProperty(this, _isChannel, {
+	      value: _isChannel2
+	    });
 	    Object.defineProperty(this, _isGuest, {
 	      value: _isGuest2
 	    });
 	    Object.defineProperty(this, _requestWatchStart, {
 	      value: _requestWatchStart2
+	    });
+	    Object.defineProperty(this, _subscribeOpenChat, {
+	      value: _subscribeOpenChat2
+	    });
+	    Object.defineProperty(this, _subscribeChannel, {
+	      value: _subscribeChannel2
 	    });
 	    Object.defineProperty(this, _dialog, {
 	      writable: true,
@@ -272,28 +203,32 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog] = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog] = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId, true);
 	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient] = im_v2_application_core.Core.getPullClient();
 	  }
-	  onChatLoad() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]()) {
+	  subscribe() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isChannel)[_isChannel]()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _subscribeChannel)[_subscribeChannel]();
 	      return;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].extendWatch(`${TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
-	  }
-	  onChatExit() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]()) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isCommentsChat)[_isCommentsChat]() || !babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]()) {
 	      return;
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].clearWatch(`${TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
+	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeOpenChat)[_subscribeOpenChat]();
 	  }
-	  onLoadedChatEnter() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isGuest)[_isGuest]()) {
-	      return;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _requestWatchStart)[_requestWatchStart]();
-	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].extendWatch(`${TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`, true);
+	  unsubscribe() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].clearWatch(`${MESSAGES_TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
+	    babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].clearWatch(`${COMMENTS_TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
 	  }
+	}
+	function _subscribeChannel2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _requestWatchStart)[_requestWatchStart]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].extendWatch(`${MESSAGES_TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
+	  babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].extendWatch(`${COMMENTS_TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
+	}
+	function _subscribeOpenChat2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _requestWatchStart)[_requestWatchStart]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _pullClient)[_pullClient].extendWatch(`${MESSAGES_TAG_PREFIX}${babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog].chatId}`);
 	}
 	function _requestWatchStart2() {
 	  im_v2_lib_rest.runAction(im_v2_const.RestMethod.imV2ChatExtendPullWatch, {
@@ -305,6 +240,40 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	function _isGuest2() {
 	  var _babelHelpers$classPr, _babelHelpers$classPr2;
 	  return ((_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr.role) === im_v2_const.UserRole.guest && ((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr2.dialogId) !== 'settings';
+	}
+	function _isChannel2() {
+	  var _babelHelpers$classPr3;
+	  return im_v2_lib_channel.ChannelManager.isChannel((_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr3.dialogId);
+	}
+	function _isCommentsChat2() {
+	  var _babelHelpers$classPr4;
+	  return ((_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _dialog)[_dialog]) == null ? void 0 : _babelHelpers$classPr4.type) === im_v2_const.ChatType.comment;
+	}
+
+	var _visibleMessages = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("visibleMessages");
+	class VisibleMessagesManager {
+	  constructor() {
+	    Object.defineProperty(this, _visibleMessages, {
+	      writable: true,
+	      value: new Set()
+	    });
+	  }
+	  setMessageAsVisible(messageId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].add(messageId);
+	  }
+	  setMessageAsNotVisible(messageId) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].delete(messageId);
+	  }
+	  getVisibleMessages() {
+	    return [...babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages]];
+	  }
+	  getFirstMessageId() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages].size === 0) {
+	      return 0;
+	    }
+	    const [firstVisibleMessage] = [...babelHelpers.classPrivateFieldLooseBase(this, _visibleMessages)[_visibleMessages]].sort((a, b) => a - b);
+	    return firstVisibleMessage;
+	  }
 	}
 
 	// @vue/component
@@ -341,10 +310,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	// @vue/component
 	const PinnedMessages = {
+	  name: 'PinnedMessages',
 	  components: {
 	    PinnedMessage
 	  },
 	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    },
 	    messages: {
 	      type: Array,
 	      required: true
@@ -355,11 +329,23 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
 	    firstMessage() {
 	      return this.messagesToShow[0];
 	    },
 	    messagesToShow() {
 	      return this.messages.slice(-1);
+	    },
+	    canUnpin() {
+	      return im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.pinMessage, this.dialogId);
+	    },
+	    showUnpin() {
+	      return !this.isCommentChat && this.canUnpin;
+	    },
+	    isCommentChat() {
+	      return this.dialog.type === im_v2_const.ChatType.comment;
 	    }
 	  },
 	  methods: {
@@ -374,9 +360,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				v-for="message in messagesToShow"
 				:message="message"
 				:key="message.id"
-				@click="$emit('messageClick', message.id)"
 			/>
-			<div @click.stop="$emit('messageUnpin', firstMessage.id)" class="bx-im-dialog-chat__pinned_unpin"></div>
+			<div v-if="showUnpin" @click.stop="$emit('messageUnpin', firstMessage.id)" class="bx-im-dialog-chat__pinned_unpin"></div>
 		</div>
 	`
 	};
@@ -393,6 +378,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const QuoteButton = {
 	  name: 'QuoteButton',
+	  props: {
+	    dialogId: {
+	      type: String,
+	      default: ''
+	    }
+	  },
 	  data() {
 	    return {
 	      text: '',
@@ -481,7 +472,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return textNode.textContent;
 	    },
 	    onQuoteClick() {
-	      im_v2_lib_quote.Quote.sendQuoteEvent(this.message, this.text);
+	      im_v2_lib_quote.Quote.sendQuoteEvent(this.message, this.text, this.dialogId);
 	      this.$emit('close');
 	    }
 	  },
@@ -493,8 +484,40 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const FLOATING_DATE_OFFSET = 52;
-	const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
+	// @vue/component
+	const ScrollButton = {
+	  name: 'ScrollButton',
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId, true);
+	    },
+	    formattedCounter() {
+	      if (this.dialog.counter === 0) {
+	        return '';
+	      }
+	      if (this.dialog.counter > 99) {
+	        return '99+';
+	      }
+	      return String(this.dialog.counter);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-dialog-chat__scroll-button">
+			<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">
+				{{ formattedCounter }}
+			</div>
+		</div>
+	`
+	};
 
 	// @vue/component
 	const ChatDialog = {
@@ -503,6 +526,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    MessageList: im_v2_component_messageList.MessageList,
 	    PinnedMessages,
 	    QuoteButton,
+	    ScrollButton,
 	    PullStatus: pull_vue3_status.PullStatus,
 	    ForwardPopup: im_v2_component_entitySelector.ForwardPopup
 	  },
@@ -511,9 +535,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      type: String,
 	      default: ''
 	    },
-	    textareaHeight: {
-	      type: Number,
-	      default: 0
+	    saveScrollOnExit: {
+	      type: Boolean,
+	      default: true
+	    },
+	    resetOnExit: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  data() {
@@ -526,13 +554,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        active: false,
 	        messageIsLoaded: false
 	      },
-	      initialScrollCompleted: false,
 	      isScrolledUp: false,
 	      windowFocused: false,
 	      showQuoteButton: false,
-	      selectedText: null,
-	      quoteButtonStyles: {},
-	      quoteButtonMessage: 0
+	      messagesToRead: new Set()
 	    };
 	  },
 	  computed: {
@@ -546,7 +571,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.dialog.inited;
 	    },
 	    messageCollection() {
-	      return this.$store.getters['messages/get'](this.dialog.chatId);
+	      return this.$store.getters['messages/getByChatId'](this.dialog.chatId);
 	    },
 	    pinnedMessages() {
 	      return this.$store.getters['messages/pin/getPinned'](this.dialog.chatId);
@@ -559,26 +584,21 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.dialog.role === im_v2_const.UserRole.guest;
 	    },
 	    debouncedScrollHandler() {
-	      const SCROLLING_DEBOUNCE_DELAY = 200;
+	      const SCROLLING_DEBOUNCE_DELAY = 100;
 	      return main_core.Runtime.debounce(this.getScrollManager().onScroll, SCROLLING_DEBOUNCE_DELAY, this.getScrollManager());
 	    },
 	    debouncedReadHandler() {
-	      return main_core.Runtime.debounce(this.readVisibleMessages, 50, this);
-	    },
-	    formattedCounter() {
-	      if (this.dialog.counter === 0) {
-	        return '';
-	      }
-	      if (this.dialog.counter > 99) {
-	        return '99+';
-	      }
-	      return String(this.dialog.counter);
+	      const READING_DEBOUNCE_DELAY = 50;
+	      return main_core.Runtime.debounce(this.readQueuedMessages, READING_DEBOUNCE_DELAY, this);
 	    },
 	    messageListComponent() {
 	      return im_v2_component_messageList.MessageList;
 	    },
 	    showScrollButton() {
 	      return this.isScrolledUp || this.dialog.hasNextPage;
+	    },
+	    hasCommentsOnTop() {
+	      return this.$store.getters['messages/comments/areOpenedForChannel'](this.dialogId);
 	    }
 	  },
 	  watch: {
@@ -587,28 +607,29 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return;
 	      }
 	      // first opening
-	      this.getPullWatchManager().onChatLoad();
+	      this.getPullWatchManager().subscribe();
 	      this.onChatInited();
 	    },
-	    textareaHeight() {
-	      if (this.isScrolledUp || !this.dialogInited) {
-	        return;
-	      }
-	      void this.$nextTick(() => {
-	        this.getScrollManager().scrollToBottom();
-	      });
+	    hasCommentsOnTop: {
+	      handler(newValue) {
+	        const commentsWereClosed = newValue === false;
+	        if (!commentsWereClosed) {
+	          return;
+	        }
+	        this.readVisibleMessages();
+	      },
+	      flush: 'post'
 	    }
 	  },
 	  created() {
 	    im_v2_lib_logger.Logger.warn('Dialog: Chat created', this.dialogId);
-	    this.initObserverManager();
 	    this.initContextMode();
 	  },
 	  mounted() {
 	    this.getScrollManager().setContainer(this.getContainer());
 	    if (this.dialogInited) {
 	      // second+ opening
-	      this.getPullWatchManager().onLoadedChatEnter();
+	      this.getPullWatchManager().subscribe();
 	      this.onChatInited();
 	    }
 	    // there are P&P messages
@@ -622,72 +643,111 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.unsubscribeFromEvents();
 	    if (this.dialogInited) {
 	      this.saveScrollPosition();
-	      this.loadMessagesOnExit();
+	      this.handleMessagesOnExit();
 	    }
-	    this.getPullWatchManager().onChatExit();
+	    this.getPullWatchManager().unsubscribe();
 	    this.closeDialogPopups();
 	    this.forwardPopup.show = false;
 	  },
 	  methods: {
-	    readVisibleMessages() {
-	      if (!this.dialogInited || !this.windowFocused || this.hasVisibleCall() || this.isGuest) {
+	    async scrollOnStart() {
+	      await this.$nextTick();
+
+	      // we loaded chat with context
+	      if (this.contextMode.active && this.contextMode.messageIsLoaded) {
+	        this.getScrollManager().scrollToMessage(this.layout.contextId);
+	        void this.$nextTick(() => {
+	          this.highlightMessage(this.layout.contextId);
+	        });
 	        return;
 	      }
-	      this.getObserverManager().getMessagesToRead().forEach(messageId => {
-	        this.getChatService().readMessage(this.dialog.chatId, messageId);
-	        this.getObserverManager().onReadMessage(messageId);
+
+	      // chat was loaded before
+	      if (this.contextMode.active && !this.contextMode.messageIsLoaded) {
+	        this.goToMessageContext(this.layout.contextId);
+	        return;
+	      }
+
+	      // marked message
+	      if (this.dialog.markedId) {
+	        this.getScrollManager().scrollToMessage(im_v2_const.DialogBlockType.newMessages);
+	        return;
+	      }
+
+	      // saved position
+	      if (this.dialog.savedPositionMessageId && !this.isGuest) {
+	        im_v2_lib_logger.Logger.warn('Dialog: saved scroll position, scrolling to', this.dialog.savedPositionMessageId);
+	        this.getScrollManager().scrollToMessage(this.dialog.savedPositionMessageId, {
+	          withDateOffset: false
+	        });
+	        return;
+	      }
+	      const lastReadId = this.$store.getters['chats/getLastReadId'](this.dialogId);
+	      const isLastMessageId = lastReadId === this.dialog.lastMessageId;
+	      // unread messages and read messages before them
+	      if (lastReadId > 0 && !isLastMessageId) {
+	        im_v2_lib_logger.Logger.warn('Dialog: scroll to "New messages" mark, lastReadId -', lastReadId, 'lastMessageId', this.dialog.lastMessageId);
+	        this.getScrollManager().scrollToMessage(im_v2_const.DialogBlockType.newMessages);
+	        return;
+	      }
+
+	      // new chat, unread messages without read messages before them
+	      const hasUnread = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
+	      if (lastReadId === 0 || hasUnread) {
+	        this.getScrollManager().setStartScrollNeeded(false);
+	        im_v2_lib_logger.Logger.warn('Dialog: dont scroll, hasUnread -', hasUnread, 'lastReadId', lastReadId);
+	        return;
+	      }
+
+	      // no unread messages
+	      this.getScrollManager().scrollToBottom();
+	    },
+	    showLoadingBar() {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.showLoadingBar, {
+	        dialogId: this.dialogId
 	      });
 	    },
-	    scrollOnStart() {
-	      void this.$nextTick(() => {
-	        // we loaded chat with context
-	        if (this.contextMode.active && this.contextMode.messageIsLoaded) {
-	          this.getScrollManager().scrollToMessage(this.layout.contextId, -FLOATING_DATE_OFFSET);
-	          void this.$nextTick(() => {
-	            this.highlightMessage(this.layout.contextId);
-	          });
-	        }
-	        // chat was loaded before
-	        else if (this.contextMode.active && !this.contextMode.messageIsLoaded) {
-	          this.goToMessageContext(this.layout.contextId);
-	        }
-	        // marked message
-	        else if (this.dialog.markedId) {
-	          this.getScrollManager().scrollToMessage(im_v2_const.DialogBlockType.newMessages, -FLOATING_DATE_OFFSET);
-	        }
-	        // saved position
-	        else if (this.dialog.savedPositionMessageId) {
-	          im_v2_lib_logger.Logger.warn('Dialog: saved scroll position, scrolling to', this.dialog.savedPositionMessageId);
-	          this.getScrollManager().scrollToMessage(this.dialog.savedPositionMessageId);
-	        }
-	        // unread message
-	        else if (this.$store.getters['chats/getLastReadId'](this.dialogId)) {
-	          this.getScrollManager().scrollToMessage(im_v2_const.DialogBlockType.newMessages, -FLOATING_DATE_OFFSET);
-	        }
-	        // new chat with unread messages
-	        else if (this.$store.getters['messages/getFirstUnread'](this.dialog.chatId)) {
-	          im_v2_lib_logger.Logger.warn('Dialog: new chat with unread messages, dont scroll');
-	        } else {
-	          this.getScrollManager().scrollToBottom();
-	        }
+	    hideLoadingBar() {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.hideLoadingBar, {
+	        dialogId: this.dialogId
 	      });
 	    },
-	    async goToMessageContext(messageId) {
+	    async goToMessageContext(messageId, params = {}) {
+	      const {
+	        position = ScrollManager.scrollPosition.messageTop
+	      } = params;
 	      const hasMessage = this.$store.getters['messages/hasMessage']({
 	        chatId: this.dialog.chatId,
 	        messageId
 	      });
 	      if (hasMessage) {
 	        im_v2_lib_logger.Logger.warn('Dialog: we have this message, scrolling to it', messageId);
-	        await this.getScrollManager().animatedScrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+	        await this.getScrollManager().animatedScrollToMessage(messageId, {
+	          position
+	        });
 	        this.highlightMessage(messageId);
 	        return;
 	      }
+	      const {
+	        hasAccess,
+	        errorCode
+	      } = await im_v2_lib_access.AccessManager.checkMessageAccess(messageId);
+	      if (!hasAccess && errorCode === im_v2_lib_access.AccessErrorCode.messageAccessDeniedByTariff) {
+	        im_v2_lib_analytics.Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({
+	          dialogId: this.dialogId
+	        });
+	        im_v2_lib_feature.FeatureManager.chatHistory.openFeatureSlider();
+	        return;
+	      }
+	      this.showLoadingBar();
 	      await this.getMessageService().loadContext(messageId).catch(error => {
 	        im_v2_lib_logger.Logger.error('goToMessageContext error', error);
 	      });
 	      await this.$nextTick();
-	      this.getScrollManager().scrollToMessage(messageId, -FLOATING_DATE_OFFSET);
+	      this.hideLoadingBar();
+	      this.getScrollManager().scrollToMessage(messageId, {
+	        position
+	      });
 	      await this.$nextTick();
 	      this.highlightMessage(messageId);
 	    },
@@ -704,7 +764,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }, HIGHLIGHT_DURATION);
 	    },
 	    saveScrollPosition() {
-	      let savedPositionMessageId = this.getObserverManager().getFirstVisibleMessage();
+	      if (!this.saveScrollOnExit) {
+	        return;
+	      }
+	      let savedPositionMessageId = this.getVisibleMessagesManager().getFirstMessageId();
 	      if (this.getScrollManager().isAroundBottom()) {
 	        savedPositionMessageId = 0;
 	      }
@@ -715,69 +778,51 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        }
 	      });
 	    },
-	    loadMessagesOnExit() {
+	    handleMessagesOnExit() {
+	      if (this.resetOnExit) {
+	        this.getChatService().resetChat(this.dialogId);
+	        return;
+	      }
+	      const LOAD_MESSAGE_ON_EXIT_DELAY = 200;
 	      setTimeout(() => {
 	        void this.getMessageService().reloadMessageList();
 	      }, LOAD_MESSAGE_ON_EXIT_DELAY);
 	    },
-	    /* region Init methods */
-	    initContextMode() {
-	      if (!this.layout.contextId) {
+	    /* region Reading */
+	    readQueuedMessages() {
+	      if (!this.messagesCanBeRead()) {
 	        return;
 	      }
-	      this.contextMode.active = true;
-	      // chat was loaded before, we didn't load context specifically
-	      // if chat wasn't loaded before - we load it with context
-	      this.contextMode.messageIsLoaded = !this.dialogInited;
-	    },
-	    initObserverManager() {
-	      this.observerManager = new ObserverManager();
-	      this.observerManager.subscribe(ObserverManager.events.onMessageIsVisible, () => {
-	        this.debouncedReadHandler();
+	      [...this.messagesToRead].forEach(messageId => {
+	        this.getChatService().readMessage(this.dialog.chatId, messageId);
+	        this.messagesToRead.delete(messageId);
 	      });
 	    },
-	    getObserverManager() {
-	      return this.observerManager;
-	    },
-	    getMessageService() {
-	      if (!this.messageService) {
-	        this.messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.dialog.chatId
-	        });
+	    readVisibleMessages() {
+	      if (!this.messagesCanBeRead()) {
+	        return;
 	      }
-	      return this.messageService;
+	      const visibleMessages = this.getVisibleMessagesManager().getVisibleMessages();
+	      visibleMessages.forEach(messageId => {
+	        const message = this.$store.getters['messages/getById'](messageId);
+	        if (!message || message.viewed) {
+	          return;
+	        }
+	        this.getChatService().readMessage(this.dialog.chatId, messageId);
+	      });
 	    },
-	    getChatService() {
-	      if (!this.chatService) {
-	        this.chatService = new im_v2_provider_service.ChatService();
+	    messagesCanBeRead() {
+	      if (!this.dialogInited || !this.isChatVisible()) {
+	        return false;
 	      }
-	      return this.chatService;
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.readMessage, this.dialogId);
 	    },
-	    getScrollManager() {
-	      if (!this.scrollManager) {
-	        this.scrollManager = new ScrollManager();
-	        this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerUp, this.onScrollTriggerUp);
-	        this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerDown, this.onScrollTriggerDown);
-	        this.scrollManager.subscribe(ScrollManager.events.onScrollThresholdPass, event => {
-	          this.isScrolledUp = event.getData();
-	        });
-	      }
-	      return this.scrollManager;
-	    },
-	    getPullWatchManager() {
-	      if (!this.pullWatchManager) {
-	        this.pullWatchManager = new PullWatchManager(this.dialogId);
-	      }
-	      return this.pullWatchManager;
-	    },
-	    /* endregion Init methods */
+	    /* endregion Reading */
 	    /* region Event handlers */
 	    onChatInited() {
-	      if (!this.dialog.loading) {
-	        this.scrollOnStart();
-	        this.readVisibleMessages();
-	        this.getObserverManager().setDialogInited(true);
-	      }
+	      this.scrollOnStart();
+	      this.readVisibleMessages();
 	      void this.$nextTick(() => {
 	        this.getChatService().clearDialogMark(this.dialogId);
 	      });
@@ -806,7 +851,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 
 	      // Load messages and save them
+	      this.showLoadingBar();
 	      await this.getMessageService().loadHistory();
+	      this.hideLoadingBar();
 	      // Messages loaded and we are at the top
 	      if (this.getScrollManager().isAtTheTop()) {
 	        im_v2_lib_logger.Logger.warn('Dialog: we are at the top after history request, inserting messages');
@@ -831,7 +878,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 
 	      // Load messages and save them
+	      this.showLoadingBar();
 	      await this.getMessageService().loadUnread();
+	      this.hideLoadingBar();
 	      // Messages loaded and we are at the bottom
 	      if (this.getScrollManager().isAroundBottom()) {
 	        im_v2_lib_logger.Logger.warn('Dialog: we are at the bottom after unread request, inserting messages');
@@ -852,7 +901,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 	        if (firstUnreadId) {
 	          await this.$nextTick();
-	          this.getScrollManager().scrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+	          this.getScrollManager().scrollToMessage(firstUnreadId);
 	          return;
 	        }
 	      }
@@ -892,21 +941,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    async onScrollButtonClick() {
 	      if (this.getScrollManager().scrollButtonClicked) {
-	        this.handleSecondScrollButtonClick();
+	        void this.handleSecondScrollButtonClick();
 	        return;
 	      }
 	      this.getScrollManager().scrollButtonClicked = true;
 	      if (this.dialog.counter === 0) {
+	        this.showLoadingBar();
 	        await this.getMessageService().loadInitialMessages();
+	        this.hideLoadingBar();
 	        this.getScrollManager().scrollToBottom();
 	        return;
 	      }
 	      const firstUnreadId = this.$store.getters['messages/getFirstUnread'](this.dialog.chatId);
 	      if (!firstUnreadId) {
+	        this.showLoadingBar();
 	        await this.getMessageService().loadInitialMessages();
-	        await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+	        this.hideLoadingBar();
+	        await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 	      }
-	      await this.getScrollManager().animatedScrollToMessage(firstUnreadId, -FLOATING_DATE_OFFSET);
+	      await this.getScrollManager().animatedScrollToMessage(firstUnreadId);
 	    },
 	    onWindowFocus() {
 	      this.windowFocused = true;
@@ -922,31 +975,125 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      }
 	      this.readVisibleMessages();
 	    },
-	    onChatClick(event) {
-	      if (this.isGuest) {
-	        event.stopPropagation();
+	    async onShowQuoteButton(event) {
+	      const {
+	        message,
+	        event: $event
+	      } = event.getData();
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.send, this.dialogId)) {
+	        return;
 	      }
-	    },
-	    async onShowQuoteButton(message, event) {
 	      this.showQuoteButton = true;
 	      await this.$nextTick();
-	      this.$refs.quoteButton.onMessageMouseUp(message, event);
+	      this.$refs.quoteButton.onMessageMouseUp(message, $event);
 	    },
-	    handleSecondScrollButtonClick() {
+	    async handleSecondScrollButtonClick() {
 	      this.getScrollManager().scrollButtonClicked = false;
 	      if (this.dialog.hasNextPage) {
-	        this.getMessageService().loadContext(this.dialog.lastMessageId).then(() => {
-	          main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.scrollToBottom, {
-	            chatId: this.dialog.chatId
-	          });
-	        }).catch(error => {
+	        this.showLoadingBar();
+	        await this.getMessageService().loadContext(this.dialog.lastMessageId).catch(error => {
 	          im_v2_lib_logger.Logger.error('ChatDialog: scroll to chat end loadContext error', error);
+	        });
+	        this.hideLoadingBar();
+	        main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.scrollToBottom, {
+	          chatId: this.dialog.chatId
 	        });
 	        return;
 	      }
-	      void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId);
+	      void this.getScrollManager().animatedScrollToMessage(this.dialog.lastMessageId, {
+	        withDateOffset: false
+	      });
+	    },
+	    onShowForwardPopup(event) {
+	      const {
+	        messageId
+	      } = event.getData();
+	      this.forwardPopup.messageId = messageId;
+	      this.forwardPopup.show = true;
+	    },
+	    onCloseForwardPopup() {
+	      this.forwardPopup.messageId = 0;
+	      this.forwardPopup.show = false;
+	    },
+	    onMessageIsVisible(event) {
+	      const {
+	        messageId,
+	        dialogId
+	      } = event.getData();
+	      if (dialogId !== this.dialogId) {
+	        return;
+	      }
+	      this.getVisibleMessagesManager().setMessageAsVisible(messageId);
+	      const message = this.$store.getters['messages/getById'](messageId);
+	      if (!message.viewed && this.isChatVisible()) {
+	        this.messagesToRead.add(messageId);
+	        this.debouncedReadHandler();
+	      }
+	    },
+	    onMessageIsNotVisible(event) {
+	      const {
+	        messageId,
+	        dialogId
+	      } = event.getData();
+	      if (dialogId !== this.dialogId) {
+	        return;
+	      }
+	      this.getVisibleMessagesManager().setMessageAsNotVisible(messageId);
 	    },
 	    /* endregion Event handlers */
+	    /* region Init methods */
+	    initContextMode() {
+	      const layoutManager = im_v2_lib_layout.LayoutManager.getInstance();
+	      if (!layoutManager.isChatContextAvailable(this.dialogId)) {
+	        return;
+	      }
+	      this.contextMode.active = true;
+	      // chat was loaded before, we didn't load context specifically
+	      // if chat wasn't loaded before - we load it with context
+	      this.contextMode.messageIsLoaded = !this.dialogInited;
+	    },
+	    getMessageService() {
+	      if (!this.messageService) {
+	        this.messageService = new im_v2_provider_service.MessageService({
+	          chatId: this.dialog.chatId
+	        });
+	      }
+	      return this.messageService;
+	    },
+	    getChatService() {
+	      if (!this.chatService) {
+	        this.chatService = new im_v2_provider_service.ChatService();
+	      }
+	      return this.chatService;
+	    },
+	    getScrollManager() {
+	      if (!this.scrollManager) {
+	        this.scrollManager = new ScrollManager();
+	        this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerUp, this.onScrollTriggerUp);
+	        this.scrollManager.subscribe(ScrollManager.events.onScrollTriggerDown, this.onScrollTriggerDown);
+	        this.scrollManager.subscribe(ScrollManager.events.onScrollThresholdPass, event => {
+	          this.isScrolledUp = event.getData();
+	        });
+	      }
+	      return this.scrollManager;
+	    },
+	    getPullWatchManager() {
+	      if (!this.pullWatchManager) {
+	        this.pullWatchManager = new PullWatchManager(this.dialogId);
+	      }
+	      return this.pullWatchManager;
+	    },
+	    getVisibleMessagesManager() {
+	      if (!this.visibleMessagesManager) {
+	        this.visibleMessagesManager = new VisibleMessagesManager();
+	      }
+	      return this.visibleMessagesManager;
+	    },
+	    /* endregion Init methods */
+	    isChatVisible() {
+	      return this.windowFocused && !this.hasVisibleCall() && !this.hasCommentsOnTop;
+	    },
 	    hasVisibleCall() {
 	      return im_v2_lib_call.CallManager.getInstance().hasVisibleCall();
 	    },
@@ -964,6 +1111,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
 	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.showForwardPopup, this.onShowForwardPopup);
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.showQuoteButton, this.onShowQuoteButton);
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onMessageIsVisible, this.onMessageIsVisible);
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onMessageIsNotVisible, this.onMessageIsNotVisible);
 	      main_core.Event.bind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.bind(window, 'blur', this.onWindowBlur);
 	    },
@@ -972,59 +1122,53 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.goToMessageContext, this.onGoToMessageContext);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.call.onFold, this.onCallFold);
 	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.showForwardPopup, this.onShowForwardPopup);
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.showQuoteButton, this.onShowQuoteButton);
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.onMessageIsVisible, this.onMessageIsVisible);
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.onMessageIsNotVisible, this.onMessageIsNotVisible);
 	      main_core.Event.unbind(window, 'focus', this.onWindowFocus);
 	      main_core.Event.unbind(window, 'blur', this.onWindowBlur);
 	    },
 	    getContainer() {
 	      return this.$refs.container;
-	    },
-	    onShowForwardPopup(event) {
-	      const {
-	        messageId
-	      } = event.getData();
-	      this.forwardPopup.messageId = messageId;
-	      this.forwardPopup.show = true;
-	    },
-	    onCloseForwardPopup() {
-	      this.forwardPopup.messageId = 0;
-	      this.forwardPopup.show = false;
 	    }
 	  },
 	  template: `
 		<div class="bx-im-dialog-chat__block bx-im-dialog-chat__scope">
-			<PinnedMessages
-				v-if="pinnedMessages.length > 0"
-				:messages="pinnedMessages"
-				@messageClick="onPinnedMessageClick"
-				@messageUnpin="onPinnedMessageUnpin"
-			/>
-			<PullStatus/>
-			<div @scroll="onScroll" @click.capture="onChatClick" class="bx-im-dialog-chat__scroll-container" ref="container">
-				<component
-					:is="messageListComponent"
+			<!-- Top -->
+			<slot name="pinned-panel">
+				<PinnedMessages
+					v-if="pinnedMessages.length > 0"
 					:dialogId="dialogId"
-					:messages="messageCollection"
-					:observer="getObserverManager()"
-					@readMessages="debouncedReadHandler"
-					@showQuoteButton="onShowQuoteButton"
+					:messages="pinnedMessages"
+					@messageClick="onPinnedMessageClick"
+					@messageUnpin="onPinnedMessageUnpin"
 				/>
+			</slot>
+			<PullStatus/>
+			<!-- Message list -->
+			<div @scroll="onScroll" class="bx-im-dialog-chat__scroll-container" ref="container">
+				<slot name="message-list">
+					<component :is="messageListComponent" :dialogId="dialogId" />
+				</slot>
 			</div>
-			<Transition name="scroll-button-transition">
-				<div v-if="showScrollButton" @click="onScrollButtonClick" class="bx-im-dialog-chat__scroll-button">
-					<div v-if="dialog.counter" class="bx-im-dialog-chat__scroll-button_counter">{{ formattedCounter }}</div>
-				</div>
+			<!-- Float buttons -->
+			<slot name="additional-float-button"></slot>
+			<Transition name="float-button-transition">
+				<ScrollButton v-if="showScrollButton" :dialogId="dialogId" @click="onScrollButtonClick" />
 			</Transition>
+			<!-- Absolute elements -->
 			<ForwardPopup
 				:showPopup="forwardPopup.show"
 				:messageId="forwardPopup.messageId"
 				@close="onCloseForwardPopup"
 			/>
 			<Transition name="fade-up">
-				<QuoteButton 
-					v-if="showQuoteButton" 
-					ref="quoteButton"
+				<QuoteButton
+					v-if="showQuoteButton"
+					:dialogId="dialogId"
 					@close="showQuoteButton = false" 
-					class="bx-im-message-base__quote-button" 
+					class="bx-im-message-base__quote-button"
+					ref="quoteButton"
 				/>
 			</Transition>
 		</div>
@@ -1032,6 +1176,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	};
 
 	exports.ChatDialog = ChatDialog;
+	exports.ScrollManager = ScrollManager;
+	exports.PinnedMessages = PinnedMessages;
 
-}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Component,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Dialog = this.BX.Messenger.v2.Component.Dialog || {}),BX.Main,window,BX.Messenger.v2.Lib,BX.Messenger.v2.Component,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=chat-dialog.bundle.js.map

@@ -23,6 +23,10 @@
 	cursor: pointer;
 }
 
+.landing-template-pseudo-link.landing-item {
+	overflow: visible;
+}
+
 .landing-license-wrapper {
 	display: -webkit-box;
 	display: -ms-flexbox;

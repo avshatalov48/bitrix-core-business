@@ -34,7 +34,7 @@ if($r->isSuccess())
     }
     ?>
 
-    <script type="text/javascript">
+    <script>
 
 		BX.ready(function () {
             stepper = new BX.Sale.Stepper({ownerTypeId: <?=$sender->getField('entityTypeId')?>,ownerId:<?=$sender->getField('entityId')?>});

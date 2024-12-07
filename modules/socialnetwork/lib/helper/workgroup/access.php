@@ -8,6 +8,10 @@
  */
 namespace Bitrix\Socialnetwork\Helper\Workgroup;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Socialnetwork\Permission\GroupAccessController;
+use Bitrix\Socialnetwork\Permission\GroupAction;
+use Bitrix\Socialnetwork\Permission\Model\GroupModel;
 use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Item\Workgroup\AccessManager;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -15,9 +19,27 @@ use Bitrix\Socialnetwork\WorkgroupTable;
 
 class Access
 {
+	public static function isRuleEnabled(string $rule = ''): bool
+	{
+		if (empty($rule))
+		{
+			return Option::get('socialnetwork', 'group_access_rules_enabled', 'Y') === 'Y';
+		}
+
+		return Option::get('socialnetwork', 'group_access_rules_enabled_rule_'. $rule, 'Y') === 'Y';
+	}
+
 	public static function canCreate(array $params = []): bool
 	{
 		$siteId = (string)($params['siteId'] ?? SITE_ID);
+		$userId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::CREATE))
+		{
+			return GroupAccessController::getInstance($userId)
+				->check(GroupAction::CREATE, GroupModel::createFromArray(['siteId' => $siteId]));
+		}
+
 		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
 
 		return (
@@ -30,7 +52,11 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$currentUserId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
-		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
+
+		if (static::isRuleEnabled(GroupAction::VIEW))
+		{
+			return GroupAccessController::can($currentUserId, GroupAction::VIEW, $groupId);
+		}
 
 		if ($groupId <= 0)
 		{
@@ -41,6 +67,8 @@ class Access
 		{
 			return false;
 		}
+
+		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
 
 		$group = WorkgroupTable::getList([
 			'filter' => [
@@ -78,6 +106,12 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$currentUserId = (int)($params['userId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::UPDATE))
+		{
+			return GroupAccessController::can($currentUserId, GroupAction::UPDATE, $groupId);
+		}
+
 		$checkAdminSession = (bool)($params['checkAdminSession'] ?? true);
 
 		if ($groupId <= 0)
@@ -127,11 +161,26 @@ class Access
 		return static::canModify($params);
 	}
 
+	public static function canDelete(array $params = []): bool
+	{
+		return static::canModify($params);
+	}
+
 	public static function canSetOwner(array $params = []): bool
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = (int)($params['userId'] ?? 0);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::SET_OWNER))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::SET_OWNER,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -182,7 +231,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::SET_SCRUM_MASTER))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::SET_SCRUM_MASTER,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -233,7 +292,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::DELETE_OUTGOING_REQUEST))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::DELETE_OUTGOING_REQUEST,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -284,7 +353,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::DELETE_INCOMING_REQUEST))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::DELETE_INCOMING_REQUEST,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -335,7 +414,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::PROCESS_INCOMING_REQUEST))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::PROCESS_INCOMING_REQUEST,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -386,7 +475,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::EXCLUDE))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::EXCLUDE,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		$group = WorkgroupTable::getList([
 			'filter' => [
@@ -429,6 +528,11 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? Helper\User::getCurrentUserId());
 
+		if (static::isRuleEnabled(GroupAction::JOIN))
+		{
+			return GroupAccessController::can($userId, GroupAction::JOIN, $groupId);
+		}
+
 		if (
 			$groupId <= 0
 			|| $userId <= 0
@@ -470,6 +574,11 @@ class Access
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? Helper\User::getCurrentUserId());
 
+		if (static::isRuleEnabled(GroupAction::LEAVE))
+		{
+			return GroupAccessController::can($userId, GroupAction::LEAVE, $groupId);
+		}
+
 		if (
 			$groupId <= 0
 			|| $userId <= 0
@@ -510,7 +619,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::SET_MODERATOR))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::SET_MODERATOR,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0
@@ -561,7 +680,17 @@ class Access
 	{
 		$groupId = (int)($params['groupId'] ?? 0);
 		$userId = ($params['userId'] ?? null);
-		$currentUserId = Helper\User::getCurrentUserId();
+		$currentUserId = (int)($params['fromUserId'] ?? Helper\User::getCurrentUserId());
+
+		if (static::isRuleEnabled(GroupAction::REMOVE_MODERATOR))
+		{
+			return GroupAccessController::can(
+				$currentUserId,
+				GroupAction::REMOVE_MODERATOR,
+				$groupId,
+				['userId' => $userId]
+			);
+		}
 
 		if (
 			$groupId <= 0

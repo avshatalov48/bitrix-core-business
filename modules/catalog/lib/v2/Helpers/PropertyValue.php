@@ -80,13 +80,18 @@ final class PropertyValue
 	 */
 	private static function getPropertyValues($skuIblockId, array $skuIds): array
 	{
-		$propertyValues = array_fill_keys($skuIds, []);
+		$propertyIds = PropertyCatalogFeature::getOfferTreePropertyCodes($skuIblockId);
+		if ($propertyIds === null)
+		{
+			return [];
+		}
 
+		$propertyValues = [];
 		\CIBlockElement::GetPropertyValuesArray(
 			$propertyValues,
 			$skuIblockId,
 			['ID' => $skuIds],
-			['ID' => PropertyCatalogFeature::getOfferTreePropertyCodes($skuIblockId)]
+			['ID' => $propertyIds]
 		);
 
 		return $propertyValues;

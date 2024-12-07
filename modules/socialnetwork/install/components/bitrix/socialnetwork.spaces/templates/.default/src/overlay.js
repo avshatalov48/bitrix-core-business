@@ -30,6 +30,16 @@ export class Overlay
 
 	show()
 	{
+		Dom.style(this.#overlay, 'display', 'block');
+	}
+
+	hide()
+	{
+		Dom.style(this.#overlay, 'display', 'none');
+	}
+
+	append()
+	{
 		Dom.append(this.#overlay, document.body);
 	}
 

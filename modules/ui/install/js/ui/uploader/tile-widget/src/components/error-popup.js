@@ -18,10 +18,10 @@ export const ErrorPopup: BitrixVueComponentProps = {
 		},
 		popupOptions: {
 			type: Object,
-			default()
+			default(): {}
 			{
 				return {};
-			}
+			},
 		},
 	},
 	emits: ['onDestroy'],
@@ -35,7 +35,7 @@ export const ErrorPopup: BitrixVueComponentProps = {
 
 			this.errorPopup = this.createPopup(newValue);
 			this.errorPopup.show();
-		}
+		},
 	},
 	created(): void
 	{
@@ -101,8 +101,8 @@ export const ErrorPopup: BitrixVueComponentProps = {
 
 							popup.setAngle({ offset: popupWidth / 2 - angleShift });
 							popup.setOffset({ offsetLeft: offsetLeft + Popup.getOption('angleLeftOffset') });
-						}
-					}
+						},
+					},
 				};
 			}
 			else
@@ -123,7 +123,7 @@ export const ErrorPopup: BitrixVueComponentProps = {
 			const options = Object.assign({}, defaultOptions, this.popupOptions);
 
 			return new Popup(options);
-		}
+		},
 	},
 	template: '<span></span>',
 };

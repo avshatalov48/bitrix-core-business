@@ -14,6 +14,23 @@ this.BX.Landing = this.BX.Landing || {};
 	        void landing_sliderhacks.SliderHacks.reloadSlider(link.href);
 	      }
 	    }
+	    var pseudoLink = event.target.closest('[data-pseudo-url]');
+	    if (main_core.Type.isDomNode(pseudoLink)) {
+	      var urlParams = main_core.Dom.attr(pseudoLink, 'data-pseudo-url');
+	      if (main_core.Text.toBoolean(urlParams.enabled) && main_core.Type.isStringFilled(urlParams.href) && urlParams.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') !== 0) {
+	        if (urlParams.query) {
+	          urlParams.href += urlParams.href.includes('?') ? '&' : '?';
+	          urlParams.href += urlParams.query;
+	        }
+	        if (urlParams.target === '_self') {
+	          event.stopImmediatePropagation();
+	          BX.Landing.Pub.TopPanel.pushHistory(urlParams.href);
+	          void landing_sliderhacks.SliderHacks.reloadSlider(urlParams.href);
+	        } else {
+	          top.open(urlParams.href, urlParams.target);
+	        }
+	      }
+	    }
 	  }
 	});
 

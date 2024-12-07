@@ -209,7 +209,7 @@ class Dictionary
 	}
 
 	/**
-	 * JsonSerializable::jsonSerialize — Specify data which should be serialized to JSON
+	 * JsonSerializable::jsonSerialize â€” Specify data which should be serialized to JSON
 	 * @return array
 	 */
 	#[\ReturnTypeWillChange]

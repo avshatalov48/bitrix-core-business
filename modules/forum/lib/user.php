@@ -340,11 +340,11 @@ class User implements \ArrayAccess {
 		return $this->data["VISIBLE_NAME"];
 	}
 
-	public function setLastVisit()
+	public function setLastVisit(): static
 	{
 		if ($this->getId() <= 0)
 		{
-			return;
+			return $this;
 		}
 
 		$connection = Main\Application::getConnection();
@@ -378,6 +378,8 @@ class User implements \ArrayAccess {
 
 		unset($GLOBALS['FORUM_CACHE']['USER']);
 		unset($GLOBALS['FORUM_CACHE']['USER_ID']);
+
+		return $this;
 	}
 
 	public function setLocation(int $forumId = 0, int $topicId = 0)

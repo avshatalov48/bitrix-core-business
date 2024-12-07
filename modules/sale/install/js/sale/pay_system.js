@@ -557,7 +557,8 @@
 		openVerificationForm: function(url)
 		{
 			BX.SidePanel.Instance.open(url, {
-				width: 750
+				width: 750,
+				cacheable: false,
 			});
 		},
 

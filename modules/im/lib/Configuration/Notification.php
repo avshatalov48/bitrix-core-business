@@ -636,7 +636,7 @@ class Notification extends Base
 			];
 		}
 
-		OptionStateTable::addMulti($rows, true);
+		OptionStateTable::multiplyInsertWithoutDuplicate($rows);
 	}
 
 	public static function getEventNames(): array

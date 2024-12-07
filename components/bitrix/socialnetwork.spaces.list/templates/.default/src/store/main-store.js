@@ -146,13 +146,16 @@ export const MainStore = {
 				});
 			},
 			updateSpaceData: (store, data) => {
-				if (data.space && data.isInvitation)
+				if (data.checkInvitation !== false)
 				{
-					store.commit('addInvitations', Helper.getInstance().buildInvitations([data.invitation]));
-				}
-				else
-				{
-					store.commit('deleteInvitationBySpaceId', data.spaceId);
+					if (data.space && data.isInvitation)
+					{
+						store.commit('addInvitations', Helper.getInstance().buildInvitations([data.invitation]));
+					}
+					else
+					{
+						store.commit('deleteInvitationBySpaceId', data.spaceId);
+					}
 				}
 
 				if (data.space)

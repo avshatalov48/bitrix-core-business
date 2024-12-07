@@ -2,6 +2,7 @@
 
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\V2\Common\MultiplyInsertTrait;
 use Bitrix\Main\ArgumentTypeException,
 	Bitrix\Main\ORM\Data\DataManager,
 	Bitrix\Main\ORM\Fields\IntegerField,
@@ -25,6 +26,8 @@ use Bitrix\Main\ArgumentTypeException,
 
 class OptionStateTable extends DataManager
 {
+	use MultiplyInsertTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *

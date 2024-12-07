@@ -24,7 +24,7 @@ else
 	
 		if (!$arResult["bIntranet"])
 		{
-			?><script language="JavaScript">
+			?><script>
 			<!--
 			var bFirstUser = true;
 			function AddUser(name)

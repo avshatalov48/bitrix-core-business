@@ -1,10 +1,13 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main\UserField\Types\BooleanType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\UserField\Types\BooleanType;
 
 /**
  * @var BooleanUfComponent $component
@@ -85,7 +88,7 @@ $value = $arResult['value'];
 				{
 					$first = false;
 				}
-				elseif($arResult['userField']['SETTINGS']['MULTIPLE'] === 'N')
+				elseif ($arResult['userField']['MULTIPLE'] === 'N')
 				{
 					print $component->getHtmlBuilder()->getMultipleValuesSeparator();
 				}

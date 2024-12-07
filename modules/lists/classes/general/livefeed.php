@@ -29,7 +29,7 @@ class CListsLiveFeed
 			'bitrix_trip',
 			'bitrix_cash',
 			'bitrix_incoming_doc',
-			'bitrix_outgoing_doc'
+			'bitrix_outgoing_doc',
 		);
 
 		$params = serialize(array("ELEMENT_NAME" => $element['NAME']));
@@ -89,7 +89,7 @@ class CListsLiveFeed
 				'ENABLE_COMMENTS' => 'Y',
 				'RATING_TYPE_ID' => 'LISTS_NEW_ELEMENT',
 				'RATING_ENTITY_ID' => $sourceId,
-				'URL' => '#SITE_DIR#'.COption::GetOptionString('socialnetwork', 'user_page', false, SITE_ID).'log/'
+				'URL' => '#SITE_DIR#'.COption::GetOptionString('socialnetwork', 'user_page', false, SITE_ID).'log/',
 			);
 
 			$logObject = CSocNetLog::getList(array(), array(
@@ -205,7 +205,7 @@ class CListsLiveFeed
 		$arSocNetAllowedSubscribeEntityTypesDesc[SONET_LISTS_NEW_POST_ENTITY] = array(
 			'USE_CB_FILTER' => 'Y',
 			'TITLE_LIST' => '',
-			'TITLE_ENTITY' => ''
+			'TITLE_ENTITY' => '',
 		);
 	}
 
@@ -227,11 +227,11 @@ class CListsLiveFeed
 				'OPERATION_ADD' => 'log_rights',
 				'ADD_CALLBACK' => array('CListsLiveFeed', 'addCommentLists'),
 				'UPDATE_CALLBACK' => array('CSocNetLogTools', 'UpdateComment_Forum'),
-				'DELETE_CALLBACK' => array('CSocNetLogTools', 'DeleteComment_Forum'),
+				'DELETE_CALLBACK' => array('CListsLiveFeed', 'deleteCommentLists'),
 				'CLASS_FORMAT' => 'CSocNetLogTools',
 				'METHOD_FORMAT' => 'FormatComment_Forum',
-				"RATING_TYPE_ID" => "FORUM_POST"
-			)
+				"RATING_TYPE_ID" => "FORUM_POST",
+			),
 		);
 	}
 
@@ -270,7 +270,7 @@ class CListsLiveFeed
 					'',
 					Array(
 						'WORKFLOW_ID' => $fields['MESSAGE'],
-						'SITE_TEMPLATE_ID' => (isset($params['SITE_TEMPLATE_ID']) ? $params['SITE_TEMPLATE_ID'] : '')
+						'SITE_TEMPLATE_ID' => (isset($params['SITE_TEMPLATE_ID']) ? $params['SITE_TEMPLATE_ID'] : ''),
 					),
 					null,
 					array('HIDE_ICONS' => 'Y')
@@ -291,7 +291,7 @@ class CListsLiveFeed
 						'STYLE' => 'new-employee',
 						'AVATAR_STYLE' => 'avatar-info',
 						'DESTINATION' => CSocNetLogTools::formatDestinationFromRights($rights, array_merge($params, array('CREATED_BY' => $fields['USER_ID']))),
-						'URL' => $url
+						'URL' => $url,
 					),
 					'CREATED_BY' => CSocNetLogTools::formatEvent_GetCreatedBy($fields, $params, $mail),
 					'AVATAR_SRC' => CSocNetLog::formatEvent_CreateAvatar($fields, $params),
@@ -332,6 +332,9 @@ class CListsLiveFeed
 		$messageId = array();
 		$error = array();
 		$note = array();
+		$workflowId = null;
+		$authorId = (int)($fields['USER_ID'] ?? 0);
+		$mentions = [];
 
 		$sonetLogQuery = CSocNetLog::GetList(
 			array(),
@@ -342,10 +345,14 @@ class CListsLiveFeed
 		);
 		if($sonetLog = $sonetLogQuery->fetch())
 		{
+			$workflowId = $sonetLog['MESSAGE'];
 			$users = CBPTaskService::getWorkflowParticipants($sonetLog['MESSAGE'], CBPTaskUserStatus::Waiting);
 
 			if(preg_match_all("/(?<=\[USER=)(?P<id>[0-9]+)(?=\])/", $fields['TEXT_MESSAGE'], $matches))
-				$users = array_unique(array_merge($users, $matches['id']));
+			{
+				$mentions = $matches['id'];
+				$users = array_unique(array_merge($users, $mentions));
+			}
 
 			$users[] = $sonetLog['USER_ID'];
 			self::setSocnetFollow($users, $sonetLog['ID'], 'Y', false, true);
@@ -365,12 +372,12 @@ class CListsLiveFeed
 						'TITLE' => 'WF_'.$sonetLog['MESSAGE'],
 						'TAGS' => '',
 						'MESSAGE' => 'WF_'.$sonetLog['MESSAGE'],
-						'XML_ID' => 'WF_'.$sonetLog['MESSAGE']
+						'XML_ID' => 'WF_'.$sonetLog['MESSAGE'],
 					);
 
 					$userStart = array(
 						"ID" => $dataTopic["AUTHOR_ID"],
-						"NAME" => $GLOBALS["FORUM_STATUS_NAME"]["guest"]
+						"NAME" => $GLOBALS["FORUM_STATUS_NAME"]["guest"],
 					);
 
 					$DB->StartTransaction();
@@ -431,7 +438,7 @@ class CListsLiveFeed
 						'USE_SMILES' => 'Y',
 						'PERMISSION_EXTERNAL' => 'Q',
 						'PERMISSION' => 'Y',
-						'APPROVED' => 'Y'
+						'APPROVED' => 'Y',
 					);
 
 					$tmp = false;
@@ -478,6 +485,11 @@ class CListsLiveFeed
 			$error = Loc::getMessage('LISTS_LF_ADD_COMMENT_SOURCE_ERROR');
 		}
 
+		if (!$error)
+		{
+			\Bitrix\Bizproc\Integration\CommentListener::onListsProcessesCommentAdd($workflowId, $authorId, $mentions);
+		}
+
 		return array(
 			'SOURCE_ID' => $messageId,
 			'MESSAGE' => ($fieldsMessage ? $fieldsMessage['POST_MESSAGE'] : false),
@@ -488,9 +500,24 @@ class CListsLiveFeed
 			'UF' => array(
 				'FILE' => $ufFileId,
 				'DOC' => $ufDocId,
-				'URL_PREVIEW' => $ufUrlPreview
-			)
+				'URL_PREVIEW' => $ufUrlPreview,
+			),
 		);
+	}
+
+	public static function deleteCommentLists($fields)
+	{
+		$parentResult = \CSocNetLogTools::DeleteComment_Forum($fields);
+
+		if (empty($parentResult['ERROR']) && CModule::IncludeModule('bizproc'))
+		{
+			$workflowId = (string)\CBPStateService::getWorkflowByIntegerId($fields['LOG_SOURCE_ID']);
+			$authorId = (int)$fields['USER_ID'];
+			$created = \Bitrix\Main\Type\DateTime::createFromUserTime($fields['LOG_DATE']);
+			\Bitrix\Bizproc\Integration\CommentListener::onListsProcessesCommentDelete($workflowId, $authorId, $created);
+		}
+
+		return $parentResult;
 	}
 
 	protected static function getRights($users, $logId, $createdBy, $method)
@@ -551,8 +578,8 @@ class CListsLiveFeed
 							'logId' => $logId,
 							'userId' => $userId,
 							'typeList' => array(
-								'COUNTER_COMMENT_PUSH'
-							)
+								'COUNTER_COMMENT_PUSH',
+							),
 						));
 					}
 				}
@@ -582,10 +609,10 @@ class CListsLiveFeed
 								'userId' => $userId,
 								'typeList' => array(
 									'FOLLOW',
-									'COUNTER_COMMENT_PUSH'
+									'COUNTER_COMMENT_PUSH',
 								),
 								'followDate' => 'CURRENT',
-								'followByWF' => true
+								'followByWF' => true,
 							));
 						}
 						else
@@ -663,7 +690,7 @@ class CListsLiveFeed
 						$iblockElementQuery = CIBlockElement::GetList(
 							array(),
 							array(
-								"ID" => intval($state[2])
+								"ID" => intval($state[2]),
 							),
 							false,
 							false,
@@ -681,7 +708,7 @@ class CListsLiveFeed
 									$bxSocNetSearch->_params["PATH_TO_WORKFLOW"]
 								),
 								array(
-									"MID" => $fields["ENTITY_ID"]
+									"MID" => $fields["ENTITY_ID"],
 								),
 								"message".$fields["ENTITY_ID"]
 							);
@@ -720,7 +747,7 @@ class CListsLiveFeed
 			array(),
 			array(
 				"ID" => $comment["LOG_ID"],
-				"EVENT_ID" => "lists_new_element"
+				"EVENT_ID" => "lists_new_element",
 			),
 			false,
 			false,
@@ -743,7 +770,7 @@ class CListsLiveFeed
 						"TO_USER_ID" => $userId,
 						"FROM_USER_ID" => $comment["USER_ID"],
 						"URL" => $log["URL"],
-						"TITLE" => $title
+						"TITLE" => $title,
 					]
 				);
 			}
@@ -765,7 +792,7 @@ class CListsLiveFeed
 			array(),
 			array(
 				"ID" => $comment["LOG_ID"],
-				"EVENT_ID" => "lists_new_element"
+				"EVENT_ID" => "lists_new_element",
 			),
 			false,
 			false,
@@ -788,7 +815,7 @@ class CListsLiveFeed
 						"TO_USER_ID" => $userId,
 						"FROM_USER_ID" => $comment["USER_ID"],
 						"URL" => $log["URL"],
-						"TITLE" => $title
+						"TITLE" => $title,
 					]
 				);
 			}
@@ -836,7 +863,7 @@ class CListsLiveFeed
 			"NOTIFY_TAG" => "SONET|EVENT|".$comment["LOG_ID"],
 			"NOTIFY_SUB_TAG" => "FORUM|COMMENT|".$comment["MESSAGE_ID"]."|".$comment["TO_USER_ID"],
 			"NOTIFY_EVENT" => "event_lists_comment_add",
-			"NOTIFY_MESSAGE" => $messageAddComment
+			"NOTIFY_MESSAGE" => $messageAddComment,
 		);
 
 		CIMNotify::Add($messageFields);
@@ -887,7 +914,7 @@ class CListsLiveFeed
 				"NOTIFY_MODULE" => "lists",
 				"NOTIFY_TAG" => "LISTS|COMMENT_MENTION|".$commentFields["ID"],
 				"NOTIFY_MESSAGE" => $notifyMessage,
-				"NOTIFY_MESSAGE_OUT" => $notifyMessageOut
+				"NOTIFY_MESSAGE_OUT" => $notifyMessageOut,
 			);
 
 			return $return;

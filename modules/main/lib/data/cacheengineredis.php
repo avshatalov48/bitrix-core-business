@@ -52,6 +52,11 @@ class CacheEngineRedis extends CacheEngine
 		return false;
 	}
 
+	public function checkInSet($key, $value) : bool
+	{
+		return self::$engine->sIsMember($key, $value);
+	}
+
 	public function addToSet($key, $value)
 	{
 		self::$engine->sAdd($key, $value);
@@ -70,19 +75,34 @@ class CacheEngineRedis extends CacheEngine
 	public function deleteBySet($key, $prefix = '')
 	{
 		$list = self::$engine->sMembers($key);
+		self::$engine->del($key);
 
 		if (is_array($list)  && !empty($list))
 		{
-			if ($prefix == '')
+			if ($this->useLock)
 			{
-				self::$engine->del($list);
+				foreach ($list as $iKey)
+				{
+					$delKey = $prefix . $iKey;
+					$oldKey = $delKey . '|old';
+
+					if (self::$engine->rename($delKey, $oldKey))
+					{
+						self::$engine->expire($oldKey, $this->ttlOld);
+					}
+				}
 			}
 			else
 			{
-				foreach ($list as $key)
+				if ($prefix != '')
 				{
-					self::$engine->del($prefix . $key);
+					$format = $prefix . '%s';
+					$list = array_map(function ($key) use ($format) {
+						return sprintf($format, $key);
+					}, $list);
 				}
+
+				self::$engine->del($list);
 			}
 		}
 	}
@@ -91,9 +111,9 @@ class CacheEngineRedis extends CacheEngine
 	{
 		if (is_array($member))
 		{
-			foreach ($member as $keyID)
+			if (!empty($member))
 			{
-				self::$engine->sRem($key, $keyID);
+				self::$engine->sRem($key, ...$member);
 			}
 		}
 		else

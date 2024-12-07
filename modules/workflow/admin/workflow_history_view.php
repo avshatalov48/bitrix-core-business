@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -15,7 +15,6 @@ if($WORKFLOW_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/include.php");
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","workflow_history_list.php");
 
 /**************************************************************************
@@ -27,7 +26,7 @@ $ID = intval($ID);
 if ($ID>0)
 {
 	// look up in database
-	$z = $DB->Query("SELECT ID FROM b_workflow_log WHERE ID='$ID'", false, $err_mess.__LINE__);
+	$z = $DB->Query("SELECT ID FROM b_workflow_log WHERE ID='$ID'");
 	if (!($zr=$z->Fetch()))
 	{
 		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
@@ -55,7 +54,7 @@ $PREV_ID = intval($PREV_ID);
 if ($PREV_ID>0)
 {
 	// lookup in database
-	$z = $DB->Query("SELECT ID FROM b_workflow_log WHERE ID='$PREV_ID'", false, $err_mess.__LINE__);
+	$z = $DB->Query("SELECT ID FROM b_workflow_log WHERE ID='$PREV_ID'");
 	if (!($zr=$z->Fetch()))
 	{
 		require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");

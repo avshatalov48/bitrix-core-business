@@ -52,7 +52,7 @@ $ID = (int)$request->get('ID');
 $save = trim((string)$request->get('save'));
 $apply = trim((string)$request->get('apply'));
 $action = trim((string)$request->get('action'));
-$requestMethod = $context->getServer()->getRequestMethod();
+$requestMethod = $request->getRequestMethod();
 
 // get highloadblock data
 if ($ID > 0)
@@ -296,17 +296,6 @@ if (($save != '' || $apply != '') && $requestMethod == 'POST' && check_bitrix_se
 	}
 }
 
-// menu
-$aMenu = array(
-	array(
-		'TEXT'	=> GetMessage('HLBLOCK_ADMIN_ROWS_RETURN_TO_LIST_BUTTON'),
-		'TITLE'	=> GetMessage('HLBLOCK_ADMIN_ROWS_RETURN_TO_LIST_BUTTON'),
-		'LINK'	=> 'highloadblock_index.php?lang='.LANGUAGE_ID,
-		'ICON'	=> 'btn_list',
-	)
-);
-$context = new CAdminContextMenu($aMenu);
-
 // view
 if ($request->get('mode') == 'list')
 {
@@ -316,7 +305,17 @@ else
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 }
-$context->Show();
+// menu
+$aMenu = array(
+	array(
+		'TEXT'	=> GetMessage('HLBLOCK_ADMIN_ROWS_RETURN_TO_LIST_BUTTON'),
+		'TITLE'	=> GetMessage('HLBLOCK_ADMIN_ROWS_RETURN_TO_LIST_BUTTON'),
+		'LINK'	=> 'highloadblock_index.php?lang='.LANGUAGE_ID,
+		'ICON'	=> 'btn_list',
+	)
+);
+$adminContextMenu = new CAdminContextMenu($aMenu);
+$adminContextMenu->Show();
 
 
 if (!empty($errors))
@@ -400,7 +399,7 @@ if (!empty($errors))
 							<td>
 								<select name="RIGHTS[TASK_ID][]">
 									<?foreach ($tasks as $tid => $tname):?>
-									<option value="<?= $tid?>"<?if ($task == $tid){?> selected="selected"<?}?>><?= $tname?></option>
+									<option value="<?= $tid?>"<?= ($task == $tid ? ' selected="selected"' : '') ?>><?= $tname?></option>
 									<?endforeach;?>
 								</select>
 								<input type="hidden" name="RIGHTS[RIGHT_ID][]" value="<?= $i?>">
@@ -419,7 +418,7 @@ if (!empty($errors))
 				</tbody>
 			</table>
 			<?\CUtil::InitJSCore(array('access'))?>
-			<script type="text/javascript">
+			<script>
 
 				var selected = <?= json_encode(array_fill_keys($accessCodes, true))?>;
 				var name = 'RIGHTS';

@@ -45,7 +45,7 @@ else
 		if (!$arResult['IS_CASH'])
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				window.open('<?=\CUtil::JSEscape($arResult['PAYMENT_LINK'])?>');
 			</script>
 			<?

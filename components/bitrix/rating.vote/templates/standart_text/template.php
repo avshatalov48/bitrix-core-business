@@ -62,7 +62,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 </span>
 <span id="bx-rating-popup-cont-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>-plus" style="display:none;"><span class="bx-ilike-popup bx-rating-popup"><span class="bx-ilike-wait"></span></span></span>
 <span id="bx-rating-popup-cont-<?=htmlspecialcharsbx($arResult['VOTE_ID'])?>-minus" style="display:none;"><span class="bx-ilike-popup bx-rating-popup"><span class="bx-ilike-wait"></span></span></span>
-<script type="text/javascript">
+<script>
 BX.ready(function() {
 <?php
 	if ($arResult['AJAX_MODE'] === 'Y')

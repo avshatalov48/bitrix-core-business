@@ -40,12 +40,22 @@ this.BX.UI.Sidepanel = this.BX.UI.Sidepanel || {};
 	    });
 	    Object.defineProperty(this, _options, {
 	      writable: true,
-	      value: void 0
+	      value: {}
 	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].title = (options == null ? void 0 : options.title) || null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].desc = (options == null ? void 0 : options.desc) || null;
+	    if ((options == null ? void 0 : options.type) === StubType.noAccess) {
+	      if (!babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].title) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].title = main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_NO_ACCESS_TITLE');
+	      }
+	      if (!babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].desc) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].desc = main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_NO_ACCESS_DESC');
+	      }
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = {
-	      title: main_core.Text.encode((options == null ? void 0 : options.title) || main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_TITLE')),
-	      desc: main_core.Text.encode((options == null ? void 0 : options.desc) || main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_DESC')),
-	      type: (options == null ? void 0 : options.type) || StubType.noAccess,
+	      title: main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].title || main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_TITLE')),
+	      desc: main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].desc || main_core.Loc.getMessage('UI_SIDEPANEL_CONTENT_DESC')),
+	      type: (options == null ? void 0 : options.type) || StubType.notAvailable,
 	      link: (options == null ? void 0 : options.link) || null
 	    };
 	  }

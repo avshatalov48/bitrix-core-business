@@ -32,7 +32,7 @@ else
 		<?
 	}
 	?>
-<script type="text/javascript">
+<script>
 
 var bSendForm = false;
 
@@ -101,7 +101,7 @@ var sonetChatReplyMesageId = '<?= $arResult["REPLY_MESSAGE_ID"]; ?>';
 var sonetSoundOn = <?= ($arResult["USER_OPTIONS"]["sound"] == "Y"? "true":"false")?>;
 var sonetReplyPathTemplate = '<?= CUtil::JSEscape($arParams["PATH_TO_MESSAGE_FORM_MESS"])?>';
 </script>
-<script type="text/javascript" src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js<?echo (mb_strpos($_SERVER["HTTP_USER_AGENT"], "Opera") !== false? '':'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js'))?>"></script>
+<script src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js<?echo (mb_strpos($_SERVER["HTTP_USER_AGENT"], "Opera") !== false? '':'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js'))?>"></script>
 
 <div style="position:absolute; top:-1000px; left:-1000px;">
 <div id="bx_flv_player_incoming_div" style="display:none">
@@ -125,7 +125,7 @@ id="socnet_player">
 </object>
 </div>
 </div>
-<script type="text/javascript">
+<script>
 showFLVPlayer("bx_flv_player_incoming", "");
 </script>
 

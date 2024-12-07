@@ -32,7 +32,7 @@ class CForumUser extends CAllForumUser
 					: " U.PERSONAL_BIRTHDAY IS NOT NULL AND ")
 						. "(" . $sqlHelper->formatDate('MM-DD', 'U.PERSONAL_BIRTHDAY')
 						. $strOperation . " '".$DB->ForSql($val)."')";
-			$db_sub_res = $DB->Query($subQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_sub_res = $DB->Query($subQuery);
 			$arUserID = array();
 			if ($db_sub_res)
 			{
@@ -241,7 +241,7 @@ class CForumUser extends CAllForumUser
 					" FROM b_forum_user FU LEFT JOIN b_user U ON (FU.USER_ID = U.ID)"
 				).
 				" WHERE 1 = 1 ".$strSqlSearch;
-			$db_res = $DB->Query($strSqlCount, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSqlCount);
 			if ($db_res && ($res = $db_res->Fetch()))
 				$iCnt = $res["CNT"];
 
@@ -250,7 +250,7 @@ class CForumUser extends CAllForumUser
 		}
 		else
 		{
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 		return $db_res;
 	}
@@ -508,7 +508,7 @@ class CForumUser extends CAllForumUser
 					".$strSqlSearch."
 					".$strSqlGroup."
 					".$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -573,7 +573,7 @@ class CForumUser extends CAllForumUser
 		if ((isset($arAddParams["bCount"]) && $arAddParams["bCount"]) || is_set($arAddParams, "bDescPageNumbering"))
 		{
 			$strSql = "SELECT COUNT(U.ID) AS CNT FROM b_user U LEFT JOIN b_forum_user F ON (F.USER_ID = U.ID) WHERE ".$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = ($db_res && ($res = $db_res->Fetch()) ? intval($res["CNT"]) : 0);
 			if (isset($arAddParams["bCount"]) && $arAddParams["bCount"])
 				return $iCnt;
@@ -595,7 +595,7 @@ class CForumUser extends CAllForumUser
 		} else {
 			if ($arAddParams["nTopCount"] > 0)
 				$strSql .= " LIMIT 0,".$arAddParams["nTopCount"];
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 
 		return $db_res;
@@ -636,11 +636,11 @@ class CForumUser extends CAllForumUser
 				),
 				array(
 					$userTablePrefix."NAME",
-					"case when (LENGTH(TRIM(".$userTablePrefix."LAST_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction($userTablePrefix.'LAST_NAME', ',') . ")",
+					"case when LENGTH(TRIM(".$userTablePrefix."LAST_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction($userTablePrefix.'LAST_NAME', "','") . " END",
 					$userTablePrefix."LAST_NAME",
 					$userTablePrefix."SECOND_NAME",
-					"case when (LENGTH(TRIM(".$userTablePrefix."NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."NAME,1,1", '.'),
-					"case when (LENGTH(TRIM(".$userTablePrefix."SECOND_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."SECOND_NAME,1,1", '.')
+					"case when LENGTH(TRIM(".$userTablePrefix."NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."NAME,1,1)", "'.'") . " END",
+					"case when LENGTH(TRIM(".$userTablePrefix."SECOND_NAME)) <= 0 then '' else " . $sqlHelper->getConcatFunction("SUBSTRING(".$userTablePrefix."SECOND_NAME,1,1)", "'.'") . " END"
 				),
 				$val
 			);
@@ -707,13 +707,13 @@ class CForumRank extends CAllForumRank
 
 		$arInsert = $DB->PrepareInsert("b_forum_rank", $arFields);
 		$strSql = "INSERT INTO b_forum_rank(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		$ID = intval($DB->LastID());
 		foreach ($arFields["LANG"] as $i => $val)
 		{
 			$arInsert = $DB->PrepareInsert("b_forum_rank_lang", $arFields["LANG"][$i]);
 			$strSql = "INSERT INTO b_forum_rank_lang(RANK_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		return $ID;
 	}
@@ -857,7 +857,7 @@ class CForumStat extends CALLForumStat
 			"LEFT JOIN b_user U ON (FST.USER_ID = U.ID) ".
 			$strSqlOrder;
 		}
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 }

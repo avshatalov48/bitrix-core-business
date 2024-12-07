@@ -18,9 +18,6 @@ class Details extends Entity
 
 		$dataXml = $this->apiCaller->sendRequest("GeteBayDetails", $data);
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$dataXml = Encoding::convertEncoding($dataXml, 'UTF-8', SITE_CHARSET);
-
 		$result = Xml2Array::convert($dataXml);
 		return $result;
 	}

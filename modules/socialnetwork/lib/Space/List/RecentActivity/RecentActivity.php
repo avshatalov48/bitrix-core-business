@@ -2,6 +2,8 @@
 
 namespace Bitrix\Socialnetwork\Space\List\RecentActivity;
 
+use Bitrix\Main\ORM\Query\Filter\ConditionTree;
+use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\Collection;
 use Bitrix\Socialnetwork\Internals\Space\RecentActivity\SpaceUserRecentActivityTable;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Item\RecentActivityData;
@@ -15,6 +17,7 @@ final class RecentActivity
 			'SPACE_ID' => $recentActivityData->getSpaceId(),
 			'TYPE_ID' => $recentActivityData->getTypeId(),
 			'ENTITY_ID' => $recentActivityData->getEntityId(),
+			'SECONDARY_ENTITY_ID' => $recentActivityData->getSecondaryEntityId(),
 			'DATETIME' => $recentActivityData->getDateTime(),
 		];
 
@@ -38,23 +41,74 @@ final class RecentActivity
 		return $id > 0 ? $id : null;
 	}
 
-	public function delete(array $idsToDelete): void
+	public function deleteMulti(array $idsToDelete): void
 	{
-		SpaceUserRecentActivityTable::deleteByFilter([
-			'ID' => $idsToDelete,
-		]);
+		$idChunks = array_chunk($idsToDelete, 500);
+
+		foreach ($idChunks as $idChunk)
+		{
+			SpaceUserRecentActivityTable::deleteByFilter(['ID' => $idChunk]);
+		}
 	}
 
-	public function getIdsToDelete(int $userId, string $typeId, int $entityId): array
+	public function getIdsToDeleteByUserId(int $userId, string $typeId, int $entityId): array
 	{
-		$result = SpaceUserRecentActivityTable::query()
+		$query = SpaceUserRecentActivityTable::query()
 			->setSelect(['ID'])
 			->where('USER_ID', $userId)
-			->where('TYPE_ID', $typeId)
-			->where('ENTITY_ID', $entityId)
-			->exec()
-			->fetchAll()
 		;
+
+		$this->prepareToDeleteQuery($query, $typeId, $entityId);
+
+		$result = $query->fetchAll();
+
+		$result = array_map(fn($item) => $item['ID'], $result);
+		Collection::normalizeArrayValuesByInt($result);
+
+		return $result;
+	}
+
+	private function prepareToDeleteQuery(Query $query, string $typeId, int $entityId): void
+	{
+		if (array_key_exists($typeId, Dictionary::COMMON_TO_COMMENT_ENTITY_TYPE))
+		{
+			$commonCondition = Query::filter()
+				->where('TYPE_ID', $typeId)
+				->where('ENTITY_ID', $entityId)
+			;
+			$secondaryCondition = Query::filter()
+				->where('TYPE_ID', Dictionary::COMMON_TO_COMMENT_ENTITY_TYPE[$typeId])
+				->where('SECONDARY_ENTITY_ID', $entityId)
+			;
+
+			$query
+				->where(
+					Query::filter()
+						->logic(ConditionTree::LOGIC_OR)
+						->where($commonCondition)
+						->where($secondaryCondition)
+				)
+			;
+		}
+		else
+		{
+			$query
+				->where('TYPE_ID', $typeId)
+				->where('ENTITY_ID', $entityId)
+			;
+		}
+	}
+
+	public function getIdsToDeleteBySpaceId(int $spaceId, string $typeId, int $entityId): array
+	{
+		$query = SpaceUserRecentActivityTable::query()
+			->setSelect(['ID'])
+			->where('SPACE_ID', $spaceId)
+		;
+
+		$this->prepareToDeleteQuery($query, $typeId, $entityId);
+
+		$result = $query->fetchAll();
 
 		$result = array_map(fn($item) => $item['ID'], $result);
 		Collection::normalizeArrayValuesByInt($result);
@@ -79,20 +133,19 @@ final class RecentActivity
 				->setUserId($userId)
 		;
 
-		if (!empty($queryResult))
-		{
-			$recentActivityData
-				->setId($queryResult['ID'] ?? null)
-				->setTypeId($queryResult['TYPE_ID'] ?? null)
-				->setEntityId($queryResult['ENTITY_ID'] ?? null)
-				->setDateTime($queryResult['DATETIME'] ?? null)
-			;
-
-			return $recentActivityData;
-		}
-		else
+		if (empty($queryResult))
 		{
 			return null;
 		}
+
+		$recentActivityData
+			->setId($queryResult['ID'] ?? null)
+			->setTypeId($queryResult['TYPE_ID'] ?? null)
+			->setEntityId($queryResult['ENTITY_ID'] ?? null)
+			->setDateTime($queryResult['DATETIME'] ?? null)
+			->setSecondaryEntityId($queryResult['SECONDARY_ENTITY_ID'] ?? null)
+		;
+
+		return $recentActivityData;
 	}
 }

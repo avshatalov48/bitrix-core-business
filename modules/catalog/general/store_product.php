@@ -76,7 +76,7 @@ class CCatalogStoreProductAll
 		if ($strUpdate !== '')
 		{
 			$strSql = "UPDATE b_catalog_store_product SET " . $strUpdate . " WHERE ID = " . $id;
-			$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$DB->Query($strSql);
 		}
 
 		foreach (GetModuleEvents("catalog", "OnStoreProductUpdate", true) as $arEvent)

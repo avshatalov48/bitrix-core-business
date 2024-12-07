@@ -59,7 +59,7 @@ class ObjectField extends ScalarField
 
 		foreach ($classes as $class)
 		{
-			if (substr($class, 0, 1) !== '\\')
+			if (!str_starts_with($class, '\\'))
 			{
 				$class = '\\'.$class;
 			}

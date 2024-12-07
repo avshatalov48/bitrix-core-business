@@ -10,7 +10,6 @@ namespace Bitrix\Main\UI\AccessRights\Entity;
 
 
 use Bitrix\Main\Access\AccessCode;
-use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\WorkgroupTable;
 
 class SocnetGroup extends EntityBase

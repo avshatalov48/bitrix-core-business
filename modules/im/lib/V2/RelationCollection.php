@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2;
 
 use Bitrix\Im\Model\RelationTable;
+use Bitrix\Im\V2\Chat\OpenLineLiveChat;
 use Bitrix\Im\V2\Entity\User\UserCollection;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Main\ORM\Query\Query;
@@ -15,11 +16,26 @@ use Bitrix\Main\UserTable;
  */
 class RelationCollection extends Collection
 {
-	public const COMMON_FIELDS = ['ID', 'MESSAGE_TYPE', 'CHAT_ID', 'USER_ID', 'START_ID', 'LAST_FILE_ID', 'LAST_ID', 'UNREAD_ID', 'NOTIFY_BLOCK', 'MANAGER'];
+	public const COMMON_FIELDS = [
+		'ID',
+		'MESSAGE_TYPE',
+		'CHAT_ID',
+		'USER_ID',
+		'START_ID',
+		'LAST_FILE_ID',
+		'LAST_ID',
+		'LAST_SEND_MESSAGE_ID',
+		'UNREAD_ID',
+		'NOTIFY_BLOCK',
+		'MANAGER',
+		'REASON',
+	];
 
 	protected static array $startIdStaticCache = [];
 
 	protected array $relationsByUserId = [];
+	protected ?self $activeOnly = null;
+	protected ?self $notifyOnly = null;
 
 	public static function getCollectionElementClass(): string
 	{
@@ -43,7 +59,27 @@ class RelationCollection extends Collection
 
 		static::processFilters($query, $filter, $order);
 
-		return new static($query->fetchCollection());
+		return new static($query->fetchAll());
+	}
+
+	public static function createFake(array $userIds, Chat $chat): self
+	{
+		$relations = new static();
+
+		foreach ($userIds as $userId)
+		{
+			$relation = new Relation();
+			$relation
+				->setId(0)
+				->setUserId($userId)
+				->setChatId($chat->getId())
+				->setMessageType($chat->getType())
+				->setNotifyBlock(false)
+			;
+			$relations->add($relation);
+		}
+
+		return $relations;
 	}
 
 	public static function getStartId(int $userId, int $chatId): int
@@ -66,6 +102,47 @@ class RelationCollection extends Collection
 	public function getByUserId(int $userId, int $chatId): ?Relation
 	{
 		return $this->relationsByUserId[$chatId][$userId] ?? null;
+	}
+
+	public function filterActive(): self
+	{
+		if (isset($this->activeOnly))
+		{
+			return $this->activeOnly;
+		}
+
+		$this->activeOnly = new static();
+
+		foreach ($this as $relation)
+		{
+			$isLiveChat = $relation->getChat() instanceof OpenLineLiveChat;
+			if ($relation->getUser()->isActive() && ($isLiveChat || !$relation->getUser()->isConnector()))
+			{
+				$this->activeOnly->add($relation);
+			}
+		}
+
+		return $this->activeOnly;
+	}
+
+	public function filterNotifySubscribed(): self
+	{
+		if (isset($this->notifyOnly))
+		{
+			return $this->notifyOnly;
+		}
+
+		$this->notifyOnly = new static();
+
+		foreach ($this as $relation)
+		{
+			if (!($relation->getNotifyBlock() ?? false))
+			{
+				$this->notifyOnly->add($relation);
+			}
+		}
+
+		return $this->notifyOnly;
 	}
 
 	public function hasUser(int $userId, int $chatId): bool
@@ -173,6 +250,11 @@ class RelationCollection extends Collection
 					->whereNull('USER.EXTERNAL_AUTH_ID')
 			);
 		}
+
+		if (isset($filter['REASON']))
+		{
+			$query->where('REASON', (string)$filter['REASON']);
+		}
 	}
 
 	public function offsetSet($key, $value): void
@@ -188,5 +270,14 @@ class RelationCollection extends Collection
 				static::$startIdStaticCache[$value->getChatId()][$value->getUserId()] = $value->getStartId();
 			}
 		}
+
+		$this->activeOnly = null;
+	}
+
+	public function offsetUnset(mixed $key)
+	{
+		parent::offsetUnset($key);
+
+		$this->activeOnly = null;
 	}
 }

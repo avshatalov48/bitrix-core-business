@@ -235,7 +235,7 @@ class IblockCatalogPermissionsSaver
 		$usedAccessCodes = [];
 		$iblockRights = new CIBlockRights($iblockId);
 		$isNeedResetIblockRights = false;
-		
+
 		$rights = $iblockRights->GetRights();
 		foreach ($rights as $id => &$right)
 		{
@@ -244,7 +244,7 @@ class IblockCatalogPermissionsSaver
 			{
 				unset($rights[$id]);
 				$isNeedResetIblockRights = true;
-				
+
 				continue;
 			}
 
@@ -315,7 +315,7 @@ class IblockCatalogPermissionsSaver
 					'LETTER',
 				],
 				'filter' => [
-					'MODULE_ID' => 'iblock',
+					'=MODULE_ID' => 'iblock',
 				],
 			]);
 			$iblockTasks = array_column($rows->fetchAll(), 'ID', 'LETTER');
@@ -545,7 +545,7 @@ class IblockCatalogPermissionsSaver
 	private static function getShopGroupIdByType(string $type): ?int
 	{
 		$group = GroupTable::getRow([
-			'filter' => ['STRING_ID' => $type],
+			'filter' => ['=STRING_ID' => $type],
 			'select' => ['ID']
 		]);
 

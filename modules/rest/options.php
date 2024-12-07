@@ -4,6 +4,7 @@ $module_id = 'rest';
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Rest\Tools\Diagnostics\LoggerManager;
 
 if (!Loader::includeModule($module_id))
 {
@@ -145,11 +146,13 @@ if ($Apply.$RestoreDefaults <> '' && \check_bitrix_sessid())
 			$ACTIVE = intval($_REQUEST['ACTIVE']);
 			if ($ACTIVE > 0 && $ACTIVE <= 86400)
 			{
-				\COption::setOptionString($module_id, 'log_end_time', time() + $ACTIVE);
+				LoggerManager::getInstance()->setEndTimeLogging(time() + $ACTIVE);
+				LoggerManager::getInstance()->setLevel('info');
+				LoggerManager::getInstance()->setType('db');
 			}
 			else
 			{
-				\COption::removeOption($module_id, 'log_end_time');
+				LoggerManager::getInstance()->deactivate();
 			}
 		}
 
@@ -162,7 +165,8 @@ if ($Apply.$RestoreDefaults <> '' && \check_bitrix_sessid())
 				$filters[$option["CODE"]] = $val;
 			}
 		}
-		\COption::setOptionString($module_id, "log_filters", serialize($filters));
+
+		LoggerManager::getInstance()->setFilterOptions($filters);
 	}
 
 	\LocalRedirect(

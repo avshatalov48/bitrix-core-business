@@ -56,7 +56,7 @@ class CIMConvert
 				if (!empty($arUsers))
 				{
 					$strSql = "SELECT ITEM_ID FROM b_im_recent WHERE USER_ID = ".$USER->GetId()." AND ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND ITEM_ID IN (".implode(',', $arUsers).")";
-					$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$dbRes = $DB->Query($strSql);
 					while ($arRes = $dbRes->Fetch())
 						unset($arInsert[$arRes['ITEM_ID']]);
 				}
@@ -108,7 +108,7 @@ class CIMConvert
 							AND ITEM_TYPE = '".$massageType."'
 							AND ITEM_ID IN (".implode(',', $arChats).")
 					";
-					$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$dbRes = $DB->Query($strSql);
 					while ($arRes = $dbRes->Fetch())
 						unset($arInsert[$arRes['ITEM_ID']]);
 				}

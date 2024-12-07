@@ -588,9 +588,9 @@ if (!function_exists('__SLEGetLogRecord'))
 
 					if (strcasecmp(LANGUAGE_ID, 'EN') !== 0 && strcasecmp(LANGUAGE_ID, 'DE') !== 0)
 					{
-						$dateTimeFormated = ToLower($dateTimeFormated);
-						$dateFormated = ToLower($dateFormated);
-						$timeFormated =  ToLower($timeFormated);
+						$dateTimeFormated = mb_strtolower($dateTimeFormated);
+						$dateFormated = mb_strtolower($dateFormated);
+						$timeFormated =  mb_strtolower($timeFormated);
 					}
 					// strip current year
 					if (!empty($arParams['DATE_TIME_FORMAT']) && ($arParams['DATE_TIME_FORMAT'] == 'j F Y G:i' || $arParams['DATE_TIME_FORMAT'] == 'j F Y g:i a'))

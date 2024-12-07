@@ -8,7 +8,6 @@ import { TileList } from './tile-list';
 import { ErrorPopup } from './error-popup';
 import { DragOverMixin } from '../mixins/drag-over-mixin';
 
-import type { UploaderFileInfo } from 'ui.uploader.core';
 import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { PopupOptions } from 'main.popup';
 
@@ -30,7 +29,7 @@ export const TileWidgetComponent: BitrixVueComponentProps = {
 		return {
 			isMounted: false,
 			autoCollapse: false,
-		}
+		};
 	},
 	computed: {
 		errorPopupOptions(): PopupOptions
@@ -58,27 +57,20 @@ export const TileWidgetComponent: BitrixVueComponentProps = {
 				[TileWidgetSlot.AFTER_TILE_LIST]: slots[TileWidgetSlot.AFTER_TILE_LIST],
 				[TileWidgetSlot.BEFORE_DROP_AREA]: slots[TileWidgetSlot.BEFORE_DROP_AREA],
 				[TileWidgetSlot.AFTER_DROP_AREA]: slots[TileWidgetSlot.AFTER_DROP_AREA],
-			}
-		}
+			};
+		},
+		enableDropzone(): boolean
+		{
+			return this.widgetOptions.enableDropzone !== false;
+		},
 	},
 	created(): void
 	{
-		this.autoCollapse =
+		this.autoCollapse = (
 			Type.isBoolean(this.widgetOptions.autoCollapse)
 				? this.widgetOptions.autoCollapse
 				: this.items.length > 0
-		;
-
-		// Current Items
-		this.items.forEach(item => {
-			item['tileWidgetData'] = {};
-		});
-
-		// New Items
-		this.adapter.subscribe('Item:onBeforeAdd', (event: BaseEvent): void => {
-			const item: UploaderFileInfo = event.getData().item;
-			item['tileWidgetData'] = {};
-		});
+		);
 
 		this.adapter.subscribe('Item:onAdd', (event: BaseEvent): void => {
 			this.uploaderError = null;
@@ -90,7 +82,11 @@ export const TileWidgetComponent: BitrixVueComponentProps = {
 	},
 	mounted(): void
 	{
-		this.uploader.assignDropzone(this.$refs.container);
+		if (this.enableDropzone)
+		{
+			this.uploader.assignDropzone(this.$refs.container);
+		}
+
 		this.isMounted = true;
 	},
 	methods: {
@@ -110,11 +106,11 @@ export const TileWidgetComponent: BitrixVueComponentProps = {
 			{
 				this.uploaderError = null;
 			}
-		}
+		},
 	},
 	// language=Vue
 	template: `
-		<div class="ui-tile-uploader" ref="container" v-drop>
+		<div class="ui-tile-uploader" ref="container" v-drop="enableDropzone">
 			<component :is="slots[TileWidgetSlot.BEFORE_TILE_LIST]"></component>
 			<TileList 
 				v-if="items.length !== 0" 
@@ -134,5 +130,5 @@ export const TileWidgetComponent: BitrixVueComponentProps = {
 			:popup-options="errorPopupOptions"
 			@onDestroy="handlePopupDestroy"
 		/>
-	`
+	`,
 };

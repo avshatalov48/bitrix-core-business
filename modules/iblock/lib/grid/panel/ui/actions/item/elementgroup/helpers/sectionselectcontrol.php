@@ -29,16 +29,24 @@ trait SectionSelectControl
 			$this->sectionTree = [];
 
 			$rows = CIBlockSection::getTreeList(
-				['IBLOCK_ID' => $this->getIblockId()],
-				['ID', 'NAME', 'DEPTH_LEVEL']
+				[
+					'IBLOCK_ID' => $this->getIblockId(),
+				],
+				[
+					'ID',
+					'NAME',
+					'DEPTH_LEVEL',
+				]
 			);
 			while ($row = $rows->Fetch())
 			{
+				$margin = max((int)$row['DEPTH_LEVEL'], 1);
 				$this->sectionTree[] = [
-					'NAME' => str_repeat(' . ', $row['DEPTH_LEVEL']) . $row['NAME'],
+					'NAME' => str_repeat(' . ', $margin) . $row['NAME'],
 					'VALUE' => (int)$row['ID'],
 				];
 			}
+			unset($row, $rows);
 		}
 
 		array_push($dropdownSectionItems, ...$this->sectionTree);

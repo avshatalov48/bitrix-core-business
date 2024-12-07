@@ -567,7 +567,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 		{
 			$settings['PAYMENT_TYPE']['ITEMS'][$type] = array(
 				'TYPE' => 'STRING',
-				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE_LABEL_'.ToUpper($type)),
+				'LABEL' => Localization\Loc::getMessage('SALE_CASHBOX_ATOL_FARM_SETTINGS_P_TYPE_LABEL_'.mb_strtoupper($type)),
 				'VALUE' => $value
 			);
 		}
@@ -711,7 +711,7 @@ class CashboxAtolFarm extends Cashbox implements IPrintImmediately, ICheckable
 	 */
 	private function getOptionName()
 	{
-		return static::getOptionPrefix() . '_' .ToLower($this->getField('NUMBER_KKM'));
+		return static::getOptionPrefix() . '_' .mb_strtolower($this->getField('NUMBER_KKM'));
 	}
 
 	/**

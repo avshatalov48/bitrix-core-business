@@ -47,7 +47,7 @@ elseif(!empty($arResult["Post"])>0)
 	 * GetMessage("IDEA_STATUS_COMPLETED"); GetMessage("IDEA_STATUS_NEW"); GetMessage("IDEA_STATUS_PROCESSING");
 	 * */
 	$arStatusList = CIdeaManagment::getInstance()->Idea()->GetStatusList();
-	$status = GetMessage("IDEA_STATUS_".ToUpper($arStatusList[$arResult["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
+	$status = GetMessage("IDEA_STATUS_".mb_strtoupper($arStatusList[$arResult["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
 	if($status == '')
 		$status = $arStatusList[$arResult["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["VALUE"];
 	if($arParams["SHOW_RATING"] == "Y"):?>
@@ -82,7 +82,7 @@ elseif(!empty($arResult["Post"])>0)
 		<div class="blog-qtr">
 			<div class="blog-idea-body">
 				<div class="idea-owner">
-					<div class="bx-idea-condition-description status-color-<?=ToLower($arStatusList[$arResult["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
+					<div class="bx-idea-condition-description status-color-<?=mb_strtolower($arStatusList[$arResult["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
 						<div <?if($arResult["IDEA_MODERATOR"]):?>class="status-action idea-action-cursor" onclick="JSPublicIdea.ShowStatusDialog(this, '<?=$arResult["Post"]["ID"]?>');" id="status-<?=$arResult["Post"]["ID"]?>"<?endif;?>><?=htmlspecialcharsbx($status)?></div>
 					</div>
 					<?=GetMessage("IDEA_INTRODUCED_TITLE")?> <img class="idea-user-avatar" src="<?=$arResult["AUTHOR_AVATAR"][$arResult["arUser"]["ID"]]["src"]?>" align="top">
@@ -287,7 +287,7 @@ else
 	</div>
 	<div class="tag-tbl"><div class="tag-tbr"><div class="tag-tbb"></div></div></div>
 <?endif;?>
-<script type="text/javascript">
+<script>
 	BX.viewElementBind(
 		'blog-post-<?=$arParams["ID"]?>',
 		{showTitle: true},

@@ -398,6 +398,7 @@ class UserUtils
 			if(
 				!isset($userTypeMap[$userField['USER_TYPE_ID']])
 				|| $userField['EDIT_IN_LIST'] === "N"
+				|| $userField['IS_SEARCHABLE'] !== 'Y'
 			)
 			{
 				unset($ufList[$key]);

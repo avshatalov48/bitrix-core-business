@@ -1,6 +1,0 @@
-<?
-$sSectionName = "Resumes";
-$arDirProperties = Array(
-
-);
-?>

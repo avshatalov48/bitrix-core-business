@@ -1,4 +1,5 @@
 <?
+
 global $DB, $MESS, $APPLICATION;
 
 IncludeModuleLangFile(__FILE__);

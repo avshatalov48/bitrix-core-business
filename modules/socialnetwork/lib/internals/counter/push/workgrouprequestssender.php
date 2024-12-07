@@ -125,7 +125,7 @@ class WorkgroupRequestsSender
 				->setFilter([
 					'@ROLE' => $roleFilterValue,
 					'GROUP_ID' => (int)$workgroupFields['ID'],
-					'USER.ACTIVE' => true,
+					'=USER.ACTIVE' => 'Y'
 				])
 				->exec();
 

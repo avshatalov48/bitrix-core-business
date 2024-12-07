@@ -71,7 +71,7 @@ class CrmSiteMasterTemplate extends \CWizardTemplate
 			}
 
 			$strJsError = '
-			<script type="text/javascript">
+			<script>
 				ShowWarnings(['.$strJsError.']);
 			</script>';
 		}
@@ -115,7 +115,7 @@ class CrmSiteMasterTemplate extends \CWizardTemplate
 		$sessidPost = bitrix_sessid_post();
 
 		return <<<HTML
-<script type="text/javascript">
+<script>
 	function OnLoad()
 	{
 		var form = document.forms["{$formName}"];

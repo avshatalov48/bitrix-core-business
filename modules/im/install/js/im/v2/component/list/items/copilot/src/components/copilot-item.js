@@ -2,7 +2,7 @@ import 'main.date';
 
 import { Core } from 'im.v2.application.core';
 import { Settings, Layout } from 'im.v2.const';
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 
 import { MessageText } from './message-text';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
@@ -15,7 +15,7 @@ import type { ImModelRecentItem, ImModelChat, ImModelMessage } from 'im.v2.model
 // @vue/component
 export const CopilotItem = {
 	name: 'CopilotItem',
-	components: { Avatar, ChatTitle, MessageText },
+	components: { ChatAvatar, ChatTitle, MessageText },
 	props:
 	{
 		item: {
@@ -118,7 +118,12 @@ export const CopilotItem = {
 			<div :class="itemClasses" class="bx-im-list-copilot-item__container">
 				<div class="bx-im-list-copilot-item__avatar_container">
 					<div class="bx-im-list-copilot-item__avatar_content">
-						<div class="bx-im-list-copilot-item__avatar_icon"></div>
+						<ChatAvatar
+							:avatarDialogId="recentItem.dialogId"
+							:contextDialogId="recentItem.dialogId"
+							:withSpecialTypes="false"
+							:size="AvatarSize.XL"
+						/>
 						<div v-if="isSomeoneTyping" class="bx-im-list-copilot-item__avatar_typing"></div>
 					</div>
 				</div>

@@ -185,7 +185,7 @@ if (!isset($_SESSION[$arParams['NAME']][$arParams['IBLOCK_ID']]))
 *************************************************************************/
 if (isset($_REQUEST[$arParams['ACTION_VARIABLE']]))
 {
-	switch (ToUpper($_REQUEST[$arParams['ACTION_VARIABLE']]))
+	switch (mb_strtoupper($_REQUEST[$arParams['ACTION_VARIABLE']]))
 	{
 		case "ADD_TO_COMPARE_LIST":
 		case "ADD_TO_COMPARE_RESULT":

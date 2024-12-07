@@ -340,6 +340,23 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					{
 						continue;
 					}
+					
+					if (
+						in_array(
+							$handler, 
+							[
+								'\Bitrix\Sale\Cashbox\CashboxBitrixV2',
+								'\Bitrix\Sale\Cashbox\CashboxBitrixV3',
+								'\Bitrix\Sale\Cashbox\CashboxBitrix',
+							],
+						)
+					)
+					{
+						if ($id === 0 || ($id > 0 && $handler !== $cashbox['HANDLER']))
+						{
+							continue;
+						}
+					}
 
 					if (Cashbox\Manager::isPaySystemCashbox($handler))
 					{
@@ -377,7 +394,7 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 						$restHandlers = Cashbox\Manager::getRestHandlersList();
 						foreach ($restHandlers as $restHandlerCode => $restHandlerConfig)
 						{
-							$selected = ($restHandlerCode === $cashbox['SETTINGS']['REST']['REST_CODE']) ? 'selected' : '';
+							$selected = ($restHandlerCode === ($cashbox['SETTINGS']['REST']['REST_CODE'] ?? '')) ? 'selected' : '';
 							echo '<option data-rest-code="'.htmlspecialcharsbx($restHandlerCode).'" value="'.htmlspecialcharsbx($handler).'" '.$selected.'>'.htmlspecialcharsbx($restHandlerConfig['NAME']).'</option>';
 						}
 					}
@@ -403,7 +420,7 @@ $tabControl->BeginCustomField('HANDLER', GetMessage("SALE_CASHBOX_HANDLER"));
 					<?php
 					if ($cashboxObject)
 					{
-						$handlerHint = Loc::getMessage('SALE_CASHBOX_'.ToUpper($cashboxObject::getCode()).'_HINT');
+						$handlerHint = Loc::getMessage('SALE_CASHBOX_'.mb_strtoupper($cashboxObject::getCode()).'_HINT');
 						if ($handlerHint)
 						{
 						?>
@@ -601,7 +618,7 @@ $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_u
 
 $tabControl->Show();
 ?>
-<script language="JavaScript">
+<script>
 
 	BX.message({
 		CASHBOX_CHECK_CONNECTION_TITLE: '<?=Loc::getMessage("CASHBOX_CHECK_CONNECTION_TITLE")?>',

@@ -18,6 +18,8 @@ use Bitrix\Socialnetwork\Livefeed;
 
 class UserContentView
 {
+	private static array $viewDataCache = [];
+	
 	public static function getAvailability()
 	{
 		static $result = null;
@@ -66,6 +68,13 @@ class UserContentView
 		{
 			$contentId = [ $contentId ];
 		}
+		
+		$cacheKey = self::generateViewDataCacheKey($contentId);
+		
+		if (isset(self::$viewDataCache[$cacheKey]))
+		{
+			return self::$viewDataCache[$cacheKey];
+		}
 
 		$res = UserContentViewTable::getList([
 			'filter' => [
@@ -82,6 +91,8 @@ class UserContentView
 		{
 			$result[$content['CONTENT_ID']] = $content;
 		}
+		
+		self::$viewDataCache[$cacheKey] = $result;
 
 		return $result;
 	}
@@ -435,5 +446,10 @@ TODO: https://bitrix24.team/company/personal/user/15/tasks/task/view/167281/
 		$entityId = (int)$tmp[1];
 
 		return [ $entityType, $entityId ];
+	}
+	
+	private static function generateViewDataCacheKey(array $params): string
+	{
+		return md5(serialize($params));
 	}
 }

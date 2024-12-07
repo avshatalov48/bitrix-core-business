@@ -529,9 +529,15 @@ Class CIdeaManagmentSonetNotify
 
 		$arNotification = $this->Notify->getNotification();
 		if($arNotification["TYPE"] == 'IDEA')
-			return $this->RemoveMessage();
+		{
+			$this->RemoveMessage();
+			return null;
+		}
 		elseif($arNotification["TYPE"] == 'IDEA_COMMENT')
-			return $this->RemoveComment();
+		{
+			$this->RemoveComment();
+			return null;
+		}
 
 		return false;
 	}

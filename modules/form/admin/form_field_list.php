@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -72,8 +72,8 @@ else define("HELP_FILE","form_field_list.php");
 $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$copy_id = intval($copy_id);
-if (intval($copy_id)>0 && $F_RIGHT >= 30 && check_bitrix_sessid())
+$copy_id = intval($_REQUEST['copy_id'] ?? 0);
+if ($copy_id > 0 && $F_RIGHT >= 30 && check_bitrix_sessid())
 {
 	$new_id = CFormField::Copy($copy_id);
 	LocalRedirect("form_field_list.php?lang=".LANGUAGE_ID."&WEB_FORM_ID=$WEB_FORM_ID&additional=$additional");

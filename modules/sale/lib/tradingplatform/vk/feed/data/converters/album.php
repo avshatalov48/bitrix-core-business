@@ -47,7 +47,7 @@ class Album extends DataConverter
 		$this->result["IBLOCK_ID"] = $data["IBLOCK_ID"];
 		$this->result["TITLE"] = $data["TO_ALBUM_ALIAS"] ? $data["TO_ALBUM_ALIAS"] : $data["NAME"];
 		$this->result["TITLE"] = $this->validateTitle($this->result['TITLE'], $logger);
-		$this->result["TITLE"] = self::convertToUtf8($this->result["TITLE"]);
+		$this->result["TITLE"] = $this->result["TITLE"];
 //		add only checked photos
 		$sortedPhotos = Vk\PhotoResizer::sortPhotoArray(
 			array($data["PICTURE"], $data["DETAIL_PICTURE"]),

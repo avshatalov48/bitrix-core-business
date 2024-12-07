@@ -3,6 +3,7 @@
 use Bitrix\Calendar\Core;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Main;
+use Bitrix\Calendar\Sharing\Notification\Mail;
 use Bitrix\Main\Localization\Loc;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -30,6 +31,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  * BITRIX24_LINK
  *
  * Sharing only params:
+ * OWNER_AVATAR
+ * OWNER_NAME
  * WHO_CANCELLED
  * WHEN_CANCELLED
  * VIDEOCONFERENCE_LINK
@@ -43,9 +46,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 class CalendarSharingMailComponent extends CBitrixComponent
 {
-	protected const MEETING_STATUS_CREATED = 'created';
-	protected const MEETING_STATUS_CANCELLED = 'cancelled';
-
 	protected const MEETING_STATUS_EVENT = 'event';
 	protected const MEETING_STATUS_EVENT_CANCELLED = 'event_cancelled';
 	protected const EVENT_STATUSES = [
@@ -57,9 +57,18 @@ class CalendarSharingMailComponent extends CBitrixComponent
 	{
 		Sharing\Helper::setSiteLanguage();
 
-		$this->prepareButtons();
-		$this->prepareDateParams();
-		$this->prepareStatusParams();
+		if ($this->arParams['STATUS'] === Mail::STATUS_INVITE_LINK)
+		{
+			$this->arResult['IS_SEND_LINK'] = true;
+		}
+		else
+		{
+			$this->arResult['IS_SEND_LINK'] = false;
+			$this->prepareButtons();
+			$this->prepareDateParams();
+			$this->prepareStatusParams();
+		}
+
 		$this->prepareAvatars();
 		$this->prepareImages();
 
@@ -70,11 +79,11 @@ class CalendarSharingMailComponent extends CBitrixComponent
 	{
 		$status = $this->arParams['STATUS'];
 		$isEvent = $status === self::MEETING_STATUS_EVENT;
-		$isCreated = $status === self::MEETING_STATUS_CREATED;
-		$isCancelled = $status === self::MEETING_STATUS_CANCELLED;
+		$isCreated = $status === Mail::MEETING_STATUS_CREATED;
+		$isCancelled = $status === Mail::MEETING_STATUS_CANCELLED;
 		$this->arResult['IS_EVENT_STATUS'] = in_array($status, self::EVENT_STATUSES, true);
 
-		$ownerStatus = $this->arParams['OWNER_STATUS'];
+		$ownerStatus = $this->arParams['OWNER_STATUS'] ?? null;
 
 		$this->arResult['SHOW_DETAIL_BUTTON'] = !empty($this->arParams['DETAIL_LINK']) && $status !== self::MEETING_STATUS_EVENT_CANCELLED;
 		$this->arResult['SHOW_CANCEL_LINK'] = !empty($this->arParams['CANCEL_LINK']);
@@ -135,18 +144,18 @@ class CalendarSharingMailComponent extends CBitrixComponent
 
 		$this->arParams['ICON'] = $this->getImagesPath() . 'calendar-sharing-email-icon-success.png';
 
-		if ($status === self::MEETING_STATUS_CREATED)
+		if ($status === Mail::MEETING_STATUS_CREATED)
 		{
 			$this->arParams['LOC_MEETING_STATUS'] = Loc::getMessage('CALENDAR_SHARING_MAIL_TITLE_CREATED');
 		}
 
-		if ($status === self::MEETING_STATUS_CANCELLED)
+		if ($status === Mail::MEETING_STATUS_CANCELLED)
 		{
 			$this->arParams['LOC_MEETING_STATUS'] = Loc::getMessage('CALENDAR_SHARING_MAIL_TITLE_CANCELLED');
 		}
 
 		if (
-			$status === self::MEETING_STATUS_CANCELLED
+			$status === Mail::MEETING_STATUS_CANCELLED
 			|| $status === self::MEETING_STATUS_EVENT_CANCELLED
 			|| ($status === self::MEETING_STATUS_EVENT && $this->arParams['OWNER_STATUS'] === 'N')
 		)
@@ -166,6 +175,11 @@ class CalendarSharingMailComponent extends CBitrixComponent
 
 	protected function prepareAvatars(): void
 	{
+		if (isset($this->arParams['OWNER_AVATAR']))
+		{
+			$this->arParams['OWNER_AVATAR'] = $this->prepareAvatar($this->arParams['OWNER_AVATAR']);
+		}
+
 		if (empty($this->arParams['AVATARS']))
 		{
 			return;

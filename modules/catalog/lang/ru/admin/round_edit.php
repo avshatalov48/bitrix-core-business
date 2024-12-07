@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["PRICE_ROUND_EDIT_TAB_NAME_COMMON"] = "Общие параметры";
 $MESS["PRICE_ROUND_EDIT_TAB_TITLE_COMMON"] = "Общие параметры правила";
 $MESS["PRICE_ROUND_EDIT_TITLE_ADD"] = "Создание правила";
@@ -15,4 +15,3 @@ $MESS["PRICE_ROUND_EDIT_FIELD_PRICE_TYPE"] = "Тип цен:";
 $MESS["PRICE_ROUND_EDIT_FIELD_PRICE"] = "Минимальная цена:";
 $MESS["PRICE_ROUND_EDIT_FIELD_ROUND_TYPE"] = "Тип округления:";
 $MESS["PRICE_ROUND_EDIT_FIELD_ROUND_PRECISION"] = "Точность округления:";
-?>

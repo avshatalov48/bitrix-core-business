@@ -151,7 +151,12 @@ else
 
 <?
 else:
-	CAdminMessage::ShowMessage(GetMessage("STAT_NOT_ENOUGH_DATA"));
+	$message = new CAdminMessage([
+		'MESSAGE' => GetMessage('STAT_NOT_ENOUGH_DATA'),
+		'TYPE' => 'ERROR',
+		'SKIP_PUBLIC_MODE' => true,
+	]);
+	echo $message->Show();
 ?>
 <form><input type="button" onClick="window.close()" value="<?echo GetMessage("STAT_CLOSE")?>"></form>
 <?endif?>

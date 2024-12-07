@@ -64,6 +64,7 @@ class RoboxchangeHandler
 		$additionalUserFields = $this->getAdditionalUserFields($payment, $request);
 
 		$params = [
+			'ROBOXCHANGE_SHOPLOGIN' => $this->getBusinessValue($payment, 'ROBOXCHANGE_SHOPLOGIN'),
 			'URL' => $this->getUrl($payment, 'pay'),
 			'PS_MODE' => self::getHandlerModeAlias($this->service->getField('PS_MODE')),
 			'SIGNATURE_VALUE' => $this->getSignatureValue($payment, $receipt, $additionalUserFields),
@@ -216,7 +217,7 @@ class RoboxchangeHandler
 
 		$hash = md5(implode(':', $signaturePartList));
 
-		return ToUpper($hash) === ToUpper($request->get('SignatureValue'));
+		return mb_strtoupper($hash) === mb_strtoupper($request->get('SignatureValue'));
 	}
 
 	/**
@@ -402,6 +403,8 @@ class RoboxchangeHandler
 
 		$aliases = [
 			'bank_card' => 'BankCard',
+			'widget' => '',
+			'sbp' => 'SBP',
 			'apple_pay' => 'ApplePay',
 			'google_pay' => 'GooglePay',
 			'samsung_pay' => 'SamsungPay',

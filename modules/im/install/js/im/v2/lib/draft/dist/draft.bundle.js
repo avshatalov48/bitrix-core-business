@@ -54,6 +54,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const WRITE_TO_STORAGE_TIMEOUT = 1000;
 	const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
 	const STORAGE_KEY = 'recentDraft';
+	const NOT_AVAILABLE_CHAT_TYPES = new Set([im_v2_const.ChatType.comment]);
 	class DraftManager {
 	  static getInstance() {
 	    if (!DraftManager.instance) {
@@ -74,7 +75,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return;
 	    }
 	    this.inited = true;
-	    const draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+	    let draftHistory = null;
+	    try {
+	      draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+	    } catch (error) {
+	      // eslint-disable-next-line no-console
+	      console.error('DraftManager: error initing draft history', error);
+	      this.initPromiseResolver();
+	      return;
+	    }
 	    this.fillDraftsFromStorage(draftHistory);
 	    im_v2_lib_logger.Logger.warn('DraftManager: initDrafts:', this.drafts);
 	    this.initPromiseResolver();
@@ -133,7 +142,10 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	  }
 	  setRecentItemDraftText(dialogId, text) {
-	    im_v2_application_core.Core.getStore().dispatch(this.getDraftMethodName(), {
+	    if (!this.canSetRecentItemDraftText(dialogId)) {
+	      return;
+	    }
+	    void im_v2_application_core.Core.getStore().dispatch(this.getDraftMethodName(), {
 	      id: dialogId,
 	      text
 	    });
@@ -186,6 +198,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	  getDraftMethodName() {
 	    return 'recent/setRecentDraft';
+	  }
+	  canSetRecentItemDraftText(dialogId) {
+	    const chat = im_v2_application_core.Core.getStore().getters['chats/get'](dialogId);
+	    if (!chat) {
+	      return false;
+	    }
+	    return !NOT_AVAILABLE_CHAT_TYPES.has(chat.type);
 	  }
 	}
 	DraftManager.instance = null;

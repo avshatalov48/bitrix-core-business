@@ -4,8 +4,8 @@ class CBitrixMenuComponent extends CBitrixComponent
 {
 	public function onPrepareComponentParams($arParams)
 	{
-		$arParams["CACHE_TYPE"] = $arParams["MENU_CACHE_TYPE"];
-		$arParams["CACHE_TIME"] = $arParams["MENU_CACHE_TIME"];
+		$arParams["CACHE_TYPE"] = $arParams["MENU_CACHE_TYPE"] ?? '';
+		$arParams["CACHE_TIME"] = $arParams["MENU_CACHE_TIME"] ?? 0;
 		return $arParams;
 	}
 
@@ -17,7 +17,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 		global $USER;
 
 		$strCacheID = "";
-		if($this->arParams["MENU_CACHE_TIME"])
+		if(isset($this->arParams["MENU_CACHE_TIME"]) && $this->arParams["MENU_CACHE_TIME"])
 		{
 			if($this->arParams["CACHE_SELECTED_ITEMS"])
 			{
@@ -90,7 +90,7 @@ class CBitrixMenuComponent extends CBitrixComponent
 				$bDir = false;
 				if(!preg_match("'^(([a-z]+://)|mailto:|javascript:)'i", $arMenu[$menuIndex]["LINK"]))
 				{
-					if(mb_substr($arMenu[$menuIndex]["LINK"], -1) == "/")
+					if(str_ends_with($arMenu[$menuIndex]["LINK"], "/"))
 					{
 						if (!$parentItem || $parentItem['LINK'] !== $arMenu[$menuIndex]["LINK"])
 						{

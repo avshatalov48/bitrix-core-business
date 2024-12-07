@@ -239,7 +239,7 @@ class CAllForumNew
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_forum SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		if (is_array($arFields["SITES"]) && count($arFields["SITES"]) > 0)
@@ -251,7 +251,7 @@ class CAllForumNew
 				$strSql = "INSERT INTO b_forum2site (FORUM_ID, SITE_ID, PATH2FORUM_MESSAGE) VALUES(".$ID.", '".$DB->ForSql($key, 2)."', '".$value."') ";
 				if ($DB->type == "MYSQL")
 					$strSql .= "ON DUPLICATE KEY UPDATE PATH2FORUM_MESSAGE='".$value."'";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -428,7 +428,7 @@ class CAllForumNew
 			else
 			{
 				$strSql = "SELECT FS.FORUM_ID, FS.SITE_ID, FS.PATH2FORUM_MESSAGE FROM b_forum2site FS WHERE FS.FORUM_ID = ".$ID;
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$db_res = $DB->Query($strSql);
 				$arRes = array();
 				while ($res = $db_res->Fetch())
 					$arRes[$res["SITE_ID"]] = $res["PATH2FORUM_MESSAGE"];
@@ -542,7 +542,7 @@ class CAllForumNew
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -929,7 +929,7 @@ class CAllForumNew
 			) F_FORUM
 			INNER JOIN b_forum F ON (F_FORUM.ID = F.ID)
 			".$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1185,7 +1185,7 @@ class CAllForumNew
 					" GROUP BY F.ID".
 					") FORUMCOUNT";
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
 			{
@@ -1302,7 +1302,7 @@ class CAllForumNew
 			$strSql .= " LIMIT 0,".$iNum;
 		}
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if (is_set($arAddParams, 'NoFilter') && $arAddParams['NoFilter'] == true)
 			return $db_res;
@@ -1392,7 +1392,7 @@ class CAllForumNew
 			)
 			GROUP BY BF.ID
 SQL;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1430,7 +1430,7 @@ SQL;
 						F.FORUM_GROUP_ID, F.ASK_GUEST_EMAIL, F.USE_CAPTCHA, F.XML_ID
 					FROM b_forum F
 					WHERE F.ID = ".$ID;
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$db_res = $DB->Query($strSql);
 
 				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID]["MAIN"] = $db_res->GetNext();
 				if (CACHED_b_forum !== false)
@@ -1505,7 +1505,7 @@ SQL;
 						LEFT JOIN b_forum_message FM ON (F.LAST_MESSAGE_ID = FM.ID)
 						LEFT JOIN b_forum_topic FT ON (FM.TOPIC_ID = FT.ID)
 					WHERE (F.ID=".$ID.")";
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$db_res = $DB->Query($strSql);
 				$db_res = new _CForumDBResult($db_res, $arAddParams);
 				$GLOBALS["FORUM_CACHE"]["FORUM"][$ID][$key] = $db_res->Fetch();
 				if (CACHED_b_forum !== false)
@@ -1637,6 +1637,11 @@ SQL;
 	//---------------> Forum utils
 	public static function SetStat($ID = 0, $arParams = array())
 	{
+		$enableCalculateStatistics = COption::GetOptionString('forum', 'enable_calculate_statistics', 'Y');
+		if ($enableCalculateStatistics === 'N')
+		{
+			return;
+		}
 		global $DB;
 		$ID = intval($ID);
 		if ($ID <= 0):
@@ -1784,7 +1789,7 @@ SQL;
 		if (empty($strUpdate))
 			return false;
 		$strSql = "UPDATE b_forum SET ".$strUpdate." WHERE ID=".$ID;
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	/**
@@ -1857,7 +1862,7 @@ SQL;
 
 	public static function ShowPanel($FID, $TID=0, $bGetIcons=false)
 	{
-		global $APPLICATION, $REQUEST_URI, $USER;
+		global $APPLICATION, $USER;
 
 		if(!(($USER->IsAuthorized() || $APPLICATION->ShowPanel===true) && $APPLICATION->ShowPanel!==false))
 			return;
@@ -1900,7 +1905,7 @@ SQL;
 		global $DB;
 		$ID = intval($ID);
 		$strSql = "UPDATE b_forum_message SET POST_MESSAGE_HTML='', POST_MESSAGE_FILTER='', HTML = '' WHERE FORUM_ID=".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 		return true;
 
 	}
@@ -2090,7 +2095,7 @@ class CAllForumGroup
 			$strSqlSearch." ".
 			$strSqlOrder." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -2162,7 +2167,7 @@ class CAllForumGroup
 			$strSqlSearch." ".
 			$strSqlOrder." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -2172,7 +2177,7 @@ class CAllForumGroup
 		$ID = intval($ID);
 		$strSql =
 			"SELECT FR.ID, FR.SORT, FR.PARENT_ID, FR.LEFT_MARGIN, FR.RIGHT_MARGIN, FR.DEPTH_LEVEL FROM b_forum_group FR WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -2207,7 +2212,7 @@ class CAllForumGroup
 					"FROM b_forum_group FR ".
 					"	LEFT JOIN b_forum_group_lang FRL ON (FR.ID = FRL.FORUM_GROUP_ID AND FRL.LID = '".$DB->ForSql($LANGUAGE_ID)."') ".
 					"WHERE FR.ID = ".$ID."";
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$db_res = $DB->Query($strSql);
 				$GLOBALS["FORUM_CACHE"]["GROUP"][$key] = $db_res->Fetch();
 				if (CACHED_b_forum_group !== false)
 					$CACHE_MANAGER->Set($cache_id, $GLOBALS["FORUM_CACHE"]["GROUP"][$key]);
@@ -2226,7 +2231,7 @@ class CAllForumGroup
 			"FROM b_forum_group_lang FRL ".
 			"WHERE FRL.FORUM_GROUP_ID = ".$FORUM_GROUP_ID." ".
 			"	AND FRL.LID = '".$DB->ForSql($strLang)."' ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -2315,13 +2320,13 @@ class CForumSmile
 	public static function GetList()
 	{
 		global $DB;
-		return $DB->Query("", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query("");
 	}
 
 	public static function GetListEx()
 	{
 		global $DB;
-		return $DB->Query("", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query("");
 	}
 
 	public static function GetByID()
@@ -2452,13 +2457,13 @@ class _CForumDBResult extends CDBResult
 						$res["LAST_POSTER_NAME"] = $arr["LAST_POSTER_NAME"];
 					endif;
 				}
-				if (trim($res["TOPIC_HTML"]) <> '')
+				if (trim($res["TOPIC_HTML"] ?? '') <> '')
 				{
 					$arr = unserialize($res["TOPIC_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr) && is_set($arr, "TITLE"))
 						$res["TITLE"] = $arr["TITLE"];
 				}
-				if (trim($res["ABS_TOPIC_HTML"]) <> '')
+				if (trim($res["ABS_TOPIC_HTML"] ?? '') <> '')
 				{
 					$arr = unserialize($res["ABS_TOPIC_HTML"], ["allowed_classes" => false]);
 					if (is_array($arr))

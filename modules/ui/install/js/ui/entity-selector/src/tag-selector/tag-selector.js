@@ -42,6 +42,7 @@ export default class TagSelector extends EventEmitter
 	tagBgColor: ?string = null;
 	tagFontWeight: ?string = null;
 	tagMaxWidth: ?number = null;
+	tagClickable: boolean = null;
 
 	dialog: ?Dialog = null;
 
@@ -75,6 +76,7 @@ export default class TagSelector extends EventEmitter
 		this.setTagTextColor(options.tagTextColor);
 		this.setTagBgColor(options.tagBgColor);
 		this.setTagFontWeight(options.tagFontWeight);
+		this.setTagClickable(options.tagClickable);
 
 		if (Type.isPlainObject(options.dialogOptions))
 		{
@@ -541,6 +543,20 @@ export default class TagSelector extends EventEmitter
 		if (Type.isString(tagAvatar) || tagAvatar === null)
 		{
 			this.tagAvatar = tagAvatar;
+			this.updateTags();
+		}
+	}
+
+	getTagClickable(): boolean | null
+	{
+		return this.tagClickable;
+	}
+
+	setTagClickable(flag: boolean | null): void
+	{
+		if (Type.isBoolean(flag) || flag === null)
+		{
+			this.tagClickable = flag;
 			this.updateTags();
 		}
 	}

@@ -37,34 +37,34 @@ class DateTime extends Date
 
 			$parsedValue = $this->parse($format, $time);
 
-			if($parsedValue === false)
+			if ($parsedValue === false)
 			{
-				throw new Main\ObjectException("Incorrect date/time: ".$time);
+				throw new Main\ObjectException("Incorrect date/time: " . $time);
 			}
 
-			if(isset($parsedValue["timestamp"]))
+			if (isset($parsedValue["timestamp"]))
 			{
 				$this->value->setTimestamp($parsedValue["timestamp"]);
 			}
 			else
 			{
-				if(isset($parsedValue["zone_type"]) && $parsedValue["zone_type"] == 1)
+				if (isset($parsedValue["zone_type"]) && $parsedValue["zone_type"] == 1)
 				{
-					if(isset($parsedValue["zone"]))
+					if (isset($parsedValue["zone"]))
 					{
 						$this->setTimeZone(new \DateTimeZone(static::secondsToOffset($parsedValue["zone"])));
 					}
 				}
 
 				$microseconds = 0;
-				if($parsedValue['fraction'] > 0)
+				if ($parsedValue['fraction'] > 0)
 				{
 					$microseconds = intval($parsedValue['fraction'] * 1000000);
 				}
 
 				$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
 				$this->value->setTime($parsedValue['hour'], $parsedValue['minute'], $parsedValue['second'], $microseconds);
-  			}
+			}
 		}
 	}
 
@@ -159,13 +159,13 @@ class DateTime extends Date
 
 		//second, adjust time according global timezone offset
 		static $diff = null;
-		if($diff === null)
+		if ($diff === null)
 		{
 			$diff = \CTimeZone::GetOffset();
 		}
-		if($diff <> 0)
+		if ($diff <> 0)
 		{
-			$this->add(($diff < 0? "-":"")."PT".abs($diff)."S");
+			$this->add(($diff < 0 ? "-" : "") . "PT" . abs($diff) . "S");
 		}
 		return $this;
 	}
@@ -184,23 +184,23 @@ class DateTime extends Date
 			//try full datetime format
 			$time = new static($timeString);
 		}
-		catch(Main\ObjectException $e)
+		catch (Main\ObjectException)
 		{
 			//try short date format
 			$time = new static($timeString, Date::getFormat());
 			$time->setTime(0, 0);
 		}
 
-		if(\CTimeZone::Enabled())
+		if (\CTimeZone::Enabled())
 		{
 			static $diff = null;
-			if($diff === null)
+			if ($diff === null)
 			{
 				$diff = \CTimeZone::GetOffset();
 			}
-			if($diff <> 0)
+			if ($diff <> 0)
 			{
-				$time->add(($diff > 0? "-":"")."PT".abs($diff)."S");
+				$time->add(($diff > 0 ? "-" : "") . "PT" . abs($diff) . "S");
 			}
 		}
 		return $time;
@@ -215,7 +215,7 @@ class DateTime extends Date
 	 */
 	protected static function getCultureFormat(Context\Culture $culture = null)
 	{
-		if($culture)
+		if ($culture)
 		{
 			return $culture->getDateTimeFormat();
 		}
@@ -259,7 +259,7 @@ class DateTime extends Date
 	 */
 	public static function tryParse($timeString, $format = null)
 	{
-		if($timeString === '')
+		if ($timeString === '')
 		{
 			return null;
 		}
@@ -268,7 +268,7 @@ class DateTime extends Date
 		{
 			$time = new static($timeString, $format);
 		}
-		catch(Main\ObjectException $e)
+		catch (Main\ObjectException)
 		{
 			$time = null;
 		}

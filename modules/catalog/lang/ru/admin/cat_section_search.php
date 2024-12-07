@@ -1,9 +1,8 @@
-<?
+<?php
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_TITLE"] = "Выбор раздела";
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_BAD_BLOCK_TYPE_ID"] = "Неверный тип инфоблока";
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_BAD_IBLOCK"] = "Неверный инфоблок";
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_SECTIONS"] = "Разделы";
-
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_HEAD_IBLOCK_ID"] = "Инфоблок";
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_HEAD_ID"] = "ID раздела";
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_HEAD_NAME"] = "Название раздела";
@@ -23,5 +22,3 @@ $MESS["BX_MOD_CATALOG_ADMIN_CSS_HEAD_USERINFO"] = "Посмотреть пара
 $MESS["BX_MOD_CATALOG_ADMIN_CSS_SELECT"] = "Выбрать";
 $MESS["IBLOCK_SECSEARCH_PARENT"] = "Раздел-родитель";
 $MESS["IBLOCK_SECSEARCH_SECTIONS"] = "Разделы";
-
-?>

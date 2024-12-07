@@ -33,6 +33,7 @@ class ActivityStorageTable extends ORM\Data\DataManager
 			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
+				'autocomplete' => true,
 			],
 			'WORKFLOW_TEMPLATE_ID' => [
 				'data_type' => 'integer'

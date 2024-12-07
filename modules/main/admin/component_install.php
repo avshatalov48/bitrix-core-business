@@ -15,17 +15,17 @@ IncludeModuleLangFile(__FILE__);
 
 $action = (($action == "uninstall") ? "uninstall" : "install");
 
-$APPLICATION->SetTitle(str_replace("#NAME#", $component, (($action == "install") ? "Инсталляция компонента '#NAME#'" : "Деинсталляция компонента '#NAME#'" )));
+$APPLICATION->SetTitle(str_replace("#NAME#", $component, (($action == "install") ? "РРЅСЃС‚Р°Р»Р»СЏС†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚Р° '#NAME#'" : "Р”РµРёРЅСЃС‚Р°Р»Р»СЏС†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚Р° '#NAME#'" )));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 
-echo "<h1>".str_replace("#NAME#", $component, (($action == "install") ? "Инсталляция компонента '#NAME#'" : "Деинсталляция компонента '#NAME#'" ))."</h1>";
+echo "<h1>".str_replace("#NAME#", $component, (($action == "install") ? "РРЅСЃС‚Р°Р»Р»СЏС†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚Р° '#NAME#'" : "Р”РµРёРЅСЃС‚Р°Р»Р»СЏС†РёСЏ РєРѕРјРїРѕРЅРµРЅС‚Р° '#NAME#'" ))."</h1>";
 
 $componentErrorMessage = "";
 
 $component = trim($component);
 if ($component == '')
-	$componentErrorMessage .= "Не указан компонент";
+	$componentErrorMessage .= "РќРµ СѓРєР°Р·Р°РЅ РєРѕРјРїРѕРЅРµРЅС‚";
 
 if ($componentErrorMessage == '')
 {
@@ -34,7 +34,7 @@ if ($componentErrorMessage == '')
 
 	$path2Comp = $componentEngine->MakeComponentPath($component);
 	if ($path2Comp == '')
-		$componentErrorMessage .= str_replace("#NAME#", $component, "'#NAME#' не является именем компонента");
+		$componentErrorMessage .= str_replace("#NAME#", $component, "'#NAME#' РЅРµ СЏРІР»СЏРµС‚СЃСЏ РёРјРµРЅРµРј РєРѕРјРїРѕРЅРµРЅС‚Р°");
 }
 
 if ($componentErrorMessage == '')
@@ -46,7 +46,7 @@ if ($componentErrorMessage == '')
 		|| !file_exists($_SERVER["DOCUMENT_ROOT"].$componentPath."/index.php")
 		|| !is_file($_SERVER["DOCUMENT_ROOT"].$componentPath."/index.php"))
 	{
-		$componentErrorMessage .= str_replace("#NAME#", $component, "'#NAME#' не является компонентом");
+		$componentErrorMessage .= str_replace("#NAME#", $component, "'#NAME#' РЅРµ СЏРІР»СЏРµС‚СЃСЏ РєРѕРјРїРѕРЅРµРЅС‚РѕРј");
 	}
 }
 
@@ -55,7 +55,7 @@ if ($componentErrorMessage == '')
 	$actionFile = $componentPath."/install/".(($action == "install") ? "install.php" : "uninstall.php");
 
 	if (!file_exists($_SERVER["DOCUMENT_ROOT"].$actionFile) || !is_file($_SERVER["DOCUMENT_ROOT"].$actionFile))
-		$componentErrorMessage .= str_replace("#NAME#", $component, (($action == "install") ? "'#NAME#' не имеет инсталлятора" : "'#NAME#' не имеет деинсталлятора" ));
+		$componentErrorMessage .= str_replace("#NAME#", $component, (($action == "install") ? "'#NAME#' РЅРµ РёРјРµРµС‚ РёРЅСЃС‚Р°Р»Р»СЏС‚РѕСЂР°" : "'#NAME#' РЅРµ РёРјРµРµС‚ РґРµРёРЅСЃС‚Р°Р»Р»СЏС‚РѕСЂР°" ));
 }
 
 if ($componentErrorMessage == '')
@@ -68,11 +68,11 @@ if ($componentErrorMessage == '')
 }
 else
 {
-	echo CAdminMessage::ShowMessage(
+	CAdminMessage::ShowMessage(
 		array(
 			"DETAILS" => $componentErrorMessage,
 			"TYPE" => "ERROR",
-			"MESSAGE" => "Ошибка установки компонента",
+			"MESSAGE" => "РћС€РёР±РєР° СѓСЃС‚Р°РЅРѕРІРєРё РєРѕРјРїРѕРЅРµРЅС‚Р°",
 			"HTML" => true
 		)
 	);

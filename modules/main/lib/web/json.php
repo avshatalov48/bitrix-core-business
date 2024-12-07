@@ -2,20 +2,17 @@
 
 namespace Bitrix\Main\Web;
 
-use Bitrix\Main\Application;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\Context;
 
 class Json
 {
-	const JSON_ERROR_UNKNOWN = -1;
+	public const DEFAULT_OPTIONS = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE;
 
 	/**
 	 * Returns a string containing the JSON representation of $data.
 	 *
 	 * @param mixed $data The value being encoded.
-	 * @param null $options Bitmasked options. Default is JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT.
+	 * @param int | null $options Bitmasked options. Default is JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE.
 	 *
 	 * @return mixed
 	 * @throws ArgumentException
@@ -23,20 +20,19 @@ class Json
 	 */
 	public static function encode($data, $options = null)
 	{
-		if (!Application::getInstance()->isUtfMode())
+		if ($options === null)
 		{
-			self::serializeJson($data);
-			$data = self::convertData($data);
+			$options = self::DEFAULT_OPTIONS;
 		}
 
-		if (is_null($options))
+		try
 		{
-			$options = JSON_HEX_TAG|JSON_HEX_AMP|JSON_HEX_APOS|JSON_HEX_QUOT;
+			$res = json_encode($data, $options | JSON_THROW_ON_ERROR);
 		}
-
-		$res = json_encode($data, $options);
-
-		self::checkException($options);
+		catch (\JsonException $e)
+		{
+			self::checkException($e, $options);
+		}
 
 		return $res;
 	}
@@ -52,95 +48,49 @@ class Json
 	 */
 	public static function decode($data)
 	{
-		$res = json_decode($data, true);
-
-		self::checkException();
-
-		// PHP<5.3.3 returns no error for JSON_ERROR_UTF8 and some other ones
-		if($res === null && strtolower($data) != 'null')
+		try
 		{
-			self::throwException(self::JSON_ERROR_UNKNOWN);
+			$res = json_decode($data, true, 512, JSON_THROW_ON_ERROR);
 		}
-
-		if (!Application::getInstance()->isUtfMode())
+		catch (\JsonException $e)
 		{
-			$res = self::unConvertData($res);
+			self::checkException($e);
 		}
 
 		return $res;
 	}
 
 	/**
-	 * Executes serializeJson on JsonSerializable objects for non-UTF8 instances.
-	 * We have to do it manually to prevent "malformed UTF-8 characters" error.
-	 *
-	 * @param mixed $data
-	 */
-	protected static function serializeJson(&$data)
-	{
-		if($data instanceof \JsonSerializable)
-		{
-			$data = $data->jsonSerialize();
-		}
-
-		if (is_iterable($data))
-		{
-			foreach ($data as $key => $value)
-			{
-				self::serializeJson($data[$key]);
-			}
-		}
-	}
-
-	/**
 	 * Converts $data to UTF-8 charset.
 	 *
+	 * @deprecated Does nothing.
 	 * @param mixed $data Input data.
 	 * @return mixed
 	 */
 	protected static function convertData($data)
 	{
-		$culture = Context::getCurrent()->getCulture();
-
-		return Encoding::convertEncoding($data, $culture->getCharset(), 'UTF-8');
-	}
-
-	/**
-	 * Converts $data from UTF-8 charset.
-	 *
-	 * @param mixed $data Input data.
-	 * @return mixed
-	 */
-	protected static function unConvertData($data)
-	{
-		$culture = Context::getCurrent()->getCulture();
-
-		return Encoding::convertEncoding($data, 'UTF-8', $culture->getCharset());
+		return $data;
 	}
 
 	/**
 	 * Checks global error flag and raises exception if needed.
 	 *
+	 * @param \JsonException $exception
 	 * @param integer $options Bitmasked options. When JSON_PARTIAL_OUTPUT_ON_ERROR passed no exception is raised.
 	 *
 	 * @return void
 	 * @throws ArgumentException
 	 */
-	protected static function checkException($options = 0)
+	protected static function checkException(\JsonException $exception, $options = 0)
 	{
-		$e = json_last_error();
-
-		if ($e == JSON_ERROR_NONE)
-		{
-			return;
-		}
+		$e = $exception->getCode();
 
 		if ($e == JSON_ERROR_UTF8 && ($options & JSON_PARTIAL_OUTPUT_ON_ERROR))
 		{
 			return;
 		}
 
-		$message = sprintf('%s [%d]', json_last_error_msg(), $e);
+		$message = sprintf('%s [%d]', $exception->getMessage(), $e);
 		self::throwException($message);
 	}
 
@@ -154,6 +104,6 @@ class Json
 	 */
 	protected static function throwException($e)
 	{
-		throw new ArgumentException('JSON error: '.$e, 'data');
+		throw new ArgumentException('JSON error: ' . $e, 'data');
 	}
 }

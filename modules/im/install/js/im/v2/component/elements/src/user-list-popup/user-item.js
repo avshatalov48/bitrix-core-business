@@ -1,7 +1,8 @@
 import { Messenger } from 'im.public';
 import { ImModelUser } from 'im.v2.model';
 
-import { Avatar, AvatarSize } from '../avatar/avatar';
+import { ChatAvatar } from '../avatar/chat-avatar/chat-avatar';
+import { AvatarSize } from '../avatar/base-avatar/avatar';
 import { ChatTitle } from '../chat-title/chat-title';
 
 import './user-list-content.css';
@@ -9,10 +10,14 @@ import './user-list-content.css';
 // @vue/component
 export const UserItem = {
 	name: 'UserItem',
-	components: { Avatar, ChatTitle },
+	components: { ChatAvatar, ChatTitle },
 	props: {
 		userId: {
 			type: Number,
+			required: true,
+		},
+		contextDialogId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -32,15 +37,23 @@ export const UserItem = {
 	{
 		onUserClick()
 		{
-			Messenger.openChat(this.userDialogId);
+			void Messenger.openChat(this.userDialogId);
 		},
 	},
 	template: `
 		<div class="bx-im-user-list-content__user-container" @click="onUserClick">
 			<div class="bx-im-user-list-content__avatar-container">
-				<Avatar :size="AvatarSize.XS" :dialogId="userDialogId" />
+				<ChatAvatar
+					:avatarDialogId="userDialogId"
+					:contextDialogId="contextDialogId"
+					:size="AvatarSize.XS"
+				/>
 			</div>
-			<ChatTitle class="bx-im-user-list-content__chat-title-container" :dialogId="userDialogId" :showItsYou="false" />
+			<ChatTitle 
+				:dialogId="userDialogId" 
+				:showItsYou="false" 
+				class="bx-im-user-list-content__chat-title-container" 
+			/>
 		</div>
 	`,
 };

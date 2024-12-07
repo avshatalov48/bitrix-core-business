@@ -1,6 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Text\HtmlFilter;
 
@@ -32,13 +35,8 @@ $component = $this->getComponent();
 	}
 
 	if(
-		isset($arResult['userField']['MULTIPLE'])
-		&& $arResult['userField']['MULTIPLE'] === 'Y'
-		&&
-		(
-			!isset($arResult['additionalParameters']['SHOW_BUTTON'])
-			|| $arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
-		)
+		($arResult['userField']['MULTIPLE'] ?? 'N') === 'Y'
+		&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 	)
 	{
 		print $component->getHtmlBuilder()->getCloneButton($arResult['fieldName']);

@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_date,main_popup,pull_client,ui_dialogs_messagebox) {
+(function (exports,main_core,main_date,main_popup,ui_dialogs_messagebox) {
 	'use strict';
 
 	let _ = t => t,
@@ -8,7 +8,7 @@ this.BX = this.BX || {};
 	  _t2;
 	class Util {
 	  static parseTime(str) {
-	    let date = Util.parseDate1(BX.date.format(Util.getDateFormat(), new Date()) + ' ' + str, false);
+	    const date = Util.parseDate1(`${BX.date.format(Util.getDateFormat(), new Date())} ${str}`, false);
 	    return date ? {
 	      h: date.getHours(),
 	      m: date.getMinutes()
@@ -21,29 +21,33 @@ this.BX = this.BX || {};
 	    return BX.parseDate(str, bUTC, formatDate, formatDatetime);
 	  }
 	  static parseDate1(str, format, trimSeconds) {
-	    let i,
-	      cnt,
-	      k,
-	      regMonths;
-	    if (!format) format = main_core.Loc.getMessage('FORMAT_DATETIME');
+	    let i;
+	    let cnt;
+	    let k;
+	    let regMonths;
+	    if (!format) {
+	      format = main_core.Loc.getMessage('FORMAT_DATETIME');
+	    }
 	    str = BX.util.trim(str);
-	    if (trimSeconds !== false) format = format.replace(':SS', '');
+	    if (trimSeconds !== false) {
+	      format = format.replace(':SS', '');
+	    }
 	    if (BX.type.isNotEmptyString(str)) {
 	      regMonths = '';
 	      for (i = 1; i <= 12; i++) {
-	        regMonths = regMonths + '|' + main_core.Loc.getMessage('MON_' + i);
+	        regMonths = `${regMonths}|${main_core.Loc.getMessage(`MON_${i}`)}`;
 	      }
-	      let expr = new RegExp('([0-9]+|[a-z]+' + regMonths + ')', 'ig'),
-	        aDate = str.match(expr),
-	        aFormat = main_core.Loc.getMessage('FORMAT_DATE').match(/(DD|MI|MMMM|MM|M|YYYY)/ig),
-	        aDateArgs = [],
-	        aFormatArgs = [],
-	        aResult = {};
+	      const expr = new RegExp(`([0-9]+|[a-z]+${regMonths})`, 'ig');
+	      const aDate = str.match(expr);
+	      let aFormat = main_core.Loc.getMessage('FORMAT_DATE').match(/(dd|mi|mmmm|mm|m|yyyy)/gi);
+	      const aDateArgs = [];
+	      const aFormatArgs = [];
+	      const aResult = {};
 	      if (!aDate) {
 	        return null;
 	      }
 	      if (aDate.length > aFormat.length) {
-	        aFormat = format.match(/(DD|MI|MMMM|MM|M|YYYY|HH|H|SS|TT|T|GG|G)/ig);
+	        aFormat = format.match(/(dd|mi|mmmm|mm|m|yyyy|hh|h|ss|tt|t|gg|g)/gi);
 	      }
 	      for (i = 0, cnt = aDate.length; i < cnt; i++) {
 	        if (BX.util.trim(aDate[i]) !== '') {
@@ -58,42 +62,44 @@ this.BX = this.BX || {};
 	      let m = BX.util.array_search('MMMM', aFormatArgs);
 	      if (m > 0) {
 	        aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
-	        aFormatArgs[m] = "MM";
+	        aFormatArgs[m] = 'MM';
 	      } else {
 	        m = BX.util.array_search('M', aFormatArgs);
 	        if (m > 0) {
 	          aDateArgs[m] = BX.getNumMonth(aDateArgs[m]);
-	          aFormatArgs[m] = "MM";
+	          aFormatArgs[m] = 'MM';
 	        }
 	      }
 	      for (i = 0, cnt = aFormatArgs.length; i < cnt; i++) {
 	        k = aFormatArgs[i].toUpperCase();
-	        aResult[k] = k == 'T' || k == 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
+	        aResult[k] = k === 'T' || k === 'TT' ? aDateArgs[i] : parseInt(aDateArgs[i], 10);
 	      }
-	      if (aResult['DD'] > 0 && aResult['MM'] > 0 && aResult['YYYY'] > 0) {
-	        let d = new Date();
+	      if (aResult.DD > 0 && aResult.MM > 0 && aResult.YYYY > 0) {
+	        const d = new Date();
 	        {
 	          d.setDate(1);
-	          d.setFullYear(aResult['YYYY']);
-	          d.setMonth(aResult['MM'] - 1);
-	          d.setDate(aResult['DD']);
+	          d.setFullYear(aResult.YYYY);
+	          d.setMonth(aResult.MM - 1);
+	          d.setDate(aResult.DD);
 	          d.setHours(0, 0, 0);
 	        }
-	        if ((!isNaN(aResult['HH']) || !isNaN(aResult['GG']) || !isNaN(aResult['H']) || !isNaN(aResult['G'])) && !isNaN(aResult['MI'])) {
-	          if (!isNaN(aResult['H']) || !isNaN(aResult['G'])) {
-	            let bPM = (aResult['T'] || aResult['TT'] || 'am').toUpperCase() == 'PM';
-	            let h = parseInt(aResult['H'] || aResult['G'] || 0, 10);
+	        if ((!isNaN(aResult.HH) || !isNaN(aResult.GG) || !isNaN(aResult.H) || !isNaN(aResult.G)) && !isNaN(aResult.MI)) {
+	          if (!isNaN(aResult.H) || !isNaN(aResult.G)) {
+	            const bPM = (aResult.T || aResult.TT || 'am').toUpperCase() == 'PM';
+	            const h = parseInt(aResult.H || aResult.G || 0, 10);
 	            if (bPM) {
-	              aResult['HH'] = h + (h == 12 ? 0 : 12);
+	              aResult.HH = h + (h == 12 ? 0 : 12);
 	            } else {
-	              aResult['HH'] = h < 12 ? h : 0;
+	              aResult.HH = h < 12 ? h : 0;
 	            }
 	          } else {
-	            aResult['HH'] = parseInt(aResult['HH'] || aResult['GG'] || 0, 10);
+	            aResult.HH = parseInt(aResult.HH || aResult.GG || 0, 10);
 	          }
-	          if (isNaN(aResult['SS'])) aResult['SS'] = 0;
+	          if (isNaN(aResult.SS)) {
+	            aResult.SS = 0;
+	          }
 	          {
-	            d.setHours(aResult['HH'], aResult['MI'], aResult['SS']);
+	            d.setHours(aResult.HH, aResult.MI, aResult.SS);
 	          }
 	        }
 	        return d;
@@ -131,11 +137,11 @@ this.BX = this.BX || {};
 	  static formatDuration(diffMinutes) {
 	    const hours = Math.floor(diffMinutes / 60);
 	    const minutes = diffMinutes % 60;
-	    let hint = main_date.DateTimeFormat.format('idiff', new Date().getTime() / 1000 - minutes * 60);
+	    let hint = main_date.DateTimeFormat.format('idiff', Date.now() / 1000 - minutes * 60);
 	    if (hours > 0) {
-	      hint = main_date.DateTimeFormat.format('Hdiff', new Date().getTime() / 1000 - hours * 60 * 60);
+	      hint = main_date.DateTimeFormat.format('Hdiff', Date.now() / 1000 - hours * 60 * 60);
 	      if (minutes > 0) {
-	        hint += ' ' + main_date.DateTimeFormat.format('idiff', new Date().getTime() / 1000 - minutes * 60);
+	        hint += ` ${main_date.DateTimeFormat.format('idiff', Date.now() / 1000 - minutes * 60)}`;
 	      }
 	    }
 	    return hint;
@@ -149,10 +155,13 @@ this.BX = this.BX || {};
 	        format += ' Y';
 	      }
 	    }
-	    return BX.date.format([["today", "today"], ["tommorow", "tommorow"], ["yesterday", "yesterday"], ["", format]], date);
+	    return BX.date.format([['today', 'today'], ['tommorow', 'tommorow'], ['yesterday', 'yesterday'], ['', format]], date);
 	  }
 	  static formatDayMonthShortTime(timestamp) {
-	    return main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('DAY_MONTH_FORMAT'), timestamp) + ' ' + main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), timestamp);
+	    return `
+			${main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('DAY_MONTH_FORMAT'), timestamp)} 
+			${main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), timestamp)}
+		`;
 	  }
 	  static getDayLength() {
 	    if (!Util.DAY_LENGTH) {
@@ -166,22 +175,24 @@ this.BX = this.BX || {};
 	  static findTargetNode(node, parentCont) {
 	    let res = false;
 	    if (node) {
-	      let prefix = 'data-bx-calendar',
-	        i;
-	      if (node.attributes && node.attributes.length) {
+	      const prefix = 'data-bx-calendar';
+	      let i;
+	      if (node.attributes && node.attributes.length > 0) {
 	        for (i = 0; i < node.attributes.length; i++) {
-	          if (node.attributes[i].name && node.attributes[i].name.substr(0, prefix.length) === prefix) {
+	          if (node.attributes[i].name && node.attributes[i].name.slice(0, prefix.length) === prefix) {
 	            res = node;
 	            break;
 	          }
 	        }
 	      }
 	      if (!res) {
-	        res = BX.findParent(node, function (n) {
+	        res = BX.findParent(node, n => {
 	          let j;
-	          if (n.attributes && n.attributes.length) {
+	          if (n.attributes && n.attributes.length > 0) {
 	            for (j = 0; j < n.attributes.length; j++) {
-	              if (n.attributes[j].name && n.attributes[j].name.substr(0, prefix.length) === prefix) return true;
+	              if (n.attributes[j].name && n.attributes[j].name.slice(0, prefix.length) === prefix) {
+	                return true;
+	              }
 	            }
 	          }
 	          return false;
@@ -219,61 +230,61 @@ this.BX = this.BX || {};
 	  }
 	  static getLoader(size, className) {
 	    return main_core.Tag.render(_t || (_t = _`
-		<div class="${0}">
-			<svg class="calendar-loader-circular"
-				style="width:${0}px; height:${0}px;"
-				viewBox="25 25 50 50">
-					<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-					<circle class="calendar-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
-			</svg>
-		</div>
-`), className || 'calendar-loader', parseInt(size), parseInt(size));
+			<div class="${0}">
+				<svg class="calendar-loader-circular"
+					style="width:${0}px; height:${0}px;"
+					viewBox="25 25 50 50">
+						<circle class="calendar-loader-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+						<circle class="calendar-loader-inner-path" cx="50" cy="50" r="20" fill="none" stroke-miterlimit="10"/>
+				</svg>
+			</div>
+		`), className || 'calendar-loader', parseInt(size), parseInt(size));
 	  }
 	  static getDayCode(date) {
-	    return date.getFullYear() + '-' + ("0" + ~~(date.getMonth() + 1)).substr(-2, 2) + '-' + ("0" + ~~date.getDate()).substr(-2, 2);
+	    return `${date.getFullYear()}-${`0${Math.trunc(date.getMonth() + 1)}`.slice(-2, -2 + 2)}-${`0${Math.trunc(date.getDate())}`.slice(-2, -2 + 2)}`;
 	  }
 	  static getTextColor(color) {
 	    if (!color) {
 	      return false;
 	    }
-	    if (color.charAt(0) === "#") {
-	      color = color.substring(1, 7);
+	    if (color.charAt(0) === '#') {
+	      color = color.slice(1, 7);
 	    }
-	    let r = parseInt(color.substring(0, 2), 16),
-	      g = parseInt(color.substring(2, 4), 16),
-	      b = parseInt(color.substring(4, 6), 16),
-	      light = (r * 0.8 + g + b * 0.2) / 510 * 100;
+	    const r = parseInt(color.slice(0, 2), 16);
+	    const g = parseInt(color.slice(2, 4), 16);
+	    const b = parseInt(color.slice(4, 6), 16);
+	    const light = (r * 0.8 + g + b * 0.2) / 510 * 100;
 	    return light < 50;
 	  }
 	  static getKeyCode(key) {
 	    if (!main_core.Type.isString(key)) {
 	      return false;
 	    }
-	    let KEY_CODES = {
-	      'backspace': 8,
-	      'enter': 13,
-	      'escape': 27,
-	      'space': 32,
-	      'delete': 46,
-	      'left': 37,
-	      'right': 39,
-	      'up': 38,
-	      'down': 40,
-	      'z': 90,
-	      'y': 89,
-	      'shift': 16,
-	      'ctrl': 17,
-	      'alt': 18,
-	      'cmd': 91,
+	    const KEY_CODES = {
+	      backspace: 8,
+	      enter: 13,
+	      escape: 27,
+	      space: 32,
+	      delete: 46,
+	      left: 37,
+	      right: 39,
+	      up: 38,
+	      down: 40,
+	      z: 90,
+	      y: 89,
+	      shift: 16,
+	      ctrl: 17,
+	      alt: 18,
+	      cmd: 91,
 	      // 93, 224, 17 Browser dependent
-	      'cmdRight': 93,
+	      cmdRight: 93,
 	      // 93, 224, 17 Browser dependent?
-	      'pageUp': 33,
-	      'pageDown': 34,
-	      'd': 68,
-	      'w': 87,
-	      'm': 77,
-	      'a': 65
+	      pageUp: 33,
+	      pageDown: 34,
+	      d: 68,
+	      w: 87,
+	      m: 77,
+	      a: 65
 	    };
 	    return KEY_CODES[key.toLowerCase()];
 	  }
@@ -287,7 +298,7 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isDate(timestamp)) {
 	      timestamp = timestamp.getTime();
 	    }
-	    let r = (roundMin || 10) * 60 * 1000;
+	    const r = (roundMin || 10) * 60 * 1000;
 	    timestamp = Math.ceil(timestamp / r) * r;
 	    return new Date(timestamp);
 	  }
@@ -295,34 +306,28 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isString(message) && message !== '') {
 	      BX.UI.Notification.Center.notify({
 	        content: message,
-	        actions: actions
+	        actions
 	      });
 	    }
 	  }
 	  static showFieldError(message, wrap, options) {
 	    if (main_core.Type.isDomNode(wrap) && main_core.Type.isString(message) && message !== '') {
 	      main_core.Dom.remove(wrap.querySelector('.ui-alert'));
-	      let alert = new BX.UI.Alert({
+	      const alert = new BX.UI.Alert({
 	        color: BX.UI.Alert.Color.DANGER,
 	        icon: BX.UI.Alert.Icon.DANGER,
 	        text: message
 	      });
-	      let alertWrap = alert.getContainer();
+	      const alertWrap = alert.getContainer();
 	      wrap.appendChild(alertWrap);
 	      return alertWrap;
 	    }
 	  }
 	  static getDateFormat() {
 	    if (!Util.DATE_FORMAT) {
-	      Util.DATE_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATE"));
+	      Util.DATE_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage('FORMAT_DATE'));
 	    }
 	    return Util.DATE_FORMAT;
-	  }
-	  static setDayOfWeekMonthFormat(value) {
-	    Util.dayOfWeekMonthFormat = value;
-	  }
-	  static getDayOfWeekMonthFormat() {
-	    return Util.dayOfWeekMonthFormat || 'l, j F';
 	  }
 	  static setDayMonthFormat(value) {
 	    Util.dayMonthFormat = value;
@@ -338,15 +343,15 @@ this.BX = this.BX || {};
 	  }
 	  static getDateTimeFormat() {
 	    if (!Util.DATETIME_FORMAT) {
-	      Util.DATETIME_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage("FORMAT_DATETIME"));
+	      Util.DATETIME_FORMAT = BX.Main.Date.convertBitrixFormat(main_core.Loc.getMessage('FORMAT_DATETIME'));
 	    }
 	    return Util.DATETIME_FORMAT;
 	  }
 	  static getTimeFormat() {
 	    if (!Util.TIME_FORMAT) {
-	      if (main_core.Loc.getMessage("FORMAT_DATETIME").substr(0, main_core.Loc.getMessage("FORMAT_DATE").length) === main_core.Loc.getMessage("FORMAT_DATE")) {
-	        Util.TIME_FORMAT = BX.util.trim(Util.getDateTimeFormat().substr(Util.getDateFormat().length));
-	        Util.TIME_FORMAT_BX = BX.util.trim(main_core.Loc.getMessage("FORMAT_DATETIME").substr(main_core.Loc.getMessage("FORMAT_DATE").length));
+	      if (main_core.Loc.getMessage('FORMAT_DATETIME').slice(0, main_core.Loc.getMessage('FORMAT_DATE').length) === main_core.Loc.getMessage('FORMAT_DATE')) {
+	        Util.TIME_FORMAT = BX.util.trim(Util.getDateTimeFormat().slice(Util.getDateFormat().length));
+	        Util.TIME_FORMAT_BX = BX.util.trim(main_core.Loc.getMessage('FORMAT_DATETIME').slice(main_core.Loc.getMessage('FORMAT_DATE').length));
 	      } else {
 	        Util.TIME_FORMAT_BX = BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS';
 	        Util.TIME_FORMAT = BX.date.convertBitrixFormat(BX.isAmPmMode() ? 'H:MI:SS T' : 'HH:MI:SS');
@@ -369,7 +374,7 @@ this.BX = this.BX || {};
 	  }
 	  static getTimeByInt(intValue) {
 	    intValue = parseInt(intValue);
-	    let h = Math.floor(intValue / 60);
+	    const h = Math.floor(intValue / 60);
 	    return {
 	      hour: h,
 	      min: intValue - h * 60
@@ -452,38 +457,36 @@ this.BX = this.BX || {};
 	    return ['Y', 'N', 'Q', 'H'];
 	  }
 	  static getWorkTimeStart() {
-	    let workTimeStartParsed = this.config.work_time_start.split('.');
+	    const workTimeStartParsed = this.config.work_time_start.split('.');
 	    if (workTimeStartParsed.length === 1) {
-	      return workTimeStartParsed[0] + '.00';
+	      return `${workTimeStartParsed[0]}.00`;
 	    }
 	    return this.config.work_time_start;
 	  }
 	  static getWorkTimeEnd() {
-	    let workTimeEndParsed = this.config.work_time_end.split('.');
+	    const workTimeEndParsed = this.config.work_time_end.split('.');
 	    if (workTimeEndParsed.length === 1) {
-	      return workTimeEndParsed[0] + '.00';
+	      return `${workTimeEndParsed[0]}.00`;
 	    }
 	    return this.config.work_time_end;
 	  }
 	  static checkEmailLimitationPopup() {
-	    const emailGuestAmount = Util.getEventWithEmailGuestAmount();
-	    const emailGuestLimit = Util.getEventWithEmailGuestLimit();
-	    return emailGuestLimit > 0 && (emailGuestAmount === 8 || emailGuestAmount === 4 || emailGuestAmount >= emailGuestLimit);
+	    return !this.getEventWithEmailGuestEnabled();
 	  }
 	  static isEventWithEmailGuestAllowed() {
-	    return Util.getEventWithEmailGuestLimit() === -1 || Util.getEventWithEmailGuestAmount() < Util.getEventWithEmailGuestLimit();
+	    return this.getEventWithEmailGuestEnabled();
 	  }
-	  static setEventWithEmailGuestAmount(value) {
-	    Util.countEventWithEmailGuestAmount = value;
+	  static setEventWithEmailGuestEnabled(value) {
+	    Util.eventWithEmailGuestEnabled = value;
 	  }
-	  static setEventWithEmailGuestLimit(value) {
-	    Util.eventWithEmailGuestLimit = value;
+	  static getEventWithEmailGuestEnabled() {
+	    return Util.eventWithEmailGuestEnabled;
 	  }
-	  static getEventWithEmailGuestAmount() {
-	    return Util.countEventWithEmailGuestAmount;
+	  static setProjectFeatureEnabled(value) {
+	    Util.projectFeatureEnabled = value;
 	  }
-	  static getEventWithEmailGuestLimit() {
-	    return Util.eventWithEmailGuestLimit;
+	  static isProjectFeatureEnabled() {
+	    return Util.projectFeatureEnabled;
 	  }
 	  static setCurrentView(calendarView = null) {
 	    Util.currentCalendarView = calendarView;
@@ -492,30 +495,34 @@ this.BX = this.BX || {};
 	    return Util.currentCalendarView || null;
 	  }
 	  static adjustDateForTimezoneOffset(date, timezoneOffset = 0, fullDay = false) {
-	    if (!main_core.Type.isDate(date)) throw new Error('Wrong type for date attribute. DateTime object expected.');
-	    if (!parseInt(timezoneOffset) || fullDay === true) return date;
+	    if (!main_core.Type.isDate(date)) {
+	      throw new TypeError('Wrong type for date attribute. DateTime object expected.');
+	    }
+	    if (!parseInt(timezoneOffset) || fullDay === true) {
+	      return date;
+	    }
 	    return new Date(date.getTime() - parseInt(timezoneOffset) * 1000);
 	  }
 	  static getFormattedTimezone(timeZone) {
 	    const timezoneOffset = this.getTimeZoneOffset(timeZone);
 	    if (timezoneOffset === 0) {
-	      return '(UTC) ' + timeZone;
+	      return `(UTC) ${timeZone}`;
 	    }
 	    const prefix = timezoneOffset > 0 ? '-' : '+';
-	    const hours = ('0' + Math.floor(Math.abs(timezoneOffset) / 60)).slice(-2);
-	    const minutes = ('0' + Math.abs(timezoneOffset) % 60).slice(-2);
-	    return '(UTC ' + prefix + hours + ':' + minutes + ') ' + timeZone;
+	    const hours = `0${Math.floor(Math.abs(timezoneOffset) / 60)}`.slice(-2);
+	    const minutes = `0${Math.abs(timezoneOffset) % 60}`.slice(-2);
+	    return `(UTC ${prefix}${hours}:${minutes}) ${timeZone}`;
 	  }
 	  static getTimezoneDateFromTimestampUTC(timestampUTC, timeZone) {
 	    return new Date(timestampUTC + this.getTimeZoneOffset() * 60 * 1000 - this.getTimeZoneOffset(timeZone) * 60 * 1000);
 	  }
-	  static getTimeZoneOffset(timeZone = undefined, date = new Date()) {
+	  static getTimeZoneOffset(timeZone, date = new Date()) {
 	    let timeInTimezone;
 	    try {
 	      timeInTimezone = new Date(date.toLocaleString('en-US', {
 	        timeZone
 	      })).getTime();
-	    } catch (e) {
+	    } catch {
 	      return 0;
 	    }
 	    const timeInUTC = new Date(date.toLocaleString('en-US', {
@@ -532,7 +539,7 @@ this.BX = this.BX || {};
 	  }
 	  static setAccessNames(accessNames = {}) {
 	    Util.accessNames = {};
-	    for (let code in accessNames) {
+	    for (const code in accessNames) {
 	      if (accessNames.hasOwnProperty(code)) {
 	        Util.setAccessName(code, accessNames[code]);
 	      }
@@ -545,13 +552,13 @@ this.BX = this.BX || {};
 	    Util.accessNames[code] = name;
 	  }
 	  static getRandomInt(numCount = 6) {
-	    return Math.round(Math.random() * Math.pow(10, numCount));
+	    return Math.round(Math.random() * 10 ** numCount);
 	  }
 	  static displayError(errors, reloadPage) {
 	    if (main_core.Type.isArray(errors)) {
 	      let errorMessage = '';
-	      for (let i = 0; i < errors.length; i++) {
-	        errorMessage += errors[i].message + "\n";
+	      for (const error of errors) {
+	        errorMessage += `${error.message}\n`;
 	      }
 	      errors = errorMessage;
 	    }
@@ -566,13 +573,18 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isObjectLike(entity)) {
 	      if (entity.entityId === 'meta-user' && entity.id === 'all-users') {
 	        return 'UA';
-	      } else if (entity.entityId === 'user') {
-	        return 'U' + entity.id;
-	      } else if (entity.entityId === 'project') {
-	        return 'SG' + entity.id + '_K'; // for all members of group
-	      } else if (entity.entityId === 'department') {
-	        return 'DR' + entity.id;
-	      } else if (entity.entityId === 'group') {
+	      }
+	      if (entity.entityId === 'user') {
+	        return `U${entity.id}`;
+	      }
+	      if (entity.entityId === 'project') {
+	        return `SG${entity.id}_K`; // for all members of group
+	      }
+
+	      if (entity.entityId === 'department') {
+	        return `DR${entity.id}`;
+	      }
+	      if (entity.entityId === 'group') {
 	        return entity.id;
 	      }
 	    }
@@ -582,10 +594,10 @@ this.BX = this.BX || {};
 	    userId
 	  }) {
 	    entries.forEach(entry => {
-	      if (entry.type === 'user' && parseInt(entry.id) !== parseInt(userId)) {
+	      if (entry.type === 'user' && parseInt(entry.id, 10) !== parseInt(userId, 10)) {
 	        const tag = Util.PLANNER_PULL_TAG.replace('#USER_ID#', entry.id);
 	        if (!Util.PLANNER_WATCH_LIST.includes(tag)) {
-	          pull_client.PULL.extendWatch(tag);
+	          BX.PULL.extendWatch(tag);
 	          Util.PLANNER_WATCH_LIST.push(tag);
 	        }
 	      }
@@ -593,7 +605,7 @@ this.BX = this.BX || {};
 	  }
 	  static clearPlannerWatches() {
 	    Util.PLANNER_WATCH_LIST.forEach(tag => {
-	      pull_client.PULL.clearWatch(tag);
+	      BX.PULL.clearWatch(tag);
 	    });
 	    Util.PLANNER_WATCH_LIST = [];
 	  }
@@ -628,13 +640,13 @@ this.BX = this.BX || {};
 	    return !document.hidden;
 	  }
 	  static removeHash() {
-	    if ("pushState" in history) {
-	      history.pushState("", document.title, window.location.pathname + window.location.search);
+	    if ('pushState' in history) {
+	      history.pushState('', document.title, window.location.pathname + window.location.search);
 	    } else {
 	      // Prevent scrolling by storing the page's current scroll offset
-	      let scrollV = document.body.scrollTop;
-	      let scrollH = document.body.scrollLeft;
-	      window.location.hash = "";
+	      const scrollV = document.body.scrollTop;
+	      const scrollH = document.body.scrollLeft;
+	      window.location.hash = '';
 	      // Restore the scroll offset, should be flicker free
 	      document.body.scrollTop = scrollV;
 	      document.body.scrollLeft = scrollH;
@@ -680,12 +692,9 @@ this.BX = this.BX || {};
 	  }
 	  static downloadIcsFile(fileContent, fileName) {
 	    const link = document.createElement('a');
-	    link.href = "data:text/calendar," + encodeURI(fileContent);
+	    link.href = `data:text/calendar,${encodeURI(fileContent)}`;
 	    link.download = fileName;
 	    link.click();
-	  }
-	  static isMobileBrowser() {
-	    return navigator.userAgent.toLowerCase().includes('iphone') || navigator.userAgent.toLowerCase().includes('ipad') || navigator.userAgent.toLowerCase().includes('android');
 	  }
 	}
 	Util.PLANNER_PULL_TAG = 'calendar-planner-#USER_ID#';
@@ -695,5 +704,5 @@ this.BX = this.BX || {};
 
 	exports.Util = Util;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX.Main,BX,BX.UI.Dialogs));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX,BX.Main,BX.Main,BX.UI.Dialogs));
 //# sourceMappingURL=util.bundle.js.map

@@ -35,7 +35,7 @@ foreach($_GET as $var=>$value)
 	if(array_key_exists($var, $arResult["FILTER_ROWS"]))
 		continue;
 	foreach($aSpecVars as $v)
-		if(mb_substr($var, -($len = mb_strlen($v))) == $v && array_key_exists(mb_substr($var, 0, -($len)), $arResult["FILTER_ROWS"]))
+		if(str_ends_with($var, $v) && array_key_exists(substr($var, 0, -strlen($v)), $arResult["FILTER_ROWS"]))
 			continue 2;
 	$arResult["GET_VARS"][$var] = $value;
 }

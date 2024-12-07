@@ -2,16 +2,8 @@
 
 class CFormResult extends CAllFormResult
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormResult<br>File: ".__FILE__;
-	}
-
 	public static function GetList($WEB_FORM_ID, $by = 's_timestamp', $order = 'desc', $arFilter = [], $is_filtered = null, $CHECK_RIGHTS = "Y", $records_limit = false)
 	{
-		$err_mess = (CFormResult::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $strError;
 
 		$CHECK_RIGHTS = ($CHECK_RIGHTS=="Y") ? "Y" : "N";
@@ -35,7 +27,7 @@ class CFormResult extends CAllFormResult
 
 			while ($zr=$z->Fetch())
 			{
-				$arPARAMETER_NAME = array("ANSWER_TEXT", "ANSWER_VALUE", "USER");
+				$arPARAMETER_NAME = array("ANSWER_TEXT", "ANSWER_VALUE", "USER", "ANSWER_ID");
 				CFormField::GetFilterTypeList($arrUSER, $arrANSWER_TEXT, $arrANSWER_VALUE, $arrFIELD);
 				foreach ($arPARAMETER_NAME as $PARAMETER_NAME)
 				{
@@ -49,6 +41,9 @@ class CFormResult extends CAllFormResult
 							break;
 						case "USER":
 							$arFILTER_TYPE = $arrUSER["reference_id"];
+							break;
+						case "ANSWER_ID":
+							$arFILTER_TYPE = ["answer_id"];
 							break;
 					}
 					foreach ($arFILTER_TYPE as $FILTER_TYPE)
@@ -185,17 +180,17 @@ class CFormResult extends CAllFormResult
 
 										if($arrF["PARAMETER_NAME"] == "ANSWER_TEXT")
 										{
-											$sql = GetFilterQuery($A.".ANSWER_TEXT_SEARCH", ToUpper($val), $match);
+											$sql = GetFilterQuery($A.".ANSWER_TEXT_SEARCH", mb_strtoupper($val), $match);
 										}
 
 										elseif($arrF["PARAMETER_NAME"] == "ANSWER_VALUE")
 										{
-											$sql = GetFilterQuery($A.".ANSWER_VALUE_SEARCH", ToUpper($val), $match);
+											$sql = GetFilterQuery($A.".ANSWER_VALUE_SEARCH", mb_strtoupper($val), $match);
 										}
 
 										elseif($arrF["PARAMETER_NAME"] == "USER")
 										{
-											$sql = GetFilterQuery($A.".USER_TEXT_SEARCH", ToUpper($val), $match);
+											$sql = GetFilterQuery($A.".USER_TEXT_SEARCH", mb_strtoupper($val), $match);
 										}
 
 										if($sql !== "0" && trim($sql) <> '')
@@ -300,10 +295,10 @@ class CFormResult extends CAllFormResult
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$str1 = '';
-		if (is_array($arr["TABLES"]))
+		if (!empty($arr["TABLES"]))
 			$str1 = implode(",\n				",$arr["TABLES"]);
 		$str2 = '';
-		if (is_array($arr["WHERE"]))
+		if (!empty($arr["WHERE"]))
 			$str2 = implode("\n			and ",$arr["WHERE"]);
 		if ($str1 <> '') $str1 = ",\n				".$str1;
 		if ($str2 <> '') $str2 = "\n			and ".$str2;
@@ -344,7 +339,7 @@ class CFormResult extends CAllFormResult
 				$strSqlOrder
 				$records_limit
 				";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		elseif ($F_RIGHT>=15)
 		{
@@ -382,7 +377,7 @@ class CFormResult extends CAllFormResult
 				$strSqlOrder
 				$records_limit
 				";
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else
 		{
@@ -396,7 +391,6 @@ class CFormResult extends CAllFormResult
 	public static function GetByID($ID)
 	{
 		global $DB, $strError;
-		$err_mess = (CFormResult::err_mess())."<br>Function: GetByID<br>Line: ";
 		$ID = intval($ID);
 		$strSql = "
 			SELECT
@@ -418,13 +412,12 @@ class CFormResult extends CAllFormResult
 			and F.ID = R.FORM_ID
 			and R.STATUS_ID = S.ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetPermissions($RESULT_ID, &$CURRENT_STATUS_ID = null)
 	{
-		$err_mess = (CFormResult::err_mess())."<br>Function: GetPermissions<br>Line: ";
 		global $DB, $USER, $strError;
 		$USER_ID = intval($USER->GetID());
 		$RESULT_ID = intval($RESULT_ID);
@@ -451,7 +444,7 @@ class CFormResult extends CAllFormResult
 					(G.GROUP_ID in ($groups,0) and ifnull(R.USER_ID,0) = $USER_ID)
 					)
 				";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch())
 			{
 				$arrReturn[] = $zr["PERMISSION"];
@@ -463,22 +456,20 @@ class CFormResult extends CAllFormResult
 
 	public static function AddAnswer($arFields)
 	{
-		$err_mess = (CFormResult::err_mess())."<br>Function: AddAnswer<br>Line: ";
 		global $DB, $strError;
 		$arInsert = $DB->PrepareInsert("b_form_result_answer", $arFields, "form");
 		$strSql = "INSERT INTO b_form_result_answer (".$arInsert[0].") VALUES (".$arInsert[1].")";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		return intval($DB->LastID());
 	}
 
 	public static function UpdateField($arFields, $RESULT_ID, $FIELD_ID)
 	{
-		$err_mess = (CFormResult::err_mess())."<br>Function: UpdateField<br>Line: ";
 		global $DB, $strError;
 		$RESULT_ID = intval($RESULT_ID);
 		$FIELD_ID = intval($FIELD_ID);
 		$strUpdate = $DB->PrepareUpdate("b_form_result_answer", $arFields, "form");
 		$strSql = "UPDATE b_form_result_answer SET ".$strUpdate." WHERE RESULT_ID=".$RESULT_ID." and FIELD_ID=".$FIELD_ID;
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 	}
 }

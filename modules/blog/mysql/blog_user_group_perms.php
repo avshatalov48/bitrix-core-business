@@ -39,7 +39,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 			$strSql =
 				"INSERT INTO b_blog_user_group_perms(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 
@@ -88,7 +88,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 				"UPDATE b_blog_user_group_perms SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			unset($GLOBALS["BLOG_USER_GROUP_PERMS"]["BLOG_USER_GROUP_PERMS_CACHE_".$ID]);
 
@@ -137,7 +137,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -168,7 +168,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -177,7 +177,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -194,7 +194,7 @@ class CBlogUserGroupPerms extends CAllBlogUserGroupPerms
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

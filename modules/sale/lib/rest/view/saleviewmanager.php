@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest\View;
-
 
 use Bitrix\Main\Engine\Controller;
 use Bitrix\Rest\Integration\ViewManager;
@@ -18,6 +16,7 @@ use Bitrix\Sale\Controller\ProfileValue;
 use Bitrix\Sale\Controller\PropertyGroup;
 use Bitrix\Sale\Controller\PropertyRelation;
 use Bitrix\Sale\Controller\PropertyValue;
+use Bitrix\Sale\Controller\ShipmentPropertyValue;
 use Bitrix\Sale\Controller\PropertyVariant;
 use Bitrix\Sale\Controller\Status;
 use Bitrix\Sale\Controller\StatusLang;
@@ -66,6 +65,10 @@ final class SaleViewManager extends ViewManager
 		elseif ($controller instanceof PropertyValue)
 		{
 			$entity = new \Bitrix\Sale\Rest\View\PropertyValue();
+		}
+		elseif ($controller instanceof ShipmentPropertyValue)
+		{
+			$entity = new \Bitrix\Sale\Rest\View\ShipmentPropertyValue();
 		}
 		elseif ($controller instanceof Enum)
 		{

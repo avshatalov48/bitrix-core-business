@@ -10,7 +10,7 @@ if (!is_array($arResult['SELECTOR_ITEMS']) || empty($arResult['SELECTOR_ITEMS'])
 	return;
 
 ?>
-<script type="text/javascript">
+<script>
 	if (typeof(BX.Report.FilterFieldSelectorManager) === 'undefined')
 	{
 		BX.Report.FilterFieldSelectorManager = new BX.Report.FilterFieldSelectorManagerClass();

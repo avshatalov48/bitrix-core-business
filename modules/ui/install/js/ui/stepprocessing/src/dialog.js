@@ -4,7 +4,7 @@ import 'ui.design-tokens';
 import 'ui.progressbar';
 import {Type, Tag, Loc, Dom, Event} from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
-import { Popup, PopupManager } from 'main.popup';
+import { Popup, PopupManager, PopupOptions } from 'main.popup';
 import { Alert, AlertColor, AlertIcon, AlertSize } from 'ui.alerts';
 import {Button, CancelButton} from 'ui.buttons';
 import type { OptionsField } from './process-types';
@@ -23,7 +23,7 @@ export type DialogOptions = {
 	messages?: {
 		title?: string,
 		summary?: string,
-		startButton?:  string,
+		startButton?: string,
 		stopButton?: string,
 		closeButton?: string
 	},
@@ -41,7 +41,8 @@ export type DialogOptions = {
 		dialogClosed?: any => void
 	},
 	minWidth?: number,
-	maxWidth?: number
+	maxWidth?: number,
+	popupOptions?: PopupOptions,
 };
 
 export const DialogStyle = {
@@ -141,8 +142,7 @@ export class Dialog
 				if (
 					Type.isPlainObject(option) &&
 					option.hasOwnProperty('name') &&
-					option.hasOwnProperty('type') &&
-					option.hasOwnProperty('title')
+					option.hasOwnProperty('type')
 				)
 				{
 					optionsFields[option.name] = option;
@@ -156,8 +156,7 @@ export class Dialog
 				if (
 					Type.isPlainObject(option) &&
 					option.hasOwnProperty('name') &&
-					option.hasOwnProperty('type') &&
-					option.hasOwnProperty('title')
+					option.hasOwnProperty('type')
 				)
 				{
 					optionsFields[option.name] = option;
@@ -299,7 +298,8 @@ export class Dialog
 			overlay: true,
 			resizable: true,
 			minWidth: Number.parseInt(this.getSetting('minWidth', 500)),
-			maxWidth: Number.parseInt(this.getSetting('maxWidth', 1000))
+			maxWidth: Number.parseInt(this.getSetting('maxWidth', 1000)),
+			...this._settings.popupOptions,
 		});
 
 		if (!this.popupWindow.isShown())

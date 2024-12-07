@@ -14,9 +14,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 /** @global CMain $APPLICATION */
 
-use Bitrix\Main\Context;
-use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Tasks\Internals\Routes\RouteDictionary;
 use Bitrix\Tasks\Ui\Filter\Task;
 
 $pageId = "group_tasks";
@@ -24,6 +21,7 @@ $groupId = (int)$arResult['VARIABLES']['group_id'];
 
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 if (CSocNetFeatures::IsActiveFeature(SONET_ENTITY_GROUP, $groupId, "tasks"))
 {

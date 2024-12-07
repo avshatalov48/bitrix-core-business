@@ -1,25 +1,19 @@
-import {Color} from 'im.v2.const';
-
-import {AttachUserItem} from './user-item';
+import { AttachUserItem } from './user-item';
 
 import './user.css';
 
-import type {AttachUserConfig} from 'im.v2.const';
+import type { AttachUserConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachUser = {
 	name: 'AttachUser',
-	components: {AttachUserItem},
+	components: { AttachUserItem },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -30,7 +24,7 @@ export const AttachUser = {
 	},
 	template: `
 		<div class="bx-im-attach-user__container">
-			<AttachUserItem v-for="(user, index) in internalConfig.user" :config="user" :color="color" :key="index" />
+			<AttachUserItem v-for="(user, index) in internalConfig.user" :config="user" :key="index" />
 		</div>
-	`
+	`,
 };

@@ -519,7 +519,6 @@ $success = true;
 
 if (!check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$strWarning = GetMessage("MAIN_SESSION_EXPIRED");
 }
 elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
@@ -990,7 +989,7 @@ $tabControl->Buttons(array("disabled"=>$bReadOnly));
 $tabControl->End();
 ?>
 </form>
-<script type="text/javascript">
+<script>
 window.BXToggle = function(id)
 {
 	with(document.getElementById(id)){if (style.display=='none')style.display='';else style.display='none';};

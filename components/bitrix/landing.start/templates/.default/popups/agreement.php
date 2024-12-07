@@ -25,7 +25,7 @@ $pageName = $this->getPageName();
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	var landingAgreementPopup = function(params)
 	{
 		params = params || {};

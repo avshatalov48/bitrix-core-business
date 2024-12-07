@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -74,7 +74,7 @@ function CheckShedule($shedule)
 }
 
 /***************************************************************************
-						Обработка GET | POST
+						РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ****************************************************************************/
 
 $arrUSER = array();
@@ -102,7 +102,7 @@ if (($save <> '' || $apply <> '') && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=
 					$bExist = false;
 					for($j=0; $j<=${"custom_time_".$i."_counter"}; $j++)
 					{
-						// проверяем, чтобы время окончания было позже начала
+						// РїСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РІСЂРµРјСЏ РѕРєРѕРЅС‡Р°РЅРёСЏ Р±С‹Р»Рѕ РїРѕР·Р¶Рµ РЅР°С‡Р°Р»Р°
 						if(CheckTime($_POST["MINUTE_FROM_".$i."_".$j], $_POST["MINUTE_TILL_".$i."_".$j]))
 						{
 							$bExist = true;
@@ -114,7 +114,7 @@ if (($save <> '' || $apply <> '') && $bAdmin=="Y" && $_SERVER["REQUEST_METHOD"]=
 					}
 					if ($bExist) 
 					{
-						// проверяем корректно ли заданы промежутки времени
+						// РїСЂРѕРІРµСЂСЏРµРј РєРѕСЂСЂРµРєС‚РЅРѕ Р»Рё Р·Р°РґР°РЅС‹ РїСЂРѕРјРµР¶СѓС‚РєРё РІСЂРµРјРµРЅРё
 						if (!CheckShedule($arFields["arSHEDULE"][$i]["CUSTOM_TIME"])) 
 						{
 							unset($arFields["arSHEDULE"][$i]["CUSTOM_TIME"]);
@@ -191,7 +191,7 @@ if ($message)
 $APPLICATION->SetTitle(($ID>0? GetMessage("SUP_PAGE_TITLE_EDIT_RECORD", array("#ID#"=>$ID)) : GetMessage("SUP_PAGE_TITLE_NEW_RECORD")));
 
 /***************************************************************************
-									HTML форма
+									HTML С„РѕСЂРјР°
 ****************************************************************************/
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
@@ -234,7 +234,7 @@ if ($message)
 ?>
 
 
-<script type="text/javascript">
+<script>
 <!--
 function OnSelectAll(all_checked, name)
 {
@@ -583,7 +583,7 @@ function OnSiteClick()
 $tabControl->BeginNextTab();?>
 
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function Copy(i, j)
 	{
@@ -766,7 +766,7 @@ $tabControl->BeginNextTab();?>
 		<? 
 		} 
 		?>
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT>
 	<!--
 	OnSelectAll(<?echo ((is_array($arCATEGORIES) && (in_array(0, $arCATEGORIES) || count($arCATEGORIES) <= 0)) || !is_array($arCATEGORIES)) ? "true" : "false"?>, 'arCATEGORIES[]');
 	OnSelectAll(<?echo ((is_array($arCRITICALITIES) && (in_array(0, $arCRITICALITIES) || count($arCRITICALITIES) <= 0)) || !is_array($arCRITICALITIES)) ? "true" : "false"?>, 'arCRITICALITIES[]');

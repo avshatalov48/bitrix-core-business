@@ -8,6 +8,7 @@ use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Error;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Result;
+use Bitrix\Main\Type\Collection;
 use Bitrix\Main\Type\Date;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Rest\Integration\Externalizer;
@@ -212,7 +213,18 @@ abstract class Base
 		}
 		elseif($type === DataType::TYPE_INT)
 		{
-			$value = (int)$value;
+			if (is_array($value))
+			{
+				Collection::normalizeArrayValuesByInt($value);
+				if (empty($value))
+				{
+					$value = 1;
+				}
+			}
+			else
+			{
+				$value = (int)$value;
+			}
 		}
 		elseif($type === DataType::TYPE_DATETIME)
 		{

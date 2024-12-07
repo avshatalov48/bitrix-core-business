@@ -7,6 +7,7 @@ namespace Bitrix\Calendar\ICal\MailInvitation;
 use Bitrix\Calendar\Core\Event\Properties\ExcludedDatesCollection;
 use Bitrix\Calendar\ICal\Parser\Calendar;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 use CCalendar;
@@ -92,15 +93,27 @@ class IncomingInvitationCancelHandler extends IncomingInvitationHandler
 		return $this;
 	}
 
+	/**
+	 * @param \Bitrix\Calendar\ICal\Parser\ParserPropertyType|null $property
+	 * @return \Bitrix\Main\Type\Date|\Bitrix\Main\Type\DateTime|null
+	 */
 	private function getExdateFromRecurrenceId(?\Bitrix\Calendar\ICal\Parser\ParserPropertyType $property)
 	{
-		if ($property->getParameterValueByName('value') === 'DATE')
+		try
 		{
-			return Helper::getIcalDate($property->getValue());
+			if ($property?->getParameterValueByName('value') === 'DATE')
+			{
+				return Helper::getIcalDate($property?->getValue());
+			}
+
+			if ($tz = $property?->getParameterValueByName('tzid'))
+			{
+				return Helper::getIcalDateTime($property?->getValue(), $tz);
+			}
 		}
-		elseif ($tz = $property->getParameterValueByName('tzid'))
+		catch (ObjectException)
 		{
-			return Helper::getIcalDateTime($property->getValue(), $tz);
+			return null;
 		}
 
 		return null;

@@ -13,7 +13,7 @@ if (is_array($arNotify[SITE_ID]) &&
 		is_array($_SESSION["NOTIFY_PRODUCT"][$USER->GetID()]) &&
 		!empty($_SESSION["NOTIFY_PRODUCT"][$USER->GetID()]))
 {
-	echo '<script type="text/javascript">';
+	echo '<script>';
 	foreach ($_SESSION["NOTIFY_PRODUCT"][$USER->GetID()] as $val)
 	{
 		echo 'if (BX("url_notify_'.$val.'"))';

@@ -88,14 +88,14 @@ Class CIdeaManagmentIdea
 			$arCategoryList[$arCategory["ID"]] = $arCategory;
 
 		$arSequnce = array("CATEGORY_1" => false, "CATEGORY_2" => false);
-		$CODE = ToUpper($CODE);
+		$CODE = mb_strtoupper($CODE);
 
 		$arFullSequence = array();
 		while(array_key_exists($CODE, $arCategoryListXML))
 		{
-			array_unshift($arFullSequence, ToLower($CODE));
+			array_unshift($arFullSequence, mb_strtolower($CODE));
 			if($arCategoryListXML[$CODE]["IBLOCK_SECTION_ID"]>0 && $arCategoryList[$arCategoryListXML[$CODE]["IBLOCK_SECTION_ID"]])
-				$CODE = ToUpper($arCategoryList[$arCategoryListXML[$CODE]["IBLOCK_SECTION_ID"]]["CODE"]);
+				$CODE = mb_strtoupper($arCategoryList[$arCategoryListXML[$CODE]["IBLOCK_SECTION_ID"]]["CODE"]);
 			else
 				break;
 		}
@@ -142,7 +142,7 @@ Class CIdeaManagmentIdea
 			$obSec = CIBlockSection::GetList(array("left_margin"=>"ASC"), array("IBLOCK_ID" => $CategoryIB, "ACTIVE" => "Y"));
 			while($r = $obSec->GetNext())
 				if($r["CODE"] <> '')
-					$arCategory[ToUpper($r["CODE"])] = $r;
+					$arCategory[mb_strtoupper($r["CODE"])] = $r;
 				//else
 				//	$arCategory[$r["ID"]] = $r;
 

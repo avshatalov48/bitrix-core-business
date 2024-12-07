@@ -64,7 +64,7 @@ $APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "") . 
 <!--			</div>-->
 <!--		</div>-->
 	</div>
-<script type="text/javascript">
+<script>
 	window.pageConfiguration = new BX.Seo.PageConfiguration();
 </script>
 

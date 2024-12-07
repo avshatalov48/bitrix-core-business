@@ -67,7 +67,10 @@ class CBPGetUserInfoActivity extends CBPActivity
 	{
 		$userId = CBPHelper::ExtractUsers($this->GetUser, $this->GetDocumentId(), true);
 
-		$this->writeDebugInfo($this->getDebugInfo(['GetUser' => $userId ? 'user_' . $userId : '']));
+		if ($this->workflow->isDebug())
+		{
+			$this->writeDebugInfo($this->getDebugInfo(['GetUser' => $userId ? 'user_' . $userId : '']));
+		}
 		if (!$userId)
 		{
 			$this->WriteToTrackingService(GetMessage('BPGUIA_ERROR_1'), 0, CBPTrackingType::Error);
@@ -106,6 +109,11 @@ class CBPGetUserInfoActivity extends CBPActivity
 
 	private function logUserFields(): void
 	{
+		if (!$this->workflow->isDebug())
+		{
+			return;
+		}
+
 		$map = array_filter(
 			array_merge(self::getUserFields(), self::getUserExtendedFields()),
 			fn ($fieldId) => !CBPHelper::isEmptyValue($this->__get($fieldId)),

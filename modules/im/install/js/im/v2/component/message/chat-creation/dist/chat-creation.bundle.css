@@ -8,11 +8,11 @@
 	display: flex;
 	max-width: 100%;
 	min-width: 620px;
+	width: 673px;
 	height: 154px;
 	max-height: 154px;
 	background: var(--im-message-chat-creation__background-color_content);
 	border-radius: 16px;
-	margin-right: 54px;
 }
 
 .bx-im-message-base__wrap + .bx-im-message-chat-creation__scope {

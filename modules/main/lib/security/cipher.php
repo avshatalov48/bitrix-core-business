@@ -46,7 +46,7 @@ class Cipher
 	 * Encrypts the data by key (symmetric cipher).
 	 * @param string $data
 	 * @param string $key
-	 * @return string Base64 encoded.
+	 * @return string Binary data.
 	 * @throws SecurityException
 	 */
 	public function encrypt($data, $key)
@@ -83,7 +83,7 @@ class Cipher
 
 	/**
 	 * Decrypts the data by key (symmetric cipher).
-	 * @param string $data Base64 encoded
+	 * @param string $data Binary data
 	 * @param string $key
 	 * @return string
 	 * @throws SecurityException

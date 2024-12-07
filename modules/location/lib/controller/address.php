@@ -5,7 +5,6 @@ namespace Bitrix\Location\Controller;
 use Bitrix\Location\Entity\Address\Converter\ArrayConverter;
 use Bitrix\Location\Infrastructure\Service\ErrorService;
 use Bitrix\Location\Service;
-use Bitrix\Main\Engine\ActionFilter\Cors;
 
 /**
  * Class Address

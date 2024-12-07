@@ -2,7 +2,8 @@
 
 $MESS['INPUT_TYPE'] = 'Тип';
 $MESS['INPUT_REQUIRED'] = 'Обязательное';
-$MESS['INPUT_REQUIRED_ERROR'] = 'обязательно для заполнения';
+$MESS['INPUT_REQUIRED_ERROR_MSGVER_1'] = '"#NAME#": обязательно для заполнения';
+$MESS['INPUT_REQUIRED_ERROR_WITHOUT_FIELD_TITLE'] = 'обязательно для заполнения';
 $MESS['INPUT_INVALID_ERROR'] = 'ошибка ввода';
 $MESS['INPUT_MULTIPLE'] = 'Множественное';
 $MESS['INPUT_VALUE'] = 'Значение';

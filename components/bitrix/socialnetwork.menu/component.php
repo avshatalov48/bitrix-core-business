@@ -187,8 +187,6 @@ if(!$errorMessage && $USER->IsAuthorized() && $arResult["PERMISSION"] > "R")
 	{
 		if (!$errorMessage)
 		{
-			CUtil::JSPostUnescape();		
-
 			$idTmp = CSocNetFeatures::SetFeature(
 				$arParams["ENTITY_TYPE"],
 				$arParams["ENTITY_ID"],
@@ -236,8 +234,6 @@ if(!$errorMessage && $USER->IsAuthorized() && $arResult["PERMISSION"] > "R")
 		&& check_bitrix_sessid()
 		)
 	{
-		CUtil::JSPostUnescape();		
-
 		if (
 			isset($_REQUEST["max_items"])
 			&& intval($_REQUEST["max_items"]) > 0
@@ -337,7 +333,7 @@ if(!$errorMessage && $USER->IsAuthorized() && $arResult["PERMISSION"] > "R")
 		if(!$errorMessage)
 		{
 			$APPLICATION->RestartBuffer();
-			?><script type="text/javascript">
+			?><script>
 				top.BX.reload();
 			</script><?
 			die();
@@ -385,7 +381,7 @@ if(!$errorMessage && $USER->IsAuthorized() && $arResult["PERMISSION"] > "R")
 		if(!$errorMessage)
 		{
 			$APPLICATION->RestartBuffer();
-			?><script type="text/javascript">
+			?><script>
 				top.BX.reload();
 			</script><?
 			die();
@@ -548,7 +544,7 @@ if(!$errorMessage && $_REQUEST['menu_ajax'] == $arParams["ID"])
 				echo $strResult;
 				$obJSPopup->EndContent();
 				?>
-				<script type="text/javascript">
+				<script>
 				<?=$obJSPopup->jsPopup?>.SetButtons([
 					BX.CDialog.btnSave, BX.CDialog.btnCancel, {
 						title: '<?=CUtil::JSEscape(GetMessage("SONET_SM_CLEAR"))?>',

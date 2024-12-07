@@ -70,7 +70,7 @@ class User
 		$handler = $eventManager->addEventHandlerCompatible('main', 'OnUserLoginExternal', array('\Bitrix\Mail\User', 'onLoginExternal'));
 
 		global $USER;
-		$USER->login(null, null, 'Y');
+		$USER->login('', '', 'Y');
 
 		$eventManager->removeEventHandler('main', 'OnUserLoginExternal', $handler);
 	}
@@ -356,7 +356,7 @@ class User
 					if ($title == '')
 					{
 						$title = trim($messageFields['CONTENT']);
-						$title = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", $title);
+						$title = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/isu", "", $title);
 
 						$CBXSanitizer = new \CBXSanitizer;
 						$CBXSanitizer->delAllTags();
@@ -500,7 +500,7 @@ class User
 
 		$filter = array(
 			"ID" => $userList,
-			"ACTIVE" => "Y",
+			"=ACTIVE" => "Y",
 			"=EXTERNAL_AUTH_ID" => 'email'
 		);
 

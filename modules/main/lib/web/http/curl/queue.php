@@ -111,7 +111,7 @@ class Queue extends Http\Queue
 
 					if ($logger = $handler->getLogger())
 					{
-						$logger->error($error);
+						$logger->error($error . "\n");
 					}
 				}
 

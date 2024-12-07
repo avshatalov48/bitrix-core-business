@@ -75,7 +75,7 @@ $playerId = $id . "player";
 </div>
 
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Audio.init(<?=Json::encode(array(
 			'id' => $arParams['INPUT_NAME'],

@@ -564,7 +564,11 @@
 		}
 
 		var list = this.getTiles();
-		this.buttonSelect.innerHTML = (list.length > 0 ? this.captionMore : this.caption)
+		const textNode = this.buttonSelect.querySelector('.ui-tile-selector-select');
+		if (textNode)
+		{
+			textNode.innerHTML = (list.length > 0 ? this.captionMore : this.caption)
+		}
 	};
 
 	var Helper = {

@@ -6,13 +6,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/header.php");
 
 \Bitrix\Main\Page\Asset::getInstance()->setJsToBody(false);
 
-if (!\Bitrix\Main\Application::getInstance()->isUtfMode())
-{
-	$GLOBALS["APPLICATION"]->RestartBuffer();
-	CHTTP::SetStatus("404 Not Found");
-	return;
-}
-
 if (!CModule::IncludeModule('im'))
 	return;
 

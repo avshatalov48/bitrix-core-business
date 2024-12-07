@@ -37,25 +37,33 @@ class MssqlConnection extends Connection
 	protected function connectInternal()
 	{
 		if ($this->isConnected)
+		{
 			return;
+		}
 
-		$connectionInfo = array(
+		$connectionInfo = [
 			"UID" => $this->login,
 			"PWD" => $this->password,
 			"Database" => $this->database,
 			"ReturnDatesAsStrings" => true,
 			/*"CharacterSet" => "utf-8",*/
-		);
+		];
 
-		if (($this->options & self::PERSISTENT) != 0)
+		if ($this->isPersistent())
+		{
 			$connectionInfo["ConnectionPooling"] = true;
+		}
 		else
+		{
 			$connectionInfo["ConnectionPooling"] = false;
+		}
 
 		$connection = sqlsrv_connect($this->host, $connectionInfo);
 
 		if (!$connection)
+		{
 			throw new ConnectionException('MS Sql connect error', $this->getErrorMessage());
+		}
 
 		$this->resource = $connection;
 		$this->isConnected = true;
@@ -75,7 +83,9 @@ class MssqlConnection extends Connection
 	protected function disconnectInternal()
 	{
 		if (!$this->isConnected)
+		{
 			return;
+		}
 
 		$this->isConnected = false;
 		sqlsrv_close($this->resource);
@@ -94,14 +104,16 @@ class MssqlConnection extends Connection
 
 		$trackerQuery?->startQuery($sql, $binds);
 
-		$result = sqlsrv_query($this->resource, $sql, array(), array("Scrollable" => 'forward'));
+		$result = sqlsrv_query($this->resource, $sql, [], ["Scrollable" => 'forward']);
 
 		$trackerQuery?->finishQuery();
 
 		$this->lastQueryResult = $result;
 
 		if (!$result)
+		{
 			throw new SqlQueryException('MS Sql query error', $this->getErrorMessage(), $sql);
+		}
 
 		return $result;
 	}
@@ -139,12 +151,14 @@ class MssqlConnection extends Connection
 		$tableName = trim($tableName);
 
 		if ($tableName == '')
+		{
 			return false;
+		}
 
 		$result = $this->queryScalar(
-			"SELECT COUNT(TABLE_NAME) ".
-			"FROM INFORMATION_SCHEMA.TABLES ".
-			"WHERE TABLE_NAME LIKE '".$this->getSqlHelper()->forSql($tableName)."'"
+			"SELECT COUNT(TABLE_NAME) " .
+			"FROM INFORMATION_SCHEMA.TABLES " .
+			"WHERE TABLE_NAME LIKE '" . $this->getSqlHelper()->forSql($tableName) . "'"
 		);
 		return ($result > 0);
 	}
@@ -172,14 +186,14 @@ class MssqlConnection extends Connection
 
 		//2000
 		$rs = $this->query(
-			"SELECT s.indid as index_id, s.keyno as key_ordinal, c.name column_name, si.name index_name ".
-			"FROM sysindexkeys s ".
-			"   INNER JOIN syscolumns c ON s.id = c.id AND s.colid = c.colid ".
-			"   INNER JOIN sysobjects o ON s.id = o.Id AND o.xtype = 'U' ".
-			"   LEFT JOIN sysindexes si ON si.indid = s.indid AND si.id = s.id ".
-			"WHERE o.name = UPPER('".$this->getSqlHelper()->forSql($tableName)."')");
+			"SELECT s.indid as index_id, s.keyno as key_ordinal, c.name column_name, si.name index_name " .
+			"FROM sysindexkeys s " .
+			"   INNER JOIN syscolumns c ON s.id = c.id AND s.colid = c.colid " .
+			"   INNER JOIN sysobjects o ON s.id = o.Id AND o.xtype = 'U' " .
+			"   LEFT JOIN sysindexes si ON si.indid = s.indid AND si.id = s.id " .
+			"WHERE o.name = UPPER('" . $this->getSqlHelper()->forSql($tableName) . "')");
 
-		$indexes = array();
+		$indexes = [];
 		while ($ar = $rs->fetch())
 		{
 			$indexes[$ar["index_name"]][$ar["key_ordinal"] - 1] = $ar["column_name"];
@@ -197,7 +211,7 @@ class MssqlConnection extends Connection
 		{
 			$this->connectInternal();
 
-			$query = $this->queryInternal("SELECT TOP 0 * FROM ".$this->getSqlHelper()->quote($tableName));
+			$query = $this->queryInternal("SELECT TOP 0 * FROM " . $this->getSqlHelper()->quote($tableName));
 
 			$result = $this->createResult($query);
 
@@ -209,10 +223,10 @@ class MssqlConnection extends Connection
 	/**
 	 * @inheritDoc
 	 */
-	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
+	public function createTable($tableName, $fields, $primary = [], $autoincrement = [])
 	{
-		$sql = 'CREATE TABLE '.$this->getSqlHelper()->quote($tableName).' (';
-		$sqlFields = array();
+		$sql = 'CREATE TABLE ' . $this->getSqlHelper()->quote($tableName) . ' (';
+		$sqlFields = [];
 
 		foreach ($fields as $columnName => $field)
 		{
@@ -228,8 +242,7 @@ class MssqlConnection extends Connection
 			$sqlFields[] = $this->getSqlHelper()->quote($realColumnName)
 				. ' ' . $this->getSqlHelper()->getColumnTypeByField($field)
 				. ' NOT NULL'
-				. (in_array($columnName, $autoincrement, true) ? ' IDENTITY (1, 1)' : '')
-			;
+				. (in_array($columnName, $autoincrement, true) ? ' IDENTITY (1, 1)' : '');
 		}
 
 		$sql .= join(', ', $sqlFields);
@@ -242,7 +255,7 @@ class MssqlConnection extends Connection
 				$primaryColumn = $this->getSqlHelper()->quote($realColumnName);
 			}
 
-			$sql .= ', PRIMARY KEY('.join(', ', $primary).')';
+			$sql .= ', PRIMARY KEY(' . join(', ', $primary) . ')';
 		}
 
 		$sql .= ')';
@@ -255,7 +268,7 @@ class MssqlConnection extends Connection
 	 */
 	public function renameTable($currentName, $newName)
 	{
-		$this->query('EXEC sp_rename '.$this->getSqlHelper()->quote($currentName).', '.$this->getSqlHelper()->quote($newName));
+		$this->query('EXEC sp_rename ' . $this->getSqlHelper()->quote($currentName) . ', ' . $this->getSqlHelper()->quote($newName));
 	}
 
 	/**
@@ -263,7 +276,7 @@ class MssqlConnection extends Connection
 	 */
 	public function dropTable($tableName)
 	{
-		$this->query('DROP TABLE '.$this->getSqlHelper()->quote($tableName));
+		$this->query('DROP TABLE ' . $this->getSqlHelper()->quote($tableName));
 	}
 
 	/*********************************************************
@@ -326,7 +339,7 @@ class MssqlConnection extends Connection
 			}
 		}
 
-		return array($this->version, $this->versionExpress);
+		return [$this->version, $this->versionExpress];
 	}
 
 	/**
@@ -337,7 +350,7 @@ class MssqlConnection extends Connection
 		$errors = "";
 		foreach (sqlsrv_errors(SQLSRV_ERR_ERRORS) as $error)
 		{
-			$errors .= "SQLSTATE: ".$error['SQLSTATE'].";"." code: ".$error['code']."; message: ".$error[ 'message']."\n";
+			$errors .= "SQLSTATE: " . $error['SQLSTATE'] . ";" . " code: " . $error['code'] . "; message: " . $error['message'] . "\n";
 		}
 		return $errors;
 	}

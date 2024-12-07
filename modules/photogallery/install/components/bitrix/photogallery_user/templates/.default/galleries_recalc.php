@@ -11,7 +11,7 @@
 	}
 }
 \Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
-$time = getmicrotime();
+$time = microtime(true);
 
 if (!CModule::IncludeModule("iblock"))
 {
@@ -79,7 +79,7 @@ if ($_REQUEST["AJAX"] == "Y" && check_bitrix_sessid())
 		$arGallery["element_id"] = $res["ID"];
 		$arGallery["element_number"]++;
 
-		if (getmicrotime() - $time > 10)
+		if (microtime(true) - $time > 10)
 		{
 			$bBreaked = true;
 			break;
@@ -88,7 +88,7 @@ if ($_REQUEST["AJAX"] == "Y" && check_bitrix_sessid())
 	$arGallery["status"] = (($iCnt < $iCount && !$bBreaked) ? "done" : "inprogress");
 	if ($arGallery["status"] == "done")
 	{
-		if (getmicrotime() - $time > 10)
+		if (microtime(true) - $time > 10)
 		{
 			$arGallery["status"] = "inprogress";
 		}
@@ -192,7 +192,7 @@ if ($_REQUEST["AJAX"] == "Y" && check_bitrix_sessid())
 	<div id="photogallery_error" style="display: none;" class="errortext">
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 var phpVars;
 if (typeof(phpVars) != "object")
 	var phpVars = {};

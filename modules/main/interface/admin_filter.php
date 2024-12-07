@@ -3,10 +3,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\Json;
 
 class CAdminFilter
 {
@@ -99,11 +100,6 @@ class CAdminFilter
 
 			$this->AddItem($arItem);
 		}
-	}
-
-	private static function err_mess()
-	{
-		return "<br>Class: CAdminFilter<br>File: ".__FILE__;
 	}
 
 	private function AddItem($arItem, $bInsertFirst = false)
@@ -327,13 +323,18 @@ class CAdminFilter
 
 	private function FindItemByPresetId($strID)
 	{
-
-		if(!is_array($this->arItems))
+		if (!is_array($this->arItems))
+		{
 			return false;
+		}
 
 		foreach ($this->arItems as $key => $item)
-			if($item["PRESET_ID"] == $strID)
+		{
+			if (isset($item["PRESET_ID"]) && $item["PRESET_ID"] == $strID)
+			{
 				return $key;
+			}
+		}
 
 		return false;
 	}
@@ -439,7 +440,6 @@ class CAdminFilter
 	{
 		global $DB;
 
-		$err_mess = (static::err_mess())."<br>Function: GetList<br>Line: ";
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
 		{
@@ -537,7 +537,7 @@ class CAdminFilter
 		}
 		if ($sOrder == '')
 			$sOrder = "F.ID ASC";
-		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
+		$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch,"noFilterLogic");
 		$strSql = "
@@ -610,12 +610,12 @@ class CAdminFilter
 		if($aParams !== false)
 		{
 			$url = $aParams["url"];
-			if(strpos($url, "?") === false)
+			if(!str_contains($url, "?"))
 				$url .= "?";
 			else
 				$url .= "&";
 
-			if(strpos($url, "lang=") === false)
+			if(!str_contains($url, "lang="))
 				$url .= "lang=".LANGUAGE_ID;
 
 			if(!$this->url)
@@ -700,7 +700,7 @@ class CAdminFilter
 		}
 
 		echo '
-<script type="text/javascript">
+<script>
 	var '.$this->id.' = {};
 	BX.ready(function(){
 		'.$this->id.' = new BX.AdminFilter("'.$this->id.'", ['.$sRowIds.']);
@@ -711,8 +711,8 @@ class CAdminFilter
 		'.$this->id.'.state.init = true;
 		'.$this->id.'.state.folded = '.($this->arOptFlt["styleFolded"] === "Y" ? "true" : "false").';
 		'.$this->id.'.InitFilter({'.$sVisRowsIds.'});
-		'.$this->id.'.oOptions = '.CUtil::PhpToJsObject($this->arItems).';
-		'.$this->id.'.popupItems = '.CUtil::PhpToJsObject($this->popup).';
+		'.$this->id.'.oOptions = ' . Json::encode($this->arItems) . ';
+		'.$this->id.'.popupItems = ' . Json::encode($this->popup) . ';
 		'.$this->id.'.InitFirst();
 		'.$this->id.'.url = "'.CUtil::JSEscape($this->url).'";
 		'.$this->id.'.table_id = "'.CUtil::JSEscape($this->tableId).'";
@@ -846,14 +846,10 @@ class CAdminFilter
 		<?
 	}
 
-	public static function UnEscape($aFilter)
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public static function UnEscape()
 	{
-		if(defined("BX_UTF"))
-			return;
-		if(!is_array($aFilter))
-			return;
-		foreach($aFilter as $flt)
-			if(isset($GLOBALS[$flt]) && is_string($GLOBALS[$flt]) && CUtil::DetectUTF8($GLOBALS[$flt]))
-				CUtil::decodeURIComponent($GLOBALS[$flt]);
 	}
 }

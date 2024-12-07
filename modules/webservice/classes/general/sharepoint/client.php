@@ -149,12 +149,6 @@ class CSPListsClient extends CSOAPClient
 			}
 		}
 
-		$fp = fopen($_SERVER['DOCUMENT_ROOT'].'/sp_client6.log', 'a');
-		fwrite($fp, $this->getRawRequest());
-		fwrite($fp, $this->getRawResponse());
-		fwrite($fp, "\n==========================================\n\n");
-		fclose($fp);
-
 		return $this->GetByIDProcessResult($RESULT);
 	}
 
@@ -289,12 +283,6 @@ class CSPListsClient extends CSOAPClient
 		{
 			$RESULT = array();
 
-			// $fp = fopen($_SERVER['DOCUMENT_ROOT'].'/sp_client1.log', 'a');
-			// fwrite($fp, $this->getRawRequest());
-			// fwrite($fp, $this->getRawResponse());
-			// fwrite($fp, "\n==========================================\n\n");
-			// fclose($fp);
-
 			$CHANGES = $DOM->elementsByName('Changes');
 
 			$RESULT['MORE_ROWS'] = false;
@@ -425,13 +413,6 @@ class CSPListsClient extends CSOAPClient
 
 		}
 
-		$fp = fopen($_SERVER['DOCUMENT_ROOT'].'/sp_client5.log', 'a');
-		fwrite($fp, $this->getRawRequest());
-		fwrite($fp, $this->getRawResponse());
-		fwrite($fp, "\n==========================================\n\n");
-		fclose($fp);
-
-
 		return $RESULT;
 	}
 
@@ -443,11 +424,7 @@ class CSPListsClient extends CSOAPClient
 			$URL = str_replace(
 				array('%3A', '%2F'),
 				array(':', '/'),
-				rawurlencode($GLOBALS['APPLICATION']->ConvertCharset(
-					urldecode($arParams['URL']),
-					LANG_CHARSET,
-					'utf-8'
-				))
+				rawurlencode(urldecode($arParams['URL']))
 			);
 
 			$CLIENT = new CHTTP();

@@ -52,7 +52,7 @@ final class DocumentUserField extends Base
 			$value = [''];
 		}
 
-		if ($info['USER_FIELD_TYPE'] === 'file')
+		if (($info['USER_FIELD_TYPE'] ?? null) === 'file')
 		{
 			if ($isMultiple)
 			{
@@ -82,8 +82,13 @@ final class DocumentUserField extends Base
 
 	public function externalizeListFields($list, $fieldsInfo = []): array
 	{
-		$documentType = $list[0]['DOC_TYPE'];
-		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $this->getFieldMapForType($documentType));
+		$documentType = $list[0]['DOC_TYPE'] ?? null;
+		$userFields =
+			$documentType !== null
+				? $this->getFieldMapForType($documentType)
+				: []
+		;
+		$fieldsInfo = array_merge($fieldsInfo, $this->getFields(), $userFields);
 
 		return parent::externalizeListFields($list, $fieldsInfo);
 	}

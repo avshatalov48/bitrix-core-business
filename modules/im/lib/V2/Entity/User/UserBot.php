@@ -2,7 +2,10 @@
 
 namespace Bitrix\Im\V2\Entity\User;
 
+use Bitrix\Im\Integration\Socialnetwork\Extranet;
+use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Entity\User\Data\BotData;
+use Bitrix\Im\V2\Result;
 use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\Loader;
 
@@ -20,16 +23,23 @@ class UserBot extends User
 		return true;
 	}
 
-	protected function checkAccessWithoutCaching(User $otherUser): bool
+	protected function checkAccessInternal(User $otherUser): Result
 	{
+		$result = new Result();
+
 		if (!static::$moduleManager::isModuleInstalled('intranet'))
 		{
-			return $this->hasAccessBySocialNetwork($otherUser->getId());
+			if (!$this->hasAccessBySocialNetwork($otherUser->getId()))
+			{
+				$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+			}
+
+			return $result;
 		}
 
 		if (Loader::includeModule('imbot') && $this->getBotData()->getCode() === CopilotChatBot::BOT_CODE)
 		{
-			return false;
+			return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
 		}
 
 		global $USER;
@@ -39,34 +49,34 @@ class UserBot extends User
 			{
 				if ($USER->IsAdmin())
 				{
-					return true;
+					return $result;
 				}
 
 				if (static::$loader::includeModule('bitrix24'))
 				{
 					if (\CBitrix24::IsPortalAdmin($otherUser->getId()) || \Bitrix\Bitrix24\Integrator::isIntegrator($otherUser->getId()))
 					{
-						return true;
+						return $result;
 					}
 				}
 			}
 
-			$inGroup = \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($this->getId(), $otherUser->getId());
+			$inGroup = Extranet::isUserInGroup(
+				$this->getId(),
+				$otherUser->getId(),
+				false
+			);
+
 			if ($inGroup)
 			{
-				return true;
+				return $result;
 			}
 
 
-			return false;
+			return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
 		}
 
-		if ($this->isNetwork())
-		{
-			return true;
-		}
-
-		return true;
+		return $result;
 	}
 
 	public function toRestFormat(array $option = []): array

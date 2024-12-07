@@ -8,7 +8,9 @@ use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Helper\Workgroup;
 use Bitrix\Socialnetwork\Helper\Path;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 use Bitrix\Socialnetwork\UserToGroupTable;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 use Bitrix\Tasks\Control\Tag;
 use Bitrix\Socialnetwork\Internals\EventService;
@@ -217,7 +219,18 @@ class CAllSocNetGroup
 			$arFields['DESCRIPTION'] = Emoji::encode($arFields['DESCRIPTION']);
 		}
 
-		return True;
+		if (isset($arFields['TYPE']))
+		{
+			if (!Type::isValid($arFields['TYPE']))
+			{
+				$APPLICATION->ThrowException('Wrong type', 'WRONG_GROUP_TYPE');
+				return false;
+			}
+
+			$arFields['TYPE'] = Type::getValue($arFields['TYPE']);
+		}
+
+		return true;
 	}
 
 	public static function Delete($ID)
@@ -240,7 +253,11 @@ class CAllSocNetGroup
 			}
 		}
 
-		$arGroup = CSocNetGroup::GetByID($ID);
+		$queryObject = \Bitrix\Socialnetwork\WorkgroupTable::getList([
+			'filter' => ['ID' => $ID],
+			'select' => ['IMAGE_ID', 'NAME', 'PROJECT'],
+		]);
+		$arGroup = $queryObject->fetch();
 		if (!$arGroup)
 		{
 			$APPLICATION->ThrowException(GetMessage("SONET_NO_GROUP"), "ERROR_NO_GROUP");
@@ -273,9 +290,11 @@ class CAllSocNetGroup
 
 		if ($bSuccess)
 		{
-			Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat(array(
-				'group_id' => $ID
-			));
+			Bitrix\Socialnetwork\Integration\Im\Chat\Workgroup::unlinkChat([
+				'group_id' => $ID,
+				'group_name' => $arGroup['NAME'],
+				'group_project' => $arGroup['PROJECT'],
+			]);
 
 			$bSuccessTmp = true;
 			$dbResult = CSocNetFeatures::GetList(
@@ -816,9 +835,28 @@ class CAllSocNetGroup
 
 		if (!empty($arFields['SCRUM_MASTER_ID']) && CModule::includeModule("tasks"))
 		{
-			if (ScrumLimit::isLimitExceeded())
+			$isScrumLimitExceeded = ScrumLimit::isLimitExceeded() || !ScrumLimit::isFeatureEnabled();
+			if (ScrumLimit::canTurnOnTrial())
+			{
+				$isScrumLimitExceeded = false;
+			}
+			if ($isScrumLimitExceeded)
 			{
 				$APPLICATION->ThrowException("Scrum limit exceeded");
+
+				return false;
+			}
+		}
+		elseif (empty($arFields['SCRUM_MASTER_ID']) && CModule::includeModule("tasks"))
+		{
+			$isProjectLimitExceeded = !ProjectLimit::isFeatureEnabled();
+			if (ProjectLimit::canTurnOnTrial())
+			{
+				$isProjectLimitExceeded = false;
+			}
+			if ($isProjectLimitExceeded)
+			{
+				$APPLICATION->ThrowException("Project limit exceeded");
 
 				return false;
 			}
@@ -839,6 +877,11 @@ class CAllSocNetGroup
 		if (!isset($arFields["DATE_ACTIVITY"]))
 		{
 			$arFields["=DATE_ACTIVITY"] = CDatabase::currentTimeFunction();
+		}
+
+		if (!isset($arFields['TYPE']))
+		{
+			$arFields['TYPE'] = static::getTypeByFields($arFields);
 		}
 
 		$arFields["ACTIVE"] = "Y";
@@ -1462,6 +1505,21 @@ class CAllSocNetGroup
 			}
 			CSocNetUserToGroup::ConfirmRequestToBeMember($GLOBALS["USER"]->GetID(), $groupId, $arIDs, $bAutoSubscribe);
 		}
+	}
+
+	private static function getTypeByFields(array $fields): Type
+	{
+		if (isset($fields['SCRUM_MASTER_ID']))
+		{
+			return Type::SCRUM;
+		}
+
+		if (($fields['PROJECT'] ?? 'N') === 'Y')
+		{
+			return Type::PROJECT;
+		}
+
+		return Type::getDefault();
 	}
 
 }

@@ -1,4 +1,4 @@
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
 
 import type { ImModelBot, ImModelUser } from 'im.v2.model';
@@ -6,13 +6,21 @@ import type { ImModelBot, ImModelUser } from 'im.v2.model';
 // @vue/component
 export const DetailUser = {
 	name: 'DetailUser',
-	components: { Avatar, ChatTitle },
+	components: { ChatAvatar, ChatTitle },
 	props: {
 		dialogId: {
 			type: String,
 			required: true,
 		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
 		isOwner: {
+			type: Boolean,
+			default: false,
+		},
+		isManager: {
 			type: Boolean,
 			default: false,
 		},
@@ -28,6 +36,11 @@ export const DetailUser = {
 		AvatarSize: () => AvatarSize,
 		position(): string
 		{
+			if (this.isCopilot)
+			{
+				return this.$store.getters['copilot/getProvider'];
+			}
+
 			return this.$store.getters['users/getPosition'](this.dialogId);
 		},
 		user(): ImModelUser
@@ -50,10 +63,9 @@ export const DetailUser = {
 		},
 		isCopilot(): boolean
 		{
-			const authorId = Number.parseInt(this.dialogId, 10);
-			const copilotUserId = this.$store.getters['users/bots/getCopilotUserId'];
+			const userId = Number.parseInt(this.dialogId, 10);
 
-			return copilotUserId === authorId;
+			return this.$store.getters['users/bots/isCopilot'](userId);
 		},
 		hasLink(): boolean
 		{
@@ -77,16 +89,21 @@ export const DetailUser = {
 			@mouseleave="showContextButton = false"
 		>
 			<div class="bx-im-sidebar-main-detail__avatar-container">
-				<Avatar :size="AvatarSize.L" :dialogId="dialogId" />
+				<ChatAvatar 
+					:size="AvatarSize.L"
+					:avatarDialogId="dialogId"
+					:contextDialogId="contextDialogId"
+				/>
 				<span v-if="isOwner" class="bx-im-sidebar-main-detail__avatar-owner-icon"></span>
+				<span v-else-if="isManager" class="bx-im-sidebar-main-detail__avatar-manager-icon"></span>
 			</div>
 			<div class="bx-im-sidebar-main-detail__user-info-container">
 				<div class="bx-im-sidebar-main-detail__user-title-container">
 					<a v-if="hasLink" :href="userLink" target="_blank" class="bx-im-sidebar-main-detail__user-title-link">
-						<ChatTitle :dialogId="dialogId" />
+						<ChatTitle :dialogId="dialogId" :withLeftIcon="!isCopilot" />
 					</a>
 					<div v-else class="bx-im-sidebar-main-detail__user-title-link">
-						<ChatTitle :dialogId="dialogId" />
+						<ChatTitle :dialogId="dialogId" :withLeftIcon="!isCopilot" />
 					</div>
 					<div
 						v-if="needContextMenu && showContextButton"

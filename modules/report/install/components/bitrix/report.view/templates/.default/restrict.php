@@ -20,7 +20,7 @@ $APPLICATION->IncludeComponent("bitrix:ui.info.helper", "", []);
 
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(
 		function ()
 		{

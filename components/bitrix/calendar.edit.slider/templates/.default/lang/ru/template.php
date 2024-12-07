@@ -14,6 +14,8 @@ $MESS["EC_EDIT_SLIDER_COLOR_COLUMN"] = "Цвет события";
 $MESS["EC_EDIT_SLIDER_LOCATION_COLUMN"] = "Место проведения";
 $MESS["EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN"] = "Занятость";
 $MESS["EC_EDIT_SLIDER_PRIVATE_COLUMN"] = "Частное";
+$MESS["EC_EDIT_SLIDER_CATEGORY_COLUMN"] = "Категория события";
+$MESS["EC_EDIT_SLIDER_MAX_ATTENDEES_COLUMN"] = "Максимальное количество участников";
 
 $MESS["EC_EDIT_SLIDER_DATETIME_FROM"] = "Дата и время начала";
 $MESS["EC_EDIT_SLIDER_DATE_FROM"] = "Дата начала";
@@ -28,6 +30,8 @@ $MESS["EC_EDIT_SLIDER_CANCEL_BUTTON"] = "Отменить";
 $MESS["EC_EDIT_SLIDER_PRIVATE_LABEL"] = "Частное событие";
 $MESS["EC_EDIT_SLIDER_PRIVATE_HINT"] = "Детальная информация о событии видна только вам";
 $MESS["EC_EDIT_SLIDER_FIX_FIELD"] = "Включить/выключить постоянное отображение блока";
+$MESS["EC_EDIT_SLIDER_CATEGORY_FIELD"] = "Категория события";
+$MESS["EC_EDIT_SLIDER_MAX_ATTENDEES_FIELD"] = "Максимальное количество участников";
 
 $MESS["EC_EDIT_SLIDER_REPEAT_NONE"] = "Не повторяется";
 $MESS["EC_EDIT_SLIDER_REPEAT_DAILY"] = "Каждый день";

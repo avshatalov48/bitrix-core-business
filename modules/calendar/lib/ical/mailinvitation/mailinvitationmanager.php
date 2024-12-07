@@ -37,44 +37,42 @@ class MailInvitationManager
 
 		if (!is_iterable($sendersCollection))
 		{
-			AddMessage2Log('Ical senders collection is not iterable', 'calendar', 4);
+			return;
 		}
-		else
-		{
-			$unsuccessfulSent = [];
-			$failSent = [];
-			foreach ($sendersCollection as $sender)
-			{
-				if ($sender instanceof SenderInvitation)
-				{
-					self::setLanguageId();
-					$sender->incrementCounterInvitations();
-					$currentSender = clone $sender;
 
-					if ($sender->send())
-					{
-						$sender->executeAfterSuccessfulInvitation();
-					}
-					elseif ($sender->getCountAttempsSend() < self::MAX_ATTEMPS_INVITATION)
-					{
-						$unsuccessfulSent[] = $currentSender;
-					}
-					else
-					{
-						$failSent[$sender->getEventParentId()] = self::getDataForNotify($sender);
-					}
+		$unsuccessfulSent = [];
+		$failSent = [];
+		foreach ($sendersCollection as $sender)
+		{
+			if ($sender instanceof SenderInvitation)
+			{
+				self::setLanguageId();
+				$sender->incrementCounterInvitations();
+				$currentSender = clone $sender;
+
+				if ($sender->send())
+				{
+					$sender->executeAfterSuccessfulInvitation();
+				}
+				elseif ($sender->getCountAttempsSend() < self::MAX_ATTEMPS_INVITATION)
+				{
+					$unsuccessfulSent[] = $currentSender;
+				}
+				else
+				{
+					$failSent[$sender->getEventParentId()] = self::getDataForNotify($sender);
 				}
 			}
+		}
 
-			if (!empty($unsuccessfulSent))
-			{
-				self::createAgentSent($unsuccessfulSent);
-			}
+		if (!empty($unsuccessfulSent))
+		{
+			self::createAgentSent($unsuccessfulSent);
+		}
 
-			if (!empty($failSent))
-			{
-				self::sentFailSentNotify($failSent);
-			}
+		if (!empty($failSent))
+		{
+			self::sentFailSentNotify($failSent);
 		}
 	}
 

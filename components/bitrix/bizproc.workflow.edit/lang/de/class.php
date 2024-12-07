@@ -9,6 +9,7 @@ $MESS["BIZPROC_WFEDIT_CATEGORY_REST_1"] = "Aktionen der Anwendungen";
 $MESS["BIZPROC_WFEDIT_CATEGORY_TASKS_1"] = "Aufgaben";
 $MESS["BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR_MSGVER_1"] = "Vorlage kann nicht gespeichert werden, weil Vorlagenkonstanten zu groß sind.";
 $MESS["BIZPROC_WFEDIT_DEFAULT_TITLE"] = "Workflow-Vorlage";
+$MESS["BIZPROC_WFEDIT_ERROR_COMPLEX_TYPE"] = "Diese Vorlage ist mit diesem Elementtyp nicht verknüpft.";
 $MESS["BIZPROC_WFEDIT_ERROR_TYPE_MSGVER_1"] = "Typ des Workflow-Elements ist erforderlich.";
 $MESS["BIZPROC_WFEDIT_IMPORT_ERROR"] = "Fehler beim Importieren der Workflow-Vorlage";
 $MESS["BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR_MSGVER_1"] = "Vorlage kann nicht gespeichert werden, weil Vorlagenparameter zu groß sind.";

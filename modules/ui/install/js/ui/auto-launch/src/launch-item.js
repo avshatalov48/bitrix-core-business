@@ -3,7 +3,7 @@ import { EventEmitter } from 'main.core.events';
 import { LaunchPriority } from './launch-priority';
 import { LaunchState } from './launch-state';
 
-import type { LaunchItemOptions, LaunchItemCallback } from './launch-item-options';
+import type { LaunchItemOptions, LaunchItemCallback, LaunchItemContext } from './launch-item-options';
 
 export default class LaunchItem extends EventEmitter
 {
@@ -14,6 +14,7 @@ export default class LaunchItem extends EventEmitter
 	#allowLaunchAfterOthers: boolean = false;
 	#forceShowOnTop: boolean | Function = false;
 	#state: LaunchState = LaunchState.IDLE;
+	#context: LaunchItemContext = {};
 
 	constructor(itemOptions: LaunchItemOptions)
 	{
@@ -35,6 +36,8 @@ export default class LaunchItem extends EventEmitter
 				? options.forceShowOnTop
 				: this.#forceShowOnTop
 		);
+
+		this.#context = Type.isPlainObject(options.context) ? options.context : {};
 
 		this.setEventNamespace('BX.Main.Launcher.Item');
 	}
@@ -74,6 +77,11 @@ export default class LaunchItem extends EventEmitter
 	getDelay(): number
 	{
 		return this.#delay;
+	}
+
+	getContext(): LaunchItemContext
+	{
+		return this.#context;
 	}
 
 	canLaunchAfterOthers(): boolean

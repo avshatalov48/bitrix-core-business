@@ -75,3 +75,15 @@
 .bx-im-message-enable-feature__image.--websitesStores::after {
 	background-image: url("./images/websites-stores.svg");
 }
+
+.bx-im-message-enable-feature__image.--scrum::after {
+	background-image: url("./images/scrum.svg");
+}
+
+.bx-im-message-enable-feature__image.--invoices::after {
+	background-image: url("./images/invoices.svg");
+}
+
+.bx-im-message-enable-feature__image.--saleshub::after {
+	background-image: url("./images/saleshub.svg");
+}

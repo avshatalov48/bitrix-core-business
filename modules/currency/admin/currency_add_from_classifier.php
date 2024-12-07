@@ -339,7 +339,7 @@ if (!empty($errorMessage))
 </div>
 <?= EndNote();?>
 
-<script type="text/javascript">
+<script>
 	BX.AdminCurrencyClassifierClass = (function ()
 	{
 		var lids = [];

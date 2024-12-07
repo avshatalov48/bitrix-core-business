@@ -167,22 +167,22 @@ function DoInsert(objTextarea, Tag, closeTag)
 	return isOpen;
 } 
 
-// Транслитерация
+// РўСЂР°РЅСЃР»РёС‚РµСЂР°С†РёСЏ
 
 //var TRANSLIT_title = "<?=GetMessage("SUP_TRANSLIT")?>";
 var TRANSLIT_way = 0;
 
 var smallEngLettersReg = new Array(/e'/g, /ch/g, /sh/g, /yo/g, /jo/g, /zh/g, /yu/g, /ju/g, /ya/g, /ja/g, /a/g, /b/g, /v/g, /g/g, /d/g, /e/g, /z/g, /i/g, /j/g, /k/g, /l/g, /m/g, /n/g, /o/g, /p/g, /r/g, /s/g, /t/g, /u/g, /f/g, /h/g, /c/g, /w/g, /~/g, /y/g, /'/g);
 var capitEngLettersReg = new Array( /E'/g, /CH/g, /SH/g, /YO/g, /JO/g, /ZH/g, /YU/g, /JU/g, /YA/g, /JA/g, /A/g, /B/g, /V/g, /G/g, /D/g, /E/g, /Z/g, /I/g, /J/g, /K/g, /L/g, /M/g, /N/g, /O/g, /P/g, /R/g, /S/g, /T/g, /U/g, /F/g, /H/g, /C/g, /W/g, /~/g, /Y/g, /'/g);
-var smallRusLetters = new Array("э", "ч", "ш", "ё", "ё", "ж", "ю", "ю", "я", "я", "а", "б", "в", "г", "д", "е", "з", "и", "й", "к", "л", "м", "н", "о", "п", "р", "с", "т", "у", "ф", "х", "ц", "щ", "ъ", "ы", "ь");
-var capitRusLetters = new Array( "Э", "Ч", "Ш", "Ё", "Ё", "Ж", "Ю", "Ю", "\Я", "\Я", "А", "Б", "В", "Г", "Д", "Е", "З", "И", "Й", "К", "Л", "М", "Н", "О", "П", "Р", "С", "Т", "У", "Ф", "Х", "Ц", "Щ", "Ъ", "Ы", "Ь");
+var smallRusLetters = new Array("СЌ", "С‡", "С€", "С‘", "С‘", "Р¶", "СЋ", "СЋ", "СЏ", "СЏ", "Р°", "Р±", "РІ", "Рі", "Рґ", "Рµ", "Р·", "Рё", "Р№", "Рє", "Р»", "Рј", "РЅ", "Рѕ", "Рї", "СЂ", "СЃ", "С‚", "Сѓ", "С„", "С…", "С†", "С‰", "СЉ", "С‹", "СЊ");
+var capitRusLetters = new Array( "Р­", "Р§", "РЁ", "РЃ", "РЃ", "Р–", "Р®", "Р®", "\РЇ", "\РЇ", "Рђ", "Р‘", "Р’", "Р“", "Р”", "Р•", "Р—", "Р", "Р™", "Рљ", "Р›", "Рњ", "Рќ", "Рћ", "Рџ", "Р ", "РЎ", "Рў", "РЈ", "Р¤", "РҐ", "Р¦", "Р©", "РЄ", "Р«", "Р¬");
 
 var smallEngLetters = new Array("e", "ch", "sh", "yo", "jo", "zh", "yu", "ju", "ya", "ja", "a", "b", "v", "g", "d", "e", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "c", "w", "~", "y", "'");
 var capitEngLetters = new Array("E", "CH", "SH", "YO", "JO", "ZH", "YU", "JU", "YA", "JA", "A", "B", "V", "G", "D", "E", "Z", "I", "J", "K", "L", "M", "N", "O", "P", "R", "S", "T", "U", "F", "H", "C", "W", "~", "Y", "'");
-var smallRusLettersReg = new Array(/э/g, /ч/g, /ш/g, /ё/g, /ё/g,/ж/g, /ю/g, /ю/g, /я/g, /я/g, /а/g, /б/g, /в/g, /г/g, /д/g, /е/g, /з/g, /и/g, /й/g, /к/g, /л/g, /м/g, /н/g, /о/g, /п/g, /р/g, /с/g, /т/g, /у/g, /ф/g, /х/g, /ц/g, /щ/g, /ъ/g, /ы/g, /ь/ );
-var capitRusLettersReg = new Array(/Э/g, /Ч/g, /Ш/g, /Ё/g, /Ё/g, /Ж/g, /Ю/g, /Ю/g, /Я/g, /Я/g, /А/g, /Б/g, /В/g, /Г/g, /Д/g, /Е/g, /З/g, /И/g, /Й/g, /К/g, /Л/g, /М/g, /Н/g, /О/g, /П/g, /Р/g, /С/g, /Т/g, /У/g, /Ф/g, /Х/g, /Ц/g, /Щ/g, /Ъ/g, /Ы/g, /Ь/);
+var smallRusLettersReg = new Array(/СЌ/g, /С‡/g, /С€/g, /С‘/g, /С‘/g,/Р¶/g, /СЋ/g, /СЋ/g, /СЏ/g, /СЏ/g, /Р°/g, /Р±/g, /РІ/g, /Рі/g, /Рґ/g, /Рµ/g, /Р·/g, /Рё/g, /Р№/g, /Рє/g, /Р»/g, /Рј/g, /РЅ/g, /Рѕ/g, /Рї/g, /СЂ/g, /СЃ/g, /С‚/g, /Сѓ/g, /С„/g, /С…/g, /С†/g, /С‰/g, /СЉ/g, /С‹/g, /СЊ/ );
+var capitRusLettersReg = new Array(/Р­/g, /Р§/g, /РЁ/g, /РЃ/g, /РЃ/g, /Р–/g, /Р®/g, /Р®/g, /РЇ/g, /РЇ/g, /Рђ/g, /Р‘/g, /Р’/g, /Р“/g, /Р”/g, /Р•/g, /Р—/g, /Р/g, /Р™/g, /Рљ/g, /Р›/g, /Рњ/g, /Рќ/g, /Рћ/g, /Рџ/g, /Р /g, /РЎ/g, /Рў/g, /РЈ/g, /Р¤/g, /РҐ/g, /Р¦/g, /Р©/g, /РЄ/g, /Р«/g, /Р¬/);
 
-// э, ч, ш, ё, ё,ж, ю, ю, я, я, а, б, в, г, д, е, з, и, й, к, л, м, н, о, п, р, с, т, у, ф, х, ц, щ, ъ, ы, ь
+// СЌ, С‡, С€, С‘, С‘,Р¶, СЋ, СЋ, СЏ, СЏ, Р°, Р±, РІ, Рі, Рґ, Рµ, Р·, Рё, Р№, Рє, Р», Рј, РЅ, Рѕ, Рї, СЂ, СЃ, С‚, Сѓ, С„, С…, С†, С‰, СЉ, С‹, СЊ
 // e, ch, sh, yo, jo, zh, yu, ju, ya, ja, a, b, v, g, d, e, z, i, j, k, l, m, n, o, p, r, s, t, u, f, h, c, w, ~, y, '
 
 function translit(objTextarea)
@@ -206,12 +206,12 @@ function translit(objTextarea)
 
 	if (textbody)
 	{
-		if (TRANSLIT_way==0) // латиница -> кириллица
+		if (TRANSLIT_way==0) // Р»Р°С‚РёРЅРёС†Р° -> РєРёСЂРёР»Р»РёС†Р°
 		{
 			for (i=0; i<smallEngLettersReg.length; i++) textbody = textbody.replace(smallEngLettersReg[i], smallRusLetters[i]);
 			for (i=0; i<capitEngLettersReg.length; i++) textbody = textbody.replace(capitEngLettersReg[i], capitRusLetters[i]);
 		}
-		else // кириллица -> латиница
+		else // РєРёСЂРёР»Р»РёС†Р° -> Р»Р°С‚РёРЅРёС†Р°
 		{
 			for (i=0; i<smallRusLetters.length; i++) textbody = textbody.replace(smallRusLettersReg[i], smallEngLetters[i]);
 			for (i=0; i<capitRusLetters.length; i++) textbody = textbody.replace(capitRusLettersReg[i], capitEngLetters[i]);
@@ -220,13 +220,13 @@ function translit(objTextarea)
 		else rng.text = textbody;
 	}
 
-	if (TRANSLIT_way==0) // латиница -> кириллица
+	if (TRANSLIT_way==0) // Р»Р°С‚РёРЅРёС†Р° -> РєРёСЂРёР»Р»РёС†Р°
 	{
 		//document.form1.TRANSLIT.value += " *";
 		document.forms['support_edit'].elements['TRANSLIT'].value += " *";
 		TRANSLIT_way = 1;
 	}
-	else // кириллица -> латиница
+	else // РєРёСЂРёР»Р»РёС†Р° -> Р»Р°С‚РёРЅРёС†Р°
 	{
 		//document.form1.TRANSLIT.value = TRANSLIT_title;
 		document.forms['support_edit'].elements['TRANSLIT'].value = document.forms['support_edit'].elements['TRANSLIT'].value.slice(0,-2);

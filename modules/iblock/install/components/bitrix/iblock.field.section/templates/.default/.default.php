@@ -1,14 +1,19 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arResult */
 
 $isFirst = true;
-foreach($arResult['value'] as $value)
+foreach ($arResult['value'] as $value)
 {
-	if(!$isFirst)
+	if (!$isFirst)
 	{
-		print '<br>';
+		echo '<br>';
 	}
 	$isFirst = false;
-	print (!empty($value) ? $arResult['userField']['USER_TYPE']['FIELDS'][$value] : '');
+	echo (!empty($value) ? $arResult['userField']['USER_TYPE']['FIELDS'][$value] : '');
 }

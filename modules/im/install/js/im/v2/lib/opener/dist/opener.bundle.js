@@ -6,16 +6,20 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	'use strict';
 
 	const Opener = {
-	  async openChat(dialogId = '') {
+	  async openChat(dialogId = '', messageId = 0) {
 	    const preparedDialogId = dialogId.toString();
 	    if (im_v2_lib_utils.Utils.dialog.isLinesExternalId(preparedDialogId)) {
 	      return this.openLines(preparedDialogId);
 	    }
 	    await im_v2_lib_slider.MessengerSlider.getInstance().openSlider();
-	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	    const layoutParams = {
 	      name: im_v2_const.Layout.chat.name,
 	      entityId: preparedDialogId
-	    });
+	    };
+	    if (messageId > 0) {
+	      layoutParams.contextId = messageId;
+	    }
+	    await im_v2_lib_layout.LayoutManager.getInstance().setLayout(layoutParams);
 	    main_core_events.EventEmitter.emit(im_v2_const.EventType.layout.onOpenChat, {
 	      dialogId: preparedDialogId
 	    });
@@ -33,12 +37,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      entityId: preparedDialogId
 	    });
 	  },
-	  async openCopilot(dialogId = '') {
+	  async openCopilot(dialogId = '', contextId = 0) {
 	    const preparedDialogId = dialogId.toString();
 	    await im_v2_lib_slider.MessengerSlider.getInstance().openSlider();
 	    return im_v2_lib_layout.LayoutManager.getInstance().setLayout({
 	      name: im_v2_const.Layout.copilot.name,
-	      entityId: preparedDialogId
+	      entityId: preparedDialogId,
+	      contextId
 	    });
 	  },
 	  openHistory(dialogId = '') {
@@ -111,7 +116,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return Promise.resolve();
 	  },
 	  openNewTab(path) {
-	    if (im_v2_lib_desktopApi.DesktopApi.isChatTab() && im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.openNewTab)) {
+	    if (im_v2_lib_desktopApi.DesktopApi.isChatTab() && im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.openNewTab.id)) {
 	      im_v2_lib_desktopApi.DesktopApi.createImTab(`${path}&${im_v2_const.GetParameter.desktopChatTabMode}=Y`);
 	    } else {
 	      im_v2_lib_utils.Utils.browser.openLink(path);
@@ -131,5 +136,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Opener = Opener;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=opener.bundle.js.map

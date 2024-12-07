@@ -2,7 +2,6 @@
 
 namespace Bitrix\Location\Common;
 
-use Bitrix\Location\Exception\RuntimeException;
 use Bitrix\Location\Infrastructure\Service\Config\Container;
 use Bitrix\Location\Infrastructure\Service\Config\Factory;
 use Bitrix\Location\Infrastructure\Service\ErrorService;

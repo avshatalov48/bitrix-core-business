@@ -115,9 +115,6 @@ if (empty($arRunErrors))
 		$strXmlProduct .= "\t\t</Product>\n";
 		$strXmlProduct .= "\t</Listing>\n";
 
-		if(SITE_CHARSET !=  "UTF-8")
-			$strXmlProduct = $GLOBALS['APPLICATION']->ConvertCharset($strXmlProduct, SITE_CHARSET, "UTF-8");
-
 		@fwrite($fp, $strXmlProduct);
 	}
 

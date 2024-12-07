@@ -4,6 +4,10 @@ namespace Bitrix\Bizproc\Worker\Document;
 
 use Bitrix\Main;
 
+/**
+ * @deprecated
+ * class DeleteStepper
+ */
 class DeleteStepper extends Main\Update\Stepper
 {
 	protected static $moduleId = 'bizproc';

@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Common;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 use Bitrix\Main\ORM\Query\Filter\Helper;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Search\Content;
@@ -11,6 +12,7 @@ use Bitrix\Main\Search\Content;
 trait IndexTableTrait
 {
 	use MultiplyInsertTrait;
+	use DeleteByFilterTrait;
 
 	private static bool $isAlreadyPlanned = false;
 
@@ -34,38 +36,26 @@ trait IndexTableTrait
 		return $searchString;
 	}
 
-	public static function deleteByFilter(array $filter): void
+	public static function deleteByParentFilter(array $filter): void
 	{
-		$connection = Application::getConnection();
-		$sqlHelper = $connection->getSqlHelper();
-		$indexTable = $sqlHelper->quote(static::getTableName());
-		$baseTable = $sqlHelper->quote(static::getBaseDataClass()::getTableName());
-		$indexTablePrimary = $sqlHelper->quote(static::getEntity()->getPrimary());
-		$baseTablePrimary = $sqlHelper->quote(static::getBaseDataClass()::getEntity()->getPrimary());
-		$whereStatement = Query::buildFilterSql(static::getBaseDataClass()::getEntity(), $filter);
+		$baseTablePrimary = static::getBaseDataClass()::getEntity()->getPrimary();
+		$indexTablePrimary = static::getEntity()->getPrimary();
+		$rows = static::getBaseDataClass()::getList(['select' => [$baseTablePrimary], 'filter' => $filter])->fetchAll();
+		$primaries = [];
 
-		if ($connection->getType() == 'mysql')
+		foreach ($rows as $row)
 		{
-			$sql = "
-				DELETE {$indexTable} 
-				FROM {$indexTable} 
-					INNER JOIN {$baseTable} 
-						ON {$indexTable}.{$indexTablePrimary} = {$baseTable}.{$baseTablePrimary}
-				WHERE {$whereStatement};
-			";
-		}
-		elseif ($connection->getType() == 'pgsql')
-		{
-			$sql = "
-				DELETE FROM {$indexTable}
-				USING {$baseTable}
-				WHERE
-					{$indexTable}.{$indexTablePrimary} = {$baseTable}.{$baseTablePrimary}
-					AND {$whereStatement}
-			";
+			$primaries[] = (int)$row[$baseTablePrimary];
 		}
 
-		$connection->queryExecute($sql);
+		if (empty($primaries))
+		{
+			return;
+		}
+
+		sort($primaries);
+
+		static::deleteByFilter(["={$indexTablePrimary}" => $primaries]);
 	}
 
 	public static function updateIndexStatus(array $ids, bool $status = true): void

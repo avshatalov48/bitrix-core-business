@@ -1337,6 +1337,18 @@
 
 /*endregion*/
 
+/* region ui-btn-icon-reload */
+.ui-btn-icon-reload.ui-btn-danger-dark,
+.ui-btn-icon-reload.ui-btn-success-dark,
+.ui-btn-icon-reload.ui-btn-primary-dark,
+.ui-btn-icon-reload.ui-btn-link,
+.ui-btn-icon-reload.ui-btn-light,
+.ui-btn-icon-reload.ui-btn-success,
+.ui-btn-icon-reload.ui-btn-secondary,
+.ui-btn-icon-reload.ui-btn-light-border,
+.bitrix24-dark-theme .ui-btn-icon-reload.ui-btn-themes { --ui-btn-icon: url(/bitrix/js/ui/buttons/icons/images/ui-reload.svg); }
+/* endregion */
+
 /*region ui-btn-icon-arrow-back*/
 .ui-btn-icon-arrow-back.ui-btn,
 .ui-btn-icon-arrow-back.ui-btn-split,

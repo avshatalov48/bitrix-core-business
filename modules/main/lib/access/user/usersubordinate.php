@@ -113,7 +113,7 @@ class UserSubordinate
 		return static::$cache[$key];
 	}
 
-	private static function getParentDepartments(int $id)
+	public static function getParentDepartments(int $id): array
 	{
 		$structure = self::getStructure();
 		$res = [];
@@ -129,6 +129,7 @@ class UserSubordinate
 				$res = array_merge($res, self::getParentDepartments($parent));
 			}
 		}
+
 		return $res;
 	}
 

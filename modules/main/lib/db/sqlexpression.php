@@ -9,6 +9,8 @@
 namespace Bitrix\Main\DB;
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
 
 /**
  * Class SqlExpression
@@ -62,7 +64,7 @@ class SqlExpression
 	{
 		$this->i = -1;
 
-		if (strpos($this->expression, '\\') === false)
+		if (!str_contains($this->expression, '\\'))
 		{
 			// regular case
 			return preg_replace_callback($this->pattern, array($this, 'execPlaceholders'), $this->expression);
@@ -110,7 +112,22 @@ class SqlExpression
 			{
 				$value = 'NULL';
 			}
-			elseif ($ph == '?' || $ph == '?s')
+			elseif ($ph == '?')
+			{
+				if ($value instanceof DateTime)
+				{
+					$value = $sqlHelper->convertToDbDateTime($value);
+				}
+				elseif ($value instanceof Date)
+				{
+					$value = $sqlHelper->convertToDbDate($value);
+				}
+				else
+				{
+					$value = "'" . $sqlHelper->forSql($value) . "'";
+				}
+			}
+			elseif ($ph == '?s')
 			{
 				$value = "'" . $sqlHelper->forSql($value) . "'";
 			}

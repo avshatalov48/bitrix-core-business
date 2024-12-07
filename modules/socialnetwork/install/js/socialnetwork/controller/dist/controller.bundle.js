@@ -12,7 +12,7 @@ this.BX = this.BX || {};
 	        }
 	      }
 	    }).then(response => {
-	      var _response$data, _response$data2, _response$data3, _response$data$USER_D, _response$data4, _response$data5, _response$data6, _response$data7, _response$data7$ACTIO, _response$data8, _response$data8$ACTIO, _response$data9, _response$data9$ACTIO, _response$data10, _response$data10$ACTI, _response$data11, _response$data12, _response$data13, _response$data13$SUBJ, _response$data14, _response$data15;
+	      var _response$data, _response$data2, _response$data3, _response$data$USER_D, _response$data4, _response$data5, _response$data6, _response$data7, _response$data7$ACTIO, _response$data8, _response$data8$ACTIO, _response$data9, _response$data9$ACTIO, _response$data10, _response$data10$ACTI, _response$data11, _response$data11$ACTI, _response$data12, _response$data12$ACTI, _response$data13, _response$data14, _response$data15, _response$data15$SUBJ, _response$data16, _response$data17;
 	      return {
 	        id: response.data.ID,
 	        name: response.data.NAME,
@@ -28,13 +28,15 @@ this.BX = this.BX || {};
 	          canEdit: (_response$data7 = response.data) == null ? void 0 : (_response$data7$ACTIO = _response$data7.ACTIONS) == null ? void 0 : _response$data7$ACTIO.EDIT,
 	          canInvite: (_response$data8 = response.data) == null ? void 0 : (_response$data8$ACTIO = _response$data8.ACTIONS) == null ? void 0 : _response$data8$ACTIO.INVITE,
 	          canLeave: (_response$data9 = response.data) == null ? void 0 : (_response$data9$ACTIO = _response$data9.ACTIONS) == null ? void 0 : _response$data9$ACTIO.LEAVE,
-	          canEditFeatures: (_response$data10 = response.data) == null ? void 0 : (_response$data10$ACTI = _response$data10.ACTIONS) == null ? void 0 : _response$data10$ACTI.EDIT_FEATURES
+	          canFollow: (_response$data10 = response.data) == null ? void 0 : (_response$data10$ACTI = _response$data10.ACTIONS) == null ? void 0 : _response$data10$ACTI.FOLLOW,
+	          canPin: (_response$data11 = response.data) == null ? void 0 : (_response$data11$ACTI = _response$data11.ACTIONS) == null ? void 0 : _response$data11$ACTI.PIN,
+	          canEditFeatures: (_response$data12 = response.data) == null ? void 0 : (_response$data12$ACTI = _response$data12.ACTIONS) == null ? void 0 : _response$data12$ACTI.EDIT_FEATURES
 	        },
-	        counters: (_response$data11 = response.data) == null ? void 0 : _response$data11.COUNTERS,
-	        efficiency: (_response$data12 = response.data) == null ? void 0 : _response$data12.EFFICIENCY,
-	        subject: (_response$data13 = response.data) == null ? void 0 : (_response$data13$SUBJ = _response$data13.SUBJECT_DATA) == null ? void 0 : _response$data13$SUBJ.NAME,
-	        dateCreate: (_response$data14 = response.data) == null ? void 0 : _response$data14.DATE_CREATE,
-	        features: (_response$data15 = response.data) == null ? void 0 : _response$data15.FEATURES
+	        counters: (_response$data13 = response.data) == null ? void 0 : _response$data13.COUNTERS,
+	        efficiency: (_response$data14 = response.data) == null ? void 0 : _response$data14.EFFICIENCY,
+	        subject: (_response$data15 = response.data) == null ? void 0 : (_response$data15$SUBJ = _response$data15.SUBJECT_DATA) == null ? void 0 : _response$data15$SUBJ.NAME,
+	        dateCreate: (_response$data16 = response.data) == null ? void 0 : _response$data16.DATE_CREATE,
+	        features: (_response$data17 = response.data) == null ? void 0 : _response$data17.FEATURES
 	      };
 	    }).catch(error => {
 	      // eslint-disable-next-line no-console
@@ -103,11 +105,11 @@ this.BX = this.BX || {};
 	      }
 	    });
 	  }
-	  static changeFeatures(groupId, features) {
-	    return main_core.ajax.runAction('socialnetwork.api.workgroup.setFeatures', {
+	  static changeFeature(groupId, feature) {
+	    return main_core.ajax.runAction('socialnetwork.api.workgroup.setFeature', {
 	      data: {
 	        groupId,
-	        features
+	        feature
 	      }
 	    });
 	  }

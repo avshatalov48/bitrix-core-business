@@ -6,6 +6,9 @@
 	--im-sidebar-main-detail__color_invitation-button-text: #11a9d9;
 	--im-sidebar-main-detail__background-color_invitation-button: #fff;
 	--im-sidebar-main-detail__background_link-icon: url('./images/invitation-link-icon.svg') no-repeat center;
+
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-3xs);
 }
 
 .bx-im-sidebar-main-detail__invitation-button-container {
@@ -17,11 +20,11 @@
 .bx-im-sidebar-main-detail__user {
 	display: flex;
 	height: 70px;
-	padding: 0 19px 16px 10px;
-	margin-left: 6px;
+	padding: 12px 19px 0 10px;
+	margin-left: 8px;
 	border-radius: 8px;
-	align-items: center;
 	position: relative;
+	flex-shrink: 0;
 }
 
 .bx-im-sidebar-main-detail__user:hover {
@@ -40,17 +43,26 @@
 
 .bx-im-sidebar-main-detail__avatar-container {
 	position: relative;
-	padding-top: 12px;
 }
 
 .bx-im-sidebar-main-detail__avatar-owner-icon {
 	width: 14px;
 	height: 14px;
 	position: absolute;
-	top: 10px;
+	top: -2px;
 	left: 29px;
 	border-radius: 50%;
 	background: #fff url('./images/owner-crown.svg') no-repeat center;
+}
+
+.bx-im-sidebar-main-detail__avatar-manager-icon {
+	width: 14px;
+	height: 14px;
+	position: absolute;
+	top: -2px;
+	left: 29px;
+	border-radius: 50%;
+	background: #fff url('./images/manager-crown.svg') no-repeat center;
 }
 
 .bx-im-sidebar-main-detail__user-info-container {
@@ -73,8 +85,7 @@
 }
 
 .bx-im-sidebar-main-detail__position-text {
-	font: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
-	font-weight: var(--im-font-weight-normal);
+	font-size: var(--im-font-size-md);
 	color: var(--im-sidebar-main-detail__color_position);
 	text-overflow: ellipsis;
 	white-space: nowrap;

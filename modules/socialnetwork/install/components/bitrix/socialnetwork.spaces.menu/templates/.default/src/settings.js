@@ -10,6 +10,8 @@ type Params = {
 	entityId: number,
 	logo?: LogoData,
 	chat: Chat,
+	availableFeatures: { [option: 'discussions' | 'tasks' | 'calendar' | 'files']: boolean },
+	isMember?: boolean,
 }
 
 import './css/settings.css';
@@ -40,6 +42,8 @@ export class Settings
 			{
 				this.#settings = new GroupSettings({
 					bindElement: this.#getParam('bindElement'),
+					availableFeatures: this.#getParam('availableFeatures'),
+					isMember: this.#getParam('isMember'),
 					groupId: this.#getParam('entityId'),
 					logo: this.#getParam('logo'),
 					chat: this.#getParam('chat'),

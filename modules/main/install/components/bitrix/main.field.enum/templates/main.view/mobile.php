@@ -7,6 +7,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 /**
  * @var array $arResult
@@ -73,20 +74,20 @@ if ($arResult['isEnabled'])
 
 	<script>
 
-		BX.message(<?= \CUtil::PhpToJSObject([
+		BX.message(<?= Json::encode([
 			'USER_TYPE_ENUM_NO_VALUE' => Loc::getMessage('USER_TYPE_ENUM_NO_VALUE')
 		]) ?>);
 
 		BX.ready(function ()
 		{
 			new BX.Mobile.Field.Enum(
-				<?=CUtil::PhpToJSObject([
+				<?= Json::encode([
 					'name' => 'BX.Mobile.Field.Enum',
 					'nodes' => $nodes,
 					'restrictedMode' => true,
 					'formId' => $arParams['additionalParameters']['formId'],
 					'gridId' => $arParams['additionalParameters']['gridId'],
-				])?>
+				]) ?>
 			);
 		});
 	</script>

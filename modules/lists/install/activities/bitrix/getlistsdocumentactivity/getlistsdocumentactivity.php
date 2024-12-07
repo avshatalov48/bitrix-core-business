@@ -359,7 +359,7 @@ class CBPGetListsDocumentActivity extends CBPActivity
 
 	private function logDebug($id, $type)
 	{
-		if (!method_exists($this, 'getDebugInfo'))
+		if (!$this->workflow->isDebug())
 		{
 			return;
 		}
@@ -376,7 +376,7 @@ class CBPGetListsDocumentActivity extends CBPActivity
 
 	private function logDebugFields(array $fields, array $values)
 	{
-		if (!method_exists($this, 'getDebugInfo'))
+		if (!$this->workflow->isDebug())
 		{
 			return;
 		}

@@ -98,7 +98,7 @@ if (!$isAjax)
 		if ($fieldDef['type'] === 'list' && isset($fieldDef['group_values']))
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				BX.ready(function () {
 
 					BX.addCustomEvent(window, 'UI::Select::change', BX.delegate(function (select, data) {
@@ -208,7 +208,7 @@ $APPLICATION->IncludeComponent(
 if (!$isAjax)
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 
 			BX.Translate.PathList.init(<?=Json::encode(array(

@@ -50,4 +50,7 @@ $MESS["top_panel_pin_off"] = "Открепить панель";
 $MESS["admin_panel_notif_block_title"] = "Просмотр уведомлений";
 $MESS["adm_top_panel_view_public_site_title"] = "Перейти в режим работы с публичным сайтом";
 $MESS["admin_panel_public_site"] = "Публичный сайт";
+$MESS['adm_top_panel_wwall_unsec'] = 'Угроза безопасности';
+$MESS['adm_top_panel_wwall_sec'] = 'Сайт под защитой';
+$MESS['adm_top_panel_wwall_sec_cp'] = 'Портал под защитой';
 ?>

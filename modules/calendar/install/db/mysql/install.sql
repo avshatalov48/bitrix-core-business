@@ -97,7 +97,7 @@ create table b_calendar_event
   INDEX ix_cal_event_date_to_utc (DATE_TO_TS_UTC),
   INDEX ix_cal_event_owner_id_date (OWNER_ID, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
   INDEX ix_cal_event_parent_id (PARENT_ID),
-  INDEX ix_cal_event_created_by (CREATED_BY),
+  INDEX ix_cal_event_created_by_access_date_to (CREATED_BY, ACCESSIBILITY, DATE_TO_TS_UTC),
   INDEX ix_cal_event_owner_id_accessibility (ACCESSIBILITY, DATE_FROM_TS_UTC, DATE_TO_TS_UTC),
   INDEX ix_cal_event_recurrence_id (RECURRENCE_ID),
   INDEX ix_cal_google_event_id (G_EVENT_ID),
@@ -315,4 +315,90 @@ CREATE TABLE b_calendar_sharing_link_member (
 	PRIMARY KEY (ID),
 	UNIQUE KEY (LINK_ID, MEMBER_ID),
 	INDEX ix_calendar_sharing_link_member_link_id(LINK_ID)
+);
+
+CREATE TABLE b_calendar_event_attendee (
+	ID int NOT NULL AUTO_INCREMENT,
+	OWNER_ID int NOT NULL,
+	CREATED_BY int NOT NULL,
+	MEETING_STATUS varchar(1) NOT NULL,
+	DELETED varchar(1) NOT NULL,
+	SECTION_ID int NOT NULL,
+	COLOR varchar(10) DEFAULT NULL,
+	REMIND text DEFAULT NULL,
+	DAV_EXCH_LABEL varchar(255) DEFAULT NULL,
+	SYNC_STATUS varchar(20) DEFAULT NULL,
+	EVENT_ID int NOT NULL,
+	PRIMARY KEY(ID),
+	INDEX b_calendar_event_attendee__ix_owner_status_deleted(OWNER_ID, MEETING_STATUS, DELETED),
+	INDEX b_calendar_event_attendee__ix_section_id(SECTION_ID),
+	INDEX b_calendar_event_attendee__ix_event_id(EVENT_ID)
+);
+
+CREATE TABLE b_calendar_open_event_category (
+	ID int NOT NULL AUTO_INCREMENT,
+	NAME varchar(255) NOT NULL,
+	CREATOR_ID int NOT NULL,
+	CLOSED varchar(1) DEFAULT 'N',
+	DESCRIPTION text DEFAULT NULL,
+	ACCESS_CODES text DEFAULT NULL,
+	DELETED varchar(1) DEFAULT 'N',
+	CHANNEL_ID int NOT NULL,
+	EVENTS_COUNT int NOT NULL DEFAULT 0,
+	DATE_CREATE datetime NOT NULL DEFAULT NOW(),
+	LAST_ACTIVITY datetime NOT NULL DEFAULT NOW(),
+	PRIMARY KEY(ID),
+	INDEX b_calendar_open_event_category__ix_creator_id(CREATOR_ID),
+	INDEX b_calendar_open_event_category__ix_last_activity(LAST_ACTIVITY),
+	UNIQUE INDEX b_calendar_open_event_category__ux_channel_id(CHANNEL_ID)
+);
+
+CREATE TABLE b_calendar_open_event_option (
+	ID int NOT NULL AUTO_INCREMENT,
+	EVENT_ID int NOT NULL,
+	CATEGORY_ID int NOT NULL,
+	THREAD_ID int NOT NULL,
+	OPTIONS text NOT NULL,
+	ATTENDEES_COUNT int NOT NULL DEFAULT 0,
+	PRIMARY KEY(ID),
+	UNIQUE INDEX b_calendar_open_event_option__ux_event_id(EVENT_ID),
+	INDEX b_calendar_open_event_option__ix_category_id(CATEGORY_ID)
+);
+
+CREATE TABLE b_calendar_open_event_category_attendee (
+	ID int NOT NULL AUTO_INCREMENT,
+	USER_ID int NOT NULL,
+	CATEGORY_ID int NOT NULL,
+	PRIMARY KEY(ID),
+	UNIQUE INDEX b_calendar_open_event_category_attendee__ux_user_category(USER_ID, CATEGORY_ID)
+);
+
+CREATE TABLE b_calendar_open_event_category_muted (
+	ID int NOT NULL AUTO_INCREMENT,
+	USER_ID int NOT NULL,
+	CATEGORY_ID int NOT NULL,
+	PRIMARY KEY(ID),
+	UNIQUE INDEX b_calendar_open_event_category_muted__ux_category_user(CATEGORY_ID, USER_ID)
+);
+
+CREATE TABLE b_calendar_open_event_category_banned (
+	ID int NOT NULL AUTO_INCREMENT,
+	USER_ID int NOT NULL,
+	CATEGORY_ID int NOT NULL,
+	PRIMARY KEY(ID),
+	UNIQUE INDEX b_calendar_open_event_category_banned__ux_user_category(USER_ID, CATEGORY_ID)
+);
+
+CREATE TABLE b_calendar_scorer (
+	`ID` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
+	`USER_ID` INT(11) NOT NULL DEFAULT 0,
+	`EVENT_ID` INT(11) NOT NULL DEFAULT 0,
+	`PARENT_ID` INT(11) NOT NULL DEFAULT 0,
+	`TYPE` VARCHAR(64) NOT NULL DEFAULT '',
+	`VALUE` MEDIUMINT(8) UNSIGNED NOT NULL DEFAULT 0,
+	PRIMARY KEY (`ID`),
+	INDEX `ix_calendar_scorer_parent` (`PARENT_ID`),
+	INDEX `ix_calendar_scorer_utype` (`USER_ID`, `TYPE`, `EVENT_ID`),
+	INDEX `ix_calendar_scorer_utype2` (`USER_ID`, `EVENT_ID`, `TYPE`),
+	INDEX `ix_calendar_scorer_type` (`EVENT_ID`, `TYPE`)
 );

@@ -67,7 +67,7 @@ class CBlogPost extends CAllBlogPost
 			$strSql =
 				"INSERT INTO b_blog_post(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 
@@ -285,7 +285,7 @@ class CBlogPost extends CAllBlogPost
 				"UPDATE b_blog_post SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			unset(static::$arBlogPostCache[$ID]);
 
@@ -531,7 +531,7 @@ class CBlogPost extends CAllBlogPost
 				"	".$DB->DateToCharFunction("P.DATE_PUBLISH", "FULL")." as DATE_PUBLISH ".
 				"FROM b_blog_post P ".
 				"WHERE P.ID = ";
-			$dbResult = $DB->Query($strSql.$ID, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql.$ID);
 			if ($arResult = $dbResult->Fetch())
 			{
 				if (!empty($arResult['TITLE']))
@@ -950,7 +950,7 @@ class CBlogPost extends CAllBlogPost
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -996,7 +996,7 @@ class CBlogPost extends CAllBlogPost
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -1022,7 +1022,7 @@ class CBlogPost extends CAllBlogPost
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("BLOG_POST"));
 		}
 		//echo "!4!=".htmlspecialcharsbx($strSql)."<br>";
@@ -1093,7 +1093,7 @@ class CBlogPost extends CAllBlogPost
 			"GROUP BY DATE_PUBLISH1 ".
 			"ORDER BY DATE_PUBLISH1 ";
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		$arResult = array();
 		while ($arRes = $dbRes->Fetch())

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CEEN_NO_PERMS2ADD"]="У вас недостаточно прав для добавления новой наценки";
 $MESS["CEEN_NO_DISCOUNT"]="Наценка ##ID# не найдена";
 $MESS["CEEN_ERROR_SAVING_EXTRA"]="Ошибка сохранения наценки";
@@ -21,4 +21,3 @@ $MESS["CEEN_PERCENTAGE"]="Величина наценки";
 $MESS["CEEN_DISCOUNT_VALUE"]="Величина наценки";
 $MESS["CEEN_RECALC"]="Пересчитать цены";
 $MESS["CEEN_SORT"]="Индекс сортировки";
-?>

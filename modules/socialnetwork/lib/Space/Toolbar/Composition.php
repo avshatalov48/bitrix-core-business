@@ -109,7 +109,16 @@ class Composition
 		{
 			$composition = SpaceCompositionTable::getByIds($this->userId, $this->spaceId);
 			$collection = CompositionItemCollection::createFromModuleIds((array)$composition?->getSettings());
+			$cacheCollection = clone $collection;
+
 			!$withHidden && $collection->hideItems();
+
+			$this->cache->store(
+				$cacheCollection
+					->fillBoundItems()
+					->hideItems()
+					->toArray()
+			);
 
 			return $collection->toArray();
 		}

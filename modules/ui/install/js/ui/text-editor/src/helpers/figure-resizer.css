@@ -1,0 +1,82 @@
+.ui-text-editor-figure-resizer {
+	display: none;
+}
+
+.ui-text-editor-figure-resizer.--shown {
+	display: flex;
+}
+
+.ui-text-editor-figure-resizer.--resizing {
+	touch-action: none;
+}
+
+.ui-text-editor-figure-resizer.--resizing:after {
+	position: absolute;
+	content: '';
+	z-index: 10;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	cursor: pointer;
+	display: block;
+	background: transparent;
+}
+
+.ui-text-editor-figure-resizer-handle {
+	display: block;
+	width: 7px;
+	height: 7px;
+	position: absolute;
+	background-color: rgb(60, 132, 244);
+	border: 1px solid #fff;
+	z-index: 10;
+}
+
+.ui-text-editor-figure-resizer-handle.--north {
+	top: -6px;
+	left: 48%;
+	cursor: n-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--north-east {
+	top: -6px;
+	right: -6px;
+	cursor: ne-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--east {
+	bottom: 48%;
+	right: -6px;
+	cursor: e-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--south-east {
+	bottom: -2px;
+	right: -6px;
+	cursor: nwse-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--south {
+	bottom: -2px;
+	left: 48%;
+	cursor: s-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--south-west {
+	bottom: -2px;
+	left: -6px;
+	cursor: sw-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--west {
+	bottom: 48%;
+	left: -6px;
+	cursor: w-resize;
+}
+
+.ui-text-editor-figure-resizer-handle.--north-west {
+	top: -6px;
+	left: -6px;
+	cursor: nw-resize;
+}

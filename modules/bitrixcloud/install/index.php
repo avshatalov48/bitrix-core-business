@@ -98,35 +98,19 @@ class bitrixcloud extends CModule
 		return true;
 	}
 
-	public function InstallEvents()
-	{
-		return true;
-	}
-
-	public function UnInstallEvents()
-	{
-		return true;
-	}
-
 	public function InstallFiles($arParams = [])
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/gadgets', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/gadgets', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/components', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/js', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/js', true, true);
-		}
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/gadgets', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/gadgets', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/components', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/components', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/js', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/js', true, true);
 		return true;
 	}
 
 	public function UnInstallFiles()
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
-			DeleteDirFilesEx('/bitrix/js/bitrixcloud/');
-		}
+		DeleteDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/admin/', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		DeleteDirFilesEx('/bitrix/js/bitrixcloud/');
 		return true;
 	}
 
@@ -144,7 +128,6 @@ class bitrixcloud extends CModule
 			{
 				if ($this->InstallDB())
 				{
-					$this->InstallEvents();
 					$this->InstallFiles();
 				}
 				$GLOBALS['errors'] = $this->errors;
@@ -168,20 +151,10 @@ class bitrixcloud extends CModule
 				$this->UnInstallDB([
 					'save_tables' => $_REQUEST['save_tables'],
 				]);
-				//message types and templates
-				if ($_REQUEST['save_templates'] != 'Y')
-				{
-					$this->UnInstallEvents();
-				}
 				$this->UnInstallFiles();
 				$GLOBALS['errors'] = $this->errors;
 				$APPLICATION->IncludeAdminFile(GetMessage('BCL_UNINSTALL_TITLE'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/bitrixcloud/install/unstep2.php');
 			}
 		}
-	}
-
-	public function migrateToBox()
-	{
-		COption::RemoveOption($this->MODULE_ID);
 	}
 }

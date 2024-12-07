@@ -457,7 +457,6 @@ if(class_exists("CWebDavExtLinks"))
 {
 if(array_key_exists("GetExtLink", $_REQUEST) && intval($_REQUEST["GetExtLink"]) == 1)
 {
-	CUtil::JSPostUnescape();
 	CWebDavExtLinks::CheckSessID();
 	CWebDavExtLinks::CheckRights($ob);
 	$o = array();
@@ -524,7 +523,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'GET'
 			$result = array();
 			foreach ($res as $r)
 			{
-				$result[] = urlencode($APPLICATION->ConvertCharset($r, SITE_CHARSET, 'UTF-8'));
+				$result[] = urlencode($r);
 			}
 			$arResult["VARIABLES"]["PATH"] = implode("/", $result);
 			$ob->SetPath("/".$arResult["VARIABLES"]["PATH"]);

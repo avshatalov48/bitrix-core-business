@@ -24,7 +24,7 @@ else:
 	</div>
 
 </div>
-<script type="text/javascript">
+<script>
 function BXWaitForMap_search<?echo $arParams['MAP_ID']?>()
 {
 	window.jsYandexSearch_<?echo $arParams['MAP_ID']?> = new JCBXYandexSearch('<?echo $arParams['MAP_ID']?>', document.getElementById('results_<?echo $arParams['MAP_ID']?>'), {

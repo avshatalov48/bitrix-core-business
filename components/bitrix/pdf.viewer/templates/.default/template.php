@@ -51,7 +51,7 @@ See https://github.com/adobe-type-tools/cmap-resources
 			padding: 0;
 		}
 	</style>
-	<script type="text/javascript">
+	<script>
 		window.pdfJsFilePath = '<?=CUtil::JSEscape($arResult['PATH']);?>';
 		window.pdfJsPathToWorker = '<?=CUtil::JSEscape($this->arResult['PATH_TO_WORKER']);?>';
 		window.pdfJsLangCharset = '<?=LANG_CHARSET;?>';
@@ -82,7 +82,7 @@ else
 		echo '<link rel="resource" type="application/l10n" href="'.$arResult['LOCALE_FILES'].'">';
 	}
 	?>
-	<script type="text/javascript">
+	<script>
 		window.pdfJsFilePath = '<?=CUtil::JSEscape($arResult['PATH']);?>';
 		window.pdfJsPathToWorker = '<?=CUtil::JSEscape($arResult['PATH_TO_WORKER']);?>';
 		window.pdfJsViewerId = '_<?=CUtil::JSEscape($arResult['ID']);?>';

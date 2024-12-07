@@ -19,7 +19,7 @@ $MESS["CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT"] = "Only the responsible person
 $MESS["CALENDAR_SHARING_SETTINGS_SLOT_SIZE"] = "Slot length:";
 $MESS["CALENDAR_SHARING_SETTINGS_SLOT_SIZE_V2"] = "Slot duration:";
 $MESS["CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT"] = "All workdays are selected by default";
-$MESS["CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL"] = "Custom dates are selected";
+$MESS["CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL"] = "Custom dates selected";
 $MESS["CALENDAR_SHARING_SETTINGS_TITLE"] = "Specify slot times available to your contact:";
 $MESS["CALENDAR_SHARING_SETTINGS_TITLE_V2"] = "Available slots";
 $MESS["CALENDAR_SHARING_SETTINGS_WORKDAYS"] = "Working days";
@@ -27,6 +27,7 @@ $MESS["CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1"] = "Workdays";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_HINT_DESC"] = "The shared slots takes your colleagues' availability into account. The recipient will pick the time when all of the attendees are available.";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_HINT_TITLE"] = "Shared slots";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_TITLE"] = "Create shared slots and <span data-role=\"calendar-sharing_popup-joint-slots\">invite your colleagues</span>";
+$MESS["CALENDAR_SHARING_USER_SELECTOR_TITLE_CRM"] = "Create shared slots";
 $MESS["CALENDAR_SHARING_USER_SELECTOR_TITLE_V2"] = "Add your colleagues to <span data-role=\"calendar-sharing_popup-joint-slots\">shared slots</span>";
 $MESS["SHARING_BUTTON_TITLE"] = "Open slots";
 $MESS["SHARING_COPY_LINK_NOTIFICATION"] = "Link copied";
@@ -46,6 +47,7 @@ $MESS["SHARING_INFO_POPUP_CONTENT_1"] = "Plan your meetings without boring email
 $MESS["SHARING_INFO_POPUP_CONTENT_2"] = "No one will see your actual schedule: only your free time will be shown.";
 $MESS["SHARING_INFO_POPUP_CONTENT_3_CALENDAR"] = "Need to find the right time for meeting with people outside your company? Send them a link to your open slots. Your contacts will choose the time they prefer.";
 $MESS["SHARING_INFO_POPUP_CONTENT_3_CRM"] = "Need to find the right time for meeting with customers? Send them a link to your open slots. Your customers will choose the time they prefer.";
+$MESS["SHARING_INFO_POPUP_CONTENT_3_CRM_MSGVER_2"] = "Send your customer a link to your personal available slots, or shared slots. They will select the time they find most suitable. <a data-role=\"calendar-sharing-how-does-it-work\">How does it work?</a>";
 $MESS["SHARING_INFO_POPUP_CONTENT_4"] = "<span><a href=\"#LINK#\" target=\"_blank\">Click the link</a></span> and create a test meeting to see how simple it is.";
 $MESS["SHARING_INFO_POPUP_CONTENT_4_V2"] = "<span><a href=\"#LINK#\" style=\"pointer-events: none;\">Click the link</a></span> and schedule a test meeting. You will see how easy it is.";
 $MESS["SHARING_INFO_POPUP_CONTENT_4_V3"] = "Create a <a href=\"#LINK#\">test meeting</a>";

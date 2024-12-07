@@ -10,6 +10,8 @@ class WorkflowStateFilter
 	public const PRESET_STARTED = 'started';
 	public const PRESET_HAS_TASK = 'has_task';
 	public const PRESET_ALL_COMPLETED = 'all_completed';
+	public const PRESET_ACTIVE_TASK = 'active_task';
+	public const PRESET_COMMENT = 'comment';
 	public const PRESET_DEFAULT = self::PRESET_IN_WORK;
 
 	public static function getPresetList(): array
@@ -31,6 +33,14 @@ class WorkflowStateFilter
 			[
 				'id' => static::PRESET_ALL_COMPLETED,
 				'name' => Loc::getMessage('BIZPROC_API_DATA_WORKFLOW_STATE_FILTER_PRESET_ALL_COMPLETED'),
+			],
+			[
+				'id' => static::PRESET_ACTIVE_TASK,
+				'name' => Loc::getMessage('BIZPROC_API_DATA_WORKFLOW_STATE_FILTER_PRESET_ACTIVE_TASK'),
+			],
+			[
+				'id' => static::PRESET_COMMENT,
+				'name' => Loc::getMessage('BIZPROC_API_DATA_WORKFLOW_STATE_FILTER_PRESET_COMMENT'),
 			],
 		];
 	}

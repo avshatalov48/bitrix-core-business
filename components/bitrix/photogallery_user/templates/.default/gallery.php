@@ -3,7 +3,7 @@ if (empty($arResult["MENU_VARIABLES"]) || empty($arResult["MENU_VARIABLES"]["ALL
 {
 ?>
 <div class="photo-note-box photo-note-error">
-	<div class="photo-note-box-text"><?=ShowError(GetMessage("P_ERROR5"))?></div>
+	<div class="photo-note-box-text"><? ShowError(GetMessage("P_ERROR5"))?></div>
 </div>
 <?
 return false;

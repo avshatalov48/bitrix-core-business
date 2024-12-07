@@ -6,6 +6,7 @@ use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Integration\Bitrix24\FeatureDictionary;
 use Bitrix\Main\Access\Exception\UnknownActionException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
@@ -106,19 +107,19 @@ class Util
 				$loc_ = mb_strtolower(trim($loc));
 				foreach($MRList as $MR)
 				{
-					if (mb_strtolower(trim($MR['NAME'])) == $loc_)
+					if (mb_strtolower(trim($MR['NAME'])) === $loc_)
 					{
 						$result['NEW'] = 'ECMR_'.$MR['ID'];
 						break;
 					}
 				}
 
-				if (Bitrix24Manager::isFeatureEnabled('calendar_location'))
+				if (Bitrix24Manager::isFeatureEnabled(FeatureDictionary::CALENDAR_LOCATION))
 				{
 					$locationList = Manager::getRoomsList();
 					foreach($locationList as $room)
 					{
-						if (mb_strtolower(trim($room['NAME'])) == $loc_)
+						if (mb_strtolower(trim($room['NAME'])) === $loc_)
 						{
 							$result['NEW'] = 'calendar_'.$room['ID'];
 						}

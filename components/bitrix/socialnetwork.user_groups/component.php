@@ -971,7 +971,7 @@ if ($arResult["FatalError"] == '')
 				&& $arResult["~tags"] <> ''
 			)
 			{
-				$arGroupFilter['Bitrix\Socialnetwork\WorkgroupTag:GROUP.NAME'] = ToLower($arResult["~tags"]);
+				$arGroupFilter['Bitrix\Socialnetwork\WorkgroupTag:GROUP.NAME'] = mb_strtolower($arResult["~tags"]);
 			}
 
 			if (

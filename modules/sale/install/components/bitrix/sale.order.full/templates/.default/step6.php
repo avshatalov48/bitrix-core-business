@@ -38,7 +38,7 @@
 								if ($arResult["PAY_SYSTEM"]["NEW_WINDOW"] == "Y")
 								{
 									?>
-									<script language="JavaScript">
+									<script>
 										window.open('<?=$arParams["PATH_TO_PAYMENT"]?>?ORDER_ID=<?=urlencode(urlencode($arResult["ORDER"]["ACCOUNT_NUMBER"]))?>');
 									</script>
 									<?= str_replace("#LINK#", $arParams["PATH_TO_PAYMENT"]."?ORDER_ID=".urlencode(urlencode($arResult["ORDER"]["ACCOUNT_NUMBER"])), GetMessage("STOF_ORDER_PAY_WIN")) ?>

@@ -1,0 +1,15 @@
+.calendar-open-events-list {
+	display: flex;
+}
+
+.calendar-open-events-list-loader {
+	width: 100%;
+	height: 100%;
+	background-image: url(./loader.svg);
+}
+
+.calendar-open-events-list-events-loader {
+	width: 100%;
+	height: 100%;
+	background-image: url(./events/events-loader.svg);
+}

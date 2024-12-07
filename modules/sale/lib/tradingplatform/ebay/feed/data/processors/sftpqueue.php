@@ -87,9 +87,6 @@ class SftpQueue extends DataProcessor
 
 			Ebay::log(Logger::LOG_LEVEL_DEBUG, "EBAY_DATA_PROCESSOR_SFTPQUEUE_FLUSHING", $this->feedType, print_r($feedData["DATA"],true), $this->siteId);
 
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$feedData["DATA"] = \Bitrix\Main\Text\Encoding::convertEncoding($feedData["DATA"], SITE_CHARSET, 'UTF-8');
-
 			$res = file_put_contents($fileXml, $feedData["DATA"], FILE_APPEND);
 
 			if($res !== false)

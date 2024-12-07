@@ -4,7 +4,6 @@ namespace Bitrix\Sender\Posting;
 
 use Bitrix\Main\DB\Result;
 use Bitrix\Main\Entity;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Sender\Connector;
 use Bitrix\Sender\Connector\IncrementallyConnector;
 use Bitrix\Sender\Entity\Segment;
@@ -173,7 +172,7 @@ INNER JOIN (
 		$dataToSet = [
 			'FILTER_ID' => $this->filterId,
 			'GROUP_ID' => $this->groupId,
-			'ENDPOINT' => json_encode(Encoding::convertEncoding($this->endpoint, SITE_CHARSET, 'utf-8')),
+			'ENDPOINT' => json_encode($this->endpoint),
 			'OFFSET' => 0,
 			'STATE' => GroupStateTable::STATES['CREATED'],
 			'NEW_CREATED' => true,

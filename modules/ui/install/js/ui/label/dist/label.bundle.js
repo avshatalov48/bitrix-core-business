@@ -24,6 +24,8 @@ this.BX = this.BX || {};
 	LabelColor.LIGHT_YELLOW = 'ui-label-lightyellow';
 	LabelColor.LIGHT_RED = 'ui-label-lightred';
 	LabelColor.LAVENDER = 'ui-label-lavender';
+	LabelColor.COPILOT_LIGHT = 'ui-label-copilot-light';
+	LabelColor.COPILOT_LIGHT_REVERSE = 'ui-label-copilot-light-reverse';
 
 	/**
 	 * @namespace {BX.UI}

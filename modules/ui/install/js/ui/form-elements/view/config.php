@@ -11,6 +11,7 @@ return [
 		'ui.info-helper',
 		'main.core.events',
 		'ui.section',
+		'main.popup',
 		'ui.switcher',
 		'main.core',
 		'ui.entity-selector',

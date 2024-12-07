@@ -227,9 +227,9 @@ trait ColumnFields
 	public static function isValidCssColorValue(string $value): bool
 	{
 		return
-			strpos($value, '#') === 0
-			|| strpos($value, 'rgb') === 0
-			|| strpos($value, 'hsl') === 0
+			str_starts_with($value, '#')
+			|| str_starts_with($value, 'rgb')
+			|| str_starts_with($value, 'hsl')
 		;
 	}
 

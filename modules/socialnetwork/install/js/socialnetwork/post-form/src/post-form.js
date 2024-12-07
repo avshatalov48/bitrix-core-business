@@ -68,6 +68,7 @@ export class PostForm extends EventEmitter
 	#jsObjName: string;
 	#LHEId: string;
 	#sended: boolean;
+	#editMode: boolean;
 
 	#popup: Popup;
 	#sendBtn: Button;
@@ -107,6 +108,7 @@ export class PostForm extends EventEmitter
 		this.#jsObjName = `oPostFormLHE_blogPostForm${this.#formId}`;
 		this.#LHEId = `idPostFormLHE_${this.#formId}`;
 		this.#sended = false;
+		this.#editMode = this.#postId > 0;
 
 		this.#postFormRouter = new PostFormRouter({
 			pathToDefaultRedirect: params.pathToDefaultRedirect,
@@ -263,7 +265,14 @@ export class PostForm extends EventEmitter
 		{
 			this.#clearForm();
 
-			BX.Livefeed.PageInstance.refresh();
+			if (BX.Livefeed && BX.Livefeed.PageInstance)
+			{
+				BX.Livefeed.PageInstance.refresh();
+			}
+			else
+			{
+				this.#postFormRouter.redirectTo(this.#groupId);
+			}
 		}
 	}
 
@@ -324,7 +333,7 @@ export class PostForm extends EventEmitter
 		this.#postData.setData(this.#initData);
 
 		this.#clearSelector();
-
+		this.#titleNode.querySelector('input').value = '';
 		this.#postFormManager.clearEditorText();
 		this.#clearFiles();
 		this.#postFormTags.clear();

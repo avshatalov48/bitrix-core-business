@@ -3,31 +3,19 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 namespace Bitrix\Main\Text;
-
-use Bitrix\Main\Application;
 
 class UtfSafeString
 {
 	public static function getLastPosition($haystack, $needle)
 	{
-		if (Application::isUtfMode())
+		if (mb_check_encoding((string)$haystack))
 		{
-			//mb_strrpos does not work on invalid UTF-8 strings
-			$ln = mb_strlen($needle);
-			for ($i = mb_strlen($haystack) - $ln; $i >= 0; $i--)
-			{
-				if (mb_substr($haystack, $i, $ln) == $needle)
-				{
-					return $i;
-				}
-			}
-			return false;
+			return mb_strrpos((string)$haystack, $needle);
 		}
-
-		return mb_strrpos($haystack, $needle);
+		return false;
 	}
 
 	public static function rtrimInvalidUtf($string)
@@ -129,29 +117,11 @@ class UtfSafeString
 	 */
 	public static function checkEncoding($data)
 	{
-		if (!Application::isUtfMode())
-		{
-			return true;
-		}
-
 		if (!is_string($data) && !is_array($data))
 		{
 			return true;
 		}
 
-		if (is_string($data))
-		{
-			return mb_check_encoding($data);
-		}
-
-		foreach ($data as $value)
-		{
-			if (!static::checkEncoding($value))
-			{
-				return false;
-			}
-		}
-
-		return true;
+		return mb_check_encoding($data);
 	}
 }

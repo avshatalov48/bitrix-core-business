@@ -189,7 +189,7 @@ if ($bUserPSFile || $bSystemPSFile)
 	}
 }
 ?>
-<script language="JavaScript">
+<script>
 <!--
 window.parent.document.forms["pay_sys_form"].elements["PS_ACTION_FIELDS_LIST_<?= $divInd ?>"].value = "<?= $fields ?>";
 window.parent.document.getElementById("pay_sys_act_<?= $divInd ?>").style["backgroundColor"] = "#E4EDF3";

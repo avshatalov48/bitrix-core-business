@@ -1,0 +1,45 @@
+.bx-im-content-create-chat-radio__container {
+	--im-content-create-chat-radio__font_title: var(--im-font-size-md)/17px var(--im-font-family-system);
+	--im-content-create-chat-radio__font_subtitle: var(--im-font-size-xs)/15px var(--im-font-family-system);
+	--im-content-create-chat-radio__font-color_title: var(--im-color-palette-gray-80);
+	--im-content-create-chat-radio__font-color_subtitle: rgba(var(--im-color-palette-gray-90-rgb), 0.6);
+
+	display: flex;
+	flex-direction: column;
+}
+
+.bx-im-content-create-chat-radio__item.ui-ctl {
+	width: auto;
+	min-height: initial;
+}
+
+.bx-im-content-create-chat-radio__item.ui-ctl-radio {
+	display: flex;
+	align-items: flex-start;
+	cursor: pointer;
+	margin-left: 0;
+	margin-bottom: 0;
+}
+
+.bx-im-content-create-chat-radio__item.ui-ctl-radio .ui-ctl-element {
+	width: 18px;
+	height: 16px;
+	margin-top: 4px;
+	margin-right: 10px;
+	cursor: pointer;
+}
+
+.bx-im-content-create-chat-radio__item.ui-ctl-radio + .bx-im-content-create-chat-radio__item.ui-ctl-radio {
+	margin-top: 20px;
+}
+
+.bx-im-content-create-chat-radio__label_title {
+	font: var(--im-content-create-chat-radio__font_title);
+	color: var(--im-content-create-chat-radio__font-color_title);
+}
+
+.bx-im-content-create-chat-radio__label_subtitle {
+	margin-top: 2px;
+	font: var(--im-content-create-chat-radio__font_subtitle);
+	color: var(--im-content-create-chat-radio__font-color_subtitle);
+}

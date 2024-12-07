@@ -77,7 +77,7 @@ if (Main\Loader::includeModule('socialservices'))
 			return array(
 				'access_token' => $this->access_token,
 				'refresh_token' => $this->refresh_token,
-				'expires_in' => time() + $this->accessTokenExpires,
+				'expires_in' => Mail\Helper\OAuth::convertTokenExpiresToUnixtimeIfNeed($this->accessTokenExpires),
 			);
 		}
 
@@ -114,6 +114,11 @@ if (Main\Loader::includeModule('socialservices'))
 			}
 
 			return $result;
+		}
+
+		public function setAccessTokenExpires($expires): void
+		{
+			$this->accessTokenExpires = (int)$expires;
 		}
 
 	}

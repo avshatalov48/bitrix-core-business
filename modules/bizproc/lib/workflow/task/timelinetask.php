@@ -100,11 +100,12 @@ class TimelineTask implements \JsonSerializable
 		$viewData = [
 			'canView' => true,
 			'id' => $this->task->getId(),
-			'name' => $this->task->getName(),
+			'name' => html_entity_decode($this->task->getName()),
 			'status' => $this->task->getStatus(),
 			'modified' => $this->task->getModified()->getTimestamp(),
 			'executionTime' => $this->calculateExecutionTime(),
 			'users' => $users,
+			'url' => $this->getTaskUrl(),
 		];
 
 		if ($this->approveType)
@@ -118,6 +119,22 @@ class TimelineTask implements \JsonSerializable
 	private function getCreatedDate(): ?DateTime
 	{
 		return $this->task->hasCreatedDate() ? $this->task->get('CREATED_DATE') : null;
+	}
+
+	private function getTaskUrl(): ?string
+	{
+		$url = sprintf(
+			'/company/personal/bizproc/%s/',
+			$this->task->getId(),
+		);
+
+		if ($this->task->isFilled('PARAMETERS') && isset($this->task->getParameters()['DOCUMENT_ID'][0]))
+		{
+			$moduleId = $this->task->getParameters()['DOCUMENT_ID'][0];
+			$url = ($moduleId === 'rpa') ? "/rpa/task/id/{$this->task->getId()}/" : $url;
+		}
+
+		return $url;
 	}
 
 	public function hasApproveType(): int

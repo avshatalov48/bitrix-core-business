@@ -468,6 +468,7 @@ describe('Uploader File Events', () => {
 			FileStatus.ADDED,
 			FileStatus.LOADING,
 			FileStatus.PENDING,
+			FileStatus.PREPARING,
 			FileStatus.UPLOADING,
 			FileStatus.COMPLETE,
 		];
@@ -484,7 +485,7 @@ describe('Uploader File Events', () => {
 			events: {
 				[UploaderEvent.FILE_STATUS_CHANGE]: handleStatusChange,
 				[UploaderEvent.FILE_UPLOAD_COMPLETE]: (event: BaseEvent) => {
-					assert.equal(handleStatusChange.callCount, 5);
+					assert.equal(handleStatusChange.callCount, 6);
 					done();
 				},
 			},

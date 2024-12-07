@@ -123,7 +123,7 @@ class Logger
 		$refClass = new \ReflectionClass(__CLASS__);
 		foreach ($refClass->getConstants() as $name => $value)
 		{
-			if (mb_substr($name, 0, 4) === "TYPE")
+			if (str_starts_with($name, "TYPE"))
 			{
 				$types[] = $value;
 			}

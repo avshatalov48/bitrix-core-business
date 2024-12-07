@@ -17,7 +17,7 @@ import { BBCodeTagScheme, type BBCodeTagSchemeOptions } from './scheme/node-sche
 import { BBCodeTextScheme } from './scheme/node-schemes/text-scheme';
 import { BBCodeNewLineScheme } from './scheme/node-schemes/new-line-scheme';
 import { BBCodeTabScheme } from './scheme/node-schemes/tab-scheme';
-import { DefaultBBCodeScheme } from './scheme/default-bbcode-scheme';
+import { DefaultBBCodeScheme, type DefaultBBCodeSchemeOptions } from './scheme/default-bbcode-scheme';
 import {
 	type BBCodeNodeConverter,
 	type BBCodeNodeStringifier,
@@ -36,6 +36,7 @@ export type {
 	BBCodeNodeConverter,
 	BBCodeNodeStringifier,
 	BBCodeNodeSerializer,
+	DefaultBBCodeSchemeOptions,
 };
 
 export {

@@ -46,8 +46,8 @@ global ${$arParams["SEARCH_FILTER_NAME"]}, $sonet_search_settings;
 $sonet_search_filter = array();
 $EntityType = (mb_strpos($componentPage, "group_content_search") !== false ? SONET_ENTITY_GROUP : SONET_ENTITY_USER);
 
-$sFilterDateTo = $_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"];
-if ($arr = ParseDateTime($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"]))
+$sFilterDateTo = $_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"] ?? null;
+if ($arr = ParseDateTime($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"] ?? null))
 {
 	if (
 		intval($arr["HH"]) == 0
@@ -64,9 +64,9 @@ if ($arr = ParseDateTime($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_to"]))
 	}
 }
 
-if ($_REQUEST[$arParams["SEARCH_FILTER_NAME"]] <> '')
+if (($_REQUEST[$arParams["SEARCH_FILTER_NAME"]] ?? null) <> '')
 	$sonet_search_filter["SONET_FEATURE"] = $_REQUEST[$arParams["SEARCH_FILTER_NAME"]];
-if ($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"] <> '')
+if (($_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"] ?? null) <> '')
 	$sonet_search_filter[">=DATE_CHANGE"] = $_REQUEST[$arParams["SEARCH_FILTER_DATE_NAME"]."_from"];
 if ($sFilterDateTo <> '')
 	$sonet_search_filter["<=DATE_CHANGE"] = $sFilterDateTo;
@@ -76,8 +76,8 @@ $sonet_search_settings = array(
 	"PHOTO_IBLOCK_ID" => ($EntityType == SONET_ENTITY_GROUP ? $arParams["PHOTO_GROUP_IBLOCK_ID"] : $arParams["PHOTO_USER_IBLOCK_ID"]),
 	"FILES_IBLOCK_TYPE" => ($EntityType == SONET_ENTITY_GROUP ? $arParams["FILES_GROUP_IBLOCK_TYPE"] : $arParams["FILES_USER_IBLOCK_TYPE"]),
 	"FILES_IBLOCK_ID" => ($EntityType == SONET_ENTITY_GROUP ? $arParams["FILES_GROUP_IBLOCK_ID"] : $arParams["FILES_USER_IBLOCK_ID"]),
-	"CALENDAR_IBLOCK_TYPE" => $arParams["CALENDAR_IBLOCK_TYPE"],
-	"CALENDAR_IBLOCK_ID" => ($EntityType == SONET_ENTITY_GROUP ? $arParams["CALENDAR_GROUP_IBLOCK_ID"] : $arParams["CALENDAR_USER_IBLOCK_ID"]),
+	"CALENDAR_IBLOCK_TYPE" => $arParams["CALENDAR_IBLOCK_TYPE"] ?? null,
+	"CALENDAR_IBLOCK_ID" => ($EntityType == SONET_ENTITY_GROUP ? ($arParams["CALENDAR_GROUP_IBLOCK_ID"] ?? null) : $arParams["CALENDAR_USER_IBLOCK_ID"]),
 );
 
 AddEventHandler("search", "OnSearchPrepareFilter", Array("CSocNetSearchComponent", "OnSearchPrepareFilterHandler"));

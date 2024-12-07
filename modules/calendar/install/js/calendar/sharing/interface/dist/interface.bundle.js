@@ -1,150 +1,488 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
-(function (exports,main_loader,main_qrcode,ui_designTokens,main_date,calendar_sharing_analytics,ui_entitySelector,main_core,calendar_util,ui_iconSet_api_core,main_popup,ui_dialogs_messagebox,ui_buttons,main_core_events,ui_iconSet_actions,ui_switcher,spotlight,ui_tour,ui_cnt) {
+(function (exports,main_date,calendar_sharing_analytics,ui_entitySelector,calendar_util,ui_iconSet_api_core,ui_dialogs_messagebox,ui_buttons,main_core_events,ui_iconSet_actions,main_qrcode,ui_designTokens,ui_switcher,spotlight,ui_tour,ui_cnt,ui_infoHelper,main_core,main_popup,main_loader) {
 	'use strict';
 
-	let _ = t => t,
-	  _t,
-	  _t2;
-	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
-	var _loader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loader");
-	var _layout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
-	var _qrCode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("qrCode");
-	var _context = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("context");
-	class DialogQr {
-	  constructor(options) {
-	    this.QRCODE_SIZE = 114;
-	    this.QRCODE_COLOR_LIGHT = '#fff';
-	    this.QRCODE_COLOR_DARK = '#000';
-	    Object.defineProperty(this, _popup, {
+	var _calendarSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendarSettings");
+	var _getSlotSize = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSlotSize");
+	class RangeModel extends main_core_events.EventEmitter {
+	  constructor(params) {
+	    super();
+	    Object.defineProperty(this, _getSlotSize, {
+	      value: _getSlotSize2
+	    });
+	    Object.defineProperty(this, _calendarSettings, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _loader, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _layout, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _qrCode, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _context, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout] = {
-	      qr: null
+	    this.setEventNamespace('Calendar.Sharing.Range');
+	    const {
+	      id,
+	      range,
+	      rule,
+	      calendarSettings,
+	      isNew
+	    } = params;
+	    this.id = id;
+	    this.rule = rule;
+	    this.from = range.from;
+	    this.to = range.to;
+	    this.new = isNew;
+	    this.deletable = false;
+	    babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings)[_calendarSettings] = calendarSettings;
+	    this.setWeekDays(range.weekdays);
+	  }
+	  toArray() {
+	    return {
+	      from: this.getFrom(),
+	      to: this.to,
+	      weekdays: this.getWeekDays()
 	    };
-	    babelHelpers.classPrivateFieldLooseBase(this, _qrCode)[_qrCode] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = options.context;
-	    this.sharingUrl = options.sharingUrl;
 	  }
-
-	  /**
-	   *
-	   * @returns {Popup}
-	   */
-	  getPopup() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = new main_popup.Popup({
-	        className: 'calendar-sharing__qr',
-	        width: 315,
-	        padding: 0,
-	        content: this.getContent(),
-	        closeIcon: true,
-	        closeByEsc: true,
-	        autoHide: true,
-	        overlay: true,
-	        animation: 'fading-slide'
-	      });
+	  getRule() {
+	    return this.rule;
+	  }
+	  getId() {
+	    return this.id;
+	  }
+	  getFromFormatted() {
+	    return this.formatMinutes(this.getFrom());
+	  }
+	  getFrom() {
+	    return this.from;
+	  }
+	  setFrom(value) {
+	    this.from = parseInt(value, 10);
+	    if (this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]() > this.to) {
+	      this.to = this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]();
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup];
+	    this.updated();
 	  }
-
-	  /**
-	   *
-	   * @returns {Loader}
-	   */
-	  getLoader() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader] = new main_loader.Loader({
-	        size: 95
-	      });
+	  getToFormatted() {
+	    return this.formatMinutes(this.getTo());
+	  }
+	  getTo() {
+	    return this.to;
+	  }
+	  setTo(value) {
+	    this.to = value;
+	    this.updated();
+	  }
+	  updateSlotSize() {
+	    const maxFrom = 24 * 60 - babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]();
+	    if (this.from > maxFrom) {
+	      this.from = maxFrom;
+	      this.to = this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]();
+	    } else if (this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]() > this.to) {
+	      this.to = this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]();
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader];
+	    this.updated();
 	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
-	  getNodeQr() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].qr) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].qr = main_core.Tag.render(_t || (_t = _`
-				<div class="calendar-sharing__qr-block"></div>
-			`));
-
-	      // qr emulation
-	      this.getLoader().show(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].qr);
-	      this.showQr();
+	  addWeekday(weekday) {
+	    if (this.weekdays.includes(weekday)) {
+	      return;
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].qr;
+	    this.setWeekDays([...this.weekdays, weekday]);
 	  }
-	  async showQr() {
-	    await this.initQrCode();
-	    this.QRCode = new QRCode(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].qr, {
-	      text: this.sharingUrl,
-	      width: this.QRCODE_SIZE,
-	      height: this.QRCODE_SIZE,
-	      colorDark: this.QRCODE_COLOR_DARK,
-	      colorLight: this.QRCODE_COLOR_LIGHT,
-	      correctLevel: QRCode.CorrectLevel.H
-	    });
-	    await this.getLoader().hide();
+	  removeWeekday(weekday) {
+	    this.setWeekDays(this.weekdays.filter(w => w !== weekday));
 	  }
-	  async initQrCode() {
-	    await main_core.Runtime.loadExtension(['main.qrcode']);
+	  getWeekDays() {
+	    return this.weekdays;
 	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
-	  getContent() {
-	    return main_core.Tag.render(_t2 || (_t2 = _`
-			<div class="calendar-sharing__qr-content">
-				<div class="calendar-sharing__qr-title">${0}</div>
-				${0}
-				<div class="calendar-sharing__qr-info">${0}</div>
-				<a class="calendar-sharing__dialog-link" href="${0}" target="_blank">${0}</a>
-			</div>
-		`), this.getPhraseDependsOnContext('SHARING_INFO_POPUP_QR_TITLE'), this.getNodeQr(), main_core.Loc.getMessage('SHARING_INFO_POPUP_QR_INFO'), this.sharingUrl, main_core.Loc.getMessage('SHARING_INFO_POPUP_QR_OPEN_LINK'));
+	  setWeekDays(weekdays) {
+	    this.weekdays = this.sortWeekdays(weekdays);
+	    this.updated();
 	  }
-	  isShown() {
-	    return this.getPopup().isShown();
+	  getWeekdaysTitle(forceLong = false) {
+	    if ([...this.weekdays].sort().join(',') === [1, 2, 3, 4, 5].sort().join(',')) {
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1');
+	    }
+	    return this.formatWeekdays(forceLong);
 	  }
-	  close() {
-	    this.getPopup().close();
+	  formatWeekdays(forceLong) {
+	    const weekdaysLoc = calendar_util.Util.getWeekdaysLoc(forceLong || this.weekdays.length === 1);
+	    const weekdays = this.getWeekDays();
+	    if (weekdays.length === 0) {
+	      return '';
+	    }
+	    return weekdays.map(w => weekdaysLoc[w]).reduce((a, b) => `${a}, ${b}`);
 	  }
-	  show() {
-	    this.getPopup().show();
+	  sortWeekdays(weekdays) {
+	    return weekdays.map(w => w < babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings)[_calendarSettings].weekStart ? w + 10 : w).sort((a, b) => a - b).map(w => w % 10);
 	  }
-	  destroy() {
-	    this.getPopup().destroy();
+	  getAvailableTimeFrom() {
+	    const timeStamps = [];
+	    const maxFrom = 24 * 60 - babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]();
+	    for (let hour = 0; hour <= 24; hour++) {
+	      if (hour * 60 <= maxFrom) {
+	        timeStamps.push({
+	          value: hour * 60,
+	          name: calendar_util.Util.formatTime(hour, 0)
+	        });
+	      }
+	      if (hour !== 24 && hour * 60 + 30 <= maxFrom) {
+	        timeStamps.push({
+	          value: hour * 60 + 30,
+	          name: calendar_util.Util.formatTime(hour, 30)
+	        });
+	      }
+	    }
+	    return timeStamps;
 	  }
-	  getPhraseDependsOnContext(code) {
-	    return main_core.Loc.getMessage(`${code}_${babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].toUpperCase()}`);
+	  getAvailableTimeTo() {
+	    const timeStamps = [];
+	    for (let hour = 0; hour <= 24; hour++) {
+	      if (hour * 60 >= this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]()) {
+	        timeStamps.push({
+	          value: hour * 60,
+	          name: calendar_util.Util.formatTime(hour, 0)
+	        });
+	      }
+	      if (hour !== 24 && hour * 60 + 30 >= this.from + babelHelpers.classPrivateFieldLooseBase(this, _getSlotSize)[_getSlotSize]()) {
+	        timeStamps.push({
+	          value: hour * 60 + 30,
+	          name: calendar_util.Util.formatTime(hour, 30)
+	        });
+	      }
+	    }
+	    return timeStamps;
+	  }
+	  isDeletable() {
+	    return this.deletable;
+	  }
+	  setDeletable(deletable) {
+	    this.deletable = deletable;
+	  }
+	  isNew() {
+	    return this.new;
+	  }
+	  setNew(isNew) {
+	    this.new = isNew;
+	  }
+	  getWeekStart() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings)[_calendarSettings].weekStart;
+	  }
+	  formatMinutes(minutes) {
+	    const date = new Date(calendar_util.Util.parseDate('01.01.2000').getTime() + minutes * 60 * 1000);
+	    return calendar_util.Util.formatTime(date);
+	  }
+	  updated() {
+	    this.emit('updated');
+	    this.getRule().updated();
 	  }
 	}
+	function _getSlotSize2() {
+	  return this.rule.getSlotSize();
+	}
 
-	let _$1 = t => t,
-	  _t$1;
+	var _calendarSettings$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendarSettings");
+	var _updateRanges = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateRanges");
+	class RuleModel extends main_core_events.EventEmitter {
+	  constructor(params) {
+	    super();
+	    Object.defineProperty(this, _updateRanges, {
+	      value: _updateRanges2
+	    });
+	    this.AVAILABLE_INTERVALS = [30, 45, 60, 90, 120, 180];
+	    this.MAX_RANGES = 5;
+	    this.DEFAULT_SLOT_SIZE = 60;
+	    Object.defineProperty(this, _calendarSettings$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.setEventNamespace('Calendar.Sharing.Rule');
+	    const {
+	      rule,
+	      calendarSettings
+	    } = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1] = calendarSettings;
+	    this.ranges = [];
+	    for (const range of rule.ranges) {
+	      this.addRange(range, false);
+	    }
+	    this.setSlotSize(rule.slotSize);
+	    this.sortRanges();
+	  }
+	  toArray() {
+	    return {
+	      slotSize: this.getSlotSize(),
+	      ranges: this.getSortedRanges().map(range => range.toArray())
+	    };
+	  }
+	  getDefaultRule() {
+	    return new RuleModel({
+	      rule: {
+	        slotSize: this.DEFAULT_SLOT_SIZE,
+	        ranges: [{
+	          from: babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1].workTimeStart,
+	          to: babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1].workTimeEnd,
+	          weekdays: babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1].workDays
+	        }]
+	      },
+	      calendarSettings: babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1]
+	    });
+	  }
+	  getAvailableIntervals() {
+	    return this.AVAILABLE_INTERVALS;
+	  }
+	  getFormattedSlotSize() {
+	    return calendar_util.Util.formatDuration(this.getSlotSize());
+	  }
+	  getSlotSize() {
+	    return this.slotSize;
+	  }
+	  setSlotSize(value) {
+	    const slotSize = parseInt(value, 10);
+	    this.slotSize = this.getAvailableIntervals().includes(slotSize) ? slotSize : this.DEFAULT_SLOT_SIZE;
+	    for (const range of this.getRanges()) {
+	      range.updateSlotSize();
+	    }
+	  }
+	  getRanges() {
+	    return this.ranges;
+	  }
+	  sortRanges() {
+	    this.ranges = this.getSortedRanges();
+	  }
+	  getSortedRanges() {
+	    return [...this.ranges].sort((a, b) => this.compareRanges(a, b));
+	  }
+	  compareRanges(firstRange, secondRange) {
+	    const firstWeekdaysWeight = this.getWeekdaysWeight(firstRange.getWeekDays());
+	    const secondWeekdaysWeight = this.getWeekdaysWeight(secondRange.getWeekDays());
+	    if (firstWeekdaysWeight !== secondWeekdaysWeight) {
+	      return firstWeekdaysWeight - secondWeekdaysWeight;
+	    }
+	    if (firstRange.getFrom() !== secondRange.getFrom()) {
+	      return firstRange.getFrom() - secondRange.getFrom();
+	    }
+	    return firstRange.getTo() - secondRange.getTo();
+	  }
+	  getWeekdaysWeight(weekdays) {
+	    return weekdays.reduce((accumulator, w, index) => {
+	      return accumulator + w * 10 ** (10 - index);
+	    }, 0);
+	  }
+	  addRange(range, isNew = true) {
+	    var _this$internalRangeId;
+	    if (!this.canAddRange()) {
+	      return;
+	    }
+	    (_this$internalRangeId = this.internalRangeId) != null ? _this$internalRangeId : this.internalRangeId = 1;
+	    this.ranges.push(new RangeModel({
+	      id: this.internalRangeId++,
+	      range: range != null ? range : this.getDefaultRule().getRanges()[0],
+	      calendarSettings: babelHelpers.classPrivateFieldLooseBase(this, _calendarSettings$1)[_calendarSettings$1],
+	      isNew,
+	      rule: this
+	    }));
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateRanges)[_updateRanges]();
+	    this.updated();
+	  }
+	  removeRange(rangeToRemove) {
+	    if (!this.canRemoveRange()) {
+	      return false;
+	    }
+	    this.ranges = this.ranges.filter(range => {
+	      return range.getId() !== rangeToRemove.getId();
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateRanges)[_updateRanges]();
+	    this.rangeDeleted();
+	    return true;
+	  }
+	  canAddRange() {
+	    return this.ranges.length < this.MAX_RANGES;
+	  }
+	  canRemoveRange() {
+	    return this.ranges.length > 1;
+	  }
+	  updated() {
+	    this.emit('updated');
+	  }
+	  rangeDeleted() {
+	    this.emit('rangeDeleted');
+	  }
+	}
+	function _updateRanges2() {
+	  for (const range of this.ranges.slice(0, -1)) {
+	    range.setDeletable(true);
+	  }
+	  this.ranges.slice(-1)[0].setDeletable(this.ranges.length === 5);
+	}
+
+	var _params = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
+	var _rule = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("rule");
+	var _memberIds = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("memberIds");
+	var _createRuleModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createRuleModel");
+	var _updateSortByFrequentUse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateSortByFrequentUse");
+	class SettingsModel {
+	  constructor(params) {
+	    Object.defineProperty(this, _updateSortByFrequentUse, {
+	      value: _updateSortByFrequentUse2
+	    });
+	    Object.defineProperty(this, _createRuleModel, {
+	      value: _createRuleModel2
+	    });
+	    Object.defineProperty(this, _params, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _rule, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _memberIds, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _params)[_params] = params;
+	    const {
+	      rule: _rule2,
+	      calendarSettings: _calendarSettings
+	    } = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _rule)[_rule] = babelHelpers.classPrivateFieldLooseBase(this, _createRuleModel)[_createRuleModel](_rule2, _calendarSettings);
+	  }
+	  getMinutesFromTime(time) {
+	    const dateString = new Date().toDateString();
+	    const date = new Date(`${dateString} ${`${time}`.replace('.', ':')}:00`);
+	    const shortTimeFormat = main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT');
+	    const parsedTime = calendar_util.Util.parseTime(main_date.DateTimeFormat.format(shortTimeFormat, date / 1000));
+	    return parsedTime.h * 60 + parsedTime.m;
+	  }
+	  getWorkingDays(weekHolidays) {
+	    const weekHolidaysInt = new Set(weekHolidays.map(day => calendar_util.Util.getIndByWeekDay(day)));
+	    return [0, 1, 2, 3, 4, 5, 6].filter(day => !weekHolidaysInt.has(day));
+	  }
+	  isDefaultRule() {
+	    return !this.isDifferentFrom(this.getRule().getDefaultRule());
+	  }
+	  isDifferentFrom(anotherRule) {
+	    return this.getChanges(anotherRule, this.getRule()).length > 0;
+	  }
+	  getChanges(rule) {
+	    const currentRule = this.getRule().toArray();
+	    const anotherRule = (rule != null ? rule : this.getRule().getDefaultRule()).toArray();
+	    const sizeChanged = currentRule.slotSize !== anotherRule.slotSize;
+	    const daysChanged = JSON.stringify(currentRule.ranges) !== JSON.stringify(anotherRule.ranges);
+	    const changes = [];
+	    if (daysChanged) {
+	      changes.push(calendar_sharing_analytics.Analytics.ruleChanges.custom_days);
+	    }
+	    if (sizeChanged) {
+	      changes.push(calendar_sharing_analytics.Analytics.ruleChanges.custom_length);
+	    }
+	    return changes;
+	  }
+	  sortRanges() {
+	    this.getRule().sortRanges();
+	  }
+	  getRule() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _rule)[_rule];
+	  }
+	  getUserInfo() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].userInfo;
+	  }
+	  getContext() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].context;
+	  }
+	  getLinkHash() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].linkHash;
+	  }
+	  getSharingUrl() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sharingUrl;
+	  }
+	  isCollapsed() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].collapsed;
+	  }
+	  sortJointLinksByFrequentUse() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse;
+	  }
+	  changeSortJointLinksByFrequentUse() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse = !babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse;
+	    babelHelpers.classPrivateFieldLooseBase(this, _updateSortByFrequentUse)[_updateSortByFrequentUse]();
+	  }
+	  setMemberIds(memberIds) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _memberIds)[_memberIds] = memberIds;
+	  }
+	  getMemberIds() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _memberIds)[_memberIds];
+	  }
+	  async saveJointLink() {
+	    const response = await BX.ajax.runAction('calendar.api.sharingajax.generateUserJointSharingLink', {
+	      data: {
+	        memberIds: this.getMemberIds()
+	      }
+	    });
+	    return response.data;
+	  }
+	  save() {
+	    if (!this.isDifferentFrom(babelHelpers.classPrivateFieldLooseBase(this, _createRuleModel)[_createRuleModel](babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].rule, babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].calendarSettings))) {
+	      return;
+	    }
+	    const changes = this.getChanges();
+	    calendar_sharing_analytics.Analytics.sendRuleUpdated(this.getContext(), changes);
+	    const newRule = this.getRule().toArray();
+	    return new Promise((resolve, reject) => {
+	      BX.ajax.runAction('calendar.api.sharingajax.saveLinkRule', {
+	        data: {
+	          linkHash: this.getLinkHash(),
+	          ruleArray: newRule
+	        }
+	      }).then(() => {
+	        main_core_events.EventEmitter.emit('CalendarSharing:RuleUpdated');
+	        babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].rule = newRule;
+	        resolve();
+	      }, error => {
+	        // eslint-disable-next-line no-console
+	        console.error(error);
+	        reject();
+	      });
+	    });
+	  }
+	  increaseFrequentUse() {
+	    void BX.ajax.runAction('calendar.api.sharingajax.increaseFrequentUse', {
+	      data: {
+	        hash: this.getLinkHash()
+	      }
+	    });
+	  }
+	  updateCollapsed(isCollapsed) {
+	    void BX.ajax.runAction('calendar.api.sharingajax.updateSharingSettingsCollapsed', {
+	      data: {
+	        collapsed: isCollapsed ? 'Y' : 'N'
+	      }
+	    });
+	  }
+	}
+	function _createRuleModel2(rule, calendarSettings) {
+	  const {
+	    weekStart,
+	    weekHolidays,
+	    workTimeStart,
+	    workTimeEnd
+	  } = calendarSettings;
+	  return new RuleModel({
+	    rule,
+	    calendarSettings: {
+	      weekStart: calendar_util.Util.getIndByWeekDay(weekStart),
+	      workTimeStart: this.getMinutesFromTime(workTimeStart),
+	      workTimeEnd: this.getMinutesFromTime(workTimeEnd),
+	      workDays: this.getWorkingDays(weekHolidays)
+	    }
+	  });
+	}
+	function _updateSortByFrequentUse2() {
+	  BX.ajax.runAction('calendar.api.sharingajax.setSortJointLinksByFrequentUse', {
+	    data: {
+	      sortByFrequentUse: babelHelpers.classPrivateFieldLooseBase(this, _params)[_params].sortJointLinksByFrequentUse ? 'Y' : 'N'
+	    }
+	  });
+	}
+
+	let _ = t => t,
+	  _t;
 	class Weekday {
 	  constructor(options) {
 	    this.wrap = null;
@@ -158,7 +496,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  render() {
 	    const className = this.active ? '--selected' : '';
-	    this.wrap = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+	    this.wrap = main_core.Tag.render(_t || (_t = _`
 			<div class="calendar-sharing__settings-popup-weekday ${0}" onmousedown="${0}">
 				<div class="calendar-sharing__settings-popup-weekday-text">${0}</div>
 				<div class="calendar-sharing__settings-popup-weekday-icon"></div>
@@ -189,55 +527,130 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$2 = t => t,
-	  _t$2,
-	  _t2$1,
+	let _$1 = t => t,
+	  _t$1,
+	  _t2,
 	  _t3,
 	  _t4,
 	  _t5,
 	  _t6,
-	  _t7;
+	  _t7,
+	  _t8;
+	var _params$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
+	var _layout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _model = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("model");
+	var _bindEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindEvents");
+	var _unbindEvents = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("unbindEvents");
+	var _onRangeUpdated = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRangeUpdated");
+	var _animate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("animate");
+	var _getButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getButton");
+	var _onDeleteButtonClickHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDeleteButtonClickHandler");
+	var _onAddButtonClickHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onAddButtonClickHandler");
+	var _add = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("add");
+	var _remove = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("remove");
+	var _renderWeekdaysSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderWeekdaysSelect");
+	var _getTextNodeWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTextNodeWidth");
+	var _createWeekdaysPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createWeekdaysPopup");
+	var _createWeekday = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createWeekday");
+	var _onWeekdayMouseDown = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onWeekdayMouseDown");
+	var _renderTimeFromSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTimeFromSelect");
+	var _renderTimeToSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTimeToSelect");
+	var _renderTimeSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTimeSelect");
+	var _onTimeSelectClickHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onTimeSelectClickHandler");
+	var _showTimeMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showTimeMenu");
+	var _onWeekdaysSelectClickHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onWeekdaysSelectClickHandler");
 	class Range {
-	  constructor(options) {
-	    this.layout = {
-	      wrap: null,
-	      weekdaysSelect: null,
-	      startSelect: null,
-	      endSelect: null
-	    };
-	    this.readOnly = options.readOnly;
-	    this.weekStart = options.weekStart;
-	    this.workDays = options.workDays;
-	    this.getSlotSize = options.getSlotSize;
-	    this.rule = {
-	      from: options.from,
-	      to: options.to,
-	      weekdays: this.getSortedWeekdays(options.weekdays)
-	    };
-	    this.ruleUpdated = main_core.Type.isFunction(options.ruleUpdated) ? options.ruleUpdated : () => {};
-	    this.addRange = main_core.Type.isFunction(options.addRange) ? options.addRange : () => {};
-	    this.removeRange = main_core.Type.isFunction(options.removeRange) ? options.removeRange : () => {};
-	    this.showReadOnlyPopup = main_core.Type.isFunction(options.showReadOnlyPopup) ? options.showReadOnlyPopup : () => {};
-	    this.show = options.show;
-	    this.deletable = false;
+	  constructor(params) {
+	    Object.defineProperty(this, _onWeekdaysSelectClickHandler, {
+	      value: _onWeekdaysSelectClickHandler2
+	    });
+	    Object.defineProperty(this, _showTimeMenu, {
+	      value: _showTimeMenu2
+	    });
+	    Object.defineProperty(this, _onTimeSelectClickHandler, {
+	      value: _onTimeSelectClickHandler2
+	    });
+	    Object.defineProperty(this, _renderTimeSelect, {
+	      value: _renderTimeSelect2
+	    });
+	    Object.defineProperty(this, _renderTimeToSelect, {
+	      value: _renderTimeToSelect2
+	    });
+	    Object.defineProperty(this, _renderTimeFromSelect, {
+	      value: _renderTimeFromSelect2
+	    });
+	    Object.defineProperty(this, _onWeekdayMouseDown, {
+	      value: _onWeekdayMouseDown2
+	    });
+	    Object.defineProperty(this, _createWeekday, {
+	      value: _createWeekday2
+	    });
+	    Object.defineProperty(this, _createWeekdaysPopup, {
+	      value: _createWeekdaysPopup2
+	    });
+	    Object.defineProperty(this, _getTextNodeWidth, {
+	      value: _getTextNodeWidth2
+	    });
+	    Object.defineProperty(this, _renderWeekdaysSelect, {
+	      value: _renderWeekdaysSelect2
+	    });
+	    Object.defineProperty(this, _remove, {
+	      value: _remove2
+	    });
+	    Object.defineProperty(this, _add, {
+	      value: _add2
+	    });
+	    Object.defineProperty(this, _onAddButtonClickHandler, {
+	      value: _onAddButtonClickHandler2
+	    });
+	    Object.defineProperty(this, _onDeleteButtonClickHandler, {
+	      value: _onDeleteButtonClickHandler2
+	    });
+	    Object.defineProperty(this, _getButton, {
+	      value: _getButton2
+	    });
+	    Object.defineProperty(this, _animate, {
+	      value: _animate2
+	    });
+	    Object.defineProperty(this, _onRangeUpdated, {
+	      value: _onRangeUpdated2
+	    });
+	    Object.defineProperty(this, _unbindEvents, {
+	      value: _unbindEvents2
+	    });
+	    Object.defineProperty(this, _bindEvents, {
+	      value: _bindEvents2
+	    });
+	    Object.defineProperty(this, _model, {
+	      get: _get_model,
+	      set: void 0
+	    });
+	    Object.defineProperty(this, _params$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _layout, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1] = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout] = {};
+	    this.showReadOnlyPopup = main_core.Type.isFunction(params.showReadOnlyPopup) ? params.showReadOnlyPopup : () => {};
+	    this.onRangeUpdated = babelHelpers.classPrivateFieldLooseBase(this, _onRangeUpdated)[_onRangeUpdated].bind(this);
+	    babelHelpers.classPrivateFieldLooseBase(this, _bindEvents)[_bindEvents]();
 	  }
-	  getRule() {
-	    return this.rule;
-	  }
-	  settingPopupShown() {
-	    const weekdaysPopupShown = main_core.Dom.hasClass(this.layout.weekdaysSelect, '--active');
-	    const startPopupShown = main_core.Dom.hasClass(this.layout.fromTimeSelect, '--active');
-	    const endPopupShown = main_core.Dom.hasClass(this.layout.toTimeSelect, '--active');
+	  hasShownPopups() {
+	    const weekdaysPopupShown = this.weekdaysMenu.isShown();
+	    const startPopupShown = main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].fromTimeSelect, '--active');
+	    const endPopupShown = main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].toTimeSelect, '--active');
 	    return weekdaysPopupShown || startPopupShown || endPopupShown;
 	  }
-	  getWrap() {
-	    return this.layout.wrap;
-	  }
-	  disableAnimation() {
-	    this.show = false;
+	  destroy() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap.remove();
+	    babelHelpers.classPrivateFieldLooseBase(this, _unbindEvents)[_unbindEvents]();
 	  }
 	  render() {
-	    this.layout.wrap = main_core.Tag.render(_t$2 || (_t$2 = _$2`
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap = main_core.Tag.render(_t$1 || (_t$1 = _$1`
 			<div class="calendar-sharing__settings-range">
 				${0}
 				<div class="calendar-sharing__settings-time-interval">
@@ -247,223 +660,221 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</div>
 				${0}
 			</div>
-		`), this.renderWeekdaysSelect(), this.renderTimeFromSelect(), this.renderTimeToSelect(), this.renderButton());
-	    if (this.show) {
-	      main_core.Dom.addClass(this.layout.wrap, '--animate-show');
-	      setTimeout(() => main_core.Dom.removeClass(this.layout.wrap, '--animate-show'), 300);
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderWeekdaysSelect)[_renderWeekdaysSelect](), babelHelpers.classPrivateFieldLooseBase(this, _renderTimeFromSelect)[_renderTimeFromSelect](), babelHelpers.classPrivateFieldLooseBase(this, _renderTimeToSelect)[_renderTimeToSelect](), this.renderButton());
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].isNew()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _animate)[_animate]();
 	    }
-	    return this.layout.wrap;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap;
 	  }
 	  renderButton() {
-	    this.layout.button = this.getButton();
-	    return this.layout.button;
+	    var _babelHelpers$classPr;
+	    const button = babelHelpers.classPrivateFieldLooseBase(this, _getButton)[_getButton]();
+	    (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].button) == null ? void 0 : _babelHelpers$classPr.replaceWith(button);
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].button = button;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].button;
 	  }
-	  update() {
-	    const maxFrom = 24 * 60 - this.getSlotSize();
-	    if (this.rule.from > maxFrom) {
-	      this.rule.from = maxFrom;
-	      if (this.layout.fromTimeSelect) {
-	        this.layout.fromTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.from));
-	      }
-	      this.rule.to = 24 * 60;
-	      if (this.layout.toTimeSelect) {
-	        this.layout.toTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.to));
-	      }
-	    } else {
-	      this.updateTo();
+	  updateWeekdaysTitle() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.title = babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].formatWeekdays(false);
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.innerText = babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekdaysTitle(true);
+	    const weekdaysSelectWidth = babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.offsetWidth - 32;
+	    const weekdaysTextWidth = babelHelpers.classPrivateFieldLooseBase(this, _getTextNodeWidth)[_getTextNodeWidth](babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.firstChild);
+	    const weekdaysWidthIsOverflowing = weekdaysSelectWidth < weekdaysTextWidth;
+	    if (weekdaysWidthIsOverflowing) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.innerText = babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekdaysTitle(false);
 	    }
 	  }
-	  updateTo() {
-	    const minToMinutes = this.rule.from + this.getSlotSize();
-	    if (minToMinutes > this.rule.to) {
-	      this.rule.to = minToMinutes;
-	      if (this.layout.toTimeSelect) {
-	        this.layout.toTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.to));
-	      }
-	    }
+	  formatAmPmSpan(time) {
+	    return time.toLowerCase().replace(/(am|pm)/g, '<span class="calendar-sharing__settings-time-am-pm">$1</span>');
 	  }
-	  setDeletable(isDeletable) {
-	    this.deletable = isDeletable;
-	    const button = this.layout.button;
-	    this.layout.button = this.getButton();
-	    button == null ? void 0 : button.replaceWith(this.layout.button);
+	}
+	function _get_model() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].model;
+	}
+	function _bindEvents2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].subscribe('updated', this.onRangeUpdated);
+	}
+	function _unbindEvents2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].unsubscribe('updated', this.onRangeUpdated);
+	}
+	function _onRangeUpdated2() {
+	  this.updateWeekdaysTitle();
+	}
+	function _animate2() {
+	  main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap, '--animate-show');
+	  setTimeout(() => {
+	    main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap, '--animate-show');
+	    babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].setNew(false);
+	  }, 300);
+	}
+	function _getButton2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].isDeletable()) {
+	    return main_core.Tag.render(_t2 || (_t2 = _$1`
+				<div
+					class="calendar-sharing__settings-delete"
+					onclick="${0}"
+				></div>
+			`), babelHelpers.classPrivateFieldLooseBase(this, _onDeleteButtonClickHandler)[_onDeleteButtonClickHandler].bind(this));
 	  }
-	  getButton() {
-	    let button;
-	    if (this.deletable) {
-	      button = main_core.Tag.render(_t2$1 || (_t2$1 = _$2`
-				<div class="calendar-sharing__settings-delete"></div>
-			`));
-	      main_core.Event.bind(button, 'click', this.onDeleteButtonClickHandler.bind(this));
-	    } else {
-	      button = main_core.Tag.render(_t3 || (_t3 = _$2`
-				<div class="calendar-sharing__settings-add"></div>
-			`));
-	      main_core.Event.bind(button, 'click', this.onAddButtonClickHandler.bind(this));
-	    }
-	    return button;
+	  return main_core.Tag.render(_t3 || (_t3 = _$1`
+			<div
+				class="calendar-sharing__settings-add"
+				onclick="${0}"
+			></div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _onAddButtonClickHandler)[_onAddButtonClickHandler].bind(this));
+	}
+	function _onDeleteButtonClickHandler2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].readOnly) {
+	    this.showReadOnlyPopup(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].button);
+	  } else {
+	    babelHelpers.classPrivateFieldLooseBase(this, _remove)[_remove]();
 	  }
-	  onDeleteButtonClickHandler() {
-	    if (this.readOnly) {
-	      this.showReadOnlyPopup(this.layout.button);
-	    } else {
-	      this.remove();
-	    }
+	}
+	function _onAddButtonClickHandler2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].readOnly) {
+	    this.showReadOnlyPopup(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].button);
+	  } else {
+	    babelHelpers.classPrivateFieldLooseBase(this, _add)[_add]();
 	  }
-	  onAddButtonClickHandler() {
-	    if (this.readOnly) {
-	      this.showReadOnlyPopup(this.layout.button);
-	    } else {
-	      this.addRange(this);
-	    }
+	}
+	function _add2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getRule().addRange();
+	}
+	function _remove2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getRule().removeRange(babelHelpers.classPrivateFieldLooseBase(this, _model)[_model])) {
+	    return;
 	  }
-	  hideButton() {
-	    main_core.Dom.addClass(this.layout.button, '--hidden');
-	  }
-	  showButton() {
-	    main_core.Dom.removeClass(this.layout.button, '--hidden');
-	  }
-	  remove() {
-	    if (!this.removeRange(this)) {
-	      return;
-	    }
-	    main_core.Dom.addClass(this.layout.wrap, '--animate-remove');
-	    setTimeout(() => this.layout.wrap.remove(), 300);
-	  }
-	  renderWeekdaysSelect() {
-	    const weekdaysLoc = calendar_util.Util.getWeekdaysLoc().map((loc, index) => {
-	      return {
-	        loc,
-	        index,
-	        active: this.rule.weekdays.includes(index)
-	      };
-	    });
-	    weekdaysLoc.push(...weekdaysLoc.splice(0, this.weekStart));
-	    this.layout.weekdaysSelect = main_core.Tag.render(_t4 || (_t4 = _$2`
+	  main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].wrap, '--animate-remove');
+	  setTimeout(() => this.destroy(), 300);
+	}
+	function _renderWeekdaysSelect2() {
+	  const weekdaysLoc = calendar_util.Util.getWeekdaysLoc().map((loc, index) => {
+	    return {
+	      loc,
+	      index,
+	      active: babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekDays().includes(index)
+	    };
+	  });
+	  weekdaysLoc.push(...weekdaysLoc.splice(0, babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekStart()));
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect = main_core.Tag.render(_t4 || (_t4 = _$1`
 			<div
 				class="calendar-sharing__settings-weekdays calendar-sharing__settings-select calendar-sharing__settings-select-arrow"
 				title="${0}"
 			>
 				${0}
 			</div>
-		`), this.formatWeekdays(false), this.getWeekdaysTitle());
-	    main_core.Event.bind(this.layout.weekdaysSelect, 'click', this.onWeekdaysSelectClickHandler.bind(this));
-	    this.weekdays = weekdaysLoc.map(weekdayLoc => this.createWeekday(weekdayLoc));
-	    this.weekdaysMenu = new main_popup.Popup({
-	      id: `calendar-sharing-settings-weekdays${Date.now()}`,
-	      bindElement: this.layout.weekdaysSelect,
-	      content: main_core.Tag.render(_t5 || (_t5 = _$2`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].formatWeekdays(), babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekdaysTitle());
+	  const observer = new IntersectionObserver(() => {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect.offsetWidth > 0) {
+	      this.updateWeekdaysTitle();
+	    }
+	  });
+	  observer.observe(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect);
+	  main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect, 'click', babelHelpers.classPrivateFieldLooseBase(this, _onWeekdaysSelectClickHandler)[_onWeekdaysSelectClickHandler].bind(this));
+	  this.weekdays = weekdaysLoc.map(weekdayLoc => babelHelpers.classPrivateFieldLooseBase(this, _createWeekday)[_createWeekday](weekdayLoc));
+	  const weekdaysPopupId = `calendar-sharing-settings-weekdays-${babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].model.id}`;
+	  this.weekdaysMenu = main_popup.PopupManager.getPopupById(weekdaysPopupId);
+	  if (!this.weekdaysMenu) {
+	    this.weekdaysMenu = babelHelpers.classPrivateFieldLooseBase(this, _createWeekdaysPopup)[_createWeekdaysPopup](weekdaysPopupId);
+	    this.weekdaysMenu.canBeClosed = true;
+	  }
+	  this.weekdaysMenu.setBindElement(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect);
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect;
+	}
+	function _getTextNodeWidth2(textNode) {
+	  const spanNode = BX.Tag.render(_t5 || (_t5 = _$1`<span style="position: absolute;">${0}</span>`), textNode.cloneNode());
+	  textNode.replaceWith(spanNode);
+	  const textWidth = spanNode.offsetWidth;
+	  spanNode.replaceWith(textNode);
+	  return textWidth;
+	}
+	function _createWeekdaysPopup2(id) {
+	  return new main_popup.Popup({
+	    id,
+	    content: main_core.Tag.render(_t6 || (_t6 = _$1`
 				<div class="calendar-sharing__settings-popup-weekdays">
 					${0}
 				</div>
 			`), this.weekdays.map(weekday => weekday.render())),
-	      autoHide: true,
-	      closeByEsc: true,
-	      angle: {
-	        position: 'top',
-	        offset: 105
-	      },
-	      autoHideHandler: () => this.weekdaysMenu.canBeClosed,
-	      events: {
-	        onPopupShow: () => main_core.Dom.addClass(this.layout.weekdaysSelect, '--active'),
-	        onPopupClose: () => main_core.Dom.removeClass(this.layout.weekdaysSelect, '--active')
+	    autoHide: true,
+	    closeByEsc: true,
+	    angle: {
+	      position: 'top',
+	      offset: 105
+	    },
+	    autoHideHandler: () => this.weekdaysMenu.canBeClosed,
+	    events: {
+	      onPopupShow: () => main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect, '--active'),
+	      onPopupClose: () => main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect, '--active')
+	    }
+	  });
+	}
+	function _createWeekday2(weekdayLoc) {
+	  return new Weekday({
+	    name: weekdayLoc.loc,
+	    index: weekdayLoc.index,
+	    active: weekdayLoc.active,
+	    onSelected: () => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].addWeekday(weekdayLoc.index),
+	    onDiscarded: () => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].removeWeekday(weekdayLoc.index),
+	    canBeDiscarded: () => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getWeekDays().length > 1,
+	    onMouseDown: babelHelpers.classPrivateFieldLooseBase(this, _onWeekdayMouseDown)[_onWeekdayMouseDown].bind(this)
+	  });
+	}
+	function _onWeekdayMouseDown2(event, currentWeekday) {
+	  this.weekdaysMenu.canBeClosed = false;
+	  const startX = event.clientX;
+	  const select = currentWeekday.active;
+	  this.controllableWeekdays = [];
+	  this.collectIntersectedWeekdays = e => {
+	    for (const weekday of this.weekdays) {
+	      const right = weekday.wrap.getBoundingClientRect().right;
+	      const left = weekday.wrap.getBoundingClientRect().left;
+	      if (startX > right && e.clientX < right || startX < left && e.clientX > left || left < startX && startX < right) {
+	        if (!this.controllableWeekdays.includes(weekday)) {
+	          this.controllableWeekdays.push(weekday);
+	        }
+	        weekday.intersected = true;
 	      }
+	    }
+	  };
+	  this.onMouseMove = e => {
+	    this.controllableWeekdays.forEach(controllableWeekday => {
+	      controllableWeekday.intersected = false;
 	    });
-	    this.weekdaysMenu.canBeClosed = true;
-	    return this.layout.weekdaysSelect;
-	  }
-	  createWeekday(weekdayLoc) {
-	    return new Weekday({
-	      name: weekdayLoc.loc,
-	      index: weekdayLoc.index,
-	      active: weekdayLoc.active,
-	      onSelected: () => {
-	        if (this.rule.weekdays.includes(weekdayLoc.index)) {
-	          return;
-	        }
-	        this.rule.weekdays.push(weekdayLoc.index);
-	        this.rule.weekdays = this.getSortedWeekdays(this.rule.weekdays);
-	        this.layout.weekdaysSelect.title = this.formatWeekdays();
-	        this.layout.weekdaysSelect.innerText = this.getWeekdaysTitle();
-	        this.ruleUpdated();
-	      },
-	      onDiscarded: () => {
-	        const index = this.rule.weekdays.indexOf(weekdayLoc.index);
-	        if (index < 0) {
-	          return;
-	        }
-	        this.rule.weekdays.splice(index, 1);
-	        this.layout.weekdaysSelect.title = this.formatWeekdays();
-	        this.layout.weekdaysSelect.innerText = this.getWeekdaysTitle();
-	        this.ruleUpdated();
-	      },
-	      canBeDiscarded: () => this.rule.weekdays.length > 1,
-	      onMouseDown: this.onWeekdayMouseDown.bind(this)
-	    });
-	  }
-	  onWeekdayMouseDown(event, currentWeekday) {
-	    this.weekdaysMenu.canBeClosed = false;
-	    const startX = event.clientX;
-	    const select = currentWeekday.active;
-	    this.controllableWeekdays = [];
-	    this.collectIntersectedWeekdays = e => {
-	      for (const weekday of this.weekdays) {
-	        const right = weekday.wrap.getBoundingClientRect().right;
-	        const left = weekday.wrap.getBoundingClientRect().left;
-	        if (startX > right && e.clientX < right || startX < left && e.clientX > left || left < startX && startX < right) {
-	          if (!this.controllableWeekdays.includes(weekday)) {
-	            this.controllableWeekdays.push(weekday);
-	          }
-	          weekday.intersected = true;
-	        }
+	    this.collectIntersectedWeekdays(e);
+	    for (const weekday of this.controllableWeekdays) {
+	      if (weekday.intersected && select || !weekday.intersected && !select) {
+	        weekday.select();
+	      } else {
+	        weekday.discard();
 	      }
-	    };
-	    this.onMouseMove = e => {
-	      this.controllableWeekdays.forEach(controllableWeekday => {
-	        controllableWeekday.intersected = false;
-	      });
-	      this.collectIntersectedWeekdays(e);
-	      for (const weekday of this.controllableWeekdays) {
-	        if (weekday.intersected && select || !weekday.intersected && !select) {
-	          weekday.select();
-	        } else {
-	          weekday.discard();
-	        }
-	      }
-	    };
-	    main_core.Event.bind(document, 'mousemove', this.onMouseMove);
-	    main_core.Event.bind(document, 'mouseup', () => {
-	      main_core.Event.unbind(document, 'mousemove', this.onMouseMove);
-	      setTimeout(() => {
-	        this.weekdaysMenu.canBeClosed = true;
-	      }, 0);
-	    });
-	  }
-	  renderTimeFromSelect() {
-	    const fromFormatted = this.formatMinutes(this.rule.from);
-	    this.layout.fromTimeSelect = this.renderTimeSelect(fromFormatted, {
-	      isSelected: minutes => this.rule.from === minutes,
-	      onItemSelected: minutes => {
-	        this.rule.from = minutes;
-	        this.updateTo();
-	      },
-	      getMaxMinutes: () => 24 * 60 - this.getSlotSize()
-	    }, 'calendar-sharing-settings-range-from');
-	    return this.layout.fromTimeSelect;
-	  }
-	  renderTimeToSelect() {
-	    const toFormatted = this.formatMinutes(this.rule.to);
-	    this.layout.toTimeSelect = this.renderTimeSelect(toFormatted, {
-	      isSelected: minutes => this.rule.to === minutes,
-	      onItemSelected: minutes => {
-	        this.rule.to = minutes;
-	      },
-	      getMinMinutes: () => this.rule.from + this.getSlotSize()
-	    }, 'calendar-sharing-settings-range-to');
-	    return this.layout.toTimeSelect;
-	  }
-	  renderTimeSelect(time, callbacks, dataId) {
-	    const timeSelect = main_core.Tag.render(_t6 || (_t6 = _$2`
+	    }
+	  };
+	  main_core.Event.bind(document, 'mousemove', this.onMouseMove);
+	  main_core.Event.bind(document, 'mouseup', () => {
+	    main_core.Event.unbind(document, 'mousemove', this.onMouseMove);
+	    setTimeout(() => {
+	      this.weekdaysMenu.canBeClosed = true;
+	    }, 0);
+	  });
+	}
+	function _renderTimeFromSelect2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].fromTimeSelect = babelHelpers.classPrivateFieldLooseBase(this, _renderTimeSelect)[_renderTimeSelect](babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getFromFormatted(), {
+	    getTimeStamps: () => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getAvailableTimeFrom(),
+	    isSelected: minutes => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getFrom() === minutes,
+	    onItemSelected: minutes => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].setFrom(minutes)
+	  }, 'calendar-sharing-settings-range-from');
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].fromTimeSelect;
+	}
+	function _renderTimeToSelect2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].toTimeSelect = babelHelpers.classPrivateFieldLooseBase(this, _renderTimeSelect)[_renderTimeSelect](babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getToFormatted(), {
+	    getTimeStamps: () => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getAvailableTimeTo(),
+	    isSelected: minutes => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].getTo() === minutes,
+	    onItemSelected: minutes => babelHelpers.classPrivateFieldLooseBase(this, _model)[_model].setTo(minutes)
+	  }, 'calendar-sharing-settings-range-to');
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].toTimeSelect;
+	}
+	function _renderTimeSelect2(time, callbacks, dataId) {
+	  const timeSelect = main_core.Tag.render(_t7 || (_t7 = _$1`
 			<div
 				class="calendar-sharing__settings-select calendar-sharing__settings-time calendar-sharing__settings-select-arrow"
 				data-id="${0}"
@@ -471,187 +882,219 @@ this.BX.Calendar = this.BX.Calendar || {};
 				${0}
 			</div>
 		`), dataId, this.formatAmPmSpan(time));
-	    main_core.Event.bind(timeSelect, 'click', () => this.onTimeSelectClickHandler(timeSelect, callbacks));
-	    return timeSelect;
+	  main_core.Event.bind(timeSelect, 'click', () => babelHelpers.classPrivateFieldLooseBase(this, _onTimeSelectClickHandler)[_onTimeSelectClickHandler](timeSelect, callbacks));
+	  return timeSelect;
+	}
+	function _onTimeSelectClickHandler2(timeSelect, callbacks) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].readOnly) {
+	    this.showReadOnlyPopup(timeSelect);
+	  } else if (!main_core.Dom.hasClass(timeSelect, '--active')) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _showTimeMenu)[_showTimeMenu](timeSelect, callbacks);
 	  }
-	  showTimeMenu(timeSelect, callbacks) {
-	    const timeStamps = [];
-	    for (let hour = 0; hour <= 24; hour++) {
-	      if ((!main_core.Type.isFunction(callbacks.getMinMinutes) || hour * 60 >= callbacks.getMinMinutes()) && (!main_core.Type.isFunction(callbacks.getMaxMinutes) || hour * 60 <= callbacks.getMaxMinutes())) {
-	        timeStamps.push({
-	          minutes: hour * 60,
-	          label: this.formatAmPmSpan(calendar_util.Util.formatTime(hour, 0))
-	        });
-	      }
-	      if (hour !== 24 && (!main_core.Type.isFunction(callbacks.getMinMinutes) || hour * 60 + 30 >= callbacks.getMinMinutes()) && (!main_core.Type.isFunction(callbacks.getMaxMinutes) || hour * 60 + 30 <= callbacks.getMaxMinutes())) {
-	        timeStamps.push({
-	          minutes: hour * 60 + 30,
-	          label: this.formatAmPmSpan(calendar_util.Util.formatTime(hour, 30))
-	        });
-	      }
-	    }
-	    let timeMenu;
-	    const items = timeStamps.map(timeStamp => {
-	      return {
-	        html: main_core.Tag.render(_t7 || (_t7 = _$2`
+	}
+	function _showTimeMenu2(timeSelect, callbacks) {
+	  let timeMenu;
+	  const items = callbacks.getTimeStamps().map(timeStamp => {
+	    return {
+	      html: main_core.Tag.render(_t8 || (_t8 = _$1`
 					<div class="calendar-sharing__am-pm-container">${0}</div>
-				`), timeStamp.label),
-	        className: callbacks.isSelected(timeStamp.minutes) ? 'menu-popup-no-icon --selected' : 'menu-popup-no-icon',
-	        onclick: () => {
-	          timeSelect.innerHTML = timeStamp.label;
-	          callbacks.onItemSelected(timeStamp.minutes);
-	          this.ruleUpdated();
-	          timeMenu.close();
-	        }
-	      };
-	    });
-	    timeMenu = main_popup.MenuManager.create({
-	      id: `calendar-sharing-settings-time-menu${Date.now()}`,
-	      className: 'calendar-sharing-settings-time-menu',
-	      bindElement: timeSelect,
-	      items,
-	      autoHide: true,
-	      closeByEsc: true,
-	      events: {
-	        onShow: () => main_core.Dom.addClass(timeSelect, '--active'),
-	        onClose: () => main_core.Dom.removeClass(timeSelect, '--active')
-	      },
-	      maxHeight: 300,
-	      minWidth: timeSelect.offsetWidth
-	    });
-	    timeMenu.show();
-	    const timezonesPopup = timeMenu.getPopupWindow();
-	    const popupContent = timezonesPopup.getContentContainer();
-	    const selectedTimezoneItem = popupContent.querySelector('.menu-popup-item.--selected');
-	    popupContent.scrollTop = selectedTimezoneItem.offsetTop - selectedTimezoneItem.offsetHeight * 2;
-	  }
-	  onWeekdaysSelectClickHandler() {
-	    if (this.readOnly) {
-	      this.showReadOnlyPopup(this.layout.weekdaysSelect);
-	    } else {
-	      this.weekdaysMenu.show();
-	    }
-	  }
-	  onTimeSelectClickHandler(timeSelect, callbacks) {
-	    if (this.readOnly) {
-	      this.showReadOnlyPopup(timeSelect);
-	    } else if (!main_core.Dom.hasClass(timeSelect, '--active')) {
-	      this.showTimeMenu(timeSelect, callbacks);
-	    }
-	  }
-	  formatAmPmSpan(time) {
-	    return time.toLowerCase().replace(/(am|pm)/g, '<span class="calendar-sharing__settings-time-am-pm">$1</span>');
-	  }
-	  formatMinutes(minutes) {
-	    const date = new Date(calendar_util.Util.parseDate('01.01.2000').getTime() + minutes * 60 * 1000);
-	    return calendar_util.Util.formatTime(date);
-	  }
-	  getWeekdaysTitle() {
-	    if ([...this.rule.weekdays].sort().toString() === this.workDays.sort().toString()) {
-	      return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1');
-	    }
-	    return this.formatWeekdays();
-	  }
-	  formatWeekdays(singleDay = true) {
-	    if (singleDay && this.rule.weekdays.length === 1) {
-	      return calendar_util.Util.getWeekdaysLoc(true)[this.rule.weekdays[0]];
-	    }
-	    const weekdaysLoc = calendar_util.Util.getWeekdaysLoc();
-	    return this.rule.weekdays.map(w => weekdaysLoc[w]).reduce((a, b) => `${a}, ${b}`, '');
-	  }
-	  getSortedWeekdays(weekdays) {
-	    return weekdays.map(w => w < this.weekStart ? w + 10 : w).sort((a, b) => a - b).map(w => w % 10);
+				`), timeStamp.name),
+	      className: callbacks.isSelected(timeStamp.value) ? 'menu-popup-no-icon --selected' : 'menu-popup-no-icon',
+	      onclick: () => {
+	        timeSelect.innerHTML = timeStamp.name;
+	        callbacks.onItemSelected(timeStamp.value);
+	        timeMenu.close();
+	      }
+	    };
+	  });
+	  timeMenu = main_popup.MenuManager.create({
+	    id: `calendar-sharing-settings-time-menu${Date.now()}`,
+	    className: 'calendar-sharing-settings-time-menu',
+	    bindElement: timeSelect,
+	    items,
+	    autoHide: true,
+	    closeByEsc: true,
+	    events: {
+	      onShow: () => main_core.Dom.addClass(timeSelect, '--active'),
+	      onClose: () => main_core.Dom.removeClass(timeSelect, '--active')
+	    },
+	    maxHeight: 300,
+	    minWidth: timeSelect.offsetWidth
+	  });
+	  timeMenu.show();
+	  const timezonesPopup = timeMenu.getPopupWindow();
+	  const popupContent = timezonesPopup.getContentContainer();
+	  const selectedTimezoneItem = popupContent.querySelector('.menu-popup-item.--selected');
+	  popupContent.scrollTop = selectedTimezoneItem.offsetTop - selectedTimezoneItem.offsetHeight * 2;
+	}
+	function _onWeekdaysSelectClickHandler2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$1)[_params$1].readOnly) {
+	    this.showReadOnlyPopup(babelHelpers.classPrivateFieldLooseBase(this, _layout)[_layout].weekdaysSelect);
+	  } else {
+	    this.weekdaysMenu.show();
 	  }
 	}
 
-	let _$3 = t => t,
-	  _t$3,
-	  _t2$2,
+	let _$2 = t => t,
+	  _t$2,
+	  _t2$1,
 	  _t3$1,
 	  _t4$1,
 	  _t5$1,
 	  _t6$1,
 	  _t7$1,
-	  _t8,
+	  _t8$1,
 	  _t9;
+	var _params$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
+	var _layout$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _model$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("model");
+	var _rule$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("rule");
+	var _bindEvents$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindEvents");
+	var _onRuleUpdated = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRuleUpdated");
+	var _onRangeDeleted = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRangeDeleted");
+	var _renderHeader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderHeader");
+	var _renderSubtitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSubtitle");
+	var _updateSubtitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateSubtitle");
+	var _getSubtitleText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSubtitleText");
+	var _renderExpandRuleButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderExpandRuleButton");
+	var _renderRule = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderRule");
+	var _toggleExpand = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("toggleExpand");
+	var _updateRuleHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("updateRuleHeight");
+	var _renderRanges = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderRanges");
+	var _createRange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createRange");
+	var _renderSettingsSlotSizeSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSettingsSlotSizeSelect");
+	var _calculateRuleHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calculateRuleHeight");
+	var _removeRuleHeight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeRuleHeight");
+	var _slotSizeSelectClickHandler = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("slotSizeSelectClickHandler");
+	var _showReadOnlyPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showReadOnlyPopup");
+	var _getReadOnlyPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getReadOnlyPopup");
+	var _closeReadOnlyPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeReadOnlyPopup");
 	class Settings {
-	  constructor(options) {
-	    this.AVAILABLE_INTERVALS = [30, 45, 60, 90, 120, 180];
-	    this.MAX_RANGES = 5;
-	    this.layout = {};
-	    this.readOnly = options.readOnly;
-	    this.collapsed = !options.readOnly && options.collapsed;
-	    if (!main_core.Type.isBoolean(options.collapsed)) {
-	      this.notExpandable = true;
-	    }
-	    this.workTimeStart = options.workTimeStart;
-	    this.workTimeEnd = options.workTimeEnd;
-	    this.workDays = options.workDays;
-	    this.weekStart = options.weekStart;
-	    this.rule = {
-	      slotSize: options.rule.slotSize
-	    };
-	    this.ranges = [];
-	    for (const rangeOptions of options.rule.ranges) {
-	      this.ranges.push(this.getRange({
-	        ...rangeOptions,
-	        show: false
-	      }));
-	    }
-	    if (!main_core.Type.isArrayFilled(this.ranges)) {
-	      this.ranges = [this.getRange()];
-	    }
-	    this.sortRanges();
-	    this.updateRanges();
+	  constructor(params) {
+	    Object.defineProperty(this, _closeReadOnlyPopup, {
+	      value: _closeReadOnlyPopup2
+	    });
+	    Object.defineProperty(this, _getReadOnlyPopup, {
+	      value: _getReadOnlyPopup2
+	    });
+	    Object.defineProperty(this, _showReadOnlyPopup, {
+	      value: _showReadOnlyPopup2
+	    });
+	    Object.defineProperty(this, _slotSizeSelectClickHandler, {
+	      value: _slotSizeSelectClickHandler2
+	    });
+	    Object.defineProperty(this, _removeRuleHeight, {
+	      value: _removeRuleHeight2
+	    });
+	    Object.defineProperty(this, _calculateRuleHeight, {
+	      value: _calculateRuleHeight2
+	    });
+	    Object.defineProperty(this, _renderSettingsSlotSizeSelect, {
+	      value: _renderSettingsSlotSizeSelect2
+	    });
+	    Object.defineProperty(this, _createRange, {
+	      value: _createRange2
+	    });
+	    Object.defineProperty(this, _renderRanges, {
+	      value: _renderRanges2
+	    });
+	    Object.defineProperty(this, _updateRuleHeight, {
+	      value: _updateRuleHeight2
+	    });
+	    Object.defineProperty(this, _toggleExpand, {
+	      value: _toggleExpand2
+	    });
+	    Object.defineProperty(this, _renderRule, {
+	      value: _renderRule2
+	    });
+	    Object.defineProperty(this, _renderExpandRuleButton, {
+	      value: _renderExpandRuleButton2
+	    });
+	    Object.defineProperty(this, _getSubtitleText, {
+	      value: _getSubtitleText2
+	    });
+	    Object.defineProperty(this, _updateSubtitle, {
+	      value: _updateSubtitle2
+	    });
+	    Object.defineProperty(this, _renderSubtitle, {
+	      value: _renderSubtitle2
+	    });
+	    Object.defineProperty(this, _renderHeader, {
+	      value: _renderHeader2
+	    });
+	    Object.defineProperty(this, _onRangeDeleted, {
+	      value: _onRangeDeleted2
+	    });
+	    Object.defineProperty(this, _onRuleUpdated, {
+	      value: _onRuleUpdated2
+	    });
+	    Object.defineProperty(this, _bindEvents$1, {
+	      value: _bindEvents2$1
+	    });
+	    Object.defineProperty(this, _rule$1, {
+	      get: _get_rule,
+	      set: void 0
+	    });
+	    Object.defineProperty(this, _model$1, {
+	      get: _get_model$1,
+	      set: void 0
+	    });
+	    Object.defineProperty(this, _params$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _layout$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _params$2)[_params$2] = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1] = {};
+	    this.readOnly = params.readOnly;
+	    babelHelpers.classPrivateFieldLooseBase(this, _bindEvents$1)[_bindEvents$1]();
 	  }
-	  getRule() {
-	    const ranges = this.ranges.map(range => range.getRule());
-	    ranges.sort((a, b) => this.compareRanges(a, b));
-	    return JSON.parse(JSON.stringify({
-	      ranges,
-	      ...this.rule
-	    }));
-	  }
-	  sortRanges() {
-	    this.ranges.sort((a, b) => this.compareRanges(a.getRule(), b.getRule()));
-	  }
-	  compareRanges(range1, range2) {
-	    const weekdaysWeight1 = this.getWeekdaysWeight(range1.weekdays);
-	    const weekdaysWeight2 = this.getWeekdaysWeight(range2.weekdays);
-	    if (weekdaysWeight1 !== weekdaysWeight2) {
-	      return weekdaysWeight1 - weekdaysWeight2;
-	    }
-	    if (range1.from !== range2.from) {
-	      return range1.from - range2.from;
-	    }
-	    return range1.to - range2.to;
-	  }
-	  getWeekdaysWeight(weekdays) {
-	    return weekdays.map(w => w < this.weekStart ? w + 10 : w).sort((a, b) => a - b).reduce((accumulator, w, index) => {
-	      return accumulator + w * 10 ** (10 - index);
-	    }, 0);
-	  }
-	  settingPopupShown() {
-	    var _this$ranges$filter, _this$readOnlyPopup;
-	    const rangesWithPopup = (_this$ranges$filter = this.ranges.filter(range => range.settingPopupShown())) != null ? _this$ranges$filter : [];
+	  hasShownPopups() {
+	    var _babelHelpers$classPr, _this$readOnlyPopup;
+	    const rangesWithPopup = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges.filter(range => range.hasShownPopups())) != null ? _babelHelpers$classPr : [];
 	    const rangePopupShown = rangesWithPopup.length > 0;
-	    const slotSizePopupShown = main_core.Dom.hasClass(this.layout.slotSizeSelect, '--active');
+	    const slotSizePopupShown = main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect, '--active');
 	    const readOnlyPopupShown = (_this$readOnlyPopup = this.readOnlyPopup) == null ? void 0 : _this$readOnlyPopup.isShown();
 	    return rangePopupShown || slotSizePopupShown || readOnlyPopupShown;
 	  }
 	  render() {
 	    const readOnlyClass = this.readOnly ? '--read-only' : '';
-	    const expandedClass = this.collapsed ? '--hide' : '';
-	    this.layout.wrap = main_core.Tag.render(_t$3 || (_t$3 = _$3`
-			<div class="calendar-sharing__settings ${0} ${0}">
+	    const expandedClass = babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].isCollapsed() ? '--hide' : '';
+	    const contextClass = `--${babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].getContext()}`;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrap = main_core.Tag.render(_t$2 || (_t$2 = _$2`
+			<div class="calendar-sharing__settings ${0} ${0} ${0}">
 				${0}
 				${0}
 			</div>
-		`), readOnlyClass, expandedClass, this.renderHeader(), this.renderRule());
-	    return this.layout.wrap;
+		`), readOnlyClass, expandedClass, contextClass, babelHelpers.classPrivateFieldLooseBase(this, _renderHeader)[_renderHeader](), babelHelpers.classPrivateFieldLooseBase(this, _renderRule)[_renderRule]());
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrap;
 	  }
-	  renderHeader() {
-	    return main_core.Tag.render(_t2$2 || (_t2$2 = _$3`
+	}
+	function _get_model$1() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _params$2)[_params$2].model;
+	}
+	function _get_rule() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].getRule();
+	}
+	function _bindEvents2$1() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].subscribe('updated', babelHelpers.classPrivateFieldLooseBase(this, _onRuleUpdated)[_onRuleUpdated].bind(this));
+	  babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].subscribe('rangeDeleted', babelHelpers.classPrivateFieldLooseBase(this, _onRangeDeleted)[_onRangeDeleted].bind(this));
+	}
+	function _onRuleUpdated2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateSubtitle)[_updateSubtitle]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _removeRuleHeight)[_removeRuleHeight]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _renderRanges)[_renderRanges]();
+	}
+	function _onRangeDeleted2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateSubtitle)[_updateSubtitle]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _removeRuleHeight)[_removeRuleHeight]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges.forEach(range => range.renderButton());
+	}
+	function _renderHeader2() {
+	  return main_core.Tag.render(_t2$1 || (_t2$1 = _$2`
 			<div class="calendar-sharing__settings-header-container">
 				<div class="calendar-sharing__settings-header">
 					<div class="calendar-sharing__settings-title">
@@ -663,45 +1106,45 @@ this.BX.Calendar = this.BX.Calendar || {};
 					${0}
 				</div>
 			</div>
-		`), main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_TITLE_V2'), this.renderSubtitle(), this.renderExpandRuleButton());
-	  }
-	  renderSubtitle() {
-	    this.layout.subtitle = main_core.Tag.render(_t3$1 || (_t3$1 = _$3`
+		`), main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_TITLE_V2'), babelHelpers.classPrivateFieldLooseBase(this, _renderSubtitle)[_renderSubtitle](), babelHelpers.classPrivateFieldLooseBase(this, _renderExpandRuleButton)[_renderExpandRuleButton]());
+	}
+	function _renderSubtitle2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].subtitle = main_core.Tag.render(_t3$1 || (_t3$1 = _$2`
 			<div class="calendar-sharing__settings-subtitle">
 				${0}
 			</div>
-		`), this.getSubtitleText());
-	    return this.layout.subtitle;
+		`), babelHelpers.classPrivateFieldLooseBase(this, _getSubtitleText)[_getSubtitleText]());
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].subtitle;
+	}
+	function _updateSubtitle2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].subtitle) {
+	    return;
 	  }
-	  updateSubtitle() {
-	    if (!this.layout.subtitle) {
-	      return;
-	    }
-	    this.layout.subtitle.innerText = this.getSubtitleText();
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].subtitle.innerText = babelHelpers.classPrivateFieldLooseBase(this, _getSubtitleText)[_getSubtitleText]();
+	}
+	function _getSubtitleText2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].isDefaultRule()) {
+	    return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT');
 	  }
-	  getSubtitleText() {
-	    if (this.isDefaultRule()) {
-	      return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT');
-	    }
-	    return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL');
+	  return main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL');
+	}
+	function _renderExpandRuleButton2() {
+	  if (this.readOnly) {
+	    return '';
 	  }
-	  renderExpandRuleButton() {
-	    if (this.readOnly || this.notExpandable) {
-	      return '';
-	    }
-	    this.layout.expandRuleArrow = main_core.Tag.render(_t4$1 || (_t4$1 = _$3`
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleArrow = main_core.Tag.render(_t4$1 || (_t4$1 = _$2`
 			<div class="calendar-sharing__settings-select-arrow ${0}"></div>
-		`), this.collapsed ? '' : '--active');
-	    this.layout.expandRuleButton = main_core.Tag.render(_t5$1 || (_t5$1 = _$3`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].isCollapsed() ? '' : '--active');
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleButton = main_core.Tag.render(_t5$1 || (_t5$1 = _$2`
 			<div class="calendar-sharing__settings-expand">
 				${0}
 			</div>
-		`), this.layout.expandRuleArrow);
-	    main_core.Event.bind(this.layout.expandRuleButton, 'click', this.toggle.bind(this));
-	    return this.layout.expandRuleButton;
-	  }
-	  renderRule() {
-	    this.layout.rule = main_core.Tag.render(_t6$1 || (_t6$1 = _$3`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleArrow);
+	  main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleButton, 'click', babelHelpers.classPrivateFieldLooseBase(this, _toggleExpand)[_toggleExpand].bind(this));
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleButton;
+	}
+	function _renderRule2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rule = main_core.Tag.render(_t6$1 || (_t6$1 = _$2`
 			<div class="calendar-sharing__settings-rule">
 				${0}
 				<div class="calendar-sharing__settings-slotSize">
@@ -709,238 +1152,141 @@ this.BX.Calendar = this.BX.Calendar || {};
 					${0}
 				</div>
 			</div>
-		`), this.renderRanges(), main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SLOT_SIZE_V2'), this.getSettingsSlotSizeSelect());
-	    return this.layout.rule;
-	  }
-	  toggle() {
-	    this.updateRuleHeight();
-	    setTimeout(() => {
-	      main_core.Dom.toggleClass(this.layout.wrap, '--hide');
-	      main_core.Dom.toggleClass(this.layout.expandRuleArrow, '--active');
-	      this.updateSharingSettingsCollapsedAction(main_core.Dom.hasClass(this.layout.wrap, '--hide'));
-	    }, 0);
-	  }
-	  updateSharingSettingsCollapsedAction(isCollapsed) {
-	    BX.ajax.runAction('calendar.api.sharingajax.updateSharingSettingsCollapsed', {
-	      data: {
-	        collapsed: isCollapsed ? 'Y' : 'N'
-	      }
-	    });
-	  }
-	  renderRanges() {
-	    this.ranges.forEach(range => range.disableAnimation());
-	    const rangesContainer = main_core.Tag.render(_t7$1 || (_t7$1 = _$3`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderRanges)[_renderRanges](), main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_SLOT_SIZE_V2'), babelHelpers.classPrivateFieldLooseBase(this, _renderSettingsSlotSizeSelect)[_renderSettingsSlotSizeSelect]());
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rule;
+	}
+	function _toggleExpand2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _updateRuleHeight)[_updateRuleHeight]();
+	  setTimeout(() => {
+	    main_core.Dom.toggleClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrap, '--hide');
+	    main_core.Dom.toggleClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].expandRuleArrow, '--active');
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].updateCollapsed(main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrap, '--hide'));
+	  }, 0);
+	}
+	function _updateRuleHeight2() {
+	  main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rule, 'height', `${babelHelpers.classPrivateFieldLooseBase(this, _calculateRuleHeight)[_calculateRuleHeight]()}px`);
+	}
+	function _renderRanges2() {
+	  var _babelHelpers$classPr2, _babelHelpers$classPr3;
+	  (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges) == null ? void 0 : _babelHelpers$classPr2.forEach(range => range.destroy());
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges = babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].getRanges().map(range => babelHelpers.classPrivateFieldLooseBase(this, _createRange)[_createRange](range));
+	  const rangesContainer = main_core.Tag.render(_t7$1 || (_t7$1 = _$2`
 			<div class="calendar-sharing__settings-range-list">
 				${0}
 			</div>
-		`), this.ranges.map(range => range.render()));
-	    if (this.ranges.length === this.MAX_RANGES) {
-	      this.ranges[0].hideButton();
-	    }
-	    if (main_core.Type.isDomNode(this.layout.rangesContainer)) {
-	      this.layout.rangesContainer.replaceWith(rangesContainer);
-	    }
-	    this.layout.rangesContainer = rangesContainer;
-	    return rangesContainer;
-	  }
-	  getRange(rangeOptions) {
-	    var _this$ranges;
-	    const date = new Date().toDateString();
-	    const from = new Date(`${date} ${`${this.workTimeStart}`.replace('.', ':')}:00`);
-	    const to = new Date(`${date} ${`${this.workTimeEnd}`.replace('.', ':')}:00`);
-	    const isNotFirst = ((_this$ranges = this.ranges) == null ? void 0 : _this$ranges.length) >= 1;
-	    return new Range({
-	      getSlotSize: () => this.rule.slotSize,
-	      from: this.getMinutesFromDate(from),
-	      to: this.getMinutesFromDate(to),
-	      weekdays: this.workDays,
-	      weekStart: this.weekStart,
-	      workDays: this.workDays,
-	      addRange: range => this.addRange(range),
-	      removeRange: range => this.removeRange(range),
-	      showReadOnlyPopup: node => this.showReadOnlyPopup(node),
-	      ruleUpdated: () => this.ruleUpdated(),
-	      show: isNotFirst,
-	      readOnly: this.readOnly,
-	      ...rangeOptions
-	    });
-	  }
-	  addRange(afterRange) {
-	    if (this.ranges.length >= this.MAX_RANGES) {
-	      return;
-	    }
-	    const newRange = this.getRange();
-	    this.ranges.push(newRange);
-	    afterRange.getWrap().after(newRange.render());
-	    this.updateRanges();
-	  }
-	  removeRange(deletedRange) {
-	    if (this.ranges.length <= 1) {
-	      return false;
-	    }
-	    this.ranges = this.ranges.filter(range => range !== deletedRange);
-	    this.updateRanges();
-	    return true;
-	  }
-	  getSettingsSlotSizeSelect() {
-	    this.layout.slotSizeText = main_core.Tag.render(_t8 || (_t8 = _$3`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges.map(range => range.render()));
+	  (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rangesContainer) == null ? void 0 : _babelHelpers$classPr3.replaceWith(rangesContainer);
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rangesContainer = rangesContainer;
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].ranges.forEach(range => range.updateWeekdaysTitle());
+	  return rangesContainer;
+	}
+	function _createRange2(range) {
+	  return new Range({
+	    model: range,
+	    readOnly: this.readOnly,
+	    showReadOnlyPopup: babelHelpers.classPrivateFieldLooseBase(this, _showReadOnlyPopup)[_showReadOnlyPopup].bind(this)
+	  });
+	}
+	function _renderSettingsSlotSizeSelect2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeText = main_core.Tag.render(_t8$1 || (_t8$1 = _$2`
 			<span class="calendar-sharing__settings-select-link">
 				${0}
 			</span>
-		`), calendar_util.Util.formatDuration(this.rule.slotSize));
-	    this.layout.slotSizeSelect = main_core.Tag.render(_t9 || (_t9 = _$3`
+		`), babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].getFormattedSlotSize());
+	  babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect = main_core.Tag.render(_t9 || (_t9 = _$2`
 			<span class="calendar-sharing__settings-select-arrow --small-arrow">
 				${0}
 			</span>
-		`), this.layout.slotSizeText);
-	    main_core.Event.bind(this.layout.slotSizeSelect, 'click', this.slotSizeSelectClickHandler.bind(this));
-	    const items = this.AVAILABLE_INTERVALS.map(minutes => {
+		`), babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeText);
+	  main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect, 'click', babelHelpers.classPrivateFieldLooseBase(this, _slotSizeSelectClickHandler)[_slotSizeSelectClickHandler].bind(this));
+	  this.slotSizeMenu = main_popup.MenuManager.create({
+	    id: `calendar-sharing-settings-slotSize${Date.now()}`,
+	    bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect,
+	    items: babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].getRule().getAvailableIntervals().map(minutes => {
 	      return {
 	        text: calendar_util.Util.formatDuration(minutes),
 	        onclick: () => {
-	          this.rule.slotSize = minutes;
-	          this.layout.slotSizeText.innerHTML = calendar_util.Util.formatDuration(this.rule.slotSize);
+	          babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].setSlotSize(minutes);
+	          babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeText.innerHTML = babelHelpers.classPrivateFieldLooseBase(this, _rule$1)[_rule$1].getFormattedSlotSize();
 	          this.slotSizeMenu.close();
-	          this.updateRanges();
 	        }
 	      };
-	    });
-	    this.slotSizeMenu = main_popup.MenuManager.create({
-	      id: `calendar-sharing-settings-slotSize${Date.now()}`,
-	      bindElement: this.layout.slotSizeSelect,
-	      items,
-	      closeByEsc: true,
-	      events: {
-	        onShow: () => main_core.Dom.addClass(this.layout.slotSizeSelect, '--active'),
-	        onClose: () => main_core.Dom.removeClass(this.layout.slotSizeSelect, '--active')
-	      }
-	    });
-	    return this.layout.slotSizeSelect;
-	  }
-	  updateRanges() {
-	    for (const range of this.ranges.slice(0, -1)) {
-	      range.setDeletable(true);
-	      range.update();
+	    }),
+	    closeByEsc: true,
+	    events: {
+	      onShow: () => main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect, '--active'),
+	      onClose: () => main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect, '--active')
 	    }
-	    const lastRange = this.ranges.slice(-1)[0];
-	    lastRange.setDeletable(this.ranges.length === 5);
-	    lastRange.update();
-	    this.ruleUpdated();
-	  }
-	  ruleUpdated() {
-	    this.updateSubtitle();
-	    this.removeRuleHeight();
-	  }
-	  updateRuleHeight() {
-	    main_core.Dom.style(this.layout.rule, 'height', `${this.calculateRuleHeight()}px`);
-	  }
-	  calculateRuleHeight() {
-	    const topMarginHeight = 10;
-	    const bottomMarginHeight = 2;
-	    const marginsHeight = topMarginHeight + bottomMarginHeight;
-	    const slotSizeHeight = 15;
-	    const rangeHeight = 45;
-	    return rangeHeight * this.ranges.length + (marginsHeight + slotSizeHeight);
-	  }
-	  removeRuleHeight() {
-	    main_core.Dom.style(this.layout.rule, 'height', null);
-	  }
-	  slotSizeSelectClickHandler() {
-	    if (this.readOnly) {
-	      this.showReadOnlyPopup(this.layout.slotSizeSelect);
-	    } else {
-	      this.slotSizeMenu.show();
-	    }
-	  }
-	  showReadOnlyPopup(pivotNode) {
-	    this.closeReadOnlyPopup();
-	    this.getReadOnlyPopup(pivotNode).show();
-	  }
-	  getReadOnlyPopup(pivotNode) {
-	    this.readOnlyPopup = new main_popup.Popup({
-	      bindElement: pivotNode,
-	      className: 'calendar-sharing__settings-read-only-hint',
-	      content: main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'),
-	      angle: {
-	        offset: 0
-	      },
-	      width: 300,
-	      offsetLeft: pivotNode.offsetWidth / 2,
-	      darkMode: true,
-	      autoHide: true
-	    });
-	    main_core.Event.bind(this.readOnlyPopup.popupContainer, 'click', () => this.closeReadOnlyPopup());
-	    clearTimeout(this.closePopupTimeout);
-	    this.closePopupTimeout = setTimeout(() => this.closeReadOnlyPopup(), 3000);
-	    return this.readOnlyPopup;
-	  }
-	  closeReadOnlyPopup() {
-	    var _this$readOnlyPopup2;
-	    (_this$readOnlyPopup2 = this.readOnlyPopup) == null ? void 0 : _this$readOnlyPopup2.destroy();
-	  }
-	  getMinutesFromDate(date) {
-	    const parsedTime = calendar_util.Util.parseTime(main_date.DateTimeFormat.format(main_date.DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), date / 1000));
-	    return parsedTime.h * 60 + parsedTime.m;
-	  }
-	  isDefaultRule() {
-	    return !this.isDifferentFrom(this.getDefaultRule());
-	  }
-	  isDifferentFrom(anotherRule) {
-	    return !this.objectsEqual(anotherRule, this.getRule());
-	  }
-	  getChanges() {
-	    const defaultRule = this.getDefaultRule();
-	    const rule = this.getRule();
-	    const sizeChanged = rule.slotSize !== defaultRule.slotSize;
-	    const daysChanged = JSON.stringify(rule.ranges) !== JSON.stringify(defaultRule.ranges);
-	    const changes = [];
-	    if (daysChanged) {
-	      changes.push(calendar_sharing_analytics.Analytics.ruleChanges.custom_days);
-	    }
-	    if (sizeChanged) {
-	      changes.push(calendar_sharing_analytics.Analytics.ruleChanges.custom_length);
-	    }
-	    return changes;
-	  }
-	  getDefaultRule() {
-	    return {
-	      slotSize: 60,
-	      ranges: [this.getRange().getRule()]
-	    };
-	  }
-	  objectsEqual(obj1, obj2) {
-	    return JSON.stringify(this.sortKeys(obj1)) === JSON.stringify(this.sortKeys(obj2));
-	  }
-	  sortKeys(object) {
-	    return Object.keys(object).sort().reduce((obj, key) => {
-	      obj[key] = object[key];
-	      return obj;
-	    }, {});
+	  });
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect;
+	}
+	function _calculateRuleHeight2() {
+	  const topMarginHeight = 10;
+	  const bottomMarginHeight = 2;
+	  const marginsHeight = topMarginHeight + bottomMarginHeight;
+	  const slotSizeHeight = 15;
+	  const rangeHeight = 45;
+	  return rangeHeight * babelHelpers.classPrivateFieldLooseBase(this, _model$1)[_model$1].getRule().getRanges().length + (marginsHeight + slotSizeHeight);
+	}
+	function _removeRuleHeight2() {
+	  main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].rule, 'height', null);
+	}
+	function _slotSizeSelectClickHandler2() {
+	  if (this.readOnly) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _showReadOnlyPopup)[_showReadOnlyPopup](babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].slotSizeSelect);
+	  } else {
+	    this.slotSizeMenu.show();
 	  }
 	}
+	function _showReadOnlyPopup2(pivotNode) {
+	  babelHelpers.classPrivateFieldLooseBase(this, _closeReadOnlyPopup)[_closeReadOnlyPopup]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _getReadOnlyPopup)[_getReadOnlyPopup](pivotNode).show();
+	}
+	function _getReadOnlyPopup2(pivotNode) {
+	  this.readOnlyPopup = new main_popup.Popup({
+	    bindElement: pivotNode,
+	    className: 'calendar-sharing__settings-read-only-hint',
+	    content: main_core.Loc.getMessage('CALENDAR_SHARING_SETTINGS_READ_ONLY_HINT'),
+	    angle: {
+	      offset: 0
+	    },
+	    width: 300,
+	    offsetLeft: pivotNode.offsetWidth / 2,
+	    darkMode: true,
+	    autoHide: true
+	  });
+	  main_core.Event.bind(this.readOnlyPopup.popupContainer, 'click', () => babelHelpers.classPrivateFieldLooseBase(this, _closeReadOnlyPopup)[_closeReadOnlyPopup]());
+	  clearTimeout(this.closePopupTimeout);
+	  this.closePopupTimeout = setTimeout(() => babelHelpers.classPrivateFieldLooseBase(this, _closeReadOnlyPopup)[_closeReadOnlyPopup](), 3000);
+	  return this.readOnlyPopup;
+	}
+	function _closeReadOnlyPopup2() {
+	  var _this$readOnlyPopup2;
+	  (_this$readOnlyPopup2 = this.readOnlyPopup) == null ? void 0 : _this$readOnlyPopup2.destroy();
+	}
 
-	let _$4 = t => t,
-	  _t$4;
+	let _$3 = t => t,
+	  _t$3;
 	var _bindElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindElement");
-	var _layout$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
-	var _popup$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
+	var _layout$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _popup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
 	class HintInfo {
 	  constructor(props) {
 	    Object.defineProperty(this, _bindElement, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _layout$1, {
+	    Object.defineProperty(this, _layout$2, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _popup$1, {
+	    Object.defineProperty(this, _popup, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _bindElement)[_bindElement] = props.bindElement;
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1] = {};
-	    babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1] = new main_popup.Popup({
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2] = {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup] = new main_popup.Popup({
 	      bindElement: babelHelpers.classPrivateFieldLooseBase(this, _bindElement)[_bindElement],
 	      bindOptions: {
 	        position: 'top'
@@ -955,8 +1301,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	  }
 	  getContent() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrapper = main_core.Tag.render(_t$4 || (_t$4 = _$4`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper = main_core.Tag.render(_t$3 || (_t$3 = _$3`
 				<div class="calendar-sharing__user-selector-hint-wrapper">
 					<div class="calendar-sharing__user-selector-hint-text-wrapper">
 						<div class="calendar-sharing__user-selector-hint-text-title">
@@ -970,35 +1316,44 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</div>
 			`), main_core.Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_HINT_TITLE'), main_core.Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_HINT_DESC'));
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$1)[_layout$1].wrapper;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper;
 	  }
 	  show() {
 	    var _babelHelpers$classPr;
-	    (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1]) == null ? void 0 : _babelHelpers$classPr.show();
+	    (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup]) == null ? void 0 : _babelHelpers$classPr.show();
 	  }
 	  close() {
 	    var _babelHelpers$classPr2;
-	    (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1]) == null ? void 0 : _babelHelpers$classPr2.close();
+	    (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _popup)[_popup]) == null ? void 0 : _babelHelpers$classPr2.close();
 	  }
 	}
 
-	let _$5 = t => t,
-	  _t$5,
-	  _t2$3,
+	let _$4 = t => t,
+	  _t$4,
+	  _t2$2,
 	  _t3$2,
 	  _t4$2,
 	  _t5$2,
 	  _t6$2;
-	var _layout$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _layout$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _userSelectorDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userSelectorDialog");
 	var _selectedEntityList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedEntityList");
 	var _selectedEntityNodeList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("selectedEntityNodeList");
 	var _defaultUserEntity = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("defaultUserEntity");
 	var _isOpened = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOpened");
 	var _onMembersAdded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onMembersAdded");
+	var _model$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("model");
+	var _renderTitle = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTitle");
+	var _getTitleText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getTitleText");
 	class UserSelector {
 	  constructor(props = {}) {
-	    Object.defineProperty(this, _layout$2, {
+	    Object.defineProperty(this, _getTitleText, {
+	      value: _getTitleText2
+	    });
+	    Object.defineProperty(this, _renderTitle, {
+	      value: _renderTitle2
+	    });
+	    Object.defineProperty(this, _layout$3, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1026,98 +1381,74 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2] = {};
+	    Object.defineProperty(this, _model$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityList)[_selectedEntityList] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList] = {};
-	    babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity] = props.userInfo || {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2] = props.model;
+	    babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity] = babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].getUserInfo();
 	    babelHelpers.classPrivateFieldLooseBase(this, _isOpened)[_isOpened] = false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _onMembersAdded)[_onMembersAdded] = props.onMembersAdded;
 	    this.openEntitySelector = this.openEntitySelector.bind(this);
 	  }
 	  render() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper = main_core.Tag.render(_t$5 || (_t$5 = _$5`
-				<div class="calendar-sharing__user-selector-main">
-					<div class="calendar-sharing__user-selector-title">
-						${0}
-					</div>
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper) {
+	      const contextClass = `--${babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].getContext()}`;
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper = main_core.Tag.render(_t$4 || (_t$4 = _$4`
+				<div class="calendar-sharing__user-selector-main ${0}">
+					${0}
 					${0}
 				</div>
-			`), this.renderTitle(), this.renderUserSelectorWrapper());
+			`), contextClass, babelHelpers.classPrivateFieldLooseBase(this, _renderTitle)[_renderTitle](), this.renderUserSelectorWrapper());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].wrapper;
-	  }
-	  renderTitle() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].title) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].title = main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
-				<div class="calendar-sharing__user-selector-title-text">
-					${0}
-				</div>
-			`), main_core.Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2'));
-	      const infoNotify = babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].title.querySelector('[ data-role="calendar-sharing_popup-joint-slots"]');
-	      if (infoNotify) {
-	        let hintInfo;
-	        let timer;
-	        main_core.Event.bind(infoNotify, 'mouseenter', () => {
-	          timer = setTimeout(() => {
-	            if (!hintInfo) {
-	              hintInfo = new HintInfo({
-	                bindElement: infoNotify
-	              });
-	            }
-	            hintInfo.show();
-	          }, 1000);
-	        });
-	        main_core.Event.bind(infoNotify, 'mouseleave', () => {
-	          clearTimeout(timer);
-	          if (hintInfo) {
-	            hintInfo.close();
-	          }
-	        });
-	      }
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].title;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper;
 	  }
 	  renderUserSelectorWrapper() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelectorWrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelectorWrapper = main_core.Tag.render(_t3$2 || (_t3$2 = _$5`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelectorWrapper) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelectorWrapper = main_core.Tag.render(_t2$2 || (_t2$2 = _$4`
 				<div class="calendar-sharing__user-selector-wrapper">
 					${0}
 					<div class="calendar-sharing__user-selector-add">
+						<div class="ui-icon-set --plus-20"></div>
+					</div>
 				</div>
 			`), this.renderUserSelector());
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelectorWrapper, 'click', this.openEntitySelector);
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelectorWrapper, 'click', this.openEntitySelector);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelectorWrapper;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelectorWrapper;
 	  }
 	  renderUserSelector() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector) {
 	      const entityNode = this.getDefaultEntityNode();
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector = main_core.Tag.render(_t4$2 || (_t4$2 = _$5`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector = main_core.Tag.render(_t3$2 || (_t3$2 = _$4`
 				<div class="calendar-sharing__user-selector-container" data-id="calendar-sharing-members">
 					${0}
 				</div>
 			`), entityNode);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector;
 	  }
 	  getDefaultEntityNode() {
 	    const entityNode = this.renderUserEntity(babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity]);
 	    const key = this.getEntityKey(babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity].id);
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityList)[_selectedEntityList][key] = babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity];
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList][key] = entityNode;
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].setMemberIds(this.getSelectedUserIdList());
 	    return entityNode;
 	  }
 	  renderUserEntity(entity) {
 	    if (this.hasAvatar(entity.avatar)) {
-	      return main_core.Tag.render(_t5$2 || (_t5$2 = _$5`
+	      return main_core.Tag.render(_t4$2 || (_t4$2 = _$4`
 				<div class="calendar-sharing__user-selector-entity-container">
 					<img class="calendar-sharing__user-selector-entity" title="${0}" src="${0}" alt="">
 				</div>
 			`), main_core.Text.encode(entity.name), entity.avatar);
 	    }
-	    return main_core.Tag.render(_t6$2 || (_t6$2 = _$5`
+	    return main_core.Tag.render(_t5$2 || (_t5$2 = _$4`
 			<div class="ui-icon ui-icon-common-user calendar-sharing__user-selector-entity" title="${0}"><i></i></div>
 		`), main_core.Text.encode(entity == null ? void 0 : entity.name));
 	  }
@@ -1125,14 +1456,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return avatar && avatar !== '/bitrix/images/1.gif';
 	  }
 	  openEntitySelector() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector) {
 	      return;
 	    }
 	    const preselectedItem = ['user', babelHelpers.classPrivateFieldLooseBase(this, _defaultUserEntity)[_defaultUserEntity].id];
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog] = new ui_entitySelector.Dialog({
 	        width: 340,
-	        targetNode: babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector,
+	        targetNode: babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector,
 	        context: 'CALENDAR_SHARING',
 	        preselectedItems: [preselectedItem],
 	        enableSearch: true,
@@ -1182,12 +1513,13 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      name: `${item.customData.get('name')} ${(_item$customData$get = item.customData.get('lastName')) != null ? _item$customData$get : ''}`.trim()
 	    };
 	    const entityNode = this.renderUserEntity(entity);
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector) {
-	      main_core.Dom.append(entityNode, babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector) {
+	      main_core.Dom.append(entityNode, babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector);
 	    }
 	    const key = this.getEntityKey(entity.id);
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityList)[_selectedEntityList][key] = entity;
 	    babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList][key] = entityNode;
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].setMemberIds(this.getSelectedUserIdList());
 	  }
 	  onUserSelectorDeselect(event) {
 	    const item = event.data.item;
@@ -1198,14 +1530,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      delete babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityList)[_selectedEntityList][key];
 	      delete babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList][key];
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].setMemberIds(this.getSelectedUserIdList());
 	  }
 	  clearSelectedUsers() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector) {
-	      main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector) {
+	      main_core.Dom.clean(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector);
 	      babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityList)[_selectedEntityList] = {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _selectedEntityNodeList)[_selectedEntityNodeList] = {};
 	      const entityNode = this.getDefaultEntityNode();
-	      main_core.Dom.append(entityNode, babelHelpers.classPrivateFieldLooseBase(this, _layout$2)[_layout$2].userSelector);
+	      main_core.Dom.append(entityNode, babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].userSelector);
 	    }
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _userSelectorDialog)[_userSelectorDialog].destroy();
@@ -1229,21 +1562,65 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return `user-${id}`;
 	  }
 	}
+	function _renderTitle2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title = main_core.Tag.render(_t6$2 || (_t6$2 = _$4`
+				<div class="calendar-sharing__user-selector-title">
+					<div class="calendar-sharing__user-selector-title-icon"></div>
+					<div class="calendar-sharing__user-selector-title-text">
+						${0}
+					</div>
+				</div>
+			`), babelHelpers.classPrivateFieldLooseBase(this, _getTitleText)[_getTitleText]());
+	    const infoNotify = babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title.querySelector('[ data-role="calendar-sharing_popup-joint-slots"]');
+	    if (infoNotify) {
+	      let hintInfo;
+	      let timer;
+	      main_core.Event.bind(infoNotify, 'mouseenter', () => {
+	        timer = setTimeout(() => {
+	          if (!hintInfo) {
+	            hintInfo = new HintInfo({
+	              bindElement: infoNotify
+	            });
+	          }
+	          hintInfo.show();
+	        }, 1000);
+	      });
+	      main_core.Event.bind(infoNotify, 'mouseleave', () => {
+	        clearTimeout(timer);
+	        if (hintInfo) {
+	          hintInfo.close();
+	        }
+	      });
+	    }
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].title;
+	}
+	function _getTitleText2() {
+	  switch (babelHelpers.classPrivateFieldLooseBase(this, _model$2)[_model$2].getContext()) {
+	    case 'calendar':
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2');
+	    case 'crm':
+	      return main_core.Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_CRM');
+	    default:
+	      return '';
+	  }
+	}
 
-	let _$6 = t => t,
-	  _t$6,
-	  _t2$4,
+	let _$5 = t => t,
+	  _t$5,
+	  _t2$3,
 	  _t3$3,
 	  _t4$3,
 	  _t5$3,
 	  _t6$3,
 	  _t7$2,
-	  _t8$1,
+	  _t8$2,
 	  _t9$1,
 	  _t10;
 	const MAX_AVATAR_COUNT = 4;
 	var _props = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("props");
-	var _layout$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _layout$4 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _avatarPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("avatarPopup");
 	var _deletePopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("deletePopup");
 	class ListItem {
@@ -1252,7 +1629,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _layout$3, {
+	    Object.defineProperty(this, _layout$4, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1265,7 +1642,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _props)[_props] = props;
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3] = {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _avatarPopup)[_avatarPopup] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _deletePopup)[_deletePopup] = null;
 	    this.openAvatarList = this.openAvatarList.bind(this);
@@ -1273,8 +1650,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.onDeleteButtonClick = this.onDeleteButtonClick.bind(this);
 	  }
 	  render() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper = main_core.Tag.render(_t$6 || (_t$6 = _$6`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper = main_core.Tag.render(_t$5 || (_t$5 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item">
 					${0}
 					${0}
@@ -1283,32 +1660,32 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</div>
 			`), this.renderAvatarContainer(), this.renderDate(), this.renderCopyButton(), this.renderDeleteButton());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper;
 	  }
 	  renderAvatarContainer() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].avatarContainer) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarContainer) {
 	      const showMoreIcon = babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].members.length > MAX_AVATAR_COUNT;
 	      const moreCounter = babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].members.length - MAX_AVATAR_COUNT;
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].avatarContainer = main_core.Tag.render(_t2$4 || (_t2$4 = _$6`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarContainer = main_core.Tag.render(_t2$3 || (_t2$3 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item-avatar-container">
 					${0}
 					${0}
 					${0}
 				</div>
 			`), this.renderAvatar(babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].userInfo), babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].members.slice(0, MAX_AVATAR_COUNT).map(member => this.renderAvatar(member)), showMoreIcon ? this.renderMore(moreCounter) : null);
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].avatarContainer, 'click', this.openAvatarList);
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarContainer, 'click', this.openAvatarList);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].avatarContainer;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarContainer;
 	  }
 	  renderAvatar(user) {
 	    var _user$lastName;
 	    const name = `${user.name} ${(_user$lastName = user.lastName) != null ? _user$lastName : ''}`.trim();
 	    if (this.hasAvatar(user.avatar)) {
-	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$6`
+	      return main_core.Tag.render(_t3$3 || (_t3$3 = _$5`
 				<img class="calendar-sharing__dialog-link-list-item-avatar" title="${0}" alt="" src="${0}">
 			`), main_core.Text.encode(name), user.avatar);
 	    }
-	    return main_core.Tag.render(_t4$3 || (_t4$3 = _$6`
+	    return main_core.Tag.render(_t4$3 || (_t4$3 = _$5`
 			<div class="ui-icon ui-icon-common-user calendar-sharing__dialog-link-list-item-avatar" title="${0}"><i></i></div>
 		`), main_core.Text.encode(name));
 	  }
@@ -1316,18 +1693,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return avatar && avatar !== '/bitrix/images/1.gif';
 	  }
 	  renderMore(counter) {
-	    return main_core.Tag.render(_t5$3 || (_t5$3 = _$6`
+	    return main_core.Tag.render(_t5$3 || (_t5$3 = _$5`
 			<div class="calendar-sharing__dialog-link-list-item-more">
 				<div class="calendar-sharing__dialog-link-list-item-more-text">${0}</div>
 			</div>
-		`), '+' + counter);
+		`), `+${counter}`);
 	  }
 	  openAvatarList() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _avatarPopup)[_avatarPopup]) {
 	      const uid = BX.util.getRandomString(6);
 	      babelHelpers.classPrivateFieldLooseBase(this, _avatarPopup)[_avatarPopup] = main_popup.MenuManager.create({
-	        id: 'calendar-sharing-dialog_' + uid,
-	        bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].avatarContainer,
+	        id: `calendar-sharing-dialog_${uid}`,
+	        bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].avatarContainer,
 	        bindOptions: {
 	          position: 'top'
 	        },
@@ -1342,6 +1719,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        this.setPopupState(false);
 	      });
 	      const menuContainer = babelHelpers.classPrivateFieldLooseBase(this, _avatarPopup)[_avatarPopup].getMenuContainer();
+
+	      // eslint-disable-next-line init-declarations
 	      let timeout;
 	      main_core.Event.bind(menuContainer, 'mouseleave', () => {
 	        clearTimeout(timeout);
@@ -1375,7 +1754,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    const name = `${user.name} ${(_user$lastName2 = user.lastName) != null ? _user$lastName2 : ''}`.trim();
 	    const userPath = babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].pathToUser.replace('#USER_ID#', user.id);
 	    return {
-	      html: main_core.Tag.render(_t6$3 || (_t6$3 = _$6`
+	      html: main_core.Tag.render(_t6$3 || (_t6$3 = _$5`
 				<a href="${0}" target="_blank" class="calendar-sharing__dialog-link-list-user-popup-item">
 					<span class="ui-icon ui-icon-common-user calendar-sharing__dialog-link-list-user-popup-item-avatar">
 						<i style="${0}"></i>
@@ -1388,30 +1767,30 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    };
 	  }
 	  renderDate() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].date) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date) {
 	      const date = babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].dateCreate ? new Date(babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].dateCreate) : new Date();
 	      const formattedDate = calendar_util.Util.formatDate(date);
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].date = main_core.Tag.render(_t7$2 || (_t7$2 = _$6`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date = main_core.Tag.render(_t7$2 || (_t7$2 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item-date" title="${0}">${0}</div>
 			`), main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_DATE_CREATE'), formattedDate);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].date;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].date;
 	  }
 	  renderCopyButton() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].copyButton) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].copyButton) {
 	      const icon = new ui_iconSet_api_core.Icon({
 	        icon: ui_iconSet_api_core.Main.LINK_3,
 	        size: 14
 	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].copyButton = main_core.Tag.render(_t8$1 || (_t8$1 = _$6`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].copyButton = main_core.Tag.render(_t8$2 || (_t8$2 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item-copy-container">
 					${0}
 					<div class="calendar-sharing__dialog-link-list-item-copy-text">${0}</div>
 				</div>
 			`), icon.render(), main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_COPY'));
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].copyButton, 'click', this.onCopyButtonClick);
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].copyButton, 'click', this.onCopyButtonClick);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].copyButton;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].copyButton;
 	  }
 	  onCopyButtonClick() {
 	    main_core_events.EventEmitter.emit('CalendarSharing:onJointLinkCopy', {
@@ -1422,22 +1801,22 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	  }
 	  renderDeleteButton() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].members.length) {
-	      return main_core.Tag.render(_t9$1 || (_t9$1 = _$6`<div class="calendar-sharing__dialog-link-list-item-delete"></div>`));
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].members.length === 0) {
+	      return main_core.Tag.render(_t9$1 || (_t9$1 = _$5`<div class="calendar-sharing__dialog-link-list-item-delete"></div>`));
 	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].deleteButton) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].deleteButton) {
 	      const icon = new ui_iconSet_api_core.Icon({
 	        icon: ui_iconSet_api_core.Actions.CROSS_30,
 	        size: 18
 	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].deleteButton = main_core.Tag.render(_t10 || (_t10 = _$6`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].deleteButton = main_core.Tag.render(_t10 || (_t10 = _$5`
 				<div class="calendar-sharing__dialog-link-list-item-delete">
 					${0}
 				</div>
 			`), icon.render());
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].deleteButton, 'click', this.onDeleteButtonClick);
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].deleteButton, 'click', this.onDeleteButtonClick);
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].deleteButton;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].deleteButton;
 	  }
 	  onDeleteButtonClick() {
 	    if (!babelHelpers.classPrivateFieldLooseBase(this, _deletePopup)[_deletePopup]) {
@@ -1463,7 +1842,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return [new ui_buttons.Button({
 	      size: ui_buttons.ButtonSize.MEDIUM,
 	      color: ui_buttons.ButtonColor.DANGER,
-	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_DELETE'),
+	      text: main_core.Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'),
 	      events: {
 	        click: () => {
 	          this.deleteLink();
@@ -1484,15 +1863,15 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    })];
 	  }
 	  deleteLink() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper) {
 	      BX.ajax.runAction('calendar.api.sharingajax.disableUserLink', {
 	        data: {
 	          hash: babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].hash
 	        }
 	      });
-	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper, '--animate-delete');
+	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper, '--animate-delete');
 	      setTimeout(() => {
-	        main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _layout$3)[_layout$3].wrapper);
+	        main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper);
 	      }, 300);
 	      main_core_events.EventEmitter.emit('CalendarSharing:onJointLinkDelete', {
 	        id: babelHelpers.classPrivateFieldLooseBase(this, _props)[_props].id
@@ -1505,34 +1884,38 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
-	let _$7 = t => t,
-	  _t$7,
-	  _t2$5,
+	let _$6 = t => t,
+	  _t$6,
+	  _t2$4,
 	  _t3$4,
 	  _t4$4,
 	  _t5$4,
 	  _t6$4,
 	  _t7$3,
-	  _t8$2;
+	  _t8$3;
 	const DEFAULT_LIST_HEIGHT = 300;
 	const LIST_PADDING_SUM = 45;
 	var _props$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("props");
-	var _layout$4 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _layout$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _linkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("linkList");
 	var _popupOpenState = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupOpenState");
-	var _sortByFrequentUse = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sortByFrequentUse");
 	var _pathToUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("pathToUser");
+	var _model$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("model");
 	var _getSortingName = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSortingName");
 	class List {
 	  constructor(props) {
 	    Object.defineProperty(this, _getSortingName, {
 	      value: _getSortingName2
 	    });
+	    Object.defineProperty(this, _model$3, {
+	      get: _get_model$2,
+	      set: void 0
+	    });
 	    Object.defineProperty(this, _props$1, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _layout$4, {
+	    Object.defineProperty(this, _layout$5, {
 	      writable: true,
 	      value: void 0
 	    });
@@ -1544,19 +1927,14 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: false
 	    });
-	    Object.defineProperty(this, _sortByFrequentUse, {
-	      writable: true,
-	      value: void 0
-	    });
 	    Object.defineProperty(this, _pathToUser, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1] = props;
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4] = {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList] = null;
 	    babelHelpers.classPrivateFieldLooseBase(this, _pathToUser)[_pathToUser] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] = props.sortJointLinksByFrequentUse;
 	    this.getLinkListInfo();
 	    this.setListItemPopupState = this.setListItemPopupState.bind(this);
 	    this.eventSubscribe();
@@ -1586,19 +1964,19 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    });
 	  }
 	  render() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper = main_core.Tag.render(_t$7 || (_t$7 = _$7`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper = main_core.Tag.render(_t$6 || (_t$6 = _$6`
 				<div class="calendar-sharing__dialog-link-list-wrapper">
 					${0}
 					${0}
 				</div>
 			`), this.getTitleNode(), this.getListNode());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper;
 	  }
 	  getTitleNode() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].title) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].title = main_core.Tag.render(_t2$5 || (_t2$5 = _$7`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].title) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].title = main_core.Tag.render(_t2$4 || (_t2$4 = _$6`
 				<div class="calendar-sharing__dialog-link-list-title-wrapper">
 					<div class="calendar-sharing__dialog-link-list-title">
 						${0}
@@ -1610,84 +1988,84 @@ this.BX.Calendar = this.BX.Calendar || {};
 				</div>
 			`), this.getChevronBackIcon(), main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_TITLE'), this.getSortingButton());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].title;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].title;
 	  }
 	  getChevronBackIcon() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].backButton) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].backButton) {
 	      const icon = new ui_iconSet_api_core.Icon({
 	        icon: ui_iconSet_api_core.Actions.CHEVRON_LEFT,
 	        size: 24
 	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].backButton = main_core.Tag.render(_t3$4 || (_t3$4 = _$7`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].backButton = main_core.Tag.render(_t3$4 || (_t3$4 = _$6`
 				<div class="calendar-sharing__dialog-link-list-back-button">
 					${0}
 				</div>
 			`), icon.render());
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].backButton, 'click', this.close.bind(this));
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].backButton, 'click', this.close.bind(this));
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].backButton;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].backButton;
 	  }
 	  getSortingButton() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton) {
 	      const icon = new ui_iconSet_api_core.Icon({
 	        icon: ui_iconSet_api_core.Actions.SORT,
 	        size: 14,
 	        color: '#2066b0'
 	      });
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton = main_core.Tag.render(_t4$4 || (_t4$4 = _$7`
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton = main_core.Tag.render(_t4$4 || (_t4$4 = _$6`
 				<div class="calendar-sharing__dialog-link-list-sorting-button">
 					${0}
 					${0}
 				</div>
 			`), icon.render(), this.getSortingButtonText());
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton, 'click', this.changeListSort.bind(this));
+	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton, 'click', this.changeListSort.bind(this));
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton;
 	  }
 	  getSortingButtonText() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText = main_core.Tag.render(_t5$4 || (_t5$4 = _$7`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButtonText) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButtonText = main_core.Tag.render(_t5$4 || (_t5$4 = _$6`
 				<div class="calendar-sharing__dialog-link-list-sorting-button-text">
 					${0}
 				</div>
 			`), babelHelpers.classPrivateFieldLooseBase(this, _getSortingName)[_getSortingName]());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButtonText;
 	  }
 	  getListNode() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list = main_core.Tag.render(_t6$4 || (_t6$4 = _$7`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list = main_core.Tag.render(_t6$4 || (_t6$4 = _$6`
 				<div class="calendar-sharing__dialog-link-list-container">
 					${0}
 				</div>
 			`), this.getListItemsNode());
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list;
 	  }
 	  getListItemsNode() {
 	    if (this.isListEmpty()) {
 	      return this.getEmptyStateNode();
 	    }
 	    const linkListItems = this.getListItems();
-	    return main_core.Tag.render(_t7$3 || (_t7$3 = _$7`
+	    return main_core.Tag.render(_t7$3 || (_t7$3 = _$6`
 			<div class="calendar-sharing__dialog-link-list">
 				${0}
 			</div>
 		`), linkListItems.map(listItem => listItem.render()));
 	  }
 	  getEmptyStateNode() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].emptyState) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].emptyState = main_core.Tag.render(_t8$2 || (_t8$2 = _$7`
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].emptyState) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].emptyState = main_core.Tag.render(_t8$3 || (_t8$3 = _$6`
 				<div class="calendar-sharing__dialog-link-list-empty-state-wrapper">
 					<div class="calendar-sharing__dialog-link-list-empty-state-icon"></div>
 					<div class="calendar-sharing__dialog-link-list-empty-state-text">${0}</div>
 				</div>
 			`), main_core.Loc.getMessage('CALENDAR_SHARING_LIST_EMPTY_TITLE'));
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].emptyState;
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].emptyState;
 	  }
 	  getListItems() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse]) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _model$3)[_model$3].sortJointLinksByFrequentUse()) {
 	      return this.getSortedByFrequentUseListItems();
 	    }
 	    return this.getSortedByDateListItems();
@@ -1709,7 +2087,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      return 0;
 	    }).map(item => new ListItem({
 	      ...item,
-	      userInfo: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].userInfo,
+	      userInfo: babelHelpers.classPrivateFieldLooseBase(this, _model$3)[_model$3].getUserInfo(),
 	      pathToUser: babelHelpers.classPrivateFieldLooseBase(this, _pathToUser)[_pathToUser],
 	      setListItemPopupState: this.setListItemPopupState
 	    }));
@@ -1718,49 +2096,43 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return Object.keys(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]).sort((a, b) => b - a).map(index => {
 	      return new ListItem({
 	        ...babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList][index],
-	        userInfo: babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].userInfo,
+	        userInfo: babelHelpers.classPrivateFieldLooseBase(this, _model$3)[_model$3].getUserInfo(),
 	        pathToUser: babelHelpers.classPrivateFieldLooseBase(this, _pathToUser)[_pathToUser],
 	        setListItemPopupState: this.setListItemPopupState
 	      });
 	    });
 	  }
 	  show(maxListHeight) {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list && maxListHeight) {
-	      main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list, 'max-height', `${maxListHeight - LIST_PADDING_SUM}px`);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list && maxListHeight) {
+	      main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list, 'max-height', `${maxListHeight - LIST_PADDING_SUM}px`);
 	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper) {
-	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper, '--show');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper) {
+	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper, '--show');
 	    }
 	  }
 	  close() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list) {
-	      main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list, 'max-height', `${DEFAULT_LIST_HEIGHT}px`);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list) {
+	      main_core.Dom.style(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list, 'max-height', `${DEFAULT_LIST_HEIGHT}px`);
 	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper) {
-	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].wrapper, '--show');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper) {
+	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper, '--show');
 	    }
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].onLinkListClose) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].onLinkListClose();
 	    }
 	  }
 	  updateLinkList() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list) {
 	      main_core.Dom.clean(this.getListNode());
 	      const listItems = this.getListItemsNode();
-	      main_core.Dom.append(listItems, babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].list);
+	      main_core.Dom.append(listItems, babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].list);
 	    }
 	  }
 	  changeListSort() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] = !babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse];
-	    BX.ajax.runAction('calendar.api.sharingajax.setSortJointLinksByFrequentUse', {
-	      data: {
-	        sortByFrequentUse: babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] ? 'Y' : 'N'
-	      }
-	    });
-	    const sortName = babelHelpers.classPrivateFieldLooseBase(this, _getSortingName)[_getSortingName]();
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText) {
-	      main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButtonText, {
-	        text: sortName
+	    babelHelpers.classPrivateFieldLooseBase(this, _model$3)[_model$3].changeSortJointLinksByFrequentUse();
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButtonText) {
+	      main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButtonText, {
+	        text: babelHelpers.classPrivateFieldLooseBase(this, _getSortingName)[_getSortingName]()
 	      });
 	    }
 	    this.updateLinkList();
@@ -1800,79 +2172,133 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    return main_core.Type.isNil(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]) || main_core.Type.isArray(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]) && !main_core.Type.isArrayFilled(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]) || main_core.Type.isObject(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]) && !Object.keys(babelHelpers.classPrivateFieldLooseBase(this, _linkList)[_linkList]).length;
 	  }
 	  hideSortingButton() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton) {
-	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton, '--hide');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton) {
+	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton, '--hide');
 	    }
 	  }
 	  showSortingButton() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton) {
-	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].sortingButton, '--hide');
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton) {
+	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].sortingButton, '--hide');
 	    }
 	  }
 	}
+	function _get_model$2() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _props$1)[_props$1].model;
+	}
 	function _getSortingName2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _sortByFrequentUse)[_sortByFrequentUse] ? main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT') : main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
+	  return babelHelpers.classPrivateFieldLooseBase(this, _model$3)[_model$3].sortJointLinksByFrequentUse() ? main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT') : main_core.Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
 	}
 
-	let _$8 = t => t,
-	  _t$8,
-	  _t2$6,
+	let _$7 = t => t,
+	  _t$7,
+	  _t2$5,
 	  _t3$5,
 	  _t4$5,
 	  _t5$5,
 	  _t6$5,
-	  _t7$4;
-	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
-	var _popup$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
-	var _layout$5 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
-	var _dialogQr = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogQr");
-	var _context$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("context");
-	var _settings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settings");
-	var _calendarContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("calendarContext");
-	var _crmContext = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("crmContext");
+	  _t7$4,
+	  _t8$4;
+	var _params$3 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
+	var _layout$6 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
 	var _settingsControl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsControl");
 	var _userSelectorControl = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("userSelectorControl");
 	var _linkList$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("linkList");
-	class DialogNew {
-	  // eslint-disable-next-line unicorn/numeric-separators-style
-
-	  // eslint-disable-next-line unicorn/numeric-separators-style
-
-	  constructor(options) {
-	    var _options$readOnly, _options$sharingRule$, _options$sharingRule$2;
+	var _settingsModel = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsModel");
+	var _bindEvents$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("bindEvents");
+	var _renderMain = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderMain");
+	var _renderDialogMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderDialogMessage");
+	var _onOpenLink = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onOpenLink");
+	var _renderTop = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderTop");
+	var _renderHowDoesItWorkIcon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderHowDoesItWorkIcon");
+	var _openHelpDesk = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openHelpDesk");
+	var _getSharingInfoMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getSharingInfoMessage");
+	var _getContextHelpDeskCode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getContextHelpDeskCode");
+	var _renderSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSettings");
+	var _renderMembers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderMembers");
+	var _renderMainBottom = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderMainBottom");
+	var _renderCopyLinkButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderCopyLinkButton");
+	var _onButtonCopyClick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onButtonCopyClick");
+	var _renderLinkHistoryButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderLinkHistoryButton");
+	var _renderLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderLinkList");
+	var _getLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLinkList");
+	var _openLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openLinkList");
+	var _closeLinkList = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("closeLinkList");
+	class Layout {
+	  constructor(_params2) {
+	    Object.defineProperty(this, _closeLinkList, {
+	      value: _closeLinkList2
+	    });
+	    Object.defineProperty(this, _openLinkList, {
+	      value: _openLinkList2
+	    });
+	    Object.defineProperty(this, _getLinkList, {
+	      value: _getLinkList2
+	    });
+	    Object.defineProperty(this, _renderLinkList, {
+	      value: _renderLinkList2
+	    });
+	    Object.defineProperty(this, _renderLinkHistoryButton, {
+	      value: _renderLinkHistoryButton2
+	    });
+	    Object.defineProperty(this, _onButtonCopyClick, {
+	      value: _onButtonCopyClick2
+	    });
+	    Object.defineProperty(this, _renderCopyLinkButton, {
+	      value: _renderCopyLinkButton2
+	    });
+	    Object.defineProperty(this, _renderMainBottom, {
+	      value: _renderMainBottom2
+	    });
+	    Object.defineProperty(this, _renderMembers, {
+	      value: _renderMembers2
+	    });
+	    Object.defineProperty(this, _renderSettings, {
+	      value: _renderSettings2
+	    });
+	    Object.defineProperty(this, _getContextHelpDeskCode, {
+	      value: _getContextHelpDeskCode2
+	    });
+	    Object.defineProperty(this, _getSharingInfoMessage, {
+	      value: _getSharingInfoMessage2
+	    });
+	    Object.defineProperty(this, _openHelpDesk, {
+	      value: _openHelpDesk2
+	    });
+	    Object.defineProperty(this, _renderHowDoesItWorkIcon, {
+	      value: _renderHowDoesItWorkIcon2
+	    });
+	    Object.defineProperty(this, _renderTop, {
+	      value: _renderTop2
+	    });
+	    Object.defineProperty(this, _onOpenLink, {
+	      value: _onOpenLink2
+	    });
+	    Object.defineProperty(this, _renderDialogMessage, {
+	      value: _renderDialogMessage2
+	    });
+	    Object.defineProperty(this, _renderMain, {
+	      value: _renderMain2
+	    });
+	    Object.defineProperty(this, _bindEvents$2, {
+	      value: _bindEvents2$2
+	    });
+	    Object.defineProperty(this, _settingsModel, {
+	      get: _get_settingsModel,
+	      set: void 0
+	    });
 	    this.HELP_DESK_CODE_CALENDAR = 17198666;
 	    this.HELP_DESK_CODE_CRM = 17502612;
-	    Object.defineProperty(this, _options, {
+	    this.CONTEXT = {
+	      CRM: 'crm',
+	      CALENDAR: 'calendar'
+	    };
+	    Object.defineProperty(this, _params$3, {
 	      writable: true,
 	      value: void 0
 	    });
-	    Object.defineProperty(this, _popup$2, {
+	    Object.defineProperty(this, _layout$6, {
 	      writable: true,
 	      value: void 0
-	    });
-	    Object.defineProperty(this, _layout$5, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _dialogQr, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _context$1, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _settings, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _calendarContext, {
-	      writable: true,
-	      value: 'calendar'
-	    });
-	    Object.defineProperty(this, _crmContext, {
-	      writable: true,
-	      value: 'crm'
 	    });
 	    Object.defineProperty(this, _settingsControl, {
 	      writable: true,
@@ -1886,74 +2312,334 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      writable: true,
 	      value: void 0
 	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = options;
-	    babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5] = {
-	      wrapper: null,
-	      contentWrapper: null,
-	      contentTop: null,
-	      contentBody: null,
-	      contentBottom: null,
-	      listWrapper: null,
-	      buttonCopy: null,
-	      buttonHistory: null,
-	      buttonWhatSeeUsers: null
-	    };
-	    babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] = options.context;
-	    babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] = null;
-	    babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1] = null;
-	    const weekHolidays = new Set(options.calendarSettings.weekHolidays.map(day => calendar_util.Util.getIndByWeekDay(day)));
-	    babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings] = {
-	      readOnly: (_options$readOnly = options.readOnly) != null ? _options$readOnly : false,
-	      rule: {
-	        slotSize: (_options$sharingRule$ = options.sharingRule.slotSize) != null ? _options$sharingRule$ : 60,
-	        ranges: (_options$sharingRule$2 = options.sharingRule.ranges) != null ? _options$sharingRule$2 : []
-	      },
-	      weekStart: calendar_util.Util.getIndByWeekDay(options.calendarSettings.weekStart),
-	      workDays: [0, 1, 2, 3, 4, 5, 6].filter(day => !weekHolidays.has(day)),
-	      workTimeStart: options.calendarSettings.workTimeStart,
-	      workTimeEnd: options.calendarSettings.workTimeEnd,
-	      collapsed: options.settingsCollapsed
-	    };
-	    this.bindElement = options.bindElement || null;
-	    this.sharingUrl = options.sharingUrl || null;
-	    this.linkHash = options.linkHash;
-	    this.userInfo = options.userInfo || null;
-	    this.onPopupClose = this.onPopupClose.bind(this);
-	    this.onCopyButtonClick = this.onCopyButtonClick.bind(this);
-	    main_core_events.EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', event => {
-	      const shortUrl = event.data.shortUrl;
-	      if (this.copyLink(shortUrl)) {
-	        this.onSuccessfulCopyingLink();
-	      }
-	      calendar_sharing_analytics.Analytics.sendLinkCopiedList(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1], {
-	        peopleCount: event.data.members.length + 1,
-	        ruleChanges: babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].getChanges()
+	    babelHelpers.classPrivateFieldLooseBase(this, _params$3)[_params$3] = _params2;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6] = {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _bindEvents$2)[_bindEvents$2]();
+	  }
+	  reset() {
+	    var _babelHelpers$classPr;
+	    void babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].save();
+	    (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr.clearSelectedUsers();
+	    setTimeout(() => {
+	      var _babelHelpers$classPr2;
+	      return (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr2.close();
+	    }, 200);
+	  }
+	  hasShownPopups() {
+	    var _babelHelpers$classPr3, _babelHelpers$classPr4;
+	    const isSettingsPopupShown = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].hasShownPopups();
+	    const isUserSelectorDialogOpened = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr3.isUserSelectorDialogOpened();
+	    const isListItemPopupOpened = (_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr4.isOpenListItemPopup();
+	    return isSettingsPopupShown || isUserSelectorDialogOpened || isListItemPopupOpened;
+	  }
+	  render() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].wrap = main_core.Tag.render(_t$7 || (_t$7 = _$7`
+			<div class="calendar-sharing__dialog-wrapper">
+				${0}
+				${0}
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderMain)[_renderMain](), babelHelpers.classPrivateFieldLooseBase(this, _renderLinkList)[_renderLinkList]());
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].wrap;
+	  }
+	  async saveJointLink() {
+	    var _babelHelpers$classPr5;
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy && main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'ui-btn-clock')) {
+	      return;
+	    }
+	    main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'ui-btn-clock');
+	    const link = await babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].saveJointLink();
+	    main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'ui-btn-clock');
+	    this.copyLink(link.url, link.hash);
+	    (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr5.getLinkListInfo();
+	  }
+	  copyLink(url, hash) {
+	    if (!url) {
+	      return;
+	    }
+	    const result = BX.clipboard.copy(url);
+	    if (result) {
+	      calendar_util.Util.showNotification(main_core.Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
+	      main_core_events.EventEmitter.emit('CalendarSharing:LinkCopied', {
+	        url,
+	        hash
 	      });
+	    }
+	    return result;
+	  }
+	}
+	function _get_settingsModel() {
+	  return babelHelpers.classPrivateFieldLooseBase(this, _params$3)[_params$3].settingsModel;
+	}
+	function _bindEvents2$2() {
+	  main_core.Event.bind(window, 'beforeunload', () => babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].save());
+	  main_core_events.EventEmitter.subscribe('CalendarSharing:onJointLinkCopy', event => {
+	    const shortUrl = event.data.shortUrl;
+	    const linkHash = event.data.hash;
+	    this.copyLink(shortUrl, linkHash);
+	    calendar_sharing_analytics.Analytics.sendLinkCopiedList(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), {
+	      peopleCount: event.data.members.length + 1,
+	      ruleChanges: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getChanges()
+	    });
+	  });
+	}
+	function _renderMain2() {
+	  var _babelHelpers$classPr6, _babelHelpers$classPr7;
+	  (_babelHelpers$classPr7 = (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6]).main) != null ? _babelHelpers$classPr7 : _babelHelpers$classPr6.main = main_core.Tag.render(_t2$5 || (_t2$5 = _$7`
+			<div class="calendar-sharing__dialog-content-wrapper --show">
+				${0}
+				<div class="calendar-sharing__dialog-body">
+					${0}
+					${0}
+					${0}
+				</div>
+				${0}
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderTop)[_renderTop](), babelHelpers.classPrivateFieldLooseBase(this, _renderDialogMessage)[_renderDialogMessage](), babelHelpers.classPrivateFieldLooseBase(this, _renderSettings)[_renderSettings](), babelHelpers.classPrivateFieldLooseBase(this, _renderMembers)[_renderMembers](), babelHelpers.classPrivateFieldLooseBase(this, _renderMainBottom)[_renderMainBottom]());
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main;
+	}
+	function _renderDialogMessage2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
+	    return '';
+	  }
+	  return main_core.Tag.render(_t3$5 || (_t3$5 = _$7`
+			<div class="calendar-sharing__dialog-message">
+				<div class="calendar-sharing__dialog-info-icon-container">
+					<div class="calendar-sharing__dialog-info-icon"></div>
+				</div>
+				<div class="calendar-sharing__dialog-notify" onclick="${0}">
+					${0}
+				</div>
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _onOpenLink)[_onOpenLink].bind(this), main_core.Loc.getMessage('SHARING_INFO_POPUP_CONTENT_4_V3', {
+	    '#LINK#': babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getSharingUrl()
+	  }));
+	}
+	async function _onOpenLink2() {
+	  await babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].save();
+	  window.open(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getSharingUrl(), '_blank').focus();
+	}
+	function _renderTop2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainTop) {
+	    var _babelHelpers$classPr8;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainTop = main_core.Tag.render(_t4$5 || (_t4$5 = _$7`
+				<div class="calendar-sharing__dialog-top">
+					<div class="calendar-sharing__dialog-title">
+						<span>${0}</span>
+						${0}
+						${0}
+					</div>
+					<div class="calendar-sharing__dialog-info">
+						${0}
+					</div>
+				</div>
+			`), main_core.Loc.getMessage('SHARING_BUTTON_TITLE'), babelHelpers.classPrivateFieldLooseBase(this, _renderHowDoesItWorkIcon)[_renderHowDoesItWorkIcon](), (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _params$3)[_params$3].externalIcon) != null ? _babelHelpers$classPr8 : '', babelHelpers.classPrivateFieldLooseBase(this, _getSharingInfoMessage)[_getSharingInfoMessage]());
+	    const howDoesItWork = babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainTop.querySelector('[data-role="calendar-sharing-how-does-it-work"]');
+	    main_core.Event.bind(howDoesItWork, 'click', babelHelpers.classPrivateFieldLooseBase(this, _openHelpDesk)[_openHelpDesk].bind(this));
+	    const infoNotify = babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainTop.querySelector('[data-role="calendar-sharing_popup-open-link"]');
+	    if (infoNotify) {
+	      let infoNotifyHint;
+	      let timer;
+	      main_core.Event.bind(infoNotify, 'mouseenter', () => {
+	        timer = setTimeout(() => {
+	          if (!infoNotifyHint) {
+	            infoNotifyHint = new main_popup.Popup({
+	              bindElement: infoNotify,
+	              angle: {
+	                offset: infoNotify.offsetWidth / 2 + 16
+	              },
+	              width: 410,
+	              darkMode: true,
+	              content: main_core.Loc.getMessage('SHARING_INFO_POPUP_SLOT_DESC'),
+	              animation: 'fading-slide'
+	            });
+	          }
+	          infoNotifyHint.show();
+	        }, 1000);
+	      });
+	      main_core.Event.bind(infoNotify, 'mouseleave', () => {
+	        clearTimeout(timer);
+	        if (infoNotifyHint) {
+	          infoNotifyHint.close();
+	        }
+	      });
+	    }
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainTop;
+	}
+	function _renderHowDoesItWorkIcon2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
+	    return '';
+	  }
+	  const howDoesItWork = main_core.Tag.render(_t5$5 || (_t5$5 = _$7`
+			<span
+				class="calendar-sharing__dialog-title-help"
+				title="${0}"
+			></span>
+		`), main_core.Loc.getMessage('SHARING_INFO_POPUP_HOW_IT_WORK'));
+	  main_core.Event.bind(howDoesItWork, 'click', babelHelpers.classPrivateFieldLooseBase(this, _openHelpDesk)[_openHelpDesk].bind(this));
+	  return howDoesItWork;
+	}
+	function _openHelpDesk2() {
+	  top.BX.Helper.show(`redirect=detail&code=${babelHelpers.classPrivateFieldLooseBase(this, _getContextHelpDeskCode)[_getContextHelpDeskCode]()}`);
+	}
+	function _getSharingInfoMessage2() {
+	  switch (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext()) {
+	    case this.CONTEXT.CALENDAR:
+	      return main_core.Loc.getMessage('SHARING_INFO_POPUP_CONTENT_3_CALENDAR');
+	    case this.CONTEXT.CRM:
+	      return main_core.Loc.getMessage('SHARING_INFO_POPUP_CONTENT_3_CRM_MSGVER_2');
+	    default:
+	      return '';
+	  }
+	}
+	function _getContextHelpDeskCode2() {
+	  switch (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext()) {
+	    case this.CONTEXT.CALENDAR:
+	      return this.HELP_DESK_CODE_CALENDAR;
+	    case this.CONTEXT.CRM:
+	      return this.HELP_DESK_CODE_CRM;
+	    default:
+	      return 0;
+	  }
+	}
+	function _renderSettings2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl] = new Settings({
+	    readOnly: babelHelpers.classPrivateFieldLooseBase(this, _params$3)[_params$3].readOnly,
+	    model: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel]
+	  });
+	  return babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].render();
+	}
+	function _renderMembers2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] = new UserSelector({
+	    model: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel],
+	    onMembersAdded: () => calendar_sharing_analytics.Analytics.sendMembersAdded(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].getPeopleCount())
+	  });
+	  return babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].render();
+	}
+	function _renderMainBottom2() {
+	  var _babelHelpers$classPr9, _babelHelpers$classPr10;
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
+	    return '';
+	  }
+	  (_babelHelpers$classPr10 = (_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6]).mainBottom) != null ? _babelHelpers$classPr10 : _babelHelpers$classPr9.mainBottom = main_core.Tag.render(_t6$5 || (_t6$5 = _$7`
+			<div class="calendar-sharing__dialog-bottom">
+				${0}
+				${0}
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _renderCopyLinkButton)[_renderCopyLinkButton](), babelHelpers.classPrivateFieldLooseBase(this, _renderLinkHistoryButton)[_renderLinkHistoryButton]());
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].mainBottom;
+	}
+	function _renderCopyLinkButton2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy = main_core.Tag.render(_t7$4 || (_t7$4 = _$7`
+				<span class="ui-btn ui-btn-success ui-btn-round ui-btn-no-caps calendar-sharing__dialog-copy">
+					${0}
+				</span>
+			`), main_core.Loc.getMessage('SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON'));
+	    main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy, 'click', babelHelpers.classPrivateFieldLooseBase(this, _onButtonCopyClick)[_onButtonCopyClick].bind(this));
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonCopy;
+	}
+	function _onButtonCopyClick2() {
+	  var _babelHelpers$classPr11, _babelHelpers$classPr12;
+	  const params = {
+	    peopleCount: (_babelHelpers$classPr11 = (_babelHelpers$classPr12 = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr12.getPeopleCount()) != null ? _babelHelpers$classPr11 : 1,
+	    ruleChanges: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getChanges()
+	  };
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] && babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].hasChanges()) {
+	    calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), calendar_sharing_analytics.Analytics.linkTypes.multiple, params);
+	    void this.saveJointLink();
+	  } else if (this.copyLink(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getSharingUrl())) {
+	    calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext(), calendar_sharing_analytics.Analytics.linkTypes.solo, params);
+	    babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].increaseFrequentUse();
+	  }
+	}
+	function _renderLinkHistoryButton2() {
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonHistory) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonHistory = main_core.Tag.render(_t8$4 || (_t8$4 = _$7`
+				<span
+					class="ui-btn ui-btn-round ui-btn-light ui-btn-no-caps calendar-sharing__dialog-people"
+					data-id="calendar-sharing-history-btn"
+				>
+					${0}
+				</span>
+			`), main_core.Loc.getMessage('SHARING_DIALOG_SHARING_BLOCK_JOINT_SLOTS_BUTTON'));
+	    main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonHistory, 'click', babelHelpers.classPrivateFieldLooseBase(this, _openLinkList)[_openLinkList].bind(this));
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].buttonHistory;
+	}
+	function _renderLinkList2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel].getContext() === this.CONTEXT.CRM) {
+	    return;
+	  }
+	  return babelHelpers.classPrivateFieldLooseBase(this, _getLinkList)[_getLinkList]().render();
+	}
+	function _getLinkList2() {
+	  var _babelHelpers$classPr13, _babelHelpers$classPr14;
+	  (_babelHelpers$classPr14 = (_babelHelpers$classPr13 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1))[_linkList$1]) != null ? _babelHelpers$classPr14 : _babelHelpers$classPr13[_linkList$1] = new List({
+	    model: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel)[_settingsModel],
+	    onLinkListClose: babelHelpers.classPrivateFieldLooseBase(this, _closeLinkList)[_closeLinkList].bind(this)
+	  });
+	  return babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1];
+	}
+	function _openLinkList2() {
+	  main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main, '--show');
+	  babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1].show(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main.offsetHeight);
+	}
+	function _closeLinkList2() {
+	  main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$6)[_layout$6].main, '--show');
+	}
+
+	var _popup$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
+	var _layout$7 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _dialogLayout = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogLayout");
+	var _settingsModel$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("settingsModel");
+	class DialogNew {
+	  constructor(options) {
+	    Object.defineProperty(this, _popup$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _layout$7, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _dialogLayout, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _settingsModel$1, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7] = {};
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement = options.bindElement;
+	    babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1] = new SettingsModel({
+	      context: options.context,
+	      linkHash: options.linkHash,
+	      sharingUrl: options.sharingUrl,
+	      userInfo: options.userInfo,
+	      rule: options.sharingRule,
+	      calendarSettings: options.calendarSettings,
+	      collapsed: options.settingsCollapsed,
+	      sortJointLinksByFrequentUse: options.sortJointLinksByFrequentUse
 	    });
 	    this.bindEvents();
 	  }
 	  bindEvents() {
-	    main_core.Event.bind(window, 'beforeunload', this.saveSharingRule.bind(this));
+	    main_core_events.EventEmitter.subscribe('CalendarSharing:LinkCopied', this.onSuccessfulCopyingLink.bind(this));
 	  }
-
-	  /**
-	   *
-	   * @returns {Popup}
-	   */
 	  getPopup() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2] = new main_popup.Popup({
-	        bindElement: this.bindElement,
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1] = new main_popup.Popup({
+	        bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement,
 	        className: 'calendar-sharing__dialog',
 	        closeByEsc: true,
 	        autoHide: true,
 	        padding: 0,
 	        width: 470,
 	        angle: {
-	          offset: this.bindElement.offsetWidth / 2 + 16
+	          offset: babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement.offsetWidth / 2 + 16
 	        },
 	        autoHideHandler: event => this.canBeClosed(event),
 	        content: this.getPopupWrapper(),
@@ -1964,383 +2650,53 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        }
 	      });
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2];
+	    return babelHelpers.classPrivateFieldLooseBase(this, _popup$1)[_popup$1];
 	  }
 	  onPopupShow() {
-	    main_core.Dom.addClass(this.bindElement, 'ui-btn-hover');
-	    calendar_sharing_analytics.Analytics.sendPopupOpened(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1]);
+	    main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement, 'ui-btn-hover');
+	    calendar_sharing_analytics.Analytics.sendPopupOpened(babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getContext());
 	  }
 	  onPopupClose() {
-	    main_core.Dom.removeClass(this.bindElement, 'ui-btn-hover');
-	    this.saveSharingRule();
-	    this.clearSelectedUsers();
-	    this.closeLinkList();
+	    main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].bindElement, 'ui-btn-hover');
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].reset();
 	  }
 	  canBeClosed(event) {
-	    var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3;
-	    const isClickInside = babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper.contains(event.target);
-	    const isQrDialogShown = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr]) == null ? void 0 : _babelHelpers$classPr.isShown();
-	    const isSettingsPopupShown = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].settingPopupShown();
-	    const isUserSelectorDialogOpened = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr2.isUserSelectorDialogOpened();
-	    const isListItemPopupOpened = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr3.isOpenListItemPopup();
-	    const checkTopSlider = babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _calendarContext)[_calendarContext] ? calendar_util.Util.getBX().SidePanel.Instance.getTopSlider() : false;
-	    return !isClickInside && !isQrDialogShown && !isSettingsPopupShown && !isUserSelectorDialogOpened && !isListItemPopupOpened && !checkTopSlider;
+	    const isClickInside = babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper.contains(event.target);
+	    const layoutHasShownPopups = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].hasShownPopups();
+	    const checkTopSlider = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].getContext() === 'calendar' ? BX.SidePanel.Instance.getTopSlider() : false;
+	    return !isClickInside && !layoutHasShownPopups && !checkTopSlider;
 	  }
-
-	  /**
-	   *
-	   * @returns {DialogQr}
-	   */
-	  getDialogQr() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr] = new DialogQr({
-	        sharingUrl: this.sharingUrl,
-	        context: babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1]
-	      });
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _dialogQr)[_dialogQr];
-	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
 	  getPopupWrapper() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper = main_core.Tag.render(_t$8 || (_t$8 = _$8`
-				<div class="calendar-sharing__dialog-wrapper">
-					${0}
-					${0}
-				</div>
-			`), this.getPopupContentMain(), this.getPopupContentList());
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].wrapper;
-	  }
-	  getPopupContentMain() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper = main_core.Tag.render(_t2$6 || (_t2$6 = _$8`
-				<div class="calendar-sharing__dialog-content-wrapper --show">
-					${0}
-						<div class="calendar-sharing__dialog-body">
-							<div class="calendar-sharing__dialog-message">
-								<div class="calendar-sharing__dialog-info-icon-container">
-									<div class="calendar-sharing__dialog-info-icon"></div>
-								</div>
-								<div class="calendar-sharing__dialog-notify" onclick="${0}">
-									${0}
-								</div>
-							</div>
-							${0}
-							${0}
-						</div>
-					${0}
-				</div>
-			`), this.getPopupContentTop(), this.onOpenLink.bind(this), main_core.Loc.getMessage('SHARING_INFO_POPUP_CONTENT_4_V3', {
-	        '#LINK#': this.sharingUrl
-	      }), this.getSettingsNode(), this.getUserSelectorNode(), this.getPopupContentBottom());
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper;
-	  }
-	  getPopupContentList() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _crmContext)[_crmContext]) {
-	      return;
-	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1] = new List({
-	        userInfo: this.userInfo,
-	        onLinkListClose: this.onLinkListClose.bind(this),
-	        sortJointLinksByFrequentUse: babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].sortJointLinksByFrequentUse
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout] = new Layout({
+	        settingsModel: babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1]
 	      });
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].render();
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1].render();
-	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
-	  getPopupCopyLinkButton() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy = main_core.Tag.render(_t3$5 || (_t3$5 = _$8`
-				<span class="ui-btn ui-btn-success ui-btn-round ui-btn-no-caps calendar-sharing__dialog-copy">
-					${0}
-				</span>
-			`), main_core.Loc.getMessage('SHARING_DIALOG_SHARING_BLOCK_COPY_LINK_BUTTON'));
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy, 'click', this.onCopyButtonClick);
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy;
-	  }
-	  getPopupLinkHistoryButton() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _crmContext)[_crmContext]) {
-	      return;
-	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonHistory) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonHistory = main_core.Tag.render(_t4$5 || (_t4$5 = _$8`
-				<span
-					class="ui-btn ui-btn-round ui-btn-light ui-btn-no-caps calendar-sharing__dialog-people"
-					data-id="calendar-sharing-history-btn"
-				>
-					${0}
-				</span>
-			`), main_core.Loc.getMessage('SHARING_DIALOG_SHARING_BLOCK_JOINT_SLOTS_BUTTON'));
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonHistory, 'click', this.openLinkList.bind(this));
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonHistory;
-	  }
-	  getPopupWhatSeeUsersButton() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _calendarContext)[_calendarContext]) {
-	      return;
-	    }
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonWhatSeeUsers) {
-	      const adjustClick = () => {
-	        this.saveSharingRule();
-	        this.getDialogQr().show();
-	      };
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonWhatSeeUsers = main_core.Tag.render(_t5$5 || (_t5$5 = _$8`
-				<span onclick="${0}" class="calendar-sharing__dialog-link">
-					${0}
-				</span>
-			`), adjustClick, main_core.Loc.getMessage('SHARING_INFO_POPUP_WHAT_SEE_USERS'));
-	      main_core.Event.bind(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonWhatSeeUsers, 'click', adjustClick);
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonWhatSeeUsers;
-	  }
-	  onCopyButtonClick() {
-	    var _babelHelpers$classPr4, _babelHelpers$classPr5;
-	    const params = {
-	      peopleCount: (_babelHelpers$classPr4 = (_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) == null ? void 0 : _babelHelpers$classPr5.getPeopleCount()) != null ? _babelHelpers$classPr4 : 1,
-	      ruleChanges: babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].getChanges()
-	    };
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] && babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].hasChanges()) {
-	      calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1], calendar_sharing_analytics.Analytics.linkTypes.multiple, params);
-	      this.saveJointLink();
-	    } else if (this.copyLink(this.sharingUrl)) {
-	      calendar_sharing_analytics.Analytics.sendLinkCopied(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1], calendar_sharing_analytics.Analytics.linkTypes.solo, params);
-	      if (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _calendarContext)[_calendarContext]) {
-	        BX.ajax.runAction('calendar.api.sharingajax.increaseFrequentUse', {
-	          data: {
-	            hash: this.linkHash
-	          }
-	        });
-	      }
-	      this.onSuccessfulCopyingLink();
-	    }
-	  }
-	  async saveJointLink() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy && main_core.Dom.hasClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy, 'ui-btn-clock')) {
-	      return;
-	    }
-	    main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy, 'ui-btn-clock');
-	    const memberIds = babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].getSelectedUserIdList();
-	    const response = await BX.ajax.runAction('calendar.api.sharingajax.generateUserJointSharingLink', {
-	      data: {
-	        memberIds
-	      }
-	    });
-	    if (response && response.data) {
-	      var _babelHelpers$classPr6;
-	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].buttonCopy, 'ui-btn-clock');
-	      const {
-	        url
-	      } = response.data;
-	      if (this.copyLink(url)) {
-	        this.onSuccessfulCopyingLink();
-	      }
-	      (_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) == null ? void 0 : _babelHelpers$classPr6.getLinkListInfo();
-	    }
-	  }
-	  clearSelectedUsers() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl]) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].clearSelectedUsers();
-	    }
-	  }
-	  openLinkList() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper && babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) {
-	      main_core.Dom.removeClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper, '--show');
-	      babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1].show(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper.offsetHeight);
-	    }
-	  }
-	  closeLinkList() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1]) {
-	      setTimeout(() => {
-	        babelHelpers.classPrivateFieldLooseBase(this, _linkList$1)[_linkList$1].close();
-	      }, 200);
-	    }
-	  }
-	  onLinkListClose() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper) {
-	      main_core.Dom.addClass(babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentWrapper, '--show');
-	    }
-	  }
-	  copyLink(linkUrl) {
-	    if (!linkUrl) {
-	      return;
-	    }
-	    const result = BX.clipboard.copy(linkUrl);
-	    if (result) {
-	      calendar_util.Util.showNotification(main_core.Loc.getMessage('SHARING_COPY_LINK_NOTIFICATION'));
-	      main_core_events.EventEmitter.emit('CalendarSharing:LinkCopied');
-	    }
-	    return result;
-	  }
-	  async onOpenLink() {
-	    await this.saveSharingRule();
-	    window.open(this.sharingUrl, '_blank').focus();
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$7)[_layout$7].wrapper = babelHelpers.classPrivateFieldLooseBase(this, _dialogLayout)[_dialogLayout].render();
 	  }
 	  onSuccessfulCopyingLink() {
 	    this.getPopup().close();
-	  }
-	  getSettingsNode() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl] = new Settings(babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings]);
-	    babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings].rule = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].getRule();
-	    return babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].render();
-	  }
-	  getUserSelectorNode() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1] === babelHelpers.classPrivateFieldLooseBase(this, _crmContext)[_crmContext]) {
-	      return;
-	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl] = new UserSelector({
-	      userInfo: this.userInfo,
-	      onMembersAdded: () => calendar_sharing_analytics.Analytics.sendMembersAdded(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1], babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].getPeopleCount())
-	    });
-	    return babelHelpers.classPrivateFieldLooseBase(this, _userSelectorControl)[_userSelectorControl].render();
-	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
-	  getPopupContentBottom() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentBottom) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentBottom = main_core.Tag.render(_t6$5 || (_t6$5 = _$8`
-				<div class="calendar-sharing__dialog-bottom">
-					${0}
-					${0}
-					${0}
-				</div>
-			`), this.getPopupCopyLinkButton(), this.getPopupLinkHistoryButton(), this.getPopupWhatSeeUsersButton());
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentBottom;
-	  }
-
-	  /**
-	   *
-	   * @returns {HTMLElement}
-	   */
-	  getPopupContentTop() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentTop) {
-	      const openHelpDesk = () => {
-	        top.BX.Helper.show(`redirect=detail&code=${this.getHelpDeskCodeDependsOnContext()}`);
-	      };
-	      babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentTop = main_core.Tag.render(_t7$4 || (_t7$4 = _$8`
-				<div class="calendar-sharing__dialog-top">
-					<div class="calendar-sharing__dialog-title">
-						<span>${0}</span>
-						<span onclick="${0}" class="calendar-sharing__dialog-title-help" title="${0}"></span>
-					</div>
-					<div class="calendar-sharing__dialog-info">${0}</div>
-				</div>
-			`), main_core.Loc.getMessage('SHARING_BUTTON_TITLE'), openHelpDesk, main_core.Loc.getMessage('SHARING_INFO_POPUP_HOW_IT_WORK'), `${this.getPhraseDependsOnContext('SHARING_INFO_POPUP_CONTENT_3')} `);
-	      const infoNotify = babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentTop.querySelector('[ data-role="calendar-sharing_popup-open-link"]');
-	      if (infoNotify) {
-	        let infoNotifyHint;
-	        let timer;
-	        main_core.Event.bind(infoNotify, 'mouseenter', () => {
-	          timer = setTimeout(() => {
-	            if (!infoNotifyHint) {
-	              infoNotifyHint = new main_popup.Popup({
-	                bindElement: infoNotify,
-	                angle: {
-	                  offset: infoNotify.offsetWidth / 2 + 16
-	                },
-	                width: 410,
-	                darkMode: true,
-	                content: main_core.Loc.getMessage('SHARING_INFO_POPUP_SLOT_DESC'),
-	                animation: 'fading-slide'
-	              });
-	            }
-	            infoNotifyHint.show();
-	          }, 1000);
-	        });
-	        main_core.Event.bind(infoNotify, 'mouseleave', () => {
-	          clearTimeout(timer);
-	          if (infoNotifyHint) {
-	            infoNotifyHint.close();
-	          }
-	        });
-	      }
-	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$5)[_layout$5].contentTop;
 	  }
 	  isShown() {
 	    return this.getPopup().isShown();
 	  }
 	  show() {
-	    var _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9;
-	    if (!this.bindElement) {
-	      // eslint-disable-next-line no-console
-	      console.warn('BX.Calendar.Sharing: "bindElement" is not defined');
-	      return;
-	    }
-	    (_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl]) == null ? void 0 : _babelHelpers$classPr7.sortRanges();
-	    (_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl]) == null ? void 0 : _babelHelpers$classPr8.updateRanges();
-	    (_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl]) == null ? void 0 : _babelHelpers$classPr9.renderRanges();
+	    babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1].sortRanges();
 	    this.getPopup().show();
 	  }
 	  destroy() {
 	    this.getPopup().destroy();
-	    this.getDialogQr().destroy();
-	  }
-	  getPhraseDependsOnContext(code) {
-	    return main_core.Loc.getMessage(`${code}_${babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1].toUpperCase()}`);
-	  }
-	  getHelpDeskCodeDependsOnContext() {
-	    let code;
-	    switch (babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1]) {
-	      case babelHelpers.classPrivateFieldLooseBase(this, _calendarContext)[_calendarContext]:
-	        {
-	          code = this.HELP_DESK_CODE_CALENDAR;
-	          break;
-	        }
-	      case babelHelpers.classPrivateFieldLooseBase(this, _crmContext)[_crmContext]:
-	        {
-	          code = this.HELP_DESK_CODE_CRM;
-	          break;
-	        }
-	      default:
-	        code = 0;
-	    }
-	    return code;
-	  }
-	  saveSharingRule() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].isDifferentFrom(babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings].rule)) {
-	      return;
-	    }
-	    const changes = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].getChanges();
-	    calendar_sharing_analytics.Analytics.sendRuleUpdated(babelHelpers.classPrivateFieldLooseBase(this, _context$1)[_context$1], changes);
-	    const newRule = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl].getRule();
-	    BX.ajax.runAction('calendar.api.sharingajax.saveLinkRule', {
-	      data: {
-	        linkHash: this.linkHash,
-	        ruleArray: newRule
-	      }
-	    }).then(() => {
-	      babelHelpers.classPrivateFieldLooseBase(this, _settings)[_settings].rule = newRule;
-	      main_core_events.EventEmitter.emit('CalendarSharing:RuleUpdated');
-	    }, error => {
-	      // eslint-disable-next-line no-console
-	      console.error(error);
-	    });
 	  }
 	  getSettingsControlRule() {
-	    var _babelHelpers$classPr10;
-	    return (_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _settingsControl)[_settingsControl]) == null ? void 0 : _babelHelpers$classPr10.getRule();
+	    var _babelHelpers$classPr;
+	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _settingsModel$1)[_settingsModel$1]) == null ? void 0 : _babelHelpers$classPr.getRule().toArray();
 	  }
 	}
 
-	let _$9 = t => t,
-	  _t$9,
-	  _t2$7,
+	let _$8 = t => t,
+	  _t$8,
+	  _t2$6,
 	  _t3$6;
 	class SharingButton {
 	  constructor(options = {}) {
@@ -2352,7 +2708,6 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    this.PAY_ATTENTION_TO_NEW_FEATURE_JOINT = 'joint-sharing';
 	    this.PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS = [this.PAY_ATTENTION_TO_NEW_FEATURE_FIRST];
 	    this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS = [this.PAY_ATTENTION_TO_NEW_FEATURE_NEW, this.PAY_ATTENTION_TO_NEW_FEATURE_REMIND];
-	    this.AVAILABLE_PAY_ATTENTION_TO_NEW_FEATURE_MODS = [...this.PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS, ...this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS];
 	    this.wrap = options.wrap;
 	    this.userInfo = options.userInfo || null;
 	    this.sharingConfig = calendar_util.Util.getSharingConfig();
@@ -2392,7 +2747,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  handleSharingButtonClick() {
 	    if (this.sharingFeatureLimit) {
-	      top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+	      ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	        featureId: 'calendar_sharing'
+	      }).show();
 	      return;
 	    }
 	    if (this.isSharingEnabled()) {
@@ -2402,18 +2759,18 @@ this.BX.Calendar = this.BX.Calendar || {};
 	    }
 	  }
 	  getSwitcherContainer() {
-	    return main_core.Tag.render(_t$9 || (_t$9 = _$9`
+	    return main_core.Tag.render(_t$8 || (_t$8 = _$8`
 			<div class="calendar-sharing__switcher"></div>
 		`));
 	  }
 	  getSwitcherDivider() {
-	    return main_core.Tag.render(_t2$7 || (_t2$7 = _$9`
+	    return main_core.Tag.render(_t2$6 || (_t2$6 = _$8`
 			<div class="calendar-sharing__switcher_divider"></div>
 		`));
 	  }
 	  renderSwitcher() {
 	    main_core.Dom.append(this.getSwitcherDivider(), this.wrap);
-	    this.switcherWrap = main_core.Tag.render(_t3$6 || (_t3$6 = _$9`<div class="calendar-sharing__switcher-wrap"></div>`));
+	    this.switcherWrap = main_core.Tag.render(_t3$6 || (_t3$6 = _$8`<div class="calendar-sharing__switcher-wrap"></div>`));
 	    main_core.Dom.append(this.switcherWrap, this.wrap);
 	    main_core.Event.bind(this.switcherWrap, 'click', this.handleSwitcherWrapClick.bind(this), {
 	      capture: true
@@ -2437,7 +2794,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  handleSwitcherToggled() {
 	    if (this.sharingFeatureLimit && this.switcher.isChecked()) {
-	      top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+	      ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	        featureId: 'calendar_sharing'
+	      }).show();
 	      this.switcher.toggle();
 	      return;
 	    }
@@ -2658,10 +3017,154 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 
+	let _$9 = t => t,
+	  _t$9,
+	  _t2$7;
+	var _popup$2 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popup");
+	var _loader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("loader");
+	var _layout$8 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _qrCode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("qrCode");
+	var _context = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("context");
+	class DialogQr {
+	  constructor(options) {
+	    this.QRCODE_SIZE = 114;
+	    this.QRCODE_COLOR_LIGHT = '#fff';
+	    this.QRCODE_COLOR_DARK = '#000';
+	    Object.defineProperty(this, _popup$2, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _loader, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _layout$8, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _qrCode, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _context, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8] = {
+	      qr: null
+	    };
+	    babelHelpers.classPrivateFieldLooseBase(this, _qrCode)[_qrCode] = null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = options.context;
+	    this.sharingUrl = options.sharingUrl;
+	  }
+
+	  /**
+	   *
+	   * @returns {Popup}
+	   */
+	  getPopup() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2] = new main_popup.Popup({
+	        className: 'calendar-sharing__qr',
+	        width: 315,
+	        padding: 0,
+	        content: this.getContent(),
+	        closeIcon: true,
+	        closeByEsc: true,
+	        autoHide: true,
+	        overlay: true,
+	        animation: 'fading-slide'
+	      });
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _popup$2)[_popup$2];
+	  }
+
+	  /**
+	   *
+	   * @returns {Loader}
+	   */
+	  getLoader() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader]) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader] = new main_loader.Loader({
+	        size: 95
+	      });
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _loader)[_loader];
+	  }
+
+	  /**
+	   *
+	   * @returns {HTMLElement}
+	   */
+	  getNodeQr() {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].qr) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].qr = main_core.Tag.render(_t$9 || (_t$9 = _$9`
+				<div class="calendar-sharing__qr-block"></div>
+			`));
+
+	      // qr emulation
+	      this.getLoader().show(babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].qr);
+	      this.showQr();
+	    }
+	    return babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].qr;
+	  }
+	  async showQr() {
+	    await this.initQrCode();
+	    this.QRCode = new QRCode(babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].qr, {
+	      text: this.sharingUrl,
+	      width: this.QRCODE_SIZE,
+	      height: this.QRCODE_SIZE,
+	      colorDark: this.QRCODE_COLOR_DARK,
+	      colorLight: this.QRCODE_COLOR_LIGHT,
+	      correctLevel: QRCode.CorrectLevel.H
+	    });
+	    await this.getLoader().hide();
+	  }
+	  async initQrCode() {
+	    await main_core.Runtime.loadExtension(['main.qrcode']);
+	  }
+
+	  /**
+	   *
+	   * @returns {HTMLElement}
+	   */
+	  getContent() {
+	    return main_core.Tag.render(_t2$7 || (_t2$7 = _$9`
+			<div class="calendar-sharing__qr-content">
+				<div class="calendar-sharing__qr-title">${0}</div>
+				${0}
+				<div class="calendar-sharing__qr-info">${0}</div>
+				<a class="calendar-sharing__dialog-link" href="${0}" target="_blank">${0}</a>
+			</div>
+		`), this.getPhraseDependsOnContext('SHARING_INFO_POPUP_QR_TITLE'), this.getNodeQr(), main_core.Loc.getMessage('SHARING_INFO_POPUP_QR_INFO'), this.sharingUrl, main_core.Loc.getMessage('SHARING_INFO_POPUP_QR_OPEN_LINK'));
+	  }
+	  isShown() {
+	    return this.getPopup().isShown();
+	  }
+	  close() {
+	    this.getPopup().close();
+	  }
+	  show() {
+	    this.getPopup().show();
+	  }
+	  destroy() {
+	    this.getPopup().destroy();
+	  }
+	  getPhraseDependsOnContext(code) {
+	    return main_core.Loc.getMessage(`${code}_${babelHelpers.classPrivateFieldLooseBase(this, _context)[_context].toUpperCase()}`);
+	  }
+	}
+
 	exports.Interface = Interface;
 	exports.SharingButton = SharingButton;
 	exports.DialogNew = DialogNew;
 	exports.DialogQr = DialogQr;
+	exports.Layout = Layout;
+	exports.RuleModel = RuleModel;
+	exports.RangeModel = RangeModel;
+	exports.SettingsModel = SettingsModel;
 
-}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX,BX,BX,BX.Main,BX.Calendar.Sharing,BX.UI.EntitySelector,BX,BX.Calendar,BX.UI.IconSet,BX.Main,BX.UI.Dialogs,BX.UI,BX.Event,BX,BX.UI,BX,BX.UI.Tour,BX.UI));
+}((this.BX.Calendar.Sharing = this.BX.Calendar.Sharing || {}),BX.Main,BX.Calendar.Sharing,BX.UI.EntitySelector,BX.Calendar,BX.UI.IconSet,BX.UI.Dialogs,BX.UI,BX.Event,BX,BX,BX,BX.UI,BX,BX.UI.Tour,BX.UI,BX.UI,BX,BX.Main,BX));
 //# sourceMappingURL=interface.bundle.js.map

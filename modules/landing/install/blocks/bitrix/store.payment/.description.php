@@ -10,7 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LANDING_BLOCK_STORE.PAY_NAME'),
 		'section' => array('store'),
-		'type' => 'null',
+		'system' => true,
 		'html' => false,
 		'namespace' => 'bitrix',
 	),

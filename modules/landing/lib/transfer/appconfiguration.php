@@ -42,7 +42,7 @@ class AppConfiguration
 	 * @var array
 	 */
 	private static $entityList = [
-		'LANDING' => 500
+		'LANDING' => 500,
 	];
 
 	/**
@@ -53,7 +53,8 @@ class AppConfiguration
 		'total',
 		'landing_page',
 		'landing_store',
-		'landing_knowledge'
+		'landing_knowledge',
+		'landing_mainpage',
 	];
 
 	/**
@@ -121,6 +122,7 @@ class AppConfiguration
 				'IMPORT_TITLE_BLOCK' => Loc::getMessage('LANDING_TRANSFER_IMPORT_ACTION_TITLE_BLOCK_' . $langCode),
 				'IMPORT_DESCRIPTION_UPLOAD' => Loc::getMessage('LANDING_TRANSFER_IMPORT_DESCRIPTION_UPLOAD_' . $langCode),
 				'IMPORT_DESCRIPTION_START' => ' ',
+				'INSTALL_STEP' => Loc::getMessage('LANDING_TRANSFER_IMPORT_DESCRIPTION_STEP_' . $langCode),
 				'IMPORT_INSTALL_FINISH_TEXT' => '',
 				'IMPORT_TITLE_PAGE_CREATE' => Loc::getMessage('LANDING_TRANSFER_IMPORT_ACTION_TITLE_BLOCK_CREATE_' . $langCode),
 				'REST_IMPORT_AVAILABLE' => 'Y',
@@ -129,9 +131,9 @@ class AppConfiguration
 					'MODULE_ID' => 'landing',
 					'CALLBACK' => [
 						'\Bitrix\Landing\Transfer\AppConfiguration',
-						'onCheckAccess'
-					]
-				]
+						'onCheckAccess',
+					],
+				],
 			];
 		}
 
@@ -167,7 +169,7 @@ class AppConfiguration
 					&& in_array(Rights::ACCESS_TYPES['edit'], Rights::getOperationsForSite($siteId));
 		}
 		return [
-			'result' => $access
+			'result' => $access,
 		];
 	}
 
@@ -269,11 +271,11 @@ class AppConfiguration
 					Type::setScope($manifest['SITE_TYPE']);
 					$res = Site::getList([
 						'select' => [
-							'TITLE'
+							'TITLE',
 						],
 						'filter' => [
-							'ID' => $manifest['SITE_ID']
-						]
+							'ID' => $manifest['SITE_ID'],
+						],
 					]);
 					if ($row = $res->fetch())
 					{
@@ -283,7 +285,7 @@ class AppConfiguration
 							'ru',
 							[
 								'replace_space' => '_',
-								'replace_other' => '_'
+								'replace_other' => '_',
 							]
 						));
 					}

@@ -25,4 +25,9 @@ export class YandexProvider extends CaldavConnection
 		}
 		this.setConnections();
 	}
+
+	getAccountName(connection: any)
+	{
+		return Loc.getMessage('CALENDAR_TITLE_YANDEX');
+	}
 }

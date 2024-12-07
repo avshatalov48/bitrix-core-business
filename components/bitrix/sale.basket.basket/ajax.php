@@ -30,7 +30,6 @@ if (isset($_REQUEST['site_template_id']) && is_string($_REQUEST['site_template_i
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_before.php';
 
 $request = Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 
 if (!check_bitrix_sessid() || !$request->isPost())
 	return;

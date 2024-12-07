@@ -8,6 +8,6 @@ export class SelectorErrorCode
 		return [
 			SelectorErrorCode.NOT_SELECTED_PRODUCT,
 			SelectorErrorCode.FAILED_PRODUCT,
-		]
+		];
 	}
 }

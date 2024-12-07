@@ -159,6 +159,7 @@ trait ActiveRecordImplementation
 		$result = new Result;
 
 		$this->setDataEntity($dataObject);
+		$entityFields = $dataObject->collectValues();
 
 		foreach (static::mirrorDataEntityFields() as $offset => $field)
 		{
@@ -166,7 +167,7 @@ trait ActiveRecordImplementation
 			{
 				continue;
 			}
-			if ($this->getDataEntity()->has($offset))
+			if (isset($entityFields[$offset]))
 			{
 				if (
 					isset($field['loadFilter'])
@@ -175,11 +176,11 @@ trait ActiveRecordImplementation
 					&& is_callable([$this, $loadFilter])
 				)
 				{
-					$this->{$field['field']} = $this->$loadFilter($this->getDataEntity()->get($offset));
+					$this->{$field['field']} = $this->$loadFilter($entityFields[$offset]);
 				}
 				else
 				{
-					$this->{$field['field']} = $this->getDataEntity()->get($offset);
+					$this->{$field['field']} = $entityFields[$offset];
 				}
 			}
 		}
@@ -318,7 +319,10 @@ trait ActiveRecordImplementation
 				}
 			}
 
-			if (isset($field['field'], $this->{$field['field']}))
+			if (
+				isset($field['field'])
+				&& (isset($this->{$field['field']}) || $field['nullable'] === true)
+			)
 			{
 				if (
 					isset($field['saveFilter'])

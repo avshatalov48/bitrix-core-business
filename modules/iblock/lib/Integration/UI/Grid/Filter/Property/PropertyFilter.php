@@ -11,8 +11,8 @@ class PropertyFilter extends Filter
 	/**
 	 * Factory method for creating a filter with provider filling.
 	 *
-	 * @param int $iblockId
-	 * @param PropertyGridProvider $gridProvider
+	 * @param int $iblockId Iblock identifier.
+	 * @param PropertyGridProvider $gridProvider Properties grid description.
 	 *
 	 * @return self
 	 */
@@ -39,7 +39,10 @@ class PropertyFilter extends Filter
 			'THEME' => Theme::LIGHT,
 			'CONFIG' => [
 				'AUTOFOCUS' => false,
+				'popupWidth' => 800,
 			],
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => true,
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 	}
 }

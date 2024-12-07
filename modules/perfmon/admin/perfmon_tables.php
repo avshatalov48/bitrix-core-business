@@ -17,15 +17,18 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/prolog.php';
 Loader::includeModule('perfmon');
 IncludeModuleLangFile(__FILE__);
 
-$connection = \Bitrix\Main\Application::getConnection();
+/** @var \Bitrix\Main\HTTPRequest $request */
+$request = Main\Context::getCurrent()->getRequest();
+
+$connectionName = $request['connection'] ?: 'default';
+$connection = \Bitrix\Main\Application::getConnection($connectionName);
+$sqlHelper = $connection->getSqlHelper();
 
 $RIGHT = CMain::GetGroupRight('perfmon');
 if ($RIGHT == 'D')
 {
 	$APPLICATION->AuthForm(Loc::getMessage('ACCESS_DENIED'));
 }
-
-$request = Main\Context::getCurrent()->getRequest();
 
 $engines = [
 	'MYISAM' => ['NAME' => 'MyISAM'],
@@ -47,11 +50,11 @@ if (
 }
 
 $tables = $lAdmin->GroupAction();
-if ($tables && $RIGHT >= 'W')
+if (isset($_REQUEST['action']) && $tables && $RIGHT >= 'W')
 {
 	if ($lAdmin->IsGroupActionToAll())
 	{
-		$data = CPerfomanceTableList::GetList();
+		$data = CPerfomanceTableList::GetList(false, $connection);
 		while ($ar = $data->Fetch())
 		{
 			$tables[] = $ar['TABLE_NAME'];
@@ -60,15 +63,15 @@ if ($tables && $RIGHT >= 'W')
 
 	foreach ($engines as $id => $ar)
 	{
-		if ($_REQUEST['action'] == 'convert_to_' . $id)
+		if ($_REQUEST['action'] === 'convert_to_' . $id)
 		{
 			$_REQUEST['action'] = 'convert';
-			$_REQUEST['to'] = $id;
+			$request['to'] = $id;
 			break;
 		}
 	}
 
-	$to = mb_strtoupper($_REQUEST['to']);
+	$to = mb_strtoupper($request['to']);
 
 	$action = $lAdmin->GetAction();
 	foreach ($tables as $table_name)
@@ -82,8 +85,8 @@ if ($tables && $RIGHT >= 'W')
 		$status = [];
 		if ($connection->getType() === 'mysql')
 		{
-			$res = $DB->Query("show table status like '" . $DB->ForSql($table_name) . "'", false);
-			$status = $res->Fetch();
+			$res = $connection->query("show table status like '" . $sqlHelper->forSql($table_name) . "'");
+			$status = $res->fetch();
 			if (!$status || $status['Comment'] === 'VIEW')
 			{
 				continue;
@@ -93,36 +96,40 @@ if ($tables && $RIGHT >= 'W')
 		switch ($action)
 		{
 		case 'convert':
-			$res = false;
-			if ($to !== mb_strtoupper($status['Engine']))
+			try
 			{
-				if ($to === 'MYISAM')
+				if ($to !== mb_strtoupper($status['Engine']))
 				{
-					$res = $DB->Query('alter table ' . CPerfomanceTable::escapeTable($table_name) . ' ENGINE = MyISAM', false);
-				}
-				elseif ($to === 'INNODB')
-				{
-					$res = $DB->Query('alter table ' . CPerfomanceTable::escapeTable($table_name) . ' ENGINE = InnoDB', false);
-				}
-				else
-				{
-					$res = true;
+					if ($to === 'MYISAM')
+					{
+						$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = MyISAM');
+					}
+					elseif ($to === 'INNODB')
+					{
+						$connection->query('alter table ' . $sqlHelper->quote($table_name) . ' ENGINE = InnoDB');
+					}
 				}
 			}
-
-			if (!$res)
+			catch (\Bitrix\Main\DB\SqlQueryException $e)
 			{
-				$lAdmin->AddGroupError(Loc::getMessage('PERFMON_TABLES_CONVERT_ERROR'), $table_name);
+				$lAdmin->AddGroupError($e, $table_name);
 			}
 			break;
 		case 'optimize':
-			if ($connection->getType() === 'mysql')
+			try
 			{
-				$DB->Query('optimize table ' . CPerfomanceTable::escapeTable($table_name), false);
+				if ($connection->getType() === 'mysql')
+				{
+					$connection->query('optimize table ' . $sqlHelper->quote($table_name));
+				}
+				elseif ($connection->getType() === 'pgsql')
+				{
+					$connection->query('vacuum ' . $sqlHelper->quote($table_name));
+				}
 			}
-			elseif ($connection->getType() === 'pgsql')
+			catch (\Bitrix\Main\DB\SqlQueryException $e)
 			{
-				$DB->Query('vacuum ' . CPerfomanceTable::escapeTable($table_name), false);
+				$lAdmin->AddGroupError($e, $table_name);
 			}
 			break;
 		case 'orm':
@@ -137,7 +144,7 @@ if ($tables && $RIGHT >= 'W')
 			$className = StringHelper::snake2camel(implode('_', $tableParts));
 
 			$obTable = new CPerfomanceTable;
-			$obTable->Init($table_name);
+			$obTable->Init($table_name, $connection);
 			$arFields = $obTable->GetTableFields(false, true);
 
 			$arUniqueIndexes = $obTable->GetUniqueIndexes();
@@ -365,6 +372,27 @@ if ($tables && $RIGHT >= 'W')
 					}
 				}
 
+				$size = 0;
+				if ($columnInfo['orm_type'] === 'integer')
+				{
+					if (str_starts_with($columnInfo['type~'], 'tinyint'))
+					{
+						$size = 1;
+					}
+					elseif (str_starts_with($columnInfo['type~'], 'smallint'))
+					{
+						$size = 2;
+					}
+					elseif (str_starts_with($columnInfo['type~'], 'mediumint'))
+					{
+						$size = 3;
+					}
+					elseif (str_starts_with($columnInfo['type~'], 'bigint'))
+					{
+						$size = 8;
+					}
+				}
+
 				if ($objectSettings)
 				{
 					$offset = ($useMapIndex ? "\t\t\t\t" : "\t\t\t");
@@ -415,7 +443,12 @@ if ($tables && $RIGHT >= 'W')
 								? $offset . "\t\t->configureDefaultValue(" . $columnInfo['default'] . ")\n"
 								: ''
 						)
+						. ($size
+								? $offset . "\t\t->configureSize(" . $size . ")\n"
+								: ''
+						)
 					;
+
 					$fields[$columnName] =
 						mb_substr($fields[$columnName], 0, -1)
 						. "\n"
@@ -455,12 +488,13 @@ if ($tables && $RIGHT >= 'W')
 						. ($columnInfo['increment'] ? "\t\t\t\t\t'autocomplete' => true,\n" : '')
 						. (!$primary && $columnInfo['nullable'] === false ? "\t\t\t\t\t'required' => true,\n" : '')
 						. ($columnInfo['orm_type'] === 'boolean' || $columnInfo['orm_type'] === 'enum'
-								? "\t\t\t\t\t'values' => array(" . implode(', ', $columnInfo['enum_values']) . "),\n"
-								: ''
+							? "\t\t\t\t\t'values' => [" . implode(', ', $columnInfo['enum_values']) . "],\n"
+							: ''
 						)
 						. ($columnInfo['default'] !== '' ? "\t\t\t\t\t'default' => " . $columnInfo['default'] . ",\n" : '')
 						. $validator
 						. "\t\t\t\t\t'title' => Loc::getMessage('" . $messageId . "'),\n"
+						. ($size ? "\t\t\t\t\t'size' => " . $size . ",\n" : '')
 						. "\t\t\t\t]\n"
 						. "\t\t\t),\n"
 					;
@@ -636,7 +670,7 @@ if ($bShowFullInfo)
 
 $stime = time();
 $arAllTables = [];
-$data = CPerfomanceTableList::GetList($bShowFullInfo);
+$data = CPerfomanceTableList::GetList($bShowFullInfo, $connection);
 while ($ar = $data->Fetch())
 {
 	$arAllTables[] = $ar;
@@ -659,7 +693,7 @@ $generateOrm = Main\Config\Option::get('perfmon', 'enable_tablet_generator') ===
 while ($result = $data->GetNext())
 {
 	$row =& $lAdmin->AddRow($result['TABLE_NAME'], $result);
-	$row->AddViewField('TABLE_NAME', '<a class="table_name" data-table-name="' . $result['TABLE_NAME'] . '" href="perfmon_table.php?lang=' . LANGUAGE_ID . '&amp;table_name=' . urlencode($result['TABLE_NAME']) . '">' . $result['TABLE_NAME'] . '</a>');
+	$row->AddViewField('TABLE_NAME', '<a class="table_name" data-table-name="' . $result['TABLE_NAME'] . '" href="perfmon_table.php?lang=' . LANGUAGE_ID . (isset($request->getQueryList()['connection']) ? '&amp;connection=' . urlencode($connectionName) : '') . '&amp;table_name=' . urlencode($result['TABLE_NAME']) . '">' . $result['TABLE_NAME'] . '</a>');
 	$row->AddViewField('BYTES', CFile::FormatSize($result['BYTES']));
 	$row->AddViewField('BYTES_INDEX', CFile::FormatSize($result['BYTES_INDEX']));
 
@@ -676,7 +710,7 @@ while ($result = $data->GetNext())
 						'ICON' => 'edit',
 						'DEFAULT' => false,
 						'TEXT' => Loc::getMessage('PERFMON_TABLES_ACTION_CONVERT', ['#ENGINE_TYPE#' => $ar['NAME']]),
-						'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'convert', 'to=' . $id),
+						'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'convert', 'to=' . $id . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '')),
 					];
 				}
 			}
@@ -685,7 +719,7 @@ while ($result = $data->GetNext())
 		$actions[] = [
 			'DEFAULT' => false,
 			'TEXT' => Loc::getMessage('PERFMON_TABLES_ACTION_OPTIMIZE'),
-			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'optimize'),
+			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'optimize', (isset($request->getQueryList()['connection']) ? 'connection=' . urlencode($connectionName) : '')),
 		];
 	}
 	elseif ($connection->getType() === 'pgsql')
@@ -693,7 +727,7 @@ while ($result = $data->GetNext())
 		$actions[] = [
 			'DEFAULT' => false,
 			'TEXT' => Loc::getMessage('PERFMON_TABLES_ACTION_OPTIMIZE'),
-			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'optimize'),
+			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'optimize', (isset($request->getQueryList()['connection']) ? 'connection=' . urlencode($connectionName) : '')),
 		];
 	}
 
@@ -702,7 +736,7 @@ while ($result = $data->GetNext())
 		$actions[] = [
 			'DEFAULT' => false,
 			'TEXT' => 'ORM',
-			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'orm'),
+			'ACTION' => $lAdmin->ActionDoGroup($result['TABLE_NAME'], 'orm', (isset($request->getQueryList()['connection']) ? 'connection=' . urlencode($connectionName) : '')),
 		];
 	}
 	if (!empty($actions))
@@ -744,7 +778,7 @@ if (!$bShowFullInfo)
 		BX.ready(function ()
 		{
 			<?=$tableID?>.
-			GetAdminList('<?= $APPLICATION->GetCurPage();?>?lang=<?= LANGUAGE_ID?>&full_info=Y');
+			GetAdminList('<?= $APPLICATION->GetCurPage();?>?lang=<?= LANGUAGE_ID?>&full_info=Y<?php echo (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '')?>');
 		});
 	</script><?php
 	$lAdmin->EndEpilogContent();
@@ -756,8 +790,8 @@ $APPLICATION->SetTitle(Loc::getMessage('PERFMON_TABLES_TITLE'));
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 
-$strLastTables = CUserOptions::GetOption('perfmon', 'last_tables');
-if ($strLastTables <> '')
+$strLastTables = trim(CUserOptions::GetOption('perfmon', 'last_tables' . (isset($request->getQueryList()['connection']) ? '_' . $connectionName : ''), ''));
+if ($strLastTables !== '')
 {
 	$arLastTables = explode(',', $strLastTables);
 	if (count($arLastTables) > 0)
@@ -766,9 +800,9 @@ if ($strLastTables <> '')
 
 		foreach ($arLastTables as $i => $table_name)
 		{
-			if ($DB->TableExists($table_name))
+			if ($connection->isTableExists($table_name))
 			{
-				$arLastTables[$i] = ['NAME' => '<a href="perfmon_table.php?lang=' . LANGUAGE_ID . '&amp;table_name=' . urlencode($table_name) . '">' . $table_name . '</a>'];
+				$arLastTables[$i] = ['NAME' => '<a href="perfmon_table.php?lang=' . LANGUAGE_ID . (isset($request->getQueryList()['connection']) ? '&amp;connection=' . urlencode($connectionName) : '') . '&amp;table_name=' . urlencode($table_name) . '">' . $table_name . '</a>'];
 			}
 			else
 			{

@@ -173,14 +173,11 @@ class Location extends ExternalLocationMap
 			$emptyRegions = array();
 			$other = array();
 
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$data = Encoding::convertEncoding($data, 'UTF-8', SITE_CHARSET, $em);
-
 			$regions = self::getParents(array_keys($data));
 
 			foreach($data as $regionCity => $city)
 			{
-				$regionCity = ToUpper($regionCity);
+				$regionCity = mb_strtoupper($regionCity);
 				$regionName = !empty($regions[$regionCity]['REGION']) ? $regions[$regionCity]['REGION'] : '';
 
 				if($regionName == '')
@@ -197,7 +194,7 @@ class Location extends ExternalLocationMap
 
 				foreach($city as $cityId => $cityName)
 				{
-					$cityName = ToUpper($cityName);
+					$cityName = mb_strtoupper($cityName);
 					$location = array($cityName, $regionName, $cityId);
 
 					if(mb_strpos($cityName, '(') !== false && mb_strpos($cityName, ')') !== false)
@@ -242,7 +239,7 @@ class Location extends ExternalLocationMap
 		$result = array();
 
 		foreach($cityNames as $key => $name)
-			$cityNames[$key] = ToUpper($name);
+			$cityNames[$key] = mb_strtoupper($name);
 
 		$res = LocationTable::getList(array(
 			'filter' => array(
@@ -278,14 +275,14 @@ class Location extends ExternalLocationMap
 		$result = '';
 		$matches = array();
 
-		if(preg_match('/(.*)\s*\((.*)\)/i'.BX_UTF_PCRE_MODIFIER, $cityName, $matches))
+		if(preg_match('/(.*)\s*\((.*)\)/iu', $cityName, $matches))
 		{
 			if(!empty($matches[2]))
 			{
 				$result = trim($matches[2]);
 				$mark = Replacement::getDistrictMark();
 
-				if(!preg_match('/('.$mark.'){1}/i'.BX_UTF_PCRE_MODIFIER, $result))
+				if(!preg_match('/('.$mark.'){1}/iu', $result))
 					$result = '';
 
 				if(!empty($matches[1]))

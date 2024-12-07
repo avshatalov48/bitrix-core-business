@@ -27,7 +27,6 @@ class YandexCheckoutHandler
 	implements
 	PaySystem\IRefund,
 	PaySystem\IPartialHold,
-	PaySystem\Domain\Verification\IVerificationable,
 	PaySystem\IRecurring,
 	PaySystem\Cashbox\ISupportPrintCheck,
 	PaySystem\Cashbox\IFiscalizationAware
@@ -1449,16 +1448,6 @@ class YandexCheckoutHandler
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public static function getModeList(): array
-	{
-		return [
-			self::MODE_EMBEDDED,
-		];
-	}
-
-	/**
 	 * @param Payment $payment
 	 * @param Request|null $request
 	 * @return PaySystem\ServiceResult
@@ -1593,7 +1582,7 @@ class YandexCheckoutHandler
 		return '\\'.Cashbox\CashboxYooKassa::class;
 	}
 
-	public function isFiscalizationEnabled(Payment $payment): ?bool
+	public function isFiscalizationEnabled(Payment $payment): bool
 	{
 		$url = $this->getUrl($payment, 'settings');
 		$headers = $this->getHeaders($payment);
@@ -1603,12 +1592,9 @@ class YandexCheckoutHandler
 		{
 			$data = $sendResult->getData();
 
-			if (isset($data['fiscalization_enabled']))
-			{
-				return (bool)$data['fiscalization_enabled'];
-			}
+			return $data['fiscalization']['enabled'] ?? false;
 		}
 
-		return null;
+		return false;
 	}
 }

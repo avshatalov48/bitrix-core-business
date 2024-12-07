@@ -420,7 +420,7 @@ class Generator
 			}
 		}
 
-		if (count($processedDirs) > 0)
+		if (is_array($processedDirs) && !empty($processedDirs))
 		{
 			foreach ($processedDirs as $dirKey)
 			{
@@ -444,24 +444,24 @@ class Generator
 	{
 		$result = true;
 
-		$arIBlockList = [];
+		$iblockToProcess = [];
 		if (Loader::includeModule('iblock'))
 		{
-			$arIBlockList = $this->sitemapData['SETTINGS']['IBLOCK_ACTIVE'];
-			if (is_array($arIBlockList) && count($arIBlockList) > 0)
+			$iblockToProcess = $this->sitemapData['SETTINGS']['IBLOCK_ACTIVE'];
+			if (is_array($iblockToProcess) && !empty($iblockToProcess))
 			{
 				$arIBlocks = [];
-				$dbIBlock = \CIBlock::GetList([], ['ID' => array_keys($arIBlockList)]);
+				$dbIBlock = \CIBlock::GetList([], ['ID' => array_keys($iblockToProcess)]);
 				while ($arIBlock = $dbIBlock->Fetch())
 				{
 					$arIBlocks[$arIBlock['ID']] = $arIBlock;
 				}
 
-				foreach ($arIBlockList as $iblockId => $iblockActive)
+				foreach ($iblockToProcess as $iblockId => $iblockActive)
 				{
 					if ($iblockActive !== 'Y' || !array_key_exists($iblockId, $arIBlocks))
 					{
-						unset($arIBlockList[$iblockId]);
+						unset($iblockToProcess[$iblockId]);
 					}
 					else
 					{
@@ -482,15 +482,15 @@ class Generator
 		$this->state['IBLOCK'] = [];
 		$this->state['IBLOCK_MAP'] = [];
 
-		if (count($arIBlockList) <= 0)
-		{
-			$this->step = Step::STEPS[Step::STEP_IBLOCK];
-			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_IBLOCK_EMPTY');
-		}
-		else
+		if (is_array($iblockToProcess) && !empty($iblockToProcess))
 		{
 			$this->step = Step::STEPS[Step::STEP_IBLOCK_INDEX];
 			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_IBLOCK');
+		}
+		else
+		{
+			$this->step = Step::STEPS[Step::STEP_IBLOCK];
+			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_IBLOCK_EMPTY');
 		}
 
 		return $result;
@@ -511,13 +511,18 @@ class Generator
 		$dbOldIblockResult = null;
 		$dbIblockResult = null;
 
+		if (!Loader::includeModule('iblock'))
+		{
+			$isFinished = true;
+		}
+
 		if (isset($_SESSION["SEO_SITEMAP_" . $this->sitemapId]))
 		{
 			$this->state['IBLOCK_MAP'] = $_SESSION["SEO_SITEMAP_" . $this->sitemapId];
 			unset($_SESSION["SEO_SITEMAP_" . $this->sitemapId]);
 		}
 
-		while (!$isFinished && microtime(true) <= $timeFinish && Loader::includeModule('iblock'))
+		while (!$isFinished && microtime(true) <= $timeFinish)
 		{
 			if (!$runtimeIblock)
 			{
@@ -541,22 +546,18 @@ class Generator
 
 					if (!$currentIBlock)
 					{
-						RuntimeTable::update($runtimeIblock['ID'], [
-							'PROCESSED' => RuntimeTable::PROCESSED,
-						]);
-
 						$this->state['LEFT_MARGIN'] = 0;
 						$this->state['IBLOCK_LASTMOD'] = 0;
 						$this->state['LAST_ELEMENT_ID'] = 0;
 						unset($this->state['CURRENT_SECTION']);
-
+					}
+					else
+					{
 						$this->statusMessage = Loc::getMessage(
 							'SITEMAP_RUN_IBLOCK_NAME',
 							['#IBLOCK_NAME#' => $currentIBlock['NAME']]
 						);
-					}
-					else
-					{
+
 						if ($currentIBlock['LIST_PAGE_URL'] == '')
 						{
 							$this->sitemapData['SETTINGS']['IBLOCK_LIST'][$iblockId] = 'N';
@@ -591,6 +592,10 @@ class Generator
 							$this->getSitemapSettings()
 						);
 					}
+
+					RuntimeTable::update($runtimeIblock['ID'], [
+						'PROCESSED' => RuntimeTable::PROCESSED,
+					]);
 				}
 			}
 
@@ -852,7 +857,7 @@ class Generator
 		if ($isFinished)
 		{
 			$this->step = Step::STEPS[Step::STEP_IBLOCK];
-			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_FINALIZE');
+			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_IBLOCK');
 		}
 
 		return $result;
@@ -862,61 +867,65 @@ class Generator
 	{
 		$result = true;
 
-		$forumList = [];
-		if (!empty($this->sitemapData['SETTINGS']['FORUM_ACTIVE']))
+		$forumToProcess = [];
+
+		if (Loader::includeModule('forum'))
 		{
-			foreach ($this->sitemapData['SETTINGS']['FORUM_ACTIVE'] as $forumId => $active)
+			if (!empty($this->sitemapData['SETTINGS']['FORUM_ACTIVE']))
 			{
-				if ($active == "Y")
+				foreach ($this->sitemapData['SETTINGS']['FORUM_ACTIVE'] as $forumId => $active)
 				{
-					$forumList[$forumId] = "Y";
+					if ($active == "Y")
+					{
+						$forumToProcess[$forumId] = "Y";
+					}
 				}
 			}
-		}
-		if (count($forumList) > 0 && Loader::includeModule('forum'))
-		{
-			$arForums = [];
-			$db_res = \CForumNew::GetListEx(
-				[],
-				[
-					'@ID' => array_keys($forumList),
-					"ACTIVE" => "Y",
-					"SITE_ID" => $this->sitemapData['SITE_ID'],
-					"!TOPICS" => 0,
-				]
-			);
-			while ($res = $db_res->Fetch())
+			if (!empty($forumToProcess))
 			{
-				$arForums[$res['ID']] = $res;
-			}
-			$forumList = array_intersect_key($arForums, $forumList);
-
-			foreach ($forumList as $id => $forum)
-			{
-				RuntimeTable::add([
-						'PID' => $this->sitemapId,
-						'PROCESSED' => RuntimeTable::UNPROCESSED,
-						'ITEM_ID' => $id,
-						'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_FORUM,
+				$arForums = [];
+				$db_res = \CForumNew::GetListEx(
+					[],
+					[
+						'@ID' => array_keys($forumToProcess),
+						"ACTIVE" => "Y",
+						"SITE_ID" => $this->sitemapData['SITE_ID'],
+						"!TOPICS" => 0,
 					]
 				);
+				while ($res = $db_res->Fetch())
+				{
+					$arForums[$res['ID']] = $res;
+				}
+				$forumToProcess = array_intersect_key($arForums, $forumToProcess);
 
-				// $fileName = str_replace('#FORUM_ID#', $forumId, $this->sitemapData['SETTINGS']['FILENAME_FORUM']);
-				// $sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->sitemapDataSettings);
+				foreach ($forumToProcess as $id => $forum)
+				{
+					RuntimeTable::add([
+							'PID' => $this->sitemapId,
+							'PROCESSED' => RuntimeTable::UNPROCESSED,
+							'ITEM_ID' => $id,
+							'ITEM_TYPE' => RuntimeTable::ITEM_TYPE_FORUM,
+						]
+					);
+
+					// $fileName = str_replace('#FORUM_ID#', $forumId, $this->sitemapData['SETTINGS']['FILENAME_FORUM']);
+					// $sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->sitemapDataSettings);
+				}
 			}
 		}
 
 		$this->state['FORUM_CURRENT_TOPIC'] = 0;
 
-		if (count($forumList) <= 0)
-		{
-			$this->step = Step::STEPS[Step::STEP_FORUM];
-			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_FORUM_EMPTY');
-		}
-		else
+		if (is_array($forumToProcess) && !empty($forumToProcess))
 		{
 			$this->step = Step::STEPS[Step::STEP_FORUM_INDEX];
 			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_FORUM');
+		}
+		else
+		{
+			$this->step = Step::STEPS[Step::STEP_FORUM];
+			$this->statusMessage = Loc::getMessage('SITEMAP_RUN_FORUM_EMPTY');
 		}
 
 		return $result;
@@ -935,7 +944,12 @@ class Generator
 		$dbTopicResult = null;
 		$arTopic = null;
 
-		while (!$isFinished && microtime(true) <= $timeFinish && \CModule::IncludeModule("forum"))
+		if (!Loader::includeModule('forum'))
+		{
+			$isFinished = true;
+		}
+
+		while (!$isFinished && microtime(true) <= $timeFinish)
 		{
 			if (!$runtimeForum)
 			{
@@ -964,21 +978,20 @@ class Generator
 						]
 					);
 					$currentForum = $db_res->Fetch();
-					if (!$currentForum)
+					if ($currentForum)
 					{
-						RuntimeTable::update($runtimeForum['ID'], [
-							'PROCESSED' => RuntimeTable::PROCESSED,
-						]);
 						$this->statusMessage = Loc::getMessage(
 							'SITEMAP_RUN_FORUM_NAME',
 							['#FORUM_NAME#' => $currentForum['NAME']]
 						);
-					}
-					else
-					{
+
 						$fileName = str_replace('#FORUM_ID#', $forumId, $this->sitemapData['SETTINGS']['FILENAME_FORUM']);
 						$sitemapFile = new File\Runtime($this->sitemapId, $fileName, $this->getSitemapSettings());
 					}
+
+					RuntimeTable::update($runtimeForum['ID'], [
+						'PROCESSED' => RuntimeTable::PROCESSED,
+					]);
 				}
 			}
 
@@ -1113,7 +1126,7 @@ class Generator
 
 		$sitemapFile = new File\Index($this->sitemapData['SETTINGS']['FILENAME_INDEX'], $this->getSitemapSettings());
 		$xmlFiles = [];
-		if (count($this->state['XML_FILES']) > 0)
+		if (is_array($this->state['XML_FILES']) && !empty($this->state['XML_FILES']))
 		{
 			foreach ($this->state['XML_FILES'] as $xmlFile)
 			{

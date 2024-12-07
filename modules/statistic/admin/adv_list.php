@@ -807,7 +807,7 @@ $oFilter->End();
 ?>
 </form>
 
-<script type="text/javascript">
+<script>
 <!--
 function compareAdv()
 {

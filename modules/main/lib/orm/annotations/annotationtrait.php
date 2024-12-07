@@ -17,6 +17,7 @@ use Bitrix\Main\ORM\Fields\Relations\OneToMany;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Fields\ScalarField;
 use Bitrix\Main\ORM\Fields\UserTypeField;
+use Bitrix\Main\ORM\Objectify\Collection;
 use Bitrix\Main\ORM\Objectify\State;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Text\StringHelper;
@@ -146,7 +147,7 @@ trait AnnotationTrait
 			$code[] = "\t * @method void removeFrom(\$fieldName, \$value)";
 			$code[] = "\t * @method void removeAll(\$fieldName)";
 			$code[] = "\t * @method \\".Result::class." delete()";
-			$code[] = "\t * @method void fill(\$fields = \\".FieldTypeMask::class."::ALL) flag or array of field names";
+			$code[] = "\t * @method mixed fill(\$fields = \\".FieldTypeMask::class."::ALL) flag or array of field names";
 			$code[] = "\t * @method mixed[] collectValues(\$valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, \$fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)";
 			$code[] = "\t * @method \\".AddResult::class."|\\".UpdateResult::class."|\\".Result::class." save()";
 			$code[] = "\t * @method static {$objectClass} wakeUp(\$data)";
@@ -166,7 +167,7 @@ trait AnnotationTrait
 		$code[] = "\t}"; // end class
 
 		// compatibility with default classes
-		if (strpos($objectClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
+		if (!str_starts_with($objectClassName, Entity::DEFAULT_OBJECT_PREFIX)) // better to compare full classes definitions
 		{
 			$defaultObjectClassName = Entity::getDefaultObjectClassName($entity->getName());
 
@@ -201,7 +202,7 @@ trait AnnotationTrait
 			$code[] = "\t * @method {$objectClass}[] getAll()";
 			$code[] = "\t * @method bool remove({$objectClass} \$object)";
 			$code[] = "\t * @method void removeByPrimary(\$primary)";
-			$code[] = "\t * @method void fill(\$fields = \\".FieldTypeMask::class."::ALL) flag or array of field names";
+			$code[] = "\t * @method array|\\".Collection::class."|null fill(\$fields = \\".FieldTypeMask::class."::ALL) flag or array of field names";
 			$code[] = "\t * @method static {$collectionClass} wakeUp(\$data)";
 			$code[] = "\t * @method \\".Result::class." save(\$ignoreEvents = false)";
 			$code[] = "\t * @method void offsetSet() ArrayAccess";
@@ -214,7 +215,7 @@ trait AnnotationTrait
 			$code[] = "\t * @method void next() Iterator";
 			$code[] = "\t * @method bool valid() Iterator";
 			$code[] = "\t * @method int count() Countable";
-			$code[] = "\t * @method {$collectionClassName} merge(?{$collectionClassName} \$collection)";
+			$code[] = "\t * @method {$collectionClass} merge(?{$collectionClass} \$collection)";
 			$code[] = "\t * @method bool isEmpty()";
 		}
 
@@ -226,7 +227,7 @@ trait AnnotationTrait
 		$code[] = "\t}"; // end class
 
 		// compatibility with default classes
-		if (strpos($collectionClassName, Entity::DEFAULT_OBJECT_PREFIX) !== 0) // better to compare full classes definitions
+		if (!str_starts_with($collectionClassName, Entity::DEFAULT_OBJECT_PREFIX)) // better to compare full classes definitions
 		{
 			$defaultCollectionClassName = Entity::getDefaultCollectionClassName($entity->getName());
 
@@ -291,7 +292,7 @@ trait AnnotationTrait
 			foreach (get_class_methods($dataClass) as $method)
 			{
 				// search for with* methods
-				if (substr($method, 0, 4) === 'with')
+				if (str_starts_with($method, 'with'))
 				{
 					$reflectionMethod = new \ReflectionMethod($dataClass, $method);
 

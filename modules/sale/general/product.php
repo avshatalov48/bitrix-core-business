@@ -587,7 +587,7 @@ class CAllSaleViewedProduct
 		$strSql = "UPDATE b_sale_viewed_product SET ".
 						" ".$strUpdate.$strUpdateSql.
 						" WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		foreach(GetModuleEvents("sale", "OnViewedUpdate", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, $arFields));

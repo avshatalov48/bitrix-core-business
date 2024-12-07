@@ -5,10 +5,10 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Grid\Options as GridOptions;
 use Bitrix\Main\UI\Filter\Options as FilterOptions;
 use Bitrix\Main\UI\PageNavigation;
-use \Bitrix\Main\UI\Filter\DateType;
-use \Bitrix\Main\Engine\Contract\Controllerable;
-use \Bitrix\Main\ErrorCollection;
-use \Bitrix\Main\Error;
+use Bitrix\Main\UI\Filter\DateType;
+use Bitrix\Main\Engine\Contract\Controllerable;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Error;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 

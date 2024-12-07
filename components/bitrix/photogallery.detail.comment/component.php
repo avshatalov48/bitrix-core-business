@@ -1,8 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 
 /********************************************************************
 				Input params
@@ -53,11 +59,19 @@ elseif (!IsModuleInstalled("iblock"))
 				Default values
 ********************************************************************/
 if (!IsModuleInstalled($arParams["COMMENTS_TYPE"]))
-	return ShowError("Module is not installed (".$arParams["COMMENTS_TYPE"].")");
-elseif ($arParams["COMMENTS_TYPE"] == "blog" && empty($arParams["BLOG_URL"]))
-	return ShowError(GetMessage("P_EMPTY_BLOG_URL"));
-elseif ($arParams["ELEMENT_ID"] <= 0)
+{
+	ShowError("Module is not installed (".$arParams["COMMENTS_TYPE"].")");
 	return;
+}
+elseif ($arParams["COMMENTS_TYPE"] == "blog" && empty($arParams["BLOG_URL"]))
+{
+	ShowError(GetMessage("P_EMPTY_BLOG_URL"));
+	return;
+}
+elseif ($arParams["ELEMENT_ID"] <= 0)
+{
+	return;
+}
 
 $cache_path = str_replace(array(":", "//"), "/", "/".SITE_ID."/".$componentName."/".$arParams["IBLOCK_ID"]);
 

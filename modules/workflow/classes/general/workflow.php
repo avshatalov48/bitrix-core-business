@@ -3,11 +3,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllWorkflow
 {
-	public static function err_mess()
-	{
-		return "<br>Module: workflow<br>Class: CAllWorkflow<br>File: ".__FILE__;
-	}
-
 	public static function OnPanelCreate()
 	{
 		global $APPLICATION, $USER;
@@ -171,7 +166,6 @@ class CAllWorkflow
 	// Deletes old copies from document's history
 	public static function CleanUpHistoryCopies($DOCUMENT_ID=false, $HISTORY_COPIES=false)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: CleanUpHistoryCopies<br>Line: ";
 		global $DB;
 
 		if($HISTORY_COPIES===false)
@@ -190,7 +184,7 @@ class CAllWorkflow
 		}
 
 		$strSql = "SELECT ID FROM b_workflow_document WHERE 1=1 ".$strSqlSearch;
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while ($zr=$z->Fetch())
 		{
 			$DID = $zr["ID"];
@@ -204,7 +198,7 @@ class CAllWorkflow
 				ORDER BY
 					ID desc
 				";
-			$t = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$t = $DB->Query($strSql);
 			$i = 0;
 			$str_id = "0";
 			while ($tr = $t->Fetch())
@@ -216,15 +210,15 @@ class CAllWorkflow
 				}
 			}
 			$strSql = "DELETE FROM b_workflow_log WHERE ID in ($str_id)";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 		}
 	}
 
 	// Deletes old copies from document's history (simple edit - SE)
 	public static function CleanUpHistoryCopies_SE($FILENAME, $HISTORY_COPIES=false)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: CleanUpHistoryCopies_SE<br>Line: ";
 		global $DB;
+
 		if ($HISTORY_COPIES===false)
 		{
 			$HISTORY_COPIES = intval(COption::GetOptionString("workflow","HISTORY_COPIES","10"));
@@ -240,7 +234,7 @@ class CAllWorkflow
 			ORDER BY
 				ID desc
 			";
-		$t = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$t = $DB->Query($strSql);
 		$i = 0;
 		$str_id = "0";
 		while ($tr = $t->Fetch())
@@ -252,13 +246,12 @@ class CAllWorkflow
 			}
 		}
 		$strSql = "DELETE FROM b_workflow_log WHERE ID in ($str_id)";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 	}
 
 	// saves changes history and send e-mails on status change
 	public static function SetMove($DOCUMENT_ID, $STATUS_ID, $OLD_STATUS_ID, $LOG_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: SetMove<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
@@ -274,7 +267,7 @@ class CAllWorkflow
 			"LOG_ID" => $LOG_ID,
 			"USER_ID" => intval($USER->GetID()),
 		);
-		$DB->Insert("b_workflow_move",$arFields, $err_mess.__LINE__);
+		$DB->Insert("b_workflow_move",$arFields);
 
 		if($STATUS_ID != $OLD_STATUS_ID)
 		{
@@ -303,7 +296,7 @@ class CAllWorkflow
 						and U.ID = UG.USER_ID
 						and U.ACTIVE = 'Y'
 				";
-				$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$a = $DB->Query($strSql);
 				$arAdmin = Array();
 				while ($ar=$a->Fetch())
 				{
@@ -323,7 +316,7 @@ class CAllWorkflow
 						DOCUMENT_ID = $DOCUMENT_ID
 						and OLD_STATUS_ID = $STATUS_ID
 				";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr = $z->Fetch())
 					$arBCC[$zr["EMAIL"]] = $zr["EMAIL"];
 
@@ -347,7 +340,7 @@ class CAllWorkflow
 						and U.ID = UG.USER_ID
 						and U.ACTIVE = 'Y'
 				";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr = $z->Fetch())
 				{
 					if(!array_key_exists($zr["EMAIL"], $arBCC))
@@ -440,12 +433,12 @@ class CAllWorkflow
 
 	public static function Delete($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB;
+
 		CWorkflow::CleanUpFiles($DOCUMENT_ID);
 		CWorkflow::CleanUpPreview($DOCUMENT_ID);
-		$DB->Query("DELETE FROM b_workflow_move WHERE DOCUMENT_ID=".intval($DOCUMENT_ID), false, $err_mess.__LINE__);
-		$DB->Query("DELETE FROM b_workflow_document WHERE ID=".intval($DOCUMENT_ID), false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_workflow_move WHERE DOCUMENT_ID=".intval($DOCUMENT_ID));
+		$DB->Query("DELETE FROM b_workflow_document WHERE ID=".intval($DOCUMENT_ID));
 	}
 
 	public static function IsAdmin()
@@ -498,8 +491,8 @@ class CAllWorkflow
 
 	public static function GetStatus($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: GetStatus<br>Line: ";
 		global $DB;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$strSql = "
 			SELECT
@@ -511,7 +504,7 @@ class CAllWorkflow
 				D.ID='$DOCUMENT_ID'
 			and	S.ID = D.STATUS_ID
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		return $z;
 	}
 
@@ -519,7 +512,6 @@ class CAllWorkflow
 	// check is based only on status no lock
 	public static function IsHaveEditRights($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: IsHaveEditRights<br>Line: ";
 		global $DB, $USER;
 
 		if(CWorkflow::IsAdmin())
@@ -541,7 +533,7 @@ class CAllWorkflow
 				and G.PERMISSION_TYPE >= '2'
 				and G.GROUP_ID in (".implode(",",$arGroups).")
 		";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 
 		if($zr = $z->Fetch())
 			return true;
@@ -551,8 +543,8 @@ class CAllWorkflow
 
 	public static function UnLock($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: UnLock<br>Line: ";
 		global $DB, $USER;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$z = CWorkflow::GetByID($DOCUMENT_ID);
 		$zr = $z->Fetch();
@@ -562,7 +554,7 @@ class CAllWorkflow
 				"DATE_LOCK"	=> "null",
 				"LOCKED_BY"	=> "null"
 				);
-			$rows = $DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'",$err_mess.__LINE__);
+			$rows = $DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'");
 			return intval($rows);
 		}
 		return false;
@@ -570,8 +562,8 @@ class CAllWorkflow
 
 	public static function Lock($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: Lock<br>Line: ";
 		global $DB, $USER;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$z = CWorkflow::GetByID($DOCUMENT_ID);
 		if ($zr=$z->Fetch())
@@ -582,7 +574,7 @@ class CAllWorkflow
 					"DATE_LOCK"		=> $DB->GetNowFunction(),
 					"LOCKED_BY"		=> $USER->GetID()
 					);
-				$DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'",$err_mess.__LINE__);
+				$DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'");
 			}
 		}
 	}
@@ -637,7 +629,7 @@ class CAllWorkflow
 		$DB->Query("
 			DELETE FROM b_workflow_log
 			WHERE ID = ".intval($ID)."
-		", false, CAllWorkflow::err_mess()."<br>Function: DeleteHistory<br>Line: ".__LINE__);
+		");
 	}
 
 	public static function CleanUp()
@@ -651,8 +643,8 @@ class CAllWorkflow
 
 	public static function CleanUpFiles($DOCUMENT_ID=false, $FILE_ID=false)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: CleanUpFiles<br>Line: ";
 		global $DB;
+
 		if ($DOCUMENT_ID===false)
 		{
 			$strSql = "SELECT TEMP_FILENAME FROM b_workflow_file WHERE DOCUMENT_ID is null";
@@ -667,15 +659,15 @@ class CAllWorkflow
 			$FILE_ID = intval($FILE_ID);
 			$strSql .= " and ID = ".$FILE_ID;
 		}
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while($zr=$z->Fetch())
 			CWorkflow::DeleteFile($zr["TEMP_FILENAME"]);
 	}
 
 	public static function CleanUpPreview($DOCUMENT_ID=false)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function:  CleanUpPreview<br>Line: ";
 		global $DB;
+
 		if ($DOCUMENT_ID===false)
 		{
 			$strSql = "
@@ -701,17 +693,17 @@ class CAllWorkflow
 					DOCUMENT_ID = ".$DOCUMENT_ID."
 				";
 		}
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while($zr=$z->Fetch())
 			CWorkflow::DeletePreview($zr["FILENAME"], $zr["SITE"]);
 	}
 
 	public static function DeletePreview($FILENAME, $site = false)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: DeletePreview<br>Line: ";
 		global $DB, $APPLICATION;
+
 		$strSql = "DELETE FROM b_workflow_preview WHERE FILENAME='".$DB->ForSql($FILENAME,255)."'";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		$DOC_ROOT = CSite::GetSiteDocRoot($site);
 		$path = $DOC_ROOT.$FILENAME;
 		if (file_exists($path)) unlink($path);
@@ -719,20 +711,20 @@ class CAllWorkflow
 
 	public static function DeleteFile($FILENAME)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: DeleteFile<br>Line: ";
 		global $DB;
+
 		$strSql = "DELETE FROM b_workflow_file WHERE TEMP_FILENAME='".$DB->ForSql($FILENAME,255)."'";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 		$temp_path = CWorkflow::GetTempDir().$FILENAME;
 		if (file_exists($temp_path)) unlink($temp_path);
 	}
 
 	public static function IsFilenameExists($FILENAME)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: IsFilenameExists<br>Line: ";
 		global $DB;
+
 		$strSql = "SELECT ID FROM b_workflow_file WHERE TEMP_FILENAME='".$DB->ForSql($FILENAME,255)."'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["ID"]);
 	}
@@ -754,7 +746,7 @@ class CAllWorkflow
 			SELECT ID
 			FROM b_workflow_preview
 			WHERE FILENAME='".$DB->ForSql($FILENAME,255)."'
-		", false, CAllWorkflow::err_mess()."<br>Function: IsPreviewExists<br>Line: ".__LINE__);
+		");
 
 		$zr = $z->Fetch();
 		return intval($zr["ID"]);
@@ -768,7 +760,7 @@ class CAllWorkflow
 			SELECT FILENAME
 			FROM b_workflow_document
 			WHERE ID = ".intval($DOCUMENT_ID)."
-		", false, CAllWorkflow::err_mess()."<br>Function: GetUniquePreview<br>Line: ".__LINE__);
+		");
 
 		$zr = $z->Fetch();
 		if($zr)
@@ -785,8 +777,8 @@ class CAllWorkflow
 
 	public static function SetStatus($DOCUMENT_ID, $STATUS_ID, $OLD_STATUS_ID, $history=true)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: SetStatus<br>Line: ";
 		global $DB, $APPLICATION, $USER, $strError;
+
 		//$arMsg = Array();
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$STATUS_ID = intval($STATUS_ID);
@@ -868,7 +860,7 @@ class CAllWorkflow
 				"MODIFIED_BY"	=> $USER->GetID(),
 				"STATUS_ID"		=> intval($STATUS_ID)
 				);
-			$DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'",$err_mess.__LINE__);
+			$DB->Update("b_workflow_document",$arFields,"WHERE ID='".$DOCUMENT_ID."'");
 			if ($history===true)
 			{
 				$LOG_ID = CWorkflow::SetHistory($DOCUMENT_ID);
@@ -884,8 +876,8 @@ class CAllWorkflow
 
 	public static function LinkFiles2Document($arUploadedFiles,$DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: SetStatus<br>Line: ";
 		global $DB;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		if (is_array($arUploadedFiles) && count($arUploadedFiles)>0)
 		{
@@ -893,7 +885,7 @@ class CAllWorkflow
 			{
 				$FILE_ID = intval($FILE_ID);
 				$strSql = "UPDATE b_workflow_file SET DOCUMENT_ID=$DOCUMENT_ID WHERE ID=$FILE_ID";
-				$DB->Query($strSql, false, $err_mess.__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		CWorkflow::CleanUpFiles();
@@ -901,8 +893,8 @@ class CAllWorkflow
 
 	public static function GetFileByID($DOCUMENT_ID, $FILENAME)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: GetFileByID<br>Line: ";
 		global $DB;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$strSql = "
 			SELECT
@@ -913,7 +905,7 @@ class CAllWorkflow
 				F.DOCUMENT_ID = $DOCUMENT_ID
 			and F.FILENAME = '".$DB->ForSql($FILENAME,255)."'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		return $z;
 	}
 
@@ -927,8 +919,8 @@ class CAllWorkflow
 
 	public static function GetFileContent($did, $fname, $wf_path="", $site=false)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: GetFileContent<br>Line: ";
 		global $DB, $APPLICATION, $USER;
+
 		$did = intval($did);
 		$io = CBXVirtualIo::GetInstance();
 
@@ -959,7 +951,7 @@ class CAllWorkflow
 				{
 					// lookup in database
 					$strSql = "SELECT FILENAME, SITE_ID FROM b_workflow_document WHERE ID='$did'";
-					$y = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$y = $DB->Query($strSql);
 					// found
 					if ($yr=$y->Fetch())
 					{

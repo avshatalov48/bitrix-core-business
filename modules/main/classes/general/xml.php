@@ -466,6 +466,9 @@ class CDataXML
 		return $this->tree->__toString();
 	}
 
+	/**
+	 * @return CDataXMLNode|false
+	 */
 	public function SelectNodes($strNode)
 	{
 		if (!is_object($this->tree))
@@ -623,14 +626,14 @@ class CDataXML
 				for($i = 0, $c = count($arTag); $i < $c; $i++)
 				{
 					$cdata .= $arTag[$i].">";
-					if (mb_substr($cdata, -3) == "]]>")
+					if (str_ends_with($cdata, "]]>"))
 					{
 						$tagContent = $arTag[$i+1];
 						break;
 					}
 				}
 
-				if (mb_substr($cdata, -3) != "]]>")
+				if (!str_ends_with($cdata, "]]>"))
 				{
 					$cdata = mb_substr($cdata, 0, -1)."<";
 					do
@@ -639,7 +642,7 @@ class CDataXML
 						$cdata .= $tok.">";
 						//util end of string or end of cdata found
 					}
-					while ($tok !== false && mb_substr($tok, -2) != "]]");
+					while ($tok !== false && !str_ends_with($tok, "]]"));
 					//$tagName = substr($tagName, 0, -1);
 				}
 
@@ -707,7 +710,7 @@ class CDataXML
 
 				$currentNode->children[] = $subNode;
 
-				if (mb_substr($tagName, -1) != "/")
+				if (!str_ends_with($tagName, "/"))
 				{
 					$currentNode = $subNode;
 				}
@@ -743,7 +746,7 @@ class CDataXML
 	{
 		$ret = false;
 
-		preg_match_all("/(\\S+)\\s*=\\s*([\"'])(.*?)\\2/s".BX_UTF_PCRE_MODIFIER, $attributeString, $attributeArray);
+		preg_match_all("/(\\S+)\\s*=\\s*([\"'])(.*?)\\2/su", $attributeString, $attributeArray);
 
 		foreach ($attributeArray[0] as $i => $attributePart)
 		{
@@ -806,8 +809,8 @@ $loader = new OrderLoader;
 while(true) //this while is cross hit emulation
 {
 	$o = new CXMLFileStream;
-	$o->registerElementHandler("/Êîììåð÷åñêàÿÈíôîðìàöèÿ", array($loader, "elementHandler"));
-	$o->registerNodeHandler("/Êîììåð÷åñêàÿÈíôîðìàöèÿ/Êàòàëîã/Òîâàðû/Òîâàð", array($loader, "nodeHandler"));
+	$o->registerElementHandler("/ÐšÐ¾Ð¼Ð¼ÐµÑ€Ñ‡ÐµÑÐºÐ°ÑÐ˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ", array($loader, "elementHandler"));
+	$o->registerNodeHandler("/ÐšÐ¾Ð¼Ð¼ÐµÑ€Ñ‡ÐµÑÐºÐ°ÑÐ˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ/ÐšÐ°Ñ‚Ð°Ð»Ð¾Ð³/Ð¢Ð¾Ð²Ð°Ñ€Ñ‹/Ð¢Ð¾Ð²Ð°Ñ€", array($loader, "nodeHandler"));
 	$o->setPosition($position);
 
 	if ($o->openFile($_SERVER["DOCUMENT_ROOT"]."/upload/081_books_books-books_ru.xml"))
@@ -1003,7 +1006,7 @@ class CXMLFileStream
 			}
 			elseif ($xmlChunk[0] == "!" || $xmlChunk[0] == "?")
 			{
-				if (mb_substr($xmlChunk, 0, 4) === "?xml")
+				if (str_starts_with($xmlChunk, "?xml"))
 				{
 					if (preg_match('#encoding\s*=\s*"(.*?)"#i', $xmlChunk, $arMatch))
 					{
@@ -1013,6 +1016,17 @@ class CXMLFileStream
 							$this->fileCharset = false;
 						}
 						$cs = $this->fileCharset;
+					}
+				}
+				elseif (str_starts_with($xmlChunk, '![CDATA['))
+				{
+					while (!str_ends_with($xmlChunk, ']]>'))
+					{
+						$xmlChunk = $this->getXmlChunk();
+						if ($xmlChunk === false)
+						{
+							break;
+						}
 					}
 				}
 			}
@@ -1165,7 +1179,7 @@ class CXMLFileStream
 					if ($elementAttrs !== "")
 					{
 						preg_match_all("/(\\S+)\\s*=\\s*\"(.*?)\"/s", $elementAttrs, $attrs_tmp);
-						if (strpos($elementAttrs, "&") === false)
+						if (!str_contains($elementAttrs, "&"))
 						{
 							foreach ($attrs_tmp[1] as $i=>$attrs_tmp_1)
 							{

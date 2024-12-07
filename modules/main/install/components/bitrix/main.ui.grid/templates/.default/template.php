@@ -9,6 +9,7 @@ use Bitrix\Main\Grid;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -23,8 +24,10 @@ Extension::load([
 	'resize_observer',
 	'loader',
 	'ui.actionpanel',
+	'ui.dialogs.checkbox-list',
 	'ui.fonts.opensans',
 	'ui.buttons',
+	'ui.buttons.icons',
 	'dnd',
 	'ui.hint',
 	'ui.cnt',
@@ -158,110 +161,113 @@ if ($emptyFooter)
 <div class="<?=join(' ', $gridClasses)?>" id="<?=$arParams["GRID_ID"]?>" data-ajaxid="<?=$arParams["AJAX_ID"]?>"<?=$arResult['IS_AJAX'] ? " style=\"display: none;\"" : ""?>><?
 	?><form name="form_<?=$arParams["GRID_ID"]?>" action="<?=POST_FORM_ACTION_URI; ?>" method="POST"><?
 		?><?=bitrix_sessid_post() ?><?
-		?><div class="main-grid-settings-window"><?php
-			$headersSectionsEnabled = !empty($arResult['HEADERS_SECTIONS']) && is_array($arParams['HEADERS_SECTIONS']);
-			if ($headersSectionsEnabled || !empty($arResult['ENABLE_FIELDS_SEARCH']))
-			{
-			?><div class="main-grid-settings-window-search-wrapper"><?php
-				?><div class="main-grid-settings-window-search-entities"><?php
-					?><div class="ui-form-row-inline"><?php
-						if ($headersSectionsEnabled)
-						{
-						?><div class="ui-form-row"><?php
-							?><div class="ui-form-content main-grid-settings-window-search-section-wrapper"><?php
-								foreach ($arResult['HEADERS_SECTIONS'] as $headerSection)
-								{
-									$activeClass = (
-										$headerSection['selected']
-											? ' main-grid-settings-window-search-section-item-icon-active'
-											: ''
-									);
-									?><div class="main-grid-settings-window-search-section-item" data-ui-grid-filter-section-button="<?= $headerSection['id'] ?>"><?php
-									?><div class="main-grid-settings-window-search-section-item-icon <?= $activeClass ?>"><?php
-										?><div><?php
-											print Text\HtmlFilter::encode($headerSection['name']);
+		if (!$arResult['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'])
+		{
+			?><div class="main-grid-settings-window"><?php
+				$headersSectionsEnabled = !empty($arResult['HEADERS_SECTIONS']) && is_array($arParams['HEADERS_SECTIONS']);
+				if ($headersSectionsEnabled || !empty($arResult['ENABLE_FIELDS_SEARCH']))
+				{
+				?><div class="main-grid-settings-window-search-wrapper"><?php
+					?><div class="main-grid-settings-window-search-entities"><?php
+						?><div class="ui-form-row-inline"><?php
+							if ($headersSectionsEnabled)
+							{
+							?><div class="ui-form-row"><?php
+								?><div class="ui-form-content main-grid-settings-window-search-section-wrapper"><?php
+									foreach ($arResult['HEADERS_SECTIONS'] as $headerSection)
+									{
+										$activeClass = (
+											$headerSection['selected']
+												? ' main-grid-settings-window-search-section-item-icon-active'
+												: ''
+										);
+										?><div class="main-grid-settings-window-search-section-item" data-ui-grid-filter-section-button="<?= $headerSection['id'] ?>"><?php
+										?><div class="main-grid-settings-window-search-section-item-icon <?= $activeClass ?>"><?php
+											?><div><?php
+												print Text\HtmlFilter::encode($headerSection['name']);
+											?></div><?php
 										?></div><?php
-									?></div><?php
-									?></div><?php
-								}
-							?></div><?php
-						?></div><?php
-						}
-						if ($arResult["ENABLE_FIELDS_SEARCH"]):
-						?><div class="ui-form-row"><?php
-							?><div class="ui-form-content main-grid-settings-window-search-input-wrapper"><?php
-								?><div class="ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon"><?php
-									?><div class="ui-ctl-before ui-ctl-icon-search"></div><?php
-									?><button class="ui-ctl-after ui-ctl-icon-clear"></button><?php
-									?><input type="text" class="ui-ctl-element main-grid-settings-window-search-section-input"><?php
+										?></div><?php
+									}
 								?></div><?php
 							?></div><?php
+							}
+							if ($arResult["ENABLE_FIELDS_SEARCH"]):
+							?><div class="ui-form-row"><?php
+								?><div class="ui-form-content main-grid-settings-window-search-input-wrapper"><?php
+									?><div class="ui-ctl ui-ctl-textbox ui-ctl-before-icon ui-ctl-after-icon"><?php
+										?><div class="ui-ctl-before ui-ctl-icon-search"></div><?php
+										?><button class="ui-ctl-after ui-ctl-icon-clear"></button><?php
+										?><input type="text" class="ui-ctl-element main-grid-settings-window-search-section-input"><?php
+									?></div><?php
+								?></div><?php
+							?></div><?php
+							endif;
 						?></div><?php
-						endif;
-					?></div><?php
 
-				?></div><?php //main-grid-settings-window-search-entities
-			?></div><?php // grid-search-wrapper
-				if ($headersSectionsEnabled)
-				{
-					foreach ($arResult["HEADERS_SECTIONS"] as $headerSection)
+					?></div><?php //main-grid-settings-window-search-entities
+				?></div><?php // grid-search-wrapper
+					if ($headersSectionsEnabled)
 					{
-						$sectionId = $headerSection['id'];
-						$isHiddenSection = empty($headerSection['selected']);
-						?><div <?= $isHiddenSection ? 'hidden' : '' ?> data-ui-grid-filter-section="<?= $sectionId ?>">
-						<h3 class="main-grid-settings-window-section-title">
-							<?= Text\HtmlFilter::encode($headerSection['name']) ?>
-							<?php if (isset($headerSection["hint"])): ?>
-								<script>
-									BX.ready(function() {
-										BX.UI.Hint.init(BX('hint_section_<?= CUtil::JSEscape($headerSection['id']) ?>'));
-									});
-								</script>
-								<span id="hint_section_<?= Text\HtmlFilter::encode($headerSection['id']) ?>" class="main-grid-head-title-tooltip" title="">
-									<span <?= empty($headerSection['hintInteractivity']) ? '' : 'data-hint-interactivity'?> <?= empty($headerSection['hintHtml']) ? '' : 'data-hint-html' ?> data-hint="<?= Text\HtmlFilter::encode($headerSection["hint"]) ?>"></span>
-								</span>
-							<? endif; ?>
-						</h3>
-						<div class="main-grid-settings-window-list"><?php
-								if (!empty($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId]))
-								{
-									foreach ($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId] as $column)
+						foreach ($arResult["HEADERS_SECTIONS"] as $headerSection)
+						{
+							$sectionId = $headerSection['id'];
+							$isHiddenSection = empty($headerSection['selected']);
+							?><div <?= $isHiddenSection ? 'hidden' : '' ?> data-ui-grid-filter-section="<?= $sectionId ?>">
+							<h3 class="main-grid-settings-window-section-title">
+								<?= Text\HtmlFilter::encode($headerSection['name']) ?>
+								<?php if (isset($headerSection["hint"])): ?>
+									<script>
+										BX.ready(function() {
+											BX.UI.Hint.init(BX('hint_section_<?= CUtil::JSEscape($headerSection['id']) ?>'));
+										});
+									</script>
+									<span id="hint_section_<?= Text\HtmlFilter::encode($headerSection['id']) ?>" class="main-grid-head-title-tooltip" title="">
+										<span <?= empty($headerSection['hintInteractivity']) ? '' : 'data-hint-interactivity'?> <?= empty($headerSection['hintHtml']) ? '' : 'data-hint-html' ?> data-hint="<?= Text\HtmlFilter::encode($headerSection["hint"]) ?>"></span>
+									</span>
+								<? endif; ?>
+							</h3>
+							<div class="main-grid-settings-window-list"><?php
+									if (!empty($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId]))
 									{
-										print $adjustColumnItem($column, $arParams, $arResult);
+										foreach ($arResult['COLUMNS_ALL_WITH_SECTIONS'][$sectionId] as $column)
+										{
+											print $adjustColumnItem($column, $arParams, $arResult);
+										}
 									}
-								}
-							?></div><? //main-grid-settings-window-list
-						?></div><?php
+								?></div><? //main-grid-settings-window-list
+							?></div><?php
+						}
 					}
 				}
-			}
-			if (!$headersSectionsEnabled)
-			{
-				?><div class="main-grid-settings-window-list"><?
-				foreach ($arResult["COLUMNS_ALL"] as $column)
+				if (!$headersSectionsEnabled)
 				{
-					print $adjustColumnItem($column, $arParams, $arResult);
+					?><div class="main-grid-settings-window-list"><?
+					foreach ($arResult["COLUMNS_ALL"] as $column)
+					{
+						print $adjustColumnItem($column, $arParams, $arResult);
+					}
+					?></div><?
 				}
-				?></div><?
-			}
-			?><div class="popup-window-buttons"><?
-				?><span class="main-grid-settings-window-buttons-wrapper"><?
-					?><span class="main-grid-settings-window-actions-item-button main-grid-settings-window-actions-item-reset" id="<?=$arParams["GRID_ID"]?>-grid-settings-reset-button"><?=Loc::getMessage("interface_grid_restore_to_default")?></span><?
-					if ($USER->CanDoOperation("edit_other_settings")) :
-					?><span class="main-grid-settings-window-actions-item-button main-grid-settings-window-for-all">
-						<input name="grid-settings-window-for-all" type="checkbox" id="<?=$arParams["GRID_ID"]?>-main-grid-settings-window-for-all-checkbox" class="main-grid-settings-window-for-all-checkbox">
-						<label for="<?=$arParams["GRID_ID"]?>-main-grid-settings-window-for-all-checkbox" class="main-grid-settings-window-for-all-label"><?=Loc::getMessage("interface_grid_settings_for_all_label")?></label><?
+				?><div class="popup-window-buttons"><?
+					?><span class="main-grid-settings-window-buttons-wrapper"><?
+						?><span class="main-grid-settings-window-actions-item-button main-grid-settings-window-actions-item-reset" id="<?=$arParams["GRID_ID"]?>-grid-settings-reset-button"><?=Loc::getMessage("interface_grid_restore_to_default")?></span><?
+						if ($USER->CanDoOperation("edit_other_settings")) :
+						?><span class="main-grid-settings-window-actions-item-button main-grid-settings-window-for-all">
+							<input name="grid-settings-window-for-all" type="checkbox" id="<?=$arParams["GRID_ID"]?>-main-grid-settings-window-for-all-checkbox" class="main-grid-settings-window-for-all-checkbox">
+							<label for="<?=$arParams["GRID_ID"]?>-main-grid-settings-window-for-all-checkbox" class="main-grid-settings-window-for-all-label"><?=Loc::getMessage("interface_grid_settings_for_all_label")?></label><?
+						?></span><?
+						endif;
 					?></span><?
-					endif;
-				?></span><?
-				?><span class="ui-btn ui-btn-success main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-apply-button"><?=Loc::getMessage("interface_grid_apply_settings")?></span><?
-				?><span class="ui-btn ui-btn-link main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-cancel-button"><?=Loc::getMessage("interface_grid_cancel_settings")?></span><?
-				?><div class="main-grid-settings-window-select-links"><?
-					?><span class="main-grid-settings-window-select-link main-grid-settings-window-select-all"><?=Loc::getMessage("interface_grid_settings_select_all_columns")?></span><?
-					?><span class="main-grid-settings-window-select-link main-grid-settings-window-unselect-all"><?=Loc::getMessage("interface_grid_settings_unselect_all_columns")?></span><?
+					?><span class="ui-btn ui-btn-success main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-apply-button"><?=Loc::getMessage("interface_grid_apply_settings")?></span><?
+					?><span class="ui-btn ui-btn-link main-grid-settings-window-actions-item-button" id="<?=$arParams["GRID_ID"]?>-grid-settings-cancel-button"><?=Loc::getMessage("interface_grid_cancel_settings")?></span><?
+					?><div class="main-grid-settings-window-select-links"><?
+						?><span class="main-grid-settings-window-select-link main-grid-settings-window-select-all"><?=Loc::getMessage("interface_grid_settings_select_all_columns")?></span><?
+						?><span class="main-grid-settings-window-select-link main-grid-settings-window-unselect-all"><?=Loc::getMessage("interface_grid_settings_unselect_all_columns")?></span><?
+					?></div><?
 				?></div><?
 			?></div><?
-		?></div><?
+		}
 		?><div class="main-grid-wrapper<?=!$arParams["ALLOW_HORIZONTAL_SCROLL"] ? " main-grid-full" : "" ?>"><?
 			?><div class="<?=$arParams["ALLOW_HORIZONTAL_SCROLL"] ? "main-grid-fade" : "" ?>"><?
 				if ($arParams["ALLOW_HORIZONTAL_SCROLL"]) : ?><?
@@ -385,7 +391,7 @@ if ($emptyFooter)
 										?></td><?
 									?></tr><?
 								elseif (!empty($arParams["ROW_LAYOUT"])) :
-									$actions = Text\HtmlFilter::encode(CUtil::PhpToJSObject($arRow["actions"]));
+									$actions = Text\HtmlFilter::encode(Json::encode($arRow["actions"]));
 									$depth = $arRow["depth"] > 0 ? 20*$arRow["depth"] : 0;
 									?><tr class="main-grid-row main-grid-row-body<?=$arRow["layout"]["row"]["class"]?>"<?=$arRow["layout"]["row"]["attributes"]?>>
 										<? if ($arParams["ALLOW_ROWS_SORT"] && $arRow["draggable"] !== false) : ?>
@@ -563,7 +569,11 @@ if ($emptyFooter)
 														?><span class="main-grid-cell-counter<?=$colLayout["counter"]["class"]?>"><?
 															if ($colLayout["counter"]["inner"]["enabled"]) :
 																?><span class="ui-counter<?=$colLayout["counter"]["counter"]["class"]?>"<?=$colLayout["counter"]["counter"]["attributes"]?>><?
-																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span><?
+																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span>
+																<?
+																if (!empty($colLayout["counter"]["counter"]["isDouble"])) :
+																	?><span class="ui-counter-secondary<?=$colLayout["counter"]["counter"]["secondaryClass"]?>"></span><?
+																endif;
 																?></span><?
 															endif;
 														?></span><?
@@ -663,7 +673,11 @@ if ($emptyFooter)
 														?><span class="main-grid-cell-counter<?=$colLayout["counter"]["class"]?>"><?
 															if ($colLayout["counter"]["inner"]["enabled"]) :
 																?><span class="ui-counter<?=$colLayout["counter"]["counter"]["class"]?>"<?=$colLayout["counter"]["counter"]["attributes"]?>><?
-																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span><?
+																	?><span class="ui-counter-inner"><?=$arRow["counters"][$id]["value"]?></span>
+																<?
+																if (!empty($colLayout["counter"]["counter"]["isDouble"])) :
+																	?><span class="ui-counter-secondary<?=$colLayout["counter"]["counter"]["secondaryClass"]?>"></span><?
+																endif;
 																?></span><?
 															endif;
 														?></span><?
@@ -781,7 +795,7 @@ if ($emptyFooter)
 											?><span class="main-grid-panel-control-container<?= (isset($item["DISABLED"]) && $item["DISABLED"] ? " main-grid-disable" : "")?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>"><?
 												if ($item["NAME"] === Grid\Panel\DefaultValue::FOR_ALL_CHECKBOX_NAME) : ?><?
 													?><span class="main-grid-checkbox-container main-grid-control-panel-checkbox-container"><?
-															?><input class="main-grid-panel-checkbox main-grid-checkbox main-grid-panel-control <?=$item["CLASS"]?>" id="<?=Text\HtmlFilter::encode($item["ID"])?><?=$arParams["GRID_ID"]?>" name="<?=Text\HtmlFilter::encode($item["NAME"])?><?=$arParams["GRID_ID"]?>" type="checkbox" value="<?=Text\HtmlFilter::encode($item["VALUE"])?>" title="<?=Text\HtmlFilter::encode($item["TITLE"] ?? '')?>" data-onchange="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ONCHANGE"]))?>"<?= (isset($item["CHECKED"]) && $item["CHECKED"] ? " checked" : "")?>> <?
+															?><input class="main-grid-panel-checkbox main-grid-checkbox main-grid-panel-control <?=$item["CLASS"]?>" id="<?=Text\HtmlFilter::encode($item["ID"])?><?=$arParams["GRID_ID"]?>" name="<?=Text\HtmlFilter::encode($item["NAME"])?><?=$arParams["GRID_ID"]?>" type="checkbox" value="<?=Text\HtmlFilter::encode($item["VALUE"])?>" title="<?=Text\HtmlFilter::encode($item["TITLE"] ?? '')?>" data-onchange="<?=Text\HtmlFilter::encode(Json::encode($item["ONCHANGE"]))?>"<?= (isset($item["CHECKED"]) && $item["CHECKED"] ? " checked" : "")?>> <?
 															?> <label class="main-grid-checkbox" for="<?=Text\HtmlFilter::encode($item["ID"])?><?=$arParams["GRID_ID"]?>"></label><?
 													?></span><?
 													?><span class="main-grid-control-panel-content-title"><?
@@ -789,7 +803,7 @@ if ($emptyFooter)
 													?></span><?
 												else : ?><?
 													?><span class="main-grid-checkbox-container main-grid-control-panel-checkbox-container"><?
-														?><input class="main-grid-panel-checkbox main-grid-checkbox main-grid-panel-control" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" name="<?=Text\HtmlFilter::encode($item["NAME"])?>" type="checkbox" value="<?=Text\HtmlFilter::encode($item["VALUE"])?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>" data-onchange="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ONCHANGE"]))?>"<?=$item["CHECKED"] ? " checked" : ""?>><?
+														?><input class="main-grid-panel-checkbox main-grid-checkbox main-grid-panel-control" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" name="<?=Text\HtmlFilter::encode($item["NAME"])?>" type="checkbox" value="<?=Text\HtmlFilter::encode($item["VALUE"])?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>" data-onchange="<?=Text\HtmlFilter::encode(Json::encode($item["ONCHANGE"]))?>"<?=$item["CHECKED"] ? " checked" : ""?>><?
 														?> <label class="main-grid-checkbox" for="<?=Text\HtmlFilter::encode($item["ID"])?>_control"></label><?
 													?></span><?
 													?><span class="main-grid-control-panel-content-title"><?
@@ -800,7 +814,7 @@ if ($emptyFooter)
 										endif; ?><?
 										if ($item["TYPE"] === "DROPDOWN") :
 											?><span class="main-grid-panel-control-container<?= isset($item["DISABLED"]) && $item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>"><?
-												?><span class="main-dropdown main-grid-panel-control" data-popup-position="fixed" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" data-name="<?=Text\HtmlFilter::encode($item["NAME"])?>" data-value="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ITEMS"][0]["VALUE"]))?>" data-items="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ITEMS"]))?>"><?
+												?><span class="main-dropdown main-grid-panel-control" data-popup-position="fixed" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" data-name="<?=Text\HtmlFilter::encode($item["NAME"])?>" data-value="<?=Text\HtmlFilter::encode(Json::encode($item["ITEMS"][0]["VALUE"]))?>" data-items="<?=Text\HtmlFilter::encode(Json::encode($item["ITEMS"]))?>"><?
 													?><span class="main-dropdown-inner"><?=$item["ITEMS"][0]["NAME"]?></span><?
 												?></span><?
 											?></span><?
@@ -821,19 +835,24 @@ if ($emptyFooter)
 										?></span><?
 										endif; ?><?
 										if ($item["TYPE"] === "BUTTON") : ?><?
+                                            $buttonModifier = "ui-btn-light-border";
+                                            if (is_string($item["CLASS"]) && !empty($item["CLASS"]))
+                                            {
+                                                $buttonModifier = $item["CLASS"];
+                                            }
 										?><span class="main-grid-panel-control-container<?= isset($item["DISABLED"]) && $item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>"><?
-											?><span class="main-grid-buttons <?=Text\HtmlFilter::encode($item["CLASS"])?>" data-name="<?=Text\HtmlFilter::encode($item["NAME"] ?? '')?>" data-value="<?=Text\HtmlFilter::encode($item["VALUE"] ?? '')?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" data-onchange="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"] ?? '')?>"><?
+											?><span class="ui-btn <?=Text\HtmlFilter::encode($buttonModifier)?>" data-name="<?=Text\HtmlFilter::encode($item["NAME"] ?? '')?>" data-value="<?=Text\HtmlFilter::encode($item["VALUE"] ?? '')?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control" data-onchange="<?=Text\HtmlFilter::encode(Json::encode($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"] ?? '')?>"><?
 												?><?=$item["TEXT"]
 											?></span><?
 										?></span><?
 										endif; ?><?
 										if ($item["TYPE"] === "LINK") :
-											?><span class="main-grid-panel-control-container<?=$item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>" data-onchange="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>"><?
+											?><span class="main-grid-panel-control-container<?=$item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>" data-onchange="<?=Text\HtmlFilter::encode(Json::encode($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>"><?
 												?><a href="<?=Text\HtmlFilter::encode($item["HREF"])?>" class="main-grid-link<?=$item["CLASS"] ? " ".Text\HtmlFilter::encode($item["CLASS"]) : ""?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>_control"><?=$item["TEXT"]?></a><?
 											?></span><?
 										endif; ?><?
 										if ($item["TYPE"] === "DATE") :
-										?><span class="main-grid-panel-control-container<?=$item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>" data-onchange="<?=Text\HtmlFilter::encode(CUtil::PhpToJSObject($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>"><?
+										?><span class="main-grid-panel-control-container<?=$item["DISABLED"] ? " main-grid-disable" : "";?>" id="<?=Text\HtmlFilter::encode($item["ID"])?>" data-onchange="<?=Text\HtmlFilter::encode(Json::encode($item["ONCHANGE"]))?>" title="<?=Text\HtmlFilter::encode($item["TITLE"])?>"><?
 											?><span class="main-ui-control main-ui-date main-grid-panel-date"><?
 												?><span class="main-ui-date-button"></span><?
 												?><input type="text" name="<?=$item["TYPE"]?>" tabindex="1" autocomplete="off" data-time="<?=$item["TIME"] ? "true" : "false"?>" class="main-ui-control-input main-ui-date-input" value="<?=$item["VALUE"]?>" placeholder="<?=$item["PLACEHOLDER"]?>"><?
@@ -877,10 +896,10 @@ if (\Bitrix\Main\Grid\Context::isInternalRequest()) :
 ?><script>
 	(function() {
 		var action = '<?=\CUtil::JSEscape($request->get("grid_action"))?>';
-		var editableData = eval(<?=CUtil::phpToJSObject($arResult["DATA_FOR_EDIT"])?>);
-		var defaultColumns = eval(<?=CUtil::phpToJSObject($arResult["DEFAULT_COLUMNS"])?>);
+		var editableData = <?= Json::encode($arResult["DATA_FOR_EDIT"]) ?>;
+		var defaultColumns = <?= Json::encode($arResult["DEFAULT_COLUMNS"]) ?>;
 		var Grid = BX.Main.gridManager.getById('<?=\CUtil::JSEscape($arParams["GRID_ID"])?>');
-		var messages = eval(<?=CUtil::phpToJSObject($arResult["MESSAGES"])?>);
+		var messages = <?= Json::encode($arResult["MESSAGES"]) ?>;
 		var currentPage = '<?=\CUtil::JSEscape($arParams["CURRENT_PAGE"])?>';
 
 		Grid = Grid ? Grid.instance : null;
@@ -911,20 +930,23 @@ endif; ?>
 					params: {
 						gridId: '<?=\CUtil::jsEscape($arParams['GRID_ID']) ?>'
 					},
-					pinnedMode: <?=\CUtil::phpToJsObject($arParams['TOP_ACTION_PANEL_PINNED_MODE']) ?>,
+					pinnedMode: <?= Json::encode($arParams['TOP_ACTION_PANEL_PINNED_MODE']) ?>,
 					renderTo: document.querySelector('<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_RENDER_TO']) ?>'),
 					className: '<?=\CUtil::jsEscape($arParams['TOP_ACTION_PANEL_CLASS'] ?? '') ?>',
-					groupActions: <?=\Bitrix\Main\Web\Json::encode($arParams['ACTION_PANEL']) ?>,
+					groupActions: <?= Json::encode($arParams['ACTION_PANEL']) ?>,
 					maxHeight: <?= (int)($arParams['ACTION_PANEL_OPTIONS']['MAX_HEIGHT'] ?? null)?>
 				});
 				actionPanel.draw();
 			<? endif; ?>
-
+			<?php
+				$columnsAllWithSections = $arResult['COLUMNS_ALL_WITH_SECTIONS'] ?? [];
+				$columnsAll = $arResult['COLUMNS_ALL'] ?? [];
+			?>
 			BX.Main.gridManager.push(
 				'<?=\CUtil::jSEscape($arParams["GRID_ID"])?>',
 				new BX.Main.grid(
 					'<?=\CUtil::jSEscape($arParams["GRID_ID"])?>',
-					<?=CUtil::PhpToJSObject(
+					<?= Json::encode(
 						array(
 							"ALLOW_COLUMNS_SORT" => $arParams["ALLOW_COLUMNS_SORT"],
 							"ALLOW_ROWS_SORT" => $arParams["ALLOW_ROWS_SORT"],
@@ -937,7 +959,7 @@ endif; ?>
 							"SHOW_ACTION_PANEL" => $arParams["SHOW_ACTION_PANEL"],
 							"PRESERVE_HISTORY" => $arParams["PRESERVE_HISTORY"] ?? '',
 							"ALLOW_CONTEXT_MENU" => $arResult["ALLOW_CONTEXT_MENU"],
-							"COLUMNS_ALL" => $arResult["COLUMNS_ALL"],
+							"COLUMNS_ALL" => $columnsAll,
 							"DEFAULT_COLUMNS" => $arResult["DEFAULT_COLUMNS"],
 							"ENABLE_COLLAPSIBLE_ROWS" => $arParams["ENABLE_COLLAPSIBLE_ROWS"],
 							"EDITABLE_DATA" => $arResult["DATA_FOR_EDIT"],
@@ -951,9 +973,16 @@ endif; ?>
 							"CONFIRM_RESET_MESSAGE" => Loc::getMessage("interface_grid_settings_confirm_message"),
 							"RESET_DEFAULT" => Loc::getMessage("interface_grid_restore_to_default"),
 							"SETTINGS_FOR_ALL_LABEL" => Loc::getMessage("interface_grid_settings_for_all_label"),
+							"SETTINGS_FOR_LABEL" => Loc::getMessage("interface_grid_settings_for_label"),
+							"SETTINGS_FOR_FOR_ALL_LABEL" => Loc::getMessage("interface_grid_settings_for_for_all_label"),
+							"SETTINGS_FOR_FOR_ME_LABEL" => Loc::getMessage("interface_grid_settings_for_for_me_label"),
 							"SETTINGS_FOR_ALL_CONFIRM_MESSAGE" => Loc::getMessage("interface_grid_settings_for_all_confirm_message"),
 							"SETTINGS_FOR_ALL_CONFIRM_APPLY" => Loc::getMessage("interface_grid_settings_for_all_apply"),
 							"SETTINGS_FOR_ALL_CONFIRM_CANCEL" => Loc::getMessage("interface_grid_settings_for_all_cancel"),
+							"SETTINGS_FIELD_SEARCH_PLACEHOLDER" => Loc::getMessage("interface_grid_field_search_placeholder"),
+							"SETTINGS_FIELD_SEARCH_EMPTY_STATE_TITLE" => Loc::getMessage("interface_grid_field_empty_state_title"),
+							"SETTINGS_FIELD_SEARCH_EMPTY_STATE_DESCRIPTION" => Loc::getMessage("interface_grid_field_empty_state_description"),
+							"SETTINGS_FIELD_SEARCH_ALL_SECTIONS_DISABLED" => Loc::getMessage("interface_grid_field_all_sections_disabled"),
 							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_EDIT" => Loc::getMessage("interface_grid_image_editor_button_edit"),
 							"MAIN_UI_GRID_IMAGE_EDITOR_BUTTON_REMOVE" => Loc::getMessage("interface_grid_image_editor_button_remove"),
 							"SAVE_BUTTON_LABEL" => Loc::getMessage("interface_grid_save"),
@@ -971,18 +1000,26 @@ endif; ?>
 							"ADVANCED_EDIT_MODE" => $arParams["ADVANCED_EDIT_MODE"],
 							"ALLOW_EDIT_SELECTION" => $arParams["ALLOW_EDIT_SELECTION"],
 							"SETTINGS_WINDOW_TITLE" => $arParams["SETTINGS_WINDOW_TITLE"],
-							"COLUMNS_ALL_WITH_SECTIONS" => ($arResult["COLUMNS_ALL_WITH_SECTIONS"] ?? []),
+							"COLUMNS_ALL_WITH_SECTIONS" => $columnsAllWithSections,
 							"ENABLE_FIELDS_SEARCH" => ($arResult["ENABLE_FIELDS_SEARCH"] ?? false),
 							"CURRENT_PAGE" => $arParams["CURRENT_PAGE"],
+							'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => $arResult['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'],
+							'CHECKBOX_LIST_OPTIONS' => [
+								'sections' => array_values($arResult['HEADERS_SECTIONS'] ?? []),
+								'categories' => array_values($arResult['HEADERS_CATEGORIES'] ?? []),
+								'columnsWithSections' => $columnsAllWithSections,
+								'columns' => array_values($columnsAll),
+								'checked' => array_keys($arResult['COLUMNS']),
+							],
 						)
-					)?>,
-					<?=CUtil::PhpToJSObject($arResult["OPTIONS"])?>,
-					<?=CUtil::PhpToJSObject($arResult["OPTIONS_ACTIONS"])?>,
+					) ?>,
+					<?= Json::encode($arResult["OPTIONS"]) ?>,
+					<?= Json::encode($arResult["OPTIONS_ACTIONS"]) ?>,
 					'<?=$arResult["OPTIONS_HANDLER_URL"]?>',
-					<?=CUtil::PhpToJSObject($arResult["PANEL_ACTIONS"])?>,
-					<?=CUtil::PhpToJSObject($arResult["PANEL_TYPES"])?>,
-					<?=CUtil::PhpToJSObject($arResult["EDITOR_TYPES"])?>,
-					<?=CUtil::PhpToJSObject($arResult["MESSAGE_TYPES"] ?? [])?>
+					<?= Json::encode($arResult["PANEL_ACTIONS"]) ?>,
+					<?= Json::encode($arResult["PANEL_TYPES"]) ?>,
+					<?= Json::encode($arResult["EDITOR_TYPES"]) ?>,
+					<?= Json::encode($arResult["MESSAGE_TYPES"] ?? []) ?>
 				)
 			);
 		});

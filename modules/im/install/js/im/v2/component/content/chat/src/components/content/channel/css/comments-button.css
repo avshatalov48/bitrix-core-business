@@ -1,0 +1,46 @@
+.bx-im-dialog-channel__comments-button {
+	--im-dialog-channel-comments-button__background-color: var(--im-color-palette-white-base);
+	--im-dialog-channel-comments-button__background-color_counter: var(--im-color-palette-green-55);
+	--im-dialog-channel-comments-button__background-color_counter-hover: var(--im-color-palette-green-70);
+	--im-dialog-channel-comments-button__background-color_counter-border: var(--im-color-palette-white-base);
+	--im-dialog-channel-comments-button__font-color_counter: var(--im-color-palette-white-base);
+
+	position: absolute;
+	bottom: 94px;
+	right: 20px;;
+	width: 48px;
+	height: 48px;
+
+	border-radius: 50%;
+	background-color: var(--im-dialog-channel-comments-button__background-color);
+	background-image: url('./images/comments.svg?v4');
+	background-position: center;
+	background-repeat: no-repeat;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+	cursor: pointer;
+}
+
+.bx-im-dialog-channel__comments-button_counter {
+	position: absolute;
+	right: -3px;
+	top: -9px;
+	min-width: 24px;
+	height: 20px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	border-radius: 30px;
+	background-color: var(--im-dialog-channel-comments-button__background-color_counter);
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-dialog-channel-comments-button__font-color_counter);
+	transition: background-color ease 100ms;
+}
+
+.bx-im-dialog-channel__comments-button:hover {
+	background-image: url('./images/comments-hover.svg?v2');
+}
+
+.bx-im-dialog-channel__comments-button:hover .bx-im-dialog-channel__comments-button_counter {
+	background-color: var(--im-dialog-channel-comments-button__background-color_counter-hover);
+}

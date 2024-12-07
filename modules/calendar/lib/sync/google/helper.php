@@ -33,11 +33,6 @@ class Helper
 	public const DATE_FORMAT = 'Y-m-d';
 	public const VERSION_DIFFERENCE = 1;
 	public const END_OF_TIME = "01.01.2038";
-	
-	public const NEED_SCOPE = [
-		'https://www.googleapis.com/auth/calendar',
-		'https://www.googleapis.com/auth/calendar.readonly',
-	];
 
 	/**
 	 * @param $accountType

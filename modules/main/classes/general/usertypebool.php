@@ -1,7 +1,6 @@
 <?php
 
 use Bitrix\Main\UserField\Types\BooleanType;
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\TypeBase;
 
 /**

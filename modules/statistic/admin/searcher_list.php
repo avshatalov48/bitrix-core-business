@@ -8,7 +8,6 @@ if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 IncludeModuleLangFile(__FILE__);
 
 $strError = "";
-$err_mess = "File: ".__FILE__."<br>Line: ";
 $sTableID = "tbl_searcher_list";
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
@@ -40,7 +39,8 @@ $lAdmin->InitFilter($arFilterFields);
 function CheckFilter()
 {
 	global $strError, $arFilterFields, $statDB;
-	foreach ($arFilterFields as $f) global $$f;
+	global $find_date1, $find_date2, $find_date1_period, $find_date2_period;
+	global $find_hits1, $find_hits2;
 	$str = "";
 	$arr = array();
 
@@ -117,9 +117,9 @@ if(($arID = $lAdmin->GroupAction()) && $STAT_RIGHT=="W" && check_bitrix_sessid()
 		case "delete":
 			@set_time_limit(0);
 			$statDB->StartTransaction();
-			$statDB->Query("DELETE FROM b_stat_searcher WHERE ID = ".$ID, false, $err_mess.__LINE__);
-			$statDB->Query("DELETE FROM b_stat_searcher_params WHERE SEARCHER_ID = ".$ID, false, $err_mess.__LINE__);
-			$statDB->Query("DELETE FROM b_stat_searcher_day WHERE SEARCHER_ID = ".$ID, false, $err_mess.__LINE__);
+			$statDB->Query("DELETE FROM b_stat_searcher WHERE ID = ".$ID);
+			$statDB->Query("DELETE FROM b_stat_searcher_params WHERE SEARCHER_ID = ".$ID);
+			$statDB->Query("DELETE FROM b_stat_searcher_day WHERE SEARCHER_ID = ".$ID);
 			$statDB->Commit();
 			break;
 		}

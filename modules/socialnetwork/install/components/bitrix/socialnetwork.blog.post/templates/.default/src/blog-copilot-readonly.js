@@ -1,14 +1,17 @@
-import { Dom, Event, Loc, Runtime, Tag } from 'main.core';
+import { Dom, Event, Loc, Runtime, Tag, Uri } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 type Params = {
 	container: HTMLElement,
 	blogText: string,
-	enabledBySettings: string,
+	enabledBySettings: boolean,
 	copilotParams: {
 		moduleId: string,
 		contextId: string,
 		category: string,
 	},
+	blogId: string,
+	pathToPostCreate: string,
 };
 
 export class BlogCopilotReadonly
@@ -20,29 +23,27 @@ export class BlogCopilotReadonly
 	};
 
 	#copilotLoaded: boolean;
-	#copilotReadonly: any;
+	#copilotContextMenu: any;
 	#copilotShown: boolean;
+	#adjustAnimation: any;
 
 	constructor(params: Params)
 	{
 		this.#params = params;
 		this.#layout = {};
 
-		if (this.#enabledBySettings())
+		if (this.#params.enabledBySettings)
 		{
-			this.#createCopilot();
+			void this.#createCopilot();
 		}
 
 		Dom.append(this.#render(), this.#params.container);
 	}
 
-	#render()
+	#render(): HTMLElement
 	{
 		this.#layout.button = Tag.render`
-			<span
-				class="feed-inform-item feed-inform-comments feed-copilot-readonly"
-				data-id="blog-post-button-copilot"
-			>
+			<span class="feed-inform-item feed-inform-comments feed-copilot-readonly">
 				<a>${Loc.getMessage('BLOG_POST_BUTTON_COPILOT')}</a>
 			</span>
 		`;
@@ -53,38 +54,94 @@ export class BlogCopilotReadonly
 		return this.#layout.button;
 	}
 
-	async #createCopilot(): void
+	async #createCopilot(): Promise
 	{
-		const { Copilot } = await Runtime.loadExtension('ai.copilot');
+		const { CopilotContextMenu } = await Runtime.loadExtension('ai.copilot');
 
-		this.#copilotReadonly = new Copilot({
+		const options = {
 			moduleId: this.#params.copilotParams.moduleId,
 			contextId: this.#params.copilotParams.contextId,
 			category: this.#params.copilotParams.category,
-			readonly: true,
-			autoHide: true,
-		});
+			bindElement: this.#getBindElement(),
+			angle: true,
+			extraResultMenuItems: [
+				{
+					code: 'insert-into-comment',
+					text: Loc.getMessage('BLOG_POST_BUTTON_COPILOT_COPY_INTO_COMMENT'),
+					command: () => {
+						const resultText = this.#copilotContextMenu.getResultText();
+						this.#copilotContextMenu.hide();
 
-		this.#copilotReadonly.subscribe('finish-init', () => {
+						this.#copyIntoComment(resultText);
+					},
+				},
+				{
+					code: 'insert-into-new-post',
+					text: Loc.getMessage('BLOG_POST_BUTTON_COPILOT_COPY_INTO_NEW_POST'),
+					command: () => {
+						const resultText = this.#copilotContextMenu.getResultText();
+						this.#copilotContextMenu.hide();
+
+						this.#copyIntoNewPost(resultText);
+					},
+				},
+			],
+		};
+
+		this.#copilotContextMenu = new CopilotContextMenu(options);
+
+		this.#bindEvents();
+		try
+		{
+			await this.#copilotContextMenu.init();
 			this.#copilotLoaded = true;
-		});
-
-		this.#copilotReadonly.init();
+		}
+		catch (e)
+		{
+			console.error('Failed to init copilot', e);
+		}
 	}
 
-	#onButtonMouseDown()
+	#bindEvents(): void
 	{
-		if (!this.#enabledBySettings())
+		EventEmitter.subscribe('onPullEvent-unicomments', this.#startAdjustAnimation.bind(this));
+	}
+
+	#startAdjustAnimation(): void
+	{
+		this.#adjustAnimation?.stop();
+		// eslint-disable-next-line new-cap
+		this.#adjustAnimation = new BX.easing({
+			duration: 1000,
+			start: {},
+			finish: {},
+			transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
+			step: () => {
+				if (this.#copilotContextMenu.isShown())
+				{
+					this.#copilotContextMenu.adjustPosition();
+				}
+			},
+			complete: () => {
+				this.#adjustAnimation = null;
+			},
+		});
+		this.#adjustAnimation.animate();
+	}
+
+	#onButtonMouseDown(): void
+	{
+		if (!this.#params.enabledBySettings)
 		{
 			return;
 		}
 
-		this.#copilotShown = this.#copilotReadonly?.isShown();
+		this.#copilotShown = this.#copilotContextMenu?.isShown();
 	}
 
-	#onButtonClick()
+	#onButtonClick(): void
 	{
-		if (!this.#enabledBySettings())
+		if (!this.#params.enabledBySettings)
 		{
 			BX.UI.InfoHelper.show('limit_copilot_off');
 
@@ -101,29 +158,53 @@ export class BlogCopilotReadonly
 		}
 	}
 
-	#show()
+	#show(): void
 	{
 		if (this.#copilotLoaded)
 		{
-			this.#copilotReadonly.setContext(this.#params.blogText);
-
-			const buttonRect = this.#layout.button.getBoundingClientRect();
-			this.#copilotReadonly.show({
-				bindElement: {
-					left: buttonRect.left + window.scrollX,
-					top: buttonRect.bottom + window.scrollY + 10,
-				},
-			});
+			this.#copilotContextMenu.setContext(this.#params.blogText);
+			this.#copilotContextMenu.show({ bindElement: this.#getBindElement() });
 		}
 	}
 
-	#hide()
+	#getBindElement(): HTMLElement
 	{
-		this.#copilotReadonly.hide();
+		return this.#layout.button;
 	}
 
-	#enabledBySettings()
+	#hide(): void
 	{
-		return this.#params.enabledBySettings === 'Y';
+		this.#copilotContextMenu.hide();
+	}
+
+	#copyIntoComment(text: string): void
+	{
+		const list = FCList.getInstance({ ENTITY_XML_ID: this.#params.blogId });
+		const form = list.form;
+		const lhe = LHEPostForm.getHandlerByFormId(list.form.formId);
+
+		if (lhe.oEditor?.IsShown())
+		{
+			lhe.oEditor.action.Exec('insertHTML', text);
+		}
+
+		const iframeInitHandler = () => {
+			lhe.oEditor.action.Exec('insertHTML', text);
+			BX.removeCustomEvent(lhe.oEditor, 'OnAfterIframeInit', iframeInitHandler);
+		};
+		lhe.exec(() => {
+			BX.addCustomEvent(lhe.oEditor, 'OnAfterIframeInit', iframeInitHandler);
+		});
+
+		form.show(list);
+	}
+
+	#copyIntoNewPost(text: string): void
+	{
+		const pathToPostCreate = Uri.addParam(this.#params.pathToPostCreate, {
+			getTextFromHash: 'Y',
+		});
+
+		location.href = `${pathToPostCreate}#${encodeURIComponent(text)}`;
 	}
 }

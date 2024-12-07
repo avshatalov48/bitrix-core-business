@@ -20,12 +20,14 @@ export type OnDialogInitedEvent = {
 export type InsertTextEvent = {
 	text: string,
 	withNewLine?: boolean,
-	replace?: boolean
+	replace?: boolean,
+	dialogId: string,
 };
 
 export type InsertMentionEvent = {
 	mentionText: string,
-	mentionReplacement: string
+	mentionReplacement: string,
+	dialogId: string,
 };
 
 export type EditMessageEvent = {

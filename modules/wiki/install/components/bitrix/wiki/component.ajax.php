@@ -32,18 +32,6 @@ switch ($_REQUEST["act"])
 		{
 			$res = $_REQUEST['text'];
 
-			if(LANG_CHARSET!="UTF-8")
-			{
-				$res = $GLOBALS["APPLICATION"]->ConvertCharset($res, "UTF-8", LANG_CHARSET);
-
-				/* if we recieved the mash from utf-8 and other encodings, lets prevent utf-8 text to be wrong decoded
-				(sender: /components/bitrix/wiki.edit/templates/.default/script.php:599
-				function insertSanitized())
-				for example user could copy and insert url from it's browser.
-				http://work.localhost/services/wiki/%C3%EB%E0%E2%ED%E0%FF+%F1%F2%F0%E0%ED%E8%F6%E0/edit/	*/
-				$res =str_replace("##%##", "%", $res);
-			}
-
 			$CWikiParser = new CWikiParser();
 			$res = $CWikiParser->Clear($res);
 		}

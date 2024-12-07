@@ -109,8 +109,11 @@
 }
 
 .feed-imp-post-footer-text {
+	display: block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
 	color: #010101;
-	display: flex;
 	font-size: 13px;
 	line-height: 24px;
 }

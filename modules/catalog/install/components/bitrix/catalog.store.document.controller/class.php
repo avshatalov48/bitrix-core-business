@@ -80,6 +80,19 @@ class CatalogStoreDocumentControllerComponent extends CBitrixComponent
 		{
 			[$template, $variables, $variableAliases] = $this->processSefMode($templateUrls);
 		}
+
+		if (
+			$template !== self::URL_TEMPLATE_DOCUMENT_SHIPMENT
+			&& \Bitrix\Catalog\Store\EnableWizard\Manager::isOnecMode()
+		)
+		{
+			$this->arResult['STUB_REDIRECT'] = Loader::includeModule('crm') ? '/crm/' : '/';
+
+			$this->includeComponentTemplate('1c');
+
+			return;
+		}
+
 		$this->arResult['VARIABLES'] = $variables;
 
 		$this->arResult['IS_CRM_CONTRACTORS_PROVIDER'] = Manager::isActiveProviderByModule(Manager::PROVIDER_STORE_DOCUMENT, 'crm');

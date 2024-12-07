@@ -6,6 +6,22 @@ use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\Search\Content;
 
+/**
+ * Class TaskSearchContentTable
+ *
+ * DO NOT WRITE ANYTHING BELOW THIS
+ *
+ * <<< ORMENTITYANNOTATION
+ * @method static EO_TaskSearchContent_Query query()
+ * @method static EO_TaskSearchContent_Result getByPrimary($primary, array $parameters = [])
+ * @method static EO_TaskSearchContent_Result getById($id)
+ * @method static EO_TaskSearchContent_Result getList(array $parameters = [])
+ * @method static EO_TaskSearchContent_Entity getEntity()
+ * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent createObject($setDefaultValues = true)
+ * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent_Collection createCollection()
+ * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent wakeUpObject($row)
+ * @method static \Bitrix\Bizproc\Workflow\Task\EO_TaskSearchContent_Collection wakeUpCollection($rows)
+ */
 class TaskSearchContentTable extends DataManager
 {
 	public static function getTableName(): string

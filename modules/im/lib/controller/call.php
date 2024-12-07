@@ -8,62 +8,80 @@ use Bitrix\Im\Call\Registry;
 use Bitrix\Im\Call\Util;
 use Bitrix\Im\Common;
 use Bitrix\Im\V2\Call\CallFactory;
-use Bitrix\Im\V2\Chat;
-use Bitrix\Im\V2\Message;
-use Bitrix\Im\V2\Message\Params;
 use Bitrix\Main\Application;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Im\Dialog;
+
 
 class Call extends Engine\Controller
 {
-	protected const LOCK_TTL = 15; // in seconds
+	protected const LOCK_TTL = 10; // in seconds
 
 	/**
-	 * @param $type
-	 * @param $provider
-	 * @param $entityType
-	 * @param $entityId
-	 * @param $joinExisting
+	 * @restMethod im.call.create
+	 * @param int $type
+	 * @param string $provider
+	 * @param string $entityType
+	 * @param string $entityId
+	 * @param bool $joinExisting
 	 * @return array|null
 	 *
 	 */
-	public function createAction($type, $provider, $entityType, $entityId, $joinExisting = false)
+	public function createAction(int $type, string $provider, string $entityType, string $entityId, bool $joinExisting = false): ?array
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 
+		$call = null;
+
 		$lockName = static::getLockNameWithEntityId($entityType, $entityId, $currentUserId);
-		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
+		if (!Application::getConnection()->lock($lockName, 3))
 		{
-			$this->errorCollection[] = new Error("Could not get exclusive lock", "could_not_lock");
-			return null;
+			if ($joinExisting)
+			{
+				$call = CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
+			}
+
+			if (!$call)
+			{
+				$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
+				return null;
+			}
 		}
 
-		$call = $joinExisting ? CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId) : false;
+		if (!$call && $joinExisting)
+		{
+			$call = CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
+		}
 
+		$isNew = false;
 		try
 		{
 			if ($call)
 			{
-				if (!$call->getAssociatedEntity()->checkAccess($currentUserId))
+				if ($call->hasErrors())
 				{
-					$this->errorCollection[] = new Error("You can not access this call", 'access_denied');
+					$this->addErrors($call->getErrors());
 					Application::getConnection()->unlock($lockName);
 					return null;
 				}
 
-				$isNew = false;
+				if (!$call->getAssociatedEntity()->checkAccess($currentUserId))
+				{
+					$this->addError(new Error("You can not access this call", 'access_denied'));
+					Application::getConnection()->unlock($lockName);
+					return null;
+				}
+
 				if (!$call->hasUser($currentUserId))
 				{
 					$addedUser = $call->addUser($currentUserId);
 
 					if (!$addedUser)
 					{
-						$this->errorCollection[] = new Error("User limit reached", "user_limit_reached");
+						$this->addError(new Error("User limit reached", "user_limit_reached"));
 						Application::getConnection()->unlock($lockName);
 						return null;
 					}
@@ -84,9 +102,16 @@ class Call extends Engine\Controller
 					return null;
 				}
 
+				if ($call->hasErrors())
+				{
+					$this->addErrors($call->getErrors());
+					Application::getConnection()->unlock($lockName);
+					return null;
+				}
+
 				if (!$call->getAssociatedEntity()->canStartCall($currentUserId))
 				{
-					$this->errorCollection[] = new Error("You can not create this call", 'access_denied');
+					$this->addError(new Error("You can not create this call", 'access_denied'));
 					Application::getConnection()->unlock($lockName);
 					return null;
 				}
@@ -101,13 +126,28 @@ class Call extends Engine\Controller
 		}
 		catch(\Exception $e)
 		{
-			$this->errorCollection[] = new Error(
+			$this->addError(new Error(
 				"Can't initiate a call. Server error. (" . ($status ?? "") . ")",
-				"call_init_error");
+				"call_init_error")
+			);
 
 			Application::getConnection()->unlock($lockName);
 			return null;
 		}
+
+		Application::getConnection()->unlock($lockName);
+
+		return $this->formatCallResponse($call, 0, $isNew);
+	}
+
+	/**
+	 * @param \Bitrix\Im\Call\Call $call
+	 * @param bool $isNew
+	 * @return array{call: array, connectionData: array, users: array, userData: array, publicChannels: array, logToken: string, isNew: bool}
+	 */
+	protected function formatCallResponse(\Bitrix\Im\Call\Call $call, int $initiatorId = 0, bool $isNew = false): array
+	{
+		$currentUserId = $this->getCurrentUser()->getId();
 
 		$users = $call->getUsers();
 		$publicChannels = Loader::includeModule('pull')
@@ -119,23 +159,31 @@ class Call extends Engine\Controller
 			: []
 		;
 
-		Application::getConnection()->unlock($lockName);
-
-		return [
-			'call' => $call->toArray(),
+		$response = [
+			'call' => $call->toArray($initiatorId),
 			'connectionData' => $call->getConnectionData($currentUserId),
-			'isNew' => $isNew,
 			'users' => $users,
 			'userData' => Util::getUsers($users),
 			'publicChannels' => $publicChannels,
 			'logToken' => $call->getLogToken($currentUserId),
 		];
+		if ($isNew)
+		{
+			$response['isNew'] = $isNew;
+		}
+
+		return $response;
 	}
 
-	public function createChildCallAction($parentId, $newProvider, $newUsers)
+	/**
+	 * @restMethod im.call.createChild
+	 * @param int $parentId
+	 * @param string $newProvider
+	 * @param int[] $newUsers
+	 * @return array|null
+	 */
+	public function createChildCallAction($parentId, $newProvider, $newUsers): ?array
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
-
 		$parentCall = Registry::getCallWithId($parentId);
 		if (!$parentCall)
 		{
@@ -143,13 +191,19 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($parentCall, $currentUserId))
 		{
-			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");
+			$this->addError(new Error("You do not have access to the parent call", "access_denied"));
 			return null;
 		}
 
 		$childCall = $parentCall->makeClone($newProvider);
+		if ($childCall->hasErrors())
+		{
+			$this->addErrors($childCall->getErrors());
+			return null;
+		}
 
 		$initiator = $childCall->getUser($currentUserId);
 		$initiator->updateState(CallUser::STATE_READY);
@@ -159,11 +213,12 @@ class Call extends Engine\Controller
 		{
 			if (!$childCall->hasUser($userId))
 			{
-				$childCall->addUser($userId)->updateState(CallUser::STATE_CALLING);
+				$childCall->addUser($userId)?->updateState(CallUser::STATE_CALLING);
 			}
 		}
 
 		$users = $childCall->getUsers();
+
 		return [
 			'call' => $childCall->toArray(),
 			'connectionData' => $childCall->getConnectionData($currentUserId),
@@ -173,20 +228,32 @@ class Call extends Engine\Controller
 		];
 	}
 
-	public function tryJoinCallAction($type, $provider, $entityType, $entityId)
+	/**
+	 * @restMethod im.call.tryJoinCall
+	 * @param int $type
+	 * @param string $provider
+	 * @param string $entityType
+	 * @param string $entityId
+	 * @return array|null
+	 */
+	public function tryJoinCallAction($type, $provider, $entityType, $entityId): ?array
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
 		$call = CallFactory::searchActive($type, $provider, $entityType, $entityId, $currentUserId);
 		if (!$call)
 		{
-			return [
-				'success' => false
-			];
+			return ['success' => false];
+		}
+
+		if ($call->hasErrors())
+		{
+			$this->addErrors($call->getErrors());
+			return null;
 		}
 
 		if (!$call->getAssociatedEntity()->checkAccess($currentUserId))
 		{
-			$this->errorCollection[] = new Error("You can not access this call", 'access_denied');
+			$this->addError(new Error("You can not access this call", 'access_denied'));
 			return null;
 		}
 
@@ -195,37 +262,40 @@ class Call extends Engine\Controller
 			$addedUser = $call->addUser($currentUserId);
 			if (!$addedUser)
 			{
-				$this->errorCollection[] = new Error("User limit reached",  "user_limit_reached");
+				$this->addError(new Error("User limit reached",  "user_limit_reached"));
 				return null;
 			}
 			$call->getSignaling()->sendUsersJoined($currentUserId, [$currentUserId]);
 		}
 
-		return [
-			'success' => true,
-			'call' => $call->toArray(),
-			'connectionData' => $call->getConnectionData($currentUserId),
-			'logToken' => $call->getLogToken($currentUserId)
-		];
+		return array_merge(
+			['success' => true],
+			$this->formatCallResponse($call)
+		);
 	}
 
-	public function interruptAction($callId)
+	/**
+	 * @restMethod im.call.interrupt
+	 * @param int $callId
+	 * @return array|null
+	 */
+	public function interruptAction($callId): ?array
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
-
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
 			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
 			return null;
 		}
+
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
-			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");
+			$this->addError(new Error("You do not have access to the parent call", "access_denied"));
 			return null;
 		}
 
-		$call->finish();
+		$call->setActionUserId($currentUserId)->finish();
 
 		return [
 			'call' => $call->toArray($currentUserId),
@@ -234,38 +304,48 @@ class Call extends Engine\Controller
 		];
 	}
 
-	public function getAction($callId)
+	/**
+	 * @restMethod im.call.get
+	 * @param int $callId
+	 * @return array|null
+	 */
+	public function getAction($callId): ?array
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
-
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
 			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
 			return null;
 		}
+
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
-			$this->errorCollection[] = new Error("You do not have access to the parent call", "access_denied");
+			$this->addError(new Error("You do not have access to the parent call", "access_denied"));
 			return null;
 		}
 
-		$users = $call->getUsers();
-		return [
-			'call' => $call->toArray($currentUserId),
-			'connectionData' => $call->getConnectionData($currentUserId),
-			'users' => $users,
-			'userData' => Util::getUsers($users),
-			'logToken' => $call->getLogToken($currentUserId)
-		];
+		return $this->formatCallResponse($call, $currentUserId);
 	}
 
-	public function inviteAction($callId, array $userIds, $video = "N", $legacyMobile = "N", $repeated = "N")
+	/**
+	 * @restMethod im.call.invite
+	 * @param int $callId
+	 * @param int[] $userIds
+	 * @param string $video
+	 * @param string $show
+	 * @param string $legacyMobile
+	 * @param string $repeated
+	 * @return true|null
+	 */
+	public function inviteAction($callId, array $userIds, $video = "N", $show = "Y", $legacyMobile = "N", $repeated = "N"): ?bool
 	{
 		$isVideo = ($video === "Y");
+		$isShow = ($show === "Y");
 		$isLegacyMobile = ($legacyMobile === "Y");
 		$isRepeated = ($repeated === "Y");
-		$currentUserId = $this->getCurrentUser()->getId();
+		$userIds = array_map('intVal', $userIds);
+
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -273,8 +353,15 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
+			return null;
+		}
+
+		if ($call->hasErrors())
+		{
+			$this->addErrors($call->getErrors());
 			return null;
 		}
 
@@ -283,23 +370,24 @@ class Call extends Engine\Controller
 			'IS_MOBILE' => ($isLegacyMobile ? 'Y' : 'N')
 		]);
 
-		$lockName = static::getLockNameWithCallId($callId);
+		$lockName = static::getLockNameWithCallId('invite', $callId);
 		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
 		{
 			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
 			return null;
 		}
 
-		$this->inviteUsers($call, $userIds, $isLegacyMobile, $isVideo, $isRepeated);
+		$this->inviteUsers($call, $userIds, $isLegacyMobile, $isVideo, $isShow, $isRepeated);
 
 		Application::getConnection()->unlock($lockName);
 
 		return true;
 	}
 
-	public function inviteUsers(\Bitrix\Im\Call\Call $call, $userIds, $isLegacyMobile, $isVideo, $isRepeated)
+	protected function inviteUsers(\Bitrix\Im\Call\Call $call, $userIds, $isLegacyMobile, $isVideo, $isShow, $isRepeated): void
 	{
 		$usersToInvite = [];
+		$existingUsers = [];
 		foreach ($userIds as $userId)
 		{
 			$userId = (int)$userId;
@@ -307,16 +395,16 @@ class Call extends Engine\Controller
 			{
 				continue;
 			}
-			if(!$call->hasUser($userId))
+			if (!$call->hasUser($userId))
 			{
-				if(!$call->addUser($userId))
+				if (!$call->addUser($userId))
 				{
 					continue;
 				}
 			}
 			else if ($isRepeated === false && $call->getAssociatedEntity())
 			{
-				$call->getAssociatedEntity()->onExistingUserInvite($userId);
+				$existingUsers[] = $userId;
 			}
 			$usersToInvite[] = $userId;
 			$callUser = $call->getUser($userId);
@@ -326,10 +414,15 @@ class Call extends Engine\Controller
 			}
 		}
 
+		if (!empty($existingUsers))
+		{
+			$call->getAssociatedEntity()->onExistingUsersInvite($existingUsers);
+		}
+
 		if (count($usersToInvite) === 0)
 		{
 			$this->addError(new Error("No users to invite", "empty_users"));
-			return null;
+			return;
 		}
 
 		$sendPush = $isRepeated !== true;
@@ -349,7 +442,8 @@ class Call extends Engine\Controller
 		$call->getSignaling()->sendUsersInvited(
 			$this->getCurrentUser()->getId(),
 			$otherUsers,
-			$usersToInvite
+			$usersToInvite,
+			$isShow
 		);
 
 		if ($call->getState() === \Bitrix\Im\Call\Call::STATE_NEW)
@@ -358,9 +452,13 @@ class Call extends Engine\Controller
 		}
 	}
 
+	/**
+	 * @restMethod im.call.cancel
+	 * @param int $callId
+	 * @return void|null
+	 */
 	public function cancelAction($callId)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -368,16 +466,23 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
 		}
 	}
 
+	/**
+	 * @restMethod im.call.answer
+	 * @param int $callId
+	 * @param int $callInstanceId
+	 * @param string $legacyMobile
+	 * @return void|null
+	 */
 	public function answerAction($callId, $callInstanceId, $legacyMobile = "N")
 	{
 		$isLegacyMobile = $legacyMobile === "Y";
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -385,35 +490,42 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
 		}
 
 		$callUser = $call->getUser($currentUserId);
-
-		$lockName = static::getLockNameWithCallId($callId);
-		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
-		{
-			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
-			return null;
-		}
-
 		if ($callUser)
 		{
+			$lockName = static::getLockNameWithCallId('user'.$currentUserId, $callId);
+			if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
+			{
+				$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
+				return null;
+			}
+
 			$callUser->update([
 				'STATE' => CallUser::STATE_READY,
 				'LAST_SEEN' => new DateTime(),
-				'FIRST_JOINED' => $callUser->getFirstJoined() ? $callUser->getFirstJoined() : new DateTime(),
+				'FIRST_JOINED' => $callUser->getFirstJoined() ?: new DateTime(),
 				'IS_MOBILE' => $isLegacyMobile ? 'Y' : 'N',
 			]);
-		}
 
-		Application::getConnection()->unlock($lockName);
+			Application::getConnection()->unlock($lockName);
+		}
 
 		$call->getSignaling()->sendAnswer($currentUserId, $callInstanceId, $isLegacyMobile);
 	}
 
+	/**
+	 * @restMethod im.call.decline
+	 * @param int $callId
+	 * @param int $callInstanceId
+	 * @param int $code
+	 * @return void|null
+	 */
 	public function declineAction(int $callId, $callInstanceId, int $code = 603)
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
@@ -429,29 +541,27 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		$lockName = static::getLockNameWithCallId($callId);
-		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
-		{
-			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
-			return null;
-		}
-
 		$callUser = $call->getUser($currentUserId);
 		if (!$callUser)
 		{
 			$this->addError(new Error("User is not part of the call", "unknown_call_user"));
-			Application::getConnection()->unlock($lockName);
 			return null;
 		}
 
 		if ($callUser->getState() === CallUser::STATE_READY)
 		{
 			$this->addError(new Error("Can not decline in {$callUser->getState()} user state", "wrong_user_state"));
-			Application::getConnection()->unlock($lockName);
 			return null;
 		}
 
-		if($code === 486)
+		$lockName = static::getLockNameWithCallId('user'.$currentUserId, $callId);
+		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
+		{
+			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
+			return null;
+		}
+
+		if ($code === 486)
 		{
 			$callUser->updateState(CallUser::STATE_BUSY);
 		}
@@ -461,24 +571,26 @@ class Call extends Engine\Controller
 		}
 		$callUser->updateLastSeen(new DateTime());
 
+		Application::getConnection()->unlock($lockName);
+
 		$userIds = $call->getUsers();
 		$call->getSignaling()->sendHangup($currentUserId, $userIds, $callInstanceId, $code);
 
 		if (!$call->hasActiveUsers())
 		{
-			$call->finish();
+			$call->setActionUserId($currentUserId)->finish();
 		}
-
-		Application::getConnection()->unlock($lockName);
 	}
 
 	/**
-	 * @param $callId
+	 * @restMethod im.call.ping
+	 * @param int $callId
+	 * @param int $requestId
+	 * @param bool $retransmit
 	 * @return bool
 	 */
 	public function pingAction($callId, $requestId, $retransmit = true)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -486,6 +598,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
@@ -501,7 +614,10 @@ class Call extends Engine\Controller
 			}
 		}
 
-		if ($retransmit)
+		if (
+			is_bool($retransmit) && $retransmit===true
+			|| is_string($retransmit) && in_array($retransmit, ['true', 'Y', '1'], true)
+		)
 		{
 			$call->getSignaling()->sendPing($currentUserId, $requestId);
 		}
@@ -509,9 +625,13 @@ class Call extends Engine\Controller
 		return true;
 	}
 
+	/**
+	 * @restMethod im.call.onShareScreen
+	 * @param int $callId
+	 * @return void|null
+	 */
 	public function onShareScreenAction($callId)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -519,6 +639,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
@@ -533,9 +654,13 @@ class Call extends Engine\Controller
 		}
 	}
 
+	/**
+	 * @restMethod im.call.onStartRecord
+	 * @param int $callId
+	 * @return void|null
+	 */
 	public function onStartRecordAction($callId)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -543,8 +668,11 @@ class Call extends Engine\Controller
 			return null;
 		}
 
-		if(!$this->checkCallAccess($call, $currentUserId))
+		$currentUserId = $this->getCurrentUser()->getId();
+		if (!$this->checkCallAccess($call, $currentUserId))
+		{
 			return null;
+		}
 
 		$callUser = $call->getUser($currentUserId);
 		if ($callUser)
@@ -555,10 +683,16 @@ class Call extends Engine\Controller
 		}
 	}
 
+	/**
+	 * @restMethod im.call.negotiationNeeded
+	 * @param int $callId
+	 * @param int $userId
+	 * @param bool $restart
+	 * @return void|null
+	 */
 	public function negotiationNeededAction($callId, $userId, $restart = false)
 	{
 		$restart = (bool)$restart;
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -566,6 +700,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
@@ -578,13 +713,19 @@ class Call extends Engine\Controller
 		}
 
 		$call->getSignaling()->sendNegotiationNeeded($currentUserId, $userId, $restart);
-
-		return true;
 	}
 
+	/**
+	 * @restMethod im.call.connectionOffer
+	 * @param int $callId
+	 * @param int $userId
+	 * @param int $connectionId
+	 * @param string $sdp
+	 * @param string $userAgent
+	 * @return void|null
+	 */
 	public function connectionOfferAction($callId, $userId, $connectionId, $sdp, $userAgent)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -592,6 +733,7 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
@@ -604,10 +746,17 @@ class Call extends Engine\Controller
 		}
 
 		$call->getSignaling()->sendConnectionOffer($currentUserId, $userId, $connectionId, $sdp, $userAgent);
-
-		return true;
 	}
 
+	/**
+	 * @restMethod im.call.connectionAnswer
+	 * @param int $callId
+	 * @param int $userId
+	 * @param int $connectionId
+	 * @param string $sdp
+	 * @param string $userAgent
+	 * @return void|null
+	 */
 	public function connectionAnswerAction($callId, $userId, $connectionId, $sdp, $userAgent)
 	{
 		$currentUserId = $this->getCurrentUser()->getId();
@@ -630,10 +779,16 @@ class Call extends Engine\Controller
 		}
 
 		$call->getSignaling()->sendConnectionAnswer($currentUserId, $userId, $connectionId, $sdp, $userAgent);
-
-		return true;
 	}
 
+	/**
+	 * @restMethod im.call.iceCandidate
+	 * @param int $callId
+	 * @param int $userId
+	 * @param int $connectionId
+	 * @param array $candidates
+	 * @return void|null
+	 */
 	public function iceCandidateAction($callId, $userId, $connectionId, array $candidates)
 	{
 		// mobile can alter key order, so we recover it
@@ -654,13 +809,17 @@ class Call extends Engine\Controller
 		}
 
 		$call->getSignaling()->sendIceCandidates($currentUserId, $userId, $connectionId, $candidates);
-
-		return true;
 	}
 
+	/**
+	 * @restMethod im.call.hangup
+	 * @param int $callId
+	 * @param int $callInstanceId
+	 * @param bool $retransmit
+	 * @return void|null
+	 */
 	public function hangupAction($callId, $callInstanceId, $retransmit = true)
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -668,12 +827,13 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
 			return null;
 		}
 
-		$lockName = static::getLockNameWithCallId($callId);
+		$lockName = static::getLockNameWithCallId('user'.$currentUserId, $callId);
 		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
 		{
 			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
@@ -687,23 +847,60 @@ class Call extends Engine\Controller
 			$callUser->updateLastSeen(new DateTime());
 		}
 
-		if (!$call->hasActiveUsers())
-		{
-			$call->finish();
-		}
-
-		Application::getConnection()->unlock($lockName);
-
-		if ($retransmit)
+		if (
+			is_bool($retransmit) && $retransmit===true
+			|| is_string($retransmit) && in_array($retransmit, ['true', 'Y', '1'], true)
+		)
 		{
 			$userIds = $call->getUsers();
 			$call->getSignaling()->sendHangup($currentUserId, $userIds, $callInstanceId);
 		}
+
+		Application::getConnection()->unlock($lockName);
+
+		if (!$call->hasActiveUsers())
+		{
+			$call->setActionUserId($currentUserId)->finish();
+		}
 	}
 
+	/**
+	 * @restMethod im.call.finish
+	 * @param int $callId
+	 * @return void|null
+	 */
+	public function finishAction(int $callId): ?array
+	{
+		$call = Registry::getCallWithId($callId);
+		if (!$call)
+		{
+			$this->addError(new Error(Loc::getMessage("IM_REST_CALL_ERROR_CALL_NOT_FOUND"), "call_not_found"));
+			return null;
+		}
+		$currentUserId = $this->getCurrentUser()->getId();
+		if (!$this->checkCallAccess($call, $currentUserId))
+		{
+			$this->addError(new Error("You do not have access to the parent call", "access_denied"));
+			return null;
+		}
+
+		$call->setActionUserId($currentUserId)->finish();
+
+		return [
+			'call' => $call->toArray($currentUserId),
+			'connectionData' => $call->getConnectionData($currentUserId),
+			'logToken' => $call->getLogToken($currentUserId)
+		];
+	}
+
+	/**
+	 * @restMethod im.call.getUsers
+	 * @param int $callId
+	 * @param int[] $userIds
+	 * @return null|array
+	 */
 	public function getUsersAction($callId, array $userIds = [])
 	{
-		$currentUserId = $this->getCurrentUser()->getId();
 		$call = Registry::getCallWithId($callId);
 		if (!$call)
 		{
@@ -711,11 +908,13 @@ class Call extends Engine\Controller
 			return null;
 		}
 
+		$currentUserId = $this->getCurrentUser()->getId();
 		if (!$this->checkCallAccess($call, $currentUserId))
 		{
-			$this->errorCollection[] = new Error("You do not have access to the call", "access_denied");
+			$this->addError(new Error("You do not have access to the call", "access_denied"));
 			return null;
 		}
+
 		if (empty($userIds))
 		{
 			$allowedUserIds = $call->getUsers();
@@ -730,13 +929,19 @@ class Call extends Engine\Controller
 
 		if (empty($allowedUserIds))
 		{
-			$this->errorCollection[] = new Error("Users are not part of the call", "access_denied");
+			$this->addError(new Error("Users are not part of the call", "access_denied"));
 			return null;
 		}
 
 		return Util::getUsers($allowedUserIds);
 	}
 
+	/**
+	 * @restMethod im.call.getUserState
+	 * @param int $callId
+	 * @param int $userId
+	 * @return null|array
+	 */
 	public function getUserStateAction($callId, int $userId = 0)
 	{
 		$currentUserId = (int)$this->getCurrentUser()->getId();
@@ -744,7 +949,7 @@ class Call extends Engine\Controller
 
 		if (!$call || !$this->checkCallAccess($call, $currentUserId))
 		{
-			$this->errorCollection[] = new Error("Call is not found or you do not have access to the call", "access_denied");
+			$this->addError(new Error("Call is not found or you do not have access to the call", "access_denied"));
 			return null;
 		}
 
@@ -753,27 +958,21 @@ class Call extends Engine\Controller
 			$userId = $currentUserId;
 		}
 
-		$lockName = static::getLockNameWithCallId($callId);
-		if (!Application::getConnection()->lock($lockName, static::LOCK_TTL))
-		{
-			$this->addError(new Error("Could not get exclusive lock", "could_not_lock"));
-			return null;
-		}
-
 		$callUser = $call->getUser($userId);
 		if (!$callUser)
 		{
 			$this->addError(new Error("User is not part of the call", "unknown_call_user"));
-			Application::getConnection()->unlock($lockName);
 			return null;
 		}
-
-		Application::getConnection()->unlock($lockName);
 
 		return $callUser->toArray();
 	}
 
-	public function getCallLimitsAction()
+	/**
+	 * @restMethod im.call.getCallLimits
+	 * @return array
+	 */
+	public function getCallLimitsAction(): array
 	{
 		return [
 			'callServerEnabled' => \Bitrix\Im\Call\Call::isCallServerEnabled(),
@@ -781,7 +980,13 @@ class Call extends Engine\Controller
 		];
 	}
 
-	public function reportConnectionStatusAction(int $callId, bool $connectionStatus)
+	/**
+	 * @restMethod im.call.reportConnectionStatus
+	 * @param int $callId
+	 * @param bool $connectionStatus
+	 * @return void
+	 */
+	public function reportConnectionStatusAction(int $callId, bool $connectionStatus): void
 	{
 		AddEventToStatFile('im', 'call_connection', $callId, ($connectionStatus ? 'Y' : 'N'));
 	}
@@ -790,14 +995,14 @@ class Call extends Engine\Controller
 	{
 		if (!$call->checkAccess($userId))
 		{
-			$this->errorCollection[] = new Error("You don't have access to the call " . $call->getId() . "; (current user id: " . $userId . ")", 'access_denied');
+			$this->addError(new Error("You don't have access to the call " . $call->getId() . "; (current user id: " . $userId . ")", 'access_denied'));
 			return false;
 		}
 
 		return true;
 	}
 
-	public static function getLockNameWithEntityId(string $entityType, $entityId, $currentUserId): string
+	protected static function getLockNameWithEntityId(string $entityType, $entityId, $currentUserId): string
 	{
 		if ($entityType === EntityType::CHAT && (Common::isChatId($entityId) || (int)$entityId > 0))
 		{
@@ -809,18 +1014,18 @@ class Call extends Engine\Controller
 		return "call_entity_{$entityType}_{$entityId}";
 	}
 
-	protected static function getLockNameWithCallId($callId): string
+	protected static function getLockNameWithCallId(string $prefix, $callId): string
 	{
 		//TODO: int|string after switching to php 8
 		if (is_string($callId) || is_numeric($callId))
 		{
-			return "im_call_{$callId}";
+			return "{$prefix}_call_{$callId}";
 		}
 
 		return '';
 	}
 
-	public function configureActions()
+	public function configureActions(): array
 	{
 		return [
 			'getUsers' => [

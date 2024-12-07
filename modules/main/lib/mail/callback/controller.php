@@ -2,18 +2,19 @@
 
 namespace Bitrix\Main\Mail\Callback;
 
+use Bitrix\Mail\Helper\OAuth;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Mail\Address;
+use Bitrix\Main\Mail\Smtp\CloudOAuthRefreshData;
+use Bitrix\Main\Mail\Smtp\OAuthConfigPreparer;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Mail\Internal;
 use Bitrix\Main\Mail\SenderSendCounter;
 use Bitrix\Main\Mail\Sender;
-use CIMNotify;
-use CModule;
 
 /**
  * Class Controller
@@ -61,6 +62,8 @@ class Controller
 	protected $countItemsProcessed = 0;
 	/** @var int $countItems. */
 	protected $countItemsError = 0;
+
+	protected array $refreshedTokens = [];
 
 	/**
 	 * Run controller.
@@ -295,6 +298,8 @@ class Controller
 			return false;
 		}
 
+		$this->processAsRefreshRequest($item);
+
 		if (!empty($item['sender']) && self::isSmtpLimited($item['statusDescription']) )
 		{
 			$this->smtpLimited[] = $this->address->set($item['sender'])->getEmail();
@@ -327,13 +332,20 @@ class Controller
 	 *
 	 * @return array
 	 */
-	public function getCounters()
+	public function getCounters(): array
 	{
-		return [
+		$result = [
 			'all' => $this->countItems,
 			'processed' => $this->countItemsProcessed,
 			'errors' => $this->countItemsError,
 		];
+
+		if ($this->refreshedTokens)
+		{
+			$result['refreshedTokens'] = $this->refreshedTokens;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -378,6 +390,56 @@ class Controller
 	private static function isSmtpLimited(string $description)
 	{
 		return $description && in_array($description, [self::DESC_SMTP_LIMITED], true);
+	}
+
+	/**
+	 * @throws LoaderException
+	 * @throws SystemException
+	 */
+	private function processAsRefreshRequest(array $item): void
+	{
+		if (empty($item['refreshUid']) || !isset($item['refreshExpires']) || empty($item['refreshSign']))
+		{
+			return;
+		}
+
+		$uid = (string)base64_decode($item['refreshUid']);
+		$data = new CloudOAuthRefreshData($uid, (int)$item['refreshExpires']);
+		if (!$data->isSignValid((string)$item['refreshSign']))
+		{
+			throw new SystemException('Invalid refresh oauth signature');
+		}
+
+		if (!Loader::includeModule('mail'))
+		{
+			throw new SystemException('Module mail not installed');
+		}
+
+		$mailOAuth = OAuth::getInstanceByMeta($uid);
+		if (!$mailOAuth || !$mailOAuth->getStoredUid())
+		{
+			throw new SystemException('Incorrect refresh meta');
+		}
+
+		$expireGapSeconds = (new OAuthConfigPreparer())->getOAuthTokenExpireGapSeconds();
+		$token = $mailOAuth->getStoredToken(null, $expireGapSeconds);
+		if (empty($token))
+		{
+			throw new SystemException('Cannot refresh token');
+		}
+
+		$expires = $defaultExpires = time() + $expireGapSeconds;
+		$oauthEntity = $mailOAuth->getOAuthEntity();
+		if (is_object($oauthEntity) && method_exists($oauthEntity, 'getTokenData'))
+		{
+			$expires = $oauthEntity->getTokenData()['expires_in'] ?? $defaultExpires;
+		}
+
+		$this->refreshedTokens[] = [
+			'uid' => $item['refreshUid'],
+			'accessToken' => $token,
+			'expires' => (int)$expires,
+		];
 	}
 
 }

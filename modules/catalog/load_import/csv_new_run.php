@@ -27,7 +27,7 @@ use Bitrix\Main,
 	Bitrix\Iblock;
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/import_setup_templ.php');
-$startImportExecTime = getmicrotime();
+$startImportExecTime = microtime(true);
 
 global $USER;
 global $APPLICATION;
@@ -101,7 +101,7 @@ if (!function_exists('CSVCheckTimeout'))
 {
 	function CSVCheckTimeout($max_execution_time)
 	{
-		return ($max_execution_time <= 0) || (getmicrotime()-START_EXEC_TIME <= (2*$max_execution_time/3));
+		return ($max_execution_time <= 0) || (microtime(true)-START_EXEC_TIME <= (2*$max_execution_time/3));
 	}
 }
 

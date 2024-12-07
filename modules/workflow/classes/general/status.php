@@ -3,17 +3,9 @@ IncludeModuleLangFile(__FILE__);
 
 class CWorkflowStatus
 {
-	public static function err_mess()
-	{
-		$module_id = "workflow";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CWorkflowStatus<br>File: ".__FILE__;
-	}
-
 	//Despite this function is not documented it should be version compatible
 	public static function GetList($by = 's_c_sort', $order = 'asc', $arFilter = [], $is_filtered = null, $arSelect = [])
 	{
-		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
 
 		if(!is_array($arSelect))
@@ -231,7 +223,7 @@ class CWorkflowStatus
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -265,10 +257,10 @@ class CWorkflowStatus
 
 	public static function GetNextSort()
 	{
-		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		global $DB;
+
 		$strSql = "SELECT max(C_SORT) MAX_SORT FROM b_workflow_status";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["MAX_SORT"])+100;
 	}
@@ -326,7 +318,7 @@ class CWorkflowStatus
 		if($strUpdate != "")
 		{
 			$strSql = "UPDATE b_workflow_status SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		return true;
 	}
@@ -334,11 +326,11 @@ class CWorkflowStatus
 	function SetPermissions($STATUS_ID, $arGroups, $PERMISSION_TYPE = 1)
 	{
 		global $DB;
+
 		$STATUS_ID = intval($STATUS_ID);
 		$PERMISSION_TYPE = intval($PERMISSION_TYPE);
-		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: SetPermissions<br>Line: ";
 
-		$DB->Query("DELETE FROM b_workflow_status2group WHERE STATUS_ID = ".$STATUS_ID." AND PERMISSION_TYPE = ".$PERMISSION_TYPE, false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_workflow_status2group WHERE STATUS_ID = ".$STATUS_ID." AND PERMISSION_TYPE = ".$PERMISSION_TYPE);
 		if(is_array($arGroups) && ($PERMISSION_TYPE == 1 || $PERMISSION_TYPE == 2))
 		{
 			foreach ($arGroups as $GROUP_ID)
@@ -349,7 +341,7 @@ class CWorkflowStatus
 					"GROUP_ID" => $GROUP_ID,
 					"PERMISSION_TYPE" => $PERMISSION_TYPE,
 				);
-				$DB->Insert("b_workflow_status2group", $arFields, $err_mess.__LINE__);
+				$DB->Insert("b_workflow_status2group", $arFields);
 			}
 		}
 	}

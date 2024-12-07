@@ -1,5 +1,6 @@
 .bx-im-list-recent-create-chat__container {
 	--im-list-recent-create-chat__background-color_not-active: var(--im-color-palette-blue-15);
+	--im-list-recent-create-chat__background-color_avatar: var(--im-color-palette-blue-50);
 	--im-list-recent-create-chat__font-color_header: var(--im-color-palette-white-base);
 
 	margin: 4px 4px 6px 4px;
@@ -12,15 +13,23 @@
 .bx-im-list-recent-create-chat__avatar {
 	width: 48px;
 	height: 48px;
+	background-color: var(--im-list-recent-create-chat__background-color_avatar);
+	border-radius: var(--im-border-radius-circle);
 }
 
 .bx-im-list-recent-create-chat__avatar.--default {
-	background-image: url('images/create-chat-default-avatar.svg');
+	background-image: url('images/create-chat-default-avatar.svg?v2');
+	background-repeat: no-repeat;
+	background-position: center;
 }
 
 .bx-im-list-recent-create-chat__avatar.--image {
 	object-fit: cover;
-	border-radius: 50%;
+	border-radius: var(--im-border-radius-circle);
+}
+
+.bx-im-list-recent-item__avatar_container.--squared .bx-im-list-recent-create-chat__avatar {
+	border-radius: var(--im-border-radius-md);
 }
 
 .bx-im-list-recent-create-chat__header {

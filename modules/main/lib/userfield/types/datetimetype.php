@@ -2,13 +2,13 @@
 
 namespace Bitrix\Main\UserField\Types;
 
+use Bitrix\Main;
+use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Type;
 use CLang;
 use CUserTypeManager;
-use Bitrix\Main;
-use Bitrix\Main\Type;
-use Bitrix\Main\Context;
 
 Loc::loadMessages(__FILE__);
 
@@ -56,15 +56,19 @@ class DateTimeType extends DateType
 		{
 			$def = ['TYPE' => static::TYPE_NONE, 'VALUE' => $value];
 		}
-		elseif($def['TYPE'] === static::TYPE_FIXED)
+		elseif(isset($def['TYPE']) && $def['TYPE'] === static::TYPE_FIXED)
 		{
-			$def['VALUE'] = \CDatabase::FormatDate(
-				$def['VALUE'],
-				CLang::GetDateFormat(static::FORMAT_TYPE_FULL),
-				'YYYY-MM-DD HH:MI:SS'
-			);
+			$datetimeObject = \DateTime::createFromFormat('Y-m-d H:i:s', $def['VALUE']);
+			if (!$datetimeObject || $datetimeObject->format('Y-m-d H:i:s') !== $def['VALUE'])
+			{
+				$def['VALUE'] = \CDatabase::FormatDate(
+					$def['VALUE'],
+					CLang::GetDateFormat(static::FORMAT_TYPE_FULL),
+					'YYYY-MM-DD HH:MI:SS'
+				);
+			}
 		}
-		elseif($def['TYPE'] === static::TYPE_NOW)
+		elseif(isset($def['TYPE']) && $def['TYPE'] === static::TYPE_NOW)
 		{
 			$def['VALUE'] = $value;
 		}

@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
 // otp is always
@@ -104,6 +104,6 @@ $fields = $arResult['FIELDS'];
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	try{document.bform.<?= $fields['otp'];?>.focus();}catch(e){}
 </script>

@@ -531,6 +531,8 @@
 
 	Desktop.prototype.checkUpdate = function (openBrowser)
 	{
+		return false;
+
 		if (typeof(BXDesktopSystem) == 'undefined')
 			return false;
 

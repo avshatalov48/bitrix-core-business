@@ -1,0 +1,7 @@
+.bx-layout-inner-top-row + tr {
+	display: none;
+}
+
+.bx-layout-inner-top-row tr:not(.bx-layout-inner-inner-top-row) .bx-layout-inner-inner-cont {
+	padding-bottom: 10px;
+}

@@ -21,8 +21,9 @@ ClearVars();
 
 $message = null;
 $bVarsFromForm = false;
-$ID = intval($ID);
-$COURSE_ID = intval($COURSE_ID);
+
+$ID = isset($_REQUEST['ID']) ? intval($_REQUEST['ID']) : 0;
+$COURSE_ID = isset($_REQUEST['COURSE_ID']) ? intval($_REQUEST['COURSE_ID']) : 0;
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage('LEARNING_TEST'), "ICON"=>"main_user_edit", "TITLE"=>GetMessage('LEARNING_TEST_TITLE')),
@@ -92,27 +93,28 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 	if (count($arNewIDs) > 0)
 		$nextNum = max($arNewIDs);
 
-	$QUESTIONS_AMOUNT = (intval(${"QUESTIONS_AMOUNT_".$QUESTIONS_FROM})>0 ? intval(${"QUESTIONS_AMOUNT_".$QUESTIONS_FROM}) : 0);
-	$QUESTIONS_FROM_ID = (intval(${"QUESTIONS_FROM_ID_".$QUESTIONS_FROM})>0 ? intval(${"QUESTIONS_FROM_ID_".$QUESTIONS_FROM}) : 0);
+	$QUESTIONS_FROM = $_REQUEST['QUESTIONS_FROM'] ?? '';
+	$QUESTIONS_AMOUNT = isset($_REQUEST["QUESTIONS_AMOUNT_".$QUESTIONS_FROM]) && intval($_REQUEST["QUESTIONS_AMOUNT_".$QUESTIONS_FROM]) > 0 ? intval($_REQUEST["QUESTIONS_AMOUNT_".$QUESTIONS_FROM]) : 0;
+	$QUESTIONS_FROM_ID = isset($_REQUEST["QUESTIONS_FROM_ID_".$QUESTIONS_FROM]) && intval($_REQUEST["QUESTIONS_FROM_ID_".$QUESTIONS_FROM]) > 0 ? intval($_REQUEST["QUESTIONS_FROM_ID_".$QUESTIONS_FROM]) : 0;
 
-	if ($CURRENT_INDICATION == "Y")
+	if (isset($_REQUEST['CURRENT_INDICATION']) && $_REQUEST['CURRENT_INDICATION'] === "Y")
 	{
 		$CURRENT_INDICATION =
-			($CURRENT_INDICATION_PERCENT == "Y" ? 1 : 0) +
-			($CURRENT_INDICATION_MARK == "Y" ? 2 : 0);
+			(isset($_REQUEST['CURRENT_INDICATION_PERCENT']) && $_REQUEST['CURRENT_INDICATION_PERCENT'] === "Y" ? 1 : 0) +
+			(isset($_REQUEST['CURRENT_INDICATION_MARK']) && $_REQUEST['CURRENT_INDICATION_MARK'] === "Y" ? 2 : 0);
 	}
 	else
 	{
 		$CURRENT_INDICATION = 0;
 	}
 
-	if ($FINAL_INDICATION == "Y")
+	if (isset($_REQUEST['FINAL_INDICATION']) && $_REQUEST['FINAL_INDICATION'] === "Y")
 	{
 		$FINAL_INDICATION =
-			($FINAL_INDICATION_CORRECT_COUNT == "Y" ? 1 : 0) +
-			($FINAL_INDICATION_SCORE == "Y" ? 2 : 0) +
-			($FINAL_INDICATION_MARK == "Y" ? 4 : 0) +
-			($FINAL_INDICATION_MESSAGE == "Y" ? 8 : 0);
+			(isset($_REQUEST['FINAL_INDICATION_CORRECT_COUNT']) && $_REQUEST['FINAL_INDICATION_CORRECT_COUNT'] == "Y" ? 1 : 0) +
+			(isset($_REQUEST['FINAL_INDICATION_SCORE']) && $_REQUEST['FINAL_INDICATION_SCORE'] == "Y" ? 2 : 0) +
+			(isset($_REQUEST['FINAL_INDICATION_MARK']) && $_REQUEST['FINAL_INDICATION_MARK'] == "Y" ? 4 : 0) +
+			(isset($_REQUEST['FINAL_INDICATION_MESSAGE']) && $_REQUEST['FINAL_INDICATION_MESSAGE'] == "Y" ? 8 : 0);
 	}
 	else
 	{
@@ -120,47 +122,51 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 	}
 
 	$MIN_TIME_BETWEEN_ATTEMPTS =
-		(int)$MIN_TIME_BETWEEN_ATTEMPTS_D * 60 * 24
-		+ (int)$MIN_TIME_BETWEEN_ATTEMPTS_H * 60
-		+ (int)$MIN_TIME_BETWEEN_ATTEMPTS_M
+		(int)($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_D'] ?? 0) * 60 * 24
+		+ (int)($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_H'] ?? 0) * 60
+		+ (int)($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_M'] ?? 0)
 	;
 
-	$NEXT_QUESTION_ON_ERROR = ($SHOW_ERRORS == "Y" && $NEXT_QUESTION_ON_ERROR == "N" && $PASSAGE_TYPE == "2") ? "N" : "Y";
+	$NEXT_QUESTION_ON_ERROR = (
+		isset($_REQUEST['SHOW_ERRORS']) && $_REQUEST['SHOW_ERRORS'] == "Y"
+		&& isset($_REQUEST['NEXT_QUESTION_ON_ERROR']) && $_REQUEST['NEXT_QUESTION_ON_ERROR'] == "N"
+		&& isset($_REQUEST['PASSAGE_TYPE']) && $_REQUEST['PASSAGE_TYPE'] == "2"
+	) ? "N" : "Y";
 
 	$arFields = Array(
-		"ACTIVE" => $ACTIVE,
-		"COURSE_ID" => $COURSE_ID,
-		"NAME" => $NAME,
-		"CODE" => $CODE,
-		"SORT" => $SORT,
-		"DESCRIPTION" => $DESCRIPTION,
-		"DESCRIPTION_TYPE" => $DESCRIPTION_TYPE,
+		"ACTIVE" => $_REQUEST['ACTIVE'] ?? null,
+		"COURSE_ID" => $_REQUEST['COURSE_ID'] ?? null,
+		"NAME" => $_REQUEST['NAME'] ?? null,
+		"CODE" => $_REQUEST['CODE'] ?? null,
+		"SORT" => $_REQUEST['SORT'] ?? null,
+		"DESCRIPTION" => $_REQUEST['DESCRIPTION'] ?? null,
+		"DESCRIPTION_TYPE" => $_REQUEST['DESCRIPTION_TYPE'] ?? null,
 
-		"TIME_LIMIT" => $TIME_LIMIT,
-		"ATTEMPT_LIMIT" => $ATTEMPT_LIMIT,
-		"COMPLETED_SCORE" => $COMPLETED_SCORE,
+		"TIME_LIMIT" => $_REQUEST['TIME_LIMIT'] ?? null,
+		"ATTEMPT_LIMIT" => $_REQUEST['ATTEMPT_LIMIT'] ?? null,
+		"COMPLETED_SCORE" => $_REQUEST['COMPLETED_SCORE'] ?? null,
 
 		"QUESTIONS_FROM" => $QUESTIONS_FROM,
 		"QUESTIONS_AMOUNT" => $QUESTIONS_AMOUNT,
 		"QUESTIONS_FROM_ID" => $QUESTIONS_FROM_ID,
 
-		"RANDOM_QUESTIONS" => $RANDOM_QUESTIONS,
-		"RANDOM_ANSWERS" => $RANDOM_ANSWERS,
+		"RANDOM_QUESTIONS" => $_REQUEST['RANDOM_QUESTIONS'] ?? null,
+		"RANDOM_ANSWERS" => $_REQUEST['RANDOM_ANSWERS'] ?? null,
 
-		"APPROVED" => $APPROVED,
-		"INCLUDE_SELF_TEST" => $INCLUDE_SELF_TEST,
+		"APPROVED" => $_REQUEST['APPROVED'] ?? null,
+		"INCLUDE_SELF_TEST" => $_REQUEST['INCLUDE_SELF_TEST'] ?? null,
 
-		"PASSAGE_TYPE" => $PASSAGE_TYPE,
+		"PASSAGE_TYPE" => $_REQUEST['PASSAGE_TYPE'] ?? null,
 
-		"PREVIOUS_TEST_ID" => $PREVIOUS_TEST_ID,
-		"PREVIOUS_TEST_SCORE" => $PREVIOUS_TEST_SCORE,
+		"PREVIOUS_TEST_ID" => $_REQUEST['PREVIOUS_TEST_ID'] ?? null,
+		"PREVIOUS_TEST_SCORE" => $_REQUEST['PREVIOUS_TEST_SCORE'] ?? null,
 
-		"INCORRECT_CONTROL" => $INCORRECT_CONTROL,
+		"INCORRECT_CONTROL" => $_REQUEST['INCORRECT_CONTROL'] ?? null,
 
 		"CURRENT_INDICATION" => $CURRENT_INDICATION,
 		"FINAL_INDICATION" => $FINAL_INDICATION,
 
-		"SHOW_ERRORS" => $SHOW_ERRORS,
+		"SHOW_ERRORS" => $_REQUEST['SHOW_ERRORS'] ?? null,
 		"NEXT_QUESTION_ON_ERROR" => $NEXT_QUESTION_ON_ERROR,
 
 		"MIN_TIME_BETWEEN_ATTEMPTS" => $MIN_TIME_BETWEEN_ATTEMPTS,
@@ -211,7 +217,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 		while ($m = $marks->GetNext())
 		{
 			//delete?
-			if (${"MARK_".$m["ID"]."_DEL"} == "Y")
+			if (isset($_REQUEST["MARK_".$m["ID"]."_DEL"]) && $_REQUEST["MARK_".$m["ID"]."_DEL"] === "Y")
 			{
 					if(!CLTestMark::Delete($m["ID"]))
 					{
@@ -219,30 +225,26 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 						$bVarsFromForm = true;
 					}
 			}
-
-			if(in_array(${"SCORE_".$m["ID"]}, $arScores))
+			else if(isset($_REQUEST["SCORE_".$m["ID"]]) && in_array($_REQUEST["SCORE_".$m["ID"]], $arScores))
 			{
-				$message = new CAdminMessage(Array("MESSAGE" =>  str_replace("##SCORE##", ${"SCORE_".$m["ID"]}, GetMessage("LEARNING_SCORE_EXISTS_ERROR"))));
+				$message = new CAdminMessage(Array("MESSAGE" =>  str_replace("##SCORE##", $_REQUEST["SCORE_".$m["ID"]], GetMessage("LEARNING_SCORE_EXISTS_ERROR"))));
 				$bVarsFromForm = true;
 			}
-			elseif(in_array(${"MARK_".$m["ID"]}, $arMarks))
+			elseif(isset($_REQUEST["MARK_".$m["ID"]]) && in_array($_REQUEST["MARK_".$m["ID"]], $arMarks))
 			{
-				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##MARK##", ${"MARK_".$m["ID"]}, GetMessage("LEARNING_MARK_EXISTS_ERROR"))));
+				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##MARK##", $_REQUEST["MARK_".$m["ID"]], GetMessage("LEARNING_MARK_EXISTS_ERROR"))));
 				$bVarsFromForm = true;
 			}
 			else
 			{
-				if (${"MARK_".$m["ID"]."_DEL"} != "Y")
-				{
-					$arMarks[] = ${"MARK_".$m["ID"]};
-					$arScores[] = ${"SCORE_".$m["ID"]};
-				}
+				$arMarks[] = $_REQUEST["MARK_".$m["ID"]];
+				$arScores[] = $_REQUEST["SCORE_".$m["ID"]];
 
 				$arFields = Array(
 					"TEST_ID" => $ID,
-					"SCORE" => ${"SCORE_".$m["ID"]},
-					"MARK" => ${"MARK_".$m["ID"]},
-					"DESCRIPTION" => ${"DESCRIPTION_".$m["ID"]},
+					"SCORE" => $_REQUEST["SCORE_".$m["ID"]],
+					"MARK" => $_REQUEST["MARK_".$m["ID"]],
+					"DESCRIPTION" => $_REQUEST["DESCRIPTION_".$m["ID"]],
 				);
 
 				$mrk = new CLTestMark;
@@ -258,26 +260,29 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 		//add new
 		foreach ($arNewIDs as $i)
 		{
-			if (${"N_MARK_".$i} == '' && ${"N_SCORE_".$i} == '') continue;
-
-			if(in_array(${"N_SCORE_".$i}, $arScores))
+			if (empty($_REQUEST["N_MARK_".$i]) && empty($_REQUEST["N_SCORE_".$i]))
 			{
-				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##SCORE##", ${"N_SCORE_".$i}, GetMessage("LEARNING_SCORE_EXISTS_ERROR"))));
+				continue;
+			}
+
+			if (isset($_REQUEST["N_SCORE_".$i]) && in_array($_REQUEST["N_SCORE_".$i], $arScores))
+			{
+				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##SCORE##", $_REQUEST["N_SCORE_".$i], GetMessage("LEARNING_SCORE_EXISTS_ERROR"))));
 				$bVarsFromForm = true;
 			}
-			elseif(in_array(${"N_MARK_".$i}, $arMarks))
+			elseif(isset($_REQUEST["N_MARK_".$i]) && in_array($_REQUEST["N_MARK_".$i], $arMarks))
 			{
-				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##MARK##", ${"N_MARK_".$i}, GetMessage("LEARNING_MARK_EXISTS_ERROR"))));
+				$message = new CAdminMessage(Array("MESSAGE" => str_replace("##MARK##", $_REQUEST["N_MARK_".$i], GetMessage("LEARNING_MARK_EXISTS_ERROR"))));
 				$bVarsFromForm = true;
 			}
 			else
 			{
-				$arMarks[] = ${"N_MARK_".$i};
-				$arScores[] = ${"N_SCORE_".$i};
+				$arMarks[] = $_REQUEST["N_MARK_".$i];
+				$arScores[] = $_REQUEST["N_SCORE_".$i];
 				$arFields = Array(
-					"SCORE" => ${"N_SCORE_".$i},
-					"MARK" => ${"N_MARK_".$i},
-					"DESCRIPTION" => ${"N_DESCRIPTION_".$i},
+					"SCORE" => $_REQUEST["N_SCORE_".$i],
+					"MARK" => $_REQUEST["N_MARK_".$i],
+					"DESCRIPTION" => $_REQUEST["N_DESCRIPTION_".$i],
 					"TEST_ID" => $ID,
 				);
 
@@ -297,7 +302,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 			$message = new CAdminMessage(Array("MESSAGE" => GetMessage("LEARNING_MAX_MARK_ERROR")));
 			$bVarsFromForm = true;
 		}
-
 	}
 
 	//Redirect
@@ -305,16 +309,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 	{
 		$DB->Commit();
 
-		if($apply == '')
+		if(empty($apply))
 		{
-			if($from == "learn_admin")
+			if(isset($from) && $from == "learn_admin")
 			{
 				LocalRedirect("/bitrix/admin/learn_unilesson_admin.php?lang=".LANG
-					. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-					. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
+					. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+					. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'] ?? '')
 					."&".GetFilterParams("filter_", false));
 			}
-			elseif ($return_url <> '')
+			elseif (!empty($return_url))
 			{
 				if(mb_strpos($return_url, "#TEST_ID#") !== false)
 				{
@@ -326,17 +330,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["Update"] <> '' && check_bitr
 			{
 				LocalRedirect("/bitrix/admin/learn_test_admin.php?lang=".LANG
 					. "&COURSE_ID=" . $COURSE_ID
-					. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-					. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
+					. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+					. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'] ?? '')
 					.GetFilterParams("filter_", false));
 			}
 		}
 		LocalRedirect("/bitrix/admin/learn_test_edit.php?lang=" . LANG
 			. "&COURSE_ID=" . $COURSE_ID
-			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-			. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
+			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+			. '&LESSON_PATH=' . urlencode($_GET['LESSON_PATH'] ?? '')
 			. "&ID=" . $ID
-			."&tabControl_active_tab=".urlencode($tabControl_active_tab).GetFilterParams("filter_", false));
+			."&tabControl_active_tab=".urlencode(($tabControl_active_tab ?? '')).GetFilterParams("filter_", false));
 
 	}
 	else
@@ -355,11 +359,13 @@ else
 	$APPLICATION->SetTitle(GetMessage("LEARNING_EDIT_TITLE1"));
 
 //Defaults
+$str_NAME = '';
 $str_ACTIVE = "Y";
 $str_SORT = "500";
-//$str_APPROVED = "Y";
+$str_APPROVED = "N";
+$str_DESCRIPTION = "";
 $str_COMPLETED_SCORE = "95";
-//$str_INCLUDE_SELF_TEST = "N";
+$str_INCLUDE_SELF_TEST = "N";
 $str_RANDOM_QUESTIONS = "Y";
 $str_RANDOM_ANSWERS="Y";
 $str_QUESTIONS_FROM="A";
@@ -383,6 +389,10 @@ $str_FINAL_INDICATION_MESSAGE = "N";
 $str_FINAL_INDICATION = "N";
 $str_SHOW_ERRORS = "N";
 $str_NEXT_QUESTION_ON_ERROR = "Y";
+$str_MIN_TIME_BETWEEN_ATTEMPTS = 0;
+$str_MIN_TIME_BETWEEN_ATTEMPTS_D = 0;
+$str_MIN_TIME_BETWEEN_ATTEMPTS_H = 0;
+$str_MIN_TIME_BETWEEN_ATTEMPTS_M = 0;
 
 $test = new CTest;
 $res = $test->GetByID($ID);
@@ -415,28 +425,28 @@ else
 
 if($bVarsFromForm)
 {
-	$ACTIVE = ($ACTIVE != "Y"? "N":"Y");
-	$APPROVED = ($APPROVED != "Y"? "N":"Y");
-	$RANDOM_QUESTIONS = ($RANDOM_QUESTIONS != "Y"? "N":"Y");
-	$RANDOM_ANSWERS = ($RANDOM_ANSWERS != "Y"? "N":"Y");
-	$INCORRECT_CONTROL = ($INCORRECT_CONTROL != "Y"? "N":"Y");
-	$CURRENT_INDICATION = ($CURRENT_INDICATION == 0 ? "N":"Y");
-	$FINAL_INDICATION = ($FINAL_INDICATION == 0 ? "N":"Y");
+	$ACTIVE = (!isset($_REQUEST['ACTIVE']) || $_REQUEST['ACTIVE'] != "Y" ? "N" : "Y");
+	$APPROVED = (!isset($_REQUEST['APPROVED']) || $_REQUEST['APPROVED'] != "Y" ? "N" : "Y");
+	$RANDOM_QUESTIONS = (!isset($_REQUEST['RANDOM_QUESTIONS']) || $_REQUEST['RANDOM_QUESTIONS'] != "Y" ? "N" : "Y");
+	$RANDOM_ANSWERS = (!isset($_REQUEST['RANDOM_ANSWERS']) || $_REQUEST['RANDOM_ANSWERS'] != "Y" ? "N" : "Y");
+	$INCORRECT_CONTROL = (!isset($_REQUEST['INCORRECT_CONTROL']) || $_REQUEST['INCORRECT_CONTROL'] != "Y" ? "N" : "Y");
+	$CURRENT_INDICATION = (!isset($_REQUEST['CURRENT_INDICATION']) || $_REQUEST['CURRENT_INDICATION'] == 0 ? "N" : "Y");
+	$FINAL_INDICATION = (!isset($_REQUEST['FINAL_INDICATION']) || $_REQUEST['FINAL_INDICATION'] == 0 ? "N" : "Y");
 
-	$SHOW_ERRORS = ($SHOW_ERRORS != "Y"? "N":"Y");
-	$NEXT_QUESTION_ON_ERROR = ($NEXT_QUESTION_ON_ERROR != "Y"? "N":"Y");
+	$SHOW_ERRORS = !isset($_REQUEST['SHOW_ERRORS']) || $_REQUEST['SHOW_ERRORS'] != "Y" ? "N" : "Y";
+	$NEXT_QUESTION_ON_ERROR = !isset($_REQUEST['NEXT_QUESTION_ON_ERROR']) || $_REQUEST['NEXT_QUESTION_ON_ERROR'] != "Y" ? "N" : "Y";
 	$DB->InitTableVarsForEdit("b_learn_test", "", "str_");
 
-	$str_CURRENT_INDICATION_PERCENT = ($CURRENT_INDICATION_PERCENT != "Y"? "N":"Y");
-	$str_CURRENT_INDICATION_MARK = ($CURRENT_INDICATION_MARK != "Y"? "N":"Y");
-	$str_FINAL_INDICATION_CORRECT_COUNT = ($FINAL_INDICATION_CORRECT_COUNT != "Y"? "N":"Y");
-	$str_FINAL_INDICATION_SCORE = ($FINAL_INDICATION_SCORE != "Y"? "N":"Y");
-	$str_FINAL_INDICATION_MARK = ($FINAL_INDICATION_MARK != "Y"? "N":"Y");
-	$str_FINAL_INDICATION_MESSAGE = ($FINAL_INDICATION_MESSAGE != "Y"? "N":"Y");
+	$str_CURRENT_INDICATION_PERCENT = (!isset($_REQUEST['CURRENT_INDICATION_PERCENT']) || $_REQUEST['CURRENT_INDICATION_PERCENT'] != "Y"? "N":"Y");
+	$str_CURRENT_INDICATION_MARK = (!isset($_REQUEST['CURRENT_INDICATION_MARK']) || $_REQUEST['CURRENT_INDICATION_MARK'] != "Y"? "N":"Y");
+	$str_FINAL_INDICATION_CORRECT_COUNT = (!isset($_REQUEST['FINAL_INDICATION_CORRECT_COUNT']) || $_REQUEST['FINAL_INDICATION_CORRECT_COUNT'] != "Y"? "N":"Y");
+	$str_FINAL_INDICATION_SCORE = (!isset($_REQUEST['FINAL_INDICATION_SCORE']) || $_REQUEST['FINAL_INDICATION_SCORE'] != "Y"? "N":"Y");
+	$str_FINAL_INDICATION_MARK = (!isset($_REQUEST['FINAL_INDICATION_MARK']) || $_REQUEST['FINAL_INDICATION_MARK'] != "Y"? "N":"Y");
+	$str_FINAL_INDICATION_MESSAGE = (!isset($_REQUEST['FINAL_INDICATION_MESSAGE']) || $_REQUEST['FINAL_INDICATION_MESSAGE'] != "Y"? "N":"Y");
 
-	$str_MIN_TIME_BETWEEN_ATTEMPTS_D = intval($MIN_TIME_BETWEEN_ATTEMPTS_D);
-	$str_MIN_TIME_BETWEEN_ATTEMPTS_H = intval($MIN_TIME_BETWEEN_ATTEMPTS_H);
-	$str_MIN_TIME_BETWEEN_ATTEMPTS_M = intval($MIN_TIME_BETWEEN_ATTEMPTS_M);
+	$str_MIN_TIME_BETWEEN_ATTEMPTS_D = intval($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_D'] ?? 0);
+	$str_MIN_TIME_BETWEEN_ATTEMPTS_H = intval($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_H'] ?? 0);
+	$str_MIN_TIME_BETWEEN_ATTEMPTS_M = intval($_REQUEST['MIN_TIME_BETWEEN_ATTEMPTS_M'] ?? 0);
 }
 
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
@@ -449,8 +459,8 @@ $aContext = array(
 		"ICON"  => "btn_list",
 		"TEXT"  => GetMessage("MAIN_ADMIN_MENU_LIST"),
 		"LINK"  => "learn_test_admin.php?lang=" . LANG
-			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 			. "&COURSE_ID=" . $COURSE_ID
 			. GetFilterParams("filter_"),
 		"TITLE" => GetMessage("MAIN_ADMIN_MENU_LIST")
@@ -465,8 +475,8 @@ if ($ID > 0)
 		"TEXT"=>GetMessage("MAIN_ADMIN_MENU_CREATE"),
 		"LINK"=>"learn_test_edit.php?lang=" . LANG
 			. "&COURSE_ID=" . $COURSE_ID
-			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 			. GetFilterParams("filter_"),
 
 		"TITLE"=>GetMessage("LEARNING_ADD")
@@ -474,8 +484,8 @@ if ($ID > 0)
 
 	$returnUrl = "/bitrix/admin/learn_test_admin.php?lang=" . LANG
 		. "&amp;COURSE_ID=" . $COURSE_ID
-		. '&amp;PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-		. '&amp;LESSON_PATH=' . urlencode($_GET['LESSON_PATH'])
+		. '&amp;PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+		. '&amp;LESSON_PATH=' . urlencode($_GET['LESSON_PATH'] ?? '')
 		. GetFilterParams("filter_", false);
 
 
@@ -499,8 +509,8 @@ $context->Show();
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="ID" value="<?echo $ID?>">
 	<input type="hidden" name="COURSE_ID" value="<?echo $COURSE_ID?>">
-	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
-	<?if($return_url <> ''):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
+	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from ?? '')?>">
+	<?if(!empty($return_url)):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
 <?php $tabControl->EndEpilogContent();?>
 <?$tabControl->Begin();?>
 <?$tabControl->BeginNextFormTab();?>
@@ -646,7 +656,7 @@ $context->Show();
 				<td><input type="radio" name="QUESTIONS_FROM" id="QUESTIONS_FROM_L" value="L"<?if($str_QUESTIONS_FROM=="L")echo " checked"?> onclick="OnChangeAnswer('L');"><label for="QUESTIONS_FROM_L"><input type="text" name="QUESTIONS_AMOUNT_L" onclick="return false;" size="2" value="<?echo ($str_QUESTIONS_FROM=="L" ? $str_QUESTIONS_AMOUNT : "")?>">&nbsp;<? echo GetMessage("LEARNING_QUESTIONS_FROM_LESSONS")?></label></td>
 			</tr>
 		</table>
-		<script type="text/javascript">
+		<script>
 			<?
 			if ($str_QUESTIONS_AMOUNT == '0' && $str_QUESTIONS_FROM != "S" && $str_QUESTIONS_FROM != "H" && $str_QUESTIONS_FROM != "R")
 				$str = "";
@@ -753,7 +763,7 @@ $context->Show();
 			<? echo GetMessage("LEARNING_COMPLETED_SCORE2")?>
 		</td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 		function OnChangeApproved(val)
 		{
 			document.forms['testTabControl_form'].elements['COMPLETED_SCORE'].disabled = !val;
@@ -793,7 +803,7 @@ $context->Show();
 	<tr>
 		<td><? echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td valign="top">
-		<script type="text/javascript">
+		<script>
 			function filterTests()
 			{
 				var course = BX("PREVIOUS_TEST_COURSE_ID");
@@ -813,7 +823,7 @@ $context->Show();
 						var tmp = sourceList.options[i].cloneNode(true);
 
 						var newElem = document.createElement("option");
-						newElem.text = sourceList.options[i].innerHTML;
+						newElem.text = sourceList.options[i].textContent;
 						newElem.value = sourceList.options[i].value;
 
 						if (sourceList.options[i].index == sourceList.selectedIndex)
@@ -850,7 +860,7 @@ $context->Show();
 				endwhile;
 			?>
 		</select>
-		<script type="text/javascript">
+		<script>
 			var sourceList = BX("PREVIOUS_TEST_ID").cloneNode(true);
 			sourceList.selectedIndex = BX("PREVIOUS_TEST_ID").selectedIndex;
 			filterTests();
@@ -860,7 +870,7 @@ $context->Show();
 		<? echo GetMessage("LEARNING_PREVIOUS_TEST_SCORE2")?>
 		</td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 		function OnChangePreviousTest()
 		{
 			document.forms['testTabControl_form'].elements['PREVIOUS_TEST_SCORE'].disabled = !document.forms['testTabControl_form'].elements['PREVIOUS_TEST_ID'].selectedIndex;
@@ -901,7 +911,7 @@ $context->Show();
 			</div>
 		</td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 		function toggleIndication(visible, num)
 		{
 			if (visible)
@@ -930,7 +940,7 @@ $context->Show();
 			<input type="radio" name="NEXT_QUESTION_ON_ERROR" value="N"<?if($str_NEXT_QUESTION_ON_ERROR=="N")echo " checked"?>>&nbsp;<? echo GetMessage("LEARNING_PREV_QUESTION_ON_ERROR")?>
 		</td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 		function toggleNextQ()
 		{
 			if (document.getElementById("show_errors").checked && document.getElementsByName("PASSAGE_TYPE")[2].checked)
@@ -1053,7 +1063,7 @@ $context->Show();
 				<?php endforeach?>
 				</tbody>
 			</table>
-			<script type="text/javascript">
+			<script>
 				var nextNum = <?php echo $nextNum?>;
 				function addMark() {
 					var row = BX.create("tr", {
@@ -1103,15 +1113,15 @@ $tabControl->Buttons(
 	array(
 		'disabled' => $isBtnsDisabled,
 		"back_url" =>"learn_test_admin.php?lang=". LANG
-		. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-		. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+		. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+		. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 		. "&COURSE_ID=" . $COURSE_ID
 		. GetFilterParams("find_", false)));
 
 $tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage() . "?lang=" . LANG
 	. "&COURSE_ID=" . $COURSE_ID
-	. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-	. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+	. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+	. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 	. "&ID=" . $ID;
 $tabControl->Show();
 

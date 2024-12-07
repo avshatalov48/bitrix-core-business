@@ -30,7 +30,7 @@ class CCatalogStoreDocsBarcodeAll
 		global $DB;
 		$strUpdate = $DB->PrepareUpdate("b_catalog_docs_barcode", $arFields);
 		$strSql = "UPDATE b_catalog_docs_barcode SET ".$strUpdate." WHERE ID = ".$id;
-		if(!$DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if(!$DB->Query($strSql, true))
 			return false;
 
 		foreach(GetModuleEvents("catalog", "OnStoreDocsBarcodeUpdate", true) as $arEvent)

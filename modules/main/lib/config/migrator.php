@@ -13,7 +13,6 @@ class Migrator
 	public static function wnc()
 	{
 		$ar = array(
-			"utf_mode" => array("value" => defined('BX_UTF'), "readonly" => true),
 			"default_charset" => array("value" => defined('BX_DEFAULT_CHARSET') ? BX_DEFAULT_CHARSET : null, "readonly" => false),
 			"no_accelerator_reset" => array("value" => defined('BX_NO_ACCELERATOR_RESET'), "readonly" => false),
 			"http_status" => array("value" => (defined('BX_HTTP_STATUS') && BX_HTTP_STATUS), "readonly" => false),
@@ -101,7 +100,7 @@ class Migrator
 		$ar["cache"] = array("value" => $cache, "readonly" => false);
 
 		$cacheFlags = array();
-		$arCacheConsts = array("CACHED_b_option" => "config_options", "CACHED_b_lang_domain" => "site_domain");
+		$arCacheConsts = array("CACHED_b_option" => "config_options");
 		foreach ($arCacheConsts as $const => $name)
 			$cacheFlags[$name] = defined($const) ? constant($const) : 0;
 		$ar["cache_flags"] = array("value" => $cacheFlags, "readonly" => false);
@@ -139,7 +138,7 @@ class Migrator
 			'database' => $DBName,
 			'login' => $DBLogin,
 			'password' => $DBPassword,
-			'options' =>  ((!defined("DBPersistent") || DBPersistent) ? 1 : 0) | ((defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true) ? 2 : 0)
+			'options' =>  ((defined('DBPersistent') && DBPersistent) ? 1 : 0) | ((defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true) ? 2 : 0)
 		);
 		$ar['connections']['readonly'] = true;
 

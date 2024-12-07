@@ -66,7 +66,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
-<script language="JavaScript">
+<script>
 var savedNS;
 var stop;
 function StartReindex()

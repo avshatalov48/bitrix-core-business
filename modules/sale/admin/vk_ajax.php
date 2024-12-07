@@ -144,9 +144,6 @@ else
 if (!isset($arResult["ERROR"]) && $arResult["RESULT"] == '')
 	$arResult["RESULT"] = "OK";
 
-if (mb_strtolower(SITE_CHARSET) != 'utf-8')
-	$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
-
 header('Content-Type: application/json');
 print json_encode($arResult);
 \CMain::FinalActions();

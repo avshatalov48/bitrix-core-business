@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -58,7 +58,7 @@
 			classGroupEditButton: 'main-grid-control-panel-action-edit',
 			classGroupDeleteButton: 'main-grid-control-panel-action-remove',
 			classGroupActionsDisabled: 'main-grid-control-panel-action-icon-disable',
-			classPanelButton: 'main-grid-buttons',
+			classPanelButton: 'ui-btn',
 			classPanelApplyButton: 'main-grid-control-panel-apply-button',
 			classPanelCheckbox: 'main-grid-panel-checkbox',
 			classEditor: 'main-grid-editor',
@@ -124,39 +124,41 @@
 			pageSizeId: 'grid_page_size',
 			sortableRows: true,
 			sortableColumns: true,
-			animationDuration: 300
+			animationDuration: 300,
 		};
 		this.prepare();
 	};
 
-
 	BX.Grid.Settings.prototype = {
-		prepare: function()
+		prepare()
 		{
 			this.settings = this.defaultSettings;
 		},
 
-		getDefault: function()
+		getDefault()
 		{
 			return this.defaultSettings;
 		},
 
-		get: function(name)
+		get(name)
 		{
-			var result;
+			let result;
 
-			try {
+			try
+			{
 				result = (this.getDefault())[name];
-			} catch (err) {
+			}
+			catch
+			{
 				result = null;
 			}
 
 			return result;
 		},
 
-		getList: function()
+		getList()
 		{
 			return this.getDefault();
-		}
+		},
 	};
 })();

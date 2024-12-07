@@ -15,4 +15,5 @@ export type RecentItem = {
 	},
 	isFakeElement: boolean, // invitation or fake element for new users
 	isBirthdayPlaceholder: boolean,
+	lastActivityDate: null | Date,
 };

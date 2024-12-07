@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -5,14 +6,12 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	'use strict';
 
 	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
-
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+
 	/**
 	 * @memberOf BX.Landing.UI.Field
 	 */
-
 	var BaseField = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(BaseField, _EventEmitter);
 	  babelHelpers.createClass(BaseField, null, [{
@@ -36,18 +35,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-description landing-ui-error\">\n\t\t\t\t<span class=\"fa fa-info-circle\"> </span> ", "\n\t\t\t</div>\n\t\t"])), text);
 	    }
 	  }]);
-
 	  function BaseField() {
 	    var _this;
-
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, BaseField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(BaseField).call(this, options));
-
 	    _this.setEventNamespace('BX.Landing.UI.Field');
-
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
-
 	    _this.data = _objectSpread({}, options);
 	    _this.options = _this.data;
 	    _this.id = Reflect.has(_this.data, 'id') ? _this.data.id : main_core.Text.getRandom();
@@ -72,31 +66,22 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.layout = BaseField.createLayout();
 	    _this.header = BaseField.createHeader();
 	    _this.input = _this.createInput();
-
 	    _this.setTitle(_this.title);
-
 	    main_core.Dom.append(_this.header, _this.layout);
 	    main_core.Dom.append(_this.input, _this.layout);
 	    main_core.Dom.attr(_this.layout, 'data-selector', _this.selector);
-
 	    _this.input.setAttribute('data-placeholder', _this.placeholder);
-
 	    if (main_core.Type.isArrayLike(_this.className)) {
 	      main_core.Dom.addClass(_this.layout, _this.className);
 	    }
-
 	    _this.setDescription(_this.descriptionText);
-
 	    if (_this.data.disabled === true) {
 	      _this.disable();
 	    }
-
 	    if (options.skipPasteControl !== true) {
 	      main_core.Event.bind(_this.input, 'paste', _this.onPaste);
 	    }
-
 	    _this.init();
-
 	    if (_this.data.help) {
 	      var hintNode = document.createElement('span');
 	      hintNode.setAttribute('data-hint', _this.data.help);
@@ -105,10 +90,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      BX.Dom.append(hintNode, _this.header);
 	      top.BX.UI.Hint.init(BX.Landing.UI.Panel.StylePanel.getInstance().layout);
 	    }
-
 	    return _this;
 	  }
-
 	  babelHelpers.createClass(BaseField, [{
 	    key: "setTitle",
 	    value: function setTitle(title) {
@@ -141,7 +124,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    value: function createInput() {
 	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div class=\"landing-ui-field-input\">", "</div>\n\t\t"])), this.content);
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "init",
 	    value: function init() {}
@@ -151,16 +133,13 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      if (this.input.ownerDocument) {
 	        return this.input.ownerDocument.defaultView;
 	      }
-
 	      return window;
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "onPaste",
 	    value: function onPaste(event) {
 	      event.preventDefault();
 	      event.stopPropagation();
-
 	      if (event.clipboardData && event.clipboardData.getData) {
 	        var sourceText = event.clipboardData.getData('text/plain');
 	        var encodedText = BX.Text.encode(sourceText);
@@ -181,19 +160,15 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    key: "isChanged",
 	    value: function isChanged() {
 	      var _this2 = this;
-
 	      var content = function () {
 	        if (main_core.Type.isNil(_this2.content)) {
 	          return '';
 	        }
-
 	        if (main_core.Type.isString(_this2.content)) {
 	          return _this2.content.trim();
 	        }
-
 	        return _this2.content;
 	      }();
-
 	      return content !== this.getValue();
 	    }
 	  }, {
@@ -229,7 +204,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.attr(this.layout, 'disabled', true);
 	      main_core.Dom.addClass(this.layout, 'landing-ui-disabled');
 	    } // eslint-disable-next-line class-methods-use-this
-
 	  }, {
 	    key: "reset",
 	    value: function reset() {}
@@ -255,7 +229,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	     * If field has inline style-properties (f.e. css variables) - get name of them
 	    	 * @returns {string[]}
 	     */
-
 	  }, {
 	    key: "getInlineProperties",
 	    value: function getInlineProperties() {
@@ -265,7 +238,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	     * If field need match computed styles by node - get name of style properties
 	     * @returns {string[]}
 	     */
-
 	  }, {
 	    key: "getComputedProperties",
 	    value: function getComputedProperties() {
@@ -276,7 +248,6 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	     * If field work with pseudo element - return them (f.e. :after)
 	     * @returns {?string}
 	     */
-
 	  }, {
 	    key: "getPseudoElement",
 	    value: function getPseudoElement() {

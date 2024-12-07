@@ -18,3 +18,6 @@ $MESS ['MAIN_ADMIN_ADD_SITE_SELECTOR'] = "Настроить для другог
 $MESS ['MAIN_ADMIN_ADD_SITE_SELECTOR_1'] = "Настроить для другого сайта";
 $MESS ['MAIN_ADMIN_SITE_DEFAULT_VALUE_SELECT'] = "(Выберите сайт)";
 $MESS ['MAIN_ADMIN_SITE_ALL_SELECT'] = "Для всех сайтов";
+$MESS['MAIN_ADMIN_SET_PASS_SET'] = '(установлен)';
+$MESS['MAIN_ADMIN_SET_PASS_DEL_TITLE'] = 'Удалить сохраненный пароль';
+$MESS['MAIN_ADMIN_SET_PASS_DEL'] = 'Удалить';

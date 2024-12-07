@@ -12,7 +12,14 @@ class Util
 		$result = [];
 		foreach ($idList as $userId)
 		{
-			$result[$userId] = \Bitrix\Im\User::getInstance($userId)->getArray(['JSON' => 'Y', 'HR_PHOTO' => true]);
+			$user = \Bitrix\Im\User::getInstance($userId)->getArray(['JSON' => 'Y', 'HR_PHOTO' => true]);
+			$result[$userId] = [
+				'id' => $user['id'],
+				'name' => $user['name'],
+				'avatar' => $user['avatar'],
+				'avatar_hr' => $user['avatar_hr'],
+				'gender' => $user['gender'],
+			];
 		}
 
 		return $result;

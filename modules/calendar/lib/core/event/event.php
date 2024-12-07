@@ -12,6 +12,8 @@ use Bitrix\Calendar\Core\Event\Properties\Location;
 use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
+use Bitrix\Calendar\Core\eventoption\EventOption;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Main\Text\Emoji;
@@ -170,6 +172,8 @@ class Event implements EntityInterface
 	 * @var Relations|null
 	 */
 	private ?Relations $relations = null;
+
+	private ?EventOption $eventOption = null;
 
 	/**
 	 * @param Builder $builder
@@ -1006,5 +1010,22 @@ class Event implements EntityInterface
 	{
 		$this->calType = $calendarType;
 		return $this;
+	}
+
+	public function getEventOption(): ?EventOption
+	{
+		return $this->eventOption;
+	}
+
+	public function setEventOption(?EventOption $eventOption): self
+	{
+		$this->eventOption = $eventOption;
+
+		return $this;
+	}
+
+	public function isOpenEvent(): bool
+	{
+		return $this->getSection()?->getType() === Dictionary::CALENDAR_TYPE['open_event'];
 	}
 }

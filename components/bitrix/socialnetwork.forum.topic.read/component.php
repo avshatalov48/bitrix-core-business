@@ -55,7 +55,7 @@ foreach ($URL_NAME_DEFAULT as $URL => $URL_VALUE)
 {
 	if (trim($arParams["URL_TEMPLATES_".mb_strtoupper($URL)]) == '')
 		$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = $APPLICATION->GetCurPageParam($URL_VALUE,
-			array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid", "SEF_APPLICATION_CUR_PAGE_URL",
+			array("PAGE_NAME", "FID", "TID", "UID", "GID", "MID", "ACTION", "sessid",
 				"AJAX_TYPE", "AJAX_CALL", BX_AJAX_PARAM_ID, "result", "order"));
 	$arParams["~URL_TEMPLATES_".mb_strtoupper($URL)] = $arParams["URL_TEMPLATES_".mb_strtoupper($URL)];
 	$arParams["URL_TEMPLATES_".mb_strtoupper($URL)] = htmlspecialcharsbx($arParams["~URL_TEMPLATES_".mb_strtoupper($URL)]);

@@ -135,7 +135,7 @@ class Synchronization
 		$eventCloner = new Core\Builders\EventCloner($event);
 		$pushManager = new PushManager();
 		$push = null;
-		
+
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
@@ -143,14 +143,14 @@ class Synchronization
 			{
 				continue;
 			}
-			
+
 			try
 			{
-				
+
 				$clonedEvent = $eventCloner->build();
 				$vendorSync = $this->getVendorSynchronization($factory);
 				$eventContext = $this->prepareEventContext($clonedEvent, clone $context, $factory);
-				
+
 				if ($eventContext->getSectionConnection()?->getId())
 				{
 					$push = $pushManager->getPush(PushManager::TYPE_SECTION_CONNECTION, $eventContext->getSectionConnection()->getId());
@@ -403,7 +403,7 @@ class Synchronization
 		$resultData = [];
 		$pushManager = new PushManager();
 		$push = null;
-		
+
 		/** @var FactoryInterface $factory */
 		foreach ($this->factories as $factory)
 		{
@@ -411,13 +411,13 @@ class Synchronization
 			{
 				continue;
 			}
-			
+
 			if ($factory->getConnection()->getId())
 			{
 				$push = $pushManager->getPush(PushManager::TYPE_CONNECTION, $factory->getConnection()->getId());
 				$pushManager->setBlockPush($push);
 			}
-			
+
 			try
 			{
 				$vendorSync = $this->getVendorSynchronization($factory);
@@ -518,6 +518,19 @@ class Synchronization
 					'VERSION' => $version,
 				],
 			]);
+		}
+	}
+
+	public function deleteInstanceEventConnection(Event $event)
+	{
+		$links = $this->mapperFactory->getEventConnection()->getMap([
+			'=EVENT_ID' => $event->getId(),
+		])->getCollection();
+
+		/** @var EventConnection $link */
+		foreach ($links as $link)
+		{
+			EventConnectionTable::delete($link->getId());
 		}
 	}
 

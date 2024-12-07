@@ -28,7 +28,6 @@ class CSearcher extends CAllSearcher
 
 	public static function GetList($by = 's_today_hits', $order = 'desc', $arFilter = [], &$is_filtered = false, $LIMIT = false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array("S.ID <> 1");
 		$arSqlSearch_h = Array();
@@ -181,7 +180,7 @@ class CSearcher extends CAllSearcher
 		$limit_sql
 		";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$is_filtered = (IsFiltered($strSqlSearch) || $filter_period || $strSqlSearch_h <> '');
 		return $res;
 	}
@@ -189,7 +188,6 @@ class CSearcher extends CAllSearcher
 	public static function GetDropDownList($strSqlOrder="ORDER BY NAME, ID")
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
@@ -200,13 +198,12 @@ class CSearcher extends CAllSearcher
 				ID <> 1
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetDynamicList($SEARCHER_ID, $by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$SEARCHER_ID = intval($SEARCHER_ID);
 		$arSqlSearch = Array();
@@ -270,7 +267,7 @@ class CSearcher extends CAllSearcher
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		$strSql = "
 			SELECT
@@ -288,7 +285,7 @@ class CSearcher extends CAllSearcher
 				D.SEARCHER_ID = $SEARCHER_ID
 			$strSqlSearch
 			";
-		$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $DB->Query($strSql);
 		$ar = $a->Fetch();
 		$arMaxMin["MAX_DAY"]	= $ar["MAX_DAY"];
 		$arMaxMin["MAX_MONTH"]	= $ar["MAX_MONTH"];

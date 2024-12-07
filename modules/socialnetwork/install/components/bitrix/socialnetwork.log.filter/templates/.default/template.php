@@ -85,8 +85,7 @@ if ($arResult["MODE"] === "AJAX")
 	<div id="sonet-log-filter" class="sonet-log-filter-block">
 		<div class="log-filter-title"><?=GetMessage("SONET_C30_T_FILTER_TITLE")?></div>
 		<form class="log-filter-form" method="GET" name="log_filter" target="_self" action="<?=POST_FORM_ACTION_URI?>">
-		<input type="hidden" name="SEF_APPLICATION_CUR_PAGE_URL" value="<?=GetPagePath()?>"><?php
-		?><div class="log-filter-field">
+		<div class="log-filter-field">
 			<label class="log-filter-field-title" for="log-filter-field-created-by"><?= Loc::getMessage('SONET_C30_T_FILTER_CREATED_BY') ?></label>
 			<div class="feed-add-post-destination-wrap feed-add-post-destination-filter" id="sonet-log-filter-created-by">
 				<span id="sonet-log-filter-created-by-item"></span>
@@ -226,7 +225,7 @@ if ($arResult["MODE"] === "AJAX")
 			</span>
 		</div>
 
-		<script type="text/javascript">
+		<script>
 			BX.ready(function(){
 				__logOnDateChange(document.forms['log_filter'].flt_date_datesel);
 			});
@@ -375,8 +374,8 @@ $isCompositeMode === false ?: ($dynamicArea = $this->createFrame()->begin(""));
 					type: 'EXPERT_MODE',
 					reload: true,
 					title: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TITLE")?>',
-					description1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1A")?>',
-					description2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2A")?>',
+					description1: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT1B")?>',
+					description2: '<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_POPUP_TEXT2B")?>',
 					descriptionImage: {
 						src: '<?=CUtil::JSEscape($this->GetFolder())?>/images/expert_mode/<?=GetMessageJS("SONET_C30_F_EXPERT_MODE_IMAGENAME")?>.png',
 						width: 354,
@@ -600,7 +599,7 @@ elseif (isset($_SESSION["SL_EXPERT_MODE_HINT"]))
 	unset($_SESSION["SL_EXPERT_MODE_HINT"]);
 	?><div id="feed_filter_hint_expert" class="feed-smart-follow-hint-wrap"><?php
 	?><div class="feed-smart-follow-hint"><?php
-		?><?= Loc::getMessage('SONET_C30_EXPERT_MODE_HINTA') ?><?php
+		?><?= Loc::getMessage('SONET_C30_EXPERT_MODE_HINTB') ?><?php
 		?><span class="popup-window-close-icon feed-smart-follow-hint-close" id="feed_filter_hint_expert_close"></span><?php
 	?></div><?php
 	?></div><?php

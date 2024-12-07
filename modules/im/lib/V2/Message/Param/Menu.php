@@ -29,10 +29,6 @@ class Menu extends Param
 		elseif (!empty($value))
 		{
 			$this->menu = Im\Bot\ContextMenu::getByJson($value);
-			if ($this->menu === null)
-			{
-				$this->isValid = false;
-			}
 		}
 
 		if (isset($this->menu))

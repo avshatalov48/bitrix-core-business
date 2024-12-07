@@ -51,7 +51,7 @@ export class Configurator
 	{
 		this.node = Tag.render`<div class="ui-userfieldfactory-configurator"></div>`;
 
-		this.labelInput = Tag.render`<input class="ui-ctl-element" type="text" value="${Text.encode(this.userField.getTitle())}" />`;
+		this.labelInput = Tag.render`<input class="ui-ctl-element" type="text" placeholder="${Text.encode(this.userField.getTitle())}" />`;
 
 		this.node.appendChild(Tag.render`<div class="ui-userfieldfactory-configurator-block">
 			<div class="ui-userfieldfactory-configurator-title">

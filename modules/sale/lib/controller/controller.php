@@ -172,34 +172,39 @@ class Controller extends Engine\Controller
 	{
 		$orderProperties = [];
 
-		if(isset($this->request->getFileList()['fields']['PROPERTIES']))
+		if (isset($this->request->getFileList()['fields']['PROPERTIES']))
 		{
 			foreach ($this->request->getFileList()['fields']['PROPERTIES'] as $orderPropId => $arFileData)
 			{
 				if (is_array($arFileData))
 				{
-					foreach ($arFileData as $param_name => $value)
+					foreach ($arFileData as $paramName => $value)
 					{
 						if (is_array($value))
 						{
 							foreach ($value as $nIndex => $val)
 							{
 								if ($arFileData["name"][$nIndex] <> '')
-									$orderProperties[$orderPropId][$nIndex][$param_name] = $val;
+								{
+									$orderProperties[$orderPropId][$nIndex][$paramName] = $val;
+								}
 							}
 						}
 						else
-							$orderProperties[$orderPropId][$param_name] = $value;
+						{
+							$orderProperties[$orderPropId][$paramName] = $value;
+						}
 					}
 				}
 			}
 		}
+
 		return $orderProperties;
 	}
 
 	protected function toArray(\Bitrix\Sale\Order $order, array $fields=[])
 	{
-		//äîáàâëÿåì òå ïîëÿ, ê ñóùåñòâóþùèì ïîëÿì ñóùíîñòè, êîòîðûå ó íå¸ îòñóòñòâóþò
+		//Ð´Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ñ‚Ðµ Ð¿Ð¾Ð»Ñ, Ðº ÑÑƒÑ‰ÐµÑÑ‚Ð²ÑƒÑŽÑ‰Ð¸Ð¼ Ð¿Ð¾Ð»ÑÐ¼ ÑÑƒÑ‰Ð½Ð¾ÑÑ‚Ð¸, ÐºÐ¾Ñ‚Ð¾Ñ€Ñ‹Ðµ Ñƒ Ð½ÐµÑ‘ Ð¾Ñ‚ÑÑƒÑ‚ÑÑ‚Ð²ÑƒÑŽÑ‚
 		$fields = array_merge($fields, $this->getAdditionalFields($order));
 
 		if($this->isCrmModuleInstalled() && Loader::includeModule('crm'))
@@ -220,57 +225,83 @@ class Controller extends Engine\Controller
 	{
 		$ixInternal = [];
 		//region fill internal Index
-		foreach(\Bitrix\Sale\PersonType::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		foreach (\Bitrix\Sale\PersonType::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		{
 			$ixInternal['personType'][$row['ID']] = $row['XML_ID'];
+		}
 
-		foreach(\Bitrix\Sale\OrderStatus::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		foreach (\Bitrix\Sale\OrderStatus::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		{
 			$ixInternal['orderStatus'][$row['ID']] = $row['XML_ID'];
+		}
 
-		foreach(\Bitrix\Sale\Property::getList(['select'=>['ID', 'XML_ID']])->fetchAll() as $row)
+		foreach (\Bitrix\Sale\Property::getList(['select'=>['ID', 'XML_ID']])->fetchAll() as $row)
+		{
 			$ixInternal['properties'][$row['ID']] = $row['XML_ID'];
+		}
 
-		foreach(\Bitrix\Sale\PaySystem\Manager::getList(['select'=>['ID', 'XML_ID', 'IS_CASH']])->fetchAll() as $row)
+		foreach (\Bitrix\Sale\PaySystem\Manager::getList(['select'=>['ID', 'XML_ID', 'IS_CASH']])->fetchAll() as $row)
 		{
 			$ixInternal['paySystems'][$row['ID']]['XML_ID'] = $row['XML_ID'];
 			$ixInternal['paySystems'][$row['ID']]['IS_CASH'] = $row['IS_CASH'];
 		}
 
-		foreach(\Bitrix\Sale\Delivery\Services\Manager::getActiveList() as $row)
+		foreach (\Bitrix\Sale\Delivery\Services\Manager::getActiveList() as $row)
+		{
 			$ixInternal['deliverySystems'][$row['ID']] = $row['XML_ID'];
+		}
 
-		foreach(\Bitrix\Sale\DeliveryStatus::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		foreach (\Bitrix\Sale\DeliveryStatus::getList(['select'=>['ID', 'XML_ID']]) as $row)
+		{
 			$ixInternal['deliveryStatus'][$row['ID']] = $row['XML_ID'];
+		}
 
-		foreach(\Bitrix\Sale\TradingPlatformTable::getList(['select'=>['ID', 'XML_ID']])->fetchAll() as $row)
+		foreach (\Bitrix\Sale\TradingPlatformTable::getList(['select'=>['ID', 'XML_ID']])->fetchAll() as $row)
+		{
 			$ixInternal['tradingPlatform'][$row['ID']] = $row['XML_ID'];
+		}
 		//endregion
 
 		$r['ORDER'][$order->getInternalId()] = [
-			'PERSON_TYPE_XML_ID'=>$ixInternal['personType'][$order->getPersonTypeId()],
-			'STATUS_XML_ID'=>$ixInternal['orderStatus'][$order->getField('STATUS_ID')]];
+			'PERSON_TYPE_XML_ID' => $ixInternal['personType'][$order->getPersonTypeId()] ?? null,
+			'STATUS_XML_ID' => $ixInternal['orderStatus'][$order->getField('STATUS_ID')] ?? null,
+		];
 
 		foreach ($order->getPropertyCollection() as $property)
-			$r['PROPERTIES'][$property->getInternalIndex()] = ['ORDER_PROPS_XML_ID'=>$ixInternal['properties'][$property->getPropertyId()]];
+		{
+			$r['PROPERTIES'][$property->getInternalIndex()] = [
+				'ORDER_PROPS_XML_ID' => $ixInternal['properties'][$property->getPropertyId()] ?? null,
+			];
+		}
 
 		foreach ($order->getPaymentCollection() as $payment)
+		{
 			$r['PAYMENTS'][$payment->getInternalIndex()] = [
-				'PAY_SYSTEM_XML_ID'=>$ixInternal['paySystems'][$payment->getPaymentSystemId()]['XML_ID'],
-				'PAY_SYSTEM_IS_CASH'=>$ixInternal['paySystems'][$payment->getPaymentSystemId()]['IS_CASH']
+				'PAY_SYSTEM_XML_ID' => $ixInternal['paySystems'][$payment->getPaymentSystemId()]['XML_ID'] ?? null,
+				'PAY_SYSTEM_IS_CASH' => $ixInternal['paySystems'][$payment->getPaymentSystemId()]['IS_CASH'] ?? null,
 			];
+		}
 
 		/** @var \Bitrix\Sale\Shipment $shipment */
 		foreach ($order->getShipmentCollection() as $shipment)
 		{
 			$shipmentIndex = $shipment->getInternalIndex();
 			$r['SHIPMENTS'][$shipmentIndex] = [
-				'DELIVERY_XML_ID'=>$ixInternal['deliverySystems'][$shipment->getDeliveryId()],
-				'STATUS_XML_ID'=>$ixInternal['deliveryStatus'][$shipment->getField('STATUS_ID')]];
+				'DELIVERY_XML_ID' => $ixInternal['deliverySystems'][$shipment->getDeliveryId()] ?? null,
+				'STATUS_XML_ID' => $ixInternal['deliveryStatus'][$shipment->getField('STATUS_ID')] ?? null,
+			];
 		}
 
 		/** @var TradeBindingEntity $binding */
 		foreach ($order->getTradeBindingCollection() as $binding)
-			if($binding->getTradePlatform() !== null)
-				$r['TRADE_BINDINGS'][$binding->getInternalIndex()] = ['TRADING_PLATFORM_XML_ID'=>$ixInternal['tradingPlatform'][$binding->getTradePlatform()->getId()]];
+		{
+			if ($binding->getTradePlatform() !== null)
+			{
+				$r['TRADE_BINDINGS'][$binding->getInternalIndex()] = [
+					'TRADING_PLATFORM_XML_ID' => $ixInternal['tradingPlatform'][$binding->getTradePlatform()->getId()] ?? null,
+				];
+			}
+		}
 
 		return $r;
 	}

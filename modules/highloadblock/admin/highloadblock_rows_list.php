@@ -213,7 +213,7 @@ $order = mb_strtoupper($order);
 
 $navyParams = [];
 $usePageNavigation = true;
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+if ($lAdmin->isExportMode())
 {
 	$usePageNavigation = false;
 }

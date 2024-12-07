@@ -132,7 +132,7 @@ class CAllSaleGroupAccessToSite
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_site2group", $arFields);
 		$strSql = "UPDATE b_sale_site2group SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return True;
 	}
@@ -147,7 +147,7 @@ class CAllSaleGroupAccessToSite
 			"SELECT * ".
 			"FROM b_sale_site2group ".
 			"WHERE ID = ".$ID."";
-		$dbGroupSite = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbGroupSite = $DB->Query($strSql);
 
 		if ($arGroupSite = $dbGroupSite->Fetch())
 			return $arGroupSite;
@@ -233,7 +233,7 @@ class CAllSaleGroupAccessToFlag
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_order_flags2group", $arFields);
 		$strSql = "UPDATE b_sale_order_flags2group SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return True;
 	}
@@ -248,7 +248,7 @@ class CAllSaleGroupAccessToFlag
 			"SELECT * ".
 			"FROM b_sale_order_flags2group ".
 			"WHERE ID = ".$ID."";
-		$dbGroupSite = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbGroupSite = $DB->Query($strSql);
 
 		if ($arGroupSite = $dbGroupSite->Fetch())
 			return $arGroupSite;

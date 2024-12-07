@@ -14,7 +14,7 @@ if ($RIGHTS > "D"):
 	while($res = $db_res->Fetch())
 		$arLangs[$res["LID"]] = $res;
 	//*****************************************************************************************************************
-	if($REQUEST_METHOD == "POST" && (($save ?? null) != "" || ($apply ?? null) !="") && ($RIGHTS>="W") && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD'] == "POST" && (($save ?? null) != "" || ($apply ?? null) !="") && ($RIGHTS>="W") && check_bitrix_sessid())
 	{
 		$arSights = array();
 		if (is_array($_REQUEST["CODE"] ?? null))

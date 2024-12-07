@@ -136,7 +136,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 							"colorAvailableInactive" => 'colorAvailableInactive_'.$key,
 						);
 						?>
-						<script type="text/javascript">
+						<script>
 							BX.ready(function(){
 								window['trackBar<?=$key?>'] = new BX.Iblock.SmartFilter(<?=CUtil::PhpToJSObject($arJsParams)?>);
 							});
@@ -165,7 +165,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 							<span class="bx-filter-parameters-box-hint"><?=$arItem["NAME"]?>
 								<?if ($arItem["FILTER_HINT"] <> ""):?>
 									<i id="item_title_hint_<?echo $arItem["ID"]?>" class="fa fa-question-circle"></i>
-									<script type="text/javascript">
+									<script>
 										new top.BX.CHint({
 											parent: top.BX("item_title_hint_<?echo $arItem["ID"]?>"),
 											show_timeout: 10,
@@ -264,7 +264,7 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 										"colorAvailableInactive" => 'colorAvailableInactive_'.$key,
 									);
 									?>
-									<script type="text/javascript">
+									<script>
 										BX.ready(function(){
 											window['trackBar<?=$key?>'] = new BX.Iblock.SmartFilter(<?=CUtil::PhpToJSObject($arJsParams)?>);
 										});
@@ -665,6 +665,6 @@ $this->addExternalCss("/bitrix/css/main/font-awesome.css");
 		</form>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 	var smartFilter = new JCSmartFilter('<?echo CUtil::JSEscape($arResult["FORM_ACTION"])?>', '<?=CUtil::JSEscape($arParams["FILTER_VIEW_MODE"])?>', <?=CUtil::PhpToJSObject($arResult["JS_FILTER_PARAMS"])?>);
 </script>

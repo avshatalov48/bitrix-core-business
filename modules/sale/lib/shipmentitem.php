@@ -219,7 +219,10 @@ class ShipmentItem
 
 		$order = $shipment->getCollection()->getOrder();
 
-		if ($shipment->isShipped())
+		if (
+			$shipment->isShipped()
+			&& $name !== 'XML_ID'
+		)
 		{
 			return $result->addError(
 				new ResultError(

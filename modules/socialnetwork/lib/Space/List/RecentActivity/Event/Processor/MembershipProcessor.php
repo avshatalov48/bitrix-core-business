@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Processor;
 
 use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
 final class MembershipProcessor extends AbstractProcessor
@@ -15,7 +16,7 @@ final class MembershipProcessor extends AbstractProcessor
 
 	protected function getTypeId(): string
 	{
-		return 'membership';
+		return Dictionary::ENTITY_TYPE['membership'];
 	}
 
 	public function process(): void

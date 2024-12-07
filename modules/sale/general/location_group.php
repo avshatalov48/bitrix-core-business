@@ -121,7 +121,7 @@ class CAllSaleLocationGroup
 				else
 					$bInvert = false;
 
-				switch(ToUpper($key))
+				switch(mb_strtoupper($key))
 				{
 				case "LOCATION_ID":
 					$arSqlSearch[] = "LOCATION_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -146,7 +146,7 @@ class CAllSaleLocationGroup
 				"WHERE 1 = 1 ".
 				"	".$strSqlSearch." ";
 
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 			return $res;
 
 		}
@@ -162,7 +162,7 @@ class CAllSaleLocationGroup
 			"FROM b_sale_location_group_lang ".
 			"WHERE LOCATION_GROUP_ID = ".$ID." ".
 			"	AND LID = '".$DB->ForSql($strLang, 2)."'";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -222,7 +222,7 @@ class CAllSaleLocationGroup
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_location_group", $arFields);
 		$strSql = "UPDATE b_sale_location_group SET ".$strUpdate." WHERE ID = ".$ID."";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (is_set($arFields, "LANG"))
 		{
@@ -235,7 +235,7 @@ class CAllSaleLocationGroup
 				$strSql =
 					"INSERT INTO b_sale_location_group_lang(LOCATION_GROUP_ID, ".$arInsert[0].") ".
 					"VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -264,7 +264,7 @@ class CAllSaleLocationGroup
 					$strSql =
 						"INSERT INTO b_sale_location2location_group(LOCATION_ID, LOCATION_GROUP_ID) ".
 						"VALUES(".$arFields["LOCATION_ID"][$i].", ".$ID.")";
-					$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strSql);
 				}
 			}
 		}

@@ -83,6 +83,7 @@ export default class Dialog extends EventEmitter
 
 	maxLabelWidth: number = 160;
 	minLabelWidth: number = 45;
+	alwaysShowLabels: boolean = false;
 
 	showAvatars: boolean = true;
 	compactView: boolean = false;
@@ -102,6 +103,7 @@ export default class Dialog extends EventEmitter
 
 	saveRecentItemsWithDebounce: Function = Runtime.debounce(this.saveRecentItems, 2000, this);
 	recentItemsToSave = [];
+	recentItemsLimit: ?number = null;
 
 	navigation: Navigation = null;
 	header: BaseHeader = null;
@@ -113,6 +115,7 @@ export default class Dialog extends EventEmitter
 
 	clearUnavailableItems: boolean = false;
 	overlappingObserver: MutationObserver = null;
+	offsetAnimation: boolean = true;
 
 	static getById(id: string): ?Dialog
 	{
@@ -136,6 +139,7 @@ export default class Dialog extends EventEmitter
 		this.clearUnavailableItems = options.clearUnavailableItems === true;
 		this.compactView = options.compactView === true;
 		this.dropdownMode = Type.isBoolean(options.dropdownMode) ? options.dropdownMode : false;
+		this.alwaysShowLabels = Type.isBoolean(options.alwaysShowLabels) ? options.alwaysShowLabels : false;
 
 		if (Type.isArray(options.entities))
 		{
@@ -162,7 +166,7 @@ export default class Dialog extends EventEmitter
 				showTextBox: true,
 				showAddButton: false,
 				showCreateButton: false,
-				multiple: this.isMultiple()
+				multiple: this.isMultiple(),
 			};
 
 			const tagSelectorOptions = Object.assign(defaultOptions, customOptions, mandatoryOptions);
@@ -186,6 +190,8 @@ export default class Dialog extends EventEmitter
 		this.setCacheable(options.cacheable);
 		this.setFocusOnFirst(options.focusOnFirst);
 		this.setShowAvatars(options.showAvatars);
+		this.setRecentItemsLimit(options.recentItemsLimit);
+		this.setOffsetAnimation(options.offsetAnimation);
 
 		this.recentTab = new RecentTab(this, options.recentTabOptions);
 		this.searchTab = new SearchTab(this, options.searchTabOptions, options.searchOptions);
@@ -212,6 +218,8 @@ export default class Dialog extends EventEmitter
 				'targetContainer',
 				'zIndexOptions',
 				'events',
+				'animation',
+				'className',
 			]);
 
 			const popupOptions = {};
@@ -1223,6 +1231,32 @@ export default class Dialog extends EventEmitter
 		return this.showAvatars;
 	}
 
+	setRecentItemsLimit(recentItemsLimit: number): void
+	{
+		if (Type.isNumber(recentItemsLimit) && recentItemsLimit > 0)
+		{
+			this.recentItemsLimit = recentItemsLimit;
+		}
+	}
+
+	getRecentItemsLimit(): ?number
+	{
+		return this.recentItemsLimit;
+	}
+
+	setOffsetAnimation(flag: boolean): any
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.offsetAnimation = flag;
+
+			if (this.isRendered() && !this.offsetAnimation)
+			{
+				Dom.removeClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-offset-animation');
+			}
+		}
+	}
+
 	isCompactView(): boolean
 	{
 		return this.compactView;
@@ -1483,6 +1517,51 @@ export default class Dialog extends EventEmitter
 		return this.minLabelWidth;
 	}
 
+	expandLabels(animate: boolean = true): void
+	{
+		const freeSpace = parseInt(this.getPopup().getPopupContainer().style.left, 10);
+		if (freeSpace > this.getMinLabelWidth())
+		{
+			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			if (animate)
+			{
+				Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+				Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+				Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+					Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+					Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+				}).catch(() => {
+					// fail silently
+				});
+			}
+			else
+			{
+				Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
+			}
+		}
+		else
+		{
+			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+		}
+	}
+
+	collapseLabels(animate: boolean = true): void
+	{
+		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
+		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
+		if (animate)
+		{
+			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
+				Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
+			}).catch(() => {
+				// fail silently
+			});
+		}
+
+		Dom.style(this.getLabelsContainer(), 'max-width', null);
+	}
+
 	getTagSelector(): ?TagSelector
 	{
 		return this.tagSelector;
@@ -1622,6 +1701,7 @@ export default class Dialog extends EventEmitter
 			cacheable: this.isCacheable(),
 			events: {
 				onFirstShow: this.handlePopupFirstShow.bind(this),
+				onShow: this.handlePopupShow.bind(this),
 				onAfterShow: this.handlePopupAfterShow.bind(this),
 				onAfterClose: this.handlePopupAfterClose.bind(this),
 				onDestroy: this.handlePopupDestroy.bind(this),
@@ -1697,8 +1777,8 @@ export default class Dialog extends EventEmitter
 			return Tag.render`
 				<div
 					class="ui-selector-tab-labels"
-					onmouseenter="${this.handleLabelsMouseEnter.bind(this)}"
-					onmouseleave="${this.handleLabelsMouseLeave.bind(this)}"
+					onmouseenter="${this.alwaysShowLabels ? null : this.handleLabelsMouseEnter.bind(this)}"
+					onmouseleave="${this.alwaysShowLabels ? null : this.handleLabelsMouseLeave.bind(this)}"
 				></div>
 			`;
 		});
@@ -2160,13 +2240,30 @@ export default class Dialog extends EventEmitter
 	{
 		this.emit('onFirstShow');
 
-		requestAnimationFrame(() => {
-			requestAnimationFrame(() => {
-				Dom.addClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-container');
-			});
-		});
-
 		this.observeTabOverlapping();
+	}
+
+	/**
+	 * @private
+	 */
+	handlePopupShow(): void
+	{
+		if (this.offsetAnimation)
+		{
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					Dom.addClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-offset-animation');
+				});
+			});
+		}
+
+		if (this.alwaysShowLabels)
+		{
+			setTimeout(() => {
+				// We have to call the method after adjustPosition()
+				this.expandLabels(false);
+			}, 0);
+		}
 	}
 
 	/**
@@ -2216,13 +2313,18 @@ export default class Dialog extends EventEmitter
 				if (left < this.getMinLabelWidth())
 				{
 					Dom.style(this.getPopup().getPopupContainer(), 'left', `${this.getMinLabelWidth()}px`);
+					this.collapseLabels(false);
+				}
+				else if (this.alwaysShowLabels)
+				{
+					this.expandLabels(false);
 				}
 			}
 		});
 
 		this.overlappingObserver.observe(this.getPopup().getPopupContainer(), {
 			attributes: true,
-			attributeFilter: ['style']
+			attributeFilter: ['style'],
 		});
 	}
 
@@ -2254,6 +2356,11 @@ export default class Dialog extends EventEmitter
 			this.getTagSelector().hideTextBox();
 		}
 
+		if (this.offsetAnimation)
+		{
+			Dom.removeClass(this.getPopup().getPopupContainer(), 'ui-selector-popup-offset-animation');
+		}
+
 		this.emit('onHide');
 	}
 
@@ -2270,24 +2377,7 @@ export default class Dialog extends EventEmitter
 	 */
 	handleLabelsMouseEnter(): void
 	{
-		const rect = Dom.getRelativePosition(this.getLabelsContainer(), this.getPopup().getTargetContainer());
-		const freeSpace = rect.right;
-
-		if (freeSpace > this.getMinLabelWidth())
-		{
-			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-
-			Dom.style(this.getLabelsContainer(), 'max-width', `${Math.min(freeSpace, this.getMaxLabelWidth())}px`);
-			Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-				Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-				Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-			});
-		}
-		else
-		{
-			Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-		}
+		this.expandLabels();
 	}
 
 	/**
@@ -2295,15 +2385,7 @@ export default class Dialog extends EventEmitter
 	 */
 	handleLabelsMouseLeave(): void
 	{
-		Dom.addClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-show');
-		Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--active');
-
-		Animation.handleTransitionEnd(this.getLabelsContainer(), 'max-width').then(() => {
-			Dom.removeClass(this.getLabelsContainer(), 'ui-selector-tab-labels--animate-hide');
-		});
-
-		Dom.style(this.getLabelsContainer(), 'max-width', null);
+		this.collapseLabels();
 	}
 
 	/**
@@ -2337,7 +2419,8 @@ export default class Dialog extends EventEmitter
 			context: this.getContext(),
 			entities: this.getEntities(),
 			preselectedItems: this.getPreselectedItems(),
-			clearUnavailableItems: this.shouldClearUnavailableItems()
+			recentItemsLimit: this.getRecentItemsLimit(),
+			clearUnavailableItems: this.shouldClearUnavailableItems(),
 		};
 	}
 }

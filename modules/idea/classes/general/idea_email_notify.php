@@ -123,7 +123,7 @@ Class CIdeaManagmentEmailNotify
 		//No need to send about updates;
 		if($arNotification["ACTION"] == "UPDATE")
 			return 0;
-		$category = ToUpper($arNotification["CATEGORY"]);
+		$category = mb_strtoupper($arNotification["CATEGORY"]);
 		$arEmailSubscribe = array();
 		if (!array_key_exists("CATEGORIES", $arNotification))
 			$arNotification["CATEGORIES"] = \CIdeaManagment::getInstance()->Idea()->GetCategoryList();

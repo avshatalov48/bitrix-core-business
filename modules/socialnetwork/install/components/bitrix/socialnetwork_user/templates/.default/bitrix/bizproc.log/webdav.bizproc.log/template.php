@@ -8,7 +8,7 @@ if (array_key_exists("COMPONENT_VERSION", $arParams) && $arParams["COMPONENT_VER
 	}
 	else
 	{
-		if ($arResult["ErrorMessage"] <> '')
+		if (!empty($arResult["ErrorMessage"]))
 		{
 			ShowError($arResult["ErrorMessage"]);
 		}

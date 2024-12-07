@@ -1,5 +1,5 @@
 <?
 $APPLICATION->IncludeFile("support/ticket_list/default.php", array(
-	"TICKET_EDIT_URL"			=> "ticket_edit.php"			// ñòðàíèöà ðåäàêòèðîâàíèÿ îáðàùåíèÿ
+	"TICKET_EDIT_URL"			=> "ticket_edit.php"			// ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ð° Ñ€ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ Ð¾Ð±Ñ€Ð°Ñ‰ÐµÐ½Ð¸Ñ
 	));
 ?>

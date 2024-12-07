@@ -67,11 +67,45 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    firstButtonCaption: yesCaption
 	  });
 	};
+	const showExitUpdateGroupChatConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TITLE'),
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TEXT_CONFIRM')
+	  });
+	};
+	const showExitUpdateChannelConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_EXIT_UPDATE_CHANNEL_TITLE'),
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_UPDATE_CHAT_TEXT_CONFIRM')
+	  });
+	};
+	const showDeleteChatConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TITLE'),
+	    text: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT'),
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT_CONFIRM')
+	  });
+	};
+	const showDeleteChannelConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_TITLE'),
+	    text: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_TEXT'),
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHAT_TEXT_CONFIRM')
+	  });
+	};
+	const showDeleteChannelPostConfirm = () => {
+	  return showTwoButtonConfirm({
+	    title: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TITLE'),
+	    text: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT'),
+	    firstButtonCaption: main_core.Loc.getMessage('IM_LIB_EXIT_DELETE_CHANNEL_POST_TEXT_CONFIRM')
+	  });
+	};
 	const showTwoButtonConfirm = params => {
 	  const {
-	    text,
+	    text = '',
 	    firstButtonCaption = '',
-	    secondButtonCaption = ''
+	    secondButtonCaption = '',
+	    title = ''
 	  } = params;
 	  return new Promise(resolve => {
 	    const options = {
@@ -87,6 +121,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        messageBox.close();
 	      }
 	    };
+	    if (main_core.Type.isStringFilled(title)) {
+	      options.title = title;
+	    }
 	    if (main_core.Type.isStringFilled(firstButtonCaption)) {
 	      options.yesCaption = firstButtonCaption;
 	    }
@@ -99,7 +136,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const showSingleButtonConfirm = params => {
 	  const {
 	    text,
-	    firstButtonCaption = ''
+	    firstButtonCaption = '',
+	    title = ''
 	  } = params;
 	  return new Promise(resolve => {
 	    const options = {
@@ -111,6 +149,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        messageBox.close();
 	      }
 	    };
+	    if (main_core.Type.isStringFilled(title)) {
+	      options.title = title;
+	    }
 	    if (main_core.Type.isStringFilled(firstButtonCaption)) {
 	      options.okCaption = firstButtonCaption;
 	    }
@@ -124,6 +165,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	exports.showDesktopRestartConfirm = showDesktopRestartConfirm;
 	exports.showDesktopDeleteConfirm = showDesktopDeleteConfirm;
 	exports.showNotificationsModeSwitchConfirm = showNotificationsModeSwitchConfirm;
+	exports.showExitUpdateGroupChatConfirm = showExitUpdateGroupChatConfirm;
+	exports.showExitUpdateChannelConfirm = showExitUpdateChannelConfirm;
+	exports.showDeleteChatConfirm = showDeleteChatConfirm;
+	exports.showDeleteChannelConfirm = showDeleteChannelConfirm;
+	exports.showDeleteChannelPostConfirm = showDeleteChannelPostConfirm;
 
 }((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Main,BX.UI.Dialogs));
 //# sourceMappingURL=confirm.bundle.js.map

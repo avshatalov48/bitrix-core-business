@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider;
 
 class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoComplete
 {
@@ -25,6 +26,7 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 			'PrepareSettings' => [__CLASS__,'PrepareSettings'],
 			'AddFilterFields' => [__CLASS__,'AddFilterFields'],
 			'GetPublicFilterHTML' => [__CLASS__,'GetPublicFilterHTML'],
+			'GetUIFilterProperty' => [__CLASS__, 'GetUIFilterProperty'],
 			'GetUIEntityEditorProperty' => [__CLASS__, 'GetUIEntityEditorProperty'],
 			'GetUIEntityEditorPropertyEditHtml' => [__CLASS__, 'GetUIEntityEditorPropertyEditHtml'],
 			'GetUIEntityEditorPropertyViewHtml' => [__CLASS__, 'GetUIEntityEditorPropertyViewHtml'],
@@ -122,7 +124,7 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 		else
 		{
 			ob_start();
-			?><?
+			?><input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value="" /><?
 			$control_id = $APPLICATION->IncludeComponent(
 				"bitrix:main.lookup.input",
 				"iblockedit",
@@ -261,7 +263,7 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 			$strResultValue = (is_array($mxResultValue) ? htmlspecialcharsback(implode("\n",$mxResultValue)) : '');
 
 			ob_start();
-			?><?
+			?><input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value="" /><?
 			$control_id = $APPLICATION->IncludeComponent(
 				"bitrix:main.lookup.input",
 				"iblockedit",
@@ -599,7 +601,7 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 		$fixIBlock = $arProperty["LINK_IBLOCK_ID"] > 0;
 		$windowTableId = 'iblockprop-'.Iblock\PropertyTable::TYPE_SECTION.'-'.$arProperty['ID'].'-'.$arProperty['LINK_IBLOCK_ID'];
 
-		$isMainUiFilter = ($strHTMLControlName["FORM_NAME"] == "main-ui-filter");
+		$isMainUiFilter = ($strHTMLControlName["FORM_NAME"] ?? '') === 'main-ui-filter';
 		$inputName = $strHTMLControlName['VALUE'].'[]';
 		if ($isMainUiFilter)
 		{
@@ -651,7 +653,7 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 			title="<? echo Loc::getMessage('BT_UT_SAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR'); ?>"
 			onclick="jsUtils.OpenWindow('/bitrix/admin/iblock_section_search.php?lang=<? echo LANGUAGE_ID; ?>&IBLOCK_ID=<? echo $arProperty["LINK_IBLOCK_ID"]; ?>&m=Y&n=&k=&lookup=<? echo 'jsMLI_'.$control_id; ?><?=($fixIBlock ? '&iblockfix=y' : '').'&tableId='.$windowTableId; ?>', 900, 700);"
 		>
-		<script type="text/javascript">
+		<script>
 			var arClearHiddenFields = arClearHiddenFields;
 			if (!!arClearHiddenFields)
 			{
@@ -836,6 +838,36 @@ class CIBlockPropertySectionAutoComplete extends CIBlockPropertyElementAutoCompl
 	{
 		//TODO: need use \CAdminPage::getSelfFolderUrl, but in general it is impossible now
 		return (defined('SELF_FOLDER_URL') ? SELF_FOLDER_URL : '/bitrix/admin/').'iblock_section_search.php';
+	}
+
+	/**
+	 * @param array $property
+	 * @param array $strHTMLControlName
+	 * @param array &$fields
+	 * @return void
+	 */
+	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
+	{
+		unset($fields['value'], $fields['filterable']);
+		$fields['type'] = 'entity_selector';
+		$fields['params'] = [
+			'multiple' => 'Y',
+			'dialogOptions' => [
+				'entities' => [
+					[
+						'id' => IblockPropertySectionProvider::ENTITY_ID,
+						'dynamicLoad' => true,
+						'dynamicSearch' => true,
+						'options' => [
+							'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
+						],
+					],
+				],
+				'searchOptions' => [
+					'allowCreateItem' => false,
+				],
+			],
+		];
 	}
 
 	public static function GetUIEntityEditorPropertyEditHtml(array $params = []) : string

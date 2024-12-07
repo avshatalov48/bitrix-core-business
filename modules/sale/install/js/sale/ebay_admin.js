@@ -318,7 +318,7 @@
 					{
 						if (event.origin == window.location.origin
 							|| event.origin == 'http://www.1c-bitrix.ru.smn'
-							|| event.origin == 'http://www.1c-bitrix.ru'
+							|| event.origin == 'https://www.1c-bitrix.ru'
 						)
 						{
 							var tokenArea = BX("SALE_EBAY_SETTINGS_API_TOKEN"),

@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\Grid\Panel\Action;
 
-use Bitrix\Main\Grid\Panel\Action\Action;
 use Bitrix\Main\Grid\Settings;
 use Error;
 

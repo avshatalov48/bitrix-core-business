@@ -1,7 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { Reflection, Type } from 'main.core';
-import { StoreSlider } from 'catalog.store-use';
+import { EnableWizardOpener, AnalyticsContextList } from 'catalog.store-enable-wizard';
 
 const namespace = Reflection.namespace('BX.Catalog.Store.Document');
 
@@ -14,6 +14,9 @@ class ControlPanel
 		options = Type.isPlainObject(options) ? options : {};
 
 		const params = {
+			urlParams: {
+				analyticsContextSection: AnalyticsContextList.ANALYTICS_MENU_ITEM,
+			},
 			events: options.events ?? {},
 			data: options.data ?? {},
 		};
@@ -35,7 +38,7 @@ class ControlPanel
 			}
 		};
 
-		return new StoreSlider().open(url, params);
+		return new EnableWizardOpener().open(url, params);
 	}
 
 	storeMasterOpenSlider(url, options = {})

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["TASK_NAME_CATALOG_DENIED"] = "Доступ закрыт";
 $MESS["TASK_NAME_CATALOG_VIEW"] = "Просмотр товаров";
 $MESS["TASK_NAME_CATALOG_READ"] = "Чтение";
@@ -13,4 +13,3 @@ $MESS["TASK_DESC_CATALOG_PRICE_EDIT"] = "Управление ценами, ти
 $MESS["TASK_DESC_CATALOG_STORE_EDIT"] = "Управление количеством товара на складе, просмотр закупочной цены товаров Торгового каталога";
 $MESS["TASK_DESC_CATALOG_EXPORT_IMPORT"] = "Управление импортом/экспортом товаров Торгового каталога";
 $MESS["TASK_DESC_CATALOG_FULL_ACCESS"] = "Полный доступ к модулю Торгового каталога";
-?>

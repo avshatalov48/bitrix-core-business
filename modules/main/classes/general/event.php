@@ -158,7 +158,7 @@ class CAllEvent
 		$str = str_replace("%", "%2", $str);
 		foreach($ar as $key=>$val)
 		{
-			if($bNewLineToBreak && strpos($val, "<") === false)
+			if($bNewLineToBreak && !str_contains($val, "<"))
 				$val = nl2br($val);
 			$val = str_replace("%", "%2", $val);
 			$val = str_replace("#", "%1", $val);

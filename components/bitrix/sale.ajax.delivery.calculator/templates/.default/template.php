@@ -7,9 +7,9 @@ if (is_array($arResult["RESULT"]))
 	else
 	{
 		if ($arResult["RESULT"]["RESULT"] == "ERROR")
-			echo ShowError($arResult["RESULT"]["TEXT"]);
+			ShowError($arResult["RESULT"]["TEXT"]);
 		elseif ($arResult["RESULT"]["RESULT"] == "NOTE")
-			echo ShowNote($arResult["RESULT"]["TEXT"]);
+			ShowNote($arResult["RESULT"]["TEXT"]);
 		elseif ($arResult["RESULT"]["RESULT"] == "OK")
 		{
 

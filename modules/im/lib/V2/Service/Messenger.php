@@ -98,7 +98,7 @@ class Messenger
 				]);
 		}
 
-		if (!$chat->hasAccess())
+		if (!$chat->checkAccess()->isSuccess())
 		{
 			return new NullChat();
 		}
@@ -172,7 +172,7 @@ class Messenger
 		$deleteService = new DeleteService($message);
 		if ($deleteService->canDelete() < DeleteService::DELETE_HARD)
 		{
-			return (new Result())->addError(new MessageError(MessageError::MESSAGE_ACCESS_ERROR));
+			return (new Result())->addError(new MessageError(MessageError::ACCESS_DENIED));
 		}
 
 		return Message\Delete\DisappearService::disappearMessage($message, $hours);
@@ -200,8 +200,9 @@ class Messenger
 		try
 		{
 			$taskService = new TaskService();
+			$chat = Chat::getInstance($chatId);
 
-			if (!Chat::getInstance($chatId)->hasAccess())
+			if (!$chat->checkAccess()->isSuccess() || !$chat->canDo(Chat\Permission::ACTION_CREATE_TASK))
 			{
 				return;
 			}

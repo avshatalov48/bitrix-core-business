@@ -3,6 +3,7 @@
 namespace Bitrix\Main\Web;
 
 use Bitrix\Main\Config;
+use Bitrix\Main\SiteDomainTable;
 
 class Cookie extends Http\Cookie
 {
@@ -35,12 +36,14 @@ class Cookie extends Http\Cookie
 
 		if ($cookiePrefix === null)
 		{
-			$cookiePrefix = Config\Option::get("main", "cookie_name", "BITRIX_SM")."_";
+			$cookiePrefix = Config\Option::get("main", "cookie_name", "BITRIX_SM") . "_";
+			$cookiePrefix = static::normalizeName($cookiePrefix);
 		}
-		if (strpos($name, $cookiePrefix) !== 0)
+		if (!str_starts_with($name, $cookiePrefix))
 		{
 			$name = $cookiePrefix . $name;
 		}
+
 		return $name;
 	}
 
@@ -74,6 +77,7 @@ class Cookie extends Http\Cookie
 	public function setSpread($spread)
 	{
 		$this->spread = $spread;
+
 		return $this;
 	}
 
@@ -99,71 +103,36 @@ class Cookie extends Http\Cookie
 		}
 
 		$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-
 		$httpHost = $request->getHttpHost();
 
-		$cacheFlags = Config\Configuration::getValue('cache_flags');
-		$cacheTtl = ($cacheFlags['site_domain'] ?? 0);
+		$recordset = SiteDomainTable::getList([
+			'order' => ['DOMAIN_LENGTH' => 'ASC'],
+			'cache' => ['ttl' => 86400],
+		]);
 
-		if ($cacheTtl === false)
+		while ($record = $recordset->fetch())
 		{
-			$connection = \Bitrix\Main\Application::getConnection();
-			$sqlHelper = $connection->getSqlHelper();
-
-			$sql = "SELECT DOMAIN ".
-				"FROM b_lang_domain ".
-				"WHERE '".$sqlHelper->forSql('.'.$httpHost)."' like ".$sqlHelper->getConcatFunction("'%.'", "DOMAIN")." ".
-				"ORDER BY ".$sqlHelper->getLengthFunction("DOMAIN")." ";
-			$recordset = $connection->query($sql);
-			if ($record = $recordset->fetch())
+			if (strcasecmp(mb_substr('.' . $httpHost, -(mb_strlen($record['DOMAIN']) + 1)), "." . $record['DOMAIN']) == 0)
 			{
 				$domain = $record['DOMAIN'];
-			}
-		}
-		else
-		{
-			$managedCache = \Bitrix\Main\Application::getInstance()->getManagedCache();
 
-			if ($managedCache->read($cacheTtl, 'b_lang_domain', 'b_lang_domain'))
-			{
-				$arLangDomain = $managedCache->get('b_lang_domain');
-			}
-			else
-			{
-				$arLangDomain = ['DOMAIN' => [], 'LID' => []];
-
-				$connection = \Bitrix\Main\Application::getConnection();
-				$sqlHelper = $connection->getSqlHelper();
-
-				$recordset = $connection->query(
-					"SELECT * ".
-					"FROM b_lang_domain ".
-					"ORDER BY ".$sqlHelper->getLengthFunction("DOMAIN")
-				);
-				while ($record = $recordset->fetch())
-				{
-					//it's a bit tricky, the cache is used somewhere else, that's why we have the LID key here.
-					$arLangDomain['DOMAIN'][] = $record;
-					$arLangDomain['LID'][$record['LID']][] = $record;
-				}
-				$managedCache->set('b_lang_domain', $arLangDomain);
-			}
-
-			foreach ($arLangDomain['DOMAIN'] as $record)
-			{
-				if (strcasecmp(mb_substr('.'.$httpHost, -(mb_strlen($record['DOMAIN']) + 1)), ".".$record['DOMAIN']) == 0)
-				{
-					$domain = $record['DOMAIN'];
-					break;
-				}
+				return $domain;
 			}
 		}
 
-		if ($domain === null)
-		{
-			$domain = '';
-		}
+		$domain = '';
 
 		return $domain;
+	}
+
+	/**
+	 * Normalizes a name for a cookie.
+	 * @param string $name
+	 * @return string
+	 */
+	public static function normalizeName(string $name): string
+	{
+		// cookie name cannot contain "=", ",", ";", " ", "\t", "\r", "\n", "\013", or "\014"
+		return preg_replace("/[=,; \\t\\r\\n\\013\\014]/", '', $name);
 	}
 }

@@ -40,9 +40,11 @@ class PinService
 			return $result->addErrors($saveParamResult->getErrors());
 		}
 
+		$chat = Chat::getInstance($pin->getChatId());
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
-			fn () => Chat::getInstance($pin->getChatId())->getRelations()->getUserIds()
+			fn () => $chat->getRelations()->getUserIds(),
+			$chat->getType()
 		);
 
 		$this->sendMessageAboutPin($pin);
@@ -80,9 +82,11 @@ class PinService
 			return $result->addErrors($deleteParamResult->getErrors());
 		}
 
+		$chat = Chat::getInstance($pin->getChatId());
 		Sync\Logger::getInstance()->add(
 			new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::PIN_MESSAGE_ENTITY, $pin->getId()),
-			fn () => Chat::getInstance($pin->getChatId())->getRelations()->getUserIds()
+			fn () => $chat->getRelations()->getUserIds(),
+			$chat->getType()
 		);
 
 		Push::getInstance()

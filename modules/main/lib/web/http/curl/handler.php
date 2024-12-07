@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Curl;
@@ -13,6 +13,7 @@ use Bitrix\Main\Web\Http;
 use Bitrix\Main\Web\IpAddress;
 use Psr\Http\Message\RequestInterface;
 use Bitrix\Main\Web\HttpDebug;
+use Bitrix\Main\Web\Uri;
 
 class Handler extends Http\Handler
 {
@@ -21,10 +22,10 @@ class Handler extends Http\Handler
 
 	/**
 	 * @param RequestInterface $request
-	 * @param Http\ResponseBuilder $responseBuilder
+	 * @param Http\ResponseBuilderInterface $responseBuilder
 	 * @param array $options
 	 */
-	public function __construct(RequestInterface $request, Http\ResponseBuilder $responseBuilder, array $options = [])
+	public function __construct(RequestInterface $request, Http\ResponseBuilderInterface $responseBuilder, array $options = [])
 	{
 		Http\Handler::__construct($request, $responseBuilder, $options);
 
@@ -174,6 +175,7 @@ class Handler extends Http\Handler
 		{
 			$this->responseHeaders .= $data;
 		}
+
 		return strlen($data);
 	}
 
@@ -215,8 +217,13 @@ class Handler extends Http\Handler
 
 		if ($this->getLogger() && $this->debugLevel)
 		{
-			$request = $this->request->getMethod() . ' ' . $this->request->getRequestTarget() . ' HTTP/' . $this->request->getProtocolVersion() . "\r\n"
-				. implode("\r\n", $headers) . "\r\n";
+			$logUri = new Uri((string)$this->request->getUri());
+			$logUri->convertToUnicode();
+
+			$this->log("***CONNECT to " . $logUri . "\n", HttpDebug::CONNECT);
+
+			$request = $this->request->getMethod() . ' ' . $this->request->getRequestTarget() . ' HTTP/' . $this->request->getProtocolVersion() . "\n"
+				. implode("\n", $headers) . "\n";
 
 			$this->log(">>>REQUEST\n" . $request, HttpDebug::REQUEST_HEADERS);
 		}

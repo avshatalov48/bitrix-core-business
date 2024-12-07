@@ -1,0 +1,16 @@
+.ui-image-stack-steps-image {
+	display: inline-block;
+	min-width: 30px;
+	height: 30px;
+	border-radius: var(--ui-border-radius-circle);
+	border: 1px solid var(--ui-color-background-primary);
+	background-color: var(--ui-color-background-primary);
+	background-size: cover;
+	box-sizing: border-box;
+	margin-right: -15px;
+	position: relative;
+}
+
+.ui-image-stack-steps-image:last-child {
+	margin-right: 0;
+}

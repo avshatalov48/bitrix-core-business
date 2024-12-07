@@ -9,8 +9,7 @@ if(!empty($messages))
 {
 	$listEventType = "'CATALOG_PRODUCT_SUBSCRIBE_LIST_CONFIRM', 'CATALOG_PRODUCT_SUBSCRIBE_NOTIFY', 
 		'CATALOG_PRODUCT_SUBSCRIBE_NOTIFY_REPEATED'";
-	$rs = $DB->query('SELECT count(*) CNT FROM b_event_type WHERE EVENT_NAME IN ('.$listEventType.')',
-		false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+	$rs = $DB->query('SELECT count(*) CNT FROM b_event_type WHERE EVENT_NAME IN ('.$listEventType.')');
 	$ar = $rs->fetch();
 	if($ar['CNT'] <= 0)
 	{

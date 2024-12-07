@@ -177,7 +177,7 @@ if ($message)
 				$proto = $request->isHttps() ? "https://" : "http://";
 				$host = $request->getHttpHost();
 				?>
-				<script type="text/javascript">
+				<script>
 					function ShortUriChangeHandler(val)
 					{
 						var d = document.getElementById("id_short_uri_span");

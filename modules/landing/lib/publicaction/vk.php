@@ -5,7 +5,6 @@ namespace Bitrix\Landing\PublicAction;
 use Bitrix\Landing\Error;
 use Bitrix\Landing\PublicActionResult;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Seo\Retargeting;
 use Bitrix\Seo\Media;
 
@@ -76,11 +75,7 @@ class Vk
 					$error = new Error;
 					$error->addError(
 						'CONTENT_RESTRICTED',
-						Encoding::convertEncoding(
-							$responseItem['content_restricted_message'],
-							'utf8',
-							SITE_CHARSET
-						)
+						$responseItem['content_restricted_message']
 					);
 					$result->setError($error);
 				}

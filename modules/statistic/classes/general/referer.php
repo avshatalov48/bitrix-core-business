@@ -3,8 +3,6 @@ class CReferer
 {
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [], $is_filtered = null, &$total = 0, &$grby = '', &$max = 0)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
-
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$group = false;
 		$strSqlGroup =  "GROUP BY L.PROTOCOL, L.SITE_NAME, L.URL_FROM, R.HITS, R.SESSIONS";
@@ -147,7 +145,7 @@ class CReferer
 				".$strSqlSearch."
 				".$strSqlGroup."
 			";
-			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$c = $DB->Query($strSql);
 			$total = 0;
 			$arrCount = array();
 			while ($cr = $c->Fetch())
@@ -188,7 +186,7 @@ class CReferer
 			}
 
 			$strSql = "SELECT sum(R.SESSIONS) TOTAL, max(R.SESSIONS) MAX FROM b_stat_referer R";
-			$c = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$c = $DB->Query($strSql);
 			$cr = $c->Fetch();
 			$total = intval($cr["TOTAL"]);
 			$max = intval($cr["MAX"]);
@@ -205,7 +203,7 @@ class CReferer
 			";
 		}
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}

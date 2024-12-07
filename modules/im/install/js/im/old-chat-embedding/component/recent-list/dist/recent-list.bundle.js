@@ -367,7 +367,7 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	      return this.chatData.advanced.chatType === im_oldChatEmbedding_const.DialogType.private;
 	    },
 	    isTabWithActiveCall() {
-	      return this.getCallController().hasActiveCall();
+	      return false;
 	    },
 	    avatarStyle() {
 	      return {
@@ -388,21 +388,9 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	    })
 	  },
 	  methods: {
-	    onJoinClick(event) {
-	      if (this.joinMenu) {
-	        this.joinMenu.destroy();
-	      }
-	      this.joinMenu = this.getJoinMenu(event);
-	      this.joinMenu.show();
-	    },
-	    onHangupClick() {
-	      this.getCallController().leaveCurrentCall();
-	    },
+	    onJoinClick(event) {},
+	    onHangupClick() {},
 	    onClick(event) {
-	      if (this.item.state === im_oldChatEmbedding_const.RecentCallStatus.joined) {
-	        this.getCallController().unfold();
-	        return;
-	      }
 	      const item = this.$store.getters['recent/get'](this.item.dialogId);
 	      if (!item) {
 	        return;
@@ -421,30 +409,6 @@ this.BX.Messenger.Embedding = this.BX.Messenger.Embedding || {};
 	        item,
 	        $event: event
 	      });
-	    },
-	    getJoinMenu(event) {
-	      return main_popup.MenuManager.create({
-	        id: 'im-recent-active-call-join-menu',
-	        bindElement: event.target,
-	        darkMode: this.isDarkTheme,
-	        cacheable: false,
-	        items: [{
-	          text: main_core.Loc.getMessage('IM_RECENT_ACTIVE_CALL_JOIN_VIDEO'),
-	          onclick: function () {
-	            this.getCallController().joinCall(this.item.call.id, true);
-	            this.joinMenu.close();
-	          }.bind(this)
-	        }, {
-	          text: main_core.Loc.getMessage('IM_RECENT_ACTIVE_CALL_JOIN_AUDIO'),
-	          onclick: function () {
-	            this.getCallController().joinCall(this.item.call.id, false);
-	            this.joinMenu.close();
-	          }.bind(this)
-	        }]
-	      });
-	    },
-	    getCallController() {
-	      return BX.MessengerProxy.getCallController();
 	    }
 	  },
 	  template: `

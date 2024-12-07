@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -24,9 +24,9 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/colors.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/img.php");
 
 /***************************************************************************
-								Функции
+								Р¤СѓРЅРєС†РёРё
 ***************************************************************************/
-function CheckFilter() // проверка введенных полей
+function CheckFilter() // РїСЂРѕРІРµСЂРєР° РІРІРµРґРµРЅРЅС‹С… РїРѕР»РµР№
 {
 	global $strError, $FilterArr;
 	reset($FilterArr); foreach ($FilterArr as $f) global $$f;
@@ -107,12 +107,12 @@ function sup_sort($a,$b)
 }
 
 /***************************************************************************
-							Обработка GET | POST
+							РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ****************************************************************************/
 
 $sTableID = "t_ticket_desktop";
-$oSort = new CAdminSorting($sTableID);// инициализация сортировки
-$lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
+$oSort = new CAdminSorting($sTableID);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
+$lAdmin = new CAdminList($sTableID, $oSort);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 
 
 $filter = new CAdminFilter(
@@ -136,7 +136,7 @@ $FilterArr = Array(
 	"find_responsible_id","find_responsible","find_responsible_exact_match",
 );
 
-$lAdmin->InitFilter($FilterArr);//инициализация фильтра
+$lAdmin->InitFilter($FilterArr);//РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РёР»СЊС‚СЂР°
 
 
 
@@ -271,7 +271,7 @@ if(count($arUsersID) > 0)
 	}
 }
 
-// сортировка порядка вывода таблиц
+// СЃРѕСЂС‚РёСЂРѕРІРєР° РїРѕСЂСЏРґРєР° РІС‹РІРѕРґР° С‚Р°Р±Р»РёС†
 $arrTickets["RESPONSIBLE"] = $arrT["RESPONSIBLE"];
 fill_all_values("CRITICALITY", "K", false, $find_site);
 fill_all_values("STATUS", "S", false, $find_site);
@@ -281,7 +281,7 @@ fill_all_values("SOURCE", "SR", "web", $find_site);
 fill_all_values("MARK", "M", false, $find_site);
 fill_all_values("SLA", "SLA", false, $find_site);
 
-// сортировка значений внутри таблиц
+// СЃРѕСЂС‚РёСЂРѕРІРєР° Р·РЅР°С‡РµРЅРёР№ РІРЅСѓС‚СЂРё С‚Р°Р±Р»РёС†
 if (is_array($arrTickets["RESPONSIBLE"]))	uasort($arrTickets["RESPONSIBLE"], "sup_sort");
 if (is_array($arrTickets["CRITICALITY"]))	uasort($arrTickets["CRITICALITY"], "sup_sort");
 if (is_array($arrTickets["STATUS"]))		uasort($arrTickets["STATUS"], "sup_sort");

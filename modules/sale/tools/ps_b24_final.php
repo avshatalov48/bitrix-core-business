@@ -17,6 +17,6 @@ $request = $context->getRequest();
 
 $action = $request->get('action');
 
-$text = Loc::getMessage('SALE_RESULT_MESSAGE_'.ToUpper($action));
+$text = Loc::getMessage('SALE_RESULT_MESSAGE_'.mb_strtoupper($action));
 
 echo "<div align='center'><h1>".$text."</h1></div>";

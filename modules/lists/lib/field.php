@@ -435,16 +435,21 @@ class Field
 		}
 		elseif($field['TYPE'] == 'E:EList')
 		{
-			$items = array();
-			$queryObject = \CIBlockElement::getList(
-				array('SORT' => 'ASC'),
-				array('IBLOCK_ID' => $field['LINK_IBLOCK_ID']),
-				false,
-				false,
-				array('ID', 'NAME', 'SORT')
-			);
-			while($queryResult = $queryObject->fetch())
-				$items[$queryResult['ID']] = $queryResult['NAME'];
+			$items = [];
+			if (!empty($field['LINK_IBLOCK_ID']))
+			{
+				$queryObject = \CIBlockElement::getList(
+					array('SORT' => 'ASC'),
+					array('IBLOCK_ID' => $field['LINK_IBLOCK_ID']),
+					false,
+					false,
+					array('ID', 'NAME', 'SORT')
+				);
+				while ($queryResult = $queryObject->fetch())
+				{
+					$items[$queryResult['ID']] = $queryResult['NAME'];
+				}
+			}
 
 			$result = array(
 				'id' => $field['FIELD_ID'],
@@ -457,15 +462,20 @@ class Field
 		}
 		elseif($field['TYPE'] == 'G')
 		{
-			$items = array();
-			$queryObject = \CIBlockSection::getList(
-				array('LEFT_MARGIN' => 'ASC'),
-				array('IBLOCK_ID' => $field['LINK_IBLOCK_ID']),
-				false,
-				array('ID', 'IBLOCK_ID', 'NAME', 'DEPTH_LEVEL', 'LEFT_MARGIN')
-			);
-			while($queryResult = $queryObject->fetch())
-				$items[$queryResult['ID']] = str_repeat('. ', $queryResult['DEPTH_LEVEL'] - 1).$queryResult['NAME'];
+			$items = [];
+			if (!empty($field['LINK_IBLOCK_ID']))
+			{
+				$queryObject = \CIBlockSection::getList(
+					array('LEFT_MARGIN' => 'ASC'),
+					array('IBLOCK_ID' => $field['LINK_IBLOCK_ID']),
+					false,
+					array('ID', 'IBLOCK_ID', 'NAME', 'DEPTH_LEVEL', 'LEFT_MARGIN')
+				);
+				while ($queryResult = $queryObject->fetch())
+				{
+					$items[$queryResult['ID']] = str_repeat('. ', $queryResult['DEPTH_LEVEL'] - 1) . $queryResult['NAME'];
+				}
+			}
 
 			$result = array(
 				'id' => $field['FIELD_ID'],
@@ -1621,6 +1631,11 @@ class Field
 
 		if($field['READ'] == 'Y')
 		{
+			if (!array_key_exists('customHtml', $result))
+			{
+				$result['customHtml'] = '';
+			}
+
 			foreach($field['VALUE'] as $value)
 				$result['customHtml'] .= '<input type="hidden" name="'.$field['FIELD_ID'].'[]" value="'.
 					HtmlFilter::encode($value).'">';

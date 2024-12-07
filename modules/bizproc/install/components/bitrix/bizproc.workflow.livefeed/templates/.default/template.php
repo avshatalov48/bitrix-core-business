@@ -8,7 +8,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
 	'ui.viewer',
-	'ui.buttons.icons'
+	'ui.buttons.icons',
+	'sidepanel',
 ]);
 
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/bizproc/tools.js');
@@ -30,6 +31,66 @@ $jsCallback = <<<SCRIPT
 		});
 	}
 SCRIPT;
+
+$jsTaskOpener = function () use ($jsCallback)
+{
+	return <<<SCRIPT
+		BX.SidePanel.Instance.open(
+			this.href,
+			{
+				events: {
+					onCloseComplete: {$jsCallback},
+				},
+				cacheable: false,
+				loader: 'bizproc:workflow-info',
+				width: (
+					window.innerWidth < 1500
+						? null
+						: (1500 + Math.floor((window.innerWidth - 1500) / 3))
+				),
+			}
+		);
+		return false;
+	SCRIPT;
+};
+
+$jsDoInlineTask = function (array $props) use ($jsCallback, $cmpId)
+{
+	$propsJson = htmlspecialcharsbx(\Bitrix\Main\Web\Json::encode($props));
+	$jsStatus = $props['STATUS'];
+	$yes = \CBPTaskUserStatus::Yes;
+	$no = \CBPTaskUserStatus::No;
+	$cancel = \CBPTaskUserStatus::Cancel;
+	$taskId = (int)$props['TASK_ID'];
+
+	return <<<SCRIPT
+	
+		BX('{$cmpId}_task_buttons_{$taskId}').style.display = 'none';
+	
+		switch ({$jsStatus})
+		{
+			case {$yes}:
+				BX('{$cmpId}_user_status_yes').style.display = '';
+				setTimeout(function(){BX.removeClass(BX('{$cmpId}_user_status_yes'), 'bp-hidden');}, 10);
+				break;
+			case {$no}:
+			case {$cancel}:
+				BX('{$cmpId}_user_status_no').style.display = '';
+				setTimeout(function(){BX.removeClass(BX('{$cmpId}_user_status_no'), 'bp-hidden');}, 10);
+				break;
+			default:
+				BX('{$cmpId}_user_status_ok').style.display = '';
+				setTimeout(function(){BX.removeClass(BX('{$cmpId}_user_status_ok'), 'bp-hidden');}, 10);
+				break;
+		};
+
+		const callback = {$jsCallback};
+
+		return BX.Bizproc.doInlineTask({$propsJson}, callback, this, callback)";
+	SCRIPT;
+}
+
+
 ?>
 <?if (!$arResult['noWrap']):?>
 <div class="bp-livefeed-wrapper">
@@ -69,12 +130,13 @@ SCRIPT;
 					;
 					$class = $isDecline ? 'danger' : 'success';
 					$icon = $isDecline ? 'cancel' : 'done';
-					$props = CUtil::PhpToJSObject([
+					$props = [
 						'TASK_ID' => $task['ID'],
 						$control['NAME'] => $control['VALUE'],
-					]);
+						'STATUS' => $control['TARGET_USER_STATUS'],
+					];
 					?>
-					<a href="#" onclick="return BX.Bizproc.doInlineTask(<?= $props ?>, <?= $jsCallback ?>, this)"
+					<a href="#" onclick="<?= $jsDoInlineTask($props) ?>"
 						class="ui-btn ui-btn-<?= $class ?> ui-btn-icon-<?= $icon ?>"
 						><?= $control['TEXT'] ?>
 					</a>
@@ -82,9 +144,9 @@ SCRIPT;
 				endforeach;
 			else:?>
 				<a
-					href="#"
+					href="/company/personal/bizproc/<?= $task['ID'] ?>/"
 					class="ui-btn ui-btn-primary"
-					onclick="return BX.Bizproc.showTaskPopup(<?= $task['ID'] ?>, <?= $jsCallback ?>, null, this, true)"
+					onclick="<?= $jsTaskOpener() ?>"
 				><?= GetMessage("BPATL_BEGIN") ?></a>
 			<?php
 			endif;
@@ -102,7 +164,7 @@ SCRIPT;
 				<?=\CBPViewHelper::prepareTaskDescription($task['DESCRIPTION'])?>
 			</p>
 			<?endif?>
-			<p><a href="javascript:void(0);" onclick="return BX.Bizproc.showTaskPopup(<?=$task['ID']?>, <?=$jsCallback?>, null, this, true)"><?=GetMessage("BPATL_TASK_LINK_TITLE")?></a></p>
+			<p><a href="/company/personal/bizproc/<?= $task['ID'] ?>/" onclick="<?= $jsTaskOpener() ?>"><?=GetMessage("BPATL_TASK_LINK_TITLE")?></a></p>
 		</div>
 	<?endforeach;?>
 	<?

@@ -105,6 +105,9 @@ class Help
 		'SHOP1C' => [
 			'ru' => '19613828',
 		],
+		'WIDGET_LIVEFEED' => [
+			'ru' => '21379432',
+		],
 	];
 
 	/**

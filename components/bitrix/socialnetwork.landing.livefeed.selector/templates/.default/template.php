@@ -7,11 +7,22 @@
 /** @global CMain $APPLICATION */
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Socialnetwork\Helper\Feature;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 $APPLICATION->SetTitle(Loc::getMessage("SLLS_TEMPLATE_PAGE_TITLE"));
 
 \Bitrix\Main\UI\Extension::load(["ui.buttons", "ui.buttons.icons", "sidepanel"]);
+
+$isProjectFeatureEnabled = (
+	Feature::isFeatureEnabled(Feature::PROJECTS_GROUPS)
+	|| Feature::canTurnOnTrial(Feature::PROJECTS_GROUPS)
+);
+
+if (!$isProjectFeatureEnabled)
+{
+	\Bitrix\Main\UI\Extension::load(['socialnetwork.limit']);
+}
 
 ?><script>
 	BX.message({
@@ -23,7 +34,8 @@ $APPLICATION->SetTitle(Loc::getMessage("SLLS_TEMPLATE_PAGE_TITLE"));
 				? \CUtil::phpToJSObject($arResult['FILTER_INIT_VALUE'])
 				: \CUtil::phpToJSObject([])
 			)?>,
-			urlToGroupCreate: '<?=\CUtil::jsEscape($arResult["URL_GROUP_CREATE"])?>'
+			urlToGroupCreate: '<?=\CUtil::jsEscape($arResult["URL_GROUP_CREATE"])?>',
+			isProjectFeatureEnabled: <?= \Bitrix\Main\Web\Json::encode($isProjectFeatureEnabled) ?>,
 		});
 	});
 </script><?
@@ -46,10 +58,9 @@ Toolbar::addFilter([
 	)
 ]);
 
-
 if (!empty($arResult["URL_GROUP_CREATE"]))
 {
-	$menuButton = new \Bitrix\UI\Buttons\Button([
+	$buttonOptions = [
 		"color" => \Bitrix\UI\Buttons\Color::PRIMARY,
 		"icon" => \Bitrix\UI\Buttons\Icon::ADD,
 		"click" => new \Bitrix\UI\Buttons\JsHandler(
@@ -57,7 +68,25 @@ if (!empty($arResult["URL_GROUP_CREATE"]))
 			"BX.SocialnetworkLandingLivefeedSelector.Instance"
 		),
 		"text" => Loc::getMessage('SLLS_TEMPLATE_CREATE_GROUP_BUTTON')
-	]);
+	];
+
+	if (!$isProjectFeatureEnabled)
+	{
+		$buttonOptions['baseClassName'] = 'ui-btn ui-btn-md ui-btn-primary ui-btn-icon-lock';
+		$buttonOptions['click'] = new \Bitrix\UI\Buttons\JsCode("
+			(function() {
+				top.BX.Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+					const { Limit } = exports;
+					Limit.showInstance({
+						featureId: 'socialnetwork_projects_groups',
+					});
+				});
+			})();
+		");
+		$buttonOptions['icon'] = null;
+	}
+
+	$menuButton = new \Bitrix\UI\Buttons\Button($buttonOptions);
 	$menuButton->addAttribute('id', 'landing-livefeed-selector');
 	Toolbar::addButton($menuButton);
 }
@@ -77,9 +106,17 @@ if (
 		<?
 		if (!empty($arResult["URL_GROUP_CREATE"]))
 		{
+			$btnClass = (
+				$isProjectFeatureEnabled
+					? 'ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add'
+					: 'ui-btn ui-btn-md ui-btn-primary ui-btn-icon-lock'
+			);
 			?>
 			<div class="landing-livefeed-selector-content-control">
-				<a class="ui-btn ui-btn-md ui-btn-primary ui-btn-icon-add" id="slls_group_create"><?=Loc::getMessage("SLLS_TEMPLATE_CREATE_GROUP")?></a>
+				<a
+					class="<?= $btnClass ?>"
+					id="slls_group_create"
+				><?=Loc::getMessage("SLLS_TEMPLATE_CREATE_GROUP")?></a>
 			</div>
 			<?
 		}

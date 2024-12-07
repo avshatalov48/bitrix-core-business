@@ -208,7 +208,7 @@ final class StringTemplateConverter
 		//                [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for ^^^^
 		if (preg_match(
-				'/' . self::REGEX_GROUP_DELIMITER . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_DELIMITER . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -245,7 +245,7 @@ final class StringTemplateConverter
 		// [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for                         ^^^^^^
 		if (preg_match(
-				'/' . self::REGEX_GROUP_FIELD_TEXT . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_FIELD_TEXT . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -399,7 +399,7 @@ final class StringTemplateConverter
 		// Are looking for  ^^^^^^^^^^^^^^^^
 		if ($context['address'] instanceof Address
 			&& preg_match(
-				'/' . self::REGEX_GROUP_FIELD_NAME . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_FIELD_NAME . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -435,7 +435,7 @@ final class StringTemplateConverter
 		// [", ", [ADDRESS_LINE_1:N , ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for         ^^^
 		if (preg_match(
-				'/' . self::REGEX_COMMA_AMONG_EMPTY_SPACE . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_COMMA_AMONG_EMPTY_SPACE . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -461,7 +461,7 @@ final class StringTemplateConverter
 		// [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for                                                    ^
 		if (preg_match(
-				'/' . self::REGEX_GROUP_FIELD_LIST_END . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_FIELD_LIST_END . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -562,7 +562,7 @@ final class StringTemplateConverter
 		//            [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for ^^^
 		if (preg_match(
-				'/' . self::REGEX_PART_FROM_DELIMITER_TO_FIELD_LIST . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_PART_FROM_DELIMITER_TO_FIELD_LIST . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -618,7 +618,7 @@ final class StringTemplateConverter
 		//                 [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for ^^^^^^^^
 		if (preg_match(
-				'/' . self::REGEX_GROUP_PART_BEFORE_FIELDS . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_PART_BEFORE_FIELDS . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,
@@ -644,7 +644,7 @@ final class StringTemplateConverter
 		// [", ", [ADDRESS_LINE_1:N,ADDRESS_LINE_2,"Text",LOCALITY,ADM_LEVEL_2]]
 		// Are looking for                                                     ^
 		if (preg_match(
-				'/' . self::REGEX_GROUP_END . '/ms' . BX_UTF_PCRE_MODIFIER,
+				'/' . self::REGEX_GROUP_END . '/msu',
 				$context['template'],
 				$matches,
 				PREG_OFFSET_CAPTURE,

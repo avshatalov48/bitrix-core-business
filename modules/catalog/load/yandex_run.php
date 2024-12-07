@@ -123,8 +123,7 @@ if (!function_exists("yandex_text2xml"))
 
 		$text = preg_replace("/[\x1-\x8\xB-\xC\xE-\x1F]/", "", $text);
 
-		$error = '';
-		return Main\Text\Encoding::convertEncoding($text, LANG_CHARSET, $options['CHARSET'], $error);
+		return Main\Text\Encoding::convertEncoding($text, LANG_CHARSET, $options['CHARSET']);
 	}
 }
 
@@ -1026,22 +1025,18 @@ if ($firstStep)
 		fwrite($fp, '<yml_catalog date="'.date("Y-m-d H:i").'">'."\n");
 		fwrite($fp, '<shop>'."\n");
 
-		$charsetError = '';
-
 		fwrite($fp,
 			'<name>'.Main\Text\Encoding::convertEncoding(
 				htmlspecialcharsbx($site['SITE_NAME'], ENT_QUOTES|ENT_XML1),
 				LANG_CHARSET,
-				$itemOptions['CHARSET'],
-				$charsetError).
+				$itemOptions['CHARSET']).
 			"</name>\n"
 		);
 		fwrite($fp,
 			'<company>'.Main\Text\Encoding::convertEncoding(
 				htmlspecialcharsbx($site['COMPANY_NAME'], ENT_QUOTES|ENT_XML1),
 				LANG_CHARSET,
-				$itemOptions['CHARSET'],
-				$charsetError).
+				$itemOptions['CHARSET']).
 			"</company>\n"
 		);
 		fwrite($fp, '<url>'.$usedProtocol.htmlspecialcharsbx($site['SERVER_NAME'])."</url>\n");
@@ -2014,7 +2009,7 @@ if (empty($arRunErrors))
 
 				unset($row);
 
-				if ($MAX_EXECUTION_TIME > 0 && (getmicrotime() - START_EXEC_TIME) >= $MAX_EXECUTION_TIME)
+				if ($MAX_EXECUTION_TIME > 0 && (microtime(true) - START_EXEC_TIME) >= $MAX_EXECUTION_TIME)
 					break;
 			}
 			unset($id);

@@ -390,7 +390,7 @@ if (($bCanEdit || $bCanExec) && check_bitrix_sessid())
 <body>
 <?echo GetMessage("CES_AUTO_REFRESH");?><br>
 <a href="<?=$fullUrl; ?>"><?echo GetMessage("CES_AUTO_REFRESH_STEP");?></a><br>
-<script type="text/javascript">
+<script>
 function DoNext()
 {
 	window.location="<?=$fullUrl; ?>";
@@ -1787,7 +1787,7 @@ echo BeginNote();
 echo EndNote();
 
 ?>
-<script type="text/javascript">
+<script>
 function ShowDiv(div, shadow)
 {
 	var obDiv = BX(div);

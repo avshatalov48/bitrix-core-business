@@ -2,6 +2,7 @@
 
 namespace Bitrix\Pull;
 
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Result;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\HttpClient;
@@ -47,9 +48,47 @@ class ProtobufTransport
 				$errorMsg = $httpClient->getError()[$errorCode];
 				$result->addError(new \Bitrix\Main\Error($errorMsg, $errorCode));
 			}
+
+			if (Option::get('pull', 'pull_log_196916_enable', 'N') === 'Y')
+			{
+				self::logMessageSending($httpClient, $requestBatch);
+			}
 		}
 
 		return $result;
+	}
+
+	protected static function logMessageSending(HttpClient $httpClient, Protobuf\RequestBatch $batch): void
+	{
+		$status = $httpClient->getStatus();
+		$result = $httpClient->getResult();
+		$url = $httpClient->getEffectiveUrl();
+		$logId = 'pull-196916';
+		$channels = [];
+
+		$requestList = $batch->getRequestsList() ?? [];
+		/** @var Protobuf\IncomingMessage $message */
+		foreach ($requestList[0]?->getIncomingMessages()?->getMessagesList() ?? [] as $message)
+		{
+			$receiversList = $message->getReceiversList() ?? [];
+			/** @var Protobuf\Receiver $receiver */
+			foreach ($receiversList as $receiver)
+			{
+				$channel = bin2hex($receiver->getId()?->getContents() ?? '');
+				$channels[$channel] = $channel;
+			}
+		}
+		$channelsString = implode(',', array_values($channels));
+
+		$message =
+			"logId: {$logId}\n"
+			. "status: {$status}\n"
+			. "result: {$result}\n"
+			. "url: {$url}\n"
+			. "channels: {$channelsString}\n"
+		;
+
+		AddMessage2Log($message, 'pull', 0);
 	}
 
 	/**

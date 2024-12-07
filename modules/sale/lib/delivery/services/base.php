@@ -333,7 +333,7 @@ abstract class Base
 
 				if (!empty($errors))
 				{
-					$strError .= Loc::getMessage("SALE_DLVR_BASE_FIELD")." \"".$iParams["NAME"]."\": ".implode("<br>\n", $errors)."<br>\n";
+					$strError .= Loc::getMessage("SALE_DLVR_BASE_FIELD")." ".implode("<br>\n", $errors)."<br>\n";
 				}
 			}
 		}

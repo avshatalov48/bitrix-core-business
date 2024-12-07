@@ -60,7 +60,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 				$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js";
 				if (file_exists($fname))
 					$JSResult['message'] =
-						'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'" type="text/javascript"></script>'.
+						'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'"></script>'.
 							"\n".$JSResult['message'];
 			}
 			if (mb_strpos($JSResult['message'], "onForumImageLoad") !== false)
@@ -85,7 +85,7 @@ if ($arParams['AJAX_POST'] == 'Y' && $arParams['ACTION'] == 'REPLY')
 			$fname = $_SERVER["DOCUMENT_ROOT"]."/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js";
 			if (file_exists($fname))
 				$JSResult['previewMessage'] =
-					'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'" type="text/javascript"></script>'.
+					'<script src="/bitrix/components/bitrix/forum.interface/templates/spoiler/script.js?'.filemtime($fname).'"></script>'.
 						$JSResult['previewMessage'];
 		}
 		if (mb_strpos($JSResult['previewMessage'], "onForumImageLoad") !== false)

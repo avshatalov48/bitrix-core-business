@@ -6,6 +6,7 @@ use Bitrix\Location\Common\Pool;
 use Bitrix\Location\Entity\Source;
 use Bitrix\Location\Repository\Location\IRepository;
 use Bitrix\Location\Common\CachedPool;
+use Bitrix\Location\StaticMap\ISourceStaticMapService;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Web\HttpClient;
@@ -64,6 +65,11 @@ class GoogleSource extends Source
 		return $result;
 	}
 
+	public function makeStaticMapService(): ISourceStaticMapService
+	{
+		return (new SourceStaticMapService($this))->setBackendKey($this->getBackendKey());
+	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -76,9 +82,6 @@ class GoogleSource extends Source
 		];
 	}
 
-	/**
-	 * @return string
-	 */
 	private function getBackendKey(): string
 	{
 		$configKey = $this->config->getValue('API_KEY_BACKEND');
@@ -90,9 +93,6 @@ class GoogleSource extends Source
 		return (string)Option::get('location', 'google_map_api_key_backend', '');
 	}
 
-	/**
-	 * @return string
-	 */
 	private function getFrontendKey(): string
 	{
 		$key = $this->config->getValue('API_KEY_FRONTEND');

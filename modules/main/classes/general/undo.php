@@ -1,5 +1,8 @@
 <?php
+
 IncludeModuleLangFile(__FILE__);
+
+use Bitrix\Main\Web\Json;
 
 class CUndo
 {
@@ -302,7 +305,7 @@ class CAutoSave
 				echo CJSCore::GetHTML(array('autosave'));
 			?>
 			<input type="hidden" name="autosave_id" id="autosave_marker_<?=$this->GetID()?>" value="<?=$this->GetID()?>"/>
-			<script type="text/javascript">window.autosave_<?=$this->GetID()?> = new top.BX.CAutoSave({
+			<script>window.autosave_<?=$this->GetID()?> = new top.BX.CAutoSave({
 					form_marker: 'autosave_marker_<?=$this->GetID()?>',
 					form_id: '<?=$this->GetID()?>',
 					DISABLE_STANDARD_NOTIFY: <?=$DISABLE_STANDARD_NOTIFY?>
@@ -378,10 +381,10 @@ class CAutoSave
 		if (is_array($arFields))
 		{
 ?>
-<script type="text/javascript">BX.ready(function(){
+<script>BX.ready(function(){
 	if (window.autosave_<?=$this->GetID();?>)
 	{
-		window.autosave_<?=$this->GetID();?>.Restore(<?=CUtil::PhpToJSObject($arFields);?>);
+		window.autosave_<?=$this->GetID();?>.Restore(<?= Json::encode($arFields); ?>);
 	}
 });</script>
 <?

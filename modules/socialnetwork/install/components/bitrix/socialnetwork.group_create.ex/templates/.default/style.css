@@ -853,3 +853,56 @@ body:not(.workgroup-form-master) .socialnetwork-group-create-ex__scope {
 .socialnetwork-group-create-ex__create .ui-ctl-dropdown {
 	cursor: pointer;
 }
+
+.socialnetwork__demo-info.--scrum {
+	--socialnetwork-accent-color: var(--ui-color-accent-turquoise);
+
+	background: -o-linear-gradient(left, #FFF 53%, #B2E8FF 93.29%);
+	background: linear-gradient(118deg, #FFF 53%, #B2E8FF 93.29%);
+
+}
+.socialnetwork__demo-info.--project {
+	--socialnetwork-accent-color: #8dbb00;
+
+	background: -o-linear-gradient(left, #FFF 53%, #DDFFB2 93.29%);
+	background: linear-gradient(118deg, #FFF 53%, #DDFFB2 93.29%);
+}
+
+.socialnetwork__demo-info_wrapper {
+	display: flex;
+	gap: 24px;
+}
+
+.socialnetwork__demo-info_image {
+	--socialnetwork__demo-info_image-size: 220px;
+
+	overflow: hidden;
+	width: var(--socialnetwork__demo-info_image-size);
+	height: var(--socialnetwork__demo-info_image-size);
+}
+
+.socialnetwork__demo-info_content {
+	width: 280px;
+	line-height: var(--ui-font-line-height-md);
+	letter-spacing: -0.7px;
+}
+
+.socialnetwork__demo-info_title {
+	margin: 16px 0;
+	font-size: var(--ui-font-size-3xl);
+	font-weight: var(--ui-font-weight-medium);
+	line-height: var(--ui-font-line-height-2xs);
+}
+
+.socialnetwork__demo-info_title span {
+	color: var(--socialnetwork-accent-color);
+}
+
+.socialnetwork__demo-info_text-trial {
+	margin: 18px 0 24px;
+}
+
+.socialnetwork__demo-info_text-trial span {
+	font-weight: var(--ui-font-weight-bold);
+	color: var(--socialnetwork-accent-color);
+}

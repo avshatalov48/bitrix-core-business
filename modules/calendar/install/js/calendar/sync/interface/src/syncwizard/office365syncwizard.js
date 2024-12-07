@@ -1,4 +1,5 @@
 // @flow
+
 'use strict';
 
 import { Loc, Tag } from 'main.core';
@@ -13,9 +14,9 @@ export default class Office365SyncWizard extends SyncWizard
 	STAGE_2_CODE = 'sections_sync_finished';
 	STAGE_3_CODE = 'events_sync_finished';
 
-	constructor()
+	constructor(options = {})
 	{
-		super();
+		super(options);
 		this.setEventNamespace('BX.Calendar.Sync.Interface.Office365SyncWizard');
 		this.setAccountName(Loc.getMessage('CALENDAR_TITLE_OFFICE365'));
 		this.setSyncStages();
@@ -44,6 +45,7 @@ export default class Office365SyncWizard extends SyncWizard
 				${this.getNewEventCardWrapper()}
 			</div>
 		`;
+
 		return this.finalCheckWrapper;
 	}
 
@@ -52,16 +54,16 @@ export default class Office365SyncWizard extends SyncWizard
 		this.syncStagesList = [
 			new SyncStageUnit({
 				name: this.STAGE_1_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_1')
+				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_1'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_2_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_2')
+				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_2'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_3_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_3')
-			})
+				title: Loc.getMessage('CAL_SYNC_STAGE_OFFICE365_3'),
+			}),
 		];
 	}
 
@@ -69,7 +71,7 @@ export default class Office365SyncWizard extends SyncWizard
 	{
 		super.updateState(stateData);
 
-		this.getSyncStages().forEach(stage => {
+		this.getSyncStages().forEach((stage) => {
 			if (
 				stateData.stage === 'connection_created'
 				&& stage.name === this.STAGE_1_CODE
@@ -79,7 +81,7 @@ export default class Office365SyncWizard extends SyncWizard
 			}
 			else if (
 				stateData.stage === 'import_finished'
-			 	&& (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
+				&& (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
 			)
 			{
 				stage.setDone();
@@ -87,9 +89,16 @@ export default class Office365SyncWizard extends SyncWizard
 			else if (stateData.stage === 'export_finished')
 			{
 				stage.setDone();
-				this.setActiveStatusFinished();
-				this.showButtonWrapper();
-				this.showInfoStatusWrapper();
+				if (this.mode === 'reconnecting')
+				{
+					this.handleCloseWizard();
+				}
+				else
+				{
+					this.setActiveStatusFinished();
+					this.showButtonWrapper();
+					this.showInfoStatusWrapper();
+				}
 				this.showConfetti();
 
 				this.emit('onConnectionCreated');

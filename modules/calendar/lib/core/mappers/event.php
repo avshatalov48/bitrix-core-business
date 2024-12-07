@@ -63,7 +63,6 @@ class Event extends Mapper
 
 		if ($result->isSuccess())
 		{
-			// TODO: perhaps need to setup date create and date update
 			return $this->getById($result->getId());
 		}
 
@@ -86,13 +85,18 @@ class Event extends Mapper
 		$params = array_merge($params, [
 			'arFields' => $data,
 			'originalFrom' => $params['originalFrom'] ?? null,
-			'checkPermissions' => false,
+			'checkPermission' => false,
 			'userId' => $params['userId']
-				?? $entity->getOwner() ? $entity->getOwner()->getId() : null,
+				?? ($entity->getOwner() ? $entity->getOwner()->getId() : null),
 		]);
 
-		// TODO: in the future change it to call EventTable::update()
-		if (($id = CCalendar::SaveEvent($params)) && is_numeric($id))
+		$result = CCalendar::SaveEvent($params);
+		$id = (is_array($result) && isset($result['id']))
+			? (int)$result['id']
+			: $result
+		;
+
+		if (is_numeric($id))
 		{
 			return $this->getById((int)$id);
 		}
@@ -117,7 +121,7 @@ class Event extends Mapper
 			'checkPermissions' => false,
 			'bMarkDeleted' => true,
 			'userId' => $params['userId']
-				?? $entity->getOwner() ? $entity->getOwner()->getId() : null,
+				?? $entity->getOwner() ? $entity->getOwner()?->getId() : null,
 		]);
 
 		if (CCalendar::DeleteEvent($entity->getId(), true, $params) && !empty($params['bMarkDeleted']))
@@ -249,8 +253,8 @@ class Event extends Mapper
 			'ACCESSIBILITY'      => $event->getAccessibility(),
 			'PRIVATE_EVENT'      => $event->isPrivate(),
 			'IMPORTANCE'         => $event->getImportance(),
-			'OWNER_ID'           => $event->getOwner() ? $event->getOwner()->getId() : null,
-			'CREATED_BY'         => $event->getOwner() ? $event->getOwner()->getId() : null,
+			'OWNER_ID'           => $event->getOwner()?->getId(),
+			'CREATED_BY'         => $event->getOwner()?->getId(),
 			'CAL_TYPE'           => $event->getCalendarType(),
 			'EVENT_TYPE'         => $event->getSpecialLabel(),
 			'LOCATION'           => $event->getLocation() ? $event->getLocation()->getActualLocation() : '',
@@ -258,25 +262,24 @@ class Event extends Mapper
 				? $this->prepareReminders($event->getRemindCollection(), $event->getStart())
 				: null,
 			'RRULE'              => $event->isRecurrence()
-				? $event->getRecurringRule()->toArray()
+				? $event->getRecurringRule()?->toArray()
 				: null,
-			'EXDATE'             => $event->getExcludedDateCollection()
-				? $event->getExcludedDateCollection()->toString()
-				: null,
+			'EXDATE'             => $event->getExcludedDateCollection()?->toString(),
 			'RECURRENCE_ID'      => $event->getRecurrenceId(),
 			'IS_MEETING'         => $event->isMeeting(),
 			'MEETING_STATUS'     => $event->getMeetingStatus(),
-			'MEETING_HOST'       => $event->getEventHost() ? $event->getEventHost()->getId() : null,
-			'MEETING'            => $event->getMeetingDescription() ? $event->getMeetingDescription()->getFields() : null,
+			'MEETING_HOST'       => $event->getEventHost()?->getId(),
+			'MEETING'            => $event->getMeetingDescription()?->getFields(),
 			'ATTENDEES_CODES'    => $event->getAttendeesCollection()
 				? $event->getAttendeesCollection()->getFields()['attendeesCodesCollection']
 				: null,
 			'SECTIONS' 			 => $event->getSection() ? [$event->getSection()->getId()] : null,
 			'SECTION_ID'         => $event->getSection() ? $event->getSection()->getId() : null,
-			'RELATIONS' 		 => $event->getRelations() ? $event->getRelations()->getFields() : null,
+			'RELATIONS' 		 => $event->getRelations()?->getFields(),
 			'DATE_CREATE' => $event->getDateCreate()?->toString(),
 			'TIMESTAMP_X' => $event->getDateModified()?->toString(),
 			'VERSION' => $event->getVersion(),
+			'COLOR' => $event->getColor(),
 		];
 	}
 
@@ -294,7 +297,8 @@ class Event extends Mapper
 		$eventData = EventTable::query()
 		   ->setFilter($filter)
 		   ->setSelect(['*'])
-		   ->fetchObject();
+		   ->fetchObject()
+		;
 
 		if ($eventData)
 		{

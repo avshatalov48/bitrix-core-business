@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { BBCodeEncoder } from 'ui.bbcode.encoder';
 import { BBCodeTagScheme } from './node-schemes/tag-scheme';
 import { BBCodeNode, type BBCodeNodeOptions } from '../nodes/node';
 import { BBCodeRootNode, type RootNodeOptions } from '../nodes/root-node';
@@ -25,6 +26,7 @@ export type BBCodeSchemeOptions = {
 	tagSchemes: Array<BBCodeTagScheme>,
 	outputTagCase?: OutputTagCases,
 	unresolvedNodesHoisting?: boolean,
+	encoder?: BBCodeEncoder,
 };
 
 export class BBCodeScheme
@@ -37,6 +39,8 @@ export class BBCodeScheme
 	tagSchemes: Array<BBCodeTagScheme> = [];
 	outputTagCase: OutputTagCases = BBCodeScheme.Case.LOWER;
 	unresolvedNodesHoisting: boolean = true;
+	encoder: BBCodeEncoder = new BBCodeEncoder();
+	parentChildMap: ?ParentChildMap = null;
 
 	static isNodeScheme(value: any): boolean
 	{
@@ -65,9 +69,17 @@ export class BBCodeScheme
 			throw new TypeError('options is not a object');
 		}
 
+		this.onTagSchemeChange = this.onTagSchemeChange.bind(this);
+
 		this.setTagSchemes(options.tagSchemes);
 		this.setOutputTagCase(options.outputTagCase);
 		this.setUnresolvedNodesHoisting(options.unresolvedNodesHoisting);
+		this.setEncoder(options.encoder);
+	}
+
+	onTagSchemeChange()
+	{
+		this.parentChildMap = null;
 	}
 
 	setTagSchemes(tagSchemes: Array<BBCodeTagScheme>)
@@ -82,6 +94,10 @@ export class BBCodeScheme
 			{
 				throw new TypeError(`tagScheme #${invalidSchemeIndex} is not TagScheme instance`);
 			}
+
+			tagSchemes.forEach((tagScheme: BBCodeTagScheme) => {
+				tagScheme.setOnChangeHandler(this.onTagSchemeChange);
+			});
 
 			this.tagSchemes = [...tagSchemes];
 		}
@@ -176,6 +192,19 @@ export class BBCodeScheme
 		return this.unresolvedNodesHoisting;
 	}
 
+	setEncoder(encoder: BBCodeEncoder)
+	{
+		if (encoder instanceof BBCodeEncoder)
+		{
+			this.encoder = encoder;
+		}
+	}
+
+	getEncoder(): BBCodeEncoder
+	{
+		return this.encoder;
+	}
+
 	getAllowedTags(): Array<string>
 	{
 		return this.getTagSchemes().flatMap((tagScheme: BBCodeTagScheme) => {
@@ -239,50 +268,55 @@ export class BBCodeScheme
 
 	getParentChildMap(): ParentChildMap
 	{
-		const tagSchemes: Array<BBCodeTagScheme> = this.getTagSchemes();
-		const map = new Map();
+		if (Type.isNull(this.parentChildMap))
+		{
+			const tagSchemes: Array<BBCodeTagScheme> = this.getTagSchemes();
+			const map = new Map();
 
-		tagSchemes.forEach((tagScheme: BBCodeTagScheme) => {
-			const groups: Array<BBCodeGroupName> = tagScheme.getGroup();
-			const schemeNames: Array<string> = [
-				...tagScheme.getName(),
-				...groups,
-				...(tagScheme.isVoid() ? ['#void'] : []),
-			];
+			tagSchemes.forEach((tagScheme: BBCodeTagScheme) => {
+				const groups: Array<BBCodeGroupName> = tagScheme.getGroup();
+				const schemeNames: Array<string> = [
+					...tagScheme.getName(),
+					...groups,
+					...(tagScheme.isVoid() ? ['#void'] : []),
+				];
 
-			const allowedChildren = tagScheme.getAllowedChildren();
-			const allowedIn = tagScheme.getAllowedIn();
+				const allowedChildren = tagScheme.getAllowedChildren();
+				const allowedIn = tagScheme.getAllowedIn();
 
-			schemeNames.forEach((name) => {
-				if (!map.has(name))
-				{
-					map.set(
-						name,
-						{
-							allowedChildren: new Set(),
-							allowedIn: new Set(),
-							aliases: new Set(),
-						},
-					);
-				}
+				schemeNames.forEach((name) => {
+					if (!map.has(name))
+					{
+						map.set(
+							name,
+							{
+								allowedChildren: new Set(),
+								allowedIn: new Set(),
+								aliases: new Set(),
+							},
+						);
+					}
 
-				const entry: {
-					allowedChildren: Set,
-					allowedIn: Set,
-					aliases: Set,
-				} = map.get(name);
+					const entry: {
+						allowedChildren: Set,
+						allowedIn: Set,
+						aliases: Set,
+					} = map.get(name);
 
-				const newEntry = {
-					allowedChildren: new Set([...entry.allowedChildren, ...allowedChildren]),
-					allowedIn: new Set([...entry.allowedIn, ...allowedIn]),
-					aliases: new Set([name, ...groups, ...(tagScheme.isVoid() ? ['#void'] : [])]),
-				};
+					const newEntry = {
+						allowedChildren: new Set([...entry.allowedChildren, ...allowedChildren]),
+						allowedIn: new Set([...entry.allowedIn, ...allowedIn]),
+						aliases: new Set([name, ...groups, ...(tagScheme.isVoid() ? ['#void'] : [])]),
+					};
 
-				map.set(name, newEntry);
+					map.set(name, newEntry);
+				});
 			});
-		});
 
-		return map;
+			this.parentChildMap = map;
+		}
+
+		return this.parentChildMap;
 	}
 
 	isChildAllowed(parent: string | BBCodeNode, child: string | BBCodeNode): boolean

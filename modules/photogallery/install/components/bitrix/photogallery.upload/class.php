@@ -205,17 +205,7 @@ class CPhotogalleryUpload extends \CBitrixComponent implements Main\Engine\Contr
 			$params[$page.'_URL'] = htmlspecialcharsbx($params['~'.$page.'_URL']);
 		}
 
-		$test_str = '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=';
-		if (strncmp(POST_FORM_ACTION_URI, $test_str, 52) === 0)
-		{
-			$sUrlPath = urldecode(mb_substr(POST_FORM_ACTION_URI, 52));
-			$sUrlPath = CHTTP::urlDeleteParams($sUrlPath, array('view_mode', 'sessid', 'uploader_redirect'), true);
-			$params['ACTION_URL'] = htmlspecialcharsbx('/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL='.urlencode($sUrlPath));
-		}
-		else
-		{
-			$params['ACTION_URL'] = CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array('view_mode', 'sessid', 'uploader_redirect'), true);
-		}
+		$params['ACTION_URL'] = CHTTP::urlDeleteParams(htmlspecialcharsback(POST_FORM_ACTION_URI), array('view_mode', 'sessid', 'uploader_redirect'), true);
 
 		$params["ACTION_URL"] = CHTTP::urlAddParams(
 			$params["ACTION_URL"],

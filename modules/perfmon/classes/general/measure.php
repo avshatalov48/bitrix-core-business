@@ -6,34 +6,46 @@ IncludeModuleLangFile(__FILE__);
 
 class CPerfomanceMeasure
 {
+	protected static function noOp(&$k)
+	{
+	}
+
+	protected static function oneOp(&$k)
+	{
+		$k++;
+		$k--;
+		$k++;
+		$k--;
+	}
+
 	public static function GetPHPCPUMark()
 	{
 		$k = 0;
 		$res = [];
 		for ($j = 0; $j < 4; $j++)
 		{
-			$s1 = microtime(true);
-			for ($i = 0; $i < 1000000; $i++)
+			$m1 = microtime(true);
+			for ($i = 0; $i < 100000; $i++)
 			{
+				static::noOp($k);
 			}
-			$e1 = microtime(true);
-			$N1 = $e1 - $s1;
 
-			$s2 = microtime(true);
-			for ($i = 0; $i < 1000000; $i++)
+			$m2 = microtime(true);
+			for ($i = 0; $i < 100000; $i++)
 			{
-				//This is one op
-				$k++;
-				$k--;
-				$k++;
-				$k--;
+				static::oneOp($k);
 			}
-			$e2 = microtime(true);
-			$N2 = $e2 - $s2;
 
-			if ($N2 > $N1)
+			$m3 = microtime(true);
+			if ($m1 <= $m2 && $m2 <= $m3)
 			{
-				$res[] = 1 / ($N2 - $N1);
+				$N1 = $m2 - $m1;
+				$N2 = $m3 - $m2;
+
+				if ($N2 > $N1)
+				{
+					$res[] = 1 / ($N2 - $N1);
+				}
 			}
 		}
 

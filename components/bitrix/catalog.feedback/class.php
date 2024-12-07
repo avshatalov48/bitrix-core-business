@@ -132,7 +132,7 @@ class CatalogFeedbackComponent extends CBitrixComponent
 			case 'com.br':
 				return ['id' => 386, 'lang' => 'com.br', 'sec' => 't6tdpy', 'zones' => ['com.br']];
 			default:
-				return ['id' => 384, 'lang' => 'ru', 'sec' => '0pskpd', 'zones' => ['ru', 'by', 'kz']];
+				return ['id' => 392, 'lang' => 'en', 'sec' => 'siqjqa', 'zones' => ['en', 'ua']];
 		}
 	}
 

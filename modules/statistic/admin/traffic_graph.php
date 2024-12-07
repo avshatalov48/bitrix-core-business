@@ -146,7 +146,7 @@ if ($find_graph_type!="date")
 			$arColors[] = array($arrColor["NEW_GUESTS"]);
 	}
 
-	$dtu = ToUpper($find_graph_type);
+	$dtu = mb_strtoupper($find_graph_type);
 	$arData = array();
 
 	$arrY = array();

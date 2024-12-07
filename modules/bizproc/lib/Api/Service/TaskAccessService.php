@@ -16,7 +16,12 @@ class TaskAccessService
 	public function __construct(int $userId)
 	{
 		$this->userId = $userId;
-		$this->isUserAdmin = in_array(1, \CUser::GetUserGroup($userId), false);
+		$currentUser = \Bitrix\Main\Engine\CurrentUser::get();
+		$userGroups =
+			!is_null($currentUser) && $currentUser->getId() === $userId
+				? $currentUser->getUserGroups()
+				: \CUser::GetUserGroup($userId);
+		$this->isUserAdmin = in_array(1, $userGroups, false);
 	}
 
 	public function isCurrentUser(int $userId): bool
@@ -68,6 +73,18 @@ class TaskAccessService
 		{
 			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_VIEW_TASKS_ERROR_ONLY_INTRANET_USER')));
 		}
+
+		if (!$this->canUserViewTasks($targetUserId))
+		{
+			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_ACCESS_SERVICE_ERROR_SUBORDINATION_MSGVER_1')));
+		}
+
+		return $result;
+	}
+
+	public function checkDoTasks(int $targetUserId): Result
+	{
+		$result = new Result();
 
 		if (!$this->canUserViewTasks($targetUserId))
 		{

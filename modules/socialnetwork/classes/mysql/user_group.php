@@ -164,7 +164,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 				"UPDATE b_sonet_user2group SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			CSocNetGroup::SetStat($arUser2GroupOld["GROUP_ID"]);
 			CSocNetSearch::OnUserRelationsChange($arUser2GroupOld["USER_ID"]);
@@ -343,7 +343,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			return (($arRes = $dbRes->Fetch()) ? $arRes["CNT"] : false);
 		}
 
@@ -380,7 +380,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -391,7 +391,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -413,7 +413,7 @@ class CSocNetUserToGroup extends CAllSocNetUserToGroup
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

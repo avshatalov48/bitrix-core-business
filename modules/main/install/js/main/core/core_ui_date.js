@@ -15,6 +15,7 @@
 		this.input = null;
 		this.valueDeleteButton = null;
 		this.enableTime = false;
+		this.datePicker = null;
 		this.init(node);
 	};
 
@@ -26,9 +27,12 @@
 				this.node = node;
 				this.enableTime = (BX.data(this.getInput(), 'time') == 'true');
 
-				BX.bind(this.getButton(), 'click', BX.delegate(this.calendar, this));
+				BX.bind(this.getButton(), 'click', () => {
+					this.getDatePicker().show();
+				});
 				BX.bind(this.getInput(), 'input', BX.delegate(this._onInputInput, this));
-				BX.bind(this.getInput(), 'focus', BX.delegate(this._onInputFocus, this));
+				// BX.bind(this.getInput(), 'focus', BX.delegate(this._onInputFocus, this));
+				BX.bind(this.getInput(), 'focusout', BX.delegate(this._onInputFocusOut, this));
 				BX.bind(this.getInput(), 'click', BX.delegate(this._onInputClick, this));
 				BX.bind(this.getValueDeleteButton(), 'click', BX.delegate(this._onValueDeleteButtonClick, this));
 				this.controlDeleteButton();
@@ -56,23 +60,29 @@
 		{
 			this.isFocus = true;
 			this.eventTimestamp = event.timeStamp;
-			this.calendar();
+			this.getDatePicker().show();
+		},
+
+		_onInputFocusOut: function(event)
+		{
+			if (!this.getDatePicker().getContainer().contains(event.relatedTarget))
+			{
+				this.getDatePicker().hide();
+			}
 		},
 
 		_onInputClick: function(event)
 		{
-			var calendar = this.calendar();
-			var focusTime = new Date(this.eventTimestamp).getSeconds();
-			var clickTime = new Date(event.timeStamp).getSeconds();
+			this.getDatePicker().show();
+
 			event.preventDefault();
 			event.stopPropagation();
 
-			if (!this.isFocus || Math.abs(focusTime - clickTime) < 0)
+			const focusTime = this.eventTimestamp;
+			const clickTime = event.timeStamp;
+			if (!this.isFocus || (clickTime - focusTime) > 1000)
 			{
-				if (calendar.popup.isShown())
-				{
-					this.getNode().click();
-				}
+				this.getDatePicker().show();
 			}
 
 			this.isFocus = false;
@@ -105,14 +115,36 @@
 			return this.valueDeleteButton;
 		},
 
-		calendar: function()
+		getDatePicker()
 		{
-			var input = this.getInput();
-			var button = this.getButton();
+			if (this.datePicker === null)
+			{
+				const input = this.getInput();
+				const button = this.getButton();
+				this.datePicker = new BX.UI.DatePicker.DatePicker({
+					targetNode: button,
+					inputField: input,
+					enableTime: this.enableTime,
+					autoFocus: false,
+					autoHide: true,
+					useInputEvents: false,
+					events: {
+						onHide: () => {
+							this.controlDeleteButton();
+						},
+						// onSelectChange: () => {
+						// 	if (!this.enableTime)
+						// 	{
+						// 		setTimeout(() => { // a workaround for the focus event handler
+						// 			this.datePicker.hide();
+						// 		}, 0);
+						// 	}
+						// },
+					},
+				});
+			}
 
-			var params = {node: button, field: input, bTime: this.enableTime, bHideTime: false, callback_after: BX.delegate(this.controlDeleteButton, this)};
-
-			return BX.calendar(params);
+			return this.datePicker;
 		},
 
 		getNode: function()
@@ -163,7 +195,10 @@
 		{
 			calendarButton = {
 				block: 'main-ui-date-button',
-				tag: 'span'
+				tag: 'span',
+				attrs: {
+					tabindex: '0',
+				},
 			};
 
 			control.content.push(calendarButton);

@@ -13,6 +13,7 @@
 			return BXMailView.__views[options.messageId];
 		}
 
+		this.mailboxId = options.mailboxId;
 		this.id = options.messageId;
 		this.options = options;
 		this.progressPercent = 0;
@@ -40,6 +41,11 @@
 			this.ajaxLoadAttachments();
 		}
 		this.addPageSwapper();
+
+		if (this.options.fileRefreshButtonId)
+		{
+			this.setRefreshFileButtonAction();
+		}
 	};
 
 	BXMailView.prototype.ajaxLoadMessageBody = function ()
@@ -126,6 +132,7 @@
 	BXMailView.prototype.ajaxLoadAttachments = function ()
 	{
 		const options = this.options;
+		const self = this;
 		if (!options.ajaxAttachmentElementId || !options.messageId)
 		{
 			return;
@@ -157,6 +164,10 @@
 			{
 				ajaxAttachmentLoader.hide();
 				ajaxAttachmentElement.innerHTML = response.data.attachmentsHtml;
+				if (options.fileRefreshButtonId)
+				{
+					self.setRefreshFileButtonAction();
+				}
 			}
 		}, function ()
 		{
@@ -288,6 +299,62 @@
 			prevSliderWindow.document.querySelector('.main-grid-more-btn').click();
 		}
 	};
+
+	BXMailView.prototype.setRefreshFileButtonAction = function()
+	{
+		const button = document.getElementById(this.options.fileRefreshButtonId);
+		if (!button)
+		{
+			return;
+		}
+
+		const icon = document.querySelector('.mail-msg-refresh-files-button-icon');
+		if (!icon)
+		{
+			return;
+		}
+
+		const toggleButton = () => {
+			const rotateButtonClass = 'mail-msg-refresh-files-button-icon-rotate';
+			if (this.refreshFilesInProgress)
+			{
+				BX.Dom.removeClass(icon, rotateButtonClass);
+				this.refreshFilesInProgress = false;
+
+				return;
+			}
+
+			BX.Dom.addClass(icon, rotateButtonClass);
+			this.refreshFilesInProgress = true;
+		};
+
+		BX.bind(button, 'click', () => {
+			if (this.refreshFilesInProgress)
+			{
+				return;
+			}
+
+			toggleButton();
+			BX.ajax.runAction('mail.syncingattachments.resyncAttachments', {
+				data: {
+					messageId: this.id,
+					mailboxId: this.mailboxId,
+				},
+			}).then((response) => {
+				if (response.status !== 'success')
+				{
+					toggleButton();
+
+					return;
+				}
+
+				location.reload();
+			}).catch(() => {
+				toggleButton();
+			});
+		});
+	};
+
 	function safeHide(elementId)
 	{
 		if (elementId)

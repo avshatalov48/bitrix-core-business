@@ -286,7 +286,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          users: [],
 	          usersInCall: [],
 	          presenters: [],
-	          rightPanelMode: im_const.ConferenceRightPanelMode.hidden
+	          rightPanelMode: im_const.ConferenceRightPanelMode.hidden,
+	          hasErrorInCall: false
 	        },
 	        user: {
 	          id: -1,
@@ -390,6 +391,9 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          if (Array.isArray(payload.presenters)) {
 	            state.common.presenters = payload.presenters;
 	          }
+	          if (typeof payload.hasErrorInCall === 'boolean') {
+	            state.common.hasErrorInCall = payload.hasErrorInCall;
+	          }
 	        },
 	        user: function user(state, payload) {
 	          if (typeof payload.id === 'number') {
@@ -453,6 +457,11 @@ this.BX.Messenger = this.BX.Messenger || {};
 	        setConferenceStatus: function setConferenceStatus(state, payload) {
 	          if (typeof payload.conferenceStarted === 'boolean') {
 	            state.common.conferenceStarted = payload.conferenceStarted;
+	          }
+	        },
+	        setConferenceHasErrorInCall: function setConferenceHasErrorInCall(state, payload) {
+	          if (typeof payload.hasErrorInCall === 'boolean') {
+	            state.common.hasErrorInCall = payload.hasErrorInCall;
 	          }
 	        },
 	        setConferenceStartDate: function setConferenceStartDate(state, payload) {
@@ -523,7 +532,8 @@ this.BX.Messenger = this.BX.Messenger || {};
 	          userReadyToJoin: null,
 	          rightPanelMode: null,
 	          presenters: null,
-	          users: null
+	          users: null,
+	          hasErrorInCall: null
 	        }
 	      };
 	    }

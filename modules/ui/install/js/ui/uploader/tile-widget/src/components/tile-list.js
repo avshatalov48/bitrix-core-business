@@ -20,8 +20,8 @@ export const TileList: BitrixVueComponentProps = {
 		},
 		items: {
 			type: Array,
-			default: []
-		}
+			default: [],
+		},
 	},
 	data: (): Object => ({
 		pageSize: 5,
@@ -139,7 +139,6 @@ export const TileList: BitrixVueComponentProps = {
 					{
 						this.moreItemBlocked = false;
 					}
-
 				}, 100 * delay);
 			}
 		},
@@ -162,5 +161,5 @@ export const TileList: BitrixVueComponentProps = {
 				<TileItem v-for="item in realtimeItems" :key="item.id" :item="item" />
 			</transition-group>
 		</div>
-	`
+	`,
 };

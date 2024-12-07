@@ -1,0 +1,74 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="768" fill="none">
+    <path fill="#fff" d="M5 0h1115v706H5z"/>
+    <rect width="50%" height="770" x="0" y="0" fill="#EEF2F4"/>
+    <rect width="45%" height="338" x="29" y="122" fill="#F8FAFB" rx="10"/>
+    <rect width="45%" height="235" x="29" y="476" fill="#F8FAFB" rx="10"/>
+    <rect width="42%" height="150" x="44" y="294" fill="#fff" rx="6"/>
+    <rect width="41%" height="37" x="51.5" y="559.5" fill="#fff" fill-opacity=".8" stroke="#DFE0E3" rx="3.5"/>
+    <rect width="41%" height="37" x="51.5" y="642.5" fill="#fff" fill-opacity=".8" stroke="#DFE0E3" rx="3.5"/>
+    <rect width="50%" height="770" x="50%" y="0" fill="#F8FAFB"/>
+    <rect width="42%" height="64" x="56%" y="84" fill="#EEF2F4" rx="24"/>
+    <rect width="42%" height="29" x="56%" y="384.5" fill="#fff" stroke="#E6E7E9" rx="14.5"/>
+    <rect width="42%" height="64" x="56%" y="184" fill="#EEF2F4" rx="24"/>
+    <rect width="42%" height="64" x="56%" y="284" fill="#EEF2F4" rx="24"/>
+    <g id="content">
+        <g>
+            <rect width="28%" height="16" x="29" y="28" fill="#DFE0E3"/>
+            <rect width="45%" height="1" x="29" y="70" fill="#DFE0E3" rx="2"/>
+            <rect width="66" height="12" x="29" y="87" fill="#DFE0E3" rx="2"/>
+            <rect width="66" height="12" x="119" y="87" fill="#DFE0E3" rx="2"/>
+            <rect width="66" height="12" x="209" y="87" fill="#DFE0E3" rx="2"/>
+            <path fill="#E6E7E9" d="M45 491a2 2 0 0 1 2-2h136a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H47a2 2 0 0 1-2-2v-6Z"/>
+            <rect width="13%" height="10" x="45" y="489" fill="#EDEEF0" rx="2"/>
+            <rect width="42%" height="1" x="45" y="512" fill="#EDEEF0" rx="2"/>
+            <path fill="#EDEEF0"
+                  d="M44 143a2 2 0 0 1 2-2h59a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H46a2 2 0 0 1-2-2v-4ZM44 220a2 2 0 0 1 2-2h90a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H46a2 2 0 0 1-2-2v-4ZM44 280a2 2 0 0 1 2-2h70a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2H46a2 2 0 0 1-2-2v-4Z"/>
+            <path fill="#E6E7E9" d="M44 239a2 2 0 0 1 2-2h109a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2H46a2 2 0 0 1-2-2v-6Z"/>
+            <rect width="37%" height="8" x="59" y="309" fill="#EDEEF0" rx="2"/>
+            <rect width="36%" height="8" x="59" y="329" fill="#EDEEF0" rx="2"/>
+            <rect width="35%" height="8" x="59" y="349" fill="#EDEEF0" rx="2"/>
+            <rect width="37%" height="8" x="59" y="369" fill="#EDEEF0" rx="2"/>
+            <rect width="37%" height="8" x="59" y="389" fill="#EDEEF0" rx="2"/>
+            <rect width="22%" height="8" x="59" y="409" fill="#EDEEF0" rx="2"/>
+            <rect width="181" height="8" x="51" y="537" fill="#EDEEF0" rx="2"/>
+            <rect width="181" height="8" x="51" y="620" fill="#EDEEF0" rx="2"/>
+            </g>
+        <g>
+            <circle cx="54%" cy="36" r="21" fill="#DFE0E3"/>
+            <rect width="195" height="14" x="57%" y="20" fill="#DFE0E3" rx="2"/>
+            <rect width="120" height="8" x="57%" y="44" fill="#DFE0E3" rx="2"/>
+            <rect width="45%" height="1" x="52%" y="70" fill="#DFE0E3" rx="2"/>
+            <circle cx="54%" cy="104" r="15" fill="#DFE0E3"/>
+            <rect width="150" height="12" x="57%" y="99" fill="#DFE0E3" rx="2"/>
+            <rect width="125" height="8" x="57%" y="122" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="57%" y="160" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="63%" y="160" fill="#DFE0E3" rx="2"/>
+            <rect width="24" height="6" x="69%" y="160" fill="#DFE0E3" rx="2"/>
+            <circle cx="54%" cy="204" r="15" fill="#DFE0E3"/>
+            <rect width="150" height="12" x="57%" y="199" fill="#DFE0E3" rx="2"/>
+            <rect width="125" height="8" x="57%" y="222" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="57%" y="260" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="63%" y="260" fill="#DFE0E3" rx="2"/>
+            <rect width="24" height="6" x="69%" y="260" fill="#DFE0E3" rx="2"/>
+            <circle cx="54%" cy="304" r="15" fill="#DFE0E3"/>
+            <rect width="150" height="12" x="57%" y="299" fill="#DFE0E3" rx="2"/>
+            <rect width="125" height="8" x="57%" y="322" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="57%" y="360" fill="#DFE0E3" rx="2"/>
+            <rect width="52" height="6" x="63%" y="360" fill="#DFE0E3" rx="2"/>
+            <rect width="24" height="6" x="69%" y="360" fill="#DFE0E3" rx="2"/>
+            <circle cx="54%" cy="399" r="15" fill="#DFE0E3"/>
+            <rect width="125" height="8" x="57%" y="395" fill="#DFE0E3" rx="2"/>
+        </g>
+    </g>
+    <rect id="l"  width="100%" fill="url(#i)" mask="url(#j)" height="100%"/>
+    <mask id="j" fill="#fff">
+        <use xlink:href="#content"/>
+    </mask>
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="i">
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#D3D4D9" offset="50%"/>
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+    <animate xlink:href="#l" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+</svg>

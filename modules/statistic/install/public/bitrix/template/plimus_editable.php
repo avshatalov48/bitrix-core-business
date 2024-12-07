@@ -5,7 +5,7 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 /***************************************************************************
-Convertation of the standard Plimus CSV file to the 
+Convertation of the standard Plimus CSV file to the
 CSV file format of the Statistics module.
 ***************************************************************************/
 
@@ -20,7 +20,7 @@ $CURRENCY = "USD"; // Currency
 
 function CleanUpCsv(&$item)
 {
-	$item = TrimEx($item, "\"");
+	$item = trim(trim($item), "\"");
 }
 
 function PrepareQuotes(&$item)
@@ -49,13 +49,13 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 	if (mb_substr($OUTPUT_CSV_FILE, 0, mb_strlen($upload_dir)) == $upload_dir && $fp_out = fopen($OUTPUT_CSV_FILE,"wb"))
 	{
 		$i = 0; // counter of the read valuable lines
-		$j = 0; // counter of the written to the resulting  file lines 
+		$j = 0; // counter of the written to the resulting  file lines
 		$lang_date_format = FORMAT_DATETIME; // date format for the current language
 		$event1 = "plimus";
 		$event2 = "buy";
 		$EVENT_ID = CStatEventType::ConditionSet($event1, $event2, $arEventType)." (".$event1." / ".$event2.")";
 		$SITE_ID = GetEventSiteID(); // short site identifier (ID)
-		while (!feof($fp_in)) 
+		while (!feof($fp_in))
 		{
 			$arrCSV = fgetcsv($fp_in, 4096, $SEPARATOR);
 
@@ -68,10 +68,10 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 				// if it is the first line then
 				if ($arrCSV[0]=="Reference No")
 				{
-					// get an array with the field numbers 
+					// get an array with the field numbers
 					$arrS = array_flip($arrCSV);
 				}
-				elseif ($arrCSV[0]!="Reference No" && is_array($arrS) && count($arrS)>0) // else form the CSV line in module format and write it to the resulting file 
+				elseif ($arrCSV[0]!="Reference No" && is_array($arrS) && count($arrS)>0) // else form the CSV line in module format and write it to the resulting file
 				{
 					$arrRes = array();
 
@@ -82,7 +82,7 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 					$arrRes[] = $arrCSV[$arrS["Reference No"]]." / ".$arrCSV[$arrS["Product ID"]];
 
 					// date
-					$ar = explode(" ", $arrCSV[$arrS["Date"]]); // 11-Jul-2005 07:54:48
+					$ar = explode(" ", $arrCSV[$arrS["Date"]]); // 11-Jul-2005Â 07:54:48
 					$arDate = explode("-", $ar[0]); // 11-Jul-2005
 					$arTime = explode(":", $ar[1]); // 07:54:48
 					$date_time = $arDate[0].".".$arMonth[$arDate[1]].".".$arDate[2]." ".$ar[1]; // 11.07.2005 07:54:48

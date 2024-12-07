@@ -8,8 +8,6 @@
 namespace Bitrix\Main\Mail\Internal;
 
 use Bitrix\Main\Entity;
-use Bitrix\Main\Mail as Mail;
-use Bitrix\Main\Config as Config;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\Type as Type;
 

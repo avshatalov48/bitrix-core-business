@@ -10,7 +10,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const NotificationItemAvatar = {
 	  name: 'NotificationItemAvatar',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  props: {
 	    userId: {
@@ -19,10 +19,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    isSystem() {
 	      return this.userId === 0;
 	    },
-	    dialogId() {
+	    userDialogId() {
 	      return this.userId.toString();
 	    },
 	    user() {
@@ -32,12 +33,16 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-content-notification-item-avatar__container">
-			<template v-if="isSystem || !user">
-				<div class="bx-im-content-notification-item-avatar__system-icon"></div>
-			</template>
-			<template v-else>
-				<Avatar :dialogId="dialogId" size="L" />
-			</template>
+			<div 
+				v-if="isSystem || !user"
+				class="bx-im-content-notification-item-avatar__system-icon"
+			></div>
+			<ChatAvatar 
+				v-else 
+				:avatarDialogId="userDialogId" 
+				:contextDialogId="userDialogId" 
+				:size="AvatarSize.L" 
+			/>
 		</div>
 	`
 	};
@@ -168,7 +173,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const NotificationItemConfirmButtons = {
 	  name: 'NotificationItemConfirmButtons',
 	  components: {
-	    Button: im_v2_component_elements.Button
+	    MessengerButton: im_v2_component_elements.Button
 	  },
 	  props: {
 	    buttons: {
@@ -183,10 +188,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    preparedButtons() {
 	      return this.buttons.map(button => {
 	        const [id, value] = button.COMMAND_PARAMS.split('|');
+
+	        // we need to decode it, because legacy chat does htmlspecialcharsbx on the server side
+	        // @see \CIMMessenger::Add
+	        const text = main_core.Text.decode(button.TEXT);
 	        return {
-	          id: id,
-	          value: value,
-	          text: button.TEXT
+	          id,
+	          value,
+	          text
 	        };
 	      });
 	    }
@@ -201,7 +210,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-content-notification-item-confirm-buttons__container">
-			<Button
+			<MessengerButton
 				v-for="(button, index) in preparedButtons" :key="index"
 				:text="button.text"
 				:color="getButtonColor(button)"
@@ -209,7 +218,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:isRounded="true"
 				:isUppercase="false"
 				@click="click(button)"
-			></Button>
+			></MessengerButton>
 		</div>
 	`
 	};
@@ -286,8 +295,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const NotificationItemHeader = {
 	  name: 'NotificationItemHeader',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
-	    AvatarSize: im_v2_component_elements.AvatarSize,
 	    ChatTitle: im_v2_component_elements.ChatTitle
 	  },
 	  props: {
@@ -337,7 +344,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.isSystem) {
 	        return false;
 	      }
-	      return !!((_this$notificationIte = this.notificationItem.params) != null && _this$notificationIte.users) && this.notificationItem.params.users.length > 0;
+	      return Boolean((_this$notificationIte = this.notificationItem.params) == null ? void 0 : _this$notificationIte.users) && this.notificationItem.params.users.length > 0;
 	    },
 	    moreUsers() {
 	      const phrase = this.$Bitrix.Loc.getMessage('IM_NOTIFICATIONS_MORE_USERS').split('#COUNT#');
@@ -1115,10 +1122,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      this.notificationReadService.addToReadQueue(notificationIds);
 	      this.notificationReadService.read();
 	    },
-	    oneScreenRemaining(event) {
-	      const target = event.target;
-	      return target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
-	    },
 	    searchOnServer(event) {
 	      this.notificationSearchService.loadFirstPage(event).then(result => {
 	        this.isNextPageLoading = false;
@@ -1159,7 +1162,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      messageBox.show();
 	    },
 	    onScrollNotifications(event) {
-	      if (!this.oneScreenRemaining(event) || !this.notificationService.hasMoreItemsToLoad || this.isInitialLoading || this.isNextPageLoading) {
+	      if (!im_v2_lib_utils.Utils.dom.isOneScreenRemaining(event.target) || !this.notificationService.hasMoreItemsToLoad || this.isInitialLoading || this.isNextPageLoading) {
 	        return;
 	      }
 	      this.isNextPageLoading = true;
@@ -1168,7 +1171,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	    },
 	    onScrollSearchResult(event) {
-	      if (!this.oneScreenRemaining(event) || !this.notificationSearchService.hasMoreItemsToLoad || this.isInitialLoading || this.isNextPageLoading) {
+	      if (!im_v2_lib_utils.Utils.dom.isOneScreenRemaining(event.target) || !this.notificationSearchService.hasMoreItemsToLoad || this.isInitialLoading || this.isNextPageLoading) {
 	        return;
 	      }
 	      this.isNextPageLoading = true;
@@ -1299,5 +1302,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.NotificationContent = NotificationContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.UI.Dialogs,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX,BX.UI.Dialogs,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX,BX.Vue3.Vuex,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=notification-content.bundle.js.map

@@ -367,8 +367,11 @@ function ForumAddMessage(
 		$arFieldsG["USE_SMILES"] = ($arFieldsG["USE_SMILES"] == "Y" ? "Y" : "N");
 		if (array_key_exists("ATTACH_IMG", $arFieldsG))
 		{
+			if (!empty($arFieldsG["ATTACH_IMG"]))
+			{
+				$arFieldsG["FILES"] = [$arFieldsG["ATTACH_IMG"]];
+			}
 			unset($arFieldsG["ATTACH_IMG"]);
-			$arFieldsG["FILES"] = [$arFieldsG["ATTACH_IMG"]];
 		}
 		$GLOBALS["USER_FIELD_MANAGER"]->EditFormAddFields("FORUM_MESSAGE", $arFieldsG);
 		//endregion
@@ -1475,8 +1478,8 @@ function ShowActiveUser($arFields = array())
 				$OnLineUser["GUEST"] = intval($res["COUNT_USER"]);
 		}while ($res = $db_res->GetNext());
 
-		$CountAllUsers = count($OnLineUser["USER"]) + $UserHideOnLine + $OnLineUser["GUEST"];
-		$result["GUEST"] = $OnLineUser["GUEST"];
+		$CountAllUsers = count($OnLineUser["USER"]) + $UserHideOnLine + ($OnLineUser["GUEST"] ?? 0);
+		$result["GUEST"] = ($OnLineUser["GUEST"] ?? 0);
 		$result["HIDE"] = $UserHideOnLine;
 		$result["REGISTER"] = intval(count($OnLineUser["USER"])+$UserHideOnLine);
 		$result["ALL"] = $CountAllUsers;
@@ -1489,7 +1492,7 @@ function ShowActiveUser($arFields = array())
 				$result["HEAD"] = str_replace("##", "<b>".round($period/60)."</b>", GetMessage("FORUM_AT_LAST_PERIOD"))." ".
 				GetMessage("FORUM_COUNT_ALL_USER").": <b>".$CountAllUsers."</b><br/>";
 			}
-			$OnLineUserStr = GetMessage("FORUM_COUNT_GUEST").": <b>".intval($OnLineUser["GUEST"])."</b>, ".
+			$OnLineUserStr = GetMessage("FORUM_COUNT_GUEST").": <b>".intval($OnLineUser["GUEST"] ?? 0)."</b>, ".
 				GetMessage("FORUM_COUNT_USER").": <b>".intval(count($OnLineUser["USER"])+$UserHideOnLine)."</b>,
 				".GetMessage("FORUM_FROM_THIS")." ".GetMessage("FORUM_COUNT_USER_HIDEFROMONLINE").": <b>".$UserHideOnLine."</b>";
 

@@ -29,7 +29,6 @@ use Bitrix\Main\ORM\Fields\BooleanField;
 use Bitrix\Main\ORM\Fields\DateField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
 use Bitrix\Main\ORM\Fields\EnumField;
-use Bitrix\Main\ORM\Fields\Field;
 use Bitrix\Main\ORM\Fields\FloatField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\ScalarField;
@@ -168,6 +167,11 @@ abstract class BaseForm
 		$this->urlBuilder->setIblockId($this->entity->getIblockId());
 	}
 
+	/**
+	 * Returns true, if public product card is allowed.
+	 *
+	 * @return bool
+	 */
 	public function isCardAllowed(): bool
 	{
 		switch ($this->params['SCOPE'])
@@ -190,14 +194,29 @@ abstract class BaseForm
 		return $result;
 	}
 
+	/**
+	 * Returns true, if current user can't modify product.
+	 *
+	 * @return bool
+	 */
 	public function isReadOnly(): bool
 	{
+		if (State::isExternalCatalog())
+		{
+			return true;
+		}
+
 		return
 			!$this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_EDIT)
 			&& !$this->isAllowedEditFields()
 		;
 	}
 
+	/**
+	 * Returns true, if current user can create new product or modify existing product.
+	 *
+	 * @return bool
+	 */
 	public function isAllowedEditFields(): bool
 	{
 		if ($this->isEntityCreationForm())
@@ -208,16 +227,31 @@ abstract class BaseForm
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_EDIT);
 	}
 
+	/**
+	 * Returns true, if current user can modify card settings.
+	 *
+	 * @return bool
+	 */
 	public function isCardSettingsEditable(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_EDIT);
 	}
 
+	/**
+	 * Returns true, if current user can write card settings for all users.
+	 *
+	 * @return bool
+	 */
 	public function isEnabledSetSettingsForAll(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_CARD_SETTINGS_FOR_USERS_SET);
 	}
 
+	/**
+	 * Returns true, if current user can modify product prices.
+	 *
+	 * @return bool
+	 */
 	public function isPricesEditable(): bool
 	{
 		return
@@ -229,11 +263,21 @@ abstract class BaseForm
 		;
 	}
 
+	/**
+	 * Return true, if current user can view purchasing prices.
+	 *
+	 * @return bool
+	 */
 	public function isPurchasingPriceAllowed(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_PRODUCT_PURCHASE_INFO_VIEW);
 	}
 
+	/**
+	 * Returns true, if current user can modify product's visibility.
+	 *
+	 * @return bool
+	 */
 	public function isVisibilityEditable(): bool
 	{
 		return
@@ -242,6 +286,11 @@ abstract class BaseForm
 		;
 	}
 
+	/**
+	 * Returns true, if current user can change inventory management setting.
+	 *
+	 * @return bool
+	 */
 	public function isInventoryManagementAccess(): bool
 	{
 		return $this->accessController->check(ActionDictionary::ACTION_INVENTORY_MANAGEMENT_ACCESS);
@@ -252,6 +301,11 @@ abstract class BaseForm
 		return $name;
 	}
 
+	/**
+	 * Returns controller's list for product card.
+	 *
+	 * @return array[]
+	 */
 	public function getControllers(): array
 	{
 		return [
@@ -293,6 +347,13 @@ abstract class BaseForm
 		];
 	}
 
+	/**
+	 * Returns product field values.
+	 *
+	 * @param bool $allowDefaultValues Can use default values.
+	 * @param array|null $descriptions Field descriptions.
+	 * @return array
+	 */
 	public function getValues(bool $allowDefaultValues = true, array $descriptions = null): array
 	{
 		$values = [];
@@ -608,7 +669,7 @@ abstract class BaseForm
 						$value = $this->getEntityViewPictureValues($this->entity);
 						$editValue = $this->getEntityEditPictureValues($this->entity);
 
-						if (!$description['multiple'])
+						if (!$description['multiple'] && isset($value[0]))
 						{
 							$value = $value[0];
 							$editValue = $editValue[0];
@@ -622,9 +683,11 @@ abstract class BaseForm
 					$isImageInput = $this->isImageProperty($description['settings']);
 
 					$descriptionSingle = $description;
-					$descriptionSingle['settings']['MULTIPLE'] = false;
+					$descriptionSingle['settings']['MULTIPLE'] = 'N';
+					$descriptionSingle['multiple'] = false;
 					$descriptionMultiple = $description;
-					$descriptionMultiple['settings']['MULTIPLE'] = true;
+					$descriptionMultiple['settings']['MULTIPLE'] = 'Y';
+					$descriptionMultiple['multiple'] = true;
 
 					if ($isImageInput)
 					{
@@ -637,9 +700,7 @@ abstract class BaseForm
 					}
 					else
 					{
-						// generate new IDs for new elements to avoid duplicate IDs in HTML inputs
-						$entityId = $this->entity->getId() ?? uniqid();
-						$controlId = $description['name'] . '_uploader_' . $entityId;
+						$controlId = $description['name'] . '_uploader';
 
 						$additionalValues[$descriptionData['view']] = '';
 						$additionalValues[$descriptionData['viewList']]['SINGLE'] = '';
@@ -960,7 +1021,7 @@ abstract class BaseForm
 	{
 		$isQuantityTraceExplicitlyDisabled = $this->entity->getField('QUANTITY_TRACE') === 'N';
 		$isWithOrdersMode = Loader::includeModule('crm') && \CCrmSaleHelper::isWithOrdersMode();
-		$isInventoryManagementUsed = UseStore::isUsed();
+		$isInventoryManagementUsed = State::isUsedInventoryManagement();
 
 		return (!$isWithOrdersMode && !$isInventoryManagementUsed)
 			|| ($isInventoryManagementUsed && !$isQuantityTraceExplicitlyDisabled);
@@ -2254,7 +2315,7 @@ abstract class BaseForm
 	{
 		$inputName = $this->getFilePropertyInputName($property);
 
-		if ($value && !is_array($value))
+		if ($value && (!is_array($value) || isset($value['ID'])))
 		{
 			$value = [$value];
 		}

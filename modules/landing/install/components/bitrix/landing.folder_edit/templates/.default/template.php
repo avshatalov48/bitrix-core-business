@@ -43,7 +43,7 @@ Manager::setPageTitle(Loc::getMessage('LANDING_TPL_TITLE'));
 $row = $arResult['FOLDER'];
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		<?if ($arParams['SUCCESS_SAVE'] && !$arResult['ERRORS']):?>
 		top.BX.onCustomEvent('BX.Landing.Filter:apply');
@@ -200,7 +200,7 @@ $row = $arResult['FOLDER'];
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		// rich url toggler

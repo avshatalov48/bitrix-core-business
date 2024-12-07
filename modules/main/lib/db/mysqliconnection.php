@@ -53,9 +53,9 @@ class MysqliConnection extends MysqlCommonConnection
 			$port = intval(substr($host, $pos + 1));
 			$host = substr($host, 0, $pos);
 		}
-		if (($this->options & self::PERSISTENT) != 0)
+		if ($this->isPersistent())
 		{
-			$host = "p:".$host;
+			$host = "p:" . $host;
 		}
 
 		$connection = \mysqli_init();
@@ -84,7 +84,7 @@ class MysqliConnection extends MysqlCommonConnection
 		if (!$success)
 		{
 			throw new ConnectionException(
-				'Mysql connect error ['.$this->host.']',
+				'Mysql connect error [' . $this->host . ']',
 				sprintf('(%s) %s', $connection->connect_errno, $connection->connect_error)
 			);
 		}
@@ -193,7 +193,7 @@ class MysqliConnection extends MysqlCommonConnection
 			$this->version = $ar[0];
 		}
 
-		return array($this->version, null);
+		return [$this->version, null];
 	}
 
 	/**

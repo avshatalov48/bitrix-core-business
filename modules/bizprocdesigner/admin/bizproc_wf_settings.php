@@ -25,6 +25,15 @@ $arWorkflowParameters = $_POST['arWorkflowParameters'];
 $arWorkflowVariables = $_POST['arWorkflowVariables'];
 $arWorkflowConstants = $_POST['arWorkflowConstants'];
 
+$useRestrictedTracking = CBPRuntime::getRuntime()->getTrackingService() instanceof \Bitrix\Bizproc\Service\RestrictedTracking;
+$templateId = (int)($_POST['workflowTemplateId'] ?? 0);
+$trackOn = (int)Bitrix\Main\Config\Option::get('bizproc', 'tpl_track_on_' . $templateId, 0);
+$trackOnTill = null;
+if ($trackOn > 0)
+{
+	$trackOnTill = $trackOn + (7 * 86400);
+}
+
 $globalTypes = $arResult['TYPES'] = \Bitrix\Bizproc\FieldType::getBaseTypesMap();
 unset($globalTypes[\Bitrix\Bizproc\FieldType::INTERNALSELECT]);
 unset($globalTypes[\Bitrix\Bizproc\FieldType::FILE]);
@@ -142,6 +151,10 @@ function WFSStart()
 	document.getElementById('WFStemplate_description').value = workflowTemplateDescription;
 	document.getElementById('WFStemplate_is_system').checked = window.workflowTemplateIsSystem === 'Y';
 	document.getElementById('WFStemplate_sort').value = window.workflowTemplateSort || 10;
+	if (window.workflowTemplateTrackOn === 'Y')
+	{
+		document.getElementById('WFStemplate_track_on').checked = true;
+	}
 
 	if (workflowTemplateAutostart < 8)
 	{
@@ -243,6 +256,11 @@ function WFSSaveOK(response)
 	workflowTemplateDescription = document.getElementById('WFStemplate_description').value;
 	workflowTemplateIsSystem = (document.getElementById('WFStemplate_is_system').checked ? 'Y' : 'N');
 	workflowTemplateSort = document.getElementById('WFStemplate_sort').value;
+
+	if (document.getElementById('WFStemplate_track_on'))
+	{
+		workflowTemplateTrackOn = document.getElementById('WFStemplate_track_on').checked ? 'Y' : 'N';
+	}
 
 	if (workflowTemplateAutostart < 8)
 	{
@@ -724,7 +742,27 @@ endif;
 	<td valign="top"><?echo GetMessage("BIZPROC_WFS_PAR_SORT")?></td>
 	<td><input type="text" id="WFStemplate_sort" value="<?=htmlspecialcharsbx($_POST['workflowTemplateSort'] ?? 10)?>" size="5"></td>
 </tr>
+
+<?php if ($useRestrictedTracking) :
+	$trackOnChecked = $trackOnTill > time();
+?>
+<tr>
+	<td valign="top"></td>
+	<td>
+		<label>
+			<input type="checkbox" value="Y" id="WFStemplate_track_on" <?= $trackOnChecked ? 'checked' : '' ?>> <?echo GetMessage("BIZPROC_WFS_PAR_RESTRICT_TRACKING_LABEL")?>
+		</label>
+		<?php if ($trackOnChecked):
+			$datetime = \Bitrix\Main\Type\DateTime::createFromTimestamp($trackOnTill);
+		?>
+		<p><span style="color: green"><?echo
+				GetMessage("BIZPROC_WFS_PAR_RESTRICT_TRACKING_DESCRIPTION", ['#DATE#' => $datetime->toString() ])?></span>
+		<?php endif; ?>
+	</td>
+</tr>
 <?
+endif;
+
 $tabControl->BeginNextTab(['className' => 'bizproc-wf-settings-tab-content bizproc-wf-settings-tab-content-variables']);
 ?>
 <tr>

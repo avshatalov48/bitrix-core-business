@@ -708,16 +708,6 @@ class Client
 	{
 		if (static::isSubscriptionAvailable())
 		{
-			if (self::isStartDemoSubscription())
-			{
-				$eventDemo = new Event(
-					'rest',
-					'onSubscriptionIsDemo',
-				);
-
-				$eventDemo->send();
-			}
-
 			$event = new Event(
 				'rest',
 				'onSubscriptionRenew',

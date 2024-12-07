@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,landing_env) {
 	'use strict';
@@ -89,7 +88,9 @@ this.BX = this.BX || {};
 	          // eslint-disable-next-line
 	          BX.Landing.UI.Panel.StatusPanel.getInstance().update();
 	        }
-	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
+	        if (typeof BX.Landing.PageObject !== 'undefined') {
+	          BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:action', [_action, data]);
+	        }
 
 	        /*if (!response.result) {
 	        	BX.Landing.ErrorManager.getInstance().add({
@@ -100,7 +101,7 @@ this.BX = this.BX || {};
 	        return response.result;
 	      })["catch"](function (err) {
 	        if (requestBody.action !== 'Landing::downBlock' && requestBody.action !== 'Landing::upBlock') {
-	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete' && requestBody.action !== 'Vk::getVideoInfo') {
+	          if (requestBody.action !== 'Block::getById' && requestBody.action !== 'Block::publication' && requestBody.action !== 'Landing::move' && requestBody.action !== 'Landing::copy' && requestBody.action !== 'Landing::publication' && requestBody.action !== 'Site::publication' && requestBody.action !== 'Site::moveFolder' && requestBody.action !== 'Site::markDelete' && requestBody.action !== 'Vk::getVideoInfo' && requestBody.action !== 'RepoWidget::fetchData') {
 	            var error = main_core.Type.isString(err) ? {
 	              type: 'error'
 	            } : err;
@@ -137,7 +138,9 @@ this.BX = this.BX || {};
 	      }).then(function (response) {
 	        // eslint-disable-next-line
 	        BX.Landing.UI.Panel.StatusPanel.getInstance().update();
-	        BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
+	        if (typeof BX.Landing.PageObject !== 'undefined') {
+	          BX.onCustomEvent(BX.Landing.PageObject.getRootWindow(), 'BX.Landing.Backend:batch', [action, data]);
+	        }
 
 	        /*if (!response.result) {
 	        	BX.Landing.ErrorManager.getInstance().add({

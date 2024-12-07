@@ -1,9 +1,8 @@
 import { PermissionManager } from 'im.v2.lib.permission';
-import { Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { ChatActionType, ChatType, EventType, GetParameter, SidebarDetailBlock, Layout } from 'im.v2.const';
+import { ChatActionType, ChatType, EventType, GetParameter, SidebarDetailBlock } from 'im.v2.const';
 import { AddToChat } from 'im.v2.component.entity-selector';
 import { Button as ChatButton, ButtonColor, ButtonSize, Loader } from 'im.v2.component.elements';
 
@@ -16,6 +15,13 @@ import './css/members-panel.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelChat } from 'im.v2.model';
+
+const MemberTitleByChatType = {
+	[ChatType.channel]: 'IM_SIDEBAR_MEMBERS_CHANNEL_DETAIL_TITLE',
+	[ChatType.openChannel]: 'IM_SIDEBAR_MEMBERS_CHANNEL_DETAIL_TITLE',
+	[ChatType.generalChannel]: 'IM_SIDEBAR_MEMBERS_CHANNEL_DETAIL_TITLE',
+	default: 'IM_SIDEBAR_MEMBERS_DETAIL_TITLE',
+};
 
 // @vue/component
 export const MembersPanel = {
@@ -48,7 +54,7 @@ export const MembersPanel = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
-		dialogIds(): string[]
+		userDialogIds(): string[]
 		{
 			const users = this.$store.getters['sidebar/members/get'](this.chatId);
 
@@ -81,28 +87,15 @@ export const MembersPanel = {
 				usersInChatCount = `${Math.floor(usersInChatCount / 1000)}k`;
 			}
 
-			return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_MEMBERS_DETAIL_TITLE').replace('#NUMBER#', usersInChatCount);
+			const phrase = MemberTitleByChatType[this.dialog.type] ?? MemberTitleByChatType.default;
+
+			return this.loc(phrase, {
+				'#NUMBER#': usersInChatCount,
+			});
 		},
 		needAddButton(): boolean
 		{
-			if (this.isCopilotLayout && !this.isAddToCopilotChatAvailable)
-			{
-				return false;
-			}
-
 			return PermissionManager.getInstance().canPerformAction(ChatActionType.extend, this.dialogId);
-		},
-		isCopilotLayout(): boolean
-		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
-		},
-		isAddToCopilotChatAvailable(): boolean
-		{
-			const settings = Extension.getSettings('im.v2.component.content.copilot');
-
-			return settings.isAddToChatAvailable === 'Y';
 		},
 	},
 	watch:
@@ -142,6 +135,12 @@ export const MembersPanel = {
 
 			return this.dialog.ownerId === userId;
 		},
+		isManager(userDialogId: string): boolean
+		{
+			const userId = Number.parseInt(userDialogId, 10);
+
+			return this.dialog.managerList.includes(userId);
+		},
 		onContextMenuClick(event)
 		{
 			const item = {
@@ -156,7 +155,7 @@ export const MembersPanel = {
 			if (BX.clipboard.copy(this.chatLink))
 			{
 				BX.UI.Notification.Center.notify({
-					content: this.$Bitrix.Loc.getMessage('IM_SIDEBAR_COPIED_SUCCESS'),
+					content: this.loc('IM_SIDEBAR_COPIED_SUCCESS'),
 				});
 			}
 		},
@@ -189,9 +188,9 @@ export const MembersPanel = {
 			this.showAddToChatPopup = true;
 			this.showAddToChatTarget = event.target;
 		},
-		loc(key: string): string
+		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
-			return this.$Bitrix.Loc.getMessage(key);
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
 	},
 	template: `
@@ -217,9 +216,11 @@ export const MembersPanel = {
 					/>
 				</div>
 				<DetailUser
-					v-for="dialogId in dialogIds"
-					:dialogId="dialogId"
-					:isOwner="isOwner(dialogId)"
+					v-for="userDialogId in userDialogIds"
+					:dialogId="userDialogId"
+					:contextDialogId="dialogId"
+					:isOwner="isOwner(userDialogId)"
+					:isManager="isManager(userDialogId)"
 					@contextMenuClick="onContextMenuClick"
 				/>
 				<Loader v-if="isLoading" class="bx-im-sidebar-detail__loader-container" />

@@ -20,6 +20,7 @@ $arResult['VARIABLES']['STORAGE'] = $storage;
 $pageId = "group_files";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 ?>
 
 <div class="bx-disk-container posr">

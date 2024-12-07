@@ -129,10 +129,10 @@ class MailingManager
 					Runtime\Env::getJobExecutionItemLimit()
 				);
 			}
-			catch (Exception $e)
+			catch (\Throwable $e)
 			{
 				static::$error = $e;
-				AddMessage2Log('Exception in mailing send. PostingId: ' . $letter['POSTING_ID'],'sender');
+
 				$postingSendStatus = PostingManager::SEND_RESULT_ERROR;
 			}
 		}

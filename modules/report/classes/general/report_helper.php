@@ -2047,7 +2047,7 @@ abstract class CReportHelper
 		'<input type="hidden" id="', htmlspecialcharsbx($dataInputId),'" name="',
 			htmlspecialcharsbx($dataInputId),'" value="">';
 
-		echo '<script type="text/javascript">',
+		echo '<script>',
 		'BX.ready(function(){',
 		'BX.ReportUserSearchPopup.deletePopup("', $id, '");',
 		'BX.ReportUserSearchPopup.create("', $id, '", { searchInput: BX("',

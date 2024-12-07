@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core) {
@@ -18,7 +19,9 @@ this.BX.UI = this.BX.UI || {};
 	  CHEVRON_DOWN: 'chevron-down',
 	  LEFT_SEMICIRCULAR_ANTICLOCKWISE_ARROW_2: 'left-semicircular-anticlockwise-arrow-2',
 	  EXPAND_1: 'expand-1',
+	  EXPAND_DIAGONAL: 'expand-diagonal',
 	  COLLAPSE: 'collapse',
+	  COLLAPSE_DIAGONAL: 'collapse-diagonal',
 	  AGENDA_GAP: 'agenda-gap',
 	  EXPAND_TO_FULL_SCREEN: 'expand-to-full-screen',
 	  CURVED_ARROW_LEFT: 'curved-arrow-left',
@@ -148,7 +151,8 @@ this.BX.UI = this.BX.UI || {};
 	  CHATS_COMPUTER: 'chats-computer',
 	  APPLE_AND_IOS: 'apple-and-ios',
 	  ANDROID: 'android',
-	  ZOOM: 'zoom'
+	  ZOOM: 'zoom',
+	  LINUX: 'linux'
 	});
 	const Main = Object.freeze({
 	  PERSON_LOCATION: 'person-location',
@@ -270,6 +274,7 @@ this.BX.UI = this.BX.UI || {};
 	  WINDOW_WITH_POINT: 'window-with-point',
 	  WINDOW_CHECK_ARROW: 'window-check-arrow',
 	  VIDEO_1: 'video-1',
+	  VIDEO_3: 'video-3',
 	  VIDEO_AND_CHAT: 'video-and-chat',
 	  NO_VIDEO: 'no-video',
 	  PICTURE: 'picture',
@@ -528,7 +533,43 @@ this.BX.UI = this.BX.UI || {};
 	  PARALLEL_QUEUE: 'parallel-queue',
 	  CONDITION: 'condition',
 	  COMPLETE: 'complete',
-	  TRANSLATION: 'translation'
+	  TRANSLATION: 'translation',
+	  TORRENT: 'torrent',
+	  ACTIVITY: 'activity',
+	  ADD_TO_CHECKLIST: 'add-to-checklist',
+	  BP: 'bp',
+	  CLOSE_CHAT: 'close-chat',
+	  CREATE_PROMPT: 'create-prompt',
+	  DEVICES: 'devices',
+	  DOCUMENT_SIGN: 'document-sign',
+	  FAVOURITE_PROMPT: 'favourite-prompt',
+	  LINES_VERTICAL: 'lines-vertical',
+	  MAIN: 'main',
+	  MOVE_TO_CHECKLIST: 'move-to-checklist',
+	  OPEN_CHAT: 'open-chat',
+	  PROMPT: 'prompt',
+	  PROMPT_VAR: 'prompt-var',
+	  PROMPTS_LIBRARY: 'prompts-library',
+	  RECORD_VIDEO: 'record-video',
+	  ROLES_LIBRARY: 'roles-library',
+	  SAVE_PROMPT: 'save-prompt',
+	  SCREEN_SHARE: 'screen-share',
+	  SUB_POINT: 'sub-point',
+	  UNSUB_POINT: 'unsub-point',
+	  SUB_TASK: 'subtask',
+	  COLLAB: 'collab',
+	  NO_PICTURE: 'no-picture',
+	  THREAD: 'thread',
+	  THREAD_SINGLE: 'thread-single',
+	  BUSINESS_PROCESS_1: 'business-process-1',
+	  WAITING_POINTS: 'waiting-points',
+	  WAITING_LIST: 'waiting-list',
+	  LINK_BOLD: 'link-bold',
+	  NOTE: 'note',
+	  EDIT_MENU: 'edit-menu',
+	  DEMONSTRATION_GRAPHICS: 'demonstration-graphics',
+	  CALENDAR_CHECK: 'calendar-check',
+	  SIGN: 'sign'
 	});
 	const ContactCenter = Object.freeze({
 	  DIAL_5: 'dial-5',
@@ -538,6 +579,10 @@ this.BX.UI = this.BX.UI || {};
 	  MAIL_SENT: 'mail-sent',
 	  INCOMING_CALL_SOUND_ON: 'incoming-call-sound-on',
 	  SEND_ATTACH_FILE: 'send-attach-file'
+	});
+	const Animated = Object.freeze({
+	  LOADER_CLOCK: 'loader-clock',
+	  LOADER_WAIT: 'loader-wait'
 	});
 	const CRM = Object.freeze({
 	  SEND_CONTACT: 'send-contact',
@@ -590,7 +635,6 @@ this.BX.UI = this.BX.UI || {};
 	  TIMELINE_PLUS: 'timeline-plus',
 	  PLUS_BASED_ON: 'plus-based-on',
 	  DEAL: 'deal',
-	  ACTIVITY: 'activity',
 	  CUSTOMER_CARD_1: 'customer-card-1',
 	  DEAL_PLUS: 'deal-plus',
 	  PERSON_PLUS_2: 'person-plus-2',
@@ -686,7 +730,8 @@ this.BX.UI = this.BX.UI || {};
 	  ...ContactCenter,
 	  ...CRM,
 	  ...Editor,
-	  ...Special
+	  ...Special,
+	  ...Animated
 	});
 
 	let _ = t => t,
@@ -749,6 +794,7 @@ this.BX.UI = this.BX.UI || {};
 	exports.CRM = CRM;
 	exports.Editor = Editor;
 	exports.Special = Special;
+	exports.Animated = Animated;
 
 }((this.BX.UI.IconSet = this.BX.UI.IconSet || {}),BX));
 //# sourceMappingURL=ui.icon-set.core.bundle.js.map

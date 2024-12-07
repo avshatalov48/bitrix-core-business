@@ -47,7 +47,7 @@ class Section extends Base
 			{
 				if ($this->fields["IBLOCK_ID"] > 0)
 				{
-					$this->property = new SectionProperty($this->id);
+					$this->property = SectionProperty::getInstance($this->id);
 					$this->property->setIblockId($this->fields["IBLOCK_ID"]);
 				}
 			}
@@ -60,7 +60,7 @@ class Section extends Base
 			if (!$this->iblock && $this->loadFromDatabase())
 			{
 				if ($this->fields["IBLOCK_ID"] > 0)
-					$this->iblock = new Iblock($this->fields["IBLOCK_ID"]);
+					$this->iblock = Iblock::getInstance($this->fields["IBLOCK_ID"]);
 			}
 
 			if ($this->iblock)
@@ -71,7 +71,7 @@ class Section extends Base
 			if (!$this->parent && $this->loadFromDatabase())
 			{
 				if ($this->fields["IBLOCK_SECTION_ID"] > 0)
-					$this->parent = new Section($this->fields["IBLOCK_SECTION_ID"]);
+					$this->parent = Section::getInstance($this->fields["IBLOCK_SECTION_ID"]);
 				else
 					return $this->resolve("iblock");
 			}
@@ -84,7 +84,7 @@ class Section extends Base
 			if (!$this->sections && $this->loadFromDatabase())
 			{
 				if ($this->fields["IBLOCK_SECTION_ID"] > 0)
-					$this->sections = new SectionPath($this->fields["IBLOCK_SECTION_ID"]);
+					$this->sections = SectionPath::getInstance($this->fields["IBLOCK_SECTION_ID"]);
 			}
 
 			if ($this->sections)
@@ -95,7 +95,7 @@ class Section extends Base
 			if (!$this->catalog && $this->loadFromDatabase())
 			{
 				if (\Bitrix\Main\Loader::includeModule('catalog'))
-					$this->catalog = new ElementCatalog(0);
+					$this->catalog = ElementCatalog::getInstance(0);
 			}
 
 			if ($this->catalog)

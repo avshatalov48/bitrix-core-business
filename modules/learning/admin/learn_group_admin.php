@@ -191,7 +191,7 @@ $lAdmin->AddAdminContextMenu(array(
 $lAdmin->CheckListMode();
 
 
-$APPLICATION->SetTitle(GetMessage("LEARNING_ADMIN_TITLE").($arGroup ? ": ".$arGroup["~TEST_NAME"].": ".$arGroup["~USER_NAME"] : ""));
+$APPLICATION->SetTitle(GetMessage("LEARNING_ADMIN_TITLE").(isset($arGroup) ? ": ".$arGroup["~TEST_NAME"].": ".$arGroup["~USER_NAME"] : ""));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 if (defined("LEARNING_ADMIN_ACCESS_DENIED"))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"), false);

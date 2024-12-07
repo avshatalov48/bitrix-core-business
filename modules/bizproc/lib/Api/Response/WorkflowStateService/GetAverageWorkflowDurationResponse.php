@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc\Api\Response\WorkflowStateService;
 
 use Bitrix\Bizproc\Result;
+use Bitrix\Bizproc\UI\Helpers\DurationFormatter;
 
 class GetAverageWorkflowDurationResponse extends Result
 {
@@ -18,5 +19,16 @@ class GetAverageWorkflowDurationResponse extends Result
 		$averageTime = $this->data['averageDuration'] ?? null;
 
 		return is_int($averageTime) ? $averageTime : null;
+	}
+
+	public function getRoundedAverageDuration(): ?int
+	{
+		$duration = $this->getAverageDuration();
+		if ($duration === null)
+		{
+			return null;
+		}
+
+		return DurationFormatter::roundTimeInSeconds($duration);
 	}
 }

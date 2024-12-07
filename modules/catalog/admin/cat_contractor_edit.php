@@ -81,19 +81,14 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $_REQUEST["
 	if ($PERSON_TYPE == Catalog\ContractorTable::TYPE_INDIVIDUAL)
 		$INN = $KPP = $COMPANY = '';
 	$PERSON_NAME = ($_REQUEST["PERSON_NAME"] == GetMessage("CONTRACTOR_NAME")) ? '' : $_REQUEST["PERSON_NAME"];
-	$PERSON_LASTNAME = ($_REQUEST["PERSON_LASTNAME"] == GetMessage("CONTRACTOR_LAST_NAME")) ? '' : $_REQUEST["PERSON_LASTNAME"];
-	$PERSON_MIDDLENAME = ($_REQUEST["PERSON_MIDDLENAME"] == GetMessage("CONTRACTOR_SECOND_NAME")) ? '' : $_REQUEST["PERSON_MIDDLENAME"];
 	$arFields = Array(
 		"PERSON_TYPE" => $PERSON_TYPE,
 		"SITE_ID" => SITE_ID,
 		"PERSON_NAME" => $PERSON_NAME,
-		"PERSON_LASTNAME" => $PERSON_LASTNAME,
-		"PERSON_MIDDLENAME" => $PERSON_MIDDLENAME,
 		"EMAIL" => $_REQUEST["EMAIL"],
 		"PHONE" => $_REQUEST["PHONE"],
 		"POST_INDEX" => $_REQUEST["POST_INDEX"],
-		"COUNTRY" => $_REQUEST["COUNTRY"],
-		"CITY" => $XML_ID,
+		"COUNTRY" => $_REQUEST["COUNTRY"] ?? false,
 		"INN" => $INN,
 		"KPP" => $KPP,
 		"COMPANY" => $COMPANY,
@@ -109,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $_REQUEST["
 
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-		if ($_REQUEST["apply"] == '')
+		if (($_REQUEST["apply"] ?? '') == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);
@@ -128,7 +123,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && check_bitrix_sessid() && $_REQUEST["
 
 		$adminSidePanelHelper->sendSuccessResponse("base", array("ID" => $ID));
 
-		if ($_REQUEST["apply"] == '')
+		if (($_REQUEST["apply"] ?? '') == '')
 		{
 			$adminSidePanelHelper->localRedirect($listUrl);
 			LocalRedirect($listUrl);
@@ -179,6 +174,17 @@ if ($ID > 0)
 	$dbResult = CCatalogContractor::GetList(array(),array('ID' => $ID),false,false,$arSelect);
 	if (!$dbResult->ExtractFields("str_"))
 		$ID = 0;
+}
+if ($ID === 0)
+{
+	$str_PERSON_NAME = '';
+	$str_EMAIL = '';
+	$str_PHONE = '';
+	$str_POST_INDEX = '';
+	$str_COMPANY = '';
+	$str_INN = '';
+	$str_KPP = '';
+	$str_ADDRESS = '';
 }
 
 if ($bVarsFromForm)
@@ -369,7 +375,7 @@ $juridicalHideCss = $str_PERSON_TYPE === CONTRACTOR_INDIVIDUAL
 
 		</tr>
 
-		<?echo
+		<?
 		$tabControl->EndTab();
 
 		$tabControl->Buttons(array("disabled" => $bReadOnly, "back_url" => $listUrl));

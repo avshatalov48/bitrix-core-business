@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ERROR_DELETE_DISCOUNT"] = "Ошибка удаления скидки с кодом #ID#";
 $MESS["ERROR_UPDATE_DISCOUNT"] = "Ошибка обновления параметров скидки с кодом #ID#";
 $MESS["DISCOUNT_TITLE"] = "Скидки и купоны";
@@ -51,4 +51,3 @@ $MESS["DSC_MAX_DISCOUNT"] = "Макс. величина";
 $MESS["DSC_MAX_DISCOUNT_UNLIM"] = "Нет";
 $MESS["DSC_USE_COUPONS"] = "Купоны";
 $MESS["DSC_FILTER_USE_COUPONS"] = "Есть купоны";
-?>

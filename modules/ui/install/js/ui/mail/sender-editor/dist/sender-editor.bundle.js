@@ -14,7 +14,8 @@ this.BX.UI = this.BX.UI || {};
 	  _t7,
 	  _t8,
 	  _t9,
-	  _t10;
+	  _t10,
+	  _t11;
 	const SidePanel = BX.SidePanel;
 	const emailRegularEx = /\S+@\S+\.\S+/;
 	const deleteMessage = 'mail-mailbox-config-delete';
@@ -31,6 +32,7 @@ this.BX.UI = this.BX.UI || {};
 	var _createSmtpEmailRow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createSmtpEmailRow");
 	var _createSmtpServerRow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createSmtpServerRow");
 	var _createSmtpPortAndSafeConnectionRow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createSmtpPortAndSafeConnectionRow");
+	var _createSmtpLoginRow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createSmtpLoginRow");
 	var _createSmtpPasswordRow = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createSmtpPasswordRow");
 	var _createLimitSection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createLimitSection");
 	var _showAlertNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showAlertNode");
@@ -73,6 +75,9 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    Object.defineProperty(this, _createSmtpPasswordRow, {
 	      value: _createSmtpPasswordRow2
+	    });
+	    Object.defineProperty(this, _createSmtpLoginRow, {
+	      value: _createSmtpLoginRow2
 	    });
 	    Object.defineProperty(this, _createSmtpPortAndSafeConnectionRow, {
 	      value: _createSmtpPortAndSafeConnectionRow2
@@ -211,6 +216,7 @@ this.BX.UI = this.BX.UI || {};
 	  this.emailField.value = senderData.email;
 	  this.serverField.value = senderData.server;
 	  this.portField.value = senderData.port;
+	  this.loginField.value = senderData.login;
 	  if (senderData.protocol === 'smtps') {
 	    this.sslField.checked = true;
 	  }
@@ -296,7 +302,7 @@ this.BX.UI = this.BX.UI || {};
 	    server: this.serverField.value,
 	    port: this.portField.value,
 	    ssl: this.sslField.checked ? this.sslField.value : '',
-	    login: this.emailField.value,
+	    login: this.loginField.value,
 	    password: this.passwordField.value,
 	    limit: this.senderLimitCheckbox.checked ? this.senderLimitField.value : null
 	  };
@@ -372,6 +378,7 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _createSmtpEmailRow)[_createSmtpEmailRow]();
 	  babelHelpers.classPrivateFieldLooseBase(this, _createSmtpServerRow)[_createSmtpServerRow]();
 	  babelHelpers.classPrivateFieldLooseBase(this, _createSmtpPortAndSafeConnectionRow)[_createSmtpPortAndSafeConnectionRow]();
+	  babelHelpers.classPrivateFieldLooseBase(this, _createSmtpLoginRow)[_createSmtpLoginRow]();
 	  babelHelpers.classPrivateFieldLooseBase(this, _createSmtpPasswordRow)[_createSmtpPasswordRow]();
 	  this.smtpServerSection = main_core.Tag.render(_t4 || (_t4 = _`
 			<div class="ui-slider-section">
@@ -381,9 +388,10 @@ this.BX.UI = this.BX.UI || {};
 					${0}
 					${0}
 					${0}
+					${0}
 				</div>
 			</div>
-		`), main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_SMTP_SECTION_TITLE'), this.smtpServerRow, this.smtpPortAndSafeConnectionRow, this.smtpEmailRow, this.smtpPasswordRow);
+		`), main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_SMTP_SECTION_TITLE'), this.smtpEmailRow, this.smtpServerRow, this.smtpPortAndSafeConnectionRow, this.smtpLoginRow, this.smtpPasswordRow);
 	}
 	function _createSmtpEmailRow2() {
 	  const {
@@ -453,11 +461,31 @@ this.BX.UI = this.BX.UI || {};
 	  this.portField = portField;
 	  this.sslField = sslField;
 	}
+	function _createSmtpLoginRow2() {
+	  const {
+	    root,
+	    loginField
+	  } = main_core.Tag.render(_t8 || (_t8 = _`
+			<div class="ui-form-row">
+				<div class="ui-ctl-top">
+					<div class="ui-form-label">${0}</div>
+				</div>
+				<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+					<input type="text" class="ui-ctl-element" data-name="login" ref="loginField">
+				</div>
+			</div>
+		`), main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_LOGIN'));
+	  this.smtpLoginRow = root;
+	  this.loginField = loginField;
+	  main_core.Event.bind(this.emailField, 'input', () => {
+	    this.loginField.value = this.emailField.value;
+	  });
+	}
 	function _createSmtpPasswordRow2() {
 	  const {
 	    root,
 	    passwordField
-	  } = main_core.Tag.render(_t8 || (_t8 = _`
+	  } = main_core.Tag.render(_t9 || (_t9 = _`
 			<div class="ui-form-row">
 				<div class="ui-ctl-top">
 					<div class="ui-form-label">${0}</div>
@@ -475,7 +503,7 @@ this.BX.UI = this.BX.UI || {};
 	    root,
 	    senderLimitCheckbox,
 	    senderLimitField
-	  } = main_core.Tag.render(_t9 || (_t9 = _`
+	  } = main_core.Tag.render(_t10 || (_t10 = _`
 			<div class="ui-slider-section">
 				<div class="ui-slider-content-box">
 					<div class="ui-slider-heading-4">${0}</div>
@@ -527,6 +555,10 @@ this.BX.UI = this.BX.UI || {};
 	    row: this.smtpPortAndSafeConnectionRow,
 	    input: this.portField,
 	    type: 'port'
+	  }, {
+	    row: this.smtpLoginRow,
+	    input: this.loginField,
+	    type: 'login'
 	  }];
 	  if (!this.senderId) {
 	    this.requiredFields.push({
@@ -545,7 +577,7 @@ this.BX.UI = this.BX.UI || {};
 	    count++;
 	    main_core.Dom.addClass(field.row, 'ui-ctl-warning');
 	    const errorMessage = babelHelpers.classPrivateFieldLooseBase(this, _getErrorMessage)[_getErrorMessage](field.type, field.input.value);
-	    const invalidField = main_core.Tag.render(_t10 || (_t10 = _`
+	    const invalidField = main_core.Tag.render(_t11 || (_t11 = _`
 				<div class="ui-mail-field-error-message ui-ctl-bottom">${0}</div>
 			`), errorMessage);
 	    main_core.Dom.append(invalidField, field.row);
@@ -592,6 +624,8 @@ this.BX.UI = this.BX.UI || {};
 	      return main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_SERVER');
 	    case 'port':
 	      return main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_INVALID_PORT');
+	    case 'login':
+	      return main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_LOGIN');
 	    default:
 	      return main_core.Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_PASSWORD');
 	  }
@@ -611,7 +645,7 @@ this.BX.UI = this.BX.UI || {};
 	  _t8$1,
 	  _t9$1,
 	  _t10$1,
-	  _t11,
+	  _t11$1,
 	  _t12,
 	  _t13,
 	  _t14,
@@ -619,7 +653,8 @@ this.BX.UI = this.BX.UI || {};
 	  _t16,
 	  _t17,
 	  _t18,
-	  _t19;
+	  _t19,
+	  _t20;
 	const mailboxType = 'mailbox';
 	const senderType$1 = 'sender';
 	const mailboxSenderType = 'mailboxSender';
@@ -627,6 +662,7 @@ this.BX.UI = this.BX.UI || {};
 	const successSubmitMessage = 'mail-mailbox-config-success';
 	const deleteMessage$1 = 'mail-mailbox-config-delete';
 	const aliasSliderUrl = 'mailAliasSlider';
+	var _senderNameNodes = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("senderNameNodes");
 	var _createContentContainer$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createContentContainer");
 	var _createAddSenderContainer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("createAddSenderContainer");
 	var _addAliasPromise = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("addAliasPromise");
@@ -637,6 +673,7 @@ this.BX.UI = this.BX.UI || {};
 	var _renderSenderExtraInfoContainer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSenderExtraInfoContainer");
 	var _getExtraInfoText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getExtraInfoText");
 	var _renderSenderEditContainer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSenderEditContainer");
+	var _renderSenderAuthorContainer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSenderAuthorContainer");
 	var _renderUserInfoNode = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderUserInfoNode");
 	var _renderDeleteButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderDeleteButton");
 	var _renderSettingsButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("renderSettingsButton");
@@ -646,8 +683,16 @@ this.BX.UI = this.BX.UI || {};
 	var _openSmtpSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openSmtpSettings");
 	var _openMailboxSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("openMailboxSettings");
 	var _hasNameInvalidCharacters = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasNameInvalidCharacters");
+	var _checkAliasCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkAliasCounter");
+	var _isMainSender = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isMainSender");
 	class AliasEditor {
 	  constructor(options) {
+	    Object.defineProperty(this, _isMainSender, {
+	      value: _isMainSender2
+	    });
+	    Object.defineProperty(this, _checkAliasCounter, {
+	      value: _checkAliasCounter2
+	    });
 	    Object.defineProperty(this, _hasNameInvalidCharacters, {
 	      value: _hasNameInvalidCharacters2
 	    });
@@ -674,6 +719,9 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    Object.defineProperty(this, _renderUserInfoNode, {
 	      value: _renderUserInfoNode2
+	    });
+	    Object.defineProperty(this, _renderSenderAuthorContainer, {
+	      value: _renderSenderAuthorContainer2
 	    });
 	    Object.defineProperty(this, _renderSenderEditContainer, {
 	      value: _renderSenderEditContainer2
@@ -706,6 +754,11 @@ this.BX.UI = this.BX.UI || {};
 	      value: _createContentContainer2$1
 	    });
 	    this.wasSenderUpdated = false;
+	    this.aliasCounter = 0;
+	    Object.defineProperty(this, _senderNameNodes, {
+	      writable: true,
+	      value: new Map()
+	    });
 	    this.senderId = Number(options.senderId);
 	    this.email = options.email;
 	    this.setSender = options.setSenderCallback;
@@ -746,7 +799,7 @@ this.BX.UI = this.BX.UI || {};
 	      }
 	    };
 	    BX.SidePanel.Instance.open(aliasSliderUrl, {
-	      width: 680,
+	      width: 800,
 	      cacheable: false,
 	      contentCallback: () => {
 	        return ui_sidepanel_layout.Layout.createContent({
@@ -792,8 +845,9 @@ this.BX.UI = this.BX.UI || {};
 	        senderId: this.senderId
 	      }
 	    }).then(response => {
+	      var _data$senders;
 	      const data = response.data;
-	      const senders = data.senders;
+	      const senders = (_data$senders = data.senders) != null ? _data$senders : null;
 	      this.id = Number(data.id);
 	      this.email = data.email;
 	      babelHelpers.classPrivateFieldLooseBase(this, _addSenders)[_addSenders](senders);
@@ -908,6 +962,7 @@ this.BX.UI = this.BX.UI || {};
 	        email: this.email
 	      }
 	    }).then(response => {
+	      var _data$userUrl, _data$avatar;
 	      const data = response.data;
 	      const newSenderId = data.senderId;
 	      if (this.setSender && data.senderId) {
@@ -920,9 +975,12 @@ this.BX.UI = this.BX.UI || {};
 	        name,
 	        isOwner: true,
 	        type: aliasType,
-	        canEdit: true
+	        canEdit: true,
+	        userUrl: (_data$userUrl = data.userUrl) != null ? _data$userUrl : null,
+	        avatar: (_data$avatar = data.avatar) != null ? _data$avatar : null
 	      });
 	      main_core.Dom.append(senderNode, this.senderList);
+	      this.aliasCounter++;
 	      hideInputContainer();
 	    }).catch(() => {
 	      hideInputContainer();
@@ -959,10 +1017,12 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  main_core.Dom.append(nameContainer, itemContainer);
 	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderSenderExtraInfoContainer)[_renderSenderExtraInfoContainer](sender), itemContainer);
+	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderSenderAuthorContainer)[_renderSenderAuthorContainer](sender, itemContainer), itemContainer);
 	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderSenderEditContainer)[_renderSenderEditContainer](sender, itemContainer, handleShowEditInput), itemContainer);
-	  if (sender.type === senderType$1 && this.id === Number(sender.id) || sender.type === mailboxSenderType && this.id === Number(sender.mailboxId)) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isMainSender)[_isMainSender](sender)) {
 	    this.mainSenderNameNode = nameContainer.querySelector('.sender-item-name-text-container');
 	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _senderNameNodes)[_senderNameNodes].set(sender.id, nameTextContainer);
 	  return itemContainer;
 	}
 	function _renderSenderNameContainer2(senderName) {
@@ -1047,10 +1107,10 @@ this.BX.UI = this.BX.UI || {};
 		`), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _getExtraInfoText)[_getExtraInfoText](sender)));
 	}
 	function _getExtraInfoText2(sender) {
-	  if (sender.type === senderType$1 && this.id === Number(sender.id) || sender.type === mailboxSenderType && this.id === Number(sender.mailboxId)) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _isMainSender)[_isMainSender](sender)) {
 	    return main_core.Loc.getMessage('UI_MAIL_ALIAS_EDITOR_CURRENT_SENDER_NAME');
 	  }
-	  if ([senderType$1, mailboxSenderType].includes(sender.type) && sender.isOwner) {
+	  if ([senderType$1, mailboxSenderType].includes(sender.type)) {
 	    return main_core.Loc.getMessage('UI_MAIL_ALIAS_EDITOR_ANOTHER_SENDER_NAME');
 	  }
 	  if (sender.type === aliasType && sender.isOwner) {
@@ -1059,11 +1119,10 @@ this.BX.UI = this.BX.UI || {};
 	  return '';
 	}
 	function _renderSenderEditContainer2(sender, senderNode, handleShowInput) {
-	  const senderEditContainer = main_core.Tag.render(_t11 || (_t11 = _$1`
+	  const senderEditContainer = main_core.Tag.render(_t11$1 || (_t11$1 = _$1`
 			<div class="sender-item-edit-container"></div>
 		`));
-	  if (!sender.isOwner) {
-	    main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderUserInfoNode)[_renderUserInfoNode](sender.userUrl, sender.avatar), senderEditContainer);
+	  if (!sender.canEdit && !sender.isOwner) {
 	    return senderEditContainer;
 	  }
 	  const senderNameEditButton = main_core.Tag.render(_t12 || (_t12 = _$1`
@@ -1080,11 +1139,21 @@ this.BX.UI = this.BX.UI || {};
 	  main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderSettingsButton)[_renderSettingsButton](sender.type, sender.id, sender.editHref), senderEditContainer);
 	  return senderEditContainer;
 	}
+	function _renderSenderAuthorContainer2(sender, senderNode) {
+	  const authorEditContainer = main_core.Tag.render(_t13 || (_t13 = _$1`
+			<div class="sender-item-author-container"></div>
+		`));
+	  if (sender.userUrl) {
+	    var _sender$avatar;
+	    main_core.Dom.append(babelHelpers.classPrivateFieldLooseBase(this, _renderUserInfoNode)[_renderUserInfoNode](sender.userUrl, (_sender$avatar = sender.avatar) != null ? _sender$avatar : null), authorEditContainer);
+	  }
+	  return authorEditContainer;
+	}
 	function _renderUserInfoNode2(userUrl, avatar) {
 	  const {
 	    root,
 	    userAvatarContainer
-	  } = main_core.Tag.render(_t13 || (_t13 = _$1`
+	  } = main_core.Tag.render(_t14 || (_t14 = _$1`
 			<div class="sender-item-owner-info">
 				${0}
 				<a href="${0}" class="ui-icon ui-icon-common-user sender-item-owner-avatar" ref="userAvatarContainer"></a> 
@@ -1092,15 +1161,15 @@ this.BX.UI = this.BX.UI || {};
 		`), main_core.Loc.getMessage('UI_MAIL_ALIAS_EDITOR_ANOTHER_USER_SENDER_NAME'), main_core.Text.encode(userUrl));
 	  let avatarIcon = '';
 	  if (avatar) {
-	    avatarIcon = main_core.Tag.render(_t14 || (_t14 = _$1`<i style="background-image: url('${0}')"></i>`), main_core.Text.encode(avatar));
+	    avatarIcon = main_core.Tag.render(_t15 || (_t15 = _$1`<i style="background-image: url('${0}')"></i>`), main_core.Text.encode(avatar));
 	  } else {
-	    avatarIcon = main_core.Tag.render(_t15 || (_t15 = _$1`<div class="sender-item-owner-avatar-icon ui-icon-set --person"></div>`));
+	    avatarIcon = main_core.Tag.render(_t16 || (_t16 = _$1`<div class="sender-item-owner-avatar-icon ui-icon-set --person"></div>`));
 	  }
 	  main_core.Dom.append(avatarIcon, userAvatarContainer);
 	  return root;
 	}
 	function _renderDeleteButton2(senderId, senderNode) {
-	  const deleteButton = main_core.Tag.render(_t16 || (_t16 = _$1`
+	  const deleteButton = main_core.Tag.render(_t17 || (_t17 = _$1`
 			<div class="sender-item-btn ui-btn ui-btn-xs ui-icon-set --trash-bin" style="margin: 0"></div>
 		`));
 	  main_core.Event.bind(deleteButton, 'click', () => {
@@ -1116,6 +1185,9 @@ this.BX.UI = this.BX.UI || {};
 	      if (Number(senderId) === this.senderId) {
 	        this.setSender();
 	      }
+	      babelHelpers.classPrivateFieldLooseBase(this, _senderNameNodes)[_senderNameNodes].delete(senderId);
+	      this.aliasCounter--;
+	      babelHelpers.classPrivateFieldLooseBase(this, _checkAliasCounter)[_checkAliasCounter]();
 	    }).catch(() => {
 	      main_core.Dom.removeClass(deleteButton, 'ui-btn-wait');
 	    });
@@ -1123,7 +1195,7 @@ this.BX.UI = this.BX.UI || {};
 	  return deleteButton;
 	}
 	function _renderSettingsButton2(type, senderId, editHref) {
-	  const editButton = main_core.Tag.render(_t17 || (_t17 = _$1`
+	  const editButton = main_core.Tag.render(_t18 || (_t18 = _$1`
 			<div class="sender-item-btn ui-btn ui-btn-xs ui-icon-set --settings-1" style="margin: 0"></div>
 		`));
 	  if (type === mailboxSenderType) {
@@ -1138,7 +1210,7 @@ this.BX.UI = this.BX.UI || {};
 	  return editButton;
 	}
 	function _renderSubmitButton2(submitPromise, targetElement) {
-	  const submitButton = main_core.Tag.render(_t18 || (_t18 = _$1`
+	  const submitButton = main_core.Tag.render(_t19 || (_t19 = _$1`
 			<div class="ui-btn ui-btn-xs ui-btn-primary ui-btn-icon-done" style="margin: 0"></div>
 		`));
 	  main_core.Event.bind(submitButton, 'click', () => {
@@ -1155,7 +1227,7 @@ this.BX.UI = this.BX.UI || {};
 	  return submitButton;
 	}
 	function _renderCancelButton2(cancelHandler) {
-	  const cancelButton = main_core.Tag.render(_t19 || (_t19 = _$1`
+	  const cancelButton = main_core.Tag.render(_t20 || (_t20 = _$1`
 			<div class="sender-item-btn ui-btn ui-btn-xs ui-icon-set --cross-45" style="margin: 0"></div>
 		`));
 	  main_core.Event.bind(cancelButton, 'click', cancelHandler);
@@ -1167,16 +1239,29 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  senders.sort((a, b) => a.id - b.id);
 	  senders.forEach(sender => {
+	    if (!this.id) {
+	      if (sender.type === senderType$1) {
+	        this.id = sender.id;
+	      }
+	      if (sender.type === mailboxSenderType) {
+	        this.id = sender.mailboxId;
+	      }
+	    }
 	    const senderNode = babelHelpers.classPrivateFieldLooseBase(this, _renderSenderItem)[_renderSenderItem](sender);
-	    main_core.Dom.append(senderNode, this.senderList);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isMainSender)[_isMainSender](sender)) {
+	      main_core.Dom.prepend(senderNode, this.senderList);
+	    } else {
+	      main_core.Dom.append(senderNode, this.senderList);
+	    }
+	    this.aliasCounter++;
 	  });
 	}
 	function _openSmtpSettings2(senderId) {
 	  SmtpEditor.openSlider({
 	    senderId: Number(senderId),
 	    setSenderCallback: (id, name, email) => {
-	      if (this.mainSenderNameNode) {
-	        this.mainSenderNameNode.innerText = name;
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _senderNameNodes)[_senderNameNodes].has(id)) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _senderNameNodes)[_senderNameNodes].get(id).innerText = name;
 	      }
 	      this.setSender(id, name, email);
 	      this.wasSenderUpdated = true;
@@ -1197,6 +1282,17 @@ this.BX.UI = this.BX.UI || {};
 	    return true;
 	  }
 	  return false;
+	}
+	function _checkAliasCounter2() {
+	  if (this.aliasCounter === 0) {
+	    const slider = BX.SidePanel.Instance.getSlider(aliasSliderUrl);
+	    if (slider) {
+	      slider.close();
+	    }
+	  }
+	}
+	function _isMainSender2(sender) {
+	  return sender.type === senderType$1 && this.id === Number(sender.id) || sender.type === mailboxSenderType && this.id === Number(sender.mailboxId);
 	}
 
 	exports.AliasEditor = AliasEditor;

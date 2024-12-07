@@ -1,21 +1,22 @@
-import {Messenger} from 'im.public';
-import {Layout, NotificationTypesCodes} from 'im.v2.const';
-import {Avatar, AvatarSize, ChatTitle} from 'im.v2.component.elements';
-import {DateFormatter, DateTemplate} from 'im.v2.lib.date-formatter';
+import { Messenger } from 'im.public';
+import { NotificationTypesCodes } from 'im.v2.const';
+import { ChatTitle } from 'im.v2.component.elements';
+import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
 
 import '../../css/notification-item-header.css';
 
-import type {ImModelUser, ImModelNotification} from 'im.v2.model';
+import type { ImModelUser, ImModelNotification } from 'im.v2.model';
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const NotificationItemHeader = {
 	name: 'NotificationItemHeader',
-	components: {Avatar, AvatarSize, ChatTitle},
+	components: { ChatTitle },
 	props: {
 		notification: {
 			type: Object,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
@@ -56,13 +57,13 @@ export const NotificationItemHeader = {
 		{
 			return this.notification.authorId.toString();
 		},
-		titleClasses()
+		titleClasses(): JsonObject
 		{
 			return {
 				'bx-im-content-notification-item-header__title-text': true,
 				'bx-im-content-notification-item-header__title-user-text': !this.isSystem,
 				'--extranet': this.user.extranet,
-				'--short': !this.hasMoreUsers
+				'--short': !this.hasMoreUsers,
 			};
 		},
 		hasMoreUsers(): boolean
@@ -72,7 +73,7 @@ export const NotificationItemHeader = {
 				return false;
 			}
 
-			return !!this.notificationItem.params?.users && this.notificationItem.params.users.length > 0;
+			return Boolean(this.notificationItem.params?.users) && this.notificationItem.params.users.length > 0;
 		},
 		moreUsers(): string
 		{
@@ -80,17 +81,17 @@ export const NotificationItemHeader = {
 
 			return {
 				start: phrase[0],
-				end: this.notificationItem.params.users.length + phrase[1]
+				end: this.notificationItem.params.users.length + phrase[1],
 			};
 		},
-		canDelete()
+		canDelete(): boolean
 		{
 			return this.type === NotificationTypesCodes.simple;
 		},
 		itemDate(): string
 		{
 			return DateFormatter.formatByTemplate(this.date, DateTemplate.notification);
-		}
+		},
 	},
 	methods:
 	{
@@ -109,7 +110,7 @@ export const NotificationItemHeader = {
 			{
 				this.$emit('moreUsersClick', {
 					event: event.event,
-					users: event.users
+					users: event.users,
 				});
 			}
 		},
@@ -149,5 +150,5 @@ export const NotificationItemHeader = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

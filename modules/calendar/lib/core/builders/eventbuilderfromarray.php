@@ -12,12 +12,15 @@ use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
+use Bitrix\Calendar\Core\eventoption\EventOption;
+use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Core\Section\Section;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\ArgumentException;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\ObjectException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
@@ -605,5 +608,18 @@ class EventBuilderFromArray extends EventBuilder
 	protected function getSpecialLabel(): ?string
 	{
 		return $this->fields['EVENT_TYPE'] ?? null;
+	}
+
+	protected function getEventOption(): ?EventOption
+	{
+		if ($eventId = $this->fields['ID'] ?? null)
+		{
+			/** @var Factory $mapper */
+			$mapper = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+
+			return $mapper->getEventOption()->getMap(['=EVENT_ID' => $eventId])->fetch();
+		}
+
+		return null;
 	}
 }

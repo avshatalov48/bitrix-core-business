@@ -261,7 +261,7 @@ class Chat extends AbstractEntity
 		return true;
 	}
 
-	public function onExistingUserInvite($userId): bool
+	public function onExistingUsersInvite($userIds): bool
 	{
 		if (isset($this->chatFields['message_type']) && $this->chatFields['message_type'] === IM_MESSAGE_PRIVATE)
 		{
@@ -276,55 +276,71 @@ class Chat extends AbstractEntity
 		$chat = new \CIMChat();
 		$chatId = \Bitrix\Im\Dialog::getChatId($this->getEntityId());
 
-		return $chat->addUser($chatId, $userId);
+		return $chat->addUser($chatId, $userIds);
 	}
 
 	public function onStateChange($state, $prevState)
 	{
 		$initiatorId = $this->call->getInitiatorId();
 		$initiator = \Bitrix\Im\User::getInstance($initiatorId);
-		if($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
+		if ($state === Call::STATE_INVITING && $prevState === Call::STATE_NEW)
 		{
 			// todo: return the call method when the calls are supported in the mobile
 			//$this->sendMessagesCallStart();
 		}
-		else if($state === Call::STATE_FINISHED)
+		elseif($state === Call::STATE_FINISHED)
 		{
-			$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_FINISHED");
+			$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_FINISHED_V2", [
+				'#CALL_DURATION#' => $this->getCallDuration(),
+			]);
 			$mute = true;
+			$skipCounterInc = true;
 
 			$userIds = array_values(array_filter($this->call->getUsers(), function($userId) use ($initiatorId)
 			{
 				return $userId != $initiatorId;
 			}));
 
+			$componentParams = [
+				'MESSAGE_TYPE' => 'FINISH',
+				'CALL_ID' => $this->call->getId(),
+				'INITIATOR_ID' => $this->call->getActionUserId(),
+			];
+
 			if(count($userIds) == 1)
 			{
 				$otherUser = \Bitrix\Im\User::getInstance($userIds[0]);
 				$otherUserState = $this->call->getUser($userIds[0]) ? $this->call->getUser($userIds[0])->getState() : '';
+
 				if ($otherUserState == CallUser::STATE_DECLINED)
 				{
-					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_" . $otherUser->getGender(), [
+					$componentParams['MESSAGE_TYPE'] = 'DECLINED';
+					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_USER_DECLINED_V2_" . $otherUser->getGender(), [
 						'#NAME#' => $otherUser->getFullName(false)
 					]);
 				}
 				else if ($otherUserState == CallUser::STATE_BUSY)
 				{
+					$componentParams['MESSAGE_TYPE'] = 'BUSY';
 					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_USER_BUSY_" . $otherUser->getGender(), [
 						'#NAME#' => $otherUser->getFullName(false)
 					]);
 					$mute = false;
+					$skipCounterInc = false;
 				}
 				else if ($otherUserState == CallUser::STATE_UNAVAILABLE || $otherUserState == CallUser::STATE_CALLING)
 				{
-					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_MISSED_" . $initiator->getGender(), [
-						'#NAME#' => $initiator->getFullName(false)
+					$componentParams['MESSAGE_TYPE'] = 'MISSED';
+					$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_MISSED", [
+						'#NAME#' => $otherUser->getFullName(false)
 					]);
 					$mute = false;
+					$skipCounterInc = false;
 				}
 			}
 
-			$this->sendMessageDeferred($message, $mute);
+			$componentParams['MESSAGE_TEXT'] = $message;
+			$this->sendMessageDeferred($message, $mute, $skipCounterInc, $componentParams);
 		}
 	}
 
@@ -337,14 +353,21 @@ class Chat extends AbstractEntity
 
 	public function sendMessagesCallStart(): void
 	{
-		$this->sendMessageDeferred(Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED", [
-			"#ID#" => '[B]'.$this->call->getId().'[/B]'
-		]), self::MUTE_MESSAGE);
+		$message = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_STARTED_V2", [
+			"#ID#" => $this->call->getId()
+		]);
+		$componentParams = [
+			'MESSAGE_TYPE' => 'START',
+			'CALL_ID' => $this->call->getId(),
+			'MESSAGE_TEXT' => $message,
+		];
+
+		$this->sendMessageDeferred($message, self::MUTE_MESSAGE, true, $componentParams);
 	}
 
-	public function sendMessageDeferred($message, $muted = false)
+	public function sendMessageDeferred($message, $muted = false, $skipCounterInc = false, $componentParams = [])
 	{
-		Application::getInstance()->addBackgroundJob([$this, 'sendMessage'], [$message, $muted]);
+		Application::getInstance()->addBackgroundJob([$this, 'sendMessage'], [$message, $muted, $skipCounterInc, $componentParams]);
 	}
 
 	public function isBroadcast()
@@ -354,33 +377,48 @@ class Chat extends AbstractEntity
 		;
 	}
 
-	public function sendMessage($message, $muted = false)
+	public function sendMessage($message, $muted = false, $skipCounterInc = false, $componentParams = [])
 	{
+		$initiator = $this->getCall()->getInitiatorId();
+		if (isset($componentParams['INITIATOR_ID']))
+		{
+			$initiator = $componentParams['INITIATOR_ID'];
+		}
+
+		$chatId = $this->call->getChatId();
+		if (!empty($this->call->getParentId()))
+		{
+			$chatId = \Bitrix\Im\Dialog::getChatId($this->getEntityId());
+		}
+
 		\CIMMessenger::add([
-			'DIALOG_ID' => $this->entityId,
-			'FROM_USER_ID' => $this->getCall()->getInitiatorId(),
+			'TO_CHAT_ID' => $chatId,
+			'MESSAGE_TYPE' => $this->isPrivateChat() ? IM_MESSAGE_PRIVATE : IM_MESSAGE_CHAT,
+			'FROM_USER_ID' => $initiator,
 			'MESSAGE' => $message,
-			'SYSTEM' => 'Y',
 			'PUSH' => 'N',
+			'SKIP_COUNTER_INCREMENTS' => $skipCounterInc ? 'Y' : 'N',
 			'PARAMS' => [
-				'NOTIFY' => $muted? 'N': 'Y',
+				'NOTIFY' => $muted ? 'N': 'Y',
+				'COMPONENT_ID' => 'CallMessage',
+				'COMPONENT_PARAMS' => $componentParams,
 			]
 		]);
 	}
 
-	public function toArray($currentUserId = 0)
+	public function toArray($initiatorId = 0)
 	{
-		if($currentUserId == 0)
+		if($initiatorId == 0)
 		{
-			$currentUserId = $this->initiatorId;
+			$initiatorId = $this->initiatorId;
 		}
 
 		return [
 			'type' => $this->getEntityType(),
-			'id' => $this->getEntityId($currentUserId),
-			'name' => $this->getName($currentUserId),
-			'avatar' => $this->getAvatar($currentUserId),
-			'avatarColor' => $this->getAvatarColor($currentUserId),
+			'id' => (string)$this->getEntityId($initiatorId), //todo: Cast to string for compatibility with immobile. Remove it in a while
+			'name' => $this->getName($initiatorId),
+			'avatar' => $this->getAvatar($initiatorId),
+			'avatarColor' => $this->getAvatarColor($initiatorId),
 			'advanced' => [
 				'chatType' => $this->chatFields['type'],
 				'entityType' => $this->chatFields['entity_type'],
@@ -405,5 +443,36 @@ class Chat extends AbstractEntity
 		$entityType = $this->chatFields['entity_type'];
 		$options = \CIMChat::GetChatOptions();
 		return (bool)($options[$entityType]['EXTEND'] ?? true);
+	}
+
+	public function getCallDuration(): string
+	{
+		$interval = $this->call->getStartDate()->getDiff($this->call->getEndDate());
+
+		[$hours, $minutes, $seconds] = explode(' ', $interval->format('%H %I %S'));
+		$result = [];
+
+		if ((int) $hours > 0)
+		{
+			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_HOURS", [
+				"#HOURS#" => (int) $hours
+			]);
+		}
+
+		if ((int) $minutes > 0)
+		{
+			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_MINUTES", [
+				"#MINUTES#" => (int) $minutes
+			]);
+		}
+
+		if ((int) $seconds > 0 && !(int) $hours > 0)
+		{
+			$result[] = Loc::getMessage("IM_CALL_INTEGRATION_CHAT_CALL_DURATION_SECONDS", [
+				"#SECONDS#" => (int) $seconds
+			]);
+		}
+
+		return implode(" ", $result);
 	}
 }

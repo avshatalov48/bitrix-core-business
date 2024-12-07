@@ -1,4 +1,5 @@
 <?php
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 {
 	die();
@@ -10,7 +11,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
  * @global array $arResult
  * @global CBitrixComponentTemplate $this
  */
+
 use Bitrix\Main\Context;
+use Bitrix\Main\Web\Json;
 
 if (defined('BX_PUBLIC_MODE')&& BX_PUBLIC_MODE == 1)
 {
@@ -126,10 +129,10 @@ if ($arParams['MAX_WIDTH'] > 0)
 }
 
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(
 	BX.defer(function(){
-		window.jsMLI_<?=$control_id?> = new JCMainLookupAdminSelector(<?= CUtil::PhpToJSObject($arSelectorParams); ?>);
+		window.jsMLI_<?=$control_id?> = new JCMainLookupAdminSelector(<?= Json::encode($arSelectorParams); ?>);
 		<?php
 		if (defined('BX_PUBLIC_MODE') && BX_PUBLIC_MODE == 1)
 		{

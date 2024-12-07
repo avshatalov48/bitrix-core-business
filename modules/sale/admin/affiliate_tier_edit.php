@@ -158,7 +158,7 @@ $context->Show();
 ?>
 
 <?if($errorMessage <> '')
-	echo CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SATE1_ERROR_SAVE"), "HTML"=>true));?>
+	CAdminMessage::ShowMessage(Array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>GetMessage("SATE1_ERROR_SAVE"), "HTML"=>true));?>
 
 <form method="POST" action="<?echo $APPLICATION->GetCurPage()?>?" name="form1">
 <?echo GetFilterHiddens("filter_");?>

@@ -1,15 +1,13 @@
 <?
 namespace Bitrix\Sale\Helpers\Order\Builder;
 
-use Bitrix\Main\Config\Option;
+use Bitrix\Catalog\Product;
 use Bitrix\Main\Error;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type\Date;
-use Bitrix\Sale\Basket;
 use Bitrix\Sale\BasketItem;
 use Bitrix\Sale\BasketItemBase;
-use Bitrix\Sale\Discount;
 use Bitrix\Sale\DiscountCouponsManager;
 use Bitrix\Sale\Fuser;
 use Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket;
@@ -299,6 +297,16 @@ abstract class BasketBuilder
 				continue;
 
 			$productData = $this->formData['PRODUCT'][$basketCode];
+			if (
+				isset($productData['MODULE'])
+				&& $productData['MODULE'] === 'catalog'
+				&& empty($productData['PRODUCT_PROVIDER_CLASS'])
+				&& Loader::includeModule('catalog')
+			)
+			{
+				$productData['PRODUCT_PROVIDER_CLASS'] = '\\'.Product\CatalogProvider::class;
+			}
+
 			$isProductDataNeedUpdate = in_array($basketCode, $this->needDataUpdate);
 
 			if(isset($productData["PRODUCT_PROVIDER_CLASS"]) && $productData["PRODUCT_PROVIDER_CLASS"] <> '')
@@ -491,6 +499,10 @@ abstract class BasketBuilder
 
 		$productProviderData = array();
 
+		/** @var BasketItem $firstBasketItem */
+		$firstBasketItem = $basketItems[0] ?? null;
+		$vatIncludedByFirstItem = $firstBasketItem ? $firstBasketItem->getField('VAT_INCLUDED') : 'N';
+
 		/** @var BasketItem $item */
 		foreach($basketItems as $item)
 		{
@@ -642,6 +654,26 @@ abstract class BasketBuilder
 				}
 
 				$product["CURRENCY"] = $order->getCurrency();
+			}
+
+			if (
+				$product['VAT_INCLUDED'] !== $vatIncludedByFirstItem
+				||
+				(
+					isset($productProviderData[$basketCode]['VAT_INCLUDED'])
+					&&
+					$product['VAT_INCLUDED'] !== $productProviderData[$basketCode]['VAT_INCLUDED']
+				)
+			)
+			{
+				if ($product['VAT_INCLUDED'] === 'Y')
+				{
+					$product['PRICE'] = $product['PRICE'] / (1 + $product["VAT_RATE"]);
+					$product['BASE_PRICE'] = $product['BASE_PRICE'] / (1 + $product["VAT_RATE"]);
+				}
+
+				// There can be only one value for all of them
+				$product['VAT_INCLUDED'] = $vatIncludedByFirstItem;
 			}
 
 			$this->setBasketItemFields($item, $product);
@@ -816,8 +848,13 @@ abstract class BasketBuilder
 			$setBasketCode
 		);
 
-		if ($basketCode != $productData["BASKET_CODE"])
+		if (
+			!isset($productData['BASKET_CODE'])
+			|| $basketCode != $productData['BASKET_CODE']
+		)
+		{
 			$productData["BASKET_CODE"] = $item->getBasketCode();
+		}
 
 		if($basketCode == self::BASKET_CODE_NEW)
 		{

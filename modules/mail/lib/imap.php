@@ -3,7 +3,6 @@
 namespace Bitrix\Mail;
 
 use Bitrix\Main;
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
@@ -520,7 +519,7 @@ class Imap
 				{
 					$result = $matches[1];
 
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 				}
 
 				return $result;
@@ -532,13 +531,13 @@ class Imap
 
 				$tail = ' (?= [\x20)] | $ ) \x20? ';
 
-				if (BinaryString::getSubstring($item, 0, 1) === '(')
+				if (substr($item, 0, 1) === '(')
 				{
-					$item = BinaryString::getSubstring($item, 1);
+					$item = substr($item, 1);
 
 					$result = array();
 
-					while (BinaryString::getLength($item) > 0 && BinaryString::getSubstring($item, 0, 1) !== ')')
+					while (strlen($item) > 0 && substr($item, 0, 1) !== ')')
 					{
 						$subresult = $shiftValue($item);
 
@@ -554,7 +553,7 @@ class Imap
 
 					if (preg_match('/^ \) (?= [\x20()] | $ ) \x20? /ix', $item, $matches))
 					{
-						$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+						$item = substr($item, strlen($matches[0]));
 					}
 					else
 					{
@@ -563,17 +562,17 @@ class Imap
 				}
 				else if (preg_match('/^ { ( \d+ ) } \r\n /ix', $item, $matches))
 				{
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 
-					if (BinaryString::getLength($item) >= $matches[1])
+					if (strlen($item) >= $matches[1])
 					{
-						$result = BinaryString::getSubstring($item, 0, $matches[1]);
+						$result = substr($item, 0, $matches[1]);
 
-						$item = BinaryString::getSubstring($item, $matches[1]);
+						$item = substr($item, $matches[1]);
 
 						if (preg_match(sprintf('/^ %s /ix', $tail), $item, $matches))
 						{
-							$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+							$item = substr($item, strlen($matches[0]));
 						}
 						else
 						{
@@ -585,25 +584,25 @@ class Imap
 				{
 					$result = null;
 
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 				}
 				else if (preg_match(sprintf('/^ " ( (?: %s )* ) " %s /ix', self::$qcharExtRegex, $tail), $item, $matches))
 				{
 					$result = self::unescapeQuoted($matches[1]);
 
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 				}
 				else if (preg_match(sprintf('/^ ( \x5c? %s ) %s /ix', self::$astringRegex, $tail), $item, $matches))
 				{
 					$result = $matches[1];
 
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 				}
 				else if (preg_match(sprintf('/^ %s /ix', $tail), $item, $matches))
 				{
 					$result = '';
 
-					$item = BinaryString::getSubstring($item, BinaryString::getLength($matches[0]));
+					$item = substr($item, strlen($matches[0]));
 				}
 
 				return $result;
@@ -640,7 +639,7 @@ class Imap
 					'id' => $item[1][1],
 				);
 
-				while (BinaryString::getLength($item[1][2]) > 0)
+				while (strlen($item[1][2]) > 0)
 				{
 					if (($name = $shiftName($item[1][2])) !== false)
 					{

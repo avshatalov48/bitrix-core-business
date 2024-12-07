@@ -80,7 +80,14 @@ class AuthAdapter
 	{
 		if (!SeoService::isRegistered())
 		{
-			SeoService::register();
+			try
+			{
+				SeoService::register();
+			}
+			catch (SystemException $e)
+			{
+				return '';
+			}
 		}
 
 		$authorizeUrl = SeoService::getAuthorizeLink();
@@ -91,6 +98,7 @@ class AuthAdapter
 			$authorizeData['urlParameters'] = $this->parameters['URL_PARAMETERS'];
 		}
 		$uri->addParams($authorizeData);
+
 		return $uri->getLocator();
 	}
 

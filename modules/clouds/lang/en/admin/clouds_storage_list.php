@@ -51,3 +51,4 @@ $MESS["CLO_STORAGE_LIST_SORT"] = "Sorting";
 $MESS["CLO_STORAGE_LIST_START_MOVE_FILES"] = "Upload files to cloud storage";
 $MESS["CLO_STORAGE_LIST_STOP"] = "Stop";
 $MESS["CLO_STORAGE_LIST_TITLE"] = "Cloud Storages";
+$MESS["CLO_STORAGE_LIST_UNKNOWN_ERROR"] = "Unknown error [#CODE#].";

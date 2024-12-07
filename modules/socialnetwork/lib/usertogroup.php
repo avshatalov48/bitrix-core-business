@@ -12,6 +12,7 @@ use Bitrix\Main\Entity;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Socialnetwork\Space\Member;
 
 /**
  * Class UserToGroupTable
@@ -24,21 +25,38 @@ use Bitrix\Main\ORM\Query\Join;
  * @method static EO_UserToGroup_Result getById($id)
  * @method static EO_UserToGroup_Result getList(array $parameters = [])
  * @method static EO_UserToGroup_Entity getEntity()
- * @method static \Bitrix\Socialnetwork\EO_UserToGroup createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\Space\Member createObject($setDefaultValues = true)
  * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection createCollection()
- * @method static \Bitrix\Socialnetwork\EO_UserToGroup wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\Space\Member wakeUpObject($row)
  * @method static \Bitrix\Socialnetwork\EO_UserToGroup_Collection wakeUpCollection($rows)
  */
 class UserToGroupTable extends Entity\DataManager
 {
-	public const ROLE_OWNER = SONET_ROLES_OWNER;
-	public const ROLE_MODERATOR = SONET_ROLES_MODERATOR;
-	public const ROLE_USER = SONET_ROLES_USER;
-	public const ROLE_BAN = SONET_ROLES_BAN;
-	public const ROLE_REQUEST = SONET_ROLES_REQUEST;
+	/** @see SONET_ROLES_OWNER */
+	public const ROLE_OWNER = 'A';
 
-	public const INITIATED_BY_USER = SONET_INITIATED_BY_USER;
-	public const INITIATED_BY_GROUP = SONET_INITIATED_BY_GROUP;
+	/** @see SONET_ROLES_MODERATOR */
+	public const ROLE_MODERATOR = 'E';
+
+	/** @see SONET_ROLES_USER */
+	public const ROLE_USER = 'K';
+
+	/** @see SONET_ROLES_BAN */
+	public const ROLE_BAN = 'T';
+
+	/** @see SONET_ROLES_REQUEST */
+	public const ROLE_REQUEST = 'Z';
+
+	/** @see SONET_INITIATED_BY_USER */
+	public const INITIATED_BY_USER = 'U';
+
+	/** @see SONET_INITIATED_BY_GROUP */
+	public const INITIATED_BY_GROUP = 'G';
+
+	public static function getObjectClass(): string
+	{
+		return Member::class;
+	}
 
 	/**
 	 * Returns DB table name for entity
@@ -118,13 +136,13 @@ class UserToGroupTable extends Entity\DataManager
 			),
 			'AUTO_MEMBER' => array(
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
+				'values' => array('N','Y'),
 			),
 			'DATE_CREATE' => array(
-				'data_type' => 'datetime'
+				'data_type' => 'datetime',
 			),
 			'DATE_UPDATE' => array(
-				'data_type' => 'datetime'
+				'data_type' => 'datetime',
 			),
 			'INITIATED_BY_TYPE' => array(
 				'data_type' => 'enum',
@@ -139,7 +157,7 @@ class UserToGroupTable extends Entity\DataManager
 			),
 			'MESSAGE' => array(
 				'data_type' => 'text',
-			)
+			),
 		);
 	}
 

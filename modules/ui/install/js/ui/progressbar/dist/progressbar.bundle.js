@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -59,6 +60,7 @@ this.BX = this.BX || {};
 	    this.colorTrack = main_core.Type.isString(this.options.colorTrack) ? this.options.colorTrack : null;
 	    this.colorBar = main_core.Type.isString(this.options.colorBar) ? this.options.colorBar : null;
 	    this.color = main_core.Type.isString(this.options.color) ? this.options.color : BX.UI.ProgressBar.Color.PRIMARY;
+	    this.infiniteLoading = main_core.Type.isBoolean(this.options.infiniteLoading) ? this.options.infiniteLoading : false;
 
 	    // this.setStatusType(options.statusType);
 	    // this.setColorTrack(options.colorTrack);
@@ -316,7 +318,7 @@ this.BX = this.BX || {};
 	    if (this.bar === null) {
 	      this.bar = main_core.Dom.create("div", {
 	        props: {
-	          className: "ui-progressbar-bar"
+	          className: `${this.infiniteLoading ? "ui-progressbar-bar infinite-loading" : "ui-progressbar-bar"}`
 	        },
 	        style: {
 	          width: `${this.getStatusPercent()}%`

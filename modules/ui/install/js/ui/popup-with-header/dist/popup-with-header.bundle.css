@@ -15,6 +15,7 @@
 .active-scroll .ui-popupcomponentmaker__content-wrap {
 	padding: 0 13px 0 13px;
 	overflow: hidden;
+	-webkit-transform: translateZ(0);
 	border-radius: 0 0 22px 22px;
 }
 
@@ -106,6 +107,8 @@
 	border-bottom: 1px solid transparent;
 	transition: color .3s;
 	cursor: pointer;
+	color: var(--ui-color-link-primary-base);
+	margin-left: 3px;
 }
 
 .ui-popupconstructor-content-item__more-link:hover {
@@ -145,7 +148,7 @@
 .popup-with-header-skeleton__wrap {
 	width: 344px;
 	height: 100%;
-	max-height: 369px;
+	max-height: 473px;
 	border-radius: 20px;
 	background: rgba(247, 248, 249, .88);
 	box-shadow: 0 12px 27px rgba(0, 0, 0, .14);
@@ -274,6 +277,7 @@
 	border-radius: 12px;
 	background: #fff;
 	box-shadow: 0 1px 2px 0 rgba(0, 0, 0, .12);
+	margin-bottom: 5px;
 }
 
 .popup-with-header-skeleton__bottom-left,
@@ -396,7 +400,7 @@
 	font-weight: var(--ui-font-weight-regular);
 	font-size: var(--ui-font-size-3xs);
 	line-height: 14px;
-	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-70));
+	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-50));
 	letter-spacing: -.18px;
 }
 
@@ -730,4 +734,8 @@
 
 .ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player-btn:not(.--stop-btn) {
 	display: block;
+}
+
+.ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player-btn.--stop-btn {
+	display: none;
 }

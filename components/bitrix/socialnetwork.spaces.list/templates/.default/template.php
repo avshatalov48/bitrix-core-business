@@ -26,7 +26,7 @@ $messages = Loc::loadLanguageFile(__FILE__);
 
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		BX.message(<?= Json::encode($messages) ?>);
 

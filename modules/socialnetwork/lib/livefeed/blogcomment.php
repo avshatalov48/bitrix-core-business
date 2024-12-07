@@ -97,9 +97,9 @@ final class BlogComment extends Provider
 		$title = (new \blogTextParser())->convert($title, false);
 		$title = preg_replace(
 			[
-				"/\n+/is" . BX_UTF_PCRE_MODIFIER,
-				"/\s+/is" . BX_UTF_PCRE_MODIFIER,
-				"/&nbsp;+/is" . BX_UTF_PCRE_MODIFIER
+				"/\n+/isu",
+				"/\s+/isu",
+				"/&nbsp;+/isu"
 			],
 			" ",
 			\blogTextParser::killAllTags($title)
@@ -153,6 +153,6 @@ final class BlogComment extends Provider
 
 	public function getSuffix(): string
 	{
-		return '2';
+		return '3';
 	}
 }

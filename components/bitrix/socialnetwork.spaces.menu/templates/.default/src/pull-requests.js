@@ -28,6 +28,7 @@ export class PullRequests extends EventEmitter
 			workgroup_user_update: this.#update.bind(this),
 			workgroup_update: this.#update.bind(this),
 			user_spaces_counter: this.#updateCounters.bind(this),
+			space_feature_change: this.#updateMenuItem.bind(this),
 		};
 	}
 
@@ -61,6 +62,14 @@ export class PullRequests extends EventEmitter
 			}
 
 			this.emit('updateCounters', data);
+		}
+	}
+
+	#updateMenuItem(data): void
+	{
+		if (data.GROUP_ID === this.#entityId && data.USER_ID === this.#currentUserId)
+		{
+			this.emit('updateMenuItem', data);
 		}
 	}
 }

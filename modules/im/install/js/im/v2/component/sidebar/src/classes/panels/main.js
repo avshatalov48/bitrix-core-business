@@ -12,6 +12,7 @@ import { File } from './file';
 import { Task } from './task';
 import { Meeting } from './meeting';
 import { MembersService as Members } from './members';
+import { Multidialog } from './multidialog';
 import { MainPanelBlock } from '../panel-config';
 
 import { FileUnsorted } from './file-unsorted';
@@ -27,15 +28,19 @@ const MainPanelServiceClasses = {
 	File,
 	Meeting,
 	FileUnsorted,
+	Multidialog,
 };
 
 const BlockToServices = Object.freeze({
 	[MainPanelBlock.chat]: [SidebarDetailBlock.members],
+	[MainPanelBlock.copilot]: [SidebarDetailBlock.members],
+	[MainPanelBlock.copilotInfo]: [SidebarDetailBlock.favorite],
 	[MainPanelBlock.info]: [SidebarDetailBlock.favorite, SidebarDetailBlock.link],
 	[MainPanelBlock.file]: [SidebarDetailBlock.file],
 	[MainPanelBlock.fileUnsorted]: [SidebarDetailBlock.fileUnsorted],
 	[MainPanelBlock.task]: [SidebarDetailBlock.task],
 	[MainPanelBlock.meeting]: [SidebarDetailBlock.meeting],
+	[MainPanelBlock.multidialog]: [SidebarDetailBlock.multidialog],
 });
 
 type BlockService = {
@@ -87,7 +92,6 @@ export class Main
 	getServiceClassesForBlocks(): string[]
 	{
 		const services = [];
-
 		const blockList = getAvailableBlocks(this.dialogId);
 
 		blockList.forEach((block: string) => {

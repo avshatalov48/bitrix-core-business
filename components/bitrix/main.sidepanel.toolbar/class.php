@@ -1,9 +1,6 @@
 <?
 
-use Bitrix\Main\Config\Option;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
 use Bitrix\Main\SidePanel\ToolbarItemTable;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)

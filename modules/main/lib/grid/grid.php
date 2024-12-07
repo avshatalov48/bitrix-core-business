@@ -8,6 +8,7 @@ use Bitrix\Main\Grid\Action\Action;
 use Bitrix\Main\Grid\Action\PaginationAction;
 use Bitrix\Main\Grid\Column\Column;
 use Bitrix\Main\Grid\Column\Columns;
+use Bitrix\Main\Grid\Pagination\PageNavigationStorage;
 use Bitrix\Main\Grid\Pagination\Storage\StorageSupporter;
 use Bitrix\Main\Grid\Panel\Panel;
 use Bitrix\Main\Grid\Row\Assembler\EmptyRowAssembler;
@@ -17,7 +18,6 @@ use Bitrix\Main\Grid\UI\Request\GridRequestFactory;
 use Bitrix\Main\Grid\UI\Response\GridResponseFactory;
 use Bitrix\Main\HttpRequest;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Main\Web\PostDecodeFilter;
 
 /**
  * Grid object.
@@ -38,17 +38,18 @@ $settings = new \Bitrix\Main\Grid\Settings([
 $grid = new Grid($settings);
 
 //
-// init pagination (if using)
-//
-$totalCount = Entity::getCount(
-	$grid->getOrmFilter() ?? []
-);
-$grid->initPagination($totalCount);
-
-//
 // processing grid actions from current request
 //
 $grid->processRequest();
+
+//
+// set all records count for pagination (if using)
+//
+$grid->getPagination()->setRecordCount(
+	Entity::getCount(
+		$grid->getOrmFilter() ?? []
+	)
+);
 
 //
 // fill grid rows with raw data
@@ -73,6 +74,7 @@ $APPLICATION->IncludeComponent(
 abstract class Grid
 {
 	use StorageSupporter;
+	use DeprecatedMethods;
 
 	private array $rawRows;
 	private Options $options;
@@ -189,45 +191,13 @@ abstract class Grid
 	 */
 	final public function getPagination(): ?PageNavigation
 	{
+		$this->pagination ??= $this->createPagination();
+
 		return $this->pagination;
 	}
 
 	/**
-	 * Init pagination.
-	 *
-	 * If you use pagination, you need to call this method before processing the request (`processRequest` method)
-	 * and getting the ORM parameters (`getOrmParams` method).
-	 *
-	 * Ideally, call it immediately after creating  the grid instance.
-	 *
-	 * @param int $totalRowsCount
-	 * @param string|null $navId
-	 *
-	 * @return void
-	 */
-	public function initPagination(int $totalRowsCount, ?string $navId = null): void
-	{
-		$navParams = $this->getOptions()->GetNavParams();
-		if (empty($navId))
-		{
-			$navId = $this->getId() . '_nav';
-		}
-
-		$this->pagination = new PageNavigation($navId);
-		$this->pagination->allowAllRecords(false);
-		$this->pagination->setPageSize($navParams['nPageSize']);
-		$this->pagination->setPageSizes($this->getPageSizes());
-		$this->pagination->setRecordCount($totalRowsCount);
-
-		$storage = $this->getPaginationStorage();
-		if (isset($storage))
-		{
-			$storage->fill($this->pagination);
-		}
-	}
-
-	/**
-	 * Set raw rows (only data after ORM calling).
+	 * Set raw rows (only data).
 	 *
 	 * @param iterable $rawValue
 	 *
@@ -292,7 +262,6 @@ abstract class Grid
 	public function processRequest(?HttpRequest $request = null): void
 	{
 		$request ??= Context::getCurrent()->getRequest();
-		$request->addFilter(new PostDecodeFilter);
 		$gridRequest = $this->gridRequestFactory->createFromRequest($request);
 
 		$response = $this->processGridActionsRequest($gridRequest);
@@ -425,15 +394,15 @@ abstract class Grid
 	 */
 	protected function getActions(): array
 	{
-		$result = [];
+		$actions = [];
 
 		$pagination = $this->getPagination();
 		if (isset($pagination))
 		{
-			$result[] = new PaginationAction($pagination, $this->getPaginationStorage());
+			$actions[] = new PaginationAction($pagination, $this->getPaginationStorage());
 		}
 
-		return $result;
+		return $actions;
 	}
 
 	/**
@@ -534,22 +503,6 @@ abstract class Grid
 	}
 
 	/**
-	 * Available page sizes.
-	 *
-	 * @return int[]
-	 */
-	protected function getPageSizes(): array
-	{
-		return [
-			5,
-			10,
-			20,
-			50,
-			100,
-		];
-	}
-
-	/**
 	 * Default sorting.
 	 *
 	 * @return array
@@ -602,5 +555,74 @@ abstract class Grid
 	protected function createFilter(): ?Filter
 	{
 		return null;
+	}
+
+	/**
+	 * Create pagination.
+	 *
+	 * In most cases, you can use `PaginationFactory` for create pagination.
+	 *
+	 * @see \Bitrix\Main\Grid\Pagination\PaginationFactory
+	 *
+	 * @return PageNavigation|null
+	 */
+	protected function createPagination(): ?PageNavigation
+	{
+		return null;
+	}
+}
+
+trait DeprecatedMethods
+{
+	/**
+	 * @deprecated use `createPagination` method.
+	 *
+	 * Init pagination.
+	 *
+	 * If you use pagination, you need to call this method before getting the ORM parameters (`getOrmParams` method).
+	 *
+	 * @param int $totalRowsCount
+	 * @param string|null $navId
+	 *
+	 * @return void
+	 */
+	public function initPagination(int $totalRowsCount, ?string $navId = null): void
+	{
+		$navParams = $this->getOptions()->GetNavParams();
+		if (empty($navId))
+		{
+			$navId = $this->getId() . '_nav';
+		}
+
+		$this->pagination = new PageNavigation($navId);
+		$this->pagination->allowAllRecords(false);
+		$this->pagination->setPageSize($navParams['nPageSize']);
+		$this->pagination->setPageSizes($this->getPageSizes());
+		$this->pagination->setRecordCount($totalRowsCount);
+		$this->pagination->setCurrentPage(1);
+
+		$storage = $this->getPaginationStorage();
+		if ($storage instanceof PageNavigationStorage)
+		{
+			$storage->fill($this->pagination);
+		}
+	}
+
+	/**
+	 * @deprecated use `createPagination` method.
+	 *
+	 * Available page sizes.
+	 *
+	 * @return int[]
+	 */
+	protected function getPageSizes(): array
+	{
+		return [
+			5,
+			10,
+			20,
+			50,
+			100,
+		];
 	}
 }

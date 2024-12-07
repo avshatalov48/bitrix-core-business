@@ -447,7 +447,7 @@ class CPGalleryInterface
 	{
 		$url = '';
 		if ($alias = self::GetUserAlias($userId, $iblockId))
-			$url = preg_replace("/#user_alias#/i".BX_UTF_PCRE_MODIFIER, $alias, $path);
+			$url = preg_replace("/#user_alias#/iu", $alias, $path);
 		return $url;
 	}
 

@@ -77,7 +77,6 @@ class CAdv extends CAllAdv
 
 	public static function GetList($by = '', $order = 'desc', $arFilter = [], &$is_filtered = false, $limit = '', &$arrGROUP_DAYS = [], &$strSql_res = '')
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$find_group = $arFilter["GROUP"] ?? '';
 		$arSqlSearch = Array();
@@ -557,7 +556,7 @@ class CAdv extends CAllAdv
 					A.$group
 				";
 
-			$z = $DB->Query($strSql_days, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql_days);
 			while ($zr = $z->Fetch())
 			{
 				$arrGROUP_DAYS[$zr[$group]] = $zr;
@@ -573,14 +572,13 @@ class CAdv extends CAllAdv
 				LIMIT $limit
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$is_filtered = (IsFiltered($strSqlSearch) || $strSqlSearch_h <> '' || $group || $filter_period);
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		$strSql = "
@@ -595,13 +593,12 @@ class CAdv extends CAllAdv
 			WHERE
 				A.ID = '$ID'
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetEventList($ID, $by = 's_counter', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$find_group = $arFilter["GROUP"];
 		$ID = intval($ID);
@@ -822,14 +819,13 @@ class CAdv extends CAllAdv
 			";
 		}
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetEventListByReferer($value, $arFilter)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if ($arFilter["GROUP"]=="referer1")
 			$group = "A.REFERER1";
@@ -928,13 +924,12 @@ class CAdv extends CAllAdv
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetDynamicList($ADV_ID, $by = 's_date', $order = 'desc', &$arMaxMin = [], $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ADV_ID = intval($ADV_ID);
 		$arSqlSearch = Array();
@@ -1010,7 +1005,7 @@ class CAdv extends CAllAdv
 				D.ADV_ID, D.DATE_STAT
 			$strSqlOrder
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		$strSql = "
 			SELECT
@@ -1029,7 +1024,7 @@ class CAdv extends CAllAdv
 			$strSqlSearch
 			";
 
-		$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $DB->Query($strSql);
 		$ar = $a->Fetch();
 		$arMaxMin["MAX_DAY"]	= $ar["MAX_DAY"];
 		$arMaxMin["MAX_MONTH"]	= $ar["MAX_MONTH"];
@@ -1044,7 +1039,6 @@ class CAdv extends CAllAdv
 	public static function GetDropDownList($strSqlOrder="ORDER BY REFERER1, REFERER2")
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$strSql = "
 			SELECT
 				ID as REFERENCE_ID,
@@ -1053,13 +1047,12 @@ class CAdv extends CAllAdv
 				b_stat_adv
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetSimpleList($by = 's_referer1', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
@@ -1121,7 +1114,7 @@ class CAdv extends CAllAdv
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$is_filtered = (IsFiltered($strSqlSearch));
 		return $res;
 	}

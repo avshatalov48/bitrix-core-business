@@ -82,7 +82,7 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 					$arrRes[] = $arrCSV[$arrS["Reference No"]]." / ".$arrCSV[$arrS["Product ID"]];
 
 					// date
-					$ar = explode(" ", $arrCSV[$arrS["Date"]]); // 11-Jul-2005 07:54:48
+					$ar = explode(" ", $arrCSV[$arrS["Date"]]); // 11-Jul-2005Â 07:54:48
 					$arDate = explode("-", $ar[0]); // 11-Jul-2005
 					$arTime = explode(":", $ar[1]); // 07:54:48
 					$date_time = $arDate[0].".".$arMonth[$arDate[1]].".".$arDate[2]." ".$ar[1]; // 11.07.2005 07:54:48

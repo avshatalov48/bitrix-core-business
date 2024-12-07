@@ -64,7 +64,8 @@ $jsConfig = [
 		],
 		'rel' => [
 			'polyfill',
-			'popup'
+			'popup',
+			'landing.loc',
 		],
 		'lang' => $pathLang . '/js/action_dialog.php'
 	],
@@ -322,6 +323,7 @@ $jsConfig = [
 			$pathTemplate24 . '/assets/js/helpers/auto_font_scale_init.js',
 		],
 		'rel' => [
+			'landing.utils',
 			'landing.ui.tool.auto_font_scale',
 		]
 	],
@@ -331,15 +333,6 @@ $jsConfig = [
 			$pathTemplate24 . '/assets/js/helpers/backlinks/backlinks.js',
 		],
 	],
-
-	// todo: not used? can del?
-	// 'landing_bootstrap_modal' => array(
-	// 	'js' => array(
-	// 		$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/util.js',
-	// 		$pathTemplate24 . '/assets/vendor/bootstrap/js/dist/modal.js',
-	// 	),
-	// 	'rel' => ['landing_core','landing_jquery'],
-	// ),
 ];
 
 

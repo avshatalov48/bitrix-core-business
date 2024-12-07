@@ -1,8 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery")) // !important
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!CModule::IncludeModule("iblock")) // !important
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 
 if (!isset($arParams["ACTION_URL"]))
 	$arParams["ACTION_URL"] = htmlspecialcharsback(POST_FORM_ACTION_URI);
@@ -352,7 +358,8 @@ if ($arParams["SECTION_ID"] > 0)
 
 	if ($res > 400 || $arResult["SECTION"]["ACTIVE"] == "N")
 	{
-		return ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+		ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+		return;
 	}
 	elseif ($res == 301)
 	{
@@ -360,13 +367,17 @@ if ($arParams["SECTION_ID"] > 0)
 			// $arParams["~SECTION_URL"],
 			// array("USER_ALIAS" => $arGallery["CODE"], "SECTION_ID" => $arParams["SECTION_ID"]));
 		//if (!$url)
-			return ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+			ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+			return;
 		//return LocalRedirect($url, false, "301 Moved Permanently");
 	}
 	elseif (!$oPhoto->CheckPermission($arParams["PERMISSION"], $arResult["SECTION"]))
 	{
 		if (!$oPhoto->IsPassFormDisplayed($arResult["SECTION"]["ID"]))
-			return ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+		{
+			ShowError(GetMessage("ALBUM_NOT_FOUND_ERROR"));
+			return;
+		}
 	}
 }
 
@@ -553,9 +564,14 @@ if ($arParams['SHOWN_PHOTOS'] ?? null)
 	}
 
 	if (count($arShown) > 0)
+	{
 		$arParams['SHOWN_PHOTOS'] = $arShown;
+	}
 	else
-		return ShowError(GetMessage("PHOTOS_NOT_FOUND_ERROR"));
+	{
+		ShowError(GetMessage("PHOTOS_NOT_FOUND_ERROR"));
+		return;
+	}
 
 	if (($_REQUEST["return_array"] ?? '') != "Y")
 		$arFilter["ID"] = $arParams['SHOWN_PHOTOS'];

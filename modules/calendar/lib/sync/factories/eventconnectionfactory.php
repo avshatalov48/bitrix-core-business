@@ -34,7 +34,8 @@ class EventConnectionFactory
 			return null;
 		}
 
-		$select = ['*'];
+		$select = EventConnectionTable::defaultSelect;
+
 		if (empty($params['event']))
 		{
 			$select[] = 'EVENT';
@@ -52,6 +53,7 @@ class EventConnectionFactory
 		}
 
 		$link = $statement->exec()->fetchObject() ?: null;
+
 		if ($link === null)
 		{
 			return null;

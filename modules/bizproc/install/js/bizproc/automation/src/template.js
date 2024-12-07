@@ -734,6 +734,9 @@ export class Template extends EventEmitter
 				document_status: this.#context.document.getCurrentStatusId(),
 				context,
 				robot_json: Helper.toJsonString(robot.serialize()),
+				context_robots_json: Helper.toJsonString(
+					this.#robots.filter((r) => r !== robot).map((r) => r.serialize()),
+				),
 				form_name: formName,
 			},
 			onsuccess: (html) => {

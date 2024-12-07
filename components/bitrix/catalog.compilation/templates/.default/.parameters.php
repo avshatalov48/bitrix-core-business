@@ -501,39 +501,44 @@ $arTemplateParameters['MESS_NOT_AVAILABLE'] = array(
 	'TYPE' => 'STRING',
 	'DEFAULT' => Loc::getMessage('CP_BCS_TPL_MESS_NOT_AVAILABLE_DEFAULT')
 );
-$arTemplateParameters['RCM_TYPE'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_TYPE_TITLE'),
-	'TYPE' => 'LIST',
-	'MULTIPLE' => 'N',
-	'VALUES' => array(
-		// personal
-		'personal' => Loc::getMessage('CP_BCS_TPL_PERSONAL'),
-		// general
-		'bestsell' => Loc::getMessage('CP_BCS_TPL_BESTSELLERS'),
-		// item2item
-		'similar_sell' => Loc::getMessage('CP_BCS_TPL_SOLD_WITH'),
-		'similar_view' => Loc::getMessage('CP_BCS_TPL_VIEWED_WITH'),
-		'similar' => Loc::getMessage('CP_BCS_TPL_SIMILAR'),
-		// randomly distributed
-		'any_similar' => Loc::getMessage('CP_BCS_TPL_SIMILAR_ANY'),
-		'any_personal' => Loc::getMessage('CP_BCS_TPL_PERSONAL_WBEST'),
-		'any' => Loc::getMessage('CP_BCS_TPL_RAND')
-	),
-	'DEFAULT' => 'personal'
-);
-$arTemplateParameters['RCM_PROD_ID'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_PRODUCT_ID_PARAM'),
-	'TYPE' => 'STRING',
-	'DEFAULT' => '={$_REQUEST["PRODUCT_ID"]}'
-);
-$arTemplateParameters['SHOW_FROM_SECTION'] = array(
-	'PARENT' => 'BIG_DATA_SETTINGS',
-	'NAME' => Loc::getMessage('CP_BCS_TPL_SHOW_FROM_SECTION'),
-	'TYPE' => 'CHECKBOX',
-	'DEFAULT' => 'N'
-);
+
+if (\Bitrix\Main\Analytics\Catalog::isOn())
+{
+	$arTemplateParameters['RCM_TYPE'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => Loc::getMessage('CP_BCS_TPL_TYPE_TITLE'),
+		'TYPE' => 'LIST',
+		'MULTIPLE' => 'N',
+		'VALUES' => array(
+			// personal
+			'personal' => Loc::getMessage('CP_BCS_TPL_PERSONAL'),
+			// general
+			'bestsell' => Loc::getMessage('CP_BCS_TPL_BESTSELLERS'),
+			// item2item
+			'similar_sell' => Loc::getMessage('CP_BCS_TPL_SOLD_WITH'),
+			'similar_view' => Loc::getMessage('CP_BCS_TPL_VIEWED_WITH'),
+			'similar' => Loc::getMessage('CP_BCS_TPL_SIMILAR'),
+			// randomly distributed
+			'any_similar' => Loc::getMessage('CP_BCS_TPL_SIMILAR_ANY'),
+			'any_personal' => Loc::getMessage('CP_BCS_TPL_PERSONAL_WBEST'),
+			'any' => Loc::getMessage('CP_BCS_TPL_RAND')
+		),
+		'DEFAULT' => 'personal'
+	);
+	$arTemplateParameters['RCM_PROD_ID'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => Loc::getMessage('CP_BCS_TPL_PRODUCT_ID_PARAM'),
+		'TYPE' => 'STRING',
+		'DEFAULT' => '={$_REQUEST["PRODUCT_ID"]}'
+	);
+	$arTemplateParameters['SHOW_FROM_SECTION'] = array(
+		'PARENT' => 'BIG_DATA_SETTINGS',
+		'NAME' => Loc::getMessage('CP_BCS_TPL_SHOW_FROM_SECTION'),
+		'TYPE' => 'CHECKBOX',
+		'DEFAULT' => 'N'
+	);
+}
+
 $arTemplateParameters['USE_ENHANCED_ECOMMERCE'] = array(
 	'PARENT' => 'ANALYTICS_SETTINGS',
 	'NAME' => Loc::getMessage('CP_BCS_TPL_USE_ENHANCED_ECOMMERCE'),

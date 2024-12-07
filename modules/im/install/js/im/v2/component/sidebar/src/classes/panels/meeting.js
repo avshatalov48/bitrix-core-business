@@ -10,7 +10,6 @@ import type { JsonObject } from 'main.core';
 import type { RestClient } from 'rest.client';
 
 const REQUEST_ITEMS_LIMIT = 50;
-
 export class Meeting
 {
 	store: Store;
@@ -18,7 +17,6 @@ export class Meeting
 	chatId: number;
 	userManager: UserManager;
 	restClient: RestClient;
-
 	constructor({ dialogId }: {dialogId: string})
 	{
 		this.store = Core.getStore();
@@ -97,7 +95,9 @@ export class Meeting
 
 	updateModels(resultData): Promise
 	{
-		const { list, users } = resultData;
+		const { list, users, tariffRestrictions = {} } = resultData;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
 
 		const hasNextPage = list.length === REQUEST_ITEMS_LIMIT;
 		const lastId = getLastElementId(list);
@@ -108,6 +108,7 @@ export class Meeting
 			meetings: list,
 			hasNextPage,
 			lastId,
+			isHistoryLimitExceeded,
 		});
 
 		return Promise.all([setMeetingsPromise, addUsersPromise]);

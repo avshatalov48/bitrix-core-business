@@ -168,17 +168,30 @@ abstract class EntityPropertyValueCollection extends EntityCollection
 	 */
 	public function getAttribute($name)
 	{
+		$selectedEntityPropertyValueList = [];
+
 		/** @var EntityPropertyValue $item */
 		foreach ($this->collection as $item)
 		{
 			$property = $item->getPropertyObject();
 			if ($property->getField($name) === 'Y')
 			{
-				return $item;
+				$selectedEntityPropertyValueList[] = $item;
 			}
 		}
 
-		return null;
+		if (count($selectedEntityPropertyValueList) > 1)
+		{
+			foreach ($selectedEntityPropertyValueList as $item)
+			{
+				if (!empty($item->getValue()))
+				{
+					return $item;
+				}
+			}
+		}
+
+		return $selectedEntityPropertyValueList[0] ?? null;
 	}
 
 	/**

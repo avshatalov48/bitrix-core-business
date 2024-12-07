@@ -463,28 +463,12 @@ class Post
 
 	static editSpacesPost(postId: number, groupId: number)
 	{
-		if (Type.isUndefined(window.listPostForms))
-		{
-			window.listPostForms = new Map();
-		}
+		const postForm = new PostForm({
+			postId,
+			groupId,
+		});
 
-		if (window.listPostForms.has(postId))
-		{
-			const postForm: PostForm = window.listPostForms.get(postId);
-
-			postForm.show();
-		}
-		else
-		{
-			const postForm = new PostForm({
-				postId,
-				groupId,
-			});
-
-			window.listPostForms.set(postId, postForm);
-
-			postForm.show();
-		}
+		postForm.show();
 	}
 }
 

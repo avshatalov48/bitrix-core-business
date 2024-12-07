@@ -54,7 +54,7 @@ class CIMNotifySchema
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)
 					),
 					"openChat" => Array(
-						"NAME" => GetMessage('IM_NS_OPEN_NEW'),
+						"NAME" => GetMessage('IM_NS_OPEN_NEW_MSGVER_1'),
 						"MAIL" => 'N',
 						"PUSH" => 'Y',
 						"DISABLED" => Array(IM_NOTIFY_FEATURE_SITE, IM_NOTIFY_FEATURE_XMPP, IM_NOTIFY_FEATURE_MAIL)

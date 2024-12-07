@@ -33,7 +33,7 @@ class QrCodeAuth extends Main\Engine\Controller
 		return true;
 	}
 
-	public function pushTokenAction($siteId, $uniqueId, $channelTag, $redirectUrl = '')
+	public function pushTokenAction(string $siteId, string $uniqueId, string $channelTag, string $redirectUrl = '')
 	{
 		$this->pushToken($siteId, $uniqueId, $channelTag, $redirectUrl);
 	}
@@ -59,14 +59,16 @@ class QrCodeAuth extends Main\Engine\Controller
 
 	/**
 	 * Adds a token and sends a message to p&p.
-	 * @param $siteId
-	 * @param $uniqueId
+	 *
+	 * @param string $siteId
+	 * @param string $uniqueId
 	 * @param string $channelTag
 	 * @param string $redirectUrl
-	 * @param null $currentUrl
+	 * @param string|null $currentUrl
+	 *
 	 * @return bool|null
 	 */
-	public function pushToken($siteId, $uniqueId, $channelTag, $redirectUrl = '', $currentUrl = null)
+	public function pushToken(string $siteId, string $uniqueId, string $channelTag, string $redirectUrl = '', ?string $currentUrl = null)
 	{
 		if ($siteId == '' || $uniqueId == '' || $channelTag == '')
 		{

@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/catalog_import.php");
 
 class CCatalogImport extends CAllCatalogImport
@@ -13,7 +14,7 @@ class CCatalogImport extends CAllCatalogImport
 		$arInsert = $DB->PrepareInsert("b_catalog_export", $arFields);
 
 		$strSql = "insert into b_catalog_export(".$arInsert[0].") values(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = (int)$DB->LastID();
 
@@ -36,7 +37,7 @@ class CCatalogImport extends CAllCatalogImport
 		if (!empty($strUpdate))
 		{
 			$strSql = "update b_catalog_export set ".$strUpdate." where ID = ".$ID." and IS_EXPORT = 'N'";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		return $ID;

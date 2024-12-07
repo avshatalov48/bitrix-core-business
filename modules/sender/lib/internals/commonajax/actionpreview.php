@@ -83,14 +83,7 @@ class ActionPreview extends CommonAction
 			'CAN_EDIT_PHP' => $canEditPhp,
 			'CAN_USE_LPA' => $canUseLpa,
 			'SITE' => $request->get('site_id') ?: SITE_ID,
-			'HTML' => ($html && Main\Text\Encoding::detectUtf8($html))
-				? Main\Text\Encoding::convertEncoding(
-					$html,
-					'UTF-8',
-					SITE_CHARSET
-					)
-				: $html
-			,
+			'HTML' => $html,
 			'FIELDS' => array_merge($fieldsData, array(
 				'SENDER_CHAIN_CODE' => 'sender_chain_item_0',
 				'UNSUBSCRIBE_LINK' => $tracker->getLink()

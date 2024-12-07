@@ -67,6 +67,17 @@
 			"extranet": {
 				"value": "{color.palette.orange.60}"
 			},
+			"copilot": {
+				"dark": {
+					"value": "#682ac6"
+				},
+				"secondary": {
+					"value": "#b095dc"
+				},
+				"primary": {
+					"value": "#8e52ec"
+				}
+			},
 			"text": {
 				"primary": {
 					"value": "{color.palette.black.base}"

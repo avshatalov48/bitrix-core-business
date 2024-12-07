@@ -134,7 +134,7 @@ export const ParserIcon = {
 			}
 			else
 			{
-				attachDescription = Parser.purifyText(attachDescription, {showPhraseMessageWasDeleted: false});
+				attachDescription = Parser.purifyText(attachDescription);
 			}
 		}
 		else

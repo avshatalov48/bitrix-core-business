@@ -9,7 +9,6 @@ $MESS["FORMATNAME_NONAME"] = "Untitled";
 $MESS["INFO_REQ"] = "You have requested your registration information.";
 $MESS["LIMIT_USERS_COUNT"] = "Attention! The number of users exceeds the license quota. You have to obtain more licenses. Please contact the technical support department.";
 $MESS["LOGIN_BLOCK"] = "Your login is blocked";
-$MESS["LOGIN_NOT_FOUND1"] = "User not found";
 $MESS["LOGIN_WHITESPACE"] = "Login can not start and end with a space.";
 $MESS["MAIN_FUNCTION_REGISTER_CAPTCHA"] = "Word for protecting against automatic registration is entered incorrectly";
 $MESS["MAIN_FUNCTION_REGISTER_NA_INADMIN"] = "You cannot use function CUser::Register in ADMIN_SECTION!";

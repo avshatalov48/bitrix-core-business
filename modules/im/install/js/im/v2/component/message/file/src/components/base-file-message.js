@@ -1,6 +1,4 @@
-import { Type } from 'main.core';
-
-import { DefaultMessageContent, ReactionSelector, MessageHeader } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, MessageHeader, MessageFooter } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 import { FileType } from 'im.v2.const';
 
@@ -18,8 +16,8 @@ export const BaseFileMessage = {
 		BaseMessage,
 		DefaultMessageContent,
 		BaseFileItem,
-		ReactionSelector,
 		MessageHeader,
+		MessageFooter,
 	},
 	props: {
 		item: {
@@ -48,10 +46,6 @@ export const BaseFileMessage = {
 
 			return this.$store.getters['files/get'](firstFileId, true);
 		},
-		canSetReactions(): boolean
-		{
-			return Type.isNumber(this.message.id);
-		},
 	},
 	created()
 	{
@@ -63,9 +57,9 @@ export const BaseFileMessage = {
 	},
 	methods:
 	{
-		onOpenContextMenu(event: PointerEvent)
+		onOpenContextMenu({ event, fileId }: { event: PointerEvent, fileId: number })
 		{
-			const context = { dialogId: this.dialogId, ...this.message };
+			const context = { dialogId: this.dialogId, fileId, ...this.message };
 			this.contextMenu.openMenu(context, event.target);
 		},
 	},
@@ -75,13 +69,13 @@ export const BaseFileMessage = {
 				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
 				<BaseFileItem
 					:key="messageFile.id"
-					:item="messageFile"
+					:id="messageFile.id"
 					:messageId="message.id"
 					@openContextMenu="onOpenContextMenu"
 				/>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
+			<MessageFooter :item="item" :dialogId="dialogId" />
 		</BaseMessage>
 	`,
 };

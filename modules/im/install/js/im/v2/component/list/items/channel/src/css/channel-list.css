@@ -1,0 +1,43 @@
+.bx-im-list-channel__container {
+	--im-list-channel__background-color_pinned-section: #f8fafb;
+	--im-list-channel__background-color_pinned-section-border: var(--ui-color-palette-gray-10);
+	--im-list-channel__font-color_empty-title: var(--im-color-palette-gray-50);
+
+	--im-list-channel__background-color: var(--im-color-palette-white-base);
+
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
+.bx-im-list-channel__scroll-container {
+	flex-grow: 1;
+	overflow: hidden;
+	overflow-y: scroll;
+	background-color: var(--im-list-channel__background-color)
+}
+
+.bx-im-list-channel__empty {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+
+	margin-top: 43px;
+}
+
+.bx-im-list-channel__empty_icon {
+	width: 24px;
+	height: 24px;
+	margin-right: 8px;
+	background-image: url('./images/empty.svg');
+}
+
+.bx-im-list-channel__empty_text {
+	font: var(--im-font-size-md) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-list-channel__font-color_empty-title);
+}
+
+.bx-im-list-channel__general_container {
+	margin: 4px 4px 6px 4px;
+}

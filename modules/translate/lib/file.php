@@ -633,14 +633,14 @@ class File extends Translate\IO\File implements \Iterator, \Countable, \ArrayAcc
 			$phraseId = StringHelper::escapePhp($phraseId, '"', "\\\\");
 			if (StringHelper::hasPhpTokens($phraseId, '"'))
 			{
-				$this->addError(new Main\Error("Phrase code contains php tokens"));
+				$this->addError(new Main\Error("Phrase code contains php tokens", 'ERROR_PHP_TOKEN_CODE', ['phraseId' => $phraseId]));
 				return false;
 			}
 
 			$phrase = StringHelper::escapePhp($phrase, $enclosure);
 			if (StringHelper::hasPhpTokens($phrase, $enclosure))
 			{
-				$this->addError(new Main\Error("Phrase contains php tokens"));
+				$this->addError(new Main\Error("Phrase contains php tokens", 'ERROR_PHP_TOKEN_PHRASE', ['phraseId' => $phraseId]));
 				return false;
 			}
 

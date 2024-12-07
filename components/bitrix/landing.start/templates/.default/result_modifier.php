@@ -60,7 +60,7 @@ $disableFrame = $this->getPageName() == 'landing_view';
 
 ob_start();
 ?>
-<script type="text/javascript">
+<script>
 	BX.message({
 		LANDING_TPL_JS_PAY_TARIFF_TITLE: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF_TITLE'));?>',
 		LANDING_TPL_JS_PAY_TARIFF: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_JS_PAY_TARIFF'));?>'
@@ -103,7 +103,7 @@ elseif ($request->get('IFRAME') == 'N')
 		'IFRAME'
 	));
 	?>
-	<script type="text/javascript">
+	<script>
 		window.top.location.href = "<?= \CUtil::JSEscape($redirect->getUri());?>";
 	</script>
 	<?
@@ -251,7 +251,8 @@ elseif (in_array($this->getPageName(), ['template', 'site_show']))
 		if (
 			$arParams['TYPE'] === 'STORE'
 			&& $arResult['ACCESS_SITE_NEW'] == 'Y'
-			&& \Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog') === 'Y'
+			&& \Bitrix\Main\Loader::includeModule('catalog')
+			&& \Bitrix\Catalog\Config\State::isExternalCatalog()
 		)
 		{
 			$button['DISABLED'] = true;
@@ -289,7 +290,7 @@ if (
 )
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function()
 		{
 			if (typeof landingAgreementPopup !== 'undefined')

@@ -23,8 +23,6 @@ use Bitrix\Seo\Service;
 Loader::includeModule('seo');
 Loader::includeModule('socialservices');
 
-CUtil::JSPostUnescape();
-
 Loc::loadMessages(__DIR__.'/../include.php');
 Loc::loadMessages(__DIR__.'/../admin/seo_adv.php');
 

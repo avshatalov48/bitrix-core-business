@@ -1514,20 +1514,31 @@ this.BX = this.BX || {};
 	          padding: '10px'
 	        },
 	        children: [main_core.Dom.create('SPAN', {
-	          html: main_core.Loc.getMessage('MPF_MENTION_TASKS_LIMIT').replace('#A_BEGIN#', '<a href="javascript:void(0);" onclick="BX.Main.PostFormTasksLimit.onClickTasksLimitPopupSlider();">').replace('#A_END#', '</a>')
+	          html: main_core.Loc.getMessage('MPF_MENTION_TASKS_LIMIT').replace('#A_BEGIN#', '<a href="javascript:void(0);" onclick="BX.Main.PostFormTasksLimit.onClickTasksLimitPopupSlider(this);">').replace('#A_END#', '</a>')
 	        })]
 	      });
 	    }
 	  }, {
 	    key: "onClickTasksLimitPopupSlider",
-	    value: function onClickTasksLimitPopupSlider() {
-	      this.hidePopup();
-	      BX.UI.InfoHelper.show('limit_tasks_observers_participants', {
-	        isLimit: true,
-	        limitAnalyticsLabels: {
-	          module: 'tasks',
-	          source: 'postForm',
-	          subject: 'auditor'
+	    value: function onClickTasksLimitPopupSlider(bindElement) {
+	      var _this = this;
+	      BX.Runtime.loadExtension('ui.info-helper').then(function (_ref) {
+	        var FeaturePromotersRegistry = _ref.FeaturePromotersRegistry;
+	        if (FeaturePromotersRegistry) {
+	          FeaturePromotersRegistry.getPromoter({
+	            code: 'limit_tasks_observers_participants',
+	            bindElement: bindElement
+	          }).show();
+	        } else {
+	          _this.hidePopup();
+	          BX.UI.InfoHelper.show('limit_tasks_observers_participants', {
+	            isLimit: true,
+	            limitAnalyticsLabels: {
+	              module: 'tasks',
+	              source: 'postForm',
+	              subject: 'auditor'
+	            }
+	          });
 	        }
 	      });
 	    }
@@ -3669,8 +3680,7 @@ window.BXfpdOnDialogClose = function (params)
 						options: {
 							emailUsers: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
 							inviteGuestLink: (BX.type.isBoolean(params.allowSearchEmailUsers) ? params.allowSearchEmailUsers : false),
-							myEmailUsers: true,
-							analyticsSource: 'stream'
+							myEmailUsers: true
 						}
 					},
 					{

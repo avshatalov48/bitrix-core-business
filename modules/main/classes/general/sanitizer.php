@@ -108,7 +108,7 @@
 						},
 						'content' => function($value)
 						{
-							return !preg_match("#[^\\s\\w\\-\\#\\.;]#i" . BX_UTF_PCRE_MODIFIER, $value);
+							return !preg_match("#[^\\s\\w\\-\\#\\.;]#iu", $value);
 						}
 					)
 			));
@@ -422,11 +422,11 @@
 				case 'src':
 				case 'href':
 				case 'data-url':
-					if(!preg_match("#^(http://|https://|ftp://|file://|mailto:|callto:|skype:|tel:|sms:|\\#|/)#i".BX_UTF_PCRE_MODIFIER, $attrValue))
+					if(!preg_match("#^(http://|https://|ftp://|file://|mailto:|callto:|skype:|tel:|sms:|\\#|/)#iu", $attrValue))
 					{
 						$arAttr[3] = 'http://' . $arAttr[3];
 					}
-					$valid = (!preg_match("#javascript:|data:|[^\\w".$this->localAlph."a-zA-Z:/\\.=@;,!~\\*\\&\\#\\)(%\\s\\+\$\\?\\-\\[\\]]#i".BX_UTF_PCRE_MODIFIER, $attrValue))
+					$valid = (!preg_match("#javascript:|data:|[^\\w".$this->localAlph."a-zA-Z:/\\.=@;,!~\\*\\&\\#\\)(%\\s\\+\$\\?\\-\\[\\]]#iu", $attrValue))
 							? true : false;
 					break;
 
@@ -434,24 +434,24 @@
 				case 'width':
 				case 'cellpadding':
 				case 'cellspacing':
-					$valid = !preg_match("#^[^0-9\\-]+(px|%|\\*)*#i".BX_UTF_PCRE_MODIFIER, $attrValue)
+					$valid = !preg_match("#^[^0-9\\-]+(px|%|\\*)*#iu", $attrValue)
 							? true : false;
 					break;
 
 				case 'title':
 				case 'alt':
-					$valid = !preg_match("#[^\\w".$this->localAlph."\\.\\?!,:;\\s\\-]#i".BX_UTF_PCRE_MODIFIER, $attrValue)
+					$valid = !preg_match("#[^\\w".$this->localAlph."\\.\\?!,:;\\s\\-]#iu", $attrValue)
 							? true : false;
 					break;
 
 				case 'style':
 					$attrValue = str_replace('&quot;', '',  $attrValue);
-					$valid = !preg_match("#(behavior|expression|javascript)#i".BX_UTF_PCRE_MODIFIER, $attrValue) && !preg_match("#[^\\/\\w\\s)(!%,:\\.;\\-\\#\\']#i".BX_UTF_PCRE_MODIFIER, $attrValue)
+					$valid = !preg_match("#(behavior|expression|javascript)#iu", $attrValue) && !preg_match("#[^\\/\\w\\s)(!%,:\\.;\\-\\#\\']#iu", $attrValue)
 							? true : false;
 					break;
 
 				case 'coords':
-					$valid = !preg_match("#[^0-9\\s,\\-]#i".BX_UTF_PCRE_MODIFIER, $attrValue)
+					$valid = !preg_match("#[^0-9\\s,\\-]#iu", $attrValue)
 							? true : false;
 					break;
 
@@ -465,7 +465,7 @@
 					}
 					else
 					{
-						$valid = !preg_match("#[^\\s\\w" . $this->localAlph . "\\-\\#\\.\/;]#i" . BX_UTF_PCRE_MODIFIER, $attrValue)
+						$valid = !preg_match("#[^\\s\\w" . $this->localAlph . "\\-\\#\\.\/;]#iu", $attrValue)
 								? true : false;
 					}
 					break;
@@ -570,11 +570,11 @@
 		protected function splitHtml($html)
 		{
 			$result = [];
-			$arData = preg_split('/(<[^<>]+>)/si'.BX_UTF_PCRE_MODIFIER, $html, -1, PREG_SPLIT_DELIM_CAPTURE);
+			$arData = preg_split('/(<[^<>]+>)/siu', $html, -1, PREG_SPLIT_DELIM_CAPTURE);
 
 			foreach($arData as $i => $chunk)
 			{
-				$isTag = $i % 2 || (mb_substr($chunk, 0, 1) == '<' && mb_substr($chunk, -1) == '>');
+				$isTag = $i % 2 || (str_starts_with($chunk, '<') && str_ends_with($chunk, '>'));
 
 				if ($isTag)
 				{
@@ -650,7 +650,7 @@
 				elseif($seg[$i]['segType'] == 'tag')
 				{
 					//find tag type (open/close), tag name, attributies
-					preg_match('#^<\s*(/)?\s*([a-z0-9]+)(.*?)>$#si'.BX_UTF_PCRE_MODIFIER, $seg[$i]['value'], $matches);
+					preg_match('#^<\s*(/)?\s*([a-z0-9]+)(.*?)>$#siu', $seg[$i]['value'], $matches);
 					$seg[$i]['tagType'] = !empty($matches[1]) ? 'close' : 'open';
 					$seg[$i]['tagName'] = mb_strtolower($matches[2] ?? '');
 
@@ -886,7 +886,7 @@
 			$result = [];
 
 			preg_match_all(
-				'#([a-z0-9_-]+)\s*=\s*([\'\"]?)(?:\s*)(.*?)(?:\s*)\2(\s|$|(?:\/\s*$))+#is'.BX_UTF_PCRE_MODIFIER,
+				'#([a-z0-9_-]+)\s*=\s*([\'\"]?)(?:\s*)(.*?)(?:\s*)\2(\s|$|(?:\/\s*$))+#isu',
 				$attrData,
 				$result,
 				PREG_SET_ORDER
@@ -989,7 +989,7 @@
 					for($k=$segIndex-1;$k>$j;$k--)
 					{
 						//lt's save text-format
-						if($seg[$k]['segType'] == 'text' && !preg_match("#[^\n\r\s]#i".BX_UTF_PCRE_MODIFIER, $seg[$k]['value']))
+						if($seg[$k]['segType'] == 'text' && !preg_match("#[^\n\r\s]#iu", $seg[$k]['value']))
 							continue;
 
 						$seg[$k]['action'] = self::ACTION_DEL;

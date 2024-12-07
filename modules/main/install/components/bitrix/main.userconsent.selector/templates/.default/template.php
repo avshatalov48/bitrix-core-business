@@ -11,7 +11,7 @@ use Bitrix\Main\Localization\Loc;
 /** @var array $arParams */
 /** @var array $arResult */
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		new MainUserConsentSelectorManager(<?=\Bitrix\Main\Web\Json::encode(array(
 			'actionRequestUrl' => $arParams['ACTION_REQUEST_URL']

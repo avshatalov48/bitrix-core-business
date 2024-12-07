@@ -2,14 +2,14 @@ import { BitrixVue } from 'ui.vue3';
 import { AudioPlayer as UIAudioPlayer, AudioPlayerState } from 'ui.vue3.components.audioplayer';
 
 import { Utils } from 'im.v2.lib.utils';
-import { Avatar, AvatarSize } from '../registry';
+import { MessageAvatar, AvatarSize } from '../registry';
 
 import './audioplayer.css';
 
 // @vue/component
 export const AudioPlayer = BitrixVue.cloneComponent(UIAudioPlayer, {
 	name: 'AudioPlayer',
-	components: { Avatar },
+	components: { MessageAvatar },
 	props: {
 		file: {
 			type: Object,
@@ -17,6 +17,10 @@ export const AudioPlayer = BitrixVue.cloneComponent(UIAudioPlayer, {
 		},
 		authorId: {
 			type: Number,
+			required: true,
+		},
+		messageId: {
+			type: [String, Number],
 			required: true,
 		},
 		timelineType: {
@@ -95,7 +99,11 @@ export const AudioPlayer = BitrixVue.cloneComponent(UIAudioPlayer, {
 					'bx-im-audio-player__control-pause': !loading && state === State.play,
 				}]" @click="clickToButton"></button>
 				<div v-if="withAvatar" class="bx-im-audio-player__author-avatar-container">
-					<Avatar :dialogId="fileAuthorDialogId" :size="AvatarSize.XS"></Avatar>
+					<MessageAvatar 
+						:messageId="messageId"
+						:authorId="authorId"
+						:size="AvatarSize.XS" 
+					/>
 				</div>
 			</div>
 			<div class="bx-im-audio-player__timeline-container">

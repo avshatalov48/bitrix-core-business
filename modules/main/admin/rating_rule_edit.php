@@ -483,7 +483,7 @@ $tabControl->Show();
 $tabControl->ShowWarnings($tabControl->GetName(), $message);
 
 ?>
-<script language="javascript">
+<script>
 function jsTypeChanged(form_id)
 {
 	var _form = document.forms[form_id];

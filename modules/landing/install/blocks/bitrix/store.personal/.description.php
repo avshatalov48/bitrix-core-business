@@ -10,7 +10,7 @@ return array(
 	'block' => array(
 		'name' => Loc::getMessage('LD_BLOCK_STORE_CATALOG_PEROSNAL_NAME'),
 		'section' => array('store'),
-		'type' => 'null',
+		'system' => true,
 		'subtype' => 'menu',
 		'subtype_params' => array(
 			'selector' => '.landing-block-node-menu-list-item-link',

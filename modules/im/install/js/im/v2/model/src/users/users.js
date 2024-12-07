@@ -5,9 +5,9 @@ import { Core } from 'im.v2.application.core';
 import { Utils } from 'im.v2.lib.utils';
 import { UserStatusManager } from 'im.v2.lib.user-status';
 import { Color } from 'im.v2.const';
+import { formatFieldsWithConfig } from 'im.v2.model';
 
 import { BotsModel } from './nested-modules/bots';
-import { formatFieldsWithConfig } from '../utils/validate';
 import { userFieldsConfig } from './format/field-config';
 
 import type { User as ImModelUser } from '../type/user';
@@ -162,9 +162,10 @@ export class UsersModel extends BuilderModel
 			/** @function users/getPosition */
 			getPosition: (state) => (rawUserId) => {
 				const userId = Number.parseInt(rawUserId, 10);
-
 				const user: ImModelUser = state.collection[userId];
-				if (userId <= 0 || !user)
+				const isSupportBot = Core.getStore().getters['users/bots/isSupport'](userId);
+
+				if (userId <= 0 || !user || isSupportBot)
 				{
 					return '';
 				}

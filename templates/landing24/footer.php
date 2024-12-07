@@ -27,7 +27,7 @@ $APPLICATION->ShowProperty('FooterJS');
 <?php if (\Bitrix\Landing\Connector\Mobile::isMobileHit()):
 	Extension::load(['mobile_tools']);
 	?>
-<script type="text/javascript">
+<script>
 
 	if (typeof BXMPage !== 'undefined')
 	{

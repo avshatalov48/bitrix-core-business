@@ -27,8 +27,8 @@ $oAccess = CLearnAccess::GetInstance($USER->GetID());
 
 $LEARNING_RIGHT = false;
 if ($oAccess->IsBaseAccess(
-	CLearnAccess::OP_LESSON_CREATE 
-	| CLearnAccess::OP_LESSON_LINK_TO_PARENTS 
+	CLearnAccess::OP_LESSON_CREATE
+	| CLearnAccess::OP_LESSON_LINK_TO_PARENTS
 	| CLearnAccess::OP_LESSON_LINK_DESCENDANTS
 	)
 	||
@@ -65,7 +65,7 @@ if ( ! $LEARNING_RIGHT )
 
 
 set_time_limit(0);
-$STEP = intval($STEP);
+$STEP = isset($_REQUEST['STEP']) ? intval($_REQUEST['STEP']) : 0;
 $strError = "";
 if ($STEP <= 0)
 	$STEP = 1;
@@ -198,7 +198,7 @@ if ($STEP == 1):
 
 	<tr class="adm-detail-required-field">
 		<td class="adm-detail-valign-top"><?echo GetMessage("LEARNING_SITE_ID")?>:</td>
-		<td><?=CLang::SelectBoxMulti("SITE_ID", $SITE_ID);?></td>
+		<td><?=CLang::SelectBoxMulti("SITE_ID", $SITE_ID ?? '');?></td>
 	</tr>
 
 	<tr>
@@ -228,8 +228,7 @@ $tabControl->Buttons();
 <?$tabControl->End();?>
 </form>
 
-<script type="text/javascript">
-<!--
+<script>
 <?if ($STEP == 1):?>
 tabControl.SelectTab("edit1");
 tabControl.DisableTab("edit2");
@@ -237,7 +236,6 @@ tabControl.DisableTab("edit2");
 tabControl.SelectTab("edit2");
 tabControl.DisableTab("edit1");
 <?endif;?>
-//-->
 </script>
 
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

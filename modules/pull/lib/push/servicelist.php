@@ -25,7 +25,7 @@ class ServiceList
 			],
 			static::TYPE_GOOGLE_REV2 => [
 				'ID' => static::TYPE_GOOGLE_REV2,
-				'CLASS' => Service\GoogleInteractive::class,
+				'CLASS' => Service\FirebaseAndroid::class,
 				'NAME' => 'Google Cloud Messages rev.2'
 			],
 			static::TYPE_GOOGLE => [

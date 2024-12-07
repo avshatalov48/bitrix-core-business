@@ -3,12 +3,13 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2012 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Fields;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 
 /**
  * Class SiteDomainTable
@@ -28,6 +29,8 @@ use Bitrix\Main\ORM\Fields;
  */
 class SiteDomainTable extends Entity\DataManager
 {
+	use DeleteByFilterTrait;
+
 	public static function getTableName()
 	{
 		return 'b_lang_domain';
@@ -35,6 +38,9 @@ class SiteDomainTable extends Entity\DataManager
 
 	public static function getMap()
 	{
+		$connection = Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
 		return array(
 			'LID' => array(
 				'data_type' => 'string',
@@ -48,7 +54,7 @@ class SiteDomainTable extends Entity\DataManager
 				'data_type' => 'Bitrix\Main\Site',
 				'reference' => array('=this.LID' => 'ref.LID'),
 			),
-			new Fields\ExpressionField('DOMAIN_LENGTH', 'LENGTH(%s)', 'DOMAIN'),
+			new Fields\ExpressionField('DOMAIN_LENGTH', $helper->getLengthFunction('%s'), 'DOMAIN'),
 		);
 	}
 }

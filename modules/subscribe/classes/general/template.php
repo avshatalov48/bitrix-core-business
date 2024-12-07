@@ -213,7 +213,7 @@ class CPostingTemplate
 		}
 		//Update last execution time mark
 		$strSql = 'UPDATE b_list_rubric SET LAST_EXECUTED=' . $DB->CharToDateFunction($arRubric['END_TIME']) . ' WHERE ID=' . intval($arRubric['ID']);
-		$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$DB->Query($strSql);
 		return $ID;
 	}
 

@@ -58,9 +58,8 @@ class Storage implements Storable
 		));
 		if (mb_substr($newFile, -mb_strlen($file['tmp_name'])) == $file['tmp_name'])
 		{
-
 		}
-		else if (!$directory->create())
+		elseif (!$directory->create())
 		{
 			$result->addError(new Error(Loc::getMessage("BXU_TemporaryDirectoryIsNotCreated"), "BXU347.1"));
 		}
@@ -69,11 +68,7 @@ class Storage implements Storable
 			if (!((!file_exists($newFile) || @unlink($newFile)) && File::http()->download($file['tmp_url'], $newFile) !== false))
 				$result->addError(new Error(Loc::getMessage("BXU_FileIsNotUploaded"), "BXU347.2.1"));
 		}
-		else if (!file_exists($file['tmp_name']))
-		{
-			$result->addError(new Error(Loc::getMessage("BXU_FileIsNotUploaded"), "BXU347.2.1"));
-		}
-		else if (!file_exists($file['tmp_name']))
+		elseif (!file_exists($file['tmp_name']))
 		{
 			$result->addError(new Error(Loc::getMessage("BXU_FileIsNotUploaded"), "BXU347.2.2"));
 		}
@@ -81,7 +76,7 @@ class Storage implements Storable
 		{
 			$result = $this->copyChunk($newFile, $file);
 		}
-		else if (!((!file_exists($newFile) || @unlink($newFile)) && move_uploaded_file($file['tmp_name'], $newFile)))
+		elseif (!((!file_exists($newFile) || @unlink($newFile)) && move_uploaded_file($file['tmp_name'], $newFile)))
 		{
 			$result->addError(new Error(Loc::getMessage("BXU_FileIsNotUploaded"), "BXU347.2.4"));
 		}
@@ -199,7 +194,7 @@ class CloudStorage extends Storage implements Storable
 		$result = new Result();
 		$absPath = \CTempFile::getAbsoluteRoot();
 		$relativePath = $path;
-		if (mb_substr($path, 0, mb_strlen($absPath)) == $absPath && mb_strpos($path, "/bxu/") > 0)
+		if (str_starts_with($path, $absPath) && mb_strpos($path, "/bxu/") > 0)
 			$relativePath = mb_substr($path, mb_strpos($path, "/bxu/"));
 		$subdir = explode("/", trim($relativePath, "/"));
 		$filename = array_pop($subdir);

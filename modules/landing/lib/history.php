@@ -283,8 +283,7 @@ class History
 			$step = $this->step + 1;
 		}
 
-		$count = $this->getStackCount();
-		for ($i = $step; $i <= $count; $i++)
+		for ($i = $step; $i <= $stackCount; $i++)
 		{
 			if (!$this->deleteStep($step))
 			{
@@ -301,7 +300,7 @@ class History
 	 */
 	public function clearFuture(): bool
 	{
-		return $this->clearAfter($this->step + 1);
+		return $this->clearAfter($this->step);
 	}
 
 	/**

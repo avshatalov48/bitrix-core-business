@@ -1,4 +1,7 @@
 import { MessengerPopup } from 'im.v2.component.elements';
+import { ChatType } from 'im.v2.const';
+
+import type { ImModelChat } from 'im.v2.model';
 
 import { MentionPopupContent } from './components/mention-popup-content';
 
@@ -26,19 +29,47 @@ export const MentionPopup = {
 			type: String,
 			default: '',
 		},
-		searchChats: {
-			type: Boolean,
-			default: true,
-		},
-		exclude: {
-			type: Array,
-			default: () => [],
-		},
 	},
 	emits: ['close'],
 	computed:
 	{
 		POPUP_ID: () => POPUP_ID,
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		isCopilotType(): boolean
+		{
+			return this.dialog.type === ChatType.copilot;
+		},
+		needToShowMentionPopup(): boolean
+		{
+			if (this.isCopilotType)
+			{
+				return this.dialog.userCounter > 2;
+			}
+
+			return true;
+		},
+		excludedChatsFromMentions(): string[]
+		{
+			if (!this.isCopilotType)
+			{
+				return [];
+			}
+
+			const copilotUserId = this.$store.getters['users/bots/getCopilotUserId'];
+			if (copilotUserId && this.dialog.userCounter > 2)
+			{
+				return [copilotUserId.toString()];
+			}
+
+			return [];
+		},
+		searchChats(): boolean
+		{
+			return !this.isCopilotType;
+		},
 		config(): PopupOptions
 		{
 			return {
@@ -57,6 +88,7 @@ export const MentionPopup = {
 	},
 	template: `
 		<MessengerPopup
+			v-if="needToShowMentionPopup"
 			:config="config"
 			@close="$emit('close');"
 			:id="POPUP_ID"
@@ -65,7 +97,7 @@ export const MentionPopup = {
 			<MentionPopupContent 
 				:dialogId="dialogId"
 				:query="query"
-				:exclude="exclude"
+				:exclude="excludedChatsFromMentions"
 				:searchChats="searchChats"
 				@close="$emit('close');"
 				@adjustPosition="adjustPosition()"

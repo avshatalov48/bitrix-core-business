@@ -2,8 +2,7 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Entity;
+	Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 

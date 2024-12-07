@@ -64,7 +64,6 @@ class Conference
 	protected $hostId;
 	protected $users;
 	protected $broadcastMode;
-	protected $speakers;
 
 	protected function __construct()
 	{
@@ -127,15 +126,20 @@ class Conference
 
 	public function getUsers(): array
 	{
-		$users = Chat::getUsers($this->getChatId(), ['SKIP_EXTERNAL' => true]);
+		if (empty($this->users))
+		{
+			$users = Chat::getUsers($this->getChatId(), ['SKIP_EXTERNAL' => true]);
 
-		return array_map(static function($user){
-			return [
-				'id' => $user['id'],
-				'title' => $user['name'],
-				'avatar' => $user['avatar']
-			];
-		}, $users);
+			$this->users = array_map(static function ($user) {
+				return [
+					'id' => $user['id'],
+					'title' => $user['name'],
+					'avatar' => $user['avatar']
+				];
+			}, $users);
+		}
+
+		return $this->users;
 	}
 
 	public function getOwnerId(): ?int
@@ -341,7 +345,7 @@ class Conference
 		{
 			$currentUsers = array_map(static function($user){
 				return $user['id'];
-			}, $this->users);
+			}, $this->getUsers());
 
 			$result['NEW_USERS'] = array_diff($fields['USERS'], $currentUsers);
 			$result['DELETED_USERS'] = array_diff($currentUsers, $fields['USERS']);
@@ -579,7 +583,7 @@ class Conference
 		}
 
 		//delete alias
-		$deleteAliasResult = AliasTable::delete($this->getAliasId());
+		$deleteAliasResult = Alias::delete($this->getAliasId());
 		if (!$deleteAliasResult->isSuccess())
 		{
 			return $result->addErrors($deleteAliasResult->getErrors());
@@ -859,8 +863,6 @@ class Conference
 		$instance->hostName = $fields['HOST_NAME']." ".$fields['HOST_LAST_NAME'];
 		$instance->hostId = $fields['HOST'];
 		$instance->broadcastMode = $fields['IS_BROADCAST'] === 'Y';
-
-		$instance->users = $instance->getUsers();
 
 		return $instance;
 	}

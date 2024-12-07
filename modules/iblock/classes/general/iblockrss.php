@@ -32,8 +32,6 @@ class CAllIBlockRSS
 
 	public static function GetNewsEx($SITE, $PORT, $PATH, $QUERY_STR, $bOutChannel = False)
 	{
-		global $APPLICATION;
-
 		$text = "";
 
 		$cacheKey = md5($SITE.$PORT.$PATH.$QUERY_STR);
@@ -78,7 +76,7 @@ class CAllIBlockRSS
 
 				$text = preg_replace("/<!DOCTYPE.*?>/i", "", $text);
 				$text = preg_replace("/<"."\\?XML.*?\\?".">/i", "", $text);
-				$text = $APPLICATION->ConvertCharset($text, $rss_charset, SITE_CHARSET);
+				$text = \Bitrix\Main\Text\Encoding::convertEncoding($text, $rss_charset, SITE_CHARSET);
 			}
 		}
 

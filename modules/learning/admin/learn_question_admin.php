@@ -125,17 +125,20 @@ if ($lAdmin->EditAction()) // save from the list
 			{
 				$e = $APPLICATION->GetException();
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 // group and single actions processing
 if($arID = $lAdmin->GroupAction())
 {
-	if($_REQUEST['action_target']=='selected')
+	if(isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CLQuestion::GetList(Array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -148,7 +151,9 @@ if($arID = $lAdmin->GroupAction())
 			continue;
 		$ID = intval($ID);
 
-		switch($_REQUEST['action'])
+		$action = $_REQUEST['action'] ?? '';
+
+		switch($action)
 		{
 		case "delete":
 			@set_time_limit(0);
@@ -159,7 +164,10 @@ if($arID = $lAdmin->GroupAction())
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("LEARNING_DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "self":
 		case "deself":
@@ -171,7 +179,7 @@ if($arID = $lAdmin->GroupAction())
 				if ($arQuestionData['QUESTION_TYPE'] !== 'T')
 				{
 					$cl = new CLQuestion;
-					$arFields = Array("SELF"=>($_REQUEST['action']=="self"?"Y":"N"));
+					$arFields = Array("SELF"=>($action=="self"?"Y":"N"));
 					if(!$cl->Update($ID, $arFields))
 						if($e = $APPLICATION->GetException())
 							$lAdmin->AddGroupError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
@@ -184,7 +192,7 @@ if($arID = $lAdmin->GroupAction())
 		case "activate":
 		case "deactivate":
 			$cl = new CLQuestion;
-			$arFields = Array("ACTIVE"=>($_REQUEST['action']=="activate"?"Y":"N"));
+			$arFields = Array("ACTIVE"=>($action=="activate"?"Y":"N"));
 			if(!$cl->Update($ID, $arFields))
 				if($e = $APPLICATION->GetException())
 					$lAdmin->AddGroupError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
@@ -193,7 +201,7 @@ if($arID = $lAdmin->GroupAction())
 		case "required":
 		case "derequired":
 			$cl = new CLQuestion;
-			$arFields = Array("CORRECT_REQUIRED"=>($_REQUEST['action']=="required"?"Y":"N"));
+			$arFields = Array("CORRECT_REQUIRED"=>($action=="required"?"Y":"N"));
 			if(!$cl->Update($ID, $arFields))
 				if($e = $APPLICATION->GetException())
 					$lAdmin->AddGroupError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
@@ -244,7 +252,7 @@ foreach ($arQuestions as $arRes)
 	extract($arRes, EXTR_PREFIX_ALL , 'f');
 
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
-	$arStat = $arMultiStats[$f_ID];
+	$arStat = $arMultiStats[$f_ID] ?? [];
 
 	$row->AddCheckField("SELF");
 	$row->AddCheckField("ACTIVE");
@@ -259,7 +267,7 @@ foreach ($arQuestions as $arRes)
 
 	$index = '-';
 
-	if ($arStat["ALL_CNT"] > 0.1)
+	if (isset($arStat["ALL_CNT"]) && $arStat["ALL_CNT"] > 0.1)
 	{
 		$index = 100 * ($arStat["CORRECT_CNT"] / $arStat["ALL_CNT"]);
 		$index = round ($index, 1);
@@ -269,9 +277,9 @@ foreach ($arQuestions as $arRes)
 	$row->AddViewField("ANSWERS_STATS",
 		$index
 		. ' (<a href="learn_test_result_admin.php?lang=' . LANG
-		. '&set_filter=Y&filter_correct=Y&filter_answered=Y">' . $arStat["CORRECT_CNT"]
+		. '&set_filter=Y&filter_correct=Y&filter_answered=Y">' . ($arStat["CORRECT_CNT"] ?? 0)
 		. '</a> / <a href="learn_test_result_admin.php?lang=' . LANG . '">'
-		. $arStat["ALL_CNT"] . '</a>)');
+		. ($arStat["ALL_CNT"] ?? 0) . '</a>)');
 
 	$arActions = Array();
 

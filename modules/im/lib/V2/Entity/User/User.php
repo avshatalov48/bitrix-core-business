@@ -3,13 +3,16 @@
 namespace Bitrix\Im\V2\Entity\User;
 
 use Bitrix\Im\Common;
+use Bitrix\Im\Integration\Socialnetwork\Extranet;
 use Bitrix\Im\Model\RelationTable;
 use Bitrix\Im\Model\StatusTable;
+use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Chat\FavoriteChat;
 use Bitrix\Im\V2\Chat\PrivateChat;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\Department\Departments;
 use Bitrix\Im\V2\Rest\RestEntity;
+use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Loader;
@@ -26,7 +29,8 @@ class User implements RestEntity
 
 	public const PHONE_MOBILE = 'PERSONAL_MOBILE';
 	public const PHONE_WORK = 'WORK_PHONE';
-	public const  PHONE_INNER = 'INNER_PHONE';
+	public const PHONE_INNER = 'INNER_PHONE';
+	public const PERSONAL_PHONE = 'PERSONAL_PHONE';
 	public const ONLINE_DATA_SELECTED_FIELDS = [
 		'USER_ID' => 'ID',
 		'IDLE' => 'STATUS.IDLE',
@@ -175,20 +179,20 @@ class User implements RestEntity
 		return $createResult->getResult()['CHAT'];
 	}
 
-	final public function hasAccess(?int $idOtherUser = null): bool
+	final public function checkAccess(?int $idOtherUser = null): Result
 	{
-		$idOtherUser = $idOtherUser ?? Locator::getContext()->getUserId();
-
+		$result = new Result();
+		$idOtherUser ??= Locator::getContext()->getUserId();
 		$otherUser = User::getInstance($idOtherUser);
 
 		if (!$otherUser->isExist())
 		{
-			return false;
+			return $result->addError(new UserError(UserError::NOT_FOUND));
 		}
 
 		if ($this->getId() === $idOtherUser)
 		{
-			return true;
+			return $result;
 		}
 
 		if (isset($this->accessCache[$idOtherUser]))
@@ -196,35 +200,42 @@ class User implements RestEntity
 			return $this->accessCache[$idOtherUser];
 		}
 
-		$this->accessCache[$idOtherUser] = $this->checkAccessWithoutCaching($otherUser);
+		$this->accessCache[$idOtherUser] = $this->checkAccessInternal($otherUser);
 
 		return $this->accessCache[$idOtherUser];
 	}
 
-	protected function checkAccessWithoutCaching(self $otherUser): bool
+	protected function checkAccessInternal(self $otherUser): Result
 	{
+		$result = new Result();
+
 		if (!static::$moduleManager::isModuleInstalled('intranet'))
 		{
-			return $this->hasAccessBySocialNetwork($otherUser->getId());
+			if (!$this->hasAccessBySocialNetwork($otherUser->getId()))
+			{
+				$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+			}
+
+			return $result;
 		}
 
 		if ($otherUser->isExtranet())
 		{
-			$inGroup = \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($this->getId(), $otherUser->getId());
-			if ($inGroup)
+			$inGroup = Extranet::isUserInGroup(
+				$this->getId(),
+				$otherUser->getId(),
+				false
+			);
+
+			if (!$inGroup)
 			{
-				return true;
+				$result->addError(new ChatError(ChatError::ACCESS_DENIED));
 			}
 
-			return false;
+			return $result;
 		}
 
-		if ($this->isNetwork())
-		{
-			return true;
-		}
-
-		return true;
+		return $result;
 	}
 
 	final protected function hasAccessBySocialNetwork(int $idOtherUser): bool
@@ -313,8 +324,8 @@ class User implements RestEntity
 			'lastName' => $this->getLastName(),
 			'workPosition' => $this->getWorkPosition(),
 			'color' => $this->getColor(),
-			'avatar' => $this->getAvatar(),
-			'avatarHr' => $this->getAvatarHr(),
+			'avatar' => $this->getAvatar($option['FOR_REST'] ?? true),
+			'avatarHr' => $this->getAvatarHr($option['FOR_REST'] ?? true),
 			'gender' => $this->getGender(),
 			'birthday' => (string)$this->getBirthday(),
 			'extranet' => $this->isExtranet(),
@@ -336,6 +347,7 @@ class User implements RestEntity
 
 	public function getArray(array $option = []): array
 	{
+		$option['FOR_REST'] = false;
 		$userData = $this->toRestFormat($option);
 
 		$converter = new Converter(Converter::TO_SNAKE | Converter::TO_UPPER | Converter::KEYS);
@@ -446,15 +458,45 @@ class User implements RestEntity
 	{
 		$result = [];
 
-		foreach ([self::PHONE_MOBILE, self::PHONE_WORK, self::PHONE_INNER] as $phoneType)
+		foreach ([self::PHONE_MOBILE, self::PHONE_WORK, self::PHONE_INNER, self::PERSONAL_PHONE] as $phoneType)
 		{
 			if (isset($this->userData[$phoneType]) && $this->userData[$phoneType])
 			{
-				$result[$phoneType] = $this->userData[$phoneType];
+				$result[mb_strtolower($phoneType)] = $this->userData[$phoneType];
 			}
 		}
 
 		return $result;
+	}
+
+	public function getServices(): array
+	{
+		$result = [];
+
+		if (isset($this->userData['UF_ZOOM']) && !empty($this->userData['UF_ZOOM']))
+		{
+			$result['zoom'] = $this->userData['UF_ZOOM'];
+		}
+
+		if (isset($this->userData['UF_SKYPE_LINK']) && !empty($this->userData['UF_SKYPE_LINK']))
+		{
+			$result['skype'] = $this->userData['UF_SKYPE_LINK'];
+		}
+		elseif (isset($this->userData['UF_SKYPE']) && !empty($this->userData['UF_SKYPE']))
+		{
+			$result['skype'] = 'skype://' . $this->userData['UF_SKYPE'];
+		}
+
+		return $result;
+	}
+
+	/**
+	 * @deprecated
+	 * @return bool
+	 */
+	public function getPhoneDevice(): bool
+	{
+		return Loader::includeModule('voximplant') && $this->userData['UF_VI_PHONE'] === 'Y';
 	}
 
 	public function getColor(): string
@@ -641,5 +683,35 @@ class User implements RestEntity
 		}
 
 		return $url;
+	}
+
+	public static function getFirstAdmin(): int
+	{
+		$adminIds = [];
+
+		if (Loader::includeModule('bitrix24'))
+		{
+			$adminIds = \CBitrix24::getAllAdminId();
+		}
+		else
+		{
+			$res = \CGroup::getGroupUserEx(1);
+			while ($row = $res->fetch())
+			{
+				$adminIds[] = (int)$row["USER_ID"];
+			}
+		}
+
+		$resultAdminIds = [];
+		foreach ($adminIds as $adminId)
+		{
+			$user = User::getInstance((int)$adminId);
+			if (!$user->isExtranet() && $user->isActive())
+			{
+				$resultAdminIds[] = (int)$adminId;
+			}
+		}
+
+		return !empty($resultAdminIds) ? (int)min($resultAdminIds) : 0;
 	}
 }

@@ -358,7 +358,7 @@ class Comment extends BaseObject
 						$resLog = array();
 						foreach ($paramsRaw as $key => $val)
 						{
-							if ($val == $this->message[$key])
+							if (!isset($this->message[$key]) || $val == $this->message[$key])
 								continue;
 							else if ($key == "FILES")
 								$resLog["FILES"] = GetMessage("F_ATTACH_IS_MODIFIED");

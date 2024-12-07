@@ -1,0 +1,39 @@
+.display-absolute .workarea-content-paddings {
+	position: relative;
+	height: 100%;
+	width: 100%;
+}
+
+.calendar-open-events {
+	position: absolute;
+	inset: 0;
+	display: flex;
+}
+
+.calendar-open-events-list-events {
+	width: 100%;
+}
+
+.--calendar-scroll-bar {
+	overflow-y: scroll;
+	overflow-x: hidden;
+	padding-right: 2px;
+}
+
+.--calendar-scroll-bar::-webkit-scrollbar {
+	width: 5px;
+}
+
+.--calendar-scroll-bar:hover::-webkit-scrollbar-thumb {
+	background: var(--ui-color-base-30);
+}
+
+.--calendar-scroll-bar::-webkit-scrollbar-thumb {
+	border-radius: 4px;
+	background: var(--ui-color-base-20);
+}
+
+.--calendar-scroll-bar::-webkit-scrollbar-track {
+	border-radius: 4px;
+	background: var(--ui-color-base-02);
+}

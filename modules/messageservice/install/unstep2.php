@@ -21,7 +21,7 @@ if (isset($messageservice_installer_errors) && is_array($messageservice_installe
 }
 else
 {
-	echo CAdminMessage::ShowNote(Loc::getMessage("MOD_UNINST_OK"));
+	CAdminMessage::ShowNote(Loc::getMessage("MOD_UNINST_OK"));
 }
 ?>
 <form action="<?= $APPLICATION->GetCurPage()?>">

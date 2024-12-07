@@ -186,7 +186,7 @@ class CAllBlogComment
 				"	C.PUBLISH_STATUS, C.PATH, C.SHARE_DEST ".
 				"FROM b_blog_comment C ".
 				"WHERE C.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_COMMENT"]["BLOG_COMMENT_CACHE_".$ID] = $arResult;
@@ -623,7 +623,7 @@ class CAllBlogComment
 
 		return $DB->Query("SELECT C.ID, C.POST_ID
 							FROM b_blog_comment C
-							INNER JOIN b_blog_socnet_rights SR ON (C.POST_ID = SR.POST_ID AND SR.ENTITY_TYPE='".$type."' AND SR.ENTITY_ID=".$entity_id." AND SR.ENTITY = '".$type2.$entity_id."')", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							INNER JOIN b_blog_socnet_rights SR ON (C.POST_ID = SR.POST_ID AND SR.ENTITY_TYPE='".$type."' AND SR.ENTITY_ID=".$entity_id." AND SR.ENTITY = '".$type2.$entity_id."')");
 	}
 
 	public static function GetSocNetCommentPerms($postID = 0)
@@ -891,7 +891,7 @@ class CAllBlogComment
 
 		if (isset($arFields["POST_TEXT"]))
 		{
-			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is".BX_UTF_PCRE_MODIFIER, $arFields["POST_TEXT"], $arMention);
+			preg_match_all("/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu", $arFields["POST_TEXT"], $arMention);
 			if (!empty($arMention))
 			{
 				$arMentionedUserID = array_merge($arMentionedUserID, $arMention[1]);
@@ -943,7 +943,7 @@ class CAllBlogComment
 				&& strcasecmp(LANGUAGE_ID, 'DE') !== 0
 			)
 			{
-				$comment["DateFormated"] = ToLower($comment["DateFormated"]);
+				$comment["DateFormated"] = mb_strtolower($comment["DateFormated"]);
 			}
 
 			$comment["UF"] = $USER_FIELD_MANAGER->GetUserFields("BLOG_COMMENT", $commentId, LANGUAGE_ID);

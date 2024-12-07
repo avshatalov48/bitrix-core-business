@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main,
 	Bitrix\Catalog,
 	Bitrix\Sale\DiscountCouponsManager;
@@ -33,7 +34,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 		$arInsert = $DB->PrepareInsert("b_catalog_discount_coupon", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_discount_coupon(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = (int)$DB->LastID();
 
@@ -104,7 +105,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			}
 
 			$strSql = "UPDATE b_catalog_discount_coupon SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if (!empty($discountIds))
 			{
@@ -186,7 +187,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 		$row = $iterator->fetch();
 		unset($iterator);
 
-		$DB->Query("DELETE FROM b_catalog_discount_coupon WHERE ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_catalog_discount_coupon WHERE ID = ".$ID);
 
 		if (!empty($row))
 		{
@@ -235,7 +236,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			"CD.CREATED_BY, CD.MODIFIED_BY, ".$DB->DateToCharFunction('CD.DATE_CREATE', 'FULL').' as DATE_CREATE, '.
 			"CD.DESCRIPTION FROM b_catalog_discount_coupon CD WHERE CD.ID = ".$ID;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 
@@ -281,7 +282,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -310,7 +311,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -332,7 +333,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -414,7 +415,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 				if (!empty($strUpdate))
 				{
 					$strSql = "UPDATE b_catalog_discount_coupon SET ".$strUpdate." WHERE ID = ".$arCoupon['ID'];
-					$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strSql);
 					$mxResult = true;
 				}
 			}
@@ -441,7 +442,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 		if (empty($arCoupons))
 			return;
 		$strSql = "UPDATE b_catalog_discount_coupon SET ACTIVE='N' WHERE ID IN (".implode(', ', $arCoupons).") AND ONE_TIME='".self::TYPE_ONE_ORDER."'";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 	}
 
 	/**
@@ -477,7 +478,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 			if (!empty($arCouponID))
 			{
 				$strSql = "UPDATE b_catalog_discount_coupon SET ACTIVE='N' WHERE ID IN (".implode(', ', $arCouponID).") AND ONE_TIME='".self::TYPE_ONE_ORDER."' AND ACTIVE='Y'";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 			self::$arOneOrderCoupons = array();
 		}
@@ -506,7 +507,7 @@ class CCatalogDiscountCoupon extends CAllCatalogDiscountCoupon
 				return false;
 
 			$strSql = "select ID, COUPON from b_catalog_discount_coupon where COUPON='".$DB->ForSql($strCoupon)."' limit 1";
-			$rsCoupons = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsCoupons = $DB->Query($strSql);
 			if ($arCoupon = $rsCoupons->Fetch())
 				return true;
 		}

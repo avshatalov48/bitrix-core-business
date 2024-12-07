@@ -6704,7 +6704,7 @@ window._main_polyfill_core = true;
 	  });
 	  return Promise.all(result).then(exports => {
 	    return exports.reduce((acc, currentExports) => {
-	      if (Type.isPlainObject(currentExports)) {
+	      if (Type.isObject(currentExports)) {
 	        return {
 	          ...acc,
 	          ...currentExports
@@ -7414,6 +7414,12 @@ window._main_polyfill_core = true;
 	  }, {
 	    key: "subscribeFromOptions",
 	    value: function subscribeFromOptions(options, aliases, compatMode) {
+	      if (Type.isArrayFilled(options)) {
+	        options.forEach(events => {
+	          this.subscribeFromOptions(events);
+	        });
+	        return;
+	      }
 	      if (!Type.isPlainObject(options)) {
 	        return;
 	      }
@@ -8676,7 +8682,7 @@ window._main_polyfill_core = true;
 	          return element;
 	        }
 	        if ('text' in data && !Type.isNil(data.text)) {
-	          element.innerText = data.text;
+	          element.textContent = data.text;
 	          return element;
 	        }
 	        if ('html' in data && !Type.isNil(data.html)) {
@@ -9894,7 +9900,7 @@ window._main_polyfill_core = true;
 	    }, Object.create(null))
 	  };
 	}
-	const urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#(\w*))?/;
+	const urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#((?:[\w-?/:@.~!$&'()*+,;=]|%\w{2})*))?/;
 	function parseUrl(url) {
 	  const result = url.match(urlExp);
 	  if (Type.isArray(result)) {
@@ -10989,9 +10995,102 @@ window._main_polyfill_core = true;
 	}
 	babelHelpers.defineProperty(ZIndexManager, "stacks", new WeakMap());
 
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$2(obj, privateSet); privateSet.add(obj); }
+	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$2(obj, privateMap); privateMap.set(obj, value); }
+	function _checkPrivateRedeclaration$2(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+
+	// eslint-disable-next-line @bitrix24/bitrix24-rules/no-typeof
+	const IS_WEAK_REF_SUPPORTED = typeof WeakRef !== 'undefined';
+	var _refs = /*#__PURE__*/new WeakMap();
+	var _registry = /*#__PURE__*/new WeakMap();
+	var _cleanupCallback = /*#__PURE__*/new WeakSet();
+	let WeakRefMap = /*#__PURE__*/function () {
+	  function WeakRefMap() {
+	    babelHelpers.classCallCheck(this, WeakRefMap);
+	    _classPrivateMethodInitSpec$1(this, _cleanupCallback);
+	    _classPrivateFieldInitSpec$1(this, _refs, {
+	      writable: true,
+	      value: new Map()
+	    });
+	    _classPrivateFieldInitSpec$1(this, _registry, {
+	      writable: true,
+	      value: null
+	    });
+	    if (IS_WEAK_REF_SUPPORTED) {
+	      babelHelpers.classPrivateFieldSet(this, _registry, new FinalizationRegistry(_classPrivateMethodGet$1(this, _cleanupCallback, _cleanupCallback2).bind(this)));
+	    }
+	  }
+	  babelHelpers.createClass(WeakRefMap, [{
+	    key: "clear",
+	    value: function clear() {
+	      if (!IS_WEAK_REF_SUPPORTED) {
+	        babelHelpers.classPrivateFieldGet(this, _refs).clear();
+	        return;
+	      }
+	      babelHelpers.classPrivateFieldGet(this, _refs).forEach((ref, key) => {
+	        const value = ref === null || ref === void 0 ? void 0 : ref.deref();
+	        if (!Type.isUndefined(value)) {
+	          babelHelpers.classPrivateFieldGet(this, _registry).unregister(value);
+	        }
+	      });
+	      babelHelpers.classPrivateFieldGet(this, _refs).clear();
+	    }
+	  }, {
+	    key: "delete",
+	    value: function _delete(key) {
+	      if (!IS_WEAK_REF_SUPPORTED) {
+	        return babelHelpers.classPrivateFieldGet(this, _refs).delete(key);
+	      }
+	      const value = this.get(key);
+	      if (!Type.isUndefined(value)) {
+	        babelHelpers.classPrivateFieldGet(this, _registry).unregister(value);
+	      }
+	      return babelHelpers.classPrivateFieldGet(this, _refs).delete(key);
+	    }
+	  }, {
+	    key: "get",
+	    value: function get(key) {
+	      var _babelHelpers$classPr;
+	      if (!IS_WEAK_REF_SUPPORTED) {
+	        return babelHelpers.classPrivateFieldGet(this, _refs).get(key);
+	      }
+	      return (_babelHelpers$classPr = babelHelpers.classPrivateFieldGet(this, _refs).get(key)) === null || _babelHelpers$classPr === void 0 ? void 0 : _babelHelpers$classPr.deref();
+	    }
+	  }, {
+	    key: "has",
+	    value: function has(key) {
+	      var _babelHelpers$classPr2;
+	      if (!IS_WEAK_REF_SUPPORTED) {
+	        return babelHelpers.classPrivateFieldGet(this, _refs).has(key);
+	      }
+	      return !Type.isUndefined((_babelHelpers$classPr2 = babelHelpers.classPrivateFieldGet(this, _refs).get(key)) === null || _babelHelpers$classPr2 === void 0 ? void 0 : _babelHelpers$classPr2.deref());
+	    }
+	  }, {
+	    key: "set",
+	    value: function set(key, value) {
+	      if (!IS_WEAK_REF_SUPPORTED) {
+	        babelHelpers.classPrivateFieldGet(this, _refs).set(key, value);
+	        return this;
+	      }
+	      babelHelpers.classPrivateFieldGet(this, _refs).set(key, new WeakRef(value));
+	      babelHelpers.classPrivateFieldGet(this, _registry).register(value, key, value);
+	      return this;
+	    }
+	  }]);
+	  return WeakRefMap;
+	}();
+	function _cleanupCallback2(key) {
+	  const ref = babelHelpers.classPrivateFieldGet(this, _refs).get(key);
+	  if (ref && !ref.deref()) {
+	    babelHelpers.classPrivateFieldGet(this, _refs).delete(key);
+	  }
+	}
+
 	var collections = {
 	  OrderedArray,
-	  SettingsCollection
+	  SettingsCollection,
+	  WeakRefMap
 	};
 
 	function getElement(element) {
@@ -15240,30 +15339,16 @@ window._main_polyfill_core = true;
 		return true;
 	}
 
-	/* garbage collector */
-	function Trash()
-	{
-		var i,len;
+	window.addEventListener('pagehide', () => {
+		garbageCollectors.forEach(({ callback, context = window }) => {
+			try
+			{
+				callback.apply(context);
+			} catch (err) {}
+		});
+	});
 
-		for (i = 0, len = garbageCollectors.length; i<len; i++)
-		{
-			try {
-				garbageCollectors[i].callback.apply(garbageCollectors[i].context || window);
-				delete garbageCollectors[i];
-				garbageCollectors[i] = null;
-			} catch (e) {}
-		}
-	}
-
-	if(window.attachEvent) // IE
-		window.attachEvent("onunload", Trash);
-	else if(window.addEventListener) // Gecko / W3C
-		window.addEventListener('unload', Trash, false);
-	else
-		window.onunload = Trash;
-	/* \garbage collector */
-
-// set empty ready handler
+	// set empty ready handler
 	BX(BX.DoNothing);
 	window.BX = BX;
 

@@ -1,24 +1,27 @@
 import { Messenger } from 'im.public';
+import { CopilotRolesDialog } from 'im.v2.component.elements';
 import { CopilotList } from 'im.v2.component.list.items.copilot';
-import { Layout } from 'im.v2.const';
+import { ChatType, Layout } from 'im.v2.const';
+import { Analytics } from 'im.v2.lib.analytics';
 import { Logger } from 'im.v2.lib.logger';
 import { CopilotService } from 'im.v2.provider.service';
 
-import type { JsonObject } from 'main.core';
-
-// import { HeaderMenu } from './components/header-menu';
-// import { CreateChatMenu } from './components/create-chat-menu/create-chat-menu';
+import { RoleSelectorMini } from './components/role-selector-mini/role-selector-mini';
 
 import './css/copilot-container.css';
+
+import type { JsonObject } from 'main.core';
 
 // @vue/component
 export const CopilotListContainer = {
 	name: 'CopilotListContainer',
-	components: { CopilotList },
+	components: { CopilotList, RoleSelectorMini, CopilotRolesDialog },
 	emits: ['selectEntity'],
 	data(): JsonObject
 	{
 		return {
+			showRoleSelector: false,
+			showRolesDialog: false,
 			isCreatingChat: false,
 		};
 	},
@@ -26,20 +29,17 @@ export const CopilotListContainer = {
 	{
 		Logger.warn('List: Copilot container created');
 	},
+	deactivated()
+	{
+		this.showRolesDialog = false;
+		this.showRoleSelector = false;
+	},
 	methods:
 	{
 		async onCreateChatClick()
 		{
-			this.isCreatingChat = true;
-
-			const newDialogId = await this.getCopilotService().createChat()
-				.catch(() => {
-					this.isCreatingChat = false;
-					this.showCreateChatError();
-				});
-
-			this.isCreatingChat = false;
-			void Messenger.openCopilot(newDialogId);
+			Analytics.getInstance().onStartCreateNewChat(ChatType.copilot);
+			this.showRoleSelector = true;
 		},
 		onChatClick(dialogId)
 		{
@@ -60,9 +60,33 @@ export const CopilotListContainer = {
 
 			return this.copilotService;
 		},
+		async createChat(roleCode: string)
+		{
+			this.showRoleSelector = false;
+			this.showRolesDialog = false;
+			this.isCreatingChat = true;
+
+			const newDialogId = await this.getCopilotService().createChat({ roleCode })
+				.catch(() => {
+					this.isCreatingChat = false;
+					this.showCreateChatError();
+				});
+
+			this.isCreatingChat = false;
+			void Messenger.openCopilot(newDialogId);
+		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
+		},
+		onCopilotDialogSelectRole(role)
+		{
+			void this.createChat(role.code);
+		},
+		onOpenMainSelector()
+		{
+			this.showRoleSelector = false;
+			this.showRolesDialog = true;
 		},
 	},
 	template: `
@@ -72,6 +96,7 @@ export const CopilotListContainer = {
 				<div
 					class="bx-im-list-container-copilot__create-chat"
 					:class="{'--loading': isCreatingChat}"
+					ref="createChatButton"
 					@click="onCreateChatClick"
 				>
 					<div class="bx-im-list-container-copilot__create-chat_icon"></div>
@@ -82,6 +107,18 @@ export const CopilotListContainer = {
 					<CopilotList @chatClick="onChatClick" />
 				</div>
 			</div>
+			<RoleSelectorMini
+				v-if="showRoleSelector"
+				:bindElement="$refs.createChatButton"
+				@close="showRoleSelector = false"
+				@selectedRole="createChat"
+				@openMainSelector="onOpenMainSelector"
+			/>
+			<CopilotRolesDialog
+				v-if="showRolesDialog"
+				@selectRole="onCopilotDialogSelectRole"
+				@close="showRolesDialog = false"
+			/>
 		</div>
 	`,
 };

@@ -903,7 +903,7 @@ class File
 				}
 				else
 				{
-					header('X-Accel-Redirect: '.\Bitrix\Main\Text\Encoding::convertEncoding($fileData["tmp_name"], SITE_CHARSET, "UTF-8"));
+					header('X-Accel-Redirect: '.$fileData["tmp_name"]);
 				}
 			}
 			else if ($src)

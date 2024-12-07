@@ -28,6 +28,9 @@ class Cache
 	 */
 	public static function invalidateCache(int $id, array $fields = [], array $fieldsOld = []): EventResult
 	{
+		// TODO: spaces stub
+		return new EventResult(EventResult::SUCCESS, [], 'socialnetwork');
+
 		$userId = (int)($fields['USER_ID'] ?? 0);
 		if ($userId)
 		{

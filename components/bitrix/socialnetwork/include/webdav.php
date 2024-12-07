@@ -438,7 +438,7 @@ if (($_SERVER['REQUEST_METHOD'] == 'POST' || $_SERVER['REQUEST_METHOD'] == 'GET'
 			$result = array();
 			foreach ($res as $r)
 			{
-				$result[] = urlencode($APPLICATION->ConvertCharset($r, SITE_CHARSET, 'UTF-8'));
+				$result[] = urlencode($r);
 			}
 			$arResult["VARIABLES"]["PATH"] = implode("/", $result);
 			$ob->SetPath("/".$arResult["VARIABLES"]["PATH"]);

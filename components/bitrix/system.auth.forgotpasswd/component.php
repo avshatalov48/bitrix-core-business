@@ -1,4 +1,12 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?><?
+<?php
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
+
+/**
+ * @global CMain $APPLICATION
+ * @var array $arParams
+ */
 
 $arParamsToDelete = array(
 	"login",
@@ -31,14 +39,7 @@ if (
 	LocalRedirect($APPLICATION->GetCurPageParam("change_password=yes", $arParamsToDelete));
 }
 
-if(defined("AUTH_404"))
-{
-	$arResult["AUTH_URL"] = POST_FORM_ACTION_URI;
-}
-else
-{
-	$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("forgot_password=yes", $arParamsToDelete);
-}
+$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("forgot_password=yes", $arParamsToDelete);
 
 $arResult["BACKURL"] = $APPLICATION->GetCurPageParam("", $arParamsToDelete);
 $arResult["AUTH_AUTH_URL"] = $APPLICATION->GetCurPageParam("login=yes", $arParamsToDelete);

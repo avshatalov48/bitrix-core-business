@@ -140,9 +140,9 @@ class CHTTP
 			}
 		}
 
-		if($prefix == '' && mb_substr($str, 0, 1) == '&')
+		if($prefix == '' && str_starts_with($str, '&'))
 		{
-			$str = mb_substr($str, 1);
+			$str = substr($str, 1);
 		}
 
 		return $str;
@@ -369,7 +369,7 @@ class CHTTP
 					$this->status = intval($arFind[1]);
 				}
 			}
-			elseif(strpos($header, ':') !== false)
+			elseif(str_contains($header, ':'))
 			{
 				$arHeader = explode(':', $header, 2);
 				if ($arHeader[0] == 'Set-Cookie')

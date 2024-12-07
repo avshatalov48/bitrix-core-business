@@ -10,8 +10,6 @@ namespace Bitrix\Main;
 
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM;
-use Bitrix\Main\Type;
 
 /**
  * Entity representation of UserFields.

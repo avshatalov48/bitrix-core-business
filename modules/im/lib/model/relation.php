@@ -2,6 +2,7 @@
 namespace Bitrix\Im\Model;
 
 use Bitrix\Im\Internals\Query;
+use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 use Bitrix\Main\Application;
 use Bitrix\Main\Entity;
 use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
@@ -50,6 +51,7 @@ use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 class RelationTable extends Entity\DataManager
 {
 	use DeleteByFilterTrait;
+	use UpdateByFilterTrait;
 
 	/**
 	 * Returns DB table name for entity.
@@ -109,6 +111,11 @@ class RelationTable extends Entity\DataManager
 			),
 			'LAST_SEND_MESSAGE_ID' => array(
 				'data_type' => 'integer',
+			),
+			'REASON' => array(
+				'data_type' => 'string',
+				'default_value' => '',
+				'validation' => array(__CLASS__, 'validateReason'),
 			),
 			'LAST_FILE_ID' => array(
 				'data_type' => 'integer',
@@ -190,6 +197,18 @@ class RelationTable extends Entity\DataManager
 	 * @return array
 	 */
 	public static function validateMessageStatus()
+	{
+		return array(
+			new Entity\Validator\Length(null, 50),
+		);
+	}
+
+	/**
+	 * Returns validators for REASON field.
+	 *
+	 * @return array
+	 */
+	public static function validateReason()
 	{
 		return array(
 			new Entity\Validator\Length(null, 50),

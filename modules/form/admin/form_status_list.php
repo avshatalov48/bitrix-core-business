@@ -54,7 +54,7 @@ $old_module_version = CForm::IsOldVersion();
 $F_RIGHT = CForm::GetPermission($WEB_FORM_ID);
 if($F_RIGHT<25) $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-$cp_id = intval($cp_id);
+$cp_id = intval($_REQUEST['cp_id'] ?? 0);
 if ($cp_id>0 && check_bitrix_sessid() && $F_RIGHT >= 30)
 {
 	CFormStatus::Copy($cp_id);

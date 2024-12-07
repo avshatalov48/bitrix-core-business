@@ -19,8 +19,6 @@ $data = array();
 
 try
 {
-	CUtil::JSPostUnescape();
-
 	$request = Main\Context::getCurrent()->getRequest()->getPostList();
 	if($request['version'] == '2')
 		$data = CBitrixLocationSelectorStepsComponent::processSearchRequestV2($_REQUEST);

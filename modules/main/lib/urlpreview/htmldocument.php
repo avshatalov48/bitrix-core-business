@@ -436,7 +436,7 @@ class HtmlDocument
 	 */
 	protected function convertRelativeUriToAbsolute($uri)
 	{
-		if (strpos($uri, '//') === 0)
+		if (str_starts_with($uri, '//'))
 		{
 			$uri = $this->uri->getScheme().":".$uri;
 		}
@@ -458,7 +458,7 @@ class HtmlDocument
 		}
 		elseif (isset($pars['path']))
 		{
-			if (mb_substr($pars['path'], 0, 1) !== '/')
+			if (!str_starts_with($pars['path'], '/'))
 			{
 				$pathPrefix = preg_replace('/^(.+?)([^\/]*)$/', '$1', $this->uri->getPath());
 				$pars['path'] = $pathPrefix.$pars['path'];

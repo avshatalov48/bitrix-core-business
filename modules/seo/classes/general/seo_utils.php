@@ -15,7 +15,7 @@ class CSeoUtils
 			{
 				if (false !== ($pos = mb_strpos($param, '=')))
 				{
-					$param_name = ToLower(mb_substr($param, 0, $pos));
+					$param_name = mb_strtolower(mb_substr($param, 0, $pos));
 					if (
 						mb_substr($param_name, 0, 7) == 'bitrix_'
 						|| mb_substr($param_name, 0, 5) == 'show_'
@@ -92,25 +92,46 @@ class CSeoUtils
 	{
 		global $USER;
 
-		$arDirContent = array();
-		if($USER->CanDoFileOperation('fm_view_listing', array($site, $path)))
+		// for cron agents make fake user
+		if ($USER === null)
+		{
+			$USER = new \CUser();
+			if (!$USER->Authorize(1))
+			{
+				return [];
+			}
+
+			$isFakeUser = true;
+		}
+
+		$arDirContent = [];
+		if ($USER->CanDoFileOperation('fm_view_listing', array($site, $path)))
 		{
 			\Bitrix\Main\Loader::includeModule('fileman');
 
-			$arDirs = array();
-			$arFiles = array();
+			$arDirs = [];
+			$arFiles = [];
 
-			\CFileMan::GetDirList(array($site, $path), $arDirs, $arFiles, array(), array("NAME" => "asc"), "DF", $bLogical, true);
+			\CFileMan::GetDirList(
+				[$site, $path],
+				$arDirs,
+				$arFiles,
+				[],
+				["NAME" => "asc"],
+				"DF",
+				$bLogical,
+				true
+			);
 
 			$arDirContent_t = array_merge($arDirs, $arFiles);
-			for($i=0,$l = count($arDirContent_t);$i<$l;$i++)
+			for ($i = 0, $l = count($arDirContent_t); $i < $l; $i++)
 			{
 				$file = $arDirContent_t[$i];
 				$arPath = array($site, $file['ABS_PATH']);
-				if(
-					($file["TYPE"]=="F" && !$USER->CanDoFileOperation('fm_view_file',$arPath))
-					|| ($file["TYPE"]=="D" && !$USER->CanDoFileOperation('fm_view_listing',$arPath))
-					|| ($file["TYPE"]=="F" && $file["NAME"]==".section.php")
+				if (
+					($file["TYPE"] == "F" && !$USER->CanDoFileOperation('fm_view_file', $arPath))
+					|| ($file["TYPE"] == "D" && !$USER->CanDoFileOperation('fm_view_listing', $arPath))
+					|| ($file["TYPE"] == "F" && $file["NAME"] == ".section.php")
 				)
 				{
 					continue;
@@ -122,27 +143,39 @@ class CSeoUtils
 
 				$p = $f->getName();
 
-				if($f->isSystem()
-					|| $file['TYPE'] == 'F' && in_array($p, array("urlrewrite.php"))
-					|| $file['TYPE'] == 'D' && preg_match("/\/(bitrix|".\COption::getOptionString("main", "upload_dir", "upload").")\//", "/".$p."/")
+				if (
+					$f->isSystem()
+					|| $file['TYPE'] == 'F' && in_array($p, ["urlrewrite.php"])
+					|| $file['TYPE'] == 'D'
+					&& preg_match(
+						"/\/(bitrix|" . \COption::getOptionString("main", "upload_dir", "upload") . ")\//",
+						"/" . $p . "/"
+					)
 				)
 				{
 					continue;
 				}
 
-				$arFileData = array(
+				$arFileData = [
 					'NAME' => $bLogical ? $file['LOGIC_NAME'] : $p,
 					'FILE' => $p,
 					'TYPE' => $file['TYPE'],
 					'DATA' => $file,
-				);
+				];
 
-				if($arFileData['NAME'] == '')
+				if ($arFileData['NAME'] == '')
+				{
 					$arFileData['NAME'] = GetMessage('SEO_DIR_LOGICAL_NO_NAME');
+				}
 
 				$arDirContent[] = $arFileData;
 			}
 			unset($arDirContent_t);
+		}
+
+		if (isset($isFakeUser) && $isFakeUser === true)
+		{
+			unset($USER);
 		}
 
 		return $arDirContent;

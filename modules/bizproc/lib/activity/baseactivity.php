@@ -68,6 +68,11 @@ abstract class BaseActivity extends \CBPActivity
 
 	protected function convertPropertyValue(string $type, $value)
 	{
+		if ($value === null)
+		{
+			return null;
+		}
+
 		switch ($type)
 		{
 			case FieldType::INT:

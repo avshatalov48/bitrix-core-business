@@ -191,10 +191,10 @@ class AdminFilterOption extends Stepper
 				$newDateType = $this->getNewDateType($oldDateType, $dateValue);
 
 				$custom = false;
-				if (mb_substr($dateFieldId, -2) == "_1")
+				if (str_ends_with($dateFieldId, "_1"))
 				{
 					$custom = true;
-					$fieldId = mb_substr($dateFieldId, 0, mb_strlen($dateFieldId) - 2);
+					$fieldId = substr($dateFieldId, 0, -2);
 				}
 				else
 				{
@@ -203,13 +203,13 @@ class AdminFilterOption extends Stepper
 
 				if (!$custom)
 				{
-					if ((mb_substr($fieldId, -5) == "_from"))
+					if ((str_ends_with($fieldId, "_from")))
 					{
-						$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
+						$fieldId = substr($fieldId, 0, -5);
 					}
-					elseif ((mb_substr($fieldId, -3) == "_to"))
+					elseif ((str_ends_with($fieldId, "_to")))
 					{
-						$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
+						$fieldId = substr($fieldId, 0, -3);
 					}
 				}
 
@@ -237,9 +237,9 @@ class AdminFilterOption extends Stepper
 				$newFields[$ratioFields[$fieldId]."_quarter"] = "";
 				$newFields[$ratioFields[$fieldId]."_year"] = "";
 			}
-			elseif (mb_substr($fieldId, -2) === "_1")
+			elseif (str_ends_with($fieldId, "_1"))
 			{
-				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 2);
+				$fieldId = substr($fieldId, 0, -2);
 				if (array_key_exists($fieldId, $ratioFields) && array_key_exists($fieldId."_2", $oldFields) &&
 					!array_key_exists($fieldId."_FILTER_PERIOD", $oldFields))
 				{
@@ -255,9 +255,9 @@ class AdminFilterOption extends Stepper
 				$newFields[$ratioFields[$fieldId]."_from"] = $field["value"];
 				$newFields[$ratioFields[$fieldId]."_to"] = $field["value"];
 			}
-			elseif (mb_substr($fieldId, -6) === "_start")
+			elseif (str_ends_with($fieldId, "_start"))
 			{
-				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 6);
+				$fieldId = substr($fieldId, 0, -6);
 				if (array_key_exists($fieldId, $ratioFields) && array_key_exists($fieldId."_end", $oldFields) &&
 					!array_key_exists($fieldId."_FILTER_PERIOD", $oldFields))
 				{
@@ -266,15 +266,15 @@ class AdminFilterOption extends Stepper
 					$newFields[$ratioFields[$fieldId]."_end"] = $oldFields[$fieldId."_end"]["value"];
 				}
 			}
-			elseif ((bool)strtotime($field["value"]))
+			elseif (strtotime($field["value"]))
 			{
-				if ((mb_substr($fieldId, -5) == "_from"))
+				if ((str_ends_with($fieldId, "_from")))
 				{
-					$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
+					$fieldId = substr($fieldId, 0, -5);
 				}
-				elseif ((mb_substr($fieldId, -3) == "_to"))
+				elseif ((str_ends_with($fieldId, "_to")))
 				{
-					$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
+					$fieldId = substr($fieldId, 0, -3);
 				}
 				$from = "";
 				$to = "";
@@ -294,16 +294,16 @@ class AdminFilterOption extends Stepper
 					$newFields[$ratioFields[$fieldId]."_year"] = "";
 				}
 			}
-			elseif (mb_substr($fieldId, -5) == "_from" && !array_key_exists($fieldId."_FILTER_DIRECTION", $oldFields))
+			elseif (str_ends_with($fieldId, "_from") && !array_key_exists($fieldId."_FILTER_DIRECTION", $oldFields))
 			{
-				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
+				$fieldId = substr($fieldId, 0, -5);
 				$rangeType = (($oldFields[$fieldId."_from"] === $oldFields[$fieldId."_to"]) ? "exact" : "range");
 				$newFields[$ratioFields[$fieldId]."_numsel"] = $rangeType;
 				$newFields[$ratioFields[$fieldId]."_from"] = $field["value"];
 			}
-			elseif (mb_substr($fieldId, -3) == "_to")
+			elseif (str_ends_with($fieldId, "_to"))
 			{
-				$fieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
+				$fieldId = substr($fieldId, 0, -3);
 				if (!array_key_exists($fieldId."_from"."_FILTER_DIRECTION", $oldFields))
 				{
 					$rangeType = (($oldFields[$fieldId."_from"] === $oldFields[$fieldId."_to"]) ? "exact" : "range");

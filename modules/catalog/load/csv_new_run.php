@@ -888,7 +888,7 @@ if (empty($arRunErrors))
 					}
 				}
 
-				if ($MAX_EXECUTION_TIME > 0 && (getmicrotime() - START_EXEC_TIME) >= $MAX_EXECUTION_TIME)
+				if ($MAX_EXECUTION_TIME > 0 && (microtime(true) - START_EXEC_TIME) >= $MAX_EXECUTION_TIME)
 					break;
 			}
 			unset($arIBlockElement, $dbIBlockElement);

@@ -34,7 +34,7 @@ if (isset($photo_list_action) && $photo_list_action != "")
 			"CACHE_TYPE" => "N",
 			"CACHE_TIME" => 0,
 			"PATH_TO_USER" => $arParams["PATH_TO_USER"],
-			"FETCH_USER_ALIAS" => preg_match("/#user_alias#/i".BX_UTF_PCRE_MODIFIER, $arParams["PATH_TO_USER"])
+			"FETCH_USER_ALIAS" => preg_match("/#user_alias#/iu", $arParams["PATH_TO_USER"])
 		);
 
 		$arCommentsParams["COMMENTS_TYPE"] = (mb_strtolower($arParams["COMMENTS_TYPE"]) == "forum" ? "forum" : "blog");
@@ -73,7 +73,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'save_sort_order' && $arParams["PERMISSION"] >= "U")
 	{
-		CUtil::JSPostUnEscape();
 		if (is_array($_REQUEST['pio']))
 		{
 			CModule::IncludeModule("iblock");
@@ -89,7 +88,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'save_description' && $arParams["PERMISSION"] >= "U")
 	{
-		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
 		$arFields = Array("MODIFIED_BY" => $USER->GetID());
 
@@ -117,7 +115,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'activate' && $arParams["PERMISSION"] >= "X")
 	{
-		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
 		$bs = new CIBlockElement;
 		$ID = $bs->Update($arParams["ELEMENT_ID"], Array("MODIFIED_BY" => $USER->GetID(), "ACTIVE" => "Y"));
@@ -132,7 +129,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'rotate' && $_REQUEST['angle'] > 0 && $arParams["PERMISSION"] >= "U")
 	{
-		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
 		$arFilter = array(
 			"IBLOCK_ID" => $arParams["IBLOCK_ID"],
@@ -232,7 +228,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'delete' && $arParams["PERMISSION"] >= "U")
 	{
-		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
 		@set_time_limit(0);
 		$APPLICATION->ResetException();
@@ -260,7 +255,6 @@ if (isset($photo_list_action) && $photo_list_action != "")
 	}
 	elseif($photo_list_action == 'edit' && $arParams["PERMISSION"] >= "U")
 	{
-		CUtil::JSPostUnEscape();
 		CModule::IncludeModule("iblock");
 		if (intval($_REQUEST["SECTION_ID"]) > 0)
 			$arParams["SECTION_ID"] = intval($_REQUEST["SECTION_ID"]);

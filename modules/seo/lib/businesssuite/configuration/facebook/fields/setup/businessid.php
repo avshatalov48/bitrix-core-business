@@ -3,6 +3,7 @@
 namespace Bitrix\Seo\BusinessSuite\Configuration\Facebook\Fields\Setup;
 
 
+use Bitrix\Main\SystemException;
 use Bitrix\Seo\Service;
 use Bitrix\Seo\BusinessSuite\Configuration\Facebook\Fields;
 
@@ -16,10 +17,17 @@ final class BusinessId implements Fields\IField
 	{
 		if (!Service::isRegistered())
 		{
-			Service::register();
+			try
+			{
+				Service::register();
+			}
+			catch (SystemException $e)
+			{
+				return '';
+			}
 		}
 
-		return Service::getEngine()->getInterface()->getAppID();
+		return Service::getEngine()?->getInterface()?->getAppID();
 	}
 
 	/**

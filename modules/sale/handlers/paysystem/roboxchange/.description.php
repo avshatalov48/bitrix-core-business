@@ -9,17 +9,20 @@ PaySystem\Manager::includeHandler('Roboxchange');
 
 $isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_TRUE;
 
-$licensePrefix = Loader::includeModule('bitrix24') ? \CBitrix24::getLicensePrefix() : '';
-$portalZone = Loader::includeModule('intranet') ? CIntranetUtils::getPortalZone() : '';
+$isB24Included = Loader::includeModule('bitrix24');
+$isIntranetIncluded = Loader::includeModule('intranet');
 
-if (Loader::includeModule('bitrix24'))
+$licensePrefix = $isB24Included ? \CBitrix24::getLicensePrefix() : '';
+$portalZone = $isIntranetIncluded ? CIntranetUtils::getPortalZone() : '';
+
+if ($isB24Included)
 {
 	if (!in_array($licensePrefix, ['ru', 'kz'], true))
 	{
 		$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 	}
 }
-elseif (Loader::includeModule('intranet') && $portalZone !== 'ru')
+elseif ($isIntranetIncluded && $portalZone !== 'ru')
 {
 	$isAvailable = PaySystem\Manager::HANDLER_AVAILABLE_FALSE;
 }
@@ -29,6 +32,8 @@ $data = [
 	'SORT' => 500,
 	'HANDLER_MODE_LIST' => [
 		'bank_card' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE'),
+		'widget' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_WIDGET_MODE'),
+		'sbp' =>  Loc::getMessage('SALE_HPS_ROBOXCHANGE_SBP_MODE'),
 		'apple_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_APPLEPAY_MODE'),
 		'google_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_GOOGLEPAY_MODE'),
 		'samsung_pay' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SAMSUNGPAY_MODE'),
@@ -37,6 +42,14 @@ $data = [
 		'bank_card' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),
 			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_BANKCARD_MODE_PUBLIC_DESCRIPTION'),
+		],
+		'widget' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_WIDGET_MODE_MAIN_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_WIDGET_MODE_PUBLIC_DESCRIPTION'),
+		],
+		'sbp' => [
+			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SBP_MODE_MAIN_DESCRIPTION'),
+			'PUBLIC' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_SBP_MODE_PUBLIC_DESCRIPTION'),
 		],
 		'apple_pay' => [
 			'MAIN' => Loc::getMessage('SALE_HPS_ROBOXCHANGE_DESCRIPTION'),

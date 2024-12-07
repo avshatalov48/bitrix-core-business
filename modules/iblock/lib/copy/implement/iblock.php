@@ -34,18 +34,33 @@ class Iblock extends CopyImplementer
 		$this->child[] = $child;
 	}
 
+	/**
+	 * Set destination iblock type.
+	 *
+	 * @param string $targetIblockTypeId Iblock type id.
+	 * @return void
+	 */
 	public function setTargetIblockTypeId($targetIblockTypeId)
 	{
 		$this->targetIblockTypeId = $targetIblockTypeId;
 	}
 
+	/**
+	 * Set destination socialnetwork group, if exists.
+	 *
+	 * @param int $targetSocnetGroupId Socialnetwork group id.
+	 * @return void
+	 */
 	public function setTargetSocnetGroupId($targetSocnetGroupId)
 	{
 		$this->targetSocnetGroupId = $targetSocnetGroupId;
 	}
 
 	/**
-	 * @param mixed $cacheManager
+	 * Set cache manager object.
+	 *
+	 * @param mixed $cacheManager Cache manager object.
+	 * @return void
 	 */
 	public function setCacheManager(\CCacheManager $cacheManager): void
 	{
@@ -55,8 +70,8 @@ class Iblock extends CopyImplementer
 	/**
 	 * Adds iblock.
 	 *
-	 * @param Container $container
-	 * @param array $fields
+	 * @param Container $container Storage.
+	 * @param array $fields Fields list.
 	 * @return int|bool return iblock id or false.
 	 */
 	public function add(Container $container, array $fields)
@@ -70,13 +85,14 @@ class Iblock extends CopyImplementer
 		}
 		else
 		{
-			if ($iblockObject->LAST_ERROR)
+			$errorMessage = $iblockObject->getLastError();
+			if ($errorMessage)
 			{
-				$this->result->addError(new Error($iblockObject->LAST_ERROR, self::IBLOCK_COPY_ERROR));
+				$this->result->addError(new Error($errorMessage, self::IBLOCK_COPY_ERROR));
 			}
 			else
 			{
-				$this->result->addError(new Error("Unknown error", self::IBLOCK_COPY_ERROR));
+				$this->result->addError(new Error('Unknown error', self::IBLOCK_COPY_ERROR));
 			}
 		}
 
@@ -86,13 +102,19 @@ class Iblock extends CopyImplementer
 	/**
 	 * Returns iblock fields.
 	 *
-	 * @param Container $container
-	 * @param int $entityId
+	 * @param Container $container Storage.
+	 * @param int $entityId Iblock id.
 	 * @return array $fields
 	 */
 	public function getFields(Container $container, $entityId)
 	{
-		$query = \CIBlock::getList([], ["ID" => $entityId, "CHECK_PERMISSIONS" => "N"], true);
+		$query = \CIBlock::getList(
+			[],
+			[
+				'ID' => $entityId,
+				'CHECK_PERMISSIONS' => 'N',
+			]
+		);
 		$iblock = $query->fetch();
 		if ($iblock)
 		{
@@ -127,7 +149,7 @@ class Iblock extends CopyImplementer
 	/**
 	 * Preparing data before creating a new iblock.
 	 *
-	 * @param Container $container
+	 * @param Container $container Storage.
 	 * @param array $fields List iblock fields.
 	 * @return array $fields
 	 */
@@ -141,24 +163,24 @@ class Iblock extends CopyImplementer
 	/**
 	 * Starts copying children entities.
 	 *
-	 * @param Container $container
-	 * @param int $entityId
-	 * @param int $copiedEntityId
+	 * @param Container $container Storage.
+	 * @param int $entityId Source iblock id.
+	 * @param int $copiedEntityId Destination iblock id.
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public function copyChildren(Container $container, $entityId, $copiedEntityId)
 	{
 		$results = [];
 		$sectionsRatio = [];
 		$enumRatio = [];
+		$fieldRatio = [];
 		foreach ($this->child as $child)
 		{
 			if ($child instanceof ElementChild)
 			{
 				$child->setEnumRatio($enumRatio);
 				$child->setSectionsRatio($sectionsRatio);
+				$child->setFieldRatio($fieldRatio);
 			}
 
 			$results[] = $child->copy($entityId, $copiedEntityId);
@@ -166,6 +188,7 @@ class Iblock extends CopyImplementer
 			if ($child instanceof FieldChild)
 			{
 				$enumRatio = $child->getEnumRatio();
+				$fieldRatio = $child->getFieldRatio();
 			}
 			if ($child instanceof SectionChild)
 			{

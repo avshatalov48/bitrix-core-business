@@ -1,4 +1,5 @@
-<?
+<?php
+
 /** @global CMain $APPLICATION */
 use Bitrix\Main,
 	Bitrix\Main\Config\Option,
@@ -103,7 +104,7 @@ class CCatalogProduct extends CAllCatalogProduct
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -131,7 +132,7 @@ class CCatalogProduct extends CAllCatalogProduct
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -151,7 +152,7 @@ class CCatalogProduct extends CAllCatalogProduct
 			if ($boolNavStartParams && $intTopCount > 0)
 				$strSql .= " LIMIT ".$intTopCount;
 
-			$entityResult->setResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+			$entityResult->setResult($DB->Query($strSql));
 
 			$dbRes = $entityResult;
 		}

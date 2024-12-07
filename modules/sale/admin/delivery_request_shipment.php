@@ -25,6 +25,7 @@ Loc::loadMessages(__FILE__);
 
 $requestId = intval($_GET['ID']);
 $infoMessages = array();
+$adminErrorMessages = [];
 
 if($requestId <= 0)
 {

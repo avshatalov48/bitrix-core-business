@@ -1,10 +1,14 @@
 <?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 return [
-	"css" => "/bitrix/js/ui/feedback/form/ui.feedback.form.css",
-	"js" => "/bitrix/js/ui/feedback/form/ui.feedback.form.js"
+	'css' => 'dist/form.bundle.css',
+	'js' => 'dist/form.bundle.js',
+	'rel' => [
+		'main.core',
+	],
+	'skip_core' => false,
 ];

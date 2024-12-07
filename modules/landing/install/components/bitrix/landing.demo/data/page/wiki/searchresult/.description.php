@@ -116,7 +116,7 @@ return [
 							// 'filter' => array(
 							// 	0 => array(
 							// 		'key' => 'LANDING',
-							// 		'name' => 'Ñòðàíèöû ñàéòà',
+							// 		'name' => 'Ð¡Ñ‚Ñ€Ð°Ð½Ð¸Ñ†Ñ‹ ÑÐ°Ð¹Ñ‚Ð°',
 							// 		'value' => array(
 							// 			'VALUE' => '',
 							// 		),

@@ -1,6 +1,0 @@
-<?
-$sSectionName = "Авторизация";
-$arDirProperties = array(
-
-);
-?>

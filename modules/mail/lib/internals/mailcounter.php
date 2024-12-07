@@ -35,6 +35,19 @@ class MailCounterTable extends Entity\DataManager
 		return 'b_mail_counter';
 	}
 
+	public static function add($data)
+	{
+		try {
+			return parent::add($data);
+		} catch (\Exception $exception)
+		{
+			/* @TODO: Remove this block after finding a solution.
+			 * Currently, when adding a value, it is checked if it already exists and updated if it does.
+			 * However, several parallel requests may be executed, which will cause an error (Duplicate entry for key).
+			 */
+		}
+	}
+
 	public static function getMap()
 	{
 		return array(

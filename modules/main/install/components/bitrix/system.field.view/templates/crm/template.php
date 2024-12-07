@@ -53,7 +53,7 @@ $publicMode = isset($arParams["PUBLIC_MODE"]) && $arParams["PUBLIC_MODE"] === tr
 	?></table>
 
 <?if(\CCrmSipHelper::isEnabled()):?>
-<script type="text/javascript">
+<script>
 	BX.ready(
 		function()
 		{

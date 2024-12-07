@@ -8,11 +8,11 @@ return [
 	'css' => 'dist/address_widget.bundle.css',
 	'js' => 'dist/address_widget.bundle.js',
 	'rel' => [
-		'ui.design-tokens',
-		'location.widget',
-		'location.core',
-		'main.core',
 		'main.core.events',
+		'location.core',
+		'location.widget',
+		'main.core',
+		'ui.design-tokens',
 	],
 	'skip_core' => false,
 ];

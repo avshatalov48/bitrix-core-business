@@ -4,6 +4,7 @@ namespace Bitrix\Location\Entity;
 
 use Bitrix\Location\Entity\Source\Config;
 use Bitrix\Location\Repository\Location\IRepository;
+use Bitrix\Location\StaticMap\ISourceStaticMapService;
 use Bitrix\Main\Context;
 use Bitrix\Main\IO\File;
 use Bitrix\Main\Localization\StreamConverter;
@@ -108,7 +109,7 @@ abstract class Source
 	 */
 	public function getAutocompleteReplacements(string $languageId): array
 	{
-		if($this->autocompleteReplacements === null)
+		if ($this->autocompleteReplacements === null)
 		{
 			$this->autocompleteReplacements = [];
 
@@ -134,6 +135,13 @@ abstract class Source
 	 * @return IRepository
 	 */
 	abstract public function makeRepository(): IRepository;
+
+	/**
+	 * Returns static map service
+	 *
+	 * @return ISourceStaticMapService|null
+	 */
+	abstract public function makeStaticMapService(): ?ISourceStaticMapService;
 
 	/**
 	 * Is used for the transferring params to JS Source

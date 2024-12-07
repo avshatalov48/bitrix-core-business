@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,ui_vue3_vuex,im_call,im_public,im_v2_lib_slider,im_v2_lib_logger,im_v2_lib_promo,im_v2_lib_soundNotification,im_v2_lib_rest,im_v2_const,main_core,ui_entitySelector,ui_buttons,im_v2_application_core) {
+(function (exports,main_core_events,ui_vue3_vuex,call_core,im_public,im_v2_lib_slider,im_v2_lib_logger,im_v2_lib_promo,im_v2_lib_soundNotification,im_v2_lib_rest,im_v2_const,main_core,ui_entitySelector,ui_buttons,im_v2_application_core) {
 	'use strict';
 
 	class BetaCallService {
@@ -96,6 +96,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _getCurrentDialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getCurrentDialogId");
 	var _isUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isUser");
 	var _prepareUserCall = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareUserCall");
+	var _getChatUserCounter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getChatUserCounter");
 	class CallManager {
 	  static getInstance() {
 	    if (!this.instance) {
@@ -107,6 +108,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    CallManager.getInstance();
 	  }
 	  constructor() {
+	    Object.defineProperty(this, _getChatUserCounter, {
+	      value: _getChatUserCounter2
+	    });
 	    Object.defineProperty(this, _prepareUserCall, {
 	      value: _prepareUserCall2
 	    });
@@ -158,13 +162,27 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller] = babelHelpers.classPrivateFieldLooseBase(this, _getController)[_getController]();
+	    if (this.isAvailable()) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller] = babelHelpers.classPrivateFieldLooseBase(this, _getController)[_getController]();
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _subscribeToEvents)[_subscribeToEvents]();
 	  }
+	  isAvailable() {
+	    const {
+	      callInstalled
+	    } = main_core.Extension.getSettings('im.v2.lib.call');
+	    return callInstalled === true;
+	  }
 	  createBetaCallRoom(chatId) {
+	    if (!this.isAvailable()) {
+	      return;
+	    }
 	    BetaCallService.createRoom(chatId);
 	  }
 	  startCall(dialogId, withVideo = true) {
+	    if (!this.isAvailable()) {
+	      return;
+	    }
 	    im_v2_lib_logger.Logger.warn('CallManager: startCall', dialogId, withVideo);
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _isUser)[_isUser](dialogId)) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _prepareUserCall)[_prepareUserCall](dialogId);
@@ -172,53 +190,66 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].startCall(dialogId, withVideo);
 	  }
 	  joinCall(callId, withVideo = true) {
+	    if (!this.isAvailable()) {
+	      return;
+	    }
 	    im_v2_lib_logger.Logger.warn('CallManager: joinCall', callId, withVideo);
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].joinCall(callId, withVideo);
 	  }
 	  leaveCurrentCall() {
+	    if (!this.isAvailable()) {
+	      return;
+	    }
 	    im_v2_lib_logger.Logger.warn('CallManager: leaveCurrentCall');
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].leaveCurrentCall();
 	  }
 	  foldCurrentCall() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall()) {
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall()) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].fold();
 	  }
 	  unfoldCurrentCall() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
 	      return;
 	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].unfold();
 	  }
 	  getCurrentCallDialogId() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    var _babelHelpers$classPr, _babelHelpers$classPr2;
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
 	      return '';
 	    }
-	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].currentCall.associatedEntity.id;
+	    return (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller]) == null ? void 0 : (_babelHelpers$classPr2 = _babelHelpers$classPr.currentCall) == null ? void 0 : _babelHelpers$classPr2.associatedEntity.id;
 	  }
 	  getCurrentCall() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
 	      return false;
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].currentCall;
 	  }
 	  hasCurrentCall() {
+	    if (!this.isAvailable()) {
+	      return false;
+	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall();
 	  }
 	  hasCurrentScreenSharing() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
 	      return false;
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].currentCall.isScreenSharingStarted();
 	  }
 	  hasVisibleCall() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
+	    if (!this.isAvailable() || !babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasActiveCall()) {
 	      return false;
 	    }
 	    return babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].hasVisibleCall();
 	  }
 	  startTest() {
+	    if (!this.isAvailable()) {
+	      return;
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].test();
 	  }
 	  toggleDebugFlag(debug) {
@@ -228,15 +259,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _controller)[_controller].debug = debug;
 	  }
 	  chatCanBeCalled(dialogId) {
+	    if (!this.isAvailable()) {
+	      return false;
+	    }
 	    const callSupported = babelHelpers.classPrivateFieldLooseBase(this, _checkCallSupport)[_checkCallSupport](dialogId);
 	    const hasCurrentCall = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/hasActiveCall'](dialogId);
 	    return callSupported && !hasCurrentCall;
+	  }
+	  hasActiveCurrentCall(dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/hasActiveCall'](dialogId) && this.getCurrentCallDialogId() === dialogId;
+	  }
+	  hasActiveAnotherCall(dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['recent/calls/hasActiveCall']() && !this.hasActiveCurrentCall(dialogId);
+	  }
+	  getCallUserLimit() {
+	    return BX.Call.Util.getUserLimit();
+	  }
+	  isChatUserLimitExceeded(dialogId) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _getChatUserCounter)[_getChatUserCounter](dialogId) > this.getCallUserLimit();
+	  }
+	  isConference(dialogId) {
+	    const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId);
+	    return dialog.type === im_v2_const.ChatType.videoconf;
 	  }
 
 	  // endregion call events
 	}
 	function _getController2() {
-	  return new im_call.Controller({
+	  return new call_core.Controller({
 	    init: true,
 	    language: im_v2_application_core.Core.getLanguageId(),
 	    messengerFacade: {
@@ -270,13 +320,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      showUserSelector: openCallUserSelector
 	    },
 	    events: {
-	      [im_call.Controller.Events.onPromoViewed]: event => {
+	      [call_core.Controller.Events.onPromoViewed]: event => {
 	        const {
 	          code
 	        } = event.getData();
 	        im_v2_lib_promo.PromoManager.getInstance().markAsWatched(code);
 	      },
-	      [im_call.Controller.Events.onOpenVideoConference]: event => {
+	      [call_core.Controller.Events.onOpenVideoConference]: event => {
 	        var _dialog$public;
 	        const {
 	          dialogId: chatId
@@ -301,7 +351,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  call.addEventListener(BX.Call.Event.onJoin, babelHelpers.classPrivateFieldLooseBase(this, _onCallJoin)[_onCallJoin].bind(this));
 	  call.addEventListener(BX.Call.Event.onLeave, babelHelpers.classPrivateFieldLooseBase(this, _onCallLeave)[_onCallLeave].bind(this));
 	  call.addEventListener(BX.Call.Event.onDestroy, babelHelpers.classPrivateFieldLooseBase(this, _onCallDestroy)[_onCallDestroy].bind(this));
-	  const state = call.state === im_call.State.Connected || call.state === im_call.State.Proceeding ? im_v2_const.RecentCallStatus.joined : im_v2_const.RecentCallStatus.waiting;
+	  const state = call.state === call_core.State.Connected || call.state === call_core.State.Proceeding ? im_v2_const.RecentCallStatus.joined : im_v2_const.RecentCallStatus.waiting;
 	  babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].dispatch('recent/calls/addActiveCall', {
 	    dialogId: call.associatedEntity.id,
 	    name: call.associatedEntity.name,
@@ -351,17 +401,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _checkUserCallSupport2(userId) {
 	  const user = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['users/get'](userId);
-	  return user && user.status !== 'guest' && !user.bot && !user.network && user.id !== im_v2_application_core.Core.getUserId() && !!user.lastActivityDate;
+	  return user && user.status !== 'guest' && !user.bot && !user.network && user.id !== im_v2_application_core.Core.getUserId() && Boolean(user.lastActivityDate);
 	}
 	function _checkChatCallSupport2(dialogId) {
-	  const dialog = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId);
-	  if (!dialog) {
-	    return false;
-	  }
-	  const {
-	    userCounter
-	  } = dialog;
-	  return userCounter > 1 && userCounter <= BX.Call.Util.getUserLimit();
+	  const userCounter = babelHelpers.classPrivateFieldLooseBase(this, _getChatUserCounter)[_getChatUserCounter](dialogId);
+	  return (userCounter > 1 || this.isConference(dialogId)) && userCounter <= this.getCallUserLimit();
 	}
 	function _pushServerIsActive2() {
 	  return true;
@@ -378,6 +422,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  return (dialog == null ? void 0 : dialog.type) === im_v2_const.ChatType.user;
 	}
 	function _prepareUserCall2(dialogId) {
+	  if (!this.isAvailable()) {
+	    return;
+	  }
 	  const currentUserId = im_v2_application_core.Core.getUserId();
 	  const currentUser = im_v2_application_core.Core.getStore().getters['users/get'](currentUserId);
 	  const currentCompanion = im_v2_application_core.Core.getStore().getters['users/get'](dialogId);
@@ -389,6 +436,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      [currentCompanion.id]: currentCompanion
 	    }
 	  });
+	}
+	function _getChatUserCounter2(dialogId) {
+	  const {
+	    userCounter
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['chats/get'](dialogId, true);
+	  return userCounter;
 	}
 	CallManager.viewContainerClass = 'bx-im-messenger__call_container';
 

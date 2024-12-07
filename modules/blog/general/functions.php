@@ -122,7 +122,9 @@ class blogTextParser extends CTextParser
 			AddEventHandler("main", "TextParserVideoConvert", Array("blogTextParser", "blogConvertVideo"));
 		}
 
-		$text = $this->convertText($text);
+		$attributes = !empty($arParams) && is_array($arParams) && isset($arParams["ATTRIBUTES"]) ? $arParams["ATTRIBUTES"] : [];
+		$text = $this->convertText($text, $attributes);
+
 		return trim($text);
 	}
 
@@ -148,7 +150,7 @@ class blogTextParser extends CTextParser
 	
 	public static function ParserBlogImageBefore(&$text, &$obj = null)
 	{
-		$text = preg_replace("/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER, "[imag id=\\1 \\2 \\3]", $text);
+		$text = preg_replace("/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/isu", "[imag id=\\1 \\2 \\3]", $text);
 	}
 	
 	public static function ParserBlogImage(&$text, &$obj)
@@ -156,7 +158,7 @@ class blogTextParser extends CTextParser
 		if(is_callable(array($obj, 'convert_blog_image')))
 		{
 			$text = preg_replace_callback(
-				"/\[imag([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\[imag([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/isu",
 				array($obj, "convertBlogImage"),
 				$text
 			);
@@ -181,7 +183,7 @@ class blogTextParser extends CTextParser
 		)
 		{
 			$text = preg_replace_callback(
-				"/\[tag(?:[^\]])*\](.+?)\[\/tag\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\[tag(?:[^\]])*\](.+?)\[\/tag\]/isu",
 				array($obj, "convertBlogTag"),
 				$text
 			);
@@ -204,10 +206,10 @@ class blogTextParser extends CTextParser
 	{
 		$text = preg_replace(
 			[
-				"/\[(\/?)(code|quote)([^\]]*)\]/is" . BX_UTF_PCRE_MODIFIER,
-				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/is" . BX_UTF_PCRE_MODIFIER,
-				"/\\[(table)(.*?)\\]/is" . BX_UTF_PCRE_MODIFIER,
-				"/\\[\\/table(.*?)\\]/is" . BX_UTF_PCRE_MODIFIER
+				"/\[(\/?)(code|quote)([^\]]*)\]/isu",
+				"/\\[url\\s*=\\s*(\\S+?)\\s*\\](.*?)\\[\\/url\\]/isu",
+				"/\\[(table)(.*?)\\]/isu",
+				"/\\[\\/table(.*?)\\]/isu"
 			],
 			[
 				'',
@@ -228,7 +230,7 @@ class blogTextParser extends CTextParser
 		$this->arImages = $arImages;
 
 		$text = preg_replace_callback(
-			"/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+			"/\[img([^\]]*)id\s*=\s*([0-9]+)([^\]]*)\]/isu",
 			array($this, "convertBlogImageMail"),
 			$text
 		);
@@ -258,19 +260,19 @@ class blogTextParser extends CTextParser
 							$strImage = $db_img_arr["SRC"];
 						
 						$strPar = "";
-						preg_match("/width\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p1, $width);
-						preg_match("/height\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p1, $height);
+						preg_match("/width\=([0-9]+)/isu", $p1, $width);
+						preg_match("/height\=([0-9]+)/isu", $p1, $height);
 						$width = intval($width[1]);
 						$height = intval($height[1]);
 
 						if($width <= 0)
 						{
-							preg_match("/width\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p2, $width);
+							preg_match("/width\=([0-9]+)/isu", $p2, $width);
 							$width = intval($width[1]);
 						}
 						if($height <= 0)
 						{
-							preg_match("/height\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p2, $height);
+							preg_match("/height\=([0-9]+)/isu", $p2, $height);
 							$height = intval($height[1]);
 						}
 
@@ -326,19 +328,19 @@ class blogTextParser extends CTextParser
 				}
 				else
 				{
-					preg_match("/width\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p1, $width);
-					preg_match("/height\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p1, $height);
+					preg_match("/width\=([0-9]+)/isu", $p1, $width);
+					preg_match("/height\=([0-9]+)/isu", $p1, $height);
 					$width = intval($width[1]);
 					$height = intval($height[1]);
 
 					if($width <= 0)
 					{
-						preg_match("/width\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p2, $width);
+						preg_match("/width\=([0-9]+)/isu", $p2, $width);
 						$width = intval($width[1]);
 					}
 					if($height <= 0)
 					{
-						preg_match("/height\=([0-9]+)/is".BX_UTF_PCRE_MODIFIER, $p2, $height);
+						preg_match("/height\=([0-9]+)/isu", $p2, $height);
 						$height = intval($height[1]);
 					}
 
@@ -407,7 +409,7 @@ class blogTextParser extends CTextParser
 		$this->{$marker."_open"}++;
 		if ($this->type == "rss")
 			return "\n====".$marker."====\n";
-		return "<div class='blog-post-".$marker."' title=\"".GetMessage("BLOG_".ToUpper($marker))."\"><table class='blog".$marker."'><tr><td>";
+		return "<div class='blog-post-".$marker."' title=\"".GetMessage("BLOG_".mb_strtoupper($marker))."\"><table class='blog".$marker."'><tr><td>";
 	}
 
 	public static function blogConvertVideo(&$arParams)
@@ -476,16 +478,16 @@ class blogTextParser extends CTextParser
 		$text = strip_tags($text);
 		$text = preg_replace(
 			array(
-				"/\<(\/)(quote|code)([^\>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-				"/\[(\/)(code|quote|video|td|tr|th|table|tbody|thead|file|document|disk)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
-				"/\[(\/?)(\*)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\<(\/)(quote|code)([^\>]*)\>/isu",
+				"/\[(\/)(code|quote|video|td|tr|th|table|tbody|thead|file|document|disk)([^\]]*)\]/isu",
+				"/\[(\/?)(\*)([^\]]*)\]/isu",
 				),
 			" ",
 			$text);
 		$text = preg_replace(
 			array(
-				"/\<(\/?)(quote|code|font|color|video)([^\>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-				"/\[(\/?)(b|u|i|s|list|code|quote|font|color|url|img|video|td|tr|th|tbody|thead|table|file|document|disk|user|left|right|center|justify)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER
+				"/\<(\/?)(quote|code|font|color|video)([^\>]*)\>/isu",
+				"/\[(\/?)(b|u|i|s|list|code|quote|font|color|url|img|video|td|tr|th|tbody|thead|table|file|document|disk|user|left|right|center|justify)([^\]]*)\]/isu"
 				),
 			"",
 			$text);

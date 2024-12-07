@@ -1134,7 +1134,7 @@ abstract class CAllDBResult
 				{
 					if ($res[$name] !== null)
 					{
-						if (mb_substr($res[$name], 0, 1) !== 'a' && $res[$name] > 0)
+						if (!str_starts_with($res[$name], 'a') && $res[$name] > 0)
 						{
 							$res[$name] = $USER_FIELD_MANAGER->LoadMultipleValues($userField, $res[$name]);
 						}

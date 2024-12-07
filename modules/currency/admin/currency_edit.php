@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CMain $APPLICATION
  * @global CDatabase $DB
  */
@@ -108,14 +108,11 @@ $defaultValues = array(
 	'NUMCODE' => '',
 	'BASE' => 'N'
 );
-$defaultLangValues = array(
-	'FULL_NAME' => '',
-	'FORMAT_STRING' => '#',
-	'DEC_POINT' => '.',
-	'THOUSANDS_SEP' => '',
-	'DECIMALS' => 2,
-	'THOUSANDS_VARIANT' => CCurrencyLang::SEP_SPACE,
-	'HIDE_ZERO' => 'Y'
+$defaultLangValues = array_merge(
+	[
+		'FULL_NAME' => '',
+	],
+	CCurrencyLang::GetDefaultValues()
 );
 
 if ($ID != '')
@@ -193,12 +190,12 @@ $context->Show();
 if (!empty($errorMessage))
 	CAdminMessage::ShowMessage(implode('<br>', $errorMessage));
 
-?><script type="text/javascript">
+?><script>
 function setTemplate(lang)
 {
 	var arFormat = [], arPoint = [], arThousand = [], arDecimals = [],
 		sIndex, i;
-	<?
+	<?php
 	foreach ($arTemplates as $key => $ar)
 	{
 		echo "arFormat[".$key."] = '".$ar["FORMAT"]."';\n";
@@ -231,54 +228,63 @@ function setThousandsVariant(lang)
 }
 </script>
 <form method="post" action="<?= $APPLICATION->GetCurPage()?>" name="form1">
-<? echo bitrix_sessid_post(); ?>
-<?echo GetFilterHiddens("filter_");?>
+<?= bitrix_sessid_post() ?>
+<?= GetFilterHiddens("filter_") ?>
 <input type="hidden" name="ID" value="<?=htmlspecialcharsbx($ID); ?>">
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="BASE" value="<?echo htmlspecialcharsbx($currency['BASE']); ?>">
-<?
+<input type="hidden" name="BASE" value="<?= htmlspecialcharsbx($currency['BASE']) ?>">
+<?php
 
-$tabControl->Begin();?>
-<?$tabControl->BeginNextTab();?>
+$tabControl->Begin();
+
+$tabControl->BeginNextTab();
+?>
 	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("currency_curr")?>:</td>
+		<td width="40%"><?= GetMessage("currency_curr") ?>:</td>
 		<td width="60%">
-		<?if (!$ID):?>
-			<input type="text" value="<?echo htmlspecialcharsbx($currency['CURRENCY']);?>" size="3" name="CURRENCY" maxlength="3">
-		<?else:?>
+		<?php
+		if (!$ID):
+			?>
+			<input type="text" value="<?= htmlspecialcharsbx($currency['CURRENCY']) ?>" size="3" name="CURRENCY" maxlength="3">
+			<?php
+		else:
+			?>
 			<?=htmlspecialcharsbx($ID); ?>
-		<? endif?>
+			<?php
+		endif
+		?>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td width="40%"><? echo GetMessage("currency_base"); ?>:</td>
-		<td width="60%"><? echo ($currency['BASE'] == 'Y' ? GetMessage('BASE_CURRENCY_YES') : GetMessage('BASE_CURRENCY_NO')); ?></td>
+		<td width="40%"><?= GetMessage("currency_base") ?>:</td>
+		<td width="60%"><?= ($currency['BASE'] === 'Y' ? GetMessage('BASE_CURRENCY_YES') : GetMessage('BASE_CURRENCY_NO')) ?></td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("currency_rate_cnt")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
+		<td width="40%"><?= GetMessage("currency_rate_cnt") ?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
 		<td width="60%">
-			<input type="text" size="10" name="AMOUNT_CNT" value="<?=(int)$currency['AMOUNT_CNT']; ?>"<? echo ($currency['BASE'] == 'Y' ? ' disabled' : ''); ?>>
+			<input type="text" size="10" name="AMOUNT_CNT" value="<?= (int)$currency['AMOUNT_CNT']; ?>"<?= ($currency['BASE'] === 'Y' ? ' disabled' : ''); ?>>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td width="40%"><?echo GetMessage("currency_rate")?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
+		<td width="40%"><?= GetMessage("currency_rate") ?>: <span class="required" style="vertical-align: super; font-size: smaller;">1</span></td>
 		<td width="60%">
-			<input type="text" size="20" name="AMOUNT" value="<?=htmlspecialcharsbx($currency['AMOUNT'])?>" maxlength="20"<? echo ($currency['BASE'] == 'Y' ? ' disabled' : ''); ?>>
+			<input type="text" size="20" name="AMOUNT" value="<?=htmlspecialcharsbx($currency['AMOUNT'])?>" maxlength="20"<?= ($currency['BASE'] === 'Y' ? ' disabled' : '') ?>>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><?echo GetMessage("currency_numcode")?>:</td>
+		<td width="40%"><?= GetMessage("currency_numcode") ?>:</td>
 		<td width="60%">
-			<input type="text" size="3" name="NUMCODE" value="<?echo htmlspecialcharsbx($currency['NUMCODE']); ?>" maxlength="3">
+			<input type="text" size="3" name="NUMCODE" value="<?= htmlspecialcharsbx($currency['NUMCODE']); ?>" maxlength="3">
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><?echo GetMessage("currency_sort_ex")?>:</td>
+		<td width="40%"><?= GetMessage("currency_sort_ex") ?>:</td>
 		<td width="60%">
-			<input type="text" size="10" name="SORT" value="<?echo (int)$currency['SORT']; ?>" maxlength="10">
+			<input type="text" size="10" name="SORT" value="<?= (int)$currency['SORT'] ?>" maxlength="10">
 		</td>
 	</tr>
-<?$tabControl->BeginNextTab();
+<?php
+$tabControl->BeginNextTab();
 	foreach ($currencyLangs as $languageId => $settings)
 	{
 		if (!isset($langList[$languageId]))
@@ -289,89 +295,94 @@ $tabControl->Begin();?>
 		$scriptLanguageId = CUtil::JSEscape(htmlspecialcharsbx($languageId));
 		?><tr class="heading"><td colspan="2"><?=htmlspecialcharsbx($langList[$languageId]); ?></td></tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("CURRENCY_FULL_NAME")?>:</td>
+			<td width="40%"><?= GetMessage("CURRENCY_FULL_NAME") ?>:</td>
 			<td width="60%"><input title="<?=htmlspecialcharsbx(GetMessage("CURRENCY_FULL_NAME_DESC")); ?>" type="text" maxlength="50" size="15" name="<?=$fieldPrefix; ?>[FULL_NAME]" value="<?=htmlspecialcharsbx($settings['FULL_NAME']);?>"></td>
 		</tr>
 		<tr>
 			<td width="40%"><span id="hint_format_<?=htmlspecialcharsbx($languageId); ?>"></span>
-				<script type="text/javascript">BX.hint_replace(BX('hint_format_<?=htmlspecialcharsbx($languageId); ?>'), '<?=\CUtil::JSEscape(htmlspecialcharsbx(GetMessage('CURRENCY_FORMAT_TEMPLATE_HINT'))); ?>');</script>&nbsp;<?echo GetMessage("CURRENCY_FORMAT_TEMPLATE_EXT")?>:</td>
+				<script>BX.hint_replace(BX('hint_format_<?=htmlspecialcharsbx($languageId); ?>'), '<?=\CUtil::JSEscape(htmlspecialcharsbx(GetMessage('CURRENCY_FORMAT_TEMPLATE_HINT'))); ?>');</script>&nbsp;<?= GetMessage("CURRENCY_FORMAT_TEMPLATE_EXT") ?>:</td>
 			<td width="60%">
 				<select name="format_<?=htmlspecialcharsbx($languageId); ?>" onchange="setTemplate('<?=$scriptLanguageId; ?>')">
 					<option value="">-<?=htmlspecialcharsbx(GetMessage("CURRENCY_SELECT_TEMPLATE_EXT")); ?>-</option>
-					<?foreach ($arTemplates as $key => $ar):?>
+					<?php
+					foreach ($arTemplates as $key => $ar):
+						?>
 						<option value="<?=htmlspecialcharsbx($key); ?>"><?=htmlspecialcharsbx($ar["TEXT"]); ?></option>
-					<?endforeach?>
+						<?php
+					endforeach
+					?>
 				</select>
 			</td>
 		</tr>
 		<tr class="adm-detail-required-field">
-			<td width="40%"><?echo GetMessage("CURRENCY_FORMAT_DESC")?>:</td>
+			<td width="40%"><?= GetMessage("CURRENCY_FORMAT_DESC") ?>:</td>
 			<td width="60%"><input title="<?=htmlspecialcharsbx(GetMessage("CURRENCY_FORMAT_DESC")); ?>" type="text" maxlength="50" size="10" name="<?=$fieldPrefix; ?>[FORMAT_STRING]" value="<?=htmlspecialcharsbx($settings['FORMAT_STRING']); ?>"></td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("CURRENCY_DEC_POINT_DESC")?>:</td>
+			<td width="40%"><?= GetMessage("CURRENCY_DEC_POINT_DESC") ?>:</td>
 			<td width="60%"><input title="<?=htmlspecialcharsbx(GetMessage("CURRENCY_DEC_POINT_DESC")); ?>" type="text" maxlength="16" size="10" name="<?=$fieldPrefix; ?>[DEC_POINT]" value="<?=htmlspecialcharsbx($settings['DEC_POINT']); ?>"></td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("THOU_SEP_DESC")?>:</td>
+			<td width="40%"><?= GetMessage("THOU_SEP_DESC") ?>:</td>
 			<td width="60%">
 				<select name="<?=$fieldPrefix; ?>[THOUSANDS_VARIANT]" onchange="setThousandsVariant('<?=$scriptLanguageId; ?>')">
-				<?
+				<?php
 				foreach ($separatorList as $separatorID => $separatorTitle)
 				{
-					?><option value="<?=htmlspecialcharsbx($separatorID); ?>"<?
+					?><option value="<?= htmlspecialcharsbx($separatorID) ?>"<?php
 						echo ($settings['THOUSANDS_VARIANT'] == $separatorID
-						? ' selected' : '');?>><?=htmlspecialcharsbx($separatorTitle); ?></option><?
+						? ' selected' : '');?>><?= htmlspecialcharsbx($separatorTitle) ?></option><?php
 				}
 				unset($separatorID, $separatorTitle);
 				?>
-				<option value=""<? echo ($settings['THOUSANDS_VARIANT'] == '' && $settings['THOUSANDS_SEP'] != '' ? ' selected' : '');?>><?=htmlspecialcharsbx(GetMessage("CURRENCY_THOUSANDS_VARIANT_O")); ?></option>
+				<option value=""<?= ($settings['THOUSANDS_VARIANT'] == '' && $settings['THOUSANDS_SEP'] != '' ? ' selected' : '') ?>><?= htmlspecialcharsbx(GetMessage("CURRENCY_THOUSANDS_VARIANT_O")) ?></option>
 				</select>
-				<input title="<?=htmlspecialcharsbx(GetMessage("THOU_SEP_DESC")); ?>" type="text" maxlength="16" size="10" name="<?=$fieldPrefix; ?>[THOUSANDS_SEP]" value="<?=htmlspecialcharsbx($settings['THOUSANDS_SEP']);?>">
+				<input title="<?= htmlspecialcharsbx(GetMessage("THOU_SEP_DESC")) ?>" type="text" maxlength="16" size="10" name="<?= $fieldPrefix ?>[THOUSANDS_SEP]" value="<?= htmlspecialcharsbx($settings['THOUSANDS_SEP']) ?>">
 			</td>
 		</tr>
 		<tr>
-			<td width="40%"><?echo GetMessage("DECIMALS_DESC")?>: <span class="required" style="vertical-align: super; font-size: smaller;">2</span></td>
-			<td width="60%"><input title="<?=htmlspecialcharsbx(GetMessage("DECIMALS_DESC")); ?>" type="text" maxlength="5" size="5" name="<?=$fieldPrefix; ?>[DECIMALS]" value="<?=htmlspecialcharsbx($settings['DECIMALS']);?>"></td>
+			<td width="40%"><?= GetMessage("DECIMALS_DESC") ?>: <span class="required" style="vertical-align: super; font-size: smaller;">2</span></td>
+			<td width="60%"><input title="<?= htmlspecialcharsbx(GetMessage("DECIMALS_DESC")) ?>" type="text" maxlength="5" size="5" name="<?= $fieldPrefix ?>[DECIMALS]" value="<?= htmlspecialcharsbx($settings['DECIMALS']) ?>"></td>
 		</tr>
 		<tr>
-			<td width="40%"><? echo GetMessage('HIDE_ZERO_DECIMALS'); ?>: <span class="required" style="vertical-align: super; font-size: smaller;">3</span></td>
+			<td width="40%"><?= GetMessage('HIDE_ZERO_DECIMALS') ?>: <span class="required" style="vertical-align: super; font-size: smaller;">3</span></td>
 			<td width="60%">
-				<input type="hidden" name="<?=$fieldPrefix; ?>[HIDE_ZERO]" value="N">
-				<input type="checkbox" name="<?=$fieldPrefix; ?>[HIDE_ZERO]" value="Y" <? echo ($settings['HIDE_ZERO'] == 'Y' ? 'checked' : ''); ?>>
+				<input type="hidden" name="<?= $fieldPrefix ?>[HIDE_ZERO]" value="N">
+				<input type="checkbox" name="<?= $fieldPrefix ?>[HIDE_ZERO]" value="Y" <?= ($settings['HIDE_ZERO'] === 'Y' ? 'checked' : '') ?>>
 			</td>
 		</tr>
-		<?
+		<?php
 		unset($scriptLanguageId, $fieldPrefix);
 	}
 $tabControl->EndTab();
 $tabControl->Buttons(array("disabled" => $CURRENCY_RIGHT < "W", "back_url" =>"/bitrix/admin/currencies.php?lang=".LANGUAGE_ID));
 $tabControl->End();?>
 </form>
-<?
+<?php
 echo BeginNote();
 echo GetMessage('CURRENCY_CODES_ISO_STANDART', array('#ISO_LINK#' => CURRENCY_ISO_STANDART_URL));
 ?><br><br>
-<span class="required" style="vertical-align: super; font-size: smaller;">1</span> - <?
+<span class="required" style="vertical-align: super; font-size: smaller;">1</span> - <?php
 echo GetMessage('BX_CURRENCY_EDIT_MESS_AMOUNT');
 ?><br><br>
-<span class="required" style="vertical-align: super; font-size: smaller;">2</span> - <?
+<span class="required" style="vertical-align: super; font-size: smaller;">2</span> - <?php
 echo GetMessage('DECIMALS_COMMENTS');
 ?><br><br>
-<span class="required" style="vertical-align: super; font-size: smaller;">3</span> - <?
+<span class="required" style="vertical-align: super; font-size: smaller;">3</span> - <?php
 echo GetMessage('HIDE_ZERO_DECIMALS_DESCR_EXT');
 echo EndNote();
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
-<?
+<?php
 foreach ($langID as $index)
 {
-	?>setThousandsVariant('<?=CUtil::JSEscape(htmlspecialcharsbx($index)); ?>');
-	<?
+	?>setThousandsVariant('<?= CUtil::JSEscape(htmlspecialcharsbx($index)) ?>');
+	<?php
 }
 unset($index);
 ?>
 });
 </script>
-<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
+<?php
+require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin.php';

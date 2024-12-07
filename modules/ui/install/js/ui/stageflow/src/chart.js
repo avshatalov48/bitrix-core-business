@@ -1,8 +1,9 @@
-import {Text, Dom, Tag, Type, Loc} from 'main.core';
-import {Stage} from "./stage";
-import "./css/style.css";
+import { Text, Dom, Tag, Type, Loc } from 'main.core';
+import { Button } from 'ui.buttons';
+import { Stage } from './stage';
+import './css/style.css';
 
-import {MenuManager, Popup, PopupManager} from 'main.popup';
+import { MenuManager, Popup, PopupManager } from 'main.popup';
 
 const semanticSelectorPopupId = 'ui-stageflow-select-semantic-popup';
 const finalStageSelectorPopupId = 'ui-stageflow-select-final-stage-popup';
@@ -392,10 +393,8 @@ export class Chart
 	{
 		let popup = PopupManager.getPopupById(semanticSelectorPopupId);
 
-		if(!popup)
+		if (!popup)
 		{
-			let failSemanticText = this.getFailStageName();
-
 			popup = PopupManager.create({
 				id: semanticSelectorPopupId,
 				autoHide: true,
@@ -404,30 +403,11 @@ export class Chart
 				maxWidth: 420,
 				content: Tag.render`<div class="ui-stageflow-popup-title">${this.labels.finalStagePopupTitle}</div>`,
 				buttons: [
-					new BX.UI.Button({
-						color: BX.UI.Button.Color.SUCCESS,
-						text: this.getSuccessStage().getName(),
-						onclick: () =>
-						{
-							this.isActive = true;
-							this.onStageClick(this.getSuccessStage());
-						}
-					}),
-					(failSemanticText ? new BX.UI.Button({
-						color: BX.UI.Button.Color.DANGER,
-						text: failSemanticText,
-						onclick: () =>
-						{
-							popup.close();
-							const finalStagePopup = this.getFinalStageSelectorPopup();
-							finalStagePopup.show();
-							this.isActive = false;
-						}
-					}) : null),
+					this.getSemanticPopupSuccessButton(),
+					this.getSemanticPopupFailureButton(),
 				],
 				events: {
-					onClose: () =>
-					{
+					onClose: () => {
 						this.setCurrentStageId(this.currentStage);
 						this.isActive = true;
 					},
@@ -436,6 +416,38 @@ export class Chart
 		}
 
 		return popup;
+	}
+
+	getSemanticPopupSuccessButton(): Button
+	{
+		return new BX.UI.Button({
+			color: BX.UI.Button.Color.SUCCESS,
+			text: this.getSuccessStage().getName(),
+			onclick: () => {
+				this.isActive = true;
+				this.onStageClick(this.getSuccessStage());
+			},
+		});
+	}
+
+	getSemanticPopupFailureButton(): ?Button
+	{
+		const failureSemanticText = this.getFailStageName();
+		if (!failureSemanticText)
+		{
+			return null;
+		}
+
+		return new BX.UI.Button({
+			color: BX.UI.Button.Color.DANGER,
+			text: failureSemanticText,
+			onclick: () => {
+				PopupManager.getPopupById(semanticSelectorPopupId)?.close();
+				const finalStagePopup = this.getFinalStageSelectorPopup();
+				finalStagePopup.show();
+				this.isActive = false;
+			},
+		});
 	}
 
 	getFinalStageSemanticSelector(isSuccess: boolean = null): Element
@@ -476,30 +488,8 @@ export class Chart
 
 	getFinalStageSelectorPopup(isSuccess: boolean = false): Popup
 	{
-		let titleBar = {};
-		let content = Tag.render`<div class="ui-stageflow-final-fail-stage-list-wrapper"></div>`;
-		if(!isSuccess)
-		{
-			const failStages = this.getFailStages();
-			if(failStages.length > 1)
-			{
-				let isChecked = true;
-				failStages.forEach((stage: Stage) =>
-				{
-					content.appendChild(Tag.render`<div class="ui-stageflow-final-fail-stage-list-section">
-						<input data-stage-id="${stage.getId()}" id="ui-stageflow-final-fail-stage-${stage.getId()}" name="ui-stageflow-final-fail-stage-input" class="crm-list-fail-deal-button" type="radio" ${(isChecked ? 'checked="checked"' : '')}>
-						<label for="ui-stageflow-final-fail-stage-${stage.getId()}">${stage.getName()}</label>
-					</div>`);
-					isChecked = false;
-				});
-			}
-		}
-		titleBar.content = Tag.render`<div class="ui-stageflow-stage-selector-block">
-			<span>${this.labels.finalStageSelectorTitle} </span>
-			${this.getFinalStageSemanticSelector(isSuccess)}
-		</div>`;
 		let popup = PopupManager.getPopupById(finalStageSelectorPopupId);
-		if(!popup)
+		if (!popup)
 		{
 			popup = PopupManager.create({
 				id: finalStageSelectorPopupId,
@@ -537,10 +527,81 @@ export class Chart
 			});
 		}
 
-		popup.setContent(content);
-		popup.setTitleBar(titleBar);
+		popup.setContent(this.getFinalStagePopupFailStagesWrapper(isSuccess));
+		popup.setTitleBar(this.getFinalStagePopupTitleBar(isSuccess));
 
 		return popup;
+	}
+
+	getFinalStagePopupFailStagesWrapper(isSuccess: boolean = false): HTMLElement
+	{
+		const failStageListWrapper = Tag.render`<div class="ui-stageflow-final-fail-stage-list-wrapper"></div>`;
+		if (isSuccess)
+		{
+			return failStageListWrapper;
+		}
+
+		const failStages = this.getFailStages();
+		if (failStages.length > 1)
+		{
+			failStages.forEach((stage: Stage) => {
+				Dom.append(this.getFinalStagePopupFailStage(stage), failStageListWrapper);
+			});
+
+			this.setCheckedStageInFailStagesWrapper(failStageListWrapper);
+		}
+
+		return failStageListWrapper;
+	}
+
+	setCheckedStageInFailStagesWrapper(failStageListWrapper: HTMLElement): void
+	{
+		const failStagesNodeList = this.extractFinalStagePopupFailStages(failStageListWrapper);
+		if (!Type.isArrayFilled(failStagesNodeList))
+		{
+			return;
+		}
+
+		const firstFailStageInput = failStagesNodeList[0].querySelector('input');
+		if (firstFailStageInput)
+		{
+			firstFailStageInput.checked = true;
+		}
+	}
+
+	extractFinalStagePopupFailStages(failStageListWrapper: HTMLElement): NodeList
+	{
+		return failStageListWrapper.querySelectorAll('.ui-stageflow-final-fail-stage-list-section') ?? [];
+	}
+
+	getFinalStagePopupFailStage(stage: Stage): HTMLElement
+	{
+		return Tag.render`
+			<div class="ui-stageflow-final-fail-stage-list-section">
+				<input
+					data-stage-id="${stage.getId()}"
+					id="ui-stageflow-final-fail-stage-${stage.getId()}"
+					name="ui-stageflow-final-fail-stage-input"
+					class="crm-list-fail-deal-button"
+					type="radio"
+				>
+				<label for="ui-stageflow-final-fail-stage-${stage.getId()}">${stage.getName()}</label>
+			</div>
+		`;
+	}
+
+	getFinalStagePopupTitleBar(isSuccess: boolean = false): Object
+	{
+		const titleBar = {};
+
+		titleBar.content = Tag.render`
+			<div class="ui-stageflow-stage-selector-block">
+				<span>${this.labels.finalStageSelectorTitle}</span>
+				${this.getFinalStageSemanticSelector(isSuccess)}
+			</div>
+		`;
+
+		return titleBar;
 	}
 
 	onSemanticSelectorClick()
@@ -613,12 +674,17 @@ export class Chart
 		}
 		else if(failStagesLength === 1)
 		{
-			return this.getFirstFailStage().getName();
+			return this.getFirstFailStageName();
 		}
 		else
 		{
 			return this.labels.finalStagePopupFail;
 		}
+	}
+
+	getFirstFailStageName(): ?string
+	{
+		return this.getFirstFailStage()?.getName();
 	}
 
 	increaseStageWidthForNameVisibility(stage: Stage): void

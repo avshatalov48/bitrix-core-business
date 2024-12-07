@@ -89,7 +89,7 @@ $APPLICATION->IncludeComponent(
 
 
 ?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.Sender.AbuseList.init(<?=Json::encode(array(
 				'actionUri' => $arResult['ACTION_URI'],

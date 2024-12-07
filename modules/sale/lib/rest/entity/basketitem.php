@@ -1,300 +1,386 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest\Entity;
 
-
 use Bitrix\Main\Error;
+use Bitrix\Main\Loader;
 use Bitrix\Sale\Helpers\Order\Builder\BasketBuilderRest;
 use Bitrix\Sale\Rest\Attributes;
 use Bitrix\Sale\Result;
 
 class BasketItem extends Base
 {
+	private bool $bitrix24Included;
+	private bool $catalogIncluded;
+
 	public function getFields()
 	{
+		$this->checkModules();
+
 		return $this->getFieldsInfoItem() + $this->getCustomProductFieldsInfo();
 	}
 
 	public function getFieldsCatalogProduct()
 	{
+		$this->checkModules();
+
 		return $this->getFieldsInfoItem() + $this->getFieldsInfoCatalogProduct();
 	}
 
-	private function getFieldsInfoItem()
+	private function getFieldsInfoItem(): array
 	{
-		return [
-			'ORDER_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[
-					Attributes::Immutable,
-					Attributes::Required
-				]
+		$result = [];
+		$result['ID'] = [
+			'TYPE' => self::TYPE_INT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
 			],
-			'ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'FUSER_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'LID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'SORT'=>[
-				'TYPE'=>self::TYPE_INT
-			],
-			'PRODUCT_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[
-					Attributes::Immutable,
-					Attributes::Required
-				]
-			],
-			'PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT
-			],
-			'CUSTOM_PRICE'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'CURRENCY'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[
-					Attributes::Required,
-					Attributes::Immutable
-				]
-			],
-			'QUANTITY'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::Required]
-			],
-			/*&&*/'SUBSCRIBE'=>[
-				'TYPE'=>self::TYPE_CHAR
-			],
-			/*&&*/'RECOMMENDATION'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'DATE_INSERT'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DATE_UPDATE'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DATE_REFRESH'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly],
-			],
-			'PROPERTIES'=>[
-				'TYPE'=>self::TYPE_LIST,
-				'ATTRIBUTES'=>[Attributes::Hidden]
-			]
 		];
+		$result['XML_ID'] = [
+			'TYPE' => self::TYPE_STRING,
+		];
+		$result['ORDER_ID'] = [
+			'TYPE' => self::TYPE_INT,
+			'ATTRIBUTES' => [
+				Attributes::Immutable,
+				Attributes::Required,
+			],
+		];
+
+		if (!$this->bitrix24Included)
+		{
+			$result['FUSER_ID'] = [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+			$result['LID'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+		}
+
+		$result['SORT'] = [
+			'TYPE' => self::TYPE_INT,
+		];
+		$result['PRODUCT_ID'] = [
+			'TYPE' => self::TYPE_INT,
+			'ATTRIBUTES' => [
+				Attributes::Immutable,
+				Attributes::Required,
+			],
+		];
+		$result['PRICE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+		];
+		$result['CURRENCY'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::Immutable,
+				Attributes::Required,
+			],
+		];
+		$result['CUSTOM_PRICE'] = [
+			'TYPE' => self::TYPE_CHAR,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['QUANTITY'] = [
+			'TYPE' => self::TYPE_FLOAT,
+			'ATTRIBUTES' => [
+				Attributes::Required,
+			],
+		];
+		$result['DATE_INSERT'] = [
+			'TYPE' => self::TYPE_DATETIME,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['DATE_UPDATE'] = [
+			'TYPE' => self::TYPE_DATETIME,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['PROPERTIES'] = [
+			'TYPE' => self::TYPE_LIST,
+			'ATTRIBUTES' => [
+				Attributes::Hidden,
+			],
+		];
+
+		return $result;
 	}
 
-	private function getFieldsInfoCatalogProduct()
+	private function getFieldsInfoCatalogProduct(): array
 	{
-		return [
-			'NAME'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'PRODUCT_PRICE_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'PRICE_TYPE_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DETAIL_PAGE_URL'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'BASE_PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DISCOUNT_PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'WEIGHT'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DIMENSIONS'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'MEASURE_CODE'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'MEASURE_NAME'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'CAN_BUY'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'NOTES'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'VAT_RATE'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'VAT_INCLUDED'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'BARCODE_MULTI'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'TYPE'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'SET_PARENT_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DISCOUNT_NAME'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DISCOUNT_VALUE'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'DISCOUNT_COUPON'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'CATALOG_XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'PRODUCT_XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'PRODUCT_PROVIDER_CLASS'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
-			],
-			'MODULE'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+		$result['NAME'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
 			],
 		];
+
+		if (!$this->bitrix24Included)
+		{
+			$result['PRODUCT_PRICE_ID'] = [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+			$result['PRICE_TYPE_ID'] = [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+			$result['DETAIL_PAGE_URL'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+		}
+
+		$result['BASE_PRICE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['DISCOUNT_PRICE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['WEIGHT'] = [
+			'TYPE' => self::TYPE_FLOAT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['DIMENSIONS'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['MEASURE_CODE'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['MEASURE_NAME'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+
+		$result['CAN_BUY'] = [
+			'TYPE' => self::TYPE_CHAR,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+
+		$result['VAT_RATE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['VAT_INCLUDED'] = [
+			'TYPE' => self::TYPE_CHAR,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+
+		if (
+			$this->catalogIncluded
+			&& \Bitrix\Catalog\Config\State::isUsedInventoryManagement()
+		)
+		{
+			$result['BARCODE_MULTI'] = [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+		}
+
+		$result['TYPE'] = [
+			'TYPE' => self::TYPE_INT,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+
+		if (!$this->bitrix24Included)
+		{
+			$result['PRODUCT_PROVIDER_CLASS'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+			$result['MODULE'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+			$result['SET_PARENT_ID'] = [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+		}
+
+		$result['CATALOG_XML_ID'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+		$result['PRODUCT_XML_ID'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::ReadOnly,
+			],
+		];
+
+		return $result;
 	}
 
-	private function getCustomProductFieldsInfo()
+	private function getCustomProductFieldsInfo(): array
 	{
-		return [
-			'NAME'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'PRODUCT_PRICE_ID'=>[
-				'TYPE'=>self::TYPE_INT
-			],
-			'PRICE_TYPE_ID'=>[
-				'TYPE'=>self::TYPE_INT
-			],
-			'DETAIL_PAGE_URL'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'BASE_PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT
-			],
-			'DISCOUNT_PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT
-			],
-			'WEIGHT'=>[
-				'TYPE'=>self::TYPE_FLOAT
-			],
-			'DIMENSIONS'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'MEASURE_CODE'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'MEASURE_NAME'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'CAN_BUY'=>[
-				'TYPE'=>self::TYPE_CHAR
-			],
-			/*??*/'NOTES'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'VAT_RATE'=>[
-				'TYPE'=>self::TYPE_FLOAT
-			],
-			'VAT_INCLUDED'=>[
-				'TYPE'=>self::TYPE_CHAR
-			],
-			'BARCODE_MULTI'=>[
-				'TYPE'=>self::TYPE_CHAR
-			],
-			'TYPE'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'SET_PARENT_ID'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			/*??*/'DISCOUNT_NAME'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			/*??*/'DISCOUNT_VALUE'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			/*??*/'DISCOUNT_COUPON'=>[
-				'TYPE'=>self::TYPE_STRING
-			],
-			'CATALOG_XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::Immutable]
-			],
-			'PRODUCT_XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::Immutable]
-			],
-			'PRODUCT_PROVIDER_CLASS'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::Immutable]
-			],
-			'MODULE'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::Immutable]
+		$result = [];
+		$result['NAME'] = [
+			'TYPE' => self::TYPE_STRING,
+		];
+
+		if (!$this->bitrix24Included)
+		{
+			$result['PRODUCT_PRICE_ID'] = [
+				'TYPE' => self::TYPE_INT,
+			];
+			$result['PRICE_TYPE_ID'] = [
+				'TYPE' => self::TYPE_INT,
+			];
+			$result['DETAIL_PAGE_URL'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
+			];
+		}
+
+		$result['BASE_PRICE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+		];
+		$result['DISCOUNT_PRICE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+		];
+		$result['WEIGHT'] = [
+			'TYPE' => self::TYPE_FLOAT,
+		];
+		$result['DIMENSIONS'] = [
+			'TYPE' => self::TYPE_STRING,
+		];
+		$result['MEASURE_CODE'] = [
+			'TYPE' => self::TYPE_STRING,
+		];
+		$result['MEASURE_NAME'] = [
+			'TYPE' => self::TYPE_STRING,
+		];
+		$result['CAN_BUY'] = [
+			'TYPE' => self::TYPE_CHAR,
+		];
+		$result['VAT_RATE'] = [
+			'TYPE' => self::TYPE_FLOAT,
+		];
+		$result['VAT_INCLUDED'] = [
+			'TYPE' => self::TYPE_CHAR,
+		];
+
+		if (
+			$this->catalogIncluded
+			&& \Bitrix\Catalog\Config\State::isUsedInventoryManagement()
+		)
+		{
+			$result['BARCODE_MULTI'] = [
+				'TYPE' => self::TYPE_CHAR,
+			];
+		}
+		$result['TYPE'] = [
+			'TYPE' => self::TYPE_INT,
+		];
+
+		if (!$this->bitrix24Included)
+		{
+			$result['PRODUCT_PROVIDER_CLASS'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::Immutable,
+				],
+			];
+			$result['MODULE'] = [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::Immutable,
+				],
+			];
+			$result['SET_PARENT_ID'] = [
+				'TYPE' => self::TYPE_INT,
+			];
+		}
+
+		$result['CATALOG_XML_ID'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::Immutable,
 			],
 		];
+		$result['PRODUCT_XML_ID'] = [
+			'TYPE' => self::TYPE_STRING,
+			'ATTRIBUTES' => [
+				Attributes::Immutable,
+			],
+		];
+
+		return $result;
 	}
 
 	public function convertKeysToSnakeCaseArguments($name, $arguments)
 	{
-		if($name == 'getfieldscatalogproduct'){}
-		elseif ($name == 'addcatalogproduct'
-			|| $name == 'updatecatalogproduct'
-			|| $name == 'modifycatalogproduct')
+		if ($name === 'getfieldscatalogproduct')
 		{
-			if(isset($arguments['fields']))
+			return $arguments;
+		}
+
+		if (
+			$name === 'addcatalogproduct'
+			|| $name === 'updatecatalogproduct'
+			|| $name === 'modifycatalogproduct')
+		{
+			if (isset($arguments['fields']))
 			{
 				$fields = $arguments['fields'];
-				if(!empty($fields))
+				if (!empty($fields))
+				{
 					$arguments['fields'] = $this->convertKeysToSnakeCaseFields($fields);
+				}
 			}
 		}
 		else
@@ -309,29 +395,62 @@ class BasketItem extends Base
 	{
 		$r = new Result();
 
-		if($name == 'getfieldscatalogproduct'){}
-		elseif($name == 'addcatalogproduct')
+		if ($name === 'getfieldscatalogproduct')
+		{
+			return $r;
+		}
+
+		if ($name === 'addcatalogproduct')
 		{
 			$fields = $arguments['fields'];
-			$fieldsInfo = $this->getListFieldInfo($this->getFieldsCatalogProduct(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly]]]);
+			$fieldsInfo = $this->getListFieldInfo(
+				$this->getFieldsCatalogProduct(),
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::Hidden,
+							Attributes::ReadOnly,
+						],
+					],
+				]
+			);
 
-			if(!empty($fields))
+			if (!empty($fields))
 			{
 				$required = $this->checkRequiredFields($fields, $fieldsInfo);
-				if(!$required->isSuccess())
-					$r->addError(new Error('Required fields: '.implode(', ', $required->getErrorMessages())));
+				if (!$required->isSuccess())
+				{
+					$r->addError(new Error(
+						'Required fields: ' . implode(', ', $required->getErrorMessages())
+					));
+				}
 			}
 		}
-		elseif($name == 'updatecatalogproduct')
+		elseif ($name === 'updatecatalogproduct')
 		{
 			$fields = $arguments['fields'];
-			$fieldsInfo = $this->getListFieldInfo($this->getFieldsCatalogProduct(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly, Attributes::Immutable]]]);
+			$fieldsInfo = $this->getListFieldInfo(
+				$this->getFieldsCatalogProduct(),
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::Hidden,
+							Attributes::ReadOnly,
+							Attributes::Immutable,
+						],
+					],
+				],
+			);
 
-			if(!empty($fields))
+			if (!empty($fields))
 			{
 				$required = $this->checkRequiredFields($fields, $fieldsInfo);
-				if(!$required->isSuccess())
-					$r->addError(new Error('Required fields: '.implode(', ', $required->getErrorMessages())));
+				if (!$required->isSuccess())
+				{
+					$r->addError(new Error(
+						'Required fields: ' . implode(', ', $required->getErrorMessages())
+					));
+				}
 			}
 		}
 		else
@@ -344,50 +463,76 @@ class BasketItem extends Base
 
 	public function internalizeArguments($name, $arguments)
 	{
-		if($name == 'canbuy'
-			|| $name == 'getbaseprice'
-			|| $name == 'getbasepricewithvat'
-			|| $name == 'getcurrency'
-			|| $name == 'getdefaultprice'
-			|| $name == 'getdiscountprice'
-			|| $name == 'getfinalprice'
-			|| $name == 'getinitialprice'
-			|| $name == 'getprice'
-			|| $name == 'getpricewithvat'
-			|| $name == 'getproductid'
-			|| $name == 'getquantity'
-			|| $name == 'getreservedquantity'
-			|| $name == 'getvat'
-			|| $name == 'getvatrate'
-			|| $name == 'getweight'
-			|| $name == 'isbarcodemulti'
-			|| $name == 'iscustommulti'
-			|| $name == 'iscustomprice'
-			|| $name == 'isdelay'
-			|| $name == 'isvatinprice'
-			|| $name == 'getfieldscatalogproduct'
-		){}
-		elseif($name == 'addcatalogproduct')
+		if (
+			$name === 'canbuy'
+			|| $name === 'getbaseprice'
+			|| $name === 'getbasepricewithvat'
+			|| $name === 'getcurrency'
+			|| $name === 'getdefaultprice'
+			|| $name === 'getdiscountprice'
+			|| $name === 'getfinalprice'
+			|| $name === 'getinitialprice'
+			|| $name === 'getprice'
+			|| $name === 'getpricewithvat'
+			|| $name === 'getproductid'
+			|| $name === 'getquantity'
+			|| $name === 'getreservedquantity'
+			|| $name === 'getvat'
+			|| $name === 'getvatrate'
+			|| $name === 'getweight'
+			|| $name === 'isbarcodemulti'
+			|| $name === 'iscustommulti'
+			|| $name === 'iscustomprice'
+			|| $name === 'isdelay'
+			|| $name === 'isvatinprice'
+			|| $name === 'getfieldscatalogproduct'
+			|| $name === 'modifycatalogproduct'
+		)
+		{
+			return $arguments;
+		}
+
+		if ($name === 'addcatalogproduct')
 		{
 			$fields = $arguments['fields'];
-			$fieldsInfo = $this->getListFieldInfo($this->getFieldsCatalogProduct(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly]]]);
+			$fieldsInfo = $this->getListFieldInfo(
+				$this->getFieldsCatalogProduct(),
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::Hidden,
+							Attributes::ReadOnly,
+						],
+					],
+				]
+			);
 
-			if(!empty($fields))
+			if (!empty($fields))
 			{
 				$arguments['fields'] = $this->internalizeFields($fields, $fieldsInfo);
 			}
 		}
-		elseif($name == 'updatecatalogproduct')
+		elseif ($name === 'updatecatalogproduct')
 		{
 			$fields = $arguments['fields'];
-			$fieldsInfo = $this->getListFieldInfo($this->getFieldsCatalogProduct(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly, Attributes::Immutable]]]);
+			$fieldsInfo = $this->getListFieldInfo(
+				$this->getFieldsCatalogProduct(),
+				[
+					'filter' => [
+						'ignoredAttributes' => [
+							Attributes::Hidden,
+							Attributes::ReadOnly,
+							Attributes::Immutable,
+						],
+					],
+				]
+			);
 
-			if(!empty($fields))
+			if (!empty($fields))
 			{
 				$arguments['fields'] = $this->internalizeFields($fields, $fieldsInfo);
 			}
 		}
-		elseif($name == 'modifycatalogproduct'){}
 		else
 		{
 			parent::internalizeArguments($name, $arguments);
@@ -398,9 +543,15 @@ class BasketItem extends Base
 
 	public function externalizeResult($name, $fields)
 	{
-		if($name == 'getfieldscatalogproduct'){}
-		elseif($name == 'addcatalogproduct'
-			|| $name == 'updatecatalogproduct')
+		if ($name === 'getfieldscatalogproduct')
+		{
+			return $fields;
+		}
+
+		if (
+			$name === 'addcatalogproduct'
+			|| $name === 'updatecatalogproduct'
+		)
 		{
 			$fields = $this->externalizeFields($fields);
 		}
@@ -414,7 +565,7 @@ class BasketItem extends Base
 
 	protected function isNewItem($fields)
 	{
-		if(isset($fields['ID']) === false)
+		if (!isset($fields['ID']))
 		{
 			return true;
 		}
@@ -429,28 +580,59 @@ class BasketItem extends Base
 		$result = [];
 		$basketProperties = new BasketProperties();
 
-		$fieldsInfo = empty($fieldsInfo)? $this->getFields():$fieldsInfo;
-		$listFieldsInfoAdd = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly], 'ignoredFields'=>['ORDER_ID']]]);
-		$listFieldsInfoUpdate = $this->getListFieldInfo($fieldsInfo, ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly, Attributes::Immutable], 'skipFields'=>['ID']]]);
+		$fieldsInfo = empty($fieldsInfo) ? $this->getFields() : $fieldsInfo;
+		$listFieldsInfoAdd = $this->getListFieldInfo(
+			$fieldsInfo,
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::Hidden,
+						Attributes::ReadOnly,
+					],
+					'ignoredFields' => [
+						'ORDER_ID',
+					],
+				],
+			]
+		);
+		$listFieldsInfoUpdate = $this->getListFieldInfo(
+			$fieldsInfo,
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::Hidden,
+						Attributes::ReadOnly,
+						Attributes::Immutable,
+					],
+					'skipFields' => [
+						'ID',
+					],
+				],
+			]
+		);
 
-		if(isset($fields['ORDER']['ID']))
-			$result['ORDER']['ID'] = (int)$fields['ORDER']['ID'];
-
-		if(isset($fields['ORDER']['BASKET_ITEMS']))
+		if (isset($fields['ORDER']['ID']))
 		{
-			foreach ($fields['ORDER']['BASKET_ITEMS'] as $k=>$item)
+			$result['ORDER']['ID'] = (int)$fields['ORDER']['ID'];
+		}
+
+		if (isset($fields['ORDER']['BASKET_ITEMS']))
+		{
+			foreach ($fields['ORDER']['BASKET_ITEMS'] as $k => $item)
 			{
 				$result['ORDER']['BASKET_ITEMS'][$k] = $this->internalizeFields($item,
 					$this->isNewItem($item)? $listFieldsInfoAdd:$listFieldsInfoUpdate
 				);
 
 				// n1 - ref shipmentItem.basketId
-				if($this->isNewItem($item) && isset($item['ID']))
-					$result['ORDER']['BASKET_ITEMS'][$k]['ID'] = $item['ID'];
-
-				if(isset($item['PROPERTIES']))
+				if ($this->isNewItem($item) && isset($item['ID']))
 				{
-					$result['ORDER']['BASKET_ITEMS'][$k]['PROPERTIES'] = $basketProperties->internalizeFieldsModify(['BASKET_ITEM'=>['PROPERTIES'=>$item['PROPERTIES']]])['BASKET_ITEM']['PROPERTIES'];
+					$result['ORDER']['BASKET_ITEMS'][$k]['ID'] = $item['ID'];
+				}
+
+				if (isset($item['PROPERTIES']))
+				{
+					$result['ORDER']['BASKET_ITEMS'][$k]['PROPERTIES'] = $basketProperties->internalizeFieldsModify(['BASKET_ITEM' => ['PROPERTIES'=>$item['PROPERTIES']]])['BASKET_ITEM']['PROPERTIES'];
 				}
 			}
 		}
@@ -460,12 +642,20 @@ class BasketItem extends Base
 
 	public function externalizeFields($fields)
 	{
-		$basketProperties = new \Bitrix\Sale\Rest\Entity\BasketProperties();
+		$basketProperties = new BasketProperties();
+		$basketReservation = new BasketReservation();
 
 		$result = parent::externalizeFields($fields);
 
-		if(isset($fields['PROPERTIES']))
+		if (isset($fields['PROPERTIES']))
+		{
 			$result['PROPERTIES'] = $basketProperties->externalizeListFields($fields['PROPERTIES']);
+		}
+
+		if (isset($fields['RESERVATIONS']))
+		{
+			$result['RESERVATIONS'] = $basketReservation->externalizeListFields($fields['RESERVATIONS']);
+		}
 
 		return $result;
 	}
@@ -480,18 +670,18 @@ class BasketItem extends Base
 		$r = new Result();
 
 		$emptyFields = [];
-		if(!isset($fields['ORDER']['ID']))
+		if (!isset($fields['ORDER']['ID']))
 		{
 			$emptyFields[] = '[order][id]';
 		}
-		if(!isset($fields['ORDER']['BASKET_ITEMS']) || !is_array($fields['ORDER']['BASKET_ITEMS']))
+		if (!isset($fields['ORDER']['BASKET_ITEMS']) || !is_array($fields['ORDER']['BASKET_ITEMS']))
 		{
 			$emptyFields[] = '[order][basketItems][]';
 		}
 
-		if(count($emptyFields)>0)
+		if (!empty($emptyFields))
 		{
-			$r->addError(new Error('Required fields: '.implode(', ', $emptyFields)));
+			$r->addError(new Error('Required fields: ' . implode(', ', $emptyFields)));
 		}
 		else
 		{
@@ -507,23 +697,53 @@ class BasketItem extends Base
 
 		$basketProperties = new BasketProperties();
 
-		$listFieldsInfoAdd = $this->getListFieldInfo($this->getFields(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly], 'ignoredFields'=>['ORDER_ID']]]);
-		$listFieldsInfoUpdate = $this->getListFieldInfo($this->getFields(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden, Attributes::ReadOnly, Attributes::Immutable]]]);
+		$listFieldsInfoAdd = $this->getListFieldInfo(
+			$this->getFields(),
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::Hidden,
+						Attributes::ReadOnly,
+					],
+					'ignoredFields' => [
+						'ORDER_ID',
+					],
+				],
+			]
+		);
+		$listFieldsInfoUpdate = $this->getListFieldInfo(
+			$this->getFields(),
+			[
+				'filter' => [
+					'ignoredAttributes' => [
+						Attributes::Hidden,
+						Attributes::ReadOnly,
+						Attributes::Immutable,
+					],
+				],
+			]
+		);
 
-		foreach ($fields['ORDER']['BASKET_ITEMS'] as $k=>$item)
+		foreach ($fields['ORDER']['BASKET_ITEMS'] as $k => $item)
 		{
 			$required = $this->checkRequiredFields($item,
 				$this->isNewItem($item)? $listFieldsInfoAdd:$listFieldsInfoUpdate
 			);
-			if(!$required->isSuccess())
+			if (!$required->isSuccess())
 			{
-				$r->addError(new Error('[basketItems]['.$k.'] - '.implode(', ', $required->getErrorMessages()).'.'));
+				$r->addError(new Error(
+					'[basketItems]['.$k.'] - ' . implode(', ', $required->getErrorMessages()) . '.'
+				));
 			}
 
-			if(isset($item['PROPERTIES']))
+			if (isset($item['PROPERTIES']))
 			{
-				$requiredProperties = $basketProperties->checkRequiredFieldsModify(['BASKET_ITEM'=>['PROPERTIES'=>$item['PROPERTIES']]]);
-				if(!$requiredProperties->isSuccess())
+				$requiredProperties = $basketProperties->checkRequiredFieldsModify([
+					'BASKET_ITEM' => [
+						'PROPERTIES' => $item['PROPERTIES'],
+					],
+				]);
+				if (!$requiredProperties->isSuccess())
 				{
 					$requiredPropertiesFields = [];
 					foreach ($requiredProperties->getErrorMessages() as $errorMessage)
@@ -532,9 +752,20 @@ class BasketItem extends Base
 					}
 					$r->addError(new Error(implode( ' ', $requiredPropertiesFields)));
 				}
-
 			}
 		}
 		return $r;
+	}
+
+	private function checkModules(): void
+	{
+		if (!isset($this->bitrix24Included))
+		{
+			$this->bitrix24Included = Loader::includeModule('bitrix24');
+		}
+		if (!isset($this->catalogIncluded))
+		{
+			$this->catalogIncluded = Loader::includeModule('catalog');
+		}
 	}
 }

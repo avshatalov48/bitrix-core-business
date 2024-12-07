@@ -101,14 +101,14 @@ if($lAdmin->EditAction()) //save from the list
 			if($e = $APPLICATION->GetException())
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
 		else
 		{
 			CCertification::Certificate($ar["STUDENT_ID"], $ar["COURSE_ID"]);
+			$DB->Commit();
 		}
-		$DB->Commit();
 	}
 }
 
@@ -143,7 +143,10 @@ if($arID = $lAdmin->GroupAction())
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("LEARNING_DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "completed":
 		case "uncompleted":

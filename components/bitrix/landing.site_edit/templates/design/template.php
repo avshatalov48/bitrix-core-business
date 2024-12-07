@@ -116,7 +116,7 @@ $uriDomain->addParams(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
 		const successSave = <?= CUtil::PhpToJSObject($arParams['SUCCESS_SAVE']) ?>;
@@ -327,7 +327,7 @@ if ($arParams['SUCCESS_SAVE'])
 									'needWrapper' => true,
 									'readonly' => true,
 								]); ?>
-								<script type="text/javascript">
+								<script>
 									var paramsColor = {
 										defaultColor: <?=CUtil::PhpToJSObject($colorMain)?>,
 									}
@@ -380,7 +380,7 @@ if ($arParams['SUCCESS_SAVE'])
 									'needWrapper' => true,
 									'readonly' => true,
 								]); ?>
-								<script type="text/javascript">
+								<script>
 									var paramsColorH = {
 										defaultColor: <?=CUtil::PhpToJSObject($colorTitle)?>,
 									}
@@ -468,7 +468,7 @@ if ($arParams['SUCCESS_SAVE'])
 											'needWrapper' => true,
 											'readonly' => true,
 										]); ?>
-										<script type="text/javascript">
+										<script>
 											var paramsBgColor = {
 												defaultColor: <?=CUtil::PhpToJSObject(LandingSiteEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
 											}
@@ -498,7 +498,7 @@ if ($arParams['SUCCESS_SAVE'])
 									'needWrapper' => true,
 									'readonly' => true,
 								]); ?>
-								<script type="text/javascript">
+								<script>
 									var paramsTransitionBgColor = {
 										defaultColor: <?=CUtil::PhpToJSObject(LandingSiteEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
 									}
@@ -548,7 +548,7 @@ if ($arParams['SUCCESS_SAVE'])
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		new BX.UI.LayoutForm({container: BX('landing-site-design-form')});
 
@@ -638,7 +638,7 @@ if ($arParams['SUCCESS_SAVE'])
 				text2: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_SITE_FORM_TEXT_2'))?>,
 				button: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_SITE_FORM_BUTTON'))?>,
 			},
-			'<?= $template->getFieldId('DESIGN_PREVIEW', false, 'element') ?>'
+			'<?= $template->getFieldId('DESIGN_PREVIEW', false, 'element') ?>',
 		);
 	});
 </script>

@@ -21,7 +21,7 @@ final class SocialnetworkLogList extends \Bitrix\Socialnetwork\Component\LogList
 	{
 		global $APPLICATION;
 
-		$title = Loc::getMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'SONET_LOG_LIST_PAGE_TITLE2' : 'SONET_LOG_LIST_PAGE_TITLE');
+		$title = Loc::getMessage(\Bitrix\Main\ModuleManager::isModuleInstalled('intranet') ? 'SONET_LOG_LIST_PAGE_TITLE3' : 'SONET_LOG_LIST_PAGE_TITLE');
 
 		if ($this->arParams['SET_TITLE'] === 'Y')
 		{

@@ -45,8 +45,6 @@ $sendResponse = function($result)
 	die();
 };
 
-CUtil::JSPostUnescape();
-
 $action = isset($_POST['action']) ? (string)$_POST['action'] : '';
 
 if ($action === 'set_limits')

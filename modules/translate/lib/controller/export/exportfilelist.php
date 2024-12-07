@@ -30,7 +30,7 @@ class ExportFileList
 	 */
 	public function __construct($name, Main\Engine\Controller $controller, array $config = [])
 	{
-		$this->keepField('seekPathLangId', 'seekLangFilePath', 'seekPhraseCode');
+		$this->keepField(['seekPathLangId', 'seekLangFilePath', 'seekPhraseCode']);
 
 		Loc::loadLanguageFile(__DIR__ . '/exportaction.php');
 
@@ -136,7 +136,7 @@ class ExportFileList
 		];
 		if (!empty($this->seekPathLangId))
 		{
-			$pathFilter['>ID'] = $this->seekPathLangId;
+			$pathFilter['>=ID'] = $this->seekPathLangId;
 		}
 
 		$currentLangId = Loc::getCurrentLang();
@@ -209,6 +209,7 @@ class ExportFileList
 						if ($this->instanceTimer()->hasTimeLimitReached())
 						{
 							$this->seekPhraseCode = $code;
+							break;
 						}
 						else
 						{

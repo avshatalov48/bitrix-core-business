@@ -2,6 +2,7 @@
 
 IncludeModuleLangFile(__FILE__);
 
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Item\LogIndex;
 use Bitrix\Socialnetwork\LogTable;
 use Bitrix\Socialnetwork\LogCommentTable;
@@ -242,6 +243,7 @@ class CAllSocNetLogComments
 							\Bitrix\Socialnetwork\Internals\EventService\EventDictionary::EVENT_SPACE_LIVEFEED_COMMENT_DEL,
 							[
 								'SONET_LOG_ID' => (int)$arComment['LOG_ID'],
+								'SONET_LOG_COMMENT_ID' => (int)$ID,
 							]
 						);
 
@@ -315,7 +317,9 @@ class CAllSocNetLogComments
 
 		$ID = intval($ID);
 		if ($ID <= 0)
+		{
 			return false;
+		}
 
 		$arFilter = array("ID" => $ID);
 
@@ -550,7 +554,7 @@ class CAllSocNetLogComments
 						);
 
 						$arMessageFields = array(
-							"FROM_USER_ID" => (intval($arLogComment["USER_ID"]) > 0 ? $arLogComment["USER_ID"] : 1),
+							"FROM_USER_ID" => ((int)$arLogComment["USER_ID"] > 0 ? $arLogComment["USER_ID"] : 1),
 							"TO_USER_ID" => $arSubscriber["USER_ID"],
 							"MESSAGE" => $arLogComment["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["TITLE"]." #BR# ".$arLogComment["FIELDS_FORMATTED"]["EVENT_FORMATTED"]["MESSAGE"].($link <> '' ? "#BR# ".$link : ""),
 							"=DATE_CREATE" => $DB->CurrentTimeFunction(),
@@ -775,25 +779,25 @@ class CAllSocNetLogComments
 			return false;
 		}
 
-		switch ($arCommentFields["EVENT_ID"])
+		if ($arCommentFields["EVENT_ID"] === 'forum')
 		{
-			case "forum":
-				$arTitleRes = self::OnSendMentionGetEntityFields_Forum($arCommentFields);
-				break;
-			default:
-				$db_events = GetModuleEvents("socialnetwork", "OnSendMentionGetEntityFields");
-				while ($arEvent = $db_events->Fetch())
+			$arTitleRes = self::OnSendMentionGetEntityFields_Forum($arCommentFields);
+		}
+		else
+		{
+			$db_events = GetModuleEvents("socialnetwork", "OnSendMentionGetEntityFields");
+			while ($arEvent = $db_events->Fetch())
+			{
+				$arTitleRes = ExecuteModuleEventEx($arEvent, array($arCommentFields));
+				if ($arTitleRes)
 				{
-					$arTitleRes = ExecuteModuleEventEx($arEvent, array($arCommentFields));
-					if ($arTitleRes)
-					{
-						break;
-					}
+					break;
 				}
+			}
 		}
 
 		if (
-			$arTitleRes
+			!empty($arTitleRes)
 			&& is_array($arTitleRes)
 			&& !empty($arTitleRes["NOTIFY_MESSAGE"])
 		)
@@ -840,15 +844,15 @@ class CAllSocNetLogComments
 				foreach ($arMention as $mentionUserID)
 				{
 					$bHaveRights = (
-						($arTitleRes["IS_CRM"] ?? null) != "Y"
-						|| COption::GetOptionString("crm", "enable_livefeed_merge", "N") == "Y"
+						($arTitleRes["IS_CRM"] ?? null) !== "Y"
+						|| COption::GetOptionString("crm", "enable_livefeed_merge", "N") === "Y"
 							? CSocNetLogRights::CheckForUserOnly($arCommentFields["LOG_ID"], $mentionUserID)
 							: false
 					);
 
 					if (
 						$bHaveRights
-						&& $arTitleRes["IS_CRM"] == "Y"
+						&& $arTitleRes["IS_CRM"] === "Y"
 					) // user has 'normal' rights to the log entry but it's crm
 					{
 						$dbLog = CSocNetLog::getList(
@@ -862,7 +866,7 @@ class CAllSocNetLogComments
 						);
 						if (
 							!($arLog = $dbLog->fetch())
-							|| $arLog["MODULE_ID"] != "crm_shared"
+							|| $arLog["MODULE_ID"] !== "crm_shared"
 						)
 						{
 							$bHaveRights = false;
@@ -873,7 +877,7 @@ class CAllSocNetLogComments
 
 					if (
 						!$bHaveRights
-						&& ($arTitleRes["IS_CRM"] ?? null) == "Y"
+						&& ($arTitleRes["IS_CRM"] ?? null) === "Y"
 					)
 					{
 						$dbLog = CSocNetLog::GetList(
@@ -907,6 +911,7 @@ class CAllSocNetLogComments
 					}
 
 					$url = false;
+					$serverName = false;
 
 					if (
 						!empty($arSourceURL["URL"])
@@ -919,7 +924,7 @@ class CAllSocNetLogComments
 						);
 
 						if (
-							$arTitleRes["IS_CRM"] == "Y"
+							$arTitleRes["IS_CRM"] === "Y"
 							&& $bHaveCrmRights
 							&& !empty($arTmp["URLS"]["CRM_URL"])
 						)
@@ -930,12 +935,53 @@ class CAllSocNetLogComments
 						{
 							$url = $arTmp["URLS"]["URL"];
 						}
-						$serverName = (mb_strpos($url, "http://") === 0 || mb_strpos($url, "https://") === 0 ? "" : $arTmp["SERVER_NAME"]);
+						$serverName = (str_starts_with($url, "http://") || str_starts_with($url, "https://") ? "" : $arTmp["SERVER_NAME"]);
 					}
 
 					$arMessageFields["TO_USER_ID"] = $mentionUserID;
-					$arMessageFields["NOTIFY_MESSAGE"] = str_replace(array("#url#", "#server_name#"), array($url, $serverName), $arTitleRes["NOTIFY_MESSAGE"]);
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = (!empty($arTitleRes["NOTIFY_MESSAGE_OUT"]) ? str_replace(array("#url#", "#server_name#"), array($url, $serverName), $arTitleRes["NOTIFY_MESSAGE_OUT"]) : "");
+
+					if (is_callable($arTitleRes['NOTIFY_MESSAGE']))
+					{
+						$messageClosure = $arTitleRes['NOTIFY_MESSAGE'];
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => str_replace(
+							array("#url#", "#server_name#"),
+							array($url, $serverName),
+							$messageClosure($languageId)
+						);
+					}
+					else
+					{
+						$arMessageFields["NOTIFY_MESSAGE"] = str_replace(
+							array("#url#", "#server_name#"),
+							array($url, $serverName),
+							$arTitleRes["NOTIFY_MESSAGE"]
+						);
+					}
+
+					if (!empty($arTitleRes["NOTIFY_MESSAGE_OUT"]))
+					{
+						if (is_callable($arTitleRes["NOTIFY_MESSAGE_OUT"]))
+						{
+							$messageOutClosure = $arTitleRes["NOTIFY_MESSAGE_OUT"];
+							$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => str_replace(
+								array("#url#", "#server_name#"),
+								array($url, $serverName),
+								$messageOutClosure($languageId)
+							);
+						}
+						else
+						{
+							$arMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
+								array("#url#", "#server_name#"),
+								array($url, $serverName),
+								$arTitleRes["NOTIFY_MESSAGE_OUT"]
+							);
+						}
+					}
+					else
+					{
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = '';
+					}
 
 					CIMNotify::Add($arMessageFields);
 				}
@@ -956,7 +1002,7 @@ class CAllSocNetLogComments
 
 	public static function OnSendMentionGetEntityFields_Forum($arCommentFields)
 	{
-		if ($arCommentFields["EVENT_ID"] != "forum")
+		if ($arCommentFields["EVENT_ID"] !== "forum")
 		{
 			return false;
 		}
@@ -988,23 +1034,27 @@ class CAllSocNetLogComments
 			$title = TruncateText($title, 100);
 			$title_out = TruncateText($title, 255);
 
-			$arReturn = array(
+			return [
 				"URL" => $strPathToLogEntryComment,
 				"NOTIFY_TAG" => "FORUM|COMMENT_MENTION|".$arCommentFields["ID"],
-				"NOTIFY_MESSAGE" => GetMessage("SONET_GLC_FORUM_MENTION".($genderSuffix <> '' ? "_".$genderSuffix : ""), Array(
-					"#title#" => "<a href=\"#url#\" class=\"bx-notifier-item-action\">".$title."</a>"
-				)),
-				"NOTIFY_MESSAGE_OUT" => GetMessage("SONET_GLC_FORUM_MENTION".($genderSuffix <> '' ? "_".$genderSuffix : ""), Array(
-					"#title#" => $title_out
-				))." ("."#server_name##url#)"
-			);
+				"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+					"SONET_GLC_FORUM_MENTION".($genderSuffix <> '' ? "_".$genderSuffix : ""),
+					[
+						"#title#" => "<a href=\"#url#\" class=\"bx-notifier-item-action\">".$title."</a>"
+					],
+					$languageId
+				),
+				"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage(
+					"SONET_GLC_FORUM_MENTION".($genderSuffix <> '' ? "_".$genderSuffix : ""),
+					[
+						"#title#" => $title_out
+					],
+					$languageId
+				)." ("."#server_name##url#)"
+			];
+		}
 
-			return $arReturn;
-		}
-		else
-		{
-			return false;
-		}
+		return false;
 	}
 
 	public static function BatchUpdateLogId($oldLogId, $newLogId)
@@ -1012,7 +1062,7 @@ class CAllSocNetLogComments
 		global $DB;
 
 		$strUpdate = "UPDATE b_sonet_log_comment SET ".$DB->PrepareUpdate("b_sonet_log_comment", array("LOG_ID" => $newLogId))." WHERE LOG_ID=".intval($oldLogId);
-		$res = $DB->Query($strUpdate, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strUpdate);
 
 		return $res;
 	}

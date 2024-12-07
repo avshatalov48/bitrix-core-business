@@ -13,6 +13,7 @@ final class CleanLocationEventsAgent
 {
 	public const DO_CLEAR_DELETED_USER_LOCATION_EVENTS = false;
 	private const DAY_LENGTH = 86400;
+	private const FETCH_LIMIT = 100;
 
 	/**
 	 * @return string
@@ -44,7 +45,7 @@ final class CleanLocationEventsAgent
 
 		$toCleanLocationEvents = $this->getLocationEventsNeededToClean();
 
-		if ($toCleanLocationEvents)
+		if (!empty($toCleanLocationEvents))
 		{
 			$this->cleanTables($toCleanLocationEvents);
 			\CCalendar::ClearCache(['event_list']);
@@ -114,8 +115,9 @@ final class CleanLocationEventsAgent
 					->whereNull('PARENT.ID')
 			)
 			->where('DATE_TO_TS_UTC', '>', $this->getTimeForQuery())
+			->setLimit(self::FETCH_LIMIT)
 			->exec()->fetchAll()
-			;
+		;
 	}
 
 	/**

@@ -5,9 +5,6 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Numerator\Numerator;
-use Bitrix\Main\Engine\Response\AjaxJson;
-use Bitrix\Main\ErrorCollection;
-use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Numerator\Generator\SequentNumberGenerator;
 

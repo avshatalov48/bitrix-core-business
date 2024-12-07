@@ -119,6 +119,7 @@ $bodyDownloadLink = UrlManager::getInstance()
 $warningWaitElementId = "mail-msg-warning-top-wait-$messageId";
 $warningFailElementId = "mail-msg-warning-top-fail-$messageId";
 $bodyLoaderMaxTime = ini_get('max_execution_time') ?: 60;
+$fileRefreshButtonId = "mail_msg_{$messageId}_refresh_files_button";
 
 ?>
 <div class="mail-msg-view-border-bottom">
@@ -507,7 +508,7 @@ $actionUrl = '/bitrix/services/main/ajax.php?c=bitrix%3Amail.client&action=sendM
 
 </form>
 
-<script type="text/javascript">
+<script>
 
 var mailto = function ()
 {
@@ -563,7 +564,8 @@ BX.ready(function()
 		rcptCcSelected: <?=\Bitrix\Main\Web\Json::encode($rcptCcSelected) ?>
 	});
 
-	new BXMailView({
+	var mailView = new BXMailView({
+		mailboxId: <?= (int)$message['MAILBOX_ID'] ?>,
 		messageId: <?= (int)$message['ID'] ?>,
 		isAjaxBody: <?= (int)$isAjaxBody ?>,
 		formId: '<?= CUtil::JSescape($formId) ?>',
@@ -578,6 +580,7 @@ BX.ready(function()
 		warningWaitElementId: '<?= CUtil::JSescape($warningWaitElementId) ?>',
 		warningFailElementId: '<?= CUtil::JSescape($warningFailElementId) ?>',
 		bxMailMessage: message,
+		fileRefreshButtonId: '<?= CUtil::JSescape($fileRefreshButtonId) ?>',
 	});
 
 });

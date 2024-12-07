@@ -29,7 +29,7 @@ class CAllSocNetLogSmartFilter
 		if ($arSqls["ORDERBY"] <> '')
 			$strSql .= "ORDER BY ".$arSqls["ORDERBY"]." ";
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		return $dbRes;
 	}
@@ -46,7 +46,7 @@ class CAllSocNetLogSmartFilter
 		$strWhere = " USER_ID = ".$user_id;
 
 		$strSQL = "DELETE FROM b_sonet_log_smartfilter WHERE ".$strWhere;
-		if ($DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__))
+		if ($DB->Query($strSQL))
 			return true;
 		else
 			return false;

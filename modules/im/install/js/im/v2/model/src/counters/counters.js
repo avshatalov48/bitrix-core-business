@@ -12,6 +12,18 @@ type CountersState = {
 	unloadedChatCounters: {[chatId: string]: number},
 	unloadedLinesCounters: {[chatId: string]: number},
 	unloadedCopilotCounters: {[chatId: string]: number},
+	commentCounters: CommentsCounters,
+};
+
+type CommentsCounters = {
+	[channelChatId: string]: {
+		[commentChatId: string]: number,
+	},
+}
+
+type CommentsCounterPayload = {
+	channelId: number,
+	commentChatId: number
 };
 
 export class CountersModel extends BuilderModel
@@ -27,6 +39,7 @@ export class CountersModel extends BuilderModel
 			unloadedChatCounters: {},
 			unloadedLinesCounters: {},
 			unloadedCopilotCounters: {},
+			commentCounters: {},
 		};
 	}
 
@@ -34,25 +47,17 @@ export class CountersModel extends BuilderModel
 	getGetters(): GetterTree
 	{
 		return {
+			/** @function counters/getUnloadedChatCounters */
+			getUnloadedChatCounters: (state: CountersState): number => {
+				return state.unloadedChatCounters;
+			},
 			/** @function counters/getTotalChatCounter */
 			getTotalChatCounter: (state: CountersState): number => {
 				let loadedChatsCounter = 0;
 				const recentCollection = Core.getStore().getters['recent/getRecentCollection'];
 				recentCollection.forEach((recentItem: ImModelRecentItem) => {
-					const dialog: ImModelChat = this.store.getters['chats/get'](recentItem.dialogId, true);
-					const isMuted = dialog.muteList.includes(Core.getUserId());
-					if (isMuted)
-					{
-						return;
-					}
-					const isMarked = recentItem.unread;
-					if (dialog.counter === 0 && isMarked)
-					{
-						loadedChatsCounter++;
-
-						return;
-					}
-					loadedChatsCounter += dialog.counter;
+					const recentItemCounter = this.#getRecentItemCounter(recentItem);
+					loadedChatsCounter += recentItemCounter;
 				});
 
 				let unloadedChatsCounter = 0;
@@ -60,20 +65,21 @@ export class CountersModel extends BuilderModel
 					unloadedChatsCounter += counter;
 				});
 
-				return loadedChatsCounter + unloadedChatsCounter;
+				const channelCommentsCounter = Core.getStore().getters['counters/getTotalCommentsCounter'];
+
+				return loadedChatsCounter + unloadedChatsCounter + channelCommentsCounter;
 			},
 			/** @function counters/getTotalCopilotCounter */
 			getTotalCopilotCounter: (state: CountersState): number => {
 				let loadedChatsCounter = 0;
 				const recentCollection = Core.getStore().getters['recent/getCopilotCollection'];
 				recentCollection.forEach((recentItem: ImModelRecentItem) => {
-					const dialog: ImModelChat = this.store.getters['chats/get'](recentItem.dialogId, true);
-					const isMuted = dialog.muteList.includes(Core.getUserId());
-					if (isMuted)
+					const chat = this.#getChat(recentItem.dialogId);
+					if (this.#isChatMuted(chat))
 					{
 						return;
 					}
-					loadedChatsCounter += dialog.counter;
+					loadedChatsCounter += chat.counter;
 				});
 
 				let unloadedChatsCounter = 0;
@@ -101,7 +107,71 @@ export class CountersModel extends BuilderModel
 
 				return state.unloadedLinesCounters[chatId];
 			},
+			/** @function counters/getTotalCommentsCounter */
+			getTotalCommentsCounter: (state: CountersState): number => {
+				let totalCounter = 0;
+				Object.entries(state.commentCounters).forEach(([channelChatId, channelCounters]) => {
+					const channel = this.#getChatByChatId(channelChatId);
+					if (this.#isChatMuted(channel))
+					{
+						return;
+					}
+					Object.values(channelCounters).forEach((commentCounter) => {
+						totalCounter += commentCounter;
+					});
+				});
 
+				return totalCounter;
+			},
+			/** @function counters/getChannelComments */
+			getChannelComments: (state: CountersState) => (chatId: number): number[] => {
+				if (!state.commentCounters[chatId])
+				{
+					return [];
+				}
+
+				return state.commentCounters[chatId];
+			},
+			/** @function counters/getChannelCommentsCounter */
+			getChannelCommentsCounter: (state: CountersState) => (chatId: number): number => {
+				if (!state.commentCounters[chatId])
+				{
+					return 0;
+				}
+
+				let result = 0;
+				Object.values(state.commentCounters[chatId]).forEach((counter) => {
+					result += counter;
+				});
+
+				return result;
+			},
+			/** @function counters/getChatCounterByChatId */
+			getChatCounterByChatId: (state: CountersState) => (chatId: number): number => {
+				const recentCollection: ImModelRecentItem[] = Core.getStore().getters['recent/getRecentCollection'];
+				const recentItem = recentCollection.find((element) => {
+					const chat: ImModelChat = this.store.getters['chats/get'](element.dialogId, true);
+
+					return chat.chatId === chatId;
+				});
+
+				if (!recentItem)
+				{
+					return state.unloadedChatCounters[chatId] ?? 0;
+				}
+
+				return this.#getRecentItemCounter(recentItem);
+			},
+			/** @function counters/getSpecificCommentsCounter */
+			getSpecificCommentsCounter: (state: CountersState) => (payload: CommentsCounterPayload): number => {
+				const { channelId, commentChatId } = payload;
+				if (!state.commentCounters[channelId])
+				{
+					return 0;
+				}
+
+				return state.commentCounters[channelId][commentChatId] ?? 0;
+			},
 		};
 	}
 
@@ -136,6 +206,33 @@ export class CountersModel extends BuilderModel
 				}
 
 				store.commit('setUnloadedCopilotCounters', payload);
+			},
+			/** @function counters/setCommentCounters */
+			setCommentCounters: (store, payload: CommentsCounters) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('setCommentCounters', payload);
+			},
+			/** @function counters/readAllChannelComments */
+			readAllChannelComments: (store, channelChatId: number) => {
+				if (!Type.isNumber(channelChatId))
+				{
+					return;
+				}
+
+				store.commit('readAllChannelComments', channelChatId);
+			},
+			/** @function counters/delete */
+			delete: (store, payload: {channelChatId: number, commentChatId: number}) => {
+				if (!Type.isPlainObject(payload))
+				{
+					return;
+				}
+
+				store.commit('delete', payload);
 			},
 		};
 	}
@@ -176,6 +273,69 @@ export class CountersModel extends BuilderModel
 					state.unloadedCopilotCounters[chatId] = counter;
 				});
 			},
+			setCommentCounters: (state: CountersState, payload: CommentsCounters) => {
+				Object.entries(payload).forEach(([channelChatId, countersMap]) => {
+					if (!state.commentCounters[channelChatId])
+					{
+						state.commentCounters[channelChatId] = {};
+					}
+
+					const channelMap = state.commentCounters[channelChatId];
+					Object.entries(countersMap).forEach(([commentChatId, counter]) => {
+						if (counter === 0)
+						{
+							delete channelMap[commentChatId];
+
+							return;
+						}
+
+						channelMap[commentChatId] = counter;
+					});
+				});
+			},
+			readAllChannelComments: (state: CountersState, channelChatId: number) => {
+				delete state.commentCounters[channelChatId];
+			},
+			delete: (state: CountersState, payload: {channelChatId: number, commentChatId: number}) => {
+				const { channelChatId, commentChatId } = payload;
+				if (!state.commentCounters[channelChatId])
+				{
+					return;
+				}
+
+				delete state.commentCounters[channelChatId][commentChatId];
+			},
 		};
+	}
+
+	#getChat(dialogId): ImModelChat
+	{
+		return Core.getStore().getters['chats/get'](dialogId, true);
+	}
+
+	#getChatByChatId(chatId): ImModelChat
+	{
+		return Core.getStore().getters['chats/getByChatId'](chatId, true);
+	}
+
+	#isChatMuted(chat: ImModelChat): boolean
+	{
+		return chat.muteList.includes(Core.getUserId());
+	}
+
+	#getRecentItemCounter(recentItem: ImModelRecentItem): number
+	{
+		const chat = this.#getChat(recentItem.dialogId);
+		if (this.#isChatMuted(chat))
+		{
+			return 0;
+		}
+		const isMarked = recentItem.unread;
+		if (chat.counter === 0 && isMarked)
+		{
+			return 1;
+		}
+
+		return chat.counter;
 	}
 }

@@ -189,9 +189,7 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 
 	public static function Create($arInFields)
 	{
-		$lastID = self::_InsertOrUpdate ($arInFields, 'insert');
-
-		return ($lastID);
+		return self::_InsertOrUpdate ($arInFields, 'insert');
 	}
 
 	public static function Update($id, $arInFields)
@@ -244,46 +242,21 @@ abstract class CLearnGraphNode implements ILearnGraphNode
 		else
 			$arFieldsToDb = self::_PrepareDataForQuery ($arFieldsMap, $arFields, false);
 
+		$arFieldsToDb['~TIMESTAMP_X'] = $DB->GetNowFunction();
 		$newLessonId = null;
 
 		if ($isInsert)
 		{
-			$arInsert = $DB->PrepareInsert('b_learn_lesson', $arFieldsToDb);
-
-			$strSql =
-				"INSERT INTO b_learn_lesson 
-					(" . $arInsert[0] . ", 
-					TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-				"VALUES 
-					(" . $arInsert[1] . ", "
-					. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", " . $createdBy . ")";
-
-			$rc = $DB->Query($strSql, true);
-
-			$newLessonId = intval($DB->LastID());
+			return $DB->Add('b_learn_lesson', $arFieldsToDb);
 		}
-		else	// update
+		else
 		{
 			$strUpdate = $DB->PrepareUpdate('b_learn_lesson', $arFieldsToDb);
-
-			if ($strUpdate !== '')
-				$strUpdate .= ', ';
-
-			$strSql = "UPDATE b_learn_lesson SET $strUpdate 
-					TIMESTAMP_X = " . $DB->GetNowFunction()
-				. " WHERE ID = " . ($id + 0);
-
-			$rc = $DB->Query($strSql, $bIgnoreErrors = true);
-
-			// TIMESTAMP_X - date when data last changed, so update it
-			$arFieldsToDb['TIMESTAMP_X'] = $DB->GetNowFunction();
+			if ($strUpdate)
+			{
+				$DB->Query("UPDATE b_learn_lesson SET $strUpdate WHERE ID = " . intval($id));
+			}
 		}
-
-		if ($rc === false)
-			throw new LearnException ('EA_SQLERROR', $throwErrCode);
-
-		if ($isInsert)
-			return ($newLessonId);	// id of created node
 	}
 
 	/**

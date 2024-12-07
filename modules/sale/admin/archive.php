@@ -29,7 +29,6 @@ $res = false;
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["archive"]=="Y" && check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	@set_time_limit(0);
 
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
@@ -176,7 +175,7 @@ else
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	?>
 
-	<script language="JavaScript">
+	<script>
 		var savedNextStep;
 		var stop;
 		var interval = 0;

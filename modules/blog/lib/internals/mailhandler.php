@@ -136,7 +136,7 @@ final class MailHandler
 		}
 
 		$fields["POST_TEXT"] = preg_replace_callback(
-			"/\[ATTACHMENT\s*=\s*([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+			"/\[ATTACHMENT\s*=\s*([^\]]*)\]/isu",
 			function ($matches) use ($attachmentRelations)
 			{
 				if (isset($attachmentRelations[$matches[1]]))
@@ -243,8 +243,8 @@ final class MailHandler
 		if ($fields["TITLE"] == '')
 		{
 			$fields["MICRO"] = "Y";
-			$fields["TITLE"] = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/is".BX_UTF_PCRE_MODIFIER, "", \blogTextParser::killAllTags($fields["DETAIL_TEXT"]));
-			$fields["TITLE"] = TruncateText(trim(preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $fields["TITLE"])), 100);
+			$fields["TITLE"] = preg_replace("/\[ATTACHMENT\s*=\s*[^\]]*\]/isu", "", \blogTextParser::killAllTags($fields["DETAIL_TEXT"]));
+			$fields["TITLE"] = TruncateText(trim(preg_replace(array("/\n+/isu", "/\s+/isu"), " ", $fields["TITLE"])), 100);
 			if($fields["TITLE"] == '')
 			{
 				$fields["TITLE"] = Loc::getMessage("BLOG_MAILHANDLER_EMPTY_TITLE_PLACEHOLDER");
@@ -275,7 +275,7 @@ final class MailHandler
 		$fields["HAS_PROPS"] = (!empty($attachmentRelations) ? "Y" :"N");
 
 		$fields["DETAIL_TEXT"] = preg_replace_callback(
-			"/\[ATTACHMENT\s*=\s*([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER,
+			"/\[ATTACHMENT\s*=\s*([^\]]*)\]/isu",
 			function ($matches) use ($attachmentRelations)
 			{
 				return (
@@ -333,12 +333,20 @@ final class MailHandler
 				"NOTIFY_EVENT" => "post_mail",
 				"NOTIFY_TAG" => "BLOG|POST|".$postId,
 				"TO_USER_ID" => $userId,
-				"NOTIFY_MESSAGE" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
-					"#TITLE#" => "<a href=\"".$postUrl."\">".$fields["TITLE"]."</a>"
-				)),
-				"NOTIFY_MESSAGE_OUT" => Loc::getMessage("BLOG_MAILHANDLER_NEW_POST", array(
+				"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+					"BLOG_MAILHANDLER_NEW_POST",
+					array(
+						"#TITLE#" => "<a href=\"".$postUrl."\">".$fields["TITLE"]."</a>",
+					),
+					$languageId
+				),
+				"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage(
+					"BLOG_MAILHANDLER_NEW_POST",
+					array(
 						"#TITLE#" => $fields["TITLE"]
-					)).' '.$serverName.$postUrl
+					),
+					$languageId
+				) .' '.$serverName.$postUrl
 			));
 		}
 

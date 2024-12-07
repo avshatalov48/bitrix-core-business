@@ -449,7 +449,7 @@ class UserCollector
 			]
 		])->fetch();
 
-		return $contentSeen['DATE_VIEW']
+		return isset($contentSeen['DATE_VIEW'])
 			? new DateTime($contentSeen['DATE_VIEW'])
 			: null;
 	}

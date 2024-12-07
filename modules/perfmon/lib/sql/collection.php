@@ -8,7 +8,7 @@ namespace Bitrix\Perfmon\Sql;
  */
 class Collection
 {
-	/** @var array[BaseObject]  */
+	/** @var array[BaseObject] */
 	private $list = [];
 
 	/**

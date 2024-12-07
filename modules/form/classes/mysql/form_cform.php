@@ -2,16 +2,8 @@
 
 class CForm extends CAllForm
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CForm<br>File: ".__FILE__;
-	}
-
 	public static function GetList($by = 's_sort', $order = 'asc', $arFilter = [], $is_filtered = null, $min_permission = 10)
 	{
-		$err_mess = (CForm::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $strError;
 		$min_permission = intval($min_permission);
 
@@ -146,15 +138,15 @@ class CForm extends CAllForm
 				";
 		}
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetByID($ID, $GET_BY_SID="N")
 	{
-		$err_mess = (CForm::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $strError;
+
 		$where = ($GET_BY_SID=="N") ? " F.ID = '".intval($ID)."' " : " F.SID='".$DB->ForSql($ID,50)."' ";
 		$strSql = "
 			SELECT
@@ -177,13 +169,12 @@ class CForm extends CAllForm
 				F.ID
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetFormTemplateByID($ID, $GET_BY_SID="N")
 	{
-		$err_mess = (CForm::err_mess())."<br>Function: GetFormTemplateByID<br>Line: ";
 		global $DB, $strError;
 		$where = ($GET_BY_SID=="N") ? " F.ID = '".intval($ID)."' " : " F.SID='".$DB->ForSql($ID,50)."' ";
 		$strSql = "
@@ -194,7 +185,7 @@ class CForm extends CAllForm
 				$where
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		if ($arRes = $res->Fetch()) return $arRes["FT"];
 		else return "";
 	}

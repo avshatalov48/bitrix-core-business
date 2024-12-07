@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Mobile = this.BX.Mobile || {};
 this.BX.Mobile.Field = this.BX.Mobile.Field || {};
@@ -5,8 +6,7 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	'use strict';
 
 	var BX = window.BX,
-	    BXMobileApp = window.BXMobileApp;
-
+	  BXMobileApp = window.BXMobileApp;
 	var nodeFile = function () {
 	  var nodeFile = function nodeFile(node) {
 	    this.node = node;
@@ -15,7 +15,6 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    BX.bind(this.node, "click", this.click);
 	    this.isImage = this.node.getAttribute('data-is-image') === 'yes';
 	  };
-
 	  nodeFile.prototype = {
 	    click: function click(e) {
 	      this.show();
@@ -24,7 +23,6 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    show: function show() {
 	      var url = this.node.getAttribute('data-url');
 	      var description = this.node.textContent.trim();
-
 	      if (this.isImage) {
 	        BXMobileApp.UI.Photo.show({
 	          photos: [{
@@ -42,22 +40,17 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	  };
 	  return nodeFile;
 	}();
-
 	window.app.exec('enableCaptureKeyboard', true);
-
 	BX.Mobile.Field.File = function (params) {
 	  this.init(params);
 	};
-
 	BX.Mobile.Field.File.prototype = {
 	  __proto__: BX.Mobile.Field.prototype,
 	  bindElement: function bindElement(node) {
 	    var result = null;
-
 	    if (BX(node)) {
 	      result = new nodeFile(node);
 	    }
-
 	    return result;
 	  }
 	};

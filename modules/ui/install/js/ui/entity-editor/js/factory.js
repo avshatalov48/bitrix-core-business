@@ -125,6 +125,10 @@ if(typeof BX.UI.EntityEditorControlFactory === "undefined")
 			{
 				return BX.UI.EntityEditorBB.create(controlId, settings);
 			}
+			else if(type === "bbcode")
+			{
+				return BX.UI.EntityEditorBBCode.create(controlId, settings);
+			}
 			else if(type === "link")
 			{
 				return BX.UI.EntityEditorLink.create(controlId, settings);

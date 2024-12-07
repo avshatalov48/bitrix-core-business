@@ -99,7 +99,7 @@ class CSaleHelper
 				if(isset($arField['HIDE_BY_NAMES']) && is_array($arField['HIDE_BY_NAMES']))
 				{
 					$resultHtml .= '
-					<script language="JavaScript">
+					<script>
 						BX.ready(
 							function(){
 								var cbObj = document.forms["'.$formName.'"]["'.$name.'"];

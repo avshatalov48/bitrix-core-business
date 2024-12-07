@@ -1,8 +1,8 @@
 <?php
-//Следуйте комментариям вида Число* для отслеживания пути исполнения.
+//РЎР»РµРґСѓР№С‚Рµ РєРѕРјРјРµРЅС‚Р°СЂРёСЏРј РІРёРґР° Р§РёСЃР»Рѕ* РґР»СЏ РѕС‚СЃР»РµР¶РёРІР°РЅРёСЏ РїСѓС‚Рё РёСЃРїРѕР»РЅРµРЅРёСЏ.
 
 //21*
-//В случае AJAX запроса попадем сюда
+//Р’ СЃР»СѓС‡Р°Рµ AJAX Р·Р°РїСЂРѕСЃР° РїРѕРїР°РґРµРј СЃСЋРґР°
 if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["AJAX_CALL"]=="Y")
 {
 	define('PUBLIC_AJAX_MODE', true);
@@ -13,7 +13,7 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 	global $APPLICATION;
 
 	//22*
-	//Проверям: ключ подошел?
+	//РџСЂРѕРІРµСЂСЏРј: РєР»СЋС‡ РїРѕРґРѕС€РµР»?
 	if(CModule::IncludeModule("iblock"))
 	{
 		$arCache = null;
@@ -24,8 +24,8 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 		if (is_array($arCache) && ($arCache["VALID"] ?? '') === "Y")
 		{
 			//23*
-			//Да!
-			//Забираем параметры "подключения"
+			//Р”Р°!
+			//Р—Р°Р±РёСЂР°РµРј РїР°СЂР°РјРµС‚СЂС‹ "РїРѕРґРєР»СЋС‡РµРЅРёСЏ"
 			$arParams = [];
 			if (CheckSerializedData($arCache["CACHE"]))
 			{
@@ -36,7 +36,7 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 				$arParams = [];
 			}
 			//18*
-			//Добиваем теми, которые доступны "снаружи"
+			//Р”РѕР±РёРІР°РµРј С‚РµРјРё, РєРѕС‚РѕСЂС‹Рµ РґРѕСЃС‚СѓРїРЅС‹ "СЃРЅР°СЂСѓР¶Рё"
 			if (!empty($arParams["PAGE_PARAMS"]) && is_array($arParams["PAGE_PARAMS"]))
 			{
 				foreach ($arParams["PAGE_PARAMS"] as $param_name)
@@ -51,8 +51,8 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 				}
 			}
 			//24*
-			//Эта магия позволяет нам правильно определить
-			//текущий шаблон компонента (с учетом темы)
+			//Р­С‚Р° РјР°РіРёСЏ РїРѕР·РІРѕР»СЏРµС‚ РЅР°Рј РїСЂР°РІРёР»СЊРЅРѕ РѕРїСЂРµРґРµР»РёС‚СЊ
+			//С‚РµРєСѓС‰РёР№ С€Р°Р±Р»РѕРЅ РєРѕРјРїРѕРЅРµРЅС‚Р° (СЃ СѓС‡РµС‚РѕРј С‚РµРјС‹)
 			if(array_key_exists("PARENT_NAME", $arParams))
 			{
 				$component = new CBitrixComponent();
@@ -64,8 +64,8 @@ if(!defined("B_PROLOG_INCLUDED") && isset($_REQUEST["AJAX_CALL"]) && $_REQUEST["
 				$component = null;
 			}
 			//25*
-			//Подключаем компонент
-			//Результат его работы (div) заменит тот, что сейчас у клиента в браузере
+			//РџРѕРґРєР»СЋС‡Р°РµРј РєРѕРјРїРѕРЅРµРЅС‚
+			//Р РµР·СѓР»СЊС‚Р°С‚ РµРіРѕ СЂР°Р±РѕС‚С‹ (div) Р·Р°РјРµРЅРёС‚ С‚РѕС‚, С‡С‚Рѕ СЃРµР№С‡Р°СЃ Сѓ РєР»РёРµРЅС‚Р° РІ Р±СЂР°СѓР·РµСЂРµ
 			$arParams["AJAX_CALL"] = "Y";
 			$APPLICATION->IncludeComponent($arParams["COMPONENT_NAME"], $arParams["TEMPLATE_NAME"], $arParams, $component);
 		}
@@ -146,7 +146,7 @@ if($arParams["ELEMENT_ID"] <= 0)
 	Any actions without cache
 *****************************************/
 //26*
-//Сюда дошел в том числе и AJAX запрос
+//РЎСЋРґР° РґРѕС€РµР» РІ С‚РѕРј С‡РёСЃР»Рµ Рё AJAX Р·Р°РїСЂРѕСЃ
 if(
 	$_SERVER["REQUEST_METHOD"] == "POST"
 	&& !empty($_REQUEST["vote"])
@@ -245,14 +245,14 @@ if(
 		}
 	}
 	//27*
-	//Нам нет необходимости делать редирект для обновления данных
-	//в аякс режиме
-	//да и не приведет это ни к чему
+	//РќР°Рј РЅРµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РґРµР»Р°С‚СЊ СЂРµРґРёСЂРµРєС‚ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ РґР°РЅРЅС‹С…
+	//РІ Р°СЏРєСЃ СЂРµР¶РёРјРµ
+	//РґР° Рё РЅРµ РїСЂРёРІРµРґРµС‚ СЌС‚Рѕ РЅРё Рє С‡РµРјСѓ
 	if($_REQUEST["AJAX_CALL"]!="Y")
 		LocalRedirect(!empty($_REQUEST["back_page"])?$_REQUEST["back_page"]:$APPLICATION->GetCurPageParam());
 }
 //28*
-//Начинаем исполнять "шаблон"
+//РќР°С‡РёРЅР°РµРј РёСЃРїРѕР»РЅСЏС‚СЊ "С€Р°Р±Р»РѕРЅ"
 
 $bVoted = (isset($_SESSION["IBLOCK_RATING"]) && is_array($_SESSION["IBLOCK_RATING"]) && array_key_exists($arParams["ELEMENT_ID"], $_SESSION["IBLOCK_RATING"]))? 1: 0;
 if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
@@ -330,7 +330,7 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $bVoted)))
 if(array_key_exists("AJAX", $arResult) && ($_REQUEST["AJAX_CALL"] ?? '') !== "Y")
 {
 	//13*
-	//Сохраняем в БД кеш
+	//РЎРѕС…СЂР°РЅСЏРµРј РІ Р‘Р” РєРµС€
 	if(!isset($_SESSION["iblock.vote"]) || !is_array($_SESSION["iblock.vote"]))
 		$_SESSION["iblock.vote"] = array();
 	if(!array_key_exists($arResult["AJAX"]["SESSION_KEY"], $_SESSION["iblock.vote"]))
@@ -346,9 +346,9 @@ if(array_key_exists("AJAX", $arResult) && ($_REQUEST["AJAX_CALL"] ?? '') !== "Y"
 	if(!defined("ADMIN_SECTION") || (ADMIN_SECTION !== true))
 	{
 		//14*
-		//Подключаем поддержку (библиотеку)
+		//РџРѕРґРєР»СЋС‡Р°РµРј РїРѕРґРґРµСЂР¶РєСѓ (Р±РёР±Р»РёРѕС‚РµРєСѓ)
 		IncludeAJAX();
 	}
 	//15*
-	//Продолжение экскурсии в файле jscript.php
+	//РџСЂРѕРґРѕР»Р¶РµРЅРёРµ СЌРєСЃРєСѓСЂСЃРёРё РІ С„Р°Р№Р»Рµ jscript.php
 }

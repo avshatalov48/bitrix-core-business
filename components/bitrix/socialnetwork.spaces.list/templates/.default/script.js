@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,ui_vue3,ui_notification,ui_dialogs_messagebox,main_popup,main_date,socialnetwork_controller,ui_avatarEditor,main_loader,ui_vue3_vuex,main_core,main_core_events,pull_client) {
@@ -171,6 +170,17 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    });
 	    return response.data;
 	  }
+	  static async loadSpacesData(spaceIds) {
+	    const componentName = 'bitrix:socialnetwork.spaces.list';
+	    const actionName = 'loadSpacesData';
+	    const response = await main_core.ajax.runComponentAction(componentName, actionName, {
+	      mode: 'class',
+	      data: {
+	        spaceIds
+	      }
+	    });
+	    return response.data;
+	  }
 	  static async loadSpaceTheme(spaceId) {
 	    const componentName = 'bitrix:socialnetwork.spaces.list';
 	    const actionName = 'loadSpaceTheme';
@@ -276,6 +286,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  invited: 'invited',
 	  member: 'member'
 	});
+	const SpaceCommonToCommentActivityTypes = Object.freeze({
+	  calendar: 'calendar_comment',
+	  task: 'task_comment',
+	  livefeed: 'livefeed_comment'
+	});
 
 	class Helper {
 	  static getInstance() {
@@ -320,6 +335,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    recentActivity.entityId = parseInt(recentActivityData.entityId, 10);
 	    recentActivity.timestamp = this.convertTimestampFromPhp(recentActivityData.timestamp);
 	    recentActivity.date = new Date(recentActivity.timestamp);
+	    recentActivity.secondaryEntityId = recentActivityData.secondaryEntityId;
 	    return recentActivity;
 	  }
 	  getStringCapitalized(string) {
@@ -454,7 +470,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        }
 	      });
 
-	      // null the existing space counters
+	      // empty the existing space counters
 	      store.getters.spaces.forEach(space => {
 	        store.commit('updateCounter', {
 	          userId,
@@ -479,10 +495,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      });
 	    },
 	    updateSpaceData: (store, data) => {
-	      if (data.space && data.isInvitation) {
-	        store.commit('addInvitations', Helper.getInstance().buildInvitations([data.invitation]));
-	      } else {
-	        store.commit('deleteInvitationBySpaceId', data.spaceId);
+	      if (data.checkInvitation !== false) {
+	        if (data.space && data.isInvitation) {
+	          store.commit('addInvitations', Helper.getInstance().buildInvitations([data.invitation]));
+	        } else {
+	          store.commit('deleteInvitationBySpaceId', data.spaceId);
+	        }
 	      }
 	      if (data.space) {
 	        const helper = Helper.getInstance();
@@ -764,6 +782,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  changeSpaceListState: 'socialnetwork:spacesList:changeSpaceListState',
 	  recentActivityUpdate: 'socialnetwork:spacesList:recentActivityUpdate',
 	  recentActivityDelete: 'socialnetwork:spacesList:recentActivityDelete',
+	  recentActivityRemoveFromSpace: 'socialnetwork:spacesList:recentActivityRemoveFromSpace',
 	  openSpaceFromContextMenu: 'socialnetwork:spacesList:openSpaceFromContextMenu',
 	  changeMode: 'socialnetwork:spacesList:changeMode'
 	});
@@ -2472,7 +2491,19 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      main_core.ajax.runAction('socialnetwork.api.workgroup.createGroup', {
 	        data: formData
 	      }).then(response => {
-	        location.href = `${LinkManager.getSpaceLink(response.data.groupId)}?empty-state=enabled`;
+	        BX.Socialnetwork.Spaces.space.reloadPageContent(`${LinkManager.getSpaceLink(response.data.groupId)}?empty-state=enabled`);
+	        this.$bitrix.eventEmitter.emit(EventTypes.hideSpaceAddForm);
+
+	        // eslint-disable-next-line promise/catch-or-return
+	        Client.loadSpaceData(response.data.groupId)
+	        // eslint-disable-next-line promise/no-nesting
+	        .then(data => {
+	          this.$store.dispatch('addSpacesToView', {
+	            mode: Modes.recentSearch,
+	            spaces: [data.space]
+	          });
+	          this.$store.dispatch('setSelectedSpace', data.space.id);
+	        });
 	      }, errorResponse => {
 	        errorResponse.errors.forEach(error => {
 	          if (error.code === 'ERROR_GROUP_NAME_EXISTS') {
@@ -3155,9 +3186,13 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	var _onChangeSubscription = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onChangeSubscription");
 	var _onRecentActivityUpdate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRecentActivityUpdate");
 	var _onRecentActivityDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRecentActivityDelete");
+	var _onRecentActivityRemoveFromSpace = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onRecentActivityRemoveFromSpace");
 	class PullRequests extends main_core_events.EventEmitter {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _onRecentActivityRemoveFromSpace, {
+	      value: _onRecentActivityRemoveFromSpace2
+	    });
 	    Object.defineProperty(this, _onRecentActivityDelete, {
 	      value: _onRecentActivityDelete2
 	    });
@@ -3189,10 +3224,11 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      workgroup_pin_changed: babelHelpers.classPrivateFieldLooseBase(this, _pinChanged)[_pinChanged].bind(this),
 	      user_spaces_counter: babelHelpers.classPrivateFieldLooseBase(this, _updateCounters)[_updateCounters].bind(this),
 	      workgroup_update: babelHelpers.classPrivateFieldLooseBase(this, _onChangeSpace)[_onChangeSpace].bind(this),
-	      space_user_role_change: babelHelpers.classPrivateFieldLooseBase(this, _onChangeUserRole)[_onChangeUserRole].bind(this),
 	      workgroup_subscribe_changed: babelHelpers.classPrivateFieldLooseBase(this, _onChangeSubscription)[_onChangeSubscription].bind(this),
+	      space_user_role_change: babelHelpers.classPrivateFieldLooseBase(this, _onChangeUserRole)[_onChangeUserRole].bind(this),
 	      recent_activity_update: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityUpdate)[_onRecentActivityUpdate].bind(this),
-	      recent_activity_delete: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityDelete)[_onRecentActivityDelete].bind(this)
+	      recent_activity_delete: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityDelete)[_onRecentActivityDelete].bind(this),
+	      recent_activity_remove_from_space: babelHelpers.classPrivateFieldLooseBase(this, _onRecentActivityRemoveFromSpace)[_onRecentActivityRemoveFromSpace].bind(this)
 	    };
 	  }
 	}
@@ -3225,13 +3261,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}
 	function _onRecentActivityUpdate2(data) {
 	  this.emit(EventTypes.recentActivityUpdate, {
-	    recentActivityData: data.recentActivityData
+	    recentActivities: data
 	  });
 	}
 	function _onRecentActivityDelete2(data) {
 	  this.emit(EventTypes.recentActivityDelete, {
 	    typeId: data.typeId,
 	    entityId: data.entityId
+	  });
+	}
+	function _onRecentActivityRemoveFromSpace2(data) {
+	  this.emit(EventTypes.recentActivityRemoveFromSpace, {
+	    spaceIds: data.spaceIdsToReload
 	  });
 	}
 
@@ -3320,6 +3361,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        pullRequests.subscribe(EventTypes.changeSubscription, this.updateSpaceUserData);
 	        pullRequests.subscribe(EventTypes.recentActivityUpdate, this.recentActivityUpdate);
 	        pullRequests.subscribe(EventTypes.recentActivityDelete, this.recentActivityDelete);
+	        pullRequests.subscribe(EventTypes.recentActivityRemoveFromSpace, this.recentActivityRemoveFromSpace);
 	        pull_client.PULL.subscribe(pullRequests);
 	      },
 	      pinChangedHandler(event) {
@@ -3337,28 +3379,65 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        }
 	      },
 	      async recentActivityUpdate(event) {
-	        const recentActivityData = event.data.recentActivityData;
-	        const space = this.$store.state.main.spaces.get(recentActivityData.spaceId);
-	        if (space) {
-	          this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
-	        } else {
-	          await this.loadSpace(recentActivityData.spaceId);
+	        const recentActivities = event.data.recentActivities;
+	        const spacesToLoad = [];
+	        recentActivities.forEach(recentActivityData => {
+	          const space = this.$store.state.main.spaces.get(recentActivityData.spaceId);
+	          if (space) {
+	            this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
+	          } else {
+	            spacesToLoad.push(recentActivityData.spaceId);
+	          }
+	        });
+	        if (spacesToLoad.length > 0) {
+	          await this.loadSpaces(spacesToLoad);
 	        }
 	      },
 	      async recentActivityDelete(event) {
 	        const deletedActivityTypeId = event.data.typeId;
 	        const deletedActivityEntityId = event.data.entityId;
 	        const spaceModels = [...this.$store.getters.recentSpaces.values()];
+	        const spacesToLoad = [];
 	        spaceModels.forEach(space => {
-	          const wasSpaceRecentActivityDeleted = space.recentActivity.typeId === deletedActivityTypeId && space.recentActivity.entityId === deletedActivityEntityId;
-	          if (wasSpaceRecentActivityDeleted) {
-	            this.loadSpace(space.id);
+	          if (this.wasRecentActivityDeleted(space, deletedActivityTypeId, deletedActivityEntityId)) {
+	            spacesToLoad.push(space.id);
 	          }
 	        });
+	        if (spacesToLoad.length > 0) {
+	          this.loadSpaces(spacesToLoad);
+	        }
+	      },
+	      wasRecentActivityDeleted(space, deletedType, deletedEntityId) {
+	        const recentActivity = space.recentActivity;
+	        if (SpaceCommonToCommentActivityTypes[deletedType]) {
+	          const commentType = SpaceCommonToCommentActivityTypes[deletedType];
+	          return recentActivity.secondaryEntityId === deletedEntityId && commentType === recentActivity.typeId || recentActivity.entityId === deletedEntityId && deletedType === recentActivity.typeId;
+	        }
+	        return recentActivity.entityId === deletedEntityId && deletedType === recentActivity.typeId;
+	      },
+	      async recentActivityRemoveFromSpace(event) {
+	        const spaceIds = event.data.spaceIds;
+	        const spacesIdsToLoad = [];
+	        spaceIds.forEach(spaceId => {
+	          const space = this.$store.state.main.spaces.get(spaceId);
+	          if (space) {
+	            spacesIdsToLoad.push(spaceId);
+	          }
+	        });
+	        this.loadSpaces(spacesIdsToLoad);
 	      },
 	      async loadSpace(spaceId) {
 	        const requestData = await Client.loadSpaceData(spaceId);
 	        this.$store.dispatch('updateSpaceData', requestData);
+	      },
+	      async loadSpaces(spaceIds) {
+	        const requestData = await Client.loadSpacesData(spaceIds);
+	        requestData.forEach(spaceData => {
+	          this.$store.dispatch('updateSpaceData', {
+	            space: spaceData,
+	            checkInvitation: false
+	          });
+	        });
 	      },
 	      async updateSpaceData(event) {
 	        if (event.data.spaceId >= 0) {

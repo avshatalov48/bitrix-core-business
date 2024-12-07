@@ -166,9 +166,9 @@ if (!empty($arResult['GRID_DATA']))
 	{
 		if (!empty($search))
 		{
-			$modifier = ($case ? '' : 'i').\BX_UTF_PCRE_MODIFIER;
+			$modifier = ($case ? '' : 'i');
 			$search = preg_quote($search, '/');
-			return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+			return preg_replace('/('.$search.')/u'.$modifier, "{$startTag}\\1{$endTag}", $value);
 		}
 		return $value;
 	};
@@ -177,13 +177,13 @@ if (!empty($arResult['GRID_DATA']))
 	{
 		if (!empty($search) && !empty($value))
 		{
-			$modifier = ($case ? '' : 'i').\BX_UTF_PCRE_MODIFIER;
+			$modifier = ($case ? '' : 'i');
 			$search = preg_quote($search, '/');
 			if (preg_match('/[\s]+/', $search))
 			{
-				return preg_replace('/('.$search.')/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+				return preg_replace('/('.$search.')/u'.$modifier, "{$startTag}\\1{$endTag}", $value);
 			}
-			return preg_replace('/(\b'.$search.'\b)/'.$modifier, "{$startTag}\\1{$endTag}", $value);
+			return preg_replace('/(\b'.$search.'\b)/u'.$modifier, "{$startTag}\\1{$endTag}", $value);
 		}
 		return $value;
 	};

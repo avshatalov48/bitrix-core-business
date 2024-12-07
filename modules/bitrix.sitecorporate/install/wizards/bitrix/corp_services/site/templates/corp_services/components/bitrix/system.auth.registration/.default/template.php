@@ -90,7 +90,7 @@ if ($arResult["BACKURL"] <> '')
 <div class="field"><a href="<?=$arResult["AUTH_AUTH_URL"]?>" rel="nofollow"><b><?=GetMessage("AUTH_AUTH")?></b></a></div>
 </form>
 </noindex>
-<script type="text/javascript">
+<script>
 document.bform.USER_NAME.focus();
 </script>
 

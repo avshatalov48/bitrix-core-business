@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Catalog\Config\State;
 use Bitrix\Main\Loader;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
@@ -81,7 +82,7 @@ return [
 		'catalog.product-calculator',
 	],
 	'settings' => [
-		'warehouseOption' => \Bitrix\Catalog\Component\UseStore::isUsed(),
+		'warehouseOption' => State::isUsedInventoryManagement(),
 		'showDiscountBlock' => \CUserOptions::GetOption('catalog.product-form', 'showDiscountBlock', 'Y'),
 		'showTaxBlock' => 'N',
 		'taxIncluded' => 'N',
@@ -96,6 +97,7 @@ return [
 		'isCatalogPriceSaveEnabled' => $isCatalogPriceSaveEnabled,
 		'isCatalogSettingAccess' => $isCatalogSettingAccess,
 		'isCatalogAccess' => $isCatalogAccess,
+		'isCatalogHidden' => \Bitrix\Catalog\Config\State::isExternalCatalog(),
 		'fieldHints' => [],
 	],
 	'skip_core' => false,

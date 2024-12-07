@@ -46,4 +46,14 @@ $MESS["SECURITY_SITE_CHECKER_MODULES_VERSION_ERROR"] = "Не удалось пр
 $MESS["SECURITY_SITE_CHECKER_MODULES_VERSION_ERROR_DETAIL"] = "Возможно доступно обновление системы SiteUpdate или у вашей копии продукта истек период получения обновлений";
 $MESS["SECURITY_SITE_CHECKER_MODULES_VERSION_ERROR_RECOMMENDATION"] = "Подробнее на странице: <a href=\"/bitrix/admin/update_system.php\" target=\"_blank\">Обновление платформы</a>";
 $MESS["SECURITY_SITE_CHECKER_MODULES_VERSION_ARRITIONAL"] = "Модули для которых доступны обновления:<br>#MODULES#";
+$MESS["SECURITY_SITE_CHECKER_HOSTS_NOT_RESTRICTED"] = "Выключено ограничение хостов/доменов";
+$MESS["SECURITY_SITE_CHECKER_HOSTS_NOT_RESTRICTED_DETAIL"] = "Ограничение хостов/доменов позволяет предотвратить подмену HTTP-заголовка Host";
+$MESS["SECURITY_SITE_CHECKER_HOSTS_NOT_RESTRICTED_RECOMMENDATION"] = "Включите защиту в <a href=\"/bitrix/admin/security_hosts.php?find_rule_type=M\" target=\"_blank\">настройках</a>";
+$MESS["SECURITY_SITE_CHECKER_REGISTRATION_CAPTCHA_OFF"] = "Отключена captcha при регистрации пользователя";
+$MESS["SECURITY_SITE_CHECKER_REGISTRATION_CAPTCHA_OFF_DETAIL"] = "На сайте могут зарегистрироваться нежелательные пользователи";
+$MESS["SECURITY_SITE_CHECKER_REGISTRATION_CAPTCHA_OFF_RECOMMENDATION"] = "Включите captcha в <a href=\"/bitrix/admin/settings.php?mid=main\" target=\"_blank\">настройках главного модуля</a>";
+$MESS["SECURITY_SITE_CHECKER_PASSWORD_RESTORING_CAPTCHA_OFF"] = "Отключена капча при восставновлении пароля";
+$MESS["SECURITY_SITE_CHECKER_PASSWORD_RESTORING_CAPTCHA_OFF_DETAIL"] = "Возможен автоматический перебор паролей";
+$MESS["SECURITY_SITE_CHECKER_PASSWORD_RESTORING_CAPTCHA_OFF_RECOMMENDATION"] = "Включите captcha в <a href=\"/bitrix/admin/settings.php?mid=main\" target=\"_blank\">настройках главного модуля</a>";
+
 ?>

@@ -28,6 +28,7 @@ else
 	$siteId = SITE_ID;
 	\CUserCounter::set($userId, 'mail_unseen', 0, $siteId);
 
+	$arResult['VARIABLES']['IS_MAIN_MAIL_PAGE'] = true;
 	$componentName = 'bitrix:mail.client.config';
 }
 

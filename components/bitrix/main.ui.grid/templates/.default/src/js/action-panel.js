@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -47,7 +47,7 @@
 	};
 
 	BX.Grid.ActionPanel.prototype = {
-		init: function(parent, actions, types)
+		init(parent, actions, types)
 		{
 			this.parent = parent;
 			this.actions = eval(actions);
@@ -57,34 +57,34 @@
 
 			BX.addCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
 
-			var panel = this.getPanel();
+			const panel = this.getPanel();
 			BX.bind(panel, 'change', BX.delegate(this._checkboxChange, this));
 			BX.bind(panel, 'click', BX.delegate(this._clickOnButton, this));
 
 			BX.addCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
 		},
 
-		destroy: function()
+		destroy()
 		{
 			BX.removeCustomEvent(window, 'Dropdown::change', BX.proxy(this._dropdownEventHandle, this));
 			BX.removeCustomEvent(window, 'Dropdown::load', BX.proxy(this._dropdownEventHandle, this));
 			BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this._gridUpdatedEventHandle, this));
 		},
 
-		_gridUpdatedEventHandle: function()
+		_gridUpdatedEventHandle()
 		{
-			var cancelButton = BX('grid_cancel_button');
+			const cancelButton = BX('grid_cancel_button');
 			cancelButton && BX.fireEvent(BX.firstChild(cancelButton), 'click');
 		},
 
-		_dropdownEventHandle: function(id, event, item, dataItem)
+		_dropdownEventHandle(id, event, item, dataItem)
 		{
 			this.isPanelControl(BX(id)) && this._dropdownChange(id, event, item, dataItem);
 		},
 
-		resetForAllCheckbox: function()
+		resetForAllCheckbox()
 		{
-			var checkbox = this.getForAllCheckbox();
+			const checkbox = this.getForAllCheckbox();
 
 			if (BX.type.isDomNode(checkbox))
 			{
@@ -92,90 +92,90 @@
 			}
 		},
 
-		getForAllCheckbox: function()
+		getForAllCheckbox()
 		{
 			return BX.Grid.Utils.getByClass(this.getPanel(), this.parent.settings.get('classForAllCheckbox'), true);
 		},
 
-		getPanel: function()
+		getPanel()
 		{
 			return BX.Grid.Utils.getByClass(this.parent.getContainer(), this.parent.settings.get('classActionPanel'), true);
 		},
 
-		getApplyButton: function()
+		getApplyButton()
 		{
 			return BX.Grid.Utils.getByClass(this.getPanel(), this.parent.settings.get('classPanelApplyButton'), true);
 		},
 
-		isPanelControl: function(node)
+		isPanelControl(node)
 		{
 			return BX.hasClass(node, this.parent.settings.get('classPanelControl'));
 		},
 
-		getTextInputs: function()
+		getTextInputs()
 		{
 			return BX.Grid.Utils.getBySelector(this.getPanel(), 'input[type="text"]');
 		},
 
-		getHiddenInputs: function()
+		getHiddenInputs()
 		{
 			return BX.Grid.Utils.getBySelector(this.getPanel(), 'input[type="hidden"]');
 		},
 
-		getSelects: function()
+		getSelects()
 		{
 			return BX.Grid.Utils.getBySelector(this.getPanel(), 'select');
 		},
 
-		getDropdowns: function()
+		getDropdowns()
 		{
 			return BX.Grid.Utils.getByClass(this.getPanel(), this.parent.settings.get('classDropdown'));
 		},
 
-		getCheckboxes: function()
+		getCheckboxes()
 		{
 			return BX.Grid.Utils.getByClass(this.getPanel(), this.parent.settings.get('classPanelCheckbox'));
 		},
 
-		getButtons: function()
+		getButtons()
 		{
 			return BX.Grid.Utils.getByClass(this.getPanel(), this.parent.settings.get('classPanelButton'));
 		},
 
-		isDropdown: function(node)
+		isDropdown(node)
 		{
 			return BX.hasClass(node, this.parent.settings.get('classDropdown'));
 		},
 
-		isCheckbox: function(node)
+		isCheckbox(node)
 		{
 			return BX.hasClass(node, this.parent.settings.get('classPanelCheckbox'));
 		},
 
-		isTextInput: function(node)
+		isTextInput(node)
 		{
 			return node.type === 'text';
 		},
 
-		isHiddenInput: function(node)
+		isHiddenInput(node)
 		{
 			return node.type === 'hidden';
 		},
 
-		isSelect: function(node)
+		isSelect(node)
 		{
 			return node.tagName === 'SELECT';
 		},
 
-		createDropdown: function(data, relative)
+		createDropdown(data, relative)
 		{
-			var emptyText = data.EMPTY_TEXT || '';
-			var isMultiple = data.MULTIPLE === 'Y';
-			var container = this.createContainer(data.ID, relative, {});
-			var dropdown = BX.create('div', {
+			const emptyText = data.EMPTY_TEXT || '';
+			const isMultiple = data.MULTIPLE === 'Y';
+			const container = this.createContainer(data.ID, relative, {});
+			const dropdown = BX.create('div', {
 				props: {
 					className: 'main-dropdown main-grid-panel-control',
-					id: data.ID + '_control'
+					id: `${data.ID}_control`,
 				},
 				attrs: {
 					name: data.NAME,
@@ -184,12 +184,12 @@
 					'data-multiple': isMultiple ? 'Y' : 'N',
 					'data-items': JSON.stringify(data.ITEMS),
 					'data-value': isMultiple ? '' : data.ITEMS[0].VALUE,
-					'data-popup-position': 'fixed'
+					'data-popup-position': 'fixed',
 				},
 				children: [BX.create('span', {
-					props: {className: 'main-dropdown-inner'},
-					html: isMultiple ? emptyText : data.ITEMS[0].NAME
-				})]
+					props: { className: 'main-dropdown-inner' },
+					html: isMultiple ? emptyText : data.ITEMS[0].NAME,
+				})],
 			});
 
 			container.appendChild(dropdown);
@@ -197,34 +197,34 @@
 			return container;
 		},
 
-		createCheckbox: function(data, relative)
+		createCheckbox(data, relative)
 		{
-			var checkbox = this.createContainer(data.ID, relative, {});
+			const checkbox = this.createContainer(data.ID, relative, {});
 
-			var inner = BX.create('span', {
+			const inner = BX.create('span', {
 				props: {
-					className: 'main-grid-checkbox-container'
-				}
+					className: 'main-grid-checkbox-container',
+				},
 			});
 
-			var titleSpan = BX.create('span', {
+			const titleSpan = BX.create('span', {
 				props: {
-					className: 'main-grid-control-panel-content-title'
-				}
+					className: 'main-grid-control-panel-content-title',
+				},
 			});
 
-			var input = BX.create('input', {
+			const input = BX.create('input', {
 				props: {
 					type: 'checkbox',
-					className: this.parent.settings.get('classPanelCheckbox') + ' main-grid-checkbox',
-					id: data.ID + '_control'
+					className: `${this.parent.settings.get('classPanelCheckbox')} main-grid-checkbox`,
+					id: `${data.ID}_control`,
 				},
 				attrs: {
 					value: data.VALUE || '',
 					title: data.TITLE || '',
 					name: data.NAME || '',
-					'data-onchange': JSON.stringify(data.ONCHANGE)
-				}
+					'data-onchange': JSON.stringify(data.ONCHANGE),
+				},
 			});
 
 			input.checked = data.CHECKED || null;
@@ -236,20 +236,20 @@
 
 			inner.appendChild(BX.create('label', {
 				props: {
-					className: 'main-grid-checkbox'
+					className: 'main-grid-checkbox',
 				},
 				attrs: {
-					for: data.ID + '_control',
-					title: data.TITLE
-				}
+					for: `${data.ID}_control`,
+					title: data.TITLE,
+				},
 			}));
 
 			titleSpan.appendChild(BX.create('label', {
 				attrs: {
-					for: data.ID + '_control',
-					title: data.TITLE
+					for: `${data.ID}_control`,
+					title: data.TITLE,
 				},
-				html: data.LABEL
+				html: data.LABEL,
 			}));
 
 			return checkbox;
@@ -264,20 +264,20 @@
 		 * @param {string} relative
 		 * @returns {*}
 		 */
-		createText: function(data, relative)
+		createText(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative, {});
-			var title = BX.type.isNotEmptyString(data["TITLE"]) ? data["TITLE"] : "";
-			if(title !== "")
+			const container = this.createContainer(data.ID, relative, {});
+			const title = BX.type.isNotEmptyString(data.TITLE) ? data.TITLE : '';
+			if (title !== '')
 			{
 				container.appendChild(
 					BX.create(
 						'label',
 						{
-							attrs: { title: title, for: data.ID + '_control' },
-							text: title
-						}
-					)
+							attrs: { title, for: `${data.ID}_control` },
+							text: title,
+						},
+					),
 				);
 			}
 			container.appendChild(
@@ -287,30 +287,30 @@
 						props:
 							{
 								className: 'main-grid-control-panel-input-text main-grid-panel-control',
-								id: data.ID + '_control'
+								id: `${data.ID}_control`,
 							},
 						attrs:
 							{
 								name: data.NAME,
-								title: title,
+								title,
 								placeholder: data.PLACEHOLDER || '',
 								value: data.VALUE || '',
 								type: 'text',
-								'data-onchange': JSON.stringify(data.ONCHANGE || [])
-							}
-					}
-				)
+								'data-onchange': JSON.stringify(data.ONCHANGE || []),
+							},
+					},
+				),
 			);
 
 			return container;
 		},
 
-		createHidden: function(data, relative)
+		createHidden(data, relative)
 		{
-			var container = this.createContainer(
+			const container = this.createContainer(
 				data.ID,
 				relative,
-				{ CLASS: 'main-grid-panel-hidden-control-container' }
+				{ CLASS: 'main-grid-panel-hidden-control-container' },
 			);
 			container.appendChild(
 				BX.create(
@@ -318,22 +318,22 @@
 					{
 						props:
 							{
-								id: data.ID + '_control',
-								type: 'hidden'
+								id: `${data.ID}_control`,
+								type: 'hidden',
 							},
 						attrs:
 							{
 								name: data.NAME,
-								value: data.VALUE || ''
-							}
-					}
-				)
+								value: data.VALUE || '',
+							},
+					},
+				),
 			);
 
 			return container;
 		},
 
-		createButton: function(data, relative)
+		createButton(data, relative)
 		{
 			this.buttonOnChange = (data.ONCHANGE || []);
 			this.buttonData = data;
@@ -358,44 +358,44 @@
 
 			this.prepareButton();
 
-			let container = this.createContainer(data.ID, relative, {});
+			const container = this.createContainer(data.ID, relative, {});
 			container.appendChild(this.button);
 
 			return container;
 		},
 
-		createButtonNode: function(data)
+		createButtonNode(data)
 		{
 			return BX.create('button', {
 				props: {
-					className: 'main-grid-buttons' + (data.CLASS ? ' ' + data.CLASS : ''),
-					id: data.ID + '_control',
-					title: BX.type.isNotEmptyString(data.TITLE) ? data.TITLE : ''
+					className: `ui-btn${data.CLASS ? ` ${data.CLASS}` : ''}`,
+					id: `${data.ID}_control`,
+					title: BX.type.isNotEmptyString(data.TITLE) ? data.TITLE : '',
 				},
 				attrs: {
-					name: data.NAME || ''
+					name: data.NAME || '',
 				},
-				html: data.TEXT
+				html: data.TEXT,
 			});
 		},
 
-		prepareButton: function()
+		prepareButton()
 		{
 			if (this.isSetButtonDisabled())
 			{
 				BX.Dom.attr(this.button, 'data-onchange', []);
-				BX.Dom.addClass(this.button, 'ui-btn ui-btn-disabled');
+				BX.Dom.addClass(this.button, 'ui-btn-disabled');
 			}
 			else
 			{
 				BX.Dom.attr(this.button, 'data-onchange', this.buttonOnChange);
-				BX.Dom.removeClass(this.button, 'ui-btn ui-btn-disabled');
+				BX.Dom.removeClass(this.button, 'ui-btn-disabled');
 			}
 		},
 
-		isSetButtonDisabled: function()
+		isSetButtonDisabled()
 		{
-			return !!(this.buttonData.SETTINGS
+			return Boolean(this.buttonData.SETTINGS
 				&& this.buttonData.SETTINGS.minSelectedRows
 				&& (this.getSelectedIds().length < this.buttonData.SETTINGS.minSelectedRows));
 		},
@@ -411,19 +411,19 @@
 		 * @param {string} relative
 		 * @returns {*}
 		 */
-		createLink: function(data, relative)
+		createLink(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative, {});
-			var link = BX.create('a', {
+			const container = this.createContainer(data.ID, relative, {});
+			const link = BX.create('a', {
 				props: {
-					className: 'main-grid-link' + (data.CLASS ? ' ' + data.CLASS : ''),
-					id: data.ID + '_control'
+					className: `main-grid-link${data.CLASS ? ` ${data.CLASS}` : ''}`,
+					id: `${data.ID}_control`,
 				},
 				attrs: {
 					href: data.HREF || '',
-					'data-onchange': JSON.stringify(data.ONCHANGE || [])
+					'data-onchange': JSON.stringify(data.ONCHANGE || []),
 				},
-				html: data.TEXT
+				html: data.TEXT,
 			});
 
 			container.appendChild(link);
@@ -431,19 +431,19 @@
 			return container;
 		},
 
-		createCustom: function(data, relative)
+		createCustom(data, relative)
 		{
-			var container = this.createContainer(
+			const container = this.createContainer(
 				data.ID,
 				relative,
-				{ CLASS: 'main-grid-panel-hidden-control-container' }
+				{ CLASS: 'main-grid-panel-hidden-control-container' },
 			);
 
-			var custom = BX.create('div', {
+			const custom = BX.create('div', {
 				props: {
-					className: 'main-grid-panel-custom' + (data.CLASS ? ' ' + data.CLASS : '')
+					className: `main-grid-panel-custom${data.CLASS ? ` ${data.CLASS}` : ''}`,
 				},
-				html: data.VALUE
+				html: data.VALUE,
 			});
 
 			container.appendChild(custom);
@@ -451,7 +451,7 @@
 			return container;
 		},
 
-		createContainer: function(id, relative, options)
+		createContainer(id, relative, options)
 		{
 			id = id.replace('_control', '');
 			relative = relative.replace('_control', '');
@@ -459,23 +459,24 @@
 
 			return BX.create('span', {
 				props: {
-					className: this.parent.settings.get('classPanelControlContainer') + (options.CLASS ? ' ' + options.CLASS : ''),
-					id: id
+					className: this.parent.settings.get('classPanelControlContainer') + (options.CLASS ? ` ${options.CLASS}` : ''),
+					id,
 				},
 				attrs: {
-					'data-relative': relative
-				}
+					'data-relative': relative,
+				},
 			});
 		},
 
-		removeItemsRelativeCurrent: function(node)
+		removeItemsRelativeCurrent(node)
 		{
-			var element = node;
-			var relative = [node.id];
-			var result = [];
-			var dataRelative;
+			let element = node;
+			const relative = [node.id];
+			const result = [];
+			let dataRelative;
 
-			while (element) {
+			while (element)
+			{
 				dataRelative = BX.data(element, 'relative');
 
 				if (relative.includes(dataRelative))
@@ -487,23 +488,22 @@
 				element = element.nextElementSibling;
 			}
 
-			result.forEach(function(current) {
+			result.forEach((current) => {
 				BX.remove(current);
 			});
 		},
 
-
-		validateData: function(data)
+		validateData(data)
 		{
 			return (
-				('ONCHANGE' in data) &&
-				BX.type.isArray(data.ONCHANGE)
+				('ONCHANGE' in data)
+				&& BX.type.isArray(data.ONCHANGE)
 			);
 		},
 
-		activateControl: function(id)
+		activateControl(id)
 		{
-			var element = BX(id);
+			const element = BX(id);
 
 			if (BX.type.isDomNode(element))
 			{
@@ -512,9 +512,9 @@
 			}
 		},
 
-		deactivateControl: function(id)
+		deactivateControl(id)
 		{
-			var element = BX(id);
+			const element = BX(id);
 
 			if (BX.type.isDomNode(element))
 			{
@@ -523,91 +523,91 @@
 			}
 		},
 
-		showControl: function(id)
+		showControl(id)
 		{
-			var control = BX(id);
+			const control = BX(id);
 			control && BX.show(control);
 		},
 
-		hideControl: function(id)
+		hideControl(id)
 		{
-			var control = BX(id);
+			const control = BX(id);
 			control && BX.hide(control);
 		},
 
-
-		validateActionObject: function(action)
+		validateActionObject(action)
 		{
 			return (
 				BX.type.isPlainObject(action) && ('ACTION' in action) && BX.type.isNotEmptyString(action.ACTION) && (
-					action.ACTION === this.actions.RESET_CONTROLS ||
-					('DATA' in action) && BX.type.isArray(action.DATA)
+					action.ACTION === this.actions.RESET_CONTROLS
+					|| ('DATA' in action) && BX.type.isArray(action.DATA)
 				)
 			);
 		},
 
-		validateControlObject: function(controlObject)
+		validateControlObject(controlObject)
 		{
 			return (
-				BX.type.isPlainObject(controlObject) &&
-				('TYPE' in controlObject) &&
-				('ID' in controlObject)
+				BX.type.isPlainObject(controlObject)
+				&& ('TYPE' in controlObject)
+				&& ('ID' in controlObject)
 			);
 		},
 
-		createDate: function(data, relative)
+		createDate(data, relative)
 		{
-			var container = this.createContainer(data.ID, relative, {});
-			var date = BX.decl({
+			const container = this.createContainer(data.ID, relative, {});
+			const date = BX.decl({
 				block: 'main-ui-date',
 				mix: ['main-grid-panel-date'],
 				calendarButton: true,
 				valueDelete: true,
 				placeholder: 'PLACEHOLDER' in data ? data.PLACEHOLDER : '',
-				name: 'NAME' in data ? data.NAME + '_from' : '',
+				name: 'NAME' in data ? `${data.NAME}_from` : '',
 				tabindex: 'TABINDEX' in data ? data.TABINDEX : '',
 				value: 'VALUE' in data ? data.VALUE : '',
-				enableTime: 'TIME' in data ? (data.TIME ? 'true' : 'false') : 'false'
+				enableTime: 'TIME' in data ? (data.TIME ? 'true' : 'false') : 'false',
 			});
 
 			container.appendChild(date);
+
 			return container;
 		},
 
-		createControl: function(controlObject, relativeId)
+		createControl(controlObject, relativeId)
 		{
-			var newElement = null;
+			let newElement = null;
 			switch (controlObject.TYPE)
 			{
-				case this.types.DROPDOWN :
+				case this.types.DROPDOWN:
 					newElement = this.createDropdown(controlObject, relativeId);
 					break;
 
-				case this.types.CHECKBOX :
+				case this.types.CHECKBOX:
 					newElement = this.createCheckbox(controlObject, relativeId);
 					break;
 
-				case this.types.TEXT :
+				case this.types.TEXT:
 					newElement = this.createText(controlObject, relativeId);
 					break;
 
-				case this.types.HIDDEN :
+				case this.types.HIDDEN:
 					newElement = this.createHidden(controlObject, relativeId);
 					break;
 
-				case this.types.BUTTON :
+				case this.types.BUTTON:
 					newElement = this.createButton(controlObject, relativeId);
 					break;
 
-				case this.types.LINK :
+				case this.types.LINK:
 					newElement = this.createLink(controlObject, relativeId);
 					break;
 
-				case this.types.CUSTOM :
+				case this.types.CUSTOM:
 					newElement = this.createCustom(controlObject, relativeId);
 					break;
 
-				case this.types.DATE :
+				case this.types.DATE:
 					newElement = this.createDate(controlObject, relativeId);
 					break;
 			}
@@ -615,10 +615,11 @@
 			return newElement;
 		},
 
-		onChangeHandler: function(container, actions, isPseudo)
+		onChangeHandler(container, actions, isPseudo)
 		{
-			var newElement, callback;
-			var self = this;
+			let newElement; let
+				callback;
+			const self = this;
 
 			if (BX.type.isDomNode(container) && BX.type.isArray(actions))
 			{
@@ -628,9 +629,9 @@
 						if (action.ACTION === self.actions.CREATE)
 						{
 							self.removeItemsRelativeCurrent(container);
-							action.DATA.reverse();
+							const preparedData = BX.Runtime.clone(action.DATA).reverse();
 
-							action.DATA.forEach(function(controlObject) {
+							preparedData.forEach((controlObject) => {
 								if (self.validateControlObject(controlObject))
 								{
 									newElement = self.createControl(controlObject, container.id || BX.data(container, 'relative'));
@@ -639,19 +640,19 @@
 									{
 										BX.insertAfter(newElement, container);
 
-										if (('ONCHANGE' in controlObject) &&
-											controlObject.TYPE === self.types.CHECKBOX &&
-											('CHECKED' in controlObject) &&
-											controlObject.CHECKED)
+										if (('ONCHANGE' in controlObject)
+											&& controlObject.TYPE === self.types.CHECKBOX
+											&& ('CHECKED' in controlObject)
+											&& controlObject.CHECKED)
 										{
 											self.onChangeHandler(newElement, controlObject.ONCHANGE);
 										}
 
-										if (controlObject.TYPE === self.types.DROPDOWN &&
-											BX.type.isArray(controlObject.ITEMS) &&
-											controlObject.ITEMS.length &&
-											('ONCHANGE' in controlObject.ITEMS[0]) &&
-											BX.type.isArray(controlObject.ITEMS[0].ONCHANGE))
+										if (controlObject.TYPE === self.types.DROPDOWN
+											&& BX.type.isArray(controlObject.ITEMS)
+											&& controlObject.ITEMS.length > 0
+											&& ('ONCHANGE' in controlObject.ITEMS[0])
+											&& BX.type.isArray(controlObject.ITEMS[0].ONCHANGE))
 										{
 											self.onChangeHandler(newElement, controlObject.ITEMS[0].ONCHANGE);
 										}
@@ -666,72 +667,60 @@
 
 							if (BX.type.isArray(action.DATA))
 							{
-								action.DATA.forEach(function(currentId) {
+								action.DATA.forEach((currentId) => {
 									self.lastActivated.push(currentId.ID);
 									self.activateControl(currentId.ID);
 								});
 							}
 						}
 
-						if (action.ACTION === self.actions.SHOW)
+						if (action.ACTION === self.actions.SHOW && BX.type.isArray(action.DATA))
 						{
-							if (BX.type.isArray(action.DATA))
-							{
-								action.DATA.forEach(function(showCurrent) {
-									self.showControl(showCurrent.ID);
-								});
-							}
+							action.DATA.forEach((showCurrent) => {
+								self.showControl(showCurrent.ID);
+							});
 						}
 
-						if (action.ACTION === self.actions.HIDE)
+						if (action.ACTION === self.actions.HIDE && BX.type.isArray(action.DATA))
 						{
-							if (BX.type.isArray(action.DATA))
-							{
-								action.DATA.forEach(function(hideCurrent) {
-									self.hideControl(hideCurrent.ID);
-								});
-							}
+							action.DATA.forEach((hideCurrent) => {
+								self.hideControl(hideCurrent.ID);
+							});
 						}
 
-						if (action.ACTION === self.actions.HIDE_ALL_EXPECT)
+						if (action.ACTION === self.actions.HIDE_ALL_EXPECT && BX.type.isArray(action.DATA))
 						{
-							if (BX.type.isArray(action.DATA))
-							{
-								(self.getControls() || []).forEach(function(current) {
-									if (!action.DATA.some(function(el) { return el.ID === current.id}))
-									{
-										self.hideControl(current.id);
-									}
-								});
-							}
+							(self.getControls() || []).forEach((current) => {
+								if (!action.DATA.some((el) => { return el.ID === current.id;
+								}))
+								{
+									self.hideControl(current.id);
+								}
+							});
 						}
 
 						if (action.ACTION === self.actions.SHOW_ALL)
 						{
-							(self.getControls() || []).forEach(function(current) {
+							(self.getControls() || []).forEach((current) => {
 								self.showControl(current.id);
 							});
 						}
 
-						if (action.ACTION === self.actions.REMOVE)
+						if (action.ACTION === self.actions.REMOVE && BX.type.isArray(action.DATA))
 						{
-							if (BX.type.isArray(action.DATA))
-							{
-								action.DATA.forEach(function(removeCurrent) {
-									BX.remove(BX(removeCurrent.ID));
-								});
-							}
+							action.DATA.forEach((removeCurrent) => {
+								BX.remove(BX(removeCurrent.ID));
+							});
 						}
 
 						if (action.ACTION === self.actions.CALLBACK)
 						{
-							this.confirmDialog(action, BX.delegate(function() {
+							this.confirmDialog(action, BX.delegate(() => {
 								if (BX.type.isArray(action.DATA))
 								{
 									action.DATA.forEach(
-										function(currentCallback)
-										{
-											if (currentCallback.JS.indexOf('Grid.') !== -1)
+										(currentCallback) => {
+											if (currentCallback.JS.includes('Grid.'))
 											{
 												callback = currentCallback.JS.replace('Grid', 'self.parent');
 												callback = callback.replace('()', '');
@@ -740,23 +729,23 @@
 												{
 													eval(callback); // jshint ignore:line
 												}
-												catch(err)
+												catch (err)
 												{
 													throw new Error(err);
 												}
 											}
-											else if(BX.type.isNotEmptyString(currentCallback.JS))
+											else if (BX.type.isNotEmptyString(currentCallback.JS))
 											{
 												try
 												{
 													eval(currentCallback.JS);
 												}
-												catch(err)
+												catch (err)
 												{
 													throw new Error(err);
 												}
 											}
-										}
+										},
 									);
 								}
 							}, this));
@@ -768,7 +757,6 @@
 						}
 					}
 				}, this);
-
 			}
 			else
 			{
@@ -777,7 +765,7 @@
 					this.removeItemsRelativeCurrent(container);
 				}
 
-				self.lastActivated.forEach(function(current) {
+				self.lastActivated.forEach((current) => {
 					self.deactivateControl(current);
 				});
 
@@ -785,7 +773,7 @@
 			}
 		},
 
-		confirmDialog: function(action, then, cancel)
+		confirmDialog(action, then, cancel)
 		{
 			this.parent.confirmDialog(action, then, cancel);
 		},
@@ -800,98 +788,105 @@
 		 * @param {boolean} dataItem.PSEUDO
 		 * @private
 		 */
-		_dropdownChange: function(id, event, item, dataItem)
+		_dropdownChange(id, event, item, dataItem)
 		{
-			var dropdown = BX(id);
-			var container = dropdown.parentNode;
-			var onChange = dataItem && ('ONCHANGE' in dataItem) ? dataItem.ONCHANGE : null;
-			var isPseudo = dataItem && ('PSEUDO' in dataItem && dataItem.PSEUDO !== false);
+			const dropdown = BX(id);
+			const container = dropdown.parentNode;
+			const onChange = dataItem && ('ONCHANGE' in dataItem) ? dataItem.ONCHANGE : null;
+			const isPseudo = dataItem && ('PSEUDO' in dataItem && dataItem.PSEUDO !== false);
 
 			this.onChangeHandler(container, onChange, isPseudo);
 		},
 
-		_checkboxChange: function(event)
+		_checkboxChange(event)
 		{
-			var onChange;
+			let onChange;
 
-			try {
+			try
+			{
 				onChange = eval(BX.data(event.target, 'onchange'));
-			} catch(err) {
+			}
+			catch
+			{
 				onChange = null;
 			}
 
 			this.onChangeHandler(
 				BX.findParent(event.target, {
-					className: this.parent.settings.get('classPanelContainer')
+					className: this.parent.settings.get('classPanelContainer'),
 				}, true, false),
-				event.target.checked || event.target.id.indexOf('actallrows_') !== -1 ? onChange : null
+				event.target.checked || event.target.id.includes('actallrows_') ? onChange : null,
 			);
 		},
 
-		_clickOnButton: function(event)
+		_clickOnButton(event)
 		{
-			var onChange;
+			let onChange;
 
 			if (this.isButton(event.target))
 			{
 				event.preventDefault();
 
-				try {
+				try
+				{
 					onChange = eval(BX.data(event.target, 'onchange'));
-				} catch(err) {
+				}
+				catch
+				{
 					onChange = null;
 				}
 
 				this.onChangeHandler(
 					BX.findParent(event.target, {
-						className: this.parent.settings.get('classPanelContainer')
+						className: this.parent.settings.get('classPanelContainer'),
 					}, true, false),
-					onChange
+					onChange,
 				);
 			}
 		},
 
-		isButton: function(node)
+		isButton(node)
 		{
 			return BX.hasClass(node, this.parent.settings.get('classPanelButton'));
 		},
 
-		getSelectedIds: function()
+		getSelectedIds()
 		{
-			var rows = this.parent.getRows().getSelected().filter(function(row) { return row.isShown(); });
+			const rows = this.parent.getRows().getSelected().filter((row) => { return row.isShown();
+			});
 
-			return rows.map(function(current) {
+			return rows.map((current) => {
 				return current.getId();
 			});
 		},
 
-		getControls: function()
+		getControls()
 		{
 			return BX.findChild(this.getPanel(), {
-				className: this.parent.settings.get('classPanelControlContainer')
+				className: this.parent.settings.get('classPanelControlContainer'),
 			}, true, true);
 		},
 
-		getValues: function()
+		getValues()
 		{
-			var data = {};
-			var self = this;
-			var controls = [].concat(
+			const data = {};
+			const self = this;
+			const controls = [].concat(
 				this.getDropdowns(),
 				this.getTextInputs(),
 				this.getHiddenInputs(),
 				this.getSelects(),
 				this.getCheckboxes(),
-				this.getButtons()
+				this.getButtons(),
 			);
 
-			(controls || []).forEach(function(current) {
+			(controls || []).forEach((current) => {
 				if (BX.type.isDomNode(current))
 				{
 					if (self.isDropdown(current))
 					{
-						var dropdownValue = BX.data(current, 'value');
-						var multiple = BX.data(current, 'multiple') === 'Y';
+						let dropdownValue = BX.data(current, 'value');
+						const multiple = BX.data(current, 'multiple') === 'Y';
 						dropdownValue = (dropdownValue !== null && dropdownValue !== undefined) ? dropdownValue : '';
 						data[BX.data(current, 'name')] = multiple ? dropdownValue.split(',') : dropdownValue;
 					}
@@ -913,8 +908,8 @@
 
 					if (self.isButton(current))
 					{
-						var name = BX.data(current, 'name');
-						var value = BX.data(current, 'value');
+						const name = BX.data(current, 'name');
+						let value = BX.data(current, 'value');
 						value = (value !== null && value !== undefined) ? value : '';
 
 						if (name)
@@ -926,7 +921,7 @@
 			});
 
 			return data;
-		}
+		},
 
 	};
 })();

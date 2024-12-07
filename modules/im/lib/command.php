@@ -519,7 +519,7 @@ class Command
 				}
 				if ($botId > 0)
 				{
-					$ar['MESSAGE'] = Loc::getMessage("COMMAND_BOT_ANSWER", Array("#BOT_NAME#" => "[USER=".$botId."][/USER]\n ")).$ar['MESSAGE'];
+					$ar['MESSAGE'] = Loc::getMessage("COMMAND_BOT_ANSWER", Array("#BOT_NAME#" => "[USER=".$botId."][/USER]")) . "\n " . $ar['MESSAGE'];
 				}
 				else
 				{
@@ -577,7 +577,7 @@ class Command
 				}
 				if ($botId > 0)
 				{
-					$ar['MESSAGE'] = Loc::getMessage("COMMAND_BOT_ANSWER", Array("#BOT_NAME#" => "[USER=".$botId."][/USER]\n ")).$ar['MESSAGE'];
+					$ar['MESSAGE'] = Loc::getMessage("COMMAND_BOT_ANSWER", Array("#BOT_NAME#" => "[USER=".$botId."][/USER]")) . "\n " . $ar['MESSAGE'];
 				}
 				else
 				{

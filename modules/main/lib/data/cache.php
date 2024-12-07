@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Data;
@@ -35,17 +36,18 @@ class Cache
 
 	public static function createCacheEngine($params = [])
 	{
-		static $cacheEngine = null;
-		if ($cacheEngine)
+		$hash = sha1(serialize($params));
+
+		static $cacheEngine = [];
+		if (!empty($cacheEngine[$hash]))
 		{
-			return clone $cacheEngine;
+			return clone $cacheEngine[$hash];
 		}
 
 		// Events can't be used here because events use cache
-
 		$cacheType = 'files';
 		$v = Config\Configuration::getValue('cache');
-		if ($v != null && isset($v['type']) && !empty($v['type']))
+		if (!empty($v['type']))
 		{
 			$cacheType = $v['type'];
 		}
@@ -69,7 +71,7 @@ class Cache
 					$className = $cacheType['class_name'];
 					if (class_exists($className))
 					{
-						$cacheEngine = new $className($params);
+						$cacheEngine[$hash] = new $className($params);
 					}
 				}
 			}
@@ -79,52 +81,52 @@ class Cache
 			switch ($cacheType)
 			{
 				case 'redis':
-					$cacheEngine = new CacheEngineRedis($params);
+					$cacheEngine[$hash] = new CacheEngineRedis($params);
 					break;
 				case 'memcached':
-					$cacheEngine = new CacheEngineMemcached($params);
+					$cacheEngine[$hash] = new CacheEngineMemcached($params);
 					break;
 				case 'memcache':
-					$cacheEngine = new CacheEngineMemcache($params);
+					$cacheEngine[$hash] = new CacheEngineMemcache($params);
 					break;
 				case 'apc':
 				case 'apcu':
-					$cacheEngine = new CacheEngineApc($params);
+					$cacheEngine[$hash] = new CacheEngineApc($params);
 					break;
 				case 'files':
-					$cacheEngine = new CacheEngineFiles($params);
+					$cacheEngine[$hash] = new CacheEngineFiles($params);
 					break;
 				default:
-					$cacheEngine = new CacheEngineNone();
+					$cacheEngine[$hash] = new CacheEngineNone();
 					break;
 			}
 		}
 
-		if ($cacheEngine == null)
+		if (empty($cacheEngine[$hash]))
 		{
-			$cacheEngine = new CacheEngineNone();
+			$cacheEngine[$hash] = new CacheEngineNone();
 			trigger_error('Cache engine is not found', E_USER_WARNING);
 		}
 
-		if (!$cacheEngine->isAvailable())
+		if (!$cacheEngine[$hash]->isAvailable())
 		{
-			$cacheEngine = new CacheEngineNone();
+			$cacheEngine[$hash] = new CacheEngineNone();
 			trigger_error('Cache engine is not available', E_USER_WARNING);
 		}
 
-		return clone $cacheEngine;
+		return clone $cacheEngine[$hash];
 	}
 
 	public static function getCacheEngineType()
 	{
 		$obj = static::createCacheEngine();
 		$class = get_class($obj);
-		if (($pos = mb_strrpos($class, "\\")) !== false)
+		if (($pos = strrpos($class, "\\")) !== false)
 		{
-			$class = mb_substr($class, $pos + 1);
+			$class = substr($class, $pos + 1);
 		}
 
-		return mb_strtolower($class);
+		return strtolower($class);
 	}
 
 	/**
@@ -265,7 +267,7 @@ class Cache
 			Diag\CacheTracker::add(0, "", $baseDir, $initDir, "", "C");
 		}
 
-		return $this->cacheEngine->clean($baseDir, $initDir);
+		$this->cacheEngine->clean($baseDir, $initDir);
 	}
 
 	public function initCache($ttl, $uniqueString, $initDir = false, $baseDir = 'cache')
@@ -463,75 +465,24 @@ class Cache
 		return $this->isStarted;
 	}
 
-	public static function clearCache($full = false, $initDir = ''): bool
+	/**
+	 * @deprecated Use \Bitrix\Main\Data\Cache::cleanDir().
+	 * @param $full
+	 * @param $initDir
+	 */
+	public static function clearCache($full = false, $initDir = ''): void
 	{
-		if (($full !== true) && ($full !== false) && ($initDir === '') && is_string($full))
+		if ($initDir === '' && is_string($full))
 		{
 			$initDir = $full;
 			$full = true;
 		}
-
-		$res = true;
 
 		if ($full === true)
 		{
 			$obCache = static::createInstance();
 			$obCache->cleanDir($initDir, 'cache');
 		}
-
-		$path = Main\Loader::getPersonal('cache' . $initDir);
-		if (is_dir($path) && ($handle = opendir($path)))
-		{
-			while (($file = readdir($handle)) !== false)
-			{
-				if ($file === '.' || $file === '..')
-				{
-					continue;
-				}
-
-				if (is_dir($path . '/' . $file))
-				{
-					if (!static::clearCache($full, $initDir . '/' . $file))
-					{
-						$res = false;
-					}
-					else
-					{
-						@chmod($path . '/' . $file, BX_DIR_PERMISSIONS);
-						//We suppress error handle here because there may be valid cache files in this dir
-						@rmdir($path . '/' . $file);
-					}
-				}
-				elseif ($full)
-				{
-					@chmod($path . '/' . $file, BX_FILE_PERMISSIONS);
-					if (!unlink($path . '/' . $file))
-					{
-						$res = false;
-					}
-				}
-				elseif (mb_substr($file, -4) === '.php')
-				{
-					$c = static::createInstance();
-					if ($c->isCacheExpired($path . '/' . $file))
-					{
-						@chmod($path . '/' . $file, BX_FILE_PERMISSIONS);
-						if (!unlink($path . '/' . $file))
-						{
-							$res = false;
-						}
-					}
-				}
-				else
-				{
-					//We should skip unknown file
-					//it will be deleted with full cache cleanup
-				}
-			}
-			closedir($handle);
-		}
-
-		return $res;
 	}
 
 	/**

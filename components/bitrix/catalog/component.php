@@ -71,6 +71,11 @@ $arParams['ELEMENT_SORT_ORDER_BOX'] = (string)($arParams['ELEMENT_SORT_ORDER_BOX
 $arParams['ELEMENT_SORT_FIELD_BOX2'] = (string)($arParams['ELEMENT_SORT_FIELD_BOX2'] ?? 'ID');
 $arParams['ELEMENT_SORT_ORDER_BOX2'] = (string)($arParams['ELEMENT_SORT_ORDER_BOX2'] ?? 'DESC');
 
+if (!\Bitrix\Main\Analytics\Catalog::isOn())
+{
+	$arParams['USE_BIG_DATA'] = 'N';
+}
+
 //default gifts
 if(empty($arParams['USE_GIFTS_SECTION']))
 {

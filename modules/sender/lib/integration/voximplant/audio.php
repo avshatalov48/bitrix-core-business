@@ -318,7 +318,7 @@ class Audio
 		while (!feof($file))
 		{
 			$frame = fread($file, 10);
-			if (mb_strlen($frame, 'latin1') < 10)
+			if (strlen($frame) < 10)
 			{
 				break;
 			}
@@ -326,7 +326,7 @@ class Audio
 			{
 				if ("\xff" == $frame[0] && (ord($frame[1]) & 0xe0))  // if 1111 1111 111x xxxx bits (header sequence) was found
 				{
-					list($frameLength, $frameDuration) = $this->getFrameInfo(mb_substr($frame, 0, 4, 'latin1'));
+					list($frameLength, $frameDuration) = $this->getFrameInfo(substr($frame, 0, 4));
 					if (!$frameLength)
 					{
 						return $duration;
@@ -336,7 +336,7 @@ class Audio
 				}
 				else
 				{
-					$offset = ('TAG' == mb_substr($frame, 0, 3, 'latin1')) ? 118 : -9;
+					$offset = ('TAG' == substr($frame, 0, 3)) ? 118 : -9;
 				}
 				fseek($file, $offset, SEEK_CUR);
 			}
@@ -351,7 +351,7 @@ class Audio
 	 */
 	private function getId3v2TagLength($header)
 	{
-		if ("ID3" == mb_substr($header, 0, 3, 'latin1'))
+		if ("ID3" == substr($header, 0, 3))
 		{
 			$hasExtendedHeader = (ord($header[5]) & 0x10) ? 1 : 0;
 			$lengthByte1 = ord($header[6]);

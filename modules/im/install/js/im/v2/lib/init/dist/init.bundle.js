@@ -9,6 +9,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	var _initCurrentUser = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initCurrentUser");
 	var _initLogger = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initLogger");
 	var _initSettings = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initSettings");
+	var _initTariffRestrictions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initTariffRestrictions");
 	class InitManager {
 	  static start() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _started)[_started]) {
@@ -18,6 +19,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_logger.Logger.warn('InitManager: start');
 	    babelHelpers.classPrivateFieldLooseBase(this, _initCurrentUser)[_initCurrentUser]();
 	    babelHelpers.classPrivateFieldLooseBase(this, _initSettings)[_initSettings]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _initTariffRestrictions)[_initTariffRestrictions]();
 	    im_v2_lib_counter.CounterManager.init();
 	    im_v2_lib_permission.PermissionManager.init();
 	    im_v2_lib_promo.PromoManager.init();
@@ -38,7 +40,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  if (!currentUser) {
 	    return;
 	  }
-	  new im_v2_lib_user.UserManager().setUsersToModel([currentUser]);
+	  void new im_v2_lib_user.UserManager().setUsersToModel([currentUser]);
 	}
 	function _initLogger2() {
 	  const {
@@ -57,8 +59,21 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return;
 	  }
 	  im_v2_lib_logger.Logger.warn('InitManager: settings', settings);
-	  im_v2_application_core.Core.getStore().dispatch('application/settings/set', settings);
+	  void im_v2_application_core.Core.getStore().dispatch('application/settings/set', settings);
 	}
+	function _initTariffRestrictions2() {
+	  const {
+	    tariffRestrictions
+	  } = im_v2_application_core.Core.getApplicationData();
+	  if (!tariffRestrictions) {
+	    return;
+	  }
+	  im_v2_lib_logger.Logger.warn('InitManager: tariffRestrictions', tariffRestrictions);
+	  void im_v2_application_core.Core.getStore().dispatch('application/tariffRestrictions/set', tariffRestrictions);
+	}
+	Object.defineProperty(InitManager, _initTariffRestrictions, {
+	  value: _initTariffRestrictions2
+	});
 	Object.defineProperty(InitManager, _initSettings, {
 	  value: _initSettings2
 	});

@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc;
 
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
+use Bitrix\Main\DB\SqlQueryException;
 use Bitrix\Main\Loader;
 use Bitrix\Rest\AppLangTable;
 use Bitrix\Rest\AppTable;
@@ -254,7 +255,14 @@ class RestService extends \IRestService
 			self::upsertAppPlacement($appId, $params['CODE'], $params['PLACEMENT_HANDLER'] ?? null);
 		}
 
-		$result = RestActivityTable::add($params);
+		try
+		{
+			$result = RestActivityTable::add($params);
+		}
+		catch (SqlQueryException $exception)
+		{
+			throw new RestException('Activity or Robot already added!', self::ERROR_ACTIVITY_ADD_FAILURE);
+		}
 
 		if ($result->getErrors())
 		{
@@ -800,7 +808,7 @@ class RestService extends \IRestService
 
 		$workflowParameters = isset($params['PARAMETERS']) && is_array($params['PARAMETERS']) ? $params['PARAMETERS'] : [];
 
-		$workflowParameters[\CBPDocument::PARAM_TAGRET_USER] = self::getCurrentUserId();
+		$workflowParameters[\CBPDocument::PARAM_TAGRET_USER] = 'user_' . self::getCurrentUserId();
 
 		$errors = [];
 		$workflowId = \CBPDocument::startWorkflow($templateId, $documentId, $workflowParameters, $errors);
@@ -1816,7 +1824,7 @@ class RestService extends \IRestService
 
 			if ($fileFields)
 			{
-				return file_get_contents($fileFields['tmp_name']);
+				return \Bitrix\Main\IO\File::getFileContents($fileFields['tmp_name']);
 			}
 		}
 		throw new RestException('Incorrect field TEMPLATE_DATA!', self::ERROR_TEMPLATE_VALIDATION_FAILURE);

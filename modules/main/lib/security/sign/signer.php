@@ -276,7 +276,7 @@ class Signer
 		// Some kind of optimization
 		if ($limit === 0)
 		{
-			if (strpos($value, $this->separator) === false)
+			if (!str_contains($value, $this->separator))
 				throw new BadSignatureException('Separator not found in value');
 
 			return explode($this->separator, $value);

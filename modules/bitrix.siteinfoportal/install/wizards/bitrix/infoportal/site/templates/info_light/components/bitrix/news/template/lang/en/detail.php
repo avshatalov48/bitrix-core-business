@@ -1,3 +1,0 @@
-<?
-$MESS ['CATEGORIES'] = "Related Information:";
-?>

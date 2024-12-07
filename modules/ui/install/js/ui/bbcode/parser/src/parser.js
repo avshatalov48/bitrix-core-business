@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { AstProcessor } from 'ui.bbcode.ast-processor';
 import { getByIndex } from '../../shared';
 import {
 	BBCodeScheme,
@@ -11,9 +12,12 @@ import {
 	type BBCodeContentNode,
 	type BBCodeSpecialCharNode,
 } from 'ui.bbcode.model';
+import { BBCodeEncoder } from 'ui.bbcode.encoder';
+import { Linkify } from 'ui.linkify';
 import { ParserScheme } from './parser-scheme';
 
-const TAG_REGEX: RegExp = /\[(\/)?(\w+|\*)(.*?)]/gs;
+const TAG_REGEX: RegExp = /\[(\/)?(\w+|\*).*?]/;
+const TAG_REGEX_GS: RegExp = /\[(\/)?(\w+|\*)(.*?)]/gs;
 const isSpecialChar = (symbol: string): boolean => {
 	return ['\n', '\t'].includes(symbol);
 };
@@ -31,12 +35,21 @@ const parserScheme = new ParserScheme();
 type BBCodeParserOptions = {
 	scheme?: BBCodeScheme,
 	onUnknown?: (node: BBCodeContentNode, scheme: BBCodeScheme) => void,
+	encoder?: BBCodeEncoder,
+	linkify?: boolean,
+};
+
+type NextTagResult = {
+	tagName: string,
+	isClosedTag: boolean,
 };
 
 class BBCodeParser
 {
 	scheme: BBCodeScheme;
+	encoder: BBCodeEncoder;
 	onUnknownHandler: () => any;
+	allowedLinkify: boolean = true;
 
 	constructor(options: BBCodeParserOptions = {})
 	{
@@ -56,6 +69,20 @@ class BBCodeParser
 		else
 		{
 			this.setOnUnknown(BBCodeParser.defaultOnUnknownHandler);
+		}
+
+		if (options.encoder instanceof BBCodeEncoder)
+		{
+			this.setEncoder(options.encoder);
+		}
+		else
+		{
+			this.setEncoder(new BBCodeEncoder());
+		}
+
+		if (Type.isBoolean(options.linkify))
+		{
+			this.setIsAllowedLinkify(options.linkify);
 		}
 	}
 
@@ -84,6 +111,48 @@ class BBCodeParser
 		return this.onUnknownHandler;
 	}
 
+	setEncoder(encoder: BBCodeEncoder)
+	{
+		if (encoder instanceof BBCodeEncoder)
+		{
+			this.encoder = encoder;
+		}
+		else
+		{
+			throw new TypeError('encoder is not BBCodeEncoder instance');
+		}
+	}
+
+	getEncoder(): BBCodeEncoder
+	{
+		return this.encoder;
+	}
+
+	setIsAllowedLinkify(value: boolean)
+	{
+		this.allowedLinkify = Boolean(value);
+	}
+
+	isAllowedLinkify(): boolean
+	{
+		return this.allowedLinkify;
+	}
+
+	canBeLinkified(node: BBCodeTextNode | BBCodeElementNode): boolean
+	{
+		if (node.getName() === '#text')
+		{
+			const notAllowedNodeNames = ['url', 'img', 'video', 'code'];
+			const inNotAllowedNode = notAllowedNodeNames.some((name: string) => {
+				return Boolean(AstProcessor.findParentNodeByName(node, name));
+			});
+
+			return !inNotAllowedNode;
+		}
+
+		return false;
+	}
+
 	static defaultOnUnknownHandler(node: BBCodeContentNode, scheme: BBCodeScheme): ?Array<BBCodeContentNode>
 	{
 		if (node.getType() === BBCodeNode.ELEMENT_NODE)
@@ -91,21 +160,24 @@ class BBCodeParser
 			const nodeName: string = node.getName();
 			if (['left', 'center', 'right', 'justify'].includes(nodeName))
 			{
-				node.replace(
-					scheme.createElement({
-						name: 'p',
-						children: node.getChildren(),
-					}),
-				);
+				const newNode = scheme.createElement({
+					name: 'p',
+				});
+				node.replace(newNode);
+				newNode.setChildren(node.getChildren());
 			}
 			else if (['background', 'color', 'size'].includes(nodeName))
 			{
-				node.replace(
-					scheme.createElement({
-						name: 'b',
-						children: node.getChildren(),
-					}),
-				);
+				const newNode = scheme.createElement({
+					name: 'b',
+				});
+				node.replace(newNode);
+				newNode.setChildren(node.getChildren());
+			}
+			else if (['span', 'font'].includes(nodeName))
+			{
+				const fragment = scheme.createFragment({ children: node.getChildren() });
+				node.replace(fragment);
 			}
 			else
 			{
@@ -167,7 +239,9 @@ class BBCodeParser
 						return parserScheme.createTab();
 					}
 
-					return parserScheme.createText({ content: fragment });
+					return parserScheme.createText({
+						content: this.getEncoder().decodeText(fragment),
+					});
 				});
 		}
 
@@ -177,13 +251,30 @@ class BBCodeParser
 	static findNextTagIndex(bbcode: string, startIndex = 0): number
 	{
 		const nextContent: string = bbcode.slice(startIndex);
-		const [nextTag: ?string] = nextContent.match(new RegExp(TAG_REGEX)) || [];
-		if (nextTag)
+		const matchResult = nextContent.match(new RegExp(TAG_REGEX));
+		if (matchResult)
 		{
-			return bbcode.indexOf(nextTag, startIndex);
+			return matchResult.index + startIndex;
 		}
 
 		return -1;
+	}
+
+	static findNextTag(bbcode: string, startIndex = 0): ?NextTagResult
+	{
+		const nextContent: string = bbcode.slice(startIndex);
+		const matchResult = nextContent.match(new RegExp(TAG_REGEX));
+		if (matchResult)
+		{
+			const [, slash, tagName] = matchResult;
+
+			return {
+				tagName,
+				isClosedTag: slash === '\\',
+			};
+		}
+
+		return null;
 	}
 
 	static trimQuotes(value: string): string
@@ -205,8 +296,10 @@ class BBCodeParser
 		{
 			if (sourceAttributes.startsWith('='))
 			{
-				result.value = BBCodeParser.trimQuotes(
-					sourceAttributes.slice(1),
+				result.value = this.getEncoder().decodeAttribute(
+					BBCodeParser.trimQuotes(
+						sourceAttributes.slice(1),
+					),
 				);
 
 				return result;
@@ -220,7 +313,9 @@ class BBCodeParser
 					const [key: string, value: string = ''] = item.split('=');
 					acc.attributes.push([
 						BBCodeParser.toLowerCase(key),
-						BBCodeParser.trimQuotes(value),
+						this.getEncoder().decodeAttribute(
+							BBCodeParser.trimQuotes(value),
+						),
 					]);
 
 					return acc;
@@ -248,7 +343,7 @@ class BBCodeParser
 		let current: ?BBCodeElementNode = null;
 		let level: number = 0;
 
-		bbcode.replace(TAG_REGEX, (fullTag: string, slash: ?string, tagName: string, attrs: ?string, index: number) => {
+		bbcode.replace(TAG_REGEX_GS, (fullTag: string, slash: ?string, tagName: string, attrs: ?string, index: number) => {
 			const isOpeningTag: boolean = Boolean(slash) === false;
 			const startIndex: number = fullTag.length + index;
 			const nextContent: string = bbcode.slice(startIndex);
@@ -316,6 +411,12 @@ class BBCodeParser
 						);
 					}
 
+					if (!parent)
+					{
+						level++;
+						parent = stack[level];
+					}
+
 					parent.appendChild(current);
 
 					level++;
@@ -352,9 +453,13 @@ class BBCodeParser
 					);
 				}
 
-				if (isListItem(stack[level].getName()) && level > 0)
+				if (level > 0 && isListItem(stack[level].getName()))
 				{
-					level--;
+					const nextTag: ?NextTagResult = BBCodeParser.findNextTag(bbcode, startIndex);
+					if (Type.isNull(nextTag) || isListItem(nextTag.tagName))
+					{
+						level--;
+					}
 				}
 			}
 		});
@@ -395,6 +500,43 @@ class BBCodeParser
 						node.getChildren().slice(0, getByIndex(finalLinebreaksIndexes, 0)),
 					);
 				}
+			}
+
+			if (
+				this.isAllowedLinkify()
+				&& this.canBeLinkified(node)
+			)
+			{
+				const content = node.toString({ encode: false });
+				const tokens: Array<Linkify.MultiToken> = Linkify.tokenize(content);
+
+				const nodes = tokens.map((token: Linkify.MultiToken) => {
+					if (token.t === 'url')
+					{
+						return parserScheme.createElement({
+							name: 'url',
+							value: token.toHref().replace(/^http:\/\//, 'https://'),
+							children: [
+								parserScheme.createText(token.toString()),
+							],
+						});
+					}
+
+					if (token.t === 'email')
+					{
+						return parserScheme.createElement({
+							name: 'url',
+							value: token.toHref(),
+							children: [
+								parserScheme.createText(token.toString()),
+							],
+						});
+					}
+
+					return parserScheme.createText(token.toString());
+				});
+
+				node.replace(...nodes);
 			}
 		});
 

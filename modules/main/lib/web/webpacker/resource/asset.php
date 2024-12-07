@@ -247,7 +247,7 @@ abstract class Asset
 
 		$parts = explode("\n", $content);
 		$mapUri = '//# sourceMappingURL=';
-		if (mb_strpos(array_pop($parts), $mapUri) !== 0)
+		if (!str_starts_with(array_pop($parts), $mapUri))
 		{
 			return $content;
 		}

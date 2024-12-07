@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,main_core_events,main_popup,ui_designTokens,main_core) {
@@ -21,18 +22,20 @@ this.BX.UI = this.BX.UI || {};
 	    this.id = options.id || null;
 	    this.text = options.text;
 	    this.areaPadding = options.areaPadding;
-	    this.link = options.link || "";
+	    this.link = options.link || '';
 	    this.linkTitle = options.linkTitle || null;
 	    this.rounded = options.rounded || false;
 	    this.title = options.title || null;
+	    this.iconSrc = options.iconSrc || null;
 	    this.article = options.article || null;
+	    this.infoHelperCode = options.infoHelperCode || null;
 	    this.position = options.position || null;
 	    this.cursorMode = options.cursorMode || false;
 	    this.targetEvent = options.targetEvent || null;
 	    this.buttons = options.buttons || [];
 	    this.condition = options.condition || null;
 	    const events = main_core.Type.isPlainObject(options.events) ? options.events : {};
-	    for (let eventName in events) {
+	    for (const eventName in events) {
 	      const callback = main_core.Type.isFunction(events[eventName]) ? events[eventName] : main_core.Reflection.getClass(events[eventName]);
 	      if (callback) {
 	        this.subscribe(this.constructor.getFullEventName(eventName), () => {
@@ -82,11 +85,17 @@ this.BX.UI = this.BX.UI || {};
 	  getTitle() {
 	    return this.title;
 	  }
+	  getIconSrc() {
+	    return this.iconSrc;
+	  }
 	  getPosition() {
 	    return this.position;
 	  }
 	  getArticle() {
 	    return this.article;
+	  }
+	  getInfoHelperCode() {
+	    return this.infoHelperCode;
 	  }
 	  getCursorMode() {
 	    return this.cursorMode;
@@ -95,7 +104,7 @@ this.BX.UI = this.BX.UI || {};
 	    return this.targetEvent;
 	  }
 	  static getFullEventName(shortName) {
-	    return "Step:" + shortName;
+	    return `Step:${shortName}`;
 	  }
 	  setTarget(target) {
 	    this.target = target;
@@ -126,7 +135,8 @@ this.BX.UI = this.BX.UI || {};
 	  _t14,
 	  _t15,
 	  _t16,
-	  _t17;
+	  _t17,
+	  _t18;
 	class Guide extends main_core.Event.EventEmitter {
 	  constructor(options = {}) {
 	    super(options);
@@ -298,7 +308,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (this.layout.backBtn) {
 	      setTimeout(() => {
 	        this.layout.backBtn.style.display = "block";
-	      }, 10);
+	      }, 200);
 	    }
 	    if (this.overlay) {
 	      this.setOverlayElementForm();
@@ -356,9 +366,8 @@ this.BX.UI = this.BX.UI || {};
 	      this.subscribe('UI.Tour.Guide:onFinish', () => {
 	        main_core.Event.unbind(currentStep.getTarget(), 'click', close);
 	      });
-	      const targetPos = currentStep.getTarget().getBoundingClientRect();
 	      const targetPosWindow = main_core.Dom.getPosition(currentStep.getTarget());
-	      if (!this.isTargetVisible(targetPos)) {
+	      if (!this.isTargetVisible(targetPosWindow)) {
 	        this.scrollToTarget(targetPosWindow);
 	      }
 	    }
@@ -624,7 +633,7 @@ this.BX.UI = this.BX.UI || {};
 	            this.close();
 	          }
 	        },
-	        buttons: buttons
+	        buttons
 	      });
 	      const conditionNodeTop = main_core.Tag.render(_t2 || (_t2 = _`
 				<div class="ui-tour-popup-condition-top">
@@ -655,27 +664,42 @@ this.BX.UI = this.BX.UI || {};
 	   */
 	  getContent() {
 	    if (!this.layout.content) {
+	      let iconNode = '';
+	      if (this.getCurrentStep().getIconSrc()) {
+	        iconNode = main_core.Tag.render(_t4 || (_t4 = _`
+					<div
+						class="ui-tour-popup-icon"
+						style="background-image: url(${0});"
+					></div>
+				`), encodeURI(this.getCurrentStep().getIconSrc()));
+	      }
 	      let linkNode = '';
-	      if (this.getCurrentStep().getLink() || this.getCurrentStep().getArticle()) {
+	      if (this.getCurrentStep().getLink() || this.getCurrentStep().getArticle() || this.getCurrentStep().getInfoHelperCode()) {
 	        linkNode = this.getLink();
 	      }
-	      this.layout.content = main_core.Tag.render(_t4 || (_t4 = _`
-				<div class="ui-tour-popup ${0} ${0}" >
+	      this.layout.content = main_core.Tag.render(_t5 || (_t5 = _`
+				<div
+					class="ui-tour-popup ${0} ${0}"
+					style="${0};"
+				>
 					${0}
-					<div class="ui-tour-popup-content">
+					<div>
 						${0}
-						${0}
-					</div>
-					${0}
-					<div class="ui-tour-popup-footer">
-						<div class="ui-tour-popup-index">
+						<div class="ui-tour-popup-content">
 							${0}
 							${0}
 						</div>
-							${0}
+						${0}
+						<div class="ui-tour-popup-footer">
+							<div class="ui-tour-popup-index">
+								${0}
+								${0}
+							</div>
+								${0}
+						</div>
 					</div>
 				</div>
-			`), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
+			`), this.simpleMode ? 'ui-tour-popup-simple' : '', this.onEvents ? 'ui-tour-popup-events' : '', iconNode ? 'padding-left: 13px;' : '', iconNode, this.getTitle(), this.getText(), linkNode, linkNode, this.onEvents ? '' : this.getCounterItems(), this.onEvents ? '' : this.getCurrentCounter(), this.onEvents ? '' : this.getBtnContainer());
 	    }
 	    return this.layout.content;
 	  }
@@ -687,10 +711,12 @@ this.BX.UI = this.BX.UI || {};
 	    main_core.Event.unbindAll(this.layout.link, 'click');
 	    this.getTitle().innerHTML = this.getCurrentStep().getTitle();
 	    this.getText().innerHTML = this.getCurrentStep().getText();
-	    if (this.getCurrentStep().getArticle() || this.getCurrentStep().getLink()) {
-	      main_core.Dom.removeClass(this.layout.link, "ui-tour-popup-link-hide");
+	    if (this.getCurrentStep().getArticle() || this.getCurrentStep().getLink() || this.getCurrentStep().getInfoHelperCode()) {
+	      main_core.Dom.removeClass(this.layout.link, 'ui-tour-popup-link-hide');
 	      if (this.getCurrentStep().getArticle()) {
-	        main_core.Event.bind(this.layout.link, "click", this.handleClickLink.bind(this));
+	        main_core.Event.bind(this.layout.link, 'click', this.handleClickLink.bind(this));
+	      } else if (this.getCurrentStep().getInfoHelperCode()) {
+	        main_core.Event.bind(this.layout.link, 'click', this.handleInfoHelperCodeClickLink.bind(this));
 	      }
 	      if (this.getCurrentStep().getLink()) {
 	        this.getLink().setAttribute('href', this.getCurrentStep().getLink());
@@ -729,13 +755,28 @@ this.BX.UI = this.BX.UI || {};
 	      });
 	    }
 	  }
+	  handleInfoHelperCodeClickLink() {
+	    event.preventDefault();
+	    if (main_core.Reflection.getClass('BX.UI.InfoHelper.show')) {
+	      const helper = top.BX.UI.InfoHelper;
+	      helper.show(this.getCurrentStep().getInfoHelperCode());
+	      if (this.onEvent) {
+	        if (helper.isOpen()) {
+	          this.getPopup().setAutoHide(false);
+	        }
+	        main_core_events.EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+	          this.getPopup().setAutoHide(true);
+	        });
+	      }
+	    }
+	  }
 
 	  /**
 	   * @public
 	   */
 	  getTitle() {
 	    if (this.layout.title === null) {
-	      this.layout.title = main_core.Tag.render(_t5 || (_t5 = _`
+	      this.layout.title = main_core.Tag.render(_t6 || (_t6 = _`
 				<div class="ui-tour-popup-title"></div>
 			`));
 	    }
@@ -747,7 +788,7 @@ this.BX.UI = this.BX.UI || {};
 	   */
 	  getText() {
 	    if (this.layout.text === null) {
-	      this.layout.text = main_core.Tag.render(_t6 || (_t6 = _`
+	      this.layout.text = main_core.Tag.render(_t7 || (_t7 = _`
 				<div class="ui-tour-popup-text"></div>
 			`));
 	    }
@@ -761,7 +802,7 @@ this.BX.UI = this.BX.UI || {};
 	    if (!this.layout.link) {
 	      var _this$steps$this$curr;
 	      const title = (_this$steps$this$curr = this.steps[this.currentStepIndex].getLinkTitle()) != null ? _this$steps$this$curr : main_core.Loc.getMessage('JS_UI_TOUR_LINK');
-	      this.layout.link = main_core.Tag.render(_t7 || (_t7 = _`
+	      this.layout.link = main_core.Tag.render(_t8 || (_t8 = _`
 				<a target="_blank" href="" class="ui-tour-popup-link">
 					${0}
 				</a>
@@ -775,7 +816,7 @@ this.BX.UI = this.BX.UI || {};
 	   */
 	  getCurrentCounter() {
 	    if (this.layout.currentCounter === null) {
-	      this.layout.currentCounter = main_core.Tag.render(_t8 || (_t8 = _`
+	      this.layout.currentCounter = main_core.Tag.render(_t9 || (_t9 = _`
 				<span class="ui-tour-popup-counter">
 					${0}
 				</span>
@@ -789,15 +830,15 @@ this.BX.UI = this.BX.UI || {};
 	   */
 	  getBtnContainer() {
 	    if (this.layout.btnContainer === null) {
-	      this.layout.btnContainer = main_core.Tag.render(_t9 || (_t9 = _`
+	      this.layout.btnContainer = main_core.Tag.render(_t10 || (_t10 = _`
 				<div class="ui-tour-popup-btn-block"></div>
 			`));
-	      this.layout.nextBtn = main_core.Tag.render(_t10 || (_t10 = _`
+	      this.layout.nextBtn = main_core.Tag.render(_t11 || (_t11 = _`
 				<button id="next" class="ui-tour-popup-btn-next">
 					${0}
 				</button>
 			`), this.simpleMode ? main_core.Loc.getMessage("JS_UI_TOUR_BUTTON_SIMPLE") : main_core.Loc.getMessage("JS_UI_TOUR_BUTTON"));
-	      this.layout.backBtn = main_core.Tag.render(_t11 || (_t11 = _`
+	      this.layout.backBtn = main_core.Tag.render(_t12 || (_t12 = _`
 				<button id="back" class="ui-tour-popup-btn-back">
 				</button>
 			`));
@@ -810,14 +851,14 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getCounterItems() {
 	    if (this.layout.counter === null) {
-	      this.layout.counter = main_core.Tag.render(_t12 || (_t12 = _`
+	      this.layout.counter = main_core.Tag.render(_t13 || (_t13 = _`
 				<span class="ui-tour-popup-index-items">
 				</span>
 			`));
 	    }
 	    this.layout.counterItems = [];
 	    for (let i = 0; i < this.steps.length; i++) {
-	      const currentStepIndex = main_core.Tag.render(_t13 || (_t13 = _`
+	      const currentStepIndex = main_core.Tag.render(_t14 || (_t14 = _`
 				<span class="ui-tour-popup-index-item">
 				</span>
 			`));
@@ -909,8 +950,8 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getFinalContent() {
 	    if (!this.layout.finalContent) {
-	      this.layout.finalContent = main_core.Tag.render(_t14 || (_t14 = _`
-				<div class="ui-tour-popup">
+	      this.layout.finalContent = main_core.Tag.render(_t15 || (_t15 = _`
+				<div class="ui-tour-popup --final">
 					<div class="ui-tour-popup-title">
 						${0}
 					</div>
@@ -931,15 +972,16 @@ this.BX.UI = this.BX.UI || {};
 	    const buttons = [];
 	    if (this.buttons !== "") {
 	      for (let i = 0; i < this.buttons.length; i++) {
-	        let btn = main_core.Tag.render(_t15 || (_t15 = _`
+	        var _this$buttons$i$event;
+	        let btn = main_core.Tag.render(_t16 || (_t16 = _`
 					<button class="${0}" onclick="${0}">
 					${0}
 					</button>
-				`), this.buttons[i].class, this.buttons[i].events.click, this.buttons[i].text);
+				`), this.buttons[i].class, (_this$buttons$i$event = this.buttons[i].events) == null ? void 0 : _this$buttons$i$event.click, this.buttons[i].text);
 	        buttons.push(btn);
 	      }
 	    } else {
-	      let btn = main_core.Tag.render(_t16 || (_t16 = _`
+	      let btn = main_core.Tag.render(_t17 || (_t17 = _`
 				<button class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" onclick="${0}">
 				${0}
 				</button>
@@ -977,7 +1019,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  getCursor() {
 	    if (!this.layout.cursor) {
-	      this.layout.cursor = main_core.Tag.render(_t17 || (_t17 = _`
+	      this.layout.cursor = main_core.Tag.render(_t18 || (_t18 = _`
 				<div class="ui-tour-cursor"></div>
 			`));
 	      main_core.Event.bind(this.layout.cursor, 'transitionend', () => {
@@ -1033,14 +1075,14 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  add(options) {
 	    const guide = this.create(options);
-	    guide.subscribe("UI.Tour.Guide:onFinish", () => {
+	    guide.subscribe('UI.Tour.Guide:onFinish', () => {
 	      this.handleTourFinish(guide);
 	    });
-	    if (!this.currentGuide) {
+	    if (this.currentGuide) {
+	      this.autoStartQueue.push(guide);
+	    } else {
 	      this.currentGuide = guide;
 	      guide.start();
-	    } else {
-	      this.autoStartQueue.push(guide);
 	    }
 	  }
 

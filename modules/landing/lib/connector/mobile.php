@@ -50,6 +50,8 @@ class Mobile
 			$componentId
 		);
 
+
+
 		return [
 			'sort' => 100,
 			'title' => Loc::getMessage('LANDING_CONNECTOR_MB_MENU_TITLE'),
@@ -61,7 +63,7 @@ class Mobile
 						name: '{$componentId}',
 						object: 'list',
 						version: '{$componentVersion}',
-						widgetParams: {title: this.title, useSearch:true}
+						widgetParams: {titleParams: { text: this.title, type: 'section' } , useSearch:true}
 					});
 JS
 			]

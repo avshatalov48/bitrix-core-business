@@ -83,11 +83,9 @@ class PropertyTable extends ORM\Data\DataManager
 	public const USER_TYPE_SKU = 'SKU';
 	public const USER_TYPE_SECTION_AUTOCOMPLETE = 'SectionAuto';
 
-	// highload module
-
+	// other modules
 	public const USER_TYPE_CRM = 'ECrm'; // \Bitrix\Crm\Integration\IBlockElementProperty::USER_TYPE
 	public const USER_TYPE_MONEY = 'Money'; // \Bitrix\Currency\Integration\IblockMoneyProperty::USER_TYPE
-
 	public const USER_TYPE_DISK = 'DiskFile'; // \Bitrix\Disk\Integration\FileDiskProperty
 	public const USER_TYPE_GOOGLE_MAP = 'map_google'; // \CIBlockPropertyMapGoogle
 	public const USER_TYPE_YANDEX_MAP = 'map_yandex'; // \CIBlockPropertyMapYandex

@@ -388,4 +388,9 @@ class MessageTable extends Main\Entity\DataManager
 		;
 		$query->whereExpr("NOT EXISTS ({$unreadSubQuery->getQuery()})", ['ID']);
 	}
+
+	public static function withNonSystemOnly(Query $query): void
+	{
+		$query->where('AUTHOR_ID', '!=', 0)->where('NOTIFY_EVENT', '!=', 'private_system');
+	}
 }

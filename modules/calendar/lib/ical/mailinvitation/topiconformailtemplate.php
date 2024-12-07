@@ -1,12 +1,9 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal\MailInvitation;
-
 
 use Bitrix\Calendar\Util;
 use Bitrix\Main\IO\File;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Type\Date;
 
 class TopIconForMailTemplate
@@ -159,7 +156,7 @@ class TopIconForMailTemplate
 		}
 
 		$image = @imagecreatefrompng($this->templatePath);
-		$month = Encoding::convertEncoding(Helper::getShortMonthName($this->date), SITE_CHARSET, "utf-8");
+		$month = Helper::getShortMonthName($this->date);
 		$color = imagecolorallocate($image, 255, 255, 255);
 		imagettftext($image, 30, 0, 55, 57, $color, $this->fontPath, $month);
 

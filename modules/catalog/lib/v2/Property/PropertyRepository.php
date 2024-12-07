@@ -23,10 +23,10 @@ use Bitrix\Main\Type\Collection;
  */
 class PropertyRepository implements PropertyRepositoryContract
 {
-	/** @var \Bitrix\Catalog\v2\Property\PropertyFactory */
-	protected $factory;
-	/** @var \Bitrix\Catalog\v2\PropertyValue\PropertyValueFactory */
-	private $propertyValueFactory;
+	protected PropertyFactory $factory;
+	private PropertyValueFactory $propertyValueFactory;
+
+	private array $propertyWithoutLink = [];
 
 	public function __construct(PropertyFactory $factory, PropertyValueFactory $propertyValueFactory)
 	{
@@ -153,13 +153,26 @@ class PropertyRepository implements PropertyRepositoryContract
 
 		if (!empty($props) && $result->isSuccess())
 		{
+			$elementId = $parentEntity->getId();
 			$element = new \CIBlockElement();
-			$res = $element->update($parentEntity->getId(), [
-				'PROPERTY_VALUES' => $props,
-			]);
+			$res = $element->update(
+				$elementId,
+				[
+					'PROPERTY_VALUES' => $props,
+				]
+			);
 			if (!$res)
 			{
-				$result->addError(new Error($element->LAST_ERROR));
+				$result->addError(new Error($element->getLastError()));
+			}
+			else
+			{
+				$ipropValues = new \Bitrix\Iblock\InheritedProperty\ElementValues(
+					\CIBlockElement::GetIBlockByID($elementId),
+					$elementId
+				);
+				$ipropValues->clearValues();
+				unset($ipropValues);
 			}
 		}
 
@@ -321,28 +334,35 @@ class PropertyRepository implements PropertyRepositoryContract
 
 	private function loadPropertyIdsWithoutAnyLink(int $iblockId): array
 	{
-		$propertyIds = PropertyTable::getList([
-			'select' => ['ID'],
-			'filter' => [
-				'=IBLOCK_ID' => $iblockId,
-				'==SECTION_LINK.SECTION_ID' => null,
-			],
-			'runtime' => [
-				new ReferenceField(
-					'SECTION_LINK',
-					'\Bitrix\Iblock\SectionPropertyTable',
-					[
-						'=this.ID' => 'ref.PROPERTY_ID',
-						'=this.IBLOCK_ID' => 'ref.IBLOCK_ID',
-					],
-					['join_type' => 'LEFT']
-				),
-			],
-		])
-			->fetchAll()
-		;
+		if (!isset($this->propertyWithoutLink[$iblockId]))
+		{
+			$this->propertyWithoutLink[$iblockId] = [];
+			$iterator = PropertyTable::getList([
+				'select' => ['ID'],
+				'filter' => [
+					'=IBLOCK_ID' => $iblockId,
+					'==SECTION_LINK.SECTION_ID' => null,
+				],
+				'runtime' => [
+					new ReferenceField(
+						'SECTION_LINK',
+						'\Bitrix\Iblock\SectionPropertyTable',
+						[
+							'=this.ID' => 'ref.PROPERTY_ID',
+							'=this.IBLOCK_ID' => 'ref.IBLOCK_ID',
+						],
+						['join_type' => 'LEFT']
+					),
+				],
+			]);
+			while ($row = $iterator->fetch())
+			{
+				$this->propertyWithoutLink[$iblockId][] = (int)$row['ID'];
+			}
+			unset($row, $iterator);
+		}
 
-		return array_column($propertyIds, 'ID');
+		return $this->propertyWithoutLink[$iblockId];
 	}
 
 	public function getPropertiesSettingsByFilter(array $filter): array
@@ -411,8 +431,12 @@ class PropertyRepository implements PropertyRepositoryContract
 
 	private function loadEnumSettings(array $settings): array
 	{
-		$enumIds = [];
+		if (empty($settings))
+		{
+			return $settings;
+		}
 
+		$enumIds = [];
 		foreach ($settings as $setting)
 		{
 			if ($setting['PROPERTY_TYPE'] === PropertyTable::TYPE_LIST)
@@ -420,11 +444,18 @@ class PropertyRepository implements PropertyRepositoryContract
 				$enumIds[] = $setting['ID'];
 			}
 		}
+		if (empty($enumIds))
+		{
+			return $settings;
+		}
 
 		$enumSettings = PropertyEnumerationTable::getList([
-			'select' => ['ID', 'PROPERTY_ID'],
+			'select' => [
+				'ID',
+				'PROPERTY_ID',
+			],
 			'filter' => [
-				'PROPERTY_ID' => $enumIds,
+				'@PROPERTY_ID' => $enumIds,
 				'=DEF' => 'Y',
 			],
 		])

@@ -443,7 +443,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 	<?
 		echo SelectBoxMFromArray("find_adv[]",array("REFERENCE"=>$find_adv_names, "REFERENCE_ID"=>$find_adv), $find_adv,"",false,"5", "style=\"width:300px;\"");
 		?>
-	<script language="Javascript">
+	<script>
 	function selectEventType(form, field)
 	{
 		jsUtils.OpenWindow('adv_multiselect.php?lang=<?=LANG?>&form='+form+'&field='+field, 600, 600);

@@ -178,7 +178,7 @@ function Form_Filter_Click_<?=$arResult["filter_id"]?>()
 if ($arParams["can_delete_some"])
 {
 ?>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
 <!--
 function OnDelete_<?=$arResult["filter_id"]?>()
 {

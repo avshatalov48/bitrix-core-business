@@ -65,7 +65,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $action == "buy" && $USER->IsAuthori
 if ($USER->IsAuthorized())
 {
 	$baseLangCurrency = CSaleLang::GetLangCurrency(SITE_ID);
-	echo ShowError($errorMessage);
+	ShowError($errorMessage);
 	?>
 	<table border="0" cellpadding="0" cellspacing="0" class="tableborder" width="100%"><tr><td>
 	<table border="0" cellspacing="1" width="100%" cellpadding="2">

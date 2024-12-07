@@ -1,24 +1,43 @@
-import { EventType, SidebarDetailBlock } from 'im.v2.const';
+import { EventEmitter } from 'main.core.events';
+import { Runtime, Extension } from 'main.core';
+
+import { EventType, SidebarDetailBlock, ChatActionType } from 'im.v2.const';
 import { Loader } from 'im.v2.component.elements';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
-import { EventEmitter } from 'main.core.events';
+import { PermissionManager } from 'im.v2.lib.permission';
 
+import { concatAndSortSearchResult } from '../../../classes/panels/helpers/concat-and-sort-search-result';
+import { TariffLimit } from '../../elements/tariff-limit/tariff-limit';
 import { MeetingItem } from './meeting-item';
 import { DateGroup } from '../../elements/date-group/date-group';
 import { DetailHeader } from '../../elements/detail-header/detail-header';
-import { DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
+import { DetailEmptyState as StartState, DetailEmptyState } from '../../elements/detail-empty-state/detail-empty-state';
+import { DetailEmptySearchState } from '../../elements/detail-empty-search-state/detail-empty-search-state';
 import { MeetingMenu } from '../../../classes/context-menu/meeting/meeting-menu';
 import { SidebarCollectionFormatter } from '../../../classes/sidebar-collection-formatter';
+import { Meeting } from '../../../classes/panels/meeting';
+import { MeetingSearch } from '../../../classes/panels/search/meeting-search';
 
 import './css/meeting-panel.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelSidebarMeetingItem, ImModelChat } from 'im.v2.model';
 
+const DEFAULT_MIN_TOKEN_SIZE = 3;
+
 // @vue/component
 export const MeetingPanel = {
 	name: 'MeetingPanel',
-	components: { MeetingItem, DateGroup, DetailEmptyState, DetailHeader, Loader },
+	components: {
+		MeetingItem,
+		DateGroup,
+		DetailEmptyState,
+		StartState,
+		DetailHeader,
+		DetailEmptySearchState,
+		Loader,
+		TariffLimit,
+	},
 	props: {
 		dialogId: {
 			type: String,
@@ -33,6 +52,11 @@ export const MeetingPanel = {
 	{
 		return {
 			isLoading: false,
+			isSearchHeaderOpened: false,
+			searchQuery: '',
+			searchResult: [],
+			currentServerQueries: 0,
+			minTokenSize: DEFAULT_MIN_TOKEN_SIZE,
 		};
 	},
 	computed:
@@ -40,6 +64,11 @@ export const MeetingPanel = {
 		SidebarDetailBlock: () => SidebarDetailBlock,
 		meetings(): ImModelSidebarMeetingItem[]
 		{
+			if (this.isSearchHeaderOpened)
+			{
+				return this.$store.getters['sidebar/meetings/getSearchResultCollection'](this.chatId);
+			}
+
 			return this.$store.getters['sidebar/meetings/get'](this.chatId);
 		},
 		formattedCollection(): Array
@@ -50,6 +79,10 @@ export const MeetingPanel = {
 		{
 			return this.formattedCollection.length === 0;
 		},
+		showAddButton(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.createMeeting, this.dialogId);
+		},
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -58,11 +91,40 @@ export const MeetingPanel = {
 		{
 			return this.dialog.chatId;
 		},
+		preparedQuery(): string
+		{
+			return this.searchQuery.trim().toLowerCase();
+		},
+		isSearchQueryMinimumSize(): boolean
+		{
+			return this.preparedQuery.length < this.minTokenSize;
+		},
+		hasHistoryLimit(): boolean
+		{
+			return this.$store.getters['sidebar/meetings/isHistoryLimitExceeded'](this.chatId);
+		},
+	},
+	watch:
+	{
+		preparedQuery(newQuery: string, previousQuery: string)
+		{
+			if (newQuery === previousQuery)
+			{
+				return;
+			}
+
+			this.cleanSearchResult();
+			this.startSearch();
+		},
 	},
 	created()
 	{
+		this.initSettings();
 		this.collectionFormatter = new SidebarCollectionFormatter();
 		this.contextMenu = new MeetingMenu();
+		this.service = new Meeting({ dialogId: this.dialogId });
+		this.serviceSearch = new MeetingSearch({ dialogId: this.dialogId });
+		this.searchOnServerDelayed = Runtime.debounce(this.searchOnServer, 500, this);
 	},
 	beforeUnmount()
 	{
@@ -71,6 +133,68 @@ export const MeetingPanel = {
 	},
 	methods:
 	{
+		initSettings()
+		{
+			const settings = Extension.getSettings('im.v2.component.sidebar');
+			this.minTokenSize = settings.get('minSearchTokenSize', DEFAULT_MIN_TOKEN_SIZE);
+		},
+		searchOnServer(query: string)
+		{
+			this.currentServerQueries++;
+
+			this.serviceSearch.searchOnServer(query).then((messageIds: string[]) => {
+				if (query !== this.preparedQuery)
+				{
+					this.isLoading = false;
+
+					return;
+				}
+				this.searchResult = concatAndSortSearchResult(this.searchResult, messageIds);
+			}).catch((error) => {
+				console.error(error);
+			}).finally(() => {
+				this.currentServerQueries--;
+				this.stopLoader();
+				if (this.isSearchQueryMinimumSize)
+				{
+					this.cleanSearchResult();
+				}
+			});
+		},
+		stopLoader()
+		{
+			if (this.currentServerQueries > 0)
+			{
+				return;
+			}
+
+			this.isLoading = false;
+		},
+		startSearch()
+		{
+			if (this.isSearchQueryMinimumSize)
+			{
+				this.cleanSearchResult();
+			}
+			else
+			{
+				this.isLoading = true;
+				this.searchOnServerDelayed(this.preparedQuery);
+			}
+		},
+		cleanSearchResult()
+		{
+			this.serviceSearch.resetSearchState();
+			this.searchResult = [];
+		},
+		onChangeQuery(query: string)
+		{
+			this.searchQuery = query;
+		},
+		toggleSearchPanelOpened()
+		{
+			this.isSearchHeaderOpened = !this.isSearchHeaderOpened;
+		},
 		onContextMenuClick(event, target)
 		{
 			const item = {
@@ -88,11 +212,12 @@ export const MeetingPanel = {
 		{
 			const target = event.target;
 			const isAtThreshold = target.scrollTop + target.clientHeight >= target.scrollHeight - target.clientHeight;
-			const hasNextPage = this.$store.getters['sidebar/meetings/hasNextPage'](this.chatId);
+			const nameGetter = this.searchQuery.length > 0 ? 'sidebar/meetings/hasNextPageSearch' : 'sidebar/meetings/hasNextPage';
+			const hasNextPage = this.$store.getters[nameGetter](this.chatId);
 
 			return isAtThreshold && hasNextPage;
 		},
-		async onScroll(event: Event)
+		async onScroll(event: Event): Promise<void>
 		{
 			this.contextMenu.destroy();
 
@@ -102,20 +227,36 @@ export const MeetingPanel = {
 			}
 
 			this.isLoading = true;
-			await this.service.loadNextPage();
+			if (this.isSearchQueryMinimumSize)
+			{
+				await this.service.loadNextPage();
+			}
+			else
+			{
+				await this.serviceSearch.request();
+			}
 			this.isLoading = false;
 		},
 		onAddClick()
 		{
 			(new EntityCreator(this.chatId)).createMeetingForChat();
 		},
+		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-meeting-detail__scope">
 			<DetailHeader
-				:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_MEETING_DETAIL_TITLE')"
+				:title="loc('IM_SIDEBAR_MEETING_DETAIL_TITLE')"
 				:secondLevel="secondLevel"
-				:withAddButton="true"
+				:withAddButton="showAddButton"
+				:isSearchHeaderOpened="isSearchHeaderOpened"
+				:delayForFocusOnStart="0"
+				withSearch
+				@changeQuery="onChangeQuery"
+				@toggleSearchPanelOpened="toggleSearchPanelOpened"
 				@addClick="onAddClick"
 				@back="onBackClick"
 			/>
@@ -125,14 +266,35 @@ export const MeetingPanel = {
 					<MeetingItem
 						v-for="meeting in dateGroup.items"
 						:meeting="meeting"
+						:searchQuery="searchQuery"
 						@contextMenuClick="onContextMenuClick"
 					/>
 				</div>
-				<DetailEmptyState
-					v-if="!isLoading && isEmptyState"
-					:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_MEETINGS_EMPTY')"
-					:iconType="SidebarDetailBlock.meeting"
+				<TariffLimit
+					v-if="hasHistoryLimit"
+					:dialogId="dialogId"
+					:panel="SidebarDetailBlock.meeting"
+					class="bx-im-sidebar-meeting-detail__tariff-limit-container"
 				/>
+				<template v-if="!isLoading">
+					<template v-if="isSearchHeaderOpened">
+						<StartState
+							v-if="preparedQuery.length === 0"
+							:title="loc('IM_SIDEBAR_SEARCH_MESSAGE_START_TITLE')"
+							:iconType="SidebarDetailBlock.messageSearch"
+						/>
+						<DetailEmptySearchState
+							v-else-if="isEmptyState"
+							:title="loc('IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND_EXTENDED')"
+							:subTitle="loc('IM_SIDEBAR_MESSAGE_SEARCH_NOT_FOUND_DESCRIPTION_EXTENDED')"
+						/>
+					</template>
+					<DetailEmptyState
+						v-else-if="isEmptyState"
+						:title="loc('IM_SIDEBAR_MEETINGS_EMPTY')"
+						:iconType="SidebarDetailBlock.meeting"
+					/>
+				</template>
 				<Loader v-if="isLoading" class="bx-im-sidebar-detail__loader-container" />
 			</div>
 		</div>

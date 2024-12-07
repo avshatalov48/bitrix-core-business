@@ -1,9 +1,8 @@
-<?
-global $MESS;
+<?php
 
 IncludeModuleLangFile(__FILE__);
 
-Class report extends CModule
+class report extends CModule
 {
 	var $MODULE_ID = "report";
 	var $MODULE_VERSION;
@@ -61,11 +60,9 @@ Class report extends CModule
 
 	function UnInstallDB($arParams = array())
 	{
-		global $DB, $APPLICATION;
+		global $DB;
+
 		$this->errors = false;
-
-
-
 		if(!array_key_exists("savedata", $arParams) || $arParams["savedata"] != "Y")
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/db/mysql/uninstall.sql");
@@ -77,39 +74,24 @@ Class report extends CModule
 		return true;
 	}
 
-	function InstallEvents()
-	{
-		return true;
-	}
-
-	function UnInstallEvents()
-	{
-		return true;
-	}
-
 	function InstallFiles($arParams = array())
 	{
-		global $DB;
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/components",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/components",
+			true,
+			true
+		);
 
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/components",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/components",
-				true,
-				true
-			);
-
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/public/js",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/js",
-				true,
-				true
-			);
-			CopyDirFiles(
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/images",
-				$_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
-		}
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/public/js",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/js",
+			true,
+			true
+		);
+		CopyDirFiles(
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/images",
+			$_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
 
 		return true;
 	}
@@ -123,13 +105,12 @@ Class report extends CModule
 
 	function DoInstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION;
+		global $APPLICATION;
 
 		if (!IsModuleInstalled("report"))
 		{
 			$this->InstallFiles();
 			$this->InstallDB();
-			$this->InstallEvents();
 
 			$GLOBALS["errors"] = $this->errors;
 			$APPLICATION->IncludeAdminFile(GetMessage("REPORT_INSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/step1.php");
@@ -138,7 +119,8 @@ Class report extends CModule
 
 	function DoUninstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$step = intval($step);
 		if($step < 2)
 		{
@@ -147,13 +129,12 @@ Class report extends CModule
 		elseif($step == 2)
 		{
 			$this->UnInstallDB(array(
-					"savedata" => $_REQUEST["savedata"],
+				"savedata" => $_REQUEST["savedata"],
 			));
 			$this->UnInstallFiles();
-			$this->UnInstallEvents();
+
 			$GLOBALS["errors"] = $this->errors;
 			$APPLICATION->IncludeAdminFile(GetMessage("REPORT_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/report/install/unstep2.php");
 		}
 	}
 }
-?>

@@ -25,9 +25,10 @@ return [
 			'bizproc.service.stateService' => [
 				'className' => '\\CBPStateService',
 			],
-			'bizproc.service.trackingService' => [
-				'className' => '\\CBPTrackingService',
-			],
+			/** @see autoload.php */
+			//'bizproc.service.trackingService' => [
+			//	'className' => '\\CBPTrackingService',
+			//],
 			'bizproc.service.taskService' => [
 				'className' => '\\CBPTaskService',
 			],

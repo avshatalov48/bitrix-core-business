@@ -202,7 +202,7 @@ class MailServicesTable extends Entity\DataManager
 				'aol'	=> '/bitrix/images/mail/mailservice-icon/post-aol-icon.svg',
 				'yandex'	=> '/bitrix/images/mail/mailservice-icon/post-yandex-icon.svg',
 				'mail.ru'	=> '/bitrix/images/mail/mailservice-icon/post-mail-icon.svg',
-				'ukr.net'	=> '/bitrix/images/mail/mailservice-icon/post-ukrnet-icon.png',
+				'ukr.net'	=> '/bitrix/images/mail/mailservice-icon/post-ukrnet-icon.svg',
 				'exchange'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.svg',
 				'exchangeOnline'	=> '/bitrix/images/mail/mailservice-icon/post-exchange-icon.svg',
 				'other'	=> '/bitrix/images/mail/mailservice-icon/post-imap-icon.svg',
@@ -211,6 +211,8 @@ class MailServicesTable extends Entity\DataManager
 			if ($icons[$serviceName])
 				return $icons[$serviceName];
 		}
+
+		return null;
 	}
 
 	public static function getOAuthHelper($data)

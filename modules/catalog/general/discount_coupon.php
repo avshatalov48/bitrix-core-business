@@ -1,17 +1,16 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog,
-	Bitrix\Sale\DiscountCouponsManager;
-use Bitrix\Main\Application;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+use Bitrix\Sale\DiscountCouponsManager;
+use Bitrix\Main\Application;
 
 class CAllCatalogDiscountCoupon
 {
-	const TYPE_ONE_TIME = 'Y';
-	const TYPE_ONE_ORDER = 'O';
-	const TYPE_NO_LIMIT = 'N';
+	public const TYPE_ONE_TIME = 'Y';
+	public const TYPE_ONE_ORDER = 'O';
+	public const TYPE_NO_LIMIT = 'N';
 
 	protected static $arOneOrderCoupons = array();
 	protected static $existCouponsManager = null;

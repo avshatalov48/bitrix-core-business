@@ -25,3 +25,5 @@ $MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_ALREADY_SHIPPED"] = "Отгрузка о
 $MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_NOT_FOUND"] = "Товар с данным штрихкодом не найден";
 $MESS["SALE_ORDER_SHIPMENT_BASKET_ERROR_QUANTITY"] = "#BASKET_ITEM#: указано некорректное количество";
 $MESS["SALE_ORDER_SHIPMENT_BASKET_BARCODE_EMPTY"] = "Штрихкоды не введены";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_WRONG_BASKET_ITEM"] = "Некорректный объект корзины";
+$MESS["SALE_ORDER_SHIPMENT_BASKET_BASKET_ITEM_NOT_FOUND"] = "Отсутствует связанная с элементом отгрузки  позиция в корзине ##BASKET_ITEM_ID#.";;

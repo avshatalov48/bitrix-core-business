@@ -90,7 +90,7 @@ class CAllSaleAffiliateTier
 		}
 
 		$strSql = "UPDATE b_sale_affiliate_tier SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		unset($GLOBALS["SALE_AFFILIATE_TIER"]["SALE_AFFILIATE_TIER_CACHE_".$ID]);
 
@@ -116,7 +116,7 @@ class CAllSaleAffiliateTier
 				"FROM b_sale_affiliate_tier AT ".
 				"WHERE AT.ID = ".$ID." ";
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$GLOBALS["SALE_AFFILIATE_TIER"]["SALE_AFFILIATE_TIER_CACHE_".$ID] = $res;

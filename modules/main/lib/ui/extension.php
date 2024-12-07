@@ -175,10 +175,20 @@ class Extension
 			return null;
 		}
 
-		$fileContent = str_replace("module.exports = ", "", $configFile->getContents());
-		$fileContent = str_replace("};", "}", $fileContent);
+        $namespace = '';
+        $configContent = $configFile->getContents();
+        if (is_string($configContent) && !empty($configContent))
+        {
+            preg_match('/namespace:(?:\s+)?[\'"](.*)[\'"]/', $configContent, $matches);
+            if (!empty($matches) && !empty($matches[1]))
+            {
+                $namespace = $matches[1];
+            }
+        }
 
-		return \CUtil::JsObjectToPhp($fileContent);
+		return [
+            'namespace' => $namespace,
+        ];
 	}
 
 	private static function getPath($extName)

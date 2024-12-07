@@ -198,6 +198,8 @@ class SpacesMenuComponent extends \CBitrixComponent
 			$availableFeatures
 		);
 
+		$this->arResult['pathToDiscussions'] = $urls['discussions'];
+
 		$this->arResult['menuItems'] = $this->prepareGroupMenuItems(
 			$availableFeatures,
 			$urls,
@@ -237,7 +239,16 @@ class SpacesMenuComponent extends \CBitrixComponent
 		$membersManager = new MembersManager();
 		$this->arResult['groupMembersList'] = $membersManager->getGroupMembersList($groupId);
 		$this->arResult['isNew'] = Context::getCurrent()->getRequest()->get('empty-state') === 'enabled';
+		$this->arResult['isMember'] = $membersManager->isUserMember($userId, $groupId);
+
 		$this->arResult['canInvite'] = $membersManager->canInviteUsers($groupId);
+
+		$this->arResult['availableFeatures'] = [
+			'discussions' => array_key_exists('discussions', $availableFeatures),
+			'tasks' => array_key_exists('tasks', $availableFeatures),
+			'calendar' => array_key_exists('calendar', $availableFeatures),
+			'files' => array_key_exists('files', $availableFeatures),
+		];
 	}
 
 	private function getGroupUrls(int $groupId, array $availableFeatures): array

@@ -58,11 +58,6 @@ class BizprocScriptEditAjaxController extends Main\Engine\Controller
 
 	private function fromPostJson(string $json): array
 	{
-		if (!defined('BX_UTF'))
-		{
-			$json = Main\Text\Encoding::convertEncoding($json, LANG_CHARSET, 'UTF-8');
-		}
-
 		return Main\Web\Json::decode($json);
 	}
 }

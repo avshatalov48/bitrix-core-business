@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["EMAIL_OPT_DAYS"] = "days";
 $MESS["EMAIL_OPT_HR"] = "h";
 $MESS["EMAIL_OPT_MIN"] = "m";
@@ -27,6 +27,6 @@ $MESS["MAIL_OPTIONS_TIMEOUT"] = "Connection timeout (minutes):";
 $MESS["MAIL_OPT_CONFIRM"] = "The current command line was not saved. Run the server using the old command line?";
 $MESS["MAIL_OPT_ERR"] = "Error:";
 $MESS["MAIL_OPT_ERR_CON"] = "Connection error.";
+$MESS["MAIL_SYNC_OLD_LIMIT_POSTGRESQL"] = "Messages are never deleted on instances using PostgreSQL.";
 $MESS["MAIN_TAB_SMTP"] = "SMTP Server";
 $MESS["MAIN_TAB_SMTP_TITLE"] = "SMTP Server Startup Parameters";
-?>

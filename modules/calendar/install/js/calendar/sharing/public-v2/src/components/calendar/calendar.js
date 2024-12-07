@@ -184,9 +184,9 @@ export default class Calendar
 			});
 		}
 
-		if (this.#selectedTimezoneId === 'UTC' || !this.#timezoneList[this.#selectedTimezoneId])
+		if (!this.#timezoneList[this.#selectedTimezoneId])
 		{
-			this.#selectedTimezoneId = 'Africa/Dakar';
+			this.#selectedTimezoneId = 'UTC';
 		}
 	}
 

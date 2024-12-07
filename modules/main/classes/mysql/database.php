@@ -13,7 +13,6 @@ class CDatabaseMysql extends CAllDatabase
 {
 	/** @var mysqli */
 	var $db_Conn;
-	public $version;
 	public $type = "MYSQL";
 	public
 		$escL = '`',
@@ -70,18 +69,18 @@ class CDatabaseMysql extends CAllDatabase
 
 		$format = str_replace($search, $replace, $format);
 
-		if (strpos($format, '%H') === false)
+		if (!str_contains($format, '%H'))
 		{
 			$format = str_replace("H", "%h", $format);
 		}
 
-		if (strpos($format, '%M') === false)
+		if (!str_contains($format, '%M'))
 		{
 			$format = str_replace("M", "%b", $format);
 		}
 
 		$lowerAmPm = false;
-		if (strpos($format, 'T') !== false)
+		if (str_contains($format, 'T'))
 		{
 			//lowercase am/pm
 			$lowerAmPm = true;
@@ -470,36 +469,6 @@ class CDatabaseMysql extends CAllDatabase
 		}
 
 		return $this->Query('CREATE ' . $indexType . ' INDEX ' . $this->quote($indexName) . ' ON ' . $this->quote($tableName) . '(' . implode(',', $columns) . ')', true);
-	}
-
-	protected function ConnectInternal()
-	{
-		$dbHost = $this->DBHost;
-		$dbPort = null;
-		if (($pos = mb_strpos($dbHost, ":")) !== false)
-		{
-			$dbPort = intval(mb_substr($dbHost, $pos + 1));
-			$dbHost = mb_substr($dbHost, 0, $pos);
-		}
-
-		$persistentPrefix = (DBPersistent && !$this->bNodeConnection ? "p:" : "");
-
-		$this->db_Conn = mysqli_connect($persistentPrefix . $dbHost, $this->DBLogin, $this->DBPassword, $this->DBName, $dbPort);
-
-		if (!$this->db_Conn)
-		{
-			$error = "[" . mysqli_connect_errno() . "] " . mysqli_connect_error();
-			if ($this->debug)
-			{
-				echo "<br><font color=#ff0000>Error! mysqli_connect()</font><br>" . $error . "<br>";
-			}
-
-			SendError("Error! mysqli_connect()\n" . $error . "\n");
-
-			return false;
-		}
-
-		return true;
 	}
 
 	protected function QueryInternal($strSql)

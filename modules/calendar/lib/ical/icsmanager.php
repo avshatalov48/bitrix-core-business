@@ -6,7 +6,6 @@ use Bitrix\Calendar\Core\Base\BaseException;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\Encoding;
 
 Loc::loadMessages($_SERVER['DOCUMENT_ROOT'].BX_ROOT.'/modules/calendar/lib/ical/incomingeventmanager.php');
 Loc::loadMessages(__FILE__);
@@ -53,7 +52,6 @@ class IcsManager
 	private function getIcsFileData(Event $event, array $params): array
 	{
 		$fileContent = $this->getIcsFileContent($event, $params);
-		$fileContent = Encoding::convertEncoding($fileContent, SITE_CHARSET, "utf-8");
 		return [
 			'name' => self::FILE_NAME . self::FILE_EXTENSION,
 			'type' => self::FILE_TYPE,
@@ -92,6 +90,11 @@ class IcsManager
 			$icsBuilder->setOrganizer($organizer['name'], $organizer['email'] ?? null, $organizer['phone'] ?? null);
 		}
 
+		if (!empty($params['attendees']))
+		{
+			$icsBuilder->setAttendees($params['attendees']);
+		}
+
 		if (!$event->isFullDayEvent())
 		{
 			$icsBuilder->setConfig(
@@ -112,7 +115,7 @@ class IcsManager
 
 	public function prepareEventDescription(Event $event, array $params): string
 	{
-		$languageId = \CCalendar::getUserLanguageId($event->getOwner()->getId());
+		$languageId = \CCalendar::getUserLanguageId($event->getOwner()?->getId());
 		$eventDescription = '';
 
 		if (

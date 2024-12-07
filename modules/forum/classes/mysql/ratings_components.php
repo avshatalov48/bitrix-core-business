@@ -78,12 +78,11 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 		global $DB;
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
-		$err_mess = (CRatings::err_mess())."<br>Function: CalcUserRatingForumActivity<br>Line: ";
 
 		CRatings::AddComponentResults($arConfigs);
 
 		$strSql = "DELETE FROM b_rating_component_results WHERE RATING_ID = '".intval($arConfigs['RATING_ID'])."' AND COMPLEX_NAME = '".$DB->ForSql($arConfigs['COMPLEX_NAME'])."'";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		$sqlAllTopic = '';
 		if (isset($arConfigs['CONFIG']['ALL_TOPIC_COEF']) && $arConfigs['CONFIG']['ALL_TOPIC_COEF'] != 0) {
@@ -143,7 +142,7 @@ class CRatingsComponentsForum extends CAllRatingsComponentsForum
 			) q
 			WHERE ENTITY_ID > 0
 			GROUP BY ENTITY_ID";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		return true;
 	}

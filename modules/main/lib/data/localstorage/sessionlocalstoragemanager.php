@@ -2,7 +2,6 @@
 namespace Bitrix\Main\Data\LocalStorage;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Data\LocalStorage\Storage;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Session\CompositeSessionManager;
@@ -103,7 +102,14 @@ final class SessionLocalStorageManager
 		}
 
 		$pointerStore = $this->getPointerStore();
-		$pointerStore['list'][] = $localStorage->getName();
+		if (empty($pointerStore['list']))
+		{
+			$pointerStore['list'] = [];
+		}
+		if (!\in_array($localStorage->getName(), $pointerStore['list'], true))
+		{
+			$pointerStore['list'][] = $localStorage->getName();
+		}
 	}
 
 	private function load(string $name): void

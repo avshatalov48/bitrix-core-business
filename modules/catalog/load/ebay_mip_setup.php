@@ -122,7 +122,7 @@ if ($STEP>1)
 }
 
 if (!empty($arSetupErrors))
-	echo ShowError(implode('<br />', $arSetupErrors));
+	ShowError(implode('<br />', $arSetupErrors));
 
 $aMenu = array(
 	array(
@@ -202,7 +202,7 @@ if ($STEP==1)
 		'class="adm-detail-iblock-list"'
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 		var TreeSelected = new Array();
 		<?
 		$intCountSelected = 0;
@@ -235,7 +235,7 @@ if ($STEP==1)
 		}
 	}
 	?><div id="tree"></div>
-	<script type="text/javascript">
+	<script>
 	BX.showWait();
 	clevel = 0;
 
@@ -363,7 +363,7 @@ if ($STEP==1)
 <tr>
 	<td width="40%"><?=GetMessage('CAT_DETAIL_PROPS')?>:</td>
 	<td width="60%">
-		<script type="text/javascript">
+		<script>
 		function showDetailPopup()
 		{
 			if (!obDetailWindow)
@@ -452,7 +452,7 @@ if (2 > $STEP)
 
 $tabControl->End();
 ?></form>
-<script type="text/javascript">
+<script>
 <?if ($STEP < 2):?>
 tabYandex.SelectTab("yand_edit1");
 tabYandex.DisableTab("yand_edit2");

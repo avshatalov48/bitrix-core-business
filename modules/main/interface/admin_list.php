@@ -1,15 +1,17 @@
 <?php
 
-use Bitrix\Main;
-use Bitrix\Main\Web\Uri;
-use Bitrix\Main\Type\Collection;
-
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main;
+use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Type\Collection;
+use Bitrix\Main\Web\Json;
+
 class CAdminList
 {
 	public const MODE_PAGE = 'normal';
@@ -570,7 +572,7 @@ class CAdminList
 		if ($this->isPublicMode)
 		{
 			$selfFolderUrl = (defined("SELF_FOLDER_URL") ? SELF_FOLDER_URL : "/bitrix/admin/");
-			if (strpos($url,$selfFolderUrl) === false)
+			if (!str_contains($url, $selfFolderUrl))
 			{
 				$url = $selfFolderUrl.$url;
 			}
@@ -591,7 +593,7 @@ class CAdminList
 		{
 			$url = static::getUrlWithLanguage((string)$url, false);
 
-			if (strpos($url,self::MODE_FIELD_NAME . '=') === false)
+			if (!str_contains($url, self::MODE_FIELD_NAME . '='))
 			{
 				$url .= '&' . static::getModeActionUrlParam();
 			}
@@ -648,12 +650,7 @@ class CAdminList
 			DelFilterEx($arFilterFields, $sTableID);
 		elseif($set_filter <> "")
 		{
-			CAdminFilter::UnEscape($arFilterFields);
 			InitFilterEx($arFilterFields, $sTableID, "set");
-		}
-		elseif($save_filter <> "")
-		{
-			CAdminFilter::UnEscape($arFilterFields);
 		}
 		else
 			InitFilterEx($arFilterFields, $sTableID, "get");
@@ -1192,8 +1189,8 @@ class CAdminList
 
 		$tbl = CUtil::JSEscape($this->table_id);
 ?>
-<script type="text/javascript">
-window['<?=$tbl?>'] = new BX.adminList('<?=$tbl?>', <?=CUtil::PhpToJsObject($arParams)?>);
+<script>
+window['<?=$tbl?>'] = new BX.adminList('<?=$tbl?>', <?= Json::encode($arParams) ?>);
 BX.adminChain.addItems("<?=$tbl?>_navchain_div");
 </script>
 <?
@@ -1293,7 +1290,7 @@ BX.adminChain.addItems("<?=$tbl?>_navchain_div");
 			if ($this->isActionMode())
 			{
 ?>
-<html><head></head><body><?=$string?><script type="text/javascript">
+<html><head></head><body><?=$string?><script>
 	var topWindow = (window.BX||window.parent.BX).PageObject.getRootWindow();
 	topWindow.bxcompajaxframeonload = function() {
 	topWindow.BX.adminPanel.closeWait();
@@ -1315,7 +1312,7 @@ topWindow.BX.ajax.UpdatePageData({});
 			{
 				if(isset($this->onLoadScript)):
 ?>
-<script type="text/javascript"><?=$this->onLoadScript?></script>
+<script><?=$this->onLoadScript?></script>
 <?
 				endif;
 
@@ -1359,9 +1356,9 @@ topWindow.BX.ajax.UpdatePageData({});
 
 	protected static function getUrlWithLanguage(string $url, bool $safeMode = true): string
 	{
-		if (strpos($url, 'lang=') === false)
+		if (!str_contains($url, 'lang='))
 		{
-			$url .= (strpos($url,'?') === false ? '?' : '&')
+			$url .= (!str_contains($url, '?') ? '?' : '&')
 				.'lang='.LANGUAGE_ID
 			;
 		}

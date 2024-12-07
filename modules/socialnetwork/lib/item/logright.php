@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Socialnetwork\Item;
 
+use Bitrix\Main\UserAccessTable;
 use Bitrix\Socialnetwork\LogRightTable;
 
 class LogRight
@@ -29,6 +30,35 @@ class LogRight
 		while ($logRightFields = $res->fetch())
 		{
 			$result[] = $logRightFields['GROUP_CODE'];
+		}
+
+		return $result;
+	}
+
+	public static function getUserIdsByLogRights(array $logRights): array
+	{
+		//todo perfomance
+		if (!in_array('G2', $logRights, true) && in_array('AU', $logRights, true))
+		{
+			$logRights[] = 'G2';
+		}
+
+		$result = [];
+		$queryResult = UserAccessTable::query()
+			->setDistinct()
+			->setSelect([
+				'ID' => 'USER_ID',
+			])
+			->whereIn('ACCESS_CODE', $logRights)
+			->exec()
+		;
+
+		while ($item = $queryResult->fetch())
+		{
+			if ((int)$item['ID'] > 0)
+			{
+				$result[] = (int)$item['ID'];
+			}
 		}
 
 		return $result;

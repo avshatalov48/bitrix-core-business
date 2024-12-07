@@ -8,7 +8,8 @@ use Bitrix\Main\ArgumentTypeException;
 use Bitrix\Im\V2\Service\Context;
 
 /**
- * Registry<ActiveRecord & RegistryEntry>
+ * @template T
+ * @extends Registry<T>
  */
 abstract class Collection extends Registry implements ActiveRecordCollection
 {

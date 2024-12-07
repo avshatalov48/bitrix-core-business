@@ -1,7 +1,7 @@
 <?
 $MESS['SALE_HPS_AUTHORIZE_TITLE'] = 'Authorize.net';
 $MESS['SALE_HPS_AUTHORIZE_LOGIN'] = 'API Login ID';
-$MESS['SALE_HPS_AUTHORIZE_LOGIN_DESC'] = 'Merchant’s unique API Login ID. The merchant API Login ID is provided in the Merchant Interface and must be stored securely.';
+$MESS['SALE_HPS_AUTHORIZE_LOGIN_DESC'] = 'MerchantÂ’s unique API Login ID. The merchant API Login ID is provided in the Merchant Interface and must be stored securely.';
 $MESS['SALE_HPS_AUTHORIZE_TRANSACTION_KEY'] = 'Transaction Key';
 $MESS['SALE_HPS_AUTHORIZE_SECRET_KEY'] = 'Secret Key';
 $MESS['SALE_HPS_AUTHORIZE_PAYMENT_ID'] = 'Order number';

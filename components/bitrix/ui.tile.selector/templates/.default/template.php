@@ -39,7 +39,7 @@ $getTileTemplate = function () use ($arParams)
 $containerId = 'ui-tile-selector-';
 $containerId .= $arParams['ID'] ?: 'def';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		new BX.UI.TileSelector(<?=Json::encode(array(
 			'containerId' => $containerId,
@@ -129,8 +129,8 @@ $containerId .= $arParams['ID'] ?: 'def';
 		<input data-role="tile-input" type="text" class="ui-tile-selector-input" autocomplete="off" style="display: none;">
 
 		<?if ($arParams['SHOW_BUTTON_SELECT'] && !$arParams['READONLY']):?>
-			<span class="ui-tile-selector-select-container">
-				<span data-role="tile-select" class="ui-tile-selector-select">
+			<span data-role="tile-select" class="ui-tile-selector-select-container">
+				<span class="ui-tile-selector-select">
 					<?if ($arParams['BUTTON_SELECT_CAPTION']):?>
 						<?=htmlspecialcharsbx($arParams['BUTTON_SELECT_CAPTION'])?>
 					<?else:?>

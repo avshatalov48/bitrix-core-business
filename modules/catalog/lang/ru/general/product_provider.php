@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["RSRV_INCORRECT_ID"] = "Некорректный ID товара";
 $MESS["RSRV_ID_NOT_FOUND"] = "Товар ##PRODUCT_ID# не найден";
 $MESS["RSRV_UNKNOWN_ERROR"] = "Неизвестная ошибка при резервировании товара #PRODUCT_NAME# (##PRODUCT_ID#)";
@@ -23,4 +23,3 @@ $MESS["CATALOG_ERR_NO_PRODUCT_SET_ITEM"] = "Не найдены товары, в
 $MESS["RSRV_SKU_FOUND"] = "Товар ##PRODUCT_ID# является товаром с торговыми предложениями. Резервировать и снимать с резерва можно лишь конкретное торговое предложение";
 $MESS["DDCT_DEDUCTION_UNDO_ERROR_RESERVE_QUANTITY"] = "Нельзя снять с резерва большее количество, чем зарезервировано товара #PRODUCT_NAME# (##PRODUCT_ID#)";
 $MESS["DDCT_DEDUCTION_SHIPMENT_QUANTITY_NOT_ENOUGH"] = "Количество отгружаемого товара \"#PRODUCT_NAME#\" больше, чем есть на складе";
-?>

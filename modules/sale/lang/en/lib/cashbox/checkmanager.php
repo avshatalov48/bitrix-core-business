@@ -1,4 +1,7 @@
 <?php
+$MESS["SALE_CASBHOX_ERROR_CHECK_ALREADY_PRINTED"] = "Receipt ##CHECK_ID# has already been printed.";
+$MESS["SALE_CASBHOX_ERROR_CHECK_IS_CORRECTION_CHECK"] = "Correction receipt cannot be printed more than once.";
+$MESS["SALE_CASBHOX_ERROR_CHECK_IS_PRINTING"] = "Receipt ##CHECK_ID# is being printed.";
 $MESS["SALE_CASHBOX_CHECK_ADVANCE"] = "Advance payment";
 $MESS["SALE_CASHBOX_CHECK_CREDIT"] = "Deferred payment";
 $MESS["SALE_CASHBOX_ERROR_CHECK"] = "Incorrect receipt type";

@@ -144,7 +144,7 @@ class LinkCalendarTable extends DataManager
 
 	public static function deleteByFilter(array $filter)
 	{
-		LinkCalendarIndexTable::deleteByFilter($filter);
+		LinkCalendarIndexTable::deleteByParentFilter($filter);
 		static::defaultDeleteByFilter($filter);
 	}
 

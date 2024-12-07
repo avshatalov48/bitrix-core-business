@@ -3,14 +3,18 @@ import 'ui.design-tokens';
 import 'ui.forms';
 import 'fileinput';
 import 'ui.notification';
-import { EventEmitter } from 'main.core.events';
+import { EventEmitter, BaseEvent } from 'main.core.events';
 import { SkuTree } from 'catalog.sku-tree';
-import { ProductSearchInput } from './product-search-input';
+import { ProductSearchInputDefault } from './search-input/input-default';
+import { ProductSearchInputBarcode } from './search-input/input-barcode';
+import { ProductSearchInputBase } from './search-input/input-base';
+import { ProductSearchInputPlacement } from './search-input/input-placement';
 import { ProductImageInput } from './product-image-input';
 import { ProductModel, RightActionDictionary } from 'catalog.product-model';
-import './component.css';
-import { BarcodeSearchInput } from './barcode-search-input';
 import { SelectorErrorCode } from './selector-error-code';
+import { ExternalCatalogPlacement } from 'catalog.external-catalog-placement';
+
+import './component.css';
 
 const instances = new Map();
 const iblockSkuTreeProperties = new Map();
@@ -23,15 +27,15 @@ export class ProductSelector extends EventEmitter
 	static FULL_VIEW_FORMAT = 'full';
 	static INPUT_FIELD_NAME = 'NAME';
 	static INPUT_FIELD_BARCODE = 'BARCODE';
-
 	static ErrorCodes = SelectorErrorCode;
 	static UIInputRequest = null;
+
 	#inAjaxProcess = false;
 	mode: ProductSelector.MODE_EDIT | ProductSelector.MODE_VIEW = ProductSelector.MODE_EDIT;
 	cache = new Cache.MemoryCache();
 	type = ProductSelector.INPUT_FIELD_NAME;
 	fileInput: ?ProductImageInput;
-	searchInput: ?ProductSearchInput;
+	searchInput: ?ProductSearchInputBase;
 	skuTreeInstance: ?SkuTree;
 	mobileScannerToken = null;
 
@@ -41,6 +45,9 @@ export class ProductSelector extends EventEmitter
 	onUploaderIsInitedHandler = this.onUploaderIsInited.bind(this);
 	onNameChangeFieldHandler = Runtime.debounce(this.onNameChange, 500, this);
 
+	placement: ?ExternalCatalogPlacement;
+	placementOnProductUpdatedHandler = this.placementOnProductUpdated.bind(this);
+
 	static getById(id: string): ?ProductSelector
 	{
 		return instances.get(id) || null;
@@ -49,8 +56,8 @@ export class ProductSelector extends EventEmitter
 	constructor(id, options = {})
 	{
 		super();
-		this.setEventNamespace('BX.Catalog.ProductSelector');
 
+		this.setEventNamespace('BX.Catalog.ProductSelector');
 		this.id = id || Text.getRandom();
 		options.inputFieldName = options.inputFieldName || ProductSelector.INPUT_FIELD_NAME;
 		this.options = options || {};
@@ -59,6 +66,13 @@ export class ProductSelector extends EventEmitter
 		this.type = this.options.type || ProductSelector.INPUT_FIELD_NAME;
 
 		this.setMode(options.mode);
+
+		this.isExternalCatalog = this.settings.get('isExternalCatalog', false);
+		if (this.isExternalCatalog)
+		{
+			this.placement = ExternalCatalogPlacement.create();
+			this.placement.initialize();
+		}
 
 		if (options.model && (options.model instanceof ProductModel))
 		{
@@ -177,7 +191,7 @@ export class ProductSelector extends EventEmitter
 
 	getEmptySelectErrorMessage()
 	{
-		return this.checkProductAddRights()
+		return !this.isExternalCatalog && this.checkProductAddRights()
 			? Loc.getMessage('CATALOG_SELECTOR_SELECTED_PRODUCT_TITLE')
 			: Loc.getMessage('CATALOG_SELECTOR_SELECT_PRODUCT_TITLE')
 		;
@@ -358,33 +372,31 @@ export class ProductSelector extends EventEmitter
 			{
 				this.layoutImage();
 			}
+
+			if (ProductSelector.UIInputRequest instanceof Promise)
+			{
+				ProductSelector.UIInputRequest.then(() => {
+					this.layoutImage();
+				});
+			}
 			else
 			{
-				if (ProductSelector.UIInputRequest instanceof Promise)
-				{
-					ProductSelector.UIInputRequest.then(() => {
-						this.layoutImage();
-					});
-				}
-				else
-				{
-					ProductSelector.UIInputRequest = new Promise(resolve => {
-						ajax
-							.runAction(
-								'catalog.productSelector.getFileInput',
-								{
-									json: {
-										iblockId: this.getModel().getIblockId(),
-									},
+				ProductSelector.UIInputRequest = new Promise(resolve => {
+					ajax
+						.runAction(
+							'catalog.productSelector.getFileInput',
+							{
+								json: {
+									iblockId: this.getModel().getIblockId(),
 								},
-							)
-							.then(() => {
-								this.layoutImage();
-								ProductSelector.UIInputRequest = null;
-								resolve();
-							});
-					});
-				}
+							},
+						)
+						.then(() => {
+							this.layoutImage();
+							ProductSelector.UIInputRequest = null;
+							resolve();
+						});
+				});
 			}
 
 			Dom.append(this.getImageContainer(), wrapper);
@@ -547,11 +559,16 @@ export class ProductSelector extends EventEmitter
 		EventEmitter.incrementMaxListeners('ProductSelector::onNameChange', 1);
 		EventEmitter.incrementMaxListeners('Catalog.ImageInput::save', 1);
 		EventEmitter.incrementMaxListeners('onUploaderIsInited', 1);
+		EventEmitter.incrementMaxListeners('Catalog:ProductSelectorPlacement:onProductUpdated', 1);
 
 		EventEmitter.subscribe('ProductList::onChangeFields', this.onChangeFieldsHandler);
 		EventEmitter.subscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
 		EventEmitter.subscribe('Catalog.ImageInput::save', this.onSaveImageHandler);
 		EventEmitter.subscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
+		EventEmitter.subscribe(
+			'Catalog:ProductSelectorPlacement:onProductUpdated',
+			this.placementOnProductUpdatedHandler,
+		);
 	}
 
 	unsubscribeEvents()
@@ -563,6 +580,10 @@ export class ProductSelector extends EventEmitter
 		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 		EventEmitter.unsubscribe('onUploaderIsInited', this.onUploaderIsInitedHandler);
 		EventEmitter.unsubscribe('ProductSelector::onNameChange', this.onNameChangeFieldHandler);
+		EventEmitter.unsubscribe(
+			'Catalog:ProductSelectorPlacement:onProductUpdated',
+			this.placementOnProductUpdatedHandler,
+		);
 	}
 
 	defineWrapperClass(wrapper)
@@ -624,39 +645,59 @@ export class ProductSelector extends EventEmitter
 		}
 		else
 		{
-			if (this.getType() === ProductSelector.INPUT_FIELD_BARCODE)
-			{
-				if (!this.searchInput)
-				{
-					this.searchInput = new BarcodeSearchInput(
-						this.id,
-						{
-							selector: this,
-							model: this.getModel(),
-							inputName: this.options.inputFieldName,
-						},
-					);
-				}
-			}
-			else
-			{
-				this.searchInput = new ProductSearchInput(
-					this.id,
-					{
-						selector: this,
-						model: this.getModel(),
-						inputName: this.options.inputFieldName,
-						isSearchEnabled: this.isProductSearchEnabled(),
-						isEnabledEmptyProductError: this.isEnabledEmptyProductError(),
-						isEnabledDetailLink: this.isInputDetailLinkEnabled(),
-					},
-				);
-			}
+			this.searchInput = this.#createSearchInput();
 
 			Dom.append(this.searchInput.layout(), block);
 		}
 
 		return block;
+	}
+
+	#createSearchInput(): ProductSearchInputBase
+	{
+		if (this.placement)
+		{
+			return new ProductSearchInputPlacement(
+				this.id,
+				{
+					selector: this,
+					model: this.getModel(),
+					inputName: this.options.inputFieldName,
+					isSearchEnabled: this.isProductSearchEnabled(),
+					isEnabledEmptyProductError: this.isEnabledEmptyProductError(),
+					isEnabledDetailLink: this.isInputDetailLinkEnabled(),
+				},
+			);
+		}
+
+		if (this.getType() === ProductSelector.INPUT_FIELD_BARCODE)
+		{
+			if (!this.searchInput)
+			{
+				return new ProductSearchInputBarcode(
+					this.id,
+					{
+						selector: this,
+						model: this.getModel(),
+						inputName: this.options.inputFieldName,
+					},
+				);
+			}
+
+			return this.searchInput;
+		}
+
+		return new ProductSearchInputDefault(
+			this.id,
+			{
+				selector: this,
+				model: this.getModel(),
+				inputName: this.options.inputFieldName,
+				isSearchEnabled: this.isProductSearchEnabled(),
+				isEnabledEmptyProductError: this.isEnabledEmptyProductError(),
+				isEnabledDetailLink: this.isInputDetailLinkEnabled(),
+			},
+		);
 	}
 
 	searchInDialog(): ProductSelector
@@ -734,7 +775,7 @@ export class ProductSelector extends EventEmitter
 		}
 	}
 
-	handleVariationChange(event)
+	handleVariationChange(event: BaseEvent): void
 	{
 		const [skuFields] = event.getData();
 		const productId = Text.toNumber(skuFields.PARENT_PRODUCT_ID);
@@ -751,6 +792,40 @@ export class ProductSelector extends EventEmitter
 		});
 
 		this.#inAjaxProcess = true;
+
+		if (this.placement)
+		{
+			this.placement.initialize()
+				.then(() => {
+					this.placementEmitOnCatalogProductNeedToUpdate({
+						productId: variationId,
+						returnEventData: {
+							rowId: this.getRowId(),
+							scenario: 'variationChange',
+							payload: [
+								variationId,
+							],
+						},
+					});
+				})
+				.catch(() => {
+					this.handleVariationChangeAjaxAction(variationId);
+
+					BX.UI.Notification.Center.notify({
+						content: Loc.getMessage('CATALOG_SELECTOR_1C_NOT_RESPONDING_ERROR'),
+						autoHide: true,
+						autoHideDelay: 4000,
+					});
+				});
+
+			return;
+		}
+
+		this.handleVariationChangeAjaxAction(variationId);
+	}
+
+	handleVariationChangeAjaxAction(variationId: number): void
+	{
 		ajax
 			.runAction(
 				'catalog.productSelector.getSelectedSku',
@@ -855,6 +930,12 @@ export class ProductSelector extends EventEmitter
 
 	onProductSelect(productId, itemConfig)
 	{
+		this.emitOnProductSelectEvents();
+		this.productSelectRequest(productId, itemConfig);
+	}
+
+	emitOnProductSelectEvents()
+	{
 		this.emit('onProductSelect', {
 			selectorId: this.getId(),
 			rowId: this.getRowId(),
@@ -864,6 +945,50 @@ export class ProductSelector extends EventEmitter
 			selectorId: this.getId(),
 			rowId: this.getRowId(),
 		});
+	}
+
+	productSelectRequest(
+		productId,
+		itemConfig = {
+			isNew: false,
+			needExternalUpdate: true,
+			immutableFields: [],
+		},
+	)
+	{
+		this.#inAjaxProcess = true;
+
+		if (
+			this.placement
+			&& itemConfig.needExternalUpdate !== false
+		)
+		{
+			this.placement.initialize()
+				.then(() => {
+					this.placementEmitOnCatalogProductNeedToUpdate({
+						productId,
+						returnEventData: {
+							rowId: this.getRowId(),
+							scenario: 'productSelect',
+							payload: [
+								productId,
+								itemConfig,
+							],
+						},
+					});
+				})
+				.catch(() => {
+					this.productSelectAjaxAction(productId, itemConfig);
+
+					BX.UI.Notification.Center.notify({
+						content: Loc.getMessage('CATALOG_SELECTOR_1C_NOT_RESPONDING_ERROR'),
+						autoHide: true,
+						autoHideDelay: 4000,
+					});
+				});
+
+			return;
+		}
 
 		this.productSelectAjaxAction(productId, itemConfig);
 	}
@@ -876,7 +1001,6 @@ export class ProductSelector extends EventEmitter
 		},
 	)
 	{
-		this.#inAjaxProcess = true;
 		ajax
 			.runAction(
 				'catalog.productSelector.getProduct',
@@ -894,6 +1018,50 @@ export class ProductSelector extends EventEmitter
 			.then(response => this.processResponse(response, { ...this.options.config, ...itemConfig }, true));
 	}
 
+	placementEmitOnCatalogProductNeedToUpdate(eventData: Object): void
+	{
+		EventEmitter.emit('Catalog:ProductSelectorPlacement:onNeedProductUpdate', {
+			appSid: this.placement.getAppSidId(),
+			...eventData,
+		});
+
+		this.placementProductUpdateTimer = setTimeout(() => {
+			BX.UI.Notification.Center.notify({
+				content: Loc.getMessage('CATALOG_SELECTOR_1C_NOT_RESPONDING_ERROR'),
+				autoHide: true,
+				autoHideDelay: 4000,
+			});
+			this.placementOnProductUpdated(new BaseEvent({ data: { ...eventData.returnEventData } }));
+		}, ExternalCatalogPlacement.RESPONSE_TIMEOUT);
+	}
+
+	placementOnProductUpdated(event: BaseEvent): void
+	{
+		if (this.placementProductUpdateTimer === null)
+		{
+			return;
+		}
+
+		const { rowId, scenario, payload } = event.getData();
+
+		if (rowId !== this.getRowId())
+		{
+			return;
+		}
+
+		if (scenario === 'productSelect')
+		{
+			this.productSelectAjaxAction(...payload);
+		}
+		else if (scenario === 'variationChange')
+		{
+			this.handleVariationChangeAjaxAction(...payload);
+		}
+
+		clearTimeout(this.placementProductUpdateTimer);
+		this.placementProductUpdateTimer = null;
+	}
+
 	processResponse(response, config = {}, isProductAction = false)
 	{
 		const data = response?.data || null;
@@ -906,7 +1074,10 @@ export class ProductSelector extends EventEmitter
 				fields[field] = this.getModel().getField(field);
 			});
 
-			data.fields = fields;
+			if (data)
+			{
+				data.fields = fields;
+			}
 		}
 
 		if (isProductAction)
@@ -920,7 +1091,7 @@ export class ProductSelector extends EventEmitter
 		}
 		else if (!isProductAction)
 		{
-			this.productSelectAjaxAction(this.getModel().getProductId());
+			this.productSelectRequest(this.getModel().getProductId());
 		}
 
 		this.unsubscribeToVariationChange();

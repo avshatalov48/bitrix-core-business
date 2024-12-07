@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,main_core_events,im_v2_const) {
+(function (exports,main_core_events,im_v2_lib_layout,im_v2_const) {
 	'use strict';
 
 	const EVENT_NAMESPACE = 'BX.Messenger.v2.CreateChatManager';
@@ -42,6 +42,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      value: void 0
 	    });
 	    this.setEventNamespace(EVENT_NAMESPACE);
+	  }
+	  startChatCreation(chatTypeToCreate, params = {}) {
+	    const {
+	      clearCurrentCreation = true
+	    } = params;
+	    if (clearCurrentCreation) {
+	      this.setCreationStatus(false);
+	    }
+	    void im_v2_lib_layout.LayoutManager.getInstance().setLayout({
+	      name: im_v2_const.Layout.createChat.name,
+	      entityId: chatTypeToCreate
+	    });
 	  }
 	  isCreating() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _isCreating)[_isCreating];
@@ -97,5 +109,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.CreateChatManager = CreateChatManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Const));
 //# sourceMappingURL=create-chat.bundle.js.map

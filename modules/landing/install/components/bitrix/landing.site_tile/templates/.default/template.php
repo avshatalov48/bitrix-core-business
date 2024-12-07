@@ -112,6 +112,12 @@ $isAjax = $component->isAjax();
 					<div class="landing-sites__grid-empty--title">
 						<?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_HEADER2')?>
 					</div>
+					<?php if (\Bitrix\Landing\Connector\Ai::isCopilotAvailable()): ?>
+						<div class="landing-sites__grid-empty--balloon">
+							<div class="ui-icon-set --copilot-ai landing-sites__grid-empty--balloon-icon"></div>
+							<div class="landing-sites__grid-empty--balloon-text"><?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_BALLOON_TEXT')?></div>
+						</div>
+					<?php endif; ?>
 				</div>
 				<div class="landing-sites__grid-empty--info-block-content">
 					<ul class="landing-sites__grid-empty--list-items">
@@ -121,10 +127,10 @@ $isAjax = $component->isAjax();
 					</ul>
 					<div class="landing-sites__grid-empty--bth-container">
 						<?php if ($arParams['PAGE_URL_SITE_ADD'] !== ''): ?>
-							<a href="<?= $arParams['PAGE_URL_SITE_ADD']?>" class="ui-btn ui-btn-lg ui-btn-success landing-sites__grid-empty--bth-radiance">
-								<span class="landing-sites__grid-empty--bth-radiance-left"></span>
+							<a href="<?= $arParams['PAGE_URL_SITE_ADD']?>" class="ui-btn ui-btn-success landing-sites__grid-empty--bth-radiance">
+<!--								<span class="landing-sites__grid-empty--bth-radiance-left"></span>-->
 								<?= $component->getMessageType('LANDING_SITE_TILE_EMPTY_ADD_2')?>
-								<span class="landing-sites__grid-empty--bth-radiance-right"></span>
+<!--								<span class="landing-sites__grid-empty--bth-radiance-right"></span>-->
 							</a>
 						<?php else: ?>
 							<p class="landing-sites__grid-empty--text">
@@ -135,7 +141,7 @@ $isAjax = $component->isAjax();
 				</div>
 			</div>
 			<div class="landing-sites__grid-empty--info-image-block">
-				<img src="<?= $templateFolder?>/images/empty_<?= strtolower($arParams['TYPE'])?>_<?= $langImg?>.png" alt="" class="landing-sites__grid-empty--info-image"/>
+				<img src="<?= $templateFolder?>/images/empty_<?= strtolower($arParams['TYPE'])?>_<?= $langImg?>.svg" alt="" class="landing-sites__grid-empty--info-image"/>
 			</div>
 		</div>
 	</div>

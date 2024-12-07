@@ -3,15 +3,15 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Access\User;
 
 use Bitrix\Main\Access\AccessCode;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
-use Bitrix\Main\Engine\CurrentUser;
 
 abstract class UserModel
 	implements AccessibleUser
@@ -26,7 +26,7 @@ abstract class UserModel
 
 	protected static $cache = [];
 
-	public static function createFromId(int $userId): AccessibleUser
+	public static function createFromId(int $userId): static
 	{
 		$key = 'USER_'.static::class.'_'.$userId;
 		if (!array_key_exists($key, static::$cache))
@@ -82,6 +82,7 @@ abstract class UserModel
 		{
 			return false;
 		}
+
 		if ($this->isAdmin === null)
 		{
 			$currentUser = CurrentUser::get();
@@ -95,6 +96,7 @@ abstract class UserModel
 			}
 			$this->isAdmin = in_array(1, $userGroups);
 		}
+
 		return $this->isAdmin;
 	}
 

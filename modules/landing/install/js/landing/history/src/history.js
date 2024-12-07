@@ -266,7 +266,8 @@ export class History
 
 						return this;
 					})
-					.catch(() => {
+					.catch(err => {
+						console.error(`History error in command ${command.id}.`, err);
 						this.commandState = RESOLVED;
 
 						return this;

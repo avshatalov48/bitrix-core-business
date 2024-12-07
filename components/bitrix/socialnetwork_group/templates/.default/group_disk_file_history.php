@@ -14,6 +14,7 @@
 $pageId = "group_files";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $file = \Bitrix\Disk\File::loadById($arResult['VARIABLES']['FILE_ID']);
 if (!$file)

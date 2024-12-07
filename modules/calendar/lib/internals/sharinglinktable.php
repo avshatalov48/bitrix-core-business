@@ -150,6 +150,7 @@ class SharingLinkTable extends DataManager
 					'validation' => [__CLASS__, 'validateMembersHash']
 				]
 			))
+				->configureNullable()
 			,
 			(new IntegerField('FREQUENT_USE',
 				[]

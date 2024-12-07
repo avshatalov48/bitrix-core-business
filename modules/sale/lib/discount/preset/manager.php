@@ -2,10 +2,7 @@
 
 namespace Bitrix\Sale\Discount\Preset;
 
-
 use Bitrix\Main\Application;
-use Bitrix\Main\Entity\ExpressionField;
-use Bitrix\Main\Entity\Query;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -13,10 +10,7 @@ use Bitrix\Main\IO\Directory;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
-use Bitrix\Sale\Discount;
 use Bitrix\Sale\Internals\DiscountTable;
-
-Loc::loadMessages(__FILE__);
 
 final class Manager
 {
@@ -30,17 +24,17 @@ final class Manager
 	/** @var ErrorCollection */
 	protected $errorCollection;
 	/** @var  Manager */
-	private static $instance;
+	private static Manager $instance;
 	/** @var  BasePreset[] */
-	private $presetList;
+	private array $presetList;
 	/** @var $restrictedGroupsMode bool */
-	private $restrictedGroupsMode = false;
+	private bool $restrictedGroupsMode = false;
 
 	/**
 	 * Returns Singleton of Manager
 	 * @return Manager
 	 */
-	public static function getInstance()
+	public static function getInstance(): Manager
 	{
 		if (!isset(self::$instance))
 		{
@@ -58,7 +52,7 @@ final class Manager
 	{
 		if (!$this->isAlreadyRegisteredAutoLoader())
 		{
-			\spl_autoload_register(array($this, 'autoLoad'), true);
+			\spl_autoload_register([$this, 'autoLoad'], true);
 		}
 	}
 
@@ -139,7 +133,7 @@ final class Manager
 
 	private function buildPresets()
 	{
-		if($this->presetList === null)
+		if (!isset($this->presetList))
 		{
 			$this->presetList = array_filter(
 				array_merge(
@@ -272,7 +266,7 @@ final class Manager
 	}
 
 	/**
-	 * Returns preset by id. Id is full class name.
+	 * Returns preset by id (full class name).
 	 *
 	 * @param string $id Class name of preset
 	 * @return BasePreset
@@ -301,12 +295,12 @@ final class Manager
 	 * @param $category
 	 * @return BasePreset[]
 	 */
-	public function getPresetsByCategory($category)
+	public function getPresetsByCategory($category): array
 	{
-		$presets = array();
-		foreach($this->getPresets() as $preset)
+		$presets = [];
+		foreach ($this->getPresets() as $preset)
 		{
-			if($preset->getCategory() === $category)
+			if ($preset->getCategory() === $category)
 			{
 				$presets[] = $preset;
 			}
@@ -328,32 +322,29 @@ final class Manager
 		return $presets;
 	}
 
-	public function getCategoryList()
+	public function getCategoryList(): array
 	{
-		return array(
+		return [
 			self::CATEGORY_PRODUCTS => Loc::getMessage('SALE_PRESET_DISCOUNT_MANAGER_CATEGORY_PRODUCTS'),
 			self::CATEGORY_PAYMENT => Loc::getMessage('SALE_PRESET_DISCOUNT_MANAGER_CATEGORY_PAYMENT'),
 			self::CATEGORY_DELIVERY => Loc::getMessage('SALE_PRESET_DISCOUNT_MANAGER_CATEGORY_DELIVERY'),
 			self::CATEGORY_OTHER => Loc::getMessage('SALE_PRESET_DISCOUNT_MANAGER_CATEGORY_OTHER'),
-		);
+		];
 	}
 
 	public function getCategoryName($category)
 	{
 		$categoryList = $this->getCategoryList();
 
-		return isset($categoryList[$category])? $categoryList[$category] : '';
+		return $categoryList[$category] ?? '';
 	}
 
-	public function hasCreatedDiscounts(BasePreset $preset)
+	public function hasCreatedDiscounts(BasePreset $preset): bool
 	{
-		$countQuery = new Query(DiscountTable::getEntity());
-		$countQuery->addSelect(new ExpressionField('CNT', 'COUNT(1)'));
-		$countQuery->setFilter(array(
-			'=PRESET_ID' => $preset::className(),
-		));
-		$totalCount = $countQuery->setLimit(null)->setOffset(null)->exec()->fetch();
+		$count = DiscountTable::getCount([
+			'=PRESET_ID' => $preset::className()
+		]);
 
-		return (bool)$totalCount['CNT'];
+		return $count > 0;
 	}
 }

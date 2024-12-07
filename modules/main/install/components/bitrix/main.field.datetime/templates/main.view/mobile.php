@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 /**
@@ -47,13 +49,13 @@ $isFirst = true;
 	BX.ready(function ()
 	{
 		new BX.Mobile.Field.Datetime(
-			<?=CUtil::PhpToJSObject([
+			<?= Json::encode([
 				'name' => 'BX.Mobile.Field.Datetime',
 				'nodes' => $nodes,
 				'restrictedMode' => true,
 				'formId' => $arParams['additionalParameters']['formId'],
 				'gridId' => $arParams['additionalParameters']['gridId']
-			])?>
+			]) ?>
 		);
 	});
 </script>

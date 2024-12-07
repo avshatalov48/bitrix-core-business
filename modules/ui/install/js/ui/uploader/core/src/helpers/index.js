@@ -8,6 +8,7 @@ import getExtensionFromType from './get-extension-from-type';
 import isDataUri from './is-data-uri';
 import isImage from './is-image';
 import isResizableImage from './is-resizable-image';
+import isSupportedVideo from './is-supported-video';
 import isValidFileType from './is-valid-file-type';
 import getImageSize from './image-size/get-image-size';
 import getResizedImageSize from './get-resized-image-size';
@@ -33,6 +34,7 @@ export {
 	isDataUri,
 	isImage,
 	isResizableImage,
+	isSupportedVideo,
 	isJpeg,
 	getImageSize,
 	getResizedImageSize,

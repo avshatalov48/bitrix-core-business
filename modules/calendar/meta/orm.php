@@ -1,5 +1,873 @@
 <?php
 
+/* ORMENTITYANNOTATION:Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable:calendar/lib/openevents/internals/openeventcategorytable.php */
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * OpenEventCategory
+	 * @see \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \string getName()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setName(\string|\Bitrix\Main\DB\SqlExpression $name)
+	 * @method bool hasName()
+	 * @method bool isNameFilled()
+	 * @method bool isNameChanged()
+	 * @method \string remindActualName()
+	 * @method \string requireName()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetName()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetName()
+	 * @method \string fillName()
+	 * @method \int getCreatorId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setCreatorId(\int|\Bitrix\Main\DB\SqlExpression $creatorId)
+	 * @method bool hasCreatorId()
+	 * @method bool isCreatorIdFilled()
+	 * @method bool isCreatorIdChanged()
+	 * @method \int remindActualCreatorId()
+	 * @method \int requireCreatorId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetCreatorId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetCreatorId()
+	 * @method \int fillCreatorId()
+	 * @method \boolean getClosed()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setClosed(\boolean|\Bitrix\Main\DB\SqlExpression $closed)
+	 * @method bool hasClosed()
+	 * @method bool isClosedFilled()
+	 * @method bool isClosedChanged()
+	 * @method \boolean remindActualClosed()
+	 * @method \boolean requireClosed()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetClosed()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetClosed()
+	 * @method \boolean fillClosed()
+	 * @method \string getDescription()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setDescription(\string|\Bitrix\Main\DB\SqlExpression $description)
+	 * @method bool hasDescription()
+	 * @method bool isDescriptionFilled()
+	 * @method bool isDescriptionChanged()
+	 * @method \string remindActualDescription()
+	 * @method \string requireDescription()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetDescription()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetDescription()
+	 * @method \string fillDescription()
+	 * @method \string getAccessCodes()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setAccessCodes(\string|\Bitrix\Main\DB\SqlExpression $accessCodes)
+	 * @method bool hasAccessCodes()
+	 * @method bool isAccessCodesFilled()
+	 * @method bool isAccessCodesChanged()
+	 * @method \string remindActualAccessCodes()
+	 * @method \string requireAccessCodes()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetAccessCodes()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetAccessCodes()
+	 * @method \string fillAccessCodes()
+	 * @method \boolean getDeleted()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setDeleted(\boolean|\Bitrix\Main\DB\SqlExpression $deleted)
+	 * @method bool hasDeleted()
+	 * @method bool isDeletedFilled()
+	 * @method bool isDeletedChanged()
+	 * @method \boolean remindActualDeleted()
+	 * @method \boolean requireDeleted()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetDeleted()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetDeleted()
+	 * @method \boolean fillDeleted()
+	 * @method \int getChannelId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setChannelId(\int|\Bitrix\Main\DB\SqlExpression $channelId)
+	 * @method bool hasChannelId()
+	 * @method bool isChannelIdFilled()
+	 * @method bool isChannelIdChanged()
+	 * @method \int remindActualChannelId()
+	 * @method \int requireChannelId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetChannelId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetChannelId()
+	 * @method \int fillChannelId()
+	 * @method \int getEventsCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setEventsCount(\int|\Bitrix\Main\DB\SqlExpression $eventsCount)
+	 * @method bool hasEventsCount()
+	 * @method bool isEventsCountFilled()
+	 * @method bool isEventsCountChanged()
+	 * @method \int remindActualEventsCount()
+	 * @method \int requireEventsCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetEventsCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetEventsCount()
+	 * @method \int fillEventsCount()
+	 * @method \Bitrix\Main\Type\DateTime getDateCreate()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setDateCreate(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $dateCreate)
+	 * @method bool hasDateCreate()
+	 * @method bool isDateCreateFilled()
+	 * @method bool isDateCreateChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime requireDateCreate()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetDateCreate()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime getLastActivity()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory setLastActivity(\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastActivity)
+	 * @method bool hasLastActivity()
+	 * @method bool isLastActivityFilled()
+	 * @method bool isLastActivityChanged()
+	 * @method \Bitrix\Main\Type\DateTime remindActualLastActivity()
+	 * @method \Bitrix\Main\Type\DateTime requireLastActivity()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory resetLastActivity()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unsetLastActivity()
+	 * @method \Bitrix\Main\Type\DateTime fillLastActivity()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory set($fieldName, $value)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory reset($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory wakeUp($data)
+	 */
+	class EO_OpenEventCategory {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * OpenEventCategoryCollection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \string[] getNameList()
+	 * @method \string[] fillName()
+	 * @method \int[] getCreatorIdList()
+	 * @method \int[] fillCreatorId()
+	 * @method \boolean[] getClosedList()
+	 * @method \boolean[] fillClosed()
+	 * @method \string[] getDescriptionList()
+	 * @method \string[] fillDescription()
+	 * @method \string[] getAccessCodesList()
+	 * @method \string[] fillAccessCodes()
+	 * @method \boolean[] getDeletedList()
+	 * @method \boolean[] fillDeleted()
+	 * @method \int[] getChannelIdList()
+	 * @method \int[] fillChannelId()
+	 * @method \int[] getEventsCountList()
+	 * @method \int[] fillEventsCount()
+	 * @method \Bitrix\Main\Type\DateTime[] getDateCreateList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillDateCreate()
+	 * @method \Bitrix\Main\Type\DateTime[] getLastActivityList()
+	 * @method \Bitrix\Main\Type\DateTime[] fillLastActivity()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory $object)
+	 * @method bool has(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory getByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection merge(?\Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_OpenEventCategory_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryTable';
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_OpenEventCategory_Result exec()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_OpenEventCategory_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection fetchCollection()
+	 */
+	class EO_OpenEventCategory_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection createCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory wakeUpObject($row)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection wakeUpCollection($rows)
+	 */
+	class EO_OpenEventCategory_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable:calendar/lib/openevents/internals/openeventcategoryattendeetable.php */
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * OpenEventCategoryAttendee
+	 * @see \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee resetUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee setCategoryId(\int|\Bitrix\Main\DB\SqlExpression $categoryId)
+	 * @method bool hasCategoryId()
+	 * @method bool isCategoryIdFilled()
+	 * @method bool isCategoryIdChanged()
+	 * @method \int remindActualCategoryId()
+	 * @method \int requireCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee resetCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee unsetCategoryId()
+	 * @method \int fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee set($fieldName, $value)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee reset($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee wakeUp($data)
+	 */
+	class EO_OpenEventCategoryAttendee {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * OpenEventCategoryAttendeeCollection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getCategoryIdList()
+	 * @method \int[] fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee $object)
+	 * @method bool has(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee getByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection merge(?\Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_OpenEventCategoryAttendee_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryAttendeeTable';
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_OpenEventCategoryAttendee_Result exec()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_OpenEventCategoryAttendee_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection fetchCollection()
+	 */
+	class EO_OpenEventCategoryAttendee_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection createCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategoryAttendee wakeUpObject($row)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryAttendeeCollection wakeUpCollection($rows)
+	 */
+	class EO_OpenEventCategoryAttendee_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable:calendar/lib/openevents/internals/openeventoptiontable.php */
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * OpenEventOption
+	 * @see \Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getEventId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setEventId(\int|\Bitrix\Main\DB\SqlExpression $eventId)
+	 * @method bool hasEventId()
+	 * @method bool isEventIdFilled()
+	 * @method bool isEventIdChanged()
+	 * @method \int remindActualEventId()
+	 * @method \int requireEventId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetEventId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetEventId()
+	 * @method \int fillEventId()
+	 * @method \int getCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setCategoryId(\int|\Bitrix\Main\DB\SqlExpression $categoryId)
+	 * @method bool hasCategoryId()
+	 * @method bool isCategoryIdFilled()
+	 * @method bool isCategoryIdChanged()
+	 * @method \int remindActualCategoryId()
+	 * @method \int requireCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetCategoryId()
+	 * @method \int fillCategoryId()
+	 * @method \int getThreadId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setThreadId(\int|\Bitrix\Main\DB\SqlExpression $threadId)
+	 * @method bool hasThreadId()
+	 * @method bool isThreadIdFilled()
+	 * @method bool isThreadIdChanged()
+	 * @method \int remindActualThreadId()
+	 * @method \int requireThreadId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetThreadId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetThreadId()
+	 * @method \int fillThreadId()
+	 * @method \string getOptions()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setOptions(\string|\Bitrix\Main\DB\SqlExpression $options)
+	 * @method bool hasOptions()
+	 * @method bool isOptionsFilled()
+	 * @method bool isOptionsChanged()
+	 * @method \string remindActualOptions()
+	 * @method \string requireOptions()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetOptions()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetOptions()
+	 * @method \string fillOptions()
+	 * @method \int getAttendeesCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setAttendeesCount(\int|\Bitrix\Main\DB\SqlExpression $attendeesCount)
+	 * @method bool hasAttendeesCount()
+	 * @method bool isAttendeesCountFilled()
+	 * @method bool isAttendeesCountChanged()
+	 * @method \int remindActualAttendeesCount()
+	 * @method \int requireAttendeesCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetAttendeesCount()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetAttendeesCount()
+	 * @method \int fillAttendeesCount()
+	 * @method \Bitrix\Calendar\Internals\EO_Event getEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event remindActualEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event requireEvent()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setEvent(\Bitrix\Calendar\Internals\EO_Event $object)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetEvent()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetEvent()
+	 * @method bool hasEvent()
+	 * @method bool isEventFilled()
+	 * @method bool isEventChanged()
+	 * @method \Bitrix\Calendar\Internals\EO_Event fillEvent()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory getCategory()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory remindActualCategory()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory requireCategory()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption setCategory(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory $object)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption resetCategory()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unsetCategory()
+	 * @method bool hasCategory()
+	 * @method bool isCategoryFilled()
+	 * @method bool isCategoryChanged()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory fillCategory()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption set($fieldName, $value)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption reset($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption wakeUp($data)
+	 */
+	class EO_OpenEventOption {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * EO_OpenEventOption_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getEventIdList()
+	 * @method \int[] fillEventId()
+	 * @method \int[] getCategoryIdList()
+	 * @method \int[] fillCategoryId()
+	 * @method \int[] getThreadIdList()
+	 * @method \int[] fillThreadId()
+	 * @method \string[] getOptionsList()
+	 * @method \string[] fillOptions()
+	 * @method \int[] getAttendeesCountList()
+	 * @method \int[] fillAttendeesCount()
+	 * @method \Bitrix\Calendar\Internals\EO_Event[] getEventList()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection getEventCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection fillEvent()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventCategory[] getCategoryList()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection getCategoryCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Collection\OpenEventCategoryCollection fillCategory()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption $object)
+	 * @method bool has(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption getByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection merge(?\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_OpenEventOption_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventOptionTable';
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_OpenEventOption_Result exec()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_OpenEventOption_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection fetchCollection()
+	 */
+	class EO_OpenEventOption_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection createCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\Entity\OpenEventOption wakeUpObject($row)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventOption_Collection wakeUpCollection($rows)
+	 */
+	class EO_OpenEventOption_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable:calendar/lib/openevents/internals/openeventcategorybannedtable.php */
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * EO_OpenEventCategoryBanned
+	 * @see \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned resetUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned setCategoryId(\int|\Bitrix\Main\DB\SqlExpression $categoryId)
+	 * @method bool hasCategoryId()
+	 * @method bool isCategoryIdFilled()
+	 * @method bool isCategoryIdChanged()
+	 * @method \int remindActualCategoryId()
+	 * @method \int requireCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned resetCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned unsetCategoryId()
+	 * @method \int fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned set($fieldName, $value)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned reset($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned wakeUp($data)
+	 */
+	class EO_OpenEventCategoryBanned {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * EO_OpenEventCategoryBanned_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getCategoryIdList()
+	 * @method \int[] fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned $object)
+	 * @method bool has(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned getByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection merge(?\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_OpenEventCategoryBanned_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryBannedTable';
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_OpenEventCategoryBanned_Result exec()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_OpenEventCategoryBanned_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection fetchCollection()
+	 */
+	class EO_OpenEventCategoryBanned_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection createCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned wakeUpObject($row)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryBanned_Collection wakeUpCollection($rows)
+	 */
+	class EO_OpenEventCategoryBanned_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable:calendar/lib/openevents/internals/openeventcategorymutedtable.php */
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * EO_OpenEventCategoryMuted
+	 * @see \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted resetUserId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted setCategoryId(\int|\Bitrix\Main\DB\SqlExpression $categoryId)
+	 * @method bool hasCategoryId()
+	 * @method bool isCategoryIdFilled()
+	 * @method bool isCategoryIdChanged()
+	 * @method \int remindActualCategoryId()
+	 * @method \int requireCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted resetCategoryId()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted unsetCategoryId()
+	 * @method \int fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted set($fieldName, $value)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted reset($fieldName)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted wakeUp($data)
+	 */
+	class EO_OpenEventCategoryMuted {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * EO_OpenEventCategoryMuted_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getCategoryIdList()
+	 * @method \int[] fillCategoryId()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted $object)
+	 * @method bool has(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted getByPrimary($primary)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection merge(?\Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_OpenEventCategoryMuted_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable */
+		static public $dataClass = '\Bitrix\Calendar\OpenEvents\Internals\OpenEventCategoryMutedTable';
+	}
+}
+namespace Bitrix\Calendar\OpenEvents\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_OpenEventCategoryMuted_Result exec()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_OpenEventCategoryMuted_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted fetchObject()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection fetchCollection()
+	 */
+	class EO_OpenEventCategoryMuted_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection createCollection()
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted wakeUpObject($row)
+	 * @method \Bitrix\Calendar\OpenEvents\Internals\EO_OpenEventCategoryMuted_Collection wakeUpCollection($rows)
+	 */
+	class EO_OpenEventCategoryMuted_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\SharingLinkTable:calendar/lib/internals/sharinglinktable.php */
 namespace Bitrix\Calendar\Internals {
 	/**
@@ -124,26 +992,26 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink resetParentLinkHash()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink unsetParentLinkHash()
 	 * @method \string fillParentLinkHash()
-	 * @method \int getContactId()
-	 * @method \Bitrix\Calendar\Internals\EO_SharingLink setContactId(\int|\Bitrix\Main\DB\SqlExpression $contactId)
+	 * @method null|\int getContactId()
+	 * @method \Bitrix\Calendar\Internals\EO_SharingLink setContactId(null|\int|\Bitrix\Main\DB\SqlExpression $contactId)
 	 * @method bool hasContactId()
 	 * @method bool isContactIdFilled()
 	 * @method bool isContactIdChanged()
-	 * @method \int remindActualContactId()
-	 * @method \int requireContactId()
+	 * @method null|\int remindActualContactId()
+	 * @method null|\int requireContactId()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink resetContactId()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink unsetContactId()
-	 * @method \int fillContactId()
-	 * @method \int getContactType()
-	 * @method \Bitrix\Calendar\Internals\EO_SharingLink setContactType(\int|\Bitrix\Main\DB\SqlExpression $contactType)
+	 * @method null|\int fillContactId()
+	 * @method null|\int getContactType()
+	 * @method \Bitrix\Calendar\Internals\EO_SharingLink setContactType(null|\int|\Bitrix\Main\DB\SqlExpression $contactType)
 	 * @method bool hasContactType()
 	 * @method bool isContactTypeFilled()
 	 * @method bool isContactTypeChanged()
-	 * @method \int remindActualContactType()
-	 * @method \int requireContactType()
+	 * @method null|\int remindActualContactType()
+	 * @method null|\int requireContactType()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink resetContactType()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink unsetContactType()
-	 * @method \int fillContactType()
+	 * @method null|\int fillContactType()
 	 * @method \string getMembersHash()
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink setMembersHash(\string|\Bitrix\Main\DB\SqlExpression $membersHash)
 	 * @method bool hasMembersHash()
@@ -197,7 +1065,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLink wakeUp($data)
@@ -241,10 +1109,10 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \string[] fillConferenceId()
 	 * @method \string[] getParentLinkHashList()
 	 * @method \string[] fillParentLinkHash()
-	 * @method \int[] getContactIdList()
-	 * @method \int[] fillContactId()
-	 * @method \int[] getContactTypeList()
-	 * @method \int[] fillContactType()
+	 * @method null|\int[] getContactIdList()
+	 * @method null|\int[] fillContactId()
+	 * @method null|\int[] getContactTypeList()
+	 * @method null|\int[] fillContactType()
 	 * @method \string[] getMembersHashList()
 	 * @method \string[] fillMembersHash()
 	 * @method \int[] getFrequentUseList()
@@ -264,7 +1132,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLink[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_SharingLink $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLink_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -277,7 +1145,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SharingLink_Collection merge(?EO_SharingLink_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_SharingLink_Collection merge(?\Bitrix\Calendar\Internals\EO_SharingLink_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SharingLink_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -848,7 +1716,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Event wakeUp($data)
@@ -984,7 +1852,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Event[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Event $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Event_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -997,7 +1865,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Event_Collection merge(?EO_Event_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection merge(?\Bitrix\Calendar\Internals\EO_Event_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Event_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1083,7 +1951,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_EventSect wakeUp($data)
@@ -1120,7 +1988,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventSect[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_EventSect $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_EventSect_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1133,7 +2001,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_EventSect_Collection merge(?EO_EventSect_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_EventSect_Collection merge(?\Bitrix\Calendar\Internals\EO_EventSect_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_EventSect_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1254,7 +2122,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule wakeUp($data)
@@ -1298,7 +2166,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLinkRule[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_SharingLinkRule $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLinkRule_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1311,7 +2179,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SharingLinkRule_Collection merge(?EO_SharingLinkRule_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_SharingLinkRule_Collection merge(?\Bitrix\Calendar\Internals\EO_SharingLinkRule_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SharingLinkRule_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1632,7 +2500,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Section wakeUp($data)
@@ -1716,7 +2584,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Section[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Section $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Section_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1729,7 +2597,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Section_Collection merge(?EO_Section_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Section_Collection merge(?\Bitrix\Calendar\Internals\EO_Section_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Section_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -1808,26 +2676,26 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetVendorSectionId()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetVendorSectionId()
 	 * @method \string fillVendorSectionId()
-	 * @method ?\string getSyncToken()
-	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setSyncToken(?\string|\Bitrix\Main\DB\SqlExpression $syncToken)
+	 * @method null|\string getSyncToken()
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setSyncToken(null|\string|\Bitrix\Main\DB\SqlExpression $syncToken)
 	 * @method bool hasSyncToken()
 	 * @method bool isSyncTokenFilled()
 	 * @method bool isSyncTokenChanged()
-	 * @method ?\string remindActualSyncToken()
-	 * @method ?\string requireSyncToken()
+	 * @method null|\string remindActualSyncToken()
+	 * @method null|\string requireSyncToken()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetSyncToken()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetSyncToken()
-	 * @method ?\string fillSyncToken()
-	 * @method ?\string getPageToken()
-	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setPageToken(?\string|\Bitrix\Main\DB\SqlExpression $pageToken)
+	 * @method null|\string fillSyncToken()
+	 * @method null|\string getPageToken()
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setPageToken(null|\string|\Bitrix\Main\DB\SqlExpression $pageToken)
 	 * @method bool hasPageToken()
 	 * @method bool isPageTokenFilled()
 	 * @method bool isPageTokenChanged()
-	 * @method ?\string remindActualPageToken()
-	 * @method ?\string requirePageToken()
+	 * @method null|\string remindActualPageToken()
+	 * @method null|\string requirePageToken()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetPageToken()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetPageToken()
-	 * @method ?\string fillPageToken()
+	 * @method null|\string fillPageToken()
 	 * @method \boolean getActive()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setActive(\boolean|\Bitrix\Main\DB\SqlExpression $active)
 	 * @method bool hasActive()
@@ -1838,36 +2706,36 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetActive()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetActive()
 	 * @method \boolean fillActive()
-	 * @method ?\Bitrix\Main\Type\DateTime getLastSyncDate()
-	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setLastSyncDate(?\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastSyncDate)
+	 * @method null|\Bitrix\Main\Type\DateTime getLastSyncDate()
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setLastSyncDate(null|\Bitrix\Main\Type\DateTime|\Bitrix\Main\DB\SqlExpression $lastSyncDate)
 	 * @method bool hasLastSyncDate()
 	 * @method bool isLastSyncDateFilled()
 	 * @method bool isLastSyncDateChanged()
-	 * @method ?\Bitrix\Main\Type\DateTime remindActualLastSyncDate()
-	 * @method ?\Bitrix\Main\Type\DateTime requireLastSyncDate()
+	 * @method null|\Bitrix\Main\Type\DateTime remindActualLastSyncDate()
+	 * @method null|\Bitrix\Main\Type\DateTime requireLastSyncDate()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetLastSyncDate()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetLastSyncDate()
-	 * @method ?\Bitrix\Main\Type\DateTime fillLastSyncDate()
-	 * @method ?\string getLastSyncStatus()
-	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setLastSyncStatus(?\string|\Bitrix\Main\DB\SqlExpression $lastSyncStatus)
+	 * @method null|\Bitrix\Main\Type\DateTime fillLastSyncDate()
+	 * @method null|\string getLastSyncStatus()
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setLastSyncStatus(null|\string|\Bitrix\Main\DB\SqlExpression $lastSyncStatus)
 	 * @method bool hasLastSyncStatus()
 	 * @method bool isLastSyncStatusFilled()
 	 * @method bool isLastSyncStatusChanged()
-	 * @method ?\string remindActualLastSyncStatus()
-	 * @method ?\string requireLastSyncStatus()
+	 * @method null|\string remindActualLastSyncStatus()
+	 * @method null|\string requireLastSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetLastSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetLastSyncStatus()
-	 * @method ?\string fillLastSyncStatus()
-	 * @method ?\string getVersionId()
-	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setVersionId(?\string|\Bitrix\Main\DB\SqlExpression $versionId)
+	 * @method null|\string fillLastSyncStatus()
+	 * @method null|\string getVersionId()
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection setVersionId(null|\string|\Bitrix\Main\DB\SqlExpression $versionId)
 	 * @method bool hasVersionId()
 	 * @method bool isVersionIdFilled()
 	 * @method bool isVersionIdChanged()
-	 * @method ?\string remindActualVersionId()
-	 * @method ?\string requireVersionId()
+	 * @method null|\string remindActualVersionId()
+	 * @method null|\string requireVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection resetVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection unsetVersionId()
-	 * @method ?\string fillVersionId()
+	 * @method null|\string fillVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_Section getSection()
 	 * @method \Bitrix\Calendar\Internals\EO_Section remindActualSection()
 	 * @method \Bitrix\Calendar\Internals\EO_Section requireSection()
@@ -1920,7 +2788,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_SectionConnection wakeUp($data)
@@ -1948,18 +2816,18 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \int[] fillConnectionId()
 	 * @method \string[] getVendorSectionIdList()
 	 * @method \string[] fillVendorSectionId()
-	 * @method ?\string[] getSyncTokenList()
-	 * @method ?\string[] fillSyncToken()
-	 * @method ?\string[] getPageTokenList()
-	 * @method ?\string[] fillPageToken()
+	 * @method null|\string[] getSyncTokenList()
+	 * @method null|\string[] fillSyncToken()
+	 * @method null|\string[] getPageTokenList()
+	 * @method null|\string[] fillPageToken()
 	 * @method \boolean[] getActiveList()
 	 * @method \boolean[] fillActive()
-	 * @method ?\Bitrix\Main\Type\DateTime[] getLastSyncDateList()
-	 * @method ?\Bitrix\Main\Type\DateTime[] fillLastSyncDate()
-	 * @method ?\string[] getLastSyncStatusList()
-	 * @method ?\string[] fillLastSyncStatus()
-	 * @method ?\string[] getVersionIdList()
-	 * @method ?\string[] fillVersionId()
+	 * @method null|\Bitrix\Main\Type\DateTime[] getLastSyncDateList()
+	 * @method null|\Bitrix\Main\Type\DateTime[] fillLastSyncDate()
+	 * @method null|\string[] getLastSyncStatusList()
+	 * @method null|\string[] fillLastSyncStatus()
+	 * @method null|\string[] getVersionIdList()
+	 * @method null|\string[] fillVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_Section[] getSectionList()
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection_Collection getSectionCollection()
 	 * @method \Bitrix\Calendar\Internals\EO_Section_Collection fillSection()
@@ -1980,7 +2848,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_SectionConnection $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_SectionConnection_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -1993,7 +2861,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SectionConnection_Collection merge(?EO_SectionConnection_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_SectionConnection_Collection merge(?\Bitrix\Calendar\Internals\EO_SectionConnection_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SectionConnection_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2104,7 +2972,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Location wakeUp($data)
@@ -2146,7 +3014,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Location[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Location $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Location_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2159,7 +3027,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Location_Collection merge(?EO_Location_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Location_Collection merge(?\Bitrix\Calendar\Internals\EO_Location_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Location_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2240,7 +3108,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_RoomCategory wakeUp($data)
@@ -2276,7 +3144,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_RoomCategory $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_RoomCategory_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2289,7 +3157,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_RoomCategory_Collection merge(?EO_RoomCategory_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_RoomCategory_Collection merge(?\Bitrix\Calendar\Internals\EO_RoomCategory_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_RoomCategory_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2560,7 +3428,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Resource wakeUp($data)
@@ -2634,7 +3502,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Resource[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Resource $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Resource_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2647,7 +3515,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Resource_Collection merge(?EO_Resource_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Resource_Collection merge(?\Bitrix\Calendar\Internals\EO_Resource_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Resource_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2681,6 +3549,270 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Resource_Collection wakeUpCollection($rows)
 	 */
 	class EO_Resource_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\EventAttendeeTable:calendar/lib/internals/eventattendeetable.php */
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EventAttendee
+	 * @see \Bitrix\Calendar\Internals\EventAttendeeTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getOwnerId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setOwnerId(\int|\Bitrix\Main\DB\SqlExpression $ownerId)
+	 * @method bool hasOwnerId()
+	 * @method bool isOwnerIdFilled()
+	 * @method bool isOwnerIdChanged()
+	 * @method \int remindActualOwnerId()
+	 * @method \int requireOwnerId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetOwnerId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetOwnerId()
+	 * @method \int fillOwnerId()
+	 * @method \int getCreatedBy()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setCreatedBy(\int|\Bitrix\Main\DB\SqlExpression $createdBy)
+	 * @method bool hasCreatedBy()
+	 * @method bool isCreatedByFilled()
+	 * @method bool isCreatedByChanged()
+	 * @method \int remindActualCreatedBy()
+	 * @method \int requireCreatedBy()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetCreatedBy()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetCreatedBy()
+	 * @method \int fillCreatedBy()
+	 * @method \string getMeetingStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setMeetingStatus(\string|\Bitrix\Main\DB\SqlExpression $meetingStatus)
+	 * @method bool hasMeetingStatus()
+	 * @method bool isMeetingStatusFilled()
+	 * @method bool isMeetingStatusChanged()
+	 * @method \string remindActualMeetingStatus()
+	 * @method \string requireMeetingStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetMeetingStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetMeetingStatus()
+	 * @method \string fillMeetingStatus()
+	 * @method \boolean getDeleted()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setDeleted(\boolean|\Bitrix\Main\DB\SqlExpression $deleted)
+	 * @method bool hasDeleted()
+	 * @method bool isDeletedFilled()
+	 * @method bool isDeletedChanged()
+	 * @method \boolean remindActualDeleted()
+	 * @method \boolean requireDeleted()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetDeleted()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetDeleted()
+	 * @method \boolean fillDeleted()
+	 * @method \int getSectionId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setSectionId(\int|\Bitrix\Main\DB\SqlExpression $sectionId)
+	 * @method bool hasSectionId()
+	 * @method bool isSectionIdFilled()
+	 * @method bool isSectionIdChanged()
+	 * @method \int remindActualSectionId()
+	 * @method \int requireSectionId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetSectionId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetSectionId()
+	 * @method \int fillSectionId()
+	 * @method \Bitrix\Calendar\Internals\EO_Section getSection()
+	 * @method \Bitrix\Calendar\Internals\EO_Section remindActualSection()
+	 * @method \Bitrix\Calendar\Internals\EO_Section requireSection()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setSection(\Bitrix\Calendar\Internals\EO_Section $object)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetSection()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetSection()
+	 * @method bool hasSection()
+	 * @method bool isSectionFilled()
+	 * @method bool isSectionChanged()
+	 * @method \Bitrix\Calendar\Internals\EO_Section fillSection()
+	 * @method null|\string getColor()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setColor(null|\string|\Bitrix\Main\DB\SqlExpression $color)
+	 * @method bool hasColor()
+	 * @method bool isColorFilled()
+	 * @method bool isColorChanged()
+	 * @method null|\string remindActualColor()
+	 * @method null|\string requireColor()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetColor()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetColor()
+	 * @method null|\string fillColor()
+	 * @method \string getRemind()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setRemind(\string|\Bitrix\Main\DB\SqlExpression $remind)
+	 * @method bool hasRemind()
+	 * @method bool isRemindFilled()
+	 * @method bool isRemindChanged()
+	 * @method \string remindActualRemind()
+	 * @method \string requireRemind()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetRemind()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetRemind()
+	 * @method \string fillRemind()
+	 * @method null|\string getDavExchLabel()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setDavExchLabel(null|\string|\Bitrix\Main\DB\SqlExpression $davExchLabel)
+	 * @method bool hasDavExchLabel()
+	 * @method bool isDavExchLabelFilled()
+	 * @method bool isDavExchLabelChanged()
+	 * @method null|\string remindActualDavExchLabel()
+	 * @method null|\string requireDavExchLabel()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetDavExchLabel()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetDavExchLabel()
+	 * @method null|\string fillDavExchLabel()
+	 * @method \string getSyncStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setSyncStatus(\string|\Bitrix\Main\DB\SqlExpression $syncStatus)
+	 * @method bool hasSyncStatus()
+	 * @method bool isSyncStatusFilled()
+	 * @method bool isSyncStatusChanged()
+	 * @method \string remindActualSyncStatus()
+	 * @method \string requireSyncStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetSyncStatus()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetSyncStatus()
+	 * @method \string fillSyncStatus()
+	 * @method \int getEventId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setEventId(\int|\Bitrix\Main\DB\SqlExpression $eventId)
+	 * @method bool hasEventId()
+	 * @method bool isEventIdFilled()
+	 * @method bool isEventIdChanged()
+	 * @method \int remindActualEventId()
+	 * @method \int requireEventId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetEventId()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetEventId()
+	 * @method \int fillEventId()
+	 * @method \Bitrix\Calendar\Internals\EO_Event getEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event remindActualEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event requireEvent()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee setEvent(\Bitrix\Calendar\Internals\EO_Event $object)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee resetEvent()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unsetEvent()
+	 * @method bool hasEvent()
+	 * @method bool isEventFilled()
+	 * @method bool isEventChanged()
+	 * @method \Bitrix\Calendar\Internals\EO_Event fillEvent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee reset($fieldName)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Internals\EventAttendee wakeUp($data)
+	 */
+	class EO_EventAttendee {
+		/* @var \Bitrix\Calendar\Internals\EventAttendeeTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\EventAttendeeTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * EO_EventAttendee_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getOwnerIdList()
+	 * @method \int[] fillOwnerId()
+	 * @method \int[] getCreatedByList()
+	 * @method \int[] fillCreatedBy()
+	 * @method \string[] getMeetingStatusList()
+	 * @method \string[] fillMeetingStatus()
+	 * @method \boolean[] getDeletedList()
+	 * @method \boolean[] fillDeleted()
+	 * @method \int[] getSectionIdList()
+	 * @method \int[] fillSectionId()
+	 * @method \Bitrix\Calendar\Internals\EO_Section[] getSectionList()
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection getSectionCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_Section_Collection fillSection()
+	 * @method null|\string[] getColorList()
+	 * @method null|\string[] fillColor()
+	 * @method \string[] getRemindList()
+	 * @method \string[] fillRemind()
+	 * @method null|\string[] getDavExchLabelList()
+	 * @method null|\string[] fillDavExchLabel()
+	 * @method \string[] getSyncStatusList()
+	 * @method \string[] fillSyncStatus()
+	 * @method \int[] getEventIdList()
+	 * @method \int[] fillEventId()
+	 * @method \Bitrix\Calendar\Internals\EO_Event[] getEventList()
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection getEventCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection fillEvent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Internals\EventAttendee $object)
+	 * @method bool has(\Bitrix\Calendar\Internals\EventAttendee $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\EventAttendee[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Internals\EventAttendee $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Internals\EO_EventAttendee_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Internals\EventAttendee current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection merge(?\Bitrix\Calendar\Internals\EO_EventAttendee_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_EventAttendee_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Internals\EventAttendeeTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\EventAttendeeTable';
+	}
+}
+namespace Bitrix\Calendar\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_EventAttendee_Result exec()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_EventAttendee_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EventAttendee fetchObject()
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection fetchCollection()
+	 */
+	class EO_EventAttendee_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\EventAttendee createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection createCollection()
+	 * @method \Bitrix\Calendar\Internals\EventAttendee wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Internals\EO_EventAttendee_Collection wakeUpCollection($rows)
+	 */
+	class EO_EventAttendee_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\QueueMessageTable:calendar/lib/internals/queuemessagetable.php */
 namespace Bitrix\Calendar\Internals {
@@ -2738,7 +3870,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_QueueMessage wakeUp($data)
@@ -2776,7 +3908,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_QueueMessage $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_QueueMessage_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2789,7 +3921,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_QueueMessage_Collection merge(?EO_QueueMessage_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueMessage_Collection merge(?\Bitrix\Calendar\Internals\EO_QueueMessage_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_QueueMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -2900,7 +4032,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Type wakeUp($data)
@@ -2942,7 +4074,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Type[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Type $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Type_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -2955,7 +4087,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Type_Collection merge(?EO_Type_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Type_Collection merge(?\Bitrix\Calendar\Internals\EO_Type_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Type_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3086,7 +4218,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule wakeUp($data)
@@ -3132,7 +4264,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingObjectRule[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_SharingObjectRule $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingObjectRule_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3145,7 +4277,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SharingObjectRule_Collection merge(?EO_SharingObjectRule_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_SharingObjectRule_Collection merge(?\Bitrix\Calendar\Internals\EO_SharingObjectRule_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SharingObjectRule_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3226,7 +4358,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion wakeUp($data)
@@ -3262,7 +4394,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventOriginalRecursion[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_EventOriginalRecursion $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_EventOriginalRecursion_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3275,7 +4407,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_EventOriginalRecursion_Collection merge(?EO_EventOriginalRecursion_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_EventOriginalRecursion_Collection merge(?\Bitrix\Calendar\Internals\EO_EventOriginalRecursion_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_EventOriginalRecursion_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3396,7 +4528,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_QueueHandledMessage wakeUp($data)
@@ -3441,7 +4573,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_QueueHandledMessage $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3454,7 +4586,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_QueueHandledMessage_Collection merge(?EO_QueueHandledMessage_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection merge(?\Bitrix\Calendar\Internals\EO_QueueHandledMessage_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_QueueHandledMessage_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3533,16 +4665,16 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetVendorEventId()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetVendorEventId()
 	 * @method \string fillVendorEventId()
-	 * @method ?\string getSyncStatus()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setSyncStatus(?\string|\Bitrix\Main\DB\SqlExpression $syncStatus)
+	 * @method null|\string getSyncStatus()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setSyncStatus(null|\string|\Bitrix\Main\DB\SqlExpression $syncStatus)
 	 * @method bool hasSyncStatus()
 	 * @method bool isSyncStatusFilled()
 	 * @method bool isSyncStatusChanged()
-	 * @method ?\string remindActualSyncStatus()
-	 * @method ?\string requireSyncStatus()
+	 * @method null|\string remindActualSyncStatus()
+	 * @method null|\string requireSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetSyncStatus()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetSyncStatus()
-	 * @method ?\string fillSyncStatus()
+	 * @method null|\string fillSyncStatus()
 	 * @method \int getRetryCount()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setRetryCount(\int|\Bitrix\Main\DB\SqlExpression $retryCount)
 	 * @method bool hasRetryCount()
@@ -3553,56 +4685,56 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetRetryCount()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetRetryCount()
 	 * @method \int fillRetryCount()
-	 * @method ?\string getEntityTag()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setEntityTag(?\string|\Bitrix\Main\DB\SqlExpression $entityTag)
+	 * @method null|\string getEntityTag()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setEntityTag(null|\string|\Bitrix\Main\DB\SqlExpression $entityTag)
 	 * @method bool hasEntityTag()
 	 * @method bool isEntityTagFilled()
 	 * @method bool isEntityTagChanged()
-	 * @method ?\string remindActualEntityTag()
-	 * @method ?\string requireEntityTag()
+	 * @method null|\string remindActualEntityTag()
+	 * @method null|\string requireEntityTag()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetEntityTag()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetEntityTag()
-	 * @method ?\string fillEntityTag()
-	 * @method ?\string getVendorVersionId()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setVendorVersionId(?\string|\Bitrix\Main\DB\SqlExpression $vendorVersionId)
+	 * @method null|\string fillEntityTag()
+	 * @method null|\string getVendorVersionId()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setVendorVersionId(null|\string|\Bitrix\Main\DB\SqlExpression $vendorVersionId)
 	 * @method bool hasVendorVersionId()
 	 * @method bool isVendorVersionIdFilled()
 	 * @method bool isVendorVersionIdChanged()
-	 * @method ?\string remindActualVendorVersionId()
-	 * @method ?\string requireVendorVersionId()
+	 * @method null|\string remindActualVendorVersionId()
+	 * @method null|\string requireVendorVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetVendorVersionId()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetVendorVersionId()
-	 * @method ?\string fillVendorVersionId()
-	 * @method ?\string getVersion()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setVersion(?\string|\Bitrix\Main\DB\SqlExpression $version)
+	 * @method null|\string fillVendorVersionId()
+	 * @method null|\string getVersion()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setVersion(null|\string|\Bitrix\Main\DB\SqlExpression $version)
 	 * @method bool hasVersion()
 	 * @method bool isVersionFilled()
 	 * @method bool isVersionChanged()
-	 * @method ?\string remindActualVersion()
-	 * @method ?\string requireVersion()
+	 * @method null|\string remindActualVersion()
+	 * @method null|\string requireVersion()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetVersion()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetVersion()
-	 * @method ?\string fillVersion()
-	 * @method ?array getData()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setData(?array|\Bitrix\Main\DB\SqlExpression $data)
+	 * @method null|\string fillVersion()
+	 * @method null|array getData()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setData(null|array|\Bitrix\Main\DB\SqlExpression $data)
 	 * @method bool hasData()
 	 * @method bool isDataFilled()
 	 * @method bool isDataChanged()
-	 * @method ?array remindActualData()
-	 * @method ?array requireData()
+	 * @method null|array remindActualData()
+	 * @method null|array requireData()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetData()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetData()
-	 * @method ?array fillData()
-	 * @method ?\string getRecurrenceId()
-	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setRecurrenceId(?\string|\Bitrix\Main\DB\SqlExpression $recurrenceId)
+	 * @method null|array fillData()
+	 * @method null|\string getRecurrenceId()
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection setRecurrenceId(null|\string|\Bitrix\Main\DB\SqlExpression $recurrenceId)
 	 * @method bool hasRecurrenceId()
 	 * @method bool isRecurrenceIdFilled()
 	 * @method bool isRecurrenceIdChanged()
-	 * @method ?\string remindActualRecurrenceId()
-	 * @method ?\string requireRecurrenceId()
+	 * @method null|\string remindActualRecurrenceId()
+	 * @method null|\string requireRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection resetRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection unsetRecurrenceId()
-	 * @method ?\string fillRecurrenceId()
+	 * @method null|\string fillRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_Event getEvent()
 	 * @method \Bitrix\Calendar\Internals\EO_Event remindActualEvent()
 	 * @method \Bitrix\Calendar\Internals\EO_Event requireEvent()
@@ -3645,7 +4777,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_EventConnection wakeUp($data)
@@ -3673,20 +4805,20 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \int[] fillConnectionId()
 	 * @method \string[] getVendorEventIdList()
 	 * @method \string[] fillVendorEventId()
-	 * @method ?\string[] getSyncStatusList()
-	 * @method ?\string[] fillSyncStatus()
+	 * @method null|\string[] getSyncStatusList()
+	 * @method null|\string[] fillSyncStatus()
 	 * @method \int[] getRetryCountList()
 	 * @method \int[] fillRetryCount()
-	 * @method ?\string[] getEntityTagList()
-	 * @method ?\string[] fillEntityTag()
-	 * @method ?\string[] getVendorVersionIdList()
-	 * @method ?\string[] fillVendorVersionId()
-	 * @method ?\string[] getVersionList()
-	 * @method ?\string[] fillVersion()
-	 * @method ?array[] getDataList()
-	 * @method ?array[] fillData()
-	 * @method ?\string[] getRecurrenceIdList()
-	 * @method ?\string[] fillRecurrenceId()
+	 * @method null|\string[] getEntityTagList()
+	 * @method null|\string[] fillEntityTag()
+	 * @method null|\string[] getVendorVersionIdList()
+	 * @method null|\string[] fillVendorVersionId()
+	 * @method null|\string[] getVersionList()
+	 * @method null|\string[] fillVersion()
+	 * @method null|array[] getDataList()
+	 * @method null|array[] fillData()
+	 * @method null|\string[] getRecurrenceIdList()
+	 * @method null|\string[] fillRecurrenceId()
 	 * @method \Bitrix\Calendar\Internals\EO_Event[] getEventList()
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection_Collection getEventCollection()
 	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection fillEvent()
@@ -3705,7 +4837,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_EventConnection[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_EventConnection $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_EventConnection_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3718,7 +4850,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_EventConnection_Collection merge(?EO_EventConnection_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_EventConnection_Collection merge(?\Bitrix\Calendar\Internals\EO_EventConnection_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_EventConnection_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3799,7 +4931,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Access wakeUp($data)
@@ -3835,7 +4967,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Access[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Access $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Access_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -3848,7 +4980,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Access_Collection merge(?EO_Access_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Access_Collection merge(?\Bitrix\Calendar\Internals\EO_Access_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Access_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -3969,7 +5101,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember wakeUp($data)
@@ -4016,7 +5148,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLinkMember[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_SharingLinkMember $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4029,7 +5161,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_SharingLinkMember_Collection merge(?EO_SharingLinkMember_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection merge(?\Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_SharingLinkMember_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4063,6 +5195,210 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_SharingLinkMember_Collection wakeUpCollection($rows)
 	 */
 	class EO_SharingLinkMember_Entity extends \Bitrix\Main\ORM\Entity {}
+}
+/* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\Counter\CounterTable:calendar/lib/internals/counter/countertable.php */
+namespace Bitrix\Calendar\Internals\Counter {
+	/**
+	 * EO_Counter
+	 * @see \Bitrix\Calendar\Internals\Counter\CounterTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getUserId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setUserId(\int|\Bitrix\Main\DB\SqlExpression $userId)
+	 * @method bool hasUserId()
+	 * @method bool isUserIdFilled()
+	 * @method bool isUserIdChanged()
+	 * @method \int remindActualUserId()
+	 * @method \int requireUserId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetUserId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetUserId()
+	 * @method \int fillUserId()
+	 * @method \int getEventId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setEventId(\int|\Bitrix\Main\DB\SqlExpression $eventId)
+	 * @method bool hasEventId()
+	 * @method bool isEventIdFilled()
+	 * @method bool isEventIdChanged()
+	 * @method \int remindActualEventId()
+	 * @method \int requireEventId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetEventId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetEventId()
+	 * @method \int fillEventId()
+	 * @method \int getParentId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setParentId(\int|\Bitrix\Main\DB\SqlExpression $parentId)
+	 * @method bool hasParentId()
+	 * @method bool isParentIdFilled()
+	 * @method bool isParentIdChanged()
+	 * @method \int remindActualParentId()
+	 * @method \int requireParentId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetParentId()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetParentId()
+	 * @method \int fillParentId()
+	 * @method \string getType()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setType(\string|\Bitrix\Main\DB\SqlExpression $type)
+	 * @method bool hasType()
+	 * @method bool isTypeFilled()
+	 * @method bool isTypeChanged()
+	 * @method \string remindActualType()
+	 * @method \string requireType()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetType()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetType()
+	 * @method \string fillType()
+	 * @method \int getValue()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setValue(\int|\Bitrix\Main\DB\SqlExpression $value)
+	 * @method bool hasValue()
+	 * @method bool isValueFilled()
+	 * @method bool isValueChanged()
+	 * @method \int remindActualValue()
+	 * @method \int requireValue()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetValue()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetValue()
+	 * @method \int fillValue()
+	 * @method \Bitrix\Main\EO_User getUser()
+	 * @method \Bitrix\Main\EO_User remindActualUser()
+	 * @method \Bitrix\Main\EO_User requireUser()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setUser(\Bitrix\Main\EO_User $object)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetUser()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetUser()
+	 * @method bool hasUser()
+	 * @method bool isUserFilled()
+	 * @method bool isUserChanged()
+	 * @method \Bitrix\Main\EO_User fillUser()
+	 * @method \Bitrix\Calendar\Internals\EO_Event getEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event remindActualEvent()
+	 * @method \Bitrix\Calendar\Internals\EO_Event requireEvent()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter setEvent(\Bitrix\Calendar\Internals\EO_Event $object)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter resetEvent()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unsetEvent()
+	 * @method bool hasEvent()
+	 * @method bool isEventFilled()
+	 * @method bool isEventChanged()
+	 * @method \Bitrix\Calendar\Internals\EO_Event fillEvent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter set($fieldName, $value)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter reset($fieldName)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Calendar\Internals\Counter\EO_Counter wakeUp($data)
+	 */
+	class EO_Counter {
+		/* @var \Bitrix\Calendar\Internals\Counter\CounterTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\Counter\CounterTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Calendar\Internals\Counter {
+	/**
+	 * EO_Counter_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getUserIdList()
+	 * @method \int[] fillUserId()
+	 * @method \int[] getEventIdList()
+	 * @method \int[] fillEventId()
+	 * @method \int[] getParentIdList()
+	 * @method \int[] fillParentId()
+	 * @method \string[] getTypeList()
+	 * @method \string[] fillType()
+	 * @method \int[] getValueList()
+	 * @method \int[] fillValue()
+	 * @method \Bitrix\Main\EO_User[] getUserList()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection getUserCollection()
+	 * @method \Bitrix\Main\EO_User_Collection fillUser()
+	 * @method \Bitrix\Calendar\Internals\EO_Event[] getEventList()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection getEventCollection()
+	 * @method \Bitrix\Calendar\Internals\EO_Event_Collection fillEvent()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Calendar\Internals\Counter\EO_Counter $object)
+	 * @method bool has(\Bitrix\Calendar\Internals\Counter\EO_Counter $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter getByPrimary($primary)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter[] getAll()
+	 * @method bool remove(\Bitrix\Calendar\Internals\Counter\EO_Counter $object)
+	 * @method void removeByPrimary($primary)
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection merge(?\Bitrix\Calendar\Internals\Counter\EO_Counter_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_Counter_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Calendar\Internals\Counter\CounterTable */
+		static public $dataClass = '\Bitrix\Calendar\Internals\Counter\CounterTable';
+	}
+}
+namespace Bitrix\Calendar\Internals\Counter {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_Counter_Result exec()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter fetchObject()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_Counter_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter fetchObject()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection fetchCollection()
+	 */
+	class EO_Counter_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter createObject($setDefaultValues = true)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection createCollection()
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter wakeUpObject($row)
+	 * @method \Bitrix\Calendar\Internals\Counter\EO_Counter_Collection wakeUpCollection($rows)
+	 */
+	class EO_Counter_Entity extends \Bitrix\Main\ORM\Entity {}
 }
 /* ORMENTITYANNOTATION:Bitrix\Calendar\Internals\CalendarLogTable:calendar/lib/internals/calendarlogtable.php */
 namespace Bitrix\Calendar\Internals {
@@ -4150,7 +5486,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_CalendarLog wakeUp($data)
@@ -4194,7 +5530,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_CalendarLog[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_CalendarLog $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_CalendarLog_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4207,7 +5543,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_CalendarLog_Collection merge(?EO_CalendarLog_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_CalendarLog_Collection merge(?\Bitrix\Calendar\Internals\EO_CalendarLog_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_CalendarLog_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4333,7 +5669,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\Internals\EO_Push wakeUp($data)
@@ -4378,7 +5714,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method \Bitrix\Calendar\Internals\EO_Push[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\Internals\EO_Push $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\Internals\EO_Push_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4391,7 +5727,7 @@ namespace Bitrix\Calendar\Internals {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Push_Collection merge(?EO_Push_Collection $collection)
+	 * @method \Bitrix\Calendar\Internals\EO_Push_Collection merge(?\Bitrix\Calendar\Internals\EO_Push_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Push_Collection implements \ArrayAccess, \Iterator, \Countable {
@@ -4517,7 +5853,7 @@ namespace Bitrix\Calendar {
 	 * @method void removeFrom($fieldName, $value)
 	 * @method void removeAll($fieldName)
 	 * @method \Bitrix\Main\ORM\Data\Result delete()
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
 	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
 	 * @method static \Bitrix\Calendar\EO_Push wakeUp($data)
@@ -4562,7 +5898,7 @@ namespace Bitrix\Calendar {
 	 * @method \Bitrix\Calendar\EO_Push[] getAll()
 	 * @method bool remove(\Bitrix\Calendar\EO_Push $object)
 	 * @method void removeByPrimary($primary)
-	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method array|\Bitrix\Main\ORM\Objectify\Collection|null fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
 	 * @method static \Bitrix\Calendar\EO_Push_Collection wakeUp($data)
 	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
 	 * @method void offsetSet() ArrayAccess
@@ -4575,7 +5911,7 @@ namespace Bitrix\Calendar {
 	 * @method void next() Iterator
 	 * @method bool valid() Iterator
 	 * @method int count() Countable
-	 * @method EO_Push_Collection merge(?EO_Push_Collection $collection)
+	 * @method \Bitrix\Calendar\EO_Push_Collection merge(?\Bitrix\Calendar\EO_Push_Collection $collection)
 	 * @method bool isEmpty()
 	 */
 	class EO_Push_Collection implements \ArrayAccess, \Iterator, \Countable {

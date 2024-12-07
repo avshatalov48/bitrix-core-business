@@ -7,10 +7,11 @@ use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\LanguageTable;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 class PriceTypeLang extends Controller
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
 	use PriceTypeRights;
 
 	// region Actions
@@ -20,41 +21,18 @@ class PriceTypeLang extends Controller
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRICE_TYPE_LANG' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		return new Page(
-			'PRICE_TYPE_LANGS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
-	 * @param int $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction(int $id): ?array
-	{
-		$existsResult = $this->exists($id);
-		if (!$existsResult->isSuccess())
-		{
-			$this->addErrors($existsResult->getErrors());
-
-			return null;
-		}
-
-		return ['PRICE_TYPE_LANG' => $this->get($id)];
-	}
 
 	/**
 	 * @param array $fields
@@ -78,7 +56,7 @@ class PriceTypeLang extends Controller
 			return null;
 		}
 
-		return ['PRICE_TYPE_LANG' => $this->get($addResult->getId())];
+		return [$this->getServiceItemName() => $this->get($addResult->getId())];
 	}
 
 	/**
@@ -112,7 +90,7 @@ class PriceTypeLang extends Controller
 			return null;
 		}
 
-		return ['PRICE_TYPE_LANG' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**

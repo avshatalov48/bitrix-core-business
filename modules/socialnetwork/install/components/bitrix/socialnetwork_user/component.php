@@ -151,6 +151,8 @@ $arDefaultUrlTemplates404 = array(
 	"user_tasks_employee_plan" => "user/#user_id#/tasks/employee/plan/",
 	"user_tasks_projects" => "user/#user_id#/tasks/projects_kanban/",
 	"user_tasks_projects_overview" => "user/#user_id#/tasks/projects/",
+	"user_tasks_flow" => "user/#user_id#/tasks/flow/",
+	"user_tasks_flow_create" => "tasks/flow/create/",
 	"user_tasks_scrum_overview" => "user/#user_id#/tasks/scrum/",
 	"user_tasks_effective" => "user/#user_id#/tasks/effective/",
 	"user_tasks_effective_detail" => "user/#user_id#/tasks/effective/show/",
@@ -711,8 +713,6 @@ if (
 		}
 		unset($variable);
 	}
-
-	CSocNetLogComponent::redirectExtranetSite($arRedirectSite, $componentPage, $arVariables, $arDefaultUrlTemplates404, "user");
 }
 
 ComponentHelper::setComponentOption(
@@ -1287,6 +1287,17 @@ elseif ($componentPage === "bizproc_task_list")
 {
 	$componentPage = "bizproc";
 }
+
+if ($componentPage === "bizproc_edit")
+{
+	//TODO: remove after bizproc 24.500.0 is released
+	$bpVersion = \Bitrix\Main\ModuleManager::getVersion('bizproc');
+	if ($bpVersion && version_compare($bpVersion, '24.500.0') >= 0)
+	{
+		$componentPage = 'bizproc_workflow';
+	}
+}
+
 /********************************************************************
 				/Business-process
 ********************************************************************/

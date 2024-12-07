@@ -984,19 +984,39 @@ $bDesignMode = $GLOBALS["APPLICATION"]->GetShowIncludeAreas()
 	&& $GLOBALS["USER"]->IsAdmin()
 ;
 
-if(!$bDesignMode)
+if ($bDesignMode)
 {
-	if(!isset($_GET["mode"]))
-		return;
-	if(isset($_SERVER["HTTP_REFERER"]))
-		return;
-	$APPLICATION->RestartBuffer();
-	header("Pragma: no-cache");
+	$this->IncludeComponentLang(".parameters.php");
+	if(
+		(COption::GetOptionString("main", "use_session_id_ttl", "N") == "Y")
+		&& (COption::GetOptionInt("main", "session_id_ttl", 0) > 0)
+		&& !defined("BX_SESSION_ID_CHANGE")
+	)
+		ShowError(GetMessage("CC_BCE1_ERROR_SESSION_ID_CHANGE"));
+	?><table class="data-table">
+	<tr><td><?echo GetMessage("CC_BCE1_IBLOCK_ID")?></td><td><?echo $arParams["IBLOCK_ID"]?></td></tr>
+	<tr><td><?echo GetMessage("CC_BCE1_INTERVAL")?></td><td><?echo $arParams["INTERVAL"]?></td></tr>
+	<tr><td><?echo GetMessage("CC_BCE1_ELEMENTS_PER_STEP")?></td><td><?echo $arParams["ELEMENTS_PER_STEP"]?></td></tr>
+	<tr><td><?echo GetMessage("CC_BCE1_USE_ZIP")?></td><td><?echo $arParams["USE_ZIP"]? GetMessage("MAIN_YES"): GetMessage("MAIN_NO")?></td></tr>
+	</table>
+	<?
+	return;
 }
 
-$DIR_NAME = "";
+if(!isset($_GET["mode"]))
+	return;
+if(isset($_SERVER["HTTP_REFERER"]))
+	return;
 
-ob_start();
+$APPLICATION->RestartBuffer();
+while (ob_get_length() !== false)
+{
+	ob_end_clean();
+}
+header("Pragma: no-cache");
+header("Content-Type: text/html; charset=".LANG_CHARSET);
+
+$DIR_NAME = "";
 
 if($_GET["mode"] == "checkauth" && $USER->IsAuthorized())
 {
@@ -1140,30 +1160,4 @@ else
 	}
 }
 
-$contents = ob_get_contents();
-ob_end_clean();
-
-if(!$bDesignMode)
-{
-	header("Content-Type: text/html; charset=".LANG_CHARSET);
-	echo $contents;
-	die();
-}
-else
-{
-	$this->IncludeComponentLang(".parameters.php");
-	if(
-		(COption::GetOptionString("main", "use_session_id_ttl", "N") == "Y")
-		&& (COption::GetOptionInt("main", "session_id_ttl", 0) > 0)
-		&& !defined("BX_SESSION_ID_CHANGE")
-	)
-		ShowError(GetMessage("CC_BCE1_ERROR_SESSION_ID_CHANGE"));
-	?><table class="data-table">
-	<tr><td><?echo GetMessage("CC_BCE1_IBLOCK_ID")?></td><td><?echo $arParams["IBLOCK_ID"]?></td></tr>
-	<tr><td><?echo GetMessage("CC_BCE1_INTERVAL")?></td><td><?echo $arParams["INTERVAL"]?></td></tr>
-	<tr><td><?echo GetMessage("CC_BCE1_ELEMENTS_PER_STEP")?></td><td><?echo $arParams["ELEMENTS_PER_STEP"]?></td></tr>
-	<tr><td><?echo GetMessage("CC_BCE1_USE_ZIP")?></td><td><?echo $arParams["USE_ZIP"]? GetMessage("MAIN_YES"): GetMessage("MAIN_NO")?></td></tr>
-	</table>
-	<?
-}
-?>
+die();

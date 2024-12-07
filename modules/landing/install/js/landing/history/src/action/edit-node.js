@@ -29,7 +29,8 @@ const editNode = function (entry)
 					return node.setValue(entry.params.value, false, true);
 				});
 		});
-}
+};
+
 editNode.useRangeRect = true;
 
 export default editNode;

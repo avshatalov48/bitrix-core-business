@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -27,10 +27,10 @@ define("HELP_FILE","ticket_dict_list.php");
 $message = null;
 
 /***************************************************************************
-									Функции
+									Р¤СѓРЅРєС†РёРё
 ***************************************************************************/
 
-function CheckFields() // проверка на наличие обязательных полей
+function CheckFields() // РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РїРѕР»РµР№
 {
 	global $ID, $NAME, $SID, $C_TYPE, $arrSITE, $DB;
 	$str = "";
@@ -81,7 +81,7 @@ function symbolsAndNumbers($str)
 }
 
 /***************************************************************************
-							Обработка GET | POST
+							РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ***************************************************************************/
 $ID = intval($_REQUEST['ID']);
 $SET_AS_DEFAULT = $_REQUEST['SET_AS_DEFAULT'];
@@ -89,8 +89,8 @@ InitBVar($SET_AS_DEFAULT);
 
 
 
-// если была нажата кнопка "save" на текущей странице
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && check_bitrix_sessid())
+// РµСЃР»Рё Р±С‹Р»Р° РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° "save" РЅР° С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†Рµ
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $bAdmin=="Y" && check_bitrix_sessid())
 {
 	$arFields = array(
 		'C_TYPE'				=> symbolsAndNumbers($_REQUEST['C_TYPE']),
@@ -188,7 +188,7 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && 
 		}
 		if (!$message)
 		{
-			// сайты
+			// СЃР°Р№С‚С‹
 			$DB->Query("DELETE FROM b_ticket_dictionary_2_site WHERE DICTIONARY_ID='".$ID."'", false, $err_mess.__LINE__);
 			if (is_array($arrSITE))
 			{
@@ -247,10 +247,10 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 
 /***************************************************************************
-									HTML форма
+									HTML С„РѕСЂРјР°
 ****************************************************************************/
 ?>
-<script type="text/javascript">
+<script>
 <!--
 function C_TYPE_Change()
 {
@@ -437,7 +437,7 @@ $tabControl->Buttons(Array("disabled" => $bAdmin!="Y","back_url" =>"/bitrix/admi
 $tabControl->End();
 ?>
 
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
 <!--
 C_TYPE_Change();
 //-->

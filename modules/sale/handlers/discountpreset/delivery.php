@@ -2,7 +2,6 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
 use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -11,11 +10,6 @@ use Bitrix\Sale\Discount\Preset\HtmlHelper;
 use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\SelectProductPreset;
 use Bitrix\Sale\Discount\Preset\State;
-use Bitrix\Sale\Internals;
-use Bitrix\Sale\Helpers\Admin\Blocks;
-
-
-Loc::loadMessages(__FILE__);
 
 class Delivery extends SelectProductPreset
 {
@@ -116,11 +110,11 @@ class Delivery extends SelectProductPreset
 	{
 		return Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_DELIVERY_DELIVERY_DISCOUNT_VALUE');
 	}
-	
+
 	public function processShowInputAmount(State $state)
 	{
 		$lid = $state->get('discount_lid');
-		$currency = \CSaleLang::getLangCurrency($lid);
+		$currency = \Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($lid);
 		$deliverySystems = $this->getDeliverySystems($lid);
 
 		$forSelectData = array();
@@ -175,7 +169,7 @@ class Delivery extends SelectProductPreset
 
 		if(!trim($state->get('discount_order_amount')))
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE'));
+			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_ORDER_AMOUNT'));
 		}
 
 		if((int)$state->get('discount_delivery') < 0)
@@ -205,7 +199,7 @@ class Delivery extends SelectProductPreset
 	{
 		$discountFields = $this->normalizeDiscountFields($discountFields);
 
-		$stateFields = array(
+		$stateFields = [
 			'discount_lid' => $discountFields['LID'],
 			'discount_name' => $discountFields['NAME'],
 			'discount_groups' => $this->getUserGroupsByDiscount($discountFields['ID']),
@@ -213,7 +207,7 @@ class Delivery extends SelectProductPreset
 			'discount_type' => ArrayHelper::getByPath($discountFields, 'ACTIONS.CHILDREN.0.DATA.Unit'),
 			'discount_order_amount' => ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.0.DATA.Value'),
 			'discount_delivery' => ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.1.DATA.value.0'),
-		);
+		];
 
 		return parent::generateState($discountFields)->append($stateFields);
 	}

@@ -1,5 +1,5 @@
 import {ConnectionProvider} from "./connectionprovider";
-import {Loc} from "main.core";
+import { Loc, Type } from 'main.core';
 import ConnectionItem from "./connectionitem";
 
 export class CaldavConnection extends ConnectionProvider
@@ -7,6 +7,11 @@ export class CaldavConnection extends ConnectionProvider
 	constructor(options)
 	{
 		super(options);
+	}
+
+	doSupportReconnectionScenario(): boolean
+	{
+		return true;
 	}
 
 	static calculateStatus(connections)
@@ -111,8 +116,8 @@ export class CaldavConnection extends ConnectionProvider
 			zIndexAbsolute: this.MENU_INDEX,
 			autoHide: true,
 			closeByEsc: true,
+			offsetTop: 5,
 			id: this.getType() + '-menu',
-			offsetLeft: -40,
 		});
 	}
 
@@ -120,7 +125,7 @@ export class CaldavConnection extends ConnectionProvider
 	{
 		if (this.connectionsSyncInfo.length > 0)
 		{
-			this.connectionsSyncInfo.forEach(connection => {
+			this.connectionsSyncInfo.forEach((connection) => {
 				this.connections.push(ConnectionItem.createInstance({
 					connectionName: connection.syncInfo.connectionName,
 					status: connection.syncInfo.status,
@@ -132,8 +137,21 @@ export class CaldavConnection extends ConnectionProvider
 						server: connection.syncInfo.server,
 					},
 					type: this.type,
+					accountName: this.getAccountName(connection),
 				}));
 			});
 		}
+	}
+
+	getAccountName(connection: any)
+	{
+		return connection.syncInfo.connectionName;
+	}
+
+	getFailedConnectionName()
+	{
+		const connectionName = this.getFirstFailedConnection().connectionName?.trim();
+
+		return Type.isStringFilled(connectionName) ? connectionName : super.getFailedConnectionName();
 	}
 }

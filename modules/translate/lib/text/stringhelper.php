@@ -90,40 +90,20 @@ class StringHelper
 	/**
 	 * Special version of strtolower.
 	 * @param string $str String to convert.
-	 * @param string $encoding Defines encoding used in conversion.
 	 * @return string
 	 */
-	public static function changeCaseToLower($str, $encoding = null)
+	public static function changeCaseToLower($str)
 	{
-		if (\function_exists('mb_strtolower'))
-		{
-			if (empty($encoding))
-			{
-				$encoding = Main\Localization\Translation::getCurrentEncoding();
-			}
-			return \mb_strtolower($str, $encoding);
-		}
-
 		return \mb_strtolower($str);
 	}
 
 	/**
 	 * Special version of strtoupper.
 	 * @param string $str String to convert.
-	 * @param string $encoding Defines encoding used in conversion.
 	 * @return string
 	 */
-	public static function changeCaseToUpper($str, $encoding = null)
+	public static function changeCaseToUpper($str)
 	{
-		if (\function_exists('mb_strtoupper'))
-		{
-			if (empty($encoding))
-			{
-				$encoding = Main\Localization\Translation::getCurrentEncoding();
-			}
-			return \mb_strtoupper($str, $encoding);
-		}
-
 		return \mb_strtoupper($str);
 	}
 

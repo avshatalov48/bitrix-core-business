@@ -17,6 +17,7 @@ export default class CanvasLoader
 		this.#reader = new FileReader();
 		this.#queue = new Map();
 		this.#image = new Image();
+		this.#image.crossOrigin = 'anonymous';
 		this.#canvas = Tag.render`<canvas id="loadercanvas"></canvas>`;
 		// document.querySelector('#workarea-content').appendChild(this.#canvas);
 		this.#context = this.#canvas.getContext('2d');
@@ -196,7 +197,6 @@ export default class CanvasLoader
 			}
 			catch (e)
 			{
-				e.message = 'Packing error: ' + e.message;
 				reject(e);
 			}
 		});

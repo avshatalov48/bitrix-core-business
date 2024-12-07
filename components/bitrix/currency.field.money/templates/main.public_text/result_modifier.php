@@ -1,6 +1,6 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -15,9 +15,11 @@ $value = $arResult['value'];
 $text = '';
 $first = true;
 
-foreach($value as $res)
+$renderContext = ($arParams['additionalParameters']['renderContext'] ?? null);
+
+foreach ($value as $res)
 {
-	if(!$first)
+	if (!$first)
 	{
 		$text .= ', ';
 	}
@@ -25,20 +27,10 @@ foreach($value as $res)
 	$first = false;
 
 	$explode = MoneyType::unformatFromDB($res);
-	$currentValue = ($explode[0] <> '' ? (float)$explode[0] : '');
-	$currentCurrency = ($explode[1] ?? '');
+	\CCurrencyLang::disableUseHideZero();
+	$currentValue = \CCurrencyLang::CurrencyFormat($explode[0], $explode[1]);
+	\CCurrencyLang::enableUseHideZero();
 
-	$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
-	$currentValue = number_format(
-		(float)$currentValue,
-		$format['DECIMALS'],
-		$format['DEC_POINT'],
-		$format['THOUSANDS_SEP']
-	);
-
-	$currentValue = \CCurrencyLang::applyTemplate($currentValue, $format['FORMAT_STRING']);
-	$renderContext = ($arParams['additionalParameters']['renderContext'] ?? null);
 	if ($renderContext === 'export')
 	{
 		$currentValue = html_entity_decode($currentValue, ENT_NOQUOTES, LANG_CHARSET);

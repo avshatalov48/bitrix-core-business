@@ -2,6 +2,8 @@
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 
+/** @global \CMain $APPLICATION */
+
 use Bitrix\Conversion\RateManager;
 use Bitrix\Conversion\ReportContext;
 use Bitrix\Conversion\GeneratorContext;
@@ -29,10 +31,18 @@ $to   = ($d = $_GET['to'  ] ?: $userOptions['to'  ]) && Date::isCorrect($d) ? ne
 
 $sites = array();
 
-$result = SiteTable::getList(array(
-	'select' => array('LID', 'NAME'),
-	'order'  => array('DEF' => 'DESC', 'SORT' => 'ASC'),
-));
+$result = SiteTable::getList([
+	'select' => [
+		'LID',
+		'NAME',
+		'DEF',
+		'SORT',
+	],
+	'order' => [
+		'DEF' => 'DESC',
+		'SORT' => 'ASC',
+	],
+]);
 
 while ($row = $result->fetch())
 {
@@ -241,7 +251,7 @@ function conversion_renderGraph(array $splitRates, array $splits, $height)
 
 	?>
 	<div id="bitrix-conversion-graph-<?=$index?>" style="height:<?=$height?>"></div>
-	<script type="text/javascript">
+	<script>
 
 		AmCharts.ready(function()
 		{

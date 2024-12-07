@@ -1,0 +1,40 @@
+.ui-text-editor-placeholder {
+	display: none;
+	color: var(--ui-color-text-subtle);
+	font-family: var(--ui-text-editor-font-family);
+	line-height: var(--ui-text-editor-line-height);
+	font-size: var(--ui-text-editor-font-size);
+	top: 0;
+	left: var(--ui-text-editor-block-space-inline);
+	right: var(--ui-text-editor-block-space-inline);
+	pointer-events: none;
+	position: absolute;
+	margin: var(--ui-text-editor-block-space);
+}
+
+.ui-text-editor-placeholder.--shown {
+	display: block;
+}
+
+.ui-text-editor.--collapsing .ui-text-editor-placeholder,
+.ui-text-editor.--expanding .ui-text-editor-placeholder {
+	display: none;
+}
+
+.ui-text-editor__paragraph[data-placeholder]:not(.ui-text-editor-loading-ellipsis):before {
+	content: attr(data-placeholder);
+	color: #34343466;
+	font-style: normal;
+	pointer-events: none;
+	position: absolute;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+	width: 100%;
+}
+
+.ui-text-editor.--read-only .ui-text-editor__paragraph[data-placeholder]:before,
+.ui-text-editor.--collapsing .ui-text-editor__paragraph[data-placeholder]:before,
+.ui-text-editor.--expanding .ui-text-editor__paragraph[data-placeholder]:before {
+	display: none;
+}

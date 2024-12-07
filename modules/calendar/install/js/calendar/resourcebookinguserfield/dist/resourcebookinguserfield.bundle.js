@@ -4707,20 +4707,12 @@ this.BX = this.BX || {};
 	    BX.SidePanel.Instance.close();
 	  }
 	  hide(event) {
-	    if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId) {
-	      // if (this.denyClose)
-	      // {
-	      // 	event.denyAction();
-	      // }
-	      // else
-	      // {
+	    if (event && event.getSlider() && event.getSlider().getUrl() === this.sliderId) {
 	      BX.removeCustomEvent("SidePanel.Slider:onClose", this.hideHandler);
-	      //}
 	    }
 	  }
-
 	  destroy(event) {
-	    if (event && event.getSliderPage && event.getSliderPage().getUrl() === this.sliderId) {
+	    if (event && event.getSlider() && event.getSlider().getUrl() === this.sliderId) {
 	      BX.removeCustomEvent("SidePanel.Slider:onCloseComplete", this.destroyHandler);
 	      BX.SidePanel.Instance.destroy(this.sliderId);
 	    }

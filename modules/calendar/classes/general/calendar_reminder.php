@@ -1,17 +1,22 @@
-<?
+<?php
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\Internals;
 
 class CCalendarReminder
 {
-	const TYPE_DAY_BEFORE = 'daybefore';
-	const TYPE_SPECIFIC_DATETIME = 'date';
-	const SIMPLE_TYPE_LIST = ['min', 'hour', 'day'];
-	const REMINDER_INACCURACY = 30;
-	const REMINDER_NEXT_DELAY = 120;
+	public const TYPE_DAY_BEFORE = 'daybefore';
+	public const TYPE_SPECIFIC_DATETIME = 'date';
+	public const SIMPLE_TYPE_LIST = ['min', 'hour', 'day'];
+	public const REMINDER_INACCURACY = 30;
+	public const REMINDER_NEXT_DELAY = 120;
 
 	public static function ReminderAgent($eventId = 0, $userId = 0, $viewPath = '', $calendarType = '', $ownerId = 0, $index = 0)
 	{
+		if (empty($userId))
+		{
+			$userId = $ownerId;
+		}
+
 		if ($eventId > 0 && $userId > 0 && \Bitrix\Main\Loader::includeModule("im"))
 		{
 			$event = false;
@@ -37,7 +42,7 @@ class CCalendarReminder
 			if ($events && is_array($events[0]))
 			{
 				$event = $events[0];
-		}
+			}
 
 			if ($event && $event['MEETING_STATUS'] !== 'N')
 			{
@@ -85,7 +90,7 @@ class CCalendarReminder
 
 				if (CCalendarEvent::CheckRecurcion($event))
 				{
-					CCalendarReminder::updateReminders([
+					self::updateReminders([
 						'id' => $eventId,
 						'arFields' => $event,
 						'userId' => $userId,
@@ -191,10 +196,10 @@ class CCalendarReminder
 		return mb_substr($result, 0, \CCalendarNotify::PUSH_MESSAGE_MAX_LENGTH);
 	}
 
-	public static function AddAgent($remindTime, $params)
+	public static function AddAgent($remindTime, $params): void
 	{
 		global $DB;
-		if ($remindTime <> '' && $DB->IsDate($remindTime, false, LANG, "FULL"))
+		if (!empty($remindTime) && $DB->IsDate($remindTime, false, LANG, "FULL"))
 		{
 			$tzEnabled = CTimeZone::Enabled();
 			if ($tzEnabled)
@@ -227,7 +232,7 @@ class CCalendarReminder
 		}
 	}
 
-	public static function updateReminders($params = [])
+	public static function updateReminders($params = []): void
 	{
 		$eventId = (int)$params['id'];
 		$entryFields = $params['arFields'];
@@ -244,13 +249,17 @@ class CCalendarReminder
 		{
 			$path = CCalendar::GetPath($entryFields['CAL_TYPE'], $entryFields['OWNER_ID'], true);
 		}
-		$path = CHTTP::urlDeleteParams($path, ["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"]);
-		$viewPath = CHTTP::urlAddParams($path, ['EVENT_ID' => $eventId]);
+
+		$viewPath = (new \Bitrix\Main\Web\Uri($path))
+			->deleteParams(["action", "sessid", "bx_event_calendar_request", "EVENT_ID", "EVENT_DATE"])
+			->addParams(['EVENT_ID' => $eventId])
+		;
+
 
 		$agentParams = [
 			'eventId' => $eventId,
-			'userId' => $entryFields["CREATED_BY"] ?? null,
-			'viewPath' => $viewPath,
+			'userId' => $entryFields["OWNER_ID"] ?? $entryFields["CREATED_BY"] ?? null,
+			'viewPath' => $viewPath->getUri(),
 			'calendarType' => $entryFields["CAL_TYPE"] ?? null,
 			'ownerId' => $entryFields["OWNER_ID"] ?? null
 		];
@@ -258,8 +267,8 @@ class CCalendarReminder
 		// 1. clean reminders
 		self::RemoveAgent($agentParams);
 
-		// Prevent dublication of reminders for non-user's calendar context (mantis:0128287)
-		if (empty($entryFields['IS_MEETING']) || $entryFields['CAL_TYPE'] === 'user')
+		// Prevent duplication of reminders for non-user's calendar context (mantis:0128287)
+		if ($entryFields['CAL_TYPE'] === 'user')
 		{
 			// 2. Set new reminders
 			if (CCalendarEvent::CheckRecurcion($entryFields))
@@ -288,10 +297,7 @@ class CCalendarReminder
 					foreach ($entryList as $entry)
 					{
 						$eventTimestamp = CCalendar::Timestamp($entry['DATE_FROM'], false, true);
-						$eventTimestamp = $eventTimestamp - CCalendar::GetTimezoneOffset(
-								$entry["TZ_FROM"],
-								$eventTimestamp
-							) + date("Z", $eventTimestamp);
+						$eventTimestamp = $eventTimestamp - CCalendar::GetTimezoneOffset($entry["TZ_FROM"], $eventTimestamp) + (int)date("Z", $eventTimestamp);
 
 						// List of added timestamps of reminders to avoid duplication
 						$addedIndex = [];
@@ -328,7 +334,7 @@ class CCalendarReminder
 			else
 			{
 				// Start of the event in server timezone
-				$eventTimestamp = $entryFields['DATE_FROM_TS_UTC'] + date("Z", $entryFields['DATE_FROM_TS_UTC']);
+				$eventTimestamp = $entryFields['DATE_FROM_TS_UTC'] + (int)date("Z", $entryFields['DATE_FROM_TS_UTC']);
 				$index = 0;
 				// List of added timestamps of reminders to avoid duplication
 				$addedIndex = [];
@@ -355,12 +361,12 @@ class CCalendarReminder
 		}
 	}
 
-	public static function sortReminder($a, $b)
+	public static function sortReminder($a, $b): int
 	{
 		return self::getReminderDelta($a) - self::getReminderDelta($b);
 	}
 
-	public static function getReminderDelta($reminder)
+	public static function getReminderDelta($reminder): int
 	{
 		$delta = 0;
 		if (is_array($reminder) && in_array($reminder['type'], self::SIMPLE_TYPE_LIST, true))
@@ -375,6 +381,7 @@ class CCalendarReminder
 				$delta *= 60 * 24; //Day
 			}
 		}
+
 		return $delta;
 	}
 
@@ -386,25 +393,25 @@ class CCalendarReminder
 		{
 			$type = $reminder['type'];
 
-			if (in_array($type, self::SIMPLE_TYPE_LIST))
+			if (in_array($type, self::SIMPLE_TYPE_LIST, true))
 			{
-				$delta = intval($reminder['count']) * 60;
-				if ($reminder['type'] == 'hour')
+				$delta = (int)$reminder['count'] * 60;
+				if ($reminder['type'] === 'hour')
 				{
-					$delta = $delta * 60; //Hour
+					$delta *= 60; //Hour
 				}
-				elseif ($reminder['type'] == 'day')
+				elseif ($reminder['type'] === 'day')
 				{
-					$delta =  $delta * 60 * 24; //Day
+					$delta *= 60 * 24; //Day
 				}
 
 				$reminderTimestamp = $eventTimestamp - $delta;
 			}
 			elseif($type === self::TYPE_DAY_BEFORE)
 			{
-				$daysBefore = intval($reminder['before']);
-				$hour = floor(intval($reminder['time']) / 60);
-				$min = intval($reminder['time'] - $hour * 60);
+				$daysBefore = (int)$reminder['before'];
+				$hour = floor((int)$reminder['time'] / 60);
+				$min = (int)($reminder['time'] - $hour * 60);
 
 				$reminderTimestamp = mktime($hour, $min, 0, date("m", $eventTimestamp), date("d", $eventTimestamp) - $daysBefore, date("Y", $eventTimestamp));
 
@@ -417,14 +424,14 @@ class CCalendarReminder
 			elseif($type === self::TYPE_SPECIFIC_DATETIME)
 			{
 				$reminderTimestamp = \CCalendar::Timestamp($reminder['value'], false, true);
-				$reminderTimestamp = $reminderTimestamp - \CCalendar::GetTimezoneOffset($timezoneName, $reminderTimestamp) + date("Z", $reminderTimestamp);
+				$reminderTimestamp = $reminderTimestamp - \CCalendar::GetTimezoneOffset($timezoneName, $reminderTimestamp) + (int)date("Z", $reminderTimestamp);
 			}
 		}
 
 		return $reminderTimestamp;
 	}
 
-	public static function prepareReminder($reminder = [])
+	public static function prepareReminder($reminder = []): array
 	{
 		$reminderList = [];
 		if (is_array($reminder))
@@ -433,7 +440,7 @@ class CCalendarReminder
 			{
 				if (is_array($remindValue))
 				{
-					if (isset($remindValue['type']) && in_array($remindValue['type'], self::SIMPLE_TYPE_LIST))
+					if (isset($remindValue['type']) && in_array($remindValue['type'], self::SIMPLE_TYPE_LIST, true))
 					{
 						$reminderList[] = [
 							'type' => $remindValue['type'],
@@ -499,21 +506,30 @@ class CCalendarReminder
 		{
 			foreach($valueList as $i => $value)
 			{
-				if($value['type'] == 'min')
+				if($value['type'] === 'min')
 				{
 					$value['text'] = Loc::getMessage('EC_REMIND1_VIEW_'.$value['count']);
 					if(!$value['text'])
 					{
-						$value['text'] = Loc::getMessage('EC_REMIND1_VIEW_MIN_COUNT', array('#COUNT#' => intval($value['count'])));
+						$value['text'] = Loc::getMessage(
+							'EC_REMIND1_VIEW_MIN_COUNT',
+							['#COUNT#' => (int)$value['count']]
+						);
 					}
 				}
-				elseif($value['type'] == 'hour')
+				elseif($value['type'] === 'hour')
 				{
-					$value['text'] = Loc::getMessage('EC_REMIND1_VIEW_HOUR_COUNT', array('#COUNT#' => intval($value['count'])));
+					$value['text'] = Loc::getMessage(
+						'EC_REMIND1_VIEW_HOUR_COUNT',
+						['#COUNT#' => (int)$value['count']]
+					);
 				}
-				elseif($value['type'] == 'day')
+				elseif($value['type'] === 'day')
 				{
-					$value['text'] = Loc::getMessage('EC_REMIND1_VIEW_DAY_COUNT', array('#COUNT#' => intval($value['count'])));
+					$value['text'] = Loc::getMessage(
+						'EC_REMIND1_VIEW_DAY_COUNT',
+						['#COUNT#' => (int)$value['count']]
+					);
 				}
 				$valueList[$i] = $value;
 			}

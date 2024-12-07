@@ -1,0 +1,19 @@
+.ui-text-editor__image-container {
+	cursor: default;
+	display: inline-block;
+	position: relative;
+	user-select: none;
+}
+
+.ui-text-editor-image-component {
+	display: inline-block;
+}
+
+.ui-text-editor-image-component.--selected img {
+	outline: 2px solid rgb(60,132,244);
+	user-select: none;
+}
+
+.ui-text-editor-image-component.--draggable img {
+	cursor: grab;
+}

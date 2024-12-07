@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2005 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -26,7 +26,7 @@ $ID = intval($ID);
 
 $bCanUseTLS = (defined('BX_MAIL_FORCE_USE_TLS') && BX_MAIL_FORCE_USE_TLS === true) || function_exists('openssl_open');
 
-if($REQUEST_METHOD=="POST" && ($save <> '' || $save_ext <> '' || $apply <> '') && $MOD_RIGHT=="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && ($save <> '' || $save_ext <> '' || $apply <> '') && $MOD_RIGHT=="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		'ACTIVE'          => $ACTIVE,
@@ -405,7 +405,7 @@ if ($message)
 	<? } ?>
 	<input type="hidden" value="Y" name="apply">
 
-<script type="text/javascript">
+<script>
 
 	function change_type()
 	{

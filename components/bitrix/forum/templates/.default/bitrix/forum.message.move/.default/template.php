@@ -3,12 +3,12 @@ CUtil::InitJSCore(array('translit'));
 $_REQUEST["ACTION"] = (isset($_REQUEST["ACTION"]) && $_REQUEST["ACTION"] == "MOVE_TO_NEW" ? "MOVE_TO_NEW" : "MOVE_TO_TOPIC");
 if (!empty($arResult["ERROR_MESSAGE"])):?>
 <div class="forum-note-box forum-note-error">
-	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+	<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?endif;
 if (!empty($arResult["OK_MESSAGE"])):?>
 <div class="forum-note-box forum-note-success">
-	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
+	<div class="forum-note-box-text"><? ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
 </div>
 <?endif;?>
 <form method="POST" name="MESSAGES" id="MESSAGES" action="<?=POST_FORM_ACTION_URI?>" onsubmit="this.send_form.disabled=true; return true;" class="forum-form">

@@ -1,10 +1,10 @@
-import {Type, Dom, Event, Cache, Tag, Text, Runtime} from 'main.core';
-import {Loc} from 'landing.loc';
-import {Env} from 'landing.env';
-import {BaseField} from 'landing.ui.field.basefield';
+import { Cache, Dom, Event, Runtime, Tag, Text, Type } from 'main.core';
+import { Loc } from 'landing.loc';
+import { Env } from 'landing.env';
+import { BaseField } from 'landing.ui.field.basefield';
+import type { SourceItem } from './internal/prepare-sources';
 import prepareSources from './internal/prepare-sources';
 import prepareValue from './internal/prepare-value';
-import type {SourceItem} from './internal/prepare-sources';
 import './css/style.css';
 import getFilterStub from './internal/filter-stub';
 
@@ -18,9 +18,10 @@ export class SourceField extends BaseField
 		super(options);
 		Dom.addClass(this.layout, 'landing-ui-field-source');
 
-		this.items = prepareSources(options.items);
+		this.items = prepareSources(options.items, options.stubText);
 		this.value = prepareValue(options.value, this.items);
 		this.cache = new Cache.MemoryCache();
+		this.linkType = options.linkType ?? '';
 		this.onButtonClick = this.onButtonClick.bind(this);
 		this.onMenuItemClick = this.onMenuItemClick.bind(this);
 		this.onSliderMessage = this.onSliderMessage.bind(this);
@@ -28,13 +29,24 @@ export class SourceField extends BaseField
 		this.onPlaceholderClick = this.onPlaceholderClick.bind(this);
 
 		Dom.append(this.getGrid(), this.layout);
-		Dom.append(this.getSortByField().layout, this.layout);
-		Dom.append(this.getSortOrderField().layout, this.layout);
-		Dom.append(this.getValueLayoutWrapper(), this.header);
+		if (!options.hideSort)
+		{
+			Dom.append(this.getSortByField().layout, this.layout);
+			Dom.append(this.getSortOrderField().layout, this.layout);
+		}
+
+		if (options.useLink)
+		{
+			Dom.append(this.getLink(), this.layout);
+		}
+
+		if (options.showValueInHeader && options.showValueInHeader !== false)
+		{
+			Dom.append(this.getValueLayoutWrapper(), this.header);
+		}
 
 		this.setValue(this.value);
 
-		// const rootWindow = BX.Landing.PageObject.getRootWindow();
 		window.top.BX.addCustomEvent('SidePanel.Slider:onMessage', this.onSliderMessage);
 	}
 
@@ -45,15 +57,17 @@ export class SourceField extends BaseField
 		});
 	}
 
-	getButtonField(): BX.Landing.UI.Button.BaseButton
+	getButtonField(): ?BX.Landing.UI.Button.BaseButton
 	{
-		return this.cache.remember('buttonField', () => {
-			return new BX.Landing.UI.Button.BaseButton('dropdown_button', {
-				text: Loc.getMessage('LINK_URL_SUGGESTS_SELECT'),
-				className: 'landing-ui-button-select-link',
-				onClick: this.onButtonClick,
-			});
-		});
+		return this.getMenuItems().length > 1
+			? this.cache.remember('buttonField', () => {
+				new BX.Landing.UI.Button.BaseButton('dropdown_button', {
+					text: Loc.getMessage('LINK_URL_SUGGESTS_SELECT'),
+					className: 'landing-ui-button-select-link',
+					onClick: this.onButtonClick,
+				});
+			})
+			: null;
 	}
 
 	getSortByField(): BX.Landing.UI.Field.DropdownInline
@@ -107,7 +121,7 @@ export class SourceField extends BaseField
 			return Tag.render`
 				<div class="landing-ui-field-source-grid">
 					<div class="landing-ui-field-source-grid-left">${this.getInput()}</div>
-					<div class="landing-ui-field-source-grid-right">${this.getButtonField().layout}</div>
+					<div class="landing-ui-field-source-grid-right">${this.getButtonField()?.layout}</div>
 				</div>
 			`;
 		});
@@ -153,6 +167,7 @@ export class SourceField extends BaseField
 			if (this.getPlaceholders().length <= 0)
 			{
 				const value = prepareValue({source: this.getValue().source}, this.items);
+				this.prepareLink(value);
 				this.value = value;
 				this.setFilter(value.filter);
 			}
@@ -169,6 +184,7 @@ export class SourceField extends BaseField
 		{
 			const sourceValue = {...this.getValue(), filter: event.getData().filter};
 			const value = prepareValue(sourceValue, this.items);
+			this.prepareLink(value);
 
 			this.value = value;
 			this.setFilter(value.filter);
@@ -216,14 +232,14 @@ export class SourceField extends BaseField
 
 			const menu = new BX.PopupMenuWindow({
 				id: `${this.selector}_${Text.getRandom()}`,
-				bindElement: this.getButtonField().layout,
+				bindElement: this.getButtonField()?.layout,
 				autoHide: true,
 				items: this.getMenuItems(),
 				className: 'landing-ui-field-source-popup',
 				events: {
 					onPopupShow: () => {
 						const buttonPosition = Dom.getRelativePosition(
-							this.getButtonField().layout,
+							this.getButtonField()?.layout,
 							form,
 						);
 
@@ -374,5 +390,47 @@ export class SourceField extends BaseField
 			|| !Type.isPlainObject(source.settings)
 			|| source.settings.detailPage !== false
 		);
+	}
+
+	getLink(): HTMLDivElement
+	{
+		let href = '#';
+		let hrefAttr = '';
+		const value = this.value?.filter?.[0]?.value ?? null;
+		if (this.linkType === 'group' && value && value.startsWith('SG'))
+		{
+			href = `/workgroups/group/${value.slice(2)}/`;
+			hrefAttr = `href="${href}"`;
+		}
+
+		return this.cache.remember('linkLayout', () => {
+			const text = BX.Landing.Loc.getMessage('LANDING_SOURCEFIELD_LINK_TEXT');
+
+			return Tag.render`
+				<div class="landing-ui-field-link-container">
+					<a ${hrefAttr} target="_blank" class="landing-ui-field-link">
+						${text}
+					</a>
+				</div>
+			`;
+		});
+	}
+
+	prepareLink(value)
+	{
+		const linkElement = this.layout.querySelector('.landing-ui-field-link');
+
+		if (linkElement && this.linkType === 'group')
+		{
+			const newValue = value?.filter?.[0]?.value ?? null;
+			if (newValue !== null && newValue.startsWith('SG'))
+			{
+				linkElement.href = `/workgroups/group/${newValue.slice(2)}/`;
+			}
+			else
+			{
+				linkElement.removeAttribute('href');
+			}
+		}
 	}
 }

@@ -31,6 +31,6 @@ if ($arResult)
 }
 else
 {
-	?><?=ShowError(GetMessage("SPCAT3_UNACTIVE_AFF"))?><?
+	?><? ShowError(GetMessage("SPCAT3_UNACTIVE_AFF"))?><?
 }
 ?>

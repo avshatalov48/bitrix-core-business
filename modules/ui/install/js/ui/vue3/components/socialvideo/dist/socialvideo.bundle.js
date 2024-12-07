@@ -18,39 +18,54 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	  stop: 'stop',
 	  none: 'none'
 	});
+
+	// @vue/component
 	const SocialVideo = {
+	  name: 'SocialVideo',
+	  directives: {
+	    lazyload: ui_vue3_directives_lazyload.lazyload
+	  },
 	  props: {
 	    id: {
+	      type: [String, Number],
 	      default: 0
 	    },
 	    src: {
+	      type: String,
 	      default: ''
 	    },
 	    preview: {
+	      type: String,
 	      default: ''
 	    },
 	    autoplay: {
+	      type: Boolean,
 	      default: true
 	    },
 	    containerClass: {
+	      type: String,
 	      default: null
 	    },
 	    containerStyle: {
+	      type: Object,
 	      default: null
 	    },
 	    elementStyle: {
+	      type: Object,
 	      default: null
 	    },
 	    showControls: {
+	      type: Boolean,
 	      default: true
 	    },
 	    playCallback: {
+	      type: [Function, null],
 	      default: null
 	    }
 	  },
 	  data() {
 	    return {
-	      preload: "none",
+	      preload: 'none',
 	      previewLoaded: false,
 	      loaded: false,
 	      loading: false,
@@ -64,33 +79,54 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      muteFlag: true
 	    };
 	  },
-	  directives: {
-	    lazyload: ui_vue3_directives_lazyload.lazyload
+	  computed: {
+	    State: () => State,
+	    autoPlayDisabled() {
+	      return !this.autoplay && this.state === State.none;
+	    },
+	    showStartButton() {
+	      return this.autoPlayDisabled && this.previewLoaded;
+	    },
+	    showInterface() {
+	      return this.previewLoaded && !this.showStartButton;
+	    },
+	    labelTime() {
+	      if (!this.loaded && !this.timeTotal) {
+	        return '--:--';
+	      }
+	      let time = 0;
+	      if (this.state === State.play) {
+	        time = this.timeTotal - this.timeCurrent;
+	      } else {
+	        time = this.timeTotal;
+	      }
+	      return this.formatTime(time);
+	    },
+	    isMobile() {
+	      const UA = navigator.userAgent.toLowerCase();
+	      return UA.includes('android') || UA.includes('iphone') || UA.includes('ipad') || UA.includes('bitrixmobile');
+	    },
+	    source() {
+	      return this.$refs.source;
+	    }
 	  },
 	  created() {
 	    if (!this.preview) {
 	      this.previewLoaded = true;
 	      this.preload = 'metadata';
 	    }
-	    this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:play', this.onPlay);
-	    this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:stop', this.onStop);
-	    this.$Bitrix.eventEmitter.subscribe('ui:socialvideo:pause', this.onPause);
+	    main_core_events.EventEmitter.subscribe('ui:socialvideo:play', this.onPlay);
+	    main_core_events.EventEmitter.subscribe('ui:socialvideo:stop', this.onStop);
 	    main_core_events.EventEmitter.subscribe('ui:socialvideo:pause', this.onPause);
 	  },
 	  mounted() {
 	    this.getObserver().observe(this.$refs.body);
 	  },
 	  beforeUnmount() {
-	    this.$Bitrix.eventEmitter.unsubscribe('ui:socialvideo:play', this.onPlay);
-	    this.$Bitrix.eventEmitter.unsubscribe('ui:socialvideo:stop', this.onStop);
-	    this.$Bitrix.eventEmitter.unsubscribe('ui:socialvideo:pause', this.onPause);
+	    main_core_events.EventEmitter.unsubscribe('ui:socialvideo:play', this.onPlay);
+	    main_core_events.EventEmitter.unsubscribe('ui:socialvideo:stop', this.onStop);
 	    main_core_events.EventEmitter.unsubscribe('ui:socialvideo:pause', this.onPause);
 	    this.getObserver().unobserve(this.$refs.body);
-	  },
-	  watch: {
-	    id(value) {
-	      this.registerPlayer(value);
-	    }
 	  },
 	  methods: {
 	    loadFile(play = false) {
@@ -107,7 +143,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    },
 	    clickToButton(event) {
 	      if (!this.src) {
-	        return false;
+	        return;
 	      }
 	      if (this.state === State.play) {
 	        this.getObserver().unobserve(this.$refs.body);
@@ -119,30 +155,29 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    },
 	    clickToMute() {
 	      if (!this.src) {
-	        return false;
+	        return;
 	      }
-	      if (!this.muteFlag) {
-	        this.mute();
-	      } else {
+	      if (this.muteFlag) {
 	        this.unmute();
+	      } else {
+	        this.mute();
 	      }
-	      event.stopPropagation();
 	    },
 	    click(event) {
 	      if (this.autoPlayDisabled) {
 	        this.play();
 	        event.stopPropagation();
-	        return false;
+	        return;
 	      }
 	      if (this.isMobile) {
-	        if (this.source().webkitEnterFullscreen) {
+	        if (this.source.webkitEnterFullscreen) {
 	          this.unmute();
 	          this.enterFullscreen = true;
-	          this.source().webkitEnterFullscreen();
-	        } else if (this.source().requestFullscreen) {
+	          this.source.webkitEnterFullscreen();
+	        } else if (this.source.requestFullscreen) {
 	          this.unmute();
 	          this.enterFullscreen = true;
-	          this.source().requestFullscreen();
+	          this.source.requestFullscreen();
 	        } else {
 	          this.$emit('click', event);
 	        }
@@ -158,43 +193,43 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      }
 	      if (!this.loaded) {
 	        this.loadFile(true);
-	        return false;
+	        return;
 	      }
-	      if (!this.source()) {
-	        return false;
+	      if (!this.source) {
+	        return;
 	      }
-	      this.source().play();
+	      this.source.play();
 	    },
 	    pause() {
-	      if (!this.source()) {
-	        return false;
+	      if (!this.source) {
+	        return;
 	      }
 	      this.playAfterLoad = false;
-	      this.source().pause();
+	      this.source.pause();
 	    },
 	    stop() {
-	      if (!this.source()) {
-	        return false;
+	      if (!this.source) {
+	        return;
 	      }
 	      this.state = State.stop;
-	      this.source().pause();
+	      this.source.pause();
 	    },
 	    mute() {
-	      if (!this.source()) {
-	        return false;
+	      if (!this.source) {
+	        return;
 	      }
 	      this.muteFlag = true;
 	      this.playBeforeMute = 2;
-	      this.source().muted = true;
+	      this.source.muted = true;
 	    },
 	    unmute() {
-	      if (!this.source()) {
-	        return false;
+	      if (!this.source) {
+	        return;
 	      }
 	      this.muteFlag = false;
-	      this.source().muted = false;
+	      this.source.muted = false;
 	    },
-	    setProgress(percent, pixel = -1) {
+	    setProgress(percent) {
 	      this.progress = percent;
 	    },
 	    formatTime(second) {
@@ -233,20 +268,17 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      }
 	      this.pause();
 	    },
-	    source() {
-	      return this.$refs.source;
-	    },
 	    videoEventRouter(eventName, event) {
 	      if (eventName === 'durationchange' || eventName === 'loadeddata') {
-	        if (!this.source()) {
+	        if (!this.source) {
 	          return false;
 	        }
-	        this.timeTotal = this.source().duration;
+	        this.timeTotal = this.source.duration;
 	      } else if (eventName === 'loadedmetadata') {
-	        if (!this.source()) {
+	        if (!this.source) {
 	          return false;
 	        }
-	        this.timeTotal = this.source().duration;
+	        this.timeTotal = this.source.duration;
 	        this.loaded = true;
 	        if (this.playAfterLoad) {
 	          this.play();
@@ -264,19 +296,19 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	          this.play();
 	        }
 	      } else if (eventName === 'volumechange') {
-	        if (!this.source()) {
+	        if (!this.source) {
 	          return false;
 	        }
-	        if (this.source().muted) {
+	        if (this.source.muted) {
 	          this.mute();
 	        } else {
 	          this.unmute();
 	        }
 	      } else if (eventName === 'timeupdate') {
-	        if (!this.source()) {
+	        if (!this.source) {
 	          return false;
 	        }
-	        this.timeCurrent = this.source().currentTime;
+	        this.timeCurrent = this.source.currentTime;
 	        if (!this.muteFlag && !this.enterFullscreen && this.timeCurrent === 0) {
 	          if (this.playBeforeMute <= 0) {
 	            this.mute();
@@ -310,7 +342,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	      }
 	      this.observer = new IntersectionObserver((entries, observer) => {
 	        if (this.autoPlayDisabled) {
-	          return false;
+	          return;
 	        }
 	        entries.forEach(entry => {
 	          if (entry.isIntersecting) {
@@ -326,34 +358,6 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 	    },
 	    lazyLoadCallback(element) {
 	      this.previewLoaded = element.state === 'success';
-	    }
-	  },
-	  computed: {
-	    State: () => State,
-	    autoPlayDisabled() {
-	      return !this.autoplay && this.state === State.none;
-	    },
-	    showStartButton() {
-	      return this.autoPlayDisabled && this.previewLoaded;
-	    },
-	    showInterface() {
-	      return this.previewLoaded && !this.showStartButton;
-	    },
-	    labelTime() {
-	      if (!this.loaded && !this.timeTotal) {
-	        return '--:--';
-	      }
-	      let time;
-	      if (this.state === State.play) {
-	        time = this.timeTotal - this.timeCurrent;
-	      } else {
-	        time = this.timeTotal;
-	      }
-	      return this.formatTime(time);
-	    },
-	    isMobile() {
-	      const UA = navigator.userAgent.toLowerCase();
-	      return UA.includes('android') || UA.includes('iphone') || UA.includes('ipad') || UA.includes('bitrixmobile');
 	    }
 	  },
 	  template: `
@@ -385,7 +389,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 			</transition>
 			<div v-if="!preview" class="ui-vue-socialvideo-background" :style="{position: (src? 'absolute': 'relative')}"></div>
 			<div class="ui-vue-socialvideo-container" ref="body">
-				<img 
+				<img
 					v-lazyload="{callback: lazyLoadCallback}"
 					data-lazyload-dont-hide
 					v-if="preview"
@@ -393,13 +397,13 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 					:data-lazyload-src="preview"
 					:style="{position: (src? 'absolute': 'relative'), ...elementStyle}"
 				/>
-				<video 
-					v-if="src" :src="src" 
-					class="ui-vue-socialvideo-source" 
+				<video
+					v-if="src" :src="src"
+					class="ui-vue-socialvideo-source"
 					ref="source"
-					:preload="preload" 
+					:preload="preload"
 					playsinline
-					loop 
+					loop
 					muted
 					:style="{opacity: (loaded? 1: 0), ...elementStyle}"
 					@abort="videoEventRouter('abort', $event)"
@@ -417,7 +421,7 @@ this.BX.Vue3 = this.BX.Vue3 || {};
 					@pause="videoEventRouter('pause', $event)"
 				></video>
 			</div>
-		</div>	
+		</div>
 	`
 	};
 

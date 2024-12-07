@@ -144,7 +144,6 @@ if (isset($data['kkm']) && count($data['kkm']) > 0)
 
 			if ($buildResult)
 			{
-				$buildResult = Main\Text\Encoding::convertEncoding($buildResult, LANG_CHARSET, 'UTF-8');
 				$result->print = $buildResult;
 			}
 		}

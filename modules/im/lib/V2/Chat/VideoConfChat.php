@@ -61,7 +61,7 @@ class VideoConfChat extends GroupChat
 		{
 			$aliasData = $params['VIDEOCONF']['ALIAS_DATA'];
 
-			AliasTable::update($aliasData['ID'], ['ENTITY_ID' => $chat->getChatId()]);
+			Alias::update($aliasData['ID'], ['ENTITY_ID' => $chat->getChatId()]);
 		}
 
 		$conferenceData = [
@@ -136,6 +136,8 @@ class VideoConfChat extends GroupChat
 			'LINK' => $aliasData['LINK'],
 		]);
 
+		$chat->isFilledNonCachedData = false;
+
 		return $addResult;
 	}
 
@@ -167,7 +169,7 @@ class VideoConfChat extends GroupChat
 		$params['MANAGE_SETTINGS'] = $params['MANAGE_SETTINGS'] ?? $this->getDefaultManageSettings();
 		$params['MANAGE_USERS_ADD'] = $params['MANAGE_USERS_ADD'] ?? $this->getDefaultManageUsersAdd();
 		$params['MANAGE_USERS_DELETE'] = $params['MANAGE_USERS_DELETE'] ?? $this->getDefaultManageUsersDelete();
-		$params['CAN_POST'] = $params['CAN_POST'] ?? $this->getDefaultCanPost();
+		$params['MANAGE_MESSAGES'] = $params['MANAGE_MESSAGES'] ?? $this->getDefaultManageMessages();
 
 		$params = parent::prepareParams($params);
 		if (!$params->isSuccess())

@@ -47,7 +47,7 @@ if (!function_exists('MULChangeOnlineStatus'))
 			}
 
 
-			$js = '<script type="text/javascript">
+			$js = '<script>
 
 			BX.ready(function() {
 				var arMULUserList = ['.implode(",", $arUserListHTML_ID).'];

@@ -1,3 +1,4 @@
 <?php
-$MESS["UI_FORM_CONFIG_MEMBERS"] = "Users belonging to details view";
-$MESS["UI_FORM_CONFIG_SCOPE"] = "View form";
+$MESS["UI_FORM_CONFIG_AUTO_APPLY_SCOPE"] = "Auto apply";
+$MESS["UI_FORM_CONFIG_MEMBERS_MSGVER_1"] = "Available to";
+$MESS["UI_FORM_CONFIG_SCOPE_MSGVER_1"] = "Form layout";

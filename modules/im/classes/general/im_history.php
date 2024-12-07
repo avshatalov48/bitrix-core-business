@@ -233,7 +233,7 @@ class CIMHistory
 			";
 			if (!$bTimeZone)
 				CTimeZone::Enable();
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 
 			while ($arRes = $dbRes->Fetch())
 			{
@@ -458,11 +458,11 @@ class CIMHistory
 			AND R1.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'
 			GROUP BY M.CHAT_ID, R1.ID, R1.START_ID, R2.ID, R2.START_ID
 		";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			$strSql = "UPDATE b_im_relation SET START_ID = ".intval($arRes['MAX_ID'])." WHERE ID = ".intval($arRes['R1_ID']);
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$counterService = new IM\V2\Message\CounterService($this->user_id);
 
@@ -515,11 +515,11 @@ class CIMHistory
 				".$limitById."
 			GROUP BY M.CHAT_ID, R1.ID
 		";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			$strSql = "UPDATE b_im_relation SET START_ID = ".intval($arRes['MAX_ID'])." WHERE ID = ".intval($arRes['R1_ID']);
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 
 			$counterService = new IM\V2\Message\CounterService($this->user_id);
 
@@ -672,7 +672,7 @@ class CIMHistory
 		";
 		if (!$bTimeZone)
 			CTimeZone::Enable();
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		$arMessages = Array();
 		$arMessageId = Array();
@@ -991,7 +991,7 @@ class CIMHistory
 		if (!$timezone)
 			CTimeZone::Enable();
 
-		$result = $DB->Query($sql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$result = $DB->Query($sql);
 
 		$arMessages = Array();
 		$arMessageUnread = Array();
@@ -1277,7 +1277,7 @@ class CIMHistory
 		if (!$timezone)
 			CTimeZone::Enable();
 
-		$result = $DB->Query($sql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$result = $DB->Query($sql);
 
 		$messages = array();
 		while ($message = $result->Fetch())
@@ -1329,7 +1329,7 @@ class CIMHistory
 		if (!$timezone)
 			CTimeZone::Enable();
 
-		$result = $DB->Query($sql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$result = $DB->Query($sql);
 
 		$messages = array();
 		while ($message = $result->Fetch())

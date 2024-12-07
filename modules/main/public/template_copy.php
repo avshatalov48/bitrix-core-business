@@ -24,8 +24,6 @@ if(!$USER->CanDoOperation('edit_php') && !$USER->CanDoFileOperation('fm_lpa', ar
 
 IncludeModuleLangFile(__FILE__);
 
-CUtil::JSPostUnescape();
-
 $obJSPopup = new CJSPopup('',
 	array(
 		'TITLE' => GetMessage("template_copy_title"),

@@ -698,7 +698,7 @@ class TranslateListComponent extends Translate\ComponentBase
 				{
 					$this->filter[$key] = $value;
 				}
-				if (!empty($filterSource['FIND']) && !preg_match("#\.\.[\\/]#".\BX_UTF_PCRE_MODIFIER, $filterSource['FIND']))
+				if (!empty($filterSource['FIND']) && !preg_match("#\.\.[\\/]#u", $filterSource['FIND']))
 				{
 					$path = Translate\IO\Path::normalize($filterSource['FIND']);
 					if (Translate\Permission::isAllowPath($path))
@@ -1293,7 +1293,7 @@ class TranslateListComponent extends Translate\ComponentBase
 			$path = $path2;
 		}
 
-		if (!empty($path) && !preg_match("#\.\.[\\/]#".\BX_UTF_PCRE_MODIFIER, $path))
+		if (!empty($path) && !preg_match("#\.\.[\\/]#u", $path))
 		{
 			$path = '/'. trim($path, '/.\\');
 			$path = Translate\IO\Path::normalize($path);

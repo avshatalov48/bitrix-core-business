@@ -33,16 +33,6 @@ Loc::loadMessages(__FILE__);
 $context = Application::getInstance()->getContext();
 $request = $context->getRequest();
 $isAjax = $component->isAjax();
-
-if(Loader::includeModule('ui'))
-{
-	Ui\Extension::load("ui.forms");
-	Ui\Extension::load("ui.hint");
-	Ui\Extension::load('ui.buttons');
-	UI\Extension::load("ui.layout-form");
-	UI\Extension::load("landing.settingsform.designpreview");
-	UI\Extension::load('landing.settingsform.colorpickertheme');
-}
 ?>
 <?php if ($arResult['ERRORS']) :?>
 	<div class="landing-message-label error">
@@ -63,7 +53,8 @@ if ($arResult['FATAL'])
 // vars
 $row = $arResult['LANDING'];
 $hooks = $arResult['HOOKS'];
-$formEditor = $arResult['SPECIAL_TYPE'] === Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isFormEditor = $arResult['SPECIAL_TYPE'] === Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isMainpageEditor = $arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE;
 $colorMain = LandingEditComponent::COLOR_PICKER_DEFAULT_COLOR_TEXT;
 $colorTitle = LandingEditComponent::COLOR_PICKER_DEFAULT_COLOR_TEXT;
 $tplRefs = $arResult['TEMPLATES_REF'];
@@ -72,6 +63,19 @@ $tplRefs = $arResult['TEMPLATES_REF'];
 if (!$row['SITE_ID']['CURRENT'])
 {
 	$row['SITE_ID']['CURRENT'] = $arParams['SITE_ID'];
+}
+
+if (Loader::includeModule('ui'))
+{
+	Ui\Extension::load("ui.forms");
+	Ui\Extension::load("ui.hint");
+	Ui\Extension::load('ui.buttons');
+	UI\Extension::load("ui.layout-form");
+	if (!$isMainpageEditor)
+	{
+		UI\Extension::load("landing.settingsform.designpreview");
+	}
+	UI\Extension::load('landing.settingsform.colorpickertheme');
 }
 
 // title
@@ -114,8 +118,8 @@ $uriSave->addParams(array(
 	'action' => 'save'
 ));
 
-// special for forms
-if ($formEditor)
+// for special sites - special abilities
+if ($isFormEditor)
 {
 	$hooks = [
 		'BACKGROUND' => $hooks['BACKGROUND'],
@@ -123,9 +127,15 @@ if ($formEditor)
 	];
 	$arResult['TEMPLATES'] = [];
 }
+elseif ($isMainpageEditor)
+{
+	$hooks = [
+		'THEME' => $hooks['THEME'],
+	];
+}
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');
@@ -186,7 +196,7 @@ if ($arParams['SUCCESS_SAVE'])
 
 		<div class="ui-form ui-form-section">
 			<!--Theme color-->
-			<?php if (isset($hooks['THEME']) && !$formEditor): ?>
+			<?php if (isset($hooks['THEME']) && !$isFormEditor): ?>
 				<?php
 				$themeHookFields = $hooks['THEME']->getPageFields();
 				if (isset($themeHookFields['THEME_CODE'])):?>
@@ -346,7 +356,7 @@ if ($arParams['SUCCESS_SAVE'])
 										'readonly' => true,
 									]);
 									?>
-									<script type="text/javascript">
+									<script>
 										var paramsColor = {
 											defaultColor: <?=CUtil::PhpToJSObject($colorMain)?>,
 										}
@@ -398,7 +408,7 @@ if ($arParams['SUCCESS_SAVE'])
 										'needWrapper' => true,
 										'readonly' => true,
 									]); ?>
-									<script type="text/javascript">
+									<script>
 										var paramsColorH = {
 											defaultColor: <?=CUtil::PhpToJSObject($colorTitle)?>,
 										}
@@ -486,7 +496,7 @@ if ($arParams['SUCCESS_SAVE'])
 										'needWrapper' => true,
 										'readonly' => true,
 									]); ?>
-									<script type="text/javascript">
+									<script>
 										var paramsBgColor = {
 											defaultColor: <?=CUtil::PhpToJSObject(LandingEditComponent::COLOR_PICKER_DEFAULT_BG_COLOR)?>,
 										}
@@ -538,7 +548,7 @@ if ($arParams['SUCCESS_SAVE'])
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		new BX.UI.LayoutForm({container: BX('landing-design-form')});
@@ -557,96 +567,98 @@ if ($arParams['SUCCESS_SAVE'])
 		}
 		?>
 
-		new BX.Landing.SettingsForm.DesignPreview(
-			BX('landing-design-form'),
-			{
-				theme: {
-					use: {
-						control: BX('<?= $template->getFieldId('THEME_USE') ?>'),
+		<?php if (!$isMainpageEditor): ?>
+			new BX.Landing.SettingsForm.DesignPreview(
+				BX('landing-design-form'),
+				{
+					theme: {
+						use: {
+							control: BX('<?= $template->getFieldId('THEME_USE') ?>'),
+						},
+						baseColors: {
+							control: BX('<?= $template->getFieldId('ALL_COLORS') ?>'),
+						},
+						corporateColor: {
+							defaultValue: '<?= $themeFields['COLOR']->getValue() ?>',
+							control: this.corporateColor,
+						},
 					},
-					baseColors: {
-						control: BX('<?= $template->getFieldId('ALL_COLORS') ?>'),
+					typo: {
+						use: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_USE') ?>'),
+						},
+						textColor: {
+							control: this.textColor,
+							defaultValue: '<?= $themeFontsFields['COLOR']->getValue() ?>',
+						},
+						textFont: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_CODE') ?>'),
+							defaultValue: '<?= $themeFontsFields['CODE']->getValue() ?>',
+						},
+						textSize: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_SIZE') ?>'),
+							defaultValue: '<?= $themeFontsFields['SIZE']->getValue() ?>',
+						},
+						textWeight: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_FONT_WEIGHT') ?>'),
+							defaultValue: '<?= $themeFontsFields['FONT_WEIGHT']->getValue() ?>',
+						},
+						textLineHeight: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_LINE_HEIGHT') ?>'),
+							defaultValue: '<?= $themeFontsFields['LINE_HEIGHT']->getValue() ?>',
+						},
+						hColor: {
+							control: this.hColor,
+							defaultValue: '<?= $themeFontsFields['COLOR_H']->getValue() ?>',
+						},
+						hFont: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_CODE_H') ?>'),
+							defaultValue: '<?= $themeFontsFields['CODE_H']->getValue() ?>',
+						},
+						hWeight: {
+							control: BX('<?= $template->getFieldId('THEMEFONTS_FONT_WEIGHT_H') ?>'),
+							defaultValue: '<?= $themeFontsFields['FONT_WEIGHT_H']->getValue() ?>',
+						},
 					},
-					corporateColor: {
-						defaultValue: '<?= $themeFields['COLOR']->getValue() ?>',
-						control: this.corporateColor,
+					background: {
+						use: {
+							control: BX('<?= $template->getFieldId('BACKGROUND_USE') ?>'),
+						},
+						useSite: {
+							defaultValue: '<?= $bgFields['USE']->getValue() ?>',
+						},
+						field: {
+							control: BX('<?= $template->getFieldId('BACKGROUND_PICTURE_FORM') ?>'),
+							defaultValue: '<?= $bgFilePath ?>',
+						},
+						image: {
+							control: this.image,
+						},
+						position: {
+							control: BX('<?= $template->getFieldId('BACKGROUND_POSITION') ?>'),
+							defaultValue: '<?= $bgFields['POSITION']->getValue() ?>',
+						},
+						color: {
+							control: this.bgColor,
+							defaultValue: '<?= $bgFields['COLOR']->getValue() ?>',
+						},
 					},
 				},
-				typo: {
-					use: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_USE') ?>'),
-					},
-					textColor: {
-						control: this.textColor,
-						defaultValue: '<?= $themeFontsFields['COLOR']->getValue() ?>',
-					},
-					textFont: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_CODE') ?>'),
-						defaultValue: '<?= $themeFontsFields['CODE']->getValue() ?>',
-					},
-					textSize: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_SIZE') ?>'),
-						defaultValue: '<?= $themeFontsFields['SIZE']->getValue() ?>',
-					},
-					textWeight: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_FONT_WEIGHT') ?>'),
-						defaultValue: '<?= $themeFontsFields['FONT_WEIGHT']->getValue() ?>',
-					},
-					textLineHeight: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_LINE_HEIGHT') ?>'),
-						defaultValue: '<?= $themeFontsFields['LINE_HEIGHT']->getValue() ?>',
-					},
-					hColor: {
-						control: this.hColor,
-						defaultValue: '<?= $themeFontsFields['COLOR_H']->getValue() ?>',
-					},
-					hFont: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_CODE_H') ?>'),
-						defaultValue: '<?= $themeFontsFields['CODE_H']->getValue() ?>',
-					},
-					hWeight: {
-						control: BX('<?= $template->getFieldId('THEMEFONTS_FONT_WEIGHT_H') ?>'),
-						defaultValue: '<?= $themeFontsFields['FONT_WEIGHT_H']->getValue() ?>',
-					},
+				{
+					title: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_TITLE'))?>,
+					subtitle: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_SUBTITLE'))?>,
+					text1: <?=CUtil::PhpToJSObject(Loc::getMessage(
+						'LANDING_FORM_TEXT_1',
+						[
+							'#LINK1#' => '<a href="#" class="landing-design-preview-link">',
+							'#LINK2#' => '</a>',
+						]
+					))?>,
+					text2: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_TEXT_2'))?>,
+					button: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_BUTTON'))?>,
 				},
-				background: {
-					use: {
-						control: BX('<?= $template->getFieldId('BACKGROUND_USE') ?>'),
-					},
-					useSite: {
-						defaultValue: '<?= $bgFields['USE']->getValue() ?>',
-					},
-					field: {
-						control: BX('<?= $template->getFieldId('BACKGROUND_PICTURE_FORM') ?>'),
-						defaultValue: '<?= $bgFilePath ?>',
-					},
-					image: {
-						control: this.image,
-					},
-					position: {
-						control: BX('<?= $template->getFieldId('BACKGROUND_POSITION') ?>'),
-						defaultValue: '<?= $bgFields['POSITION']->getValue() ?>',
-					},
-					color: {
-						control: this.bgColor,
-						defaultValue: '<?= $bgFields['COLOR']->getValue() ?>',
-					},
-				},
-			},
-			{
-				title: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_TITLE'))?>,
-				subtitle: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_SUBTITLE'))?>,
-				text1: <?=CUtil::PhpToJSObject(Loc::getMessage(
-					'LANDING_FORM_TEXT_1',
-					[
-						'#LINK1#' => '<a href="#" class="landing-design-preview-link">',
-						'#LINK2#' => '</a>',
-					]
-				))?>,
-				text2: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_TEXT_2'))?>,
-				button: <?=CUtil::PhpToJSObject(Loc::getMessage('LANDING_FORM_BUTTON'))?>,
-			},
-			'<?= $template->getFieldId('DESIGN_PREVIEW', false, 'element') ?>'
-		);
+				'<?= $template->getFieldId('DESIGN_PREVIEW', false, 'element') ?>',
+			);
+		<?php endif; ?>
 	});
 </script>

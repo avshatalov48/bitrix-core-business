@@ -450,6 +450,18 @@ class Message
 			$toUpdate['SUCCESS_EXEC'] = 'Y';
 			if ($result->getExternalId() !== null)
 			{
+				if (is_array($result->getExternalId()))
+				{
+					$systemException = new \Bitrix\Main\SystemException('ExternalId is array: ' . print_r($result->getExternalId(), true));
+					\Bitrix\Main\Application::getInstance()->getExceptionHandler()->writeToLog($systemException);
+
+					$result->addError(new \Bitrix\Main\Error(
+						'ExternalId is array',
+						'WRONG_EXTERNAL_ID',
+						$result->getExternalId()
+					));
+				}
+
 				$toUpdate['EXTERNAL_ID'] = $result->getExternalId();
 			}
 			if ($result->getStatus() !== null)

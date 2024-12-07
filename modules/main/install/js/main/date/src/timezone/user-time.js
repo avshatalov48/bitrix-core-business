@@ -1,6 +1,7 @@
-import { Text } from 'main.core';
-import { Offset } from './offset';
+import { Type } from 'main.core';
 import { BrowserTime } from './browser-time';
+import { getOffset } from './internal/di';
+import { createDateFromTimestamp, normalizeTimeValue } from './internal/helpers';
 
 /**
  * @memberOf BX.Main.Timezone
@@ -14,52 +15,106 @@ import { BrowserTime } from './browser-time';
 export class UserTime
 {
 	/**
-	 * Returns timestamp with current time in user timezone.
+	 * Returns a Date object with time and date that represent a specific moment in User timezone.
 	 *
-	 * @returns {number} timestamp in seconds
-	 */
-	static getTimestamp(): number
-	{
-		return BrowserTime.toUser(BrowserTime.getTimestamp());
-	}
-
-	/**
-	 * Returns Date object with current time in user timezone. If you need to get 'now' in a user's perspective,
-	 * use this method instead of 'new Date()'.
+	 * ATTENTION! Date.getTime() and Date.getTimezoneOffset() will return inaccurate data. Since a native Date object
+	 * doesn't support timezone other that device timezone, we have to manually change timestamp to shift time value in
+	 * a Date object.
 	 *
-	 * Note that 'getTimezoneOffset' will not return correct user timezone, its always returns browser offset
-	 *
+	 * @param utcTimestamp - normal utc timestamp in seconds. 'now' by default
 	 * @returns {Date}
 	 */
-	static getDate(): Date
+	static getDate(utcTimestamp: ?number = null): Date
 	{
-		return new Date(this.getTimestamp() * 1000);
+		if (Type.isNumber(utcTimestamp))
+		{
+			return createDateFromTimestamp(utcTimestamp + this.#userToBrowserOffset);
+		}
+
+		return createDateFromTimestamp(this.getTimestamp());
+	}
+
+	static get #userToBrowserOffset(): number
+	{
+		const userToUTCOffset = getOffset().SERVER_TO_UTC + getOffset().USER_TO_SERVER;
+
+		return userToUTCOffset - getOffset().BROWSER_TO_UTC;
 	}
 
 	/**
-	 * Converts timestamp in user timezone to timestamp in browser timezone.
+	 * Transforms a moment in User timezone to a moment in Browser (device) timezone.
 	 *
-	 * @param userTimestamp timestamp in user timezone in seconds
-	 * @returns {number} timestamp in browser timezone in seconds
+	 * @param userTime - a moment in User timezone. Either a Date object (recommended way). Or timestamp in seconds in
+	 * User timezone (see this.getTimestamp for details).
+	 * @returns {Date}
 	 */
-	static toBrowser(userTimestamp: number): number
+	static toBrowserDate(userTime: Date | number): Date
+	{
+		return createDateFromTimestamp(this.toBrowser(userTime));
+	}
+
+	/**
+	 * Transforms a moment in User timezone to a moment in Server timezone.
+	 *
+	 * ATTENTION! Date.getTime() and Date.getTimezoneOffset() will return inaccurate data. Since a native Date object
+	 * doesn't support timezone other that device timezone, we have to manually change timestamp to shift time value in
+	 * a Date object.
+	 *
+	 * @param userTime - a moment in User timezone. Either a Date object (recommended way). Or timestamp in seconds in
+	 * User timezone (see this.getTimestamp for details).
+	 * @returns {Date}
+	 */
+	static toServerDate(userTime: Date | number): Date
+	{
+		return createDateFromTimestamp(this.toServer(userTime));
+	}
+
+	static toUTCTimestamp(userTime: Date | number): number
+	{
+		return normalizeTimeValue(userTime) - this.#userToBrowserOffset;
+	}
+
+	/**
+	 * Transforms a moment in User timezone to a timestamp in Browser timezone.
+	 * It's recommended to use this.toBrowserDate for more clear code.
+	 *
+	 * @param userTime - a moment in User timezone. Either a Date object (recommended way). Or timestamp in seconds in
+	 * User timezone (see this.getTimestamp for details).
+	 * @returns {number} - timestamp that when passed to 'new Date' will create an object with absolute time matching
+	 * the time in Browser (device) timezone
+	 */
+	static toBrowser(userTime: Date | number): number
 	{
 		return (
-			Text.toInteger(userTimestamp)
-			+ Offset.BROWSER_TO_UTC
-			- Offset.SERVER_TO_UTC
-			- Offset.USER_TO_SERVER
+			normalizeTimeValue(userTime)
+			+ getOffset().BROWSER_TO_UTC
+			- getOffset().SERVER_TO_UTC
+			- getOffset().USER_TO_SERVER
 		);
 	}
 
 	/**
-	 * Converts timestamp in user timezone to timestamp in server timezone.
+	 * Transforms a moment in User timezone to a timestamp in Server timezone.
+	 * It's recommended to use this.toServerDate for more clear code.
 	 *
-	 * @param userTimestamp timestamp in user timezone in seconds
-	 * @returns {number} timestamp in server timezone in seconds
+	 * @param userTime - a moment in User timezone. Either a Date object (recommended way). Or timestamp in seconds in
+	 * User timezone (see this.getTimestamp for details).
+	 * @returns {number} - timestamp that when passed to 'new Date' will create an object with absolute time matching
+	 * the time in Server timezone
 	 */
-	static toServer(userTimestamp: number): number
+	static toServer(userTime: Date | number): number
 	{
-		return Text.toInteger(userTimestamp) - Offset.USER_TO_SERVER;
+		return normalizeTimeValue(userTime) - getOffset().USER_TO_SERVER;
+	}
+
+	/**
+	 * Returns 'now' timestamp in User timezone - when it's passed to a 'new Date', it will create an object with absolute
+	 * time matching the time as if it was in User timezone.
+	 *
+	 * @returns {number}
+	 */
+	static getTimestamp(): number
+	{
+		return BrowserTime.toUser(BrowserTime.getTimestamp());
 	}
 }

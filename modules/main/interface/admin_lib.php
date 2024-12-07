@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
@@ -12,6 +12,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Application;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\Json;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -95,7 +96,7 @@ class CAdminPage
 			$APPLICATION->GetCSSArray()
 		);
 
-		$s = '<script type="text/javascript" bxrunfirst>'."\n";
+		$s = '<script bxrunfirst>'."\n";
 		for ($i = 0, $cnt = count($arCSS); $i < $cnt; $i++)
 		{
 			$bExternalLink = (strncmp($arCSS[$i], 'http://', 7) == 0 || strncmp($arCSS[$i], 'https://', 8) == 0);
@@ -214,7 +215,7 @@ class CAdminPage
 		//PHP-depended variables
 		$aUserOpt = CUserOptions::GetOption("global", "settings");
 		$s = "
-<script type=\"text/javascript\">
+<script>
 var phpVars = {
 	'ADMIN_THEME_ID': '".CUtil::JSEscape(ADMIN_THEME_ID)."',
 	'LANGUAGE_ID': '".CUtil::JSEscape(LANGUAGE_ID)."',
@@ -473,18 +474,11 @@ class CAdminAjaxHelper
 		}
 	}
 
-	public function decodeUriComponent(Bitrix\Main\HttpRequest $request = null)
+	/**
+	 * @deprecated Does nothing.
+	 */
+	public function decodeUriComponent()
 	{
-		if ($this->isAjaxRequest())
-		{
-			$request?->addFilter(new \Bitrix\Main\Web\PostDecodeFilter());
-			CUtil::decodeURIComponent($_GET);
-			CUtil::decodeURIComponent($_POST);
-			CUtil::decodeURIComponent($_REQUEST);
-			$listKeys = array_keys($_REQUEST);
-			foreach ($listKeys as $key)
-				CUtil::decodeURIComponent($GLOBALS[$key]);
-		}
 	}
 
 	/**
@@ -1027,7 +1021,7 @@ class CAdminMenu
 				if(empty($all_links[$j]))
 					continue;
 
-				if(mb_strpos($all_links[$j],"/bitrix/admin/") !== 0)
+				if(!str_starts_with($all_links[$j], "/bitrix/admin/"))
 					$tested_link = "/bitrix/admin/".$all_links[$j];
 				else
 					$tested_link = $all_links[$j];
@@ -1101,7 +1095,7 @@ class CAdminMenu
 					"menu_id"=>$aMenu["menu_id"] ?? null,
 					"page_icon"=>$aMenu["page_icon"] ?? null,
 					"text"=>$aMenu["text"],
-					"url"=>$aMenu["url"],
+					"url"=>$aMenu["url"] ?? null,
 					"skip_chain"=>$aMenu["skip_chain"] ?? null,
 					"help_section"=>$aMenu["help_section"] ?? null,
 				);
@@ -1273,7 +1267,7 @@ class CAdminMenu
 
 	function _ShowSubmenu(&$aMenu, $menu_id, $mode, $level=0)
 	{
-		$bSubmenu = !empty($aMenu["items"] && is_array($aMenu["items"]));
+		$bSubmenu = !empty($aMenu["items"]) && is_array($aMenu["items"]);
 		if($bSubmenu)
 		{
 			if($aMenu["items_id"] == $menu_id)
@@ -1286,7 +1280,7 @@ class CAdminMenu
 						$menuScripts .= $this->Show($submenu, $level);
 					}
 					if ($menuScripts != "")
-						echo '<script type="text/javascript">'.$menuScripts.'</script>';
+						echo '<script>'.$menuScripts.'</script>';
 				}
 				elseif($mode == "icon")
 					$this->ShowIcons($aMenu);
@@ -1537,10 +1531,10 @@ class CAdminPopupEx extends CAdminPopup
 		{
 			$params = '';
 			if (is_array($this->params))
-				$params = ', '.CUtil::PhpToJsObject($params);
+				$params = ', ' . Json::encode($params);
 
 			$s .=
-"<script type=\"text/javascript\">
+"<script>
 BX.ready(function(){
 	BX.bind(BX('".$this->element_id."'), 'click', function() {
 		BX.adminShowMenu(this, ".CAdminPopup::PhpToJavaScript($this->items).$params.");
@@ -1755,7 +1749,7 @@ class CAdminContextMenu
 	{
 		$id = 'context_right_'.RandString(8);
 ?>
-<script type="text/javascript">BX.ready(function(){
+<script>BX.ready(function(){
 var right_bar = BX('<?=$id?>');
 BX.Fix(right_bar, {type: 'right', limit_node: BX.previousSibling(right_bar)});
 })</script>
@@ -1865,7 +1859,7 @@ class CAdminContextMenuList extends CAdminContextMenu
 
 	function GetClassByID($icon_id)
 	{
-		if (mb_substr($icon_id,0,7) == 'btn_new')
+		if (str_starts_with($icon_id, 'btn_new'))
 			return 'adm-btn-save adm-btn-add';
 		else
 			return parent::GetClassByID($icon_id);
@@ -1873,7 +1867,7 @@ class CAdminContextMenuList extends CAdminContextMenu
 
 	function GetActiveClassByID($icon_id)
 	{
-		if (mb_substr($icon_id,0,7) == 'btn_new')
+		if (str_starts_with($icon_id, 'btn_new'))
 			return 'adm-btn-save-active';
 		else
 			return parent::GetActiveClassByID($icon_id);
@@ -2418,11 +2412,11 @@ class CAdminChain
 			{
 				echo '<a href="javascript:void(0)" class="adm-navchain-item" id="bx_admin_chain_item_'.$item['ID'].'"><span class="adm-navchain-item-text'.$className.'">'.$text.'</span></a>';
 
-				$chainScripts .= 'new BX.COpener('.CUtil::PhpToJsObject(array(
+				$chainScripts .= 'new BX.COpener(' . Json::encode(array(
 					'DIV' => 'bx_admin_chain_item_'.$item['ID'],
 					'ACTIVE_CLASS' => 'adm-navchain-item-active',
 					'MENU_URL' => $openerUrl
-				)).');';
+				)) . ');';
 
 			}
 			else
@@ -2436,11 +2430,11 @@ class CAdminChain
 				{
 					echo '<span class="adm-navchain-item" id="bx_admin_chain_delimiter_'.($item['ID'] ?? '').'"><span class="adm-navchain-delimiter"></span></span>';
 
-					$chainScripts .= 'new BX.COpener('.CUtil::PhpToJsObject(array(
+					$chainScripts .= 'new BX.COpener(' . Json::encode(array(
 							'DIV' => 'bx_admin_chain_delimiter_'.($item['ID'] ?? ''),
 							'ACTIVE_CLASS' => 'adm-navchain-item-active',
 							'MENU_URL' => $openerUrl
-						)).');';
+						)) . ');';
 				}
 				else
 				{
@@ -2457,7 +2451,7 @@ class CAdminChain
 		if ($chainScripts != '')
 		{
 ?>
-<script type="text/javascript"><?=$chainScripts?></script>
+<script><?=$chainScripts?></script>
 <?
 		}
 
@@ -2629,7 +2623,7 @@ function ShowJSHint($text, $arParams=false)
 	$id = "h".mt_rand();
 
 	$res = '
-		<script type="text/javascript">BX.ready(function(){BX.hint_replace(BX("'.$id.'"), "'.CUtil::JSEscape($text).'");})</script>
+		<script>BX.ready(function(){BX.hint_replace(BX("'.$id.'"), "'.CUtil::JSEscape($text).'");})</script>
 		<span id="'.$id.'"></span>
 	';
 

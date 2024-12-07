@@ -3,7 +3,6 @@
 namespace Bitrix\Main\Session;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Session\Handlers\AbstractSessionHandler;
 use Bitrix\Main\Session\Handlers\NullSessionHandler;
 use Bitrix\Main\Web\Cookie;

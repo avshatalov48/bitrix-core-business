@@ -32,7 +32,7 @@ $APPLICATION->IncludeComponent("bitrix:main.user.link",
 $ajax_page = $APPLICATION->GetCurPageParam("", array("bxajaxid", "logout"));
 
 ?>
-<script language="JavaScript">
+<script>
 <!--
 	var sonetDynevMsgGetPath = '<?= $arResult["MsgGetPath"] ?>';
 	var sonetDynevMsgSetPath = '<?= $arResult["MsgSetPath"] ?>';

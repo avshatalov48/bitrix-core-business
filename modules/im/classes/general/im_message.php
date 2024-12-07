@@ -1,5 +1,6 @@
 <?
 
+use Bitrix\Im\V2\Chat;
 use Bitrix\Main\Application;
 use Bitrix\Im\V2\Sync;
 use Bitrix\Main\Engine\Response\Converter;
@@ -23,7 +24,7 @@ class CIMMessage
 
 	public static function Add($arFields)
 	{
-		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], Array(IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)))
+		if (!isset($arFields['MESSAGE_TYPE']) || !in_array($arFields['MESSAGE_TYPE'], Array(IM_MESSAGE_CHAT, IM_MESSAGE_OPEN, IM_MESSAGE_OPEN_LINE, Chat::IM_TYPE_COPILOT, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL, Chat::IM_TYPE_COMMENT)))
 			$arFields['MESSAGE_TYPE'] = IM_MESSAGE_PRIVATE;
 
 		if (isset($arFields['MESSAGE_MODULE']))
@@ -54,7 +55,7 @@ class CIMMessage
 				WHERE 
 					M.ID = ".$id."";
 
-		$result = $DB->Query($query, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$result = $DB->Query($query);
 		$message = $result->Fetch();
 
 		if (!$message)
@@ -134,7 +135,7 @@ class CIMMessage
 					WHERE
 						R1.USER_ID = ".$this->user_id." AND R1.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."' ".$ssqlStatus."
 				";
-				$dbSubRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbSubRes = $DB->Query($strSql);
 				while ($arRes = $dbSubRes->Fetch())
 				{
 					$arRelations[] = $arRes;
@@ -173,7 +174,7 @@ class CIMMessage
 
 			$strSql = $DB->TopSql($strSql, 500);
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 
 			while ($arRes = $dbRes->Fetch())
 			{
@@ -391,7 +392,7 @@ class CIMMessage
 			";
 			if (!$bTimeZone)
 				CTimeZone::Enable();
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 			{
 				$chatId = intval($arRes['CHAT_ID']);
@@ -458,11 +459,11 @@ class CIMMessage
 
 			if ($limit)
 			{
-				$dbRes = $DB->Query(str_replace("#LIMIT#", $sqlLimit, $strSql), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query(str_replace("#LIMIT#", $sqlLimit, $strSql));
 			}
 			else
 			{
-				$dbRes = $DB->Query(str_replace("#LIMIT#", "", $strSql), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query(str_replace("#LIMIT#", "", $strSql));
 			}
 
 			while ($arRes = $dbRes->Fetch())
@@ -652,7 +653,7 @@ class CIMMessage
 			CTimeZone::Enable();
 
 		$arMessages = Array();
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		while ($arRes = $dbRes->Fetch())
 		{
 			if ($fromUserId == $arRes['AUTHOR_ID'])
@@ -741,7 +742,7 @@ class CIMMessage
 			".($order == "DESC"? "ORDER BY M.DATE_CREATE DESC, M.ID DESC": "")."
 		";
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		CTimeZone::Enable();
 
 		$arMessages = Array();
@@ -884,12 +885,13 @@ class CIMMessage
 				and RF.USER_ID = ".$fromUserId."
 				and RT.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'
 			GROUP BY M.CHAT_ID";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			$relation = self::SetLastIdForUnread($arRes['CHAT_ID'], $this->user_id, $lastId);
 			if ($relation)
 			{
+				$chat = Chat::getInstance((int)$arRes['CHAT_ID']);
 				\Bitrix\Main\Application::getConnection()->query(
 					"UPDATE b_im_recent SET DATE_UPDATE = NOW() WHERE USER_ID = ".$this->user_id." AND ITEM_CID = ".intval($arRes['CHAT_ID'])
 				);
@@ -932,7 +934,8 @@ class CIMMessage
 
 				Sync\Logger::getInstance()->add(
 					new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::CHAT_ENTITY, intval($arRes['CHAT_ID'])),
-					$this->user_id
+					$this->user_id,
+					$chat->getType()
 				);
 
 				return true;
@@ -956,7 +959,7 @@ class CIMMessage
 			INNER JOIN b_im_relation RT on RF.CHAT_ID = RT.CHAT_ID AND RT.ID != RF.ID
 			WHERE RF.USER_ID = ".$fromUserId."
 			AND RT.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."' AND RT.STATUS < ".IM_STATUS_READ;
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			\Bitrix\Im\Model\RelationTable::update($arRes["ID"], [
@@ -1149,7 +1152,7 @@ class CIMMessage
 	{
 		$message = new \Bitrix\Im\V2\Message();
 		$message->setMessageId($lastId)->setChatId($chatId);
-		$ownRelation = \Bitrix\Im\V2\Chat::getInstance($chatId)->getSelfRelation();
+		$ownRelation = Chat::getInstance($chatId)->getSelfRelation();
 
 		if ($ownRelation === null)
 		{
@@ -1199,7 +1202,7 @@ class CIMMessage
 					SET LAST_SEND_ID = (case when LAST_SEND_ID > ".intval($lastSendId)." then LAST_SEND_ID else ".intval($lastSendId)." end),
 						STATUS = ".IM_STATUS_NOTIFY."
 					WHERE CHAT_ID = ".intval($chatId)." AND USER_ID = ".intval($userId);
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);*/
+		$DB->Query($strSql);*/
 
 		return true;
 	}
@@ -1233,18 +1236,25 @@ class CIMMessage
 			'PHONES' => 'Y',
 		));
 
+		$multidialogBot = null;
 		foreach ($arUsers['users'] as $key => $user)
 		{
-			if ($user['bot'])
+			if (
+				!empty($user['bot_data'])
+				&& in_array($user['bot_data']['type'], ['support24', 'network'])
+				&& \Bitrix\Main\Loader::includeModule('imbot')
+				&& !isset($arParams['TO_CHAT_ID'])
+				&& count($arUsers['users']) == 2
+			)
 			{
-				$converter = new Converter(Converter::TO_SNAKE | Converter::TO_LOWER | Converter::KEYS);
-
-				$botData = \Bitrix\Im\V2\Entity\User\Data\BotData::getInstance((int)$user["id"])->toRestFormat();
-				$arUsers['users'][$key]['bot_data'] = (!empty($botData)) ? $converter->process($botData) : null;
-			}
-			else
-			{
-				$arUsers['users'][$key]['bot_data'] = null;
+				$botId = (int)$user['id'];
+				foreach ($arUsers['users'] as $otherUser)
+				{
+					if ($otherUser['id'] != $botId)
+					{
+						$multidialogBot = \Bitrix\ImBot\Bot\Network::getBotAsMultidialog($botId, (int)$otherUser['id']);
+					}
+				}
 			}
 		}
 
@@ -1288,6 +1298,16 @@ class CIMMessage
 			$arParams['FILE_TEMPLATE_ID'] = '';
 		}
 
+		if (
+			isset($arParams['PARAMS'][\Bitrix\Im\V2\Message\Params::COPILOT_ROLE])
+			|| $arChat['chat'][$arParams['TO_CHAT_ID']]['type'] === 'copilot'
+		)
+		{
+			$chatId = (int)$arParams['CHAT_ID'];
+			$isCopilotChat = $arChat['chat'][$arParams['TO_CHAT_ID']]['type'] === 'copilot';
+			$copilotData = self::prepareCopilotData($arParams,  $chatId, $isCopilotChat);
+		}
+
 		$additionalEntitiesAdapter = new \Bitrix\Im\V2\Rest\RestAdapter();
 		$additionalPopupData = new \Bitrix\Im\V2\Rest\PopupData([]);
 
@@ -1299,8 +1319,15 @@ class CIMMessage
 			$forwardInfo = [
 				'id' => $arParams['PARAMS']['FORWARD_CONTEXT_ID'],
 				'userId' => (int)$arParams['PARAMS']['FORWARD_USER_ID'],
+				'chatTitle' => $arParams['PARAMS']['FORWARD_CHAT_TITLE'],
+				'chatType' => \Bitrix\Im\V2\Message\Forward\ForwardService::getChatTypeByContextId($arParams['PARAMS']['FORWARD_CONTEXT_ID']),
 			];
-			unset($arParams['PARAMS']['FORWARD_CONTEXT_ID'], $arParams['PARAMS']['FORWARD_USER_ID'], $arParams['PARAMS']['FORWARD_ID']);
+			unset(
+				$arParams['PARAMS']['FORWARD_CONTEXT_ID'],
+				$arParams['PARAMS']['FORWARD_USER_ID'],
+				$arParams['PARAMS']['FORWARD_ID'],
+				$arParams['PARAMS']['FORWARD_CHAT_TITLE']
+			);
 		}
 
 		$replyIds = [];
@@ -1317,15 +1344,28 @@ class CIMMessage
 			'MESSAGE_ONLY_COMMON_FIELDS' => true,
 		]);
 
-		return Array(
+		$multidialog = null;
+		if (isset($arChat['multidialogs'][$arParams['CHAT_ID']]))
+		{
+			$multidialog = $arChat['multidialogs'][$arParams['CHAT_ID']];
+		}
+		elseif ($multidialogBot)
+		{
+			$multidialog = $multidialogBot;
+		}
+
+		return [
 			'chatId' => $arParams['CHAT_ID'],
+			'dateLastActivity' => \Bitrix\Main\Type\DateTime::createFromTimestamp($arParams['DATE_CREATE']),
 			'dialogId' => isset($arParams['TO_CHAT_ID'])? 'chat'.$arParams['TO_CHAT_ID']: 0,
 			'chat' => $arChat['chat'] ?? [],
+			'copilot' => $copilotData ?? null,
 			'lines' => $arChat['lines'][$arParams['CHAT_ID']] ?? null,
+			'multidialog' => $multidialog,
 			'userInChat' => $arChat['userInChat'] ?? [],
 			'userBlockChat' => $arChat['userChatBlockStatus'] ?? [],
 			'users' => (is_array($arUsers) && is_array($arUsers['users'])) ? $arUsers['users'] : null,
-			'message' => Array(
+			'message' => [
 				'id' => $arParams['ID'],
 				'templateId' => $arParams['TEMPLATE_ID'],
 				'templateFileId' => $arParams['FILE_TEMPLATE_ID'],
@@ -1343,10 +1383,49 @@ class CIMMessage
 				'isImportant' => isset($arParams['IS_IMPORTANT']) && $arParams['IS_IMPORTANT'] === 'Y',
 				'additionalEntities' => $additionalEntitiesRest,
 				'forward' => $forwardInfo,
-			),
+			],
 			'files' => isset($arParams['FILES'])? $arParams['FILES']: [],
 			'notify' => $arParams['NOTIFY'],
-		);
+		];
+	}
+
+	private static function prepareCopilotData(array $arParams, int $chatId, bool $isCopilotChat): array
+	{
+		$roleManager = new \Bitrix\Im\V2\Integration\AI\RoleManager();
+		$messageRole = $arParams['PARAMS'][\Bitrix\Im\V2\Message\Params::COPILOT_ROLE] ?? null;
+
+		if (
+			!isset($messageRole)
+			&& \Bitrix\Main\Loader::includeModule('imbot')
+			&& $arParams['FROM_USER_ID'] === \Bitrix\Imbot\Bot\CopilotChatBot::getBotId()
+		)
+		{
+			$messageRole = \Bitrix\Im\V2\Integration\AI\RoleManager::getDefaultRoleCode();
+		}
+
+		if ($isCopilotChat)
+		{
+			$chatRole = [[
+				'dialogId' => \Bitrix\Im\Dialog::getDialogId($chatId),
+				'role' => $roleManager->getMainRole($chatId),
+			]];
+		}
+
+		$messageId = isset($arParams['PARAMS']['FORWARD_ID'])
+			? (int)$arParams['PARAMS']['FORWARD_ID']
+			: (int)$arParams['ID']
+		;
+
+		$copilotData = [
+			'chats' => $chatRole ?? null,
+			'messages' => !empty($messageRole) ? [['id' => $messageId, 'role' => $messageRole]] : null,
+			'roles' => $roleManager->getRoles(
+				$isCopilotChat ? [$roleManager->getMainRole($chatId), $messageRole] : [$messageRole],
+				(int)$arParams['FROM_USER_ID']
+			),
+		];
+
+		return $copilotData;
 	}
 
 	public static function GetChatId($fromUserId, $toUserId, $createIfNotExists = true)
@@ -1389,7 +1468,7 @@ class CIMMessage
 			and RT.MESSAGE_TYPE = '".IM_MESSAGE_PRIVATE."'
 			and RF.CHAT_ID = RT.CHAT_ID
 		";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			$chatId = intval($arRes['CHAT_ID']);

@@ -145,7 +145,7 @@ class CUserTypeSQL
 	{
 		$result = $this->obWhere->GetJoins();
 		$table = " b_uts_" . $this->entity_id . " " . $this->table_alias . " ";
-		if((!empty($this->select) || !empty($this->order)) && strpos($result, $table) === false)
+		if((!empty($this->select) || !empty($this->order)) && !str_contains($result, $table))
 			$result .= "\nLEFT JOIN" . $table . "ON " . $this->table_alias . ".VALUE_ID = " . $ID;
 		return $result;
 	}

@@ -3,6 +3,7 @@ import {Dom, Tag} from "main.core";
 import Base from "./base";
 import ColumnItemOptions from "../columnitem";
 
+
 export default class Changer extends Base
 {
 	constructor(options: ColumnItemOptions)
@@ -30,7 +31,8 @@ export default class Changer extends Base
 
 	refreshStatus(): void
 	{
-		Dom.removeClass(this.getChanger(), 'ui-access-rights-column-item-changer-on')
+		this.isModify = false;
+		Dom.removeClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
 	}
 
 	offChanger(): void
@@ -47,6 +49,21 @@ export default class Changer extends Base
 	{
 		this.isModify = !this.isModify;
 
+		this.toggleChangerHtmlClass();
+	}
+
+	toggleChangerHtmlClass()
+	{
 		Dom.toggleClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
+	}
+
+	addChangerHtmlClass(): void
+	{
+		Dom.addClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
+	}
+
+	removeChangerHtmlClass(): void
+	{
+		Dom.removeClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
 	}
 }

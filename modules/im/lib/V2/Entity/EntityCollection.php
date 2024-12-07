@@ -55,10 +55,18 @@ abstract class EntityCollection extends Registry implements RestConvertible, Pop
 	public function toRestFormat(array $option = []): array
 	{
 		$collection = [];
+		$idsAsKey = $option['IDS_AS_KEY'] ?? false;
 
 		foreach ($this as $entity)
 		{
-			$collection[] = $entity->toRestFormat($option);
+			if ($idsAsKey)
+			{
+				$collection[$entity->getId()] = $entity->toRestFormat($option);
+			}
+			else
+			{
+				$collection[] = $entity->toRestFormat($option);
+			}
 		}
 
 		return $collection;

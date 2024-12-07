@@ -4,17 +4,20 @@ namespace Bitrix\Location\Controller;
 
 use Bitrix\Location\Entity\Location\Parents;
 use Bitrix\Location\Infrastructure\Service\ErrorService;
+use Bitrix\Location\Repository\FormatRepository;
 use Bitrix\Location\Service;
-use Bitrix\Main\Engine\ActionFilter\Cors;
-use \Bitrix\Location\Entity;
+use Bitrix\Location\Entity;
 use Bitrix\Main\Engine\Response\AjaxJson;
+use Bitrix\Location\Entity\Location\Converter\ArrayConverter;
+use Bitrix\Main\Engine\Controller;
+use Bitrix\Main\Result;
 
 /**
  * Class Location
  * @package Bitrix\Location\Controller
  * Facade
  */
-class Location extends \Bitrix\Main\Engine\Controller
+class Location extends Controller
 {
 	protected function getDefaultPreFilters()
 	{
@@ -31,13 +34,13 @@ class Location extends \Bitrix\Main\Engine\Controller
 		$result = null;
 		$location = Service\LocationService::getInstance()->findById($locationId, $languageId);
 
-		if($location)
+		if ($location)
 		{
 			$result = $location->toArray();
 		}
-		elseif($location === false)
+		elseif ($location === false)
 		{
-			if(ErrorService::getInstance()->hasErrors())
+			if (ErrorService::getInstance()->hasErrors())
 			{
 				$result = AjaxJson::createError(
 					ErrorService::getInstance()->getErrors()
@@ -60,24 +63,24 @@ class Location extends \Bitrix\Main\Engine\Controller
 	/**
 	 * @param array $location
 	 * @return array|AjaxJson
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public function findParentsAction(array $location)
 	{
 		$result = new Parents();
+
 		$entity = Entity\Location::fromArray($location);
 
-		if($entity)
+		if ($entity)
 		{
 			$parents = $entity->getParents();
 
-			if($parents)
+			if ($parents)
 			{
-				$result = \Bitrix\Location\Entity\Location\Converter\ArrayConverter::convertParentsToArray($parents);
+				$result = ArrayConverter::convertParentsToArray($parents);
 			}
 			else if($parents === false)
 			{
-				if(ErrorService::getInstance()->hasErrors())
+				if (ErrorService::getInstance()->hasErrors())
 				{
 					$result = AjaxJson::createError(
 						ErrorService::getInstance()->getErrors()
@@ -89,7 +92,6 @@ class Location extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-
 	/**
 	 * array $fields
 	 * @return array|null|AjaxJson
@@ -100,7 +102,7 @@ class Location extends \Bitrix\Main\Engine\Controller
 		$location = Service\LocationService::getInstance()->findByExternalId($externalId, $sourceCode, $languageId);
 
 		/* Temporary. To decrease the usage of the Google API */
-		if($location && $location->getId() > 0)
+		if ($location && $location->getId() > 0)
 		{
 			$externalLocation = Service\LocationService::getInstance()->findByExternalId(
 				$externalId,
@@ -109,20 +111,19 @@ class Location extends \Bitrix\Main\Engine\Controller
 				LOCATION_SEARCH_SCOPE_EXTERNAL
 			);
 
-			if($externalLocation)
+			if ($externalLocation)
 			{
 				$location->setAddress($externalLocation->getAddress());
 			}
 		}
-		/* */
 
-		if($location)
+		if ($location)
 		{
-			$result = \Bitrix\Location\Entity\Location\Converter\ArrayConverter::convertToArray($location);
+			$result = ArrayConverter::convertToArray($location);
 		}
 		else
 		{
-			if(ErrorService::getInstance()->hasErrors())
+			if (ErrorService::getInstance()->hasErrors())
 			{
 				$result = AjaxJson::createError(
 					ErrorService::getInstance()->getErrors()
@@ -133,7 +134,30 @@ class Location extends \Bitrix\Main\Engine\Controller
 		return $result;
 	}
 
-	public static function saveAction(array $location)
+	public function findByCoordsAction(float $lat, float $lng, int $zoom, string $languageId)
+	{
+		$result = null;
+
+		$location = Service\LocationService::getInstance()->findByCoords($lat, $lng, $zoom, $languageId);
+
+		if ($location)
+		{
+			$result = ArrayConverter::convertToArray($location);
+		}
+		else
+		{
+			if (ErrorService::getInstance()->hasErrors())
+			{
+				$result = AjaxJson::createError(
+					ErrorService::getInstance()->getErrors()
+				);
+			}
+		}
+
+		return $result;
+	}
+
+	public static function saveAction(array $location): array
 	{
 		$entity = Entity\Location::fromArray($location);
 		$result = $entity->save();
@@ -141,15 +165,11 @@ class Location extends \Bitrix\Main\Engine\Controller
 		return [
 			'isSuccess' => $result->isSuccess(),
 			'errors' => $result->getErrorMessages(),
-			'location' => \Bitrix\Location\Entity\Location\Converter\ArrayConverter::convertToArray($entity)
+			'location' => ArrayConverter::convertToArray($entity),
 		];
 	}
 
-	/**
-	 * @param array $location
-	 * @return \Bitrix\Main\Result
-	 */
-	public function deleteAction(array $location)
+	public function deleteAction(array $location): Result
 	{
 		return Service\LocationService::getInstance()->delete(
 			Entity\Location::fromArray($location)

@@ -145,11 +145,6 @@ else
 					&& check_bitrix_sessid()
 				)
 				{
-					if (isset($_POST['ajax_request']) && $_POST['ajax_request'] === 'Y')
-					{
-						CUtil::JSPostUnescape();
-					}
-
 					$errorMessage = "";
 
 					if ($errorMessage == '')

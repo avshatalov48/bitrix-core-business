@@ -52,17 +52,7 @@ $useTree = (isset($_GET['tree']) && $_GET['tree'] === 'Y');
 $request = Main\Context::getCurrent()->getRequest();
 // TODO: hack for psevdo-excel export in crm (\CAdminUiList::GetSystemContextMenu)
 $urlBuilderManager = Iblock\Url\AdminPage\BuilderManager::getInstance();
-$urlBuilder = null;
-$urlBuilderId = (string)$request->get('urlBuilderId') ;
-if ($urlBuilderId !== '')
-{
-	$urlBuilder = $urlBuilderManager->getBuilder($urlBuilderId);
-}
-// TODO end
-if ($urlBuilder === null)
-{
-	$urlBuilder = $urlBuilderManager->getBuilder();
-}
+$urlBuilder = $urlBuilderManager->getBuilder();
 unset($urlBuilderManager);
 if ($urlBuilder === null)
 {
@@ -73,12 +63,6 @@ if ($urlBuilder === null)
 	die();
 }
 $urlBuilderId = $urlBuilder->getId();
-//TODO: hack fo compensation BX.adminSidePanel.prototype.checkActionByUrl where remove IFRAME=Y&IFRAME_TYPE=SIDE_SLIDER from url
-if ($urlBuilderId === 'INVENTORY')
-{
-	$urlBuilder->setSliderMode(true);
-}
-// end hack
 $urlBuilder->setIblockId($IBLOCK_ID);
 $urlBuilder->setUrlParams(array());
 
@@ -207,9 +191,20 @@ $sectionItems = array(
 	"" => GetMessage("IBLOCK_ALL"),
 	"0" => GetMessage("IBSEC_A_ROOT_SECTION"),
 );
-$sectionQueryObject = CIBlockSection::GetTreeList(Array("IBLOCK_ID"=>$IBLOCK_ID), array("ID", "NAME", "DEPTH_LEVEL"));
-while($arSection = $sectionQueryObject->Fetch())
-	$sectionItems[$arSection["ID"]] = str_repeat(" . ", $arSection["DEPTH_LEVEL"]).$arSection["NAME"];
+$sectionQueryObject = CIBlockSection::GetTreeList(
+	['IBLOCK_ID' => $IBLOCK_ID],
+	[
+		'ID',
+		'NAME',
+		'DEPTH_LEVEL',
+	]
+);
+while ($arSection = $sectionQueryObject->Fetch())
+{
+	$margin = max((int)$arSection['DEPTH_LEVEL'], 1);
+	$sectionItems[$arSection['ID']] = str_repeat(' . ', $margin) . $arSection['NAME'];
+}
+unset($arSection, $sectionQueryObject);
 
 $filterFields = array(
 	array(

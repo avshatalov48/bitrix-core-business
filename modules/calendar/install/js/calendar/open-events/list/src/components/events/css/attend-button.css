@@ -1,0 +1,16 @@
+.calendar-open-events-list-item__attend-button {
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+}
+
+.calendar-open-events-list-item__attend-button.--on {
+	--ui-btn-icon: url('/bitrix/js/ui/icon-set/actions/images/plus-30.svg');
+}
+
+.calendar-open-events-list-item__attend-button.--off {
+	--ui-btn-icon: url('/bitrix/js/ui/icon-set/actions/images/minus-30.svg');
+}
+
+.calendar-open-events-list-item__attend-button::after {
+	position: initial;
+	transform: none;
+}

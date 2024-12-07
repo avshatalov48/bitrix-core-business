@@ -7,7 +7,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 \CJSCore::init('sidepanel');
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		BX.SidePanel.Instance.open(

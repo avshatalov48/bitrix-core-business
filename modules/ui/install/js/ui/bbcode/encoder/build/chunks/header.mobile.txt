@@ -1,0 +1,2 @@
+/** @module bbcode/encoder */
+jn.define('bbcode/encoder', (require, exports, module) => {

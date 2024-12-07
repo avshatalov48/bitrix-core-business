@@ -8,6 +8,7 @@ use Bitrix\Landing\Hook;
 use Bitrix\Landing\Hook\Page\Theme;
 use Bitrix\Landing\Site\Type;
 use Bitrix\Landing\Rights;
+use \Bitrix\Landing\Mainpage;
 use Bitrix\Main\Config\Option;
 use \Bitrix\Main\Event;
 use Bitrix\Main\EventManager;
@@ -212,6 +213,12 @@ class LandingSiteDemoPreviewComponent extends LandingSiteDemoComponent
 				if ($this->request('context_element') !== '')
 				{
 					$this->arParams['CONTEXT_ELEMENT'] = $this->request('context_element');
+				}
+
+				if ($this->arParams['TYPE'] === Type::SCOPE_CODE_MAINPAGE)
+				{
+					$manager = new Mainpage\Manager();
+					$this->arParams['MAINPAGE_EXISTS'] = (bool)$manager->getConnectedPageId();
 				}
 			}
 			else

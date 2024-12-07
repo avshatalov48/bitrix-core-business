@@ -123,17 +123,6 @@ $contentRes = Requests\Manager::getDeliveryRequestContent($fields['ID']);
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-if(!empty($adminErrorMessages))
-{
-	$adminMessage = new CAdminMessage(Array(
-		"DETAILS" => implode("<br>\n", $adminErrorMessages),
-		"TYPE" => "ERROR",
-		"MESSAGE" => Loc::getMessage('SALE_DELIVERY_REQ_VIEW_ERROR'),
-		"HTML"=>true
-	));
-	echo $adminMessage->Show();
-}
-
 ?>
 <form method="POST" action="<?=$APPLICATION->GetCurPageParam()?>" name="form1" enctype="multipart/form-data">
 <input type="hidden" name="lang" value="<?=LANGUAGE_ID;?>">
@@ -156,7 +145,7 @@ $tabControl->BeginNextTab();
 	<tr>
 		<td><?=Loc::getMessage('SALE_DELIVERY_REQ_VIEW_F_DELIVERY_IDT')?>:</td>
 		<td>
-			<a href="/bitrix/admin/sale_delivery_service_edit.php?lang=ru&ID=<?=$fields["DELIVERY_ID"]?>"><?=htmlspecialcharsbx($deliveryName)?></a>
+			<a href="/bitrix/admin/sale_delivery_service_edit.php?lang=<?= LANGUAGE_ID ?>&ID=<?=$fields["DELIVERY_ID"]?>"><?=htmlspecialcharsbx($deliveryName)?></a>
 		</td>
 	</tr>
 <!--

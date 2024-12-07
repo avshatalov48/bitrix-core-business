@@ -2,6 +2,7 @@
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\Web;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Fields\ExpressionField;
@@ -63,6 +64,17 @@ class CPullPush
 
 	public static function getUniqueHash($user_id, $app_id)
 	{
+		$eventManager = EventManager::getInstance();
+		$handlers = $eventManager->findEventHandlers("pull", "onPushTokenUniqueHashGet");
+		foreach ($handlers as $handler)
+		{
+			$uniqueHash = ExecuteModuleEventEx($handler, [$user_id, $app_id]);
+			if ($uniqueHash)
+			{
+				return $uniqueHash;
+			}
+		}
+
 		return md5($user_id . $app_id);
 	}
 
@@ -100,10 +112,10 @@ class CPullPush
 		/**
 		 * @var $DB CDatabase
 		 */
-		$killTime = ConvertTimeStamp(getmicrotime() - 24 * 3600 * 14, "FULL");
+		$killTime = ConvertTimeStamp(microtime(true) - 24 * 3600 * 14, "FULL");
 		$sqlString = "DELETE FROM b_pull_push WHERE DATE_AUTH < " . $DB->CharToDateFunction($killTime);
 
-		$DB->Query($sqlString, false, "FILE: " . __FILE__ . "<br> LINE: " . __LINE__);
+		$DB->Query($sqlString);
 
 		return "CPullPush::cleanTokens();";
 	}
@@ -120,7 +132,7 @@ class CPushManager
 	public const DEFAULT_APP_ID = "Bitrix24";
 
 	public static ?array $pushServices;
-	protected static array $appAliases = [];
+
 	private string $remoteProviderUrl ;
 
 	public function __construct()
@@ -141,7 +153,7 @@ class CPushManager
 		}
 
 		$strSql = "DELETE FROM b_pull_push_queue WHERE USER_ID = " . intval($userId) . " AND TAG = '" . $DB->ForSQL($tag) . "'";
-		$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+		$DB->Query($strSql);
 
 		\Bitrix\Pull\Push::add($userId, [
 			'module_id' => 'pull',
@@ -418,12 +430,12 @@ class CPushManager
 				$result['PARAMS'] = $fields['PARAMS'];
 			}
 
-			if ($fields['MESSAGE'] <> '')
+			if (isset($fields['MESSAGE']) && $fields['MESSAGE'] <> '')
 			{
 				$result['MESSAGE'] = $fields['MESSAGE'];
 			}
 
-			if ($fields['SOUND'] <> '')
+			if (isset($fields['SOUND']) && $fields['SOUND'] <> '')
 			{
 				$result['SOUND'] = $fields['SOUND'];
 			}
@@ -552,7 +564,6 @@ class CPushManager
 		while ($user = $queryResult->fetch())
 		{
 			$uniqueHashes[] = CPullPush::getUniqueHash($user["ID"], $appId);
-			$uniqueHashes[] = CPullPush::getUniqueHash($user["ID"], $appId . "_bxdev");
 
 			if (in_array($user['UNIQUE_HASH'], $uniqueHashes) && $user['ACTIVE'] == 'Y')
 			{
@@ -582,7 +593,7 @@ class CPushManager
 				continue;
 			}
 
-			if ($options['IMPORTANT'] == 'Y')
+			if (isset($options['IMPORTANT']) && $options['IMPORTANT'] == 'Y')
 			{
 				$result[$user['ID']]['mode'] = self::SEND_IMMEDIATELY;
 				continue;
@@ -659,53 +670,14 @@ class CPushManager
 		return $result;
 	}
 
-	private function getUniqueHashes(string $userId, string $appId): array
-	{
-		$uniqueHashes = [];
-		$uniqueHashes[] = CPullPush::getUniqueHash($userId, $appId);
-		$uniqueHashes[] = CPullPush::getUniqueHash($userId, $appId."_bxdev");
-		$aliases = $this->getAppIDAliases($appId);
-		foreach ($aliases as $appId => $data)
-		{
-			$uniqueHashes[] = CPullPush::getUniqueHash($userId, $appId);
-		}
-
-		return array_unique($uniqueHashes);
-	}
-
 	private function getAppMode(string $appId): string
 	{
-		$aliases = $this->getAppIDAliases($appId);
-		if ((isset($aliases[$appId]) && $aliases[$appId]["mode"] == "dev") || mb_strpos($appId, "_bxdev") > 0 )
-		{
-			return "SANDBOX";
-		}
-		return "PRODUCTION";
+		return mb_strpos($appId, "_bxdev") > 0 ? "SANDBOX" : "PRODUCTION";
 	}
 
-	private function getAppIDAliases($appId)
+	static private function getPureAppId($appId): string
 	{
-		$aliases = [];
-		if(self::$appAliases[$appId])
-		{
-			return self::$appAliases[$appId];
-		}
-		else
-		{
-			$events = \Bitrix\Main\EventManager::getInstance()->findEventHandlers("pull", "onAppAliasGet");
-			foreach ($events as $event)
-			{
-				$appAliases = ExecuteModuleEventEx($event, [$appId]);
-				foreach ($appAliases as $key => $value)
-				{
-					$aliases[$key]= $value;
-				}
-			}
-
-			self::$appAliases[$appId] = $aliases;
-		}
-
-		return $aliases;
+		return str_replace("_bxdev", "", $appId);
 	}
 
 	protected function shouldSendMessage($message)
@@ -765,7 +737,12 @@ class CPushManager
 				$arTmpMessages["USER_" . $message["USER_ID"]][] = htmlspecialcharsback($message);
 			}
 
-			array_push($uniqueHashes, ...$this->getUniqueHashes($message["USER_ID"], $message["APP_ID"]));
+			$hash = CPullPush::getUniqueHash($message["USER_ID"], $message["APP_ID"]);
+
+			if (!in_array($hash, $uniqueHashes))
+			{
+				$uniqueHashes[] = $hash;
+			}
 		}
 		if (empty($arDevices))
 		{
@@ -788,11 +765,16 @@ class CPushManager
 			$arDevice["APP_ID"] = \Bitrix\Main\Config\Option::get("mobileapp", "app_id_replaced_".$arDevice["APP_ID"], $arDevice["APP_ID"]);
 			$mode = $this->getAppMode($arDevice["APP_ID"]);
 
-			$tmpMessage = $arTmpMessages["USER_" . $arDevice["USER_ID"]];
-			$voipMessage = $arVoipMessages["USER_" . $arDevice["USER_ID"]];
+			$tmpMessage = $arTmpMessages["USER_" . $arDevice["USER_ID"]] ?? null;
+			$voipMessage = $arVoipMessages["USER_" . $arDevice["USER_ID"]] ?? null;
 
 			if(is_array($tmpMessage))
 			{
+				$tmpMessage = array_map(function($message) use ($arDevice) {
+					$message["APP_ID"] = self::getPureAppId($arDevice["APP_ID"]);
+					return $message;
+				}, $tmpMessage);
+
 				$deviceType = $arDevice["DEVICE_TYPE"];
 				$deviceToken = $arDevice["DEVICE_TOKEN"];
 				$filteredMessages = static::filterMessagesBeforeSend($tmpMessage, $deviceType, $deviceToken);
@@ -806,6 +788,10 @@ class CPushManager
 			}
 			if(is_array($voipMessage))
 			{
+				$voipMessage = array_map(function($message) use ($arDevice) {
+					$message["APP_ID"] = self::getPureAppId($arDevice["APP_ID"]);
+					return $message;
+				}, $voipMessage);
 				$deviceType = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TYPE"]: $arDevice["DEVICE_TYPE"];
 				$deviceToken = $arDevice["VOIP_TYPE"] && $arDevice["VOIP_TOKEN"] ? $arDevice["VOIP_TOKEN"] : $arDevice["DEVICE_TOKEN"];
 				$filteredMessages = static::filterMessagesBeforeSend($voipMessage, $deviceType, $deviceToken);
@@ -856,7 +842,11 @@ class CPushManager
 				$messages = null;
 				while($messages = array_slice($arPushMessages[$serviceID],$offset, $batchMessageCount))
 				{
-					$batches[] = $service->getBatch($messages);
+					if (!empty($service->getBatch($messages)))
+					{
+						$batches[] = $service->getBatch($messages);
+					}
+
 					$offset += count($messages);
 				}
 			}
@@ -928,7 +918,7 @@ class CPushManager
 		}
 
 		$strSql = "DELETE FROM b_pull_push_queue WHERE USER_ID = " . intval($userId) . " AND SUB_TAG = '" . $DB->ForSQL($tag) . "'";
-		$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+		$DB->Query($strSql);
 
 		\Bitrix\Pull\Push::add($userId, [
 			'module_id' => 'pull',
@@ -974,7 +964,7 @@ class CPushManager
 		}
 
 		$strSql = $DB->TopSql("SELECT ID, USER_ID, MESSAGE, PARAMS, ADVANCED_PARAMS, BADGE, APP_ID FROM b_pull_push_queue" . $sqlDate, 280);
-		$dbRes = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+		$dbRes = $DB->Query($strSql);
 		while ($arRes = $dbRes->Fetch())
 		{
 			if ($arRes['BADGE'] == '')
@@ -1020,7 +1010,7 @@ class CPushManager
 		if ($maxId > 0)
 		{
 			$strSql = "DELETE FROM b_pull_push_queue WHERE ID <= " . $maxId;
-			$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$DB->Query($strSql);
 		}
 
 		$CPushManager = new CPushManager();
@@ -1030,7 +1020,7 @@ class CPushManager
 		}
 
 		$strSql = "SELECT COUNT(ID) CNT FROM b_pull_push_queue";
-		$dbRes = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+		$dbRes = $DB->Query($strSql);
 		if ($arRes = $dbRes->Fetch())
 		{
 			global $pPERIOD;

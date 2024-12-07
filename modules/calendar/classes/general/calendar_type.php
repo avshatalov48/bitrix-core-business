@@ -124,7 +124,7 @@ class CCalendarType
 					$strSqlSearch
 				$strOrderBy";
 
-			$res = $DB->Query($strSql, false, "Function: CCalendarType::GetList<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 			$result = [];
 			$arTypeXmlIds = [];
 			while($arRes = $res->Fetch())
@@ -215,7 +215,7 @@ class CCalendarType
 
 		//return $APPLICATION->ThrowException(GetMessage("EC_ACCESS_DENIED"));
 
-		$access = $arFields['ACCESS'];
+		$access = $arFields['ACCESS'] ?? null;
 		unset($arFields['ACCESS']);
 
 		if (count($arFields) > 1) // We have not only XML_ID
@@ -223,7 +223,7 @@ class CCalendarType
 			if ($params['NEW']) // Add
 			{
 				$strSql = "SELECT * FROM b_calendar_type WHERE XML_ID='".$DB->ForSql($XML_ID)."'";
-				$res = $DB->Query($strSql, false, __LINE__);
+				$res = $DB->Query($strSql);
 				if (!($arRes = $res->Fetch()))
 				{
 					$arInsert = $DB->PrepareInsert("b_calendar_type", $arFields);
@@ -267,16 +267,16 @@ class CCalendarType
 	{
 		global $DB;
 		// Del types
-		$DB->Query("DELETE FROM b_calendar_type WHERE XML_ID='".$DB->ForSql($XML_ID)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_type WHERE XML_ID='".$DB->ForSql($XML_ID)."'");
 
 		// Del access for types
-		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".$DB->ForSql($XML_ID)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".$DB->ForSql($XML_ID)."'");
 
 		// Del sections
-		$DB->Query("DELETE FROM b_calendar_section WHERE CAL_TYPE='".$DB->ForSql($XML_ID)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_section WHERE CAL_TYPE='".$DB->ForSql($XML_ID)."'");
 
 		// Del events
-		$DB->Query("DELETE FROM b_calendar_event WHERE CAL_TYPE='".$DB->ForSql($XML_ID)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_event WHERE CAL_TYPE='".$DB->ForSql($XML_ID)."'");
 
 		CCalendar::ClearCache(array('type_list', 'section_list', 'event_list'));
 
@@ -286,7 +286,7 @@ class CCalendarType
 	public static function SavePermissions($type, $taskPerm)
 	{
 		global $DB;
-		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".$DB->ForSql($type)."'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_calendar_access WHERE SECT_ID='".$DB->ForSql($type)."'");
 
 		if (is_array($taskPerm))
 		{
@@ -307,7 +307,7 @@ class CCalendarType
 				);
 
 				$strSql = "INSERT INTO b_calendar_access(" . $insert[0] . ") VALUES(" . $insert[1] . ")";
-				$DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$DB->Query($strSql);
 			}
 		}
 	}

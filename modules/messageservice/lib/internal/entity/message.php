@@ -5,12 +5,14 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Fields\ArrayField;
 use Bitrix\Main\ORM\Fields\DatetimeField;
+use Bitrix\Main\ORM\Fields\EnumField;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\IntegerField;
 use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 use Bitrix\Main\Type\DateTime;
+use Bitrix\MessageService\Internal\Entity\Message\SuccessExec;
 
 /**
  * Class MessageTable
@@ -85,7 +87,8 @@ class MessageTable extends DataManager
 					->configureRequired(true)
 			,
 			'DATE_INSERT' =>
-				(new DatetimeField('DATE_INSERT',	[]))
+				(new DatetimeField('DATE_INSERT'))
+					->configureDefaultValue(static fn() => new DateTime())
 			,
 			'DATE_EXEC' =>
 				(new DatetimeField('DATE_EXEC', []))
@@ -94,8 +97,14 @@ class MessageTable extends DataManager
 				(new DatetimeField('NEXT_EXEC', []))
 			,
 			'SUCCESS_EXEC' =>
-				(new StringField('SUCCESS_EXEC', []))
-					->configureDefaultValue('N')
+				(new EnumField('SUCCESS_EXEC', []))
+					->configureValues([
+						SuccessExec::NO,
+						SuccessExec::YES,
+						SuccessExec::ERROR,
+						SuccessExec::PROCESSED,
+					])
+					->configureDefaultValue(SuccessExec::NO)
 			,
 			'EXEC_ERROR' =>
 				(new StringField('EXEC_ERROR', [
@@ -169,7 +178,7 @@ class MessageTable extends DataManager
 			UPDATE
 				{$tableName}
 			SET
-				STATUS_ID = {$newInternalStatusId}, 
+				STATUS_ID = {$newInternalStatusId},
 				EXTERNAL_STATUS = '{$newExternalStatus}'
 			WHERE
 				ID = {$id}
@@ -226,11 +235,11 @@ class MessageTable extends DataManager
 		$fromId = $helper->forSql((string)$fromId);
 
 		$connection->queryExecute("
-			UPDATE b_messageservice_message 
-			SET NEXT_EXEC = NULL 
-			WHERE 
-				SUCCESS_EXEC = 'N' 
-				AND NEXT_EXEC IS NOT NULL 
+			UPDATE b_messageservice_message
+			SET NEXT_EXEC = NULL
+			WHERE
+				SUCCESS_EXEC = 'N'
+				AND NEXT_EXEC IS NOT NULL
 				AND SENDER_ID = '{$senderId}'
 				AND MESSAGE_FROM = '{$fromId}'
 		");

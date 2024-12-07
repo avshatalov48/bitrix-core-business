@@ -150,6 +150,9 @@ export default class SearchTabFooter extends BaseFooter
 
 	handleMetaEnter(event: BaseEvent): void
 	{
+		const keyboardEvent: KeyboardEvent = event.getData().event;
+		keyboardEvent.stopPropagation();
+
 		if (this.getDialog().getActiveTab() !== this.getTab())
 		{
 			return;

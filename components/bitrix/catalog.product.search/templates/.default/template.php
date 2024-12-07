@@ -323,8 +323,8 @@ else
 						if (isset($arResult['SKU_PRICES'][$price['ID']]))
 						{
 							$priceValue = CCurrencyLang::CurrencyFormat(
-								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['PRICE'],
-								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['CURRENCY'],
+								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['PRICE'] ?? '',
+								$arResult['SKU_PRICES'][$price['ID']][$val["ID"]]['CURRENCY'] ?? false,
 								true
 							);
 						}
@@ -506,7 +506,7 @@ else
 
 	$lAdmin->BeginEpilogContent();
 	?>
-	<script type="text/javascript">
+	<script>
 	BX.ready(function(){
 	<?php
 	if (!empty($arSku))
@@ -717,11 +717,18 @@ else
 							<td>
 								<?php
 								if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
-									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
-									echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
-										$arProp,
-										array("VALUE" => 'filter_el_property_'.$arProp["ID"]),
-									));
+									echo "<script>var arClearHiddenFields = [];</script>";
+									echo call_user_func_array(
+										$arProp['PROPERTY_USER_TYPE']['GetAdminFilterHTML'],
+										[
+											$arProp,
+											[
+												'FORM_NAME' => $arResult['TABLE_ID'] . '_find_form',
+												'TABLE_ID' => $arResult['TABLE_ID'],
+												'VALUE' => 'filter_el_property_' . $arProp['ID'],
+											],
+										]
+									);
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
 									<input type="text" name="filter_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
 								<?php
@@ -761,11 +768,18 @@ else
 							<td>
 								<?php
 								if (array_key_exists("GetAdminFilterHTML", $arProp["PROPERTY_USER_TYPE"])):
-									echo "<script type='text/javascript'>var arClearHiddenFields = [];</script>";
-									echo call_user_func_array($arProp["PROPERTY_USER_TYPE"]["GetAdminFilterHTML"], array(
-										$arProp,
-										array("VALUE" => "filter_sub_el_property_".$arProp["ID"]),
-									));
+									echo "<script>var arClearHiddenFields = [];</script>";
+									echo call_user_func_array(
+										$arProp['PROPERTY_USER_TYPE']['GetAdminFilterHTML'],
+										[
+											$arProp,
+											[
+												'FORM_NAME' => $arResult['TABLE_ID'] . '_find_form',
+												'TABLE_ID' => $arResult['TABLE_ID'],
+												'VALUE' => 'filter_sub_el_property_' . $arProp['ID'],
+											],
+										]
+									);
 								elseif ($arProp["PROPERTY_TYPE"] == 'S'):?>
 									<input type="text" name="filter_sub_el_property_<?= $arProp["ID"] ?>" value="<?php echo htmlspecialcharsbx($_REQUEST["filter_sub_el_property_" . $arProp["ID"]] ?? '') ?>" size="30">&nbsp;<?= ShowFilterLogicHelp() ?>
 								<?php
@@ -832,7 +846,7 @@ else
 		}
 	?>
 	</div>
-	<script type="text/javascript">
+	<script>
 		<?=$tableId?>_helper = new BX.Catalog.ProductSearchDialog(<?=CUtil::PhpToJSObject(
 			$helperParams,
 			false,
@@ -845,7 +859,7 @@ else
 	<?php
 	endif;
 	?>
-	<script type="text/javascript">
+	<script>
 		<?php
 		if (sizeof($arResult['IBLOCKS']) > 1):
 			$iblockMenu = [

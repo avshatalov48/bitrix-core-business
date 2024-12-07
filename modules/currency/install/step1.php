@@ -1,4 +1,4 @@
-<?
+<?php
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
@@ -12,18 +12,16 @@ if (empty($errors))
 }
 else
 {
-	CAdminMessage::ShowMessage(
-		array(
-			'TYPE' => 'ERROR',
-			'MESSAGE' => GetMessage('MOD_INST_ERR'),
-			'DETAILS' => implode('<br>', $errors),
-			'HTML' => true
-		)
-	);
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('MOD_INST_ERR'),
+		'DETAILS' => implode('<br>', $errors),
+		'HTML' => true,
+	]);
 }
-?><form action="<? echo $APPLICATION->GetCurPage(); ?>">
+?><form action="<?= $APPLICATION->GetCurPage() ?>">
 <p>
-	<input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
-	<input type="submit" name="" value="<? echo GetMessage('MOD_BACK'); ?>">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+	<input type="submit" name="" value="<?= htmlspecialcharsbx(GetMessage('MOD_BACK')) ?>">
 </p>
 <form>

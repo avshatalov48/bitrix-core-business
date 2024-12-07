@@ -1,4 +1,4 @@
-import { Text, type JsonObject } from 'main.core';
+import { Text, Loc, type JsonObject } from 'main.core';
 import { DateTimeFormat } from 'main.date';
 
 import { Core } from 'im.v2.application.core';
@@ -7,6 +7,13 @@ import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 
 import type { ImModelUser, ImModelChat, ImModelRecentItem, ImModelMessage } from 'im.v2.model';
+
+const HiddenTitleByChatType = {
+	[ChatType.openChannel]: Loc.getMessage('IM_LIST_RECENT_CHAT_TYPE_OPEN_CHANNEL'),
+	[ChatType.channel]: Loc.getMessage('IM_LIST_RECENT_CHAT_TYPE_PRIVATE_CHANNEL'),
+	[ChatType.generalChannel]: Loc.getMessage('IM_LIST_RECENT_CHAT_TYPE_OPEN_CHANNEL'),
+	default: Loc.getMessage('IM_LIST_RECENT_CHAT_TYPE_GROUP_V2'),
+};
 
 // @vue/component
 export const MessageText = {
@@ -58,7 +65,7 @@ export const MessageText = {
 				return this.$store.getters['users/getPosition'](this.recentItem.dialogId);
 			}
 
-			return this.loc('IM_LIST_RECENT_CHAT_TYPE_GROUP_V2');
+			return HiddenTitleByChatType[this.dialog.type] ?? HiddenTitleByChatType.default;
 		},
 		isLastMessageAuthor(): boolean
 		{
@@ -141,7 +148,7 @@ export const MessageText = {
 			<span class="bx-im-list-recent-item__message_text">
 				<span v-if="recentItem.draft.text" v-html="preparedDraftContent"></span>
 				<div v-else-if="recentItem.invitation.isActive" class="bx-im-list-recent-item__balloon_container --invitation">
-					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED') }}</div>
+					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_INVITATION_NOT_ACCEPTED_MSGVER_1') }}</div>
 				</div>
 				<div v-else-if="needsBirthdayPlaceholder" class="bx-im-list-recent-item__balloon_container --birthday">
 					<div class="bx-im-list-recent-item__balloon">{{ loc('IM_LIST_RECENT_BIRTHDAY') }}</div>

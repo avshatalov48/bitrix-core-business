@@ -36,6 +36,6 @@ class CSocNetUser extends CAllSocNetUser
 			"ORDER BY U.LAST_NAME ASC, U.NAME ASC, U.SECOND_NAME ASC ".
 			"LIMIT 0, ".$numberOfUsers."";
 
-		return $DB->Query($strSql, false, "Function CSocNetUser::SearchUsers: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 }

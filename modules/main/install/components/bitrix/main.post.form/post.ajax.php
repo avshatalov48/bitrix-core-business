@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 define("PUBLIC_AJAX_MODE", true);
 define("EXTRANET_NO_REDIRECT", true);
 define("NO_KEEP_STATISTIC", "Y");
@@ -22,8 +25,8 @@ if (
 	|| IsModuleInstalled("b24network")
 )
 {
-	echo CUtil::PhpToJsObject(Array('ERROR' => 'MODULE_NOT_INSTALLED'));
-	die();
+	echo Json::encode(Array('ERROR' => 'MODULE_NOT_INSTALLED'));
+	CMain::FinalActions();
 }
 
 if (check_bitrix_sessid())
@@ -43,8 +46,6 @@ if (check_bitrix_sessid())
 
 	if (isset($_POST['LD_SEARCH']) && $_POST['LD_SEARCH'] == 'Y')
 	{
-		CUtil::decodeURIComponent($_POST);
-
 		$search = $_POST['SEARCH'];
 		$searchConverted = (!empty($_POST['SEARCH_CONVERTED']) ? $_POST['SEARCH_CONVERTED'] : false);
 
@@ -57,7 +58,7 @@ if (check_bitrix_sessid())
 		{
 			$searchResults["USERS"] = array();
 
-			echo CUtil::PhpToJsObject($searchResults);
+			echo Json::encode($searchResults);
 			return;
 		}
 
@@ -586,28 +587,28 @@ if (check_bitrix_sessid())
 			$searchResults['LEADS'] = $arLeads;
 			$searchResults['DEALS'] = $arDeals;
 		}
-		echo CUtil::PhpToJsObject($searchResults);
+		echo Json::encode($searchResults);
 	}
 	elseif (isset($_POST['LD_DEPARTMENT_RELATION']) && $_POST['LD_DEPARTMENT_RELATION'] == 'Y')
 	{
-		echo CUtil::PhpToJsObject(Array(
+		echo Json::encode(Array(
 			'USERS' => CSocNetLogDestination::GetUsers(Array('deportament_id' => $_POST['DEPARTMENT_ID'], "NAME_TEMPLATE" => $nameTemplate)),
 		));
 	}
 	elseif (isset($_POST['LD_ALL']) && $_POST['LD_ALL'] == 'Y')
 	{
-		echo CUtil::PhpToJsObject(Array(
+		echo Json::encode(Array(
 			'USERS' => CSocNetLogDestination::GetUsers(Array('all' => 'Y', "NAME_TEMPLATE" => $nameTemplate)),
 		));
 	}
 	else
 	{
-		echo CUtil::PhpToJsObject(Array('ERROR' => 'UNKNOWN_ERROR'));
+		echo Json::encode(Array('ERROR' => 'UNKNOWN_ERROR'));
 	}
 }
 else
 {
-	echo CUtil::PhpToJsObject(Array('ERROR' => 'SESSION_ERROR'));
+	echo Json::encode(Array('ERROR' => 'SESSION_ERROR'));
 }
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
-?>

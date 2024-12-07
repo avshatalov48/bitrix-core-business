@@ -37,7 +37,7 @@ class CCatalogStore extends CAllCatalogStore
 		$arInsert = $DB->PrepareInsert("b_catalog_store", $arFields);
 		$strSql = "INSERT INTO b_catalog_store (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
-		$res = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if(!$res)
 			return false;
 		$lastId = (int)$DB->LastID();
@@ -265,7 +265,7 @@ class CCatalogStore extends CAllCatalogStore
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -307,7 +307,7 @@ class CCatalogStore extends CAllCatalogStore
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
@@ -325,7 +325,7 @@ class CCatalogStore extends CAllCatalogStore
 			if($boolNavStartParams && 0 < $intTopCount)
 				$strSql .= " LIMIT ".$intTopCount;
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

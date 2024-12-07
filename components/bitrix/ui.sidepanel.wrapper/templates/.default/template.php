@@ -8,6 +8,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 use Bitrix\Main;
 use Bitrix\Main\Web\Json;
 use Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker;
+use Bitrix\UI\Toolbar\Facade\Toolbar;
 
 /** @var $this CBitrixComponentTemplate */
 /** @var CMain $APPLICATION */
@@ -134,13 +135,25 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 {
 	$bodyClass .= " bitrix24-".$themePicker->getCurrentBaseThemeId()."-theme";
 }
+else if ($arResult["CUSTOM_BACKGROUND_STYLE"])
+{
+	$bodyClass .= " ui-page-slider-wrapper-custom-background";
+}
 else
 {
 	$bodyClass .= " ui-page-slider-wrapper-default-theme";
 }
+
+$bodyStyle = "";
+
+if ($arResult['CUSTOM_BACKGROUND_STYLE'])
+{
+	$backgroundStyle = $arResult["CUSTOM_BACKGROUND_STYLE"];
+	$bodyStyle .= " background: $backgroundStyle;";
+}
 ?>
 <body class="<?= $bodyClass ?> <?php
-$APPLICATION->ShowProperty('BodyClass');?>">
+$APPLICATION->ShowProperty('BodyClass');?>" style="<?= $bodyStyle ?>">
 <?php
 if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 {
@@ -173,6 +186,14 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 				);
 			}
 		?></div>
+
+		<?php
+		if ($arParams['HIDE_TOOLBAR']):
+			?>
+			<div></div>
+			<?php
+		else:
+		?>
 		<div class="ui-side-panel-toolbar<?if (!$arParams['USE_UI_TOOLBAR_MARGIN']):?> --no-margin<?endif?>">
 		<?php
 		if (!isset($arParams['USE_UI_TOOLBAR']) || $arParams['USE_UI_TOOLBAR'] !== 'Y')
@@ -184,7 +205,7 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 						<?php $APPLICATION->ShowViewContent("pagetitle"); ?>
 					</div>
 					<div class="ui-side-panel-wrap-title">
-						<div class="ui-side-panel-wrap-title-box">
+						<div class="ui-side-panel-wrap-title-box" >
 							<span id="pagetitle" class="ui-side-panel-wrap-title-item">
 								<span class="ui-side-panel-wrap-title-name-item ui-side-panel-wrap-title-name"><?php $APPLICATION->ShowTitle(false); ?></span>
 								<span class="ui-side-panel-wrap-title-edit-button" style="display: none;"></span>
@@ -211,6 +232,8 @@ if ($arResult["SHOW_BITRIX24_THEME"] === "Y")
 		}
 		?>
 		</div>
+		<?php endif;?>
+
 		<div class="ui-side-panel-wrap-below"><?php $APPLICATION->ShowViewContent("below_pagetitle")?></div>
 
 		<div class="ui-page-slider-workarea">

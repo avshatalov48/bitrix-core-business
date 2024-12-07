@@ -261,7 +261,7 @@ if ($is_update_form && ($canEdit || $canDelete))
 		'MENU' => $subMenu
 	);
 }
-$context = new CAdminContextMenu($aMenu);
+$adminContextMenu = new CAdminContextMenu($aMenu);
 
 //view
 
@@ -274,7 +274,7 @@ else
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 }
 
-$context->Show();
+$adminContextMenu->Show();
 
 if (!empty($errors))
 {

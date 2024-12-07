@@ -9,6 +9,7 @@ use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\Collection;
 use Bitrix\Main\Type\Contract\Arrayable;
 use Bitrix\Socialnetwork\Helper;
 use Bitrix\Socialnetwork\Integration\Intranet\ThemePicker;
@@ -184,6 +185,34 @@ class SpacesListComponent extends CBitrixComponent implements Controllerable, \B
 			'isInvitation' => !empty($invitation),
 			'spaceId' => $spaceId,
 		];
+	}
+
+	public function loadSpacesDataAction(array $spaceIds): ?array
+	{
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return null;
+		}
+
+		$userId = Helper\User::getCurrentUserId();
+
+		$provider = (new Provider($userId));
+
+		$result = [];
+
+		if (in_array(0, $spaceIds))
+		{
+			$result[] = $provider->getCommonSpace();
+		}
+
+		Collection::normalizeArrayValuesByInt($spaceIds);
+
+		if (empty($spaceIds))
+		{
+			return $result;
+		}
+
+		return array_merge($result, $provider->getSpacesByIds($spaceIds));
 	}
 
 	public function loadSpaceThemeAction(int $spaceId): ?array

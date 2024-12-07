@@ -1,9 +1,19 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Localization\Loc;
 
+/**
+ * @global CMain $APPLICATION
+ * @var array $arParams
+ * @var array $arResult
+ */
 
-if ($arParams["MAIN_CHAIN_NAME"] <> '')
+if ($arParams["MAIN_CHAIN_NAME"] !== '')
 {
 	$APPLICATION->AddChainItem(htmlspecialcharsbx($arParams["MAIN_CHAIN_NAME"]), $arResult['SEF_FOLDER']);
 }
@@ -87,17 +97,23 @@ if ($arParams['SHOW_CONTACT_PAGE'] === 'Y')
 	);
 }
 
-$customPagesList = CUtil::JsObjectToPhp($arParams['~CUSTOM_PAGES']);
-if ($customPagesList)
+if (!empty($arParams['~CUSTOM_PAGES']))
 {
-	foreach ($customPagesList as $page)
+	$customPagesList = CUtil::JsObjectToPhp($arParams['~CUSTOM_PAGES']);
+	if (!empty($customPagesList) && is_array($customPagesList))
 	{
-		$availablePages[] = array(
-			"path" => $page[0],
-			"name" => $page[1],
-			"icon" => (mb_strlen($page[2])) ? '<i class="fa '.htmlspecialcharsbx($page[2]).'"></i>' : ""
-		);
+		foreach ($customPagesList as $page)
+		{
+			$icon = (string)($page[2] ?? '');
+			$availablePages[] = [
+				'path' => $page[0],
+				'name' => $page[1],
+				'icon' => $icon !== '' ? '<i class="fa ' . htmlspecialcharsbx($icon) . '"></i>' : ''
+			];
+			unset($icon);
+		}
 	}
+	unset($customPagesList);
 }
 
 if (empty($availablePages))
@@ -110,7 +126,7 @@ else
 	<div class="row">
 		<div class="col-md-12 sale-personal-section-index">
 			<div class="row sale-personal-section-row-flex">
-				<?
+				<?php
 				foreach ($availablePages as $blockElement)
 				{
 					?>
@@ -126,12 +142,11 @@ else
 							</a>
 						</div>
 					</div>
-					<?
+					<?php
 				}
 				?>
 			</div>
 		</div>
 	</div>
-	<?
+	<?php
 }
-?>

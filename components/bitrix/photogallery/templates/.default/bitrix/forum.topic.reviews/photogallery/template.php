@@ -75,7 +75,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 
 <?if (empty($arResult["ERROR_MESSAGE"]) && !empty($arResult["OK_MESSAGE"]) && false):?>
 <div class="reviews-note-box reviews-note-note">
-	<div class="reviews-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"]);?></div>
+	<div class="reviews-note-box-text"><? ShowNote($arResult["OK_MESSAGE"]); ?></div>
 </div>
 <?endif;?>
 
@@ -83,7 +83,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 <a name="review_anchor"></a>
 <?if (!empty($arResult["ERROR_MESSAGE"])):?>
 <div class="reviews-note-box reviews-note-error">
-	<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
+	<div class="reviews-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error"); ?></div>
 </div>
 <? endif;?>
 <form name="REPLIER<?=$arParams["form_index"]?>" id="REPLIER<?=$arParams["form_index"]?>" action="<?=$arParams['~ACTION_URL']?>" method="POST" enctype="multipart/form-data" class="reviews-form">

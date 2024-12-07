@@ -20,6 +20,7 @@ $pageId = "group_calendar";
 
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $ownerId = $arResult["VARIABLES"]["group_id"];
 if (

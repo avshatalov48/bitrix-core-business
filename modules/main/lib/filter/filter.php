@@ -202,10 +202,9 @@ class Filter
 			}
 			foreach ($this->uiFilterPostfixes as $postfix)
 			{
-				if (mb_substr($fieldId, -mb_strlen($postfix)) === $postfix)
+				if (str_ends_with($fieldId, $postfix))
 				{
 					unset($filter[$fieldId]);
-					continue;
 				}
 			}
 		}
@@ -245,10 +244,9 @@ class Filter
 
 			foreach ($this->uiFilterPostfixes as $postfix)
 			{
-				$postfixLength = mb_strlen($postfix);
-				if (mb_substr($fieldId, -$postfixLength) === $postfix)
+				if (str_ends_with($fieldId, $postfix))
 				{
-					$realFieldId = mb_substr($fieldId, 0, -$postfixLength);
+					$realFieldId = substr($fieldId, 0, -strlen($postfix));
 					if (in_array($realFieldId, $filterFieldsIds, true))
 					{
 						continue(2);

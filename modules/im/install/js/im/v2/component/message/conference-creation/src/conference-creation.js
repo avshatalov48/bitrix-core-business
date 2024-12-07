@@ -3,6 +3,7 @@ import 'ui.notification';
 import { Messenger } from 'im.public';
 import { Button as ButtonComponent, ButtonSize, ButtonIcon } from 'im.v2.component.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
+import { Analytics } from 'im.v2.lib.analytics';
 
 import './css/conference-creation-message.css';
 
@@ -63,6 +64,11 @@ export const ConferenceCreationMessage = {
 	{
 		onStartButtonClick()
 		{
+			Analytics.getInstance().onStartConferenceClick({
+				element: Analytics.AnalyticsElement.initialBanner,
+				chatId: this.chatId,
+			});
+
 			Messenger.openConference({
 				code: this.dialog.public.code,
 			});
@@ -85,7 +91,8 @@ export const ConferenceCreationMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withDefaultContextMenu="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
 			class="bx-im-message-conference-creation__scope"
 		>

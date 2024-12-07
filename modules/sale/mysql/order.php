@@ -111,7 +111,7 @@ class CSaleOrder extends CAllSaleOrder
 				"INSERT INTO b_sale_order(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
 
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 			CSaleOrder::SetAccountNumber($ID);
@@ -216,7 +216,7 @@ class CSaleOrder extends CAllSaleOrder
 				$strSql .=	",	DATE_UPDATE = ".$DB->GetNowFunction()." ";
 			$strSql .=	"WHERE ID = ".$ID." ";
 
-			$updated = $DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$updated = $DB->Query($strSql, true);
 
 			if (!$updated)
 				return false;
@@ -865,7 +865,7 @@ class CSaleOrder extends CAllSaleOrder
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("ORDER"));
 
 			if ($arRes = $dbRes->Fetch())
@@ -914,7 +914,7 @@ class CSaleOrder extends CAllSaleOrder
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -940,7 +940,7 @@ class CSaleOrder extends CAllSaleOrder
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("ORDER"));
 		}
 
@@ -1014,7 +1014,7 @@ class CSaleOrder extends CAllSaleOrder
 			$arPrepare[1] .= ", ".$DB->GetNowFunction();
 
 			$strSql = "INSERT INTO b_sale_order_history (".$arPrepare[0].") "."VALUES (".$arPrepare[1].");";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		foreach(GetModuleEvents("sale", "OnAfterOrderAddHistory", true) as $arEvent)

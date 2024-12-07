@@ -87,13 +87,12 @@ export class DiscussionsComposition extends EventEmitter
 	{
 		return Tag.render`
 			<div class="sn-spaces-discussions-composition-header" data-id="spaces-discussions-composition-header">
-				<div>
-					<div class="sn-spaces-discussions-composition-header-title">
-						${Loc.getMessage('SN_SPACES_DISCUSSION_COMPOSITION_TITLE')}
-					</div>
-					<div class="sn-spaces-discussions-composition-header-space-name">
-						${Text.encode(this.#spaceName)}
-					</div>
+				<div class="sn-spaces-discussions-composition-header-title">
+					${
+						Loc
+							.getMessage('SN_SPACES_DISCUSSION_COMPOSITION_TITLE')
+							.replace('%SPACE_NAME%', `<span>${Text.encode(this.#spaceName)}</span>`)
+					}
 				</div>
 				<div class="sn-spaces-discussions-composition-header-icon"></div>
 			</div>

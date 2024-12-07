@@ -149,7 +149,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 		{
 			$arError = $arResult["ERRORS"];
 			foreach($arError as $key => $error)
-				if(intval($key) == 0 && $key !== 0) 
+				if(intval($key) == 0 && $key !== 0)
 					$arError[$key] = str_replace("#FIELD_NAME#", '"'.$key.'"', $error);
 			CEventLog::Log("SECURITY", "USER_REGISTER_FAIL", "main", false, implode("<br>", $arError));
 		}
@@ -173,7 +173,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["register_submit_button"] 
 
 		$arResult['VALUES']["USER_IP"] = $_SERVER["REMOTE_ADDR"];
 		$arResult['VALUES']["USER_HOST"] = @gethostbyaddr($_SERVER["REMOTE_ADDR"]);
-		
+
 		if($arResult["VALUES"]["AUTO_TIME_ZONE"] <> "Y" && $arResult["VALUES"]["AUTO_TIME_ZONE"] <> "N")
 			$arResult["VALUES"]["AUTO_TIME_ZONE"] = "";
 
@@ -320,14 +320,14 @@ foreach ($arResult["REQUIRED_FIELDS"] as $field)
 	$arResult["REQUIRED_FIELDS_FLAGS"][$field] = "Y";
 
 // check backurl existance
-$arResult["BACKURL"] = htmlspecialcharsbx($_REQUEST["backurl"]);
+$arResult["BACKURL"] = htmlspecialcharsbx($_REQUEST["backurl"] ?? '');
 
 // get countries list
-if (in_array("PERSONAL_COUNTRY", $arResult["SHOW_FIELDS"]) || in_array("WORK_COUNTRY", $arResult["SHOW_FIELDS"])) 
+if (in_array("PERSONAL_COUNTRY", $arResult["SHOW_FIELDS"]) || in_array("WORK_COUNTRY", $arResult["SHOW_FIELDS"]))
 	$arResult["COUNTRIES"] = GetCountryArray();
 
 // get date format
-if (in_array("PERSONAL_BIRTHDAY", $arResult["SHOW_FIELDS"])) 
+if (in_array("PERSONAL_BIRTHDAY", $arResult["SHOW_FIELDS"]))
 	$arResult["DATE_FORMAT"] = CLang::GetDateFormat("SHORT");
 
 // ********************* User properties ***************************************************
@@ -335,8 +335,14 @@ $arResult["USER_PROPERTIES"] = array("SHOW" => "N");
 $arUserFields = $USER_FIELD_MANAGER->GetUserFields("USER", 0, LANGUAGE_ID);
 if (is_array($arUserFields) && !empty($arUserFields))
 {
-	if (!is_array($arParams["USER_PROPERTY"]))
+	if (!isset($arParams["USER_PROPERTY"]))
+	{
+		$arParams["USER_PROPERTY"] = [];
+	}
+	else if (!is_array($arParams["USER_PROPERTY"]))
+	{
 		$arParams["USER_PROPERTY"] = array($arParams["USER_PROPERTY"]);
+	}
 
 	foreach ($arUserFields as $FIELD_NAME => $arUserField)
 	{
@@ -361,7 +367,7 @@ if ($arResult["USE_CAPTCHA"] == "Y")
 	$arResult["CAPTCHA_CODE"] = htmlspecialcharsbx($APPLICATION->CaptchaGetCode());
 
 // set title
-if ($arParams["SET_TITLE"] == "Y") 
+if ($arParams["SET_TITLE"] == "Y")
 	$APPLICATION->SetTitle(GetMessage("REGISTER_DEFAULT_TITLE"));
 
 //time zones

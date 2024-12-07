@@ -1,5 +1,5 @@
 /* eslint-disable */
-(function (exports,main_core,catalog_storeUse) {
+(function (exports,main_core,catalog_storeEnableWizard) {
 	'use strict';
 
 	/* eslint-disable no-param-reassign */
@@ -16,6 +16,9 @@
 	      var currentSlider = BX.SidePanel.Instance.getTopSlider();
 	      options = main_core.Type.isPlainObject(options) ? options : {};
 	      var params = {
+	        urlParams: {
+	          analyticsContextSection: catalog_storeEnableWizard.AnalyticsContextList.ANALYTICS_MENU_ITEM
+	        },
 	        events: (_options$events = options.events) !== null && _options$events !== void 0 ? _options$events : {},
 	        data: (_options$data = options.data) !== null && _options$data !== void 0 ? _options$data : {}
 	      };
@@ -31,7 +34,7 @@
 	          document.location.reload();
 	        }
 	      };
-	      return new catalog_storeUse.StoreSlider().open(url, params);
+	      return new catalog_storeEnableWizard.EnableWizardOpener().open(url, params);
 	    }
 	  }, {
 	    key: "storeMasterOpenSlider",
@@ -49,5 +52,5 @@
 	}();
 	namespace.ControlPanel = ControlPanel;
 
-}((this.window = this.window || {}),BX,BX.Catalog.StoreUse));
+}((this.window = this.window || {}),BX,BX.Catalog.Store));
 //# sourceMappingURL=script.js.map

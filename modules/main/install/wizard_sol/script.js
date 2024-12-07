@@ -207,7 +207,7 @@ function ImgShw(ID, width, height, alt)
 	var wnd = window.open("","","scrollbars="+scroll+",resizable=yes,width="+width+",height="+height+",left="+left+",top="+top);
 	wnd.document.write(
 		"<html><head>"+
-			"<"+"script type=\"text/javascript\">"+
+			"<"+"script>"+
 			"function KeyPress()"+
 			"{"+
 			"	if(window.event.keyCode == 27) "+

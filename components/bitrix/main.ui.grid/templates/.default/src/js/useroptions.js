@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -21,43 +21,49 @@
 	};
 
 	BX.Grid.UserOptions.prototype = {
-		init: function(parent, userOptions, userOptionsActions, url)
+		init(parent, userOptions, userOptionsActions, url)
 		{
 			this.url = url;
 			this.parent = parent;
 
-			try {
+			try
+			{
 				this.options = eval(userOptions);
-			} catch(err) {
+			}
+			catch
+			{
 				console.warn('BX.Grid.UserOptions.init: Failed parse user options json string');
 			}
 
-			try {
+			try
+			{
 				this.actions = eval(userOptionsActions);
-			} catch(err) {
+			}
+			catch
+			{
 				console.warn('BX.Grid.UserOptions.init: Failed parse user options actions json string');
 			}
 		},
 
-		getCurrentViewName: function()
+		getCurrentViewName()
 		{
-			var options = this.getOptions();
+			const options = this.getOptions();
 
 			return 'current_view' in options ? options.current_view : null;
 		},
 
-		getViewsList: function()
+		getViewsList()
 		{
-			var options = this.getOptions();
+			const options = this.getOptions();
 
 			return 'views' in options ? options.views : {};
 		},
 
-		getCurrentOptions: function()
+		getCurrentOptions()
 		{
-			var name = this.getCurrentViewName();
-			var views = this.getViewsList();
-			var result = null;
+			const name = this.getCurrentViewName();
+			const views = this.getViewsList();
+			let result = null;
 
 			if (name in views)
 			{
@@ -72,60 +78,63 @@
 			return result;
 		},
 
-		getUrl: function(action)
+		getUrl(action)
 		{
 			return BX.util.add_url_param(this.url, {
 				GRID_ID: this.parent.getContainerId(),
 				bxajaxid: this.parent.getAjaxId(),
-				action: action
+				action,
 			});
 		},
 
-		getOptions: function()
+		getOptions()
 		{
 			return this.options || {};
 		},
 
-		getActions: function()
+		getActions()
 		{
 			return this.actions;
 		},
 
-		getAction: function(name)
+		getAction(name)
 		{
-			var action = null;
+			let action = null;
 
-			try {
+			try
+			{
 				action = this.getActions()[name];
-			} catch (err) {
+			}
+			catch
+			{
 				action = null;
 			}
 
 			return action;
 		},
 
-		update: function(newOptions)
+		update(newOptions)
 		{
 			this.options = newOptions;
 		},
 
-		setColumns: function(columns, callback)
+		setColumns(columns, callback)
 		{
-			var options = this.getCurrentOptions();
+			const options = this.getCurrentOptions();
 
 			if (BX.type.isPlainObject(options))
 			{
 				options.columns = columns.join(',');
 
-				this.save(this.getAction('GRID_SET_COLUMNS'), {columns: options.columns}, callback);
+				this.save(this.getAction('GRID_SET_COLUMNS'), { columns: options.columns }, callback);
 			}
 
 			return this;
 		},
 
-		setColumnsNames: function(columns, callback)
+		setColumnsNames(columns, callback)
 		{
-			var options = {view_id: 'default'};
+			const options = { view_id: 'default' };
 
 			if (BX.type.isPlainObject(options))
 			{
@@ -137,62 +146,62 @@
 			return this;
 		},
 
-		setColumnSizes: function(sizes, expand)
+		setColumnSizes(sizes, expand)
 		{
-			this.save(this.getAction('GRID_SET_COLUMN_SIZES'), {sizes: sizes, expand: expand});
+			this.save(this.getAction('GRID_SET_COLUMN_SIZES'), { sizes, expand });
 		},
 
-		reset: function(forAll, callback)
+		reset(forAll, callback)
 		{
-			var data = {};
+			let data = {};
 
-			if (!!forAll)
+			if (forAll)
 			{
 				data = {
 					view_id: 'default',
 					set_default_settings: 'Y',
 					delete_user_settings: 'Y',
-					view_settings: this.getCurrentOptions()
+					view_settings: this.getCurrentOptions(),
 				};
 			}
 
 			this.save(this.getAction('GRID_RESET'), data, callback);
 		},
 
-		setSort: function(by, order, callback)
+		setSort(by, order, callback)
 		{
 			if (by && order)
 			{
-				this.save(this.getAction('GRID_SET_SORT'), {by: by, order: order}, callback);
+				this.save(this.getAction('GRID_SET_SORT'), { by, order }, callback);
 			}
 
 			return this;
 		},
 
-		setPageSize: function(pageSize, callback)
+		setPageSize(pageSize, callback)
 		{
 			if (BX.type.isNumber(parseInt(pageSize)))
 			{
-				this.save(this.getAction('GRID_SET_PAGE_SIZE'), {pageSize: pageSize}, callback);
+				this.save(this.getAction('GRID_SET_PAGE_SIZE'), { pageSize }, callback);
 			}
 		},
 
-		setExpandedRows: function(ids, callback)
+		setExpandedRows(ids, callback)
 		{
-			BX.type.isArray(ids) && this.save(this.getAction('GRID_SET_EXPANDED_ROWS'), {ids: ids}, callback);
+			BX.type.isArray(ids) && this.save(this.getAction('GRID_SET_EXPANDED_ROWS'), { ids }, callback);
 		},
 
-		setCollapsedGroups: function(ids, callback)
+		setCollapsedGroups(ids, callback)
 		{
-			BX.type.isArray(ids) && this.save(this.getAction('GRID_SET_COLLAPSED_GROUPS'), {ids: ids}, callback);
+			BX.type.isArray(ids) && this.save(this.getAction('GRID_SET_COLLAPSED_GROUPS'), { ids }, callback);
 		},
 
-		resetExpandedRows: function()
+		resetExpandedRows()
 		{
 			this.save(this.getAction('GRID_RESET_EXPANDED_ROWS'), {});
 		},
 
-		saveForAll: function(callback)
+		saveForAll(callback)
 		{
 			this.save(
 				this.getAction('GRID_SAVE_SETTINGS'),
@@ -200,26 +209,26 @@
 					view_id: 'default',
 					set_default_settings: 'Y',
 					delete_user_settings: 'Y',
-					view_settings: this.getCurrentOptions()
+					view_settings: this.getCurrentOptions(),
 				},
-				callback
+				callback,
 			);
 		},
 
-		batch: function(data, callback)
+		batch(data, callback)
 		{
-			this.save(this.getAction('GRID_SAVE_BATH'), {bath: data}, callback);
+			this.save(this.getAction('GRID_SAVE_BATH'), { bath: data }, callback);
 		},
 
-		save: function(action, data, callback)
+		save(action, data, callback)
 		{
-			var self = this;
+			const self = this;
 			BX.ajax.post(
 				this.getUrl(action),
 				data,
-				function(res)
-				{
-					try {
+				(res) => {
+					try
+					{
 						res = JSON.parse(res);
 						if (!res.error)
 						{
@@ -231,9 +240,11 @@
 
 							BX.onCustomEvent(self.parent.getContainer(), 'Grid::optionsChanged', [self.parent]);
 						}
-					} catch (err) {}
-				}
+					}
+					catch
+					{}
+				},
 			);
-		}
+		},
 	};
 })();

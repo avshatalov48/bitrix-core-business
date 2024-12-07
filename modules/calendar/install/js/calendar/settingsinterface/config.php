@@ -18,6 +18,7 @@ return [
 		'main.core',
 		'ui.entity-selector',
 		'main.core.events',
+		'ui.info-helper',
 		'ui.messagecard',
 	],
 	'skip_core' => false,

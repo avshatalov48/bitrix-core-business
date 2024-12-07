@@ -278,7 +278,7 @@ abstract class Collection implements \ArrayAccess, \Iterator, \Countable
 	 *
 	 * @param int|string[] $fields Names of fields to fill
 	 *
-	 * @return array|Collection
+	 * @return array|Collection|null
 	 * @throws ArgumentException
 	 * @throws SystemException
 	 */

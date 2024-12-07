@@ -67,7 +67,6 @@ class BooleanType extends BaseType
 			$labelCheckbox = '';
 		}
 
-
 		$def = (int)($userField['SETTINGS']['DEFAULT_VALUE'] ?? 0);
 		if($def !== 1)
 		{
@@ -156,7 +155,7 @@ class BooleanType extends BaseType
 		$result = [];
 		foreach($constants as $name => $value)
 		{
-			if(mb_strpos($name, 'DISPLAY_') === 0)
+			if(str_starts_with($name, 'DISPLAY_'))
 			{
 				$result[$name] = $value;
 			}

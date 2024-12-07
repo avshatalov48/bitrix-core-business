@@ -88,6 +88,30 @@ if (CMain::GetGroupRight('perfmon') != 'D')
 		],
 		'title' => GetMessage('PERFMON_MNU_TABLES_ALT'),
 	];
+	$connections = [];
+	$defaultConnection = \Bitrix\Main\Application::getConnection();
+	$configParams = \Bitrix\Main\Config\Configuration::getValue('connections');
+	if (is_array($configParams))
+	{
+		foreach ($configParams as $connectionName => $connectionParams)
+		{
+			$connections[] = [
+				'text' => $connectionName,
+				'url' => 'perfmon_tables.php?lang=' . LANGUAGE_ID . '&connection=' . urlencode($connectionName),
+				'more_url' => [
+					'perfmon_tables.php?connection=' . urlencode($connectionName),
+					'perfmon_table.php?connection=' . urlencode($connectionName),
+					'perfmon_row_edit.php?connection=' . urlencode($connectionName),
+				],
+			];
+		}
+	}
+	if (count($connections) > 1)
+	{
+		//unset($aMenu['items'][count($aMenu['items']) - 1]['url']);
+		$aMenu['items'][count($aMenu['items']) - 1]['items_id'] = 'menu_perfmon_table_list';
+		$aMenu['items'][count($aMenu['items']) - 1]['items'] = $connections;
+	}
 
 	if ($connection->getType() === 'mysql')
 	{

@@ -118,7 +118,7 @@ $containerId = 'main-user-selector-' . $arParams['ID'];
 		array("HIDE_ICONS" => "Y")
 	);?>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			try
 			{

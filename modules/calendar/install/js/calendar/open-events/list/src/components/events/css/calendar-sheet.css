@@ -1,0 +1,64 @@
+.calendar-open-events-list-calendar-sheet {
+	position: relative;
+	height: 51px;
+	min-width: 50px;
+	margin: 0 15px 0 0;
+	border-radius: 8px;
+	border: 1px solid rgb(43, 186, 244);
+}
+
+.calendar-open-events-list-calendar-sheet-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-evenly;
+	height: 9px;
+	background: rgb(43, 186, 244);
+	border-radius: 5px 5px 0 0;
+}
+
+.calendar-open-events-list-calendar-sheet-header-hole {
+	background: var(--ui-color-on-primary);
+	opacity: 0.5;
+	height: 4px;
+	width: 4px;
+	border-radius: 100%;
+}
+
+.calendar-open-events-list-calendar-sheet-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-weight: var(--ui-font-weight-bold);
+	text-transform: var(--ui-text-transform-uppercase);
+}
+
+.calendar-open-events-list-calendar-sheet-date {
+	color: var(--ui-color-base-90);
+	font-size: var(--ui-font-size-lg);
+}
+
+.calendar-open-events-list-calendar-sheet-month {
+	color: var(--ui-color-base-50);
+	font-size: var(--ui-font-size-6xs);
+}
+
+.calendar-open-events-list-calendar-sheet-time {
+	font-size: var(--ui-font-size-7xs);
+}
+
+.calendar-open-events-list-calendar-sheet-crown {
+	position: absolute;
+	top: 0;
+	right: 0;
+	transform: translate(40%, -40%);
+	display: flex;
+	padding: 2px;
+	border-radius: 100%;
+	border: 1px solid var(--ui-color-on-primary);
+	background-color: var(--ui-color-primary-alt);
+}
+
+.calendar-open-events-list-calendar-sheet-crown .ui-icon-set {
+	--ui-icon-set__icon-size: 14px;
+	--ui-icon-set__icon-color: var(--ui-color-on-primary);
+}

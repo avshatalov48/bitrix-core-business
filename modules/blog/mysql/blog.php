@@ -53,7 +53,7 @@ class CBlog extends CAllBlog
 			$strSql =
 				"INSERT INTO b_blog(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 
@@ -166,7 +166,7 @@ class CBlog extends CAllBlog
 				"UPDATE b_blog SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			unset($GLOBALS["BLOG"]["BLOG_CACHE_".$ID]);
 			unset($GLOBALS["BLOG"]["BLOG4OWNER_CACHE_".$arBlogOld["OWNER_ID"]]);
@@ -371,7 +371,7 @@ class CBlog extends CAllBlog
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -415,7 +415,7 @@ class CBlog extends CAllBlog
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -441,7 +441,7 @@ class CBlog extends CAllBlog
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("BLOG_BLOG"));
 		}
 		//echo "!4!=".htmlspecialcharsbx($strSql)."<br>";
@@ -461,7 +461,7 @@ class CBlog extends CAllBlog
 		$strSql =
 			"INSERT INTO b_blog_socnet(BLOG_ID) ".
 			"VALUES(".$ID.")";
-		if($DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if($DB->Query($strSql))
 			return true;
 		
 		return false;

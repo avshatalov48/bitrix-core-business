@@ -25,6 +25,7 @@ export class Selector extends EventEmitter
 		this.getTimelineWidth = params.getTimelineWidth;
 		this.getScaleInfo = params.getScaleInfo;
 		this.solidStatus = params.solidStatus;
+		this.alwaysBlue = params.alwaysBlue;
 		this.vacationOffset = 0;
 
 		this.eventDragAndDrop = new EventDragAndDrop(params.getDateByPos, params.getPosByDate, params.getEvents);
@@ -567,8 +568,12 @@ export class Selector extends EventEmitter
 	{
 		if (this.solidStatus)
 		{
-			Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
-			Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+			if (this.alwaysBlue)
+			{
+				Dom.removeClass(this.DOM.wrap, 'calendar-planner-timeline-selector-warning');
+				Dom.removeClass(this.mainContWrap, 'calendar-planner-selector-warning');
+				Dom.addClass(this.DOM.wrap, '--always-blue');
+			}
 			Dom.addClass(this.DOM.wrap, 'solid');
 		}
 		else
@@ -617,6 +622,11 @@ export class Selector extends EventEmitter
 				)
 			);
 		}
+	}
+
+	setSolid()
+	{
+		Dom.addClass(this.DOM.wrap, 'solid');
 	}
 
 	setSelectorStatus(status)

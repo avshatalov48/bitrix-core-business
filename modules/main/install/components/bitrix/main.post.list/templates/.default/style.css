@@ -1069,6 +1069,7 @@ div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
 }
 
 .mpl-quote-block {
+	position: absolute;
 	top: -1010000px;
 	opacity: 0;
 	visibility: hidden;
@@ -1090,6 +1091,62 @@ div[bx-mpl-block="edit-placeholder"] .feed-add-post-files-activity {
 	transition: opacity .4s, visibility 0s;
 	opacity: 1;
 }
+
+/*region quoteWithCopilot*/
+.mpl-quote-block .ui-icon-set {
+	transition: none;
+}
+
+.mpl-quote-block-with-copilot {
+	width: auto !important;
+	height: auto !important;
+	overflow: hidden;
+	background: var(--ui-color-background-primary) !important;
+	border: 1px solid var(--ui-color-base-30);
+	border-radius: 4px;
+}
+
+.mpl-quote-block-with-copilot-container {
+	display: flex;
+	align-items: center;
+}
+
+.mpl-quote-block-quote {
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+	display: flex;
+	padding: 3px 6px;
+	cursor: pointer;
+}
+
+.mpl-quote-block-quote:hover {
+	--ui-icon-set__icon-color: var(--ui-color-base-80);
+	background: var(--ui-color-base-04);
+}
+
+.mpl-quote-block-separator {
+	height: 14px;
+	border-left: 1px solid var(--ui-color-base-20);
+}
+
+.mpl-quote-block-copilot {
+	--ui-icon-set__icon-color: #8E52EC;
+	display: flex;
+	align-items: center;
+	padding: 3px 6px;
+	opacity: 0.8;
+	cursor: pointer;
+}
+
+.mpl-quote-block-copilot:hover {
+	opacity: 1;
+	background: var(--ui-color-base-04);
+}
+
+.mpl-quote-block-copilot-text {
+	color: #8E52EC;
+	font-weight: 500;
+}
+/*endregion quoteWithCopilot*/
 
 
 /*region DND*/

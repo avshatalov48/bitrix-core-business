@@ -1,8 +1,8 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_docs_element.php");
 
-class CCatalogStoreDocsElement
-	extends CCatalogStoreDocsElementAll
+class CCatalogStoreDocsElement extends CCatalogStoreDocsElementAll
 {
 	public static function add($arFields)
 	{
@@ -18,7 +18,7 @@ class CCatalogStoreDocsElement
 		$arInsert = $DB->PrepareInsert("b_catalog_docs_element", $arFields);
 		$strSql = "INSERT INTO b_catalog_docs_element (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
-		$res = $DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql, true);
 		if(!$res)
 			return false;
 		$lastId = intval($DB->LastID());
@@ -76,7 +76,7 @@ class CCatalogStoreDocsElement
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -104,7 +104,7 @@ class CCatalogStoreDocsElement
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -126,7 +126,7 @@ class CCatalogStoreDocsElement
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 		return $dbRes;
 	}

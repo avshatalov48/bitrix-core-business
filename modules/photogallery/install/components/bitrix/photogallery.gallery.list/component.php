@@ -1,8 +1,14 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!IsModuleInstalled("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 /********************************************************************
 				Input params
@@ -116,9 +122,14 @@ else
 $arParams["ABS_PERMISSION"] = $arParams["PERMISSION"];
 $arParams["PERMISSION"] = (!empty($arParams["PERMISSION_EXTERNAL"]) ? $arParams["PERMISSION_EXTERNAL"] : $arParams["PERMISSION"]);
 if ("R" <= $arParams["PERMISSION"] && $arParams["PERMISSION"] < "W" && $arParams["BEHAVIOUR"] == "USER" && $arParams["USER_ID"] == $GLOBALS["USER"]->GetId())
+{
 	$arParams["PERMISSION"] = "W";
+}
 elseif ($arParams["PERMISSION"] < "R")
-	return ShowError(GetMessage("P_DENIED_ACCESS"));
+{
+	ShowError(GetMessage("P_DENIED_ACCESS"));
+	return;
+}
 
 /************** GALLERIES ******************************************/
 //PAGENAVIGATION

@@ -1,5 +1,5 @@
 import {BaseField} from 'landing.ui.field.basefield';
-import {Text, Type, Event, Dom, Runtime} from 'main.core';
+import { Text, Type, Event, Dom, Runtime, Tag } from 'main.core';
 import {BaseEvent} from 'main.core.events';
 import {fetchEventsFromOptions} from 'landing.ui.component.internal';
 
@@ -18,6 +18,9 @@ export class TextField extends BaseField
 		this.textOnly = Type.isBoolean(this.options.textOnly) ? this.options.textOnly : false;
 		this.content = this.textOnly ? Text.encode(this.content) : this.content;
 		this.input.innerHTML = this.content;
+
+		this.#createFooter();
+		this.setFooterText(this.options.footerText ?? '');
 
 		this.onInputClick = this.onInputClick.bind(this);
 		this.onInputMousedown = this.onInputMousedown.bind(this);
@@ -221,6 +224,37 @@ export class TextField extends BaseField
 		}
 
 		return this.adjustTags(Runtime.clone(this.input)).innerHTML.replace(/&nbsp;/g, '');
+	}
+
+	#createFooter(): void
+	{
+		this.footer = Tag.render`<div class="landing-ui-field-bottom ui-ctl-bottom" hidden></div>`;
+		Dom.append(this.footer, this.getLayout());
+	}
+
+	setFooterText(text: string): void
+	{
+		this.footer.innerText = text;
+	}
+
+	showFooter(): void
+	{
+		Dom.show(this.footer);
+	}
+
+	hideFooter(): void
+	{
+		Dom.hide(this.footer);
+	}
+
+	setWarningStatus(): void
+	{
+		Dom.addClass(this.getLayout(), 'landing-ui-field-warning');
+	}
+
+	unsetWarningStatus(): void
+	{
+		Dom.removeClass(this.layout, 'landing-ui-field-warning');
 	}
 }
 

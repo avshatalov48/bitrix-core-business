@@ -11,14 +11,20 @@ import { CopilotMessage } from 'im.v2.component.message.copilot.answer';
 import { ChatCopilotAddedUsersMessage } from 'im.v2.component.message.copilot.added-users';
 import { SupportVoteMessage } from 'im.v2.component.message.support.vote';
 import { SupportSessionNumberMessage } from 'im.v2.component.message.support.session-number';
+import { SupportChatCreationMessage } from 'im.v2.component.message.support.chat-creation';
 import { ConferenceCreationMessage } from 'im.v2.component.message.conference-creation';
 import { SupervisorUpdateFeatureMessage } from 'im.v2.component.message.supervisor.update-feature';
 import { SupervisorEnableFeatureMessage } from 'im.v2.component.message.supervisor.enable-feature';
 import { SignMessage } from 'im.v2.component.message.sign';
+import { CheckInMessage } from 'im.v2.component.message.check-in';
 import { OwnChatCreationMessage } from 'im.v2.component.message.own-chat-creation';
 import { ZoomInviteMessage } from 'im.v2.component.message.zoom-invite';
+import { GeneralChatCreationMessage } from 'im.v2.component.message.general-chat-creation';
+import { GeneralChannelCreationMessage } from 'im.v2.component.message.general-channel-creation';
+import { ChannelCreationMessage } from 'im.v2.component.message.channel-creation';
+import { CallMessage } from 'im.v2.component.message.call';
 
-export const messageComponents = {
+export const MessageComponents = {
 	DefaultMessage,
 	FileMessage,
 	SmileMessage,
@@ -32,10 +38,16 @@ export const messageComponents = {
 	CopilotMessage,
 	SupportVoteMessage,
 	SupportSessionNumberMessage,
+	SupportChatCreationMessage,
 	ConferenceCreationMessage,
 	ZoomInviteMessage,
+	CheckInMessage,
 	SupervisorUpdateFeatureMessage,
 	SupervisorEnableFeatureMessage,
 	ChatCopilotAddedUsersMessage,
 	SignMessage,
+	GeneralChatCreationMessage,
+	GeneralChannelCreationMessage,
+	ChannelCreationMessage,
+	CallMessage,
 };

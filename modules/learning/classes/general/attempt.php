@@ -126,7 +126,7 @@ abstract class CAllTestAttempt
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_attempt", $arFields, "learning");
 			$strSql = "UPDATE b_learn_attempt SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			$USER_FIELD_MANAGER->Update("LEARN_ATTEMPT", $ID, $arFields);
 
@@ -146,12 +146,12 @@ abstract class CAllTestAttempt
 
 		//Results
 		$strSql = "DELETE FROM b_learn_test_result WHERE ATTEMPT_ID = ".$ID;
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		//Attempt
 		$strSql = "DELETE FROM b_learn_attempt WHERE ID = ".$ID;
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		$USER_FIELD_MANAGER->Delete("LEARN_ATTEMPT", $ID);
@@ -241,7 +241,7 @@ abstract class CAllTestAttempt
 		"FROM b_learn_attempt A ".
 		"WHERE A.TEST_ID = '".intval($TEST_ID)."' AND A.STUDENT_ID = '".intval($STUDENT_ID)."'";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res_cnt = $res->Fetch();
 
 		return intval($res_cnt["C"]);
@@ -257,18 +257,18 @@ abstract class CAllTestAttempt
 		"FROM b_learn_test_result TR, b_learn_question Q ".
 		"WHERE TR.QUESTION_ID = Q.ID AND TR.CORRECT = 'N' AND Q.CORRECT_REQUIRED = 'Y' AND TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."'";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return false;
 
 		if ($arStat = $res->Fetch())
 			return false;
 
 		$strSql =
-		"SELECT SUM(Q.POINT) as CNT_ALL, SUM(CASE WHEN TR.CORRECT = 'Y' THEN Q.POINT ELSE 0 END) as CNT_RIGHT ".
+		"SELECT SUM(Q.POINT) as CNT_ALL, SUM(CASE WHEN TR.CORRECT = 'Y' THEN TR.POINT ELSE 0 END) as CNT_RIGHT ".
 		"FROM b_learn_test_result TR, b_learn_question Q ".
 		"WHERE TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."' AND TR.QUESTION_ID = Q.ID";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return false;
 
 		if (!$arStat = $res->Fetch())
@@ -308,7 +308,7 @@ abstract class CAllTestAttempt
 		"FROM b_learn_attempt A ".
 		"INNER JOIN b_learn_test T ON A.TEST_ID = T.ID ".
 		"WHERE A.ID = '".$ATTEMPT_ID."' AND A.STATUS = 'F' ";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arAttempt = $res->Fetch())
 			return false;
 
@@ -328,11 +328,11 @@ abstract class CAllTestAttempt
 		"UPDATE b_learn_attempt SET COMPLETED = '".$COMPLETED."' ".
 		"WHERE ID = '".$ATTEMPT_ID."'";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return false;
 
 		$strSql = "SELECT * FROM b_learn_gradebook WHERE STUDENT_ID='".$arAttempt["STUDENT_ID"]."' AND TEST_ID='".$arAttempt["TEST_ID"]."'";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arGradeBook = $res->Fetch())
 		{
 			$arFields = Array(
@@ -356,7 +356,7 @@ abstract class CAllTestAttempt
 			"SELECT A.SCORE, A.MAX_SCORE FROM b_learn_attempt A ".
 			"WHERE A.STUDENT_ID = '".$arAttempt["STUDENT_ID"]."' AND A.TEST_ID = '".$arAttempt["TEST_ID"]."'  ORDER BY COMPLETED DESC, SCORE DESC";
 			//AND A.COMPLETED = 'Y'
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 			if (!$arMaxScore = $res->Fetch())
 				return false;
 
@@ -367,7 +367,7 @@ abstract class CAllTestAttempt
 				"UPDATE b_learn_gradebook SET RESULT = '".intval($arMaxScore["SCORE"])."', MAX_RESULT = '".intval($arMaxScore["MAX_SCORE"])."',COMPLETED = '".$COMPLETED."' ".
 				"WHERE ID = '".$arGradeBook["ID"]."'";
 
-			if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if (!$res = $DB->Query($strSql))
 				return false;
 
 			CCertification::Certificate($arAttempt["STUDENT_ID"], $arAttempt["COURSE_ID"]);
@@ -392,7 +392,7 @@ abstract class CAllTestAttempt
 		"INNER JOIN b_learn_question Q ON TR.QUESTION_ID = Q.ID ".
 		"WHERE ATTEMPT_ID = '".$ATTEMPT_ID."' ";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$ar = $res->Fetch())
 			return false;
 
@@ -428,12 +428,12 @@ abstract class CAllTestAttempt
 					"FROM b_learn_test_result TR ".
 					"INNER JOIN b_learn_question Q ON TR.QUESTION_ID = Q.ID ".
 					"WHERE TR.ATTEMPT_ID = ".$ATTEMPT_ID;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$ar = $res->Fetch())
 			return false;
 
 		$strSql = "UPDATE b_learn_attempt SET QUESTIONS = '".intval($ar["CNT"])."', SCORE = '".intval($ar["CNT_SUM"])."', MAX_SCORE = '".intval($ar["MAX_POINT"])."' WHERE ID = ".$ATTEMPT_ID;
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -450,7 +450,7 @@ abstract class CAllTestAttempt
 		"WHERE TR.QUESTION_ID = Q.ID AND TR.CORRECT = 'N' AND TR.ANSWERED = 'Y' AND Q.CORRECT_REQUIRED = 'Y' AND TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."'";
 
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return true;
 
 		if ($arStat = $res->Fetch())
@@ -461,7 +461,7 @@ abstract class CAllTestAttempt
 		"FROM b_learn_test_result TR, b_learn_question Q ".
 		"WHERE TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."' AND TR.QUESTION_ID = Q.ID";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return true;
 
 		if (!$arStat = $res->Fetch())
@@ -642,13 +642,13 @@ abstract class CAllTestAttempt
 			if ($nTopCount !== null)
 			{
 				$strSql = $DB->TopSql($strSql, $nTopCount);
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 				$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("LEARN_ATTEMPT"));
 			}
 		}
 		else
 		{
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 			$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("LEARN_ATTEMPT"));
 		}
 
@@ -658,19 +658,7 @@ abstract class CAllTestAttempt
 
 	private static function getSpeedFieldSql()
 	{
-		$connection = \Bitrix\Main\Application::getConnection();
-		if ($connection instanceof \Bitrix\Main\DB\MssqlConnection)
-		{
-			return "DATEDIFF(s, A.DATE_START, A.DATE_END) / A.QUESTIONS";
-		}
-		elseif ($connection instanceof \Bitrix\Main\DB\OracleConnection)
-		{
-			return "round((A.DATE_END-A.DATE_START)*86400) / A.QUESTIONS";
-		}
-		else
-		{
-			return "round((unix_timestamp(IFNULL(A.DATE_END, A.DATE_START))-unix_timestamp(A.DATE_START)) / A.QUESTIONS)";
-		}
+		return "round((unix_timestamp(coalesce(A.DATE_END, A.DATE_START))-unix_timestamp(A.DATE_START)) / (case when A.QUESTIONS > 0 then A.QUESTIONS else 1 end))";
 	}
 
 	public static function CreateAttemptQuestions($ATTEMPT_ID)
@@ -694,7 +682,7 @@ abstract class CAllTestAttempt
 		}
 
 		$strSql = "DELETE FROM b_learn_test_result WHERE ATTEMPT_ID = ".$ATTEMPT_ID;
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		/**
@@ -760,7 +748,7 @@ abstract class CAllTestAttempt
 				"ORDER BY ".($arTest["RANDOM_QUESTIONS"] == "Y" ? CTest::GetRandFunction() : "L.SORT, Q.SORT, L.ID");
 			}
 
-			if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if (!$res = $DB->Query($strSql))
 				return false;
 
 			$Values = Array();
@@ -791,7 +779,7 @@ abstract class CAllTestAttempt
 			foreach ($Values as $ID)
 			{
 				$strSql = "INSERT INTO b_learn_test_result (ATTEMPT_ID, QUESTION_ID) VALUES (".$ATTEMPT_ID.",".$ID.")";
-				if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+				if (!$DB->Query($strSql))
 				{
 					$DB->Rollback();
 					return false;
@@ -839,7 +827,7 @@ abstract class CAllTestAttempt
 			($arTest["QUESTIONS_AMOUNT"] > 0 ? "LIMIT ".$arTest["QUESTIONS_AMOUNT"] :"");
 
 			$success = false;
-			$rsQuestions = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsQuestions = $DB->Query($strSql);
 
 			$strSql = '';
 			if ($rsQuestions)
@@ -853,7 +841,7 @@ abstract class CAllTestAttempt
 
 				if ($strSql !== '')
 				{
-					$rc = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$rc = $DB->Query($strSql);
 					if ($rc && intval($rc->AffectedRowsCount()) > 0)
 						$success = true;
 				}
@@ -889,7 +877,7 @@ abstract class CAllTestAttempt
 
 
 			$success = false;
-			$rsQuestions = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsQuestions = $DB->Query($strSql);
 
 			$strSql = '';
 			if ($rsQuestions)
@@ -903,7 +891,7 @@ abstract class CAllTestAttempt
 
 				if ($strSql !== '')
 				{
-					$rc = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$rc = $DB->Query($strSql);
 					if ($rc && intval($rc->AffectedRowsCount()) > 0)
 						$success = true;
 				}
@@ -919,7 +907,7 @@ abstract class CAllTestAttempt
 			return (false);
 
 		$strSql = "UPDATE b_learn_attempt SET QUESTIONS = '".CTestResult::GetCount($ATTEMPT_ID)."' WHERE ID = ".$ATTEMPT_ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return true;
 	}

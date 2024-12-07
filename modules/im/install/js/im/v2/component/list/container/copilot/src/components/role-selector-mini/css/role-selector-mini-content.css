@@ -1,0 +1,74 @@
+.bx-im-role-selector-mini-content__container {
+	--im-role-selector-mini-content__background-color_main-selector: #f4eefd;
+	--im-role-selector-mini-content__background-color_main-selector-hover: #ebe0fc;
+	--im-role-selector-mini-content__color-title: var(--im-color-palette-gray-50);
+	--im-role-selector-mini-content__color_main-selector-name: var(--im-color-palette-copilot-dark);
+
+	padding: 16px 5px 5px;
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-2xs);
+}
+
+.bx-im-role-selector-mini-content__items {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+}
+
+.bx-im-role-selector-mini-content__title {
+	font-size: var(--im-font-size-sm);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-role-selector-mini-content__color-title);
+	padding-left: 11px;
+	margin-bottom: 4px;
+}
+
+.bx-im-role-selector-mini-content__main-selector {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	width: 100%;
+	height: 57px;
+	padding: 8px 13px 7px 11px;
+	cursor: pointer;
+	border-radius: 6px;
+	background-color: var(--im-role-selector-mini-content__background-color_main-selector);
+}
+
+.bx-im-role-selector-mini-content__main-selector:hover {
+	background-color: var(--im-role-selector-mini-content__background-color_main-selector-hover);
+}
+
+.bx-im-role-selector-mini-content__main-selector-info {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	overflow: hidden;
+}
+
+.bx-im-role-selector-mini-content__main-selector-avatar {
+	width: 32px;
+	height: 32px;
+	flex-shrink: 0;
+	background: url("./images/select-roles-avatar.webp") no-repeat center / contain;
+}
+
+.bx-im-role-selector-mini-content__main-selector-name {
+	font-size: var(--im-font-size-lg);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-role-selector-mini-content__color_main-selector-name);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-role-selector-mini-content__main-selector-arrow {
+	width: 16px;
+	height: 16px;
+	background: url("./images/arrow.svg") no-repeat center;
+	flex-shrink: 0;
+}
+
+.bx-im-role-selector-mini-content__main-selector:hover .bx-im-role-selector-mini-content__main-selector-arrow {
+	background: url("./images/arrow-hover.svg") no-repeat center;
+}

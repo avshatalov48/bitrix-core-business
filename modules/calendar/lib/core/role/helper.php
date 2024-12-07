@@ -3,6 +3,7 @@
 namespace Bitrix\Calendar\Core\Role;
 
 use Bitrix\Calendar\Core\Base\BaseException;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main\UserTable;
 use Bitrix\Main;
 
@@ -17,6 +18,7 @@ class Helper
 	{
 		switch ($type)
 		{
+			case Dictionary::CALENDAR_TYPE['open_event']:
 			case User::TYPE:
 				return self::getUserRole($id);
 			case Company::TYPE:

@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Main\Composite;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Composite\Debug;
 use Bitrix\Main\Composite\Debug\Logger;
 use Bitrix\Main\Composite\Internals\Model\PageTable;
 use Bitrix\Main\Composite\Internals\Locker;
@@ -13,14 +13,13 @@ use Bitrix\Main\Context;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Engine\Response;
 use Bitrix\Main\IO\File;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetMode;
 use Bitrix\Main\Page\AssetLocation;
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
@@ -370,7 +369,7 @@ final class Engine
 				if (self::$isCompositeInjected !== true && $method[1] === "GetHeadStrings")
 				{
 					self::$isCompositeInjected =
-						strpos($newBuffer[$i * 2 + 1], "w.frameRequestStart") !== false;
+						str_contains($newBuffer[$i * 2 + 1], "w.frameRequestStart");
 				}
 			}
 		}
@@ -553,7 +552,7 @@ final class Engine
 				"spread" => array_map(array("CUtil", "JSEscape"), $APPLICATION->GetSpreadCookieUrls()),
 			);
 
-			$content = \CUtil::PhpToJSObject($content);
+			$content = Json::encode($content);
 		}
 		else
 		{
@@ -899,7 +898,7 @@ final class Engine
 			"reason" => $error,
 		);
 
-		return \CUtil::PhpToJSObject($response);
+		return Json::encode($response);
 	}
 
 	/**
@@ -924,7 +923,7 @@ final class Engine
 	 */
 	private static function getInjectedJs($params = array())
 	{
-		$vars = \CUtil::PhpToJSObject($params);
+		$vars = Json::encode($params);
 
 		$inlineJS = <<<JS
 			(function(w, d) {
@@ -1047,7 +1046,7 @@ JS;
 			$html .= '<style type="text/css">'.str_replace(array("\n", "\t"), "", self::getInjectedCSS())."</style>\n";
 		}
 
-		$html .= '<script type="text/javascript" data-skip-moving="true">'.
+		$html .= '<script data-skip-moving="true">'.
 				 str_replace(array("\n", "\t"), "", $inlineJS).
 				 "</script>";
 

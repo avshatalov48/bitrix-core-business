@@ -36,6 +36,7 @@ class UrlType extends StringType
 		$min = (int)($userField['SETTINGS']['MIN_LENGTH'] ?? 0);
 		$max = (int)($userField['SETTINGS']['MAX_LENGTH'] ?? 0);
 		$defaultValue = $userField['SETTINGS']['DEFAULT_VALUE'] ?? '';
+		$rows = (int)($userField['SETTINGS']['ROWS'] ?? 1);
 
 		return [
 			'POPUP' => $popup,
@@ -43,6 +44,7 @@ class UrlType extends StringType
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
 			'DEFAULT_VALUE' => $defaultValue,
+			'ROWS' => $rows,
 		];
 	}
 

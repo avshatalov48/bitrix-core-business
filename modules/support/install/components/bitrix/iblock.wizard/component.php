@@ -1,4 +1,5 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
+<?php
+if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 if(!isset($arParams['NEXT_URL']))
 	$arParams['NEXT_URL'] = 'ticket_edit.php';
@@ -46,6 +47,7 @@ $arResult['LAST_SECTION_ID'] = $arResult['SECTION_ID']	= $SECTION_ID;
 $arSteps = array('',GetMessage("WZ_S1"),GetMessage("WZ_S2"),GetMessage("WZ_S3"), GetMessage("WZ_S4"), GetMessage("WZ_S5"), GetMessage("WZ_S6"), GetMessage("WZ_S7"));
 $arResult['CURRENT_STEP_TEXT'] = $arSteps[$CURRENT_STEP];
 
+$arHidden = [];
 if ($CURRENT_STEP > 1 && is_array($_POST['wizard']))
 {
 	foreach($_POST['wizard'] as $k=>$v)
@@ -61,7 +63,7 @@ if ($CURRENT_STEP > 1 && is_array($_POST['wizard']))
 	}
 }
 
-// NavChain 
+// NavChain
 if ($CURRENT_STEP > 1 && $arParams['INCLUDE_IBLOCK_INTO_CHAIN']=='Y')
 {
 	$rs = CIBlockSection::GetNavChain($IBLOCK_ID, $SECTION_ID);
@@ -141,4 +143,3 @@ while($el=$rs->GetNextElement())
 $arResult['HIDDEN'] = $arHidden;
 
 $this->IncludeComponentTemplate();
-?>

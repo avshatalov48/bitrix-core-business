@@ -9,6 +9,7 @@
 $pageId = "group_log";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 ?>
 <?
 $APPLICATION->IncludeComponent(

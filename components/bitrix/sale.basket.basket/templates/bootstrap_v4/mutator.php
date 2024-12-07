@@ -199,7 +199,7 @@ foreach ($this->basketItems as $row)
 				{
 					foreach ($skuBlock['SKU_VALUES_LIST'] as $valueKey => $skuValue)
 					{
-						if ($skuValue['SELECTED'])
+						if ($skuValue['SELECTED'] ?? null)
 						{
 							$rowData['SKU_BLOCK_LIST'][$blockKey]['SKU_VALUES_LIST'][$valueKey]['NOT_AVAILABLE_OFFER'] = true;
 						}

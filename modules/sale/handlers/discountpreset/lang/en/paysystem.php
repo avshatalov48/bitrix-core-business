@@ -1,5 +1,4 @@
-<?
+<?php
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_PAYSYSTEM_NAME"] = "Discount for selected payment system";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_PAYSYSTEM_PAYMENT_LABEL"] = "Payment system";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_PAYMENT"] = "Payment system is not specified";
-?>

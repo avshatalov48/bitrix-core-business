@@ -405,7 +405,7 @@ this.BX.UI = this.BX.UI || {};
 	  }
 	  render() {
 	    this.node = main_core.Tag.render(_t$1 || (_t$1 = _$1`<div class="ui-userfieldfactory-configurator"></div>`));
-	    this.labelInput = main_core.Tag.render(_t2$1 || (_t2$1 = _$1`<input class="ui-ctl-element" type="text" value="${0}" />`), main_core.Text.encode(this.userField.getTitle()));
+	    this.labelInput = main_core.Tag.render(_t2$1 || (_t2$1 = _$1`<input class="ui-ctl-element" type="text" placeholder="${0}" />`), main_core.Text.encode(this.userField.getTitle()));
 	    this.node.appendChild(main_core.Tag.render(_t3$1 || (_t3$1 = _$1`<div class="ui-userfieldfactory-configurator-block">
 			<div class="ui-userfieldfactory-configurator-title">
 				<span class="ui-userfieldfactory-configurator-title-text">${0}</span>

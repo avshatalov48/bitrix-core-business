@@ -67,7 +67,6 @@ class ShipmentPropertyValueCollection extends EntityPropertyValueCollection
 	/**
 	 * @param Shipment $shipment
 	 * @return ShipmentPropertyValueCollection
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
 	public static function load(Shipment $shipment): ShipmentPropertyValueCollection
 	{
@@ -83,7 +82,7 @@ class ShipmentPropertyValueCollection extends EntityPropertyValueCollection
 		foreach ($props as $prop)
 		{
 			$prop->setCollection($propertyCollection);
-			$propertyCollection->addItem($prop);
+			$propertyCollection->bindItem($prop);
 		}
 
 		return $propertyCollection;
@@ -97,6 +96,9 @@ class ShipmentPropertyValueCollection extends EntityPropertyValueCollection
 		return $this->shipment->getOrder();
 	}
 
+	/**
+	 * @return ShipmentPropertyValueCollection
+	 */
 	private static function createPropertyValueCollectionObject()
 	{
 		$registry = Registry::getInstance(static::getRegistryType());

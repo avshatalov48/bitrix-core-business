@@ -9,13 +9,16 @@ namespace Bitrix\Sender;
 
 use Bitrix\Main\DB;
 use Bitrix\Main\ORM;
+use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type as MainType;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 use Bitrix\Fileman\Block\Editor as BlockEditor;
 use Bitrix\Fileman\Block\EditorMail as BlockEditorMail;
+use Bitrix\Sender\Internals\Model\MessageFieldTable;
 use Bitrix\Sender\Internals\SqlBatch;
+use Bitrix\Sender\Internals\Model\FileInfoTable;
 
 Loc::loadMessages(__FILE__);
 
@@ -103,19 +106,53 @@ class FileTable extends ORM\Data\DataManager
 
 		}
 
+		$useSenderFileInfoTable = \COption::GetOptionString('sender', 'sender_file_info_load_completed', 'N') === 'Y';
+		$attachmentFileIds = [];
+		$attachmentFiles = [];
+		if (
+			$entityType === FileTable::TYPES['LETTER']
+			&& $useSenderFileInfoTable
+		)
+		{
+			$attachmentFiles = self::getMessageAttachmentFiles($entityId);
+
+			if (!empty($attachmentFiles))
+			{
+				foreach ($attachmentFiles as $attachmentFile)
+				{
+					$attachmentFileIds[] = (int)$attachmentFile['ID'];
+				}
+				$files = array_merge($files, $attachmentFiles);
+			}
+
+		}
+
 		if (!empty($fileNameSearchList))
 		{
 			// get files from main FileTable which exists in html
-			$selectedFiles = \Bitrix\Main\FileTable::getList([
-				'select' => ['ID', 'FILE_NAME'],
-				'filter' => [
-					'=MODULE_ID' => 'sender',
-					'@FILE_NAME' => $fileNameSearchList,
-				],
-				'order' => [
-					'ID' => 'ASC'
-				]
-			])->fetchAll();
+			if ($useSenderFileInfoTable)
+			{
+				$selectedFiles = FileInfoTable::query()
+					->setSelect(['ID', 'FILE_NAME'])
+					->whereIn('FILE_NAME', $fileNameSearchList)
+					->setOrder(['ID' => 'ASC'])
+					->fetchAll()
+				;
+			}
+			else
+			{
+				$selectedFiles = \Bitrix\Main\FileTable::getList([
+					'select' => ['ID', 'FILE_NAME'],
+					'filter' => [
+						'=MODULE_ID' => 'sender',
+						'@FILE_NAME' => $fileNameSearchList,
+					],
+					'order' => [
+						'ID' => 'ASC'
+					]
+				])->fetchAll();
+			}
+
 			$files = array_merge($files, $selectedFiles);
 
 			if (empty($selectedFiles))
@@ -132,8 +169,15 @@ class FileTable extends ORM\Data\DataManager
 		$currentFiles = array_column(self::getCurrentFiles($entityId, $entityType), 'FILE_ID');
 
 		$preparedFiles = [];
+		$alreadyAttachedFileIds = [];
 		foreach ($currentFiles as $fileId)
 		{
+			if (in_array((int)$fileId, $attachmentFileIds, true))
+			{
+				$alreadyAttachedFileIds[] = (int)$fileId;
+				continue;
+			}
+
 			$preparedFiles[$fileId] = $fileId;
 		}
 
@@ -144,6 +188,12 @@ class FileTable extends ORM\Data\DataManager
 			{
 				continue;
 			}
+
+			if (!$onDeleteEntity && in_array((int)$file['ID'], $attachmentFileIds, true))
+			{
+				continue;
+			}
+
 			if (!isset(static::$fileList[$file['FILE_NAME']]))
 			{
 				static::$fileList[$file['FILE_NAME']] = $file;
@@ -182,6 +232,21 @@ class FileTable extends ORM\Data\DataManager
 			}
 		}
 
+		foreach ($attachmentFiles as $file)
+		{
+			if (in_array((int)$file['ID'], $alreadyAttachedFileIds, true))
+			{
+				continue;
+			}
+
+			$batchData['ATTACHMENT_FILE' . $file['ID']] = [
+				'ENTITY_TYPE' => $entityType,
+				'ENTITY_ID' => $entityId,
+				'FILE_ID' => $file['ID'],
+				'DATE_INSERT' => new MainType\DateTime()
+			];
+		}
+
 		foreach ($preparedFiles as $file)
 		{
 			self::deleteIfCan($file, $entityId, $entityType, $deleteFiles);
@@ -203,6 +268,63 @@ class FileTable extends ORM\Data\DataManager
 				'=ENTITY_TYPE' => $entityType,
 			],
 		])->fetchAll();
+	}
+
+	private static function getMessageAttachmentFiles(int $messageId, bool $useSenderFileInfoTable = true): array
+	{
+		$fileField = MessageFieldTable::getById([
+			'MESSAGE_ID' => $messageId,
+			'CODE' => 'ATTACHMENT',
+		])->fetch();
+
+		if (
+			!$fileField
+			|| $fileField['TYPE'] !== 'file'
+			|| empty($fileField['VALUE'])
+		)
+		{
+			return [];
+		}
+
+		$attachmentFiles = explode(',', $fileField['VALUE']);
+		$attachmentIds = [];
+		foreach ($attachmentFiles as $attachmentFile)
+		{
+			if (is_numeric($attachmentFile))
+			{
+				$attachmentIds[] = (int)$attachmentFile;
+			}
+		}
+
+		if (empty($attachmentIds))
+		{
+			return [];
+		}
+
+		if ($useSenderFileInfoTable)
+		{
+			$attachmentFiles = FileInfoTable::query()
+				->setSelect(['ID', 'FILE_NAME'])
+				->whereIn('ID', $attachmentIds)
+				->setOrder(['ID' => 'ASC'])
+				->fetchAll()
+			;
+		}
+		else
+		{
+			$attachmentFiles = \Bitrix\Main\FileTable::getList([
+				'select' => ['ID', 'FILE_NAME'],
+				'filter' => [
+					'=MODULE_ID' => 'sender',
+					'@ID' => $attachmentIds,
+				],
+				'order' => [
+					'ID' => 'ASC'
+				],
+			])->fetchAll();
+		}
+
+		return $attachmentFiles;
 	}
 
 	private static function deleteIfCan(int $fileId, int $entityId, int $entityType, bool $deleteFiles)
@@ -234,6 +356,7 @@ class FileTable extends ORM\Data\DataManager
 		if (!$hasFiles && $deleteFiles)
 		{
 			\CFile::Delete($fileId);
+			FileInfoTable::delete($fileId);
 		}
 	}
 

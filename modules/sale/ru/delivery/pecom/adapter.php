@@ -309,20 +309,6 @@ class Adapter
 
 			$data = json_decode($jsnData, true);
 
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			{
-				$data = $APPLICATION->ConvertCharsetArray($data, 'utf-8', SITE_CHARSET);
-				if(is_array($data))
-				{
-					foreach($data as $key => $value)
-					{
-						$newKey = $APPLICATION->ConvertCharset($key, 'utf-8', SITE_CHARSET);
-						$data[$newKey] = $value;
-						unset($data[$key]);
-					}
-				}
-			}
-
 			if(!is_array($data))
 				$data = array();
 

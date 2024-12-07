@@ -201,21 +201,9 @@ else
 			}
 			else
 			{
-				if(mb_strlen($arUser["PASSWORD"]) > 32)
-				{
-					$salt = mb_substr($arUser["PASSWORD"], 0, mb_strlen($arUser["PASSWORD"]) - 32);
-					$db_password = mb_substr($arUser["PASSWORD"], -32);
-				}
-				else
-				{
-					$salt = "";
-					$db_password = $arUser["PASSWORD"];
-				}
-
-
 				if(
 					$arUser['ACTIVE'] == 'Y'
-					&& md5($db_password.'MySalt') == md5(md5($salt.$oRequest->arParameters['password']).'MySalt')
+					&& \Bitrix\Main\Security\Password::equals($arUser["PASSWORD"], $oRequest->arParameters['password'])
 				)
 				{
 					$arSaveUser = CControllerClient::PrepareUserInfo($arUser);

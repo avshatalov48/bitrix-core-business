@@ -38,7 +38,7 @@ if (!function_exists("__GetVisibleJS"))
 	}
 }
 
-?><script language="JavaScript">
+?><script>
 <!--
 	BX.message({
 		sonetSLGetPath: '<?=CUtil::JSEscape('/bitrix/components/bitrix/socialnetwork.subscribe_list/ajax.php')?>',
@@ -126,7 +126,7 @@ else
 		<table width="100%" class="subscribe-list-table">
 		<tr>
 			<td valign="top" width="30%" class="subscribe-list-entity-td">
-				<script language="JavaScript">
+				<script>
 				<!--
 				SLTree.Tree['<?=$entity_type?>_N'] = {
 						'root': {}
@@ -260,7 +260,7 @@ else
 							<?
 							$arRes = __GetInheritedValue($arResult["EventsNew"], $entity_type, 0, false, false, $event_tmp, "TRANSPORT");
 							?>
-							<script language="JavaScript">
+							<script>
 							<!--
 							var q = {props: { 'arEvents': {} }};
 							q.props['arEvents']['<?=$event_tmp?>'] = {
@@ -299,12 +299,12 @@ else
 							endforeach;
 							?>
 							</select>
-							<script language="JavaScript">
+							<script>
 							<!--
 							BX.bind(BX('t_N_bx_sl_<?=$entity_type?>_all_<?=$event_tmp?>'), "change", BX.delegate(SLTree.onChangeTransport, SLTree));
 							-->
 							</script>
-							<script language="JavaScript">
+							<script>
 							<!--
 							<?
 							if (!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true)
@@ -329,7 +329,7 @@ else
 							{
 								$arVisibleJS = __GetVisibleJS($arRes, true);
 								?>
-								<script language="JavaScript">
+								<script>
 								<!--
 								<?=$arVisibleJS["strArCheckboxVal"]?>
 								<?=$arVisibleJS["strCheckboxClassName"]?>
@@ -392,7 +392,7 @@ else
 			<table width="100%" class="subscribe-list-table">
 			<tr id="bx_sl_<?=$event["ENTITY_TYPE"]?>_<?=$event["ENTITY_ID"]?>_tr">
 				<td valign="top" width="30%" class="subscribe-list-entity-td subscribe-list-entity-name">
-					<script language="JavaScript">
+					<script>
 					<!--
 					SLTree.Tree['<?=$entity_type?>_N'][<?=$event["ENTITY_ID"]?>] = {};
 					
@@ -480,7 +480,7 @@ else
 								<?
 								$arRes = __GetInheritedValue($arResult["EventsNew"], $event["ENTITY_TYPE"], $event["ENTITY_ID"], false, false, $event_tmp, "TRANSPORT");
 								?>
-								<script language="JavaScript">
+								<script>
 								<!--
 								var q = {props: { 'arEvents': {} }};
 								q.props['arEvents']['<?=$event_tmp?>'] = {
@@ -514,12 +514,12 @@ else
 								endforeach;
 								?>
 								</select>
-								<script language="JavaScript">
+								<script>
 								<!--
 								BX.bind(BX('t_N_bx_sl_<?=$entity_type?>_<?=$event["ENTITY_ID"]?>_<?=$event_tmp?>'), "change", BX.delegate(SLTree.onChangeTransport, SLTree));
 								-->
 								</script>
-								<script language="JavaScript">
+								<script>
 								<!--
 								<?
 								if (!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true)
@@ -545,7 +545,7 @@ else
 								{
 									$arVisibleJS = __GetVisibleJS($arRes);
 									?>
-									<script language="JavaScript">
+									<script>
 									<!--
 									<?=$arVisibleJS["strArCheckboxVal"]?>
 									<?=$arVisibleJS["strCheckboxClassName"]?>
@@ -609,7 +609,7 @@ else
 		
 		/* my */
 		?>
-		<script language="JavaScript">
+		<script>
 		<!--
 		SLTree.Tree['<?=$entity_type?>_N']['allmy'] = {};
 				
@@ -675,7 +675,7 @@ else
 								<?
 								$arRes = __GetInheritedValue($arResult["EventsNew"], $entity_type, 0, false, true, "all", "TRANSPORT");
 								?>
-								<script language="JavaScript">
+								<script>
 								<!--
 								var q = {props: { 'arEvents': {} }};
 								q.props['arEvents']['all'] = {
@@ -709,12 +709,12 @@ else
 								endforeach;
 								?>
 								</select>
-								<script language="JavaScript">
+								<script>
 								<!--
 								BX.bind(BX('t_N_bx_sl_<?=$entity_type?>_allmy_all'), "change", BX.delegate(SLTree.onChangeTransport, SLTree));
 								-->
 								</script>
-								<script language="JavaScript">
+								<script>
 								<!--
 								<?
 								if (!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true)
@@ -739,7 +739,7 @@ else
 								{
 									$arVisibleJS = __GetVisibleJS($arRes);
 									?>
-									<script language="JavaScript">
+									<script>
 									<!--
 									<?=$arVisibleJS["strArCheckboxVal"]?>
 									<?=$arVisibleJS["strCheckboxClassName"]?>
@@ -779,7 +779,7 @@ else
 				<table width="100%" class="subscribe-list-table">
 				<tr id="bx_sl_<?=$entity_type?>_<?=$event["ENTITY_ID"]?>_tr">
 					<td valign="top" width="30%" class="subscribe-list-entity-td subscribe-list-entity-name">
-						<script language="JavaScript">
+						<script>
 						<!--
 						SLTree.Tree['<?=$entity_type?>_N'][<?=$event["ENTITY_ID"]?>] = {};
 						
@@ -825,7 +825,7 @@ else
 									<?
 									$arRes = __GetInheritedValue($arResult["EventsNew"], $entity_type, $event["ENTITY_ID"], false, true, "all", "TRANSPORT");
 									?>
-									<script language="JavaScript">
+									<script>
 									<!--
 									var q = {props: { 'arEvents': {} }};
 									q.props['arEvents']['all'] = {
@@ -859,12 +859,12 @@ else
 									endforeach;
 									?>
 									</select>
-									<script language="JavaScript">
+									<script>
 									<!--
 									BX.bind(BX('t_N_bx_sl_<?=$entity_type?>_<?=$event["ENTITY_ID"]?>_all'), "change", BX.delegate(SLTree.onChangeTransport, SLTree));
 									-->
 									</script>
-									<script language="JavaScript">
+									<script>
 									<!--
 									<?
 									if (!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true)
@@ -889,7 +889,7 @@ else
 									{
 										$arVisibleJS = __GetVisibleJS($arRes);
 										?>
-										<script language="JavaScript">
+										<script>
 										<!--
 										<?=$arVisibleJS["strArCheckboxVal"]?>
 										<?=$arVisibleJS["strCheckboxClassName"]?>
@@ -950,7 +950,7 @@ else
 				</td>
 			</tr>
 			</table>
-			<script language="JavaScript">
+			<script>
 			<!--
 			SLTree.Tree['<?=$entity_type?>_Y'] = {};
 			-->
@@ -960,7 +960,7 @@ else
 				<table width="100%" class="subscribe-list-table">
 				<tr id="bx_sl_<?=$event["ENTITY_TYPE"]?>_<?=$event["ENTITY_ID"]?>_cb_tr">
 					<td valign="top" width="30%" class="subscribe-list-entity-td subscribe-list-entity-name">
-						<script language="JavaScript">
+						<script>
 						<!--
 						SLTree.Tree['<?=$entity_type?>_Y'][<?=$event["ENTITY_ID"]?>] = {};
 						
@@ -1006,7 +1006,7 @@ else
 									<?
 									$arRes = __GetInheritedValue($arResult["EventsNew"], $event["ENTITY_TYPE"], $event["ENTITY_ID"], true, false, "all", "TRANSPORT");
 									?>
-									<script language="JavaScript">
+									<script>
 									<!--
 									var q = {props: { 'arEvents': {} }};
 									q.props['arEvents']['all'] = {
@@ -1038,12 +1038,12 @@ else
 									endforeach;
 									?>
 									</select>
-									<script language="JavaScript">
+									<script>
 									<!--
 									BX.bind(BX('t_Y_bx_sl_<?=$event["ENTITY_TYPE"]?>_<?=$event["ENTITY_ID"]?>_all'), "change", BX.delegate(SLTree.onChangeTransport, SLTree));
 									-->
 									</script>									
-									<script language="JavaScript">
+									<script>
 									<!--
 									<?
 									if (!defined("DisableSonetLogVisibleSubscr") || DisableSonetLogVisibleSubscr !== true)
@@ -1068,7 +1068,7 @@ else
 									{
 										$arVisibleJS = __GetVisibleJS($arRes);
 										?>
-										<script language="JavaScript">
+										<script>
 										<!--
 										<?=$arVisibleJS["strArCheckboxVal"]?>
 										<?=$arVisibleJS["strCheckboxClassName"]?>

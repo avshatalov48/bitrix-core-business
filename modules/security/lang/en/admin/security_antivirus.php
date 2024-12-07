@@ -17,7 +17,7 @@ $MESS ['SEC_ANTIVIRUS_BUTTON_OFF'] = "Turn off web antivirus";
 $MESS ['SEC_ANTIVIRUS_OFF'] = "Web antivirus deactivated";
 $MESS ['SEC_ANTIVIRUS_BUTTON_ON'] = "Activate web antivirus";
 $MESS ['SEC_ANTIVIRUS_NOTE'] = "<p><b>Web antivirus</b></p>
-<p><a href=\"http://www.bitrixsoft.com/products/cms/features/proactive.php\">Web antivirus</a> - a system that counteracts infection of sites.  The web antivirus identifies potentially dangerous html code and \"cuts\" the suspicious object from the site code, deterring the infection of the user's computer.</p>
+<p><a href=\"https://www.bitrixsoft.com/products/cms/features/proactive.php\">Web antivirus</a> - a system that counteracts infection of sites.  The web antivirus identifies potentially dangerous html code and \"cuts\" the suspicious object from the site code, deterring the infection of the user's computer.</p>
 <p>Attention!  The web antivirus is not a replacement for a traditional antivirus program.</p>";
 $MESS ['SEC_ANTIVIRUS_LEVEL'] = "Activation is recommended for the Highest level of security.";
 $MESS ['SEC_ANTIVIRUS_TIMEOUT'] = "Notification interval (minutes)";

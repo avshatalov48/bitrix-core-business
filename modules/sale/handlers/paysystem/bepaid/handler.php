@@ -18,7 +18,9 @@ Loc::loadMessages(__FILE__);
  * Class BePaidHandler
  * @package Sale\Handlers\PaySystem
  */
-class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefund
+class BePaidHandler extends PaySystem\ServiceHandler implements
+	PaySystem\IRefund,
+	PaySystem\Domain\Verification\IVerificationable
 {
 	private const MODE_CHECKOUT = 'checkout';
 	private const MODE_WIDGET = 'widget';
@@ -753,5 +755,10 @@ class BePaidHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 		$arModuleVersion = array();
 		include $_SERVER['DOCUMENT_ROOT'].$modulePath;
 		return (isset($arModuleVersion['VERSION']) ? (string)$arModuleVersion['VERSION'] : null);
+	}
+
+	public static function getModeList(): array
+	{
+		return array_keys(self::getHandlerModeList());
 	}
 }

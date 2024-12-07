@@ -25,7 +25,7 @@ class WidgetBlock extends LandingBlock
 			return;
 		}
 
-		$this->params['SITE_TYPE'] = Type::getSiteTypeForms($site['CODE']);
+		$this->params['SITE_TYPE'] = Type::getSiteSpecialType($site['CODE']);
 
 		$hooks = Site::getHooks($params['site_id']);
 		$hooksLanding = Landing::getHooks($params['landing_id']);

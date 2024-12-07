@@ -8,5 +8,7 @@ export type TileWidgetOptions = {
 	showSettingsButton?: boolean,
 	showItemMenuButton?: boolean,
 	autoCollapse?: boolean,
+	enableDropzone?: boolean,
+	insertIntoText?: boolean,
 	events?: Object<string, (event: BaseEvent) => {}>,
 };

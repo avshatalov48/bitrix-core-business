@@ -10,6 +10,11 @@ use Bitrix\Main\Web\Json;
 
 class ItemAttributes
 {
+	private const FAKE_FILEDATA = [
+		'ID' => -1,
+		'CONTENT_TYPE' => 'application/octet-stream',
+	];
+
 	/**
 	 * @var
 	 */
@@ -120,12 +125,15 @@ class ItemAttributes
 	 */
 	public static function buildAsUnknownType($sourceUri)
 	{
-		$fakeFileData = [
-			'ID' => -1,
-			'CONTENT_TYPE' => 'application/octet-stream',
-		];
+		return new static(self::FAKE_FILEDATA, $sourceUri);
+	}
 
-		return new static($fakeFileData, $sourceUri);
+	protected static function isFakeFileData(array $fileData): bool
+	{
+		return
+			($fileData['ID'] === self::FAKE_FILEDATA['ID'])
+			&& ($fileData['CONTENT_TYPE'] === self::FAKE_FILEDATA['CONTENT_TYPE'])
+		;
 	}
 
 	public static function tryBuildByFileId($fileId, $sourceUri)

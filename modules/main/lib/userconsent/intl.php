@@ -440,14 +440,14 @@ class Intl
 			$postfix = '_'.mb_strtoupper($virtualLanguageId);
 			foreach ($map as $itemKey => $messageKey)
 			{
-				if (mb_substr($itemKey, -mb_strlen($postfix)) == $postfix)
+				if (str_ends_with($itemKey, $postfix))
 				{
 					$oldItemKey = $itemKey;
-					$itemKey = mb_substr($itemKey, 0, -mb_strlen($postfix));
+					$itemKey = substr($itemKey, 0, -strlen($postfix));
 					unset($map[$oldItemKey]);
 				}
 
-				if (mb_substr($messageKey, -mb_strlen($postfix)) != $postfix)
+				if (!str_ends_with($messageKey, $postfix))
 				{
 					if (isset($messages[$messageKey . $postfix]))
 					{

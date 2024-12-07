@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -380,7 +380,7 @@ else
 		$headers[] = array("id"=>"STAT_SESSION_ID", "content"=>GetMessage("FORM_SESSION_ID"), "sort"=>"s_session_id", "default"=>true);
 	}
 
-	if ($_GET['mode']=='excel')
+	if (isset($_GET['mode']) && $_GET['mode'] == 'excel')
 		$arFilter = array("IN_EXCEL_TABLE" => "Y");
 	else
 		$arFilter = array("IN_RESULTS_TABLE" => "Y");
@@ -825,7 +825,7 @@ else
 
 if (is_array($arFormCrmLink)):
 ?>
-<script type="text/javascript">
+<script>
 function sendToCrm(FORM_ID, RESULT_ID)
 {
 	BX.ajax.loadJSON('/bitrix/admin/form_crm.php?action=add_lead&FORM_ID=<?=$WEB_FORM_ID?>&RESULT_ID=' + parseInt(RESULT_ID) + '&<?=bitrix_sessid_get()?>', function(result){

@@ -111,9 +111,9 @@ class CSocNetTextParser
 				$text = str_replace(array("\001", "\002", chr(5), chr(6), "'", "\""), array("", "", "", "", chr(5), chr(6)), $text);
 				$text = preg_replace(
 					array(
-						"#<code(\s+[^>]*>|>)(.+?)</code(\s+[^>]*>|>)#is".BX_UTF_PCRE_MODIFIER,
-						"/\[code([^\]])*\]/is".BX_UTF_PCRE_MODIFIER,
-						"/\[\/code([^\]])*\]/is".BX_UTF_PCRE_MODIFIER),
+						"#<code(\s+[^>]*>|>)(.+?)</code(\s+[^>]*>|>)#isu",
+						"/\[code([^\]])*\]/isu",
+						"/\[\/code([^\]])*\]/isu"),
 					array(
 						"[code]\\2[/code]",
 						"\001",
@@ -123,7 +123,7 @@ class CSocNetTextParser
 				);
 				$this->matchNum = 2;
 				$text = preg_replace_callback(
-					"/(?<=[\001])(([^\002]+))(?=([\002]))/is".BX_UTF_PCRE_MODIFIER, 
+					"/(?<=[\001])(([^\002]+))(?=([\002]))/isu", 
 					array($this, "pre_convert_code_tag_callback"), 
 					$text
 				);
@@ -142,19 +142,19 @@ class CSocNetTextParser
 			{
 				$text = preg_replace(
 					array(
-						"#<a[^>]+href\s*=\s*[\"]+(([^\"])+)[\"]+[^>]*>(.+?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
-						"#<a[^>]+href\s*=\s*[\']+(([^\'])+)[\']+[^>]*>(.+?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
-						"#<a[^>]+href\s*=\s*(([^\'\"\>])+)>(.+?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER),
+						"#<a[^>]+href\s*=\s*[\"]+(([^\"])+)[\"]+[^>]*>(.+?)</a[^>]*>#isu",
+						"#<a[^>]+href\s*=\s*[\']+(([^\'])+)[\']+[^>]*>(.+?)</a[^>]*>#isu",
+						"#<a[^>]+href\s*=\s*(([^\'\"\>])+)>(.+?)</a[^>]*>#isu"),
 					"[url=\\1]\\3[/url]", $text);
 			}
 			if ($allow["BIU"]=="Y")
 			{
 				$text = preg_replace(
 					array(
-						"/\<b([^>]*)\>(.+?)\<\/b([^>]*)>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<u([^>]*)\>(.+?)\<\/u([^>]*)>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<s([^>a-z]*)\>(.+?)\<\/s([^>a-z]*)>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<i([^>]*)\>(.+?)\<\/i([^>]*)>/is".BX_UTF_PCRE_MODIFIER),
+						"/\<b([^>]*)\>(.+?)\<\/b([^>]*)>/isu",
+						"/\<u([^>]*)\>(.+?)\<\/u([^>]*)>/isu",
+						"/\<s([^>a-z]*)\>(.+?)\<\/s([^>a-z]*)>/isu",
+						"/\<i([^>]*)\>(.+?)\<\/i([^>]*)>/isu"),
 					array(
 						"[b]\\2[/b]",
 						"[u]\\2[/u]",
@@ -165,7 +165,7 @@ class CSocNetTextParser
 			if ($allow["IMG"]=="Y")
 			{
 				$text = preg_replace(
-					"#<img[^>]+src\s*=[\s\"']*(((http|https|ftp)://[.-_:a-z0-9@]+)*(\/[-_/=:.a-z0-9@{}&?%]+)+)[\s\"']*[^>]*>#is".BX_UTF_PCRE_MODIFIER,
+					"#<img[^>]+src\s*=[\s\"']*(((http|https|ftp)://[.-_:a-z0-9@]+)*(\/[-_/=:.a-z0-9@{}&?%]+)+)[\s\"']*[^>]*>#isu",
 					"[img]\\1[/img]", $text);
 			}
 			if ($allow["QUOTE"]=="Y")
@@ -177,9 +177,9 @@ class CSocNetTextParser
 			{
 				$text = preg_replace(
 					array(
-						"/\<font[^>]+size\s*=[\s\"']*([0-9]+)[\s\"']*[^>]*\>(.+?)\<\/font[^>]*\>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<font[^>]+color\s*=[\s\"']*(\#[a-f0-9]{6})[^>]*\>(.+?)\<\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<font[^>]+face\s*=[\s\"']*([a-z\s\-]+)[\s\"']*[^>]*>(.+?)\<\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER),
+						"/\<font[^>]+size\s*=[\s\"']*([0-9]+)[\s\"']*[^>]*\>(.+?)\<\/font[^>]*\>/isu",
+						"/\<font[^>]+color\s*=[\s\"']*(\#[a-f0-9]{6})[^>]*\>(.+?)\<\/font[^>]*>/isu",
+						"/\<font[^>]+face\s*=[\s\"']*([a-z\s\-]+)[\s\"']*[^>]*>(.+?)\<\/font[^>]*>/isu"),
 					array(
 						"[size=\\1]\\2[/size]",
 						"[color=\\1]\\2[/color]",
@@ -190,8 +190,8 @@ class CSocNetTextParser
 			{
 				$text = preg_replace(
 					array(
-						"/\<ul((\s[^>]*)|(\s*))\>(.+?)<\/ul([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-						"/\<li((\s[^>]*)|(\s*))\>/is".BX_UTF_PCRE_MODIFIER),
+						"/\<ul((\s[^>]*)|(\s*))\>(.+?)<\/ul([^>]*)\>/isu",
+						"/\<li((\s[^>]*)|(\s*))\>/isu"),
 					array(
 						"[list]\\4[/list]",
 						"[*]"),
@@ -221,8 +221,8 @@ class CSocNetTextParser
 		{
 			$text = preg_replace(
 				array(
-					"/\[code([^\]])*\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[\/code([^\]])*\]/is".BX_UTF_PCRE_MODIFIER
+					"/\[code([^\]])*\]/isu",
+					"/\[\/code([^\]])*\]/isu"
 				),
 				array(
 					"\001",
@@ -233,7 +233,7 @@ class CSocNetTextParser
 			$this->matchNum = 2;
 			$this->matchType = $type;
 			$text = preg_replace_callback(
-				"/(\001)([^\002]+)(\002)/is".BX_UTF_PCRE_MODIFIER, 
+				"/(\001)([^\002]+)(\002)/isu", 
 				array($this, "convert_code_tag_callback"), 
 				$text
 			);
@@ -274,14 +274,14 @@ class CSocNetTextParser
 			$this->matchNum = 1;
 			$this->matchNum2 = 1;
 			$text = preg_replace_callback(
-				"/\[url\]([^\]]+?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER,
+				"/\[url\]([^\]]+?)\[\/url\]/iu",
 				array($this, "convert_anchor_tag_callback"),
 				$text
 			);
 			$this->matchNum = 1;
 			$this->matchNum2 = 2;
 			$text = preg_replace_callback(
-				"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/i".BX_UTF_PCRE_MODIFIER,
+				"/\[url\s*=\s*([^\]]+?)\s*\](.*?)\[\/url\]/iu",
 				array($this, "convert_anchor_tag_callback"),
 				$text
 			);
@@ -290,10 +290,10 @@ class CSocNetTextParser
 		{
 			$text = preg_replace(
 				array(
-					"/\[b\](.+?)\[\/b\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[i\](.+?)\[\/i\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[s\](.+?)\[\/s\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[u\](.+?)\[\/u\]/is".BX_UTF_PCRE_MODIFIER),
+					"/\[b\](.+?)\[\/b\]/isu",
+					"/\[i\](.+?)\[\/i\]/isu",
+					"/\[s\](.+?)\[\/s\]/isu",
+					"/\[u\](.+?)\[\/u\]/isu"),
 				array(
 					"<b>\\1</b>",
 					"<i>\\1</i>",
@@ -304,8 +304,8 @@ class CSocNetTextParser
 		{
 			$text = preg_replace(
 				array(
-					"/\[list\](.+?)\[\/list\]/is".BX_UTF_PCRE_MODIFIER,
-					"/\[\*\]/".BX_UTF_PCRE_MODIFIER),
+					"/\[list\](.+?)\[\/list\]/isu",
+					"/\[\*\]/u"),
 				array(
 					"<ul>\\1</ul>",
 					"<li>"),
@@ -313,35 +313,35 @@ class CSocNetTextParser
 		}
 		if ($allow["FONT"]=="Y")
 		{
-			while (preg_match("/\[size\s*=\s*([^\]]+)\](.+?)\[\/size\]/is".BX_UTF_PCRE_MODIFIER, $text))
+			while (preg_match("/\[size\s*=\s*([^\]]+)\](.+?)\[\/size\]/isu", $text))
 			{
 				$this->matchNum = 1;
 				$this->matchNum2 = 2;
 				$this->matchType = 'size';
 				$text = preg_replace_callback(
-					"/\[size\s*=\s*([^\]]+)\](.+?)\[\/size\]/is".BX_UTF_PCRE_MODIFIER, 
+					"/\[size\s*=\s*([^\]]+)\](.+?)\[\/size\]/isu", 
 					array($this, "convert_font_attr_callback"),
 					$text
 				);				
 			}
-			while (preg_match("/\[font\s*=\s*([^\]]+)\](.*?)\[\/font\]/is".BX_UTF_PCRE_MODIFIER, $text))
+			while (preg_match("/\[font\s*=\s*([^\]]+)\](.*?)\[\/font\]/isu", $text))
 			{
 				$this->matchNum = 1;
 				$this->matchNum2 = 2;
 				$this->matchType = 'font';
 				$text = preg_replace_callback(
-					"/\[font\s*=\s*([^\]]+)\](.*?)\[\/font\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\[font\s*=\s*([^\]]+)\](.*?)\[\/font\]/isu",
 					array($this, "convert_font_attr_callback"),
 					$text
 				);
 			}
-			while (preg_match("/\[color\s*=\s*([^\]]+)\](.+?)\[\/color\]/is".BX_UTF_PCRE_MODIFIER, $text))
+			while (preg_match("/\[color\s*=\s*([^\]]+)\](.+?)\[\/color\]/isu", $text))
 			{
 				$this->matchNum = 1;
 				$this->matchNum2 = 2;
 				$this->matchType = 'color';
 				$text = preg_replace_callback(
-					"/\[color\s*=\s*([^\]]+)\](.+?)\[\/color\]/is".BX_UTF_PCRE_MODIFIER, 
+					"/\[color\s*=\s*([^\]]+)\](.+?)\[\/color\]/isu", 
 					array($this, "convert_font_attr_callback"),
 					$text
 				);
@@ -367,7 +367,7 @@ class CSocNetTextParser
 		{
 			$this->matchNum = 1;
 			$text = preg_replace_callback(
-				"/(?<=^|\>)([^\<]+)(?=\<|$)/is".BX_UTF_PCRE_MODIFIER, 
+				"/(?<=^|\>)([^\<]+)(?=\<|$)/isu", 
 				array($this, "part_long_words_callback"),
 				$text
 			);
@@ -398,7 +398,7 @@ class CSocNetTextParser
 					$arSmiles[$typing] = '<img src="'.$path_to_smile.$row["IMAGE"].'" border="0" alt="smile'.$typing.'" title="'.htmlspecialcharsbx($row["DESCRIPTION"]).'" />';
 					$arQuoted[] = preg_quote($typing, "/");
 				}
-				$ar = preg_split("/(?<=[\s>])(".implode("|", $arQuoted).")/".BX_UTF_PCRE_MODIFIER, " ".$text, -1, PREG_SPLIT_DELIM_CAPTURE);
+				$ar = preg_split("/(?<=[\s>])(".implode("|", $arQuoted).")/u", " ".$text, -1, PREG_SPLIT_DELIM_CAPTURE);
 				$text = "";
 				foreach($ar as $piece)
 				{
@@ -411,12 +411,12 @@ class CSocNetTextParser
 		}
 		if (($allow["VIDEO"] ?? null) === "Y")
 		{
-			while (preg_match("/\[video(.+?)\](.+?)\[\/video[\s]*\]/is".BX_UTF_PCRE_MODIFIER, $text))
+			while (preg_match("/\[video(.+?)\](.+?)\[\/video[\s]*\]/isu", $text))
 			{
 				$this->matchNum = 1;
 				$this->matchNum2 = 2;
 				$text = preg_replace_callback(
-					"/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/is".BX_UTF_PCRE_MODIFIER,
+					"/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/isu",
 					array($this, "convert_video_callback"),
 					$text
 				);
@@ -432,8 +432,8 @@ class CSocNetTextParser
 		$text = strip_tags($text);
 		$text = preg_replace(
 			array(
-				"/\<(\/?)(quote|code|font|color)([^\>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-				"/\[(\/?)(b|u|i|list|code|quote|font|color|url|img)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER),
+				"/\<(\/?)(quote|code|font|color)([^\>]*)\>/isu",
+				"/\[(\/?)(b|u|i|list|code|quote|font|color|url|img)([^\]]*)\]/isu"),
 			"",
 			$text);
 		return $text;
@@ -446,43 +446,43 @@ class CSocNetTextParser
 		$arPattern = array();
 		$arReplace = array();
 
-		$arPattern[] = "/\[(code|quote)(.*?)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(code|quote)(.*?)\]/isu";
 		$arReplace[] = "\n>================== \\1 ===================\n";
 
-		$arPattern[] = "/\[\/(code|quote)(.*?)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[\/(code|quote)(.*?)\]/isu";
 		$arReplace[] = "\n>===========================================\n";
 
-		$arPattern[] = "/\<WBR[\s\/]?\>/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\<WBR[\s\/]?\>/isu";
 		$arReplace[] = "";
 
 		$arPattern[] = "/^(\r|\n)+?(.*)$/";
 		$arReplace[] = "\\2";
 
-		$arPattern[] = "/\[b\](.+?)\[\/b\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[b\](.+?)\[\/b\]/isu";
 		$arReplace[] = "\\1";
 
-		$arPattern[] = "/\[i\](.+?)\[\/i\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[i\](.+?)\[\/i\]/isu";
 		$arReplace[] = "\\1";
 
-		$arPattern[] = "/\[u\](.+?)\[\/u\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[u\](.+?)\[\/u\]/isu";
 		$arReplace[] = "_\\1_";
 
-		$arPattern[] = "/\[(\/?)(color|font|size)([^\]]*)\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(\/?)(color|font|size)([^\]]*)\]/isu";
 		$arReplace[] = "";
 
-		$arPattern[] = "/\[url\](\S+?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[url\](\S+?)\[\/url\]/isu";
 		$arReplace[] = "(URL: \\1 )";
 
-		$arPattern[] = "/\[url\s*=\s*(\S+?)\s*\](.*?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[url\s*=\s*(\S+?)\s*\](.*?)\[\/url\]/isu";
 		$arReplace[] = "\\2 (URL: \\1 )";
 
-		$arPattern[] = "/\[img\](.+?)\[\/img\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[img\](.+?)\[\/img\]/isu";
 		$arReplace[] = "(IMAGE: \\1)";
 
-		$arPattern[] = "/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[video([^\]]*)\](.+?)\[\/video[\s]*\]/isu";
 		$arReplace[] = "(VIDEO: \\2)";
 
-		$arPattern[] = "/\[(\/?)list\]/is".BX_UTF_PCRE_MODIFIER;
+		$arPattern[] = "/\[(\/?)list\]/isu";
 		$arReplace[] = "\n";
 		$text = preg_replace($arPattern, $arReplace, $text);
 		$text = str_replace("&shy;", "", $text);
@@ -595,13 +595,13 @@ class CSocNetTextParser
 		$this->matchType = 'code';
 		$this->matchType2 = $type;
 		$txt = preg_replace_callback(
-			"/\[code\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[code\]/iu",
 			array($this, "convert_open_tag_callback"),
 			$txt
 		);
 		$this->matchType = 'code';
 		$txt = preg_replace_callback(
-			"/\[\/code\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[\/code\]/iu",
 			array($this, "convert_close_tag_callback"),
 			$txt
 		);			
@@ -630,13 +630,13 @@ class CSocNetTextParser
 		$this->matchType = 'quote';
 		$this->matchType2 = $type;
 		$txt = preg_replace_callback(
-			"/\[quote([^\]])*\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[quote([^\]])*\]/iu",
 			array($this, "convert_open_tag_callback"),
 			$txt
 		);
 		$this->matchType = 'quote';
 		$txt = preg_replace_callback(
-			"/\[\/quote([^\]])*\]/i".BX_UTF_PCRE_MODIFIER,
+			"/\[\/quote([^\]])*\]/iu",
 			array($this, "convert_close_tag_callback"),
 			$txt
 		);			
@@ -699,14 +699,14 @@ class CSocNetTextParser
 		if ($url == '') return;
 		$url = trim($url);
 		$type = (mb_strtolower($type) == "rss" ? "rss" : "html");
-		$extension = preg_replace("/^.*\.(\S+)$/".BX_UTF_PCRE_MODIFIER, "\\1", $url);
+		$extension = preg_replace("/^.*\.(\S+)$/u", "\\1", $url);
 		$extension = mb_strtolower($extension);
 		$extension = preg_quote($extension, "/");
 
 		$bErrorIMG = False;
-		if (preg_match("/[?&;]/".BX_UTF_PCRE_MODIFIER, $url)) $bErrorIMG = True;
-		if (!$bErrorIMG && !preg_match("/$extension(\||\$)/".BX_UTF_PCRE_MODIFIER, $this->allow_img_ext)) $bErrorIMG = True;
-		if (!$bErrorIMG && !preg_match("/^(http|https|ftp|\/)/i".BX_UTF_PCRE_MODIFIER, $url)) $bErrorIMG = True;
+		if (preg_match("/[?&;]/u", $url)) $bErrorIMG = True;
+		if (!$bErrorIMG && !preg_match("/$extension(\||\$)/u", $this->allow_img_ext)) $bErrorIMG = True;
+		if (!$bErrorIMG && !preg_match("/^(http|https|ftp|\/)/iu", $url)) $bErrorIMG = True;
 
 		if ($bErrorIMG)
 		{
@@ -762,7 +762,7 @@ class CSocNetTextParser
 			$text = str_replace(array(chr(7), chr(8), chr(34), chr(39)), array("", "", chr(7), chr(8)), $text);
 			$this->matchNum = 1;
 			$text = preg_replace_callback(
-				"/(?<=^|\>)([^\<]+)(?=\<|$)/is".BX_UTF_PCRE_MODIFIER, 
+				"/(?<=^|\>)([^\<]+)(?=\<|$)/isu", 
 				array($this, "part_long_words_callback"),
 				$text
 			);
@@ -783,7 +783,7 @@ class CSocNetTextParser
 			);
 			$this->matchNum = 2;
 			$str = preg_replace_callback(
-				"/(?<=[".$word_separator."]|^)(([^".$word_separator."]+))(?=[".$word_separator."]|$)/is".BX_UTF_PCRE_MODIFIER, 
+				"/(?<=[".$word_separator."]|^)(([^".$word_separator."]+))(?=[".$word_separator."]|$)/isu", 
 				array($this, "cut_long_words_callback"),
 				$str
 			);
@@ -809,7 +809,7 @@ class CSocNetTextParser
 		)
 		{
 			$str = preg_replace(
-				"/([^ \n\r\t\x01]{".$this->MaxStringLen."})/is".BX_UTF_PCRE_MODIFIER, 
+				"/([^ \n\r\t\x01]{".$this->MaxStringLen."})/isu", 
 				"\\1<WBR/>&shy;", 
 				$str
 			);
@@ -827,36 +827,36 @@ class CSocNetTextParser
 		$bCutUrl = True;
 		$text = str_replace("\\\"", "\"", $text);
 		$end = "";
-		if (preg_match("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, $url, $match))
+		if (preg_match("/([\.,\?]|&#33;)$/u", $url, $match))
 		{
 			$end = $match[1];
-			$url = preg_replace("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, "", $url);
-			$text = preg_replace("/([\.,\?]|&#33;)$/".BX_UTF_PCRE_MODIFIER, "", $text);
+			$url = preg_replace("/([\.,\?]|&#33;)$/u", "", $url);
+			$text = preg_replace("/([\.,\?]|&#33;)$/u", "", $text);
 		}
 		if (preg_match("/\[\/(quote|code)/i", $url))
 			return $url;
 		$url = preg_replace(
-			array("/&amp;/".BX_UTF_PCRE_MODIFIER, "/javascript:/i".BX_UTF_PCRE_MODIFIER),
+			array("/&amp;/u", "/javascript:/iu"),
 			array("&", "java script&#58; ") , $url);
-		if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//i".BX_UTF_PCRE_MODIFIER, $url))
+		if (mb_substr($url, 0, 1) != "/" && !preg_match("/^(http|news|https|ftp|aim|mailto)\:\/\//iu", $url))
 			$url = 'http://'.$url;
-		if (!preg_match("/^((http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+)*([^\"\'])+$/i".BX_UTF_PCRE_MODIFIER, $url))
+		if (!preg_match("/^((http|https|news|ftp|aim):\/\/[-_:.a-z0-9@]+)*([^\"\'])+$/iu", $url))
 			return $pref.$text." (".$url.")".$end;
 
-		if (preg_match("/^<img\s+src/i".BX_UTF_PCRE_MODIFIER, $text))
+		if (preg_match("/^<img\s+src/iu", $text))
 			$bCutUrl = False;
 		$text = preg_replace(
-			array("/&amp;/i".BX_UTF_PCRE_MODIFIER, "/javascript:/i".BX_UTF_PCRE_MODIFIER),
+			array("/&amp;/iu", "/javascript:/iu"),
 			array("&", "javascript&#58; "), $text);
 		if ($bCutUrl && mb_strlen($text) < 55)
 			$bCutUrl = False;
-		if ($bCutUrl && !preg_match("/^(http|ftp|https|news):\/\//i".BX_UTF_PCRE_MODIFIER, $text))
+		if ($bCutUrl && !preg_match("/^(http|ftp|https|news):\/\//iu", $text))
 			$bCutUrl = False;
 
 		if ($bCutUrl)
 		{
-			$stripped = preg_replace("/^(http|ftp|https|news):\/\/(\S+)$/i".BX_UTF_PCRE_MODIFIER, "\\2", $text);
-			$uri_type = preg_replace("/^(http|ftp|https|news):\/\/(\S+)$/i".BX_UTF_PCRE_MODIFIER, "\\1", $text);
+			$stripped = preg_replace("/^(http|ftp|https|news):\/\/(\S+)$/iu", "\\2", $text);
+			$uri_type = preg_replace("/^(http|ftp|https|news):\/\/(\S+)$/iu", "\\1", $text);
 			$text = $uri_type.'://'.mb_substr($stripped, 0, 30).'...'.mb_substr($stripped, -10);
 		}
 
@@ -895,8 +895,8 @@ class CSocNetTextParser
 		{
 			$text = preg_replace(
 				array(
-					"#^(.+?)<cut[\s]*(/>|>).*?$#is".BX_UTF_PCRE_MODIFIER,
-					"#^(.+?)\[cut[\s]*(/\]|\]).*?$#is".BX_UTF_PCRE_MODIFIER),
+					"#^(.+?)<cut[\s]*(/>|>).*?$#isu",
+					"#^(.+?)\[cut[\s]*(/\]|\]).*?$#isu"),
 				"\\1", $text);
 			$arAllow["SMILES"] = "N";
 			$text = $this->convert($text, $arAllow, "rss");
@@ -997,10 +997,10 @@ class CSocNetTextParser
 	{
 		$arNoClose = array('br','hr','img','area','base','basefont','col','frame','input','isindex','link','meta','param');
 
-		preg_match_all("#<([a-z0-9]+)([^>]*)(?<!/)>#i".BX_UTF_PCRE_MODIFIER, $html, $result);
+		preg_match_all("#<([a-z0-9]+)([^>]*)(?<!/)>#iu", $html, $result);
 		$openedtags = $result[1];
 
-		preg_match_all("#</([a-z0-9]+)>#i".BX_UTF_PCRE_MODIFIER, $html, $result);
+		preg_match_all("#</([a-z0-9]+)>#iu", $html, $result);
 		$closedtags = $result[1];
 		$len_opened = count($openedtags);
 
@@ -1188,7 +1188,7 @@ class CSocNetTools
 
 		$val = str_replace(
 			array("#DAY#", "#MONTH#", "#MONTH_LOW#", "#YEAR#"),
-			array($day, GetMessage("MONTH_".$month."_S"), ToLower(GetMessage("MONTH_".$month."_S")), $year),
+			array($day, GetMessage("MONTH_".$month."_S"), mb_strtolower(GetMessage("MONTH_".$month."_S")), $year),
 			$date_template
 		);
 
@@ -1338,7 +1338,7 @@ class CSocNetTools
 			$GLOBALS["arExtranetGroupID"] = array();
 			$GLOBALS["arExtranetUserID"] = array();
 
-			if($USER->IsAuthorized())
+			if($USER?->IsAuthorized())
 			{
 				$GLOBALS["arExtranetGroupID"] = \Bitrix\Socialnetwork\ComponentHelper::getExtranetSonetGroupIdList();
 				$GLOBALS["arExtranetUserID"] = \Bitrix\Socialnetwork\ComponentHelper::getExtranetUserIdList();

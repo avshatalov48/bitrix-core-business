@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Localization\Loc;
+
 IncludeModuleLangFile(__FILE__);
 
 class CAllSocNetUserRelations
@@ -203,7 +205,7 @@ class CAllSocNetUserRelations
 			"WHERE FIRST_USER_ID = ".$user1ID." AND SECOND_USER_ID = ".$user2ID." ".
 			"	OR FIRST_USER_ID = ".$user2ID." AND SECOND_USER_ID = ".$user1ID." ";
 
-		$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbResult = $DB->Query($strSql);
 		if ($arResult = $dbResult->Fetch())
 			return $arResult;
 
@@ -336,7 +338,7 @@ class CAllSocNetUserRelations
 				"WHERE UR.FIRST_USER_ID = ".$secondUserID." ".
 				"	AND UR.SECOND_USER_ID = ".$firstUserID." ";
 
-			$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$arSocNetUserRelationsCache1[$firstUserID."_".$secondUserID] = $arResult["RELATION"];
@@ -382,7 +384,7 @@ class CAllSocNetUserRelations
 				"	AND UR.SECOND_USER_ID = ".$firstUserID." ".
 				"	AND UR.RELATION = '".$DB->ForSql(SONET_RELATIONS_FRIEND, 1)."' ";
 
-			$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($dbResult->Fetch())
 			{
 				$arSocNetUserRelationsCache[$firstUserID."_".$secondUserID] = true;
@@ -448,7 +450,7 @@ class CAllSocNetUserRelations
 				"	AND UR1.FIRST_USER_ID = ".$secondUserID." ".
 				"	AND UR1.RELATION = '".$DB->ForSql(SONET_RELATIONS_FRIEND, 1)."' ";
 
-			$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($dbResult->Fetch())
 			{
 				$arSocNetUser2RelationsCache[$firstUserID."_".$secondUserID] = true;
@@ -599,14 +601,18 @@ class CAllSocNetUserRelations
 
 			$arMessageFields = array(
 				"MESSAGE_TYPE" => IM_MESSAGE_SYSTEM,
-				"TO_USER_ID" => intval($targetUserID),
-				"FROM_USER_ID" => intval($senderUserID),
+				"TO_USER_ID" => (int)$targetUserID,
+				"FROM_USER_ID" => (int)$senderUserID,
 				"NOTIFY_TYPE" => IM_NOTIFY_CONFIRM,
 				"NOTIFY_MODULE" => "socialnetwork",
 				"NOTIFY_EVENT" => "invite_user_btn",
-				"NOTIFY_TAG" => "SOCNET|INVITE_USER|".intval($targetUserID)."|".intval($ID),
-				"NOTIFY_TITLE" => str_replace("#USER#", $senderUser, GetMessage("SONET_U_INVITE_CONFIRM_TITLE")),
-				"NOTIFY_MESSAGE" => str_replace("#TEXT#", $message, GetMessage("SONET_U_INVITE_CONFIRM_TEXT")),
+				"NOTIFY_TAG" => "SOCNET|INVITE_USER|". (int)$targetUserID ."|". $ID,
+				"NOTIFY_TITLE" => Loc::getMessage('SONET_U_INVITE_CONFIRM_TITLE', ["#USER#" => $senderUser]),
+				"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+					'SONET_U_INVITE_CONFIRM_TEXT',
+					['#TEXT#' => $message],
+					$languageId
+				),
 				"NOTIFY_BUTTONS" => Array(
 					Array('TITLE' => GetMessage('SONET_U_INVITE_CONFIRM'), 'VALUE' => 'Y', 'TYPE' => 'accept'),
 					Array('TITLE' => GetMessage('SONET_U_INVITE_REJECT'), 'VALUE' => 'N', 'TYPE' => 'cancel'),
@@ -619,11 +625,17 @@ class CAllSocNetUserRelations
 			if ($serverName == '')
 			{
 				if (defined("SITE_SERVER_NAME") && SITE_SERVER_NAME <> '')
+				{
 					$serverName = SITE_SERVER_NAME;
+				}
 				else
+				{
 					$serverName = COption::GetOptionString("main", "server_name", "");
+				}
 				if ($serverName == '')
+				{
 					$serverName = $_SERVER["SERVER_NAME"];
+				}
 			}
 			$serverName = (CMain::IsHTTPS() ? "https" : "http")."://".$serverName;
 
@@ -632,9 +644,15 @@ class CAllSocNetUserRelations
 
 			$requestUrl = $serverName.str_replace(array("#USER_ID#", "#user_id#"), $targetUserID, $requestUrl);
 
-			$arMessageFields['NOTIFY_MESSAGE_OUT'] = $arMessageFields['NOTIFY_MESSAGE'];
-			$arMessageFields['NOTIFY_MESSAGE_OUT'] .= "\n\n".GetMessage('SONET_U_INVITE_CONFIRM').": ".$requestUrl.'?INVITE_USER='.$ID.'&CONFIRM=Y';
-			$arMessageFields['NOTIFY_MESSAGE_OUT'] .= "\n\n".GetMessage('SONET_U_INVITE_REJECT').": ".$requestUrl.'?INVITE_USER='.$ID.'&CONFIRM=N';
+			$arMessageFields['NOTIFY_MESSAGE_OUT'] = fn (?string $languageId = null) =>
+				Loc::getMessage(
+					'SONET_U_INVITE_CONFIRM_TEXT',
+					['#TEXT#' => $message],
+					$languageId
+				)
+				. "\n\n".Loc::getMessage('SONET_U_INVITE_CONFIRM', null, $languageId).": ".$requestUrl.'?INVITE_USER='.$ID.'&CONFIRM=Y'
+				. "\n\n".Loc::getMessage('SONET_U_INVITE_REJECT', null, $languageId).": ".$requestUrl.'?INVITE_USER='.$ID.'&CONFIRM=N'
+			;
 
 			CIMNotify::Add($arMessageFields);
 		}
@@ -678,7 +696,7 @@ class CAllSocNetUserRelations
 		{
 			$rsUser = CUser::GetByID(intval($arResult["FIRST_USER_ID"]));
 			$arUser = $rsUser->Fetch();
-			if (!is_array($arUser) || $arUser["ACTIVE"] != "Y")
+			if (!is_array($arUser) || $arUser["ACTIVE"] !== "Y")
 			{
 				$GLOBALS["APPLICATION"]->ThrowException(GetMessage("SONET_UR_INVALID_TARGET_USER_ID"), "ERROR_INVALID_TARGET_USER_ID");
 				return false;
@@ -709,7 +727,7 @@ class CAllSocNetUserRelations
 						"NOTIFY_MODULE" => "socialnetwork",
 						"NOTIFY_EVENT" => "inout_user",
 						"NOTIFY_TAG" => "SOCNET|INVITE_USER_CONFIRM",
-						"NOTIFY_MESSAGE" => GetMessage("SONET_UR_AGREE_FRIEND_MESSAGE"),
+						"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage('SONET_UR_AGREE_FRIEND_MESSAGE', null, $languageId),
 					);
 					CIMNotify::Add($arMessageFields);
 				}
@@ -803,7 +821,7 @@ class CAllSocNetUserRelations
 						"NOTIFY_MODULE" => "socialnetwork",
 						"NOTIFY_EVENT" => "inout_user",
 						"NOTIFY_TAG" => "SOCNET|INVITE_USER_REJECT",
-						"NOTIFY_MESSAGE" => GetMessage("SONET_UR_REJECT_FRIEND_MESSAGE"),
+						"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage('SONET_UR_REJECT_FRIEND_MESSAGE', null, $languageId),
 					);
 					CIMNotify::Add($arMessageFields);
 				}
@@ -861,19 +879,15 @@ class CAllSocNetUserRelations
 			if (CModule::IncludeModule("im"))
 			{
 				$rsUser = CUser::GetByID($senderUserID);
+				$gender_suffix = '';
 				if ($arUser = $rsUser->Fetch())
 				{
-					switch ($arUser["PERSONAL_GENDER"])
+					$gender_suffix = match ($arUser["PERSONAL_GENDER"])
 					{
-						case "M":
-							$gender_suffix = "_M";
-							break;
-						case "F":
-							$gender_suffix = "_F";
-								break;
-						default:
-							$gender_suffix = "";
-					}
+						"M" => "_M",
+						"F" => "_F",
+						default => "",
+					};
 				}
 
 				$arMessageFields = array(
@@ -883,8 +897,8 @@ class CAllSocNetUserRelations
 					"NOTIFY_TYPE" => IM_NOTIFY_FROM,
 					"NOTIFY_MODULE" => "socialnetwork",
 					"NOTIFY_EVENT" => "inout_user",
-					"NOTIFY_TAG" => "SOCNET|FRIENDS|".intval($arRelation["ID"]),
-					"NOTIFY_MESSAGE" => GetMessage("SONET_UR_IM_UNFRIEND".$gender_suffix),
+					"NOTIFY_TAG" => "SOCNET|FRIENDS|". (int)$arRelation["ID"],
+					"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage("SONET_UR_IM_UNFRIEND" . $gender_suffix, null, $languageId),
 				);
 				CIMNotify::Add($arMessageFields);
 			}
@@ -952,7 +966,7 @@ class CAllSocNetUserRelations
 			"WHERE UR.FIRST_USER_ID = ".$targetUserID." ".
 			"	AND UR.SECOND_USER_ID = ".$senderUserID." ";
 
-		$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbResult = $DB->Query($strSql);
 		if ($arResult = $dbResult->Fetch())
 		{
 			if ($arResult["RELATION"] != SONET_RELATIONS_BAN)
@@ -971,10 +985,11 @@ class CAllSocNetUserRelations
 					$arMessageFields = array(
 						"FROM_USER_ID" => $senderUserID,
 						"TO_USER_ID" => $targetUserID,
-						"MESSAGE" => GetMessage("SONET_UR_BANUSER_MESSAGE"),
+						"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage("SONET_UR_BANUSER_MESSAGE", null, $languageId),
 						"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 						"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM
 					);
+
 					CSocNetMessages::Add($arMessageFields);
 
 					if ($arResult["RELATION"] == SONET_RELATIONS_FRIEND)
@@ -1022,10 +1037,11 @@ class CAllSocNetUserRelations
 				$arMessageFields = array(
 					"FROM_USER_ID" => $senderUserID,
 					"TO_USER_ID" => $targetUserID,
-					"MESSAGE" => GetMessage("SONET_UR_BANUSER_MESSAGE"),
+					"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage("SONET_UR_BANUSER_MESSAGE", null, $languageId),
 					"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 					"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM
 				);
+
 				CSocNetMessages::Add($arMessageFields);
 			}
 			else
@@ -1079,10 +1095,11 @@ class CAllSocNetUserRelations
 				$arMessageFields = array(
 					"FROM_USER_ID" => $senderUserID,
 					"TO_USER_ID" => ($arRelation["FIRST_USER_ID"] == $senderUserID ? $arRelation["SECOND_USER_ID"] : $arRelation["FIRST_USER_ID"]),
-					"MESSAGE" => GetMessage("SONET_UR_UNBANUSER_MESSAGE"),
+					"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage("SONET_UR_UNBANUSER_MESSAGE", null, $languageId),
 					"=DATE_CREATE" => $GLOBALS["DB"]->CurrentTimeFunction(),
 					"MESSAGE_TYPE" => SONET_MESSAGE_SYSTEM
 				);
+
 				CSocNetMessages::Add($arMessageFields);
 			}
 			else

@@ -15,6 +15,7 @@ $componentName = $_GET['componentName'] ?? null;
 $namespace = $_GET['namespace'] ?? null;
 $version = $_REQUEST['version'] ?? null;
 $type = $_REQUEST['type'] ?? null;
+$onlyTextOfExt = (bool)($_REQUEST['onlyTextOfExt'] ?? false);
 $type = ($type && in_array($type, $types, true) ? $type : "component");
 if (isset($_REQUEST["reload"]))
 {
@@ -38,7 +39,21 @@ else
 	header('Content-Type: text/javascript;charset=UTF-8');
 	try
 	{
-		$extension = new Extension($componentName);
+		$content = "";
+		$langExpression = "";
+		$extension = Extension::getInstance($componentName);
+		header('BX-Extension: true');
+
+		if ($onlyTextOfExt)
+		{
+			$content = $extension->getContent();
+			$langExpression = $extension->getLangDefinitionExpression();
+
+			echo "$langExpression\n$content";
+
+			return;
+		}
+
 		$deps = $extension->getDependencies();
 		$payload = new JsonPayload();
 		if (!empty($payload->getRaw()))
@@ -49,19 +64,17 @@ else
 				$deps = array_diff($deps, $exclude);
 			}
 		}
-
-		$content = "";
-		$langExpression = "";
 		foreach ($deps as $name)
 		{
-			$item = new Extension($name);
+			$item = Extension::getInstance($name);
 			$langExpression .= $item->getLangDefinitionExpression();
 			$content .= $item->getContent();
 		}
-		header('BX-Extension: true');
+
 		$result = "$langExpression\n$content";
 		$componentDeps = $extension->getComponentDependencies();
-		if ($componentDeps !== null) {
+		if ($componentDeps !== null)
+		{
 			$allComponents = Manager::getAvailableComponents();
 			$data = array_map(function ($component) {
 				return $component->getInfo();
@@ -70,7 +83,6 @@ else
 			$updateComponentsExpression = "\nthis.availableComponents = { ... this.availableComponents, ... $jsonData };\n";
 			$result = "$updateComponentsExpression\n$result";
 		}
-
 
 		echo $result;
 	}

@@ -1,15 +1,10 @@
 <?php
 namespace Bitrix\Iblock;
 
-use Bitrix\Iblock\ORM\ElementV1Entity;
-use Bitrix\Iblock\ORM\ElementV2Entity;
-use Bitrix\Iblock\ORM\Query;
-use Bitrix\Main,
-	Bitrix\Main\ORM,
-	Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ORM\Fields\Relations\ManyToMany;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\ORM\Fields\Validators;
+use Bitrix\Main;
+use Bitrix\Main\ORM;
+use Bitrix\Main\Localization\Loc;
 
 /**
  * Class ElementTable
@@ -77,15 +72,15 @@ Loc::loadMessages(__FILE__);
 
 class ElementTable extends ORM\Data\DataManager
 {
-	const TYPE_TEXT = 'text';
-	const TYPE_HTML = 'html';
+	public const TYPE_TEXT = 'text';
+	public const TYPE_HTML = 'html';
 
 	/**
 	 * Returns DB table name for entity.
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_iblock_element';
 	}
@@ -95,225 +90,299 @@ class ElementTable extends ORM\Data\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => new ORM\Fields\IntegerField('ID', array(
-				'primary' => true,
-				'autocomplete' => true,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_ID_FIELD'),
-			)),
-			'TIMESTAMP_X' => new ORM\Fields\DatetimeField('TIMESTAMP_X', array(
-				'default_value' => function()
+		return [
+			'ID' => new ORM\Fields\IntegerField(
+				'ID',
+				[
+					'primary' => true,
+					'autocomplete' => true,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_ID_FIELD'),
+				]
+			),
+			'TIMESTAMP_X' => new ORM\Fields\DatetimeField(
+				'TIMESTAMP_X',
+				[
+					'default_value' => function()
+						{
+							return new Main\Type\DateTime();
+						},
+					'title' => Loc::getMessage('ELEMENT_ENTITY_TIMESTAMP_X_FIELD'),
+				]
+			),
+			'MODIFIED_BY' => new ORM\Fields\IntegerField(
+				'MODIFIED_BY',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_MODIFIED_BY_FIELD'),
+				]
+			),
+			'DATE_CREATE' => new ORM\Fields\DatetimeField(
+				'DATE_CREATE',
+				[
+					'default_value' => function()
+						{
+							return new Main\Type\DateTime();
+						},
+					'title' => Loc::getMessage('ELEMENT_ENTITY_DATE_CREATE_FIELD'),
+				]
+			),
+			'CREATED_BY' => new ORM\Fields\IntegerField(
+				'CREATED_BY',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_CREATED_BY_FIELD'),
+				]
+			),
+			'IBLOCK_ID' => new ORM\Fields\IntegerField(
+				'IBLOCK_ID',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_IBLOCK_ID_FIELD'),
+				]
+			),
+			'IBLOCK_SECTION_ID' => new ORM\Fields\IntegerField(
+				'IBLOCK_SECTION_ID',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_IBLOCK_SECTION_ID_FIELD'),
+				]
+			),
+			'ACTIVE' => new ORM\Fields\BooleanField(
+				'ACTIVE',
+				[
+					'values' => ['N', 'Y'],
+					'default_value' => 'Y',
+					'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_FIELD'),
+				]
+			),
+			'ACTIVE_FROM' => new ORM\Fields\DatetimeField(
+				'ACTIVE_FROM',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_FROM_FIELD'),
+				]
+			),
+			'ACTIVE_TO' => new ORM\Fields\DatetimeField(
+				'ACTIVE_TO',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_TO_FIELD'),
+				]
+			),
+			'SORT' => new ORM\Fields\IntegerField(
+				'SORT',
+				[
+					'default_value' => 500,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_SORT_FIELD'),
+				]
+			),
+			'NAME' => new ORM\Fields\StringField(
+				'NAME',
+				[
+					'required' => true,
+					'validation' => function()
 					{
-						return new Main\Type\DateTime();
+						return [
+							new Validators\LengthValidator(null, 255),
+						];
 					},
-				'title' => Loc::getMessage('ELEMENT_ENTITY_TIMESTAMP_X_FIELD'),
-			)),
-			'MODIFIED_BY' => new ORM\Fields\IntegerField('MODIFIED_BY', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_MODIFIED_BY_FIELD'),
-			)),
-			'DATE_CREATE' => new ORM\Fields\DatetimeField('DATE_CREATE', array(
-				'default_value' => function()
+					'title' => Loc::getMessage('ELEMENT_ENTITY_NAME_FIELD'),
+				]
+			),
+			'PREVIEW_PICTURE' => new ORM\Fields\IntegerField(
+				'PREVIEW_PICTURE',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_PICTURE_FIELD'),
+				]
+			),
+			'PREVIEW_TEXT' => new ORM\Fields\TextField(
+				'PREVIEW_TEXT',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_TEXT_FIELD'),
+				]
+			),
+			'PREVIEW_TEXT_TYPE' => new ORM\Fields\EnumField(
+				'PREVIEW_TEXT_TYPE',
+				[
+					'values' => [
+						self::TYPE_TEXT,
+						self::TYPE_HTML,
+					],
+					'default_value' => self::TYPE_TEXT,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_TEXT_TYPE_FIELD'),
+				]
+			),
+			'DETAIL_PICTURE' => new ORM\Fields\IntegerField(
+				'DETAIL_PICTURE',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_PICTURE_FIELD'),
+				]
+			),
+			'DETAIL_TEXT' => new ORM\Fields\TextField(
+				'DETAIL_TEXT',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_TEXT_FIELD'),
+				]
+			),
+			'DETAIL_TEXT_TYPE' => new ORM\Fields\EnumField(
+				'DETAIL_TEXT_TYPE',
+				[
+					'values' => [
+						self::TYPE_TEXT,
+						self::TYPE_HTML,
+					],
+					'default_value' => self::TYPE_TEXT,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_TEXT_TYPE_FIELD'),
+				]
+			),
+			'SEARCHABLE_CONTENT' => new ORM\Fields\TextField(
+				'SEARCHABLE_CONTENT',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_SEARCHABLE_CONTENT_FIELD'),
+				]
+			),
+			'WF_STATUS_ID' => new ORM\Fields\IntegerField(
+				'WF_STATUS_ID',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_STATUS_ID_FIELD'),
+				]
+			),
+			'WF_PARENT_ELEMENT_ID' => new ORM\Fields\IntegerField(
+				'WF_PARENT_ELEMENT_ID',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_PARENT_ELEMENT_ID_FIELD'),
+				]
+			),
+			'WF_NEW' => new ORM\Fields\EnumField(
+				'WF_NEW',
+				[
+					'values' => [
+						'N',
+						'Y',
+					],
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_NEW_FIELD'),
+				]
+			),
+			'WF_LOCKED_BY' => new ORM\Fields\IntegerField(
+				'WF_LOCKED_BY',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_LOCKED_BY_FIELD'),
+				]
+			),
+			'WF_DATE_LOCK' => new ORM\Fields\DatetimeField(
+				'WF_DATE_LOCK',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_DATE_LOCK_FIELD'),
+				]
+			),
+			'WF_COMMENTS' => new ORM\Fields\TextField(
+				'WF_COMMENTS',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_WF_COMMENTS_FIELD'),
+				]
+			),
+			'IN_SECTIONS' => new ORM\Fields\BooleanField(
+				'IN_SECTIONS',
+				[
+					'values' => ['N', 'Y'],
+					'title' => Loc::getMessage('ELEMENT_ENTITY_IN_SECTIONS_FIELD'),
+				]
+			),
+			'XML_ID' => new ORM\Fields\StringField(
+				'XML_ID',
+				[
+					'validation' => function()
 					{
-						return new Main\Type\DateTime();
+						return [
+							new Validators\LengthValidator(null, 255),
+						];
 					},
-				'title' => Loc::getMessage('ELEMENT_ENTITY_DATE_CREATE_FIELD'),
-			)),
-			'CREATED_BY' => new ORM\Fields\IntegerField('CREATED_BY', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_CREATED_BY_FIELD'),
-			)),
-			'IBLOCK_ID' => new ORM\Fields\IntegerField('IBLOCK_ID', array(
-				'required' => true,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_IBLOCK_ID_FIELD'),
-			)),
-			'IBLOCK_SECTION_ID' => new ORM\Fields\IntegerField('IBLOCK_SECTION_ID', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_IBLOCK_SECTION_ID_FIELD'),
-			)),
-			'ACTIVE' => new ORM\Fields\BooleanField('ACTIVE', array(
-				'values' => array('N', 'Y'),
-				'default_value' => 'Y',
-				'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_FIELD'),
-			)),
-			'ACTIVE_FROM' => new ORM\Fields\DatetimeField('ACTIVE_FROM', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_FROM_FIELD'),
-			)),
-			'ACTIVE_TO' => new ORM\Fields\DatetimeField('ACTIVE_TO', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_ACTIVE_TO_FIELD'),
-			)),
-			'SORT' => new ORM\Fields\IntegerField('SORT', array(
-				'default_value' => 500,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_SORT_FIELD'),
-			)),
-			'NAME' => new ORM\Fields\StringField('NAME', array(
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateName'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_NAME_FIELD'),
-			)),
-			'PREVIEW_PICTURE' => new ORM\Fields\IntegerField('PREVIEW_PICTURE', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_PICTURE_FIELD'),
-			)),
-			'PREVIEW_TEXT' => new ORM\Fields\TextField('PREVIEW_TEXT', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_TEXT_FIELD'),
-			)),
-			'PREVIEW_TEXT_TYPE' => new ORM\Fields\EnumField('PREVIEW_TEXT_TYPE', array(
-				'values' => array(self::TYPE_TEXT, self::TYPE_HTML),
-				'default_value' => self::TYPE_TEXT,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_PREVIEW_TEXT_TYPE_FIELD'),
-			)),
-			'DETAIL_PICTURE' => new ORM\Fields\IntegerField('DETAIL_PICTURE', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_PICTURE_FIELD'),
-			)),
-			'DETAIL_TEXT' => new ORM\Fields\TextField('DETAIL_TEXT', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_TEXT_FIELD'),
-			)),
-			'DETAIL_TEXT_TYPE' => new ORM\Fields\EnumField('DETAIL_TEXT_TYPE', array(
-				'values' => array(self::TYPE_TEXT, self::TYPE_HTML),
-				'default_value' => self::TYPE_TEXT,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_DETAIL_TEXT_TYPE_FIELD'),
-			)),
-			'SEARCHABLE_CONTENT' => new ORM\Fields\TextField('SEARCHABLE_CONTENT', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_SEARCHABLE_CONTENT_FIELD'),
-			)),
-			'WF_STATUS_ID' => new ORM\Fields\IntegerField('WF_STATUS_ID', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_STATUS_ID_FIELD'),
-			)),
-			'WF_PARENT_ELEMENT_ID' => new ORM\Fields\IntegerField('WF_PARENT_ELEMENT_ID', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_PARENT_ELEMENT_ID_FIELD'),
-			)),
-			'WF_NEW' => new ORM\Fields\EnumField('WF_NEW', array(
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_NEW_FIELD'),
-			)),
-			'WF_LOCKED_BY' => new ORM\Fields\IntegerField('WF_LOCKED_BY', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_LOCKED_BY_FIELD'),
-			)),
-			'WF_DATE_LOCK' => new ORM\Fields\DatetimeField('WF_DATE_LOCK', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_DATE_LOCK_FIELD'),
-			)),
-			'WF_COMMENTS' => new ORM\Fields\TextField('WF_COMMENTS', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_WF_COMMENTS_FIELD'),
-			)),
-			'IN_SECTIONS' => new ORM\Fields\BooleanField('IN_SECTIONS', array(
-				'values' => array('N', 'Y'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_IN_SECTIONS_FIELD'),
-			)),
-			'XML_ID' => new ORM\Fields\StringField('XML_ID', array(
-				'validation' => array(__CLASS__, 'validateXmlId'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_XML_ID_FIELD'),
-			)),
-			'CODE' => new ORM\Fields\StringField('CODE', array(
-				'validation' => array(__CLASS__, 'validateCode'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_CODE_FIELD'),
-			)),
-			'TAGS' => new ORM\Fields\StringField('TAGS', array(
-				'validation' => array(__CLASS__, 'validateTags'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_TAGS_FIELD'),
-			)),
-			'TMP_ID' => new ORM\Fields\StringField('TMP_ID', array(
-				'validation' => array(__CLASS__, 'validateTmpId'),
-				'title' => Loc::getMessage('ELEMENT_ENTITY_TMP_ID_FIELD'),
-			)),
-			'SHOW_COUNTER' => new ORM\Fields\IntegerField('SHOW_COUNTER', array(
-				'default_value' => 0,
-				'title' => Loc::getMessage('ELEMENT_ENTITY_SHOW_COUNTER_FIELD'),
-			)),
-			'SHOW_COUNTER_START' => new ORM\Fields\DatetimeField('SHOW_COUNTER_START', array(
-				'title' => Loc::getMessage('ELEMENT_ENTITY_SHOW_COUNTER_START_FIELD'),
-			)),
+					'title' => Loc::getMessage('ELEMENT_ENTITY_XML_ID_FIELD'),
+				]
+			),
+			'CODE' => new ORM\Fields\StringField(
+				'CODE',
+				[
+					'validation' => function()
+					{
+						return [
+							new Validators\LengthValidator(null, 255),
+						];
+					},
+					'title' => Loc::getMessage('ELEMENT_ENTITY_CODE_FIELD'),
+				]
+			),
+			'TAGS' => new ORM\Fields\StringField(
+				'TAGS',
+				[
+					'validation' => function()
+					{
+						return [
+							new Validators\LengthValidator(null, 255),
+						];
+					},
+					'title' => Loc::getMessage('ELEMENT_ENTITY_TAGS_FIELD'),
+				]
+			),
+			'TMP_ID' => new ORM\Fields\StringField(
+				'TMP_ID',
+				[
+					'validation' => function()
+					{
+						return [
+							new Validators\LengthValidator(null, 40),
+						];
+					},
+					'title' => Loc::getMessage('ELEMENT_ENTITY_TMP_ID_FIELD'),
+				]
+			),
+			'SHOW_COUNTER' => new ORM\Fields\IntegerField(
+				'SHOW_COUNTER',
+				[
+					'default_value' => 0,
+					'title' => Loc::getMessage('ELEMENT_ENTITY_SHOW_COUNTER_FIELD'),
+				]
+			),
+			'SHOW_COUNTER_START' => new ORM\Fields\DatetimeField(
+				'SHOW_COUNTER_START',
+				[
+					'title' => Loc::getMessage('ELEMENT_ENTITY_SHOW_COUNTER_START_FIELD'),
+				]
+			),
 			'IBLOCK' => new ORM\Fields\Relations\Reference(
 				'IBLOCK',
 				'\Bitrix\Iblock\Iblock',
-				array('=this.IBLOCK_ID' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.IBLOCK_ID' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
 			'WF_PARENT_ELEMENT' => new ORM\Fields\Relations\Reference(
 				'WF_PARENT_ELEMENT',
 				'\Bitrix\Iblock\Element',
-				array('=this.WF_PARENT_ELEMENT_ID' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.WF_PARENT_ELEMENT_ID' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
 			'IBLOCK_SECTION' => new ORM\Fields\Relations\Reference(
 				'IBLOCK_SECTION',
 				'\Bitrix\Iblock\Section',
-				array('=this.IBLOCK_SECTION_ID' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.IBLOCK_SECTION_ID' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
 			'MODIFIED_BY_USER' => new ORM\Fields\Relations\Reference(
 				'MODIFIED_BY_USER',
 				'\Bitrix\Main\User',
-				array('=this.MODIFIED_BY' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.MODIFIED_BY' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
 			'CREATED_BY_USER' => new ORM\Fields\Relations\Reference(
 				'CREATED_BY_USER',
 				'\Bitrix\Main\User',
-				array('=this.CREATED_BY' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.CREATED_BY' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
 			'WF_LOCKED_BY_USER' => new ORM\Fields\Relations\Reference(
 				'WF_LOCKED_BY_USER',
 				'\Bitrix\Main\User',
-				array('=this.WF_LOCKED_BY' => 'ref.ID'),
-				array('join_type' => 'LEFT')
+				['=this.WF_LOCKED_BY' => 'ref.ID'],
+				['join_type' => 'LEFT'],
 			),
-		);
-	}
-	/**
-	 * Returns validators for NAME field.
-	 *
-	 * @return array
-	 */
-	public static function validateName()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-
-	/**
-	 * Returns validators for XML_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateXmlId()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-	/**
-	 * Returns validators for CODE field.
-	 *
-	 * @return array
-	 */
-	public static function validateCode()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-	/**
-	 * Returns validators for TAGS field.
-	 *
-	 * @return array
-	 */
-	public static function validateTags()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-	/**
-	 * Returns validators for TMP_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateTmpId()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 40),
-		);
+		];
 	}
 
 	/**
@@ -322,12 +391,13 @@ class ElementTable extends ORM\Data\DataManager
 	 * @param array $data			Element data.
 	 * @return ORM\Data\AddResult
 	 */
-	public static function add(array $data)
+	public static function add(array $data): ORM\Data\AddResult
 	{
 		$result = new ORM\Data\AddResult();
 		$result->addError(new ORM\EntityError(
 			Loc::getMessage('ELEMENT_ENTITY_MESS_ADD_BLOCKED')
 		));
+
 		return $result;
 	}
 
@@ -338,12 +408,13 @@ class ElementTable extends ORM\Data\DataManager
 	 * @param array $data			Element data.
 	 * @return ORM\Data\UpdateResult
 	 */
-	public static function update($primary, array $data)
+	public static function update($primary, array $data): ORM\Data\UpdateResult
 	{
 		$result = new ORM\Data\UpdateResult();
 		$result->addError(new ORM\EntityError(
 			Loc::getMessage('ELEMENT_ENTITY_MESS_UPDATE_BLOCKED')
 		));
+
 		return $result;
 	}
 
@@ -353,12 +424,13 @@ class ElementTable extends ORM\Data\DataManager
 	 * @param mixed $primary		Element primary key.
 	 * @return ORM\Data\DeleteResult
 	 */
-	public static function delete($primary)
+	public static function delete($primary): ORM\Data\DeleteResult
 	{
 		$result = new ORM\Data\DeleteResult();
 		$result->addError(new ORM\EntityError(
 			Loc::getMessage('ELEMENT_ENTITY_MESS_DELETE_BLOCKED')
 		));
+
 		return $result;
 	}
 }

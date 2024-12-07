@@ -215,7 +215,6 @@ class ShipmentCollection
 	 *
 	 * @param Order $order
 	 * @return ShipmentCollection
-	 * @throws Main\ArgumentNullException
 	 */
 	public static function load(Order $order)
 	{
@@ -232,7 +231,7 @@ class ShipmentCollection
 			foreach ($shipmentList as $shipment)
 			{
 				$shipment->setCollection($shipmentCollection);
-				$shipmentCollection->addItem($shipment);
+				$shipmentCollection->bindItem($shipment);
 			}
 
 			$controller = Internals\CustomFieldsController::getInstance();
@@ -484,10 +483,10 @@ class ShipmentCollection
 				/** @var EntityMarker $entityMarker */
 				$entityMarker = $registry->getEntityMarkerClassName();
 				$entityMarker::deleteByFilter(array(
-					 '=ORDER_ID' => $order->getId(),
-					 '=ENTITY_TYPE' => $entityMarker::ENTITY_TYPE_SHIPMENT,
-					 '=ENTITY_ID' => $k,
-				 ));
+					'=ORDER_ID' => $order->getId(),
+					'=ENTITY_TYPE' => $entityMarker::ENTITY_TYPE_SHIPMENT,
+					'=ENTITY_ID' => $k,
+				));
 			}
 
 		}
@@ -1125,7 +1124,7 @@ class ShipmentCollection
 					{
 						$result->addError(
 							new ResultError(
-								Loc::getMessage('SALE_ORDER_CANCEL_SHIPMENT_EXIST_SHIPPED'),
+								Loc::getMessage('SALE_ORDER_CANCEL_SHIPMENT_EXIST_SHIPPED_MSGVER_1'),
 								'SALE_ORDER_CANCEL_SHIPMENT_EXIST_SHIPPED'
 							)
 						);

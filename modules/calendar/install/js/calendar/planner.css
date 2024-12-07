@@ -543,7 +543,7 @@
 	display: none;
 }
 
-.calendar-planner-timeline-selector.solid .calendar-planner-timeline-selector-background {
+.calendar-planner-timeline-selector.--always-blue .calendar-planner-timeline-selector-background {
 	background: rgba(59, 200, 245, .35) !important;
 }
 

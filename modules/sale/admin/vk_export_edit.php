@@ -95,7 +95,7 @@ if (isset($request["VK"]) && check_bitrix_sessid())
 //			drop default category from settings
 			unset($vkSettings["EXPORT_SETTINGS"]["CATEGORY_DEFAULT"]);
 			$vk->saveSettings(array('SETTINGS' => $vkSettings, 'EXPORT_ID' => $exportId));
-			$vkSettings = $vk->getSettings($exportId);    //.. and get new settings array
+			$vkSettings = $vk->getSettings($exportId); //... and get new settings array
 			$vk->unsetActiveById($exportId);
 		}
 	}
@@ -103,7 +103,7 @@ if (isset($request["VK"]) && check_bitrix_sessid())
 
 
 //preset URL vars
-$siteDomain = $server->getHttpHost();
+$siteDomain = preg_replace('/:(443|80)$/', '', $server->getHttpHost());
 $currPageUrl = $APPLICATION->GetCurPage() . "?lang=" . LANGUAGE_ID;
 $currPageFullUrl = $siteDomain . $currPageUrl;
 $currPageSettingsTabUrl = $currPageFullUrl . '&tabControl_active_tab=vk_settings';
@@ -166,7 +166,7 @@ if (isset($request["code"]) && !empty($request["code"]) && $exportId)
 				unset($vkSettings["OAUTH"]["ACCESS_TOKEN"], $vkSettings["OAUTH"]["ACCESS_TOKEN_TIME"]);
 				$vk->unsetActiveById($exportId);
 				$logger = new Vk\Logger($exportId);
-				$logger->addError(ToUpper(str_replace(' ','_',$response["error_description"])));
+				$logger->addError(mb_strtoupper(str_replace(' ','_',$response["error_description"])));
 			}
 			catch (Vk\ExecuteException $e){}
 		}
@@ -268,7 +268,7 @@ if (isset($request["VK"]) && is_array($request["VK"]) && ($_POST['save'] || $_PO
 //		checking ACTIVITY after saving
 		$vk->changeActiveById($exportId);
 
-//		REDIRECT to listpage, if save (if apply - stay here)
+//		REDIRECT to listpage, if save. if apply - stay here.
 		if ($_POST['save'])
 		{
 			LocalRedirect('sale_vk_export_list.php?lang=' . LANGUAGE_ID);
@@ -358,7 +358,7 @@ catch (ArgumentNullException $e)
 if(!empty($errorRequiredFields))
 {
 	$errorRequiredFields = implode("\n", $errorRequiredFields);
-	echo CAdminMessage::ShowMessage($errorRequiredFields);
+	CAdminMessage::ShowMessage($errorRequiredFields);
 }
 
 //	TIMELIMIT for feed
@@ -477,13 +477,14 @@ foreach (array('ALBUMS', 'PRODUCTS') as $type1)
 ?>
 <tr>
 	<td>
-		<input id="vk_export_button__startFeed_all" class="adm-btn-save" type="button" <?= $processDisabledFlag ?>
-			   style="margin-right:10px"
-			   value="<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_ALL") ?>"
-			   onclick="BX.Sale.VkAdmin.startFeed('ALL','<?= $exportId ?>', true);">
-
-		<?=$contextButtons->Button($contextButtonAdd, CHotKeys::getInstance());?>
-		<?=$contextButtons->Button($contextButtonDel, CHotKeys::getInstance());?>
+		<input
+			id="vk_export_button__startFeed_all" class="adm-btn-save" type="button" <?= $processDisabledFlag ?>
+			style="margin-right:10px"
+			value="<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_ALL") ?>"
+			onclick="BX.Sale.VkAdmin.startFeed('ALL','<?= $exportId ?>', true);"
+		>
+		<? $contextButtons->Button($contextButtonAdd, CHotKeys::getInstance()); ?>
+		<? $contextButtons->Button($contextButtonDel, CHotKeys::getInstance());?>
 	</td>
 </tr>
 
@@ -493,16 +494,19 @@ foreach (array('ALBUMS', 'PRODUCTS') as $type1)
 <tr>
 	<td colspan="2">
 		<?php $errorsNormal = $logger->getErrorsList(false); ?>
-		<div id="vk_export_notify__error_normal"
-			 style="display:<?= ($errorsNormal <> '') ? 'block' : 'none' ?>">
-			<? echo BeginNote(); ?>
+		<div
+			id="vk_export_notify__error_normal"
+			style="display:<?= ($errorsNormal <> '') ? 'block' : 'none' ?>"
+		>
+			<?= BeginNote() ?>
 			<span id="vk_export_notify__error_normal__msg"><?= $errorsNormal ?></span>
 			<span id="vk_export_notify__error_normal__button">
-			<input type="button" value="<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_CLEAR_LOG") ?>"
-				   onclick="if(confirm('<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_CLEAR_LOG_ALERT") ?>'))
-					   {BX.Sale.VkAdmin.clearErrorLog('<?= $exportId ?>');}">
+			<input
+				type="button" value="<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_CLEAR_LOG") ?>"
+				onclick="if(confirm('<?= Loc::getMessage("SALE_VK_EXPORT_BUTTON_CLEAR_LOG_ALERT") ?>')) {BX.Sale.VkAdmin.clearErrorLog('<?= $exportId ?>');}"
+			>
 			</span>
-			<? echo EndNote(); ?>
+			<?= EndNote() ?>
 		</div>
 		<?=$logger->getErrorExpandScript();?>
 	</td>
@@ -543,8 +547,10 @@ $tabControl->BeginNextTab();
 	<tr class="adm-detail-required-field">
 		<td width="40%"><span><?= Loc::getMessage("SALE_VK_SETTINGS_NAME") ?>:</span></td>
 		<td width="60%">
-			<input type="text" name="VK[DESCRIPTION]" size="50" maxlength="255"
-				   value="<?= isset($vkSettings["DESCRIPTION"]) ? HtmlFilter::encode($vkSettings["DESCRIPTION"]) : "" ?>">
+			<input
+				type="text" name="VK[DESCRIPTION]" size="50" maxlength="255"
+				value="<?= isset($vkSettings["DESCRIPTION"]) ? HtmlFilter::encode($vkSettings["DESCRIPTION"]) : "" ?>"
+			>
 		</td>
 	</tr>
 
@@ -563,8 +569,10 @@ $tabControl->BeginNextTab();
 			<span><?= Loc::getMessage("SALE_VK_SETTINGS_APP_ID") ?>:</span>
 		</td>
 		<td>
-			<input type="text" name="VK[VK_SETTINGS][APP_ID]" size="25" maxlength="255"
-				   value="<?= isset($vkSettings["VK_SETTINGS"]["APP_ID"]) ? $vkSettings["VK_SETTINGS"]["APP_ID"] : "" ?>">
+			<input
+				type="text" name="VK[VK_SETTINGS][APP_ID]" size="25" maxlength="255"
+				value="<?= $vkSettings["VK_SETTINGS"]["APP_ID"] ?? "" ?>"
+			>
 		</td>
 	</tr>
 
@@ -578,8 +586,10 @@ $tabControl->BeginNextTab();
 			<span><?= Loc::getMessage("SALE_VK_SETTINGS_SECRET") ?>:</span>
 		</td>
 		<td>
-			<input type="text" name="VK[VK_SETTINGS][SECRET]" size="25" maxlength="255"
-				   value="<?= isset($vkSettings["VK_SETTINGS"]["SECRET"]) ? $vkSettings["VK_SETTINGS"]["SECRET"] : "" ?>">
+			<input
+				type="text" name="VK[VK_SETTINGS][SECRET]" size="25" maxlength="255"
+				value="<?= $vkSettings["VK_SETTINGS"]["SECRET"] ?? "" ?>"
+			>
 		</td>
 	</tr>
 
@@ -598,6 +608,16 @@ $tabControl->BeginNextTab();
 	<? endif; ?>
 
 
+	<tr>
+		<td colspan="2" style="text-align:center">
+			<div class="adm-info-message-wrap">
+				<div class="adm-info-message">
+					<div style="text-align: left; "><?= Loc::getMessage('SALE_VK_SETTINGS_NOTE', ['#URL#' => (new Bitrix\Main\Web\Uri('/bitrix/admin/sale_vk_export_edit.php'))->toAbsolute()]) ?></div>
+				</div>
+			</div>
+		</td>
+	</tr>
+
 	<? if ($exportId && $vkGroupsSelector <> ''): ?>
 		<tr class="heading">
 			<td colspan="2"><?= Loc::getMessage("SALE_VK_SETTINGS_VK_SETTINGS") ?></td>
@@ -614,10 +634,9 @@ $tabControl->BeginNextTab();
 			</td>
 			<td><?=$vkGroupsSelector?></td>
 		</tr>
-	<?endif; //group selector?>
+	<?endif; //group selector
 
-
-	<?php if ($exportId && $vkCategorySelector <> ''): ?>
+	if ($exportId && $vkCategorySelector <> ''): ?>
 		<!--		CATEGORIES mapping-->
 		<tr class="heading">
 			<td colspan="2"><?= Loc::getMessage("SALE_VK_SETTINGS_CATEGORIES") ?></td>
@@ -633,18 +652,21 @@ $tabControl->BeginNextTab();
 						name="VK[EXPORT_SETTINGS][CATEGORY_DEFAULT]"><?= $vkCategorySelector ?></select>
 			</td>
 		</tr>
-	<? endif; ?>
+	<? endif;
 
-
-	<? if ($vk->isActive() && $vk->isActiveById($exportId)): ?>
+	if ($vk->isActive() && $vk->isActiveById($exportId)): ?>
 		<tr class="heading">
 			<td colspan="2"><?= Loc::getMessage("SALE_VK_SETTINGS_EXPORT") ?></td>
 		</tr>
 
 		<!--		level of LOG messages (default - all messages (debug))-->
 		<tr>
-			<td colspan="2"><input type="hidden" name="VK[LOG_LEVEL]"
-								   value="<?= \Bitrix\Sale\TradingPlatform\Logger::LOG_LEVEL_DEBUG ?>"></td>
+			<td colspan="2">
+				<input
+					type="hidden" name="VK[LOG_LEVEL]"
+					value="<?= \Bitrix\Sale\TradingPlatform\Logger::LOG_LEVEL_DEBUG ?>"
+				>
+			</td>
 		</tr>
 
 		<!--		AGRESSIVE export -->
@@ -682,8 +704,10 @@ $tabControl->BeginNextTab();
 				<?= Loc::getMessage("SALE_VK_SETTINGS_EXPORT_TIMELIMIT") ?>:
 			</td>
 			<td>
-				<input type="text" size="3" name="VK[EXPORT_SETTINGS][TIMELIMIT]"
-					   value="<?= isset($vkSettings["EXPORT_SETTINGS"]["TIMELIMIT"]) ? $vkSettings["EXPORT_SETTINGS"]["TIMELIMIT"] : Vk\Vk::DEFAULT_TIMELIMIT; ?>">
+				<input
+					type="text" size="3" name="VK[EXPORT_SETTINGS][TIMELIMIT]"
+					value="<?= $vkSettings["EXPORT_SETTINGS"]["TIMELIMIT"] ?? Vk\Vk::DEFAULT_TIMELIMIT; ?>"
+				>
 			</td>
 		</tr>
 
@@ -695,8 +719,10 @@ $tabControl->BeginNextTab();
 				<?= Loc::getMessage("SALE_VK_SETTINGS_EXPORT_COUNT_ITEMS") ?>:
 			</td>
 			<td>
-				<input type="text" size="3" name="VK[EXPORT_SETTINGS][COUNT_ITEMS]"
-					   value="<?= isset($vkSettings["EXPORT_SETTINGS"]["COUNT_ITEMS"]) ? $vkSettings["EXPORT_SETTINGS"]["COUNT_ITEMS"] : ceil(intval(Vk\Vk::MAX_EXECUTION_ITEMS) / 2); ?>">
+				<input
+					type="text" size="3" name="VK[EXPORT_SETTINGS][COUNT_ITEMS]"
+					value="<?= $vkSettings["EXPORT_SETTINGS"]["COUNT_ITEMS"] ?? ceil(intval(Vk\Vk::MAX_EXECUTION_ITEMS) / 2); ?>"
+				>
 			</td>
 		</tr>
 
@@ -719,14 +745,20 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td>
-			<input type="submit" class="adm-btn-save" name="save" id="vk_export_button__save"
-				   value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_SAVE") ?>" style="margin-right:10px"/>
-			<input type="submit" name="apply" style="margin-right:10px" id="vk_export_button__apply"
-				   value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_APPLY") ?>"/>
-			<input type="button" style="margin-right:10px" id="vk_export_button__cancel"
-				   onclick="window.location='/bitrix/admin/sale_vk_export_list.php?lang=<?= LANGUAGE_ID ?>'"
-				   name="cancel"
-				   value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_CANCEL") ?>"/>
+			<input
+				type="submit" class="adm-btn-save" name="save" id="vk_export_button__save"
+				value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_SAVE") ?>" style="margin-right:10px"
+			>
+			<input
+				type="submit" name="apply" style="margin-right:10px" id="vk_export_button__apply"
+				value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_APPLY") ?>"
+			>
+			<input
+				type="button" style="margin-right:10px" id="vk_export_button__cancel"
+				onclick="window.location='/bitrix/admin/sale_vk_export_list.php?lang=<?= LANGUAGE_ID ?>'"
+				name="cancel"
+				value="<?= Loc::getMessage("SALE_VK_SETTINGS_BUTTON_CANCEL") ?>"
+			>
 		</td>
 	</tr>
 </form>

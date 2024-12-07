@@ -5,6 +5,7 @@ namespace Sale\Handlers\Delivery\Rest\DataProviders;
 use Bitrix\Location\Entity\Address;
 use Bitrix\Main\Loader;
 use Bitrix\Sale;
+use Bitrix\Sale\BasketItem;
 
 /**
  * Class Shipment
@@ -104,21 +105,45 @@ final class Shipment
 				continue;
 			}
 
-			$dimension = $basketItem->getField('DIMENSIONS');
+			$basketItemWeight = $basketItem->getWeight();
 
 			$result[] = [
 				'NAME' => $basketItem->getField('NAME'),
 				'PRICE' => $basketItem->getPrice(),
-				'WEIGHT' => $basketItem->getWeight(),
+				'WEIGHT' => $basketItemWeight === '' || is_null($basketItemWeight) ? null : (float)$basketItemWeight,
 				'CURRENCY' => $basketItem->getCurrency(),
 				'QUANTITY' => $shipmentItem->getQuantity(),
-				'DIMENSIONS' => ($dimension && is_string($dimension) && \CheckSerializedData($dimension))
-					? unserialize($dimension, ['allowed_classes' => false])
-					: $dimension,
+				'DIMENSIONS' => self::getDimensions($basketItem),
 			];
 		}
 
 		return $result;
+	}
+
+	private static function getDimensions(BasketItem $basketItem): ?array
+	{
+		$dimension = $basketItem->getField('DIMENSIONS');
+
+		$dimension =
+			$dimension && is_string($dimension) && \CheckSerializedData($dimension)
+				? unserialize($dimension, ['allowed_classes' => false])
+				: $dimension
+		;
+
+		if (
+			isset($dimension['WIDTH'])
+			&& isset($dimension['HEIGHT'])
+			&& isset($dimension['LENGTH'])
+		)
+		{
+			return [
+				'WIDTH' => (float)$dimension['WIDTH'],
+				'HEIGHT' => (float)$dimension['HEIGHT'],
+				'LENGTH' => (float)$dimension['LENGTH'],
+			];
+		}
+
+		return null;
 	}
 
 	/**
@@ -218,9 +243,12 @@ final class Shipment
 			$addressFields[$fieldsTypeMap[$fieldType]] = $field->getValue();
 		}
 
+		$latitude = $address->getLatitude();
+		$longitude = $address->getLongitude();
+
 		return [
-			'LATITUDE' => $address->getLatitude(),
-			'LONGITUDE' => $address->getLongitude(),
+			'LATITUDE' => $latitude === '' ? null : (float)$latitude,
+			'LONGITUDE' => $longitude === '' ? null : (float)$longitude,
 			'FIELDS' => $addressFields,
 		];
 	}

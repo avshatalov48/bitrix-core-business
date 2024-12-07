@@ -18,6 +18,13 @@ const defaultMessages = [
 // @vue/component
 export const EmptyState = {
 	name: 'EmptyState',
+	props:
+	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
+	},
 	data(): JsonObject
 	{
 		return {};
@@ -30,7 +37,10 @@ export const EmptyState = {
 	{
 		onMessageClick(text: string): void
 		{
-			EventEmitter.emit(EventType.textarea.insertText, { text });
+			EventEmitter.emit(EventType.textarea.insertText, {
+				text,
+				dialogId: this.dialogId,
+			});
 		},
 		loc(phraseCode: string): string
 		{

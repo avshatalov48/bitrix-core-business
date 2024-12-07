@@ -1,6 +1,10 @@
 <?php
 $MESS["LANDING_404_ERROR"] = "Template was not found";
 $MESS["LANDING_LOADER_WAIT_MSGVER_1"] = "Please wait, creating the online store now...";
+$MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT"] = "Cancel";
+$MESS["LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT"] = "Yes";
+$MESS["LANDING_PREVIEW_MAINPAGE_MESSAGE"] = "Your start page is already using a template. Importing a new template will irreversibly delete the current template and all the changes you have made to it.<br />Do you want to delete the current template and install a new one?";
+$MESS["LANDING_PREVIEW_MAINPAGE_TITLE"] = "Install new template";
 $MESS["LANDING_TPL_BUTTON_CANCEL"] = "Cancel";
 $MESS["LANDING_TPL_BUTTON_CREATE"] = "Create";
 $MESS["LANDING_TPL_BUTTON_CREATE_KB"] = "Create knowledge base";
@@ -11,6 +15,7 @@ $MESS["LANDING_TPL_BUTTON_REPLACE_PAGE"] = "Apply template";
 $MESS["LANDING_TPL_BUTTON_SHOW_IN_MOBILE"] = "Open on mobile device";
 $MESS["LANDING_TPL_HEADER_LOGO_BITRIX"] = "Bitrix";
 $MESS["LANDING_TPL_HEADER_LOGO_KB"] = "Knowledge bases";
+$MESS["LANDING_TPL_HEADER_LOGO_MAINPAGE"] = "Vibe";
 $MESS["LANDING_TPL_HEADER_LOGO_SITE"] = "Sites";
 $MESS["LANDING_TPL_HEADER_RIGHT_CREATE_HINT_MSGVER_1"] = "You do not have sufficient permission to create sites. Please contact your administrator.";
 $MESS["LANDING_TPL_MY_COLOR"] = "Custom color";

@@ -1,14 +1,14 @@
 <?
 class CCSVDataSale
 {
-	var $sFileName;					// ïîëíîå èìÿ ôàéëà
-	var $sContent;						// ñîäåðæèìîå ôàéëà
-	var $iFileLength;					// äëèíà ôàéëà
-	var $iCurPos = 0;					// òåêóùàÿ ïîçèöèÿ ïðè Fetch
-	var $cFieldsType = "R";			// òèï ïîëåé: R - ñ ðàçäåëèòåëåì, F - ôèêñèðîâàíîé øèðèíû
-	var $cDelimiter = ";";			// ðàçäåëèòåëü ïîëåé
-	var $arWidthMap = array();		// ìàññèâ êîîðäèíàò ìåòîê ðàçäåëåíèÿ äëÿ ïîëåé ôèêñèðîâàíîé øèðèíû
-	var $bFirstHeader = false;		// â 1 ñòðîêå çàãîëîâêè ïîëåé
+	var $sFileName;					// Ð¿Ð¾Ð»Ð½Ð¾Ðµ Ð¸Ð¼Ñ Ñ„Ð°Ð¹Ð»Ð°
+	var $sContent;						// ÑÐ¾Ð´ÐµÑ€Ð¶Ð¸Ð¼Ð¾Ðµ Ñ„Ð°Ð¹Ð»Ð°
+	var $iFileLength;					// Ð´Ð»Ð¸Ð½Ð° Ñ„Ð°Ð¹Ð»Ð°
+	var $iCurPos = 0;					// Ñ‚ÐµÐºÑƒÑ‰Ð°Ñ Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð¿Ñ€Ð¸ Fetch
+	var $cFieldsType = "R";			// Ñ‚Ð¸Ð¿ Ð¿Ð¾Ð»ÐµÐ¹: R - Ñ Ñ€Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»ÐµÐ¼, F - Ñ„Ð¸ÐºÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð¾Ð¹ ÑˆÐ¸Ñ€Ð¸Ð½Ñ‹
+	var $cDelimiter = ";";			// Ñ€Ð°Ð·Ð´ÐµÐ»Ð¸Ñ‚ÐµÐ»ÑŒ Ð¿Ð¾Ð»ÐµÐ¹
+	var $arWidthMap = array();		// Ð¼Ð°ÑÑÐ¸Ð² ÐºÐ¾Ð¾Ñ€Ð´Ð¸Ð½Ð°Ñ‚ Ð¼ÐµÑ‚Ð¾Ðº Ñ€Ð°Ð·Ð´ÐµÐ»ÐµÐ½Ð¸Ñ Ð´Ð»Ñ Ð¿Ð¾Ð»ÐµÐ¹ Ñ„Ð¸ÐºÑÐ¸Ñ€Ð¾Ð²Ð°Ð½Ð¾Ð¹ ÑˆÐ¸Ñ€Ð¸Ð½Ñ‹
+	var $bFirstHeader = false;		// Ð² 1 ÑÑ‚Ñ€Ð¾ÐºÐµ Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²ÐºÐ¸ Ð¿Ð¾Ð»ÐµÐ¹
 
 	function CCSVData($fields_type = "R", $first_header = false)
 	{

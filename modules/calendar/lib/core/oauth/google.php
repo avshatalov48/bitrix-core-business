@@ -27,6 +27,8 @@ class Google extends Base
 			'https://www.googleapis.com/auth/calendar.readonly'
 		]);
 
+		$this->oauthClient->getEntityOAuth()->removeScope('https://www.googleapis.com/auth/drive');
+
 	}
 
 	/**
@@ -34,7 +36,7 @@ class Google extends Base
 	 */
 	protected function checkService(): bool
 	{
-		return \CCalendar::IsCalDAVEnabled() && \CCalendar::isGoogleApiEnabled();
+		return \CCalendar::isGoogleApiEnabled();
 	}
 
 	/**

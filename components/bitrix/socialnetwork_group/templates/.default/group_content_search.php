@@ -5,6 +5,8 @@ include("util_group_menu.php");
 
 define("SONET_GROUP_NEEDED", true);
 include("util_group_profile.php");
+include("util_group_limit.php");
+
 $arGroupFields = $arGroup;
 
 if (!CSocNetFeaturesPerms::CanPerformOperation($GLOBALS["USER"]->GetID(), SONET_ENTITY_GROUP, $arResult["VARIABLES"]["group_id"], "search", "view", CSocNetUser::IsCurrentUserModuleAdmin()))
@@ -46,7 +48,7 @@ if (
 		3 => "photo",
 		4 => "files"
 	),
-	"DEFAULT_SORT" => ($_REQUEST["tags"] <> '' ? "date" : $arParams["SEARCH_DEFAULT_SORT"]),
+	"DEFAULT_SORT" => (($_REQUEST["tags"] ?? null) <> '' ? "date" : $arParams["SEARCH_DEFAULT_SORT"]),
 	"PAGE_RESULT_COUNT" => $arParams["SEARCH_PAGE_RESULT_COUNT"],
 	"AJAX_MODE" => "N",
 	"AJAX_OPTION_SHADOW" => "Y",
@@ -61,7 +63,10 @@ if (
 	"TAGS_SORT" => "NAME",
 	"TAGS_PAGE_ELEMENTS" => $arParams["SEARCH_TAGS_PAGE_ELEMENTS"],
 	"TAGS_PERIOD" => $arParams["SEARCH_TAGS_PERIOD"],
-	"TAGS_URL_SEARCH" => CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_GROUP_CONTENT_SEARCH"], array("group_id" => $arResult["VARIABLES"]["group_id"])),
+	"TAGS_URL_SEARCH" => CComponentEngine::MakePathFromTemplate(
+		$arParams["~PATH_TO_GROUP_CONTENT_SEARCH"] ?? null,
+		["group_id" => $arResult["VARIABLES"]["group_id"]]
+	),
 	"TAGS_INHERIT" => "Y",
 	"FONT_MAX" => $arParams["SEARCH_TAGS_FONT_MAX"],
 	"FONT_MIN" => $arParams["SEARCH_TAGS_FONT_MIN"],
@@ -86,7 +91,7 @@ if (
 	"PATH_TO_GROUP_CALENDAR" => $arResult["PATH_TO_GROUP_CALENDAR"],
 	"SOCNET_GROUP_ID" => $arResult["VARIABLES"]["group_id"],
 	"FILES_GROUP_IBLOCK_ID" => $arParams["FILES_GROUP_IBLOCK_ID"],
-	"CALENDAR_GROUP_IBLOCK_ID" => $arParams["CALENDAR_GROUP_IBLOCK_ID"],
+	"CALENDAR_GROUP_IBLOCK_ID" => $arParams["CALENDAR_GROUP_IBLOCK_ID"] ?? null,
 	"PHOTO_GROUP_IBLOCK_ID" => $arParams["PHOTO_GROUP_IBLOCK_ID"],	),
 	$component
 );?>

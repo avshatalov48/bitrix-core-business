@@ -9,4 +9,10 @@ export type LaunchItemOptions = {
 	delay?: number,
 	allowLaunchAfterOthers?: boolean,
 	forceShowOnTop?: boolean | Function,
+	context?: LaunchItemContext,
+};
+
+export type LaunchItemContext = {
+	slider: Object,
+	sliderId: string,
 };

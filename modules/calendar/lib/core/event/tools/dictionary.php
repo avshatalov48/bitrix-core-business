@@ -45,5 +45,6 @@ class Dictionary
 		'company' => 'company_calendar',
 		'location' => 'location',
 		'resource' => 'resource',
+		'open_event' => 'open_event',
 	];
 }

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_events,catalog_productCalculator,main_core,catalog_productModel) {
 	'use strict';
@@ -425,6 +426,9 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldSet(this, _storeCollection, new StoreCollection(this));
 	    var settings = main_core.Extension.getSettings('catalog.product-model');
 	    babelHelpers.classPrivateFieldSet(this, _productRights, settings.get('catalogProductRights'));
+	    if (settings.get('isExternalCatalog')) {
+	      this.setOption('isSaveable', false);
+	    }
 	    if (main_core.Type.isObject(options.fields)) {
 	      this.initFields(options.fields, false);
 	    }

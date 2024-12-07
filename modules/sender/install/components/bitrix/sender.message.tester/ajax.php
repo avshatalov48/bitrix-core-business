@@ -31,8 +31,6 @@ $actions[] = Controller\Action::create('test')->setHandler(
 			$messageData = array();
 		}
 
-		\CUtil::decodeURIComponent($messageData);
-
 		$list = $request->get('list');
 		if (!is_array($list))
 		{

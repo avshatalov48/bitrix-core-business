@@ -323,6 +323,7 @@ class Application
 								'installed' => AppTable::isInstalled($appId),
 								'redirect' => $redirect,
 								'openSlider' => $sliderUrl,
+								'canShowForm' => $appDetailInfo['OPEN_API'] === 'Y' && !empty($appFields['URL_SETTINGS'])
 							];
 
 							Analytic::logToFile(
@@ -430,7 +431,7 @@ class Application
 					$errorMessage = '';
 					foreach ($checkResult as $error)
 					{
-						$errorMessage .= $error->getMessage() . "\n";
+						$errorMessage .= $error->getMessage() . '\n';
 					}
 
 					$result = ['error' => $errorMessage];
@@ -479,6 +480,9 @@ class Application
 			}
 			elseif ($appInfo && $appInfo['STATUS'] === AppTable::STATUS_LOCAL)
 			{
+				// delete user application params to trigger installation event
+				\CUserOptions::DeleteOption('app_options', 'params_' . $appInfo['CLIENT_ID'] . '_' . $appInfo['VERSION']);
+
 				if (empty($appInfo['MENU_NAME']) && empty($appInfo['MENU_NAME_DEFAULT']))
 				{
 					AppTable::install($appInfo['ID']);

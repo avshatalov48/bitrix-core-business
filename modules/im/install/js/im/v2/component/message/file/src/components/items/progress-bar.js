@@ -20,6 +20,10 @@ export const ProgressBar = {
 			type: [String, Number],
 			required: true,
 		},
+		withLabels: {
+			type: Boolean,
+			default: true,
+		},
 	},
 	computed:
 	{
@@ -62,10 +66,16 @@ export const ProgressBar = {
 				blurElement = false;
 			}
 
+			const customConfig = { blurElement, hasTitle: false };
+			if (!this.withLabels)
+			{
+				customConfig.labels = {};
+			}
+
 			this.progressBarManager = new ProgressBarManager({
 				container: this.$refs['progress-bar'],
 				uploadState: this.file,
-				customConfig: { blurElement, hasTitle: false },
+				customConfig,
 			});
 
 			this.progressBarManager.subscribe(ProgressBarManager.event.cancel, () => {

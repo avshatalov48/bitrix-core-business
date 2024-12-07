@@ -4,11 +4,8 @@ namespace Bitrix\Location\Entity\Address\Converter;
 
 use Bitrix\Location\Entity\Address;
 use Bitrix\Location\Model\EO_Address;
-use Bitrix\Location\Model\EO_AddressField;
 use Bitrix\Location\Model\EO_Address_Collection;
-use Bitrix\Location\Model\EO_AddressField_Collection;
 use Bitrix\Location\Model\EO_AddressLink;
-use Bitrix\Location\Model\EO_AddressLink_Collection;
 
 /**
  * Class OrmConverter
@@ -17,57 +14,6 @@ use Bitrix\Location\Model\EO_AddressLink_Collection;
  */
 final class OrmConverter
 {
-	/**
-	 * Convert Address links to ORM collection
-	 *
-	 * @param Address $address
-	 * @return EO_AddressLink_Collection
-	 */
-	public static function convertLinksToOrm(Address $address): EO_AddressLink_Collection
-	{
-		$result = new EO_AddressLink_Collection();
-
-		/** @var Address\IAddressLink $link */
-		foreach ($address->getLinks() as $link)
-		{
-			$result->add(
-				(new EO_AddressLink())
-					->setAddressId($address->getId())
-					->setEntityId($link->getAddressLinkEntityId())
-					->setEntityType($link->getAddressLinkEntityType())
-			);
-		}
-
-		return $result;
-	}
-
-	/**
-	 * Convert Address fields to ORM objects
-	 *
-	 * @param Address $address
-	 * @return EO_AddressField_Collection
-	 */
-	public static function convertFieldsToOrm(Address $address): EO_AddressField_Collection
-	{
-		$result = new EO_AddressField_Collection();
-		$normalizer = Address\Normalizer\Builder::build($address->getLanguageId());
-
-		/** @var Address\Field $field */
-		foreach ($address->getFieldCollection() as $field)
-		{
-			$value = $field->getValue();
-			$result->add(
-				(new EO_AddressField())
-					->setType($field->getType())
-					->setValue($field->getValue())
-					->setAddressId($address->getId())
-					->setValueNormalized( $normalizer->normalize($value))
-			);
-		}
-
-		return $result;
-	}
-
 	/**
 	 * Convert ORM objects to Address
 	 *

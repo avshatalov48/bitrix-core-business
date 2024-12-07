@@ -268,7 +268,10 @@ class CCheckList
 		{
 			$targetEncoding = \Bitrix\Main\Localization\Translation::getCurrentEncoding();
 			$sourceEncoding = \Bitrix\Main\Localization\Translation::getSourceEncoding(LANG);
-			$howTo = \Bitrix\Main\Text\Encoding::convertEncoding($howTo, $sourceEncoding, $targetEncoding);
+			if ($targetEncoding !== 'utf-8' || !preg_match('//u', $howTo))
+			{
+				$howTo = \Bitrix\Main\Text\Encoding::convertEncoding($howTo, $sourceEncoding, $targetEncoding);
+			}
 		}
 
 		$arDesc = array(
@@ -859,7 +862,7 @@ class CAutoCheck
 				$http = new \Bitrix\Main\Web\HttpClient();
 				$http->setProxy($proxyAddr, $proxyPort, $proxyUserName, $proxyPassword);
 
-				$data = $http->get("http://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$moduleId."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
+				$data = $http->get("https://".$sHost."/bitrix/updates/checksum.php?check_sum=Y&module_id=".$moduleId."&ver=".$ver."&dbtype=".$dbtype."&mode=2");
 
 				$result = unserialize(gzinflate($data), ['allowed_classes' => false]);
 				if (is_array($result))
@@ -1321,7 +1324,7 @@ class CAutoCheck
 		$arResult["STATUS"] = false;
 
 		$http = new \Bitrix\Main\Web\HttpClient();
-		$ver = $http->get("http://www.1c-bitrix.ru/download/vm_bitrix.ver");
+		$ver = $http->get("https://www.1c-bitrix.ru/download/vm_bitrix.ver");
 
 		if (version_compare(getenv('BITRIX_VA_VER'), $ver) >= 0)
 		{

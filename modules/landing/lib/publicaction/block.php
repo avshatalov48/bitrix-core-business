@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Landing\PublicAction;
 
+use Bitrix\Landing\Block\BlockRepo;
 use Bitrix\Landing\History;
 use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\File;
@@ -481,11 +482,6 @@ class Block
 										foreach ($attrs as $attCode => &$attValue)
 										{
 											$attValue = $rawAttrs[$attCode];
-											$attValue = \Bitrix\Main\Text\Encoding::convertEncoding(
-												$attValue,
-												'utf-8',
-												SITE_CHARSET
-											);
 										}
 									}
 									unset($attValue);
@@ -1016,13 +1012,11 @@ class Block
 	/**
 	 * Get blocks from repository.
 	 * @param string $section Section code.
-	 * @param bool $withManifest Get repo with manifest.
-	 * @return \Bitrix\Landing\PublicActionResult
 	 */
-	public static function getRepository($section = null, $withManifest = false)
+	public static function getRepository($section = null)
 	{
 		$result = new PublicActionResult();
-		$repo = \Bitrix\Landing\Block::getRepository($withManifest);
+		$repo = (new BlockRepo())->getRepository();
 
 		if ($section === null)
 		{
@@ -1111,6 +1105,35 @@ class Block
 				'NAME' => $file['NAME']
 			]);
 		}
+
+		return $result;
+	}
+
+	/**
+	 * Get extensions configs, load relations, load lang phrases
+	 *
+	 * @param array $extCodes - array of extensions codes
+	 * @param array $tplCodes - array of site templates
+	 * @return PublicActionResult - array of assets by type
+	 */
+	public static function getAssetsConfig(array $extCodes, array $tplCodes = []): PublicActionResult
+	{
+		$result = new PublicActionResult();
+
+		$assetsManager = (new Assets\Manager())
+			->enableSandbox()
+			->addAsset($extCodes)
+		;
+
+		foreach ($tplCodes as $tpl)
+		{
+			$siteTemplatePath =
+				(defined('SITE_TEMPLATE_PATH') ? SITE_TEMPLATE_PATH : '/bitrix/templates/.default');
+			$style = $siteTemplatePath . "/template_styles.css";
+			$assetsManager->addAsset($style);
+		}
+
+		$result->setResult($assetsManager->getOutput());
 
 		return $result;
 	}

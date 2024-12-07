@@ -98,7 +98,7 @@ class CAllSaleTaxRate
 						$strSql =
 							"INSERT INTO b_sale_tax2location(TAX_RATE_ID, LOCATION_CODE, LOCATION_TYPE) ".
 							"VALUES(".$ID.", ".$arFields[$i]["LOCATION_ID"].", '".$arFields[$i]["LOCATION_TYPE"]."')";
-						$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->Query($strSql);
 					}
 				}
 			}
@@ -116,7 +116,7 @@ class CAllSaleTaxRate
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_tax_rate", $arFields);
 		$strSql = "UPDATE b_sale_tax_rate SET TIMESTAMP_X = ".$DB->GetNowFunction().", ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (array_key_exists("TAX_LOCATION", $arFields))
 			CSaleTaxRate::SetTaxRateLocation($ID, $arFields["TAX_LOCATION"], $arOptions);
@@ -145,7 +145,7 @@ class CAllSaleTaxRate
 		$strSql =
 			"SELECT ID, TAX_ID, PERSON_TYPE_ID, VALUE, CURRENCY, IS_PERCENT, IS_IN_PRICE, APPLY_ORDER, ".$DB->DateToCharFunction("TIMESTAMP_X", "FULL")." as TIMESTAMP_X, ACTIVE ".
 			"FROM b_sale_tax_rate WHERE ID = ".$ID;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -198,7 +198,7 @@ class CAllSaleTaxRate
 				else
 					$bInvert = false;
 
-				switch (ToUpper($key))
+				switch (mb_strtoupper($key))
 				{
 					case "TAX_RATE_ID":
 						$arSqlSearch[] = "TR2L.TAX_RATE_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -227,7 +227,7 @@ class CAllSaleTaxRate
 				"	".$strSqlSearch." ";
 
 			$strSql .= $strSqlOrder;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			return $db_res;
 
 		}

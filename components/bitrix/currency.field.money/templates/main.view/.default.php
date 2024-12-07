@@ -1,29 +1,29 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var MoneyUfComponent $component
  * @var array $arResult
  */
-?>
 
+?>
 <span class="fields money field-wrap">
-  <?php
-	foreach($arResult['value'] as $item)
+	<?php
+	$isFirst = true;
+	foreach ($arResult['value'] as $item)
 	{
+		if (!$isFirst)
+		{
+			print '<br>';
+		}
+		$isFirst = false;
 		?>
 		<span class="fields money field-item">
-			<?php
-			if(!empty($item['href']))
-			{
-				print "<a href=\"{$item['href']}\">{$item['value']}</a>";
-			}
-			else
-			{
-				print $item['value'];
-			}
-			?>
+			<?= $item['value'] ?>
 		</span>
 		<?php
 	}

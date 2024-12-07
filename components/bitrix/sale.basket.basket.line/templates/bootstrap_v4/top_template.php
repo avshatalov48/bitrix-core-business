@@ -37,7 +37,7 @@ $compositeStub = (isset($arResult['COMPOSITE_STUB']) && $arResult['COMPOSITE_STU
 			$currentUrl = urlencode($APPLICATION->GetCurPageParam("", $arParamsToDelete));
 			if ($arParams['AJAX'] == 'N')
 			{
-				?><script type="text/javascript"><?=$cartId?>.currentUrl = '<?=$currentUrl?>';</script><?
+				?><script><?=$cartId?>.currentUrl = '<?=$currentUrl?>';</script><?
 			}
 			else
 			{

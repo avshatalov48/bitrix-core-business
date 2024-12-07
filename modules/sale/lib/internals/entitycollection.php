@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Sale\Internals;
 
 use Bitrix\Sale;
@@ -83,14 +84,11 @@ abstract class EntityCollection
 	/**
 	 * @param CollectableEntity $item
 	 * @return CollectableEntity
-	 * @throws Main\ArgumentTypeException
 	 */
 	protected function addItem(CollectableEntity $item)
 	{
-		$index = $this->createIndex();
-		$item->setInternalIndex($index);
+		$item = $this->bindItem($item);
 
-		$this->collection[$index] = $item;
 		$this->setAnyItemAdded(true);
 
 		$eventManager = Main\EventManager::getInstance();
@@ -104,6 +102,15 @@ abstract class EntityCollection
 			));
 			$event->send();
 		}
+
+		return $item;
+	}
+
+	protected function bindItem(CollectableEntity $item): CollectableEntity
+	{
+		$index = $this->createIndex();
+		$item->setInternalIndex($index);
+		$this->collection[$index] = $item;
 
 		return $item;
 	}

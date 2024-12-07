@@ -370,7 +370,7 @@ class CBitrixCloudMonitoringResult implements CBitrixCloudMonitoring_Access
 		{
 			$domains->addDomainResult(CBitrixCloudMonitoringDomainResult::loadFromOptions(
 				$domainName,
-				CBitrixCloudOption::getOption("monitoring_result_${i}")
+				CBitrixCloudOption::getOption("monitoring_result_" . $i)
 			));
 		}
 		return $domains;
@@ -383,7 +383,7 @@ class CBitrixCloudMonitoringResult implements CBitrixCloudMonitoring_Access
 		foreach ($domainNames as $i => $domainName)
 		{
 			$this->domains[$domainName]->saveToOptions(
-				CBitrixCloudOption::getOption("monitoring_result_${i}")
+				CBitrixCloudOption::getOption("monitoring_result_" . $i)
 			);
 		}
 	}

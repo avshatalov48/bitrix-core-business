@@ -21,6 +21,7 @@ $blogPageId = '';
 include("util_group_menu.php");
 include("util_group_profile.php");
 include('util_group_blog_menu.php');
+include("util_group_limit.php");
 
 if (
 	COption::GetOptionString("blog", "socNetNewPerms", "N") === "N"

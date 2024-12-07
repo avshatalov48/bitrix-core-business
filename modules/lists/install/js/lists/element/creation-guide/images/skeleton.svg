@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="100%" height="750" fill="none">
+    <rect x="22" y="24" width="96%" height="106" rx="22" ry="22" fill="#fff" />
+    <rect x="22" y="150" width="96%" height="526" rx="22" ry="22" fill="#fff" />
+    <rect x="48" y="450" width="90%" height="119" rx="11" ry="11" fill="#fff" stroke="#7fdefc" stroke-width="1" />
+    <rect x="22" y="150" width="96%" height="54" rx="22" ry="22" fill="#f5f7f8" />
+    <g id="content">
+        <circle cx="88" cy="77" r="34" fill="#e6e7e9" />
+        <rect x="136" y="42" width="30%" height="20" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="136" y="74" width="47%" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="136" y="94" width="39%" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="58" y="174" width="105" height="8" rx="2" ry="2" fill="#e6e7e9" />
+		<path transform="translate(32 152)" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd" d="M148.101 22.9651L150.93 25.7945L151.663 26.5004L150.93 27.2067L148.101 30.0361L149.099 31.0345L153.633 26.5006L149.099 21.9668L148.101 22.9651Z" fill="#A8ADB4"/>
+        <rect x="205" y="174" width="105" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="58" y="222" width="347" height="16" rx="2" ry="2" fill="#e6e7e9" />
+        <circle cx="92%" cy="230" r="6.5" fill="#e6e7e9" />
+        <rect x="74" y="258" width="580" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="278" width="567" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="298" width="580" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="318" width="533" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="338" width="562" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="358" width="580" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="74" y="378" width="259" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="72" y="468" width="253" height="12" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="82%" y="468" width="106" height="16" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="72" y="495" width="367" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="72" y="515" width="284" height="8" rx="2" ry="2" fill="#e6e7e9" />
+        <rect x="72" y="547" width="158" height="8" rx="2" ry="2" fill="#e6e7e9" />
+    </g>
+    <rect id="l"  width="100%" fill="url(#i)" mask="url(#j)" height="100%"/>
+    <mask id="j" fill="#fff">
+        <use xlink:href="#content"/>
+    </mask>
+    <linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="i">
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="0%"/>
+        <stop stop-color="#D3D4D9" offset="50%"/>
+        <stop stop-color="#D3D4D9" stop-opacity="0" offset="100%"/>
+    </linearGradient>
+    <animate xlink:href="#l" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"/>
+
+</svg>

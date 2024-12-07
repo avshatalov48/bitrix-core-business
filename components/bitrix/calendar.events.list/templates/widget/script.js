@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (exports,main_core,calendar_util,main_core_events) {
 	'use strict';
 

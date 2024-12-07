@@ -2,15 +2,21 @@
 
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
+use Bitrix\Main\Application;
+use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
+use Bitrix\MessageService\Internal\Entity\TemplateTable;
 use Bitrix\MessageService\Providers;
 use Bitrix\MessageService\Providers\Edna\EdnaUtils;
 
-
 class Utils extends EdnaUtils
 {
+	public const CACHE_KEY_TEMPLATES = 'whatsapp_templates_cache';
+	public const CACHE_DIR_TEMPLATES = '/messageservice/templates/';
+	protected const CACHE_TIME_TEMPLATES = 14400;
+
 	protected function initializeDefaultExternalSender(): Providers\ExternalSender
 	{
 		return new ExternalSender(
@@ -46,19 +52,33 @@ class Utils extends EdnaUtils
 		$verifiedSubjectIdList = $verifiedSubjectIdResult->getData();
 
 		$templates = [];
-		foreach ($verifiedSubjectIdList as $subjectId)
+
+		$cache = Cache::createInstance();
+		if ($cache->initCache(self::CACHE_TIME_TEMPLATES, self::CACHE_KEY_TEMPLATES, self::CACHE_DIR_TEMPLATES))
 		{
-			$requestParams = [
-				'subjectId' => $subjectId
-			];
-
-			$templatesRequestResult =
-				$this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::GET_TEMPLATES, $requestParams);
-
-			if ($templatesRequestResult->isSuccess())
+			$templates = $cache->getVars();
+		}
+		elseif ($cache->startDataCache())
+		{
+			foreach ($verifiedSubjectIdList as $subjectId)
 			{
-				$templates = array_merge($templates, $templatesRequestResult->getData());
+				$requestParams = [
+					'subjectId' => $subjectId
+				];
+
+				$templatesRequestResult =
+					$this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::GET_TEMPLATES, $requestParams);
+
+				if ($templatesRequestResult->isSuccess())
+				{
+					$templates = array_merge($templates, $templatesRequestResult->getData());
+				}
 			}
+
+			$templates = $this->excludeOutdatedTemplates($templates);
+			$templates = $this->replaceNameToTitle($templates);
+
+			$cache->endDataCache($templates);
 		}
 
 		$checkErrors = $this->checkForErrors($templates);
@@ -367,5 +387,146 @@ class Utils extends EdnaUtils
 		}
 
 		return $filteredTemplates;
+	}
+
+	protected function replaceNameToTitle(array $templates = []): array
+	{
+		$autoTemplates = TemplateTable::getList([
+			'filter' => ['=ACTIVE' => 'Y']
+		])->fetchAll();
+
+		$titles = [];
+		foreach ($autoTemplates as $autoTemplate)
+		{
+			$titles[$autoTemplate['NAME']] = $autoTemplate['TITLE'];
+		}
+
+		foreach ($templates as $key => $template)
+		{
+			$templates[$key]['name'] = $titles[$template['name']] ?? $template['name'];
+		}
+
+		return $templates;
+	}
+
+	protected function excludeOutdatedTemplates(array $templates = []): array
+	{
+		$outdatedTemplatesResult = TemplateTable::getList([
+			'filter' => ['=ACTIVE' => 'N']
+		])->fetchAll();
+
+		$outdatedTemplates = [];
+		foreach ($outdatedTemplatesResult as $outdatedTemplate)
+		{
+			$outdatedTemplates[$outdatedTemplate['NAME']] = true;
+		}
+
+		$activeTemplates = array_filter($templates, function ($template) use ($outdatedTemplates) {
+			return is_array($template) && isset($template['name']) && !isset($outdatedTemplates[$template['name']]);
+		});
+
+		return array_values($activeTemplates);
+	}
+
+	public function sendTemplate(string $name, string $text, array $examples = [], ?string $langCode = null): Result
+	{
+		if (is_null($langCode))
+		{
+			$langCode = Application::getInstance()->getContext()->getLanguage();
+		}
+
+		if (!$this->validateLanguage($langCode))
+		{
+			return (new Result)->addError(new Error('Unknown language code'));
+		}
+
+		$validateTemplateName = $this->validateTemplateName($name);
+		if (!$validateTemplateName->isSuccess())
+		{
+			return $validateTemplateName;
+		}
+
+		$validateTemplateText = $this->validateTemplateText($text);
+		if (!$validateTemplateText->isSuccess())
+		{
+			return $validateTemplateText;
+		}
+		$validateExamples = $this->validateExamples($text, $examples);
+		if (!$validateExamples->isSuccess())
+		{
+			return $validateExamples;
+		}
+
+		$subjectList = $this->optionManager->getOption('sender_id', []);
+		$verifiedSubjectIdResult = $this->getVerifiedSubjectIdList($subjectList);
+		if (!$verifiedSubjectIdResult->isSuccess())
+		{
+			return $verifiedSubjectIdResult;
+		}
+
+		$verifiedSubjectIdList = $verifiedSubjectIdResult->getData();
+
+		$requestParams = [
+			'messageMatcher' => [
+				'name' => $name,
+				'channelType' => $this->getChannelType(),
+				'language' => $langCode,
+				'category' => 'UTILITY',
+				'type' => 'OPERATOR',
+				'contentType' => 'TEXT',
+				'content' => [
+					'text' => $text,
+					'textExampleParams' => $examples
+				]
+			],
+			'subjectIds' => $verifiedSubjectIdList,
+		];
+
+		return $this->externalSender->callExternalMethod(Providers\Edna\Constants\Method::SEND_TEMPLATE, $requestParams);
+	}
+
+	protected function getChannelType(): string
+	{
+		return Providers\Edna\Constants\ChannelType::WHATSAPP;
+	}
+
+	protected function validateTemplateText(string $text): Result
+	{
+		$result = new Result();
+
+		if (mb_strlen($text) > 1024)
+		{
+			return $result->addError(new Error('The maximum number of characters is 1024'));
+		}
+
+		if (!preg_match('/^(?!.* {4,}).*$/ui', $text))
+		{
+			return $result->addError(new Error('The text cannot contain newlines and 4 spaces in a row'));
+		}
+
+		return $result;
+	}
+
+	protected function validateExamples(string $text, array $examples): Result
+	{
+		$result = new Result();
+
+		$variables = [];
+		preg_match_all('/{{[0-9]+}}/ui', $text, $variables);
+		if (count($variables[0]) !== count($examples))
+		{
+			return $result->addError(new Error('The number of examples differs from the number of variables'));
+		}
+
+		return $result;
+	}
+
+	public static function cleanTemplatesCache(): void
+	{
+		$cache = Cache::createInstance();
+		$cache->clean(
+			\Bitrix\MessageService\Providers\Edna\WhatsApp\Utils::CACHE_KEY_TEMPLATES,
+			\Bitrix\MessageService\Providers\Edna\WhatsApp\Utils::CACHE_DIR_TEMPLATES
+		);
 	}
 }

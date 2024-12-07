@@ -95,12 +95,14 @@ export default class Section {
 					type: data.type,
 					title: isVariable ? data.title : null,
 					hint: data.hint,
+					group: data.group,
 					variables: isVariable ? data.variables : [],
 					enableSearch: isVariable ? data.enableSearch : null,
 					showAvatars: isVariable ? data.showAvatars : false,
 					compactView: isVariable ? data.compactView : false,
 					hintTitle: isVariable ? data.hintTitle : null,
 					allSelectedCode: isVariable ? data.allSelectedCode : null,
+					changerOptions: data.changerOptions || {},
 					access: data
 				})
 			}
@@ -144,7 +146,9 @@ export default class Section {
 					id: data.id,
 					type: Title.TYPE,
 					title: data.title,
-					hint: data.hint
+					hint: data.hint,
+					group: data.group,
+					groupHead: data.groupHead,
 				})
 			});
 		}

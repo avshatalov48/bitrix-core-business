@@ -91,15 +91,15 @@ if ($install_public == "Y" && !empty($public_dir))
 }
 
 if(empty($errors)):
-	echo CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
+	CAdminMessage::ShowNote(GetMessage("MOD_INST_OK"));
 else:
 
 	$alErrors .= implode('<br>', $errors);
-	echo CAdminMessage::ShowMessage(array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_INST_ERR"), "DETAILS"=>$alErrors, "HTML"=>true));
+	CAdminMessage::ShowMessage(array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_INST_ERR"), "DETAILS"=>$alErrors, "HTML"=>true));
 endif;
 if ($ex = $APPLICATION->GetException())
 {
-	echo CAdminMessage::ShowMessage(array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_INST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
+	CAdminMessage::ShowMessage(array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_INST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
 }
 
 if ($public_dir <> '') :

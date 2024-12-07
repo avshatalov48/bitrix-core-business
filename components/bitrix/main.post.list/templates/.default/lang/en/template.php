@@ -34,5 +34,6 @@ $MESS["MPL_MOBILE_HINTS"] = "Created in mobile app";
 $MESS["MPL_MOBILE_HINTS_DETAILS"] = "Details";
 $MESS["MPL_MOBILE_POPUP_BOTTOM_TEXT"] = "Scan the QR code and follow the link to install the app.";
 $MESS["MPL_MOBILE_POPUP_TITLE"] = "Manage tasks in mobile app";
+$MESS["MPL_QUOTE_COPILOT"] = "CoPilot";
 $MESS["MPL_SAFE_EDIT"] = "You are typing a message. Reset changes?";
 $MESS["MPL_SHOW_COLLAPSED_COMMENTS_MSGVER_1"] = "Show pings (#COLLAPSED_MESSAGES_COUNT#)";

@@ -11,7 +11,7 @@ if($arParams["arUserField"]["VALUE"] == '' && array_key_exists("idea", $_REQUEST
 <div class="field-<?=$arParams["arUserField"]["FIELD_NAME"]?>">
 	<select name="<?=$arParams["arUserField"]["FIELD_NAME"]?>">
 		<?foreach($arCategoryList as $opt):?>
-		<option value="<?=ToUpper($opt["CODE"])?>"<?if(ToUpper($arParams["arUserField"]["VALUE"]) == ToUpper($opt["CODE"])):?> selected<?endif;?>><?=str_repeat("&bull; ", $opt["DEPTH_LEVEL"]-1)?><?=$opt["NAME"]?></option>
+		<option value="<?=mb_strtoupper($opt["CODE"])?>"<?if(mb_strtoupper($arParams["arUserField"]["VALUE"]) == mb_strtoupper($opt["CODE"])):?> selected<?endif;?>><?=str_repeat("&bull; ", $opt["DEPTH_LEVEL"]-1)?><?=$opt["NAME"]?></option>
 		<?endforeach;?>
 	</select>
 </div>

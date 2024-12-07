@@ -453,7 +453,7 @@ class CDeliveryRusPost
 		{
 			foreach ($arOrder["ITEMS"] as $arItem)
 			{
-				if (floatval($arItem["WEIGHT"]) > $maxWeight)
+				if ((float)($arItem['WEIGHT'] ?? 0) > $maxWeight)
 				{
 					$profiles = array();
 					break;
@@ -638,7 +638,7 @@ class CDeliveryRusPost
 
 	private static function getConfValue(&$arConfig, $key)
 	{
-		return CSaleDeliveryHelper::getConfValue($arConfig[$key]);
+		return CSaleDeliveryHelper::getConfValue($arConfig[$key] ?? null);
 	}
 
 	private static function isConfCheckedVal(&$arConfig, $key)

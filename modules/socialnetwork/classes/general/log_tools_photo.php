@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Localization\Loc;
+
 IncludeModuleLangFile(__FILE__);
 
 class CSocNetLogToolsPhoto
@@ -262,12 +265,16 @@ class CSocNetLogToolsPhoto
 						"NOTIFY_MESSAGE" => "",
 						"FROM_USER_ID" => $arFields["MODIFIED_BY"],
 						"URL" => $strSectionUrl,
-						"MESSAGE" => GetMessage("SONET_IM_NEW_PHOTO", Array(
-							"#title#" => "<a href=\"#URL#\" class=\"bx-notifier-item-action\">".$title."</a>",
-						)),
-						"MESSAGE_OUT" => GetMessage("SONET_IM_NEW_PHOTO", Array(
-							"#title#" => $title_out
-						))." (#URL#)",
+						"MESSAGE" => fn (?string $languageId = null) => Loc::getMessage(
+							"SONET_IM_NEW_PHOTO",
+							Array("#title#" => "<a href=\"#URL#\" class=\"bx-notifier-item-action\">".$title."</a>",),
+							$languageId
+						),
+						"MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage(
+							"SONET_IM_NEW_PHOTO",
+							Array("#title#" => $title_out),
+							$languageId
+						) ." (#URL#)",
 						"EXCLUDE_USERS" => array($arFields["MODIFIED_BY"])
 					);
 
@@ -768,12 +775,23 @@ class CSocNetPhotoCommentEvent
 					$arLog["URL"] = $arTmp["URLS"]["SECTION_URL"];
 
 					$arMessageFields["NOTIFY_TAG"] = "PHOTOALBUM|COMMENT|".$arLog["SOURCE_ID"];
-					$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("SONET_PHOTOALBUM_IM_COMMENT", Array(
-						"#album_title#" => "<a href=\"".$arLog["URL"]."\" class=\"bx-notifier-item-action\">".$arSection["NAME"]."</a>"
-					));
-					$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("SONET_PHOTOALBUM_IM_COMMENT", Array(
-						"#album_title#" => $arSection["NAME"]
-					))." (".$serverName.$arLog["URL"].")#BR##BR#".$arFields["TEXT_MESSAGE"];
+					$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Bitrix\Main\Localization\Loc::getMessage(
+						"SONET_PHOTOALBUM_IM_COMMENT",
+						[
+							"#album_title#" => "<a href=\"".$arLog["URL"]."\" class=\"bx-notifier-item-action\">".$arSection["NAME"]."</a>"
+						],
+						$languageId
+					);
+					$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) =>
+						Bitrix\Main\Localization\Loc::getMessage(
+							"SONET_PHOTOALBUM_IM_COMMENT",
+							[
+								"#album_title#" => $arSection["NAME"]
+							],
+							$languageId
+						)
+						." (".$serverName.$arLog["URL"].")#BR##BR#".$arFields["TEXT_MESSAGE"]
+					;
 
 					$ID = CIMNotify::Add($arMessageFields);
 
@@ -1965,14 +1983,24 @@ class CSocNetPhotoCommentEvent
 		$arParams["SECTION_URL"] = $arTmp["URLS"]["SECTION_URL"];
 
 		$arMessageFields["NOTIFY_TAG"] = "PHOTO|COMMENT|".$arParams["ID"];
-		$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("SONET_PHOTO_IM_COMMENT", Array(
-			"#photo_title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
-			"#album_title#" => "<a href=\"".$arParams["SECTION_URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["SECTION_NAME"])."</a>"
-		));
-		$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("SONET_PHOTO_IM_COMMENT", Array(
-			"#photo_title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
-			"#album_title#" => htmlspecialcharsbx($arParams["SECTION_NAME"])
-		))." (".$serverName.$arParams["URL"].")#BR##BR#".$arParams["MESSAGE"];
+		$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => Bitrix\Main\Localization\Loc::getMessage(
+			"SONET_PHOTO_IM_COMMENT",
+			[
+				"#photo_title#" => "<a href=\"".$arParams["URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
+				"#album_title#" => "<a href=\"".$arParams["SECTION_URL"]."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["SECTION_NAME"])."</a>"
+			],
+			$languageId
+		);
+		$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) =>
+			Bitrix\Main\Localization\Loc::getMessage(
+				"SONET_PHOTO_IM_COMMENT",
+				[
+					"#photo_title#" => htmlspecialcharsbx($arParams["TITLE_OUT"]),
+					"#album_title#" => htmlspecialcharsbx($arParams["SECTION_NAME"])
+				],
+				$languageId
+			)
+			." (".$serverName.$arParams["URL"].")#BR##BR#".$arParams["MESSAGE"];
 
 		$ID = CIMNotify::Add($arMessageFields);
 

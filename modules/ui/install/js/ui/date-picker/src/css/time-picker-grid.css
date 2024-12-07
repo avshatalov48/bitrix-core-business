@@ -1,0 +1,184 @@
+.ui-time-picker-grid {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 5;
+	background-color: #fff;
+
+	--ui-time-picker-grid-item-width: 34px;
+	--ui-time-picker-grid-item-height: 34px;
+}
+
+.ui-time-picker-grid-header-title {
+	cursor: pointer;
+	color: var(--ui-color-text-primary);
+	font-weight: var(--ui-font-weight-semi-bold);
+	font-size: var(--ui-font-size-lg);
+	padding: 5px;
+}
+
+.ui-time-picker-grid-header-title:hover {
+	color: var(--ui-date-picker-button-hover-color);
+}
+
+.ui-time-picker-grid-content {
+	display: flex;
+	width: 100%;
+	height: 100%;
+	flex: 1;
+	overflow: hidden;
+	position: relative;
+	justify-content: space-evenly;
+}
+
+.ui-time-picker-grid-column {
+	display: flex;
+	flex-direction: column;
+}
+
+.ui-time-picker-grid-column-title {
+	min-height: 40px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--ui-color-base-60);
+}
+
+.ui-time-picker-grid-column-content {
+	display: flex;
+	/*flex: 1;*/
+	position: relative;
+	overflow: hidden;
+}
+
+.ui-time-picker-grid-column-content:before,
+.ui-time-picker-grid-column-content:after {
+	display: none;
+	position: absolute;
+	content: '';
+	height: 0;
+	line-height: 0;
+	z-index: 20;
+	width: 200%;
+	left: -50%;
+	box-shadow: 0 0 20px 20px #fff;
+}
+
+.ui-time-picker-grid-column.--top-shadow .ui-time-picker-grid-column-content:before {
+	display: block;
+}
+
+.ui-time-picker-grid-column.--bottom-shadow .ui-time-picker-grid-column-content:after {
+	display: block;
+}
+
+.ui-time-picker-grid-column-content:before {
+	top: 0;
+}
+
+.ui-time-picker-grid-column-content:after {
+	bottom: 0;
+}
+
+.ui-time-picker-grid-column-items {
+	display: flex;
+	flex-wrap: wrap;
+	position: relative;
+}
+
+.ui-time-picker-grid-column-items.--hours {
+	width: calc(var(--ui-time-picker-grid-item-width) * 4);
+}
+
+.ui-time-picker-grid.--am-pm .ui-time-picker-grid-column-items.--hours {
+	padding-left: 20px;
+}
+
+.ui-time-picker-grid-column-separator {
+	width: 1px;
+	height: calc(var(--ui-time-picker-grid-item-width)* 6);
+	align-self: center;
+	margin: 0 10px;
+	background-color: var(--ui-color-base-20);
+}
+
+.ui-time-picker-grid-column-items.--minutes {
+	width: calc(var(--ui-time-picker-grid-item-width) * 2);
+	overflow-x: hidden;
+	overflow-y: scroll;
+	overscroll-behavior: contain;
+	scrollbar-width: none;
+}
+
+.ui-time-picker-grid-column-items.--minutes::-webkit-scrollbar {
+	width: 0;
+}
+
+.ui-time-picker-grid-item {
+	display: flex;
+	width: var(--ui-time-picker-grid-item-width);
+	height: var(--ui-time-picker-grid-item-height);
+	padding: 0 0 1px 0;
+	margin: 0;
+	position: relative;
+	cursor: pointer;
+	align-items: center;
+	justify-content: center;
+
+	appearance: none;
+	background: none;
+	color: inherit;
+	font: inherit;
+	border: none;
+	box-sizing: content-box;
+	outline: none;
+}
+
+.ui-time-picker-grid-item-inner {
+	border-radius: var(--ui-border-radius-pill);
+	color: var(--ui-color-text-primary);
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	z-index: 10;
+	pointer-events: none;
+	box-sizing: border-box;
+}
+
+/*.ui-time-picker-grid-item:focus-visible .ui-time-picker-grid-item-inner,*/
+.ui-time-picker-grid-item.--focus-visible .ui-time-picker-grid-item-inner {
+	border: 2px solid var(--ui-date-picker-outiline-color);
+	border-radius: var(--ui-border-radius-pill);
+}
+
+.ui-time-picker-grid-item.--focused .ui-time-picker-grid-item-inner {
+	background-color: rgba(47, 198, 246, 0.20);
+}
+
+/*.ui-time-picker-grid-item:hover .ui-time-picker-grid-item-inner {*/
+/*	background-color: #ecfafe;*/
+/*}*/
+
+.ui-time-picker-grid-item.--selected .ui-time-picker-grid-item-inner {
+	background-color: var(--ui-color-primary);
+	color: var(--ui-color-on-primary);
+}
+
+.ui-time-picker-grid-item.--hidden {
+	display: none;
+}
+
+.ui-time-picker-grid-item.--has-meridiem:before {
+	position: absolute;
+	left: -20px;
+	content: attr(data-meridiem);
+	color: var(--ui-color-base-60);
+	font-size: var(--ui-font-size-xs);
+}

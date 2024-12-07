@@ -81,7 +81,7 @@ $createMenu['__default'] = &$createMenu[\CUserOptions::getOption('mail', 'defaul
 	<a class="ui-btn-extra" id="mail-msg-<?=intval($message['ID']) ?>-actions-create-menu-btn"></a>
 </div>
 
-<script type="text/javascript">
+<script>
 
 	BX.ready(function ()
 	{

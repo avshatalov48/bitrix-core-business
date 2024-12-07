@@ -9,7 +9,6 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 IncludeModuleLangFile(__FILE__);
 $statDB = CDatabase::GetModuleConnection('statistic');
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","adv_list.php");
 
 /***************************************************************************
@@ -119,7 +118,7 @@ $arFilter = Array(
 );
 
 $strSql = "SELECT ID, REFERER1, REFERER2 FROM b_stat_adv WHERE ID = ".$ADV_ID;
-$a = $statDB->Query($strSql,false,$err_mess.__LINE__);
+$a = $statDB->Query($strSql);
 if (!$ar = $a->Fetch())
 {
 	$message = new CAdminMessage(Array("MESSAGE" => GetMessage("STAT_INCORRECT_ADV_ID"), "TYPE"=>"ERROR"));
@@ -334,7 +333,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 	<?
 		echo SelectBoxMFromArray("find_events[]",array("REFERENCE"=>$find_events_names, "REFERENCE_ID"=>$find_events), $find_events,"",false,"10", "style=\"width:300px;\"");
 	?>
-	<script language="Javascript">
+	<script>
 	function selectEventType(form, field)
 	{
 		jsUtils.OpenWindow('event_multiselect.php?lang=<?=LANG?>&form='+form+'&field='+field, 600, 600);

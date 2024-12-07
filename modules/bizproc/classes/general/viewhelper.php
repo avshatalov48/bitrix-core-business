@@ -76,7 +76,20 @@ class CBPViewHelper
 				['WORKFLOW_ID' => $workflowId],
 				false,
 				['nTopCount' => 50],
-				['ID', 'MODIFIED', 'NAME', 'DESCRIPTION', 'PARAMETERS', 'STATUS', 'IS_INLINE', 'ACTIVITY', 'CREATED_DATE']
+				[
+					'ID',
+					'MODIFIED',
+					'NAME',
+					'DESCRIPTION',
+					'PARAMETERS',
+					'STATUS',
+					'IS_INLINE',
+					'ACTIVITY',
+					'ACTIVITY_NAME',
+					'CREATED_DATE',
+					'DELEGATION_TYPE',
+					'OVERDUE_DATE',
+				],
 			);
 			while ($task = $taskIterator->getNext())
 			{
@@ -220,19 +233,19 @@ class CBPViewHelper
 
 	public static function prepareTaskDescription($description)
 	{
-		$description = self::replaceFileLinks($description);
+		$description = self::replaceFileLinks($description ?? '');
 
 		if (\Bitrix\Main\Loader::includeModule('disk'))
 		{
 			$description = self::replaceDiskLinks($description);
 		}
 
-		return nl2br($description);
+		return nl2br(trim($description));
 	}
 
 	public static function prepareMobileTaskDescription($description)
 	{
-		$description = self::replaceFileLinks($description, true);
+		$description = self::replaceFileLinks($description ?? '', true);
 
 		if (\Bitrix\Main\Loader::includeModule('disk'))
 		{

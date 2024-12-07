@@ -160,7 +160,7 @@ class Google extends Engine implements IEngine
 				$res = Json::decode($queryResult->getResult());
 				if(is_array($res))
 				{
-					$this->engineSettings['AUTH_USER'] = $APPLICATION->convertCharsetArray($res, 'utf-8', LANG_CHARSET);
+					$this->engineSettings['AUTH_USER'] = $res;
 					$this->saveSettings();
 
 					return $this->engineSettings['AUTH_USER'];

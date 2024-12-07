@@ -2,10 +2,12 @@ import { Tag, Type, Dom } from 'main.core';
 import { RoundPlayer, PlayerOptions } from './round-player';
 import { PopupComponentsMakerItem } from 'ui.popupcomponentsmaker';
 import { Button, ButtonColor, ButtonSize } from 'ui.buttons';
+import { Icon, Actions } from 'ui.icon-set.api.core';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 
 export type TitleHeaderOptions = {
-	title: string,
-	subtitle: ?string
+	title: string | HTMLElement | null,
+	subtitle: string | HTMLElement | null
 }
 
 export type ButtonOptions = {
@@ -23,6 +25,7 @@ export type DescriptionHeaderOptions = {
 }
 
 export type TariffHeaderOptions = {
+	icon: ?Icon,
 	iconClass: ?string,
 	top: TitleHeaderOptions,
 	info: DescriptionHeaderOptions,
@@ -114,19 +117,23 @@ export class HeaderBuilder
 		{
 			const onclick = (e) => {
 				e.stopPropagation();
-				BX.UI.InfoHelper.getInstance({ code: descriptionOptions.code }).show();
+				FeaturePromotersRegistry.getPromoter({ code: descriptionOptions.code }).show();
 			};
 			Dom.append(Tag.render`<a onclick="${onclick}" target="_blank" class="ui-popupcomponentsmaker-header-tariff__more">${descriptionOptions.moreLabel}<div class="ui-icon-set --chevron-right ui-popupcomponentsmaker-header-tariff__more-icon"></div></a>`, descriptionText);
 		}
 
 		let roundContent = '';
-		if (Type.isObject(descriptionOptions.roundContent))
+		if (Type.isPlainObject(descriptionOptions.roundContent))
 		{
 			roundContent = this.renderPlayer(descriptionOptions.roundContent);
 		}
 		else if (Type.isStringFilled(descriptionOptions.roundContent))
 		{
 			roundContent = this.renderIcon(descriptionOptions.roundContent);
+		}
+		else if (Type.isDomNode(descriptionOptions.roundContent))
+		{
+			roundContent = this.embedIcon(descriptionOptions.roundContent);
 		}
 
 		const descriptionBlock = Tag.render`
@@ -148,23 +155,26 @@ export class HeaderBuilder
 		return description.getContainer();
 	}
 
-	renderBtn(btnOptions: ButtonOptions): HTMLElement
+	renderBtn(btnOptions: ButtonOptions | Button): HTMLElement
 	{
-		const btn = new Button({
-			text: btnOptions.label,
-			color: ButtonColor.LIGHT_BORDER,
-			size: ButtonSize.SMALL,
-			link: btnOptions.url,
-			onclick: () => {
-				if (this.#options.analyticsCallback)
-				{
-					this.#options.analyticsCallback('click-button-header', btnOptions.url);
-				}
-			},
-			round: true,
-			noCaps: true,
-			className: 'ui-popupcomponentsmaker-header-tariff__button ui-btn-themes'
-		});
+		const btn = btnOptions instanceof Button
+			? btnOptions
+			: new Button({
+				text: btnOptions.label,
+				color: ButtonColor.LIGHT_BORDER,
+				size: ButtonSize.SMALL,
+				link: btnOptions.url,
+				onclick: () => {
+					if (this.#options.analyticsCallback)
+					{
+						this.#options.analyticsCallback('click-button-header', btnOptions.url);
+					}
+				},
+				round: true,
+				noCaps: true,
+			})
+		;
+		btn.addClass('ui-popupcomponentsmaker-header-tariff__button ui-btn-themes');
 
 		return btn.render();
 	}
@@ -176,6 +186,20 @@ export class HeaderBuilder
 			return Tag.render`
 				<div class="ui-popupcomponentsmaker-header-tariff__icon">
 					<div class="ui-icon-set ${iconClass}"></div>
+				</div>
+			`;
+		}
+
+		return Tag.render``;
+	}
+
+	embedIcon(icon: HTMLElement): HTMLElement
+	{
+		if (Type.isDomNode(icon))
+		{
+			return Tag.render`
+				<div class="ui-popupcomponentsmaker-header-tariff__icon">
+					${icon}
 				</div>
 			`;
 		}
@@ -200,7 +224,7 @@ export class HeaderBuilder
 		this.#content = Tag.render`
 			<div class="ui-popupcomponentsmaker-header-tariff__wrapper">
 				<div class="ui-popupcomponentsmaker-header-tariff__title-section">
-					${this.renderIcon(this.#options.iconClass)}
+					${this.#options.icon instanceof HTMLElement ? this.embedIcon(this.#options.icon) : this.renderIcon(this.#options.iconClass)}
 					${this.renderTitle(this.#options.top)}
 				</div>
 				

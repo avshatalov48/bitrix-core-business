@@ -105,7 +105,7 @@ class Timer
 	{
 		if ($this->timeout)
 		{
-			$this->timeAtStart = getmicrotime();
+			$this->timeAtStart = microtime(true);
 			@set_time_limit(0);
 		}
 
@@ -124,7 +124,7 @@ class Timer
 			return false;
 		}
 
-		return (getmicrotime() - $this->timeAtStart >= $this->timeout);
+		return (microtime(true) - $this->timeAtStart >= $this->timeout);
 	}
 
 	/**

@@ -9,9 +9,11 @@ use Bitrix\Bizproc\Api\Request\TaskService\DoInlineTasksRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\DoTaskRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskRequest;
 use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskListRequest;
+use Bitrix\Bizproc\Api\Request\TaskService\GetUserTaskByWorkflowIdRequest;
 use Bitrix\Bizproc\Api\Response;
 use Bitrix\Bizproc\Api\Response\TaskService\DelegateTasksResponse;
 use Bitrix\Bizproc\Api\Response\TaskService\GetUserTaskListResponse;
+use Bitrix\Bizproc\Api\Response\TaskService\GetUserTaskByWorkflowIdResponse;
 use Bitrix\Bizproc\Result;
 use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Main\ArgumentException;
@@ -21,6 +23,10 @@ use Bitrix\Main\Localization\Loc;
 
 class TaskService
 {
+	private const TASK_ALREADY_DONE_ERROR_CODE = 'TASK_ALREADY_DONE';
+	private const TASK_USER_NOT_MEMBER_ERROR_CODE = 'TASK_USER_NOT_MEMBER';
+	private const TASK_NOT_FOUND_ERROR_CODE = 'TASK_NOT_FOUND';
+
 	public function __construct(
 		private TaskAccessService $accessService
 	)
@@ -147,7 +153,7 @@ class TaskService
 		$result = new Response\TaskService\DoTaskResponse();
 		$task = false;
 
-		$checkAccessResult = $this->accessService->checkViewTasks($request->userId);
+		$checkAccessResult = $this->accessService->checkDoTasks($request->userId);
 		if (!$checkAccessResult->isSuccess())
 		{
 			return $result->addErrors($checkAccessResult->getErrors());
@@ -187,7 +193,12 @@ class TaskService
 
 		if ((int)$task['USER_STATUS'] !== \CBPTaskUserStatus::Waiting)
 		{
-			return $result->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_ALREADY_DONE')));
+			return $result->addError(
+				new Error(
+					Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_ALREADY_DONE'),
+					self::TASK_ALREADY_DONE_ERROR_CODE
+				)
+			);
 		}
 
 		$task['PARAMETERS']['DOCUMENT_ID'] = \CBPStateService::GetStateDocumentId($task['WORKFLOW_ID']);
@@ -200,6 +211,16 @@ class TaskService
 			$error = reset($errors);
 			if ($task['MODULE_ID'] === 'rpa' && $error['code'] === \CBPRuntime::EXCEPTION_CODE_INSTANCE_TERMINATED)
 			{
+				return $result;
+			}
+
+			if (!empty($error['customData']))
+			{
+				foreach ($errors as $error)
+				{
+					$result->addError(new Error($error['message'], 0, $error['customData']));
+				}
+
 				return $result;
 			}
 
@@ -288,6 +309,66 @@ class TaskService
 		return $response->setTask($task);
 	}
 
+	public function getUserTaskByWorkflowId(GetUserTaskByWorkflowIdRequest $request): GetUserTaskByWorkflowIdResponse
+	{
+		$response = new GetUserTaskByWorkflowIdResponse();
+		$renderer = new \Bitrix\Bizproc\Controller\Response\RenderControlCollectionContent();
+		$task = false;
+
+		if ($request->workflowId)
+		{
+			$task = \Bitrix\Bizproc\Workflow\Task\TaskTable::query()
+				->setSelect(['*'])
+				->setFilter([
+					'=WORKFLOW_ID' => $request->workflowId,
+					'=TASK_USERS.USER_ID' => $request->userId,
+					'=TASK_USERS.STATUS' => \CBPTaskUserStatus::Waiting,
+				])
+				->setOrder(['ID' => 'DESC'])
+				->fetch()
+			;
+		}
+
+		if (!$task)
+		{
+			$response->setContent($renderer);
+
+			return $response;
+		}
+
+		$controls = \CBPDocument::getTaskControls($task);
+
+		$task['BUTTONS'] = $controls['BUTTONS'] ?? null;
+		$task['FIELDS'] = $controls['FIELDS'] ?? null;
+		if (isset($task['DESCRIPTION']))
+		{
+			$task['DESCRIPTION'] = \CBPViewHelper::prepareTaskDescription(
+				\CBPHelper::convertBBtoText(
+					preg_replace('|\n+|', "\n", trim($task['DESCRIPTION']))
+				)
+			);
+		}
+		$response->setTask($task);
+
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		$documentType = $documentService->getDocumentType($task['PARAMETERS']['DOCUMENT_ID']);
+		if (isset($task['FIELDS']) && is_array($task['FIELDS']))
+		{
+			foreach ($task['FIELDS'] as $parameter)
+			{
+				$params['Field'] = $parameter['FieldId'] ?? $parameter['Id'];
+				$params['Value'] = $parameter['Default'] ?? null;
+				$params['Als'] = false;
+				$params['RenderMode'] = 'public';
+
+				$renderer->addProperty($documentType, $parameter, $params);
+			}
+		}
+		$response->setContent($renderer);
+
+		return $response;
+	}
+
 	private function addUserTaskNotFoundError(Result $response, int $taskId, int $userId): void
 	{
 		if ($taskId > 0)
@@ -298,18 +379,29 @@ class TaskService
 				if ((int)$task['STATUS'] !== \CBPTaskStatus::Running)
 				{
 					$response->addError(
-						new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TASK_ALREADY_DONE'))
+						new Error(
+							Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TASK_ALREADY_DONE'),
+							self::TASK_ALREADY_DONE_ERROR_CODE
+						)
 					);
 				}
 				elseif ($this->accessService->isCurrentUser($userId))
 				{
 					$response->addError(
-						new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_CURRENT_USER_NOT_MEMBER'))
+						new Error(
+							Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_CURRENT_USER_NOT_MEMBER'),
+							self::TASK_USER_NOT_MEMBER_ERROR_CODE,
+						)
 					);
 				}
 				else
 				{
-					$response->addError(new Error(Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TARGET_USER_NOT_MEMBER')));
+					$response->addError(
+						new Error(
+							Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_ERROR_TARGET_USER_NOT_MEMBER'),
+							self::TASK_USER_NOT_MEMBER_ERROR_CODE,
+						)
+					);
 				}
 
 				return;
@@ -319,7 +411,7 @@ class TaskService
 		$response->addError(
 			new Error(
 				Loc::getMessage('BIZPROC_LIB_API_TASK_SERVICE_DO_TASK_ERROR_NO_TASK'),
-				'TASK_NOT_FOUND_ERROR'
+				self::TASK_NOT_FOUND_ERROR_CODE
 			)
 		);
 	}
@@ -345,11 +437,11 @@ class TaskService
 		$task['DOCUMENT_ID'] = $documentId ? $documentId[2] : '';
 		$task['COMPLEX_DOCUMENT_ID'] = $documentId;
 
-		if (isset($arRecord['WORKFLOW_TEMPLATE_NAME']))
+		if (isset($task['WORKFLOW_TEMPLATE_NAME']))
 		{
 			$task['WORKFLOW_NAME'] = $task['WORKFLOW_TEMPLATE_NAME']; // compatibility
 		}
-		if (isset($arRecord['WORKFLOW_STARTED']))
+		if (isset($task['WORKFLOW_STARTED']))
 		{
 			$task['WORKFLOW_STARTED'] = FormatDateFromDB($task['WORKFLOW_STARTED']);
 		}

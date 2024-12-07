@@ -42,7 +42,7 @@ class CAllSaleStoreBarcode
 			"	".$DB->DateToCharFunction("O.DATE_MODIFY", "FULL")." as DATE_MODIFY ".
 			"FROM b_sale_store_barcode O ".
 			"WHERE O.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{

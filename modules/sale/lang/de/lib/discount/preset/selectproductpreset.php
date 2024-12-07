@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_ADD"] = "Fehler beim Hinzufügen einer Rabattregel";
 $MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_UPDATE"] = "Fehler beim Aktualisieren einer Rabattregel";
 $MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_NAME"] = "Rabattname";
@@ -17,4 +17,3 @@ $MESS["SALE_BASE_PRESET_HEAD_NAME"] = "Name";
 $MESS["SALE_BASE_PRESET_HEAD_PROPS"] = "Eigenschaften";
 $MESS["SALE_BASE_PRESET_EMPTY_PRODUCT_NOTICE"] = "Aktion wird auf alle Produkte angewendet, wenn keine bestimmten Produkte ausgewählt wurden";
 $MESS["SALE_BASE_PRESET_TRY_TO_TEXT"] = "Bereiche auswählen";
-?>

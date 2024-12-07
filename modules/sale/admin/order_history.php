@@ -162,7 +162,7 @@ if ($bUseOldHistory)
 	foreach ($arHistoryData as $index => $arHistoryRecord)
 		$arIds[$index]  = $arHistoryRecord["ID"];
 
-	array_multisort($arData, constant("SORT_".ToUpper($order)), $arIds, constant("SORT_".ToUpper($order)), $arHistoryData);
+	array_multisort($arData, constant("SORT_".mb_strtoupper($order)), $arIds, constant("SORT_".mb_strtoupper($order)), $arHistoryData);
 }
 
 $dbRes = new CDBResult;

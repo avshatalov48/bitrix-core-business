@@ -2,31 +2,47 @@
 
 namespace Bitrix\Im\V2\Entity\User;
 
+use Bitrix\Im\Integration\Socialnetwork\Extranet;
+use Bitrix\Im\V2\Chat\ChatError;
+use Bitrix\Im\V2\Result;
+
 class UserExtranet extends User
 {
-	protected function checkAccessWithoutCaching(User $otherUser): bool
+	protected function checkAccessInternal(User $otherUser): Result
 	{
+		$result = new Result();
+
 		if (!static::$moduleManager::isModuleInstalled('intranet'))
 		{
-			return $this->hasAccessBySocialNetwork($otherUser->getId());
+			if (!$this->hasAccessBySocialNetwork($otherUser->getId()))
+			{
+				$result->addError(new ChatError(ChatError::ACCESS_DENIED));
+			}
+
+			return $result;
 		}
 
 		if ($otherUser->isBot())
 		{
-			return true;
+			return $result;
 		}
 
 		if ($this->isNetwork() && !$otherUser->isExtranet())
 		{
-			return true;
+			return $result;
 		}
 
-		$inGroup = \Bitrix\Im\Integration\Socialnetwork\Extranet::isUserInGroup($this->getId(), $otherUser->getId());
+		$inGroup = Extranet::isUserInGroup(
+			$this->getId(),
+			$otherUser->getId(),
+			false
+		);
+
 		if ($inGroup)
 		{
-			return true;
+			return $result;
 		}
 
-		return false;
+		return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
 	}
 }

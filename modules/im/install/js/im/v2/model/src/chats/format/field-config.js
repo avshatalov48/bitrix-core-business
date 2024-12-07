@@ -1,10 +1,15 @@
 import { Utils } from 'im.v2.lib.utils';
 import { Type } from 'main.core';
 import { convertToNumber, convertToString, isNumberOrString } from '../../utils/format';
-import { formatFieldsWithConfig } from '../../utils/validate';
-import { prepareAvatar, prepareChatName, prepareLastMessageViews, prepareWritingList, prepareManagerList, prepareMuteList } from './format-functions';
-
-import type { FieldsConfig } from '../../utils/validate';
+import { formatFieldsWithConfig, type FieldsConfig } from 'im.v2.model';
+import {
+	prepareAvatar,
+	prepareChatName,
+	prepareLastMessageViews,
+	prepareWritingList,
+	prepareManagerList,
+	prepareMuteList,
+} from './format-functions';
 
 export const chatFieldsConfig: FieldsConfig = [
 	{
@@ -172,6 +177,16 @@ export const chatFieldsConfig: FieldsConfig = [
 		fieldName: 'permissions',
 		targetFieldName: 'permissions',
 		checkFunction: Type.isPlainObject,
+	},
+	{
+		fieldName: 'tariffRestrictions',
+		targetFieldName: 'tariffRestrictions',
+		checkFunction: Type.isPlainObject,
+	},
+	{
+		fieldName: 'parentChatId',
+		targetFieldName: 'parentChatId',
+		checkFunction: Type.isNumber,
 	},
 ];
 

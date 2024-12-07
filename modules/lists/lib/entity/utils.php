@@ -40,11 +40,11 @@ class Utils
 	 */
 	public static function getElementId(array $params)
 	{
-		if ($params["ELEMENT_ID"])
+		if (!empty($params["ELEMENT_ID"]))
 		{
 			return (int) $params["ELEMENT_ID"];
 		}
-		elseif ($params["ELEMENT_CODE"])
+		elseif (is_scalar($params["ELEMENT_CODE"] ?? null))
 		{
 			$queryObject = \CIBlockElement::getList([], [
 				"IBLOCK_ID" => Utils::getIblockId($params),

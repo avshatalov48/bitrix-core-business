@@ -48,7 +48,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return null;
 	  },
 	  openLink(link, target = '_blank') {
-	    window.open(link, target, '', true);
+	    window.open(link, target);
 	  },
 	  waitForSelectionToUpdate() {
 	    return new Promise(resolve => {
@@ -325,7 +325,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return uuid.search(uuidV4pattern) === 0;
 	  },
 	  isTempMessage(messageId) {
-	    return TextUtil.isUuidV4(messageId) || messageId.toString().startsWith(im_v2_const.FakeMessagePrefix);
+	    return TextUtil.isUuidV4(messageId) || messageId.toString().startsWith(im_v2_const.FakeMessagePrefix) || messageId.toString().startsWith(im_v2_const.FakeDraftMessagePrefix);
 	  },
 	  checkUrl(url) {
 	    const allowList = ["http:", "https:", "ftp:", "file:", "tel:", "callto:", "mailto:", "skype:", "viber:"];
@@ -370,6 +370,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return `[CHAT=${dialogId.slice(4)}]${name}[/CHAT]`;
 	    }
 	    return `[USER=${dialogId}]${name}[/USER]`;
+	  },
+	  getMessageLink(dialogId, messageId) {
+	    return `${location.origin}/online/?${im_v2_const.GetParameter.openChat}=${dialogId}&${im_v2_const.GetParameter.openMessage}=${messageId}`;
+	  },
+	  async copyToClipboard(textToCopy) {
+	    var _BX$clipboard;
+	    if (navigator.clipboard) {
+	      return navigator.clipboard.writeText(textToCopy);
+	    }
+	    return (_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy) ? Promise.resolve() : Promise.reject();
 	  }
 	};
 
@@ -478,7 +488,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!main_core.Type.isStringFilled(fileName)) {
 	      return '';
 	    }
-	    return fileName.split('.').splice(-1)[0];
+	    return fileName.split('.').splice(-1)[0].toLowerCase();
 	  },
 	  getIconTypeByFilename(fileName) {
 	    const extension = this.getFileExtension(fileName);
@@ -866,6 +876,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      maxNodeLevel--;
 	    }
 	    return null;
+	  },
+	  isOneScreenRemaining(target) {
+	    const bottomPointOfVisibleContent = target.scrollTop + target.clientHeight;
+	    const containerHeight = target.scrollHeight;
+	    const oneScreenHeight = target.clientHeight;
+	    return bottomPointOfVisibleContent >= containerHeight - oneScreenHeight;
 	  }
 	};
 

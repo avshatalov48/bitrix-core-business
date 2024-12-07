@@ -107,7 +107,7 @@ if ($adminSidePanelHelper->isSidePanel())
 }
 
 ?>
-	<script type="text/javascript">
+	<script>
 		if (!window['filter_<?=$sTableID?>'] || !BX.is_subclass_of(window['filter_<?=$sTableID?>'], BX.adminUiFilter))
 		{
 			window['filter_<?=$sTableID?>'] = new BX.adminUiFilter('<?=$sTableID?>', <?=CUtil::PhpToJsObject(array())?>);

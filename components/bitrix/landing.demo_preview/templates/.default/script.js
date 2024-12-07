@@ -18,6 +18,7 @@
 	 */
 	BX.Landing.TemplatePreview = function(params)
 	{
+		this.previewContainer = document.querySelector(".landing-template-preview");
 		this.closeButton = document.querySelector(".landing-template-preview-close");
 		this.createButton = document.querySelector(".landing-template-preview-create");
 		this.createByImportButton = document.querySelector(".landing-template-preview-create-by-import");
@@ -43,6 +44,13 @@
 		this.createStore = BX.type.isBoolean(params.createStore)
 						? params.createStore
 						: false;
+		this.createMainpage = BX.type.isBoolean(params.createMainpage)
+			? params.createMainpage
+			: false;
+		this.isMainpageExists = BX.type.isBoolean(params.isMainpageExists)
+			? params.isMainpageExists
+			: false;
+
 		this.disableStoreRedirect = BX.type.isBoolean(params.disableStoreRedirect)
 						? params.disableStoreRedirect
 						: false;
@@ -299,9 +307,18 @@
 
 						if (!this.previewFrame.style.width)
 						{
+							let previewFrameHeaderHeight = '69';
+							if (this.previewContainer)
+							{
+								const mainpagePreview = this.previewContainer.querySelector('.--main-page');
+								if (mainpagePreview)
+								{
+									previewFrameHeaderHeight = '132';
+								}
+							}
 							void style(this.previewFrame, {
 								"width": "100%",
-								"height": "calc(100vh - 69px)",
+								"height": `calc(100vh - ${previewFrameHeaderHeight}px)`,
 								"border": "none"
 							});
 						}
@@ -453,22 +470,19 @@
 			if (BX.Dom.hasClass(this.createButton.parentNode, 'needed-market-subscription'))
 			{
 				top.BX.UI.InfoHelper.show('limit_subscription_market_templates');
-				new Promise(resolve =>
-				{
-					const timerId = setInterval(() =>
-					{
+				new Promise(resolve => {
+					const timerId = setInterval(() => {
 						if (BX.Dom.hasClass(this.createButton, 'ui-btn-clock'))
-						{
+			 			{
 							clearInterval(timerId);
 							resolve();
 						}
 					}, 500);
 				})
-					.then(() =>
-					{
-						BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
-						BX.Dom.attr(this.createButton, 'style', '');
-					});
+				.then(() => {
+					BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
+					BX.Dom.attr(this.createButton, 'style', '');
+				});
 
 				return;
 			}
@@ -507,20 +521,67 @@
 			}
 			else if (this.zipInstallPath)
 			{
-				this.finalRedirectAjax(
-					this.getCreateUrl()
-				);
+				if (
+					this.isMainpage()
+					&& this.isMainpageExists
+				)
+				{
+					let isClickOnButtonOk = false;
+					BX.Runtime.loadExtension('ui.dialogs.messagebox').then(() => {
+						const messageBox = new BX.UI.Dialogs.MessageBox({
+							message: this.messages.LANDING_PREVIEW_MAINPAGE_MESSAGE,
+							title: this.messages.LANDING_PREVIEW_MAINPAGE_TITLE,
+							buttons: BX.UI.Dialogs.MessageBoxButtons.OK_CANCEL,
+							okCaption: this.messages.LANDING_PREVIEW_MAINPAGE_BUTTON_OK_TEXT,
+							cancelCaption: this.messages.LANDING_PREVIEW_MAINPAGE_BUTTON_CANCEL_TEXT,
+							onOk: () => {
+								isClickOnButtonOk = true;
+								this.finalRedirectAjax(this.getCreateUrl());
+
+								return true;
+							},
+							onCancel: () => {
+								BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
+								BX.Dom.attr(this.createButton, 'style', '');
+
+								return true;
+							},
+							popupOptions: {
+								bindElement: BX('popup-window-titlebar-close-icon'),
+								offsetLeft: 20,
+								closeIcon: true,
+								events: {
+									onPopupClose: () => {
+										if (!isClickOnButtonOk)
+										{
+											BX.Dom.removeClass(this.createButton, 'ui-btn-clock');
+											BX.Dom.attr(this.createButton, 'style', '');
+										}
+
+										return true;
+									},
+								},
+							},
+						});
+						messageBox.show();
+						if (messageBox.popupWindow && messageBox.popupWindow.popupContainer)
+						{
+							messageBox.popupWindow.popupContainer.classList.add('landing-template-preview-create-popup');
+						}
+					});
+				}
+				else
+				{
+					this.finalRedirectAjax(this.getCreateUrl());
+				}
 			}
 			else
 			{
 				this.showLoader()
 					.then(this.delay(200))
-					.then(function ()
-					{
-						this.finalRedirectAjax(
-							this.getCreateUrl()
-						);
-					}.bind(this));
+					.then(() => {
+						this.finalRedirectAjax(this.getCreateUrl());
+					});
 			}
 		},
 
@@ -537,13 +598,31 @@
 		 */
 		getMetrikaParams: function (status)
 		{
+			let category = 'landings';
+			if (this.isCrmForm)
+			{
+				category = 'crm_forms';
+			}
+			if (this.isMainpage())
+			{
+				category = 'vibe';
+			}
+			if (this.isStore())
+			{
+				category = 'stores';
+			}
+			if (this.isMainpage())
+			{
+				category = 'vibe';
+			}
+
 			const metrikaParams = {
-				category: this.isStore() ? 'stores' : (this.isCrmForm ? 'crm_forms' : 'landings'),
-				event: 'create_page_template',
+				category,
+				event: this.isMainpage() ? 'create_template' : 'create_page_template',
 				params: {
 					appCode: this.appCode,
 				},
-				status: status,
+				status,
 			};
 
 			if (this.replaceLid > 0)
@@ -786,6 +865,11 @@
 		isStore: function()
 		{
 			return this.createStore;
+		},
+
+		isMainpage: function()
+		{
+			return this.createMainpage;
 		},
 
 		createParamsStrFromUrl(url)

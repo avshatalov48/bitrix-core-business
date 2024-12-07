@@ -78,3 +78,13 @@
 	margin-top: -10px;
 }
 
+.landing-ui-field-warning .landing-ui-field-input,
+.landing-ui-field-warning .landing-ui-field-input:hover,
+.landing-ui-field-warning .landing-ui-field-input:focus {
+	border-color: var(--ui-field-color-orange);
+}
+
+.landing-ui-field-warning .landing-ui-field-bottom {
+	color: var(--ui-field-color-orange);
+}
+

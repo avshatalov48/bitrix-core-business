@@ -9,12 +9,34 @@ BX.namespace('BX.Sale.DomainVerificationForm');
 			this.saveButton = BX(params.saveButtonId);
 			this.closeButton = BX(params.closeButtonId);
 			this.form = BX(params.formId);
+			this.fileInputButton = BX(params.fileInputId);
+			this.fileInputLabel = BX(params.fileLabelId);
 
 			this.bindEvents();
 		},
 
-		bindEvents: function() {
+		bindEvents: function()
+		{
 			BX.addCustomEvent('button-click', BX.proxy(this.buttonFormClick, this));
+
+			BX.bind(this.fileInputButton, 'change', BX.delegate((event) => {
+				const files = event.target.files;
+				let labelText = BX.Loc.getMessage('SALE_DVF_TEMPLATE_FILE_NOT_SELECTED');
+
+				if (files.length > 0)
+				{
+					let fileName = files[0].name;
+
+					if (fileName.length > 40)
+					{
+						fileName = `${fileName.slice(0, 9)}...${fileName.slice(-9)}`;
+					}
+
+					labelText = fileName;
+				}
+
+				this.fileInputLabel.innerHTML = labelText;
+			}, this));
 		},
 
 		buttonFormClick: function(button)
@@ -26,6 +48,7 @@ BX.namespace('BX.Sale.DomainVerificationForm');
 
 			if (button.TYPE === 'save')
 			{
+				button.WAIT = true;
 				this.submitForm();
 			}
 		},
@@ -35,7 +58,21 @@ BX.namespace('BX.Sale.DomainVerificationForm');
 			this.form.submit();
 		},
 
+		showLoader: function()
+		{
+			if (this.loader === undefined)
+			{
+				this.loader = new BX.Loader({
+					target: document.querySelector('.ui-slider-page'),
+				});
+			}
+
+			this.loader.show();
+		},
+
 		deleteDomainAction: function(id) {
+			this.showLoader();
+
 			BX.ajax.runComponentAction('bitrix:sale.domain.verification.form', 'deleteDomain', {
 				mode: 'ajax',
 				signedParameters: this.signedParameters,

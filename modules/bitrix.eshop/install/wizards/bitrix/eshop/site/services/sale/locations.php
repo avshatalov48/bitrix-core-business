@@ -5,6 +5,17 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 if(!CModule::IncludeModule('sale'))
 	return;
 
+$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+$isBitrixSiteManagementOnly =
+	!\Bitrix\Main\Loader::includeModule('bitrix24')
+	&& !\Bitrix\Main\Loader::includeModule('intranet')
+;
+$allowLocationImport = $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
+if (!$allowLocationImport)
+{
+	return;
+}
+
 $dbSite = CSite::GetByID(WIZARD_SITE_ID);
 if($arSite = $dbSite -> Fetch())
 	$lang = $arSite["LANGUAGE_ID"];
@@ -19,7 +30,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 	$loc_file = $wizard->GetVar("locations_csv");
 
 
-	$typeTableFreshEnough = false; 
+	$typeTableFreshEnough = false;
 	if($GLOBALS['DB']->Query("select DISPLAY_SORT from b_sale_loc_type WHERE 1=0", true))
 		$typeTableFreshEnough = true;
 
@@ -50,7 +61,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 				}
 
 				$done = \Bitrix\Sale\Location\Import\ImportProcess::importFile($_SESSION["LOC_IMPORT_DESC"]);
-				
+
 				if($done)
 				{
 					unset($_SESSION["LOC_IMPORT_DESC"]);
@@ -72,7 +83,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 			$start_time = time();
 			$finish_time = $start_time + LOC_STEP_LENGTH;
 
-			if(in_array($loc_file, array("loc_ussr.csv", "loc_ua.csv", "loc_kz.csv")))
+			if(in_array($loc_file, array("loc_ussr.csv", "loc_kz.csv")))
 				$file_url = $_SERVER['DOCUMENT_ROOT'].WIZARD_SERVICE_RELATIVE_PATH."/locations/ru/".$loc_file;
 			else
 				$file_url = $_SERVER['DOCUMENT_ROOT'].WIZARD_SERVICE_RELATIVE_PATH."/locations/".$loc_file;

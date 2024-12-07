@@ -42,7 +42,7 @@ if (!$bFinedActive)
 	$bFinedActive = 1;
 }
 $iObjectID = md5(serialize($arResult["DATA"]));
-?><script type="text/javascript">
+?><script>
 if (typeof oPhotoTabs != "object" || oPhotoTabs == null)
 	var oPhotoTabs = {};
 if (typeof oPhotoTabs["<?=$iObjectID?>"] != "object" || oPhotoTabs["<?=$iObjectID?>"] == null)

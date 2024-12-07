@@ -38,7 +38,7 @@ class Iblock extends Base
 			if (!$this->catalog && $this->loadFromDatabase())
 			{
 				if (\Bitrix\Main\Loader::includeModule('catalog'))
-					$this->catalog = new ElementCatalog(0);
+					$this->catalog = ElementCatalog::getInstance(0);
 			}
 
 			if ($this->catalog)

@@ -1,8 +1,3 @@
-.bx-im-sidebar-main-preview__scope {
-	--im-sidebar-main-preview__border-color_avatar: #fff;
-	--im-sidebar-main-preview__color_more-users: #bdc1c6;
-}
-
 .bx-im-sidebar-main-preview-group-chat__avatar-container {
 	display: flex;
 	flex-direction: column;

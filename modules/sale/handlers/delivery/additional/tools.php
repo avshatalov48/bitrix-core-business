@@ -117,9 +117,6 @@ if($result["ERROR"] <> '')
 else
 	$result["RESULT"] = "OK";
 
-if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-	$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, SITE_CHARSET, 'utf-8');
-
 $result = json_encode($result);
 header('Content-Type: application/json');
 die($result);

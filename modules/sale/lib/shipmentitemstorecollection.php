@@ -44,11 +44,6 @@ class ShipmentItemStoreCollection extends Internals\EntityCollection
 	/**
 	 * @param ShipmentItem $shipmentItem
 	 * @return ShipmentItemStoreCollection
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
 	 */
 	public static function load(ShipmentItem $shipmentItem)
 	{
@@ -69,7 +64,7 @@ class ShipmentItemStoreCollection extends Internals\EntityCollection
 			foreach ($shipmentItemStoreList as $shipmentItemStore)
 			{
 				$shipmentItemStore->setCollection($shipmentItemStoreCollection);
-				$shipmentItemStoreCollection->addItem($shipmentItemStore);
+				$shipmentItemStoreCollection->bindItem($shipmentItemStore);
 			}
 		}
 

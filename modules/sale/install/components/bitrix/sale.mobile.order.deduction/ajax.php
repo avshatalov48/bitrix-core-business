@@ -31,7 +31,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $bUserCanDeductOrder)
 			$useStores = isset($_REQUEST['useStores']) && trim($_REQUEST['useStores']) == 'Y' ? true : false;
 			$undoReason = isset($_REQUEST['undoReason']) ? trim($_REQUEST['undoReason']) : '';
 			$arProducts = isset($_REQUEST['products']) ? $_REQUEST['products'] : array();
-			$arProducts = $APPLICATION->ConvertCharsetArray($arProducts, 'utf-8', SITE_CHARSET);
 			$arStoreInfo = array();
 
 			foreach ($arProducts as $prodId => $arProduct)
@@ -81,9 +80,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $bUserCanDeductOrder)
 
 			}
 
-			if($undoReason <> '')
-				$undoReason = $APPLICATION->ConvertCharset($undoReason, 'utf-8', SITE_CHARSET);
-
 			if (!CSaleOrder::DeductOrder($orderId, $deducted, $undoReason, false, $arStoreInfo))
 			{
 				if ($ex = $APPLICATION->GetException())
@@ -109,6 +105,4 @@ if(isset($arResult["ERROR"]))
 else
 	$arResult["RESULT"] = "OK";
 
-$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 die(json_encode($arResult));
-?>

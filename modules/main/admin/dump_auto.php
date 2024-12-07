@@ -54,13 +54,10 @@ $server_name = COption::GetOptionString("main", "server_name", "");
 if (!$server_name)
 	$server_name = $_SERVER['HTTP_HOST'];
 $server_name = rtrim($server_name, '/');
-if (!preg_match('/^[a-z0-9\.\-]+$/i', $server_name)) // cyrillic domain hack
+if (!preg_match('/^[a-z0-9.\-]+$/i', $server_name)) // cyrillic domain hack
 {
-	$converter = new CBXPunycode(defined('BX_UTF') && BX_UTF === true ? 'UTF-8' : 'windows-1251');
-	$host = $converter->Encode($server_name);
-	if (!preg_match('#--p1ai$#', $host)) // trying to guess
-		$host = $converter->Encode(\Bitrix\Main\Text\Encoding::convertEncoding($server_name, 'utf-8', 'windows-1251'));
-	$server_name = $host;
+	$converter = new CBXPunycode();
+	$server_name = $converter->Encode($server_name);
 }
 $url = (CMain::IsHTTPS() ? "https://" : "http://").$server_name;
 define('LOCK_FILE', $_SERVER['DOCUMENT_ROOT'].'/bitrix/backup/auto_lock');

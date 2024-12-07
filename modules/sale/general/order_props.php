@@ -883,7 +883,7 @@ class CSaleOrderProps
 		{
 			$val = $DB->ForSql($val);
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "PROPERTY_ID":
 					$strSqlSearch .= " AND PROPERTY_ID = '".trim($val)."' ";
@@ -905,7 +905,7 @@ class CSaleOrderProps
 		if ($strSqlSearch <> '')
 			$strSql .= " ".$strSqlSearch;
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		return $dbRes;
 	}
@@ -957,7 +957,7 @@ class CSaleOrderProps
 					"INSERT INTO b_sale_order_props_relation (PROPERTY_ID, ".$arInsert[0].") ".
 					"VALUES('".$ID."', ".$arInsert[1].")";
 
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -1259,11 +1259,11 @@ final class CSaleOrderPropsAdapter implements FetchAdapter
 			{
 				if (mb_strpos($key, 'IS_') === 0)
 				{
-					$newProperty[$key] = ToUpper($value);
+					$newProperty[$key] = mb_strtoupper($value);
 				}
 				elseif(in_array($key, $correctFields))
 				{
-					$newProperty[$key] = ToUpper($value);
+					$newProperty[$key] = mb_strtoupper($value);
 				}
 			}
 

@@ -1,0 +1,152 @@
+.ui-side-panel-wrap-workarea {
+	background-color: #EEF2F4 !important;
+}
+
+.catalog-settings-wrapper {
+	padding: 0 20px;
+}
+
+.ui-section__field-inline-label-separator {
+	display: block;
+	margin: 14px 20px 0 20px;
+}
+
+.ui-ctl-element:invalid {
+	color: #a9adb2;
+}
+
+.catalog-settings-inventory-management-mode-wrapper {
+	border: 1px solid var(--ui-color-palette-gray-05);
+	border-radius: 8px;
+	padding: 10px 18px;
+}
+
+.catalog-settings-inventory-management-mode-inner {
+	display: flex;
+	flex-direction: row;
+	justify-content: space-between;
+}
+
+.catalog-settings-inventory-management-mode-selected.--disabled {
+	opacity: 60%;
+}
+
+.catalog-settings-inventory-management-mode-external-logo {
+	width: 40px;
+	height: 20px;
+	margin-bottom: 3px;
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='35' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.024 9.366v10.03h2.02v-12.1H1.78v2.07h2.245zm13.964-3.24c2.918 0 5.343 2.34 5.433 5.263h2.02c-.09-4.048-3.412-7.331-7.498-7.331-4.131 0-7.499 3.373-7.499 7.511 0 4.139 3.368 7.512 7.499 7.512h16.512v-2.024H17.943c-2.964-.045-5.388-2.474-5.388-5.487a5.428 5.428 0 015.433-5.443zm-11.045.181v13.135h2.02V4.283H3.53v2.024h3.413zm8.485 5.262c0-1.394 1.168-2.564 2.56-2.564a2.557 2.557 0 012.559 2.384h2.02a4.567 4.567 0 00-4.58-4.408c-2.514 0-4.58 2.07-4.58 4.588 0 2.52 2.066 4.588 4.58 4.588H34.5v-2.024H17.988c-1.392 0-2.56-1.17-2.56-2.564z' fill='%23E92F2A'/%3E%3C/svg%3E") no-repeat;
+}
+
+.catalog-settings-inventory-management-mode-b24-name {
+	font-size: var(--ui-font-size-lg);
+	color: var(--ui-color-palette-blue-50);
+	font-weight: 600;
+}
+
+.catalog-settings-inventory-management-mode-b24-numbers {
+	color: var(--ui-color-link-primary-base);
+}
+
+.catalog-settings-inventory-management-mode-description {
+	color: var(--ui-color-palette-gray-80);
+	font-size: var(--ui-font-size-sm);
+}
+
+.catalog-settings-inventory-management-mode-status {
+	margin-top: 5px;
+}
+
+.catalog-settings-inventory-management-mode-settings,
+.catalog-settings-inventory-management-mode-settings:visited,
+.catalog-settings-inventory-management-mode-settings:hover {
+	color: var(--ui-color-palette-gray-70);
+	border-bottom: var(--ui-border-width-thin) var(--ui-color-palette-gray-70) solid;
+	font-size: var(--ui-font-size-lg);
+	vertical-align: middle;
+}
+
+.catalog-settings-inventory-management-mode-settings-container {
+	display: flex;
+	align-items: center;
+}
+
+.catalog-settings-inventory-management-mode-warning {
+	font-size: var(--ui-font-size-lg);
+	color: var(--ui-color-palette-gray-90);
+}
+
+.catalog-settings-inventory-management-mode-help {
+	font-size: var(--ui-font-size-lg);
+}
+
+.catalog-settings-popup-content {
+	padding: 0 7px;
+	border-bottom: 1px solid #edeef0;
+}
+
+.catalog-settings-popup-content h3 {
+	margin: 7px 0 12px;
+}
+
+.catalog-settings-popup-text {
+	margin-bottom: 12px;
+	font: 13px/17px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
+	color: #828b95;
+}
+
+#inventoryManagementStatus {
+	display: flex;
+}
+
+#inventoryManagementStatus .tariff-lock {
+	margin-right: 5px;
+}
+
+/* temporary copypaste, remove this after moving the page to the portal settings */
+.intranet-settings__page-header_wrap {
+	margin: 10px 0 28px 9px;
+	padding-left: 6px;
+}
+
+#portal-page-wrapper .intranet-settings__page-header_wrap {
+	display: flex;
+	align-items: unset;
+}
+
+.intranet-settings__page-header_inner {
+	margin-right: 24px;
+}
+
+.intranet-settings__page-header {
+	position: relative;
+	top: 13px;
+	display: block;
+	margin-bottom: 27px;
+	line-height: 23px;
+	font-size: var(--ui-font-size-5xl);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-text-primary);
+}
+
+.intranet-settings__page-header_desc {
+	margin: 0;
+	font-size: var(--ui-font-size-xl);
+	color: var(--ui-color-base-90);
+	line-height: 22px;
+}
+
+.ui-section__link {
+	display: inline-flex;
+	border-bottom: 1px solid rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-40));
+	cursor: pointer;
+}
+
+.ui-section__row .ui-alert.ui-alert-primary {
+	color: var(--ui-color-base-70);
+}
+
+.ui-section__separator {
+	width: calc(100% - 20px);
+}
+/* end temporary copypaste */

@@ -1,128 +1,78 @@
-import { DateTimeFormat } from 'main.date';
-import { Dom, Event, Loc, Tag, Type } from 'main.core';
+import { Dom, Event, Loc, Tag } from 'main.core';
 import { Popup, MenuManager } from 'main.popup';
-import '../../css/settings.css';
-import Range from './range';
 import { Util } from 'calendar.util';
-import { Analytics } from 'calendar.sharing.analytics';
+import Range from './range';
+import { SettingsModel, RuleModel } from '../../model/index';
 
-type SettingsOptions = {
+import '../../css/settings.css';
+
+export type Params = {
 	readOnly: boolean,
-	rule: {
-		slotSize: number,
-		ranges: Array<any>,
-	},
-	weekStart: number,
-	workDays: Array<number>,
-	workTimeStart: string,
-	workTimeEnd: string,
-	collapsed: boolean,
-}
+	model: SettingsModel,
+};
 
 export default class Settings
 {
-	AVAILABLE_INTERVALS = [30, 45, 60, 90, 120, 180];
-	MAX_RANGES = 5;
+	#params: Params;
 
-	layout: {
+	#layout: {
 		wrap: HTMLElement,
 		subtitle: HTMLElement,
 		expandRuleArrow: HTMLElement,
 		expandRuleButton: HTMLElement,
 		rule: HTMLElement,
 		weekdaysSelect: HTMLElement,
+		slotSizeText: HTMLElement,
 		slotSizeSelect: HTMLElement,
 		rangesContainer: HTMLElement,
+		ranges: Range[],
 	};
 
-	constructor(options: SettingsOptions)
+	constructor(params: Params)
 	{
-		this.layout = {};
+		this.#params = params;
+		this.#layout = {};
 
-		this.readOnly = options.readOnly;
+		this.readOnly = params.readOnly;
 
-		this.collapsed = !options.readOnly && options.collapsed;
-		if (!Type.isBoolean(options.collapsed))
-		{
-			this.notExpandable = true;
-		}
-
-		this.workTimeStart = options.workTimeStart;
-		this.workTimeEnd = options.workTimeEnd;
-		this.workDays = options.workDays;
-		this.weekStart = options.weekStart;
-		this.rule = {
-			slotSize: options.rule.slotSize,
-		};
-
-		this.ranges = [];
-		for (const rangeOptions of options.rule.ranges)
-		{
-			this.ranges.push(this.getRange({
-				...rangeOptions,
-				show: false,
-			}));
-		}
-
-		if (!Type.isArrayFilled(this.ranges))
-		{
-			this.ranges = [this.getRange()];
-		}
-
-		this.sortRanges();
-
-		this.updateRanges();
+		this.#bindEvents();
 	}
 
-	getRule(): any
+	get #model(): SettingsModel
 	{
-		const ranges = this.ranges.map((range) => range.getRule());
-		ranges.sort((a, b) => this.compareRanges(a, b));
-
-		return JSON.parse(JSON.stringify({
-			ranges,
-			...this.rule,
-		}));
+		return this.#params.model;
 	}
 
-	sortRanges()
+	get #rule(): RuleModel
 	{
-		this.ranges.sort((a, b) => this.compareRanges(a.getRule(), b.getRule()));
+		return this.#model.getRule();
 	}
 
-	compareRanges(range1, range2): number
+	#bindEvents(): void
 	{
-		const weekdaysWeight1 = this.getWeekdaysWeight(range1.weekdays);
-		const weekdaysWeight2 = this.getWeekdaysWeight(range2.weekdays);
-
-		if (weekdaysWeight1 !== weekdaysWeight2)
-		{
-			return weekdaysWeight1 - weekdaysWeight2;
-		}
-
-		if (range1.from !== range2.from)
-		{
-			return range1.from - range2.from;
-		}
-
-		return range1.to - range2.to;
+		this.#rule.subscribe('updated', this.#onRuleUpdated.bind(this));
+		this.#rule.subscribe('rangeDeleted', this.#onRangeDeleted.bind(this));
 	}
 
-	getWeekdaysWeight(weekdays): number
+	#onRuleUpdated(): void
 	{
-		return weekdays
-			.map((w) => (w < this.weekStart ? w + 10 : w))
-			.sort((a, b) => a - b)
-			.reduce((accumulator, w, index) => {
-				return accumulator + w * 10 ** (10 - index);
-			}, 0);
+		this.#updateSubtitle();
+		this.#removeRuleHeight();
+		this.#renderRanges();
 	}
 
-	settingPopupShown(): boolean
+	#onRangeDeleted()
 	{
-		const rangesWithPopup = this.ranges.filter((range) => range.settingPopupShown()) ?? [];
+		this.#updateSubtitle();
+		this.#removeRuleHeight();
+		this.#layout.ranges.forEach((range) => range.renderButton());
+	}
+
+	hasShownPopups(): boolean
+	{
+		const rangesWithPopup = this.#layout.ranges.filter((range) => range.hasShownPopups()) ?? [];
 		const rangePopupShown = rangesWithPopup.length > 0;
-		const slotSizePopupShown = Dom.hasClass(this.layout.slotSizeSelect, '--active');
+		const slotSizePopupShown = Dom.hasClass(this.#layout.slotSizeSelect, '--active');
 		const readOnlyPopupShown = this.readOnlyPopup?.isShown();
 
 		return rangePopupShown || slotSizePopupShown || readOnlyPopupShown;
@@ -131,19 +81,20 @@ export default class Settings
 	render(): HTMLElement
 	{
 		const readOnlyClass = this.readOnly ? '--read-only' : '';
-		const expandedClass = this.collapsed ? '--hide' : '';
+		const expandedClass = this.#model.isCollapsed() ? '--hide' : '';
+		const contextClass = `--${this.#model.getContext()}`
 
-		this.layout.wrap = Tag.render`
-			<div class="calendar-sharing__settings ${readOnlyClass} ${expandedClass}">
-				${this.renderHeader()}
-				${this.renderRule()}
+		this.#layout.wrap = Tag.render`
+			<div class="calendar-sharing__settings ${readOnlyClass} ${expandedClass} ${contextClass}">
+				${this.#renderHeader()}
+				${this.#renderRule()}
 			</div>
 		`;
 
-		return this.layout.wrap;
+		return this.#layout.wrap;
 	}
 
-	renderHeader(): HTMLElement
+	#renderHeader(): HTMLElement
 	{
 		return Tag.render`
 			<div class="calendar-sharing__settings-header-container">
@@ -151,39 +102,39 @@ export default class Settings
 					<div class="calendar-sharing__settings-title">
 						${Loc.getMessage('CALENDAR_SHARING_SETTINGS_TITLE_V2')}
 					</div>
-					${this.renderSubtitle()}
+					${this.#renderSubtitle()}
 				</div>
 				<div class="calendar-sharing__settings-header-button">
-					${this.renderExpandRuleButton()}
+					${this.#renderExpandRuleButton()}
 				</div>
 			</div>
 		`;
 	}
 
-	renderSubtitle(): HTMLElement
+	#renderSubtitle(): HTMLElement
 	{
-		this.layout.subtitle = Tag.render`
+		this.#layout.subtitle = Tag.render`
 			<div class="calendar-sharing__settings-subtitle">
-				${this.getSubtitleText()}
+				${this.#getSubtitleText()}
 			</div>
 		`;
 
-		return this.layout.subtitle;
+		return this.#layout.subtitle;
 	}
 
-	updateSubtitle(): void
+	#updateSubtitle(): void
 	{
-		if (!this.layout.subtitle)
+		if (!this.#layout.subtitle)
 		{
 			return;
 		}
 
-		this.layout.subtitle.innerText = this.getSubtitleText();
+		this.#layout.subtitle.innerText = this.#getSubtitleText();
 	}
 
-	getSubtitleText(): string
+	#getSubtitleText(): string
 	{
-		if (this.isDefaultRule())
+		if (this.#model.isDefaultRule())
 		{
 			return Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_DEFAULT');
 		}
@@ -191,211 +142,127 @@ export default class Settings
 		return Loc.getMessage('CALENDAR_SHARING_SETTINGS_SUBTITLE_PERSONAL');
 	}
 
-	renderExpandRuleButton(): HTMLElement|string
+	#renderExpandRuleButton(): HTMLElement|string
 	{
-		if (this.readOnly || this.notExpandable)
+		if (this.readOnly)
 		{
 			return '';
 		}
 
-		this.layout.expandRuleArrow = Tag.render`
-			<div class="calendar-sharing__settings-select-arrow ${this.collapsed ? '' : '--active'}"></div>
+		this.#layout.expandRuleArrow = Tag.render`
+			<div class="calendar-sharing__settings-select-arrow ${this.#model.isCollapsed() ? '' : '--active'}"></div>
 		`;
 
-		this.layout.expandRuleButton = Tag.render`
+		this.#layout.expandRuleButton = Tag.render`
 			<div class="calendar-sharing__settings-expand">
-				${this.layout.expandRuleArrow}
+				${this.#layout.expandRuleArrow}
 			</div>
 		`;
 
-		Event.bind(this.layout.expandRuleButton, 'click', this.toggle.bind(this));
+		Event.bind(this.#layout.expandRuleButton, 'click', this.#toggleExpand.bind(this));
 
-		return this.layout.expandRuleButton;
+		return this.#layout.expandRuleButton;
 	}
 
-	renderRule(): HTMLElement
+	#renderRule(): HTMLElement
 	{
-		this.layout.rule = Tag.render`
+		this.#layout.rule = Tag.render`
 			<div class="calendar-sharing__settings-rule">
-				${this.renderRanges()}
+				${this.#renderRanges()}
 				<div class="calendar-sharing__settings-slotSize">
 					<span class="calendar-sharing__settings-slotSize-title">${Loc.getMessage('CALENDAR_SHARING_SETTINGS_SLOT_SIZE_V2')}</span>
-					${this.getSettingsSlotSizeSelect()}
+					${this.#renderSettingsSlotSizeSelect()}
 				</div>
 			</div>
 		`;
 
-		return this.layout.rule;
+		return this.#layout.rule;
 	}
 
-	toggle(): void
+	#toggleExpand(): void
 	{
-		this.updateRuleHeight();
+		this.#updateRuleHeight();
 		setTimeout(() => {
-			Dom.toggleClass(this.layout.wrap, '--hide');
-			Dom.toggleClass(this.layout.expandRuleArrow, '--active');
+			Dom.toggleClass(this.#layout.wrap, '--hide');
+			Dom.toggleClass(this.#layout.expandRuleArrow, '--active');
 
-			this.updateSharingSettingsCollapsedAction(Dom.hasClass(this.layout.wrap, '--hide'));
+			this.#model.updateCollapsed(Dom.hasClass(this.#layout.wrap, '--hide'));
 		}, 0);
 	}
 
-	updateSharingSettingsCollapsedAction(isCollapsed: boolean): void
+	#updateRuleHeight(): void
 	{
-		BX.ajax.runAction('calendar.api.sharingajax.updateSharingSettingsCollapsed', {
-			data: {
-				collapsed: isCollapsed ? 'Y' : 'N',
-			},
-		});
+		Dom.style(this.#layout.rule, 'height', `${this.#calculateRuleHeight()}px`);
 	}
 
-	renderRanges(): HTMLElement
+	#renderRanges(): HTMLElement
 	{
-		this.ranges.forEach((range) => range.disableAnimation());
+		this.#layout.ranges?.forEach((range) => range.destroy());
+		this.#layout.ranges = this.#rule.getRanges().map((range) => this.#createRange(range));
 
 		const rangesContainer = Tag.render`
 			<div class="calendar-sharing__settings-range-list">
-				${this.ranges.map((range) => range.render())}
+				${this.#layout.ranges.map((range) => range.render())}
 			</div>
 		`;
 
-		if (this.ranges.length === this.MAX_RANGES)
-		{
-			this.ranges[0].hideButton();
-		}
+		this.#layout.rangesContainer?.replaceWith(rangesContainer);
+		this.#layout.rangesContainer = rangesContainer;
 
-		if (Type.isDomNode(this.layout.rangesContainer))
-		{
-			this.layout.rangesContainer.replaceWith(rangesContainer);
-		}
-
-		this.layout.rangesContainer = rangesContainer;
+		this.#layout.ranges.forEach((range) => range.updateWeekdaysTitle());
 
 		return rangesContainer;
 	}
 
-	getRange(rangeOptions): Range
+	#createRange(range): Range
 	{
-		const date = new Date().toDateString();
-		const from = new Date(`${date} ${`${this.workTimeStart}`.replace('.', ':')}:00`);
-		const to = new Date(`${date} ${`${this.workTimeEnd}`.replace('.', ':')}:00`);
-
-		const isNotFirst = this.ranges?.length >= 1;
-
 		return new Range({
-			getSlotSize: () => this.rule.slotSize,
-			from: this.getMinutesFromDate(from),
-			to: this.getMinutesFromDate(to),
-			weekdays: this.workDays,
-			weekStart: this.weekStart,
-			workDays: this.workDays,
-			addRange: (range) => this.addRange(range),
-			removeRange: (range) => this.removeRange(range),
-			showReadOnlyPopup: (node) => this.showReadOnlyPopup(node),
-			ruleUpdated: () => this.ruleUpdated(),
-			show: isNotFirst,
+			model: range,
 			readOnly: this.readOnly,
-			...rangeOptions,
+			showReadOnlyPopup: this.#showReadOnlyPopup.bind(this),
 		});
 	}
 
-	addRange(afterRange)
+	#renderSettingsSlotSizeSelect(): HTMLElement
 	{
-		if (this.ranges.length >= this.MAX_RANGES)
-		{
-			return;
-		}
-
-		const newRange = this.getRange();
-		this.ranges.push(newRange);
-
-		afterRange.getWrap().after(newRange.render());
-
-		this.updateRanges();
-	}
-
-	removeRange(deletedRange): boolean
-	{
-		if (this.ranges.length <= 1)
-		{
-			return false;
-		}
-
-		this.ranges = this.ranges.filter((range) => range !== deletedRange);
-
-		this.updateRanges();
-
-		return true;
-	}
-
-	getSettingsSlotSizeSelect(): HTMLElement
-	{
-		this.layout.slotSizeText = Tag.render`
+		this.#layout.slotSizeText = Tag.render`
 			<span class="calendar-sharing__settings-select-link">
-				${Util.formatDuration(this.rule.slotSize)}
+				${this.#rule.getFormattedSlotSize()}
 			</span>
 		`;
 
-		this.layout.slotSizeSelect = Tag.render`
+		this.#layout.slotSizeSelect = Tag.render`
 			<span class="calendar-sharing__settings-select-arrow --small-arrow">
-				${this.layout.slotSizeText}
+				${this.#layout.slotSizeText}
 			</span>
 		`;
 
-		Event.bind(this.layout.slotSizeSelect, 'click', this.slotSizeSelectClickHandler.bind(this));
-
-		const items = this.AVAILABLE_INTERVALS.map((minutes) => {
-			return {
-				text: Util.formatDuration(minutes),
-				onclick: () => {
-					this.rule.slotSize = minutes;
-					this.layout.slotSizeText.innerHTML = Util.formatDuration(this.rule.slotSize);
-					this.slotSizeMenu.close();
-					this.updateRanges();
-				},
-			};
-		});
+		Event.bind(this.#layout.slotSizeSelect, 'click', this.#slotSizeSelectClickHandler.bind(this));
 
 		this.slotSizeMenu = MenuManager.create({
 			id: `calendar-sharing-settings-slotSize${Date.now()}`,
-			bindElement: this.layout.slotSizeSelect,
-			items,
+			bindElement: this.#layout.slotSizeSelect,
+			items: this.#model.getRule().getAvailableIntervals().map((minutes) => {
+				return {
+					text: Util.formatDuration(minutes),
+					onclick: () => {
+						this.#rule.setSlotSize(minutes);
+						this.#layout.slotSizeText.innerHTML = this.#rule.getFormattedSlotSize();
+						this.slotSizeMenu.close();
+					},
+				};
+			}),
 			closeByEsc: true,
 			events: {
-				onShow: () => Dom.addClass(this.layout.slotSizeSelect, '--active'),
-				onClose: () => Dom.removeClass(this.layout.slotSizeSelect, '--active'),
+				onShow: () => Dom.addClass(this.#layout.slotSizeSelect, '--active'),
+				onClose: () => Dom.removeClass(this.#layout.slotSizeSelect, '--active'),
 			},
 		});
 
-		return this.layout.slotSizeSelect;
+		return this.#layout.slotSizeSelect;
 	}
 
-	updateRanges()
-	{
-		for (const range of this.ranges.slice(0, -1))
-		{
-			range.setDeletable(true);
-			range.update();
-		}
-
-		const lastRange = this.ranges.slice(-1)[0];
-		lastRange.setDeletable(this.ranges.length === 5);
-		lastRange.update();
-
-		this.ruleUpdated();
-	}
-
-	ruleUpdated()
-	{
-		this.updateSubtitle();
-		this.removeRuleHeight();
-	}
-
-	updateRuleHeight()
-	{
-		Dom.style(this.layout.rule, 'height', `${this.calculateRuleHeight()}px`);
-	}
-
-	calculateRuleHeight()
+	#calculateRuleHeight(): number
 	{
 		const topMarginHeight = 10;
 		const bottomMarginHeight = 2;
@@ -403,19 +270,19 @@ export default class Settings
 		const slotSizeHeight = 15;
 		const rangeHeight = 45;
 
-		return rangeHeight * this.ranges.length + (marginsHeight + slotSizeHeight);
+		return rangeHeight * this.#model.getRule().getRanges().length + (marginsHeight + slotSizeHeight);
 	}
 
-	removeRuleHeight()
+	#removeRuleHeight(): void
 	{
-		Dom.style(this.layout.rule, 'height', null);
+		Dom.style(this.#layout.rule, 'height', null);
 	}
 
-	slotSizeSelectClickHandler()
+	#slotSizeSelectClickHandler(): void
 	{
 		if (this.readOnly)
 		{
-			this.showReadOnlyPopup(this.layout.slotSizeSelect);
+			this.#showReadOnlyPopup(this.#layout.slotSizeSelect);
 		}
 		else
 		{
@@ -423,13 +290,13 @@ export default class Settings
 		}
 	}
 
-	showReadOnlyPopup(pivotNode)
+	#showReadOnlyPopup(pivotNode): void
 	{
-		this.closeReadOnlyPopup();
-		this.getReadOnlyPopup(pivotNode).show();
+		this.#closeReadOnlyPopup();
+		this.#getReadOnlyPopup(pivotNode).show();
 	}
 
-	getReadOnlyPopup(pivotNode): Popup
+	#getReadOnlyPopup(pivotNode): Popup
 	{
 		this.readOnlyPopup = new Popup({
 			bindElement: pivotNode,
@@ -444,81 +311,16 @@ export default class Settings
 			autoHide: true,
 		});
 
-		Event.bind(this.readOnlyPopup.popupContainer, 'click', () => this.closeReadOnlyPopup());
+		Event.bind(this.readOnlyPopup.popupContainer, 'click', () => this.#closeReadOnlyPopup());
 
 		clearTimeout(this.closePopupTimeout);
-		this.closePopupTimeout = setTimeout(() => this.closeReadOnlyPopup(), 3000);
+		this.closePopupTimeout = setTimeout(() => this.#closeReadOnlyPopup(), 3000);
 
 		return this.readOnlyPopup;
 	}
 
-	closeReadOnlyPopup()
+	#closeReadOnlyPopup(): void
 	{
 		this.readOnlyPopup?.destroy();
-	}
-
-	getMinutesFromDate(date): number
-	{
-		const parsedTime = Util.parseTime(DateTimeFormat.format(DateTimeFormat.getFormat('SHORT_TIME_FORMAT'), date / 1000));
-
-		return parsedTime.h * 60 + parsedTime.m;
-	}
-
-	isDefaultRule(): boolean
-	{
-		return !this.isDifferentFrom(this.getDefaultRule());
-	}
-
-	isDifferentFrom(anotherRule): boolean
-	{
-		return !this.objectsEqual(anotherRule, this.getRule());
-	}
-
-	getChanges(): string[]
-	{
-		const defaultRule = this.getDefaultRule();
-		const rule = this.getRule();
-
-		const sizeChanged = rule.slotSize !== defaultRule.slotSize;
-		const daysChanged = JSON.stringify(rule.ranges) !== JSON.stringify(defaultRule.ranges);
-
-		const changes = [];
-
-		if (daysChanged)
-		{
-			changes.push(Analytics.ruleChanges.custom_days);
-		}
-
-		if (sizeChanged)
-		{
-			changes.push(Analytics.ruleChanges.custom_length);
-		}
-
-		return changes;
-	}
-
-	getDefaultRule()
-	{
-		return {
-			slotSize: 60,
-			ranges: [this.getRange().getRule()],
-		};
-	}
-
-	objectsEqual(obj1, obj2): boolean
-	{
-		return JSON.stringify(this.sortKeys(obj1)) === JSON.stringify(this.sortKeys(obj2));
-	}
-
-	sortKeys(object): any
-	{
-		return Object.keys(object).sort().reduce(
-			(obj, key) => {
-				obj[key] = object[key];
-
-				return obj;
-			},
-			{},
-		);
 	}
 }

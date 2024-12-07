@@ -150,8 +150,6 @@ $chartTypes = array(
 );
 // </editor-fold>
 
-CUtil::JSPostUnescape();
-
 $errorCode = checkPostChartData($_POST, $chartXValueTypes, $chartTypes);
 
 if ($errorCode === 0)
@@ -398,7 +396,7 @@ if ($errorCode === 0)
 						$arData[$i]['COLOR'] = $color;
 						$arLegendInfo[$i] = array(
 							'color' => $color,
-							'label' => CharsetConverter::ConvertCharset($k, LANG_CHARSET, 'UTF-8'),
+							'label' => $k,
 							'value' => $arConsolidated[$k],
 							'prcnt' => round($v,2)
 						);
@@ -456,9 +454,7 @@ if ($errorCode > 0)
 {
 	$response = array(
 		'errorCode' => $errorCode,
-		'errorMessage' => CharsetConverter::ConvertCharset(
-			GetMessage('REPORT_CHART_ERR_'.sprintf('%02d', $errorCode)), LANG_CHARSET, 'UTF-8'
-		)
+		'errorMessage' => GetMessage('REPORT_CHART_ERR_'.sprintf('%02d', $errorCode)),
 	);
 }
 

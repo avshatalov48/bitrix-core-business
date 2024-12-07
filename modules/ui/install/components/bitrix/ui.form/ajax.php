@@ -106,7 +106,7 @@ class CUIFormComponentAjaxController extends Main\Engine\Controller
 		$configParams = (new \Bitrix\UI\Form\EntityEditorConfigSigner($guid))->unsign($signedConfigParams);
 		if (!is_array($configParams))
 		{
-			return true; // temporary, to avoid cross-module dependencies
+			return false;
 		}
 		$scope = isset($params['scope']) ? mb_strtoupper($params['scope']) : EntityEditorConfigScope::UNDEFINED;
 

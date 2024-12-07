@@ -2,6 +2,10 @@
 
 namespace Bitrix\Calendar\Ui\Preview;
 
+use Bitrix\Calendar\Core\Mappers\Factory;
+use Bitrix\Calendar\Event\Helper\EventHelper;
+use Bitrix\Calendar\Rooms;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -54,9 +58,43 @@ class Event
 		return ($events && is_array($events[0]));
 	}
 
-	public static function getImAttach(array $params)
+	public static function getImAttach(array $params): false|\CIMMessageParamAttach
 	{
-		return false;
+		if (!Loader::includeModule('im'))
+		{
+			return false;
+		}
+
+		if (!($params['eventId'] ?? null) || !($eventId = (int)$params['eventId']))
+		{
+			return false;
+		}
+
+		/** @var Factory $mapperFactory */
+		$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+		/** @var \Bitrix\Calendar\Core\Event\Event $event */
+		$event = $mapperFactory->getEvent()->getById($eventId);
+		if (!$event)
+		{
+			return false;
+		}
+
+		// return attach only for open events to prevent old logic affect
+		if (!$event->isOpenEvent())
+		{
+			return false;
+		}
+
+		$attach = new \CIMMessageParamAttach(1, $event->getColor());
+		$attach->AddLink([
+			'NAME' => $event->getName(),
+			'LINK' => EventHelper::getViewUrl($event),
+		]);
+
+		$attach->AddDelimiter();
+		$attach->AddGrid(self::getImAttachGrid($event));
+
+		return $attach;
 	}
 
 	public static function getImRich(array $params)
@@ -79,5 +117,53 @@ class Event
 		global $USER;
 
 		return $USER;
+	}
+
+	private static function getImAttachGrid(\Bitrix\Calendar\Core\Event\Event $event): array
+	{
+		$grid = [];
+		$display = 'COLUMN';
+		$columnWidth = 120;
+		if ($categoryName = $event->getEventOption()?->getCategory()->getName())
+		{
+			$grid[] = [
+				'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_CATEGORY'),
+				'VALUE' => $categoryName,
+				'DISPLAY' => $display,
+				'WIDTH' => $columnWidth,
+			];
+		}
+
+		if ($location = $event->getLocation())
+		{
+			$parsedLocation = Rooms\Util::parseLocation($location);
+			$roomId = $parsedLocation['room_id'] ?? null;
+			if ($roomId)
+			{
+				$rooms = Rooms\Manager::getRoomById($roomId);
+				$room = $rooms ? $rooms[0] : null;
+				$roomName = $room['NAME'] ?? null;
+				if ($roomName)
+				{
+					$grid[] = [
+						'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_ROOM'),
+						'VALUE' => $roomName,
+						'DISPLAY' => $display,
+						'WIDTH' => $columnWidth,
+					];
+				}
+			}
+		}
+
+		$creator = $event->getCreator();
+		$grid[] = [
+			'NAME' => Loc::getMessage('CALENDAR_PREVIEW_ATTACH_CREATOR'),
+			'VALUE' => $creator->getFullName(),
+			'USER_ID' => $creator->getId(),
+			'DISPLAY' => $display,
+			'WIDTH' => $columnWidth,
+		];
+
+		return $grid;
 	}
 }

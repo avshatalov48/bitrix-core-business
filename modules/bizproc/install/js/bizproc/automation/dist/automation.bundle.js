@@ -4934,6 +4934,11 @@ this.BX.Bizproc = this.BX.Bizproc || {};
 	          document_status: babelHelpers.classPrivateFieldGet(this, _context).document.getCurrentStatusId(),
 	          context: context,
 	          robot_json: Helper.toJsonString(robot.serialize()),
+	          context_robots_json: Helper.toJsonString(babelHelpers.classPrivateFieldGet(this, _robots).filter(function (r) {
+	            return r !== robot;
+	          }).map(function (r) {
+	            return r.serialize();
+	          })),
 	          form_name: formName
 	        },
 	        onsuccess: function onsuccess(html) {

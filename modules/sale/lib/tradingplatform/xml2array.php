@@ -12,15 +12,12 @@ class Xml2Array
 	 * @param string $xmlData XML.
 	 * @return array Converted.
 	 */
-	public static function convert($xmlData, $convertCharset = true)
+	public static function convert($xmlData)
 	{
 		if($xmlData == '')
 			return array();
 
 		$result = array();
-
-		if($convertCharset && mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$xmlData = \Bitrix\Main\Text\Encoding::convertEncoding($xmlData, SITE_CHARSET, 'UTF-8');
 
 		if(preg_replace('/[[:^print:]]/', '', $xmlData) == "<?xml version='1.0' encoding='UTF-8'?>")
 			return array();
@@ -61,9 +58,6 @@ class Xml2Array
 		{
 			$result = json_decode($jsonString, TRUE);
 		}
-
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$result = \Bitrix\Main\Text\Encoding::convertEncoding($result, 'UTF-8', SITE_CHARSET);
 
 		return $result;
 	}

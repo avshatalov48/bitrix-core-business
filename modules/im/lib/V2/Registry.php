@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2;
 
 /**
  * @template T
+ * @extends \ArrayObject<int,T>
  */
 class Registry extends \ArrayObject
 {
@@ -13,6 +14,20 @@ class Registry extends \ArrayObject
 		{
 			unset($this[$key]);
 		}
+	}
+
+	/**
+	 * @param Registry<T> $registry
+	 * @return static
+	 */
+	public function merge(Registry $registry): self
+	{
+		foreach ($registry as $item)
+		{
+			$this[] = $item;
+		}
+
+		return $this;
 	}
 
 	/**

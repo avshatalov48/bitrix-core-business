@@ -682,10 +682,10 @@ if ($arResult["FatalErrorMessage"] == '')
 	}
 
 	//counter autofixer
-	$currentCounter = (int)CUserCounter::GetValue($targetUserId, 'bp_tasks', '**');
-	if (isset($arResult['COUNTERS']['*']) && $currentCounter != $arResult['COUNTERS']['*'])
+	if (isset($arResult['COUNTERS']['*']))
 	{
-		CUserCounter::Set($targetUserId, 'bp_tasks', $arResult['COUNTERS']['*'], '**');
+		$userCounters = new \Bitrix\Bizproc\Workflow\WorkflowUserCounters($targetUserId);
+		$userCounters->setTask((int)($arResult['COUNTERS']['*']));
 	}
 }
 elseif (!$arParams['COUNTERS_ONLY'])

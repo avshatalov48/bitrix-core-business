@@ -19,7 +19,6 @@ if (CPGalleryInterface::CheckSign($_REQUEST['sign'], $_REQUEST["checkParams"]))
 	</script>
 	<?
 
-	CUtil::JSPostUnEscape();
 	$arParams = array_merge($_REQUEST["checkParams"], $_REQUEST["reqParams"]);
 
 	$elementId = intval($_REQUEST["ELEMENT_ID"]);

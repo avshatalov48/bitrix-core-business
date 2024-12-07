@@ -268,5 +268,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.NotifierManager = NotifierManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.NotificationManager,BX.Vue3.Vuex,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX.UI.NotificationManager,BX.Vue3.Vuex,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
 //# sourceMappingURL=notifier.bundle.js.map

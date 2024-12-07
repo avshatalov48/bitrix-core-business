@@ -921,12 +921,19 @@ class ProductSearchComponent extends \CBitrixComponent
 			}
 			unset($item);
 
+			$skuIds = [];
 			$iterator = Catalog\ProductTable::getList(array(
 				'select' => array('ID', 'TYPE', 'QUANTITY', 'AVAILABLE', 'MEASURE'),
 				'filter' => array('@ID' => $arProductIds)
 			));
 			while ($row = $iterator->fetch())
+			{
+				if ((int)$row['TYPE'] === Catalog\ProductTable::TYPE_SKU)
+				{
+					$skuIds[] = $row['ID'];
+				}
 				$arItemsResult[$row['ID']]['PRODUCT'] = $row;
+			}
 			unset($row, $iterator);
 
 			$offersExistsIds = \CCatalogSku::getExistOffers($arProductIds, $this->getIblockId());
@@ -950,6 +957,8 @@ class ProductSearchComponent extends \CBitrixComponent
 				unset($id, $bExists);
 			}
 
+			$priceIds = $this->getVisiblePrices();
+
 			if (!empty($noOffersIds))
 			{
 				$productRatioList = Catalog\ProductTable::getCurrentRatioWithMeasure($noOffersIds);
@@ -967,7 +976,6 @@ class ProductSearchComponent extends \CBitrixComponent
 				}
 				unset($productRatioList);
 
-				$priceIds = $this->getVisiblePrices();
 				foreach ($priceIds as $priceId)
 				{
 					$iterator = Catalog\PriceTable::getList(array(
@@ -1035,7 +1043,48 @@ class ProductSearchComponent extends \CBitrixComponent
 						$arItemsResult[$group['OWNER_ID']]['PRODUCT']['IS_GROUP'] = true;
 					}
 				}
+			}
 
+			if (!empty($skuIds))
+			{
+				foreach ($priceIds as $priceId)
+				{
+					$iterator = Catalog\PriceTable::getList([
+						'select' => [
+							'PRODUCT_ID',
+							'PRICE',
+							'CURRENCY',
+							'QUANTITY_FROM',
+							'QUANTITY_TO',
+						],
+						'filter' => [
+							'@PRODUCT_ID' => $skuIds,
+							'=CATALOG_GROUP_ID' => $priceId,
+						]
+					]);
+					while ($row = $iterator->fetch())
+					{
+						$productId = (int)$row['PRODUCT_ID'];
+						$row['QUANTITY_FROM_SORT'] = ($row['QUANTITY_FROM'] === null ? 0 : (int)$row['QUANTITY_FROM']);
+						$row['QUANTITY_TO_SORT'] = ($row['QUANTITY_TO'] === null ? INF : (int)$row['QUANTITY_TO']);
+						$row['QUANTITY_FROM'] = (int)$row['QUANTITY_FROM'];
+						$row['QUANTITY_TO'] = (int)$row['QUANTITY_TO'];
+
+						if (
+							!isset($arItemsResult[$productId]['PRICES'][$priceId])
+							|| ($arItemsResult[$productId]['PRICES'][$priceId]['QUANTITY_FROM'] > $row['QUANTITY_FROM'])
+						)
+						{
+							$arItemsResult[$productId]['PRICES'][$priceId] = [
+								'PRICE' => $row['PRICE'],
+								'CURRENCY' => $row['CURRENCY'],
+								'QUANTITY_FROM' => $row['QUANTITY_FROM'],
+								'QUANTITY_TO' => $row['QUANTITY_TO'],
+							];
+						}
+					}
+					unset($row, $iterator);
+				}
 			}
 		}
 

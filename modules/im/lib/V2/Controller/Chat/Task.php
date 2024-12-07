@@ -18,7 +18,7 @@ class Task extends BaseController
 	{
 		if (isset($message)) {
 			$chat = $message->getChat();
-			if (!$chat->hasAccess())
+			if (!$chat->checkAccess()->isSuccess())
 			{
 				$this->addError(new RestError(RestError::ACCESS_ERROR));
 

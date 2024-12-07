@@ -70,7 +70,8 @@ $arColumns = explode(',', $arSuggest['COLUMN_NAMES']);
 $arTableStat = CPerfQueryStat::GatherTableStat($arSuggest['TABLE_NAME']);
 
 $obTable = new CPerfomanceTable;
-$arIndexes = $obTable->GetIndexes($arSuggest['TABLE_NAME']);
+$obTable->Init($arSuggest['TABLE_NAME']);
+$arIndexes = $obTable->GetIndexes();
 
 $arQueries = [];
 
@@ -282,7 +283,7 @@ $context->Show();
 $message = null;
 if ($strError)
 {
-	$message  = new CAdminMessage([
+	$message = new CAdminMessage([
 		'MESSAGE' => GetMessage('admin_lib_error'),
 		'DETAILS' => $strError,
 		'TYPE' => 'ERROR',
@@ -290,7 +291,7 @@ if ($strError)
 	echo $message->Show();
 }
 ?>
-<form method="POST" action="<?php echo $APPLICATION->GetCurPage()?>"  enctype="multipart/form-data" name="editform" id="editform">
+<form method="POST" action="<?php echo $APPLICATION->GetCurPage()?>" enctype="multipart/form-data" name="editform" id="editform">
 <?php
 $tabControl->Begin();
 

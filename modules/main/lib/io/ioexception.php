@@ -13,9 +13,9 @@ class IoException extends \Bitrix\Main\SystemException
 	 *
 	 * @param string $message Exception message
 	 * @param string $path Path that generated exception.
-	 * @param \Exception $previous
+	 * @param \Throwable | null $previous
 	 */
-	public function __construct($message = "", $path = "", \Exception $previous = null)
+	public function __construct($message = "", $path = "", \Throwable $previous = null)
 	{
 		parent::__construct($message, 120, '', 0, $previous);
 		$this->path = $path;
@@ -34,7 +34,7 @@ class IoException extends \Bitrix\Main\SystemException
 
 class InvalidPathException extends IoException
 {
-	public function __construct($path, \Exception $previous = null)
+	public function __construct($path, \Throwable $previous = null)
 	{
 		$message = "Path is invalid.";
 		parent::__construct($message, $path, $previous);
@@ -43,7 +43,7 @@ class InvalidPathException extends IoException
 
 class FileNotFoundException extends IoException
 {
-	public function __construct($path, \Exception $previous = null)
+	public function __construct($path, \Throwable $previous = null)
 	{
 		$message = "Path was not found.";
 		parent::__construct($message, $path, $previous);
@@ -52,7 +52,7 @@ class FileNotFoundException extends IoException
 
 class FileDeleteException extends IoException
 {
-	public function __construct($path, \Exception $previous = null)
+	public function __construct($path, \Throwable $previous = null)
 	{
 		$message = "Error occurred during deleting the file.";
 		parent::__construct($message, $path, $previous);
@@ -61,7 +61,7 @@ class FileDeleteException extends IoException
 
 class FileOpenException extends IoException
 {
-	public function __construct($path, \Exception $previous = null)
+	public function __construct($path, \Throwable $previous = null)
 	{
 		$message = "Cannot open the file.";
 		parent::__construct($message, $path, $previous);
@@ -70,7 +70,7 @@ class FileOpenException extends IoException
 
 class FileNotOpenedException extends IoException
 {
-	public function __construct($path, \Exception $previous = null)
+	public function __construct($path, \Throwable $previous = null)
 	{
 		$message = "The file was not opened.";
 		parent::__construct($message, $path, $previous);

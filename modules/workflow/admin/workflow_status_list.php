@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -15,8 +15,6 @@ if($WORKFLOW_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/include.php");
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
-
 
 $sTableID = "t_wf_status_list";
 $oSort = new CAdminSorting($sTableID, "s_timestamp", "desc");// sort init
@@ -136,8 +134,8 @@ if($WORKFLOW_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 						else
 						{
 							$DB->StartTransaction();
-							$DB->Query("DELETE FROM b_workflow_status WHERE ID='".$ID."'", false, $err_mess.__LINE__);
-							$DB->Query("DELETE FROM b_workflow_status2group WHERE STATUS_ID='".$ID."'", false, $err_mess.__LINE__);
+							$DB->Query("DELETE FROM b_workflow_status WHERE ID='".$ID."'");
+							$DB->Query("DELETE FROM b_workflow_status2group WHERE STATUS_ID='".$ID."'");
 							$DB->Commit();
 						}
 					}

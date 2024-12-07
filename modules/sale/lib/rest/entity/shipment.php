@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest\Entity;
-
 
 use Bitrix\Main\Error;
 use Bitrix\Sale\Rest\Attributes;
@@ -13,165 +11,252 @@ class Shipment extends Base
 	public function getFields()
 	{
 		return [
-			'ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'ORDER_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[
+			'ORDER_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
 					Attributes::Immutable,
-					Attributes::Required
-				]
+					Attributes::Required,
+				],
 			],
-			'STATUS_ID'=>[
-				'TYPE'=>self::TYPE_CHAR
+			'STATUS_ID' => [
+				'TYPE' => self::TYPE_CHAR,
 			],
-			'BASE_PRICE_DELIVERY'=>[
-				'TYPE'=>self::TYPE_FLOAT
+			'BASE_PRICE_DELIVERY' => [
+				'TYPE' => self::TYPE_FLOAT,
 			],
-			'PRICE_DELIVERY'=>[
-				'TYPE'=>self::TYPE_FLOAT
+			'PRICE_DELIVERY' => [
+				'TYPE' => self::TYPE_FLOAT,
 			],
-			'ALLOW_DELIVERY'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::Required]//for builder
+			'ALLOW_DELIVERY' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::Required,
+				],
 			],
-			'DATE_ALLOW_DELIVERY'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_ALLOW_DELIVERY' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EMP_ALLOW_DELIVERY_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'EMP_ALLOW_DELIVERY_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DEDUCTED'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::Required]//for builder
+			'DEDUCTED' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::Required,
+				],
 			],
-			'DATE_DEDUCTED'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_DEDUCTED' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EMP_DEDUCTED_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'EMP_DEDUCTED_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'REASON_UNDO_DEDUCTED'=>[
-				'TYPE'=>self::TYPE_STRING
+			'REASON_UNDO_DEDUCTED' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DELIVERY_ID'=>[
-				'TYPE'=>self::TYPE_INT,
-				'ATTRIBUTES'=>[Attributes::Required]//for builder
+			'DELIVERY_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::Required,
+				],
 			],
-			'DELIVERY_DOC_NUM'=>[
-				'TYPE'=>self::TYPE_STRING
+			'DELIVERY_DOC_NUM' => [
+				'TYPE' => self::TYPE_STRING,
 			],
-			'DELIVERY_DOC_DATE'=>[
-				'TYPE'=>self::TYPE_DATETIME
+			'DELIVERY_DOC_DATE' => [
+				'TYPE' => self::TYPE_DATETIME,
 			],
-			'TRACKING_NUMBER'=>[
-				'TYPE'=>self::TYPE_STRING
+			'TRACKING_NUMBER' => [
+				'TYPE' => self::TYPE_STRING,
 			],
-			'XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING
+			'XML_ID' => [
+				'TYPE' => self::TYPE_STRING,
 			],
-			'DELIVERY_NAME'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DELIVERY_NAME' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'COMPANY_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'COMPANY_ID' => [
+				'TYPE' => self::TYPE_INT,
 			],
 			'MARKED'=>[
-				'TYPE'=>self::TYPE_CHAR
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DATE_MARKED'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_MARKED' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EMP_MARKED_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'EMP_MARKED_ID' => [
+				'TYPE'=>self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'REASON_MARKED'=>[
-				'TYPE'=>self::TYPE_STRING
+			'REASON_MARKED' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'CANCELED'=>[
-				'TYPE'=>self::TYPE_CHAR
+			'CANCELED' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DATE_CANCELED'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_CANCELED' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EMP_CANCELED_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'EMP_CANCELED_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'RESPONSIBLE_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'RESPONSIBLE_ID' => [
+				'TYPE' => self::TYPE_INT,
 			],
-			'DATE_RESPONSIBLE_ID'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_RESPONSIBLE_ID' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EMP_RESPONSIBLE_ID'=>[
-				'TYPE'=>self::TYPE_INT
+			'EMP_RESPONSIBLE_ID' => [
+				'TYPE' => self::TYPE_INT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'COMMENTS'=>[
-				'TYPE'=>self::TYPE_STRING
+			'COMMENTS' => [
+				'TYPE' => self::TYPE_STRING,
 			],
-			'CURRENCY'=>[
-				'TYPE'=>self::TYPE_STRING
+			'CURRENCY' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'CUSTOM_PRICE_DELIVERY'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'CUSTOM_PRICE_DELIVERY' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'UPDATED_1C'=>[
-				'TYPE'=>self::TYPE_CHAR
+			'UPDATED_1C' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'EXTERNAL_DELIVERY'=>[
-				'TYPE'=>self::TYPE_CHAR
+			'EXTERNAL_DELIVERY' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'VERSION_1C'=>[
-				'TYPE'=>self::TYPE_STRING
+			'VERSION_1C' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'ID_1C'=>[
-				'TYPE'=>self::TYPE_STRING
+			'ID_1C' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'TRACKING_STATUS'=>[
-				'TYPE'=>self::TYPE_STRING
+			'TRACKING_STATUS' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'TRACKING_LAST_CHECK'=>[
-				'TYPE'=>self::TYPE_STRING
+			'TRACKING_LAST_CHECK' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'TRACKING_DESCRIPTION'=>[
-				'TYPE'=>self::TYPE_STRING
+			'TRACKING_DESCRIPTION' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DISCOUNT_PRICE'=>[
-				'TYPE'=>self::TYPE_FLOAT,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DISCOUNT_PRICE' => [
+				'TYPE' => self::TYPE_FLOAT,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DATE_INSERT'=>[
-				'TYPE'=>self::TYPE_DATETIME,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DATE_INSERT' => [
+				'TYPE' => self::TYPE_DATETIME,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'SYSTEM'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'SYSTEM' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'STATUS_XML_ID'=>[
-				'TYPE'=>self::TYPE_CHAR,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'STATUS_XML_ID' => [
+				'TYPE' => self::TYPE_CHAR,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'DELIVERY_XML_ID'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'DELIVERY_XML_ID' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'ACCOUNT_NUMBER'=>[
-				'TYPE'=>self::TYPE_STRING,
-				'ATTRIBUTES'=>[Attributes::ReadOnly]
+			'ACCOUNT_NUMBER' => [
+				'TYPE' => self::TYPE_STRING,
+				'ATTRIBUTES' => [
+					Attributes::ReadOnly,
+				],
 			],
-			'SHIPMENT_ITEMS'=>[
-				'TYPE'=>self::TYPE_LIST,
-				'ATTRIBUTES'=>[Attributes::Hidden]
+			'SHIPMENT_ITEMS' => [
+				'TYPE' => self::TYPE_LIST,
+				'ATTRIBUTES' => [
+					Attributes::Hidden,
+				],
 			],
 		];
 	}

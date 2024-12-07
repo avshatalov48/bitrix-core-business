@@ -12,7 +12,6 @@ $res = $http->get("https://export.yandex.ru/bar/reginfo.xml?".$url);
 if($res !== false)
 {
 	$res = str_replace("\xE2\x88\x92", "-", $res);
-	$res = $GLOBALS["APPLICATION"]->ConvertCharset($res, 'UTF-8', SITE_CHARSET);
 
 	$xml = new CDataXML();
 	$xml->LoadString($res);
@@ -42,7 +41,6 @@ if($cache->StartDataCache(60*60*24*7, "gadget_yadex_weather"))
 	$res = $http->get("https://pogoda.yandex.ru/static/cities.xml");
 	if($res !== false)
 	{
-		$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, 'UTF-8', SITE_CHARSET);
 		$xml = new CDataXML();
 		$xml->LoadString($res);
 		$allCities = $xml->GetArray();

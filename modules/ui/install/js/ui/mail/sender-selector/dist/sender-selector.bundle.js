@@ -323,7 +323,7 @@ this.BX.UI = this.BX.UI || {};
 	    id,
 	    tabs: 'recents',
 	    entityId: sender.type === mailboxEntityId ? mailboxEntityId : senderEntityId,
-	    link: '#',
+	    link: href ? '#' : null,
 	    deselectable: false,
 	    linkTitle: main_core.Loc.getMessage('UI_MAIL_SENDER_SLIDER_SELECTOR_ITEM_LINK_TITLE'),
 	    title,

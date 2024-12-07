@@ -92,7 +92,7 @@ class YMap extends Page
 		$assets->addString(
 			'<script src="https://api-maps.yandex.ru/2.1/?apikey='
 			. $code
-			. '&lang=ru_RU&onload=onYandexMapApiLoaded" type="text/javascript"></script>'
+			. '&lang=ru_RU&onload=onYandexMapApiLoaded"></script>'
 		);
 	}
 }

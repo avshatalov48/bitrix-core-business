@@ -1033,10 +1033,15 @@ BX.TreeUserCondCtrlPopup = function(parentContainer, state, arParams)
 			return this.boolResult;
 		}
 
-		//this.coreUserInfo = !(BX.type.isNotEmptyString(arParams.coreUserInfo) && arParams.coreUserInfo === 'N');
-		this.coreUserInfo = (BX.type.isNotEmptyString(arParams.coreUserInfo) && arParams.coreUserInfo === 'Y');
-
-		this.user_load_url = arParams.user_load_url || '';
+		this.coreUserInfo = !(BX.type.isNotEmptyString(arParams.coreUserInfo) && arParams.coreUserInfo === 'N');
+		if (!this.coreUserInfo)
+		{
+			this.user_load_url = arParams.user_load_url || '';
+			if (this.user_load_url === '')
+			{
+				this.coreUserInfo = true;
+			}
+		}
 
 		this.popup_url = arParams.popup_url;
 

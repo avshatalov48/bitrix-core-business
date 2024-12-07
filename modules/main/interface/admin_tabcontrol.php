@@ -3,10 +3,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\Json;
 
 /*Tab Control*/
 class CAdminTabControl
@@ -183,7 +184,7 @@ class CAdminTabControl
 		else
 		{
 			echo '
-<script type="text/javascript">
+<script>
 '.$this->publicObject.'.SetHead(\''.CUtil::JSEscape($tabs_html).'\');
 ';
 			if ($this->AUTOSAVE)
@@ -338,14 +339,14 @@ echo '
 				{
 					echo '
 <input type="hidden" name="bxpublic" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons('.CUtil::PhpToJsObject($aParams['buttons']).');</script>
+<script>'.$this->publicObject.'.SetButtons(' . Json::encode($aParams['buttons']) . ');</script>
 ';
 				}
 				else
 				{
 					echo '
 <input type="hidden" name="bxpublic" value="Y" /><input type="hidden" name="save" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
+<script>'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
 ';
 				}
 			}
@@ -468,7 +469,7 @@ echo '
 			{
 				echo '
 <input type="hidden" name="bxpublic" value="Y" /><input type="hidden" name="save" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
+<script>'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
 ';
 			}
 			elseif (is_array($arJSButtons))
@@ -476,11 +477,11 @@ echo '
 				$arJSButtons = array_values($arJSButtons);
 				echo '
 <input type="hidden" name="bxpublic" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons([
+<script>'.$this->publicObject.'.SetButtons([
 ';
 				foreach ($arJSButtons as $key => $btn)
 				{
-					if (mb_substr($btn, 0, 1) == '.')
+					if (str_starts_with($btn, '.'))
 						$btn = $this->publicObject.$btn;
 					echo $key ? ',' : '', $btn, "\r\n"; // NO JSESCAPE HERE! string must contain valid js object
 				}
@@ -524,7 +525,7 @@ echo '
 
 <input type="hidden" id="'.$this->name.'_active_tab" name="'.$this->name.'_active_tab" value="'.htmlspecialcharsbx($this->selectedTab).'">
 
-<script type="text/javascript">';
+<script>';
 		$s = "";
 		foreach($this->tabs as $tab)
 		{
@@ -546,7 +547,7 @@ echo '
 		echo '
 if (!window.'.$this->name.' || !BX.is_subclass_of(window.'.$this->name.', BX.adminTabControl))
 	window.'.$this->name.' = new BX.adminTabControl("'.$this->name.'", "'.$this->unique_name.
-			'", ['.$s.'], '.CUtil::phpToJsObject($adminTabControlParams).');
+			'", ['.$s.'], ' . Json::encode($adminTabControlParams) . ');
 else if(!!window.'.$this->name.')
 	window.'.$this->name.'.PreInit(true);
 ';
@@ -587,7 +588,7 @@ echo '
 		if ($this->bPublicModeBuffer)
 		{
 			echo '</div>';
-			echo '<script type="text/javascript">BX.ready(function() {'.$this->publicObject.'.SwapContent(\''.$this->publicModeBuffer_id.'\');});</script>';
+			echo '<script>BX.ready(function() {'.$this->publicObject.'.SwapContent(\''.$this->publicModeBuffer_id.'\');});</script>';
 		}
 	}
 

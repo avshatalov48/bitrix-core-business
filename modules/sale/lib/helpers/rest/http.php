@@ -60,7 +60,6 @@ class Http
 			{
 				$response = Json::decode($response);
 				$response = array_change_key_case($response, CASE_UPPER);
-				$response = Main\Text\Encoding::convertEncoding($response, 'UTF-8', LANG_CHARSET);
 			}
 			catch (Main\ArgumentException $exception)
 			{

@@ -313,18 +313,18 @@ class Manager
 			// and add template rules for main
 			if ($siteId)
 			{
-				$fields = array(
+				$fields = [
 					'SORT' => 0,
 					'SITE_ID' => $siteId,
 					'CONDITION' => 'CSite::inDir(\'' . $subDirSite . $basePathOriginal . '\')',
-					'TEMPLATE' => self::getTemplateId($siteId)
-				);
+					'TEMPLATE' => self::getTemplateId($siteId),
+				];
 				$check = \Bitrix\Main\SiteTemplateTable::getList(array(
-					 'filter' => array(
+					 'filter' => [
 						 '=SITE_ID' => $fields['SITE_ID'],
 						 '=CONDITION' => $fields['CONDITION'],
-						 '=TEMPLATE' => $fields['TEMPLATE']
-					 )
+						 '=TEMPLATE' => $fields['TEMPLATE'],
+					 ],
 				 ))->fetch();
 				if (!$check)
 				{
@@ -333,13 +333,12 @@ class Manager
 					);
 					\Bitrix\Main\UrlRewriter::add(
 						$siteId,
-						array(
+						[
 							'ID' => 'bitrix:landing.pub',
 							'PATH' => $subDirSite. $basePathOriginal . 'index.php',
-							'CONDITION' => '#^' . $subDirSite. $basePathOriginal . '#'
-						)
+							'CONDITION' => '#^' . $subDirSite. $basePathOriginal . '#',
+						]
 					);
-					self::getCacheManager()->clean('b_site_template');
 				}
 			}
 		}
@@ -395,9 +394,9 @@ class Manager
 	 */
 	public static function getPublicationPath($siteCode = null, $siteId = null, $createPubPath = false)
 	{
-		$tyePublicationPath = Site\Type::getPublicationPath();
+		$typePublicationPath = Site\Type::getPublicationPath();
 
-		$basePath = $tyePublicationPath;
+		$basePath = $typePublicationPath;
 		if ($basePath === null)
 		{
 			$basePath = self::getOption(
@@ -1113,6 +1112,15 @@ class Manager
 		}
 
 		return $return;
+	}
+
+	/**
+	 * Is b24 portal hosted no cloud (not box)
+	 * @return bool
+	 */
+	public static function isB24Cloud(): bool
+	{
+		return self::isB24() && ModuleManager::isModuleInstalled('bitrix24');
 	}
 
 

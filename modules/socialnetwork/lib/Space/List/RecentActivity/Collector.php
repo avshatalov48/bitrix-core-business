@@ -2,7 +2,10 @@
 
 namespace Bitrix\Socialnetwork\Space\List\RecentActivity;
 
+use Bitrix\Socialnetwork\Integration\Calendar\RecentActivity\CalendarCommentProvider;
+use Bitrix\Socialnetwork\Integration\Tasks\RecentActivity\TaskCommentProvider;
 use Bitrix\Socialnetwork\Integration\Tasks\RecentActivity\TaskProvider;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\LiveFeedCommentProvider;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\LiveFeedProvider;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\MembershipProvider;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\ProviderInterface;
@@ -18,6 +21,9 @@ final class Collector
 			new LiveFeedProvider(),
 			new TaskProvider(),
 			new MembershipProvider(),
+			new LiveFeedCommentProvider(),
+			new CalendarCommentProvider(),
+			new TaskCommentProvider(),
 		];
 	}
 

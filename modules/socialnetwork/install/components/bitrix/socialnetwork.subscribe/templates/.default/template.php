@@ -66,7 +66,7 @@ else
 	if ($arResult["ShowForm"] == "Input")
 	{
 		?>
-		<script language="JavaScript">
+		<script>
 		<!--
 			BX.message({
 				sonetSShowInList: '<?=CUtil::JSEscape(GetMessage('SONET_C3_SHOW_IN_LIST'))?>'
@@ -154,7 +154,7 @@ else
 									?><br><?
 									$arVisibleJS = __GetVisibleJS($arFeature, false);
 
-									?><script language="JavaScript">
+									?><script>
 									<!--
 									<?=$arVisibleJS["strArCheckboxVal"]?>
 									<?=$arVisibleJS["strCheckboxClassName"]?>
@@ -250,7 +250,7 @@ else
 									?><br><?
 									$arVisibleJS = __GetVisibleJS($arFeature, true);
 									?>
-									<script language="JavaScript">
+									<script>
 									<!--
 									<?=$arVisibleJS["strArCheckboxVal"]?>
 									<?=$arVisibleJS["strCheckboxClassName"]?>

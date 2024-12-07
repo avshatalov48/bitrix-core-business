@@ -1,4 +1,4 @@
-<section class="landing-block js-animation g-pt-30 g-pb-30 u-block-border-none">
+<section class="landing-block js-animation g-pt-30 g-pb-30">
 	<div class="landing-block-node-text-container container g-max-width-container">
 		<h2 class="landing-block-node-title js-animation fadeIn g-mb-20">The Creative Team</h2>
 		<div class="landing-block-node-text js-animation g-mb-20 g-pb-1">

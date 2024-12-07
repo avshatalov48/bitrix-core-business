@@ -27,11 +27,7 @@
 ********************************************************************/
 	if (!empty($_REQUEST["photo_filter_reset"]))
 	{
-		if (!empty($_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"]) && file_exists($_SERVER['DOCUMENT_ROOT']."/urlrewrite.php") && check_bitrix_sessid())
-			$url = $_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"];
-		else
-			$url = $APPLICATION->GetCurPageParam("", array("photo_from", "photo_to", "group_photo",
-				"photo_filter_reset", "order", "mode"));
+		$url = $APPLICATION->GetCurPageParam("", array("photo_from", "photo_to", "group_photo", "photo_filter_reset", "order", "mode"));
 		$url = str_replace(array("&group_photo=Y", "&amp;group_photo=Y"), "", $url);
 
 		LocalRedirect($url);

@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Catalog;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/extra.php");
@@ -15,7 +16,7 @@ class CExtra extends CAllExtra
 		$arInsert = $DB->PrepareInsert("b_catalog_extra", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_extra(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		static::ClearCache();
 		Catalog\ExtraTable::cleanCache();
@@ -70,7 +71,7 @@ class CExtra extends CAllExtra
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -99,7 +100,7 @@ class CExtra extends CAllExtra
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -120,7 +121,7 @@ class CExtra extends CAllExtra
 			if ($boolNavStartParams && 0 < $intTopCount)
 				$strSql .= " LIMIT ".$intTopCount;
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 		return $dbRes;
 	}

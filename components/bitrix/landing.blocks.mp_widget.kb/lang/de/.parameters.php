@@ -1,0 +1,10 @@
+<?php
+$MESS["LANDING_WIDGET_KB_PARAM_COLOR_BUTTON_NAME"] = "Farbe der Schaltfläche";
+$MESS["LANDING_WIDGET_KB_PARAM_COLOR_HEADERS_NAME"] = "Farbe der Überschrift";
+$MESS["LANDING_WIDGET_KB_PARAM_SORT_DATE_MODIFY_TO_HIGH"] = "Geändert am, aufsteigend";
+$MESS["LANDING_WIDGET_KB_PARAM_SORT_DATE_MODIFY_TO_LOW"] = "Geändert am, absteigend";
+$MESS["LANDING_WIDGET_KB_PARAM_SORT_NAME"] = "Sortierreihenfolge";
+$MESS["LANDING_WIDGET_KB_PARAM_SORT_VIEWS_TO_HIGH"] = "Angezeigt, aufsteigend";
+$MESS["LANDING_WIDGET_KB_PARAM_SORT_VIEWS_TO_LOW"] = "Angezeigt, absteigend";
+$MESS["LANDING_WIDGET_KB_PARAM_TITLE_NAME"] = "Überschrift";
+$MESS["LANDING_WIDGET_KB_TITLE_DEFAULT_VALUE"] = "Wissensbasen";

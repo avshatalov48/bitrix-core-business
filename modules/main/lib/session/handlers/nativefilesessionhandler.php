@@ -3,7 +3,6 @@
 namespace Bitrix\Main\Session\Handlers;
 
 use Bitrix\Main\ArgumentException;
-use Bitrix\Main\SystemException;
 
 class NativeFileSessionHandler extends \SessionHandler //implements \SessionUpdateTimestampHandlerInterface
 {

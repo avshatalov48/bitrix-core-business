@@ -40,12 +40,12 @@ class CFilemanUtils
 		{
 			$arArcTypes[]	=	array(
 					"id"	=>	$key,
-					"text"	=> 	ToUpper($key)
+					"text"	=> 	mb_strtoupper($key)
 				);
 		}
 
 		?>
-		<script type="text/javascript" src="/bitrix/js/fileman/fileman_utils.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/fileman/fileman_utils.js')?>"></script>
+		<script src="/bitrix/js/fileman/fileman_utils.js?v=<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/fileman/fileman_utils.js')?>"></script>
 
 		<script>
 		<?CFilemanUtils::AppendLangMessages($arLangArray);?>
@@ -649,7 +649,7 @@ CAdminFileDialog::ShowScript(Array
 );
 ?>
 		</div>
-		<script type="text/javascript">
+		<script>
 			function MakeArchivePathFromFolderPath(filename, path, site)
 			{
 				var
@@ -1433,7 +1433,7 @@ class CFilemanSearch
 				$DB->PrepareUpdate("b_file_search", array('F_PATH' => $pathTo)).
 			" WHERE SESS_ID='".$DB->ForSql($searchSess)."' AND F_PATH='".$DB->ForSql($pathFrom)."'";
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function SecureSearchSess($ssess = '')

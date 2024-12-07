@@ -8,6 +8,7 @@ import 'ui.switcher';
 import 'spotlight';
 import { Guide } from 'ui.tour';
 import { Counter } from 'ui.cnt';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 
 export default class SharingButton
 {
@@ -16,18 +17,13 @@ export default class SharingButton
 	PAY_ATTENTION_TO_NEW_FEATURE_FIRST = 'first-feature';
 	PAY_ATTENTION_TO_NEW_FEATURE_NEW = 'new-feature';
 	PAY_ATTENTION_TO_NEW_FEATURE_REMIND = 'remind-feature';
-	PAY_ATTENTION_TO_NEW_FEATURE_JOINT = 'joint-sharing'
+	PAY_ATTENTION_TO_NEW_FEATURE_JOINT = 'joint-sharing';
 
 	PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS = [this.PAY_ATTENTION_TO_NEW_FEATURE_FIRST];
 	PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS = [
 		this.PAY_ATTENTION_TO_NEW_FEATURE_NEW,
 		this.PAY_ATTENTION_TO_NEW_FEATURE_REMIND,
 
-	];
-
-	AVAILABLE_PAY_ATTENTION_TO_NEW_FEATURE_MODS = [
-		...this.PAY_ATTENTION_TO_NEW_FEATURE_WITHOUT_TEXT_MODS,
-		...this.PAY_ATTENTION_TO_NEW_FEATURE_WITH_TEXT_MODS,
 	];
 
 	constructor(options = {})
@@ -81,7 +77,7 @@ export default class SharingButton
 	{
 		if (this.sharingFeatureLimit)
 		{
-			top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+			FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_sharing' }).show();
 
 			return;
 		}
@@ -143,7 +139,7 @@ export default class SharingButton
 	{
 		if (this.sharingFeatureLimit && this.switcher.isChecked())
 		{
-			top.BX.UI.InfoHelper.show('limit_office_calendar_free_slots');
+			FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_sharing' }).show();
 			this.switcher.toggle();
 
 			return;

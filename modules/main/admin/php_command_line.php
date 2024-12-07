@@ -86,7 +86,6 @@ if ($query_count <= 1)
 
 if (isset($_REQUEST["save"]) && check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 	$i = 1;
 	while (isset($_POST["query".$i]))
@@ -115,7 +114,6 @@ if(
 	&& !$remove
 )
 {
-	CUtil::JSPostUnescape();
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
 	if (!empty($_POST['query']) && $isAdmin)
@@ -162,7 +160,6 @@ if(
 	&& (isset($_POST["add"]) || $remove)
 )
 {
-	CUtil::JSPostUnescape();
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 }
 else

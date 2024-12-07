@@ -243,6 +243,7 @@ class ExportPath
 					if ($this->instanceTimer()->hasTimeLimitReached())
 					{
 						$this->seekPhraseCode = $code;
+						break;
 					}
 					else
 					{

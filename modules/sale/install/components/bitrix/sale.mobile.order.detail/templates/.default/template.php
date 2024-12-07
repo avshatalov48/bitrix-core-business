@@ -60,7 +60,7 @@ switch ($arResult["ACTION"])
 			);
 			?>
 
-			<script type="text/javascript">
+			<script>
 				function onTopSwitcherClick(params)
 				{
 					switch(params.selectedId)
@@ -79,7 +79,7 @@ switch ($arResult["ACTION"])
 		<?=CSaleMobileOrderUtils::makeDetailClassFromOrder($arResult["ORDER"]);?>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=(GetMessage('SMOD_ORDER_N').$arResult['ORDER']['ACCOUNT_NUMBER'])?>"});
 

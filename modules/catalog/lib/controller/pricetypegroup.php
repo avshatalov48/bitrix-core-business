@@ -3,14 +3,13 @@
 namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\GroupAccessTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\GroupTable;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 class PriceTypeGroup extends Controller
 {
+	use ListAction; // default listAction realization
 	use PriceTypeRights;
 
 	// region Actions
@@ -20,7 +19,7 @@ class PriceTypeGroup extends Controller
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRICE_TYPE_GROUP' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
@@ -45,24 +44,13 @@ class PriceTypeGroup extends Controller
 			return null;
 		}
 
-		return ['PRICE_TYPE_GROUP' => $this->get($addResult->getId())];
+		return [$this->getServiceItemName() => $this->get($addResult->getId())];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		return new Page(
-			'PRICE_TYPE_GROUPS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
 	 * @param int $id

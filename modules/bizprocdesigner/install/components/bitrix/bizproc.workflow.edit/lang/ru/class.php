@@ -1,5 +1,6 @@
 <?php
 
+$MESS ['BIZPROC_WFEDIT_ERROR_COMPLEX_TYPE'] = "Шаблон не связан с этим типом элемента";
 $MESS ['BIZPROC_WFEDIT_ERROR_TYPE_MSGVER_1'] = "Не указан тип документа.";
 $MESS ['BIZPROC_WFEDIT_DEFAULT_TITLE'] = "Шаблон бизнес-процесса";
 $MESS ['BIZPROC_WFEDIT_SAVE_ERROR'] = "Ошибка сохранения:";

@@ -31,10 +31,7 @@ class DataExport
 		$columnNames = [];
 		$isFirstLinePrinted = false;
 
-		if (defined('BX_UTF') && BX_UTF)
-		{
-			echo chr(239) . chr(187) . chr(191);
-		}
+		echo chr(239) . chr(187) . chr(191);
 
 		foreach ($list as $item)
 		{

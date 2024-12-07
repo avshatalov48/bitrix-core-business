@@ -4,7 +4,7 @@ namespace Bitrix\Main\Text;
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2019 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 class Emoji
 {
@@ -23,12 +23,7 @@ class Emoji
 
 	public static function decode($text)
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return $text;
-		}
-
-		return preg_replace_callback("/:([A-F0-9]{8}):/is".BX_UTF_PCRE_MODIFIER, function ($m)
+		return preg_replace_callback("/:([A-F0-9]{8}):/isu", function ($m)
 		{
 			$result = hex2bin($m[1]);
 
@@ -49,11 +44,6 @@ class Emoji
 	 */
 	public static function replace($text, $callback)
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return $text;
-		}
-
 		return preg_replace_callback(self::$emojiPattern, $callback, $text);
 	}
 

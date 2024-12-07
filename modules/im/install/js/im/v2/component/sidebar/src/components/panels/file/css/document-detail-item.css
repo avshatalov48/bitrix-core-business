@@ -4,6 +4,8 @@
 	--im-sidebar-file-document-detail-item__color_author-title: #a8adb4;
 	--im-sidebar-file-document-detail-item__color_document-title: #2066B0;
 	--im-sidebar-file-document-detail-item__text-decoration-color_title: #a6c2df;
+	--im-sidebar-file-document-detail-item__color_highlight: var(--im-color-palette-black-solid);
+	--im-sidebar-file-document-detail-item__background-color_highlight: #faf16d;
 }
 
 .bx-im-sidebar-file-document-detail-item__container {
@@ -59,6 +61,11 @@
 	text-overflow: ellipsis;
 	overflow: hidden;
 	white-space: nowrap;
+}
+
+.bx-im-sidebar-file-document-detail-item__document-title-text .--highlight {
+	color: var(--im-sidebar-file-document-detail-item__color_highlight);
+	background-color: var(--im-sidebar-file-document-detail-item__background-color_highlight);
 }
 
 .bx-im-sidebar-file-document-detail-item__document-title-text:hover {

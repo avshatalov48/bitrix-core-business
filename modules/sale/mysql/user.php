@@ -28,7 +28,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 				"FROM b_sale_user_account UA ".
 				"WHERE UA.ID = ".$ID." ";
 
-			$dbUserAccount = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbUserAccount = $DB->Query($strSql);
 			if ($arUserAccount = $dbUserAccount->Fetch())
 			{
 				$GLOBALS["SALE_USER_ACCOUNT"]["SALE_USER_ACCOUNT_CACHE_".$ID] = $arUserAccount;
@@ -66,7 +66,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 				"WHERE UA.USER_ID = ".$userID." ".
 				"	AND UA.CURRENCY = '".$DB->ForSql($currency)."' ";
 
-			$dbUserAccount = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbUserAccount = $DB->Query($strSql);
 			if ($arUserAccount = $dbUserAccount->Fetch())
 			{
 				$GLOBALS["SALE_USER_ACCOUNT"]["SALE_USER_ACCOUNT_CACHE_".$userID."_".$currency] = $arUserAccount;
@@ -120,7 +120,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -151,7 +151,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -177,7 +177,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -230,7 +230,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 		}
 
 		$strSql = "INSERT INTO b_sale_user_account(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = (int)$DB->LastID();
 
@@ -293,7 +293,7 @@ class CSaleUserAccount extends CAllSaleUserAccount
 		}
 
 		$strSql = "UPDATE b_sale_user_account SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		unset($GLOBALS["SALE_USER_ACCOUNT"]["SALE_USER_ACCOUNT_CACHE_".$ID]);
 		unset($GLOBALS["SALE_USER_ACCOUNT"]["SALE_USER_ACCOUNT_CACHE_".$arOldUserAccount["USER_ID"]."_".$arOldUserAccount["CURRENCY"]]);

@@ -25,6 +25,11 @@ export class LinkMenu extends SidebarMenu
 
 	getDeleteLinkItem(): ?MenuItem
 	{
+		if (this.context.authorId !== this.getCurrentUserId())
+		{
+			return null;
+		}
+
 		return {
 			text: Loc.getMessage('IM_SIDEBAR_MENU_DELETE_FROM_LINKS'),
 			onclick: function() {

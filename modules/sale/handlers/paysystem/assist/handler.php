@@ -101,14 +101,12 @@ class AssistHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 	private function isCorrectHash(Payment $payment, Request $request)
 	{
 		$hash = md5(
-			ToUpper(
-				md5($this->getBusinessValue($payment, 'ASSIST_SHOP_SECRET_WORLD')).md5(
+			mb_strtoupper(md5($this->getBusinessValue($payment, 'ASSIST_SHOP_SECRET_WORLD')).md5(
 					$this->getBusinessValue($payment, 'ASSIST_SHOP_IDP').$request->get('ordernumber').$request->get('amount').$this->getBusinessValue($payment, 'PAYMENT_CURRENCY').$request->get('orderstate')
-				)
-			)
+				))
 		);
 
-		return (ToUpper($hash) == ToUpper($request->get('checkvalue')));
+		return (mb_strtoupper($hash) == mb_strtoupper($request->get('checkvalue')));
 	}
 
 	/**
@@ -184,8 +182,8 @@ class AssistHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 				array(
 					"PS_STATUS" => $psStatus,
 					"PS_STATUS_CODE" => mb_substr($status, 0, 5),
-					"PS_STATUS_DESCRIPTION" => Loc::getMessage('SALE_PS_DESCRIPTION_'.ToUpper($status)),
-					"PS_STATUS_MESSAGE" => Loc::getMessage('SALE_PS_MESSAGE_'.ToUpper($status)),
+					"PS_STATUS_DESCRIPTION" => Loc::getMessage('SALE_PS_DESCRIPTION_'.mb_strtoupper($status)),
+					"PS_STATUS_MESSAGE" => Loc::getMessage('SALE_PS_MESSAGE_'.mb_strtoupper($status)),
 					"PS_SUM" => $request->get('orderamount'),
 					"PS_CURRENCY" => $request->get('ordercurrency'),
 					"PS_INVOICE_ID" => $request->get('billnumber'),
@@ -302,17 +300,17 @@ class AssistHandler extends PaySystem\ServiceHandler implements PaySystem\IRefun
 				$orderData = $data['result']['#']['order'][0]['#'];
 				if ((int)$orderData['ordernumber'][0]['#'] == $this->getBusinessValue($payment, 'PAYMENT_ID'))
 				{
-					$check = ToUpper(md5(ToUpper(md5($this->getBusinessValue($payment, 'ASSIST_SHOP_SECRET_WORLD')).md5($this->getBusinessValue($payment, 'ASSIST_SHOP_IDP').$orderData['ordernumber'][0]['#'].$orderData['orderamount'][0]['#'].$orderData['ordercurrency'][0]['#'].$orderData['orderstate'][0]['#']))));
+					$check = mb_strtoupper(md5(ToUpper(md5($this->getBusinessValue($payment, 'ASSIST_SHOP_SECRET_WORLD')).md5($this->getBusinessValue($payment, 'ASSIST_SHOP_IDP').$orderData['ordernumber'][0]['#'].$orderData['orderamount'][0]['#'].$orderData['ordercurrency'][0]['#'].$orderData['orderstate'][0]['#']))));
 
-					if (ToUpper($orderData['checkvalue'][0]['#']) == $check)
+					if (mb_strtoupper($orderData['checkvalue'][0]['#']) == $check)
 					{
 						$status = str_replace(' ', '', $orderData['orderstate'][0]['#']);
 
 						$psData = array(
 							'PS_STATUS' => ($orderData['orderstate'][0]['#'] == 'Approved' ? 'Y' : 'N'),
 							'PS_STATUS_CODE' => mb_substr($orderData['orderstate'][0]['#'], 0, 5),
-							'PS_STATUS_DESCRIPTION' => Loc::getMessage('SALE_PS_DESCRIPTION_'.ToUpper($status)),
-							'PS_STATUS_MESSAGE' => Loc::getMessage('SALE_PS_MESSAGE_'.ToUpper($status)),
+							'PS_STATUS_DESCRIPTION' => Loc::getMessage('SALE_PS_DESCRIPTION_'.mb_strtoupper($status)),
+							'PS_STATUS_MESSAGE' => Loc::getMessage('SALE_PS_MESSAGE_'.mb_strtoupper($status)),
 							'PS_SUM' => DoubleVal($orderData['orderamount'][0]['#']),
 							'PS_CURRENCY' => $orderData['ordercurrency'][0]['#'],
 							'PS_RESPONSE_DATE' => new DateTime(),

@@ -1094,6 +1094,9 @@ function CatalogBasketCancelCallback($PRODUCT_ID, $QUANTITY, $bCancel)
 }
 
 /**
+ * @deprecated deprecated since catalog 17.5.9
+ * It strictly doesn't recommend to use.
+ *
  * @param int $PRICE_ID
  * @param float|int $QUANTITY
  * @param array $arRewriteFields
@@ -1525,6 +1528,9 @@ function Add2BasketByProductID($productId, $quantity = 1, $rewriteFields = array
 }
 
 /**
+ * @deprecated deprecated since catalog 16.5.0
+ * @see catalog.product.subscribe
+ *
  * @param int $intProductID
  * @param array $arRewriteFields
  * @param array $arProductParams
@@ -1755,7 +1761,7 @@ function SubscribeProduct($intProductID, $arRewriteFields = array(), $arProductP
 		if (!isset($_SESSION['NOTIFY_PRODUCT']))
 		{
 			$_SESSION['NOTIFY_PRODUCT'] = array(
-				$intUserID = array(),
+				$intUserID => array(),
 			);
 		}
 		elseif (!isset($_SESSION['NOTIFY_PRODUCT'][$intUserID]))

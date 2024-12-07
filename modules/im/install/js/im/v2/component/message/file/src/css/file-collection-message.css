@@ -1,0 +1,19 @@
+.bx-im-message-file-collection__container {
+	position: relative;
+	padding: 8px 12px 6px;
+	max-width: 285px;
+}
+
+.bx-im-message-file-collection__author-title {
+	padding-bottom: 6px;
+}
+
+.bx-im-message-file-collection__items {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+
+.bx-im-message-file-collection__default-content {
+	margin-top: 16px;
+}

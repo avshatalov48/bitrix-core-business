@@ -1,4 +1,5 @@
-<?global $DOCUMENT_ROOT, $MESS;
+<?php
+
 if (!function_exists("CreatePattern"))
 {
 	function CreatePattern($pattern="", $DICTIONARY_ID=0)
@@ -23,7 +24,7 @@ if (!function_exists("CreatePattern"))
 			"SELECT ID, LETTER, REPLACEMENT, DICTIONARY_ID
 			FROM b_forum_letter
 			WHERE DICTIONARY_ID=".intval($DICTIONARY_ID);
-		$letters = $GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$letters = $GLOBALS["DB"]->Query($strSql);
 		$lettPatt = array();
 		$lettersPatt = array();
 		while ($lett = $letters->Fetch())
@@ -117,7 +118,7 @@ if (!function_exists("GenPatternAll"))
 				"SELECT FM.ID, FM.DICTIONARY_ID, FM.WORDS, FM.PATTERN, FM.REPLACEMENT, FM.DESCRIPTION,  FM.USE_IT, FM.PATTERN_CREATE ".
 				"FROM b_forum_filter FM ".
 				"WHERE FM.DICTIONARY_ID=".intval($DICTIONARY_ID_W);
-			$db_res = $GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $GLOBALS["DB"]->Query($strSql);
 			while ($res = $db_res->Fetch())
 			{
 				if ((trim($res["WORDS"]) <> '') && ($res["PATTERN_CREATE"] == "TRNSL")):
@@ -126,7 +127,7 @@ if (!function_exists("GenPatternAll"))
 					{
 						$strUpdate = $GLOBALS["DB"]->PrepareUpdate("b_forum_filter", array("PATTERN"=>$pattern));
 						$strSql = "UPDATE b_forum_filter SET ".$strUpdate." WHERE ID=".$res["ID"];
-						$GLOBALS["DB"]->QueryBind($strSql, Array("PATTERN"=>$pattern), false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+						$GLOBALS["DB"]->QueryBind($strSql, Array("PATTERN"=>$pattern));
 					}
 				endif;
 			}
@@ -376,17 +377,15 @@ class forum extends CModule
 	function UnInstallEvents()
 	{
 		$GLOBALS["DB"]->Query(
-			"DELETE FROM b_event_type WHERE EVENT_NAME IN ('NEW_FORUM_MESSAGE','EDIT_FORUM_MESSAGE','NEW_FORUM_PRIV','NEW_FORUM_PRIVATE_MESSAGE') ", 
-			false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			"DELETE FROM b_event_type WHERE EVENT_NAME IN ('NEW_FORUM_MESSAGE','EDIT_FORUM_MESSAGE','NEW_FORUM_PRIV','NEW_FORUM_PRIVATE_MESSAGE') ");
 		$GLOBALS["DB"]->Query(
-			"DELETE FROM b_event_message WHERE EVENT_NAME IN ('NEW_FORUM_MESSAGE','EDIT_FORUM_MESSAGE','NEW_FORUM_PRIV','NEW_FORUM_PRIVATE_MESSAGE') ", 
-			false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			"DELETE FROM b_event_message WHERE EVENT_NAME IN ('NEW_FORUM_MESSAGE','EDIT_FORUM_MESSAGE','NEW_FORUM_PRIV','NEW_FORUM_PRIVATE_MESSAGE') ");
 		return true;
 	}
 
 	function InstallFiles()
 	{
-		if($_SERVER["DevServer"] != "Y" && $_ENV["COMPUTERNAME"]!="BX")
+		if($_SERVER["DevServer"] != "Y")
 		{
 			CheckDirPath($_SERVER["DOCUMENT_ROOT"]."/bitrix/images/forum/", true, true);
 			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/forum", true, true);
@@ -401,7 +400,7 @@ class forum extends CModule
 
 	function UnInstallFiles()
 	{
-		if($_SERVER["DevServer"] != "Y" && $_ENV["COMPUTERNAME"]!="BX")
+		if($_SERVER["DevServer"] != "Y")
 		{
 			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/forum/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
 			DeleteDirFiles(
@@ -605,4 +604,3 @@ class forum extends CModule
 		}
 	}
 }
-?>

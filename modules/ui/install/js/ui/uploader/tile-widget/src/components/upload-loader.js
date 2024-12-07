@@ -67,5 +67,5 @@ export const UploadLoader: BitrixVueComponentProps = {
 			this.loader.update(this.progress);
 		},
 	},
-	template: `<span ref="container"></span>`
+	template: '<span ref="container"></span>',
 };

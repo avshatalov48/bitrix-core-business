@@ -1,7 +1,6 @@
 <?php
 $MESS["TOOLS_DN"] = "дн.";
 $MESS["TOOLS_DAYS"] = "дней";
-$MESS["TOOLS_CALENDAR"] = "Календарь";
 $MESS["TOOLS_HELP"] = "Помощь";
 $MESS["MAIN_QUOTE"] = "Цитата";
 $MESS["MAIN_QUOTE_S"] = "цитата";
@@ -273,14 +272,14 @@ $MESS["COUNTRY_236"] = "Черногория";
 $MESS["MAIN_MAILTO"] = "Написать письмо";
 $MESS["MAIN_F_TIMESTAMP"] = "Дата изменения";
 $MESS["AJAX_WAIT"] = "Загрузка...";
-$MESS["TOOLS_TRIAL_EXP"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>.";
+$MESS["TOOLS_TRIAL_EXP"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"https://www.1c-bitrix.ru/\">www.1c-bitrix.ru</a>.";
 $MESS["expire_mess1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">
 		Срок работы пробной версии продукта истек.
 		Через две недели этот сайт полностью прекратит свою работу.
-		Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expiried\">www.1c-bitrix.ru</a>.
+		Вы можете купить полнофункциональную версию продукта на сайте <a href=\"https://www.1c-bitrix.ru/\">www.1c-bitrix.ru</a>.
 		</font></font>";
-$MESS["expire_mess2"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>. <a href=\"/bitrix/coupon_activation.php?lang=ru\">Регистрация</a>.";
-$MESS["expire_mess3"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"http://www.1c-bitrix.ru/?r1=bsm7trial&amp;r2=expired\">www.1c-bitrix.ru</a>.";
+$MESS["expire_mess2"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"https://www.1c-bitrix.ru/\">www.1c-bitrix.ru</a>. <a href=\"/bitrix/coupon_activation.php?lang=ru\">Регистрация</a>.";
+$MESS["expire_mess3"] = "Срок работы пробной версии продукта истек. Вы можете купить полнофункциональную версию продукта на сайте <a href=\"https://www.1c-bitrix.ru/\">www.1c-bitrix.ru</a>.";
 $MESS["main_tools_menu_left"] = "Меню раздела";
 $MESS["main_tools_menu_top"] = "Главное меню";
 $MESS["MONTH_1"] = "Январь";
@@ -429,6 +428,6 @@ $MESS["FD_YEARS_SHORT_MOD_OTHER"] = "#VALUE#л";
 $MESS["CAL_BUTTON"] = "Выбрать";
 $MESS["CAL_TIME_SET"] = "Установить время";
 $MESS["CAL_TIME"] = "Время";
-$MESS["expire_mess_timelicense1"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">Срок действия текущей лицензии закончился. Через две недели этот сайт полностью прекратит свою работу. Срочно свяжитесь с <a href=\"http://www.1c-bitrix.ru/\">отделом по работе с ключевыми клиентами компании 1С-Битрикс</a> для приобретения лицензии на следующий год.</font></font>";
+$MESS["expire_mess_timelicense2"] = "<font class=\"tablebodytext\"><font color=\"#FF0000\">Срок действия текущей лицензии закончился. Через две недели этот сайт полностью прекратит свою работу. <a href=\"#LINK#\">Необходимо продлить лицензию.</a></font></font>";
 $MESS["YEAR_PATTERN"] = "";
 $MESS["DOM_PATTERN"] = "";

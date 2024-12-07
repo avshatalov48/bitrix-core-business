@@ -183,6 +183,14 @@ class PgsqlSqlHelper extends SqlHelper
 	/**
 	 * @inheritdoc
 	 */
+	public function getIlikeOperator($field, $value)
+	{
+		return $field . ' ILIKE ' . $value;
+	}
+
+	/**
+	 * @inheritdoc
+	 */
 	public function getConcatFunction()
 	{
 		return implode(" || ", func_get_args());
@@ -527,8 +535,8 @@ class PgsqlSqlHelper extends SqlHelper
 		$update = $this->prepareUpdate($tableName, $updateFields);
 
 		if (
-			$insert && $insert[0] != "" && $insert[1] != ""
-			&& $update
+			!empty($insert[0]) && !empty($insert[1])
+			&& !empty($update[0])
 			&& $primaryFields
 		)
 		{

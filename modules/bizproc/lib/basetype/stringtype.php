@@ -79,7 +79,7 @@ class StringType extends Base
 					{
 						$value = date(
 							Main\Type\Date::convertFormatToPhp($format),
-							\CBPHelper::makeTimestamp($value, $format)
+							\CBPHelper::makeTimestamp($value)
 						);
 					}
 					else

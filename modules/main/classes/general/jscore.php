@@ -4,6 +4,7 @@ use Bitrix\Main;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\Page\AssetLocation;
 use Bitrix\Main\UI\Extension;
+use Bitrix\Main\Web\Json;
 
 class CJSCore
 {
@@ -110,7 +111,7 @@ class CJSCore
 			$includes = '';
 			if (is_array($config['includes']))
             {
-                foreach ($config['includes'] as $key => $item)
+                foreach ($config['includes'] as $item)
                 {
 					self::markExtensionLoaded($item);
                 }
@@ -167,14 +168,14 @@ class CJSCore
         {
             $result = '';
 
-            if (isset($assets['js']) && is_array($assets['js']) && !empty($assets['js']))
+            if (!empty($assets['js']) && is_array($assets['js']))
             {
-                $result .= "BX.setJSList(".CUtil::phpToJSObject($assets['js']).");\n";
+                $result .= "BX.setJSList(".Json::encode($assets['js']).");\n";
             }
 
-			if (isset($assets['css']) && is_array($assets['css']) && !empty($assets['css']))
+			if (!empty($assets['css']) && is_array($assets['css']))
 			{
-				$result .= "BX.setCSSList(".CUtil::phpToJSObject($assets['css']).");";
+				$result .= "BX.setCSSList(".Json::encode($assets['css']).");";
 			}
 
             return '<script>'.$result.'</script>';
@@ -231,7 +232,7 @@ class CJSCore
 			"FORMAT_DATETIME" => FORMAT_DATETIME,
 			"COOKIE_PREFIX" => COption::GetOptionString("main", "cookie_name", "BITRIX_SM"),
 			"SERVER_TZ_OFFSET" => date("Z"),
-			"UTF_MODE" => Main\Application::isUtfMode()? 'Y': 'N',
+			"UTF_MODE" => 'Y',
 		);
 
 		if (!defined("ADMIN_SECTION") || ADMIN_SECTION !== true)
@@ -276,7 +277,7 @@ class CJSCore
 
 	/**
 	 *
-	 * When all of scripts are moved to the body, we need this code to add special classes (bx-chrome, bx-ie...) to <html> tag.
+	 * When all scripts are moved to the body, we need this code to add special classes (bx-chrome, bx-ie...) to <html> tag.
 	 * @return string
 	 */
 	public static function GetInlineCoreJs()
@@ -320,7 +321,6 @@ class CJSCore
 				? " bx-retina"
 				: " bx-no-retina";
 
-			var ieVersion = -1;
 			if (/AppleWebKit/.test(ua))
 			{
 				cl += " bx-chrome";
@@ -338,7 +338,7 @@ class CJSCore
 
 		})(window, document, navigator);
 JS;
-		return '<script type="text/javascript" data-skip-moving="true">'.str_replace(array("\n", "\t"), "", $js)."</script>";
+		return '<script data-skip-moving="true">'.str_replace(array("\n", "\t"), "", $js)."</script>";
 	}
 
 	public static function GetScriptsList()
@@ -500,7 +500,7 @@ JS;
                 }
             }
 
-            $jsOptions = \CUtil::phpToJSObject($options);
+            $jsOptions = Json::encode($options);
             $result = '<script>BX.Runtime.registerExtension(' . $jsOptions . ');</script>';
 
             if ($bReturn)
@@ -530,7 +530,7 @@ JS;
 			$arJSParams['accuracy'] = intval($params['accuracy']).'000';
 
 		$res = '<span id="'.htmlspecialcharsbx($id).'"></span>';
-		$res .= '<script type="text/javascript">BX.timer(\''.CUtil::JSEscape($id).'\', '.CUtil::PhpToJSObject($arJSParams).')</script>';
+		$res .= '<script>BX.timer(\''.CUtil::JSEscape($id).'\', '.Json::encode($arJSParams).')</script>';
 
 		return $res;
 	}
@@ -599,14 +599,14 @@ JS;
 				$messLang = \Bitrix\Main\Localization\Loc::loadLanguageFile($_SERVER['DOCUMENT_ROOT'].$path);
 				if (!empty($messLang))
 				{
-					$jsMsg .= '(window.BX||top.BX).message('.CUtil::PhpToJSObject($messLang, false).');';
+					$jsMsg .= '(window.BX||top.BX).message('.Json::encode($messLang).');';
 				}
 			}
 		}
 
 		if (is_array($arAdditionalMess))
 		{
-			$jsMsg = '(window.BX||top.BX).message('.CUtil::PhpToJSObject($arAdditionalMess, false).');'.$jsMsg;
+			$jsMsg = '(window.BX||top.BX).message('.Json::encode($arAdditionalMess).');'.$jsMsg;
 		}
 
 		if ($jsMsg !== '')

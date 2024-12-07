@@ -41,6 +41,11 @@ class ProductModel
 		const settings = Extension.getSettings('catalog.product-model');
 		this.#productRights = settings.get('catalogProductRights');
 
+		if (settings.get('isExternalCatalog'))
+		{
+			this.setOption('isSaveable', false);
+		}
+
 		if (Type.isObject(options.fields))
 		{
 			this.initFields(options.fields, false);

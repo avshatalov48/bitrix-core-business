@@ -368,7 +368,7 @@ class Event extends \IRestService
 		}
 		elseif($eventCallback == '')
 		{
-			throw new ArgumentNullException("HANDLER");
+			throw new Exceptions\ArgumentNullException('HANDLER');
 		}
 
 		$clientInfo = AppTable::getByClientId($server->getClientId());

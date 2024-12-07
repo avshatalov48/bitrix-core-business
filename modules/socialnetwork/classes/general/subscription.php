@@ -424,15 +424,19 @@ class CAllSocNetSubscription
 			$groupUrl = $serverName.$arTmp["URLS"]["GROUP_URL"];
 
 			$group_name = (array_key_exists($arUser["GROUP_ID"], $arGroups) ? $arGroups[$arUser["GROUP_ID"]]["NAME"] : "");
-			$arMessageFields["NOTIFY_MESSAGE"] = str_replace(
+
+			$message = $arFields["MESSAGE"] ?? '';
+			$messageOut = $arFields["MESSAGE_OUT"] ?? '';
+
+			$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) => str_replace(
 				array("#URL#", "#url#", "#group_name#", "#GROUP_ID#", "#group_id#"),
 				array($url, $url, "<a href=\"".$groupUrl."\" class=\"bx-notifier-item-action\">".$group_name."</a>", $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
-				$arFields["MESSAGE"] ?? ''
+				is_callable($message) ? $message($languageId) : $message
 			);
-			$arMessageFields["NOTIFY_MESSAGE_OUT"] = str_replace(
+			$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) => str_replace(
 				array("#URL#", "#url#", "#group_name#"),
 				array($serverName.$url, $serverName.$url, $group_name),
-				$arFields["MESSAGE_OUT"] ?? ''
+				is_callable($messageOut) ? $messageOut($languageId) : $messageOut
 			);
 
 			$arMessageFields["PUSH_PARAMS"] = array(
@@ -440,7 +444,7 @@ class CAllSocNetSubscription
 				"TAG" => $arMessageFields["NOTIFY_TAG"]
 			);
 
-			if (intval($arFields["FROM_USER_ID"] ?? null) > 0)
+			if ((int)($arFields["FROM_USER_ID"] ?? null) > 0)
 			{
 				$dbAuthor = CUser::getByID($arFields["FROM_USER_ID"]);
 				if($arAuthor = $dbAuthor->fetch())
@@ -479,16 +483,16 @@ class CAllSocNetSubscription
 				$arMessageFields["PUSH_PARAMS"]["ADVANCED_PARAMS"]["avatarUrl"] = $authorAvatarUrl;
 			}
 
-			$arMessageFields["PUSH_MESSAGE"] = str_replace(
+			$arMessageFields["PUSH_MESSAGE"] = fn (?string $languageId = null) => str_replace(
 				array("[URL=#URL#]", "[URL=#url#]", "[/URL]", "#group_name#", "#GROUP_ID#", "#group_id#"),
 				array('', '', '', $group_name, $arUser["GROUP_ID"], $arUser["GROUP_ID"]),
-				$arFields["MESSAGE"] ?? ''
+				is_callable($message) ? $message($languageId) : $message
 			);
 
 			$arMessageFields2Send = $arMessageFields;
 			if (
 				!is_set($arMessageFields2Send["FROM_USER_ID"])
-				|| intval($arMessageFields2Send["FROM_USER_ID"]) <= 0
+				|| (int)$arMessageFields2Send["FROM_USER_ID"] <= 0
 			)
 			{
 				$arMessageFields2Send["NOTIFY_TYPE"] = IM_NOTIFY_SYSTEM;

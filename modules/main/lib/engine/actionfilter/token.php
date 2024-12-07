@@ -6,7 +6,6 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Error;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
-use Bitrix\Main\Engine\ActionFilter\Service;
 
 class Token extends Base
 {

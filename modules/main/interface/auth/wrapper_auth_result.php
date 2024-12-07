@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 {
 	die();
@@ -35,14 +38,14 @@ if (is_string($arAuthResult['MESSAGE']))
 
 if ($bOnHit):
 ?>
-<script type="text/javascript">
-BX.ready(function(){BX.defer(BX.adminLogin.setAuthResult, BX.adminLogin)(<?=CUtil::PhpToJsObject($arAuthResult)?>);});
+<script>
+BX.ready(function(){BX.defer(BX.adminLogin.setAuthResult, BX.adminLogin)(<?= Json::encode($arAuthResult) ?>);});
 </script>
 <?
 else:
 ?>
-<script type="text/javascript" bxrunfirst="true">
-top.BX.adminLogin.setAuthResult(<?=CUtil::PhpToJsObject($arAuthResult)?>);
+<script bxrunfirst="true">
+top.BX.adminLogin.setAuthResult(<?= Json::encode($arAuthResult) ?>);
 </script>
 <?
 endif;

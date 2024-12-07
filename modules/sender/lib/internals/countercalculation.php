@@ -76,10 +76,10 @@ class CounterCalculation
 	{
 		if(self::$startTime === null)
 		{
-			self::$startTime = getmicrotime();
+			self::$startTime = microtime(true);
 		}
 
-		if(self::$maxExecutionTime > 0 && (getmicrotime() - self::$startTime) > self::$maxExecutionTime)
+		if(self::$maxExecutionTime > 0 && (microtime(true) - self::$startTime) > self::$maxExecutionTime)
 		{
 			return true;
 		}
@@ -97,7 +97,7 @@ class CounterCalculation
 		}
 		else
 		{
-			return getmicrotime() - self::$startTime;
+			return microtime(true) - self::$startTime;
 		}
 	}
 

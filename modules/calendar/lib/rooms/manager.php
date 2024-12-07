@@ -2,7 +2,7 @@
 
 namespace Bitrix\Calendar\Rooms;
 
-use Bitrix\Main\Application;
+use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
 use Bitrix\Calendar\Internals\AccessTable;
 use Bitrix\Calendar\Internals\EventTable;
@@ -12,7 +12,9 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Calendar\UserSettings;
 use Bitrix\Main\Entity\ReferenceField;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\ORM\Query;
+use Bitrix\Main\SystemException;
 use Bitrix\Main\Text\Emoji;
 
 Loc::loadMessages(__FILE__);
@@ -460,27 +462,32 @@ class Manager
 	 *
 	 * Setting id of new event in user calendar
 	 * for event in location calendar
-	 *
+	 * @param string|null $location
 	 * @return void
-	 * @throws \Bitrix\Main\ArgumentException
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
+	 * @throws ArgumentException
+	 * @throws ObjectPropertyException
+	 * @throws SystemException
 	 */
-	public static function setEventIdForLocation(int $id): void
+	public static function setEventIdForLocation(int $id, ?string $location = null): void
 	{
-		$event = EventTable::query()
-			->setSelect(['LOCATION'])
-			->where('ID', $id)
-			->exec()->fetch()
-		;
-
-		if (!empty($event['LOCATION']))
+		if (empty($location))
 		{
-			$location = Util::parseLocation($event['LOCATION']);
-			if ($location['room_id'] && $location['room_event_id'])
+			$event = EventTable::query()
+				->setSelect(['LOCATION'])
+				->where('ID', $id)
+				->exec()->fetch()
+			;
+
+			$location = $event['LOCATION'] ?? null;
+		}
+
+		if (!empty($location))
+		{
+			$parsedLocation = Util::parseLocation($location);
+			if ($parsedLocation['room_id'] && $parsedLocation['room_event_id'])
 			{
-				EventTable::update($location['room_event_id'], [
-						'PARENT_ID' => $id,
+				EventTable::update($parsedLocation['room_event_id'], [
+					'PARENT_ID' => $id,
 				]);
 			}
 		}
@@ -531,6 +538,7 @@ class Manager
 			'CAL_TYPE' => self::TYPE,
 			'OWNER_ID' => 0,
 			'ADDITIONAL_IDS' => $followedSectionList,
+			'getPermissions' => false,
 		]);
 		$sectionList = array_merge($sectionList, \CCalendar::getSectionListAvailableForUser($userId));
 
@@ -657,36 +665,36 @@ class Manager
 		{
 			return $this;
 		}
-		
+
 		$guestsId = [];
 		$eventsId = [];
 		$id = $this->room->getId();
 		$locationName = $this->room->getName();
 		$locationId = 'calendar_' . $id;
-		
+
 		$events = EventTable::query()
 			->setSelect(['ID', 'PARENT_ID', 'OWNER_ID', 'CREATED_BY', 'LOCATION'])
 			->whereLike('LOCATION', $locationId. '%')
 			->exec()
 		;
-		
+
 		while ($event = $events->fetch())
 		{
 			if ($event['ID'] === $event['PARENT_ID'])
 			{
 				$guestsId[] = $event['OWNER_ID'];
 			}
-			
+
 			$eventsId[] = $event['ID'];
 		}
-		
+
 		if (!empty($eventsId))
 		{
 			EventTable::updateMulti($eventsId, ['LOCATION' => '']);
-			
+
 			$guestsId = array_unique($guestsId);
 			$userId = \CCalendar::GetCurUserId();
-			
+
 			foreach ($guestsId as $guestId)
 			{
 				\CCalendarNotify::Send([

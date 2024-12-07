@@ -179,9 +179,9 @@ class UrlPreviewUserType
 	public static function onBeforeSave($userField, $value)
 	{
 		$imageUrl = null;
-		if(strpos($value, ';') !== false)
+		if(str_contains($value, ';'))
 		{
-			list($value, $imageUrl) = explode(';', $value);
+			[$value, $imageUrl] = explode(';', $value);
 		}
 
 		$signer = new Signer();

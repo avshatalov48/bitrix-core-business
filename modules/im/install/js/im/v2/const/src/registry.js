@@ -2,14 +2,14 @@ export { RestMethod } from './rest';
 export { EventType } from './events';
 export { ChatType, DialogBlockType, DialogScrollThreshold, DialogAlignment } from './chat';
 export { FileStatus, FileType, FileIconType } from './file';
-export { MessageType, MessageComponent, MessageMentionType, MessageStatus, OwnMessageStatus, FakeMessagePrefix } from './message';
+export { MessageType, MessageComponent, MessageMentionType, MessageStatus, OwnMessageStatus, FakeMessagePrefix, FakeDraftMessagePrefix } from './message';
 export { RecentCallStatus } from './recent';
 export { NotificationTypesCodes, NotificationSettingsMode } from './notification';
 export { Layout } from './layout';
 export { SearchEntityIdTypes } from './search-result';
 export { UserStatus, UserExternalType, UserRole, UserIdNetworkPrefix } from './user';
 export { SidebarDetailBlock, SidebarFileTabTypes, SidebarFileTypes } from './sidebar';
-export { Color } from './color';
+export { Color, ColorToken } from './color';
 export { AttachType, AttachDescription } from './attach';
 export { KeyboardButtonType, KeyboardButtonAction, KeyboardButtonDisplay, KeyboardButtonContext } from './keyboard';
 export { DesktopBxLink, LegacyDesktopBxLink } from './desktop';
@@ -23,9 +23,10 @@ export { ChatActionType, ChatActionGroup } from './chat-action';
 export { BotType, RawBotType, BotCode, BotCommand } from './bot';
 export { PathPlaceholder } from './path';
 export { GetParameter } from './get-params';
-export { CallViewState } from './call';
 export { TextareaPanelType } from './textarea';
 export { ChatEntityLinkType } from './chat-entity-link';
+export { MultidialogStatus } from './multidialog';
+export { SliderCode } from './slider-code';
 
 export type {
 	OnLayoutChangeEvent,

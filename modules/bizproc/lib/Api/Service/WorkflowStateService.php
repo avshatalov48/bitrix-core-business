@@ -3,6 +3,7 @@
 namespace Bitrix\Bizproc\Api\Service;
 
 use Bitrix\Bizproc\Api\Data\WorkflowStateService\WorkflowStateToGet;
+use Bitrix\Bizproc\Api\Request\WorkflowAccessService\CanViewTimelineRequest;
 use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetAverageWorkflowDurationRequest;
 use Bitrix\Bizproc\Api\Request\WorkflowStateService\GetTimelineRequest;
 use Bitrix\Bizproc\Api\Response\Error;
@@ -34,6 +35,7 @@ class WorkflowStateService
 
 		$query = WorkflowUserTable::query()
 			->addSelect('WORKFLOW_ID')
+			->addSelect('MODIFIED')
 			->setFilter($toGet->getOrmFilter())
 			->setOrder($toGet->getOrder())
 			->setLimit($toGet->getLimit())
@@ -55,6 +57,8 @@ class WorkflowStateService
 		}
 		$workflowStates = $queryResult->fetchAll();
 		$ids = array_column($workflowStates, 'WORKFLOW_ID');
+		$mods = array_column($workflowStates, 'MODIFIED');
+
 		if ($ids)
 		{
 			$query = WorkflowStateTable::query()->setSelect($toGet->getSelect());
@@ -69,12 +73,13 @@ class WorkflowStateService
 
 			$collection = $query->exec()->fetchCollection();
 
-			foreach ($ids as $id)
+			foreach ($ids as $k => $id)
 			{
 				$workflowState = $collection->getByPrimary($id);
 				if ($workflowState)
 				{
 					$responseCollection->add($workflowState);
+					$response->setUserModified($id, $mods[$k]);
 					$workflowTasks = $this->getWorkflowTasks($workflowState, $toGet);
 					if (isset($workflowTasks))
 					{
@@ -184,6 +189,7 @@ class WorkflowStateService
 					'ID' => $stateElement->getStartedBy(),
 				],
 				'TASKS_INFO' => $tasksInfo,
+				'WORKFLOW_TEMPLATE_ID' => $stateElement->getWorkflowTemplateId(),
 				'TEMPLATE_NAME' => $stateElement->getTemplate()?->getName(),
 				'META' => $stateElement->getMeta()?->collectValues() ?? [],
 			];
@@ -200,6 +206,25 @@ class WorkflowStateService
 
 	public function getTimeline(GetTimelineRequest $request): GetTimelineResponse
 	{
+		if (!$request->workflowId)
+		{
+			return GetTimelineResponse::createError(Error::fromCode(Error::WORKFLOW_NOT_FOUND));
+		}
+
+		$isAdmin = (new \CBPWorkflowTemplateUser($request->userId))->isAdmin();
+
+		if (!$isAdmin)
+		{
+			$accessService = new WorkflowAccessService();
+			$accessRequest = new CanViewTimelineRequest(workflowId: $request->workflowId, userId: $request->userId);
+
+			$accessResponse = $accessService->canViewTimeline($accessRequest);
+			if (!$accessResponse->isSuccess())
+			{
+				return (new GetTimelineResponse())->addErrors($accessResponse->getErrors());
+			}
+		}
+
 		$timeline = Timeline::createByWorkflowId($request->workflowId);
 
 		if (!$timeline)

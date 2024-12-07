@@ -1,0 +1,5 @@
+<?php
+
+$MESS['CALENDAR_OPEN_EVENTS_ALL_EVENTS'] = 'Все события';
+$MESS['CALENDAR_OPEN_EVENTS_DEFAULT_CATEGORY_NAME'] = 'События компании';
+$MESS['CALENDAR_OPEN_EVENTS_DEFAULT_CATEGORY_DESCRIPTION'] = 'Тематика событий по умолчанию';

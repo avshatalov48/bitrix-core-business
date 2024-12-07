@@ -48,10 +48,11 @@ class GoogleMessage extends BaseMessage
 	}
 
 	public function strippedPayload($data): string {
-		$jsonPayload = json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+		$jsonPayload = json_encode($data, JSON_UNESCAPED_UNICODE);
 		$payloadLength = strlen($jsonPayload);
 		if ($payloadLength > self::DEFAULT_PAYLOAD_MAXIMUM_SIZE)
 		{
+
 			$text = $this->text;
 			$useSenderText = false;
 			if(array_key_exists("senderMessage", $this->customProperties))

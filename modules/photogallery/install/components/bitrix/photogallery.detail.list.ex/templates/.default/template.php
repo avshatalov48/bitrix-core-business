@@ -59,7 +59,7 @@ $ucid = CUtil::JSEscape($arParams["~UNIQUE_COMPONENT_ID"]);
 if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="photo-error">
-	<?=ShowError($arResult["ERROR_MESSAGE"])?>
+	<? ShowError($arResult["ERROR_MESSAGE"])?>
 </div>
 <?
 endif;

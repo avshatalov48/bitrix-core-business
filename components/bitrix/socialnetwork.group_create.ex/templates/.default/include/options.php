@@ -185,7 +185,7 @@ if (
 		</div>
 		<?php
 
-		if ($arResult['bExtranetInstalled'])
+		if ($arResult['bExtranetInstalled'] && $arResult['isExtranetForGroupsEnabled'])
 		{
 			$setByOptions = isset($arParams['PROJECT_OPTIONS']['extranet']);
 			$disabled = $setByOptions;

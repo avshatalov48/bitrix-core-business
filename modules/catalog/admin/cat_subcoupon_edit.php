@@ -138,7 +138,7 @@ if (!$bReadOnly && $_SERVER['REQUEST_METHOD']=="POST" && !empty($_POST['Update']
 		else
 		{
 			$DB->Commit();
-			?><script type="text/javascript">
+			?><script>
 			top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
 			top.ReloadOffers();
 			</script><?
@@ -193,7 +193,7 @@ if (!$bReadOnly && $_SERVER['REQUEST_METHOD']=="POST" && !empty($_POST['Update']
 		if (!$bVarsFromForm)
 		{
 			$DB->Commit();
-			?><script type="text/javascript">
+			?><script>
 			top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
 			top.ReloadOffers();
 			</script><?
@@ -209,7 +209,7 @@ else
 {
 	if (!empty($_REQUEST['dontsave']) && check_bitrix_sessid())
 	{
-		?><script type="text/javascript">
+		?><script>
 		top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
 		</script><?
 		die();
@@ -334,7 +334,7 @@ if (!$boolMulti)
 	echo BeginNote();
 	?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> <? echo GetMessage('DSC_CPN_ONE_ORDER_NOTE');
 	echo EndNote();
-	?><script type="text/javascript">
+	?><script>
 	BX.ready(function(){
 		var obCouponValue = BX('COUPON'),
 			obCouponBtn = BX('COUPON_GENERATE');
@@ -432,7 +432,7 @@ else
 	}
 	else
 	{
-		?><script type="text/javascript">top.BX.WindowManager.Get().hideNotify();</script><?
+		?><script>top.BX.WindowManager.Get().hideNotify();</script><?
 	}
 
 	$tabControl->BeginPrologContent();
@@ -480,7 +480,7 @@ else
 	?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> <? echo GetMessage('DSC_CPN_ONE_ORDER_NOTE');
 	echo EndNote();
 	?>
-	<script type="text/javascript">
+	<script>
 		if (top.BX.WindowManager.Get())
 		{
 			top.BX.WindowManager.Get().adjustSizeEx();

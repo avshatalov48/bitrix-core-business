@@ -232,6 +232,6 @@ final class LogEvent extends Provider
 
 	public function getSuffix(): string
 	{
-		return '2';
+		return '3';
 	}
 }

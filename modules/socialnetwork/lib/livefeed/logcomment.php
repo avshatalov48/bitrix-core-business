@@ -76,7 +76,7 @@ final class LogComment extends Provider
 
 					$CBXSanitizer = new \CBXSanitizer;
 					$CBXSanitizer->delAllTags();
-					$title = preg_replace(array("/\n+/is".BX_UTF_PCRE_MODIFIER, "/\s+/is".BX_UTF_PCRE_MODIFIER), " ", $CBXSanitizer->sanitizeHtml($title));
+					$title = preg_replace(array("/\n+/isu", "/\s+/isu"), " ", $CBXSanitizer->sanitizeHtml($title));
 					$this->setSourceTitle(truncateText($title, 100));
 					$this->setSourceAttachedDiskObjects($this->getAttachedDiskObjects($this->cloneDiskObjects));
 					$this->setSourceDiskObjects($this->getDiskObjects($commentId, $this->cloneDiskObjects));
@@ -142,7 +142,7 @@ final class LogComment extends Provider
 			}
 		}
 
-		return '2';
+		return '3';
 	}
 
 	public function add($params = array())

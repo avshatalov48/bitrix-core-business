@@ -12,7 +12,7 @@ foreach ($arResult['value'] as $value)
 {
 	if (!$isFirst)
 	{
-		print '<br>';
+		echo '<br>';
 	}
 	$isFirst = false;
 	echo (!empty($value) ? $arResult['userField']['USER_TYPE']['FIELDS'][$value] : '');

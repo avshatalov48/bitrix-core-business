@@ -298,7 +298,7 @@ class CAllCurrency
 		$arInsert = $DB->PrepareInsert('b_catalog_currency', $arFields);
 
 		$strSql = "insert into b_catalog_currency(".$arInsert[0].") values(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (isset($arFields['LANG']))
 		{
@@ -355,7 +355,7 @@ class CAllCurrency
 		if (!empty($strUpdate))
 		{
 			$strSql = "update b_catalog_currency set ".$strUpdate." where CURRENCY = '".$DB->ForSql($currency)."'";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			Currency\CurrencyManager::updateBaseRates($currency);
 			Currency\CurrencyManager::clearTagCache($currency);

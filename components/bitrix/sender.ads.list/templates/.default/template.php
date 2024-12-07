@@ -408,7 +408,7 @@ $APPLICATION->IncludeComponent(
 
 
 ?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 
 			BX.Sender.LetterList.init(<?=Json::encode(array(

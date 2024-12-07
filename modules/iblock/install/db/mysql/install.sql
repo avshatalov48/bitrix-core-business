@@ -65,7 +65,8 @@ create table if not exists b_iblock
 	ELEMENT_NAME varchar(100) null,
 	PRIMARY KEY(ID),
 	INDEX ix_iblock (IBLOCK_TYPE_ID, LID, ACTIVE),
-	UNIQUE INDEX ix_iblock_api_code (API_CODE)
+	UNIQUE INDEX ix_iblock_api_code (API_CODE),
+	INDEX ix_iblock_code (CODE)
 );
 
 create table if not exists b_iblock_site
@@ -223,7 +224,8 @@ create table if not exists b_iblock_element
 	index ix_iblock_element_1 (IBLOCK_ID, IBLOCK_SECTION_ID),
 	index ix_iblock_element_4 (IBLOCK_ID, XML_ID, WF_PARENT_ELEMENT_ID),
 	index ix_iblock_element_3 (WF_PARENT_ELEMENT_ID),
-	index ix_iblock_element_code (IBLOCK_ID, CODE)
+	index ix_iblock_element_code (IBLOCK_ID, CODE),
+	index ix_iblock_element_name (IBLOCK_ID, NAME)
 );
 
 create table if not exists b_iblock_element_property

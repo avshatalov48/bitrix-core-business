@@ -17,10 +17,6 @@ if (!\Bitrix\Main\Loader::includeModule('catalog'))
 global $APPLICATION;
 
 $request = Main\Context::getCurrent()->getRequest();
-if ($request->isAjaxRequest())
-{
-	$request->addFilter(new Main\Web\PostDecodeFilter());
-}
 
 if (!$request->isPost() || !check_bitrix_sessid() || !Catalog\v2\AgentContract\AccessController::check())
 {

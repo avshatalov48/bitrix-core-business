@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_events,ui_notification,main_core) {
 	'use strict';
@@ -210,12 +209,17 @@ this.BX = this.BX || {};
 	  return babelHelpers.classPrivateFieldGet(this, _isFreeze);
 	}
 
+	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
 	function _classPrivateFieldInitSpec$1(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var _options = /*#__PURE__*/new WeakMap();
 	var _queue$1 = /*#__PURE__*/new WeakMap();
 	var _notifier = /*#__PURE__*/new WeakMap();
 	var _openedSlidersCount = /*#__PURE__*/new WeakMap();
+	var _hasManyOpenSliders = /*#__PURE__*/new WeakSet();
+	var _getSliderInstance = /*#__PURE__*/new WeakSet();
+	var _createAndShowNotify = /*#__PURE__*/new WeakSet();
 	var QueueManager = /*#__PURE__*/function () {
 	  babelHelpers.createClass(QueueManager, null, [{
 	    key: "registerRandomEventId",
@@ -237,6 +241,9 @@ this.BX = this.BX || {};
 	  function QueueManager(options) {
 	    var _this = this;
 	    babelHelpers.classCallCheck(this, QueueManager);
+	    _classPrivateMethodInitSpec$1(this, _createAndShowNotify);
+	    _classPrivateMethodInitSpec$1(this, _getSliderInstance);
+	    _classPrivateMethodInitSpec$1(this, _hasManyOpenSliders);
 	    _classPrivateFieldInitSpec$1(this, _options, {
 	      writable: true,
 	      value: void 0
@@ -386,7 +393,7 @@ this.BX = this.BX || {};
 	      if (event.isDefaultPrevented()) {
 	        return;
 	      }
-	      Promise.all(event.data.promises).then(function (values) {
+	      void Promise.all(event.data.promises).then(function (values) {
 	        if (!main_core.Type.isArrayFilled(values)) {
 	          return;
 	        }
@@ -400,32 +407,15 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "showOutdatedDataDialog",
 	    value: function showOutdatedDataDialog() {
-	      var _babelHelpers$classPr3,
-	        _this5 = this;
-	      var showOutdatedDataDialog = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _options).config) === null || _babelHelpers$classPr3 === void 0 ? void 0 : _babelHelpers$classPr3.showOutdatedDataDialog;
-	      var onReload = babelHelpers.classPrivateFieldGet(this, _options).callbacks.onReload;
-	      if (main_core.Type.isBoolean(showOutdatedDataDialog) && showOutdatedDataDialog === false || !main_core.Type.isFunction(onReload)) {
+	      if (_classPrivateMethodGet$1(this, _hasManyOpenSliders, _hasManyOpenSliders2).call(this)) {
 	        return;
 	      }
-	      if (babelHelpers.classPrivateFieldGet(this, _notifier)) {
-	        babelHelpers.classPrivateFieldGet(this, _notifier).show();
-	        return;
+	      var sliderInstance = _classPrivateMethodGet$1(this, _getSliderInstance, _getSliderInstance2).call(this);
+	      if (sliderInstance) {
+	        main_core_events.EventEmitter.subscribe(sliderInstance, 'SidePanel.Slider:onClose', _classPrivateMethodGet$1(this, _createAndShowNotify, _createAndShowNotify2).bind(this));
+	      } else {
+	        _classPrivateMethodGet$1(this, _createAndShowNotify, _createAndShowNotify2).call(this);
 	      }
-	      babelHelpers.classPrivateFieldSet(this, _notifier, ui_notification.UI.Notification.Center.notify({
-	        content: main_core.Loc.getMessage('PULL_QUEUEMANAGER_NOTIFY_OUTDATED_DATA'),
-	        closeButton: false,
-	        autoHide: false,
-	        actions: [{
-	          title: main_core.Loc.getMessage('PULL_QUEUEMANAGER_RELOAD'),
-	          events: {
-	            click: function click(event, balloon) {
-	              balloon.close();
-	              onReload();
-	              babelHelpers.classPrivateFieldGet(_this5, _queue$1).clear();
-	            }
-	          }
-	        }]
-	      }));
 	    }
 	  }, {
 	    key: "onTabActivated",
@@ -456,6 +446,49 @@ this.BX = this.BX || {};
 	  }]);
 	  return QueueManager;
 	}();
+	function _hasManyOpenSliders2() {
+	  return top.BX && top.BX.SidePanel && top.BX.SidePanel.Instance.getOpenSlidersCount() > 1;
+	}
+	function _getSliderInstance2() {
+	  if (top.BX && top.BX.SidePanel) {
+	    var slider = top.BX.SidePanel.Instance.getTopSlider();
+	    if (slider && slider.isOpen()) {
+	      return slider;
+	    }
+	  }
+	  return null;
+	}
+	function _createAndShowNotify2() {
+	  var _babelHelpers$classPr3,
+	    _this5 = this;
+	  var showOutdatedDataDialog = (_babelHelpers$classPr3 = babelHelpers.classPrivateFieldGet(this, _options).config) === null || _babelHelpers$classPr3 === void 0 ? void 0 : _babelHelpers$classPr3.showOutdatedDataDialog;
+	  var onReload = babelHelpers.classPrivateFieldGet(this, _options).callbacks.onReload;
+	  if (main_core.Type.isBoolean(showOutdatedDataDialog) && showOutdatedDataDialog === false || !main_core.Type.isFunction(onReload)) {
+	    return;
+	  }
+	  if (babelHelpers.classPrivateFieldGet(this, _notifier)) {
+	    if (babelHelpers.classPrivateFieldGet(this, _notifier).getState() === BX.UI.Notification.State.OPENING || babelHelpers.classPrivateFieldGet(this, _notifier).getState() === BX.UI.Notification.State.OPEN) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldGet(this, _notifier).show();
+	    return;
+	  }
+	  babelHelpers.classPrivateFieldSet(this, _notifier, ui_notification.UI.Notification.Center.notify({
+	    content: main_core.Loc.getMessage('PULL_QUEUEMANAGER_NOTIFY_OUTDATED_DATA'),
+	    closeButton: false,
+	    autoHide: false,
+	    actions: [{
+	      title: main_core.Loc.getMessage('PULL_QUEUEMANAGER_RELOAD'),
+	      events: {
+	        click: function click(event, balloon) {
+	          balloon.close();
+	          onReload();
+	          babelHelpers.classPrivateFieldGet(_this5, _queue$1).clear();
+	        }
+	      }
+	    }]
+	  }));
+	}
 	babelHelpers.defineProperty(QueueManager, "eventIds", new Set());
 
 	exports.QueueManager = QueueManager;

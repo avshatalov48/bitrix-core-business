@@ -1,8 +1,9 @@
 import { Util } from 'calendar.util';
-import {EmailSelectorControl, DateTimeControl} from 'calendar.controls';
+import { EmailSelectorControl } from 'calendar.controls';
 import { Type, Event, Loc, Tag, Dom, Text, Runtime } from 'main.core';
 import { Dialog as EntitySelectorDialog } from 'ui.entity-selector';
 import { EventEmitter } from 'main.core.events';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 import { MessageCard } from 'ui.messagecard';
 
 type SettingsInterfaceOptions = {
@@ -16,13 +17,13 @@ type SettingsInterfaceOptions = {
 
 export class SettingsInterface
 {
-	sliderId: string = "calendar:settings-slider";
+	sliderId: string = 'calendar:settings-slider';
 	name: string = 'SettingsInterface';
 	SLIDER_WIDTH: number = 500;
 	SLIDER_DURATION: number = 80;
 	DOM: any = {};
-	HELP_DESK_CODE = 7218351;
-	HELP_DESK_CODE_LOCATION = 14326208;
+	HELP_DESK_CODE = 7_218_351;
+	HELP_DESK_CODE_LOCATION = 14_326_208;
 
 	constructor(options: SettingsInterfaceOptions)
 	{
@@ -47,8 +48,8 @@ export class SettingsInterface
 				onCloseByEsc: this.escHide.bind(this),
 				onClose: this.hide.bind(this),
 				onCloseComplete: this.destroy.bind(this),
-				onLoad: this.onLoadSlider.bind(this)
-			}
+				onLoad: this.onLoadSlider.bind(this),
+			},
 		});
 	}
 
@@ -75,7 +76,7 @@ export class SettingsInterface
 	{
 		if (event && event.getSlider && event.getSlider().getUrl() === this.sliderId)
 		{
-			BX.removeCustomEvent("SidePanel.Slider:onClose", BX.proxy(this.hide, this));
+			BX.removeCustomEvent('SidePanel.Slider:onClose', BX.proxy(this.hide, this));
 		}
 	}
 
@@ -112,18 +113,18 @@ export class SettingsInterface
 					showPersonalSettings: this.showPersonalSettings ? 'Y' : 'N',
 					showGeneralSettings: this.showGeneralSettings ? 'Y' : 'N',
 					showAccessControl: this.showAccessControl ? 'Y' : 'N',
-					uid: this.uid
-				}
+					uid: this.uid,
+				},
 			}).then(
 				(response: any) => {
-					slider.getData().set("sliderContent", response.data.html);
+					slider.getData().set('sliderContent', response.data.html);
 					const params = response.data.additionalParams;
 
 					this.mailboxList = params.mailboxList;
 					this.uid = params.uid;
 
 					resolve(response.data.html);
-				}
+				},
 			);
 		});
 	}
@@ -135,7 +136,7 @@ export class SettingsInterface
 		this.sliderId = slider.getUrl();
 
 		// Used to execute javasctipt and attach CSS from ajax responce
-		BX.html(slider.layout.content, slider.getData().get("sliderContent"));
+		BX.html(slider.layout.content, slider.getData().get('sliderContent'));
 		this.initControls();
 		this.setControlsValue();
 	}
@@ -168,51 +169,6 @@ export class SettingsInterface
 			// this.DOM.enableLunchTime = this.DOM.content.querySelector('[data-role="enable_lunch_time"]');
 			// this.DOM.lunchTimeSettingContainer = this.DOM.content.querySelector('#ec_lunch_time');
 			// this.lunchTimeControl = this.initLunchTimeControl(this.DOM.lunchTimeSettingContainer);
-
-			if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect))
-			{
-				this.emailSelectorControl = new EmailSelectorControl({
-					selectNode: this.DOM.sendFromEmailSelect,
-					allowAddNewEmail: true,
-					mailboxList: this.mailboxList
-				});
-
-				this.DOM.emailHelpIcon = this.DOM.content.querySelector('.calendar-settings-question');
-
-				if(this.DOM.emailHelpIcon && BX.Helper)
-				{
-					BX.Event.bind(
-						this.DOM.emailHelpIcon,
-						'click',
-						() =>{
-							BX.Helper.show("redirect=detail&code=12070142");
-						}
-					);
-
-					Util.initHintNode(this.DOM.emailHelpIcon);
-				}
-
-				this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
-
-				this.DOM.emailWrap = this.DOM.content.querySelector('.calendar-settings-email-wrap')
-				if (BX.Calendar.Util.isEventWithEmailGuestAllowed())
-				{
-					BX.Dom.removeClass(this.DOM.emailWrap, 'lock');
-					this.DOM.sendFromEmailSelect.disabled = false;
-				}
-				else
-				{
-					BX.Dom.addClass(this.DOM.emailWrap, 'lock');
-					this.DOM.sendFromEmailSelect.disabled = true;
-					BX.Event.bind(
-						this.DOM.sendFromEmailSelect.parentNode,
-						'click',
-						() => {
-							BX.UI.InfoHelper.show('limit_calendar_invitation_by_mail');
-						}
-					);
-				}
-			}
 		}
 
 		// General settings
@@ -248,6 +204,91 @@ export class SettingsInterface
 				this.initAccessController();
 			}
 		}
+
+		this.handleRestrictions();
+	}
+
+	handleRestrictions()
+	{
+		if (this.BX.Type.isElementNode(this.DOM.syncTasks) && this.isSettingLocked(this.DOM.syncTasks))
+		{
+			this.DOM.syncTasks.disabled = true;
+
+			this.lockSetting(this.DOM.syncTasks);
+		}
+
+		if (this.BX.Type.isElementNode(this.DOM.sendFromEmailSelect))
+		{
+			this.emailSelectorControl = new EmailSelectorControl({
+				selectNode: this.DOM.sendFromEmailSelect,
+				allowAddNewEmail: true,
+				mailboxList: this.mailboxList,
+			});
+
+			this.DOM.emailHelpIcon = this.DOM.content.querySelector('.calendar-settings-question');
+
+			if (this.DOM.emailHelpIcon && BX.Helper)
+			{
+				BX.Event.bind(
+					this.DOM.emailHelpIcon,
+					'click',
+					() => {
+						BX.Helper.show('redirect=detail&code=12070142');
+					},
+				);
+
+				Util.initHintNode(this.DOM.emailHelpIcon);
+			}
+
+			this.emailSelectorControl.setValue(this.calendarContext.util.getUserOption('sendFromEmail'));
+
+			this.DOM.emailWrap = this.DOM.content.querySelector('.calendar-settings-email-wrap');
+			if (BX.Calendar.Util.isEventWithEmailGuestAllowed())
+			{
+				BX.Dom.removeClass(this.DOM.emailWrap, 'lock');
+				this.DOM.sendFromEmailSelect.disabled = false;
+			}
+			else
+			{
+				BX.Dom.addClass(this.DOM.emailWrap, 'lock');
+				this.DOM.sendFromEmailSelect.disabled = true;
+				BX.Event.bind(
+					this.DOM.sendFromEmailSelect.parentNode,
+					'click',
+					() => {
+						FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_events_with_email_guests' }).show();
+					},
+				);
+			}
+		}
+	}
+
+	isSettingLocked(node: HTMLElement): boolean
+	{
+		return this.BX.Type.isElementNode(node.closest('.calendar-field-block.--locked'));
+	}
+
+	getSettingLockCode(node: HTMLElement): string
+	{
+		return ('lockCode' in node.dataset) ? node.dataset.lockCode : '';
+	}
+
+	lockSetting(node: HTMLElement): void
+	{
+		const lockBindElement = node.closest('.calendar-field-block.--locked');
+
+		this.getSettingLockCode(node);
+
+		BX.Event.bind(
+			lockBindElement,
+			'click',
+			() => this.showLock(this.getSettingLockCode(node)),
+		);
+	}
+
+	showLock(featureId: string, bindElement: ?HTMLElement = null): void
+	{
+		FeaturePromotersRegistry.getPromoter({ featureId, bindElement }).show();
 	}
 
 	initMessageControl()
@@ -256,8 +297,8 @@ export class SettingsInterface
 			<a class="ui-btn ui-btn-primary">${Loc.getMessage('EC_LOCATION_SETTINGS_MORE_INFO')}</a>
 		`;
 		Event.bind(moreMessageButton, 'click', () => this.openHelpDesk(this.HELP_DESK_CODE_LOCATION));
-		const header = "";
-		const description = Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION')
+		const header = '';
+		const description = Loc.getMessage('EC_LOCATION_SETTINGS_MESSAGE_DESCRIPTION');
 
 		this.message = new MessageCard({
 			id: 'locationSettingsInfo',
@@ -265,17 +306,17 @@ export class SettingsInterface
 			description,
 			angle: false,
 			hidden: true,
-			actionElements: [moreMessageButton]
-		})
+			actionElements: [moreMessageButton],
+		});
 		EventEmitter.subscribe(this.message, 'onClose', this.hideMessageBinded);
 		Event.bind(this.DOM.accessHelpIcon, 'click', () => {
 			this.onClickHint();
 		});
 
-		if(this.DOM.accessMessageWrap)
+		if (this.DOM.accessMessageWrap)
 		{
 			this.DOM.accessMessageWrap.appendChild(this.message.getLayout());
-			if(!this.calendarContext.util.config.hideSettingsHintLocation)
+			if (!this.calendarContext.util.config.hideSettingsHintLocation)
 			{
 				this.showMessage();
 			}
@@ -349,6 +390,7 @@ export class SettingsInterface
 		{
 			return;
 		}
+
 		if (this.message.isShown())
 		{
 			this.hideMessage();
@@ -396,37 +438,56 @@ export class SettingsInterface
 			// this.setLunchTimeValue();
 		}
 
-		if(this.DOM.showDeclined)
+		if (this.DOM.showDeclined)
 		{
 			this.DOM.showDeclined.checked = this.calendarContext.util.getUserOption('showDeclined');
 		}
 
-		var showTasks = this.calendarContext.util.getUserOption('showTasks') === 'Y';
-		if(this.DOM.showTasks)
+		const showTasks = this.calendarContext.util.getUserOption('showTasks') === 'Y';
+		if (this.DOM.showTasks)
 		{
 			this.DOM.showTasks.checked = showTasks;
-			BX.Event.bind(this.DOM.showTasks, 'click', function(){
-				if(this.DOM.showCompletedTasks)
+			BX.Event.bind(this.DOM.showTasks, 'click', () => {
+				if (this.DOM.showCompletedTasks)
 				{
 					this.DOM.showCompletedTasks.disabled = !this.DOM.showTasks.checked;
 					this.DOM.showCompletedTasks.checked = this.DOM.showCompletedTasks.checked && this.DOM.showTasks.checked;
 				}
-				if(this.DOM.syncTasks)
+
+				if (this.DOM.syncTasks)
 				{
-					this.DOM.syncTasks.disabled = !this.DOM.showTasks.checked;
-					this.DOM.syncTasks.checked = this.DOM.syncTasks.checked && this.DOM.showTasks.checked;
+					if (this.isSettingLocked(this.DOM.syncTasks))
+					{
+						this.DOM.syncTasks.checked = false;
+						this.DOM.syncTasks.disabled = true;
+					}
+					else
+					{
+						this.DOM.syncTasks.disabled = !this.DOM.showTasks.checked;
+						this.DOM.syncTasks.checked = this.DOM.syncTasks.checked && this.DOM.showTasks.checked;
+					}
 				}
-			}.bind(this));
+			});
 		}
-		if(this.DOM.showCompletedTasks)
+
+		if (this.DOM.showCompletedTasks)
 		{
 			this.DOM.showCompletedTasks.checked = this.calendarContext.util.getUserOption('showCompletedTasks') === 'Y' && this.DOM.showTasks.checked;
 			this.DOM.showCompletedTasks.disabled = !showTasks;
 		}
-		if(this.DOM.syncTasks)
+
+		if (this.DOM.syncTasks)
 		{
-			this.DOM.syncTasks.checked = this.calendarContext.util.getUserOption('syncTasks') === 'Y' && this.DOM.showTasks.checked;
-			this.DOM.syncTasks.disabled = !showTasks;
+			if (this.isSettingLocked(this.DOM.syncTasks))
+			{
+				this.DOM.syncTasks.checked = false;
+				this.DOM.syncTasks.disabled = true;
+			}
+			else
+			{
+				this.DOM.syncTasks.checked = this.calendarContext.util.getUserOption('syncTasks') === 'Y' && this.DOM.showTasks.checked;
+				this.DOM.syncTasks.disabled = !showTasks;
+			}
 		}
 
 		if (this.DOM.denyBusyInvitation)
@@ -439,7 +500,7 @@ export class SettingsInterface
 			this.DOM.showWeekNumbers.checked = this.calendarContext.util.showWeekNumber();
 		}
 
-		if(this.DOM.timezoneSelect)
+		if (this.DOM.timezoneSelect)
 		{
 			this.DOM.timezoneSelect.value = this.calendarContext.util.getUserOption('timezoneName') || '';
 		}
@@ -452,10 +513,10 @@ export class SettingsInterface
 
 			if (this.DOM.weekHolidays)
 			{
-				for(let i = 0; i < this.DOM.weekHolidays.options.length; i++)
+				for (let i = 0; i < this.DOM.weekHolidays.options.length; i++)
 				{
-					this.DOM.weekHolidays.options[i].selected =
-						this.settings.week_holidays.includes(this.DOM.weekHolidays.options[i].value);
+					// eslint-disable-next-line max-len
+					this.DOM.weekHolidays.options[i].selected =	this.settings.week_holidays.includes(this.DOM.weekHolidays.options[i].value);
 				}
 			}
 
@@ -468,14 +529,14 @@ export class SettingsInterface
 			&& Type.isElementNode(this.DOM.accessOuterWrap))
 		{
 			const typeAccess = this.calendarContext.util.config.TYPE_ACCESS;
-			for (let code in typeAccess)
+			for (const code in typeAccess)
 			{
 				if (typeAccess.hasOwnProperty(code))
 				{
 					this.insertAccessRow(
 						this.calendarContext.util.getAccessName(code),
 						code,
-						typeAccess[code]
+						typeAccess[code],
 					);
 				}
 			}
@@ -501,10 +562,19 @@ export class SettingsInterface
 		{
 			userSettings.showTasks = this.DOM.showTasks.checked ? 'Y' : 'N';
 		}
+
 		if (this.DOM.syncTasks)
 		{
-			userSettings.syncTasks = this.DOM.syncTasks.checked ? 'Y' : 'N';
+			if (this.isSettingLocked(this.DOM.syncTasks))
+			{
+				userSettings.syncTasks = 'N';
+			}
+			else
+			{
+				userSettings.syncTasks = this.DOM.syncTasks.checked ? 'Y' : 'N';
+			}
 		}
+
 		if (this.DOM.showCompletedTasks)
 		{
 			userSettings.showCompletedTasks = this.DOM.showCompletedTasks.checked ? 'Y' : 'N';
@@ -514,6 +584,7 @@ export class SettingsInterface
 		{
 			userSettings.meetSection = this.DOM.meetSectionSelect.value;
 		}
+
 		if (this.DOM.crmSelect)
 		{
 			userSettings.crmSection = this.DOM.crmSelect.value;
@@ -551,10 +622,10 @@ export class SettingsInterface
 				work_time_end: this.DOM.workTimeEnd.value,
 				week_holidays: [],
 				year_holidays: this.DOM.yearHolidays.value,
-				year_workdays: this.DOM.yearWorkdays.value
+				year_workdays: this.DOM.yearWorkdays.value,
 			};
 
-			for(let i = 0; i < this.DOM.weekHolidays.options.length; i++)
+			for (let i = 0; i < this.DOM.weekHolidays.options.length; i++)
 			{
 				if (this.DOM.weekHolidays.options[i].selected)
 				{
@@ -571,9 +642,12 @@ export class SettingsInterface
 		BX.ajax.runAction(
 			'calendar.api.calendarajax.saveSettings',
 			{
-			 	data: data
-			})
-			.then(() => {BX.reload();});
+			 	data,
+			},
+		)
+			.then(() => {
+				BX.reload();
+			});
 
 		this.close();
 	}
@@ -589,13 +663,15 @@ export class SettingsInterface
 						`}
 					</div>
 					<div class="calendar-list-slider-new-calendar-options-container">
-						${this.DOM.accessButton = Tag.render `
+						${this.DOM.accessButton = Tag.render`
 							<span class="calendar-list-slider-new-calendar-option-add">
 								${Loc.getMessage('EC_SEC_SLIDER_ACCESS_ADD')}
-							</span>`
+							</span>
+						`
 			}
 					</div>
-				</div>`
+				</div>
+			`,
 		);
 
 		this.access = {};
@@ -608,6 +684,27 @@ export class SettingsInterface
 		}
 
 		Event.bind(this.DOM.accessButton, 'click', () => {
+			const entities = [
+				{
+					id: 'user',
+				},
+				{
+					id: 'department',
+					options: { selectMode: 'usersAndDepartments' },
+				},
+				{
+					id: 'meta-user',
+					options: { 'all-users': true },
+				},
+			];
+
+			if (Util.isProjectFeatureEnabled())
+			{
+				entities.push({
+					id: 'project',
+				});
+			}
+
 			this.entitySelectorDialog = new EntitySelectorDialog({
 				targetNode: this.DOM.accessButton,
 				context: 'CALENDAR',
@@ -618,24 +715,9 @@ export class SettingsInterface
 					'Item:onDeselect': this.handleEntitySelectorChanges.bind(this),
 				},
 				popupOptions: {
-					targetContainer: document.body
+					targetContainer: document.body,
 				},
-				entities: [
-					{
-						id: 'user'
-					},
-					{
-						id: 'project'
-					},
-					{
-						id: 'department',
-						options: {selectMode: 'usersAndDepartments'}
-					},
-					{
-						id: 'meta-user',
-						options: { 'all-users': true }
-					}
-				]
+				entities,
 			});
 			this.entitySelectorDialog.show();
 			this.entitySelectorDialog.subscribe('onHide', this.allowSliderClose.bind(this));
@@ -646,32 +728,30 @@ export class SettingsInterface
 			const target = Util.findTargetNode(e.target || e.srcElement, this.DOM.outerWrap);
 			if (Type.isElementNode(target))
 			{
-				if(target.getAttribute('data-bx-calendar-access-selector') !== null)
+				if (target.getAttribute('data-bx-calendar-access-selector') !== null)
 				{
 					// show selector
 					const code = target.getAttribute('data-bx-calendar-access-selector');
 					if (this.accessControls[code])
 					{
 						this.showAccessSelectorPopup({
-								node: this.accessControls[code].removeIcon,
-								setValueCallback: (value) => {
-									if (this.accessTasks[value] && this.accessControls[code])
-									{
-										this.accessControls[code].valueNode.innerHTML =
-											Text.encode(this.accessTasks[value].title);
-										this.access[code] = value;
-									}
+							node: this.accessControls[code].removeIcon,
+							setValueCallback: (value) => {
+								if (this.accessTasks[value] && this.accessControls[code])
+								{
+									this.accessControls[code].valueNode.innerHTML =	Text.encode(this.accessTasks[value].title);
+									this.access[code] = value;
 								}
-							}
-						);
+							},
+						});
 					}
 				}
-				else if(target.getAttribute('data-bx-calendar-access-remove') !== null)
+				else if (target.getAttribute('data-bx-calendar-access-remove') !== null)
 				{
 					const code = target.getAttribute('data-bx-calendar-access-remove');
 					if (this.accessControls[code])
 					{
-						Dom.remove(this.accessControls[code].rowNode)
+						Dom.remove(this.accessControls[code].rowNode);
 						this.accessControls[code] = null;
 						delete this.access[code];
 					}
@@ -705,7 +785,7 @@ export class SettingsInterface
 		{
 			if (value === undefined)
 			{
-				for(let taskId in this.accessTasks)
+				for (const taskId in this.accessTasks)
 				{
 					if (
 						this.accessTasks.hasOwnProperty(taskId)
@@ -719,35 +799,36 @@ export class SettingsInterface
 			}
 
 			const rowNode = Dom.adjust(
-					this.DOM.accessTable.insertRow(-1),
-					{props : {className: 'calendar-section-slider-access-table-row'}}
-				);
+				this.DOM.accessTable.insertRow(-1),
+				{ props: { className: 'calendar-section-slider-access-table-row' } },
+			);
 			const titleNode = Dom.adjust(rowNode.insertCell(-1), {
-					props : {className: 'calendar-section-slider-access-table-cell'},
-					html: `<span class="calendar-section-slider-access-title" title="${Text.encode(title)}">${Text.encode(title)}:</span>`});
+				props: { className: 'calendar-section-slider-access-table-cell' },
+				html: `<span class="calendar-section-slider-access-title" title="${Text.encode(title)}">${Text.encode(title)}:</span>`,
+			});
 			const valueCell = Dom.adjust(rowNode.insertCell(-1), {
-					props : {className: 'calendar-section-slider-access-table-cell'},
-					attrs: {'data-bx-calendar-access-selector': code}
-				});
+				props: { className: 'calendar-section-slider-access-table-cell' },
+				attrs: { 'data-bx-calendar-access-selector': code },
+			});
 			const selectNode = valueCell.appendChild(Dom.create('SPAN', {
-					props: {className: 'calendar-section-slider-access-container'}
-				}));
+				props: { className: 'calendar-section-slider-access-container' },
+			}));
 			const valueNode = selectNode.appendChild(Dom.create('SPAN', {
-					text: this.accessTasks[value] ? this.accessTasks[value].title : '',
-					props: {className: 'calendar-section-slider-access-value'}
-				}));
+				text: this.accessTasks[value] ? this.accessTasks[value].title : '',
+				props: { className: 'calendar-section-slider-access-value' },
+			}));
 			const removeIcon = selectNode.appendChild(Dom.create('SPAN', {
-					props: {className: 'calendar-section-slider-access-remove'},
-					attrs: {'data-bx-calendar-access-remove': code}
-				}));
+				props: { className: 'calendar-section-slider-access-remove' },
+				attrs: { 'data-bx-calendar-access-remove': code },
+			}));
 
 			this.access[code] = value;
 
 			this.accessControls[code] = {
-				rowNode: rowNode,
-				titleNode: titleNode,
-				valueNode: valueNode,
-				removeIcon: removeIcon
+				rowNode,
+				titleNode,
+				valueNode,
+				removeIcon,
 			};
 		}
 	}
@@ -764,7 +845,7 @@ export class SettingsInterface
 			{
 				if (this.DOM.accessWrap.offsetHeight - this.DOM.accessTable.offsetHeight < 36)
 				{
-					this.DOM.accessWrap.style.maxHeight = parseInt(this.DOM.accessTable.offsetHeight) + 100 + 'px';
+					this.DOM.accessWrap.style.maxHeight = `${parseInt(this.DOM.accessTable.offsetHeight) + 100}px`;
 				}
 			}
 			else
@@ -791,38 +872,38 @@ export class SettingsInterface
 		const _this = this;
 		const menuItems = [];
 
-		for(let taskId in this.accessTasks)
+		for (const taskId in this.accessTasks)
 		{
 			if (this.accessTasks.hasOwnProperty(taskId))
 			{
 				menuItems.push(
 					{
 						text: this.accessTasks[taskId].title,
-						onclick: (function (value)
+						onclick: (function(value)
 						{
-							return function ()
+							return function()
 							{
 								params.setValueCallback(value);
 								_this.accessPopupMenu.close();
-							}
-						})(taskId)
-					}
+							};
+						})(taskId),
+					},
 				);
 			}
 		}
 
 		this.accessPopupMenu = this.BX.PopupMenu.create(
-			'section-access-popup' + Util.randomInt(),
+			`section-access-popup${Util.randomInt()}`,
 			params.node,
 			menuItems,
 			{
-				closeByEsc : true,
-				autoHide : true,
+				closeByEsc: true,
+				autoHide: true,
 				offsetTop: -5,
 				offsetLeft: 0,
 				angle: true,
 				cacheable: false,
-			}
+			},
 		);
 
 		this.accessPopupMenu.show();
@@ -832,7 +913,7 @@ export class SettingsInterface
 	{
 		if (top.BX.Helper)
 		{
-			top.BX.Helper.show('redirect=detail&code=' + helpDeskCode);
+			top.BX.Helper.show(`redirect=detail&code=${helpDeskCode}`);
 		}
 	}
 
@@ -841,7 +922,7 @@ export class SettingsInterface
 		if (this.message)
 		{
 			this.message.show();
-			this.DOM.accessMessageWrap.style.maxHeight = 300 + "px";
+			this.DOM.accessMessageWrap.style.maxHeight = `${300}px`;
 			Dom.addClass(this.DOM.accessHelpIcon, 'calendar-settings-message-arrow-target');
 		}
 	}
@@ -853,14 +934,16 @@ export class SettingsInterface
 			Dom.removeClass(this.DOM.accessHelpIcon, 'calendar-settings-message-arrow-target');
 			this.message.hide();
 			this.DOM.accessMessageWrap.style.maxHeight = 0;
-			if(!this.calendarContext.util.config.hideSettingsHintLocation)
+			if (!this.calendarContext.util.config.hideSettingsHintLocation)
 			{
-				BX.ajax.runAction('calendar.api.locationajax.hideSettingsHintLocation',
-						{
-							data: {
-								value: true
-							}
-						})
+				BX.ajax.runAction(
+					'calendar.api.locationajax.hideSettingsHintLocation',
+					{
+						data: {
+							value: true,
+						},
+					},
+				)
 					.then(() => {});
 			}
 		}

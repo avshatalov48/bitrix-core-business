@@ -7,7 +7,6 @@ use Bitrix\ImBot\Bot\SupportBox;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Event;
 use Bitrix\Main\ModuleManager;
 use Bitrix\ImBot\Bot\Partner24;
@@ -16,7 +15,7 @@ use Bitrix\Bitrix24;
 /**
  * Class InfoHelper
  * @package Bitrix\UI
- * @deprecated use Bitrix\UI\InfoHelper\Provider\Slider
+ * @deprecated use Bitrix\UI\FeaturePromoter\Slider
  */
 class InfoHelper
 {
@@ -59,8 +58,8 @@ class InfoHelper
 			'languageId' => LANGUAGE_ID,
 			'user_id' => $userId,
 			'user_email' => $currentUser->getEmail(),
-			'user_name' => Encoding::convertEncoding($currentUser->getFirstName(), SITE_CHARSET, 'utf-8'),
-			'user_last_name' => Encoding::convertEncoding($currentUser->getLastName(), SITE_CHARSET, 'utf-8'),
+			'user_name' => $currentUser->getFirstName(),
+			'user_last_name' => $currentUser->getLastName(),
 		];
 
 		if (Loader::includeModule('intranet'))
@@ -71,7 +70,7 @@ class InfoHelper
 		if (Loader::includeModule('imbot'))
 		{
 			$parameters['support_partner_code'] = Partner24::getBotCode();
-			$partnerName = Encoding::convertEncoding(Partner24::getPartnerName(), SITE_CHARSET, 'utf-8');
+			$partnerName = Partner24::getPartnerName();
 			$parameters['support_partner_name'] = $partnerName;
 			$supportBotId = 0;
 

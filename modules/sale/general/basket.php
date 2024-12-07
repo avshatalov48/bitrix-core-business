@@ -1598,7 +1598,7 @@ class CAllSaleBasket
 			}
 
 			$strSql = "update b_sale_basket set ".$strUpdate.", DATE_UPDATE = ".$DB->GetNowFunction()." where ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		else
 		{
@@ -1628,11 +1628,11 @@ class CAllSaleBasket
 				$sql .= " and CODE <> 'PRODUCT.XML_ID'";
 			if (!$bCatalogXml)
 				$sql .= " and CODE <> 'CATALOG.XML_ID'";
-			$DB->Query($sql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($sql);
 			if (!$bProductXml || !$bCatalogXml)
 			{
 				$sql = "delete from b_sale_basket_props where BASKET_ID = ".$ID." and CODE IS NULL";
-				$DB->Query($sql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($sql);
 			}
 
 			foreach($arFields["PROPS"] as $prop)
@@ -1644,7 +1644,7 @@ class CAllSaleBasket
 				{
 					$arInsert = $DB->PrepareInsert("b_sale_basket_props", $prop);
 					$strSql = "INSERT INTO b_sale_basket_props(BASKET_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-					$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strSql);
 				}
 			}
 		}
@@ -1810,7 +1810,7 @@ class CAllSaleBasket
 		if ($ID <= 0)
 			return false;
 		$strSql = "SELECT * FROM b_sale_basket WHERE ID = ".$ID;
-		$dbBasket = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbBasket = $DB->Query($strSql);
 
 		if ($arBasket = $dbBasket->Fetch())
 			return $arBasket;
@@ -3813,7 +3813,7 @@ class CAllSaleUser
 		}
 
 		$strSql = "UPDATE b_sale_fuser SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$DB->StopUsingMasterOnly();
 
@@ -3847,7 +3847,7 @@ class CAllSaleUser
 			if (strval($val) == "")
 				$val = 0;
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -3870,7 +3870,7 @@ class CAllSaleUser
 		}
 
 		$strSql = "SELECT ID, DATE_INSERT, DATE_UPDATE, USER_ID, CODE FROM b_sale_fuser WHERE 1 = 1 ".$strSqlSearch." ORDER BY ID DESC";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res->Fetch();
 	}
 

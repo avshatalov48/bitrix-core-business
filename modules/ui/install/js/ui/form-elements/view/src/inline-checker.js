@@ -1,5 +1,5 @@
-import {Checker} from "./checker";
-import {Tag, Type} from "main.core";
+import { Checker } from './checker';
+import { Tag, Type } from 'main.core';
 
 export class InlineChecker extends Checker
 {
@@ -11,8 +11,9 @@ export class InlineChecker extends Checker
 		this.hintTitle = Type.isStringFilled(params.hintTitle) ? params.hintTitle : '';
 		this.#hintDescElement = Tag.render`
 			<div class="ui-section__description">
-				${!this.isChecked() ? this.hintOff : this.hintOn}
-			</div>`;
+				${this.isChecked() ? this.hintOn : this.hintOff}
+			</div>
+		`;
 	}
 
 	prefixId(): string

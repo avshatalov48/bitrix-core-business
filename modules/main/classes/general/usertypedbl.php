@@ -1,6 +1,6 @@
 <?php
+
 use Bitrix\Main\UserField\Types\DoubleType;
-use Bitrix\Main\Loader;
 use Bitrix\Main\UserField\TypeBase;
 
 /**

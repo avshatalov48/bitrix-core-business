@@ -42,7 +42,7 @@ require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_a
 
 if ($_SESSION['PERFMON_CLEAR_MESSAGE'])
 {
-	$message  = new CAdminMessage([
+	$message = new CAdminMessage([
 		'MESSAGE' => $_SESSION['PERFMON_CLEAR_MESSAGE'],
 		'TYPE' => 'OK',
 	]);

@@ -1,17 +1,17 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
+
 /**
  * Class CCatalogMeasureAll
  */
 class CCatalogMeasureAll
 {
-	const DEFAULT_MEASURE_CODE = 796;
+	public const DEFAULT_MEASURE_CODE = 796;
 
-	protected static $defaultMeasure = null;
+	protected static array $defaultMeasure = [];
 
 	/**
 	 * @param string $action
@@ -187,7 +187,9 @@ class CCatalogMeasureAll
 		$getStub = ($getStub === true);
 		$getExt = ($getExt === true);
 
-		if (self::$defaultMeasure === null)
+		$cacheId = (string)$getStub . '-' . (string)$getExt;
+
+		if (!isset(self::$defaultMeasure[$cacheId]))
 		{
 			$measureRes = CCatalogMeasure::getList(
 				array(),
@@ -196,14 +198,15 @@ class CCatalogMeasureAll
 				false,
 				array()
 			);
-			if ($measure = $measureRes->GetNext(true, $getExt))
+			$measure = $measureRes->GetNext(true, $getExt);
+			if ($measure)
 			{
 				$measure['ID'] = (int)$measure['ID'];
 				$measure['CODE'] = (int)$measure['CODE'];
-				self::$defaultMeasure = $measure;
+				self::$defaultMeasure[$cacheId] = $measure;
 			}
 		}
-		if (self::$defaultMeasure === null)
+		if (!isset(self::$defaultMeasure[$cacheId]))
 		{
 			$measureRes = CCatalogMeasure::getList(
 				array(),
@@ -212,21 +215,24 @@ class CCatalogMeasureAll
 				false,
 				array()
 			);
-			if ($measure = $measureRes->GetNext(true, $getExt))
+			$measure = $measureRes->GetNext(true, $getExt);
+			if ($measure)
 			{
 				$measure['ID'] = (int)$measure['ID'];
 				$measure['CODE'] = (int)$measure['CODE'];
 				self::$defaultMeasure = $measure;
 			}
 		}
-		if (self::$defaultMeasure === null)
+		if (!isset(self::$defaultMeasure[$cacheId]))
 		{
 			if ($getStub)
 			{
-				$defaultMeasureDescription = CCatalogMeasureClassifier::getMeasureInfoByCode(self::DEFAULT_MEASURE_CODE);
+				$defaultMeasureDescription = CCatalogMeasureClassifier::getMeasureInfoByCode(
+					self::DEFAULT_MEASURE_CODE
+				);
 				if ($defaultMeasureDescription !== null)
 				{
-					self::$defaultMeasure = array(
+					self::$defaultMeasure[$cacheId] = array(
 						'ID' => 0,
 						'CODE' => self::DEFAULT_MEASURE_CODE,
 						'MEASURE_TITLE' => htmlspecialcharsEx($defaultMeasureDescription['MEASURE_TITLE']),
@@ -250,7 +256,8 @@ class CCatalogMeasureAll
 				}
 			}
 		}
-		return self::$defaultMeasure;
+
+		return self::$defaultMeasure[$cacheId];
 	}
 
 	private static function convertErrors(Main\Entity\Result $result)

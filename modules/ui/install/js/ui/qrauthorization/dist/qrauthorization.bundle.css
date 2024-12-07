@@ -236,3 +236,20 @@
 	background-color: #858c96;
 	transition: none;
 }
+
+.ui-qr-authorization__popup-warning {
+	display: flex;
+	margin: 20px 0 30px;
+	padding: 13px 34px 13px 15px;
+	border-radius: var(--ui-border-radius-md);
+	background: var(--ui-color-background-note);
+	color: var(--ui-color-palette-orange-90);
+	font-size: 14px;
+	line-height: 20px;
+}
+
+.ui-qr-authorization__popup-warning .ui-icon-set {
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-text-warning);
+	margin-right: 8px;
+}

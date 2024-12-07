@@ -64,6 +64,7 @@ export class Helper
 		recentActivity.entityId = parseInt(recentActivityData.entityId, 10);
 		recentActivity.timestamp = this.convertTimestampFromPhp(recentActivityData.timestamp);
 		recentActivity.date = new Date(recentActivity.timestamp);
+		recentActivity.secondaryEntityId = recentActivityData.secondaryEntityId;
 
 		return recentActivity;
 	}

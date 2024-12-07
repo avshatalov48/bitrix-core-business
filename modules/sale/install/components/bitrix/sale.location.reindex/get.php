@@ -14,8 +14,6 @@ Loader::includeModule('sale');
 
 require_once(__DIR__.'/class.php');
 
-CUtil::JSPostUnescape();
-
 $result = true;
 $errors = array();
 

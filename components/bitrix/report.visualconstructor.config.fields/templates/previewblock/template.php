@@ -34,7 +34,7 @@ $id = $field->getId();
 </div>
 
 
-<script type="text/javascript">
+<script>
 	BX.message({'REPORT_CHANGE_VIEW_ATTENTION_TEXT': "<?=\Bitrix\Main\Localization\Loc::getMessage('REPORT_CHANGE_VIEW_ATTENTION_TEXT')?>"});
 	BX.message({'REPORT_CHANGE_VIEW_ATTENTION_TITLE': "<?=\Bitrix\Main\Localization\Loc::getMessage('REPORT_CHANGE_VIEW_ATTENTION_TITLE')?>"});
 	BX.message({'REPORT_CHANGE_VIEW_CHANGE_CONFIRM_BUTTON_TITLE': "<?=\Bitrix\Main\Localization\Loc::getMessage('REPORT_CHANGE_VIEW_CHANGE_CONFIRM_BUTTON_TITLE')?>"});

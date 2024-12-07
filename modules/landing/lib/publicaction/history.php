@@ -4,6 +4,8 @@ namespace Bitrix\Landing\PublicAction;
 
 use Bitrix\Landing;
 use Bitrix\Landing\PublicActionResult;
+use Bitrix\Landing\Template;
+use Bitrix\Landing\TemplateRef;
 
 /**
  * Work with history
@@ -21,17 +23,37 @@ class History
 			'step' => $historyMain->getStep(),
 		];
 
-		$landing = Landing\Landing::createInstance($lid);
 		$isMultiArea = false;
-		foreach ($landing->getAreas() as $areaLid)
-		{
-			$isMultiArea = true;
-			$historyArea = new Landing\History($areaLid, Landing\History::ENTITY_TYPE_LANDING);
 
-			$histories[$areaLid] = [
-				'stack' => $historyArea->getJsStack(),
-				'step' => $historyArea->getStep(),
-			];
+		if (!TemplateRef::landingIsArea($lid))
+		{
+			$landing = Landing\Landing::createInstance($lid);
+			$template = Template::getList([
+				'select' => [
+					'AREA_COUNT'
+				],
+				'filter' => [
+					'ID' => $landing->getTplId()
+				]
+			])->fetch();
+			if ($template && $template['AREA_COUNT'] > 0)
+			{
+				foreach ($landing->getAreas() as $areaLid)
+				{
+					if (count($histories) > $template['AREA_COUNT'])
+					{
+						break;
+					}
+
+					$isMultiArea = true;
+					$historyArea = new Landing\History($areaLid, Landing\History::ENTITY_TYPE_LANDING);
+
+					$histories[$areaLid] = [
+						'stack' => $historyArea->getJsStack(),
+						'step' => $historyArea->getStep(),
+					];
+				}
+			}
 		}
 
 		if ($isMultiArea)

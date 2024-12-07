@@ -3,6 +3,7 @@
 namespace Bitrix\Sale\Cashbox;
 
 use Bitrix\Main\Error;
+use Bitrix\Sale\Cashbox\Internals\CashboxCheckCorrectionTable;
 use Bitrix\Sale\Cashbox\Internals\CashboxCheckTable;
 use Bitrix\Sale\Cashbox\Internals\CashboxTable;
 use Bitrix\Sale\EntityMarker;
@@ -148,6 +149,189 @@ final class CheckManager
 					if ($data)
 					{
 						CashboxCheckTable::update($checkId, ['EXTERNAL_UUID' => $data['UUID']]);
+					}
+
+					if (Main\Loader::includeModule('crm'))
+					{
+						\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onPrintingCheck(
+							$checkId,
+							[
+								'ORDER_FIELDS' => $order->getFieldValues(),
+								'SETTINGS' => [
+									'PRINTING' => 'Y',
+								],
+								'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+							]
+						);
+					}
+				}
+				else
+				{
+					self::savePrintResult(
+						$checkId,
+						[
+							'ID' => $checkId,
+							'ERROR' => [
+								'TYPE' =>  Errors\Error::TYPE,
+								'MESSAGE' => implode("\n", $printResult->getErrorMessages())
+							]
+						]
+					);
+				}
+
+				$result->setId($checkId);
+
+				return $result;
+			}
+
+			global $CACHE_MANAGER;
+			foreach ($cashboxList as $cashbox)
+			{
+				$CACHE_MANAGER->Read(CACHED_b_sale_order, 'sale_checks_'.$cashbox['ID']);
+				$CACHE_MANAGER->SetImmediate('sale_checks_'.$cashbox['ID'], true);
+			}
+		}
+		else
+		{
+			$result->addErrors($saveResult->getErrors());
+		}
+
+		return $result;
+	}
+
+	public static function reprint(int $checkId): Result
+	{
+		$result = new Result();
+
+		$check = self::getObjectById($checkId);
+		if (!$check)
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_CASHBOX_ERROR_CHECK_NOT_FOUND', ['#CHECK_ID#' => $checkId]))
+			);
+		}
+
+		if (CashboxCheckCorrectionTable::getRow(['filter' => ['=CHECK_ID' => $checkId]]))
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_CASBHOX_ERROR_CHECK_IS_CORRECTION_CHECK', ['#CHECK_ID#' => $checkId]))
+			);
+		}
+
+		if ($check->getField('STATUS') === 'Y')
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_CASBHOX_ERROR_CHECK_ALREADY_PRINTED', ['#CHECK_ID#' => $checkId]))
+			);
+		}
+
+		if ($check->getField('STATUS') === 'P')
+		{
+			return $result->addError(
+				new Error(Loc::getMessage('SALE_CASBHOX_ERROR_CHECK_IS_PRINTING', ['#CHECK_ID#' => $checkId]))
+			);
+		}
+
+		$cashboxList = Manager::getAvailableCashboxList($check);
+
+		$entity = $check->getEntities()[0];
+		$order = self::getOrder($entity);
+
+		if (!$cashboxList)
+		{
+			$dbRes = CashboxTable::getList(array('filter' => array('ACTIVE' => 'Y')));
+			if ($dbRes->fetch())
+				$result->addError(new Error(Loc::getMessage('SALE_CASHBOX_NOT_FOUND')));
+
+			return $result;
+		}
+
+		$check->setAvailableCashbox($cashboxList);
+
+		$registry = Sale\Registry::getInstance($check->getField("ENTITY_REGISTRY_TYPE"));
+
+		$validateResult = $check->validate();
+		if (!$validateResult->isSuccess())
+		{
+			if (Main\Loader::includeModule('crm'))
+			{
+				\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onCheckFailure(
+					[
+						'ORDER_FIELDS' => $order->getFieldValues(),
+						'SETTINGS' => [
+							'FAILURE' => 'Y',
+							'PRINTED' => 'N',
+						],
+						'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+					]
+				);
+			}
+
+			$notifyClassName = $registry->getNotifyClassName();
+			$notifyClassName::callNotify($order, Sale\EventActions::EVENT_ON_CHECK_VALIDATION_ERROR);
+			$result->addErrors($validateResult->getErrors());
+
+			$event = new Main\Event('sale', self::EVENT_ON_CHECK_VALIDATION_ERROR, $check->getDataForCheck());
+			$event->send();
+
+			return $result;
+		}
+
+		$saveResult = $check->save();
+		if ($saveResult->isSuccess())
+		{
+			$checkId = $saveResult->getId();
+			$order->addPrintedCheck($check);
+
+			$enabledImmediateCashboxList = array();
+			foreach ($cashboxList as $item)
+			{
+				if ($item['ENABLED'] === 'Y')
+				{
+					$cashbox = Cashbox::create($item);
+					if ($cashbox instanceof IPrintImmediately)
+					{
+						$enabledImmediateCashboxList[$item['ID']] = $cashbox;
+					}
+				}
+			}
+
+			if ($enabledImmediateCashboxList)
+			{
+				$cashboxId = Manager::chooseCashbox(array_keys($enabledImmediateCashboxList));
+				/** @var Cashbox|IPrintImmediately $cashbox */
+				$cashbox = $enabledImmediateCashboxList[$cashboxId];
+
+				CashboxCheckTable::update(
+					$checkId,
+					array(
+						'STATUS' => 'P',
+						'DATE_PRINT_START' => new Type\DateTime(),
+						'CASHBOX_ID' => $cashbox->getField('ID')
+					)
+				);
+
+				$printResult = $cashbox->printImmediately($check);
+				if ($printResult->isSuccess())
+				{
+					$data = $printResult->getData();
+					if ($data)
+					{
+						CashboxCheckTable::update($checkId, ['EXTERNAL_UUID' => $data['UUID']]);
+					}
+
+					if (Main\Loader::includeModule('crm'))
+					{
+						\Bitrix\Crm\Timeline\OrderCheckController::getInstance()->onPrintingCheck(
+							$checkId,
+							[
+								'ORDER_FIELDS' => $order->getFieldValues(),
+								'SETTINGS' => [
+									'PRINTING' => 'Y',
+								],
+								'BINDINGS' => \Bitrix\Crm\Order\BindingsMaker\TimelineBindingsMaker::makeByOrder($order),
+							]
+						);
 					}
 				}
 				else
@@ -387,7 +571,14 @@ final class CheckManager
 				CashboxCheckTable::update($checkId, $updatedFields);
 
 				/** @ToDO Will be removed after OrderCheckCollection is realized */
-				self::addTimelineCheckEntryOnCreateToOrder($order, $checkId, ['PRINTED' => 'N']);
+				self::addTimelineCheckEntryOnCreateToOrder(
+					$order,
+					$checkId,
+					[
+						'PRINTED' => 'N',
+						'ERROR_MESSAGE' => $data['ERROR']['MESSAGE'],
+					]
+				);
 
 				if ($order !== null
 					&& (
@@ -445,6 +636,7 @@ final class CheckManager
 				'STATUS' => 'Y',
 				'LINK_PARAMS' => $data['LINK_PARAMS'],
 				'DATE_PRINT_END' => new Main\Type\DateTime(),
+				'ERROR_MESSAGE' => null,
 			];
 
 			if (isset($data['EXTERNAL_UUID']))

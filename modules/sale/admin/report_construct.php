@@ -408,7 +408,7 @@ if (!$fCriticalError)
 								<?php echo CBaseSaleReportHelper::getSectionsSelectHTMLOptions(); ?>
 							</select>
 							<!-- Loading lists of filters dependent on a site when the filter of a site is changed -->
-							<script type="text/javascript">
+							<script>
 								BX.ready(
 									function ()
 									{
@@ -545,7 +545,7 @@ if (!$fCriticalError)
 							<a class="report-select-popup-link" caller="true" style="cursor: pointer;"><?=GetMessage('REPORT_CHOOSE')?></a>
 							<input type="hidden" name="value" />
 						</span>
-						<script type="text/javascript">
+						<script>
 							var RTFilter_chooseSALEUSER_LAST_CALLER;
 							function RTFilter_chooseSALEUSER(span)
 							{
@@ -595,7 +595,7 @@ if (!$fCriticalError)
 							<a class="report-select-popup-link" caller="true" style="cursor: pointer;"><?=GetMessage('REPORT_CHOOSE')?></a>
 							<input type="hidden" name="value" />
 						</span>
-						<script type="text/javascript">
+						<script>
 							var RTFilter_chooseGroup_LAST_CALLER;
 							function RTFilter_chooseGroup(span)
 							{

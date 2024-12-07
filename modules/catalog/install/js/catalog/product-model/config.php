@@ -1,6 +1,7 @@
 <?php
 
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Config\State;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -36,6 +37,7 @@ return [
 	],
 	'skip_core' => false,
 	'settings' => [
-		'catalogProductRights' => $catalogProductRights
+		'catalogProductRights' => $catalogProductRights,
+		'isExternalCatalog' => State::isExternalCatalog(),
 	],
 ];

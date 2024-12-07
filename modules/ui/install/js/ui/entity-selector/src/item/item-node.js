@@ -109,10 +109,12 @@ export default class ItemNode
 			this.captionOptions = {
 				fitContent: null,
 				maxWidth: null,
+				justifyContent: null,
 			};
 			this.badgesOptions = {
 				fitContent: null,
 				maxWidth: null,
+				justifyContent: null,
 			};
 		}
 
@@ -633,6 +635,18 @@ export default class ItemNode
 			Dom.style(this.getCaptionContainer(), 'flex-shrink', captionFitContent ? 0 : null);
 		}
 
+		const captionJustifyContent = this.getCaptionOption('justifyContent');
+		if (Type.isStringFilled(captionJustifyContent) || captionJustifyContent === null)
+		{
+			Dom.style(
+				this.getCaptionContainer(),
+				{
+					flexGrow: captionJustifyContent ? '1' : null,
+					textAlign: captionJustifyContent || null,
+				},
+			);
+		}
+
 		const captionMaxWidth = this.getCaptionOption('maxWidth');
 		if (Type.isString(captionMaxWidth) || Type.isNumber(captionMaxWidth))
 		{
@@ -719,6 +733,18 @@ export default class ItemNode
 		if (Type.isBoolean(badgesFitContent))
 		{
 			Dom.style(this.getBadgeContainer(), 'flex-shrink', badgesFitContent ? 0 : null);
+		}
+
+		const badgesJustifyContent = this.getBadgesOption('justifyContent');
+		if (Type.isStringFilled(badgesJustifyContent) || badgesJustifyContent === null)
+		{
+			Dom.style(
+				this.getBadgeContainer(),
+				{
+					flexGrow: badgesJustifyContent ? '1' : null,
+					justifyContent: badgesJustifyContent || null,
+				},
+			);
 		}
 
 		const badgesMaxWidth = this.getBadgesOption('maxWidth');

@@ -537,7 +537,7 @@ class CAdminMobileEdit
 								<div class="mapp_edit_clb"></div>
 							</div>
 						</div>
-					<script type="text/javascript">
+					<script>
 						new FastButton(BX("'.$id.'_b1'.'"), function(){ toggle'.$id.'(); '.$arField["BUTT_Y"]["ONCLICK"].'}, false);
 						new FastButton(BX("'.$id.'_b2'.'"), function(){ toggle'.$id.'(); '.$arField["BUTT_N"]["ONCLICK"].'}, false);
 						function toggle'.$id.'()

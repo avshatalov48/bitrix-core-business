@@ -23,6 +23,11 @@ class EntityLink implements RestConvertible
 	public const TYPE_CRM = 'CRM';
 	public const TYPE_MAIL = 'MAIL';
 	public const TYPE_CALL = 'CALL';
+	public const TYPE_CALENDAR = 'CALENDAR';
+	public const TYPE_SUPPORT24_NOTIFIER = 'SUPPORT24_NOTIFIER';
+	public const TYPE_SUPPORT24_QUESTION = 'SUPPORT24_QUESTION';
+	public const TYPE_NETWORK_DIALOG = 'NETWORK_DIALOG';
+
 
 	protected const HAS_URL = false;
 

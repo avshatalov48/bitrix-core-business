@@ -16,7 +16,7 @@ use Bitrix\Main\Localization\Loc;
 
 $containerId = 'bx-sender-mail-link-editor';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Mail.LinkEditor.init(<?=Json::encode(array(
 			'containerId' => $containerId,

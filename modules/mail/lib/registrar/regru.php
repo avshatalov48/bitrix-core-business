@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Mail\Registrar;
 
-use \Bitrix\Main\Text\Encoding;
-
 class RegRu extends Registrar
 {
 	/**
@@ -16,7 +14,6 @@ class RegRu extends Registrar
 	public static function checkDomain(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
 
 		$result = \CMailRegru::checkDomain($user, $password, $domain, $error);
 
@@ -59,14 +56,6 @@ class RegRu extends Registrar
 	 */
 	public static function suggestDomain(string $user, string $password, string $word1, string $word2, array $tlds, ?string &$error): ?array
 	{
-		$word1 = Encoding::convertEncoding($word1, SITE_CHARSET, 'UTF-8');
-		$word2 = Encoding::convertEncoding($word2, SITE_CHARSET, 'UTF-8');
-
-		foreach ($tlds as &$v)
-		{
-			$v = Encoding::convertEncoding($v, SITE_CHARSET, 'UTF-8');
-		}
-
 		$result = \CMailRegru::suggestDomain($user, $password, $word1, $word2, $tlds, $error);
 
 		if ($result !== false)
@@ -78,11 +67,7 @@ class RegRu extends Registrar
 				{
 					foreach ($entry['avail_in'] as $tlds)
 					{
-						$suggestions[] = Encoding::convertEncoding(
-							sprintf('%s.%s', $entry['name'], $tlds),
-							'UTF-8',
-							SITE_CHARSET
-						);
+						$suggestions[] = sprintf('%s.%s', $entry['name'], $tlds);
 					}
 				}
 			}
@@ -121,9 +106,6 @@ class RegRu extends Registrar
 			$params['enduser_ip'] = $params['ip'];
 		}
 
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
-		$params = Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-
 		$result = \CMailRegru::createDomain($user, $password, $domain, $params, $error);
 
 		if ($result !== false)
@@ -151,7 +133,6 @@ class RegRu extends Registrar
 	 */
 	public static function renewDomain(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
 		$result = \CMailRegru::renewDomain($user, $password, $domain, ['period' => 1], $error);
 
 		if ($result !== false)
@@ -181,8 +162,6 @@ class RegRu extends Registrar
 	public static function updateDns(string $user, string $password, string $domain, array $params, ?string &$error): ?bool
 	{
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
-		$params = Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
 
 		foreach ($params as $k => $record)
 		{

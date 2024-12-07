@@ -26,7 +26,7 @@ export class IntranetButton
 			}
 			else
 			{
-				this.setClickListener(chatButton, this.startVideoCallWithConfirm.bind(this));
+				this.setClickListener(chatButton, this.startVideoCallFromButton.bind(this));
 			}
 
 			// For testing purposes
@@ -39,6 +39,7 @@ export class IntranetButton
 		if (this.shouldNotConfirmOpenChat())
 		{
 			this.openChat();
+
 			return;
 		}
 
@@ -49,11 +50,12 @@ export class IntranetButton
 		});
 	}
 
-	startVideoCallWithConfirm()
+	startVideoCallWithConfirm(videoCallContext = 'context_menu')
 	{
 		if (this.shouldNotConfirmOpenChat())
 		{
-			this.startVideoCall();
+			this.startVideoCall(videoCallContext);
+
 			return;
 		}
 
@@ -62,6 +64,11 @@ export class IntranetButton
 			minWidth: 350,
 			maxWidth: 350,
 		});
+	}
+
+	startVideoCallFromButton()
+	{
+		this.startVideoCallWithConfirm('card');
 	}
 
 	shouldNotConfirmOpenChat()

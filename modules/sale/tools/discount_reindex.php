@@ -45,8 +45,6 @@ if (
 	&& $request['operation'] === 'Y'
 )
 {
-	CUtil::JSPostUnescape();
-
 	$params = [
 		'sessID' => $request['ajaxSessionID'],
 		'maxExecutionTime' => $request['maxExecutionTime'],
@@ -153,7 +151,7 @@ else
 		],
 	];
 ?>
-<script type="text/javascript">
+<script>
 	var jsStepOperations = new BX.Catalog.StepOperations(<?= CUtil::PhpToJSObject($jsParams, false, true); ?>);
 </script>
 <?php

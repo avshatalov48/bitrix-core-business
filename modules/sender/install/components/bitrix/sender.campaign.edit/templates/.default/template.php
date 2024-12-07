@@ -13,7 +13,7 @@ use Bitrix\Sender\Internals\PrettyDate;
 /** @var array $arResult */
 $containerId = 'bx-sender-campaign-edit';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.CampaignEditor.init(<?=Json::encode(array(
 			'containerId' => $containerId,

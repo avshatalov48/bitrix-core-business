@@ -1,6 +1,6 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
-__IncludeLang(dirname(__FILE__)."/lang/".LANGUAGE_ID."/result_modifier.php");
+__IncludeLang(__DIR__."/lang/".LANGUAGE_ID."/result_modifier.php");
 
 $TotalStatistic = array(
 	"VALUE" => GetMessage("IDEA_STATISTIC_TOTAL_TITLE"),
@@ -10,7 +10,7 @@ $TotalStatistic = array(
 foreach($arResult as $key=>$StatusStatistic)
 {
 	$TotalStatistic["CNT"] += $StatusStatistic["CNT"];
-	$arResult[$key]["URL"] = str_replace("#status_code#", ToLower($StatusStatistic["XML_ID"]), $arParams["PATH_WITH_STATUS"]);
+	$arResult[$key]["URL"] = str_replace("#status_code#", mb_strtolower($StatusStatistic["XML_ID"]), $arParams["PATH_WITH_STATUS"]);
 }
 
 $arResult["ALL"] = $TotalStatistic;

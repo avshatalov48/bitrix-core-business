@@ -3,8 +3,46 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_message_unsupported,ui_vue3_directives_lazyload,im_v2_model,main_core_events,im_v2_lib_progressbar,im_v2_provider_service,im_v2_lib_menu,ui_icons_disk,ui_vue3_components_socialvideo,im_v2_lib_utils,main_core,im_v2_component_message_elements,im_v2_component_message_base,im_v2_component_elements,im_v2_const) {
+(function (exports,im_v2_component_message_unsupported,ui_vue3_directives_lazyload,im_v2_model,main_core_events,im_v2_lib_progressbar,im_v2_provider_service,im_v2_lib_menu,ui_icons_disk,im_v2_lib_utils,main_core,im_v2_component_elements,im_v2_component_message_elements,im_v2_component_message_base,im_v2_const) {
 	'use strict';
+
+	function getGalleryElementsConfig(filesCount, index) {
+	  const spanValues = {
+	    10: ['1-4', '1-1', '1-2', '1-1', '1-1', '1-2', '1-1', '1-1', '1-2', '1-1'],
+	    9: ['1-4', '1-1', '1-2', '1-1', '1-2', '1-2', '1-1', '1-2', '1-1'],
+	    8: ['1-4', '1-2', '1-2', '1-1', '1-2', '1-1', '1-2', '1-2'],
+	    7: ['1-4', '1-2', '1-2', '1-2', '1-2', '1-2', '1-2'],
+	    6: ['1-4', '1-2', '1-2', '1-1', '1-2', '1-1'],
+	    5: ['1-4', '1-2', '1-2', '1-2', '1-2'],
+	    4: ['2-4', '1-1', '1-2', '1-1'],
+	    3: ['2-4', '1-2', '1-2'],
+	    2: ['2-2', '2-2']
+	  };
+	  const spanValue = spanValues[filesCount] && spanValues[filesCount][index];
+	  if (!spanValue) {
+	    return {
+	      'grid-row-end': 'span 1',
+	      'grid-column-end': 'span 1'
+	    };
+	  }
+	  const [rowSpan, colSpan] = spanValue.split('-');
+	  return {
+	    'grid-row-end': `span ${rowSpan}`,
+	    'grid-column-end': `span ${colSpan}`
+	  };
+	}
+
+	function getGalleryGridRowsConfig(filesCount) {
+	  let rowsTemplate = '140px 80px';
+	  if (filesCount >= 7) {
+	    rowsTemplate = '140px 80px 80px 58px';
+	  } else if (filesCount >= 3) {
+	    rowsTemplate = '140px 80px 80px';
+	  }
+	  return {
+	    gridTemplateRows: rowsTemplate
+	  };
+	}
 
 	// @vue/component
 	const ProgressBar = {
@@ -17,6 +55,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    messageId: {
 	      type: [String, Number],
 	      required: true
+	    },
+	    withLabels: {
+	      type: Boolean,
+	      default: true
 	    }
 	  },
 	  computed: {
@@ -47,13 +89,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      if (this.file.progress < 0 || !this.isImage && !this.isVideo) {
 	        blurElement = false;
 	      }
+	      const customConfig = {
+	        blurElement,
+	        hasTitle: false
+	      };
+	      if (!this.withLabels) {
+	        customConfig.labels = {};
+	      }
 	      this.progressBarManager = new im_v2_lib_progressbar.ProgressBarManager({
 	        container: this.$refs['progress-bar'],
 	        uploadState: this.file,
-	        customConfig: {
-	          blurElement,
-	          hasTitle: false
-	        }
+	        customConfig
 	      });
 	      this.progressBarManager.subscribe(im_v2_lib_progressbar.ProgressBarManager.event.cancel, () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.uploader.cancel, {
@@ -83,14 +129,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
-	const MAX_WIDTH = 420;
+	const MAX_WIDTH = 488;
 	const MAX_HEIGHT = 340;
 	const MIN_WIDTH = 200;
 	const MIN_HEIGHT = 100;
 
 	// @vue/component
-	const ImageItem = {
-	  name: 'ImageItem',
+	const GalleryItem = {
+	  name: 'GalleryItem',
 	  directives: {
 	    lazyload: ui_vue3_directives_lazyload.lazyload
 	  },
@@ -98,13 +144,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ProgressBar
 	  },
 	  props: {
-	    item: {
-	      type: Object,
+	    id: {
+	      type: [String, Number],
 	      required: true
 	    },
 	    message: {
 	      type: Object,
 	      required: true
+	    },
+	    isGallery: {
+	      type: Boolean,
+	      default: false
 	    }
 	  },
 	  computed: {
@@ -112,9 +162,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.message;
 	    },
 	    file() {
-	      return this.item;
+	      return this.$store.getters['files/get'](this.id, true);
 	    },
 	    imageSize() {
+	      if (this.isGallery) {
+	        return {};
+	      }
 	      let newWidth = this.file.image.width;
 	      let newHeight = this.file.image.height;
 	      if (this.file.image.width > MAX_WIDTH || this.file.image.height > MAX_HEIGHT) {
@@ -157,6 +210,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isForward() {
 	      return main_core.Type.isStringFilled(this.messageItem.forward.id);
+	    },
+	    isVideo() {
+	      return this.file.type === im_v2_const.FileType.video;
+	    },
+	    previewSourceLink() {
+	      // for a video, we use "urlPreview", because there is an image preview.
+	      // for an image, we use "urlShow", because for large gif files in "urlPreview" we have
+	      // a static image (w/o animation) .
+	      return this.isVideo ? this.file.urlPreview : this.file.urlShow;
 	    }
 	  },
 	  methods: {
@@ -175,7 +237,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  template: `
 		<div 
 			v-bind="viewerAttributes" 
-			class="bx-im-media-image__container" 
+			class="bx-im-gallery-item__container" 
 			:class="{'--with-forward': isForward}"
 			@click="download"
 			:style="imageSize"
@@ -183,28 +245,226 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<img
 				v-lazyload
 				data-lazyload-dont-hide
-				:data-lazyload-src="file.urlShow"
+				:data-lazyload-src="previewSourceLink"
 				:title="imageTitle"
 				:alt="file.name"
-				class="bx-im-media-image__source"
+				class="bx-im-gallery-item__source"
 			/>
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
+			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" :withLabels="!isGallery" />
+			<div v-if="isVideo" class="bx-im-gallery-item__play-icon-container">
+				<div class="bx-im-gallery-item__play-icon"></div>
+			</div>
 		</div>
 	`
 	};
 
+	const VIDEO_SIZE_TO_AUTOPLAY = 5000000;
+	const MAX_WIDTH$1 = 420;
+	const MAX_HEIGHT$1 = 340;
+	const MIN_WIDTH$1 = 200;
+	const MIN_HEIGHT$1 = 100;
+	const DEFAULT_WIDTH = 320;
+	const DEFAULT_HEIGHT = 180;
+
 	// @vue/component
-	const ImageMessage = {
-	  name: 'ImageMessage',
+	const VideoItem = {
+	  name: 'VideoItem',
+	  components: {
+	    VideoPlayer: im_v2_component_elements.VideoPlayer,
+	    ProgressBar
+	  },
+	  props: {
+	    id: {
+	      type: [String, Number],
+	      required: true
+	    },
+	    message: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    messageItem() {
+	      return this.message;
+	    },
+	    file() {
+	      return this.$store.getters['files/get'](this.id, true);
+	    },
+	    autoplay() {
+	      return this.file.size < VIDEO_SIZE_TO_AUTOPLAY;
+	    },
+	    canBeOpenedWithViewer() {
+	      var _BX$UI;
+	      return this.file.viewerAttrs && ((_BX$UI = BX.UI) == null ? void 0 : _BX$UI.Viewer);
+	    },
+	    viewerAttributes() {
+	      return im_v2_lib_utils.Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
+	    },
+	    imageSize() {
+	      let newWidth = this.file.image.width;
+	      let newHeight = this.file.image.height;
+	      if (!newHeight || !newWidth) {
+	        return {
+	          width: `${DEFAULT_WIDTH}px`,
+	          height: `${DEFAULT_HEIGHT}px`
+	        };
+	      }
+	      if (this.file.image.width > MAX_WIDTH$1 || this.file.image.height > MAX_HEIGHT$1) {
+	        const aspectRatio = this.file.image.width / this.file.image.height;
+	        if (this.file.image.width > MAX_WIDTH$1) {
+	          newWidth = MAX_WIDTH$1;
+	          newHeight = Math.round(MAX_WIDTH$1 / aspectRatio);
+	        }
+	        if (newHeight > MAX_HEIGHT$1) {
+	          newWidth = Math.round(MAX_HEIGHT$1 * aspectRatio);
+	          newHeight = MAX_HEIGHT$1;
+	        }
+	      }
+	      const sizes = {
+	        width: Math.max(newWidth, MIN_WIDTH$1),
+	        height: Math.max(newHeight, MIN_HEIGHT$1)
+	      };
+	      return {
+	        width: `${sizes.width}px`,
+	        height: `${sizes.height}px`,
+	        'object-fit': sizes.width < 100 || sizes.height < 100 ? 'cover' : 'contain'
+	      };
+	    },
+	    isLoaded() {
+	      return this.file.progress === 100;
+	    },
+	    isForward() {
+	      return main_core.Type.isStringFilled(this.messageItem.forward.id);
+	    }
+	  },
+	  methods: {
+	    download() {
+	      var _this$file$urlDownloa;
+	      if (this.file.progress !== 100 || this.canBeOpenedWithViewer) {
+	        return;
+	      }
+	      const url = (_this$file$urlDownloa = this.file.urlDownload) != null ? _this$file$urlDownloa : this.file.urlShow;
+	      window.open(url, '_blank');
+	    }
+	  },
+	  template: `
+		<div
+			class="bx-im-video-item__container bx-im-video-item__scope"
+			:class="{'--with-forward': isForward}"
+			@click="download"
+		>
+			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
+			<VideoPlayer
+				:fileId="file.id"
+				:src="file.urlShow"
+				:previewImageUrl="file.urlPreview"
+				:elementStyle="imageSize"
+				:withAutoplay="autoplay"
+				:withPlayerControls="isLoaded"
+				:viewerAttributes="viewerAttributes"
+			/>
+		</div>
+	`
+	};
+
+	const FILES_LIMIT = 10;
+
+	// @vue/component
+	const MediaContent = {
+	  name: 'MediaContent',
+	  components: {
+	    GalleryItem,
+	    VideoItem,
+	    MessageStatus: im_v2_component_message_elements.MessageStatus
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    }
+	  },
+	  computed: {
+	    message() {
+	      return this.item;
+	    },
+	    fileIds() {
+	      return this.message.files.slice(0, FILES_LIMIT);
+	    },
+	    firstFileId() {
+	      return this.message.files[0];
+	    },
+	    isGallery() {
+	      return this.message.files.length > 1;
+	    },
+	    galleryRowConfig() {
+	      return getGalleryGridRowsConfig(this.fileIds.length);
+	    },
+	    hasText() {
+	      return this.message.text.length > 0;
+	    },
+	    hasAttach() {
+	      return this.message.attach.length > 0;
+	    },
+	    onlyMedia() {
+	      return !this.hasText && !this.hasAttach;
+	    },
+	    isSingleVideo() {
+	      if (this.isGallery) {
+	        return false;
+	      }
+	      return this.$store.getters['files/get'](this.firstFileId, true).type === im_v2_const.FileType.video;
+	    }
+	  },
+	  methods: {
+	    getGalleryElementStyles(index) {
+	      return getGalleryElementsConfig(this.fileIds.length, index);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-media-content__container">
+			<div v-if="isGallery" class="bx-im-message-media-content__gallery" :style="galleryRowConfig">
+				<GalleryItem
+					v-for="(fileId, index) in fileIds"
+					:key="fileId"
+					:id="fileId"
+					:isGallery="true"
+					:message="message"
+					:style="getGalleryElementStyles(index)"
+				/>
+			</div>
+			<div v-else-if="isSingleVideo" class="bx-im-message-media-content__single-video">
+				<VideoItem
+					:id="firstFileId"
+					:message="message"
+				/>
+			</div>
+			<div v-else class="bx-im-message-media-content__single-image">
+				<GalleryItem
+					:id="firstFileId"
+					:message="message"
+				/>
+			</div>
+			<div v-if="onlyMedia" class="bx-im-message-media-content__status-container">
+				<MessageStatus :item="message" :isOverlay="true" />
+			</div>
+		</div>
+	`
+	};
+
+	const MAX_GALLERY_WIDTH = 305;
+	const MAX_SINGLE_MEDIA_WIDTH = 488;
+
+	// @vue/component
+	const MediaMessage = {
+	  name: 'MediaMessage',
 	  components: {
 	    ReactionList: im_v2_component_message_elements.ReactionList,
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    MessageStatus: im_v2_component_message_elements.MessageStatus,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
-	    ImageItem,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    ContextMenu: im_v2_component_message_elements.ContextMenu,
-	    MessageHeader: im_v2_component_message_elements.MessageHeader
+	    MessageHeader: im_v2_component_message_elements.MessageHeader,
+	    MessageFooter: im_v2_component_message_elements.MessageFooter,
+	    MediaContent
 	  },
 	  props: {
 	    item: {
@@ -225,65 +485,66 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  computed: {
-	    FileType: () => im_v2_const.FileType,
 	    message() {
 	      return this.item;
 	    },
-	    onlyImage() {
-	      return this.message.text.length === 0 && this.message.attach.length === 0;
+	    fileIds() {
+	      return this.message.files;
 	    },
-	    onlyImageOrVideo() {
-	      return this.messageFile.type === im_v2_const.FileType.image || this.messageFile.type === im_v2_const.FileType.video;
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId);
 	    },
-	    messageFile() {
-	      const firstFileId = this.message.files[0];
-	      return this.$store.getters['files/get'](firstFileId, true);
+	    hasText() {
+	      return this.message.text.length > 0;
+	    },
+	    hasAttach() {
+	      return this.message.attach.length > 0;
+	    },
+	    showContextMenu() {
+	      return this.onlyImage;
+	    },
+	    showBottomContainer() {
+	      return this.hasText || this.hasAttach;
+	    },
+	    isForward() {
+	      return main_core.Type.isStringFilled(this.message.forward.id);
 	    },
 	    needBackground() {
-	      if (this.message.text.length > 0) {
-	        return true;
-	      }
-	      return !this.onlyImageOrVideo;
+	      return this.showBottomContainer || this.isChannelPost || this.isForward;
 	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
+	    isChannelPost() {
+	      return [im_v2_const.ChatType.channel, im_v2_const.ChatType.openChannel].includes(this.dialog.type);
+	    },
+	    imageContainerStyles() {
+	      let maxWidth = MAX_SINGLE_MEDIA_WIDTH;
+	      if (this.fileIds.length > 1) {
+	        maxWidth = MAX_GALLERY_WIDTH;
+	      }
+	      return {
+	        'max-width': `${maxWidth}px`
+	      };
 	    }
 	  },
 	  template: `
-		<BaseMessage 
-			:item="item" 
-			:dialogId="dialogId" 
-			:withBackground="needBackground" 
-			:withDefaultContextMenu="!onlyImage"
-		>
-			<div class="bx-im-message-image__container">
-				<div class="bx-im-message-image__content-with-menu">
-					<div class="bx-im-message-image__content-with-header">
-						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
-						<div class="bx-im-message-image__content">
-							<ImageItem
-								:key="messageFile.id"
-								:item="messageFile"
-								:message="message"
-							/>
-							<template v-if="onlyImage">
-								<div class="bx-im-message-image__message-status-container">
-									<MessageStatus :item="message" :isOverlay="onlyImage" />
-								</div>
-								<ReactionSelector :messageId="message.id" />
-							</template>
-						</div>
-					</div>
-					<ContextMenu v-if="onlyImage" :message="message" :menuIsActiveForId="menuIsActiveForId" />
+		<BaseMessage :item="item" :dialogId="dialogId" :withBackground="needBackground">
+			<div class="bx-im-message-image__container" :style="imageContainerStyles">
+				<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
+				<MediaContent :item="message" />
+				<div v-if="showBottomContainer" class="bx-im-message-image__bottom-container">
+					<DefaultMessageContent
+						:item="item"
+						:dialogId="dialogId"
+						:withText="hasText"
+						:withAttach="hasAttach"
+					/>
 				</div>
-				<div v-if="onlyImage" class="bx-im-message-image__reaction-list-container">
-					<ReactionList :messageId="message.id" />
-				</div>
-				<div v-if="!onlyImage" class="bx-im-message-image__default-message-container">
-					<DefaultMessageContent :item="item" :dialogId="dialogId" />
-					<ReactionSelector :messageId="message.id" />
-				</div>
+				<MessageFooter :item="item" :dialogId="dialogId" />
 			</div>
+			<template #after-message>
+				<div v-if="!showBottomContainer" class="bx-im-message-image__reaction-list-container">
+					<ReactionList :messageId="message.id" :contextDialogId="dialogId" />
+				</div>
+			</template>
 		</BaseMessage>
 	`
 	};
@@ -333,12 +594,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  }
 	}
 	function _getMessageFile2() {
-	  if (this.context.files.length === 0) {
+	  if (!this.context.fileId) {
 	    return null;
 	  }
-
-	  // for now, we have only one file in one message. In the future we need to change this logic.
-	  return this.store.getters['files/get'](this.context.files[0]);
+	  return this.store.getters['files/get'](this.context.fileId);
 	}
 
 	// @vue/component
@@ -348,8 +607,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    ProgressBar
 	  },
 	  props: {
-	    item: {
-	      type: Object,
+	    id: {
+	      type: [String, Number],
 	      required: true
 	    },
 	    messageId: {
@@ -359,10 +618,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    file() {
-	      return this.item;
+	      return this.$store.getters['files/get'](this.id, true);
 	    },
 	    fileShortName() {
-	      const NAME_MAX_LENGTH = 40;
+	      const NAME_MAX_LENGTH = 20;
 	      return im_v2_lib_utils.Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 	    },
 	    fileSize() {
@@ -381,6 +640,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    isLoaded() {
 	      return this.file.progress === 100;
+	    },
+	    imageStyles() {
+	      return {
+	        backgroundImage: `url(${this.file.urlPreview})`
+	      };
+	    },
+	    isImage() {
+	      return this.file.type === im_v2_const.FileType.image;
 	    }
 	  },
 	  created() {
@@ -402,14 +669,18 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    },
 	    openContextMenu(event) {
-	      this.$emit('openContextMenu', event);
+	      this.$emit('openContextMenu', {
+	        event,
+	        fileId: this.id
+	      });
 	    }
 	  },
 	  template: `
-		<div class="bx-im-base-file-item__container bx-im-base-file-item__scope">
+		<div class="bx-im-base-file-item__container">
 			<div class="bx-im-base-file-item__icon-container" ref="loader-icon" v-bind="viewerAttributes" @click="download">
-				<div v-if="isLoaded" :class="iconClass" class="bx-im-base-file-item__type-icon ui-icon"><i></i></div>
-				<ProgressBar v-else :item="file" :messageId="messageId" />
+				<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" :withLabels="false" />
+				<div v-if="isImage" :style="imageStyles" class="bx-im-base-file-item__image"></div>
+				<div v-else :class="iconClass" class="bx-im-base-file-item__type-icon ui-icon"><i></i></div>
 			</div>
 			<div class="bx-im-base-file-item__content" v-bind="viewerAttributes" @click="download">
 				<span :title="file.name" class="bx-im-base-file-item__title">
@@ -433,8 +704,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
 	    BaseFileItem,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    MessageHeader: im_v2_component_message_elements.MessageHeader
+	    MessageHeader: im_v2_component_message_elements.MessageHeader,
+	    MessageFooter: im_v2_component_message_elements.MessageFooter
 	  },
 	  props: {
 	    item: {
@@ -458,9 +729,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    messageFile() {
 	      const firstFileId = this.message.files[0];
 	      return this.$store.getters['files/get'](firstFileId, true);
-	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
 	    }
 	  },
 	  created() {
@@ -470,9 +738,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.contextMenu.destroy();
 	  },
 	  methods: {
-	    onOpenContextMenu(event) {
+	    onOpenContextMenu({
+	      event,
+	      fileId
+	    }) {
 	      const context = {
 	        dialogId: this.dialogId,
+	        fileId,
 	        ...this.message
 	      };
 	      this.contextMenu.openMenu(context, event.target);
@@ -484,201 +756,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-base-file__author-title" />
 				<BaseFileItem
 					:key="messageFile.id"
-					:item="messageFile"
+					:id="messageFile.id"
 					:messageId="message.id"
 					@openContextMenu="onOpenContextMenu"
 				/>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
-		</BaseMessage>
-	`
-	};
-
-	const VIDEO_SIZE_TO_AUTOPLAY = 5000000;
-	const MAX_WIDTH$1 = 420;
-	const MAX_HEIGHT$1 = 340;
-	const MIN_WIDTH$1 = 200;
-	const MIN_HEIGHT$1 = 100;
-	const DEFAULT_WIDTH = 320;
-	const DEFAULT_HEIGHT = 180;
-
-	// @vue/component
-	const VideoItem = {
-	  name: 'VideoItem',
-	  components: {
-	    SocialVideo: ui_vue3_components_socialvideo.SocialVideo,
-	    ProgressBar
-	  },
-	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    },
-	    messageId: {
-	      type: [String, Number],
-	      required: true
-	    }
-	  },
-	  computed: {
-	    file() {
-	      return this.item;
-	    },
-	    autoplay() {
-	      return this.file.size < VIDEO_SIZE_TO_AUTOPLAY;
-	    },
-	    canBeOpenedWithViewer() {
-	      var _BX$UI;
-	      return this.file.viewerAttrs && ((_BX$UI = BX.UI) == null ? void 0 : _BX$UI.Viewer);
-	    },
-	    viewerAttributes() {
-	      return im_v2_lib_utils.Utils.file.getViewerDataAttributes(this.file.viewerAttrs);
-	    },
-	    imageSize() {
-	      let newWidth = this.file.image.width;
-	      let newHeight = this.file.image.height;
-	      if (!newHeight || !newWidth) {
-	        return {
-	          width: `${DEFAULT_WIDTH}px`,
-	          height: `${DEFAULT_HEIGHT}px`
-	        };
-	      }
-	      if (this.file.image.width > MAX_WIDTH$1 || this.file.image.height > MAX_HEIGHT$1) {
-	        const aspectRatio = this.file.image.width / this.file.image.height;
-	        if (this.file.image.width > MAX_WIDTH$1) {
-	          newWidth = MAX_WIDTH$1;
-	          newHeight = Math.round(MAX_WIDTH$1 / aspectRatio);
-	        }
-	        if (newHeight > MAX_HEIGHT$1) {
-	          newWidth = Math.round(MAX_HEIGHT$1 * aspectRatio);
-	          newHeight = MAX_HEIGHT$1;
-	        }
-	      }
-	      const sizes = {
-	        width: Math.max(newWidth, MIN_WIDTH$1),
-	        height: Math.max(newHeight, MIN_HEIGHT$1)
-	      };
-	      return {
-	        width: `${sizes.width}px`,
-	        height: `${sizes.height}px`,
-	        'object-fit': sizes.width < 100 || sizes.height < 100 ? 'cover' : 'contain'
-	      };
-	    },
-	    isLoaded() {
-	      return this.file.progress === 100;
-	    }
-	  },
-	  methods: {
-	    download() {
-	      var _this$file$urlDownloa;
-	      if (this.file.progress !== 100 || this.canBeOpenedWithViewer) {
-	        return;
-	      }
-	      const url = (_this$file$urlDownloa = this.file.urlDownload) != null ? _this$file$urlDownloa : this.file.urlShow;
-	      window.open(url, '_blank');
-	    },
-	    getPlayCallback() {
-	      if (this.autoplay) {
-	        return null;
-	      }
-	      return () => {};
-	    }
-	  },
-	  template: `
-		<div @click="download" class="bx-im-video-item__container bx-im-video-item__scope">
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
-			<SocialVideo
-				v-bind="viewerAttributes"
-				:id="file.id"
-				:src="file.urlShow"
-				:preview="file.urlPreview"
-				:elementStyle="imageSize"
-				:autoplay="autoplay"
-				:showControls="isLoaded"
-				:playCallback="getPlayCallback()"
-			/>
-		</div>
-	`
-	};
-
-	// @vue/component
-	const VideoMessage = {
-	  name: 'VideoMessage',
-	  components: {
-	    ReactionList: im_v2_component_message_elements.ReactionList,
-	    BaseMessage: im_v2_component_message_base.BaseMessage,
-	    MessageStatus: im_v2_component_message_elements.MessageStatus,
-	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
-	    VideoItem,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    ContextMenu: im_v2_component_message_elements.ContextMenu,
-	    MessageHeader: im_v2_component_message_elements.MessageHeader
-	  },
-	  props: {
-	    item: {
-	      type: Object,
-	      required: true
-	    },
-	    dialogId: {
-	      type: String,
-	      required: true
-	    },
-	    menuIsActiveForId: {
-	      type: [String, Number],
-	      default: 0
-	    }
-	  },
-	  computed: {
-	    FileType: () => im_v2_const.FileType,
-	    message() {
-	      return this.item;
-	    },
-	    onlyVideo() {
-	      return this.message.text.length === 0 && this.message.attach.length === 0;
-	    },
-	    messageFile() {
-	      const firstFileId = this.message.files[0];
-	      return this.$store.getters['files/get'](firstFileId, true);
-	    },
-	    canSetReactions() {
-	      return main_core.Type.isNumber(this.message.id);
-	    }
-	  },
-	  template: `
-		<BaseMessage 
-			:item="item" 
-			:dialogId="dialogId" 
-			:withBackground="!onlyVideo"
-			:withDefaultContextMenu="!onlyVideo"
-		>
-			<div class="bx-im-message-video__container bx-im-message-video__scope">
-				<div class="bx-im-message-video__content-with-menu">
-					<div class="bx-im-message-video__content-with-header">
-						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-video__header" />
-						<div class="bx-im-message-video__content">
-							<VideoItem
-								:key="messageFile.id"
-								:item="messageFile"
-								:messageId="message.id"
-							/>
-							<template v-if="onlyVideo">
-								<div class="bx-im-message-video__message-status-container">
-									<MessageStatus :item="message" :isOverlay="onlyVideo" />
-								</div>
-								<ReactionSelector :messageId="message.id" />
-							</template>
-						</div>
-					</div>
-					<ContextMenu v-if="onlyVideo" :message="message" :menuIsActiveForId="menuIsActiveForId" />
-				</div>
-				<div v-if="onlyVideo" class="bx-im-message-video__reaction-list-container">
-					<ReactionList :messageId="message.id" />
-				</div>
-				<div v-if="!onlyVideo" class="bx-im-message-video__default-message-container">
-					<DefaultMessageContent :item="item" :dialogId="dialogId" />
-					<ReactionSelector :messageId="message.id" />
-				</div>
-			</div>
+			<MessageFooter :item="item" :dialogId="dialogId" />
 		</BaseMessage>
 	`
 	};
@@ -708,9 +792,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    file() {
 	      return this.item;
 	    },
-	    playerBackgroundType() {
-	      return this.messageType === im_v2_const.MessageType.self ? 'dark' : 'light';
-	    },
 	    isLoaded() {
 	      return this.file.progress === 100;
 	    }
@@ -720,6 +801,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
 			<AudioPlayer
 				:id="file.id"
+				:messageId="messageId"
 				:src="file.urlShow"
 				:file="file"
 				:timelineType="Math.floor(Math.random() * 5)"
@@ -737,9 +819,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    MessageHeader: im_v2_component_message_elements.MessageHeader,
+	    MessageFooter: im_v2_component_message_elements.MessageFooter,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
-	    AudioItem,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector
+	    AudioItem
 	  },
 	  props: {
 	    item: {
@@ -784,18 +866,98 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			</div>
 			<div class="bx-im-message-audio__default-message-container">
 				<DefaultMessageContent :item="item" :dialogId="dialogId" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
+			<MessageFooter :item="item" :dialogId="dialogId" />
+		</BaseMessage>
+	`
+	};
+
+	const FILES_LIMIT$1 = 10;
+
+	// @vue/component
+	const FileCollectionMessage = {
+	  name: 'FileCollectionMessage',
+	  components: {
+	    BaseMessage: im_v2_component_message_base.BaseMessage,
+	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
+	    BaseFileItem,
+	    MessageHeader: im_v2_component_message_elements.MessageHeader,
+	    MessageFooter: im_v2_component_message_elements.MessageFooter
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
+	    withTitle: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  computed: {
+	    FileType: () => im_v2_const.FileType,
+	    message() {
+	      return this.item;
+	    },
+	    messageId() {
+	      return this.message.id;
+	    },
+	    fileIds() {
+	      return this.message.files.slice(0, FILES_LIMIT$1);
+	    }
+	  },
+	  created() {
+	    this.contextMenu = new BaseFileContextMenu();
+	  },
+	  beforeUnmount() {
+	    this.contextMenu.destroy();
+	  },
+	  methods: {
+	    onOpenContextMenu({
+	      event,
+	      fileId
+	    }) {
+	      const context = {
+	        dialogId: this.dialogId,
+	        fileId,
+	        ...this.message
+	      };
+	      this.contextMenu.openMenu(context, event.target);
+	    }
+	  },
+	  template: `
+		<BaseMessage :item="item" :dialogId="dialogId">
+			<div class="bx-im-message-file-collection__container">
+				<MessageHeader :withTitle="withTitle" :item="item" class="bx-im-message-file-collection__author-title" />
+				<div class="bx-im-message-file-collection__items">
+					<BaseFileItem
+						v-for="fileId in fileIds"
+						:key="fileId"
+						:id="fileId"
+						:messageId="messageId"
+						@openContextMenu="onOpenContextMenu"
+					/>
+				</div>
+				<DefaultMessageContent 
+					:item="item" 
+					:dialogId="dialogId"
+					class="bx-im-message-file-collection__default-content" 
+				/>
+			</div>
+			<MessageFooter :item="item" :dialogId="dialogId" />
 		</BaseMessage>
 	`
 	};
 
 	const FileMessageType = Object.freeze({
-	  image: 'ImageMessage',
+	  media: 'MediaMessage',
 	  audio: 'AudioMessage',
-	  video: 'VideoMessage',
 	  base: 'BaseFileMessage',
-	  collection: 'CollectionFileMessage'
+	  collection: 'FileCollectionMessage'
 	});
 
 	// @vue/component
@@ -803,10 +965,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  name: 'FileMessage',
 	  components: {
 	    BaseFileMessage,
-	    ImageMessage,
-	    VideoMessage,
+	    MediaMessage,
 	    AudioMessage,
-	    UnsupportedMessage: im_v2_component_message_unsupported.UnsupportedMessage
+	    UnsupportedMessage: im_v2_component_message_unsupported.UnsupportedMessage,
+	    FileCollectionMessage
 	  },
 	  props: {
 	    item: {
@@ -842,11 +1004,17 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      });
 	      return files;
 	    },
+	    isGallery() {
+	      return this.messageFiles.every(file => [im_v2_const.FileType.image, im_v2_const.FileType.video].includes(file.type));
+	    },
 	    componentName() {
+	      if (this.messageFiles.length > 1) {
+	        return this.isGallery ? FileMessageType.media : FileMessageType.collection;
+	      }
 	      const file = this.messageFiles[0];
 	      const hasPreview = Boolean(file.image);
 	      if (file.type === im_v2_const.FileType.image && hasPreview) {
-	        return FileMessageType.image;
+	        return FileMessageType.media;
 	      }
 	      if (file.type === im_v2_const.FileType.audio) {
 	        return FileMessageType.audio;
@@ -855,7 +1023,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      // file.type value is empty for mkv files
 	      const isVideo = file.type === im_v2_const.FileType.video || im_v2_lib_utils.Utils.file.getFileExtension(file.name) === 'mkv';
 	      if (isVideo && hasPreview) {
-	        return FileMessageType.video;
+	        return FileMessageType.media;
 	      }
 	      return FileMessageType.base;
 	    }
@@ -874,5 +1042,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.FileMessage = FileMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Vue3.Directives,BX.Messenger.v2.Model,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX,BX.Vue3.Components,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Const));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Message,BX.Vue3.Directives,BX.Messenger.v2.Model,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Const));
 //# sourceMappingURL=file-message.bundle.js.map

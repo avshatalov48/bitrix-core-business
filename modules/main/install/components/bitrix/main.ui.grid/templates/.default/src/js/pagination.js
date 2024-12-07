@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -17,17 +17,17 @@
 	};
 
 	BX.Grid.Pagination.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 		},
 
-		getParent: function()
+		getParent()
 		{
 			return this.parent;
 		},
 
-		getContainer: function()
+		getContainer()
 		{
 			if (!this.container)
 			{
@@ -37,16 +37,16 @@
 			return this.container;
 		},
 
-		getLinks: function()
+		getLinks()
 		{
-			var self = this;
-			var result = BX.Grid.Utils.getByTag(this.getContainer(), 'a');
+			const self = this;
+			const result = BX.Grid.Utils.getByTag(this.getContainer(), 'a');
 
 			this.links = [];
 
 			if (result)
 			{
-				this.links = result.map(function(current) {
+				this.links = result.map((current) => {
 					return new BX.Grid.Element(current, self.getParent());
 				});
 			}
@@ -54,24 +54,24 @@
 			return this.links;
 		},
 
-		getLink: function(node)
+		getLink(node)
 		{
-			var result = null;
-			var filter;
+			let result = null;
+			let filter;
 
 			if (BX.type.isDomNode(node))
 			{
-				filter = this.getLinks().filter(function(current) {
+				filter = this.getLinks().filter((current) => {
 					return node === current.getNode();
 				});
 
-				if (filter.length)
+				if (filter.length > 0)
 				{
 					result = filter[0];
 				}
 			}
 
 			return result;
-		}
+		},
 	};
 })();

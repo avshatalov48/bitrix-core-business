@@ -1,38 +1,37 @@
-(function(){
-
-	BX.namespace("BX.MobileApp");
+(function() {
+	BX.namespace('BX.MobileApp');
 
 	BX.MobileApp.Gesture = {
-		addLongTapListener:function (node, callback, customDuration)
+		addLongTapListener(node, callback, customDuration)
 		{
-			var touchDuration = customDuration|| 500;
+			var touchDuration = customDuration || 500;
 			var timerInterval;
 			var preventTouchEnd = false;
 
 			function timer(interval, targetNode)
 			{
-				timerInterval = setTimeout(function(){
+				timerInterval = setTimeout(() => {
 					tapHold(targetNode);
 				}, interval);
 			}
 
-			var startPosition = {x: 0, y: 0};
+			var startPosition = { x: 0, y: 0 };
 
 			function touchStart(e)
 			{
 				preventTouchEnd = false;
-				if (e.target.tagName === "A")
+				if (e.target.tagName === 'A')
 				{
 					return;
 				}
 
-				startPosition = {x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY};
+				startPosition = { x: e.changedTouches[0].clientX, y: e.changedTouches[0].clientY };
 				timer(touchDuration, e.target);
 			}
 
 			function touchEnd(e)
 			{
-				startPosition = {x: 0, y: 0};
+				startPosition = { x: 0, y: 0 };
 				clearTimeout(timerInterval);
 				if (preventTouchEnd)
 				{
@@ -46,7 +45,7 @@
 				var y = e.changedTouches[0].clientY;
 				if (Math.abs(startPosition.x - x) > 5 || Math.abs(startPosition.y - y) > 5)
 				{
-					startPosition = {x: 0, y: 0};
+					startPosition = { x: 0, y: 0 };
 					clearTimeout(timerInterval);
 				}
 			}
@@ -61,14 +60,13 @@
 				}
 			}
 
-			BX.addClass(node, "long-tap-block");
+			BX.addClass(node, 'long-tap-block');
 			node.addEventListener('touchstart', touchStart);
 			node.addEventListener('touchend', touchEnd);
 			node.addEventListener('touchmove', touchMove);
-			BX.addCustomEvent("onNativeTouchEnd", function(){
+			BX.addCustomEvent('onNativeTouchEnd', () => {
 				clearTimeout(timerInterval);
-			})
-		}
+			});
+		},
 	};
-
 })();

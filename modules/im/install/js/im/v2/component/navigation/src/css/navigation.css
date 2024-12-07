@@ -180,6 +180,10 @@
 	background-image: url(./images/menu/chat.svg?v3);
 }
 
+.bx-im-navigation__item_icon.--channel {
+	background-image: url(./images/menu/channel.svg);
+}
+
 .bx-im-navigation__item_icon.--notification {
 	background-image: url(./images/menu/notification.svg?v3);
 }

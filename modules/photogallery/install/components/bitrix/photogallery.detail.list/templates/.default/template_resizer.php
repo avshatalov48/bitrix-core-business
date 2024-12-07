@@ -20,7 +20,7 @@ $arResTmp = array_merge(
 $arRes = array();
 foreach ($arResTmp as $key => $val)
 	$arRes[] = $val + array("id" => $key);
-usort($arRes, __photo_cmp);
+usort($arRes, '__photo_cmp');
 $number = 0;
 foreach ($arRes as $val):
 	$number++;

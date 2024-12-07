@@ -5,6 +5,7 @@ class Push
 {
 	static $types = null;
 	static $config = array();
+	protected static array $explodedOptionIdsStaticCache = [];
 
 	public static function add($users, $parameters)
 	{
@@ -106,7 +107,9 @@ class Push
 		$result = Array();
 		foreach ($userOptions as $optionId => $optionValue)
 		{
-			list($clientId, $moduleId, $type) =  explode('|', $optionId);
+			self::$explodedOptionIdsStaticCache[$optionId] ??= explode('|', $optionId);
+			[$clientId, $moduleId, $type] = self::$explodedOptionIdsStaticCache[$optionId];
+
 			if ($clientId != \CIMSettings::CLIENT_PUSH)
 			{
 				continue;

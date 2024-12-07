@@ -1,0 +1,78 @@
+.calendar-open-events-list-categories-title-container {
+	display: flex;
+	align-items: center;
+	height: 66px;
+	border-bottom: 1px solid var(--ui-color-base-15);
+}
+
+.calendar-open-events-list-categories-title {
+	flex: 1;
+	display: flex;
+	align-items: center;
+	margin: 0 14px 0 20px;
+	overflow: hidden;
+}
+
+.calendar-open-events-list-categories-search {
+	flex: 1;
+	position: relative;
+	display: flex;
+	margin: 0 8px;
+}
+
+.calendar-open-events-list-categories-search-input {
+	all: unset;
+	background-color: rgba(var(--ui-color-base-solid-rgb), var(--ui-opacity-5));
+	border-radius: 4px;
+	padding: 8px 32px 8px 11px;
+	flex: 1;
+}
+
+.calendar-open-events-list-categories-search-input::placeholder {
+	color: var(--ui-color-base-40);
+}
+
+.calendar-open-events-list-categories-close-search-button {
+	display: flex;
+	position: absolute;
+	right: 5px;
+	top: 50%;
+	transform: translateY(-50%);
+	opacity: 0.4;
+	cursor: pointer;
+	transition: opacity 0.2s ease;
+}
+
+.calendar-open-events-list-categories-close-search-button:hover {
+	opacity: 0.6;
+}
+
+.calendar-open-events-list-categories-title-text {
+	margin-right: auto;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-text-subtle);
+	text-transform: var(--ui-text-transform-uppercase);
+	cursor: default;
+}
+
+.calendar-open-events-list-categories-title-button {
+	display: flex;
+	margin-left: 5px;
+	padding: 0 6px;
+	border-radius: 1in;
+	cursor: pointer;
+	transition: box-shadow 0.16s ease;
+}
+
+.calendar-open-events-list-categories-title-button:hover {
+	box-shadow: inset 0 0 0 999px rgba(0, 0, 0, 0.03);
+}
+
+.calendar-open-events-list-categories-title-button .ui-icon-set {
+	--ui-icon-set__icon-size: 22px;
+	--ui-icon-set__icon-color: var(--ui-color-base-50);
+}

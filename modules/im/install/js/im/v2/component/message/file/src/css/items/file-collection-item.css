@@ -1,0 +1,63 @@
+.bx-im-message-file-collection-item__file-container {
+	--im-message-file-collection-item__color_file-name: var(--im-color-palette-black-base);
+	--im-message-file-collection-item__color_file-size: #858585;
+	--im-message-file-collection-item__border-color_file-icon: var(--im-color-palette-gray-10);
+	--im-message-file-collection-item__background-color_play-icon: rgb(0 0 0 / 50%);
+
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-lg);
+	display: flex;
+	gap: 12px;
+	height: 72px;
+}
+
+.bx-im-message-file-collection-item__icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 72px;
+	height: 72px;
+	border: 1px solid var(--im-message-file-collection-item__border-color_file-icon);
+	border-radius: 6px;
+	flex-shrink: 0;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.bx-im-message-file-collection-item__progress-icon {
+	width: 30px;
+	height: 30px;
+	position: absolute;
+}
+
+.bx-im-message-file-collection-item__info {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	gap: 2px;
+	overflow: hidden;
+}
+
+.bx-im-message-file-collection-item__name {
+	font-size: var(--im-font-size-lg);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-message-file-collection-item__color_file-name);
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.bx-im-message-file-collection-item__size {
+	font-size: var(--im-font-size-sm);
+	color: var(--im-message-file-collection-item__color_file-size);
+}
+
+.bx-im-message-file-collection-item__image {
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	width: 100%;
+	height: 100%;
+	cursor: pointer;
+}

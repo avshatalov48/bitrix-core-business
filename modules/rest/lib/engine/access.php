@@ -291,8 +291,17 @@ class Access
 	 */
 	public static function getHelperCode($action = '', $entityType = '', $entityData = []) : string
 	{
+		$isB24 = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
+		$dateFinish = Client::getSubscriptionFinalDate();
+		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
+
 		if ($action === static::ACTION_BUY)
 		{
+			if ($isB24 && $isSubscriptionDemoAvailable && \CBitrix24::isLicenseNeverPayed())
+			{
+				return 'limit_market_trial_demo';
+			}
+
 			return 'limit_subscription_market_trial_access';
 		}
 
@@ -302,13 +311,10 @@ class Access
 		}
 
 		$code = '';
-		$dateFinish = Client::getSubscriptionFinalDate();
 		$entity = static::getActiveEntity();
 		$maxCount = static::getAvailableCount();
-		$isB24 = ModuleManager::isModuleInstalled('bitrix24') && Loader::includeModule('bitrix24');
 		$isSubscriptionFinished = $dateFinish && $dateFinish < (new Date());
 		$isSubscriptionAccess = Client::isSubscriptionAccess();
-		$isSubscriptionDemoAvailable = Client::isSubscriptionDemoAvailable() && !$dateFinish;
 		$isSubscriptionAvailable = Client::isSubscriptionAvailable();
 		$canBuySubscription = Client::canBuySubscription();
 		$isDemoSubscription = Client::isSubscriptionDemo();

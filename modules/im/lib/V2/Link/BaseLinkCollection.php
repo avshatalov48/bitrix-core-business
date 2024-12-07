@@ -7,12 +7,15 @@ use Bitrix\Im\V2\Entity;
 use Bitrix\Im\V2\Link;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Rest\PopupData;
+use Bitrix\Im\V2\TariffLimit\DateFilterable;
+use Bitrix\Im\V2\TariffLimit\FilterResult;
+use Bitrix\Main\Type\DateTime;
 
 /**
- * @implements \IteratorAggregate<int,BaseLinkItem>
+ * @extends Collection<BaseLinkItem>
  * @method BaseLinkItem offsetGet($key)
  */
-abstract class BaseLinkCollection extends Collection implements LinkRestConvertible
+abstract class BaseLinkCollection extends Collection implements LinkRestConvertible, DateFilterable
 {
 	/**
 	 * @return string|LinkItem
@@ -29,6 +32,18 @@ abstract class BaseLinkCollection extends Collection implements LinkRestConverti
 		}
 
 		return $data;
+	}
+
+	public function filterByDate(DateTime $date): FilterResult
+	{
+		$filtered = $this->filter(static fn (BaseLinkItem $link) => $link->getDateCreate()?->getTimestamp() > $date->getTimestamp());
+
+		return (new FilterResult())->setResult($filtered)->setFiltered($this->count() !== $filtered->count());
+	}
+
+	public function getRelatedChatId(): ?int
+	{
+		return $this->getAny()?->getChatId();
 	}
 
 	public static function getRestEntityName(): string

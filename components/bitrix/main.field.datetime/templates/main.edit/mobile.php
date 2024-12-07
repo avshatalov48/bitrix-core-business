@@ -1,6 +1,11 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+use Bitrix\Main\Web\Json;
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var DateTimeUfComponent $component
@@ -49,8 +54,7 @@ foreach($arResult['value'] as $item)
 
 if(
 	$arResult['userField']['MULTIPLE'] === 'Y'
-	&&
-	$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+	&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 )
 {
 	print $component->getHtmlBuilder()->getMobileCloneButton($arResult['fieldName']);
@@ -61,13 +65,13 @@ if(
 	BX.ready(function ()
 	{
 		new BX.Mobile.Field.Datetime(
-			<?=CUtil::PhpToJSObject([
+			<?= Json::encode([
 				'name' => 'BX.Mobile.Field.Datetime',
 				'nodes' => $nodes,
 				'restrictedMode' => true,
 				'formId' => $arParams['additionalParameters']['formId'],
 				'gridId' => $arParams['additionalParameters']['gridId']
-			])?>
+			]) ?>
 		);
 	});
 </script>

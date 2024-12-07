@@ -23,7 +23,7 @@ class Tag
 			$res = \CBlogCategory::getList([], [ 'BLOG_ID' => $blogId ]);
 			while ($blogCategoryFields = $res->fetch())
 			{
-				$blogCategoryList[ToLower($blogCategoryFields['NAME'])] = (int)$blogCategoryFields['ID'];
+				$blogCategoryList[mb_strtolower($blogCategoryFields['NAME'])] = (int)$blogCategoryFields['ID'];
 			}
 
 			$tags = explode(',', $inputTags);
@@ -32,12 +32,12 @@ class Tag
 				$tg = trim($tg);
 				if (
 					$tg !== ''
-					&& !in_array($blogCategoryList[ToLower($tg)] ?? null, $result, true)
+					&& !in_array($blogCategoryList[mb_strtolower($tg)] ?? null, $result, true)
 				)
 				{
 					$result[] = (int) (
-						((int) ($blogCategoryList[ToLower($tg)] ?? null) > 0)
-							? $blogCategoryList[ToLower($tg)]
+						((int) ($blogCategoryList[mb_strtolower($tg)] ?? null) > 0)
+							? $blogCategoryList[mb_strtolower($tg)]
 							: \CBlogCategory::add([
 								'BLOG_ID' => $blogId,
 								'NAME' => $tg,
@@ -112,7 +112,7 @@ class Tag
 
 			foreach ($inlineTagList as $inlineTag)
 			{
-				if (!in_array(ToLower($inlineTag), $lowerExistingTagList, true))
+				if (!in_array(mb_strtolower($inlineTag), $lowerExistingTagList, true))
 				{
 					$newTagList[] = $inlineTag;
 				}

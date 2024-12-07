@@ -540,14 +540,6 @@ if (($arParams["SEF_MODE"] ?? '') === "Y")
 		$arParams["PATH_TO_USER_BLOG_POST_IMPORTANT"] = $userPage."user/#user_id#/blog/important/";
 	}
 
-	if (
-		IsModuleInstalled("video")
-		&& !isset($arParams["PATH_TO_VIDEO_CALL"])
-	)
-	{
-		$arParams["PATH_TO_VIDEO_CALL"] = $userPage."video/#user_id#/";
-	}
-
 	ComponentHelper::setComponentOption(
 		array(
 			array(
@@ -668,8 +660,6 @@ if (
 		}
 		unset($variable);
 	}
-
-	CSocNetLogComponent::redirectExtranetSite($arRedirectSite, $componentPage, $arVariables, $arDefaultUrlTemplates404, "workgroup");
 }
 
 $arResult = array_merge(
@@ -1218,7 +1208,7 @@ elseif (mb_strpos($componentPage, "user_content_search") !== false || mb_strpos(
 ********************************************************************/
 
 //registering routes for building preview
-$route = $arParams['SEF_FOLDER'] ?? '' . ($arUrlTemplates['group_tasks_task'] ?? '');
+$route = ($arParams['SEF_FOLDER'] ?? '') . ($arUrlTemplates['group_tasks_task'] ?? '');
 if(\Bitrix\Main\ModuleManager::isModuleInstalled('tasks') && $route)
 {
 	Bitrix\Main\UrlPreview\Router::setRouteHandler(

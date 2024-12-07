@@ -40,7 +40,7 @@ export class DesignPreview extends EventEmitter
 
 	controls: Controls;
 
-	constructor(form: HTMLElement, options: Object = {}, phrase: Object = {}, id = null)
+	constructor(form: HTMLElement, options: Object = {}, phrase: Object = {}, id = null, type = null)
 	{
 		super();
 		this.setEventNamespace('BX.Landing.SettingsForm.DesignPreview');
@@ -49,6 +49,7 @@ export class DesignPreview extends EventEmitter
 		this.phrase = phrase;
 		this.id = id;
 		this.options = options;
+		this.type = type;
 		window.fontsProxyUrl = window.fontsProxyUrl ?? 'fonts.googleapis.com';
 
 		this.initControls();
@@ -498,11 +499,20 @@ export class DesignPreview extends EventEmitter
 			}
 		}
 
+		if (this.options.background.image.defaultValue && bgPicture === '')
+		{
+			bgPicture = this.options.background.image.defaultValue;
+		}
+
+		if (bgPicture)
+		{
+			preparedCss += `background-image: url(${bgPicture});`;
+		}
+
 		if (this.controls.background.position)
 		{
 			if (bgPosition === 'center')
 			{
-				preparedCss += `background-image: url(${bgPicture});`;
 				preparedCss += 'background-attachment: scroll;';
 				preparedCss += 'background-position: center;';
 				preparedCss += 'background-repeat: no-repeat;';
@@ -511,7 +521,6 @@ export class DesignPreview extends EventEmitter
 
 			if (bgPosition === 'repeat')
 			{
-				preparedCss += `background-image: url(${bgPicture});`;
 				preparedCss += 'background-attachment: scroll;';
 				preparedCss += 'background-position: center;';
 				preparedCss += 'background-repeat: repeat;';
@@ -520,7 +529,6 @@ export class DesignPreview extends EventEmitter
 
 			if (bgPosition === 'center_repeat_y')
 			{
-				preparedCss += `background-image: url(${bgPicture});`;
 				preparedCss += 'background-attachment: scroll;';
 				preparedCss += 'background-position: top;';
 				preparedCss += 'background-repeat: repeat-y;';
@@ -545,7 +553,11 @@ export class DesignPreview extends EventEmitter
 	createLayout(): HTMLDivElement
 	{
 		this.layout = Tag.render`<div class="landing-design-preview-wrap"></div>`;
-		this.layoutContent = Tag.render`<div id="${this.id}" class="landing-design-preview"><h2 class="landing-design-preview-title">${this.phrase.title}</h2><h4 class="landing-design-preview-subtitle">${this.phrase.subtitle}</h4><p class="landing-design-preview-text">${this.phrase.text1}</p><p class="landing-design-preview-text">${this.phrase.text2}</p><div class=""><a class="landing-design-preview-button">${this.phrase.button}</a></div></div>`;
+		if (this.type === null)
+		{
+			this.layoutContent = Tag.render`<div id="${this.id}" class="landing-design-preview"><h2 class="landing-design-preview-title">${this.phrase.title}</h2><h4 class="landing-design-preview-subtitle">${this.phrase.subtitle}</h4><p class="landing-design-preview-text">${this.phrase.text1}</p><p class="landing-design-preview-text">${this.phrase.text2}</p><div class=""><a class="landing-design-preview-button">${this.phrase.button}</a></div></div>`;
+		}
+
 		Dom.append(this.layoutContent, this.layout);
 	}
 

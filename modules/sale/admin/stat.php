@@ -243,8 +243,8 @@ while($arOrder = $dbOrder->Fetch())
 function bxStatSort($a, $b)
 {
 	global $by, $order;
-	$by = toUpper($by);
-	$order = toUpper($order);
+	$by = mb_strtoupper($by);
+	$order = mb_strtoupper($order);
 
 	if(in_array($by, Array("COUNT", "PAYED", "ALLOW_DELIVERY", "CANCELED")))
 	{
@@ -412,7 +412,7 @@ while ($arResult = $dbResult->GetNext())
 	$row =& $lAdmin->AddRow($arResult["DATE"], $arResult);
 
 	$row->AddViewField("DATE", $arResult["DATE"]);
-	if($arResult["COUNT"] > 0)
+	if (($arResult["COUNT"] ?? 0) > 0)
 	{
 		$row->AddViewField("COUNT", $arResult["COUNT"]);
 		$row->AddViewField("PAYED", $arResult["PAYED"]);

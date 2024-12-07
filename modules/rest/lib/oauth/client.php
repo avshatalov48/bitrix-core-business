@@ -53,8 +53,8 @@ class Client
 	const METHOD_REST_CODE = 'rest.code';
 	const METHOD_REST_EVENT_CALL = 'rest.event.call';
 
-	const HTTP_SOCKET_TIMEOUT = 10;
-	const HTTP_STREAM_TIMEOUT = 10;
+	const HTTP_SOCKET_TIMEOUT = 15;
+	const HTTP_STREAM_TIMEOUT = 15;
 
 	private const NAME_IDENTIFIER_REQUEST = 'bx24_request_id';
 
@@ -74,10 +74,6 @@ class Client
 		if(!is_array($additionalParams))
 		{
 			$additionalParams = array();
-		}
-		else
-		{
-			$additionalParams = Encoding::convertEncoding($additionalParams, LANG_CHARSET, "utf-8");
 		}
 
 		return $additionalParams;

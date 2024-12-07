@@ -23,9 +23,18 @@ export const DesktopSection = {
 		{
 			return DesktopApi.getAutostartStatus();
 		},
-		openChatInDesktop(): boolean
+		openPortalLinkInDesktop(): boolean
 		{
 			return this.$store.getters['application/settings/get'](Settings.desktop.enableRedirect);
+		},
+		openPortalLinkInDesktopPhrase(): string
+		{
+			if (!DesktopApi.isFeatureSupported(DesktopFeature.openPage.id))
+			{
+				return this.loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT');
+			}
+
+			return this.loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_PORTAL_LINK_V2');
 		},
 		openLinksInSlider(): boolean
 		{
@@ -60,7 +69,7 @@ export const DesktopSection = {
 		{
 			DesktopApi.setAutostartStatus(newValue);
 		},
-		onOpenChatInDesktopChange(newValue: boolean)
+		onOpenPortalLinkInDesktopChange(newValue: boolean)
 		{
 			this.getSettingsService().changeSetting(Settings.desktop.enableRedirect, newValue);
 		},
@@ -106,7 +115,7 @@ export const DesktopSection = {
 				</div>
 				<CheckboxOption
 					:value="twoWindowMode"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE_V2')"
 					@change="onTwoWindowModeChange"
 				/>
 				<CheckboxOption
@@ -120,19 +129,19 @@ export const DesktopSection = {
 					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
 				</div>
 				<CheckboxOption
-					:value="openChatInDesktop"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
-					@change="onOpenChatInDesktopChange"
+					:value="openPortalLinkInDesktop"
+					:text="openPortalLinkInDesktopPhrase"
+					@change="onOpenPortalLinkInDesktopChange"
 				/>
 				<CheckboxOption
 					:value="openLinksInSlider"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER_V2')"
 					@change="onOpenLinksInSliderChange"
 				/>
 			</div>
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_ADDITIONAL') }}
 				</div>
 				<CheckboxOption
 					:value="sendTelemetry"

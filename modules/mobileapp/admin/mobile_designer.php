@@ -154,12 +154,6 @@ if ($action <> '')
 					"NAME" => $_REQUEST["name"],
 				);
 
-				if (!\Bitrix\Main\Application::isUtfMode())
-				{
-					$fields = \Bitrix\Main\Text\Encoding::convertEncodingArray($fields, "UTF-8", SITE_CHARSET);
-					$code = \Bitrix\Main\Text\Encoding::convertEncoding($code, "UTF-8", SITE_CHARSET);
-					$templateName = \Bitrix\Main\Text\Encoding::convertEncoding($templateName, "UTF-8", SITE_CHARSET);
-				}
 				$initConfig = array();
 				if($useOffline)
 				{

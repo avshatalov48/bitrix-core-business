@@ -180,7 +180,7 @@ $blocksOrder = $tabControl->getCurrentTabBlocksOrder($defaultBlocksOrder);
 $fastNavItems = array();
 
 foreach($blocksOrder as $item)
-	$fastNavItems[$item] = Loc::getMessage("SALE_OVIEW_BLOCK_TITLE_".ToUpper($item));
+	$fastNavItems[$item] = Loc::getMessage("SALE_OVIEW_BLOCK_TITLE_".mb_strtoupper($item));
 
 foreach($customDraggableBlocks->getBlocksBrief() as $blockId => $blockParams)
 {
@@ -217,7 +217,7 @@ $tabControl->EndTab();
 	<?=$orderBasket->getSettingsDialogContent();?>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready( function(){
 		BX.Sale.Admin.OrderEditPage.setFixHashCorrection();
 

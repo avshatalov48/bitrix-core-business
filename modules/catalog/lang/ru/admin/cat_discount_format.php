@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_DISC_CONVERT_IN_PROGRESS"] = "Индексация...";
 $MESS["CAT_DISC_CONVERT_TOTAL"] = "Проиндексировано скидок: <b>#COUNT#</b> (#PERCENT#%, примерно #TIME#)";
 $MESS["CAT_DISC_CONVERT_TOTAL_MIN"] = "#MIN# минут";
@@ -17,4 +17,3 @@ $MESS["CAT_DISC_CONVERT_STEP_SEC"] = "секунд";
 $MESS["CAT_DISC_CONVERT_BUTTON"] = "Начать индексацию";
 $MESS["CAT_DISC_CONVERT_STOP"] = "Остановить";
 $MESS["CAT_DISC_FATAL_ERR"] = "Невозможно создать временную таблицу";
-?>

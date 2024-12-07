@@ -3,6 +3,7 @@ namespace Bitrix\Iblock\Copy\Implement;
 
 use Bitrix\Main\Copy\Container;
 use Bitrix\Main\Copy\CopyImplementer;
+use Bitrix\Main\Type\Dictionary;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
 
@@ -13,8 +14,8 @@ class Element extends CopyImplementer
 	/**
 	 * Adds entity.
 	 *
-	 * @param Container $container
-	 * @param array $fields
+	 * @param Container $container Storage.
+	 * @param array $fields Element fields and property.
 	 * @return int|bool return entity id or false.
 	 */
 	public function add(Container $container, array $fields)
@@ -27,14 +28,16 @@ class Element extends CopyImplementer
 		}
 		else
 		{
-			if ($elementObject->LAST_ERROR)
+			$error = $elementObject->getLastError();
+			if ($error !== '')
 			{
-				$this->result->addError(new Error($elementObject->LAST_ERROR, self::ELEMENT_COPY_ERROR));
+				$this->result->addError(new Error($error, self::ELEMENT_COPY_ERROR));
 			}
 			else
 			{
 				$this->result->addError(new Error("Unknown error", self::ELEMENT_COPY_ERROR));
 			}
+
 			return false;
 		}
 	}
@@ -42,8 +45,8 @@ class Element extends CopyImplementer
 	/**
 	 * Returns element fields.
 	 *
-	 * @param Container $container
-	 * @param int $entityId
+	 * @param Container $container Storage.
+	 * @param int $entityId Iblock element id.
 	 * @return array $fields
 	 */
 	public function getFields(Container $container, $entityId)
@@ -77,7 +80,7 @@ class Element extends CopyImplementer
 	/**
 	 * Preparing data before creating a new entity.
 	 *
-	 * @param Container $container
+	 * @param Container $container Storage.
 	 * @param array $inputFields List element fields.
 	 * @return array $fields
 	 */
@@ -93,7 +96,10 @@ class Element extends CopyImplementer
 			{
 				$propertyId = mb_substr($fieldId, mb_strlen("PROPERTY_"));
 				$fields["PROPERTY_VALUES"][$propertyId] = $this->getPropertyFieldValue(
-					$container, $fieldId, $fieldValue);
+					$container,
+					$fieldId,
+					$fieldValue
+				);
 			}
 			else
 			{
@@ -117,7 +123,7 @@ class Element extends CopyImplementer
 		if (!empty($dictionary["targetIblockId"]))
 		{
 			$fields["IBLOCK_ID"] = $dictionary["targetIblockId"];
-			$fields = $this->convertPropertyId($fields, $dictionary["targetIblockId"]);
+			$fields = $this->convertPropertyId($fields, $dictionary);
 		}
 
 		return $fields;
@@ -126,7 +132,7 @@ class Element extends CopyImplementer
 	/**
 	 * Starts copying children entities.
 	 *
-	 * @param Container $container
+	 * @param Container $container Storage.
 	 * @param int $elementId Entity id.
 	 * @param int $copiedElementId Copied entity id.
 	 * @return Result
@@ -160,7 +166,7 @@ class Element extends CopyImplementer
 			if (!empty($property["USER_TYPE"]))
 			{
 				$userType = \CIBlockProperty::getUserType($property["USER_TYPE"]);
-				if ($userType["ConvertFromDB"] && is_callable($userType["ConvertFromDB"]))
+				if (isset($userType["ConvertFromDB"]) && is_callable($userType["ConvertFromDB"]))
 				{
 					$fieldValue = $this->getValueFromPropertyClass($fieldValue, $userType["ConvertFromDB"]);
 				}
@@ -203,9 +209,16 @@ class Element extends CopyImplementer
 
 	private function getFileValue(array $fieldValue)
 	{
-		array_walk($fieldValue, function(&$value) {
-			$value = ["VALUE" => \CFile::makeFileArray($value)];
-		});
+		array_walk(
+			$fieldValue,
+			function(&$value)
+			{
+				$value = [
+					'VALUE' => \CFile::makeFileArray($value),
+				];
+			}
+		);
+
 		return $fieldValue;
 	}
 
@@ -250,38 +263,38 @@ class Element extends CopyImplementer
 
 	private function getIntegerValue(array $fieldValue)
 	{
-		array_walk($fieldValue, function(&$value) {
-			$value = [
-				"VALUE" => ($value === false ? "" : floatval(str_replace(" ", "", str_replace(",", ".", $value))))
-			];
-		});
+		array_walk(
+			$fieldValue,
+			function(&$value)
+			{
+				$value = [
+					'VALUE' => (
+						$value === false
+							? ''
+							: (float)(str_replace(" ", "", str_replace(",", ".", $value)))
+					),
+				];
+			}
+		);
+
 		return $fieldValue;
 	}
 
-	private function convertPropertyId(array $fields, $targetIblockId)
+	private function convertPropertyId(array $fields, Dictionary $dictionary): array
 	{
-		$targetProperties = [];
-		$queryObject = \CIBlockProperty::getList([], ["IBLOCK_ID" => $targetIblockId]);
-		while ($property = $queryObject->fetch())
-		{
-			$targetProperties[$property["ID"]] = $property["CODE"];
-		}
+		$fieldRatio = $dictionary->get('fieldRatio');
 
+		$values = [];
 		foreach ($fields["PROPERTY_VALUES"] as $propertyId => $propertyValue)
 		{
-			$queryObject = \CIBlockProperty::getList([], ["ID" => $propertyId]);
-			if ($property = $queryObject->fetch())
+			if (isset($fieldRatio[$propertyId]))
 			{
-				foreach ($targetProperties as $targetPropertyId => $targetPropertyCode)
-				{
-					if ($targetPropertyCode == $property["CODE"])
-					{
-						$fields["PROPERTY_VALUES"][$targetPropertyId] = $propertyValue;
-					}
-				}
-				unset($fields["PROPERTY_VALUES"][$propertyId]);
+				$newPropertyId = $fieldRatio[$propertyId];
+				$values[$newPropertyId] = $propertyValue;
 			}
 		}
+
+		$fields['PROPERTY_VALUES'] = $values;
 
 		return $fields;
 	}

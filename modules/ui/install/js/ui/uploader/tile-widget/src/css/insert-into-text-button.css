@@ -1,0 +1,21 @@
+.ui-tile-uploader-insert-into-text-button {
+	display: inline-block;
+	width: 24px;
+	height: 25px;
+	background-position: center;
+	background-repeat: no-repeat;
+	transition: opacity .3s;
+	opacity: .5;
+	cursor: pointer;
+	z-index: 1;
+	background-image: url("data:image/svg+xml,%3Csvg width='16' height='10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M12.708 2.034V10h-2.416V2.034H7V0h9v2.034h-3.292Zm-8.543 1.86c-.088-.398.41-.678.699-.39l2.26 2.26a.4.4 0 0 1 0 .566L4.78 8.675c-.282.281-.764.022-.69-.37.088-.454.18-.963.252-1.418a.854.854 0 0 1-.091.005H.528a.5.5 0 0 1-.5-.5v-.69a.5.5 0 0 1 .5-.5h3.723c.056 0 .11.006.164.017a19.265 19.265 0 0 0-.25-1.325Z' fill='%23525C69'/%3E%3C/svg%3E");
+}
+
+.ui-tile-uploader-insert-into-text-button:hover {
+	opacity: 0.9;
+}
+
+.ui-tile-uploader-insert-into-text-button.--inserted {
+	background-image: url("data:image/svg+xml,%3Csvg width='18' height='11' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.708 10V2.034H18V0H9v2.034h3.292V10h2.416ZM3.811 6.025 2.69 4.908l-.914.913L3.762 7.8l.05.049 3.445-3.402-.913-.913-2.533 2.49Zm.73 4.034a4.523 4.523 0 1 1 0-9.045 4.523 4.523 0 0 1 0 9.045Z' fill='%232FC6F6'/%3E%3C/svg%3E");
+	opacity: 1;
+}

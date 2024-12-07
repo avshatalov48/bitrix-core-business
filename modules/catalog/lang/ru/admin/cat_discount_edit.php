@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["DSC_TITLE_UPDATE"] = "Изменение параметров скидки с кодом #ID#";
 $MESS["DSC_TITLE_ADD"] = "Добавление новой скидки";
 $MESS["DSC_SITE"] = "Сайт";
@@ -48,4 +48,3 @@ $MESS["BT_CAT_DISCOUNT_EDIT_FIELDS_COUPON_COUNT"] = "Число купонов";
 $MESS["BT_CAT_DISCOUNT_EDIT_FIELDS_COUPON_TYPE"] = "Тип купона";
 $MESS["BT_CAT_DISCOUNT_EDIT_COUPON_TYPE"] = "Неверный тип купона";
 $MESS["BT_CAT_DISCOUNT_EDIT_COUPON_COUNT"] = "Не указано число добавляемых купонов";
-?>

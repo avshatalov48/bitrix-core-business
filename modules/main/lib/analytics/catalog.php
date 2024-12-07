@@ -153,8 +153,8 @@ class Catalog
 		// debug info
 		global $USER;
 
-		$data['real_user_id'] = $USER->getId() ?: 0;
-		$data['is_admin'] = (int) $USER->IsAdmin();
+		$data['real_user_id'] = (int)$USER?->getId();
+		$data['is_admin'] = (int)$USER?->IsAdmin();
 		$data['admin_section'] = (int) (defined('ADMIN_SECTION') && ADMIN_SECTION);
 		$data['admin_panel'] = (int) \CTopPanel::shouldShowPanel();
 
@@ -233,9 +233,9 @@ class Catalog
 		// add debug info
 		global $USER;
 
-		$data['real_user_id'] = $USER->getId() ?: 0;
+		$data['real_user_id'] = (int)$USER?->getId();
+		$data['is_admin'] = (int)$USER?->IsAdmin();
 		$data['cookie_size'] = count($_COOKIE);
-		$data['is_admin'] = (int) $USER->IsAdmin();
 		$data['admin_section'] = (int) (defined('ADMIN_SECTION') && ADMIN_SECTION);
 		$data['admin_panel'] = (int) \CTopPanel::shouldShowPanel();
 
@@ -432,10 +432,7 @@ class Catalog
 
 	public static function isOn()
 	{
-		return SiteSpeed::isOn()
-			&& Option::get("main", "gather_catalog_stat", "Y") === "Y"
-			&& !Application::getInstance()->getLicense()->isDemoKey()
-		;
+		return false;
 	}
 
 	public static function getProductIdsByOfferIds($offerIds)

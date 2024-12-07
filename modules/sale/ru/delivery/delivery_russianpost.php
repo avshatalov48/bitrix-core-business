@@ -184,10 +184,10 @@ class CDeliveryRUSSIANPOST
 		foreach ($arRUSSIANPOSTCountryList as $country_id => $country_name)
 		{
 			if (
-				ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == $country_name
-				|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == $country_name
-				|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == $country_name
-				|| ToUpper($arLocation["COUNTRY_NAME"]) == $country_name
+				mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == $country_name
+				|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == $country_name
+				|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == $country_name
+				|| mb_strtoupper($arLocation["COUNTRY_NAME"]) == $country_name
 			)
 			{
 				return array(
@@ -268,9 +268,9 @@ class CDeliveryRUSSIANPOST
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_CATEGORY_NAME."=".urlencode(GetMessage("SALE_DH_RUSSIANPOST_CONFIG_CATEGORY_".$arConfig["category"]["VALUE"]));
 
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE."=".urlencode($arProfile[$profile]);
-			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE_NAME.'='.urlencode(GetMessage("SALE_DH_RUSSIANPOST_".ToUpper($profile)));
+			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE_NAME.'='.urlencode(GetMessage("SALE_DH_RUSSIANPOST_".mb_strtoupper($profile)));
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY."=643";
-			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY_NAME.'='.urlencode($GLOBALS['APPLICATION']->ConvertCharset('Российская Федерация', LANG_CHARSET, 'utf-8'));
+			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY_NAME.'='.urlencode('Российская Федерация');
 
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_WEIGHT."=".urlencode($arOrder["WEIGHT"]);
 
@@ -291,11 +291,11 @@ class CDeliveryRUSSIANPOST
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_CATEGORY."=".urlencode($arConfig["category"]["VALUE"]);
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_CATEGORY_NAME."=".urlencode(GetMessage("SALE_DH_RUSSIANPOST_CONFIG_CATEGORY_".$arConfig["category"]["VALUE"]));
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE."=".urlencode($arProfile[$profile]);
-			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE_NAME.'='.urlencode(GetMessage("SALE_DH_RUSSIANPOST_".ToUpper($profile)));
+			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PROFILE_NAME.'='.urlencode(GetMessage("SALE_DH_RUSSIANPOST_".mb_strtoupper($profile)));
 			$arCountry = CDeliveryRUSSIANPOST::__GetCountry($arLocationTo);
 
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY."=".urlencode($arCountry["ID"]);
-			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY_NAME."=".urlencode($GLOBALS['APPLICATION']->ConvertCharset($arCountry["NAME"], LANG_CHARSET, 'utf-8'));
+			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_COUNTRY_NAME."=".urlencode($arCountry["NAME"]);
 
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_WEIGHT."=".urlencode($arOrder["WEIGHT"]);
 			$arQuery[] = DELIVERY_RUSSIANPOST_SERVER_POST_PRICE."=0";
@@ -320,7 +320,6 @@ class CDeliveryRUSSIANPOST
 		}
 
 		$data = $res->getData();
-		$data = $GLOBALS['APPLICATION']->ConvertCharset($data["DATA"], 'utf-8', LANG_CHARSET);
 
 		CDeliveryRUSSIANPOST::__Write2Log($data);
 
@@ -420,12 +419,12 @@ class CDeliveryRUSSIANPOST
 		$arLocationFrom = CSaleHelper::getLocationByIdHitCached($arOrder["LOCATION_FROM"]);
 
 		if (
-			ToUpper($arLocationFrom["CITY_NAME_ORIG"]) == "МОСКВА"
-			|| ToUpper($arLocationFrom["CITY_SHORT_NAME"]) == "МОСКВА"
-			|| ToUpper($arLocationFrom["CITY_NAME_LANG"]) == "МОСКВА"
-			|| ToUpper($arLocationFrom["CITY_NAME_ORIG"]) == "MOSCOW"
-			|| ToUpper($arLocationFrom["CITY_SHORT_NAME"]) == "MOSCOW"
-			|| ToUpper($arLocationFrom["CITY_NAME_LANG"]) == "MOSCOW"
+			mb_strtoupper($arLocationFrom["CITY_NAME_ORIG"]) == "МОСКВА"
+			|| mb_strtoupper($arLocationFrom["CITY_SHORT_NAME"]) == "МОСКВА"
+			|| mb_strtoupper($arLocationFrom["CITY_NAME_LANG"]) == "МОСКВА"
+			|| mb_strtoupper($arLocationFrom["CITY_NAME_ORIG"]) == "MOSCOW"
+			|| mb_strtoupper($arLocationFrom["CITY_SHORT_NAME"]) == "MOSCOW"
+			|| mb_strtoupper($arLocationFrom["CITY_NAME_LANG"]) == "MOSCOW"
 		)
 		{
 			$arLocationTo = CSaleHelper::getLocationByIdHitCached($arOrder["LOCATION_TO"]);
@@ -447,18 +446,18 @@ class CDeliveryRUSSIANPOST
 	public static function __IsRussian($arLocation)
 	{
 		return
-			(ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIA"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
-			|| ToUpper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIAN FEDERATION"
-			|| ToUpper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIAN FEDERATION"
-			|| ToUpper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIAN FEDERATION"
+			(mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIA"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "РОССИЙСКАЯ ФЕДЕРАЦИЯ"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_ORIG"]) == "RUSSIAN FEDERATION"
+			|| mb_strtoupper($arLocation["COUNTRY_SHORT_NAME"]) == "RUSSIAN FEDERATION"
+			|| mb_strtoupper($arLocation["COUNTRY_NAME_LANG"]) == "RUSSIAN FEDERATION"
 			|| ($arLocation["COUNTRY_NAME_LANG"] === null && $arLocation["COUNTRY_NAME_ORIG"] === null)
 		);
 	}

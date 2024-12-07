@@ -51,6 +51,11 @@ export class Env
 		return this.getOptions().params.type;
 	}
 
+	getSpecialType(): string
+	{
+		return this.getOptions().specialType;
+	}
+
 	getSiteId(): number
 	{
 		return this.getOptions().site_id || -1;

@@ -169,7 +169,7 @@ if($dh)
 {
 	while(($file = readdir($dh)) !== false)
 	{
-		if(mb_substr(mb_strtolower($file), -4) === ".ttf")
+		if(str_ends_with(mb_strtolower($file), ".ttf"))
 		{
 			$arSettings["arTTFFiles"][1][$file] = $file;
 		}
@@ -182,7 +182,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid() && $isAdmin)
+if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POST['apply'])) && check_bitrix_sessid() && $isAdmin)
 {
 	foreach($arSettings as $key => $value)
 	{

@@ -5,9 +5,12 @@ namespace Bitrix\Socialnetwork\Space\List\RecentActivity\Collector;
 use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\Trait\EntityLoadTrait;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 
 final class MembershipProvider extends AbstractProvider
 {
+	use EntityLoadTrait;
 
 	public function isAvailable(): bool
 	{
@@ -16,7 +19,7 @@ final class MembershipProvider extends AbstractProvider
 
 	public function getTypeId(): string
 	{
-		return 'membership';
+		return Dictionary::ENTITY_TYPE['membership'];
 	}
 
 	protected function fill(): void

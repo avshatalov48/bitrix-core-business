@@ -1,23 +1,25 @@
+import { Messenger } from 'im.public';
 import { Text } from 'main.core';
 
-import { RecentCallStatus } from 'im.v2.const';
-import { Avatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor, ButtonIcon } from 'im.v2.component.elements';
+import { ChatType, RecentCallStatus } from 'im.v2.const';
+import { ChatAvatar, AvatarSize, ChatTitle, Button as MessengerButton, ButtonSize, ButtonColor, ButtonIcon } from 'im.v2.component.elements';
 import { CallManager } from 'im.v2.lib.call';
+import { Analytics } from 'im.v2.lib.analytics';
 
 import '../css/active-call.css';
 
-import type { ImModelCallItem } from 'im.v2.model';
+import type { ImModelCallItem, ImModelChat } from 'im.v2.model';
 import type { CustomColorScheme } from 'im.v2.component.elements';
 
 // @vue/component
 export const ActiveCall = {
 	name: 'ActiveCall',
-	components: { Avatar, ChatTitle, MessengerButton },
+	components: { ChatAvatar, ChatTitle, MessengerButton },
 	props: {
 		item: {
 			type: Object,
 			required: true,
-		}
+		},
 	},
 	emits: ['click'],
 	computed:
@@ -29,6 +31,14 @@ export const ActiveCall = {
 		activeCall(): ImModelCallItem
 		{
 			return this.item;
+		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.activeCall.dialogId, true);
+		},
+		isConference(): boolean
+		{
+			return this.dialog.type === ChatType.videoconf;
 		},
 		preparedName(): string
 		{
@@ -60,6 +70,14 @@ export const ActiveCall = {
 	{
 		onJoinClick()
 		{
+			if (this.isConference)
+			{
+				Analytics.getInstance().onJoinConferenceClick({
+					callId: this.activeCall.call.id,
+				});
+				Messenger.openConference({ code: this.dialog.public.code });
+				return
+			}
 			this.getCallManager().joinCall(this.activeCall.call.id);
 		},
 		onLeaveCallClick()
@@ -94,10 +112,14 @@ export const ActiveCall = {
 		},
 	},
 	template: `
-		<div :data-id="activeCall.dialogId" class="bx-im-list-recent-item__wrap">
+		<div :data-id="activeCall.dialogId" class="bx-im-list-recent-item__wrap bx-im-list-recent-active-call-item__wrap">
 			<div @click="onClick" class="bx-im-list-recent-item__container bx-im-list-recent-active-call__container">
 				<div class="bx-im-list-recent-item__avatar_container">
-					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.XL" />
+					<ChatAvatar 
+						:avatarDialogId="activeCall.dialogId" 
+						:contextDialogId="activeCall.dialogId" 
+						:size="AvatarSize.XL" 
+					/>
 				</div>
 				<div class="bx-im-list-recent-item__content_container">
 					<div class="bx-im-list-recent-active-call__title_container">

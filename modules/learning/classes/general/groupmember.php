@@ -148,7 +148,7 @@ class CLearningGroupMember
 			if (isset($arNavParams['nTopCount']))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, $bIgnoreErrors = false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -160,7 +160,7 @@ class CLearningGroupMember
 		}
 		else
 		{
-			$res = $DB->Query($strSql, $bIgnoreErrors = false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		return $res;

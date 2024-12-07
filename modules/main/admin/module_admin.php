@@ -62,7 +62,7 @@ foreach ($folders as $folder)
 				!isset($arModules[$dir])
 				&& is_dir($_SERVER["DOCUMENT_ROOT"].$folder . "/" . $dir)
 				&& !in_array($dir, ['.', '..', 'main'], true)
-				&& strpos($dir, ".") === false
+				&& !str_contains($dir, ".")
 			)
 			{
 				$module_dir = $_SERVER["DOCUMENT_ROOT"] . $folder . "/" . $dir;
@@ -74,8 +74,8 @@ foreach ($folders as $folder)
 					$arModules[$dir]["MODULE_VERSION"] = $info->MODULE_VERSION;
 					$arModules[$dir]["MODULE_VERSION_DATE"] = $info->MODULE_VERSION_DATE;
 					$arModules[$dir]["MODULE_SORT"] = $info->MODULE_SORT;
-					$arModules[$dir]["MODULE_PARTNER"] = (strpos($dir, ".") !== false) ? $info->PARTNER_NAME : "";
-					$arModules[$dir]["MODULE_PARTNER_URI"] = (strpos($dir, ".") !== false) ? $info->PARTNER_URI : "";
+					$arModules[$dir]["MODULE_PARTNER"] = (str_contains($dir, ".")) ? $info->PARTNER_NAME : "";
+					$arModules[$dir]["MODULE_PARTNER_URI"] = (str_contains($dir, ".")) ? $info->PARTNER_URI : "";
 					$arModules[$dir]["IsInstalled"] = $info->IsInstalled();
 				}
 			}
@@ -145,10 +145,10 @@ if ($isAdmin && !$fb && check_bitrix_sessid())
 				}
 				else
 				{
-					$match[3] = (100-$count)+($match[3]);
+					$match[3] = (10000-$count)+($match[3]);
 					if ($match[2] == 0)
 					{
-						$match[2] = 9;
+						$match[2] = 9999;
 						$match[1] -= 1;
 					}
 					else
@@ -314,7 +314,7 @@ foreach($arModules as $info)
 				{
 					$disabled = (
 						!$isAdmin
-						|| in_array($info["MODULE_ID"], ["fileman", "intranet", "ui", "security"], true)
+						|| in_array($info["MODULE_ID"], ["fileman", "intranet", "ui", "security", "humanresources",], true)
 						|| (
 							in_array($info['MODULE_ID'], [ 'rest', 'socialnetwork' ], true)
 							&& ModuleManager::isModuleInstalled('intranet')

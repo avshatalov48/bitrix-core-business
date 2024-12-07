@@ -16,6 +16,8 @@
  * @global CUser $USER
  */
 
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
@@ -28,7 +30,7 @@ else
 
 <div class="bx-interface-form">
 
-<script type="text/javascript">
+<script>
 var bxForm_<?=$arParams["FORM_ID"]?> = null;
 </script>
 
@@ -413,14 +415,14 @@ $variables = array(
 	"GRID_ID"=>$arParams["THEME_GRID_ID"],
 );
 ?>
-<script type="text/javascript">
+<script>
 var formSettingsDialog<?=$arParams["FORM_ID"]?>;
 
-bxForm_<?=$arParams["FORM_ID"]?> = new BxInterfaceForm('<?=$arParams["FORM_ID"]?>', <?=CUtil::PhpToJsObject(array_keys($arResult["TABS"]))?>);
-bxForm_<?=$arParams["FORM_ID"]?>.vars = <?=CUtil::PhpToJsObject($variables)?>;
+bxForm_<?=$arParams["FORM_ID"]?> = new BxInterfaceForm('<?=$arParams["FORM_ID"]?>', <?= Json::encode(array_keys($arResult["TABS"])) ?>);
+bxForm_<?=$arParams["FORM_ID"]?>.vars = <?= Json::encode($variables) ?>;
 <?if($arParams["SHOW_SETTINGS"] == true):?>
-bxForm_<?=$arParams["FORM_ID"]?>.oTabsMeta = <?=CUtil::PhpToJsObject($arResult["TABS_META"])?>;
-bxForm_<?=$arParams["FORM_ID"]?>.oFields = <?=CUtil::PhpToJsObject($arResult["AVAILABLE_FIELDS"])?>;
+bxForm_<?=$arParams["FORM_ID"]?>.oTabsMeta = <?= Json::encode($arResult["TABS_META"]) ?>;
+bxForm_<?=$arParams["FORM_ID"]?>.oFields = <?= Json::encode($arResult["AVAILABLE_FIELDS"]) ?>;
 <?endif?>
 <?
 $settingsMenu = array();
@@ -480,7 +482,7 @@ if(!empty($arThemes))
 	);
 }
 ?>
-bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu = <?=CUtil::PhpToJsObject($settingsMenu)?>;
+bxForm_<?=$arParams["FORM_ID"]?>.settingsMenu = <?= Json::encode($settingsMenu) ?>;
 
 <?if(isset($arResult["OPTIONS"]["expand_tabs"]) && $arResult["OPTIONS"]["expand_tabs"] == "Y"):?>
 BX.ready(function(){bxForm_<?=$arParams["FORM_ID"]?>.ToggleTabs(true);});

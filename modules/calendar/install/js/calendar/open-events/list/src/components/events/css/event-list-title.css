@@ -1,0 +1,46 @@
+.calendar__open-event__list-header {
+	padding: 0 20px 0 24px;
+	align-content: center;
+	display: flex;
+	flex-direction: row;
+	height: 66px;
+	border-bottom: 1px solid var(--ui-color-base-15);
+}
+
+.calendar__open-event__list-header__title {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	margin: auto 5px auto 0;
+	color: var(--ui-color-base-solid);
+	font-weight: var(--ui-font-weight-normal);
+	font-size: var(--ui-font-size-2xl);
+}
+
+.calendar__open-event__list-header__icon {
+	--ui-icon-set__icon-color: var(--ui-color-base-50);
+	align-self: center;
+}
+
+.calendar-open-events-list-item__list-header__menu {
+	align-self: center;
+	margin-right: 0;
+	margin-left: auto;
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+}
+
+.calendar-open-events-list-item__list-header__menu:hover {
+	cursor: pointer;
+}
+
+.calendar-open-events-list-menu-item {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+
+.calendar-open-events-list-menu-item .ui-icon-set {
+	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-color: var(--ui-color-base-80);
+}

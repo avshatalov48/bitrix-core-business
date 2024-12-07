@@ -202,11 +202,11 @@ final class MailboxConnector
 		switch ($serviceName)
 		{
 			case 'gmail':
-				return Main\Config\Option::get('mail', '~disable_gmail_oauth_smtp') === 'N';
+				return Main\Config\Option::get('mail', '~disable_gmail_oauth_smtp') !== 'Y';
 			case 'yandex':
 				return Main\Config\Option::get('mail', '~disable_yandex_oauth_smtp') !== 'Y';
 			case 'mail.ru':
-				return Main\Config\Option::get('mail', '~disable_mailru_oauth_smtp') === 'N';
+				return Main\Config\Option::get('mail', '~disable_mailru_oauth_smtp') !== 'Y';
 			case 'office365':
 			case 'outlook.com':
 			case 'exchangeOnline':
@@ -239,8 +239,14 @@ final class MailboxConnector
 	 *
 	 * @return array
 	 */
-	public static function appendSender(array $senderFields, string $userPrincipalName): array
+	public static function appendSender(array $senderFields, string $userPrincipalName, int $mailboxId = 0): array
 	{
+		if($mailboxId)
+		{
+			$senderFields['PARENT_ID'] = $mailboxId;
+			$senderFields['PARENT_MODULE_ID'] = 'mail';
+		}
+
 		$result = Main\Mail\Sender::add($senderFields);
 
 		if (empty($result['confirmed']) && $userPrincipalName)
@@ -272,6 +278,10 @@ final class MailboxConnector
 		bool $sslSmtp = true,
 		string $loginSmtp = '',
 		string $passwordSMTP = '',
+		bool $useLimitSmtp = false,
+		int $limitSmtp = null,
+		string $mailboxName = '',
+		string $senderName = '',
 	): array
 	{
 		$login = trim($login);
@@ -327,13 +337,13 @@ final class MailboxConnector
 		}
 
 		$mailboxData = [
-			'USERNAME' => '',
+			'USERNAME' => $senderName ?: '',
 			'SERVER'   => $service['SERVER'] ?: trim($server),
 			'PORT'     => $service['PORT'] ?: $port,
 			'USE_TLS'  => $service['ENCRYPTION'] ?: $ssl,
 			'LINK'     => $service['LINK'],
 			'EMAIL'    => $login,
-			'NAME'     => $login,
+			'NAME'     => $mailboxName ?? $login,
 			'PERIOD_CHECK' => 60 * 24,
 			'OPTIONS'  => [
 				'flags'     => [],
@@ -464,37 +474,21 @@ final class MailboxConnector
 				],
 			];
 
-			$res = Main\Mail\Internal\SenderTable::getList(array(
-				'filter' => [
-					'IS_CONFIRMED' => true,
-					'=EMAIL' => $mailboxData['EMAIL'],
-				],
-				'order' => [
-					'ID' => 'DESC',
-				],
-			));
+			$mailboxSenders = Main\Mail\Internal\SenderTable::query()
+				->setSelect(['ID', 'OPTIONS'])
+				->where('IS_CONFIRMED', true)
+				->where('EMAIL', $senderFields['EMAIL'])
+				->where('USER_ID', $senderFields['USER_ID'])
+				->fetchAll()
+			;
 
-			while ($item = $res->fetch())
+			foreach ($mailboxSenders as $sender)
 			{
 				if (empty($smtpConfirmed))
 				{
-					if (!empty($item['OPTIONS']['smtp']['server']) && empty($item['OPTIONS']['smtp']['encrypted']))
+					if (!empty($sender['OPTIONS']['smtp']['server']) && empty($sender['OPTIONS']['smtp']['encrypted']))
 					{
-						$smtpConfirmed = $item['OPTIONS']['smtp'];
-					}
-				}
-
-				if ($senderFields['USER_ID'] == $item['USER_ID'] && $senderFields['NAME'] == $item['NAME'])
-				{
-					$senderFields = $item;
-					$senderFields['IS_CONFIRMED'] = false;
-					$senderFields['OPTIONS']['__replaces'] = $item['ID'];
-
-					unset($senderFields['ID']);
-
-					if (!empty($smtpConfirmed))
-					{
-						break;
+						$smtpConfirmed = $sender['OPTIONS']['smtp'];
 					}
 				}
 			}
@@ -514,6 +508,11 @@ final class MailboxConnector
 			{
 				// server, port, protocol, login, password
 				$smtpConfig = array_filter($smtpConfig) + $smtpConfirmed;
+			}
+
+			if ($useLimitSmtp)
+			{
+				$smtpConfig['limit'] = $limitSmtp;
 			}
 
 			if ($service['SMTP_PASSWORD_AS_IMAP'] == 'Y' && (!$storageOauthUid || $isSmtpOauthEnabled))
@@ -595,27 +594,6 @@ final class MailboxConnector
 			}
 		}
 
-		if (!empty($senderFields) && empty($senderFields['IS_CONFIRMED']))
-		{
-			$result = $this->appendSender($senderFields, (string)($fields['user_principal_name'] ?? ''));
-
-			if (!empty($result['errors']) && $result['errors'] instanceof Main\ErrorCollection)
-			{
-				$this->addErrors($result['errors'], $isOAuth, true);
-				return [];
-			}
-			else if (!empty($result['error']))
-			{
-				$this->addError($result['error']);
-				return [];
-			}
-			else if (empty($result['confirmed']))
-			{
-				$this->addError('MAIL_CLIENT_CONFIG_SMTP_CONFIRM');
-				return [];
-			}
-		}
-
 		$mailboxData['OPTIONS']['version'] = 6;
 
 		if (empty($mailbox))
@@ -644,6 +622,27 @@ final class MailboxConnector
 		{
 			$this->setError();
 			return [];
+		}
+
+		if (!empty($senderFields) && empty($senderFields['IS_CONFIRMED']))
+		{
+			$result = $this->appendSender($senderFields, (string)($fields['user_principal_name'] ?? ''), (int)$mailboxId);
+
+			if (!empty($result['errors']) && $result['errors'] instanceof Main\ErrorCollection)
+			{
+				$this->addErrors($result['errors'], $isOAuth, true);
+				return [];
+			}
+			else if (!empty($result['error']))
+			{
+				$this->addError($result['error']);
+				return [];
+			}
+			else if (empty($result['confirmed']))
+			{
+				$this->addError('MAIL_CLIENT_CONFIG_SMTP_CONFIRM');
+				return [];
+			}
 		}
 
 		$ownerAccessCode = 'U' . (empty($mailbox) ? $USER->getId() : $mailbox['USER_ID']);

@@ -1,0 +1,352 @@
+/**
+ * Copyright (c) Meta Platforms, Inc. and affiliates.
+ *
+ * This source code is licensed under the MIT license found in the
+ * LICENSE file in the root directory of this source tree.
+ *
+ * @flow strict
+ */
+
+import type {
+  BaseSelection,
+  EditorConfig,
+  LexicalNode,
+  NodeKey,
+  ParagraphNode,
+  PointType,
+  RangeSelection,
+  LexicalEditor,
+  TextFormatType,
+  LexicalCommand,
+} from 'ui.lexical.core';
+
+import {
+  ElementNode,
+} from 'ui.lexical.core';
+
+/**
+ * LexicalTableCellNode
+ */
+
+export const TableCellHeaderStates = {
+  NO_STATUS: 0,
+  ROW: 1,
+  COLUMN: 2,
+  BOTH: 3,
+};
+
+export type TableCellHeaderState = $Values<typeof TableCellHeaderStates>;
+
+declare export class TableCellNode extends ElementNode {
+  __colSpan: number;
+  __rowSpan: number;
+  __headerState: TableCellHeaderState;
+  __width?: number;
+  __backgroundColor: null | string;
+  static getType(): string;
+  static clone(node: TableCellNode): TableCellNode;
+  constructor(
+    headerState?: TableCellHeaderState,
+    colSpan?: number,
+    width?: ?number,
+    key?: NodeKey,
+  ): void;
+  createDOM(config: EditorConfig): HTMLElement;
+  updateDOM(prevNode: TableCellNode, dom: HTMLElement): boolean;
+  insertNewAfter(
+    selection: RangeSelection,
+  ): null | ParagraphNode | TableCellNode;
+  collapseAtStart(): true;
+  getColSpan(): number;
+  setColSpan(colSpan: number): this;
+  getRowSpan(): number;
+  setRowSpan(rowSpan: number): this;
+  getTag(): string;
+  setHeaderStyles(headerState: TableCellHeaderState): TableCellHeaderState;
+  getHeaderStyles(): TableCellHeaderState;
+  setWidth(width: number): ?number;
+  getWidth(): ?number;
+  getBackgroundColor(): null | string;
+  setBackgroundColor(newBackgroundColor: null | string): void;
+  toggleHeaderStyle(headerState: TableCellHeaderState): TableCellNode;
+  hasHeader(): boolean;
+  updateDOM(prevNode: TableCellNode): boolean;
+  collapseAtStart(): true;
+  canBeEmpty(): false;
+}
+declare export function $createTableCellNode(
+  headerState: TableCellHeaderState,
+  colSpan?: number,
+  width?: ?number,
+): TableCellNode;
+declare export function $isTableCellNode(
+  node: ?LexicalNode,
+): node is TableCellNode;
+
+/**
+ * LexicalTableNode
+ */
+
+export type TableMapValueType = {
+  cell: TableCellNode,
+  startRow: number,
+  startColumn: number,
+};
+export type TableMapType = Array<Array<TableMapValueType>>;
+
+declare export class TableNode extends ElementNode {
+  static getType(): string;
+  static clone(node: TableNode): TableNode;
+  constructor(key?: NodeKey): void;
+  createDOM(config: EditorConfig): HTMLElement;
+  updateDOM(prevNode: TableNode, dom: HTMLElement): boolean;
+  insertNewAfter(selection: RangeSelection): null | ParagraphNode | TableNode;
+  collapseAtStart(): true;
+  getCordsFromCellNode(
+    tableCellNode: TableCellNode,
+    table: TableDOMTable,
+  ): {x: number, y: number};
+  getDOMCellFromCords(x: number, y: number, table: TableDOMTable): ?TableDOMCell;
+  getDOMCellFromCordsOrThrow(x: number, y: number, table: TableDOMTable): TableDOMCell;
+  getCellNodeFromCords(x: number, y: number, table: TableDOMTable): ?TableCellNode;
+  getCellNodeFromCordsOrThrow(x: number, y: number, table: TableDOMTable): TableCellNode;
+  canSelectBefore(): true;
+}
+declare export function $createTableNode(): TableNode;
+declare export function $isTableNode(
+  node: ?LexicalNode,
+): node is TableNode;
+
+/**
+ * LexicalTableRowNode
+ */
+
+declare export class TableRowNode extends ElementNode {
+  static getType(): string;
+  static clone(node: TableRowNode): TableRowNode;
+  constructor(height?: ?number, key?: NodeKey): void;
+  createDOM(config: EditorConfig): HTMLElement;
+  updateDOM(prevNode: TableRowNode, dom: HTMLElement): boolean;
+  setHeight(height: number): ?number;
+  getHeight(): ?number;
+  insertNewAfter(
+    selection: RangeSelection,
+  ): null | ParagraphNode | TableRowNode;
+  collapseAtStart(): true;
+}
+declare export function $createTableRowNode(): TableRowNode;
+declare export function $isTableRowNode(
+  node: ?LexicalNode,
+): node is TableRowNode;
+
+/**
+ * LexicalTableSelectionHelpers
+ */
+
+export type TableDOMCell = {
+  elem: HTMLElement,
+  highlighted: boolean,
+  x: number,
+  y: number,
+};
+
+export type TableDOMRows = Array<Array<TableDOMCell>>;
+
+export type TableDOMTable = {
+  cells: TableDOMRows,
+  columns: number,
+  rows: number,
+};
+
+declare export function applyTableHandlers(
+  tableNode: TableNode,
+  tableElement: HTMLElement,
+  editor: LexicalEditor,
+): TableObserver;
+
+declare export function $getElementForTableNode(
+  editor: LexicalEditor,
+  tableNode: TableNode,
+): TableDOMTable;
+
+declare export function getTableObserverFromTableElement(
+  tableElement: HTMLElement,
+): null | TableObserver;
+
+declare export function getDOMCellFromTarget(node: Node): null | TableDOMCell;
+
+declare export function $findTableNode(node: LexicalNode): null | TableNode;
+
+declare export function $findCellNode(node: LexicalNode): null | TableCellNode;
+
+/**
+ * LexicalTableUtils
+ */
+
+declare export function $createTableNodeWithDimensions(
+  rowCount: number,
+  columnCount: number,
+  includeHeaders?: boolean,
+): TableNode;
+
+declare export function $getTableCellNodeFromLexicalNode(
+  startingNode: LexicalNode,
+): TableCellNode | null;
+
+declare export function $getTableRowNodeFromTableCellNodeOrThrow(
+  startingNode: LexicalNode,
+): TableRowNode;
+
+declare export function $getTableNodeFromLexicalNodeOrThrow(
+  startingNode: LexicalNode,
+): TableNode;
+
+declare export function $getTableRowIndexFromTableCellNode(
+  tableCellNode: TableCellNode,
+): number;
+
+declare export function $getTableColumnIndexFromTableCellNode(
+  tableCellNode: TableCellNode,
+): number;
+
+declare export function $removeTableRowAtIndex(
+  tableNode: TableNode,
+  indexToDelete: number,
+): TableNode;
+
+declare export function $insertTableRow(
+  tableNode: TableNode,
+  targetIndex: number,
+  shouldInsertAfter?: boolean,
+  rowCount: number,
+  table: TableDOMTable,
+): TableNode;
+
+declare export function $insertTableColumn(
+  tableNode: TableNode,
+  targetIndex: number,
+  shouldInsertAfter?: boolean,
+  columnCount: number,
+  table: TableDOMTable,
+): TableNode;
+
+declare export function $deleteTableColumn(
+  tableNode: TableNode,
+  targetIndex: number,
+): TableNode;
+
+declare export function $insertTableRow__EXPERIMENTAL(
+  insertAfter: boolean,
+): void;
+
+declare export function $insertTableColumn__EXPERIMENTAL(
+  insertAfter: boolean,
+): void;
+
+declare export function $deleteTableRow__EXPERIMENTAL(): void;
+
+declare export function $deleteTableColumn__EXPERIMENTAL(): void;
+
+declare export function $unmergeCell(): void;
+
+declare export function $computeTableMap(
+  table: TableNode,
+  cellA: TableCellNode,
+  cellB: TableCellNode,
+): [TableMapType, TableMapValueType, TableMapValueType];
+
+declare export function $getNodeTriplet(
+  source: PointType | LexicalNode | TableCellNode,
+): [TableCellNode, TableRowNode, TableNode];
+
+declare export function $getTableCellNodeRect(tableCellNode: TableCellNode): {
+  rowIndex: number;
+  columnIndex: number;
+  rowSpan: number;
+  colSpan: number;
+} | null;
+
+/**
+ * LexicalTableObserver.js
+ */
+
+declare export class TableObserver {
+  currentX: number;
+  currentY: number;
+  listenersToRemove: Set<() => void>;
+  table: TableDOMTable;
+  isHighlightingCells: boolean;
+  isMouseDown: boolean;
+  startX: number;
+  startY: number;
+  nodeKey: string;
+  editor: LexicalEditor;
+  constructor(editor: LexicalEditor, nodeKey: string): void;
+  getTable(): TableDOMTable;
+  removeListeners(): void;
+  trackTable(): void;
+  clearHighlight(): void;
+  setFocusCellForSelection(cell: TableDOMCell): void;
+  setAnchorCellForSelection(cell: TableDOMCell): void;
+  formatCells(type: TextFormatType): void;
+  clearText(): void;
+}
+
+/**
+ * LexicalTableSelection.ts
+ */
+
+export type TableSelectionShape = {
+  fromX: number,
+  fromY: number,
+  toX: number,
+  toY: number,
+};
+declare export class TableSelection implements BaseSelection {
+  tableKey: NodeKey;
+  anchor: PointType;
+  focus: PointType;
+  dirty: boolean;
+  constructor(tableKey: NodeKey, anchor: PointType, focus: PointType): void;
+  is(selection: null | BaseSelection): boolean;
+  set(tableKey: NodeKey, anchorCellKey: NodeKey, focusCellKey: NodeKey): void;
+  clone(): TableSelection;
+  getCharacterOffsets(): [number, number];
+  extract(): Array<LexicalNode>;
+  insertRawText(): void;
+  insertText(): void;
+  isCollapsed(): false;
+  isBackward(): boolean;
+  getShape(): TableSelectionShape;
+  getNodes(): Array<LexicalNode>;
+  getTextContent(): string;
+  insertNodes(nodes: Array<LexicalNode>): void;
+  getStartEndPoints(): [PointType, PointType];
+  getCachedNodes(): null | Array<LexicalNode>;
+  setCachedNodes(nodes: null | Array<LexicalNode>): void;
+}
+
+declare export function $isTableSelection(
+  x: ?mixed,
+): x is TableSelection;
+
+declare export function $createTableSelection(): TableSelection;
+
+/**
+ * LexicalTableCommands
+ */
+
+export type InsertTableCommandPayloadHeaders =
+  | $ReadOnly<{
+      rows: boolean;
+      columns: boolean;
+    }>
+  | boolean;
+
+export type InsertTableCommandPayload = $ReadOnly<{
+  columns: string;
+  rows: string;
+  includeHeaders?: InsertTableCommandPayloadHeaders;
+}>;
+
+declare export var INSERT_TABLE_COMMAND: LexicalCommand<InsertTableCommandPayload>;

@@ -1,0 +1,7 @@
+.ui-typography-link {
+	color: var(--ui-typography-color-link);
+}
+
+.ui-typography-link:hover {
+	text-decoration: var(--ui-text-decoration-line-underline);
+}

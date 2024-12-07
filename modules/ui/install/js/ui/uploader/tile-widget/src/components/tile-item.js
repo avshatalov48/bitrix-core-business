@@ -1,13 +1,14 @@
-import { PopupOptions, MenuManager } from 'main.popup';
-import { Text, Loc, Type } from 'main.core';
+import { Loc, Text, Type } from 'main.core';
+import { MenuManager, PopupOptions } from 'main.popup';
 import { FileOrigin, FileStatus, FileStatusType } from 'ui.uploader.core';
-
-import { UploadLoader } from './upload-loader';
-import { ErrorPopup } from './error-popup';
-import { FileIconComponent } from './file-icon';
+import { TileWidgetSlot } from 'ui.uploader.tile-widget';
 
 import type { BitrixVueComponentProps } from 'ui.vue3';
-import { TileWidgetSlot } from 'ui.uploader.tile-widget';
+import { ErrorPopup } from './error-popup';
+import { FileIconComponent } from './file-icon';
+import { InsertIntoTextButton } from './insert-into-text-button';
+
+import { UploadLoader } from './upload-loader';
 
 export const TileItem: BitrixVueComponentProps = {
 	components: {
@@ -19,13 +20,13 @@ export const TileItem: BitrixVueComponentProps = {
 	props: {
 		item: {
 			type: Object,
-			default: {}
+			default: {},
 		},
 	},
 	data()
 	{
 		return {
-			tileId: 'tile-uploader-' + Text.getRandom().toLowerCase(),
+			tileId: `tile-uploader-${Text.getRandom().toLowerCase()}`,
 			showError: false,
 		};
 	},
@@ -35,16 +36,15 @@ export const TileItem: BitrixVueComponentProps = {
 		{
 			if (this.item.status === FileStatus.UPLOADING)
 			{
-				return this.item.progress + '%';
+				return `${this.item.progress}%`;
 			}
-			else if (this.item.status === FileStatus.LOAD_FAILED || this.item.status === FileStatus.UPLOAD_FAILED)
+
+			if (this.item.status === FileStatus.LOAD_FAILED || this.item.status === FileStatus.UPLOAD_FAILED)
 			{
 				return Loc.getMessage('TILE_UPLOADER_ERROR_STATUS');
 			}
-			else
-			{
-				return Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
-			}
+
+			return Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
 		},
 		fileSize(): string
 		{
@@ -103,28 +103,53 @@ export const TileItem: BitrixVueComponentProps = {
 		menuItems(): Array
 		{
 			const items = [];
+			items.push(
+				{
+					id: 'filesize',
+					text: Loc.getMessage('TILE_UPLOADER_FILE_SIZE', { '#filesize#': this.item.sizeFormatted }),
+					disabled: true,
+				},
+				{ delimiter: true },
+			);
 
-			if (Type.isStringFilled(this.item.downloadUrl))
+			if (this.widgetOptions.insertIntoText === true)
 			{
 				items.push({
-					id: 'download',
-					text: Loc.getMessage('TILE_UPLOADER_MENU_DOWNLOAD'),
-					href: this.item.downloadUrl,
+					id: 'insert-into-text',
+					text: Loc.getMessage('TILE_UPLOADER_INSERT_INTO_THE_TEXT'),
 					onclick: (): void => {
 						if (this.menu)
 						{
 							this.menu.close();
 						}
-					}
-				});
 
-				items.push({
-					id: 'remove',
-					text: Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
-					onclick: (): void => {
-						this.remove();
+						this.emitter.emit('onInsertIntoText', { item: this.item });
 					},
 				});
+			}
+
+			if (Type.isStringFilled(this.item.downloadUrl))
+			{
+				items.push(
+					{
+						id: 'download',
+						text: Loc.getMessage('TILE_UPLOADER_MENU_DOWNLOAD'),
+						href: this.item.downloadUrl,
+						onclick: (): void => {
+							if (this.menu)
+							{
+								this.menu.close();
+							}
+						},
+					},
+					{
+						id: 'remove',
+						text: Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
+						onclick: (): void => {
+							this.remove();
+						},
+					},
+				);
 			}
 
 			return items;
@@ -133,9 +158,13 @@ export const TileItem: BitrixVueComponentProps = {
 		{
 			return (
 				this.widgetOptions.slots && this.widgetOptions.slots[TileWidgetSlot.ITEM_EXTRA_ACTION]
-				? this.widgetOptions.slots[TileWidgetSlot.ITEM_EXTRA_ACTION]
-				: null
+					? this.widgetOptions.slots[TileWidgetSlot.ITEM_EXTRA_ACTION]
+					: (this.widgetOptions.insertIntoText === true ? InsertIntoTextButton : null)
 			);
+		},
+		isSelected(): boolean
+		{
+			return this.item.customData.tileSelected === true;
 		},
 	},
 	created(): void
@@ -171,43 +200,48 @@ export const TileItem: BitrixVueComponentProps = {
 
 		toggleMenu(): void
 		{
-			if (this.menu)
-			{
-				if (this.menu.getPopupWindow().isShown())
+			setTimeout(() => {
+				if (this.menu)
 				{
-					this.menu.close();
+					if (this.menu.getPopupWindow().isShown())
+					{
+						this.menu.close();
 
-					return;
-				}
-				else
-				{
+						return;
+					}
+
 					this.menu.destroy();
 				}
-			}
 
-			this.menu = MenuManager.create({
-				id: this.tileId,
-				bindElement: this.$refs.menu,
-				angle: true,
-				offsetLeft: 13,
-				minWidth: 100,
-				cacheable: false,
-				items: this.menuItems,
-				events: {
-					onDestroy: () => this.menu = null,
-				},
+				this.menu = MenuManager.create({
+					id: this.tileId,
+					bindElement: this.$refs.menu,
+					angle: true,
+					offsetLeft: 13,
+					minWidth: 100,
+					cacheable: false,
+					items: this.menuItems,
+					events: {
+						onDestroy: () => {
+							this.menu = null;
+						},
+					},
+				});
+
+				this.emitter.emit('TileItem:onMenuCreate', {
+					menu: this.menu,
+					item: this.item,
+				});
+
+				this.menu.show();
 			});
-
-			this.emitter.emit('TileItem:onMenuCreate', { menu: this.menu, item: this.item })
-
-			this.menu.show();
 		},
 	},
 	// language=Vue
 	template: `
 	<div
 		class="ui-tile-uploader-item"
-		:class="['ui-tile-uploader-item--' + item.status, { '--image': item.isImage, '--selected': item.tileWidgetData?.selected } ]"
+		:class="['ui-tile-uploader-item--' + item.status, { '--image': item.isImage, '--selected': isSelected } ]"
 		ref="container"
 	>
 		<ErrorPopup v-if="item.error && showError" :error="item.error" :popup-options="errorPopupOptions"/>

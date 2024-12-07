@@ -1,4 +1,11 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+{
+	die();
+}
+
+/** @var array $arParams */
+/** @var array $arResult */
 if (!function_exists("__MPF_ImageResizeHandler"))
 {
 	function __MPF_ImageResizeHandler(&$arCustomFile)
@@ -48,4 +55,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_REQUEST['mfi_mode']) && ($_R
 {
 	AddEventHandler('main',  "main.file.input.upload", '__MPF_ImageResizeHandler');
 }
-?>
+
+$arParams['PARENT_PARAMS'] ??= null;
+$arParams['is_ajax_post'] ??= null;
+
+$arResult['NEED_NAV'] ??= null;
+$arResult['MESSAGE'] ??= '';
+$arResult['ERROR_MESSAGE'] ??= '';
+$arResult['FATAL_MESSAGE'] ??= '';
+$arResult['imageUploadFrame'] ??= null;
+$arResult['is_ajax_post'] ??= null;
+$arResult['COMMENT_ERROR'] ??= '';
+$arResult['RATING'] ??= null;

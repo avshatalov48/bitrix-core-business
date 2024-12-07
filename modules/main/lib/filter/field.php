@@ -21,6 +21,8 @@ class Field
 	protected $sectionId = '';
 	protected $iconParams = [];
 
+	protected ?string $subtype = null;
+
 	public function __construct(DataProvider $dataProvider, $id, array $params = null)
 	{
 		$this->dataProvider = $dataProvider;
@@ -37,6 +39,7 @@ class Field
 
 		$this->isPartial = $params['partial'] ?? false;
 		$this->data = $params['data'] ?? null;
+		$this->subtype = $params['subtype'] ?? null;
 	}
 
 	/**
@@ -274,6 +277,21 @@ class Field
 			}
 		}
 
+		if ($this->subtype)
+		{
+			$result['subtype'] = $this->subtype;
+		}
+
 		return $result;
+	}
+
+	public function getSubtype(): ?string
+	{
+		return $this->subtype;
+	}
+
+	public function setSubtype(?string $subtype): void
+	{
+		$this->subtype = $subtype;
 	}
 }

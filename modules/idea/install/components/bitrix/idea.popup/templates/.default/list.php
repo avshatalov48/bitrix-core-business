@@ -18,7 +18,7 @@ $arRootCategory = array_slice($arRootCategory, 0, $arParams["CATEGORIES_CNT"]);
 		<div class="status-box-r">
 			<div class="status-box-m">
 				<?$i=0; foreach($arRootCategory as $arCategory):?>
-				<div class="status-item-categoty status-item<?if($i++==0):?>-selected<?endif;?>" onclick="BX.Idea.set(this)" id="idea-category-list-<?=ToLower($arCategory["CODE"])?>">
+				<div class="status-item-categoty status-item<?if($i++==0):?>-selected<?endif;?>" onclick="BX.Idea.set(this)" id="idea-category-list-<?=mb_strtolower($arCategory["CODE"])?>">
 					<div>
 						<div>
 							<a><?=$arCategory["NAME"]?></a>
@@ -39,12 +39,12 @@ $arRootCategory = array_slice($arRootCategory, 0, $arParams["CATEGORIES_CNT"]);
 	</div>
 	<div id="idea-category-list-box">
 		<?$i = 0; foreach($arRootCategory as $arCategory):?>
-			<div class="idea-category-list" id="idea-category-list-<?=ToLower($arCategory["CODE"])?>-content" <?if($i++>0):?>style="display:none;"<?endif;?>>
+			<div class="idea-category-list" id="idea-category-list-<?=mb_strtolower($arCategory["CODE"])?>-content" <?if($i++>0):?>style="display:none;"<?endif;?>>
 				<?
 				$arFilter = array();
 				if($arCategory["IS_CATEGOTY"] != "N")
 					$arFilter = array(
-						"IDEA_PARENT_CATEGORY_CODE" => ToUpper($arCategory["CODE"])
+						"IDEA_PARENT_CATEGORY_CODE" => mb_strtoupper($arCategory["CODE"])
 					);
 				?>
 				<?$APPLICATION->IncludeComponent(

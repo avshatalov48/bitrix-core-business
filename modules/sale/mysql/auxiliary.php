@@ -20,7 +20,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 			"FROM b_sale_auxiliary A ".
 			"WHERE A.ID = ".$ID." ";
 
-		$dbAuxiliary = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbAuxiliary = $DB->Query($strSql);
 		if ($arAuxiliary = $dbAuxiliary->Fetch())
 			return $arAuxiliary;
 
@@ -49,7 +49,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 			"WHERE A.USER_ID = ".$userID." ".
 			"	AND A.ITEM_MD5 = '".$DB->ForSql($itemMD5)."' ";
 
-		$dbAuxiliary = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbAuxiliary = $DB->Query($strSql);
 		if ($arAuxiliary = $dbAuxiliary->Fetch())
 			return $arAuxiliary;
 
@@ -91,7 +91,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -122,7 +122,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -148,7 +148,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br><br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -163,7 +163,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 			return False;
 
 		$periodType = Trim($periodType);
-		$periodType = ToUpper($periodType);
+		$periodType = mb_strtoupper($periodType);
 		if ($periodType == '')
 			return False;
 
@@ -221,7 +221,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		$strSql =
 			"INSERT INTO b_sale_auxiliary(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -258,7 +258,7 @@ class CSaleAuxiliary extends CAllSaleAuxiliary
 		}
 
 		$strSql = "UPDATE b_sale_auxiliary SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}

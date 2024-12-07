@@ -4,6 +4,7 @@ namespace Bitrix\Catalog\v2\Integration\UI\EntityEditor;
 
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Document\DocumentFieldsManager;
 use Bitrix\Catalog\Document\StoreDocumentTableManager;
 use Bitrix\Catalog\Document\Type\StoreDocumentSpecificTable;
 use Bitrix\Catalog\StoreDocumentFileTable;
@@ -13,7 +14,6 @@ use Bitrix\Catalog\v2\Integration\UI\EntityEditor\Product\StoreDocumentProductPo
 use Bitrix\Currency\CurrencyManager;
 use Bitrix\Currency\CurrencyTable;
 use Bitrix\Main;
-use Bitrix\Intranet;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserTable;
@@ -36,6 +36,7 @@ class StoreDocumentProvider extends BaseProvider
 	protected $config;
 	protected $userFieldInfos = null;
 	protected $createUfUrl = '';
+	protected $requiredFieldNames = [];
 
 	/** @var Contractor\Provider\IProvider|null */
 	protected ?Contractor\Provider\IProvider $contractorsProvider;
@@ -49,6 +50,7 @@ class StoreDocumentProvider extends BaseProvider
 		$this->contractorsProvider = Contractor\Provider\Manager::getActiveProvider(
 			Contractor\Provider\Manager::PROVIDER_STORE_DOCUMENT
 		);
+		$this->requiredFieldNames = DocumentFieldsManager::getRequiredFields($this->getDocumentType());
 	}
 
 	/**
@@ -185,11 +187,14 @@ class StoreDocumentProvider extends BaseProvider
 				'title' => static::getFieldTitle('TITLE'),
 				'type' => 'text',
 				'editable' => true,
-				'required' => false,
+				'required' => in_array('TITLE', $this->requiredFieldNames, true),
 				'isHeading' => true,
 				'visibilityPolicy' => 'edit',
 				'placeholders' => [
 					'creation' => $this->getDefaultDocumentTitle(),
+				],
+				'data' => [
+					'requiredIsEditable' => true,
 				],
 			],
 			[
@@ -310,6 +315,10 @@ class StoreDocumentProvider extends BaseProvider
 						'type' => 'text',
 						'editable' => true,
 						'showAlways' => true,
+						'required' => in_array('DOC_NUMBER', $this->requiredFieldNames, true),
+						'data' => [
+							'requiredIsEditable' => true,
+						],
 					],
 					[
 						'name' => 'DATE_DOCUMENT',
@@ -318,7 +327,9 @@ class StoreDocumentProvider extends BaseProvider
 						'editable' => true,
 						'data' => [
 							'enableTime' => false,
+							'requiredIsEditable' => true,
 						],
+						'required' => in_array('DATE_DOCUMENT', $this->requiredFieldNames, true),
 					],
 					$this->getContractorField(),
 					[
@@ -328,7 +339,9 @@ class StoreDocumentProvider extends BaseProvider
 						'editable' => true,
 						'data' => [
 							'enableTime' => false,
+							'requiredIsEditable' => true,
 						],
+						'required' => in_array('ITEMS_ORDER_DATE', $this->requiredFieldNames, true),
 					],
 					[
 						'name' => 'ITEMS_RECEIVED_DATE',
@@ -337,7 +350,9 @@ class StoreDocumentProvider extends BaseProvider
 						'editable' => true,
 						'data' => [
 							'enableTime' => false,
+							'requiredIsEditable' => true,
 						],
+						'required' => in_array('ITEMS_RECEIVED_DATE', $this->requiredFieldNames, true),
 					],
 					[
 						'name' => 'DOCUMENT_FILES',
@@ -348,10 +363,13 @@ class StoreDocumentProvider extends BaseProvider
 						'data' => [
 							'multiple' => true,
 							'maxFileSize' => \CUtil::Unformat(ini_get('upload_max_filesize')),
-						]
+							'requiredIsEditable' => true,
+						],
+						'required' => in_array('DOCUMENT_FILES', $this->requiredFieldNames, true),
 					],
 				];
 				break;
+			case StoreDocumentTable::TYPE_MOVING:
 			case StoreDocumentTable::TYPE_DEDUCT:
 				$fields = [
 					[
@@ -360,6 +378,10 @@ class StoreDocumentProvider extends BaseProvider
 						'type' => 'text',
 						'editable' => true,
 						'showAlways' => false,
+						'required' => in_array('DOC_NUMBER', $this->requiredFieldNames, true),
+						'data' => [
+							'requiredIsEditable' => true,
+						],
 					],
 					[
 						'name' => 'DATE_DOCUMENT',
@@ -369,28 +391,9 @@ class StoreDocumentProvider extends BaseProvider
 						'showAlways' => false,
 						'data' => [
 							'enableTime' => false,
+							'requiredIsEditable' => true,
 						],
-					],
-				];
-				break;
-			case StoreDocumentTable::TYPE_MOVING:
-				$fields = [
-					[
-						'name' => 'DOC_NUMBER',
-						'title' => static::getFieldTitle('DOC_NUMBER'),
-						'type' => 'text',
-						'editable' => true,
-						'showAlways' => false,
-					],
-					[
-						'name' => 'DATE_DOCUMENT',
-						'title' => static::getFieldTitle('DATE_DOCUMENT'),
-						'type' => 'datetime',
-						'editable' => true,
-						'showAlways' => false,
-						'data' => [
-							'enableTime' => false,
-						],
+						'required' => in_array('DATE_DOCUMENT', $this->requiredFieldNames, true),
 					],
 				];
 				break;
@@ -929,15 +932,21 @@ class StoreDocumentProvider extends BaseProvider
 				'CURRENCY',
 				'FULL_NAME' => 'CURRENT_LANG_FORMAT.FULL_NAME',
 				'SORT',
+				'BASE',
 			],
 			'order' => [
 				'BASE' => 'DESC',
 				'SORT' => 'ASC',
 				'CURRENCY' => 'ASC',
 			],
+			'cache' => [
+				'ttl' => 86400,
+				'cache_joins' => true,
+			]
 		])->fetchAll();
 		foreach ($existingCurrencies as $currency)
 		{
+			$currency['FULL_NAME'] ??= $currency['CURRENCY'];
 			$result[] = $this->prepareCurrencyListItem($currency);
 		}
 

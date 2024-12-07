@@ -37,4 +37,4 @@ export class Progress
 		this.isProgress = false;
 		this.getLoader().hide();
 	}
-};
+}

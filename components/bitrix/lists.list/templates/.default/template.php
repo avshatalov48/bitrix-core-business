@@ -304,7 +304,7 @@ $APPLICATION->IncludeComponent(
 
 		"AJAX_MODE" => "Y",
 		"AJAX_ID" => CAjax::getComponentID('bitrix:main.ui.grid', '.default', ''),
-		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"],
+		"ACTION_PANEL" => $arResult["GRID_ACTION_PANEL"] ?? null,
 		"AJAX_OPTION_JUMP" => "N",
 		"SHOW_CHECK_ALL_CHECKBOXES" => true,
 		"SHOW_ROW_CHECKBOXES" => true,

@@ -258,7 +258,7 @@ class CSocNetSearch
 				g.ID
 		";
 
-		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch())
 		{
 			$arSearchIndexSiteID = array();
@@ -772,7 +772,7 @@ class CSocNetSearch
 		}
 
 		if(isset($CWikiParser))
-			$title = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
+			$title = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
 		else
 			$title = $arFields["NAME"];
 

@@ -14,6 +14,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $pageId = "group_forum";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 ?>
 <?$arInfo = $APPLICATION->IncludeComponent("bitrix:socialnetwork.forum.topic.read", "", 
 	Array(

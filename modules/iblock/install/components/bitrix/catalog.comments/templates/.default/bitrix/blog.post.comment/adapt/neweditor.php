@@ -16,7 +16,7 @@ $APPLICATION->IncludeComponent(
 			'ctrlEnterHandler' => 'blogCommentCtrlEnterHandler',
 			'normalBodyWidth' => 400	//if width of all button more than editor size - not need set normalBodyWidth
 		),
-		
+
 		"ADDITIONAL" => array(),
 
 		"TEXT" => Array(
@@ -35,7 +35,7 @@ $APPLICATION->IncludeComponent(
 
 
 //generate ID for file dialog switcher
-if(is_array($arResult["COMMENT_PROPERTIES"]["DATA"][CBlogComment::UF_NAME]))
+if (is_array($arResult["COMMENT_PROPERTIES"]["DATA"][CBlogComment::UF_NAME] ?? null))
 {
 	$switcerhId = 'file-selectdialogswitcher-'
 		.$arResult["COMMENT_PROPERTIES"]["DATA"][CBlogComment::UF_NAME]["ENTITY_ID"]

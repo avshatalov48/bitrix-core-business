@@ -1,4 +1,5 @@
-<?
+<?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/measure_ratio.php");
 
 class CCatalogMeasureRatio extends CCatalogMeasureRatioAll
@@ -38,7 +39,7 @@ class CCatalogMeasureRatio extends CCatalogMeasureRatioAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " group by ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -66,7 +67,7 @@ class CCatalogMeasureRatio extends CCatalogMeasureRatioAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " group by ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -87,7 +88,7 @@ class CCatalogMeasureRatio extends CCatalogMeasureRatioAll
 			if ($boolNavStartParams && $intTopCount > 0)
 				$strSql .= " limit ".$intTopCount;
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 		return $dbRes;
 	}

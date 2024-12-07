@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,25 +7,40 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_32.2.IMG_ONE_BIG_NAME2'),
-		'section' => array('image', 'cover', 'recommended'),
+		'type' => ['page', 'store', 'smn', 'knowledge', 'group', 'mainpage'],
+		'section' => ['image', 'cover', 'recommended', 'widgets_image'],
 		'dynamic' => false,
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-img' => array(
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-img' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_32.2.IMG_ONE_BIG_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'img',
-			'dimensions' => array('width' => 1110),
+			'dimensions' => ['width' => 1110],
 			'create2xByDefault' => false,
-		),
-	),
-	'style' => array(
-		'.landing-block-node-img' => array(
-			'name' => Loc::getMessage('LANDING_BLOCK_32.2.IMG_ONE_BIG_NODES_LANDINGBLOCKNODEIMG'),
-			'type' => 'animation',
-		),
-	),
-);
+		],
+	],
+	'style' => [
+		'block' => [
+			'type' => [
+				'display',
+				'background',
+				'padding-top',
+				'padding-bottom',
+				'padding-left',
+				'padding-right',
+				'margin-top',
+				'margin-bottom',
+			],
+		],
+		'nodes' => [
+			'.landing-block-node-img' => [
+				'name' => Loc::getMessage('LANDING_BLOCK_32.2.IMG_ONE_BIG_NODES_LANDINGBLOCKNODEIMG'),
+				'type' => 'animation',
+			],
+		],
+	],
+];

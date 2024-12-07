@@ -148,6 +148,11 @@ class AppleMessage extends BaseMessage
 		$totalBatch = "";
 		foreach ($arTokens as $token)
 		{
+			if (strlen($token) != 64)
+			{
+				continue;
+			}
+
 			$sDeviceToken = $token;
 
 			$sRet = pack('CNNnH*',

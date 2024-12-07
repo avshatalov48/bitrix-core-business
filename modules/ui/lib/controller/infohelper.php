@@ -14,14 +14,16 @@ class InfoHelper extends Engine\Controller
 {
 	private const POPUP_PROVIDER_TEST_CODE_LIST = [];
 
-	public function getInitParamsAction(string $type = FeaturePromoter\ProviderType::SLIDER, string $code = '', string $currentUrl = ''): array
+	public function getInitParamsAction(
+		string $type = FeaturePromoter\ProviderType::SLIDER,
+		string $code = '',
+		string $currentUrl = '',
+		?string $featureId = null
+	): array
 	{
-		if (FeaturePromoter\ProviderType::POPUP === $type)
-		{
-			return (new FeaturePromoter\Popup($code, $currentUrl))->getRendererParameters();
-		}
+		$configuration = new FeaturePromoter\ProviderConfiguration($type, $code, $currentUrl, $featureId);
 
-		return (new FeaturePromoter\Slider($currentUrl))->getRendererParameters();
+		return (new FeaturePromoter\ProviderFactory())->createProvider($configuration)->getRendererParameters();
 	}
 
 	public function activateDemoLicenseAction()

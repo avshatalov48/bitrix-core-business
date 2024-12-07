@@ -6,9 +6,12 @@ namespace Bitrix\Socialnetwork\Space\List\RecentActivity\Collector;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\LogTable;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\Trait\EntityLoadTrait;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 
-final class LiveFeedProvider extends AbstractProvider
+class LiveFeedProvider extends AbstractProvider
 {
+	use EntityLoadTrait;
 
 	public function isAvailable(): bool
 	{
@@ -17,7 +20,7 @@ final class LiveFeedProvider extends AbstractProvider
 
 	public function getTypeId(): string
 	{
-		return 'livefeed';
+		return Dictionary::ENTITY_TYPE['livefeed'];
 	}
 
 	protected function fill(): void
@@ -40,7 +43,7 @@ final class LiveFeedProvider extends AbstractProvider
 
 		foreach ($this->recentActivityDataItems as $item)
 		{
-			$log = $this->getEntity($item->getEntityId());
+			$log = $this->getEntity($this->getEntityIdFromRecentActivityItem($item));
 
 			if (empty($log))
 			{

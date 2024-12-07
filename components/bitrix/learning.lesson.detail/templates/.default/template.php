@@ -11,7 +11,7 @@ if ($arResult['DELAYED'])
 <?if (!empty($arResult["LESSON"])):?>
 
 	<?if ($arResult["LESSON"]["DETAIL_TEXT_TYPE"] == "file"):?>
-		<iframe width="100%" height="95%" src="<?php echo $arResult["LESSON"]["LAUNCH"]?>" frameborder="0"></iframe>
+		<iframe width="100%" height="95%" style="min-height: 500px" src="<?php echo $arResult["LESSON"]["LAUNCH"]?>" frameborder="0"></iframe>
 	<?else:?>
 		<?if($arResult["LESSON"]["SELF_TEST_EXISTS"]):?>
 			<a href="<?=$arResult["LESSON"]["SELF_TEST_URL"]?>" title="<?=GetMessage("LEARNING_PASS_SELF_TEST")?>">

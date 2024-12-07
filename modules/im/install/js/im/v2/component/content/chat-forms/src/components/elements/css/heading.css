@@ -1,0 +1,21 @@
+.bx-im-content-create-chat__heading_container {
+	--im-content-create-chat__font-color_heading: var(--im-color-palette-gray-80);
+	--im-content-create-chat__font-color_subheading: var(--im-color-palette-gray-40);
+
+	display: flex;
+	align-items: center;
+	margin-bottom: 12px;
+}
+
+.bx-im-content-create-chat__heading {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-content-create-chat__font-color_heading);
+	font-weight: var(--im-font-weight-medium);
+
+}
+
+.bx-im-content-create-chat__subheading {
+	font: var(--im-font-size-lg)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	color: var(--im-content-create-chat__font-color_subheading);
+	font-weight: var(--im-font-weight-medium);
+}

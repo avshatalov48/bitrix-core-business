@@ -1087,8 +1087,6 @@ if (!empty($_REQUEST['revert']))
 
 if (isset($_REQUEST['migrator_process']) && ($_REQUEST['migrator_process'] === 'Y'))
 {
-	CUtil::JSPostUnescape();
-
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php');
 
 	$totalCount = 8; //count of steps
@@ -1283,7 +1281,7 @@ else
 			background:url("/bitrix/panel/main/images/bx-admin-sprite.png") no-repeat 4px -88px;
 		}
 	</style>
-	<script type="text/javascript">
+	<script>
 	var wd_stop;
 	var wd_dialog;
 

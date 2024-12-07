@@ -1,8 +1,11 @@
-<?
+<?php
 /** @global CDatabase $DB */
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-if(!check_bitrix_sessid()) return;
+if (!check_bitrix_sessid())
+{
+	return;
+}
 
 global $errors;
 
@@ -12,29 +15,26 @@ if (empty($errors))
 }
 else
 {
-	CAdminMessage::ShowMessage(
-		array(
-			'TYPE' => 'ERROR',
-			'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
-			'DETAILS' => implode('<br>', $errors),
-			'HTML' => true
-		)
-	);
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
+		'DETAILS' => implode('<br>', $errors),
+		'HTML' => true,
+	]);
 }
-if ($ex = $APPLICATION->GetException())
+$ex = $APPLICATION->GetException();
+if ($ex)
 {
-	CAdminMessage::ShowMessage(
-		array(
-			'TYPE' => 'ERROR',
-			'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
-			'HTML' => true,
-			'DETAILS' => $ex->GetString()
-		)
-	);
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
+		'HTML' => true,
+		'DETAILS' => $ex->GetString(),
+	]);
 }
-?><form action="<? echo $APPLICATION->GetCurPage(); ?>">
+?><form action="<?= $APPLICATION->GetCurPage() ?>">
 <p>
-	<input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
-	<input type="submit" name="" value="<? echo GetMessage('MOD_BACK'); ?>">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+	<input type="submit" name="" value="<?= htmlspecialcharsbx(GetMessage('MOD_BACK')) ?>">
 </p>
 <form>

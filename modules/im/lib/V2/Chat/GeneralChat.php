@@ -14,6 +14,7 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use CAllSite;
 
 class GeneralChat extends GroupChat
 {
@@ -22,6 +23,8 @@ class GeneralChat extends GroupChat
 	public const ID_CACHE_ID = 'general_chat_id';
 	public const MANAGERS_CACHE_ID = 'general_chat_managers';
 	public const DISABLE_GENERAL_CHAT_OPTION = 'disable_general_chat';
+
+	private const MESSAGE_COMPONENT_START = 'GeneralChatCreationMessage';
 
 	protected static ?self $instance = null;
 	protected static bool $wasSearched = false;
@@ -37,20 +40,20 @@ class GeneralChat extends GroupChat
 		return self::ENTITY_TYPE_GENERAL;
 	}
 
-	public function hasPostAccess(?int $userId = null): bool
+	public function hasManageMessagesAccess(?int $userId = null): bool
 	{
 		if ($this->getId() === null || $this->getId() === 0)
 		{
 			return false;
 		}
 
-		if ($this->getCanPost() === Chat::MANAGE_RIGHTS_NONE)
+		if ($this->getManageMessages() === Chat::MANAGE_RIGHTS_NONE)
 		{
 			return false;
 		}
 
 		$userId ??= $this->getContext()->getUserId();
-		if ($this->getCanPost() === Chat::MANAGE_RIGHTS_MEMBER)
+		if ($this->getManageMessages() === Chat::MANAGE_RIGHTS_MEMBER)
 		{
 			return true;
 		}
@@ -60,7 +63,7 @@ class GeneralChat extends GroupChat
 			return true;
 		}
 
-		if ($this->getCanPost() === Chat::MANAGE_RIGHTS_OWNER)
+		if ($this->getManageMessages() === Chat::MANAGE_RIGHTS_OWNER)
 		{
 			return false;
 		}
@@ -84,12 +87,12 @@ class GeneralChat extends GroupChat
 			return $cachedManagerList;
 		}
 
-		$managerList = $this->getRelations(['FILTER' => ['MANAGER' => 'Y']])->getUserIds();
+		$managerList = $this->getRelationFacade()->getManagerOnly()->getUserIds();
 
 		$cache->startDataCache();
 		$cache->endDataCache($managerList);
 
-		return $this->getRelations(['FILTER' => ['MANAGER' => 'Y']])->getUserIds();
+		return $this->getRelationFacade()->getManagerOnly()->getUserIds();
 	}
 
 	public static function get(): ?GeneralChat
@@ -130,11 +133,11 @@ class GeneralChat extends GroupChat
 			->fetch() ?: []
 		;
 
-		$chatId = $result['ID'] ?? null;
+		$chatId = $result['ID'] ?? 0;
 		$cache->startDataCache();
 		$cache->endDataCache($chatId);
 
-		return $chatId ?? 0;
+		return $chatId;
 	}
 
 	public function setManagers(array $managerIds): Chat
@@ -197,13 +200,15 @@ class GeneralChat extends GroupChat
 
 		$installUsers = $this->getUsersForInstall();
 
+		$portalLanguage = self::getPortalLanguage();
+
 		$params = [
 			'TYPE' => self::IM_TYPE_OPEN,
 			'ENTITY_TYPE' => self::ENTITY_TYPE_GENERAL,
 			'COLOR' => 'AZURE',
-			'TITLE' => Loc::getMessage('IM_CHAT_GENERAL_TITLE'),
-			'DESCRIPTION' => Loc::getMessage('IM_CHAT_GENERAL_DESCRIPTION'),
-			'AUTHOR_ID' => 0,
+			'TITLE' => Loc::getMessage('IM_CHAT_GENERAL_TITLE', null, $portalLanguage),
+			'DESCRIPTION' => Loc::getMessage('IM_CHAT_GENERAL_DESCRIPTION_MSGVER_1', null, $portalLanguage),
+			'AUTHOR_ID' => User::getFirstAdmin(),
 			'USER_COUNT' => count($installUsers),
 		];
 
@@ -247,8 +252,30 @@ class GeneralChat extends GroupChat
 		self::cleanGeneralChatCache(self::ID_CACHE_ID);
 		self::cleanGeneralChatCache(self::MANAGERS_CACHE_ID);
 		self::cleanCache($chat->getChatId());
+		$chat->isFilledNonCachedData = false;
 
 		return $result;
+	}
+
+	private static function getPortalLanguage(): ?string
+	{
+		$defSite = CAllSite::GetDefSite();
+		if ($defSite === false)
+		{
+			return null;
+		}
+
+		$portalData = CAllSite::GetByID($defSite)->Fetch();
+		if ($portalData)
+		{
+			$languageId = $portalData['LANGUAGE_ID'];
+			if ($languageId !== '')
+			{
+				return $languageId;
+			}
+		}
+
+		return null;
 	}
 
 	public static function linkGeneralChat(?int $chatId = null): bool
@@ -386,12 +413,14 @@ class GeneralChat extends GroupChat
 			'MESSAGE_TYPE' => self::IM_TYPE_CHAT,
 			'TO_CHAT_ID' => $this->getChatId(),
 			'FROM_USER_ID' => 0,
-			'MESSAGE' => Loc::getMessage('IM_CHAT_GENERAL_DESCRIPTION'),
+			'MESSAGE' => Loc::getMessage('IM_CHAT_GENERAL_CREATE_WELCOME', null, self::getPortalLanguage()),
 			'SYSTEM' => 'Y',
 			'PUSH' => 'N',
 			'PARAMS' => [
-				'COMPONENT_ID' => 'ChatCreationMessage',
-			]
+				'COMPONENT_ID' => self::MESSAGE_COMPONENT_START,
+				'NOTIFY' => 'N',
+			],
+			'SKIP_COUNTER_INCREMENTS' => 'Y',
 		]);
 	}
 
@@ -411,13 +440,9 @@ class GeneralChat extends GroupChat
 	public function getRightsForIntranetConfig(): array
 	{
 		$result['generalChatCanPostList'] = self::getCanPostList();
-		$result['generalChatCanPost'] = $this->getCanPost();
+		$result['generalChatCanPost'] = $this->getManageMessages();
 		$result['generalChatShowManagersList'] = self::MANAGE_RIGHTS_MANAGERS;
-		$managerIds = $this->getRelations([
-			'FILTER' => [
-				'MANAGER' => 'Y'
-			]
-		])->getUserIds();
+		$managerIds = $this->getRelationFacade()->getManagerOnly()->getUserIds();
 		$managers = array_map(function ($managerId) {
 			return 'U' . $managerId;
 		}, $managerIds);
@@ -510,6 +535,11 @@ class GeneralChat extends GroupChat
 		]);
 	}
 
+	protected function needToSendMessageUserDelete(): bool
+	{
+		return true;
+	}
+
 	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
 	{
 		if (!self::getAutoMessageStatus(self::GENERAL_MESSAGE_TYPE_LEAVE))
@@ -525,6 +555,29 @@ class GeneralChat extends GroupChat
 		$user = User::getInstance($userId);
 
 		return Loc::getMessage("IM_CHAT_GENERAL_LEAVE_{$user->getGender()}", Array('#USER_NAME#' => htmlspecialcharsback($user->getName())));
+	}
+
+	public static function changeLangAgent(): string
+	{
+		if (!Loader::includeModule('im'))
+		{
+			return '';
+		}
+
+		GeneralChat::cleanGeneralChatCache(self::ID_CACHE_ID);
+
+		$chatId = GeneralChat::getGeneralChatId();
+		if ($chatId > 0)
+		{
+			$portalLanguage = self::getPortalLanguage();
+
+			ChatTable::update($chatId, [
+				'TITLE' => Loc::getMessage('IM_CHAT_GENERAL_TITLE', null, $portalLanguage),
+				'DESCRIPTION' => Loc::getMessage('IM_CHAT_GENERAL_DESCRIPTION_MSGVER_1', null, $portalLanguage),
+			]);
+		}
+
+		return '';
 	}
 
 	private static function getCache(string $cacheId): Cache

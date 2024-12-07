@@ -4,18 +4,18 @@ namespace Bitrix\Main\Web\DOM;
 
 class DisplayProperties
 {
-	const DISPLAY = 'display';
-	const FONT = 'font';
+	public const DISPLAY = 'display';
+	public const FONT = 'font';
 
-	const DISPLAY_HIDDEN = 'hidden';
-	const DISPLAY_BLOCK = 'block';
-	const DISPLAY_INLINE = 'inline';
+	public const DISPLAY_HIDDEN = 'hidden';
+	public const DISPLAY_BLOCK = 'block';
+	public const DISPLAY_INLINE = 'inline';
 
-	const FONT_NORMAL = 'normal';
-	const FONT_BOLD = 'bold';
-	const FONT_ITALIC = 'italic';
-	const FONT_UNDERLINED = 'underlined';
-	const FONT_DELETED = 'deleted';
+	public const FONT_NORMAL = 'normal';
+	public const FONT_BOLD = 'bold';
+	public const FONT_ITALIC = 'italic';
+	public const FONT_UNDERLINED = 'underlined';
+	public const FONT_DELETED = 'deleted';
 
 	protected $properties = [];
 
@@ -25,7 +25,7 @@ class DisplayProperties
 			$this->getDefaultProperties(),
 			$defaultProperties,
 			$this->getNodeProperties($node),
-			$properties
+			$properties,
 		);
 	}
 
@@ -58,10 +58,9 @@ class DisplayProperties
 	 */
 	public function isFontBold()
 	{
-		return (
+		return
 			isset($this->properties[static::FONT][static::FONT_BOLD])
-			&& $this->properties[static::FONT][static::FONT_BOLD] === true
-		);
+			&& $this->properties[static::FONT][static::FONT_BOLD] === true;
 	}
 
 	/**
@@ -69,10 +68,9 @@ class DisplayProperties
 	 */
 	public function isFontItalic()
 	{
-		return (
+		return
 			isset($this->properties[static::FONT][static::FONT_ITALIC])
-			&& $this->properties[static::FONT][static::FONT_ITALIC] === true
-		);
+			&& $this->properties[static::FONT][static::FONT_ITALIC] === true;
 	}
 
 	/**
@@ -80,10 +78,9 @@ class DisplayProperties
 	 */
 	public function isFontUnderlined()
 	{
-		return (
+		return
 			isset($this->properties[static::FONT][static::FONT_UNDERLINED])
-			&& $this->properties[static::FONT][static::FONT_UNDERLINED] === true
-		);
+			&& $this->properties[static::FONT][static::FONT_UNDERLINED] === true;
 	}
 
 	/**
@@ -91,10 +88,9 @@ class DisplayProperties
 	 */
 	public function isFontDeleted()
 	{
-		return (
+		return
 			isset($this->properties[static::FONT][static::FONT_DELETED])
-			&& $this->properties[static::FONT][static::FONT_DELETED] === true
-		);
+			&& $this->properties[static::FONT][static::FONT_DELETED] === true;
 	}
 
 	/**
@@ -219,6 +215,7 @@ class DisplayProperties
 		if($this->isHiddenNode($node))
 		{
 			$result[static::DISPLAY] = static::DISPLAY_HIDDEN;
+
 			return $result;
 		}
 
@@ -232,7 +229,7 @@ class DisplayProperties
 				$stylePairs = explode(';', $styles);
 				foreach($stylePairs as $pair)
 				{
-					list($name, $value) = explode(':', $pair);
+					[$name, $value] = explode(':', $pair);
 					if($name && $value)
 					{
 						$name = trim($name);
@@ -265,7 +262,7 @@ class DisplayProperties
 						}
 						elseif($name == 'font-style')
 						{
-							if($value == 'italic' || mb_strpos($value, 'oblique') === 0)
+							if($value == 'italic' || str_starts_with($value, 'oblique'))
 							{
 								$font[static::FONT_ITALIC] = true;
 							}
@@ -276,11 +273,11 @@ class DisplayProperties
 						}
 						elseif($name == 'text-decoration')
 						{
-							if(strpos($value, 'underline') !== false)
+							if(str_contains($value, 'underline'))
 							{
 								$font[static::FONT_UNDERLINED] = true;
 							}
-							if(strpos($value, 'line-through') !== false)
+							if(str_contains($value, 'line-through'))
 							{
 								$font[static::FONT_DELETED] = true;
 							}
@@ -296,6 +293,7 @@ class DisplayProperties
 			if($display == static::DISPLAY_HIDDEN)
 			{
 				$result[static::DISPLAY] = $display;
+
 				return $result;
 			}
 			if(!$display && $this->isBlockTag($node->getTagName()))

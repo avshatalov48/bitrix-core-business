@@ -22,7 +22,7 @@ class CSocNetLogFavorites extends CAllSocNetLogFavorites
 			' VALUES (' . (int)$user_id . ', ' . (int)$log_id . ')'
 		);
 
-		if ($DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__))
+		if ($DB->Query($strSQL))
 		{
 			if(
 				!isset($params['TRIGGER_EVENT'])

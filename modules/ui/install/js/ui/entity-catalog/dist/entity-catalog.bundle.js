@@ -382,6 +382,7 @@ this.BX = this.BX || {};
 
 	const useGlobalState = ui_vue3_pinia.defineStore('global-state', {
 	  state: () => ({
+	    searchQuery: '',
 	    searchApplied: false,
 	    filtersApplied: false,
 	    currentGroup: group.GroupData,
@@ -476,6 +477,9 @@ this.BX = this.BX || {};
 						<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
 					</template>
 				</ItemList>
+				<div class="ui-entity-catalog__main-content-footer">
+					<slot name="main-content-footer"/>
+				</div>
 			</div>
 		</div>
 	`
@@ -735,6 +739,7 @@ this.BX = this.BX || {};
 	      return (_this$selectedGroup = this.selectedGroup) != null && _this$selectedGroup.compare ? items.sort(this.selectedGroup.compare) : items;
 	    },
 	    ...ui_vue3_pinia.mapWritableState(useGlobalState, {
+	      searchQuery: 'searchQuery',
 	      searching: 'searchApplied',
 	      filtersApplied: 'filtersApplied',
 	      globalGroup: 'currentGroup',
@@ -780,6 +785,7 @@ this.BX = this.BX || {};
 	    onSearch(event) {
 	      const queryString = event.getData().queryString.toLowerCase();
 	      this.lastSearchString = queryString;
+	      this.searchQuery = queryString || '';
 	      if (!main_core.Type.isStringFilled(queryString)) {
 	        this.searching = false;
 	        this.shownItems = [];
@@ -867,6 +873,9 @@ this.BX = this.BX || {};
 				<template #main-content-filter-stub-title v-if="$slots['main-content-filter-stub-title']">
 					<slot name="main-content-filter-stub-title"/>
 				</template>
+				<template #main-content-search-stub>
+					<slot name="main-content-search-stub"></slot>
+				</template>
 				<template #main-content-search-not-found-stub>
 					<slot name="main-content-search-not-found-stub"/>
 				</template>
@@ -878,6 +887,9 @@ this.BX = this.BX || {};
 				</template>
 				<template #item="itemSlotProps">
 					<slot name="item" v-bind:itemData="itemSlotProps.itemData"/>
+				</template>
+				<template #main-content-footer>
+					<slot name="main-content-footer"/>
 				</template>
 			</MainContent>
 			<Teleport v-if="getFilterNode()" :to="getFilterNode()">
@@ -1066,7 +1078,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _attachTemplate2() {
-	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10;
+	  var _babelHelpers$classPr, _babelHelpers$classPr2, _babelHelpers$classPr3, _babelHelpers$classPr4, _babelHelpers$classPr5, _babelHelpers$classPr6, _babelHelpers$classPr7, _babelHelpers$classPr8, _babelHelpers$classPr9, _babelHelpers$classPr10, _babelHelpers$classPr11;
 	  const context = this;
 	  const rootProps = {
 	    recentGroupData: babelHelpers.classPrivateFieldLooseBase(this, _recentGroupData)[_recentGroupData],
@@ -1119,6 +1131,9 @@ this.BX = this.BX || {};
 						<template #main-content-header>
 							${(_babelHelpers$classPr4 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_HEADER]) != null ? _babelHelpers$classPr4 : ''}
 						</template>
+						<template #main-content-footer>
+							${(_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FOOTER]) != null ? _babelHelpers$classPr5 : ''}
+						</template>
 						<template #main-content-filter-stub v-if="${!!babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}">
 							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}
 						</template>
@@ -1126,22 +1141,25 @@ this.BX = this.BX || {};
 							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE]}
 						</template>
 						<template #main-content-search-not-found-stub>
-							${(_babelHelpers$classPr5 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr5 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
+							${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]) != null ? _babelHelpers$classPr6 : main_core.Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')}
+						</template>
+						<template v-if="${Boolean(babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB])}" #main-content-search-stub>
+							${babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB]}
 						</template>
 						<template #main-content-welcome-stub>
-							${(_babelHelpers$classPr6 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]) != null ? _babelHelpers$classPr6 : ''}
+							${(_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB]) != null ? _babelHelpers$classPr7 : ''}
 						</template>
 						<template #main-content-no-selected-group-stub>
-							${(_babelHelpers$classPr7 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr7 : ''}
+							${(_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_NO_SELECTED_GROUP_STUB]) != null ? _babelHelpers$classPr8 : ''}
 						</template>
 						<template #main-content-empty-group-stub>
-							${(_babelHelpers$classPr8 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr8 : ''}
+							${(_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB]) != null ? _babelHelpers$classPr9 : ''}
 						</template>
 						<template #main-content-empty-group-stub-title>
-							${(_babelHelpers$classPr9 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr9 : ''}
+							${(_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE]) != null ? _babelHelpers$classPr10 : ''}
 						</template>
 						<template #item="itemSlotProps">
-							${(_babelHelpers$classPr10 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr10 : ''}
+							${(_babelHelpers$classPr11 = babelHelpers.classPrivateFieldLooseBase(this, _slots)[_slots][EntityCatalog.SLOT_MAIN_CONTENT_ITEM]) != null ? _babelHelpers$classPr11 : ''}
 						</template>
 					</Application>
 				`
@@ -1190,6 +1208,7 @@ this.BX = this.BX || {};
 	EntityCatalog.SLOT_GROUP = 'group';
 	EntityCatalog.SLOT_GROUP_LIST_FOOTER = 'group-list-footer';
 	EntityCatalog.SLOT_MAIN_CONTENT_HEADER = 'main-content-header';
+	EntityCatalog.SLOT_MAIN_CONTENT_FOOTER = 'main-content-footer';
 	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB = 'main-content-filter-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE = 'main-content-filter-stub-title';
 	EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND = 'search-not-found';
@@ -1198,10 +1217,11 @@ this.BX = this.BX || {};
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB = 'main-content-empty-group-stub';
 	EntityCatalog.SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE = 'main-content-empty-group-stub-title';
 	EntityCatalog.SLOT_MAIN_CONTENT_ITEM = 'main-content-item';
+	EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB = 'main-content-search-stub';
 
 	exports.Stubs = Stubs;
 	exports.States = States;
 	exports.EntityCatalog = EntityCatalog;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX,BX,BX.UI,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
+}((this.BX.UI = this.BX.UI || {}),BX.Vue3,BX.Vue3.Components,BX.UI.Feedback,BX,BX.UI,BX,BX,BX.Vue3.Pinia,BX,BX.Main,BX.Event,BX,BX));
 //# sourceMappingURL=entity-catalog.bundle.js.map

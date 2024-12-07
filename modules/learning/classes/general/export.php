@@ -64,7 +64,7 @@ class CCoursePackage
 			"WHERE T.COURSE_ID = ".intval($this->ID)." ".
 			"ORDER BY SORT ASC ";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		while ($arRes= $res->Fetch())
 		{
 			$r = ++$this->RefID;
@@ -72,8 +72,7 @@ class CCoursePackage
 			$this->strItems .= '<item identifier="TES'.$r.'" identifierref="RES'.$r.'"><title>'.htmlspecialcharsbx($arRes["NAME"]).'</title>';
 
 			$marksRes = $DB->Query(
-				"SELECT * FROM b_learn_test_mark WHERE TEST_ID = '" . (string) ((int) $arRes['ID']) . "'", 
-				false, "File: ".__FILE__."<br>Line: ".__LINE__
+				"SELECT * FROM b_learn_test_mark WHERE TEST_ID = '" . (string) ((int) $arRes['ID']) . "'"
 				);
 			while ($arMarksRes= $marksRes->Fetch())
 			{
@@ -361,7 +360,7 @@ class CCoursePackage
 		global $DB;
 
 		$strSql = "SELECT * FROM b_learn_question WHERE LESSON_ID=".$lessonId." ORDER BY SORT ASC ";
-		$q = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$q = $DB->Query($strSql);
 		while ($arQRes = $q->Fetch())
 		{
 			$r = ++$this->RefID;
@@ -418,7 +417,7 @@ class CCoursePackage
 
 		$strSql =
 		"SELECT * FROM b_learn_answer WHERE QUESTION_ID = '".intval($arParams["ID"])."' ORDER BY SORT ASC ";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 
 		$cond = "";

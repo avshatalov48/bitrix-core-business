@@ -5,7 +5,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
-use Bitrix\Main\Context;
 use Bitrix\Main\Web\Uri;
 use Bitrix\UI\Admin\Page\StubProcessor;
 
@@ -37,11 +36,9 @@ class UiAdminPageStubComponent extends CBitrixComponent
 	 */
 	public function executeComponent()
 	{
-		$currentPage = $this->getCurrentPage();
-		if ($this->processSkipRequest($currentPage))
-		{
-			return;
-		}
+		$this->processSkipRequest(
+			$this->getCurrentPage()
+		);
 
 		$this->initResult();
 		$this->includeComponentTemplate();
@@ -54,19 +51,18 @@ class UiAdminPageStubComponent extends CBitrixComponent
 
 	private function getCurrentPage(): string
 	{
-		return Context::getCurrent()->getRequest()->getRequestedPage() ?? '';
+		return $this->request->getRequestedPage() ?? '';
 	}
 
 	private function processSkipRequest(string $currentPage): void
 	{
-		$request = Context::getCurrent()->getRequest();
-		$isSkipPage = $request->get(self::REQUEST_PARAM_SKIP_PAGE) === 'Y';
+		$isSkipPage = $this->request->get(self::REQUEST_PARAM_SKIP_PAGE) === 'Y';
 		if ($isSkipPage)
 		{
 			$this->getStubProcessor()->addSkippedPage($currentPage);
 
 			$uri = new Uri(
-				(string)$request->getRequestUri()
+				(string)$this->request->getRequestUri()
 			);
 			$uri->deleteParams([
 				self::REQUEST_PARAM_SKIP_PAGE,
@@ -79,7 +75,7 @@ class UiAdminPageStubComponent extends CBitrixComponent
 	private function getSkipStubUrl(): string
 	{
 		$uri = new Uri(
-			(string)Context::getCurrent()->getRequest()->getRequestUri()
+			(string)$this->request->getRequestUri()
 		);
 		$uri->addParams([
 			self::REQUEST_PARAM_SKIP_PAGE => 'Y',

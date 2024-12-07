@@ -75,7 +75,7 @@ class UserDataProvider extends EntityDataProvider
 		if ($result === null)
 		{
 			$result = (
-				$USER->canDoOperation('edit_all_users')
+				$USER->IsAuthorized()
 				&& (
 					!ModuleManager::isModuleInstalled('extranet')
 					|| Option::get("extranet", "extranet_site") == '' // master hasn't been run
@@ -147,7 +147,6 @@ class UserDataProvider extends EntityDataProvider
 
 		return $result;
 	}
-
 	/**
 	 * Get Settings
 	 * @return UserSettings

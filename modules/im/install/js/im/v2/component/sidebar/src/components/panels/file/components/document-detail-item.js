@@ -1,18 +1,29 @@
 import 'ui.icons';
 import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
 import { Utils } from 'im.v2.lib.utils';
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { MessageAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { highlightText } from 'im.v2.lib.text-highlighter';
+import { Text } from 'main.core';
 
 import '../css/document-detail-item.css';
 
 // @vue/component
 export const DocumentDetailItem = {
 	name: 'DocumentDetailItem',
-	components: { Avatar, ChatTitle },
+	components: { MessageAvatar, ChatTitle },
 	props: {
 		fileItem: {
 			type: Object,
 			required: true,
+		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
+		searchQuery: {
+			type: String,
+			default: '',
+			required: false,
 		},
 	},
 	emits: ['contextMenuClick'],
@@ -39,8 +50,14 @@ export const DocumentDetailItem = {
 		fileShortName(): string
 		{
 			const NAME_MAX_LENGTH = 15;
+			const shortName = Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 
-			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
+			if (this.searchQuery.length === 0)
+			{
+				return Text.encode(shortName);
+			}
+
+			return highlightText(Text.encode(shortName), this.searchQuery);
 		},
 		fileSize(): string
 		{
@@ -92,13 +109,14 @@ export const DocumentDetailItem = {
 			<div class="bx-im-sidebar-file-document-detail-item__content-container" v-bind="viewerAttributes">
 				<div class="bx-im-sidebar-file-document-detail-item__content">
 					<div class="bx-im-sidebar-file-document-detail-item__document-title" @click="download" :title="file.name">
-						<span class="bx-im-sidebar-file-document-detail-item__document-title-text">{{fileShortName}}</span>
+						<span class="bx-im-sidebar-file-document-detail-item__document-title-text" v-html="fileShortName"></span>
 						<span class="bx-im-sidebar-file-document-detail-item__document-size">{{fileSize}}</span>
 					</div>
 					<div class="bx-im-sidebar-file-document-detail-item__author-container">
 						<template v-if="authorId > 0">
-							<Avatar
-								:dialogId="authorId"
+							<MessageAvatar
+								:messageId="sidebarFileItem.messageId"
+								:authorId="sidebarFileItem.authorId"
 								:size="AvatarSize.XS"
 								class="bx-im-sidebar-file-document-detail-item__author-avatar"
 							/>

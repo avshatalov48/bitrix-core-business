@@ -133,12 +133,20 @@
 	--im-color-palette-red-20-rgb: 255, 232, 232;
 	--im-color-palette-green-70: var(--ui-color-palette-green-70, #7fa800);
 	--im-color-palette-green-70-rgb: 127, 168, 0;
+	--im-color-palette-green-55: var(--ui-color-palette-green-55, #95c500);
+	--im-color-palette-green-55-rgb: 149, 197, 0;
 	--im-color-palette-green-50: var(--ui-color-palette-green-50, #9dcf00);
 	--im-color-palette-green-50-rgb: 157, 207, 0;
-	--im-color-palette-green-25: var(--ui-color-palette-green-25, #faf6c3);
+	--im-color-palette-green-30: var(--ui-color-palette-green-30, #e2f1b3);
+	--im-color-palette-green-30-rgb: 226, 241, 179;
+	--im-color-palette-green-25: #eaf6c3;
 	--im-color-palette-green-25-rgb: 250, 246, 195;
+	--im-color-palette-green-20: var(--ui-color-palette-green-20, #f1fbd0);
+	--im-color-palette-green-20-rgb: 241, 251, 208;
 	--im-color-palette-blue-90: var(--ui-color-palette-blue-90, #006484);
 	--im-color-palette-blue-90-rgb: 0, 100, 132;
+	--im-color-palette-blue-70: var(--ui-color-palette-blue-70, #008dba);
+	--im-color-palette-blue-70-rgb: 0, 141, 186;
 	--im-color-palette-blue-60: var(--ui-color-palette-blue-60, #1aa9d9);
 	--im-color-palette-blue-60-rgb: 17, 169, 217;
 	--im-color-palette-blue-50: var(--ui-color-palette-blue-50, #2fc6f6);
@@ -149,7 +157,19 @@
 	--im-color-palette-blue-20-rgb: 229, 249, 255;
 	--im-color-palette-blue-15: var(--ui-color-palette-blue-15, #ecfafe);
 	--im-color-palette-blue-15-rgb: 236, 250, 254;
-
+	--im-color-palette-copilot-primary: var(--ui-color-copilot-primary);
+	--im-color-palette-copilot-dark: var(--ui-color-copilot-dark);
+	--im-color-palette-copilot-secondary: var(--ui-color-copilot-secondary);
+	--im-color-palette-copilot-secondary-rgb: var(--ui-color-copilot-secondary-rgb);
 	--im-color-accent-light-blue: var(--ui-color-accent-light-blue, #559be6);
 	--im-color-accent-light-blue-rgb: 85, 155, 230;
+	--im-color-accent-purple: var(--ui-color-accent-purple);
+	--im-color-accent-purple-rgb: var(--ui-color-accent-purple-rgb);
+	--im-color-accent-turquoise: var(--ui-color-accent-turquoise);
+	--im-color-palette-green-15: var(--ui-color-palette-green-15);
+	--im-color-palette-green-15-rgb: var(--ui-color-palette-green-15-rgb);
+	--im-color-accent-red: var(--ui-color-palette-red-70);
+	--im-color-accent-red-rgb: var(--ui-color-palette-red-70-rgb);
+	--im-color-accent-blue: #00ace3;
+	--im-color-accent-blue-rgb: 0, 172, 227;
 }

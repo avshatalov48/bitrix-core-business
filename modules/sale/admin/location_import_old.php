@@ -28,8 +28,8 @@ $APPLICATION->SetTitle(GetMessage("location_admin_import"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-echo ShowError($strWarning);
-echo ShowNote($strOK, "oktext");
+ShowError($strWarning);
+ShowNote($strOK, "oktext");
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => GetMessage("location_admin_import_tab"), "ICON" => "sale", "TITLE" => GetMessage("LOCA_LOADING")),

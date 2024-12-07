@@ -11,7 +11,7 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 
 class IblockPropertyElementProvider extends BaseProvider
 {
-	protected const ENTITY_ID = 'iblock-property-element';
+	public const ENTITY_ID = 'iblock-property-element';
 	protected const ELEMENTS_LIMIT = 100;
 
 	public function __construct(array $options = [])
@@ -200,7 +200,7 @@ class IblockPropertyElementProvider extends BaseProvider
 		return $this->getImageSource($imageId);
 	}
 
-	private function getDefaultFilter()
+	private function getDefaultFilter(): array
 	{
 		$filter = [
 			'CHECK_PERMISSIONS' => 'Y',

@@ -5,6 +5,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\AI;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config;
@@ -452,6 +453,7 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 
 			$this->checkActions();
 			$this->fillParams();
+			$this->prepareCopilotParams();
 
 			return $this->__includeComponent();
 		}
@@ -459,6 +461,33 @@ final class SocialnetworkBlogPostComment extends CBitrixComponent implements \Bi
 		{
 			$this->handleException($e);
 		}
+	}
+
+	protected function prepareCopilotParams(): void
+	{
+		$this->arResult['IS_QUOTE_COPILOT_ENABLED'] = $this->isCopilotEnabled() && $this->isCopilotEnabledBySettings();
+	}
+
+	protected function isCopilotEnabled(): bool
+	{
+		if (!Loader::includeModule('ai'))
+		{
+			return false;
+		}
+
+		$engine = AI\Engine::getByCategory(AI\Engine::CATEGORIES['text'], AI\Context::getFake());
+
+		return !is_null($engine);
+	}
+
+	protected function isCopilotEnabledBySettings(): bool
+	{
+		if (!Loader::includeModule('socialnetwork'))
+		{
+			return false;
+		}
+
+		return \Bitrix\Socialnetwork\Integration\AI\Settings::isTextAvailable();
 	}
 
 	/*

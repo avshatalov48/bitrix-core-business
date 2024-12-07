@@ -8,7 +8,7 @@
 	<div class="learning-course-toc">
 		<b><?=GetMessage('LEARNING_COURSE_TOC')?></b>
 
-		<?if ($arResult["COURSE"]["DESCRIPTION"] <> ''):?>
+		<?if (!empty($arResult["COURSE"]["DESCRIPTION"])):?>
 			<ul><li><a href="#TOC"><?=GetMessage('LEARNING_COURSE_DESCRIPTION')?></a></li></ul>
 		<?endif?>
 
@@ -21,7 +21,7 @@
 
 	<div class="page-break"></div>
 
-	<?if ($arResult["COURSE"]["DESCRIPTION"] <> ''):?>
+	<?if (!empty($arResult["COURSE"]["DESCRIPTION"])):?>
 		<a name="TOC"></a>
 		<h2><?=GetMessage('LEARNING_COURSE_DESCRIPTION')?></h2>
 		<?=$arResult["COURSE"]["DESCRIPTION"]?>

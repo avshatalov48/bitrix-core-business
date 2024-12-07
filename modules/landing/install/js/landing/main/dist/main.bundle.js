@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core_events,landing_env,landing_loc,landing_ui_panel_content,landing_ui_panel_saveblock,landing_sliderhacks,landing_pageobject,main_core,landing_backend) {
 	'use strict';
@@ -463,7 +464,7 @@ this.BX = this.BX || {};
 	  }
 	}
 
-	var _templateObject;
+	var _templateObject, _templateObject2, _templateObject3;
 	BX.Landing.getMode = function () {
 	  return 'edit';
 	};
@@ -564,7 +565,7 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Main, [{
 	    key: "isCrmFormPage",
 	    value: function isCrmFormPage() {
-	      return landing_env.Env.getInstance().getOptions().specialType === 'crm_forms';
+	      return landing_env.Env.getInstance().getSpecialType() === 'crm_forms';
 	    }
 	  }, {
 	    key: "isDesignBlockMode",
@@ -823,7 +824,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "appendBlock",
 	    value: function appendBlock(data, withoutAnimation) {
-	      var block = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["", ""])), data.content);
+	      if (!this.isAllowedAppendBlock(data)) {
+	        return main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral([""])));
+	      }
+	      var block = main_core.Tag.render(_templateObject2 || (_templateObject2 = babelHelpers.taggedTemplateLiteral(["", ""])), data.content);
 	      block.id = "block".concat(data.id);
 	      if (!withoutAnimation) {
 	        main_core.Dom.addClass(block, 'landing-ui-show');
@@ -833,6 +837,27 @@ this.BX = this.BX || {};
 	      }
 	      this.insertToBlocksFlow(block);
 	      return block;
+	    }
+	    /**
+	     * Check if the block can be appended
+	     * @param {addBlockResponse} data
+	     * @returns {boolean} - Returns true if the block can be appended, otherwise false
+	     */
+	  }, {
+	    key: "isAllowedAppendBlock",
+	    value: function isAllowedAppendBlock(data) {
+	      var _data$manifest$block$;
+	      var type = BX.Landing.Env.getInstance().getType().toLowerCase();
+	      var allowedBlockTypes = (_data$manifest$block$ = data.manifest.block.type) !== null && _data$manifest$block$ !== void 0 ? _data$manifest$block$ : [];
+	      if (type === 'mainpage' || allowedBlockTypes.includes('mainpage')) {
+	        if (main_core.Type.isString(allowedBlockTypes)) {
+	          allowedBlockTypes = [allowedBlockTypes];
+	        }
+	        if (!allowedBlockTypes.includes(type)) {
+	          return false;
+	        }
+	      }
+	      return true;
 	    }
 	    /**
 	     * Shows blocks list panel
@@ -1319,6 +1344,7 @@ this.BX = this.BX || {};
 	        void _this7.hideBlockLoader();
 	        _this7.enableAddBlockButtons();
 	        BX.onCustomEvent('BX.Landing.Block:onAfterAdd', res);
+	        _this7.sendAnalyticsData('onAddBlock', res);
 	        return p;
 	      });
 	    }
@@ -1397,6 +1423,9 @@ this.BX = this.BX || {};
 	          return !item.isInternal;
 	        });
 	      }
+	      if (BX.type.isObject(data.lang)) {
+	        landing_loc.Loc.setMessage(data.lang);
+	      }
 	      var loadedScripts = 0;
 	      var scriptsCount = data.js.length + ext.SCRIPT.length + ext.STYLE.length + data.css.length;
 	      var resPromise = null;
@@ -1434,7 +1463,16 @@ this.BX = this.BX || {};
 	      } else {
 	        resPromise = Promise.resolve(data);
 	      }
-	      return resPromise;
+	      return resPromise.then(function (data) {
+	        if (BX.type.isArray(data.assetStrings)) {
+	          var head = document.head;
+	          data.assetStrings.forEach(function (string) {
+	            var element = main_core.Tag.render(_templateObject3 || (_templateObject3 = babelHelpers.taggedTemplateLiteral(["", ""])), string);
+	            main_core.Dom.insertAfter(element, head.lastChild);
+	          });
+	        }
+	        return data;
+	      });
 	    }
 	    /**
 	     * Executes block scripts
@@ -1553,6 +1591,7 @@ this.BX = this.BX || {};
 	      if (!block.parent.querySelector('.block-wrapper')) {
 	        this.adjustEmptyAreas();
 	      }
+	      this.sendAnalyticsData('onDeleteBlock', block);
 	    }
 	    /**
 	     * Shows page overlay
@@ -1582,6 +1621,56 @@ this.BX = this.BX || {};
 	    key: "reloadSlider",
 	    value: function reloadSlider(url) {
 	      return landing_sliderhacks.SliderHacks.reloadSlider(url, window.parent);
+	    }
+	  }, {
+	    key: "sendAnalyticsData",
+	    value: function sendAnalyticsData(action, data) {
+	      var code = data.manifest.code;
+	      var block = this.getBlockFromRepository(code);
+	      var analyticsCategory = '';
+	      var p2 = '';
+	      var analyticsEvent = '';
+	      var type = BX.Landing.Env.getInstance().getType();
+	      if (type === 'MAINPAGE') {
+	        analyticsCategory = 'vibe';
+	        if (action === 'onAddBlock') {
+	          analyticsEvent = 'add_widget';
+	        }
+	        if (action === 'onDeleteBlock') {
+	          analyticsEvent = 'delete_widget';
+	        }
+	        var widgetCode = code.replaceAll(/[._]/g, '-');
+	        p2 = "widget-id_".concat(widgetCode);
+	      } else {
+	        analyticsCategory = 'site'; // site ||  shop || kb
+	        if (action === 'onAddBlock') {
+	          analyticsEvent = 'add_block';
+	        }
+	        if (action === 'onDeleteBlock') {
+	          analyticsEvent = 'delete_block';
+	        }
+	        var blockCode = code.replaceAll(/[._]/g, '-');
+	        p2 = "widget-id_".concat(blockCode);
+	      }
+	      var itemType = '';
+	      var p1 = '';
+	      if (block.repo_id) {
+	        itemType = 'partner'; // partner || local
+	        if (block.app_code) {
+	          p1 = block.app_code.replaceAll(/[._]/g, '-'); // appCode || local
+	        }
+	      } else {
+	        itemType = 'system';
+	        p1 = 'system';
+	      }
+	      BX.UI.Analytics.sendData({
+	        tool: 'landing',
+	        category: analyticsCategory,
+	        event: analyticsEvent,
+	        type: itemType,
+	        p1: p1,
+	        p2: p2
+	      });
 	    }
 	  }]);
 	  return Main;

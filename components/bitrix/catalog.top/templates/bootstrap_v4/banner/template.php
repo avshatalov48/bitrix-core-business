@@ -95,10 +95,10 @@ $strContID = 'js_catalog_top_banner_s'.$this->randString();
 					<div class="catalog-top-banner-img-canvas">
 						<div class="catalog-top-banner-img-understratum"></div>
 						<a id="<? echo $arItemIDs['PICT']; ?>"
-						   href="<? echo $arItem['DETAIL_PAGE_URL']; ?>"
-						   class="catalog-top-banner-img-element"
-						   style="background-image: url(<? echo $arItem['PREVIEW_PICTURE']['SRC']; ?>);"
-						   title="<? echo $imgTitle; ?>">
+							href="<? echo $arItem['DETAIL_PAGE_URL']; ?>"
+							class="catalog-top-banner-img-element"
+							style="background-image: url(<? echo $arItem['PREVIEW_PICTURE']['SRC']; ?>);"
+							title="<? echo $imgTitle; ?>">
 							<?
 							if ($showPrice && 'Y' == $arParams['SHOW_DISCOUNT_PERCENT'])
 							{
@@ -341,8 +341,8 @@ else
 					'EMPTY_PROPS' => $emptyProductProperties
 				)
 			);
-			?><script type="text/javascript">
-		  var <? echo $strObName; ?> = new JCCatalogTopBanner(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
+			?><script>
+			var <? echo $strObName; ?> = new JCCatalogTopBanner(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script><?
 		}
 			$boolFirst = false;
@@ -378,8 +378,8 @@ else
 			);
 		}
 		?>
-		<script type="text/javascript">
-		  var ob<? echo $strContID; ?> = new JCCatalogTopBannerList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
+		<script>
+			var ob<? echo $strContID; ?> = new JCCatalogTopBannerList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script>
 		<?
 	}

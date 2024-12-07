@@ -16,7 +16,6 @@ use Bitrix\Main\Engine\Response\AjaxJson;
 use Bitrix\Main\Engine\Router;
 use Bitrix\Main\Engine\JsonPayload;
 use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Main\Web;
 
 /**
  * Http application extends application. Contains http specific methods.

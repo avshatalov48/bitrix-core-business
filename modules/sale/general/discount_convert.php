@@ -57,7 +57,7 @@ class CSaleDiscountConvert
 
 		$strSql = "SELECT COUNT(*) CNT FROM b_sale_discount WHERE VERSION=".CSaleDiscount::VERSION_OLD;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$res)
 			return 0;
 
@@ -71,7 +71,7 @@ class CSaleDiscountConvert
 
 		$strSql = "SELECT COUNT(*) CNT FROM b_sale_discount WHERE 1=1";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$res)
 			return 0;
 
@@ -89,7 +89,7 @@ class CSaleDiscountConvert
 		$intStep = intval($intStep);
 		if (0 >= $intStep)
 			$intStep = 100;
-		$startConvertTime = getmicrotime();
+		$startConvertTime = microtime(true);
 
 		$obDiscount = new CSaleDiscount();
 
@@ -273,20 +273,20 @@ class CSaleDiscountConvert
 				if (!empty($strUpdate))
 				{
 					$strQuery = "UPDATE ".$strTableName." SET ".$strUpdate." WHERE ID = ".$arDiscount['ID'];
-					$DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strQuery);
 				}
 
 				self::$intConverted++;
 				self::$intConvertPerStep++;
 			}
 
-			if ($intMaxExecutionTime > 0 && (getmicrotime() - $startConvertTime > $intMaxExecutionTime))
+			if ($intMaxExecutionTime > 0 && (microtime(true) - $startConvertTime > $intMaxExecutionTime))
 				break;
 		}
 
 		CTimeZone::Enable();
 
-		if ($intMaxExecutionTime > (2*(getmicrotime() - $startConvertTime)))
+		if ($intMaxExecutionTime > (2*(microtime(true) - $startConvertTime)))
 			self::$intNextConvertPerStep = $intStep*2;
 		else
 			self::$intNextConvertPerStep = $intStep;

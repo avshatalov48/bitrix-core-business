@@ -55,7 +55,9 @@ $arFilterFields = Array(
 	"filter_date_end_from",
 	"filter_date_end_to",
 	"filter_completed",
+	"filter_student_id",
 	"filter_status",
+	"filter_score",
 	"filter_score_from",
 	"filter_score_to",
 	"filter_speed_from",
@@ -137,8 +139,8 @@ if($lAdmin->EditAction()) //save from the list
 			if($e = $APPLICATION->GetException())
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
 		else
 		{
@@ -147,8 +149,9 @@ if($lAdmin->EditAction()) //save from the list
 				$bCOMPLETED = true;
 
 			$ob->OnAttemptChange($ID, $bCOMPLETED);
+
+			$DB->Commit();
 		}
-		$DB->Commit();
 	}
 }
 
@@ -190,8 +193,10 @@ if($arID = $lAdmin->GroupAction())
 					$lAdmin->AddGroupError(GetMessage("LEARNING_DELETE_ERROR"), $ID);
 				}
 				else
+				{
 					CGradeBook::RecountAttempts($ar["STUDENT_ID"], $ar["TEST_ID"]);
-				$DB->Commit();
+					$DB->Commit();
+				}
 			}
 			break;
 		}

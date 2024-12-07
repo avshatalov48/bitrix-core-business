@@ -32,6 +32,10 @@ abstract class ProductList extends \CBitrixComponent
 
 			/** @var \Bitrix\Catalog\v2\Product\BaseProduct $product */
 			$product = $sku->getParent();
+			if (!$product)
+			{
+				continue;
+			}
 
 			$fields = $sku->getFields();
 			$fields['PRODUCT_ID'] = $product->getId();

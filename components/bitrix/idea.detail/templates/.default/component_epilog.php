@@ -13,16 +13,16 @@ if($arParams["SET_NAV_CHAIN_IDEA"]=="Y")
 			{
 				if($arCategoryList[$Category]["IBLOCK_SECTION_ID"] == $Cat["ID"])
 				{
-					$APPLICATION->AddChainItem($Cat["NAME"], str_replace("#category_1#", ToLower($Cat["CODE"]), $arParams["EXT"][0]["PATH_TO_CATEGORY_1"]));
+					$APPLICATION->AddChainItem($Cat["NAME"], str_replace("#category_1#", mb_strtolower($Cat["CODE"]), $arParams["EXT"][0]["PATH_TO_CATEGORY_1"]));
 					$bParentCat = true;
 					break;
 				}
 			}
 		}
 		if($bParentCat)
-			$APPLICATION->AddChainItem($arCategoryList[$Category]["NAME"], str_replace(array("#category_1#","#category_2#"), array(ToLower($Cat["CODE"]), ToLower($Category)), $arParams["EXT"][0]["PATH_TO_CATEGORY_2"]));
+			$APPLICATION->AddChainItem($arCategoryList[$Category]["NAME"], str_replace(array("#category_1#","#category_2#"), array(mb_strtolower($Cat["CODE"]), mb_strtolower($Category)), $arParams["EXT"][0]["PATH_TO_CATEGORY_2"]));
 		else
-			$APPLICATION->AddChainItem($arCategoryList[$Category]["NAME"], str_replace(array("#category_1#"), array(ToLower($Category)), $arParams["EXT"][0]["PATH_TO_CATEGORY_1"]));
+			$APPLICATION->AddChainItem($arCategoryList[$Category]["NAME"], str_replace(array("#category_1#"), array(mb_strtolower($Category)), $arParams["EXT"][0]["PATH_TO_CATEGORY_1"]));
 		if(isset($arResult["Post"]["TITLE"]))
 			$APPLICATION->AddChainItem($arResult["Post"]["TITLE"]);
 	}

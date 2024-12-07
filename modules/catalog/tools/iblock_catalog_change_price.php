@@ -303,7 +303,7 @@ $javascriptParams = array(
 $javascriptParams = CUtil::PhpToJSObject($javascriptParams);
 \Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/catalog/iblock_change_price.js');
 ?>
-<script type="text/javascript">
+<script>
 	var iblockChangeScript = BX.Catalog.Admin.IblockChangePrice();
 	iblockChangeScript.init(<?=$javascriptParams?>);
 </script>

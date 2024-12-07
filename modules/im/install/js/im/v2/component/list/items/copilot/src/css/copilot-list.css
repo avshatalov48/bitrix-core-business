@@ -19,16 +19,6 @@
 	background-color: var(--im-list-copilot__background-color)
 }
 
-.bx-im-list-copilot__loading {
-	width: 100%;
-	height: 96px;
-	padding: 28px 0;
-	background-image: url('./images/spinner.svg');
-	background-position: center;
-	background-repeat: no-repeat;
-	animation: imRotate360 .8s linear infinite;
-}
-
 .bx-im-list-copilot__empty {
 	display: flex;
 	justify-content: center;

@@ -1,11 +1,10 @@
-<?
+<?php
 define("NO_KEEP_STATISTIC", true);
 define("NOT_CHECK_PERMISSIONS", true);
 define("NO_AGENT_CHECK", true);
 define("DisableEventsCheck", true);
 
-use Bitrix\Main\UserField\{TypeBase, Dispatcher, Display};
-use Bitrix\Main\Web\PostDecodeFilter;
+use Bitrix\Main\UserField\{Dispatcher, Display};
 use Bitrix\Main\Component\BaseUfComponent;
 use Bitrix\Main\UserField\Types\BaseType;
 
@@ -22,7 +21,6 @@ if(isset($_REQUEST['tpl']) && isset($_REQUEST['tpls']) && !defined('SITE_TEMPLAT
 }
 
 $request = \Bitrix\Main\Context::getCurrent()->getRequest();
-$request->addFilter(new PostDecodeFilter());
 
 if(check_bitrix_sessid())
 {

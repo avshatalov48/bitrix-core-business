@@ -16,6 +16,7 @@ class Element implements Child
 	private $copyMode;
 	protected $sectionsRatio = [];
 	protected $enumRatio = [];
+	protected array $fieldRatio = [];
 
 	/**
 	 * @var Result
@@ -29,22 +30,45 @@ class Element implements Child
 		$this->result = new Result();
 	}
 
+	/**
+	 * Add sections map from old iblock to new iblock.
+	 *
+	 * @param array $sectionsRatio Sections map.
+	 * @return void
+	 */
 	public function setSectionsRatio(array $sectionsRatio)
 	{
 		$this->sectionsRatio = $sectionsRatio;
 	}
 
+	/**
+	 * Add lists values map from old iblock to new iblock.
+	 *
+	 * @param array $enumRatio Lists values map.
+	 * @return void
+	 */
 	public function setEnumRatio(array $enumRatio)
 	{
 		$this->enumRatio = $enumRatio;
 	}
 
 	/**
-	 * @param int $entityId
-	 * @param int $copiedEntityId
+	 * Add properties map from old iblock to new iblock.
+	 *
+	 * @param array $fieldRatio Properties map.
+	 * @return void
+	 */
+	public function setFieldRatio(array $fieldRatio): void
+	{
+		$this->fieldRatio = $fieldRatio;
+	}
+
+	/**
+	 * Copy iblock.
+	 *
+	 * @param int $entityId Source iblock id.
+	 * @param int $copiedEntityId Destination iblock id.
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	public function copy($entityId, $copiedEntityId): Result
 	{
@@ -62,8 +86,6 @@ class Element implements Child
 	 * @param int $sectionId
 	 * @param int $copiedSectionId
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	protected function copySectionElements(int $sectionId, int $copiedSectionId)
 	{
@@ -95,8 +117,6 @@ class Element implements Child
 	 * @param int $iblockId
 	 * @param int $copiedIblockId
 	 * @return Result
-	 * @throws \Bitrix\Main\ArgumentNullException
-	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
 	 */
 	private function copyIblockElements(int $iblockId, int $copiedIblockId)
 	{
@@ -109,9 +129,11 @@ class Element implements Child
 		$queueOption = [
 			"iblockId" => $iblockId,
 			"copiedIblockId" => $copiedIblockId,
-			"enumRatio" => ($this->enumRatio[$iblockId] ?: []),
-			"sectionsRatio" => ($this->sectionsRatio[$iblockId] ?: [])
+			"enumRatio" => ($this->enumRatio[$iblockId] ?? []),
+			"sectionsRatio" => ($this->sectionsRatio[$iblockId] ?? []),
+			'fieldRatio' => ($this->fieldRatio[$iblockId] ?? []),
 		];
+
 		Option::set($moduleId, "IblockGroupStepper_".$copiedIblockId, serialize($queueOption));
 
 		$agent = \CAgent::getList([], [

@@ -10384,6 +10384,11 @@ var Player = function (_Component) {
       this.addClass('vjs-fullscreen');
     } else {
       this.removeClass('vjs-fullscreen');
+
+		if (typeof this.previousScrollPosition !== 'undefined')
+		{
+			window.scrollTo(0, this.previousScrollPosition);
+		}
     }
   };
 
@@ -10895,6 +10900,8 @@ var Player = function (_Component) {
 
   Player.prototype.requestFullscreen = function requestFullscreen() {
     var fsApi = _fullscreenApi2['default'];
+
+	this.previousScrollPosition = window.scrollY;
 
     this.isFullscreen(true);
 

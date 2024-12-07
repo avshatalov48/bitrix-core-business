@@ -66,6 +66,11 @@ if (!$documentType)
 $componentParams = [
 	'MODE' => $documentType,
 	'PATH_TO' => $arResult['PATH_TO'],
+	'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+	'ENABLE_FIELDS_SEARCH' => 'Y',
+	'CONFIG' => [
+		'popupWidth' => 800,
+	],
 ];
 
 if ($documentType === 'sales_order')

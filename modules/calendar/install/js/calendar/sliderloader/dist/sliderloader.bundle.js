@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -37,9 +38,6 @@ this.BX = this.BX || {};
 	    }
 	    if (options.locationCapacity) {
 	      this.extensionParams.locationCapacity = options.locationCapacity;
-	    }
-	    if (options.dayOfWeekMonthFormat) {
-	      this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
 	    }
 	    if (main_core.Type.isDate(options.entryDateFrom)) {
 	      this.extensionParams.entryDateFrom = options.entryDateFrom;

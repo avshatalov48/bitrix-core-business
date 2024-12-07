@@ -79,7 +79,7 @@
 			{
 				this.context = this.input.value;
 			}
-			const Copilot = top.BX.AI ? top.BX.AI.Copilot : BX.AI.Copilot;
+			const Copilot = (top.BX.AI && top.BX.AI.Copilot) ? top.BX.AI.Copilot : BX.AI.Copilot;
 			this.copilot = new Copilot({
 				moduleId: 'landing',
 				contextId: 'settings',
@@ -250,7 +250,7 @@
 					<div class="ui-icon-set --copilot-ai"></div>
 				</div>
 			`;
-			const Copilot = top.BX.AI ? top.BX.AI.Copilot : BX.AI.Copilot;
+			const Copilot = (top.BX.AI && top.BX.AI.Copilot) ? top.BX.AI.Copilot : BX.AI.Copilot;
 			this.copilot = new Copilot({
 				moduleId: 'landing',
 				contextId: 'settings',
@@ -521,11 +521,22 @@
 		this.params = params;
 		this.params.messages = this.params.messages || {};
 		this.container = this.params.container;
-		this.areas = [];
+		this.areaFields = [];
+		this.valueField = this.params.valueField;
+
+		this.values = [];
+		if (this.valueField.value)
+		{
+			this.values = this.valueField.value.split(',').map(value => parseInt(value.split(':')[1]) || 0);
+		}
+		else if (this.params.defaultValues)
+		{
+			this.values = this.params.defaultValues;
+		}
 
 		const layouts = [].slice.call(this.container.querySelectorAll('.landing-form-layout-item'));
 		layouts.forEach((item) => {
-			item.addEventListener('click', this.handleLayoutClick.bind(this));
+			item.addEventListener('click', this.onLayoutClick.bind(this));
 		});
 		this.createBlocks(layouts[0].dataset.block);
 
@@ -535,7 +546,7 @@
 		}
 
 		const arrowContainer = this.container.querySelector('.landing-form-select-buttons');
-		arrowContainer.addEventListener('click', this.handlerOnArrowClick.bind(this));
+		arrowContainer.addEventListener('click', this.onArrowClick.bind(this));
 
 		if (this.params.tplUse)
 		{
@@ -557,7 +568,28 @@
 	};
 
 	BX.Landing.Layout.prototype = {
-		handlerOnArrowClick(event)
+		/**
+		 *
+		 * @param {number} position
+		 * @return {number}
+		 */
+		getAreaValue(position)
+		{
+			position = parseInt(position);
+			position = Math.min(position, this.areaFields.length);
+			position = Math.max(position, 0);
+
+			const savedValue = this.values[position] || 0;
+			const value =
+				(this.areaFields[position] && this.areaFields[position].getValue())
+					? this.areaFields[position].getValue().slice(13)
+					: savedValue
+			;
+
+			return parseInt(value);
+		},
+
+		onArrowClick(event)
 		{
 			const layoutContainer = this.container.querySelector('.landing-form-list-inner');
 
@@ -571,14 +603,14 @@
 			}
 		},
 
-		createBlocks(blocks)
+		createBlocks(count)
 		{
-			const saveRefs = this.params.tplRefs.value.split(',');
-			this.areas = [];
+			count = parseInt(count);
+			this.areaFields = [];
 			const layoutBlockContainer = this.container.querySelector('.landing-form-layout-block-container');
 			layoutBlockContainer.innerHTML = '';
 
-			for (let i = 0; i < blocks; i++)
+			for (let i = 0; i < count; i++)
 			{
 				const block = BX.create('div', {
 					attrs: {
@@ -587,23 +619,8 @@
 				});
 
 				const numberBlock = i + 1;
-				let linkContent = '';
-
-				if (
-					typeof saveRefs[i] !== 'undefined'
-					&& saveRefs[i].includes(':')
-				)
-				{
-					linkContent = parseInt(saveRefs[i].split(':')[1]);
-					if (linkContent > 0)
-					{
-						linkContent = `#landing${linkContent}`;
-					}
-					else
-					{
-						linkContent = '';
-					}
-				}
+				let linkContent = this.getAreaValue(i);
+				linkContent = linkContent > 0 ? `#landing${linkContent}` : '';
 
 				const layoutField = new BX.Landing.UI.Field.LinkUrl({
 					title: `${this.params.messages.area} #${numberBlock}`,
@@ -633,31 +650,29 @@
 							'=TYPE': this.params.type,
 						},
 					},
-					onInit: this.rebuildHiddenField.bind(this),
-					onInput: this.rebuildHiddenField.bind(this),
-					onValueChange: this.rebuildHiddenField.bind(this),
+					onInit: this.onAreaFieldChange.bind(this),
+					onInput: this.onAreaFieldChange.bind(this),
+					onValueChange: this.onAreaFieldChange.bind(this),
 				});
 
-				this.areas[i] = layoutField;
+				this.areaFields[i] = layoutField;
 				block.appendChild(layoutField.layout);
 				layoutBlockContainer.appendChild(block);
 			}
 		},
 
-		rebuildHiddenField()
+		onAreaFieldChange()
 		{
-			let refs = '';
-			for (let i = 0, c = this.areas.length; i < c; i++)
+			const values = [];
+			for (let i = 0, c = this.areaFields.length; i < c; i++)
 			{
-				refs += `${i + 1}:${
-					// todo: 13 -> 8
-					this.areas[i].getValue() ? this.areas[i].getValue().slice(13) : 0
-					},`;
+				this.values[i] = this.getAreaValue(i);
+				values.push(`${i + 1}:${this.getAreaValue(i)}`);
 			}
-			this.params.tplRefs.value = refs;
+			this.valueField.value = values.join(',');
 		},
 
-		handleLayoutClick(event)
+		onLayoutClick(event)
 		{
 			const layoutItem = event.target.parentNode;
 
@@ -682,8 +697,6 @@
 			{
 				this.changeLayoutImg(layout);
 			}
-
-			this.params.tplRefs.value = '';
 		},
 
 		changeLayoutImg(layout)

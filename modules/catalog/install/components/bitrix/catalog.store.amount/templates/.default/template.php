@@ -64,7 +64,7 @@ if(!empty($arResult["STORES"]) && $arParams["MAIN_TITLE"] != ''):?>
 	<?endif;?>
 </div>
 <?if (isset($arResult["IS_SKU"]) && $arResult["IS_SKU"] == 1):?>
-	<script type="text/javascript">
+	<script>
 		var obStoreAmount = new JCCatalogStoreSKU(<? echo CUtil::PhpToJSObject($arResult['JS'], false, true, true); ?>);
 	</script>
 	<?

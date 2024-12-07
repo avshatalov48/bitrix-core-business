@@ -4,6 +4,7 @@ namespace Bitrix\Lists;
 
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -508,7 +509,9 @@ class BizprocDocumentLists extends \BizprocDocument
 	{
 		$documentId = intval($documentId);
 		if ($documentId <= 0)
+		{
 			throw new \CBPArgumentNullException("documentId");
+		}
 
 		$db = \CIBlockElement::getList(
 			array(),
@@ -522,9 +525,22 @@ class BizprocDocumentLists extends \BizprocDocument
 			foreach(GetModuleEvents("iblock", "CIBlockDocument_OnGetDocumentAdminPage", true) as $arEvent)
 			{
 				$url = ExecuteModuleEventEx($arEvent, array($ar));
-				if($url)
+				if ($url)
+				{
 					return $url;
+				}
 			}
+
+			if ($ar['IBLOCK_TYPE_ID'] === 'lists')
+			{
+				if (ModuleManager::isModuleInstalled('bitrix24'))
+				{
+					return sprintf('/company/lists/%u/element/0/%u/', $ar['IBLOCK_ID'], $ar['ID']);
+				}
+
+				return sprintf('/services/lists/%u/element/0/%u/', $ar['IBLOCK_ID'], $ar['ID']);
+			}
+
 			return "/bitrix/admin/iblock_element_edit.php?view=Y&ID=".$documentId."&IBLOCK_ID=".
 				$ar["IBLOCK_ID"]."&type=".$ar["IBLOCK_TYPE_ID"];
 		}

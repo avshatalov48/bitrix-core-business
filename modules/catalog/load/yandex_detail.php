@@ -385,7 +385,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST')
 				'VAT_EXPORT' => $vatExport,
 				'COMMON_FIELDS' => $commonFields
 			);
-?><script type="text/javascript">
+?><script>
 top.BX.closeWait();
 top.BX.WindowManager.Get().Close();
 top.setDetailData('<?=CUtil::JSEscape(base64_encode(serialize($arXMLData)));?>');
@@ -553,7 +553,7 @@ HTML form
 		}
 
 		?>
-		<script type="text/javascript">
+		<script>
 		var currentSelectedType = '<? echo $type; ?>';
 
 		function switchType(type)
@@ -676,7 +676,7 @@ HTML form
 				<input type="hidden" name="PARAMS_COUNT" id="PARAMS_COUNT" value="<? echo $intCount; ?>">
 				<div style="width: 100%; text-align: center;"><input type="button" onclick="__addYP(); return false;" name="yandex_params_add" value="<? echo GetMessage('YANDEX_PROPS_ADDITIONAL_MORE'); ?>"></div>
 				</div>
-<script type="text/javascript">
+<script>
 function changeVatExport()
 {
 	var vatRates = BX('tr_BASE_VAT');
@@ -736,7 +736,7 @@ function __addYP()
 			<tr>
 			<td valign="top"><? echo GetMessage('YANDEX_OFFERS_SELECT') ?></td><td><?
 			$arOffersSelect = array(
-				0 => '--- '.ToLower(GetMessage('YANDEX_OFFERS_SELECT')).' ---',
+				0 => '--- '.mb_strtolower(GetMessage('YANDEX_OFFERS_SELECT')).' ---',
 				YANDEX_SKU_EXPORT_ALL => GetMessage('YANDEX_SKU_EXPORT_ALL_TITLE'),
 				YANDEX_SKU_EXPORT_MIN_PRICE => GetMessage('YANDEX_SKU_EXPORT_MIN_PRICE_TITLE'),
 			);
@@ -773,7 +773,7 @@ function __addYP()
 						?><option value="<?=$intPropID; ?>" <? echo $strSelected; ?>><? echo htmlspecialcharsEx($arIBlock['OFFERS_PROPERTY'][$intPropID]['NAME']);?></option><?
 					}
 					?></select></td>
-					<td valign="top"><select name="SKU_PROP_SELECT" id="SKU_PROP_SELECT"><option value="">--- <? echo ToLower(GetMessage('YANDEX_SKU_EXPORT_PROP_COND')); ?> ---</option><?
+					<td valign="top"><select name="SKU_PROP_SELECT" id="SKU_PROP_SELECT"><option value="">--- <? echo mb_strtolower(GetMessage('YANDEX_SKU_EXPORT_PROP_COND')); ?> ---</option><?
 					foreach ($arCondSelectProp as $key => $value)
 					{
 						?><option value="<? echo htmlspecialcharsbx($key);?>" <? echo ($key == $arSKUExport['SKU_PROP_COND']['COND'] ? 'selected' : ''); ?>><? echo htmlspecialcharsEx($value); ?></option><?
@@ -814,7 +814,7 @@ function __addYP()
 					?></div></td>
 				</tr>
 				</tbody></table><?
-				?><script type="text/javascript">
+				?><script>
 				var obExportConds = null,
 					obPropCondCont = null,
 					obSelectProps = null,

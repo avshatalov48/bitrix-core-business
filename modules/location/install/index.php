@@ -298,20 +298,14 @@ Class location extends CModule
 
 	public function InstallFiles($arParams = array())
 	{
-		if (!isset($_ENV['COMPUTERNAME']) || $_ENV['COMPUTERNAME'] !== 'BX')
-		{
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/location/install/js', $_SERVER['DOCUMENT_ROOT'].'/bitrix/js', true, true);
-		}
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/location/install/js', $_SERVER['DOCUMENT_ROOT'].'/bitrix/js', true, true);
 
 		return true;
 	}
 
 	public function UnInstallFiles()
 	{
-		if (!isset($_ENV['COMPUTERNAME']) || $_ENV['COMPUTERNAME'] !== 'BX')
-		{
-			DeleteDirFilesEx('/bitrix/js/location/');
-		}
+		DeleteDirFilesEx('/bitrix/js/location/');
 
 		return true;
 	}

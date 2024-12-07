@@ -96,6 +96,21 @@ export class Client
 		return response.data;
 	}
 
+	static async loadSpacesData(spaceIds: Array<number>): Promise
+	{
+		const componentName = 'bitrix:socialnetwork.spaces.list';
+		const actionName = 'loadSpacesData';
+
+		const response = await ajax.runComponentAction(componentName, actionName, {
+			mode: 'class',
+			data: {
+				spaceIds,
+			},
+		});
+
+		return response.data;
+	}
+
 	static async loadSpaceTheme(spaceId: number): Promise
 	{
 		const componentName = 'bitrix:socialnetwork.spaces.list';

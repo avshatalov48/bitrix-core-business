@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\MessageService\Sender\Sms;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
@@ -364,12 +363,6 @@ class SmsRu extends Sender\BaseConfigurable
 		$httpClient->setHeader('User-Agent', 'Bitrix24');
 		$httpClient->setCharset('UTF-8');
 
-		$isUtf = Application::getInstance()->isUtfMode();
-
-		if (!$isUtf)
-		{
-			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-		}
 		$params['json'] = 1;
 
 		$result = new Sender\Result\HttpRequestResult();

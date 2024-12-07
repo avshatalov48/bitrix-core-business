@@ -31,6 +31,8 @@ export const SupervisorBaseMessage = {
 			:dialogId="dialogId"
 			:item="item"
 			:withBackground="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			class="bx-im-message-supervisor-base__scope"
 		>
 			<div class="bx-im-message-supervisor-base__container">

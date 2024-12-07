@@ -36,7 +36,7 @@ class EventConverter
 	 */
 	public function __construct(
 		Event $event,
-		EventConnection $eventConnection = null,
+		?EventConnection $eventConnection = null,
 		?InstanceMap $instanceCollection = null
 	)
 	{
@@ -109,6 +109,13 @@ class EventConverter
 			{
 				$event['recurringEventId'] = $this->eventConnection->getRecurrenceId();
 			}
+		}
+
+		$this->eventConnection->setData($this->eventConnection->fetchData());
+
+		if (($eventConnectionData = $this->eventConnection->getData()) && !empty($eventConnectionData['attendees']))
+		{
+			$event['attendees'] = $eventConnectionData['attendees'];
 		}
 
 		return $event;

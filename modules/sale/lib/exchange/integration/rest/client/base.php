@@ -120,10 +120,6 @@ class Base
 		$httpClient->setCharset("UTF-8");
 
 		$params["auth"] = $accessToken;
-		if (!Application::getInstance()->isUtfMode())
-		{
-			$params = Encoding::convertEncoding($params, SITE_CHARSET, "UTF-8");
-		}
 
 		$this->log("\\----------\n");
 		$this->log(['endpoint'=>$endPoint.$method,'params'=>$params]);

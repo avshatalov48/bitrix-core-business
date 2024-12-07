@@ -1,4 +1,4 @@
-import { Loc, Tag, Dom, ready, ajax, Type } from 'main.core';
+import { Loc, Tag, Dom, ready, ajax, Type, Event } from 'main.core';
 import { Layout } from 'ui.sidepanel.layout';
 import { LayoutForm } from 'ui.layout-form';
 import './css/style.css';
@@ -14,6 +14,7 @@ type SenderData = {
 	server: string,
 	port: number,
 	protocol: string,
+	login: string,
 	limit: null | number,
 };
 
@@ -150,6 +151,7 @@ export class SmtpEditor
 		this.emailField.value = senderData.email;
 		this.serverField.value = senderData.server;
 		this.portField.value = senderData.port;
+		this.loginField.value = senderData.login;
 		if (senderData.protocol === 'smtps')
 		{
 			this.sslField.checked = true;
@@ -263,7 +265,7 @@ export class SmtpEditor
 			server: this.serverField.value,
 			port: this.portField.value,
 			ssl: this.sslField.checked ? this.sslField.value : '',
-			login: this.emailField.value,
+			login: this.loginField.value,
 			password: this.passwordField.value,
 			limit: this.senderLimitCheckbox.checked ? this.senderLimitField.value : null,
 		};
@@ -348,15 +350,17 @@ export class SmtpEditor
 		this.#createSmtpEmailRow();
 		this.#createSmtpServerRow();
 		this.#createSmtpPortAndSafeConnectionRow();
+		this.#createSmtpLoginRow();
 		this.#createSmtpPasswordRow();
 
 		this.smtpServerSection = Tag.render`
 			<div class="ui-slider-section">
 				<div class="ui-slider-content-box">
 					<div class="ui-slider-heading-4">${Loc.getMessage('UI_MAIL_SMTP_SLIDER_SMTP_SECTION_TITLE')}</div>
+					${this.smtpEmailRow}
 					${this.smtpServerRow}
 					${this.smtpPortAndSafeConnectionRow}
-					${this.smtpEmailRow}
+					${this.smtpLoginRow}
 					${this.smtpPasswordRow}
 				</div>
 			</div>
@@ -428,6 +432,26 @@ export class SmtpEditor
 		this.smtpPortAndSafeConnectionRow = root;
 		this.portField = portField;
 		this.sslField = sslField;
+	}
+
+	#createSmtpLoginRow(): void
+	{
+		const { root, loginField } = Tag.render`
+			<div class="ui-form-row">
+				<div class="ui-ctl-top">
+					<div class="ui-form-label">${Loc.getMessage('UI_MAIL_SMTP_SLIDER_LOGIN')}</div>
+				</div>
+				<div class="ui-ctl ui-ctl-textbox ui-ctl-w100">
+					<input type="text" class="ui-ctl-element" data-name="login" ref="loginField">
+				</div>
+			</div>
+		`;
+
+		this.smtpLoginRow = root;
+		this.loginField = loginField;
+		Event.bind(this.emailField, 'input', () => {
+			this.loginField.value = this.emailField.value;
+		});
 	}
 
 	#createSmtpPasswordRow(): void
@@ -502,6 +526,7 @@ export class SmtpEditor
 			{ row: this.smtpEmailRow, input: this.emailField, type: 'email' },
 			{ row: this.smtpServerRow, input: this.serverField, type: 'server' },
 			{ row: this.smtpPortAndSafeConnectionRow, input: this.portField, type: 'port' },
+			{ row: this.smtpLoginRow, input: this.loginField, type: 'login' },
 		];
 
 		if (!this.senderId)
@@ -596,6 +621,8 @@ export class SmtpEditor
 				return Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_SERVER');
 			case 'port':
 				return Loc.getMessage('UI_MAIL_SMTP_SLIDER_INVALID_PORT');
+			case 'login':
+				return Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_LOGIN');
 			default:
 				return Loc.getMessage('UI_MAIL_SMTP_SLIDER_EMPTY_PASSWORD');
 		}

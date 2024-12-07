@@ -32,7 +32,7 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && $POST_RIGHT=="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update.$Apply.$RestoreDefaults <> '' && $POST_RIGHT=="W" && check_bitrix_sessid())
 {
 	if($RestoreDefaults <> '')
 	{

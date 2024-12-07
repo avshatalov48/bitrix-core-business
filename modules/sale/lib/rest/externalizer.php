@@ -12,7 +12,7 @@ use Bitrix\Sale\Result;
 /**
  * Class Externalizer
  * @package Bitrix\Sale\Rest
- * экстерналайзер для работы с именованными списками|ответами
+ * СЌРєСЃС‚РµСЂРЅР°Р»Р°Р№Р·РµСЂ РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ РёРјРµРЅРѕРІР°РЅРЅС‹РјРё СЃРїРёСЃРєР°РјРё|РѕС‚РІРµС‚Р°РјРё
  */
 class Externalizer extends ModificationFieldsBase
 	implements Arrayable
@@ -75,7 +75,7 @@ class Externalizer extends ModificationFieldsBase
 	/**
 	 * @param $data
 	 * @return array
-	 * экстерналайзер работает только с НЕ именнованым списком. id списка не передается
+	 * СЌРєСЃС‚РµСЂРЅР°Р»Р°Р№Р·РµСЂ СЂР°Р±РѕС‚Р°РµС‚ С‚РѕР»СЊРєРѕ СЃ РќР• РёРјРµРЅРЅРѕРІР°РЅС‹Рј СЃРїРёСЃРєРѕРј. id СЃРїРёСЃРєР° РЅРµ РїРµСЂРµРґР°РµС‚СЃСЏ
 	 */
 	private function externalize($fields)
 	{
@@ -116,7 +116,7 @@ class Externalizer extends ModificationFieldsBase
 	/**
 	 * @param $data
 	 * @return int|null|string
-	 * обязательное именование (ключ в массиве) списка или результата в ответе
+	 * РѕР±СЏР·Р°С‚РµР»СЊРЅРѕРµ РёРјРµРЅРѕРІР°РЅРёРµ (РєР»СЋС‡ РІ РјР°СЃСЃРёРІРµ) СЃРїРёСЃРєР° РёР»Рё СЂРµР·СѓР»СЊС‚Р°С‚Р° РІ РѕС‚РІРµС‚Рµ
 	 */
 	private function getIdList($data)
 	{

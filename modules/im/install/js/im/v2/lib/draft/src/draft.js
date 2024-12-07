@@ -3,7 +3,7 @@ import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
 import { Core } from 'im.v2.application.core';
-import { EventType, Layout, TextareaPanelType } from 'im.v2.const';
+import { ChatType, EventType, Layout, TextareaPanelType } from 'im.v2.const';
 
 import { IndexedDbManager } from './indexed-db-manager';
 
@@ -21,6 +21,8 @@ const WRITE_TO_STORAGE_TIMEOUT = 1000;
 const SHOW_DRAFT_IN_RECENT_TIMEOUT = 1500;
 
 const STORAGE_KEY = 'recentDraft';
+
+const NOT_AVAILABLE_CHAT_TYPES = new Set([ChatType.comment]);
 
 export class DraftManager
 {
@@ -57,7 +59,19 @@ export class DraftManager
 		}
 
 		this.inited = true;
-		const draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+		let draftHistory = null;
+		try
+		{
+			draftHistory = await IndexedDbManager.getInstance().get(this.getStorageKey(), {});
+		}
+		catch (error)
+		{
+			// eslint-disable-next-line no-console
+			console.error('DraftManager: error initing draft history', error);
+			this.initPromiseResolver();
+
+			return;
+		}
 		this.fillDraftsFromStorage(draftHistory);
 
 		Logger.warn('DraftManager: initDrafts:', this.drafts);
@@ -129,7 +143,7 @@ export class DraftManager
 		return Promise.resolve(draft);
 	}
 
-	clearDraft(dialogId: number)
+	clearDraft(dialogId: string)
 	{
 		delete this.drafts[dialogId];
 		this.setRecentItemDraftText(dialogId, '');
@@ -144,7 +158,12 @@ export class DraftManager
 
 	setRecentItemDraftText(dialogId: number, text: string)
 	{
-		Core.getStore().dispatch(this.getDraftMethodName(), {
+		if (!this.canSetRecentItemDraftText(dialogId))
+		{
+			return;
+		}
+
+		void Core.getStore().dispatch(this.getDraftMethodName(), {
 			id: dialogId,
 			text,
 		});
@@ -214,5 +233,16 @@ export class DraftManager
 	getDraftMethodName(): string
 	{
 		return 'recent/setRecentDraft';
+	}
+
+	canSetRecentItemDraftText(dialogId: string): boolean
+	{
+		const chat = Core.getStore().getters['chats/get'](dialogId);
+		if (!chat)
+		{
+			return false;
+		}
+
+		return !NOT_AVAILABLE_CHAT_TYPES.has(chat.type);
 	}
 }

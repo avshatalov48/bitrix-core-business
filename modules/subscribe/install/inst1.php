@@ -8,7 +8,7 @@ IncludeModuleLangFile(__FILE__);
 	<input type="hidden" name="id" value="subscribe">
 	<input type="hidden" name="install" value="Y">
 	<input type="hidden" name="step" value="2">
-<script language="JavaScript">
+<script>
 <!--
 function ChangeInstallPublic(val)
 {
@@ -42,7 +42,7 @@ function ChangeInstallPublic(val)
 			</td>
 		</tr>
 	</table>
-	<script language="JavaScript">
+	<script>
 	<!--
 	ChangeInstallPublic(false);
 	//-->

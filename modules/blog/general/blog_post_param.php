@@ -76,7 +76,7 @@ class CBlogUserOptions
 				"FROM b_blog_post_param BPP ".$arSql["FROM"]."\n".
 				(empty($arSql["GROUPBY"]) ? "" : "GROUP BY ".$arSql["GROUPBY"]."\n").
 				"WHERE ".(empty($arSql["WHERE"]) ? "1 = 1" : $arSql["WHERE"]);
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($arAddParams["bCount"] ?? null)
 				return $db_res;
 			$iCnt = ($db_res && ($res = $db_res->Fetch()) ? intval($res["CNT"]) : 0);
@@ -119,7 +119,7 @@ class CBlogUserOptions
 			$db_res =  new CDBResult();
 			$db_res->NavQuery($strSql, $iCnt, $arAddParams);
 		} else {
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 
 		return $db_res;
@@ -222,7 +222,7 @@ class CBlogUserOptions
 			AND ".($user_id <= 0 ? "USER_ID IS NULL " : "USER_ID=".$user_id)."
 			AND NAME='".$DB->ForSql($name, 50)."'
 		";
-		if ($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query($strSql))
 		{
 			self::_clear_cache($user_id);
 			return true;
@@ -234,7 +234,7 @@ class CBlogUserOptions
 	{
 		global $DB;
 		$user_id = intval($user_id);
-		if ($DB->Query("DELETE FROM b_blog_post_param WHERE ".($user_id <= 0 ? "USER_ID IS NULL" : "USER_ID=".$user_id), false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query("DELETE FROM b_blog_post_param WHERE ".($user_id <= 0 ? "USER_ID IS NULL" : "USER_ID=".$user_id)))
 		{
 			self::_clear_cache($user_id);
 			return true;
@@ -252,7 +252,7 @@ class CBlogUserOptions
 		global $DB;
 		$user_id = intval($user_id);
 
-		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID=". $user_id, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if ($DB->Query("DELETE FROM b_user_option WHERE USER_ID=". $user_id))
 		{
 			self::_clear_cache($user_id);
 			return true;

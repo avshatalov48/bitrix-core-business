@@ -1,4 +1,5 @@
 <?php
+$MESS["SENDER_INTEGRATION_MAIL_BODY_LIMIT"] = "The email is too large to be saved as a template. The template size must not exceed 2.4 MB. Edit the email or disable the option \"Save to My Templates\".";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_APPROVE_CONFIRMATION"] = "Require newsletter consent";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_APPROVE_CONFIRMATION_HINT"] = "Show your customers that you appreciate their attention and respect their privacy. Send newsletters only to the customers who gave their consent to receive them. Customers will receive an email asking them to give their consent to receive your newsletters. You can use one of the canned consent texts, or use your own consent. Newsletters you send via the CRM Marketing will be sent only to the customers who have given their consent.";
 $MESS["SENDER_INTEGRATION_MAIL_MESSAGE_CONFIG_ATTACHMENT"] = "Attachments";

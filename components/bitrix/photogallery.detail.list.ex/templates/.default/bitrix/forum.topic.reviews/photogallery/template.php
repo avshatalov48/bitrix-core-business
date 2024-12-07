@@ -50,7 +50,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 							);
 					$arRatingParams = array_merge($arRatingParams, $res['RATING']);
 					// mantis:48973
-					?><script type="text/javascript">if (!window.BX && top.BX){window.BX = top.BX;}</script><?
+					?><script>if (!window.BX && top.BX){window.BX = top.BX;}</script><?
 					$GLOBALS["APPLICATION"]->IncludeComponent( "bitrix:rating.vote", $arParams["RATING_TYPE"], $arRatingParams, $component, array("HIDE_ICONS" => "Y"));
 					?>
 				</span>
@@ -73,7 +73,7 @@ $arResult["MESSAGES_REV"] = array_reverse($arResult["MESSAGES"], true);
 if (empty($arResult["ERROR_MESSAGE"]) && !empty($arResult["~OK_MESSAGE"]) && $arResult["~OK_MESSAGE"][0]['id'] !== 'REPLY' && $arResult["~OK_MESSAGE"][0]['id'] !== 'NEW'):
 ?>
 #NOTE_BEGIN#
-	<div class="reviews-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"]);?></div>
+	<div class="reviews-note-box-text"><? ShowNote($arResult["OK_MESSAGE"]);?></div>
 #NOTE_END#
 <?endif;?>
 
@@ -91,7 +91,7 @@ if (empty($arResult["ERROR_MESSAGE"]) && !empty($arResult["~OK_MESSAGE"]) && $ar
 
 <?if (!empty($arResult["ERROR_MESSAGE"])):?>
 <div class="reviews-note-box reviews-note-error">
-	<div class="reviews-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
+	<div class="reviews-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "reviews-note-error");?></div>
 </div>
 <? endif;?>
 

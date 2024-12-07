@@ -131,46 +131,46 @@ class CashboxRest extends Cashbox implements IPrintImmediately, ICheckable
 		return $handlerParams["SETTINGS"]["CHECK_URL"];
 	}
 
-	/**
-	 * @param Check $check
-	 * @return array
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentOutOfRangeException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\LoaderException
-	 * @throws Main\NotImplementedException
-	 * @throws Main\ObjectException
-	 * @throws Main\ObjectPropertyException
-	 * @throws Main\SystemException
-	 */
 	public function buildCheckQuery(Check $check): array
 	{
 		$data = $check->getDataForCheck();
 
-		$data["uuid"] = static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']);
+		$data['uuid'] = static::buildUuid(static::UUID_TYPE_CHECK, $data['unique_id']);
 
 		/** @var Main\Type\DateTime $dateTime */
-		$dateTime = $data["date_create"];
+		$dateTime = $data['date_create'];
 		$dateTimestamp = $dateTime->getTimestamp();
-		$data["date_create"] = $dateTimestamp;
+		$data['date_create'] = $dateTimestamp;
 
-		$data["operation"] = $check::getCalculatedSign();
+		$data['operation'] = $check::getCalculatedSign();
 
 		$checkTypeMap = self::getCheckTypeMap();
-		if (is_array($data["items"])) {
-			foreach ($data["items"] as $index => $item) {
-				$data["items"][$index]['payment_method'] = $checkTypeMap[$check::getType()];
+		if (is_array($data['items']))
+		{
+			foreach ($data['items'] as $index => $item)
+			{
+				$data['items'][$index]['payment_method'] = $checkTypeMap[$check::getType()];
+				unset($data['items'][$index]['entity']);
 			}
 		}
 
-		$data["number_kkm"] = $this->getField('NUMBER_KKM');
-		$data["service_email"] = $this->getField('EMAIL');
+		if (is_array($data['payments']))
+		{
+			foreach ($data['payments'] as $index => $item)
+			{
+				unset($data['payments'][$index]['entity']);
+			}
+		}
+
+		unset($data['order']);
+
+		$data['number_kkm'] = $this->getField('NUMBER_KKM');
+		$data['service_email'] = $this->getField('EMAIL');
 		$cashboxParams = $this->getField("SETTINGS");
 
 		// there's no need to pass our REST configuration (i.e. the handler code) to the application
-		unset($cashboxParams["REST"]);
-		$data["cashbox_params"] = $cashboxParams;
+		unset($cashboxParams['REST']);
+		$data['cashbox_params'] = $cashboxParams;
 
 		return $data;
 	}

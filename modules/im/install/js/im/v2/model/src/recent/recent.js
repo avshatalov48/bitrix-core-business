@@ -2,15 +2,16 @@ import { Type, type JsonObject } from 'main.core';
 import { BuilderModel } from 'ui.vue3.vuex';
 
 import { Core } from 'im.v2.application.core';
-import { ChatType, Settings, FakeMessagePrefix } from 'im.v2.const';
+import { ChatType, FakeDraftMessagePrefix, Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
+import { ChannelManager } from 'im.v2.lib.channel';
+import { formatFieldsWithConfig } from 'im.v2.model';
 
 import { recentFieldsConfig } from './format/field-config';
-import { formatFieldsWithConfig } from '../utils/validate';
 import { CallsModel } from './nested-modules/calls';
 
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
-import type { ImModelMessage } from 'im.v2.model';
+import type { ImModelMessage, ImModelChat } from 'im.v2.model';
 
 import type { RecentItem as ImModelRecentItem } from '../type/recent-item';
 
@@ -19,6 +20,14 @@ type RecentState = {
 	recentCollection: Set<string>,
 	unreadCollection: Set<string>,
 	copilotCollection: Set<string>,
+	channelCollection: Set<string>,
+};
+
+type SetDraftPayload = {
+	id: string | number,
+	text: string,
+	collectionName: string,
+	addMethodName: string
 };
 
 export class RecentModel extends BuilderModel
@@ -42,6 +51,7 @@ export class RecentModel extends BuilderModel
 			recentCollection: new Set(),
 			unreadCollection: new Set(),
 			copilotCollection: new Set(),
+			channelCollection: new Set(),
 		};
 	}
 
@@ -64,6 +74,7 @@ export class RecentModel extends BuilderModel
 			},
 			isFakeElement: false,
 			isBirthdayPlaceholder: false,
+			lastActivityDate: null,
 		};
 	}
 
@@ -90,6 +101,16 @@ export class RecentModel extends BuilderModel
 			/** @function recent/getCopilotCollection */
 			getCopilotCollection: (state: RecentState): ImModelRecentItem[] => {
 				return [...state.copilotCollection].filter((dialogId) => {
+					const dialog = this.store.getters['chats/get'](dialogId);
+
+					return Boolean(dialog);
+				}).map((id) => {
+					return state.collection[id];
+				});
+			},
+			/** @function recent/getChannelCollection */
+			getChannelCollection: (state: RecentState): ImModelRecentItem[] => {
+				return [...state.channelCollection].filter((dialogId) => {
 					const dialog = this.store.getters['chats/get'](dialogId);
 
 					return Boolean(dialog);
@@ -180,8 +201,8 @@ export class RecentModel extends BuilderModel
 
 				return !hasTodayMessage && dialog.counter === 0;
 			},
-			/** @function recent/getMessageDate */
-			getMessageDate: (state: RecentState) => (dialogId): Date | null => {
+			/** @function recent/getSortDate */
+			getSortDate: (state: RecentState) => (dialogId): Date | null => {
 				const currentItem = state.collection[dialogId];
 				if (!currentItem)
 				{
@@ -199,6 +220,13 @@ export class RecentModel extends BuilderModel
 				if (needsBirthdayPlaceholder)
 				{
 					return Utils.date.getStartOfTheDay();
+				}
+
+				const lastActivity = currentItem.lastActivityDate;
+				const needToUseActivityDate = Type.isDate(lastActivity) && lastActivity > message.date;
+				if (ChannelManager.isChannel(currentItem.dialogId) && needToUseActivityDate)
+				{
+					return lastActivity;
 				}
 
 				return message.date;
@@ -229,6 +257,15 @@ export class RecentModel extends BuilderModel
 				store.commit('setCopilotCollection', itemIds);
 
 				this.#updateUnloadedCopilotCounters(payload);
+			},
+			/** @function recent/setChannel */
+			setChannel: async (store, payload: Array | Object) => {
+				const itemIds = await this.store.dispatch('recent/store', payload);
+				store.commit('setChannelCollection', itemIds);
+			},
+			/** @function recent/clearChannelCollection */
+			clearChannelCollection: (store) => {
+				store.commit('clearChannelCollection');
 			},
 			/** @function recent/store */
 			store: (store, payload: Array | Object) => {
@@ -345,30 +382,26 @@ export class RecentModel extends BuilderModel
 				});
 			},
 			/** @function recent/setDraft */
-			setDraft: (store, payload: {
-				id: string | number, text: string, collectionName: string, addMethodName: string
-			}) => {
-				let existingItem = store.state.collection[payload.id];
-				if (!existingItem)
+			setDraft: (store, payload: SetDraftPayload) => {
+				const isRemovingDraft = !Type.isStringFilled(payload.text);
+				if (isRemovingDraft && this.#shouldDeleteItemWithDraft(payload))
 				{
-					if (payload.text === '')
-					{
-						return;
-					}
-					const messageId = `${FakeMessagePrefix}-${payload.id}`;
-					const newItem = {
-						dialogId: payload.id.toString(),
-						messageId,
-					};
-					store.commit('add', { ...this.getElementState(), ...newItem });
-					Core.getStore().dispatch('messages/store', { id: messageId, date: new Date() });
+					void Core.getStore().dispatch('recent/delete', { id: payload.id });
+
+					return;
+				}
+
+				let existingItem = store.state.collection[payload.id];
+				if (!existingItem && !isRemovingDraft)
+				{
+					store.commit('add', { ...this.getElementState(), ...this.#prepareFakeItemWithDraft(payload) });
 					existingItem = store.state.collection[payload.id];
 				}
 
 				const existingCollectionItem = store.state[payload.collectionName].has(payload.id);
 				if (!existingCollectionItem)
 				{
-					if (payload.text === '')
+					if (isRemovingDraft)
 					{
 						return;
 					}
@@ -394,11 +427,19 @@ export class RecentModel extends BuilderModel
 					return;
 				}
 
+				store.commit('deleteFromRecentCollection', existingItem.dialogId);
+				store.commit('deleteFromCopilotCollection', existingItem.dialogId);
+				store.commit('deleteFromChannelCollection', existingItem.dialogId);
+				const canDelete = this.#canDelete(existingItem.dialogId);
+
+				if (!canDelete)
+				{
+					return;
+				}
+
 				store.commit('delete', {
 					id: existingItem.dialogId,
 				});
-				store.commit('deleteFromRecentCollection', existingItem.dialogId);
-				store.commit('deleteFromCopilotCollection', existingItem.dialogId);
 			},
 			/** @function recent/clearUnread */
 			clearUnread: (store) => {
@@ -430,6 +471,17 @@ export class RecentModel extends BuilderModel
 			},
 			deleteFromCopilotCollection: (state: RecentState, payload: string) => {
 				state.copilotCollection.delete(payload);
+			},
+			deleteFromChannelCollection: (state: RecentState, payload: string) => {
+				state.channelCollection.delete(payload);
+			},
+			setChannelCollection: (state: RecentState, payload: string[]) => {
+				payload.forEach((dialogId) => {
+					state.channelCollection.add(dialogId);
+				});
+			},
+			clearChannelCollection: (state: RecentState) => {
+				state.channelCollection = new Set();
 			},
 			add: (state: RecentState, payload: Object[] | Object) => {
 				if (!Array.isArray(payload) && Type.isPlainObject(payload))
@@ -509,11 +561,55 @@ export class RecentModel extends BuilderModel
 		return Core.getStore().getters['messages/getById'](messageId);
 	}
 
+	#getDialog(dialogId: string): ImModelChat
+	{
+		return Core.getStore().getters['chats/get'](dialogId);
+	}
+
 	#hasTodayMessage(messageId: number | string): boolean
 	{
 		const message: ImModelMessage = this.#getMessage(messageId);
 		const hasMessage = Utils.text.isUuidV4(message.id) || message.id > 0;
 
 		return hasMessage && Utils.date.isToday(message.date);
+	}
+
+	#canDelete(dialogId: string): boolean
+	{
+		const NOT_DELETABLE_TYPES = [ChatType.openChannel];
+		const { type } = this.#getDialog(dialogId);
+
+		return !NOT_DELETABLE_TYPES.includes(type);
+	}
+
+	#prepareFakeItemWithDraft(payload: SetDraftPayload): Partial<ImModelRecentItem>
+	{
+		const messageId = this.#createFakeMessageForDraft(payload.id);
+
+		return this.#formatFields({
+			dialogId: payload.id.toString(),
+			draft: {
+				text: payload.text.toString(),
+			},
+			messageId,
+		});
+	}
+
+	#createFakeMessageForDraft(dialogId: string): string
+	{
+		const messageId = `${FakeDraftMessagePrefix}-${dialogId}`;
+		void Core.getStore().dispatch('messages/store', { id: messageId, date: new Date() });
+
+		return messageId;
+	}
+
+	#shouldDeleteItemWithDraft(payload: SetDraftPayload): boolean
+	{
+		const existingItem = Core.getStore().state.recent.collection[payload.id];
+
+		return existingItem
+			&& !Type.isStringFilled(payload.text)
+			&& existingItem.messageId.toString().startsWith(FakeDraftMessagePrefix)
+		;
 	}
 }

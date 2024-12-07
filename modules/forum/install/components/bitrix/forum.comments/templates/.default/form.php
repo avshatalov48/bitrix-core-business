@@ -1,5 +1,8 @@
 <?php if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) { die(); }
 
+/** @var ?\CUser $user */
+$user = $arParams['USER'] ?? null;
+
 foreach (GetModuleEvents('forum', 'OnCommentFormDisplay', true) as $arEvent)
 {
 	$arExt = ExecuteModuleEventEx($arEvent);
@@ -32,7 +35,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 	<input type="hidden" name="comment_review" value="Y"  /><?
 		ob_start();
 		/* GUEST PANEL */
-		if (!$GLOBALS["USER"]->IsAuthorized())
+		if ($user?->IsAuthorized() !== true)
 		{
 			?>
 			<div class="comments-reply-fields">

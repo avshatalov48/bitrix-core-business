@@ -275,8 +275,8 @@ else
 					'EMPTY_PROPS' => $emptyProductProperties
 				)
 			);
-			?><script type="text/javascript">
-		  var <? echo $strObName; ?> = new JCCatalogTopBanner(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
+			?><script>
+			var <? echo $strObName; ?> = new JCCatalogTopBanner(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script><?
 		}
 			$boolFirst = false;
@@ -312,8 +312,8 @@ else
 			);
 		}
 		?>
-		<script type="text/javascript">
-		  var ob<? echo $strContID; ?> = new JCCatalogTopBannerList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
+		<script>
+			var ob<? echo $strContID; ?> = new JCCatalogTopBannerList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script>
 		<?
 	}

@@ -6,6 +6,7 @@ use Bitrix\Mail\Helper\Mailbox;
 use Bitrix\Mail\Internals\MailboxDirectoryTable;
 use Bitrix\Main\Entity\ExpressionField;
 use Bitrix\Main\Entity\Query;
+use Bitrix\Main\Result;
 
 class MailboxDirectory
 {
@@ -200,21 +201,33 @@ class MailboxDirectory
 		$entity = MailboxDirectoryTable::getEntity();
 		$connection = $entity->getConnection();
 
-		return $connection->query(sprintf(
-			"UPDATE %s SET %s WHERE %s",
-			$connection->getSqlHelper()->quote($entity->getDbTableName()),
-			$connection->getSqlHelper()->prepareUpdate($entity->getDbTableName(), [
-				'IS_SYNC' => $val,
-			])[0],
-			Query::buildFilterSql(
-				$entity,
-				[
-					'=MAILBOX_ID' => $mailboxId,
-					'@DIR_MD5'    => $values,
-					'IS_DISABLED' => MailboxDirectoryTable::INACTIVE,
-				]
-			)
-		));
+		$totalValues = count($values);
+		$batchSize = 100;
+		$offset = 0;
+
+		while ($offset < $totalValues)
+		{
+			$batchValues = array_slice($values, $offset, $batchSize);
+			$offset += $batchSize;
+
+			$result = $connection->query(sprintf(
+				"UPDATE %s SET %s WHERE %s",
+				$connection->getSqlHelper()->quote($entity->getDbTableName()),
+				$connection->getSqlHelper()->prepareUpdate($entity->getDbTableName(), [
+					'IS_SYNC' => $val,
+				])[0],
+				Query::buildFilterSql(
+					$entity,
+					[
+						'=MAILBOX_ID' => $mailboxId,
+						'@DIR_MD5'    => $batchValues,
+						'IS_DISABLED' => MailboxDirectoryTable::INACTIVE,
+					]
+				)
+			));
+		}
+
+		return $result ?? new Result();
 	}
 
 	public static function fetchAll($mailboxId)

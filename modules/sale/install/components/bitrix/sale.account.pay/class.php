@@ -324,7 +324,6 @@ class SaleAccountPay extends \CBitrixComponent
 		{
 			/** @var Main\HttpRequest $request */
 			$request = Application::getInstance()->getContext()->getRequest();
-			$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 
 			if ($this->arParams["SET_TITLE"] !== "N")
 			{

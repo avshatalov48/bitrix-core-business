@@ -1,8 +1,7 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
 class CCatalogDiscountConvert
 {
@@ -64,7 +63,7 @@ class CCatalogDiscountConvert
 		$intStep = (int)$intStep;
 		if ($intStep <= 0)
 			$intStep = 100;
-		$startConvertTime = getmicrotime();
+		$startConvertTime = microtime(true);
 
 		$obDiscount = new CCatalogDiscount();
 
@@ -101,7 +100,7 @@ class CCatalogDiscountConvert
 			$arPriceTypes = array();
 			$arUserGroups = array();
 
-			$rsPriceTypes = $DB->Query(str_replace('#ID#', $arDiscount['ID'], $strQueryPriceTypes), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsPriceTypes = $DB->Query(str_replace('#ID#', $arDiscount['ID'], $strQueryPriceTypes));
 			while ($arPrice = $rsPriceTypes->Fetch())
 			{
 				$arPrice['CATALOG_GROUP_ID'] = (int)$arPrice['CATALOG_GROUP_ID'];
@@ -117,7 +116,7 @@ class CCatalogDiscountConvert
 				$arPriceTypes = array(-1);
 			}
 
-			$rsUserGroups = $DB->Query(str_replace('#ID#', $arDiscount['ID'], $strQueryUserGroups), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsUserGroups = $DB->Query(str_replace('#ID#', $arDiscount['ID'], $strQueryUserGroups));
 			while ($arGroup = $rsUserGroups->Fetch())
 			{
 				$arGroup['GROUP_ID'] = (int)$arGroup['GROUP_ID'];
@@ -453,20 +452,20 @@ class CCatalogDiscountConvert
 				if (!empty($strUpdate))
 				{
 					$strQuery = "UPDATE ".$strTableName." SET ".$strUpdate." WHERE ID = ".$arDiscount['ID']." AND TYPE = ".CCatalogDiscount::ENTITY_ID;
-					$DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strQuery);
 				}
 
 				self::$intConverted++;
 				self::$intConvertPerStep++;
 			}
 
-			if ($intMaxExecutionTime > 0 && (getmicrotime() - $startConvertTime > $intMaxExecutionTime))
+			if ($intMaxExecutionTime > 0 && (microtime(true) - $startConvertTime > $intMaxExecutionTime))
 				break;
 		}
 
 		CTimeZone::Enable();
 
-		if ($intMaxExecutionTime > (2*(getmicrotime() - $startConvertTime)))
+		if ($intMaxExecutionTime > (2*(microtime(true) - $startConvertTime)))
 			self::$intNextConvertPerStep = $intStep*2;
 		else
 			self::$intNextConvertPerStep = $intStep;
@@ -484,7 +483,7 @@ class CCatalogDiscountConvert
 		$intStep = (int)$intStep;
 		if ($intStep <= 0)
 			$intStep = 20;
-		$startConvertTime = getmicrotime();
+		$startConvertTime = microtime(true);
 
 		$obDiscount = new CCatalogDiscount();
 
@@ -577,7 +576,7 @@ class CCatalogDiscountConvert
 				if (!empty($strUpdate))
 				{
 					$strQuery = "UPDATE ".$strTableName." SET ".$strUpdate." WHERE ID = ".$arDiscount['ID']." AND TYPE = ".CCatalogDiscount::ENTITY_ID;
-					$DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strQuery);
 				}
 				if (!CCatalogDiscountConvertTmp::SetID($arDiscount['ID']))
 				{
@@ -589,13 +588,13 @@ class CCatalogDiscountConvert
 				self::$intLastConvertID = $arDiscount['ID'];
 			}
 
-			if ($intMaxExecutionTime > 0 && (getmicrotime() - $startConvertTime > $intMaxExecutionTime))
+			if ($intMaxExecutionTime > 0 && (microtime(true) - $startConvertTime > $intMaxExecutionTime))
 				break;
 
 		}
 		CTimeZone::Enable();
 
-		if ($intMaxExecutionTime > (2*(getmicrotime() - $startConvertTime)))
+		if ($intMaxExecutionTime > (2*(microtime(true) - $startConvertTime)))
 			self::$intNextConvertPerStep = $intStep*2;
 		else
 			self::$intNextConvertPerStep = $intStep;
@@ -611,7 +610,7 @@ class CCatalogDiscountConvert
 
 		$strSql = "SELECT COUNT(*) CNT FROM b_catalog_discount WHERE TYPE=".CCatalogDiscount::ENTITY_ID." AND VERSION=".CCatalogDiscount::OLD_FORMAT;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$res)
 			return 0;
 

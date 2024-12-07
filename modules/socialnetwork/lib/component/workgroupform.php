@@ -117,7 +117,7 @@ class WorkgroupForm extends \CBitrixComponent
 		elseif ($themePicker = new ThemePicker(SITE_TEMPLATE_ID))
 		{
 			$themesList = $themePicker->getPatternThemes();
-			$result['themePickerData'] = $themesList[array_rand($themesList)];
+			$result['themePickerData'] = $themesList ? $themesList[array_rand($themesList)] : null;
 		}
 	}
 

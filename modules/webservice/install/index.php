@@ -1,12 +1,13 @@
 <?php
-\Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
 
 if(class_exists("webservice"))
 {
 	return;
 }
 
-class webservice extends \CModule
+\Bitrix\Main\Localization\Loc::loadMessages(__FILE__);
+
+class webservice extends CModule
 {
 	var $MODULE_ID = "webservice";
 	var $MODULE_VERSION;
@@ -30,7 +31,7 @@ class webservice extends \CModule
 
 	function DoInstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION;
+		global $APPLICATION;
 		
 		$this->InstallFiles();
 		$this->InstallDB();
@@ -68,16 +69,10 @@ class webservice extends \CModule
 		return true;
 	}
 	
-	function InstallEvents()
-	{
-		return true;
-	}
-	
 	function DoUninstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION;
+		global $APPLICATION;
 		
-		$this->UnInstallFiles();
 		$this->UnInstallDB();
 		
 		$APPLICATION->IncludeAdminFile(GetMessage("WEBS_UNINSTALL_TITLE"), $_SERVER['DOCUMENT_ROOT']."/bitrix/modules/webservice/install/unstep.php");
@@ -89,15 +84,4 @@ class webservice extends \CModule
 
 		return true;
 	}
-	
-	function UnInstallFiles()
-	{
-		return true;
-	}
-	
-	function UnInstallEvents()
-	{
-		return true;
-	}
 }
-?>

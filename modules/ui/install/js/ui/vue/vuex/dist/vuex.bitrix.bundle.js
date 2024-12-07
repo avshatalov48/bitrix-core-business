@@ -1297,7 +1297,7 @@
       try {
         logger.groupEnd();
       } catch (e) {
-        logger.log('—— log end ——');
+        logger.log('â€”â€” log end â€”â€”');
       }
     }
 

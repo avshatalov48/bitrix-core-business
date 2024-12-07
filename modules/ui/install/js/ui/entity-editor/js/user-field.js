@@ -61,7 +61,6 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 			this._creationPageUrl = BX.prop.getString(this._settings, "creationPageUrl", "");
 			this._enableMandatoryControl = BX.prop.getBoolean(this._settings, "enableMandatoryControl", true);
 			this._contextParams = BX.prop.getObject(this._settings, "contextParams", {});
-			this._availableTypeFields = BX.prop.getArray(this._settings, "availableTypeFields", []);
 
 			//region Bind EntityEditorControlFactory Method
 			if(typeof BX.UI.EntityEditorControlFactory !== "undefined")
@@ -164,11 +163,6 @@ if(typeof BX.UI.EntityUserFieldManager === "undefined")
 					title: additionalList[i].TITLE,
 					legend: additionalList[i].LEGEND
 				});
-			}
-
-			if (this._availableTypeFields.length > 0)
-			{
-				items = items.filter((item) => this._availableTypeFields.filter((type) => item.name === type).length > 0)
 			}
 
 			if(this._creationPageUrl)
@@ -1954,7 +1948,7 @@ if(typeof BX.UI.EntityEditorUserFieldConfigurator === "undefined")
 		if (this.getEditor().isShowAlwaysFeautureEnabled())
 		{
 			this._showAlwaysCheckBox = this.createOption(
-				{ caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"), helpCode: "9627471" }
+				{ caption: BX.message("UI_ENTITY_EDITOR_SHOW_ALWAYS"), helpCode: "22048980" }
 			);
 		}
 		else

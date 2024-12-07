@@ -40,7 +40,15 @@ if($obCache->StartDataCache($life_time, $cache_id, $cache_path))
 			);
 
 			while ($arPost = $dbPosts->Fetch())
-				$arResult[intval($arPost["UF_STATUS"])]["CNT"]++;
+			{
+				$ufStatus = (int) $arPost["UF_STATUS"];
+				if ($ufStatus && !isset($arResult[$ufStatus]))
+				{
+					continue;
+				}
+
+				$arResult[$ufStatus]["CNT"]++;
+			}
 		}
 
 		$obCache->EndDataCache($arResult);

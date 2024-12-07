@@ -18,6 +18,7 @@ import {RefillActionPagesField} from "./internal/action-pages/refill-action-page
 
 export default class ActionsContent extends ContentWrapper
 {
+	#fieldsWithWarningStatus: Set<string> = new Set();
 	constructor(options)
 	{
 		super(options);
@@ -101,7 +102,6 @@ export default class ActionsContent extends ContentWrapper
 			description: Loc.getMessage('LANDING_ACTIONS_MESSAGE_DESCRIPTION_' + type),
 			restoreState: true,
 		});
-
 	}
 
 	getTypeButtons(): RadioButtonField
@@ -184,10 +184,12 @@ export default class ActionsContent extends ContentWrapper
 		return this.cache.remember('successLinkField', () => {
 			return new TextField({
 				title: Loc.getMessage('LANDING_FORM_ACTIONS_SUCCESS_FIELD_TITLE'),
-				placeholder: 'http://',
+				footerText: Loc.getMessage('LANDING_FORM_ACTIONS_LINK_WARNING_MESSAGE'),
+				placeholder: 'https://',
 				textOnly: true,
 				content: this.options.formOptions.result.success.url,
 				onInput: this.onChange.bind(this),
+				onValueChange: this.onLinkValueChange.bind(this),
 			});
 		});
 	}
@@ -197,10 +199,12 @@ export default class ActionsContent extends ContentWrapper
 		return this.cache.remember('failureLinkField', () => {
 			return new TextField({
 				title: Loc.getMessage('LANDING_FORM_ACTIONS_FAILURE_FIELD_TITLE'),
-				placeholder: 'http://',
+				footerText: Loc.getMessage('LANDING_FORM_ACTIONS_LINK_WARNING_MESSAGE'),
+				placeholder: 'https://',
 				textOnly: true,
 				content: this.options.formOptions.result.failure.url,
 				onInput: this.onChange.bind(this),
+				onValueChange: this.onLinkValueChange.bind(this),
 			});
 		});
 	}
@@ -295,7 +299,6 @@ export default class ActionsContent extends ContentWrapper
 			typeDropdown.setIcon(type3Icon);
 			this.addItem(this.getRefillActionPages());
 		}
-
 	}
 
 	getValue(): {[p: string]: any}
@@ -323,5 +326,83 @@ export default class ActionsContent extends ContentWrapper
 				}
 			},
 		};
+	}
+
+	onLinkValueChange(textField: TextField): void
+	{
+		let url = textField.getValue();
+		const urlLength = url.length;
+
+		if (urlLength === 0)
+		{
+			this.unsetWarningStatusToLinkField(textField);
+
+			return;
+		}
+
+		if (
+			url.trim().length !== urlLength
+		)
+		{
+			url = url.trim();
+			this.#updateLinkField(textField, url);
+		}
+
+		const isHttps = url.startsWith('https://');
+		if (isHttps)
+		{
+			this.unsetWarningStatusToLinkField(textField);
+		}
+		else
+		{
+			this.setWarningStatusToLinkField(textField);
+		}
+	}
+
+	setWarningStatusToLinkField(textField: TextField): void
+	{
+		const textFieldKey = textField.id;
+		if (this.#fieldsWithWarningStatus.has(textFieldKey))
+		{
+			return;
+		}
+
+		textField.setWarningStatus();
+		textField.showFooter();
+		this.#fieldsWithWarningStatus.add(textFieldKey);
+	}
+
+	unsetWarningStatusToLinkField(textField: TextField): void
+	{
+		const textFieldKey = textField.id;
+
+		if (!this.#fieldsWithWarningStatus.has(textFieldKey))
+		{
+			return;
+		}
+
+		textField.unsetWarningStatus();
+		textField.hideFooter();
+		this.#fieldsWithWarningStatus.delete(textFieldKey);
+	}
+
+	#updateLinkField(textField: TextField, url: string): void
+	{
+		const range = document.createRange();
+		const selection = window.getSelection();
+		const needToMove = selection.focusOffset > 1;
+
+		textField.input.innerText = url;
+
+		if (!needToMove)
+		{
+			return;
+		}
+
+		const node = selection.focusNode;
+		range.setStart(node, node.childNodes.length);
+		range.collapse(true);
+		selection.removeAllRanges();
+		selection.addRange(range);
 	}
 }

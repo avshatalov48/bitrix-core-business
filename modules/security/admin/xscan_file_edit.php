@@ -696,7 +696,7 @@ $tabControl->BeginNextTab();?>
 							<?
 						}
 						?>
-<script type="text/javascript">
+<script>
 
 BX.ready(function() {
 	BX.addCustomEvent(document.forms.ffilemanedit, 'onAutoSavePrepare', function (ob, handler)

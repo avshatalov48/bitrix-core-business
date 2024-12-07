@@ -7,6 +7,7 @@
 .bx-im-sidebar-header__container {
 	display: flex;
 	justify-content: space-between;
+	flex-shrink: 0;
 	align-items: center;
 	width: 320px;
 	height: 65px;

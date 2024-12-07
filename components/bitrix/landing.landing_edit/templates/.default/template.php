@@ -72,13 +72,11 @@ $row = $arResult['LANDING'];
 $meta = $arResult['META'];
 $hooks = $arResult['HOOKS'];
 $domains = $arResult['DOMAINS'];
-$tplRefs = $arResult['TEMPLATES_REF'];
 $sites = $arResult['SITES'];
 $isIntranet = $arResult['IS_INTRANET'];
-$formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
-$siteCurrent = isset($sites[$row['SITE_ID']['CURRENT']])
-				? $sites[$row['SITE_ID']['CURRENT']]
-				: null;
+$isFormEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isMainpageEditor = $arParams['TYPE'] == Site\Type::SCOPE_CODE_MAINPAGE;
+$siteCurrent = $sites[$row['SITE_ID']['CURRENT']] ?? null;
 $isSMN = $siteCurrent['TYPE'] === 'SMN';
 $isAjax = $component->isAjax();
 $availableOnlyForZoneRu = Manager::availableOnlyForZone('ru');
@@ -153,8 +151,8 @@ $uriSave->addParams(array(
 	'action' => 'save'
 ));
 
-// Not all hooks in forms
-if ($formEditor)
+// for special sites - special abilities
+if ($isFormEditor)
 {
 	$formHooks = [
 		'METAOG',
@@ -175,9 +173,23 @@ if ($formEditor)
 
 	$arResult['TEMPLATES'] = [];
 }
+elseif ($isMainpageEditor)
+{
+	$formHooks = [
+		'METAOG',
+	];
+
+	foreach($hooks as $code => $hook)
+	{
+		if (!in_array($code, $formHooks))
+		{
+			unset($hooks[$code]);
+		}
+	}
+}
 ?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		<?php if ($arParams['SUCCESS_SAVE']): ?>
@@ -256,7 +268,18 @@ if ($arParams['SUCCESS_SAVE'])
 							<span class="landing-form-site-name-label">
 								<?php
 								echo $domainName;
-								if ($isIntranet)
+								if ($isMainpageEditor)
+								{
+									if ($siteCurrent)
+									{
+										echo htmlspecialcharsbx(Manager::getPublicationPath());
+									}
+									else
+									{
+										echo '/';
+									}
+								}
+								elseif ($isIntranet)
 								{
 									if ($siteCurrent)
 									{
@@ -302,7 +325,7 @@ if ($arParams['SUCCESS_SAVE'])
 								maxlength="100"
 								class="ui-input"/>
 							<?=($isIndex || $isFolderIndex) ? '' : '<span class="landing-form-site-name-label">/</span>'?>
-							<?php if ($isIndex): ?>
+							<?php if ($isIndex && !$isMainpageEditor): ?>
 								<?php
 								$link1 = '';
 								if ($arParams['PAGE_URL_SITE_EDIT'])
@@ -404,7 +427,7 @@ if ($arParams['SUCCESS_SAVE'])
 										$pageFields['METAOG_TITLE']->setValue($meta['og:title']);
 									}
 									?>
-									<script type="text/javascript">
+									<script>
 										BX.ready(function ()
 										{
 											new BX.Landing.EditTitleForm({
@@ -439,7 +462,9 @@ if ($arParams['SUCCESS_SAVE'])
 												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
 													<div class="ui-icon-set --pencil-60"></div>
 												</div>
-												<div class="landing-editable-field-button --copilot"></div>
+												<?php if ($arResult['AI_TEXT_AVAILABLE']): ?>
+													<div class="landing-editable-field-button --copilot"></div>
+												<?php endif; ?>
 											</div>
 										</span>
 									</div>
@@ -450,7 +475,7 @@ if ($arParams['SUCCESS_SAVE'])
 										$pageFields['METAOG_DESCRIPTION']->setValue($meta['og:description']);
 									}
 									?>
-									<script type="text/javascript">
+									<script>
 										BX.ready(function ()
 										{
 											new BX.Landing.EditTitleForm({
@@ -484,7 +509,9 @@ if ($arParams['SUCCESS_SAVE'])
 												<div class="ui-title-input-btn ui-title-input-btn-js ui-editing-pen">
 													<div class="ui-icon-set --pencil-60"></div>
 												</div>
-												<div class="landing-editable-field-button --copilot"></div>
+												<?php if ($arResult['AI_TEXT_AVAILABLE']): ?>
+													<div class="landing-editable-field-button --copilot"></div>
+												<?php endif; ?>
 											</div>
 										</span>
 									</div>
@@ -541,7 +568,7 @@ if ($arParams['SUCCESS_SAVE'])
 						<span class="landing-additional-alt-promo-text"
 							data-landing-additional-option="css"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_CSS')?></span>
 					<?php endif; ?>
-					<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
+					<?php if (!$isIntranet && !$isFormEditor && !$isMainpageEditor && !$isSMN): ?>
 						<span class="landing-additional-alt-promo-text"
 							data-landing-additional-option="sitemap"><?=Loc::getMessage('LANDING_TPL_ADDITIONAL_SITEMAP')?></span>
 					<?php endif; ?>
@@ -589,7 +616,7 @@ if ($arParams['SUCCESS_SAVE'])
 									</div>
 									<div class="ui-form-row">
 										<?php $template->showField($pageFields['B24BUTTON_COLOR'], ['additional' => 'readonly']); ?>
-										<script type="text/javascript">
+										<script>
 											BX.ready(function() {
 												new BX.Landing.B24ButtonColor(
 													BX('<?= $template->getFieldId('B24BUTTON_COLOR') ?>'),
@@ -603,7 +630,7 @@ if ($arParams['SUCCESS_SAVE'])
 									</div>
 
 									<?php $template->showField($pageFields['B24BUTTON_COLOR_VALUE'], ['title' => true]); ?>
-									<script type="text/javascript">
+									<script>
 										BX.ready(function() {
 											new BX.Landing.ColorPicker(BX('<?= $template->getFieldId('B24BUTTON_COLOR_VALUE') ?>'));
 										});
@@ -662,7 +689,7 @@ if ($arParams['SUCCESS_SAVE'])
 										<?php $template->showField($pageFields['METAMAIN_TITLE'], ['title' => true, 'buttons' => ['copilot']]);?>
 										<?php $template->showField($pageFields['METAMAIN_DESCRIPTION'], ['title' => true, 'buttons' => ['copilot']]);?>
 
-										<script type="text/javascript">
+										<script>
 											BX.ready(function ()
 											{
 												new BX.Landing.FieldLengthLimited(
@@ -688,7 +715,7 @@ if ($arParams['SUCCESS_SAVE'])
 
 										<?php if (isset($pageFields['METAMAIN_KEYWORDS'])): ?>
 											<?php $template->showField($pageFields['METAMAIN_KEYWORDS'], ['title' => true, 'buttons' => ['copilot']]);?>
-										<script type="text/javascript">
+										<script>
 											BX.ready(function ()
 											{
 												new BX.Landing.FieldLengthLimited(
@@ -768,17 +795,19 @@ if ($arParams['SUCCESS_SAVE'])
 							<div class="ui-form-row">
 								<div class="ui-form-label" data-form-row-hidden>
 									<?php
-									$saveRefs = '';
+									$tplRefs = $arResult['TEMPLATES_REF'];
+									$saveRefs = [];
 									$tplUsed = false;
 									if (isset($arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]))
 									{
 										$tplUsed = true;
-										$aCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
-										for ($i = 1; $i <= $aCount; $i++)
+										$areaCount = $arResult['TEMPLATES'][$row['TPL_ID']['CURRENT']]['AREA_COUNT'];
+										for ($i = 1; $i <= $areaCount; $i++)
 										{
-											$saveRefs .= $i . ':' . (isset($tplRefs[$i]) ? $tplRefs[$i] : '0') . ',';
+											$saveRefs[] = $i . ':' . ($tplRefs[$i] ?? '0');
 										}
 									}
+									$saveRefs = implode(',', $saveRefs);
 									?>
 									<input
 										type="hidden"
@@ -800,7 +829,7 @@ if ($arParams['SUCCESS_SAVE'])
 									</label>
 								</div>
 								<div
-									class="ui-form-row-hidden landing-form-page-layout"
+									class="ui-form-row-hidden landing-form-page-layout<?= $isMainpageEditor ? ' --main-page' : '' ?>"
 									id="<?= $template->getFieldId('PAGE_LAYOUT') ?>"
 								>
 									<div class="landing-form-layout-select">
@@ -817,8 +846,10 @@ if ($arParams['SUCCESS_SAVE'])
 										<?php endforeach; ?>
 										<div class="landing-form-list">
 											<div class="landing-form-select-buttons">
-												<div class="landing-form-select-prev"></div>
-												<div class="landing-form-select-next"></div>
+												<?php if (!$isMainpageEditor): ?>
+													<div class="landing-form-select-prev"></div>
+													<div class="landing-form-select-next"></div>
+												<?php endif; ?>
 											</div>
 											<div class="landing-form-list-container">
 												<div class="landing-form-list-inner">
@@ -860,7 +891,7 @@ if ($arParams['SUCCESS_SAVE'])
 								landingId: '<?= $row['ID']['CURRENT'] ?>',
 								type: '<?= $siteCurrent ? $siteCurrent['TYPE'] : 'PAGE' ?>',
 								tplUse: BX('<?= $template->getFieldId('LAYOUT_TPLREFS_USE') ?>'),
-								tplRefs: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
+								valueField: BX('<?= $template->getFieldId('LAYOUT_TPLREFS') ?>'),
 								messages: {
 									area: '<?= CUtil::jsEscape(Loc::getMessage('LANDING_TPL_LAYOUT_AREA')) ?>'
 								},
@@ -870,6 +901,9 @@ if ($arParams['SUCCESS_SAVE'])
 								<?php else:?>
 								areasCount: 0,
 								current: 'empty',
+								<?php endif;?>
+								<?php if (isset($arResult['TEMPLATES_REF_DEFAULT'])):?>
+								defaultValues: <?= CUtil::PhpToJSObject($arResult['TEMPLATES_REF_DEFAULT']) ?>,
 								<?php endif;?>
 							});
 						});
@@ -943,7 +977,7 @@ if ($arParams['SUCCESS_SAVE'])
 								$template->showFieldWithToggle('YACOUNTER', ['restrictionCode' => 'GACOUNTER']);
 							}
 							?>
-							<script type="text/javascript">
+							<script>
 								BX.ready(function ()
 								{
 									new BX.Landing.ExternalMetrika(
@@ -1060,7 +1094,7 @@ if ($arParams['SUCCESS_SAVE'])
 				<?php endif;?>
 
 				<!--SITEMAP-->
-				<?php if (!$isIntranet && !$formEditor && !$isSMN): ?>
+				<?php if (!$isIntranet && !$isFormEditor && !$isMainpageEditor && !$isSMN): ?>
 					<div class="ui-form-row landing-form-additional-row" data-landing-additional-detail="sitemap">
 						<div class="ui-form-label">
 							<div class="ui-ctl-label-text">
@@ -1114,7 +1148,7 @@ if ($arParams['SUCCESS_SAVE'])
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function()
 	{
 		BX.UI.Hint.init(BX('landing-page-set-form'));

@@ -281,7 +281,7 @@ class CBPHistoryService extends CBPRuntimeService
 		$strSql =
 			"INSERT INTO b_bp_history (".$arInsert[0].", MODIFIED) ".
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -312,7 +312,7 @@ class CBPHistoryService extends CBPRuntimeService
 			"	".$strUpdate.", ".
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".intval($id)." ";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $id;
 	}
@@ -373,7 +373,7 @@ class CBPHistoryService extends CBPRuntimeService
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -402,7 +402,7 @@ class CBPHistoryService extends CBPRuntimeService
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -423,7 +423,7 @@ class CBPHistoryService extends CBPRuntimeService
 			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		$dbRes = new CBPHistoryResult($dbRes, $this->useGZipCompression);

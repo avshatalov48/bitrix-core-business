@@ -590,7 +590,7 @@ $test_form_msg = array(
 	'saveConfig'    => true
 )); ?>
 
-<script type="text/javascript">
+<script>
 
 	var initialSite = '<?=CUtil::jsEscape($abtest['SITE_ID']); ?>';
 	var siteDirs = <?=CUtil::phpToJSObject(array_map(function($site) {

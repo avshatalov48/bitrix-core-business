@@ -12,4 +12,3 @@ $MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE_DAYS"] = "Не указа�
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_SECTION_NON_ARRAY"] = "Неверное значения при выборе секций";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_PRODUCT_NON_ARRAY"] = "Неверное значения при выборе продуктов";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_PERDAY_DISCOUNT_VALUE"] = "Скидка";
-?>

@@ -28,6 +28,6 @@ class Logger
 		$message[] = $data;
 		$message = implode("\n", $message);
 
-		AddMessage2Log($message, static::MODULE_ID, $traceDepth);
+		// TODO: add database log or something else, but only if option enabled
 	}
 }

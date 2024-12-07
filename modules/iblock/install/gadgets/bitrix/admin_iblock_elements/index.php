@@ -9,7 +9,7 @@ if (!function_exists('__GD_AIE_ConvertDateTime'))
 {
 	function __GD_AIE_ConvertDateTime(&$item, $key)
 	{
-		$item = ToLower(FormatDate("j F Y", MakeTimeStamp($item)));
+		$item = mb_strtolower(FormatDate("j F Y", MakeTimeStamp($item)));
 	}
 }
 
@@ -129,7 +129,7 @@ if (
 					)
 					{
 						if (in_array($arGadgetParams["DATE_FIELD"], array("DATE_CREATE", "TIMESTAMP_X", "DATE_ACTIVE_FROM", "DATE_ACTIVE_TO")))
-							$strDate = ToLower(FormatDate("j F Y", MakeTimeStamp($arIBlockElement[$arGadgetParams["DATE_FIELD"]])));
+							$strDate = mb_strtolower(FormatDate("j F Y", MakeTimeStamp($arIBlockElement[$arGadgetParams["DATE_FIELD"]])));
 						else
 							$strDate = $arIBlockElement[$arGadgetParams["DATE_FIELD"]];
 					}
@@ -147,7 +147,7 @@ if (
 							$strDate = implode("&nbsp;/&nbsp;", $val);
 						}
 						elseif(in_array(mb_substr($arGadgetParams["DATE_FIELD"], 9), $arIBlockPropertiesDateTime))
-								$strDate = ToLower(FormatDate("j F Y", MakeTimeStamp($val)));
+								$strDate = mb_strtolower(FormatDate("j F Y", MakeTimeStamp($val)));
 						else
 							$strDate = $val;
 					}

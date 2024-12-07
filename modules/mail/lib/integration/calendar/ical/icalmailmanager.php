@@ -55,7 +55,7 @@ class ICalMailManager
 	public static function getFileContent($fileId)
 	{
 		$fileArray = \CFile::makeFileArray($fileId);
-		if (!empty($fileArray))
+		if (!empty($fileArray) && isset($fileArray['tmp_name']))
 		{
 			return \Bitrix\Main\IO\File::getFileContents($fileArray['tmp_name']);
 		}

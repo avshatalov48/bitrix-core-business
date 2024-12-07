@@ -5,7 +5,7 @@
 				<article class="g-bg-white">
 					<figure class="g-pos-rel">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img7.jpg" alt="">
-						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">July 08, 2023</div>
+						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">July 08, <?= date("Y") ?></div>
 					</figure>
 					<div class="landing-block-card-block">
 						<div class="g-px-30">
@@ -29,7 +29,7 @@
 				<article class="g-bg-white">
 					<figure class="g-pos-rel">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img8.jpg" alt="">
-						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">June 15, 2023</div>
+						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">June 15, <?= date("Y") ?></div>
 					</figure>
 					<div class="landing-block-card-block">
 						<div class="g-px-30">
@@ -53,7 +53,7 @@
 				<article class="g-bg-white">
 					<figure class="g-pos-rel">
 						<img class="landing-block-node-img img-fluid w-100" src="https://cdn.bitrix24.site/bitrix/images/landing/business/1920x1280/img9.jpg" alt="">
-						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">May 26, 2023</div>
+						<div class="landing-block-node-date g-pos-abs g-bottom-20 g-left-20 g-px-10 rounded-0 g-color-white g-bg-black">May 26, <?= date("Y") ?></div>
 					</figure>
 					<div class="landing-block-card-block">
 						<div class="g-px-30">

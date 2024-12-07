@@ -5,6 +5,9 @@
 	--im-textarea__font-color_edit-text: var(--im-color-palette-gray-70);
 	--im-textarea__background-color: var(--im-color-palette-white-base);
 	--im-textarea__background-color_edit-separator: var(--im-color-palette-blue-50);
+	--im-textarea__background-color_send-button: #00ace3;
+	--im-textarea__background-color_send-button-channel: var(--im-color-accent-turquoise);
+	--im-textarea__background-color_send-button-copilot: var(--im-color-palette-copilot-primary);
 }
 
 .bx-im-send-panel__container {
@@ -44,7 +47,7 @@
 	width: 100%;
 	display: flex;
 	align-items: end;
-	padding: 11px 10px 0 10px;
+	padding: 11px 10px 0;
 }
 
 .bx-im-textarea__left {
@@ -55,7 +58,6 @@
 .bx-im-textarea__upload_container {
 	flex-shrink: 0;
 	flex-grow: 0;
-	margin-right: 6px;
 }
 
 .bx-im-textarea__icon {
@@ -93,7 +95,7 @@
 	background: transparent;
 	font: var(--im-font-size-lg)/var(--im-font-line-height-2xs) var(--im-font-family-system);
 	color: var(--im-textarea__font-color_primary);
-	margin: 0;
+	margin: 0 0 0 6px;
 	padding: 1px 0 0;
 }
 
@@ -181,7 +183,7 @@
 	flex-shrink: 0;
 	width: 44px;
 	height: 44px;
-	background-color: #00ACE3;
+	background-color: var(--im-textarea__background-color_send-button);
 	background-image: url('./images/send.svg');
 	background-repeat: no-repeat;
 	background-position: center;
@@ -195,4 +197,14 @@
 
 .bx-im-send-panel__button_container.--disabled {
 	background-image: url('./images/send-inactive.svg');
+}
+
+.bx-im-send-panel__button_container.--channel,
+.bx-im-send-panel__button_container.--openChannel,
+.bx-im-send-panel__button_container.--generalChannel {
+	background-color: var(--im-textarea__background-color_send-button-channel);
+}
+
+.bx-im-send-panel__button_container.--copilot {
+	background-color: var(--im-textarea__background-color_send-button-copilot);
 }

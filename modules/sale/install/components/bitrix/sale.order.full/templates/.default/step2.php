@@ -188,7 +188,7 @@ if (!function_exists('PrintPropsForm'))
 					<tr>
 						<td colspan="2">
 							<?= GetMessage("SALE_PROFILES_PROMT")?>:
-							<script language="JavaScript">
+							<script>
 							function SetContact(enabled)
 							{
 								if(enabled)
@@ -257,7 +257,7 @@ if (!function_exists('PrintPropsForm'))
 			if ($arResult["USER_PROFILES_TO_FILL"]=="Y")
 			{
 				?>
-				<script language="JavaScript">
+				<script>
 					SetContact(<?echo ($arResult["USER_PROFILES_TO_FILL_VALUE"]=="Y" || $arResult["PROFILE_ID"] == "0")?"true":"false";?>);
 				</script>
 				<?

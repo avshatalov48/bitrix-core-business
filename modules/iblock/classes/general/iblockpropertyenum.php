@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CIBlockPropertyEnumResult extends CDBResult
 {
 	function Fetch()
@@ -11,6 +12,7 @@ class CIBlockPropertyEnumResult extends CDBResult
 		return $a;
 	}
 }
+
 class CIBlockPropertyEnum
 {
 	public static function GetList($arOrder = array("SORT"=>"ASC", "VALUE"=>"ASC"), $arFilter = array())
@@ -118,7 +120,7 @@ class CIBlockPropertyEnum
 			$strSqlOrder
 		";
 
-		$rs = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$rs = $DB->Query($strSql);
 		return new CIBlockPropertyEnumResult($rs);
 	}
 
@@ -215,54 +217,63 @@ class CIBlockPropertyEnum
 	public static function GetByID($ID)
 	{
 		global $DB, $CACHE_MANAGER;
-		static $BX_IBLOCK_ENUM_CACHE = array();
+		static $BX_IBLOCK_ENUM_CACHE = [];
 		static $bucket_size = null;
 
 		if ($bucket_size === null)
 		{
-			$bucket_size = intval(CACHED_b_iblock_property_enum_bucket_size);
+			$bucket_size = (int)CACHED_b_iblock_property_enum_bucket_size;
 			if ($bucket_size <= 0)
+			{
 				$bucket_size = 10;
+			}
 		}
 
-		$ID = intval($ID);
-		$bucket = intval($ID/$bucket_size);
+		$ID = (int)$ID;
+		if ($ID <= 0)
+		{
+			return false;
+		}
+		$bucket = (int)($ID/$bucket_size);
 
 		if (
 			!isset($BX_IBLOCK_ENUM_CACHE[$bucket])
-			|| !array_key_exists($ID, $BX_IBLOCK_ENUM_CACHE[$bucket])
+			|| !isset($BX_IBLOCK_ENUM_CACHE[$bucket][$ID])
 		)
 		{
+			$BX_IBLOCK_ENUM_CACHE[$bucket] ??= [];
 			if (CACHED_b_iblock_property_enum === false)
 			{
 				$rs = $DB->Query("SELECT * from b_iblock_property_enum WHERE ID=".$ID);
 				$BX_IBLOCK_ENUM_CACHE[$bucket][$ID] = $rs->Fetch();
+				unset($rs);
 			}
-			elseif (!isset($BX_IBLOCK_ENUM_CACHE[$bucket]))
+			elseif (empty($BX_IBLOCK_ENUM_CACHE[$bucket]))
 			{
-				if ($CACHE_MANAGER->Read(CACHED_b_iblock_property_enum, $cache_id="b_iblock_property_enum".$bucket, "b_iblock_property_enum"))
+				$cache_id = 'b_iblock_property_enum' . $bucket;
+				if ($CACHE_MANAGER->Read(CACHED_b_iblock_property_enum, $cache_id, "b_iblock_property_enum"))
 				{
 					$arEnums = $CACHE_MANAGER->Get($cache_id);
 				}
 				else
 				{
-					$arEnums = array();
+					$arEnums = [];
 					$rs = $DB->Query("
 						SELECT *
 						FROM b_iblock_property_enum
 						WHERE ID between ".($bucket*$bucket_size)." AND ".(($bucket+1)*$bucket_size-1)
 					);
-					while($ar = $rs->Fetch())
+					while ($ar = $rs->Fetch())
 					{
 						$arEnums[$ar["ID"]] = $ar;
 					}
+					unset($rs);
 					$CACHE_MANAGER->Set($cache_id, $arEnums);
 				}
 				$BX_IBLOCK_ENUM_CACHE[$bucket] = $arEnums;
 			}
 		}
 
-		return $BX_IBLOCK_ENUM_CACHE[$bucket][$ID];
+		return $BX_IBLOCK_ENUM_CACHE[$bucket][$ID] ?? false;
 	}
 }
-?>

@@ -1,15 +1,9 @@
 <?php
 
 /***************************************
-		Îòâåò íà âîïðîñ âåá-ôîðìû
+		ÐžÑ‚Ð²ÐµÑ‚ Ð½Ð° Ð²Ð¾Ð¿Ñ€Ð¾Ñ Ð²ÐµÐ±-Ñ„Ð¾Ñ€Ð¼Ñ‹
 ***************************************/
 
 class CFormAnswer extends CAllFormAnswer
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormAnswer<br>File: ".__FILE__;
-	}
 }

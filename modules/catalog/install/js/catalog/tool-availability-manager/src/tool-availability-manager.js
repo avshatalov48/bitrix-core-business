@@ -1,6 +1,7 @@
 import { Runtime } from 'main.core';
+import { OneCPlanRestrictionSlider } from './onec-plan-restriction-slider';
 
-export class ToolAvailabilityManager
+class ToolAvailabilityManager
 {
 	static openInventoryManagementToolDisabledSlider()
 	{
@@ -14,3 +15,8 @@ export class ToolAvailabilityManager
 		});
 	}
 }
+
+export {
+	ToolAvailabilityManager,
+	OneCPlanRestrictionSlider,
+};

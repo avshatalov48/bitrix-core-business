@@ -287,7 +287,7 @@ $containerId = 'bx-sender-segment-edit';
 
 	</form>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 
 			BX.Loc.setMessage(

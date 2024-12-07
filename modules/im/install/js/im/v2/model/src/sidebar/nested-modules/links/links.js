@@ -1,6 +1,7 @@
 import { Type } from 'main.core';
-
 import { BuilderModel } from 'ui.vue3.vuex';
+
+import { Core } from 'im.v2.application.core';
 
 import { sidebarLinksFieldsConfig } from './format/field-config';
 import { formatFieldsWithConfig } from '../../../utils/validate';
@@ -21,6 +22,13 @@ type ChatState = {
 	items: Map<ImModelSidebarLinkItem>,
 }
 
+type LinksPayload = {
+	chatId?: number,
+	links?: Object[],
+	hasNextPage?: boolean,
+	isHistoryLimitExceeded: boolean,
+}
+
 /* eslint-disable no-param-reassign */
 export class LinksModel extends BuilderModel
 {
@@ -28,7 +36,9 @@ export class LinksModel extends BuilderModel
 	{
 		return {
 			collection: {},
+			collectionSearch: {},
 			counters: {},
+			historyLimitExceededCollection: {},
 		};
 	}
 
@@ -99,6 +109,43 @@ export class LinksModel extends BuilderModel
 
 				return state.collection[chatId].hasNextPage;
 			},
+			/** @function sidebar/links/hasNextPageSearch */
+			hasNextPageSearch: (state) => (chatId: number): boolean => {
+				if (!state.collectionSearch[chatId])
+				{
+					return false;
+				}
+
+				return state.collectionSearch[chatId].hasNextPage;
+			},
+			/** @function sidebar/links/getSearchResultCollectionSize */
+			getSearchResultCollectionSize: (state) => (chatId: number): number => {
+				if (!state.collectionSearch[chatId])
+				{
+					return 0;
+				}
+
+				return state.collectionSearch[chatId].items.size;
+			},
+			/** @function sidebar/links/getSearchResultCollection */
+			getSearchResultCollection: (state) => (chatId: number): ImModelSidebarLinkItem[] => {
+				if (!state.collectionSearch[chatId])
+				{
+					return [];
+				}
+
+				return [...state.collectionSearch[chatId].items.values()].sort((a, b) => b.id - a.id);
+			},
+			/** @function sidebar/links/isHistoryLimitExceeded */
+			isHistoryLimitExceeded: (state) => (chatId: number): boolean => {
+				const isAvailable = Core.getStore().getters['application/tariffRestrictions/isHistoryAvailable'];
+				if (isAvailable)
+				{
+					return false;
+				}
+
+				return state.historyLimitExceededCollection[chatId] ?? false;
+			},
 		};
 	}
 
@@ -115,19 +162,40 @@ export class LinksModel extends BuilderModel
 				store.commit('setCounter', payload);
 			},
 			/** @function sidebar/links/set */
-			set: (store, payload) => {
-				const { chatId, links, hasNextPage } = payload;
-				if (!Type.isArrayFilled(links) || !Type.isNumber(chatId))
+			set: (store, payload: LinksPayload) => {
+				const { chatId, links, hasNextPage, isHistoryLimitExceeded = false } = payload;
+				if (!Type.isNumber(chatId))
 				{
 					return;
 				}
 
 				store.commit('setHasNextPage', { chatId, hasNextPage });
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
 
 				links.forEach((link) => {
 					const preparedLink = { ...this.getElementState(), ...this.formatFields(link) };
 					store.commit('add', { chatId, link: preparedLink });
 				});
+			},
+			/** @function sidebar/links/setSearch */
+			setSearch: (store, payload: LinksPayload) => {
+				const { chatId, links, hasNextPage, isHistoryLimitExceeded = false } = payload;
+				if (!Type.isNumber(chatId))
+				{
+					return;
+				}
+
+				store.commit('setHasNextPageSearch', { chatId, hasNextPage });
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
+
+				links.forEach((link) => {
+					const preparedLink = { ...this.getElementState(), ...this.formatFields(link) };
+					store.commit('addSearch', { chatId, link: preparedLink });
+				});
+			},
+			/** @function sidebar/links/clearSearch */
+			clearSearch: (store) => {
+				store.commit('clearSearch', {});
 			},
 			/** @function sidebar/links/delete */
 			delete: (store, payload) => {
@@ -161,6 +229,26 @@ export class LinksModel extends BuilderModel
 
 				state.collection[chatId].hasNextPage = hasNextPage;
 			},
+			setHasNextPageSearch: (state, payload: LinksPayload) => {
+				const { chatId, hasNextPage } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].hasNextPage = hasNextPage;
+			},
+			setHistoryLimitExceeded: (state, payload) => {
+				const { chatId, isHistoryLimitExceeded } = payload;
+				if (state.historyLimitExceededCollection[chatId] && !isHistoryLimitExceeded)
+				{
+					return;
+				}
+
+				state.historyLimitExceededCollection[chatId] = isHistoryLimitExceeded;
+			},
 			setCounter: (state, payload) => {
 				const { chatId, counter } = payload;
 				state.counters[chatId] = counter;
@@ -176,8 +264,27 @@ export class LinksModel extends BuilderModel
 
 				state.collection[chatId].items.set(link.id, link);
 			},
+			addSearch: (state, payload: {chatId: number, link: ImModelSidebarLinkItem}) => {
+				const { chatId, link } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].items.set(link.id, link);
+			},
+			clearSearch: (state) => {
+				state.collectionSearch = {};
+			},
 			delete: (state, payload: {chatId: number, id: number}) => {
 				const { chatId, id } = payload;
+				const hasCollectionSearch = !Type.isNil(state.collectionSearch[chatId]);
+				if (hasCollectionSearch)
+				{
+					state.collectionSearch[chatId].items.delete(id);
+				}
 				state.collection[chatId].items.delete(id);
 				state.counters[chatId]--;
 			},

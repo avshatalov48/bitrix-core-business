@@ -85,7 +85,7 @@ class ThemePicker
 
 		$baseTheme = $themePicker->getCurrentBaseThemeId();
 		echo <<<JS
-<script type="text/javascript">
+<script>
 	BX.ready(() => {
 		document.body.className = document.body.className.replace(/bitrix24-[^\s]*-theme/, '');
 		document.body.classList.add("bitrix24-$baseTheme-theme");

@@ -43,6 +43,11 @@ class EntityUFDataProvider extends DataProvider
 		static $result = [];
 
 		$entityId = $this->getUserFieldEntityID();
+		if (empty($entityId))
+		{
+			return [];
+		}
+
 		if (!isset($result[$entityId]))
 		{
 			$result[$entityId] = $USER_FIELD_MANAGER->getUserFields($entityId, 0, LANGUAGE_ID, false);
@@ -57,7 +62,7 @@ class EntityUFDataProvider extends DataProvider
 	 */
 	public function prepareFields()
 	{
-		$result = array();
+		$result = [];
 		foreach($this->getUserFields() as $fieldName => $userField)
 		{
 			if (
@@ -96,6 +101,7 @@ class EntityUFDataProvider extends DataProvider
 						'type' => 'entity_selector',
 						'name' => $fieldLabel,
 						'partial' => true,
+						'subtype' => $typeID,
 					]
 				);
 			}
@@ -112,6 +118,7 @@ class EntityUFDataProvider extends DataProvider
 								'hasAnyValue',
 							],
 						],
+						'subtype' => $typeID,
 					]
 				);
 				continue;
@@ -129,6 +136,7 @@ class EntityUFDataProvider extends DataProvider
 								'hasAnyValue',
 							],
 						],
+						'subtype' => $typeID,
 					]
 				);
 				continue;
@@ -137,11 +145,12 @@ class EntityUFDataProvider extends DataProvider
 			{
 				$result[$fieldName] = $this->createField(
 					$fieldName,
-					array(
+					[
 						'type' => 'checkbox',
 						'name' => $fieldLabel,
-						'data' => array('valueType' => 'numeric')
-					)
+						'data' => ['valueType' => 'numeric'],
+						'subtype' => $typeID,
+					]
 				);
 			}
 			elseif($typeID === 'datetime' || $typeID === 'date')
@@ -159,6 +168,7 @@ class EntityUFDataProvider extends DataProvider
 								'hasAnyValue',
 							],
 						],
+						'subtype' => $typeID,
 					]
 				);
 			}
@@ -174,6 +184,7 @@ class EntityUFDataProvider extends DataProvider
 						'type' => 'entity_selector',
 						'name' => $fieldLabel,
 						'partial' => true,
+						'subtype' => $typeID,
 					]
 				);
 			}
@@ -190,6 +201,7 @@ class EntityUFDataProvider extends DataProvider
 						'type' => 'list',
 						'name' => $fieldLabel,
 						'partial' => true,
+						'subtype' => $typeID,
 					]
 				);
 			}
@@ -197,22 +209,24 @@ class EntityUFDataProvider extends DataProvider
 			{
 				$result[$fieldName] = $this->createField(
 					$fieldName,
-					array(
+					[
 						'type' => 'dest_selector',
 						'name' => $fieldLabel,
-						'partial' => true
-					)
+						'partial' => true,
+						'subtype' => $typeID,
+					]
 				);
 			}
 			else
 			{
 				$result[$fieldName] = $this->createField(
 					$fieldName,
-					array(
+					[
 						'type' => 'custom',
 						'name' => $fieldLabel,
-						'data' => array('value' => '')
-					)
+						'data' => ['value' => ''],
+						'subtype' => $typeID,
+					]
 				);
 			}
 		}

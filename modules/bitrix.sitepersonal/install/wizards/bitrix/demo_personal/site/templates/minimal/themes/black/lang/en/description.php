@@ -1,4 +1,0 @@
-<?
-$MESS["SITE_TEMPLATE_THEME_NAME"] = "Black";
-$MESS["SITE_TEMPLATE_THEME_DESCRIPTION"] = "Black color theme";
-?>

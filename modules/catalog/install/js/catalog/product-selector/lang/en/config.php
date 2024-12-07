@@ -1,4 +1,19 @@
 <?php
+$MESS["CATALOG_SELECTOR_1C_CONNECTED"] = "Connected";
+$MESS["CATALOG_SELECTOR_1C_CONNECTING"] = "Connecting";
+$MESS["CATALOG_SELECTOR_1C_HELP_LINK"] = "Learn more";
+$MESS["CATALOG_SELECTOR_1C_INPUT_PLACEHOLDER"] = "Find product";
+$MESS["CATALOG_SELECTOR_1C_NOT_CONNECTED"] = "Configuration is not complete yet.";
+$MESS["CATALOG_SELECTOR_1C_NOT_RESPONDING"] = "No response from 1C";
+$MESS["CATALOG_SELECTOR_1C_NOT_RESPONDING_ERROR"] = "1C is not responding. Please contact your supervisor or Bitrix24 administrator to check connection.";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_INIT_FAILURE_SUBTITLE"] = "Please contact your supervisor or Bitrix24 administrator to complete the configuration.";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_INIT_FAILURE_TITLE"] = "Complete configuration in 1C";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_NO_RESPONSE_SUBTITLE"] = "Please contact your supervisor or Bitrix24 administrator to check the connection.";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_NO_RESPONSE_TITLE"] = "No response from 1C";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_SEARCH_SUBTITLE"] = "Start typing product name to find it";
+$MESS["CATALOG_SELECTOR_1C_RECENT_TAB_SEARCH_TITLE"] = "Find product in 1C";
+$MESS["CATALOG_SELECTOR_1C_RETRY_TEXT"] = "retry";
+$MESS["CATALOG_SELECTOR_1C_SEARCH"] = "Looking for product in 1C";
 $MESS["CATALOG_SELECTOR_BARCODE_ICON_TITLE"] = "Scan with mobile device";
 $MESS["CATALOG_SELECTOR_BARCODE_SCANNER_FIRST_TIME_HINT_TEXT"] = "Scan product barcode using mobile device";
 $MESS["CATALOG_SELECTOR_BARCODE_SCANNER_FIRST_TIME_HINT_TITLE"] = "Barcode search";
@@ -16,6 +31,7 @@ $MESS["CATALOG_SELECTOR_MOBILE_POPUP_SEND_PUSH_BUTTON"] = "I already have the ap
 $MESS["CATALOG_SELECTOR_MOBILE_POPUP_TITLE"] = "Barcode search is available";
 $MESS["CATALOG_SELECTOR_NEW_BARCODE_PRODUCT_NAME"] = "New product and barcode";
 $MESS["CATALOG_SELECTOR_NEW_TAG_TITLE"] = "new";
+$MESS["CATALOG_SELECTOR_RECENT_TAB_STUB_TITLE"] = "Enter product name";
 $MESS["CATALOG_SELECTOR_SAVING_NOTIFICATION_BARCODE"] = "Product barcode saved";
 $MESS["CATALOG_SELECTOR_SAVING_NOTIFICATION_CANCEL_TITLE"] = "Cancel";
 $MESS["CATALOG_SELECTOR_SAVING_NOTIFICATION_NAME"] = "Product name will be saved to the catalog.";

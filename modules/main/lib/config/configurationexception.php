@@ -7,7 +7,7 @@ namespace Bitrix\Main\Config;
 class ConfigurationException
 	extends \Bitrix\Main\SystemException
 {
-	public function __construct($message = "", \Exception $previous = null)
+	public function __construct($message = "", \Throwable $previous = null)
 	{
 		parent::__construct($message, 180, '', '', $previous);
 	}

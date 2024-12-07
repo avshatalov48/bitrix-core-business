@@ -192,4 +192,6 @@ $MESS['CALENDAR_CHECK_GOOGLE_SETTINGS'] = 'Мои настройки Google';
 $MESS['CAL_ERROR_WARN_1'] = 'Не удалось завершить синхронизацию.';
 $MESS['CAL_ERROR_WARN_2'] = 'Попробуйте повторить попытку позже';
 $MESS['CAL_ERROR_CLOSE'] = 'Закрыть';
+$MESS['CAL_BUTTON_STATUS_FAILED_RECONNECT'] = 'Возобновить';
+$MESS['CAL_SYNC_INFO_STATUS_ERROR_RECONNECT'] = 'Синхронизация с календарём #TYPE# временно приостановлена. Возможно, вы сменили пароль';
 ?>

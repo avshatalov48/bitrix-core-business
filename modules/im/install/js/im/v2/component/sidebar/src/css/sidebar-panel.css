@@ -20,6 +20,8 @@
 }
 
 .bx-im-sidebar-panel__component {
+	display: flex;
+	flex-direction: column;
 	width: var(--im-sidebar-panel__width_container);
 	min-width: var(--im-sidebar-panel__width_container);
 	height: 100%;

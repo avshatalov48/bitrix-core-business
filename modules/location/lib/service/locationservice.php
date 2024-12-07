@@ -6,8 +6,9 @@ use Bitrix\Location\Exception\RuntimeException;
 use Bitrix\Location\Common\BaseService;
 use Bitrix\Main\Result;
 use Bitrix\Location\Entity;
-use \Bitrix\Location\Repository\LocationRepository;
-use \Bitrix\Location\Infrastructure\Service\Config;
+use Bitrix\Location\Repository\LocationRepository;
+use Bitrix\Location\Infrastructure\Service\Config;
+use Bitrix\Location\Common\RepositoryTrait;
 
 /**
  * Class LocationService
@@ -18,7 +19,7 @@ use \Bitrix\Location\Infrastructure\Service\Config;
  */
 final class LocationService extends BaseService
 {
-	use \Bitrix\Location\Common\RepositoryTrait;
+	use RepositoryTrait;
 
 	/** @var LocationService */
 	protected static $instance;
@@ -73,6 +74,40 @@ final class LocationService extends BaseService
 		}
 
 		return $result;
+	}
+
+	/**
+	 * Find location by coordinates
+	 *
+	 * @param float $lat
+	 * @param float $lng
+	 * @param int $zoom
+	 * @param string $languageId
+	 * @return Entity\Location|null
+	 */
+	public function findByCoords(
+		float $lat,
+		float $lng,
+		int $zoom,
+		string $languageId
+	): ?Entity\Location
+	{
+		try
+		{
+			return $this->repository->findByCoords(
+				$lat,
+				$lng,
+				$zoom,
+				$languageId,
+				LOCATION_SEARCH_SCOPE_EXTERNAL
+			);
+		}
+		catch (RuntimeException $exception)
+		{
+			$this->processException($exception);
+		}
+
+		return null;
 	}
 
 	/**
@@ -151,6 +186,7 @@ final class LocationService extends BaseService
 	protected function __construct(Config\Container $config)
 	{
 		$this->setRepository($config->get('repository'));
+
 		parent::__construct($config);
 	}
 

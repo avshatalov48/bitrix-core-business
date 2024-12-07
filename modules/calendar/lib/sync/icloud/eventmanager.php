@@ -77,6 +77,8 @@ class EventManager extends AbstractManager implements EventManagerInterface
 		$result = new Result();
 		$event->setUid($context->getEventConnection()->getVendorEventId());
 
+		$context->getEventConnection()->setData($context->getEventConnection()->fetchData());
+
 		if ($event->getRecurringRule())
 		{
 			return $this->saveInstance($event, $context);

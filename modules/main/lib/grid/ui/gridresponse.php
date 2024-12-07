@@ -15,6 +15,7 @@ class GridResponse implements \Bitrix\Main\Grid\GridResponse
 	 * @var array[]
 	 */
 	private array $messages = [];
+	private mixed $payload = null;
 
 	/**
 	 * Add message to response.
@@ -35,13 +36,27 @@ class GridResponse implements \Bitrix\Main\Grid\GridResponse
 	}
 
 	/**
+	 * Add payload to response.
+	 *
+	 * @param mixed $payload
+	 *
+	 * @return void
+	 */
+	public function setPayload(mixed $payload): void
+	{
+		$this->payload = $payload;
+	}
+
+	/**
 	 * @inheritDoc
 	 *
 	 * @return bool
 	 */
 	public function isSendable(): bool
 	{
-		return ! empty($this->messages);
+		return !(
+			empty($this->messages) && empty($this->payload)
+		);
 	}
 
 	/**
@@ -59,9 +74,16 @@ class GridResponse implements \Bitrix\Main\Grid\GridResponse
 
 		$APPLICATION->RestartBuffer();
 
-		$response = new Json([
+		// TODO: fix JS code for correct work without messages
+		$responseData = [
 			'messages' => $this->messages,
-		]);
+		];
+		if (!empty($this->payload))
+		{
+			$responseData['payload'] = $this->payload;
+		}
+
+		$response = new Json($responseData);
 
 		Application::getInstance()->end(200, $response);
 	}

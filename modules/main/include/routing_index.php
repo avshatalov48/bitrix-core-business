@@ -13,10 +13,7 @@ use Bitrix\Main\Engine\AutoWire\Parameter;
 use Bitrix\Main\Engine\Contract\RoutableAction;
 use Bitrix\Main\Engine\Response\Json;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Routing\CompileCache;
 use Bitrix\Main\Routing\Controllers\PublicPageController;
-use Bitrix\Main\Routing\Router;
-use Bitrix\Main\Routing\RoutingConfigurator;
 use Bitrix\Main\SystemException;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/start.php");

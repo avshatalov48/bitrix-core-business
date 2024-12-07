@@ -103,8 +103,6 @@ class CMailDomainRegistrar
 
 	public static function checkDomain($user, $password, $domain, &$error)
 	{
-		$domain = CharsetConverter::convertCharset($domain, SITE_CHARSET, 'UTF-8');
-
 		$result = CMailRegru::checkDomainInfo($user, $password, $domain, $error);
 
 		if ($result !== false)

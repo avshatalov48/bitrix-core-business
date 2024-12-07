@@ -327,7 +327,6 @@ class CUserOptions
 		if (is_array($varCookie["p"]) && $varCookie["sessid"] == bitrix_sessid())
 		{
 			$arOptions = $varCookie["p"];
-			CUtil::decodeURIComponent($arOptions);
 			CUserOptions::SetOptionsFromArray($arOptions);
 		}
 	}

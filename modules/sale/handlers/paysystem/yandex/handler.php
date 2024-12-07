@@ -5,7 +5,6 @@ namespace Sale\Handlers\PaySystem;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Request;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Sale\BusinessValue;
@@ -81,7 +80,7 @@ class YandexHandler
 				shopId=\''.$shopId.'\'
 				amount=\''.number_format($refundableSum, 2, '.', '').'\'
 				currency=\''.$currency.'\'
-				cause=\''.Encoding::convertEncoding($cause, LANG_CHARSET, 'UTF-8').'\'
+				cause=\''.$cause.'\'
 	        />';
 
 		$url = $this->getUrl($payment, 'return');
@@ -178,10 +177,10 @@ class YandexHandler
 		);
 
 		PaySystem\Logger::addDebugInfo(
-			'Yandex: calculatedHash='.ToUpper($hash)."; yandexHash=".ToUpper($request->get('md5'))
+			'Yandex: calculatedHash='.mb_strtoupper($hash)."; yandexHash=".mb_strtoupper($request->get('md5'))
 		);
 
-		return ToUpper($hash) === ToUpper($request->get('md5'));
+		return mb_strtoupper($hash) === mb_strtoupper($request->get('md5'));
 	}
 
 	/**

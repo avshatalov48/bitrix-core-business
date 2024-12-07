@@ -1,8 +1,8 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable class-methods-use-this */
-import {Type, Dom, Text, Runtime, Event, Tag} from 'main.core';
+import { Dom, Event, Runtime, Text, Type } from 'main.core';
 import 'ui.icons.service';
-import {AdditionalFilter} from './additional-filter';
+import { AdditionalFilter } from './additional-filter';
 
 export class Presets
 {
@@ -790,7 +790,7 @@ export class Presets
 	 * @param {object} field
 	 * @param {boolean} disableSaveFieldsSort
 	 */
-	removeField(field, disableSaveFieldsSort)
+	removeField(field, disableSaveFieldsSort = false)
 	{
 		let index; let
 			fieldName;
@@ -854,7 +854,7 @@ export class Presets
 	 * Adds field into filter field list by field object
 	 * @param {object} fieldData
 	 */
-	addField(fieldData)
+	addField(fieldData, disableSaveFieldsSort = false)
 	{
 		let container; let control; let
 			controls;
@@ -912,7 +912,10 @@ export class Presets
 			}
 		}
 
-		this.parent.saveFieldsSort();
+		if (!disableSaveFieldsSort)
+		{
+			this.parent.saveFieldsSort();
+		}
 	}
 
 

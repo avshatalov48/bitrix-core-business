@@ -21,7 +21,7 @@ CMobile::Init();
 	<meta name="format-detection" content="telephone=no">
 </head>
 <body><? //$APPLICATION->ShowPanel();?>
-<script type="text/javascript">
+<script>
 	app.pullDown({
 		enable: true,
 		callback: function ()

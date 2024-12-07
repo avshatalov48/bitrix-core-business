@@ -24,7 +24,7 @@ class CAllSaleOrderPropsVariant
 			"SELECT * ".
 			"FROM b_sale_order_props_variant ".
 			"WHERE ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -77,7 +77,7 @@ class CAllSaleOrderPropsVariant
 		$strUpdate = $DB->PrepareUpdate("b_sale_order_props_variant", $arFields);
 
 		$strSql = "UPDATE b_sale_order_props_variant SET ".$strUpdate." WHERE ID = ".$ID."";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}

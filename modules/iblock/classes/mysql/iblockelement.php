@@ -3,6 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Loader;
 use Bitrix\Iblock;
+use Bitrix\Iblock\IblockTable;
 
 class CIBlockElement extends CAllIBlockElement
 {
@@ -126,30 +127,61 @@ class CIBlockElement extends CAllIBlockElement
 		$this->arFilterIBlocks = isset($arFilter["IBLOCK_ID"])? array($arFilter["IBLOCK_ID"]): array();
 		//******************FROM PART********************************************
 		$sFrom = "";
-		foreach($arJoinProps["FPS"] as $iblock_id => $iPropCnt)
+		$countFrom = '';
+		foreach ($arJoinProps["FPS"] as $iblock_id => $iPropCnt)
 		{
-			$sFrom .= "\t\t\tINNER JOIN b_iblock_element_prop_s".$iblock_id." FPS".$iPropCnt." ON FPS".$iPropCnt.".IBLOCK_ELEMENT_ID = BE.ID\n";
+			/*
+			 * 123 - Iblock Id
+			 * INNER JOIN b_iblock_element_prop_s123 FPS123 ON FPS123.IBLOCK_ELEMENT_ID = BE.ID
+			 */
+			$tableAlias = 'FPS' . $iPropCnt;
+			$tableJoin = "\t\t\tINNER JOIN b_iblock_element_prop_s" . $iblock_id . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ELEMENT_ID = BE.ID\n"
+			;
+			$sFrom .= $tableJoin;
+			$countFrom .= $tableJoin;
+
+			unset($tableJoin);
+			unset($tableAlias);
 			$this->arFilterIBlocks[$iblock_id] = $iblock_id;
 		}
 
-		foreach($arJoinProps["FP"] as $propID => $db_prop)
+		foreach ($arJoinProps["FP"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
+			/*
+			 * 123 - $db_prop['CNT']
+			 *
+			 * $db_prop['bFullJoin'] === true and
+			 * 		$propID is int (property id)
+			 * 			INNER JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.ID = $propID
+			 * 		$propID is string (property code)
+			 * 			INNER JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.CODE = '$propID'
+			 *
+			 * $db_prop['bFullJoin'] === false and
+			 * 		$propID is int (property id)
+			 * 			LEFT JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.ID = $propID
+			 * 		$propID is string (property code)
+			 * 			LEFT JOIN b_iblock_property FP123 ON FP123.IBLOCK_ID = D.ID AND FP123.CODE = '$propID'
+			 */
+			$tableAlias = 'FP' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " b_iblock_property " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ID = B.ID AND "
+				. (
+					(int)$propID > 0
+						? $tableAlias . ".ID=" . (int)$propID . "\n"
+						: $tableAlias . ".CODE='" . $DB->ForSQL($propID, 200) . "'\n"
+				)
+			;
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN b_iblock_property FP".$i." ON FP".$i.".IBLOCK_ID = B.ID AND ".
-					(
-						(int)$propID > 0
-							? " FP".$i.".ID=".(int)$propID."\n"
-							: " FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
-			else
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_property FP".$i." ON FP".$i.".IBLOCK_ID = B.ID AND ".
-					(
-						(int)$propID > 0
-							? " FP".$i.".ID=".(int)$propID."\n"
-							: " FP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -157,22 +189,49 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		foreach($arJoinProps["FPV"] as $propID => $db_prop)
+		foreach ($arJoinProps['FPV'] as $db_prop)
 		{
-			$i = $db_prop["CNT"];
-
-			if($db_prop["MULTIPLE"]=="Y")
+			if ($db_prop['MULTIPLE'] === 'Y')
+			{
 				$this->bDistinct = true;
+			}
 
-			if($db_prop["VERSION"]==2)
-				$strTable = "b_iblock_element_prop_m".$db_prop["IBLOCK_ID"];
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE) // 'VESRION' is string
+			{
+				$tableName = 'b_iblock_element_prop_m' . $db_prop['IBLOCK_ID'];
+			}
 			else
-				$strTable = "b_iblock_element_property";
+			{
+				$tableName = 'b_iblock_element_property';
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN ".$strTable." FPV".$i." ON FPV".$i.".IBLOCK_PROPERTY_ID = FP".$db_prop["JOIN"].".ID AND FPV".$i.".IBLOCK_ELEMENT_ID = BE.ID\n";
-			else
-				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." FPV".$i." ON FPV".$i.".IBLOCK_PROPERTY_ID = FP".$db_prop["JOIN"].".ID AND FPV".$i.".IBLOCK_ELEMENT_ID = BE.ID\n";
+			/*
+			 * 123 - $db_prop['CNT']
+			 * $strTable - b_iblock_element_property or b_iblock_element_prop_m{IBLOCK_ID}
+			 *
+			 * $db_prop['bFullJoin'] === true
+			 * 		INNER JOIN {$strTable} FPV123 ON FPV123.IBLOCK_PROPERTY_ID = FP{$db_prop['JOIN']}.ID
+						AND FPV123.IBLOCK_ELEMENT_ID = BE.ID
+			 * $db_prop['bFullJoin'] === false
+			 * 		LEFT JOIN {$strTable} FPV123 ON FPV123.IBLOCK_PROPERTY_ID = FP{$db_prop['JOIN']}.ID
+						AND FPV123.IBLOCK_ELEMENT_ID = BE.ID
+			 */
+			$tableAlias = 'FPV' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_PROPERTY_ID = FP" . $db_prop["JOIN"] . ".ID"
+				. " AND " . $tableAlias .".IBLOCK_ELEMENT_ID = BE.ID\n"
+			;
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -180,24 +239,51 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		foreach($arJoinProps["FPEN"] as $propID => $db_prop)
+		foreach ($arJoinProps["FPEN"] as $db_prop)
 		{
-			$i = $db_prop["CNT"];
-
-			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
+			/*
+			 * 123 - $db_prop['CNT']
+			 * if commont storage and single property
+			 * 		$db_prop['bFullJoin'] === true
+			 * 			INNER JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = {$db_prop['ORIG_ID']}
+			 * 				AND FPS{$db_prop['JOIN']}.PROPERTY_{$db_prop['ORIG_ID']} = FPEN123.ID
+			 * 		$db_prop['bFullJoin'] === false
+			 * 			LEFT JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = {$db_prop['ORIG_ID']}
+			 * 				AND FPS{$db_prop['JOIN']}.PROPERTY_{$db_prop['ORIG_ID']} = FPEN123.ID
+			 * else
+			 * 		$db_prop['bFullJoin'] === true
+			 * 			INNER JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = FPV{$db_prop['JOIN']}.IBLOCK_PROPERTY_ID
+			 * 				AND FPV{$db_prop['JOIN']}.VALUE_ENUM = FPEN123.ID
+			 * 		$db_prop['bFullJoin'] === false
+			 * 			LEFT JOIN b_iblock_property_enum FPEN123 ON FPEN123.PROPERTY_ID = FPV{$db_prop['JOIN']}.IBLOCK_PROPERTY_ID
+			 * 				AND FPV{$db_prop['JOIN']}.VALUE_ENUM = FPEN123.ID
+			 */
+			$tableName = Iblock\PropertyEnumerationTable::getTableName();
+			$tableAlias = 'FPEN' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE && $db_prop['MULTIPLE'] === 'N') // 'VESRION' is string
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = FPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = FPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = " . $db_prop["ORIG_ID"]
+					. " AND FPS" . $db_prop["JOIN"] . ".PROPERTY_" . $db_prop["ORIG_ID"] . " = " . $tableAlias . ".ID\n"
+				;
 			}
 			else
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = FPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND FPV".$db_prop["JOIN"].".VALUE_ENUM = FPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum FPEN".$i." ON FPEN".$i.".PROPERTY_ID = FPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND FPV".$db_prop["JOIN"].".VALUE_ENUM = FPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+					." ON " . $tableAlias . ".PROPERTY_ID = FPV" . $db_prop["JOIN"] . ".IBLOCK_PROPERTY_ID"
+					. " AND FPV".$db_prop["JOIN"].".VALUE_ENUM = " . $tableAlias . ".ID\n"
+				;
 			}
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -205,13 +291,13 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		$showHistory = isset($arFilter["SHOW_HISTORY"]) && $arFilter["SHOW_HISTORY"] === 'Y';
-		$showNew = isset($arFilter["SHOW_NEW"]) && $arFilter["SHOW_NEW"] === 'Y';
-		foreach($arJoinProps["BE"] as $propID => $db_prop)
+		$showHistory = ($arFilter['SHOW_HISTORY'] ?? null) === 'Y';
+		$showNew = ($arFilter['SHOW_NEW'] ?? null) === 'Y';
+		foreach($arJoinProps["BE"] as $db_prop)
 		{
 			$i = $db_prop["CNT"];
 
-			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element BE".$i." ON BE".$i.".ID = ".
+			$tableJoin = "\t\t\tLEFT JOIN b_iblock_element BE".$i." ON BE".$i.".ID = ".
 				(
 					$db_prop["VERSION"]==2 && $db_prop["MULTIPLE"]=="N"?
 					"FPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]
@@ -223,11 +309,25 @@ class CIBlockElement extends CAllIBlockElement
 					""
 				)."\n";
 
-			if($db_prop["bJoinIBlock"])
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock B".$i." ON B".$i.".ID = BE".$i.".IBLOCK_ID\n";
+			if ($db_prop["bJoinIBlock"])
+			{
+				$tableJoin .= "\t\t\tLEFT JOIN b_iblock B".$i." ON B".$i.".ID = BE".$i.".IBLOCK_ID\n";
+			}
 
-			if($db_prop["bJoinSection"])
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_section BS".$i." ON BS".$i.".ID = BE".$i.".IBLOCK_SECTION_ID\n";
+			if ($db_prop["bJoinSection"])
+			{
+				$tableJoin .= "\t\t\tLEFT JOIN b_iblock_section BS".$i." ON BS".$i.".ID = BE".$i.".IBLOCK_SECTION_ID\n";
+			}
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -241,7 +341,17 @@ class CIBlockElement extends CAllIBlockElement
 			{
 				[$iblock_id, ] = explode("~", $iblock_id, 2);
 			}
-			$sFrom .= "\t\t\tLEFT JOIN b_iblock_element_prop_s".$iblock_id." JFPS".$db_prop["CNT"]." ON JFPS".$db_prop["CNT"].".IBLOCK_ELEMENT_ID = BE".$db_prop["JOIN"].".ID\n";
+			$tableJoin = "\t\t\tLEFT JOIN b_iblock_element_prop_s" . $iblock_id . " JFPS" . $db_prop["CNT"]
+				. " ON JFPS" . $db_prop["CNT"] . ".IBLOCK_ELEMENT_ID = BE" . $db_prop["JOIN"] . ".ID\n"
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -251,26 +361,31 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FP"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
+			$tableName = Iblock\PropertyTable::getTableName();
+			$tableAlias = 'JFP' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
 			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
-					(
-						(int)$propID > 0
-							? " JFP".$i.".ID=".(int)$propID."\n"
-							: " JFP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
-			else
-				$sFrom .= "\t\t\tLEFT JOIN b_iblock_property JFP".$i." ON JFP".$i.".IBLOCK_ID = BE".$db_prop["JOIN"].".IBLOCK_ID AND ".
-					(
-						(int)$propID > 0
-							? " JFP".$i.".ID=".(int)$propID."\n"
-							: " JFP".$i.".CODE='".$DB->ForSQL($propID, 200)."'\n"
-					);
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias . ".IBLOCK_ID = BE". $db_prop["JOIN"] . ".IBLOCK_ID AND "
+				. (
+					(int)$propID > 0
+						? $tableAlias . ".ID=" . (int)$propID . "\n"
+						: $tableAlias . ".CODE='" . $DB->ForSQL($propID, 200) . "'\n"
+				)
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -280,7 +395,6 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FPV"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
@@ -289,15 +403,33 @@ class CIBlockElement extends CAllIBlockElement
 			if($db_prop["MULTIPLE"]=="Y")
 				$this->bDistinct = true;
 
-			if($db_prop["VERSION"]==2)
-				$strTable = "b_iblock_element_prop_m".$db_prop["IBLOCK_ID"];
+			if ($db_prop["VERSION"] == IblockTable::PROPERTY_STORAGE_SEPARATE)
+			{
+				$tableName = 'b_iblock_element_prop_m' . $db_prop['IBLOCK_ID'];
+			}
 			else
-				$strTable = "b_iblock_element_property";
+			{
+				$tableName = 'b_iblock_element_property';
+			}
 
-			if($db_prop["bFullJoin"])
-				$sFrom .= "\t\t\tINNER JOIN ".$strTable." JFPV".$i." ON JFPV".$i.".IBLOCK_PROPERTY_ID = JFP".$db_prop["JOIN"].".ID AND JFPV".$i.".IBLOCK_ELEMENT_ID = BE".$db_prop["BE_JOIN"].".ID\n";
-			else
-				$sFrom .= "\t\t\tLEFT JOIN ".$strTable." JFPV".$i." ON JFPV".$i.".IBLOCK_PROPERTY_ID = JFP".$db_prop["JOIN"].".ID AND JFPV".$i.".IBLOCK_ELEMENT_ID = BE".$db_prop["BE_JOIN"].".ID\n";
+			$tableAlias = 'JFPV' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+
+			$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " . $tableAlias
+				. " ON " . $tableAlias .".IBLOCK_PROPERTY_ID = JFP"  .$db_prop["JOIN"] . ".ID"
+				. " AND " . $tableAlias . ".IBLOCK_ELEMENT_ID = BE" . $db_prop["BE_JOIN"] . ".ID\n"
+			;
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -307,26 +439,39 @@ class CIBlockElement extends CAllIBlockElement
 
 		foreach($arJoinProps["BE_FPEN"] as $propID => $db_prop)
 		{
-			$i = $db_prop["CNT"];
 			if (str_contains($propID, '~'))
 			{
 				[$propID, ] = explode("~", $propID, 2);
 			}
 
-			if($db_prop["VERSION"] == 2 && $db_prop["MULTIPLE"] == "N")
+			$tableName = Iblock\PropertyEnumerationTable::getTableName();
+			$tableAlias = 'JFPEN' . $db_prop['CNT'];
+			$joinType = $db_prop['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			if ($db_prop['VERSION'] == IblockTable::PROPERTY_STORAGE_SEPARATE && $db_prop['MULTIPLE'] === 'N') // VERSION is string
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND JFPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = JFPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = ".$db_prop["ORIG_ID"]." AND JFPS".$db_prop["JOIN"].".PROPERTY_".$db_prop["ORIG_ID"]." = JFPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName . " " .$tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = " . $db_prop["ORIG_ID"]
+					. " AND JFPS" . $db_prop["JOIN"] . ".PROPERTY_" . $db_prop["ORIG_ID"] ." =  " . $tableAlias.".ID\n"
+				;
 			}
 			else
 			{
-				if($db_prop["bFullJoin"])
-					$sFrom .= "\t\t\tINNER JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = JFPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND JFPV".$db_prop["JOIN"].".VALUE_ENUM = JFPEN".$i.".ID\n";
-				else
-					$sFrom .= "\t\t\tLEFT JOIN b_iblock_property_enum JFPEN".$i." ON JFPEN".$i.".PROPERTY_ID = JFPV".$db_prop["JOIN"].".IBLOCK_PROPERTY_ID AND JFPV".$db_prop["JOIN"].".VALUE_ENUM = JFPEN".$i.".ID\n";
+				$tableJoin = "\t\t\t" . $joinType . " " . $tableName ." " . $tableAlias
+					. " ON " . $tableAlias . ".PROPERTY_ID = JFPV" . $db_prop["JOIN"] . ".IBLOCK_PROPERTY_ID"
+					. " AND JFPV" . $db_prop["JOIN"].".VALUE_ENUM = " . $tableAlias . ".ID\n"
+				;
 			}
+
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($db_prop))
+			{
+				$countFrom .= $tableJoin;
+			}
+
+			unset($tableJoin);
+			unset($joinType);
+			unset($tableAlias);
+			unset($tableName);
 
 			if (isset($db_prop["IBLOCK_ID"]) && $db_prop["IBLOCK_ID"])
 			{
@@ -334,23 +479,39 @@ class CIBlockElement extends CAllIBlockElement
 			}
 		}
 
-		if($arJoinProps["BES"] <> '')
+		if($arJoinProps["BES"] !== '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["BES"]."\n";
 		}
 
-		if($arJoinProps["FC"] <> '')
+		if($arJoinProps["FC"] !== '')
 		{
 			$sFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
+			$countFrom .= "\t\t\t".$arJoinProps["FC"]."\n";
 			$this->bDistinct = $this->bDistinct || (isset($arJoinProps["FC_DISTINCT"]) && $arJoinProps["FC_DISTINCT"] == "Y");
 		}
 
 		if($arJoinProps["RV"])
+		{
 			$sFrom .= "\t\t\tLEFT JOIN b_rating_voting RV ON RV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RV.ENTITY_ID = BE.ID\n";
+		}
 		if($arJoinProps["RVU"])
+		{
 			$sFrom .= "\t\t\tLEFT JOIN b_rating_vote RVU ON RVU.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVU.ENTITY_ID = BE.ID AND RVU.USER_ID = ".$uid."\n";
-		if($arJoinProps["RVV"])
-			$sFrom .= "\t\t\t".($arJoinProps["RVV"]["bFullJoin"]? "INNER": "LEFT")." JOIN b_rating_vote RVV ON RVV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVV.ENTITY_ID = BE.ID\n";
+		}
+		if (is_array($arJoinProps["RVV"]))
+		{
+			$joinType = $arJoinProps['RVV']['bFullJoin'] ? 'INNER JOIN' : 'LEFT JOIN';
+			$tableJoin = "\t\t\t" . $joinType . " b_rating_vote RVV ON RVV.ENTITY_TYPE_ID = 'IBLOCK_ELEMENT' AND RVV.ENTITY_ID = BE.ID\n";
+			$sFrom .= $tableJoin;
+			if (self::useCountJoin($arJoinProps['RVV']))
+			{
+				$countFrom .= $tableJoin;
+			}
+			unset($tableJoin);
+			unset($joinType);
+		}
 
 		//******************END OF FROM PART********************************************
 
@@ -390,6 +551,19 @@ class CIBlockElement extends CAllIBlockElement
 					}
 				}
 				unset($catalogQueryResult);
+				if (!empty($arAddWhereFields))
+				{
+					// join for count with product filter
+					$catalogQueryResult = \CProductQueryBuilder::makeFilter($arAddWhereFields);
+					if (
+						!empty($catalogQueryResult['filter'])
+						&& !empty($catalogQueryResult['join'])
+					)
+					{
+						$countFrom .= "\n\t\t\t".implode("\n\t\t\t", $catalogQueryResult['join'])."\n";
+					}
+					unset($catalogQueryResult);
+				}
 			}
 		}
 
@@ -450,12 +624,19 @@ class CIBlockElement extends CAllIBlockElement
 			.(in_array("CREATED_USER_NAME", $arSelectFields) || in_array("CREATED_BY_FORMATTED", $arSelectFields)? "\t\t\tLEFT JOIN b_user UC ON UC.ID=BE.CREATED_BY\n": "")."
 		";
 
+		$countFrom = "
+			b_iblock B
+			INNER JOIN b_lang L ON B.LID=L.LID
+			INNER JOIN b_iblock_element BE ON BE.IBLOCK_ID = B.ID
+			".ltrim($countFrom, "\t\n")
+		;
 
 		$this->sSelect = $sSelect;
 		$this->sFrom = $sFrom;
 		$this->sWhere = $sWhere;
 		$this->sGroupBy = $sGroupBy;
 		$this->sOrderBy = $sOrderBy;
+		$this->countFrom = $countFrom;
 	}
 
 	/**
@@ -471,6 +652,42 @@ class CIBlockElement extends CAllIBlockElement
 	public static function GetList($arOrder=array("SORT"=>"ASC"), $arFilter=array(), $arGroupBy=false, $arNavStartParams=false, $arSelectFields=array())
 	{
 		global $DB;
+
+		if (
+			isset($arFilter['CHECK_PERMISSIONS'])
+			&& $arFilter['CHECK_PERMISSIONS'] === 'Y'
+		)
+		{
+			$filterIblockId = static::getSingleIblockIdFromFilter($arFilter);
+			if (
+				$filterIblockId !== null
+				&& CIBlock::GetArrayByID($filterIblockId, 'RIGHTS_MODE') === Iblock\IblockTable::RIGHTS_SIMPLE)
+			{
+				$minPermission = (string)($arFilter['MIN_PERMISSION'] ?? CIBlockRights::PUBLIC_READ);
+				if (strlen($minPermission) !== 1)
+				{
+					$minPermission = CIBlockRights::PUBLIC_READ;
+				}
+				$currentPermission = CIBlock::GetPermission($filterIblockId, $arFilter['PERMISSIONS_BY'] ?? false);
+				if ($currentPermission < $minPermission)
+				{
+					return new CIBlockResult();
+				}
+				if (
+					!defined('ADMIN_SECTION')
+					&& $currentPermission < CIBlockRights::FULL_ACCESS
+					&& CIBlock::GetArrayByID($filterIblockId, 'ACTIVE') !== 'Y'
+				)
+				{
+					return new CIBlockResult();
+				}
+
+				unset(
+					$arFilter['CHECK_PERMISSIONS'],
+					$arFilter['MIN_PERMISSION'],
+				);
+			}
+		}
 
 		$el = new CIBlockElement();
 		$el->prepareSql($arSelectFields, $arFilter, $arGroupBy, $arOrder);
@@ -525,7 +742,7 @@ class CIBlockElement extends CAllIBlockElement
 
 				$connection = Main\Application::getConnection();
 
-				if ($connection->getType() === 'pgsql')
+				if ($connection instanceof Main\DB\PgsqlConnection)
 				{
 					$res = $connection->query('
 						select * from (
@@ -608,7 +825,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$res_cnt = $DB->Query("
 						SELECT COUNT(".($el->bDistinct? "DISTINCT BE.ID": "'x'").") as C
-						FROM ".$el->sFrom."
+						FROM ".$el->countFrom."
 						WHERE 1=1 ".$el->sWhere."
 						".$el->sGroupBy."
 					");
@@ -619,7 +836,7 @@ class CIBlockElement extends CAllIBlockElement
 				{
 					$res_cnt = $DB->Query("
 						SELECT 'x'
-						FROM ".$el->sFrom."
+						FROM ".$el->countFrom."
 						WHERE 1=1 ".$el->sWhere."
 						".$el->sGroupBy."
 					");
@@ -646,7 +863,7 @@ class CIBlockElement extends CAllIBlockElement
 				".$el->sGroupBy."
 				".$el->sOrderBy."
 			";
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		$res = new CIBlockResult($res);
@@ -749,9 +966,8 @@ class CIBlockElement extends CAllIBlockElement
 					else
 						$pr_id = $arProp['ID'];
 
-					if(
-						array_key_exists($pr_id, $arFieldProps)
-						&& array_key_exists($pr_val_id, $arFieldProps[$pr_id])
+					if (
+						isset($arFieldProps[$pr_id][$pr_val_id])
 						&& is_array($arFieldProps[$pr_id][$pr_val_id])
 					)
 					{
@@ -1172,11 +1388,9 @@ class CIBlockElement extends CAllIBlockElement
 
 		if ($this->searchIncluded)
 		{
-			$arFields["SEARCHABLE_CONTENT"] = ToUpper(
-				$searchableFields['NAME']."\r\n".
+			$arFields["SEARCHABLE_CONTENT"] = mb_strtoupper($searchableFields['NAME']."\r\n".
 				($searchableFields['PREVIEW_TEXT_TYPE'] == "html" ? HTMLToTxt($searchableFields['PREVIEW_TEXT']) : $searchableFields['PREVIEW_TEXT'])."\r\n".
-				($searchableFields['DETAIL_TEXT_TYPE'] == "html" ? HTMLToTxt($searchableFields['DETAIL_TEXT']) : $searchableFields['DETAIL_TEXT'])
-			);
+				($searchableFields['DETAIL_TEXT_TYPE'] == "html" ? HTMLToTxt($searchableFields['DETAIL_TEXT']) : $searchableFields['DETAIL_TEXT']));
 		}
 
 		if(array_key_exists("IBLOCK_SECTION_ID", $arFields))
@@ -1440,7 +1654,7 @@ class CIBlockElement extends CAllIBlockElement
 				$strUpdate .= ", ";
 
 			$strSql = "UPDATE b_iblock_element SET ".$strUpdate.($bTimeStampNA?"TIMESTAMP_X=TIMESTAMP_X":"TIMESTAMP_X=now()")." WHERE ID=".$ID;
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 
 			$existFields['PROPERTY_VALUES'] = (
 				!empty($arFields['PROPERTY_VALUES'])
@@ -1455,10 +1669,13 @@ class CIBlockElement extends CAllIBlockElement
 			if (!$this->searchIncluded)
 			{
 				if (
-					$existFields['NAME']
-					|| $existFields['PREVIEW_TEXT']
-					|| $existFields['DETAIL_TEXT']
-					|| $existFields['PROPERTY_VALUES']
+					!array_key_exists('SEARCHABLE_CONTENT', $arFields)
+					&& (
+						$existFields['NAME']
+						|| $existFields['PREVIEW_TEXT']
+						|| $existFields['DETAIL_TEXT']
+						|| $existFields['PROPERTY_VALUES']
+					)
 				)
 				{
 					$elementFields = $arFields;
@@ -2597,32 +2814,7 @@ class CIBlockElement extends CAllIBlockElement
 			WHERE 1=1 ".$element->sWhere."
 		";
 
-		return $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-	}
-
-	/**
-	 * @param mixed $order
-	 * @return string
-	 */
-	protected function getIdOrder($order): string
-	{
-		if (is_array($order))
-		{
-			Main\Type\Collection::normalizeArrayValuesByInt($order, false);
-			if (!empty($order))
-			{
-				$connection = Main\Application::getConnection();
-				$helper = $connection->getSqlHelper();
-
-				return $helper->getOrderByIntField('BE.ID', $order, false);
-			}
-			else
-			{
-				return parent::getIdOrder('');
-			}
-		}
-
-		return parent::getIdOrder($order);
+		return $DB->Query($strSql);
 	}
 
 	private static function getUserNameSql(string $tableAlias): string

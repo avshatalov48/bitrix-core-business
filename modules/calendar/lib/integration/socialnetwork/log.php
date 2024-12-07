@@ -51,7 +51,7 @@ class Log
 		$result = new EventResult(
 			EventResult::SUCCESS,
 			array(
-				'content' => intval($sourceId) > 0 ? \CCalendarEvent::getSearchIndexContent($sourceId) : "",
+				'content' => (int)$sourceId > 0 ? \CCalendarEvent::getSearchIndexContent($sourceId) : "",
 			),
 			'calendar'
 		);

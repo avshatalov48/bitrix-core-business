@@ -172,11 +172,7 @@ class CSecurityCloudMonitorRequest
 	 */
 	protected static function decodeResponse($response)
 	{
-		/** @global CMain $APPLICATION */
-		global $APPLICATION;
 		$result = json_decode($response, true);
-		if(!defined("BX_UTF"))
-			$result = $APPLICATION->ConvertCharsetArray($result, "UTF-8", LANG_CHARSET);
 
 		return $result;
 	}

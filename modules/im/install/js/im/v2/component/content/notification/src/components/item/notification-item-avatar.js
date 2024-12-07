@@ -1,24 +1,27 @@
-import {Avatar} from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
+
 import '../../css/notification-item-avatar.css';
-import type {ImModelUser} from 'im.v2.model';
+
+import type { ImModelUser } from 'im.v2.model';
 
 // @vue/component
 export const NotificationItemAvatar = {
 	name: 'NotificationItemAvatar',
-	components: {Avatar},
+	components: { ChatAvatar },
 	props: {
 		userId: {
 			type: Number,
-			required: true
-		}
+			required: true,
+		},
 	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		isSystem(): boolean
 		{
 			return this.userId === 0;
 		},
-		dialogId(): string
+		userDialogId(): string
 		{
 			return this.userId.toString();
 		},
@@ -30,12 +33,16 @@ export const NotificationItemAvatar = {
 	},
 	template: `
 		<div class="bx-im-content-notification-item-avatar__container">
-			<template v-if="isSystem || !user">
-				<div class="bx-im-content-notification-item-avatar__system-icon"></div>
-			</template>
-			<template v-else>
-				<Avatar :dialogId="dialogId" size="L" />
-			</template>
+			<div 
+				v-if="isSystem || !user"
+				class="bx-im-content-notification-item-avatar__system-icon"
+			></div>
+			<ChatAvatar 
+				v-else 
+				:avatarDialogId="userDialogId" 
+				:contextDialogId="userDialogId" 
+				:size="AvatarSize.L" 
+			/>
 		</div>
-	`
+	`,
 };

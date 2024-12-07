@@ -2,15 +2,21 @@
 
 namespace Bitrix\Im\V2;
 
+use Bitrix\Im\V2\Chat\Copilot\CopilotPopupItem;
+use Bitrix\Im\V2\Chat\ChannelChat;
+use Bitrix\Im\V2\Chat\Comment\CommentPopupItem;
 use Bitrix\Im\V2\Entity\File\FilePopupItem;
 use Bitrix\Im\V2\Entity\Url\UrlCollection;
 use Bitrix\Im\V2\Entity\User\UserPopupItem;
-use Bitrix\Im\V2\Link\Reminder\ReminderPopupItem;
+use Bitrix\Im\V2\Integration\AI\RoleManager;
 use Bitrix\Im\V2\Message\AdditionalMessagePopupItem;
 use Bitrix\Im\V2\Message\Reaction\ReactionMessages;
 use Bitrix\Im\V2\Message\Reaction\ReactionPopupItem;
 use Bitrix\Im\V2\Message\ReadService;
-use Bitrix\Im\V2\Message\ViewedService;
+use Bitrix\Im\V2\TariffLimit\DateFilterable;
+use Bitrix\Im\V2\TariffLimit\FilterResult;
+use Bitrix\Imbot\Bot\CopilotChatBot;
+use Bitrix\Main\Loader;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Im\Model\MessageTable;
@@ -23,15 +29,15 @@ use Bitrix\Im\V2\Rest\PopupData;
 use Bitrix\Im\V2\Rest\PopupDataAggregatable;
 use Bitrix\Im\V2\Rest\RestConvertible;
 use Bitrix\Im\V2\Service\Context;
-use Bitrix\Im\V2\Service\Locator;
 use Bitrix\Im\V2\Message\Params;
+use Bitrix\Main\Type\DateTime;
 
 /**
- * @implements \IteratorAggregate<int,Message>
+ * @extends Collection<Message>
  * @method self filter(callable $predicate)
  * @method Message offsetGet($key)
  */
-class MessageCollection extends Collection implements RestConvertible, PopupDataAggregatable
+class MessageCollection extends Collection implements RestConvertible, PopupDataAggregatable, DateFilterable
 {
 	use ContextCustomer;
 
@@ -135,13 +141,20 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		return $id;
 	}
 
+	public function getCommonChat(): ?Chat
+	{
+		$chatId = $this->getCommonChatId();
+
+		return $chatId ? Chat::getInstance($chatId) : null;
+	}
+
 	//endregion
 
 	//region Rest
 
 	public function toRestFormat(array $option = []): array
 	{
-		$this->fillAllForRest();
+		$this->fillAllForRest($option['MESSAGE_SHORT_INFO'] ?? false, $option['MESSAGE_ONLY_COMMON_FIELDS'] ?? false);
 
 		$messagesForRest = [];
 
@@ -156,6 +169,22 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	public static function getRestEntityName(): string
 	{
 		return 'messages';
+	}
+
+	/**
+	 * @param DateTime $date
+	 * @return FilterResult<static>
+	 */
+	public function filterByDate(DateTime $date): FilterResult
+	{
+		$filtered = $this->filter(static fn (Message $message) => $message->getDateCreate()?->getTimestamp() > $date->getTimestamp());
+
+		return (new FilterResult())->setResult($filtered)->setFiltered($this->count() !== $filtered->count());
+	}
+
+	public function getRelatedChatId(): ?int
+	{
+		return $this->getCommonChatId();
 	}
 
 	//endregion
@@ -210,6 +239,11 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		$messageIds = $this->getIds();
 		if (!$this->isParamsFilled && !empty($messageIds))
 		{
+			foreach ($this as $message)
+			{
+				$message->getParams(true)->load([]);
+			}
+
 			$paramsCollection = MessageParamTable::query()
 				->setSelect(['*'])
 				->whereIn('MESSAGE_ID', $this->getIds())
@@ -377,15 +411,21 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	/**
 	 * @return self
 	 */
-	public function fillAllForRest(): self
+	public function fillAllForRest(bool $shortInfo = false, bool $onlyCommonInfo = false): self
 	{
+		if (!$shortInfo)
+		{
+			$this->fillUrls()->fillReactions();
+		}
+
+		if (!$onlyCommonInfo)
+		{
+			$this->fillUnread()->fillViewed();
+		}
+
 		return $this
 			->fillParams()
-			->fillUrls()
 			->fillUuid()
-			->fillUnread()
-			->fillViewed()
-			->fillReactions()
 		;
 	}
 
@@ -485,6 +525,7 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 	public function getReactions(): ReactionMessages
 	{
 		$reactions = new ReactionMessages([]);
+		$this->fillReactions();
 
 		foreach ($this as $message)
 		{
@@ -494,17 +535,69 @@ class MessageCollection extends Collection implements RestConvertible, PopupData
 		return $reactions;
 	}
 
+	protected function getCopilotRoles(): array
+	{
+		$this->fillParams();
+		$copilotRoles = [];
+
+		foreach ($this as $message)
+		{
+			$params = $message->getParams();
+
+			if ($params->isSet(Params::COPILOT_ROLE))
+			{
+				if ($params->isSet(Params::FORWARD_ID))
+				{
+					$messageId = (int)$params->get(Params::FORWARD_ID)->getValue();
+				}
+
+				$copilotRoles[$messageId ?? $message->getId()] = $params->get(Params::COPILOT_ROLE)->getValue();
+
+				continue;
+			}
+
+			if (!$params->isSet(Params::COMPONENT_ID))
+			{
+				continue;
+			}
+
+			$messageComponentId = $params->get(Params::COMPONENT_ID)->getValue();
+
+			if (
+				Loader::includeModule('imbot')
+				&& in_array($messageComponentId, CopilotChatBot::ALL_COPILOT_MESSAGE_COMPONENTS, true)
+			)
+			{
+				$copilotRoles[$message->getId()] = RoleManager::getDefaultRoleCode();
+			}
+		}
+
+		return $copilotRoles;
+	}
+
 	public function getPopupData(array $excludedList = []): PopupData
 	{
-		$this->fillAllForRest();
-
-		return (new PopupData([
+		$popup = [
 			new UserPopupItem($this->getUserIds()),
 			new FilePopupItem($this->getFiles()),
-			new ReminderPopupItem($this->getReminders()),
+			//new ReminderPopupItem($this->getReminders()),
 			new AdditionalMessagePopupItem($this->getReplayedMessageIds()),
-			new ReactionPopupItem($this->getReactions())
-		], $excludedList));
+			new CopilotPopupItem($this->getCopilotRoles(), CopilotPopupItem::ENTITIES['messageCollection']),
+		];
+
+		if (!in_array(ReactionPopupItem::class, $excludedList, true))
+		{
+			$popup[] = new ReactionPopupItem($this->getReactions());
+		}
+
+		$chat = $this->getAny()?->getChat();
+
+		if ($chat instanceof ChannelChat)
+		{
+			$popup[] = new CommentPopupItem($chat->getId(), $this->getIds());
+		}
+
+		return new PopupData($popup, $excludedList);
 	}
 
 	public function filterByChatId(int $chatId): self

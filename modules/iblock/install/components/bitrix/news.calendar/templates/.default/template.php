@@ -33,7 +33,7 @@ $this->setFrameMode(true);
 						<?endforeach?>
 					</select>
 					&nbsp;&nbsp;
-					<script language="JavaScript" type="text/javascript">
+					<script>
 					<!--
 					function b_result()
 					{

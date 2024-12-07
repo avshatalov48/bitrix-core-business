@@ -121,21 +121,18 @@ final class ShopSettings
 	{
 		$result = [];
 
-		if ($this->isOnlyCommonSettingsExists())
-		{
-			$businessValues = Sale\Internals\BusinessValueTable::getList([
-				'select' => ['CODE_KEY', 'PROVIDER_VALUE'],
-				'filter' => [
-					'@CODE_KEY' => self::getSettingsCoded(),
-					'=CONSUMER_KEY' => Sale\Internals\BusinessValueTable::COMMON_CONSUMER_KEY,
-					'=PERSON_TYPE_ID' => Sale\Internals\BusinessValueTable::COMMON_PERSON_TYPE_ID,
-				]
-			])->fetchAll();
+		$businessValues = Sale\Internals\BusinessValueTable::getList([
+			'select' => ['CODE_KEY', 'PROVIDER_VALUE'],
+			'filter' => [
+				'@CODE_KEY' => self::getSettingsCoded(),
+				'=CONSUMER_KEY' => Sale\Internals\BusinessValueTable::COMMON_CONSUMER_KEY,
+				'=PERSON_TYPE_ID' => Sale\Internals\BusinessValueTable::COMMON_PERSON_TYPE_ID,
+			]
+		])->fetchAll();
 
-			foreach ($businessValues as $businessValue)
-			{
-				$result[$businessValue['CODE_KEY']] = $businessValue['PROVIDER_VALUE'];
-			}
+		foreach ($businessValues as $businessValue)
+		{
+			$result[$businessValue['CODE_KEY']] = $businessValue['PROVIDER_VALUE'];
 		}
 
 		return $result;

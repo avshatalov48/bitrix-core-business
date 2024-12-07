@@ -10,7 +10,7 @@ function ImgShw(ID, width, height)
 	height = Math.min(height, screen.height-28);	
 	var wnd = window.open("","","scrollbars="+scroll+",resizable=yes,width="+width+",height="+height+",left="+left+",top="+top);
 	wnd.document.write("<html><head>\n");
-	wnd.document.write("<"+"script language='JavaScript'>\n");
+	wnd.document.write("<"+"script>\n");
 	wnd.document.write("<!--\n");
 	wnd.document.write("function KeyPress()\n");
 	wnd.document.write("{\n");

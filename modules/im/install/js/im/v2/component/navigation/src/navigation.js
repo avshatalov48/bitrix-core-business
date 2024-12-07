@@ -1,13 +1,16 @@
-import { Extension, Type } from 'main.core';
+import { Type } from 'main.core';
 import { hint } from 'ui.vue3.directives.hint';
 import { MessageBox, MessageBoxButtons } from 'ui.dialogs.messagebox';
+import { FeaturePromoter } from 'ui.info-helper';
 
 import { Logger } from 'im.v2.lib.logger';
 import { MessengerSlider } from 'im.v2.lib.slider';
 import { CallManager } from 'im.v2.lib.call';
-import { Layout } from 'im.v2.const';
+import { Layout, SliderCode } from 'im.v2.const';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
 import { PhoneManager } from 'im.v2.lib.phone';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
+import { Analytics } from 'im.v2.lib.analytics';
 
 import { UserSettings } from './components/user-settings';
 import { MarketApps } from './components/market-apps';
@@ -59,7 +62,13 @@ export const MessengerNavigation = {
 					id: Layout.copilot.name,
 					text: this.prepareNavigationText('IM_NAVIGATION_COPILOT'),
 					counter: this.formatCounter(this.$store.getters['counters/getTotalCopilotCounter']),
-					showCondition: this.isCopilotActive,
+					clickHandler: this.onCopilotClick,
+					showCondition: () => FeatureManager.isFeatureAvailable(Feature.copilotAvailable),
+					active: true,
+				},
+				{
+					id: Layout.channel.name,
+					text: this.prepareNavigationText('IM_NAVIGATION_CHANNELS'),
 					active: true,
 				},
 				{
@@ -76,7 +85,7 @@ export const MessengerNavigation = {
 				},
 				{
 					id: Layout.call.name,
-					text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
+					text: this.prepareNavigationText('IM_NAVIGATION_CALLS_V2'),
 					clickHandler: this.onCallClick,
 					showCondition: PhoneManager.getInstance().canCall.bind(PhoneManager.getInstance()),
 					active: true,
@@ -128,9 +137,9 @@ export const MessengerNavigation = {
 				return;
 			}
 
-			this.$emit('navigationClick', { layoutName: item.id, layoutEntityId: '' });
+			this.sendClickEvent({ layoutName: item.id });
 		},
-		onMarketMenuItemClick({ layoutName, layoutEntityId })
+		sendClickEvent({ layoutName, layoutEntityId = '' })
 		{
 			this.$emit('navigationClick', { layoutName, layoutEntityId });
 		},
@@ -255,15 +264,22 @@ export const MessengerNavigation = {
 		{
 			return Boolean(BX.Timeman?.Monitor?.isEnabled());
 		},
-		isCopilotActive(): boolean
-		{
-			const settings = Extension.getSettings('im.v2.component.navigation');
-
-			return settings.get('copilotActive');
-		},
 		async onTimeManagerClick()
 		{
 			BX.Timeman?.Monitor?.openReport();
+		},
+		onCopilotClick()
+		{
+			if (!FeatureManager.isFeatureAvailable(Feature.copilotActive))
+			{
+				const promoter = new FeaturePromoter({ code: SliderCode.copilotDisabled });
+				promoter.show();
+				Analytics.getInstance().onOpenCopilotTab({ isAvailable: false });
+
+				return;
+			}
+
+			this.sendClickEvent({ layoutName: Layout.copilot.name });
 		},
 		loc(phraseCode: string, replacements: {[string]: string} = {}): string
 		{
@@ -288,7 +304,7 @@ export const MessengerNavigation = {
 				</template>
 				<!-- Menu items -->
 				<template v-for="item in menuItems">
-					<MarketApps v-if="item.id === 'market'" @clickMarketItem="onMarketMenuItemClick"/>
+					<MarketApps v-if="item.id === 'market'" @clickMarketItem="sendClickEvent"/>
 					<div
 						v-else-if="needToShowMenuItem(item)"
 						:key="item.id"

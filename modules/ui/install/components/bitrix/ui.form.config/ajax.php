@@ -30,7 +30,7 @@ class UiFormConfigAjaxController extends \Bitrix\Main\Engine\Controller
 	{
 		if (
 			($scopeAccess = ScopeAccess::getInstance($moduleId))
-			&& $scopeAccess->canAdd()
+			&& $scopeAccess->canAddByEntityTypeId($entityTypeId)
 		)
 		{
 			$result = Scope::getInstance()

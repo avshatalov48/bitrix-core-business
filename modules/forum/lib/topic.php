@@ -464,20 +464,20 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 		global $USER_FIELD_MANAGER;
 
 		$forum = Forum\Forum::getInstance($parentObject);
-		$date = new Main\Type\DateTime($fields["START_DATE"] ?: $fields["POST_DATE"]);
+		$date = new Main\Type\DateTime($fields["START_DATE"] ?? $fields["POST_DATE"] ?? null);
 		$author = [
-			"ID" => $fields["USER_START_ID"] ?: $fields["AUTHOR_ID"],
-			"NAME" => $fields["USER_START_NAME"] ?: $fields["AUTHOR_NAME"]
+			"ID" => $fields["USER_START_ID"] ?? $fields["AUTHOR_ID"],
+			"NAME" => $fields["USER_START_NAME"] ?? $fields["AUTHOR_NAME"]
 		];
 
 		$topicData = [
 			"TITLE" => $fields["TITLE"],
-			"TITLE_SEO" => (array_key_exists("TITLE_SEO", $fields) ? $fields["TITLE_SEO"] : ""),
-			"TAGS" => $fields["TAGS"],
-			"DESCRIPTION" => $fields["DESCRIPTION"],
-			"ICON" => $fields["ICON"],
-			"STATE" => $fields["STATE"] ?: Topic::STATE_OPENED,
-			"APPROVED" => $fields["APPROVED"],
+			"TITLE_SEO" => $fields["TITLE_SEO"] ?? '',
+			"TAGS" => $fields["TAGS"] ?? '',
+			"DESCRIPTION" => $fields["DESCRIPTION"] ?? '',
+			"ICON" => $fields["ICON"] ?? '',
+			"STATE" => $fields["STATE"] ?? Topic::STATE_OPENED,
+			"APPROVED" => $fields["APPROVED"] ?? 'Y',
 
 			"POSTS" => 0,
 			"POSTS_SERVICE" => 0,
@@ -497,10 +497,10 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 			"ABS_LAST_POST_DATE" => $date,
 			"ABS_LAST_MESSAGE_ID" => 0,
 
-			"XML_ID" => $fields["TOPIC_XML_ID"],
+			"XML_ID" => $fields["TOPIC_XML_ID"] ?? '',
 
-			"OWNER_ID" => $fields["OWNER_ID"] ?: null,
-			"SOCNET_GROUP_ID" => $fields["SOCNET_GROUP_ID"] ?: null
+			"OWNER_ID" => $fields["OWNER_ID"] ?? null,
+			"SOCNET_GROUP_ID" => $fields["SOCNET_GROUP_ID"] ?? null
 		];
 		$result = Topic::add($forum, $topicData);
 		if ($result->isSuccess())
@@ -509,19 +509,19 @@ class Topic extends \Bitrix\Forum\Internals\Entity
 				"NEW_TOPIC" => "Y",
 				"APPROVED" => $topicData["APPROVED"],
 
-				"USE_SMILES" => $fields["USE_SMILES"],
+				"USE_SMILES" => $fields["USE_SMILES"] ?? 'Y',
 				"POST_DATE" => $date,
 				"POST_MESSAGE" => $fields["POST_MESSAGE"],
 
-				"ATTACH_IMG" => $fields["ATTACH_IMG"],
-				"FILES" => $fields["FILES"],
+				"ATTACH_IMG" => $fields["ATTACH_IMG"] ?? null,
+				"FILES" => $fields["FILES"] ?? null,
 
-				"PARAM1" => $fields["PARAM1"],
-				"PARAM2" => $fields["PARAM2"],
+				"PARAM1" => $fields["PARAM1"] ?? null,
+				"PARAM2" => $fields["PARAM2"] ?? null,
 
 				"AUTHOR_ID" => $author["ID"],
 				"AUTHOR_NAME" => $author["NAME"],
-				"AUTHOR_EMAIL" => $fields["AUTHOR_EMAIL"],
+				"AUTHOR_EMAIL" => $fields["AUTHOR_EMAIL"] ?? '',
 
 				"AUTHOR_IP" => $fields["AUTHOR_IP"] ?? null,
 				"AUTHOR_REAL_IP" =>  $fields["AUTHOR_REAL_IP"] ?? null,

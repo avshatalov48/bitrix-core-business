@@ -19,7 +19,7 @@
 <?$APPLICATION->ShowHeadScripts();?>
 <?$APPLICATION->ShowHeadStrings();?>
 
-<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH."/js/imgshw.js"?>"></script>
+<script src="<?=SITE_TEMPLATE_PATH."/js/imgshw.js"?>"></script>
 </head>
 
 <?

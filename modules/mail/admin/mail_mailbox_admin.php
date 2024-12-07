@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2004 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -19,8 +19,8 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 
 
 $sTableID = "t_mailbox_admin";
-$oSort = new CAdminSorting($sTableID, "timestamp_x", "desc");// инициализация сортировки
-$lAdmin = new CAdminList($sTableID, $oSort);// инициализация списка
+$oSort = new CAdminSorting($sTableID, "timestamp_x", "desc");// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
+$lAdmin = new CAdminList($sTableID, $oSort);// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 
 
 $filter = new CAdminFilter(
@@ -52,7 +52,7 @@ if ($lAdmin->IsDefaultFilter())
 	$set_filter = 'Y';
 }
 
-$lAdmin->InitFilter($arFilterFields);//инициализация фильтра
+$lAdmin->InitFilter($arFilterFields);//РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С„РёР»СЊС‚СЂР°
 
 
 $arFilter = array(
@@ -69,7 +69,7 @@ else if ($find_user_type == 'admin')
 	$arFilter['USER_ID'] = 0;
 
 
-if ($MOD_RIGHT=="W" && $lAdmin->EditAction()) //если идет сохранение со списка
+if ($MOD_RIGHT=="W" && $lAdmin->EditAction()) //РµСЃР»Рё РёРґРµС‚ СЃРѕС…СЂР°РЅРµРЅРёРµ СЃРѕ СЃРїРёСЃРєР°
 {
 	foreach($FIELDS as $ID => $arFields)
 	{
@@ -93,7 +93,7 @@ if ($MOD_RIGHT=="W" && $lAdmin->EditAction()) //если идет сохранение со списка
 }
 
 
-// обработка действий групповых и одиночных
+// РѕР±СЂР°Р±РѕС‚РєР° РґРµР№СЃС‚РІРёР№ РіСЂСѓРїРїРѕРІС‹С… Рё РѕРґРёРЅРѕС‡РЅС‹С…
 if($MOD_RIGHT=="W" && $arID = $lAdmin->GroupAction())
 {
 	if($_REQUEST['action_target']=='selected')
@@ -141,7 +141,7 @@ $rsData = CMailbox::GetList(Array($by=>$order), $arFilter);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
-// установка строки навигации
+// СѓСЃС‚Р°РЅРѕРІРєР° СЃС‚СЂРѕРєРё РЅР°РІРёРіР°С†РёРё
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("MAIL_MBOX_ADM_NAVIGATION")));
 
 
@@ -157,7 +157,7 @@ $arHeaders[] = Array("id"=>"ID", "content"=>"ID", "default"=>true, "sort" => "id
 
 $lAdmin->AddHeaders($arHeaders);
 
-// построение списка
+// РїРѕСЃС‚СЂРѕРµРЅРёРµ СЃРїРёСЃРєР°
 while($arRes = $rsData->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_ID, $arRes);
@@ -231,7 +231,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 }
 
-// "подвал" списка
+// "РїРѕРґРІР°Р»" СЃРїРёСЃРєР°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
@@ -241,7 +241,7 @@ $lAdmin->AddFooter(
 
 if ($MOD_RIGHT=="W")
 {
-	// показ добавление формы с кнопками
+	// РїРѕРєР°Р· РґРѕР±Р°РІР»РµРЅРёРµ С„РѕСЂРјС‹ СЃ РєРЅРѕРїРєР°РјРё
 	$lAdmin->AddGroupActionTable(Array(
 		"activate"=>GetMessage("MAIN_ADMIN_LIST_ACTIVATE"),
 		"deactivate"=>GetMessage("MAIN_ADMIN_LIST_DEACTIVATE"),

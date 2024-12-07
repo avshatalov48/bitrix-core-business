@@ -72,7 +72,7 @@ class CForumEMail
 			if(is_set($arFields["EMAIL_FORUM_ACTIVE"])  && $arFields["EMAIL_FORUM_ACTIVE"]!="Y")
 			{
 				$strSql = "DELETE FROM b_forum_email WHERE ID=".$ID;
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 
 			if(is_set($arFields["MAIL_FILTER_ID"]) && intval($arFields["MAIL_FILTER_ID"])<=0)
@@ -94,7 +94,7 @@ class CForumEMail
 					$strUpdate." ".
 				"WHERE ID=".$ID;
 
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		elseif(!is_set($arFields["EMAIL_FORUM_ACTIVE"]) || $arFields["EMAIL_FORUM_ACTIVE"]=="Y")
 		{

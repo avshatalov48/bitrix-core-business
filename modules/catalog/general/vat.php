@@ -7,14 +7,6 @@ use Bitrix\Catalog;
 class CAllCatalogVat
 {
 	/**
-	 * @deprecated deprecated since catalog 12.5.6
-	 */
-	public static function err_mess(): string
-	{
-		return "<br>Module: catalog<br>Class: CCatalogVat<br>File: ".__FILE__;
-	}
-
-	/**
 	 * @deprecated
 	 *
 	 * @param $ACTION

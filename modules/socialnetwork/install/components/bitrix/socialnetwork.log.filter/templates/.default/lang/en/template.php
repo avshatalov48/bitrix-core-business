@@ -1,14 +1,17 @@
 <?php
 $MESS["SONET_C30_EXPERT_MODE_HINT"] = "\"Hide tasks\" mode is now enabled. Your tasks will not be visible in Activity Stream; rather, you will access them in the Tasks section directly. You will still receive task notifications in the instant messenger.";
 $MESS["SONET_C30_EXPERT_MODE_HINTA"] = "Hide tasks mode is now on. Your tasks will not be visible in the Feed; rather, you will access them in the Tasks menu directly. You will receive task notifications in the chat as before.";
+$MESS["SONET_C30_EXPERT_MODE_HINTB"] = "Hide Tasks mode is now on. Your tasks will not show in Feed; rather, you will access them in the Tasks menu directly. You will receive task notifications in the chat as before.";
 $MESS["SONET_C30_EXTRANET_ROOT"] = "Extranet";
 $MESS["SONET_C30_F_DIALOG_CLOSE_BUTTON"] = "Close";
 $MESS["SONET_C30_F_DIALOG_READ_BUTTON"] = "Mark as read";
 $MESS["SONET_C30_F_EXPERT_MODE_IMAGENAME"] = "en";
 $MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT1"] = "We have enabled Hide tasks mode for you because you use tasks frequently.<br/>Your tasks will not be visible in Activity Stream; rather, you will access them in the Tasks section directly.";
 $MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT1A"] = "We have enabled Hide tasks mode for you because you use tasks quite frequently.<br/>Tasks will not show in the Feed from now on; you can access them from the Tasks area instead.";
+$MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT1B"] = "We have enabled Hide Tasks mode for you because you use tasks quite frequently.<br/>Tasks will not show in Feed from now on; you can access them from the Tasks menu instead.";
 $MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT2"] = "You can always disable it in Activity Stream.";
 $MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT2A"] = "You can always disable it in the Feed.";
+$MESS["SONET_C30_F_EXPERT_MODE_POPUP_TEXT2B"] = "You can always disable this mode in Feed.";
 $MESS["SONET_C30_F_EXPERT_MODE_POPUP_TITLE"] = "Hide tasks mode";
 $MESS["SONET_C30_F_VIDEO_TRANSFORMATION_POPUP_TEXT"] = "We are now converting your video to make it available on all devices. The #A_START#message#A_END# is only visible to you while the conversion is under way.";
 $MESS["SONET_C30_F_VIDEO_TRANSFORMATION_POPUP_TITLE"] = "Video converter";

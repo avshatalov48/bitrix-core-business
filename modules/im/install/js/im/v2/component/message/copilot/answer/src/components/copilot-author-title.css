@@ -1,8 +1,0 @@
-.bx-im-message-copilot-author-title__container {
-	align-self: flex-start;
-	user-select: none;
-}
-
-.bx-im-message-copilot-author-title__container.--clickable {
-	cursor: pointer;
-}

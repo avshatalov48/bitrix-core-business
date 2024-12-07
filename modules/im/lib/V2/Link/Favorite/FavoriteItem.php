@@ -140,7 +140,7 @@ class FavoriteItem extends BaseLinkItem
 		$data = new PopupData([
 			new Entity\User\UserPopupItem(),
 			new Entity\File\FilePopupItem(),
-			new ReminderPopupItem()
+			//new ReminderPopupItem()
 		], $excludedList);
 
 		return $data->merge(parent::getPopupData($excludedList));

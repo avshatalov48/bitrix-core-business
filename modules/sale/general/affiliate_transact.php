@@ -81,7 +81,7 @@ class CAllSaleAffiliateTransact
 			"FROM b_sale_affiliate_transact AT ".
 			"WHERE AT.ID = ".$ID." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 
@@ -131,7 +131,7 @@ class CAllSaleAffiliateTransact
 		}
 
 		$strSql = "UPDATE b_sale_affiliate_transact SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}

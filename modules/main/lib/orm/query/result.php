@@ -10,7 +10,7 @@ namespace Bitrix\Main\ORM\Query;
 
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\ArrayResult;
-use \Bitrix\Main\DB\Result as BaseResult;
+use Bitrix\Main\DB\Result as BaseResult;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Main\ORM\Fields\Field;
@@ -296,7 +296,7 @@ class Result extends BaseResult
 
 									foreach ($this->query->getFilterChains() as $chain)
 									{
-										if (strpos($chain->getDefinition(), $currentDefinition) === 0)
+										if (str_starts_with($chain->getDefinition(), $currentDefinition))
 										{
 											$noRelationInFilter = false;
 											break;

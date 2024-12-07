@@ -2,19 +2,35 @@
 
 namespace Bitrix\Main\Mail;
 
-use Bitrix\Mail\Internals\UserSignatureTable;
 use Bitrix\Main;
+use Bitrix\Main\Error;
 use Bitrix\Main\Engine\CurrentUser;
-use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Data\UpdateResult;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\SenderTable;
 use Bitrix\Main\Event;
+use Bitrix\Main\Mail\Sender\UserSenderDataProvider;
 
 class Sender
 {
 	public const MAIN_SENDER_SMTP_LIMIT_DECREASE = 'MainSenderSmtpLimitDecrease';
+	private const MAIN_SENDER_SMTP_SERVER_PATTERN = '/^([a-z0-9-]+\.)+[a-z0-9-]{2,20}$/i';
 
 	public static function add(array $fields)
 	{
+		$fields['NAME'] = $fields['NAME'] ?? '';
+		if (
+			$fields['NAME'] !== ''
+			&& $fields['NAME'] !== Sender\UserSenderDataProvider::getUserFormattedName()
+		)
+		{
+			$checkResult = self::checkSenderNameCharacters($fields['NAME']);
+			if (!$checkResult->isSuccess())
+			return [
+				'errors' => $checkResult->getErrorCollection(),
+			];
+		}
+
 		if (empty($fields['OPTIONS']) || !is_array($fields['OPTIONS']))
 		{
 			$fields['OPTIONS'] = array();
@@ -44,7 +60,7 @@ class Sender
 			$mailEventFields = array(
 				'DEFAULT_EMAIL_FROM' => $fields['EMAIL'],
 				'EMAIL_TO' => $fields['EMAIL'],
-				'MESSAGE_SUBJECT' => getMessage('MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'),
+				'MESSAGE_SUBJECT' => Loc::getMessage('MAIN_MAIL_CONFIRM_MESSAGE_SUBJECT'),
 				'CONFIRM_CODE' => mb_strtoupper($fields['OPTIONS']['confirm_code']),
 			);
 
@@ -73,6 +89,93 @@ class Sender
 		}
 
 		return ['senderId' => $senderId, 'confirmed' => !empty($fields['IS_CONFIRMED'])];
+	}
+
+	public static function updateSender(int $senderId, array $fields, bool $checkSenderAccess = true): UpdateResult
+	{
+		$updateFields = [];
+		$result = new UpdateResult();
+
+		if ($checkSenderAccess)
+		{
+			$checkResult = self::canEditSender($senderId);
+			if (!$checkResult->isSuccess())
+			{
+				$result->addErrors($checkResult->getErrors());
+
+				return $result;
+			}
+		}
+
+		$sender = Internal\SenderTable::getById($senderId)->fetch();
+
+		if (!empty($fields['EMAIL']) && $fields['EMAIL'] !== $sender['EMAIL'])
+		{
+			$updateFields['EMAIL'] = (string)$fields['EMAIL'];
+		}
+
+		if (!empty($fields['IS_PUBLIC']) && $fields['IS_PUBLIC'] !== $sender['IS_PUBLIC'])
+		{
+			$updateFields['IS_PUBLIC'] = (int)$fields['IS_PUBLIC'] === 1 ? 1 : 0;
+		}
+
+		if (!empty($fields['OPTIONS']['smtp']) && empty($fields['OPTIONS']['smtp']['password']))
+		{
+			$fields['OPTIONS']['smtp']['password'] = $sender['OPTIONS']['smtp']['password'];
+		}
+		if (
+			!empty($fields['OPTIONS']['smtp'])
+			&& $fields['OPTIONS']['smtp'] !== $sender['OPTIONS']['smtp']
+		)
+		{
+			$smtp = $fields['OPTIONS']['smtp'];
+			$checkResult = self::prepareSmtpConfigForSender($smtp);
+			if (!$checkResult->isSuccess())
+			{
+				$result->addErrors($checkResult->getErrors());
+
+				return $result;
+			}
+			$sender['OPTIONS']['smtp'] = $smtp;
+			$updateFields['OPTIONS'] = $sender['OPTIONS'];
+		}
+
+		if (
+			!is_null($fields['NAME'])
+			&& $fields['NAME'] !== $sender['NAME']
+		)
+		{
+			$name = (string)$fields['NAME'];
+			$checkResult = self::checkSenderNameCharacters($name);
+			if (!$checkResult->isSuccess())
+			{
+				$result->addErrors($checkResult->getErrors());
+
+				return $result;
+			}
+
+			if ($sender['PARENT_MODULE_ID'] === 'mail' && Main\Loader::includeModule('mail'))
+			{
+				$result = \Bitrix\Mail\MailboxTable::update($sender['PARENT_ID'], ['USERNAME' => $name]);
+				if (!$result->isSuccess())
+				{
+					return $result;
+				}
+			}
+			$updateFields['NAME'] = $name;
+		}
+
+		if (!empty($updateFields))
+		{
+			$result = Internal\SenderTable::update($senderId, $updateFields);
+
+			if (!empty($updateFields['OPTIONS']['smtp']['limit']))
+			{
+				self::setEmailLimit($sender['EMAIL'], $updateFields['OPTIONS']['smtp']['limit']);
+			}
+		}
+
+		return $result;
 	}
 
 	/**
@@ -136,98 +239,77 @@ class Sender
 		}
 	}
 
-	public static function delete($ids)
+	public static function deleteSenderByMailboxId(int $mailboxId): void
 	{
-		$userId = CurrentUser::get()->getId();
-
-		if(!is_array($ids))
-		{
-			$ids = [$ids];
-		}
-		if(empty($ids))
+		if(!Main\Loader::includeModule('mail'))
 		{
 			return;
 		}
-		$smtpConfigs = [];
 
-		$senders = SenderTable::getList([
-			'order' => [
-				'ID' => 'desc',
-			],
+		$sender = Internal\SenderTable::getList([
 			'filter' => [
-				'=USER_ID' => $userId,
-				'@ID' => $ids,
-				'IS_CONFIRMED' => true]
-			]
-		)->fetchAll();
+				'=PARENT_MODULE_ID' => 'mail',
+				'=PARENT_ID' => $mailboxId,
+			],
+		])->fetch();
 
-		$userFormattedName = CurrentUser::get()->getFormattedName();
-		foreach ($senders as $sender)
+		if ($sender)
 		{
-			if (Loader::includeModule('mail') && $userId)
-			{
-				$senderName = sprintf(
-					'%s <%s>',
-					empty($sender['NAME']) ? $userFormattedName : $sender['NAME'],
-					$sender['EMAIL'],
-				);
+			self::delete([(int)$sender['ID']]);
+		}
+	}
 
-				$signatures = UserSignatureTable::getList([
-					'select' => ['ID'],
+	public static function delete(array $sendersId): void
+	{
+		foreach ($sendersId as $senderId)
+		{
+			$id = (int)$senderId;
+			$currentSender = Internal\SenderTable::getById($id)->fetch();
+
+			if (!$currentSender)
+			{
+				continue;
+			}
+
+			$result = Internal\SenderTable::delete($id);
+			if (!$result->isSuccess())
+			{
+				continue;
+			}
+
+			$aliasesForPossibleDeletion = [];
+			if (!empty($currentSender['OPTIONS']['smtp']['server']) && empty(self::getPublicSmtpSenderByEmail($currentSender['EMAIL'], $id)) && $currentSender['USER_ID'])
+			{
+				$res = \Bitrix\Main\Mail\Internal\SenderTable::getList([
 					'filter' => [
-						'=USER_ID' => $userId,
-						'SENDER' => $senderName
+						'=EMAIL' => $currentSender['EMAIL'],
+						'=USER_ID' => $currentSender['USER_ID'],
 					],
-				])->fetchAll();
+				]);
 
-				foreach ($signatures as $signature)
+				while ($sender = $res->fetch())
 				{
-					UserSignatureTable::delete($signature['ID']);
+					$aliasesForPossibleDeletion[$sender['USER_ID']][] = $sender;
 				}
 			}
 
-			if(!empty($sender['OPTIONS']['smtp']['server']) && empty($sender['OPTIONS']['smtp']['encrypted']) && !isset($smtpConfigs[$sender['EMAIL']]))
+			if (!$aliasesForPossibleDeletion)
 			{
-				$smtpConfigs[$sender['EMAIL']] = $sender['OPTIONS']['smtp'];
+				continue;
 			}
-		}
-		if(!empty($smtpConfigs))
-		{
-			$senders = SenderTable::getList([
-				'order' => [
-					'ID' => 'desc',
-				],
-				'filter' => [
-					'@EMAIL' => array_keys($smtpConfigs),
-					'!ID' => $ids
-				]
-			])->fetchAll();
-			foreach($senders as $sender)
+
+			foreach ($aliasesForPossibleDeletion as $userId => $aliases)
 			{
-				if(isset($smtpConfigs[$sender['EMAIL']]))
+				if (self::hasUserAvailableSmtpSenderByEmail($currentSender['EMAIL'], $userId, true))
 				{
-					$options = $sender['OPTIONS'];
-					$options['smtp'] = $smtpConfigs[$sender['EMAIL']];
-					$result = SenderTable::update($sender['ID'], [
-						'OPTIONS' => $options,
-					]);
-					if($result->isSuccess())
-					{
-						unset($smtpConfigs[$sender['EMAIL']]);
-						static::clearCustomSmtpCache($sender['EMAIL']);
-					}
-					if(empty($smtpConfigs))
-					{
-						break;
-					}
+					continue;
+				}
+
+				foreach ($aliases as $alias)
+				{
+					SenderTable::delete($alias['ID']);
 				}
 			}
-		}
-		foreach ((array) $ids as $id)
-		{
-			Internal\SenderTable::delete(
-				(int) $id
-			);
 		}
 	}
 
@@ -286,12 +368,7 @@ class Sender
 					'password' => $config['password'],
 					'isOauth' => $config['isOauth'],
 				));
-				if ($config->getIsOauth() && \CModule::includeModule('mail'))
-				{
-					$expireGapSeconds = self::getOAuthTokenExpireGapSeconds();
-					$token = \Bitrix\Mail\Helper\OAuth::getTokenByMeta($config->getPassword(), $expireGapSeconds);
-					$config->setPassword($token);
-				}
+				(new Main\Mail\Smtp\OAuthConfigPreparer())->prepareBeforeSendIfNeed($config);
 			}
 
 			$smtp[$email] = $config;
@@ -517,126 +594,249 @@ class Sender
 			return array();
 		}
 
-		if (array_key_exists($userId, $mailboxes))
-		{
-			return $mailboxes[$userId];
-		}
-
-		$mailboxes[$userId] = array();
-
-		if (is_object($USER) && $USER->isAuthorized() && $USER->getId() == $userId)
-		{
-			$userData = array(
-				'ID' => $USER->getId(),
-				'TITLE' => $USER->getParam("TITLE"),
-				'NAME' => $USER->getFirstName(),
-				'SECOND_NAME' => $USER->getSecondName(),
-				'LAST_NAME' => $USER->getLastName(),
-				'LOGIN' => $USER->getLogin(),
-				'EMAIL' => $USER->getEmail(),
-			);
-
-			$isAdmin = in_array(1, $USER->getUserGroupArray());
-		}
-		else
-		{
-			$userData = Main\UserTable::getList(array(
-				'select' => array('ID', 'TITLE', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'LOGIN', 'EMAIL'),
-				'filter' => array('=ID' => $userId),
-			))->fetch();
-
-			$isAdmin = in_array(1, \CUser::getUserGroup($userId));
-		}
-
-		$userNameFormated = \CUser::formatName(\CSite::getNameFormat(), $userData, true, false);
-
-		if (\CModule::includeModule('mail'))
-		{
-			foreach (\Bitrix\Mail\MailboxTable::getUserMailboxes($userId) as $mailbox)
-			{
-				if (!empty($mailbox['EMAIL']))
-				{
-					$mailboxName = trim($mailbox['USERNAME']) ?: trim($mailbox['OPTIONS']['name']) ?: $userNameFormated;
-
-					$key = hash('crc32b', mb_strtolower($mailboxName).$mailbox['EMAIL']);
-					$mailboxes[$userId][$key] = array(
-						'name'  => $mailboxName,
-						'email' => $mailbox['EMAIL'],
-						'showEditHint' => true,
-					);
-				}
-			}
-		}
-
-		// @TODO: query
-		$crmAddress = new Address(Main\Config\Option::get('crm', 'mail', ''));
-		if ($crmAddress->validate())
-		{
-			$key = hash('crc32b', mb_strtolower($userNameFormated).$crmAddress->getEmail());
-
-			$mailboxes[$userId][$key] = [
-				'name'  => $crmAddress->getName() ?: $userNameFormated,
-				'email' => $crmAddress->getEmail(),
-			];
-		}
-
-		$res = SenderTable::getList(array(
-			'filter' => array(
-				'IS_CONFIRMED' => true,
-				array(
-					'LOGIC' => 'OR',
-					'=USER_ID' => $userId,
-					'IS_PUBLIC' => true,
-				),
-			),
-			'order' => array(
-				'ID' => 'ASC',
-			),
-		));
-		while ($item = $res->fetch())
-		{
-			$item['NAME']  = trim($item['NAME']) ?: $userNameFormated;
-			$item['EMAIL'] = mb_strtolower($item['EMAIL']);
-			$key = hash('crc32b', mb_strtolower($item['NAME']).$item['EMAIL']);
-
-			if (!isset($mailboxes[$userId][$key]))
-			{
-				$mailboxes[$userId][$key] = [
-					'id' => $item['ID'],
-					'name' => $item['NAME'],
-					'email' => $item['EMAIL'],
-					'can_delete' => $userId == $item['USER_ID'] || $item['IS_PUBLIC'] && $isAdmin,
-				];
-			}
-			else if (!isset($mailboxes[$userId][$key]['id']))
-			{
-				$mailboxes[$userId][$key]['id'] =  $item['ID'];
-				$mailboxes[$userId][$key]['can_delete'] =  $userId == $item['USER_ID'] || $item['IS_PUBLIC'] && $isAdmin;
-			}
-		}
-
-		foreach ($mailboxes[$userId] as $key => $item)
-		{
-			$mailboxes[$userId][$key]['formated'] = sprintf(
-				$item['name'] ? '%s <%s>' : '%s%s',
-				$item['name'], $item['email']
-			);
-
-			$mailboxes[$userId][$key]['userId'] = $userId;
-		}
-
-		$mailboxes[$userId] = array_values($mailboxes[$userId]);
-
-		return $mailboxes[$userId];
+		return UserSenderDataProvider::getUserAvailableSenders($userId);
 	}
 
-	private static function getOAuthTokenExpireGapSeconds(): int
+	public static function prepareSmtpConfigForSender(array &$smtp): Main\Result
 	{
-		// we use 55 minutes because providers give tokens for 1 hour or more,
-		// 5 minutes is left for not refresh token too frequent, for mass send
-		$default = isModuleInstalled('bitrix24') ? 55 * 60 : 10;
+		$result = new Main\Result();
 
-		return (int)Main\Config\Option::get('main', '~oauth_token_expire_gap_seconds', $default);
+		if (!empty($smtp['limit']))
+		{
+			$limit = (int)$smtp['limit'];
+			$limit = max($limit, 0);
+		}
+
+		$smtp['protocol'] = self::isSmtpsConfigured($smtp) ? 'smtps' : 'smtp';
+
+		$smtp = [
+			'server' => mb_strtolower(trim($smtp['server'] ?? '')),
+			'port' => (int)($smtp['port'] ?? 0),
+			'protocol' => $smtp['protocol'],
+			'login' => $smtp['login'] ?? '',
+			'password' => $smtp['password'] ?? '',
+			'isOauth' => (bool)$smtp['isOauth'] ?? false,
+			'limit' => $limit ?? null,
+		];
+
+		if (!preg_match(self::MAIN_SENDER_SMTP_SERVER_PATTERN, $smtp['server']))
+		{
+			$message = Loc::getMessage(
+				empty($smtp['server'])
+					? 'MAIN_SENDER_EMPTY_SMTP_SERVER'
+					: 'MAIN_SENDER_INVALID_SMTP_SERVER'
+			);
+
+			return $result->addError(new Error($message));
+		}
+
+		if (!preg_match('/^[0-9]+$/i', $smtp['port']) || $smtp['port'] < 1 || $smtp['port'] > 65535)
+		{
+			$errorMessage = Loc::getMessage(
+				empty($smtp['port'])
+					? 'MAIN_SENDER_EMPTY_SMTP_PORT'
+					: 'MAIN_SENDER_INVALID_SMTP_PORT'
+			);
+
+			return $result->addError(new Error($errorMessage));
+		}
+
+		if (empty($smtp['login']))
+		{
+			$errorMessage = Loc::getMessage('MAIN_SENDER_EMPTY_SMTP_LOGIN');
+
+			return $result->addError(new Error($errorMessage));
+		}
+
+		if (empty($smtp['password']))
+		{
+			$errorMessage = Loc::getMessage('MAIN_MAIL_CONFIRM_EMPTY_SMTP_PASSWORD');
+
+			return $result->addError(new Error($errorMessage));
+		}
+
+		if (preg_match('/^\^/', $smtp['password']))
+		{
+			$errorMessage = Loc::getMessage('MAIN_SENDER_INVALID_SMTP_PASSWORD');
+
+			return $result->addError(new Error($errorMessage));
+		}
+
+		$smtpConfig = new Smtp\Config([
+			'from' => $smtp['login'],
+			'host' => $smtp['server'],
+			'port' => $smtp['port'],
+			'protocol' => $smtp['protocol'],
+			'login' => $smtp['login'],
+			'password' => $smtp['password'],
+			'isOauth' => $smtp['isOauth'],
+		]);
+
+		if ($smtpConfig->canCheck())
+		{
+			$smtpConfig->check($error, $errors);
+		}
+
+		if (!empty($error))
+		{
+			$result->addError(new Error($error));
+		}
+		else if (!empty($errors) && $errors instanceof Main\ErrorCollection)
+		{
+			$result->addErrors($errors->toArray());
+		}
+
+		return $result;
+	}
+
+	/**
+	 * checks if the user has a non-mailbox sender with the given email
+	*/
+	public static function hasUserSenderWithEmail(string $email, int $userId = null): bool
+	{
+		if (!($userId > 0))
+		{
+			global $USER;
+
+			if (is_object($USER) && $USER->isAuthorized())
+			{
+				$userId = $USER->getId();
+			}
+		}
+
+		$filter = [
+			'=IS_CONFIRMED' => true,
+			'=EMAIL' => $email,
+			'=USER_ID' => $userId,
+			'=PARENT_MODULE_ID' => 'main',
+		];
+
+		$res = Internal\SenderTable::getList([
+			'filter' => $filter,
+		]);
+
+		while ($item = $res->fetch())
+		{
+			if (!empty($item['OPTIONS']['smtp']['server']))
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	public static function canEditSender(int $senderId): Main\Result
+	{
+		$result = new Main\Result();
+
+		$sender = Internal\SenderTable::getById($senderId)->fetch();
+		if (!$sender)
+		{
+			$result->addError(new Error(Loc::getMessage('MAIN_MAIL_SENDER_UNKNOWN_SENDER_ERROR')));
+
+			return $result;
+		}
+
+		$userId = (int)CurrentUser::get()->getId();
+		if (!$userId)
+		{
+			$result->addError(new Error('User is not authorized'));
+
+			return $result;
+		}
+
+		if (
+			(int)$sender['USER_ID'] !== $userId
+			&& !UserSenderDataProvider::isAdmin()
+		)
+		{
+			$result->addError(new Error(Loc::getMessage('MAIN_MAIL_SENDER_EDIT_ERROR')));
+		}
+
+		return $result;
+	}
+
+	/**
+	 * get first public sender with smtp-server settings, one sender can be excluded by id
+	 */
+	public static function 	getPublicSmtpSenderByEmail(string $email, int $senderId = null, bool $onlyWithSmtp = true): ?int
+	{
+		$filter = [
+			'=IS_CONFIRMED' => true,
+			'=EMAIL' => $email,
+			'=IS_PUBLIC' => true,
+			'!=ID' => $senderId,
+		];
+
+		$res = Internal\SenderTable::getList([
+			'filter' => $filter,
+		]);
+
+		while ($item = $res->fetch()) {
+			if (
+				(!empty($item['OPTIONS']['smtp']['server'])  && empty($item['OPTIONS']['smtp']['encrypted']))
+				|| !$onlyWithSmtp
+			)
+			{
+				return $item['ID'];
+			}
+		}
+
+		return null;
+	}
+
+	public static function hasUserAvailableSmtpSenderByEmail(string $email, int $userId, bool $onlyWithSmtp = false): bool
+	{
+		if (self::getPublicSmtpSenderByEmail($email, onlyWithSmtp: $onlyWithSmtp))
+		{
+			return true;
+		}
+
+		$senders = UserSenderDataProvider::getUserAvailableSendersByEmail($email, $userId);
+
+		$requiredTypes = [
+			UserSenderDataProvider::SENDER_TYPE,
+			UserSenderDataProvider::MAILBOX_SENDER_TYPE,
+		];
+
+		foreach ($senders as $sender)
+		{
+			if (in_array($sender['type'],$requiredTypes) || !$onlyWithSmtp)
+			{
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
+	 * Checks if the sender's name contains invalid characters
+	 *
+	 * @param string $name
+	 * @return Main\Result
+	 */
+	public static function checkSenderNameCharacters(string $name): Main\Result
+	{
+		$result = new Main\Result();
+		// regex checks for characters other than letters of the alphabet, numbers, spaces
+		// and special characters ("-", ".", "'", "(", ")", ",")
+		$pattern = '/[^\p{L}\p{N}\p{Zs}\-.\'(),]+/u';
+		if (preg_match($pattern, $name))
+		{
+			$result->addError(new Error(Loc::getMessage('MAIN_MAIL_SENDER_INVALID_NAME')));
+		}
+
+		return $result;
+	}
+
+	private static function isSmtpsConfigured(array $smtpSettings): bool
+	{
+		return
+			($smtpSettings['protocol'] ?? '') === 'smtps'
+			|| ($smtpSettings['ssl'] ?? '') === 'Y'
+		;
 	}
 
 }

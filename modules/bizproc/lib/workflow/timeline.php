@@ -29,6 +29,7 @@ class Timeline implements \JsonSerializable
 				'STATE',
 				'WORKFLOW_TEMPLATE_ID',
 				'TASKS.ID',
+				'TASKS.WORKFLOW_ID',
 				'TASKS.ACTIVITY',
 				'TASKS.ACTIVITY_NAME',
 				'TASKS.NAME',
@@ -66,8 +67,13 @@ class Timeline implements \JsonSerializable
 		return $this->workflow;
 	}
 
-	public function getExecutionTime(): int
+	public function getExecutionTime(): ?int
 	{
+		if ($this->workflow->getStarted() === null)
+		{
+			return null;
+		}
+
 		if ($this->isWorkflowRunning())
 		{
 			return (new DateTime())->getTimestamp() - $this->workflow->getStarted()->getTimestamp();
@@ -145,7 +151,7 @@ class Timeline implements \JsonSerializable
 			'timeToStart' => $this->getTimeToStart(),
 			'executionTime' => $this->getExecutionTime(),
 			'workflowModifiedDate' => $this->workflow->getModified()->getTimestamp(),
-			'started' => $this->workflow->getStarted()->getTimestamp(),
+			'started' => $this->workflow->getStarted()?->getTimestamp(),
 			'startedBy' => $this->workflow->getStartedBy(),
 			'tasks' => $this->getTasks(),
 		];

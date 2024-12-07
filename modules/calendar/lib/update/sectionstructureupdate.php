@@ -43,9 +43,7 @@ final class SectionStructureUpdate extends Stepper
 		if (!$status['finished'])
 		{
 			$r = $DB->Query('SELECT ID FROM b_calendar_event 
-          		WHERE SECTION_ID IS NULL ORDER BY ID ASC limit 1;',
-				false,
-				"File: ".__FILE__."<br>Line: ".__LINE__
+          		WHERE SECTION_ID IS NULL ORDER BY ID ASC limit 1;'
 			);
 
 			if ($entry = $r->Fetch())
@@ -62,9 +60,7 @@ final class SectionStructureUpdate extends Stepper
 				$DB->Query('UPDATE b_calendar_event CE
 					INNER JOIN b_calendar_event_sect CES ON CE.ID = CES.EVENT_ID
 					SET CE.SECTION_ID = CES.SECT_ID
-					WHERE CE.SECTION_ID is null and CE.ID < '.((int)$entry['ID'] + $BATCH_SIZE),
-					false,
-					"File: ".__FILE__."<br>Line: ".__LINE__
+					WHERE CE.SECTION_ID is null and CE.ID < '.((int)$entry['ID'] + $BATCH_SIZE)
 				);
 
 				$newStatus['steps'] = $newStatus['count'] - $this->getTotalCount();
@@ -110,7 +106,7 @@ final class SectionStructureUpdate extends Stepper
 	{
 		global $DB;
 		$count = 0;
-		$res = $DB->Query('SELECT count(*) AS c FROM b_calendar_event WHERE SECTION_ID is null', false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query('SELECT count(*) AS c FROM b_calendar_event WHERE SECTION_ID is null');
 		if($res = $res->Fetch())
 		{
 			$count = intval($res['c']);

@@ -177,8 +177,8 @@ if ($moduleAccessLevel >= 'R')
 
 	$tabControl->BeginNextTab();
 	?><tr>
-	<td width="40%"><?= HtmlFilter::encode(Loc::getMessage('BASE_CURRENCY')); ?></td>
-	<td width="60%"><select name="BASE_CURRENCY"><?php
+	<td style="width: 40%;"><?= HtmlFilter::encode(Loc::getMessage('BASE_CURRENCY')); ?></td>
+	<td><select name="BASE_CURRENCY"><?php
 	$currencyList = Currency\CurrencyManager::getCurrencyList();
 	if (!empty($currencyList))
 	{

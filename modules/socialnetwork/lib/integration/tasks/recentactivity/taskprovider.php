@@ -7,10 +7,13 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\AbstractProvider;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector\Trait\EntityLoadTrait;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 use Bitrix\Tasks\Internals\Registry\TaskRegistry;
 
-final class TaskProvider extends AbstractProvider
+class TaskProvider extends AbstractProvider
 {
+	use EntityLoadTrait;
 
 	public function isAvailable(): bool
 	{
@@ -19,7 +22,7 @@ final class TaskProvider extends AbstractProvider
 
 	public function getTypeId(): string
 	{
-		return 'task';
+		return Dictionary::ENTITY_TYPE['task'];
 	}
 
 	protected function fill(): void
@@ -35,7 +38,7 @@ final class TaskProvider extends AbstractProvider
 
 		foreach ($this->recentActivityDataItems as $item)
 		{
-			$task = $this->getEntity($item->getEntityId());
+			$task = $this->getEntity($this->getEntityIdFromRecentActivityItem($item));
 			if (empty($task))
 			{
 				continue;

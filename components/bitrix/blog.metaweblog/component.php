@@ -23,9 +23,6 @@ if($arParams["PATH_TO_POST"] == '')
 	
 $DATA = file_get_contents("php://input");
 
-if(toUpper(LANG_CHARSET) != "UTF-8")
-	$DATA = $APPLICATION->ConvertCharset($DATA, "UTF-8", LANG_CHARSET);
-
 if($DATA <> '')
 {
 	$objXML = new CDataXML();
@@ -39,35 +36,35 @@ if($DATA <> '')
 		$methodName = $arMethod[1];
 		$methodClass = $arMethod[0];
 
-		if(ToUpper($methodClass) == ToUpper("blogger") || ToUpper($methodClass) == ToUpper("metaWeblog"))
+		if(mb_strtoupper($methodClass) == mb_strtoupper("blogger") || mb_strtoupper($methodClass) == mb_strtoupper("metaWeblog"))
 		{
-			switch (ToUpper($methodName)) 
+			switch (mb_strtoupper($methodName))
 			{
-				case ToUpper("getUsersBlogs"):
+				case mb_strtoupper("getUsersBlogs"):
 					$result = CBlogMetaWeblog::GetUsersBlogs($params, Array("PATH_TO_BLOG" => $arParams["PATH_TO_BLOG"]));
 					break;
-				case ToUpper("getCategories"):
+				case mb_strtoupper("getCategories"):
 					$result = CBlogMetaWeblog::GetCategories($params);
 					break;
-				case ToUpper("getRecentPosts"):
+				case mb_strtoupper("getRecentPosts"):
 					$result = CBlogMetaWeblog::GetRecentPosts($params, Array("PATH_TO_POST" => $arParams["PATH_TO_POST"]));
 					break;
-				case ToUpper("newMediaObject"):
+				case mb_strtoupper("newMediaObject"):
 					$result = CBlogMetaWeblog::NewMediaObject($params);
 					break;
-				case ToUpper("newPost"):
+				case mb_strtoupper("newPost"):
 					$result = CBlogMetaWeblog::NewPost($params);
 					break;
-				case ToUpper("editPost"):
+				case mb_strtoupper("editPost"):
 					$result = CBlogMetaWeblog::EditPost($params);
 					break;
-				case ToUpper("getPost"):
+				case mb_strtoupper("getPost"):
 					$result = CBlogMetaWeblog::GetPost($params, Array("PATH_TO_POST" => $arParams["PATH_TO_POST"]));
 					break;
-				case ToUpper("deletePost"):
+				case mb_strtoupper("deletePost"):
 					$result = CBlogMetaWeblog::DeletePost($params);
 					break;
-				case ToUpper("getUserInfo"):
+				case mb_strtoupper("getUserInfo"):
 					$result = CBlogMetaWeblog::GetUserInfo($params);
 					break;
 				default:

@@ -41,7 +41,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 				"VALUES(".$arInsert[1].") 
 				ON DUPLICATE KEY UPDATE ".$strUpdate;
 
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = $DB->LastID();
 
@@ -109,7 +109,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 				"UPDATE b_sonet_user_relations SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetUserRelationsUpdate");
 			while ($arEvent = $events->Fetch())
@@ -299,7 +299,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -357,7 +357,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -386,7 +386,7 @@ class CSocNetUserRelations extends CAllSocNetUserRelations
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

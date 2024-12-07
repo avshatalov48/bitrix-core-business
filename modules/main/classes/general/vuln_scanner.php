@@ -283,7 +283,7 @@ class CVulnScanner
 					$braces++;
 					$i++;
 				}
-				elseif($token === T_ISSET || ($token === T_STRING && substr($token_value, 0, 3) === 'is_'))
+				elseif($token === T_ISSET || ($token === T_STRING && str_starts_with($token_value, 'is_')))
 				{
 					$skip = true;
 				}
@@ -817,7 +817,7 @@ class CVulnScanner
 		{
 			$taintedVars = array();
 			foreach ($tokensInfo[1] as $res)
-				$taintedVars[] = $res['varName'] ?? null;
+				$taintedVars[] = $res['var_name'] ?? null;
 
 			if(!isset($this->variables[$varName]))
 				$var = new CVariable($varName);
@@ -1598,7 +1598,7 @@ class CVulnScanner
 					foreach ($var_declare->tainted_vars as $taint_var)
 					{
 						$res = $this->traverseVar($taint_var, $var_declare->id);
-						if($res && strpos($result, $res) === false)
+						if($res && !str_contains($result, $res))
 							$result .= $res;
 					}
 
@@ -2339,7 +2339,7 @@ class CQAACheckListTests
 			$vulnCount=0;
 			foreach ($NS['MESSAGE'] as $file_output)
 				if (!empty($file_output))
-					if (strpos($arDetailReport, $file_output['OUTPUT']) === false)
+					if (!str_contains($arDetailReport, $file_output['OUTPUT']))
 					{
 						$arDetailReport .= $file_output['OUTPUT'];
 						$vulnCount += $file_output['VULN_COUNT'];

@@ -73,13 +73,13 @@ if ($arParams['CHAPTER_ID'] > 0)
 }
 
 $lastDirtyCacheTS = COption::GetOptionString(
-	'learning', 
-	CLearnCacheOfLessonTreeComponent::OPTION_TS, 
+	'learning',
+	CLearnCacheOfLessonTreeComponent::OPTION_TS,
 	time()
 );
 
 // was: if($this->StartResultCache(false, $USER->GetGroups()))
-$additionalCacheID = CLearnAccess::GetAccessSymbolsHashForSiteUser() 
+$additionalCacheID = CLearnAccess::GetAccessSymbolsHashForSiteUser()
 	. '|' . $ratingTransistor . '|' . $lastDirtyCacheTS;
 if ($this->StartResultCache(false,  $additionalCacheID))
 {
@@ -110,7 +110,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 		return;
 	}
 
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arCourse['DETAIL_TEXT']))
 	{
@@ -154,7 +154,7 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 	$arChapter["PREVIEW_PICTURE_ARRAY"] = CFile::GetFileArray($arChapter["PREVIEW_PICTURE"]);
 	$arChapter["DETAIL_PICTURE_ARRAY"] = CFile::GetFileArray($arChapter["DETAIL_PICTURE"]);
 
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arChapter['DETAIL_TEXT']))
 	{
@@ -239,20 +239,20 @@ if ($this->StartResultCache(false,  $additionalCacheID))
 			$baseDepthLevel = $arContent["DEPTH_LEVEL"];
 		}
 	}
-	
+
 	global $CACHE_MANAGER;
 	$CACHE_MANAGER->RegisterTag('LEARN_COURSE_'.$arCourse["ID"]);
-	$CACHE_MANAGER->RegisterTag('LEARN_CHAPTER_'.$arChapter["ID"]);
-	
-	unset($rsContent, $arContent, 
-		$rsCourse, $arCourse, 
+	$CACHE_MANAGER->RegisterTag('LEARN_CHAPTER_'.$arChapter["LESSON_ID"]);
+
+	unset($rsContent, $arContent,
+		$rsCourse, $arCourse,
 		$rsChapter, $arChapter);
 
 	$this->IncludeComponentTemplate();
 }
 
 //Set Title
-$arParams["SET_TITLE"] = ($arParams["SET_TITLE"] == "N" ? "N" : "Y" );
+$arParams["SET_TITLE"] = (isset($arParams["SET_TITLE"]) && $arParams["SET_TITLE"] == "N" ? "N" : "Y" );
 if ($arParams["SET_TITLE"] == "Y")
 	$APPLICATION->SetTitle($arResult["CHAPTER"]["NAME"]);
 
@@ -304,7 +304,7 @@ if ($bCanEdit)
 					"URL" => "/bitrix/admin/learn_unilesson_edit.php"
 						. "?LESSON_ID=" . $arParams["CHAPTER_ID"]
 						. '&' . $strUrlencodedLessonPath
-						. "&lang=" . LANGUAGE_ID 
+						. "&lang=" . LANGUAGE_ID
 						. "&COURSE_ID=" . $arParams["COURSE_ID"]
 						. "&bxpublic=Y&from_module=learning",
 					"PARAMS" => array(

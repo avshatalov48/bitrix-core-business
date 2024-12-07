@@ -158,7 +158,7 @@ class CSecurityEvent
 					TIMESTAMP_X >= ".$DB->charToDateFunction($DB->forSQL($timestamp))."
 			";
 
-			$res = $DB->query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$res = $DB->query($strSql);
 
 			if ($arRes = $res->fetch())
 				$result = $arRes["COUNT"];

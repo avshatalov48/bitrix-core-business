@@ -226,7 +226,7 @@ if (CLearnAccess::IsLoggedUserCanAccessModuleSettings())
 ?>
 
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

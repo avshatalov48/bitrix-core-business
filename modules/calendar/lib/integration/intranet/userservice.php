@@ -11,4 +11,9 @@ class UserService
 	{
 		return Loader::includeModule('intranet') && !Util::isIntranetUser($userId);
 	}
+
+	public function isIntranetUser(int $userId): bool
+	{
+		return Loader::includeModule('intranet') && Util::isIntranetUser($userId);
+	}
 }

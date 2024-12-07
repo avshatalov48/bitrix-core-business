@@ -169,7 +169,13 @@ if (
 ?><script>
 BX.ready(function() {
 	BX.bind(BX("blg-post-img-<?=$arResult["Post"]["ID"]?>"), "mouseup", function(e) {
-		checkForQuote(e, this, '<?=$arParams["ENTITY_XML_ID"]?>', 'bp_<?=$arResult["Post"]["ID"]?>');
+		const copilotEnabled = <?= $arResult['IS_QUOTE_COPILOT_ENABLED'] ? 'true' : 'false' ?>;
+		const copilotParams = copilotEnabled ? {
+			moduleId: 'socialnetwork',
+			contextId: 'socialnetwork_blog_post_<?= $arResult["Post"]["ID"] ?>',
+			category: 'readonly_livefeed',
+		} : null;
+		checkForQuote(e, this, '<?=$arParams["ENTITY_XML_ID"]?>', 'bp_<?=$arResult["Post"]["ID"]?>', { copilotParams });
 	});
 	BX.addCustomEvent(window, 'OnUCAfterRecordAdd', function(ENTITY_XML_ID, response) {
 		if (ENTITY_XML_ID == '<?=$arParams["ENTITY_XML_ID"]?>')

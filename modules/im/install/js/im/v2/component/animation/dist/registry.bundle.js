@@ -56,7 +56,48 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	`
 	};
 
+	// @vue/component
+	const FadeAnimation = {
+	  name: 'FadeAnimation',
+	  props: {
+	    duration: {
+	      type: Number,
+	      default: 100
+	    }
+	  },
+	  emits: ['afterEnter'],
+	  computed: {
+	    formattedDuration() {
+	      return `${this.duration}ms`;
+	    }
+	  },
+	  methods: {
+	    setDuration(element) {
+	      main_core.Dom.style(element, 'transition-duration', this.formattedDuration);
+	    },
+	    clearDuration(element) {
+	      main_core.Dom.style(element, 'transition-duration', '');
+	    },
+	    onAfterEnter(element) {
+	      this.$emit('afterEnter');
+	      this.clearDuration(element);
+	    }
+	  },
+	  template: `
+		<Transition
+			name="im-animation-fade"
+			@beforeEnter="setDuration"
+			@afterEnter="onAfterEnter"
+			@beforeLeave="setDuration"
+			@afterLeave="clearDuration"
+		>
+			<slot></slot>
+		</Transition>
+	`
+	};
+
 	exports.ExpandAnimation = ExpandAnimation;
+	exports.FadeAnimation = FadeAnimation;
 
 }((this.BX.Messenger.v2.Component.Animation = this.BX.Messenger.v2.Component.Animation || {}),BX));
 //# sourceMappingURL=registry.bundle.js.map

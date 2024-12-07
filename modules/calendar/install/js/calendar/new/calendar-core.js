@@ -45,10 +45,9 @@
 		BX.Calendar.Util.setUserSettings(config.userSettings);
 		BX.Calendar.Util.setOptions(config.settings);
 		BX.Calendar.Util.setAccessNames(config.accessNames);
-		BX.Calendar.Util.setEventWithEmailGuestAmount(config.countEventWithEmailGuestAmount);
-		BX.Calendar.Util.setEventWithEmailGuestLimit(config.eventWithEmailGuestLimit);
+		BX.Calendar.Util.setEventWithEmailGuestEnabled(config.eventWithEmailGuestEnabled);
+		BX.Calendar.Util.setProjectFeatureEnabled(config.projectFeatureEnabled);
 
-		BX.Calendar.Util.setDayOfWeekMonthFormat(config.dayOfWeekMonthFormat);
 		BX.Calendar.Util.setDayMonthFormat(config.dayMonthFormat);
 		BX.Calendar.Util.setLongDateFormat(config.longDateFormat);
 
@@ -191,8 +190,9 @@
 				if (this.util.userIsOwner() && !this.util.isExtranetUser())
 				{
 					this.syncInterface = new BX.Calendar.Sync.Manager.Manager({
-						wrapper: document.getElementById(this.id + '-sync-container'),
+						wrapper: document.getElementById(`${this.id}-sync-container`),
 						syncInfo: this.util.config.syncInfo,
+						payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
 						userId: this.currentUser.id,
 						syncLinks: this.util.config.syncLinks,
 						isSetSyncGoogleSettings: this.util.config.isSetSyncGoogleSettings,
@@ -206,7 +206,7 @@
 					this.syncInterface.showSyncButton();
 
 					this.sharingInterface = new BX.Calendar.Sharing.Interface({
-						buttonWrap: document.querySelector('#' + this.id + '-sharing-container'),
+						buttonWrap: document.querySelector(`#${this.id}-sharing-container`),
 						userInfo: {
 							id: this.currentUser.id,
 							name: this.currentUser.name,
@@ -523,12 +523,12 @@
 			this.lockViewContainer.appendChild(BX.create('DIV', {
 				props: { className: 'calendar-view-locker-button' },
 				html: '<a href="javascript:void(0)" '
-					+ 'onclick="top.BX.UI.InfoHelper.show(\'limit_office_calendar_location\');" '
+					+ 'onclick="top.BX.UI.FeaturePromotersRegistry.getPromoter({ featureId: \'calendar_location\' }).show()" '
 					+ 'class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">'
 					+ BX.message('EC_LOCATION_VIEW_UNLOCK_FEATURE')
 					+ '</a>',
 			}));
-			top.BX.UI.InfoHelper.show('limit_office_calendar_location');
+			top.BX.UI.FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_location' }).show();
 		},
 
 		setView: function(view, params)

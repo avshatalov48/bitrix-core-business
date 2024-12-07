@@ -19,6 +19,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Web\Json;
 
 Main\UI\Extension::load([
 	'ui.design-tokens',
@@ -47,21 +48,21 @@ $controlId = htmlspecialcharsbx($arParams["divId"]);
 	<div class="feed-add-post-form feed-add-post-edit-form">
 		<?= $arParams["~HTML_BEFORE_TEXTAREA"] ?? ''?>
 		<div class="feed-add-post-text">
-<script type="text/javascript">
+<script>
 <?
 if (isset($GLOBALS["arExtranetGroupID"]) && is_array($GLOBALS["arExtranetGroupID"]))
 {
 	?>
 	if (typeof window['arExtranetGroupID'] == 'undefined')
 	{
-		window['arExtranetGroupID'] = <?=CUtil::PhpToJSObject($GLOBALS["arExtranetGroupID"])?>;
+		window['arExtranetGroupID'] = <?= Json::encode($GLOBALS["arExtranetGroupID"])?>;
 	}
 	<?
 }
 ?>
 BX.ready(function()
 {
-	BX.message(<?=CUtil::PhpToJSObject(Main\Localization\Loc::loadLanguageFile(__DIR__."/editor.php"))?>);
+	BX.message(<?= Json::encode(Main\Localization\Loc::loadLanguageFile(__DIR__."/editor.php")) ?>);
 	<?if ($arParams["JS_OBJECT_NAME"] !== ""): ?>window['<?=$arParams["JS_OBJECT_NAME"]?>'] = <? endif; ?>
 	new BX.Main.PostForm(
 		{
@@ -70,19 +71,19 @@ BX.ready(function()
 			formId: '<?=CUtil::JSEscape($arParams["FORM_ID"])?>',
 			eventNode: BX('div<?=CUtil::JSEscape($controlId)?>'),
 		},
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'ctrlEnterHandler' => $arParams["LHE"]['ctrlEnterHandler'] ?? '',
 			'showPanelEditor' => isset($arParams["TEXT"]["SHOW"]) && $arParams["TEXT"]["SHOW"] === "Y",
 			'lazyLoad' => !!$arParams["LHE"]['lazyLoad'],
 			'urlPreviewId' => $arParams['urlPreviewId'] ?? '',
 			'parsers' => $arParams["PARSER"],
 			'tasksLimitExceeded' => !!$arResult['tasksLimitExceeded'],
-		]);?>,
-		<?=CUtil::PhpToJSObject(
+		]); ?>,
+		<?= Json::encode(
 			array(
 				"arSize" => $arParams["UPLOAD_FILE_PARAMS"] ?? null,
 				"CID" => $arParams["UPLOADS_CID"],
-			));?>
+			)); ?>
 	);
 });
 </script>
@@ -131,7 +132,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 					{
 						$arParams["ADDITIONAL"][$key] = array("text" => $val, "onclick" => "BX.PopupMenu.Data['menu-more".$arParams["FORM_ID"]."'].popupWindow.close();");
 					}
-					?><script type="text/javascript">window['more<?=$arParams["FORM_ID"]?>']=<?=CUtil::PhpToJSObject($arParams["ADDITIONAL"])?>;</script><?
+					?><script>window['more<?=$arParams["FORM_ID"]?>']=<?= Json::encode($arParams["ADDITIONAL"]) ?>;</script><?
 					?><div class="feed-add-post-form-but-more" <?
 						?>onclick="BX.PopupMenu.show('menu-more<?=$arParams["FORM_ID"]?>', this, window['more<?=$arParams["FORM_ID"]?>'], {offsetLeft: 42, offsetTop: 3, lightShadow: false, angle: top, events : {onPopupClose : function(popupWindow) {BX.removeClass(this.bindElement, 'feed-add-post-form-but-more-act');}}}); BX.addClass(this, 'feed-add-post-form-but-more-act');"><?
 						?><?=GetMessage("MPF_MORE")?><?
@@ -164,7 +165,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 					editorId: '<?= $arParams["LHE"]["id"]?>',
 					id: '<?=$this->randString(6)?>',
 					initDestination: <?=($arParams["DESTINATION_SHOW"] == "Y" ? "true" : "false")?>,
-					entities: <?= \CUtil::phpToJsObject($arResult['MENTION_ENTITIES']) ?>,
+					entities: <?= Json::encode($arResult['MENTION_ENTITIES']) ?>,
 				});
 			});
 		</script>
@@ -252,7 +253,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 			)?>',
 			tagNodeId: 'entity-selector-<?=CUtil::JSescape($arParams["divId"])?>',
 			inputNodeId: 'entity-selector-data-<?=CUtil::JSescape($arParams["divId"])?>',
-			preselectedItems: <?=CUtil::PhpToJSObject($arResult['DESTINATION']['ENTITIES_PRESELECTED'])?>,
+			preselectedItems: <?= Json::encode($arResult['DESTINATION']['ENTITIES_PRESELECTED']) ?>,
 			allowSearchEmailUsers: <?=($arResult['ALLOW_EMAIL_INVITATION'] ? 'true' : 'false')?>,
 			allowToAll: <?=($arResult['ALLOW_TO_ALL'] ? 'true' : 'false')?>,
 			messages: {
@@ -272,7 +273,7 @@ $visibleButtons = include(__DIR__.'/lhe.php');
 	if (isset($arParams["IMPORTANT"]) && isset($arParams["IMPORTANT"]["INPUT_NAME"]))
 	{
 ?>
-<script type="text/javascript">
+<script>
 	var BXPostFormImportant_<?=$arParams["FORM_ID"]?> = new BXPostFormImportant("<?=$arParams["IMPORTANT"]["INPUT_NAME"]?>");
 </script>
 	<?php

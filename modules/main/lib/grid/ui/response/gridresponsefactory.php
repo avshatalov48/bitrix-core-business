@@ -24,6 +24,11 @@ class GridResponseFactory
 			$self->addMessage($message, MessageType::ERROR);
 		}
 
+		if (!empty($result->getData()))
+		{
+			$self->setPayload($result->getData());
+		}
+
 		return $self;
 	}
 }

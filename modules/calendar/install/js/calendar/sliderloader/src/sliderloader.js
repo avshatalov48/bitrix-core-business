@@ -72,11 +72,6 @@ export class SliderLoader
 			this.extensionParams.locationCapacity = options.locationCapacity;
 		}
 
-		if (options.dayOfWeekMonthFormat)
-		{
-			this.extensionParams.dayOfWeekMonthFormat = options.dayOfWeekMonthFormat;
-		}
-
 		if (Type.isDate(options.entryDateFrom))
 		{
 			this.extensionParams.entryDateFrom = options.entryDateFrom;

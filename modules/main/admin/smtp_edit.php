@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * @global CUser $USER
  * @global CMain $APPLICATION
@@ -17,12 +17,12 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 
-function checkSmtp(array &$fields, Main\ErrorCollection &$errors)
+function checkSmtp(array &$fields, Main\ErrorCollection $errors)
 {
 	$smtpConfig = $fields['OPTIONS']['smtp'] ?? [];
 	if (!$smtpConfig)
 	{
-		return false;
+		return;
 	}
 	$smtpConfig = new Bitrix\Main\Mail\Smtp\Config([
 		'from' => $fields['EMAIL'] ?? '',
@@ -42,7 +42,7 @@ function checkSmtp(array &$fields, Main\ErrorCollection &$errors)
 	}
 }
 
-function fillSmtpConfigurationFromPost(Main\Mail\Internal\Sender $configuration, Main\ErrorCollection &$errors)
+function fillSmtpConfigurationFromPost(Main\Mail\Internal\Sender $configuration, Main\ErrorCollection $errors)
 {
 	static $formFields = [
 		'EMAIL',
@@ -59,8 +59,9 @@ function fillSmtpConfigurationFromPost(Main\Mail\Internal\Sender $configuration,
 	$request = Main\Context::getCurrent()->getRequest();
 
 	$fields = $configuration->entity->getFields();
-	$preparedFields = [];
+
 	//set values from the form
+	$preparedFields = [];
 	foreach ($formFields as $fieldName)
 	{
 		$value = trim($request->getPost($fieldName));
@@ -78,8 +79,9 @@ function fillSmtpConfigurationFromPost(Main\Mail\Internal\Sender $configuration,
 
 		$preparedFields[$fieldName] = $value;
 	}
-	$options = $configuration->getOptions();
+
 	//set values from the form
+	$options = $configuration->getOptions();
 	foreach ($smtpOptionFields as $optionField)
 	{
 		$value = trim($request->getPost($optionField));
@@ -96,16 +98,41 @@ function fillSmtpConfigurationFromPost(Main\Mail\Internal\Sender $configuration,
 			]))]);
 		}
 
+		if ($optionField === 'password')
+		{
+			if ($request->getPost($optionField . '_delete') == 'Y')
+			{
+				$value = '';
+			}
+			elseif ($value == '')
+			{
+				continue;
+			}
+		}
+
 		$options['smtp'][$optionField] = $value;
 	}
 
 	$preparedFields['OPTIONS'] = $options;
-	checkSmtp($preparedFields, $errors);
+
+	// shouldn't be set from the request
+	unset($preparedFields['IS_CONFIRMED']);
+
+	if (!empty(trim($request->getPost('password'))) || empty($options['smtp']['password']))
+	{
+		// check connection only if the password is from the request OR is stored empty
+		$checkFields = $preparedFields;
+		$checkFields['OPTIONS']['smtp']['password'] = trim($request->getPost('password'));
+		checkSmtp($checkFields, $errors);
+		$preparedFields['IS_CONFIRMED'] = $checkFields['IS_CONFIRMED'] ?? false;
+	}
 
 	foreach ($preparedFields as $field => $value)
 	{
 		$configuration->set($field, $value);
 	}
+
+	$configuration->setUserId(Main\Engine\CurrentUser::get()->getId() ?? 0);
 }
 
 $aTabs = [
@@ -227,7 +254,7 @@ if (!empty($errors))
 	CAdminMessage::ShowMessage(join("\n", $errors->toArray()));
 }
 ?>
-	<script type="text/javascript">
+	<script>
 		window.bxCurrentControl = null;
 
 		function PutString(str) {
@@ -268,18 +295,12 @@ if (!empty($errors))
 					onfocus="window.bxCurrentControl=this" autocomplete="off"/></td>
 		</tr>
 		<tr class="heading">
-			<td colspan="2"><?php echo Loc::getMessage("smtp_configuration_edit_mess") ?></td>
+			<td colspan="2"><?php echo Loc::getMessage('smtp_configuration_edit_params') ?></td>
 		</tr>
 		<tr class="adm-detail-field">
 			<td><?= $fields["IS_PUBLIC"]->getTitle() ?>:</td>
 			<td><input type="checkbox" name="IS_PUBLIC" id="active"
 					value="1"<?php if ($configuration->getIsPublic()) echo " checked" ?>></td>
-		</tr>
-		<tr class="adm-detail-field">
-			<td><?= Loc::getMessage('smtp_configuration_edit_login') ?>:</td>
-			<td><input type="text" name="login" size="30" maxlength="511"
-					value="<?= HtmlFilter::encode($options['login'] ?? "") ?>"
-					onfocus="window.bxCurrentControl=this"/></td>
 		</tr>
 		<tr class="adm-detail-field">
 			<td><?= Loc::getMessage('smtp_configuration_edit_host') ?>:</td>
@@ -294,10 +315,22 @@ if (!empty($errors))
 					onfocus="window.bxCurrentControl=this"/></td>
 		</tr>
 		<tr class="adm-detail-field">
-			<td><?= Loc::getMessage('smtp_configuration_edit_password') ?>:</td>
-			<td><input type="password" name="password" size="30" maxlength="511"
-					value="<?= HtmlFilter::encode($options['password'] ?? "") ?>"
+			<td><?= Loc::getMessage('smtp_configuration_edit_login') ?>:</td>
+			<td><input type="text" name="login" size="30" maxlength="511"
+					value="<?= HtmlFilter::encode($options['login'] ?? "") ?>"
 					onfocus="window.bxCurrentControl=this"/></td>
+		</tr>
+		<tr class="adm-detail-field">
+			<td><?= Loc::getMessage('smtp_configuration_edit_password') ?>:</td>
+			<td><input type="password" name="password" size="30" maxlength="511" autocomplete="new-password" value=""
+					<?php if (!empty($options['password'])):?>placeholder="<?= Loc::getMessage('smtp_configuration_edit_pass_set') ?>"<?php endif ?>
+					onfocus="window.bxCurrentControl=this"/><?php
+				if (!empty($options['password'])): ?> <label><input type="checkbox" name="password_delete" value="Y" title="<?= Loc::getMessage('smtp_configuration_edit_pass_title') ?>">
+					<?= Loc::getMessage('smtp_configuration_edit_pass_delete') ?></label><?php endif?></td>
+		</tr>
+		<tr class="adm-detail-field">
+			<td></td>
+			<td><?= BeginNote('', 'style="margin: 0;"') . Loc::getMessage('smtp_configuration_edit_note') . EndNote() ?></td>
 		</tr>
 		<?php
 		$tabControl->Buttons(array("disabled" => !$isAdmin, "back_url" => "smtp_admin.php?lang=" . LANGUAGE_ID));

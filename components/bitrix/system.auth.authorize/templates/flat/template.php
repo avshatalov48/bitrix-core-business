@@ -18,14 +18,14 @@ $APPLICATION->SetAdditionalCSS("/bitrix/css/main/system.auth/flat/style.css");
 <div class="bx-authform">
 
 <?
-if(!empty($arParams["~AUTH_RESULT"])):
+if(!empty($arParams["~AUTH_RESULT"]["MESSAGE"])):
 	$text = str_replace(array("<br>", "<br />"), "\n", $arParams["~AUTH_RESULT"]["MESSAGE"]);
 ?>
 	<div class="alert alert-danger"><?=nl2br(htmlspecialcharsbx($text))?></div>
 <?endif?>
 
 <?
-if($arResult['ERROR_MESSAGE'] <> ''):
+if (!empty($arResult['ERROR_MESSAGE'])):
 	$text = str_replace(array("<br>", "<br />"), "\n", $arResult['ERROR_MESSAGE']);
 ?>
 	<div class="alert alert-danger"><?=nl2br(htmlspecialcharsbx($text))?></div>
@@ -73,7 +73,7 @@ $APPLICATION->IncludeComponent("bitrix:socserv.auth.form",
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = '';
 </script>
 <?endif?>
@@ -120,7 +120,7 @@ document.getElementById('bx_auth_secure').style.display = '';
 	</noindex>
 <?endif?>
 
-<?if($arParams["NOT_SHOW_LINKS"] != "Y" && $arResult["NEW_USER_REGISTRATION"] == "Y" && $arParams["AUTHORIZE_REGISTRATION"] != "Y"):?>
+<?if($arParams["NOT_SHOW_LINKS"] != "Y" && $arResult["NEW_USER_REGISTRATION"] == "Y"):?>
 	<noindex>
 		<div class="bx-authform-link-container">
 			<?=GetMessage("AUTH_FIRST_ONE")?><br />
@@ -131,7 +131,7 @@ document.getElementById('bx_auth_secure').style.display = '';
 
 </div>
 
-<script type="text/javascript">
+<script>
 <?if ($arResult["LAST_LOGIN"] <> ''):?>
 try{document.form_auth.USER_PASSWORD.focus();}catch(e){}
 <?else:?>

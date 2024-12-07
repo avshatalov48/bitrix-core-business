@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager                        #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
@@ -33,15 +33,15 @@ else
 {
 	$JSFUNC = '';
 }
-// èäåíòèôèêàòîð òàáëèöû
+// Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
 $sTableID = "tbl_user_popup";
 
-// èíèöèàëèçàöèÿ ñîðòèðîâêè
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-// èíèöèàëèçàöèÿ ñïèñêà
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-// èíèöèàëèçàöèÿ ïàðàìåòðîâ ñïèñêà - ôèëüòðû
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² ÑÐ¿Ð¸ÑÐºÐ° - Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ñ‹
 $arFilterFields = Array(
 	"find",
 	"find_type",
@@ -60,8 +60,8 @@ $arFilterFields = Array(
 
 $lAdmin->InitFilter($arFilterFields);
 
-//èíèöèàëèçàöèÿ ìàññèâà ôèëüòðà äëÿ GetList
-function CheckFilter($FilterArr) // ïðîâåðêà ââåäåííûõ ïîëåé
+//Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¼Ð°ÑÑÐ¸Ð²Ð° Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð° Ð´Ð»Ñ GetList
+function CheckFilter($FilterArr) // Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð²Ð²ÐµÐ´ÐµÐ½Ð½Ñ‹Ñ… Ð¿Ð¾Ð»ÐµÐ¹
 {
 	global $strError;
 	foreach($FilterArr as $f)
@@ -141,10 +141,10 @@ $rsData = CUser::GetList($oSort->getField(), $oSort->getOrder(), $arFilter, arra
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart();
 
-// óñòàíîâêå ïàðàìåòðîâ ñïèñêà
+// ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("PAGES")));
 
-// çàãîëîâîê ñïèñêà
+// Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID",				"content"=>"ID", 	"sort"=>"id", "default"=>true),
 	array("id"=>"TIMESTAMP_X",		"content"=>GetMessage('TIMESTAMP'), "sort"=>"timestamp_x", "default"=>true),
@@ -174,7 +174,7 @@ $lAdmin->AddHeaders(array(
 	array("id"=>"EXTERNAL_AUTH_ID",	"content"=>GetMessage("EXTERNAL_AUTH_ID")),
 ));
 
-// ïîñòðîåíèå ñïèñêà
+// Ð¿Ð¾ÑÑ‚Ñ€Ð¾ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ°
 while($arRes = $rsData->GetNext())
 {
 	$f_ID = $arRes['ID'];
@@ -213,13 +213,13 @@ while($arRes = $rsData->GetNext())
 
 $lAdmin->AddAdminContextMenu(array());
 
-// ïðîâåðêà íà âûâîä òîëüêî ñïèñêà (â ñëó÷àå ñïèñêà, ñêðèïò äàëüøå âûïîëíÿòüñÿ íå áóäåò)
+// Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ð²Ñ‹Ð²Ð¾Ð´ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÑÐ¿Ð¸ÑÐºÐ° (Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ¿Ð¸ÑÐºÐ°, ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð´Ð°Ð»ÑŒÑˆÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÑ‚ÑŒÑÑ Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚)
 $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("MAIN_PAGE_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php")
 ?>
-<script type="text/javascript">
+<script>
 function SetValue(id)
 {
 	<?if ($JSFUNC <> ''){?>
@@ -314,7 +314,7 @@ $oFilter->End();
 ?>
 </form>
 <?
-// ìåñòî äëÿ âûâîäà ñïèñêà
+// Ð¼ÐµÑÑ‚Ð¾ Ð´Ð»Ñ Ð²Ñ‹Ð²Ð¾Ð´Ð° ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_popup_admin.php");

@@ -15,18 +15,18 @@ BXHTMLEditor.prototype.SetCodeEditorContent = function(sContent)
 	this.pSourceWindow.document.body.innerHTML	= '<pre id="content">'+src+'</pre>';
 	if(!this.pSourceDocument.body.contentEditable)
 	{
-		var c = this.pSourceDocument.getElementById('content'); // чтобы в FF успел пропарситься контент
+		var c = this.pSourceDocument.getElementById('content'); // С‡С‚РѕР±С‹ РІ FF СѓСЃРїРµР» РїСЂРѕРїР°СЂСЃРёС‚СЊСЃСЏ РєРѕРЅС‚РµРЅС‚
 		/*
 		alert(c);
 		var obj = this;
 		setTimeout(function()
 			{
-				c = obj.pSourceDocument.getElementById('content'); // чтобы в FF успел пропарситься контент
+				c = obj.pSourceDocument.getElementById('content'); // С‡С‚РѕР±С‹ РІ FF СѓСЃРїРµР» РїСЂРѕРїР°СЂСЃРёС‚СЊСЃСЏ РєРѕРЅС‚РµРЅС‚
 				alert('1'+obj.pSourceDocument.innerHTML);
 				obj.pSourceDocument.designMode='on';
 			}, 10000
 		);
-		//c = this.pSourceDocument.getElementById('content'); // чтобы в FF успел пропарситься контент
+		//c = this.pSourceDocument.getElementById('content'); // С‡С‚РѕР±С‹ РІ FF СѓСЃРїРµР» РїСЂРѕРїР°СЂСЃРёС‚СЊСЃСЏ РєРѕРЅС‚РµРЅС‚
 		//alert(c);
 		*/
 		this.pSourceDocument.designMode='on';

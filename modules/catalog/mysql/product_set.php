@@ -1,4 +1,5 @@
-<?
+<?php
+
 use Bitrix\Main,
 	Bitrix\Catalog;
 
@@ -23,7 +24,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		unset($arSet['ITEMS']);
 		$arInsert = $DB->PrepareInsert("b_catalog_product_sets", $arFields);
 		$strSql = "insert into b_catalog_product_sets(".$arInsert[0].") values(".$arInsert[1].")";
-		$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($strSql);
 		$intID = (int)$DB->LastID();
 		if (0 < $intID)
 		{
@@ -32,7 +33,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 				$arOneItem['SET_ID'] = $intID;
 				$arInsert = $DB->PrepareInsert("b_catalog_product_sets", $arOneItem);
 				$strSql = "insert into b_catalog_product_sets(".$arInsert[0].") values(".$arInsert[1].")";
-				$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+				$DB->Query($strSql);
 			}
 			unset($arOneItem);
 			switch ($arSet['TYPE'])
@@ -82,7 +83,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			if (!empty($strUpdate))
 			{
 				$strSql = "update b_catalog_product_sets set ".$strUpdate." where ID = ".$intID;
-				$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+				$DB->Query($strSql);
 			}
 			if ($boolItems)
 			{
@@ -97,14 +98,14 @@ class CCatalogProductSet extends CCatalogProductSetAll
 						if (!empty($strUpdate))
 						{
 							$strSql = "update b_catalog_product_sets set ".$strUpdate." where ID = ".$intSubID;
-							$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+							$DB->Query($strSql);
 						}
 					}
 					else
 					{
 						$arInsert = $DB->PrepareInsert("b_catalog_product_sets", $arOneItem);
 						$strSql = "insert into b_catalog_product_sets(".$arInsert[0].") values(".$arInsert[1].")";
-						$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+						$DB->Query($strSql);
 						$intSubID = (int)$DB->LastID();
 					}
 					$arOneItem['ID'] = $intSubID;
@@ -115,7 +116,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 					self::deleteFromSet($intID, $arIDs);
 			}
 			$strSql = "select ID, ITEM_ID, TYPE from b_catalog_product_sets where ID = ".$intID;
-			$rsSets = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$rsSets = $DB->Query($strSql);
 			if ($arSet = $rsSets->Fetch())
 			{
 				switch ($arSet['TYPE'])
@@ -159,9 +160,9 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		if (!empty($arItem) && is_array($arItem))
 		{
 			$strSql = "delete from b_catalog_product_sets where SET_ID=".$arItem['ID'];
-			$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "delete from b_catalog_product_sets where ID=".$arItem['ID'];
-			$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$DB->Query($strSql);
 			switch ($arItem['TYPE'])
 			{
 				case self::TYPE_SET:
@@ -221,7 +222,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " group by ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -250,7 +251,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " group by ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -272,7 +273,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			{
 				$strSql .= " limit ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -295,7 +296,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		if (self::TYPE_SET == $intSetType || self::TYPE_GROUP == $intSetType)
 			$strSql .= ' and TYPE='.$intSetType;
 		$strSql .= ' limit 1';
-		$rsRes = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$rsRes = $DB->Query($strSql);
 		if ($arRes = $rsRes->Fetch())
 		{
 			return true;
@@ -324,7 +325,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		if (self::TYPE_SET == $intSetType || self::TYPE_GROUP == $intSetType)
 			$strSql .= ' and TYPE='.$intSetType;
 		$strSql .= ' limit 1';
-		$rsRes = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$rsRes = $DB->Query($strSql);
 		if ($arRes = $rsRes->Fetch())
 		{
 			return true;
@@ -359,7 +360,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		$strSql .= " from b_catalog_product_sets CPS".
 			" left join b_catalog_product CP on (CP.ID = CPS.ITEM_ID)".
 			" where CPS.OWNER_ID=".$intProductID." and CPS.TYPE=".$intSetType;
-		$rsItems = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$rsItems = $DB->Query($strSql);
 		while ($arItem = $rsItems->Fetch())
 		{
 			$arItem['ID'] = (int)$arItem['ID'];
@@ -425,7 +426,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		$strSql .= " from b_catalog_product_sets CPS".
 			" left join b_catalog_product CP on (CP.ID = CPS.ITEM_ID)".
 			" where CPS.ID=".$intID;
-		$rsItems = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$rsItems = $DB->Query($strSql);
 		if ($arItem = $rsItems->Fetch())
 		{
 			$arItem['ID'] = (int)$arItem['ID'];
@@ -445,7 +446,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			$strSql .= " from b_catalog_product_sets CPS".
 				" left join b_catalog_product CP on (CP.ID = CPS.ITEM_ID)".
 				" where CPS.SET_ID=".$intID;
-			$rsSubs = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$rsSubs = $DB->Query($strSql);
 			while ($arSub = $rsSubs->Fetch())
 			{
 				$arSub['ID'] = (int)$arSub['ID'];
@@ -479,7 +480,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		$setsID = array();
 		$product = (int)$product;
 		$query = 'select SET_ID, OWNER_ID, ITEM_ID from b_catalog_product_sets where ITEM_ID='.$product.' and TYPE='.self::TYPE_SET;
-		$setIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$setIterator = $DB->Query($query);
 		while ($setItem = $setIterator->Fetch())
 		{
 			$setItem['SET_ID'] = (int)$setItem['SET_ID'];
@@ -497,7 +498,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			$productMap = array();
 			$productIds = [];
 			$query = 'select SET_ID, OWNER_ID, ITEM_ID, QUANTITY as QUANTITY_IN_SET from b_catalog_product_sets where SET_ID IN('.implode(',', $setsID).')';
-			$setIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$setIterator = $DB->Query($query);
 			while ($setItem = $setIterator->Fetch())
 			{
 				$setItem['SET_ID'] = (int)$setItem['SET_ID'];
@@ -554,7 +555,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			return false;
 
 		$strSql = "select ID, TYPE, SET_ID, OWNER_ID, ITEM_ID from b_catalog_product_sets where ID=".$intID;
-		$rsItems = $DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$rsItems = $DB->Query($strSql);
 		if ($arItem = $rsItems->Fetch())
 		{
 			$arItem['ID'] = (int)$arItem['ID'];
@@ -582,7 +583,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			return false;
 
 		$strSql = "delete from b_catalog_product_sets where SET_ID=".$intID." and ID NOT IN(".implode(', ', $arEx).")";
-		$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($strSql);
 		return true;
 	}
 
@@ -655,7 +656,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		$update = $DB->PrepareUpdate('b_catalog_product', $fields);
 
 		$query = "update b_catalog_product set ".$update." where ID = ".$productID;
-		$DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($query);
 
 		Catalog\SubscribeTable::onProductSetAvailableUpdate($productID, $fields);
 
@@ -663,7 +664,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 			ExecuteModuleEventEx($arEvent, array($productID, $fields));
 
 		$query = "delete from b_catalog_measure_ratio where PRODUCT_ID = ".$productID;
-		$DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($query);
 		$fields = array(
 			'PRODUCT_ID' => $productID,
 			'RATIO' => 1,
@@ -671,7 +672,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		);
 		$insert = $DB->PrepareInsert('b_catalog_measure_ratio', $fields);
 		$query = "insert into b_catalog_measure_ratio (".$insert[0].") values(".$insert[1].")";
-		$DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($query);
 
 		return true;
 	}
@@ -689,7 +690,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 				'ITEMS' => array()
 			);
 			$query = 'select ID, ITEM_ID, QUANTITY from b_catalog_product_sets where SET_ID = '.$setID.' or ID = '.$setID;
-			$setIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$setIterator = $DB->Query($query);
 			while ($item = $setIterator->Fetch())
 			{
 				$item['ID'] = (int)$item['ID'];
@@ -709,7 +710,7 @@ class CCatalogProductSet extends CCatalogProductSetAll
 		else
 		{
 			$query = 'select ITEM_ID, QUANTITY from b_catalog_product_sets where SET_ID = '.$setID;
-			$setIterator = $DB->Query($query, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+			$setIterator = $DB->Query($query);
 			while ($item = $setIterator->Fetch())
 			{
 				$item['ITEM_ID'] = (int)$item['ITEM_ID'];

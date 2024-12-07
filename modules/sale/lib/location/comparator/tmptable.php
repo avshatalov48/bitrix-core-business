@@ -117,7 +117,7 @@ final class TmpTable
 		foreach(current($data) as $key => $val)
 			$cols .= $sqlHelper->forSql($key)." VARCHAR(255) NULL,\n";
 
-		return $this->connection->queryExecute('
+		$this->connection->queryExecute('
 			CREATE TABLE '.$this->name.' (
 				ID INT NOT NULL AUTO_INCREMENT,
 				XML_ID VARCHAR (100) NOT NULL,				

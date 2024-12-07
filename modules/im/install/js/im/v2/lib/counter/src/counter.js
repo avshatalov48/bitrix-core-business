@@ -11,6 +11,11 @@ type InitialCounters = {
 	CHAT: {[chatId: string]: number},
 	LINES: {[chatId: string]: number},
 	COPILOT: {[chatId: string]: number},
+	CHANNEL_COMMENT: {
+		[channelChatId: string]: {
+			[commentChatId: string]: number,
+		}
+	},
 	CHAT_MUTED: number[],
 	CHAT_UNREAD: number[],
 	TYPE: {
@@ -68,6 +73,7 @@ export class CounterManager
 		this.#store.dispatch('counters/setUnloadedChatCounters', this.#prepareChatCounters(counters));
 		this.#store.dispatch('counters/setUnloadedLinesCounters', counters.LINES);
 		this.#store.dispatch('counters/setUnloadedCopilotCounters', counters.COPILOT);
+		this.#store.dispatch('counters/setCommentCounters', counters.CHANNEL_COMMENT);
 		this.#store.dispatch('notifications/setCounter', counters.TYPE.NOTIFY);
 
 		this.#subscribeToCountersChange();

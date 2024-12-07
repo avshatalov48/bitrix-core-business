@@ -38,6 +38,7 @@ export class ConnectionProvider extends EventEmitter
 		this.status = options.status;
 		this.connected = options.connected;
 		this.userName = options.userName || '';
+		this.connectionOriginalName = options.connectionOriginalName || '';
 		this.mainPanel = options.mainPanel === true;
 		this.pendingStatus = options.pendingStatus === true;
 		this.gridTitle = options.gridTitle;
@@ -49,6 +50,8 @@ export class ConnectionProvider extends EventEmitter
 		// this.wizardClassName = options.wizardClass || null;
 		this.connections = [];
 		this.id = options.id || '';
+
+		this.isStartedReconnecting = false;
 	}
 
 	static createInstance(options)
@@ -62,6 +65,11 @@ export class ConnectionProvider extends EventEmitter
 	}
 
 	hasMenu()
+	{
+		return false;
+	}
+
+	doSupportReconnectionScenario(): boolean
 	{
 		return false;
 	}
@@ -154,7 +162,13 @@ export class ConnectionProvider extends EventEmitter
 				id: this.id || this.type,
 			},
 			type: this.type,
+			accountName: this.getAccountName(),
 		}));
+	}
+
+	getAccountName()
+	{
+		return this.getType();
 	}
 
 	setInterfaceUnit(interfaceUnit): void
@@ -170,6 +184,11 @@ export class ConnectionProvider extends EventEmitter
 	getConnections()
 	{
 		return this.connections;
+	}
+
+	getName()
+	{
+		return this.connectionOriginalName;
 	}
 
 	getConnection()
@@ -259,9 +278,9 @@ export class ConnectionProvider extends EventEmitter
 		}
 	}
 
-	openInfoConnectionSlider()
+	openInfoConnectionSlider(connection = null)
 	{
-		const content = this.getClassTemplateItem().createInstance(this).getInfoConnectionContent();
+		const content = this.getClassTemplateItem().createInstance(this, connection).getInfoConnectionContent();
 		this.openSlider({
 			sliderId: 'calendar:item-sync-connect-' + this.type,
 			content: content,
@@ -426,13 +445,18 @@ export class ConnectionProvider extends EventEmitter
 
 	handleCreatedConnection()
 	{
+		if (this.isStartedReconnecting)
+		{
+			this.setWizardSyncMode(false);
+		}
+
 		this.setStatus(this.STATUS_SUCCESS);
 		this.getInterfaceUnit().setSyncStatus(this.STATUS_SUCCESS);
 
 		BX.ajax.runAction('calendar.api.syncajax.clearSuccessfulConnectionNotifier', {
 			data: {
 				accountType: this.getType()
-			}
+			},
 		});
 
 		// TODO: It's better to avoid using of calendarContext.
@@ -442,6 +466,33 @@ export class ConnectionProvider extends EventEmitter
 		{
 			calendarContext.syncInterface.refreshDebounce();
 		}
+
+		if (this.isReconnecting())
+		{
+			this.handleCloseWizard();
+			this.endReconnecting();
+		}
+	}
+
+	startReconnecting(): void
+	{
+		if (this.doSupportReconnectionScenario())
+		{
+			this.isStartedReconnecting = true;
+		}
+	}
+
+	endReconnecting(): void
+	{
+		if (this.doSupportReconnectionScenario())
+		{
+			this.isStartedReconnecting = false;
+		}
+	}
+
+	isReconnecting(): boolean
+	{
+		return this.isStartedReconnecting;
 	}
 
 	handleCloseWizard()
@@ -479,7 +530,7 @@ export class ConnectionProvider extends EventEmitter
 			wizard.unsubscribeAll();
 		}
 	}
-	
+
 	refresh(options)
 	{
 		this.status = options.syncInfo.status || false;
@@ -493,5 +544,25 @@ export class ConnectionProvider extends EventEmitter
 		this.setSections(options.sections);
 		this.clearConnections();
 		this.setConnections();
+	}
+
+	getFailedConnectionName()
+	{
+		return this.getType();
+	}
+
+	getFirstFailedConnection()
+	{
+		return this.getFailedConnections()[0];
+	}
+
+	getFailedConnectionsCount()
+	{
+		return this.getFailedConnections().length;
+	}
+
+	getFailedConnections()
+	{
+		return this.connections.filter((connection) => connection.status === false);
 	}
 }

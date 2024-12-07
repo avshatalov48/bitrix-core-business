@@ -67,11 +67,14 @@ Loc::loadMessages(__FILE__);
 				<span class="bx-landing-cookies-popup-warning-link" id="bx-landing-cookies-opt-link"><?= Loc::getMessage('LANDING_TPL_COOKIES_DETAIL_LINK');?></span>
 			</div>
 			<div class="bx-landing-cookies-popup-warning-right">
-				<span class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round" id="bx-landing-cookies-opt">
-					<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_DETAIL' : 'LANDING_TPL_COOKIES_OPT');?>
-				</span>
 				<span class="ui-btn ui-btn-lg ui-btn-primary ui-btn-round" id="bx-landing-cookies-accept">
 					<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_UNDERSTAND' : 'LANDING_TPL_COOKIES_ACCEPT');?>
+				</span>
+				<span class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round bx-landing-cookies-button-cancel bx-landing-cookies-button-cancel-second"<?if ($arParams['INFORMATION'] == 'Y') {?> style="display: none;" <?}?>>
+					<?= Loc::getMessage('LANDING_TPL_COOKIES_DECLINE');?>
+				</span>
+				<span class="ui-btn ui-btn-lg ui-btn-light-border ui-btn-round" id="bx-landing-cookies-opt">
+					<?= Loc::getMessage(($arParams['INFORMATION'] == 'Y') ? 'LANDING_TPL_COOKIES_DETAIL' : 'LANDING_TPL_COOKIES_OPT');?>
 				</span>
 			</div>
 		</div>

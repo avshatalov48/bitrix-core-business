@@ -2,6 +2,7 @@
 
 namespace Bitrix\Seo\BusinessSuite\AuthAdapter\Facebook;
 
+use Bitrix\Main\SystemException;
 use Bitrix\Seo;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
@@ -24,10 +25,18 @@ final class BusinessAuthAdapter extends Retargeting\AuthAdapter
 
 	public function getAuthUrl()
 	{
-		if(!Seo\Service::isRegistered())
+		if (!Seo\Service::isRegistered())
 		{
-			Seo\Service::register();
+			try
+			{
+				Seo\Service::register();
+			}
+			catch (SystemException $e)
+			{
+				return '';
+			}
 		}
+
 		$authorizeUrl = Seo\Service::getAuthorizeLink();
 		$authorizeData = Seo\Service::getAuthorizeData(
 			$this->getEngineCode(),

@@ -9,6 +9,16 @@ export const Layout = Object.freeze({
 		list: 'RecentListContainer',
 		content: 'CreateChatContent',
 	},
+	updateChat: {
+		name: 'updateChat',
+		list: 'RecentListContainer',
+		content: 'UpdateChatContent',
+	},
+	channel: {
+		name: 'channel',
+		list: 'ChannelListContainer',
+		content: 'ChatContent',
+	},
 	notification: {
 		name: 'notification',
 		list: 'RecentListContainer',

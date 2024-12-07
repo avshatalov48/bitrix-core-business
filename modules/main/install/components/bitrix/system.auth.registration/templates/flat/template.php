@@ -1,10 +1,12 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2014 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -28,7 +30,7 @@ $APPLICATION->SetAdditionalCSS("/bitrix/css/main/system.auth/flat/style.css");
 <noindex>
 
 <?
-if(!empty($arParams["~AUTH_RESULT"])):
+if(!empty($arParams["~AUTH_RESULT"]["MESSAGE"])):
 	$text = str_replace(array("<br>", "<br />"), "\n", $arParams["~AUTH_RESULT"]["MESSAGE"]);
 ?>
 	<div class="alert <?=($arParams["~AUTH_RESULT"]["TYPE"] == "OK"? "alert-success":"alert-danger")?>"><?=nl2br(htmlspecialcharsbx($text))?></div>
@@ -67,9 +69,9 @@ new BX.PhoneAuth({
 	errorContainerId: 'bx_register_error',
 	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
 	data:
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'signedData' => $arResult["SIGNED_DATA"],
-		])?>,
+		]) ?>,
 	onError:
 		function(response)
 		{
@@ -121,7 +123,7 @@ new BX.PhoneAuth({
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = '';
 </script>
 <?endif?>
@@ -135,7 +137,7 @@ document.getElementById('bx_auth_secure').style.display = '';
 <?if($arResult["SECURE_AUTH"]):?>
 				<div class="bx-authform-psw-protected" id="bx_auth_secure_conf" style="display:none"><div class="bx-authform-psw-protected-desc"><span></span><?echo GetMessage("AUTH_SECURE_NOTE")?></div></div>
 
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure_conf').style.display = '';
 </script>
 <?endif?>
@@ -246,7 +248,7 @@ $APPLICATION->IncludeComponent(
 
 	</form>
 
-<script type="text/javascript">
+<script>
 document.bform.USER_NAME.focus();
 </script>
 

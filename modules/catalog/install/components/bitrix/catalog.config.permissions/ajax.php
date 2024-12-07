@@ -37,7 +37,7 @@ class CatalogConfigPermissionsAjaxController extends \Bitrix\Main\Engine\Control
 				$userGroups = $rolePermissionService->appendInventoryManagmentPermissions($userGroups);
 			}
 
-			$userGroups = $rolePermissionService->saveRolePermissions($userGroups);
+			$rolePermissionService->saveRolePermissions($userGroups);
 
 			return $this->loadData();
 		}

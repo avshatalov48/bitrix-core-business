@@ -6,6 +6,7 @@ use Bitrix\AI\Engine;
 use Bitrix\AI\Engine\IEngine;
 use Bitrix\AI\Tuning;
 use Bitrix\AI\Tuning\Type;
+use Bitrix\Landing\Manager;
 use Bitrix\Main\Event;
 use Bitrix\Main\Entity;
 use Bitrix\Main\EventResult;
@@ -16,6 +17,8 @@ class Ai
 {
 	private const TUNING_CODE_IMAGE = 'landing_allow_image_generate';
 	private const TUNING_CODE_TEXT = 'landing_allow_text_generate';
+	private const NOT_ALLOWED_ZONES_FOR_IMAGE = [];
+	private const NOT_ALLOWED_ZONES_FOR_TEXT = ['cn'];
 
 	/**
 	 * Returns true if AI Image service is can be used. Not check activity for landing
@@ -34,7 +37,12 @@ class Ai
 			return false;
 		}
 
-		return true;
+		if (in_array(Manager::getZone(), self::NOT_ALLOWED_ZONES_FOR_IMAGE))
+		{
+			return false;
+		}
+
+ 		return true;
 	}
 
 	/**
@@ -67,6 +75,11 @@ class Ai
 
 		$engine = Engine::getByCategory('text', Context::getFake());
 		if (!$engine)
+		{
+			return false;
+		}
+
+		if (in_array(Manager::getZone(), self::NOT_ALLOWED_ZONES_FOR_TEXT))
 		{
 			return false;
 		}

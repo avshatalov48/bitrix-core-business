@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -16,6 +16,7 @@
  * @global CAdminMainChain $adminChain
  */
 
+use Bitrix\Main\Type\Date;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Application;
 
@@ -64,7 +65,7 @@ if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
 <?
 else:
 ?>
-<script type="text/javascript">
+<script>
 <?
 	if (isset($aUserOpt['fix']) && $aUserOpt['fix'] == 'on'):
 ?>
@@ -82,7 +83,7 @@ echo $adminPage->ShowScript();
 $APPLICATION->ShowHeadStrings();
 $APPLICATION->ShowHeadScripts();
 ?>
-<script type="text/javascript">
+<script>
 BX.message({MENU_ENABLE_TOOLTIP: <?=(!isset($aUserOptGlobal['start_menu_title']) || $aUserOptGlobal['start_menu_title'] <> 'N' ? 'true' : 'false')?>});
 BX.InitializeAdmin();
 
@@ -113,8 +114,11 @@ if (!defined('ADMIN_SECTION_LOAD_AUTH') || !ADMIN_SECTION_LOAD_AUTH):
 </div><![endif]-->
 <?
 endif;
+
 if(($adminHeader = getLocalPath("php_interface/admin_header.php", BX_PERSONAL_ROOT)) !== false)
+{
 	include($_SERVER["DOCUMENT_ROOT"].$adminHeader);
+}
 
 ?>
 	<table class="adm-main-wrap">
@@ -122,10 +126,8 @@ if(($adminHeader = getLocalPath("php_interface/admin_header.php", BX_PERSONAL_RO
 		<tr>
 			<td class="adm-header-wrap" colspan="2">
 <?
-
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/top_panel.php");
-require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/favorite_menu.php");
-
+CAdminTopPanel::Show($adminPage, $adminMenu);
+echo CAdminPage::ShowSound();
 ?>
 			</td>
 		</tr>
@@ -153,7 +155,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/favorite_menu
 			<?if (!$isSidePanel):?>
 			<td class="adm-left-side-wrap" id="menu_mirrors_cont">
 
-<script type="text/javascript">
+<script>
 BX.adminMenu.setMinimizedState(<?=$bOptMenuMinimized ? 'true' : 'false'?>);
 BX.adminMenu.setActiveSection('<?=$openedSection?>');
 BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections());?>');
@@ -215,10 +217,18 @@ BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections
 <?
 		if ($menu['menu_id'] == 'desktop')
 		{
-			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/interface/desktop_menu.php");
-
-			$menu["text"] = $favMenuText;
-			$menu["items"] = $favMenuItems;
+			if ($USER->IsAuthorized())
+			{
+				CDesktopMenu::Show();
+			}
+?>
+<script>
+	BX.addCustomEvent(BX.adminMenu, 'onMenuChange', BX.delegate(BX.adminFav.onMenuChange, this));
+</script>
+<?
+			$favMenu = new CBXFavAdmMenu;
+			$menu["text"] = GetMessage("MAIN_PR_ADMIN_FAV");
+			$menu["items"] = $favMenu->GenerateItems();
 		}
 ?>
 							<div class="adm-submenu-items-wrap">
@@ -238,10 +248,14 @@ BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections
 			}
 		}
 		elseif ($menu['menu_id'] == 'desktop')
+		{
 			echo CBXFavAdmMenu::GetEmptyMenuHTML();
+		}
 
 		if($menu['menu_id'] == 'desktop')
+		{
 			echo CBXFavAdmMenu::GetMenuHintHTML(empty($menu["items"]));
+		}
 
 ?>
 													</div>
@@ -259,7 +273,7 @@ BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections
 <?
 	if ($menuScripts != ""):
 ?>
-<script type="text/javascript"><?=$menuScripts?></script>
+<script><?=$menuScripts?></script>
 <?
 	endif;
 
@@ -275,11 +289,6 @@ BX.adminMenu.setOpenedSections('<?=CUtil::JSEscape($adminMenu->GetOpenedSections
 			<td class="adm-workarea-wrap <?=defined('BX_ADMIN_SECTION_404') && BX_ADMIN_SECTION_404 == 'Y' ? 'adm-404-error' : 'adm-workarea-wrap-top'?>">
 				<div class="adm-workarea adm-workarea-page" id="adm-workarea">
 <?
-//wizard customization file
-$bxProductConfig = array();
-if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
-	include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
-
 //Title
 $curPage = $APPLICATION->GetCurPage(true);
 if ($curPage != "/bitrix/admin/index.php")
@@ -348,42 +357,13 @@ if($USER->IsAuthorized()):
 	$showProlongMenu = false;
 
 	if(defined("DEMO") && DEMO == "Y"):
+
 		$vendor = COption::GetOptionString("main", "vendor", "1c_bitrix");
-		$delta = $GLOBALS['SiteExpireDate'] - time();
+
+		$delta = $license->getExpireDate()?->getTimestamp() - time();
 		$daysToExpire = ($delta < 0? 0 : ceil($delta/86400));
-		$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
 		echo BeginNote('style="position: relative; top: -15px;"');
-		if(isset($bxProductConfig["saas"])):
-			if($bSaas)
-			{
-				$sWarnDate = COption::GetOptionString('main', '~support_finish_date');
-				if (!empty($sWarnDate))
-					$sWarnDate = ConvertTimeStamp(MakeTimeStamp($sWarnDate, 'YYYY-MM-DD'), "SHORT");
-
-				if($daysToExpire > 0)
-				{
-					if($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
-					{
-						$sWarn = $bxProductConfig["saas"]["warning"];
-						$sWarn = str_replace("#RENT_DATE#", $sWarnDate, $sWarn);
-						$sWarn = str_replace("#DAYS#", $daysToExpire, $sWarn);
-						echo $sWarn;
-					}
-				}
-				else
-				{
-					echo str_replace("#RENT_DATE#", $sWarnDate, $bxProductConfig["saas"]["warning_expired"]);
-				}
-			}
-			else
-			{
-				if($daysToExpire > 0)
-					echo str_replace("#DAYS#", $daysToExpire, $bxProductConfig["saas"]["trial"]);
-				else
-					echo $bxProductConfig["saas"]["trial_expired"];
-			}
-		else: //saas
 ?>
 	<span class="required"><?echo GetMessage("TRIAL_ATTENTION") ?></span>
 	<?echo GetMessage("TRIAL_ATTENTION_TEXT1_".$vendor) ?>
@@ -394,15 +374,13 @@ if($USER->IsAuthorized()):
 	<?endif;?>
 	<?echo GetMessage("TRIAL_ATTENTION_TEXT5_".$vendor) ?>
 <?
-		endif; //saas
 		echo EndNote();
 
 	elseif(defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y"):
 
-		$delta = $GLOBALS['SiteExpireDate'] - time();
+		$expireDate = $license->getExpireDate();
+		$delta = $expireDate?->getTimestamp() - time();
 		$daysToExpire = $delta / 86400;
-		$expireDate = \Bitrix\Main\Type\Date::createFromTimestamp($GLOBALS['SiteExpireDate']);
-		$blockDate = \Bitrix\Main\Type\Date::createFromTimestamp($GLOBALS['SiteExpireDate'])->add('+15 days');
 
 		if ($daysToExpire >= 0 && $daysToExpire < 60)
 		{
@@ -414,8 +392,9 @@ if($USER->IsAuthorized()):
 		}
 		elseif ($daysToExpire < 0)
 		{
+			$blockDate = ($expireDate ? (clone $expireDate)->add('+15 days') : new Date());
 			$textMessage = GetMessage('prolog_main_timelimit_expired', [
-				'#FINISH_DATE#' => $expireDate,
+				'#FINISH_DATE#' => ($expireDate ?: $blockDate),
 				'#BLOCK_DATE#' => $blockDate,
 				'#LINK#' => $eulaLink,
 			]);
@@ -424,13 +403,13 @@ if($USER->IsAuthorized()):
 	elseif($USER->CanDoOperation('install_updates')):
 		//show support ending warning
 
-		$supportFinishDate = COption::GetOptionString('main', '~support_finish_date', '');
-		if($supportFinishDate <> '' && is_array(($aSupportFinishDate=ParseDate($supportFinishDate, 'ymd'))))
+		$supportFinishDate = $license->getSupportExpireDate();
+		if ($supportFinishDate !== null)
 		{
 			$aGlobalOpt = CUserOptions::GetOption("global", "settings", array());
 			if(!isset($aGlobalOpt['messages']['support']) || $aGlobalOpt['messages']['support'] <> 'N')
 			{
-				$supportFinishStamp = mktime(0,0,0, $aSupportFinishDate[1], $aSupportFinishDate[0], $aSupportFinishDate[2]);
+				$supportFinishStamp = $supportFinishDate->getTimestamp();
 				$supportDateDiff = ceil(($supportFinishStamp - time())/86400);
 
 				if($supportDateDiff >= 0 && $supportDateDiff <= 30)
@@ -523,4 +502,3 @@ if($USER->IsAuthorized()):
 		}
 	}
 endif;
-?>

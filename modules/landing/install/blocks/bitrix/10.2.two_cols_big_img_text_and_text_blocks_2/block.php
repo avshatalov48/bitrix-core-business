@@ -13,7 +13,7 @@
             <div class="row align-items-stretch">
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="js-animation fadeIn h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
+                    <article class="js-animation fadeIn h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-color-white g-font-weight-700 text-uppercase g-mb-10">Agency Search</h6>
                             <div class="landing-block-node-text-block-text g-color-white-opacity-0_7">
@@ -24,7 +24,7 @@
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="js-animation fadeIn h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
+                    <article class="js-animation fadeIn h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-color-white g-font-weight-700 text-uppercase g-mb-10">Management &amp; Marketing</h6>
                             <div class="landing-block-node-text-block-text g-color-white-opacity-0_7">
@@ -35,7 +35,7 @@
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="js-animation fadeIn h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
+                    <article class="js-animation fadeIn h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-color-white g-font-weight-700 text-uppercase g-mb-10">Coaching &amp; Planning</h6>
                             <div class="landing-block-node-text-block-text g-color-white-opacity-0_7">
@@ -46,7 +46,7 @@
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="js-animation fadeIn h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
+                    <article class="js-animation fadeIn h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-theme-business-bg-blue-dark-v2 g-transition-0_3 g-pb-20 g-pt-20 g-pr-20 g-pl-20">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-color-white g-font-weight-700 text-uppercase g-mb-10">Consultation Services</h6>
                             <div class="landing-block-node-text-block-text g-color-white-opacity-0_7">

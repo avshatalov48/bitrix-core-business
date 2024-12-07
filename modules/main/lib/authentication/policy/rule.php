@@ -100,7 +100,7 @@ abstract class Rule implements \JsonSerializable
 	}
 
 	/**
-	 * JsonSerializable::jsonSerialize — Specify data which should be serialized to JSON
+	 * JsonSerializable::jsonSerialize â€” Specify data which should be serialized to JSON
 	 * @return array
 	 */
 	public function jsonSerialize(): array

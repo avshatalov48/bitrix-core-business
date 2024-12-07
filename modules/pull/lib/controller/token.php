@@ -11,7 +11,11 @@ class Token extends Engine\Controller
 	function removeAction(string $token)
 	{
 		$tokenData = PushTable::getList([
-			"filter" => ["=DEVICE_TOKEN" => $token]
+			"filter" => [
+				"LOGIC" => "OR",
+				"=DEVICE_TOKEN" => $token,
+				"=VOIP_TOKEN" => $token,
+			]
 		])->fetch();
 
 		if (!$tokenData)

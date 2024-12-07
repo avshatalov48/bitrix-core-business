@@ -17,10 +17,10 @@ $err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","ticket_list.php");
 
 /***************************************************************************
-									Функции
+									Р¤СѓРЅРєС†РёРё
 ***************************************************************************/
 
-function CheckFields() // проверка на наличие обязательных полей
+function CheckFields() // РїСЂРѕРІРµСЂРєР° РЅР° РЅР°Р»РёС‡РёРµ РѕР±СЏР·Р°С‚РµР»СЊРЅС‹С… РїРѕР»РµР№
 {
 	global $arrFILES, $bAdmin, $bSupportTeam;
 
@@ -56,7 +56,7 @@ function CheckFields() // проверка на наличие обязательных полей
 }
 
 /***************************************************************************
-							Обработка GET | POST
+							РћР±СЂР°Р±РѕС‚РєР° GET | POST
 ***************************************************************************/
 $TICKET_LIST_URL = $TICKET_LIST_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_LIST_URL, 0, 4) == 'http'?'':'/').$TICKET_LIST_URL)) : "ticket_list.php";
 $TICKET_EDIT_URL = $TICKET_EDIT_URL <> ''? CUtil::AddSlashes(htmlspecialcharsbx((mb_substr($TICKET_EDIT_URL, 0, 4) == 'http'?'':'/').$TICKET_EDIT_URL)) : "ticket_edit.php";
@@ -82,8 +82,8 @@ if ($arTicket = $rsTicket->Fetch())
 		endwhile;
 	endif;
 
-	// если была нажата кнопка "save" на текущей странице
-	if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $bAdmin=="Y" && $ID>0 && $TICKET_ID>0 && check_bitrix_sessid())
+	// РµСЃР»Рё Р±С‹Р»Р° РЅР°Р¶Р°С‚Р° РєРЅРѕРїРєР° "save" РЅР° С‚РµРєСѓС‰РµР№ СЃС‚СЂР°РЅРёС†Рµ
+	if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $bAdmin=="Y" && $ID>0 && $TICKET_ID>0 && check_bitrix_sessid())
 	{
 		$DB->PrepareFields("b_ticket_message");
 		$arrFILES = array();
@@ -223,12 +223,12 @@ if (intval($arTicket["MESSAGES"])>1)
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
-//echo ShowError($strError);
-//echo ShowNote($strNote);
+//ShowError($strError);
+//ShowNote($strNote);
 if ($strError)
 	echo $strError->Show();
 /***************************************************************************
-								HTML форма
+								HTML С„РѕСЂРјР°
 ****************************************************************************/
 ?>
 <form name="form1" method="POST" action="<?=$APPLICATION->GetCurPage()?>?ID=<?=$ID?>&TICKET_ID=<?=$TICKET_ID?>&lang=<?=LANG?>" enctype="multipart/form-data">
@@ -246,7 +246,7 @@ if ($strError)
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 ?>
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT>
 	<!--
 	function SelectSource()
 	{
@@ -270,7 +270,7 @@ if ($strError)
 			echo SelectBox("SOURCE_ID", CTicket::GetRefBookValues("SR", $arTicket["LID"]), "< web >", $str_SOURCE_ID, "OnChange=SelectSource() ");
 			?>&nbsp;<input type="text" size="12" name="OWNER_SID" id="OWNER_SID" value="<?=$str_OWNER_SID?>"><?echo FindUserID("OWNER_USER_ID", $str_OWNER_USER_ID)?></td>
 	</tr>
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT>
 	<!--
 	SelectSource();
 	//-->
@@ -376,7 +376,7 @@ if ($strError)
 	</tr>
 	<?endif;?>
 
-	<script language="JavaScript">
+	<script>
 	<!--
 	function AddFileInput()
 	{

@@ -271,7 +271,10 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 		}
 	}
 
-	if (\Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog') === 'Y')
+	if (
+		\Bitrix\Main\Loader::includeModule('catalog')
+		&& \Bitrix\Catalog\Config\State::isExternalCatalog()
+	)
 	{
 		if (
 			$accessSite['PUBLICATION'] === 'Y'
@@ -339,25 +342,25 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 				<div class="landing-title">
 					<div class="landing-title-btn"
 						 onclick="showTileMenu(this,{
-									viewSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlView)) ?>',
-									ID: '<?= $item['ID'] ?>',
-									title: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($item['TITLE']));?>',
-									isArea: <?= $item['IS_AREA'] ? 'true' : 'false' ?>,
-							 		isMainPage: <?= $item['IS_HOMEPAGE'] ? 'true' : 'false' ?>,
-									publicUrl: '<?= htmlspecialcharsbx(CUtil::jsEscape($item['PUBLIC_URL'])) ?>',
-									copyPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriCopy->getUri())) ?>',
-									movePage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriMove->getUri())) ?>',
-									deletePage: '#',
-									settings: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlSettings)) ?>',
-							 		isFolder: false,
-							 		isActive: <?= ($item['ACTIVE'] === 'Y') ? 'true' : 'false' ?>,
-							 		isDeleted: <?= ($item['DELETED'] === 'Y') ? 'true' : 'false' ?>,
-									wasModified: <?= ($item['WAS_MODIFIED'] === 'Y') ? 'true' : 'false' ?>,
-									isEditDisabled: <?= ($accessSite['EDIT'] !== 'Y') ? 'true' : 'false' ?>,
-									isSettingsDisabled: <?= ($accessSite['SETTINGS'] !== 'Y') ? 'true' : 'false' ?>,
-									isPublicationDisabled: <?= ($accessSite['PUBLICATION'] !== 'Y') ? 'true' : 'false' ?>,
-									isDeleteDisabled: <?= ($accessSite['DELETE'] !== 'Y') ? 'true' : 'false' ?>
-								})">
+							viewSite: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlView)) ?>',
+							ID: '<?= $item['ID'] ?>',
+							title: '<?= \htmlspecialcharsbx(\CUtil::jsEscape($item['TITLE']));?>',
+							isArea: <?= $item['IS_AREA'] ? 'true' : 'false' ?>,
+					        isMainPage: <?= $item['IS_HOMEPAGE'] ? 'true' : 'false' ?>,
+							publicUrl: '<?= htmlspecialcharsbx(CUtil::jsEscape($item['PUBLIC_URL'])) ?>',
+							copyPage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriCopy->getUri())) ?>',
+							movePage: '<?= htmlspecialcharsbx(CUtil::jsEscape($uriMove->getUri())) ?>',
+							deletePage: '#',
+							settings: '<?= htmlspecialcharsbx(CUtil::jsEscape($urlSettings)) ?>',
+					        isFolder: false,
+					        isActive: <?= ($item['ACTIVE'] === 'Y') ? 'true' : 'false' ?>,
+					        isDeleted: <?= ($item['DELETED'] === 'Y') ? 'true' : 'false' ?>,
+							wasModified: <?= ($item['WAS_MODIFIED'] === 'Y') ? 'true' : 'false' ?>,
+							isEditDisabled: <?= ($accessSite['EDIT'] !== 'Y') ? 'true' : 'false' ?>,
+							isSettingsDisabled: <?= ($accessSite['SETTINGS'] !== 'Y') ? 'true' : 'false' ?>,
+							isPublicationDisabled: <?= ($accessSite['PUBLICATION'] !== 'Y') ? 'true' : 'false' ?>,
+							isDeleteDisabled: <?= ($accessSite['DELETE'] !== 'Y') ? 'true' : 'false' ?>
+						})">
 						<span class="landing-title-btn-inner"><?= Loc::getMessage('LANDING_TPL_ACTIONS') ?></span>
 					</div>
 					<div class="landing-title-wrap" title="<?= htmlspecialcharsbx($item['TITLE']);?>">
@@ -447,7 +450,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 	</div>
 <?endif;?>
 
-<script type="text/javascript">
+<script>
 	(() => {
 		const sliderConditions = <?= CUtil::phpToJSObject($sliderConditions);?>;
 		if (sliderConditions.length > 0)
@@ -520,7 +523,7 @@ foreach ($arResult['LANDINGS'] as $i => $item):
 		}
 	})();
 </script>
-<script type="text/javascript">
+<script>
 	// + button open page add slider
 	BX.bind(document.querySelector('.landing-item-add-new span.landing-item-inner'), 'click', event => {
 		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {

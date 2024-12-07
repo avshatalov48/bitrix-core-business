@@ -9,9 +9,9 @@ class SqlException extends Exception
 	/**
 	 * @param string $message Application message.
 	 * @param string $databaseMessage Database reason.
-	 * @param \Exception | null $previous The previous exception used for the exception chaining.
+	 * @param \Throwable | null $previous The previous exception used for the exception chaining.
 	 */
-	public function __construct($message = "", $databaseMessage = "", \Exception $previous = null)
+	public function __construct($message = "", $databaseMessage = "", \Throwable $previous = null)
 	{
 		parent::__construct($message, $databaseMessage, $previous);
 	}
@@ -29,9 +29,9 @@ class SqlQueryException extends SqlException
 	 * @param string $message Application message.
 	 * @param string $databaseMessage Database reason.
 	 * @param string $query Sql query text.
-	 * @param \Exception | null $previous The previous exception used for the exception chaining.
+	 * @param \Throwable | null $previous The previous exception used for the exception chaining.
 	 */
-	public function __construct($message = "", $databaseMessage = "", $query = "", \Exception $previous = null)
+	public function __construct($message = "", $databaseMessage = "", $query = "", \Throwable $previous = null)
 	{
 		parent::__construct($message, $databaseMessage, $previous);
 		$this->query = $query;
@@ -55,9 +55,9 @@ class TransactionException extends SqlException
 {
 	/**
 	 * @param string $message Application message.
-	 * @param \Exception | null $previous The previous exception used for the exception chaining.
+	 * @param \Throwable | null $previous The previous exception used for the exception chaining.
 	 */
-	public function __construct($message = '', \Exception $previous = null)
+	public function __construct($message = '', \Throwable $previous = null)
 	{
 		parent::__construct($message, '', $previous);
 	}

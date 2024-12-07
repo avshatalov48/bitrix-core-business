@@ -3,7 +3,6 @@ namespace Bitrix\Main\Localization;
 
 use Bitrix\Main;
 use Bitrix\Main\IO\Path;
-use Bitrix\Main\Context;
 use Bitrix\Main\Config\Configuration;
 
 class Translation
@@ -46,16 +45,6 @@ class Translation
 	 */
 	public static function getDefaultTranslationEncoding($lang)
 	{
-		static $sourceEncoding = [
-			'ru' => 'windows-1251',
-			'en' => 'iso-8859-1',
-			'de' => 'iso-8859-15',
-		];
-		if (isset($sourceEncoding[$lang]))
-		{
-			return $sourceEncoding[$lang];
-		}
-
 		return 'utf-8';
 	}
 
@@ -68,21 +57,13 @@ class Translation
 	 */
 	public static function getSourceEncoding($lang)
 	{
-		$encoding = '';
+		$encoding = 'utf-8';
 		if (self::useTranslationRepository() || self::allowConvertEncoding())
 		{
 			if (self::isDefaultTranslationLang($lang))
 			{
 				$encoding = self::getDefaultTranslationEncoding($lang);
 			}
-			else
-			{
-				$encoding = 'utf-8';
-			}
-		}
-		elseif (Main\Application::isUtfMode() || defined('BX_UTF'))
-		{
-			$encoding = 'utf-8';
 		}
 
 		if (empty($encoding))
@@ -123,50 +104,7 @@ class Translation
 	{
 		if (self::$currentEncoding === null)
 		{
-			$encoding = null;
-			// site settings
-			if (Main\Application::isUtfMode() || defined('BX_UTF'))
-			{
-				$encoding = 'utf-8';
-			}
-			elseif (defined('SITE_CHARSET') && (SITE_CHARSET <> ''))
-			{
-				$encoding = SITE_CHARSET;
-			}
-			elseif (defined('LANG_CHARSET') && (LANG_CHARSET <> ''))
-			{
-				$encoding = LANG_CHARSET;
-			}
-			else
-			{
-				$context = Context::getCurrent();
-				if ($context instanceof Main\Context)
-				{
-					$culture = $context->getCulture();
-					if ($culture instanceof Context\Culture)
-					{
-						$encoding = $culture->getCharset();
-					}
-				}
-			}
-			// default settings
-			if ($encoding === null)
-			{
-				if (Configuration::getValue('default_charset') !== null)
-				{
-					$encoding = Configuration::getValue('default_charset');
-				}
-				elseif (defined('BX_DEFAULT_CHARSET') && (BX_DEFAULT_CHARSET <> ''))
-				{
-					$encoding = BX_DEFAULT_CHARSET;
-				}
-				else
-				{
-					$encoding = 'windows-1251';
-				}
-			}
-
-			self::$currentEncoding = mb_strtolower($encoding);
+			self::$currentEncoding = 'utf-8';
 		}
 
 		return self::$currentEncoding;
@@ -355,11 +293,11 @@ class Translation
 			return $langFile;
 		}
 
-		if (strpos($langFile, '\\') !== false)
+		if (str_contains($langFile, '\\'))
 		{
 			$langFile = str_replace('\\', '/', $langFile);
 		}
-		if (strpos($langFile, '//') !== false)
+		if (str_contains($langFile, '//'))
 		{
 			$langFile = str_replace('//', '/', $langFile);
 		}
@@ -380,7 +318,7 @@ class Translation
 		}
 
 		// module lang
-		if (strpos($langFile, $documentRoot. '/bitrix/modules/') === 0)
+		if (str_starts_with($langFile, $documentRoot . '/bitrix/modules/'))
 		{
 			$langFile = str_replace(
 				$documentRoot.'/bitrix/modules/',
@@ -554,7 +492,7 @@ class Translation
 				if ($moduleDirectory->isDirectory())
 				{
 					$moduleName = $moduleDirectory->getName();
-					if (strpos($moduleName, '.') === false || strpos($moduleName, 'bitrix.') === 0)
+					if (!str_contains($moduleName, '.') || str_starts_with($moduleName, 'bitrix.'))
 					{
 						self::$map[$moduleName] = array();
 						foreach ($testForExistence as $testEntry)

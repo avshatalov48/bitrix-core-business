@@ -89,8 +89,10 @@ class IblockMoneyProperty
 		$listCurrency = self::getListCurrency();
 		if($listCurrency)
 		{
-			if($property['MULTIPLE'] == 'Y')
+			if (($property['MULTIPLE'] ?? null) === 'Y')
+			{
 				$html .= '<input type="hidden" data-id="'.$randString.'">';
+			}
 			$html .= '<select id="selector-'.$randString.'" style="width: auto; margin: 0 5px;">';
 			foreach($listCurrency as $currency)
 			{

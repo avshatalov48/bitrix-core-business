@@ -43,6 +43,7 @@ $jsonDataMap = [
 	'templates_json' => 'templates',
 	'robot_names' => 'robot_names',
 	'trigger_names' => 'trigger_names',
+	'context_robots_json' => 'context_robots',
 ];
 $jsonValues = [];
 
@@ -200,6 +201,7 @@ switch ($action)
 		}
 
 		$context = isset($_REQUEST['context']) && is_array($_REQUEST['context']) ? $_REQUEST['context'] : null;
+		$contextRobots = isset($_REQUEST['context_robots']) && is_array($_REQUEST['context_robots']) ? $_REQUEST['context_robots'] : [];
 
 		ob_start();
 		$APPLICATION->includeComponent(
@@ -210,6 +212,7 @@ switch ($action)
 				'DOCUMENT_TYPE' => $documentType,
 				'DOCUMENT_CATEGORY_ID' => $documentCategoryId,
 				'ROBOT_DATA' => $robotData,
+				'CONTEXT_ROBOTS' => $contextRobots,
 				'REQUEST' => $_REQUEST,
 				'CONTEXT' => $context
 			)

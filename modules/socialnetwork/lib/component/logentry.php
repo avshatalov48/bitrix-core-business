@@ -5,14 +5,12 @@ namespace Bitrix\Socialnetwork\Component;
 use Bitrix\Main\AccessDeniedException;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Engine\ActionFilter\Service\Token;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Error;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Page\Asset;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\UserTable;
 use Bitrix\Socialnetwork\ComponentHelper;
@@ -25,8 +23,14 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 	protected const STATUS_DENIED = 'denied';
 	protected const STATUS_ERROR = 'error';
 
-	/** @var ErrorCollection errorCollection */
-	protected $errorCollection;
+	protected ErrorCollection $errorCollection;
+
+	public function __construct($component = null)
+	{
+		parent::__construct($component);
+
+		$this->errorCollection = new ErrorCollection();
+	}
 
 	public function getErrorByCode($code)
 	{
@@ -119,7 +123,6 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		$showLogin = (string)($params['showLogin'] ?? 'N');
 		$avatarSize = (int)($params['avatarSize'] ?? 100);
 		$pull = (string)($params['pull'] ?? 'N');
-		$decode = (bool)($params['decode'] ?? false);
 
 		$pathToSmile = (string)($params['pathToSmile'] ?? '');
 		$pathToLogEntry = (string)($params['pathToLogEntry'] ?? '');
@@ -223,10 +226,6 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 		];
 
 		$commentText = preg_replace("/\xe2\x81\xa0/is", ' ', $message);  // INVISIBLE_CURSOR from editor
-		if ($decode)
-		{
-			\CUtil::decodeURIComponent($commentText);
-		}
 		$commentText = trim($commentText);
 
 		if ($commentText === '')
@@ -984,7 +983,7 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 			)
 			{
 				$navResult = \CSocNetLogComments::getList(
-					[ ],
+					[],
 					$filter,
 					false,
 					[
@@ -1067,7 +1066,7 @@ class LogEntry extends \CBitrixComponent implements \Bitrix\Main\Engine\Contract
 			&& strcasecmp(LANGUAGE_ID, 'DE') !== 0
 		)
 		{
-			$dateTimeFormated = toLower($dateTimeFormated);
+			$dateTimeFormated = mb_strtolower($dateTimeFormated);
 		}
 
 		// strip current year

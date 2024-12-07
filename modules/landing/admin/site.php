@@ -192,7 +192,7 @@ else if (!$isAjax)
 
 // emulate site_id
 Asset::getInstance()->addString(
-	'<script type="text/javascript">
+	'<script>
 			BX.message({SITE_ID: \'' . \CUtil::jsEscape($site) . '\'});
 		</script>',
 	false,

@@ -5,14 +5,8 @@ IncludeModuleLangFile(__FILE__);
 class CSupportSearch
 {
 	static $searchModule;
-	const TABLE_NAME = "b_ticket_search";
 
-	static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $module_id . "/install/version.php");
-		return "<br>Module: " . $module_id . " <br>Class: CSupportSearch<br>File: " . __FILE__;
-	}
+	const TABLE_NAME = "b_ticket_search";
 
 	public static function getSql($query)
 	{
@@ -77,7 +71,7 @@ class CSupportSearch
 		foreach($arrQ as $k => $t)
 		{
 			$t = trim($t);
-			if(strlen($t) <= 0)
+			if($t == '')
 			{
 				continue;
 			}
@@ -173,7 +167,7 @@ class CSupportSearch
 	function ParseQ($q)
 	{
 		$q = trim($q);
-		if(strlen($q) <= 0)
+		if($q == '')
 		{
 			return '';
 		}
@@ -185,7 +179,7 @@ class CSupportSearch
 			$q
 		);
 		$q="($q)";
-		$q = preg_replace("/\\s+/".BX_UTF_PCRE_MODIFIER, " ", $q);
+		$q = preg_replace("/\\s+/u", " ", $q);
 
 		return $q;
 	}
@@ -344,7 +338,7 @@ class CSupportSearch
 		if ($messages === null)
 		{
 			$messages = array();
-			$result = $DB->Query("SELECT MESSAGE FROM b_ticket_message WHERE IS_LOG='N' AND IS_HIDDEN='N' AND TICKET_ID = ".intval($ticket['ID']));
+			$result = $DB->Query("SELECT MESSAGE FROM b_ticket_message WHERE IS_LOG='N' AND TICKET_ID = ".intval($ticket['ID'])." AND LENGTH(MESSAGE) < 10240");
 			while ($row = $result->Fetch())
 			{
 				$messages[] = $row;
@@ -352,7 +346,7 @@ class CSupportSearch
 		}
 
 		// select language for stemming
-		if ($ticket['SITE_ID'] === SITE_ID) // ÷åìó îí ðàâåí â àäìèíêå?
+		if ($ticket['SITE_ID'] === SITE_ID) // Ñ‡ÐµÐ¼Ñƒ Ð¾Ð½ Ñ€Ð°Ð²ÐµÐ½ Ð² Ð°Ð´Ð¼Ð¸Ð½ÐºÐµ?
 		{
 			$langId = LANGUAGE_ID;
 		}
@@ -386,7 +380,7 @@ class CSupportSearch
 			$insertQuery = "INSERT INTO " . self::TABLE_NAME . "(TICKET_ID, SEARCH_WORD) VALUES ".
 				"(".intval($ticket['ID']).", '" . $DB->ForSql($phrase) . "')";
 
-			$DB->Query($insertQuery, false, (self::err_mess()) . "<br>Method: indexTicket<br>Line: " . __LINE__);
+			$DB->Query($insertQuery);
 		}
 	}
 
@@ -408,8 +402,7 @@ class CSupportSearch
 			$ticketId = intval($ticket);
 		}
 
-		$err_mess = (self::err_mess()) . "<br>Function: reindexTicket<br>Line: ";
-		$DB->Query("DELETE FROM ".self::TABLE_NAME." WHERE TICKET_ID = ".$ticketId, false, $err_mess . __LINE__);
+		$DB->Query("DELETE FROM ".self::TABLE_NAME." WHERE TICKET_ID = ".$ticketId);
 
 		return static::indexTicket($ticket, $messages);
 	}
@@ -449,7 +442,7 @@ class CSupportSearch
 					b_ticket T,
 					b_ticket_message TM
 				WHERE
-					TM.TICKET_ID = T.ID AND T.ID > " . $lastId . " AND TM.IS_LOG='N' AND IS_HIDDEN='N'
+					TM.TICKET_ID = T.ID AND T.ID > " . $lastId . " AND TM.IS_LOG='N'
 				ORDER BY
 					T.ID ASC"
 			, 100));
@@ -475,7 +468,7 @@ class CSupportSearch
 
 			// reselect last ticket's messages to complete them because of previous limit in query
 			unset($messages[$endTicketId]);
-			$result = $DB->Query("SELECT MESSAGE FROM b_ticket_message WHERE TICKET_ID = ".$endTicketId." AND IS_LOG='N' AND IS_HIDDEN='N'");
+			$result = $DB->Query("SELECT MESSAGE FROM b_ticket_message WHERE TICKET_ID = ".$endTicketId." AND IS_LOG='N' AND LENGTH(MESSAGE) < 10240");
 			while ($row = $result->Fetch())
 			{
 				$messages[$endTicketId][] = $row;
@@ -509,20 +502,19 @@ class CSupportSearch
 	{
 		global $DB;
 		if(!self::CheckModule()) return;
-		$err_mess = (self::err_mess()) . "<br>Function: writeWordsInTable<br>Line: ";
 		$M_ID = intval($M_ID);
 		$ticketSearch = self::TABLE_NAME;
 		$rsSite = CSite::GetByID($SITE_ID);
 		$arrSite = $rsSite->Fetch();
 		$langID = $arrSite["LANGUAGE_ID"];
 		
-		$DB->Query("DELETE FROM $ticketSearch WHERE MESSAGE_ID = $M_ID", false, $err_mess . __LINE__);
+		$DB->Query("DELETE FROM $ticketSearch WHERE MESSAGE_ID = $M_ID");
 		$res = stemming(HTMLToTxt($s), $langID);
 		foreach($res as $key => $val)
 		{
 			$strSql = "INSERT INTO " . $ticketSearch . "(MESSAGE_ID, SEARCH_WORD) VALUES ($M_ID, '" . $DB->ForSql($key) . "')";
-			$res = $DB->Query($strSql, false, $err_mess . __LINE__);
-			//$DB->Insert($ticketSearch, array("MESSAGE_ID" => $M_ID, "SEARCH_WORD" => "'" . $DB->ForSql($key) . "'"), $err_mess . __LINE__);
+			$res = $DB->Query($strSql);
+			//$DB->Insert($ticketSearch, array("MESSAGE_ID" => $M_ID, "SEARCH_WORD" => "'" . $DB->ForSql($key) . "'"));
 		}
 	}
 
@@ -532,9 +524,8 @@ class CSupportSearch
 	static function ReindexMessages($firstID, $periodS = 8)
 	{		
 		global $DB;
-		$firstID = intval( $firstID);
+		$firstID = intval($firstID);
 		
-		$err_mess = (self::err_mess()) . "<br>Function: reindexMessages<br>Line: ";
 		$endTime = time() + $periodS;
 		$strSql = "
 			SELECT
@@ -547,8 +538,9 @@ class CSupportSearch
 					ON T.ID = TM.TICKET_ID
 						AND TM.ID > $firstID
 						AND TM.IS_LOG = 'N'
+						AND LENGTH(TM.MESSAGE) < 10240
 			ORDER BY TM.ID";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		$lastID = 0;
 		while($cs = $res->Fetch())
 		{

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_MOD_CATALOG_ERR_UPDATE_BAD_ID"] = "Неверный ID торгового каталога";
 $MESS["BT_MOD_CATALOG_ERR_IBLOCK_ID_FIELD_ABSENT"] = "Не указан инфоблок";
 $MESS["BT_MOD_CATALOG_ERR_IBLOCK_ID_INVALID"] = "Неверный ID инфоблока";

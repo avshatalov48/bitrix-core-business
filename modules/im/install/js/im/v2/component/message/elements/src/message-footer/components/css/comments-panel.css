@@ -1,0 +1,160 @@
+.bx-im-message-comments-panel__container {
+	--im-message-comments-panel__background-color_container: var(--im-color-palette-green-20);
+	--im-message-comments-panel__background-color_container-shadow: rgba(var(--im-color-palette-black-solid-rgb), 0.03);
+	--im-message-comments-panel__background-color_container-hover: var(--im-color-palette-green-25);
+	--im-message-comments-panel__background-color_counter: var(--im-color-palette-green-55);
+	--im-message-comments-panel__background-color_subscribe-hover: rgba(var(--im-color-palette-black-solid-rgb), 0.05);
+	--im-message-comments-panel__font-color_text: #00ace3;
+	--im-message-comments-panel__font-color_counter: var(--im-color-palette-white-base);
+	--im-message-comments-panel__font-color_text-hover: var(--im-color-palette-blue-70);
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	min-width: 250px;
+	height: 42px;
+	padding: 0 12px;
+	border-bottom-left-radius: inherit;
+	border-bottom-right-radius: inherit;
+	background-color: var(--im-message-comments-panel__background-color_container);
+	box-shadow: 0 1px 0.1px 0 var(--im-message-comments-panel__background-color_container-shadow) inset;
+	transition: background-color ease 100ms;
+
+	cursor: pointer;
+}
+
+.bx-im-message-comments-panel__container:hover {
+	background-color: var(--im-message-comments-panel__background-color_container-hover);
+}
+
+.bx-im-message-comments-panel__container.--no-comments {
+	min-width: 208px;
+}
+
+.bx-im-message-comments-panel__container:hover .bx-im-message-comments-panel__text {
+	color: var(--im-message-comments-panel__font-color_text-hover);
+}
+
+.bx-im-message-comments-panel__left {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-message-comments-panel__right {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	background-color: transparent;
+	transition: background-color ease 100ms;
+}
+
+.bx-im-message-comments-panel__right:hover {
+	background-color: var(--im-message-comments-panel__background-color_subscribe-hover);
+}
+
+.bx-im-message-comments-panel__text {
+	margin-right: 4px;
+	font: var(--im-font-size-md)/17px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-message-comments-panel__font-color_text);
+}
+
+/* empty */
+.bx-im-message-comments-panel__empty_container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-message-comments-panel__empty_icon {
+	width: 24px;
+	height: 24px;
+	margin-right: 8px;
+	background-image: url('./images/chat-cloud.svg');
+}
+/* end empty */
+
+.bx-im-message-comments-panel__meta_container {
+	display: flex;
+	align-items: center;
+}
+
+/* User avatars */
+.bx-im-message-comments-panel__user_container {
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+
+	max-width: 50px;
+	margin-right: 8px;
+	transition: width 0.2s ease;
+}
+
+.bx-im-message-comments-panel__user_avatar {
+	width: 24px;
+	height: 24px;
+	margin-left: -9px;
+	border: 1px solid var(--im-message-comments-panel__background-color_container);
+	border-radius: 50%;
+	background-size: contain;
+	user-select: none;
+}
+
+.bx-im-message-comments-panel__user_avatar:last-child {
+	margin-left: 0;
+}
+
+.bx-im-message-comments-panel__user_avatar.--image-1 {
+	z-index: 5;
+}
+
+.bx-im-message-comments-panel__user_avatar.--image-2 {
+	z-index: 6;
+}
+
+.bx-im-message-comments-panel__user_avatar.--image-3 {
+	z-index: 7;
+}
+
+.bx-im-message-comments-panel__user_animation-move,
+.bx-im-message-comments-panel__user_animation-enter-active,
+.bx-im-message-comments-panel__user_animation-leave-active {
+	transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.bx-im-message-comments-panel__user_animation-enter-from {
+	transform: translateX(-100%);
+	opacity: 0;
+}
+
+.bx-im-message-comments-panel__user_animation-leave-active {
+	position: absolute;
+}
+/* End user avatars */
+
+.bx-im-message-comments-panel__unread-counter {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	height: 20px;
+	padding: 0 6px;
+	border-radius: 30px;
+
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-message-comments-panel__font-color_counter);
+	background-color: var(--im-message-comments-panel__background-color_counter);
+}
+
+.bx-im-message-comments-panel__subscribe-icon {
+	width: 20px;
+	height: 20px;
+	background-image: url('./images/unsubscribed.svg');
+	background-position: center;
+}
+
+.bx-im-message-comments-panel__subscribe-icon.--active {
+	background-image: url('./images/subscribed.svg');
+}

@@ -100,7 +100,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 										<?endforeach ?>
 									</ul>
 								</div>
-								<script type="text/javascript">
+								<script>
 								BX.ready(function () {
 									new JCNewsSlider('<?=CUtil::JSEscape($this->GetEditAreaId($arItem['ID']));?>', {
 										imagesContainerClassName: 'news-list-slider-container',

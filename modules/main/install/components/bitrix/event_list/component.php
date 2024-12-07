@@ -3,6 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 	die();
 
 /**
+ * @deprecated Use bitrix:intranet.event.log
  * Bitrix vars
  * @global CUser $USER
  * @global CMain $APPLICATION
@@ -340,7 +341,7 @@ if (isset($arResult["ActiveFeatures"]) && is_array($arResult["ActiveFeatures"]) 
 						"IP" => $row["REMOTE_ADDR"],
 						"DATE_TIME" => FormatDateFromDB($row["TIMESTAMP_X"], CSite::GetDateFormat()),
 						"USER_NAME" => $userVal,
-						"EVENT_NAME" => $eventName
+						"EVENT_NAME" => $eventName,
 					));
 				}
 				else //for default template

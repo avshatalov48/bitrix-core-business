@@ -209,7 +209,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 		if($dbConnType == self::DB_TYPE_MYSQL_LC)
 			$res = $dbConnection->query("show index from ".$tableName);
 		elseif($dbConnType == self::DB_TYPE_ORACLE_LC)
-			$res = $dbConnection->query("SELECT INDEX_NAME as Key_name FROM USER_IND_COLUMNS WHERE TABLE_NAME = '".ToUpper($tableName)."'");
+			$res = $dbConnection->query("SELECT INDEX_NAME as Key_name FROM USER_IND_COLUMNS WHERE TABLE_NAME = '".mb_strtoupper($tableName)."'");
 		elseif($dbConnType == self::DB_TYPE_MSSQL_LC)
 		{
 			$res = $dbConnection->query("SELECT si.name Key_name
@@ -217,7 +217,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 					INNER JOIN syscolumns c ON s.id = c.id AND s.colid = c.colid
 					INNER JOIN sysobjects o ON s.id = o.Id AND o.xtype = 'U'
 					LEFT JOIN sysindexes si ON si.indid = s.indid AND si.id = s.id
-				WHERE o.name = '".ToUpper($tableName)."'");
+				WHERE o.name = '".mb_strtoupper($tableName)."'");
 		}
 
 		while($item = $res->fetch())
@@ -1405,7 +1405,7 @@ class CUpdaterLocationPro extends \CUpdater implements \Serializable
 							'LOCATION_ID' => $id,
 							'LANGUAGE_ID' => $lang,
 							'NAME' => $name['NAME'],
-							'NAME_UPPER' => ToUpper($name['NAME']),
+							'NAME_UPPER' => mb_strtoupper($name['NAME']),
 							'SHORT_NAME' => $name['SHORT_NAME']
 						));
 					}

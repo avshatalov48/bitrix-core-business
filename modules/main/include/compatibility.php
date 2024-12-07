@@ -73,3 +73,5 @@ class_alias('Bitrix\Main\Entity\UField', 'Bitrix\Main\ORM\UField');
 
 class_alias('Bitrix\Main\Data\CacheEngineInterface', 'Bitrix\Main\Data\ICacheEngine');
 class_alias('Bitrix\Main\Data\CacheEngineStatInterface', 'Bitrix\Main\Data\ICacheEngineStat');
+
+class_alias('Bitrix\Main\Type\Collection', 'Bitrix\Main\Type\ArrayHelper');

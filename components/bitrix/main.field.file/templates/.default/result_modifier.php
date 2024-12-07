@@ -2,9 +2,6 @@
 
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
-use Bitrix\Main\Text\HtmlFilter;
-use Bitrix\Main\Page\Asset;
-
 CJSCore::init(['uf']);
 
 $arResult['targetBlank'] = ($arResult['userField']['SETTINGS']['TARGET_BLANK'] ?? 'Y');

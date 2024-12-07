@@ -893,7 +893,7 @@ if (!isset($compositeOptions["MEMCACHED_PORT"]))
 <tr>
 	<td><?echo GetMessage("MAIN_COMPOSITE_STORAGE");?>:</td>
 	<td>
-		<script type="text/javascript">
+		<script>
 			function onStorageSelect(select)
 			{
 				var hostRow = BX("composite_memcached_host_row", true);
@@ -976,7 +976,7 @@ if (!isset($compositeOptions["MEMCACHED_PORT"]))
 <tr id="composite_memcached_hint_row" <?if ($compositeOptions["STORAGE"] !== "memcached") echo 'style="display:none"'?>>
 	<td class="adm-required-field"></td>
 	<td>
-		<script type="text/javascript">
+		<script>
 			function checkConnection()
 			{
 				BX.ajax({
@@ -1224,7 +1224,7 @@ $showBanner = Composite\Engine::isBannerEnabled();
 				<span class="bx-composite-btn bx-btn-white" style="background-color: #51c1ef;" href="#" onclick="selectPreset('#51C1EF', 'white')"><?=GetMessage("COMPOSITE_BANNER_TEXT")?></span>
 			</span>
 		</div>
-		<script type="text/javascript">
+		<script>
 
 			BX.ready(function() {
 

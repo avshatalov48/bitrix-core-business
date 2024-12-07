@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main;
@@ -59,7 +60,7 @@ class CTimeZone
 		foreach(DateTimeZone::listIdentifiers() as $tz)
 		{
 			foreach($aExcept as $ex)
-				if(strpos($tz, $ex) === 0)
+				if(str_starts_with($tz, $ex))
 					continue 2;
 			try
 			{
@@ -99,7 +100,7 @@ class CTimeZone
 			$cookieDate->setTime(0,	0);
 
 			$APPLICATION->AddHeadString(
-				'<script type="text/javascript">if (Intl && Intl.DateTimeFormat) document.cookie="'.$cookiePrefix.'_TZ="+Intl.DateTimeFormat().resolvedOptions().timeZone+"; path=/; expires='.$cookieDate->format("r").'";</script>', true
+				'<script>if (Intl && Intl.DateTimeFormat) document.cookie="'.$cookiePrefix.'_TZ="+Intl.DateTimeFormat().resolvedOptions().timeZone+"; path=/; expires='.$cookieDate->format("r").'";</script>', true
 			);
 		}
 		elseif (isset($_COOKIE[$cookiePrefix."_TZ"]))
@@ -209,7 +210,7 @@ class CTimeZone
 		{
 			$timeZone = '';
 
-			if ($USER_ID !== null)
+			if ($USER_ID !== null && $USER?->GetID() != $USER_ID)
 			{
 				$dbUser = CUser::GetList('id', 'asc', ['ID_EQUAL_EXACT' => $USER_ID], ['FIELDS' => ['AUTO_TIME_ZONE', 'TIME_ZONE', 'TIME_ZONE_OFFSET']]);
 				if (($arUser = $dbUser->Fetch()))

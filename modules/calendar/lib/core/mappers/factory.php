@@ -10,6 +10,8 @@ class Factory
 	private static ?EventConnection $eventConnectionInstance = null;
 	private static ?SyncEvent $syncEventInstance = null;
 	private static ?Connection $connectionInstance = null;
+	private static ?EventOption $eventOptionInstance = null;
+	private static ?EventCategory $eventCategoryInstance = null;
 
 	public function getSection(): Section
 	{
@@ -71,5 +73,25 @@ class Factory
 		}
 
 		return self::$connectionInstance;
+	}
+
+	public function getEventOption(): EventOption
+	{
+		if (!self::$eventOptionInstance)
+		{
+			self::$eventOptionInstance = new EventOption();
+		}
+
+		return self::$eventOptionInstance;
+	}
+
+	public function getEventCategory(): EventCategory
+	{
+		if (!self::$eventCategoryInstance)
+		{
+			self::$eventCategoryInstance = new EventCategory();
+		}
+
+		return self::$eventCategoryInstance;
 	}
 }

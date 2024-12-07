@@ -33,4 +33,5 @@ abstract class Icon
 	public const REMOVE = "ui-btn-icon-remove";
 	public const FUNNEL = "ui-btn-icon-funnel";
 	public const AI = 'ui-btn-icon-ai ui-icon-set__scope';
+	public const RELOAD = 'ui-btn-icon-reload';
 }

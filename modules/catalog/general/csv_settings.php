@@ -1,16 +1,15 @@
-<?
-use Bitrix\Main\Localization\Loc;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
 
 class CCatalogCSVSettings
 {
-	const FIELDS_ELEMENT = 'ELEMENT';
-	const FIELDS_CATALOG = 'CATALOG';
-	const FIELDS_PRICE = 'PRICE';
-	const FIELDS_PRICE_EXT = 'PRICE_EXT';
-	const FIELDS_SECTION = 'SECTION';
-	const FIELDS_CURRENCY = 'CURRENCY';
+	public const FIELDS_ELEMENT = 'ELEMENT';
+	public const FIELDS_CATALOG = 'CATALOG';
+	public const FIELDS_PRICE = 'PRICE';
+	public const FIELDS_PRICE_EXT = 'PRICE_EXT';
+	public const FIELDS_SECTION = 'SECTION';
+	public const FIELDS_CURRENCY = 'CURRENCY';
 
 	public static function getSettingsFields($type, $extFormat = false)
 	{

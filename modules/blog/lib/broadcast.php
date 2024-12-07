@@ -197,7 +197,7 @@ class Broadcast
 				'NOTIFY_MODULE' => 'blog',
 				'NOTIFY_EVENT' => 'log_notify_all_request',
 				'NOTIFY_SUB_TAG' => $tag,
-				'NOTIFY_MESSAGE' => Loc::getMessage('BLOG_BROADCAST_REQUEST_IM_MESSAGE_' . $str),
+				'NOTIFY_MESSAGE' => fn (?string $languageId = null) => Loc::getMessage('BLOG_BROADCAST_REQUEST_IM_MESSAGE_' . $str, null, $languageId),
 				'NOTIFY_MESSAGE_OUT' => IM_MAIL_SKIP,
 				'NOTIFY_BUTTONS' => [
 					[

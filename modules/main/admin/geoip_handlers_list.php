@@ -5,8 +5,8 @@
  */
 require_once(__DIR__."/../include/prolog_admin_before.php");
 
-use \Bitrix\Main\Service\GeoIp,
-	\Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Service\GeoIp,
+	Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);
 

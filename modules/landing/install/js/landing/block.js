@@ -901,6 +901,8 @@
 								return new BX.Main.MenuItem({
 									id: "content",
 									text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
+									disabled: !this.isEditBlockAllowed(),
+									disabledHint: this.getDisableEditBlockHint(),
 									onclick: function() {
 										this.onShowContentPanel();
 										this.sidebarActionsMenu.close();
@@ -923,7 +925,11 @@
 							}
 						}.bind(this))(),
 						(function() {
-							if (isPlainObject(this.manifest.style) && this.isAllowedByTariff())
+							if (
+								isPlainObject(this.manifest.style)
+								&& this.isAllowedByTariff()
+								&& !this.isMainpage()
+							)
 							{
 								return new BX.Main.MenuItem({
 									id: "designblock",
@@ -1010,18 +1016,18 @@
 						}.bind(this))(),
 
 						new BX.Main.MenuItem({
-							id: "down",
-							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_DOWN"),
-							onclick: function() {
-								this.moveDown();
-								this.sidebarActionsMenu.close();
-							}.bind(this)
-						}),
-						new BX.Main.MenuItem({
 							id: "up",
 							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_UP"),
 							onclick: function() {
 								this.moveUp();
+								this.sidebarActionsMenu.close();
+							}.bind(this)
+						}),
+						new BX.Main.MenuItem({
+							id: "down",
+							text: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_ACTION_SORT_DOWN"),
+							onclick: function() {
+								this.moveDown();
 								this.sidebarActionsMenu.close();
 							}.bind(this)
 						}),
@@ -1068,18 +1074,28 @@
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: this.showFeedbackForm.bind(this)
-						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
-							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
-							onclick: function() {
-								this.saveBlock();
-								this.sidebarActionsMenu.close();
-							}.bind(this)
-						}),
+						(() => {
+							if (this.isShowFeedbackButton() === true)
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage('LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON'),
+									onclick: this.showFeedbackForm.bind(this),
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+									className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
+									onclick: function() {
+										this.saveBlock();
+										this.sidebarActionsMenu.close();
+									}.bind(this)
+								})
+							}
+						})(),
 						new BX.Main.MenuItem({
 							delimiter: true,
 						}),
@@ -1142,16 +1158,18 @@
 				{
 					if (isPlainObject(this.manifest.style))
 					{
-						contentPanel.addButton(
-							new ActionButton("designblock", {
-								text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
-								onClick: this.onDesignerBlockClick.bind(this),
-								disabled: !this.isDesignBlockAllowed(),
-								attrs: { title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK") },
-								separate: true,
-							})
-						);
-
+						if (!this.isMainpage())
+						{
+							contentPanel.addButton(
+								new ActionButton("designblock", {
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK"),
+									onClick: this.onDesignerBlockClick.bind(this),
+									disabled: !this.isDesignBlockAllowed(),
+									attrs: {title: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_DESIGN_BLOCK")},
+									separate: true,
+								}),
+							);
+						}
 						contentPanel.addButton(
 							new ActionButton("style", {
 								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_STYLE"),
@@ -1169,6 +1187,8 @@
 							new ActionButton("content", {
 								text: BX.Landing.Loc.getMessage("ACTION_BUTTON_CONTENT"),
 								onClick: this.onShowContentPanel.bind(this),
+								disabled: !this.isEditBlockAllowed(),
+								disabledHint: this.getDisableEditBlockHint(),
 								attrs: {title: BX.Landing.Loc.getMessage("LANDING_TITLE_OF_BLOCK_EDIT")},
 								separate: true,
 							})
@@ -1507,7 +1527,53 @@
 
 		isEditBlockAllowed: function()
 		{
-			return this.access >= ACCESS_W;
+			let allowedButton = this.access >= ACCESS_W;
+			this.disableEditBlockHintType = '';
+
+			const landing = BX.Landing.Main.getInstance();
+			const type = landing.options.params.type;
+			if (
+				type === 'MAINPAGE'
+				&& Object.keys(this.manifest.nodes).length === 0
+				&& Object.keys(this.manifest.attrs).length === 0
+			)
+			{
+				this.disableEditBlockHintType = 'empty';
+
+				return false;
+			}
+
+			if (this.manifest.block.disableEditButton === true)
+			{
+				this.disableEditBlockHintType = 'demo_data_option';
+
+				return false;
+			}
+
+			return allowedButton;
+		},
+
+		getDisableEditBlockHint: function()
+		{
+			let hint = null;
+			let type = 'BLOCK';
+			if (this.isMainpage())
+			{
+				type = 'WIDGET';
+			}
+
+			if (this.disableEditBlockHintType === 'empty')
+			{
+				const emptyPhraseCode = 'LANDING_TITLE_' + type + '_EDIT_BUTTON_DISABLE_HINT_EMPTY';
+				hint = BX.Landing.Loc.getMessage(emptyPhraseCode);
+			}
+			if (this.disableEditBlockHintType === 'demo_data_option')
+			{
+				const demoDataOptionPhraseCode = 'LANDING_TITLE_' + type + '_EDIT_BUTTON_DISABLE_HINT_DEMO_DATA';
+				hint = BX.Landing.Loc.getMessage(demoDataOptionPhraseCode);
+			}
+
+			return hint;
 		},
 
 		isRemoveBlockAllowed: function()
@@ -1754,21 +1820,36 @@
 								this.blockActionsMenu.close();
 							}.bind(this)
 						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON"),
-							onclick: this.showFeedbackForm.bind(this)
-						}),
-						new BX.Main.MenuItem({
-							delimiter: true,
-						}),
-						new BX.Main.MenuItem({
-							text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
-							className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
-							onclick: function() {
-								this.saveBlock();
-								this.blockActionsMenu.close();
-							}.bind(this)
-						}),
+						(() => {
+							if (this.isShowFeedbackButton() === true)
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage('LANDING_BLOCKS_ACTIONS_FEEDBACK_BUTTON'),
+									onclick: this.showFeedbackForm.bind(this),
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									delimiter: true,
+								});
+							}
+						})(),
+						(() => {
+							if (!this.isMainpage())
+							{
+								return new BX.Main.MenuItem({
+									text: BX.Landing.Loc.getMessage("LANDING_BLOCKS_ACTIONS_SAVE_BLOCK_BUTTON_MSGVER_1"),
+									className: !this.isSaveBlockInLibraryAllowed() ? "landing-ui-disabled" : "",
+									onclick: function() {
+										this.saveBlock();
+										this.blockActionsMenu.close();
+									}.bind(this)
+								});
+							}
+						})(),
 					]
 				});
 			}
@@ -1986,9 +2067,22 @@
 			return {};
 		},
 
+		/**
+		 * Check is are crm form
+		 * @return {boolean}
+		 */
 		isCrmFormPage: function()
 		{
-			return BX.Landing.Env.getInstance().getOptions().specialType === 'crm_forms';
+			return BX.Landing.Env.getInstance().getSpecialType() === 'crm_forms';
+		},
+
+		/**
+		 * Check is page are mainpage
+		 * @return {boolean}
+		 */
+		isMainpage: function()
+		{
+			return BX.Landing.Env.getInstance().getType() === 'MAINPAGE';
 		},
 
 		isCrmFormBlock: function()
@@ -2873,9 +2967,9 @@
 			}.bind(this), 300);
 		},
 
-		onContentPanelClick: function()
+		onContentPanelClick: function(event)
 		{
-			BX.Event.EventEmitter.emit('BX.Landing.UI.Panel.ContentEdit:onClick');
+			BX.Event.EventEmitter.emit('BX.Landing.UI.Panel.ContentEdit:onClick', { event });
 		},
 
 		createHistoryEntry: function(newState)
@@ -3926,7 +4020,11 @@
 
 			if (fieldOptions.value === null || fieldOptions.value === undefined)
 			{
-				fieldOptions.value = "";
+				fieldOptions.value = '';
+				if (fieldOptions['default_value'] !== null)
+				{
+					fieldOptions.value = fieldOptions['default_value'];
+				}
 			}
 
 			if (element)
@@ -4884,6 +4982,9 @@
 				{
 					return BX.Landing.Backend.getInstance()
 						.batch("Landing\\Block::updateNodes", batch, updateNodeParams)
+						.then(() => {
+							BX.Landing.History.getInstance().push();
+						})
 						.then(function() {
 							return Promise.resolve(data);
 						});
@@ -5279,7 +5380,8 @@
 				id: "attr",
 				type: "attrs",
 				title: BX.Landing.Loc.getMessage("BLOCK_SETTINGS"),
-				description: this.manifest.block.attrsFormDescription
+				description: this.manifest.block.attrsFormDescription,
+				descriptionHintStyle: this.manifest.block.attrsFormDescriptionHintStyle,
 			});
 
 			fields.forEach(function(field) {
@@ -5623,10 +5725,16 @@
 				}
 
 				// Block settings
-				var blockSettingsForm = this.getBlockSettingsForm();
-				if (blockSettingsForm.fields.length > 0)
+				const notAllowedTypes = ['MAINPAGE'];
+				const landing = BX.Landing.Main.getInstance();
+				const type = landing.options.params.type;
+				if (!notAllowedTypes.includes(type))
 				{
-					forms.push(blockSettingsForm);
+					const blockSettingsForm = this.getBlockSettingsForm();
+					if (blockSettingsForm.fields.length > 0)
+					{
+						forms.push(blockSettingsForm);
+					}
 				}
 			}
 
@@ -6024,6 +6132,20 @@
 				!!this.dynamicParams
 				&& code in this.dynamicParams
 			);
-		}
+		},
+
+		isShowFeedbackButton: function()
+		{
+			if (
+				BX.Type.isArray(this.manifest.block.type)
+				&& this.manifest.block.type.length === 1
+				&& this.manifest.block.type.includes('mainpage')
+			)
+			{
+				return false;
+			}
+
+			return true;
+		},
 	};
 })();

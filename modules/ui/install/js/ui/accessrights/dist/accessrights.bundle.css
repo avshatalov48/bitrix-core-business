@@ -752,8 +752,27 @@ div.ui-access-rights-members-item-new:last-of-type {
 	font-size: 14px;
 }
 
+.ui-access-rights-group-children {
+	display: none;
+}
+
+.ui-access-rights-group-children.--expanded {
+	display: flex;
+}
+
+.ui-access-rights-column .ui-access-rights-column-item-title {
+	padding-left: 10px;
+}
+
+.ui-access-rights-column .ui-access-rights-group-children .ui-access-rights-column-item-title {
+	padding-left: 15px;
+}
 
 
-
-
-
+.ui-access-rights-column-item-text-toggle-indicator {
+	position: absolute;
+	left: -4px;
+	top: 15px;
+	display: block;
+	width: 16px;
+}

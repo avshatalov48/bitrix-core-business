@@ -5,6 +5,7 @@ namespace Bitrix\Catalog\Controller;
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Access\Model\StoreDocument;
 use Bitrix\Catalog\Config\Feature;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -18,13 +19,15 @@ use CMain;
 
 class Document extends Controller
 {
+	use ListAction; // default listAction realization
+
 	//region Actions
 	/**
 	 * @return array
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['DOCUMENT' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
@@ -41,7 +44,7 @@ class Document extends Controller
 			return null;
 		}
 
-		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
+		if (!State::isUsedInventoryManagement())
 		{
 			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_MANAGEMENT_NOT_ENABLED')));
 
@@ -139,7 +142,7 @@ class Document extends Controller
 			return null;
 		}
 
-		if (!\Bitrix\Catalog\Component\UseStore::isUsed())
+		if (!State::isUsedInventoryManagement())
 		{
 			$this->addError(new Error(Loc::getMessage('DOCUMENT_CONTROLLER_MANAGEMENT_NOT_ENABLED')));
 
@@ -300,7 +303,7 @@ class Document extends Controller
 			}
 		}
 
-		return ['DOCUMENT' => $this->get($addResult)];
+		return [$this->getServiceItemName() => $this->get($addResult)];
 	}
 
 	/**
@@ -356,7 +359,7 @@ class Document extends Controller
 			}
 		}
 
-		return ['DOCUMENT' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**
@@ -519,46 +522,9 @@ class Document extends Controller
 	}
 
 	/**
-	 * Returns list of document.
-	 *
-	 * @param array $order
-	 * @param array $filter
-	 * @param array $select
-	 * @param PageNavigation $pageNavigation
-	 *
-	 * @return array
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(
-		PageNavigation $pageNavigation,
-		array $order = [],
-		array $filter = [],
-		array $select = []
-	): Page
-	{
-		// set available types for REST
-		$filter = [
-			'=DOC_TYPE' => array_keys(self::getAvailableRestDocumentTypes()),
-			$filter,
-		];
-
-		$accessFilter = $this->accessController->getEntityFilter(
-			ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
-			get_class($this->getEntityTable())
-		);
-		if ($accessFilter)
-		{
-			// combines through a new array so that the `OR` condition does not bypass the access filter.
-			$filter = [
-				$accessFilter,
-				$filter,
-			];
-		}
-
-		return new Page('DOCUMENTS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
 	 * Conducts document.
@@ -810,5 +776,38 @@ class Document extends Controller
 		}
 
 		return true;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @param array $params
+	 * @return array
+	 */
+	protected function modifyListActionParameters(array $params): array
+	{
+		$filter = $params['filter'];
+
+		// set available types for REST
+		$filter = [
+			'=DOC_TYPE' => array_keys(self::getAvailableRestDocumentTypes()),
+			$filter,
+		];
+
+		$accessFilter = $this->accessController->getEntityFilter(
+			ActionDictionary::ACTION_STORE_DOCUMENT_VIEW,
+			get_class($this->getEntityTable())
+		);
+		if ($accessFilter)
+		{
+			// combines through a new array so that the `OR` condition does not bypass the access filter.
+			$filter = [
+				$accessFilter,
+				$filter,
+			];
+		}
+
+		$params['filter'] = $filter;
+
+		return $params;
 	}
 }

@@ -3,6 +3,7 @@
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
+use Bitrix\Sale\Internals\CollectableEntity;
 
 Main\Localization\Loc::loadMessages(__FILE__);
 
@@ -62,9 +63,6 @@ class PayableItemCollection extends Internals\EntityCollection
 	/**
 	 * @param Payment $payment
 	 * @return PayableItemCollection
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentTypeException
-	 * @throws Main\SystemException
 	 */
 	public static function load(Payment $payment)
 	{
@@ -82,7 +80,7 @@ class PayableItemCollection extends Internals\EntityCollection
 			foreach ($items as $item)
 			{
 				$item->setCollection($collection);
-				$collection->addItem($item);
+				$collection->bindItem($item);
 			}
 
 			/** @var PayableItem $entity */
@@ -92,7 +90,7 @@ class PayableItemCollection extends Internals\EntityCollection
 			foreach ($items as $item)
 			{
 				$item->setCollection($collection);
-				$collection->addItem($item);
+				$collection->bindItem($item);
 			}
 		}
 
@@ -111,7 +109,7 @@ class PayableItemCollection extends Internals\EntityCollection
 		return Internals\PayableItemTable::getList($parameters);
 	}
 
-	protected function addItem(Internals\CollectableEntity $item)
+	protected function bindItem(CollectableEntity $item): CollectableEntity
 	{
 		if (!$item instanceof PayableItem)
 		{
@@ -123,7 +121,7 @@ class PayableItemCollection extends Internals\EntityCollection
 			);
 		}
 
-		return parent::addItem($item);
+		return parent::bindItem($item);
 	}
 
 	/**

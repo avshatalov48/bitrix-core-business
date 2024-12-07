@@ -1,8 +1,10 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main\Loader;
 use Bitrix\Iblock\UserField\Types\SectionType;
 use Bitrix\Main\Text\HtmlFilter;
 
@@ -75,9 +77,10 @@ if($component->isIblockIncluded())
 		);
 
 		$options = [];
-		while($section = $sections->GetNext())
+		while ($section = $sections->GetNext())
 		{
-			$options[$section['ID']] = str_repeat('&nbsp;.&nbsp;', $section['DEPTH_LEVEL']) . $section['NAME'];
+			$margin = max((int)$section['DEPTH_LEVEL'], 1);
+			$options[$section['ID']] = str_repeat('&nbsp;.&nbsp;', $margin) . $section['NAME'];
 		}
 
 		$arResult['options'] = $options;

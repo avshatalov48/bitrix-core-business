@@ -1,12 +1,7 @@
-.bx-im-sidebar-chats-with-user-detail__scope {
-	--im-sidebar-chats-with-user-detail__height_header: 64px;
-}
-
 .bx-im-sidebar-chats-with-user-detail__container {
 	display: flex;
 	flex-direction: column;
 	overflow-y: scroll;
-	height: calc(100% - var(--im-sidebar-chats-with-user-detail__height_header));
 	padding: 4px 0 4px 6px;
 }
 

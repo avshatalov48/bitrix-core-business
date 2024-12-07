@@ -46,6 +46,11 @@ class Dialog implements \JsonSerializable
 	/** @var boolean */
 	protected $clearUnavailableItems = false;
 
+	/** @var int */
+	protected int $recentItemsLimit = 50;
+
+	protected const MAX_RECENT_ITEMS_LIMIT = 50;
+
 	public function __construct(array $options)
 	{
 		if (isset($options['entities']) && is_array($options['entities']))
@@ -86,6 +91,11 @@ class Dialog implements \JsonSerializable
 		if (isset($options['preselectedItems']) && is_array($options['preselectedItems']))
 		{
 			$this->setPreselectedItems($options['preselectedItems']);
+		}
+
+		if (isset($options['recentItemsLimit']) && is_int($options['recentItemsLimit']))
+		{
+			$this->recentItemsLimit = max(1, min($options['recentItemsLimit'], static::MAX_RECENT_ITEMS_LIMIT));
 		}
 	}
 
@@ -535,7 +545,7 @@ class Dialog implements \JsonSerializable
 
 		if ($this->getContext() === null)
 		{
-			$usages = $this->getGlobalUsages($entities, 50);
+			$usages = $this->getGlobalUsages($entities, $this->recentItemsLimit);
 			while ($usage = $usages->fetch())
 			{
 				$this->getRecentItems()->add(
@@ -551,7 +561,7 @@ class Dialog implements \JsonSerializable
 		}
 		else
 		{
-			$usages = $this->getContextUsages($entities);
+			$usages = $this->getContextUsages($entities, $this->recentItemsLimit);
 			foreach ($usages as $usage)
 			{
 				$this->getRecentItems()->add(
@@ -589,7 +599,7 @@ class Dialog implements \JsonSerializable
 		}
 	}
 
-	private function getContextUsages(array $entities)
+	private function getContextUsages(array $entities, int $limit = 50)
 	{
 		return EntityUsageTable::getList(
 			[
@@ -599,7 +609,7 @@ class Dialog implements \JsonSerializable
 					'=CONTEXT' => $this->getContext(),
 					'@ENTITY_ID' => $entities
 				],
-				'limit' => 50,
+				'limit' => $limit,
 				'order' => [
 					'LAST_USE_DATE' => 'DESC'
 				]
@@ -744,5 +754,10 @@ class Dialog implements \JsonSerializable
 		}
 
 		return $json;
+	}
+
+	public function removeTab(string $id): void
+	{
+		unset($this->tabs[$id]);
 	}
 }

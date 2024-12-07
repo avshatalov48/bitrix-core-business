@@ -11,14 +11,6 @@ $runtime = CBPRuntime::GetRuntime();
 $runtime->StartRuntime();
 $documentService = $runtime->GetService("DocumentService");
 
-if (LANG_CHARSET != "UTF-8" && isset($_REQUEST['Type']['Options']) && is_array($_REQUEST['Type']['Options']))
-{
-	$newarr = array();
-	foreach ($_REQUEST['Type']['Options'] as $k => $v)
-		$newarr[CharsetConverter::ConvertCharset($k, "UTF-8", LANG_CHARSET)] = $v;
-	$_REQUEST['Type']['Options'] = $newarr;
-}
-
 $v = $documentService->GetFieldInputValue($_REQUEST['DocumentType'], $_REQUEST['Type'], $_REQUEST['Field'], $_REQUEST, $arErrors);
 
 echo CUtil::PhpToJSObject([$v, '']);

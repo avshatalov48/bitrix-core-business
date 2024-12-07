@@ -38,6 +38,8 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	public function fillThreads(): void
 	{
 		$insertData = [];
+
+		\CTimeZone::Disable();
 		for ($thread = 0; $thread < static::THREADS_COUNT; $thread++)
 		{
 			$insertData[] = [
@@ -49,6 +51,7 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 		}
 
 		SqlBatch::insert(PostingThreadTable::getTableName(), $insertData);
+		\CTimeZone::Enable();
 	}
 
 	/**
@@ -124,6 +127,8 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 		{
 			return;
 		}
+
+		\CTimeZone::Disable();
 		$thread = PostingThreadTable::getList(
 			[
 				"select" => ["THREAD_ID"],
@@ -143,6 +148,7 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 				"limit"  => 1
 			]
 		)->fetchAll();
+		\CTimeZone::enable();
 
 		if (!isset($thread[0]) && !isset($thread[0]["THREAD_ID"]))
 		{
@@ -206,6 +212,8 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 
 		try
 		{
+			\CTimeZone::Disable();
+
 			$tableName   = PostingThreadTable::getTableName();
 			$expireAt    = (new \DateTime())->modify("+10 minutes")->format('Y-m-d H:i:s');
 			$updateQuery = 'UPDATE '.$tableName.' 
@@ -220,6 +228,10 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 		catch (\Exception $e)
 		{
 			return false;
+		}
+		finally
+		{
+			\CTimeZone::Enable();
 		}
 
 		return true;
@@ -255,16 +267,20 @@ abstract class AbstractThreadStrategy implements IThreadStrategy
 	{
 		try
 		{
+			$filter = [
+				'@STATUS' => [PostingThreadTable::STATUS_NEW, PostingThreadTable::STATUS_IN_PROGRESS],
+				'=POSTING_ID' => $this->postingId,
+			];
+
+			if ($this->threadId !== null)
+			{
+				$filter['!=THREAD_ID'] = $this->threadId;
+			}
+
 			$threads = PostingThreadTable::getList(
 				[
 					"select" => ["THREAD_ID"],
-					"filter" => [
-						'@STATUS'     => new SqlExpression(
-							"?, ?", PostingThreadTable::STATUS_NEW, PostingThreadTable::STATUS_IN_PROGRESS
-						),
-						'=POSTING_ID' => $this->postingId,
-						'!=THREAD_ID' => $this->threadId
-					]
+					"filter" => $filter,
 				]
 			)->fetchAll();
 		}

@@ -969,6 +969,10 @@
 				zIndex: 3100,
 				OnSelect: function(color)
 				{
+					if (color === false)
+					{
+						color = param.DEFAULT || '';
+					}
 					pInput.value = color;
 					_this.OnChageParams(false, param.ID);
 				}

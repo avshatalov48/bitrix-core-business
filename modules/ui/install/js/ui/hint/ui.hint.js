@@ -213,11 +213,11 @@
 
 			if (node.hasAttribute('data-hint-center'))
 			{
-				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, true));
+				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, true, true));
 			}
 			else
 			{
-				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, false));
+				BX.bind(node, 'mouseenter', this.show.bind(this, node, text, false, true));
 			}
 
 			BX.bind(node, 'mouseleave', this.hide.bind(this, node));
@@ -229,9 +229,20 @@
 		 * @param {Element} anchorNode - Anchor node for popup with text.
 		 * @param {string } html - Html of hint.
 		 * @param {boolean } centerPos - Position center for hint.
+		 * @param {boolean} checkAttribute - Check for attribute presence.
+		 * Needed to be able to dynamically control the popup display.
 		 */
-		show: function (anchorNode, html, centerPos)
+		show: function(anchorNode, html, centerPos, checkAttribute = false)
 		{
+			if (checkAttribute)
+			{
+				const attributeName = anchorNode.getAttribute(this.attributeName);
+				if (!BX.type.isNotEmptyString(attributeName))
+				{
+					return;
+				}
+			}
+
 			this.anchorNode = anchorNode;
 			if (!this.content)
 			{

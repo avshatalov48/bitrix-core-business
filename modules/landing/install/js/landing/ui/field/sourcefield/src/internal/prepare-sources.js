@@ -14,7 +14,7 @@ export type SourceItem = {
 	},
 };
 
-export default function prepareSources(sources: Array<SourceItem>)
+export default function prepareSources(sources: Array<SourceItem>, stubText = '')
 {
 	if (Type.isArray(sources))
 	{
@@ -32,7 +32,7 @@ export default function prepareSources(sources: Array<SourceItem>)
 					|| source.filter.length <= 0
 				)
 				{
-					source.filter = [Runtime.clone(getFilterStub())];
+					source.filter = [Runtime.clone(getFilterStub(stubText))];
 				}
 
 				if (

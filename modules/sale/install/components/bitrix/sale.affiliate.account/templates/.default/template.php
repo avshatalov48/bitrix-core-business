@@ -68,7 +68,7 @@ if ($arResult)
 		{
 			?>
 			<tr>
-				<td colspan="4"><?=ShowNote(GetMessage("SPCA_NO_ACT"))?></td>
+				<td colspan="4"><? ShowNote(GetMessage("SPCA_NO_ACT"))?></td>
 			</tr>
 			<?
 		}
@@ -87,6 +87,6 @@ if ($arResult)
 }
 else
 {
-	?><?=ShowError(GetMessage("SPCA_UNACTIVE_AFF"))?><?
+	?><? ShowError(GetMessage("SPCA_UNACTIVE_AFF"))?><?
 }
 ?>

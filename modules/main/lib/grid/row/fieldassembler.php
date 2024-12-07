@@ -17,6 +17,9 @@ use Bitrix\Main\Grid\Settings;
  * @see \Bitrix\Main\Grid\Row\RowAssembler
  * @see \Bitrix\Main\Grid\Row\Assembler\Field\ListFieldAssembler
  * @see \Bitrix\Main\Grid\Row\Assembler\Field\UserFieldAssembler
+ * @see \Bitrix\Main\Grid\Row\Assembler\Field\HtmlFieldAssembler
+ * @see \Bitrix\Main\Grid\Row\Assembler\Field\StringFieldAssembler
+ * @see \Bitrix\Main\Grid\Row\Assembler\Field\NumberFieldAssembler
  */
 abstract class FieldAssembler
 {

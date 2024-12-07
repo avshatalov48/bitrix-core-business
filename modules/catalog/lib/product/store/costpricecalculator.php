@@ -6,6 +6,7 @@ use Bitrix\Catalog\StoreBatchTable;
 use Bitrix\Main\Config\Option;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 use phpDocumentor\Reflection\Types\Boolean;
 
 /**
@@ -211,5 +212,13 @@ class CostPriceCalculator
 	private function getRoundPrecision(): int
 	{
 		return (int)Option::get('sale', 'value_precision', 2);
+	}
+
+	public static function getMethodList(): array
+	{
+		return [
+			self::METHOD_AVERAGE => Loc::getMessage('COST_PRICE_CALCULATION_MODE_AVERAGE'),
+			self::METHOD_FIFO => Loc::getMessage('COST_PRICE_CALCULATION_MODE_FIFO'),
+		];
 	}
 }

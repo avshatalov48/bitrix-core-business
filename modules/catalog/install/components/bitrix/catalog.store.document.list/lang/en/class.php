@@ -1,7 +1,9 @@
 <?php
 $MESS["DOCUMENT_LIST_ACTION_CANCEL_TEXT"] = "Cancel processing";
+$MESS["DOCUMENT_LIST_ACTION_CANCEL_TEXT_2"] = "Cancel processing";
 $MESS["DOCUMENT_LIST_ACTION_CANCEL_TITLE"] = "Cancel processing";
 $MESS["DOCUMENT_LIST_ACTION_CONDUCT_TEXT"] = "Process";
+$MESS["DOCUMENT_LIST_ACTION_CONDUCT_TEXT_2"] = "Process";
 $MESS["DOCUMENT_LIST_ACTION_CONDUCT_TITLE"] = "Process";
 $MESS["DOCUMENT_LIST_ACTION_DELETE_TEXT"] = "Delete";
 $MESS["DOCUMENT_LIST_ACTION_DELETE_TITLE"] = "Delete";
@@ -39,7 +41,7 @@ $MESS["DOCUMENT_LIST_STUB_LINK_QUICKSTART"] = "How to get started with inventory
 $MESS["DOCUMENT_LIST_STUB_LINK_SHIPMENT"] = "How to work with sales orders";
 $MESS["DOCUMENT_LIST_STUB_MIGRATION_LINK"] = "Migrate";
 $MESS["DOCUMENT_LIST_STUB_MIGRATION_MORE"] = "and more";
-$MESS["DOCUMENT_LIST_STUB_MIGRATION_TITLE"] = "Migrate your documents from third-party systems to Bitrix24";
+$MESS["DOCUMENT_LIST_STUB_MIGRATION_TITLE_MSGVER_1"] = "Migrate your data from third-party systems to Bitrix24";
 $MESS["DOCUMENT_LIST_STUB_NO_DATA_DESCRIPTION"] = "Try resetting the filter or change the search phrase.";
 $MESS["DOCUMENT_LIST_STUB_NO_DATA_TITLE"] = "Your search request returned no results.";
 $MESS["DOCUMENT_LIST_STUB_TITLE_ARRIVAL"] = "Create your first stock receipt";

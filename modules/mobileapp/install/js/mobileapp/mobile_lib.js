@@ -3,44 +3,53 @@
 /*global
     BXMobileAppContext, app
  */
-(function ()
+(function()
 {
 	/**
 	 * @requires module:mobileapp
 	 * @module mobilelib
 	 */
-	if (window.BXMobileApp) return;
-
-	if ( typeof BXMobileAppContext != "undefined" ) {
-		BXMobileAppContext["useNativeWebSocket"] = false;
+	if (window.BXMobileApp)
+	{
+		return;
 	}
 
-	var syncApiObject = function (objectName){
+	if (typeof BXMobileAppContext !== 'undefined')
+	{
+		BXMobileAppContext.useNativeWebSocket = false;
+	}
+
+	var syncApiObject = function(objectName)
+	{
 		this.objectName = objectName;
 
-		try{
+		try
+		{
 			this.object = eval(objectName);
-		}catch(e) {
+		}
+		catch
+		{
 			this.object = null;
 		}
 	};
 
 	syncApiObject.prototype.getFunc = function(command)
 	{
-		if(typeof (this.object) != "undefined" && this.object != null)
+		if (typeof (this.object) !== 'undefined' && this.object != null)
 		{
 			var that = this;
+
 			return function()
 			{
-				return (function ()
+				return (function()
 				{
-					if (typeof(that.object[command]) == "function")
+					if (typeof(that.object[command]) === 'function')
 					{
 						var result = that.object[command].apply(that.object, arguments);
 
-						if (BXMobileAppContext.getPlatform() == "android")
+						if (BXMobileAppContext.getPlatform() === 'android')
 						{
-							if (typeof(result) == "string")
+							if (typeof (result) === 'string')
 							{
 								var modifiedResult = null;
 								try {
@@ -56,44 +65,42 @@
 
 						return result;
 					}
-					else
-					{
-						console.error(that.objectName+" error: function '"+command+"' not found");
-						return false;
-					}
 
+					console.error(that.objectName + " error: function '" + command + "' not found");
+
+					return false;
 				}).apply(that, arguments);
 			};
 		}
 
-		return function(){
-
-			console.error("Mobile Sync API: "+this.objectName+" is not defined",this);
-		}
-
+		return function()
+		{
+			console.error(`Mobile Sync API: ${this.objectName} is not defined`, this);
+		};
 	};
 
-	var _pageNavigator = new syncApiObject("BXMobileNavigator");
+	// eslint-disable-next-line new-cap
+	var _pageNavigator = new syncApiObject('BXMobileNavigator');
 
 	window.BXMobileApp = {
-		eventAddLog:{},
-		debug:false,
-		supportNativeEvents:function(){
+		eventAddLog: {},
+		debug: false,
+		supportNativeEvents() {
 			return app.enableInVersion(17);
 		},
-		apiVersion: (typeof appVersion != "undefined"? appVersion : 1),
-		//platform: platform,
-		cordovaVersion: "3.6.3",
+		apiVersion: (typeof appVersion !== 'undefined' ? appVersion : 1),
+		// platform: platform,
+		cordovaVersion: '3.6.3',
 		UI: {
 			IOS: {
-				flip: function ()
+				flip()
 				{
-					app.flipScreen()
-				}
+					app.flipScreen();
+				},
 			},
 			Slider: {
-				state: { CENTER: 0, LEFT: 1, RIGHT: 2},
-				setState: function (state)
+				state: { CENTER: 0, LEFT: 1, RIGHT: 2 },
+				setState(state)
 				{
 					switch (state)
 					{
@@ -104,12 +111,13 @@
 							app.openLeft();
 							break;
 						case this.state.RIGHT:
-							app.exec("openRight");
+							app.exec('openRight');
 							break;
-						default ://to do nothing
+						default:
+							// to do nothing
 					}
 				},
-				setStateEnabled: function (state, enabled)
+				setStateEnabled(state, enabled)
 				{
 					switch (state)
 					{
@@ -117,532 +125,551 @@
 							app.enableSliderMenu(enabled);
 							break;
 						case this.state.RIGHT:
-							app.exec("enableRight", enabled);
+							app.exec('enableRight', enabled);
 							break;
-						default ://to do nothing
+						default:
+							//to do nothing
 					}
-				}
+				},
 			},
 			Photo: {
-				show: function (params)
+				show(params)
 				{
 					app.openPhotos(params);
-				}
+				},
 			},
 			Document: {
-				showCacheList: function (params)
+				showCacheList(params)
 				{
 					app.showDocumentsCache(params);
 				},
-				open: function (params)
+				open(params)
 				{
 					app.openDocument(params);
-				}
+				},
 			},
 			DatePicker: {
-				setParams: function (params)
+				setParams(params)
 				{
-					if (typeof params == "object")
+					if (typeof params === 'object')
+					{
 						this.params = params;
+					}
 				},
-				show: function (params)
+				show(params)
 				{
 					this.setParams(params);
 					app.showDatePicker(this.params);
 
 				},
-				hide: function ()
+				hide()
 				{
 					app.hideDatePicker();
-				}
+				},
 			},
 			SelectPicker: {
-				show: function (params)
+				show(params)
 				{
 					app.showSelectPicker(params);
 				},
-				hide: function ()
+				hide()
 				{
 					app.hideSelectPicker();
-				}
+				},
 			},
 			BarCodeScanner: {
-				open: function (params)
+				open(params)
 				{
 					app.openBarCodeScanner(params);
-				}
+				},
 			},
 			NotifyPanel: {
-				setNotificationNumber: function (number)
+				setNotificationNumber(number)
 				{
-					app.setCounters({notifications: number});
+					app.setCounters({ notifications: number });
 				},
-				setMessagesNumber: function (number)
+				setMessagesNumber(number)
 				{
-					app.setCounters({messages: number});
+					app.setCounters({ messages: number });
 				},
-				setCounters: function (params)
+				setCounters(params)
 				{
 					app.setCounters(params);
 				},
-				refreshPage: function (pagename)
+				refreshPage(pagename)
 				{
 					app.refreshPanelPage(pagename);
 				},
-				setPages: function (pages)
+				setPages(pages)
 				{
 					app.setPanelPages(pages);
-				}
+				},
 			},
 			Page: {
-					isVisible: function (params)
+				isVisible(params)
+				{
+					app.exec('checkOpenStatus', params);
+				},
+				reload()
+				{
+					app.reload();
+				},
+				reloadUnique()
+				{
+					UI.Page.params.get({
+						callback(data)
+						{
+							BX.localStorage.set('mobileReloadPageData', {url: location.pathname + location.search, data: data});
+							app.reload();
+						},
+					});
+				},
+				close(params)
+				{
+					app.closeController(params);
+				},
+				closeModalDialog()
+				{
+					app.exec('closeModalDialog');
+				},
+				captureKeyboardEvents(enable)
+				{
+					app.enableCaptureKeyboard(!((typeof enable === 'boolean' && enable === false)));
+				},
+				setId(id)
+				{
+					app.setPageID(id);
+				},
+				/**
+				 *
+				 * @returns {BXMPage.TopBar.title|{params, timeout, isAboutToShow, show, hide, setImage, setText, setDetailText, setCallback, redraw, _applyParams}}
+				 */
+				getTitle()
+				{
+					return this.TopBar.title;
+				},
+				params: {
+					set(params)
 					{
-						app.exec("checkOpenStatus", params);
+						app.changeCurPageParams(params);
 					},
-					reload: function ()
+					get(params)
 					{
-						app.reload();
-					},
-					reloadUnique: function ()
-					{
-						UI.Page.params.get({
-							callback: function (data)
+						if (BX.localStorage && BX.message.USER_ID)
+						{
+							var data = BX.localStorage.get('mobileReloadPageData');
+							if (data && data.url == location.pathname + location.search && params.callback)
 							{
-								BX.localStorage.set('mobileReloadPageData', {url: location.pathname + location.search, data: data});
-								app.reload();
+								BX.localStorage.remove('mobileReloadPageData');
+								params.callback(data.data);
+
+								return;
 							}
-						});
+						}
+
+						app.getPageParams(params);
 					},
-					close: function (params)
+				},
+				TopBar: {
+					show()
 					{
-						app.closeController(params)
+						app.visibleNavigationBar(true);
 					},
-					closeModalDialog:function(){
-						app.exec("closeModalDialog");
-					},
-					captureKeyboardEvents: function (enable)
+					hide()
 					{
-						app.enableCaptureKeyboard(!((typeof enable == "boolean" && enable === false)))
-					},
-					setId: function (id)
-					{
-						app.setPageID(id);
+						app.visibleNavigationBar(false);
 					},
 					/**
-					 *
-					 * @returns {BXMPage.TopBar.title|{params, timeout, isAboutToShow, show, hide, setImage, setText, setDetailText, setCallback, redraw, _applyParams}}
+					 * @since 14
+					 * @param colors colors for the elements of top bar
+					 * @config {string} [background] color of top bar
+					 * @config {string} [titleText] color of title text
+					 * @config {string} [titleDetailText] color of  subtitle text
 					 */
-					getTitle: function ()
+					setColors(colors)
 					{
-						return this.TopBar.title;
+						app.exec('setTopBarColors', colors);
 					},
-					params: {
-						set: function (params)
-						{
-							app.changeCurPageParams(params);
+					addRightButton(button)
+					{
+						app.addButtons({
+							rightButton: button,
+						});
+					},
+					/**
+					 * Updates buttons
+					 * @since 14
+					 * @param {object} buttons
+					 */
+					updateButtons(buttons)
+					{
+						this.buttons = buttons;
+						app.addButtons(buttons);
+					},
+					title: {
+						params: {
+							imageUrl: '',
+							text: '',
+							detailText: '',
+							callback: '',
 						},
-						get: function (params)
+						timeout: 0,
+						isAboutToShow: false,
+						show()
 						{
-							if(BX.localStorage && BX.message['USER_ID'])
+							this.isAboutToShow = (this.timeout > 0);
+
+							if (!this.isAboutToShow)
 							{
-								var data = BX.localStorage.get('mobileReloadPageData');
-								if (data && data.url == location.pathname + location.search && params.callback)
-								{
-									BX.localStorage.remove('mobileReloadPageData');
-									params.callback(data.data);
-									return;
-								}
+								clearTimeout(this.showTitleTimeout);
+								this.showTitleTimeout = setTimeout(() => {
+									app.titleAction('show');
+								}, 300);
 							}
+						},
+						hide()
+						{
+							app.titleAction('hide');
+						},
+						setImage(imageUrl, color)
+						{
+							this.params.imageUrl = imageUrl;
 
-							app.getPageParams(params);
-						}
-					},
-					TopBar: {
-						show: function ()
-						{
-							app.visibleNavigationBar(true);
-						},
-						hide: function ()
-						{
-							app.visibleNavigationBar(false);
-						},
-						/**
-						 * @since 14
-						 * @param colors colors for the elements of top bar
-						 * @config {string} [background] color of top bar
-						 * @config {string} [titleText] color of title text
-						 * @config {string} [titleDetailText] color of  subtitle text
-						 */
-						setColors: function (colors)
-						{
-							app.exec("setTopBarColors", colors);
-						},
-						addRightButton: function (button)
-						{
-							app.addButtons({
-								"rightButton": button
-							});
-						},
-						/**
-						 * Updates buttons
-						 * @since 14
-						 * @param {object} buttons
-						 */
-						updateButtons: function (buttons)
-						{
-							this.buttons = buttons;
-							app.addButtons(buttons);
-						},
-						title: {
-							params: {
-								imageUrl: "",
-								text: "",
-								detailText: "",
-								callback: ""
-							},
-							timeout: 0,
-							isAboutToShow: false,
-							show: function ()
-							{
-								this.isAboutToShow = (this.timeout > 0);
-
-								if (!this.isAboutToShow)
-								{
-									clearTimeout(this.showTitleTimeout);
-									this.showTitleTimeout = setTimeout(function ()
-									{
-										app.titleAction("show");
-									}, 300)
-								}
-							},
-							hide: function ()
-							{
-								app.titleAction("hide")
-							},
-							setImage: function (imageUrl, color)
-							{
-								this.params.imageUrl = imageUrl;
-
-								if (color)
-								{
-									this.params.imageColor = color || '';
-								}
-
-								this.redraw();
-							},
-							setImageColor: function (color)
+							if (color)
 							{
 								this.params.imageColor = color || '';
-
-								this.redraw();
-							},
-							setText: function (text)
-							{
-								this.params.text = text;
-								this.redraw();
-							},
-							setDetailText: function (text)
-							{
-								this.params.detailText = text;
-								this.redraw();
-							},
-							setUseLetterImage: function (flag)
-							{
-								this.params.useLetterImage = flag === true;
-								this.redraw();
-							},
-							setCallback: function (callback)
-							{
-								this.params.callback = callback;
-								this.redraw();
-							},
-							redraw: function ()
-							{
-								if (this.timeout > 0)
-									clearTimeout(this.timeout);
-
-								this.timeout = setTimeout(BX.proxy(this._applyParams, this), 200);
-							},
-							_applyParams: function ()
-							{
-								app.titleAction("setParams", this.params);
-								this.timeout = 0;
-
-								if (this.isAboutToShow)
-									this.show()
-							}
-						}
-					},
-					SlidingPanel: {
-						buttons: {},
-						hide: function ()
-						{
-							app.hideButtonPanel();
-						},
-						/**
-						 * Shows additional panel under navigation bar.
-						 * @param params - params object
-						 * @config {object} buttons - object of buttons
-						 * @config {boolean} hidden_buttons_panel - (true/false) use this to control on visibility of panel while scrolling
-						 */
-						show: function (params)
-						{
-							app.showSlidingPanel(params);
-						},
-						addButton: function (buttonObject)
-						{
-							//TODO
-						},
-						removeButton: function (buttonId)
-						{
-							//TODO
-						}
-					},
-					Refresh: {
-						//on|off pull down action on the current page
-						//params.pulltext, params.downtext, params.loadtext
-						//params.callback - action on pull-down-refresh
-						//params.enable - true|false
-						params: {
-							enable: false,
-							callback: false,
-							pulltext: "Pull to refresh",
-							downtext: "Release to refresh",
-							loadtext: "Loading...",
-							timeout: "60",
-							backgroundColor: ''
-						},
-						setParams: function (params)
-						{
-							this.params.pulltext = (params.pullText ? params.pullText : this.params.pulltext);
-							this.params.downtext = (params.releaseText ? params.releaseText : this.params.downtext);
-							this.params.loadtext = (params.loadText ? params.loadText : this.params.loadtext);
-							this.params.callback = (params.callback ? params.callback : this.params.callback);
-							this.params.enable = (typeof params.enabled == "boolean" ? params.enabled : this.params.enable);
-							this.params.timeout = (params.timeout ? params.timeout : this.params.timeout);
-							this.params.backgroundColor = (params.backgroundColor ? params.backgroundColor : this.params.backgroundColor);
-							app.pullDown(this.params);
-						},
-						setEnabled: function (enabled)
-						{
-							this.params.enable = (typeof enabled == "boolean" ? enabled : this.params.enable);
-							app.pullDown(this.params);
-						},
-						start: function ()
-						{
-							app.exec("pullDownLoadingStart");
-						},
-						stop: function ()
-						{
-							app.exec("pullDownLoadingStop");
-						}
-
-					},
-					BottomBar: {
-						buttons: {},
-						show: function ()
-						{
-							//TODO
-						},
-						hide: function ()
-						{
-							//TODO
-						},
-						addButton: function (buttonObject)
-						{
-							//TODO
-						}
-					},
-					PopupLoader: {
-						show: function (text)
-						{
-							app.exec("showPopupLoader", {text: text})
-						},
-						hide: function ()
-						{
-							app.exec("hidePopupLoader");
-						}
-					},
-					LoadingScreen: {
-						show: function ()
-						{
-							app.showLoadingScreen();
-						},
-						hide: function ()
-						{
-							app.hideLoadingScreen();
-						},
-						setEnabled: function (enabled)
-						{
-							app.enableLoadingScreen(!((typeof enabled == "boolean" && enabled === false)))
-						}
-					},
-					TextPanel: {
-						defaultParams: {
-							placeholder: "Text here...",
-							button_name: "Send",
-							mentionDataSource: {},
-							action: function ()
-							{
-							},
-							smileButton: {},
-							plusAction: "",
-							callback: "-1",
-							useImageButton: true
-						},
-						params: {},
-						isAboutToShow: false,
-						temporaryParams: {},
-						timeout: 0,
-						setParams: function (params)
-						{
-							if (typeof(params) == "undefined" && this.params == {})
-							{
-								this.params = this.defaultParams;
-							}
-							else {
-								this.params = params;
 							}
 
-							if (this.isAboutToShow)
-							{
-								this.redraw();
-							}
-						},
-						show: function (params)
-						{
-							if (typeof params == "object" && params != null)
-							{
-								this.setParams(params);
-							}
-							else if (this.params == {})
-							{
-								this.params = this.defaultParams;
-							}
-
-							var showParams = this.getParams();
-							if (!this.isAboutToShow)
-							{
-								for (var key in this.temporaryParams)
-								{
-									showParams[key] = this.temporaryParams[key];
-								}
-
-								this.temporaryParams = {};
-							}
-
-							if (BXMobileApp.apiVersion >= 10)
-							{
-								clearTimeout(this.showTimeout);
-								this.showTimeout = setTimeout(function ()
-								{
-									app.textPanelAction("show", showParams);
-								}, 100)
-
-							}
-							else {
-
-								delete showParams['text'];
-								app.showInput(showParams);
-							}
-
-							this.isAboutToShow = true;
-						},
-						hide: function ()
-						{
-							if (BXMobileApp.apiVersion >= 10)
-								app.textPanelAction("hide");
-							else
-								app.hideInput();
-						},
-						focus: function ()
-						{
-							if (BXMobileApp.apiVersion >= 10)
-								app.textPanelAction("focus", this.getParams());
-						},
-						clear: function ()
-						{
-							if (BXMobileApp.apiVersion >= 10)
-								app.textPanelAction("clear", this.getParams());
-							else
-								app.clearInput();
-
-						},
-						setUseImageButton: function (use)
-						{
-							this.params["useImageButton"] = !((typeof use == "boolean" && use === false));
 							this.redraw();
 						},
-						setAction: function (callback)
+						setImageColor(color)
 						{
-							this.params["action"] = callback;
+							this.params.imageColor = color || '';
+
 							this.redraw();
 						},
-						setText: function (text)
+						setText(text)
 						{
-							if (!this.isAboutToShow)
-							{
-								this.temporaryParams["text"] = text;
-							}
-							else {
-
-								var params = app.clone(this.params, true);
-								params["text"] = text;
-								app.textPanelAction("setParams", params);
-							}
+							this.params.text = text;
+							this.redraw();
 						},
-						getText: function (callback)
+						setDetailText(text)
 						{
-							app.textPanelAction("getText", {callback: callback});
+							this.params.detailText = text;
+							this.redraw();
 						},
-						showLoading: function (shown)
+						setUseLetterImage(flag)
 						{
-							app.showInputLoading(shown);
+							this.params.useLetterImage = flag === true;
+							this.redraw();
 						},
-						getParams: function ()
+						setCallback(callback)
 						{
-							var params = {};
-							for (var key in this.params)
-							{
-								params[key] = this.params[key]
-							}
-
-							return params;
+							this.params.callback = callback;
+							this.redraw();
 						},
-						redraw: function ()
+						redraw()
 						{
 							if (this.timeout > 0)
+							{
 								clearTimeout(this.timeout);
+							}
 
-							this.timeout = setTimeout(BX.proxy(this._applyParams, this), 100);
+							this.timeout = setTimeout(BX.proxy(this._applyParams, this), 200);
 						},
-						_applyParams: function ()
+						_applyParams()
 						{
-							app.textPanelAction("setParams", this.params);
+							app.titleAction('setParams', this.params);
 							this.timeout = 0;
 
 							if (this.isAboutToShow)
-								this.show()
+							{
+								this.show();
+							}
+						},
+					},
+				},
+				SlidingPanel: {
+					buttons: {},
+					hide()
+					{
+						app.hideButtonPanel();
+					},
+					/**
+					 * Shows additional panel under navigation bar.
+					 * @param params - params object
+					 * @config {object} buttons - object of buttons
+					 * @config {boolean} hidden_buttons_panel - (true/false) use this to control on visibility of panel while scrolling
+					 */
+					show(params)
+					{
+						app.showSlidingPanel(params);
+					},
+					addButton(buttonObject)
+					{
+						// TODO
+					},
+					removeButton(buttonId)
+					{
+						// TODO
+					},
+				},
+				Refresh: {
+					// on|off pull down action on the current page
+					// params.pulltext, params.downtext, params.loadtext
+					// params.callback - action on pull-down-refresh
+					// params.enable - true|false
+					params: {
+						enable: false,
+						callback: false,
+						pulltext: 'Pull to refresh',
+						downtext: 'Release to refresh',
+						loadtext: 'Loading...',
+						timeout: '60',
+						backgroundColor: '',
+					},
+					setParams(params)
+					{
+						this.params.pulltext = (params.pullText ? params.pullText : this.params.pulltext);
+						this.params.downtext = (params.releaseText ? params.releaseText : this.params.downtext);
+						this.params.loadtext = (params.loadText ? params.loadText : this.params.loadtext);
+						this.params.callback = (params.callback ? params.callback : this.params.callback);
+						this.params.enable = (typeof params.enabled === 'boolean' ? params.enabled : this.params.enable);
+						this.params.timeout = (params.timeout ? params.timeout : this.params.timeout);
+						this.params.backgroundColor = (params.backgroundColor ? params.backgroundColor : this.params.backgroundColor);
+						app.pullDown(this.params);
+					},
+					setEnabled(enabled)
+					{
+						this.params.enable = (typeof enabled === 'boolean' ? enabled : this.params.enable);
+						app.pullDown(this.params);
+					},
+					start()
+					{
+						app.exec("pullDownLoadingStart");
+					},
+					stop()
+					{
+						app.exec("pullDownLoadingStop");
+					},
+				},
+				BottomBar: {
+					buttons: {},
+					show()
+					{
+						// TODO
+					},
+					hide()
+					{
+						// TODO
+					},
+					addButton(buttonObject)
+					{
+						// TODO
+					},
+				},
+				PopupLoader: {
+					show(text)
+					{
+						app.exec('showPopupLoader', { text });
+					},
+					hide()
+					{
+						app.exec('hidePopupLoader');
+					},
+				},
+				LoadingScreen: {
+					show()
+					{
+						app.showLoadingScreen();
+					},
+					hide()
+					{
+						app.hideLoadingScreen();
+					},
+					setEnabled(enabled)
+					{
+						app.enableLoadingScreen(!((typeof enabled === 'boolean' && enabled === false)));
+					},
+				},
+				TextPanel: {
+					defaultParams: {
+						placeholder: 'Text here...',
+						button_name: 'Send',
+						mentionDataSource: {},
+						action() {},
+						smileButton: {},
+						plusAction: '',
+						callback: '-1',
+						useImageButton: true,
+					},
+					params: {},
+					isAboutToShow: false,
+					temporaryParams: {},
+					timeout: 0,
+					setParams(params)
+					{
+						if (typeof params === 'undefined' && this.params == {})
+						{
+							this.params = this.defaultParams;
+						}
+						else {
+							this.params = params;
 						}
 
-					},
-					Scroll: {
-						setEnabled: function (enabled)
+						if (this.isAboutToShow)
 						{
-							app.enableScroll(enabled);
+							this.redraw();
 						}
-					}
+					},
+					show(params)
+					{
+						if (typeof params === 'object' && params != null)
+						{
+							this.setParams(params);
+						}
+						else if (this.params == {})
+						{
+							this.params = this.defaultParams;
+						}
+
+						var showParams = this.getParams();
+						if (!this.isAboutToShow)
+						{
+							for (var key in this.temporaryParams)
+							{
+								showParams[key] = this.temporaryParams[key];
+							}
+
+							this.temporaryParams = {};
+						}
+
+						// eslint-disable-next-line no-undef
+						if (BXMobileApp.apiVersion >= 10)
+						{
+							clearTimeout(this.showTimeout);
+							this.showTimeout = setTimeout(() => {
+								app.textPanelAction('show', showParams);
+							}, 100);
+						}
+						else
+						{
+							delete showParams.text;
+							app.showInput(showParams);
+						}
+
+						this.isAboutToShow = true;
+					},
+					hide()
+					{
+						// eslint-disable-next-line no-undef
+						if (BXMobileApp.apiVersion >= 10)
+						{
+							app.textPanelAction('hide');
+						}
+						else
+						{
+							app.hideInput();
+						}
+					},
+					focus()
+					{
+						// eslint-disable-next-line no-undef
+						if (BXMobileApp.apiVersion >= 10)
+						{
+							app.textPanelAction('focus', this.getParams());
+						}
+					},
+					clear()
+					{
+						// eslint-disable-next-line no-undef
+						if (BXMobileApp.apiVersion >= 10)
+						{
+							app.textPanelAction('clear', this.getParams());
+						}
+						else
+						{
+							app.clearInput();
+						}
+					},
+					setUseImageButton(use)
+					{
+						this.params.useImageButton = !((typeof use === 'boolean' && use === false));
+						this.redraw();
+					},
+					setAction(callback)
+					{
+						this.params.action = callback;
+						this.redraw();
+					},
+					setText(text)
+					{
+						if (this.isAboutToShow)
+						{
+							var params = app.clone(this.params, true);
+							params.text = text;
+							app.textPanelAction('setParams', params);
+						}
+						else
+						{
+							this.temporaryParams.text = text;
+						}
+					},
+					getText(callback)
+					{
+						app.textPanelAction('getText', { callback });
+					},
+					showLoading(shown)
+					{
+						app.showInputLoading(shown);
+					},
+					getParams()
+					{
+						var params = {};
+						for (var key in this.params)
+						{
+							params[key] = this.params[key];
+						}
+
+						return params;
+					},
+					redraw()
+					{
+						if (this.timeout > 0)
+						{
+							clearTimeout(this.timeout);
+						}
+
+						this.timeout = setTimeout(BX.proxy(this._applyParams, this), 100);
+					},
+					_applyParams()
+					{
+						app.textPanelAction('setParams', this.params);
+						this.timeout = 0;
+
+						if (this.isAboutToShow)
+						{
+							this.show();
+						}
+					},
 
 				},
+				Scroll: {
+					setEnabled(enabled)
+					{
+						app.enableScroll(enabled);
+					},
+				},
+			},
 			Badge: {
 				/**
 				 * Sets number fot badge
 				 * @since 14
 				 * @param {int} number value of badge
 				 */
-				setIconBadge: function (number)
+				setIconBadge(number)
 				{
-					app.exec("setBadge", number)
+					app.exec('setBadge', number);
 				},
 				/**
 				 * Sets number fot badge
@@ -650,14 +677,13 @@
 				 * @param {string} badgeCode identifier of badge
 				 * @param {int} number value of badge
 				 */
-				setButtonBadge: function (badgeCode, number)
+				setButtonBadge(badgeCode, number)
 				{
-					app.exec("setButtonBadge", {
+					app.exec('setButtonBadge', {
 						code: badgeCode,
-						value: number
-					})
-				}
-
+						value: number,
+					});
+				},
 			},
 			types: {
 				COMMON: 0,
@@ -666,38 +692,40 @@
 				TABLE: 3,
 				MENU: 4,
 				ACTION_SHEET: 5,
-				NOTIFY_BAR: 6
+				NOTIFY_BAR: 6,
 			},
 			parentTypes: {
 				TOP_BAR: 0,
 				BOTTOM_BAR: 1,
 				SLIDING_PANEL: 2,
-				UNKNOWN: 3
-			}
+				UNKNOWN: 3,
+			},
 		},
 		PushManager: {
-			getLastNotification: (new syncApiObject("BXMobileAppContext")).getFunc("getLastNotification"),
-			prepareParams: function (push)
+			// eslint-disable-next-line new-cap
+			getLastNotification: (new syncApiObject('BXMobileAppContext')).getFunc('getLastNotification'),
+			prepareParams(push)
 			{
-				if (typeof (push) != 'object' || typeof (push.params) == 'undefined')
+				if (typeof push !== 'object' || typeof push.params === 'undefined')
 				{
-					return {'ACTION': 'NONE'};
+					return { ACTION: 'NONE' };
 				}
 
 				var result = {};
-				try {
+				try
+				{
 					result = JSON.parse(push.params);
 				}
-				catch (e)
+				catch
 				{
-					result = {'ACTION': push.params};
+					result = { ACTION: push.params };
 				}
 
 				return result;
-			}
+			},
 		},
 		PageManager: {
-			loadPageBlank: function (params, skipResolve)
+			loadPageBlank(params, skipResolve)
 			{
 				/**
 				 * Notice:
@@ -706,20 +734,20 @@
 				if (typeof BX.MobileTools === 'undefined' || skipResolve)
 				{
 					app.loadPageBlank(params);
+
 					return;
 				}
 
-				if(params.url) {
+				if (params.url)
+				{
 					const { url, ...restParams } = params;
 					const func = BX.MobileTools.resolveOpenFunction(url, restParams);
 
-					if(func)
+					if (func)
 					{
 						func();
 					}
-
 				}
-
 			},
 			loadPageUnique: function (params)
 			{

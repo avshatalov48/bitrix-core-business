@@ -10,7 +10,7 @@
 	color: #525C69;
 }
 
-.sn-spaces-discussions-composition-header-space-name {
+.sn-spaces-discussions-composition-header-title span {
 	font-size: var(--ui-font-size-xl);
 	color: #525C69;
 	font-weight: var(--ui-font-weight-semi-bold);

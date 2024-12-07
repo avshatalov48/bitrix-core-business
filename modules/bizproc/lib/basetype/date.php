@@ -56,7 +56,21 @@ class Date extends Base
 				$value = $value? (int)strtotime($value) : 0;
 				break;
 			case FieldType::DATE:
+				if ($value instanceof Value\Date)
+				{
+					//cut time converting to main date
+					$dateTs = Type\Date::createFromTimestamp($value->toSystemObject()->getTimestamp());
+					$value = new Value\Date($dateTs->getTimestamp() - $value->getOffset(), $value->getOffset());
+
+					break;
+				}
 			case FieldType::DATETIME:
+				if ($value instanceof Value\Date)
+				{
+					$value = new Value\DateTime($value->getTimestamp(), $value->getOffset());
+
+					break;
+				}
 			case FieldType::STRING:
 			case FieldType::TEXT:
 				$value = (string) $value;
@@ -542,8 +556,12 @@ class Date extends Base
 
 	public static function compareValues($valueA, $valueB)
 	{
-		$valueA = \CBPHelper::makeTimestamp($valueA);
-		$valueB = \CBPHelper::makeTimestamp($valueB);
+		$valueA = \CBPHelper::makeTimestamp($valueA, true);
+		$valueB = \CBPHelper::makeTimestamp($valueB, true);
+
+		//cut time
+		$valueA = Type\Date::createFromTimestamp($valueA)->getTimestamp();
+		$valueB = Type\Date::createFromTimestamp($valueB)->getTimestamp();
 
 		return parent::compareValues($valueA, $valueB);
 	}

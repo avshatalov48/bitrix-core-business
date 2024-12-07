@@ -120,10 +120,6 @@ class Client
 		{
 			$params = array();
 		}
-		else
-		{
-			$params = Encoding::convertEncoding($params, LANG_CHARSET, "utf-8");
-		}
 
 		return $params;
 	}

@@ -1,21 +1,21 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+
+/** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
 /** @var array $arResult */
-/** @global CDatabase $DB */
-/** @global CUser $USER */
-/** @global CMain $APPLICATION */
 
 use Bitrix\Main\UI;
 
 UI\Extension::load("ui.tooltip");
 
-if(isset($arResult["FatalError"]) && !empty($arResult["FatalError"]))
+if (!empty($arResult["FatalError"]))
 {
 	?><span class='errortext'><?=$arResult["FatalError"]?></span><br /><br /><?
 }
 else
 {
-	$anchor_id = RandString(8);
+	$anchor_id = $this->randString(8);
 
 	if ($arParams["INLINE"] != "Y")
 	{
@@ -110,7 +110,7 @@ else
 			}
 			else
 			{
-				?><div id="<?=$arResult["User"]["HTML_ID"]?>"<?=$online_class_attrib?>><a href="<?=$link?>"><img src="/bitrix/images/1.gif" width="11" height="11" border="0"></a></div><?
+				?><div id="<?=$arResult["User"]["HTML_ID"]?>"<?=$online_class_attrib?>><a href="<?=$link?>"><img src="/bitrix/images/1.gif" width="11" height="11" border="0" alt=""></a></div><?
 			}
 			?></div><?
 		}
@@ -138,4 +138,3 @@ else
 		?><?=(isset($arResult["User"]["NAME_DESCRIPTION"]) && $arResult["User"]["NAME_DESCRIPTION"] <> '' ? " (".$arResult["User"]["NAME_DESCRIPTION"].")": "")?><?
 	}
 }
-?>

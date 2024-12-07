@@ -53,11 +53,11 @@ $arParams["ELEMENT_ID"] = intval($arParams["ELEMENT_ID"]);
 ?><html><head>
 <link href="/bitrix/components/bitrix/photogallery.detail.list/templates/slide_show/style.css" type="text/css" rel="stylesheet" />
 <link href="/bitrix/templates/.default/ajax/ajax.css" type="text/css" rel="stylesheet" />
-<script type="text/javascript" src="/bitrix/components/bitrix/photogallery.detail.list/templates/slide_show/script_player.js"></script>
-<script type="text/javascript" src="/bitrix/components/bitrix/photogallery/templates/.default/script.js"></script>
-<script type="text/javascript" src="/bitrix/js/main/ajax.js"></script>
-<script type="text/javascript" src="/bitrix/js/main/core/core.js"></script>
-<script language="JavaScript" type="text/javascript">
+<script src="/bitrix/components/bitrix/photogallery.detail.list/templates/slide_show/script_player.js"></script>
+<script src="/bitrix/components/bitrix/photogallery/templates/.default/script.js"></script>
+<script src="/bitrix/js/main/ajax.js"></script>
+<script src="/bitrix/js/main/core/core.js"></script>
+<script>
 function SetBackGround(div)
 {
 		if (!div){return false;}

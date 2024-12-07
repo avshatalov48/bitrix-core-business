@@ -4,6 +4,7 @@ namespace Bitrix\Lists\Api\Service;
 
 use Bitrix\Bizproc\Workflow\Entity\EO_WorkflowMetadata;
 use Bitrix\Lists\Api\Request\WorkflowService\StartWorkflowsRequest;
+use Bitrix\Lists\Api\Response\Response;
 use Bitrix\Lists\Api\Response\WorkflowService\GetParameterValuesResponse;
 use Bitrix\Lists\Api\Response\WorkflowService\StartWorkflowsResponse;
 use Bitrix\Main\Error;
@@ -14,7 +15,7 @@ final class WorkflowService
 {
 	private string $iBlockTypeId;
 	private bool $isBpEnabled;
-	private array $complexDocumentType;
+	private ?array $complexDocumentType;
 
 	public function __construct(array $iBlockInfo)
 	{
@@ -26,9 +27,13 @@ final class WorkflowService
 			&& (isset($iBlockInfo['BIZPROC']) && $iBlockInfo['BIZPROC'] === 'Y') // $iBlockInfo['BIZPROC'] != 'N'
 		);
 
-		$this->complexDocumentType = \BizprocDocument::generateDocumentComplexType(
-			$this->iBlockTypeId,
-			max((int)($iBlockInfo['ID'] ?? 0), 0)
+		$this->complexDocumentType = (
+			$this->isBpEnabled
+				? \BizprocDocument::generateDocumentComplexType(
+					$this->iBlockTypeId,
+					max((int)($iBlockInfo['ID'] ?? 0), 0)
+				)
+				: null
 		);
 	}
 
@@ -227,7 +232,17 @@ final class WorkflowService
 
 	public function getComplexDocumentId(int $elementId): ?array
 	{
-		return ($elementId > 0 ? \BizprocDocument::getDocumentComplexId($this->iBlockTypeId, $elementId) : null);
+		if ($this->isBpEnabled)
+		{
+			return ($elementId > 0 ? \BizprocDocument::getDocumentComplexId($this->iBlockTypeId, $elementId) : null);
+		}
+
+		return null;
+	}
+
+	public function getComplexDocumentType(): ?array
+	{
+		return $this->complexDocumentType;
 	}
 
 	public function getDocumentStates(?array $complexDocumentId): array
@@ -242,13 +257,53 @@ final class WorkflowService
 
 	public function getNotRunningDocumentStates(int $elementId)
 	{
+		if (!$this->isBpEnabled)
+		{
+			return [];
+		}
+
 		$autoExecuteType = $elementId > 0 ? \CBPDocumentEventType::Edit: \CBPDocumentEventType::Create;
 
 		return \CBPWorkflowTemplateLoader::getDocumentTypeStates($this->complexDocumentType, $autoExecuteType);
 	}
 
+	public function getDocumentTypeStates(): array
+	{
+		if (!$this->isBpEnabled)
+		{
+			return [];
+		}
+
+		$states = array_merge(
+			\CBPWorkflowTemplateLoader::getDocumentTypeStates($this->complexDocumentType, \CBPDocumentEventType::Create),
+			\CBPWorkflowTemplateLoader::getDocumentTypeStates($this->complexDocumentType, \CBPDocumentEventType::Edit),
+		);
+
+		$result = [];
+		$templateIds = [];
+		foreach ($states as $state)
+		{
+			$templateId = (int)$state['TEMPLATE_ID'];
+			if (isset($templateIds[$templateId]))
+			{
+				continue;
+			}
+			$templateIds[$templateId] = true;
+
+			$state['TEMPLATE_CONSTANTS'] = \CBPWorkflowTemplateLoader::getTemplateConstants($templateId);
+			$result[] = $state;
+		}
+
+		return $result;
+	}
+
 	public function hasTemplatesOnStartup(?array $complexDocumentId = null): bool
 	{
+		if (!$this->isBpEnabled)
+		{
+			return false;
+		}
+
 		$templates = (
 			$complexDocumentId
 				? \CBPWorkflowTemplateLoader::searchTemplatesByDocumentType(
@@ -260,5 +315,96 @@ final class WorkflowService
 		);
 
 		return !empty($templates);
+	}
+
+	public function getDocumentStatesWithParameters(int $elementId): array
+	{
+		if ($elementId < 0 || !$this->isBpEnabled)
+		{
+			return [];
+		}
+
+		$states = [];
+		foreach ($this->getDocumentStates($this->getComplexDocumentId($elementId)) as $documentState)
+		{
+			$parameters = $documentState['TEMPLATE_PARAMETERS'] ?? [];
+			if (!empty($parameters))
+			{
+				$states[] = $documentState;
+			}
+		}
+
+		return $states;
+	}
+
+	public function getNotTunedDocumentTypeStates(): array
+	{
+		$notTuned = [];
+		if ($this->isBpEnabled)
+		{
+			foreach ($this->getDocumentTypeStates() as $state)
+			{
+				$templateId = (int)$state['TEMPLATE_ID'];
+				if (\CBPWorkflowTemplateLoader::isConstantsTuned($templateId))
+				{
+					continue;
+				}
+
+				$notTuned[] = $state;
+			}
+		}
+
+		return $notTuned;
+	}
+
+	public function setConstants(array $request): Response
+	{
+		$response = new Response();
+
+		$properties = [];
+		if ($this->isBpEnabled)
+		{
+			foreach ($this->getDocumentTypeStates() as $state)
+			{
+				$templateId = (int)$state['TEMPLATE_ID'];
+				if (array_key_exists($templateId, $request) && is_array($state['TEMPLATE_CONSTANTS']))
+				{
+					$errors = [];
+					$values = \CBPWorkflowTemplateLoader::checkWorkflowParameters(
+						$state['TEMPLATE_CONSTANTS'],
+						$request[$templateId] ?? [],
+						$this->complexDocumentType,
+						$errors
+					);
+
+					foreach ($errors as $error)
+					{
+						if (!empty($error['message']))
+						{
+							$response->addError(new Error($error['message']));
+						}
+					}
+
+					if (!$errors)
+					{
+						foreach ($state['TEMPLATE_CONSTANTS'] as $id => $property)
+						{
+							$property['Default'] = $values[$id] ?? null;
+							$properties[$templateId][$id] = $property;
+						}
+					}
+				}
+			}
+
+			if ($response->isSuccess())
+			{
+				foreach ($properties as $templateId => $constants)
+				{
+					\CBPWorkflowTemplateLoader::update($templateId, ['CONSTANTS' => $constants]);
+				}
+			}
+		}
+
+		return $response;
 	}
 }

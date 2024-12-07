@@ -44,7 +44,7 @@ if ($request->isPost() && $request->getPost('Update') !== null && $saleModulePer
 		$errorMessage .= GetMessage("SCE_EMPTY_PAY_SYS").".<br>";
 
 	$CARD_TYPE = Trim($CARD_TYPE);
-	$CARD_TYPE = ToUpper($CARD_TYPE);
+	$CARD_TYPE = mb_strtoupper($CARD_TYPE);
 	if ($CARD_TYPE == '')
 		$errorMessage .= GetMessage("SCE_EMPTY_CARD_TYPE").".<br>";
 

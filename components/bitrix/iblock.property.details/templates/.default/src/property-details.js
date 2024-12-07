@@ -392,10 +392,11 @@ export class PropertyDetails
 					return false;
 				}
 
+				this.#getSlider().close();
+
 				top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [
 					response.data,
 				]);
-				this.#getSlider().close();
 
 				return true;
 			})
@@ -403,7 +404,7 @@ export class PropertyDetails
 				this.progress.stop();
 
 				this.errors.show(
-					response.errors,
+					response.errors || [],
 				);
 
 				return false;

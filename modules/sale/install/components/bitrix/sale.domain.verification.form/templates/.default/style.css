@@ -7,4 +7,20 @@
 .sale-domain-verification-wrapper {
 	padding: 15px 0 15px 15px;
 	background-color: #fff;
+	border-radius: var(--main-grid-top-border-radius);
+}
+
+.main-ui-loader {
+	z-index: 100;
+}
+
+.file-input-wrapper {
+	margin-top: 10px;
+	display: flex;
+}
+
+.file-validation-label {
+	display: flex;
+	align-items: center;
+	margin-left: 10px;
 }

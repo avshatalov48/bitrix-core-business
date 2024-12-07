@@ -107,9 +107,9 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 		?><div class="sonet-search-advanced"><div class="sonet-search-advanced-filter"><a href="#" onclick="document.getElementById('sonet_content_search_filter').style.display = document.getElementById('sonet_content_search_filter').style.display == 'none' ? 'block' : 'none'; return false;"><?=GetMessage("SEARCH_ADDITIONAL_FILTER")?></a></div></div><?
 
 		$default_style = (
-					$GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] <> '' ||
-					$_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] <> '' ||
-					$_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] <> '' ?
+				($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] ?? null) <> '' ||
+				($_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] ?? null) <> '' ||
+				($_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] ?? null) <> '' ?
 					"block" : "none"
 				);
 		?>
@@ -134,7 +134,7 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 				<td class="sonet-search-filter-field"><select name="<?=$arParams["FILTER_NAME"]?>" class="select-field">
 					<option value=""><?=GetMessage("SEARCH_ALL")?></option>
 					<?foreach($arResult["DROPDOWN_SONET"] as $key=>$value):?>
-						<option value="<?=$key?>"<?if($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"]==$key) echo " selected"?>><?=$value?></option>
+						<option value="<?=$key?>"<?if(($GLOBALS[$arParams["FILTER_NAME"]]["SONET_FEATURE"] ?? null)==$key) echo " selected"?>><?=$value?></option>
 					<?endforeach?>
 				</select></td>
 			</tr>
@@ -152,9 +152,9 @@ $APPLICATION->IncludeComponent("bitrix:search.tags.cloud", ".default", $arCloudP
 						'FORM_NAME' => "sonet_content_search_form",
 						'SHOW_INPUT' => 'Y',
 						'INPUT_NAME' => $arParams["FILTER_DATE_NAME"]."_from",
-						'INPUT_VALUE' => $_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"],
+						'INPUT_VALUE' => $_REQUEST[$arParams["FILTER_DATE_NAME"]."_from"] ?? null,
 						'INPUT_NAME_FINISH' => $arParams["FILTER_DATE_NAME"]."_to",
-						'INPUT_VALUE_FINISH' => $_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"],
+						'INPUT_VALUE_FINISH' => $_REQUEST[$arParams["FILTER_DATE_NAME"]."_to"] ?? null,
 						'INPUT_ADDITIONAL_ATTR' => 'class="input-field" size="10"',
 					),
 					null,

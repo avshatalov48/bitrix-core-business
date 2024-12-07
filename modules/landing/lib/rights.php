@@ -43,6 +43,7 @@ class Rights
 		'group_admin' => 'group_admin',//admin rights
 		'group_menu24' => 'group_menu24',// show group in main menu of Bitrix24
 		'group_unexportable' => 'group_unexportable',
+		'mainpage_create' => 'mainpage_create',
 	];
 
 	const SET_PREFIX = [
@@ -1043,8 +1044,8 @@ class Rights
 		if ($type !== null)
 		{
 			$type = mb_strtolower($type);
-			//@todo: hotfix for group right
-			if ($type == Site\Type::SCOPE_CODE_GROUP)
+			//todo: need fix it: remove if() and add 'mainpage_admin', 'mainpage_menu24' in ADDITIONAL_RIGHTS and check preview.bitrix24.site
+			if ($type == mb_strtolower(Site\Type::SCOPE_CODE_MAINPAGE))
 			{
 				return true;
 			}

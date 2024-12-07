@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_DISC_CONVERT_IN_PROGRESS"] = "Конвертация...";
 $MESS["CAT_DISC_CONVERT_TOTAL"] = "Сконвертировано скидок: <b>#COUNT#</b> (#PERCENT#%, примерно #TIME#)";
 $MESS["CAT_DISC_CONVERT_TOTAL_MIN"] = "#MIN# минут";
@@ -16,4 +16,3 @@ $MESS["CAT_DISC_CONVERT_STOP"] = "Остановить";
 $MESS["CAT_DISC_CONVERT_ERR"] = "В процессе конвертации были найдены ошибки:";
 $MESS["CAT_DISC_CONVERT_ONE_ERROR"] = "Скидка <a href=\"#LINK#\" target=\"_blank\">#NAME#</a><br>#MESS#";
 $MESS["CAT_DISC_CONVERT_ERROR_RESUME"] = "Необходимо исправить условия применения этих скидок";
-?>

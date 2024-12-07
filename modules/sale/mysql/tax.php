@@ -15,7 +15,7 @@ class CSaleTax extends CAllSaleTax
 		$strSql =
 			"INSERT INTO b_sale_tax(".$arInsert[0].", TIMESTAMP_X) ".
 			"VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 

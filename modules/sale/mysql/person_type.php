@@ -62,7 +62,7 @@ class CSalePersonType extends CAllSalePersonType
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -93,7 +93,7 @@ class CSalePersonType extends CAllSalePersonType
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -119,7 +119,7 @@ class CSalePersonType extends CAllSalePersonType
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 		
 		
@@ -138,7 +138,7 @@ class CSalePersonType extends CAllSalePersonType
 		if(!empty($arPT) && is_array($arPT))
 		{
 			$strSql = "SELECT * from b_sale_person_type_site WHERE PERSON_TYPE_ID IN (".implode(",", $arPT).")";
-			$dbRes1 = $DB->Query($strSql, false,	"File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes1 = $DB->Query($strSql);
 			while ($arRes1 = $dbRes1->Fetch())
 			{
 				$arRes2[$arRes1["PERSON_TYPE_ID"]][] = $arRes1["SITE_ID"];
@@ -196,14 +196,14 @@ class CSalePersonType extends CAllSalePersonType
 		$strSql =
 			"INSERT INTO b_sale_person_type(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 		
 		if(count($arLID)>0)
 		{
 			$strSql = "DELETE FROM b_sale_person_type_site WHERE PERSON_TYPE_ID=".$ID;
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql =
 				"INSERT INTO b_sale_person_type_site(PERSON_TYPE_ID, SITE_ID) ".
@@ -211,7 +211,7 @@ class CSalePersonType extends CAllSalePersonType
 				"FROM b_lang ".
 				"WHERE LID IN (".$str_LID.") ";
 
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		unset($GLOBALS["SALE_PERSON_TYPE_LIST_CACHE"]);

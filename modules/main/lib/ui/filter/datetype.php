@@ -1,7 +1,9 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\Filter;
 
+
+use Bitrix\Main\Filter\Range;
 
 /**
  * Class DateType. Available subtypes of date field
@@ -61,16 +63,34 @@ class DateType
 	public static function getLogicFilter(array $data, array $filterFields)
 	{
 		$filter = [];
-		$keys = array_filter($data, function($key) { return (mb_substr($key, 0 - mb_strlen(self::getPostfix())) == self::getPostfix()); }, ARRAY_FILTER_USE_KEY);
+		$keys = array_filter($data, function ($key) {
+			return (mb_substr($key, 0 - mb_strlen(self::getPostfix())) == self::getPostfix());
+		}, ARRAY_FILTER_USE_KEY);
 		foreach ($keys as $key => $val)
 		{
 			$id = mb_substr($key, 0, 0 - mb_strlen(self::getPostfix()));
-			if (array_key_exists($id."_from", $data))
-				$filter[">=".$id] = $data[$id."_from"];
-			if (array_key_exists($id."_to", $data))
-				$filter["<=".$id] = $data[$id."_to"];
-			break;
+			if (array_key_exists($id . "_from", $data))
+			{
+				if ($val === self::RANGE)
+				{
+					Range::prepareFrom($filter, $id, $data[$id . "_from"]);
+				} else
+				{
+					$filter[">=" . $id] = $data[$id . "_from"];
+				}
+			}
+			if (array_key_exists($id . "_to", $data))
+			{
+				if ($val === self::RANGE)
+				{
+					Range::prepareTo($filter, $id, $data[$id . "_to"]);
+				} else
+				{
+					$filter["<=" . $id] = $data[$id . "_to"];
+				}
+			}
 		}
+
 		return $filter;
 	}
 }

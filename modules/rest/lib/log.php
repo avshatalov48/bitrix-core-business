@@ -96,6 +96,12 @@ class LogTable extends Main\Entity\DataManager
 				'data_type' => 'text',
 				'serialized' => true,
 			),
+			'EVENT_ID' => array(
+				'data_type' => 'integer',
+			),
+			'MESSAGE' => array(
+				'data_type' => 'text',
+			),
 		);
 	}
 
@@ -149,7 +155,7 @@ class LogTable extends Main\Entity\DataManager
 		return "\\Bitrix\\Rest\\LogTable::cleanUpAgent();";
 	}
 
-	public static function filterResponseData(&$data)
+	public static function filterResponseData(&$data): void
 	{
 		//filter non-searizable objects
 		if (is_object($data) && !method_exists($data, '__serialize'))
@@ -163,24 +169,5 @@ class LogTable extends Main\Entity\DataManager
 				static::filterResponseData($oneData);
 			}
 		}
-	}
-
-	/**
-	 * @throws \Exception
-	 */
-	public static function addEntry(\CRestServer $server, Request $request): int
-	{
-		$addResult = static::add([
-			'CLIENT_ID' => $server->getClientId(),
-			'PASSWORD_ID' => $server->getPasswordId(),
-			'SCOPE' => $server->getScope(),
-			'METHOD' => $server->getMethod(),
-			'REQUEST_METHOD' => $request->getRequestMethod(),
-			'REQUEST_URI' => $request->getRequestUri(),
-			'REQUEST_AUTH' => $server->getAuth(),
-			'REQUEST_DATA' => $server->getQuery(),
-		]);
-
-		return $addResult->isSuccess() ? (int)$addResult->getId() : 0;
 	}
 }

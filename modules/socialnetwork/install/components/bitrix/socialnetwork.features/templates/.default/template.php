@@ -12,6 +12,8 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
 
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\UI;
@@ -34,6 +36,24 @@ elseif (!empty($arResult["FatalError"]))
 }
 else
 {
+	if ($arResult['featuresPageLimited'])
+	{
+		$componentParameters = [
+			'LIMIT_CODE' => 'limit_socialnetwork_projects_access_permissions',
+		];
+
+		$APPLICATION->IncludeComponent(
+			"bitrix:ui.sidepanel.wrapper",
+			"",
+			[
+				'POPUP_COMPONENT_NAME' => 'bitrix:intranet.settings.tool.stub',
+				'POPUP_COMPONENT_TEMPLATE_NAME' => '',
+				'POPUP_COMPONENT_PARAMS' => $componentParameters,
+			],
+		);
+		return;
+	}
+
 	$isProject = ($arResult['Group']['PROJECT'] === 'Y');
 
 	if (
@@ -95,7 +115,7 @@ else
 
 					if (
 						(
-							!\Bitrix\Main\Loader::includeModule('extranet')
+							!Loader::includeModule('extranet')
 							|| !CExtranet::IsExtranetSite()
 						)
 						&& !ModuleManager::isModuleInstalled('im')
@@ -155,6 +175,15 @@ else
 							]);
 						}
 
+						$featureAvailable = true;
+						if (
+							$feature === 'landing_knowledge'
+							&& Loader::includeModule('intranet')
+						)
+						{
+							$featureAvailable = ToolsManager::getInstance()->checkAvailabilityByToolId('knowledge_base');
+						}
+
 						$featureName = (
 								array_key_exists("title", $arResult["arSocNetFeaturesSettings"][$feature])
 								&& $arResult["arSocNetFeaturesSettings"][$feature]["title"] <> ''
@@ -163,117 +192,120 @@ else
 						);
 
 						?>
-						<div class="<?= $featureBlockClass ?>"
-							 onclick="BX.UI.InfoHelper.show('<?= $arFeature['limit'] ?? '' ?>',{isLimit: true,limitAnalyticsLabels: {module: 'socialnetwork',source: 'features',feature: 'tasks',}})"
-							 style="cursor:pointer;">
-							<div class="sn-features-title-box">
-								<h4 class="sn-features-title"><?=$featureName?></h4>
-								<span class="sn-features-subtitle"><?=$featureSubTitleText?></span>
-							</div><?php
-							if (
-								$arResult["ENTITY_TYPE"] == "U"
-								&& !(
-									$feature == "blog"
-									&& $arParams["PAGE_ID"] != "group_features"
-								)
-							)
-							{
-								?><script>
-
-									BX.message({
-										sonetF_<?=$feature?>_on: '<?=CUtil::JSEscape(str_replace(
-												"#NAME#",
-												$featureName,
-												Loc::getMessage("SONET_C4_FUNC_TITLE_ON")
-										))?>',
-										sonetF_<?=$feature?>_off: '<?=CUtil::JSEscape(str_replace(
-												"#NAME#",
-												$featureName,
-												Loc::getMessage("SONET_C4_FUNC_TITLE_OFF")))?>'
-									});
-
-								</script>
-								<div class="sn-features-input-box">
-									<div class="settings-right-enable-label-wrap">
-										<label for="<?=$feature?>_active_id" style="width:100%" id="<?=$feature?>_lbl"><?=str_replace(
-											"#NAME#",
-											$featureName,
-											Loc::getMessage("SONET_C4_FUNC_TITLE_".($arFeature["Active"] ? "ON" : "OFF"))
-										)?></label>:
-									</div>
-									<div class="settings-block-enable-checkbox-wrap">
-										<input class="settings-right-enable-checkbox" bx-feature="<?=$feature?>" type="checkbox" id="<?=$feature?>_active_id" name="<?=$feature?>_active" value="Y"<?=($arFeature["Active"] ? " checked" : "") ?>>
-									</div>
+						<?php if ($featureAvailable): ?>
+							<div class="<?= $featureBlockClass ?>"
+								 onclick="BX.UI.InfoHelper.show('<?= $arFeature['limit'] ?? '' ?>',{isLimit: true,limitAnalyticsLabels: {module: 'socialnetwork',source: 'features',feature: 'tasks',}})"
+								 style="cursor:pointer;">
+								<div class="sn-features-title-box">
+									<h4 class="sn-features-title"><?=$featureName?></h4>
+									<span class="sn-features-subtitle"><?=$featureSubTitleText?></span>
 								</div><?php
-							}
-							else
-							{
-								?><input type="hidden" name="<?=$feature?>_active" value="Y" /><?php
-							}
-
-							$displayValue = ($arFeature["Active"] ? 'block' : 'none');
-							$onClick = (!empty($arFeature['limit']) ? "onclick=\"BX.UI.InfoHelper.show('" . CUtil::JSescape($arFeature['limit']) . "', {isLimit: true, limitAnalyticsLabels: {module: 'socialnetwork', source: 'features', feature: '{$feature}'}});\"" : '');
-
-							?><div id="<?=$feature?>_body" style="display: <?=$displayValue?>" <?= $onClick ?>><?php
-								if (isset($arFeature["note"]))
+								if (
+									$arResult["ENTITY_TYPE"] == "U"
+									&& !(
+										$feature == "blog"
+										&& $arParams["PAGE_ID"] != "group_features"
+									)
+								)
 								{
-									?><div class="settings-blocks-note"><?=htmlspecialcharsbx($arFeature['note'])?></div><?php
+									?><script>
+
+										BX.message({
+											sonetF_<?=$feature?>_on: '<?=CUtil::JSEscape(str_replace(
+													"#NAME#",
+													$featureName,
+													Loc::getMessage("SONET_C4_FUNC_TITLE_ON")
+											))?>',
+											sonetF_<?=$feature?>_off: '<?=CUtil::JSEscape(str_replace(
+													"#NAME#",
+													$featureName,
+													Loc::getMessage("SONET_C4_FUNC_TITLE_OFF")))?>'
+										});
+
+									</script>
+									<div class="sn-features-input-box">
+										<div class="settings-right-enable-label-wrap">
+											<label for="<?=$feature?>_active_id" style="width:100%" id="<?=$feature?>_lbl"><?=str_replace(
+												"#NAME#",
+												$featureName,
+												Loc::getMessage("SONET_C4_FUNC_TITLE_".($arFeature["Active"] ? "ON" : "OFF"))
+											)?></label>:
+										</div>
+										<div class="settings-block-enable-checkbox-wrap">
+											<input class="settings-right-enable-checkbox" bx-feature="<?=$feature?>" type="checkbox" id="<?=$feature?>_active_id" name="<?=$feature?>_active" value="Y"<?=($arFeature["Active"] ? " checked" : "") ?>>
+										</div>
+									</div><?php
+								}
+								else
+								{
+									?><input type="hidden" name="<?=$feature?>_active" value="Y" /><?php
 								}
 
-								if (
-									!array_key_exists("hide_operations_settings", $arResult["arSocNetFeaturesSettings"][$feature])
-									|| !$arResult["arSocNetFeaturesSettings"][$feature]["hide_operations_settings"]
-								)
-								{
-									foreach ($arFeature["Operations"] as $operation => $perm)
+								$displayValue = ($arFeature["Active"] ? 'block' : 'none');
+								$onClick = (!empty($arFeature['limit']) ? "onclick=\"BX.UI.InfoHelper.show('" . CUtil::JSescape($arFeature['limit']) . "', {isLimit: true, limitAnalyticsLabels: {module: 'socialnetwork', source: 'features', feature: '{$feature}'}});\"" : '');
+
+								?><div id="<?=$feature?>_body" style="display: <?=$displayValue?>" <?= $onClick ?>><?php
+									if (isset($arFeature["note"]))
 									{
-										if (
-											$feature == "tasks"
-											&& (
-												$operation == "modify_folders"
-												|| $operation === 'modify_common_views'
+										?><div class="settings-blocks-note"><?=htmlspecialcharsbx($arFeature['note'])?></div><?php
+									}
+
+									if (
+										!array_key_exists("hide_operations_settings", $arResult["arSocNetFeaturesSettings"][$feature])
+										|| !$arResult["arSocNetFeaturesSettings"][$feature]["hide_operations_settings"]
+									)
+									{
+										foreach ($arFeature["Operations"] as $operation => $perm)
+										{
+											if (
+												$feature == "tasks"
+												&& (
+													$operation == "modify_folders"
+													|| $operation === 'modify_common_views'
+												)
+												&& ModuleManager::isModuleInstalled('tasks')
 											)
-											&& ModuleManager::isModuleInstalled('tasks')
-										)
-										{
-											?><input type="hidden" name="<?= $feature ?>_<?= $operation ?>_perm" value="<?=$perm?>"><?php
-										}
-										else
-										{
-											$title = (
-												array_key_exists("operation_titles", $arResult["arSocNetFeaturesSettings"][$feature])
-												&& array_key_exists($operation, $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"])
-												&& $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation] <> ''
-													? $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation]
-													: Loc::getMessage("SONET_FEATURES_".$feature."_".$operation)
-											);
+											{
+												?><input type="hidden" name="<?= $feature ?>_<?= $operation ?>_perm" value="<?=$perm?>"><?php
+											}
+											else
+											{
+												$title = (
+													array_key_exists("operation_titles", $arResult["arSocNetFeaturesSettings"][$feature])
+													&& array_key_exists($operation, $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"])
+													&& $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation] <> ''
+														? $arResult["arSocNetFeaturesSettings"][$feature]["operation_titles"][$operation]
+														: Loc::getMessage("SONET_FEATURES_".$feature."_".$operation)
+												);
 
-											$disabled = (!empty($arFeature['limit']) ? 'disabled' : '');
+												$disabled = (!empty($arFeature['limit']) ? 'disabled' : '');
 
-											?><div class="sn-features-input-box">
-												<div class="sn-features-caption"><?=$title?></div>
-												<select name="<?=$feature?>_<?=$operation?>_perm" class="sn-features-select" <?= $disabled ?>><?php
+												?><div class="sn-features-input-box">
+													<div class="sn-features-caption"><?=$title?></div>
+													<select name="<?=$feature?>_<?=$operation?>_perm" class="sn-features-select" <?= $disabled ?>><?php
 
-													foreach ($arResult["PermsVar"] as $key => $value)
-													{
-														if (
-															!array_key_exists("restricted", $arResult["arSocNetFeaturesSettings"][$feature]["operations"][$operation])
-															|| !in_array($key, $arResult["arSocNetFeaturesSettings"][$feature]["operations"][$operation]["restricted"][$arResult["ENTITY_TYPE"]])
-														)
+														foreach ($arResult["PermsVar"] as $key => $value)
 														{
-															?><option value="<?=$key?>"<?=($key == $perm) ? " selected" : "" ?>><?=$value?></option><?php
+															if (
+																!array_key_exists("restricted", $arResult["arSocNetFeaturesSettings"][$feature]["operations"][$operation])
+																|| !in_array($key, $arResult["arSocNetFeaturesSettings"][$feature]["operations"][$operation]["restricted"][$arResult["ENTITY_TYPE"]])
+															)
+															{
+																?><option value="<?=$key?>"<?=($key == $perm) ? " selected" : "" ?>><?=$value?></option><?php
+															}
 														}
-													}
 
-												?></select>
-											</div><?php
+													?></select>
+												</div><?php
+											}
 										}
 									}
-								}
 
-							?></div><?php
+								?></div><?php
 
-						?></div><?php
+							?></div>
+						<?php endif; ?>
+						<?php
 					}
 				}
 			?></div><?php

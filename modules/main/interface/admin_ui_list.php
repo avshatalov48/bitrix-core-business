@@ -9,6 +9,7 @@ use Bitrix\Main\Grid;
 use Bitrix\Main\Security;
 use Bitrix\Main\UI\Filter;
 use Bitrix\Main\Web\Uri;
+use Bitrix\Main\Web\Json;
 
 class CAdminUiList extends CAdminList
 {
@@ -186,7 +187,6 @@ class CAdminUiList extends CAdminList
 				{
 					if (is_array($fields))
 					{
-						CUtil::decodeURIComponent($fields);
 						$keys = array_keys($fields);
 						foreach ($keys as $key)
 						{
@@ -213,7 +213,7 @@ class CAdminUiList extends CAdminList
 												{
 													continue;
 												}
-												if (strpos($matchKey, "[") === false && strpos($matchKey, "]") === false)
+												if (!str_contains($matchKey, "[") && !str_contains($matchKey, "]"))
 												{
 													$listPreparedKeys[] = $matchKey;
 												}
@@ -371,14 +371,14 @@ class CAdminUiList extends CAdminList
 				continue;
 			}
 
-			if (mb_substr($fieldId, -5) == "_from")
+			if (str_ends_with($fieldId, "_from"))
 			{
 				$realFieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 5);
 				if (!array_key_exists($realFieldId, $filterable))
 				{
 					continue;
 				}
-				if (mb_substr($realFieldId, -2) == "_1")
+				if (str_ends_with($realFieldId, "_1"))
 				{
 					$arFilter[$realFieldId] = $fieldValue;
 				}
@@ -391,14 +391,14 @@ class CAdminUiList extends CAdminList
 					$arFilter[$filterPrefix.$realFieldId] = trim($fieldValue);
 				}
 			}
-			elseif (mb_substr($fieldId, -3) == "_to")
+			elseif (str_ends_with($fieldId, "_to"))
 			{
 				$realFieldId = mb_substr($fieldId, 0, mb_strlen($fieldId) - 3);
 				if (!array_key_exists($realFieldId, $filterable))
 				{
 					continue;
 				}
-				if (mb_substr($realFieldId, -2) == "_1")
+				if (str_ends_with($realFieldId, "_1"))
 				{
 					$realFieldId = mb_substr($realFieldId, 0, mb_strlen($realFieldId) - 2);
 					$arFilter[$realFieldId."_2"] = $fieldValue;
@@ -462,7 +462,7 @@ class CAdminUiList extends CAdminList
 				$queryString = DeleteParam([self::MODE_FIELD_NAME]);
 				if ($queryString !== '')
 				{
-					$pagePath  .= (strpos($pagePath, '?') === false ? '?' : '&') . $queryString;
+					$pagePath  .= (!str_contains($pagePath, '?') ? '?' : '&') . $queryString;
 				}
 				$pageParams = static::getModeExportParam();
 				if ($this->isPublicMode)
@@ -565,19 +565,22 @@ class CAdminUiList extends CAdminList
 		$options->save();
 	}
 
-	public function DisplayFilter(array $filterFields = array())
+	public function DisplayFilter(array $filterFields = [], array $filterParams = [])
 	{
 		global $APPLICATION;
 
 		$filterFields = $this->getPreparedFilterFields($filterFields);
 
-		$params = array(
-			"FILTER_ID" => $this->table_id,
-			"GRID_ID" => $this->table_id,
-			"FILTER" => $filterFields,
-			"FILTER_PRESETS" => $this->filterPresets,
-			"ENABLE_LABEL" => true,
-			"ENABLE_LIVE_SEARCH" => true
+		$filterParams = array_merge(
+			$filterParams,
+			[
+				"FILTER_ID" => $this->table_id,
+				"GRID_ID" => $this->table_id,
+				"FILTER" => $filterFields,
+				"FILTER_PRESETS" => $this->filterPresets,
+				"ENABLE_LABEL" => true,
+				"ENABLE_LIVE_SEARCH" => true,
+			]
 		);
 
 		if ($this->currentPreset)
@@ -601,7 +604,7 @@ class CAdminUiList extends CAdminList
 					$APPLICATION->includeComponent(
 						"bitrix:main.ui.filter",
 						"",
-						$params,
+						$filterParams,
 						false,
 						array("HIDE_ICONS" => true)
 					);
@@ -621,7 +624,7 @@ class CAdminUiList extends CAdminList
 					$APPLICATION->includeComponent(
 						"bitrix:main.ui.filter",
 						"",
-						$params,
+						$filterParams,
 						false,
 						array("HIDE_ICONS" => true)
 					);
@@ -637,13 +640,12 @@ class CAdminUiList extends CAdminList
 		$this->createFilterSelectorHandlers($filterFields);
 
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function () {
 				if (!window['filter_<?=$this->table_id?>'] ||
 					!BX.is_subclass_of(window['filter_<?=$this->table_id?>'], BX.adminUiFilter))
 				{
-					window['filter_<?=$this->table_id?>'] = new BX.adminUiFilter('<?=$this->table_id?>',
-						<?=CUtil::PhpToJsObject(array())?>);
+					window['filter_<?=$this->table_id?>'] = new BX.adminUiFilter('<?=$this->table_id?>', []);
 				}
 			});
 		</script>
@@ -881,7 +883,9 @@ class CAdminUiList extends CAdminList
 			"AJAX_ID" => CAjax::getComponentID("bitrix:main.ui.grid", ".default", ""),
 			"ALLOW_PIN_HEADER" => true,
 			"ALLOW_VALIDATE" => false,
-			"HANDLE_RESPONSE_ERRORS" => true
+			"HANDLE_RESPONSE_ERRORS" => true,
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => $arParams['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'] ?? false,
+			'ENABLE_FIELDS_SEARCH' => $arParams['ENABLE_FIELDS_SEARCH'] ?? 'N',
 		);
 
 		$actionPanel = ($arParams["ACTION_PANEL"] ?? $this->GetGroupAction());
@@ -986,7 +990,7 @@ class CAdminUiList extends CAdminList
 						if ($this->isPublicMode)
 						{
 							$skipUrlModificationEnabled = ($arParams['SKIP_URL_MODIFICATION'] ?? false) === true;
-							$skipUrlModification = $skipUrlModificationEnabled && strpos($row->link, '/bitrix/admin/') === false
+							$skipUrlModification = $skipUrlModificationEnabled && !str_contains($row->link, '/bitrix/admin/')
 								? 'true'
 								: 'false';
 							$gridRow["default_action"]["onclick"] = "BX.adminSidePanel.onOpenPage('".$row->link."', ".$skipUrlModification.");";
@@ -1148,11 +1152,11 @@ class CAdminUiList extends CAdminList
 		$jsParams["serviceUrl"] = ($arParams["SERVICE_URL"] ?? "");
 
 		?>
-		<script type="text/javascript">
+		<script>
 			if (!window['<?=$this->table_id?>'] || !BX.is_subclass_of(window['<?=$this->table_id?>'], BX.adminUiList))
 			{
 				window['<?=$this->table_id?>'] = new BX.adminUiList(
-					'<?=$this->table_id?>', <?=CUtil::PhpToJsObject($jsParams)?>);
+					'<?=$this->table_id?>', <?= Json::encode($jsParams) ?>);
 			}
 			BX.adminChain.addItems("<?=$this->table_id?>_navchain_div");
 		</script>

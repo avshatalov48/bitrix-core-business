@@ -227,7 +227,7 @@ final class Manager
 
 		$folder = str_replace('Handler', '', $className);
 		$folder = self::sanitize($folder);
-		$folder = ToLower($folder);
+		$folder = mb_strtolower($folder);
 
 		return $folder;
 	}
@@ -654,7 +654,7 @@ final class Manager
 			$data = PaySystemActionTable::getRow(
 				[
 					'select' => ['ID'],
-					'filter' => ['ACTION_FILE' => 'inner']
+					'filter' => ['=ACTION_FILE' => 'inner']
 				]
 			);
 			if ($data === null)

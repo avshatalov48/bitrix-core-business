@@ -29,7 +29,7 @@ $filterFields = array(
 	"filter_location_id",
 	"filter_active"
 );
-$USER_FIELD_MANAGER->AdminListAddFilterFields($entity_id, $filterFields);
+$USER_FIELD_MANAGER->AdminListAddFilterFields(CompanyTable::getUfId(), $filterFields);
 
 $lAdmin->InitFilter($filterFields);
 $filter = array();

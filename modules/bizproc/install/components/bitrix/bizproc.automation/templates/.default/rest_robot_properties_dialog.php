@@ -38,7 +38,8 @@ if ($appPlacement):
 				'properties' => $properties,
 				'current_values' => $appCurrentValues,
 				'document_type' => $dialog->getDocumentType(),
-				'document_fields' => $documentService->GetDocumentFields($dialog->getDocumentType())
+				'document_fields' => $documentService->GetDocumentFields($dialog->getDocumentType()),
+				'template' => $dialog->getTemplateExpressions(),
 			],
 			'PARAM' => array(
 				'FRAME_WIDTH' => '100%',

@@ -69,6 +69,7 @@ $isProduct = $arParams['VARIATION_ID_LIST'] === null;
 				'ACTION_PANEL' => $arResult['GRID']['ACTION_PANEL'],
 				'HANDLE_RESPONSE_ERRORS' => true,
 				'ENABLE_FIELDS_SEARCH' => $arResult['GRID']['ENABLE_FIELDS_SEARCH'],
+				'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => $arResult['GRID']['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'],
 			],
 			$component
 		);

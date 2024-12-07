@@ -16,7 +16,7 @@ use Bitrix\Sale\PaySystem\PaymentAvailablesPaySystems;
 
 /**
  * Payment controller
- * 
+ *
  * @example BX.ajax.runAction("sale.payment.[action]", { data: {...} });
  */
 class Payment extends Controller
@@ -26,8 +26,8 @@ class Payment extends Controller
 		return new ExactParameter(
 			Sale\Payment::class,
 			'payment',
-			function($className, $id) {
-
+			function($className, $id)
+			{
 				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
 				/** @var Sale\Payment $paymentClass */
@@ -38,7 +38,7 @@ class Payment extends Controller
 					'filter'=>['ID'=>$id]
 				]);
 
-				if($row = $r->fetch())
+				if ($row = $r->fetch())
 				{
 					/** @var Sale\Order $orderClass */
 					$orderClass = $registry->getOrderClassName();
@@ -54,6 +54,7 @@ class Payment extends Controller
 				{
 					$this->addError(new Error('payment is not exists', 200640400001));
 				}
+
 				return null;
 			}
 		);
@@ -192,7 +193,13 @@ class Payment extends Controller
 		return ['PAYMENT'=>$this->get($payment)];
 	}
 
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
+	public function listAction(
+		PageNavigation $pageNavigation,
+		array $select = [],
+		array $filter = [],
+		array $order = [],
+		bool $__calculateTotalCount = true
+	): Page
 	{
 		$select = empty($select) ? ['*'] : $select;
 		$order = empty($order) ? ['ID'=>'ASC'] : $order;
@@ -205,23 +212,21 @@ class Payment extends Controller
 			)
 		];
 
-		$payments = \Bitrix\Sale\Payment::getList(
+		$iterator = \Bitrix\Sale\Payment::getList(
 			[
 				'select' => $select,
 				'filter' => $filter,
 				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
 				'limit' => $pageNavigation->getLimit(),
-				'runtime' => $runtime
+				'runtime' => $runtime,
+				'count_total' => $__calculateTotalCount,
 			]
-		)->fetchAll();
+		);
+		$payments = $iterator->fetchAll();
+		$totalCount = $__calculateTotalCount ? $iterator->getCount() : 0;
 
-		return new Page('payments', $payments, function() use ($select, $filter, $runtime)
-		{
-			return count(
-				\Bitrix\Sale\Payment::getList(['select'=>$select, 'filter'=>$filter, 'runtime'=>$runtime])->fetchAll()
-			);
-		});
+		return new Page('payments', $payments, $totalCount);
 	}
 
 	public function getOrderIdAction(\Bitrix\Sale\Payment $payment)
@@ -302,10 +307,10 @@ class Payment extends Controller
 		$r = $payment->setReturn($value);
 		return $this->save($payment, $r);
 	}
-	
+
 	/**
 	 * Remove bindings pay systems for payment
-	 * 
+	 *
 	 * Example:
 	 * BX.ajax.runAction("sale.payment.clearavailablepaysystems", {data:{ id: 36 }});
 	 *
@@ -322,10 +327,10 @@ class Payment extends Controller
 		}
 		return true;
 	}
-	
+
 	/**
 	 * Set available pay systems for payment
-	 * 
+	 *
 	 * Example of specifying payment systems:
 	 * BX.ajax.runAction("sale.payment.setavailablepaysystems", {data:{ id: 36, paySystemIds: [1,2,7,8] }});
 	 *
@@ -335,7 +340,7 @@ class Payment extends Controller
 	 */
 	public function setAvailablePaySystemsAction(\Bitrix\Sale\Payment $payment, array $paySystemIds)
 	{
-		$result = PaymentAvailablesPaySystems::setBindings($payment->getId(), $paySystemIds);	
+		$result = PaymentAvailablesPaySystems::setBindings($payment->getId(), $paySystemIds);
 		if ($errors = $result->getErrors())
 		{
 			$this->addErrors($errors);

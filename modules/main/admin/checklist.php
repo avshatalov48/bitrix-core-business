@@ -1,9 +1,10 @@
-<?
+<?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -13,6 +14,7 @@
  */
 
 use Bitrix\Main\Application;
+use Bitrix\Main\Web\Json;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -72,14 +74,6 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 					$arPointFields["COMMENTS"]["CUSTOMER"] = $_POST["custom_comment"];
 				else
 					unset($arPointFields["COMMENTS"]["CUSTOMER"]);
-
-				if (strtoupper(SITE_CHARSET) != "UTF-8" && !empty($arPointFields["COMMENTS"]))
-				{
-					if (!empty($arPointFields["COMMENTS"]["PERFOMER"]))
-						$arPointFields["COMMENTS"]["PERFOMER"] = \Bitrix\Main\Text\Encoding::convertEncoding($arPointFields["COMMENTS"]["PERFOMER"],"UTF-8",SITE_CHARSET);
-					if(!empty($arPointFields["COMMENTS"]["CUSTOMER"]))
-						$arPointFields["COMMENTS"]["CUSTOMER"] = \Bitrix\Main\Text\Encoding::convertEncoding($arPointFields["COMMENTS"]["CUSTOMER"],"UTF-8",SITE_CHARSET);
-				}
 
 				$arPointFields["STATUS"] = $arPoints[$arTestID]["STATE"]["STATUS"];
 			}
@@ -141,8 +135,8 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 		$arResult = array_merge($arResultAdditional,$arResult);
 		$APPLICATION->RestartBuffer();
 		header("Content-Type: application/x-javascript; charset=".LANG_CHARSET);
-		echo CUtil::PhpToJsObject($arResult);
-		die();
+		echo Json::encode($arResult);
+		CMain::FinalActions();
 	}
 	elseif (isset($_REQUEST["ACTION"]) && $_REQUEST["ACTION"] == "SHOWHIDEELEMENTS")
 	{
@@ -276,7 +270,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 			"FAILED"=>  $arStats["FAILED"]
 		);
 	}
-	$arStates = CUtil::PhpToJsObject($arStates);
+	$arStates = Json::encode($arStates);
 /////////////////////////////////////////////////////////
 //////////////////////END_PREPARE////////////////////////
 /////////////////////////////////////////////////////////
@@ -377,7 +371,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 	<?endforeach;?>
 	</ul>
 
-	<script type="text/javascript">
+	<script>
 		function ShowHint (el)
 		{
 			el.BXHINT = new BX.CHint({
@@ -393,7 +387,7 @@ if ((($res = CCheckListResult::GetList(Array(),Array("REPORT"=>"N"))->Fetch()) |
 			el.BXHINT.Show();
 		}
 
-		var arStates = eval(<?=$arStates;?>);
+		var arStates = <?=$arStates;?>;
 		var DetailWindow = false;
 		var arMainStat ={
 			"REQUIRE":<?=$arStat["REQUIRE"];?>,

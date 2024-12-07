@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Processor;
 
 use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Data\LogRightProvider;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Trait\AccessCodeTrait;
 
@@ -17,7 +18,7 @@ final class LiveFeedProcessor extends AbstractProcessor
 
 	protected function getTypeId(): string
 	{
-		return 'livefeed';
+		return Dictionary::ENTITY_TYPE['livefeed'];
 	}
 
 	private function doSkipEventProcessing(?string $eventId): bool
@@ -39,6 +40,9 @@ final class LiveFeedProcessor extends AbstractProcessor
 			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_DEL:
 				$this->onLiveFeedPostDelete($sonetLogId);
 				break;
+			case EventDictionary::EVENT_SPACE_LIVEFEED_POST_REMOVE_USERS:
+				$this->onLiveFeedPostRemoveUsers($sonetLogId);
+				break;
 			default:
 				$this->onDefaultEvent($sonetLogId);
 				break;
@@ -57,6 +61,11 @@ final class LiveFeedProcessor extends AbstractProcessor
 	}
 
 	private function onLiveFeedPostDelete(int $sonetLogId): void
+	{
+		$this->deleteRecentActivityData($sonetLogId);
+	}
+
+	private function onLiveFeedPostRemoveUsers(int $sonetLogId): void
 	{
 		$this->deleteRecentActivityData($sonetLogId);
 	}

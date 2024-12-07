@@ -1,0 +1,10 @@
+.bx-im-content-default-chat__container {
+	width: 100%;
+	height: 100%;
+
+	transition: opacity 0.3s ease;
+}
+
+.bx-im-content-default-chat__container.--comments-show-animation .bx-im-content-chat__content {
+	opacity: 0;
+}

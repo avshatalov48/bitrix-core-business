@@ -9,6 +9,7 @@ $MESS["BIZPROC_WFEDIT_CATEGORY_REST_1"] = "Application Activities";
 $MESS["BIZPROC_WFEDIT_CATEGORY_TASKS_1"] = "Assignments";
 $MESS["BIZPROC_WFEDIT_CONSTANTS_SAVE_ERROR_MSGVER_1"] = "Cannot save template because template constant is too long.";
 $MESS["BIZPROC_WFEDIT_DEFAULT_TITLE"] = "Business Process Template";
+$MESS["BIZPROC_WFEDIT_ERROR_COMPLEX_TYPE"] = "This template is not associated with this element type.";
 $MESS["BIZPROC_WFEDIT_ERROR_TYPE_MSGVER_1"] = "The workflow element type is required.";
 $MESS["BIZPROC_WFEDIT_IMPORT_ERROR"] = "Error importing the business process template.";
 $MESS["BIZPROC_WFEDIT_PARAMETERS_SAVE_ERROR_MSGVER_1"] = "Cannot save template because template parameter is too long.";

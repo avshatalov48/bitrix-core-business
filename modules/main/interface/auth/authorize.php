@@ -92,6 +92,6 @@ endif;
 
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 BX.adminLogin.registerForm(new BX.authFormAuthorize('authorize', {url: '<?echo CUtil::JSEscape($authUrl."?login=yes".(($s=DeleteParam(array("logout", "login"))) == ""? "":"&".$s));?>'}));
 </script>

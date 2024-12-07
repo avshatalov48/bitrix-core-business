@@ -376,7 +376,7 @@ if ($STEP == 2)
 				$fields_type = 'R';
 			?><input type="radio" name="fields_type" id="id_fields_type_r" value="R" <? if ($fields_type=="R") echo "checked"; ?> onClick="ChangeExtra(this);"><label for="id_fields_type_r"><? echo GetMessage("CATI_RAZDELITEL"); ?></label><br>
 			<input type="radio" name="fields_type" id="id_fields_type_f" value="F" <? if ($fields_type=="F") echo "checked"; ?> onClick="ChangeExtra(this);"><label for="id_fields_type_f"><? echo GetMessage("CATI_FIXED"); ?></label>
-			<script type="text/javascript">
+			<script>
 			function ChangeExtra(obj)
 			{
 				if (!obj)
@@ -956,7 +956,7 @@ if (3 == $STEP)
 }
 
 ?></form>
-<script type="text/javascript">
+<script>
 <?if ($STEP < 2):?>
 tabControl.SelectTab("edit1");
 tabControl.DisableTab("edit2");

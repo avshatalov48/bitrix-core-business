@@ -10,7 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage('LNDNGBLCK_66_90_NAME'),
 		'section' => ['forms'],
-		'type' => 'null',
+		'system' => true,
 		'dynamic' => false,
 		'subtype' => 'form',
 	],

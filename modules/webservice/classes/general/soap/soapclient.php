@@ -94,7 +94,7 @@ class CSOAPClient
 			$authentification .
 			"Content-Type: text/xml; charset=utf-8\r\n" .
 			"SOAPAction: \"" . $namespace . $request->name() . "\"\r\n" .
-			"Content-Length: " . (defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload))  . "\r\n\r\n" .
+			"Content-Length: " . strlen($payload)  . "\r\n\r\n" .
 			$payload;
 		
 		$this->SOAPRawRequest = $HTTPRequest;

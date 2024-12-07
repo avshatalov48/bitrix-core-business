@@ -192,7 +192,7 @@ class CIBlockPropertyDateTime
 			'bitrix:main.calendar',
 			'',
 			array(
-				'FORM_NAME' => $strHTMLControlName['FORM_NAME'],
+				'FORM_NAME' => $strHTMLControlName['FORM_NAME'] ?? '',
 				'SHOW_INPUT' => 'Y',
 				'INPUT_NAME' => $from_name,
 				'INPUT_VALUE' => $from,

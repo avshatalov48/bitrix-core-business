@@ -1,4 +1,4 @@
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 
 import { MuteChat } from '../../../elements/mute-chat/mute-chat';
 import { AutoDelete } from '../../../elements/auto-delete/auto-delete';
@@ -9,7 +9,7 @@ import '../css/chat-preview.css';
 // @vue/component
 export const ChatPreview = {
 	name: 'ChatPreview',
-	components: { Avatar, ChatTitle, MuteChat, ChatMembersAvatars, AutoDelete },
+	components: { ChatAvatar, ChatTitle, MuteChat, ChatMembersAvatars, AutoDelete },
 	props: {
 		dialogId: {
 			type: String,
@@ -24,7 +24,11 @@ export const ChatPreview = {
 		<div class="bx-im-sidebar-main-preview__scope">
 			<div class="bx-im-sidebar-main-preview-group-chat__avatar-container">
 				<div class="bx-im-sidebar-main-preview-group-chat__avatar">
-					<Avatar :size="AvatarSize.XXXL" :dialogId="dialogId" />
+					<ChatAvatar 
+						:avatarDialogId="dialogId" 
+						:contextDialogId="dialogId" 
+						:size="AvatarSize.XXXL" 
+					/>
 				</div>
 				<ChatTitle :dialogId="dialogId" :twoLine="true" class="bx-im-sidebar-main-preview-group-chat__title" />
 			</div>

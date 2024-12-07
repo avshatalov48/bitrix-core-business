@@ -59,7 +59,7 @@ class CLearnRenderRightsEdit
 		<tr>
 			<td colspan="2" align="center">
 				<input type="hidden" name="<?php echo $variable_name . '_marker' ?>" value='yeah!'>
-				<script type="text/javascript">
+				<script>
 					var obLearningJSRightsAccess_<?=$js_var_name?> = new LearningJSRightsAccess(
 						<?=intval($lessonId)?>,
 						<?=CUtil::PhpToJsObject($arSelected)?>,

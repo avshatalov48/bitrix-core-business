@@ -50,6 +50,7 @@ class CLearnRenderAdminUnilessonList
 	protected $search_mode;
 	protected $search_retpoint;
 	protected $search_mode_type;
+	protected $hrefSearchRetPoint;
 
 	public function __construct()
 	{
@@ -1270,7 +1271,7 @@ class CLearnRenderAdminUnilessonList
 		{
 			$PROPOSE_RETURN_LESSON_PATH = '&PROPOSE_RETURN_LESSON_PATH=' . urlencode($_GET['LESSON_PATH']);
 			$oPath = new CLearnPath();
-			$oPath->ImportUrlencoded ($_GET['LESSON_PATH']);
+			$oPath->ImportUrlencoded ($_GET['LESSON_PATH'] ?? '');
 			$arPath = $oPath->GetPathAsArray();
 
 			$arUpPath = $arPath;
@@ -1374,7 +1375,7 @@ class CLearnRenderAdminUnilessonList
 						'TEXT'  => GetMessage('LEARNING_UNILESSON_ADD'),
 						'LINK'  => 'learn_unilesson_edit.php?lang=' . LANG
 							. "&PARENT_LESSON_ID=".$this->requestedParentLessonId
-							. "&LESSON_PATH=".urlencode($_GET['LESSON_PATH']),
+							. "&LESSON_PATH=".urlencode($_GET['LESSON_PATH'] ?? ''),
 						'TITLE' => GetMessage('LEARNING_UNILESSON_ADD')
 					);
 			}

@@ -31,11 +31,6 @@ class Common
 	 */
 	public static function findInvalidUnicodeSymbols(array $input, $currentPath = "")
 	{
-		if(!defined("BX_UTF"))
-		{
-			return false;
-		}
-
 		foreach ($input as $k => $v)
 		{
 			if(is_string($input[$k]))

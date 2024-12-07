@@ -7,11 +7,11 @@ use Bitrix\Calendar\Core\Builders\EventBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Core\Mappers;
+use Bitrix\Calendar\Integration\Crm\DealHandler;
 use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Calendar\Sharing;
 use Bitrix\Calendar\Util;
 use Bitrix\Crm;
-use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Loader;
 use Bitrix\Main\LoaderException;
@@ -281,6 +281,19 @@ class SharingEventManager
 		return $result;
 	}
 
+	public static function getSharingEventNameByDealId(int $dealId): string
+	{
+		$deal = DealHandler::getDeal($dealId);
+		if (!$deal)
+		{
+			return '';
+		}
+
+		return Loc::getMessage('CALENDAR_SHARING_EVENT_MANAGER_EVENT_NAME_DEAL', [
+			'#DEAL_NAME#' => trim($deal->getTitle()),
+		]);
+	}
+
 	/**
 	 * @param $request
 	 * @return array
@@ -540,110 +553,6 @@ class SharingEventManager
 		}
 
 		self::reSaveEventWithoutAttendeesExceptHostAndSharingLinkOwner($eventLink);
-	}
-
-	public static function onSharingEventEdited(int $eventId, array $previousFields): void
-	{
-		/** @var Event $event */
-		$event = (new Mappers\Event())->getById($eventId);
-		if ($event instanceof Event)
-		{
-			$oldEvent = Event::fromBuilder(new EventBuilderFromArray($previousFields));
-			if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared'])
-			{
-				self::onSharingCommonEventEdited($event, $oldEvent);
-			}
-			else if ($event->getSpecialLabel() === Dictionary::EVENT_TYPE['shared_crm'])
-			{
-				self::onSharingCrmEventEdited($event, $oldEvent);
-			}
-		}
-	}
-
-	private static function onSharingCommonEventEdited(Event $event, Event $oldEvent): void
-	{
-		$sharingFactory = new Sharing\Link\Factory();
-
-		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = $sharingFactory->getEventLinkByEventId($event->getId());
-
-		//TODO remove if not needed
-//		/** @var Sharing\Link\UserLink $crmDealLink */
-//		$userLink = $sharingFactory->getLinkByHash($eventLink->getParentLinkHash());
-
-		$host = CUser::GetByID($eventLink->getHostId())->Fetch();
-		$email = $host['PERSONAL_MAILBOX'] ?? null;
-		$phone = $host['PERSONAL_PHONE'] ?? null;
-		$userContact = !empty($email) ? $email : $phone;
-
-		$notificationService = null;
-		if ($userContact && self::isEmailCorrect($userContact))
-		{
-			$notificationService = (new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-			;
-		}
-
-		if ($notificationService !== null)
-		{
-			$notificationService->notifyAboutSharingEventEdit($userContact);
-		}
-	}
-
-	private static function onSharingCrmEventEdited(Event $event, Event $oldEvent): void
-	{
-		if (!Loader::includeModule('crm'))
-		{
-			return;
-		}
-
-		(new Sharing\Crm\ActivityManager($event->getId()))
-			->editActivityDeadline(DateTime::createFromUserTime($event->getStart()->toString()))
-		;
-
-		$sharingFactory = new Sharing\Link\Factory();
-
-		/** @var Sharing\Link\EventLink $eventLink */
-		$eventLink = $sharingFactory->getEventLinkByEventId($event->getId());
-		if (!$eventLink instanceof Sharing\Link\EventLink)
-		{
-			return;
-		}
-
-		/** @var Sharing\Link\CrmDealLink $crmDealLink */
-		$crmDealLink = $sharingFactory->getLinkByHash($eventLink->getParentLinkHash());
-		if (!$crmDealLink instanceof Sharing\Link\CrmDealLink)
-		{
-			return;
-		}
-
-		if ($crmDealLink->getContactId() > 0)
-		{
-			Crm\Integration\Calendar\Notification\Manager::getSenderInstance($crmDealLink)
-				->setCrmDealLink($crmDealLink)
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-				->sendCrmSharingEdited()
-			;
-		}
-		else
-		{
-			$email = CUser::GetByID($eventLink->getHostId())->Fetch()['PERSONAL_MAILBOX'] ?? null;
-			if (!is_string($email))
-			{
-				return;
-			}
-
-			(new Sharing\Notification\Mail())
-				->setEventLink($eventLink)
-				->setEvent($event)
-				->setOldEvent($oldEvent)
-				->notifyAboutSharingEventEdit($email)
-			;
-		}
 	}
 
 	public static function onSharingEventDeleted(int $eventId, string $eventType): void
@@ -934,6 +843,7 @@ class SharingEventManager
 			if ($event)
 			{
 				$event['ATTENDEES'] = [$eventLink->getOwnerId(), $eventLink->getHostId()];
+				$event['ATTENDEES_CODES'] = ['U' . $eventLink->getOwnerId(), 'U' . $eventLink->getHostId()];
 				\CCalendar::SaveEvent([
 					'arFields' => $event,
 					'userId' => $eventLink->getOwnerId(),

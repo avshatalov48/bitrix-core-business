@@ -25,7 +25,7 @@ if (isset($arResult['REQUEST_ITEMS']))
 
 	<span id="<?=$injectId?>" class="sale_prediction_product_detail_container"></span>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function(){
 
 			var giftAjaxData = {
@@ -68,7 +68,7 @@ else
 	<?
 	if(!empty($arResult['PREDICTION_TEXT']))
 	{ ?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function () {
 				BX.onCustomEvent('onHasNewPrediction', ['<?= \CUtil::JSEscape($arResult['PREDICTION_TEXT']) ?>']);
 			});

@@ -23,13 +23,13 @@ if (check_bitrix_sessid())
 			if ($CRM_ID > 0)
 			{
 				$arAuth = null;
-				if ($_REQUEST['LOGIN'] <> '' && $_REQUEST['PASSWORD'] <> '')
+				if (!empty($_REQUEST['LOGIN']) && !empty($_REQUEST['PASSWORD']))
 				{
 					$arAuth = array('LOGIN' => $_REQUEST['LOGIN'], 'PASSWORD' => $_REQUEST['PASSWORD']);
 				}
 
 				$link = new CFormCrmSender($CRM_ID, $arAuth);
-				$arFields = $link->GetFields($_REQUEST['reload']=='Y');
+				$arFields = $link->GetFields(isset($_REQUEST['reload']) && $_REQUEST['reload'] == 'Y');
 
 				if (is_array($arAuth))
 				{

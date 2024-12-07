@@ -1,0 +1,4 @@
+.ui-image-stack-steps-image.--user {
+	background-color: var(--ui-background-dark-grey);
+	background-image: url(/bitrix/js/ui/icons/b24/images/ui-user.svg?v2);
+}

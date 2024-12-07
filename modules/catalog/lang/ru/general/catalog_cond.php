@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_COND_LOGIC_EQ_LABEL"] = "равно";
 $MESS["BT_COND_LOGIC_NOT_EQ_LABEL"] = "не равно";
 $MESS["BT_COND_LOGIC_GR_LABEL"] = "больше";
@@ -94,4 +94,3 @@ $MESS["BT_MOD_COND_ERR_CHECK_DATA_LIST_ABSENT"] = "Выбранное значе
 $MESS["BT_MOD_COND_ERR_CONTROL_DOUBLE"] = "Дублирование обработчиков для идентификатора #CONTROL#";
 $MESS["BT_MOD_COND_ERR_CONTROLS_EMPTY"] = "Отсутствуют обработчики условий";
 $MESS["BT_MOD_COND_ERR_SHOW_DATA_UNSERIALIZE"] = "Неверный формат условия";
-?>

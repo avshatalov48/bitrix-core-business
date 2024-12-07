@@ -15,14 +15,19 @@ class CBitrixCloudBackupBucket extends CCloudStorageBucket
 	 * @param string $file_name
 	 * @param string $location
 	 */
-	public function __construct($bucket_name, $prefix, $access_key, $secret_key, $session_token, $check_word, $file_name, $location = '')
+	public function __construct($bucket_name, $prefix, $access_key, $secret_key, $session_token, $check_word, $file_name, $location = '', $service_id = '')
 	{
+		if (!$service_id)
+		{
+			$service_id = 'amazon_s3';
+		}
+
 		parent::__construct(0);
 		$this->arBucket = [
 			'ACTIVE' => 'Y',
 			'SORT' => 0,
 			'READ_ONLY' => 'N',
-			'SERVICE_ID' => 'amazon_s3',
+			'SERVICE_ID' => $service_id,
 			'BUCKET' => $bucket_name,
 			'LOCATION' => (string)$location,
 			'CNAME' => '',
@@ -66,7 +71,8 @@ class CBitrixCloudBackupBucket extends CCloudStorageBucket
 	 */
 	public function getHeaders()
 	{
-		$service = new CCloudStorageService_AmazonS3;
+		/** @var CCloudStorageService_S3 $service */
+		$service = $this->getService();
 		$headers = $service->SignRequest(
 			$this->arBucket['SETTINGS'],
 			'GET',

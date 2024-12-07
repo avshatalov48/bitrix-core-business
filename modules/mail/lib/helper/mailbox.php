@@ -71,17 +71,17 @@ abstract class Mailbox
 			}
 
 			$serviceFinal = [
-				'id'         => $service['ID'],
-				'type'       => $service['SERVICE_TYPE'],
-				'name'       => $service['NAME'],
-				'link'       => $service['LINK'],
-				'icon'       => MailServicesTable::getIconSrc($service['NAME'], $service['ICON']),
-				'server'     => $service['SERVER'],
-				'port'       => $service['PORT'],
+				'id' => $service['ID'],
+				'type' => $service['SERVICE_TYPE'],
+				'name' => $service['NAME'],
+				'link' => $service['LINK'],
+				'icon' => MailServicesTable::getIconSrc($service['NAME']),
+				'server' => $service['SERVER'],
+				'port' => $service['PORT'],
 				'encryption' => $service['ENCRYPTION'],
-				'token'      => $service['TOKEN'],
-				'flags'      => $service['FLAGS'],
-				'sort'       => $service['SORT']
+				'token' => $service['TOKEN'],
+				'flags' => $service['FLAGS'],
+				'sort' => $service['SORT'],
 			];
 
 			$services[] = $serviceFinal;
@@ -1145,10 +1145,13 @@ abstract class Mailbox
 				$filterForCheck['@ID'] = '[hidden for the log]';
 			}
 
-			AddMessage2Log(array_merge($eventData,[
-				'filter' => $filterForCheck,
-				'message-data' => $messageForLog,
-			]));
+			/**
+			 * @TODO Enable logs by option on the portal.
+			 * AddMessage2Log(array_merge($eventData,[
+			 *		'filter' => $filterForCheck,
+			 *		'message-data' => $messageForLog,
+			 * ]));
+			 */
 
 			return false;
 		}

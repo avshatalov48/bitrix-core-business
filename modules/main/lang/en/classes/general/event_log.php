@@ -20,6 +20,7 @@ $MESS["MAIN_EVENTLOG_MP_MODULE_DELETED"] = "Marketplace solution has been delete
 $MESS["MAIN_EVENTLOG_MP_MODULE_DOWNLOADED"] = "Marketplace solution has been downloaded";
 $MESS["MAIN_EVENTLOG_MP_MODULE_INSTALLED"] = "Marketplace solution has been installed";
 $MESS["MAIN_EVENTLOG_MP_MODULE_UNINSTALLED"] = "Marketplace solution has been uninstalled";
+$MESS["MAIN_EVENTLOG_SECURITY_WWALL_COMMON"] = "Exploit attempt";
 $MESS["MAIN_EVENTLOG_TASK"] = "Access level changed";
 $MESS["MAIN_EVENTLOG_USER_AUTHORIZE"] = "Successful logon";
 $MESS["MAIN_EVENTLOG_USER_BLOCKED"] = "User banned";

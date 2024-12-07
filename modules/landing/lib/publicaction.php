@@ -170,13 +170,6 @@ class PublicAction
 			Type::setScope($data['scope']);
 		}
 
-		if (!$isRest && (!defined('BX_UTF') || BX_UTF !== true))
-		{
-			$data = Manager::getApplication()->convertCharsetArray(
-				$data, 'UTF-8', SITE_CHARSET
-			);
-		}
-
 		$error = new Error;
 
 		// not for guest
@@ -456,7 +449,7 @@ class PublicAction
 			$classes = array(
 				self::REST_SCOPE_DEFAULT => array(
 					'block', 'site', 'landing', 'repo', 'template',
-					'demos', 'role', 'syspage', 'chat'
+					'demos', 'role', 'syspage', 'chat', 'repowidget'
 				),
 				self::REST_SCOPE_CLOUD => array(
 					'cloud'

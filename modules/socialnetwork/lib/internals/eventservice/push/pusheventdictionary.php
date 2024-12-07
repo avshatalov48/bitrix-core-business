@@ -26,6 +26,8 @@ class PushEventDictionary
 	public const EVENT_SPACE_USER_ROLE_CHANGE = 'space_user_role_change';
 	public const EVENT_SPACE_RECENT_ACTIVITY_UPDATE = 'recent_activity_update';
 	public const EVENT_SPACE_RECENT_ACTIVITY_DELETE = 'recent_activity_delete';
+	public const EVENT_SPACE_RECENT_ACTIVITY_REMOVE_FROM_SPACE = 'recent_activity_remove_from_space';
+	public const EVENT_SPACE_FEATURE_CHANGE = 'space_feature_change';
 
 	public static function getPushEventType(string $eventType): ?string
 	{

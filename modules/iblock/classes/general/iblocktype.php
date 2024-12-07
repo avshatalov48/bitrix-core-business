@@ -1,5 +1,8 @@
 <?php
-IncludeModuleLangFile(__FILE__);
+
+use Bitrix\Iblock;
+use Bitrix\Main\Localization\Loc;
+
 /**
  * Class CIBlockType
  *
@@ -18,7 +21,7 @@ class CIBlockType
 	/**
 	 * @var string Contains an error message in case of error in last Update or Add functions.
 	 */
-	public $LAST_ERROR = "";
+	public string $LAST_ERROR = '';
 	/**
 	 * Returns list of iblock types.
 	 * @example iblocktype.php
@@ -129,7 +132,7 @@ class CIBlockType
 
 		if (CACHED_b_iblock_type === false)
 		{
-			$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else
 		{
@@ -140,7 +143,7 @@ class CIBlockType
 			else
 			{
 				$arResult = array();
-				$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$res = $DB->Query($strSql);
 				while ($ar = $res->Fetch())
 					$arResult[] = $ar;
 
@@ -164,19 +167,24 @@ class CIBlockType
 		global $DB;
 		/** @global CCacheManager $CACHE_MANAGER */
 		global $CACHE_MANAGER;
-		$ID = trim($ID);
 
-		if ($CACHE_MANAGER->Read(CACHED_b_iblock_type, "b_iblock_type", "b_iblock_type"))
+		$ID = trim((string)$ID);
+		if ($ID === '')
+		{
+			return false;
+		}
+
+		if ($CACHE_MANAGER->Read(CACHED_b_iblock_type, "b_iblock_type", Iblock\TypeTable::getTableName()))
 		{
 			$arIBlocks = $CACHE_MANAGER->Get("b_iblock_type");
 		}
 		else
 		{
-			$arIBlocks = array();
+			$arIBlocks = [];
 			$rs = $DB->Query("SELECT * FROM b_iblock_type");
 			while ($ar = $rs->GetNext())
 			{
-				$ar["_lang"] = array();
+				$ar["_lang"] = [];
 				$arIBlocks[$ar['ID']] = $ar;
 			}
 			$rs = $DB->Query("SELECT * FROM b_iblock_type_lang");
@@ -189,10 +197,8 @@ class CIBlockType
 			}
 			$CACHE_MANAGER->Set("b_iblock_type", $arIBlocks);
 		}
-		if (array_key_exists($ID, $arIBlocks))
-			return $arIBlocks[$ID];
-		else
-			return false;
+
+		return $arIBlocks[$ID] ?? false;
 	}
 	/**
 	 * Returns iblock type information by ID.
@@ -215,9 +221,12 @@ class CIBlockType
 	{
 		if (CACHED_b_iblock_type === false)
 		{
-			return CIBlockType::GetList(array(), array(
-				"=ID" => $ID,
-			));
+			return CIBlockType::GetList(
+				[],
+				[
+					'=ID' => $ID,
+				]
+			);
 		}
 		else
 		{
@@ -226,19 +235,20 @@ class CIBlockType
 			if ($arResult !== false && isset($arResult["ID"]))
 			{
 				unset($arResult["_lang"]);
-				$res->InitFromArray(array($arResult));
+				$res->InitFromArray([$arResult]);
 			}
 			else
 			{
-				$res->InitFromArray(array());
+				$res->InitFromArray([]);
 			}
+
 			return $res;
 		}
 	}
 	/**
-	 * Returns iblock type information with additional language depended messages.<br>
+	 * Returns iblock type information with additional language depended on messages.<br>
 	 *
-	 * Additional to {@link CIBlockType} language depended fields:
+	 * Additional to {@link CIBlockType} language depended on fields:
 	 * <ul>
 	 * <li>NAME - Name of the type
 	 * <li>SECTION_NAME - How sections are called
@@ -320,13 +330,8 @@ class CIBlockType
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		/** @global CCacheManager $CACHE_MANAGER */
-		global $CACHE_MANAGER;
 
-		if (CACHED_b_iblock_type !== false)
-		{
-			$CACHE_MANAGER->CleanDir("b_iblock_type");
-		}
+		Iblock\TypeTable::cleanCache();
 
 		$iblocks = CIBlock::GetList(array(), array(
 			"=TYPE" => $ID,
@@ -343,6 +348,7 @@ class CIBlockType
 		{
 			return false;
 		}
+
 		return $DB->Query("DELETE FROM b_iblock_type WHERE ID='".$DB->ForSql($ID)."'", true);
 	}
 	/**
@@ -358,54 +364,51 @@ class CIBlockType
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		$this->LAST_ERROR = "";
+		$this->LAST_ERROR = '';
 
 		if ($ID === false)
 		{
 			if (!isset($arFields["ID"]) || $arFields["ID"] == '')
 			{
-				$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_BAD_ID")."<br>";
+				$this->LAST_ERROR .= Loc::getMessage("IBLOCK_TYPE_BAD_ID")."<br>";
 			}
 			elseif (preg_match("/[^A-Za-z0-9_]/", $arFields["ID"]))
 			{
-				$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_ID_HAS_WRONG_CHARS")."<br>";
+				$this->LAST_ERROR .= Loc::getMessage("IBLOCK_TYPE_ID_HAS_WRONG_CHARS")."<br>";
 			}
 			else
 			{
 				$chk = $DB->Query("SELECT 'x' FROM b_iblock_type WHERE ID='".$DB->ForSQL($arFields["ID"])."'");
 				if ($chk->Fetch())
 				{
-					$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_DUBL_ID")."<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_TYPE_DUBL_ID")."<br>";
 					return false;
 				}
 			}
 			if (empty($arFields["LANG"]) || !is_array($arFields["LANG"]))
 			{
-				$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_EMPTY_NAMES")."<br>";
+				$this->LAST_ERROR .= Loc::getMessage("IBLOCK_TYPE_EMPTY_NAMES")."<br>";
 				return false;
 			}
 		}
 
-		if (is_set($arFields, "LANG") && is_array($arFields["LANG"]))
+		if (!empty($arFields['LANG']) && is_array($arFields['LANG']))
 		{
 			foreach ($arFields["LANG"] as $lid => $arFieldsLang)
 			{
 				if ($arFieldsLang["NAME"] == '')
 				{
-					$this->LAST_ERROR .= GetMessage("IBLOCK_TYPE_BAD_NAME")." ".$lid.".<br>";
+					$this->LAST_ERROR .= Loc::getMessage("IBLOCK_TYPE_BAD_NAME")." ".$lid.".<br>";
 				}
 			}
 		}
 
-		if ($this->LAST_ERROR != "")
-			return false;
-
-		return true;
+		return $this->LAST_ERROR === '';
 	}
 	/**
 	 * Creates new iblock type in the database.
 	 * For arFields see {@link CIBlockType} class description.<br>
-	 * In addition it may contain key "LANG" with and array of language depended parameters.<br>
+	 * In addition it may contain key "LANG" with and array of language depended on parameters.<br>
 	 * For example:
 	 * <code>
 	 * $arFields = array(
@@ -427,14 +430,14 @@ class CIBlockType
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		/** @global CCacheManager $CACHE_MANAGER */
-		global $CACHE_MANAGER;
 
 		$arFields["SECTIONS"] = isset($arFields["SECTIONS"]) && $arFields["SECTIONS"] === "Y" ? "Y" : "N";
 		$arFields["IN_RSS"] = isset($arFields["IN_RSS"]) && $arFields["IN_RSS"] === "Y" ? "Y" : "N";
 
 		if (!$this->CheckFields($arFields))
+		{
 			return false;
+		}
 
 		$arInsert = $DB->PrepareInsert("b_iblock_type", $arFields);
 		$DB->Query("INSERT INTO b_iblock_type(".$arInsert[0].") VALUES(".$arInsert[1].")");
@@ -444,10 +447,7 @@ class CIBlockType
 			$this->SetLang($arFields["ID"], $arFields["LANG"]);
 		}
 
-		if (CACHED_b_iblock_type !== false)
-		{
-			$CACHE_MANAGER->cleanDir("b_iblock_type");
-		}
+		Iblock\TypeTable::cleanCache();
 
 		return $arFields["ID"];
 	}
@@ -465,14 +465,14 @@ class CIBlockType
 	{
 		/** @global CDatabase $DB */
 		global $DB;
-		/** @global CCacheManager $CACHE_MANAGER */
-		global $CACHE_MANAGER;
 
 		$arFields["SECTIONS"] = $arFields["SECTIONS"] == "Y" ? "Y" : "N";
 		$arFields["IN_RSS"] = $arFields["IN_RSS"] == "Y" ? "Y" : "N";
 
 		if (!$this->CheckFields($arFields, $ID))
+		{
 			return false;
+		}
 
 		$str_update = $DB->PrepareUpdate("b_iblock_type", $arFields);
 		$DB->Query("UPDATE b_iblock_type SET ".$str_update." WHERE ID='".$DB->ForSQL($ID)."'");
@@ -482,14 +482,12 @@ class CIBlockType
 			$this->SetLang($ID, $arFields["LANG"]);
 		}
 
-		if (CACHED_b_iblock_type !== false)
-		{
-			$CACHE_MANAGER->CleanDir("b_iblock_type");
-		}
+		Iblock\TypeTable::cleanCache();
+
 		return true;
 	}
 	/**
-	 * Internal helper function which helps to store language depended fields into database.
+	 * Internal helper function which helps to store language depended on fields into database.
 	 *
 	 * @param string $ID iblock type ID
 	 * @param array $arLang language depended fields
@@ -527,5 +525,15 @@ class CIBlockType
 				}
 			}
 		}
+	}
+
+	/**
+	 * Returns last errors.
+	 *
+	 * @return string
+	 */
+	public function getLastError(): string
+	{
+		return $this->LAST_ERROR;
 	}
 }

@@ -23,7 +23,7 @@ class CSaleUserCards extends CAllSaleUserCards
 			"FROM b_sale_user_cards UC ".
 			"WHERE UC.ID = ".$ID." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 
@@ -88,7 +88,7 @@ class CSaleUserCards extends CAllSaleUserCards
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -119,7 +119,7 @@ class CSaleUserCards extends CAllSaleUserCards
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -145,7 +145,7 @@ class CSaleUserCards extends CAllSaleUserCards
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -163,7 +163,7 @@ class CSaleUserCards extends CAllSaleUserCards
 		$strSql =
 			"INSERT INTO b_sale_user_cards(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -183,7 +183,7 @@ class CSaleUserCards extends CAllSaleUserCards
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_user_cards", $arFields);
 		$strSql = "UPDATE b_sale_user_cards SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}

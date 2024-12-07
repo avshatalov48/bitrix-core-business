@@ -1,8 +1,8 @@
-import {Switcher} from 'ui.switcher'
-import { Dom, Tag, Text, Type } from 'main.core';
+import { Switcher } from 'ui.switcher';
+import { Dom, Tag, Type } from 'main.core';
 import 'ui.info-helper';
-import {EventEmitter} from "main.core.events";
-import {BaseField} from "./base-field";
+import { EventEmitter } from 'main.core.events';
+import { BaseField } from './base-field';
 
 export class Checker extends BaseField
 {
@@ -26,6 +26,7 @@ export class Checker extends BaseField
 		this.hideSeparator = params.hideSeparator;
 		this.alignCenter = params.alignCenter;
 		this.noMarginBottom = params.noMarginBottom;
+		this.size = params.size;
 
 		this.switcher = new Switcher({
 			inputName: this.getName(),
@@ -34,8 +35,12 @@ export class Checker extends BaseField
 			attributeName: params.attributeName,
 			handlers: params.handlers,
 			color: params.colors,
-			size: params.size
+			size: params.size,
 		});
+		if (this.isFieldDisabled())
+		{
+			this.switcher.disable(true);
+		}
 		this.defaultValue = params.checked;
 		EventEmitter.subscribe(
 			this.switcher,
@@ -110,21 +115,29 @@ export class Checker extends BaseField
 		const lockElement = !this.isEnable() ? this.renderLockElement() : null;
 
 		return Tag.render`
-		<div id="${this.getId()}" 
-			class="ui-section__field-switcher ${this.hideSeparator ? '--hide-separator' : ''} ${this.alignCenter ? '--align-center --gray-title' : ''} ${this.noMarginBottom ? '--no-margin-bottom' : ''}">
-			<div class="ui-section__field">
-				<div class="ui-section__switcher">
-					${this.getInputNode()}
-				</div>
-				
-				<div class="ui-section__field-inner">
-					<div class="ui-section__title">
-						${this.getLabel()} ${lockElement}
+			<div
+				id="${this.getId()}" 
+				class="
+					ui-section__field-switcher
+					${this.hideSeparator ? '--hide-separator' : ''}
+					${this.alignCenter ? '--align-center --gray-title' : ''}
+					${this.noMarginBottom ? '--no-margin-bottom' : ''}
+					${this.size ? `--${this.size}` : ''}
+				"
+			>
+				<div class="ui-section__field">
+					<div class="ui-section__switcher">
+						${this.getInputNode()}
 					</div>
-					${this.#renderHint(this.isChecked())}
+					<div class="ui-section__field-inner">
+						<div class="ui-section__title">
+							${this.getLabel()} ${lockElement}
+						</div>
+						${this.#renderHint(this.isChecked())}
+					</div>
 				</div>
+				${this.renderErrors()}
 			</div>
-		</div>
 		`;
 	}
 

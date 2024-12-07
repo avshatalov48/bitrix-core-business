@@ -2,8 +2,6 @@
 
 namespace Bitrix\Iblock\Grid;
 
-use Bitrix\Main\SystemException;
-
 class RowType
 {
 	public const ELEMENT = 'E';

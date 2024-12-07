@@ -12,7 +12,8 @@ use Bitrix\Main\Context;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
-use Bitrix\Main\Text\Encoding;
+use Bitrix\Intranet;
+use Bitrix\Bitrix24;
 
 class RequestParametersBuilder
 {
@@ -36,6 +37,7 @@ class RequestParametersBuilder
 		$this->buildSupportConfiguration();
 		$this->buildKeyConfiguration();
 		$this->buildExternalParameters();
+		$this->buildHeadInformation();
 
 		return $this->parameters;
 	}
@@ -49,7 +51,7 @@ class RequestParametersBuilder
 
 		$this->parameters += [
 			'support_partner_code' => Partner24::getBotCode(),
-			'support_partner_name' => Encoding::convertEncoding(Partner24::getPartnerName(), SITE_CHARSET, 'utf-8'),
+			'support_partner_name' => Partner24::getPartnerName(),
 		];
 		$supportBotId = 0;
 
@@ -102,13 +104,18 @@ class RequestParametersBuilder
 			'is_integrator' => (int)($this->isCloud && \CBitrix24::isIntegrator($userId)),
 			'user_id' => $userId,
 			'user_email' => $this->currentUser->getEmail(),
-			'user_name' => Encoding::convertEncoding($this->currentUser->getFirstName(), SITE_CHARSET, 'utf-8'),
-			'user_last_name' => Encoding::convertEncoding($this->currentUser->getLastName(), SITE_CHARSET, 'utf-8'),
+			'user_name' => $this->currentUser->getFirstName(),
+			'user_last_name' => $this->currentUser->getLastName(),
 		];
 
 		if (Loader::includeModule('intranet'))
 		{
 			$this->parameters['user_date_register'] = \Bitrix\Intranet\CurrentUser::get()->getDateRegister()?->getTimestamp();
+
+			if (method_exists(Intranet\User::class, 'getUserRole'))
+			{
+				$this->parameters['user_type'] = (new Intranet\User())->getUserRole()->value;
+			}
 		}
 	}
 
@@ -119,12 +126,59 @@ class RequestParametersBuilder
 			'is_cloud' => $this->isCloud ? '1' : '0',
 			'host' => $this->getHostName(),
 			'languageId' => LANGUAGE_ID,
+			'demoStatus' => $this->getDemoStatus(),
+			'isAutoPay' => $this->isCloud && \CBitrix24::isAutoPayLicense(),
 		];
 
 		if ($this->isCloud)
 		{
-			$this->parameters['portal_date_register'] = Option::get('main', '~controller_date_create', '');
+			$this->parameters += [
+				'portal_date_register' => Option::get('main', '~controller_date_create', ''),
+				'canAllUsersBuyTariff' => \CBitrix24::canAllBuyLicense(),
+			];
 		}
+	}
+
+	private function buildHeadInformation(): void
+	{
+		if (!Loader::includeModule('intranet'))
+		{
+			return;
+		}
+
+		$currentUser = Intranet\CurrentUser::get();
+		$heads = \CIntranetUtils::GetDepartmentManager($currentUser->getDepartmentIds(), $currentUser->getId(), true);
+
+		if (empty($heads))
+		{
+			$this->parameters['isSubordinate'] = 0;
+
+			return;
+		}
+
+		foreach ($heads as $head)
+		{
+			if (!empty($head) && isset($head['ID']))
+			{
+				$this->parameters += [
+					'tools' => [
+						'isSubordinate' => 1,
+						'head' => [
+							'id' => (int)$head['ID'],
+							'name' => \CUser::FormatName(\CSite::GetNameFormat(false), $head),
+							'avatar' => $this->prepareUserPhoto($head),
+						],
+					],
+				];
+
+				return;
+			}
+		}
+	}
+
+	private function prepareUserPhoto(array $headData): ?string
+	{
+		return $headData['PERSONAL_PHOTO'] ? (string)Intranet\Component\UserProfile::getUserPhoto($headData['PERSONAL_PHOTO']) : '';
 	}
 
 	private function getHostName(): ?string
@@ -135,5 +189,25 @@ class RequestParametersBuilder
 		}
 
 		return Context::getCurrent()?->getRequest()->getHttpHost();
+	}
+
+	private function getDemoStatus(): string
+	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			if (\CBitrix24::IsDemoLicense())
+			{
+				return 'ACTIVE';
+			}
+
+			if (Bitrix24\Feature::isEditionTrialable('demo'))
+			{
+				return 'AVAILABLE';
+			}
+
+			return 'EXPIRED';
+		}
+
+		return 'UNKNOWN';
 	}
 }

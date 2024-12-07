@@ -196,10 +196,6 @@ class BizprocDebuggerSessionList extends CBitrixComponent implements Errorable, 
 	private function updateSessions(): void
 	{
 		$updatedSessions = is_array($this->request['FIELDS']) ? $this->request['FIELDS'] : [];
-		if ($this->request->isAjaxRequest())
-		{
-			$updatedSessions = \Bitrix\Main\Text\Encoding::convertEncoding($updatedSessions, 'UTF-8', LANG_CHARSET);
-		}
 
 		foreach ($updatedSessions as $sessionId => $updatedFields)
 		{

@@ -66,7 +66,7 @@ function GetTDirList($path, $subDirs = false, $restructLanguageList = array())
 
 	$fullPath = Translate\IO\Path::tidy(Main\Application::getDocumentRoot(). '/'. $path. '/');
 
-	if (preg_match('|^' . preg_quote(realpath(Main\Application::getDocumentRoot() . '/upload'), '|') . '|i' . BX_UTF_PCRE_MODIFIER, $fullPath))
+	if (preg_match('|^' . preg_quote(realpath(Main\Application::getDocumentRoot() . '/upload'), '|') . '|iu', $fullPath))
 	{
 		return false;
 	}
@@ -747,7 +747,7 @@ function TSEARCH($arFile, &$count)
 			//Replace
 			if ($arSearchParam['is_replace'])
 			{
-				$pattern = '/'.preg_quote($phrase, '/').'/S'.$I_PCRE_MODIFIER.BX_UTF_PCRE_MODIFIER;
+				$pattern = '/'.preg_quote($phrase, '/').'/Su'.$I_PCRE_MODIFIER;
 
 				TR_BACKUP($arFile['PATH']);
 				if ($_bMessage)
@@ -765,7 +765,7 @@ function TSEARCH($arFile, &$count)
 			}
 			else
 			{
-				$pattern = '/'.preg_quote($phrase, '/').'/'.$I_PCRE_MODIFIER.BX_UTF_PCRE_MODIFIER;
+				$pattern = '/'.preg_quote($phrase, '/').'/u'.$I_PCRE_MODIFIER;
 				if ($_bMessage)
 				{
 					preg_match_all($pattern, $_sMe, $res);

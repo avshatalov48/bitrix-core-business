@@ -1324,9 +1324,6 @@ class CSaleYMHandler
 			$arResult = json_decode($postData, true);
 		}
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$arResult = $APPLICATION->ConvertCharsetArray($arResult, 'utf-8', SITE_CHARSET);
-
 		return $arResult;
 	}
 
@@ -1338,9 +1335,6 @@ class CSaleYMHandler
 	{
 		global $APPLICATION;
 		$result = array();
-
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$arData = $APPLICATION->ConvertCharsetArray($arData, SITE_CHARSET, 'utf-8');
 
 		if($this->communicationFormat == self::JSON)
 		{
@@ -1519,9 +1513,6 @@ class CSaleYMHandler
 
 		if($substatus)
 			$arQuery["order"]["substatus"] = $substatus;
-
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$arQuery = $APPLICATION->ConvertCharsetArray($arQuery, SITE_CHARSET, 'utf-8');
 
 		$postData = '';
 		if($this->communicationFormat == self::JSON)
@@ -1888,7 +1879,7 @@ class CSaleYMHandler
 					'<input id="'.$tmpId.'" type="radio" name="'.$name.'_rb" value="'.$statusId.'">'.
 					'<span id="'.$tmpId.'_lbl">'.$statusName.'</span>'.
 				'</label><br>'.
-				'<script type="text/javascript">'.
+				'<script>'.
 					'BX("'.$tmpId.'").onchange=function(){if(this.checked == true) { BX("'.$id.'").innerHTML = BX("'.$tmpId.'_lbl").innerHTML; }};'.
 				'</script>';
 		}

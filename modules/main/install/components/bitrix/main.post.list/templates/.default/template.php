@@ -6,16 +6,17 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 /**
- * @var CMain $APPLICATION
- * @var CUser $USER
- * @global CDatabase $DB
+ * @global CMain $APPLICATION
+ * @global CUser $USER
  * @var array $arParams
  * @var array $arResult
+ * @var MainPostList $component
 */
 
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
-use \Bitrix\Main\UI;
+use Bitrix\Main\UI;
+use Bitrix\Main\Web\Json;
 
 UI\Extension::load([
 	'ui.design-tokens',
@@ -71,7 +72,7 @@ ob_start();
 		#BEFORE_RECORD#
 		<div class="feed-com-block blog-comment-user-#AUTHOR_ID# sonet-log-comment-createdby-#AUTHOR_ID# feed-com-block-#APPROVED##CLASSNAME#">
 			#BEFORE_HEADER#
-			<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-#AUTHOR_AVATAR_IS#"><i></i><img src="#AUTHOR_AVATAR#" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>" /></div>
+			<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-#AUTHOR_AVATAR_IS#"><i></i><img src="#AUTHOR_AVATAR#" width="<?=$arParams["AVATAR_SIZE"]?>" height="<?=$arParams["AVATAR_SIZE"]?>" alt="" /></div>
 			<!--/noindex-->
 			<div class="feed-com-main-content feed-com-block-#NEW#">
 				<span class="feed-com-name #AUTHOR_EXTRANET_STYLE# feed-author-name feed-author-name-#AUTHOR_ID#">#AUTHOR_NAME#</span>
@@ -124,7 +125,6 @@ ob_start();
 				?>bx-mpl-author-name="#AUTHOR_NAME#" <?php
 				?>data-slider-ignore-autobinding="true"><?= Loc::getMessage('BLOG_C_REPLY') ?></a><?php
 			}
-
 
 			if (!$arParams["bPublicPage"])
 			{
@@ -293,7 +293,7 @@ else
 			?>bx-mpl-blank-status="<?=($isMessageBlank ? "blank" : "full")?>" <?php
 			?>bx-mpl-block="main" <?php
 			?>class="feed-com-block-cover"><?php
-				?><?= $this->__component->parseTemplate($res, $arParams, ($isMessageBlank ? $blankTemplate : $template)) ?>
+				?><?= $component->parseTemplate($res, $arParams, ($isMessageBlank ? $blankTemplate : $template)) ?>
 			</div>
 		<?php
 	}
@@ -322,15 +322,15 @@ else
 	}
 }
 $ajaxParams = [];
-if ($this->__component->__parent instanceof \Bitrix\Main\Engine\Contract\Controllerable)
+if ($component->__parent instanceof \Bitrix\Main\Engine\Contract\Controllerable)
 {
 	$ajaxParams = [
-		"componentName" => $this->__component->__parent->getName(),
-		"processComment" => method_exists($this->__component->__parent, "processCommentAction"),
-		"navigateComment" => method_exists($this->__component->__parent, "navigateCommentAction"),
-		"getComment" => method_exists($this->__component->__parent, "getCommentAction"),
-		"readComment" => method_exists($this->__component->__parent, "readCommentAction"),
-		"params" => $this->__component->__parent->getSignedParameters()
+		"componentName" => $component->__parent->getName(),
+		"processComment" => method_exists($component->__parent, "processCommentAction"),
+		"navigateComment" => method_exists($component->__parent, "navigateCommentAction"),
+		"getComment" => method_exists($component->__parent, "getCommentAction"),
+		"readComment" => method_exists($component->__parent, "readCommentAction"),
+		"params" => $component->__parent->getSignedParameters()
 	];
 }
 
@@ -361,7 +361,7 @@ BX.ready(function(){
 				CREATESUBTASK : '<?= ($arParams['RIGHTS']['CREATESUBTASK'] ?? 'N') ?>',
 			},
 		sign : '<?=$arParams["SIGN"]?>',
-		ajax : <?=CUtil::PhpToJSObject($ajaxParams)?>
+		ajax : <?= Json::encode($ajaxParams) ?>
 		},
 		{
 			VIEW_URL : '<?=CUtil::JSEscape($arParams["~VIEW_URL"] ?? '')?>',
@@ -369,7 +369,7 @@ BX.ready(function(){
 			MODERATE_URL : '<?=CUtil::JSEscape($arParams["~MODERATE_URL"] ?? '')?>',
 			DELETE_URL : '<?=CUtil::JSEscape($arParams["~DELETE_URL"] ?? '')?>',
 			AUTHOR_URL : '<?=CUtil::JSEscape($arParams["~AUTHOR_URL"] ?? '')?>',
-			AUTHOR_URL_PARAMS: <?=(isset($arParams["AUTHOR_URL_PARAMS"]) ? CUtil::PhpToJSObject($arParams["AUTHOR_URL_PARAMS"]) : '{}')?>,
+			AUTHOR_URL_PARAMS: <?=(isset($arParams["AUTHOR_URL_PARAMS"]) ? Json::encode($arParams["AUTHOR_URL_PARAMS"]) : '{}') ?>,
 
 			AVATAR_SIZE : '<?=CUtil::JSEscape($arParams["AVATAR_SIZE"])?>',
 			NAME_TEMPLATE : '<?=CUtil::JSEscape($arParams["~NAME_TEMPLATE"])?>',
@@ -418,18 +418,79 @@ if (!empty($arParams["ERROR_MESSAGE"]))
 		<b><?= Loc::getMessage('B_B_PC_COM_ERROR') ?></b><br /><?= $arParams["ERROR_MESSAGE"] ?></span></div><?php
 }
 
-include_once(__DIR__ . '/messages.php');
+?>
+<script>
+<? if (IsModuleInstalled("im")): ?>
+if (window.SPC)
+{
+	SPC.notifyManagerShow();
+}
+<? endif ?>
+
+<? if (IsModuleInstalled("socialnetwork") && $USER instanceof CUser): ?>
+if (BX.CommentAux)
+{
+	BX.CommentAux.init({
+		currentUserSonetGroupIdList: <?= Json::encode(\Bitrix\Socialnetwork\ComponentHelper::getUserSonetGroupIdList($USER->GetID(), SITE_ID)) ?>,
+		mobile: false,
+		publicSection: <?=(isset($arParams["bPublicPage"]) && $arParams["bPublicPage"] ? 'true' : 'false')?>,
+		currentExtranetUser: <?=($arResult["currentExtranetUser"] ? 'true' : 'false')?>,
+		availableUsersList: <?= Json::encode($arResult["availableUsersList"]) ?>,
+	});
+}
+<? endif ?>
+
+BX.message({
+	MPL_HAVE_WRITTEN : '<?=GetMessageJS("MPL_HAVE_WRITTEN_MSGVER_1")?>',
+	MPL_HAVE_WRITTEN_M : '<?=GetMessageJS("MPL_HAVE_WRITTEN_M_MSGVER_1")?>',
+	MPL_HAVE_WRITTEN_F : '<?=GetMessageJS("MPL_HAVE_WRITTEN_F_MSGVER_1")?>',
+	B_B_MS_LINK : '<?=GetMessageJS("B_B_MS_LINK2")?>',
+	MPL_MES_HREF : '<?=GetMessageJS("MPL_MES_HREF")?>',
+	BPC_MES_EDIT : '<?=GetMessageJS("BPC_MES_EDIT")?>',
+	BPC_MES_HIDE : '<?=GetMessageJS("BPC_MES_HIDE")?>',
+	BPC_MES_SHOW : '<?=GetMessageJS("BPC_MES_SHOW")?>',
+	BPC_MES_DELETE : '<?=GetMessageJS("BPC_MES_DELETE")?>',
+	BPC_MES_DELETE_POST_CONFIRM : '<?=GetMessageJS("BPC_MES_DELETE_POST_CONFIRM")?>',
+	BPC_MES_CREATE_TASK_RESULT : '<?=GetMessageJS("BPC_MES_CREATE_TASK_RESULT")?>',
+	BPC_MES_DELETE_TASK_RESULT : '<?=GetMessageJS("BPC_MES_DELETE_TASK_RESULT")?>',
+	BPC_MES_CREATE_TASK : '<?=GetMessageJS("BPC_MES_CREATE_TASK")?>',
+	BPC_MES_CREATE_SUBTASK : '<?=GetMessageJS("BPC_MES_CREATE_SUBTASK")?>',
+	JERROR_NO_MESSAGE : '<?=GetMessageJS("JERROR_NO_MESSAGE")?>',
+	BLOG_C_HIDE : '<?=GetMessageJS("BLOG_C_HIDE")?>',
+	MPL_IS_EXTRANET_SITE: '<?=(CModule::IncludeModule("extranet") && CExtranet::IsExtranetSite() ? 'Y' : 'N')?>',
+	JQOUTE_AUTHOR_WRITES : '<?=GetMessageJS("JQOUTE_AUTHOR_WRITES")?>',
+	FC_ERROR : '<?=GetMessageJS("B_B_PC_COM_ERROR")?>',
+	MPL_SAFE_EDIT : '<?=GetMessageJS('MPL_SAFE_EDIT')?>',
+	MPL_ERROR_OCCURRED : '<?=GetMessageJS('MPL_ERROR_OCCURRED')?>',
+	MPL_CLOSE : '<?=GetMessageJS('MPL_CLOSE')?>',
+	MPL_MOBILE_HINTS : '<?=GetMessageJS('MPL_MOBILE_HINTS')?>',
+	MPL_MOBILE_HINTS_DETAILS : '<?=GetMessageJS('MPL_MOBILE_HINTS_DETAILS')?>',
+	MPL_MOBILE_POPUP_TITLE : '<?=GetMessageJS('MPL_MOBILE_POPUP_TITLE')?>',
+	MPL_MOBILE_POPUP_BOTTOM_TEXT : '<?=GetMessageJS('MPL_MOBILE_POPUP_BOTTOM_TEXT')?>',
+	MPL_LINK_COPIED : '<?=GetMessageJS('MPL_LINK_COPIED')?>'
+	<?
+		if (IsModuleInstalled("socialnetwork"))
+		{
+			?>
+			, MPL_WORKGROUPS_PATH : '<?=CUtil::JSEscape(COption::GetOptionString("socialnetwork", "workgroups_page", SITE_DIR."workgroups/", SITE_ID))?>'
+			<?
+		}
+	?>,
+	MPL_QUOTE_COPILOT: '<?= GetMessageJS('MPL_QUOTE_COPILOT')?>',
+	});
+</script>
+<?php
 
 if ($arParams["SHOW_POST_FORM"] == "Y")
 {
-	$AUTHOR_AVATAR = __mpl_get_avatar();
+	$AUTHOR_AVATAR = $component->getAvatar();
 
 	?><div class="feed-com-add-box-outer" id="record-<?= $prefixNode ?>-form-holder">
 
 		<div class="ui-icon ui-icon-common-user feed-com-avatar feed-com-avatar-<?= ($AUTHOR_AVATAR === '/bitrix/images/1.gif' ? "N" : "Y") ?>"><?php
 			?>
 			<i></i>
-			<img width="37" height="37" src="<?= \Bitrix\Main\Web\Uri::urnEncode($AUTHOR_AVATAR) ?>">
+			<img width="37" height="37" src="<?= \Bitrix\Main\Web\Uri::urnEncode($AUTHOR_AVATAR) ?>" alt="">
 			<?php
 		?></div>
 

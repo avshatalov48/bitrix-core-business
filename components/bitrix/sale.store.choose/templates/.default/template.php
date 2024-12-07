@@ -187,7 +187,7 @@ foreach($arResult['MAP_TYPES_LIST'] as $type => $name)
 			</div>
 			<input type="hidden" name="<?=$arParams["INPUT_NAME"]?>" id="<?=$arParams["INPUT_ID"]?>" value="<?=$arParams["SELECTED_STORE"]?>" />
 
-<script type="text/javascript">
+<script>
 	BX.loadScript('<?=$templateFolder.'/script.js?'.time()?>', function () {
 		BX.ready(function () {
 			BX.message({

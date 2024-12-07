@@ -14,8 +14,8 @@ endif;
 ********************************************************************/
 /***************** BASE ********************************************/
 	$arParams["FID"] = intval(intVal($arParams["FID"]) <= 0 ? $_REQUEST["FID"] : $arParams["FID"]);
-	$arParams["MID"] = (intval($arParams["MID"]) <= 0 ? $_REQUEST["MID"] : $arParams["MID"]);
-	$arParams["MESSAGE_TYPE"] = (empty($arParams["MESSAGE_TYPE"]) ? $_REQUEST["MESSAGE_TYPE"] : $arParams["MESSAGE_TYPE"]);
+	$arParams["MID"] = (intval($arParams["MID"]) <= 0 ? ($_REQUEST["MID"] ?? null) : $arParams["MID"]);
+	$arParams["MESSAGE_TYPE"] = (isset($arParams["MESSAGE_TYPE"]) && empty($arParams["MESSAGE_TYPE"]) ? $arParams["MESSAGE_TYPE"] : ($_REQUEST["MESSAGE_TYPE"] ?? null));
 	$arParams["MESSAGE_TYPE"] = ($arParams["MESSAGE_TYPE"]!="EDIT" ? "NEW" : "EDIT");
 /***************** URL *********************************************/
 	$URL_NAME_DEFAULT = array(
@@ -174,8 +174,8 @@ endif;
 $arResult["index"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_INDEX"], array());
 $arResult["list"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_LIST"], array("FID" => $arParams["FID"]));
 $arResult["read"] = CComponentEngine::MakePathFromTemplate($arParams["URL_TEMPLATES_MESSAGE"],
-	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"]), "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"],
-		"MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s")));
+	array("FID" => ($arParams["FID"] ?? null), "TID" => intval($arParams["TID"] ?? 0), "TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? '',
+		"MID"=>(intval($arParams["MID"] ?? 0) > 0 ? intval($arParams["MID"]) : "s")));
 $arResult["URL"] = array(
 	"INDEX" => $arResult["index"],
 	"~INDEX" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_INDEX"], array()),
@@ -183,8 +183,8 @@ $arResult["URL"] = array(
 	"~LIST" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_LIST"], array("FID" => $arParams["FID"])),
 	"READ" => $arResult["read"],
 	"~READ" => CComponentEngine::MakePathFromTemplate($arParams["~URL_TEMPLATES_MESSAGE"],
-	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"]),
-		"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"], "MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s"))));
+	array("FID" => $arParams["FID"], "TID" => intval($arParams["TID"] ?? 0),
+		"TITLE_SEO" => $arResult["TOPIC"]["TITLE_SEO"] ?? '', "MID"=>(intval($arParams["MID"]) > 0 ? intval($arParams["MID"]) : "s"))));
 $arResult["VIEW"] = ((isset($_REQUEST["MESSAGE_MODE"]) && mb_strtoupper($_REQUEST["MESSAGE_MODE"]) == "VIEW" && $_SERVER["REQUEST_METHOD"] == "POST") ? "Y" : "N");
 $_REQUEST["FILES"] = (isset($_REQUEST["FILES"]) && is_array($_REQUEST["FILES"]) ? $_REQUEST["FILES"] : array());
 $_REQUEST["FILES_TO_UPLOAD"] = (isset($_REQUEST["FILES_TO_UPLOAD"]) && is_array($_REQUEST["FILES_TO_UPLOAD"]) ? $_REQUEST["FILES_TO_UPLOAD"] : array());

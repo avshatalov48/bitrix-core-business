@@ -1,6 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { ChatType } from 'im.v2.const';
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelRecentItem, ImModelChat } from 'im.v2.model';
@@ -8,7 +8,7 @@ import type { ImModelRecentItem, ImModelChat } from 'im.v2.model';
 // @vue/component
 export const RecentItem = {
 	name: 'RecentItem',
-	components: { Avatar },
+	components: { ChatAvatar },
 	props:
 	{
 		item: {
@@ -26,10 +26,6 @@ export const RecentItem = {
 		recentItem(): ImModelRecentItem
 		{
 			return this.item;
-		},
-		formattedCounter(): string
-		{
-			return this.dialog.counter > 99 ? '99+' : this.dialog.counter.toString();
 		},
 		dialog(): ImModelChat
 		{
@@ -56,13 +52,25 @@ export const RecentItem = {
 		{
 			return this.recentItem.invitation;
 		},
+		totalCounter(): number
+		{
+			return this.dialog.counter + this.channelCommentsCounter;
+		},
+		channelCommentsCounter(): number
+		{
+			return this.$store.getters['counters/getChannelCommentsCounter'](this.dialog.chatId);
+		},
+		formattedCounter(): string
+		{
+			return this.totalCounter > 99 ? '99+' : this.totalCounter.toString();
+		},
 		wrapClasses(): Object
 		{
 			return { '--pinned': this.recentItem.pinned };
 		},
 		itemClasses(): Object
 		{
-			return { '--no-counter': this.dialog.counter === 0 };
+			return { '--no-counter': this.totalCounter === 0 };
 		},
 	},
 	methods:
@@ -78,8 +86,14 @@ export const RecentItem = {
 			<div :class="itemClasses" class="bx-im-list-recent-compact-item__container" ref="container">
 				<div class="bx-im-list-recent-compact-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-compact-item__avatar_invitation"></div>
-					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
-					<div v-if="dialog.counter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
+					<ChatAvatar 
+						v-else 
+						:contextDialogId="recentItem.dialogId"
+						:avatarDialogId="recentItem.dialogId"
+						:size="AvatarSize.M" 
+						:withSpecialTypes="false"
+					/>
+					<div v-if="totalCounter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
 						{{ formattedCounter }}
 					</div>
 				</div>

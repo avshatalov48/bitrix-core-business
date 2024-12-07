@@ -84,5 +84,4 @@ else
 	$arResult['RESULT'] = 'OK';
 }
 
-$arResult = \Bitrix\Main\Text\Encoding::convertEncoding($arResult, SITE_CHARSET, 'utf-8');
 die(json_encode($arResult));

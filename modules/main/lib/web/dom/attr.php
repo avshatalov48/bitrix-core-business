@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Web\DOM;
 
 class Attr extends Node
@@ -47,6 +48,6 @@ class Attr extends Node
 
 	public function toArray()
 	{
-		return array($this->name => $this->value);
+		return [$this->name => $this->value];
 	}
 }

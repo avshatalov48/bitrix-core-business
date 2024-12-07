@@ -9,6 +9,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Main\UserField\Types\EnumType;
+use Bitrix\Main\Web\Json;
 
 /**
  * @var EnumUfComponent $component
@@ -91,7 +92,7 @@ $isMultiple = $arResult['isMultiple'];
 			<span id="<?= $arResult['controlNodeId'] ?>"></span>
 
 			<?php
-			$scriptParams = CUtil::PhpToJSObject([
+			$scriptParams = Json::encode([
 				'defaultFieldName' => $defaultFieldName,
 				'fieldName' => $arResult['fieldNameJs'],
 				'container' => $arResult['controlNodeId'],
@@ -175,7 +176,7 @@ EOT;
 			$fieldNameForEvent = $arResult['targetNodeId'] . '_default_' . $postfix;
 			$arResult['targetNodeId'] .= $postfix;
 
-			$scriptParams = CUtil::PhpToJSObject([
+			$scriptParams = Json::encode([
 				'targetNodeId' => $arResult['targetNodeId'],
 				'fieldName' => $arResult['fieldName'],
 				//'context' => $context,

@@ -6,7 +6,7 @@
 // region environment initialization
 if (!defined("UPDATE_SYSTEM_VERSION"))
 {
-	define("UPDATE_SYSTEM_VERSION", "23.900.900");
+	define("UPDATE_SYSTEM_VERSION", "24.100.0");
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -48,7 +48,7 @@ $curPhpVer = phpversion();
 $expertTabFile = dirname(__FILE__) . '/update_system_expert.php';
 $isExpertTabEnabled = false;
 if (
-	\CUpdateExpertMode::isAvailable()
+	CUpdateExpertMode::isAvailable()
 	&& file_exists($expertTabFile)
 )
 {
@@ -58,11 +58,11 @@ if (
 	{
 		if ($_REQUEST["expertMode"] !== 'Y')
 		{
-			\CUpdateExpertMode::disable();
+			CUpdateExpertMode::disable();
 		}
 		else
 		{
-			\CUpdateExpertMode::enable();
+			CUpdateExpertMode::enable();
 		}
 	}
 }
@@ -76,7 +76,7 @@ $arMenu = array(
 	array("SEPARATOR" => "Y"),
 	array(
 		"TEXT" => GetMessage("SUP_SETTINGS"),
-		"LINK" => "/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=main&tabControl_active_tab=edit5&back_url_settings=%2Fbitrix%2Fadmin%2Fupdate_system.php%3Flang%3D".LANGUAGE_ID."",
+		"LINK" => "/bitrix/admin/settings.php?lang=".LANGUAGE_ID."&mid=main&tabControl_active_tab=edit5&back_url_settings=%2Fbitrix%2Fadmin%2Fupdate_system.php%3Flang%3D".LANGUAGE_ID,
 	),
 	array("SEPARATOR" => "Y"),
 	array(
@@ -192,7 +192,7 @@ else
 
 	if (!defined('BX_UTF') || BX_UTF !== true)
 	{
-		$systemMessage .= "<br>" . GetMessage('UPDATE_SYS_NEED_UTF');
+		$strongSystemMessage .= "<br>" . GetMessage('UPDATE_SYS_NEED_UTF_MSGVER_1');
 	}
 }
 
@@ -810,13 +810,13 @@ $tabControl->BeginNextTab();
 			<?
 			if ($arUpdateList)
 			{
-				if (isset($arUpdateList["MODULES"]) && is_array($arUpdateList["MODULES"]) && isset($arUpdateList["MODULES"][0]["#"]["MODULE"]) && is_array($arUpdateList["MODULES"][0]["#"]["MODULE"]))
+				if (isset($arUpdateList["MODULES"][0]["#"]["MODULE"]) && is_array($arUpdateList["MODULES"][0]["#"]["MODULE"]))
 					$countModuleUpdates = count($arUpdateList["MODULES"][0]["#"]["MODULE"]);
 
-				if (isset($arUpdateList["LANGS"]) && is_array($arUpdateList["LANGS"]) && isset($arUpdateList["LANGS"][0]["#"]["INST"]) && is_array($arUpdateList["LANGS"][0]["#"]["INST"]) && is_array($arUpdateList["LANGS"][0]["#"]["INST"][0]["#"]["LANG"]))
+				if (isset($arUpdateList["LANGS"][0]["#"]["INST"]) && is_array($arUpdateList["LANGS"][0]["#"]["INST"]) && is_array($arUpdateList["LANGS"][0]["#"]["INST"][0]["#"]["LANG"]))
 					$countLangUpdatesInst = count($arUpdateList["LANGS"][0]["#"]["INST"][0]["#"]["LANG"]);
 
-				if (isset($arUpdateList["LANGS"]) && is_array($arUpdateList["LANGS"]) && isset($arUpdateList["LANGS"][0]["#"]["OTHER"]) && is_array($arUpdateList["LANGS"][0]["#"]["OTHER"]) && is_array($arUpdateList["LANGS"][0]["#"]["OTHER"][0]["#"]["LANG"]))
+				if (isset($arUpdateList["LANGS"][0]["#"]["OTHER"]) && is_array($arUpdateList["LANGS"][0]["#"]["OTHER"]) && is_array($arUpdateList["LANGS"][0]["#"]["OTHER"][0]["#"]["LANG"]))
 					$countLangUpdatesOther = count($arUpdateList["LANGS"][0]["#"]["OTHER"][0]["#"]["LANG"]);
 
 				$countTotalImportantUpdates = $countLangUpdatesInst;
@@ -831,10 +831,10 @@ $tabControl->BeginNextTab();
 					}
 				}
 
-				if (isset($arUpdateList["HELPS"]) && is_array($arUpdateList["HELPS"]) && isset($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]))
+				if (isset($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"]) && is_array($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]))
 					$countHelpUpdatesInst = count($arUpdateList["HELPS"][0]["#"]["INST"][0]["#"]["HELP"]);
 
-				if (isset($arUpdateList["HELPS"]) && is_array($arUpdateList["HELPS"]) && isset($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]))
+				if (isset($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"]) && is_array($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]))
 					$countHelpUpdatesOther = count($arUpdateList["HELPS"][0]["#"]["OTHER"][0]["#"]["HELP"]);
 
 				$newLicenceSignedKey = CUpdateClient::getNewLicenseSignedKey();
@@ -1032,7 +1032,7 @@ $tabControl->BeginNextTab();
 								{
 									$m = GetMessage("SUP_STABLE_OFF_PROMT");
 								}
-								elseif (is_numeric($stableVersionsOnly) && isset($arUpdateList["AVAILABLE_VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"]) && isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
+								elseif (is_numeric($stableVersionsOnly) && isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
 								{
 									foreach ($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"] as $versions)
 									{
@@ -1233,11 +1233,11 @@ if ($isExpertTabEnabled)
 	{
 		include ($expertTabFile);
 	}
-	catch (\Exception $e)
+	catch (Exception $e)
 	{
 		echo GetMessage('SUP_SUAC_EXPERT_ERROR');
 	}
-	catch (\Error $e)
+	catch (Error $e)
 	{
 		echo GetMessage('SUP_SUAC_EXPERT_ERROR');
 	}
@@ -1290,7 +1290,7 @@ $tabControl->BeginNextTab();
 						</tr>
 					</table>
 				</div>
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 				<!--
 				function ActivateCoupon()
 				{
@@ -1370,7 +1370,7 @@ $tabControl->BeginNextTab();
 								{
 									$m = GetMessage("SUP_STABLE_OFF_PROMT");
 								}
-								elseif (is_numeric($stableVersionsOnly) && isset($arUpdateList["AVAILABLE_VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"]) && isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
+								elseif (is_numeric($stableVersionsOnly) && isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
 								{
 									foreach ($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"] as $versions)
 									{
@@ -1395,7 +1395,7 @@ $tabControl->BeginNextTab();
 									<option value="Y"<?= ($stableVersionsOnly === "Y") ? " selected" : ""; ?>><?= GetMessage("SUP_SUBV_STABB") ?></option>
 									<option value="N"<?= ($stableVersionsOnly === "N") ? " selected" : ""; ?>><?= GetMessage("SUP_SUBV_BETB") ?></option>
 									<?
-									if (isset($arUpdateList["AVAILABLE_VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"]) && isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
+									if (isset($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]) && is_array($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"]))
 									{
 										foreach ($arUpdateList["AVAILABLE_VERSIONS"][0]["#"]["VERSIONS"] as $versions)
 										{
@@ -1415,7 +1415,7 @@ $tabControl->BeginNextTab();
 						</tr>
 					</table>
 				</div>
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 				<!--
 				function SwithStability()
 				{
@@ -1469,7 +1469,7 @@ $tabControl->BeginNextTab();
 						</tr>
 					</table>
 				</div>
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 				<!--
 				function SubscribeMail()
 				{
@@ -1520,8 +1520,7 @@ $tabControl->End();
 // endregion
 // region javascript
 ?>
-<script language="JavaScript">
-	<!--
+<script>
 	var updRand = 0;
 	var modulesList = new Array();
 	<?
@@ -2929,8 +2928,10 @@ $tabControl->End();
 	{
 		tabControl.SelectTab('tab1');
 		tabControl.DisableTab('tab2');
-		tabControl.DisableTab('tab_expert');
-		//tabControl.DisableTab('tab_coupon');
+		if (document.getElementById('tab_cont_tab_expert'))
+		{
+			tabControl.DisableTab('tab_expert');
+		}
 		tabControl.DisableTab('tab3');
 		if (document.getElementById("install_updates_button"))
 		{
@@ -2944,7 +2945,10 @@ $tabControl->End();
 	{
 		tabControl.EnableTab('tab1');
 		tabControl.EnableTab('tab2');
-		tabControl.EnableTab('tab_expert');
+		if (document.getElementById('tab_cont_tab_expert'))
+		{
+			tabControl.EnableTab('tab_expert');
+		}
 		tabControl.EnableTab('tab_coupon');
 		tabControl.EnableTab('tab3');
 		if (document.getElementById("install_updates_button"))
@@ -2959,19 +2963,16 @@ $tabControl->End();
 			cnt.disabled = false;
 	}
 	//endregion
-	//-->
 </script>
 <? //endregion
 // region footer
 ?>
 
-<SCRIPT LANGUAGE="JavaScript">
-<!--
+<SCRIPT>
 	<?
 	if ($bLockControls)
 		echo "if (window.LockControls) LockControls();";
 	?>
-//-->
 </SCRIPT>
 
 </form>

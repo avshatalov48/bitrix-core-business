@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2004 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -42,7 +42,7 @@ if($filter_type!="")
 }
 
 $ID=intval($ID);
-if($REQUEST_METHOD=="POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT>="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT>="W" && check_bitrix_sessid())
 {
 	$arFields = Array(
 		"ACTIVE"			=> $ACTIVE,

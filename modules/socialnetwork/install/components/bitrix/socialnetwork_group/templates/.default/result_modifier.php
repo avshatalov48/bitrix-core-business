@@ -54,7 +54,7 @@ if (mb_strpos($this->__page, "user_files") !== false || mb_strpos($this->__page,
 if (IsModuleInstalled('webdav'))
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		var phpVars;
 		if (typeof(phpVars) != "object")
 			var phpVars = {};

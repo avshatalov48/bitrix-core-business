@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -28,7 +28,7 @@ $LIST_URL = $APPLICATION->GetCurPage();
 $arErrors = array();
 
 /***************************************************************************
-									Ôóíêöèè
+									Ð¤ÑƒÐ½ÐºÑ†Ð¸Ð¸
 ****************************************************************************/
 
 function Support_GetUserInfo($USER_ID, &$login, &$name)
@@ -56,8 +56,8 @@ function Support_GetUserInfo($USER_ID, &$login, &$name)
 
 
 $sTableID = "t_sla_list";
-$oSort = new CAdminSorting($sTableID, "ID", "asc");// èíèöèàëèçàöèÿ ñîðòèðîâêè
-$lAdmin = new CAdminList($sTableID, $oSort);// èíèöèàëèçàöèÿ ñïèñêà
+$oSort = new CAdminSorting($sTableID, "ID", "asc");// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
+$lAdmin = new CAdminList($sTableID, $oSort);// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 
 $filter = new CAdminFilter(
 	$sTableID."_filter_id", 
@@ -78,7 +78,7 @@ $arFilterFields = Array(
 	"find_site",
 	);
 
-$lAdmin->InitFilter($arFilterFields);//èíèöèàëèçàöèÿ ôèëüòðà
+$lAdmin->InitFilter($arFilterFields);//Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ð°
 
 
 foreach($arFilterFields as $key) 
@@ -88,7 +88,7 @@ foreach($arFilterFields as $key)
 }
 
 
-if ($bAdmin=="Y" && $lAdmin->EditAction()) //åñëè èäåò ñîõðàíåíèå ñî ñïèñêà
+if ($bAdmin=="Y" && $lAdmin->EditAction()) //ÐµÑÐ»Ð¸ Ð¸Ð´ÐµÑ‚ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ðµ ÑÐ¾ ÑÐ¿Ð¸ÑÐºÐ°
 {
 	foreach($FIELDS as $ID => $arFields)
 	{
@@ -149,7 +149,7 @@ $rsData = CTicketSLA::GetList($arSort, $arFilter, $is_filtered);
 $rsData = new CAdminResult($rsData, $sTableID);
 $rsData->NavStart(50);
 
-// óñòàíîâêà ñòðîêè íàâèãàöèè
+// ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐ° ÑÑ‚Ñ€Ð¾ÐºÐ¸ Ð½Ð°Ð²Ð¸Ð³Ð°Ñ†Ð¸Ð¸
 
 $lAdmin->NavText($rsData->GetNavPrint(GetMessage("SUP_PAGES")));
 
@@ -227,7 +227,7 @@ $arHeaders[] = Array("id"=>"TIMETABLE_ID", "content"=>GetMessage("SUP_SHEDULE_S"
 
 $lAdmin->AddHeaders($arHeaders);
 
-// ïîñòðîåíèå ñïèñêà
+// Ð¿Ð¾ÑÑ‚Ñ€Ð¾ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ°
 //while($arRes = $rsData->NavNext(true, "f_"))
 foreach ($fetchedRows as $arRes)
 {
@@ -335,7 +335,7 @@ foreach ($fetchedRows as $arRes)
 
 }
 
-// "ïîäâàë" ñïèñêà
+// "Ð¿Ð¾Ð´Ð²Ð°Ð»" ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddFooter(
 	array(
 		array("title"=>GetMessage("MAIN_ADMIN_LIST_SELECTED"), "value"=>$rsData->SelectedRowsCount()),
@@ -372,7 +372,7 @@ $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("SUP_PAGE_TITLE"));
 /***************************************************************************
-								HTML ôîðìà
+								HTML Ñ„Ð¾Ñ€Ð¼Ð°
 ****************************************************************************/
 require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
 

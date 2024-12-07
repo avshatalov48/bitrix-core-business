@@ -2,7 +2,6 @@
 
 namespace Bitrix\Main\Grid\Row\Action;
 
-use Bitrix\Main\Grid\Row\Action\Action;
 use Bitrix\Main\Grid\Settings;
 
 abstract class DataProvider

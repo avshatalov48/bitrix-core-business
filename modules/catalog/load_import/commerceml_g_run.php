@@ -17,7 +17,7 @@ const CML_ACTIVATE_FILE_DATA = true;
 //define("CML_USE_SYSTEM_DELETE", false);
 
 IncludeModuleLangFile($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/catalog/import_setup_templ.php');
-$startImportExecTime = getmicrotime();
+$startImportExecTime = microtime(true);
 
 global $USER, $DB, $APPLICATION;
 $bTmpUserCreated = false;
@@ -847,7 +847,7 @@ if ($strImportErrorMessage == '')
 		$headerString = mb_substr($xmlData, 0, $pe);
 		if(preg_match('#encoding[\s]*=[\s]*"(.*?)"#i', $headerString, $arMatch))
 		{
-			$xmlData = $APPLICATION->ConvertCharset($xmlData, $arMatch[1], LANG_CHARSET);
+			$xmlData = \Bitrix\Main\Text\Encoding::convertEncoding($xmlData, $arMatch[1], LANG_CHARSET);
 		}
 	}
 
@@ -905,7 +905,7 @@ if ($strImportErrorMessage == '')
 			else
 				$bAmp = false;
 
-			preg_match_all("/(\\S+)\\s*=\\s*[\"](.*?)[\"]/s".BX_UTF_PCRE_MODIFIER, $at, $attrs_tmp);
+			preg_match_all("/(\\S+)\\s*=\\s*[\"](.*?)[\"]/su", $at, $attrs_tmp);
 			$attrs = array();
 			for ($i=0, $intCount = count($attrs_tmp[1]); $i<$intCount; $i++)
 				$attrs[$attrs_tmp[1][$i]] = ($bAmp ? preg_replace($search, $replace, $attrs_tmp[2][$i]) : $attrs_tmp[2][$i]);
@@ -1848,7 +1848,7 @@ if ($strImportErrorMessage == '')
 
 if ($strImportErrorMessage == '')
 {
-	$totalExecutionTime = RoundEx(getmicrotime() - $startImportExecTime, 1);
+	$totalExecutionTime = RoundEx(microtime(true) - $startImportExecTime, 1);
 	$totalExecutionTimeM = RoundEx($totalExecutionTime / 60, 1);
 	$strImportOKMessage .= str_replace("#MIN#", (($totalExecutionTimeM > 1) ? " (".$totalExecutionTimeM." ".GetMessage("CML_R_MIN").")" : ""), str_replace("#TIME#", $totalExecutionTime, GetMessage("CML_R_TIME")))."<br>";
 	$strImportOKMessage .= str_replace("#NUM#", $cmlLoadCnts["CATALOG"], GetMessage("CML_R_NCATA"))."<br> ";

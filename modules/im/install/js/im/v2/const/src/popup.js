@@ -12,7 +12,8 @@ export const PopupType = Object.freeze({
 	createChatManageUsersAddMenu: 'im-content-create-chat-manage-users-add',
 	createChatManageUsersDeleteMenu: 'im-content-create-chat-manage-users-delete',
 	createChatManageUiMenu: 'im-content-create-chat-manage-ui',
-	createChatCanPostMenu: 'im-content-create-chat-can-post',
+	createChatManageMessagesMenu: 'im-content-create-chat-can-post',
 	messageBaseFileMenu: 'im-message-base-file-context-menu',
 	desktopItemMenu: 'im-navigation-desktop-item-context-menu',
+	messageHistoryLimit: 'im-message-history-limit-popup',
 });

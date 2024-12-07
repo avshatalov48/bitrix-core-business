@@ -1,0 +1,100 @@
+.bx-im-reaction-selector__container {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	border-radius: 38px;
+	background-color: rgba(255, 255, 255, 0.8);
+	cursor: pointer;
+}
+
+.bx-im-reaction-selector__icon {
+	width: 18px;
+	height: 18px;
+	border-radius: 50%;
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='10' fill='%23EDEEF0'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.566 8.253H12.06a.182.182 0 01-.169-.107c-.113-.283-.108-.6.015-.88a3.235 3.235 0 00.069-1.876c-.17-.425-.216-1.202-1.002-1.238a.81.81 0 00-.584.4.256.256 0 00-.031.127s.036.754 0 1.278c-.037.525-1.04 1.86-1.677 2.708a.249.249 0 01-.164.1c-.239.035-.695.096-.86.117-.038.005-.06.054-.06.077v4.755c0 .018.02.056.058.062.129.022.451.08.776.185.409.131.749.441 1.43.671a.356.356 0 00.113.019h3.197a.906.906 0 00.742-.85 1.57 1.57 0 00-.138-.685c-.014-.03.004-.063.037-.07.41-.074.923-.852.292-1.48-.017-.015-.014-.037.009-.043a.963.963 0 00.696-.714.767.767 0 00-.02-.4c-.046-.154-.12-.3-.217-.43-.025-.032-.01-.074.028-.087a.864.864 0 00.583-.825c.04-.37-.257-.813-.617-.814zm-7.95.2H4.802a.15.15 0 00-.15.175l1.053 5.913c.016.09.096.157.19.157h.67a.185.185 0 00.188-.183l.014-5.911a.151.151 0 00-.153-.15z' fill='%23B9BFC3'/%3E%3C/svg%3E");
+	background-position: center;
+	background-repeat: no-repeat;
+}
+
+.bx-im-reaction-selector__icon.--active {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='20' height='20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Ccircle cx='10' cy='10' r='10' fill='%2362A9F3'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.566 8.253H12.06a.182.182 0 01-.169-.107c-.113-.283-.108-.6.015-.88a3.235 3.235 0 00.069-1.876c-.17-.425-.216-1.202-1.002-1.238a.81.81 0 00-.584.4.256.256 0 00-.031.127s.036.754 0 1.278c-.037.525-1.04 1.86-1.677 2.708a.249.249 0 01-.164.1c-.239.035-.695.096-.86.117-.038.005-.06.054-.06.077v4.755c0 .018.02.056.058.062.129.022.451.08.776.185.409.131.749.441 1.43.671a.356.356 0 00.113.019h3.197a.906.906 0 00.742-.85 1.57 1.57 0 00-.138-.685c-.014-.03.004-.063.037-.07.41-.074.923-.852.292-1.48-.017-.015-.014-.037.009-.043a.963.963 0 00.696-.714.767.767 0 00-.02-.4c-.046-.154-.12-.3-.217-.43-.025-.032-.01-.074.028-.087a.864.864 0 00.583-.825c.04-.37-.257-.813-.617-.814zm-7.95.2H4.802a.15.15 0 00-.15.175l1.053 5.913c.016.09.096.157.19.157h.67a.185.185 0 00.188-.183l.014-5.911a.151.151 0 00-.153-.15z' fill='%23fff'/%3E%3C/svg%3E");
+}
+.bx-im-reaction-list__container {
+	--im-reaction-list__background-color_item: rgba(0, 0, 0, 0.1);
+	--im-reaction-list__background-color_item-selected: var(--im-color-palette-blue-50);
+
+	--im-reaction-list__font-color_counter: var(--im-color-palette-gray-80);
+	--im-reaction-list__font-color_counter-selected: var(--im-color-palette-white-base);
+
+	display: flex;
+	align-items: center;
+	margin-top: 10px;
+}
+
+.bx-im-reaction-list__item {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 24px;
+	margin-right: 8px;
+	padding: 4px 6px;
+	border-radius: 38px;
+	background-color: var(--im-reaction-list__background-color_item);
+	cursor: pointer;
+}
+
+.bx-im-reaction-list__item_icon {
+	width: 16px;
+	height: 16px;
+	margin-right: 4px;
+	border-radius: 50%;
+	background-size: contain;
+}
+
+.bx-im-reaction-list__item_counter {
+	font: 11px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-reaction-list__font-color_counter);
+	-webkit-user-select: none;
+	        user-select: none;
+}
+
+.bx-im-reaction-list__item.--selected {
+	background-color: var(--im-reaction-list__background-color_item-selected);
+}
+
+.bx-im-reaction-list__item.--selected .bx-im-reaction-list__item_counter {
+	color: var(--im-reaction-list__font-color_counter-selected);
+}
+
+.bx-im-reaction-list__user_container {
+	display: flex;
+	flex-direction: row-reverse;
+	align-items: center;
+}
+
+.bx-im-reaction-list__user_avatar {
+	width: 18px;
+	height: 18px;
+	margin-left: -4px;
+	border-radius: 50%;
+	background-size: contain;
+	-webkit-user-select: none;
+	        user-select: none;
+}
+
+.bx-im-reaction-list__user_avatar:last-child {
+	margin-left: 0;
+}
+
+.bx-im-reaction-list__user_animation-move,
+.bx-im-reaction-list__user_animation-enter-active {
+	transition: all 0.4s ease;
+}
+
+.bx-im-reaction-list__user_animation-enter-from,
+.bx-im-reaction-list__user_animation-leave-to {
+	margin-left: -18px;
+}

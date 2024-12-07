@@ -1,4 +1,4 @@
-<?
+<?php
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 class CBitrixCatalogImportHl extends CBitrixComponent
@@ -36,9 +36,10 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 			$xmlPosition = $this->xmlStream->getPosition();
 			$filePosition = $this->decodePostion($xmlPosition);
 			$xmlString = $this->xmlStream->readFilePart($this->NS["fp"], $filePosition);
-			$error = "";
 			if ($xmlPosition[0])
-				$xmlString = CharsetConverter::convertCharset($xmlString, $xmlPosition[0], LANG_CHARSET, $error);
+			{
+				$xmlString = \Bitrix\Main\Text\Encoding::convertEncoding($xmlString, $xmlPosition[0], LANG_CHARSET);
+			}
 			$xmlString .= "</".GetMessage("CC_BCIH_XML_REFERENCE").">";
 			$xmlObject = new CDataXML;
 			if ($xmlObject->loadString($xmlString))
@@ -270,8 +271,10 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 		$entity_id = "HLBLOCK_".$this->NS["HL"];
 		$xmlArray = $xmlObject->GetArray();
 
-		$xmlId = $xmlArray[GetMessage("CC_BCIH_XML_REFERENCE_ITEM")]["#"][GetMessage("CC_BCIH_XML_ID")][0]["#"];
-		$xmlVersion = $xmlArray[GetMessage("CC_BCIH_XML_REFERENCE_ITEM")]["#"][GetMessage("CC_BCIH_XML_VERSION")][0]["#"];
+		$referenceItem = $xmlArray[GetMessage("CC_BCIH_XML_REFERENCE_ITEM")]["#"];
+
+		$xmlId = $referenceItem[GetMessage("CC_BCIH_XML_ID")][0]["#"] ?? null;
+		$xmlVersion = $referenceItem[GetMessage("CC_BCIH_XML_VERSION")][0]["#"] ?? null;
 		if (!is_string($xmlId) || $xmlId === "")
 		{
 			$this->error = GetMessage("CC_BCIH_XML_PARSE_ERROR", array("#CODE#" => 320));
@@ -288,11 +291,19 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 			"UF_XML_ID" => $xmlId,
 			"UF_VERSION" => $this->NS["SESSID"]."#".$xmlVersion,
 		);
-		$xmlFields = $xmlArray[GetMessage("CC_BCIH_XML_REFERENCE_ITEM")]["#"][GetMessage("CC_BCIH_XML_FIELD_VALUES")][0]["#"][GetMessage("CC_BCIH_XML_FIELD_VALUE")];
+		$xmlFields = null;
+		if (
+			!empty($referenceItem[GetMessage("CC_BCIH_XML_FIELD_VALUES")][0]["#"])
+			&& is_array($referenceItem[GetMessage("CC_BCIH_XML_FIELD_VALUES")][0]["#"])
+		)
+		{
+			$xmlFields = $referenceItem[GetMessage("CC_BCIH_XML_FIELD_VALUES")][0]["#"][GetMessage("CC_BCIH_XML_FIELD_VALUE")] ?? null;
+		}
 
 		if (!is_array($xmlFields))
 		{
 			$this->error = GetMessage("CC_BCIH_XML_PARSE_ERROR", array("#CODE#" => 330));
+
 			return;
 		}
 
@@ -421,4 +432,3 @@ class CBitrixCatalogImportHl extends CBitrixComponent
 		return $id;
 	}
 }
-?>

@@ -652,18 +652,26 @@
 	width: 26px;
 }
 
-.item-b24 .menu-popup-item-icon {background-position: center -1638px;}
-.item-download .menu-popup-item-icon {background-position: center -1672px;}
+.item-b24 .menu-popup-item-icon {
+	background: url(../images/viewer-cloud-clock.svg) center no-repeat;
+}
+.item-download .menu-popup-item-icon {
+	background: url(../images/viewer-download.svg) center no-repeat;
+}
 .item-gdocs .menu-popup-item-icon {background-position: center -1575px;}
 .item-office .menu-popup-item-icon {background-position: center -1602px;}
-.item-view .menu-popup-item-icon {background-position: center -1773px;}
+.item-view .menu-popup-item-icon {
+	background: url(../images/viewer-document.svg) center no-repeat;
+}
 .item-edit .menu-popup-item-icon {background-position: center -1809px;}
 .item-history .menu-popup-item-icon {background-position: center -1851px;}
 .item-local .menu-popup-item-icon {background-position: center -2068px;}
 .item-b24-office .menu-popup-item-icon {background-position: center -2218px;}
 .item-office365 .menu-popup-item-icon {background-position: center -2254px}
 .item-myoffice .menu-popup-item-icon {background-position: center -2294px}
-.item-setting .menu-popup-item-icon {background-position: center -2122px;}
+.item-setting .menu-popup-item-icon {
+	background: url(../images/viewer-settings.svg) center no-repeat;
+}
 .item-toload .menu-popup-item-icon {background-position: center -2178px;}
 .item-enable-auto-comment .menu-popup-item-icon {background-position: center -2232px;}
 .item-disable-auto-comment .menu-popup-item-icon {background-position: center -2277px;}

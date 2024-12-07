@@ -3,6 +3,7 @@
 namespace Bitrix\Currency\UserField\Types;
 
 use Bitrix\Currency\CurrencyManager;
+use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UserField\Types\BaseType;
@@ -164,12 +165,14 @@ class MoneyType extends BaseType
 	 */
 	public static function formatToDb(string $value, ?string $currency): string
 	{
+		$value = trim($value);
 		if ($value === '')
 		{
 			return '';
 		}
 
-		$value = (string)((float)$value);
+		$value = (string)Editor::prepareValue($value);
+
 		$currency = trim((string)$currency);
 
 		return $value . static::DB_SEPARATOR . $currency;

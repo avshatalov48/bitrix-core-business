@@ -1,9 +1,10 @@
+import { EventEmitter } from 'main.core.events';
+
 import { Core } from 'im.v2.application.core';
 import { EventType, ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-import { EventEmitter } from 'main.core.events';
 
-import { ChatTitle } from 'im.v2.component.elements';
+import { MessageAuthorTitle } from 'im.v2.component.elements';
 
 import './author-title.css';
 
@@ -12,9 +13,7 @@ import type { ImModelMessage, ImModelUser, ImModelChat } from 'im.v2.model';
 // @vue/component
 export const AuthorTitle = {
 	name: 'AuthorTitle',
-	components: {
-		ChatTitle,
-	},
+	components: { MessageAuthorTitle },
 	props:
 	{
 		item: {
@@ -73,13 +72,23 @@ export const AuthorTitle = {
 
 			return this.dialogId;
 		},
+		isCopilot(): boolean
+		{
+			const authorId = Number.parseInt(this.authorDialogId, 10);
+
+			return this.$store.getters['users/bots/isCopilot'](authorId);
+		},
 	},
 	methods:
 	{
 		onAuthorNameClick()
 		{
 			const authorId = Number.parseInt(this.authorDialogId, 10);
-			if (!authorId || authorId === Core.getUserId())
+			if (
+				!authorId
+				|| authorId === Core.getUserId()
+				|| this.isCopilot
+			)
 			{
 				return;
 			}
@@ -87,16 +96,23 @@ export const AuthorTitle = {
 			EventEmitter.emit(EventType.textarea.insertMention, {
 				mentionText: this.user.name,
 				mentionReplacement: Utils.text.getMentionBbCode(this.user.id, this.user.name),
+				dialogId: this.dialog.dialogId,
 			});
 		},
 	},
 	template: `
-		<div v-if="showTitle" @click="onAuthorNameClick" class="bx-im-message-author-title__container">
-			<ChatTitle
+		<div 
+			v-if="showTitle" 
+			@click="onAuthorNameClick" 
+			class="bx-im-message-author-title__container" 
+			:class="{'--clickable': !isCopilot}"
+		>
+			<MessageAuthorTitle
 				:dialogId="authorDialogId"
+				:messageId="message.id"
 				:showItsYou="false"
 				:withColor="true"
-				:withLeftIcon="true"
+				:withLeftIcon="!isCopilot"
 			/>
 		</div>
 	`,

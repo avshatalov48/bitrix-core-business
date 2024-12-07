@@ -26,21 +26,18 @@ $bShowYandexServices =
 	&& \Bitrix\Main\Localization\Loc::getDefaultLang(LANGUAGE_ID) == 'ru';
 
 
-$aTabs = array();
-
-if($bShowYandexServices)
+$aTabs = [];
+if ($bShowYandexServices)
 {
-	$aTabs[] = array("DIV" => "edit0", "TAB" => GetMessage('SEO_OPT_TAB_CLOUDADV'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_CLOUDADV_TITLE'));
+	$aTabs[] = ["DIV" => "edit0", "TAB" => GetMessage('SEO_OPT_TAB_CLOUDADV'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_CLOUDADV_TITLE')];
 }
-
-
-$aTabs[] = array("DIV" => "edit1", "TAB" => GetMessage('SEO_OPT_TAB_PROP'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_PROP_TITLE'));
-$aTabs[] = array("DIV" => "edit3", "TAB" => GetMessage('SEO_OPT_TAB_SEARCHERS'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_SEARCHERS_TITLE'));
-$aTabs[] = array("DIV" => "edit2", "TAB" => GetMessage("MAIN_TAB_RIGHTS"), "ICON" => "seo_settings", "TITLE" => GetMessage("MAIN_TAB_TITLE_RIGHTS"));
+$aTabs[] = ["DIV" => "edit1", "TAB" => GetMessage('SEO_OPT_TAB_PROP'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_PROP_TITLE')];
+$aTabs[] = ["DIV" => "edit3", "TAB" => GetMessage('SEO_OPT_TAB_SEARCHERS'), "ICON" => "seo_settings", "TITLE" => GetMessage('SEO_OPT_TAB_SEARCHERS_TITLE')];
+$aTabs[] = ["DIV" => "edit2", "TAB" => GetMessage("MAIN_TAB_RIGHTS"), "ICON" => "seo_settings", "TITLE" => GetMessage("MAIN_TAB_TITLE_RIGHTS")];
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	if ($RestoreDefaults <> '')
 	{
@@ -222,7 +219,7 @@ $tabControl->BeginNextTab();
 
 	$tabControl->Buttons();
 ?>
-<script language="JavaScript">
+<script>
 function confirmRestoreDefaults()
 {
 	return confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>');

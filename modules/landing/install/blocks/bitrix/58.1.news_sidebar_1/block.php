@@ -10,7 +10,7 @@
 						Best dessert recipes for breakfast which will..
 					</h6>
 					<div class="landing-block-node-subtitle g-font-size-12">
-						<p>July 20, 2023</p>
+						<p>July 20, <?= date("Y") ?></p>
 					</div>
 				</div>
 			</article>
@@ -24,7 +24,7 @@
 						Stylish things to do, see and purchase..
 					</h6>
 					<div class="landing-block-node-subtitle g-font-size-12">
-						<p>July 16, 2023</p>
+						<p>July 16, <?= date("Y") ?></p>
 					</div>
 				</div>
 			</article>
@@ -38,7 +38,7 @@
 						Government plans to test new primary school..
 					</h6>
 					<div class="landing-block-node-subtitle g-font-size-12">
-						<p>July 07, 2023</p>
+						<p>July 07, <?= date("Y") ?></p>
 					</div>
 				</div>
 			</article>
@@ -52,7 +52,7 @@
 						Top 10 Luxury Hotels - 5 Star Best Luxury Hotels
 					</h6>
 					<div class="landing-block-node-subtitle g-font-size-12">
-						<p>July 01, 2023</p>
+						<p>July 01, <?= date("Y") ?></p>
 					</div>
 				</div>
 			</article>

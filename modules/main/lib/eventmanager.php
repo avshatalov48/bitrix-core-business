@@ -4,12 +4,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
-
-use Bitrix\Main\Type\Collection;
 
 class EventManager
 {
@@ -138,8 +136,8 @@ class EventManager
 	{
 		$toMethodArg = (!is_array($toMethodArg) || empty($toMethodArg) ? '' : serialize($toMethodArg));
 
-		$con = Application::getConnection();
-		$sqlHelper = $con->getSqlHelper();
+		$connection = Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
 
 		$strSql =
 			"DELETE FROM b_module_to_module " .
@@ -151,9 +149,12 @@ class EventManager
 			(($toPath != '' && $toPath !== 1/*controller disconnect correction*/) ? " AND TO_PATH='" . $sqlHelper->forSql($toPath) . "'" : " AND (TO_PATH='' OR TO_PATH IS NULL) ") .
 			(($toMethodArg != '') ? " AND TO_METHOD_ARG='" . $sqlHelper->forSql($toMethodArg) . "'" : " AND (TO_METHOD_ARG='' OR TO_METHOD_ARG IS NULL) ");
 
-		$con->queryExecute($strSql);
+		$connection->queryExecute($strSql);
 
-		$this->clearLoadedHandlers();
+		if ($connection->getAffectedRowsCount() > 0)
+		{
+			$this->clearLoadedHandlers();
+		}
 	}
 
 	public function registerEventHandler($fromModuleId, $eventType, $toModuleId, $toClass = '', $toMethod = '', $sort = 100, $toPath = '', $toMethodArg = [])
@@ -188,9 +189,13 @@ class EventManager
 		$fields = '(SORT, FROM_MODULE_ID, MESSAGE_ID, TO_MODULE_ID, TO_CLASS, TO_METHOD, TO_PATH, TO_METHOD_ARG, VERSION, UNIQUE_ID)';
 		$values = "(" . $sort . ", '" . $fromModuleId . "', '" . $eventType . "', '" . $toModuleId . "', " . "   '" . $toClass . "', '" . $toMethod . "', '" . $toPath . "', '" . $toMethodArg . "', " . $version . ", '" . $uniqueID . "')";
 		$sql = $sqlHelper->getInsertIgnore('b_module_to_module', $fields, 'VALUES ' . $values);
+
 		$connection->queryExecute($sql);
 
-		$this->clearLoadedHandlers();
+		if ($connection->getAffectedRowsCount() > 0)
+		{
+			$this->clearLoadedHandlers();
+		}
 	}
 
 	protected function formatEventName($arEvent)
@@ -293,12 +298,15 @@ class EventManager
 			{
 				foreach (array_keys($handlers[$moduleId]) as $event)
 				{
-					Collection::sortByColumn(
+					uasort(
 						$this->handlers[$moduleId][$event],
-						['SORT' => SORT_ASC],
-						'',
-						null,
-						true
+						function ($a, $b) {
+							if ($a['SORT'] == $b['SORT'])
+							{
+								return 0;
+							}
+							return ($a['SORT'] < $b['SORT'] ? -1 : 1);
+						}
 					);
 				}
 			}

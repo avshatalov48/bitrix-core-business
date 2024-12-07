@@ -1,4 +1,5 @@
-<?
+<?php
+
 /**
  * Class CCatalogMeasureAdminResult
  */
@@ -20,6 +21,7 @@ class CCatalogMeasureAdminResult extends CAdminResult
 		return $this->measureResult->Fetch();
 	}
 }
+
 class CCatalogMeasureAdminUiResult extends CAdminUiResult
 {
 	protected $measureResult;

@@ -436,9 +436,11 @@ this.BX = this.BX || {};
 	}
 
 	let _$4 = t => t,
-	  _t$4;
+	  _t$4,
+	  _t2$4;
 	var _params$4 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
 	var _layout$4 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("layout");
+	var _empty = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("empty");
 	var _actionsMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("actionsMenu");
 	var _showActionsMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showActionsMenu");
 	var _getActionsMenu = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getActionsMenu");
@@ -474,14 +476,22 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    Object.defineProperty(this, _empty, {
+	      writable: true,
+	      value: void 0
+	    });
 	    Object.defineProperty(this, _actionsMenu, {
 	      writable: true,
 	      value: void 0
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4] = {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4] = params;
+	    babelHelpers.classPrivateFieldLooseBase(this, _empty)[_empty] = babelHelpers.classPrivateFieldLooseBase(this, _getActionsMenu)[_getActionsMenu]().getMenuItems().length === 0;
 	  }
 	  render() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _empty)[_empty]) {
+	      return main_core.Tag.render(_t$4 || (_t$4 = _$4`<div></div>`));
+	    }
 	    babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].button = new ui_buttons.Button({
 	      text: main_core.Loc.getMessage('SN_GROUP_SETTINGS_ACTIONS'),
 	      color: ui_buttons.ButtonColor.SUCCESS,
@@ -506,30 +516,34 @@ this.BX = this.BX || {};
 	    bindElement: babelHelpers.classPrivateFieldLooseBase(this, _layout$4)[_layout$4].button,
 	    closeByEsc: true
 	  });
-	  menu.addMenuItem({
-	    text: babelHelpers.classPrivateFieldLooseBase(this, _getPinText)[_getPinText](),
-	    dataset: {
-	      id: 'sn-group-settings__actions-pin'
-	    },
-	    onclick: (event, item) => {
-	      babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin = !babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin;
-	      item.setText(babelHelpers.classPrivateFieldLooseBase(this, _getPinText)[_getPinText]());
-	      babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].pinChanged(babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin);
-	      menu.close();
-	    }
-	  });
-	  menu.addMenuItem({
-	    text: babelHelpers.classPrivateFieldLooseBase(this, _getFollowText)[_getFollowText](),
-	    dataset: {
-	      id: 'sn-group-settings__actions-follow'
-	    },
-	    onclick: (event, item) => {
-	      babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed = !babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed;
-	      item.setText(babelHelpers.classPrivateFieldLooseBase(this, _getFollowText)[_getFollowText]());
-	      babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].followChanged(babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed);
-	      menu.close();
-	    }
-	  });
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].actions.canPin) {
+	    menu.addMenuItem({
+	      text: babelHelpers.classPrivateFieldLooseBase(this, _getPinText)[_getPinText](),
+	      dataset: {
+	        id: 'sn-group-settings__actions-pin'
+	      },
+	      onclick: (event, item) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin = !babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin;
+	        item.setText(babelHelpers.classPrivateFieldLooseBase(this, _getPinText)[_getPinText]());
+	        babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].pinChanged(babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isPin);
+	        menu.close();
+	      }
+	    });
+	  }
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].actions.canFollow) {
+	    menu.addMenuItem({
+	      text: babelHelpers.classPrivateFieldLooseBase(this, _getFollowText)[_getFollowText](),
+	      dataset: {
+	        id: 'sn-group-settings__actions-follow'
+	      },
+	      onclick: (event, item) => {
+	        babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed = !babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed;
+	        item.setText(babelHelpers.classPrivateFieldLooseBase(this, _getFollowText)[_getFollowText]());
+	        babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].followChanged(babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].isSubscribed);
+	        menu.close();
+	      }
+	    });
+	  }
 	  if (babelHelpers.classPrivateFieldLooseBase(this, _params$4)[_params$4].actions.canLeave) {
 	    menu.addMenuItem({
 	      text: main_core.Loc.getMessage('SN_GROUP_SETTINGS_LEAVE_SPACE'),
@@ -559,7 +573,7 @@ this.BX = this.BX || {};
 	function _showDangerPopup2(action, message, okCaption) {
 	  const popup = new main_popup.Popup({
 	    bindElement: null,
-	    content: main_core.Tag.render(_t$4 || (_t$4 = _$4`
+	    content: main_core.Tag.render(_t2$4 || (_t2$4 = _$4`
 				<div class="socialnetwork-danger-popup">
 					${0}
 				</div>
@@ -600,7 +614,7 @@ this.BX = this.BX || {};
 
 	let _$5 = t => t,
 	  _t$5,
-	  _t2$4,
+	  _t2$5,
 	  _t3$2,
 	  _t4$2,
 	  _t5,
@@ -715,7 +729,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _renderOwner2(owner) {
-	  return main_core.Tag.render(_t2$4 || (_t2$4 = _$5`
+	  return main_core.Tag.render(_t2$5 || (_t2$5 = _$5`
 			<div class="sn-group-settings__owner">
 				${0}
 				<div class="sn-group-settings__owner-info">
@@ -1017,7 +1031,7 @@ this.BX = this.BX || {};
 
 	let _$7 = t => t,
 	  _t$7,
-	  _t2$5;
+	  _t2$6;
 	var _name = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("name");
 	var _icon = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("icon");
 	class Feature {
@@ -1046,7 +1060,7 @@ this.BX = this.BX || {};
 	      node,
 	      headerElement,
 	      toolsMore
-	    } = main_core.Tag.render(_t2$5 || (_t2$5 = _$7`
+	    } = main_core.Tag.render(_t2$6 || (_t2$6 = _$7`
 			<div ref="node" class="ui-slider-section sn-side-panel__space-settings_section --active">
 				<div ref="headerElement" class="sn-side-panel__space-settings_section-title">
 					<div class="ui-icon-set --${0}"></div>
@@ -1072,7 +1086,7 @@ this.BX = this.BX || {};
 
 	let _$8 = t => t,
 	  _t$8,
-	  _t2$6,
+	  _t2$7,
 	  _t3$3;
 	var _groupId$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("groupId");
 	var _features = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("features");
@@ -1157,7 +1171,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _switcherItems2(features) {
-	  return main_core.Tag.render(_t2$6 || (_t2$6 = _$8`
+	  return main_core.Tag.render(_t2$7 || (_t2$7 = _$8`
 			<div class="sn-side-panel__space-settings_section-content-wrapper-block-content">
 				${0}
 			</div>
@@ -1181,7 +1195,7 @@ this.BX = this.BX || {};
 						${0}
 					</div>
 					<div class="ui-ctl ui-ctl-textbox ui-ctl-inline sn-side-panel__space-settings_section-item-input-block">
-						<input ref="inputFeature"  name="tasks_name" type="text 5" class="ui-ctl-element" data-role="feature-input-text" value="${0}">
+						<input ref="inputFeature"  name="tasks_name" type="text" class="ui-ctl-element" data-role="feature-input-text" value="${0}">
 					</div>
 				</div>
 			<div ref="editButton" class="ui-icon-set --pencil-40 sn-side-panel__space-settings_edit-btn" style="--ui-icon-set__icon-size: 19px;"></div>
@@ -1200,7 +1214,9 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  });
-	  main_core.Event.bind(switcherToggle, 'click', () => switcher.check(!feature.active));
+	  main_core.Event.bind(switcherToggle, 'click', () => {
+	    switcher.check(!feature.active);
+	  });
 	  main_core.Event.bind(editButton, 'click', () => {
 	    main_core.Dom.removeClass(node, '--standard');
 	    main_core.Dom.addClass(node, '--custom');
@@ -1217,7 +1233,7 @@ this.BX = this.BX || {};
 	  return node;
 	}
 	function _save2(featureId) {
-	  socialnetwork_controller.Controller.changeFeatures(babelHelpers.classPrivateFieldLooseBase(this, _groupId$1)[_groupId$1], [babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId)]);
+	  socialnetwork_controller.Controller.changeFeature(babelHelpers.classPrivateFieldLooseBase(this, _groupId$1)[_groupId$1], babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId));
 	}
 	function _toggleActive2(featureId) {
 	  const feature = babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId);
@@ -1230,7 +1246,7 @@ this.BX = this.BX || {};
 	  } else {
 	    babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId).customName = null;
 	  }
-	  socialnetwork_controller.Controller.changeFeatures(babelHelpers.classPrivateFieldLooseBase(this, _groupId$1)[_groupId$1], [babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId)]);
+	  socialnetwork_controller.Controller.changeFeature(babelHelpers.classPrivateFieldLooseBase(this, _groupId$1)[_groupId$1], babelHelpers.classPrivateFieldLooseBase(this, _features)[_features].get(featureId));
 	}
 
 	let _$9 = t => t,
@@ -1360,7 +1376,7 @@ this.BX = this.BX || {};
 
 	let _$a = t => t,
 	  _t$a,
-	  _t2$7;
+	  _t2$8;
 	var _params$7 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("params");
 	var _tools = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tools");
 	var _tags = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tags");
@@ -1440,7 +1456,7 @@ this.BX = this.BX || {};
 	function _renderOtherBlock2() {
 	  const {
 	    node
-	  } = main_core.Tag.render(_t2$7 || (_t2$7 = _$a`
+	  } = main_core.Tag.render(_t2$8 || (_t2$8 = _$a`
 			<div ref="node" class="ui-slider-section sn-side-panel__space-settings_section --disabled">
 				<div class="sn-side-panel__space-settings_section-title">
 					<div class="ui-icon-set --more"></div>
@@ -1470,7 +1486,7 @@ this.BX = this.BX || {};
 
 	let _$b = t => t,
 	  _t$b,
-	  _t2$8,
+	  _t2$9,
 	  _t3$4,
 	  _t4$3,
 	  _t5$1,
@@ -1718,7 +1734,7 @@ this.BX = this.BX || {};
 	  return babelHelpers.classPrivateFieldLooseBase(this, _layout$8)[_layout$8].actionsButton.render();
 	}
 	function _renderSpaceCard2() {
-	  return main_core.Tag.render(_t2$8 || (_t2$8 = _$b`
+	  return main_core.Tag.render(_t2$9 || (_t2$9 = _$b`
 			<div class="sn-group-settings__card">
 				${0}
 				${0}
@@ -1899,5 +1915,5 @@ this.BX = this.BX || {};
 
 	exports.GroupSettings = GroupSettings;
 
-}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX,BX.Socialnetwork,BX.UI.AvatarEditor,BX.Socialnetwork,BX.Main,BX.UI,BX.UI,BX.UI,BX,BX.Event,BX.UI.EntitySelector,BX.Socialnetwork,BX.UI,BX,BX.UI.Dialogs));
+}((this.BX.Socialnetwork = this.BX.Socialnetwork || {}),BX,BX.Socialnetwork,BX.UI.AvatarEditor,BX.Socialnetwork,BX.Main,BX.UI,BX.UI,BX.UI,BX,BX.Event,BX.UI.EntitySelector,BX.Socialnetwork,BX.UI,BX.UI.Sidepanel.Content,BX.UI.Dialogs));
 //# sourceMappingURL=group-settings.bundle.js.map

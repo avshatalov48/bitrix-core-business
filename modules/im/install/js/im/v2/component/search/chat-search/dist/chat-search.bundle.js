@@ -217,7 +217,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
 	  }
 	  getMenuItems() {
-	    return [this.getOpenItem(), this.getCallItem(), this.getOpenProfileItem(), this.getChatsWithUserItem()];
+	    return [this.getOpenItem(), this.getOpenProfileItem(), this.getChatsWithUserItem()];
 	  }
 	  getOpenItem() {
 	    return {
@@ -228,27 +228,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }
 	    };
 	  }
-	  getCallItem() {
-	    const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
-	    const chatIsAllowedToCall = this.permissionManager.canPerformAction(im_v2_const.ChatActionType.call, this.context.dialogId);
-	    if (!chatCanBeCalled || !chatIsAllowedToCall) {
-	      return null;
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_CALL_2'),
-	      onclick: () => {
-	        this.callManager.startCall(this.context.dialogId);
-	        this.menuInstance.close();
-	      }
-	    };
-	  }
 	  getOpenProfileItem() {
 	    if (!this.isUser() || this.isBot()) {
 	      return null;
 	    }
 	    const profileUri = im_v2_lib_utils.Utils.user.getProfileLink(this.context.dialogId);
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE'),
+	      text: main_core.Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE_V2'),
 	      href: profileUri,
 	      onclick: () => {
 	        this.menuInstance.close();
@@ -287,11 +273,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 
+	const ItemTextByChatType = {
+	  [im_v2_const.ChatType.openChannel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
+	  [im_v2_const.ChatType.generalChannel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
+	  [im_v2_const.ChatType.channel]: main_core.Loc.getMessage('IM_SEARCH_ITEM_PRIVATE_CHANNEL_TYPE_GROUP'),
+	  default: main_core.Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2')
+	};
+
 	// @vue/component
 	const SearchItem = {
 	  name: 'SearchItem',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
+	    ChatAvatar: im_v2_component_elements.ChatAvatar,
 	    ChatTitleWithHighlighting: im_v2_component_elements.ChatTitleWithHighlighting
 	  },
 	  props: {
@@ -344,7 +337,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      return im_v2_lib_textHighlighter.highlightText(main_core.Text.encode(this.position), this.query);
 	    },
 	    chatItemText() {
-	      return this.loc('IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2');
+	      var _ItemTextByChatType$t;
+	      return (_ItemTextByChatType$t = ItemTextByChatType[this.dialog.type]) != null ? _ItemTextByChatType$t : ItemTextByChatType.default;
 	    },
 	    itemText() {
 	      return this.isUser ? this.userItemText : this.chatItemText;
@@ -391,7 +385,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			:class="{'--selected': selected}"
 		>
 			<div class="bx-im-search-item__avatar-container">
-				<Avatar :dialogId="dialogId" :size="AvatarSize.XL" />
+				<ChatAvatar 
+					:avatarDialogId="dialogId" 
+					:contextDialogId="dialogId" 
+					:size="AvatarSize.XL" 
+				/>
 			</div>
 			<div class="bx-im-search-item__content-container">
 				<div class="bx-im-search-item__content_header">
@@ -451,7 +449,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const CarouselUser = {
 	  name: 'CarouselUser',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  props: {
 	    userId: {
@@ -466,11 +464,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  emits: ['clickItem', 'openContextMenu'],
 	  computed: {
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
-	    dialogId() {
+	    userDialogId() {
 	      return this.userId.toString();
 	    },
 	    user() {
-	      return this.$store.getters['users/get'](this.dialogId, true);
+	      return this.$store.getters['users/get'](this.userDialogId, true);
 	    },
 	    name() {
 	      var _this$user$firstName;
@@ -489,7 +487,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    onClick(event) {
 	      this.$emit('clickItem', {
-	        dialogId: this.dialogId,
+	        dialogId: this.userDialogId,
 	        nativeEvent: event
 	      });
 	    },
@@ -498,7 +496,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      this.$emit('openContextMenu', {
-	        dialogId: this.dialogId,
+	        dialogId: this.userDialogId,
 	        nativeEvent: event
 	      });
 	    }
@@ -511,7 +509,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 			@click.right.prevent="onRightClick"
 		>
 			<div v-if="selected" class="bx-im-carousel-user__selected-mark"></div>
-			<Avatar :dialogId="dialogId" :size="AvatarSize.XL" />
+			<ChatAvatar 
+				:avatarDialogId="userDialogId" 
+				:contextDialogId="userDialogId" 
+				:size="AvatarSize.XL" 
+			/>
 			<div class="bx-im-carousel-user__title" :title="name">
 				{{ name }}
 			</div>
@@ -949,7 +951,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      this.$emit('clickItem', event);
 	    },
 	    onKeyPressed(event) {
-	      if (this.selectMode || !this.searchMode) {
+	      if (!this.searchMode) {
 	        return;
 	      }
 	      const {

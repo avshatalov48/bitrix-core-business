@@ -106,7 +106,7 @@ class ScriptTable extends Main\Entity\DataManager
 		return ScriptQueueTable::getCount(
 			[
 				'=SCRIPT_ID' => $scriptId,
-				'=STATUS' => [Status::QUEUED, Status::EXECUTING]
+				'@STATUS' => [Status::QUEUED, Status::EXECUTING]
 			]
 		);
 	}

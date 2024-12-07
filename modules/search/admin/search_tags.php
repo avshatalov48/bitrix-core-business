@@ -5,7 +5,6 @@ header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 if(CModule::IncludeModule("search"))
 {
-	CUtil::decodeURIComponent($_REQUEST);
 	if(!empty($_REQUEST["search"]))
 	{
 		$arResult = array();

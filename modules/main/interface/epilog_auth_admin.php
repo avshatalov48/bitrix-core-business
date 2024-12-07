@@ -1,4 +1,7 @@
 <?
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 if (isset($_REQUEST['bxsender']))
@@ -11,7 +14,7 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/interface/lang_files.php
 
 	<div style="display: none;" id="window_wrapper"></div>
 
-<script type="text/javascript">
+<script>
 BX.ready(BX.defer(function(){
 	BX.addClass(document.body, 'login-animate');
 	BX.addClass(document.body, 'login-animate-popup');
@@ -33,7 +36,7 @@ foreach ($arPreload['JS'] as $key=>$file)
 	}, 2000);
 }));
 
-new BX.COpener({DIV: 'login_lang_button', ACTIVE_CLASS: 'login-language-btn-active', MENU: <?=CUtil::PhpToJsObject($arLangButton['MENU'])?>});
+new BX.COpener({DIV: 'login_lang_button', ACTIVE_CLASS: 'login-language-btn-active', MENU: <?= Json::encode($arLangButton['MENU']) ?>});
 </script>
 </body>
 </html>

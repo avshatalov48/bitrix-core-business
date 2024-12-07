@@ -162,6 +162,8 @@ export class RecentMenu extends BaseMenu
 
 	getCallItem(): ?Object
 	{
+		return null;
+
 		const dialog = this.store.getters['dialogues/get'](this.context.dialogId);
 		if (!dialog)
 		{

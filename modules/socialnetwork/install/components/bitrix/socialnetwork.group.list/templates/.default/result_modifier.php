@@ -10,6 +10,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Socialnetwork\Component\WorkgroupList;
 use Bitrix\Socialnetwork\Helper;
+use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ProjectLimit;
 use Bitrix\Tasks\Util\Restriction\Bitrix24Restriction\Limit\ScrumLimit;
 
 /** @var CBitrixComponentTemplate $this */
@@ -36,22 +37,29 @@ if (
 		$arParams['PATH_TO_GROUP_CREATE']
 	);
 
+	$isProjectLimitExceeded = !Helper\Feature::isFeatureEnabled(Helper\Feature::PROJECTS_GROUPS);
+	if (Helper\Feature::canTurnOnTrial(Helper\Feature::PROJECTS_GROUPS))
+	{
+		$isProjectLimitExceeded = false;
+	}
+	if ($isProjectLimitExceeded && Loader::includeModule('tasks'))
+	{
+		$createProjectUrl = 'javascript:' . ProjectLimit::getLimitLockClick(ProjectLimit::getFeatureId());
+	}
+
 	if (
 		$arParams['MODE'] === WorkgroupList::MODE_TASKS_SCRUM
 		&& Loader::includeModule('tasks')
 	)
 	{
-		$isScrumLimited = ScrumLimit::isLimitExceeded();
+		$isScrumLimited = ScrumLimit::isLimitExceeded() || !ScrumLimit::isFeatureEnabled();
+		if (ScrumLimit::canTurnOnTrial())
+		{
+			$isScrumLimited = false;
+		}
 		if ($isScrumLimited)
 		{
-			$sidePanelId = ScrumLimit::getSidePanelId();
-			$createProjectUrl = "javascript:BX.UI.InfoHelper.show('{$sidePanelId}', {
-				isLimit: true, 
-				limitAnalyticsLabels: {
-					module: 'tasks', 
-					source: 'scrumList',
-				},
-			});";
+			$createProjectUrl = 'javascript:' . ScrumLimit::getLimitLockClick(ScrumLimit::getFeatureId());
 		}
 		else
 		{

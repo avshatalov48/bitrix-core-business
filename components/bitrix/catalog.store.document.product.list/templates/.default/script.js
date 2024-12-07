@@ -1,7 +1,8 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Catalog = this.BX.Catalog || {};
 this.BX.Catalog.Store = this.BX.Catalog.Store || {};
-(function (exports,main_popup,main_core_events,currency_currencyCore,catalog_productSelector,catalog_storeSelector,catalog_documentCard,catalog_productModel,main_core,spotlight,ui_tour,ui_notification) {
+(function (exports,catalog_toolAvailabilityManager,catalog_productCalculator,main_popup,main_core_events,currency_currencyCore,catalog_productSelector,catalog_storeSelector,catalog_documentCard,catalog_productModel,main_core,spotlight,ui_tour,ui_notification) {
 	'use strict';
 
 	catalog_documentCard = catalog_documentCard && catalog_documentCard.hasOwnProperty('default') ? catalog_documentCard['default'] : catalog_documentCard;
@@ -180,6 +181,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	var _onStoreFieldChange = /*#__PURE__*/new WeakSet();
 	var _getRealValues = /*#__PURE__*/new WeakSet();
 	var _getCalculator = /*#__PURE__*/new WeakSet();
+	var _getProductCalculator = /*#__PURE__*/new WeakSet();
+	var _getCalculateProductFields = /*#__PURE__*/new WeakSet();
 	var _handleProductErrorsChange = /*#__PURE__*/new WeakSet();
 	var _handleBeforeCreateProduct = /*#__PURE__*/new WeakSet();
 	var _handleSpotlightClose = /*#__PURE__*/new WeakSet();
@@ -213,6 +216,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    _classPrivateMethodInitSpec(this, _handleSpotlightClose);
 	    _classPrivateMethodInitSpec(this, _handleBeforeCreateProduct);
 	    _classPrivateMethodInitSpec(this, _handleProductErrorsChange);
+	    _classPrivateMethodInitSpec(this, _getCalculateProductFields);
+	    _classPrivateMethodInitSpec(this, _getProductCalculator);
 	    _classPrivateMethodInitSpec(this, _getCalculator);
 	    _classPrivateMethodInitSpec(this, _getRealValues);
 	    _classPrivateMethodInitSpec(this, _onStoreFieldChange);
@@ -482,6 +487,61 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      return this.getField('AMOUNT', 1);
 	    }
 	  }, {
+	    key: "isPriceNetto",
+	    value: function isPriceNetto() {
+	      return this.getEditor().isTaxAllowed() && !this.isTaxIncluded();
+	    }
+	  }, {
+	    key: "getPrice",
+	    value: function getPrice() {
+	      return this.getField('PRICE', 0);
+	    }
+	  }, {
+	    key: "getPriceExclusive",
+	    value: function getPriceExclusive() {
+	      return this.getField('PRICE_EXCLUSIVE', 0);
+	    }
+	  }, {
+	    key: "getPriceNetto",
+	    value: function getPriceNetto() {
+	      return this.getField('PRICE_NETTO', 0);
+	    }
+	  }, {
+	    key: "getPriceBrutto",
+	    value: function getPriceBrutto() {
+	      return this.getField('PRICE_BRUTTO', 0);
+	    }
+	  }, {
+	    key: "getQuantity",
+	    value: function getQuantity() {
+	      return this.getField('QUANTITY', 0);
+	    }
+	  }, {
+	    key: "getTaxIncluded",
+	    value: function getTaxIncluded() {
+	      return this.getField('TAX_INCLUDED', 'N');
+	    }
+	  }, {
+	    key: "isTaxIncluded",
+	    value: function isTaxIncluded() {
+	      return this.getTaxIncluded() === 'Y';
+	    }
+	  }, {
+	    key: "getTaxRate",
+	    value: function getTaxRate() {
+	      return this.getField('TAX_RATE', 0);
+	    }
+	  }, {
+	    key: "getVatRate",
+	    value: function getVatRate() {
+	      return this.getField('TAX_RATE', 0) / 100;
+	    }
+	  }, {
+	    key: "getTaxSum",
+	    value: function getTaxSum() {
+	      return this.isTaxIncluded() ? this.getPrice() * this.getQuantity() * (1 - 1 / (1 + this.getVatRate())) : this.getPriceExclusive() * this.getQuantity() * this.getVatRate();
+	    }
+	  }, {
 	    key: "updateFieldByEvent",
 	    value: function updateFieldByEvent(fieldCode, event) {
 	      var target = event.target;
@@ -547,6 +607,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          break;
 	        case 'COMMENT':
 	          this.changeComment(value, mode);
+	          break;
+	        case 'TAX_RATE_FORMATTED':
+	        case 'TAX_INCLUDED_FORMATTED':
+	          this.updateUiField(code, value);
 	          break;
 	      }
 	    }
@@ -850,6 +914,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      this.setField('BASE_PRICE', value);
 	      this.addActionProductChange();
 	      this.addActionUpdateTotal();
+	      var calculatedFields = _classPrivateMethodGet(this, _getProductCalculator, _getProductCalculator2).call(this).calculateBasePrice(value);
+	      this.setFields(calculatedFields);
 	      this.updateRowTotalPrice();
 	    }
 	  }, {
@@ -964,6 +1030,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        this.setField('AMOUNT', value);
 	        this.addActionProductChange();
 	        this.addActionUpdateTotal();
+	        var calculatedFields = _classPrivateMethodGet(this, _getProductCalculator, _getProductCalculator2).call(this).calculateQuantity(value);
+	        this.setFields(calculatedFields);
 	        this.updateRowTotalPrice();
 	        if (this.getEditor().getSettingValue('isCalculableStorePurchasingPrice')) {
 	          this.debouncedPurchasingPriceCalculation();
@@ -1149,6 +1217,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	          value = currency_currencyCore.CurrencyCore.currencyFormat(value, this.getEditor().getCurrencyId(), true);
 	          this.updateUiHtmlField(uiName, value);
 	          break;
+	        case 'tax':
+	          this.updateUiHtmlField(uiName, value);
+	          break;
 	      }
 	    }
 	  }, {
@@ -1162,6 +1233,12 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        case 'PURCHASING_PRICE':
 	        case 'TOTAL_PRICE':
 	          result = field;
+	          break;
+	        case 'TAX_RATE_FORMATTED':
+	          result = 'TAX_RATE';
+	          break;
+	        case 'TAX_INCLUDED_FORMATTED':
+	          result = 'TAX_INCLUDED';
 	          break;
 	      }
 	      return result;
@@ -1180,6 +1257,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      }
 	      if (field === 'AMOUNT') {
 	        return 'input';
+	      }
+	      var taxFields = ['TAX_RATE_FORMATTED', 'TAX_INCLUDED_FORMATTED'];
+	      if (taxFields.includes(field)) {
+	        return 'tax';
 	      }
 	      return null;
 	    } // proxy
@@ -1425,6 +1506,21 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    extra: extra,
 	    extraType: main_core.Text.toNumber(this.getModel().getField('BASE_PRICE_EXTRA_RATE'))
 	  });
+	}
+	function _getProductCalculator2() {
+	  return this.getModel().getCalculator().setFields(_classPrivateMethodGet(this, _getCalculateProductFields, _getCalculateProductFields2).call(this)).setSettings(this.getEditor().getSettings());
+	}
+	function _getCalculateProductFields2() {
+	  return {
+	    'PRICE': this.getPrice(),
+	    'BASE_PRICE': this.getBasePrice(),
+	    'PRICE_EXCLUSIVE': this.getPriceExclusive(),
+	    'PRICE_NETTO': this.getPriceNetto(),
+	    'PRICE_BRUTTO': this.getPriceBrutto(),
+	    'QUANTITY': this.getQuantity(),
+	    'TAX_INCLUDED': this.getTaxIncluded(),
+	    'TAX_RATE': this.getTaxRate()
+	  };
 	}
 	function _handleProductErrorsChange2() {
 	  var errors = this.getModel().getErrorCollection().getErrors();
@@ -2082,6 +2178,9 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      var container = this.getContainer();
 	      if (main_core.Type.isElementNode(container)) {
 	        container.querySelectorAll('[data-role="product-list-add-button"]').forEach(function (addButton) {
+	          if (_this.getSettingValue('isOnecInventoryManagementRestricted') === true) {
+	            main_core.Dom.addClass(addButton, 'ui-btn-icon-lock');
+	          }
 	          main_core.Event.bind(addButton, 'click', _this.productRowAddHandler);
 	        });
 	        if (this.getSettingValue('enabledCreateProductButton', true)) {
@@ -2409,6 +2508,8 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    value: function addFirstRowIfEmpty() {
 	      var _this6 = this;
 	      if (this.getGrid().getRows().getCountDisplayed() === 0) {
+	        this.setSettingValue('taxIncluded', null);
+	        this.setSettingValue('taxIncludedFormatted', null);
 	        requestAnimationFrame(function () {
 	          return _this6.addProductRow();
 	        });
@@ -3104,6 +3205,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }, {
 	    key: "handleProductRowAdd",
 	    value: function handleProductRowAdd() {
+	      if (this.getSettingValue('isOnecInventoryManagementRestricted') === true) {
+	        catalog_toolAvailabilityManager.OneCPlanRestrictionSlider.show();
+	        return;
+	      }
 	      var id = this.addProductRow();
 	      this.focusProductSelector(id);
 	    }
@@ -3285,6 +3390,22 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      if (productRow && data.fields) {
 	        var _productRow$getSelect, _productRow$getBarcod;
 	        delete data.fields.ID;
+
+	        // taxes
+	        var taxIncluded = this.getSettingValue('taxIncluded', null);
+	        var taxIncludedFormatted = this.getSettingValue('taxIncludedFormatted', null);
+	        if (taxIncluded && taxIncludedFormatted) {
+	          if (data.fields['TAX_INCLUDED'] === 'Y' && data.fields['TAX_INCLUDED'] !== taxIncluded) {
+	            data.fields['BASE_PRICE'] = data.fields['BASE_PRICE'] / (1 + data.fields['TAX_RATE'] / 100);
+	          }
+	          data.fields['TAX_INCLUDED'] = taxIncluded;
+	          data.fields['TAX_INCLUDED_FORMATTED'] = taxIncludedFormatted;
+	        } else {
+	          this.setSettingValue('taxIncluded', data.fields.TAX_INCLUDED);
+	          this.setSettingValue('taxIncludedFormatted', data.fields.TAX_INCLUDED_FORMATTED);
+	        }
+	        // end taxes
+
 	        productRow.setFields(data.fields);
 	        Object.keys(data.fields).forEach(function (key) {
 	          productRow.updateFieldValue(key, data.fields[key]);
@@ -3324,6 +3445,10 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	        product.changeBarcode('');
 	        (_product$getBarcodeSe7 = product.getBarcodeSelector()) === null || _product$getBarcodeSe7 === void 0 ? void 0 : _product$getBarcodeSe7.setConfig('ENABLE_SEARCH', true).layout();
 	        product.executeExternalActions();
+	      }
+	      if (this.getProductCount() === 1) {
+	        this.setSettingValue('taxIncluded', null);
+	        this.setSettingValue('taxIncludedFormatted', null);
 	      }
 	    }
 	  }, {
@@ -3450,12 +3575,18 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	    key: "updateTotalDataDelayed",
 	    value: function updateTotalDataDelayed() {
 	      var totalCost = 0;
-	      var field = this.getSettingValue('totalCalculationSumField', 'PURCHASING_PRICE');
+	      var totalTax = 0;
+	      var totalCostField = this.getSettingValue('totalCalculationSumField', 'PURCHASING_PRICE');
+	      var totalTaxField = this.getSettingValue('totalCalculationSumTaxField', 'TAX_SUM');
 	      this.products.forEach(function (item) {
-	        return totalCost += main_core.Text.toNumber(item.getField(field)) * main_core.Text.toNumber(item.getField('AMOUNT'));
+	        totalCost += main_core.Text.toNumber(item.getField(totalCostField)) * main_core.Text.toNumber(item.getField('AMOUNT'));
+	        totalTax += main_core.Text.toNumber(item.getField(totalTaxField));
 	      });
+	      var totalBeforeTax = totalCost - totalTax;
 	      this.setTotalData({
-	        totalCost: totalCost
+	        totalCost: totalCost,
+	        totalBeforeTax: totalBeforeTax,
+	        totalTax: totalTax
 	      });
 	    }
 	  }, {
@@ -3484,7 +3615,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	      var item = BX(this.getSettingValue('totalBlockContainerId', null));
 	      if (main_core.Type.isElementNode(item)) {
 	        var currencyId = this.getCurrencyId();
-	        var list = ['totalCost'];
+	        var list = ['totalCost', 'totalBeforeTax', 'totalTax'];
 	        for (var _i2 = 0, _list = list; _i2 < _list.length; _i2++) {
 	          var id = _list[_i2];
 	          var row = item.querySelector('[data-total="' + id + '"]');
@@ -3744,7 +3875,7 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	  }).length > 0;
 	}
 	function _getAjaxFields() {
-	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'COMMENT', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM', 'BASE_PRICE_ID', 'BASKET_ID', 'DOC_ID', 'ELEMENT_ID', 'IBLOCK_ID', 'MEASURE_CODE', 'MEASURE_NAME', 'NAME', 'OFFERS_IBLOCK_ID', 'PARENT_PRODUCT_ID', 'PRODUCT_ID', 'ROW_ID', 'STORE_FROM_AMOUNT', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_RESERVED', 'STORE_FROM_TITLE', 'STORE_TO_AMOUNT', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_RESERVED', 'STORE_TO_TITLE', 'TOTAL_PRICE', 'TYPE'];
+	  return ['ID', 'SKU_ID', 'AMOUNT', 'PURCHASING_PRICE', 'BASE_PRICE', 'BASE_PRICE_EXTRA', 'BASE_PRICE_EXTRA_RATE', 'COMMENT', 'DOC_BARCODE', 'BARCODE', 'STORE_TO', 'STORE_FROM', 'BASE_PRICE_ID', 'BASKET_ID', 'DOC_ID', 'ELEMENT_ID', 'IBLOCK_ID', 'MEASURE_CODE', 'MEASURE_NAME', 'NAME', 'OFFERS_IBLOCK_ID', 'PARENT_PRODUCT_ID', 'PRODUCT_ID', 'ROW_ID', 'STORE_FROM_AMOUNT', 'STORE_FROM_AVAILABLE_AMOUNT', 'STORE_FROM_RESERVED', 'STORE_FROM_TITLE', 'STORE_TO_AMOUNT', 'STORE_TO_AVAILABLE_AMOUNT', 'STORE_TO_RESERVED', 'STORE_TO_TITLE', 'TOTAL_PRICE', 'TYPE', 'PRICE', 'TAX_RATE', 'TAX_INCLUDED', 'TAX_SUM'];
 	}
 	function _processSetStoryAction2(actionId) {
 	  var _this$getGrid2,
@@ -3800,5 +3931,5 @@ this.BX.Catalog.Store = this.BX.Catalog.Store || {};
 	exports.Editor = Editor;
 	exports.PageEventsManager = PageEventsManager;
 
-}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX.Main,BX.Event,BX.Currency,BX.Catalog,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog,BX,BX,BX.UI.Tour,BX));
+}((this.BX.Catalog.Store.ProductList = this.BX.Catalog.Store.ProductList || {}),BX.Catalog,BX.Catalog,BX.Main,BX.Event,BX.Currency,BX.Catalog,BX.Catalog,BX.Catalog.DocumentCard,BX.Catalog,BX,BX,BX.UI.Tour,BX));
 //# sourceMappingURL=script.js.map

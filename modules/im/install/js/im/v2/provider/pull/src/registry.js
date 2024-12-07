@@ -1,5 +1,5 @@
-export { BasePullHandler } from './base';
-export { RecentPullHandler } from './recent';
+export { BasePullHandler } from './base/base';
+export { RecentPullHandler } from './recent/recent';
 export { NotificationPullHandler } from './notification';
 export { SidebarPullHandler } from './sidebar';
 export { NotifierPullHandler } from './notifier';

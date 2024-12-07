@@ -14,6 +14,11 @@ class CheckoutWebhookRegistrationAgent
 			return;
 		}
 
+		if (!Main\Loader::includeModule('socialservices'))
+		{
+			return;
+		}
+
 		if (self::isYandexOauth())
 		{
 			self::registerWebhook(Seo\Checkout\Service::TYPE_YANDEX);

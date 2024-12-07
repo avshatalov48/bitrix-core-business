@@ -494,6 +494,10 @@ if (typeof (CrmAdsRetargeting) === "undefined")
 							}, BX.delegate(function(data) {
 								_this.audienceId = data.id;
 								_this.loadSettingsAudiences(accountId);
+								if (_this.audienceId)
+								{
+									this.setSubmitAudienceData(_this.audienceId);
+								}
 							}, _this));
 						},
 					},

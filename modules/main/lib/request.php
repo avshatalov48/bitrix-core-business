@@ -59,7 +59,7 @@ abstract class Request extends Type\ParameterDictionary
 			{
 				$page = IO\Path::normalize($page);
 
-				if (mb_substr($page, 0, 1) !== "/" && !preg_match("#^[a-z]:[/\\\\]#i", $page))
+				if (!str_starts_with($page, "/") && !preg_match("#^[a-z]:[/\\\\]#i", $page))
 				{
 					$page = "/" . $page;
 				}

@@ -113,7 +113,7 @@ foreach($arFields as $k => $v)
 	$imgUrl .= $k."=".$v."&amp;";
 }
 ?>
-<script type="text/javascript">
+<script>
 	var gdSaleGraphTabControl_<?=$arGadgetParams["RND_STRING"]?> = false;
 	BX.ready(function(){
 		gdSaleGraphTabControl_<?=$arGadgetParams["RND_STRING"]?> = new gdTabControl('bx_gd_tabset_sale_graph_<?=$arGadgetParams["RND_STRING"]?>');

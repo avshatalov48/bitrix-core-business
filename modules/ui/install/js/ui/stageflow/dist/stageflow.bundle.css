@@ -128,3 +128,15 @@
 	margin: 0 0 0 5px;
 	cursor: pointer;
 }
+
+.ui-stageflow-stage.--disabled{
+	opacity: 0.6;
+	pointer-events: auto;
+}
+
+.ui-stageflow-stage.--disabled,
+.ui-stageflow-stage.--disabled .ui-stageflow-stage-selector-option,
+.ui-stageflow-stage.--disabled .ui-stageflow-final-fail-stage-list-section label,
+.ui-stageflow-stage.--disabled .ui-stageflow-stage-item-text{
+	cursor: not-allowed;
+}

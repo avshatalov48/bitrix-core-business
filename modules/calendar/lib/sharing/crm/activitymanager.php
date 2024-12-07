@@ -2,7 +2,9 @@
 
 namespace Bitrix\Calendar\Sharing\Crm;
 
+use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Sharing\Link\CrmDealLink;
+use Bitrix\Calendar\Sharing\Link\EventLink;
 use Bitrix\Calendar\Sharing\Link\Helper;
 use Bitrix\Crm\Integration\Calendar\ActivityHandler;
 use Bitrix\Main\Loader;
@@ -17,17 +19,33 @@ class ActivityManager
 	private int $eventId;
 	private ?CrmDealLink $link;
 	private ?string $guestName;
+	private ?EventLink $eventLink;
+	private ?Event $event;
 
 	/**
 	 * @param int $eventId
 	 * @param CrmDealLink|null $link
 	 * @param string|null $guestName
+	 * @param EventLink|null $eventLink
 	 */
-	public function __construct(int $eventId, ?CrmDealLink $link = null, ?string $guestName = null)
+	public function __construct(
+		int $eventId,
+		?CrmDealLink $link = null,
+		?string $guestName = null,
+		?EventLink $eventLink = null,
+	)
 	{
 		$this->eventId = $eventId;
 		$this->link = $link;
 		$this->guestName = $guestName;
+		$this->eventLink = $eventLink;
+	}
+
+	public function setEvent(Event $event): self
+	{
+		$this->event = $event;
+
+		return $this;
 	}
 
 	/**
@@ -129,6 +147,32 @@ class ActivityManager
 		return true;
 	}
 
+	public function updateEvent(): bool
+	{
+		if (!$this->isAvailable())
+		{
+			return false;
+		}
+
+		$activity = \CCrmActivity::GetByCalendarEventId($this->eventId, false);
+
+		if (!$activity)
+		{
+			return false;
+		}
+
+		$settings = [
+			'CALENDAR_EVENT_NAME' => $this->event->getName(),
+			'CALENDAR_EVENT_MEMBER_IDS' => $this->getEventMemberIds(),
+		];
+
+		(new ActivityHandler($activity, $activity['OWNER_TYPE_ID'], $activity['OWNER_ID']))
+			->updateSettings($settings)
+		;
+
+		return true;
+	}
+
 	/**
 	 * @return bool
 	 */
@@ -192,7 +236,33 @@ class ActivityManager
 		}
 
 		$result['LINK_ID'] = $this->link->getId();
+		$result['EVENT_LINK_HASH'] = $this->eventLink?->getHash();
+		$result['CALENDAR_EVENT_NAME'] = $this->event->getName();
+		$result['CALENDAR_EVENT_MEMBER_IDS'] = $this->getLinkMemberIds();
 
 		return $result;
+	}
+
+	/**
+	 * @return array<int>
+	 */
+	private function getLinkMemberIds(): array
+	{
+		return array_map(static fn($member) => $member->getId(), $this->link->getMembers());
+	}
+
+	/**
+	 * @return array<int>
+	 */
+	private function getEventMemberIds(): array
+	{
+		$parentId = $this->event->getParentId();
+		$memberIds = \CCalendarEvent::GetAttendeeIds([$parentId])[$parentId] ?? [];
+
+		$linkOwnerId = $this->link->getOwnerId();
+		$eventOwnerId = $this->event->getOwner()?->getId();
+		return array_filter($memberIds, static fn(int $memberId) =>
+			!in_array($memberId, [$linkOwnerId, $eventOwnerId], true)
+		);
 	}
 }

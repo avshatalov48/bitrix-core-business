@@ -18,6 +18,8 @@ return [
 		'ui.hint',
 		'ui.fonts.opensans',
 		'ui.design-tokens',
+		'ui.icon-set.main',
+		'ui.icon-set.actions',
 	],
 	'skip_core' => false,
 ];

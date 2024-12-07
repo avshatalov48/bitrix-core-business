@@ -2,7 +2,7 @@
 
 namespace Bitrix\Main\Filter;
 
-use \Bitrix\Main\UI\Filter\NumberType;
+use Bitrix\Main\UI\Filter\NumberType;
 
 class Range
 {

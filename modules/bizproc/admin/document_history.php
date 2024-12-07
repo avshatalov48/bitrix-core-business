@@ -44,7 +44,7 @@ if ($fatalErrorMessage <> '')
 {
 	$APPLICATION->SetTitle(GetMessage("BPADH_ERROR"));
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-	echo ShowError($fatalErrorMessage);
+	ShowError($fatalErrorMessage);
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 	die();
 }

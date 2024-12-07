@@ -127,7 +127,7 @@ abstract class BaseObject
 		{
 			if ($name[0] == '`')
 			{
-				return substr($name, 1, -1);
+				return mb_strtoupper(substr($name, 1, -1));
 			}
 			elseif ($name[0] == '"')
 			{

@@ -14,12 +14,24 @@ abstract class BaseService implements PushService
 	protected function getBatchWithModifier($appMessages = Array(), $modifier = ""): string
 	{
 		$batch = "";
+		$batchComponents = [];
+		$modifier = trim($modifier, ";");
 		if (!is_array($appMessages) || count($appMessages) <= 0)
 		{
 			return $batch;
 		}
 		foreach ($appMessages as $appID => $tokenMessages)
 		{
+			$appBatch = [
+				$modifier,
+				"tkey={$appID}"
+			];
+
+			if ($host = static::getHost())
+			{
+				$appBatch[] = "h={$host}";
+			}
+			$appMessagesBatches = [];
 			foreach ($tokenMessages as $token => $messages)
 			{
 				foreach ($messages as $messageArray)
@@ -32,39 +44,33 @@ abstract class BaseService implements PushService
 						continue;
 					}
 
+
 					$message = static::getMessageInstance($token);
 					$id = random_int(1, 10000);
 					$message->setCustomIdentifier($id);
 					$message->setFromArray($messageArray);
 					$message->setCustomProperty('target', md5($messageArray["USER_ID"] . \CMain::GetServerUniqID()));
-
-					if ($batch <> '')
-					{
-						$batch .= ";";
-					}
-
 					$messageBatch = $message->getBatch();
-					if($messageBatch && $messageBatch <> '')
+					if(!empty($messageBatch))
 					{
-						$batch .= $messageBatch;
+						$appMessagesBatches[] = $messageBatch;
 					}
 				}
 			}
-			$host = static::getHost();
-			$appModifier = ";tkey={$appID};";
-			if ($host != '')
+
+			if ($appMessagesBatches)
 			{
-				$appModifier .= "h={$host};";
+				array_push($appBatch, ... $appMessagesBatches);
+				array_push($batchComponents, ... $appBatch);
 			}
-			$batch = $appModifier . $batch;
 		}
 
-		if ($batch == '')
+		if (!empty($batchComponents))
 		{
-			return $batch;
+			$batch = ";".implode(";", $batchComponents);
 		}
 
-		return $modifier . $batch;
+		return $batch;
 	}
 
 	protected static function getGroupedByServiceMode($arMessages): array

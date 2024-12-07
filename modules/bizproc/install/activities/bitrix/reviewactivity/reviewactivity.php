@@ -5,8 +5,15 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\Activity\Mixins\ErrorHandling;
+
 class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity, IBPActivityExternalEventListener
 {
+	use ErrorHandling;
+
 	private $taskId = 0;
 	private $taskUsers = array();
 	private $subscriptionId = 0;
@@ -175,7 +182,10 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 		if (!$this->IsPropertyExists("SetStatusMessage") || $this->SetStatusMessage == "Y")
 		{
 			$totalCount = $this->TotalCount;
-			$message = ($this->IsPropertyExists("StatusMessage") && $this->StatusMessage <> '') ? $this->StatusMessage : GetMessage("BPAR_ACT_INFO");
+			$message = (!empty($this->StatusMessage) && is_string($this->StatusMessage))
+				? $this->StatusMessage
+				: GetMessage("BPAR_ACT_INFO")
+			;
 			$this->SetStatusTitle(str_replace(
 				array("#PERC#", "#PERCENT#", "#REV#", "#REVIEWED#", "#TOT#", "#TOTAL#", "#REVIEWERS#"),
 				array(0, 0, 0, 0, $totalCount, $totalCount, ""),
@@ -435,6 +445,7 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 
 	public static function PostTaskForm($arTask, $userId, $arRequest, &$arErrors, $userName = "", $realUserId = null)
 	{
+		self::$errors = new ErrorCollection();
 		$arErrors = array();
 
 		try
@@ -463,12 +474,28 @@ class CBPReviewActivity extends CBPCompositeActivity implements IBPEventActivity
 			)
 			{
 				$label = $arTask["PARAMETERS"]["CommentLabelMessage"] <> '' ? $arTask["PARAMETERS"]["CommentLabelMessage"] : GetMessage("BPAR_ACT_COMMENT");
-				throw new CBPArgumentNullException(
-					'task_comment',
-					GetMessage("BPAA_ACT_COMMENT_ERROR", array(
-						'#COMMENT_LABEL#' => $label
-					))
+				self::$errors->setError(
+					new Error(
+						Loc::getMessage('BPAA_ACT_COMMENT_ERROR', ['#COMMENT_LABEL#' => $label]),
+						0,
+						'task_comment',
+					)
 				);
+			}
+
+			if (static::hasErrors())
+			{
+				foreach (static::getErrors() as $error)
+				{
+					$arErrors[] = [
+						'code' => $error->getCode(),
+						'message' =>  $error->getMessage(),
+						'file' => null,
+						'customData' => $error->getCustomData(),
+					];
+				}
+
+				return false;
 			}
 
 			CBPRuntime::SendExternalEvent($arTask["WORKFLOW_ID"], $arTask["ACTIVITY_NAME"], $arEventParameters);

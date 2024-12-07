@@ -48,9 +48,17 @@ export const ItemCounter = {
 		{
 			return this.recentItem.invitation;
 		},
+		totalCounter(): number
+		{
+			return this.dialog.counter + this.channelCommentsCounter;
+		},
+		channelCommentsCounter(): number
+		{
+			return this.$store.getters['counters/getChannelCommentsCounter'](this.dialog.chatId);
+		},
 		formattedCounter(): string
 		{
-			return this.dialog.counter > 99 ? '99+' : this.dialog.counter.toString();
+			return this.formatCounter(this.totalCounter);
 		},
 		showCounterContainer(): boolean
 		{
@@ -58,34 +66,55 @@ export const ItemCounter = {
 		},
 		showPinnedIcon(): boolean
 		{
-			return this.recentItem.pinned && this.dialog.counter === 0 && !this.recentItem.unread;
+			const noCounters = this.totalCounter === 0;
+
+			return this.recentItem.pinned && noCounters && !this.recentItem.unread;
 		},
 		showUnreadWithoutCounter(): boolean
 		{
-			return this.recentItem.unread && this.dialog.counter === 0;
+			return this.recentItem.unread && this.totalCounter === 0;
 		},
 		showUnreadWithCounter(): boolean
 		{
-			return this.recentItem.unread && this.dialog.counter > 0;
+			return this.recentItem.unread && this.totalCounter > 0;
 		},
 		showCounter(): boolean
 		{
-			return !this.recentItem.unread && this.dialog.counter > 0 && !this.isSelfChat;
+			return !this.recentItem.unread && this.totalCounter > 0 && !this.isSelfChat;
 		},
 		needsBirthdayPlaceholder(): boolean
 		{
 			return this.$store.getters['recent/needsBirthdayPlaceholder'](this.recentItem.dialogId);
 		},
+		containerClasses(): { [className: string]: boolean }
+		{
+			const commentsOnly = this.dialog.counter === 0 && this.channelCommentsCounter > 0;
+			const withComments = this.dialog.counter > 0 && this.channelCommentsCounter > 0;
+
+			return {
+				'--muted': this.isChatMuted,
+				'--extended': this.totalCounter > 99,
+				'--comments-only': commentsOnly,
+				'--with-comments': withComments,
+			};
+		},
+	},
+	methods:
+	{
+		formatCounter(counter: number): string
+		{
+			return counter > 99 ? '99+' : counter.toString();
+		},
 	},
 	template: `
-		<div v-if="showCounterContainer" :class="{'--extended': dialog.counter > 99, '--withUnread': recentItem.unread}" class="bx-im-list-recent-item__counter_wrap">
+		<div v-if="showCounterContainer" :class="containerClasses" class="bx-im-list-recent-item__counter_wrap">
 			<div class="bx-im-list-recent-item__counter_container">
 				<div v-if="showPinnedIcon" class="bx-im-list-recent-item__pinned-icon"></div>
-				<div v-else-if="showUnreadWithoutCounter" :class="{'--muted': isChatMuted}"  class="bx-im-list-recent-item__counter_number --no-counter"></div>
-				<div v-else-if="showUnreadWithCounter" :class="{'--muted': isChatMuted}"  class="bx-im-list-recent-item__counter_number --with-counter">
+				<div v-else-if="showUnreadWithoutCounter" class="bx-im-list-recent-item__counter_number --no-counter"></div>
+				<div v-else-if="showUnreadWithCounter" class="bx-im-list-recent-item__counter_number --with-unread">
 					{{ formattedCounter }}
 				</div>
-				<div v-else-if="showCounter" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-item__counter_number">
+				<div v-else-if="showCounter" class="bx-im-list-recent-item__counter_number">
 					{{ formattedCounter }}
 				</div>
 			</div>

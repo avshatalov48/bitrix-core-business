@@ -451,7 +451,7 @@ $lAdmin->CheckListMode();
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");?>
 
-<script language="JavaScript">
+<script>
 var timeID = null;
 var timeCounterID = null;
 

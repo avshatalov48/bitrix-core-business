@@ -47,7 +47,7 @@ $arHeaders = array(
 			"default"	=>true,
 		),
 		array(	"id"		=>"COUNTER",
-			"content"	=>GetMessage("STAT_COUNTER").$group_by,
+			"content"	=>GetMessage("STAT_COUNTER"),
 			"align"		=>"right",
 			"default"	=>true,
 		),
@@ -135,7 +135,7 @@ $oFilter->Begin();
 	<td>
 	<input name="find_event_id" id="find_event_id" value="<?echo htmlspecialcharsbx($find_event_id)?>">
 	<input type="button" OnClick="selectEventType('find_form','find_event_id')" value="<?=GetMessage("STAT_CHOOSE_BTN");?>">
-	<script type="text/javascript">
+	<script>
 	function selectEventType(form, field)
 	{
 		jsUtils.OpenWindow('event_multiselect.php?target_control=text&lang=<?echo LANGUAGE_ID?>&form='+form+'&field='+field, 600, 600);

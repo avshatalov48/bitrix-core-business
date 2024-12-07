@@ -8,3 +8,4 @@ export { AuthorTitle } from './author-title/author-title';
 export { ContextMenu } from './context-menu/context-menu';
 export { RetryButton } from './retry-button/retry-button';
 export { MessageHeader } from './message-header/message-header';
+export { MessageFooter } from './message-footer/message-footer';

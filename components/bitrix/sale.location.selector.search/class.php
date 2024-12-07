@@ -394,7 +394,7 @@ class CBitrixLocationSelectorSearchComponent extends CBitrixComponent
 				'RIGHT_MARGIN',
 			)),
 			'filter' => array(
-				'NAME.LANGUAGE_ID' => LANGUAGE_ID
+				'=NAME.LANGUAGE_ID' => LANGUAGE_ID
 			)
 		);
 	}

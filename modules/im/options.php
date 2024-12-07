@@ -59,13 +59,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 {
 	if($_GET['RestoreDefaults'] <> '')
 	{
-		COption::RemoveOption("im", "turn_server_self");
-		COption::RemoveOption("im", "turn_server");
-		COption::RemoveOption("im", "turn_server_firefox");
-		COption::RemoveOption("im", "turn_server_login");
-		COption::RemoveOption("im", "turn_server_password");
-		COption::RemoveOption("im", "call_server_enabled");
-
 		COption::RemoveOption("im", "view_offline");
 		COption::RemoveOption("im", "view_group");
 		COption::RemoveOption("im", "send_by_enter");
@@ -114,21 +107,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 				}
 			}
 		}
-		COption::SetOptionString("im", "turn_server_self", isset($_POST["TURN_SERVER_SELF"])? 'Y': 'N');
-		if (isset($_POST["TURN_SERVER_SELF"]))
-		{
-			COption::SetOptionString("im", "turn_server", $_POST["TURN_SERVER"]);
-			COption::SetOptionString("im", "turn_server_firefox", $_POST["TURN_SERVER_FIREFOX"]);
-			COption::SetOptionString("im", "turn_server_login", $_POST["TURN_SERVER_LOGIN"]);
-			COption::SetOptionString("im", "turn_server_password", $_POST["TURN_SERVER_PASSWORD"]);
-		}
-		else
-		{
-			COption::RemoveOption("im", "turn_server");
-			COption::RemoveOption("im", "turn_server_firefox");
-			COption::RemoveOption("im", "turn_server_login");
-			COption::RemoveOption("im", "turn_server_password");
-		}
 
 		if ($_POST['PANEL_LOCATION'] == 'TL')
 		{
@@ -164,7 +142,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 		$_POST['START_CHAT_MESSAGE'] = $_POST['START_CHAT_MESSAGE'] == 'first'? 'first': 'last';
 		$_POST['COLOR_ENABLE'] = isset($_POST['COLOR_ENABLE']);
 		$_POST['OPEN_CHAT_ENABLE'] = isset($_POST['OPEN_CHAT_ENABLE']);
-		$_POST['CALL_SERVER_ENABLED'] = isset($_POST['CALL_SERVER_ENABLED']);
 
 		$arSettings = CIMSettings::checkValues(CIMSettings::SETTINGS, Array(
 			'viewOffline' => !isset($_POST['VIEW_OFFLINE']),
@@ -198,7 +175,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 		COption::SetOptionString("im", "privacy_call", $arSettings['privacyCall']);
 		COption::SetOptionString("im", "privacy_search", $arSettings['privacySearch']);
 		COption::SetOptionString("im", "privacy_profile", $arSettings['privacyProfile']);
-		COption::SetOptionString("im", "call_server_enabled", $_POST['CALL_SERVER_ENABLED']);
 		COption::SetOptionString("im", "start_chat_message", $_POST['START_CHAT_MESSAGE']);
 		COption::SetOptionString("im", "color_enable", $_POST['COLOR_ENABLE']);
 		COption::SetOptionString("im", "open_chat_enable", $_POST['OPEN_CHAT_ENABLE']);
@@ -226,7 +202,6 @@ if($_POST['Update'].$_GET['RestoreDefaults'] <> '' && check_bitrix_sessid() && $
 <?php
 $tabControl->Begin();
 $tabControl->BeginNextTab();
-$selfVideoServer = COption::GetOptionString("im", "turn_server_self") == 'Y'? true: false;
 
 $arSettingsDefault = CIMSettings::GetDefaultSettings(CIMSettings::SETTINGS);
 if ($arSettingsDefault['panelPositionVertical'] == 'top' && $arSettingsDefault['panelPositionHorizontal'] == 'left')
@@ -258,34 +233,6 @@ $arReference = Array(
 	'birthday' => Array(Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_ALL'), Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_DEPARTMENT'), Loc::getMessage('IM_CONTACT_LIST_BIRTHDAY_NONE')),
 );
 ?>
-	<tr>
-		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_OPTIONS_CALL_SERVER_ENABLED_MSGVER_1")?>:</td>
-		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="CALL_SERVER_ENABLED" <?=(COption::GetOptionString("im", 'call_server_enabled')?'checked="checked"' :'')?>></td>
-	</tr>
-	<tr>
-		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_SELF_2")?>:</td>
-		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" onclick="toogleVideoOptions(this)" name="TURN_SERVER_SELF" <?=($selfVideoServer?'checked="checked"' :'')?>></td>
-	</tr>
-	<tr id="video_group_2" <?if (!$selfVideoServer):?>style="display: none"<?endif;?>>
-		<td class="adm-detail-content-cell-l"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER")?>:</td>
-		<td class="adm-detail-content-cell-r"><input type="input" size="40" value="<?=htmlspecialcharsbx(COption::GetOptionString("im", "turn_server"))?>" name="TURN_SERVER"></td>
-	</tr>
-	<tr id="video_group_3" <?if (!$selfVideoServer):?>style="display: none"<?endif;?>>
-		<td class="adm-detail-content-cell-l"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_FIREFOX")?>:</td>
-		<td class="adm-detail-content-cell-r"><input type="input" size="40" value="<?=htmlspecialcharsbx(COption::GetOptionString("im", "turn_server_firefox"))?>" name="TURN_SERVER_FIREFOX"></td>
-	</tr>
-	<tr id="video_group_4" <?if (!$selfVideoServer):?>style="display: none"<?endif;?>>
-		<td class="adm-detail-content-cell-l"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_LOGIN")?>:</td>
-		<td class="adm-detail-content-cell-r"><input type="input" size="20" value="<?=htmlspecialcharsbx(COption::GetOptionString("im", "turn_server_login"))?>" name="TURN_SERVER_LOGIN"></td>
-	</tr>
-	<tr id="video_group_5" <?if (!$selfVideoServer):?>style="display: none"<?endif;?>	>
-		<td class="adm-detail-content-cell-l"><?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_PASSWORD")?>:<br><small>(<?=Loc::getMessage("IM_OPTIONS_TURN_SERVER_PASSWORD_HINT")?>)</small></td>
-		<td class="adm-detail-content-cell-r"><input type="input" size="20" value="<?=htmlspecialcharsbx(COption::GetOptionString("im", "turn_server_password"))?>" name="TURN_SERVER_PASSWORD"></td>
-	</tr>
-	<tr>
-		<td align="right"></td>
-		<td></td>
-	</tr>
 	<tr>
 		<td class="adm-detail-content-cell-l" width="40%"><?=Loc::getMessage("IM_VIEW_OFFLINE")?>:</td>
 		<td class="adm-detail-content-cell-r" width="60%"><input type="checkbox" name="VIEW_OFFLINE" <?=(!$arSettingsDefault['viewOffline']?'checked="checked"' :'')?>></td>
@@ -424,14 +371,6 @@ $subTabControl->End();
 	</tr>
 <?$tabControl->Buttons();?>
 <script>
-function toogleVideoOptions(el)
-{
-	BX.style(BX('video_group_2'), 'display', el.checked? 'table-row': 'none');
-	BX.style(BX('video_group_3'), 'display', el.checked? 'table-row': 'none');
-	BX.style(BX('video_group_4'), 'display', el.checked? 'table-row': 'none');
-	BX.style(BX('video_group_5'), 'display', el.checked? 'table-row': 'none');
-
-}
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(Loc::getMessage('MAIN_HINT_RESTORE_DEFAULTS_WARNING'))?>'))

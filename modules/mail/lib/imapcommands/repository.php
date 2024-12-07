@@ -90,7 +90,7 @@ class Repository
 		}
 		else
 		{
-			MessageFolder::increaseDirCounter($mailboxId, false, $dirWithMessagesId, count($messagesIds));
+			MessageFolder::increaseDirCounter($mailboxId, null, $dirWithMessagesId, count($messagesIds));
 		}
 
 		\Bitrix\Mail\Helper::updateMailboxUnseenCounter($mailboxId);
@@ -113,7 +113,8 @@ class Repository
 		{
 			$mailsData[] = [
 				'HEADER_MD5' => $messageData['HEADER_MD5'],
-				'MAILBOX_USER_ID' => $mailbox['USER_ID']
+				'MAILBOX_USER_ID' => $mailbox['USER_ID'],
+				'OLD_DIR_MD5' => $messageData['DIR_MD5'],
 			];
 		}
 

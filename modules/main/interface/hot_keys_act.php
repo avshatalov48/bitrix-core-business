@@ -88,7 +88,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 
 				if(!$_FILES['bx_hk_filename']['name'] || !$_FILES['bx_hk_filename']['size'])
 				{
-					$res='<script type="text/javascript">window.parent.BXHotKeys.OnImportResponse(0);</script>';
+					$res='<script>window.parent.BXHotKeys.OnImportResponse(0);</script>';
 					break;
 				}
 
@@ -102,7 +102,7 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 				if(move_uploaded_file($_FILES['bx_hk_filename']['tmp_name'], $tmpDir.CHotKeys::$ExpImpFileName))
 					$numImported = $hkInstance->Import($tmpDir.CHotKeys::$ExpImpFileName,$uid);
 
-				$res='<script type="text/javascript">window.parent.BXHotKeys.OnImportResponse("'.$numImported.'");</script>';
+				$res='<script>window.parent.BXHotKeys.OnImportResponse("'.$numImported.'");</script>';
 
 				break;
 	}

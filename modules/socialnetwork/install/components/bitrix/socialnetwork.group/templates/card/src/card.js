@@ -1,4 +1,4 @@
-import {Type, Loc} from 'main.core';
+import { Runtime, Type, Loc } from 'main.core';
 import {EventEmitter, BaseEvent} from 'main.core.events';
 import {Circle} from 'ui.graph.circle';
 
@@ -27,6 +27,7 @@ class WorkgroupCard
 		this.canInitiate = null;
 		this.canModify = null;
 		this.canLeave = null;
+		this.canCreate = null;
 
 		this.groupId = null;
 		this.isProject = null;
@@ -72,6 +73,7 @@ class WorkgroupCard
 		this.canInitiate = !!params.canInitiate;
 		this.canProcessRequestsIn = !!params.canProcessRequestsIn;
 		this.canModify = !!params.canModify;
+		this.canCreate = !!params.canCreate;
 		this.canLeave = (
 			Type.isBoolean(params.canLeave)
 				? params.canLeave
@@ -188,6 +190,7 @@ class WorkgroupCard
 						canProcessRequestsIn: this.canProcessRequestsIn,
 						canModify: this.canModify,
 						canLeave: this.canLeave,
+						canCreate: this.canCreate,
 					},
 					urls: {
 						requestUser: Loc.getMessage('SGCSPathToRequestUser'),
@@ -264,6 +267,20 @@ class WorkgroupCard
 
 			top.location.href = this.urls.groupsList;
 		}
+	}
+
+	showLimit(featureId: string, bindElement: ?HTMLElement = null): Promise
+	{
+		return new Promise((resolve, reject) => {
+			// eslint-disable-next-line promise/catch-or-return
+			Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+				const { Limit } = exports;
+				Limit.showInstance({
+					featureId,
+					bindElement,
+				});
+			});
+		});
 	}
 }
 

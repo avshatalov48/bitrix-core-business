@@ -384,7 +384,6 @@ abstract class OrderBuilder
 			throw new BuildingException();
 		}
 
-		global $USER;
 		$shipmentCollection = $this->order->getShipmentCollection();
 
 		foreach($this->formData["SHIPMENT"] as $item)
@@ -520,7 +519,7 @@ abstract class OrderBuilder
 			if (empty($item['RESPONSIBLE_ID']))
 			{
 				$shipmentFields['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
-				$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->GetID();
+				$shipmentFields['EMP_RESPONSIBLE_ID'] = $this->getCurrentUserId();
 			}
 
 			$deliveryId = 0;
@@ -598,7 +597,7 @@ abstract class OrderBuilder
 
 				if (!empty($shipmentFields['RESPONSIBLE_ID']))
 				{
-					$shipmentFields['EMP_RESPONSIBLE_ID'] = $USER->getID();
+					$shipmentFields['EMP_RESPONSIBLE_ID'] = $this->getCurrentUserId();
 				}
 			}
 
@@ -1232,8 +1231,6 @@ abstract class OrderBuilder
 
 	public function buildPayments()
 	{
-		global $USER;
-
 		$isEmptyPaymentData = $this->isEmptyPaymentData();
 		if ($isEmptyPaymentData)
 		{
@@ -1323,7 +1320,7 @@ abstract class OrderBuilder
 				if(empty($paymentData['RESPONSIBLE_ID']))
 				{
 					$paymentData['RESPONSIBLE_ID'] = $this->order->getField('RESPONSIBLE_ID');
-					$paymentData['EMP_RESPONSIBLE_ID'] = $USER->GetID();
+					$paymentData['EMP_RESPONSIBLE_ID'] = $this->getCurrentUserId();
 				}
 			}
 
@@ -1365,13 +1362,13 @@ abstract class OrderBuilder
 
 			if(isset($paymentData['RESPONSIBLE_ID']))
 			{
-				$paymentData['RESPONSIBLE_ID'] = !empty($paymentData['RESPONSIBLE_ID']) ? $paymentData['RESPONSIBLE_ID'] : $USER->GetID();
+				$paymentData['RESPONSIBLE_ID'] = !empty($paymentData['RESPONSIBLE_ID']) ? $paymentData['RESPONSIBLE_ID'] : $this->getCurrentUserId();
 
 				if($paymentData['RESPONSIBLE_ID'] != $paymentItem->getField('RESPONSIBLE_ID'))
 				{
 					if(!$isNew)
 					{
-						$paymentData['EMP_RESPONSIBLE_ID'] = $USER->GetID();
+						$paymentData['EMP_RESPONSIBLE_ID'] = $this->getCurrentUserId();
 					}
 				}
 			}
@@ -1819,5 +1816,21 @@ abstract class OrderBuilder
 		}
 
 		return $existingUserId;
+	}
+
+	protected function getCurrentUserId(): ?int
+	{
+		global $USER;
+		$currentUserId = null;
+		if (isset($USER) && $USER instanceof \CUser)
+		{
+			$currentUserId = (int)$USER->GetID();
+			if ($currentUserId <= 0)
+			{
+				$currentUserId = null;
+			}
+		}
+
+		return $currentUserId;
 	}
 }

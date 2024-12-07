@@ -4,12 +4,11 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
 
-use Bitrix\Main\IO;
 use Bitrix\Main\ORM\Fields;
 
 /**

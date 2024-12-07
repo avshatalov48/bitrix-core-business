@@ -2,7 +2,11 @@
 	--im-message-sign__background-color_self: #fafded;
 	--im-message-sign__font-color_title: #151515;
 	--im-message-sign__font-color_description: var(--im-color-palette-gray-70);
-	--im-message-sign__border-radius-container: 16px;
+	--im-message-sign__border-radius_container: 16px;
+	--im-message-sign__background-color_container: var(--im-message-base__background-color);
+	--im-message-sign__color_document: var(--im-color-palette-gray-90);
+	--im-message-sign__color_link: var(--im-color-palette-gray-90);
+	--im-message-sign__border-color_link: var(--im-color-palette-black-solid);
 }
 
 .bx-im-message-sign__container {
@@ -11,10 +15,10 @@
 	width: 673px;
 	max-width: 100%;
 	min-width: 620px;
-	height: 154px;
-	max-height: 154px;
-	border-radius: var(--im-message-sign__border-radius-container);
-	background: var(--im-message-base__background-color);
+	min-height: 154px;
+	overflow: hidden;
+	border-radius: var(--im-message-sign__border-radius_container);
+	background: var(--im-message-sign__background-color_container);
 }
 
 .bx-im-message-sign__container.--self {
@@ -27,12 +31,11 @@
 	flex-direction: column;
 	justify-content: center;
 	max-width: calc(100% - 166px);
-	padding-left: 17px;
-	padding-right: 17px;
+	padding: 14px 17px;
 }
 
 .bx-im-message-sign__title {
-	font: var(--im-font-size-2xl)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-size: var(--im-font-size-2xl);
 	color: var(--im-message-sign__font-color_title);
 	font-weight: var(--im-font-weight-bold);
 	margin-bottom: 8px;
@@ -47,28 +50,24 @@
 	padding-bottom: 3px;
 	max-width: 100%;
 	margin-bottom: 13px;
-	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
+	font-size: var(--im-font-size-md);
 	color: var(--im-message-sign__font-color_description);
-	user-select: none;
-	display: -webkit-box;
-	overflow: hidden;
-	-webkit-box-orient: vertical;
-	-webkit-line-clamp: 4;
+	word-break: break-word;
 }
 
 .bx-im-message-sign__document {
-	color: var(--im-color-palette-gray-90);
+	color: var(--im-message-sign__color_document);
 }
 
 .bx-im-message-sign__link {
 	cursor: pointer;
-	color: var(--im-color-palette-gray-90);
-	border-bottom: 1px solid var(--im-color-palette-black-solid);
+	color: var(--im-message-sign__color_link);
+	border-bottom: 1px solid var(--im-message-sign__border-color_link);
 	transition: border-bottom-color 0s;
 }
 
 .bx-im-message-sign__link:hover {
-	border-bottom-color: currentColor;
+	border-bottom-color: currentcolor;
 }
 
 .bx-im-message-sign__buttons_container {
@@ -83,10 +82,7 @@
 	bottom: 6px;
 }
 
-.bx-im-message-base__wrap + .bx-im-message-sign__scope {
-	margin-top: 24px;
-}
-
+.bx-im-message-base__wrap + .bx-im-message-sign__scope,
 .bx-im-message-sign__scope + .bx-im-message-base__wrap {
 	margin-top: 24px;
 }
@@ -95,48 +91,7 @@
 	position: relative;
 	width: 166px;
 	background-repeat: no-repeat;
-	background-position: right;
-	border-radius: var(--im-message-sign__border-radius-container) 0 0 var(--im-message-sign__border-radius-container);
-}
-
-.bx-im-message-base__wrap:last-child .bx-im-message-sign__container,
-.bx-im-message-base__wrap:last-child .bx-im-message-sign__image {
-	border-bottom-left-radius: 0;
-}
-
-.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap:last-child .bx-im-message-sign__container.--self,
-.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap:last-child .--self .bx-im-message-sign__image {
-	border-bottom-left-radius: var(--im-message-sign__border-radius-container);
-	border-bottom-right-radius: 0;
-}
-
-.bx-im-message-base__wrap:last-child .bx-im-message-sign__container::before {
-	content: '';
-	position: absolute;
-	width: 4px;
-	height: 9px;
-	bottom: 0;
-	left: -4px;
-	transform: scale(1, -1);
-}
-
-.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap:last-child .bx-im-message-sign__container.--self::before {
-	right: -4px;
-	left: unset;
-	transform: unset;
-	background: url('../../../base/src/css/images/arrow-self.svg');
-}
-
-.bx-im-message-sign__container.--await::before {
-	background: url('./images/arrow-await.svg');
-}
-
-.bx-im-message-sign__container.--success::before {
-	background: url('images/arrow-success.svg');
-}
-
-.bx-im-message-sign__container.--failure::before {
-	background: url('images/arrow-failure.svg');
+	background-position: top right;
 }
 
 .--await .bx-im-message-sign__image {

@@ -180,17 +180,19 @@ class Element extends Controller
 	}
 
 	/**
+	 * @param PageNavigation $pageNavigation
 	 * @param array $order
 	 * @param array $filter
 	 * @param array $select
-	 * @param PageNavigation $pageNavigation
+	 * @param bool $__calculateTotalCount
 	 * @return Page
 	 */
 	public function listAction(
 		PageNavigation $pageNavigation,
 		array $order = [],
 		array $filter = [],
-		array $select = []
+		array $select = [],
+		bool $__calculateTotalCount = true
 	): Page
 	{
 		$filter['@DOCUMENT.DOC_TYPE'] = array_keys(Catalog\Controller\Document::getAvailableRestDocumentTypes());
@@ -211,7 +213,7 @@ class Element extends Controller
 		return new Page(
 			'DOCUMENT_ELEMENTS',
 			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
+			$__calculateTotalCount ? $this->count($filter) : 0
 		);
 	}
 

@@ -219,7 +219,6 @@ if ($postRight >= 'R'):
 		\check_bitrix_sessid()
 	)
 	{
-		$clearTmplCache = false;
 		foreach ($allOptions as $arOption)
 		{
 			if ($arOption[0] == 'header')
@@ -292,7 +291,6 @@ if ($postRight >= 'R'):
 					));
 					while ($row = $res->fetch())
 					{
-						$clearTmplCache = true;
 						SiteTemplateTable::update($row['ID'], [
 								'TEMPLATE' => $val
 							]
@@ -321,7 +319,6 @@ if ($postRight >= 'R'):
  					));
 					while ($row = $res->fetch())
 					{
-						$clearTmplCache = true;
 						SiteTemplateTable::update($row['ID'], [
 								'TEMPLATE' => $val ? $val : $valDefault
 							]
@@ -338,10 +335,6 @@ if ($postRight >= 'R'):
 		}
 
 		$Update = $Update . $Apply;
-		if ($clearTmplCache)
-		{
-			Manager::getCacheManager()->clean('b_site_template');
-		}
 
 		// access settings save
 		ob_start();

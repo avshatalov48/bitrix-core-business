@@ -78,6 +78,8 @@ class Extract
 		}
 
 		$this->archiveFile = new Translate\IO\Archiver($this->archiveFilePath);
+		$this->archiveFile->setOptions(['CHECK_PERMISSIONS' => false]);
+
 		if (!$this->archiveFile->isExists() || !$this->archiveFile->isFile())
 		{
 			$this->addError(

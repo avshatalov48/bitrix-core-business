@@ -97,10 +97,13 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 
 		if (!$template)
 		{
-			$this->writeDebugInfo($this->getDebugInfo([
-				'Entity' => '',
-				'DocumentType' => ''
-			]));
+			if ($this->workflow->isDebug())
+			{
+				$this->writeDebugInfo($this->getDebugInfo([
+					'Entity' => '',
+					'DocumentType' => ''
+				]));
+			}
 
 			$this->WriteToTrackingService(
 				Bitrix\Main\Localization\Loc::getMessage('BPSWFA_TEMPLATE_NOT_FOUND_ERROR'),
@@ -111,10 +114,14 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			return CBPActivityExecutionStatus::Closed;
 		}
 
-		$logMap = $this->getDebugInfo([
-			'Entity' => implode('@', [$template['MODULE_ID'], $template['ENTITY']]),
-			'DocumentType' => implode('@', $template['DOCUMENT_TYPE']),
-		]);
+		$logMap = [];
+		if ($this->workflow->isDebug())
+		{
+			$logMap = $this->getDebugInfo([
+				'Entity' => implode('@', [$template['MODULE_ID'], $template['ENTITY']]),
+				'DocumentType' => implode('@', $template['DOCUMENT_TYPE']),
+			]);
+		}
 
 		if (!$this->DocumentId)
 		{
@@ -225,7 +232,7 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 			}
 		}
 
-		if (!empty($parameters))
+		if (!empty($parameters) && $this->workflow->isDebug())
 		{
 			$this->writeDebugInfo($this->getDebugInfo($parameters, $template['PARAMETERS']));
 		}
@@ -773,6 +780,11 @@ class CBPStartWorkflowActivity extends CBPActivity implements IBPEventActivity, 
 
 	protected function getDebugInfo(array $values = [], array $map = []): array
 	{
+		if (!$this->workflow->isDebug())
+		{
+			return [];
+		}
+
 		if (empty($map))
 		{
 			$map = static::getPropertiesMap(

@@ -1,4 +1,4 @@
-import {Address as AddressEntity} from "location.core";
+import { Address as AddressEntity } from 'location.core';
 
 export type EditEntryProps = {
 	wrapper: Element,
@@ -9,4 +9,5 @@ export type EditEntryProps = {
 	showMap: boolean,
 	initialAddressId: ?number,
 	isCompactMode: ?boolean,
+	showDetailsToggle?: boolean,
 }

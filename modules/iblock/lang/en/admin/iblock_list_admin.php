@@ -89,7 +89,6 @@ $MESS["IBLIST_A_IBLOCK_MANAGE_HINT_HREF"] = "Information Block settings page.";
 $MESS["IBLIST_A_ID"] = "ID";
 $MESS["IBLIST_A_LIST"] = "View the list of subsections";
 $MESS["IBLIST_A_LIST_TITLE"] = "#IBLOCK_NAME#: Products";
-$MESS["IBLIST_A_LIST_TITLE_2"] = "Product catalog";
 $MESS["IBLIST_A_LOCKED_USER_NAME"] = "Locked by";
 $MESS["IBLIST_A_LOCK_ACTION"] = "lock";
 $MESS["IBLIST_A_LOCK_STATUS"] = "Locked";

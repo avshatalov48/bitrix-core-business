@@ -1,0 +1,42 @@
+<?php
+
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_START_DOC'] = 'документ запуска';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_MORE_TASKS'] = 'Ещё задания';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_VOTED'] = 'проголосовало <span>#VOTED#</span> / <span>#TOTAL#</span>';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_EXECUTION_TIME'] = 'Время выполнения';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_NO_RIGHTS_TO_VIEW'] = 'Нет прав на просмотр';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_NO_RIGHTS_TO_VIEW_TIP'] = 'У вас нет прав доступа для просмотра, нужно обратиться к администратору';
+
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_IN_PROGRESS'] = 'Бизнес-процесс выполняется';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_IN_PROGRESS_TIP'] = 'В нём ещё могут быть задания, которые должны выполнить участники процесса';
+
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_IN_PROGRESS_INTERMEDIATE'] = 'Бизнес-процесс выполняется';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_IN_PROGRESS_INTERMEDIATE_TIP'] = 'В нём ещё выполнены не все системные действия';
+
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PROCESS_FINISHED'] = 'процесс завершён';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_APPROVED_FOR'] = 'Успешно утверждено для';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_DECLINED'] = 'Отклонено';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMED'] = 'Выполнено';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMING'] = 'Выполняется';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMING_ALL'] = 'Выполняют все';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMING_ANY'] = 'Выполняет любой';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PROCESS_EXECUTED'] = 'Процесс выполнялся';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_NO_STATS'] = 'Статистка отсутствует';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMED_QUICKLY'] = 'Всё отлично';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMED_SLOWLY'] = 'Требует внимания';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMED_NO_PROGRESS'] = 'Слишком медленно';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_EFFECTIVITY_MARK'] = 'Эффективность процесса';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_CURRENT_PROCESS_TIME'] = 'Время выполнения процесса';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_TIME_DIFFERENCE_MSGVER_1'] = 'В протоколе время отображается точнее, чем в списке процессов';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_AVERAGE_PROCESS_TIME'] = 'Среднее время выполнения';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_AVERAGE_PROCESS_TIME_UNKNOWN'] = 'Недостаточно данных';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMANCE_TUNING_TIP'] = 'Настройте процесс так, чтобы сэкономить время всех участников и ускорить выполнение каждого этапа';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_PERFORMANCE_TUNING_LINK'] = 'Как оптимизировать процесс';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_TITLE'] = 'BI-аналитика процесса';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_TIP'] = 'Отчёт в BI Конструкторе поможет проанализировать активность и определить места, которым требуется оптимизация.';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_BI_ANALYTICS_LINK'] = 'Перейти к отчёту';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_FROM'] = 'от кого';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_BUTTON_PROCEED'] = 'Приступить';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_BUTTON_SEE'] = 'Открыть';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_SLIDER_ZERO_SECOND_INTERVAL'] = 'Мгновенно';
+$MESS['BIZPROC_WORKFLOW_TIMELINE_TIME_LIMIT_EXCEEDED'] = 'Задание заняло больше времени, чем планировалось. Можно оптимизировать процесс, чтобы сократить время выполнения';

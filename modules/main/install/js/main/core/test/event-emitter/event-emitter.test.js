@@ -101,6 +101,102 @@ describe('EventEmitter', () => {
 		});
 	});
 
+	describe('getListeners', () => {
+		class MyNewPopup extends EventEmitter
+		{
+			constructor(options)
+			{
+				super();
+				this.setEventNamespace('MyModule.MyNewPopup');
+				this.subscribeFromOptions(options.events);
+			}
+		}
+
+		it('Should rebind event listeners', () => {
+			const onClose = sinon.stub();
+			const onOpen = sinon.stub();
+			const onDestroy = sinon.stub();
+			const onClose2 = sinon.stub();
+			const onOpen2 = sinon.stub();
+
+			const onClosePriority = sinon.stub().callsFake(() => {});
+			const onOpenPriority = sinon.stub();
+
+			const popup = new MyNewPopup({
+				events: {
+					onClose,
+					onOpen,
+					onDestroy,
+				},
+			});
+
+			let listeners = [...popup.getListeners('onClose').keys()];
+
+			assert.equal(listeners.length, 1);
+			assert.equal(listeners[0], onClose);
+
+			listeners = [...popup.getListeners('onOpen').keys()];
+			assert.equal(listeners.length, 1);
+			assert.equal(listeners[0], onOpen);
+
+			listeners = [...popup.getListeners('onDestroy').keys()];
+			assert.equal(listeners.length, 1);
+
+			assert.equal(onClose.callCount, 0);
+			assert.equal(onOpen.callCount, 0);
+			assert.equal(onDestroy.callCount, 0);
+			popup.emit('onClose');
+			popup.emit('onOpen');
+			popup.emit('onDestroy');
+			assert.equal(onClose.callCount, 1);
+			assert.equal(onOpen.callCount, 1);
+			assert.equal(onDestroy.callCount, 1);
+
+			popup.subscribe('onClose', onClose2);
+			popup.subscribe('onOpen', onOpen2);
+
+			const priorityEvents = {
+				onClose: onClosePriority,
+				onOpen: onOpenPriority,
+			};
+
+			Object.keys(priorityEvents).forEach((eventName) => {
+				const currentListeners = [...popup.getListeners(eventName).keys()];
+				popup.unsubscribeAll(eventName);
+				popup.subscribe(eventName, priorityEvents[eventName]);
+				currentListeners.forEach((listener) => {
+					popup.subscribe(eventName, listener);
+				})
+			});
+
+			listeners = [...popup.getListeners('onClose').keys()];
+			assert.equal(listeners.length, 3);
+			assert.equal(listeners[0], onClosePriority);
+			assert.equal(listeners[1], onClose);
+
+			listeners = [...popup.getListeners('onOpen').keys()];
+			assert.equal(listeners.length, 3);
+			assert.equal(listeners[0], onOpenPriority);
+			assert.equal(listeners[1], onOpen);
+
+			listeners = [...popup.getListeners('onDestroy').keys()];
+			assert.equal(listeners.length, 1);
+			assert.equal(listeners[0], onDestroy);
+
+			popup.emit('onClose');
+			popup.emit('onOpen');
+			popup.emit('onDestroy');
+			assert.equal(onClosePriority.callCount, 1);
+			assert.equal(onOpenPriority.callCount, 1);
+			assert.equal(onClose.callCount, 2);
+			assert.equal(onOpen.callCount, 2);
+			assert.equal(onClose2.callCount, 1);
+			assert.equal(onOpen2.callCount, 1);
+			assert.equal(onDestroy.callCount, 2);
+
+		});
+	});
+
 	describe('unsubscribeAll', () => {
 		it('Should unsubscribe event listeners', () => {
 			const emitter = new EventEmitter();
@@ -1892,6 +1988,39 @@ describe('EventEmitter', () => {
 			assert.equal(listener7.callCount, 3);
 			assert.equal(listener8.callCount, 2);
 
+		});
+
+		it('Should subscribe from multiple options', () => {
+
+			const listener1 = sinon.stub();
+			const listener2 = sinon.stub();
+			const listener3 = sinon.stub();
+			const listener4 = sinon.stub();
+
+			const newClass = new MyNewClass({
+				events: [
+					{
+						onOpen: listener1,
+						onClose: listener2,
+					},
+					{
+						onOpen: listener3,
+						onClose: listener4,
+					}
+				]
+			});
+
+			assert.equal(newClass.getListeners('onOpen').size, 2);
+			assert.equal(newClass.getListeners('onClose').size, 2);
+
+			newClass.emit('onClose');
+			newClass.emit('onClose');
+			newClass.emit('onOpen');
+
+			assert.equal(listener1.callCount, 1);
+			assert.equal(listener2.callCount, 2);
+			assert.equal(listener3.callCount, 1);
+			assert.equal(listener4.callCount, 2);
 		});
 	});
 

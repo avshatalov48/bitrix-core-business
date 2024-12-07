@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Socket;
@@ -35,14 +35,14 @@ class Handler extends Http\Handler
 
 	/**
 	 * @param RequestInterface $request
-	 * @param Http\ResponseBuilder $responseBuilder
+	 * @param Http\ResponseBuilderInterface $responseBuilder
 	 * @param array $options
 	 */
-	public function __construct(RequestInterface $request, Http\ResponseBuilder $responseBuilder, array $options = [])
+	public function __construct(RequestInterface $request, Http\ResponseBuilderInterface $responseBuilder, array $options = [])
 	{
-		Http\Handler::__construct($request, $responseBuilder, $options);
+		parent::__construct($request, $responseBuilder, $options);
 
-		if (isset($options['proxyHost']) && $options['proxyHost'] != '')
+		if (!empty($options['proxyHost']))
 		{
 			$this->useProxy = true;
 		}
@@ -59,12 +59,18 @@ class Handler extends Http\Handler
 	public function process(Http\Promise $promise)
 	{
 		$request = $this->request;
+		$uri = $request->getUri();
 
 		try
 		{
 			switch ($this->state)
 			{
 				case self::PENDING:
+					$logUri = new Web\Uri((string)$uri);
+					$logUri->convertToUnicode();
+
+					$this->log("***CONNECT to " . $this->socket->getAddress() . " for URI " . $logUri . "\n", Web\HttpDebug::CONNECT);
+
 					// this is a new job - should connect asynchronously
 					try
 					{
@@ -76,11 +82,12 @@ class Handler extends Http\Handler
 					}
 
 					$this->state = self::CONNECTED;
+
 					break;
 
 				case self::CONNECTED:
 				case self::CONNECT_RECEIVED:
-					if ($this->state === self::CONNECTED && $this->useProxy && $request->getUri()->getScheme() === 'https')
+					if ($this->state === self::CONNECTED && $this->useProxy && $uri->getScheme() === 'https')
 					{
 						// implement CONNECT method for https connections via proxy
 						$this->sendConnect();
@@ -90,7 +97,7 @@ class Handler extends Http\Handler
 					else
 					{
 						// enable ssl before sending request headers
-						if ($request->getUri()->getScheme() === 'https')
+						if ($uri->getScheme() === 'https')
 						{
 							$this->socket->setBlocking();
 
@@ -112,6 +119,7 @@ class Handler extends Http\Handler
 
 						$this->state = self::HEADERS_SENT;
 					}
+
 					break;
 
 				case self::CONNECT_SENT:
@@ -133,6 +141,7 @@ class Handler extends Http\Handler
 							throw new Http\NetworkException($request, 'Error receiving the CONNECT response from the proxy: ' . $headers->getStatus() . ' ' . $headers->getReasonPhrase());
 						}
 					}
+
 					break;
 
 				case self::HEADERS_SENT:
@@ -142,6 +151,7 @@ class Handler extends Http\Handler
 						// sent all the body
 						$this->state = self::BODY_SENT;
 					}
+
 					break;
 
 				case self::BODY_SENT:
@@ -175,6 +185,7 @@ class Handler extends Http\Handler
 							$this->state = self::BODY_RECEIVED;
 						}
 					}
+
 					break;
 
 				case self::HEADERS_RECEIVED:
@@ -197,6 +208,7 @@ class Handler extends Http\Handler
 
 						$this->state = self::BODY_RECEIVED;
 					}
+
 					break;
 			}
 		}
@@ -208,7 +220,7 @@ class Handler extends Http\Handler
 
 			if ($logger = $this->getLogger())
 			{
-				$logger->error($exception->getMessage());
+				$logger->error($exception->getMessage() . "\n");
 			}
 		}
 	}
@@ -434,7 +446,7 @@ class Handler extends Http\Handler
 				'streamTimeout' => $options['streamTimeout'] ?? null,
 				'contextOptions' => $contextOptions,
 				'async' => $options['async'] ?? null,
-			]
+			],
 		);
 
 		return $socket;

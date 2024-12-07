@@ -16,16 +16,22 @@ export default class Zeroing extends EventEmitter
 		Event.bind(this.getLayout(), 'click', () => this.onClick());
 	}
 
-	getLayout(): HTMLElement
+	getLayout(): HTMLElement | null
 	{
 		let textCode = 'LANDING_FIELD_COLOR-ZEROING_TITLE_2';
 		if (this.options)
 		{
+			if (!this.options.styleNode)
+			{
+				return null;
+			}
+
 			if (this.options.textCode)
 			{
 				textCode = this.options.textCode;
 			}
 		}
+
 		return this.cache.remember('layout', () => {
 			return Tag.render`<div class="landing-ui-field-color-zeroing">
 				<div class="landing-ui-field-color-zeroing-preview">

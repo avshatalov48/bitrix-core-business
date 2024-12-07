@@ -43,13 +43,11 @@ abstract class BaseProvider
 	}
 
 	/**
-	 * Rows.
-	 *
-	 * Rows should be in the final (prepared) state.
+	 * Set rows. Rows should be in the final (prepared) state.
 	 *
 	 * @see ::prepareRow
 	 *
-	 * @param array $rows
+	 * @param array $rows Grid rows.
 	 *
 	 * @return void
 	 */
@@ -96,7 +94,7 @@ abstract class BaseProvider
 	/**
 	 * Pagination.
 	 *
-	 * @param PageNavigation $pagination
+	 * @param PageNavigation $pagination Pagination description.
 	 *
 	 * @return void
 	 */
@@ -209,7 +207,7 @@ abstract class BaseProvider
 	/**
 	 * Prepare row.
 	 *
-	 * @param array $rawRow
+	 * @param array $rawRow Raw data for grid row.
 	 *
 	 * @return array
 	 */
@@ -297,7 +295,7 @@ abstract class BaseProvider
 	/**
 	 * Leaves only the fields available for this grid.
 	 *
-	 * @param array $fields
+	 * @param array $fields Raw field list for grid description.
 	 *
 	 * @return array
 	 */
@@ -369,6 +367,8 @@ abstract class BaseProvider
 			'SHOW_ROW_CHECKBOXES' => isset($actionPanel),
 			'SHOW_CHECK_ALL_CHECKBOXES' => isset($actionPanel),
 			'HANDLE_RESPONSE_ERRORS' => true,
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => true,
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 	}
 }

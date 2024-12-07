@@ -189,6 +189,7 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
 		$eventManager->registerEventHandler('mobile', 'onSetContentView', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onSetContentView');
 		$eventManager->registerEventHandler('mobile', 'onGetContentId', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onGetContentId');
+		$eventManager->registerEventHandler('mobile', 'onTariffRestrictionsCollect', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\TariffPlanRestriction', 'getTariffPlanRestrictions');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounter', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounter');
 		$eventManager->registerEventHandler('pull', 'onGetMobileCounterTypes', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounterTypes');
 		$eventManager->registerEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
@@ -206,6 +207,24 @@ Class socialnetwork extends CModule
 		$eventManager->registerEventHandler('socialnetwork', 'OnSocNetUserToGroupDelete', 'socialnetwork', '\Bitrix\Socialnetwork\Internals\Space\Counter\Cache', 'invalidateCache');
 
 		CAgent::AddAgent("CSocNetMessages::SendEventAgent();", "socialnetwork", "N", 600);
+		CAgent::AddAgent(
+			"\Bitrix\Socialnetwork\Internals\EventService\CleanAgent::execute();",
+			"socialnetwork",
+			"N",
+			86400,
+			"",
+			"Y",
+			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 600, "FULL")
+		);
+		CAgent::AddAgent(
+			"\Bitrix\Socialnetwork\Internals\Space\LiveWatch\CleanAgent::execute();",
+			"socialnetwork",
+			"N",
+			900,
+			"",
+			"Y",
+			\ConvertTimeStamp(time() + \CTimeZone::GetOffset() + 600, "FULL")
+		);
 
 		$arUserOptions = CUserOptions::GetOption("intranet", "~gadgets_sonet_user", false, 0);
 		if (!is_array($arUserOptions) || count($arUserOptions) <= 0)
@@ -368,6 +387,8 @@ Class socialnetwork extends CModule
 		}
 
 		CAgent::RemoveAgent("CSocNetMessages::SendEventAgent();", "socialnetwork");
+		CAgent::RemoveAgent("\Bitrix\Socialnetwork\Internals\EventService\CleanAgent::execute();", "socialnetwork");
+		CAgent::RemoveAgent("\Bitrix\Socialnetwork\Internals\Space\LiveWatch\CleanAgent::execute();", "socialnetwork");
 
 		UnRegisterModuleDependences("main", "OnBeforeProlog", "main", "", "", "/modules/socialnetwork/prolog_before.php");
 		UnRegisterModuleDependences("search", "OnBeforeFullReindexClear", "socialnetwork", "CSocNetSearchReindex", "OnBeforeFullReindexClear");
@@ -433,6 +454,7 @@ Class socialnetwork extends CModule
 		$eventManager->unregisterEventHandler('main', 'onRatingListViewed', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Main\RatingVoteList', 'onViewed');
 		$eventManager->unregisterEventHandler('mobile', 'onSetContentView', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onSetContentView');
 		$eventManager->unregisterEventHandler('mobile', 'onGetContentId', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\LogEntry', 'onGetContentId');
+		$eventManager->unregisterEventHandler('mobile', 'onTariffRestrictionsCollect', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Mobile\TariffPlanRestriction', 'getTariffPlanRestrictions');
 		$eventManager->unregisterEventHandler('pull', 'onGetMobileCounter', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounter');
 		$eventManager->unregisterEventHandler('pull', 'onGetMobileCounterTypes', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Pull\Counter', 'onGetMobileCounterTypes');
 		$eventManager->unregisterEventHandler('intranet', 'onEmployeeDepartmentsChanged', 'socialnetwork', '\Bitrix\Socialnetwork\Integration\Intranet\Structure\Employee', 'onEmployeeDepartmentsChanged');
@@ -460,7 +482,6 @@ Class socialnetwork extends CModule
 		if (!!$id)
 		{
 			$USER_FIELD_MANAGER->CleanCache();
-			$USER_FIELD_MANAGER->arUserTypes = '';
 
 			$createIndex = false;
 			$arFields = array();
@@ -896,7 +917,7 @@ Class socialnetwork extends CModule
 		global $DB;
 
 		$sIn = "'SONET_NEW_MESSAGE', 'SONET_INVITE_FRIEND', 'SONET_INVITE_GROUP', 'SONET_AGREE_FRIEND', 'SONET_BAN_FRIEND', 'SONET_NEW_EVENT_GROUP', 'SONET_NEW_EVENT_USER'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		$ar = $rs->Fetch();
 		if($ar["C"] <= 0)
 		{
@@ -922,18 +943,15 @@ Class socialnetwork extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork", true, True);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/sounds",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/sounds", true, True);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/activities", $_SERVER["DOCUMENT_ROOT"]."/bitrix/activities", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/images",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/images/socialnetwork", true, True);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/sounds",  $_SERVER["DOCUMENT_ROOT"]."/bitrix/sounds", true, True);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/gadgets", $_SERVER["DOCUMENT_ROOT"]."/bitrix/gadgets", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/install/activities", $_SERVER["DOCUMENT_ROOT"]."/bitrix/activities", true, true);
 		return true;
 	}
 
@@ -1034,16 +1052,5 @@ Class socialnetwork extends CModule
 			"use_site" => array("K", "W")
 			);
 		return $arr;
-	}
-
-	public function migrateToBox()
-	{
-		global $DB;
-
-		$DB->Query('UPDATE b_sonet_log SET EVENT_ID="intranet_new_user" WHERE EVENT_ID="bitrix24_new_user"');
-		$DB->Query('UPDATE b_sonet_log_comment SET EVENT_ID="intranet_new_user_comment" WHERE EVENT_ID="bitrix24_new_user_comment"');
-		$DB->Query('UPDATE b_sonet_log SET ENTITY_TYPE="IN" WHERE ENTITY_TYPE="BN"');
-		$DB->Query('UPDATE b_sonet_log SET RATING_TYPE_ID="INTRANET_NEW_USER" WHERE RATING_TYPE_ID="BITRIX24_NEW_USER"');
-		$DB->Query('UPDATE b_sonet_log SET MODULE_ID="intranet" WHERE EVENT_ID="intranet_new_user"');
 	}
 }

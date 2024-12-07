@@ -72,7 +72,7 @@ $enablePhoneVerification =
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Message.Tester.init(<?=Json::encode(array(
 			'id' => $arParams['ID'],

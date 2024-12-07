@@ -61,4 +61,4 @@ export class Buttons
 			}
 		);
 	}
-};
+}

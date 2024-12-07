@@ -113,6 +113,7 @@ const CheckDevices = {
 				.then(stream => {
 					this.gettingVideo = false;
 					this.setLocalStream(stream);
+					this.getApplication().updateMediaDevices();
 					if (stream.getVideoTracks().length > 0)
 					{
 						if (!this.selectedCamera)

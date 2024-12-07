@@ -1,6 +1,9 @@
-<?
-use \Bitrix\Rest\RestException;
-use \Bitrix\Rest\AccessException;
+<?php
+
+use Bitrix\Rest\Exceptions\ArgumentException;
+use Bitrix\Rest\RestException;
+use Bitrix\Rest\AccessException;
+use Bitrix\Rest\Exceptions\ArgumentNullException;
 
 class CBitrixRestEntity extends IRestService
 {
@@ -378,7 +381,7 @@ class CBitrixRestEntity extends IRestService
 			$params['ID'] = intval($params['ID']);
 			if($params['ID'] <= 0)
 			{
-				throw new \Bitrix\Main\ArgumentNullException("ID");
+				throw new ArgumentNullException("ID");
 			}
 			else
 			{
@@ -434,7 +437,7 @@ class CBitrixRestEntity extends IRestService
 			$params['ID'] = intval($params['ID']);
 			if($params['ID'] <= 0)
 			{
-				throw new \Bitrix\Main\ArgumentNullException("ID");
+				throw new ArgumentNullException("ID");
 			}
 			else
 			{
@@ -623,7 +626,7 @@ class CBitrixRestEntity extends IRestService
 			$params['ID'] = intval($params['ID']);
 			if($params['ID'] <= 0)
 			{
-				throw new \Bitrix\Main\ArgumentNullException("ID");
+				throw new ArgumentNullException("ID");
 			}
 			else
 			{
@@ -704,7 +707,7 @@ class CBitrixRestEntity extends IRestService
 			$params['ID'] = intval($params['ID']);
 			if($params['ID'] <= 0)
 			{
-				throw new \Bitrix\Main\ArgumentNullException("ID");
+				throw new ArgumentNullException("ID");
 			}
 			else
 			{
@@ -799,7 +802,7 @@ class CBitrixRestEntity extends IRestService
 			{
 				if(!isset($params['PROPERTY']))
 				{
-					throw new \Bitrix\Main\ArgumentNullException('PROPERTY');
+					throw new ArgumentNullException('PROPERTY');
 				}
 
 				$arIBlock = self::getIBlock(self::getEntityIBlockCode($params['ENTITY'], $server));
@@ -1064,7 +1067,7 @@ class CBitrixRestEntity extends IRestService
 
 			if($params['ENTITY'] == '')
 			{
-				throw new Bitrix\Rest\Exceptions\ArgumentNullException("ENTITY");
+				throw new ArgumentNullException("ENTITY");
 			}
 
 			if(isset($params['ENTITY_NEW']))
@@ -1074,7 +1077,7 @@ class CBitrixRestEntity extends IRestService
 		}
 		else
 		{
-			throw new Bitrix\Rest\Exceptions\ArgumentNullException("ENTITY");
+			throw new ArgumentNullException("ENTITY");
 		}
 
 		return true;
@@ -1123,7 +1126,7 @@ class CBitrixRestEntity extends IRestService
 				$params['TYPE'] = mb_strtoupper($params['TYPE']);
 				if(!in_array($params['TYPE'], array('S', 'N', 'F'/*, 'L'*/)))
 				{
-					throw new \Bitrix\Main\ArgumentException('Wrong entity item property type', "TYPE");
+					throw new ArgumentException('Wrong entity item property type', "TYPE");
 				}
 			}
 

@@ -1,0 +1,2 @@
+/** @module linkify */
+jn.define('linkify', (require, exports, module) => {

@@ -27,7 +27,8 @@ export type IconConfig = {
 
 export type MoreLinkConfig = {
 	text: TextConfig,
-	code: string,
+	code?: string,
+	articleId?: string,
 }
 
 export type ButtonConfig = {
@@ -36,6 +37,7 @@ export type ButtonConfig = {
 	color?: string,
 	onclick?: function,
 	description?: TextConfig,
+	target?: string,
 }
 
 export type TextConfig = {

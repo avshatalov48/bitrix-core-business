@@ -9,6 +9,7 @@ return [
 	'rel' => [
 		'main.polyfill.core',
 		'mail.client.filtertoolbar',
+		'mail.client.errorbox',
 		'mail.client.binding',
 		'main.core.events',
 	],

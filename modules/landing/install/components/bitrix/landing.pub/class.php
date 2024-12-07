@@ -1280,16 +1280,9 @@ class LandingPubComponent extends LandingBaseComponent
 					);
 				if ($query)
 				{
-					$isUtf = defined('BX_UTF') && BX_UTF === true;
 					if (strpos($outputContent, '<?') !== false)
 					{
 						return $outputContent;
-					}
-					if (!$isUtf)
-					{
-						[$outputContent, $query] = \Bitrix\Main\Text\Encoding::convertEncoding(
-							[$outputContent, $query], SITE_CHARSET, 'UTF-8'
-						);
 					}
 					$phrases = explode(' ', $query);
 					\trimArr($phrases, true);
@@ -1311,12 +1304,6 @@ class LandingPubComponent extends LandingBaseComponent
 							);
 							$outputContent = str_replace($outer, $outerNew, $outputContent);
 						}
-					}
-					if (!$isUtf)
-					{
-						$outputContent = \Bitrix\Main\Text\Encoding::convertEncoding(
-							$outputContent, 'UTF-8', SITE_CHARSET
-						);
 					}
 				}
 

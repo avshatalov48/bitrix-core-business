@@ -10,7 +10,7 @@ $return = [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_STORE_SALESCENTER_PAYMENT_PAY-NAME'),
 		'section' => ['store'],
-		'type' => 'null',
+		'system' => true,
 		'namespace' => 'bitrix',
 	],
 	'nodes' => [

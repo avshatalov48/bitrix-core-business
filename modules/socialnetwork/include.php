@@ -368,15 +368,6 @@ $arSocNetUserEvents = array(
 	"SONET_BAN_FRIEND"
 );
 
-if(
-	!IsModuleInstalled("video")
-	|| !CBXFeatures::IsFeatureEnabled("VideoConference")
-)
-{
-	unset($arSocNetUserOperations["videocall"]);
-	unset($arSocNetUserEvents[1]);
-}
-
 if (!CBXFeatures::IsFeatureEnabled("WebMessenger"))
 {
 	unset($arSocNetUserOperations["message"]);

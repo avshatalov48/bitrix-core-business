@@ -4,11 +4,14 @@ namespace Bitrix\Im\V2\Rest;
 
 class PopupData
 {
+	protected const DEFAULT_MAX_LEVEL = 1;
+
 	/**
 	 * @var PopupDataItem[]
 	 */
 	protected array $popupItems = [];
 	protected array $excludedList = [];
+	protected int $maxLevel = self::DEFAULT_MAX_LEVEL;
 
 	/**
 	 * @param PopupDataItem[] $popupDataItems
@@ -54,14 +57,8 @@ class PopupData
 	public function toRestFormat(array $options = []): array
 	{
 		$result = [];
-
-		foreach ($this->popupItems as $item)
-		{
-			if ($item instanceof PopupDataAggregatable)
-			{
-				$this->merge($item->getPopupData($this->excludedList));
-			}
-		}
+		$this->maxLevel = $options['POPUP_MAX_LEVEL'] ?? static::DEFAULT_MAX_LEVEL;
+		$this->fillNextLevel();
 
 		foreach ($this->popupItems as $item)
 		{
@@ -69,6 +66,28 @@ class PopupData
 		}
 
 		return $result;
+	}
+
+	protected function fillNextLevel(int $level = 1): void
+	{
+		if ($level > $this->maxLevel)
+		{
+			return;
+		}
+
+		$innerPopupData = new static([], $this->excludedList);
+		$innerPopupData->maxLevel = $this->maxLevel;
+
+		foreach ($this->popupItems as $item)
+		{
+			if ($item instanceof PopupDataAggregatable)
+			{
+				$innerPopupData->merge($item->getPopupData($this->excludedList));
+			}
+		}
+
+		$innerPopupData->fillNextLevel($level + 1);
+		$this->merge($innerPopupData);
 	}
 
 	private function mergeItem(PopupDataItem $popupItem): void

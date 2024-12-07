@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
 $arCategoryList = CIdeaManagment::getInstance()->Idea()->GetCategoryList();
-$arCategoryFilter = CIdeaManagment::getInstance()->Idea()->GetSubCategoryList(ToUpper($arResult["VARIABLES"]["category"]));
+$arCategoryFilter = CIdeaManagment::getInstance()->Idea()->GetSubCategoryList(mb_strtoupper($arResult["VARIABLES"]["category"]));
 $arCategoryFilter = $arCategoryFilter["CODE"];
 $arStatusesByCode = array();
 $arStatuses = CIdeaManagment::getInstance()->Idea()->GetStatusList();
@@ -17,7 +17,7 @@ foreach($arStatuses as $arStatus)
 		"CACHE_TIME" => $arParams["CACHE_TIME"],
 		"FILTER" => array(
 			CIdeaManagment::UFCategroryCodeField => $arCategoryFilter,
-			CIdeaManagment::UFStatusField => $arStatusesByCode[ToUpper($arResult["VARIABLES"]["status_code"])]["ID"],
+			CIdeaManagment::UFStatusField => $arStatusesByCode[mb_strtoupper($arResult["VARIABLES"]["status_code"])]["ID"],
 		),
 		"PATH_TO_POST" => $arResult["PATH_TO_POST"],
 		"IMAGE_MAX_WIDTH"			=> $arParams["IMAGE_MAX_WIDTH"],
@@ -25,7 +25,7 @@ foreach($arStatuses as $arStatus)
 		"USER"			=> $arResult["PATH_TO_USER"],
 		"INDEX"			=> $arResult["PATH_TO_INDEX"],
 		"RSS_CNT" => 10,
-		"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#IDEA_CATEGORY#" => $arCategoryList[ToUpper($arResult["VARIABLES"]["category"])]["NAME"], "#IDEA_STATUS#" => $arStatusesByCode[ToUpper($arResult["VARIABLES"]["status_code"])]["VALUE"])),
+		"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#IDEA_CATEGORY#" => $arCategoryList[mb_strtoupper($arResult["VARIABLES"]["category"])]["NAME"], "#IDEA_STATUS#" => $arStatusesByCode[mb_strtoupper($arResult["VARIABLES"]["status_code"])]["VALUE"])),
 		"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
 	),
 	$component

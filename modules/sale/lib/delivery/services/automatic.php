@@ -729,8 +729,14 @@ class Automatic extends Base
 
 			foreach($oldOrder["ITEMS"] as $item)
 			{
-				if(is_string($item["DIMENSIONS"]))
-					$item["DIMENSIONS"] = unserialize($item["DIMENSIONS"], ['allowed_classes' => false]);
+				if (!isset($item['DIMENSIONS']))
+				{
+					continue;
+				}
+				if (is_string($item['DIMENSIONS']) && $item['DIMENSIONS'] !== '')
+				{
+					$item['DIMENSIONS'] = unserialize($item['DIMENSIONS'], ['allowed_classes' => false]);
+				}
 
 				if(!is_array($item["DIMENSIONS"]) || empty($item["DIMENSIONS"]))
 					continue;

@@ -1,253 +1,245 @@
-import { Dom, Loc, Tag, Type, Event } from 'main.core';
+import { Dom, Tag, Type, Event } from 'main.core';
 import Weekday from './weekday';
-import { MenuManager, Popup } from 'main.popup';
+import { MenuManager, Popup, PopupManager } from 'main.popup';
 import { Util } from 'calendar.util';
+import { RangeModel } from '../../model/index';
 
-type RangeOptions = {
+type Params = {
 	readOnly: boolean,
-	getSlotSize: void,
-	from: number,
-	to: number,
-	weekdays: Array<number>,
-	workDays: Array<number>,
-	weekStart: number,
-	ruleUpdated: void,
-	addRange: void,
-	removeRange: void,
-	showReadOnlyPopup: void,
-	show: boolean,
-	deletable: boolean,
-}
+	model: RangeModel,
+	showReadOnlyPopup: function,
+};
 
 export default class Range
 {
-	constructor(options: RangeOptions)
+	#params: Params;
+	#layout: {
+		wrap: HTMLElement,
+		weekdaysSelect: HTMLElement,
+		fromTimeSelect: HTMLElement,
+		toTimeSelect: HTMLElement,
+		button: HTMLElement,
+	};
+
+	constructor(params: Params)
 	{
-		this.layout = {
-			wrap: null,
-			weekdaysSelect: null,
-			startSelect: null,
-			endSelect: null,
-		};
+		this.#params = params;
+		this.#layout = {};
 
-		this.readOnly = options.readOnly;
-		this.weekStart = options.weekStart;
-		this.workDays = options.workDays;
+		this.showReadOnlyPopup = Type.isFunction(params.showReadOnlyPopup) ? params.showReadOnlyPopup : () => {};
+		this.onRangeUpdated = this.#onRangeUpdated.bind(this);
 
-		this.getSlotSize = options.getSlotSize;
-		this.rule = {
-			from: options.from,
-			to: options.to,
-			weekdays: this.getSortedWeekdays(options.weekdays),
-		};
-
-		this.ruleUpdated = Type.isFunction(options.ruleUpdated) ? options.ruleUpdated : () => {};
-
-		this.addRange = Type.isFunction(options.addRange) ? options.addRange : () => {};
-
-		this.removeRange = Type.isFunction(options.removeRange) ? options.removeRange : () => {};
-
-		this.showReadOnlyPopup = Type.isFunction(options.showReadOnlyPopup) ? options.showReadOnlyPopup : () => {};
-
-		this.show = options.show;
-		this.deletable = false;
+		this.#bindEvents();
 	}
 
-	getRule(): any
+	get #model(): RangeModel
 	{
-		return this.rule;
+		return this.#params.model;
 	}
 
-	settingPopupShown(): boolean
+	hasShownPopups(): boolean
 	{
-		const weekdaysPopupShown = Dom.hasClass(this.layout.weekdaysSelect, '--active');
-		const startPopupShown = Dom.hasClass(this.layout.fromTimeSelect, '--active');
-		const endPopupShown = Dom.hasClass(this.layout.toTimeSelect, '--active');
+		const weekdaysPopupShown = this.weekdaysMenu.isShown();
+		const startPopupShown = Dom.hasClass(this.#layout.fromTimeSelect, '--active');
+		const endPopupShown = Dom.hasClass(this.#layout.toTimeSelect, '--active');
 
 		return weekdaysPopupShown || startPopupShown || endPopupShown;
 	}
 
-	getWrap(): HTMLElement
+	#bindEvents(): void
 	{
-		return this.layout.wrap;
+		this.#model.subscribe('updated', this.onRangeUpdated);
 	}
 
-	disableAnimation()
+	destroy(): void
 	{
-		this.show = false;
+		this.#layout.wrap.remove();
+		this.#unbindEvents();
+	}
+
+	#unbindEvents(): void
+	{
+		this.#model.unsubscribe('updated', this.onRangeUpdated);
+	}
+
+	#onRangeUpdated(): void
+	{
+		this.updateWeekdaysTitle();
 	}
 
 	render(): HTMLElement
 	{
-		this.layout.wrap = Tag.render`
+		this.#layout.wrap = Tag.render`
 			<div class="calendar-sharing__settings-range">
-				${this.renderWeekdaysSelect()}
+				${this.#renderWeekdaysSelect()}
 				<div class="calendar-sharing__settings-time-interval">
-					${this.renderTimeFromSelect()}
+					${this.#renderTimeFromSelect()}
 					<div class="calendar-sharing__settings-dash"></div>
-					${this.renderTimeToSelect()}
+					${this.#renderTimeToSelect()}
 				</div>
 				${this.renderButton()}
 			</div>
 		`;
 
-		if (this.show)
+		if (this.#model.isNew())
 		{
-			Dom.addClass(this.layout.wrap, '--animate-show');
-			setTimeout(() => Dom.removeClass(this.layout.wrap, '--animate-show'), 300);
+			this.#animate();
 		}
 
-		return this.layout.wrap;
+		return this.#layout.wrap;
+	}
+
+	#animate(): void
+	{
+		Dom.addClass(this.#layout.wrap, '--animate-show');
+		setTimeout(() => {
+			Dom.removeClass(this.#layout.wrap, '--animate-show');
+			this.#model.setNew(false);
+		}, 300);
 	}
 
 	renderButton(): HTMLElement
 	{
-		this.layout.button = this.getButton();
+		const button = this.#getButton();
 
-		return this.layout.button;
+		this.#layout.button?.replaceWith(button);
+		this.#layout.button = button;
+
+		return this.#layout.button;
 	}
 
-	update()
+	#getButton(): HTMLElement
 	{
-		const maxFrom = 24 * 60 - this.getSlotSize();
-		if (this.rule.from > maxFrom)
+		if (this.#model.isDeletable())
 		{
-			this.rule.from = maxFrom;
-			if (this.layout.fromTimeSelect)
-			{
-				this.layout.fromTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.from));
-			}
-
-			this.rule.to = 24 * 60;
-			if (this.layout.toTimeSelect)
-			{
-				this.layout.toTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.to));
-			}
-		}
-		else
-		{
-			this.updateTo();
-		}
-	}
-
-	updateTo()
-	{
-		const minToMinutes = this.rule.from + this.getSlotSize();
-		if (minToMinutes > this.rule.to)
-		{
-			this.rule.to = minToMinutes;
-			if (this.layout.toTimeSelect)
-			{
-				this.layout.toTimeSelect.innerHTML = this.formatAmPmSpan(this.formatMinutes(this.rule.to));
-			}
-		}
-	}
-
-	setDeletable(isDeletable)
-	{
-		this.deletable = isDeletable;
-
-		const button = this.layout.button;
-		this.layout.button = this.getButton();
-		button?.replaceWith(this.layout.button);
-	}
-
-	getButton(): HTMLElement
-	{
-		let button;
-
-		if (this.deletable)
-		{
-			button = Tag.render`
-				<div class="calendar-sharing__settings-delete"></div>
+			return Tag.render`
+				<div
+					class="calendar-sharing__settings-delete"
+					onclick="${this.#onDeleteButtonClickHandler.bind(this)}"
+				></div>
 			`;
+		}
 
-			Event.bind(button, 'click', this.onDeleteButtonClickHandler.bind(this));
+		return Tag.render`
+			<div
+				class="calendar-sharing__settings-add"
+				onclick="${this.#onAddButtonClickHandler.bind(this)}"
+			></div>
+		`;
+	}
+
+	#onDeleteButtonClickHandler(): void
+	{
+		if (this.#params.readOnly)
+		{
+			this.showReadOnlyPopup(this.#layout.button);
 		}
 		else
 		{
-			button = Tag.render`
-				<div class="calendar-sharing__settings-add"></div>
-			`;
-
-			Event.bind(button, 'click', this.onAddButtonClickHandler.bind(this));
+			this.#remove();
 		}
-
-		return button;
 	}
 
-	onDeleteButtonClickHandler()
+	#onAddButtonClickHandler(): void
 	{
-		if (this.readOnly)
+		if (this.#params.readOnly)
 		{
-			this.showReadOnlyPopup(this.layout.button);
+			this.showReadOnlyPopup(this.#layout.button);
 		}
 		else
 		{
-			this.remove();
+			this.#add();
 		}
 	}
 
-	onAddButtonClickHandler()
+	#add(): void
 	{
-		if (this.readOnly)
-		{
-			this.showReadOnlyPopup(this.layout.button);
-		}
-		else
-		{
-			this.addRange(this);
-		}
+		this.#model.getRule().addRange();
 	}
 
-	hideButton()
+	#remove(): void
 	{
-		Dom.addClass(this.layout.button, '--hidden');
-	}
-
-	showButton()
-	{
-		Dom.removeClass(this.layout.button, '--hidden');
-	}
-
-	remove()
-	{
-		if (!this.removeRange(this))
+		if (!this.#model.getRule().removeRange(this.#model))
 		{
 			return;
 		}
 
-		Dom.addClass(this.layout.wrap, '--animate-remove');
-		setTimeout(() => this.layout.wrap.remove(), 300);
+		Dom.addClass(this.#layout.wrap, '--animate-remove');
+		setTimeout(() => this.destroy(), 300);
 	}
 
-	renderWeekdaysSelect(): HTMLElement
+	#renderWeekdaysSelect(): HTMLElement
 	{
 		const weekdaysLoc = Util.getWeekdaysLoc().map((loc, index) => {
 			return {
 				loc,
 				index,
-				active: this.rule.weekdays.includes(index),
+				active: this.#model.getWeekDays().includes(index),
 			};
 		});
-		weekdaysLoc.push(...weekdaysLoc.splice(0, this.weekStart));
+		weekdaysLoc.push(...weekdaysLoc.splice(0, this.#model.getWeekStart()));
 
-		this.layout.weekdaysSelect = Tag.render`
+		this.#layout.weekdaysSelect = Tag.render`
 			<div
 				class="calendar-sharing__settings-weekdays calendar-sharing__settings-select calendar-sharing__settings-select-arrow"
-				title="${this.formatWeekdays(false)}"
+				title="${ this.#model.formatWeekdays()}"
 			>
-				${this.getWeekdaysTitle()}
+				${this.#model.getWeekdaysTitle()}
 			</div>
 		`;
 
-		Event.bind(this.layout.weekdaysSelect, 'click', this.onWeekdaysSelectClickHandler.bind(this));
+		const observer = new IntersectionObserver(() => {
+			if (this.#layout.weekdaysSelect.offsetWidth > 0)
+			{
+				this.updateWeekdaysTitle();
+			}
+		});
+		observer.observe(this.#layout.weekdaysSelect);
 
-		this.weekdays = weekdaysLoc.map((weekdayLoc) => this.createWeekday(weekdayLoc));
+		Event.bind(this.#layout.weekdaysSelect, 'click', this.#onWeekdaysSelectClickHandler.bind(this));
 
-		this.weekdaysMenu = new Popup({
-			id: `calendar-sharing-settings-weekdays${Date.now()}`,
-			bindElement: this.layout.weekdaysSelect,
+		this.weekdays = weekdaysLoc.map((weekdayLoc) => this.#createWeekday(weekdayLoc));
+
+		const weekdaysPopupId = `calendar-sharing-settings-weekdays-${this.#params.model.id}`;
+		this.weekdaysMenu = PopupManager.getPopupById(weekdaysPopupId);
+		if (!this.weekdaysMenu)
+		{
+			this.weekdaysMenu = this.#createWeekdaysPopup(weekdaysPopupId);
+			this.weekdaysMenu.canBeClosed = true;
+		}
+		this.weekdaysMenu.setBindElement(this.#layout.weekdaysSelect);
+
+		return this.#layout.weekdaysSelect;
+	}
+
+	updateWeekdaysTitle(): void
+	{
+		this.#layout.weekdaysSelect.title = this.#model.formatWeekdays(false);
+
+		this.#layout.weekdaysSelect.innerText = this.#model.getWeekdaysTitle(true);
+		const weekdaysSelectWidth = this.#layout.weekdaysSelect.offsetWidth - 32;
+		const weekdaysTextWidth = this.#getTextNodeWidth(this.#layout.weekdaysSelect.firstChild);
+		const weekdaysWidthIsOverflowing = weekdaysSelectWidth < weekdaysTextWidth;
+		if (weekdaysWidthIsOverflowing)
+		{
+			this.#layout.weekdaysSelect.innerText = this.#model.getWeekdaysTitle(false);
+		}
+	}
+
+	#getTextNodeWidth(textNode): number
+	{
+		const spanNode = BX.Tag.render`<span style="position: absolute;">${textNode.cloneNode()}</span>`;
+		textNode.replaceWith(spanNode);
+		const textWidth = spanNode.offsetWidth;
+		spanNode.replaceWith(textNode);
+
+		return textWidth;
+	}
+
+	#createWeekdaysPopup(id: string): Popup
+	{
+		return new Popup({
+			id,
 			content: Tag.render`
 				<div class="calendar-sharing__settings-popup-weekdays">
 					${this.weekdays.map((weekday) => weekday.render())}
@@ -261,51 +253,26 @@ export default class Range
 			},
 			autoHideHandler: () => this.weekdaysMenu.canBeClosed,
 			events: {
-				onPopupShow: () => Dom.addClass(this.layout.weekdaysSelect, '--active'),
-				onPopupClose: () => Dom.removeClass(this.layout.weekdaysSelect, '--active'),
+				onPopupShow: () => Dom.addClass(this.#layout.weekdaysSelect, '--active'),
+				onPopupClose: () => Dom.removeClass(this.#layout.weekdaysSelect, '--active'),
 			},
 		});
-		this.weekdaysMenu.canBeClosed = true;
-
-		return this.layout.weekdaysSelect;
 	}
 
-	createWeekday(weekdayLoc): Weekday
+	#createWeekday(weekdayLoc): Weekday
 	{
 		return new Weekday({
 			name: weekdayLoc.loc,
 			index: weekdayLoc.index,
 			active: weekdayLoc.active,
-			onSelected: () => {
-				if (this.rule.weekdays.includes(weekdayLoc.index))
-				{
-					return;
-				}
-				this.rule.weekdays.push(weekdayLoc.index);
-				this.rule.weekdays = this.getSortedWeekdays(this.rule.weekdays);
-				this.layout.weekdaysSelect.title = this.formatWeekdays();
-				this.layout.weekdaysSelect.innerText = this.getWeekdaysTitle();
-
-				this.ruleUpdated();
-			},
-			onDiscarded: () => {
-				const index = this.rule.weekdays.indexOf(weekdayLoc.index);
-				if (index < 0)
-				{
-					return;
-				}
-				this.rule.weekdays.splice(index, 1);
-				this.layout.weekdaysSelect.title = this.formatWeekdays();
-				this.layout.weekdaysSelect.innerText = this.getWeekdaysTitle();
-
-				this.ruleUpdated();
-			},
-			canBeDiscarded: () => this.rule.weekdays.length > 1,
-			onMouseDown: this.onWeekdayMouseDown.bind(this),
+			onSelected: () => this.#model.addWeekday(weekdayLoc.index),
+			onDiscarded: () => this.#model.removeWeekday(weekdayLoc.index),
+			canBeDiscarded: () => this.#model.getWeekDays().length > 1,
+			onMouseDown: this.#onWeekdayMouseDown.bind(this),
 		});
 	}
 
-	onWeekdayMouseDown(event, currentWeekday)
+	#onWeekdayMouseDown(event, currentWeekday): void
 	{
 		this.weekdaysMenu.canBeClosed = false;
 		const startX = event.clientX;
@@ -362,36 +329,29 @@ export default class Range
 		});
 	}
 
-	renderTimeFromSelect(): HTMLElement
+	#renderTimeFromSelect(): HTMLElement
 	{
-		const fromFormatted = this.formatMinutes(this.rule.from);
-		this.layout.fromTimeSelect = this.renderTimeSelect(fromFormatted, {
-			isSelected: (minutes) => this.rule.from === minutes,
-			onItemSelected: (minutes) => {
-				this.rule.from = minutes;
-				this.updateTo();
-			},
-			getMaxMinutes: () => 24 * 60 - this.getSlotSize(),
+		this.#layout.fromTimeSelect = this.#renderTimeSelect(this.#model.getFromFormatted(), {
+			getTimeStamps: () => this.#model.getAvailableTimeFrom(),
+			isSelected: (minutes) => this.#model.getFrom() === minutes,
+			onItemSelected: (minutes) => this.#model.setFrom(minutes),
 		}, 'calendar-sharing-settings-range-from');
 
-		return this.layout.fromTimeSelect;
+		return this.#layout.fromTimeSelect;
 	}
 
-	renderTimeToSelect(): HTMLElement
+	#renderTimeToSelect(): HTMLElement
 	{
-		const toFormatted = this.formatMinutes(this.rule.to);
-		this.layout.toTimeSelect = this.renderTimeSelect(toFormatted, {
-			isSelected: (minutes) => this.rule.to === minutes,
-			onItemSelected: (minutes) => {
-				this.rule.to = minutes;
-			},
-			getMinMinutes: () => this.rule.from + this.getSlotSize(),
+		this.#layout.toTimeSelect = this.#renderTimeSelect(this.#model.getToFormatted(), {
+			getTimeStamps: () => this.#model.getAvailableTimeTo(),
+			isSelected: (minutes) => this.#model.getTo() === minutes,
+			onItemSelected: (minutes) => this.#model.setTo(minutes),
 		}, 'calendar-sharing-settings-range-to');
 
-		return this.layout.toTimeSelect;
+		return this.#layout.toTimeSelect;
 	}
 
-	renderTimeSelect(time, callbacks, dataId): HTMLElement
+	#renderTimeSelect(time, callbacks, dataId): HTMLElement
 	{
 		const timeSelect = Tag.render`
 			<div
@@ -402,45 +362,36 @@ export default class Range
 			</div>
 		`;
 
-		Event.bind(timeSelect, 'click', () => this.onTimeSelectClickHandler(timeSelect, callbacks));
+		Event.bind(timeSelect, 'click', () => this.#onTimeSelectClickHandler(timeSelect, callbacks));
 
 		return timeSelect;
 	}
 
-	showTimeMenu(timeSelect, callbacks)
+	#onTimeSelectClickHandler(timeSelect, callbacks): void
 	{
-		const timeStamps = [];
-		for (let hour = 0; hour <= 24; hour++)
+		if (this.#params.readOnly)
 		{
-			if (
-				(!Type.isFunction(callbacks.getMinMinutes) || hour * 60 >= callbacks.getMinMinutes())
-				&& (!Type.isFunction(callbacks.getMaxMinutes) || hour * 60 <= callbacks.getMaxMinutes())
-			)
-			{
-				timeStamps.push({ minutes: hour * 60, label: this.formatAmPmSpan(Util.formatTime(hour, 0)) });
-			}
-
-			if (
-				hour !== 24
-				&& (!Type.isFunction(callbacks.getMinMinutes) || hour * 60 + 30 >= callbacks.getMinMinutes())
-				&& (!Type.isFunction(callbacks.getMaxMinutes) || hour * 60 + 30 <= callbacks.getMaxMinutes())
-			)
-			{
-				timeStamps.push({ minutes: hour * 60 + 30, label: this.formatAmPmSpan(Util.formatTime(hour, 30)) });
-			}
+			this.showReadOnlyPopup(timeSelect);
 		}
+		else if (!Dom.hasClass(timeSelect, '--active'))
+		{
+			this.#showTimeMenu(timeSelect, callbacks);
+		}
+	}
 
+	#showTimeMenu(timeSelect, callbacks): void
+	{
 		let timeMenu;
-		const items = timeStamps.map((timeStamp) => {
+
+		const items = callbacks.getTimeStamps().map((timeStamp) => {
 			return {
 				html: Tag.render`
-					<div class="calendar-sharing__am-pm-container">${timeStamp.label}</div>
+					<div class="calendar-sharing__am-pm-container">${timeStamp.name}</div>
 				`,
-				className: callbacks.isSelected(timeStamp.minutes) ? 'menu-popup-no-icon --selected' : 'menu-popup-no-icon',
+				className: callbacks.isSelected(timeStamp.value) ? 'menu-popup-no-icon --selected' : 'menu-popup-no-icon',
 				onclick: () => {
-					timeSelect.innerHTML = timeStamp.label;
-					callbacks.onItemSelected(timeStamp.minutes);
-					this.ruleUpdated();
+					timeSelect.innerHTML = timeStamp.name;
+					callbacks.onItemSelected(timeStamp.value);
 					timeMenu.close();
 				},
 			};
@@ -468,11 +419,11 @@ export default class Range
 		popupContent.scrollTop = selectedTimezoneItem.offsetTop - selectedTimezoneItem.offsetHeight * 2;
 	}
 
-	onWeekdaysSelectClickHandler()
+	#onWeekdaysSelectClickHandler(): void
 	{
-		if (this.readOnly)
+		if (this.#params.readOnly)
 		{
-			this.showReadOnlyPopup(this.layout.weekdaysSelect);
+			this.showReadOnlyPopup(this.#layout.weekdaysSelect);
 		}
 		else
 		{
@@ -480,58 +431,8 @@ export default class Range
 		}
 	}
 
-	onTimeSelectClickHandler(timeSelect, callbacks)
-	{
-		if (this.readOnly)
-		{
-			this.showReadOnlyPopup(timeSelect);
-		}
-		else
-		if (!Dom.hasClass(timeSelect, '--active'))
-		{
-			this.showTimeMenu(timeSelect, callbacks);
-		}
-	}
-
 	formatAmPmSpan(time): string
 	{
 		return time.toLowerCase().replace(/(am|pm)/g, '<span class="calendar-sharing__settings-time-am-pm">$1</span>');
-	}
-
-	formatMinutes(minutes): string
-	{
-		const date = new Date(Util.parseDate('01.01.2000').getTime() + minutes * 60 * 1000);
-
-		return Util.formatTime(date);
-	}
-
-	getWeekdaysTitle(): string
-	{
-		if ([...this.rule.weekdays].sort().toString() === this.workDays.sort().toString())
-		{
-			return Loc.getMessage('CALENDAR_SHARING_SETTINGS_WORKDAYS_MSGVER_1');
-		}
-
-		return this.formatWeekdays();
-	}
-
-	formatWeekdays(singleDay = true): string
-	{
-		if (singleDay && this.rule.weekdays.length === 1)
-		{
-			return Util.getWeekdaysLoc(true)[this.rule.weekdays[0]];
-		}
-
-		const weekdaysLoc = Util.getWeekdaysLoc();
-
-		return this.rule.weekdays.map((w) => weekdaysLoc[w]).reduce((a, b) => `${a}, ${b}`, '');
-	}
-
-	getSortedWeekdays(weekdays): []
-	{
-		return weekdays
-			.map((w) => (w < this.weekStart ? w + 10 : w))
-			.sort((a, b) => a - b)
-			.map((w) => w % 10);
 	}
 }

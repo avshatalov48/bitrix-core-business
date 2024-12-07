@@ -1,13 +1,12 @@
 import { Type } from 'main.core';
 
-import { FileType } from 'im.v2.const';
+import { ChatType, FileType } from 'im.v2.const';
 import {
 	MessageStatus,
 	ReactionList,
 	DefaultMessageContent,
-	ReactionSelector,
-	ContextMenu,
 	MessageHeader,
+	MessageFooter,
 } from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
 
@@ -15,7 +14,7 @@ import { VideoItem } from './items/video';
 
 import '../css/video-message.css';
 
-import type { ImModelMessage, ImModelFile } from 'im.v2.model';
+import type { ImModelMessage, ImModelFile, ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const VideoMessage = {
@@ -26,9 +25,8 @@ export const VideoMessage = {
 		MessageStatus,
 		DefaultMessageContent,
 		VideoItem,
-		ReactionSelector,
-		ContextMenu,
 		MessageHeader,
+		MessageFooter,
 	},
 	props: {
 		item: {
@@ -47,6 +45,10 @@ export const VideoMessage = {
 	computed:
 	{
 		FileType: () => FileType,
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId);
+		},
 		message(): ImModelMessage
 		{
 			return this.item;
@@ -54,6 +56,18 @@ export const VideoMessage = {
 		onlyVideo(): boolean
 		{
 			return this.message.text.length === 0 && this.message.attach.length === 0;
+		},
+		hasText(): boolean
+		{
+			return this.message.text.length > 0;
+		},
+		hasAttach(): boolean
+		{
+			return this.message.attach.length > 0;
+		},
+		showBottomContainer(): boolean
+		{
+			return this.hasText || this.hasAttach;
 		},
 		messageFile(): ImModelFile
 		{
@@ -67,40 +81,35 @@ export const VideoMessage = {
 		},
 	},
 	template: `
-		<BaseMessage 
-			:item="item" 
-			:dialogId="dialogId" 
-			:withBackground="!onlyVideo"
-			:withDefaultContextMenu="!onlyVideo"
-		>
-			<div class="bx-im-message-video__container bx-im-message-video__scope">
-				<div class="bx-im-message-video__content-with-menu">
-					<div class="bx-im-message-video__content-with-header">
-						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-video__header" />
-						<div class="bx-im-message-video__content">
-							<VideoItem
-								:key="messageFile.id"
-								:item="messageFile"
-								:messageId="message.id"
-							/>
-							<template v-if="onlyVideo">
-								<div class="bx-im-message-video__message-status-container">
-									<MessageStatus :item="message" :isOverlay="onlyVideo" />
-								</div>
-								<ReactionSelector :messageId="message.id" />
-							</template>
-						</div>
+		<BaseMessage :item="item" :dialogId="dialogId">
+			<div class="bx-im-message-video__container">
+				<MessageHeader :withTitle="false" :item="item" class="bx-im-message-video__header" />
+				<div class="bx-im-message-video__content">
+					<VideoItem
+						:key="messageFile.id"
+						:item="messageFile"
+						:message="message"
+					/>
+					<div v-if="onlyVideo" class="bx-im-message-video__message-status-container">
+						<MessageStatus :item="message" :isOverlay="onlyVideo" />
 					</div>
-					<ContextMenu v-if="onlyVideo" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>
+				<div v-if="showBottomContainer" class="bx-im-message-video__bottom-container">
+					<DefaultMessageContent
+						v-if="hasText || hasAttach"
+						:item="item"
+						:dialogId="dialogId"
+						:withText="hasText"
+						:withAttach="hasAttach"
+					/>
+				</div>
+				<MessageFooter :item="item" :dialogId="dialogId" />
+			</div>
+			<template #after-message>
 				<div v-if="onlyVideo" class="bx-im-message-video__reaction-list-container">
 					<ReactionList :messageId="message.id" />
 				</div>
-				<div v-if="!onlyVideo" class="bx-im-message-video__default-message-container">
-					<DefaultMessageContent :item="item" :dialogId="dialogId" />
-					<ReactionSelector :messageId="message.id" />
-				</div>
-			</div>
+			</template>
 		</BaseMessage>
 	`,
 };

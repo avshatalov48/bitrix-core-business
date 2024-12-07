@@ -1,4 +1,4 @@
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
 
 import { SearchContextMenu } from '../classes/search-context-menu';
 
@@ -9,7 +9,7 @@ import type { ImModelUser } from 'im.v2.model';
 // @vue/component
 export const CarouselUser = {
 	name: 'CarouselUser',
-	components: { Avatar },
+	components: { ChatAvatar },
 	props: {
 		userId: {
 			type: Number,
@@ -24,13 +24,13 @@ export const CarouselUser = {
 	computed:
 	{
 		AvatarSize: () => AvatarSize,
-		dialogId(): number
+		userDialogId(): string
 		{
 			return this.userId.toString();
 		},
 		user(): ImModelUser
 		{
-			return this.$store.getters['users/get'](this.dialogId, true);
+			return this.$store.getters['users/get'](this.userDialogId, true);
 		},
 		name(): string
 		{
@@ -54,7 +54,7 @@ export const CarouselUser = {
 		onClick(event)
 		{
 			this.$emit('clickItem', {
-				dialogId: this.dialogId,
+				dialogId: this.userDialogId,
 				nativeEvent: event,
 			});
 		},
@@ -65,7 +65,7 @@ export const CarouselUser = {
 				return;
 			}
 
-			this.$emit('openContextMenu', { dialogId: this.dialogId, nativeEvent: event });
+			this.$emit('openContextMenu', { dialogId: this.userDialogId, nativeEvent: event });
 		},
 	},
 	template: `
@@ -76,7 +76,11 @@ export const CarouselUser = {
 			@click.right.prevent="onRightClick"
 		>
 			<div v-if="selected" class="bx-im-carousel-user__selected-mark"></div>
-			<Avatar :dialogId="dialogId" :size="AvatarSize.XL" />
+			<ChatAvatar 
+				:avatarDialogId="userDialogId" 
+				:contextDialogId="userDialogId" 
+				:size="AvatarSize.XL" 
+			/>
 			<div class="bx-im-carousel-user__title" :title="name">
 				{{ name }}
 			</div>

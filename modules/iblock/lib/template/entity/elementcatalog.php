@@ -40,7 +40,7 @@ class ElementCatalog extends Base
 		{
 			if (!$this->price && $this->loadFromDatabase())
 			{
-				$this->price = new ElementPrice($this->id);
+				$this->price = ElementPrice::getInstance($this->id);
 			}
 
 			if ($this->price)
@@ -50,7 +50,7 @@ class ElementCatalog extends Base
 		{
 			if (!$this->sku && $this->loadFromDatabase())
 			{
-				$this->sku = new ElementSku($this->id);
+				$this->sku = ElementSku::getInstance($this->id);
 			}
 
 			if ($this->sku)
@@ -60,7 +60,7 @@ class ElementCatalog extends Base
 		{
 			if (!$this->store)
 			{
-				$this->store = new CatalogStore(0);
+				$this->store = CatalogStore::getInstance(0);
 			}
 
 			if ($this->store)

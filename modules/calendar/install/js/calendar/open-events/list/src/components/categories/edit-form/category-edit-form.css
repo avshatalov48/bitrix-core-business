@@ -1,0 +1,178 @@
+.calendar-open-events-category-edit-popup {
+	display: none;
+	flex-direction: column;
+	padding: 6px 14px;
+}
+
+.popup-window .calendar-open-events-category-edit-popup {
+	display: flex !important;
+}
+
+.calendar-open-events-category-edit-name-input {
+	all: unset;
+	background-color: var(--ui-color-base-03);
+	border-radius: 8px;
+	padding: 5px 8px;
+	font-size: var(--ui-font-size-4xl);
+	flex: 1;
+}
+
+.calendar-open-events-category-edit-name-input::placeholder {
+	color: var(--ui-color-base-60);
+}
+
+.calendar-open-events-category-edit-channel-loader {
+	width: 150px;
+	height: 22px;
+	background: url(./channel-loader.svg);
+}
+
+.calendar-open-events-category-edit-channel {
+	display: flex;
+	align-items: center;
+	margin-top: 20px;
+	overflow: hidden;
+	width: 100%;
+	white-space: nowrap;
+	gap: 12px;
+	cursor: default;
+}
+
+.calendar-open-events-category-edit-channel.--edit {
+	cursor: pointer;
+}
+
+.calendar-open-events-category-edit-channel .ui-icon-set {
+	--ui-icon-set__icon-size: 22px;
+	--ui-icon-set__icon-color: var(--ui-color-base-50);
+}
+
+.calendar-open-events-category-edit-channel-text {
+	color: var(--ui-color-base-60);
+	font-size: var(--ui-font-size-xl);
+}
+
+.calendar-open-events-category-edit-channel-avatar {
+	min-width: 24px;
+	max-width: 24px;
+	height: 24px;
+	border-radius: 4px;
+	object-fit: cover;
+	text-align: center;
+	line-height: 24px;
+	font-size: var(--ui-font-size-sm);
+	text-transform: uppercase;
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--ui-color-palette-white-base);
+}
+
+.calendar-open-events-category-edit-channel-name {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.calendar-open-events-category-edit-close {
+	display: flex;
+	gap: 12px;
+	margin: 20px 0;
+}
+
+.calendar-open-events-category-edit-close.--disabled {
+	opacity: 0.5;
+	pointer-events: none;
+	user-select: none;
+}
+
+.calendar-open-events-category-edit-close-switcher {
+	display: flex;
+	align-items: center;
+	height: 20px;
+}
+
+.calendar-open-events-category-edit-close-body {
+	flex: 1;
+}
+
+.calendar-open-events-category-edit-close-title {
+	color: var(--ui-color-base-60);
+	font-size: var(--ui-font-size-xl);
+	line-height: 20px;
+}
+
+.calendar-open-events-category-edit-close.--closed .calendar-open-events-category-edit-close-title {
+	color: var(--ui-color-text-primary);
+}
+
+.calendar-open-events-category-edit-close-hint {
+	color: var(--ui-color-base-60);
+	font-size: var(--ui-font-size-3xs);
+	line-height: var(--ui-font-line-height-sm);
+}
+
+.calendar-open-events-category-edit-close-users {
+	margin-top: 10px;
+}
+
+.calendar-open-events-category-edit-description-textarea {
+	all: unset;
+	min-height: 77px;
+	margin-bottom: 20px;
+	padding: 8px 17px;
+	border: 1px solid var(--ui-color-base-30);
+	border-radius: 8px;
+	font-size: var(--ui-font-size-md);
+}
+
+.calendar-open-events-category-edit-description-textarea::placeholder {
+	color: var(--ui-color-base-60);
+}
+
+.calendar-open-events-category-edit-buttons {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	gap: 70px;
+}
+
+.calendar-open-events-category-edit-button-create {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	color: #8DBB00;
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-semi-bold);
+	text-transform: var(--ui-text-transform-uppercase);
+	cursor: pointer;
+}
+
+.calendar-open-events-category-edit-button-create:hover {
+	opacity: 0.8;
+}
+
+.calendar-open-events-category-edit-button-create .ui-icon-set {
+	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-color: #8DBB00;
+}
+
+.calendar-open-events-category-edit-button-cancel {
+	color: #A8ADB4;
+	font-size: var(--ui-font-size-sm);
+	font-weight: var(--ui-font-weight-semi-bold);
+	text-transform: var(--ui-text-transform-uppercase);
+	cursor: pointer;
+}
+
+.calendar-open-events-category-edit-button-cancel:hover {
+	opacity: 0.8;
+}
+
+.calendar-open-events-category-edit-popup-container .popup-window-content {
+	padding: 0;
+	background: none;
+}
+
+.calendar-open-events-category-edit-popup-container .popup-window-titlebar {
+	max-height: 15px;
+}

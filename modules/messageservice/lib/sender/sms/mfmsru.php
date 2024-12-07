@@ -227,10 +227,6 @@ class MfmsRu extends Sender\BaseConfigurable
 	private function touchHpg($url, array $params): Sender\Result\HttpRequestResult
 	{
 		$result = new Sender\Result\HttpRequestResult();
-		if (!Application::getInstance()->isUtfMode())
-		{
-			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-		}
 
 		$httpClient = new HttpClient(array(
 			"socketTimeout" => $this->socketTimeout,

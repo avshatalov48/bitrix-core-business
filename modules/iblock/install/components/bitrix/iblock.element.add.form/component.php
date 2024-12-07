@@ -303,9 +303,6 @@ if ($bAllowAccess)
 	// process POST data
 	if (check_bitrix_sessid() && (!empty($_REQUEST["iblock_submit"]) || !empty($_REQUEST["iblock_apply"])))
 	{
-		$SEF_URL = $_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"];
-		$arResult["SEF_URL"] = $SEF_URL;
-
 		$arProperties = $_REQUEST["PROPERTY"];
 
 		$arUpdateValues = array();
@@ -757,13 +754,6 @@ if ($bAllowAccess)
 				{
 					$arResult["ERRORS"][] = $oElement->LAST_ERROR;
 				}
-
-				if (!empty($_REQUEST["iblock_apply"]) && $SEF_URL <> '')
-				{
-					if (mb_strpos($SEF_URL, "?") === false) $SEF_URL .= "?edit=Y";
-					elseif (mb_strpos($SEF_URL, "edit=") === false) $SEF_URL .= "&edit=Y";
-					$SEF_URL .= "&CODE=".$arParams["ID"];
-				}
 			}
 		}
 
@@ -806,26 +796,12 @@ if ($bAllowAccess)
 				}
 				else
 				{
-					if ($SEF_URL <> '')
-					{
-						$SEF_URL = str_replace("edit=Y", "", $SEF_URL);
-						$SEF_URL = str_replace("?&", "?", $SEF_URL);
-						$SEF_URL = str_replace("&&", "&", $SEF_URL);
-						$sRedirectUrl = $SEF_URL;
-					}
-					else
-					{
-						$sRedirectUrl = $APPLICATION->GetCurPageParam("", array("edit", "CODE", "strIMessage"), $get_index_page=false);
-					}
-
+					$sRedirectUrl = $APPLICATION->GetCurPageParam("", array("edit", "CODE", "strIMessage"), $get_index_page=false);
 				}
 			}
 			else
 			{
-				if ($SEF_URL <> '')
-					$sRedirectUrl = $SEF_URL;
-				else
-					$sRedirectUrl = $APPLICATION->GetCurPageParam("edit=Y&CODE=".$arParams["ID"], array("edit", "CODE", "strIMessage"), $get_index_page=false);
+				$sRedirectUrl = $APPLICATION->GetCurPageParam("edit=Y&CODE=".$arParams["ID"], array("edit", "CODE", "strIMessage"), $get_index_page=false);
 			}
 
 			$sAction = $sAction == "ADD" ? "ADD" : "EDIT";
@@ -1049,6 +1025,6 @@ if ($bAllowAccess)
 }
 if (!$bAllowAccess && !$bHideAuth)
 {
-	//echo ShowError(GetMessage("IBLOCK_ADD_ACCESS_DENIED"));
+	//ShowError(GetMessage("IBLOCK_ADD_ACCESS_DENIED"));
 	$APPLICATION->AuthForm("");
 }

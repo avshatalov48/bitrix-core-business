@@ -6,18 +6,20 @@
 
 .bx-im-message-copilot-base-message__container .bx-im-message-base__body {
 	min-width: 250px;
+	background-color: var(--im-message-copilot-answer__background-color_body);
 }
 
 .bx-im-message-copilot-base-message__container {
 	--im-message-copilot-answer__color_warning: #b6aac8;
 	--im-message-copilot-answer__background-color_bottom-panel: #f6ecff;
+	--im-message-copilot-answer__background-color_body: #f7f3fd;
 }
 
 .bx-im-message-copilot-answer__container.--error {
 	background-color: var(--im-message-copilot-answer__background-color_error);
 }
 
-.bx-im-message-copilot-base-message__container.bx-im-message-base__wrap.--opponent:last-child .bx-im-message-base__body:not(.--transparent)::before {
+.bx-im-message-copilot-base-message__container.bx-im-message-base__wrap.--opponent:last-child .bx-im-message-base__body::before {
 	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='4' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.202 9H4V0C3.854 2.61 2.008 5.042.354 6.718-.4 7.482.13 9 1.202 9z' fill='%23ffe8e8'/%3E%3C/svg%3E");
 }
 
@@ -81,13 +83,3 @@
 	text-decoration: underline;
 }
 
-
-.bx-im-message-copilot-author-title__container {
-	align-self: flex-start;
-	-webkit-user-select: none;
-	        user-select: none;
-}
-
-.bx-im-message-copilot-author-title__container.--clickable {
-	cursor: pointer;
-}

@@ -35,10 +35,6 @@ if (!($accessController->check(ActionDictionary::ACTION_CATALOG_READ) || $access
 $bReadOnly = !$accessController->check(ActionDictionary::ACTION_VAT_EDIT);
 
 $request = Context::getCurrent()->getRequest();
-if ($request->isAjaxRequest())
-{
-	$request->addFilter(new Main\Web\PostDecodeFilter());
-}
 
 $errorMessage = '';
 $bVarsFromForm = false;

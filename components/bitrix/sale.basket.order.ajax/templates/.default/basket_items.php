@@ -166,6 +166,6 @@
 			</div>
 		</div>
 	<?else:
-		echo ShowNote(GetMessage("SALE_NO_ACTIVE_PRD"));
+		ShowNote(GetMessage("SALE_NO_ACTIVE_PRD"));
 	endif;?>	
 </div>

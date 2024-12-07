@@ -200,7 +200,7 @@ class ApiClient
 
 	/**
 	 * @param string $response
-	 * @param string|null $boundary
+	 * @param string $boundary
 	 *
 	 * @return array
 	 */
@@ -231,17 +231,13 @@ class ApiClient
 					{
 						$event = Json::decode($partEvent[2]);
 					}
-					catch(Exception $exception)
+					catch (Exception $exception)
 					{
 						continue;
 					}
 
 					$event['etag'] = $data['etag'];
 					$events[$id] = $event;
-				}
-				else
-				{
-					AddMessage2Log('Event sync error. ID: ' . ($id ?? 'unknown'));
 				}
 			}
 		}

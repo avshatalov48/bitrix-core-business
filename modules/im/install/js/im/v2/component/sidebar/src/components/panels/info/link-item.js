@@ -1,23 +1,33 @@
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { MessageAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
+import { Text } from 'main.core';
 
 import './css/link-item.css';
 
 import type { ImModelSidebarLinkItem } from 'im.v2.model';
+import { highlightText } from 'im.v2.lib.text-highlighter';
 
 // @vue/component
 export const LinkItem = {
 	name: 'LinkItem',
-	components: { Avatar, ChatTitle },
+	components: { MessageAvatar, ChatTitle },
 	props:
 	{
 		link: {
 			type: Object,
 			required: true,
 		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
+		searchQuery: {
+			type: String,
+			default: '',
+		},
 	},
 	emits: ['contextMenuClick'],
-	data() {
+	data(): { showContextButton: boolean } {
 		return {
 			showContextButton: false,
 		};
@@ -53,7 +63,12 @@ export const LinkItem = {
 			const { name, description } = this.linkItem.richData;
 			const descriptionToShow = description || name || this.source;
 
-			return Utils.text.convertHtmlEntities(descriptionToShow);
+			if (this.searchQuery.length === 0)
+			{
+				return Utils.text.convertHtmlEntities(descriptionToShow);
+			}
+
+			return highlightText(Text.encode(descriptionToShow), this.searchQuery);
 		},
 		authorDialogId(): string
 		{
@@ -94,6 +109,7 @@ export const LinkItem = {
 		{
 			this.$emit('contextMenuClick', {
 				id: this.linkItem.id,
+				authorId: this.linkItem.authorId,
 				messageId: this.linkItem.messageId,
 				source: this.source,
 				target: event.currentTarget,
@@ -116,13 +132,12 @@ export const LinkItem = {
 			</template>
 			<div class="bx-im-link-item__content">
 				<div class="bx-im-link-item__short-description-text">{{ shortDescription }}</div>
-				<a :href="source" :title="description" target="_blank" class="bx-im-link-item__description-text">
-					{{ description }}
-				</a>
+				<a :href="source" :title="source" target="_blank" class="bx-im-link-item__description-text" v-html="description"></a>
 				<div class="bx-im-link-item__author-container">
-					<Avatar 
+					<MessageAvatar 
+						:messageId="linkItem.messageId" 
+						:authorId="linkItem.authorId"
 						:size="AvatarSize.XS"
-						:dialogId="authorDialogId" 
 						class="bx-im-link-item__author-avatar" 
 					/>
 					<ChatTitle :dialogId="authorDialogId" :showItsYou="false" class="bx-im-link-item__author-text" />

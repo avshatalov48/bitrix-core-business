@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main;
@@ -77,7 +77,14 @@ class HttpRequest extends Request
 		$headers = new HttpHeaders();
 		foreach ($this->fetchHeaders($server) as $headerName => $value)
 		{
-			$headers->add($headerName, $value);
+			try
+			{
+				$headers->add($headerName, $value);
+			}
+			catch (\InvalidArgumentException)
+			{
+				// ignore an invalid header
+			}
 		}
 
 		return $headers;
@@ -126,6 +133,10 @@ class HttpRequest extends Request
 		{
 			$this->setValuesNoDemand(array_merge($this->queryString->values, $this->postData->values));
 		}
+
+		// need to reinit
+		$this->requestedPage = null;
+		$this->requestedPageDirectory = null;
 	}
 
 	/**
@@ -348,7 +359,7 @@ class HttpRequest extends Request
 
 	protected static function decode($url)
 	{
-		return Text\Encoding::convertEncodingToCurrent(rawurldecode($url));
+		return rawurldecode($url);
 	}
 
 	/**
@@ -417,7 +428,7 @@ class HttpRequest extends Request
 		$cookiesNew = $cookiesToDecrypt = [];
 		foreach ($cookies as $name => $value)
 		{
-			if (mb_strpos($name, $cookiePrefix) !== 0)
+			if (!str_starts_with($name, $cookiePrefix))
 			{
 				continue;
 			}

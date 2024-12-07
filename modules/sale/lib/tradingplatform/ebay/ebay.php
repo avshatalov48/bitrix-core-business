@@ -26,7 +26,7 @@ class Ebay extends Platform
 
 	public static function getSftpTokenUrl($accountName)
 	{
-		return "http://".self::getServiceHost()."/buy_tmp/ebay/".
+		return "https://".self::getServiceHost()."/buy_tmp/ebay/".
 			"?action=OAUTH_AUTH".
 			"&LICENCE_HASH=".self::getLicenseHash().
 			"&ACCOUNT_NAME=".htmlspecialcharsbx($accountName).
@@ -35,7 +35,7 @@ class Ebay extends Platform
 
 	public static function getApiTokenUrl()
 	{
-		return "http://".self::getServiceHost()."/buy_tmp/ebay/".
+		return "https://".self::getServiceHost()."/buy_tmp/ebay/".
 			"?action=GET_AUTH_URL&LICENCE_HASH=".self::getLicenseHash().
 			"&BACK_URL=".urlencode((\CMain::IsHTTPS() ? "https://" : "http://").$_SERVER['HTTP_HOST']);
 	}

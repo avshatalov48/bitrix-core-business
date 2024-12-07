@@ -78,11 +78,7 @@ if(Bitrix\Main\Loader::includeModule('report'))
 
 	if ($errorOccured)
 	{
-		$bom = '';
-		if (defined('BX_UTF') && BX_UTF)
-		{
-			$bom = chr(239).chr(187).chr(191);
-		}
+		$bom = chr(239).chr(187).chr(191);
 		$fileSize = mb_strlen($errMsg) + mb_strlen($bom);
 
 		while (ob_get_level() > 0)

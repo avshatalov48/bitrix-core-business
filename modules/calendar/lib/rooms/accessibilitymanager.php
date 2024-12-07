@@ -2,12 +2,18 @@
 
 namespace Bitrix\Calendar\Rooms;
 
+use Bitrix\Main\Config\Option;
+use Bitrix\Main\LoaderException;
+use Bitrix\Main\ObjectException;
 use Bitrix\Main\Type\DateTime;
 
 class AccessibilityManager
 {
+	/** @var string  */
 	private const TYPE = 'location';
-	
+	/** @var string  */
+	public const ADDITIONAL_LOCATION_CONNECTION_OPTION = 'additional_location_connection';
+
 	/** @var ?string $dateFrom format : dd.mm.yyyy*/
 	private ?string $dateFrom = null;
 	/** @var ?string $dateTo format : dd.mm.yyyy*/
@@ -16,76 +22,78 @@ class AccessibilityManager
 	private ?array $datesRange = null;
 	/** @var ?array $locationList */
 	private ?array $locationList = null;
-	
+
 	protected function __construct()
 	{
 	}
-	
+
 	public static function createInstance(): AccessibilityManager
 	{
 		return new self();
 	}
-	
+
 	public function setLocationList(?array $locationList = []): AccessibilityManager
 	{
 		$this->locationList = $locationList;
-		
+
 		return $this;
 	}
-	
+
 	public function setDateFrom(?string $dateFrom = ''): AccessibilityManager
 	{
 		$this->dateFrom = $dateFrom;
-		
+
 		return $this;
 	}
-	
+
 	public function setDateTo(?string $dateTo = ''): AccessibilityManager
 	{
 		$this->dateTo = $dateTo;
-		
+
 		return $this;
 	}
-	
+
 	public function setDatesRange(?array $range = []): AccessibilityManager
 	{
 		$this->datesRange = $range;
-		
+
 		return $this;
 	}
-	
+
 	public function getLocationList(): ?array
 	{
 		return $this->locationList;
 	}
-	
+
 	public function getDateFrom(): ?string
 	{
 		return $this->dateFrom;
 	}
-	
+
 	public function getDateTo(): ?string
 	{
 		return $this->dateTo;
 	}
-	
+
 	public function getDatesRange(): ?array
 	{
 		return $this->datesRange;
 	}
-	
+
 	/**
-	 * @param string $location
+	 * @param string $locationId
 	 * @param array $params
 	 *
 	 * Checks if room is accessible for meeting
 	 *
 	 * @return bool
+	 * @throws LoaderException
+	 * @throws ObjectException
 	 */
 	public static function checkAccessibility(string $locationId = '', array $params = []): bool
 	{
 		$location = Util::parseLocation($locationId);
-		
+
 		$res = true;
 		if ($location['room_id'] || $location['mrid'])
 		{
@@ -100,71 +108,169 @@ class AccessibilityManager
 			{
 				$toTs += \CCalendar::GetDayLen();
 			}
-			
+
 			$eventId = (int)$params['fields']['ID'];
-			
+
 			$from = \Bitrix\Calendar\Util::formatDateTimestampUTC($fromTs);
 			$to = \Bitrix\Calendar\Util::formatDateTimestampUTC($toTs);
-			
-			if ($location['mrid'])
-			{
-				$meetingRoomRes = IBlockMeetingRoom::getAccessibilityForMeetingRoom([
-					'allowReserveMeeting' => true,
-					'id' => $location['mrid'],
-					'from' => \CCalendar::Date(
-						$fromTs - \CCalendar::DAY_LENGTH,
-						false
-					),
-					'to' => \CCalendar::Date(
-						$toTs + \CCalendar::DAY_LENGTH,
-						false
-					),
-					'curEventId' => $location['mrevid'],
-				]);
-				
-				foreach ($meetingRoomRes as $entry)
-				{
-					if ((int)$entry['ID'] !== (int)$location['mrevid'])
-					{
-						$entryFromTs = \CCalendar::Timestamp($entry['DT_FROM']);
-						$entryToTs = \CCalendar::Timestamp($entry['DT_TO']);
-						
-						if ($entryFromTs < $toTs && $entryToTs > $fromTs)
-						{
-							$res = false;
-							break;
-						}
-					}
-				}
-			}
-			elseif ($location['room_id'])
-			{
-				$entries = self::getRoomAccessibility([$location['room_id']], $from, $to);
-				foreach ($entries as $entry)
-				{
-					if ((int)$entry['ID'] !== (int)$location['room_event_id']
-						&& (int)$entry['PARENT_ID'] !== $eventId)
-					{
-						$entryFromTs = \Bitrix\Calendar\Util::getDateTimestampUtc(new DateTime($entry['DATE_FROM']), $entry['TZ_FROM']);
-						$entryToTs = \Bitrix\Calendar\Util::getDateTimestampUtc(new DateTime($entry['DATE_TO']), $entry['TZ_FROM']);
-						if ($entry['DT_SKIP_TIME'] === 'Y')
-						{
-							$entryToTs += \CCalendar::GetDayLen();
-						}
 
-						if ($entryFromTs < $toTs && $entryToTs > $fromTs)
-						{
-							$res = false;
-							break;
-						}
-					}
+			if ($location['room_id'])
+			{
+				$sections = [$location['room_id']];
+				$additionalLocationConnection = self::getAdditionalLocationAccessibilityConnection((int)$location['room_id']);
+				if (!empty($additionalLocationConnection))
+				{
+					$sections = [
+						...$sections,
+						...$additionalLocationConnection,
+					];
+				}
+
+				$entries = self::getRoomAccessibility($sections, $from, $to);
+				$res = self::checkLocationAccessibility($entries, $fromTs, $toTs, $location['room_event_id'], $eventId);
+			}
+
+			/** @deprecated  */
+			else if ($location['mrid'])
+			{
+				$res = self::checkIBlockAccessibility($location, $fromTs, $toTs);
+			}
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * @param array $entries
+	 * @param int $fromTs
+	 * @param int $toTs
+	 * @param mixed $roomEventId
+	 * @param mixed $eventId
+	 * @return bool
+	 * @throws ObjectException
+	 */
+	public static function checkLocationAccessibility(array $entries, int $fromTs, int $toTs, mixed $roomEventId, mixed $eventId): bool
+	{
+		$result = true;
+
+		foreach ($entries as $entry)
+		{
+			if (
+				(int)$entry['ID'] !== (int)$roomEventId
+				&& (int)$entry['PARENT_ID'] !== $eventId
+			)
+			{
+				$entryFromTs = \Bitrix\Calendar\Util::getDateTimestampUtc(
+					new DateTime($entry['DATE_FROM']), $entry['TZ_FROM']
+				);
+				$entryToTs = \Bitrix\Calendar\Util::getDateTimestampUtc(
+					new DateTime($entry['DATE_TO']), $entry['TZ_FROM']
+				);
+				if ($entry['DT_SKIP_TIME'] === 'Y')
+				{
+					$entryToTs += \CCalendar::GetDayLen();
+				}
+
+				if ($entryFromTs < $toTs && $entryToTs > $fromTs)
+				{
+					$result = false;
+
+					break;
 				}
 			}
 		}
-		
-		return $res;
+
+		return $result;
 	}
-	
+
+
+	/**
+	 * @param int $roomId
+	 * @return array
+	 */
+	public static function getAdditionalLocationAccessibilityConnection(int $roomId): array
+	{
+		$currentOption = Option::get('calendar', self::ADDITIONAL_LOCATION_CONNECTION_OPTION);
+		$decodedOption = unserialize($currentOption, ['allowed_classes' => false]);
+
+		return $decodedOption[$roomId] ?? [];
+	}
+
+
+	/**
+	 * @param array $additionalRoomConnectionInfo
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public static function setFullAdditionalLocationAccessibilityConnection(array $additionalRoomConnectionInfo): void
+	{
+		$result = serialize($additionalRoomConnectionInfo);
+
+		Option::set('calendar', self::ADDITIONAL_LOCATION_CONNECTION_OPTION, $result);
+	}
+
+	/**
+	 * @param int $roomId
+	 * @param array $additionalRoomId
+	 * @return void
+	 * @throws \Bitrix\Main\ArgumentException
+	 * @throws \Bitrix\Main\ArgumentOutOfRangeException
+	 */
+	public static function setAdditionalLocationAccessibilityConnection(int $roomId, array $additionalRoomId): void
+	{
+		$currentOption = Option::get('calendar', self::ADDITIONAL_LOCATION_CONNECTION_OPTION);
+		$decodedOption = unserialize($currentOption, ['allowed_classes' => false]);
+
+		if (!is_array($decodedOption))
+		{
+			$decodedOption = [];
+		}
+
+		$decodedOption[$roomId] = $additionalRoomId;
+		$result = serialize($decodedOption);
+
+		Option::set('calendar', self::ADDITIONAL_LOCATION_CONNECTION_OPTION, $result);
+	}
+
+	/**
+	 * @param array $location
+	 * @param int $fromTs
+	 * @param int $toTs
+	 * @return bool
+	 * @throws LoaderException
+	 */
+	public static function checkIBlockAccessibility(array $location, int $fromTs, int $toTs): bool
+	{
+		$result = true;
+
+		$meetingRoomRes = IBlockMeetingRoom::getAccessibilityForMeetingRoom([
+			'allowReserveMeeting' => true,
+			'id' => $location['mrid'],
+			'from' => \CCalendar::Date($fromTs - \CCalendar::DAY_LENGTH, false),
+			'to' => \CCalendar::Date($toTs + \CCalendar::DAY_LENGTH, false),
+			'curEventId' => $location['mrevid'],
+		]);
+
+		foreach ($meetingRoomRes as $entry)
+		{
+			if ((int)$entry['ID'] !== (int)$location['mrevid'])
+			{
+				$entryFromTs = \CCalendar::Timestamp($entry['DT_FROM']);
+				$entryToTs = \CCalendar::Timestamp($entry['DT_TO']);
+
+				if ($entryFromTs < $toTs && $entryToTs > $fromTs)
+				{
+					$result = false;
+
+					break;
+				}
+			}
+		}
+		return $result;
+	}
+
 	/**
 	 * @param array $roomIds
 	 * @param $from
@@ -182,9 +288,11 @@ class AccessibilityManager
 				'ACTIVE_SECTION' => 'Y',
 				'SECTION' => $roomIds,
 			],
+			'arSelect' => \CCalendarEvent::$defaultSelectEvent,
 			'parseRecursion' => true,
 			'fetchSection' => true,
 			'setDefaultLimit' => false,
+			'fetchAttendees' => false,
 		]);
 	}
 

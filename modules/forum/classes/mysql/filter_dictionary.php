@@ -73,14 +73,14 @@ class CFilterDictionary extends CAllFilterDictionary
 		if ($bCount)
 		{
 			$strSql = "SELECT COUNT(FD.ID) as CNT FROM b_forum_dictionary FD ".$strSqlSearch;				
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
 				$iCnt = intval($ar_res["CNT"]);
 			return $iCnt;
 		}
 		$strSql = "SELECT FD.ID, FD.TITLE, FD.TYPE FROM b_forum_dictionary FD ".$strSqlSearch.$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 }
@@ -162,7 +162,7 @@ class CFilterLetter extends CAllFilterLetter
 				"FROM b_forum_letter FL, b_forum_dictionary FD ".
 				"WHERE (FL.DICTIONARY_ID = FD.ID) ".
 				$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
 				$iCnt = intval($ar_res["CNT"]);
@@ -174,7 +174,7 @@ class CFilterLetter extends CAllFilterLetter
 			"WHERE (FL.DICTIONARY_ID = FD.ID) ".
 			$strSqlSearch.
 			$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 }
@@ -263,7 +263,7 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 				"SELECT COUNT(FM.ID) as CNT ".
 				"FROM b_forum_filter FM ".
 				$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
 				$iCnt = intval($ar_res["CNT"]);
@@ -274,7 +274,7 @@ class CFilterUnquotableWords extends CAllFilterUnquotableWords
 			$strSqlSearch.
 			$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 }

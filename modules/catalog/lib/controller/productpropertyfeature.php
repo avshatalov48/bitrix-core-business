@@ -4,14 +4,14 @@ namespace Bitrix\Catalog\Controller;
 
 use Bitrix\Catalog\Product\PropertyCatalogFeature;
 use Bitrix\Iblock\PropertyFeatureTable;
-use Bitrix\Iblock\PropertyTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 final class ProductPropertyFeature extends ProductPropertyBase
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+
 	// region Actions
 
 	/**
@@ -19,7 +19,7 @@ final class ProductPropertyFeature extends ProductPropertyBase
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRODUCT_PROPERTY_FEATURE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
@@ -64,42 +64,18 @@ final class ProductPropertyFeature extends ProductPropertyBase
 		}
 
 		$propertyFeatureId = current($addResult->getData());
-		return ['PRODUCT_PROPERTY_FEATURE' => $this->get($propertyFeatureId)];
+		return [$this->getServiceItemName() => $this->get($propertyFeatureId)];
 	}
 
 	/**
-	 * @param int $id
-	 * @return array|null
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function getAction(int $id): ?array
-	{
-		$r = $this->exists($id);
-		if ($r->isSuccess())
-		{
-			return ['PRODUCT_PROPERTY_FEATURE' => $this->get($id)];
-		}
-
-		$this->addErrors($r->getErrors());
-		return null;
-	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
-	 * @return Page
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		$filter['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
-
-		return new Page(
-			'PRODUCT_PROPERTY_FEATURES',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
 	 * @param int $id
@@ -131,7 +107,7 @@ final class ProductPropertyFeature extends ProductPropertyBase
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY_FEATURE' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	// endregion
@@ -156,7 +132,7 @@ final class ProductPropertyFeature extends ProductPropertyBase
 		$propertyFeature = $this->get($id);
 		if (!$propertyFeature || !$this->isIblockCatalog((int)$propertyFeature['IBLOCK_ID']))
 		{
-			$result->addError(new Error('Property feature does not exist'));
+			$result->addError($this->getErrorEntityNotExists());
 		}
 
 		return $result;
@@ -181,5 +157,17 @@ final class ProductPropertyFeature extends ProductPropertyBase
 		}
 
 		return parent::checkPermissionEntity($name);
+	}
+
+	/**
+	 * @inheritDoc
+	 * @param array $params
+	 * @return array
+	 */
+	protected function modifyListActionParameters(array $params): array
+	{
+		$params['filter']['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
+
+		return $params;
 	}
 }

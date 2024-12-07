@@ -2,6 +2,8 @@
 
 namespace Bitrix\Calendar\Sync\Managers;
 
+use Bitrix\Calendar\Internals\Counter\CounterService;
+use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Dictionary;
 use Bitrix\Calendar\Sync\Entities\SyncSectionMap;
@@ -129,6 +131,7 @@ class DataExchangeManager
 			return "\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();";
 		}
 
+		$userIds = [];
 		$connections = self::getConnections();
 		/** @var Connection $connection */
 		while ($connection = $connections->fetch())
@@ -137,6 +140,12 @@ class DataExchangeManager
 			{
 				self::markDeletedFailedConnection($connection);
 				continue;
+			}
+
+			$ownerId = $connection->getOwner()->getId();
+			if ($ownerId)
+			{
+				$userIds[] = $ownerId;
 			}
 
 			try
@@ -165,6 +174,8 @@ class DataExchangeManager
 				$connection->setSyncStatus(Dictionary::SYNC_STATUS['failed']);
 			}
 		}
+
+		CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => $userIds]);
 
 		return "\\Bitrix\\Calendar\\Sync\\Managers\\DataExchangeManager::importAgent();";
 	}

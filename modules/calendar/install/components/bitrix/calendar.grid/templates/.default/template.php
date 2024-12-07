@@ -119,7 +119,10 @@ if($ex = $APPLICATION->GetException())
 {
 	if ($ex->GetID() === 'calendar_wrong_type')
 	{
-		return CCalendarSceleton::showCalendarGridError(GetMessage("EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_TITLE"), GetMessage("EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_CONTENT"));
+		return CCalendarSceleton::showCalendarGridError(
+			Loc::getMessage("EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_TITLE"),
+			Loc::getMessage("EC_CALENDAR_NOT_PERMISSIONS_TO_VIEW_GRID_CONTENT")
+		);
 	}
 
 	return CCalendarSceleton::showCalendarGridError($ex->GetString());
@@ -136,19 +139,25 @@ if (($arParams["STR_TITLE"] ?? null))
 else
 {
 	if (!($arParams['OWNER_ID'] ?? null) && $arParams['CALENDAR_TYPE'] === "group")
-		return CCalendarSceleton::showCalendarGridError(GetMessage('EC_GROUP_ID_NOT_FOUND'));
+	{
+		return CCalendarSceleton::showCalendarGridError(Loc::getMessage('EC_GROUP_ID_NOT_FOUND'));
+	}
 	if (!($arParams['OWNER_ID'] ?? null) && $arParams['CALENDAR_TYPE'] === "user")
-		return CCalendarSceleton::showCalendarGridError(GetMessage('EC_USER_ID_NOT_FOUND'));
+	{
+		return CCalendarSceleton::showCalendarGridError(Loc::getMessage('EC_USER_ID_NOT_FOUND'));
+	}
 
 	if ($arParams['CALENDAR_TYPE'] === "group" || $arParams['CALENDAR_TYPE'] === "user")
 	{
 		$feature = "calendar";
 		$arEntityActiveFeatures = CSocNetFeatures::GetActiveFeaturesNames((($arParams['CALENDAR_TYPE'] === "group") ? SONET_ENTITY_GROUP : SONET_ENTITY_USER), $arParams['OWNER_ID']);
-		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : GetMessage("EC_SONET_CALENDAR"));
+		$strFeatureTitle = ((array_key_exists($feature, $arEntityActiveFeatures) && $arEntityActiveFeatures[$feature] <> '') ? $arEntityActiveFeatures[$feature] : Loc::getMessage("EC_SONET_CALENDAR"));
 		$arParams["STR_TITLE"] = $strFeatureTitle;
 	}
 	else
-		$arParams["STR_TITLE"] = GetMessage("EC_SONET_CALENDAR");
+	{
+		$arParams["STR_TITLE"] = Loc::getMessage("EC_SONET_CALENDAR");
+	}
 }
 
 $bOwner = $arParams["CALENDAR_TYPE"] === 'user' || $arParams["CALENDAR_TYPE"] === 'group';
@@ -162,8 +171,8 @@ if ($arParams["SET_TITLE"] === "Y" || ($bOwner && $arParams["SET_NAV_CHAIN"] ===
 
 	if($arParams["SET_TITLE"] === "Y")
 	{
-		$title_short = (empty($arParams["STR_TITLE"]) ? GetMessage("WD_TITLE") : $arParams["STR_TITLE"]);
-		$title = ($ownerName ? $ownerName.': ' : '').$title_short;
+		$title_short = (empty($arParams["STR_TITLE"]) ? Loc::getMessage("WD_TITLE") : $arParams["STR_TITLE"]);
+		$title = $title_short . ($ownerName ? ': '. $ownerName : '');
 
 		if ($arParams["HIDE_OWNER_IN_TITLE"] === "Y")
 		{
@@ -200,7 +209,7 @@ if ($arParams["SET_TITLE"] === "Y" || ($bOwner && $arParams["SET_NAV_CHAIN"] ===
 {
 	CJSCore::init("spotlight");
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function ()
 		{
 			var target = BX("<?= $arResult['ID']?>-buttons-container");
@@ -232,7 +241,7 @@ else
 	{
 		CJSCore::init("spotlight");
 		?>
-		<script type="text/javascript">
+		<script>
 			//
 			BX.ready(function ()
 			{

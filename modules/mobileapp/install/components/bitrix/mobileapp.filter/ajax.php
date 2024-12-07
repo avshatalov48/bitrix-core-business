@@ -25,7 +25,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && !isset($arResult["ERROR"]))
 				{
 
 					$arFieldsToSave = array();
-					$arFields = $APPLICATION->ConvertCharsetArray($arFields, 'utf-8', SITE_CHARSET);
 
 					foreach ($arFields as $fieldId => $arField)
 						$arFieldsToSave[$fieldId] = $arField["VALUE"];
@@ -51,6 +50,4 @@ if(isset($arResult["ERROR"]))
 else
 	$arResult["RESULT"] = "OK";
 
-$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 die(json_encode($arResult));
-?>

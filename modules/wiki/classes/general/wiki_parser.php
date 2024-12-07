@@ -44,11 +44,11 @@ class CWikiParser
 			$this->postUrl = (CMain::IsHTTPS() ? "https://" : "http://").$_SERVER["HTTP_HOST"].$arParams["POST_URL"];
 
 		// cut code
-		$text = preg_replace_callback("/(\{\{\{(.*)\}\}\})/imsU".BX_UTF_PCRE_MODIFIER, array(&$this, '_codeCallback'), $text);
-		$text = preg_replace_callback("/(\[CODE\](.*)\[\/CODE\])/imsU".BX_UTF_PCRE_MODIFIER, array(&$this, '_codeCallback'), $text);
+		$text = preg_replace_callback("/(\{\{\{(.*)\}\}\})/imsUu", array(&$this, '_codeCallback'), $text);
+		$text = preg_replace_callback("/(\[CODE\](.*)\[\/CODE\])/imsUu", array(&$this, '_codeCallback'), $text);
 
 		// cut nowiki
-		$text = preg_replace_callback('/(<nowiki>(.*)<\/nowiki>)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_noWikiCallback'), $text);
+		$text = preg_replace_callback('/(<nowiki>(.*)<\/nowiki>)/isUu', array(&$this, '_noWikiCallback'), $text);
 
 		#if($this->textType == "html")
 		#	$text = CWikiUtils::htmlspecialchars_decode($text);
@@ -58,9 +58,9 @@ class CWikiParser
 		$text = str_replace("&#039;&#039;", "''", $text);
 		$text = preg_replace(
 			array(
-				'/\'{3}(.*)\'{2}(.+)\'{2}(.*)\'{3}/imU'.BX_UTF_PCRE_MODIFIER,
-				'/\'{3}(.+)\'{3}/imU'.BX_UTF_PCRE_MODIFIER,
-				'/\'{2}(.+)\'{2}/imU'.BX_UTF_PCRE_MODIFIER
+				'/\'{3}(.*)\'{2}(.+)\'{2}(.*)\'{3}/imUu',
+				'/\'{3}(.+)\'{3}/imUu',
+				'/\'{2}(.+)\'{2}/imUu'
 			),
 			array(
 				'<b>\\1<i>\\2</i>\\3</b>',
@@ -70,13 +70,13 @@ class CWikiParser
 			$text);
 
 		// hr
-		$text = preg_replace( '/-----*/'.BX_UTF_PCRE_MODIFIER, '\\1<hr />', $text );
+		$text = preg_replace( '/-----*/u', '\\1<hr />', $text );
 
 		// Header
 		for($i = 6; $i >= 1; $i--)
 		{
 			$_H = str_repeat('=', $i);
-			$text = preg_replace('/^\s*'.$_H.'(.+?)'.$_H.'\s*$/miU'.BX_UTF_PCRE_MODIFIER, '<H'.$i.'>\\1</H'.$i.'>', $text);
+			$text = preg_replace('/^\s*'.$_H.'(.+?)'.$_H.'\s*$/miUu', '<H'.$i.'>\\1</H'.$i.'>', $text);
 		}
 
 
@@ -84,21 +84,21 @@ class CWikiParser
 		$text = $this->processInternalLink($text);
 
 		// External link
-		$text = preg_replace_callback('/\[((http|https|ftp)(.+))( (.+))?\]/iU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_processExternalLinkCallback'), $text);
+		$text = preg_replace_callback('/\[((http|https|ftp)(.+))( (.+))?\]/iUu', array(&$this, '_processExternalLinkCallback'), $text);
 
 
 		// images and other files
-		$text = preg_replace_callback('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):(.+)\]\]?/iU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_processFileCallback'), $text);
+		$text = preg_replace_callback('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):(.+)\]\]?/iUu', array(&$this, '_processFileCallback'), $text);
 
 		// TOC
 		$text = $this->processToc($text);
 
 		// Paste nowiki
 		if (!empty($this->arNowiki))
-			$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_noWikiReturnCallback'), $text);
+			$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isUu', array(&$this, '_noWikiReturnCallback'), $text);
 
 
-		$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_noWikiReturn2Callback'), $text);
+		$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isUu', array(&$this, '_noWikiReturn2Callback'), $text);
 
 		if ($type == 'text')
 		{
@@ -111,7 +111,7 @@ class CWikiParser
 		}
 
 		// Paste code
-		$text = preg_replace_callback('/(##CODE(\d+)##)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_codeReturnCallback'), $text);
+		$text = preg_replace_callback('/(##CODE(\d+)##)/isUu', array(&$this, '_codeReturnCallback'), $text);
 
 		//		$text .= '<div style="clear:both"></div>';
 
@@ -300,7 +300,7 @@ class CWikiParser
 	function processInternalLink($text)
 	{
 		global $APPLICATION, $arParams;
-		$text = preg_replace_callback('/\[\[(.+)(\|(.*))?\]\]/iU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_processInternalLinkPrepareCallback'), $text);
+		$text = preg_replace_callback('/\[\[(.+)(\|(.*))?\]\]/iUu', array(&$this, '_processInternalLinkPrepareCallback'), $text);
 		$text = preg_replace('/(##Category##)(\s)*((\r*)\n)*/',"", $text);
 		// check pages for exists
 		if (!empty($this->arLink))
@@ -320,7 +320,7 @@ class CWikiParser
 			}
 		}
 
-		$text = preg_replace_callback('/(##LINK(\d+)##)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_processInternalLinkCallback'), $text);
+		$text = preg_replace_callback('/(##LINK(\d+)##)/isUu', array(&$this, '_processInternalLinkCallback'), $text);
 
 		return $text;
 	}
@@ -385,7 +385,7 @@ class CWikiParser
 	{
 		$matches = array();
 		$sToc = '';
-		if (preg_match_all('/<H(?<level>\d)(?<parameters>.*)>(?<innerHtml>.*)<\/H\g<level>>/isU'.BX_UTF_PCRE_MODIFIER, $text, $matches, PREG_SET_ORDER))
+		if (preg_match_all('/<H(?<level>\d)(?<parameters>.*)>(?<innerHtml>.*)<\/H\g<level>>/isUu', $text, $matches, PREG_SET_ORDER))
 		{
 			if (count($matches) > 4)
 			{
@@ -480,7 +480,7 @@ class CWikiParser
 					if ($bfirst)
 						$sReplase = $sToc.'<br/>'.$sReplase;
 					// so as not to replace all of the same titles
-					$text = preg_replace('/'.preg_quote($arMatch[0], '/').'/'.BX_UTF_PCRE_MODIFIER, $sReplase, $text, 1);
+					$text = preg_replace('/'.preg_quote($arMatch[0], '/').'/u', $sReplase, $text, 1);
 					$bfirst = false;
 				}
 			}
@@ -531,18 +531,18 @@ class CWikiParser
 	{
 		$userLogin = CWikiUtils::GetUserLogin(array(), $nameTemplate);
 
-		//$text = preg_replace_callback('/(<nowiki>(.*)<\/nowiki>)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_noWikiCallback'), $text);
+		//$text = preg_replace_callback('/(<nowiki>(.*)<\/nowiki>)/isUu', array(&$this, '_noWikiCallback'), $text);
 
 		// Subscribe
-		$text = preg_replace( '/--~~~~*/'.BX_UTF_PCRE_MODIFIER, '\\1--'.$userLogin.' '.ConvertTimeStamp(false, 'FULL'), $text );
+		$text = preg_replace( '/--~~~~*/u', '\\1--'.$userLogin.' '.ConvertTimeStamp(false, 'FULL'), $text );
 
 		// Category
 		$matches = array();
-		$textWithoutNowiki = preg_replace('/(<nowiki>(.*)<\/nowiki>)/isU'.BX_UTF_PCRE_MODIFIER, '', $text);
-		if (preg_match_all('/\[\[(Category|'.GetMessage('CATEGORY_NAME').'):(.+)\]\]/iU'.BX_UTF_PCRE_MODIFIER, $textWithoutNowiki, $matches))
+		$textWithoutNowiki = preg_replace('/(<nowiki>(.*)<\/nowiki>)/isUu', '', $text);
+		if (preg_match_all('/\[\[(Category|'.GetMessage('CATEGORY_NAME').'):(.+)\]\]/iUu', $textWithoutNowiki, $matches))
 			$arCat = array_unique($matches[2]);
 
-		//$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isU'.BX_UTF_PCRE_MODIFIER, array(&$this, '_noWikiReturn2Callback'), $text);
+		//$text = preg_replace_callback('/(##NOWIKI(\d+)##)/isUu', array(&$this, '_noWikiReturn2Callback'), $text);
 
 		return $text;
 	}
@@ -550,19 +550,19 @@ class CWikiParser
 	function parseForSearch($text)
 	{
 		// delete Category
-		$text = preg_replace('/\[\[(Category|'.GetMessage('CATEGORY_NAME').'):(.+)\]\]/iU'.BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = preg_replace('/\[\[(Category|'.GetMessage('CATEGORY_NAME').'):(.+)\]\]/iUu', '', $text);
 		// delete Files
-		$text = preg_replace('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):(.+)\]\]?/iU'.BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = preg_replace('/\[?\[(:)?(File|'.GetMessage('FILE_NAME').'):(.+)\]\]?/iUu', '', $text);
 		// delete External Links
-		$text = preg_replace('/\[((http|https|ftp)(.+))( (.+))?\]/iU'.BX_UTF_PCRE_MODIFIER, '\\1\\2 \\5', $text);
+		$text = preg_replace('/\[((http|https|ftp)(.+))( (.+))?\]/iUu', '\\1\\2 \\5', $text);
 		// delete Internal Links
-		$text = preg_replace('/\[\[(.+(?!:))(\|(.*))?\]\]/iU'.BX_UTF_PCRE_MODIFIER, '\\1\\2', $text);
+		$text = preg_replace('/\[\[(.+(?!:))(\|(.*))?\]\]/iUu', '\\1\\2', $text);
 
 		// delete Headers
 		for($i = 6; $i >= 1; $i--)
 		{
 			$_H = str_repeat('=', $i);
-			$text = preg_replace('/'.$_H.'(.*?)'.$_H.'/miU'.BX_UTF_PCRE_MODIFIER, '\\1', $text);
+			$text = preg_replace('/'.$_H.'(.*?)'.$_H.'/miUu', '\\1', $text);
 		}
 
 		return $text;

@@ -1,11 +1,9 @@
 <?php
 
-
 namespace Sale\Handlers\DiscountPreset;
 
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-
-Loc::loadMessages(__FILE__);
 
 class SimpleProductExtra extends SimpleProduct
 {
@@ -27,5 +25,10 @@ class SimpleProductExtra extends SimpleProduct
 	public function getSort()
 	{
 		return 300;
+	}
+
+	protected function addErrorEmptyActionValue(): void
+	{
+		$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_EXTRA_VALUE'));
 	}
 }

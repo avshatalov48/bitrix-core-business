@@ -1,0 +1,80 @@
+.ui-month-picker {
+	display: flex;
+	flex-direction: column;
+	position: absolute;
+	left: 0;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 5;
+	background-color: #fff;
+}
+
+.ui-month-picker-header-title {
+	cursor: pointer;
+	color: var(--ui-color-text-primary);
+	font: inherit;
+	font-weight: var(--ui-font-weight-semi-bold);
+	font-size: var(--ui-font-size-lg);
+	margin: 0;
+	padding: 5px;
+	appearance: none;
+	background: none;
+	border: none;
+	box-sizing: content-box;
+	border-radius: var(--ui-border-radius-3xs);
+}
+
+.ui-month-picker-header-title:focus-visible,
+.ui-month-picker-header-title.--focus-visible {
+	outline: 2px solid var(--ui-date-picker-outiline-color);
+}
+
+.ui-month-picker-header-title:hover {
+	color: var(--ui-date-picker-button-hover-color);
+}
+
+.ui-month-picker-quarter {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 25%;
+}
+
+.ui-month-picker-month {
+	display: flex;
+	flex: 1;
+	height: 36px;
+	position: relative;
+	border-radius: var(--ui-border-radius-pill);
+	box-sizing: border-box;
+	cursor: pointer;
+	align-items: center;
+	justify-content: center;
+	color: var(--ui-color-text-primary);
+	padding: 0 8px;
+	margin: 0;
+
+	appearance: none;
+	background: none;
+	font: inherit;
+	border: none;
+}
+
+.ui-month-picker-month:focus-visible,
+.ui-month-picker-month.--focus-visible {
+	outline: 2px solid var(--ui-date-picker-outiline-color);
+}
+
+.ui-month-picker-month.--current {
+	color: var( --ui-color-primary);
+}
+
+.ui-month-picker-month.--focused {
+	background-color: rgba(47, 198, 246, 0.20);
+}
+
+.ui-month-picker-month.--selected {
+	background-color: var( --ui-color-primary);
+	color: var( --ui-color-on-primary);
+}

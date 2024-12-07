@@ -178,7 +178,7 @@ elseif (($_GET["mode"] == "file") && $ABS_FILE_NAME)
 {
 	//Read http data
 	$DATA = file_get_contents("php://input");
-	$DATA_LEN = defined("BX_UTF")? mb_strlen($DATA, 'latin1') : mb_strlen($DATA);
+	$DATA_LEN = strlen($DATA);
 
 	//And save it the file
 	if (isset($DATA) && $DATA !== false)
@@ -355,8 +355,8 @@ if ($DIR_NAME != "")
 
 if (!$bDesignMode)
 {
-	if (toUpper(LANG_CHARSET) != "WINDOWS-1251")
-		$contents = $APPLICATION->ConvertCharset($contents, LANG_CHARSET, "windows-1251");
+	if (mb_strtoupper(LANG_CHARSET) != "WINDOWS-1251")
+		$contents = \Bitrix\Main\Text\Encoding::convertEncoding($contents, LANG_CHARSET, "windows-1251");
 	header("Content-Type: text/html; charset=windows-1251");
 
 	echo $contents;

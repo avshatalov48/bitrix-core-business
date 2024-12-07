@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -17,5 +17,6 @@ class HttpDebug
 	public const RESPONSE_HEADERS = 0x04;
 	public const RESPONSE_BODY = 0x08;
 	public const RESPONSE = 0x0C;
-	public const ALL = 0x0F;
+	public const CONNECT = 0x10;
+	public const ALL = 0x1F;
 }

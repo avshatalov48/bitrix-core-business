@@ -147,18 +147,17 @@ function DelFilter($arName)
 function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "set_filter" => "Y"))
 {
 	$res = '';
-	// если поступил не массив имен переменных то
+	// РµСЃР»Рё РїРѕСЃС‚СѓРїРёР» РЅРµ РјР°СЃСЃРёРІ РёРјРµРЅ РїРµСЂРµРјРµРЅРЅС‹С… С‚Рѕ
 	$arrVars = [];
 	if (!is_array($var))
 	{
-		// получим имена переменных фильтра по префиксу
+		// РїРѕР»СѓС‡РёРј РёРјРµРЅР° РїРµСЂРµРјРµРЅРЅС‹С… С„РёР»СЊС‚СЂР° РїРѕ РїСЂРµС„РёРєСЃСѓ
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
 		if (is_array($arKeys) && !empty($arKeys))
 		{
-			$len = mb_strlen($var);
 			foreach (array_unique($arKeys) as $key)
 			{
-				if (mb_substr($key, 0, $len) == $var)
+				if (str_starts_with($key, $var))
 				{
 					$arrVars[] = $key;
 				}
@@ -170,10 +169,10 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 		$arrVars = $var;
 	}
 
-	// если получили массив переменных фильтра то
+	// РµСЃР»Рё РїРѕР»СѓС‡РёР»Рё РјР°СЃСЃРёРІ РїРµСЂРµРјРµРЅРЅС‹С… С„РёР»СЊС‚СЂР° С‚Рѕ
 	if (is_array($arrVars) && !empty($arrVars))
 	{
-		// соберем строку из URL параметров
+		// СЃРѕР±РµСЂРµРј СЃС‚СЂРѕРєСѓ РёР· URL РїР°СЂР°РјРµС‚СЂРѕРІ
 		foreach ($arrVars as $var_name)
 		{
 			global $$var_name;
@@ -209,29 +208,28 @@ function GetFilterHiddens($var = "filter_", $button = array("filter" => "Y", "se
 
 function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("filter" => "Y", "set_filter" => "Y"))
 {
-	$arrVars = array(); // массив имен переменных фильтра
-	$res=""; // результирующая строка
+	$arrVars = array(); // РјР°СЃСЃРёРІ РёРјРµРЅ РїРµСЂРµРјРµРЅРЅС‹С… С„РёР»СЊС‚СЂР°
+	$res=""; // СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰Р°СЏ СЃС‚СЂРѕРєР°
 
-	// если поступил не массив имен переменных то
+	// РµСЃР»Рё РїРѕСЃС‚СѓРїРёР» РЅРµ РјР°СЃСЃРёРІ РёРјРµРЅ РїРµСЂРµРјРµРЅРЅС‹С… С‚Рѕ
 	if(!is_array($var))
 	{
-		// получим имена переменных фильтра по префиксу
+		// РїРѕР»СѓС‡РёРј РёРјРµРЅР° РїРµСЂРµРјРµРЅРЅС‹С… С„РёР»СЊС‚СЂР° РїРѕ РїСЂРµС„РёРєСЃСѓ
 		$arKeys = @array_merge(array_keys($_GET), array_keys($_POST));
 		if(is_array($arKeys) && !empty($arKeys))
 		{
-			$len = mb_strlen($var);
 			foreach (array_unique($arKeys) as $key)
-				if (mb_substr($key, 0, $len) == $var)
+				if (str_starts_with($key, $var))
 					$arrVars[] = $key;
 		}
 	}
 	else
 		$arrVars = $var;
 
-	// если получили массив переменных фильтра то
+	// РµСЃР»Рё РїРѕР»СѓС‡РёР»Рё РјР°СЃСЃРёРІ РїРµСЂРµРјРµРЅРЅС‹С… С„РёР»СЊС‚СЂР° С‚Рѕ
 	if(is_array($arrVars) && !empty($arrVars))
 	{
-		// соберем строку из URL параметров
+		// СЃРѕР±РµСЂРµРј СЃС‚СЂРѕРєСѓ РёР· URL РїР°СЂР°РјРµС‚СЂРѕРІ
 		foreach($arrVars as $var_name)
 		{
 			global $$var_name;
@@ -267,7 +265,7 @@ function GetFilterParams($var="filter_", $bDoHtmlEncode=true, $button = array("f
 	//return ($bDoHtmlEncode) ? htmlspecialcharsbx($res) : $res;
 }
 
-// устаревшая функция, оставлена для совместимости
+// СѓСЃС‚Р°СЂРµРІС€Р°СЏ С„СѓРЅРєС†РёСЏ, РѕСЃС‚Р°РІР»РµРЅР° РґР»СЏ СЃРѕРІРјРµСЃС‚РёРјРѕСЃС‚Рё
 function GetFilterStr($arr, $button="set_filter")
 {
 	$str = '';
@@ -325,12 +323,13 @@ function GetUrlFromArray($arr)
 
 function ShowAddFavorite($filterName=false, $btnName="set_filter", $module="statistic", $alt=false)
 {
-	global $QUERY_STRING, $SCRIPT_NAME, $sFilterID;
+	global $sFilterID;
+
 	if ($alt===false)
 		$alt=GetMessage("MAIN_ADD_TO_FAVORITES");
 	if ($filterName===false)
 		$filterName = $sFilterID;
-	$url = urlencode($SCRIPT_NAME."?".$QUERY_STRING. GetUrlFromArray(Application::getInstance()->getSession()["SESS_ADMIN"][$filterName])."&".$btnName."=Y");
+	$url = urlencode($_SERVER['SCRIPT_NAME'] . "?" . $_SERVER["QUERY_STRING"] . GetUrlFromArray(Application::getInstance()->getSession()["SESS_ADMIN"][$filterName])."&".$btnName."=Y");
 	$str = "<a target='_blank' href='".BX_ROOT."/admin/favorite_edit.php?lang=".LANG."&module=$module&url=$url'><img alt='".$alt."' src='".BX_ROOT."/images/main/add_favorite.gif' width='16' height='16' border=0></a>";
 	echo $str;
 }
@@ -354,10 +353,10 @@ function ShowFilterLogicHelp()
 	if(LANGUAGE_ID == "ru")
 		$help_link = "https://dev.1c-bitrix.ru/api_help/main/general/filter.php";
 	else
-		$help_link = "http://www.bitrixsoft.com/help/index.html?page=".urlencode("source/main/help/en/filter.php.html");
+		$help_link = "https://www.bitrixsoft.com/help/index.html?page=".urlencode("source/main/help/en/filter.php.html");
 	if ($LogicHelp != "Y")
 	{
-		$str = "<script type=\"text/javascript\">
+		$str = "<script>
 		function LogicHelp() { window.open('".$help_link."', '','scrollbars=yes,resizable=yes,width=780,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 780)/2-5)); }
 		</script>";
 	}
@@ -369,8 +368,10 @@ function ShowFilterLogicHelp()
 function ShowLogicRadioBtn($FilterLogic="FILTER_logic")
 {
 	global $$FilterLogic;
+
 	$s_and = "checked";
-	if ($$FilterLogic=="or")
+	$s_or = '';
+	if ($$FilterLogic == "or")
 	{
 		$s_or = "checked";
 		$s_and = "";
@@ -436,7 +437,7 @@ function BeginFilter($sID, $bFilterSet, $bShowStatus=true)
 	if(!$bFilterScriptShown)
 	{
 		$s .= '
-<script type="text/javascript">
+<script>
 function showfilter(id)
 {
 	var div = document.getElementById("flt_div_"+id);
@@ -581,11 +582,11 @@ function EndFilter($sID="")
 		$fltval = $_COOKIE["flt_".$sID];
 
 	if($fltval[0]<>"Y")
-		$s .= '<script type="text/javascript">hidefilter(\''.CUtil::JSEscape($sID).'\');</script>'."\n";
+		$s .= '<script>hidefilter(\''.CUtil::JSEscape($sID).'\');</script>'."\n";
 	return $s;
 }
 
-function BeginNote($sParams="")
+function BeginNote($sParams = '', $sMessParams = '')
 {
 	if (defined("PUBLIC_MODE") && PUBLIC_MODE == 1)
 	{
@@ -594,7 +595,7 @@ function BeginNote($sParams="")
 	}
 	else
 	{
-		return '<div class="adm-info-message-wrap" '.$sParams.'><div class="adm-info-message">';
+		return '<div class="adm-info-message-wrap" '.$sParams.'><div class="adm-info-message" '.$sMessParams.'>';
 	}
 }
 function EndNote()
@@ -667,12 +668,12 @@ function InitSorting($Path=false, $sByVar="by", $sOrderVar="order")
 	if ($$sByVar <> '')
 		Application::getInstance()->getSession()["SESS_SORT_BY"][$md5Path] = $$sByVar;
 	else
-		$$sByVar = Application::getInstance()->getSession()["SESS_SORT_BY"][$md5Path];
+		$$sByVar = Application::getInstance()->getSession()["SESS_SORT_BY"][$md5Path] ?? '';
 
 	if($$sOrderVar <> '')
 		Application::getInstance()->getSession()["SESS_SORT_ORDER"][$md5Path] = $$sOrderVar;
 	else
-		$$sOrderVar = Application::getInstance()->getSession()["SESS_SORT_ORDER"][$md5Path];
+		$$sOrderVar = Application::getInstance()->getSession()["SESS_SORT_ORDER"][$md5Path] ?? '';
 
 	$$sByVar = strtolower($$sByVar);
 	$$sOrderVar = strtolower($$sOrderVar);
@@ -697,11 +698,11 @@ function SortingEx($By, $Path = false, $sByVar="by", $sOrderVar="order", $Anchor
 			$sImgDown = "<img src=\"".BX_ROOT."/images/icons/up-$$$.gif\" width=\"15\" height=\"15\" border=\"0\" alt=\"".GetMessage("ASC_ORDER")."\">";
 	}
 
-	//Если путь не задан, то будем брать текущий со всеми переменными
+	//Р•СЃР»Рё РїСѓС‚СЊ РЅРµ Р·Р°РґР°РЅ, С‚Рѕ Р±СѓРґРµРј Р±СЂР°С‚СЊ С‚РµРєСѓС‰РёР№ СЃРѕ РІСЃРµРјРё РїРµСЂРµРјРµРЅРЅС‹РјРё
 	if($Path===false)
 		$Path = $APPLICATION->GetCurUri();
 
-	//Если нет переменных, то надо добавлять параметры через ?
+	//Р•СЃР»Рё РЅРµС‚ РїРµСЂРµРјРµРЅРЅС‹С…, С‚Рѕ РЅР°РґРѕ РґРѕР±Р°РІР»СЏС‚СЊ РїР°СЂР°РјРµС‚СЂС‹ С‡РµСЂРµР· ?
 	$found = mb_strpos($Path, "?");
 	if ($found === false) $strAdd2URL = "?";
 	else $strAdd2URL = "&";

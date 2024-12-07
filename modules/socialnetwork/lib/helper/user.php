@@ -19,7 +19,7 @@ class User
 	{
 		global $USER;
 
-		return (int)$USER->getId();
+		return (int)$USER?->getId();
 	}
 
 	public static function getUserListNameFormatted(array $userIdList = [], $params = []): array

@@ -64,7 +64,7 @@ endforeach;
 ?></div>
 
 <?if ($arParams["arUserField"]["EDIT_IN_LIST"] == "Y" && $arParams["arUserField"]["MULTIPLE"] == "Y" && $arParams["SHOW_BUTTON"] <> "N"):?>
-<script type="text/javascript">
+<script>
 if(!window.bxDateInputs)
 {
 	var bxDateInputs = {};

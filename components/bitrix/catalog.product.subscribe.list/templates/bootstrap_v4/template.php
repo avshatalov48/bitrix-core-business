@@ -100,7 +100,7 @@ if(!$arResult['USER_ID'] && !isset($arParams['GUEST_ACCESS'])):?>
 		</div>
 	</div>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function() {
 			if(BX('cpsl-auth'))
 			{
@@ -123,7 +123,7 @@ if(!$arResult['USER_ID'] && !isset($arParams['GUEST_ACCESS'])):?>
 <?endif;
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.message({
 		CPSL_MESS_BTN_DETAIL: '<?=('' != $arParams['MESS_BTN_DETAIL']
 			? CUtil::JSEscape($arParams['MESS_BTN_DETAIL']) : GetMessageJS('CPSL_TPL_MESS_BTN_DETAIL'));?>',
@@ -156,7 +156,7 @@ if(!empty($_GET['result']) && !empty($_GET['message']))
 		'NOTIFY_MESSAGE' => urldecode($_GET['message']),
 	);
 	?>
-	<script type="text/javascript">
+	<script>
 		var <?='jaClass_'.$randomString;?> = new JCCatalogProductSubscribeList(<?=CUtil::PhpToJSObject($arJSParams, false, true);?>);
 	</script>
 	<?
@@ -498,7 +498,7 @@ if (!empty($arResult['ITEMS']))
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT'],
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 			var <?=$strObName;?> = new JCCatalogProductSubscribeList(
 				<?=CUtil::PhpToJSObject($arJSParams, false, true);?>);
 		</script><?
@@ -657,7 +657,7 @@ if (!empty($arResult['ITEMS']))
 		'TREE_PROPS' => $arSkuProps,
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT'],
 	); ?>
-		<script type="text/javascript">
+		<script>
 			var <?=$strObName;?> = new JCCatalogProductSubscribeList(
 				<?=CUtil::PhpToJSObject($arJSParams, false, true);?>);
 		</script>

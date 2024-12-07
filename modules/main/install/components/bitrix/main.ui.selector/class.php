@@ -1,10 +1,9 @@
-<?
+<?php
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
-use Bitrix\Main\Loader;
 use Bitrix\Main\Context;
 use Bitrix\Main\UI\Selector;
+use Bitrix\Main\Web\Json;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -19,7 +18,7 @@ class CMainUiSelector extends CBitrixComponent
 	{
 		$errors = new \Bitrix\Main\ErrorCollection();
 
-		foreach ($errors->toArray() as $key => $error)
+		foreach ($errors->toArray() as $error)
 		{
 			ShowError($error);
 		}
@@ -151,9 +150,7 @@ class CMainUiSelector extends CBitrixComponent
 
 	protected static function getRequest()
 	{
-		CUtil::JSPostUnescape();
 		$request = Context::getCurrent()->getRequest();
-		$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 
 		return $request->getPostList();
 	}
@@ -175,12 +172,11 @@ class CMainUiSelector extends CBitrixComponent
 		}
 
 		header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-		echo CUtil::PhpToJSObject($result);
+		echo Json::encode($result);
 	}
 
 	public static function doFinalActions()
 	{
-		\CMain::finalActions();
-		die();
+		CMain::finalActions();
 	}
 }

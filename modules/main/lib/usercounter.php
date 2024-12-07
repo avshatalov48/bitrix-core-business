@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Main;
 
-use Bitrix\Main\Entity;
-
 /**
  * Class UserCounterTable
  *

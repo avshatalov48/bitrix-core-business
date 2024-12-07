@@ -30,6 +30,8 @@ class Feed
 		this.entryData = {};
 		this.feedInitialized = false;
 		this.moreButtonDataList = new Map();
+
+		this.currentScrollPosition = 0;
 	}
 
 	initOnce(params)
@@ -116,6 +118,36 @@ class Feed
 		{
 			Event.bind(noTasksNotificationReadButton, 'click', this.setNoTasksNotificationRead.bind(this));
 		}
+
+		Event.bind(document, 'fullscreenchange', this.handleFullScreenChange.bind(this));
+		Event.bind(document, 'scroll', this.handleScrollChange.bind(this));
+	}
+
+	handleFullScreenChange()
+	{
+		if (!this.getFullScreenElement())
+		{
+			window.scrollTo(0, this.currentScrollPosition);
+		}
+	}
+
+	handleScrollChange()
+	{
+		if (!this.getFullScreenElement())
+		{
+			this.currentScrollPosition = window.scrollY;
+		}
+	}
+
+	getFullScreenElement(): ?Element
+	{
+		return (
+			document.fullscreenElement
+			|| document.webkitFullscreenElement
+			|| document.mozFullScreenElement
+			|| document.msFullscreenElement
+			|| null
+		);
 	}
 
 	init()

@@ -131,21 +131,13 @@ class CXMLCreator {
 
 	function setAttribute($attrName, $attrValue)
 	{
-		global $APPLICATION;
-
-		//$attrName = static::xmlspecialchars($attrName);
-		$attrValue = $APPLICATION->ConvertCharset($attrValue /*static::xmlspecialchars($attrValue)*/, LANG_CHARSET, 'utf-8');
-
 		$newAttribute = array($attrName => $attrValue);
 		$this->attributs = array_merge($this->attributs, $newAttribute);
 	}
 
 	function setData($data)
 	{
-		global $APPLICATION;
-
-		//$data = static::xmlspecialchars($data);
-		$this->data = $APPLICATION->ConvertCharset($data, SITE_CHARSET, "utf-8");
+		$this->data = $data;
 	}
 
 	function setName($tag)

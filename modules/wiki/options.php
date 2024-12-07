@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2012 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 
@@ -49,7 +49,7 @@ if($MOD_RIGHT>='R'):
 
 if($MOD_RIGHT>='Y' || $USER->IsAdmin()):
 
-	if ($REQUEST_METHOD=='GET' && $RestoreDefaults <> '' && check_bitrix_sessid())
+	if ($_SERVER['REQUEST_METHOD']=='GET' && $RestoreDefaults <> '' && check_bitrix_sessid())
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList('id', 'asc', array('ACTIVE' => 'Y', 'ADMIN' => 'N'));
@@ -57,7 +57,7 @@ if($MOD_RIGHT>='Y' || $USER->IsAdmin()):
 			$APPLICATION->DelGroupRight($module_id, array($zr['ID']));
 	}
 
-	if($REQUEST_METHOD=='POST' && $Update <> '' && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=='POST' && $Update <> '' && check_bitrix_sessid())
 	{
 		$arOptions = $arAllOptions;
 		if(IsModuleInstalled('forum'))
@@ -143,7 +143,7 @@ if(IsModuleInstalled('socialnetwork'))
 <?$tabControl->BeginNextTab();?>
 <?require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/admin/group_rights.php');?>
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(Loc::getMessage('MAIN_HINT_RESTORE_DEFAULTS_WARNING'))?>'))

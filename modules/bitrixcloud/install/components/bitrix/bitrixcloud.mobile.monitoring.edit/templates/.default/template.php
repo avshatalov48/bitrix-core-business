@@ -91,7 +91,7 @@ $APPLICATION->IncludeComponent(
 );
 ?>
 
-<script type="text/javascript">
+<script>
 	var listParams  = {
 		ajaxUrl: "<?=$arResult['AJAX_PATH']?>"
 	};
@@ -104,12 +104,12 @@ $APPLICATION->IncludeComponent(
 		var fields = bcmme.getFields(form);
 
 		if(fields)
-			bcmm.updateSite("<?=$arResult['DOMAIN_PARAMS']['DOMAIN']?>", fields);
+			bcmm.updateSite('<?=CUtil::JSEscape($arResult['DOMAIN_PARAMS']['DOMAIN'])?>', fields);
 	}
 
 	BX.addCustomEvent('onAfterBCMMSiteDelete', function (params)
 	{
-		if(params.domain == "<?=$arResult['DOMAIN_PARAMS']['DOMAIN']?>")
+		if(params.domain == '<?=CUtil::JSEscape($arResult['DOMAIN_PARAMS']['DOMAIN'])?>')
 		{
 			app.checkOpenStatus({callback:function(response)
 				{
@@ -134,7 +134,7 @@ $APPLICATION->IncludeComponent(
 
 	BX.addCustomEvent('onAfterBCMMSiteUpdate', function (params)
 	{
-		if(params.domain == "<?=$arResult['DOMAIN_PARAMS']['DOMAIN']?>")
+		if(params.domain == '<?=CUtil::JSEscape($arResult['DOMAIN_PARAMS']['DOMAIN'])?>')
 		{
 			app.checkOpenStatus({callback:function(response)
 				{

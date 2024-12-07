@@ -84,7 +84,7 @@ else
 
 	if ($token)
 	{
-		echo '<script>BX.Wizard.Utf8.action(\'files\', ' . CUtil::PhpToJSObject($token) . ')</script>';
+		echo '<script>BX.Wizard.Utf8.action(\'files\', ' . \Bitrix\Main\Web\Json::encode($token) . ')</script>';
 	}
 	else
 	{
@@ -175,7 +175,7 @@ class FileProcessor
 			$mask = trim($mask);
 			if ($mask !== '')
 			{
-				$this->exclude[] = "'^" . $mask . "$'" . BX_UTF_PCRE_MODIFIER;
+				$this->exclude[] = "'^" . $mask . "$'";
 			}
 		}
 	}

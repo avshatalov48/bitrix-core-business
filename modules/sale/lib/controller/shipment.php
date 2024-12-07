@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Sale\Controller;
-
 
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
@@ -20,7 +18,8 @@ class Shipment extends Controller
 		return new ExactParameter(
 			Sale\Shipment::class,
 			'shipment',
-			function($className, $id) {
+			function($className, $id)
+			{
 
 				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
@@ -29,10 +28,13 @@ class Shipment extends Controller
 
 				$r = $shipmentClass::getList([
 					'select'=>['ORDER_ID'],
-					'filter'=>['ID'=>$id],
+					'filter' => [
+						'=ID' => (int)$id,
+						'!=SYSTEM' => 'Y',
+					],
 				]);
 
-				if($row = $r->fetch())
+				if ($row = $r->fetch())
 				{
 					/** @var Sale\Order $orderClass */
 					$orderClass = $registry->getOrderClassName();
@@ -48,6 +50,7 @@ class Shipment extends Controller
 				{
 					$this->addError(new Error('shipment is not exists', 201140400001));
 				}
+
 				return null;
 			}
 		);

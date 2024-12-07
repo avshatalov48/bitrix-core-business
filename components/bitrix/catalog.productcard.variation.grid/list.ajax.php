@@ -3,7 +3,6 @@
 use Bitrix\Main\Component\ParameterSigner;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Web\PostDecodeFilter;
 
 define('NO_KEEP_STATISTIC', 'Y');
 define('NO_AGENT_STATISTIC', 'Y');
@@ -37,11 +36,9 @@ if (!Loader::includeModule('catalog'))
 }
 
 $APPLICATION->ShowAjaxHead();
-CUtil::JSPostUnescape();
 
 $componentName = 'bitrix:catalog.productcard.variation.grid';
 $request = Bitrix\Main\Context::getCurrent()->getRequest();
-$request->addFilter(new PostDecodeFilter);
 
 if ($request->get('signedParameters'))
 {

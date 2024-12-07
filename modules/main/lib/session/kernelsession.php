@@ -10,7 +10,7 @@ class KernelSession implements SessionInterface, \ArrayAccess
 {
 	use ArrayAccessWithReferences;
 
-	private const COOKIE_NAME = 'kernel';
+	public const COOKIE_NAME = 'kernel';
 
 	/** @var bool */
 	protected $started;

@@ -13,15 +13,6 @@
 	gap: 8px 4px;
 }
 
-.--transparent .bx-im-reaction-list__container {
-	justify-content: flex-end;
-}
-
-.--opponent .--transparent .bx-im-reaction-list__container,
-.bx-im-content-chat__container.--left-align .--transparent .bx-im-reaction-list__container {
-	justify-content: flex-start;
-}
-
 .bx-im-reaction-list__item {
 	display: flex;
 	justify-content: center;
@@ -31,10 +22,6 @@
 	border-radius: 38px;
 	background-color: var(--im-reaction-list__background-color_item);
 	cursor: pointer;
-}
-
-.--transparent .bx-im-reaction-list__item {
-	background-color: var(--im-reaction-list__background-color_item-transparent-background)
 }
 
 .bx-im-reaction-list__item_icon {
@@ -50,10 +37,6 @@
 	font-weight: var(--im-font-weight-semi-bold);
 	color: var(--im-reaction-list__font-color_counter);
 	user-select: none;
-}
-
-.--transparent .bx-im-reaction-list__item_counter {
-	color: var(--im-reaction-list__font-color_counter-selected);
 }
 
 .bx-im-reaction-list__item.--selected {
@@ -92,3 +75,31 @@
 .bx-im-reaction-list__user_animation-leave-to {
 	margin-left: -18px;
 }
+
+
+/* external reaction list */
+.bx-im-message-base__bottom .bx-im-reaction-list__container {
+	justify-content: flex-end;
+}
+
+.bx-im-message-base__wrap.--opponent .bx-im-message-base__bottom .bx-im-reaction-list__container,
+.bx-im-content-chat__container.--left-align .bx-im-message-base__bottom .bx-im-reaction-list__container {
+	justify-content: flex-start;
+}
+
+.bx-im-message-base__bottom .bx-im-reaction-list__item {
+	background-color: var(--im-reaction-list__background-color_item-transparent-background)
+}
+
+.bx-im-message-base__bottom .bx-im-reaction-list__item.--selected {
+	background-color: var(--im-reaction-list__background-color_item-selected);
+}
+
+.bx-im-message-base__bottom .bx-im-reaction-list__item_counter {
+	color: var(--im-reaction-list__font-color_counter-selected);
+}
+
+.bx-im-message-base__bottom .bx-im-reaction-list__item.--selected .bx-im-reaction-list__item_counter {
+	color: var(--im-reaction-list__font-color_counter-selected);
+}
+/* end external reaction list */

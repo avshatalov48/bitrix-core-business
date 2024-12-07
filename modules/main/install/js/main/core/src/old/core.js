@@ -3869,30 +3869,16 @@
 		return true;
 	}
 
-	/* garbage collector */
-	function Trash()
-	{
-		var i,len;
+	window.addEventListener('pagehide', () => {
+		garbageCollectors.forEach(({ callback, context = window }) => {
+			try
+			{
+				callback.apply(context);
+			} catch (err) {}
+		});
+	});
 
-		for (i = 0, len = garbageCollectors.length; i<len; i++)
-		{
-			try {
-				garbageCollectors[i].callback.apply(garbageCollectors[i].context || window);
-				delete garbageCollectors[i];
-				garbageCollectors[i] = null;
-			} catch (e) {}
-		}
-	}
-
-	if(window.attachEvent) // IE
-		window.attachEvent("onunload", Trash);
-	else if(window.addEventListener) // Gecko / W3C
-		window.addEventListener('unload', Trash, false);
-	else
-		window.onunload = Trash;
-	/* \garbage collector */
-
-// set empty ready handler
+	// set empty ready handler
 	BX(BX.DoNothing);
 	window.BX = BX;
 

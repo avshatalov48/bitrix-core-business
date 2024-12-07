@@ -166,9 +166,9 @@ class CBPDocument
 	public static function getAllowableEvents($userId, $arGroups, $arState, $appendExtendedGroups = false)
 	{
 		if (!is_array($arState))
-			throw new Exception("arState");
+			throw new CBPArgumentTypeException("arState");
 		if (!is_array($arGroups))
-			throw new Exception("arGroups");
+			throw new CBPArgumentTypeException("arGroups");
 
 		$arGroups = CBPHelper::convertToExtendedGroups($arGroups);
 		if ($appendExtendedGroups)
@@ -258,9 +258,9 @@ class CBPDocument
 	public static function getAllowableOperations($userId, $arGroups, $arStates, $appendExtendedGroups = false)
 	{
 		if (!is_array($arStates))
-			throw new Exception("arStates");
+			throw new CBPArgumentTypeException("arStates");
 		if (!is_array($arGroups))
-			throw new Exception("arGroups");
+			throw new CBPArgumentTypeException("arGroups");
 
 		$arGroups = CBPHelper::convertToExtendedGroups($arGroups);
 		if ($appendExtendedGroups)
@@ -309,7 +309,7 @@ class CBPDocument
 	{
 		$operation = trim($operation);
 		if ($operation == '')
-			throw new Exception("operation");
+			throw new CBPArgumentNullException("operation");
 
 		$operations = self::GetAllowableOperations($userId, $arGroups, $arStates);
 		if ($operations === null)
@@ -502,7 +502,7 @@ class CBPDocument
 			{
 				$d = $workflow->GetDocumentId();
 				if ($d[0] != $documentId[0] || $d[1] != $documentId[1] || mb_strtolower($d[2]) !== mb_strtolower($documentId[2]))
-					throw new Exception(GetMessage("BPCGDOC_INVALID_WF_MSGVER_1"));
+					throw new CBPArgumentOutOfRangeException(GetMessage("BPCGDOC_INVALID_WF_MSGVER_1"));
 			}
 			$workflow->Terminate(null, $stateTitle);
 		}
@@ -561,8 +561,12 @@ class CBPDocument
 			Bizproc\Debugger\Listener::getInstance()->onDocumentDeleted();
 		}
 
-		//Deferred deletion
-		Bizproc\Worker\Document\DeleteStepper::bindDocument($documentId);
+		\CBPHistoryService::DeleteByDocument($documentId);
+
+		Bizproc\Workflow\Entity\WorkflowUserTable::onDocumentDelete($documentId);
+
+		// Deferred deletion
+		Bizproc\Workflow\Entity\WorkflowStateTable::maskAsZombie($documentId);
 
 		//touch runtime
 		CBPRuntime::getRuntime()->onDocumentDelete($documentId);
@@ -1010,7 +1014,7 @@ class CBPDocument
 
 	public static function showParameterField($type, $name, $values, $arParams = Array())
 	{
-		$id = !empty($arParams['id']) ? $arParams['id'] : md5(uniqid());
+		$id = !empty($arParams['id']) ? $arParams['id'] : md5(uniqid('', true));
 
 		$cols = !empty($arParams['size']) ? intval($arParams['size']) : 70;
 		$defaultRows = $type == "user" ? 3 : 1;
@@ -1667,7 +1671,14 @@ class CBPDocument
 	{
 		if (!isset($parameters['UserGroups']))
 		{
-			$parameters['UserGroups'] = CUser::GetUserGroup($userId);
+			$currentUser = \Bitrix\Main\Engine\CurrentUser::get();
+			$currentUserId = $currentUser->getId();
+
+			$parameters['UserGroups'] = (
+				$currentUserId !== null && ((int)$currentUserId === (int)$userId)
+					? $currentUser->getUserGroups()
+					: CUser::GetUserGroup($userId)
+			);
 		}
 		if (!isset($parameters['DocumentStates']))
 		{

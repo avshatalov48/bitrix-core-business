@@ -809,7 +809,11 @@ class CIMEvent
 				if ($commonChatId && CIMChat::GetRelationById($commonChatId, $arParams["ID"], true, false))
 				{
 					$CIMChat = new CIMChat($arParams["ID"]);
-					$CIMChat->DeleteUser($commonChatId, $arParams["ID"]);
+					$CIMChat->DeleteUser(
+						$commonChatId,
+						$arParams["ID"],
+						additionalParams: ['SKIP_RIGHTS' => true]
+					);
 				}
 			}
 			else
@@ -833,7 +837,11 @@ class CIMEvent
 					if ($userInChat && !$userCanJoin)
 					{
 						$CIMChat = new CIMChat($arParams["ID"]);
-						$CIMChat->DeleteUser($commonChatId, $arParams["ID"]);
+						$CIMChat->DeleteUser(
+							$commonChatId,
+							$arParams["ID"],
+							additionalParams: ['SKIP_RIGHTS' => true]
+						);
 					}
 					else if (!$userInChat && $userCanJoin)
 					{
@@ -865,7 +873,7 @@ class CIMEvent
 			WHERE R.MESSAGE_TYPE NOT IN ('".IM_MESSAGE_SYSTEM."','".IM_MESSAGE_PRIVATE."')
 			AND R.USER_ID = ".$userId."
 		";
-		$DB->Query($sql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($sql, true);
 	}
 
 	public static function OnUserDelete($ID)
@@ -891,7 +899,7 @@ class CIMEvent
 			FROM b_im_chat C, b_im_relation R
 			WHERE R.USER_ID = ".$ID." and R.MESSAGE_TYPE IN ('".IM_MESSAGE_PRIVATE."', '".IM_MESSAGE_SYSTEM."') and R.CHAT_ID = C.ID
 		";
-		$dbRes = $DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSQL, true);
 		while ($arRes = $dbRes->Fetch())
 		{
 			$arChat[$arRes['CHAT_ID']] = $arRes['CHAT_ID'];
@@ -903,13 +911,13 @@ class CIMEvent
 		if (count($arChat) > 0)
 		{
 			$strSQL = "DELETE FROM b_im_chat WHERE ID IN (".implode(',', $arChat).")";
-			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSQL, true);
 
 			$strSQL = "DELETE FROM b_im_message WHERE CHAT_ID IN (".implode(',', $arChat).")";
-			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSQL, true);
 
 			$strSQL = "DELETE FROM b_im_relation WHERE CHAT_ID IN (".implode(',', $arChat).")";
-			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSQL, true);
 
 			IM\V2\Link\Url\UrlCollection::deleteByChatsIds($arChat);
 			foreach ($arChat as $id)
@@ -920,10 +928,10 @@ class CIMEvent
 		else
 		{
 			$strSQL = "DELETE FROM b_im_message WHERE AUTHOR_ID = ".$ID;
-			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSQL, true);
 
 			$strSQL = "DELETE FROM b_im_relation WHERE USER_ID =".$ID;
-			$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSQL, true);
 
 			IM\V2\Link\Url\UrlCollection::deleteByAuthorsIds([$ID]);
 		}
@@ -931,16 +939,16 @@ class CIMEvent
 		\Bitrix\Im\Bot::unRegister(['BOT_ID' => $ID]);
 
 		$strSQL = "DELETE FROM b_im_recent WHERE USER_ID = ".$ID;
-		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL, true);
 
 		$strSQL = "DELETE FROM b_im_recent WHERE ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' AND ITEM_ID = ".$ID;
-		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL, true);
 
 		$strSQL = "DELETE FROM b_im_status WHERE USER_ID = ".$ID;
-		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL, true);
 
 		$strSQL = "DELETE FROM b_im_recent WHERE ITEM_TYPE = '".IM_MESSAGE_PRIVATE."' and ITEM_ID = ".$ID;
-		$DB->Query($strSQL, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSQL, true);
 
 		if ($isRecentExists && CModule::IncludeModule('pull'))
 		{

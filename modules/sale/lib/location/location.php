@@ -177,7 +177,7 @@ final class LocationTable extends Tree
 
 		// force code to lowercase
 		if(isset($data['CODE']))
-			$data['CODE'] = ToLower($data['CODE']);
+			$data['CODE'] = mb_strtolower($data['CODE']);
 
 		// you are not allowed to modify tree data over LocationTable::add()
 		self::applyRestrictions($data);
@@ -265,7 +265,7 @@ final class LocationTable extends Tree
 
 		// force code to lowercase
 		if(isset($data['CODE']))
-			$data['CODE'] = ToLower($data['CODE']);
+			$data['CODE'] = mb_strtolower($data['CODE']);
 
 		// you are not allowed to modify tree data over LocationTable::update()
 		self::applyRestrictions($data);

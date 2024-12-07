@@ -96,7 +96,7 @@ else
 	{
 		foreach($arClientModules as $k => $v)
 		{
-			if(strpos($k, ".") !== false)
+			if(str_contains($k, "."))
 				$m[htmlspecialcharsbx($k)] = $v["IS_DEMO"];
 		}
 	}
@@ -544,7 +544,7 @@ else
 												$arM["scripts"]["script"] = array($arM["scripts"]["script"]);
 											foreach($arM["scripts"]["script"] as $v)
 											{
-												?><script type="text/javascript" src="<?=$v?>"></script><?
+												?><script src="<?=$v?>"></script><?
 											}
 										}
 										?>

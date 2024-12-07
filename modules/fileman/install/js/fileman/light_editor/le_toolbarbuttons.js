@@ -964,10 +964,10 @@ LHEButtons['Video'] = {
 				else // WMV
 				{
 
-					str = '<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /></script>' +
-				'<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"></script>' +
+					str = '<script src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /></script>' +
+				'<script src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"></script>' +
 				'<div id="' + arParams.id + '">WMV Player</div>' +
-				'<script type="text/javascript">new jeroenwijering.Player(document.getElementById("' + arParams.id + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
+				'<script>new jeroenwijering.Player(document.getElementById("' + arParams.id + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
 
 					if (arVidConf.bufferLength)
 						arParams.JSConfig.bufferlength = arVidConf.bufferLength;

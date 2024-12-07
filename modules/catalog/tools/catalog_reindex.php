@@ -40,8 +40,6 @@ if (
 	&& $request['operation'] == 'Y'
 )
 {
-	CUtil::JSPostUnescape();
-
 	$params = array(
 		'sessID' => $request['ajaxSessionID'],
 		'maxExecutionTime' => $request['maxExecutionTime'],
@@ -191,7 +189,7 @@ else
 		)
 	);
 	?>
-	<script type="text/javascript">
+	<script>
 		var jsCatalogReindex = new BX.Catalog.CatalogReindex(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
 	</script>
 	<?

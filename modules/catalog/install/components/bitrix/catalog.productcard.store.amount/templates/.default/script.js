@@ -1,5 +1,5 @@
 /* eslint-disable */
-(function (exports,main_core,main_core_events,catalog_storeUse) {
+(function (exports,main_core,main_core_events,catalog_storeEnableWizard) {
 	'use strict';
 
 	var ProductStoreGridManager = /*#__PURE__*/function () {
@@ -69,6 +69,7 @@
 	      if (!grid || grid.getId() !== this.getGridId()) {
 	        return;
 	      }
+	      this.bindSliderToReservedQuantityNodes();
 	      this.refreshTotalWrapper();
 	    }
 	  }, {
@@ -152,7 +153,10 @@
 	    key: "openInventoryManagementSlider",
 	    value: function openInventoryManagementSlider() {
 	      if (this.inventoryManagementLink) {
-	        new catalog_storeUse.StoreSlider().open(this.inventoryManagementLink, {
+	        new catalog_storeEnableWizard.EnableWizardOpener().open(this.inventoryManagementLink, {
+	          urlParams: {
+	            analyticsContextSection: catalog_storeEnableWizard.AnalyticsContextList.PRODUCT_CARD
+	          },
 	          data: {
 	            openGridOnDone: false
 	          },
@@ -175,5 +179,5 @@
 	}();
 	main_core.Reflection.namespace('BX.Catalog').ProductStoreGridManager = ProductStoreGridManager;
 
-}((this.window = this.window || {}),BX,BX.Event,BX.Catalog.StoreUse));
+}((this.window = this.window || {}),BX,BX.Event,BX.Catalog.Store));
 //# sourceMappingURL=script.js.map

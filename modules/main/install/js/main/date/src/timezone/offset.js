@@ -2,13 +2,19 @@ import { Cache, Loc, Text } from 'main.core';
 
 const cache = new Cache.MemoryCache();
 
+export type OffsetInterface = {
+	SERVER_TO_UTC: number,
+	USER_TO_SERVER: number,
+	BROWSER_TO_UTC: number,
+}
+
 /**
  * @memberOf BX.Main.Timezone
  *
  * WARNING! Don't use this class or any classes from Timezone namespace on sites without Bitrix Framework.
  * It is not designed to handle this case and will definitely break.
  */
-const Offset = {
+const Offset: OffsetInterface = {
 	get SERVER_TO_UTC(): number
 	{
 		return cache.remember('SERVER_TO_UTC', () => {
@@ -29,7 +35,9 @@ const Offset = {
 	get BROWSER_TO_UTC(): number
 	{
 		return cache.remember('BROWSER_TO_UTC', () => {
-			return Text.toInteger((new Date()).getTimezoneOffset() * 60);
+			const offset = Text.toInteger((new Date()).getTimezoneOffset() * 60);
+
+			return -offset;
 		});
 	},
 };

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -170,7 +171,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	  }, {
 	    key: "isCrmFormPage",
 	    value: function isCrmFormPage() {
-	      return landing_env.Env.getInstance().getOptions().specialType === 'crm_forms';
+	      return landing_env.Env.getInstance().getSpecialType() === 'crm_forms';
 	    }
 	  }, {
 	    key: "getFormDesignButton",
@@ -1005,9 +1006,14 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      var _this20 = this;
 	      var dictionary = this.getFormDictionary();
 	      BX.onCustomEvent(this, 'BX.Landing.Block:onFormSave', [this.getCurrentBlock().id]);
-	      if (main_core.Type.isPlainObject(dictionary.permissions) && main_core.Type.isPlainObject(dictionary.permissions.form) && dictionary.permissions.form.edit === false) {
+	      if (main_core.Type.isPlainObject(dictionary.permissions) && main_core.Type.isPlainObject(dictionary.permissions.tariff) && dictionary.permissions.tariff.restricted === true) {
 	        var rootWindow = landing_pageobject.PageObject.getRootWindow();
-	        rootWindow.BX.UI.Dialogs.MessageBox.alert(landing_loc.Loc.getMessage('LANDING_FORM_SAVE_PERMISSION_DENIED'));
+	        rootWindow.BX.UI.InfoHelper.show('limit_crm_webform_edit');
+	        return;
+	      }
+	      if (main_core.Type.isPlainObject(dictionary.permissions) && main_core.Type.isPlainObject(dictionary.permissions.form) && dictionary.permissions.form.edit === false) {
+	        var _rootWindow = landing_pageobject.PageObject.getRootWindow();
+	        _rootWindow.BX.UI.Dialogs.MessageBox.alert(landing_loc.Loc.getMessage('LANDING_FORM_SAVE_PERMISSION_DENIED'));
 	        return;
 	      }
 	      main_core.Dom.addClass(this.getSaveButton().layout, 'ui-btn-wait');
@@ -1042,8 +1048,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	          }();
 	          if (options.data.recaptcha.use && !_this20.getFormDictionary().captcha.hasKeys && !options.captcha.hasDefaults) {
 	            options.data.recaptcha.use = false;
-	            var _rootWindow = landing_pageobject.PageObject.getRootWindow();
-	            var alert = new _rootWindow.BX.UI.Dialogs.MessageBox({
+	            var _rootWindow2 = landing_pageobject.PageObject.getRootWindow();
+	            var alert = new _rootWindow2.BX.UI.Dialogs.MessageBox({
 	              title: landing_loc.Loc.getMessage('LANDING_FORM_SAVE_CAPTCHA_ALERT_TITLE'),
 	              message: landing_loc.Loc.getMessage('LANDING_FORM_SAVE_CAPTCHA_ALERT_TEXT_2'),
 	              buttons: ui_dialogs_messagebox.MessageBoxButtons.OK,
@@ -1095,8 +1101,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	                errorAlert.show();
 	              }
 	            } else {
-	              var _rootWindow2 = landing_pageobject.PageObject.getRootWindow();
-	              _rootWindow2.BX.UI.Dialogs.MessageBox.alert(landing_loc.Loc.getMessage('LANDING_FORM_SAVE_UNKNOWN_ERROR_ALERT_TEXT'), landing_loc.Loc.getMessage('LANDING_FORM_SAVE_ERROR_ALERT_TITLE'));
+	              var _rootWindow3 = landing_pageobject.PageObject.getRootWindow();
+	              _rootWindow3.BX.UI.Dialogs.MessageBox.alert(landing_loc.Loc.getMessage('LANDING_FORM_SAVE_UNKNOWN_ERROR_ALERT_TEXT'), landing_loc.Loc.getMessage('LANDING_FORM_SAVE_ERROR_ALERT_TITLE'));
 	            }
 	            main_core.Dom.removeClass(_this20.getSaveButton().layout, 'ui-btn-wait');
 	          });

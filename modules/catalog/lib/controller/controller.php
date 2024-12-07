@@ -9,6 +9,7 @@ use Bitrix\Catalog\Model\Event;
 use Bitrix\Catalog\RestView\CatalogViewManager;
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Response\Converter;
+use Bitrix\Main\Error;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Entity;
 use Bitrix\Rest\Event\EventBind;
@@ -60,12 +61,23 @@ class Controller extends Base
 		return $APPLICATION;
 	}
 
-	protected static function getGlobalUser()
+	/**
+	 * Strongly disallowed to use.
+	 * @deprecated
+	 *
+	 * @return null|\CUser
+	 */
+	protected static function getGlobalUser(): ?\CUser
 	{
 		/** @global \CUser $USER */
 		global $USER;
 
-		return $USER;
+		if (isset($USER) && $USER instanceof \CUser)
+		{
+			return $USER;
+		}
+
+		return null;
 	}
 
 	protected static function getNavData($start, $orm = false)
@@ -134,6 +146,31 @@ class Controller extends Base
 	protected function getServiceListName(): string
 	{
 		return $this->getServiceItemName() . 'S';
+	}
+
+	protected function getServiceEntityName(): string
+	{
+		$converter = new Converter(Converter::TO_CAMEL | Converter::LC_FIRST);
+
+		return $converter->process($this->getServiceItemName());
+	}
+
+	protected function getErrorCodeEntityNotExists(): string
+	{
+		return '';
+	}
+
+	protected function getErrorEntityNotExists(): Error
+	{
+		return new Error(
+			$this->getServiceEntityName() . ' does not exist.',
+			$this->getErrorCodeEntityNotExists()
+		);
+	}
+
+	protected function addErrorEntityNotExists(): void
+	{
+		$this->addError($this->getErrorEntityNotExists());
 	}
 
 	// rest-event region

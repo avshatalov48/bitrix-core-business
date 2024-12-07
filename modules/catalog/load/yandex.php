@@ -2,6 +2,7 @@
 
 use Bitrix\Main;
 use Bitrix\Currency;
+use Bitrix\Main\Text\Encoding;
 
 global $APPLICATION;
 set_time_limit(0);
@@ -38,8 +39,6 @@ if (!function_exists("yandex_text2xml"))
 {
 	function yandex_text2xml($text, $bHSC = false, $bDblQuote = false)
 	{
-		global $APPLICATION;
-
 		$bHSC = (true == $bHSC ? true : false);
 		$bDblQuote = (true == $bDblQuote ? true: false);
 
@@ -51,7 +50,7 @@ if (!function_exists("yandex_text2xml"))
 		}
 		$text = preg_replace('/[\x01-\x08\x0B-\x0C\x0E-\x1F]/', "", $text);
 		$text = str_replace("'", "&apos;", $text);
-		$text = $APPLICATION->ConvertCharset($text, LANG_CHARSET, 'windows-1251');
+		$text = Encoding::convertEncoding($text, LANG_CHARSET, 'windows-1251');
 		return $text;
 	}
 }
@@ -69,8 +68,8 @@ $strAll .= '<?xml version="1.0" encoding="windows-1251"?>' . "\n";
 $strAll .= "<!DOCTYPE yml_catalog SYSTEM \"shops.dtd\">\n";
 $strAll .= "<yml_catalog date=\"".date("Y-m-d H:i")."\">\n";
 $strAll .= "<shop>\n";
-$strAll .= "<name>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n";
-$strAll .= "<company>".$APPLICATION->ConvertCharset(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</company>\n";
+$strAll .= "<name>".Encoding::convertEncoding(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</name>\n";
+$strAll .= "<company>".Encoding::convertEncoding(htmlspecialcharsbx(COption::GetOptionString("main", "site_name", "")), LANG_CHARSET, 'windows-1251')."</company>\n";
 $strAll .= "<url>".$usedProtocol.htmlspecialcharsbx(COption::GetOptionString("main", "server_name", ""))."</url>\n";
 $strAll .= "<platform>1C-Bitrix</platform>\n";
 

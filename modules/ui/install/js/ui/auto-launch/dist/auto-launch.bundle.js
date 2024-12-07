@@ -24,6 +24,7 @@ this.BX.UI = this.BX.UI || {};
 	var _allowLaunchAfterOthers = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("allowLaunchAfterOthers");
 	var _forceShowOnTop = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("forceShowOnTop");
 	var _state = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("state");
+	var _context = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("context");
 	class LaunchItem extends main_core_events.EventEmitter {
 	  constructor(itemOptions) {
 	    super();
@@ -55,6 +56,10 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: LaunchState.IDLE
 	    });
+	    Object.defineProperty(this, _context, {
+	      writable: true,
+	      value: {}
+	    });
 	    const options = main_core.Type.isPlainObject(itemOptions) ? itemOptions : {};
 	    if (!main_core.Type.isFunction(options.callback)) {
 	      throw new TypeError('BX.Launcher: "callback" parameter is required.');
@@ -65,6 +70,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _delay)[_delay] = main_core.Type.isNumber(options.delay) && options.delay >= 0 ? options.delay : babelHelpers.classPrivateFieldLooseBase(this, _delay)[_delay];
 	    babelHelpers.classPrivateFieldLooseBase(this, _allowLaunchAfterOthers)[_allowLaunchAfterOthers] = options.allowLaunchAfterOthers === true;
 	    babelHelpers.classPrivateFieldLooseBase(this, _forceShowOnTop)[_forceShowOnTop] = main_core.Type.isBoolean(options.forceShowOnTop) || main_core.Type.isFunction(options.forceShowOnTop) ? options.forceShowOnTop : babelHelpers.classPrivateFieldLooseBase(this, _forceShowOnTop)[_forceShowOnTop];
+	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = main_core.Type.isPlainObject(options.context) ? options.context : {};
 	    this.setEventNamespace('BX.Main.Launcher.Item');
 	  }
 	  launch(done) {
@@ -90,6 +96,9 @@ this.BX.UI = this.BX.UI || {};
 	  getDelay() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _delay)[_delay];
 	  }
+	  getContext() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _context)[_context];
+	  }
 	  canLaunchAfterOthers() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _allowLaunchAfterOthers)[_allowLaunchAfterOthers];
 	  }
@@ -114,6 +123,10 @@ this.BX.UI = this.BX.UI || {};
 	var _launchCount = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("launchCount");
 	var _launchTimeoutId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("launchTimeoutId");
 	var _startDebounced = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("startDebounced");
+	var _hasOpenPopup = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOpenPopup");
+	var _hasOpenSlider = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOpenSlider");
+	var _hasOverlayDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOverlayDialog");
+	var _hasOpenViewer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOpenViewer");
 	var _start = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("start");
 	var _tryDequeue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("tryDequeue");
 	class Launcher {
@@ -162,35 +175,8 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _startDebounced)[_startDebounced] = main_core.Runtime.debounce(babelHelpers.classPrivateFieldLooseBase(this, _start)[_start], 1000, this);
 	  }
-	  static canShowOnTop() {
-	    const popupManager = main_core.Reflection.getClass('BX.Main.PopupManager');
-	    if (popupManager) {
-	      const popups = popupManager.getPopups();
-	      for (const popup of popups) {
-	        if (!popup.isShown()) {
-	          continue;
-	        }
-	        if (popup.getId().startsWith('timeman_weekly_report_popup_') || popup.getId().startsWith('timeman_daily_report_popup_') || BX.Dom.hasClass(popup.getPopupContainer(), 'b24-whatsnew__popup')) {
-	          return false;
-	        }
-	      }
-	    }
-	    const viewer = main_core.Reflection.getClass('BX.UI.Viewer.Instance');
-	    if (viewer && viewer.isOpen()) {
-	      return false;
-	    }
-	    const sidePanel = main_core.Reflection.getClass('BX.SidePanel.Instance');
-	    if (sidePanel && sidePanel.getOpenSlidersCount() > 0) {
-	      return false;
-	    }
-	    const stack = main_core_zIndexManager.ZIndexManager.getStack(document.body);
-	    const components = stack === null ? [] : stack.getComponents();
-	    for (const component of components) {
-	      if (component.getOverlay() !== null && component.getOverlay().offsetWidth > 0) {
-	        return false;
-	      }
-	    }
-	    return true;
+	  static canShowOnTop(context = {}) {
+	    return !babelHelpers.classPrivateFieldLooseBase(this, _hasOpenPopup)[_hasOpenPopup]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasOpenSlider)[_hasOpenSlider](context) && !babelHelpers.classPrivateFieldLooseBase(this, _hasOverlayDialog)[_hasOverlayDialog]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasOpenViewer)[_hasOpenViewer]();
 	  }
 	  register(callback, options = {}) {
 	    const launchItem = new LaunchItem({
@@ -222,6 +208,51 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _enabled)[_enabled] = false;
 	    babelHelpers.classPrivateFieldLooseBase(this, _state$1)[_state$1] = LauncherState.IDLE;
 	  }
+	}
+	function _hasOpenPopup2() {
+	  const popupManager = main_core.Reflection.getClass('BX.Main.PopupManager');
+	  if (popupManager) {
+	    const popups = popupManager.getPopups();
+	    for (const popup of popups) {
+	      if (!popup.isShown()) {
+	        continue;
+	      }
+	      if (popup.getId().startsWith('timeman_weekly_report_popup_') || popup.getId().startsWith('timeman_daily_report_popup_') || BX.Dom.hasClass(popup.getPopupContainer(), 'b24-whatsnew__popup')) {
+	        return true;
+	      }
+	    }
+	  }
+	  return false;
+	}
+	function _hasOpenSlider2(context) {
+	  const sidePanel = main_core.Reflection.getClass('BX.SidePanel.Instance');
+	  if (sidePanel) {
+	    var _sidePanel$getTopSlid;
+	    const topSlider = sidePanel.getTopSlider();
+	    if (topSlider === null || topSlider === context.slider || topSlider.getUrl() === context.sliderId) {
+	      return false;
+	    }
+	    const isIframe = window !== window.top;
+	    const isInsideTopSlider = isIframe && ((_sidePanel$getTopSlid = sidePanel.getTopSlider()) == null ? void 0 : _sidePanel$getTopSlid.getWindow()) === window;
+	    if (!isInsideTopSlider && sidePanel.getOpenSlidersCount() > 0) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+	function _hasOverlayDialog2() {
+	  const stack = main_core_zIndexManager.ZIndexManager.getStack(document.body);
+	  const components = stack === null ? [] : stack.getComponents();
+	  for (const component of components) {
+	    if (component.getOverlay() !== null && component.getOverlay().offsetWidth > 0) {
+	      return true;
+	    }
+	  }
+	  return false;
+	}
+	function _hasOpenViewer2() {
+	  const viewer = main_core.Reflection.getClass('BX.UI.Viewer.Instance');
+	  return viewer !== null && viewer.isOpen();
 	}
 	function _start2() {
 	  if (!this.isEnabled() || babelHelpers.classPrivateFieldLooseBase(this, _state$1)[_state$1] !== LauncherState.IDLE) {
@@ -261,9 +292,9 @@ this.BX.UI = this.BX.UI || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue].delete(babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem]);
 	  if (!babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canLaunchAfterOthers() && babelHelpers.classPrivateFieldLooseBase(this, _launchCount)[_launchCount] > 0) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _tryDequeue)[_tryDequeue]();
-	  } else if (this.constructor.canShowOnTop() || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
+	  } else if (this.constructor.canShowOnTop(babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].getContext()) || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _launchTimeoutId)[_launchTimeoutId] = setTimeout(() => {
-	      if (this.constructor.canShowOnTop() || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
+	      if (this.constructor.canShowOnTop(babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].getContext()) || babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].canShowOnTop()) {
 	        babelHelpers.classPrivateFieldLooseBase(this, _launchCount)[_launchCount]++;
 	        babelHelpers.classPrivateFieldLooseBase(this, _currentItem)[_currentItem].launch(() => {
 	          babelHelpers.classPrivateFieldLooseBase(this, _tryDequeue)[_tryDequeue]();
@@ -276,6 +307,18 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _tryDequeue)[_tryDequeue]();
 	  }
 	}
+	Object.defineProperty(Launcher, _hasOpenViewer, {
+	  value: _hasOpenViewer2
+	});
+	Object.defineProperty(Launcher, _hasOverlayDialog, {
+	  value: _hasOverlayDialog2
+	});
+	Object.defineProperty(Launcher, _hasOpenSlider, {
+	  value: _hasOpenSlider2
+	});
+	Object.defineProperty(Launcher, _hasOpenPopup, {
+	  value: _hasOpenPopup2
+	});
 
 	const AutoLauncher = new Launcher();
 

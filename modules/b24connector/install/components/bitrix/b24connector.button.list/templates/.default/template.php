@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)die();
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\B24Connector\Connection;
+use Bitrix\Main\Web\Uri;
 
 /** @var CBitrixComponentTemplate $this */
 /** @var array $arParams */
@@ -153,7 +154,7 @@ use Bitrix\B24Connector\Connection;
 											<?
 											if($item['ACTIVE_CHANGE_BY_DISPLAY']['ICON'])
 											{
-												$userIconStyle = 'background-image: url(\'' . htmlspecialcharsbx($item['ACTIVE_CHANGE_BY_DISPLAY']['ICON']) .'\');';
+												$userIconStyle = 'background-image: url(\'' . Uri::urnEncode(htmlspecialcharsbx($item['ACTIVE_CHANGE_BY_DISPLAY']['ICON'])) .'\');';
 												$userIconClass = '';
 											}
 											else
@@ -178,7 +179,7 @@ use Bitrix\B24Connector\Connection;
 											<?
 											if($item['ACTIVE_CHANGE_BY_NOW_DISPLAY']['ICON'])
 											{
-												$userIconStyle = 'background-image: url(\'' . htmlspecialcharsbx($item['ACTIVE_CHANGE_BY_NOW_DISPLAY']['ICON']) .'\');';
+												$userIconStyle = 'background-image: url(\'' . Uri::urnEncode(htmlspecialcharsbx($item['ACTIVE_CHANGE_BY_NOW_DISPLAY']['ICON'])) .'\');';
 												$userIconClass = '';
 											}
 											else

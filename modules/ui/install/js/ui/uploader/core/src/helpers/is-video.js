@@ -1,5 +1,7 @@
-const isVideo = (blob: Blob) => {
-	return /^video\/[\d.a-z-]+$/i.test(blob.type);
+import type UploaderFile from '../uploader-file';
+
+const isVideo = (file: UploaderFile) => {
+	return /^video\/[\d.a-z-]+$/i.test(file.getType()) || file.getExtension() === 'mkv';
 };
 
 export default isVideo;

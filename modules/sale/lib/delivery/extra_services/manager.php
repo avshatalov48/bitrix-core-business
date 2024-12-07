@@ -280,26 +280,25 @@ class Manager
 			$item->setOperatingCurrency($currency);
 	}
 
-	/**
-	 * @param int $shipmentId
-	 * @param int $deliveryId
-	 * @return array
-	 */
-	public static function getValuesForShipment($shipmentId, $deliveryId)
+	public static function getValuesForShipment(int $shipmentId, int $deliveryId): array
 	{
-		$result = array();
+		$result = [];
 
-		if(intval($shipmentId) > 0 && intval($deliveryId) > 0)
+		if ($shipmentId <= 0 || $deliveryId <= 0)
 		{
-			$dbRes = ShipmentExtraServiceTable::getList(array(
-				'filter' => array(
-					'=SHIPMENT_ID' => $shipmentId,
-					'!=ID' => self::getStoresValueId($deliveryId)
-				)
-			));
+			return $result;
+		}
 
-			while($row = $dbRes->fetch())
-				$result[$row["EXTRA_SERVICE_ID"]] = $row["VALUE"];
+		$dbRes = ShipmentExtraServiceTable::getList([
+			'filter' => [
+				'=SHIPMENT_ID' => $shipmentId,
+				'!=ID' => self::getStoresValueId($deliveryId),
+			],
+		]);
+
+		while ($row = $dbRes->fetch())
+		{
+			$result[$row['EXTRA_SERVICE_ID']] = $row['VALUE'];
 		}
 
 		return $result;
@@ -428,34 +427,28 @@ class Manager
 		return $result;
 	}
 
-	/**
-	 * @param int $shipmentId
-	 * @param int $deliveryId
-	 * @return int
-	 */
-	public static function getStoreIdForShipment($shipmentId, $deliveryId)
+	public static function getStoreIdForShipment(int $shipmentId, int $deliveryId): int
 	{
-		$result = 0;
-
-		if(intval($shipmentId) > 0 && intval($deliveryId) > 0)
+		if ($shipmentId <= 0 || $deliveryId <= 0)
 		{
-			$storeFields = self::getStoresFields($deliveryId);
-
-			if(!empty($storeFields))
-			{
-				$dbRes = ShipmentExtraServiceTable::getList(array(
-					'filter' => array(
-						'=SHIPMENT_ID' => $shipmentId,
-						'=EXTRA_SERVICE_ID' => $storeFields['ID']
-					)
-				));
-
-				if($row = $dbRes->fetch())
-					$result = $row["VALUE"];
-			}
+			return 0;
 		}
 
-		return $result;
+		$storeFields = self::getStoresFields($deliveryId);
+		if (empty($storeFields))
+		{
+			return 0;
+		}
+
+		$row = ShipmentExtraServiceTable::getList([
+			'filter' => [
+				'=SHIPMENT_ID' => $shipmentId,
+				'=EXTRA_SERVICE_ID' => $storeFields['ID'],
+			],
+			'limit' => 1,
+		])->fetch();
+
+		return $row ? (int)$row['VALUE'] : 0;
 	}
 
 	/**

@@ -33,7 +33,7 @@ else
 		?><span class='infotext'><?=$arResult["InfoMessage"]?></span><br /><?
 	}
 	?>
-	<script type="text/javascript">
+	<script>
 	BX.ready(function()
 	{
 		BX.addCustomEvent(window, "onImConfirmNotify", BX.proxy(function(params){ __hideInvitationItem(params); }, this));

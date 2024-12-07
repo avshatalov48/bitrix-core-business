@@ -1,5 +1,7 @@
 <?php
 $MESS["CATALOG_PRODUCT_SUM_TOTAL"] = "Общая сумма";
+$MESS["CATALOG_PRODUCT_SUM_TOTAL_BEFORE_TAX"] = "Сумма без налога";
+$MESS["CATALOG_PRODUCT_SUM_TOTAL_TAX"] = "Сумма налога";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_NEGATIVE_PRICE_NOTICE"] = "Цена не может быть отрицательной.";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_ENABLED"] = "Настройка \"#NAME#\" включена";
 $MESS["CATALOG_DOCUMENT_PRODUCT_LIST_SETTING_DISABLED"] = "Настройка \"#NAME#\" выключена";

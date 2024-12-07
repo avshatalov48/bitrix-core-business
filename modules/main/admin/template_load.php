@@ -142,7 +142,7 @@ require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_af
 CAdminMessage::ShowMessage($strError);
 CAdminMessage::ShowNote($strOK);
 ?>
-<script language="JavaScript">
+<script>
 <!--
 function NewFileName(ob)
 {
@@ -172,10 +172,7 @@ $tabControl->BeginNextTab();
 		<td></td>
 		<td><?
 echo BeginNote();
-if(defined("BX_UTF"))
-	echo GetMessage("MAIN_TEMPLATE_LOAD_WARN_UTF");
-else
-	echo GetMessage("MAIN_TEMPLATE_LOAD_WARN_NON_UTF");
+echo GetMessage("MAIN_TEMPLATE_LOAD_WARN_UTF");
 echo EndNote();
 ?></td>
 	</tr>

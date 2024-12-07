@@ -67,4 +67,11 @@ class FileData
 	{
 		return \CFile::isImage($this->getName()) && $this->getWidth() > 0 && $this->getHeight() > 0;
 	}
+
+	public function isVideo(): bool
+	{
+		$extension = strtolower(getFileExtension($this->getName()));
+
+		return in_array($extension, Configuration::getVideoExtensions(withDot: false));
+	}
 }

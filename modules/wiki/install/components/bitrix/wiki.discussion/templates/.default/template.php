@@ -42,7 +42,7 @@ else:
 	);?>
 
 	<div class="wiki_comment_addition" id="wiki_comment_addition" style="display: none"><?=GetMessage('WIKI_COMMENT_ADDING')?></div>
-	<script type="text/javascript">
+	<script>
 
 	var replyFormExist = false;
 

@@ -1,0 +1,4 @@
+<?php
+$MESS['LANDING_MPWIDGET_BASE_COLOR_TEXT'] = 'Цвет текста';
+$MESS['LANDING_MPWIDGET_BASE_COLOR_HEADERS'] = 'Цвет заголовка';
+$MESS['LANDING_MPWIDGET_BASE_COLOR_BUTTON'] = 'Цвет кнопки';

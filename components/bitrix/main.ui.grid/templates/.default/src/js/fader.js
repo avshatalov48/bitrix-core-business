@@ -1,8 +1,7 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
-
 
 	/**
 	 * BX.Grid.Fader
@@ -18,7 +17,7 @@
 	};
 
 	BX.Grid.Fader.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 			this.table = this.parent.getTable();
@@ -34,8 +33,8 @@
 			this.debounceScrollHandler = BX.debounce(this._onWindowScroll, 400, this);
 
 			BX.bind(window, 'resize', BX.proxy(this.toggle, this));
-			document.addEventListener('scroll', this.debounceScrollHandler, BX.Grid.Utils.listenerParams({passive: true}));
-			this.container.addEventListener('scroll', BX.proxy(this.toggle, this), BX.Grid.Utils.listenerParams({passive: true}));
+			document.addEventListener('scroll', this.debounceScrollHandler, BX.Grid.Utils.listenerParams({ passive: true }));
+			this.container.addEventListener('scroll', BX.proxy(this.toggle, this), BX.Grid.Utils.listenerParams({ passive: true }));
 			BX.addCustomEvent(window, 'Grid::updated', BX.proxy(this.toggle, this));
 			BX.addCustomEvent(window, 'Grid::resize', BX.proxy(this.toggle, this));
 			BX.addCustomEvent(window, 'Grid::headerUpdated', BX.proxy(this._onHeaderUpdated, this));
@@ -49,11 +48,11 @@
 			this.adjustEarOffset(true);
 		},
 
-		destroy: function()
+		destroy()
 		{
 			BX.unbind(window, 'resize', BX.proxy(this.toggle, this));
-			document.removeEventListener('scroll', this.debounceScrollHandler, BX.Grid.Utils.listenerParams({passive: true}));
-			this.container.removeEventListener('scroll', BX.proxy(this.toggle, this), BX.Grid.Utils.listenerParams({passive: true}));
+			document.removeEventListener('scroll', this.debounceScrollHandler, BX.Grid.Utils.listenerParams({ passive: true }));
+			this.container.removeEventListener('scroll', BX.proxy(this.toggle, this), BX.Grid.Utils.listenerParams({ passive: true }));
 			BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this.toggle, this));
 			BX.removeCustomEvent(window, 'Grid::headerUpdated', BX.proxy(this._onHeaderUpdated, this));
 			BX.removeCustomEvent(window, 'Grid::columnResize', BX.proxy(this.toggle, this));
@@ -66,7 +65,7 @@
 			this.stopScroll();
 		},
 
-		_onHeaderUpdated: function()
+		_onHeaderUpdated()
 		{
 			if (this.parent.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -74,40 +73,40 @@
 			}
 		},
 
-		_onMouseoverLeft: function(event)
+		_onMouseoverLeft(event)
 		{
 			this.parent.isTouch() && event.preventDefault();
 			this.startScrollByDirection('left');
 		},
 
-		_onMouseoverRight: function(event)
+		_onMouseoverRight(event)
 		{
 			this.parent.isTouch() && event.preventDefault();
 			this.startScrollByDirection('right');
 		},
 
-		stopScroll: function()
+		stopScroll()
 		{
 			clearTimeout(this.scrollTimer);
 			clearInterval(this.scrollInterval);
 		},
 
-		startScrollByDirection: function(direction)
+		startScrollByDirection(direction)
 		{
-			var container = this.container;
-			var offset = container.scrollLeft;
-			var self = this;
-			var stepLength = 8;
-			var stepTime = ((1000 / 60) / 2);
+			const container = this.container;
+			let offset = container.scrollLeft;
+			const self = this;
+			const stepLength = 8;
+			const stepTime = ((1000 / 60) / 2);
 
-			this.scrollTimer = setTimeout(function() {
-				self.scrollInterval = setInterval(function() {
+			this.scrollTimer = setTimeout(() => {
+				self.scrollInterval = setInterval(() => {
 					container.scrollLeft = direction == 'right' ? (offset += stepLength) : (offset -= stepLength);
 				}, stepTime);
 			}, 100);
 		},
 
-		getEarLeft: function()
+		getEarLeft()
 		{
 			if (!this.earLeft)
 			{
@@ -117,7 +116,7 @@
 			return this.earLeft;
 		},
 
-		getEarRight: function()
+		getEarRight()
 		{
 			if (!this.earRight)
 			{
@@ -127,17 +126,17 @@
 			return this.earRight;
 		},
 
-		getShadowLeft: function()
+		getShadowLeft()
 		{
-			return this.parent.getContainer().querySelector(".main-grid-fade-shadow-left");
+			return this.parent.getContainer().querySelector('.main-grid-fade-shadow-left');
 		},
 
-		getShadowRight: function()
+		getShadowRight()
 		{
-			return this.parent.getContainer().querySelector(".main-grid-fade-shadow-right");
+			return this.parent.getContainer().querySelector('.main-grid-fade-shadow-right');
 		},
 
-		adjustEarOffset: function(prepare)
+		adjustEarOffset(prepare)
 		{
 			if (prepare)
 			{
@@ -146,15 +145,15 @@
 				this.headerPos = BX.pos(this.table.tHead);
 			}
 
-			var scrollY = window.scrollY;
+			let scrollY = window.scrollY;
 
 			if (this.parent.isIE())
 			{
 				scrollY = document.documentElement.scrollTop;
 			}
 
-			var bottomPos = (scrollY + this.windowHeight) - this.tbodyPos.top;
-			var posTop = scrollY - this.tbodyPos.top;
+			let bottomPos = (scrollY + this.windowHeight) - this.tbodyPos.top;
+			let posTop = scrollY - this.tbodyPos.top;
 
 			if (bottomPos > (this.tbodyPos.bottom - this.tbodyPos.top))
 			{
@@ -174,15 +173,15 @@
 			BX.Grid.Utils.requestAnimationFrame(BX.proxy(function() {
 				if (posTop !== this.lastPosTop)
 				{
-					var translate = 'translate3d(0px, ' + posTop + 'px, 0)';
+					const translate = `translate3d(0px, ${posTop}px, 0)`;
 					this.getEarLeft().style.transform = translate;
 					this.getEarRight().style.transform = translate;
 				}
 
 				if (bottomPos !== this.lastBottomPos)
 				{
-					this.getEarLeft().style.height = bottomPos + 'px';
-					this.getEarRight().style.height = bottomPos + 'px';
+					this.getEarLeft().style.height = `${bottomPos}px`;
+					this.getEarRight().style.height = `${bottomPos}px`;
 				}
 
 				this.lastPosTop = posTop;
@@ -190,60 +189,60 @@
 			}, this));
 		},
 
-		_onWindowScroll: function()
+		_onWindowScroll()
 		{
 			this.adjustEarOffset();
 		},
 
-		hasScroll: function()
+		hasScroll()
 		{
 			return this.table.offsetWidth > this.container.clientWidth;
 		},
 
-		hasScrollLeft: function()
+		hasScrollLeft()
 		{
 			return this.container.scrollLeft > 0;
 		},
 
-		hasScrollRight: function()
+		hasScrollRight()
 		{
-			return this.table.offsetWidth > (this.container.scrollLeft + this.container.clientWidth);
+			return this.table.offsetWidth > Math.round(this.container.scrollLeft + this.container.clientWidth);
 		},
 
-		showLeftEar: function()
+		showLeftEar()
 		{
 			BX.addClass(this.container.parentNode, this.parent.settings.get('classFadeContainerLeft'));
 			BX.addClass(this.getEarLeft(), this.parent.settings.get('classShow'));
 		},
 
-		hideLeftEar: function()
+		hideLeftEar()
 		{
 			BX.removeClass(this.container.parentNode, this.parent.settings.get('classFadeContainerLeft'));
 			BX.removeClass(this.getEarLeft(), this.parent.settings.get('classShow'));
 		},
 
-		showRightEar: function()
+		showRightEar()
 		{
 			BX.addClass(this.container.parentNode, this.parent.settings.get('classFadeContainerRight'));
 			BX.addClass(this.getEarRight(), this.parent.settings.get('classShow'));
 		},
 
-		hideRightEar: function()
+		hideRightEar()
 		{
 			BX.removeClass(this.container.parentNode, this.parent.settings.get('classFadeContainerRight'));
 			BX.removeClass(this.getEarRight(), this.parent.settings.get('classShow'));
 		},
 
-		adjustFixedTablePosition: function()
+		adjustFixedTablePosition()
 		{
-			var left = this.container.scrollLeft;
+			const left = this.container.scrollLeft;
 
 			BX.Grid.Utils.requestAnimationFrame(BX.delegate(function() {
-				this.fixedTable.style.marginLeft = -left + 'px';
+				this.fixedTable.style.marginLeft = `${-left}px`;
 			}, this));
 		},
 
-		toggle: function()
+		toggle()
 		{
 			this.adjustEarOffset(true);
 			this.fixedTable && this.adjustFixedTablePosition();
@@ -258,6 +257,6 @@
 				this.hideLeftEar();
 				this.hideRightEar();
 			}
-		}
+		},
 	};
 })();

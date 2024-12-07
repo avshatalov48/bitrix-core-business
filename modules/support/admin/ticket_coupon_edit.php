@@ -16,7 +16,7 @@ $ID = intval($ID);
 
 $message = false;
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=='POST' && $bAdmin && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=='POST' && $bAdmin && check_bitrix_sessid())
 {
 	$obSSC = new CSupportSuperCoupon();
 	$bOK = false;

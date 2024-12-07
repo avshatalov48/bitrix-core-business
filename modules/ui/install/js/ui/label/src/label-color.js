@@ -20,4 +20,6 @@ export default class LabelColor
 	static LIGHT_YELLOW = 'ui-label-lightyellow';
 	static LIGHT_RED = 'ui-label-lightred';
 	static LAVENDER = 'ui-label-lavender';
+	static COPILOT_LIGHT = 'ui-label-copilot-light';
+	static COPILOT_LIGHT_REVERSE = 'ui-label-copilot-light-reverse';
 }

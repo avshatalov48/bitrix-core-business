@@ -45,8 +45,8 @@ class CSeoKeywords
 		$strOrder = '';
 		foreach ($arOrder as $key => $dir)
 		{
-			$dir = ToUpper($dir);
-			$key = ToUpper($key);
+			$dir = mb_strtoupper($dir);
+			$key = mb_strtoupper($key);
 			
 			if ($dir != 'DESC') $dir = 'ASC';
 		

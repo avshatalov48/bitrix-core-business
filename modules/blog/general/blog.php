@@ -950,7 +950,7 @@ class CAllBlog
 				"FROM b_blog B ".
 				"WHERE B.ID = ".$ID."";
 			
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG"]["BLOG_CACHE_".$ID] = $arResult;
@@ -1007,7 +1007,7 @@ class CAllBlog
 			if($groups <> '' && $groups != "ALL")
 				$strSql .= "	AND B.GROUP_ID IN (".$groups.")";
 
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG"]["BLOG4OWNER_CACHE_".$ID][$groups] = $arResult;
@@ -1064,7 +1064,7 @@ class CAllBlog
 			if($groups <> '' && $groups != "ALL")
 				$strSql .= "	AND B.GROUP_ID IN (".$groups.")";
 
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG"]["BLOGBYURL_CACHE_".$BLOG_URL][$groups] = $arResult;
@@ -1119,7 +1119,7 @@ class CAllBlog
 			if($groups <> '' && $groups != "ALL")
 				$strSql .= "	AND B.GROUP_ID IN (".$groups.")";
 
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG"]["BLOG4OWNERGROUP_CACHE_".$ID][$groups] = $arResult;
@@ -1793,12 +1793,6 @@ class CAllBlog
 	
 	public static function SendPing($blogName, $blogUrl, $blogXml = "")
 	{
-		global $APPLICATION;
-
-		if (defined("SITE_CHARSET") && SITE_CHARSET <> '')
-			$serverCharset = SITE_CHARSET;
-		else
-			$serverCharset = "windows-1251";
 		if($blogName == '')
 			return false;
 		if($blogUrl == '')
@@ -1821,8 +1815,6 @@ class CAllBlog
 		$query .= "	</params>
 		</methodCall>";
 
-		$query = $APPLICATION->ConvertCharset($query, $serverCharset, "UTF-8");
-		
 		if($urls = COption::GetOptionString("blog", "send_blog_ping_address", "http://ping.blogs.yandex.ru/RPC2\r\nhttp://rpc.weblogs.com/RPC2"))
 		{
 			$arUrls = explode("\r\n", $urls);
@@ -1853,7 +1845,6 @@ class CAllBlog
 							$out .= "Content-type: text/xml\r\n";
 							$out .= "User-Agent: bitrixBlog\r\n";
 							$out .= "Content-length: ".mb_strlen($query)."\r\n\r\n";
-							$out = $APPLICATION->ConvertCharset($out, $serverCharset, "UTF-8");
 							$out .= $query;
 							
 							fwrite($fp, $out);

@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2002-2014 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -409,7 +409,7 @@ $arAssistSteps = array(
 						"available" => true
 					),
 					"info_courses" => array(
-						"path" => "http://dev.1c-bitrix.ru/learning/index.php",
+						"path" => "https://dev.1c-bitrix.ru/learning/index.php",
 						"available" => true
 					),
 					"support_developer" => array(
@@ -520,7 +520,7 @@ $numSteps = count($arAssistSteps);
 foreach($arAssistSteps as $stepCode => $arStep)
 {
 ?>
-	<div class="adm-s-setting-container <?=toLower($stepCode)?> <?=(isset($step_toggle[$stepCode]) && $step_toggle[$stepCode] == "N" ? "close" : "open")?> <?if ($i == $numSteps) echo "last"?>" data-role="step<?=$stepCode?>">
+	<div class="adm-s-setting-container <?=mb_strtolower($stepCode)?> <?=(isset($step_toggle[$stepCode]) && $step_toggle[$stepCode] == "N" ? "close" : "open")?> <?if ($i == $numSteps) echo "last"?>" data-role="step<?=$stepCode?>">
 		<div class="adm-s-setting-title-container" onclick="BX.Storeassist.Admin.toggleStep('<?=CUtil::JSEscape($stepCode)?>')">
 			<div class="adm-s-setting-action"><span data-role="toggle<?=$stepCode?>"><?=GetMessage("STOREAS_".(isset($step_toggle[$stepCode]) && $step_toggle[$stepCode] == "N" ? "SHOW" : "HIDE"))?></span><span class="arrow"></span></div>
 			<div class="adm-s-setting-title-icon"></div>
@@ -543,12 +543,12 @@ foreach($arAssistSteps as $stepCode => $arStep)
 				<div class="adm-s-setting-content-block">
 					<div class="posr">
 				<?endif?>
-				<div class="adm-s-setting-content-block <?if (!empty($arBlock["TYPE"])) echo ($arBlock["TYPE"] == "ONE" ? "one" : "one two");?>" id="<?=toLower($stepCode."_".$block)?>">
+				<div class="adm-s-setting-content-block <?if (!empty($arBlock["TYPE"])) echo ($arBlock["TYPE"] == "ONE" ? "one" : "one two");?>" id="<?=mb_strtolower($stepCode."_".$block)?>">
 					<!-- BLOCK CONTENT container title -->
 					<div class="adm-s-setting-content-block-title-container">
 						<div class="adm-s-setting-content-block-line"></div>
 						<div class="adm-s-setting-content-block-point"></div>
-						<div class="adm-s-setting-content-block-title"><?=GetMessage("STOREAS_STEPS_".$stepCode."_".toUpper($block))?></div>
+						<div class="adm-s-setting-content-block-title"><?=GetMessage("STOREAS_STEPS_".$stepCode."_".mb_strtoupper($block))?></div>
 						<!-- BLOCK CONTENT status -->
 						<div class="adm-s-setting-content-block-status-container">
 							<div class="adm-s-setting-content-block-status red"></div>

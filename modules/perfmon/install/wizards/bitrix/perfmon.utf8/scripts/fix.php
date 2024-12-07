@@ -96,7 +96,7 @@ if ($lines > $displayLinesCount)
 
 if ($column)
 {
-	echo '<script>BX.Wizard.Utf8.action(\'fix\', ' . CUtil::PhpToJSObject($next) . ')</script>';
+	echo '<script>BX.Wizard.Utf8.action(\'fix\', ' . \Bitrix\Main\Web\Json::encode($next) . ')</script>';
 }
 else
 {

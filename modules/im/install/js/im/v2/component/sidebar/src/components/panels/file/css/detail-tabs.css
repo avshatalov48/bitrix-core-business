@@ -11,6 +11,7 @@
 	height: 51px;
 	border-bottom: 1px solid var(--im-sidebar-detail-tabs__border-bottom-color_container);
 	position: relative;
+	flex-shrink: 0;
 }
 
 .bx-im-sidebar-detail-tabs__item {
@@ -26,7 +27,7 @@
 }
 
 .bx-im-sidebar-detail-tabs__item-title {
-	font: var(--im-font-size-md)/var(--im-font-line-height-reset) var(--im-font-family-system);
+	font: var(--im-font-size-md)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	font-weight: var(--im-font-weight-medium);
 	color: var(--im-sidebar-detail-tabs__color_nonselected-tab);
 	text-overflow: ellipsis;

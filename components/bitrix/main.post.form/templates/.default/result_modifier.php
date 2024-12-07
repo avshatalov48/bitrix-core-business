@@ -46,7 +46,7 @@ $arParams["LHE"]["lazyLoad"] = (
 );
 
 $arParams["PARSER"] = array_unique(is_array($arParams["PARSER"]) ? array_values($arParams["PARSER"]) : []);
-$arParams["BUTTONS"] = is_array($arParams["BUTTONS"]) ? $arParams["BUTTONS"] : array();
+$arParams["BUTTONS"] = isset($arParams["BUTTONS"]) && is_array($arParams["BUTTONS"]) ? $arParams["BUTTONS"] : array();
 $arParams["BUTTONS"] = (
 	in_array("MentionUser", $arParams["BUTTONS"])
 	&& !ModuleManager::isModuleInstalled("socialnetwork")
@@ -72,7 +72,7 @@ if (is_array($arParams["ADDITIONAL"]))
 {
 	if (!empty($arParams["ADDITIONAL"]))
 	{
-		if (mb_substr(trim(reset($arParams["ADDITIONAL"])), 0, 1) !== "<")
+		if (!str_starts_with(trim(reset($arParams["ADDITIONAL"])), "<"))
 		{
 			$arParams["ADDITIONAL_TYPE"] =  'popup';
 		}

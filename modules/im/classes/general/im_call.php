@@ -36,7 +36,7 @@ class CIMCall
 				self::MessageToChat($arConfig['CHAT_ID'], "IM_CALL_CHAT_START_", $arConfig['USER_ID'], true);
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_ANSWER." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$arConfig['USER_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$arUserData = CIMContactList::GetUserData(Array('ID' => $arChat['userInChat'][$arConfig['CHAT_ID']], 'DEPARTMENT' => 'N', 'HR_PHOTO' => 'Y'));
 			$arConfig['USER_DATA']['USERS'] = $arUserData['users'];
@@ -74,10 +74,10 @@ class CIMCall
 				self::MessageToChat($arConfig['CHAT_ID'], "IM_CALL_CHAT_INIT_", $arConfig['USER_ID'], true);
 
 			$strSql = "UPDATE b_im_chat SET CALL_TYPE = ".($arConfig['VIDEO'] == 'Y'? IM_CALL_VIDEO: IM_CALL_AUDIO)." WHERE ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_ANSWER." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$arConfig['USER_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$arUserToConnect = Array();
 			foreach ($arChat['userCallStatus'][$arConfig['CHAT_ID']] as $userId => $callStatus)
@@ -180,10 +180,10 @@ class CIMCall
 		if ($arChat['chat'][$arConfig['CHAT_ID']]['message_type'] == IM_MESSAGE_PRIVATE)
 		{
 			$strSql = "UPDATE b_im_chat SET CALL_TYPE = ".IM_CALL_NONE." WHERE ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_NONE." WHERE CHAT_ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$arUserToConnect = Array();
 			$arUser = Array();
@@ -206,15 +206,15 @@ class CIMCall
 			$arConfig['CHAT_ID'] = $chatId;
 
 			$strSql = "UPDATE b_im_chat SET CALL_TYPE = ".$arConfig['CALL_TYPE']." WHERE ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_WAIT." WHERE CHAT_ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			foreach ($arUserToConnect as $userId => $callStatus)
 			{
 				$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".$callStatus." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$userId;
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		else
@@ -225,7 +225,7 @@ class CIMCall
 				return false;
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_WAIT." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID IN (".implode(',', $arConfig['USERS']).")";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$arUserToConnect = Array();
 			$arUser = Array();
@@ -269,7 +269,7 @@ class CIMCall
 		$arConfig['USER_ID'] = intval($arParams['USER_ID']) > 0? intval($arParams['USER_ID']): intval($USER->GetID());
 
 		$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_ANSWER." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$arConfig['USER_ID'];
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if ($arParams['CALL_TO_GROUP'])
 			self::MessageToChat($arConfig['CHAT_ID'], "IM_CALL_CHAT_START_", $arConfig['USER_ID'], true);
@@ -334,7 +334,7 @@ class CIMCall
 		$arConfig['USER_ID'] = intval($arParams['USER_ID']) > 0? intval($arParams['USER_ID']): intval($USER->GetID());
 
 		$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_WAIT." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$arConfig['USER_ID'];
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		CIMCall::Signaling(Array(
 			'CHAT_ID' => $arConfig['CHAT_ID'],
@@ -398,17 +398,17 @@ class CIMCall
 			$arConfig['CLOSE_CONNECT'] = true;
 
 			$strSql = "UPDATE b_im_chat SET CALL_TYPE = ".IM_CALL_NONE." WHERE ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_NONE." WHERE CHAT_ID = ".$arConfig['CHAT_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		else
 		{
 			$arConfig['CLOSE_CONNECT'] = false;
 
 			$strSql = "UPDATE b_im_relation SET CALL_STATUS = ".IM_CALL_STATUS_DECLINE." WHERE CHAT_ID = ".$arConfig['CHAT_ID']." AND USER_ID = ".$arConfig['USER_ID'];
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 		$arConfig['CALL_TO_GROUP'] = $arChat['chat'][$arConfig['CHAT_ID']]['message_type'] != IM_MESSAGE_PRIVATE;

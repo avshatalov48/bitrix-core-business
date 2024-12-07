@@ -21,6 +21,7 @@ $MESS['MAIL_CLIENT_MAILBOX_INDEX_BAR'] = "Индексация";
 
 $MESS["MAIL_DISK_ACTION_SAVE_TO_OWN_FILES"] = "Сохранить на Битрикс24.Диск";
 $MESS["MAIL_DISK_FILE_DOWNLOAD_ARCHIVE"] = "Скачать все файлы одним архивом";
+$MESS["MAIL_MESSAGE_REFRESH_FILES"] = "Обновить файлы";
 
 $MESS["MAIL_MESSAGE_NEW_EMPTY_RCPT"] = "Пожалуйста, укажите получателей в поле 'Кому'";
 $MESS["MAIL_MESSAGE_NEW_TARIFF_RESTRICTION"] = "На вашем тарифном плане действуют ограничения:<br/>\"Кому\", \"Копия\", \"Скрытая копия\" - #COUNT# Email (получатель)";

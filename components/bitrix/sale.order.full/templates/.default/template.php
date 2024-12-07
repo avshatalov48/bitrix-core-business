@@ -2,7 +2,7 @@
 <?
 if (!$USER->IsAuthorized())
 {
-	echo ShowError($arResult["ERROR_MESSAGE"]);	
+	ShowError($arResult["ERROR_MESSAGE"]);	
 	include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/auth.php");
 }
 else
@@ -64,7 +64,7 @@ else
 	?>
 	<tr>
 		<td><br />
-			<? echo ShowError($arResult["ERROR_MESSAGE"]); 
+			<? ShowError($arResult["ERROR_MESSAGE"]); 
 			if ($arResult["CurrentStep"] == 1)
 				include($_SERVER["DOCUMENT_ROOT"].$templateFolder."/step1.php");
 			elseif ($arResult["CurrentStep"] == 2)

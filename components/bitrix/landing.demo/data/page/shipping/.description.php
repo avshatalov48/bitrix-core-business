@@ -729,7 +729,7 @@ return [
             <div class="row align-items-stretch">
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">01. FUSCE ACCUMSAN FAUCIBUS</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
@@ -738,7 +738,7 @@ return [
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">02. MAECENAS AUCTOR MAURIS</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
@@ -747,7 +747,7 @@ return [
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">03. SUSPENDISSE PHARETRA ELIT AC</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
@@ -756,14 +756,14 @@ return [
                 </div>
 
                 <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">04. VESTIBULUM FRINGILLA RISUS EGE</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
                         </div>
                     </article>
                 </div><div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">05. ENIM EGESTAS RISUS SEMPER</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>
@@ -772,7 +772,7 @@ return [
                 </div>
 
             <div class="col-sm-6 g-mb-30 landing-block-card-text-block">
-                    <article class="h-100 g-flex-middle g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
+                    <article class="h-100 g-flex-middle landing-block-card-text-inner g-brd-left g-brd-3 g-brd-primary g-brd-white--hover g-transition-0_3 g-pa-20 g-bg-main js-animation fadeIn animated">
                         <div class="g-flex-middle-item">
                             <h6 class="landing-block-node-text-block-title g-font-weight-600 text-uppercase g-mb-10">06. EU VENENATIS NULLA PORTTITOR</h6>
                             <div class="landing-block-node-text-block-text"><p>Curabitur sit amet fringilla mi. Etiam ac massa sit amet nulla eleifend rutrum vitae non sem. Fusce accumsan faucibus laoreet. Maecenas auctor mauris erat quis mollis.</p></div>

@@ -3,7 +3,6 @@ class CPath
 {
 	public static function GetList($PARENT_ID = '', $COUNTER_TYPE = 'COUNTER_FULL_PATH', $by = 's_counter', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if ($COUNTER_TYPE!="COUNTER_FULL_PATH")
 			$COUNTER_TYPE = "COUNTER";
@@ -170,7 +169,7 @@ class CPath
 			$strSqlOrder
 		";
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}
@@ -179,6 +178,6 @@ class CPath
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$strSql = "SELECT /*TOP*/ * FROM b_stat_path WHERE PATH_ID = '".$DB->ForSql($ID)."'";
-		return $DB->Query(CStatistics::DBTopSql($strSql, 1), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query(CStatistics::DBTopSql($strSql, 1));
 	}
 }

@@ -113,7 +113,7 @@ if (!empty($arResult['ITEMS']))
 	}
 
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.message({
 			CVP_MESS_BTN_BUY: '<? echo ('' != $arParams['MESS_BTN_BUY'] ? CUtil::JSEscape($arParams['MESS_BTN_BUY']) : GetMessageJS('CVP_TPL_MESS_BTN_BUY')); ?>',
 			CVP_MESS_BTN_ADD_TO_BASKET: '<? echo ('' != $arParams['MESS_BTN_ADD_TO_BASKET'] ? CUtil::JSEscape($arParams['MESS_BTN_ADD_TO_BASKET']) : GetMessageJS('CVP_TPL_MESS_BTN_ADD_TO_BASKET')); ?>',
@@ -434,7 +434,7 @@ if (!empty($arResult['ITEMS']))
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT']
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 			var <? echo $strObName; ?> = new JCCatalogSectionViewed(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script><?
 	}
@@ -591,7 +591,7 @@ if (!empty($arResult['ITEMS']))
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT']
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 			var <? echo $strObName; ?> = new JCCatalogSectionViewed(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script>
 	<?

@@ -72,13 +72,18 @@
 	top: -1px;
 }
 
-.landing-ui-panel-top-logo-text {
+.landing-ui-panel-top-logo-text,
+.landing-ui-panel-top-logo-text-mainpage {
 	position: relative;
 	display: inline;
 	overflow: hidden;
 	max-width: 240px;
 	color: #535c69;
 	vertical-align: top;
+}
+
+.landing-ui-panel-top-logo-text-mainpage {
+	margin-left: 5px;
 }
 
 .landing-ui-panel-top-logo-color {
@@ -97,6 +102,9 @@
 	right: 0;
 	top: 50%;
 	margin-top: -8px;
+}
+.landing-ui-panel-top-logo-link.--mainpage-link:after {
+	display: none;
 }
 
 .landing-ui-panel-top-selector {
@@ -498,11 +506,20 @@ div#landing-popup-publication-error {
 
 .landing-popup-preview-link-target:hover:after { opacity: 1;}
 
+.landing-popup-preview-link-target-value-hd {
+	position: absolute;
+	width: 40px;
+	height: 10px;
+	opacity: 0;
+	pointer-events: none;
+}
+
 .landing-popup-preview-link-target-copy {
 	font: 13px/20px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
 	color: #9b9b9b;
 	border-bottom: 1px dashed;
 	transition: 190ms linear all;
+	cursor: pointer;
 }
 
 .landing-popup-preview-link-target-copy:hover {
@@ -1490,10 +1507,10 @@ div#landing-popup-publication-error {
 .landing-device-switcher,
 .landing-device-rotate {
 	position: absolute;
-	width: 37px;
-	height: 37px;
+	width: 36px;
+	height: 36px;
 	top: 10px;
-	left: -50px;
+	left: -52px;
 	border: 1px #757d87 solid;
 	border-radius: 100%;
 	background: #fff;

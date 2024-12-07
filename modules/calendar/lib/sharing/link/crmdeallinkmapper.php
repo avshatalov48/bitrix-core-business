@@ -56,7 +56,14 @@ class CrmDealLinkMapper extends JointLinkMapper
 			->setContactId($objectEO->getContactId())
 			->setContactType($objectEO->getContactType())
 			->setOwnerId($objectEO->getOwnerId())
+			->setMembersHash($objectEO->getMembersHash())
+			->setFrequentUse($objectEO->getFrequentUse())
 		;
+
+		if ($objectEO->getMembers()?->count() > 0)
+		{
+			$crmDealLink->setMembers((new Member\Manager())->createMembersFromEntityObject($objectEO->getMembers()));
+		}
 
 		$options = Json::decode($objectEO->getOptions() ?? '');
 		if (!empty($options['slotSize']))
@@ -124,6 +131,7 @@ class CrmDealLinkMapper extends JointLinkMapper
 			'OWNER_ID' => $entity->getOwnerId(),
 			'CONTACT_ID' => $entity->getContactId(),
 			'CONTACT_TYPE' => $entity->getContactType(),
+			'MEMBERS_HASH' => $entity->getMembersHash(),
 		];
 	}
 

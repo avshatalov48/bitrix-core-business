@@ -83,5 +83,9 @@ return [
 			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_NODES_LANDINGBLOCKNODEIMG'),
 			'type' => 'background-size',
 		],
+		'.landing-block-card-text-inner' => [
+			'name' => Loc::getMessage('LANDING_BLOCK_6_TWO_COLS_BIG_IMG_TEXT_AND_TEXT_BLOCKS_CARDS_LANDINGBLOCKCARDTEXTBLOCK'),
+			'type' => 'box',
+		],
 	],
 ];

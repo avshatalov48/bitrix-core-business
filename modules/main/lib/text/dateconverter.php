@@ -84,7 +84,7 @@ class DateConverter
 				}
 				if ($matchType <> '')
 				{
-					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+					$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 					$matchWord = self::getMatchWord($originalText, $position);
 
 					$metrics[1][] = Array(
@@ -120,7 +120,7 @@ class DateConverter
 							{
 								if ($metric['TYPE'] == 'WEEK')
 								{
-									$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+									$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 									$matchWord = self::getMatchWord($originalText, $position);
 
 									if ($matchPattern[1] < $metric['POSITION'] && $matchPattern[1] + mb_strlen($matchWord) >= $metric['POSITION'] + $metric['COUNT'])
@@ -160,7 +160,7 @@ class DateConverter
 
 				if ($matchType <> '')
 				{
-					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+					$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 					$matchWord = self::getMatchWord($originalText, $position);
 
 					$metrics[2][] = Array(
@@ -247,7 +247,7 @@ class DateConverter
 
 				if ($matchType <> '')
 				{
-					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+					$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 					$matchWord = self::getMatchWord($originalText, $position);
 
 					$metrics[3][] = Array(
@@ -263,7 +263,7 @@ class DateConverter
 		{
 			foreach ($match[0] as $matchPattern)
 			{
-				$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+				$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 				$matchWord = self::getMatchWord($originalText, $position);
 
 				$metrics[3][] = Array(
@@ -337,7 +337,7 @@ class DateConverter
 							break;
 					}
 
-					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+					$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 					$matchWord = mb_substr($originalText, $position, $matchLength);
 
 					$metrics[4][] = Array(
@@ -402,7 +402,7 @@ class DateConverter
 				}
 				if ($matchType <> '')
 				{
-					$position = defined("BX_UTF")? mb_strlen(substr($text, 0, $matchPattern[1])) : $matchPattern[1];
+					$position = mb_strlen(substr($text, 0, $matchPattern[1]));
 					$matchWord = self::getMatchWord($originalText, $position);
 
 					$metrics[5][] = Array(

@@ -1,7 +1,7 @@
 ;(function(){
 	'use strict';
 
-	var controlStack = {};
+	let controlStack = {}
 
 	BX.namespace('BX.Currency');
 
@@ -54,7 +54,7 @@
 			this.editor = new BX.Currency.Editor({
 				input: this.input,
 				currency: this.currency,
-				callback: BX.defer(this.setValue, this) // there must be defer!
+				callback: BX.defer(this.setValue, this) // there must be defered!
 			});
 		}
 

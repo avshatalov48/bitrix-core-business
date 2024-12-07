@@ -11,7 +11,7 @@ class CLearnRelationHelper
 			$curDir .= '/';
 
 		?>
-		<script type="text/javascript">
+		<script>
 		function module_learning_js_admin_function_add_parent(lesson_id, name)
 		{
 			module_learning_js_admin_function_add_child_or_parent('LEARNING_LIST_OF_PARENTS', 'RELATION_PARENT[]', lesson_id, name);

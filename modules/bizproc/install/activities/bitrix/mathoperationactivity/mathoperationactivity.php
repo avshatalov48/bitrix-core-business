@@ -67,12 +67,11 @@ class CBPMathOperationActivity extends CBPActivity
 				$conditionLogValue = $this->getDebugValueForVariable($parameter1, $operation, $parameter2);
 				$changeTo = $property['Default'] . ' = ' . $conditionLogValue;
 				$this->addToDebugLog($variableSystemExpression, $property, $changeTo);
+				$this->writeDebugInfo($this->getDebugInfo($this->logValues, $this->logMap));
 			}
 
 			\Bitrix\Bizproc\Workflow\Type\GlobalVar::upsert($id, $property);
 		}
-
-		$this->writeDebugInfo($this->getDebugInfo($this->logValues, $this->logMap));
 
 		return CBPActivityExecutionStatus::Closed;
 	}

@@ -2,6 +2,7 @@
 namespace Bitrix\Catalog\Config;
 
 use Bitrix\Bitrix24;
+use Bitrix\Catalog\Store\EnableWizard;
 use Bitrix\Main;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
@@ -20,6 +21,7 @@ final class Feature
 	private const MULTI_WARENHOUSES = 'catalog_multi_warenhouses';
 	private const EXTENDED_PRICES = 'catalog_price_quantity_ranges';
 	private const INVENTORY_MANAGEMENT = 'catalog_inventory_management';
+	private const INVENTORY_MANAGEMENT_1C = 'catalog_inventory_management_1c';
 	private const COMMON_PRODUCT_PROCESSING = 'catalog_common_product_processing';
 	private const PRODUCT_LIMIT = 'catalog_product_limit';
 	private const CATALOG_PERMISSIONS = 'catalog_permissions';
@@ -53,6 +55,7 @@ final class Feature
 		self::MULTI_PRICE_TYPES => true,
 		self::MULTI_WARENHOUSES => true,
 		self::INVENTORY_MANAGEMENT => true,
+		self::INVENTORY_MANAGEMENT_1C => true,
 		self::COMMON_PRODUCT_PROCESSING => true,
 		self::CATALOG_PERMISSIONS => true,
 		self::CATALOG_SERVICES => true,
@@ -145,6 +148,18 @@ final class Feature
 	public static function isInventoryManagementEnabled(): bool
 	{
 		return self::isFeatureEnabled(self::INVENTORY_MANAGEMENT);
+	}
+
+	public static function checkInventoryManagementFeatureByCurrentMode(): bool
+	{
+		$currentMode = EnableWizard\Manager::getCurrentMode();
+
+		if ($currentMode === EnableWizard\ModeList::ONEC)
+		{
+			return !EnableWizard\TariffChecker::isOnecInventoryManagementRestricted();
+		}
+
+		return self::isInventoryManagementEnabled();
 	}
 
 	/**

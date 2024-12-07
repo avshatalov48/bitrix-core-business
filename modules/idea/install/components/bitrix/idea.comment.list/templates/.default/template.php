@@ -4,7 +4,7 @@ CUtil::InitJSCore(array("ajax"));
 ?>
 <div class="blog-comments">
 <a name="comments"></a><a name="comments-add"></a>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		if(document.location.hash=='#comments-add' && BX("form_comment_0"))
 			showComment('0', '');

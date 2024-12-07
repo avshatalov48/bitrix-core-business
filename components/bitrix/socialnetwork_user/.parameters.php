@@ -768,59 +768,6 @@ if (CModule::IncludeModule("intranet"))
 				"DEFAULT" => Array(1)
 			);
 		}
-		/* Reserve Video-Meeting Rooms*/
-		if(IsModuleInstalled("video"))
-		{
-			if(IsModuleInstalled("intranet"))
-			{
-				$arComponentParameters["PARAMETERS"]["CALENDAR_ALLOW_VIDEO_MEETING"] = Array(
-					"PARENT" => "EVENT_CALENDAR_SETTINGS",
-					"NAME" => GetMessage("SONET_CALENDAR_ALLOW_VIDEO_MEETING"),
-					"TYPE" => "CHECKBOX",
-					"DEFAULT" => "Y",
-					"REFRESH" => "Y",
-				);
-			}
-
-			$arComponentParameters["PARAMETERS"]["CALENDAR_VIDEO_MEETING_IBLOCK_ID"] = array(
-				"PARENT" => "EVENT_CALENDAR_SETTINGS",
-				"NAME" => GetMessage("SONET_CALENDAR_VIDEO_MEETING_IBLOCK"),
-				"TYPE" => "LIST",
-				"VALUES" => $arIBlock,
-				"REFRESH" => "N",
-			);
-			$arComponentParameters["PARAMETERS"]["CALENDAR_PATH_TO_VIDEO_MEETING_DETAIL"] = array(
-				"PARENT" => "EVENT_CALENDAR_SETTINGS",
-				"NAME" => GetMessage("SONET_CALENDAR_PATH_TO_VIDEO_MEETING_DETAIL"),
-				"DEFAULT" => "/services/video/detail.php?ID=#ID#",
-			);
-
-			if ($arCurrentValues["CALENDAR_ALLOW_VIDEO_MEETING"] != 'N' && IsModuleInstalled("intranet"))
-			{
-
-				$arComponentParameters["PARAMETERS"]["CALENDAR_PATH_TO_VIDEO_MEETING"] = array(
-					"PARENT" => "EVENT_CALENDAR_SETTINGS",
-					"NAME" => GetMessage("SONET_CALENDAR_PATH_TO_VIDEO_MEETING"),
-					"DEFAULT" => "/services/video/",
-				);
-
-
-				/* Access to Reserve Video-Meeting */
-				$arUserGroups = array();
-				$dbGroups = CGroup::GetList("NAME", "ASC", array("ACTIVE" => "Y"));
-				while ($arGroup = $dbGroups->GetNext())
-					$arUserGroups[$arGroup["ID"]] = "[".$arGroup["ID"]."] ".$arGroup["NAME"];
-
-				$arComponentParameters["PARAMETERS"]["CALENDAR_VIDEO_MEETING_USERGROUPS"] = array(
-					"PARENT" => "EVENT_CALENDAR_SETTINGS",
-					"NAME" => GetMessage("SONET_CALENDAR_VIDEO_MEETING_USERGROUPS"),
-					"TYPE" => "LIST",
-					"MULTIPLE" => "Y",
-					"VALUES" => $arUserGroups,
-					"DEFAULT" => Array(1)
-				);
-			}
-		}
 
 		$arComponentParameters["PARAMETERS"]["CALENDAR_REINVITE_PARAMS_LIST"] = array(
 			"PARENT" => "EVENT_CALENDAR_SETTINGS",

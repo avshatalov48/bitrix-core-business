@@ -166,6 +166,8 @@ class FileInfo extends FileData implements \JsonSerializable
 			'size' => $this->getSize(),
 			'width' => $this->getWidth(),
 			'height' => $this->getHeight(),
+			'isImage' => $this->isImage(),
+			'isVideo' => $this->isVideo(),
 			'treatImageAsFile' => $this->isImage() && $this->shouldTreatImageAsFile(),
 			'downloadUrl' => $this->getDownloadUrl(),
 			'serverPreviewUrl' => $this->getPreviewUrl(),

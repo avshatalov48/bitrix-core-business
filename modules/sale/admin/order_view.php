@@ -271,7 +271,7 @@ else
 					$file_contents = '';
 					if ($file == "." || $file == ".." || $file == ".access.php" || isset($arReports[$file]))
 						continue;
-					if (is_file($dir.$file) && ToUpper(mb_substr($file, -4)) == ".PHP")
+					if (is_file($dir.$file) && mb_strtoupper(mb_substr($file, -4)) == ".PHP")
 					{
 						$rep_title = $file;
 						if ($dir == $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/")
@@ -504,7 +504,7 @@ foreach($blocksOrder as $item)
 	if(isset($customFastNavItems[$item]))
 		$fastNavItems[$item] = $customFastNavItems[$item];
 	else
-		$fastNavItems[$item] = Loc::getMessage("SALE_OVIEW_BLOCK_TITLE_".toUpper($item));
+		$fastNavItems[$item] = Loc::getMessage("SALE_OVIEW_BLOCK_TITLE_".mb_strtoupper($item));
 }
 
 $statusOnPaid = Bitrix\Main\Config\Option::get('sale', 'status_on_paid');
@@ -636,7 +636,7 @@ $tabControl->End();
 
 	<div style="display: none;"><?=Admin\OrderEdit::getFastNavigationHtml($fastNavItems, $formId, 'tab_order');?></div>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready( function(){
 
 			BX.Sale.Admin.OrderAjaxer.sendRequest(

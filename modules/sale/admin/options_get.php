@@ -156,7 +156,7 @@ $arAgent = Array(
 		$res = CUtil::JSEscape($res);
 	}
 ?>
-<script language="JavaScript">
+<script>
 <!--
 window.parent.document.getElementById("export_fields_<?= $divInd ?>").value = "<?= $fields ?>";
 window.parent.document.getElementById("export_<?= $divInd ?>").innerHTML = '<?= $res ?>';

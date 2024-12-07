@@ -1,14 +1,16 @@
-import {Button, ButtonSize, ButtonColor} from 'im.v2.component.elements';
+import { Text } from 'main.core';
+
+import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
 import '../../css/notification-item-confirm-buttons.css';
 
 // @vue/component
 export const NotificationItemConfirmButtons = {
 	name: 'NotificationItemConfirmButtons',
-	components: {Button},
+	components: { MessengerButton },
 	props: {
 		buttons: {
 			type: Array,
-			required: true
+			required: true,
 		},
 	},
 	emits: ['confirmButtonsClick'],
@@ -18,14 +20,14 @@ export const NotificationItemConfirmButtons = {
 		ButtonColor: () => ButtonColor,
 		preparedButtons(): Array
 		{
-			return this.buttons.map(button => {
+			return this.buttons.map((button) => {
 				const [id, value] = button.COMMAND_PARAMS.split('|');
 
-				return {
-					id: id,
-					value: value,
-					text: button.TEXT,
-				};
+				// we need to decode it, because legacy chat does htmlspecialcharsbx on the server side
+				// @see \CIMMessenger::Add
+				const text = Text.decode(button.TEXT);
+
+				return { id, value, text };
 			});
 		},
 	},
@@ -38,11 +40,11 @@ export const NotificationItemConfirmButtons = {
 		getButtonColor(button): string
 		{
 			return button.value === 'Y' ? ButtonColor.Primary : ButtonColor.LightBorder;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-content-notification-item-confirm-buttons__container">
-			<Button
+			<MessengerButton
 				v-for="(button, index) in preparedButtons" :key="index"
 				:text="button.text"
 				:color="getButtonColor(button)"
@@ -50,7 +52,7 @@ export const NotificationItemConfirmButtons = {
 				:isRounded="true"
 				:isUppercase="false"
 				@click="click(button)"
-			></Button>
+			></MessengerButton>
 		</div>
-	`
+	`,
 };

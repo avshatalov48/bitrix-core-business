@@ -6,7 +6,6 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","searcher_list.php");
 $strError = "";
 $statDB = CDatabase::GetModuleConnection('statistic');
@@ -28,7 +27,7 @@ function CheckFields()
 
 function Set_Params()
 {
-	global $ID, $PARAM, $err_mess, $statDB;
+	global $ID, $PARAM, $statDB;
 
 	foreach ($PARAM as $pid)
 	{
@@ -37,25 +36,25 @@ function Set_Params()
 		$var_DOMAIN = "DOMAIN_".$pid;
 		$var_VARIABLE = "VARIABLE_".$pid;
 		$var_CHAR_SET = "CHAR_SET_".$pid;
-		global $$var_PARAM_ID, $$var_DOMAIN, $$var_VARIABLE, $$var_CHAR_SET;
+
 		$arFields = array(
-			"DOMAIN"	=> "'".$statDB->ForSql($$var_DOMAIN)."'",
-			"VARIABLE"	=> "'".$statDB->ForSql($$var_VARIABLE)."'",
-			"CHAR_SET"	=> "'".$statDB->ForSql($$var_CHAR_SET)."'",
+			"DOMAIN"	=> "'".$statDB->ForSql($GLOBALS[$var_DOMAIN])."'",
+			"VARIABLE"	=> "'".$statDB->ForSql($GLOBALS[$var_VARIABLE])."'",
+			"CHAR_SET"	=> "'".$statDB->ForSql($GLOBALS[$var_CHAR_SET])."'",
 			);
-		$strSql = "SELECT 'x' FROM b_stat_searcher_params WHERE ID='".intval($$var_PARAM_ID)."'";
-		$b = $statDB->Query($strSql, false, $err_mess.__LINE__);
+		$strSql = "SELECT 'x' FROM b_stat_searcher_params WHERE ID='".intval($GLOBALS[$var_PARAM_ID])."'";
+		$b = $statDB->Query($strSql);
 		if ($br=$b->Fetch())
 		{
-			if (trim($$var_DOMAIN) == '')
-				$statDB->Query("DELETE FROM b_stat_searcher_params WHERE ID='".intval($$var_PARAM_ID)."'", false, $err_mess.__LINE__);
+			if (trim($GLOBALS[$var_DOMAIN]) == '')
+				$statDB->Query("DELETE FROM b_stat_searcher_params WHERE ID='".intval($GLOBALS[$var_PARAM_ID])."'");
 			else
-				$statDB->Update("b_stat_searcher_params",$arFields,"WHERE ID='".intval($$var_PARAM_ID)."'",$err_mess.__LINE__);
+				$statDB->Update("b_stat_searcher_params",$arFields,"WHERE ID='".intval($GLOBALS[$var_PARAM_ID])."'");
 		}
-		elseif (trim($$var_DOMAIN) <> '')
+		elseif (trim($GLOBALS[$var_DOMAIN]) <> '')
 		{
 				$arFields["SEARCHER_ID"] = intval($ID);
-				$statDB->Insert("b_stat_searcher_params",$arFields, $err_mess.__LINE__);
+				$statDB->Insert("b_stat_searcher_params",$arFields);
 		}
 	}
 }
@@ -66,10 +65,10 @@ InitBVar($SAVE_STATISTIC);
 InitBVar($DIAGRAM_DEFAULT);
 InitBVar($CHECK_ACTIVITY);
 
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$strSql = "SELECT HIT_KEEP_DAYS FROM b_stat_searcher WHERE ID = $ID";
-	$rsSearcher = $statDB->Query($strSql, false, $err_mess.__LINE__);
+	$rsSearcher = $statDB->Query($strSql);
 	$arSearcher = $rsSearcher->Fetch();
 
 	$statDB->PrepareFields("b_stat_searcher");
@@ -89,17 +88,17 @@ if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W"
 		$statDB->StartTransaction();
 		if ($ID>0)
 		{
-			$statDB->Update("b_stat_searcher",$arFields,"WHERE ID='".$ID."'",$err_mess.__LINE__);
+			$statDB->Update("b_stat_searcher",$arFields,"WHERE ID='".$ID."'");
 			Set_Params();
 			if (intval($HIT_KEEP_DAYS)!=$arSearcher["HIT_KEEP_DAYS"])
 			{
 				$arFields = array("HIT_KEEP_DAYS" => $sql_HIT_KEEP_DAYS);
-				$statDB->Update("b_stat_searcher_hit",$arFields,"WHERE SEARCHER_ID=$ID",$err_mess.__LINE__);
+				$statDB->Update("b_stat_searcher_hit",$arFields,"WHERE SEARCHER_ID=$ID");
 			}
 		}
 		else
 		{
-			$ID = $statDB->Insert("b_stat_searcher",$arFields, $err_mess.__LINE__);
+			$ID = $statDB->Insert("b_stat_searcher",$arFields);
 			if (intval($ID)>0) Set_Params();
 			$new = "Y";
 		}

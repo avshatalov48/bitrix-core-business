@@ -1,5 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use \Bitrix\Main\Localization\Loc;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools/clock.php");
@@ -19,14 +21,25 @@ $fieldsList = [
 	'section' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_SECTIONS_COLUMN')],
 	'accessibility' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_ACCESSIBILITY_COLUMN')],
 	'location' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_LOCATION_COLUMN')],
-	'private' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_PRIVATE_COLUMN')]
+	'private' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_PRIVATE_COLUMN')],
 ];
 
 if (!$isSocialNetworkEnabled)
 {
-	unset($fieldsList['accessibility']);
-	unset($fieldsList['private']);
+	unset($fieldsList['accessibility'], $fieldsList['private']);
 }
+
+$isOpenEvent = $arParams['type'] === Dictionary::CALENDAR_TYPE['open_event'];
+if ($isOpenEvent)
+{
+	unset($fieldsList['accessibility'], $fieldsList['private']);
+	$fieldsList = [
+		...$fieldsList,
+		'category' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_CATEGORY_COLUMN')],
+		'max_attendees' => ['title' => Loc::getMessage('EC_EDIT_SLIDER_MAX_ATTENDEES_COLUMN')],
+	];
+}
+
 $UF = CCalendarEvent::GetEventUserFields($event);
 
 if (isset($UF['UF_CRM_CAL_EVENT']))
@@ -61,6 +74,11 @@ $userId = CCalendar::GetCurUserId();
 $arParams['event'] = $event;
 $arParams['UF'] = $UF;
 
+$showDestination = !$isOpenEvent;
+// TODO: remove this check, planner enabled always
+$showPlanner = true;
+$showSection = !$isOpenEvent;
+$defaultSectionId = $isOpenEvent && isset($arParams['sections'][0]['ID']) ? $arParams['sections'][0]['ID'] : 0;
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
 	<div class="calendar-form-footer-container">
@@ -85,7 +103,7 @@ $arParams['UF'] = $UF;
 				<form enctype="multipart/form-data" method="POST" name="calendar_entry_edit" id="<?=$id?>_form">
 					<input type="hidden" value="0" name="id"/>
 					<input type="hidden" name="location" value=""/>
-					<input id="<?=$id?>_section" type="hidden" name="section" value="0"/>
+					<input id="<?=$id?>_section" type="hidden" name="section" value="<?=$defaultSectionId?>"/>
 					<input id="<?=$id?>_color" type="hidden" name="color" value=""/>
 					<input id="<?=$id?>_event_current_date_from" type="hidden" name="current_date_from" value="0"/>
 					<input id="<?=$id?>_event_rec_edit_mode" type="hidden" name="rec_edit_mode" value="0"/>
@@ -141,7 +159,7 @@ $arParams['UF'] = $UF;
 											"VALUE" => $event['DESCRIPTION'] ?? null,
 											"HEIGHT" => "160px"
 										],
-										"UPLOAD_WEBDAV_ELEMENT" => $arParams['UF']['UF_WEBDAV_CAL_EVENT'],
+										"UPLOAD_WEBDAV_ELEMENT" => $arParams['UF']['UF_WEBDAV_CAL_EVENT'] ?? null,
 										"UPLOAD_FILE_PARAMS" => array("width" => 400, "height" => 400),
 										"FILES" => [
 											"VALUE" => [],
@@ -296,6 +314,71 @@ $arParams['UF'] = $UF;
 						</div>
 						<!--endregion-->
 
+						<?if($isOpenEvent):?>
+						<!--region max_attendees-->
+						<?$field = "max_attendees";?>
+						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
+							<?if (!$fieldsList[$field]["pinned"])
+							{
+								ob_start();
+							}?>
+							<div class="calendar-options-item calendar-options-item-border calendar-event-max-attendees">
+								<div class="calendar-options-item-column-left calendar-options-item-column-left-max-attendees">
+									<div class="calendar-options-item-name js-calendar-field-name">
+										<?=Loc::getMessage('EC_EDIT_SLIDER_MAX_ATTENDEES_FIELD')?>
+									</div>
+								</div>
+								<div class="calendar-options-item-column-right">
+									<div class="calendar-options-item-column-one">
+										<div class="calendar-field-container calendar-field-container-repeat">
+											<div class="calendar-field-block">
+												<input name="max_attendees" type="text" id="<?=$id?>_max_attendees" class="calendar-field">
+											</div>
+										</div>
+									</div>
+								</div>
+								<span data-bx-fixfield="<?= $field?>" class="calendar-option-fixedbtn" title="<?= Loc::getMessage('EC_EDIT_SLIDER_FIX_FIELD')?>"></span>
+							</div>
+							<?if (!$fieldsList[$field]["pinned"])
+							{
+								$fieldsList[$field]["html"] = ob_get_contents();
+								ob_end_clean();
+							}?>
+						</div>
+						<!--endregion-->
+						<?endif;?>
+
+						<?if($isOpenEvent):?>
+						<!--region category-->
+						<?$field = "category";?>
+						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
+							<?if (!$fieldsList[$field]["pinned"])
+							{
+								ob_start();
+							}?>
+							<div id="<?=$id?>_category_selector">
+								<div class="calendar-options-item calendar-options-item-border calendar-options-item-destination">
+
+									<div class="calendar-options-item-column-left">
+										<div class="calendar-options-item-name js-calendar-field-name"  id="<?=$id?>_category_title_wrap">
+											<?=Loc::getMessage('EC_EDIT_SLIDER_CATEGORY_FIELD')?>
+										</div>
+									</div>
+									<div class="calendar-options-item-column-right">
+										<div id="tag-selector-6541"></div>
+										<div class="calendar-category-selector-wrap"></div>
+									</div>
+								</div>
+							</div>
+							<?if (!$fieldsList[$field]["pinned"])
+							{
+								$fieldsList[$field]["html"] = ob_get_contents();
+								ob_end_clean();
+							}?>
+						</div>
+						<!--endregion-->
+						<?endif;?>
+
 						<!--region reminder-->
 						<?$field = "reminder";?>
 						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
@@ -324,6 +407,7 @@ $arParams['UF'] = $UF;
 						</div>
 						<!--endregion-->
 
+						<?php if($showSection):?>
 						<!--region section-->
 						<?$field = "section";?>
 						<div data-bx-block-placeholer="<?= $field?>" class="calendar-field-placeholder">
@@ -351,6 +435,7 @@ $arParams['UF'] = $UF;
 						}?>
 						</div>
 						<!--endregion-->
+						<?php endif;?>
 
 						<!--region RRule-->
 						<?$field = "rrule";?>
@@ -519,6 +604,7 @@ $arParams['UF'] = $UF;
 						</div>
 						<!--endregion-->
 
+						<?php if ($showDestination):?>
 						<!--region Destination-->
 						<div id="<?=$id?>_attendees_selector">
 							<div class="calendar-options-item calendar-options-item-border calendar-options-item-destination" style="border-bottom: none;">
@@ -533,6 +619,9 @@ $arParams['UF'] = $UF;
 							</div>
 						</div>
 						<!--endregion-->
+						<?php endif;?>
+
+						<?php if($showPlanner):?>
 						<!--region planner-->
 						<div class="calendar-options-item-planner calendar-options-item-border">
 							<div class="calendar-options-item-column-planner">
@@ -585,6 +674,7 @@ $arParams['UF'] = $UF;
 							</div>
 						</div>
 						<!--endregion-->
+						<?php endif;?>
 
 						<!--region Color-->
 						<?$field = "color";?>

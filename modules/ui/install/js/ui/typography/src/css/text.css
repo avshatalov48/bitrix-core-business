@@ -1,0 +1,19 @@
+.ui-typography-text-bold {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.ui-typography-text-italic {
+	font-style: italic;
+}
+
+.ui-typography-text-underline {
+	text-decoration: var(--ui-text-decoration-line-underline);
+}
+
+.ui-typography-text-strikethrough {
+	text-decoration: var(--ui-text-decoration-line-line-through);
+}
+
+.ui-typography-text-underline-strikethrough {
+	text-decoration: var(--ui-text-decoration-line-underline) var(--ui-text-decoration-line-line-through);
+}

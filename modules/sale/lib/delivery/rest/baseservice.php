@@ -99,7 +99,14 @@ class BaseService extends \IRestService
 	 */
 	protected static function prepareOutcomingFields(array $data): array
 	{
-		return self::replaceOutcomingKeys($data);
+		return self::replaceOutcomingKeys(
+			static::castOutcomingFieldsData($data)
+		);
+	}
+
+	protected static function castOutcomingFieldsData(array $data): array
+	{
+		return $data;
 	}
 
 	/**

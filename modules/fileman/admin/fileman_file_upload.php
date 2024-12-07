@@ -30,7 +30,7 @@ if(!$USER->CanDoFileOperation('fm_upload_file',$arPath))
 else
 {
 	$bCan = true;
-	if($REQUEST_METHOD=="POST" && $save <> '' && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '' && check_bitrix_sessid())
 	{
 		$nums = intval($nums);
 		if($nums > 0)

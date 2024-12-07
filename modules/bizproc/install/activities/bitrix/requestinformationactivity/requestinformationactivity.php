@@ -6,12 +6,17 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Bizproc;
+use Bitrix\Main\Error;
+use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Bizproc\Activity\Mixins\ErrorHandling;
 
 class CBPRequestInformationActivity extends CBPCompositeActivity implements
 	IBPEventActivity,
 	IBPActivityExternalEventListener
 {
+	use ErrorHandling;
+
 	const ACTIVITY = 'RequestInformationActivity';
 	const CONTROLS_PREFIX = 'bpriact_';
 
@@ -155,7 +160,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 		if (!$this->isPropertyExists("SetStatusMessage") || $this->SetStatusMessage === "Y")
 		{
 			$message =
-				($this->isPropertyExists("StatusMessage") && $this->StatusMessage <> '')
+				(!empty($this->StatusMessage) && is_string($this->StatusMessage))
 					? $this->StatusMessage
 					: Loc::getMessage("BPRIA_ACT_INFO")
 			;
@@ -552,7 +557,9 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 					$field['Id'] = $field['Name']; //compatible
 					unset($field['Name']);
 
-					$fields[] = Bizproc\FieldType::normalizeProperty($field);
+					$property = Bizproc\FieldType::normalizeProperty($field);
+					$property['FieldId'] = static::CONTROLS_PREFIX . $property['Id'];
+					$fields[] = $property;
 				}
 			}
 		}
@@ -629,24 +636,20 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 			foreach ($task["PARAMETERS"]["REQUEST"] as $parameter)
 			{
-				$arErrorsTmp = [];
-
+				$errorTmp = [];
 				$result[$parameter["Name"]] = $documentService->getFieldInputValue(
 					$task["PARAMETERS"]["DOCUMENT_TYPE"],
 					$parameter,
 					static::CONTROLS_PREFIX . $parameter["Name"],
 					$request,
-					$arErrorsTmp
+					$errorTmp
 				);
-
-				if (count($arErrorsTmp) > 0)
+				$errorTmp = array_unique($errorTmp);
+				if (!empty($errorTmp))
 				{
-					$m = "";
-					foreach ($arErrorsTmp as $e)
-					{
-						$m .= $e["message"] . "<br />";
-					}
-					throw new CBPArgumentException($m);
+					$errorTmp = reset($errorTmp);
+					$fieldName = str_replace('[]', '', $parameter['Name']);
+					self::$errors->setError(new Error($errorTmp['message'], $errorTmp['code'], $fieldName));
 				}
 
 				if (
@@ -654,15 +657,18 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 					&& CBPHelper::isEmptyValue($result[$parameter['Name']])
 				)
 				{
-					throw new CBPArgumentNullException(
-						$parameter["Name"],
-						str_replace(
-							"#PARAM#",
-							htmlspecialcharsbx($parameter["Title"]),
-							Loc::getMessage("BPRIA_ARGUMENT_NULL")
-						)
-					);
+					$fieldName = str_replace('[]', '', $parameter['Name']);
+					self::$errors->setError(new Error(str_replace(
+						'#PARAM#',
+						$parameter['Title'],
+						Loc::getMessage('BPRIA_ARGUMENT_NULL')
+					), 0, $fieldName));
 				}
+			}
+
+			if (static::hasErrors())
+			{
+				return false;
 			}
 		}
 
@@ -736,13 +742,11 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 					? $arTask["PARAMETERS"]["CommentLabelMessage"]
 					: Loc::getMessage("BPAR_ACT_COMMENT")
 			;
-			throw new CBPArgumentNullException(
-				'task_comment',
-				Loc::getMessage(
-					"BPRIA_ACT_COMMENT_ERROR",
-					[
-						'#COMMENT_LABEL#' => $label,
-					]
+			self::$errors->setError(
+				new Error(
+					Loc::getMessage('BPRIA_ACT_COMMENT_ERROR', ['#COMMENT_LABEL#' => $label]),
+					0,
+					'task_comment'
 				)
 			);
 		}
@@ -752,6 +756,7 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 
 	public static function PostTaskForm($task, $userId, $request, &$errors, $userName = "", $realUserId = null)
 	{
+		self::$errors = new ErrorCollection();
 		$errors = [];
 
 		try
@@ -761,13 +766,27 @@ class CBPRequestInformationActivity extends CBPCompositeActivity implements
 			{
 				throw new CBPArgumentNullException("userId");
 			}
-
 			$arEventParameters = static::getEventParameters($task, $request);
 			$arEventParameters["USER_ID"] = $userId;
 			$arEventParameters["REAL_USER_ID"] = $realUserId;
 			$arEventParameters["USER_NAME"] = $userName;
 
 			static::validateTaskEventParameters($task, $arEventParameters);
+			if (static::hasErrors())
+			{
+				foreach (static::getErrors() as $error)
+				{
+					$errors[] = [
+						'code' => $error->getCode(),
+						'message' =>  $error->getMessage(),
+						'file' => null,
+						'customData' => $error->getCustomData(),
+					];
+				}
+
+				return false;
+			}
+
 			CBPRuntime::sendExternalEvent($task["WORKFLOW_ID"], $task["ACTIVITY_NAME"], $arEventParameters);
 
 			return true;

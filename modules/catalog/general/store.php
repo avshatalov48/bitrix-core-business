@@ -1,7 +1,8 @@
 <?php
-use Bitrix\Main,
-	Bitrix\Catalog,
-	Bitrix\Iblock;
+
+use Bitrix\Main;
+use Bitrix\Catalog;
+use Bitrix\Iblock;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -246,7 +247,7 @@ class CAllCatalogStore
 			}
 
 			$strSql = "update b_catalog_store set ".$strUpdate." where ID = ".$id;
-			if(!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if(!$DB->Query($strSql))
 				return false;
 			CCatalogStoreControlUtil::clearStoreName($id);
 
@@ -329,138 +330,62 @@ class CAllCatalogStore
 
 	/**
 	 * Recalculate quantity for store.
-	 *
-	 * @param int $storeId		Store id.
-	 * @return bool
-	 * @throws Main\ArgumentException
-	 * @throws Main\Db\SqlQueryException
 	 */
-	public static function recalculateStoreBalances($storeId)
+	public static function recalculateStoreBalances(int $storeId): void
 	{
-		$storeId = (int)$storeId;
 		if ($storeId <= 0)
-			return false;
+		{
+			return;
+		}
 
 		if (!Catalog\Config\State::isUsedInventoryManagement())
-			return true;
+		{
+			return;
+		}
 
-		$iterator = Catalog\StoreTable::getList([
+		$store = Catalog\StoreTable::getList([
 			'select' => ['ID'],
-			'filter' => ['=ID' => $storeId]
-		]);
-		$row = $iterator->fetch();
-		unset($iterator);
-		if (empty($row))
-			return false;
-		unset($row);
-
-		$errors = [];
-
-		$connection = Main\Application::getConnection();
+			'filter' => ['=ID' => $storeId],
+		])->fetch();
+		if (!$store)
+		{
+			return;
+		}
 
 		Iblock\PropertyIndex\Manager::enableDeferredIndexing();
 		Catalog\Product\Sku::enableDeferredCalculation();
 
 		$iblockIds = [];
-
 		$startId = 0;
 		do
 		{
-			$found = false;
+			$hasMore = false;
 			$productIds = [];
 
-			$iterator = Catalog\StoreProductTable::getList([
+			$storeProductList = Catalog\StoreProductTable::getList([
 				'select' => ['ID', 'PRODUCT_ID'],
-				'filter' => ['>ID' => $startId, '=STORE_ID' => $storeId, '!=AMOUNT' => 0],
+				'filter' => [
+					'>ID' => $startId,
+					'=STORE_ID' => $storeId,
+					'!=AMOUNT' => 0,
+				],
 				'order' => ['ID' => 'ASC'],
-				'limit' => 200
+				'limit' => 200,
 			]);
-			while ($row = $iterator->fetch())
+			while ($row = $storeProductList->fetch())
 			{
-				$found = true;
+				$hasMore = true;
 				$startId = (int)$row['ID'];
 				$productIds[] = (int)$row['PRODUCT_ID'];
 			}
-			unset($row, $iterator);
-			if (!empty($productIds))
-				Main\Type\Collection::normalizeArrayValuesByInt($productIds, true);
 
 			if (!empty($productIds))
 			{
-				$products = [];
-				$iterator = Catalog\Model\Product::getList([
-					'select' => ['ID', 'QUANTITY_RESERVED', 'IBLOCK_ID' => 'IBLOCK_ELEMENT.IBLOCK_ID'],
-					'filter' => ['@ID' => $productIds],
-					'order' => ['ID' => 'ASC']
-				]);
-				while ($row = $iterator->fetch())
-				{
-					if ($row['IBLOCK_ID'] === null)
-						continue;
-					$rowId = (int)$row['ID'];
-					$iblock = (int)$row['IBLOCK_ID'];
-					$iblockIds[$iblock] = $iblock;
-					$products[$rowId] = [
-						'QUANTITY_RESERVED' => (float)$row['QUANTITY_RESERVED'],
-						'IBLOCK_ID' => $iblock
-					];
-				}
-				unset($row, $iterator);
-
-				if (!empty($products))
-				{
-					$query = 'select SUM(CSP.AMOUNT) as PRODUCT_QUANTITY, CSP.PRODUCT_ID '.
-						'from b_catalog_store_product CSP inner join b_catalog_store CS on CS.ID = CSP.STORE_ID '.
-						'where CSP.PRODUCT_ID in ('.implode(',', array_keys($products)).') and CS.ACTIVE = "Y" '.
-						'group by CSP.PRODUCT_ID';
-					$iterator = $connection->query($query);
-					while ($row = $iterator->fetch())
-					{
-						$rowId = (int)$row['PRODUCT_ID'];
-						$data = [
-							'fields' => [
-								'QUANTITY' => (float)$row['PRODUCT_QUANTITY'] - $products[$rowId]['QUANTITY_RESERVED']
-							],
-							'external_fields' => [
-								'IBLOCK_ID' => $products[$rowId]['IBLOCK_ID']
-							]
-						];
-						$resultInternal = Catalog\Model\Product::update($rowId, $data);
-						if (!$resultInternal->isSuccess())
-							$errors[$rowId] = $resultInternal->getErrorMessages();
-
-						unset($products[$rowId]);
-					}
-					unset($row, $iterator, $query);
-				}
-
-				if (!empty($products))
-				{
-					foreach ($products as $rowId => $rowData)
-					{
-						$data = [
-							'fields' => [
-								'QUANTITY' => ($rowData['QUANTITY_RESERVED'] != 0 ? -$rowData['QUANTITY_RESERVED'] : 0)
-							],
-							'external_fields' => [
-								'IBLOCK_ID' => $rowData['IBLOCK_ID']
-							]
-						];
-						$resultInternal = Catalog\Model\Product::update($rowId, $data);
-						if (!$resultInternal->isSuccess())
-							$errors[$rowId] = $resultInternal->getErrorMessages();
-
-						unset($products[$rowId]);
-					}
-					unset($rowId, $rowData);
-				}
-				unset($products);
+				Main\Type\Collection::normalizeArrayValuesByInt($productIds);
 			}
-			unset($productIds);
-		}
-		while ($found);
 
-		unset($connection);
+			self::recalculateProductsBalancesInternal($productIds, $iblockIds);
+		} while ($hasMore);
 
 		Catalog\Product\Sku::disableDeferredCalculation();
 		Catalog\Product\Sku::calculate();
@@ -469,12 +394,138 @@ class CAllCatalogStore
 		if (!empty($iblockIds))
 		{
 			foreach ($iblockIds as $iblock)
+			{
 				Iblock\PropertyIndex\Manager::runDeferredIndexing($iblock);
+			}
 		}
-		unset($iblockIds);
 
 		Catalog\Model\Product::clearCache();
+	}
 
-		return empty($errors);
+	/**
+	 * Recalculate quantity for specified product ids
+	 */
+	public static function recalculateProductsBalances(array $productIds): void
+	{
+		if (!Catalog\Config\State::isUsedInventoryManagement())
+		{
+			return;
+		}
+
+		Iblock\PropertyIndex\Manager::enableDeferredIndexing();
+		Catalog\Product\Sku::enableDeferredCalculation();
+
+		$iblockIds = [];
+		self::recalculateProductsBalancesInternal($productIds, $iblockIds);
+
+		Catalog\Product\Sku::disableDeferredCalculation();
+		Catalog\Product\Sku::calculate();
+
+		Iblock\PropertyIndex\Manager::disableDeferredIndexing();
+		if (!empty($iblockIds))
+		{
+			foreach ($iblockIds as $iblock)
+			{
+				Iblock\PropertyIndex\Manager::runDeferredIndexing($iblock);
+			}
+		}
+
+		Catalog\Model\Product::clearCache();
+	}
+
+	private static function recalculateProductsBalancesInternal(array $productIds, array &$iblockIds): void
+	{
+		if (empty($productIds))
+		{
+			return;
+		}
+
+		$products = [];
+		$foundedProductIds = [];
+
+		$productsList = Catalog\Model\Product::getList([
+			'select' => [
+				'ID',
+				'QUANTITY_RESERVED',
+				'IBLOCK_ID' => 'IBLOCK_ELEMENT.IBLOCK_ID',
+			],
+			'filter' => ['@ID' => $productIds],
+			'order' => ['ID' => 'ASC'],
+		]);
+		while ($row = $productsList->fetch())
+		{
+			if ($row['IBLOCK_ID'] === null)
+			{
+				continue;
+			}
+
+			$id = (int)$row['ID'];
+
+			$iblockId = (int)$row['IBLOCK_ID'];
+			$iblockIds[$iblockId] = $iblockId;
+			$products[$id] = [
+				'QUANTITY_RESERVED' => (float)$row['QUANTITY_RESERVED'],
+				'IBLOCK_ID' => $iblockId,
+			];
+			$foundedProductIds[] = $id;
+		}
+		unset($row, $productsList);
+
+		if (empty($products))
+		{
+			return;
+		}
+
+		$storeProductQuantityList = Main\Application::getConnection()->query("
+			SELECT
+				SUM(CSP.AMOUNT) AS PRODUCT_QUANTITY,
+				CSP.PRODUCT_ID
+			FROM b_catalog_store_product CSP
+			INNER JOIN b_catalog_store CS ON CS.ID = CSP.STORE_ID
+			WHERE
+				CSP.PRODUCT_ID IN (" . implode(',', $foundedProductIds) . ")
+				AND CS.ACTIVE = 'Y'
+			GROUP BY CSP.PRODUCT_ID
+		");
+		while ($row = $storeProductQuantityList->fetch())
+		{
+			$productId = (int)$row['PRODUCT_ID'];
+
+			Catalog\Model\Product::update(
+				$productId,
+				[
+					'fields' => [
+						'QUANTITY' => (float)$row['PRODUCT_QUANTITY'] - $products[$productId]['QUANTITY_RESERVED'],
+					],
+					'external_fields' => [
+						'IBLOCK_ID' => $products[$productId]['IBLOCK_ID'],
+					],
+				]
+			);
+
+			unset($products[$productId]);
+		}
+		unset($row, $storeProductQuantityList);
+		unset($foundedProductIds);
+
+		if (!empty($products))
+		{
+			foreach ($products as $rowId => $rowData)
+			{
+				Catalog\Model\Product::update(
+					$rowId,
+					[
+						'fields' => [
+							'QUANTITY' => ($rowData['QUANTITY_RESERVED'] != 0 ? -$rowData['QUANTITY_RESERVED'] : 0),
+						],
+						'external_fields' => [
+							'IBLOCK_ID' => $rowData['IBLOCK_ID'],
+						],
+					]
+				);
+			}
+		}
+
+		Catalog\Model\Product::clearCache();
 	}
 }

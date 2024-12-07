@@ -95,7 +95,7 @@ class CAllBlogCategory
 				"SELECT C.ID, C.BLOG_ID, C.NAME ".
 				"FROM b_blog_category C ".
 				"WHERE C.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_CATEGORY"]["BLOG_CATEGORY_CACHE_".$ID] = $arResult;

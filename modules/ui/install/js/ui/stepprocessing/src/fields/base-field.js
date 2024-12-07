@@ -83,10 +83,13 @@ export class BaseField
 		{
 			this.container = Tag.render`<div class="${DialogStyle.ProcessOptionContainer} ${this.className}"></div>`;
 
-			this.container
-				.appendChild(Tag.render`<div class="${DialogStyle.ProcessOptionsTitle}"></div>`)
-					.appendChild(Tag.render`<label for="${this.id}_inp">${this.title}</label>`)
-			;
+			if (this.title)
+			{
+				this.container
+					.appendChild(Tag.render`<div class="${DialogStyle.ProcessOptionsTitle}"></div>`)
+						.appendChild(Tag.render`<label for="${this.id}_inp">${this.title}</label>`)
+				;
+			}
 
 			this.container
 				.appendChild(Tag.render`<div class="${DialogStyle.ProcessOptionsInput}"></div>`)

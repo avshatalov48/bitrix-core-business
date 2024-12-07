@@ -86,11 +86,11 @@ class SitemapTable extends Entity\DataManager
 				}
 			}
 
-			return "/^(".implode('|', $arMask).")$/i".BX_UTF_PCRE_MODIFIER;
+			return "/^(".implode('|', $arMask).")$/iu";
 		}
 		else
 		{
-			return "/.*/i".BX_UTF_PCRE_MODIFIER;
+			return "/.*/iu";
 		}
 	}
 

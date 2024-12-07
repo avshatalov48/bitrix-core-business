@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 (function (exports,main_popup,ui_entitySelector,main_date,main_core,main_core_events,ai_picker,ui_uploader_core) {
@@ -329,6 +330,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	}();
 	babelHelpers.defineProperty(PostForm, "instance", null);
 
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _handleCreateListInSlider = /*#__PURE__*/new WeakSet();
 	var PostFormTabs = /*#__PURE__*/function (_EventEmitter) {
 	  babelHelpers.inherits(PostFormTabs, _EventEmitter);
 	  babelHelpers.createClass(PostFormTabs, null, [{
@@ -349,6 +354,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	    var _this;
 	    babelHelpers.classCallCheck(this, PostFormTabs);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(PostFormTabs).call(this));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _handleCreateListInSlider);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "inited", false);
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "tabs", {});
 	    babelHelpers.defineProperty(babelHelpers.assertThisInitialized(_this), "bodies", {});
@@ -889,8 +895,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      var tabsDefault = tabContainer.querySelectorAll('span.feed-add-post-form-link-lists-default');
 	      var menuItemsListsDefault = [];
 	      var menuItemsLists = [];
-	      if (tabs.length) {
-	        menuItemsLists = this.getMenuItems(tabs, this.createOnclickLists);
+	      var canOpenInSlider = false;
+	      if (tabs.length > 0) {
+	        menuItemsLists = this.getMenuItems(tabs, canOpenInSlider ? _classPrivateMethodGet(this, _handleCreateListInSlider, _handleCreateListInSlider2).bind(this) : this.createOnclickLists);
 	        menuItemsListsDefault = this.getMenuItemsDefault(tabsDefault);
 	        menuItemsLists = menuItemsLists.concat(menuItemsListsDefault);
 	        this.showMoreMenuLists(menuItemsLists);
@@ -910,6 +917,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          },
 	          onsuccess: function onsuccess(result) {
 	            if (result.success) {
+	              canOpenInSlider = main_core.Text.toBoolean(result.canOpenInSlider);
 	              for (var k in result.lists) {
 	                if (!result.lists.hasOwnProperty(k)) {
 	                  continue;
@@ -921,7 +929,8 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                    'data-description': result.lists[k].DESCRIPTION,
 	                    'data-picture-small': result.lists[k].PICTURE_SMALL,
 	                    'data-code': result.lists[k].CODE,
-	                    'iblockId': result.lists[k].ID
+	                    iblockId: result.lists[k].ID,
+	                    iblockTypeId: result.lists[k].IBLOCK_TYPE_ID
 	                  },
 	                  props: {
 	                    className: 'feed-add-post-form-link-lists',
@@ -933,7 +942,7 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	                }));
 	              }
 	              tabs = tabContainer.querySelectorAll('span.feed-add-post-form-link-lists');
-	              menuItemsLists = _this7.getMenuItems(tabs, _this7.createOnclickLists);
+	              menuItemsLists = _this7.getMenuItems(tabs, canOpenInSlider ? _classPrivateMethodGet(_this7, _handleCreateListInSlider, _handleCreateListInSlider2).bind(_this7) : _this7.createOnclickLists);
 	              if (!tabsDefault.length) {
 	                for (var _k in result.permissions) {
 	                  if (!result.permissions.hasOwnProperty(_k)) {
@@ -1005,9 +1014,9 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        if (createOnclickLists) {
 	          menuItemsLists.push({
 	            tabId: id,
-	            text: BX.util.htmlspecialchars(tabs[i].getAttribute("data-name")),
+	            text: BX.util.htmlspecialchars(tabs[i].getAttribute('data-name')),
 	            className: "feed-add-post-form-".concat(id, " feed-add-post-form-").concat(id, "-item"),
-	            onclick: createOnclickLists(id, [tabs[i].getAttribute('iblockId'), tabs[i].getAttribute('data-name'), tabs[i].getAttribute('data-description'), tabs[i].getAttribute('data-picture'), tabs[i].getAttribute('data-code')])
+	            onclick: createOnclickLists(id, [tabs[i].getAttribute('iblockId'), tabs[i].getAttribute('data-name'), tabs[i].getAttribute('data-description'), tabs[i].getAttribute('data-picture'), tabs[i].getAttribute('data-code'), tabs[i].getAttribute('iblockTypeId')])
 	          });
 	        } else {
 	          menuItemsLists.push({
@@ -1053,6 +1062,18 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        }
 	        spanIcon[i].innerHTML = spanDataPicture[i].getAttribute('data-picture-small');
 	      }
+	      if (!this.listsMenu.popupWindow.isShown()) {
+	        main_core.Runtime.loadExtension('ui.analytics').then(function (_ref) {
+	          var sendData = _ref.sendData;
+	          sendData({
+	            tool: 'automation',
+	            category: 'bizproc_operations',
+	            event: 'drawer_open',
+	            c_section: 'feed',
+	            c_element: 'button'
+	          });
+	        })["catch"](function () {});
+	      }
 	      this.listsMenu.popupWindow.show();
 	    }
 	  }, {
@@ -1067,6 +1088,35 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	  }]);
 	  return PostFormTabs;
 	}(main_core_events.EventEmitter);
+	function _handleCreateListInSlider2(id, iblock) {
+	  var _this8 = this;
+	  return function () {
+	    main_core.Runtime.loadExtension('lists.element.creation-guide').then(function (_ref2) {
+	      var CreationGuide = _ref2.CreationGuide;
+	      if (CreationGuide) {
+	        PostFormTabs.getInstance().listsMenu.popupWindow.close();
+	        PostFormTabs.getInstance().menu.popupWindow.close();
+	        CreationGuide.open({
+	          iBlockTypeId: iblock[5],
+	          iBlockId: main_core.Text.toInteger(iblock[0]),
+	          analyticsSection: 'feed',
+	          analyticsP1: iblock[1],
+	          onClose: function onClose() {
+	            if (BX.Livefeed && BX.Livefeed.PageInstance) {
+	              BX.Livefeed.PageInstance.refresh();
+	            } else {
+	              window.location.reload();
+	            }
+	          }
+	        });
+	        return;
+	      }
+	      _this8.createOnclickLists(id, iblock)();
+	    })["catch"](function () {
+	      _this8.createOnclickLists(id, iblock)();
+	    });
+	  };
+	}
 	babelHelpers.defineProperty(PostFormTabs, "instance", null);
 
 	var PostFormDateEnd = /*#__PURE__*/function () {
@@ -1479,6 +1529,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        restoreAutosave: !!params.restoreAutosave,
 	        createdFromEmail: !!params.createdFromEmail
 	      };
+	      var currentUri = new main_core.Uri(location.toString());
+	      var getTextFromHash = currentUri.getQueryParam('getTextFromHash') === 'Y';
+	      if (!main_core.Type.isStringFilled(this.formParams.text) && getTextFromHash) {
+	        this.formParams.textFromHash = decodeURIComponent(currentUri.getFragment());
+	        history.replaceState(null, null, ' ');
+	      }
 	      main_core_events.EventEmitter.subscribe('onInitialized', function (event) {
 	        var _event$getData = event.getData(),
 	          _event$getData2 = babelHelpers.slicedToArray(_event$getData, 2),
@@ -1826,7 +1882,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	      }
 	      var f = window[editor.id + 'Files'];
 	      var handler = LHEPostForm.getHandler(editor.id);
-	      var needToReparse = [];
 	      var node = null;
 	      var controller = null;
 	      for (var id in handler.controllers) {
@@ -1838,11 +1893,6 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	          break;
 	        }
 	      }
-	      var closure = function closure(a, b) {
-	        return function () {
-	          a.insertFile(b);
-	        };
-	      };
 	      var closure2 = function closure2(a, b, c) {
 	        return function () {
 	          if (controller) {
@@ -1865,32 +1915,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	        }
 	        if (controller) {
 	          controller.addFile(f[intId]);
-	        } else {
-	          var _id = handler.checkFile(intId, "common", f[intId]);
-	          needToReparse.push(intId);
-	          if (!!_id && document.getElementById("wd-doc".concat(intId)) && !document.getElementById("wd-doc".concat(intId)).hasOwnProperty('bx-bound')) {
-	            BX("wd-doc".concat(intId)).setAttribute('bx-bound', 'Y');
-	            if ((node = document.getElementById("wd-doc".concat(intId)).querySelector('.feed-add-img-wrap')) && node) {
-	              main_core.Event.bind(node, 'click', closure(handler, _id));
-	              node.style.cursor = 'pointer';
-	            }
-	            if ((node = document.getElementById("wd-doc".concat(intId)).querySelector('.feed-add-img-title')) && node) {
-	              main_core.Event.bind(node, 'click', closure(handler, _id));
-	              node.style.cursor = 'pointer';
-	            }
-	          }
 	        }
-	        if ((node = document.getElementById("wd-doc".concat(intId)).querySelector('.feed-add-post-del-but')) && node) {
+	        node = document.getElementById("wd-doc".concat(intId)).querySelector('.feed-add-post-del-but');
+	        if (node) {
 	          main_core.Event.bind(node, 'click', closure2(handler, intId, f[intId].del_url));
 	          node.style.cursor = "pointer";
 	        }
-	      }
-	      if (needToReparse.length > 0) {
-	        editor.SaveContent();
-	        var content = editor.GetContent();
-	        content = content.replace(new RegExp('\\&\\#91\\;IMG ID=(' + needToReparse.join('|') + ')([WIDTHHEIGHT=0-9 ]*)\\&\\#93\\;', 'gim'), '[IMG ID=$1$2]');
-	        editor.SetContent(content);
-	        editor.Focus();
 	      }
 	      PostForm.getInstance().initedEditorsList.push(editor.id);
 	      main_core_events.EventEmitter.subscribe(editor, 'OnSetViewAfter', function () {
@@ -1899,6 +1929,10 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	            editor.SetContent("".concat(main_core.Loc.getMessage('CREATED_ON_THE_BASIC_OF_THE_MESSAGE')));
 	          }
 	          editor.Focus(true);
+	        }
+	        if (main_core.Type.isStringFilled(_this4.formParams.textFromHash)) {
+	          _this4.formParams.text = _this4.formParams.textFromHash;
+	          editor.action.Exec('insertHTML', _this4.formParams.textFromHash);
 	        }
 	      });
 	    }

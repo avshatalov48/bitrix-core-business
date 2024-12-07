@@ -82,7 +82,7 @@ class CSaleProduct extends CALLSaleProduct
 			if ($limit > 0)
 				$strSql .= " limit ".$limit;
 		}
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetBestSellerList($by = "AMOUNT", $arFilter = Array(), $arOrderFilter = Array(), $limit = 0)
@@ -210,7 +210,7 @@ class CSaleProduct extends CALLSaleProduct
 		if($limit > 0)
 			$strSql .= "LIMIT ".$limit;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetFilterOperation($key, $value)
@@ -433,7 +433,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 				}
 
 				$strSql = "INSERT INTO b_sale_viewed_product (".$sqlInsertNames." DATE_VISIT) VALUES(".$sqlInsertValues." ".$DB->GetNowFunction().")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$ID = intval($DB->LastID());
 			}
@@ -650,7 +650,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 
 		if (is_array($arGroupBy) && count($arGroupBy) == 0)
 		{
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -665,7 +665,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -684,7 +684,7 @@ class CSaleViewedProduct extends CAllSaleViewedProduct
 		{
 			$strSql = $DB->TopSql($strSql, $arNavStartParams["nTopCount"]);
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

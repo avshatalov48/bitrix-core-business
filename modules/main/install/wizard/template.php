@@ -41,11 +41,6 @@ class WizardTemplate extends CWizardTemplate
 		if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php"))
 		{
 			include($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/.config.php");
-			if(defined("INSTALL_UTF_PAGE") && is_array($bxProductConfig["product_wizard"]))
-			{
-				foreach($bxProductConfig["product_wizard"] as $key=>$val)
-					$bxProductConfig["product_wizard"][$key] = mb_convert_encoding($val, INSTALL_CHARSET, "utf-8");
-			}
 		}
 
 		$title = $bxProductConfig["product_wizard"]["product_name"] ?? $arWizardConfig["productName"] ?? InstallGetMessage("INS_TITLE3");
@@ -69,7 +64,7 @@ class WizardTemplate extends CWizardTemplate
 
 		$support = $bxProductConfig["product_wizard"]["links"] ?? $arWizardConfig["supportText"] ?? InstallGetMessage("SUPPORT");
 
-		if(file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.php") || file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.html"))
+		if (file_exists($_SERVER["DOCUMENT_ROOT"]."/readme.html"))
 			$support = InstallGetMessage("SUPPORT_README").$support;
 
 		//Images
@@ -148,15 +143,13 @@ class WizardTemplate extends CWizardTemplate
 
 		$instructionText = InstallGetMessage("GOTO_README");
 		$noscriptInfo = InstallGetMessage("INST_JAVASCRIPT_DISABLED");
-		$charset = (defined("INSTALL_UTF_PAGE") ? "UTF-8" : INSTALL_CHARSET);
-
 
 		return <<<HTML
 <!DOCTYPE html>
 <html>
 	<head>
 		<title>{$browserTitle}</title>
-		<meta http-equiv="Content-Type" content="text/html; charset={$charset}">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<noscript>
 			<style type="text/css">
@@ -166,7 +159,7 @@ class WizardTemplate extends CWizardTemplate
 			<p id="noscript">{$noscriptInfo}</p>
 		</noscript>
 		<link rel="stylesheet" href="/bitrix/images/install/installer_style.css">
-		<script type="text/javascript">
+		<script>
 		<!--
 			document.onkeydown = EnterKeyPress;
 
@@ -269,7 +262,7 @@ class WizardTemplate extends CWizardTemplate
 		</td>
 	</tr>
 </table>
-<script type="text/javascript">PreloadImages();</script>
+<script>PreloadImages();</script>
 <div class="instal-bg"><div class="instal-bg-inner"></div></div>
 </body>
 </html>

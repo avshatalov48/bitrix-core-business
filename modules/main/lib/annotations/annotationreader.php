@@ -125,7 +125,7 @@ class AnnotationReader
 				$value = (float)$valueInString;
 			}
 		}
-		elseif (mb_substr($valueInString, 0, 1) === '[' && mb_substr($valueInString, -1, 1) === ']')
+		elseif (str_starts_with($valueInString, '[') && str_ends_with($valueInString, ']'))
 		{
 			$list = array();
 			$valueInString = mb_substr($valueInString, 1, -1);

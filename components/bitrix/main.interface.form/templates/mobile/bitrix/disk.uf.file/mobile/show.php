@@ -58,7 +58,7 @@ foreach ($arResult['FILES'] as $file)
 }
 ?>
 	</div>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	BX.Disk.UFMobile.addView({
 		UID : '<?=$arResult['UID']?>'

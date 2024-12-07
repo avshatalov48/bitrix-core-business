@@ -72,7 +72,7 @@
 							$methodDeclared .= "&nbsp;&nbsp;&nbsp;&nbsp;";
 							$methodDeclared .= "{$pname}";
 							if (isset($pparam["arrType"])) $methodDeclared .= "[]";
-							$methodDeclared .= ": <i>{$pparam[varType]}</i>";
+							$methodDeclared .= ": <i>{$pparam['varType']}</i>";
 							//$methodDeclared .= " ";
 						}
 						$methodDeclared .= "<br />}<br />";
@@ -83,7 +83,7 @@
 						$pparam = current($params['output']);
 						$methodDeclared .= "{$pname}";
 						if (isset($pparam["arrType"])) $methodDeclared .= "[]";
-						$methodDeclared .= ": <i>{$pparam[varType]}</i>";
+						$methodDeclared .= ": <i>{$pparam['varType']}</i>";
 						$methodDeclared .= " ";
 					}
 				}

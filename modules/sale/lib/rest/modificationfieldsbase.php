@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest;
-
 
 use Bitrix\Main\Engine\Action;
 use Bitrix\Main\Engine\Controller;
@@ -10,12 +8,15 @@ use Bitrix\Rest\RestException;
 
 class ModificationFieldsBase
 {
-	const TO_WHITE_LIST 	= 'TO_WHITE_LIST';
-	const TO_CAMEL 			= 'TO_CAMEL';
-	const TO_SNAKE 			= 'TO_SNAKE';
-	const SORTING_KEYS		= 'SORTING_KEYS';
-	const CHECK_REQUIRED	= 'CHECK_REQUIRED';
+	const TO_WHITE_LIST = 'TO_WHITE_LIST';
+	const TO_CAMEL = 'TO_CAMEL';
+	const TO_SNAKE = 'TO_SNAKE';
+	const SORTING_KEYS = 'SORTING_KEYS';
+	const CHECK_REQUIRED = 'CHECK_REQUIRED';
 
+	protected string $name;
+	protected array $arguments;
+	protected Controller $controller;
 	protected $format;
 	protected $data;
 	protected $scope;

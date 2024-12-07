@@ -18,7 +18,7 @@
 					</tr>
 				</table>
 			</form>
-			<script type="text/javascript">
+			<script>
 				BX.WindowManager.Get().SetTitle('<?=GetMessage('WIKI_DELETE_CONFIRM')?>');
 				var _BTN = [
 					{
@@ -50,7 +50,7 @@
 					</tr>
 				</table>
 			</form>
-			<script type="text/javascript">
+			<script>
 				BX.WindowManager.Get().SetTitle('<?=GetMessage('WIKI_DELETE_CONFIRM')?>');
 				var _BTN = [
 					{

@@ -4,9 +4,9 @@ include_once __DIR__."/base.php";
 
 class CCommentUFs extends CCommentBase
 {
-	function __construct(&$component)
+	public function __construct(&$component, ?\CUser $user = null)
 	{
-		parent::__construct($component);
+		parent::__construct($component, $user);
 
 		$this->removeHandler("OnCommentFormDisplay");
 		$this->removeHandler("OnCommentPreviewDisplay");
@@ -52,7 +52,7 @@ class CCommentUFs extends CCommentBase
 			$arFilter = array(
 				"FORUM_ID" => $arParams["FORUM_ID"],
 				"TOPIC_ID" => $arResult["FORUM_TOPIC_ID"],
-				"APPROVED_AND_MINE" => $GLOBALS["USER"]->GetId(),
+				"APPROVED_AND_MINE" => $this->getUser()?->getId(),
 				">ID" => intval(min($res)) - 1,
 				"<ID" => intval(max($res)) + 1);
 			if ($arFilter[">ID"] <= 0)

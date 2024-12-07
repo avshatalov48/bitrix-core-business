@@ -1668,11 +1668,10 @@ input[type=number].main-ui-number-input::-webkit-outer-spin-button {
 	position: absolute;
 	top: -1px;
 	left: 2px;
-	color: #a9adb2;
+	color: var(--ui-color-base-50);
 	display: inline-block;
 	width: 100%;
 	font: 13px var(--ui-font-family-primary, var(--ui-font-family-helvetica));
-	opacity: .7;
 	cursor: default;
 	white-space: nowrap;
 	overflow: hidden;

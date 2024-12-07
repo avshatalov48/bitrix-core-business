@@ -21,7 +21,7 @@ Loc::loadMessages(__FILE__);
 	</span>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.bind(document.querySelector('.landing-item-add-developer-site span.landing-item-inner'), 'click', function(event) {
 		BX.SidePanel.Instance.open(event.currentTarget.dataset.href, {
 			allowChangeHistory: false

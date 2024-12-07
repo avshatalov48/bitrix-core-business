@@ -624,7 +624,7 @@
 				BX.addCustomEvent(this.quotePopup, "onQuote", this.__quoteShowClick);
 				BX.addCustomEvent(this.quotePopup, "onHide", this.__quoteShowHide);
 			}
-			this.quotePopup.show(e);
+			this.quotePopup.show(e, params);
 		},
 		displayPagenavigation : function(status, startHeight) {
 			var fxStart;
@@ -865,6 +865,15 @@
 			}
 			if (this.form)
 			{
+				if (
+					this.form.handler
+					&& this.form.handler.htmlEditor
+					&& this.form.handler.htmlEditor.IsVisible()
+					&& this.form.handler.htmlEditor.GetContent() !== ""
+				)
+				{
+					return;
+				}
 				BX.onCustomEvent(this.form, "onReply", [this, author]);
 			}
 			else
@@ -1049,26 +1058,26 @@
 				return false;
 			}
 
-			var id = messageId.join("-");
-			var html = (data["message"] ||  window.fcParseTemplate(
-					{ messageFields : data["messageFields"] },
-					{
-						EXEMPLAR_ID : this.exemplarId,
-						RIGHTS : this.rights,
-						DATE_TIME_FORMAT : this.DATE_TIME_FORMAT,
-						VIEW_URL : this.params.VIEW_URL,
-						EDIT_URL : this.params.EDIT_URL,
-						MODERATE_URL : this.params.MODERATE_URL,
-						DELETE_URL : this.params.DELETE_URL,
-						AUTHOR_URL : this.params.AUTHOR_URL,
-						AUTHOR_URL_PARAMS : this.params.AUTHOR_URL_PARAMS,
+			var id = messageId.join('-');
+			var html = (data.message || window.fcParseTemplate(
+				{ messageFields: data.messageFields },
+				{
+					EXEMPLAR_ID: this.exemplarId,
+					RIGHTS: this.rights,
+					DATE_TIME_FORMAT: this.DATE_TIME_FORMAT,
+					VIEW_URL: this.params.VIEW_URL,
+					EDIT_URL: this.params.EDIT_URL,
+					MODERATE_URL: this.params.MODERATE_URL,
+					DELETE_URL: this.params.DELETE_URL,
+					AUTHOR_URL: this.params.AUTHOR_URL,
+					AUTHOR_URL_PARAMS: this.params.AUTHOR_URL_PARAMS,
 
-						NAME_TEMPLATE : this.params.NAME_TEMPLATE,
-						SHOW_LOGIN : this.params.SHOW_LOGIN,
-						CLASSNAME : BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : '',
-					},
-					this.getTemplate()
-				));
+					NAME_TEMPLATE: this.params.NAME_TEMPLATE,
+					SHOW_LOGIN: this.params.SHOW_LOGIN,
+					CLASSNAME: BX.type.isPlainObject(options) && options.live ? 'feed-com-block-live' : '',
+				},
+				this.getTemplate(),
+			));
 			var ob = BX.processHTML(html, false);
 			var results;
 			var newCommentsContainer = this.node.newComments;
@@ -2306,72 +2315,74 @@
 	 * @param txt
 	 * @return string
 	 */
-	window["fcParseTemplate"] = function(data, params, txt) {
+	window.fcParseTemplate = function(data, params, txt) {
 		params = (params || {});
 
-		params["RIGHTS"] = (params["RIGHTS"] || {});
-		for (var ii = 0, rights = ["MODERATE", "EDIT", "DELETE"]; ii < rights.length; ii++)
+		params.RIGHTS = (params.RIGHTS || {});
+		for (var ii = 0, rights = ['MODERATE', 'EDIT', 'DELETE']; ii < rights.length; ii++)
 		{
-			params["RIGHTS"][rights[ii]] =
-				BX.util.in_array(params["RIGHTS"][rights[ii]], ["Y", "ALL", "OWN", "OWNLAST"]) ? params["RIGHTS"][rights[ii]] : "N";
+			params.RIGHTS[rights[ii]] =	BX.util.in_array(
+				params.RIGHTS[rights[ii]],
+				['Y', 'ALL', 'OWN', 'OWNLAST'],
+			) ? params.RIGHTS[rights[ii]] : 'N';
 		}
 
-		params["DATE_TIME_FORMAT"] = (!!params["DATE_TIME_FORMAT"] ? params["DATE_TIME_FORMAT"] : 'd F Y G:i');
-		params["TIME_FORMAT"] = (!!params["DATE_TIME_FORMAT"] && params["DATE_TIME_FORMAT"].indexOf("a") >= 0 ? 'g:i a' : 'G:i');
+		params.DATE_TIME_FORMAT = (params.DATE_TIME_FORMAT ? params.DATE_TIME_FORMAT : 'd F Y G:i');
+		params.TIME_FORMAT = (params.DATE_TIME_FORMAT && params.DATE_TIME_FORMAT.includes('a') ? 'g:i a' : 'G:i');
 
-		params["VIEW_URL"] = (params["VIEW_URL"] || "");
-		params["EDIT_URL"] = (params["EDIT_URL"] || "");
-		params["MODERATE_URL"] = (params["MODERATE_URL"] || "");
-		params["DELETE_URL"] = (params["DELETE_URL"] || "");
-		params["AUTHOR_URL"] = (params["AUTHOR_URL"] || "");
+		params.VIEW_URL = (params.VIEW_URL || '');
+		params.EDIT_URL = (params.EDIT_URL || '');
+		params.MODERATE_URL = (params.MODERATE_URL || '');
+		params.DELETE_URL = (params.DELETE_URL || '');
+		params.AUTHOR_URL = (params.AUTHOR_URL || '');
 
-		params["NAME_TEMPLATE"] = (params["NAME_TEMPLATE"] || "");
-		params["SHOW_LOGIN"] = (params["SHOW_LOGIN"] || "");
+		params.NAME_TEMPLATE = (params.NAME_TEMPLATE || '');
+		params.SHOW_LOGIN = (params.SHOW_LOGIN || '');
 
-		var res = (data && data["messageFields"] ? data["messageFields"] : data);
+		var res = (data && data.messageFields ? data.messageFields : data);
 		var replacement = {
-				"ID" : "",
-				"FULL_ID" : "",
-				"CONTENT_ID" : "",
-				"ENTITY_XML_ID" : "",
-				"EXEMPLAR_ID" : "",
-				"NEW" : "old",
-				"APPROVED" : "Y",
-				"DATE" : "",
-				"TEXT" : "",
-				"CLASSNAME" : "",
-				"VIEW_URL" : "",
-				"VIEW_SHOW" : "N",
-				"EDIT_URL" : "",
-				"EDIT_SHOW" : "N",
-				"MODERATE_URL" : "",
-				"MODERATE_SHOW" : "N",
-				"DELETE_URL" : "",
-				"DELETE_SHOW" : "N",
-				"CREATETASK_SHOW" : "N",
-				"BEFORE_HEADER" : "",
-				"BEFORE_ACTIONS" : "",
-				"AFTER_ACTIONS" : "",
-				"AFTER_HEADER" : "",
-				"BEFORE" : "",
-				"AFTER" : "",
-				"BEFORE_RECORD" : "",
-				"AFTER_RECORD" : "",
-				"AUTHOR_ID" : 0,
-				"AUTHOR_AVATAR_IS" : "N",
-				"AUTHOR_AVATAR" : "",
-				"AUTHOR_URL" : "",
-				"AUTHOR_NAME" : "",
-				"AUTHOR_EXTRANET_STYLE" : "",
-				"SHOW_POST_FORM" : "Y",
-				"SHOW_MENU" : "Y",
-				"VOTE_ID" : "",
-				"AUTHOR_TOOLTIP_PARAMS" : "",
-				"background:url('') no-repeat center;" : "",
-				"LIKE_REACT" : "",
-				"RATING_NONEMPTY_CLASS" : "",
-				"MOBILE_HINTS" : ""
-			};
+			ID: '',
+			FULL_ID: '',
+			CONTENT_ID: '',
+			ENTITY_XML_ID: '',
+			EXEMPLAR_ID: '',
+			NEW: 'old',
+			APPROVED: 'Y',
+			DATE: '',
+			TEXT: '',
+			CLASSNAME: '',
+			VIEW_URL: '',
+			VIEW_SHOW: 'N',
+			EDIT_URL: '',
+			EDIT_SHOW: 'N',
+			MODERATE_URL: '',
+			MODERATE_SHOW: 'N',
+			DELETE_URL: '',
+			DELETE_SHOW: 'N',
+			CREATETASK_SHOW: 'N',
+			BEFORE_HEADER: '',
+			BEFORE_ACTIONS: '',
+			AFTER_ACTIONS: '',
+			AFTER_HEADER: '',
+			BEFORE: '',
+			AFTER: '',
+			BEFORE_RECORD: '',
+			AFTER_RECORD: '',
+			AUTHOR_ID: '',
+			AUTHOR_AVATAR_IS: 'N',
+			AUTHOR_AVATAR: '',
+			AUTHOR_URL: '',
+			AUTHOR_NAME: '',
+			AUTHOR_EXTRANET_STYLE: '',
+			SHOW_POST_FORM: 'Y',
+			SHOW_MENU: 'Y',
+			VOTE_ID: '',
+			AUTHOR_TOOLTIP_PARAMS: '',
+			"background:url('') no-repeat center;": '',
+			LIKE_REACT: '',
+			RATING_NONEMPTY_CLASS: '',
+			MOBILE_HINTS: '',
+		};
 		if (!!res && !!data["messageFields"])
 		{
 			res["AUTHOR"] = (!!res["AUTHOR"] ? res["AUTHOR"] : {});
@@ -2508,7 +2519,7 @@
 				"RATING_NONEMPTY_CLASS" : (res["RATING"] && res["RATING"]["TOTAL_VOTES"] ? "comment-block-rating-nonempty" : ""),
 				"POST_ENTITY_TYPE" : (!!params["POST_CONTENT_TYPE_ID"] ? params["POST_CONTENT_TYPE_ID"] : ""),
 				"COMMENT_ENTITY_TYPE" : (!!params["COMMENT_CONTENT_TYPE_ID"] ? params["COMMENT_CONTENT_TYPE_ID"] : ""),
-				"MOBILE_HINTS" : ""
+				"MOBILE_HINTS" : "",
 			};
 		}
 		else
@@ -2558,36 +2569,17 @@
 		this.closeByEsc = true;
 		this.autoHide = true;
 		this.autoHideTimeout = 5000;
-
-		this.node = document.createElement("A");
-		BX.adjust(this.node, {
-			style: {
-				zIndex: BX.PopupWindow.getOption("popupZindex") + 1,
-				position: "absolute",
-				display: "none",
-				top: "0px",
-				left: "0px",
-			},
-			attrs : {
-				className: "mpl-quote-block",
-				href: "#",
-			},
-			events: {
-				click: this.fire.bind(this),
-			}
-		});
-
 		this.checkEsc = this.checkEsc.bind(this);
 		this.hide = this.hide.bind(this);
-		document.body.appendChild(this.node);
-		BX.ZIndexManager.register(this.node);
 	};
 	MPLQuote.prototype = {
-		show : function(e){
-			var pos = this.getPosition(this.node, e);
-			BX.adjust(this.node, {style : {top : pos.y + "px", left : pos.x + "px", display : "block"}});
-			BX.addClass(this.node, "mpl-quote-block-show");
-			BX.ZIndexManager.bringToFront(this.node);
+		show : function(e, params) {
+			if (window.getSelection().toString() === '')
+			{
+				return;
+			}
+
+			this.render(e, params);
 
 			if (this.closeByEsc && this.closeByEscBound !== true)
 			{
@@ -2616,6 +2608,154 @@
 				this.autoHideTimeoutPointer = setTimeout(this.hide, this.autoHideTimeout);
 			}
 		},
+		render: function(e, params) {
+			if (this.wrap)
+			{
+				BX.ZIndexManager.unregister(this.wrap);
+				this.wrap.remove();
+			}
+
+			const copilotParams = params?.options?.copilotParams;
+			this.wrap = copilotParams ? this.renderQuoteWithCopilot(copilotParams) : this.renderQuote();
+
+			document.body.appendChild(this.wrap);
+			BX.ZIndexManager.register(this.wrap);
+
+			const pos = this.getPosition(this.wrap, e);
+			BX.adjust(this.wrap, {
+				style: {
+					top: `${pos.y}px`,
+					left: `${pos.x}px`,
+					display : 'block',
+				},
+			});
+			BX.addClass(this.wrap, 'mpl-quote-block-show');
+			BX.ZIndexManager.bringToFront(this.wrap);
+		},
+		renderQuote: function() {
+			const quote = BX.Tag.render`
+				<a class="mpl-quote-block" href="#" style="display: none;"></a>
+			`;
+			quote.addEventListener('click', this.fire.bind(this));
+
+			return quote;
+		},
+		renderQuoteWithCopilot: function(copilotParams) {
+			const quoteButton = BX.Tag.render`
+				<div class="mpl-quote-block-quote">
+					<div class="ui-icon-set --quote"></div>
+				</div>
+			`;
+			quoteButton.addEventListener('click', this.fire.bind(this));
+
+			const copilotButton = BX.Tag.render`
+				<div class="mpl-quote-block-copilot">
+					<div class="ui-icon-set --copilot-ai"></div>
+					<div class="mpl-quote-block-copilot-text">${BX.message('MPL_QUOTE_COPILOT')}</div>
+				</div>
+			`;
+			copilotButton.addEventListener('click', this.onCopilotButtonClickHandler.bind(this, copilotParams));
+
+			const quoteWithCopilot = BX.Tag.render`
+				<a class="mpl-quote-block mpl-quote-block-with-copilot" href="#" style="display: none;">
+					<div class="mpl-quote-block-with-copilot-container">
+						${quoteButton}
+						<div class="mpl-quote-block-separator"></div>
+						${copilotButton}
+					</div>
+				</a>
+			`;
+			quoteWithCopilot.addEventListener('click', this.emptyClick.bind(this));
+
+			return quoteWithCopilot;
+		},
+		onCopilotButtonClickHandler: function(copilotParams, e) {
+			this.emptyClick(e);
+
+			this.getCopilot(copilotParams).then((copilot) => {
+				this.showCopilot(copilot);
+			});
+		},
+		showCopilot: function(copilot) {
+			const selection = window.getSelection();
+			const selectedText = selection.toString();
+			const range = selection.getRangeAt(0);
+			const clonedRange = range.cloneRange();
+
+			let selectTextOnBlur = true;
+			const selectText = () => {
+				if (selectTextOnBlur && window.getSelection().toString() !== selectedText)
+				{
+					window.getSelection().removeAllRanges();
+					window.getSelection().addRange(clonedRange);
+				}
+			};
+			const startAdjustAnimation = () => new BX.easing({
+				duration: 1000,
+				start: {},
+				finish: {},
+				transition: BX.easing.makeEaseOut(BX.easing.transitions.linear),
+				step: () => {
+					if (copilot.isShown())
+					{
+						copilot.adjust({ position: this.getBindElement(clonedRange) });
+					}
+				},
+			}).animate();
+			document.addEventListener('mouseup', selectText);
+			document.addEventListener('mousedown', selectText);
+			BX.Event.EventEmitter.subscribe('onPullEvent-unicomments', startAdjustAnimation);
+
+			const stopSelectText = () => {
+				selectTextOnBlur = false;
+				window.getSelection().removeAllRanges();
+				document.removeEventListener('mouseup', selectText);
+				document.removeEventListener('mousedown', selectText);
+				BX.Event.EventEmitter.unsubscribe('onPullEvent-unicomments', startAdjustAnimation);
+				BX.Event.EventEmitter.unsubscribe('AI.Copilot:hide', stopSelectText);
+				BX.Event.EventEmitter.unsubscribe('AI.Copilot.Menu:open', selectText);
+			};
+			BX.Event.EventEmitter.subscribe('AI.Copilot:hide', stopSelectText);
+			BX.Event.EventEmitter.subscribe('AI.Copilot.Menu:open', selectText);
+
+			copilot.setContext(selectedText);
+			copilot.show({ bindElement: this.getBindElement(clonedRange) });
+		},
+		getBindElement: function(range) {
+			const pivotRect = range.getBoundingClientRect();
+
+			return {
+				top: pivotRect.bottom + window.scrollY + 10,
+				left: pivotRect.x + window.scrollX,
+			};
+		},
+		getCopilot: async function(copilotParams) {
+			const key = JSON.stringify(copilotParams);
+
+			MPLQuote.copilots ??= {};
+			if (MPLQuote.copilots[key])
+			{
+				return MPLQuote.copilots[key];
+			}
+
+			const { Copilot } = await BX.Runtime.loadExtension('ai.copilot');
+
+			MPLQuote.copilots[key] = new Copilot({
+				readonly: true,
+				autoHide: true,
+				...copilotParams,
+			});
+
+			return new Promise((resolve) => {
+				MPLQuote.copilots[key].subscribe('finish-init', () => resolve(MPLQuote.copilots[key]));
+				MPLQuote.copilots[key].init();
+			});
+		},
+		emptyClick: function(e) {
+			e.preventDefault();
+			this.cancelBubble(e);
+			this.wrap.style.display = 'none';
+		},
 		fire: function(e) {
 
 			e.preventDefault();
@@ -2632,7 +2772,7 @@
 
 			this.cancelBubble(e);
 
-			this.node.style.display = "none";
+			this.wrap.style.display = "none";
 
 			BX.onCustomEvent(this, "onQuote", [e, this]);
 
@@ -2655,7 +2795,7 @@
 
 			BX.onCustomEvent(this, "onHide", [this]);
 
-			BX.remove(this.node);
+			BX.remove(this.wrap);
 		},
 		getPosition: function(node, e) {
 			var nodePos;
@@ -2676,7 +2816,7 @@
 			};
 		},
 		isShown: function() {
-			return (this.node.style.display === "block");
+			return (this.wrap.style.display === "block");
 		},
 		cancelBubble: function(event) {
 			if (!event)
@@ -2737,9 +2877,10 @@
 	 * @param node
 	 * @param xmlId
 	 * @param author_id
+	 * @param options {{copilotParams}}
 	 * @returns {boolean}
 	 */
-	window.mplCheckForQuote = function(e, node, xmlId, author_id) {
+	window.mplCheckForQuote = function(e, node, xmlId, author_id, options = null) {
 		e = (document.all ? window.event : e);
 		var text = "", range, author = null;
 
@@ -2831,7 +2972,7 @@
 		}
 		if (closestEntity !== null)
 		{
-			BX.onCustomEvent(closestEntity.eventNode, "onQuote", [e, {text : text, author : author}]);
+			BX.onCustomEvent(closestEntity.eventNode, "onQuote", [e, {text : text, author : author, options}]);
 		}
 	};
 	window.mplReplaceUserPath = function(text) {

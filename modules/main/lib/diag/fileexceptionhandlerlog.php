@@ -23,7 +23,7 @@ class FileExceptionHandlerLog extends ExceptionHandlerLog
 			$logFile = $options["file"];
 		}
 
-		if ((substr($logFile, 0, 1) !== "/") && !preg_match("#^[a-z]:/#", $logFile))
+		if ((!str_starts_with($logFile, "/")) && !preg_match("#^[a-z]:/#", $logFile))
 		{
 			$logFile = Main\Application::getDocumentRoot()."/".$logFile;
 		}

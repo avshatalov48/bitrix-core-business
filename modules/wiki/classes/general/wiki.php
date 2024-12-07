@@ -523,21 +523,21 @@ class CWiki
 			//link and link_name are equal
 			array(
 			"search" => "[[".$oldName."|".$oldName."]]",
-			"pattern" => "/\[\[(".preg_quote($oldName).")\|(".preg_quote($oldName).")\]\]/isU".BX_UTF_PCRE_MODIFIER,
+			"pattern" => "/\[\[(".preg_quote($oldName).")\|(".preg_quote($oldName).")\]\]/isUu",
 			"replacement" => "[[".$newName."|".$newName."]]"
 			),
 
 			//link and link_name are different
 			array(
 			"search" => "[[".$oldName."|",
-			"pattern" => "/\[\[(".preg_quote($oldName).")\|(.*)\]\]/isU".BX_UTF_PCRE_MODIFIER,
+			"pattern" => "/\[\[(".preg_quote($oldName).")\|(.*)\]\]/isUu",
 			"replacement" => "[[".$newName."|$2]]"
 			),
 
 			//exist only link
 			array(
 			"search" => "[[".$oldName."]]",
-			"pattern" => "/\[\[".preg_quote($oldName)."\]\]/isU".BX_UTF_PCRE_MODIFIER,
+			"pattern" => "/\[\[".preg_quote($oldName)."\]\]/isUu",
 			"replacement" => "[[".$newName."]]"
 			)
 		);
@@ -602,7 +602,6 @@ class CWiki
 
 		AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeWiki", "GetUserTypeDescription"));
 		$GLOBALS['USER_FIELD_MANAGER']->CleanCache();
-		$GLOBALS['USER_FIELD_MANAGER']->arUserTypes = '';
 
 		$arElement = $GLOBALS['USER_FIELD_MANAGER']->GetUserFields($ENTITY_ID, $ELEMENT_ID);
 
@@ -650,7 +649,6 @@ class CWiki
 
 		AddEventHandler("main", "OnUserTypeBuildList", array("CUserTypeWiki", "GetUserTypeDescription"));
 		$GLOBALS['USER_FIELD_MANAGER']->CleanCache();
-		$GLOBALS['USER_FIELD_MANAGER']->arUserTypes = '';
 
 		$arElement = $GLOBALS['USER_FIELD_MANAGER']->GetUserFields(
 			$ENTITY_ID,
@@ -724,7 +722,7 @@ class CWiki
 		while($obElement = $rsElement->GetNextElement())
 		{
 			$arFields = $obElement->GetFields();
-			$arLinkExists[] = preg_replace('/^(category|'.GetMessage('CATEGORY_NAME').'):/i'.BX_UTF_PCRE_MODIFIER, '', $arFields['NAME']);
+			$arLinkExists[] = preg_replace('/^(category|'.GetMessage('CATEGORY_NAME').'):/iu', '', $arFields['NAME']);
 		}
 
 		if (!empty($arCat))

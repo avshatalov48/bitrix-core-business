@@ -10,6 +10,7 @@ export class Office365Provider extends ConnectionProvider
 			status: options.syncInfo.status || false,
 			connected: options.syncInfo.connected || false,
 			userName: options.syncInfo.userName || options.syncInfo.connectionName || '',
+			connectionOriginalName: options.syncInfo.connectionName || '',
 			gridTitle: Loc.getMessage('CALENDAR_TITLE_OFFICE365'),
 			gridColor: '#fc1d1d',
 			gridIcon: '/bitrix/images/calendar/sync/office365.svg',
@@ -26,6 +27,11 @@ export class Office365Provider extends ConnectionProvider
 		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setSections(options.sections);
 		this.setConnections();
+	}
+
+	doSupportReconnectionScenario(): boolean
+	{
+		return true;
 	}
 
 	getSyncLink()

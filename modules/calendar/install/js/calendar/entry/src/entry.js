@@ -419,10 +419,12 @@ export class Entry
 			if (recursionMode === 'all')
 			{
 				calendarContext.getView().entries.forEach((entry) => {
+					const entryRecurrenceId = parseInt(entry.data.RECURRENCE_ID);
+
 					if (parseInt(entry.id) === this.id
-						|| parseInt(entry.data.RECURRENCE_ID) === this.id
-						|| parseInt(entry.data.RECURRENCE_ID) === parseInt(this.data.RECURRENCE_ID)
-						|| parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID)
+						|| (entryRecurrenceId > 0 && entryRecurrenceId === this.id)
+						|| (entryRecurrenceId > 0 && entryRecurrenceId === parseInt(this.data.RECURRENCE_ID))
+						|| (entryRecurrenceId > 0 && parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID))
 					)
 					{
 						const entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
@@ -805,5 +807,10 @@ export class Entry
 				this.data.DATE_TO = Util.formatDateTime(this.to.getTime());
 			}
 		}
+	}
+
+	isOpenEvent(): boolean
+	{
+		return this.getType() === 'open_event';
 	}
 }

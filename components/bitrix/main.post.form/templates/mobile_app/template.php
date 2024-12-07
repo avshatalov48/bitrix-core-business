@@ -1,4 +1,8 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+use Bitrix\Main\Web\Json;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 Bitrix\Main\UI\Extension::load('mobile.utils');
 
@@ -47,17 +51,20 @@ foreach ($arParams["UPLOADS"] as $v)
 	});
 	BX.ready(function() {
 		var f = function() {
-			BX.MPF.createInstance(<?=CUtil::PhpToJSObject(array(
-				"formId" => $arParams["FORM_ID"],
-				"text" => array_change_key_case($arParams["TEXT"], CASE_LOWER),
-				"CID" => $arParams["UPLOADS_CID"],
-				"forumContext" => (!empty($arParams["FORUM_CONTEXT"]) ? $arParams["FORUM_CONTEXT"] : '')
-			))?>);
+			BX.MPF.createInstance(<?= Json::encode(array(
+				'formId' => $arParams["FORM_ID"],
+				'text' => array_change_key_case($arParams["TEXT"], CASE_LOWER),
+				'CID' => $arParams["UPLOADS_CID"],
+				'forumContext' => (!empty($arParams["FORUM_CONTEXT"]) ? $arParams["FORUM_CONTEXT"] : ''),
+				'analyticsData' => $arParams["ATTRIBUTES"]["ANALYTICS_DATA"] ?? null,
+			)) ?>);
 			BX.removeCustomEvent(window, "main.post.form/mobile", f);
 		};
 		BX.addCustomEvent(window, "main.post.form/mobile", f);
 		if (BX["MPF"])
+		{
 			f();
+		}
 		else
 			BX.loadScript('<?=\CUtil::GetAdditionalFileURL($templateFolder.'/script.js', true)?>');
 	});

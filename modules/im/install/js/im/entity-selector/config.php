@@ -43,7 +43,7 @@ return [
 					'dynamicSearch' => true,
 					'itemOptions' => [
 						'CHANNEL' => [
-							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_CHANNEL_SUPERTITLE'),
+							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_CHANNEL_SUPERTITLE_MSGVER_1'),
 						],
 						'ANNOUNCEMENT' => [
 							'supertitle' => Loc::getMessage('IM_ENTITY_SELECTOR_ANNOUNCEMENT_SUPERTITLE'),

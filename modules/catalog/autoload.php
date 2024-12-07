@@ -4,7 +4,7 @@ use Bitrix\Main\Loader;
 
 Loader::registerAutoLoadClasses(
 	'catalog',
-	array(
+	[
 		'catalog' => 'install/index.php',
 		'CCatalog' => 'mysql/catalog.php',
 		'CCatalogGroup' => 'mysql/cataloggroup.php',
@@ -139,6 +139,6 @@ Loader::registerAutoLoadClasses(
 		'\Bitrix\Catalog\ExportOffer' => 'lib/ebay/old.php',
 		'\Bitrix\Catalog\ExportOfferCreator' => 'lib/ebay/old.php',
 		'\Bitrix\Catalog\ExportOfferSKU' => 'lib/ebay/old.php',
-		'\Bitrix\Catalog\SearchHandlers' => 'lib/product/old.php'
-	)
+		'\Bitrix\Catalog\SearchHandlers' => 'lib/product/old.php',
+	]
 );

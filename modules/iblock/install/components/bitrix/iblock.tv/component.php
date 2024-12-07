@@ -1,4 +1,10 @@
-<?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
 /** @var CBitrixComponent $this */
 /** @var array $arParams */
 /** @var array $arResult */
@@ -118,15 +124,16 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 		return false;
 	}
 
-	$arResult = array(
-		"RAW_SECTIONS" => array(),
-		"RAW_ELEMENTS" => array(),
-		"RAW_FILES" => array(),
+	$arResult = [
+		"RAW_SECTIONS" => [],
+		'RAW_SECTIONS_ID' => [],
+		"RAW_ELEMENTS" => [],
+		"RAW_FILES" => [],
 		"PREFIX" => $BX_TV_PREFIX,
 		"ELEMENT_CNT" => 0,
 		"IBLOCK_TYPE_ID" => false,
 		"IBLOCK_ID" => false,
-	);
+	];
 
 	$rsElements = CIBlockElement::GetList(
 		$arSort,
@@ -137,21 +144,23 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 	);
 
 	//Get Elements
-	while($arElements = $rsElements->Fetch())
+	while ($arElements = $rsElements->Fetch())
 	{
 		$arResult["IBLOCK_TYPE_ID"] = $arElements["IBLOCK_TYPE_ID"];
 		$arResult["IBLOCK_ID"] = $arElements["IBLOCK_ID"];
 
-		if(intval($arElements["IBLOCK_SECTION_ID"])>0)
+		$sectionId = (int)$arElements['IBLOCK_SECTION_ID'];
+		if ($sectionId > 0)
 		{
 			$arResult["RAW_ELEMENTS"][$arElements["ID"]] = $arElements;
-			$arResult["RAW_SECTIONS_ID"][] = intval($arElements["IBLOCK_SECTION_ID"]);
+			$arResult["RAW_SECTIONS_ID"][] = $sectionId;
 			$arResult["ELEMENT_CNT"]++;
 		}
 	}
+	unset($arElements, $rsElements);
 
 	//Get Sections
-	if($arParams["SECTION_ID"]<=0 && count($arResult["RAW_SECTIONS_ID"])>0)
+	if ($arParams["SECTION_ID"]<=0 && !empty($arResult["RAW_SECTIONS_ID"]))
 	{
 		$arResult["RAW_SECTIONS_ID"] = array_unique($arResult["RAW_SECTIONS_ID"]);
 		$rsSections = CIBlockSection::GetList(
@@ -295,9 +304,9 @@ if($this->StartResultCache(false, array(($arParams["CACHE_GROUPS"]==="N"? false:
 }
 
 //include js
-$APPLICATION->AddHeadString('<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/wmvplayer/silverlight.js').'"></script>', true);
-$APPLICATION->AddHeadString('<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js').'"></script>', true);
-$APPLICATION->AddHeadString('<script type="text/javascript" src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js').'"></script>', true);
+$APPLICATION->AddHeadString('<script src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/wmvplayer/silverlight.js').'"></script>', true);
+$APPLICATION->AddHeadString('<script src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js').'"></script>', true);
+$APPLICATION->AddHeadString('<script src="/bitrix/components/bitrix/player/mediaplayer/flvscript.js?v='.filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/components/bitrix/player/mediaplayer/flvscript.js').'"></script>', true);
 CUtil::InitJSCore();
 
 if(
@@ -351,4 +360,3 @@ if($arParams["STAT_EVENT"] || $arParams["SHOW_COUNTER_EVENT"])
 		$_SESSION["player_files"][$arFile["ID"]]["SHOW_COUNTER_EVENT"] = $arParams["SHOW_COUNTER_EVENT"];
 	}
 }
-?>

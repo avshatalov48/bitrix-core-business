@@ -69,6 +69,16 @@ export class StatusHandler
 				return;
 			}
 
+			if (CallManager.getInstance().hasCurrentCall())
+			{
+				clearTimeout(this.#wakeUpTimer);
+				this.#wakeUpTimer = setTimeout(this.#onWakeUp.bind(this), 60 * 1000);
+
+				Logger.desktop('StatusHandler: onWakeUp event, call is active, delay 60 sec');
+
+				return;
+			}
+
 			Logger.desktop('StatusHandler: onWakeUp event, reload window');
 			DesktopApi.reloadWindow();
 		}

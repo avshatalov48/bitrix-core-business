@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -21,8 +21,8 @@ if(!$USER->CanDoOperation('view_other_settings') && !$USER->CanDoOperation('edit
 
 if (
 	!isset($_REQUEST["back_url_settings"])
-	|| mb_strpos($_REQUEST["back_url_settings"], '/') !== 0
-	|| mb_strpos($_REQUEST["back_url_settings"], '//') === 0
+	|| !str_starts_with($_REQUEST["back_url_settings"], '/')
+	|| str_starts_with($_REQUEST["back_url_settings"], '//')
 )
 {
 	$_REQUEST["back_url_settings"] = '';
@@ -107,7 +107,7 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 		return false;
 
 	$name = $arOption[0];
-	$isChoiceSites = array_key_exists(6, $arOption) && $arOption[6] == "Y";
+	$isChoiceSites = isset($arOption[6]) && $arOption[6] == "Y";
 
 	if ($isChoiceSites)
 	{
@@ -171,6 +171,17 @@ function __AdmSettingsSaveOption($module_id, $arOption)
 		{
 			$val = implode(",", $val);
 		}
+		elseif ($arOption[3][0] == "password")
+		{
+			if (isset($_REQUEST[$name . '_delete']) && $_REQUEST[$name . '_delete'] == "Y")
+			{
+				$val = '';
+			}
+			elseif ($val == '')
+			{
+				return false;
+			}
+		}
 		elseif ($val === null)
 		{
 			$val = '';
@@ -211,7 +222,7 @@ function __AdmSettingsDrawRow($module_id, $Option)
 		</tr>
 	<?
 	else:
-		$isChoiceSites = array_key_exists(6, $Option) && $Option[6] == "Y" ? true : false;
+		$isChoiceSites = isset($Option[6]) && $Option[6] == "Y";
 		$listSite = array();
 		$listSiteValue = array();
 		if ($Option[0] != "")
@@ -301,16 +312,16 @@ function __AdmSettingsDrawList($module_id, $arParams)
 function renderLable($Option, array $listSite, $siteValue = "")
 {
 	$type = $Option[3];
-	$sup_text = array_key_exists(5, $Option) ? $Option[5] : '';
-	$isChoiceSites = array_key_exists(6, $Option) && $Option[6] == "Y" ? true : false;
+	$sup_text = $Option[5] ?? '';
+	$isChoiceSites = isset($Option[6]) && $Option[6] == "Y";
 	?>
 	<?if ($isChoiceSites): ?>
-	<script type="text/javascript">
+	<script>
 		function changeSite(el, fieldName)
 		{
-			var tr = jsUtils.FindParentObject(el, "tr");
-			var sel = null, tagNames = ["select", "input", "textarea"];
-			for (var i = 0; i < tagNames.length; i++)
+			const tr = jsUtils.FindParentObject(el, "tr");
+			let sel = null, tagNames = ["select", "input", "textarea"];
+			for (let i = 0; i < tagNames.length; i++)
 			{
 				sel = jsUtils.FindChildObject(tr.cells[1], tagNames[i]);
 				if (sel)
@@ -323,11 +334,11 @@ function renderLable($Option, array $listSite, $siteValue = "")
 		}
 		function addSiteSelector(a)
 		{
-			var row = jsUtils.FindParentObject(a, "tr");
-			var tbl = row.parentNode;
-			var tableRow = tbl.rows[row.rowIndex-1].cloneNode(true);
+			const row = jsUtils.FindParentObject(a, "tr");
+			const tbl = row.parentNode;
+			const tableRow = tbl.rows[row.rowIndex - 1].cloneNode(true);
 			tbl.insertBefore(tableRow, row);
-			var sel = jsUtils.FindChildObject(tableRow.cells[0], "select");
+			let sel = jsUtils.FindChildObject(tableRow.cells[0], "select");
 			sel.name = "";
 			sel.selectedIndex = 0;
 			sel = jsUtils.FindChildObject(tableRow.cells[1], "select");
@@ -362,12 +373,25 @@ function renderLable($Option, array $listSite, $siteValue = "")
 function renderInput($Option, $arControllerOption, $fieldName, $val)
 {
 	$type = $Option[3];
-	$disabled = array_key_exists(4, $Option) && $Option[4] == 'Y' ? ' disabled' : '';
+	$disabled = isset($Option[4]) && $Option[4] == 'Y' ? ' disabled' : '';
 	?><td width="50%"><?
 	if($type[0]=="checkbox"):
 		?><input type="checkbox" <?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> id="<?echo htmlspecialcharsbx($Option[0])?>" name="<?=htmlspecialcharsbx($fieldName)?>" value="Y"<?if($val=="Y")echo" checked";?><?=$disabled?><?if(isset($type[2]) && $type[2]<>'') echo " ".$type[2]?>><?
-	elseif($type[0]=="text" || $type[0]=="password"):
-		?><input type="<?echo $type[0]?>"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?=htmlspecialcharsbx($fieldName)?>"<?=$disabled?><?=($type[0]=="password" || isset($type["noautocomplete"]) && $type["noautocomplete"]? ' autocomplete="new-password"':'')?>><?
+	elseif($type[0]=="text"):
+		?><input type="text"<?if(isset($arControllerOption[$Option[0]]))echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?> size="<?echo $type[1]?>" maxlength="255" value="<?echo htmlspecialcharsbx($val)?>" name="<?=htmlspecialcharsbx($fieldName)?>"<?=$disabled?><?=(isset($type["noautocomplete"]) && $type["noautocomplete"]? ' autocomplete="off"':'')?>><?
+	elseif($type[0]=="password"):
+		?><input type="password"
+			<?if(isset($arControllerOption[$Option[0]])) echo ' disabled title="'.GetMessage("MAIN_ADMIN_SET_CONTROLLER_ALT").'"';?>
+			size="<?echo $type[1]?>"
+			maxlength="255"
+			value=""
+			name="<?=htmlspecialcharsbx($fieldName)?>"
+			<?=$disabled?>
+			<?php if ($val != ''):?>placeholder="<?= GetMessage('MAIN_ADMIN_SET_PASS_SET') ?>"<?php endif; ?>
+			autocomplete="new-password"
+		>
+		<?php if ($val != ''):?><label><input type="checkbox" name="<?echo htmlspecialcharsbx($fieldName) . '_delete'?>" value="Y" title="<?= GetMessage('MAIN_ADMIN_SET_PASS_DEL_TITLE') ?>"> <?= GetMessage('MAIN_ADMIN_SET_PASS_DEL') ?></label><?php endif?>
+	<?
 	elseif($type[0]=="selectbox"):
 		$arr = $type[1];
 		if(!is_array($arr))

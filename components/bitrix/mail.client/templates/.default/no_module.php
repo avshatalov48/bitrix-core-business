@@ -16,7 +16,7 @@ $siteId = SITE_ID;
 	<?=Loc::getMessage('MAIL_MODULE_NOT_INSTALLED')?>
 </div>
 
-<script type="text/javascript">
+<script>
 	(function ()
 	{
 		//delete the loader (the envelope is bouncing)

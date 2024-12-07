@@ -19,7 +19,7 @@ InitBVar($ACTIVE);
 InitBVar($SAVE_STATISTIC);
 InitBVar($USER_AGENT_IS_NULL);
 // "save" on the current page was pressed
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"DATE_START" => $_POST["DATE_START"],

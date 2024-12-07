@@ -2,7 +2,7 @@ import { Messenger } from 'im.public';
 import { Dom, Text } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { getConst, getUtils } from '../utils/core-proxy';
+import { getConst, getUtils, getCore } from '../utils/core-proxy';
 
 const { EventType } = getConst();
 
@@ -148,6 +148,8 @@ export const ParserAction = {
 		}
 
 		const element: HTMLSpanElement = event.target;
+		const messageId = getMessageIdForClickElement(element);
+		const dialogId = getDialogIdByMessageId(messageId) ?? '';
 		if (element.dataset.entity === ActionType.put)
 		{
 			const { innerText: textToInsert = '' } = element.parentElement.querySelector('.bx-im-message-command-data');
@@ -156,7 +158,10 @@ export const ParserAction = {
 				return;
 			}
 
-			EventEmitter.emit(EventType.textarea.insertText, { text: textToInsert });
+			EventEmitter.emit(EventType.textarea.insertText, {
+				text: textToInsert,
+				dialogId,
+			});
 		}
 		else if (element.dataset.entity === ActionType.send)
 		{
@@ -166,7 +171,35 @@ export const ParserAction = {
 				return;
 			}
 
-			EventEmitter.emit(EventType.textarea.sendMessage, { text: textToSend });
+			EventEmitter.emit(EventType.textarea.sendMessage, {
+				text: textToSend,
+				dialogId,
+			});
 		}
 	},
+};
+
+const getMessageIdForClickElement = (element: HTMLSpanElement): number | null => {
+	const messageElement = element.closest('.bx-im-message-base__wrap');
+	if (!messageElement || !messageElement.dataset.id)
+	{
+		return null;
+	}
+
+	return messageElement.dataset.id;
+};
+
+const getDialogIdByMessageId = (messageId: number): string | null => {
+	const message = getCore().getStore().getters['messages/getById'](messageId);
+	if (!message)
+	{
+		return null;
+	}
+	const dialog = getCore().getStore().getters['chats/getByChatId'](message.chatId);
+	if (!dialog)
+	{
+		return null;
+	}
+
+	return dialog.dialogId;
 };

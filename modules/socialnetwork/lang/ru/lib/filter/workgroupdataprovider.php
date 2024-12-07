@@ -14,6 +14,7 @@ $MESS["SOCIALNETWORK_WORKGROUP_FILTER_PROJECT_DATE_FINISH"] = "Окончани�
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_PROJECT_DATE"] = "Сроки проекта";
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_SCRUM"] = "Скрам";
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_LANDING"] = "Для внешних публикаций";
+$MESS["SOCIALNETWORK_WORKGROUP_FILTER_LANDING_MSGVER_1"] = "Для внешних публикаций";
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_FAVORITES"] = "Избранные";
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS"] = "С задачами, требующими внимания";
 $MESS["SOCIALNETWORK_WORKGROUP_FILTER_COMMON_COUNTERS"] = "Требуют внимания";

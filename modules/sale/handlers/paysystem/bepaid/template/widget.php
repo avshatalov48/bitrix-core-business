@@ -22,8 +22,8 @@ $sum = round($params['sum'], 2);
 	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_BEPAID_WIDGET_WARNING_RETURN') ?></div>
 </div>
 
-<script type="text/javascript" src="https://js.bepaid.by/widget/be_gateway.js"></script>
-<script type="text/javascript">
+<script src="https://js.bepaid.by/widget/be_gateway.js"></script>
+<script>
 	<?php include_once 'widget.js' ?>
 	BX.ready(function() {
 		var params = {

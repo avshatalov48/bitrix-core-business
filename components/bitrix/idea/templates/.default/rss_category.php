@@ -1,7 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
 $arCategoryList = CIdeaManagment::getInstance()->Idea()->GetCategoryList();
-$arCategoryFilter = CIdeaManagment::getInstance()->Idea()->GetSubCategoryList(ToUpper($arResult["VARIABLES"]["category"]));
+$arCategoryFilter = CIdeaManagment::getInstance()->Idea()->GetSubCategoryList(mb_strtoupper($arResult["VARIABLES"]["category"]));
 $arCategoryFilter = $arCategoryFilter["CODE"];
 ?>
 <?$APPLICATION->IncludeComponent(
@@ -20,7 +20,7 @@ $arCategoryFilter = $arCategoryFilter["CODE"];
 		"USER"			=> $arResult["PATH_TO_USER"],
 		"INDEX"			=> $arResult["PATH_TO_INDEX"],
 		"RSS_CNT" => 10,
-		"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#IDEA_CATEGORY#" => $arCategoryList[ToUpper($arResult["VARIABLES"]["category"])]["NAME"])),
+		"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#IDEA_CATEGORY#" => $arCategoryList[mb_strtoupper($arResult["VARIABLES"]["category"])]["NAME"])),
 		"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
 	),
 	$component

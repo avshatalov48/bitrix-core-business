@@ -231,7 +231,7 @@ export class Guide extends Event.EventEmitter
 		{
 			setTimeout(() => {
 				this.layout.backBtn.style.display = "block";
-			}, 10);
+			}, 200);
 		}
 
 		if (this.overlay)
@@ -291,8 +291,8 @@ export class Guide extends Event.EventEmitter
 	{
 		let currentStep = this.getCurrentStep();
 		currentStep.emit(currentStep.constructor.getFullEventName("onShow"), {
-			step : currentStep,
-			guide: this
+			step: currentStep,
+			guide: this,
 		});
 
 		if (currentStep.getTarget())
@@ -312,9 +312,8 @@ export class Guide extends Event.EventEmitter
 				Event.unbind(currentStep.getTarget(), 'click', close);
 			});
 
-			const targetPos = currentStep.getTarget().getBoundingClientRect();
 			const targetPosWindow = Dom.getPosition(currentStep.getTarget());
-			if (!this.isTargetVisible(targetPos))
+			if (!this.isTargetVisible(targetPosWindow))
 			{
 				this.scrollToTarget(targetPosWindow);
 			}
@@ -667,9 +666,9 @@ export class Guide extends Event.EventEmitter
 							EventEmitter.emit('UI.Tour.Guide:onPopupClose', this);
 
 						this.close();
-					}
+					},
 				},
-				buttons: buttons
+				buttons,
 			});
 
 			const conditionNodeTop = Tag.render`
@@ -712,25 +711,47 @@ export class Guide extends Event.EventEmitter
 	{
 		if (!this.layout.content)
 		{
+			let iconNode = '';
+			if (this.getCurrentStep().getIconSrc())
+			{
+				iconNode = Tag.render`
+					<div
+						class="ui-tour-popup-icon"
+						style="background-image: url(${encodeURI(this.getCurrentStep().getIconSrc())});"
+					></div>
+				`;
+			}
+
 			let linkNode = '';
-			if(this.getCurrentStep().getLink() || this.getCurrentStep().getArticle())
+			if (
+				this.getCurrentStep().getLink()
+				|| this.getCurrentStep().getArticle()
+				|| this.getCurrentStep().getInfoHelperCode()
+			)
 			{
 				linkNode = this.getLink();
 			}
+
 			this.layout.content = Tag.render`
-				<div class="ui-tour-popup ${this.simpleMode ? 'ui-tour-popup-simple' : ''} ${this.onEvents ? 'ui-tour-popup-events' : ''}" >
-					${this.getTitle()}
-					<div class="ui-tour-popup-content">
-						${this.getText()}
-						${linkNode}
-					</div>
-					${linkNode}
-					<div class="ui-tour-popup-footer">
-						<div class="ui-tour-popup-index">
-							${this.onEvents ? '' : this.getCounterItems()}
-							${this.onEvents ? '' : this.getCurrentCounter()}
+				<div
+					class="ui-tour-popup ${this.simpleMode ? 'ui-tour-popup-simple' : ''} ${this.onEvents ? 'ui-tour-popup-events' : ''}"
+					style="${iconNode ? 'padding-left: 13px;' : ''};"
+				>
+					${iconNode}
+					<div>
+						${this.getTitle()}
+						<div class="ui-tour-popup-content">
+							${this.getText()}
+							${linkNode}
 						</div>
-							${this.onEvents ? '' : this.getBtnContainer()}
+						${linkNode}
+						<div class="ui-tour-popup-footer">
+							<div class="ui-tour-popup-index">
+								${this.onEvents ? '' : this.getCounterItems()}
+								${this.onEvents ? '' : this.getCurrentCounter()}
+							</div>
+								${this.onEvents ? '' : this.getBtnContainer()}
+						</div>
 					</div>
 				</div>
 			`;
@@ -749,20 +770,27 @@ export class Guide extends Event.EventEmitter
 		this.getTitle().innerHTML = this.getCurrentStep().getTitle();
 		this.getText().innerHTML = this.getCurrentStep().getText();
 
-		if (this.getCurrentStep().getArticle() || this.getCurrentStep().getLink())
+		if (
+			this.getCurrentStep().getArticle()
+			|| this.getCurrentStep().getLink()
+			|| this.getCurrentStep().getInfoHelperCode()
+		)
 		{
-			Dom.removeClass(this.layout.link,  "ui-tour-popup-link-hide");
+			Dom.removeClass(this.layout.link, 'ui-tour-popup-link-hide');
 
 			if (this.getCurrentStep().getArticle())
 			{
-				Event.bind(this.layout.link, "click", this.handleClickLink.bind(this));
+				Event.bind(this.layout.link, 'click', this.handleClickLink.bind(this));
+			}
+			else if (this.getCurrentStep().getInfoHelperCode())
+			{
+				Event.bind(this.layout.link, 'click', this.handleInfoHelperCodeClickLink.bind(this));
 			}
 
 			if (this.getCurrentStep().getLink())
 			{
 				this.getLink().setAttribute('href', this.getCurrentStep().getLink());
 			}
-
 		}
 		else {
 			Dom.addClass(this.layout.link,  "ui-tour-popup-link-hide");
@@ -815,6 +843,29 @@ export class Guide extends Event.EventEmitter
 			EventEmitter.subscribe(this.helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
 				this.getPopup().setAutoHide(true);
 			});
+		}
+	}
+
+	handleInfoHelperCodeClickLink(): void
+	{
+		event.preventDefault();
+
+		if (Reflection.getClass('BX.UI.InfoHelper.show'))
+		{
+			const helper = top.BX.UI.InfoHelper;
+			helper.show(this.getCurrentStep().getInfoHelperCode());
+
+			if (this.onEvent)
+			{
+				if (helper.isOpen())
+				{
+					this.getPopup().setAutoHide(false);
+				}
+
+				EventEmitter.subscribe(helper.getSlider(), 'SidePanel.Slider:onCloseComplete', () => {
+					this.getPopup().setAutoHide(true);
+				});
+			}
 		}
 	}
 
@@ -986,7 +1037,7 @@ export class Guide extends Event.EventEmitter
 		{
 			if (this.finalStep)
 			{
-				this.setFinalStep()
+				this.setFinalStep();
 			}
 			else
 			{
@@ -1064,7 +1115,7 @@ export class Guide extends Event.EventEmitter
 		if (!this.layout.finalContent)
 		{
 			this.layout.finalContent = Tag.render`
-				<div class="ui-tour-popup">
+				<div class="ui-tour-popup --final">
 					<div class="ui-tour-popup-title">
 						${this.finalTitle}
 					</div>
@@ -1092,7 +1143,7 @@ export class Guide extends Event.EventEmitter
 			for (let i = 0; i < this.buttons.length; i++)
 			{
 				let btn = Tag.render`
-					<button class="${this.buttons[i].class}" onclick="${this.buttons[i].events.click}">
+					<button class="${this.buttons[i].class}" onclick="${this.buttons[i].events?.click}">
 					${this.buttons[i].text}
 					</button>
 				`;

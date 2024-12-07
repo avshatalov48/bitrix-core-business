@@ -108,7 +108,7 @@ if($strError != '')
 		<a href="javascript:void(0)" onclick="makeNewAuth()"><?=Loc::getMessage('SEO_AUTH_CANCEL')?></a>
 	</div>
 
-	<script type="text/javascript">
+	<script>
 		window.lastSeoResult = null;
 
 		function updateCallback(res)
@@ -232,7 +232,7 @@ if($strError != '')
 		}
 	</script>
 
-	<script type="text/javascript">
+	<script>
 		function makeNewAuth()
 		{
 			BX.showWait(BX('auth_result'));
@@ -245,7 +245,7 @@ if($strError != '')
 		}
 	</script>
 
-	<script type="text/javascript">
+	<script>
 		updateInfo();
 	</script>
 <?php endif; ?>

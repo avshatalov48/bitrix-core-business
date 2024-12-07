@@ -13,7 +13,6 @@ import IblockFieldConfigurationManager from './field-configurator/iblock-field-c
 import GridFieldConfigurationManager from './field-configurator/grid-field-configuration-manager';
 import {Popup} from "main.popup";
 import {BaseCard} from "./base-card/base-card";
-import { StoreSlider } from 'catalog.store-use';
 import { ToolAvailabilityManager } from 'catalog.tool-availability-manager';
 
 class EntityCard extends BaseCard
@@ -596,19 +595,7 @@ class EntityCard extends BaseCard
 
 		BX.UI.Hint.init(setting);
 
-		if(item.id === 'SLIDER')
-		{
-			Event.bind(setting, 'change', (event) =>
-			{
-				new StoreSlider().open(item.url, {})
-					.then(() => {
-						this.reloadGrid();
-						this.getCardSettingsPopup().close();
-					})
-					.catch(() => {});
-			})
-		}
-		else if(item.id === 'SEO')
+		if(item.id === 'SEO')
 		{
 			Event.bind(setting, 'click', (event) =>
 			{

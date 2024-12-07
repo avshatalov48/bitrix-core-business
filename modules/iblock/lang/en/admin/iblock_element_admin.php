@@ -111,7 +111,6 @@ $MESS["IBEL_CATALOG_WIDTH"] = "Width";
 $MESS["IBEL_DEFAULT_VALUE"] = "default";
 $MESS["IBEL_ERR_BUILDER_ADSENT"] = "Link builder was not found.";
 $MESS["IBEL_LIST_TITLE"] = "#IBLOCK_NAME#: Products";
-$MESS["IBEL_LIST_TITLE_2"] = "Product catalog";
 $MESS["IBEL_NO_VALUE"] = "no";
 $MESS["IBEL_SECTIONS_LINK_TITLE"] = "View section elements";
 $MESS["IBEL_YES_VALUE"] = "yes";

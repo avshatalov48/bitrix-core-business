@@ -299,7 +299,7 @@ class CAllCatalog
 					LEFT JOIN b_catalog_iblock OFFERS ON CI.IBLOCK_ID = OFFERS.PRODUCT_IBLOCK_ID
 				WHERE
 					CI.IBLOCK_ID = ".$ID;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$res["OFFERS"] = $res["PRODUCT_IBLOCK_ID"] ? "Y": "N";
@@ -1216,7 +1216,7 @@ class CAllCatalog
 		$arInsert = $DB->PrepareInsert("b_catalog_iblock", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_iblock(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		CCatalogSku::ClearCache();
 		Catalog\CatalogIblockTable::cleanCache();
@@ -1236,7 +1236,7 @@ class CAllCatalog
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_iblock SET ".$strUpdate." WHERE IBLOCK_ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if (isset(self::$arCatalogCache[$ID]))
 			{

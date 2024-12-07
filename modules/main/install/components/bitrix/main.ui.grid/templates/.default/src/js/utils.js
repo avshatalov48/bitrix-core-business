@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -10,12 +10,12 @@
 		 * @param {string} ajaxId Bitrix ajax id
 		 * @returns {string} Prepares ajax url with ajax id
 		 */
-		ajaxUrl: function(url, ajaxId)
+		ajaxUrl(url, ajaxId)
 		{
-			return this.addUrlParams(url, {'bxajaxid': ajaxId});
+			return this.addUrlParams(url, { bxajaxid: ajaxId });
 		},
 
-		addUrlParams: function(url, params)
+		addUrlParams(url, params)
 		{
 			return BX.util.add_url_param(url, params);
 		},
@@ -27,11 +27,11 @@
 		 * @param {int} newIndex
 		 * @returns {*}
 		 */
-		arrayMove: function(array, currentIndex, newIndex)
+		arrayMove(array, currentIndex, newIndex)
 		{
 			if (newIndex >= array.length)
 			{
-				var k = newIndex - array.length;
+				let k = newIndex - array.length;
 				while ((k--) + 1)
 				{
 					array.push(undefined);
@@ -48,7 +48,7 @@
 		 * @param {*} item
 		 * @returns {number}
 		 */
-		getIndex: function(collection, item)
+		getIndex(collection, item)
 		{
 			return [].indexOf.call((collection || []), item);
 		},
@@ -58,9 +58,12 @@
 		 * @param {Element} currentItem
 		 * @returns {Element|null}
 		 */
-		getNext: function(currentItem)
+		getNext(currentItem)
 		{
-			if (currentItem) { return currentItem.nextElementSibling || null; }
+			if (currentItem)
+			
+			{ return currentItem.nextElementSibling || null;
+			}
 		},
 
 		/**
@@ -68,9 +71,12 @@
 		 * @param {Element} currentItem
 		 * @returns {Element|null}
 		 */
-		getPrev: function(currentItem)
+		getPrev(currentItem)
 		{
-			if (currentItem) { return currentItem.previousElementSibling || null; }
+			if (currentItem)
+			
+			{ return currentItem.previousElementSibling || null;
+			}
 		},
 
 		/**
@@ -79,7 +85,7 @@
 		 * @param {string} [className]
 		 * @returns {*|null|Node}
 		 */
-		closestParent: function(item, className)
+		closestParent(item, className)
 		{
 			if (item)
 			{
@@ -87,13 +93,11 @@
 				{
 					return item.parentNode || null;
 				}
-				else
-				{
-					return BX.findParent(
-						item,
-						{className: className}
-					);
-				}
+
+				return BX.findParent(
+					item,
+					{ className },
+				);
 			}
 		},
 
@@ -102,9 +106,12 @@
 		 * @param item
 		 * @returns {Array|null}
 		 */
-		closestChilds: function(item)
+		closestChilds(item)
 		{
-			if (item) { return item.children || null; }
+			if (item)
+			
+			{ return item.children || null;
+			}
 		},
 
 		/**
@@ -112,9 +119,10 @@
 		 * @param current
 		 * @param target
 		 */
-		collectionSort: function(current, target)
+		collectionSort(current, target)
 		{
-			var root, collection, collectionLength, currentIndex, targetIndex;
+			let root; let collection; let collectionLength; let currentIndex; let
+				targetIndex;
 
 			if (current && target && current !== target && current.parentNode === target.parentNode)
 			{
@@ -124,11 +132,13 @@
 				currentIndex = this.getIndex(collection, current);
 				targetIndex = this.getIndex(collection, target);
 
-				if (collectionLength === targetIndex) {
+				if (collectionLength === targetIndex)
+				{
 					root.appendChild(target);
 				}
 
-				if (currentIndex > targetIndex) {
+				if (currentIndex > targetIndex)
+				{
 					root.insertBefore(current, target);
 				}
 
@@ -137,7 +147,6 @@
 					root.insertBefore(current, this.getNext(target));
 				}
 			}
-
 		},
 
 		/**
@@ -146,15 +155,15 @@
 		 * @param cell
 		 * @returns {Array}
 		 */
-		getColumn: function(table, cell)
+		getColumn(table, cell)
 		{
-			var currentIndex = this.getIndex(
+			const currentIndex = this.getIndex(
 				this.closestChilds(this.closestParent(cell)),
-				cell
+				cell,
 			);
-			var column = [];
+			const column = [];
 
-			[].forEach.call(table.rows, function(current) {
+			[].forEach.call(table.rows, (current) => {
 				column.push(current.cells[currentIndex]);
 			});
 
@@ -166,32 +175,31 @@
 		 * @param {HTMLElement[]|HTMLCollection} collection
 		 * @param {object} properties
 		 */
-		styleForEach: function(collection, properties)
+		styleForEach(collection, properties)
 		{
 			properties = BX.type.isPlainObject(properties) ? properties : null;
-			var keys = Object.keys(properties);
+			const keys = Object.keys(properties);
 
-			[].forEach.call((collection || []), function(current) {
-				keys.forEach(function(propKey) {
+			[].forEach.call((collection || []), (current) => {
+				keys.forEach((propKey) => {
 					BX.style(current, propKey, properties[propKey]);
 				});
 			});
 		},
 
-		requestAnimationFrame: function()
+		requestAnimationFrame()
 		{
-			var raf = (
-				window.requestAnimationFrame ||
-				window.webkitRequestAnimationFrame ||
-				window.mozRequestAnimationFrame ||
-				window.msRequestAnimationFrame ||
-				window.oRequestAnimationFrame ||
-				function(callback){ window.setTimeout(callback, 1000/60) }
+			const raf = (
+				window.requestAnimationFrame
+				|| window.webkitRequestAnimationFrame
+				|| window.mozRequestAnimationFrame
+				|| window.msRequestAnimationFrame
+				|| window.oRequestAnimationFrame
+				|| function(callback) { window.setTimeout(callback, 1000 / 60); }
 			);
 
 			raf.apply(window, arguments);
 		},
-
 
 		/**
 		 * Gets elements by class name
@@ -200,9 +208,9 @@
 		 * @param first
 		 * @returns {Array|null}
 		 */
-		getByClass: function(rootElement, className, first)
+		getByClass(rootElement, className, first)
 		{
-			var result = [];
+			let result = [];
 
 			if (className)
 			{
@@ -210,7 +218,7 @@
 
 				if (first)
 				{
-					result = result.length ? result[0] : null;
+					result = result.length > 0 ? result[0] : null;
 				}
 				else
 				{
@@ -221,9 +229,9 @@
 			return result;
 		},
 
-		getByTag: function(rootElement, tag, first)
+		getByTag(rootElement, tag, first)
 		{
-			var result = [];
+			let result = [];
 
 			if (tag)
 			{
@@ -231,7 +239,7 @@
 
 				if (first)
 				{
-					result = result.length ? result[0] : null;
+					result = result.length > 0 ? result[0] : null;
 				}
 				else
 				{
@@ -242,9 +250,9 @@
 			return result;
 		},
 
-		getBySelector: function(rootElement, selector, first)
+		getBySelector(rootElement, selector, first)
 		{
-			var result = [];
+			let result = [];
 
 			if (selector)
 			{
@@ -262,15 +270,18 @@
 			return result;
 		},
 
-		listenerParams: function(params)
+		listenerParams(params)
 		{
-			try {
+			try
+			{
 				window.addEventListener('test', null, params);
-			} catch (e) {
+			}
+			catch
+			{
 				params = false;
 			}
 
 			return params;
-		}
+		},
 	};
 })();

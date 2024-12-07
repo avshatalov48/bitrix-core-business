@@ -6,7 +6,6 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Socialnetwork\Helper\AvatarManager;
 use Bitrix\Socialnetwork\Helper\Workgroup\Access;
 use Bitrix\Socialnetwork\Internals\Space\Counter;
-use Bitrix\Socialnetwork\Space\List\AccessManager;
 use Bitrix\Socialnetwork\Space\List\Dictionary;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Collector;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Item\RecentActivityData;
@@ -58,6 +57,7 @@ final class Builder
 					->setTypeId($value['RECENT_ACTIVITY_TYPE_ID'] ?? null)
 					->setEntityId($value['RECENT_ACTIVITY_ENTITY_ID'] ?? null)
 					->setDateTime($value['RECENT_ACTIVITY_DATE'] ?? null)
+					->setSecondaryEntityId($value['RECENT_ACTIVITY_SECONDARY_ENTITY_ID'] ?? null)
 			;
 
 			$permissions = [

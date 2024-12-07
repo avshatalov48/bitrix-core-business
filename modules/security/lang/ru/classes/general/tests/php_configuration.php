@@ -36,3 +36,9 @@ $MESS["SECURITY_SITE_CHECKER_PHP_REQUEST_ORDER_ADDITIONAL"] = 'Текущее з
 $MESS["SECURITY_SITE_CHECKER_MAIL_ADD_HEADER"] = "Почтовые сообщения содержат UID PHP процесса";
 $MESS["SECURITY_SITE_CHECKER_MAIL_ADD_HEADER_DETAIL"] = "В каждом отправляемом письме добавляется заголовок X-PHP-Originating-Script, который содержит UID и имя скрипта отправляющего письмо. Это позволяет злоумышленнику узнать от какого пользователя работает PHP.";
 $MESS["SECURITY_SITE_CHECKER_MAIL_ADD_HEADER_RECOMMENDATION"] = "Необходимо в настройках php указать:<br>mail.add_x_header = Off";
+$MESS["SECURITY_SITE_CHECKER_PHP_SECURE"] = "Не установлен атрибут secure для сессионной cookie";
+$MESS["SECURITY_SITE_CHECKER_PHP_SECURE_DETAIL"] = "Сессионные cookie могут передаваться без шифрования";
+$MESS["SECURITY_SITE_CHECKER_PHP_SECURE_RECOMMENDATION"] = "Необходимо в настройках php указать:<br>session.cookie_secure = On";
+$MESS["SECURITY_SITE_CHECKER_PHP_SAMESITE"] = "Установлено небезопасное значение атрибута samesite для сессионной cookie";
+$MESS["SECURITY_SITE_CHECKER_PHP_SAMESITE_DETAIL"] = "Атрибут дополнительно защищает сайт от подделки кроссдоменных запросов";
+$MESS["SECURITY_SITE_CHECKER_PHP_SAMESITE_RECOMMENDATION"] = "Необходимо в настройках php указать: <br>session.cookie_samesite = Strict <br>или<br> session.cookie_samesite = Lax";

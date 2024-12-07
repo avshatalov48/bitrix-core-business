@@ -31,7 +31,7 @@
 					</div>
 
 					<div class="d-inline-block g-bg-white-opacity-0_05 g-brd-around g-brd-white-opacity-0_3 g-pa-15-20-10 g-mx-15 g-mb-30">
-						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2">2023</div>
+						<div class="landing-block-node-date-value g-line-height-1 g-font-size-40 g-font-weight-700 g-mb-2"><?= date("Y") ?></div>
 						<div class="landing-block-node-date-text text-uppercase text-center g-color-white-opacity-0_7 g-font-size-12">Year</div>
 					</div>
 					

@@ -4,7 +4,9 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing;
 use Bitrix\Landing\Rights;
+use Bitrix\Landing\Site\Type;
 use Bitrix\Landing\TemplateRef;
 use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
@@ -129,6 +131,11 @@ class LandingSettingsComponent extends LandingBaseComponent
 
 	protected function addPlacementsItems(): void
 	{
+		if ($this->arParams['TYPE'] === Landing\Site\Type::SCOPE_CODE_MAINPAGE)
+		{
+			return;
+		}
+
 		if (Loader::includeModule('rest'))
 		{
 			$res = PlacementTable::getList([
@@ -179,7 +186,7 @@ class LandingSettingsComponent extends LandingBaseComponent
 		$landing = \Bitrix\Landing\Landing::createInstance($this->arParams['LANDING_ID']);
 		if (
 			$landing->exist()
-			&& $this->getSpecialTypeSiteByLanding($landing) === 'crm_forms'
+			&& $this->getSpecialTypeSiteByLanding($landing) === Type::PSEUDO_SCOPE_CODE_FORMS
 		)
 		{
 			unset($this->arResult['ITEMS'][self::PAGE_SITE_DESIGN]);

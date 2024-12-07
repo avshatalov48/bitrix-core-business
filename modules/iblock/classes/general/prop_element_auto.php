@@ -3,6 +3,7 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertyElementProvider;
 
 const BT_UT_AUTOCOMPLETE_REP_SYM_OTHER = 'other';
 
@@ -129,7 +130,7 @@ class CIBlockPropertyElementAutoComplete
 		else
 		{
 			ob_start();
-			?><?
+			?><input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value="" /><?
 			$control_id = $APPLICATION->IncludeComponent(
 				"bitrix:main.lookup.input",
 				"iblockedit",
@@ -288,7 +289,7 @@ class CIBlockPropertyElementAutoComplete
 			$strResultValue = (is_array($mxResultValue) ? htmlspecialcharsback(implode("\n",$mxResultValue)) : '');
 
 			ob_start();
-			?><?
+			?><input type="hidden" name="<?=$strHTMLControlName["VALUE"]?>" value="" /><?
 			$control_id = $APPLICATION->IncludeComponent(
 				"bitrix:main.lookup.input",
 				"iblockedit",
@@ -434,6 +435,9 @@ class CIBlockPropertyElementAutoComplete
 					case 'ELEMENT_TEMPLATE':
 						$viewMode = 'ELEMENT_TEMPLATE';
 						$resultKey = '~NAME';
+						break;
+					case 'BIZPROC':
+						$viewMode = 'BIZPROC';
 						break;
 				}
 			}
@@ -738,7 +742,7 @@ class CIBlockPropertyElementAutoComplete
 			value="<? echo Loc::getMessage('BT_UT_EAUTOCOMPLETE_MESS_SEARCH_ELEMENT'); ?>"
 			title="<? echo Loc::getMessage('BT_UT_EAUTOCOMPLETE_MESS_SEARCH_ELEMENT_MULTI_DESCR'); ?>"
 			onclick="jsUtils.OpenWindow('<?=$selfFolderUrl?>iblock_element_search.php?lang=<? echo LANGUAGE_ID; ?>&IBLOCK_ID=<? echo $arProperty["LINK_IBLOCK_ID"]; ?>&n=&k=&m=y&lookup=<? echo 'jsMLI_'.$control_id; ?><?=($fixIBlock ? '&iblockfix=y' : '').'&tableId='.$windowTableId; ?>', 900, 700);">
-		<script type="text/javascript">
+		<script>
 			var arClearHiddenFields = arClearHiddenFields;
 			if (!!arClearHiddenFields)
 			{
@@ -800,14 +804,25 @@ class CIBlockPropertyElementAutoComplete
 	 */
 	public static function GetUIFilterProperty($property, $strHTMLControlName, &$fields)
 	{
-		$fields["type"] = "custom_entity";
-		$fields["property"] = $property;
-		$fields["customRender"] = ["\Bitrix\Iblock\Helpers\Filter\Property", "render"];
-		$fields["customFilter"] = ["Bitrix\Iblock\Helpers\Filter\Property", "addFilter"];
-		$fields["operators"] = [
-			"default" => "=",
-			"exact" => "=",
-			"enum" => "@",
+		unset($fields['value'], $fields['filterable']);
+		$fields['type'] = 'entity_selector';
+		$fields['params'] = [
+			'multiple' => 'Y',
+			'dialogOptions' => [
+				'entities' => [
+					[
+						'id' => IblockPropertyElementProvider::ENTITY_ID,
+						'dynamicLoad' => true,
+						'dynamicSearch' => true,
+						'options' => [
+							'iblockId' => (int)($property['LINK_IBLOCK_ID'] ?? 0),
+						],
+					],
+				],
+				'searchOptions' => [
+					'allowCreateItem' => false,
+				],
+			],
 		];
 	}
 
@@ -964,7 +979,7 @@ class CIBlockPropertyElementAutoComplete
 			'CHANGE_EVENTS' => [
 				'onChangeIblockElement',
 			],
-			'ENTITY_ID' => 'iblock-property-element',
+			'ENTITY_ID' => IblockPropertyElementProvider::ENTITY_ID,
 		];
 
 		return Iblock\UI\Input\Element::renderSelector(

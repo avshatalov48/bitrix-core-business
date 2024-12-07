@@ -12,12 +12,17 @@ export default class Primary extends EventEmitter
 	static CSS_VAR: string = '--primary';
 
 	// todo: layout or control?
-	constructor()
+	constructor(options = {})
 	{
 		super();
 		this.cache = new Cache.MemoryCache();
 		this.setEventNamespace('BX.Landing.UI.Field.Color.Primary');
 		Event.bind(this.getLayout(), 'click', () => this.onClick());
+
+		if (options.content && options.content === 'var(--primary)')
+		{
+			this.setActive();
+		}
 	}
 
 	getLayout(): HTMLElement

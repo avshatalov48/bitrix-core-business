@@ -112,7 +112,7 @@ final class BusinessValue
 	 */
 	public static function isSetMapping($codeKey, $consumerKey = null, $personTypeId = null)
 	{
-		$codeKey = ToUpper($codeKey);
+		$codeKey = mb_strtoupper($codeKey);
 		return isset(self::$consumerCodePersonMapping[$consumerKey][$codeKey][$personTypeId]);
 	}
 
@@ -131,7 +131,7 @@ final class BusinessValue
 	public static function getMapping($codeKey, $consumerKey = null, $personTypeId = null, array $options = array())
 	{
 		$mapping = array();
-		$codeKeyUp = ToUpper($codeKey);
+		$codeKeyUp = mb_strtoupper($codeKey);
 
 		if ((int)$personTypeId === 0)
 		{
@@ -205,7 +205,7 @@ final class BusinessValue
 	 */
 	public static function setMapping($codeKey, $consumerKey, $personTypeId, array $mapping, $withCommon = false)
 	{
-		$codeKey = ToUpper($codeKey);
+		$codeKey = mb_strtoupper($codeKey);
 
 		$oldMapping = self::getMapping($codeKey, $consumerKey, $personTypeId, ['MATCH' => self::MATCH_EXACT]);
 
@@ -358,7 +358,7 @@ final class BusinessValue
 
 			while ($row = $result->fetch())
 			{
-				$row['CODE_KEY'] = ToUpper($row['CODE_KEY']);
+				$row['CODE_KEY'] = mb_strtoupper($row['CODE_KEY']);
 				// TODO delete mappings for non existent code:consumer:person from db
 				// TODO optimize memory usage $consumerCodePersonMapping >> $personConsumerCodeMapping
 				self::$consumerCodePersonMapping[$row['CONSUMER_KEY']][$row['CODE_KEY']][$row['PERSON_TYPE_ID']] = array(
@@ -984,15 +984,18 @@ class BusinessValueHandlers
 				),
 				'GET_INSTANCE_VALUE' => function ($providerInstance, $providerValue, $personTypeId)
 				{
-					$value = null;
-
-					global $USER;
-
-					if ($user = $USER->GetByID($providerInstance)->Fetch())
+					if (!$providerValue)
 					{
-						$value = $user[$providerValue];
+						return null;
 					}
-					return $value;
+
+					$user = \CUser::GetByID($providerInstance)->Fetch();
+					if (!$user)
+					{
+						return null;
+					}
+
+					return $user[$providerValue] ?? null;
 				},
 			),
 			'PAYMENT' => array(

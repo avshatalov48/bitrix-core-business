@@ -831,7 +831,7 @@ $control->BeginNextFormTab();
 $control->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_url" => $listUrl));
 $control->Show();
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		var obCouponAdd = BX('COUPON_ADD_Y'),
 			obCouponType = BX('tr_COUPON_TYPE'),

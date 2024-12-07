@@ -186,9 +186,4 @@ class YandexBase extends BitrixEngine
 			throw new SystemException("No Yandex auth data");
 		}
 	}
-
-	protected function prepareQueryResult(array $result)
-	{
-		return Text\Encoding::convertEncodingArray($result, 'utf-8', LANG_CHARSET);
-	}
 }

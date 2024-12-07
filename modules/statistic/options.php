@@ -16,7 +16,6 @@ function CheckFDate($date, $mess) // date check
 }
 
 $statDB = CDatabase::GetModuleConnection('statistic');
-$err_mess = "FILE: ".__FILE__."<br>\nLINE: ";
 $module_id = "statistic";
 $STAT_RIGHT = $APPLICATION->GetGroupRight($module_id);
 $strError = "";
@@ -44,7 +43,7 @@ if ($STAT_RIGHT>="R"):
 	}
 	$tabControl2 = new CAdminTabControl("tabControl2", $aTabs, true, true);
 
-	if ($REQUEST_METHOD=="POST" && $STAT_RIGHT=="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
+	if ($_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT=="W" && $RestoreDefaults <> '' && check_bitrix_sessid())
 	{
 		COption::RemoveOption($module_id);
 		$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -153,7 +152,7 @@ if ($STAT_RIGHT>="R"):
 		),
 	);
 
-	if($REQUEST_METHOD=="POST" && $Update.$Apply <> '' && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=="POST" && $Update.$Apply <> '' && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		if (CheckFDate($next_exec, GetMessage("STAT_OPT_WRONG_NEXT_EXEC")))
 		{
@@ -189,13 +188,13 @@ if ($STAT_RIGHT>="R"):
 			COption::SetOptionString($module_id, "BASE_CURRENCY", $BASE_CURRENCY);
 			$arr = array();
 			$arr = preg_split("/[\n\r]+/", $BROWSERS);
-			$statDB->Query("DELETE FROM b_stat_browser", false, $err_mess.__LINE__);
+			$statDB->Query("DELETE FROM b_stat_browser");
 			foreach ($arr as $u)
 			{
 				if ($u <> '')
 				{
 					$arFields = Array("USER_AGENT" => "'".$statDB->ForSql($u,255)."'");
-					$statDB->Insert("b_stat_browser",$arFields, $err_mess.__LINE__);
+					$statDB->Insert("b_stat_browser",$arFields);
 				}
 			}
 
@@ -262,7 +261,7 @@ if ($STAT_RIGHT>="R"):
 	$DEFENCE_LOG = COption::GetOptionString($module_id, "DEFENCE_LOG");
 
 	$BROWSERS = "";
-	$rows = $statDB->Query("SELECT USER_AGENT FROM b_stat_browser ORDER BY ID", false, $err_mess.__LINE__);
+	$rows = $statDB->Query("SELECT USER_AGENT FROM b_stat_browser ORDER BY ID");
 	while ($row = $rows->Fetch())
 		$BROWSERS .= $row["USER_AGENT"]."\n";
 
@@ -270,7 +269,7 @@ if ($STAT_RIGHT>="R"):
 	$arSKIP_STATISTIC_GROUPS = explode(",", COption::GetOptionString($module_id, "SKIP_STATISTIC_GROUPS"));
 	$SKIP_STATISTIC_IP_RANGES = COption::GetOptionString($module_id, "SKIP_STATISTIC_IP_RANGES");
 
-	if ($cleanup <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if ($cleanup <> '' && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		if (CheckFDate($cleanup_date, GetMessage("STAT_OPT_WRONG_CLEANUP_DATE")))
 		{
@@ -291,7 +290,7 @@ if ($STAT_RIGHT>="R"):
 		}
 	}
 
-	if($runsql <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if($runsql <> '' && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
@@ -318,7 +317,7 @@ if ($STAT_RIGHT>="R"):
 		}
 	}
 
-	if ($optimize <> '' && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+	if ($optimize <> '' && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
@@ -361,7 +360,7 @@ if ($STAT_RIGHT>="R"):
 					FROM b_agent
 					WHERE NAME='SendDailyStatistics();' and MODULE_ID='statistic'
 				";
-				$z = $GLOBALS["DB"]->Query($strSql, false, $err_mess.__LINE__);
+				$z = $GLOBALS["DB"]->Query($strSql);
 				$zr = $z->Fetch();
 				$next_exec = $zr["NEXT_EXEC"];
 			}
@@ -431,7 +430,7 @@ if ($STAT_RIGHT>="R"):
 		<td><?echo InputType("checkbox", "DEFENCE_LOG", "Y", $DEFENCE_LOG)?></td>
 	</tr>
 	<?$tabControl->EndTab();?>
-	<script language="JavaScript">
+	<script>
 	function ChangeDefenceSwitch()
 	{
 		var obSwitch = document.getElementById("DEFENCE_ON");
@@ -570,7 +569,7 @@ if ($STAT_RIGHT>="R"):
 	if(mb_strtolower($statDB->type) == "mysql")
 	{
 		$strSql = "SHOW TABLE STATUS like 'b_stat_%'";
-		$rs = $statDB->Query($strSql,false,$err_mess.__LINE__);
+		$rs = $statDB->Query($strSql);
 		while($ar = $rs->Fetch())
 			$arTABLES[mb_strtolower(trim($ar["Name"]))] = $ar["Rows"];
 	}
@@ -602,7 +601,7 @@ if ($STAT_RIGHT>="R"):
 								foreach($arr as $table)
 								{
 									$strSql = "SELECT count('x') as COUNT FROM ".$table;
-									$z = $statDB->Query($strSql,false,$err_mess.__LINE__);
+									$z = $statDB->Query($strSql);
 									$zr = $z->Fetch();
 									$count += intval($zr["COUNT"]);
 								}
@@ -680,7 +679,7 @@ if ($STAT_RIGHT>="R"):
 	endforeach;
 	$tabControl->EndTab();
 	?>
-	<script language="JavaScript">
+	<script>
 		manageSkip(false);
 		function manageSkip(what)
 		{
@@ -731,7 +730,7 @@ if ($STAT_RIGHT>="R"):
 			<td align="left" colspan="2"><input type="button" <?if ($STAT_RIGHT<"W") echo "disabled" ?> name="cleanup" value="<?echo GetMessage("STAT_OPT_CLEANUP_BUTTON")?>" OnClick="javascript: CleanUpSubmit();"><input type="hidden" name="cleanup" value="Y"><input type="hidden" name="lang" value="<?=LANGUAGE_ID?>"></td>
 		</tr>
 	<?$tabControl2->EndTab();?>
-	<script language="JavaScript">
+	<script>
 		function CleanUpSubmit()
 		{
 			if(confirm('<?=GetMessageJS("STAT_OPT_CLEANUP_CONFIRMATION")?>'))
@@ -750,7 +749,7 @@ if ($STAT_RIGHT>="R"):
 		<tr>
 			<td align="left" colspan="2">
 				<input type="button" <?if ($STAT_RIGHT<"W") echo "disabled" ?> name="cleanup" value="<?echo GetMessage("STAT_OPT_OPTIMIZE_BUTTON")?>" OnClick="javascript: OptimizeSubmit();"><input type="hidden" name="optimize" value="Y"><input type="hidden" name="lang" value="<?=LANGUAGE_ID?>">
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 					function OptimizeSubmit()
 					{
 						if(confirm('<?=GetMessageJS("STAT_OPT_OPTIMIZE_CONFIRMATION")?>'))	document.optimizeform.submit();

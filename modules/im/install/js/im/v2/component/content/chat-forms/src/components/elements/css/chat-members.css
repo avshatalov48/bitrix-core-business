@@ -1,0 +1,12 @@
+.bx-im-chat-forms-chat-members__container {
+	--im-chat-forms-chat-members__background-color_container: var(--im-color-palette-white-base);
+
+	padding: 12px;
+	background-color: var(--im-chat-forms-chat-members__background-color_container);
+	border-radius: var(--im-border-radius-xs);
+}
+
+.bx-im-chat-forms-chat-members__container .ui-tag-selector-outer-container {
+	border: none;
+	padding: 0;
+}

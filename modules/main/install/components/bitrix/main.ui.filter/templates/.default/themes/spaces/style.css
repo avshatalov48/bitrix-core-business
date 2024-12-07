@@ -8,8 +8,7 @@
 
 .sn-spaces__toolbar-space_search.main-ui-filter-search--active,
 .sn-spaces__toolbar-space_search.main-ui-filter-search--showed {
-	/*max-width: 780px;*/
-	max-width: 810px;
+	max-width: 780px;
 }
 
 .sn-spaces__toolbar-search-btn {

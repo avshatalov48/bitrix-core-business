@@ -170,7 +170,7 @@ class CSearch extends CAllSearch
 				{
 					if ($strSelect <> '')
 						$strSelect .= " + ";
-					$strSelect .= "if(locate('".$DB->ForSql(ToUpper($word))."', upper(sc.TITLE)) > 0, 1, 0)";
+					$strSelect .= "if(locate('".$DB->ForSql(mb_strtoupper($word))."', upper(sc.TITLE)) > 0, 1, 0)";
 				}
 				$arSelect["TITLE_RANK"] = $strSelect." as TITLE_RANK";
 			}
@@ -686,7 +686,7 @@ class CSearch extends CAllSearch
 		$DB->Query("
 			DELETE FROM b_search_content_site
 			WHERE SITE_ID='".$DB->ForSql($lang)."'
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 		CSearchTags::CleanCache();
 	}
 
@@ -715,7 +715,7 @@ class CSearch extends CAllSearch
 				AND F.LANGUAGE_ID = S.LANGUAGE_ID
 				AND F.STEM = S.STEM
 				AND S.SEARCH_CONTENT_ID = ".intval($ID)."
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 	}
 
 	public static function IndexTitle($arLID, $ID, $sTitle)
@@ -779,14 +779,14 @@ class CSearch extends CAllSearch
 							$strSqlValues .= ",\n(".$ID.", '".$sql_site."', '".$DB->ForSql($word)."', ".$pos.")";
 							if (mb_strlen($strSqlValues) > $maxValuesLen)
 							{
-								$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 								$strSqlValues = "";
 							}
 						}
 					}
 					if ($strSqlValues <> '')
 					{
-						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 						$strSqlValues = "";
 					}
 					//Delete obsolete db values
@@ -824,7 +824,7 @@ class CSearch extends CAllSearch
 
 				if (mb_strlen($strSqlValues) > $maxValuesLen || $i > $maxValuesCnt)
 				{
-					$rs = $DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$rs = $DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).")");
 					while ($ar = $rs->Fetch())
 						$cache[$ar["STEM"]] = $ar["ID"];
 
@@ -835,7 +835,7 @@ class CSearch extends CAllSearch
 
 			if ($strSqlValues <> '')
 			{
-				$rs = $DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$rs = $DB->Query($strSqlPrefix.mb_substr($strSqlValues, 1).")");
 				while ($ar = $rs->Fetch())
 					$cache[$ar["STEM"]] = $ar["ID"];
 			}
@@ -933,7 +933,7 @@ class CSearch extends CAllSearch
 
 						if (mb_strlen($strSqlValues) > $maxValuesLen)
 						{
-							$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 							$strSqlValues = "";
 						}
 					}
@@ -951,7 +951,7 @@ class CSearch extends CAllSearch
 
 						if (mb_strlen($strSqlValues) > $maxValuesLen)
 						{
-							$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 							$strSqlValues = "";
 						}
 					}
@@ -959,7 +959,7 @@ class CSearch extends CAllSearch
 
 				if ($strSqlValues <> '')
 				{
-					$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 					$strSqlValues = "";
 				}
 			}
@@ -995,13 +995,13 @@ class CSearch extends CAllSearch
 					$strSqlValues .= ",\n(".$ID.", '".$sql_site_id."', '".$DB->ForSql($tag, 255)."')";
 					if (mb_strlen($strSqlValues) > $maxValuesLen)
 					{
-						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 						$strSqlValues = "";
 					}
 				}
 				if ($strSqlValues <> '')
 				{
-					$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query($strSqlPrefix.mb_substr($strSqlValues, 2));
 					$strSqlValues = "";
 				}
 			}
@@ -1017,7 +1017,7 @@ class CSearch extends CAllSearch
 			$DB->Query("
 				DELETE FROM b_search_content_site
 				WHERE SEARCH_CONTENT_ID = ".$ID."
-			", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			");
 		}
 		else
 		{
@@ -1025,7 +1025,7 @@ class CSearch extends CAllSearch
 				SELECT SITE_ID, URL
 				FROM b_search_content_site
 				WHERE SEARCH_CONTENT_ID = ".$ID."
-			", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			");
 			while ($arSite = $rsSite->Fetch())
 			{
 				if (!array_key_exists($arSite["SITE_ID"], $arSITE_ID))
@@ -1034,7 +1034,7 @@ class CSearch extends CAllSearch
 						DELETE FROM b_search_content_site
 						WHERE SEARCH_CONTENT_ID = ".$ID."
 						AND SITE_ID = '".$DB->ForSql($arSite["SITE_ID"])."'
-					", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					");
 				}
 				else
 				{
@@ -1045,7 +1045,7 @@ class CSearch extends CAllSearch
 							SET URL = '".$DB->ForSql($arSITE_ID[$arSite["SITE_ID"]], 2000)."'
 							WHERE SEARCH_CONTENT_ID = ".$ID."
 							AND SITE_ID = '".$DB->ForSql($arSite["SITE_ID"])."'
-						", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						");
 					}
 					unset($arSITE_ID[$arSite["SITE_ID"]]);
 				}
@@ -1056,7 +1056,7 @@ class CSearch extends CAllSearch
 				$DB->Query("
 					REPLACE INTO b_search_content_site(SEARCH_CONTENT_ID, SITE_ID, URL)
 					VALUES(".$ID.", '".$DB->ForSql($site, 2)."', '".$DB->ForSql($url, 2000)."')
-				", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				");
 			}
 		}
 	}
@@ -1105,7 +1105,7 @@ class CSearchQuery extends CAllSearchQuery
 		}
 		elseif ($this->bStemming && !$bInQuotes)
 		{
-			$word = ToUpper($word);
+			$word = mb_strtoupper($word);
 			$this->m_stemmed_words[] = $word;
 
 			if (BX_SEARCH_VERSION > 1)
@@ -1126,11 +1126,11 @@ class CSearchQuery extends CAllSearchQuery
 			if (BX_SEARCH_VERSION > 1)
 			{
 				$this->bText = true;
-				return "(sct.searchable_content LIKE '%".str_replace(array("%", "_"), array("\\%", "\\_"), ToUpper($word))."%')";
+				return "(sct.searchable_content LIKE '%".str_replace(array("%", "_"), array("\\%", "\\_"), mb_strtoupper($word))."%')";
 			}
 			else
 			{
-				return "(sc.searchable_content LIKE '%".str_replace(array("%", "_"), array("\\%", "\\_"), ToUpper($word))."%')";
+				return "(sc.searchable_content LIKE '%".str_replace(array("%", "_"), array("\\%", "\\_"), mb_strtoupper($word))."%')";
 			}
 		}
 	}

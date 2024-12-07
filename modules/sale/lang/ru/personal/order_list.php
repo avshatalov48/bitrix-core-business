@@ -1,0 +1,31 @@
+<?
+$MESS ['SALE_F_FILTER'] = "Фильтр";
+$MESS ['SALE_F_ID'] = "Код заказа";
+$MESS ['SALE_F_DATE'] = "Дата заказа";
+$MESS ['SALE_F_STATUS'] = "Статус заказа";
+$MESS ['SALE_F_ALL'] = "< Все >";
+$MESS ['SALE_F_SUBMIT'] = "Установить";
+$MESS ['SALE_F_DEL'] = "Снять";
+$MESS ['SALE_PRLIST'] = "Заказы";
+$MESS ['P_ID'] = "Код заказа";
+$MESS ['P_PRICE'] = "Стоимость";
+$MESS ['P_STATUS'] = "Статус";
+$MESS ['P_PAYED'] = "Оплачен";
+$MESS ['P_CANCELED'] = "Отменен";
+$MESS ['SALE_ACTION'] = "Действия";
+$MESS ['SALE_F_PAYED'] = "Оплачен";
+$MESS ['SALE_F_CANCELED'] = "Отменен";
+$MESS ['SALE_F_HISTORY'] = "В том числе доставленные";
+$MESS ['P_PAY_SYS'] = "Способ оплаты / доставки";
+$MESS ['P_BASKET'] = "Товары";
+$MESS ['SALE_DELETE'] = "Отменить";
+$MESS ['SALE_COPY_ORDER'] = "Повторить";
+$MESS ['SALE_DETAIL'] = "Подробно";
+$MESS ['SALE_YES'] = "Да";
+$MESS ['SALE_NO'] = "Нет";
+$MESS ['SALE_FROM'] = "от";
+$MESS ['SALE_TO'] = "до";
+$MESS ['SALE_DETAIL_DESCR'] = "Посмотреть подробную информацию о заказе";
+$MESS ['SALE_COPY_ORDER_DESCR'] = "Повторить заказ";
+$MESS ['SALE_DELETE_DESCR'] = "Отменить заказ";
+?>

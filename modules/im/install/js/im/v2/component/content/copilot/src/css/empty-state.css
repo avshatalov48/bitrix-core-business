@@ -13,7 +13,7 @@
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	width: 520px;
+	width: 549px;
 	padding: 40px 32px;
 	border-radius: 28px;
 	background-color: var(--im-content-copilot-empty-state__background-color_container);
@@ -32,8 +32,4 @@
 	color: var(--im-content-copilot-empty-state__font-color_text);
 	text-align: center;
 	white-space: pre-line;
-}
-
-.bx-im-content-copilot-empty-state__button {
-
 }

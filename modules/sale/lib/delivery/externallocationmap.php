@@ -1,4 +1,4 @@
-<?
+<?php
 namespace Bitrix\Sale\Delivery;
 
 use Bitrix\Main\Error;
@@ -408,19 +408,6 @@ class ExternalLocationMap
 	}
 
 	/**
-	 * Decodes data from utf8 if we need
-	 * @param $str
-	 * @return bool|string
-	 */
-	protected static function utfDecode($str)
-	{
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$str = Encoding::convertEncoding($str, 'UTF-8', SITE_CHARSET);
-
-		return $str;
-	}
-
-	/**
 	 * Convert find location by city and region names and add mapping to base
 	 * @param array $cities
 	 * @return Result
@@ -601,18 +588,20 @@ class ExternalLocationMap
 		if(intval($startId) <= 0)
 			$con->queryExecute("DELETE FROM b_sale_hdaln");
 
-		$query = "SELECT
-			  L.ID,
-			  L.LEFT_MARGIN,
-			  L.RIGHT_MARGIN,
-			  N.NAME_UPPER
+		$query = "
+			SELECT
+				L.ID,
+				L.LEFT_MARGIN,
+				L.RIGHT_MARGIN,
+				N.NAME_UPPER
 			FROM
-			  b_sale_location AS L
+				b_sale_location AS L
 				INNER JOIN b_sale_loc_name AS N ON L.ID = N.LOCATION_ID
 				INNER JOIN b_sale_loc_type AS T ON L.TYPE_ID = T.ID		
 			WHERE
-			  N.LANGUAGE_ID = 'ru'
-			  AND (T.CODE = 'VILLAGE' OR T.CODE = 'CITY')";
+				N.LANGUAGE_ID = 'ru'
+				AND (T.CODE = 'VILLAGE' OR T.CODE = 'CITY')
+				";
 
 		if($startId !== false)
 			$query .= " AND L.ID > ".strval(intval($startId));
@@ -624,14 +613,14 @@ class ExternalLocationMap
 		{
 			$con->queryExecute("
 				INSERT INTO
-					  b_sale_hdaln (LOCATION_ID, LEFT_MARGIN, RIGHT_MARGIN, NAME)
+					b_sale_hdaln (LOCATION_ID, LEFT_MARGIN, RIGHT_MARGIN, NAME)
 				VALUES(
 					".intval($loc['ID']).",
 					".intval($loc['LEFT_MARGIN']).",
 					".intval($loc['RIGHT_MARGIN']).",
 					'".$sqlHelper->forSql(
 							preg_replace(
-									'/\s*(\(.*\))/i'.BX_UTF_PCRE_MODIFIER,
+									'/\s*(\(.*\))/iu',
 									'',
 									\Bitrix\Sale\Location\Comparator::flatten($loc['NAME_UPPER']))
 					)."'
@@ -686,8 +675,8 @@ class ExternalLocationMap
 				N.NAME AS NAME
 			FROM
 				b_sale_hdaln AS N
-				  LEFT JOIN b_sale_loc_ext AS E
-					ON N.LOCATION_ID = E.LOCATION_ID AND E.SERVICE_ID = ".$sqlHelper->forSql(self::getExternalServiceId())."
+				LEFT JOIN b_sale_loc_ext AS E
+				ON N.LOCATION_ID = E.LOCATION_ID AND E.SERVICE_ID = ".$sqlHelper->forSql(self::getExternalServiceId())."
 			WHERE
 				E.LOCATION_ID IS NULL
 				AND NAME IN (".implode(', ', $searchNames).")");

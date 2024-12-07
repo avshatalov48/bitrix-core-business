@@ -556,3 +556,15 @@ div.bx-top-panel table.bx-pnbutton div.icon-socnet-reindex {background-image:url
 
 /* DISK */
 .bx-disk-bizproc-section{padding:15px;}
+
+.socialnetwork-content-locked {
+	padding: 7px;
+	-webkit-filter: blur(5px);
+	-moz-filter: blur(5px);
+	filter: blur(5px);
+	pointer-events: none;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}

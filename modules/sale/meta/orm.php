@@ -13550,6 +13550,172 @@ namespace Bitrix\Sale\Internals {
 	 */
 	class EO_DiscountModule_Entity extends \Bitrix\Main\ORM\Entity {}
 }
+/* ORMENTITYANNOTATION:Bitrix\Sale\Internals\EntityLabelTable:sale\lib\internals\entitylabeltable.php */
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_EntityLabel
+	 * @see \Bitrix\Sale\Internals\EntityLabelTable
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int getId()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel setId(\int|\Bitrix\Main\DB\SqlExpression $id)
+	 * @method bool hasId()
+	 * @method bool isIdFilled()
+	 * @method bool isIdChanged()
+	 * @method \int getEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel setEntityId(\int|\Bitrix\Main\DB\SqlExpression $entityId)
+	 * @method bool hasEntityId()
+	 * @method bool isEntityIdFilled()
+	 * @method bool isEntityIdChanged()
+	 * @method \int remindActualEntityId()
+	 * @method \int requireEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel resetEntityId()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel unsetEntityId()
+	 * @method \int fillEntityId()
+	 * @method \string getEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel setEntityType(\string|\Bitrix\Main\DB\SqlExpression $entityType)
+	 * @method bool hasEntityType()
+	 * @method bool isEntityTypeFilled()
+	 * @method bool isEntityTypeChanged()
+	 * @method \string remindActualEntityType()
+	 * @method \string requireEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel resetEntityType()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel unsetEntityType()
+	 * @method \string fillEntityType()
+	 * @method \string getLabelName()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel setLabelName(\string|\Bitrix\Main\DB\SqlExpression $labelName)
+	 * @method bool hasLabelName()
+	 * @method bool isLabelNameFilled()
+	 * @method bool isLabelNameChanged()
+	 * @method \string remindActualLabelName()
+	 * @method \string requireLabelName()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel resetLabelName()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel unsetLabelName()
+	 * @method \string fillLabelName()
+	 * @method \string getLabelValue()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel setLabelValue(\string|\Bitrix\Main\DB\SqlExpression $labelValue)
+	 * @method bool hasLabelValue()
+	 * @method bool isLabelValueFilled()
+	 * @method bool isLabelValueChanged()
+	 * @method \string remindActualLabelValue()
+	 * @method \string requireLabelValue()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel resetLabelValue()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel unsetLabelValue()
+	 * @method \string fillLabelValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @property-read array $primary
+	 * @property-read int $state @see \Bitrix\Main\ORM\Objectify\State
+	 * @property-read \Bitrix\Main\Type\Dictionary $customData
+	 * @property \Bitrix\Main\Authentication\Context $authContext
+	 * @method mixed get($fieldName)
+	 * @method mixed remindActual($fieldName)
+	 * @method mixed require($fieldName)
+	 * @method bool has($fieldName)
+	 * @method bool isFilled($fieldName)
+	 * @method bool isChanged($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel set($fieldName, $value)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel reset($fieldName)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel unset($fieldName)
+	 * @method void addTo($fieldName, $value)
+	 * @method void removeFrom($fieldName, $value)
+	 * @method void removeAll($fieldName)
+	 * @method \Bitrix\Main\ORM\Data\Result delete()
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method mixed[] collectValues($valuesType = \Bitrix\Main\ORM\Objectify\Values::ALL, $fieldsMask = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL)
+	 * @method \Bitrix\Main\ORM\Data\AddResult|\Bitrix\Main\ORM\Data\UpdateResult|\Bitrix\Main\ORM\Data\Result save()
+	 * @method static \Bitrix\Sale\Internals\EO_EntityLabel wakeUp($data)
+	 */
+	class EO_EntityLabel {
+		/* @var \Bitrix\Sale\Internals\EntityLabelTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\EntityLabelTable';
+		/**
+		 * @param bool|array $setDefaultValues
+		 */
+		public function __construct($setDefaultValues = true) {}
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * EO_EntityLabel_Collection
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 * @method \int[] getIdList()
+	 * @method \int[] getEntityIdList()
+	 * @method \int[] fillEntityId()
+	 * @method \string[] getEntityTypeList()
+	 * @method \string[] fillEntityType()
+	 * @method \string[] getLabelNameList()
+	 * @method \string[] fillLabelName()
+	 * @method \string[] getLabelValueList()
+	 * @method \string[] fillLabelValue()
+	 *
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @property-read \Bitrix\Main\ORM\Entity $entity
+	 * @method void add(\Bitrix\Sale\Internals\EO_EntityLabel $object)
+	 * @method bool has(\Bitrix\Sale\Internals\EO_EntityLabel $object)
+	 * @method bool hasByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel getByPrimary($primary)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel[] getAll()
+	 * @method bool remove(\Bitrix\Sale\Internals\EO_EntityLabel $object)
+	 * @method void removeByPrimary($primary)
+	 * @method void fill($fields = \Bitrix\Main\ORM\Fields\FieldTypeMask::ALL) flag or array of field names
+	 * @method static \Bitrix\Sale\Internals\EO_EntityLabel_Collection wakeUp($data)
+	 * @method \Bitrix\Main\ORM\Data\Result save($ignoreEvents = false)
+	 * @method void offsetSet() ArrayAccess
+	 * @method void offsetExists() ArrayAccess
+	 * @method void offsetUnset() ArrayAccess
+	 * @method void offsetGet() ArrayAccess
+	 * @method void rewind() Iterator
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel current() Iterator
+	 * @method mixed key() Iterator
+	 * @method void next() Iterator
+	 * @method bool valid() Iterator
+	 * @method int count() Countable
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel_Collection merge(?\Bitrix\Sale\Internals\EO_EntityLabel_Collection $collection)
+	 * @method bool isEmpty()
+	 */
+	class EO_EntityLabel_Collection implements \ArrayAccess, \Iterator, \Countable {
+		/* @var \Bitrix\Sale\Internals\EntityLabelTable */
+		static public $dataClass = '\Bitrix\Sale\Internals\EntityLabelTable';
+	}
+}
+namespace Bitrix\Sale\Internals {
+	/**
+	 * Common methods:
+	 * ---------------
+	 *
+	 * @method EO_EntityLabel_Result exec()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel_Collection fetchCollection()
+	 *
+	 * Custom methods:
+	 * ---------------
+	 *
+	 */
+	class EO_EntityLabel_Query extends \Bitrix\Main\ORM\Query\Query {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel fetchObject()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel_Collection fetchCollection()
+	 */
+	class EO_EntityLabel_Result extends \Bitrix\Main\ORM\Query\Result {}
+	/**
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel createObject($setDefaultValues = true)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel_Collection createCollection()
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel wakeUpObject($row)
+	 * @method \Bitrix\Sale\Internals\EO_EntityLabel_Collection wakeUpCollection($rows)
+	 */
+	class EO_EntityLabel_Entity extends \Bitrix\Main\ORM\Entity {}
+}
 /* ORMENTITYANNOTATION:Bitrix\Sale\Internals\EntityMarkerTable:sale\lib\internals\entitymarker.php */
 namespace Bitrix\Sale\Internals {
 	/**

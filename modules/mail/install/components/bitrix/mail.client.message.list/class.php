@@ -47,6 +47,19 @@ class CMailClientMessageListComponent extends CBitrixComponent implements Contro
 		$mailboxHelper->sendCountersEvent();
 	}
 
+	public function getLastMailboxSyncIsSuccessStatusAction(int $mailboxId): ?bool
+	{
+		$userId = Main\Engine\CurrentUser::get()->getId();
+
+		if (is_null($userId))
+		{
+			return null;
+		}
+
+		$mailboxSyncManager = new Mail\Helper\Mailbox\MailboxSyncManager($userId);
+		return $mailboxSyncManager->getLastMailboxSyncIsSuccessStatus($mailboxId);
+	}
+
 	private function getDateLastOpening($mailboxID)
 	{
 		$dateLastOpening = Mail\Internals\MailEntityOptionsTable::getList(

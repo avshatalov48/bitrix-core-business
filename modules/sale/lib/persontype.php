@@ -182,4 +182,19 @@ class PersonType
 		}
 		return false;
 	}
+
+	public static function delete($id)
+	{
+		$result = Internals\PersonTypeTable::delete($id);
+		if (!$result->isSuccess())
+		{
+			return false;
+		}
+
+		Internals\PersonTypeSiteTable::deleteByPersonTypeId($id);
+
+		Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId($id);
+
+		return true;
+	}
 }

@@ -564,10 +564,11 @@ final class CIBlockXmlImport
 	 */
 	private function initTemporaryTablesAction(): void
 	{
-		$this->xmlImport->DropTemporaryTables();
-		if (!$this->xmlImport->CreateTemporaryTables())
+		$result = $this->xmlImport->initializeTemporaryTables();
+
+		if (!$result)
 		{
-			$this->addError(Loc::getMessage('IBLOCK_XML_IMPORT_ERR_CANNOT_CREATE_TEMPORARY_TABLES'));
+			$this->addError(Loc::getMessage('IBLOCK_XML_IMPORT_ERR_CANNOT_PREPARE_TEMPORARY_TABLES'));
 		}
 		$this->nextStep();
 	}

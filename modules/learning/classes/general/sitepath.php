@@ -81,7 +81,7 @@ class CAllSitePath
 				"SELECT P.ID, P.SITE_ID, P.PATH, P.TYPE ".
 				"FROM b_learn_site_path P ".
 				"WHERE P.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["LEARNING_SITE_PATH"]["LEARNING_SITE_PATH_CACHE_".$ID] = $arResult;
@@ -112,7 +112,7 @@ class CAllSitePath
 				"SELECT P.ID, P.SITE_ID, P.PATH, P.TYPE ".
 				"FROM b_learn_site_path P ".
 				"WHERE P.SITE_ID = '".$DB->ForSql($siteID)."' AND P.TYPE is null";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			$arResults = array();
 			while($arResult = $dbResult->Fetch())
 			{

@@ -90,10 +90,9 @@ class Importer
 			}
 		}
 
-		$iblockUtf8 = Main\Text\Encoding::convertEncodingArray($iblock, LANG_CHARSET, "UTF-8");
-		$iblockUtf8 = serialize($iblockUtf8);
-		$iblockUtf8Length = Main\Text\BinaryString::getLength($iblockUtf8);
-		$datum = str_pad($iblockUtf8Length, 10, "0", STR_PAD_LEFT).$iblockUtf8;
+		$iblock = serialize($iblock);
+		$iblockLength = strlen($iblock);
+		$datum = str_pad($iblockLength, 10, "0", STR_PAD_LEFT).$iblock;
 
 		if (intval($iblock["PICTURE"]) > 0)
 		{
@@ -104,8 +103,8 @@ class Importer
 				$pictureData = fread($f, filesize($picture["tmp_name"]));
 				fclose($f);
 
-				$pictureTypeLength = Main\Text\BinaryString::getLength($picture["type"]);
-				$pictureLength = Main\Text\BinaryString::getLength($pictureData);
+				$pictureTypeLength = strlen($picture["type"]);
+				$pictureLength = strlen($pictureData);
 				$datum .= "P".str_pad($pictureTypeLength, 10, "0", STR_PAD_LEFT).$picture["type"].str_pad($pictureLength, 10, "0", STR_PAD_LEFT).$pictureData;
 			}
 		}
@@ -121,13 +120,12 @@ class Importer
 		);
 		while ($templatesListItem = $templatesList->Fetch())
 		{
-			$bpDescrUtf8 = Main\Text\Encoding::convertEncodingArray($templatesListItem, LANG_CHARSET, "UTF-8");
-			$bpDescrUtf8 = serialize($bpDescrUtf8);
-			$bpDescrUtf8Length = Main\Text\BinaryString::getLength($bpDescrUtf8);
-			$datum .= "B".str_pad($bpDescrUtf8Length, 10, "0", STR_PAD_LEFT).$bpDescrUtf8;
+			$templatesListItem = serialize($templatesListItem);
+			$bpDescrLength = strlen($templatesListItem);
+			$datum .= "B".str_pad($bpDescrLength, 10, "0", STR_PAD_LEFT).$templatesListItem;
 
 			$bp = \CBPWorkflowTemplateLoader::ExportTemplate($templatesListItem["ID"], false);
-			$bpLength = Main\Text\BinaryString::getLength($bp);
+			$bpLength = strlen($bp);
 			$datum .= str_pad($bpLength, 10, "0", STR_PAD_LEFT).$bp;
 		}
 
@@ -148,13 +146,12 @@ class Importer
 		fclose($f);
 
 		if (mb_substr($datum, 0, 10) === "compressed")
-			$datum = gzuncompress(Main\Text\BinaryString::getSubstring($datum, 10));
+			$datum = gzuncompress(substr($datum, 10));
 
-		$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
-		$dataSerialized = Main\Text\BinaryString::getSubstring($datum, 10, $len);
+		$len = intval(substr($datum, 0, 10));
+		$dataSerialized = substr($datum, 10, $len);
 
 		$data = CheckSerializedData($dataSerialized) ? unserialize($dataSerialized, ["allowed_classes" => false]) : [];
-		$data = Main\Text\Encoding::convertEncodingArray($data, "UTF-8", LANG_CHARSET);
 
 		return $data;
 	}
@@ -171,30 +168,29 @@ class Importer
 			throw new Main\ArgumentNullException("datum");
 
 		if (mb_substr($datum, 0, 10) === "compressed")
-			$datum = gzuncompress(Main\Text\BinaryString::getSubstring($datum, 10));
+			$datum = gzuncompress(substr($datum, 10));
 
-		$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
-		$iblockSerialized = Main\Text\BinaryString::getSubstring($datum, 10, $len);
-		$datum = Main\Text\BinaryString::getSubstring($datum, $len + 10);
+		$len = intval(substr($datum, 0, 10));
+		$iblockSerialized = substr($datum, 10, $len);
+		$datum = substr($datum, $len + 10);
 
-		$marker = Main\Text\BinaryString::getSubstring($datum, 0, 1);
+		$marker = substr($datum, 0, 1);
 		$picture = null;
 		$pictureType = null;
 		if ($marker == "P")
 		{
-			$len = intval(Main\Text\BinaryString::getSubstring($datum, 1, 10));
-			$pictureType = Main\Text\BinaryString::getSubstring($datum, 11, $len);
-			$datum = Main\Text\BinaryString::getSubstring($datum, $len + 11);
+			$len = intval(substr($datum, 1, 10));
+			$pictureType = substr($datum, 11, $len);
+			$datum = substr($datum, $len + 11);
 
-			$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
-			$picture = Main\Text\BinaryString::getSubstring($datum, 10, $len);
-			$datum = Main\Text\BinaryString::getSubstring($datum, $len + 10);
+			$len = intval(substr($datum, 0, 10));
+			$picture = substr($datum, 10, $len);
+			$datum = substr($datum, $len + 10);
 
-			$marker = Main\Text\BinaryString::getSubstring($datum, 0, 1);
+			$marker = substr($datum, 0, 1);
 		}
 
 		$iblock = CheckSerializedData($iblockSerialized) ? unserialize($iblockSerialized, ['allowed_classes' => false]) : [];
-		$iblock = Main\Text\Encoding::convertEncodingArray($iblock, "UTF-8", LANG_CHARSET);
 		$iblockId = static::createIBlock($iblockType, $iblock, $pictureType, $picture, $siteId);
 
 		if ($iblockId > 0)
@@ -205,16 +201,15 @@ class Importer
 			{
 				if ($marker == "B")
 				{
-					$len = intval(Main\Text\BinaryString::getSubstring($datum, 1, 10));
-					$bpDescr = Main\Text\BinaryString::getSubstring($datum, 11, $len);
-					$datum = Main\Text\BinaryString::getSubstring($datum, $len + 11);
+					$len = intval(substr($datum, 1, 10));
+					$bpDescr = substr($datum, 11, $len);
+					$datum = substr($datum, $len + 11);
 
 					$bpDescr = CheckSerializedData($bpDescr) ? unserialize($bpDescr, ["allowed_classes" => false]) : [];
-					$bpDescr = Main\Text\Encoding::convertEncodingArray($bpDescr, "UTF-8", LANG_CHARSET);
 
-					$len = intval(Main\Text\BinaryString::getSubstring($datum, 0, 10));
-					$bp = Main\Text\BinaryString::getSubstring($datum, 10, $len);
-					$datum = Main\Text\BinaryString::getSubstring($datum, $len + 10);
+					$len = intval(substr($datum, 0, 10));
+					$bp = substr($datum, 10, $len);
+					$datum = substr($datum, $len + 10);
 
 					static::importTemplate($documentType, $bpDescr, $bp);
 				}
@@ -226,7 +221,7 @@ class Importer
 				if (empty($datum))
 					break;
 
-				$marker = Main\Text\BinaryString::getSubstring($datum, 0, 1);
+				$marker = substr($datum, 0, 1);
 			}
 		}
 	}

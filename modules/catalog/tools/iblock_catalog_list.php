@@ -21,7 +21,7 @@ if (B_ADMIN_IBLOCK_CATALOGS_LIST === false && $prologAbsent)
 if ($prologAbsent)
 {
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
-	CUtil::JSPostUnescape();
+
 	Loader::includeModule('catalog');
 
 	$readOnly = !AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);

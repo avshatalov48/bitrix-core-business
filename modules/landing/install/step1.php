@@ -8,7 +8,7 @@ if (!check_bitrix_sessid())
 
 if ($ex = $APPLICATION->GetException())
 {
-	echo \CAdminMessage::ShowMessage(array(
+	CAdminMessage::ShowMessage(array(
 		'TYPE'    => 'ERROR',
 		'MESSAGE' => Loc::getMessage('MOD_INST_ERR'),
 		'DETAILS' => $ex->GetString(),
@@ -17,7 +17,7 @@ if ($ex = $APPLICATION->GetException())
 }
 else
 {
-	echo \CAdminMessage::ShowNote(Loc::getMessage('MOD_INST_OK'));
+	CAdminMessage::ShowNote(Loc::getMessage('MOD_INST_OK'));
 }
 ?>
 <form action="<?= $APPLICATION->GetCurPage();?>">

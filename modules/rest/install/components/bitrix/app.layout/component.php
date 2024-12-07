@@ -509,7 +509,7 @@ if(
 						{
 							foreach($_REQUEST['options'] as $opt)
 							{
-								$arResult['APP_OPTIONS'][$opt['name']] = \Bitrix\Main\Text\Encoding::convertEncoding($opt['value'], 'utf-8', LANG_CHARSET);
+								$arResult['APP_OPTIONS'][$opt['name']] = $opt['value'];
 							}
 						}
 

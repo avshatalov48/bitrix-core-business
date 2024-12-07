@@ -84,7 +84,7 @@ class IpAddress
 	 */
 	public function matchRange(string $cidr): bool
 	{
-		if (strpos($cidr,'/') !== false)
+		if (str_contains($cidr, '/'))
 		{
 			[$subnet, $mask] = explode('/', $cidr);
 		}

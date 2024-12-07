@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 IncludeModuleLangFile(__FILE__);
@@ -56,7 +57,7 @@ class CArchiver implements IBXArchive
 			}
 			else
 			{
-				if (mb_substr($strArchiveName, -2) == 'gz')
+				if (str_ends_with($strArchiveName, 'gz'))
 				{
 					$this->_bCompress = true;
 				}
@@ -117,7 +118,7 @@ class CArchiver implements IBXArchive
 
 		if (is_array($arFileList) && !empty($arFileList))
 		{
-			$res = $this->_processFiles($arConvertedFileList, $this->add_path, $this->remove_path, $this->startFile);
+			$res = $this->_processFiles($arConvertedFileList, $this->add_path, $this->remove_path);
 		}
 
 		if ($res !== false && $res !== "continue")
@@ -697,20 +698,20 @@ class CArchiver implements IBXArchive
 
 		if ($strRemovePath <> '')
 		{
-			if (mb_substr($strRemovePath, -1) != '/')
+			if (!str_ends_with($strRemovePath, '/'))
 			{
 				$strRemovePath .= '/';
 			}
 
-			if (mb_substr($strFilename, 0, mb_strlen($strRemovePath)) == $strRemovePath)
+			if (str_starts_with($strFilename, $strRemovePath))
 			{
-				$strFilename_stored = mb_substr($strFilename, mb_strlen($strRemovePath));
+				$strFilename_stored = substr($strFilename, strlen($strRemovePath));
 			}
 		}
 
 		if ($strAddPath <> '')
 		{
-			if (mb_substr($strAddPath, -1) == '/')
+			if (str_ends_with($strAddPath, '/'))
 			{
 				$strFilename_stored = $strAddPath . $strFilename_stored;
 			}
@@ -837,20 +838,18 @@ class CArchiver implements IBXArchive
 		$p_path = $this->io->GetPhysicalName($p_path);
 
 		if ($p_path == ''
-			|| (mb_substr($p_path, 0, 1) != '/'
-				&& mb_substr($p_path, 0, 3) != "../"
+			|| (!str_starts_with($p_path, '/')
+				&& !str_starts_with($p_path, "../")
 				&& !mb_strpos($p_path, ':')))
 		{
 			$p_path = "./" . $p_path;
 		}
 
 		$p_remove_path = str_replace("\\", "/", $p_remove_path);
-		if (($p_remove_path != '') && (mb_substr($p_remove_path, -1) != '/'))
+		if (($p_remove_path != '') && (!str_ends_with($p_remove_path, '/')))
 		{
 			$p_remove_path .= '/';
 		}
-
-		$p_remove_path_size = mb_strlen($p_remove_path);
 
 		switch ($p_mode)
 		{
@@ -899,11 +898,11 @@ class CArchiver implements IBXArchive
 				for ($i = 0; $i < $l; $i++)
 				{
 					// ----- Look if it is a directory
-					if (mb_substr($p_file_list[$i], -1) == '/')
+					if (str_ends_with($p_file_list[$i], '/'))
 					{
 						// ----- Look if the directory is in the filename path
 						if ((mb_strlen($v_header['filename']) > mb_strlen($p_file_list[$i]))
-							&& (mb_substr($v_header['filename'], 0, mb_strlen($p_file_list[$i])) == $p_file_list[$i]))
+							&& (str_starts_with($v_header['filename'], $p_file_list[$i])))
 						{
 							$v_extract_file = true;
 							break;
@@ -926,18 +925,18 @@ class CArchiver implements IBXArchive
 			if (($v_extract_file) && (!$v_listing))
 			{
 				if (($p_remove_path != '')
-					&& (mb_substr($v_header['filename'], 0, $p_remove_path_size) == $p_remove_path))
+					&& (str_starts_with($v_header['filename'], $p_remove_path)))
 				{
-					$v_header['filename'] = mb_substr($v_header['filename'], $p_remove_path_size);
+					$v_header['filename'] = substr($v_header['filename'], strlen($p_remove_path));
 				}
 				if (($p_path != './') && ($p_path != '/'))
 				{
-					while (mb_substr($p_path, -1) == '/')
+					while (str_ends_with($p_path, '/'))
 					{
-						$p_path = mb_substr($p_path, 0, mb_strlen($p_path) - 1);
+						$p_path = substr($p_path, 0, -1);
 					}
 
-					if (mb_substr($v_header['filename'], 0, 1) == '/')
+					if (str_starts_with($v_header['filename'], '/'))
 					{
 						$v_header['filename'] = $p_path . $v_header['filename'];
 					}
@@ -1040,7 +1039,7 @@ class CArchiver implements IBXArchive
 				{
 					$v_file_dir = '';
 				}
-				if ((mb_substr($v_header['filename'], 0, 1) == '/') && ($v_file_dir == ''))
+				if ((str_starts_with($v_header['filename'], '/')) && ($v_file_dir == ''))
 				{
 					$v_file_dir = '/';
 				}
@@ -1340,7 +1339,8 @@ class CArchiver implements IBXArchive
 			return false;
 		}
 
-		$v_header['filename'] = $v_filename;
+		$v_header['filename'] = \Bitrix\Main\IO\Path::normalize($v_filename);
+
 		return true;
 	}
 
@@ -1373,7 +1373,7 @@ class CArchiver implements IBXArchive
 
 		if (isset($vFileList) && $vFileList <> '')
 		{
-			if (mb_strpos($vFileList, "\"") === 0)
+			if (str_starts_with($vFileList, "\""))
 			{
 				return [trim($vFileList,"\"")];
 			}
@@ -1597,7 +1597,7 @@ class CArchiver implements IBXArchive
 		{
 			$strPath = str_replace("\\", "/", $strPath);
 
-			while (strpos($strPath, ".../") !== false)
+			while (str_contains($strPath, ".../"))
 			{
 				$strPath = str_replace(".../", "../", $strPath);
 			}
@@ -1632,7 +1632,7 @@ class CArchiver implements IBXArchive
 		$path = str_replace(["\\", "//"], "/", $path);
 
 		//remove file name
-		if (mb_substr($path, -1) != "/")
+		if (!str_ends_with($path, "/"))
 		{
 			$p = mb_strrpos($path, "/");
 			$path = mb_substr($path, 0, $p);

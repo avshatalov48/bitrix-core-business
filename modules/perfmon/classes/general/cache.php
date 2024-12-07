@@ -303,7 +303,7 @@ class CPerfomanceCache
 				' . $strHaving . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			', $arNavStartParams['nTopCount']);
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 		elseif (is_array($arNavStartParams))
 		{
@@ -340,7 +340,7 @@ class CPerfomanceCache
 				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			';
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		return $res;

@@ -468,7 +468,7 @@ else
 				<div class="blog-clear-float"></div>
 			<?endif;?>
 		</div>
-		<script type="text/javascript">
+		<script>
 //			init editor for work with images previews
 			BX.BlogPostInit('<?=$component->createPostFormId()?>', {
 				editorID : '<?=$component->createEditorId()?>',

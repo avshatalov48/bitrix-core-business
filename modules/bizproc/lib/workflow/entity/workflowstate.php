@@ -26,6 +26,12 @@ use Bitrix\Main\Type\DateTime;
  */
 class WorkflowStateTable extends ORM\Data\DataManager
 {
+	public const ZOMBIE_DOCUMENT_ID = [
+		'bizproc',
+		'zombie',
+		'0',
+	];
+
 	/**
 	 * @return string
 	 */
@@ -148,6 +154,32 @@ class WorkflowStateTable extends ORM\Data\DataManager
 		return array_column($rows, 'ID');
 	}
 
+	public static function maskAsZombie(array $documentId)
+	{
+		$connection = Main\Application::getConnection();
+		$sqlHelper = $connection->getSqlHelper();
+		$table = $sqlHelper->forSql(static::getTableName());
+
+		$zombieDocId = $sqlHelper->forSql(static::ZOMBIE_DOCUMENT_ID[2]);
+		$zombieEntity = $sqlHelper->forSql(static::ZOMBIE_DOCUMENT_ID[1]);
+		$zombieModule = $sqlHelper->forSql(static::ZOMBIE_DOCUMENT_ID[0]);
+
+		$origDocId = $sqlHelper->forSql($documentId[2]);
+		$origEntity = $sqlHelper->forSql($documentId[1]);
+		$origModule = $sqlHelper->forSql($documentId[0]);
+
+		$connection->queryExecute("UPDATE {$table} 
+			SET 
+				DOCUMENT_ID = '{$zombieDocId}',
+				ENTITY = '{$zombieEntity}',
+				MODULE_ID = '{$zombieModule}' 
+			WHERE 
+				DOCUMENT_ID = '{$origDocId}' 
+				AND ENTITY = '{$origEntity}' 
+				AND MODULE_ID = '{$origModule}'
+		");
+	}
+
 	public static function onBeforeUpdate(ORM\Event $event): ORM\EventResult
 	{
 		$result = new ORM\EventResult;
@@ -199,6 +231,7 @@ class WorkflowStateTable extends ORM\Data\DataManager
 		$id = $event->getParameter('primary')['ID'];
 
 		WorkflowUserTable::deleteByWorkflow($id);
+		WorkflowUserCommentTable::deleteByWorkflow($id);
 		WorkflowFilterTable::delete($id);
 	}
 }

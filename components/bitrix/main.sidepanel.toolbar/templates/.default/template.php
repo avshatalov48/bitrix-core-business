@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -14,9 +17,9 @@ $frame = $this->createFrame()->begin('');
 <script>
 	(function() {
 		const toolbar = BX.SidePanel.Instance.createToolbar(
-			<?= CUtil::PhpToJSObject($arResult['options'], false, false, true) ?>
+			<?= Json::encode($arResult['options']) ?>
 		);
-		const shouldShowSpotlight = <?= CUtil::PhpToJSObject($arResult['spotlight'], false, false, true) ?>;
+		const shouldShowSpotlight = <?= Json::encode($arResult['spotlight']) ?>;
 
 		let spotlight = null;
 		const showSpotlight = () => {

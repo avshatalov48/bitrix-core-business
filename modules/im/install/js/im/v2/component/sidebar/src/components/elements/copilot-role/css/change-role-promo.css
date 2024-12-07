@@ -1,0 +1,6 @@
+.bx-im-copilot-change-role-promo__copilot {
+	--im-copilot-change-role-promo__color_copilot: var(--im-color-palette-copilot-primary, var(--ui-color-copilot-primary));
+
+	font-style: normal;
+	color: var(--im-copilot-change-role-promo__color_copilot);
+}

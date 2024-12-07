@@ -1,9 +1,9 @@
 .bx-im-list-recent__calls_container {
-	--im-list-recent__background-color: var(--im-list-recent__background-color_calls-section);
-	--im-list-recent__background-color_hover: var(--im-list-recent__background-color_calls-section);
+	--im-list-recent-calls__background-color: linear-gradient(0deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.2)), #F1FBD0;
+	--im-list-recent__border-color_calls-section: rgba(82, 92, 105, 0.08);
 
 	flex-shrink: 0;
-	background: var(--im-list-recent__background-color_calls-section);
+	background: var(--im-list-recent-calls__background-color);
 	border: 1px solid var(--im-list-recent__border-color_calls-section);
 	border-radius: 10px;
 	margin: 4px 4px 6px 4px;
@@ -75,4 +75,9 @@
 
 .bx-im-list-recent-active-call__container .bx-im-list-recent-item__content_container {
 	padding-bottom: 7px;
+}
+
+.bx-im-list-recent-active-call-item__wrap,
+.bx-im-list-recent-active-call-item__wrap:hover {
+	background-color: var(--im-list-recent-calls__background-color);
 }

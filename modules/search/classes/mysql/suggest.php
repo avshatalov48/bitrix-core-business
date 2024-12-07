@@ -11,7 +11,7 @@ class CSearchSuggest
 		if (preg_match("/^[0-9a-f]{32}$/", $strFilterMD5))
 			$this->_filter_md5 = $strFilterMD5;
 
-		$phrase = ToLower(trim($phrase, " \t\n\r"));
+		$phrase = mb_strtolower(trim($phrase, " \t\n\r"));
 		if ($l = mb_strlen($phrase))
 		{
 			if ($l > 250)

@@ -73,6 +73,10 @@
 	cursor: pointer;
 }
 
+.calendar-sharing__dialog-info a {
+	cursor: pointer;
+}
+
 .calendar-sharing__dialog-info_more {
 	font-weight: 400 !important;
 	color: var(--ui-color-base-50) !important;
@@ -87,6 +91,7 @@
 .calendar-sharing__dialog-message {
 	display: flex;
 	align-items: center;
+	margin-bottom: 20px;
 }
 
 .calendar-sharing__dialog-body:last-child {

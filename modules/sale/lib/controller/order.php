@@ -24,7 +24,8 @@ class Order extends Controller
 		return new ExactParameter(
 			Sale\Order::class,
 			'order',
-			function($className, $id) {
+			function($className, $id)
+			{
 				$id = (int)$id;
 				if ($id > 0)
 				{
@@ -42,6 +43,7 @@ class Order extends Controller
 				}
 
 				$this->addError(new Error('order is not exists', 200540400001));
+
 				return null;
 			}
 		);
@@ -245,7 +247,13 @@ class Order extends Controller
 		}
 	}
 
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
+	public function listAction(
+		PageNavigation $pageNavigation,
+		array $select = [],
+		array $filter = [],
+		array $order = [],
+		bool $__calculateTotalCount = true
+	): Page
 	{
 		$select = empty($select) ? ['*'] : $select;
 		$order = empty($order) ? ['ID' => 'ASC'] : $order;
@@ -267,28 +275,21 @@ class Order extends Controller
 		/** @var Sale\Order $orderClass */
 		$orderClass = $registry->getOrderClassName();
 
-		$orders = $orderClass::getList(
+		$iterator = $orderClass::getList(
 			[
-				'select'=>$select,
-				'filter'=>$filter,
-				'order'=>$order,
-				'offset'=>$pageNavigation->getOffset(),
-				'limit'=>$pageNavigation->getLimit(),
-				'runtime'=>$runtime
+				'select' => $select,
+				'filter' => $filter,
+				'order' => $order,
+				'offset' => $pageNavigation->getOffset(),
+				'limit' => $pageNavigation->getLimit(),
+				'runtime' => $runtime,
+				'count_total' => $__calculateTotalCount,
 			]
-		)->fetchAll();
+		);
+		$orders = $iterator->fetchAll();
+		$totalCount = $__calculateTotalCount ? $iterator->getCount() : 0;
 
-		return new Page('ORDERS', $orders, function() use ($select, $filter, $runtime)
-		{
-			$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-
-			/** @var Sale\Order $orderClass */
-			$orderClass = $registry->getOrderClassName();
-
-			return count(
-				$orderClass::getList(['select'=>$select, 'filter'=>$filter, 'runtime'=>$runtime])->fetchAll()
-			);
-		});
+		return new Page('ORDERS', $orders, $totalCount);
 	}
 
 	public function deleteAction(\Bitrix\Sale\Order $order)
@@ -474,11 +475,12 @@ class Order extends Controller
 		$r = new Result();
 
 		$builder = $this->getBuilder();
-		try{
+		try
+		{
 			$builder->build($fields);
 			$errorsContainer = $builder->getErrorsContainer();
 		}
-		catch(BuildingException $e)
+		catch(BuildingException)
 		{
 			if($builder->getErrorsContainer()->getErrorCollection()->count()<=0)
 			{
@@ -501,8 +503,10 @@ class Order extends Controller
 
 		$fields = ['ORDER'=>$fields];
 
-		if($fields['ORDER']['ID'])
+		if (isset($fields['ORDER']['ID']))
+		{
 			unset($fields['ORDER']['ID']);
+		}
 
 		$orderBuilder = $this->getBuilder();
 		$order = $orderBuilder->buildEntityOrder($fields);
@@ -564,7 +568,7 @@ class Order extends Controller
 
 	private static function setFlagActionImport()
 	{
-		//TODO: huck для блокировки исходящего события в \Bitrix\Sale\Rest\RestManager::processEvent(). Блокируется действием - import т.к. запрос входящий
+		//TODO: huck РґР»СЏ Р±Р»РѕРєРёСЂРѕРІРєРё РёСЃС…РѕРґСЏС‰РµРіРѕ СЃРѕР±С‹С‚РёСЏ РІ \Bitrix\Sale\Rest\RestManager::processEvent(). Р‘Р»РѕРєРёСЂСѓРµС‚СЃСЏ РґРµР№СЃС‚РІРёРµРј - import С‚.Рє. Р·Р°РїСЂРѕСЃ РІС…РѕРґСЏС‰РёР№
 		$instance = \Bitrix\Sale\Rest\Synchronization\Manager::getInstance();
 		$instance->setAction(\Bitrix\Sale\Rest\Synchronization\Manager::ACTION_IMPORT);
 	}
@@ -603,11 +607,11 @@ class Order extends Controller
 		$internalOrderStatusId = $this->getInternalId($fields['ORDER']['STATUS_XML_ID'], Registry::ENTITY_ORDER_STATUS);
 		$fields['ORDER']['STATUS_ID' ] = $internalOrderStatusId<>''? $internalOrderStatusId:$instance->getDefaultOrderStatusId();
 
-		// значения определются только для нового заказа.
-		// в отличии от реста магазина в рамках реста импорта изменение значений полей заказа - сайта, типа плательщика или пользователя не производится
+		// Р·РЅР°С‡РµРЅРёСЏ РѕРїСЂРµРґРµР»СЋС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ РЅРѕРІРѕРіРѕ Р·Р°РєР°Р·Р°.
+		// РІ РѕС‚Р»РёС‡РёРё РѕС‚ СЂРµСЃС‚Р° РјР°РіР°Р·РёРЅР° РІ СЂР°РјРєР°С… СЂРµСЃС‚Р° РёРјРїРѕСЂС‚Р° РёР·РјРµРЅРµРЅРёРµ Р·РЅР°С‡РµРЅРёР№ РїРѕР»РµР№ Р·Р°РєР°Р·Р° - СЃР°Р№С‚Р°, С‚РёРїР° РїР»Р°С‚РµР»СЊС‰РёРєР° РёР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ РЅРµ РїСЂРѕРёР·РІРѕРґРёС‚СЃСЏ
 		if(intval($internalId)<=0)
 		{
-			//TODO: предусмотреть связь с внешней системой
+			//TODO: РїСЂРµРґСѓСЃРјРѕС‚СЂРµС‚СЊ СЃРІСЏР·СЊ СЃ РІРЅРµС€РЅРµР№ СЃРёСЃС‚РµРјРѕР№
 			$internalPersonTypeId = $this->getInternalId($fields['ORDER']['PERSON_TYPE_XML_ID'], 'PERSON_TYPE_TYPE');
 			$fields['ORDER']['PERSON_TYPE_ID'] = $internalPersonTypeId>0 ?  $internalPersonTypeId:$instance->getDefaultPersonTypeId();
 			$fields['ORDER']['USER_ID'] = \CSaleUser::GetAnonymousUserID();
@@ -635,7 +639,7 @@ class Order extends Controller
 
 				unset($item['ORDER_PROPS_ID']);
 				unset($item['ORDER_PROPS_XML_ID']);
-				unset($item['ID']);//id не передается т.к. запись значения свойства идентифицируется только по orderPropsId
+				unset($item['ID']);//id РЅРµ РїРµСЂРµРґР°РµС‚СЃСЏ С‚.Рє. Р·Р°РїРёСЃСЊ Р·РЅР°С‡РµРЅРёСЏ СЃРІРѕР№СЃС‚РІР° РёРґРµРЅС‚РёС„РёС†РёСЂСѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РїРѕ orderPropsId
 
 				if($externalId<>'')
 				{
@@ -766,7 +770,7 @@ class Order extends Controller
 						$ixInternal['SHIPMENTS'][$k]['SHIPMENT_ITEMS'][$kb]['MAP'][$externalId] = $internalIdShipmentItem;
 					}
 
-					// получим из внешнего соответствие xmlId => id.внешней системы, внешний идентификатор по внутреннему id внейшней системы
+					// РїРѕР»СѓС‡РёРј РёР· РІРЅРµС€РЅРµРіРѕ СЃРѕРѕС‚РІРµС‚СЃС‚РІРёРµ xmlId => id.РІРЅРµС€РЅРµР№ СЃРёСЃС‚РµРјС‹, РІРЅРµС€РЅРёР№ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ РїРѕ РІРЅСѓС‚СЂРµРЅРЅРµРјСѓ id РІРЅРµР№С€РЅРµР№ СЃРёСЃС‚РµРјС‹
 					$external = '';
 					foreach ($ixExternal['BASKET_ITEMS'] as $map)
 					{
@@ -784,7 +788,7 @@ class Order extends Controller
 
 					if($external<>'')
 					{
-						// получим реальный id корзины из внутренниго соответсвия xmlId => id.внутрений сиситемы
+						// РїРѕР»СѓС‡РёРј СЂРµР°Р»СЊРЅС‹Р№ id РєРѕСЂР·РёРЅС‹ РёР· РІРЅСѓС‚СЂРµРЅРЅРёРіРѕ СЃРѕРѕС‚РІРµС‚СЃРІРёСЏ xmlId => id.РІРЅСѓС‚СЂРµРЅРёР№ СЃРёСЃРёС‚РµРјС‹
 						foreach ($ixInternal['BASKET_ITEMS'] as $map)
 						{
 							if(isset($map['MAP'][$external]))
@@ -810,7 +814,7 @@ class Order extends Controller
 					$ixExternal['TRADE_BINDINGS'][$k]['MAP'][$externalId] = $item['ID'];
 
 					unset($item['ID']);
-					if($externalId<>'') // условие для БУС. xmlId из БУС не передается
+					if($externalId<>'') // СѓСЃР»РѕРІРёРµ РґР»СЏ Р‘РЈРЎ. xmlId РёР· Р‘РЈРЎ РЅРµ РїРµСЂРµРґР°РµС‚СЃСЏ
 					{
 						$internalId = $this->getInternalId($externalId, Registry::ENTITY_TRADE_BINDING_COLLECTION, ['ORDER_ID'=>$internalOrderId]);
 						if(intval($internalId)>0)
@@ -850,8 +854,8 @@ class Order extends Controller
 		}
 		else
 		{
-			// оставляем ключ TRADE_BINDINGS чтобы на строне БУС не удалить реальные привязки источников к заказам.
-			// источники в рамках обмена не поддерживаются. Их подменяет настройка сайт со стороны БУС и источник на строне Б24
+			// РѕСЃС‚Р°РІР»СЏРµРј РєР»СЋС‡ TRADE_BINDINGS С‡С‚РѕР±С‹ РЅР° СЃС‚СЂРѕРЅРµ Р‘РЈРЎ РЅРµ СѓРґР°Р»РёС‚СЊ СЂРµР°Р»СЊРЅС‹Рµ РїСЂРёРІСЏР·РєРё РёСЃС‚РѕС‡РЅРёРєРѕРІ Рє Р·Р°РєР°Р·Р°Рј.
+			// РёСЃС‚РѕС‡РЅРёРєРё РІ СЂР°РјРєР°С… РѕР±РјРµРЅР° РЅРµ РїРѕРґРґРµСЂР¶РёРІР°СЋС‚СЃСЏ. РС… РїРѕРґРјРµРЅСЏРµС‚ РЅР°СЃС‚СЂРѕР№РєР° СЃР°Р№С‚ СЃРѕ СЃС‚РѕСЂРѕРЅС‹ Р‘РЈРЎ Рё РёСЃС‚РѕС‡РЅРёРє РЅР° СЃС‚СЂРѕРЅРµ Р‘24
 			$fields['ORDER']['TRADE_BINDINGS'] = [];
 			unset($fields['ORDER']['CLIENTS']);
 		}
@@ -932,8 +936,8 @@ class Order extends Controller
 
 	private function prepareFieldsShipment($item)
 	{
-		// т.к. сопоставление служб доставок через xml подразумевает передачу суммы от БУС в Б24 (а не расчет)
-		// принудительно указываем что цена кастомная
+		// С‚.Рє. СЃРѕРїРѕСЃС‚Р°РІР»РµРЅРёРµ СЃР»СѓР¶Р± РґРѕСЃС‚Р°РІРѕРє С‡РµСЂРµР· xml РїРѕРґСЂР°Р·СѓРјРµРІР°РµС‚ РїРµСЂРµРґР°С‡Сѓ СЃСѓРјРјС‹ РѕС‚ Р‘РЈРЎ РІ Р‘24 (Р° РЅРµ СЂР°СЃС‡РµС‚)
+		// РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ СѓРєР°Р·С‹РІР°РµРј С‡С‚Рѕ С†РµРЅР° РєР°СЃС‚РѕРјРЅР°СЏ
 		$item['CUSTOM_PRICE_DELIVERY'] = 'Y';
 
 		return $item;

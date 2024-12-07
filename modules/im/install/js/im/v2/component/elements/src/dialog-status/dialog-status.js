@@ -109,7 +109,7 @@ export const DialogStatus = {
 		{
 			const { date } = this.lastMessageViews.firstViewer;
 
-			return this.loc('IM_ELEMENTS_STATUS_READ_USER', {
+			return this.loc('IM_ELEMENTS_STATUS_READ_USER_MSGVER_1', {
 				'#DATE#': DateFormatter.formatByTemplate(date, DateTemplate.messageReadStatus),
 			});
 		},

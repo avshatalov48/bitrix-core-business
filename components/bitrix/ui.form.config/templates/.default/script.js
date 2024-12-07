@@ -85,7 +85,7 @@
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _scopeId, options['scopeId'] || null);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _members, options['members'] || null);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _node, BX("ui-editor-config-".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this2), _scopeId))));
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _selectedItems, null);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _selectedItems, {});
 	    _this2.drawingIconsLimit = options['drawingIconsLimit'] || 10;
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this2), _moduleId, options['moduleId'] || null);
 	    _this2.config = options['config'] || null;
@@ -116,11 +116,15 @@
 	    key: "onAddToAccessCodes",
 	    value: function onAddToAccessCodes(event) {
 	      var _this3 = this;
+	      if (event.data.state === 'select') {
+	        var itemId = event.data.item.id;
+	        babelHelpers.classPrivateFieldGet(this, _selectedItems)[itemId] = event.data.entityType;
+	      }
 	      BX.ajax.runComponentAction('bitrix:ui.form.config', 'updateScopeAccessCodes', {
 	        'data': {
 	          moduleId: babelHelpers.classPrivateFieldGet(this, _moduleId),
 	          scopeId: babelHelpers.classPrivateFieldGet(this, _scopeId),
-	          accessCodes: _classPrivateMethodGet(this, _getSelectedItems, _getSelectedItems2).call(this)
+	          accessCodes: babelHelpers.classPrivateFieldGet(this, _selectedItems)
 	        }
 	      }).then(function (result) {
 	        _classPrivateMethodGet(_this3, _adjust, _adjust2).call(_this3, result.data);
@@ -129,6 +133,8 @@
 	  }, {
 	    key: "onRemoveFromAccessCodes",
 	    value: function onRemoveFromAccessCodes(event) {
+	      var itemId = event.data.item.id;
+	      delete babelHelpers.classPrivateFieldGet(this, _selectedItems)[itemId];
 	      this.onAddToAccessCodes(event);
 	    }
 	  }], [{
@@ -202,7 +208,7 @@
 	  }]);
 	  BX.onCustomEvent(babelHelpers.classPrivateFieldGet(this, _reinitDialogEvent), [{
 	    selectorId: this.config.popupContainer,
-	    selectedItems: _classPrivateMethodGet(this, _getSelectedItems, _getSelectedItems2).call(this)
+	    selectedItems: main_core.Runtime.clone(_classPrivateMethodGet(this, _getSelectedItems, _getSelectedItems2).call(this))
 	  }]);
 	}
 	function _addEvents2() {
@@ -211,7 +217,7 @@
 	  main_core_events.EventEmitter.subscribe('BX.Ui.Form.ConfigItem:closePopup', this.closePopupHandler);
 	}
 	function _getSelectedItems2() {
-	  if (babelHelpers.classPrivateFieldGet(this, _members) && !babelHelpers.classPrivateFieldGet(this, _selectedItems)) {
+	  if (babelHelpers.classPrivateFieldGet(this, _members) && !main_core.Type.isArrayFilled(Object.keys(babelHelpers.classPrivateFieldGet(this, _selectedItems)))) {
 	    var items = {};
 	    for (var member in babelHelpers.classPrivateFieldGet(this, _members)) {
 	      items[member] = babelHelpers.classPrivateFieldGet(this, _members)[member].type.toUpperCase();

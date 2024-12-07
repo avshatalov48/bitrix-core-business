@@ -302,7 +302,13 @@ class Service
 			return false;
 		}
 
+		if (!$engine->getInterface())
+		{
+			return false;
+		}
+
 		$response = $engine->getInterface()->getTransport()->call($methodName, $parameters);
+
 		return (isset($response['result']['RESULT']) && $response['result']['RESULT']);
 	}
 

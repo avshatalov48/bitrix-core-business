@@ -41,7 +41,7 @@ class BoardButton
 	public function addJs($jsPath)
 	{
 		$this->jsList[] = $jsPath;
- 	}
+	}
 
 
 	public function getStringList()

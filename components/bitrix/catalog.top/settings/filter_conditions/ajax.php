@@ -11,7 +11,6 @@ if (!check_bitrix_sessid() || !\Bitrix\Main\Loader::includeModule('catalog'))
 global $APPLICATION;
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 $ids = $request->get('ids');
 $action = $request->get('action');
 

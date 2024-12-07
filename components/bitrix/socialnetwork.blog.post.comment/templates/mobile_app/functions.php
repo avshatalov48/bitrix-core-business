@@ -31,7 +31,7 @@ function socialnetworkBlogPostCommentMobile(
 		$avatarKey = "PERSONAL_PHOTO_resized_30";
 	}
 
-	$arUser = $arResult["userCache"][$comment["AUTHOR_ID"]];
+	$arUser = ($arResult["userCache"][$comment["AUTHOR_ID"]] ?? []);
 	if (!array_key_exists($avatarKey, $arUser) && (int)$arUser["PERSONAL_PHOTO"] > 0)
 	{
 		$arResult["userCache"][$comment["AUTHOR_ID"]][$avatarKey] = CFile::ResizeImageGet(

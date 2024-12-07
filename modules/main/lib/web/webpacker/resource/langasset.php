@@ -96,7 +96,7 @@ class LangAsset extends Asset
 		{
 			foreach ($prefixes as $prefix)
 			{
-				if (mb_strpos($code, $prefix) !== 0)
+				if (!str_starts_with($code, $prefix))
 				{
 					continue;
 				}

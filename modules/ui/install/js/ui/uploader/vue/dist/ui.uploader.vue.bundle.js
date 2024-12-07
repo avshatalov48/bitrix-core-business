@@ -9,6 +9,7 @@ this.BX.UI = this.BX.UI || {};
 	var _uploader = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploader");
 	var _items = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("items");
 	var _uploaderError = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("uploaderError");
+	var _removeFilesFromServer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("removeFilesFromServer");
 	var _handleFileAdd = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileAdd");
 	var _handleFileRemove = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileRemove");
 	var _handleFileStateChange = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleFileStateChange");
@@ -56,12 +57,14 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: null
 	    });
+	    Object.defineProperty(this, _removeFilesFromServer, {
+	      writable: true,
+	      value: true
+	    });
 	    this.setEventNamespace('BX.UI.Uploader.Vue.Adapter');
 	    babelHelpers.classPrivateFieldLooseBase(this, _items)[_items] = ui_vue3.ref([]);
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploaderError)[_uploaderError] = ui_vue3.shallowRef(null);
-	    const options = main_core.Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
-	    const userEvents = options.events;
-	    options.events = {
+	    const events = {
 	      [ui_uploader_core.UploaderEvent.FILE_ADD_START]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileAdd)[_handleFileAdd].bind(this),
 	      [ui_uploader_core.UploaderEvent.FILE_REMOVE]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileRemove)[_handleFileRemove].bind(this),
 	      [ui_uploader_core.UploaderEvent.FILE_STATE_CHANGE]: babelHelpers.classPrivateFieldLooseBase(this, _handleFileStateChange)[_handleFileStateChange].bind(this),
@@ -71,8 +74,30 @@ this.BX.UI = this.BX.UI || {};
 	      [ui_uploader_core.UploaderEvent.UPLOAD_START]: babelHelpers.classPrivateFieldLooseBase(this, _handleUploadStart)[_handleUploadStart].bind(this),
 	      [ui_uploader_core.UploaderEvent.UPLOAD_COMPLETE]: babelHelpers.classPrivateFieldLooseBase(this, _handleUploadComplete)[_handleUploadComplete].bind(this)
 	    };
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = new ui_uploader_core.Uploader(options);
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribeFromOptions(userEvents);
+	    if (uploaderOptions instanceof ui_uploader_core.Uploader) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = uploaderOptions;
+	      if (babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].getFileCount() > 0) {
+	        throw new Error('VueUploaderAdapter: an uploader have some files. We cannot create an adapter.');
+	      }
+
+	      // Resubscribe events because adapter events must be first
+	      Object.keys(events).forEach(eventName => {
+	        const currentListeners = [...babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].getListeners(eventName).keys()];
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].unsubscribeAll(eventName);
+	        babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(eventName, events[eventName]);
+	        currentListeners.forEach(listener => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribe(eventName, listener);
+	        });
+	      });
+	    } else {
+	      const options = main_core.Type.isPlainObject(uploaderOptions) ? {
+	        ...uploaderOptions
+	      } : {};
+	      const userEvents = options.events;
+	      options.events = events;
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = new ui_uploader_core.Uploader(options);
+	      babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].subscribeFromOptions(userEvents);
+	    }
 	  }
 	  getUploader() {
 	    return babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader];
@@ -89,8 +114,13 @@ this.BX.UI = this.BX.UI || {};
 	  getItem(id) {
 	    return this.getItems().find(item => item.id === id) || null;
 	  }
+	  setRemoveFilesFromServerWhenDestroy(value = true) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _removeFilesFromServer)[_removeFilesFromServer] = value;
+	  }
 	  destroy() {
-	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].destroy();
+	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader].destroy({
+	      removeFilesFromServer: babelHelpers.classPrivateFieldLooseBase(this, _removeFilesFromServer)[_removeFilesFromServer]
+	    });
 	    babelHelpers.classPrivateFieldLooseBase(this, _uploader)[_uploader] = null;
 	  }
 	}
@@ -262,7 +292,10 @@ this.BX.UI = this.BX.UI || {};
 	  beforeCreate() {
 	    if (this.uploaderAdapter === null) {
 	      this.hasOwnAdapter = true;
-	      const uploaderOptions = Object.assign({}, main_core.Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {}, this.uploaderOptions);
+	      const uploaderOptions = {
+	        ...(main_core.Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {}),
+	        ...this.uploaderOptions
+	      };
 	      this.adapter = new VueUploaderAdapter(uploaderOptions);
 	    } else {
 	      this.hasOwnAdapter = false;

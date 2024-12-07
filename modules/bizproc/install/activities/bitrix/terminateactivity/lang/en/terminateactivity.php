@@ -1,6 +1,7 @@
 <?php
+
 $MESS["BPTA1_KILL_WF_NAME"] = "Delete workflow data";
-$MESS["BPTA1_STATE_TITLE"] = "Execution interrupted.";
+$MESS["BPTA1_STATE_TITLE_MSGVER_1"] = "Execution aborted";
 $MESS["BPTA1_STATE_TITLE_NAME"] = "Status Text";
 $MESS["BPTA1_TERMINATE"] = "Abort workflow";
 $MESS["BPTA1_TERMINATE_ALL"] = "All template workflows";

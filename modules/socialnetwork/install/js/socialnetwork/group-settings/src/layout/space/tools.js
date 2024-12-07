@@ -87,7 +87,7 @@ export class Tools extends Feature
 						${Text.encode(feature.name)}
 					</div>
 					<div class="ui-ctl ui-ctl-textbox ui-ctl-inline sn-side-panel__space-settings_section-item-input-block">
-						<input ref="inputFeature"  name="tasks_name" type="text 5" class="ui-ctl-element" data-role="feature-input-text" value="${Text.encode(name)}">
+						<input ref="inputFeature"  name="tasks_name" type="text" class="ui-ctl-element" data-role="feature-input-text" value="${Text.encode(name)}">
 					</div>
 				</div>
 			<div ref="editButton" class="ui-icon-set --pencil-40 sn-side-panel__space-settings_edit-btn" style="--ui-icon-set__icon-size: 19px;"></div>
@@ -108,7 +108,9 @@ export class Tools extends Feature
 			},
 		});
 
-		Event.bind(switcherToggle, 'click', () => switcher.check(!feature.active));
+		Event.bind(switcherToggle, 'click', () => {
+			switcher.check(!feature.active);
+		});
 
 		Event.bind(editButton, 'click', () => {
 			Dom.removeClass(node, '--standard');
@@ -131,7 +133,7 @@ export class Tools extends Feature
 
 	#save(featureId: number)
 	{
-		Controller.changeFeatures(this.#groupId, [this.#features.get(featureId)]);
+		Controller.changeFeature(this.#groupId, this.#features.get(featureId));
 	}
 
 	#toggleActive(featureId: number)
@@ -153,6 +155,6 @@ export class Tools extends Feature
 			this.#features.get(featureId).customName = null;
 		}
 
-		Controller.changeFeatures(this.#groupId, [this.#features.get(featureId)]);
+		Controller.changeFeature(this.#groupId, this.#features.get(featureId));
 	}
 }

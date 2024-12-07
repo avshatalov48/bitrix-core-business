@@ -44,7 +44,7 @@ if(
 }
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 
 		BX.Sender.Letter.init(<?=Json::encode(array(

@@ -116,7 +116,7 @@ if ($APPLICATION->getGroupRight('abtest') >= 'W')
 if ($error === false)
 {
 	$data = array(
-		'result' => Bitrix\Main\Text\Encoding::convertEncoding($result, LANG_CHARSET, 'UTF-8'),
+		'result' => $result,
 		'error'  => false
 	);
 }
@@ -124,7 +124,7 @@ else
 {
 	$data = array(
 		'result' => 'error',
-		'error'  => Bitrix\Main\Text\Encoding::convertEncoding($error, LANG_CHARSET, 'UTF-8')
+		'error'  => $error
 	);
 }
 

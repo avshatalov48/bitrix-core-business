@@ -1,10 +1,16 @@
 import { Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
+import type { ImModelChat } from 'im.v2.model';
+
 // @vue/component
 export const SendButton = {
 	props:
 	{
+		dialogId: {
+			type: String,
+			default: '',
+		},
 		editMode: {
 			type: Boolean,
 			default: false,
@@ -14,12 +20,16 @@ export const SendButton = {
 			default: false,
 		},
 	},
-	data(): Object
-	{
-		return {};
-	},
 	computed:
 	{
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		dialogTypeClass(): string
+		{
+			return `--${this.dialog.type}`;
+		},
 		buttonHint(): string
 		{
 			const sendByEnter = this.$store.getters['application/settings/get'](Settings.hotkey.sendByEnter);
@@ -42,7 +52,7 @@ export const SendButton = {
 		<div
 			:title="buttonHint"
 			class="bx-im-send-panel__button_container"
-			:class="{'--edit': editMode, '--disabled': isDisabled}"
+			:class="[{'--edit': editMode, '--disabled': isDisabled, }, dialogTypeClass]"
 		></div>
 	`,
 };

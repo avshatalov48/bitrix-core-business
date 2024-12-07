@@ -33,6 +33,7 @@ class MessageCollection extends ArrayObject implements Collection
     /**
      * {@inheritdoc}
      */
+	#[\ReturnTypeWillChange]
     public function offsetSet($offset, $value)
     {
         if ( ! $value instanceof Message) {

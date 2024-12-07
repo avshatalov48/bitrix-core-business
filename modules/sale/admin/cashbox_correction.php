@@ -211,7 +211,7 @@ $jsData = [
 ];
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(
 		function()
 		{

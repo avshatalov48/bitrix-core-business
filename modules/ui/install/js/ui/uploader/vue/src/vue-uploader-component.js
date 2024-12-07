@@ -12,7 +12,7 @@ export const VueUploaderComponent: BitrixVueComponentProps = {
 	name: 'VueUploaderComponent',
 	props: {
 		uploaderOptions: {
-			type: Object
+			type: Object,
 		},
 		widgetOptions: {
 			type: Object,
@@ -33,7 +33,7 @@ export const VueUploaderComponent: BitrixVueComponentProps = {
 			adapter: this.adapter,
 			widgetOptions: this.widgetOptions,
 			emitter: this.emitter,
-		}
+		};
 	},
 	beforeCreate(): void
 	{
@@ -41,11 +41,10 @@ export const VueUploaderComponent: BitrixVueComponentProps = {
 		{
 			this.hasOwnAdapter = true;
 
-			const uploaderOptions = Object.assign(
-				{},
-				Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {},
-				this.uploaderOptions
-			);
+			const uploaderOptions = {
+				...(Type.isPlainObject(this.customUploaderOptions) ? this.customUploaderOptions : {}),
+				...this.uploaderOptions,
+			};
 
 			this.adapter = new VueUploaderAdapter(uploaderOptions);
 		}
@@ -73,5 +72,5 @@ export const VueUploaderComponent: BitrixVueComponentProps = {
 			this.adapter = null;
 			this.uploader = null;
 		}
-	}
-}
+	},
+};

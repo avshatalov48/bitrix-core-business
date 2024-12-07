@@ -1,5 +1,6 @@
 import { Core } from 'im.v2.application.core';
 import { ChatType } from 'im.v2.const';
+
 import { MainPanels, MainPanelType } from '../../panel-config';
 
 export function getMainBlocksForChat(dialogId: string): string[]
@@ -14,19 +15,18 @@ export function getMainBlocksForChat(dialogId: string): string[]
 function getMainPanelType(dialogId: string): $Keys<typeof MainPanelType>
 {
 	const chatType = getChatType(dialogId);
-	if (isSupportChat(chatType))
+	if (isSupportChat(dialogId))
 	{
-		return MainPanelType.support24;
+		return MainPanelType.support24Question;
 	}
 
 	return MainPanelType[chatType] ?? MainPanelType.chat;
 }
 
-const isSupportChat = (chatType: $Keys<typeof ChatType>): boolean => {
-	// TODO: implement
-	return false;
+const isSupportChat = (dialogId: string): boolean => {
+	return Core.getStore().getters['sidebar/multidialog/isSupport'](dialogId);
 };
 
 const getChatType = (dialogId: string): $Keys<typeof ChatType> => {
-	return Core.getStore().getters['chats/get'](dialogId).type;
+	return Core.getStore().getters['chats/get'](dialogId, true).type;
 };

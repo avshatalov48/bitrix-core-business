@@ -141,7 +141,7 @@ $contentClass .= $arResult['POPUP'] == 'Y' ? ' ies-content-hide' : '';
 	<?endif?>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		BX.Iblock['<?=$jsObject?>'] = new BX.Iblock.IblockElementSelector({
 			randomString: '<?=$randomString?>',

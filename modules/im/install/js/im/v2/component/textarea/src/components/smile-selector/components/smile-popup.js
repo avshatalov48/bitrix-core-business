@@ -1,5 +1,6 @@
 import { TabsColorScheme, MessengerPopup, MessengerTabs } from 'im.v2.component.elements';
 import { PlacementType } from 'im.v2.const';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 import { MarketManager } from 'im.v2.lib.market';
 import { TabSmiles } from './tabs/tab-smiles';
 import { TabGiphy } from './tabs/tab-giphy';
@@ -69,11 +70,23 @@ export const SmilePopup = {
 		{
 			return MarketManager.getInstance().getAvailablePlacementsByType(PlacementType.smilesSelector, this.dialogId);
 		},
+		isGiphyAvailable(): boolean
+		{
+			return FeatureManager.isFeatureAvailable(Feature.giphyAvailable);
+		},
 		tabs(): Tab[]
 		{
-			return [
+			const tabs = [
 				this.smilesTab,
-				this.giphyTab,
+			];
+
+			if (this.isGiphyAvailable)
+			{
+				tabs.push(this.giphyTab);
+			}
+
+			return [
+				...tabs,
 				...this.marketTabs,
 			];
 		},
@@ -122,8 +135,8 @@ export const SmilePopup = {
 				<div class="bx-im-smile-popup__tabs-container">
 					<MessengerTabs :colorScheme="TabsColorScheme.gray" :tabs="tabs" @tabSelect="tabSelect"  />
 				</div>
-				<TabSmiles v-show="currentTab === TabType.default" @close="$emit('close')" />
-				<TabGiphy v-show="currentTab === TabType.giphy" @close="$emit('close')" :dialogId="dialogId" />
+				<TabSmiles v-show="currentTab === TabType.default" :dialogId="dialogId" @close="$emit('close')" />
+				<TabGiphy v-if="isGiphyAvailable" v-show="currentTab === TabType.giphy" @close="$emit('close')" :dialogId="dialogId" />
 				<TabMarket v-if="currentTab === TabType.market" :entityId="currentEntityId" :dialogId="dialogId" />
 			</div>
 		</MessengerPopup>

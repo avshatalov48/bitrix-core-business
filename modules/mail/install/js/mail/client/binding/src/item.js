@@ -26,10 +26,10 @@ export class Item
 
 	static #errorPhrases = {
 		'crm-install-error' : 'MAIL_BINDING_CRM_ERROR',
-		'calendar-install-error' : 'MAIL_BINDING_MEETING_ERROR',
+		'calendar-install-error' : 'MAIL_BINDING_MEETING_ERROR_MSGVER_1',
 		'tasks-install-error' : 'MAIL_BINDING_TASK_ERROR',
-		'chat-install-error' : 'MAIL_BINDING_CHAT_ERROR',
-		'socialnetwork-install-error' : 'MAIL_BINDING_POST_ERROR',
+		'chat-install-error' : 'MAIL_BINDING_CHAT_ERROR_MSGVER_1',
+		'socialnetwork-install-error' : 'MAIL_BINDING_POST_ERROR_MSGVER_1',
 		'crm-install-permission-error' : 'MAIL_BINDING_CRM_PERMISSION_SAVE_ERROR',
 		'crm-install-permission-open-error' : 'MAIL_BINDING_CRM_PERMISSION_OPEN_ERROR',
 		'crm-install-permission-working-error' :'MAIL_BINDING_CRM_PERMISSION_WORKING_ERROR',
@@ -125,21 +125,26 @@ export class Item
 
 	onClick(event)
 	{
-		if(this.isError(this.#errorType))
+		if (this.isError(this.#errorType))
 		{
 			Item.showError(this.#errorType);
 			return;
 		}
 
-		if(this.isActive())
+		if (this.isActive())
 		{
-			//to join the chat if you left it
-			if (this.getType() === 'chat')
+			switch (this.getType())
 			{
-				BX.Mail.Secretary.getInstance(this.getMessageId(true)).openChat();
+				//to join the chat if you left it
+				case 'chat':
+					BX.Mail.Secretary.getInstance(this.getMessageId(true)).openChat();
+					break;
+				case 'task':
+					BX.Mail.Secretary.getInstance(this.getMessageId(true)).onTaskAction('task_view', 'view_button');
+					break;
 			}
 		}
-		else if(!this.#wait)
+		else if (!this.#wait)
 		{
 			switch (this.getType())
 			{
@@ -151,7 +156,11 @@ export class Item
 					BX.Mail.Secretary.getInstance(this.getMessageId(true)).openChat();
 					break;
 				case 'task':
-					top.BX.SidePanel.Instance.open(this.#createHref);
+					const uri = BX.Uri.addParam(this.#createHref, {
+						ta_sec: 'mail',
+						ta_el: 'create_button',
+					});
+					top.BX.SidePanel.Instance.open(uri);
 					break;
 				case 'post':
 					top.BX.SidePanel.Instance.open(this.#createHref);

@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 abstract class CRsaProvider
 {
 	//$_M, $_E - public components
@@ -123,8 +126,8 @@ class CRsaSecurity
 		$GLOBALS["APPLICATION"]->AddHeadScript("/bitrix/js/main/rsasecurity.js");
 
 		echo '
-<script type="text/javascript">
-top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
+<script>
+top.BX.defer(top.rsasec_form_bind)('.Json::encode($arData).');
 </script>
 ';
 	}
@@ -134,7 +137,7 @@ top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 		if(!$this->provider)
 			return self::ERROR_NO_LIBRARY; //no crypto library found
 
-		$data = $_REQUEST['__RSA_DATA'];
+		$data = $_REQUEST['__RSA_DATA'] ?? '';
 
 		unset($_POST['__RSA_DATA']);
 		unset($_REQUEST['__RSA_DATA']);
@@ -165,7 +168,6 @@ top.BX.defer(top.rsasec_form_bind)('.CUtil::PhpToJSObject($arData).');
 		if($accepted_params['__RSA_RAND'] <> $session['__STORED_RSA_RAND'])
 			return self::ERROR_SESS_CHECK; //session control value does not match
 
-		CUtil::decodeURIComponent($accepted_params);
 		foreach($arParams as $k)
 		{
 			if(isset($accepted_params[$k]))

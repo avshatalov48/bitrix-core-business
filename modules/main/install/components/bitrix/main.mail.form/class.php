@@ -4,7 +4,9 @@ use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Engine\CurrentUser;
+use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Mail\Address;
 use Bitrix\Calendar;
 use Bitrix\Crm;
 
@@ -112,6 +114,10 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 
 		$params['USER_CALENDAR_PATH'] = $this->getUserCalendarPath();
 		$params['CALENDAR_SHARING_TOUR_ID'] = $this->getSharingCalendarTourId();
+
+		$params['IS_SMTP_AVAILABLE'] = Loader::includeModule('bitrix24')
+			|| Configuration::getValue('smtp')
+		;
 
 		$params['POST_FORM_BUTTONS'] = ['UploadImage', 'UploadFile', 'Copilot'];
 
@@ -313,30 +319,14 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 				if($this->arParams['USE_CALENDAR_SHARING'] && Loader::includeModule('calendar'))
 				{
 					$field['showCalendarSharingButton']  = true;
+					$field['sharingFeatureLimitEnable'] = Calendar\Integration\Bitrix24Manager::isFeatureEnabled('calendar_sharing');
+					$field['crmSharingFeatureLimitEnable'] = Calendar\Integration\Bitrix24Manager::isFeatureEnabled('crm_event_sharing');
 					$field['showCalendarSharingTour'] = $this->isSharingCalendarTourAvailable();
 				}
 
 				$defaultMailbox = reset($field['mailboxes']);
-				$value = empty($field['required']) ? null : $defaultMailbox['formated'];
-
-				if (check_email($field['value']))
-				{
-					$email = $field['value'];
-					if (preg_match('/.*?[<\[\(](.+?)[>\]\)].*/i', $email, $matches))
-						$email = mb_strtolower(trim($matches[1]));
-
-					foreach ($field['mailboxes'] as $item)
-					{
-						if ($item['email'] == $email)
-						{
-							$value = (!empty($field['isFormatted']) && $item['formated'])
-								? $item['formated'] : $field['value'];
-							break;
-						}
-					}
-				}
-
-				$field['value'] = $value;
+				$defaultSender = empty($field['required']) ? '' : $defaultMailbox['formated'];
+				$field['value'] = $this->getCurrentSender($field['value'] ?? '', $defaultSender, $field['mailboxes'] ?? []);
 
 				break;
 			}
@@ -533,7 +523,7 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 		$signature = preg_replace("#\n+#u", "\n", $signature);
 		$signature = preg_replace("# +#u", " ", $signature);
 		$signature = trim($signature);
-		$encoding = (defined("BX_UTF") ? "UTF-8" : "ISO-8859-1");
+		$encoding = "UTF-8";
 		return html_entity_decode($signature, ENT_COMPAT, $encoding);
 	}
 
@@ -547,7 +537,7 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 	private function getSignaturesParams(array $mailboxes): array
 	{
 		$signaturesUrl = (string)($this->arParams['PATH_TO_MAIL_SIGNATURES'] ?? '');
-		$signaturesUrl = strpos($signaturesUrl, '/') === 0 ? $signaturesUrl : '/mail/signatures';
+		$signaturesUrl = str_starts_with($signaturesUrl, '/') ? $signaturesUrl : '/mail/signatures';
 		$params = [
 			'signatures' => $this->loadSignatures($mailboxes), // compatibility
 		];
@@ -685,5 +675,49 @@ class MainMailFormComponent extends CBitrixComponent implements Controllerable
 
 		$this->arParams['IS_COPILOT_IMAGE_ENABLED'] = $copilotParams['isCopilotImageEnabled'] ?? false;
 		$this->arParams['IS_COPILOT_TEXT_ENABLED'] = $copilotParams['isCopilotTextEnabled'] ?? false;
+	}
+
+	/**
+	 * @param string $sender
+	 * @param string|null $defaultSender
+	 * @param list<array{name: ?string, email: string, formated: string}> $mailboxes
+	 * @return string|null
+	 */
+	private function getCurrentSender(string $sender, ?string $defaultSender, array $mailboxes): ?string
+	{
+		if (empty($sender))
+		{
+			return null;
+		}
+
+		$currentSender = null;
+		$address = new Address($sender);
+		$email = $address->getEmail();
+
+		if (empty($email))
+		{
+			return $defaultSender;
+		}
+
+		if (check_email($email))
+		{
+			foreach ($mailboxes as $item)
+			{
+				if ($item['email'] === $email)
+				{
+					if(empty($currentSender))
+					{
+						$currentSender = $item['formated'];
+					}
+
+					if($item['name'] === $address->getName())
+					{
+						return $item['formated'];
+					}
+				}
+			}
+		}
+
+		return $currentSender ?? $defaultSender;
 	}
 }

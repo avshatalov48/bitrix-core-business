@@ -17,6 +17,7 @@ use Bitrix\Socialnetwork\ComponentHelper;
 $pageId = "group_copy";
 
 include("util_group_menu.php");
+include("util_group_limit.php");
 
 $componentParameters = [
 	"GROUP_ID" => $arResult["VARIABLES"]["group_id"],

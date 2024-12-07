@@ -91,7 +91,7 @@ class GeoIp
 
 		$res = LocationTable::getList([
 			'filter' => [
-				'=NAME.NAME_UPPER' => ToUpper($geoData->cityName),
+				'=NAME.NAME_UPPER' => mb_strtoupper($geoData->cityName),
 				'=NAME.LANGUAGE_ID' => $lang
 			],
 			'select' => ['ID', 'CODE', 'LEFT_MARGIN', 'RIGHT_MARGIN']

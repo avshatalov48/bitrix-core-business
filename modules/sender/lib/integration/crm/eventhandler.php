@@ -109,8 +109,9 @@ class EventHandler
 			$fields = $eventData['RECIPIENT']['FIELDS'];
 
 			$entityId = $fields['CRM_ENTITY_ID'] ?? $recipient['CONTACT_ID'];
+			$contactCode = !empty($recipient['CONTACT_CODE']) ? $recipient['CONTACT_CODE'] : $entityId;
 
-			if (!$entityId)
+			if (empty($entityId) || empty($contactCode))
 			{
 				continue;
 			}
@@ -121,7 +122,7 @@ class EventHandler
 				'FIELDS' => Json::encode($fields),
 				'ENTITY_ID' => $entityId,
 				'CONTACT_TYPE_ID' => $recipient['CONTACT_TYPE_ID'],
-				'CONTACT_CODE' => $recipient['CONTACT_CODE'],
+				'CONTACT_CODE' => $contactCode,
 			];
 		}
 

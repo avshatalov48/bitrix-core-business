@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is modified admin_lesson_edit.php (with added additional field for 'CODE' from admin_chapter_edit.php).
- * 
+ *
  */
 require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php');
 
@@ -32,7 +32,7 @@ ClearVars();
 
 $message = null;
 $bVarsFromForm = false;
-$LESSON_ID = intval($LESSON_ID);
+$LESSON_ID = isset($_REQUEST['LESSON_ID']) ? intval($_REQUEST['LESSON_ID']) : 0;
 
 if (isset($g_learn_parentLessonId))
 	unset($g_learn_parentLessonId);
@@ -99,7 +99,7 @@ if (isset($_GET['PROPOSE_RETURN_LESSON_PATH']))
 	{
 		throw new LearnException (
 			'EA_LOGIC: PROPOSE_RETURN_LESSON_PATH and '
-			. 'LESSON_PATH are mutually exclusive arguments.', 
+			. 'LESSON_PATH are mutually exclusive arguments.',
 			LearnException::EXC_ERR_ALL_LOGIC);
 	}
 
@@ -112,7 +112,7 @@ if (isset($_GET['PROPOSE_RETURN_LESSON_PATH']))
 	{
 		throw new LearnException (
 			'EA_LOGIC: PROPOSE_RETURN_LESSON_PATH given, '
-			. 'but there is no parent lesson in path', 
+			. 'but there is no parent lesson in path',
 			LearnException::EXC_ERR_ALL_LOGIC);
 	}
 }
@@ -220,8 +220,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid
 					if ($res && isset($g_learn_parentLessonId) && $g_learn_parentLessonId > 0)
 					{
 						CLearnLesson::RelationUpdate (
-							$g_learn_parentLessonId, 
-							$LESSON_ID, 
+							$g_learn_parentLessonId,
+							$LESSON_ID,
 							$arEdgeProperties);
 					}
 				}
@@ -235,7 +235,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid
 							$arNewEdgeProperties['SORT'] = $arEdgeProperties['SORT'];
 
 						$LESSON_ID = CLearnLesson::Add(
-							$arFields, 
+							$arFields,
 							false,		// is course?
 							$g_learn_parentLessonId,
 							$arNewEdgeProperties);
@@ -296,9 +296,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid
 
 	// Block 2: relations (there is will be silently ignoring on insuficient permissions)
 	// Process relations, data submitted from CLearnRelationHelper::RenderForm()
-	if ( 
-		( ! $createNewLesson ) 
-		&& ($LESSON_ID > 0) 
+	if (
+		( ! $createNewLesson )
+		&& ($LESSON_ID > 0)
 		&& ( ! isset($_REQUEST['SKIP_RELATIONS_SAVING']) )
 	)
 	{
@@ -310,7 +310,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid
 
 	// Block 3: permissions
 	if (
-		array_key_exists('LESSON_RIGHTS_marker', $_POST) 
+		array_key_exists('LESSON_RIGHTS_marker', $_POST)
 		&& ($LESSON_ID > 0)
 		&& ( ! isset($_REQUEST['SKIP_RIGHTS_SAVING']) )
 	)
@@ -410,7 +410,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid
 			}
 		}
 
-		LocalRedirect("/bitrix/admin/learn_unilesson_edit.php?lang=" . LANG 
+		LocalRedirect("/bitrix/admin/learn_unilesson_edit.php?lang=" . LANG
 			. "&LESSON_ID=" . ($LESSON_ID + 0)
 			. "&LESSON_PATH=". urlencode($currentLessonPath)
 			. "&lessonTabControl_active_tab=" . urlencode($_REQUEST['lessonTabControl_active_tab'])
@@ -478,7 +478,7 @@ if (isset($g_learn_parentLessonId))
 
 	if ($LESSON_ID > 0)
 	{
-		// Get lesson data as immediate child of parent lesson. 
+		// Get lesson data as immediate child of parent lesson.
 		// It needs for getting edges data (SORT).
 		$result = CLearnLesson::GetListOfImmediateChilds(
 			$str_PARENT_LESSON_ID, 			// parent of current lesson
@@ -508,14 +508,14 @@ if( ! ($result && $result->ExtractFields("str_")) )
 if ($bVarsFromForm)
 {
 	$ACTIVE = ($ACTIVE != "Y"? "N":"Y");
-	
+
 	/**
 	 * Resolving dependencies for new data structure
 	 * was:
 	 * $DB->InitTableVarsForEdit("b_learn_lesson", "", "str_");
 	 */
 	$arVarsOnForm = array (
-		'TIMESTAMP_X', 'ACTIVE', 'CODE', 'NAME', 'KEYWORDS', 
+		'TIMESTAMP_X', 'ACTIVE', 'CODE', 'NAME', 'KEYWORDS',
 		'PREVIEW_TEXT', 'PREVIEW_TEXT_TYPE',
 		'DETAIL_TEXT', 'DETAIL_TEXT_TYPE',
 		'LAUNCH');
@@ -624,7 +624,7 @@ else
 		array(
 			'ICON'  => 'btn_list',
 			'TEXT'  => GetMessage('LEARNING_ALL_LESSONS'),
-			'LINK'  => 'learn_unilesson_admin.php?lang=' . LANG 
+			'LINK'  => 'learn_unilesson_admin.php?lang=' . LANG
 				. '&set_filter=Y'
 				. '&PARENT_LESSON_ID=-2',	// magic number '-2' is means 'List lessons, without relation to parent'
 			'TITLE' => GetMessage('LEARNING_ALL_LESSONS')
@@ -639,10 +639,10 @@ if ($LESSON_ID > 0)
 		"TEXT"  => GetMessage("MAIN_ADMIN_MENU_DELETE"),
 		"LINK"	=> "javascript:if(confirm('"
 			. GetMessage("LEARNING_CONFIRM_DEL_MESSAGE")
-			. "'))window.location='learn_unilesson_admin.php?lang=" . LANG 
-			. "&action=delete&ID=" . $LESSON_ID 
+			. "'))window.location='learn_unilesson_admin.php?lang=" . LANG
+			. "&action=delete&ID=" . $LESSON_ID
 			. ''
-			. "&" . bitrix_sessid_get() 
+			. "&" . bitrix_sessid_get()
 			. urlencode(GetFilterParams("filter_", false)) . "';",
 	);
 
@@ -655,10 +655,10 @@ if ($LESSON_ID > 0)
 			"TEXT"  => GetMessage("LEARNING_UNLINK_LESSON_FROM_PARENT"),
 			"LINK"	=> "javascript:if(confirm('"
 				. GetMessage("LEARNING_CONFIRM_UNLINK_LESSON_FROM_PARENT")
-				. "'))window.location='learn_unilesson_admin.php?lang=" . LANG 
+				. "'))window.location='learn_unilesson_admin.php?lang=" . LANG
 				. '&action=unlink'
 				. '&ID=' . urlencode($g_learn_currentLessonPath)
-				. "&" . bitrix_sessid_get() 
+				. "&" . bitrix_sessid_get()
 				. urlencode(GetFilterParams("filter_", false)) . "';",
 		);
 	}
@@ -691,7 +691,7 @@ if(COption::GetOptionString("learning", "use_htmledit", "Y")=="Y" && CModule::In
 }
 ?>
 
-<script type="text/javascript">
+<script>
 function toggleSource() {
 	if (document.lessonTabControl_form.CONTENT_SOURCE[0].checked)
 	{
@@ -714,7 +714,7 @@ CAdminFileDialog::ShowScript(Array
 	(
 		"event" => "OpenFileBrowserWindMedia",
 		"arResultDest" => Array("FUNCTION_NAME" => "SetUrl"),
-		"arPath" => Array("SITE" => $_GET["site"], "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
+		"arPath" => Array("SITE" => ($_GET["site"] ?? ''), "PATH" =>($str_FILENAME <> '' ? GetDirPath($str_FILENAME) : '')),
 		"select" => 'F',// F - file only, D - folder only,
 		"operation" => 'O',// O - open, S - save
 		"showUploadTab" => true,
@@ -749,7 +749,7 @@ function CustomizeEditor()
 		</table>
 	</div>
 <?php $dialogHTML = ob_get_clean()?>
-<script type="text/javascript">
+<script>
 	var pEditor;
 	var pElement;
 	function SetUrl(filename, path, site)
@@ -893,10 +893,10 @@ function CustomizeEditor()
 			}
 			else // WM
 			{
-				str = '<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /><\/script>' +
-				'<script type="text/javascript" src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"><\/script>' +
+				str = '<script src="/bitrix/components/bitrix/player/wmvplayer/silverlight.js" /><\/script>' +
+				'<script src="/bitrix/components/bitrix/player/wmvplayer/wmvplayer.js"><\/script>' +
 				'<div id="' + _node.arAttributes["id"] + '">WMV Player</div>' +
-				'<script type="text/javascript">new jeroenwijering.Player(document.getElementById("' + _node.arAttributes["id"] + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
+				'<script>new jeroenwijering.Player(document.getElementById("' + _node.arAttributes["id"] + '"), "/bitrix/components/bitrix/player/wmvplayer/wmvplayer.xaml", {';
 
 				var arParams = {
 					"file" : bxTag.params.file,
@@ -1008,7 +1008,7 @@ function CustomizeEditor()
 <?php }?>
 <?php AddEventHandler("fileman", "OnIncludeHTMLEditorScript", "CustomizeEditor"); ?>
 
-<?php 
+<?php
 
 $tabControl->BeginEpilogContent();?>
 	<?=bitrix_sessid_post()?>
@@ -1019,7 +1019,7 @@ $tabControl->BeginEpilogContent();?>
 	<input type="hidden" name="LESSON_ID" value="<?php echo $LESSON_ID; ?>">
 
 	<?php
-	// PARENT_LESSON_ID transmitted only when new lesson creating pended and 
+	// PARENT_LESSON_ID transmitted only when new lesson creating pended and
 	if (($LESSON_ID == 0) && isset($g_learn_parentLessonId))
 	{
 		?>
@@ -1070,10 +1070,10 @@ $tabControl->BeginNextFormTab();
 		<tr>
 			<td><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 			<td>
-				<?php 
-				echo '[<a href="user_edit.php?ID=' . ($str_CREATED_BY + 0) 
-					. '&amp;lang=' . LANG . '">' 
-					. $str_CREATED_BY . '</a>] ' 
+				<?php
+				echo '[<a href="user_edit.php?ID=' . ($str_CREATED_BY + 0)
+					. '&amp;lang=' . LANG . '">'
+					. $str_CREATED_BY . '</a>] '
 					. $str_CREATED_USER_NAME;
 				?>
 			</td>
@@ -1118,7 +1118,7 @@ $tabControl->BeginCustomField("NAME", GetMessage("LEARNING_NAME"), false);?>
 			?>
 		</td>
 	</tr>
-	<?php 
+	<?php
 $tabControl->EndCustomField("NAME", '<input type="hidden" id="NAME" name="NAME" value="' . $str_NAME . '">');
 
 $tabControl->BeginCustomField('CODE', GetMessage('LEARNING_CODE'), false);?>
@@ -1157,7 +1157,7 @@ $tabControl->BeginCustomField("KEYWORDS", GetMessage("LEARNING_KEYWORDS"), false
 			?>
 		</td>
 	</tr>
-	<?php 
+	<?php
 $tabControl->EndCustomField("KEYWORDS", '<input type="hidden" id="KEYWORDS" name="KEYWORDS" value="' . $str_KEYWORDS . '">');
 
 
@@ -1213,8 +1213,8 @@ if ($topCourseLessonId !== false)
 	if (is_array($arRootLessonData))
 	{
 		$tabControl->BeginCustomField(
-			'PUBLISH_PROHIBITED', 
-			GetMessage('LEARNING_COURSE_ADM_PUBLISH_PROHIBITED'), 
+			'PUBLISH_PROHIBITED',
+			GetMessage('LEARNING_COURSE_ADM_PUBLISH_PROHIBITED'),
 			false
 		);
 		?>
@@ -1229,15 +1229,15 @@ if ($topCourseLessonId !== false)
 						else
 						{
 							?>
-							<input type="checkbox" name="PUBLISH_PROHIBITED" 
+							<input type="checkbox" name="PUBLISH_PROHIBITED"
 								value="Y" <?php if ($str_PUBLISH_PROHIBITED=="Y") echo "checked"; ?>>
 							<?php
 						}
 
-						echo ' (' 
+						echo ' ('
 							. str_replace(
-								'#COURSE_NAME#', 
-								'&laquo;' . htmlspecialcharsbx($arRootLessonData['NAME']) . '&raquo;', 
+								'#COURSE_NAME#',
+								'&laquo;' . htmlspecialcharsbx($arRootLessonData['NAME']) . '&raquo;',
 								GetMessage('LEARNING_COURSE_ADM_PUBLISH_PROHIBITED_CONTEXT')
 							)
 							. ')';
@@ -1276,7 +1276,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 				</div>
 
 				<div id="learn_unilesson_edit_preview_text_div">
-					<script type="text/javascript">
+					<script>
 						var iframe = document.createElement('iframe');
 						iframe.style.width = '100%';
 						iframe.style.height = '200px';
@@ -1315,7 +1315,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 	<tr>
 		<td align="center"><?echo GetMessage("LEARNING_DESC_TYPE")?>:</td>
 		<td>
-			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="PREVIEW_TEXT_TYPE" value="text"<?if($str_PREVIEW_TEXT_TYPE!="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_TEXT")?> / 
+			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="PREVIEW_TEXT_TYPE" value="text"<?if($str_PREVIEW_TEXT_TYPE!="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_TEXT")?> /
 			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="PREVIEW_TEXT_TYPE" value="html"<?if($str_PREVIEW_TEXT_TYPE=="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_HTML")?>
 		</td>
 	</tr>
@@ -1326,7 +1326,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 			{
 				?>
 				<div id="learn_unilesson_edit_preview_text_div">
-					<script type="text/javascript">
+					<script>
 						var iframe = document.createElement('iframe');
 						iframe.style.width = '100%';
 						iframe.style.height = '200px';
@@ -1413,7 +1413,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 				</div>
 
 				<div id="learn_unilesson_edit_detail_text_div">
-					<script type="text/javascript">
+					<script>
 						var iframe = document.createElement('iframe');
 						iframe.style.width = '100%';
 						iframe.style.height = '300px';
@@ -1452,7 +1452,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 	<tr id="source_field[0]">
 		<td valign="top"><?echo GetMessage("LEARNING_DESC_TYPE")?></td>
 		<td valign="top">
-			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="DETAIL_TEXT_TYPE" value="text"<?if($str_DETAIL_TEXT_TYPE!="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_TEXT")?> / 
+			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="DETAIL_TEXT_TYPE" value="text"<?if($str_DETAIL_TEXT_TYPE!="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_TEXT")?> /
 			<input type="radio" <?php if ($bContentReadOnly) echo ' disabled="disabled" '; ?> name="DETAIL_TEXT_TYPE" value="html"<?if($str_DETAIL_TEXT_TYPE=="html")echo " checked"?>> <?echo GetMessage("LEARNING_DESC_TYPE_HTML")?>
 		</td>
 	</tr>
@@ -1463,7 +1463,7 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 			{
 				?>
 				<div id="learn_unilesson_edit_detail_text_div">
-					<script type="text/javascript">
+					<script>
 						var iframe = document.createElement('iframe');
 						iframe.style.width = '100%';
 						iframe.style.height = '200px';
@@ -1499,8 +1499,8 @@ $tabControl->BeginCustomField("PREVIEW_TEXT", GetMessage("LEARNING_PREVIEW_TEXT"
 			?>
 		</td>
 	</tr>
-	<script type="text/javascript">toggleSource()</script>
-<?php $tabControl->EndCustomField("DESCRIPTION", 
+	<script>toggleSource()</script>
+<?php $tabControl->EndCustomField("DESCRIPTION",
 	'<input type="hidden" id="DESCRIPTION" name="DESCRIPTION" value="' . $str_DESCRIPTION . '">'
 	. '<input type="hidden" id="DETAIL_TEXT_TYPE" name="DETAIL_TEXT_TYPE" value="' . $str_DETAIL_TEXT_TYPE . '">'
 	. '<input type="hidden" id="LAUNCH" name="LAUNCH" value="' . $str_LAUNCH . '">'
@@ -1627,7 +1627,7 @@ else
 
 $tabControl->BeginNextFormTab();
 $tabControl->BeginCustomField("UFS", '', false);
-$USER_FIELD_MANAGER->EditFormShowTab('LEARNING_LESSONS', $bVarsFromForm, $LESSON_ID); 
+$USER_FIELD_MANAGER->EditFormShowTab('LEARNING_LESSONS', $bVarsFromForm, $LESSON_ID);
 $tabControl->EndCustomField("UFS");
 
 $tabControl->Buttons(
@@ -1639,7 +1639,7 @@ $tabControl->Buttons(
 		)
 	);
 
-$tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage() . "?lang=" . LANG 
+$tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage() . "?lang=" . LANG
 	. $uriCurrentLessonPath
 	. GetFilterParams("filter_");
 

@@ -3,12 +3,12 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2020 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\File\Image;
 
-use \Bitrix\Main\File\Image;
+use Bitrix\Main\File\Image;
 
 class Info
 {
@@ -107,7 +107,8 @@ class Info
 	{
 		$tmp = $this->getHeight();
 		$this->setHeight($this->getWidth())
-			->setWidth($tmp);
+			->setWidth($tmp)
+		;
 		return $this;
 	}
 
@@ -119,7 +120,7 @@ class Info
 	{
 		static $knownTypes = null;
 
-		if($knownTypes === null)
+		if ($knownTypes === null)
 		{
 			$knownTypes = [
 				Image::FORMAT_PNG => 1,
@@ -127,7 +128,7 @@ class Info
 				Image::FORMAT_GIF => 1,
 				Image::FORMAT_BMP => 1,
 			];
-			if(function_exists("imagecreatefromwebp"))
+			if (function_exists("imagecreatefromwebp"))
 			{
 				$knownTypes[Image::FORMAT_WEBP] = 1;
 			}

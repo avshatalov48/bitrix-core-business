@@ -194,7 +194,7 @@ $lAdmin->CheckListMode();
 $APPLICATION->SetTitle(Loc::getMessage("LOG_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
-    <script type="text/javascript">
+    <script>
         function fToggleMessage(setParentId)
         {
             var elements = document.getElementsByClassName('item_' + setParentId);
@@ -266,7 +266,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
         <tr>
             <td><?echo Loc::getMessage("LOG_REPORT_ENTITY_ID");?>:</td>
             <td>
-                <script type="text/javascript">
+                <script>
                     function filter_entity_id_from_change()
                     {
                         if(document.find_form.filter_entity_id_to.value.length<=0)
@@ -284,7 +284,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
         <tr>
             <td><?echo Loc::getMessage("LOG_REPORT_PARENT_ENTITY_ID");?>:</td>
             <td>
-                <script type="text/javascript">
+                <script>
                     function filter_parent_id_from_change()
                     {
                         if(document.find_form.filter_parent_id_to.value.length<=0)

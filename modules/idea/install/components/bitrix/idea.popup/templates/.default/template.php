@@ -9,7 +9,7 @@ $APPLICATION->setAdditionalCSS('/bitrix/components/bitrix/idea/templates/.defaul
 	<div class="idea-side-button-t"></div>
 	<div class="idea-side-button-b"></div>
 </div>
-<script type="text/javascript">
+<script>
 	BX.message({IDEA_POPUP_LEAVE_IDEA: '<?=GetMessageJS("IDEA_POPUP_LEAVE_IDEA")?>', IDEA_POPUP_WAIT : '<?=GetMessageJS("IDEA_POPUP_WAIT")?>', IDEA_POPUP_APPLY : '<?=GetMessageJS("IDEA_POPUP_APPLY")?>', IDEA_POPUP_CANCEL : '<?=GetMessageJS("IDEA_POPUP_CANCEL")?>'});
 	<?if($arParams["BUTTON_COLOR"] <> ''):?>BX('idea-side-button-inner').style.backgroundColor = '<?=$arParams["BUTTON_COLOR"];?>';<?endif;?>
 </script>

@@ -5,10 +5,10 @@ if (!$this->__component->__parent || empty($this->__component->__parent->__name)
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/blog/templates/.default/themes/blue/style.css');
 endif;
 ?>
-<?CUtil::InitJSCore(array("image"));?>
+<?php CUtil::InitJSCore(array("image")); ?>
 <div id="blog-new-posts-content">
-<?
-if(is_array($arResult["POSTS"]) && count($arResult["POSTS"])>0)
+<?php
+if (is_array($arResult['POSTS']) && !empty($arResult['POSTS']))
 {
 	foreach($arResult["POSTS"] as $ind => $CurPost)
 	{

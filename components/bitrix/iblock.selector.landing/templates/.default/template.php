@@ -67,7 +67,7 @@ if ($filterSettings['useQuickSearch'])
 	];
 }
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		BX.IblockSelectorLanding.create(
 			'<?=\CUtil::jsEscape($arResult['FILTER']['FILTER_ID']); ?>',

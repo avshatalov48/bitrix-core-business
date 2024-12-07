@@ -35,8 +35,6 @@ if (check_bitrix_sessid())
 
 	if (isset($_POST['LD_SEARCH']) && $_POST['LD_SEARCH'] == 'Y')
 	{
-		CUtil::decodeURIComponent($_POST);
-
 		$search = $_POST['SEARCH'];
 		$searchConverted = (!empty($_POST['SEARCH_CONVERTED']) ? $_POST['SEARCH_CONVERTED'] : false);
 

@@ -96,7 +96,10 @@ class Operator
 
 	public static function like($columnSql, $valueSql)
 	{
-		return "{$columnSql} LIKE {$valueSql}";
+		$connection = \Bitrix\Main\Application::getConnection();
+		$helper = $connection->getSqlHelper();
+
+		return $helper->getIlikeOperator($columnSql, $valueSql);
 	}
 
 	public static function exists($columnSql, $valueSql)

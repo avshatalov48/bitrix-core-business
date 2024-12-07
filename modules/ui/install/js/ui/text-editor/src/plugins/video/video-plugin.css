@@ -1,0 +1,31 @@
+.ui-text-editor__video-container {
+	position: relative;
+	cursor: default;
+	user-select: none;
+	display: inline-block;
+}
+
+.ui-text-editor-video-component {
+	position: relative;
+}
+
+.ui-text-editor-video-object-container:after {
+	position: absolute;
+	content: '';
+	z-index: 1;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	cursor: pointer;
+	display: block;
+	background: transparent;
+}
+
+.ui-text-editor__video-object {
+	position: relative;
+}
+
+.ui-text-editor-video-component.--selected .ui-text-editor__video-object {
+	z-index: 2;
+}

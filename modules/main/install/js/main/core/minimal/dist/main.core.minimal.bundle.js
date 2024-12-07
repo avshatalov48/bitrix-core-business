@@ -6710,7 +6710,7 @@ window._main_polyfill_core = true;
 	          });
 	          return _context.abrupt("return", Promise.all(result).then(function (exports) {
 	            return exports.reduce(function (acc, currentExports) {
-	              if (Type.isPlainObject(currentExports)) {
+	              if (Type.isObject(currentExports)) {
 	                return _objectSpread$1(_objectSpread$1({}, acc), currentExports);
 	              }
 	              return acc;
@@ -7453,6 +7453,12 @@ window._main_polyfill_core = true;
 	    key: "subscribeFromOptions",
 	    value: function subscribeFromOptions(options, aliases, compatMode) {
 	      var _this = this;
+	      if (Type.isArrayFilled(options)) {
+	        options.forEach(function (events) {
+	          _this.subscribeFromOptions(events);
+	        });
+	        return;
+	      }
 	      if (!Type.isPlainObject(options)) {
 	        return;
 	      }
@@ -8324,26 +8330,21 @@ window._main_polyfill_core = true;
 	// eslint-disable-next-line
 	exports.isReady = false;
 	function ready(handler) {
-	  switch (document.readyState) {
-	    case 'loading':
-	      stack.push(handler);
-	      break;
-	    case 'interactive':
-	    case 'complete':
-	      if (Type.isFunction(handler)) {
-	        handler();
-	      }
-	      exports.isReady = true;
-	      break;
-	    default:
-	      break;
+	  if (!Type.isFunction(handler)) {
+	    return;
+	  }
+	  if (exports.isReady) {
+	    handler();
+	  } else {
+	    stack.push(handler);
 	  }
 	}
-	document.addEventListener('readystatechange', function () {
-	  if (!exports.isReady) {
-	    stack.forEach(ready);
-	    stack = [];
-	  }
+	bindOnce(document, 'DOMContentLoaded', function () {
+	  exports.isReady = true;
+	  stack.forEach(function (handler) {
+	    handler();
+	  });
+	  stack = [];
 	});
 
 	/**
@@ -8772,7 +8773,7 @@ window._main_polyfill_core = true;
 	          return element;
 	        }
 	        if ('text' in data && !Type.isNil(data.text)) {
-	          element.innerText = data.text;
+	          element.textContent = data.text;
 	          return element;
 	        }
 	        if ('html' in data && !Type.isNil(data.html)) {
@@ -10054,7 +10055,7 @@ window._main_polyfill_core = true;
 	    return acc;
 	  }, Object.create(null)));
 	}
-	var urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#(\w*))?/;
+	var urlExp = /^((\w+):)?(\/\/((\w+)?(:(\w+))?@)?([^\/\?:]+)(:(\d+))?)?(\/?([^\/\?#][^\?#]*)?)?(\?([^#]+))?(#((?:[\w-?/:@.~!$&'()*+,;=]|%\w{2})*))?/;
 	function parseUrl(url) {
 	  var result = url.match(urlExp);
 	  if (Type.isArray(result)) {

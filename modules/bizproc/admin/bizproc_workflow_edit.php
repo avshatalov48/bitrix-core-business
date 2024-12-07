@@ -180,7 +180,7 @@ $arAllActGroups = Array(
 		"logic" => GetMessage("BIZPROC_WFEDIT_CATEGORY_CONSTR"),
 		"interaction" => GetMessage("BIZPROC_WFEDIT_CATEGORY_INTER"),
 		"other" => GetMessage("BIZPROC_WFEDIT_CATEGORY_OTHER"),
-//		"favorities" => "Èçáðàííîå",
+//		"favorities" => "Ð˜Ð·Ð±Ñ€Ð°Ð½Ð½Ð¾Ðµ",
 	);
 
 $runtime = CBPRuntime::GetRuntime();

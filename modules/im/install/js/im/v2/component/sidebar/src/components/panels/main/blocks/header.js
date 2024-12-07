@@ -1,6 +1,8 @@
+import { Loc } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { EventType } from 'im.v2.const';
+import { EventType, ChatType, ChatActionType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { AddToChat } from 'im.v2.component.entity-selector';
 
 import { MainMenu } from '../../../../classes/context-menu/main/main-menu';
@@ -9,6 +11,16 @@ import '../css/header.css';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelRecentItem, ImModelChat } from 'im.v2.model';
+
+const HeaderTitleByChatType = {
+	[ChatType.channel]: Loc.getMessage('IM_SIDEBAR_CHANNEL_HEADER_TITLE'),
+	[ChatType.openChannel]: Loc.getMessage('IM_SIDEBAR_CHANNEL_HEADER_TITLE'),
+	[ChatType.generalChannel]: Loc.getMessage('IM_SIDEBAR_CHANNEL_HEADER_TITLE'),
+	[ChatType.comment]: Loc.getMessage('IM_SIDEBAR_COMMENTS_HEADER_TITLE'),
+	default: Loc.getMessage('IM_SIDEBAR_HEADER_TITLE'),
+};
+
+const ChatTypesWithMenuDisabled = new Set([ChatType.comment]);
 
 // @vue/component
 export const MainHeader = {
@@ -36,6 +48,22 @@ export const MainHeader = {
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		headerTitle(): string
+		{
+			return HeaderTitleByChatType[this.dialog.type] ?? HeaderTitleByChatType.default;
+		},
+		showMenuIcon(): boolean
+		{
+			return this.canOpenMenu && this.isMenuEnabledForType;
+		},
+		canOpenMenu(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.openSidebarMenu, this.dialogId);
+		},
+		isMenuEnabledForType(): boolean
+		{
+			return !ChatTypesWithMenuDisabled.has(this.dialog.type);
 		},
 	},
 	created()
@@ -79,9 +107,10 @@ export const MainHeader = {
 					class="bx-im-sidebar-header__cross-icon bx-im-messenger__cross-icon" 
 					@click="onSidebarCloseClick"
 				></button>
-				<div class="bx-im-sidebar-header__title">{{ loc('IM_SIDEBAR_HEADER_TITLE') }}</div>
+				<div class="bx-im-sidebar-header__title">{{ headerTitle }}</div>
 			</div>
 			<button
+				v-if="showMenuIcon"
 				class="bx-im-sidebar-header__context-menu-icon bx-im-messenger__context-menu-icon"
 				@click="onContextMenuClick"
 				ref="context-menu"

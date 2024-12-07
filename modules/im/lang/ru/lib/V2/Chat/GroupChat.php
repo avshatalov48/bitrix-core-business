@@ -1,7 +1,7 @@
 <?php
 $MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# пригласил в чат #USER_2_NAME#";
 $MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# пригласила в чат #USER_2_NAME#";
-$MESS["IM_CHAT_CREATE_WELCOME"] = "[b]Групповой чат[/b][br]Общайтесь, делитесь файлами, комментируйте сообщения коллег и ставьте лайки.";
+$MESS["IM_CHAT_CREATE_WELCOME_MSGVER_1"] = "Групповой чат. Общайтесь, делитесь файлами, комментируйте сообщения коллег и ставьте лайки";
 $MESS["IM_CHAT_CREATE_M"] = "#USER_NAME# создал чат";
 $MESS["IM_CHAT_CREATE_F"] = "#USER_NAME# создала чат";
 $MESS["IM_VIDEOCONF_CREATE_M"] = "#USER_NAME# создал видеоконференцию";

@@ -1,8 +1,12 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 /**
  * @global CMain $APPLICATION
  * @global CUser $USER
  */
+
 if (!array_key_exists("component_name", $_GET))
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/public/component_props.php");
@@ -53,8 +57,6 @@ CComponentParamsManager::Init(array(
 ));
 
 IncludeModuleLangFile(__FILE__);
-
-CUtil::JSPostUnescape();
 
 $obJSPopup = new CJSPopup('',
 	array(
@@ -147,7 +149,7 @@ if($strWarning == "")
 						$aPostValues[$name] = [];
 					}
 				}
-				elseif ($bLimitPhpAccess && mb_substr($value, 0, 2) == '={' && mb_substr($value, -1) == '}')
+				elseif ($bLimitPhpAccess && str_starts_with($value, '={') && str_ends_with($value, '}'))
 				{
 					$aPostValues[$name] = $arValues[$name];
 				}
@@ -295,7 +297,7 @@ $obJSPopup->StartContent();?>
 		}
 	};
 
-	window.publicComponentDialogManager = new CompDialogManager(<?=CUtil::PhpToJSObject(array(
+	window.publicComponentDialogManager = new CompDialogManager(<?= Json::encode(array(
 		'name' => $componentName,
 		'template' => $curTemplate,
 		'siteTemplate' => $templateId,

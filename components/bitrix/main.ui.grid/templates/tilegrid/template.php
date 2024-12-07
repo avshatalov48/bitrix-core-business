@@ -5,10 +5,6 @@
  * @var $arResult
  */
 
-use \Bitrix\Main\Text;
-use \Bitrix\Main\Grid;
-use \Bitrix\Main\Localization\Loc;
-
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();

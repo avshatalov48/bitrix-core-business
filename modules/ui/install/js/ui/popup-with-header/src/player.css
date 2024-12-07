@@ -96,3 +96,7 @@
 .ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player-btn:not(.--stop-btn) {
 	display: block;
 }
+
+.ui-popupcomponentsmaker__round-player-box.--stop .ui-popupcomponentmaker__round-player-btn.--stop-btn {
+	display: none;
+}

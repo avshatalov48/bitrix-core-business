@@ -586,11 +586,24 @@ class IncomingManager
 	private function deleteInstance(string $vendorId): Result
 	{
 		$result = new Result();
-		$linkData = EventConnectionTable::query()
-			->setSelect(['*', 'EVENT'])
-			->addFilter('CONNECTION_ID', $this->connection->getId())
-			->addFilter('=VENDOR_EVENT_ID', $vendorId)
-			->exec()->fetchObject();
+		try
+		{
+			$linkData = EventConnectionTable::query()
+				->setSelect([
+					...EventConnectionTable::defaultSelect,
+					'EVENT',
+				])
+				->addFilter('CONNECTION_ID', $this->connection->getId())
+				->addFilter('=VENDOR_EVENT_ID', $vendorId)
+				->exec()->fetchObject()
+			;
+		}
+		catch (\Bitrix\Main\ArgumentException $exception)
+		{
+			$result->addError(new Error('Probably corrupted data'));
+
+			return $result;
+		}
 
 		if ($linkData)
 		{

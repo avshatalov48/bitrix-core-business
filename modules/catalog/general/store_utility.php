@@ -75,7 +75,6 @@ class CCatalogStoreControlUtil
 				["find_section_section" => $arProduct["IBLOCK_SECTION_ID"]]
 			);
 		}
-		$arProduct["DETAIL_PAGE_URL"] = htmlspecialcharsex($arProduct["DETAIL_PAGE_URL"]);
 
 		$imgCode = "";
 		if($arProduct["DETAIL_PICTURE"] > 0)

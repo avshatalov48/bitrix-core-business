@@ -1,0 +1,40 @@
+.bx-im-comment-header__container {
+	--im-comment-header__font-color_title: var(--im-color-palette-black-base);
+	--im-comment-header__font-color_subtitle: var(--im-color-palette-gray-60);
+}
+
+.bx-im-comment-header__back {
+	width: 24px;
+	height: 24px;
+	margin-right: 12px;
+	background-image: url('./images/back.svg');
+	background-position: center;
+	cursor: pointer;
+	opacity: 0.35;
+	transition: opacity 0.2s ease;
+}
+
+.bx-im-comment-header__back:hover {
+	opacity: 0.7;
+}
+
+.bx-im-comment-header__title {
+	height: 20px;
+	font: var(--im-font-size-lg)/18px var(--im-font-family-system);
+	color: var(--im-comment-header__font-color_title);
+	margin-bottom: 3px;
+}
+
+.bx-im-comment-header__subtitle {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-comment-header__subtitle_avatar {
+	margin-right: 6px;
+}
+
+.bx-im-comment-header__subtitle_text {
+	font: var(--im-font-size-md)/16px var(--im-font-family-system);
+	color: var(--im-comment-header__font-color_subtitle);
+}

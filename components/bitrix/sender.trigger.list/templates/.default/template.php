@@ -208,7 +208,7 @@ $APPLICATION->IncludeComponent(
 );
 
 ?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.Sender.CampaignList.init(<?=Json::encode(array(
 				'actionUri' => $arResult['ACTION_URI'],

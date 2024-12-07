@@ -15,8 +15,6 @@ if(
 	&& CModule::IncludeModule("search")
 ):
 
-CUtil::decodeURIComponent($query);
-
 /**
  * @var CAdminPage $adminPage
  * @var CAdminMenu $adminMenu
@@ -38,7 +36,7 @@ $arStemFunc = stemming_init(LANGUAGE_ID);
 
 $arPhrase = stemming_split($query, LANGUAGE_ID);
 
-$preg_template = "/(^|[^".$arStemFunc["pcre_letters"]."])(".str_replace("/", "\\/", implode("|", array_map('preg_quote', array_keys($arPhrase)))).")/i".BX_UTF_PCRE_MODIFIER;
+$preg_template = "/(^|[^".$arStemFunc["pcre_letters"]."])(".str_replace("/", "\\/", implode("|", array_map('preg_quote', array_keys($arPhrase)))).")/iu";
 $bFound  = false;
 
 function GetStrings(&$item, $key, $p)
@@ -57,25 +55,12 @@ function GetStrings(&$item, $key, $p)
 			if(preg_match_all($preg_template, mb_strtoupper($item["text"]), $arMatches, PREG_OFFSET_CAPTURE))
 			{
 				$c = count($arMatches[2]);
-				if(defined("BX_UTF"))
+				for($j = $c-1; $j >= 0; $j--)
 				{
-					for($j = $c-1; $j >= 0; $j--)
-					{
-						$prefix = mb_substr($item["text"], 0, $arMatches[2][$j][1], 'latin1');
-						$instr  = mb_substr($item["text"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0], 'latin1'), 'latin1');
-						$suffix = mb_substr($item["text"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0], 'latin1'), mb_strlen($item["text"], 'latin1'), 'latin1');
-						$item["text"] = $prefix."<b>".$instr."</b>".$suffix;
-					}
-				}
-				else
-				{
-					for($j = $c-1; $j >= 0; $j--)
-					{
-						$prefix = mb_substr($item["text"], 0, $arMatches[2][$j][1]);
-						$instr = mb_substr($item["text"], $arMatches[2][$j][1], mb_strlen($arMatches[2][$j][0]));
-						$suffix = mb_substr($item["text"], $arMatches[2][$j][1] + mb_strlen($arMatches[2][$j][0]));
-						$item["text"] = $prefix."<b>".$instr."</b>".$suffix;
-					}
+					$prefix = substr($item["text"], 0, $arMatches[2][$j][1]);
+					$instr  = substr($item["text"], $arMatches[2][$j][1], strlen($arMatches[2][$j][0]));
+					$suffix = substr($item["text"], (int)$arMatches[2][$j][1] + strlen($arMatches[2][$j][0]), strlen($item["text"]));
+					$item["text"] = $prefix."<b>".$instr."</b>".$suffix;
 				}
 			}
 			$searchstring .= $item["text"];

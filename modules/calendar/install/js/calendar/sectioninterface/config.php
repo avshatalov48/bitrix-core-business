@@ -13,6 +13,7 @@ return [
 	'rel' => [
 		'calendar.sync.interface',
 		'main.popup',
+		'ui.info-helper',
 		'main.core.events',
 		'ui.entity-selector',
 		'main.core',

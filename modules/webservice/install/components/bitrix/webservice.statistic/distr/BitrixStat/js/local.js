@@ -31,7 +31,7 @@ var lIndexTitleAlt = "Indexing";
 var lEventsTitleAlt = "Events";
 var lUsersOnlineAlt = "Online";
 var lNotRegistered = "Not registered";
-var lBitrixUri = "http://www.bitrixsoft.com/?r1=vista&r2=gadget";
+var lBitrixUri = "https://www.bitrixsoft.com/";
 var lHitsTitleAlt = "Hits";
 var lHostsTitleAlt = "Hosts";
 var lGuestsTitleAlt = "Visitors";

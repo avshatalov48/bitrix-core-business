@@ -56,7 +56,7 @@ class CAllFormOutput extends CFormOutput_old
 	function InitializeTemplate($arParams, $arResult)
 	{
 		$this->WEB_FORM_ID = $arParams["WEB_FORM_ID"];
-		$this->RESULT_ID = $arParams["RESULT_ID"];
+		$this->RESULT_ID = $arParams["RESULT_ID"] ?? 0;
 
 		$this->arParams 	= $arParams;
 		$this->arForm 		= $arResult["arForm"];
@@ -77,8 +77,8 @@ class CAllFormOutput extends CFormOutput_old
 			}
 		}
 
-		$this->strFormNote = $arResult["FORM_NOTE"];
-		$this->__form_validate_errors = $arResult["FORM_ERRORS"];
+		$this->strFormNote = $arResult["FORM_NOTE"] ?? '';
+		$this->__form_validate_errors = $arResult["FORM_ERRORS"] ?? '';
 		$this->bIsFormValidateErrors = $arResult['isFormErrors'] == 'Y';
 
 		$this->bSimple = (COption::GetOptionString("form", "SIMPLE", "Y") == "Y") ? true : false;
@@ -543,10 +543,10 @@ class CAllFormOutput extends CFormOutput_old
 			$res = "";
 
 			reset($this->arAnswers[$FIELD_SID]);
-			if (is_array($this->arDropDown[$FIELD_SID]))
+			if (isset($this->arDropDown[$FIELD_SID]) && is_array($this->arDropDown[$FIELD_SID]))
 				reset($this->arDropDown[$FIELD_SID]);
-			if (is_array($this->arMutiselect[$FIELD_SID]))
-				reset($this->arMutiselect[$FIELD_SID]);
+			if (isset($this->arMutiSelect[$FIELD_SID]) && is_array($this->arMutiSelect[$FIELD_SID]))
+				reset($this->arMutiSelect[$FIELD_SID]);
 
 			foreach ($this->arAnswers[$FIELD_SID] as $key => $arAnswer)
 			{

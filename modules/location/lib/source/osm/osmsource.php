@@ -5,6 +5,7 @@ namespace Bitrix\Location\Source\Osm;
 use Bitrix\Location\Entity\Source;
 use Bitrix\Location\Repository\Location\IRepository;
 use Bitrix\Location\Source\Osm\Api\Api;
+use Bitrix\Location\StaticMap\ISourceStaticMapService;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Context;
 
@@ -17,12 +18,8 @@ final class OsmSource extends Source
 {
 	public const API_PATH = '/api';
 
-	/** @var TokenRequester */
-	private $tokenRequester;
+	private TokenRequester $tokenRequester;
 
-	/**
-	 * OsmSource constructor.
-	 */
 	public function __construct()
 	{
 		$this->tokenRequester = (new TokenRequester())->setSource($this);
@@ -46,6 +43,14 @@ final class OsmSource extends Source
 		);
 
 		return $result;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function makeStaticMapService(): ISourceStaticMapService
+	{
+		return new SourceStaticMapService($this);
 	}
 
 	/**
@@ -86,7 +91,7 @@ final class OsmSource extends Source
 	 */
 	public function getOsmHostName(): string
 	{
-		if(defined('BX24_HOST_NAME') && ModuleManager::isModuleInstalled('bitrix24'))
+		if (defined('BX24_HOST_NAME') && ModuleManager::isModuleInstalled('bitrix24'))
 		{
 			$result = BX24_HOST_NAME;
 		}
@@ -94,7 +99,7 @@ final class OsmSource extends Source
 		{
 			$result = Context::getCurrent()->getServer()->get('HTTP_HOST');
 
-			if(strpos($result, ':') !== false)
+			if (strpos($result, ':') !== false)
 			{
 				$result = explode(':', $result)[0];
 			}
@@ -103,9 +108,6 @@ final class OsmSource extends Source
 		return $result;
 	}
 
-	/**
-	 * @return string|null
-	 */
 	public function getOsmApiUrl(): ?string
 	{
 		$serviceUrl = $this->getOsmServiceUrl();
@@ -117,9 +119,6 @@ final class OsmSource extends Source
 		return $serviceUrl . static::API_PATH;
 	}
 
-	/**
-	 * @return string|null
-	 */
 	public function getOsmServiceUrl(): ?string
 	{
 		if (defined('LOCATION_OSM_SERVICE_URL') && LOCATION_OSM_SERVICE_URL)
@@ -127,14 +126,9 @@ final class OsmSource extends Source
 			return (string)LOCATION_OSM_SERVICE_URL;
 		}
 
-		return $this->getConfig()
-			? $this->getConfig()->getValue('SERVICE_URL')
-			: null;
+		return $this->getConfig()?->getValue('SERVICE_URL');
 	}
 
-	/**
-	 * @return string|null
-	 */
 	public function getOsmMapServiceUrl(): ?string
 	{
 		if (defined('LOCATION_OSM_MAP_SERVICE_URL') && LOCATION_OSM_MAP_SERVICE_URL)
@@ -142,14 +136,9 @@ final class OsmSource extends Source
 			return (string)LOCATION_OSM_MAP_SERVICE_URL;
 		}
 
-		return $this->getConfig()
-			? $this->getConfig()->getValue('MAP_SERVICE_URL')
-			: null;
+		return $this->getConfig()?->getValue('MAP_SERVICE_URL');
 	}
 
-	/**
-	 * @return Token|null
-	 */
 	public function getOsmToken(): ?Token
 	{
 		return $this->tokenRequester->getToken();

@@ -1,30 +1,29 @@
-<?
-use Bitrix\Main\Localization\Loc,
-	Bitrix\Main\UserTable,
-	Bitrix\Main,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UserTable;
+use Bitrix\Main;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
-define('BT_COND_LOGIC_EQ', 0);						// = (equal)
-define('BT_COND_LOGIC_NOT_EQ', 1);					// != (not equal)
-define('BT_COND_LOGIC_GR', 2);						// > (great)
-define('BT_COND_LOGIC_LS', 3);						// < (less)
-define('BT_COND_LOGIC_EGR', 4);						// => (great or equal)
-define('BT_COND_LOGIC_ELS', 5);						// =< (less or equal)
-define('BT_COND_LOGIC_CONT', 6);					// contain
-define('BT_COND_LOGIC_NOT_CONT', 7);				// not contain
+const BT_COND_LOGIC_EQ = 0; // = (equal)
+const BT_COND_LOGIC_NOT_EQ = 1; // != (not equal)
+const BT_COND_LOGIC_GR = 2; // > (great)
+const BT_COND_LOGIC_LS = 3; // < (less)
+const BT_COND_LOGIC_EGR = 4; // => (great or equal)
+const BT_COND_LOGIC_ELS = 5; // =< (less or equal)
+const BT_COND_LOGIC_CONT = 6; // contain
+const BT_COND_LOGIC_NOT_CONT = 7; // not contain
 
-define('BT_COND_MODE_DEFAULT', 0);					// full mode
-define('BT_COND_MODE_PARSE', 1);					// parsing mode
-define('BT_COND_MODE_GENERATE', 2);					// generate mode
-define('BT_COND_MODE_SQL', 3);						// generate getlist mode
-define('BT_COND_MODE_SEARCH', 4);					// info mode
+const BT_COND_MODE_DEFAULT = 0; // full mode
+const BT_COND_MODE_PARSE = 1; // parsing mode
+const BT_COND_MODE_GENERATE = 2; // generate mode
+const BT_COND_MODE_SQL = 3; // generate getlist mode
+const BT_COND_MODE_SEARCH = 4; // info mode
 
-define('BT_COND_BUILD_CATALOG', 0);					// catalog conditions
-define('BT_COND_BUILD_SALE', 1);					// sale conditions
-define('BT_COND_BUILD_SALE_ACTIONS', 2);			// sale actions conditions
+const BT_COND_BUILD_CATALOG = 0; // catalog conditions
+const BT_COND_BUILD_SALE = 1; // sale conditions
+const BT_COND_BUILD_SALE_ACTIONS = 2; // sale actions conditions
 
 class CGlobalCondCtrl
 {
@@ -4530,7 +4529,7 @@ class CGlobalCondTree
 
 			}
 
-			$strResult .= '<script type="text/javascript">'."\n";
+			$strResult .= '<script>'."\n";
 			$strResult .= 'var '.$this->strJSName.' = new BX.TreeConditions('."\n";
 			$strResult .= $this->ShowParams().",\n";
 			$strResult .= $this->ShowConditions().",\n";

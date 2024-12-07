@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,27 +7,66 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_27_4_ONE_COL_FIX_TEXT_NAME_NEW'),
-		'section' => array('text', 'recommended'),
-	),
-	'cards' => array(),
-	'nodes' => array(
-		'.landing-block-node-text' => array(
+		'type' => ['page', 'store', 'smn', 'knowledge', 'group', 'mainpage'],
+		'section' => ['text', 'recommended', 'widgets_text'],
+	],
+	'cards' => [],
+	'nodes' => [
+		'.landing-block-node-text' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_27_4_ONE_COL_FIX_TEXT_NODES_LANDINGBLOCKNODE_TEXT'),
 			'type' => 'text',
-		),
-	),
-	'style' => array(
-		'block' => array(
-			'type' => ['block-default', 'animation', 'block-border'],
-		),
-		'nodes' => array(
-			'.landing-block-node-text' => array(
+		],
+	],
+	'style' => [
+		'block' => [
+			'type' => [
+				//block-default
+				'display',
+				'background',
+				'padding-top',
+				'padding-bottom',
+				'padding-left',
+				'padding-right',
+				'margin-top',
+				//block-border
+				'background',
+				'block-border-type',
+				'block-border-margin',
+				'border-radius',
+				'block-border-position',
+				//other
+				'animation',
+			],
+		],
+		'nodes' => [
+			'.landing-block-node-text' => [
 				'name' => Loc::getMessage('LANDING_BLOCK_27_4_ONE_COL_FIX_TEXT_NODES_LANDINGBLOCKNODE_TEXT'),
-				'type' => ['typo', 'container', 'animation'],
-			),
-		),
-	),
-);
+				'type' => [
+					//typo
+					'text-align',
+					'color',
+					'font-size',
+					'font-family',
+					'font-weight',
+					'text-decoration',
+					'text-transform',
+					'line-height',
+					'letter-spacing',
+					'word-break',
+					'text-shadow',
+					'padding-top',
+					'padding-left',
+					'padding-right',
+					'margin-bottom',
+					//container
+					'container-max-width',
+					//other
+					'animation',
+				],
+			],
+		],
+	],
+];

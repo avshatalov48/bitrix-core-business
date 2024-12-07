@@ -197,6 +197,8 @@ class CCalendarEventHandlers
 				'ACTIVE_SECTION' => 'Y'
 			],
 			'arSelect' => [
+				'ID',
+				'PARENT_ID',
 				'OWNER_ID',
 				'SECTION_ID',
 				'DATE_FROM',
@@ -266,14 +268,13 @@ class CCalendarEventHandlers
 		{
 			case 'calendar_add':
 
-				return self::plannerActionAdd(array(
+				self::plannerActionAdd(array(
 					'NAME' => $_REQUEST['name'],
 					'FROM' => $_REQUEST['from'],
 					'TO' => $_REQUEST['to'],
 					'ABSENCE' => $_REQUEST['absence']
 				));
-
-			break;
+				break;
 
 			case 'calendar_show':
 
@@ -281,9 +282,8 @@ class CCalendarEventHandlers
 					'ID' => (int)$_REQUEST['id'],
 					'SITE_ID' => $params['SITE_ID']
 				));
-
-			break;
 		}
+		return null;
 	}
 
 	protected static function getEvent($arParams)

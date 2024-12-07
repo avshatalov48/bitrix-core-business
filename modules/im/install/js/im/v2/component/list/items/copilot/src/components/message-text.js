@@ -2,12 +2,15 @@ import { Core } from 'im.v2.application.core';
 import { Settings } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
+import { AvatarSize, MessageAvatar } from 'im.v2.component.elements';
 
 import type { JsonObject } from 'main.core';
 import type { ImModelUser, ImModelChat, ImModelRecentItem, ImModelMessage } from 'im.v2.model';
 
 // @vue/component
 export const MessageText = {
+	name: 'MessageText',
+	components: { MessageAvatar },
 	props:
 	{
 		item: {
@@ -21,6 +24,7 @@ export const MessageText = {
 	},
 	computed:
 	{
+		AvatarSize: () => AvatarSize,
 		recentItem(): ImModelRecentItem
 		{
 			return this.item;
@@ -115,10 +119,13 @@ export const MessageText = {
 				<span v-else-if="!showLastMessage">{{ hiddenMessageText }}</span>
 				<template v-else>
 					<span v-if="isLastMessageAuthor" class="bx-im-list-copilot-item__message_author-icon --self"></span>
-					<template v-else-if="message.authorId">
-						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-copilot-item__message_author-icon --user"></span>
-						<span v-else class="bx-im-list-copilot-item__message_author-icon --user --default"></span>
-					</template>
+					<span v-else-if="message.authorId" class="bx-im-list-copilot-item__message_author-icon --user">
+						<MessageAvatar 
+							:messageId="message.id"
+							:authorId="message.authorId"
+							:size="AvatarSize.XXS" 
+						/>
+					</span>
 					<span class="bx-im-list-copilot-item__message_text_content">{{ formattedMessageText }}</span>
 				</template>
 			</span>

@@ -5,6 +5,7 @@ namespace Bitrix\Bizproc\Api\Response\WorkflowStateService;
 use Bitrix\Bizproc\Workflow\Entity\EO_WorkflowState_Collection;
 use Bitrix\Bizproc\Workflow\Task\EO_Task_Collection;
 use Bitrix\Main\Result;
+use Bitrix\Main\Type\DateTime;
 
 class GetListResponse extends Result
 {
@@ -13,6 +14,7 @@ class GetListResponse extends Result
 		parent::__construct();
 
 		$this->data['workflowTasks'] = [];
+		$this->data['modified'] = [];
 	}
 
 	public function getWorkflowStatesCollection(): ?EO_WorkflowState_Collection
@@ -54,5 +56,17 @@ class GetListResponse extends Result
 		$this->data['workflowTasks'][$workflowId] = $tasks;
 
 		return $this;
+	}
+
+	public function setUserModified(string $workflowId, DateTime $modified): static
+	{
+		$this->data['modified'][$workflowId] = $modified;
+
+		return $this;
+	}
+
+	public function getUserModified(string $workflowId): ?DateTime
+	{
+		return $this->data['modified'][$workflowId] ?? null;
 	}
 }

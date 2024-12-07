@@ -12,7 +12,7 @@ use Bitrix\Main\Web\Json;
 /** @var array $arResult */
 $containerId = 'bx-sender-contact-import';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.ContactImport.init(<?=Json::encode(array(
 			'containerId' => $containerId,

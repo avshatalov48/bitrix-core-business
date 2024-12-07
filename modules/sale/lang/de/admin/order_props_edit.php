@@ -45,6 +45,7 @@ $MESS["SALE_PROPERTY_LINKING"] = "Verknüpfung von Eigenschaften";
 $MESS["SALE_PROPERTY_LINKING_DESC"] = "Verknüpft Eigenschaften mit Zahlungssystemen und Lieferservices";
 $MESS["SALE_PROPERTY_PAYSYSTEM"] = "Zahlungssysteme";
 $MESS["SALE_PROPERTY_SELECT_ALL"] = "Alle";
+$MESS["SALE_PROPERTY_TP"] = "Bestellquelle";
 $MESS["SALE_PROPERTY_TP_LANDING"] = "Landings";
 $MESS["SALE_PROPS_GROUP"] = "Feldergruppen";
 $MESS["SALE_RECORDS_LIST"] = "Feld";

@@ -27,12 +27,12 @@ class Loader
 	public static function autoLoad($class)
 	{
 		// break recursion
-		if (substr($class, -5) == 'Table')
+		if (str_ends_with($class, 'Table'))
 		{
 			return;
 		}
 
-		if (strpos($class, '\\') === false)
+		if (!str_contains($class, '\\'))
 		{
 			// define global namespace explicitly
 			$class = '\\'.$class;
@@ -41,7 +41,7 @@ class Loader
 		$namespace = substr($class, 0, strrpos($class, '\\') + 1);
 		$className = substr($class, strrpos($class, '\\') + 1);
 
-		if (substr($className, 0, 3) == 'EO_')
+		if (str_starts_with($className, 'EO_'))
 		{
 			$needFor = 'object';
 

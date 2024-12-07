@@ -94,7 +94,7 @@ class Manager
 				}
 			}
 
-			if ((int)$timeExecution && (getmicrotime() - START_EXEC_TIME > $timeExecution))
+			if ((int)$timeExecution && (microtime(true) - START_EXEC_TIME > $timeExecution))
 			{
 				break;
 			}

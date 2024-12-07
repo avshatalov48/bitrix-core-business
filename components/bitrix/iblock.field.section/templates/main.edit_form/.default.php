@@ -27,7 +27,7 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 	}
 	?>
 	</span>
-	<span	id="<?= $arResult['controlNodeIdJs'] ?>"></span>
+	<span id="<?= $arResult['controlNodeIdJs'] ?>" class="iblock-section-selector-wrapper"></span>
 	<?php
 	$script = <<<EOT
 	<script>
@@ -97,6 +97,8 @@ if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 						node: BX('{$arResult['controlNodeIdJs']}').firstChild
 					});
 			}));
+			
+			BX.fireEvent(BX('{$arResult['controlNodeIdJs']}'), 'click');
 		});
 	</script>
 EOT;

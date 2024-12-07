@@ -1,6 +1,7 @@
 .bx-im-message-base-file__container {
 	position: relative;
 	padding: 9px 10px 6px 14px;
+	max-width: 285px;
 }
 
 .bx-im-message-base-file__author-title {

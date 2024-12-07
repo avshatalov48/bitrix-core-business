@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Main');
@@ -6,12 +6,12 @@
 	BX.Main.dropdownManager = {
 		dropdownClass: 'main-dropdown',
 		data: {},
-		init: function()
+		init()
 		{
-			var self = this;
-			var result;
-			var onLoadItems;
-			var items;
+			const self = this;
+			let result;
+			let onLoadItems;
+			let items;
 
 			BX.bind(document, 'click', BX.delegate(function(event) {
 				if (BX.hasClass(event.target, this.dropdownClass))
@@ -35,26 +35,28 @@
 
 			if (BX.type.isArray(onLoadItems))
 			{
-				onLoadItems.forEach(function(current) {
+				onLoadItems.forEach((current) => {
 					result = self.getById(current.id);
-					try {
+					try
+					{
 						items = eval(BX.data(current, 'items'));
-					} catch (err) {}
+					}
+					catch
+					{}
 
-					BX.onCustomEvent(window, 'Dropdown::load', [current.id, {}, null, BX.type.isArray(items) && items.length ? items[0] : [], BX.data(current, 'value')]);
+					BX.onCustomEvent(window, 'Dropdown::load', [current.id, {}, null, BX.type.isArray(items) && items.length > 0 ? items[0] : [], BX.data(current, 'value')]);
 				});
 			}
-
 		},
 
-		push: function(id, instance)
+		push(id, instance)
 		{
 			this.data[id] = instance;
 		},
 
-		getById: function(id)
+		getById(id)
 		{
 			return (id in this.data) ? this.data[id] : null;
-		}
+		},
 	};
 })();

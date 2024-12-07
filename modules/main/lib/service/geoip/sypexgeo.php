@@ -4,7 +4,6 @@ namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main;
 use Bitrix\Main\Error;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
 
@@ -73,9 +72,6 @@ final class SypexGeo extends Base
 
 				if(is_array($arRes))
 				{
-					if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-						$arRes = Encoding::convertEncoding($arRes, 'UTF-8', SITE_CHARSET);
-
 					$result->setData($arRes);
 				}
 				else

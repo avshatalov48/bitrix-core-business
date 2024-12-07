@@ -1125,25 +1125,34 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    // endregion component events
 	    // region desktop interactions
+	    onSetCallBackgroundHandle: function onSetCallBackgroundHandle(id, source) {
+	      var _this6 = this;
+	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(id, source).then(function (id) {
+	        if (id === 'none' && _this6.selectedBackgroundId !== 'none') {
+	          im_v2_lib_logger.Logger.warn('CallBackground: background settings limit exceeded');
+	          _this6.selectedBackgroundId = Action.type.none;
+	        }
+	      });
+	    },
 	    setCallBackground: function setCallBackground(backgroundInstance) {
-	      im_v2_lib_logger.Logger.warn('CallBackground: set background', backgroundInstance);
+	      im_v2_lib_logger.Logger.warn('CallBackground: trying set background', backgroundInstance);
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(backgroundInstance.id, backgroundInstance.background);
+	      return this.onSetCallBackgroundHandle(backgroundInstance.id, backgroundInstance.background);
 	    },
 	    setCallBlur: function setCallBlur(action) {
-	      im_v2_lib_logger.Logger.warn('CallBackground: set blur', action);
+	      im_v2_lib_logger.Logger.warn('CallBackground: trying set blur', action);
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(action.id, action.background);
+	      return this.onSetCallBackgroundHandle(action.id, action.background);
 	    },
 	    removeCallBackground: function removeCallBackground() {
 	      if (!this.isDesktop) {
 	        return;
 	      }
-	      return im_v2_lib_desktopApi.DesktopApi.setCallBackground(Action.type.none, Action.type.none);
+	      return this.onSetCallBackgroundHandle(Action.type.none, Action.type.none);
 	    },
 	    setCallMask: function setCallMask(mask) {
 	      im_v2_lib_logger.Logger.warn('CallBackground: set mask', mask);

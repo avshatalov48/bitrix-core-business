@@ -1,13 +1,20 @@
 import { EventEmitter, BaseEvent } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
+import { Analytics } from 'im.v2.lib.analytics';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
+import { ChatType, EventType, Layout, LocalStorageKey } from 'im.v2.const';
 import { Logger } from 'im.v2.lib.logger';
-import { EventType, Layout, LocalStorageKey } from 'im.v2.const';
+import { ChannelManager } from 'im.v2.lib.channel';
+import { AccessErrorCode, AccessManager } from 'im.v2.lib.access';
+import { FeatureManager } from 'im.v2.lib.feature';
 
-import type { ImModelLayout } from 'im.v2.model';
+import type { ImModelLayout, ImModelChat } from 'im.v2.model';
 
 type EntityId = string;
+
+const TypesWithoutContext: Set<string> = new Set([ChatType.comment]);
+const LayoutsWithoutLastOpenedElement: Set<string> = new Set([Layout.channel.name, Layout.market.name]);
 
 export class LayoutManager
 {
@@ -38,10 +45,28 @@ export class LayoutManager
 
 	async setLayout(config: ImModelLayout): Promise
 	{
+		if (config.contextId)
+		{
+			const hasAccess = await this.#handleContextAccess(config);
+			if (!hasAccess)
+			{
+				return Promise.resolve();
+			}
+		}
+
 		if (config.entityId)
 		{
 			this.setLastOpenedElement(config.name, config.entityId);
 		}
+
+		this.#handleLayoutLeave();
+
+		if (this.#isSameChat(config))
+		{
+			this.#handleSameChatReopen(config);
+		}
+
+		this.#sendAnalytics(config);
 
 		return Core.getStore().dispatch('application/setLayout', config);
 	}
@@ -83,7 +108,31 @@ export class LayoutManager
 
 	setLastOpenedElement(layoutName: string, entityId: string): void
 	{
+		if (LayoutsWithoutLastOpenedElement.has(layoutName))
+		{
+			return;
+		}
+
 		this.#lastOpenedElement[layoutName] = entityId;
+	}
+
+	clearLayoutEntityId(): void
+	{
+		const currentLayoutName = this.getLayout().name;
+		void this.setLayout({ name: currentLayoutName });
+		void this.#deleteLastOpenedElement(currentLayoutName);
+	}
+
+	isChatContextAvailable(dialogId: string): boolean
+	{
+		if (!this.getLayout().contextId)
+		{
+			return false;
+		}
+
+		const { type }: ImModelChat = this.#getChat(dialogId);
+
+		return !TypesWithoutContext.has(type);
 	}
 
 	destroy(): void
@@ -92,7 +141,17 @@ export class LayoutManager
 		EventEmitter.unsubscribe(EventType.desktop.onReload, this.#onDesktopReload.bind(this));
 	}
 
-	#onGoToMessageContext(event: BaseEvent<{dialogId: string, messageId: number}>): void
+	#deleteLastOpenedElement(layoutName: string): void
+	{
+		if (LayoutsWithoutLastOpenedElement.has(layoutName))
+		{
+			return;
+		}
+
+		delete this.#lastOpenedElement[layoutName];
+	}
+
+	async #onGoToMessageContext(event: BaseEvent<{dialogId: string, messageId: number}>): void
 	{
 		const { dialogId, messageId } = event.getData();
 		if (this.getLayout().entityId === dialogId)
@@ -100,8 +159,16 @@ export class LayoutManager
 			return;
 		}
 
-		this.setLayout({
-			name: Layout.chat.name,
+		const { type }: ImModelChat = this.#getChat(dialogId);
+		if (TypesWithoutContext.has(type))
+		{
+			return;
+		}
+
+		const isCopilotLayout = type === ChatType.copilot;
+
+		void this.setLayout({
+			name: isCopilotLayout ? Layout.copilot.name : Layout.chat.name,
 			entityId: dialogId,
 			contextId: messageId,
 		});
@@ -110,5 +177,78 @@ export class LayoutManager
 	#onDesktopReload()
 	{
 		this.saveCurrentLayout();
+	}
+
+	#sendAnalytics(config: ImModelLayout)
+	{
+		const currentLayout = this.getLayout();
+		if (currentLayout.name === config.name)
+		{
+			return;
+		}
+
+		if (config.name === Layout.copilot.name)
+		{
+			Analytics.getInstance().onOpenCopilotTab();
+		}
+
+		Analytics.getInstance().onOpenTab(config.name);
+	}
+
+	#isSameChat(config: ImModelLayout): boolean
+	{
+		const { name, entityId } = this.getLayout();
+		const sameLayout = name === config.name;
+		const sameEntityId = entityId && entityId === config.entityId;
+
+		return sameLayout && sameEntityId;
+	}
+
+	#handleSameChatReopen(config: ImModelLayout): void
+	{
+		const { entityId: dialogId, contextId } = config;
+
+		if (contextId)
+		{
+			EventEmitter.emit(EventType.dialog.goToMessageContext, {
+				messageId: contextId,
+				dialogId,
+			});
+		}
+	}
+
+	async #handleContextAccess(config: ImModelLayout): Promise<boolean>
+	{
+		const { contextId: messageId, entityId: dialogId } = config;
+		if (!messageId)
+		{
+			return Promise.resolve(true);
+		}
+
+		const { hasAccess, errorCode } = await AccessManager.checkMessageAccess(messageId);
+		if (!hasAccess && errorCode === AccessErrorCode.messageAccessDeniedByTariff)
+		{
+			Analytics.getInstance().historyLimit.onGoToContextLimitExceeded({ dialogId });
+			FeatureManager.chatHistory.openFeatureSlider();
+
+			return Promise.resolve(false);
+		}
+
+		return Promise.resolve(true);
+	}
+
+	#handleLayoutLeave()
+	{
+		const { entityId: dialogId = '' } = this.getLayout();
+		const isChannelOpened = ChannelManager.isChannel(dialogId);
+		if (isChannelOpened)
+		{
+			EventEmitter.emit(EventType.dialog.closeComments);
+		}
+	}
+
+	#getChat(dialogId: string): ImModelChat
+	{
+		return Core.getStore().getters['chats/get'](dialogId, true);
 	}
 }

@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2021 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Access;
@@ -16,7 +16,6 @@ use Bitrix\Main\Access\Filter\FilterFactory;
 use Bitrix\Main\Access\Rule\Factory\RuleControllerFactory;
 use Bitrix\Main\Access\Rule\RuleFactory;
 use Bitrix\Main\Access\User\AccessibleUser;
-use Bitrix\Main\Engine\CurrentUser;
 
 abstract class BaseAccessController
 	implements AccessibleController
@@ -35,7 +34,7 @@ abstract class BaseAccessController
 
 	protected FilterFactory $filterFactory;
 
-	public static function getInstance($userId)
+	public static function getInstance($userId): static
 	{
 		if (!isset(static::$register[static::class][$userId]))
 		{

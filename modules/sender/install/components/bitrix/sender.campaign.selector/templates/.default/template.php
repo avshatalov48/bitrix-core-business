@@ -71,7 +71,7 @@ $containerId = 'sender-campaign-selector-'.mb_strtolower($arParams['INPUT_NAME']
 		</div>
 	</div>
 
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.Sender.Campaign.SelectorManager.create(<?=Json::encode(array(
 				'id' => $containerId,

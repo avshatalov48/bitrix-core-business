@@ -471,7 +471,7 @@ if (is_array($arResult['SKU_PROPS']))
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT']
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 			var <? echo $strObName; ?> =
 			new JCCatalogSectionRec(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script><?
@@ -637,7 +637,7 @@ if (is_array($arResult['SKU_PROPS']))
 		'LAST_ELEMENT' => $arItem['LAST_ELEMENT']
 	);
 	?>
-		<script type="text/javascript">
+		<script>
 			var <? echo $strObName; ?> =
 			new JCCatalogSectionRec(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 		</script>
@@ -661,7 +661,7 @@ if (is_array($arResult['SKU_PROPS']))
 	</div>
 	</div>
 
-	<script type="text/javascript">
+	<script>
 		BX.message({
 			MESS_BTN_BUY: '<? echo ('' != $arParams['MESS_BTN_BUY'] ? CUtil::JSEscape($arParams['MESS_BTN_BUY']) : GetMessageJS('CATALOG_RECOMMENDED_PRODUCTS_TPL_MESS_BTN_BUY')); ?>',
 			MESS_BTN_ADD_TO_BASKET: '<? echo ('' != $arParams['MESS_BTN_ADD_TO_BASKET'] ? CUtil::JSEscape($arParams['MESS_BTN_ADD_TO_BASKET']) : GetMessageJS('CATALOG_RECOMMENDED_PRODUCTS_TPL_MESS_BTN_ADD_TO_BASKET')); ?>',

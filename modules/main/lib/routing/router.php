@@ -130,6 +130,12 @@ class Router
 		return $finalUrl;
 	}
 
+	/**
+	 * @param string $name
+	 * @param array $parameters
+	 *
+	 * @return string|null
+	 */
 	public function route($name, $parameters = [])
 	{
 		if (!empty($this->routesByName[$name]))
@@ -175,6 +181,8 @@ class Router
 
 			return $uri;
 		}
+
+		return null;
 	}
 
 	/**

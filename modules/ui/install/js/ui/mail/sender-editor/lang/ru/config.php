@@ -12,6 +12,7 @@ $MESS['UI_MAIL_SMTP_SLIDER_SERVER'] = 'Сервер';
 $MESS['UI_MAIL_SMTP_SLIDER_PORT'] = 'Порт';
 $MESS['UI_MAIL_SMTP_SLIDER_SSL'] = 'Использовать защищённое соединение';
 $MESS['UI_MAIL_SMTP_SLIDER_EMAIL'] = 'E-mail';
+$MESS['UI_MAIL_SMTP_SLIDER_LOGIN'] = 'Логин';
 $MESS['UI_MAIL_SMTP_SLIDER_PASSWORD'] = 'Пароль';
 $MESS['UI_MAIL_SMTP_SLIDER_SENDER_LIMIT_SECTION_TITLE'] = 'Лимиты';
 $MESS['UI_MAIL_SMTP_SLIDER_SENDER_LIMIT_TITLE'] = 'Лимит в день';
@@ -23,6 +24,7 @@ $MESS['UI_MAIL_SMTP_SLIDER_INVALID_EMAIL'] = 'Указан некорректн�
 $MESS['UI_MAIL_SMTP_SLIDER_EMPTY_EMAIL'] = 'Введите e-mail';
 $MESS['UI_MAIL_SMTP_SLIDER_EMPTY_SERVER'] = 'Введите адрес сервера';
 $MESS['UI_MAIL_SMTP_SLIDER_INVALID_PORT'] = 'Некорректный порт';
+$MESS['UI_MAIL_SMTP_SLIDER_EMPTY_LOGIN'] = 'Введите логин';
 $MESS['UI_MAIL_SMTP_SLIDER_EMPTY_PASSWORD'] = 'Введите пароль';
 
 $MESS['UI_MAIL_ALIAS_SLIDER_EMAIL_TITLE'] = 'Отправители';

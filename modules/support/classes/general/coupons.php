@@ -37,7 +37,7 @@ class CSupportSuperCoupon
 		$DB->StartTransaction();
 		for ($i = 0; $i < 100; ++$i)
 		{
-			$coupon = preg_replace_callback('|#|'.BX_UTF_PCRE_MODIFIER, array('CSupportSuperCoupon', '_getrandsymbol'), $couponFormat);
+			$coupon = preg_replace_callback('|#|u', array('CSupportSuperCoupon', '_getrandsymbol'), $couponFormat);
 			$rs = CSupportSuperCoupon::GetList(false, array('COUPON' => $coupon));
 			if ($rs->Fetch())
 			{
@@ -122,7 +122,7 @@ class CSupportSuperCoupon
 		if ($strUpdate <> '')
 		{
 			$strSql = "UPDATE b_ticket_supercoupons SET $strUpdate WHERE ID=$ID";
-			$q = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$q = $DB->Query($strSql);
 			$rows = intval($q->AffectedRowsCount());
 		}
 		else 
@@ -211,7 +211,7 @@ class CSupportSuperCoupon
 			$strSql =
 				"INSERT INTO b_ticket_supercoupons_log (".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, false, 'File: ' . __FILE__ . ' Line: ' . __LINE__);
+			$DB->Query($strSql);
 			
 			$arMail = array(
 				'COUPON' => $coupon,
@@ -380,7 +380,7 @@ class CSupportSuperCoupon
 			$strQuery .= ' ORDER BY ' . $order;
 		}
 		
-		return $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strQuery);
 	}
 	
 	public static function Delete($ID)
@@ -389,7 +389,7 @@ class CSupportSuperCoupon
 		$ID = intval($ID);
 		if ($ID > 0)
 		{
-			$DB->Query('DELETE FROM b_ticket_supercoupons WHERE ID=' . $ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query('DELETE FROM b_ticket_supercoupons WHERE ID=' . $ID);
 		}
 		return true;
 	}
@@ -477,14 +477,14 @@ class CSupportSuperCoupon
 			$strQuery .= ' ORDER BY ' . $order;
 		}
 		
-		return $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strQuery);
 
 		
 	}
 	
 	public static function _getrandsymbol($x)
 	{
-		return ToUpper(randString(1));
+		return mb_strtoupper(randString(1));
 	}
 	
 	public static function __CheckFields($arFields)

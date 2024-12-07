@@ -12,6 +12,7 @@ use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Socialnetwork\ComponentHelper;
+use Bitrix\Socialnetwork\Integration\Tasks\Flow\Path\FlowPath;
 use Bitrix\Socialnetwork\Item\Workgroup;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\Helper\Path;
@@ -251,6 +252,8 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 			&& CSocNetSubscription::isUserSubscribed($USER->getId(), 'SG'.$this->arParams['GROUP_ID'])
 		);
 
+		$result['canCreateGroup'] = \Bitrix\Socialnetwork\Helper\Workgroup\Access::canCreate();
+
 		$result['bUserCanRequestGroup'] = null;
 		if (
 			$result['Group']['VISIBLE'] === 'Y'
@@ -351,6 +354,11 @@ final class SocialnetworkGroup extends CBitrixComponent implements \Bitrix\Main\
 		$result['Urls']['MessageToGroup'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_MESSAGE_TO_GROUP'], [ 'group_id' => $result['Group']['ID'] ]);
 		$result['Urls']['GroupLog'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_LOG'], [ 'group_id' => $result['Group']['ID'] ]);
 		$result['Urls']['Copy'] = CComponentEngine::makePathFromTemplate($this->arParams['PATH_TO_GROUP_COPY'] ?? '', [ 'group_id' => $result['Group']['ID'] ]);
+
+		if (Loader::includeModule('tasks'))
+		{
+			$result['Urls']['Flows'] = FlowPath::get((int)$USER->getId(), (int)$result['Group']['ID']);
+		}
 	}
 
 	private function setGroupAvatar(&$result): void

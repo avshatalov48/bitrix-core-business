@@ -43,7 +43,8 @@ export class ConferenceModel extends VuexBuilderModel
 				users: [],
 				usersInCall: [],
 				presenters: [],
-				rightPanelMode: RightPanelMode.hidden
+				rightPanelMode: RightPanelMode.hidden,
+				hasErrorInCall: false,
 			},
 			user:
 			{
@@ -185,6 +186,10 @@ export class ConferenceModel extends VuexBuilderModel
 				{
 					state.common.presenters = payload.presenters;
 				}
+				if (typeof payload.hasErrorInCall === 'boolean')
+				{
+					state.common.hasErrorInCall = payload.hasErrorInCall;
+				}
 			},
 			user: (state, payload) =>
 			{
@@ -265,6 +270,13 @@ export class ConferenceModel extends VuexBuilderModel
 				if (typeof payload.conferenceStarted === 'boolean')
 				{
 					state.common.conferenceStarted = payload.conferenceStarted;
+				}
+			},
+			setConferenceHasErrorInCall: (state, payload) =>
+			{
+				if (typeof payload.hasErrorInCall === 'boolean')
+				{
+					state.common.hasErrorInCall = payload.hasErrorInCall;
 				}
 			},
 			setConferenceStartDate: (state, payload) =>
@@ -349,7 +361,8 @@ export class ConferenceModel extends VuexBuilderModel
 				userReadyToJoin: null,
 				rightPanelMode: null,
 				presenters: null,
-				users: null
+				users: null,
+				hasErrorInCall: null,
 			},
 		}
 	}

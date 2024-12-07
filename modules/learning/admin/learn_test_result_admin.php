@@ -18,9 +18,7 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/prolog.php");
 Bitrix\Main\Localization\Loc::loadLanguageFile(__FILE__);
 Bitrix\Main\Localization\Loc::loadLanguageFile(__DIR__."/learn_question_edit.php");
 
-
-
-$ATTEMPT_ID = intval($ATTEMPT_ID);
+$ATTEMPT_ID = isset($_REQUEST['ATTEMPT_ID']) ? intval($_REQUEST['ATTEMPT_ID']) : 0;
 
 
 //$r = CTestAttempt::GetByID($ATTEMPT_ID);
@@ -81,14 +79,14 @@ if($lAdmin->EditAction()) // save from the list
 			if($e = $APPLICATION->GetException())
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
 		else
 		{
 			$ob->OnTestResultChange($ID);
+			$DB->Commit();
 		}
-		$DB->Commit();
 	}
 }
 
@@ -122,8 +120,8 @@ if($arID = $lAdmin->GroupAction())
 			{
 				CTestAttempt::RecountQuestions($ATTEMPT_ID);
 				CTestAttempt::OnAttemptChange($ATTEMPT_ID);
+				$DB->Commit();
 			}
-			$DB->Commit();
 			break;
 		}
 	}

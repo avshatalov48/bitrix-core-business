@@ -1,6 +1,9 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Main\Text\HtmlFilter;
 
@@ -40,8 +43,7 @@ foreach($arResult['fieldValues'] as $value)
 
 if(
 	$arResult['userField']['MULTIPLE'] === 'Y'
-	&&
-	$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+	&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 )
 {
 	print $component->getHtmlBuilder()->getMobileCloneButton($arResult['fieldName']);

@@ -204,7 +204,7 @@ if($strWarning == '')
 		}
 	}
 
-	if($REQUEST_METHOD == "POST" && $save <> '' && ($propeditmore ?? null) == '')
+	if($_SERVER['REQUEST_METHOD'] == "POST" && $save <> '' && ($propeditmore ?? null) == '')
 	{
 		if(!check_bitrix_sessid())
 		{
@@ -633,7 +633,7 @@ CAdminFileDialog::ShowScript(Array
 );
 
 ?>
-<script type="text/javascript">
+<script>
 BX.addCustomEvent(window, 'onAfterFileDialogShow', function(){
 	var _filenameDialogInput = BX("__bx_file_path_bar");
 	var _filenamePageInput = BX('filename');
@@ -690,9 +690,9 @@ $tabControl->BeginNextTab();
 
 		<?
 		if (isset($_GET['oldtitle']) && $_GET['oldtitle'] <> '' && !$bVarsFromForm)
-			$title = $GLOBALS["APPLICATION"]->ConvertCharset($_GET['oldtitle'], "UTF-8", LANG_CHARSET);
+			$title = $_GET['oldtitle'];
 		if (isset($_GET['oldname']) && $_GET['oldname'] <> '' && !$bVarsFromForm)
-			$filename = $GLOBALS["APPLICATION"]->ConvertCharset($_GET['oldname'], "UTF-8", LANG_CHARSET);
+			$filename = $_GET['oldname'];
 		?>
 		<select id="bx_template" name="template" onchange="templateOnChange(this);">
 			<?

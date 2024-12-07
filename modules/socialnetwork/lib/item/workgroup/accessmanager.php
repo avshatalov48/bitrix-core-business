@@ -34,8 +34,19 @@ class AccessManager
 		$this->group = $group;
 		$this->targetUserRelation = $targetUserRelation;
 		$this->currentUserRelation = $currentUserRelation;
-		$this->isCurrentUserModuleAdmin = self::isCurrentUserModuleAdmin((bool)($additionalParams['checkAdminSession'] ?? true));
-		$this->currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+
+		if (isset($additionalParams['userId']))
+		{
+			$this->currentUserId = (int)$additionalParams['userId'];
+			$this->isCurrentUserModuleAdmin = \CSocNetUser::IsUserModuleAdmin($this->currentUserId);
+
+		}
+		else
+		{
+			$this->isCurrentUserModuleAdmin = self::isCurrentUserModuleAdmin((bool)($additionalParams['checkAdminSession'] ?? true));
+			$this->currentUserId = \Bitrix\Socialnetwork\Helper\User::getCurrentUserId();
+		}
+
 		if (is_array($additionalEntityList) && !empty($additionalEntityList))
 		{
 			if (

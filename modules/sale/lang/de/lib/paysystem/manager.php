@@ -18,6 +18,7 @@ $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_PLATON"] = "Parameter der Platon-V
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_QIWI"] = "Anschlusseinstellungen für QIWI";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_ROBOXCHANGE"] = "Anschlusseinstellungen für RoboxChange";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SBERBANK"] = "Einstellungen der Sberbank-Verbindung";
+$MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SINARA"] = "Verbindungsparameter der Sinara Bank";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_SKB"] = "Einstellungen der SKB Bank-Verbindung";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_UAPAY"] = "Einstellungen der UAPAY-Verbindung";
 $MESS["SALE_PS_MANAGER_GROUP_CONNECT_SETTINGS_WEBMONEY"] = "Yandex-Verbindungsparameter";

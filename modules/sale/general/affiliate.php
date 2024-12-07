@@ -185,7 +185,7 @@ class CAllSaleAffiliate
 				"FROM b_sale_affiliate A ".
 				"WHERE A.ID = ".$ID." ";
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$GLOBALS["SALE_AFFILIATE"]["SALE_AFFILIATE_CACHE_".$ID] = $res;

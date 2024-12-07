@@ -4,13 +4,6 @@ IncludeModuleLangFile(__FILE__);
 
 class CAllTicketDictionary
 {
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CAllTicketDictionary<br>File: ".__FILE__;
-	}
-
 	public static function GetDefault($type, $siteID=SITE_ID)
 	{
 		if ($siteID=="all")
@@ -26,16 +19,14 @@ class CAllTicketDictionary
 	public static function GetNextSort($typeID)
 	{
 		global $DB;
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		$strSql = "SELECT max(C_SORT) MAX_SORT FROM b_ticket_dictionary WHERE C_TYPE='".$DB->ForSql($typeID,5)."'";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return intval($zr["MAX_SORT"])+100;
 	}
 
 	public static function GetDropDown($type="C", $siteID=false, $sla_id=false)
 	{
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetDropDown<br>Line: ";
 		global $DB;
 		if ($siteID==false || $siteID=="all")
 		{
@@ -53,7 +44,7 @@ class CAllTicketDictionary
 			case "K": $strSql = "SELECT CRITICALITY_ID as DID FROM b_ticket_sla_2_criticality WHERE SLA_ID=" . intval($sla_id); break;
 			case "M": $strSql = "SELECT MARK_ID as DID FROM b_ticket_sla_2_mark WHERE SLA_ID=" . intval($sla_id); break;
 		}
-		$r = $DB->Query( $strSql, false, $err_mess . __LINE__ );
+		$r = $DB->Query($strSql);
 		while( $a = $r->Fetch() ) $arDID[] = $a["DID"];
 		$arRecords = array();
 		while( $ar = $rs->Fetch() ) if( is_array( $arDID ) && ( in_array( $ar["ID"], $arDID ) || in_array( 0,$arDID ) ) ) $arRecords[] = $ar;
@@ -68,7 +59,6 @@ class CAllTicketDictionary
 	{
 		//M, C, K, S, SR, D, F
 		global $DB;
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetDropDownArray<br>Line: ";
 
 		if ($siteID == false || $siteID == "all")
 			$siteID = "";
@@ -96,7 +86,7 @@ class CAllTicketDictionary
 						UNION ALL
 						SELECT 'C' as C_TYPE, SLA_ID, CATEGORY_ID as DIC_ID FROM b_ticket_sla_2_category WHERE SLA_ID = ".$SLA_ID;
 
-			$r = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$r = $DB->Query($strSql);
 
 			$arUnset = Array();
 			while ($ar = $r->Fetch())
@@ -128,7 +118,6 @@ class CAllTicketDictionary
 	// get array of languages related to contract
 	public static function GetSiteArray($DICTIONARY_ID)
 	{
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetSiteArray<br>Line: ";
 		global $DB;
 		$DICTIONARY_ID = intval($DICTIONARY_ID);
 		if ($DICTIONARY_ID<=0) return false;
@@ -142,7 +131,7 @@ class CAllTicketDictionary
 				DS.DICTIONARY_ID = $DICTIONARY_ID
 			";
 
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch()) $arrRes[] = $ar["SITE_ID"];
 		return $arrRes;
 	}
@@ -155,7 +144,6 @@ class CAllTicketDictionary
 			return $GetSiteArrayForAllDictCache;
 		}
 
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetSiteArrayForAllDictionaries<br>Line: ";
 		global $DB;
 		$GetSiteArrayForAllDictCache = array();
 		$strSql = "
@@ -165,7 +153,7 @@ class CAllTicketDictionary
 			FROM
 				b_ticket_dictionary_2_site DS
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch())
 		{
 			$GetSiteArrayForAllDictCache[$ar["DICTIONARY_ID"]][] = $ar["SITE_ID"];
@@ -206,7 +194,6 @@ class CAllTicketDictionary
 
 	public static function GetByID($id)
 	{
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB;
 		$id = intval($id);
 		if ($id<=0)
@@ -219,14 +206,12 @@ class CAllTicketDictionary
 
 	public static function GetBySID($sid, $type, $siteID=SITE_ID)
 	{
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: GetBySID<br>Line: ";
 		$rs = CTicketDictionary::GetList('', '', array("SITE_ID"=>$siteID, "TYPE"=>$type, "SID"=>$sid));
 		return $rs;
 	}
 
 	public static function Delete($id, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllTicketDictionary::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $APPLICATION;
 		$id = intval($id);
 		if ($id<=0)
@@ -244,8 +229,8 @@ class CAllTicketDictionary
 		}
 		if ($bAdmin=="Y")
 		{
-			$DB->Query("DELETE FROM b_ticket_dictionary WHERE ID='$id'", false, $err_mess.__LINE__);
-			$DB->Query('DELETE FROM b_ticket_dictionary_2_site WHERE DICTIONARY_ID=' . $id, false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_ticket_dictionary WHERE ID='$id'");
+			$DB->Query('DELETE FROM b_ticket_dictionary_2_site WHERE DICTIONARY_ID=' . $id);
 		}
 	}
 

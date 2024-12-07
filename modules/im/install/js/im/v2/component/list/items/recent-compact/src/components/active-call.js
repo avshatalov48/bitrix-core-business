@@ -1,11 +1,11 @@
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize } from 'im.v2.component.elements';
 
 import type { ImModelCallItem } from 'im.v2.model';
 
 // @vue/component
 export const ActiveCall = {
 	name: 'ActiveCall',
-	components: { Avatar },
+	components: { ChatAvatar },
 	props:
 	{
 		item: {
@@ -42,7 +42,12 @@ export const ActiveCall = {
 		<div :data-id="activeCall.dialogId" class="bx-im-list-recent-compact-item__wrap">
 			<div @click="onClick" class="bx-im-list-recent-compact-item__container">
 				<div class="bx-im-list-recent-compact-item__avatar_container">
-					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
+					<ChatAvatar 
+						:avatarDialogId="activeCall.dialogId"
+						:contextDialogId="activeCall.dialogId"
+						:size="AvatarSize.M" 
+						:withSpecialTypes="false" 
+					/>
 					<div class="bx-im-list-recent-compact-active-call__icon" :class="'--' + activeCall.state"></div>
 				</div>
 			</div>

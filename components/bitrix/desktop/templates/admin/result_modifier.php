@@ -74,18 +74,18 @@ if (!empty($arDiff))
 				foreach($arParams as $id=>$p)
 				{
 					$pref = "G_".$gadget_id."_";
-					if(mb_strpos($id, $pref) === 0)
+					if(str_starts_with($id, $pref))
 					{
-						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
+						$arGadgetParams[substr($id, strlen($pref))]=$p;
 					}
 
 					$pref = "GU_".$gadget_id."_";
 					if(
-						mb_strpos($id, $pref) === 0
-						&& !isset($arGadgetParams[mb_substr($id, mb_strlen($pref))])
+						str_starts_with($id, $pref)
+						&& !isset($arGadgetParams[substr($id, strlen($pref))])
 					)
 					{
-						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
+						$arGadgetParams[substr($id, strlen($pref))]=$p;
 					}
 				}
 

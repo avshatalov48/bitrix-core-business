@@ -3,6 +3,7 @@
 $pageId = "group_photo";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 ?><?
 if ($arParams["FATAL_ERROR"] == "Y"):
 	if (!empty($arParams["ERROR_MESSAGE"])):

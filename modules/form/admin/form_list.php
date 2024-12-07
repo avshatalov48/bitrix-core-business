@@ -35,10 +35,10 @@ $lAdmin->InitFilter($arFilterFields);
 
 $old_module_version = CForm::IsOldVersion();
 
-$reset_id = intval($reset_id);
+$reset_id = intval($_REQUEST['reset_id'] ?? 0);
 if ($FORM_RIGHT=="W" && $reset_id>0 && check_bitrix_sessid()) CForm::Reset($reset_id);
 
-$copy_id = intval($makecopy_id);
+$copy_id = intval($_REQUEST['makecopy_id'] ?? 0);
 if ($FORM_RIGHT=="W" && $copy_id>0 && check_bitrix_sessid())
 {
 	CForm::Copy($copy_id);
@@ -174,7 +174,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	//$F_RIGHT = CForm::GetPermission($f_ID);
 	$F_RIGHT = $f_F_RIGHT;
 
-	unset($txt);
+	$txt = '';
 	$arrSITE = CForm::GetSiteArray($f_ID);
 	reset($arrSITE);
 	if (is_array($arrSITE))
@@ -184,7 +184,7 @@ while($arRes = $rsData->NavNext(true, "f_"))
 	}
 	else
 		$txt="&nbsp;";
-		$txt=trim($txt,",");
+	$txt=trim($txt,",");
 	$row->AddViewField("SITE",$txt);
 
 	if ($bSimple)

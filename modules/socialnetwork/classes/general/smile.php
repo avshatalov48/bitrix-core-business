@@ -126,7 +126,7 @@ class CAllSocNetSmile
 			"	FR.DESCRIPTION, FR.IMAGE_WIDTH, FR.IMAGE_HEIGHT ".
 			"FROM b_sonet_smile FR ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -146,7 +146,7 @@ class CAllSocNetSmile
 			"FROM b_sonet_smile FR ".
 			"	LEFT JOIN b_sonet_smile_lang FRL ON (FR.ID = FRL.SMILE_ID AND FRL.LID = '".$DB->ForSql($strLang)."') ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -165,7 +165,7 @@ class CAllSocNetSmile
 			"FROM b_sonet_smile_lang FRL ".
 			"WHERE FRL.SMILE_ID = ".$SMILE_ID." ".
 			"	AND FRL.LID = '".$DB->ForSql($strLang)."' ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{

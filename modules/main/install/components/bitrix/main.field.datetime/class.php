@@ -3,7 +3,6 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 use Bitrix\Main\Component\BaseUfComponent;
-use Bitrix\Main\Context;
 use Bitrix\Main\UserField\Types\DateTimeType;
 
 /**

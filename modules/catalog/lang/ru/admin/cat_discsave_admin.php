@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_CAT_DISC_SAVE_ADM_ERR_UPDATE_ERR"] = "Ошибка при обновлении накопительной программы: #ERR#";
 $MESS["BT_CAT_DISC_SAVE_ADM_ERR_UPDATE_UNKNOWN"] = "Неизвестная ошибка при обновлении накопительной программы";
 $MESS["BT_CAT_DISC_SAVE_ADM_ERR_UPDATE_ABSENT"] = "Накопительной программы с таким ID не существует";
@@ -47,4 +47,3 @@ $MESS["BT_CAT_DISC_SAVE_ADM_TITLE_MODIFIED_BY"] = "Кем изменена";
 $MESS["BT_CAT_DISC_SAVE_ADM_TITLE_TIMESTAMP_X"] = "Дата изменения";
 $MESS["BT_CAT_DISC_SAVE_ADM_MESS_SITE_ID"] = "Перейти к настройкам сайта";
 $MESS["CAT_FEATURE_NOT_ALLOW"] = "Данный функционал не входит в Вашу редакцию продукта.";
-?>

@@ -25,7 +25,7 @@ while ($arLang = $db_lang->Fetch())
 
 
 $bInitVars = false;
-if ($REQUEST_METHOD=="POST" && $forumPermissions=="W" && (!empty($save) || !empty($apply)) && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="POST" && $forumPermissions=="W" && (!empty($save) || !empty($apply)) && check_bitrix_sessid())
 {
 	$arFields = array(
 		"MIN_POINTS" => $MIN_POINTS,
@@ -209,4 +209,4 @@ for ($i = 0; $i<count($arSysLangs); $i++)
 }
 
 $tabControl->ShowWarnings("forum_edit", $message, $messageParams);
-require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

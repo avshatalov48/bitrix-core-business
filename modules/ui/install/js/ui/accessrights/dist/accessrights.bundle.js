@@ -3,12 +3,140 @@ this.BX = this.BX || {};
 (function (exports,main_loader,ui_notification,ui_switcher,main_popup,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
 
+	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
+	var _onItemSelect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onItemSelect");
+	var _onDeselect = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDeselect");
+	var _normalizeType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("normalizeType");
+	var _decodeId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("decodeId");
+	var _encoderId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("encoderId");
+	class EntitySelectorAdapter {
+	  constructor(options) {
+	    Object.defineProperty(this, _encoderId, {
+	      value: _encoderId2
+	    });
+	    Object.defineProperty(this, _decodeId, {
+	      value: _decodeId2
+	    });
+	    Object.defineProperty(this, _normalizeType, {
+	      value: _normalizeType2
+	    });
+	    Object.defineProperty(this, _onDeselect, {
+	      value: _onDeselect2
+	    });
+	    Object.defineProperty(this, _onItemSelect, {
+	      value: _onItemSelect2
+	    });
+	    Object.defineProperty(this, _options, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _options)[_options] = options;
+	  }
+	  show(columnId, accessCodes, targetNode) {
+	    const preselectedItems = [];
+	    for (const code in accessCodes) {
+	      if (!Object.hasOwn(accessCodes, code)) {
+	        continue;
+	      }
+	      const data = babelHelpers.classPrivateFieldLooseBase(this, _encoderId)[_encoderId](code);
+	      preselectedItems.push([data.entityName, data.id]);
+	    }
+	    const options = {
+	      ...babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].options,
+	      targetNode,
+	      preselectedItems,
+	      events: {
+	        'Item:onSelect': event => {
+	          const item = event.data.item;
+	          babelHelpers.classPrivateFieldLooseBase(this, _onItemSelect)[_onItemSelect](item, columnId);
+	        },
+	        'Item:onDeselect': event => {
+	          const item = event.data.item;
+	          babelHelpers.classPrivateFieldLooseBase(this, _onDeselect)[_onDeselect](item, columnId);
+	        }
+	      }
+	    };
+	    const dialog = new BX.UI.EntitySelector.Dialog(options);
+	    dialog.show();
+	  }
+	}
+	function _onItemSelect2(item, columnId) {
+	  let id = item.id;
+	  const decoder = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].entitiesIdsDecoder;
+	  if (main_core.Type.isFunction(decoder)) {
+	    id = decoder(item);
+	  }
+	  let type = item.entityId;
+	  const normalizeType = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].normalizeType;
+	  if (main_core.Type.isFunction(normalizeType)) {
+	    type = normalizeType(item.entityId);
+	  }
+	  const option = {
+	    accessCodes: {
+	      [id]: type
+	    },
+	    columnId,
+	    item: {
+	      id,
+	      entityId: item.id,
+	      name: item.title.text,
+	      avatar: item.avatar
+	    }
+	  };
+	  main_core_events.EventEmitter.emit('BX.UI.AccessRights:addToAccessCodes', option);
+	}
+	function _onDeselect2(item, columnId) {
+	  const id = babelHelpers.classPrivateFieldLooseBase(this, _decodeId)[_decodeId](item);
+	  const type = babelHelpers.classPrivateFieldLooseBase(this, _normalizeType)[_normalizeType](item.entityId);
+	  const option = {
+	    accessCodes: {
+	      [id]: type
+	    },
+	    columnId
+	  };
+	  main_core_events.EventEmitter.emit('BX.UI.AccessRights:removeFromAccessCodes', option);
+	}
+	function _normalizeType2(type) {
+	  const normalizeType = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].normalizeType;
+	  if (main_core.Type.isFunction(normalizeType)) {
+	    return normalizeType(type);
+	  }
+	  return type;
+	}
+	function _decodeId2(item) {
+	  const decoder = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].entitiesIdsDecoder;
+	  if (main_core.Type.isFunction(decoder)) {
+	    return decoder(item);
+	  }
+	  return item.id;
+	}
+	function _encoderId2(code) {
+	  const encoder = babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].entitiesIdsEncoder;
+	  if (main_core.Type.isFunction(encoder)) {
+	    return encoder(code);
+	  }
+	  return code;
+	}
+
 	let _ = t => t,
 	  _t,
 	  _t2;
 	const BX$1 = main_core.Reflection.namespace('BX');
+	var _makeChangedHash = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("makeChangedHash");
+	var _storeChangedAccessId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("storeChangedAccessId");
+	var _filterOnlyChangedAccessRight = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("filterOnlyChangedAccessRight");
 	class Grid {
 	  constructor(options) {
+	    var _options$needToLoadUs;
+	    Object.defineProperty(this, _filterOnlyChangedAccessRight, {
+	      value: _filterOnlyChangedAccessRight2
+	    });
+	    Object.defineProperty(this, _storeChangedAccessId, {
+	      value: _storeChangedAccessId2
+	    });
+	    Object.defineProperty(this, _makeChangedHash, {
+	      value: _makeChangedHash2
+	    });
 	    options = options || {};
 	    this.options = options;
 	    this.renderTo = options.renderTo;
@@ -27,6 +155,13 @@ this.BX = this.BX || {};
 	    this.loadParams = options.loadParams ? options.loadParams : null;
 	    this.loader = null;
 	    this.timer = null;
+	    this.needToLoadUserGroups = (_options$needToLoadUs = options.needToLoadUserGroups) != null ? _options$needToLoadUs : true;
+	    this.isSaveOnlyChangedRights = options.isSaveOnlyChangedRights || false;
+	    this.useEntitySelectorDialogAsPopup = options.useEntitySelectorDialogAsPopup || false;
+	    this.entitySelectorDialogOptions = options.entitySelectorDialogOptions || null;
+	    this.expandedGroups = [];
+	    this.groupElements = [];
+	    this.changedAccessIds = new Map();
 	    this.initData();
 	    if (options.userGroups) {
 	      this.userGroups = options.userGroups;
@@ -50,6 +185,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights.ColumnItem:copyRole', this.addUserGroup.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights.ColumnItem:removeRole', this.removeRoleColumn.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights.ColumnItem:removeRole', this.adjustButtonPanel.bind(this));
+	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights.ColumnItem:toggleGroup', this.toggleGroup.bind(this));
 	    main_core_events.EventEmitter.subscribe('BX.Main.SelectorV2:onGetEntityTypes', this.onGetEntityTypes.bind(this));
 	  }
 	  initData() {
@@ -59,6 +195,7 @@ this.BX = this.BX || {};
 	    this.headSection = null;
 	    this.members = [];
 	    this.columns = [];
+	    this.changedAccessIds = new Map();
 	  }
 	  fireEventReset() {
 	    main_core_events.EventEmitter.emit('BX.UI.AccessRights:reset', this);
@@ -88,15 +225,20 @@ this.BX = this.BX || {};
 	    let needReload = false;
 	    const dataToSave = [];
 	    for (let i = 0; i < this.userGroups.length; i++) {
-	      if (main_core.Text.toNumber(this.userGroups[i].id) === 0) {
+	      const userGroup = this.userGroups[i];
+	      if (main_core.Text.toNumber(userGroup.id) === 0) {
 	        needReload = true;
 	      }
+	      let accessRights = userGroup.accessRights;
+	      if (this.isSaveOnlyChangedRights === true) {
+	        accessRights = babelHelpers.classPrivateFieldLooseBase(this, _filterOnlyChangedAccessRight)[_filterOnlyChangedAccessRight](accessRights, userGroup);
+	      }
 	      dataToSave.push({
-	        accessCodes: this.userGroups[i].accessCodes,
-	        id: this.userGroups[i].id,
-	        title: this.userGroups[i].title,
-	        type: this.userGroups[i].type,
-	        accessRights: this.userGroups[i].accessRights
+	        accessCodes: userGroup.accessCodes,
+	        id: userGroup.id,
+	        title: userGroup.title,
+	        type: userGroup.type,
+	        accessRights
 	      });
 	    }
 	    BX$1.ajax.runComponentAction(this.component, this.actionSave, {
@@ -123,9 +265,14 @@ this.BX = this.BX || {};
 	      clearTimeout(this.timer);
 	      const waitContainer = this.buttonPanel.getContainer().querySelector('.ui-btn-wait');
 	      main_core.Dom.removeClass(waitContainer, 'ui-btn-wait');
-	    }, () => {
+	      this.changedAccessIds = new Map();
+	    }, response => {
+	      let errorMessage = 'Error message';
+	      if (response.errors) {
+	        errorMessage = response.errors[0].message;
+	      }
 	      this.isRequested = false;
-	      this.showNotification('Error message');
+	      this.showNotification(errorMessage);
 	      this.unBlockGrid();
 	      clearTimeout(this.timer);
 	      const waitContainer = this.buttonPanel.getContainer().querySelector('.ui-btn-wait');
@@ -161,9 +308,13 @@ this.BX = this.BX || {};
 	      this.showNotification(main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ROLE_REMOVE'));
 	      this.unBlockGrid();
 	      clearTimeout(this.timer);
-	    }, () => {
+	    }, response => {
+	      let errorMessage = 'Error message';
+	      if (response.errors) {
+	        errorMessage = response.errors[0].message;
+	      }
 	      this.isRequested = false;
-	      this.showNotification('Error message');
+	      this.showNotification(errorMessage);
 	      this.unBlockGrid();
 	      clearTimeout(this.timer);
 	    });
@@ -183,7 +334,10 @@ this.BX = this.BX || {};
 	        this.draw();
 	      }
 	      this.unBlockGrid();
-	    }, () => this.unBlockGrid);
+	    }, err => {
+	      console.error(err);
+	      this.unBlockGrid;
+	    });
 	  }
 	  blockGrid() {
 	    const offsetTop = this.layout.container.getBoundingClientRect().top < 0 ? '0' : this.layout.container.getBoundingClientRect().top;
@@ -234,6 +388,7 @@ this.BX = this.BX || {};
 	    param.headSection = true;
 	    param.newColumn = true;
 	    this.headSection.addColumn(param);
+	    this.actualizeExpandedGroups();
 	  }
 	  addUserGroup(event) {
 	    let [options] = event.getData();
@@ -262,6 +417,9 @@ this.BX = this.BX || {};
 	    const data = event.getData();
 	    const userGroup = this.userGroups[this.userGroups.indexOf(data.userGroup)];
 	    const accessId = data.access.id;
+	    setTimeout(() => {
+	      babelHelpers.classPrivateFieldLooseBase(this, _storeChangedAccessId)[_storeChangedAccessId](data);
+	    }, 0);
 	    for (let i = 0; i < userGroup.accessRights.length; i++) {
 	      const item = userGroup.accessRights[i];
 	      if (item && item.id === accessId) {
@@ -278,6 +436,7 @@ this.BX = this.BX || {};
 	    const item = event.getData();
 	    const userGroup = this.userGroups[this.userGroups.indexOf(item.userGroup)];
 	    const accessId = item.access.id;
+	    babelHelpers.classPrivateFieldLooseBase(this, _storeChangedAccessId)[_storeChangedAccessId](item);
 	    const deleteIds = [];
 	    for (let i = 0; i < userGroup.accessRights.length; i++) {
 	      const item = userGroup.accessRights[i];
@@ -382,6 +541,9 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.emit('BX.UI.AccessRights:removeFromAccessCodes', option);
 	  }
 	  onGetEntityTypes() {
+	    if (!this.needToLoadUserGroups) {
+	      return;
+	    }
 	    const controls = BX$1.Main.selectorManagerV2.controls;
 	    const selectorInstance = controls[Object.keys(controls)[0]];
 	    selectorInstance.entityTypes.USERGROUPS = {
@@ -392,6 +554,28 @@ this.BX = this.BX || {};
 	        returnItemUrl: selectorInstance.getOption('returnItemUrl') === 'N' ? 'N' : 'Y'
 	      }
 	    };
+	  }
+	  toggleGroup(event) {
+	    const groupId = event.getData().id;
+	    var idx = this.expandedGroups.indexOf(groupId);
+	    if (idx > -1) {
+	      this.expandedGroups.splice(idx, 1);
+	    } else {
+	      this.expandedGroups.push(groupId);
+	    }
+	    this.actualizeExpandedGroups();
+	  }
+	  actualizeExpandedGroups() {
+	    for (const groupItem of this.groupElements) {
+	      if (this.igGroupsExpanded(groupItem.group)) {
+	        groupItem.container.classList.add('--expanded');
+	      } else {
+	        groupItem.container.classList.remove('--expanded');
+	      }
+	    }
+	  }
+	  igGroupsExpanded(group) {
+	    return this.expandedGroups.includes(group);
 	  }
 	  static buildOption(params) {
 	    const controls = BX$1.Main.selectorManagerV2.controls;
@@ -408,10 +592,54 @@ this.BX = this.BX || {};
 	    accessCodesResult[accessItem] = entityType;
 	    return {
 	      accessCodes: accessCodesResult,
-	      columnId: columnId,
+	      columnId,
 	      item: params.item
 	    };
 	  }
+	}
+	function _makeChangedHash2(roleId, accessId) {
+	  return `r${roleId}_a${accessId}`;
+	}
+	function _storeChangedAccessId2(item) {
+	  const accessId = item.access.id;
+	  const isAccessChanged = item.isModify;
+	  const userGroup = this.userGroups[this.userGroups.indexOf(item.userGroup)];
+	  const changedCode = babelHelpers.classPrivateFieldLooseBase(this, _makeChangedHash)[_makeChangedHash](userGroup.id, accessId);
+	  if (isAccessChanged && !this.changedAccessIds.has(changedCode)) {
+	    this.changedAccessIds.set(changedCode, {
+	      accessId,
+	      roleId: userGroup.id
+	    });
+	  } else if (!isAccessChanged && this.changedAccessIds.has(changedCode)) {
+	    this.changedAccessIds.delete(changedCode);
+	  }
+	}
+	function _filterOnlyChangedAccessRight2(accessRights, userGroup) {
+	  const processedChanged = new Map(this.changedAccessIds);
+	  const filteredAccessRights = accessRights.filter(access => {
+	    if (Number(userGroup.id) === 0) {
+	      return true;
+	    }
+	    const changedCode = babelHelpers.classPrivateFieldLooseBase(this, _makeChangedHash)[_makeChangedHash](userGroup.id, access.id);
+	    const found = this.changedAccessIds.has(changedCode);
+	    if (found) {
+	      processedChanged.delete(changedCode);
+	    }
+	    return found;
+	  });
+
+	  // some rights may be changed but not present in the accessRights array because they values were deleted.
+	  // Than have to will add them with null value.
+	  for (const [key, data] of processedChanged) {
+	    if (data.roleId != userGroup.id) {
+	      continue;
+	    }
+	    filteredAccessRights.push({
+	      id: data.accessId,
+	      value: null
+	    });
+	  }
+	  return filteredAccessRights;
 	}
 	Grid.ACTION_SAVE = 'save';
 	Grid.ACTION_DELETE = 'delete';
@@ -424,8 +652,10 @@ this.BX = this.BX || {};
 	  _t$1;
 	class Base {
 	  constructor(options) {
-	    this.currentValue = options.currentValue || null;
-	    this.identificator = 'col-' + Math.random();
+	    this.changerOptions = options.changerOptions || {};
+	    const defaultValue = this.changerOptions.replaceNullValueTo || null;
+	    this.currentValue = options.currentValue || defaultValue;
+	    this.identificator = `col-${Math.random()}`;
 	    this.parentContainer = options.container;
 	    this.grid = options.grid;
 	    this.text = options.text;
@@ -443,24 +673,60 @@ this.BX = this.BX || {};
 	}
 
 	let _$2 = t => t,
-	  _t$2;
+	  _t$2,
+	  _t2$1;
 	class Title extends Base {
+	  constructor(options) {
+	    super(options);
+	    this.rightId = options.id;
+	    this.group = options.group;
+	    this.groupHead = options.groupHead;
+	    this.isExpanded = false;
+	    this.node = null;
+	    this.toggleIndicator = null;
+	  }
 	  render() {
 	    const node = main_core.Tag.render(_t$2 || (_t$2 = _$2`
 			<div 
-				class='ui-access-rights-column-item-text'
+				class='ui-access-rights-column-item-text ui-access-rights-column-item-title'
 				data-id='${0}'
 			>
-				${0}
+				 ${0}
 			</div>
 		`), this.getId(), main_core.Text.encode(this.text));
+	    if (this.groupHead) {
+	      this.toggleIndicator = main_core.Tag.render(_t2$1 || (_t2$1 = _$2`
+				<span class="ui-access-rights-column-item-text-toggle-indicator ui-icon-set --chevron-down"></span>
+			`));
+	      main_core.Dom.prepend(this.toggleIndicator, node);
+	    }
+	    if (this.group) {
+	      main_core.Dom.addClass(node, '--group-children');
+	    }
 	    main_core.Event.bind(node, 'mouseenter', this.adjustPopupHelper.bind(this));
 	    main_core.Event.bind(node, 'mouseleave', () => {
 	      if (this.popupHelper) {
 	        this.popupHelper.close();
 	      }
 	    });
+	    main_core.Event.bind(node, 'click', this.onGroupToggle.bind(this));
+	    this.node = node;
 	    return node;
+	  }
+	  onGroupToggle() {
+	    main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:toggleGroup', {
+	      id: this.rightId
+	    });
+	    if (!this.node || !this.groupHead) {
+	      return;
+	    }
+	    if (this.grid.igGroupsExpanded(this.rightId)) {
+	      main_core.Dom.removeClass(this.toggleIndicator, '--chevron-down');
+	      main_core.Dom.addClass(this.toggleIndicator, '--chevron-up');
+	    } else {
+	      main_core.Dom.addClass(this.toggleIndicator, '--chevron-down');
+	      main_core.Dom.removeClass(this.toggleIndicator, '--chevron-up');
+	    }
 	  }
 	  adjustPopupHelper() {
 	    const set = this.parentContainer.cloneNode(true);
@@ -530,7 +796,7 @@ this.BX = this.BX || {};
 
 	let _$4 = t => t,
 	  _t$4,
-	  _t2$1,
+	  _t2$2,
 	  _t3,
 	  _t4,
 	  _t5,
@@ -550,9 +816,17 @@ this.BX = this.BX || {};
 	  _t19,
 	  _t20;
 	const BX$2 = main_core.Reflection.namespace('BX');
+	var _showSelectorV = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showSelectorV2");
+	var _showEntitySelector = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("showEntitySelector");
 	class Member extends Base {
 	  constructor(options) {
 	    super(options);
+	    Object.defineProperty(this, _showEntitySelector, {
+	      value: _showEntitySelector2
+	    });
+	    Object.defineProperty(this, _showSelectorV, {
+	      value: _showSelectorV2
+	    });
 	    this.openPopupEvent = options.openPopupEvent;
 	    this.popupContainer = options.popupContainer;
 	    this.accessCodes = options.accessCodes || [];
@@ -580,7 +854,7 @@ this.BX = this.BX || {};
 	            main_core.Dom.addClass(userNode, 'ui-access-rights-members-item-new');
 	          }
 	          if (user.avatar) {
-	            const userAvatar = main_core.Tag.render(_t2$1 || (_t2$1 = _$4`<a class='ui-access-rights-members-item-avatar' title="${0}"></a>`), main_core.Text.encode(user.name));
+	            const userAvatar = main_core.Tag.render(_t2$2 || (_t2$2 = _$4`<a class='ui-access-rights-members-item-avatar' title="${0}"></a>`), main_core.Text.encode(user.name));
 	            main_core.Dom.style(userAvatar, 'backgroundImage', 'url(\'' + encodeURI(user.avatar) + '\')');
 	            main_core.Dom.style(userAvatar, 'backgroundSize', 'cover');
 	            main_core.Dom.append(userAvatar, userNode);
@@ -894,26 +1168,39 @@ this.BX = this.BX || {};
 	    return node;
 	  }
 	  showUserSelectorPopup() {
-	    var _BX$Main$selectorMana;
-	    const selectorInstance = (_BX$Main$selectorMana = BX$2.Main.selectorManagerV2.controls[this.popupContainer]) == null ? void 0 : _BX$Main$selectorMana.selectorInstance;
-	    if (selectorInstance) {
-	      selectorInstance.itemsSelected = {};
+	    if (this.grid.useEntitySelectorDialogAsPopup) {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showEntitySelector)[_showEntitySelector]();
+	    } else {
+	      babelHelpers.classPrivateFieldLooseBase(this, _showSelectorV)[_showSelectorV]();
 	    }
-	    BX$2.onCustomEvent(this.openPopupEvent, [{
-	      id: this.popupContainer,
-	      bindNode: this.getAddUserToRole()
-	    }]);
-	    BX$2.onCustomEvent('BX.Main.SelectorV2:reInitDialog', [{
-	      selectorId: this.popupContainer,
-	      selectedItems: this.userGroup.accessCodes
-	    }]);
 	  }
+	}
+	function _showSelectorV2() {
+	  var _BX$Main$selectorMana;
+	  const selectorInstance = (_BX$Main$selectorMana = BX$2.Main.selectorManagerV2.controls[this.popupContainer]) == null ? void 0 : _BX$Main$selectorMana.selectorInstance;
+	  if (selectorInstance) {
+	    selectorInstance.itemsSelected = {};
+	  }
+	  BX$2.onCustomEvent(this.openPopupEvent, [{
+	    id: this.popupContainer,
+	    bindNode: this.getAddUserToRole()
+	  }]);
+	  BX$2.onCustomEvent('BX.Main.SelectorV2:reInitDialog', [{
+	    selectorId: this.popupContainer,
+	    selectedItems: this.userGroup.accessCodes
+	  }]);
+	}
+	function _showEntitySelector2() {
+	  if (!this.entitySelectorAdapter) {
+	    this.entitySelectorAdapter = new EntitySelectorAdapter(this.grid.entitySelectorDialogOptions);
+	  }
+	  this.entitySelectorAdapter.show(this.getId(), this.userGroup.accessCodes, this.addUserToRole);
 	}
 	Member.TYPE = 'members';
 
 	let _$5 = t => t,
 	  _t$5,
-	  _t2$2,
+	  _t2$3,
 	  _t3$1,
 	  _t4$1,
 	  _t5$1,
@@ -959,7 +1246,7 @@ this.BX = this.BX || {};
 	    main_core.Event.bind(this.roleInput, 'input', () => {
 	      this.grid.getButtonPanel().show();
 	    });
-	    this.roleValue = main_core.Tag.render(_t2$2 || (_t2$2 = _$5`<div class='ui-access-rights-role-value'>${0}</div>`), main_core.Text.encode(this.text));
+	    this.roleValue = main_core.Tag.render(_t2$3 || (_t2$3 = _$5`<div class='ui-access-rights-role-value'>${0}</div>`), main_core.Text.encode(this.text));
 	    const editControl = main_core.Tag.render(_t3$1 || (_t3$1 = _$5`<div class='ui-access-rights-role-edit'></div>`));
 	    main_core.Event.bind(editControl, 'click', this.onRoleEditMode.bind(this));
 	    const removeControl = main_core.Tag.render(_t4$1 || (_t4$1 = _$5`<div class='ui-access-rights-role-remove'></div>`));
@@ -1050,6 +1337,7 @@ this.BX = this.BX || {};
 	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights:refresh', this.refreshStatus.bind(this));
 	  }
 	  refreshStatus() {
+	    this.isModify = false;
 	    main_core.Dom.removeClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
 	  }
 	  offChanger() {
@@ -1061,7 +1349,16 @@ this.BX = this.BX || {};
 	  }
 	  adjustChanger() {
 	    this.isModify = !this.isModify;
+	    this.toggleChangerHtmlClass();
+	  }
+	  toggleChangerHtmlClass() {
 	    main_core.Dom.toggleClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
+	  }
+	  addChangerHtmlClass() {
+	    main_core.Dom.addClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
+	  }
+	  removeChangerHtmlClass() {
+	    main_core.Dom.removeClass(this.getChanger(), 'ui-access-rights-column-item-changer-on');
 	  }
 	}
 
@@ -1100,7 +1397,7 @@ this.BX = this.BX || {};
 
 	let _$7 = t => t,
 	  _t$7,
-	  _t2$3,
+	  _t2$4,
 	  _t3$2;
 	class Controller extends Base {
 	  render() {
@@ -1110,7 +1407,7 @@ this.BX = this.BX || {};
 					${0}
 				</div>
 			`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_CREATE_ROLE'));
-	      this.controllerMenu = main_core.Tag.render(_t2$3 || (_t2$3 = _$7`
+	      this.controllerMenu = main_core.Tag.render(_t2$4 || (_t2$4 = _$7`
 				<div class='ui-access-rights-column-item-controller-link'>
 					${0}
 				</div>
@@ -1192,9 +1489,10 @@ this.BX = this.BX || {};
 	  _t$8;
 	class VariableSelector extends Changer {
 	  constructor(options) {
+	    var _this$currentValue;
 	    super(options);
-	    this.selectedValues = [this.currentValue];
 	    this.variables = options.variables || [];
+	    this.selectedValues = [(_this$currentValue = this.currentValue) != null ? _this$currentValue : '0'];
 	  }
 	  bindEvents() {
 	    main_core_events.EventEmitter.subscribe('BX.UI.AccessRights:reset', this.reset.bind(this));
@@ -1227,7 +1525,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  getSelected() {
-	    const selected = this.variables.filter(variable => this.selectedValues.includes(variable.id));
+	    const selected = this.variables.filter(variable => this.selectedValues.map(String).includes(String(variable.id)));
 	    return selected[0];
 	  }
 	  showVariablesPopup(event) {
@@ -1250,13 +1548,24 @@ this.BX = this.BX || {};
 	  }
 	  select(event, item) {
 	    var _item$getMenuWindow;
-	    this.selectedValues = [item.id];
+	    this.selectedValues = [item.options.id];
 	    (_item$getMenuWindow = item.getMenuWindow()) == null ? void 0 : _item$getMenuWindow.close();
 	    this.getChanger().innerHTML = '';
 	    this.render();
 	    this.adjustChanger();
 	    main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:selectAccessItems', this);
 	    main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', this);
+	  }
+	  adjustChanger() {
+	    const defaultValue = this.changerOptions.replaceNullValueTo || null;
+	    const selectedValue = this.selectedValues[0] || defaultValue;
+	    if (selectedValue === this.currentValue) {
+	      this.isModify = false;
+	      this.removeChangerHtmlClass();
+	    } else {
+	      this.isModify = true;
+	      this.addChangerHtmlClass();
+	    }
 	  }
 	}
 	VariableSelector.TYPE = 'variables';
@@ -1279,14 +1588,14 @@ this.BX = this.BX || {};
 
 	let _$a = t => t,
 	  _t$a,
-	  _t2$4,
+	  _t2$5,
 	  _t3$3;
 	class Footer extends ui_entitySelector.DefaultFooter {
 	  constructor(dialog, options) {
 	    super(dialog, options);
 	    this.selectAllButton = main_core.Tag.render(_t$a || (_t$a = _$a`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_SELECT_LABEL'));
 	    main_core.Event.bind(this.selectAllButton, 'click', this.selectAll.bind(this));
-	    this.deselectAllButton = main_core.Tag.render(_t2$4 || (_t2$4 = _$a`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_DESELECT_LABEL'));
+	    this.deselectAllButton = main_core.Tag.render(_t2$5 || (_t2$5 = _$a`<div class="ui-selector-footer-link ui-selector-search-footer-label--hide">${0}</div>`), main_core.Loc.getMessage('JS_UI_ACCESSRIGHTS_ALL_DESELECT_LABEL'));
 	    main_core.Event.bind(this.deselectAllButton, 'click', this.deselectAll.bind(this));
 	    this.getDialog().subscribe('Item:onSelect', this.onItemStatusChange.bind(this));
 	    this.getDialog().subscribe('Item:onDeselect', this.onItemStatusChange.bind(this));
@@ -1331,23 +1640,52 @@ this.BX = this.BX || {};
 
 	let _$b = t => t,
 	  _t$b;
+	var _obSelectItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("obSelectItem");
+	var _onDeselectItem = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDeselectItem");
+	var _afterSetupItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("afterSetupItems");
+	var _getDialogFooter = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialogFooter");
+	var _useSelectedActionLogic = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("useSelectedActionLogic");
+	var _isArraysEqual = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isArraysEqual");
 	class MultiSelector extends Changer {
 	  constructor(options) {
 	    var _options$enableSearch, _options$showAvatars, _options$compactView;
 	    super(options);
+	    Object.defineProperty(this, _isArraysEqual, {
+	      value: _isArraysEqual2
+	    });
+	    Object.defineProperty(this, _useSelectedActionLogic, {
+	      value: _useSelectedActionLogic2
+	    });
+	    Object.defineProperty(this, _getDialogFooter, {
+	      value: _getDialogFooter2
+	    });
+	    Object.defineProperty(this, _afterSetupItems, {
+	      value: _afterSetupItems2
+	    });
+	    Object.defineProperty(this, _onDeselectItem, {
+	      value: _onDeselectItem2
+	    });
+	    Object.defineProperty(this, _obSelectItem, {
+	      value: _obSelectItem2
+	    });
 	    this.variables = options.variables || [];
 	    this.enableSearch = (_options$enableSearch = options.enableSearch) != null ? _options$enableSearch : false;
 	    this.placeholder = options.placeholder || '';
 	    this.hintTitle = options.hintTitle || '';
-	    this.allSelectedCode = main_core.Text.toNumber(options.allSelectedCode || -1);
+	    this.allSelectedCode = String(options.allSelectedCode || -1);
 	    this.showAvatars = (_options$showAvatars = options.showAvatars) != null ? _options$showAvatars : true;
 	    this.compactView = (_options$compactView = options.compactView) != null ? _options$compactView : false;
-	    this.currentValue = main_core.Type.isArray(options.currentValue) ? options.currentValue : [];
-	    this.currentValue = this.currentValue.map(value => main_core.Text.toNumber(value));
-	    this.selectedValues = this.currentValue;
+	    this.currentValue = main_core.Type.isArray(options.currentValue) ? options.currentValue.map(item => String(item)) : [];
+	    this.selectedValues = this.currentValue.filter(val => Boolean(val));
 	    this.variables = this.variables.map(item => {
 	      item.entityId = item.entityId || 'editor-right-item';
 	      item.tabs = 'recents';
+	      if (item.selectedAction) {
+	        item.customData = {
+	          ...item.customData,
+	          selectedAction: item.selectedAction
+	        };
+	      }
 	      return item;
 	    });
 	    this.selector = this.createSelector();
@@ -1371,14 +1709,14 @@ this.BX = this.BX || {};
 	        allowCreateItem: false
 	      },
 	      events: {
-	        'Item:onSelect': this.setSelectedInputs.bind(this),
-	        'Item:onDeselect': this.setSelectedInputs.bind(this)
+	        'Item:onSelect': babelHelpers.classPrivateFieldLooseBase(this, _obSelectItem)[_obSelectItem].bind(this),
+	        'Item:onDeselect': babelHelpers.classPrivateFieldLooseBase(this, _onDeselectItem)[_onDeselectItem].bind(this)
 	      },
 	      entities: [{
 	        id: 'editor-right-item'
 	      }],
 	      items: this.variables,
-	      footer: Footer
+	      footer: babelHelpers.classPrivateFieldLooseBase(this, _getDialogFooter)[_getDialogFooter]()
 	    });
 	  }
 	  render() {
@@ -1421,13 +1759,13 @@ this.BX = this.BX || {};
 	  }
 	  refresh() {
 	    if (this.isModify) {
-	      this.currentValue = this.selectedValues;
+	      this.currentValue = [...this.selectedValues];
 	      this.reset();
 	    }
 	  }
 	  reset() {
 	    if (this.isModify) {
-	      this.selectedValues = this.currentValue;
+	      this.selectedValues = [...this.currentValue];
 	      this.selector = this.createSelector();
 	      this.getChanger().innerHTML = '';
 	      this.adjustChanger();
@@ -1440,30 +1778,98 @@ this.BX = this.BX || {};
 	    }
 	    return this.variables.filter(variable => this.includesSelected(variable.id));
 	  }
-	  includesSelected(item) {
-	    return this.selectedValues.includes(main_core.Text.toNumber(item));
+	  includesSelected(itemId) {
+	    // eslint-disable-next-line eqeqeq
+	    return this.selectedValues.some(id => id == itemId);
 	  }
 	  showSelector(event) {
 	    this.selector.show();
 	  }
-	  setSelectedInputs() {
-	    const selected = this.selector.getSelectedItems();
-	    this.selectedValues = [];
-	    if (selected.length === this.variables.length) {
-	      this.selectedValues.push(this.allSelectedCode);
-	    } else {
-	      selected.forEach(item => {
-	        this.selectedValues.push(main_core.Text.toNumber(item.id));
-	      });
-	    }
-	    this.getChanger().innerHTML = '';
-	    if (!this.isModify) {
-	      this.adjustChanger();
-	    }
-	    this.render();
-	    main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', this);
-	    main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:selectAccessItems', this);
+	}
+	function _obSelectItem2(event) {
+	  const addedItem = event.getData().item;
+	  if (this.changerOptions.useSelectedActions) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _useSelectedActionLogic)[_useSelectedActionLogic](addedItem);
 	  }
+	  this.selectedValues.push(String(addedItem.id));
+	  if (this.selectedValues.length === this.variables.length) {
+	    this.selectedValues.push(this.allSelectedCode);
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _afterSetupItems)[_afterSetupItems]();
+	}
+	function _onDeselectItem2(event) {
+	  const removedItem = event.getData().item;
+	  const idx = this.selectedValues.indexOf(removedItem.id);
+	  if (idx > -1) {
+	    this.selectedValues.splice(idx, 1);
+	  }
+	  const allCodeIdx = this.selectedValues.indexOf(this.allSelectedCode);
+	  if (allCodeIdx > -1) {
+	    this.selectedValues.splice(allCodeIdx, 1);
+	  }
+	  babelHelpers.classPrivateFieldLooseBase(this, _afterSetupItems)[_afterSetupItems]();
+	}
+	function _afterSetupItems2() {
+	  this.isModify = !babelHelpers.classPrivateFieldLooseBase(this, _isArraysEqual)[_isArraysEqual](this.selectedValues, this.currentValue);
+	  this.getChanger().innerHTML = '';
+	  if (this.isModify) {
+	    this.addChangerHtmlClass();
+	  } else {
+	    this.removeChangerHtmlClass();
+	  }
+	  this.render();
+	  main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:update', this);
+	  main_core_events.EventEmitter.emit('BX.UI.AccessRights.ColumnItem:selectAccessItems', this);
+	}
+	function _getDialogFooter2() {
+	  if (this.changerOptions.disableSelectAll) {
+	    return null;
+	  }
+	  return Footer;
+	}
+	function _useSelectedActionLogic2(addedItem) {
+	  const selectedAction = addedItem.customData.get('selectedAction', null);
+	  if (selectedAction === 'clear-other') {
+	    const selected = this.selector.getSelectedItems();
+	    for (const item of selected) {
+	      if (addedItem.id === item.id) {
+	        continue;
+	      }
+	      item.deselect();
+	    }
+	  } else {
+	    const selected = this.selector.getSelectedItems();
+	    for (const item of selected) {
+	      if (addedItem.id === item.id) {
+	        continue;
+	      }
+	      const currSelectedAction = item.customData.get('selectedAction', null);
+	      if (currSelectedAction) {
+	        item.deselect();
+	      }
+	    }
+	  }
+	}
+	function _isArraysEqual2(a, b) {
+	  if (a === b) {
+	    return true;
+	  }
+	  if (a === null || b === null) {
+	    return false;
+	  }
+	  if (a.length !== b.length) {
+	    return false;
+	  }
+	  const aClone = [...a];
+	  const bClone = [...b];
+	  aClone.sort();
+	  bClone.sort();
+	  for (let i = 0; i < a.length; i++) {
+	    if (aClone[i] !== bClone[i]) {
+	      return false;
+	    }
+	  }
+	  return true;
 	}
 	MultiSelector.TYPE = 'multivariables';
 
@@ -1480,6 +1886,15 @@ this.BX = this.BX || {};
 	  render() {
 	    let item = null;
 	    const container = main_core.Tag.render(_t$c || (_t$c = _$c`<div class='ui-access-rights-column-item'></div>`));
+	    if (this.options.group) {
+	      main_core.Dom.addClass(container, 'ui-access-rights-group-children');
+	      container.dataset.group = this.options.group;
+	      this.options.grid.groupElements.push({
+	        container,
+	        group: this.options.group,
+	        isHidden: true
+	      });
+	    }
 	    this.options.container = container;
 	    if (this.type === Role.TYPE) {
 	      item = new Role(this.options);
@@ -1541,17 +1956,26 @@ this.BX = this.BX || {};
 	  }
 	  getItem(options) {
 	    options = options || {};
-	    let param = {};
+	    const defaultParam = {
+	      group: options.group,
+	      changerOptions: options.changerOptions
+	    };
+	    let param = {
+	      ...defaultParam
+	    };
 	    if (options.type === UserGroupTitle.TYPE) {
 	      param = {
 	        type: options.type,
 	        text: options.title,
-	        controller: options.controller
+	        controller: options.controller,
+	        ...defaultParam
 	      };
 	    }
 	    if (options.type === Title.TYPE) {
 	      param = {
+	        ...defaultParam,
 	        id: options.id,
+	        groupHead: options.groupHead,
 	        type: options.type,
 	        hint: options.hint,
 	        text: options.title,
@@ -1560,12 +1984,14 @@ this.BX = this.BX || {};
 	    }
 	    if (options.type === Toggler.TYPE) {
 	      param = {
+	        ...defaultParam,
 	        type: options.type,
 	        access: options.access
 	      };
 	    }
 	    if (options.type === VariableSelector.TYPE || options.type === MultiSelector.TYPE) {
 	      param = {
+	        ...defaultParam,
 	        type: options.type,
 	        text: options.title,
 	        variables: options.variables,
@@ -1578,9 +2004,11 @@ this.BX = this.BX || {};
 	      param.showAvatars = options.showAvatars;
 	      param.compactView = options.compactView;
 	      param.hintTitle = options.hintTitle;
+	      param.disableSelectAll = options.disableSelectAll || false;
 	    }
 	    if (options.type === Role.TYPE) {
 	      param = {
+	        ...defaultParam,
 	        type: options.type,
 	        text: options.title
 	      };
@@ -1606,14 +2034,19 @@ this.BX = this.BX || {};
 	      const accessId = param.access.id.toString();
 	      const accessRights = (_param$userGroup$acce = (_param$userGroup = param.userGroup) == null ? void 0 : _param$userGroup.accessRights) != null ? _param$userGroup$acce : [];
 	      for (let i = 0; i < accessRights.length; i++) {
-	        if (accessId === accessRights[i].id.toString()) {
-	          if (options.type === MultiSelector.TYPE) {
-	            var _param$currentValue;
-	            param.currentValue = (_param$currentValue = param.currentValue) != null ? _param$currentValue : [];
-	            param.currentValue.push(accessRights[i].value);
+	        if (accessId !== accessRights[i].id.toString()) {
+	          continue;
+	        }
+	        if (options.type === MultiSelector.TYPE) {
+	          var _param$currentValue;
+	          param.currentValue = (_param$currentValue = param.currentValue) != null ? _param$currentValue : [];
+	          if (main_core.Type.isArray(accessRights[i].value)) {
+	            param.currentValue = [...param.currentValue, ...accessRights[i].value];
 	          } else {
-	            param.currentValue = accessRights[i].value;
+	            param.currentValue.push(accessRights[i].value);
 	          }
+	        } else {
+	          param.currentValue = accessRights[i].value;
 	        }
 	      }
 	    }
@@ -1648,10 +2081,10 @@ this.BX = this.BX || {};
 	        this.userGroup.type = Member.TYPE;
 	        main_core.Dom.append(this.getItem(this.userGroup).render(), itemsFragment);
 	      }
-	      this.items.map(data => {
+	      for (const data of this.items) {
 	        const item = this.getItem(data);
 	        main_core.Dom.append(item.render(), itemsFragment);
-	      });
+	      }
 	      this.layout.container = main_core.Tag.render(_t$d || (_t$d = _$d`<div class='ui-access-rights-column'></div>`));
 	      if (this.newColumn) {
 	        main_core.Dom.addClass('ui-access-rights-column-new', this.layout.container);
@@ -1667,7 +2100,7 @@ this.BX = this.BX || {};
 
 	let _$e = t => t,
 	  _t$e,
-	  _t2$5,
+	  _t2$6,
 	  _t3$4,
 	  _t4$2,
 	  _t5$2,
@@ -1731,12 +2164,14 @@ this.BX = this.BX || {};
 	        type: data.type,
 	        title: isVariable ? data.title : null,
 	        hint: data.hint,
+	        group: data.group,
 	        variables: isVariable ? data.variables : [],
 	        enableSearch: isVariable ? data.enableSearch : null,
 	        showAvatars: isVariable ? data.showAvatars : false,
 	        compactView: isVariable ? data.compactView : false,
 	        hintTitle: isVariable ? data.hintTitle : null,
 	        allSelectedCode: isVariable ? data.allSelectedCode : null,
+	        changerOptions: data.changerOptions || {},
 	        access: data
 	      });
 	    });
@@ -1768,7 +2203,9 @@ this.BX = this.BX || {};
 	          id: data.id,
 	          type: Title.TYPE,
 	          title: data.title,
-	          hint: data.hint
+	          hint: data.hint,
+	          group: data.group,
+	          groupHead: data.groupHead
 	        });
 	      });
 	    }
@@ -1800,7 +2237,7 @@ this.BX = this.BX || {};
 	    return this.layout.columns;
 	  }
 	  getTitleNode() {
-	    const node = main_core.Tag.render(_t2$5 || (_t2$5 = _$e`<div class='ui-access-rights-section-title'>${0}</div>`), main_core.Text.encode(this.title));
+	    const node = main_core.Tag.render(_t2$6 || (_t2$6 = _$e`<div class='ui-access-rights-section-title'>${0}</div>`), main_core.Text.encode(this.title));
 	    if (this.hint) {
 	      const hintNode = new Hint({
 	        hint: this.hint,

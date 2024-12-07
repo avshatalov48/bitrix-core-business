@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -25,7 +25,7 @@
 	};
 
 	BX.Grid.ColsSortable.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 			this.colsList = this.getColsList();
@@ -41,20 +41,20 @@
 			this.registerObjects();
 		},
 
-		destroy: function()
+		destroy()
 		{
 			BX.removeCustomEvent('Grid::updated', BX.proxy(this.reinit, this));
 			this.unregisterObjects();
 		},
 
-		reinit: function()
+		reinit()
 		{
 			this.unregisterObjects();
 			this.reset();
 			this.init(this.parent);
 		},
 
-		reset: function()
+		reset()
 		{
 			this.dragItem = null;
 			this.targetItem = null;
@@ -69,30 +69,30 @@
 			this.fixedTableColsList = null;
 		},
 
-		isActive: function()
+		isActive()
 		{
 			return this.isDrag;
 		},
 
-		registerObjects: function()
+		registerObjects()
 		{
 			this.unregisterObjects();
 			this.getColsList().forEach(this.register, this);
 			this.getFixedHeaderColsList().forEach(this.register, this);
 		},
 
-		unregisterObjects: function()
+		unregisterObjects()
 		{
 			this.getColsList().forEach(this.unregister, this);
 			this.getFixedHeaderColsList().forEach(this.unregister, this);
 		},
 
-		unregister: function(column)
+		unregister(column)
 		{
 			jsDD.unregisterObject(column);
 		},
 
-		register: function(column)
+		register(column)
 		{
 			column.onbxdragstart = BX.proxy(this._onDragStart, this);
 			column.onbxdrag = BX.proxy(this._onDrag, this);
@@ -100,7 +100,7 @@
 			jsDD.registerObject(column);
 		},
 
-		getColsList: function()
+		getColsList()
 		{
 			if (!this.colsList)
 			{
@@ -113,7 +113,7 @@
 			return this.colsList;
 		},
 
-		getFixedHeaderColsList: function()
+		getFixedHeaderColsList()
 		{
 			if (!this.fixedTableColsList && this.parent.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -126,9 +126,9 @@
 			return this.fixedTableColsList || [];
 		},
 
-		getRowsList: function()
+		getRowsList()
 		{
-			var rowsList = this.parent.getRows().getSourceRows();
+			let rowsList = this.parent.getRows().getSourceRows();
 
 			if (this.parent.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -138,27 +138,28 @@
 			return rowsList;
 		},
 
-		isStatic: function(item)
+		isStatic(item)
 		{
 			return (
-				BX.hasClass(item, this.parent.settings.get('classCellStatic')) &&
-				!BX.hasClass(item, 'main-grid-fixed-column')
+				BX.hasClass(item, this.parent.settings.get('classCellStatic'))
+				&& !BX.hasClass(item, 'main-grid-fixed-column')
 			);
 		},
 
-		getDragOffset: function()
+		getDragOffset()
 		{
-			var offset = this.parent.getScrollContainer().scrollLeft - this.startScrollOffset;
+			const offset = this.parent.getScrollContainer().scrollLeft - this.startScrollOffset;
+
 			return ((jsDD.x - this.startDragOffset - this.dragRect.left) + offset);
 		},
 
-		getColumn: function(cell)
+		getColumn(cell)
 		{
-			var column = [];
+			let column = [];
 
 			if (cell instanceof HTMLTableCellElement)
 			{
-				column = this.rowsList.map(function(row) {
+				column = this.rowsList.map((row) => {
 					return row.cells[cell.cellIndex];
 				});
 			}
@@ -166,7 +167,7 @@
 			return column;
 		},
 
-		_onDragStart: function()
+		_onDragStart()
 		{
 			if (this.parent.getParam('ALLOW_PIN_HEADER') && this.parent.getPinHeader().isPinned())
 			{
@@ -188,48 +189,47 @@
 			this.parent.preventSortableClick = true;
 		},
 
-		isDragToRight: function(node, index)
+		isDragToRight(node, index)
 		{
-			var nodeClientRect = node.getBoundingClientRect();
-			var nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
-			var dragIndex = this.dragIndex;
-			var x = jsDD.x;
+			const nodeClientRect = node.getBoundingClientRect();
+			const nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
+			const dragIndex = this.dragIndex;
+			const x = jsDD.x;
 
 			return index > dragIndex && x > nodeCenter;
 		},
 
-		isDragToLeft: function(node, index)
+		isDragToLeft(node, index)
 		{
-			var nodeClientRect = node.getBoundingClientRect();
-			var nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
-			var dragIndex = this.dragIndex;
-			var x = jsDD.x;
+			const nodeClientRect = node.getBoundingClientRect();
+			const nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
+			const dragIndex = this.dragIndex;
+			const x = jsDD.x;
 
 			return index < dragIndex && x < nodeCenter;
 		},
 
-		isDragToBack: function(node, index)
+		isDragToBack(node, index)
 		{
-			var nodeClientRect = node.getBoundingClientRect();
-			var nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
-			var dragIndex = this.dragIndex;
-			var x = jsDD.x;
+			const nodeClientRect = node.getBoundingClientRect();
+			const nodeCenter = Math.ceil(nodeClientRect.left + (nodeClientRect.width / 2) + BX.scrollLeft(window));
+			const dragIndex = this.dragIndex;
+			const x = jsDD.x;
 
 			return (index > dragIndex && x < nodeCenter) || (index < dragIndex && x > nodeCenter);
 		},
 
-
-		isMovedToRight: function(node)
+		isMovedToRight(node)
 		{
-			return node.style.transform === 'translate3d('+(-this.offset)+'px, 0px, 0px)';
+			return node.style.transform === `translate3d(${-this.offset}px, 0px, 0px)`;
 		},
 
-		isMovedToLeft: function(node)
+		isMovedToLeft(node)
 		{
-			return node.style.transform === 'translate3d('+(this.offset)+'px, 0px, 0px)';
+			return node.style.transform === `translate3d(${this.offset}px, 0px, 0px)`;
 		},
 
-		isMoved: function(node)
+		isMoved(node)
 		{
 			return (node.style.transform !== 'translate3d(0px, 0px, 0px)' && node.style.transform !== '');
 		},
@@ -240,25 +240,25 @@
 		 * @param {int} offset - Pixels offset
 		 * @param {int} [transition = 300] - Transition duration in milliseconds
 		 */
-		moveColumn: function(column, offset, transition)
+		moveColumn(column, offset, transition)
 		{
 			transition = BX.type.isNumber(transition) ? transition : 300;
 			BX.Grid.Utils.styleForEach(column, {
-				'transition': transition+'ms',
-				'transform': 'translate3d('+offset+'px, 0px, 0px)'
+				transition: `${transition}ms`,
+				transform: `translate3d(${offset}px, 0px, 0px)`,
 			});
 		},
 
-		_onDrag: function()
+		_onDrag()
 		{
 			this.dragOffset = this.getDragOffset();
 			this.targetItem = this.targetItem || this.dragItem;
 			this.targetColumn = this.targetColumn || this.dragColumn;
 
-			var leftOffset = -this.offset;
-			var rightOffset = this.offset;
-			var defaultOffset = 0;
-			var dragTransitionDuration = 0;
+			const leftOffset = -this.offset;
+			const rightOffset = this.offset;
+			const defaultOffset = 0;
+			const dragTransitionDuration = 0;
 
 			this.moveColumn(this.dragColumn, this.dragOffset, dragTransitionDuration);
 
@@ -286,31 +286,31 @@
 			}, this);
 		},
 
-		_onDragEnd: function()
+		_onDragEnd()
 		{
 			[].forEach.call(this.dragColumn, function(current, index) {
 				BX.Grid.Utils.collectionSort(current, this.targetColumn[index]);
 			}, this);
 
-			this.rowsList.forEach(function(current) {
+			this.rowsList.forEach((current) => {
 				BX.Grid.Utils.styleForEach(current.cells, {
 					transition: '',
-					transform: ''
+					transform: '',
 				});
 			});
 
 			this.reinit();
 
-			var columns = this.colsList.map(function(current) {
+			const columns = this.colsList.map((current) => {
 				return BX.data(current, 'name');
 			});
 
 			this.parent.getUserOptions().setColumns(columns);
 			BX.onCustomEvent(this.parent.getContainer(), 'Grid::columnMoved', [this.parent]);
 
-			setTimeout(function() {
+			setTimeout(() => {
 				this.parent.preventSortableClick = false;
-			}.bind(this), 10);
-		}
+			}, 10);
+		},
 	};
 })();

@@ -76,7 +76,7 @@ export default class ImagePreviewFilter extends Filter
 					})
 				;
 			}
-			else if (isVideo(file.getBinary()) && !Browser.isSafari())
+			else if (isVideo(file) && !Browser.isSafari())
 			{
 				createVideoPreview(file.getBinary(), this.#getResizeImageOptions())
 					.then(({ preview, width, height }): void => {

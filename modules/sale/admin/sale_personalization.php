@@ -1,5 +1,6 @@
 <?php
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
@@ -207,6 +208,11 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 
 </style>
 
+<?= BeginNote(); ?>
+<?= Loc::getMessage('BIGDATA_SHUTDOWN'); ?>
+<?= EndNote(); ?>
+
+<?php if (false): ?>
 <div class="adm-c-bigdata-container">
 
 	<div class="adm-c-bigdata-title-box">
@@ -288,5 +294,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 </div>
 
 <?php
+endif;
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 ?>

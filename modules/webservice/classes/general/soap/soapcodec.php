@@ -181,12 +181,6 @@ class CSOAPCodec
 				
 				if (is_object($value))
 				{
-// $fp = fopen($_SERVER['DOCUMENT_ROOT'].'/ws.log', 'a');
-// fwrite($fp, $value->GetTree()."\n");
-// fwrite($fp, '===================================='."\r\n");
-// fclose($fp);
-
-				
 					if (get_class($value) == 'CDataXML')
 						$node->addChild(CXMLCreator::CreateFromDOM($value->GetTree()));
 					elseif (get_class($value) == 'CDataXMLDocument')

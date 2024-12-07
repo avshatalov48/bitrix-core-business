@@ -1,0 +1,69 @@
+.bx-im-sidebar-chat-favourites__container {
+	--im-sidebar-chat-favourites__color_title: #008dba;
+	--im-sidebar-chat-favourites__color_title-hover: #00789e;
+	--im-sidebar-chat-favourites__color_counter: #fff;
+	--im-sidebar-chat-favourites__background-color_counter: #c9ccd0;
+
+	display: flex;
+	justify-content: space-between;
+	cursor: pointer;
+	height: 20px;
+	position: relative;
+}
+
+.bx-im-sidebar-chat-favourites__container.--copilot {
+	--im-sidebar-chat-favourites__color_title: #8e52ec;
+	--im-sidebar-chat-favourites__color_title-hover: #682ac6;
+}
+
+.bx-im-sidebar-chat-favourites__container:not(:last-child) {
+	margin-bottom: 8px;
+}
+
+.bx-im-sidebar-chat-favourites__title,
+.bx-im-sidebar-chat-favourites__counter-container {
+	display: flex;
+	align-items: center;
+}
+
+.bx-im-sidebar-chat-favourites__icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: url("./images/icon.svg") no-repeat center;
+}
+
+.--copilot .bx-im-sidebar-chat-favourites__icon {
+	background: url("./images/icon-copilot.svg") no-repeat center;
+}
+
+.bx-im-sidebar-chat-favourites__title:hover .bx-im-sidebar-chat-favourites__icon {
+	background: url("./images/icon-hover.svg") no-repeat center;
+}
+
+.--copilot .bx-im-sidebar-chat-favourites__title:hover .bx-im-sidebar-chat-favourites__icon {
+	background: url("./images/icon-copilot-hover.svg") no-repeat center;
+}
+
+.bx-im-sidebar-chat-favourites__title-text {
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-chat-favourites__color_title);
+	margin-left: 10px;
+}
+
+.bx-im-sidebar-chat-favourites__title-text:hover {
+	color: var(--im-sidebar-chat-favourites__color_title-hover)
+}
+
+.bx-im-sidebar-chat-favourites__counter {
+	display: flex;
+	justify-content: center;
+	font: var(--im-font-size-3xs)/16px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-bold);
+	color: var(--im-sidebar-chat-favourites__color_counter);
+	background-color: var(--im-sidebar-chat-favourites__background-color_counter);
+	padding: 0 7px;
+	border-radius: 8px;
+	min-width: 21px;
+}

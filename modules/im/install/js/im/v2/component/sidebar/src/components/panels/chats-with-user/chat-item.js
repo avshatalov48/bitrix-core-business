@@ -1,13 +1,13 @@
 import { Utils } from 'im.v2.lib.utils';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
-import { Avatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitle } from 'im.v2.component.elements';
 
 import './css/chat-item.css';
 
 // @vue/component
 export const ChatItem = {
 	name: 'ChatItem',
-	components: { Avatar, ChatTitle },
+	components: { ChatAvatar, ChatTitle },
 	props: {
 		dialogId: {
 			type: String,
@@ -58,7 +58,11 @@ export const ChatItem = {
 			class="bx-im-chat-with-user-item__container bx-im-chat-with-user-item__scope"
 		>
 			<div class="bx-im-chat-with-user-item__avatar-container">
-				<Avatar :dialogId="dialogId" :size="AvatarSize.XL" />
+				<ChatAvatar 
+					:avatarDialogId="dialogId" 
+					:contextDialogId="dialogId" 
+					:size="AvatarSize.XL" 
+				/>
 			</div>
 			<div class="bx-im-chat-with-user-item__content-container">
 				<div class="bx-im-chat-with-user-item__content_header">

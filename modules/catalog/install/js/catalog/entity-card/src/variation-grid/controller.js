@@ -190,7 +190,7 @@ export default class VariationGridController extends BX.UI.EntityEditorControlle
 
 		this.checkEditorToolbar();
 
-		if (grid.getId() === this.getGrid().getId())
+		if (grid.getId() === this.getGrid()?.getId())
 		{
 			setTimeout(
 				() => {

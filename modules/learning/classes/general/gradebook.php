@@ -100,7 +100,7 @@ class CAllGradeBook
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_gradebook", $arFields, "learning");
 			$strSql = "UPDATE b_learn_gradebook SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			return true;
 		}
@@ -116,7 +116,7 @@ class CAllGradeBook
 		if ($ID < 1) return false;
 
 		$strSql = "SELECT TEST_ID, STUDENT_ID FROM b_learn_gradebook WHERE ID = ".$ID;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arGBook = $res->Fetch())
 			return false;
 
@@ -129,7 +129,7 @@ class CAllGradeBook
 
 		$strSql = "DELETE FROM b_learn_gradebook WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -199,7 +199,7 @@ class CAllGradeBook
 			return false;
 
 		$strSql = "SELECT ID FROM b_learn_gradebook G WHERE STUDENT_ID = '".$STUDENT_ID."' AND TEST_ID = '".$TEST_ID."' ";
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arG = $res->Fetch())
 		{
 
@@ -219,14 +219,14 @@ class CAllGradeBook
 					"WHERE STUDENT_ID = '".$STUDENT_ID."' AND TEST_ID = '".$TEST_ID."' ".
 					"ORDER BY COMPLETED DESC, SCORE DESC ";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res->NavStart();
 
 		if (intval($res->SelectedRowsCount()) == 0)
 		{
 			$strSql = "DELETE FROM b_learn_gradebook WHERE ID = ".$arG["ID"];
 
-			if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if (!$DB->Query($strSql))
 				return false;
 
 			return true;
@@ -236,7 +236,7 @@ class CAllGradeBook
 			return false;
 
 		$strSql = "UPDATE b_learn_gradebook SET ATTEMPTS = '".intval($res->SelectedRowsCount())."', COMPLETED = '".$ar["COMPLETED"]."', RESULT = '".intval($ar["SCORE"])."' , MAX_RESULT = '".intval($ar["MAX_SCORE"])."' WHERE STUDENT_ID = '".$STUDENT_ID."' AND TEST_ID = '".$TEST_ID."' ";
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -250,7 +250,7 @@ class CAllGradeBook
 		$TEST_ID = intval($TEST_ID);
 
 		$strSql = "SELECT EXTRA_ATTEMPTS FROM b_learn_gradebook WHERE STUDENT_ID = ".$STUDENT_ID." AND TEST_ID = ".$TEST_ID."";
-		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query($strSql);
 		if (!$ar = $rs->Fetch())
 		{
 			return 0;
@@ -270,7 +270,7 @@ class CAllGradeBook
 		$COUNT = intval($COUNT);
 
 		$strSql = "SELECT ID, EXTRA_ATTEMPTS FROM b_learn_gradebook WHERE STUDENT_ID = ".$STUDENT_ID." AND TEST_ID = ".$TEST_ID."";
-		$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query($strSql);
 		if ( ! ($ar = $rs->Fetch()) )
 		{
 			$ID = CGradeBook::Add(Array(
@@ -287,7 +287,7 @@ class CAllGradeBook
 		else
 		{
 			$strSql = "UPDATE b_learn_gradebook SET EXTRA_ATTEMPTS = ".($ar["EXTRA_ATTEMPTS"] + $COUNT)." WHERE ID = ".$ar["ID"];
-			if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if (!$DB->Query($strSql))
 				return false;
 		}
 	}
@@ -392,7 +392,7 @@ class CAllGradeBook
 			if (isset($arNavParams['nTopCount']) && ((int) $arNavParams['nTopCount'] > 0))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -403,9 +403,9 @@ class CAllGradeBook
 			}
 		}
 		else
-			$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	/**

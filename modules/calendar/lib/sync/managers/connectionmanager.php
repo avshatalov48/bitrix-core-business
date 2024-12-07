@@ -252,6 +252,23 @@ class ConnectionManager
 		return $user['LOGIN'] ?? '';
 	}
 
+	public function deactivateConnections(?EO_DavConnection_Collection $connections): void
+	{
+		if ($connections === null)
+		{
+			return;
+		}
+
+		foreach ($connections as $connectionRow)
+		{
+			$connection = (new BuilderConnectionFromDM($connectionRow))->build();
+			if (!$connection->isDeleted())
+			{
+				$this->deactivateConnection($connection);
+			}
+		}
+	}
+
 	/**
 	 * @param Connection $connection
 	 *

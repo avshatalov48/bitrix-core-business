@@ -6,7 +6,10 @@ if (!isset($arParams["CALENDAR_TYPE"]))
 $curUserId = $USER->IsAuthorized() ? $USER->GetID() : '';
 $id = 'cal_'.$this->randString(4);
 if(!CModule::IncludeModule("calendar") || !class_exists("CCalendar"))
-	return ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+	return;
+}
 
 // Userfields
 global $USER_FIELD_MANAGER;

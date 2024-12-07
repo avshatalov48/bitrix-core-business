@@ -430,7 +430,7 @@ width:86pt'>
 
 <tr height=24 style='mso-height-source:userset;height:18.6pt'>
 	<td nowrap height=24 class=xl67 colspan=11 style='height:18.6pt;mso-ignore:
-	colspan;'>СЧЕТ-ФАКТУРА № 
+	colspan;'>СЧЕТ-ФАКТУРА №
 	<input size="25" style="border:0px solid #000000;font-size:16px;font-style:bold;" type="text" value="_____ от '__' _______ ">
 	</td>
 	</tr>
@@ -451,7 +451,7 @@ width:86pt'>
 <tr class=xl50 height=18 style='mso-height-source:userset;height:13.5pt'>
 	<td height=18 class=xl50 style='height:13.5pt'>Адрес</td>
 	<td class=xl50 colspan=10 style='mso-ignore:colspan'><? echo $arParams["COUNTRY"].", ".$arParams["INDEX"].", г. ".$arParams["CITY"].", ".$arParams["ADDRESS"];?></td>
-</tr>	 
+</tr>
 <tr class=xl50 height=18 style='mso-height-source:userset;height:13.5pt'>
 	<td height=18 class=xl50 style='height:13.5pt'>ИНН/КПП продавца</td>
 	<td colspan=10 class=xl73><?=$arParams["INN"]?> / <?=$arParams["KPP"]?></td>
@@ -480,7 +480,7 @@ width:86pt'>
 	{
 		if($arParams["BUYER_COMPANY_NAME"] <> '')
 			$buyerName = $arParams["BUYER_COMPANY_NAME"];
-	    else
+		else
 			$buyerName = $arParams["BUYER_LAST_NAME"]." ".$arParams["BUYER_FIRST_NAME"]." ".$arParams["BUYER_SECOND_NAME"];
 		?>
 		<?=$buyerName;?>, <?=$arParams["BUYER_COUNTRY"]?>, <?=$arParams["BUYER_INDEX"]?>, г. <?=$arParams["BUYER_CITY"]?>, <?=$arParams["BUYER_ADDRESS"]?>
@@ -499,7 +499,7 @@ width:86pt'>
 	<td height=18 class=xl47 style='height:13.5pt'>Покупатель</td>
 	<td class=xl64 colspan=10>
 	<?if(empty($arParams))
-	{	
+	{
 		//изменить F_NAME на реальный мнемонический код свойства заказа "название компании"
 		echo $arOrderProps["F_NAME"];
 	}
@@ -513,8 +513,8 @@ width:86pt'>
 	<td height=18 class=xl50 style='height:13.5pt'>Адрес</td>
 	<td colspan=10 class=xl50 style='mso-ignore:colspan'>
 	<?if(empty($arParams))
-	{	
-		
+	{
+
 		//изменить F_INDEX, F_LOCATION,... на реальные мнемонические коды свойств
 		echo $arOrderProps["F_INDEX"];
 		$arVal = CSaleLocation::GetByID($arOrderProps["F_LOCATION"], "ru");
@@ -534,7 +534,7 @@ width:86pt'>
 	<td height=18 class=xl50 style='height:13.5pt'>ИНН/КПП покупателя</td>
 	<td colspan=10 class=xl68>
 	<?if(empty($arParams))
-	{	
+	{
 		//изменить F_INN на реальный мнемонический код свойства заказа "INN компании"
 		echo $arOrderProps["F_INN"];
 	}
@@ -542,7 +542,7 @@ width:86pt'>
 	{
 		echo $arParams["BUYER_INN"]." / ".$arParams["BUYER_KPP"];
 	}?>
-		
+
 	</td>
 </tr>
 <tr class=xl50 height=19 style='mso-height-source:userset;height:14.25pt'>
@@ -645,7 +645,7 @@ while ($ar_tax_list = $db_tax_list->Fetch())
 {
 	$arTaxList[$i] = $ar_tax_list;
 	// определяем, какой из налогов - НДС
-	// НДС должен иметь код NDS, либо необходимо перенести этот шаблон 
+	// НДС должен иметь код NDS, либо необходимо перенести этот шаблон
 	// в каталог пользовательских шаблонов и исправить
 	if ($arTaxList[$i]["CODE"] == "NDS")
 		$iNds = $i;
@@ -665,7 +665,7 @@ foreach ($arBasketOrder as $arBasket):
 
 	if (floatval($arQuantities[$mi]) <= 0)
 		$arQuantities[$mi] = DoubleVal($arBasket["QUANTITY"]);
-	
+
 	$b_AMOUNT = DoubleVal($arBasket["PRICE"]);
 
 	//определяем начальную цену

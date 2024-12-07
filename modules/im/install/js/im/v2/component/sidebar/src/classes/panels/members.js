@@ -36,7 +36,11 @@ export class MembersService
 	getInitialQuery(): {[$Values<typeof RestMethod>]: JsonObject}
 	{
 		return {
-			[RestMethod.imDialogUsersList]: { dialog_id: this.dialogId, limit: REQUEST_ITEMS_LIMIT },
+			[RestMethod.imDialogUsersList]: {
+				dialog_id: this.dialogId,
+				limit: REQUEST_ITEMS_LIMIT,
+				LAST_ID: 0
+			},
 		};
 	}
 

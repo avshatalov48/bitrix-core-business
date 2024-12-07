@@ -138,19 +138,19 @@ class CAllSocNetGroupSubject
 				"UPDATE b_sonet_group_subject SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if(count($arSiteID)>0)
 			{
 				$strSql = "DELETE FROM b_sonet_group_subject_site WHERE SUBJECT_ID=".$ID;
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 
 				$strSql =
 					"INSERT INTO b_sonet_group_subject_site(SUBJECT_ID, SITE_ID) ".
 					"SELECT ".$ID.", LID ".
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_SiteID.") ";
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 			}
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetGroupSubjectUpdate");

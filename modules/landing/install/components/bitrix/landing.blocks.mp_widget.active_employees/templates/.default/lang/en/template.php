@@ -1,0 +1,4 @@
+<?php
+$MESS["BLOCK_MP_WIDGET_ACTIVE_EMPLOYEES_DIAGRAM_TEXT"] = "Bitrix24 activity";
+$MESS["BLOCK_MP_WIDGET_ACTIVE_EMPLOYEES_EMPTY_STATE_TEXT"] = "This area will show employee activity.";
+$MESS["BLOCK_MP_WIDGET_ACTIVE_EMPLOYEES_INDEX_TEXT"] = "Activity rate: ";

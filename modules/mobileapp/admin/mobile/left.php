@@ -22,7 +22,7 @@ $APPLICATION->IncludeComponent(
 	Array('HIDE_ICONS' => 'Y'));
 ?>
 
-<script type="text/javascript">
+<script>
 
 	var pullParams = {
 			enable:true,

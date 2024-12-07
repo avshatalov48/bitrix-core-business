@@ -23,8 +23,8 @@ class UpdateService
 	public const EVENT_AFTER_MESSAGE_UPDATE = 'OnAfterMessagesUpdate';
 
 	private Message $message;
+	private Message\Send\SendingConfig $sendingConfig;
 	private ?array $chatLastMessage = null;
-	private bool $urlPreview = true;
 	private bool $byEvent = false;
 	private bool $withCheckAccess = true;
 
@@ -32,6 +32,7 @@ class UpdateService
 	public function __construct(Message $message)
 	{
 		$this->message = $message;
+		$this->sendingConfig = new Message\Send\SendingConfig();
 	}
 
 	public function setMessage(Message $message): self
@@ -43,7 +44,10 @@ class UpdateService
 
 	public function setUrlPreview(bool $urlPreview): self
 	{
-		$this->urlPreview = $urlPreview;
+		if (!$urlPreview)
+		{
+			$this->sendingConfig->disableUrlPreview();
+		}
 
 		return $this;
 	}
@@ -66,7 +70,7 @@ class UpdateService
 	{
 		if ($this->withCheckAccess && !$this->canUpdate())
 		{
-			return (new Result())->addError(new Message\MessageError(Message\MessageError::MESSAGE_ACCESS_ERROR));
+			return (new Result())->addError(new Message\MessageError(Message\MessageError::ACCESS_DENIED));
 		}
 
 		$this->message->fill($fieldsToUpdate);
@@ -81,7 +85,7 @@ class UpdateService
 			$this->message->getParams()->get(Params::IS_EDITED)->setValue(true);
 		}
 
-		$filesFromText = $this->message->autocompleteParams($this->urlPreview)->uploadFileFromText();
+		$filesFromText = $this->message->autocompleteParams($this->sendingConfig)->uploadFileFromText();
 		$result = $this->message->save();
 		if (!$result->isSuccess())
 		{
@@ -218,12 +222,10 @@ class UpdateService
 
 		Bot::onMessageUpdate($this->message->getId(), $messageFields);
 
-		if ($chat->getType() !== Chat::IM_TYPE_OPEN_LINE)
-		{
-			Sync\Logger::getInstance()->add(
-				new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::UPDATED_MESSAGE_ENTITY, $this->message->getId()),
-				static fn () => $chat->getRelations()->getUserIds()
-			);
-		}
+		Sync\Logger::getInstance()->add(
+			new Sync\Event(Sync\Event::ADD_EVENT, Sync\Event::UPDATED_MESSAGE_ENTITY, $this->message->getId()),
+			static fn () => $chat->getRelations()->getUserIds(),
+			$chat->getType()
+		);
 	}
 }

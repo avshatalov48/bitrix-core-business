@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
@@ -270,8 +271,6 @@ class PaymentCollection extends Internals\EntityCollection
 	/**
 	 * @param Order $order
 	 * @return PaymentCollection
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
 	 */
 	public static function load(Order $order)
 	{
@@ -289,7 +288,7 @@ class PaymentCollection extends Internals\EntityCollection
 			foreach ($paymentList as $payment)
 			{
 				$payment->setCollection($paymentCollection);
-				$paymentCollection->addItem($payment);
+				$paymentCollection->bindItem($payment);
 			}
 		}
 

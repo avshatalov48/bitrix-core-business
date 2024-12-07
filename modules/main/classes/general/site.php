@@ -4,12 +4,14 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main;
 use Bitrix\Main\Localization\CultureTable;
 use Bitrix\Main\SiteTable;
+use Bitrix\Main\SiteDomainTable;
+use Bitrix\Main\SiteTemplateTable;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -24,7 +26,7 @@ class CAllSite
 	{
 		/** @global CMain $APPLICATION */
 		global $APPLICATION;
-		return (mb_substr($APPLICATION->GetCurPage(true), 0, mb_strlen($strDir)) == $strDir);
+		return (str_starts_with($APPLICATION->GetCurPage(true), $strDir));
 	}
 
 	public static function InPeriod($iUnixTimestampFrom, $iUnixTimestampTo)
@@ -283,14 +285,7 @@ class CAllSite
 
 	public static function SaveDomains($LID, $domains)
 	{
-		global $DB, $CACHE_MANAGER;
-
-		if (CACHED_b_lang_domain !== false)
-		{
-			$CACHE_MANAGER->CleanDir("b_lang_domain");
-		}
-
-		$DB->Query("DELETE FROM b_lang_domain WHERE LID='" . $DB->ForSQL($LID) . "'");
+		SiteDomainTable::deleteByFilter(['=LID' => $LID]);
 
 		$domains = str_replace("\r", "\n", $domains);
 		$arDomains = explode("\n", $domains);
@@ -313,18 +308,19 @@ class CAllSite
 		{
 			if ($domain <> '')
 			{
-				$DB->Query("INSERT INTO b_lang_domain(LID, DOMAIN) VALUES('" . $DB->ForSQL($LID, 2) . "', '" . $DB->ForSQL($domain, 255) . "')");
+				SiteDomainTable::add([
+					'LID' => $LID,
+					'DOMAIN' => $domain,
+				]);
 				$bIsDomain = true;
 			}
 		}
-		$DB->Query("UPDATE b_lang SET DOMAIN_LIMITED='" . ($bIsDomain ? "Y" : "N") . "' WHERE LID='" . $DB->ForSql($LID) . "'");
-
-		Main\SiteDomainTable::cleanCache();
+		SiteTable::update($LID, ['DOMAIN_LIMITED' => ($bIsDomain ? "Y" : "N")]);
 	}
 
 	public function Add($arFields)
 	{
-		global $DB, $DOCUMENT_ROOT, $CACHE_MANAGER;
+		global $DB, $CACHE_MANAGER;
 
 		if (!$this->CheckFields($arFields))
 		{
@@ -363,7 +359,7 @@ class CAllSite
 
 		if (isset($arFields["DIR"]))
 		{
-			CheckDirPath($DOCUMENT_ROOT . $arFields["DIR"]);
+			CheckDirPath($_SERVER["DOCUMENT_ROOT"] . $arFields["DIR"]);
 		}
 
 		if (isset($arFields["DOMAINS"]))
@@ -377,20 +373,13 @@ class CAllSite
 			{
 				if (trim($arTemplate["TEMPLATE"]) <> '')
 				{
-					$arInsert = $DB->PrepareInsert("b_site_template", [
+					SiteTemplateTable::add([
 						'SITE_ID' => $arFields["LID"],
 						'CONDITION' => trim($arTemplate["CONDITION"]),
 						'SORT' => $arTemplate["SORT"],
 						'TEMPLATE' => trim($arTemplate["TEMPLATE"]),
 					]);
-					$strSql = "INSERT INTO b_site_template(" . $arInsert[0] . ") VALUES (" . $arInsert[1] . ")";
-					$DB->Query($strSql);
 				}
-			}
-
-			if (CACHED_b_site_template !== false)
-			{
-				$CACHE_MANAGER->Clean("b_site_template");
 			}
 		}
 
@@ -452,26 +441,19 @@ class CAllSite
 
 		if (isset($arFields["TEMPLATE"]))
 		{
-			$DB->Query("DELETE FROM b_site_template WHERE SITE_ID='" . $DB->ForSQL($ID) . "'");
+			SiteTemplateTable::deleteByFilter(['=SITE_ID' => $ID]);
 
 			foreach ($arFields["TEMPLATE"] as $arTemplate)
 			{
 				if (trim($arTemplate["TEMPLATE"]) <> '')
 				{
-					$arInsert = $DB->PrepareInsert("b_site_template", [
+					SiteTemplateTable::add([
 						'SITE_ID' => $ID,
 						'CONDITION' => trim($arTemplate["CONDITION"]),
 						'SORT' => $arTemplate["SORT"],
 						'TEMPLATE' => trim($arTemplate["TEMPLATE"]),
 					]);
-					$strSql = "INSERT INTO b_site_template(" . $arInsert[0] . ") VALUES (" . $arInsert[1] . ")";
-					$DB->Query($strSql);
 				}
-			}
-
-			if (CACHED_b_site_template !== false)
-			{
-				$CACHE_MANAGER->Clean("b_site_template");
 			}
 		}
 
@@ -530,30 +512,14 @@ class CAllSite
 			return false;
 		}
 
-		if (!$DB->Query("DELETE FROM b_lang_domain WHERE LID='" . $DB->ForSQL($ID, 2) . "'"))
-		{
-			return false;
-		}
-
-		if (CACHED_b_lang_domain !== false)
-		{
-			$CACHE_MANAGER->CleanDir("b_lang_domain");
-		}
-
 		if (!$DB->Query("UPDATE b_event_message SET LID=NULL WHERE LID='" . $DB->ForSQL($ID, 2) . "'"))
 		{
 			return false;
 		}
 
-		if (!$DB->Query("DELETE FROM b_site_template WHERE SITE_ID='" . $DB->ForSQL($ID, 2) . "'"))
-		{
-			return false;
-		}
+		SiteDomainTable::deleteByFilter(['=LID' => $ID]);
 
-		if (CACHED_b_site_template !== false)
-		{
-			$CACHE_MANAGER->Clean("b_site_template");
-		}
+		SiteTemplateTable::deleteByFilter(['=SITE_ID' => $ID]);
 
 		$result = $DB->Query("DELETE FROM b_lang WHERE LID='" . $DB->ForSQL($ID, 2) . "'", true);
 
@@ -563,22 +529,21 @@ class CAllSite
 		}
 
 		SiteTable::cleanCache();
-		Main\SiteDomainTable::cleanCache();
 
 		return $result;
 	}
 
+	/**
+	 * @param $site_id
+	 * @return Main\EO_SiteTemplate_Result
+	 */
 	public static function GetTemplateList($site_id)
 	{
-		global $DB;
-		$strSql =
-			"SELECT * " .
-			"FROM b_site_template " .
-			"WHERE SITE_ID='" . $DB->ForSQL($site_id, 2) . "' " .
-			"ORDER BY SORT";
-
-		$dbr = $DB->Query($strSql);
-		return $dbr;
+		return SiteTemplateTable::getList([
+			'filter' => ['=SITE_ID' => $site_id],
+			'order' => ['SORT' => 'ASC'],
+			'cache' => ['ttl' => 86400],
+		]);
 	}
 
 	public static function GetDefList()
@@ -974,90 +939,25 @@ class CAllSite
 		/** @noinspection PhpUnusedLocalVariableInspection */
 		global $APPLICATION, $USER, $CACHE_MANAGER;
 
-		$connection = Main\Application::getConnection();
-		$helper = $connection->getSqlHelper();
-
-		$conditionQuoted = $helper->quote("CONDITION");
+		$dbr = SiteTemplateTable::getList([
+			'select' => ['CONDITION', 'TEMPLATE'],
+			'filter' => ['=SITE_ID' => SITE_ID],
+			'order' => ['SITE_ID' => 'ASC', 'EMPTY_CONDITION' => 'DESC', 'SORT' => 'ASC'],
+			'cache' => ['ttl' => 86400],
+		]);
 
 		$siteTemplate = "";
-		if (CACHED_b_site_template === false)
+		while ($ar = $dbr->fetch())
 		{
-			$strSql = "
-				SELECT
-					" . $conditionQuoted . ",
-					TEMPLATE
-				FROM
-					b_site_template
-				WHERE
-					SITE_ID='" . SITE_ID . "'
-				ORDER BY
-					CASE
-						WHEN " . $helper->getIsNullFunction($helper->getLengthFunction($conditionQuoted), 0) . "=0 THEN 2
-						ELSE 1
-					END,
-					SORT
-				";
-			$dbr = $connection->query($strSql);
-			while ($ar = $dbr->fetch())
+			$strCondition = trim($ar["CONDITION"]);
+			if ($strCondition <> '' && (!@eval("return " . $strCondition . ";")))
 			{
-				$strCondition = trim($ar["CONDITION"]);
-				if ($strCondition <> '' && (!@eval("return " . $strCondition . ";")))
-				{
-					continue;
-				}
-				if (($path = getLocalPath("templates/" . $ar["TEMPLATE"], BX_PERSONAL_ROOT)) !== false && is_dir($_SERVER["DOCUMENT_ROOT"] . $path))
-				{
-					$siteTemplate = $ar["TEMPLATE"];
-					break;
-				}
+				continue;
 			}
-		}
-		else
-		{
-			if ($CACHE_MANAGER->Read(CACHED_b_site_template, "b_site_template"))
+			if (($path = getLocalPath("templates/" . $ar["TEMPLATE"], BX_PERSONAL_ROOT)) !== false && is_dir($_SERVER["DOCUMENT_ROOT"] . $path))
 			{
-				$arSiteTemplateBySite = $CACHE_MANAGER->Get("b_site_template");
-			}
-			else
-			{
-				$dbr = $connection->query("
-					SELECT
-						" . $conditionQuoted . ",
-						TEMPLATE,
-						SITE_ID
-					FROM
-						b_site_template
-					ORDER BY
-						SITE_ID,
-						CASE
-							WHEN " . $helper->getIsNullFunction($helper->getLengthFunction($conditionQuoted), 0) . "=0 THEN 2
-							ELSE 1
-						END,
-						SORT
-				");
-				$arSiteTemplateBySite = [];
-				while ($ar = $dbr->fetch())
-				{
-					$arSiteTemplateBySite[$ar['SITE_ID']][] = $ar;
-				}
-				$CACHE_MANAGER->Set("b_site_template", $arSiteTemplateBySite);
-			}
-
-			if (isset($arSiteTemplateBySite[SITE_ID]) && is_array($arSiteTemplateBySite[SITE_ID]))
-			{
-				foreach ($arSiteTemplateBySite[SITE_ID] as $ar)
-				{
-					$strCondition = trim($ar["CONDITION"]);
-					if ($strCondition <> '' && (!@eval("return " . $strCondition . ";")))
-					{
-						continue;
-					}
-					if (($path = getLocalPath("templates/" . $ar["TEMPLATE"], BX_PERSONAL_ROOT)) !== false && is_dir($_SERVER["DOCUMENT_ROOT"] . $path))
-					{
-						$siteTemplate = $ar["TEMPLATE"];
-						break;
-					}
-				}
+				$siteTemplate = $ar["TEMPLATE"];
+				break;
 			}
 		}
 

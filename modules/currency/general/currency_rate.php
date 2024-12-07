@@ -233,7 +233,7 @@ class CAllCurrencyRates
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_currency_rate SET ".$strUpdate." WHERE ID = ".$ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$stackCacheManager->Clear('currency_rate');
 			Currency\CurrencyManager::updateBaseRates($arFields['CURRENCY']);
@@ -314,7 +314,7 @@ class CAllCurrencyRates
 		if ($ID <= 0)
 			return false;
 		$strSql = "SELECT C.*, ".$DB->DateToCharFunction("C.DATE_RATE", "SHORT")." as DATE_RATE FROM b_catalog_currency_rate C WHERE ID = ".$ID;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 			return $res;
@@ -385,7 +385,7 @@ class CAllCurrencyRates
 			$strSqlOrder .= " desc ";
 
 		$strSql .= $strSqlOrder;
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

@@ -11,6 +11,7 @@
  * @global CMain $APPLICATION
  * @global CUserTypeManager $USER_FIELD_MANAGER
  */
+
 use Bitrix\Main;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
@@ -70,8 +71,6 @@ $bVarsFromForm = false;
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST["save"]) || !empty($_POST["apply"])) && ($RIGHTS >= "W") && check_bitrix_sessid())
 {
-	$adminSidePanelHelper->decodeUriComponent();
-
 	$arFields = array(
 		"ENTITY_ID" => $_REQUEST["ENTITY_ID"] ?? '',
 		"FIELD_NAME" => $_REQUEST["FIELD_NAME"] ?? '',
@@ -237,7 +236,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 // validate list_url
 if (!empty($list_url))
 {
-	$list_url = mb_substr($list_url, 0, 1) === '/' ? $list_url : '/'.$list_url;
+	$list_url = str_starts_with($list_url, '/') ? $list_url : '/'.$list_url;
 }
 
 $aMenu = array();
@@ -274,7 +273,7 @@ $context->Show();
 if($message)
 	echo $message->Show();
 ?>
-<script language="JavaScript">
+<script>
 <!--
 function addNewRow(tableID)
 {
@@ -512,20 +511,33 @@ $tabControl->BeginNextTab();
 		<td><?=GetMessage("USER_TYPE_LIST_DEF")?></td>
 		<td><?=GetMessage("USER_TYPE_LIST_DEL")?></td>
 	</tr>
-<?if($MULTIPLE=="N"):?>
+<?php
+
+$rsEnum = $obEnum::GetList([], ['USER_FIELD_ID' => $ID]);
+$enumItems = [];
+$hasDefaultItem = false;
+while($item = $rsEnum->GetNext())
+{
+	$enumItems[] = $item;
+	if (($item['DEF'] ?? 'N') === 'Y')
+	{
+		$hasDefaultItem = true;
+	}
+}
+
+if ($MULTIPLE === 'N'):
+	?>
 	<tr>
 		<td>&nbsp;</td>
 		<td>&nbsp;</td>
 		<td><?=GetMessage("USER_TYPE_LIST_NO_DEF")?></td>
 		<td>&nbsp;</td>
-		<td><input type="radio" name="LIST[DEF][]" value="0"></td>
+		<td><input type="radio" name="LIST[DEF][]" value="0" <?= ($hasDefaultItem ? '' : 'checked') ?>></td>
 		<td>&nbsp;</td>
 	</tr>
 <?endif?>
 <?
-	$rsEnum = $obEnum->GetList(array(), array("USER_FIELD_ID" => $ID));
-	while($arEnum = $rsEnum->GetNext()):
-
+	foreach ($enumItems as $arEnum):
 		if($bVarsFromForm && is_array($_REQUEST['LIST'][$arEnum["ID"]]))
 			foreach($_REQUEST['LIST'][$arEnum["ID"]] as $key=>$val)
 				$arEnum[$key] = htmlspecialcharsbx($val);
@@ -539,7 +551,7 @@ $tabControl->BeginNextTab();
 		<td><input type="checkbox" name="LIST[<?=$arEnum["ID"]?>][DEL]" value="Y"<?if($arEnum["DEL"] == "Y") echo " checked"?>></td>
 	</tr>
 <?
-	endwhile;
+	endforeach;
 ?>
 <?
 if($bVarsFromForm):

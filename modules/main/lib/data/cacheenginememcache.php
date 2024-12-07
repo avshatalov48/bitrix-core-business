@@ -53,20 +53,42 @@ class CacheEngineMemcache extends CacheEngine
 	public function setNotExists($key, $ttl, $value)
 	{
 		$ttl = self::getExpire($ttl);
-		return self::$engine->add($key, $value, 0, $ttl);
+		return self::$engine->add($key, $value, null, $ttl);
+	}
+
+	public function checkInSet($key, $value) : bool
+	{
+		$cacheKey = sha1($key . '|' . $value);
+		$iexKey = $key . '|iex|' . $cacheKey;
+		$itemExist = self::$engine->get($iexKey);
+
+		if ($itemExist === $cacheKey)
+		{
+			return true;
+		}
+
+		$list = self::$engine->get($key);
+
+		if (!is_array($list))
+		{
+			$list = [];
+		}
+
+		if (array_key_exists($value, $list))
+		{
+			$this->set($iexKey, 2591000, $cacheKey);
+			return true;
+		}
+
+		return false;
 	}
 
 	public function addToSet($key, $value)
 	{
 		$cacheKey = sha1($key . '|' . $value);
-		if (array_key_exists($cacheKey, self::$listKeys))
-		{
-			return;
-		}
-
 		$iexKey = $key . '|iex|' . $cacheKey;
 		$itemExist = self::$engine->get($iexKey);
-		if ($itemExist == $cacheKey)
+		if ($itemExist === $cacheKey)
 		{
 			return;
 		}
@@ -82,7 +104,6 @@ class CacheEngineMemcache extends CacheEngine
 		{
 			$list[$value] = 1;
 			$this->set($key, 0, $list);
-			self::$listKeys[$cacheKey] = 1;
 		}
 
 		$this->set($iexKey, 2591000, $cacheKey);
@@ -102,23 +123,26 @@ class CacheEngineMemcache extends CacheEngine
 	public function deleteBySet($key, $prefix = '')
 	{
 		$list = self::$engine->get($key);
+		self::$engine->delete($key);
+
 		if (is_array($list) && !empty($list))
 		{
-			foreach ($list as $iKey => $value)
+			$list = array_keys($list);
+			foreach ($list as $iKey)
 			{
-				if ($prefix == '')
-				{
-					$this->del($iKey);
-				}
-				else
-				{
-					$this->del($prefix . $iKey);
-				}
+				$delKey = $prefix . $iKey;
+				self::$engine->delete($key . '|iex|' . sha1($key . '|' . $iKey));
 
-				$cacheKey = sha1($key . '|' . $iKey);
-				$iexKey = $key . '|iex|' . $cacheKey;
-				$this->del($iexKey);
+				if ($this->useLock)
+				{
+					if ($cachedData = self::$engine->get($delKey))
+					{
+						$this->set($delKey . '|old', $this->ttlOld, $cachedData);
+					}
+				}
+				self::$engine->delete($delKey);
 			}
+			unset($list);
 		}
 	}
 
@@ -129,6 +153,7 @@ class CacheEngineMemcache extends CacheEngine
 		if (is_array($list) && !empty($list))
 		{
 			$rewrite = false;
+			$tmpKey = $key . '|iex|';
 			if (is_array($member))
 			{
 				foreach ($member as $keyID)
@@ -136,37 +161,34 @@ class CacheEngineMemcache extends CacheEngine
 					if (array_key_exists($keyID, $list))
 					{
 						$rewrite = true;
-						$cacheKey = sha1($key . '|' . $keyID);
 						unset($list[$keyID]);
-						unset(self::$listKeys[$cacheKey]);
 
-						$iexKey = $key . '|iex|' . $cacheKey;
-						$this->del($iexKey);
+						$iexKey = $tmpKey . sha1($key . '|' . $keyID);
+						self::$engine->delete($iexKey);
 					}
 				}
 			}
 			elseif (array_key_exists($member, $list))
 			{
 				$rewrite = true;
-				$cacheKey = sha1($key . '|' . $member);
-				unset(self::$listKeys[$cacheKey]);
 				unset($list[$member]);
 
-				$iexKey = $key . '|iex|' . $cacheKey;
-				$this->del($iexKey);
+				$iexKey = $tmpKey . sha1($key . '|' . $member);
+				self::$engine->delete($iexKey);
 			}
 
 			if ($rewrite)
 			{
 				if (empty($list))
 				{
-					$this->del($key);
+					self::$engine->delete($key);
 				}
 				else
 				{
 					$this->set($key, 0, $list);
 				}
 			}
+			unset($list);
 		}
 	}
 }

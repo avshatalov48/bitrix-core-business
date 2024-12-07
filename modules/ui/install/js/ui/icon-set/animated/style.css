@@ -1,0 +1,15 @@
+@import "../icon-base.css";
+
+.ui-icon-set,
+.ui-icon-set__scope {
+	--ui-icon-set__path_loader-clock: url('/bitrix/js/ui/icon-set/animated/images/loader-clock.svg');
+	--ui-icon-set__path_loader-wait: url('/bitrix/js/ui/icon-set/animated/images/loader-wait.svg');
+}
+
+.ui-icon-set.--loader-clock {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_loader-clock);
+}
+
+.ui-icon-set.--loader-wait {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_loader-wait);
+}

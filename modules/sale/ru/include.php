@@ -465,5 +465,5 @@ function Number2Word_Rus($source, $IS_MONEY = "Y", $currency = "")
 	if ($IS_MONEY == "Y")
 		$result = str_replace("k", $arNumericLang[$currency]["k"], $result);
 
-	return (ToUpper(mb_substr($result, 0, 1)).mb_substr($result, 1));
+	return (mb_strtoupper(mb_substr($result, 0, 1)).mb_substr($result, 1));
 }

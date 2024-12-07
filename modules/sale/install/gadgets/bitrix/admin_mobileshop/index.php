@@ -13,7 +13,7 @@ $APPLICATION->SetAdditionalCSS('/bitrix/gadgets/bitrix/admin_mobileshop/styles.c
 		<div class="bx-gadgets-title-2"><?=GetMessage("GD_MOBILESHOP_TITLE2")?></div>
 	</div>
 	<div class="bx-gadget-bottom-cont">
-		<a class="bx-gadget-button" target="_blank" href="http://www.1c-bitrix.ru/products/mobile/adm.php">
+		<a class="bx-gadget-button" target="_blank" href="https://www.1c-bitrix.ru/products/mobile/adm.php">
 			<div class="bx-gadget-button-lamp"></div>
 			<div class="bx-gadget-button-text"><?=GetMessage("GD_MOBILESHOP_VIEW")?></div>
 		</a>

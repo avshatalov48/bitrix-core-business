@@ -56,20 +56,20 @@ abstract class AbstractEntity
 
 	abstract public function onUserAdd($userId): bool;
 
-	abstract public function onExistingUserInvite($userId): bool;
+	abstract public function onExistingUsersInvite($userIds): bool;
 
 	abstract public function onStateChange($state, $prevState);
 
-	public function toArray($currentUserId = 0)
+	public function toArray($initiatorId = 0)
 	{
-		if($currentUserId == 0)
+		if($initiatorId == 0)
 		{
-			$currentUserId = $this->initiatorId;
+			$initiatorId = $this->initiatorId;
 		}
 		return [
 			'type' => $this->getEntityType(),
-			'id' => $this->getEntityId($currentUserId),
-			'name' => $this->getName($currentUserId)
+			'id' => $this->getEntityId($initiatorId),
+			'name' => $this->getName($initiatorId)
 		];
 	}
 

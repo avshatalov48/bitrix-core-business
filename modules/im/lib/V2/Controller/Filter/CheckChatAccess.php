@@ -5,6 +5,7 @@ namespace Bitrix\Im\V2\Controller\Filter;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\MessageCollection;
+use Bitrix\Im\V2\Result;
 use Bitrix\Main\Engine\ActionFilter\Base;
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
@@ -13,9 +14,10 @@ class CheckChatAccess extends Base
 {
 	public function onBeforeAction(Event $event)
 	{
-		if (!$this->hasAccess())
+		$checkResult = $this->checkAccess();
+		if (!$checkResult->isSuccess())
 		{
-			$this->addError(new Chat\ChatError(Chat\ChatError::ACCESS_DENIED));
+			$this->addError($checkResult->getErrors()[0] ?? new Chat\ChatError(Chat\ChatError::ACCESS_DENIED));
 
 			return new EventResult(EventResult::ERROR, null, null, $this);
 		}
@@ -23,44 +25,39 @@ class CheckChatAccess extends Base
 		return null;
 	}
 
-	private function hasAccess(): bool
+	private function checkAccess(): Result
 	{
 		foreach ($this->getAction()->getArguments() as $argument)
 		{
 			if ($argument instanceof Message)
 			{
-				return $argument->getChat()->hasAccess();
+				return $argument->checkAccess();
 			}
 			if ($argument instanceof MessageCollection)
 			{
-				return $this->hasAccessToMessages($argument);
+				return $this->checkAccessToMessages($argument);
 			}
 			if ($argument instanceof Chat)
 			{
-				return $argument->hasAccess();
+				return $argument->checkAccess();
 			}
 		}
 
-		return true;
+		return new Result();
 	}
 
-	private function hasAccessToMessages(MessageCollection $messages): bool
+	private function checkAccessToMessages(MessageCollection $messages): Result
 	{
-		$commonChatId = $messages->getCommonChatId();
-
-		if ($commonChatId !== null)
-		{
-			return Chat::getInstance($commonChatId)->hasAccess();
-		}
-
 		foreach ($messages as $message)
 		{
-			if (!$message->getChat()->hasAccess())
+			$checkResult = $message->checkAccess();
+
+			if (!$checkResult->isSuccess())
 			{
-				return false;
+				return $checkResult;
 			}
 		}
 
-		return true;
+		return new Result();
 	}
 }

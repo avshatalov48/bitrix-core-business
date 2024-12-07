@@ -36,7 +36,6 @@ if(check_bitrix_sessid())
 		echo CUtil::PhpToJSObject(array('ERROR' => 'IBLOCK_ERROR'));
 		die();
 	}
-	CUtil::JSPostUnescape();
 	if($_REQUEST['action'] == "clearQuantity")
 	{
 		if (!$useStoreControl)

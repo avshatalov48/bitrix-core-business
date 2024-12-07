@@ -77,6 +77,7 @@ this.BX = this.BX || {};
 	        throw new Error('Property "wrapper" is undefined');
 	      }
 	      babelHelpers.classPrivateFieldGet(this, _formConstructor).renderTo(babelHelpers.classPrivateFieldGet(this, _wrapper));
+	      BX.UI.ButtonPanel.show();
 	    }
 	  }, {
 	    key: "subscribeEvents",
@@ -97,16 +98,6 @@ this.BX = this.BX || {};
 	          _this2.save(data);
 	        }
 	      });
-	      babelHelpers.classPrivateFieldGet(this, _formConstructor).subscribe('onReadySave', function () {
-	        if (_this2.isReadySave()) {
-	          BX.UI.ButtonPanel.show();
-	        } else {
-	          BX.UI.ButtonPanel.hide();
-	        }
-	      });
-	      babelHelpers.classPrivateFieldGet(this, _formConstructor).subscribe('onUnreadySave', function () {
-	        BX.UI.ButtonPanel.hide();
-	      });
 	      babelHelpers.classPrivateFieldGet(this, _formConstructor).subscribe('onFieldChange', function () {
 	        _this2.reload();
 	      });
@@ -119,8 +110,6 @@ this.BX = this.BX || {};
 	      }
 	      main_core_events.EventEmitter.unsubscribeAll(main_core_events.EventEmitter.GLOBAL_TARGET, 'button-click');
 	      babelHelpers.classPrivateFieldGet(this, _formConstructor).unsubscribeAll('onSave');
-	      babelHelpers.classPrivateFieldGet(this, _formConstructor).unsubscribeAll('onReadySave');
-	      babelHelpers.classPrivateFieldGet(this, _formConstructor).unsubscribeAll('onUnreadySave');
 	      babelHelpers.classPrivateFieldGet(this, _formConstructor).unsubscribeAll('onFieldChange');
 	    }
 	  }, {
@@ -201,7 +190,6 @@ this.BX = this.BX || {};
 	        if (buttonWaitState) {
 	          main_core.Dom.removeClass(buttonWaitState, 'ui-btn-wait');
 	        }
-	        BX.UI.ButtonPanel.hide();
 	      });
 	    }
 	  }], [{

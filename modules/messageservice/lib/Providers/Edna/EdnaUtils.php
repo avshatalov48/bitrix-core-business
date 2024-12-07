@@ -180,15 +180,18 @@ abstract class EdnaUtils implements EdnaRu
 		$result = new Result();
 		foreach ($apiData as $cascade)
 		{
-			if ($cascade['status'] !== 'ACTIVE' || $cascade['stagesCount'] > 1)
+			if (is_array($cascade))
 			{
-				continue;
-			}
-			if ($subjectComparator($cascade['stages'][0]['subject'], $subject))
-			{
-				$result->setData(['cascadeId' => $cascade['id']]);
+				if ($cascade['status'] !== 'ACTIVE' || $cascade['stagesCount'] > 1)
+				{
+					continue;
+				}
+				if ($subjectComparator($cascade['stages'][0]['subject'], $subject))
+				{
+					$result->setData(['cascadeId' => $cascade['id']]);
 
-				return $result;
+					return $result;
+				}
 			}
 		}
 
@@ -231,7 +234,7 @@ abstract class EdnaUtils implements EdnaRu
 						'SENDER_ID' => $this->providerId,
 						'EXTERNAL_ID' => $channel['subjectId'],
 						'TYPE' => $channelType,
-						'NAME' => $channel['name'],
+						'NAME' => $channel['name'] ?? '',
 						'ADDITIONAL_PARAMS' => [
 							'channelAttribute' => $channel['channelAttribute'] ?? ''
 						],
@@ -253,5 +256,55 @@ abstract class EdnaUtils implements EdnaRu
 		}
 
 		return $fromList;
+	}
+
+	public function sendTemplate(string $name, string $text, array $examples = [], ?string $langCode = null): Result
+	{
+		return (new Result())->addError(new Error('This provider does not support template creation'));
+	}
+
+	protected function validateLanguage(string $langCode): bool
+	{
+		$langs = [
+			'af', 'sq', 'ar', 'az', 'bn',
+			'bg', 'ca','zh_CN', 'zh_HK', 'zh_TW',
+			'hr', 'cs', 'da', 'nl', 'en',
+			'en_GB', 'en_US', 'et', 'fil', 'fi',
+			'fr', 'ka', 'de', 'el', 'gu',
+			'ha', 'he', 'hi', 'hu', 'id',
+			'ga', 'it', 'ja', 'kn', 'kk',
+			'rw_RW', 'ko', 'ky_KG', 'lo', 'lv',
+			'lt', 'mk', 'ms', 'ml', 'mr',
+			'nb', 'fa', 'pl', 'pt_BR', 'pt_PT',
+			'pa', 'ro', 'ru', 'sr', 'sk',
+			'sl', 'es', 'es_AR', 'es_ES', 'es_MX',
+			'sw', 'sv', 'ta', 'te', 'th',
+			'tr', 'uk', 'ur', 'uz', 'vi', 'zu',
+		];
+
+		if (in_array($langCode, $langs, true))
+		{
+			return true;
+		}
+
+		return false;
+	}
+
+	protected function validateTemplateName(string $name): Result
+	{
+		$result = new Result();
+
+		if (!preg_match('/^[0-9a-z_]{1,60}$/i', $name))
+		{
+			return $result->addError(new Error('The template name can only contain Latin letters, numbers and underscore (_). The maximum number of characters is 60'));
+		}
+
+		return $result;
+	}
+
+	public function clearCache(string $key): void
+	{
+		$cacheManager = new Providers\CacheManager($this->providerId);
+		$cacheManager->deleteValue($key);
 	}
 }

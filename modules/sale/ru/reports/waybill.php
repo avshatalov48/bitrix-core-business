@@ -356,7 +356,7 @@ border-left:none;border-bottom:solid windowtext 1.0pt;border-right:solid windowt
 padding:0cm 2.0pt 0cm 2.0pt;height:9.0pt'>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
 text-align:center;line-height:normal'><span style='font-size:7.0pt'>Валюта:
-<?=ToLower($arCurFormat['FULL_NAME']);?></span></p>
+<?=mb_strtolower($arCurFormat['FULL_NAME']);?></span></p>
 <p class=Normal align=center style='margin:0cm;margin-bottom:.0001pt;
 text-align:center;line-height:normal'><span style='font-size:7.0pt'>Дата
 курса: </span><span style='font-size:7.0pt'><a name=ТекстовоеПоле35></a>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span></p>

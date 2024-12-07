@@ -1,0 +1,3 @@
+<?php
+
+$MESS['LISTS_LIB_API_DATA_IBLOCK_SERVICE_VALIDATE_FIELD_ERROR'] = 'Некорректное значение поля #FIELD_NAME#';

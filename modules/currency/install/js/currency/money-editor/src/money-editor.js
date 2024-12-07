@@ -1,6 +1,6 @@
 // @flow
 
-import {Reflection, Loc, Event} from 'main.core';
+import { Reflection, Loc, Event, Extension } from 'main.core';
 
 type MoneyEditorOptions = {
 	input: HTMLElement;
@@ -14,17 +14,19 @@ export class MoneyEditor
 	static currencyList = null;
 
 	static defaultFormat = {
-		'CURRENCY': '',
-		'NAME': '',
-		'FORMAT_STRING': '#',
-		'DEC_POINT': '.',
-		'THOUSANDS_VARIANT': null,
-		'THOUSANDS_SEP': ' ',
-		'DECIMALS': 2,
-		'HIDE_ZERO': 'N',
-		'BASE': 'N',
-		'SEPARATOR': ' '
+		CURRENCY: '',
+		NAME: '',
+		FORMAT_STRING: '#',
+		DEC_POINT: '.',
+		THOUSANDS_VARIANT: null,
+		THOUSANDS_SEP: ' ',
+		DECIMALS: 2,
+		HIDE_ZERO: 'N',
+		BASE: 'N',
+		SEPARATOR: ' ',
 	};
+
+	static region: string = '';
 
 	constructor(options: MoneyEditorOptions = {})
 	{
@@ -53,7 +55,7 @@ export class MoneyEditor
 
 	static getCurrencyList()
 	{
-		if(this.currencyList === null)
+		if (this.currencyList === null)
 		{
 			this.currencyList = Loc.getMessage('CURRENCY');
 		}
@@ -76,7 +78,7 @@ export class MoneyEditor
 
 	valueEdit(e)
 	{
-		if(!!e && e.type === 'keyup' && e.code === 'Tab')
+		if (!!e && e.type === 'keyup' && e.code === 'Tab')
 		{
 			return;
 		}
@@ -105,7 +107,7 @@ export class MoneyEditor
 
 		this.changeValue();
 
-		if(originalValue.length > 0)
+		if (originalValue.length > 0)
 		{
 			BX.setCaretPosition(this.input, cursorPos - originalValue.length + this.input.value.length);
 		}
@@ -125,7 +127,7 @@ export class MoneyEditor
 
 	callValueChangeCallback()
 	{
-		if(!!this.callback)
+		if (!!this.callback)
 		{
 			this.callback.apply(this, [this.value]);
 		}
@@ -136,18 +138,19 @@ export class MoneyEditor
 	static getBaseCurrencyId()
 	{
 		const listCurrency = this.getCurrencyList();
-		for(let key in listCurrency)
+		for (let key in listCurrency)
 		{
-			if(!listCurrency.hasOwnProperty(key))
+			if (!listCurrency.hasOwnProperty(key))
 			{
 				continue;
 			}
 
-			if(BX.prop.getString(listCurrency[key], 'BASE', 'N') === 'Y')
+			if (BX.prop.getString(listCurrency[key], 'BASE', 'N') === 'Y')
 			{
 				return key;
 			}
 		}
+
 		return '';
 	}
 
@@ -163,6 +166,7 @@ export class MoneyEditor
 	static escapeRegExp(text)
 	{
 		text = String(text);
+
 		return text.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&');
 	}
 
@@ -176,135 +180,148 @@ export class MoneyEditor
 			return formattedValue
 				.replace(new RegExp('[' + currentFormat['SEPARATOR'] + ']', 'g'), '')
 				.replace(currentFormat['DEC_POINT'], '.')
-				.replace(new RegExp('[^0-9\.]', 'g'), '');
+				.replace(new RegExp('[^0-9\.]', 'g'), '')
+			;
 		}
-		else if(currentFormat['SEPARATOR'].length > 1)
+		else if (currentFormat['SEPARATOR'].length > 1)
 		{
 			return formattedValue
 				.replace(new RegExp(this.escapeRegExp(currentFormat['SEPARATOR']), 'g'), '')
 				.replace(currentFormat['DEC_POINT'], '.')
-				.replace(new RegExp('[^0-9\.]', 'g'), '');
+				.replace(new RegExp('[^0-9\.]', 'g'), '')
+			;
 		}
 		else
 		{
 			return formattedValue.replace(currentFormat['DEC_POINT'], '.')
-				.replace(new RegExp('[^0-9\.]', 'g'), '');
+				.replace(new RegExp('[^0-9\.]', 'g'), '')
+			;
 		}
 	}
 
 	static getFormattedValue(baseValue, currency)
 	{
 		baseValue = String(baseValue);
-		let valueLength = baseValue.length,
-			formatValue = "",
-			currentFormat = this.getCurrencyFormat(currency),
-			regExp,
-			decPointPosition,
-			countDigit,
-			i;
-
-		if(valueLength > 0)
+		if (baseValue === '')
 		{
-			baseValue = baseValue.replace(/^0+/, '');
-			if(baseValue.length <= 0)
-			{
-				baseValue = '0';
-			}
-			else if(baseValue.charAt(0) === '.')
-			{
-				baseValue = '0' + baseValue;
-			}
-
-			valueLength = baseValue.length;
+			return '';
 		}
 
-		if(currentFormat['SEPARATOR'] === ',' || currentFormat['SEPARATOR'] === '.')
+		baseValue = baseValue.replace(/^0+/, '');
+		if (baseValue === '')
 		{
-			regExp = new RegExp('[.,]');
+			baseValue = '0';
+		}
+		else if (baseValue.charAt(0) === '.')
+		{
+			baseValue = '0' + baseValue;
+		}
+
+		let sign = '';
+		if (baseValue.charAt(0) === '-')
+		{
+			sign = '-';
+			baseValue = baseValue.slice(1);
+		}
+
+		const currentFormat = this.getCurrencyFormat(currency);
+		const decPoint: string = currentFormat.DEC_POINT;
+		const decimals: number = currentFormat.DECIMALS;
+		const separator: string = currentFormat.SEPARATOR || currentFormat.THOUSANDS_SEP;
+		const gecPointMask =
+			(decPoint === ',' || decPoint === '.')
+				? new RegExp('[.,]')
+				: new RegExp('[' + decPoint + '.,]')
+		;
+
+		const digitMask = new RegExp('\D', 'g');
+		let wholePart;
+		let fraction;
+		let decimalPoint;
+		const decPointPosition = baseValue.match(gecPointMask);
+		if (decPointPosition === null)
+		{
+			wholePart = baseValue.replaceAll(digitMask, '');
+			fraction = '';
+			decimalPoint = '';
 		}
 		else
 		{
-			regExp = new RegExp('[' + currentFormat['DEC_POINT'] + ',.]');
+			wholePart = baseValue.slice(0, decPointPosition.index).replaceAll(digitMask, '');
+			fraction = baseValue.slice(decPointPosition.index + 1).replaceAll(digitMask, '');
+			decimalPoint = decPoint;
+		}
+		if (decimals === 0)
+		{
+			fraction = '';
+			decimalPoint = '';
 		}
 
-		decPointPosition = baseValue.match(regExp);
-
-		decPointPosition = decPointPosition === null ? baseValue.length : decPointPosition.index;
-		countDigit = 0;
-		for (i = 0; i < baseValue.length; i++)
+		let result: string = sign;
+		if (this.checkInrFormat(currency))
 		{
-			const symbolPosition = baseValue.length - 1 - i;
-			let symbol = baseValue.charAt(symbolPosition);
-			const isDigit = ('0123456789'.indexOf(symbol) >= 0);
-			if(isDigit)
+			if (wholePart.length <= 3)
 			{
-				countDigit++;
-			}
-			if(symbolPosition === decPointPosition)
-			{
-				countDigit = 0;
-			}
-
-			if(symbolPosition >= decPointPosition)
-			{
-				if(currentFormat['DEC_POINT'] === '.' && symbol === ',')
-				{
-					symbol = currentFormat['DEC_POINT'];
-				}
-				if(currentFormat['DEC_POINT'] === ',' && symbol === '.')
-				{
-					symbol = currentFormat['DEC_POINT'];
-				}
-
-				if(isDigit || (symbolPosition === decPointPosition && symbol === currentFormat['DEC_POINT']))
-				{
-					formatValue = symbol + formatValue;
-				}
-				else if(valueLength > symbolPosition)
-				{
-					valueLength--;
-				}
+				result = result + wholePart;
 			}
 			else
 			{
-				if(isDigit)
-				{
-					formatValue = symbol + formatValue;
-				}
-				else if(valueLength > symbolPosition)
-				{
-					valueLength--;
-				}
-				if(isDigit && countDigit % 3 === 0 && countDigit !== 0 && symbolPosition !== 0)
-				{
-					formatValue = currentFormat['SEPARATOR'] + formatValue;
-					if(valueLength >= symbolPosition)
-					{
-						valueLength++;
-					}
-				}
-			}
-		}
+				let rightTriad: string = separator + wholePart.slice(-3);
+				let leftBlock: string = wholePart.slice(0, -3);
+				const j = (leftBlock.length > 2 ? leftBlock.length % 2 : 0);
 
-		decPointPosition = formatValue.match(new RegExp('[' + currentFormat['DEC_POINT'] + ']'));
-		decPointPosition = decPointPosition === null ? formatValue.length : decPointPosition.index;
-		if(currentFormat['DECIMALS'] > 0)
-		{
-			while(formatValue.length - 1 - decPointPosition > currentFormat['DECIMALS'])
-			{
-				if(valueLength >= formatValue.length - 1)
-				{
-					valueLength--;
-				}
-				formatValue = formatValue.substr(0, formatValue.length - 1);
+				result =
+					result
+					+ (j ? leftBlock.slice(0, j) + separator : '')
+					+ leftBlock.slice(j).replace(/(\d{2})(?=\d)/g, "$1" + separator)
+					+ rightTriad
+				;
 			}
 		}
 		else
 		{
-			formatValue = formatValue.substr(0, decPointPosition);
+			const j = (wholePart.length > 3 ? wholePart.length % 3 : 0);
+
+			result =
+				result
+				+ (j ? wholePart.slice(0, j) + separator : '')
+				+ wholePart.slice(j).replace(/(\d{3})(?=\d)/g, "$1" + separator)
+			;
 		}
 
-		return formatValue;
+		if (decimals > 0)
+		{
+			result = result + decimalPoint;
+			if (fraction !== '')
+			{
+				if (decimals < fraction.length)
+				{
+					fraction = fraction.slice(0, decimals);
+				}
+				result = result + fraction;
+			}
+		}
+
+		return result;
+	}
+
+	static initRegion(): void
+	{
+		if (this.region === '')
+		{
+			const settings = Extension.getSettings('currency.money-editor');
+			this.region = settings.get('region') || '-';
+		}
+	}
+
+	static checkInrFormat(currency: string): boolean
+	{
+		this.initRegion();
+
+		return (
+			currency === 'INR'
+			&& (this.region === 'hi' || this.region === 'in')
+		);
 	}
 }
 

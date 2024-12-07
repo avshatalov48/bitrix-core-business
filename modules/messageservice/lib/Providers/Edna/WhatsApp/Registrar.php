@@ -13,6 +13,7 @@ class Registrar extends Edna\Registrar
 		return [
 			Edna\Constants\CallbackType::MESSAGE_STATUS,
 			Edna\Constants\CallbackType::INCOMING_MESSAGE,
+			Edna\Constants\CallbackType::TEMPLATE_REGISTER_STATUS,
 		];
 	}
 }

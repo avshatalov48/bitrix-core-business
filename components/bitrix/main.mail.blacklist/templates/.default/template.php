@@ -77,7 +77,7 @@ $APPLICATION->IncludeComponent("bitrix:main.ui.grid",
 		"MESSAGES" => $arResult["MESSAGES"] ?? null
 	]);
 ?>
-<script type="text/javascript">
+<script>
 
 	BX.ready(function () {
 		BX.message({

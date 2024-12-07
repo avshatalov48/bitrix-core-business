@@ -20,7 +20,7 @@ $containerId = 'bx-sender-call-text-editor';
 	'ai.picker',
 ]);
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Call.TextEditor.init(<?=Json::encode([
 			'containerId' => $containerId,

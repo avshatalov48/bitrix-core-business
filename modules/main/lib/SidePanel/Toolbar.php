@@ -1,7 +1,6 @@
 <?
 namespace Bitrix\Main\SidePanel;
 
-use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Data\Cache;
 use Bitrix\Main\Result;
 use Bitrix\Main\Type\DateTime;

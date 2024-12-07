@@ -176,7 +176,11 @@
 		}));
 
 		var rights = BX.Landing.Env.getInstance().getOptions().rights;
-		if (rights && rights.includes('edit'))
+		if (
+			rights
+			&& rights.includes('edit')
+			&& BX.Landing.Env.getInstance().getType() !== 'MAINPAGE'
+		)
 		{
 			editor.addButton(new BX.Landing.UI.Button.CreatePage("createPage", {
 				html: "<span class=\"landing-ui-icon-editor-new-page\"></span>",
@@ -236,7 +240,7 @@
 		if (BX.Landing.Main.getInstance()["options"]["copilot_available"])
 		{
 			editor.addButton(new BX.Landing.UI.Button.AiCopilot.getInstance("ai_copilot", {
-				html: 'COPILOT',
+				html: 'CoPilot',
 				editor,
 				onReplace(value) {
 					const fieldInput = editor.currentElement.querySelector('.landing-ui-field-input');

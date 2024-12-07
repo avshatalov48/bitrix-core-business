@@ -107,7 +107,7 @@ $jsParams = array(
 	)
 );
 ?>
-	<script type="text/javascript">
+	<script>
 		var <?=$obCompare; ?> = new JCCatalogCompareList(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>)
 	</script>
 </div>

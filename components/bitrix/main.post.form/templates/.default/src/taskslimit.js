@@ -44,22 +44,34 @@ export default class TasksLimit
 			children: [
 				Dom.create('SPAN', {
 					html: Loc.getMessage('MPF_MENTION_TASKS_LIMIT')
-						.replace('#A_BEGIN#', '<a href="javascript:void(0);" onclick="BX.Main.PostFormTasksLimit.onClickTasksLimitPopupSlider();">')
+						.replace('#A_BEGIN#', '<a href="javascript:void(0);" onclick="BX.Main.PostFormTasksLimit.onClickTasksLimitPopupSlider(this);">')
 						.replace('#A_END#', '</a>'),
 				})
 			],
 		})
 	}
 
-	static onClickTasksLimitPopupSlider()
+	static onClickTasksLimitPopupSlider(bindElement)
 	{
-		this.hidePopup();
-		BX.UI.InfoHelper.show('limit_tasks_observers_participants', {
-			isLimit: true,
-			limitAnalyticsLabels: {
-				module: 'tasks',
-				source: 'postForm',
-				subject: 'auditor'
+		BX.Runtime.loadExtension('ui.info-helper').then(({ FeaturePromotersRegistry }) => {
+			if (FeaturePromotersRegistry)
+			{
+				FeaturePromotersRegistry.getPromoter({
+					code: 'limit_tasks_observers_participants',
+					bindElement,
+				}).show();
+			}
+			else
+			{
+				this.hidePopup();
+				BX.UI.InfoHelper.show('limit_tasks_observers_participants', {
+					isLimit: true,
+					limitAnalyticsLabels: {
+						module: 'tasks',
+						source: 'postForm',
+						subject: 'auditor'
+					}
+				});
 			}
 		});
 	}

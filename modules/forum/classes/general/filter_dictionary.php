@@ -378,7 +378,7 @@ class CAllFilterUnquotableWords
 		{
 			$strUpdate = $DB->PrepareUpdate("b_forum_filter", $arFields);
 			$strSql = "UPDATE b_forum_filter SET ".$strUpdate." WHERE ID=".$ID;
-			$res = $DB->QueryBind($strSql, Array("PATTERN"=>$arFields["PATTERN"], "DESCRIPTION"=>$arFields["DESCRIPTION"]), false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->QueryBind($strSql, Array("PATTERN"=>$arFields["PATTERN"], "DESCRIPTION"=>$arFields["DESCRIPTION"]));
 			return $res;
 		}
 		return false;

@@ -1,8 +1,7 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
-
 
 	/**
 	 * Works with message
@@ -26,7 +25,7 @@
 		 * @param {BX.Main.grid} parent
 		 * @param {object} types
 		 */
-		init: function(parent, types)
+		init(parent, types)
 		{
 			this.parent = parent;
 			this.types = types;
@@ -37,36 +36,33 @@
 		/**
 		 * @private
 		 */
-		onUpdated: function()
+		onUpdated()
 		{
 			this.show();
 		},
-
 
 		/**
 		 * Gets data for messages
 		 * @return {object[]}
 		 */
-		getData: function()
+		getData()
 		{
 			return this.parent.arParams.MESSAGES;
 		},
-
 
 		/**
 		 * Checks is need show message
 		 * @return {boolean}
 		 */
-		isNeedShow: function()
+		isNeedShow()
 		{
 			return this.getData().length > 0;
 		},
 
-
 		/**
 		 * Show message
 		 */
-		show: function()
+		show()
 		{
 			if (this.isNeedShow())
 			{
@@ -75,35 +71,34 @@
 			}
 		},
 
-
 		/**
 		 * Gets content for message popup
 		 * @return {?HTMLElement}
 		 */
-		getContent: function()
+		getContent()
 		{
-			var data = this.getData();
-			var content = null;
+			const data = this.getData();
+			let content = null;
 
-			if (BX.type.isArray(data) && data.length)
+			if (BX.type.isArray(data) && data.length > 0)
 			{
-				var messagesDecl = {
+				const messagesDecl = {
 					block: 'main-grid-messages',
-					content: []
+					content: [],
 				};
 
-				data.forEach(function(message) {
-					var messageDecl = {
+				data.forEach((message) => {
+					const messageDecl = {
 						block: 'main-grid-message',
-						mix: 'main-grid-message-' + message.TYPE.toLowerCase(),
-						content: []
+						mix: `main-grid-message-${message.TYPE.toLowerCase()}`,
+						content: [],
 					};
 
 					if (BX.type.isNotEmptyString(message.TITLE))
 					{
 						messageDecl.content.push({
 							block: 'main-grid-message-title',
-							content: BX.create("div", {html: message.TITLE}).innerText
+							content: BX.create('div', { html: message.TITLE }).innerText,
 						});
 					}
 
@@ -111,7 +106,7 @@
 					{
 						messageDecl.content.push({
 							block: 'main-grid-message-text',
-							content: BX.create("div", {html: message.TEXT}).innerText
+							content: BX.create('div', { html: message.TEXT }).innerText,
 						});
 					}
 
@@ -124,12 +119,11 @@
 			return content;
 		},
 
-
 		/**
 		 * Gets popup of message
 		 * @return {BX.PopupWindow}
 		 */
-		getPopup: function()
+		getPopup()
 		{
 			if (this.popup === null)
 			{
@@ -148,28 +142,27 @@
 								text: this.parent.getParam('CLOSE'),
 								className: 'webform-small-button-blue webform-small-button',
 								events: {
-									click: function()
+									click()
 									{
 										this.popupWindow.close();
-									}
-								}
-							})
-						]
-					}
+									},
+								},
+							}),
+						],
+					},
 				);
 			}
 
 			return this.popup;
 		},
 
-
 		/**
 		 * Gets popup id
 		 * @return {string}
 		 */
-		getPopupId: function()
+		getPopupId()
 		{
-			return this.parent.getContainerId() + '-main-grid-message';
-		}
+			return `${this.parent.getContainerId()}-main-grid-message`;
+		},
 	};
 })();

@@ -159,11 +159,6 @@ $data = [
 			'SORT' => 2200,
 			'GROUP' => 'CONNECT_SETTINGS_ASSIST'
 		],
-		'ASSIST_PAYMENT_AssistIDCCPayment' => [
-			'NAME' => Loc::getMessage('SALE_HPS_ASSIST_PAYMENT_AssistIDCCPayment'),
-			'SORT' => 2300,
-			'GROUP' => 'CONNECT_SETTINGS_ASSIST'
-		],
 		'PS_CHANGE_STATUS_PAY' => [
 			'NAME' => Loc::getMessage('SALE_HPS_ASSIST_AUTOPAY'),
 			'SORT' => 2400,

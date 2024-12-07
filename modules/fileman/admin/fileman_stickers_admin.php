@@ -33,7 +33,7 @@ if ($defaultAccess === false)
 		}
 	}
 
-if($REQUEST_METHOD=="POST" && $_POST['saveperm'] == 'Y' && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $_POST['saveperm'] == 'Y' && check_bitrix_sessid())
 {
 	//Clear all
 	if (($_REQUEST['clear_all'] ?? null) == "Y")

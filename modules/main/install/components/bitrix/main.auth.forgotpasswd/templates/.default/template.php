@@ -4,7 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 	die();
 }
 
-use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Localization\Loc;
 Loc::loadMessages(__FILE__);
 
 \Bitrix\Main\Page\Asset::getInstance()->addCss(
@@ -95,6 +95,6 @@ if ($arResult['AUTHORIZED'])
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	document.bform.<?= $arResult['FIELDS']['login'];?>.focus();
 </script>

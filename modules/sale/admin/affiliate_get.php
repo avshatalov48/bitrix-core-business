@@ -40,7 +40,7 @@ if ($ID > 0)
 	}
 }
 ?>
-<script type="text/javascript">
+<script>
 window.parent.<?= $func_name ?>('<?= CUtil::JSEscape($res) ?>');
 </script>
 </body>

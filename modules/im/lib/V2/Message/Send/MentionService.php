@@ -35,76 +35,31 @@ class MentionService
 		return $enable;
 	}
 
-	public function sendMentions(Chat $chat, Message $message): void
+	public function sendMentions(Message $message): void
 	{
+		$chat = $this->getChat($message);
+
 		if (
 			!$chat->allowMention()
 			|| !$chat->getChatId()
 			|| !$message->getMessage()
 			|| !$message->getAuthorId()
+			|| $message->isSystem()
 		)
 		{
 			return;
 		}
 
-		$userName = $message->getAuthor()->getFullName(false);
+		$userName = $message->getAuthor()?->getName();
 		if (!$userName)
 		{
 			return;
 		}
 
-		$userGender = $message->getAuthor()->getGender() == 'F' ? 'F' : 'M';
-		$chatTitle = mb_substr(htmlspecialcharsback($chat->getTitle()), 0, 32);
+		$userGender = $message->getAuthor()?->getGender() === 'F' ? 'F' : 'M';
+		$chatTitle = mb_substr(\Bitrix\Im\Text::decodeEmoji($chat->getTitle()), 0, 32);
 
-
-		$relations = [];
-		foreach ($chat->getRelations() as $relation)
-		{
-			$relations[$relation->getUserId()] = $relation->getNotifyBlock();
-		}
-
-		$forUsers = [];
-		if (preg_match_all("/\[USER=([0-9]+)( REPLACE)?](.*?)\[\/USER]/i", $message->getMessage(), $matches))
-		{
-			if ($chat->getType() == Chat::IM_TYPE_OPEN)
-			{
-				foreach ($matches[1] as $userId)
-				{
-					if (!\CIMSettings::GetNotifyAccess($userId, 'im', 'mention', \CIMSettings::CLIENT_SITE))
-					{
-						continue;
-					}
-
-					if (
-						!isset($relations[$userId])
-						|| $relations[$userId] === true
-					)
-					{
-						$forUsers[$userId] = $userId;
-					}
-				}
-			}
-			else
-			{
-				foreach ($matches[1] as $userId)
-				{
-					if (!\CIMSettings::GetNotifyAccess($userId, 'im', 'mention', \CIMSettings::CLIENT_SITE))
-					{
-						continue;
-					}
-
-					if (
-						isset($relations[$userId])
-						&& $relations[$userId] === true
-					)
-					{
-						$forUsers[$userId] = $userId;
-					}
-				}
-			}
-		}
-
-		foreach ($forUsers as $userId)
+		foreach ($message->getUserIdsToSendMentions() as $userId)
 		{
 			if ($message->getAuthorId() == $userId)
 			{
@@ -119,61 +74,56 @@ class MentionService
 				"NOTIFY_EVENT" => "mention",
 				"NOTIFY_TAG" => 'IM|MENTION|'.$chat->getChatId(),
 				"NOTIFY_SUB_TAG" => 'IM_MESS_'.$chat->getChatId().'_'.$userId,
-				"NOTIFY_MESSAGE" => $this->prepareNotifyMessage($chatTitle, $chat->getChatId(), $userGender),
+				"NOTIFY_MESSAGE" => $this->prepareNotifyMessage($chatTitle, $message, $userGender),
 				"NOTIFY_MESSAGE_OUT" => $this->prepareNotifyMail($chatTitle, $userGender),
 			);
 			\CIMNotify::Add($arMessageFields);//todo: Replace with new sending functional
 
-			if ($this->isPullEnable())
+			if ($this->isPullEnable() && $this->needToSendPull())
 			{
-				\Bitrix\Pull\Push::add(
-					$userId,
-					$this->preparePushForMentionInChat(
-						$this->preparePushMessage($message, $chatTitle, $userName, $userGender),
-						$message,
-						$chat,
-						$chatTitle
-					)
-				);
+				\Bitrix\Pull\Push::add($userId, $this->preparePushForMentionInChat($message));
 			}
 		}
 	}
 
-
-	private function preparePushForMentionInChat(string $pushText, Message $message, Chat $chat, string $chatTitle): array
+	protected function needToSendPull(): bool
 	{
-		$avatarUser = $message->getAuthor()->getAvatar();
-		if ($avatarUser && mb_strpos($avatarUser, 'http') !== 0)
-		{
-			$avatarUser = \Bitrix\Im\Common::getPublicDomain(). $avatarUser;
-		}
+		return true;
+	}
 
-		$avatarChat = \CIMChat::GetAvatarImage($chat->getAvatarId(), 200, false);
-		if ($avatarChat && mb_strpos($avatarChat, 'http') !== 0)
-		{
-			$avatarChat = \Bitrix\Im\Common::getPublicDomain(). $avatarChat;
-		}
+	protected function getChat(Message $message): Chat
+	{
+		return $message->getChat();
+	}
+
+	private function preparePushForMentionInChat(Message $message): array
+	{
+		$chat = $this->getChat($message);
+		$avatarUser = $message->getAuthor()?->getAvatar();
+		$avatarChat = $chat->getAvatar(200, false, true);
+		$pushText = $this->preparePushMessage($message);
+		$chatTitle = htmlspecialcharsbx(\Bitrix\Im\Text::decodeEmoji($chat->getTitle() ?? ''));
 
 		$result = [];
 		$result['push'] = [];
 
 		$result['module_id'] = 'im';
 		$result['push']['params'] = [
-			'TAG' => 'IM_CHAT_'.$chat->getChatId(),
+			'TAG' => 'IM_CHAT_' . $chat->getId(),
 			'CHAT_TYPE' => $chat->getType(),
 			'CATEGORY' => 'ANSWER',
-			'URL' => SITE_DIR.'mobile/ajax.php?mobile_action=im_answer',
+			'URL' => SITE_DIR . 'mobile/ajax.php?mobile_action=im_answer',
 			'PARAMS' => [
-				'RECIPIENT_ID' => 'chat'.$chat->getChatId()
+				'RECIPIENT_ID' => 'chat' . $chat->getId()
 			]
 		];
-		$result['push']['type'] = ($chat->getType() == Chat::IM_TYPE_OPEN ? 'openChat' : 'chat');
-		$result['push']['tag'] = 'IM_CHAT_'.$chat->getChatId();
+		$result['push']['type'] = ($chat->getType() === Chat::IM_TYPE_OPEN ? 'openChat' : 'chat');
+		$result['push']['tag'] = 'IM_CHAT_' . $chat->getId();
 		$result['push']['sub_tag'] = 'IM_MESS';
 		$result['push']['app_id'] = 'Bitrix24';
 		$result['push']['message'] = $pushText;
 		$result['push']['advanced_params'] = [
-			'group' => ($chat->getEntityType() == Chat::ENTITY_TYPE_LINE ? 'im_lines_message' : 'im_message'),
+			'group' => ($chat->getEntityType() === Chat::ENTITY_TYPE_LINE ? 'im_lines_message' : 'im_message'),
 			'avatarUrl' => $avatarChat ?: $avatarUser,
 			'senderName' => $chatTitle,
 			'senderMessage' => $pushText,
@@ -182,9 +132,15 @@ class MentionService
 		return $result;
 	}
 
-	private function preparePushMessage(Message $message, string $chatTitle, string $userName, string $userGender): string
+	private function preparePushMessage(Message $message): string
 	{
 		Message::loadPhrases();
+		\CIMMessenger::loadLoc();
+		$chat = $this->getChat($message);
+		$chatTitle = mb_substr(\Bitrix\Im\Text::decodeEmoji($chat->getTitle() ?? ''), 0, 32);
+		$author = $message->getAuthor();
+		$userName = $author?->getName() ?? '';
+		$userGender = $author?->getGender() ?? 'M';
 
 		$pushMessage = $message->getMessage();
 
@@ -230,18 +186,30 @@ class MentionService
 	private function prepareNotifyMail(string $chatTitle, string $userGender): callable
 	{
 		return fn (?string $languageId = null) => Loc::getMessage(
-			'IM_MESSAGE_MENTION_'.$userGender,
+			$this->getNotifyTextCode($userGender),
 			['#TITLE#' => $chatTitle],
 			$languageId
 		);
 	}
 
-	private function prepareNotifyMessage(string $chatTitle, int $chatId, string $userGender): callable
+	private function prepareNotifyMessage(string $chatTitle, Message $message, string $userGender): callable
 	{
 		return fn (?string $languageId = null) => Loc::getMessage(
-			'IM_MESSAGE_MENTION_'.$userGender,
-			['#TITLE#' => '[CHAT='.$chatId.']'.$chatTitle.'[/CHAT]'],
+			$this->getNotifyTextCode($userGender),
+			['#TITLE#' => $this->getTitleWithContext($chatTitle, $message)],
 			$languageId
 		);
+	}
+
+	protected function getTitleWithContext(string $title, Message $message): string
+	{
+		$chat = $this->getChat($message);
+
+		return "[CHAT={$chat->getId()}]{$title}[/CHAT]";
+	}
+
+	protected function getNotifyTextCode(string $userGender): string
+	{
+		return "IM_MESSAGE_MENTION_{$userGender}";
 	}
 }

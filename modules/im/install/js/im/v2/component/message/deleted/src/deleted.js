@@ -2,7 +2,7 @@ import type { ImModelMessage } from 'im.v2.model';
 import { Type } from 'main.core';
 
 import { BaseMessage } from 'im.v2.component.message.base';
-import { DefaultMessageContent, ReactionSelector, AuthorTitle } from 'im.v2.component.message.elements';
+import { DefaultMessageContent, AuthorTitle } from 'im.v2.component.message.elements';
 
 import './css/deleted.css';
 
@@ -12,7 +12,6 @@ export const DeletedMessage = {
 	components: {
 		BaseMessage,
 		DefaultMessageContent,
-		ReactionSelector,
 		AuthorTitle,
 	},
 	props: {
@@ -56,7 +55,6 @@ export const DeletedMessage = {
 					<div class="bx-im-message-deleted__text">{{ loc('IM_MESSENGER_MESSAGE_DELETED') }}</div>	
 				</div>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>
 	`,

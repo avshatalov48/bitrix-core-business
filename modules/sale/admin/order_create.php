@@ -584,14 +584,14 @@ elseif($isRestoringOrderOperation) // Restore order from archive
 		$product = Catalog\ProductTable::getById($archivedItem->getProductId());
 		if (!($product->fetch()))
 		{
-			$errorAbsentProductMessage .= Loc::getMessage(
+			$errorMessage .= Loc::getMessage(
 				"ARCHIVE_ERROR_PRODUCT_NOT_FOUND",
 				array(
 					"#NAME#" => $archivedItem->getField("NAME"),
 					"#ID#" => $archivedItem->getProductId(),
 				)
 			);
-			$errorAbsentProductMessage .= "<br>";
+			$errorMessage .= "<br>";
 		}
 	}
 	$order->setBasket($archivedBasket);
@@ -924,7 +924,7 @@ foreach($blocksOrder as $item)
 	if(isset($customFastNavItems[$item]))
 		$fastNavItems[$item] = $customFastNavItems[$item];
 	else
-		$fastNavItems[$item] = Loc::getMessage("SALE_OK_BLOCK_TITLE_".toUpper($item));
+		$fastNavItems[$item] = Loc::getMessage("SALE_OK_BLOCK_TITLE_".mb_strtoupper($item));
 }
 
 ?>
@@ -952,11 +952,6 @@ foreach($blocksOrder as $item)
 			switch ($blockCode)
 			{
 				case "basket":
-					if(!empty($errorAbsentProductMessage))
-					{
-						$admMessage = new CAdminMessage($errorAbsentProductMessage);
-						echo $admMessage->Show();
-					}
 					echo $orderBasket->getEdit(false);
 					break;
 				case "buyer":
@@ -1039,7 +1034,7 @@ $tabControl->End();
 
 <div style="display: none;"><?=OrderEdit::getFastNavigationHtml($fastNavItems);?></div>
 
-<script type="text/javascript">
+<script>
 	BX.ready( function(){
 		BX.Sale.Admin.OrderEditPage.setFixHashCorrection();
 
@@ -1051,7 +1046,7 @@ $tabControl->End();
 </script>
 
 <?if(!$result->isSuccess() || $needFieldsRestore):?>
-	<script type="text/javascript">
+	<script>
 		BX.ready( function(){
 			BX.Sale.Admin.OrderEditPage.restoreFormData(
 				<?=CUtil::PhpToJSObject(OrderEdit::restoreFieldsNames(

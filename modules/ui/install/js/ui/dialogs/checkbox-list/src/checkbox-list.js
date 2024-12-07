@@ -14,6 +14,7 @@ export type CheckboxListEvents = {
 }
 
 export type CheckboxListOptions = {
+	context?: CheckboxListContext;
 	lang?: CheckboxListLang;
 	compactField?: CheckboxListCompactField;
 	sections?: CheckboxListSection[];
@@ -25,6 +26,10 @@ export type CheckboxListOptions = {
 	params?: CheckboxListParams;
 	customFooterElements?: Object[];
 	closeAfterApply?: boolean;
+}
+
+export type CheckboxListContext = {
+	parentType: string;
 }
 
 export type CheckboxListLang = {
@@ -85,6 +90,7 @@ export class CheckboxList extends EventEmitter
 		this.setEventNamespace('BX.UI.Dialogs.CheckboxList');
 		this.subscribeFromOptions(options.events);
 
+		this.context = Type.isPlainObject(options.context) ? options.context : null;
 		this.compactField = Type.isPlainObject(options.compactField) ? options.compactField : null;
 		this.sections = Type.isArray(options.sections) ? options.sections : null;
 		this.lang = Type.isPlainObject(options.lang) ? options.lang : {};
@@ -151,6 +157,7 @@ export class CheckboxList extends EventEmitter
 				options,
 				popup,
 				params,
+				context,
 			} = this;
 
 			this.layoutApp = BitrixVue.createApp(
@@ -165,6 +172,7 @@ export class CheckboxList extends EventEmitter
 					popup,
 					columnCount: this.#getColumnCount(),
 					params,
+					context,
 					dialog: this,
 				},
 			);
@@ -255,9 +263,17 @@ export class CheckboxList extends EventEmitter
 		this.apply();
 	}
 
-	selectOption(id: string): void
+	selectOption(id: string, value: boolean): void
 	{
-		this.#getLayoutComponent().select(id);
+		// to maintain backward compatibility without creating dependencies on main within the ticket #187991
+		// @todo remove later and set default value = true in the function signature
+		if (value !== false)
+		{
+			// eslint-disable-next-line no-param-reassign
+			value = true;
+		}
+
+		this.#getLayoutComponent().select(id, value);
 	}
 
 	apply(): void

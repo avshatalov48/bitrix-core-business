@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core,catalog_productCalculator) {
 	'use strict';
@@ -10,17 +11,11 @@ this.BX = this.BX || {};
 	babelHelpers.defineProperty(DiscountType, "PERCENTAGE", 2);
 
 	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
-
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classStaticPrivateMethodGet(receiver, classConstructor, method) { _classCheckPrivateStaticAccess(receiver, classConstructor); return method; }
-
 	function _classCheckPrivateStaticAccess(receiver, classConstructor) { if (receiver !== classConstructor) { throw new TypeError("Private static access of wrong provenance"); } }
-
 	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
 	var initialFields = {
 	  QUANTITY: 1,
@@ -38,36 +33,23 @@ this.BX = this.BX || {};
 	  TAX_SUM: 0,
 	  SUM: 0
 	};
-
 	var _getPricePrecision = /*#__PURE__*/new WeakSet();
-
 	var _getCommonPrecision = /*#__PURE__*/new WeakSet();
-
 	var _getQuantityPrecision = /*#__PURE__*/new WeakSet();
-
 	var _validateValue = /*#__PURE__*/new WeakSet();
-
 	var FieldStorage = /*#__PURE__*/function () {
 	  function FieldStorage(fields, calculator) {
 	    babelHelpers.classCallCheck(this, FieldStorage);
-
 	    _classPrivateMethodInitSpec(this, _validateValue);
-
 	    _classPrivateMethodInitSpec(this, _getQuantityPrecision);
-
 	    _classPrivateMethodInitSpec(this, _getCommonPrecision);
-
 	    _classPrivateMethodInitSpec(this, _getPricePrecision);
-
 	    this.fields = _objectSpread({}, initialFields);
-
 	    if (main_core.Type.isPlainObject(fields)) {
 	      this.fields = _objectSpread(_objectSpread({}, this.fields), fields);
 	    }
-
 	    this.calculator = calculator;
 	  }
-
 	  babelHelpers.createClass(FieldStorage, [{
 	    key: "getFields",
 	    value: function getFields() {
@@ -160,11 +142,9 @@ this.BX = this.BX || {};
 	      if (this.isDiscountPercentage()) {
 	        return this.getDiscountRate() === 0;
 	      }
-
 	      if (this.isDiscountMonetary()) {
 	        return this.getDiscountSum() === 0;
 	      }
-
 	      return this.isDiscountUndefined();
 	    }
 	  }, {
@@ -195,22 +175,17 @@ this.BX = this.BX || {};
 	  }]);
 	  return FieldStorage;
 	}();
-
 	function _getPricePrecision2() {
 	  return this.calculator.getPricePrecision();
 	}
-
 	function _getCommonPrecision2() {
 	  return this.calculator.getCommonPrecision();
 	}
-
 	function _getQuantityPrecision2() {
 	  return this.calculator.getQuantityPrecision();
 	}
-
 	function _validateValue2(name, value) {
 	  var priceFields = ['PRICE', 'PRICE_EXCLUSIVE', 'PRICE_NETTO', 'PRICE_BRUTTO', 'DISCOUNT_SUM', 'DISCOUNT_ROW', 'TAX_SUM', 'SUM'];
-
 	  if (name === 'DISCOUNT_TYPE_ID') {
 	    value = value === DiscountType.PERCENTAGE || value === DiscountType.MONETARY ? value : DiscountType.UNDEFINED;
 	  } else if (name === 'QUANTITY') {
@@ -221,17 +196,14 @@ this.BX = this.BX || {};
 	    if (main_core.Type.isNil(value)) {
 	      return null;
 	    }
-
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getCommonPrecision, _getCommonPrecision2).call(this));
 	  } else if (name === 'DISCOUNT_RATE') {
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getCommonPrecision, _getCommonPrecision2).call(this));
 	  } else if (priceFields.includes(name)) {
 	    value = _classStaticPrivateMethodGet(FieldStorage, FieldStorage, _round).call(FieldStorage, value, _classPrivateMethodGet(this, _getPricePrecision, _getPricePrecision2).call(this));
 	  }
-
 	  return value;
 	}
-
 	function _round(value) {
 	  var precision = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : catalog_productCalculator.ProductCalculator.DEFAULT_PRECISION;
 	  var factor = Math.pow(10, precision);
@@ -244,7 +216,6 @@ this.BX = this.BX || {};
 	    babelHelpers.defineProperty(this, "calculator", null);
 	    this.calculator = productCalculator;
 	  }
-
 	  babelHelpers.createClass(TaxForPriceStrategy, [{
 	    key: "getFieldStorage",
 	    value: function getFieldStorage() {
@@ -271,16 +242,13 @@ this.BX = this.BX || {};
 	      if (value < 0) {
 	        throw new Error('Price must be equal or greater than zero.');
 	      }
-
 	      var fieldStorage = this.getFieldStorage();
 	      fieldStorage.setField('BASE_PRICE', value);
-
 	      if (fieldStorage.isTaxIncluded()) {
 	        fieldStorage.setField('PRICE_BRUTTO', value);
 	      } else {
 	        fieldStorage.setField('PRICE_NETTO', value);
 	      }
-
 	      this.updatePrice(fieldStorage);
 	      this.activateCustomized(fieldStorage);
 	      return fieldStorage.getFields();
@@ -296,7 +264,6 @@ this.BX = this.BX || {};
 	      if (value < 0) {
 	        throw new Error('Quantity must be equal or greater than zero.');
 	      }
-
 	      var fieldStorage = this.getFieldStorage();
 	      fieldStorage.setField('QUANTITY', value);
 	      this.updateRowDiscount(fieldStorage);
@@ -308,11 +275,9 @@ this.BX = this.BX || {};
 	    key: "calculateDiscount",
 	    value: function calculateDiscount(value) {
 	      var fieldStorage = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : null;
-
 	      if (!fieldStorage) {
 	        fieldStorage = this.getFieldStorage();
 	      }
-
 	      if (value === 0.0) {
 	        this.clearResultPrices(fieldStorage);
 	      } else if (fieldStorage.isDiscountPercentage()) {
@@ -324,7 +289,6 @@ this.BX = this.BX || {};
 	        this.updateResultPrices(fieldStorage);
 	        fieldStorage.setField('DISCOUNT_RATE', this.calculateDiscountRate(fieldStorage.getPriceNetto(), fieldStorage.getPriceExclusive()));
 	      }
-
 	      this.updateRowDiscount(fieldStorage);
 	      this.updateTax(fieldStorage);
 	      this.updateSum(fieldStorage);
@@ -349,19 +313,15 @@ this.BX = this.BX || {};
 	    value: function calculateRowDiscount(value) {
 	      var fieldStorage = this.getFieldStorage();
 	      fieldStorage.setField('DISCOUNT_ROW', value);
-
 	      if (value !== 0 && fieldStorage.getQuantity() === 0) {
 	        fieldStorage.setField('QUANTITY', 1);
 	      }
-
 	      fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
-
 	      if (value === 0 || fieldStorage.getQuantity() === 0) {
 	        fieldStorage.setField('DISCOUNT_SUM', 0);
 	      } else {
 	        fieldStorage.setField('DISCOUNT_SUM', fieldStorage.getDiscountRow() / fieldStorage.getQuantity());
 	      }
-
 	      this.updateResultPrices(fieldStorage);
 	      this.updateDiscount(fieldStorage);
 	      this.updateRowDiscount(fieldStorage);
@@ -377,12 +337,10 @@ this.BX = this.BX || {};
 	      fieldStorage.setField('TAX_RATE', value);
 	      this.updateBasePrices(fieldStorage);
 	      this.updateResultPrices(fieldStorage);
-
 	      if (fieldStorage.isTaxIncluded()) {
 	        this.updateDiscount(fieldStorage);
 	        this.updateRowDiscount(fieldStorage);
 	      }
-
 	      this.updateTax(fieldStorage);
 	      this.updateSum(fieldStorage);
 	      this.activateCustomized(fieldStorage);
@@ -392,17 +350,14 @@ this.BX = this.BX || {};
 	    key: "calculateTaxIncluded",
 	    value: function calculateTaxIncluded(value) {
 	      var fieldStorage = this.getFieldStorage();
-
 	      if (fieldStorage.getTaxIncluded() !== value) {
 	        fieldStorage.setField('TAX_INCLUDED', value);
-
 	        if (fieldStorage.isTaxIncluded()) {
 	          fieldStorage.setField('PRICE_BRUTTO', fieldStorage.getPriceNetto());
 	        } else {
 	          fieldStorage.setField('PRICE_NETTO', fieldStorage.getPriceBrutto());
 	        }
 	      }
-
 	      this.updatePrice(fieldStorage);
 	      this.activateCustomized(fieldStorage);
 	      return fieldStorage.getFields();
@@ -412,21 +367,17 @@ this.BX = this.BX || {};
 	    value: function calculateRowSum(value) {
 	      var fieldStorage = this.getFieldStorage();
 	      fieldStorage.setField('SUM', value);
-
 	      if (fieldStorage.getQuantity() === 0) {
 	        fieldStorage.setField('QUANTITY', 1);
 	      }
-
 	      var discountSum = fieldStorage.getPriceNetto() - fieldStorage.getSum() / (fieldStorage.getQuantity() * (1 + fieldStorage.getTaxRate() / 100));
 	      fieldStorage.setField('DISCOUNT_SUM', discountSum);
 	      fieldStorage.setField('DISCOUNT_TYPE_ID', DiscountType.MONETARY);
-
 	      if (fieldStorage.isEmptyDiscount()) {
 	        this.clearResultPrices(fieldStorage);
 	      } else if (fieldStorage.isDiscountHandmade()) {
 	        this.updateResultPrices(fieldStorage);
 	      }
-
 	      this.updateDiscount(fieldStorage);
 	      this.updateRowDiscount(fieldStorage);
 	      this.updateTax(fieldStorage);
@@ -437,13 +388,11 @@ this.BX = this.BX || {};
 	    key: "updatePrice",
 	    value: function updatePrice(fieldStorage) {
 	      this.updateBasePrices(fieldStorage);
-
 	      if (fieldStorage.isEmptyDiscount()) {
 	        this.clearResultPrices(fieldStorage);
 	      } else if (fieldStorage.isDiscountHandmade()) {
 	        this.updateResultPrices(fieldStorage);
 	      }
-
 	      this.updateDiscount(fieldStorage);
 	      this.updateRowDiscount(fieldStorage);
 	      this.updateTax(fieldStorage);
@@ -461,17 +410,14 @@ this.BX = this.BX || {};
 	    key: "calculatePriceWithoutDiscount",
 	    value: function calculatePriceWithoutDiscount(price, discount, discountType) {
 	      var result = 0.0;
-
 	      switch (discountType) {
 	        case DiscountType.PERCENTAGE:
 	          result = price - price * discount / 100;
 	          break;
-
 	        case DiscountType.MONETARY:
 	          result = price - discount;
 	          break;
 	      }
-
 	      return result;
 	    }
 	  }, {
@@ -488,7 +434,6 @@ this.BX = this.BX || {};
 	    value: function updateResultPrices(fieldStorage) {
 	      // price without tax
 	      var exclusivePrice;
-
 	      if (fieldStorage.isDiscountPercentage()) {
 	        exclusivePrice = this.calculatePriceWithoutDiscount(fieldStorage.getPriceNetto(), fieldStorage.getDiscountRate(), DiscountType.PERCENTAGE);
 	      } else if (fieldStorage.isDiscountMonetary()) {
@@ -496,7 +441,6 @@ this.BX = this.BX || {};
 	      } else {
 	        exclusivePrice = fieldStorage.getPriceExclusive();
 	      }
-
 	      fieldStorage.setField('PRICE_EXCLUSIVE', exclusivePrice);
 	      fieldStorage.setField('PRICE', this.calculatePriceWithTax(exclusivePrice, fieldStorage.getTaxRate()));
 	    }
@@ -525,26 +469,22 @@ this.BX = this.BX || {};
 	    key: "updateTax",
 	    value: function updateTax(fieldStorage) {
 	      var sum;
-
 	      if (fieldStorage.isTaxIncluded()) {
 	        sum = fieldStorage.getPrice() * fieldStorage.getQuantity() * (1 - 1 / (1 + fieldStorage.getTaxRate() / 100));
 	      } else {
 	        sum = fieldStorage.getPriceExclusive() * fieldStorage.getQuantity() * (fieldStorage.getTaxRate() / 100);
 	      }
-
 	      fieldStorage.setField('TAX_SUM', sum);
 	    }
 	  }, {
 	    key: "updateSum",
 	    value: function updateSum(fieldStorage) {
 	      var sum;
-
 	      if (fieldStorage.isTaxIncluded()) {
 	        sum = fieldStorage.getPrice() * fieldStorage.getQuantity();
 	      } else {
 	        sum = this.calculatePriceWithTax(fieldStorage.getPriceExclusive() * fieldStorage.getQuantity(), fieldStorage.getTaxRate());
 	      }
-
 	      fieldStorage.setField('SUM', sum);
 	    }
 	  }, {
@@ -553,11 +493,9 @@ this.BX = this.BX || {};
 	      if (originalPrice === 0.0) {
 	        return 0.0;
 	      }
-
 	      if (price === 0.0) {
 	        return originalPrice > 0 ? 100.0 : -100.0;
 	      }
-
 	      return (originalPrice - price) / originalPrice * 100;
 	    }
 	  }, {
@@ -577,53 +515,37 @@ this.BX = this.BX || {};
 	}();
 
 	function ownKeys$1(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
-
 	function _objectSpread$1(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys$1(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys$1(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
-
 	function _classPrivateMethodInitSpec$1(obj, privateSet) { _checkPrivateRedeclaration$1(obj, privateSet); privateSet.add(obj); }
-
 	function _classPrivateFieldInitSpec(obj, privateMap, value) { _checkPrivateRedeclaration$1(obj, privateMap); privateMap.set(obj, value); }
-
 	function _checkPrivateRedeclaration$1(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
-
 	function _classPrivateMethodGet$1(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
-
 	var _fields = /*#__PURE__*/new WeakMap();
-
 	var _strategy = /*#__PURE__*/new WeakMap();
-
 	var _settings = /*#__PURE__*/new WeakMap();
-
 	var _getSetting = /*#__PURE__*/new WeakSet();
-
 	var ProductCalculator = /*#__PURE__*/function () {
 	  function ProductCalculator() {
 	    var fields = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    var settings = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
 	    babelHelpers.classCallCheck(this, ProductCalculator);
-
 	    _classPrivateMethodInitSpec$1(this, _getSetting);
-
 	    _classPrivateFieldInitSpec(this, _fields, {
 	      writable: true,
 	      value: {}
 	    });
-
 	    _classPrivateFieldInitSpec(this, _strategy, {
 	      writable: true,
 	      value: {}
 	    });
-
 	    _classPrivateFieldInitSpec(this, _settings, {
 	      writable: true,
 	      value: {}
 	    });
-
 	    this.setFields(fields);
 	    this.setSettings(settings);
 	    this.setCalculationStrategy(new TaxForPriceStrategy(this));
 	  }
-
 	  babelHelpers.createClass(ProductCalculator, [{
 	    key: "setField",
 	    value: function setField(name, value) {
@@ -645,7 +567,6 @@ this.BX = this.BX || {};
 	          this.setField(name, fields[name]);
 	        }
 	      }
-
 	      return this;
 	    }
 	  }, {
@@ -728,21 +649,17 @@ this.BX = this.BX || {};
 	  }]);
 	  return ProductCalculator;
 	}();
-
 	function _getSetting2(name, defaultValue) {
 	  return babelHelpers.classPrivateFieldGet(this, _settings).hasOwnProperty(name) ? babelHelpers.classPrivateFieldGet(this, _settings)[name] : defaultValue;
 	}
-
 	babelHelpers.defineProperty(ProductCalculator, "DEFAULT_PRECISION", 2);
 
 	var TaxForSumStrategy = /*#__PURE__*/function (_TaxForPriceStrategy) {
 	  babelHelpers.inherits(TaxForSumStrategy, _TaxForPriceStrategy);
-
 	  function TaxForSumStrategy() {
 	    babelHelpers.classCallCheck(this, TaxForSumStrategy);
 	    return babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TaxForSumStrategy).apply(this, arguments));
 	  }
-
 	  babelHelpers.createClass(TaxForSumStrategy, [{
 	    key: "calculatePriceWithoutTax",
 	    value: function calculatePriceWithoutTax(price, taxRate) {
@@ -752,7 +669,6 @@ this.BX = this.BX || {};
 	    key: "updateResultPrices",
 	    value: function updateResultPrices(fieldStorage) {
 	      var exclusivePrice;
-
 	      if (fieldStorage.isDiscountPercentage()) {
 	        exclusivePrice = this.calculatePriceWithoutDiscount(fieldStorage.getPriceNetto(), fieldStorage.getDiscountRate(), DiscountType.PERCENTAGE);
 	      } else if (fieldStorage.isDiscountMonetary()) {
@@ -760,9 +676,7 @@ this.BX = this.BX || {};
 	      } else {
 	        exclusivePrice = fieldStorage.getPriceExclusive();
 	      }
-
 	      fieldStorage.setField('PRICE_EXCLUSIVE', exclusivePrice);
-
 	      if (fieldStorage.isTaxIncluded()) {
 	        fieldStorage.setField('PRICE', exclusivePrice);
 	      } else {

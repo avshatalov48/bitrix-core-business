@@ -30,7 +30,7 @@ if(!Main\Loader::includeModule('socialservices'))
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 }
 
-$domain = ToLower($_REQUEST['domain']);
+$domain = mb_strtolower($_REQUEST['domain']);
 
 if($domain)
 {
@@ -38,7 +38,7 @@ if($domain)
 	$arDomains = \CSeoUtils::getDomainsList();
 	foreach ($arDomains as $arDomain)
 	{
-		$arDomain['DOMAIN'] = ToLower($arDomain['DOMAIN']);
+		$arDomain['DOMAIN'] = mb_strtolower($arDomain['DOMAIN']);
 		if($domain == $arDomain['DOMAIN'])
 		{
 			$bFound = true;
@@ -205,7 +205,7 @@ $tabControl->BeginNextTab();
 <?
 $tabControl->End();
 ?>
-<script type="text/javascript">
+<script>
 
 function BXLoadInfo(action)
 {

@@ -30,6 +30,13 @@ return [
 					],
 				],
 				[
+					'entityId' => 'iblock-element',
+					'provider' => [
+						'moduleId' => 'iblock',
+						'className' => '\Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertyElementProvider',
+					],
+				],
+				[
 					'entityId' => 'iblock-property-element',
 					'provider' => [
 						'moduleId' => 'iblock',

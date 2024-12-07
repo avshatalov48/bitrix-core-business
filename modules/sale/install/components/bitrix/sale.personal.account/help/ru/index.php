@@ -39,7 +39,7 @@ Array
                             [CURRENCY] => USD
                             [LID] => ru
                             [FORMAT_STRING] => $#
-                            [FULL_NAME] => „®«« а ‘�Ђ
+                            [FULL_NAME] => „®«« а ‘?Ђ
                             [DEC_POINT] => .
                             [THOUSANDS_SEP] => ,
                             [DECIMALS] => 2
@@ -57,7 +57,7 @@ Array
                             [~TIMESTAMP_X] => 08.12.2006 15:03:44
                         )
 
-                    [INFO] => ў ў «овҐ USD („®«« а ‘�Ђ) - $0.00
+                    [INFO] => ў ў «овҐ USD („®«« а ‘?Ђ) - $0.00
                 )
 
         )

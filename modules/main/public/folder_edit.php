@@ -68,13 +68,10 @@ $strWarning = "";
 //Save folder settings
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$strWarning = GetMessage("MAIN_SESSION_EXPIRED");
 }
 elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 {
-	CUtil::JSPostUnescape();
-
 	$bNeedSectionFile = false;
 	$strSectionName = "";
 	if (isset($_POST["sSectionName"]) && $_POST["sSectionName"] <> '')

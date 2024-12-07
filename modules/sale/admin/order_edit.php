@@ -460,7 +460,7 @@ else
 					$file_contents = '';
 					if ($file == "." || $file == ".." || $file == ".access.php" || isset($arReports[$file]))
 						continue;
-					if (is_file($dir.$file) && ToUpper(mb_substr($file, -4)) == ".PHP")
+					if (is_file($dir.$file) && mb_strtoupper(mb_substr($file, -4)) == ".PHP")
 					{
 						$rep_title = $file;
 						if ($dir == $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/")
@@ -695,7 +695,7 @@ $tabControl->BeginNextTab();
 		if(isset($customFastNavItems[$item]))
 			$fastNavItems[$item] = $customFastNavItems[$item];
 		else
-			$fastNavItems[$item] = Loc::getMessage("SALE_BLOCK_TITLE_".toUpper($item));
+			$fastNavItems[$item] = Loc::getMessage("SALE_BLOCK_TITLE_".mb_strtoupper($item));
 	}
 
 ?>
@@ -825,7 +825,7 @@ $tabControl->End();
 <div style="display: none;"><?=OrderEdit::getFastNavigationHtml($fastNavItems, $formId, 'tab_order');?></div>
 
 <?if(!$result->isSuccess() || $isNeedFieldsRestore):?>
-	<script type="text/javascript">
+	<script>
 		BX.ready( function(){
 			BX.Sale.Admin.OrderEditPage.restoreFormData(
 				<?=CUtil::PhpToJSObject(OrderEdit::restoreFieldsNames(
@@ -837,7 +837,7 @@ $tabControl->End();
 		});
 	</script>
 <?else:?>
-	<script type="text/javascript">
+	<script>
 		BX.ready( function(){
 			BX.Sale.Admin.OrderAjaxer.sendRequest(
 				BX.merge(

@@ -16,6 +16,8 @@ type Params = {
 	groupId: number,
 	logo: LogoData,
 	chat: Chat,
+	availableFeatures: { [option: 'discussions' | 'tasks' | 'calendar' | 'files']: boolean },
+	isMember?: boolean,
 }
 
 export class GroupSettings
@@ -186,24 +188,33 @@ export class GroupSettings
 		});
 	}
 
-	#renderChat(): HTMLElement
+	#renderChat(): Promise
 	{
-		const chat = new ChatAction();
+		return new Promise((resolve) => {
+			const chat = new ChatAction({
+				canUse: this.#getParam('isMember'),
+			});
 
-		chat.subscribe('videoCall', () => {
-			this.#menu.close();
-			this.#getParam('chat').startVideoCall();
-		});
-		chat.subscribe('openChat', () => {
-			this.#menu.close();
-			this.#getParam('chat').openChat();
-		});
-		chat.subscribe('createChat', () => {
-			this.#menu.close();
-			this.#getParam('chat').createChat(this.#getParam('bindElement'));
-		});
+			chat.subscribe('videoCall', () => {
+				this.#menu.close();
+				this.#getParam('chat').startVideoCall();
+			});
+			chat.subscribe('openChat', () => {
+				this.#menu.close();
+				this.#getParam('chat').openChat();
+			});
+			chat.subscribe('createChat', () => {
+				this.#menu.close();
+				this.#getParam('chat').createChat(this.#getParam('bindElement'));
+			});
 
-		return chat.render();
+			resolve({
+				node: chat.render(),
+				options: {
+					disabled: !this.#getParam('isMember'),
+				},
+			});
+		});
 	}
 
 	#renderMembers(groupDataPromise: Promise): Promise
@@ -249,13 +260,19 @@ export class GroupSettings
 				.then((groupData: GroupData) => {
 					const follow = new Follow({
 						follow: groupData.isSubscribed,
+						canUse: this.#getParam('isMember'),
 					});
 
 					follow.subscribe('update', (baseEvent: BaseEvent) => {
 						this.#changeSubscribe(this.#groupData.id, baseEvent.getData(), follow);
 					});
 
-					resolve(follow.render());
+					resolve({
+						node: follow.render(),
+						options: {
+							disabled: !this.#getParam('isMember'),
+						},
+					});
 				})
 			;
 		});
@@ -269,13 +286,19 @@ export class GroupSettings
 				.then((groupData: GroupData) => {
 					const pin = new Pin({
 						pin: groupData.isPin,
+						canUse: this.#getParam('isMember'),
 					});
 
 					pin.subscribe('update', (baseEvent: BaseEvent) => {
 						this.#changePin(this.#groupData.id, baseEvent.getData(), pin);
 					});
 
-					resolve(pin.render());
+					resolve({
+						node: pin.render(),
+						options: {
+							disabled: !this.#getParam('isMember'),
+						},
+					});
 				})
 			;
 		});

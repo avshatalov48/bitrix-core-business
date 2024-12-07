@@ -165,7 +165,7 @@ echo $htmlMenu;
 ?>
 </div>
 
-<script type="text/javascript">
+<script>
 
 	document.addEventListener("DOMContentLoaded", function() {
 		Menu.init({

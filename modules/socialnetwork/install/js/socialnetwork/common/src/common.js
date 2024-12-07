@@ -1,4 +1,4 @@
-import { Type, Loc, ajax } from 'main.core';
+import { Type, Loc, ajax, Runtime } from 'main.core';
 import { MenuManager } from 'main.popup';
 import { Messenger } from 'im.public';
 import { Waiter } from './waiter.js';
@@ -122,13 +122,15 @@ class Common
 					}
 					else
 					{
+						featuresItem.className = 'menu-popup-item menu-popup-no-icon sonet-common-tariff-lock';
+
 						featuresItem.onclick = () => {
-							B24.licenseInfoPopup.show(
-								'sonetGroupFeatures',
-								Loc.getMessage('SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TITLE'),
-								`<span>${Loc.getMessage('SONET_EXT_COMMON_B24_SONET_GROUP_FEATURES_TEXT')}</span>`,
-								true
-							);
+							Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+								const { Limit } = exports;
+								Limit.showInstance({
+									featureId: 'socialnetwork_projects_access_permissions',
+								});
+							});
 						};
 					}
 					menu.push(featuresItem);
@@ -183,7 +185,7 @@ class Common
 				});
 			}
 
-			if (params.perms.canModify)
+			if (params.perms.canCreate)
 			{
 				itemTitle = Loc.getMessage('SONET_EXT_COMMON_GROUP_MENU_COPY');
 				if (!!params.isScrumProject)
@@ -204,27 +206,19 @@ class Common
 				}
 				else
 				{
+					copyGroupItem.className = 'menu-popup-item menu-popup-no-icon sonet-common-tariff-lock';
+
 					copyGroupItem.onclick = () => {
-						if (!!params.isProject)
-						{
-							BX.UI.InfoHelper.show('limit_task_copy_project', {
-								isLimit: true,
+						Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+							const { Limit } = exports;
+							Limit.showInstance({
+								featureId: 'socialnetwork_copy_project',
 								limitAnalyticsLabels: {
 									module: 'socialnetwork',
-									source: 'projectCardActions'
-								}
+									source: 'projectCardActions',
+								},
 							});
-						}
-						else
-						{
-							BX.UI.InfoHelper.show('limit_task_copy_group', {
-								isLimit: true,
-								limitAnalyticsLabels: {
-									module: 'socialnetwork',
-									source: 'projectCardActions'
-								}
-							});
-						}
+						});
 					};
 				}
 

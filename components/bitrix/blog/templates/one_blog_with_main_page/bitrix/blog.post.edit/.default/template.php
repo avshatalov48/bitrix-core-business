@@ -157,7 +157,7 @@ else
 		if (CModule::IncludeModule("fileman"))
 		{
 			?>
-			<script language="JavaScript">
+			<script>
 			var arImages = Array();
 			var arVideo = Array();
 			var arVideoP = Array();

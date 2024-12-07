@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -54,7 +54,7 @@ while ($arTicket = $rsTickets->Fetch())
 {
 	if ($arTicket["DATE_CLOSE"] <> '')
 	{
-		// запоминаем время обработки тикетов
+		// Р·Р°РїРѕРјРёРЅР°РµРј РІСЂРµРјСЏ РѕР±СЂР°Р±РѕС‚РєРё С‚РёРєРµС‚РѕРІ
 		$day_sec = 86400;
 		$TT = $arTicket["TICKET_TIME"];
 		if ($TT<$day_sec) $arrTime["1"] += 1;
@@ -73,12 +73,12 @@ foreach ($arrTime as $key => $value)
 	$arr[] = array("COLOR"=> $arrColor[$key], "COUNTER" => $arrTime[$key]);
 }
 
-// создаем изображение
+// СЃРѕР·РґР°РµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 $ImageHendle = CreateImageHandle($diameter, $diameter);
 
-// рисуем круговую диаграмму
+// СЂРёСЃСѓРµРј РєСЂСѓРіРѕРІСѓСЋ РґРёР°РіСЂР°РјРјСѓ
 Circular_Diagram($ImageHendle, $arr, "FFFFFF", $diameter, $diameter/2, $diameter/2);
 
-// отображаем
+// РѕС‚РѕР±СЂР°Р¶Р°РµРј
 ShowImageHeader($ImageHendle);
 ?>

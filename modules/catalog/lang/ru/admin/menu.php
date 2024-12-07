@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CATALOG_CONTROL"] = "Торговый каталог";
 $MESS["CURRENCY"] = "Валюты";
 $MESS["CURRENCY_ALT"] = "Валюты";
@@ -48,4 +48,3 @@ $MESS["PRICES_SECTION_TITLE"] = "Типы цен, округление, наце
 $MESS["PRICE_ROUND"] = "Округление";
 $MESS["PRICE_ROUND_TITLE"] = "Округление цен";
 $MESS["SUBSCRIPTION_PRODUCT"] = "Подписка на товары";
-?>

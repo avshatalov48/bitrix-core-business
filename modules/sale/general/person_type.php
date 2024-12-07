@@ -162,12 +162,12 @@ class CAllSalePersonType
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_person_type", $arFields);
 		$strSql = "UPDATE b_sale_person_type SET ".$strUpdate." WHERE ID = ".$ID."";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if(count($arLID)>0)
 		{
 			$strSql = "DELETE FROM b_sale_person_type_site WHERE PERSON_TYPE_ID=".$ID;
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 
 			$strSql =
 				"INSERT INTO b_sale_person_type_site(PERSON_TYPE_ID, SITE_ID) ".
@@ -175,7 +175,7 @@ class CAllSalePersonType
 				"FROM b_lang ".
 				"WHERE LID IN (".$str_LID.") ";
 
-			$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$DB->Query($strSql);
 		}
 
 

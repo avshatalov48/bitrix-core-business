@@ -58,25 +58,22 @@ class OracleSqlHelper extends SqlHelper
 
 		$value = mb_substr($value, 0, $maxLength);
 
-		if (\Bitrix\Main\Application::isUtfMode())
-		{
-			// From http://w3.org/International/questions/qa-forms-utf-8.html
-			// This one can crash php with segmentation fault on large input data (over 20K)
-			// https://bugs.php.net/bug.php?id=60423
-			if (preg_match_all('%(
-				[\x00-\x7E]                        # ASCII
-				|[\xC2-\xDF][\x80-\xBF]            # non-overlong 2-byte
-				|\xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
-				|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2} # straight 3-byte
-				|\xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
-				|\xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
-				|[\xF1-\xF3][\x80-\xBF]{3}         # planes 4-15
-				|\xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
-			)+%x', $value, $match))
-				$value = implode(' ', $match[0]);
-			else
-				return ''; //There is no valid utf at all
-		}
+		// From http://w3.org/International/questions/qa-forms-utf-8.html
+		// This one can crash php with segmentation fault on large input data (over 20K)
+		// https://bugs.php.net/bug.php?id=60423
+		if (preg_match_all('%(
+			[\x00-\x7E]                        # ASCII
+			|[\xC2-\xDF][\x80-\xBF]            # non-overlong 2-byte
+			|\xE0[\xA0-\xBF][\x80-\xBF]        # excluding overlongs
+			|[\xE1-\xEC\xEE\xEF][\x80-\xBF]{2} # straight 3-byte
+			|\xED[\x80-\x9F][\x80-\xBF]        # excluding surrogates
+			|\xF0[\x90-\xBF][\x80-\xBF]{2}     # planes 1-3
+			|[\xF1-\xF3][\x80-\xBF]{3}         # planes 4-15
+			|\xF4[\x80-\x8F][\x80-\xBF]{2}     # plane 16
+		)+%x', $value, $match))
+			$value = implode(' ', $match[0]);
+		else
+			return ''; //There is no valid utf at all
 
 		return str_replace("'", "''", $value);
 	}

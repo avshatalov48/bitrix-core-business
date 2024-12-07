@@ -7,7 +7,7 @@ use Bitrix\Main\NotSupportedException;
 /*
 \Bitrix\Main\Loader::includeModule('perfmon');
 $dir = new \Bitrix\Main\IO\Directory("/opt/php03.cp1251.www/mercurial/bitrix/modules");
-foreach ($dir->getChildren()  as $child)
+foreach ($dir->getChildren() as $child)
 {
 	if ($child->isDirectory() && $child->getName()!=='xxx')
 	{
@@ -309,7 +309,7 @@ class Schema
 			$table = $this->tables->search($tableName);
 			if (!$table)
 			{
-				throw new NotSupportedException("Table [${tableName}] not found. line: " . $tokenizer->getCurrentToken()->line);
+				throw new NotSupportedException('Table [' . $tableName . '] not found. line: ' . $tokenizer->getCurrentToken()->line);
 			}
 			$tokenizer->nextToken();
 			$tokenizer->skipWhiteSpace();
@@ -334,6 +334,15 @@ class Schema
 			elseif ($tokenizer->testUpperText('DISABLE') || $tokenizer->testUpperText('ENABLE'))
 			{
 				//(DISABLE|ENABLE) TRIGGER ALL
+			}
+			elseif ($tokenizer->testUpperText('ALTER'))
+			{
+				$tokenizer->skipWhiteSpace();
+				if ($tokenizer->testUpperText('COLUMN'))
+				{
+					$tokenizer->skipWhiteSpace();
+					$table->modifyColumn($tokenizer);
+				}
 			}
 			else
 			{
@@ -407,7 +416,7 @@ class Schema
 		$table = $this->tables->search($tableName);
 		if (!$table)
 		{
-			throw new NotSupportedException("Table [${tableName}] not found. line: " . $tokenizer->getCurrentToken()->line);
+			throw new NotSupportedException('Table [' . $tableName . '] not found. line: ' . $tokenizer->getCurrentToken()->line);
 		}
 
 		$tokenizer->restoreBookmark();

@@ -243,7 +243,7 @@ export const ChatSearch = {
 		},
 		onKeyPressed(event: BaseEvent)
 		{
-			if (this.selectMode || !this.searchMode)
+			if (!this.searchMode)
 			{
 				return;
 			}

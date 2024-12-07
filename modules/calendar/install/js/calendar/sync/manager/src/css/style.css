@@ -1,0 +1,35 @@
+.calendar-sync-btn-counter.ui-btn.ui-btn-xs {
+	--ui-btn-padding: 0 11px;
+}
+
+.calendar-sync-btn-counter .ui-btn-text + .ui-btn-counter {
+	order: -1;
+	margin-left: 0;
+	margin-right: 9px;
+	line-height: var(--ui-font-line-height-xl);
+}
+
+.calendar-sync-manager__aha-content_mail {
+	font-weight: var(--ui-font-weight-bold);
+}
+
+.calendar-sync-manager__aha-content-element {
+	margin-bottom: 12px;
+}
+
+.calendar-sync-manager__aha-content-element-type {
+	text-transform:capitalize;
+}
+
+.calendar-sync-manager__aha-link {
+	display: inline-flex;
+	color: var(--ui-color-link-primary-base);
+	font-size: var(--ui-font-size-md);
+	border-bottom: var(--ui-border-width-thin) var(--ui-text-decoration-style-dashed) rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-60));
+	cursor: pointer;
+	transition: .2s;
+}
+
+.calendar-sync-manager__aha-link:hover {
+	border-bottom-color: rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-full));
+}

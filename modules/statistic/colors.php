@@ -2,7 +2,7 @@
 global $arrColor, $arCountryColor;
 $arrColor = $arCountryColor = array();
 /*
-// радуга на 20 позиций
+// СЂР°РґСѓРіР° РЅР° 20 РїРѕР·РёС†РёР№
 "FF0000";
 "FF6C00";
 "FF9900";

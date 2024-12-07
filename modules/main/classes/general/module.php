@@ -1,10 +1,15 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\ModuleManager;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ModuleTable;
 
 class CModule
 {
@@ -19,18 +24,20 @@ class CModule
 	var $PARTNER_NAME;
 	var $PARTNER_URI;
 
-	public static function AddAutoloadClasses($module, $arParams = array())
+	public static function AddAutoloadClasses($module, $arParams = [])
 	{
 		if ($module === '')
+		{
 			$module = null;
+		}
 
-		\Bitrix\Main\Loader::registerAutoLoadClasses($module, $arParams);
+		Loader::registerAutoLoadClasses($module, $arParams);
 		return true;
 	}
 
 	public static function _GetCache()
 	{
-		return \Bitrix\Main\ModuleManager::getInstalledModules();
+		return ModuleManager::getInstalledModules();
 	}
 
 	function InstallDB()
@@ -43,6 +50,10 @@ class CModule
 	}
 
 	function InstallEvents()
+	{
+	}
+
+	public function InstallEventMessages(string $languageId, array $siteId): void
 	{
 	}
 
@@ -64,7 +75,7 @@ class CModule
 
 	public function GetModuleTasks()
 	{
-		return array(
+		return [
 			/*
 			"NAME" => array(
 				"LETTER" => "",
@@ -75,7 +86,7 @@ class CModule
 				),
 			),
 			*/
-		);
+		];
 	}
 
 	public function InstallTasks()
@@ -107,7 +118,7 @@ class CModule
 
 	function IsInstalled()
 	{
-		return \Bitrix\Main\ModuleManager::isModuleInstalled($this->MODULE_ID);
+		return ModuleManager::isModuleInstalled($this->MODULE_ID);
 	}
 
 	function DoUninstall()
@@ -116,12 +127,12 @@ class CModule
 
 	function Remove()
 	{
-		\Bitrix\Main\ModuleManager::delete($this->MODULE_ID);
+		ModuleManager::delete($this->MODULE_ID);
 	}
 
 	function Add()
 	{
-		\Bitrix\Main\ModuleManager::add($this->MODULE_ID);
+		ModuleManager::add($this->MODULE_ID);
 	}
 
 	public static function GetList()
@@ -139,28 +150,21 @@ class CModule
 	 */
 	public static function IncludeModule($module_name)
 	{
-		return \Bitrix\Main\Loader::includeModule($module_name);
+		return Loader::includeModule($module_name);
 	}
 
 	public static function IncludeModuleEx($module_name)
 	{
-		return \Bitrix\Main\Loader::includeSharewareModule($module_name);
+		return Loader::includeSharewareModule($module_name);
 	}
 
-	public static function GetDropDownList($strSqlOrder="ORDER BY ID")
+	public static function GetDropDownList()
 	{
-		global $DB;
-
-		$strSql = "
-			SELECT
-				ID as REFERENCE_ID,
-				ID as REFERENCE
-			FROM
-				b_module
-			$strSqlOrder
-			";
-		$res = $DB->Query($strSql);
-		return $res;
+		return ModuleTable::getList([
+			'select' => ['REFERENCE_ID' => 'ID', 'REFERENCE' => 'ID'],
+			'order' => ['ID' => 'ASC'],
+			'cache' => ['ttl' => 86400],
+		]);
 	}
 
 	/**
@@ -169,20 +173,24 @@ class CModule
 	 */
 	public static function CreateModuleObject($moduleId)
 	{
-		$moduleId = trim($moduleId);
-		$moduleId = preg_replace("/[^a-zA-Z0-9_.]+/i", "", $moduleId);
-		if ($moduleId == '')
+		if (!ModuleManager::isValidModule($moduleId))
+		{
 			return false;
+		}
 
-		$path = getLocalPath("modules/".$moduleId."/install/index.php");
+		$path = getLocalPath("modules/" . $moduleId . "/install/index.php");
 		if ($path === false)
+		{
 			return false;
+		}
 
-		include_once($_SERVER["DOCUMENT_ROOT"].$path);
+		include_once($_SERVER["DOCUMENT_ROOT"] . $path);
 
 		$className = str_replace(".", "_", $moduleId);
 		if (!class_exists($className))
+		{
 			return false;
+		}
 
 		return new $className;
 	}

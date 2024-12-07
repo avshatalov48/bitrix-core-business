@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import { typeof BBCodeNode } from 'ui.bbcode.model';
 import { getByIndex } from '../../shared';
 
 type ParsedSelector = {
@@ -106,18 +107,42 @@ export class AstProcessor
 	/**
 	 * Finds parent node by parsed selector
 	 */
-	static findParentNode(node, selector: ParsedSelector): ?any
+	static findParentNode(node, selector: ParsedSelector | string): ?any
 	{
 		if (node)
 		{
+			const preparedSelector = (() => {
+				if (Type.isStringFilled(selector))
+				{
+					return AstProcessor.parseSelector(selector)[0];
+				}
+
+				return selector;
+			})();
 			const parent = node.getParent();
 
-			if (AstProcessor.matchesNodeWithSelector(parent, selector))
+			if (AstProcessor.matchesNodeWithSelector(parent, preparedSelector))
 			{
 				return parent;
 			}
 
-			return AstProcessor.findParentNode(parent, selector);
+			return AstProcessor.findParentNode(parent, preparedSelector);
+		}
+
+		return null;
+	}
+
+	static findParentNodeByName(node: BBCodeNode, name: string): BBCodeNode | null
+	{
+		if (node)
+		{
+			const parent: ?BBCodeNode = node.getParent();
+			if (parent && parent.getName() === name)
+			{
+				return parent;
+			}
+
+			return AstProcessor.findParentNodeByName(parent, name);
 		}
 
 		return null;

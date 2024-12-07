@@ -14,7 +14,10 @@ if (!CModule::IncludeModule('calendar'))
 }
 
 $arResult['TIMEZONE_LIST'] = CCalendar::GetTimezoneList();
-$arResult['FORM_USER_SETTINGS'] = \Bitrix\Calendar\UserSettings::getFormSettings($arParams['formType']);
+$arResult['FORM_USER_SETTINGS'] = \Bitrix\Calendar\UserSettings::getFormSettings(
+	formType: $arParams['formType'],
+	entryType: $arParams['type'],
+);
 
 $this->IncludeComponentTemplate();
 ?>

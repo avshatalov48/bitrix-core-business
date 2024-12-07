@@ -213,7 +213,7 @@ final class Router
 		if (!Configuration::getInstance($module)->get('controllers'))
 		{
 			throw new SystemException(
-				"There is no configuration in {$module} with 'controllers' value.",
+				"Could not find configuration 'controllers' for module {$module}. Probably module is not installed or not configured properly.",
 				self::EXCEPTION_NO_CONFIGURATION
 			);
 		}

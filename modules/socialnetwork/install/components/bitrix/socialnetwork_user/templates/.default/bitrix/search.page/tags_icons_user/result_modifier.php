@@ -195,7 +195,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 						}
 
 						$strUrl = "";
-						$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER_".toUpper($element_type)], array("user_id" => $arParams["SOCNET_USER_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
+						$arChainBody[] = '<a href="'.CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER_".mb_strtoupper($element_type)], array("user_id" => $arParams["SOCNET_USER_ID"], "path" => "")).'">'.$arFeaturesTitles[$element_type].'</a>';
 
 						$k = 0;
 						foreach($arElement["SECTION_PATH"] as $arPath)
@@ -203,7 +203,7 @@ foreach($arResult["SEARCH"] as $i=>$arItem)
 							if ($k > 0)
 							{
 								$strUrl .= $arPath["NAME"]."/";
-								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER_".toUpper($element_type)."_SECTION"], array(
+								$arPath["URL"] = CComponentEngine::MakePathFromTemplate($arParams["~PATH_TO_USER_".mb_strtoupper($element_type)."_SECTION"], array(
 											"user_id" => $arParams["SOCNET_USER_ID"], 
 											"path" => rtrim($strUrl, "/"),
 											"section_id" => $arPath["ID"],

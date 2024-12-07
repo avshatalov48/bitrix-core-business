@@ -37,7 +37,7 @@ class EventConnection extends Complex
 		$link = EventConnectionTable::query()
 			->setFilter($filter)
 			->setSelect([
-				'*',
+				...EventConnectionTable::defaultSelect,
 				'EVENT',
 				'CONNECTION',
 			])
@@ -222,7 +222,7 @@ class EventConnection extends Complex
 		if ($params['select'] === self::DEFAULT_SELECT)
 		{
 			$params['select'] = [
-				"*",
+				...EventConnectionTable::defaultSelect,
 				'EVENT',
 				'CONNECTION',
 			];

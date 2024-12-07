@@ -19,7 +19,7 @@
 	$DICTIONARY_ID = ($DICTIONARY_ID < 0) ? 0 : $DICTIONARY_ID;
 	$arFields = array();
 /*******************************************************************/
-	if ($REQUEST_METHOD=="POST" && ($Update = 'Y') && $forumPermWrite && check_bitrix_sessid())
+	if ($_SERVER['REQUEST_METHOD']=="POST" && ($Update = 'Y') && $forumPermWrite && check_bitrix_sessid())
 	{
 		$erMsg = array();
 		$APPLICATION->ResetException();

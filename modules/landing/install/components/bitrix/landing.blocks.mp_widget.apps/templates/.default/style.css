@@ -1,0 +1,356 @@
+.block-mp-widget-apps .landing-widget-wrapper {
+	--widget-color-title-mobile: initial;
+	--widget-color-title-desktop: initial;
+	--widget-color-text-mobile: initial;
+	--widget-color-text-desktop: initial;
+	--widget-color-button-mobile: initial;
+	--widget-color-button-text-mobile: initial;
+	--widget-color-button-desktop: initial;
+	--widget-color-button-text-desktop: initial;
+}
+
+.block-mp-widget-apps {
+	max-width: 100%;
+	font-family: var(--ui-font-family-system);
+}
+
+.landing-widget-apps {
+	cursor: default;
+}
+
+.landing-widget-apps .landing-widget-content {
+	display: grid;
+	grid-template-columns: repeat(2, 50%);
+	max-width: 1462px;
+}
+
+.landing-widget-app-mobile {
+	display: flex;
+	flex-direction: column;
+	padding: 24px 36px 0 45px;
+	height: 100%;
+	background: var(--ui-color-background-primary);
+	box-sizing: border-box;
+}
+
+.landing-widget-app-mobile-content {
+	display: flex;
+	height: 100%;
+}
+
+.landing-widget-app-mobile-main {
+	margin-right: 19px;
+}
+
+.landing-widget-app-mobile-title {
+	display: block;
+	margin-bottom: 31px;
+	font-size: 26px;
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--widget-color-title-mobile);
+	line-height: 31px;
+}
+
+.landing-widget-view-main .landing-widget-app-mobile-text-box {
+	margin-bottom: 5px;
+	min-height: 105px;
+}
+
+.landing-widget-app-mobile-text {
+	margin-bottom: 15px;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--widget-color-text-mobile);
+	line-height: 18px;
+	letter-spacing: -.5px;
+}
+
+.landing-widget-app-mobile-text:nth-child(2) {
+	margin-bottom: 15px;
+}
+
+.landing-widget-app-mobile-link {
+	display: inline-block;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--widget-color-primary);
+	cursor: pointer;
+}
+
+.landing-widget-app-mobile-inner {
+	display: flex;
+	align-items: center;
+}
+
+.landing-widget-app-mobile-qr-wrap {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 19px;
+	padding: 22px;
+	border-radius: var(--ui-border-radius-lg);
+	background: rgba(38, 211, 235, .12) url(./images/landing-widgets-circles.svg) center no-repeat;
+}
+
+.landing-widget-app-mobile-qr-box,
+.landing-widget-app-desktop-icon-box {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 52px;
+	height: 52px;
+	border: 2px solid #2FC6F6;
+	border-radius: var(--ui-border-radius-circle);
+	background: var(--ui-color-background-primary);
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .1);
+	box-sizing: border-box;
+}
+
+.landing-widget-app-mobile-qr-icon.ui-icon-set {
+	--ui-icon-set__icon-size: 32px;
+	--ui-icon-set__icon-color: var(--ui-color-base-90);
+}
+
+.landing-widget-app-mobile-qr-control-box {
+	display: flex;
+	flex-direction: column;
+}
+
+.qr-button {
+	margin-bottom: 13px;
+}
+
+.landing-widget-app-mobile-qr-link {
+	display: inline-block;
+	line-height: 1;
+	font-size: var(--ui-font-size-sm);
+	color: var(--ui-color-base-60);
+	text-align: center;
+	transition: border-bottom-color .3s;
+}
+
+.landing-widget-app-mobile-qr-link:hover {
+	border-bottom-color: var(--ui-color-background-transparent);
+}
+
+.landing-widget-app-mobile-logo {
+	align-self: end;
+	display: block;
+	min-width: 284px;
+	height: 267px;
+	background: url(./images/landing-widget-mobile.png) left -4px bottom no-repeat;
+	background-size: 284px auto;
+}
+
+@container (max-width: 600px) {
+	.landing-widget-app-mobile {
+		padding-right: 5px;
+	}
+}
+
+.landing-widget-app-desktop {
+	display: flex;
+	flex-direction: column;
+	padding: 24px 0 0 39px;
+	height: 100%;
+	background: var(--ui-color-background-primary);
+	overflow: hidden;
+	box-sizing: border-box;
+}
+
+.landing-widget-app-desktop-title {
+	display: block;
+	margin-bottom: 31px;
+	font-size: 26px;
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--widget-color-title-desktop);
+	line-height: 31px;
+}
+
+.landing-widget-app-desktop-content {
+	display: flex;
+	height: 100%;
+}
+
+.landing-widget-app-desktop-main {}
+
+.landing-widget-view-main .landing-widget-app-desktop-text-box {
+	margin-bottom: 5px;
+	min-height: 105px;
+}
+
+.landing-widget-app-desktop-text {
+	margin-bottom: 15px;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--widget-color-text-desktop);
+	line-height: 18px;
+	letter-spacing: -.5px;
+}
+
+.landing-widget-app-desktop-text:nth-child(2) {
+	margin-bottom: 15px;
+}
+
+.landing-widget-app-desktop-inner {
+	display: flex;
+	align-items: center;
+}
+
+.landing-widget-app-desktop-icon-wrap {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-right: 19px;
+	padding: 22px;
+	border-radius: var(--ui-border-radius-lg);
+	background:
+		linear-gradient(153.77deg, rgba(20, 255, 0, .12) 8.12%,
+		rgba(38, 211, 235, .12) 92.53%), url(./images/landing-widgets-circles.svg) center no-repeat;
+}
+
+.landing-widget-app-desktop-icon.ui-icon-set {
+	--ui-icon-set__icon-size: 32px;
+	--ui-icon-set__icon-color: var(--ui-color-base-90);
+}
+
+.landing-widget-qr-button,
+.landing-widget-desktop-button {
+	align-self: center;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 12px;
+	height: 30px;
+	border-radius: var(--ui-border-radius-xl);
+	font: var(--ui-font-weight-semi-bold) var(--ui-font-size-xs) var(--ui-font-family-system);
+	box-sizing: border-box;
+	cursor: pointer;
+	text-align: center;
+	white-space: nowrap;
+	min-width: 102px;
+	max-width: 205px;
+}
+
+.landing-widget-qr-button {
+	background: var(--widget-color-button-mobile);
+	color: var(--widget-color-button-text-mobile);
+}
+.landing-widget-desktop-button {
+	background: var(--widget-color-button-desktop);
+	color: var(--widget-color-button-text-desktop);
+}
+
+.landing-widget-qr-button:hover {
+	color: var(--widget-color-button-text-mobile);
+}
+
+.landing-widget-desktop-button:hover {
+	color: var(--widget-color-button-text-desktop);
+}
+
+.landing-widget-app-desktop-logo {
+	align-self: end;
+	min-width: 451px;
+	height: 255px;
+	background: url(./images/landing-widget-notebook.png) no-repeat;
+	background-size: cover;
+}
+
+.landing-widget-app-desktop-logo-inner {
+	width: 344px;
+	height: 255px;
+}
+
+.landing-widget-app-desktop-link {
+	display: inline-block;
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--widget-color-primary);
+	cursor: pointer;
+}
+
+.widget-type-rounded .landing-widget-app-mobile {
+	border-radius: 10px 0 0 10px;
+}
+
+.widget-type-rounded .landing-widget-app-desktop {
+	border-radius: 0 10px 10px 0;
+}
+
+.landing-edit-mode .landing-widget-qr-button {
+	cursor: default;
+}
+
+/* region Sidebar */
+.landing-widget-apps .landing-widget-view-sidebar .landing-widget-content {
+	display: flex;
+	flex-direction: column;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile {
+	background: transparent;
+	padding: 20px 20px 0 20px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-desktop {
+	background: transparent;
+	padding: 18px 20px 23px 20px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-title {
+	font-size: var(--ui-font-size-xl);
+	line-height: 19px;
+	margin-bottom: 7px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-main {
+	margin-right: 0;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-text-box {
+	font-size: var(--ui-font-size-md);
+	line-height: 18px;
+	margin-bottom: 0;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-text {
+	margin-bottom: 16px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-qr-wrap {
+	padding: 16px;
+	margin-right: 18px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-mobile-inner {
+	padding-bottom: 34px;
+	border-bottom: 1px solid rgba(245, 245, 246, 1);
+}
+
+.landing-widget-view-sidebar .landing-widget-app-desktop {
+	padding: 18px 20px 23px 20px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-desktop-title {
+	font-size: var(--ui-font-size-xl);
+	line-height: 19px;
+	margin-bottom: 5px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-desktop-text {
+	margin-bottom: 18px;
+}
+
+.landing-widget-view-sidebar .landing-widget-app-desktop-icon-wrap {
+	padding: 16px;
+	margin-right: 18px;
+}
+
+.landing-widget-view-sidebar .landing-widget-qr-button,
+.landing-widget-view-sidebar .landing-widget-desktop-button {
+	min-width: 121px;
+	max-width: 121px;
+}
+
+/* endregion */

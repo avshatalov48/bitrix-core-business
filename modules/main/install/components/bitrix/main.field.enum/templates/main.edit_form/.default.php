@@ -10,6 +10,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\UserField\Types\EnumType;
+use Bitrix\Main\Web\Json;
 
 if ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 {
@@ -36,7 +37,7 @@ if ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_UI)
 	<span id="<?= $arResult['controlNodeId'] ?>"></span>
 
 	<?php
-	$scriptParams = CUtil::PhpToJSObject([
+	$scriptParams = Json::encode([
 		'fieldName' => $arResult['fieldNameJs'],
 		'container' => $arResult['controlNodeId'],
 		'valueContainerId' => $arResult['valueContainerId'],
@@ -79,8 +80,7 @@ elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_CHEC
 	{
 		$isSelected = (
 			(in_array($itemId, $arResult['additionalParameters']['VALUE']))
-			||
-			($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
+			|| ($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && isset($item['DEF']) && $item['DEF'] === 'Y')
 		);
 		$isWasSelect = ($isWasSelect || $isSelected);
 		$checked = ($isSelected ? ' checked' : '');
@@ -143,6 +143,7 @@ elseif ($arResult['userField']['SETTINGS']['DISPLAY'] === EnumType::DISPLAY_LIST
 				in_array($itemId, $arResult['additionalParameters']['VALUE'])
 				|| (
 					(!isset($arResult['userField']['ENTITY_VALUE_ID']) || $arResult['userField']['ENTITY_VALUE_ID'] <= 0)
+					&& isset($item['DEF'])
 					&& $item['DEF'] === 'Y'
 				)
 			);

@@ -1,0 +1,10 @@
+.im-animation-fade-enter-active,
+.im-animation-fade-leave-active {
+	transition-property: opacity;
+	transition-timing-function: ease;
+}
+
+.im-animation-fade-enter-from,
+.im-animation-fade-leave-to {
+	opacity: 0;
+}

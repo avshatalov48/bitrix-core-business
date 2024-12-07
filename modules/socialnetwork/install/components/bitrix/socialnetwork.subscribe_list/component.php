@@ -83,7 +83,7 @@ else
 				|| mb_strpos($key, "v_cb_bx_sl_") === 0
 			)
 			{
-				if (preg_match("#(t_bx_sl|t_cb_bx_sl|v_bx_sl|v_cb_bx_sl)_([a-zA-Z0-9]+)_([0-9almy]+)_([a-zA-Z_]+)#i".BX_UTF_PCRE_MODIFIER, $key, $res) > 0)
+				if (preg_match("#(t_bx_sl|t_cb_bx_sl|v_bx_sl|v_cb_bx_sl)_([a-zA-Z0-9]+)_([0-9almy]+)_([a-zA-Z_]+)#iu", $key, $res) > 0)
 				{
 					$entity_type = $res[2];
 					if ($res[3] == "all")

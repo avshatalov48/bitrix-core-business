@@ -1,7 +1,8 @@
 import { ImModelSidebarMeetingItem, ImModelChat } from 'im.v2.model';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
-import { EventType, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, SidebarDetailBlock, ChatActionType, Layout } from 'im.v2.const';
 import { EntityCreator } from 'im.v2.lib.entity-creator';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { EventEmitter } from 'main.core.events';
 
 import { MeetingMenu } from '../../../../classes/context-menu/meeting/meeting-menu';
@@ -30,6 +31,10 @@ export const MeetingPreview = {
 		{
 			return this.$store.getters['sidebar/meetings/get'](this.chatId)[0];
 		},
+		showAddButton(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.createMeeting, this.dialogId);
+		},
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -37,6 +42,21 @@ export const MeetingPreview = {
 		chatId(): number
 		{
 			return this.dialog.chatId;
+		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
+		},
+		addButtonColor(): ButtonColor
+		{
+			if (this.isCopilotLayout)
+			{
+				return this.ButtonColor.Copilot;
+			}
+
+			return this.ButtonColor.PrimaryLight;
 		},
 	},
 	created()
@@ -51,16 +71,11 @@ export const MeetingPreview = {
 	{
 		getEntityCreator(): EntityCreator
 		{
-			if (!this.entityCreator)
-			{
-				this.entityCreator = new EntityCreator(this.chatId);
-			}
-
-			return this.entityCreator;
+			return (new EntityCreator(this.chatId));
 		},
 		onAddClick()
 		{
-			this.getEntityCreator().createMeetingForChat();
+			void this.getEntityCreator().createMeetingForChat();
 		},
 		onOpenDetail()
 		{
@@ -83,6 +98,10 @@ export const MeetingPreview = {
 
 			this.contextMenu.openMenu(item, target);
 		},
+		loc(phraseCode: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode);
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-meeting-preview__scope">
@@ -94,15 +113,16 @@ export const MeetingPreview = {
 				>
 					<div class="bx-im-sidebar-meeting-preview__title">
 						<span class="bx-im-sidebar-meeting-preview__title-text">
-							{{ $Bitrix.Loc.getMessage('IM_SIDEBAR_MEETING_DETAIL_TITLE') }}
+							{{ loc('IM_SIDEBAR_MEETING_DETAIL_TITLE') }}
 						</span>
 						<div v-if="firstMeeting" class="bx-im-sidebar__forward-icon"></div>
 					</div>
 					<transition name="add-button">
 						<MessengerButton
-							:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_ADD_BUTTON_TEXT')"
+							v-if="showAddButton"
+							:text="loc('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 							:size="ButtonSize.S"
-							:color="ButtonColor.PrimaryLight"
+							:color="addButtonColor"
 							:isRounded="true"
 							:isUppercase="false"
 							icon="plus"
@@ -114,7 +134,7 @@ export const MeetingPreview = {
 				<MeetingItem v-if="firstMeeting" :meeting="firstMeeting" @contextMenuClick="onContextMenuClick"/>
 				<DetailEmptyState
 					v-else
-					:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_MEETINGS_EMPTY')"
+					:title="loc('IM_SIDEBAR_MEETINGS_EMPTY')"
 					:iconType="SidebarDetailBlock.meeting"
 				/>
 			</div>

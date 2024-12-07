@@ -118,7 +118,7 @@ if(!$USER->CanDoOperation('fileman_edit_existent_files') || !$USER->CanDoFileOpe
 	$strWarning = GetMessage("ACCESS_DENIED");
 else
 {
-	if($REQUEST_METHOD=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
 	{
 		$sMenuTemplateTmp = "";
 		if($template <> '' && $template!=GetMessage("FILEMAN_MENU_EDIT_DEF"))
@@ -211,7 +211,7 @@ else
 		//теперь $aMenuLinksTmp прямо в таком готовом виде, что хоть меню рисуй :-)
 	}
 
-	if($REQUEST_METHOD=="POST" && $save <> '' && $name == '' && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '' && $name == '' && check_bitrix_sessid())
 	{
 		$strWarning = GetMessage("FILEMAN_MENU_EDIT_ENTER_TYPE");
 	}
@@ -224,7 +224,7 @@ else
 
 	if($strWarning == '')
 	{
-		if($REQUEST_METHOD=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
+		if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '' && is_array($ids) && check_bitrix_sessid())
 		{
 			CFileMan::SaveMenu(Array($site, $menufilename), $aMenuLinksTmp, $sMenuTemplateTmp);
 			$bEdit = true;
@@ -340,7 +340,7 @@ $number_new_params = COption::GetOptionInt("fileman", "num_menu_param", 1, $site
 <?if($strWarning == ''):?>
 <?if($USER->CanDoFileOperation('fm_edit_existent_file',$arPath_m)):?>
 
-<?= CAdminCalendar::ShowScript()?>
+<? CAdminCalendar::ShowScript() ?>
 <?
 ob_start();
 ?>

@@ -87,7 +87,7 @@ abstract class BaseType
 	 *
 	 * @param array $userField An array describing the field.
 	 * @param array|null $additionalParameters Additional parameters (e.g. context).
-	 * @return string HTML äëÿ âûâîäà.
+	 * @return string HTML Ð´Ð»Ñ Ð²Ñ‹Ð²Ð¾Ð´Ð°.
 	 */
 	public static function renderEdit(array $userField, ?array $additionalParameters = []): string
 	{
@@ -196,6 +196,21 @@ abstract class BaseType
 	private static function getHtml($userField, $additionalParameters): string
 	{
 		global $APPLICATION;
+		global $USER_FIELD_MANAGER;
+
+		$preparedSettings = $USER_FIELD_MANAGER->PrepareSettings(0, $userField);
+		if (!empty($preparedSettings))
+		{
+			if (isset($userField['SETTINGS']) && is_array($userField['SETTINGS']))
+			{
+				$userField['SETTINGS'] = array_merge($userField['SETTINGS'], $preparedSettings);
+			}
+			else
+			{
+				$userField['SETTINGS'] = $preparedSettings;
+			}
+		}
+
 		ob_start();
 		$APPLICATION->IncludeComponent(
 			self::getComponentName(),

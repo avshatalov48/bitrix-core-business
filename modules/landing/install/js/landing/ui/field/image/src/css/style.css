@@ -16,6 +16,10 @@
 	margin-right: 0;
 }
 
+.landing-ui-field-image--compact .landing-ui-field-image-left .landing-ui-field .landing-ui-field-input {
+	margin-bottom: 7px;
+}
+
 .landing-ui-field-image-right {
 	display: flex;
 	flex-direction: column;
@@ -63,6 +67,11 @@
 	bottom: 0;
 	left: 0;
 	content: '';
+}
+
+.landing-ui-field-image-preview-inner.--shown {
+	box-shadow: 0 0 0 2px #8E52EC;
+	border-radius: var(--ui-border-radius-2xs);
 }
 
 .landing-ui-field-image-preview.landing-ui-hide {

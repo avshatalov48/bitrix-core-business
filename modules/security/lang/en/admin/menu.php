@@ -35,3 +35,4 @@ $MESS["SEC_MENU_SESSION_ITEM"] = "Session Protection";
 $MESS["SEC_MENU_SESSION_TITLE"] = "Session protection parameters";
 $MESS["SEC_MENU_TITLE"] = "Configure proactive protection";
 $MESS["SEC_MENU_TROJANS"] = "Find vulnerabilities";
+$MESS["SEC_MENU_WWALL"] = "Proactive Protection Monitor";

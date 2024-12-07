@@ -1,0 +1,63 @@
+.bx-im-message-copilot-answer__container {
+	--im-message-copilot-answer__background-color_error: var(--im-color-palette-red-20);
+	--im-message-copilot-answer__background-color_action-text: #8e52ec;
+	--im-message-copilot-answer__background-color_action-text-hover: #6e35d0;
+
+	border-radius: inherit;
+}
+
+.bx-im-message-copilot-answer__container.--error {
+	background-color: var(--im-message-copilot-answer__background-color_error);
+}
+
+.bx-im-message-copilot-base-message__container.bx-im-message-base__container.--opponent:last-child .bx-im-message-base__body:not(.--transparent)::before {
+	background: url("data:image/svg+xml;charset=utf-8,%3Csvg width='4' height='9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1.202 9H4V0C3.854 2.61 2.008 5.042.354 6.718-.4 7.482.13 9 1.202 9z' fill='%23ffe8e8'/%3E%3C/svg%3E");
+}
+
+.bx-im-message-copilot-answer__actions {
+	display: flex;
+	align-items: center;
+	margin-top: 12px;
+	padding-bottom: 6px;
+}
+
+.bx-im-message-copilot-answer__action {
+	display: flex;
+	align-items: center;
+	cursor: pointer;
+}
+
+.bx-im-message-copilot-answer__action + .bx-im-message-copilot-answer__action {
+	margin-left: 16px;
+}
+
+.bx-im-message-copilot-answer__action_icon {
+	width: 24px;
+	height: 24px;
+	margin-right: 4px;
+}
+
+.bx-im-message-copilot-answer__action_icon.--copy {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='.9' fill='%238E52EC'%3E%3Cpath d='M7.77 5.797h7.984a2 2 0 012 2v8.238h.213a2 2 0 002-2V6.04a2 2 0 00-2-2h-8.21A2 2 0 007.77 5.797z'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.023 9.95a2 2 0 012-2h8.005a2 2 0 012 2v8.006a2 2 0 01-2 2H6.023a2 2 0 01-2-2V9.951zm9.928.079H6.1v7.85h7.85v-7.85z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.bx-im-message-copilot-answer__action_icon.--continue {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.83 4.202a.682.682 0 00-.966-.003l-8.472 8.447 2.464 2.49 8.475-8.451a.682.682 0 00.003-.962l-1.504-1.52zM4.073 16.454a.258.258 0 01-.064-.247l.742-2.753 2.323 2.323-2.754.742a.25.25 0 01-.247-.065zm1.503 2.294l-.697-.754a3.435 3.435 0 003.478-2.197l.246-.174a1.432 1.432 0 011.76.081l1.516 1.3 1.508-1.15a1.705 1.705 0 012.343.265l.549.66 2.254-1.16a1.023 1.023 0 01.935 1.819l-2.497 1.284a1.705 1.705 0 01-2.089-.424l-.515-.618-1.643 1.251a1.432 1.432 0 01-1.8-.051l-1.529-1.311-1.939 1.376a1.432 1.432 0 01-1.88-.197z' fill='%238E52EC' opacity='.9'/%3E%3C/svg%3E");
+}
+
+.bx-im-message-copilot-answer__action_text {
+	font: var(--im-font-size-lg) var(--im-font-family-system);
+	color: var(--im-message-copilot-answer__background-color_action-text);
+}
+
+.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_icon.--copy {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cg opacity='.9' fill='%236E35D0'%3E%3Cpath d='M7.77 5.797h7.984a2 2 0 012 2v8.238h.213a2 2 0 002-2V6.04a2 2 0 00-2-2h-8.21A2 2 0 007.77 5.797z'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M4.023 9.95a2 2 0 012-2h8.005a2 2 0 012 2v8.006a2 2 0 01-2 2H6.023a2 2 0 01-2-2V9.951zm9.928.079H6.1v7.85h7.85v-7.85z'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_icon.--continue {
+	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='24' height='24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M14.83 4.202a.682.682 0 00-.966-.003l-8.472 8.447 2.464 2.49 8.475-8.451a.682.682 0 00.003-.962l-1.504-1.52zM4.073 16.454a.258.258 0 01-.064-.247l.742-2.753 2.323 2.323-2.754.742a.25.25 0 01-.247-.065zm1.503 2.294l-.697-.754a3.435 3.435 0 003.478-2.197l.246-.174a1.432 1.432 0 011.76.081l1.516 1.3 1.508-1.15a1.705 1.705 0 012.343.265l.549.66 2.254-1.16a1.023 1.023 0 01.935 1.819l-2.497 1.284a1.705 1.705 0 01-2.089-.424l-.515-.618-1.643 1.251a1.432 1.432 0 01-1.8-.051l-1.529-1.311-1.939 1.376a1.432 1.432 0 01-1.88-.197z' fill='%236E35D0' opacity='.9'/%3E%3C/svg%3E");
+}
+
+.bx-im-message-copilot-answer__action:hover .bx-im-message-copilot-answer__action_text {
+	color: var(--im-message-copilot-answer__background-color_action-text-hover);
+}

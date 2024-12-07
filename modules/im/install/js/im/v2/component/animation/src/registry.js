@@ -1,1 +1,2 @@
-export {ExpandAnimation} from './expand';
+export { ExpandAnimation } from './expand';
+export { FadeAnimation } from './fade';

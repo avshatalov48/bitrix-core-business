@@ -1,6 +1,6 @@
-import {Dom, Tag, Type, Text} from "main.core";
-import {TagSelector} from "ui.entity-selector";
-import {BaseField} from "./base-field";
+import { Dom, Tag, Type, Text } from 'main.core';
+import { TagSelector } from 'ui.entity-selector';
+import { BaseField } from './base-field';
 
 export class UserSelector extends BaseField
 {
@@ -11,6 +11,7 @@ export class UserSelector extends BaseField
 	#decode: ?function = null;
 	#defaultTags: Array = [];
 	#className: string = '';
+	#enableUsers: boolean;
 	#enableAll: boolean;
 	#enableDepartments: boolean;
 
@@ -21,27 +22,39 @@ export class UserSelector extends BaseField
 		this.#decode = Type.isFunction(params.decodeValue) ? params.decodeValue : null;
 		this.#inputContainer = Tag.render`<div class="ui-section__input-container"></div>`;
 		this.#className = params.className;
-		this.#enableAll = params.enableAll !== false;
+		this.#enableUsers = params.enableUsers !== false;
+		this.#enableAll = this.#enableUsers && params.enableAll !== false;
 		this.#enableDepartments = params.enableDepartments === true;
 
 		this.#initInput(params.values);
 
-		const entities = [
-			{
-				id: 'user',
-				options: {
-					intranetUsersOnly: true,
+		const entities = [];
+
+		if (this.#enableUsers)
+		{
+			entities.push(
+				{
+					id: 'user',
+					options: {
+						intranetUsersOnly: true,
+					},
 				},
-			},
-			{
-				id: 'department',
-				options: {
-					selectMode: this.#enableDepartments ? 'usersAndDepartments' : 'usersOnly',
-					allowFlatDepartments: this.#enableDepartments,
-					allowSelectRootDepartment: this.#enableDepartments,
-				}
-			}
-		];
+			);
+		}
+
+		if (this.#enableUsers || this.#enableDepartments)
+		{
+			entities.push(
+				{
+					id: 'department',
+					options: {
+						selectMode: this.#getDepartamentsSelectMode(),
+						allowFlatDepartments: this.#enableDepartments,
+						allowSelectRootDepartment: this.#enableDepartments,
+					},
+				},
+			);
+		}
 
 		if (this.#enableAll)
 		{
@@ -55,26 +68,36 @@ export class UserSelector extends BaseField
 			);
 		}
 
+		if (params.entities)
+		{
+			entities.push(...params.entities);
+		}
+
+		const multiple = params.multiple !== false;
+
 		this.#entitySelector = new TagSelector({
 			id: this.getId(),
-			textBoxAutoHide: true,
+			textBoxAutoHide: false,
 			textBoxWidth: 350,
 			maxHeight: 99,
 			dialogOptions: {
 				id: this.getId(),
 				preselectedItems: this.#defaultValues,
+				multiple: multiple,
+				hideOnDeselect: !multiple,
 				events: {
 					'Item:onSelect': this.onChangeSelector.bind(this),
-					'Item:onDeselect': this.onChangeSelector.bind(this)
+					'Item:onDeselect': this.onChangeSelector.bind(this),
 				},
 				entities: entities,
-			}
+			},
+			multiple: multiple,
 		});
 		this.#defaultTags = this.#entitySelector.getTags();
 
 		if (!this.isEnable())
 		{
-			this.#entitySelector.hideAddButton()
+			this.#entitySelector.hideAddButton();
 			this.#entitySelector.getTextBox().readOnly = true;
 			Dom.adjust(this.#entitySelector.getContainer(), {
 				events: {
@@ -90,9 +113,34 @@ export class UserSelector extends BaseField
 		}
 	}
 
+	#getDepartamentsSelectMode(): string
+	{
+		if (this.#enableUsers && this.#enableDepartments)
+		{
+			return 'usersAndDepartments';
+		}
+
+		if (this.#enableUsers && !this.#enableDepartments)
+		{
+			return 'usersOnly';
+		}
+
+		return 'departmentsOnly';
+	}
+
+	getSelector(): TagSelector
+	{
+		return this.#entitySelector;
+	}
+
 	getInputNode(): HTMLElement
 	{
 		return this.#entitySelector.getContainer();
+	}
+
+	getErrorBox(): HTMLElement
+	{
+		return this.#entitySelector.getOuterContainer();
 	}
 
 	prefixId(): string
@@ -103,17 +151,17 @@ export class UserSelector extends BaseField
 	renderContentField(): HTMLElement
 	{
 		const content = Tag.render`
-		<div id="${this.getId()}" class="ui-section__field-user_selector ${this.#className}">
-			<div class="ui-section__field">
-				<div class="ui-section__field-label">
-					${this.getLabel()}
+			<div id="${this.getId()}" class="ui-section__field-user_selector ${this.#className}">
+				<div class="ui-section__field">
+					<div class="ui-section__field-label">
+						${this.getLabel()}
+					</div>
+				</div>
+				${this.renderErrors()}
+				<div class="ui-section__input-box">
+					${this.#inputContainer}
 				</div>
 			</div>
-			${this.renderErrors()}
-			<div class="ui-section__input-box">
-				${this.#inputContainer}
-			</div>
-		</div>
 		`;
 		this.#entitySelector.renderTo(content.querySelector('.ui-section__field'));
 
@@ -222,6 +270,11 @@ export class UserSelector extends BaseField
 						default:
 							continue;
 					}
+				}
+
+				if (Type.isArrayFilled(value))
+				{
+					item = value;
 				}
 
 				this.#defaultValues.push(item);

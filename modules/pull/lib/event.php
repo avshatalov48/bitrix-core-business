@@ -268,7 +268,7 @@ class Event
 		}
 
 		$pushCode = self::getParamsCode($parameters['push']);
-		if (self::$push[$pushCode])
+		if (isset(self::$push[$pushCode]))
 		{
 			self::$push[$pushCode]['users'] = array_unique(array_merge(self::$push[$pushCode]['users'], array_values($users)));
 		}
@@ -338,7 +338,7 @@ class Event
 			$data = $parameters['push'];
 		}
 
-		$data['message'] = str_replace("\n", " ", trim($data['message']));
+		$data['message'] = str_replace("\n", " ", trim($data['message'] ?? ''));
 		$data['params'] = $data['params'] ?? [];
 		$data['advanced_params'] = $data['advanced_params'] ?? [];
 		$data['advanced_params']['extra'] = $parameters['extra'] ?? [];
@@ -347,8 +347,8 @@ class Event
 		$data['tag'] = $data['tag'] ?? '';
 		$data['sub_tag'] = $data['sub_tag'] ?? '';
 		$data['app_id'] = $data['app_id'] ?? '';
-		$data['send_immediately'] = $data['send_immediately'] == 'Y' ? 'Y' : 'N';
-		$data['important'] = $data['important'] == 'Y' ? 'Y' : 'N';
+		$data['send_immediately'] = isset($data['send_immediately']) && $data['send_immediately'] == 'Y' ? 'Y' : 'N';
+		$data['important'] = isset($data['important']) && $data['important'] == 'Y' ? 'Y' : 'N';
 
 		$users = [];
 		foreach ($parameters['users'] as $userId)
@@ -364,7 +364,7 @@ class Event
 		$manager = new \CPushManager();
 		$manager->AddQueue([
 			'USER_ID' => $users,
-			'SKIP_USERS' => is_array($data['skip_users']) ? $data['skip_users'] : [],
+			'SKIP_USERS' => isset($data['skip_users']) && is_array($data['skip_users']) ? $data['skip_users'] : [],
 			'MESSAGE' => $data['message'],
 			'EXPIRY' => $data['expiry'],
 			'PARAMS' => $data['params'],

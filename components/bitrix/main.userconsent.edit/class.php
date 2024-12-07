@@ -69,7 +69,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		$pathTo = str_replace('#id#', $this->agreement->getId(), $this->arParams['PATH_TO_EDIT']);
 		if ($this->arParams['IFRAME'])
 		{
-			$pathTo .= strpos($pathTo, '?') === false ? '?' : '&';
+			$pathTo .= !str_contains($pathTo, '?') ? '?' : '&';
 			$pathTo .= 'IFRAME=Y';
 		}
 
@@ -81,7 +81,7 @@ class MainUserConsentEditComponent extends CBitrixComponent
 		{
 			if ($this->arParams['IFRAME'])
 			{
-				$pathTo .= strpos($pathTo, '?') === false ? '?' : '&';
+				$pathTo .= !str_contains($pathTo, '?') ? '?' : '&';
 				$pathTo .= 'IS_SAVED=Y';
 				LocalRedirect($pathTo);
 			}

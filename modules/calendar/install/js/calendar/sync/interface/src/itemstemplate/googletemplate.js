@@ -57,7 +57,13 @@ export default class GoogleTemplate extends InterfaceTemplate
 			this.provider.saveConnection();
 			this.openSyncWizard();
 			this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
+			this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SYNCHRONIZING);
 			this.provider.getInterfaceUnit().refreshButton();
+
+			if (this.provider.isReconnecting())
+			{
+				this.provider.emit('onReconnecting');
+			}
 
 			Event.unbind(window, 'hashchange', this.handleSuccessConnectionDebounce);
 			Event.unbind(window, 'message', this.handleSuccessConnectionDebounce);
@@ -122,6 +128,7 @@ export default class GoogleTemplate extends InterfaceTemplate
 		}
 		else
 		{
+			this.provider.endReconnecting();
 			this.showAlertPopup();
 		}
 	}
@@ -130,7 +137,8 @@ export default class GoogleTemplate extends InterfaceTemplate
 	{
 		if (!this.wizard)
 		{
-			this.wizard = new GoogleSyncWizard();
+			const mode = this.provider.isStartedReconnecting ? 'reconnect' : 'default';
+			this.wizard = new GoogleSyncWizard({ mode });
 			this.wizard.openSlider();
 			this.provider.setActiveWizard(this.wizard);
 		}

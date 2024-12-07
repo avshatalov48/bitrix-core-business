@@ -1,5 +1,5 @@
 <?php
-	
+
 namespace Bitrix\Calendar\Sync\Icloud;
 
 use Bitrix\Calendar\Core\Builders\EventBuilderFromEntityObject;
@@ -63,7 +63,7 @@ class ApiService
 			$connection['SERVER_USERNAME'],
 			$connection['SERVER_PASSWORD']
 		);
-		
+
 		$this->apiClient = new ApiClient($davClient, $userId);
 		$principlesXml = $this->apiClient->propfind(
 			$server['path'],
@@ -78,7 +78,7 @@ class ApiService
 				'/response/propstat/prop/current-user-principal/href'
 			);
 		}
-		
+
 		return null;
 	}
 
@@ -99,7 +99,7 @@ class ApiService
 			$connection['SERVER_USERNAME'],
 			$connection['SERVER_PASSWORD']
 		);
-		
+
 		$this->apiClient = new ApiClient($davClient, $userId);
 		$calendarXml = $this->apiClient->propfind(
 			$server['path'],
@@ -107,7 +107,7 @@ class ApiService
 			null,
 			0
 		);
-		
+
 		if ($calendarXml)
 		{
 			return $this->getXmlStringData(
@@ -115,7 +115,7 @@ class ApiService
 				'/response/propstat/prop/calendar-home-set/href'
 			);
 		}
-		
+
 		return null;
 	}
 
@@ -134,13 +134,13 @@ class ApiService
 			$connection['SERVER_USERNAME'],
 			$connection['SERVER_PASSWORD']
 		);
-		
+
 		$calendars = $davClient->GetCalendarList($server['path']);
 		if (!is_array($calendars) || empty($calendars))
 		{
 			return null;
 		}
-		
+
 		return $calendars;
 	}
 
@@ -185,7 +185,7 @@ class ApiService
 		{
 			return $this->saveInstance($path, $event, $data);
 		}
-		
+
 		$eventPath = $this->davClient->GetRequestEventPath($path, $xmlId);
 
 		return $this->editEvent($eventPath, $xmlId, $event, $data);
@@ -207,9 +207,9 @@ class ApiService
 		{
 			return null;
 		}
-		
+
 		$eventPath = $this->davClient->GetRequestEventPath($path, $xmlId);
-		
+
 		$result = (int)$this->apiClient->delete($eventPath);
 
 		if ($this->davClient->getError())
@@ -221,7 +221,7 @@ class ApiService
 		{
 			return true;
 		}
-		
+
 		return null;
 	}
 
@@ -384,7 +384,7 @@ class ApiService
 	{
 		return $this->davClient->GetCalendarItemsList($path, $hrefs, true);
 	}
-	
+
 	public function prepareUrl(string $url): array
 	{
 		$parsed = parse_url($url);
@@ -395,7 +395,7 @@ class ApiService
 				: 80
 			);
 		}
-		
+
 		return $parsed;
 	}
 
@@ -420,7 +420,7 @@ class ApiService
 				}
 			}
 		}
-		
+
 		return $data;
 	}
 
@@ -449,7 +449,7 @@ class ApiService
 			$password,
 		);
 		$davClient->SetPrivateIp(false);
-		
+
 		return $davClient;
 	}
 
@@ -522,14 +522,13 @@ class ApiService
 	{
 		$instancesOriginalDate = [];
 		$exDates = $event->getExcludedDateCollection();
-		$excludedInstance = $excludeDate ? $excludeDate->format('Ymd') : null;
+		$excludedInstance = $excludeDate?->format('Ymd');
 
 		$instances = EventTable::query()
 			->setSelect(['*'])
 			->where('RECURRENCE_ID', $event->getParentId())
 			->where('DELETED', 'N')
 			->where('OWNER_ID', $event->getOwner()->getId())
-			// ->whereNot('MEETING_STATUS', 'N')
 			->where(Query::filter() // TODO: it's better to optimize it and don't use 'OR' logic here
 				 ->logic('or')
 				 ->whereNot('MEETING_STATUS', 'N')

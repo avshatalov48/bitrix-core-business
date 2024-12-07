@@ -1,4 +1,6 @@
-<?
+<?php
+
+use Bitrix\Main\Application;
 use Bitrix\Main\Localization\Loc;
 
 if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
@@ -65,8 +67,7 @@ class CB24ConnectorOpenlineInfoComponent extends \CBitrixComponent
 
 	private function prepareAuthData()
 	{
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/update_client.php");
-		$licence = md5("BITRIX".\CUpdateClient::GetLicenseKey()."LICENCE");
+		$licence = Application::getInstance()->getLicense()->getPublicHashKey();
 
 		global $USER;
 		if ($USER->GetID() > 0)

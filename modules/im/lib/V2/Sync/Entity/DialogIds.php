@@ -69,6 +69,11 @@ class DialogIds implements Entity
 			$this->chatsWithoutDialogIds[(int)$chat['id']] = (int)$chat['id'];
 		}
 
+		foreach ($this->chats->getShortInfoChatIds() as $chatId)
+		{
+			$this->chatsWithoutDialogIds[$chatId] = $chatId;
+		}
+
 		return $this;
 	}
 

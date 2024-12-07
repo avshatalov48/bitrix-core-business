@@ -61,7 +61,7 @@ $APPLICATION->IncludeComponent(
 	false
 );
 ?>
-<script type="text/javascript">
+<script>
 
 	var listParams  = {
 		aStoresIds: "<?=CUtil::PhpToJsObject($arStoresIds)?>",

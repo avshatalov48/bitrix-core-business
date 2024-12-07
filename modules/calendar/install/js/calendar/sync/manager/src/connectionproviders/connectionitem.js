@@ -18,6 +18,7 @@ export default class ConnectionItem
 		this.type = options.type;
 		this.id = options.type;
 		this.userName = options.userName;
+		this.accountName = options.accountName;
 	}
 
 	static createInstance(options)
@@ -112,5 +113,10 @@ export default class ConnectionItem
 	setSyncDate(syncDate)
 	{
 		this.syncDate = syncDate;
+	}
+
+	getAccountName()
+	{
+		return this.accountName;
 	}
 }

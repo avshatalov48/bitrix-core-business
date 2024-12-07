@@ -1,11 +1,14 @@
 .calendar-sharing__settings {
-	margin-top: 20px;
 	padding: 10px 17px;
 	border-radius: 10px;
 	transition: background-color 250ms ease;
 }
 
-.calendar-sharing__settings.--hide {
+.calendar-sharing__settings.--crm {
+	border: 1px solid var(--ui-color-palette-gray-05);
+}
+
+.calendar-sharing__settings.--calendar.--hide {
 	background-color: var(--ui-color-palette-gray-02);
 }
 
@@ -40,6 +43,7 @@
 	display: grid;
 	place-content: center;
 	width: 30px;
+	user-select: none;
 }
 
 .calendar-sharing__settings-expand {
@@ -64,7 +68,7 @@
 
 .calendar-sharing__settings-slotSize {
 	margin-bottom: 2px;
-	color: var(--ui-color-palette-gray-70, #828B95);
+	color: var(--ui-color-base-60);
 }
 
 .calendar-sharing__settings-range-list {
@@ -114,6 +118,11 @@
 	font-size: 14px;
 	border: 1px solid #E6E7E9;
 	border-radius: 2in;
+}
+
+.calendar-sharing__settings.--crm .calendar-sharing__settings-select {
+	border-radius: 8px;
+	border-color: var(--ui-color-palette-gray-20);
 }
 
 .calendar-sharing__settings-weekdays {
@@ -194,6 +203,11 @@
 	transform-origin: center;
 }
 
+.calendar-sharing__settings.--crm .calendar-sharing__settings-select-arrow:after,
+.calendar-sharing__settings.--crm .calendar-sharing__settings-select-arrow:before {
+	background-color: var(--ui-color-palette-gray-70);
+}
+
 .calendar-sharing__settings-select-arrow:before {
 	margin-left: -17px;
 }
@@ -240,6 +254,12 @@
 	border: 1px solid;
 	color: #2FC6F6;
 	cursor: pointer;
+	user-select: none;
+}
+
+.calendar-sharing__settings.--crm .calendar-sharing__settings-delete,
+.calendar-sharing__settings.--crm .calendar-sharing__settings-add {
+	border: none;
 }
 
 .calendar-sharing__settings-add.--hidden {
@@ -261,6 +281,13 @@
 	top: 50%;
 	transform-origin: center;
 	transform: translate(-50%, -50%);
+}
+
+.calendar-sharing__settings.--crm .calendar-sharing__settings-delete:before,
+.calendar-sharing__settings.--crm .calendar-sharing__settings-delete:after,
+.calendar-sharing__settings.--crm .calendar-sharing__settings-add:before,
+.calendar-sharing__settings.--crm .calendar-sharing__settings-add:after {
+	background: var(--ui-color-palette-gray-90);
 }
 
 .calendar-sharing__settings-delete:after,

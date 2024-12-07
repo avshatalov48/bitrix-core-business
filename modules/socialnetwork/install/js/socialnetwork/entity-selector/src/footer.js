@@ -25,8 +25,13 @@ export default class Footer extends DefaultFooter
 
 			const inviteEmployeeLink = this.getOption('inviteEmployeeLink');
 			const inviteGuestLink = this.getOption('inviteGuestLink');
+			const lockGuestLink = this.getOption('lockGuestLink', false);
+			const lockGuestLinkFeatureId = this.getOption('lockGuestLinkFeatureId', '');
 			const inviteEmployeeScope = this.getOption('inviteEmployeeScope');
 			const createProjectLink = this.getOption('createProjectLink');
+			const lockProjectLink = this.getOption('lockProjectLink', false);
+			const lockProjectLinkFeatureId = this.getOption('lockProjectLinkFeatureId', '');
+			const isProject = this.getOption('isProject', false);
 
 			const complexPhrases = {
 				'111': 'SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT_OR_GUEST',
@@ -68,9 +73,26 @@ export default class Footer extends DefaultFooter
 				if (guest)
 				{
 					const showIcon = !hideIcon && firstTag === guest;
-					const guestLink = this.createInviteGuestLink(guest.innerHTML, showIcon);
+					let guestLink;
+
+					if (lockGuestLink)
+					{
+						guestLink = this.createLockedGuestLink(
+							guest.innerHTML,
+							showIcon,
+							lockGuestLinkFeatureId,
+						);
+
+						this.createLock(guestLink, lockGuestLinkFeatureId);
+					}
+					else
+					{
+						guestLink = this.createInviteGuestLink(guest.innerHTML, showIcon);
+
+						this.createHint(guestLink);
+					}
+
 					phrase.replaceChild(guestLink, guest);
-					this.createHint(guestLink);
 				}
 
 				if (project)
@@ -118,17 +140,49 @@ export default class Footer extends DefaultFooter
 			}
 			else if (inviteGuestLink)
 			{
-				const guestLink =
-					this.createInviteGuestLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true)
-				;
+				let guestLink;
 
-				this.createHint(guestLink);
+				if (lockGuestLink)
+				{
+					guestLink = this.createLockedGuestLink(
+						Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'),
+						true,
+						lockGuestLinkFeatureId,
+					);
+
+					this.createLock(guestLink, lockGuestLinkFeatureId);
+				}
+				else
+				{
+					guestLink = this.createInviteGuestLink(
+						Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'),
+						true,
+					);
+
+					this.createHint(guestLink);
+				}
 
 				return guestLink;
 			}
 			else if (createProjectLink)
 			{
-				return this.createProjectLink(Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'), true);
+				if (lockProjectLink)
+				{
+					const projectLink = this.createLockedProjectLink(
+						isProject ? Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT_1') : Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'),
+						true,
+						lockProjectLinkFeatureId,
+					);
+
+					this.createLock(projectLink, lockProjectLinkFeatureId);
+
+					return projectLink;
+				}
+
+				return this.createProjectLink(
+					isProject ? Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT_1') : Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'),
+					true,
+				);
 			}
 
 			return null;
@@ -158,6 +212,18 @@ export default class Footer extends DefaultFooter
 		`;
 	}
 
+	createLockedGuestLink(text: string, icon: boolean, featureId: string): string
+	{
+		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
+
+		return Tag.render`
+			<span
+				class="${className}"
+				onclick="${(event) => this.handleLockedClick(event, featureId)}"
+			>${text}</span>
+		`;
+	}
+
 	createProjectLink(text: string, icon: boolean): string
 	{
 		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
@@ -167,11 +233,36 @@ export default class Footer extends DefaultFooter
 		`;
 	}
 
+	createLockedProjectLink(text: string, icon: boolean, featureId: string): string
+	{
+		const className = `ui-selector-footer-link${icon ? ' ui-selector-footer-link-add' : ''}`;
+
+		return Tag.render`
+			<span
+				class="${className}"
+				onclick="${(event) => this.handleLockedClick(event, featureId)}"
+			>${text}</span>
+		`;
+	}
+
 	createHint(link: HTMLElement): void
 	{
 		Runtime.loadExtension('ui.hint').then(() => {
 			const hint = BX.UI.Hint.createInstance();
 			const node = hint.createNode(Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITED_GUEST_HINT'));
+			Dom.insertAfter(node, link);
+		});
+	}
+
+	createLock(link: HTMLElement, featureId: string): void
+	{
+		Runtime.loadExtension('ui.info-helper').then(() => {
+			const node = Tag.render`
+				<span
+					class="ui-selector-footer-lock tariff-lock"
+					onclick="${(event) => this.handleLockedClick(event, featureId)}"
+				></span>
+			`;
 			Dom.insertAfter(node, link);
 		});
 	}
@@ -239,6 +330,23 @@ export default class Footer extends DefaultFooter
 				}
 			);
 		}
+	}
+
+	handleLockedClick(event: PointerEvent, featureId: string): void
+	{
+		Runtime.loadExtension('ui.info-helper')
+			.then(({ FeaturePromotersRegistry }) => {
+				if (FeaturePromotersRegistry)
+				{
+					FeaturePromotersRegistry.getPromoter({ featureId }).show();
+				}
+				else
+				{
+					BX.UI.InfoHelper.show(`limit_${featureId}`, { isLimit: true });
+				}
+			})
+			.catch((error) => {})
+		;
 	}
 
 	handleCreateProjectClick(): void

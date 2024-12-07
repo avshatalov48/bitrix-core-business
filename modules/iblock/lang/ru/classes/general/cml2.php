@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IBLOCK_XML2_SUM_FORMAT"] = "ФорматСуммы";
 $MESS["IBLOCK_XML2_SUM_FORMAT_DELIM"] = "ЧРД";
 $MESS["IBLOCK_XML2_CATALOG_NAME"] = "1С Каталог";
@@ -199,6 +199,8 @@ $MESS["IBLOCK_XML2_BASE_UNIT_ADD_ERROR"] = "Ошибка добавления н
 $MESS["IBLOCK_XML2_EXTERNAL"] = "Внешний";
 $MESS["IBLOCK_XML2_HBLOCK_NAME_IS_INVALID"] = "Название справочника должно начинаться с буквы и состоять только из латинских букв и цифр.";
 $MESS["IBLOCK_XML2_HBLOCK_ABSENT"] = "Не найден справочник для свойства [#ID#] #NAME#. Проверьте настройки свойства.";
+$MESS['IBLOCK_XML2_HBLOCK_CREATE_ERROR_UNKNOWN'] = "Внутренняя ошибка при создании справочника для свойства [#ID#] #NAME#. Проверьте настройки свойства.";
+$MESS['IBLOCK_XML2_HBLOCK_CREATE_ERROR'] = "При создании справочника для свойства [#ID#] #NAME# произошла ошибка: #ERRORS#";
 $MESS["IBLOCK_XML2_MODULE_CATALOG_IS_ABSENT"] = "Отсутствует модуль \"Торговый каталог\". Импорт торговых предложений и цен невозможен.";
 $MESS["IBLOCK_XML2_LINK"] = "Ссылка";
 $MESS["IBLOCK_XML2_FULL_DESCRIPTION"] = "ПолноеОписание";
@@ -208,4 +210,3 @@ $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_HIT"] = "сбрасывать в конце
 $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FINAL"] = "сбрасывать после окончания импорта";
 $MESS["IBLOCK_XML2_IBLOCK_CACHE_MODE_FREEZE"] = "не сбрасывать";
 $MESS["IBLOCK_NO_VAT_TITLE"] = "Без НДС";
-?>

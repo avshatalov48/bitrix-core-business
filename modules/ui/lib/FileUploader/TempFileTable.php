@@ -70,6 +70,7 @@ class TempFileTable extends Data\DataManager
 
 			(new Fields\IntegerField('SIZE'))
 				->configureRequired()
+				->configureSize(8)
 			,
 
 			(new Fields\StringField('PATH'))
@@ -82,7 +83,9 @@ class TempFileTable extends Data\DataManager
 				->configureSize(255)
 			,
 
-			new Fields\IntegerField('RECEIVED_SIZE'),
+			(new Fields\IntegerField('RECEIVED_SIZE'))
+				->configureSize(8)
+			,
 			new Fields\IntegerField('WIDTH'),
 			new Fields\IntegerField('HEIGHT'),
 

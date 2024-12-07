@@ -200,7 +200,7 @@ if (
 			</div>
 			<div class="feed-notification-block-content">
 				<div class="feed-notification-title"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_TITLE_MSGVER_1")?></div>
-				<div class="feed-notification-description"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC2")?></div>
+				<div class="feed-notification-description"><?=GetMessage("SONET_C30_FEED_NOTIFICATION_NOTASKS_DESC3")?></div>
 				<div class="feed-notification-buttons">
 					<a href="javascript:void(0);" class="ui-btn ui-btn-sm ui-btn-primary ui-btn-round" id="feed-notification-notasks-read-btn"><?=Loc::getMessage('SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_OK')?></a>
 					<a onclick="top.BX.Helper.show('redirect=detail&code=11182736');" style="margin-left: 12px;" class="ui-link ui-link-dashed ui-link-secondary"><?=Loc::getMessage('SONET_C30_FEED_NOTIFICATION_NOTASKS_BUTTON_MORE')?></a>
@@ -263,7 +263,7 @@ if (
 				sonetLbUseFavorites: '<?=(!isset($arParams["USE_FAVORITES"]) || $arParams["USE_FAVORITES"] !== "N" ? "Y" : "N")?>',
 				sonetLMenuLink: '<?=GetMessageJS("SONET_C30_MENU_TITLE_LINK2")?>',
 				sonetLMenuHref: '<?=GetMessageJS("SONET_C30_MENU_TITLE_HREF")?>',
-				sonetLMenuDelete: '<?=GetMessageJS(ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE2" : "SONET_C30_MENU_TITLE_DELETE")?>',
+				sonetLMenuDelete: '<?=GetMessageJS(ModuleManager::isModuleInstalled('intranet') ? "SONET_C30_MENU_TITLE_DELETE3" : "SONET_C30_MENU_TITLE_DELETE")?>',
 				sonetLMenuDeleteConfirm: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_CONFIRM")?>',
 				sonetLMenuDeleteFailure: '<?=GetMessageJS("SONET_C30_MENU_TITLE_DELETE_FAILURE")?>',
 				sonetLMenuCreateTask: '<?=GetMessageJS("SONET_C30_MENU_TITLE_CREATETASK")?>',
@@ -548,8 +548,10 @@ if (
 	{
 		$uri = new \Bitrix\Main\Web\Uri(htmlspecialcharsback(POST_FORM_ACTION_URI));
 
+		$pageNumber = (int)($arResult["PAGE_NAVNUM"] ?? 1);
+
 		$uri->deleteParams([
-			"PAGEN_".$arResult["PAGE_NAVNUM"],
+			"PAGEN_" . $pageNumber,
 			"RELOAD",
 			"logajax",
 			"pplogid",
@@ -559,7 +561,7 @@ if (
 
 		$uriParams = [
 			'logajax' => 'Y',
-			'PAGEN_' . $arResult['PAGE_NAVNUM'] => ($arResult['PAGE_NUMBER'] + 1),
+			'PAGEN_' . $pageNumber => ($arResult['PAGE_NUMBER'] + 1),
 			'ts' => $arResult['LAST_LOG_TS'],
 		];
 

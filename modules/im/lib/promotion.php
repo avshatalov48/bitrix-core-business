@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Chat\ChannelChat;
 use Bitrix\Main\Config\Option;
 
 class Promotion
@@ -77,6 +78,24 @@ class Promotion
 			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
 		];
 
+		$result[] = [
+			"ID" => 'im:channel-create:04032024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'im:add-users-to-copilot-chat:09042024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
+		$result[] = [
+			"ID" => 'im:change-role-copilot-chat:09042024:all',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_ALL
+		];
+
 		if (!\Bitrix\Im\Settings::isLegacyChatActivated())
 		{
 			$result[] = [
@@ -85,6 +104,12 @@ class Promotion
 				"DEVICE_TYPE" => self::DEVICE_TYPE_MOBILE,
 			];
 		}
+
+		$result[] = [
+			"ID" => 'immobile:chat-v2:26042024:mobile',
+			"USER_TYPE" => self::USER_TYPE_ALL,
+			"DEVICE_TYPE" => self::DEVICE_TYPE_MOBILE,
+		];
 
 		$settings = \Bitrix\Main\Config\Configuration::getValue('im');
 		if (isset($settings['promotion']) && is_array($settings['promotion']))

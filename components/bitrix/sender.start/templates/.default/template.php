@@ -142,7 +142,7 @@ $containerId = 'sender-start-container';
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript">
+	<script>
 		BX.ready(() => {
 			BX.message(<?= CUtil::phpToJsObject(Loc::loadLanguageFile(__FILE__)) ?>);
 			BX.Sender.Start.init(<?= CUtil::PhpToJSObject([

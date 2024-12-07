@@ -57,15 +57,15 @@ elseif(isset($_REQUEST["table_name"]) && check_bitrix_sessid())
 		}
 		else
 		{
-			if(mb_substr($table_name, 0, 2) === "o|")
+			if(str_starts_with($table_name, "o|"))
 			{
 				$op = "optimize";
-				$table_name = mb_substr($table_name, 2);
+				$table_name = substr($table_name, 2);
 			}
-			elseif(mb_substr($table_name, 0, 2) === "a|")
+			elseif(str_starts_with($table_name, "a|"))
 			{
 				$op = "analyze";
-				$table_name = mb_substr($table_name, 2);
+				$table_name = substr($table_name, 2);
 			}
 			else
 			{

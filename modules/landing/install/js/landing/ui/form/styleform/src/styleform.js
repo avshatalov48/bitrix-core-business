@@ -52,7 +52,7 @@ export class StyleForm extends BaseForm
 
 		if (
 			this.specialType && this.specialType === 'crm_forms'
-			&& Env.getInstance().getOptions().specialType === 'crm_forms'
+			&& Env.getInstance().getSpecialType() === 'crm_forms'
 		)
 		{
 			this.#addReplaceByTemplateCard();

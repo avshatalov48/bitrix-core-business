@@ -5,11 +5,13 @@
  * @subpackage seo
  * @copyright 2001-2013 Bitrix
  */
+
 namespace Bitrix\Seo;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\Loader;
+use Bitrix\Main\LoaderException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Web\HttpClient;
@@ -19,12 +21,12 @@ use Bitrix\Seo\Retargeting\AdsAudience;
 
 Loc::loadMessages(__FILE__);
 
-if(!defined("BITRIX_CLOUD_ADV_URL"))
+if (!defined("BITRIX_CLOUD_ADV_URL"))
 {
 	define("BITRIX_CLOUD_ADV_URL", 'https://cloud-adv.bitrix.info');
 }
 
-if(!defined("SEO_SERVICE_URL"))
+if (!defined("SEO_SERVICE_URL"))
 {
 	define('SEO_SERVICE_URL', BITRIX_CLOUD_ADV_URL);
 }
@@ -58,7 +60,7 @@ class Service
 	 */
 	public static function isRegistered()
 	{
-		return static::getEngine() ? static::getEngine()->isRegistered() : false;
+		return static::getEngine() && static::getEngine()->isRegistered();
 	}
 
 	/**
@@ -80,7 +82,7 @@ class Service
 			}
 			elseif (!$CACHE_MANAGER->Read(static::SERVICE_AUTH_CACHE_TLL_ERROR, static::SERVICE_AUTH_CACHE_ID_ERROR))
 			{
-				static::$auth = static::getEngine()->getInterface()->getClientInfo();
+				static::$auth = static::getEngine()?->getInterface()?->getClientInfo();
 				if (!static::$auth)
 				{
 					static::$auth = false;
@@ -98,12 +100,7 @@ class Service
 			}
 		}
 
-		if (static::$auth)
-		{
-			return static::$auth["engine"][$engineCode];
-		}
-
-		return false;
+		return static::$auth["engine"][$engineCode] ?? false;
 	}
 
 	/**
@@ -114,7 +111,7 @@ class Service
 	 */
 	public static function getClientList($engineCode = false)
 	{
-		if( static::$clientList == null)
+		if (static::$clientList == null)
 		{
 			$cache = Application::getInstance()->getManagedCache();
 			if ($cache->read(static::CLIENT_LIST_CACHE_TLL, static::CLIENT_LIST_CACHE_ID))
@@ -124,7 +121,12 @@ class Service
 			}
 			else
 			{
-				$clientDataProvider = static::getEngine()->getInterface();
+				$clientDataProvider = static::getEngine()?->getInterface();
+				if (!$clientDataProvider)
+				{
+					return [];
+				}
+
 				$result = $clientDataProvider->getClientList();
 				if (!is_array($result)) // backward compatibility
 				{
@@ -151,10 +153,12 @@ class Service
 		}
 		if ($engineCode)
 		{
-			return array_filter(static::$clientList, function ($item) use ($engineCode) {
+			return array_filter(static::$clientList, function ($item) use ($engineCode)
+			{
 				return $item['engine_code'] == $engineCode;
 			});
 		}
+
 		return static::$clientList;
 	}
 
@@ -186,15 +190,19 @@ class Service
 		$cache->Clean(static::SERVICE_AUTH_CACHE_ID);
 		$cache->Clean(static::SERVICE_AUTH_CACHE_ID_ERROR);
 
-		[$group, $type] = explode('.', $engine, 2);
-
-		if ($group == \Bitrix\Seo\Retargeting\Service::GROUP)
+		if ($engine && is_string($engine))
 		{
-			$service = AdsAudience::getService();
-			$service->setClientId($clientId);
-			$account = $service->getAccount($type);
-			if ($account)
-				$account->clearCache();
+			[$group, $type] = explode('.', $engine, 2);
+			if ($group == \Bitrix\Seo\Retargeting\Service::GROUP)
+			{
+				$service = AdsAudience::getService();
+				$service->setClientId($clientId);
+				$account = $service->getAccount($type);
+				if ($account)
+				{
+					$account->clearCache();
+				}
+			}
 		}
 
 		static::$clientList = null;
@@ -213,9 +221,9 @@ class Service
 	{
 		static::clearClientsCache($engineCode);
 
-		if(!$localOnly)
+		if (!$localOnly)
 		{
-			static::getEngine()->getInterface()->clearClientAuth($engineCode);
+			static::getEngine()?->getInterface()?->clearClientAuth($engineCode);
 		}
 	}
 
@@ -228,9 +236,9 @@ class Service
 	 */
 	public static function clearAuthForClient($client, $localOnly = false)
 	{
-		if(!$localOnly)
+		if (!$localOnly)
 		{
-			static::getEngine()->getInterface()->clearClientAuth($client['engine_code'], $client['proxy_client_id']);
+			static::getEngine()?->getInterface()?->clearClientAuth($client['engine_code'], $client['proxy_client_id']);
 		}
 		static::clearClientsCache($client['engine_code'], $client['proxy_client_id']);
 	}
@@ -241,31 +249,31 @@ class Service
 	 * @return void
 	 * @throws SystemException
 	 */
-	protected static function setAccessSettings(array $accessParams)
+	protected static function setAccessSettings(array $accessParams): void
 	{
-		if(static::isRegistered())
+		if (static::isRegistered())
 		{
 			$id = static::getEngine()->getId();
 
-			$result = SearchEngineTable::update($id, array(
+			$result = SearchEngineTable::update($id, [
 				"CLIENT_ID" => $accessParams["client_id"],
 				"CLIENT_SECRET" => $accessParams["client_secret"],
 				"SETTINGS" => "",
-			));
+			]);
 		}
 		else
 		{
-			$result = SearchEngineTable::add(array(
+			$result = SearchEngineTable::add([
 				"CODE" => Bitrix::ENGINE_ID,
 				"NAME" => "Bitrix",
 				"ACTIVE" => SearchEngineTable::ACTIVE,
 				"CLIENT_ID" => $accessParams["client_id"],
 				"CLIENT_SECRET" => $accessParams["client_secret"],
 				"REDIRECT_URI" => static::getRedirectUri(),
-			));
+			]);
 		}
 
-		if($result->isSuccess())
+		if ($result->isSuccess())
 		{
 			static::clearAuth(Bitrix::ENGINE_ID, true);
 			static::$engine = null;
@@ -273,11 +281,17 @@ class Service
 	}
 
 	/**
-	 * @return \Bitrix\Seo\Engine\Bitrix
+	 * @return Bitrix|null
+	 * @throws LoaderException
 	 */
-	public static function getEngine()
+	public static function getEngine(): ?Bitrix
 	{
-		if(!static::$engine && Loader::includeModule("socialservices"))
+		if (!Loader::includeModule("socialservices"))
+		{
+			return null;
+		}
+
+		if (!static::$engine)
 		{
 			static::$engine = new Bitrix();
 		}
@@ -286,11 +300,12 @@ class Service
 	}
 
 	/**
+	 * Try to register at external seoproxy service
+	 *
 	 * @return void
 	 * @throws SystemException
-	 * @throws \Bitrix\Main\ArgumentException
 	 */
-	public static function register()
+	public static function register(): void
 	{
 		static::clearClientsCache();
 
@@ -298,16 +313,26 @@ class Service
 
 		$queryParams = [
 			"key" => static::getLicense(),
-			"scope" => static::getEngine()->getInterface()->getScopeEncode(),
+			"scope" => static::getEngine()?->getInterface()?->getScopeEncode(),
 			"redirect_uri" => static::getRedirectUri(),
 		];
 
-		$result = $httpClient->post(static::SERVICE_URL.static::REGISTER, $queryParams);
-		$result = Json::decode($result);
+		$result = $httpClient->post(static::SERVICE_URL . static::REGISTER, $queryParams);
 
-		if($result["error"])
+		try
 		{
-			throw new SystemException($result["error"]);
+			$result = Json::decode($result);
+		}
+		catch (\Exception $e)
+		{
+			$result = [
+				'error' => $e->getCode() . ': ' . $e->getMessage(),
+			];
+		}
+
+		if (isset($result['error']))
+		{
+			throw new SystemException($result['error']);
 		}
 
 		static::setAccessSettings($result);
@@ -319,7 +344,7 @@ class Service
 	 */
 	public static function unregister()
 	{
-		if(static::isRegistered())
+		if (static::isRegistered())
 		{
 			$id = static::getEngine()->getId();
 			SearchEngineTable::delete($id);
@@ -332,7 +357,7 @@ class Service
 	 */
 	public static function getAuthorizeLink()
 	{
-		return static::SERVICE_URL.static::AUTHORIZE;
+		return static::SERVICE_URL . static::AUTHORIZE;
 	}
 
 	/**
@@ -359,8 +384,8 @@ class Service
 			"action" => "authorize",
 			"type" => $clientType,
 			"engine" => $engine,
-			"client_id" => static::getEngine()->getClientId(),
-			"client_secret" => static::getEngine()->getClientSecret(),
+			"client_id" => static::getEngine()?->getClientId(),
+			"client_secret" => static::getEngine()?->getClientSecret(),
 			"key" => static::getLicense(),
 			"check_key" => urlencode($checkKey),
 			"redirect_uri" => static::getRedirectUri(),
@@ -380,7 +405,7 @@ class Service
 
 		$isHttps = $request->isHttps();
 
-		return ($isHttps ? 'https' : 'http').'://'.$host.static::REDIRECT_URI;
+		return ($isHttps ? 'https' : 'http') . '://' . $host . static::REDIRECT_URI;
 	}
 
 	/**
@@ -402,19 +427,19 @@ class Service
 		{
 			return;
 		}
-		if(!$engine = static::getEngine())
+		if (!$engine = static::getEngine())
 		{
 			return;
 		}
 
 		$newRedirectUri = static::getRedirectUri();
-		if(!empty($domains))
+		if (!empty($domains))
 		{
 			$newRedirectUri = str_replace($domains['old_domain'], $domains['new_domain'], $newRedirectUri);
 		}
 
 		SearchEngineTable::update($engine->getId(), [
-			'REDIRECT_URI' => $newRedirectUri
+			'REDIRECT_URI' => $newRedirectUri,
 		]);
 	}
 }

@@ -1,15 +1,15 @@
 import './html.css';
-import {Parser} from 'im.v2.lib.parser';
+import { Parser } from 'im.v2.lib.parser';
 
-import type {AttachHtmlConfig} from 'im.v2.const';
+import type { AttachHtmlConfig } from 'im.v2.const';
 
 export const AttachHtml = {
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
-		}
+			default: () => {},
+		},
 	},
 	computed:
 	{
@@ -17,12 +17,12 @@ export const AttachHtml = {
 		{
 			return this.config;
 		},
-		html()
+		html(): string
 		{
 			return Parser.decodeHtml(this.internalConfig.html);
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-element-attach-type-html" v-html="html"></div>
-	`
+	`,
 };

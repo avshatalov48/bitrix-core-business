@@ -3,22 +3,17 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/classes/general
 
 class CWorkflow extends CAllWorkflow
 {
-	public static function err_mess()
-	{
-		return "<br>Module: workflow<br>Class: CAllWorkflow<br>File: ".__FILE__;
-	}
-
 	public static function Insert($arFields)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: Insert<br>Line: ";
 		global $DB;
+
 		$arInsert = $DB->PrepareInsert("b_workflow_document", $arFields, "workflow");
 		$DB->Query("
 			INSERT INTO b_workflow_document
 			(DATE_MODIFY, DATE_ENTER,  ".$arInsert[0].")
 			VALUES
-			(now(), now(), ".$arInsert[1].")",
-		false, $err_mess.__LINE__);
+			(now(), now(), ".$arInsert[1].")"
+		);
 		$ID = $DB->LastID();
 		$LOG_ID = CWorkflow::SetHistory($ID);
 		CWorkflow::SetMove($ID, $arFields["STATUS_ID"], 0, $LOG_ID);
@@ -27,8 +22,8 @@ class CWorkflow extends CAllWorkflow
 
 	public static function Update($arFields, $DOCUMENT_ID)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: Update<br>Line: ";
 		global $DB;
+
 		$z = CWorkflow::GetByID($DOCUMENT_ID);
 		$change = false;
 		if ($zr = $z->Fetch())
@@ -54,7 +49,7 @@ class CWorkflow extends CAllWorkflow
 				UPDATE b_workflow_document
 				SET ".$strUpdate.", DATE_MODIFY=now(), DATE_ENTER=now()
 				WHERE ID = ".$DOCUMENT_ID
-			, false, $err_mess.__LINE__);
+			);
 		}
 
 		if ($change)
@@ -66,8 +61,8 @@ class CWorkflow extends CAllWorkflow
 
 	public static function GetLockStatus($DOCUMENT_ID, &$locked_by, &$date_lock)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: GetLockStatus<br>Line: ";
 		global $DB, $USER;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$uid = intval($USER->GetID());
@@ -83,7 +78,7 @@ class CWorkflow extends CAllWorkflow
 			WHERE
 				ID = '$DOCUMENT_ID'
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		$locked_by = $zr["LOCKED_BY"];
 		$date_lock = $zr["DATE_LOCK"];
@@ -92,8 +87,8 @@ class CWorkflow extends CAllWorkflow
 
 	public static function GetList($by = 's_date_modify', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER;
+
 		$arSqlSearch = Array();
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$arGroups = $USER->GetUserGroupArray();
@@ -231,7 +226,7 @@ class CWorkflow extends CAllWorkflow
 				";
 		}
 
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		$arr = array();
 		while($ar=$rs->Fetch())
 		{
@@ -245,8 +240,8 @@ class CWorkflow extends CAllWorkflow
 
 	public static function GetByID($ID)
 	{
-		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $USER;
+
 		$ID = intval($ID);
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$uid = intval($USER->GetID());
@@ -273,7 +268,7 @@ class CWorkflow extends CAllWorkflow
 			WHERE
 				D.ID = $ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
@@ -297,8 +292,8 @@ class CWorkflow extends CAllWorkflow
 		));
 		$strSqlWhere = $obQueryWhere->GetQuery($arFilter);
 
-		$err_mess = (CWorkflowStatus::err_mess())."<br>Function: GetByFilename<br>Line: ";
 		global $DB, $USER;
+
 		$MAX_LOCK = intval(COption::GetOptionString("workflow","MAX_LOCK_TIME","60"));
 		$uid = intval($USER->GetID());
 		$strSql = "
@@ -325,14 +320,14 @@ class CWorkflow extends CAllWorkflow
 				AND D.FILENAME = '".$DB->ForSql($FILENAME, 255)."'
 				".($strSqlWhere? "AND ".$strSqlWhere: "")."
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetHistoryList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: GetHistoryList<br>Line: ";
 		global $DB;
+
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
 		{
@@ -429,15 +424,15 @@ class CWorkflow extends CAllWorkflow
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetHistoryByID($ID)
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: GetHistoryByID<br>Line: ";
 		global $DB;
+
 		$ID = intval($ID);
 		$strSql = "
 			SELECT DISTINCT
@@ -452,14 +447,14 @@ class CWorkflow extends CAllWorkflow
 			WHERE
 				L.ID = ".$ID."
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function CleanUpHistory()
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: CleanUpHistory<br>Line: ";
 		global $DB;
+
 		$HISTORY_DAYS = intval(COption::GetOptionString("workflow","HISTORY_DAYS","-1"));
 		if ($HISTORY_DAYS>=0)
 		{
@@ -468,15 +463,15 @@ class CWorkflow extends CAllWorkflow
 				WHERE
 					to_days(now())-to_days(TIMESTAMP_X)>=$HISTORY_DAYS
 				";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 		}
 		if (CModule::IncludeModule("iblock")) CIblockElement::WF_CleanUpHistory();
 	}
 
 	public static function CleanUpPublished()
 	{
-		$err_mess = (CWorkflow::err_mess())."<br>Function: CleanUpPublished<br>Line: ";
 		global $DB;
+
 		$DAYS_AFTER_PUBLISHING = intval(COption::GetOptionString("workflow","DAYS_AFTER_PUBLISHING","0"));
 		if ($DAYS_AFTER_PUBLISHING>=0)
 		{
@@ -489,7 +484,7 @@ class CWorkflow extends CAllWorkflow
 					STATUS_ID = 1
 				and to_days(now())-to_days(DATE_MODIFY)>=$DAYS_AFTER_PUBLISHING
 				";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while($zr=$z->Fetch())
 			{
 				CWorkflow::Delete($zr["ID"]);
@@ -499,8 +494,8 @@ class CWorkflow extends CAllWorkflow
 
 	public static function GetFileList($DOCUMENT_ID)
 	{
-		$err_mess = (CAllWorkflow::err_mess())."<br>Function: GetFileList<br>Line: ";
 		global $DB;
+
 		$DOCUMENT_ID = intval($DOCUMENT_ID);
 		$strSql = "
 			SELECT
@@ -516,7 +511,7 @@ class CWorkflow extends CAllWorkflow
 			ORDER BY
 				F.TIMESTAMP_X desc
 		";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		return $z;
 	}
 }

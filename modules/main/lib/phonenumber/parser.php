@@ -387,7 +387,7 @@ class Parser
 		if (!$phoneNumber)
 			return '';
 
-		$isInternational = mb_substr($phoneNumber, 0, 1) === $this->plusChar;
+		$isInternational = str_starts_with($phoneNumber, $this->plusChar);
 
 		// Remove non-digits (and strip the possible leading '+')
 		$phoneNumber = static::stripLetters($phoneNumber);
@@ -549,7 +549,7 @@ class Parser
 	protected static function stripCountryCode(&$phoneNumber, $countryMetadata)
 	{
 		$countryCode = $countryMetadata['countryCode'];
-		if(mb_strpos($phoneNumber, $countryCode) !== 0)
+		if(!str_starts_with($phoneNumber, $countryCode))
 			return false;
 
 		$possibleLocalNumber = mb_substr($phoneNumber, mb_strlen($countryCode));

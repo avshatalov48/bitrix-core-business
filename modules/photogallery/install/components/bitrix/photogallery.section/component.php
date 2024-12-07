@@ -1,12 +1,24 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 elseif (empty($arParams["SECTION_CODE"]) && intval($arParams["SECTION_ID"]) <= 0)
-	return ShowError(GetMessage("P_SECTION_EMPTY"));
+{
+	ShowError(GetMessage("P_SECTION_EMPTY"));
+	return;
+}
 elseif ($arParams["BEHAVIOUR"] == "USER" && empty($arParams["USER_ALIAS"]))
-	return ShowError(GetMessage("P_GALLERY_EMPTY"));
+{
+	ShowError(GetMessage("P_GALLERY_EMPTY"));
+	return;
+}
 
 if (empty($arParams["INDEX_URL"]) && !empty($arParams["SECTIONS_TOP_URL"]))
 	$arParams["INDEX_URL"] = $arParams["SECTIONS_TOP_URL"];

@@ -63,7 +63,7 @@ class MemcachedConnectionConfigurator
 			throw new NotSupportedException('Empty server list to memcache connection.');
 		}
 
-		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1;
+		$connectionTimeout = $this->getConfig()['connectionTimeout'] ?? 1000;
 		$serializer = $this->getConfig()['serializer'] ?? \Memcached::SERIALIZER_PHP;
 
 		$connection = new \Memcached();

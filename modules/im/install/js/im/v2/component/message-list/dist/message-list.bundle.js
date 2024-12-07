@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,im_v2_lib_smileManager,im_public,im_v2_lib_permission,im_v2_lib_confirm,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,ui_notification,im_v2_component_elements,main_core,main_core_events,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite) {
+(function (exports,im_v2_lib_quote,im_v2_component_animation,im_v2_lib_copilot,im_v2_lib_messageComponentManager,im_public,im_v2_lib_channel,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_entityCreator,im_v2_provider_service,im_v2_lib_market,im_v2_lib_utils,im_v2_lib_permission,im_v2_lib_confirm,ui_notification,main_polyfill_intersectionobserver,im_v2_component_elements,main_core,main_core_events,im_v2_lib_analytics,im_v2_lib_feature,im_v2_application_core,im_v2_const,im_v2_lib_dateFormatter,im_v2_component_message_file,im_v2_component_message_default,im_v2_component_message_callInvite,im_v2_component_message_deleted,im_v2_component_message_unsupported,im_v2_component_message_smile,im_v2_component_message_system,im_v2_component_message_chatCreation,im_v2_component_message_copilot_creation,im_v2_component_message_copilot_answer,im_v2_component_message_copilot_addedUsers,im_v2_component_message_support_vote,im_v2_component_message_support_sessionNumber,im_v2_component_message_support_chatCreation,im_v2_component_message_conferenceCreation,im_v2_component_message_supervisor_updateFeature,im_v2_component_message_supervisor_enableFeature,im_v2_component_message_sign,im_v2_component_message_checkIn,im_v2_component_message_ownChatCreation,im_v2_component_message_zoomInvite,im_v2_component_message_generalChatCreation,im_v2_component_message_generalChannelCreation,im_v2_component_message_channelCreation,im_v2_component_message_call) {
 	'use strict';
 
 	// @vue/component
@@ -30,154 +30,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	const serverComponentList = new Set([im_v2_const.MessageComponent.unsupported, im_v2_const.MessageComponent.chatCreation, im_v2_const.MessageComponent.ownChatCreation, im_v2_const.MessageComponent.conferenceCreation, im_v2_const.MessageComponent.callInvite, im_v2_const.MessageComponent.copilotCreation, im_v2_const.MessageComponent.copilotMessage, im_v2_const.MessageComponent.supportVote, im_v2_const.MessageComponent.supportSessionNumber, im_v2_const.MessageComponent.zoomInvite, im_v2_const.MessageComponent.copilotAddedUsers, im_v2_const.MessageComponent.supervisorUpdateFeature, im_v2_const.MessageComponent.supervisorEnableFeature, im_v2_const.MessageComponent.sign]);
-	var _message = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("message");
-	var _store = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("store");
-	var _isServerComponent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isServerComponent");
-	var _hasFiles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasFiles");
-	var _hasText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasText");
-	var _hasAttach = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasAttach");
-	var _isEmptyMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isEmptyMessage");
-	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
-	var _isSystemMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isSystemMessage");
-	var _isEmojiOnly = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isEmojiOnly");
-	var _hasSmilesOnly = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasSmilesOnly");
-	var _hasOnlyText = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasOnlyText");
-	var _isForward = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isForward");
-	class MessageComponentManager {
-	  constructor(message) {
-	    Object.defineProperty(this, _isForward, {
-	      value: _isForward2
-	    });
-	    Object.defineProperty(this, _hasOnlyText, {
-	      value: _hasOnlyText2
-	    });
-	    Object.defineProperty(this, _hasSmilesOnly, {
-	      value: _hasSmilesOnly2
-	    });
-	    Object.defineProperty(this, _isEmojiOnly, {
-	      value: _isEmojiOnly2
-	    });
-	    Object.defineProperty(this, _isSystemMessage, {
-	      value: _isSystemMessage2
-	    });
-	    Object.defineProperty(this, _isDeletedMessage, {
-	      value: _isDeletedMessage2
-	    });
-	    Object.defineProperty(this, _isEmptyMessage, {
-	      value: _isEmptyMessage2
-	    });
-	    Object.defineProperty(this, _hasAttach, {
-	      value: _hasAttach2
-	    });
-	    Object.defineProperty(this, _hasText, {
-	      value: _hasText2
-	    });
-	    Object.defineProperty(this, _hasFiles, {
-	      value: _hasFiles2
-	    });
-	    Object.defineProperty(this, _isServerComponent, {
-	      value: _isServerComponent2
-	    });
-	    Object.defineProperty(this, _message, {
-	      writable: true,
-	      value: void 0
-	    });
-	    Object.defineProperty(this, _store, {
-	      writable: true,
-	      value: void 0
-	    });
-	    babelHelpers.classPrivateFieldLooseBase(this, _message)[_message] = message;
-	    babelHelpers.classPrivateFieldLooseBase(this, _store)[_store] = im_v2_application_core.Core.getStore();
-	  }
-	  getName() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
-	      return im_v2_const.MessageComponent.deleted;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isServerComponent)[_isServerComponent]()) {
-	      return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isSystemMessage)[_isSystemMessage]()) {
-	      return im_v2_const.MessageComponent.system;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]()) {
-	      return im_v2_const.MessageComponent.file;
-	    }
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isEmojiOnly)[_isEmojiOnly]() || babelHelpers.classPrivateFieldLooseBase(this, _hasSmilesOnly)[_hasSmilesOnly]()) {
-	      return im_v2_const.MessageComponent.smile;
-	    }
-	    return im_v2_const.MessageComponent.default;
-	  }
-	}
-	function _isServerComponent2() {
-	  return serverComponentList.has(babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].componentId);
-	}
-	function _hasFiles2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].files.length > 0;
-	}
-	function _hasText2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text.length > 0;
-	}
-	function _hasAttach2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].attach.length > 0;
-	}
-	function _isEmptyMessage2() {
-	  return !babelHelpers.classPrivateFieldLooseBase(this, _hasText)[_hasText]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasAttach)[_hasAttach]();
-	}
-	function _isDeletedMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].isDeleted || babelHelpers.classPrivateFieldLooseBase(this, _isEmptyMessage)[_isEmptyMessage]();
-	}
-	function _isSystemMessage2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].authorId === 0;
-	}
-	function _isEmojiOnly2() {
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].replyId > 0) {
-	    return false;
-	  }
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _isForward)[_isForward]()) {
-	    return false;
-	  }
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasOnlyText)[_hasOnlyText]()) {
-	    return false;
-	  }
-	  return im_v2_lib_utils.Utils.text.isEmojiOnly(babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text);
-	}
-	function _hasSmilesOnly2() {
-	  var _smileManager$smileLi, _smileManager$smileLi2;
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].replyId > 0) {
-	    return false;
-	  }
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _isForward)[_isForward]()) {
-	    return false;
-	  }
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasOnlyText)[_hasOnlyText]()) {
-	    return false;
-	  }
-
-	  // todo: need to sync with getSmileRatio in lib/parser/src/functions/smile.js
-	  const smileManager = im_v2_lib_smileManager.SmileManager.getInstance();
-	  const smiles = (_smileManager$smileLi = (_smileManager$smileLi2 = smileManager.smileList) == null ? void 0 : _smileManager$smileLi2.smiles) != null ? _smileManager$smileLi : [];
-	  const sortedSmiles = [...smiles].sort((a, b) => {
-	    return b.typing.localeCompare(a.typing);
-	  });
-	  const pattern = sortedSmiles.map(smile => {
-	    return im_v2_lib_utils.Utils.text.escapeRegex(smile.typing);
-	  }).join('|');
-	  const replacedText = babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text.replaceAll(new RegExp(pattern, 'g'), '');
-	  const hasOnlySmiles = replacedText.trim().length === 0;
-	  const matchOnlySmiles = new RegExp(`(?:(?:${pattern})\\s*){4,}`);
-	  return hasOnlySmiles && !matchOnlySmiles.test(babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].text);
-	}
-	function _hasOnlyText2() {
-	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasText)[_hasText]()) {
-	    return false;
-	  }
-	  return !babelHelpers.classPrivateFieldLooseBase(this, _hasFiles)[_hasFiles]() && !babelHelpers.classPrivateFieldLooseBase(this, _hasAttach)[_hasAttach]();
-	}
-	function _isForward2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _store)[_store].getters['messages/isForward'](babelHelpers.classPrivateFieldLooseBase(this, _message)[_message].id);
-	}
-
 	class AvatarMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
@@ -201,7 +53,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      onclick: () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
 	          mentionText: this.context.user.name,
-	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name)
+	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.context.user.id, this.context.user.name),
+	          dialogId: this.context.dialog.dialogId,
+	          isMentionSymbol: false
 	        });
 	        this.menuInstance.close();
 	      }
@@ -261,20 +115,28 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 
 	var _isOwnMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isOwnMessage");
-	var _isDeletedMessage$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
+	var _isDeletedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletedMessage");
 	var _getMessageFile = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageFile");
 	var _isForwardedMessage = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isForwardedMessage");
+	var _onDelete = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onDelete");
+	var _isDeletionCancelled = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("isDeletionCancelled");
 	class MessageMenu extends im_v2_lib_menu.BaseMenu {
 	  constructor() {
 	    super();
+	    Object.defineProperty(this, _isDeletionCancelled, {
+	      value: _isDeletionCancelled2
+	    });
+	    Object.defineProperty(this, _onDelete, {
+	      value: _onDelete2
+	    });
 	    Object.defineProperty(this, _isForwardedMessage, {
 	      value: _isForwardedMessage2
 	    });
 	    Object.defineProperty(this, _getMessageFile, {
 	      value: _getMessageFile2
 	    });
-	    Object.defineProperty(this, _isDeletedMessage$1, {
-	      value: _isDeletedMessage2$1
+	    Object.defineProperty(this, _isDeletedMessage, {
+	      value: _isDeletedMessage2
 	    });
 	    Object.defineProperty(this, _isOwnMessage, {
 	      value: _isOwnMessage2
@@ -292,21 +154,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getMenuItems() {
-	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem()];
+	    return [this.getReplyItem(), this.getCopyItem(), this.getCopyLinkItem(), this.getCopyFileItem(), this.getPinItem(), this.getForwardItem(), this.getDelimiter(), this.getMarkItem(), this.getFavoriteItem(), this.getDelimiter(), this.getCreateItem(), this.getDelimiter(), this.getDownloadFileItem(), this.getSaveToDisk(), this.getDelimiter(), this.getEditItem(), this.getDeleteItem()];
 	  }
 	  getReplyItem() {
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_REPLY'),
 	      onclick: () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.replyMessage, {
-	          messageId: this.context.id
+	          messageId: this.context.id,
+	          dialogId: this.context.dialogId
 	        });
 	        this.menuInstance.close();
 	      }
 	    };
 	  }
 	  getForwardItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]() || main_core.Type.isString(this.context.id)) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || main_core.Type.isString(this.context.id)) {
 	      return null;
 	    }
 	    return {
@@ -325,12 +188,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY'),
+	      onclick: async () => {
+	        const textToCopy = im_v2_lib_parser.Parser.prepareCopy(this.context);
+	        await im_v2_lib_utils.Utils.text.copyToClipboard(textToCopy);
+	        BX.UI.Notification.Center.notify({
+	          content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_SUCCESS')
+	        });
+	        this.menuInstance.close();
+	      }
+	    };
+	  }
+	  getCopyLinkItem() {
+	    return {
+	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK'),
 	      onclick: () => {
 	        var _BX$clipboard;
-	        const textToCopy = im_v2_lib_parser.Parser.prepareCopy(this.context);
+	        const textToCopy = im_v2_lib_utils.Utils.text.getMessageLink(this.context.dialogId, this.context.id);
 	        if ((_BX$clipboard = BX.clipboard) != null && _BX$clipboard.copy(textToCopy)) {
 	          BX.UI.Notification.Center.notify({
-	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_SUCCESS')
+	            content: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_COPY_LINK_SUCCESS')
 	          });
 	        }
 	        this.menuInstance.close();
@@ -338,7 +214,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getCopyFileItem() {
-	    if (this.context.files.length === 0) {
+	    if (this.context.files.length !== 1) {
 	      return null;
 	    }
 	    return {
@@ -356,7 +232,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getPinItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
+	    const canPin = im_v2_lib_permission.PermissionManager.getInstance().canPerformAction(im_v2_const.ChatActionType.pinMessage, this.context.dialogId);
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || !canPin) {
 	      return null;
 	    }
 	    const isPinned = this.store.getters['messages/pin/isPinned']({
@@ -379,7 +256,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getFavoriteItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
 	      return null;
 	    }
 	    const isInFavorite = this.store.getters['sidebar/favorites/isFavoriteMessage'](this.context.chatId, this.context.id);
@@ -418,7 +295,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getCreateItem() {
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
 	      return null;
 	    }
 	    return {
@@ -447,33 +324,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    };
 	  }
 	  getEditItem() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]() || babelHelpers.classPrivateFieldLooseBase(this, _isForwardedMessage)[_isForwardedMessage]()) {
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isForwardedMessage)[_isForwardedMessage]()) {
 	      return null;
 	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_EDIT'),
 	      onclick: () => {
 	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.editMessage, {
-	          messageId: this.context.id
+	          messageId: this.context.id,
+	          dialogId: this.context.dialogId
 	        });
 	        this.menuInstance.close();
 	      }
 	    };
 	  }
 	  getDeleteItem() {
-	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() || babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage$1)[_isDeletedMessage$1]()) {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _isDeletedMessage)[_isDeletedMessage]()) {
+	      return null;
+	    }
+	    const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	    const canDeleteOthersMessage = permissionManager.canPerformAction(im_v2_const.ChatActionType.deleteOthersMessage, this.context.dialogId);
+	    if (!babelHelpers.classPrivateFieldLooseBase(this, _isOwnMessage)[_isOwnMessage]() && !canDeleteOthersMessage) {
 	      return null;
 	    }
 	    return {
 	      text: main_core.Loc.getMessage('IM_DIALOG_CHAT_MENU_DELETE'),
 	      className: 'menu-popup-no-icon bx-im-dialog-chat__message-menu_delete',
-	      onclick: () => {
-	        const messageService = new im_v2_provider_service.MessageService({
-	          chatId: this.context.chatId
-	        });
-	        void messageService.deleteMessage(this.context.id);
-	        this.menuInstance.close();
-	      }
+	      onclick: babelHelpers.classPrivateFieldLooseBase(this, _onDelete)[_onDelete].bind(this)
 	    };
 	  }
 	  getMarketItems() {
@@ -542,11 +419,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	function _isOwnMessage2() {
 	  return this.context.authorId === im_v2_application_core.Core.getUserId();
 	}
-	function _isDeletedMessage2$1() {
+	function _isDeletedMessage2() {
 	  return this.context.isDeleted;
 	}
 	function _getMessageFile2() {
-	  if (this.context.files.length === 0) {
+	  if (this.context.files.length !== 1) {
 	    return null;
 	  }
 
@@ -555,6 +432,128 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _isForwardedMessage2() {
 	  return main_core.Type.isStringFilled(this.context.forward.id);
+	}
+	async function _onDelete2() {
+	  const {
+	    id: messageId,
+	    dialogId,
+	    chatId
+	  } = this.context;
+	  im_v2_lib_analytics.Analytics.getInstance().messageDelete.onClickDelete({
+	    messageId,
+	    dialogId
+	  });
+	  this.menuInstance.close();
+	  if (await babelHelpers.classPrivateFieldLooseBase(this, _isDeletionCancelled)[_isDeletionCancelled]()) {
+	    return;
+	  }
+	  const messageService = new im_v2_provider_service.MessageService({
+	    chatId
+	  });
+	  void messageService.deleteMessage(messageId);
+	}
+	async function _isDeletionCancelled2() {
+	  const {
+	    id: messageId,
+	    dialogId
+	  } = this.context;
+	  if (!im_v2_lib_channel.ChannelManager.isChannel(dialogId)) {
+	    return false;
+	  }
+	  const confirmResult = await im_v2_lib_confirm.showDeleteChannelPostConfirm();
+	  if (!confirmResult) {
+	    im_v2_lib_analytics.Analytics.getInstance().messageDelete.onCancel({
+	      messageId,
+	      dialogId
+	    });
+	    return true;
+	  }
+	  return false;
+	}
+
+	var _dialogId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("dialogId");
+	var _observer = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("observer");
+	var _initObserver = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("initObserver");
+	var _sendVisibleEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendVisibleEvent");
+	var _sendNotVisibleEvent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("sendNotVisibleEvent");
+	var _getThreshold = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getThreshold");
+	var _getMessageIdFromElement = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageIdFromElement");
+	class ObserverManager {
+	  constructor(dialogId) {
+	    Object.defineProperty(this, _getMessageIdFromElement, {
+	      value: _getMessageIdFromElement2
+	    });
+	    Object.defineProperty(this, _getThreshold, {
+	      value: _getThreshold2
+	    });
+	    Object.defineProperty(this, _sendNotVisibleEvent, {
+	      value: _sendNotVisibleEvent2
+	    });
+	    Object.defineProperty(this, _sendVisibleEvent, {
+	      value: _sendVisibleEvent2
+	    });
+	    Object.defineProperty(this, _initObserver, {
+	      value: _initObserver2
+	    });
+	    Object.defineProperty(this, _dialogId, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _observer, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId] = dialogId;
+	    babelHelpers.classPrivateFieldLooseBase(this, _initObserver)[_initObserver]();
+	  }
+	  observeMessage(messageElement) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].observe(messageElement);
+	  }
+	  unobserveMessage(messageElement) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer].unobserve(messageElement);
+	  }
+	}
+	function _initObserver2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _observer)[_observer] = new IntersectionObserver(entries => {
+	    entries.forEach(entry => {
+	      const messageId = babelHelpers.classPrivateFieldLooseBase(this, _getMessageIdFromElement)[_getMessageIdFromElement](entry.target);
+	      if (!messageId || !entry.rootBounds) {
+	        return;
+	      }
+	      const messageIsFullyVisible = entry.isIntersecting && entry.intersectionRatio >= 0.99;
+	      const messageTakesHalfOfViewport = entry.intersectionRect.height >= entry.rootBounds.height / 2.2;
+	      // const messageIsBiggerThanViewport = entry.boundingClientRect.height + 20 > entry.rootBounds.height;
+	      // const messageCountsAsVisible = messageIsBiggerThanViewport && messageTakesMostOfViewport;
+	      if (messageIsFullyVisible || messageTakesHalfOfViewport) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _sendVisibleEvent)[_sendVisibleEvent](messageId);
+	      } else {
+	        babelHelpers.classPrivateFieldLooseBase(this, _sendNotVisibleEvent)[_sendNotVisibleEvent](messageId);
+	      }
+	    });
+	  }, {
+	    threshold: babelHelpers.classPrivateFieldLooseBase(this, _getThreshold)[_getThreshold]()
+	  });
+	}
+	function _sendVisibleEvent2(messageId) {
+	  main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onMessageIsVisible, {
+	    messageId,
+	    dialogId: babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId]
+	  });
+	}
+	function _sendNotVisibleEvent2(messageId) {
+	  main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onMessageIsNotVisible, {
+	    messageId,
+	    dialogId: babelHelpers.classPrivateFieldLooseBase(this, _dialogId)[_dialogId]
+	  });
+	}
+	function _getThreshold2() {
+	  const arrayWithZeros = Array.from({
+	    length: 101
+	  }).fill(0);
+	  return arrayWithZeros.map((zero, index) => index * 0.01);
+	}
+	function _getMessageIdFromElement2(messageElement) {
+	  return Number(messageElement.dataset.id);
 	}
 
 	// @vue/component
@@ -598,7 +597,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  template: `
 		<div class="bx-im-message-list-date-group__container">
-			<DateGroupTitle :title="dateGroup.date.title" />
+			<DateGroupTitle :title="dateGroup.dateTitle" />
 			<template v-for="dateGroupItem in dateGroup.items" >
 				<slot
 					name="dateGroupItem"
@@ -616,11 +615,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const AuthorGroup = {
 	  name: 'AuthorGroup',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    MessageAvatar: im_v2_component_elements.MessageAvatar
 	  },
 	  props: {
 	    item: {
 	      type: Object,
+	      required: true
+	    },
+	    contextDialogId: {
+	      type: String,
 	      required: true
 	    }
 	  },
@@ -632,6 +635,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    authorGroup() {
 	      return this.item;
+	    },
+	    firstMessageIdInAuthorGroup() {
+	      // this is potentially dangerous.
+	      // for now, we always have the same avatar in one authorGroup
+	      // in future it can be different: several support answers (with different avatars) in one authorGroup
+	      return this.authorGroup.messages[0].id;
 	    }
 	  },
 	  methods: {
@@ -645,14 +654,15 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  template: `
 		<div class="bx-im-message-list-author-group__container" :class="'--' + authorGroup.messageType">
 			<div v-if="authorGroup.avatar.isNeeded" class="bx-im-message-list-author-group__avatar">
-				<Avatar
-					:dialogId="authorGroup.avatar.avatarId"
+				<MessageAvatar
+					:messageId="firstMessageIdInAuthorGroup"
+					:authorId="authorGroup.avatar.avatarId"
 					:size="AvatarSize.L"
 					@click="onAvatarClick"
 				/>
 			</div>
 			<div class="bx-im-message-list__content">
-				<template v-for="(message, index) in authorGroup.items">
+				<template v-for="(message, index) in authorGroup.messages">
 					<slot name="message" :message="message" :index="index"></slot>
 				</template>
 			</div>
@@ -703,6 +713,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	// @vue/component
 	const EmptyState = {
 	  name: 'EmptyState',
+	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
 	  data() {
 	    return {};
 	  },
@@ -712,7 +728,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  methods: {
 	    onMessageClick(text) {
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
-	        text
+	        text,
+	        dialogId: this.dialogId
 	      });
 	    },
 	    loc(phraseCode) {
@@ -739,128 +756,353 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	`
 	};
 
-	class CollectionManager {
-	  constructor(dialogId) {
-	    this.firstIteration = true;
-	    this.cachedDateGroups = {};
-	    this.store = im_v2_application_core.Core.getStore();
-	    this.dialogId = dialogId;
-	  }
-	  formatMessageCollection(messageCollection) {
-	    const dateGroups = {};
-	    const collection = [];
-	    let lastDateItems = null;
-	    let lastAuthorId = null;
-	    let lastAuthorItems = null;
-	    const dialog = this.store.getters['chats/get'](this.dialogId);
-	    const {
-	      markedId,
-	      inited
-	    } = dialog;
-	    let markInserted = false;
-	    const lastReadId = this.store.getters['chats/getLastReadId'](this.dialogId);
-	    if (this.firstIteration) {
-	      this.initialLastReadMessage = lastReadId;
-	      this.initialMarkedId = markedId;
+	// @vue/component
+	const HistoryLimitBanner = {
+	  name: 'HistoryLimitBanner',
+	  props: {
+	    noMessages: {
+	      type: Boolean,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
 	    }
-	    if (markedId !== this.initialMarkedId && markedId !== 0) {
-	      this.initialMarkedId = markedId;
-	      this.initialLastReadMessage = null;
+	  },
+	  computed: {
+	    title() {
+	      return im_v2_lib_feature.FeatureManager.chatHistory.getLimitTitle();
+	    },
+	    subtitle() {
+	      return im_v2_lib_feature.FeatureManager.chatHistory.getLimitSubtitle();
+	    },
+	    buttonText() {
+	      return im_v2_lib_feature.FeatureManager.chatHistory.getLearnMoreText();
 	    }
-	    messageCollection.forEach((message, index) => {
-	      const dateGroup = this.getDateGroup(message.date);
-	      // new date = new date group + new author group
-	      if (!dateGroups[dateGroup.title]) {
-	        dateGroups[dateGroup.title] = dateGroup.id;
-	        lastDateItems = [];
-	        collection.push({
-	          type: im_v2_const.DialogBlockType.dateGroup,
-	          date: dateGroup,
-	          items: lastDateItems
-	        });
-	        lastAuthorId = null;
-	      }
+	  },
+	  mounted() {
+	    this.sendAnalytics();
+	  },
+	  methods: {
+	    onButtonClick() {
+	      im_v2_lib_analytics.Analytics.getInstance().historyLimit.onDialogBannerClick({
+	        dialogId: this.dialogId
+	      });
+	      im_v2_lib_feature.FeatureManager.chatHistory.openFeatureSlider();
+	    },
+	    sendAnalytics() {
+	      im_v2_lib_analytics.Analytics.getInstance().historyLimit.onDialogLimitExceeded({
+	        dialogId: this.dialogId,
+	        noMessages: this.noMessages
+	      });
+	    }
+	  },
+	  // language=Vue
+	  template: `
+		<div class="bx-im-message-list-history-banner__container" :class="{'--no-messages': noMessages}">
+			<div class="bx-im-message-list-history-banner__left">
+				<div class="bx-im-message-list-history-banner__title">
+					<div class="bx-im-message-list-history-banner__icon bx-im-messenger__lock-icon"></div>
+					<div class="bx-im-message-list-history-banner__title_text --ellipsis" :title="title">
+						{{ title }}
+					</div>
+				</div>
+				<div class="bx-im-message-list-history-banner__subtitle --line-clamp-2" :title="subtitle">
+					{{ subtitle }}
+				</div>
+			</div>
+			<div class="bx-im-message-list-history-banner__right">
+				<div class="bx-im-message-list-history-banner__button" @click="onButtonClick">
+					{{ buttonText }}
+				</div>
+			</div>
+		</div>
+	`
+	};
 
-	      // marked messages
-	      if (message.id === this.initialMarkedId) {
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.markedMessages
-	        });
-	        lastAuthorId = null;
-	        markInserted = true;
-	      }
-
-	      // new author = new author group
-	      if (message.authorId !== lastAuthorId) {
-	        lastAuthorId = message.authorId;
-	        lastAuthorItems = [];
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.authorGroup,
-	          userId: message.authorId,
-	          avatar: this.getAvatarConfig(message),
-	          messageType: this.getMessageType(message),
-	          items: lastAuthorItems
-	        });
-	      }
-
-	      // add current message to last active author group
-	      lastAuthorItems.push(message);
-
-	      // new messages block
-	      const isLastMessage = index === messageCollection.length - 1;
-	      if (!markInserted && !isLastMessage && message.id === this.initialLastReadMessage) {
-	        lastDateItems.push({
-	          type: im_v2_const.DialogBlockType.newMessages
-	        });
-	        lastAuthorId = null;
-	      }
+	var _getAvatarConfig = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getAvatarConfig");
+	var _getMessageType = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getMessageType");
+	var _checkIfAvatarIsNeeded = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("checkIfAvatarIsNeeded");
+	class BlockManager {
+	  constructor() {
+	    Object.defineProperty(this, _checkIfAvatarIsNeeded, {
+	      value: _checkIfAvatarIsNeeded2
 	    });
-	    if (inited) {
-	      this.firstIteration = false;
-	    }
-	    return collection;
+	    Object.defineProperty(this, _getMessageType, {
+	      value: _getMessageType2
+	    });
+	    Object.defineProperty(this, _getAvatarConfig, {
+	      value: _getAvatarConfig2
+	    });
 	  }
-	  getDateGroup(date) {
-	    const INDEX_BETWEEN_DATE_AND_TIME = 10;
-	    // 2022-10-25T14:58:44.000Z => 2022-10-25
-	    const shortDate = date.toJSON().slice(0, INDEX_BETWEEN_DATE_AND_TIME);
+	  getAuthorBlock(message) {
+	    return {
+	      type: im_v2_const.DialogBlockType.authorGroup,
+	      userId: message.authorId,
+	      avatar: babelHelpers.classPrivateFieldLooseBase(this, _getAvatarConfig)[_getAvatarConfig](message),
+	      messageType: babelHelpers.classPrivateFieldLooseBase(this, _getMessageType)[_getMessageType](message)
+	    };
+	  }
+	  getMarkedBlock() {
+	    return {
+	      type: im_v2_const.DialogBlockType.markedMessages
+	    };
+	  }
+	  getNewMessagesBlock() {
+	    return {
+	      type: im_v2_const.DialogBlockType.newMessages
+	    };
+	  }
+	}
+	function _getAvatarConfig2(message) {
+	  return {
+	    isNeeded: babelHelpers.classPrivateFieldLooseBase(this, _checkIfAvatarIsNeeded)[_checkIfAvatarIsNeeded](message),
+	    avatarId: message.authorId.toString()
+	  };
+	}
+	function _getMessageType2(message) {
+	  if (!message.authorId) {
+	    return im_v2_const.MessageType.system;
+	  }
+	  if (message.authorId === im_v2_application_core.Core.getUserId()) {
+	    return im_v2_const.MessageType.self;
+	  }
+	  return im_v2_const.MessageType.opponent;
+	}
+	function _checkIfAvatarIsNeeded2(message) {
+	  const messageType = babelHelpers.classPrivateFieldLooseBase(this, _getMessageType)[_getMessageType](message);
+	  const isSystem = messageType === im_v2_const.MessageType.system;
+	  if (isSystem) {
+	    return false;
+	  }
+	  const isSelf = messageType === im_v2_const.MessageType.self;
+	  const alignment = im_v2_application_core.Core.getStore().getters['application/settings/get'](im_v2_const.Settings.appearance.alignment);
+	  if (alignment === im_v2_const.DialogAlignment.center) {
+	    return !isSelf;
+	  }
+	  return true;
+	}
+
+	var _blockManager = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("blockManager");
+	var _collection = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("collection");
+	var _currentDateTitles = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("currentDateTitles");
+	var _markedIndicatorInserted = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("markedIndicatorInserted");
+	var _lastDateItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastDateItems");
+	var _lastAuthorId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastAuthorId");
+	var _lastAuthorItems = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("lastAuthorItems");
+	var _clearLastAuthor = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("clearLastAuthor");
+	class Collection {
+	  constructor() {
+	    Object.defineProperty(this, _clearLastAuthor, {
+	      value: _clearLastAuthor2
+	    });
+	    Object.defineProperty(this, _blockManager, {
+	      writable: true,
+	      value: void 0
+	    });
+	    Object.defineProperty(this, _collection, {
+	      writable: true,
+	      value: []
+	    });
+	    Object.defineProperty(this, _currentDateTitles, {
+	      writable: true,
+	      value: new Set()
+	    });
+	    Object.defineProperty(this, _markedIndicatorInserted, {
+	      writable: true,
+	      value: false
+	    });
+	    Object.defineProperty(this, _lastDateItems, {
+	      writable: true,
+	      value: []
+	    });
+	    Object.defineProperty(this, _lastAuthorId, {
+	      writable: true,
+	      value: null
+	    });
+	    Object.defineProperty(this, _lastAuthorItems, {
+	      writable: true,
+	      value: []
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _blockManager)[_blockManager] = new BlockManager();
+	  }
+	  get() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _collection)[_collection];
+	  }
+	  hasDateTitle(dateTitle) {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _currentDateTitles)[_currentDateTitles].has(dateTitle);
+	  }
+	  addDateGroup(dateTitle) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _currentDateTitles)[_currentDateTitles].add(dateTitle);
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastDateItems)[_lastDateItems] = [];
+	    babelHelpers.classPrivateFieldLooseBase(this, _collection)[_collection].push({
+	      dateTitle,
+	      items: babelHelpers.classPrivateFieldLooseBase(this, _lastDateItems)[_lastDateItems]
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _clearLastAuthor)[_clearLastAuthor]();
+	  }
+	  addAuthorGroup(message) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorId)[_lastAuthorId] = message.authorId;
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorItems)[_lastAuthorItems] = [];
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastDateItems)[_lastDateItems].push({
+	      ...babelHelpers.classPrivateFieldLooseBase(this, _blockManager)[_blockManager].getAuthorBlock(message),
+	      messages: babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorItems)[_lastAuthorItems]
+	    });
+	  }
+	  addMessage(message) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorItems)[_lastAuthorItems].push(message);
+	  }
+	  addMarkedIndicator() {
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastDateItems)[_lastDateItems].push(babelHelpers.classPrivateFieldLooseBase(this, _blockManager)[_blockManager].getMarkedBlock());
+	    babelHelpers.classPrivateFieldLooseBase(this, _markedIndicatorInserted)[_markedIndicatorInserted] = true;
+	    babelHelpers.classPrivateFieldLooseBase(this, _clearLastAuthor)[_clearLastAuthor]();
+	  }
+	  addNewMessagesIndicator() {
+	    if (babelHelpers.classPrivateFieldLooseBase(this, _markedIndicatorInserted)[_markedIndicatorInserted]) {
+	      return;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _lastDateItems)[_lastDateItems].push(babelHelpers.classPrivateFieldLooseBase(this, _blockManager)[_blockManager].getNewMessagesBlock());
+	    babelHelpers.classPrivateFieldLooseBase(this, _clearLastAuthor)[_clearLastAuthor]();
+	  }
+	  getLastAuthorId() {
+	    return babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorId)[_lastAuthorId];
+	  }
+	}
+	function _clearLastAuthor2() {
+	  babelHelpers.classPrivateFieldLooseBase(this, _lastAuthorId)[_lastAuthorId] = null;
+	}
+
+	var _getLocalShortDate = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLocalShortDate");
+	class DateManager {
+	  constructor() {
+	    Object.defineProperty(this, _getLocalShortDate, {
+	      value: _getLocalShortDate2
+	    });
+	    this.cachedDateGroups = {};
+	  }
+	  getDateTitle(date) {
+	    const shortDate = babelHelpers.classPrivateFieldLooseBase(this, _getLocalShortDate)[_getLocalShortDate](date);
 	    if (this.cachedDateGroups[shortDate]) {
 	      return this.cachedDateGroups[shortDate];
 	    }
-	    this.cachedDateGroups[shortDate] = {
-	      id: shortDate,
-	      title: im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.dateGroup)
-	    };
+	    this.cachedDateGroups[shortDate] = im_v2_lib_dateFormatter.DateFormatter.formatByTemplate(date, im_v2_lib_dateFormatter.DateTemplate.dateGroup);
 	    return this.cachedDateGroups[shortDate];
 	  }
-	  getAvatarConfig(message) {
-	    const messageType = this.getMessageType(message);
-	    const isSystem = messageType === im_v2_const.MessageType.system;
-	    const isSelf = messageType === im_v2_const.MessageType.self;
-	    const alignment = this.store.getters['application/settings/get'](im_v2_const.Settings.appearance.alignment);
-	    let isNeeded = true;
-	    if (alignment === im_v2_const.DialogAlignment.left) {
-	      isNeeded = !isSystem;
-	    } else if (alignment === im_v2_const.DialogAlignment.center) {
-	      isNeeded = !isSelf && !isSystem;
-	    }
-	    return {
-	      isNeeded,
-	      avatarId: message.authorId.toString()
-	    };
-	  }
-	  getMessageType(message) {
-	    if (!message.authorId) {
-	      return im_v2_const.MessageType.system;
-	    }
-	    if (message.authorId === im_v2_application_core.Core.getUserId()) {
-	      return im_v2_const.MessageType.self;
-	    }
-	    return im_v2_const.MessageType.opponent;
-	  }
+	}
+	function _getLocalShortDate2(date) {
+	  const timestampWithTimezoneOffset = date.getTime() - date.getTimezoneOffset() * 60000;
+	  const localDateInJSON = new Date(timestampWithTimezoneOffset).toJSON();
+
+	  // 2022-10-25T14:58:44.000Z => 2022-10-25
+	  const INDEX_BETWEEN_DATE_AND_TIME = 10;
+	  return localDateInJSON.slice(0, INDEX_BETWEEN_DATE_AND_TIME);
 	}
 
-	const messageComponents = {
+	var _setInitialValues = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("setInitialValues");
+	var _handleMarkedMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("handleMarkedMessageId");
+	var _getLastReadMessageId = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getLastReadMessageId");
+	var _getDialog = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getDialog");
+	class CollectionManager {
+	  constructor(dialogId) {
+	    Object.defineProperty(this, _getDialog, {
+	      value: _getDialog2
+	    });
+	    Object.defineProperty(this, _getLastReadMessageId, {
+	      value: _getLastReadMessageId2
+	    });
+	    Object.defineProperty(this, _handleMarkedMessageId, {
+	      value: _handleMarkedMessageId2
+	    });
+	    Object.defineProperty(this, _setInitialValues, {
+	      value: _setInitialValues2
+	    });
+	    this.firstIteration = true;
+	    this.dialogId = dialogId;
+	    this.dateManager = new DateManager();
+	  }
+	  formatMessageCollection(messageCollection) {
+	    /*
+	    Collection
+	    ├── Date Group
+	    │   ├── Marked Message Indicator
+	    │   ├── Author Group
+	    │   │   └── Messages
+	    │   └── New Messages Indicator
+	    */
+
+	    const collection = new Collection();
+	    babelHelpers.classPrivateFieldLooseBase(this, _setInitialValues)[_setInitialValues]();
+	    babelHelpers.classPrivateFieldLooseBase(this, _handleMarkedMessageId)[_handleMarkedMessageId]();
+	    messageCollection.forEach((message, index) => {
+	      const dateTitle = this.dateManager.getDateTitle(message.date);
+	      if (!collection.hasDateTitle(dateTitle)) {
+	        collection.addDateGroup(dateTitle);
+	      }
+	      if (message.id === this.markedMessageId) {
+	        collection.addMarkedIndicator();
+	      }
+	      if (message.authorId !== collection.getLastAuthorId()) {
+	        collection.addAuthorGroup(message);
+	      }
+	      collection.addMessage(message);
+	      const isLastMessage = index === messageCollection.length - 1;
+	      if (!isLastMessage && message.id === this.lastReadMessageId) {
+	        collection.addNewMessagesIndicator();
+	      }
+	    });
+	    const {
+	      inited
+	    } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]();
+	    if (inited) {
+	      this.firstIteration = false;
+	    }
+	    return collection.get();
+	  }
+	  formatAuthorGroup(message) {
+	    const blockManager = new BlockManager();
+	    return {
+	      ...blockManager.getAuthorBlock(message),
+	      messages: [message]
+	    };
+	  }
+	}
+	function _setInitialValues2() {
+	  if (!this.firstIteration) {
+	    return;
+	  }
+	  const {
+	    markedId
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]();
+	  this.lastReadMessageId = babelHelpers.classPrivateFieldLooseBase(this, _getLastReadMessageId)[_getLastReadMessageId]();
+	  this.markedMessageId = markedId;
+	}
+	function _handleMarkedMessageId2() {
+	  const {
+	    markedId
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]();
+	  if (markedId === this.markedMessageId || markedId === 0) {
+	    return;
+	  }
+
+	  // if mark was set after chat load - remember marked message and remove "new messages" block
+	  this.markedMessageId = markedId;
+	  this.lastReadMessageId = null;
+	}
+	function _getLastReadMessageId2() {
+	  const {
+	    lastMessageId
+	  } = babelHelpers.classPrivateFieldLooseBase(this, _getDialog)[_getDialog]();
+	  const lastReadId = im_v2_application_core.Core.getStore().getters['chats/getLastReadId'](this.dialogId);
+	  if (lastReadId === lastMessageId) {
+	    return 0;
+	  }
+	  return lastReadId;
+	}
+	function _getDialog2() {
+	  return im_v2_application_core.Core.getStore().getters['chats/get'](this.dialogId);
+	}
+
+	const MessageComponents = {
 	  DefaultMessage: im_v2_component_message_default.DefaultMessage,
 	  FileMessage: im_v2_component_message_file.FileMessage,
 	  SmileMessage: im_v2_component_message_smile.SmileMessage,
@@ -874,12 +1116,18 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  CopilotMessage: im_v2_component_message_copilot_answer.CopilotMessage,
 	  SupportVoteMessage: im_v2_component_message_support_vote.SupportVoteMessage,
 	  SupportSessionNumberMessage: im_v2_component_message_support_sessionNumber.SupportSessionNumberMessage,
+	  SupportChatCreationMessage: im_v2_component_message_support_chatCreation.SupportChatCreationMessage,
 	  ConferenceCreationMessage: im_v2_component_message_conferenceCreation.ConferenceCreationMessage,
 	  ZoomInviteMessage: im_v2_component_message_zoomInvite.ZoomInviteMessage,
+	  CheckInMessage: im_v2_component_message_checkIn.CheckInMessage,
 	  SupervisorUpdateFeatureMessage: im_v2_component_message_supervisor_updateFeature.SupervisorUpdateFeatureMessage,
 	  SupervisorEnableFeatureMessage: im_v2_component_message_supervisor_enableFeature.SupervisorEnableFeatureMessage,
 	  ChatCopilotAddedUsersMessage: im_v2_component_message_copilot_addedUsers.ChatCopilotAddedUsersMessage,
-	  SignMessage: im_v2_component_message_sign.SignMessage
+	  SignMessage: im_v2_component_message_sign.SignMessage,
+	  GeneralChatCreationMessage: im_v2_component_message_generalChatCreation.GeneralChatCreationMessage,
+	  GeneralChannelCreationMessage: im_v2_component_message_generalChannelCreation.GeneralChannelCreationMessage,
+	  ChannelCreationMessage: im_v2_component_message_channelCreation.ChannelCreationMessage,
+	  CallMessage: im_v2_component_message_call.CallMessage
 	};
 
 	// @vue/component
@@ -903,25 +1151,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    DialogStatus: im_v2_component_elements.DialogStatus,
 	    DialogLoader,
 	    EmptyState,
-	    ...messageComponents
+	    FadeAnimation: im_v2_component_animation.FadeAnimation,
+	    HistoryLimitBanner,
+	    ...MessageComponents
 	  },
 	  props: {
 	    dialogId: {
 	      type: String,
 	      required: true
 	    },
-	    messages: {
-	      type: Array,
-	      required: true
-	    },
-	    observer: {
-	      type: Object,
-	      required: true
+	    messageMenuClass: {
+	      type: Function,
+	      default: MessageMenu
 	    }
 	  },
-	  emits: ['showQuoteButton'],
 	  data() {
 	    return {
+	      windowFocused: false,
 	      messageMenuIsActiveForId: 0
 	    };
 	  },
@@ -932,14 +1178,14 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    user() {
 	      return this.$store.getters['users/get'](this.dialogId, true);
 	    },
+	    messageCollection() {
+	      return this.$store.getters['messages/getByChatId'](this.dialog.chatId);
+	    },
 	    isUser() {
 	      return this.dialog.type === im_v2_const.ChatType.user;
 	    },
 	    dialogInited() {
 	      return this.dialog.inited;
-	    },
-	    messageCollection() {
-	      return this.messages;
 	    },
 	    formattedCollection() {
 	      if (!this.dialogInited && this.messageCollection.length === 0) {
@@ -950,18 +1196,22 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    noMessages() {
 	      return this.formattedCollection.length === 0;
 	    },
+	    isHistoryLimitExceeded() {
+	      return !im_v2_lib_feature.FeatureManager.chatHistory.isAvailable() && this.dialog.tariffRestrictions.isHistoryLimitExceeded;
+	    },
 	    showDialogStatus() {
 	      return this.messageCollection.some(message => {
 	        return message.id === this.dialog.lastMessageId;
 	      });
 	    },
-	    statusComponent() {
-	      return im_v2_component_elements.DialogStatus;
+	    showEmptyState() {
+	      return this.dialogInited && this.noMessages && this.isUser && !this.isHistoryLimitExceeded;
 	    }
 	  },
 	  created() {
 	    this.initContextMenu();
 	    this.initCollectionManager();
+	    this.initObserverManager();
 	  },
 	  mounted() {
 	    this.subscribeToEvents();
@@ -970,6 +1220,33 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.unsubscribeFromEvents();
 	  },
 	  methods: {
+	    subscribeToEvents() {
+	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+	    },
+	    unsubscribeFromEvents() {
+	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+	    },
+	    insertTextQuote(message) {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
+	        text: im_v2_lib_quote.Quote.prepareQuoteText(message),
+	        withNewLine: true,
+	        replace: false,
+	        dialogId: this.dialogId
+	      });
+	    },
+	    insertMention(user) {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
+	        mentionText: user.name,
+	        mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(user.id, user.name),
+	        dialogId: this.dialogId
+	      });
+	    },
+	    openReplyPanel(messageId) {
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.replyMessage, {
+	        messageId,
+	        dialogId: this.dialogId
+	      });
+	    },
 	    needToShowAvatarMenuFor(user) {
 	      if (!user) {
 	        return false;
@@ -978,23 +1255,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const isBotChat = this.isUser && this.user.bot === true;
 	      return !isCurrentUser && !isBotChat;
 	    },
-	    subscribeToEvents() {
-	      main_core_events.EventEmitter.subscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
-	    },
-	    unsubscribeFromEvents() {
-	      main_core_events.EventEmitter.unsubscribe(im_v2_const.EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
-	    },
-	    initCollectionManager() {
-	      this.getCollectionManager();
-	    },
-	    initContextMenu() {
-	      this.messageMenu = new MessageMenu();
-	      this.messageMenu.subscribe(MessageMenu.events.onCloseMenu, () => {
-	        this.messageMenuIsActiveForId = 0;
-	      });
-	      this.avatarMenu = new AvatarMenu();
-	    },
 	    onAvatarClick(params) {
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openAvatarMenu, this.dialogId)) {
+	        return;
+	      }
 	      const {
 	        dialogId,
 	        $event: event
@@ -1004,10 +1269,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      if (im_v2_lib_utils.Utils.key.isAltOrOption(event)) {
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
-	          mentionText: user.name,
-	          mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(user.id, user.name)
-	        });
+	        this.insertMention(user);
+	        return;
+	      }
+	      const copilotManager = new im_v2_lib_copilot.CopilotManager();
+	      if (copilotManager.isCopilotBot(dialogId)) {
 	        return;
 	      }
 	      this.avatarMenu.openMenu({
@@ -1016,10 +1282,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      }, event.currentTarget);
 	    },
 	    onMessageContextMenuClick(eventData) {
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openMessageMenu, this.dialogId)) {
+	        return;
+	      }
 	      const {
 	        message,
-	        event
+	        event,
+	        dialogId
 	      } = eventData.getData();
+	      if (dialogId !== this.dialogId) {
+	        return;
+	      }
+	      if (im_v2_lib_utils.Utils.key.isCombination(event, ['Alt+Ctrl'])) {
+	        this.insertTextQuote(message);
+	        return;
+	      }
+	      if (im_v2_lib_utils.Utils.key.isCmdOrCtrl(event)) {
+	        this.openReplyPanel(message.id);
+	        return;
+	      }
 	      const context = {
 	        dialogId: this.dialogId,
 	        ...message
@@ -1030,55 +1312,85 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    async onMessageMouseUp(message, event) {
 	      await im_v2_lib_utils.Utils.browser.waitForSelectionToUpdate();
 	      const selection = window.getSelection().toString().trim();
-	      if (selection.length === 0 || this.isGuest) {
+	      if (selection.length === 0) {
 	        return;
 	      }
-	      this.$emit('showQuoteButton', message, event);
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.showQuoteButton, {
+	        message,
+	        event
+	      });
+	    },
+	    initObserverManager() {
+	      this.observer = new ObserverManager(this.dialogId);
+	    },
+	    initContextMenu() {
+	      const MessageMenuClass = this.messageMenuClass;
+	      this.messageMenu = new MessageMenuClass();
+	      this.messageMenu.subscribe(MessageMenu.events.onCloseMenu, () => {
+	        this.messageMenuIsActiveForId = 0;
+	      });
+	      this.avatarMenu = new AvatarMenu();
 	    },
 	    getMessageComponentName(message) {
-	      return new MessageComponentManager(message).getName();
+	      return new im_v2_lib_messageComponentManager.MessageComponentManager(message).getName();
+	    },
+	    initCollectionManager() {
+	      this.collectionManager = new CollectionManager(this.dialogId);
 	    },
 	    getCollectionManager() {
-	      if (!this.collectionManager) {
-	        this.collectionManager = new CollectionManager(this.dialogId);
-	      }
 	      return this.collectionManager;
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-list__container">
-			<DialogLoader v-if="!dialogInited" :fullHeight="noMessages" />
-			<EmptyState v-else-if="noMessages && isUser" />
-			<DateGroup v-for="dateGroup in formattedCollection" :key="dateGroup.date.id" :item="dateGroup">
-				<!-- Slot for every date group item -->
-				<template #dateGroupItem="{ dateGroupItem, isMarkedBlock, isNewMessagesBlock, isAuthorBlock }">
-					<MarkedMessagesBlock v-if="isMarkedBlock" data-id="newMessages" />
-					<NewMessagesBlock v-else-if="isNewMessagesBlock" data-id="newMessages" />
-					<AuthorGroup v-else-if="isAuthorBlock" :item="dateGroupItem" @avatarClick="onAvatarClick">
-						<!-- Slot for every message -->
-						<template #message="{ message, index }">
-							<component
-								v-message-observer
-								:is="getMessageComponentName(message)"
-								:withTitle="index === 0"
-								:item="message"
-								:dialogId="dialogId"
-								:key="message.id"
-								:menuIsActiveForId="messageMenuIsActiveForId"
-								:data-viewed="message.viewed"
-								@mouseup="onMessageMouseUp(message, $event)"
-							>
-							</component>
-						</template>
-					</AuthorGroup>
-				</template>
-			</DateGroup>
-			<component :is="statusComponent" v-if="showDialogStatus" :dialogId="dialogId" />
-		</div>
+		<slot v-if="!dialogInited" name="loader">
+			<DialogLoader />
+		</slot>
+		<FadeAnimation :duration="200">
+			<div v-if="dialogInited" class="bx-im-message-list__container">
+				<EmptyState v-if="showEmptyState" :dialogId="dialogId" />
+				<slot name="before-messages" :getMessageComponentName="getMessageComponentName"></slot>
+				<HistoryLimitBanner v-if="isHistoryLimitExceeded" :dialogId="dialogId" :noMessages="noMessages" />
+				<DateGroup v-for="dateGroup in formattedCollection" :key="dateGroup.dateTitle" :item="dateGroup">
+					<!-- Slot for every date group item -->
+					<template #dateGroupItem="{ dateGroupItem, isMarkedBlock, isNewMessagesBlock, isAuthorBlock }">
+						<MarkedMessagesBlock v-if="isMarkedBlock" data-id="newMessages" />
+						<NewMessagesBlock v-else-if="isNewMessagesBlock" data-id="newMessages" />
+						<AuthorGroup 
+							v-else-if="isAuthorBlock" 
+							:item="dateGroupItem"
+							:contextDialogId="dialogId"
+							@avatarClick="onAvatarClick"
+						>
+							<!-- Slot for every message -->
+							<template #message="{ message, index }">
+								<component
+									v-message-observer
+									:is="getMessageComponentName(message)"
+									:withTitle="index === 0"
+									:item="message"
+									:dialogId="dialogId"
+									:key="message.id"
+									:menuIsActiveForId="messageMenuIsActiveForId"
+									:data-viewed="message.viewed"
+									@mouseup="onMessageMouseUp(message, $event)"
+								>
+								</component>
+							</template>
+						</AuthorGroup>
+					</template>
+				</DateGroup>
+				<DialogStatus v-if="showDialogStatus" :dialogId="dialogId" />
+			</div>
+		</FadeAnimation>
 	`
 	};
 
 	exports.MessageList = MessageList;
+	exports.AvatarMenu = AvatarMenu;
+	exports.MessageMenu = MessageMenu;
+	exports.AuthorGroup = AuthorGroup;
+	exports.MessageComponents = MessageComponents;
+	exports.CollectionManager = CollectionManager;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Elements,BX,BX.Event,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Component.Elements,BX,BX.Event,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Component.Message));
 //# sourceMappingURL=message-list.bundle.js.map

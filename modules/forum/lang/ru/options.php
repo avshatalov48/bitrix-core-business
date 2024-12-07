@@ -51,4 +51,5 @@ $MESS["FR_USER"] = "Пользователь";
 $MESS["FR_GUEST"] = "Гость";
 $MESS["FORUM_OPTIONS_SMILE_SET_ID"] = "Набор смайлов форума";
 $MESS["FORUM_OPTIONS_SMILE_GALLERY_ID"] = "Галерея смайлов форума";
+$MESS["FORUM_ENABLE_CALCULATE_STATISTICS"] = "Включить подсчёт статистики";
 ?>

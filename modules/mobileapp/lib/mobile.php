@@ -77,11 +77,11 @@ class Mobile
 			$deviceDetectSource = mb_strtolower(Context::getCurrent()->getServer()->get("HTTP_USER_AGENT"));
 		}
 
-		if (mb_strrpos(ToUpper($deviceDetectSource), "IPHONE") > 0 || mb_strrpos(ToUpper($deviceDetectSource), "IPAD") > 0)
+		if (mb_strrpos(mb_strtoupper($deviceDetectSource), "IPHONE") > 0 || mb_strrpos(mb_strtoupper($deviceDetectSource), "IPAD") > 0)
 		{
 			self::$platform = "ios";
 		}
-		elseif (mb_strrpos(ToUpper($deviceDetectSource), "ANDROID") > 0 || mb_strrpos(ToUpper($deviceDetectSource), "ANDROID") === 0)
+		elseif (mb_strrpos(mb_strtoupper($deviceDetectSource), "ANDROID") > 0 || mb_strrpos(mb_strtoupper($deviceDetectSource), "ANDROID") === 0)
 		{
 			self::$platform = "android";
 		}
@@ -243,7 +243,7 @@ class Mobile
 		\CJSCore::Init();
 		\CJSCore::Init("db");
 		$jsVarsFormat = <<<JSCODE
-		<script type="text/javascript">
+		<script>
 			(window.BX||top.BX).message({ 'USER_ID': '%s'});
 			var appVersion = "%s";
 			var platform = "%s";
@@ -267,7 +267,7 @@ JSCODE;
 			 * We use console.log() to tell the application about successful loading of this page
 			 */
 			$androidJS = <<<JSCODE
-				<script type="text/javascript">
+				<script>
 				 	console.log("bxdata://success");
 				</script>
 JSCODE;
@@ -278,17 +278,17 @@ JSCODE;
 		if(mb_strpos($userAgent, "WKWebView/BitrixMobile") === false)
 		{
 			$pgJsFile = "/bitrix/js/mobileapp/__deviceload__/cordova.js?mod=1";
-			$APPLICATION->AddHeadString("<script type='text/javascript' src='$pgJsFile'></script>", false, true);
+			$APPLICATION->AddHeadString("<script src='$pgJsFile'></script>", false, true);
 		}
 
 
-		$APPLICATION->AddHeadString("<script type=\"text/javascript\" src=\"" . \CUtil::GetAdditionalFileURL("/bitrix/js/mobileapp/bitrix_mobile.js") . "\"></script>", false, true);
-		$APPLICATION->AddHeadString("<script type=\"text/javascript\" src=\"" . \CUtil::GetAdditionalFileURL("/bitrix/js/mobileapp/mobile_lib.js") . "\"></script>", false, true);
+		$APPLICATION->AddHeadString("<script src=\"" . \CUtil::GetAdditionalFileURL("/bitrix/js/mobileapp/bitrix_mobile.js") . "\"></script>", false, true);
+		$APPLICATION->AddHeadString("<script src=\"" . \CUtil::GetAdditionalFileURL("/bitrix/js/mobileapp/mobile_lib.js") . "\"></script>", false, true);
 
 
 		if (self::$platform == "android")
 		{
-			$APPLICATION->AddHeadString("<script type=\"text/javascript\">app.bindloadPageBlank();</script>", false, false);
+			$APPLICATION->AddHeadString("<script>app.bindloadPageBlank();</script>", false, false);
 		}
 
 		if (!array_key_exists("doNotUseViewPort", $_REQUEST))
@@ -586,6 +586,7 @@ JSCODE;
 	}
 
 	/**
+	 * @deprecated Does nothing.
 	 * Converts string from site charset in utf-8 and returns it
 	 *
 	 * @param string $s
@@ -594,10 +595,11 @@ JSCODE;
 	 */
 	public static function PrepareStrToJson($s = '')
 	{
-		return (Application::isUtfMode() ? $s : Encoding::convertEncoding($s, SITE_CHARSET, 'UTF-8'));
+		return $s;
 	}
 
 	/**
+	 * @deprecated Does nothing.
 	 * Converts string from utf-8 in site charset and returns it
 	 *
 	 * @param string $s
@@ -606,7 +608,7 @@ JSCODE;
 	 */
 	public static function ConvertFromUtf($s = '')
 	{
-		return (defined("BX_UTF") ? $s : Encoding::convertEncoding($s, 'UTF-8', SITE_CHARSET));
+		return $s;
 	}
 
 	public static function onMobileInit()

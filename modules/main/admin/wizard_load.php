@@ -57,8 +57,8 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $APPLICATION->SetTitle(GetMessage("MAIN_WIZARD_LOAD_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_admin_after.php");
 
-echo CAdminMessage::ShowMessage($strError);
-echo CAdminMessage::ShowNote($strOK);
+CAdminMessage::ShowMessage($strError);
+CAdminMessage::ShowNote($strOK);
 
 $arMenu = array(
 	array(

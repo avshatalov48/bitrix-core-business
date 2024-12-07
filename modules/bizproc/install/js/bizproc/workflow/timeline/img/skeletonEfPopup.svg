@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="455" height="405" fill="none">
+	<rect width="403" height="345" x="30" y="28" fill="#fff" fill-opacity=".8" rx="22" shape-rendering="crispEdges"/>
+	<rect width="402" height="344" x="30.5" y="28.5" stroke="#E6E7E9" rx="21.5" shape-rendering="crispEdges"/>
+	<g id="d" fill="#EDEEF0" filter="url(#a)">
+		<rect width="236" height="16" x="114" y="58" rx="2"/>
+		<rect width="287" height="8" x="72" y="279" rx="2"/>
+		<rect width="224" height="8" x="72" y="293" rx="2"/>
+		<rect width="158" height="8" x="72" y="324" rx="2"/>
+		<rect width="117" height="12" x="93" y="229" rx="2"/>
+		<path
+			d="M145.5 106.464a12.003 12.003 0 0 1 12 0l37.796 21.822c3.713 2.143 6 6.105 6 10.392v43.644c0 4.287-2.287 8.249-6 10.392L157.5 214.536a12.003 12.003 0 0 1-12 0l-37.796-21.822a11.999 11.999 0 0 1-6-10.392v-43.644c0-4.287 2.287-8.249 6-10.392l37.796-21.822Z"/>
+		<rect width="43" height="12" x="255" y="129" rx="2"/>
+		<rect width="117" height="8" x="255" y="149" rx="2"/>
+		<rect width="43" height="12" x="255" y="188" rx="2"/>
+		<rect width="117" height="8" x="255" y="208" rx="2"/>
+	</g>
+	<defs>
+		<filter id="a" width="463" height="407" x="0" y="-2" color-interpolation-filters="sRGB"
+				filterUnits="userSpaceOnUse">
+			<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+			<feGaussianBlur in="BackgroundImageFix" stdDeviation="15"/>
+			<feComposite in2="SourceAlpha" operator="in" result="effect1_backgroundBlur_2696_301751"/>
+			<feColorMatrix in="SourceAlpha" result="hardAlpha" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
+			<feOffset dy="2"/>
+			<feGaussianBlur stdDeviation="15"/>
+			<feComposite in2="hardAlpha" operator="out"/>
+			<feColorMatrix values="0 0 0 0 0.027451 0 0 0 0 0.247059 0 0 0 0 0.403922 0 0 0 0.09 0"/>
+			<feBlend in2="effect1_backgroundBlur_2696_301751" result="effect2_dropShadow_2696_301751"/>
+			<feBlend in="SourceGraphic" in2="effect2_dropShadow_2696_301751" result="shape"/>
+		</filter>
+	</defs>
+	<rect id="e" width="100%" height="100%" fill="url(#b)" mask="url(#c)"/>
+	<mask id="c" fill="#fff">
+		<use xlink:href="#d"/>
+	</mask>
+	<linearGradient id="b" x1="66.6%" x2="33.3%" y1="50%" y2="50%">
+		<stop offset="0%" stop-color="#dfe0e3" stop-opacity="0"/>
+		<stop offset="0%" stop-color="#dfe0e3" stop-opacity="0"/>
+		<stop offset="50%" stop-color="#dfe0e3"/>
+		<stop offset="100%" stop-color="#dfe0e3" stop-opacity="0"/>
+	</linearGradient>
+	<animate xlink:href="#e" attributeName="x" begin="0s" dur="1s" from="-100%" repeatCount="indefinite" to="100%"/>
+</svg>

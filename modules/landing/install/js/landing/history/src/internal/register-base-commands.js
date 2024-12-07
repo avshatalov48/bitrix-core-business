@@ -18,6 +18,7 @@ import addNode from '../action/add-node';
 import removeNode from '../action/remove-node';
 import editStyle from '../action/edit-style';
 import editAttributes from '../action/edit-attributes';
+import editComponent from '../action/edit-component';
 import updateContent from '../action/update-content';
 import multiply from '../action/multiply';
 import replaceLanding from '../action/replace-landing';
@@ -180,6 +181,13 @@ export default function registerBaseCommands(history: History)
 		new Command({
 			id: 'editAttributes',
 			command: editAttributes,
+		}),
+	);
+
+	history.registerCommand(
+		new Command({
+			id: 'editComponent',
+			command: editComponent,
 		}),
 	);
 

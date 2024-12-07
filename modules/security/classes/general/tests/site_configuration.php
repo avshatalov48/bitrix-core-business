@@ -45,6 +45,14 @@ class CSecuritySiteConfigurationTest
 		),
 		"modulesVersion" => array(
 			"method" => "checkModulesVersion"
+		),
+		"captchaOn" => array(
+			"method" => "checkCaptchaOn"
+		),
+		"hostsRestricted" => array(
+			"method" => "checkHostsRestricted",
+			"base_message_key" => "SECURITY_SITE_CHECKER_HOSTS_NOT_RESTRICTED",
+			"critical" => CSecurityCriticalLevel::MIDDLE
 		)
 	);
 
@@ -282,4 +290,28 @@ class CSecuritySiteConfigurationTest
 
 		return $result;
 	}
+
+	protected function checkCaptchaOn()
+	{
+		$isFailed = false;
+		if (COption::GetOptionString("main", "new_user_registration", "N") == "Y" && COption::GetOptionString("main", "captcha_registration", "N") != "Y")
+		{
+			$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_REGISTRATION_CAPTCHA_OFF", CSecurityCriticalLevel::MIDDLE);
+			$isFailed = true;
+		}
+		if (COption::GetOptionString("main", "captcha_restoring_password", "N") != "Y")
+		{
+			$this->addUnformattedDetailError("SECURITY_SITE_CHECKER_PASSWORD_RESTORING_CAPTCHA_OFF", CSecurityCriticalLevel::MIDDLE);
+			$isFailed = true;
+		}
+
+		return $isFailed ? self::STATUS_FAILED : self::STATUS_PASSED;
+	}
+
+	protected function checkHostsRestricted()
+	{
+		$hosts = new Bitrix\Security\HostRestriction();
+		return $hosts->getActive() ? self::STATUS_PASSED: self::STATUS_FAILED;
+	}
+
 }

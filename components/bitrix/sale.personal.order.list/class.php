@@ -1055,6 +1055,7 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 
 		while ($arOrder = $this->dbQueryResult['ORDERS']->GetNext())
 		{
+			$arOrder['ID'] = (int)$arOrder['ID'];
 			$arOrder['LOCK_CHANGE_PAYSYSTEM'] = 'N';
 			if (
 				is_array($this->arParams['RESTRICT_CHANGE_PAYSYSTEM'])
@@ -1066,6 +1067,11 @@ class CBitrixPersonalOrderListComponent extends CBitrixComponent
 
 			$listOrders[$arOrder["ID"]] = $arOrder;
 			$orderIdList[] = $arOrder["ID"];
+		}
+
+		if (empty($orderIdList))
+		{
+			return;
 		}
 
 		$basketClassName = $this->registry->getBasketClassName();

@@ -1,8 +1,6 @@
 <?php
 
-
 namespace Bitrix\Calendar\ICal;
-
 
 use Bitrix\Calendar\ICal\Builder\AttendeesCollection;
 use Bitrix\Calendar\ICal\MailInvitation\Helper;
@@ -13,7 +11,6 @@ use Bitrix\Main\IO\FileNotFoundException;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query\Join;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Calendar\ICal\Basic\{Dictionary, ICalUtil};
 use Bitrix\Main\Type\Date;
 
@@ -96,7 +93,6 @@ class IncomingEventManager
 					{
 						die();
 					}
-					$fileContent = Encoding::convertEncoding($fileContent, OutcomingEventManager::CHARSET, SITE_CHARSET);
 					$icalComponent = static::getDataInfo($fileContent);
 
 					if ($method === Dictionary::METHODS['reply'])

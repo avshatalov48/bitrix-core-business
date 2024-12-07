@@ -33,13 +33,13 @@ class CSearchMysql extends CSearchFullText
 	public function truncate()
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$DB->Query("TRUNCATE TABLE b_search_content_text", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("TRUNCATE TABLE b_search_content_text");
 	}
 
 	public function deleteById($ID)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID);
 	}
 
 	public function replace($ID, $arFields)
@@ -289,71 +289,79 @@ class CSearchMysql extends CSearchFullText
 	function PrepareQuery($queryObject, $q)
 	{
 		$state = 0;
-		$qu = array();
+		$qu = [];
 		$n = 0;
 		$this->error = "";
 		$this->errorno = 0;
 
-		$t = strtok($q, " ");
-		while (($t != "") && ($this->error == ""))
+		foreach (preg_split('/ +/', $q) as $t)
 		{
-			if ($state == 0)
+			if ($state === 0)
 			{
-				if (($t == "||") || ($t == "&&") || ($t == ")"))
+				if (($t === '||') || ($t === '&&') || ($t === ')'))
 				{
-					$this->error = GetMessage("SEARCH_ERROR2")." ".$t;
+					$this->error = GetMessage('SEARCH_ERROR2') . ' ' . $t;
 					$this->errorno = 2;
+					break;
 				}
-				elseif ($t == "!")
+				elseif ($t === '!')
 				{
-					$qu[] = " -";
+					$qu[] = ' -';
 					$p = count($qu) - 2;
-					if (isset($qu[$p]) && $qu[$p]=== " +")
-						$qu[$p] = "";
+					if (isset($qu[$p]) && $qu[$p] === ' +')
+					{
+						$qu[$p] = '';
+					}
 				}
-				elseif ($t == "(")
+				elseif ($t === '(')
 				{
 					$n++;
-					$p = count($qu)-1;
-					if (isset($qu[$p]) && $qu[$p] === "(")
-						$qu[] = "";
-					$qu[] = "(";
+					$p = count($qu) - 1;
+					if (isset($qu[$p]) && $qu[$p] === '(')
+					{
+						$qu[] = '';
+					}
+					$qu[] = '(';
 				}
 				else
 				{
 					$state = 1;
-
 					if (isset($queryObject->m_kav[$t]))
 					{
-						$t = '"'.$queryObject->m_kav[$t].'"';
-					}
-					elseif ($queryObject->bStemming)
-					{
-						$t = trim($t, "-")."*";
+						$t = '"' . $queryObject->m_kav[$t] . '"';
 					}
 					else
 					{
-						$t = trim($t, "-");
-					}
+						if (strpos($t, '-') !== false)
+						{
+							$t = '"' . $t . '"';
+						}
 
+						if ($queryObject->bStemming)
+						{
+							$t .= '*';
+						}
+					}
 					$p = count($qu) - 1;
-					if (!isset($qu[$p]) || $qu[$p]!== " -")
-						$qu[] = "";
+					if (!isset($qu[$p]) || $qu[$p] !== ' -')
+					{
+						$qu[] = '';
+					}
 					$qu[] = $t;
 				}
 			}
-			elseif ($state == 1)
+			else
 			{
-				if (($t == "||") || ($t == "&&"))
+				if (($t === '||') || ($t === '&&'))
 				{
 					$state = 0;
-					if ($t == '||')
+					if ($t === '||')
 					{
-						$qu[] = " ";
+						$qu[] = ' ';
 					}
 					else
 					{
-						$qu[] = " +";
+						$qu[] = ' +';
 						$p = count($qu) - 1;
 						while (isset($qu[$p]) && $qu[$p] !== ')')
 						{
@@ -363,43 +371,44 @@ class CSearchMysql extends CSearchFullText
 						while (isset($qu[$p]) && $nn)
 						{
 							$p--;
-							if ($qu[$p] == '(')
+							if ($qu[$p] === '(')
+							{
 								$nn--;
-							if ($qu[$p] == ')')
+							}
+							if ($qu[$p] === ')')
+							{
 								$nn++;
+							}
 						}
-						if (isset($qu[$p-1]) && $qu[$p-1]=== "")
-							$qu[$p-1] = " +";
+						if (isset($qu[$p-1]) && $qu[$p-1] === '')
+						{
+							$qu[$p-1] = ' +';
+						}
 					}
 				}
-				elseif ($t == ")")
+				elseif ($t === ')')
 				{
 					$n--;
-					$state = 1;
-					$qu[] = ")";
+					$qu[] = ')';
 				}
 				else
 				{
-					$this->error = GetMessage("SEARCH_ERROR2")." ".$t;
+					$this->error = GetMessage('SEARCH_ERROR2') . ' ' . $t;
 					$this->errorno = 2;
+					break;
 				}
 			}
-			else
-			{
-				break;
-			}
-			$t = strtok(" ");
 		}
 
-		if (($this->error == "") && ($n != 0))
+		if (($this->error === '') && ($n !== 0))
 		{
-			$this->error = GetMessage("SEARCH_ERROR1");
+			$this->error = GetMessage('SEARCH_ERROR1');
 			$this->errorno = 1;
 		}
 
-		if ($this->error != "")
+		if ($this->error != '')
 		{
-			return "";
+			return '';
 		}
 
 		return implode($qu);

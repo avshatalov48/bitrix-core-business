@@ -1206,21 +1206,11 @@ if($updater->CanUpdateDatabase())
 			if ($rc === false)
 				throw new CLearnInstall201203ConvertDBException('EA_SQLERROR');
 
-			$arInsert = $DB->PrepareInsert('b_learn_lesson', $arFields);
+			$arFields['~TIMESTAMP_X'] = $DB->GetNowFunction();
+			$arFields['~DATE_CREATE'] = $DB->GetNowFunction();
+			$arFields['~CREATED_BY'] = '1';
 
-			$strSql =
-				"INSERT INTO b_learn_lesson 
-					(" . $arInsert[0] . ", 
-					TIMESTAMP_X, DATE_CREATE, CREATED_BY) " .
-				"VALUES 
-					(" . $arInsert[1] . ", "
-					. $DB->GetNowFunction() . ", " . $DB->GetNowFunction() . ", 1)";
-
-			$rc = $DB->Query($strSql, true);
-			if ($rc === false)
-				throw new CLearnInstall201203ConvertDBException('EA_SQLERROR');
-
-			$newLessonId = intval($DB->LastID());
+			$newLessonId = $DB->Add('b_learn_lesson', $arFields);
 
 			return ($newLessonId);
 		}

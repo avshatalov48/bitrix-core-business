@@ -2,7 +2,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Logger } from 'im.v2.lib.logger';
 import { LocalStorageManager } from 'im.v2.lib.local-storage';
-import { EventType, Layout, LocalStorageKey, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, LocalStorageKey, SidebarDetailBlock } from 'im.v2.const';
 
 import { SidebarPanel } from './components/sidebar-panel';
 
@@ -11,7 +11,7 @@ import './css/sidebar.css';
 
 import type { JsonObject } from 'main.core';
 
-type SidebarPanelType = $Keys<typeof SidebarDetailBlock>;
+type SidebarPanelType = $Values<typeof SidebarDetailBlock>;
 
 // @vue/component
 export const ChatSidebar = {
@@ -22,6 +22,10 @@ export const ChatSidebar = {
 		originDialogId: {
 			type: String,
 			required: true,
+		},
+		isActive: {
+			type: Boolean,
+			default: true,
 		},
 	},
 	emits: ['changePanel'],
@@ -64,12 +68,6 @@ export const ChatSidebar = {
 			const messageSearchPanel = this.topLevelPanelType === SidebarDetailBlock.messageSearch;
 
 			return !messageSearchPanel;
-		},
-		isCopilotLayout(): boolean
-		{
-			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
-
-			return currentLayoutName === Layout.copilot.name;
 		},
 	},
 	watch:
@@ -129,6 +127,10 @@ export const ChatSidebar = {
 	{
 		onSidebarOpen(event: BaseEvent<{panel: SidebarPanelType, standalone: boolean, dialogId: string}>)
 		{
+			if (!this.isActive)
+			{
+				return;
+			}
 			const { panel = '', standalone = false, dialogId, entityId = '' } = event.getData();
 
 			const needToCloseSecondLevelPanel = panel && this.secondLevelPanelType === panel;
@@ -151,6 +153,10 @@ export const ChatSidebar = {
 		},
 		onSidebarClose(event: BaseEvent<{panel: SidebarPanelType}>)
 		{
+			if (!this.isActive)
+			{
+				return;
+			}
 			this.needTopLevelTransition = true;
 
 			const { panel = '' } = event.getData();
@@ -168,7 +174,7 @@ export const ChatSidebar = {
 		restoreOpenState()
 		{
 			const sidebarOpenState = LocalStorageManager.getInstance().get(LocalStorageKey.sidebarOpened);
-			if (!sidebarOpenState || this.isCopilotLayout)
+			if (!sidebarOpenState)
 			{
 				return;
 			}

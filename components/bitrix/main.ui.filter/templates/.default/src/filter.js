@@ -1,3 +1,8 @@
+/* eslint-disable */
+import { Loc, Type } from 'main.core';
+import { UI } from 'ui.notification';
+import { Presets } from './presets';
+
 ;(function() {
 	'use strict';
 
@@ -52,6 +57,7 @@
 		this.params = params;
 		this.search = null;
 		this.popup = null;
+		this.checkboxListPopup = null;
 		this.presets = null;
 		this.fields = null;
 		this.types = types;
@@ -1057,21 +1063,159 @@
 
 		_onAddFieldClick: function(event)
 		{
-			var popup = this.getFieldsPopup();
 			event.stopPropagation();
 			event.preventDefault();
+
+			if (this.getParam('USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'))
+			{
+				BX.Runtime.loadExtension('ui.dialogs.checkbox-list').then(() => {
+					if (BX.UI && BX.Type.isFunction(BX.UI.CheckboxList))
+					{
+						this.showFieldsSettingsCheckboxList();
+
+						return;
+					}
+
+					this.showFieldsSettingsPopup();
+				});
+
+				return;
+			}
+
+			this.showFieldsSettingsPopup();
+		},
+
+		showFieldsSettingsPopup: function(): void
+		{
+			const popup = this.getFieldsPopup();
 
 			if (popup && !popup.isShown())
 			{
 				this.showFieldsPopup();
 				this.syncFields();
+
+				return;
 			}
-			else
-			{
-				this.closeFieldListPopup();
-			}
+
+			this.closeFieldListPopup();
 		},
 
+		showFieldsSettingsCheckboxList: function(): void
+		{
+			if (this.checkboxListPopup)
+			{
+				this.checkboxListPopup.show();
+				this.syncCheckboxFields();
+
+				return;
+			}
+
+			this.getFieldsListPopupContent().then((content) => {
+				const { sections, categories, options } = this.getPreparedCheckboxListData(content);
+				const { enableFieldsSearch, enableHeadersSections } = this;
+				const context = {
+					parentType: 'filter',
+				}
+
+				this.checkboxListPopup = new BX.UI.CheckboxList({
+					popupOptions: {
+						width: this.settings.popupWidth,
+					},
+					lang: {
+						title: Loc.getMessage('MAIN_UI_FILTER__FIELDS_SETTINGS_TITLE'),
+						placeholder: Loc.getMessage('MAIN_UI_FILTER__FIELD_SEARCH_PLACEHOLDER'),
+						emptyStateTitle: Loc.getMessage('MAIN_UI_FILTER__FIELD_EMPTY_STATE_TITLE'),
+						emptyStateDescription: Loc.getMessage('MAIN_UI_FILTER__FIELD_EMPTY_STATE_DESCRIPTION'),
+						allSectionsDisabledTitle: Loc.getMessage('MAIN_UI_FILTER__FIELD_ALL_SECTIONS_DISABLED'),
+					},
+					sections,
+					categories,
+					options,
+					events: {
+						onApply: (event) => this.onCheckboxListApply(event.data.fields),
+					},
+					params: {
+						destroyPopupAfterClose: false,
+						useSearch: enableFieldsSearch,
+						useSectioning: enableHeadersSections,
+					},
+					context,
+				});
+
+				this.checkboxListPopup.show();
+			});
+		},
+
+		syncCheckboxFields: function(): void
+		{
+			const fields = this.getPreset().getFields();
+			const checkedFields = this.checkboxListPopup.getSelectedOptions();
+
+			checkedFields.forEach((fieldName: string) => {
+				if (!fields.some((field) => field.dataset.name === fieldName))
+				{
+					this.checkboxListPopup.handleOptionToggled(fieldName);
+				}
+			});
+		},
+
+		/**
+		 * @param content
+		 * @returns {{options: [], categories: [], sections: []}}
+		 */
+		getPreparedCheckboxListData: function(content: Object[]): Object
+		{
+			const defaultHeaderSection = this.getDefaultHeaderSection();
+			const sectionIds: Set<string> = new Set();
+			const headerSections = this.getHeadersSections();
+
+			const sections = [];
+			const categories = [];
+			const options = [];
+
+			const preset = this.getPreset();
+			const checkedFields = preset.getFields();
+			const defaultPresetFields = preset.parent.getParam('CURRENT_PRESET')?.FIELDS ?? [];
+			const restrictedFields = this.getParam('RESTRICTED_FIELDS', []);
+
+			content.forEach((item: Object) => {
+				const sectionId = (item.sectionId.length ? item.sectionId : defaultHeaderSection?.id);
+				if (this.enableHeadersSections && !sectionIds.has(sectionId))
+				{
+					const title = headerSections[sectionId].name;
+					sectionIds.add(sectionId);
+					sections.push({
+						title,
+						key: sectionId,
+						value: true,
+					});
+					categories.push({
+						title,
+						sectionKey: sectionId,
+						key: sectionId,
+					});
+				}
+
+				const { name } = item;
+
+				options.push({
+					title: item.label,
+					value: checkedFields.some((field: HTMLElement) => {
+						return field.dataset.name === name;
+					}),
+					categoryKey: sectionId,
+					defaultValue: defaultPresetFields.some((defaultField) => defaultField.NAME === name),
+					id: name,
+					locked: restrictedFields.includes(name),
+				});
+			});
+
+			return {
+				sections,
+				categories,
+				options,
+			};
+		},
 
 		/**
 		 * Synchronizes field list in popup and filter field list
@@ -1189,16 +1333,28 @@
 		 */
 		getLazyLoadFields: function()
 		{
-			var p = new BX.Promise();
+			const listUrl = this.getParam('LAZY_LOAD')['GET_LIST'];
+			const p = new BX.Promise();
 
-			BX.ajax({
-				method: 'GET',
-				url: this.getParam("LAZY_LOAD")["GET_LIST"],
-				dataType: 'json',
-				onsuccess: function(response) {
-					p.fulfill(response);
-				}
-			});
+			if (BX.Type.isPlainObject(listUrl))
+			{
+				const { component, action, data } = listUrl;
+
+				BX.ajax.runComponentAction(component, action, { mode : 'ajax', data })
+					.then((response) => {
+						p.fulfill(response.data.fields ?? []);
+					})
+				;
+			}
+			else
+			{
+				BX.ajax({
+					method: 'GET',
+					url: listUrl,
+					dataType: 'json',
+					onsuccess: (response) => p.fulfill(response),
+				});
+			}
 
 			return p;
 		},
@@ -1258,6 +1414,15 @@
 
 		getPopupContent: function(block: string, mix: string, content: Object[]): HTMLElement
 		{
+			if (
+				this.getParam('USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP')
+				&& BX.UI
+				&& BX.Type.isFunction(BX.UI.CheckboxList)
+			)
+			{
+				return content;
+			}
+
 			const wrapper = BX.Tag.render`<div></div>`;
 			if (!this.enableHeadersSections)
 			{
@@ -1293,6 +1458,133 @@
 			this.preparePopupContentFields(wrapper, sections, block, mix);
 
 			return wrapper;
+		},
+
+		async onCheckboxListApply(selectedFields: string[]): void
+		{
+			const presetFields = this.getPreset().getFields();
+			const oldFields = [];
+
+			presetFields.forEach((field) => {
+				oldFields.push(field.dataset.name);
+			});
+
+			if (this.isFieldsChangePrevented(selectedFields, oldFields))
+			{
+				return;
+			}
+
+			const fieldsData = await this.fetchFields(selectedFields, oldFields);
+			if (!Type.isArray(fieldsData))
+			{
+				if (Type.isPlainObject(fieldsData) && fieldsData?.ERROR)
+				{
+					UI.Notification.Center.notify({
+						content: fieldsData.ERROR
+					});
+				}
+
+				return;
+			}
+
+			fieldsData.forEach((field) => this.params.FIELDS.push(field));
+
+			const fieldsForAdd = selectedFields.filter((field) => !oldFields.includes(field));
+			const fieldsForRemove: string[] = oldFields.filter((field) => !selectedFields.includes(field));
+
+			const disableSaveFieldsSort = true;
+
+			fieldsForAdd.forEach((fieldId) => {
+				const field = fieldsData.find((item) => item.NAME === fieldId);
+				if (field)
+				{
+					this.getPreset().addField(field, disableSaveFieldsSort);
+
+					// // @todo check this
+					if (Type.isString(field.HTML))
+					{
+						const wrap = BX.create('div');
+						this.getHiddenElement().appendChild(wrap);
+						BX.html(wrap, field.HTML);
+					}
+				}
+			});
+
+			fieldsForRemove.forEach((fieldId: string) => {
+				const field = fieldsData.find((item) => item.NAME === fieldId);
+				if (field)
+				{
+					this.getPreset().removeField(field, disableSaveFieldsSort);
+				}
+			});
+
+			this.saveFieldsSort();
+		},
+
+		async fetchFields(fields: string[], oldFields: string[]): Promise
+		{
+			if (!this.getParam('LAZY_LOAD'))
+			{
+				return this.getParam('FIELDS');
+			}
+
+			// @todo show loader ?
+
+			const ids: string[] = [...new Set([...fields, ...oldFields])];
+			const controller = this.getParam('LAZY_LOAD')['CONTROLLER'];
+			if (controller)
+			{
+				const {
+					componentName,
+					signedParameters,
+					getFields,
+				} = controller;
+
+				return new Promise((resolve) => {
+					BX.ajax.runAction(
+						getFields,
+						{
+							data: {
+								filterId: this.getParam('FILTER_ID'),
+								ids,
+								componentName: (BX.type.isNotEmptyString(componentName) ? componentName : ''),
+								signedParameters: (BX.type.isNotEmptyString(signedParameters) ? signedParameters : ''),
+							},
+						}).then((response) => resolve(response.data))
+					;
+				});
+			}
+
+			return this.getLazyLoadFieldsByIds(ids);
+		},
+
+		async getLazyLoadFieldsByIds(ids: string[]): Promise
+		{
+			const getFieldsUrl = this.getParam('LAZY_LOAD')['GET_FIELDS'];
+			const url = BX.Uri.addParam(getFieldsUrl, { ids });
+
+			return new Promise((resolve) => {
+				BX.ajax({
+					method: 'get',
+					url,
+					dataType: 'json',
+					onsuccess: (response) => resolve(response),
+				});
+			});
+		},
+
+		isFieldsChangePrevented: function(fields: string[], oldFields: string[]): boolean
+		{
+			const event = new BX.Event.BaseEvent({
+				data: {
+					fields,
+					oldFields,
+				},
+			});
+
+			this.emitter.emit('onBeforeChangeFilterItems', event);
+
+			return event.isDefaultPrevented();
 		},
 
 		preparePopupContentHeader: function(wrapper: HTMLElement): void
@@ -1547,19 +1839,10 @@
 					data = JSON.parse(BX.data(target, 'item'));
 				} catch (err) {}
 
-				let isChecked = BX.hasClass(target, this.settings.classMenuItemChecked);
-				let event = new BX.Event.BaseEvent({
-					data
-				});
-				this.emitter.emit(
-					isChecked
-						? 'onBeforeRemoveFilterItem'
-						: 'onBeforeAddFilterItem'
-					,
-					event
-				);
-
-				if (event.isDefaultPrevented())
+				if (this.isFieldChangePrevented(
+					data,
+					BX.hasClass(target, this.settings.classMenuItemChecked)
+				))
 				{
 					return;
 				}
@@ -1641,6 +1924,35 @@
 			}
 		},
 
+		/**
+		 * @return {boolean}
+		 */
+		isFieldChangePrevented: function(data, isChecked)
+		{
+			let eventParams;
+			if (isChecked)
+			{
+				eventParams = {
+					fields: [],
+					oldFields: [data.NAME],
+				};
+			}
+			else
+			{
+				eventParams = {
+					fields: [data.NAME],
+					oldFields: [],
+				};
+			}
+
+			const event = new BX.Event.BaseEvent({
+				data: eventParams,
+			});
+
+			this.emitter.emit('onBeforeChangeFilterItems', event);
+
+			return event.isDefaultPrevented();
+		},
 
 		getHiddenElement: function()
 		{
@@ -1661,16 +1973,29 @@
 		 */
 		getLazyLoadField: function(id)
 		{
-			var p = new BX.Promise();
+			const fieldUrl = this.getParam('LAZY_LOAD')['GET_FIELD'];
+			const p = new BX.Promise();
 
-			BX.ajax({
-				method: 'get',
-				url: BX.util.add_url_param(this.getParam("LAZY_LOAD")["GET_FIELD"], {id: id}),
-				dataType: 'json',
-				onsuccess: function(response) {
-					p.fulfill(response);
-				}
-			});
+			if (BX.Type.isPlainObject(fieldUrl))
+			{
+				const { component, action, data } = fieldUrl;
+				data.fieldId = id;
+
+				BX.ajax.runComponentAction(component, action, { mode: 'ajax', data })
+					.then((response) => {
+						p.fulfill(response.data.field ?? []);
+					})
+				;
+			}
+			else
+			{
+				BX.ajax({
+					method: 'get',
+					url: BX.util.add_url_param(fieldUrl, { id }),
+					dataType: 'json',
+					onsuccess: (response) => p.fulfill(response),
+				});
+			}
 
 			return p;
 		},
@@ -1692,7 +2017,22 @@
 		 */
 		closeFieldListPopup: function()
 		{
-			var popup = this.getFieldsPopup();
+			if (
+				this.getParam('USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP')
+				&& BX.UI
+				&& BX.Type.isFunction(BX.UI.CheckboxList)
+			)
+			{
+				if (this.checkboxListPopup)
+				{
+					this.checkboxListPopup.destroy();
+					this.checkboxListPopup = null;
+				}
+
+				return;
+			}
+
+			const popup = this.getFieldsPopup();
 			popup.close();
 		},
 
@@ -2757,14 +3097,11 @@
 		},
 
 
-		/**
-		 * @return {BX.Filter.Presets}
-		 */
-		getPreset: function()
+		getPreset: function(): Presets
 		{
-			if (!(this.presets instanceof BX.Filter.Presets))
+			if (!(this.presets instanceof Presets))
 			{
-				this.presets = new BX.Filter.Presets(this);
+				this.presets = new Presets(this);
 			}
 
 			return this.presets;

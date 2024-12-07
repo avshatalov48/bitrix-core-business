@@ -1,10 +1,12 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -250,13 +252,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep > 2 && check_bitrix_sessid(
 			while ($csvImport->ImportUser())
 			{
 				if(($mess = $csvImport->GetErrorMessage()) <> '')
-					echo "<script type=\"text/javascript\">parent.window.ShowError('".CUtil::JSEscape(_ShowHtmlspec($mess))."');</script>";
+					echo "<script>parent.window.ShowError('".CUtil::JSEscape(_ShowHtmlspec($mess))."');</script>";
 
 				if (USER_IMPORT_EXECUTION_TIME > 0 && (microtime(true)-START_EXEC_TIME) > USER_IMPORT_EXECUTION_TIME)
-					die("<script type=\"text/javascript\">parent.window.Start('".$csvFile->GetPos()."',".$cntUsersImport.");</script>");
+					die("<script>parent.window.Start('".$csvFile->GetPos()."',".$cntUsersImport.");</script>");
 			}
 
-			die("<script type=\"text/javascript\">parent.window.End(".$cntUsersImport.");</script>");
+			die("<script>parent.window.End(".$cntUsersImport.");</script>");
 		}
 		elseif ($ldp)
 		{
@@ -291,10 +293,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $tabStep > 2 && check_bitrix_sessid(
 
 			if (!empty($strUserImportError))
 			{
-				echo "<script type=\"text/javascript\">parent.window.ShowError('".CUtil::JSEscape(_ShowHtmlspec($strUserImportError))."');</script>";
+				echo "<script>parent.window.ShowError('".CUtil::JSEscape(_ShowHtmlspec($strUserImportError))."');</script>";
 			}
 
-			die("<script type=\"text/javascript\">parent.window.End($cntUsersImport);</script>");
+			die("<script>parent.window.End($cntUsersImport);</script>");
 		}
 	}
 }
@@ -359,16 +361,10 @@ if ($tabStep == 2 && $dataSource == "csv"):
 			<?endif?>
 		</td>
 	</tr>
-<?
-if(defined("BX_UTF")):
-?>
 	<tr>
 		<td></td>
 		<td><?echo BeginNote()?><?echo GetMessage("USER_IMPORT_UTF")?><?echo EndNote()?></td>
 	</tr>
-<?
-endif;
-?>
 	<tr class="adm-detail-required-field">
 		<td class="adm-detail-valign-top"><?=GetMessage("USER_IMPORT_DELIMETER")?>:</td>
 		<td>
@@ -527,7 +523,7 @@ if(CModule::IncludeModule("iblock")):
 				<option value="<?=$arLdap["ID"]?>"<?if ($ldapServer == $arLdap["ID"]): $indSelected = $i;?> selected<?endif?>><?=$arLdap["NAME"]?></option>
 			<?endwhile?>
 			</select>
-			<script type="text/javascript">
+			<script>
 				<?
 				$arMapFields = array();
 
@@ -567,9 +563,9 @@ if(CModule::IncludeModule("iblock")):
 					}
 				}
 
-				var LdapMaps = <?=CUtil::PhpToJSObject($arFieldMaps)?>;
-				var AllMaps = <?=CUtil::PhpToJSObject($arMapFields)?>;
-				var AllFields = <?=CUtil::PhpToJSObject($arAllFields)?>;
+				var LdapMaps = <?= Json::encode($arFieldMaps) ?>;
+				var AllMaps = <?= Json::encode($arMapFields) ?>;
+				var AllFields = <?= Json::encode($arAllFields) ?>;
 
 				function OnLdapSelect(num)
 				{
@@ -610,11 +606,11 @@ if(CModule::IncludeModule("iblock")):
 					{
 						if(!fields[field])
 						{
-							res += '<tr><td><input type="checkbox" name="LDAPMAP['+field+']" id="'+field+'" value="'+AllMaps[field]['MAP']+'" onclick="ChCh(this.checked)" checked></td><td><label for="'+field+'">'+AllFields[field]['NAME']+'</label></td></tr>';
+							res += '<tr><td><input type="checkbox" name="LDAPMAP['+field+']" id="'+field+'" value="'+AllMaps[field]['MAP']+'" onclick="ChCh(this.checked)"></td><td><label for="'+field+'">'+AllFields[field]['NAME']+'</label></td></tr>';
 						}
 					}
 					if(res.length>0)
-						definedfields.innerHTML = '<table id="chb"><tr><td><input type="checkbox" id="eall" onclick="Ch(this.checked)" checked></td><td><label for="eall"><?echo GetMessage("USER_IMPORT_ALL")?></label></td></tr>'+res+'</table>';
+						definedfields.innerHTML = '<table id="chb"><tr><td><input type="checkbox" id="eall" onclick="Ch(this.checked)"></td><td><label for="eall"><?echo GetMessage("USER_IMPORT_ALL")?></label></td></tr>'+res+'</table>';
 				}
 				setTimeout('OnLdapSelect(<?=$indSelected?>);', 1);
 			</script>
@@ -752,7 +748,7 @@ $tabControl->Buttons();
 
 <iframe style="display:none;" id="progress" name="progress" src="javascript:''"></iframe>
 
-<script type="text/javascript">
+<script>
 <!--
 
 function Start(position, cntExecuted)

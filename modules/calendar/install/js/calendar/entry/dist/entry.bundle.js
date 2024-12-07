@@ -1,17 +1,18 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,calendar_entry,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_roomsmanager,ui_dialogs_messagebox,main_core) {
+(function (exports,calendar_sectionmanager,calendar_util,main_core_events,calendar_compacteventform,ui_notification,calendar_roomsmanager,ui_dialogs_messagebox,main_core) {
 	'use strict';
 
 	let _ = t => t,
 	  _t;
-	class EntryManager {
+	class EntryManager$$1 {
 	  static getNewEntry(options) {
 	    const newEntryData = {};
-	    const dateTime = EntryManager.getNewEntryTime(new Date());
+	    const dateTime = EntryManager$$1.getNewEntryTime(new Date());
 	    const userSettings = calendar_util.Util.getUserSettings();
 	    const userId = calendar_util.Util.getCurrentUserId();
 	    newEntryData.ID = null;
-	    newEntryData.NAME = EntryManager.getNewEntryName();
+	    newEntryData.NAME = EntryManager$$1.getNewEntryName();
 	    newEntryData.dateFrom = dateTime.from;
 	    newEntryData.dateTo = dateTime.to;
 	    if (options.type === 'location') {
@@ -19,7 +20,7 @@ this.BX = this.BX || {};
 	    } else {
 	      newEntryData.SECT_ID = calendar_sectionmanager.SectionManager.getNewEntrySectionId(options.type, parseInt(options.ownerId));
 	    }
-	    newEntryData.REMIND = EntryManager.getNewEntryReminders();
+	    newEntryData.REMIND = EntryManager$$1.getNewEntryReminders();
 	    newEntryData.attendeesEntityList = [{
 	      entityId: 'user',
 	      id: userId
@@ -48,7 +49,7 @@ this.BX = this.BX || {};
 	    }
 	    newEntryData.TZ_FROM = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
 	    newEntryData.TZ_TO = userSettings.timezoneName || userSettings.timezoneDefaultName || '';
-	    return new calendar_entry.Entry({
+	    return new Entry({
 	      data: newEntryData
 	    });
 	  }
@@ -73,17 +74,17 @@ this.BX = this.BX || {};
 	    };
 	  }
 	  static getNewEntryName() {
-	    return EntryManager.newEntryName || '';
+	    return EntryManager$$1.newEntryName || '';
 	  }
 	  static setNewEntryName(newEntryName) {
-	    EntryManager.newEntryName = newEntryName;
+	    EntryManager$$1.newEntryName = newEntryName;
 	  }
 	  static showEditEntryNotification(entryId) {
 	    calendar_util.Util.showNotification(main_core.Loc.getMessage('CALENDAR_SAVE_EVENT_NOTIFICATION'), [{
 	      title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_VIEW'),
 	      events: {
 	        click: function (event, balloon, action) {
-	          EntryManager.openViewSlider(entryId);
+	          EntryManager$$1.openViewSlider(entryId);
 	          balloon.close();
 	        }
 	      }
@@ -94,14 +95,14 @@ this.BX = this.BX || {};
 	      title: main_core.Loc.getMessage('CALENDAR_EVENT_DO_VIEW'),
 	      events: {
 	        click: (event, balloon, action) => {
-	          EntryManager.openViewSlider(entryId);
+	          EntryManager$$1.openViewSlider(entryId);
 	          balloon.close();
 	        }
 	      }
 	    }]);
 	  }
 	  static showDeleteEntryNotification(entry) {
-	    if (entry && entry instanceof calendar_entry.Entry) {
+	    if (entry && entry instanceof Entry) {
 	      BX.UI.Notification.Center.notify({
 	        id: 'calendar' + entry.getUniqueId(),
 	        content: main_core.Loc.getMessage('CALENDAR_DELETE_EVENT_NOTIFICATION'),
@@ -123,7 +124,7 @@ this.BX = this.BX || {};
 	    });
 	  }
 	  static closeDeleteNotificationBalloon(entry) {
-	    if (entry && entry instanceof calendar_entry.Entry) {
+	    if (entry && entry instanceof Entry) {
 	      const balloon = BX.UI.Notification.Center.getBalloonById('calendar' + entry.getUniqueId());
 	      if (balloon) {
 	        balloon.close();
@@ -134,15 +135,14 @@ this.BX = this.BX || {};
 	    const bx = calendar_util.Util.getBX();
 	    if (bx.Calendar && bx.Calendar.SliderLoader) {
 	      new bx.Calendar.SliderLoader(options.entry ? 'EDIT' + options.entry.id : 'NEW', {
-	        calendarContext: options.calendarContext,
+	        calendarContext: options.calendarContext || bx.Calendar.Util.getCalendarContext(),
 	        entry: options.entry || null,
 	        type: options.type,
 	        isLocationCalendar: options.isLocationCalendar || false,
 	        roomsManager: options.roomsManager || null,
 	        locationAccess: options.locationAccess || false,
-	        dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 	        locationCapacity: options.locationCapacity || 0,
-	        ownerId: options.ownerId,
+	        ownerId: options.ownerId || 0,
 	        userId: options.userId,
 	        formDataValue: options.formDataValue || null,
 	        jumpToControl: options.jumpToControl
@@ -156,7 +156,6 @@ this.BX = this.BX || {};
 	        new bx.Calendar.SliderLoader(eventId, {
 	          entryDateFrom: options.from,
 	          timezoneOffset: options.timezoneOffset,
-	          dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 	          calendarContext: options.calendarContext || null,
 	          link: options.link
 	        }).show();
@@ -164,7 +163,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  static deleteEntry(entry, calendarContext = null) {
-	    if (entry instanceof calendar_entry.Entry) {
+	    if (entry instanceof Entry) {
 	      const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
 	      const beforeDeleteHandler = () => {
 	        if (slider && slider.options.type === 'calendar:slider') {
@@ -193,7 +192,7 @@ this.BX = this.BX || {};
 	      }
 	      params.recursionMode = params.recursionMode || false;
 	      if (status === 'N' && !params.confirmed) {
-	        if (entry.isRecursive()) {
+	        if (entry.isRecursive() && !entry.isOpenEvent()) {
 	          this.showConfirmStatusDialog(entry, resolve);
 	          return false;
 	        }
@@ -216,7 +215,7 @@ this.BX = this.BX || {};
 	            counters: response.data.counters
 	          }
 	        }));
-	        if (entry instanceof calendar_entry.Entry) {
+	        if (entry instanceof Entry) {
 	          entry.setCurrentStatus(status);
 	        }
 	        resolve({
@@ -236,7 +235,7 @@ this.BX = this.BX || {};
 	    this.confirmDeclineDialog.unsubscribeAll('onDecline');
 	    this.confirmDeclineDialog.subscribe('onDecline', function (event) {
 	      if (event && main_core.Type.isFunction(event.getData)) {
-	        EntryManager.setMeetingStatus(entry, 'N', {
+	        EntryManager$$1.setMeetingStatus(entry, 'N', {
 	          recursionMode: event.getData().recursionMode,
 	          confirmed: true
 	        }).then(() => {
@@ -251,7 +250,7 @@ this.BX = this.BX || {};
 	    if (!this.confirmEditDialog) {
 	      this.confirmEditDialog = this.createConfirmEditDialog();
 	    }
-	    this.confirmEditDialog.show();
+	    this.confirmEditDialog.show(options);
 	    if (main_core.Type.isFunction(options.callback)) {
 	      this.confirmEditDialog.unsubscribeAll('onEdit');
 	      this.confirmEditDialog.subscribe('onEdit', event => {
@@ -321,7 +320,7 @@ this.BX = this.BX || {};
 	    if (!this.limitationEmailDialog) {
 	      this.limitationEmailDialog = this.createEmailLimitationDialog();
 	    }
-	    this.limitationEmailDialog.subscribe('onClose', () => {
+	    this.limitationEmailDialog.subscribe('onSaveWithoutAttendees', () => {
 	      if (main_core.Type.isFunction(options.callback)) {
 	        options.callback();
 	      }
@@ -329,13 +328,13 @@ this.BX = this.BX || {};
 	    this.limitationEmailDialog.show();
 	  }
 	  static getCompactViewForm(create = true) {
-	    if (!EntryManager.compactEntryForm && create) {
-	      EntryManager.compactEntryForm = new calendar_compacteventform.CompactEventForm();
+	    if (!EntryManager$$1.compactEntryForm && create) {
+	      EntryManager$$1.compactEntryForm = new calendar_compacteventform.CompactEventForm();
 	    }
-	    return EntryManager.compactEntryForm;
+	    return EntryManager$$1.compactEntryForm;
 	  }
 	  static openCompactViewForm(options = {}) {
-	    const compactForm = EntryManager.getCompactViewForm();
+	    const compactForm = EntryManager$$1.getCompactViewForm();
 	    if (!compactForm.isShown()) {
 	      compactForm.unsubscribeAll('onClose');
 	      if (main_core.Type.isFunction(options.closeCallback)) {
@@ -345,7 +344,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  static openCompactEditForm(options = {}) {
-	    const compactForm = EntryManager.getCompactViewForm();
+	    const compactForm = EntryManager$$1.getCompactViewForm();
 	    if (!compactForm.isShown()) {
 	      compactForm.unsubscribeAll('onClose');
 	      if (main_core.Type.isFunction(options.closeCallback)) {
@@ -356,30 +355,30 @@ this.BX = this.BX || {};
 	  }
 	  static getEntryInstance(entry, userIndex, options = {}) {
 	    let entryInstance = null;
-	    if (entry instanceof calendar_entry.Entry) {
+	    if (entry instanceof Entry) {
 	      entryInstance = entry;
 	    } else {
 	      if (main_core.Type.isObject(entry) && main_core.Type.isObject(entry.data)) {
-	        entryInstance = new calendar_entry.Entry({
+	        entryInstance = new Entry({
 	          data: entry.data,
 	          userIndex: userIndex
 	        });
 	      } else if (main_core.Type.isObject(entry)) {
-	        entryInstance = new calendar_entry.Entry({
+	        entryInstance = new Entry({
 	          data: entry,
 	          userIndex: userIndex
 	        });
 	      } else {
-	        entryInstance = EntryManager.getNewEntry(options);
+	        entryInstance = EntryManager$$1.getNewEntry(options);
 	      }
 	    }
 	    return entryInstance;
 	  }
 	  static getUserIndex(options = {}) {
-	    return EntryManager.userIndex;
+	    return EntryManager$$1.userIndex;
 	  }
 	  static setUserIndex(userIndex) {
-	    EntryManager.userIndex = userIndex;
+	    EntryManager$$1.userIndex = userIndex;
 	  }
 	  handlePullChanges(params) {
 	    var _params$fields5;
@@ -391,13 +390,13 @@ this.BX = this.BX || {};
 	    if (!BX.Calendar.Util.checkRequestId(params.requestUid)) {
 	      return;
 	    }
-	    const compactForm = EntryManager.getCompactViewForm();
+	    const compactForm = EntryManager$$1.getCompactViewForm();
 	    if (compactForm && compactForm.isShown()) {
 	      compactForm.handlePull(params);
 	    }
 	    BX.SidePanel.Instance.getOpenSliders().forEach(slider => {
 	      var _params$fields;
-	      const data = EntryManager.slidersMap.get(slider);
+	      const data = EntryManager$$1.slidersMap.get(slider);
 	      if (data && data.entry && data.entry.parentId === parseInt(params == null ? void 0 : (_params$fields = params.fields) == null ? void 0 : _params$fields.PARENT_ID)) {
 	        var _params$fields2;
 	        if (params.command === 'delete_event' && data.entry.getType() === (params == null ? void 0 : (_params$fields2 = params.fields) == null ? void 0 : _params$fields2.CAL_TYPE)) {
@@ -419,29 +418,29 @@ this.BX = this.BX || {};
 	    let sectionDisplayed = main_core.Type.isArray(params.sections) && params.sections.find(section => {
 	      return section.id === entrySectionId && section.isShown();
 	    });
-	    let loadedEntry = params != null && params.fields ? EntryManager.getEntryInstance(calendarContext.getView().getEntryById(EntryManager.getEntryUniqueId(params.fields))) : null;
+	    let loadedEntry = params != null && params.fields ? EntryManager$$1.getEntryInstance(calendarContext.getView().getEntryById(EntryManager$$1.getEntryUniqueId(params.fields))) : null;
 	    if ((sectionDisplayed || loadedEntry) && calendarContext) {
 	      calendarContext.reloadDebounce();
 	    }
 	  }
 	  static registerDeleteTimeout(params) {
-	    EntryManager.delayedActionList.push(params);
+	    EntryManager$$1.delayedActionList.push(params);
 	  }
 	  static unregisterDeleteTimeout({
 	    action,
 	    data
 	  }) {
-	    EntryManager.delayedActionList = EntryManager.delayedActionList.filter(item => {
+	    EntryManager$$1.delayedActionList = EntryManager$$1.delayedActionList.filter(item => {
 	      return item.action !== action || item.data.entryId !== data.entryId || item.data.recursionMode !== data.recursionMode || item.data.excludeDate !== data.excludeDate;
 	    });
 	  }
 	  static doDelayedActions() {
 	    let requestList = [];
 	    return new Promise(resolve => {
-	      if (!EntryManager.delayedActionList.length) {
+	      if (!EntryManager$$1.delayedActionList.length) {
 	        resolve();
 	      }
-	      EntryManager.delayedActionList.forEach(({
+	      EntryManager$$1.delayedActionList.forEach(({
 	        action,
 	        data,
 	        params
@@ -449,7 +448,7 @@ this.BX = this.BX || {};
 	        const requestUid = parseInt(data.requestUid);
 	        requestList.push(data.requestUid);
 	        if (params.entry) {
-	          EntryManager.closeDeleteNotificationBalloon(params.entry);
+	          EntryManager$$1.closeDeleteNotificationBalloon(params.entry);
 	        }
 	        BX.ajax.runAction(`calendar.api.calendarajax.${action}`, {
 	          data: data
@@ -472,7 +471,7 @@ this.BX = this.BX || {};
 	            resolve();
 	          }
 	        });
-	        EntryManager.unregisterDeleteTimeout({
+	        EntryManager$$1.unregisterDeleteTimeout({
 	          action,
 	          data,
 	          params
@@ -493,7 +492,7 @@ this.BX = this.BX || {};
 	  static registerEntrySlider(entry, control) {
 	    const slider = calendar_util.Util.getBX().SidePanel.Instance.getTopSlider();
 	    if (slider) {
-	      EntryManager.slidersMap.set(slider, {
+	      EntryManager$$1.slidersMap.set(slider, {
 	        entry,
 	        control
 	      });
@@ -521,7 +520,7 @@ this.BX = this.BX || {};
 	    calendar_util.Util.setUserSettings(userSettings);
 	  }
 
-	  //this is because extensions cant be loaded in iframe with import
+	  // this is because extensions cant be loaded in iframe with import
 	  static createConfirmEditDialog() {
 	    const bx = calendar_util.Util.getBX();
 	    return new bx.Calendar.Controls.ConfirmEditDialog();
@@ -543,11 +542,11 @@ this.BX = this.BX || {};
 	    return new bx.Calendar.Controls.EmailLimitationDialog();
 	  }
 	}
-	EntryManager.newEntryName = '';
-	EntryManager.userIndex = {};
-	EntryManager.delayedActionList = [];
-	EntryManager.DELETE_DELAY_TIMEOUT = 4000;
-	EntryManager.slidersMap = new WeakMap();
+	EntryManager$$1.newEntryName = '';
+	EntryManager$$1.userIndex = {};
+	EntryManager$$1.delayedActionList = [];
+	EntryManager$$1.DELETE_DELAY_TIMEOUT = 4000;
+	EntryManager$$1.slidersMap = new WeakMap();
 
 	class Entry {
 	  constructor(options = {}) {
@@ -660,7 +659,7 @@ this.BX = this.BX || {};
 	    this.userIndex = userIndex;
 	  }
 	  getUserIndex() {
-	    return this.userIndex || EntryManager.getUserIndex();
+	    return this.userIndex || EntryManager$$1.getUserIndex();
 	  }
 	  cleanParts() {
 	    this.parts = [];
@@ -739,7 +738,7 @@ this.BX = this.BX || {};
 	  }
 	  hasEmailAttendees() {
 	    if (this.emailAttendeesCache === undefined) {
-	      const userIndex = EntryManager.getUserIndex();
+	      const userIndex = EntryManager$$1.getUserIndex();
 	      for (let i = 0; i < this.data['ATTENDEE_LIST'].length; i++) {
 	        let user = this.data['ATTENDEE_LIST'][i];
 	        if ((user.status === 'Y' || user.status === 'Q') && userIndex[user.id] && userIndex[user.id].EMAIL_USER) {
@@ -752,7 +751,7 @@ this.BX = this.BX || {};
 	  }
 	  ownerIsEmailUser() {
 	    if (this.ownerIsEmailUserCache === undefined) {
-	      const userIndex = EntryManager.getUserIndex();
+	      const userIndex = EntryManager$$1.getUserIndex();
 	      this.ownerIsEmailUserCache = userIndex[parseInt(this.data.MEETING_HOST)] && userIndex[parseInt(this.data.MEETING_HOST)].EMAIL_USER;
 	    }
 	    return this.ownerIsEmailUserCache;
@@ -805,7 +804,8 @@ this.BX = this.BX || {};
 	      const wrap = calendarContext.getView().getContainer();
 	      if (recursionMode === 'all') {
 	        calendarContext.getView().entries.forEach(entry => {
-	          if (parseInt(entry.id) === this.id || parseInt(entry.data.RECURRENCE_ID) === this.id || parseInt(entry.data.RECURRENCE_ID) === parseInt(this.data.RECURRENCE_ID) || parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID)) {
+	          const entryRecurrenceId = parseInt(entry.data.RECURRENCE_ID);
+	          if (parseInt(entry.id) === this.id || entryRecurrenceId > 0 && entryRecurrenceId === this.id || entryRecurrenceId > 0 && entryRecurrenceId === parseInt(this.data.RECURRENCE_ID) || entryRecurrenceId > 0 && parseInt(entry.id) === parseInt(this.data.RECURRENCE_ID)) {
 	            const entryPart = wrap.querySelector('div[data-bx-calendar-entry="' + entry.uid + '"]');
 	            if (entryPart) {
 	              entryPart.style.opacity = 0;
@@ -839,7 +839,7 @@ this.BX = this.BX || {};
 	    }
 	  }
 	  getUniqueId() {
-	    return EntryManager.getEntryUniqueId(this.data, this);
+	    return EntryManager$$1.getEntryUniqueId(this.data, this);
 	  }
 	  getCurrentStatus() {
 	    let userId = calendar_util.Util.getCurrentUserId(),
@@ -942,7 +942,7 @@ this.BX = this.BX || {};
 	        recursionMode: recursionMode,
 	        entryData: this.data
 	      }]);
-	      EntryManager.showDeleteEntryNotification(this);
+	      EntryManager$$1.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
 	      const action = 'deleteCalendarEntry';
 	      const data = {
@@ -950,7 +950,7 @@ this.BX = this.BX || {};
 	        recursionMode: params.recursionMode || false,
 	        requestUid: calendar_util.Util.registerRequestId()
 	      };
-	      EntryManager.registerDeleteTimeout({
+	      EntryManager$$1.registerDeleteTimeout({
 	        action,
 	        data,
 	        params: {
@@ -963,7 +963,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      });
-	      this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	      this.deleteTimeout = setTimeout(EntryManager$$1.doDelayedActions, EntryManager$$1.DELETE_DELAY_TIMEOUT);
 	      this.delayTimeoutMap.set(this.deleteTimeout, {
 	        action,
 	        data
@@ -978,7 +978,7 @@ this.BX = this.BX || {};
 	        recursionMode: recursionMode,
 	        entryData: this.data
 	      }]);
-	      EntryManager.showDeleteEntryNotification(this);
+	      EntryManager$$1.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
 	      const action = 'excludeRecursionDate';
 	      const data = {
@@ -986,7 +986,7 @@ this.BX = this.BX || {};
 	        recursionMode: recursionMode,
 	        excludeDate: this.data.DATE_FROM
 	      };
-	      EntryManager.registerDeleteTimeout({
+	      EntryManager$$1.registerDeleteTimeout({
 	        action,
 	        data,
 	        params: {
@@ -996,7 +996,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      });
-	      this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	      this.deleteTimeout = setTimeout(EntryManager$$1.doDelayedActions, EntryManager$$1.DELETE_DELAY_TIMEOUT);
 	      this.delayTimeoutMap.set(this.deleteTimeout, {
 	        action,
 	        data
@@ -1017,7 +1017,7 @@ this.BX = this.BX || {};
 	        entryId: this.id,
 	        recursionMode: recursionMode
 	      }]);
-	      EntryManager.showDeleteEntryNotification(this);
+	      EntryManager$$1.showDeleteEntryNotification(this);
 	      this.deleteParts(recursionMode);
 	      const action = 'changeRecurciveEntryUntil';
 	      const data = {
@@ -1025,7 +1025,7 @@ this.BX = this.BX || {};
 	        recursionMode: recursionMode,
 	        untilDate: calendar_util.Util.formatDate(this.from.getTime() - calendar_util.Util.getDayLength())
 	      };
-	      EntryManager.registerDeleteTimeout({
+	      EntryManager$$1.registerDeleteTimeout({
 	        action,
 	        data,
 	        params: {
@@ -1035,7 +1035,7 @@ this.BX = this.BX || {};
 	          }
 	        }
 	      });
-	      this.deleteTimeout = setTimeout(EntryManager.doDelayedActions, EntryManager.DELETE_DELAY_TIMEOUT);
+	      this.deleteTimeout = setTimeout(EntryManager$$1.doDelayedActions, EntryManager$$1.DELETE_DELAY_TIMEOUT);
 	      this.delayTimeoutMap.set(this.deleteTimeout, {
 	        action,
 	        data
@@ -1052,7 +1052,7 @@ this.BX = this.BX || {};
 	    if (this.deleteTimeout) {
 	      const deleteTimeoutData = this.delayTimeoutMap.get(this.deleteTimeout);
 	      if (deleteTimeoutData) {
-	        EntryManager.unregisterDeleteTimeout(deleteTimeoutData);
+	        EntryManager$$1.unregisterDeleteTimeout(deleteTimeoutData);
 	        BX.onCustomEvent('BX.Calendar.Entry:cancelDelete', [{
 	          entryId: this.id,
 	          entryData: this.data
@@ -1117,6 +1117,9 @@ this.BX = this.BX || {};
 	      }
 	    }
 	  }
+	  isOpenEvent() {
+	    return this.getType() === 'open_event';
+	  }
 	}
 	Entry.CAL_TYPES = {
 	  'user': 'user',
@@ -1124,8 +1127,8 @@ this.BX = this.BX || {};
 	  'company': 'company_calendar'
 	};
 
-	exports.EntryManager = EntryManager;
+	exports.EntryManager = EntryManager$$1;
 	exports.Entry = Entry;
 
-}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX));
+}((this.BX.Calendar = this.BX.Calendar || {}),BX.Calendar,BX.Calendar,BX.Event,BX.Calendar,BX,BX.Calendar,BX.UI.Dialogs,BX));
 //# sourceMappingURL=entry.bundle.js.map

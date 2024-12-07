@@ -64,7 +64,7 @@ function GetFileTemplates($lang = LANG, $arTemplates = array())
 				{
 					if(is_dir($dirPath."/".$file))
 						continue;
-					if(mb_substr($file, 0, 1) == ".")
+					if(str_starts_with($file, "."))
 						continue;
 
 					$path = $templDir."/".$file;
@@ -326,14 +326,14 @@ function GetDirList($path, &$arDirs, &$arFiles, $arFilter=array(), $sort=array()
 		//if(strlen($arFilter["NAME"])>0 && strpos($arFile["NAME"], $arFilter["NAME"])===false)
 		//	continue;
 
-		if(mb_substr($arFile["ABS_PATH"], 0, mb_strlen(BX_ROOT."/modules")) == BX_ROOT."/modules" && !$USER->CanDoOperation('edit_php') && !$task_mode)
+		if(str_starts_with($arFile["ABS_PATH"], BX_ROOT . "/modules") && !$USER->CanDoOperation('edit_php') && !$task_mode)
 			continue;
 
 		if ($arFile["PERMISSION"]=="U" && !$task_mode)
 		{
 			$ftype = GetFileType($arFile["NAME"]);
 			if ($ftype!="SOURCE" && $ftype!="IMAGE" && $ftype!="UNKNOWN") continue;
-			if (mb_substr($arFile["NAME"], 0, 1) == ".") continue;
+			if (str_starts_with($arFile["NAME"], ".")) continue;
 		}
 
 		if($child->IsDirectory())
@@ -443,7 +443,7 @@ function SetPrologProperty($prolog, $property_key, $property_val)
 
 function IsPHP($src)
 {
-	if(strpos($src, "<?") !== false)
+	if(str_contains($src, "<?"))
 		return true;
 	if(preg_match("/(<script[^>]*language\\s*=\\s*)('|\"|)php('|\"|)([^>]*>)/i", $src))
 		return true;

@@ -9,6 +9,7 @@ use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Entity\Calendar\CalendarError;
 use Bitrix\Im\V2\Link\Push;
 use Bitrix\Im\V2\Message;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -124,12 +125,10 @@ class CalendarService
 		$randomPostfix = mt_rand() & 1000; // get random number from 0 to 1000
 		$data['params']['sliderId'] = "im:chat{$chat->getChatId()}{$randomPostfix}";
 
-		$userIds = $chat->getRelations(
-			[
-				'SELECT' => ['ID', 'USER_ID', 'CHAT_ID'],
-				'FILTER' => ['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true],
-				'LIMIT' => 50,
-			]
+		$userIds = RelationCollection::find(
+			['ACTIVE' => true, 'ONLY_INTERNAL_TYPE' => true, 'CHAT_ID' => $chat->getId()],
+			limit: 50,
+			select: ['ID', 'USER_ID', 'CHAT_ID']
 		)->getUsers()->filterExtranet()->getIds();
 		$users = array_values(array_map(static fn($item) => ['id' => (int)$item, 'entityId' => 'user'], $userIds));
 		$data['params']['participantsEntityList'] = $users;

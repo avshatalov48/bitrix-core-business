@@ -710,7 +710,7 @@ if ($errors)
 ?>
 
 <form method="POST" action="<?=$APPLICATION->GetCurPage()?>?lang=<?=LANG;?>&PERSON_TYPE_ID=<?=$personTypeId;?><?=GetFilterParams("filter_", false);?>" name="form1" id="form1" enctype="multipart/form-data">
-	<script type="text/javascript">function reloadForm(){document.getElementById('form1').submit();}</script>
+	<script>function reloadForm(){document.getElementById('form1').submit();}</script>
 	<?=GetFilterHiddens("filter_")?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="ID" value="<?echo $propertyId ?>">

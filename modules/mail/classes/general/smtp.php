@@ -560,7 +560,7 @@ class CSMTPConnection
 		return true;
 	}
 
-	//обработчик команд
+	//РѕР±СЂР°Р±РѕС‚С‡РёРє РєРѕРјР°РЅРґ
 	function __ProcessCommand($command, $arg = '')
 	{
 		switch(mb_strtoupper($command))
@@ -845,7 +845,7 @@ class CSMTPConnection
 
 		$this->readBuffer = str_replace("\r\n..", "\r\n.", $this->readBuffer);
 
-		// Добавление сообщения куда надо
+		// Р”РѕР±Р°РІР»РµРЅРёРµ СЃРѕРѕР±С‰РµРЅРёСЏ РєСѓРґР° РЅР°РґРѕ
 		$message = $this->readBuffer;
 		$this->arMsg["MSG"] = $message;
 

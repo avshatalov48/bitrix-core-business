@@ -1,5 +1,5 @@
 this.BX = this.BX || {};
-(function (exports,checkboxList_css,main_popup,ui_designTokens,ui_vue3,main_core_events,ui_forms,ui_switcher,main_core) {
+(function (exports,checkboxList_css,main_popup,ui_designTokens,ui_vue3,ui_forms,ui_switcher,main_core_events,main_core) {
 	'use strict';
 
 	const viewMode = {
@@ -7,7 +7,8 @@ this.BX = this.BX || {};
 	  edit: 'edit'
 	};
 	const CheckboxListOption = {
-	  props: ['id', 'title', 'isChecked', 'isLocked', 'isEditable'],
+	  props: ['id', 'title', 'isChecked', 'isLocked', 'isEditable', 'context'],
+	  emits: ['onToggleOption'],
 	  data() {
 	    return {
 	      viewMode: viewMode.view,
@@ -54,11 +55,51 @@ this.BX = this.BX || {};
 	        '--editable': this.isEditMode && !this.isLocked
 	      }];
 	    },
+	    emitHandleCheckBox(event) {
+	      setTimeout(() => {
+	        const {
+	          id,
+	          title,
+	          isChecked,
+	          isLocked,
+	          isEditable,
+	          context
+	        } = this;
+	        main_core_events.EventEmitter.emit('ui:checkbox-list:check-option', {
+	          id,
+	          title,
+	          isChecked,
+	          isLocked,
+	          isEditable,
+	          context,
+	          viewMode: this.viewMode
+	        });
+	      });
+	    },
 	    handleCheckBox(event) {
 	      if (this.isLocked) {
-	        return;
+	        // eslint-disable-next-line no-param-reassign
+	        event.target.checked = !event.target.checked;
+	      } else {
+	        this.isCheckedValue = !this.isCheckedValue;
 	      }
-	      this.isCheckedValue = !this.isCheckedValue;
+	      const {
+	        id,
+	        title,
+	        isLocked,
+	        isCheckedValue,
+	        isEditable,
+	        context
+	      } = this;
+	      this.$emit('onToggleOption', {
+	        id,
+	        title,
+	        isChecked: isCheckedValue,
+	        isLocked,
+	        isEditable,
+	        context,
+	        viewMode: this.viewMode
+	      });
 	    },
 	    onToggleViewMode() {
 	      this.viewMode = this.isEditMode ? viewMode.view : viewMode.edit;
@@ -97,12 +138,12 @@ this.BX = this.BX || {};
 		<label
 			:title="titleData"
 			:class="getOptionClassName({ isChecked: isCheckedValue, isLocked })"
+			@click="this.emitHandleCheckBox"
 		>
 			<input
 				type="checkbox"
 				class="ui-ctl-element ui-checkbox-list__field-item_input"
 				:checked="isCheckedValue"
-				:disabled="(isLocked === true || isEditMode) ? 'disabled' : null"
 				@click="this.handleCheckBox"
 			>
 			<div
@@ -126,7 +167,8 @@ this.BX = this.BX || {};
 	};
 
 	const CheckboxListCategory = {
-	  props: ['columnCount', 'category', 'options', 'isActiveSearch', 'isEditableOptionsTitle', 'onChange', 'setOptionRef'],
+	  props: ['columnCount', 'category', 'options', 'context', 'isActiveSearch', 'isEditableOptionsTitle', 'onChange', 'setOptionRef'],
+	  emits: ['onToggleOption'],
 	  components: {
 	    CheckboxListOption
 	  },
@@ -135,6 +177,9 @@ this.BX = this.BX || {};
 	      if (ref) {
 	        this.setOptionRef(ref.getId(), ref);
 	      }
+	    },
+	    onToggleOption(event) {
+	      this.$emit('onToggleOption', event);
 	    }
 	  },
 	  template: `
@@ -154,13 +199,14 @@ this.BX = this.BX || {};
 					:key="option.id"
 				>
 					<checkbox-list-option
-						v-else
+						:context="context"
 						:id="option.id"
 						:title="option.title"
 						:isChecked="option.value"
 						:isLocked="option?.locked"
 						:isEditable="isEditableOptionsTitle"
 						:ref="setRef"
+						@onToggleOption="onToggleOption"
 					/>
 				</div>
 			</div>
@@ -266,7 +312,7 @@ this.BX = this.BX || {};
 	    CheckboxComponent,
 	    TextToggleComponent
 	  },
-	  props: ['dialog', 'popup', 'columnCount', 'compactField', 'customFooterElements', 'lang', 'sections', 'categories', 'options', 'params'],
+	  props: ['dialog', 'popup', 'columnCount', 'compactField', 'customFooterElements', 'lang', 'sections', 'categories', 'options', 'params', 'context'],
 	  data() {
 	    return {
 	      dataSections: this.sections,
@@ -416,9 +462,9 @@ this.BX = this.BX || {};
 	        this.selectAll();
 	      }
 	    },
-	    select(id) {
+	    select(id, value = true) {
 	      const option = this.getOptionRefs().find(item => item.id === id);
-	      option == null ? void 0 : option.setValue(true);
+	      option == null ? void 0 : option.setValue(value);
 	    },
 	    selectAll() {
 	      this.getOptionRefs().forEach(option => !option.isLocked && option.setValue(true));
@@ -492,6 +538,13 @@ this.BX = this.BX || {};
 	    },
 	    isAllSectionsDisabled() {
 	      return main_core.Type.isArrayFilled(this.dataSections) && this.dataSections.every(section => section.value === false);
+	    },
+	    onToggleOption(event) {
+	      if (this.dataOptions.has(event.id)) {
+	        const option = this.dataOptions.get(event.id);
+	        option.value = event.isChecked;
+	        this.dataOptions.set(event.id, option);
+	      }
 	    }
 	  },
 	  watch: {
@@ -691,6 +744,7 @@ this.BX = this.BX || {};
 						v-if="dataParams.useSectioning"
 						v-for="category in categoryBySection"
 						:key="category.key"
+						:context="context"
 						:category="category"
 						:columnCount="columnCount"
 						:options="getOptionsByCategory(category.key)"
@@ -702,6 +756,7 @@ this.BX = this.BX || {};
 	
 					<checkbox-list-category
 						v-else
+						:context="context"
 						:columnCount="columnCount"
 						:options="getOptions()"
 						:isActiveSearch="search.length > 0"
@@ -819,6 +874,7 @@ this.BX = this.BX || {};
 	    this.layoutComponent = null;
 	    this.setEventNamespace('BX.UI.Dialogs.CheckboxList');
 	    this.subscribeFromOptions(options.events);
+	    this.context = main_core.Type.isPlainObject(options.context) ? options.context : null;
 	    this.compactField = main_core.Type.isPlainObject(options.compactField) ? options.compactField : null;
 	    this.sections = main_core.Type.isArray(options.sections) ? options.sections : null;
 	    this.lang = main_core.Type.isPlainObject(options.lang) ? options.lang : {};
@@ -879,7 +935,8 @@ this.BX = this.BX || {};
 	        categories,
 	        options,
 	        popup,
-	        params
+	        params,
+	        context
 	      } = this;
 	      this.layoutApp = ui_vue3.BitrixVue.createApp(Content, {
 	        compactField,
@@ -891,6 +948,7 @@ this.BX = this.BX || {};
 	        popup,
 	        columnCount: babelHelpers.classPrivateFieldLooseBase(this, _getColumnCount)[_getColumnCount](),
 	        params,
+	        context,
 	        dialog: this
 	      });
 
@@ -938,8 +996,14 @@ this.BX = this.BX || {};
 	    columnIds.forEach(id => this.selectOption(id));
 	    this.apply();
 	  }
-	  selectOption(id) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().select(id);
+	  selectOption(id, value) {
+	    // to maintain backward compatibility without creating dependencies on main within the ticket #187991
+	    // @todo remove later and set default value = true in the function signature
+	    if (value !== false) {
+	      // eslint-disable-next-line no-param-reassign
+	      value = true;
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().select(id, value);
 	  }
 	  apply() {
 	    babelHelpers.classPrivateFieldLooseBase(this, _getLayoutComponent)[_getLayoutComponent]().apply();
@@ -968,5 +1032,5 @@ this.BX = this.BX || {};
 
 	exports.CheckboxList = CheckboxList;
 
-}((this.BX.UI = this.BX.UI || {}),BX,BX.Main,BX,BX.Vue3,BX.Event,BX,BX.UI,BX));
+}((this.BX.UI = this.BX.UI || {}),BX,BX.Main,BX,BX.Vue3,BX,BX.UI,BX.Event,BX));
 //# sourceMappingURL=bundle.js.map

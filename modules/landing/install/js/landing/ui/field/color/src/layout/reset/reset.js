@@ -8,6 +8,7 @@ export default class Reset extends EventEmitter
 	constructor(options)
 	{
 		super();
+		this.options = options;
 		this.cache = new Cache.MemoryCache();
 		this.setEventNamespace('BX.Landing.UI.Field.Color.Reset');
 		Event.bind(this.getLayout(), 'click', () => this.onClick());
@@ -23,6 +24,11 @@ export default class Reset extends EventEmitter
 
 	getLayout(): HTMLElement
 	{
+		if (this.options && !this.options.styleNode)
+		{
+			return null;
+		}
+
 		return this.cache.remember('layout', () => {
 			return Tag.render`
 				<div class="landing-ui-field-color-reset-container">

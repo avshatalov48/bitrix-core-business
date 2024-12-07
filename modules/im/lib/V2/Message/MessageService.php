@@ -83,7 +83,11 @@ class MessageService
 
 	public function fillContextPaginationData(array $rest, MessageCollection $messages, int $range): array
 	{
-		$rest['hasPrevPage'] = $this->getCountHigherMessages($messages, $this->message->getId() ?? 0) >= $range;
+		$wasFilteredByTariffRestrictions = $rest['tariffRestrictions']['isHistoryLimitExceeded'] ?? false;
+		$rest['hasPrevPage'] =
+			$this->getCountHigherMessages($messages, $this->message->getId() ?? 0) >= $range
+			&& !$wasFilteredByTariffRestrictions
+		;
 		$lastSelectedId = $this->getLastSelectedId($messages);
 		$lastMessageIdInChat = $this->message->getChat()->getLastMessageId();
 		$rest['hasNextPage'] = $lastSelectedId > 0 && $lastMessageIdInChat > 0 && $lastSelectedId < $lastMessageIdInChat;

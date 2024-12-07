@@ -8,7 +8,10 @@ $MESS['CALENDAR_SHARING_MAIL_FOOTER_LOGO_FREE_SITES_AND_CRM'] = 'Заряжен�
 $MESS['CALENDAR_SHARING_MAIL_FOOTER_REPORT'] = 'Если ссылка на слоты пришла вам по ошибке, <a style="#STYLE#" href="#HREF#">сообщите</a> об этом';
 $MESS['CALENDAR_SHARING_MAIL_MEETING_HAS_MORE_USERS'] = 'Со мной на встрече будут';
 $MESS['CALENDAR_SHARING_MAIL_MEETING_ATTENDEES'] = 'Участники';
+$MESS['CALENDAR_SHARING_MAIL_SELECT_SLOT'] = 'Выбрать слот';
+$MESS['CALENDAR_SHARING_MAIL_SELECT_SLOT_TITLE'] = 'Это мои свободные слоты';
+$MESS['CALENDAR_SHARING_MAIL_SELECT_SLOT_SUBTITLE'] = 'Здесь вы можете выбрать удобное время для встречи';
 $MESS['CALENDAR_SHARING_MAIL_OPEN_DETAIL_PAGE'] = 'Открыть встречу';
 $MESS['CALENDAR_SHARING_MAIL_ACCEPT'] = 'Участвовать';
 $MESS['CALENDAR_SHARING_MAIL_DECLINE'] = 'Отказаться';
-$MESS['CALENDAR_SHARING_MAIL_DECLINE_MEETING'] = 'отказаться от встречи';
+$MESS['CALENDAR_SHARING_MAIL_DECLINE_MEETING'] = 'Отказаться от встречи';

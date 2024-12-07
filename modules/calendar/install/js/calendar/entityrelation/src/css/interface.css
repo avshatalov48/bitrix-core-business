@@ -1,0 +1,109 @@
+.calendar-relation-bar {
+	background-color: var(--ui-color-palette-blue-20);
+	border-radius: var(--ui-border-radius-xs);
+	display: flex;
+	flex: 1;
+	flex-direction: row;
+	justify-content: space-between;
+	align-items: center;
+	padding: 14px 16px 14px 12px;
+}
+
+.calendar-relation-entity-link {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	cursor: pointer;
+	gap: 2px;
+}
+
+.calendar-relation-entity-link-text {
+	font-family: var(--ui-font-family-primary);
+	font-size: var(--ui-font-size-xs);
+	font-style: normal;
+	font-weight: var(--ui-font-weight-semi-bold);
+	line-height: normal;
+	letter-spacing: 0.36px;
+	color: #0B66C3;
+	text-transform: uppercase;
+}
+
+.calendar-relation-entity-link-arrow {
+	background-image: url('../image/arrow.svg');
+	height: 12px;
+	width: 12px;
+}
+
+.calendar-relation-owner {
+	display: inline-flex;
+	justify-content: flex-end;
+	align-items: center;
+	gap: 14px;
+}
+
+.calendar-relation-owner-role {
+	color: var(--ui-color-base-70, #828B95);
+	font-family: var(--ui-font-family-system);
+	font-size: var(--ui-font-size-4xs);
+	font-style: normal;
+	font-weight: var(--ui-font-weight-medium);
+	line-height: normal;
+	text-transform: uppercase;
+}
+
+.calendar-relation-owner-info {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+}
+
+.calendar-relation-owner-avatar {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+	width: 23px;
+	height: 23px;
+	border-radius: 50%;
+}
+
+.calendar-relation-owner-avatar > img {
+	width: 23px;
+	height: 23px;
+	border-radius: 50%;
+}
+
+.calendar-relation-owner-name {
+	display: block;
+	white-space: nowrap;
+	max-width: 180px;
+
+	overflow: hidden;
+	color: var(--ui-color-link-primary-base);
+	text-overflow: ellipsis;
+	font-family: var(--ui-font-family-helvetica);
+	font-size: 13px;
+	font-style: normal;
+	font-weight: 400;
+	line-height: normal;
+	cursor: pointer;
+}
+
+.calendar-relation-owner-chat {
+	background-image: url('../image/chat.svg');
+	height: 18px;
+	width: 16px;
+	cursor: pointer;
+}
+
+.calendar-relation-entity-link:hover,
+.calendar-relation-owner-name:hover,
+.calendar-relation-owner-chat:hover {
+	opacity: 0.8;
+}
+
+.calendar-relation-bar-loader {
+	display: flex;
+	flex: 1;
+	justify-content: center;
+}

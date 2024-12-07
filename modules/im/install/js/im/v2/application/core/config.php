@@ -27,6 +27,5 @@ return [
 	'skip_core' => false,
 	'settings' => [
 		'isCloud' => \Bitrix\Main\ModuleManager::isModuleInstalled('bitrix24'),
-		'v2' => !\Bitrix\Im\Settings::isLegacyChatActivated(),
 	]
 ];

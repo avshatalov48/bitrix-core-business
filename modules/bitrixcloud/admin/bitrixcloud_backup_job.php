@@ -113,7 +113,7 @@ try
 		$week_days = [];
 		foreach ($arRes['WEEK_DAYS'] as $dow)
 		{
-			if (HasMessage('DOW_' . $dow))
+			if (GetMessage('DOW_' . $dow))
 			{
 				$week_days[] = GetMessage('DOW_' . $dow);
 			}

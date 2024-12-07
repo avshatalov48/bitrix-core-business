@@ -203,7 +203,7 @@ Class security extends CModule
 	{
 		global $DB;
 		$sIn = "'VIRUS_DETECTED'";
-		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		$ar = $rs->Fetch();
 		if($ar["C"] <= 0)
 		{
@@ -216,8 +216,8 @@ Class security extends CModule
 	{
 		global $DB;
 		$sIn = "'VIRUS_DETECTED'";
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN (".$sIn.") ");
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN (".$sIn.") ");
 		return true;
 	}
 
@@ -312,11 +312,5 @@ Class security extends CModule
 			)
 		);
 		return $arr;
-	}
-
-	public function migrateToBox()
-	{
-		CModule::IncludeModule('security');
-		CSecuritySession::deactivate();
 	}
 }

@@ -294,11 +294,6 @@ class Manager
 			$structuredConfig = array_merge_recursive(self::nameSpaceToArray($key, $value), $structuredConfig);
 		}
 
-		if(toUpper(SITE_CHARSET) != "UTF-8")
-		{
-			$structuredConfig = Encoding::convertEncodingArray($structuredConfig, SITE_CHARSET, "UTF-8");
-		}
-
 		self::addVirtualParams($structuredConfig, $platform);
 
 		return json_encode($structuredConfig);

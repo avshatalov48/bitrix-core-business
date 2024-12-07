@@ -11,7 +11,6 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Main\Type;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\UI\FileInput;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Main\Web\Json;
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
@@ -166,10 +165,6 @@ if ($publicMode)
 }
 
 $request = Context::getCurrent()->getRequest();
-if ($request->isAjaxRequest())
-{
-	$request->addFilter(new PostDecodeFilter);
-}
 
 $isAjaxDocumentRequest = $request->get('AJAX_MODE') === 'Y';
 
@@ -586,15 +581,12 @@ if (
 			{
 				foreach ($arProducts as $key => $val)
 				{
-					$storeTo = $val["STORE_TO"];
-					$storeFrom = $val["STORE_FROM"];
-
 					$arAdditional = [
 						"AMOUNT" => $val["AMOUNT"],
 						"ELEMENT_ID" => $val["PRODUCT_ID"],
 						"PURCHASING_PRICE" => $val["PURCHASING_PRICE"],
-						"STORE_TO" => $storeTo,
-						"STORE_FROM" => $storeFrom,
+						"STORE_TO" => $val["STORE_TO"] ?? null,
+						"STORE_FROM" => $val["STORE_FROM"] ?? null,
 						"ENTRY_ID" => $key,
 						"DOC_ID" => $ID,
 					];
@@ -807,6 +799,7 @@ if ($ID > 0 || $isAjaxDocumentRequest)
 					$arElements[] = [
 						'PRODUCT_ID' => $row['id'],
 						'SELECTED_BARCODE' => $row['barcode'] ?? '',
+						'BARCODE' => $row['barcode'] ?? '',
 						'AMOUNT' => $row['quantity'] ?? 1,
 					];
 				}
@@ -858,7 +851,7 @@ if ($ID > 0 || $isAjaxDocumentRequest)
 						$arAjaxElement['IS_MULTIPLY_BARCODE'] = $arAjaxElementInfo[$elementId]['IS_MULTIPLY_BARCODE'];
 						$arAjaxElement['RESERVED'] = $arAjaxElementInfo[$elementId]['RESERVED'];
 						if (
-							(float)$arAjaxElement['PURCHASING_PRICE'] <= 0
+							(float)($arAjaxElement['PURCHASING_PRICE'] ?? 0) <= 0
 							&& (float)$arAjaxElementInfo[$elementId]['PURCHASING_PRICE'] > 0
 						)
 						{
@@ -1130,7 +1123,7 @@ if (!empty($visibleHeaderIds))
 
 $isDisable = $bReadOnly ? " disabled" : "";
 $maxId = 0;
-if(is_array($arResult["ELEMENT"]))
+if (!empty($arResult['ELEMENT']) && is_array($arResult['ELEMENT']))
 {
 	foreach($arResult["ELEMENT"] as $code => $value)
 	{
@@ -1138,6 +1131,8 @@ if(is_array($arResult["ELEMENT"]))
 		$arProductInfo = CCatalogStoreControlUtil::getProductInfo($value["ELEMENT_ID"]);
 		if(is_array($arProductInfo))
 			$value = array_merge($value, $arProductInfo);
+
+		$value['PURCHASING_PRICE'] ??= 0;
 
 		$arRes['ID'] = (int)$code;
 		$maxId = ($arRes['ID'] > $maxId) ? $arRes['ID'] : $maxId;
@@ -1203,7 +1198,7 @@ if(is_array($arResult["ELEMENT"]))
 				. ' id="CAT_DOC_STORE_FROM_' . $arRes['ID'] . '"'
 				. $isDisable . '>'
 				. getStoreListForControl(
-					$value['STORE_FROM'],
+					$value['STORE_FROM'] ?? 0,
 					$activeStores,
 					$allStores,
 					$defaultStoreId
@@ -1220,7 +1215,7 @@ if(is_array($arResult["ELEMENT"]))
 				. ' id="CAT_DOC_STORE_TO_' . $arRes['ID'] . '"'
 				. $isDisable . '>'
 				. getStoreListForControl(
-					$value['STORE_TO'],
+					$value['STORE_TO'] ?? 0,
 					$activeStores,
 					$allStores,
 					$defaultStoreId
@@ -1793,7 +1788,7 @@ else
 
 $tabControl->End();
 ?></form>
-<script type="text/javascript">
+<script>
 BX.Currency.setCurrencies(<?= CUtil::PhpToJSObject($currencyList, false, true, true); ?>);
 if (typeof showTotalSum === 'undefined')
 {

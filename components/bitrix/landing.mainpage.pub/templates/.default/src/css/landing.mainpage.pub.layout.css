@@ -1,0 +1,118 @@
+.landing-public-mode {
+	-webkit-box-flex: 1;
+	-ms-flex: 1 0 auto;
+	flex: 1 0 auto;
+	display: flex;
+	flex-direction: column;
+}
+
+.landing-layout-flex {
+	display: flex;
+	flex-wrap: nowrap;
+	flex-direction: column;
+	flex-grow: 1;
+}
+
+@media (max-width: 780px) {
+	.landing-layout-flex.sidebar-right .landing-sidebar {
+		order: 1;
+	}
+}
+
+.landing-header + .landing-main {
+	flex-grow: 1;
+}
+
+@media (min-width: 1px) {
+	.landing-layout-breakpoint--all .landing-layout-flex {
+		flex-direction: row;
+	}
+
+	.landing-layout-breakpoint--all .landing-layout-flex.sidebar-right,
+	.landing-layout-breakpoint--all .landing-layout-flex.without-left {
+		flex-direction: row-reverse;
+	}
+
+	.landing-layout-breakpoint--all .landing-layout-flex .landing-sidebar {
+		width: 262px;
+	}
+
+	.landing-layout-breakpoint--all .landing-layout-flex .landing-main {
+		width: calc(100% - 262px);
+	}
+}
+
+@media (min-width: 576px) {
+
+	.landing-layout-breakpoint--mobile .landing-layout-flex {
+		flex-direction: row;
+	}
+
+	.landing-layout-breakpoint--mobile .landing-layout-flex.sidebar-right,
+	.landing-layout-breakpoint--mobile .landing-layout-flex.without-left {
+		flex-direction: row-reverse;
+	}
+
+	.landing-layout-breakpoint--mobile .landing-layout-flex .landing-sidebar {
+		width: 262px;
+	}
+
+	.landing-layout-breakpoint--mobile .landing-layout-flex .landing-main {
+		width: calc(100% - 262px);
+	}
+}
+
+@media (min-width: 768px) {
+	/*default*/
+	.workarea-content-paddings:not([class*="landing-layout-breakpoint"]) .landing-layout-flex,
+	.landing-layout-breakpoint--tablet .landing-layout-flex {
+		flex-direction: row;
+	}
+
+	.workarea-content-paddings:not([class*="landing-layout-breakpoint"]) .landing-layout-flex.sidebar-right,
+	.workarea-content-paddings:not([class*="landing-layout-breakpoint"]) .landing-layout-flex.without-left,
+	.landing-layout-breakpoint--tablet .landing-layout-flex.sidebar-right,
+	.landing-layout-breakpoint--tablet .landing-layout-flex.without-left {
+		flex-direction: row-reverse;
+	}
+
+	.workarea-content-paddings:not([class*="landing-layout-breakpoint"]) .landing-layout-flex .landing-sidebar,
+	.landing-layout-breakpoint--tablet .landing-layout-flex .landing-sidebar {
+		width: 262px;
+	}
+
+	.workarea-content-paddings:not([class*="landing-layout-breakpoint"]) .landing-layout-flex .landing-main,
+	.landing-layout-breakpoint--tablet .landing-layout-flex .landing-main {
+		width: calc(100% - 262px);
+	}
+}
+
+@media (min-width: 992px) {
+
+	.landing-layout-breakpoint--desktop .landing-layout-flex {
+		flex-direction: row;
+	}
+
+	.landing-layout-breakpoint--desktop .landing-layout-flex.sidebar-right,
+	.landing-layout-breakpoint--desktop .landing-layout-flex.without-left {
+		flex-direction: row-reverse;
+	}
+
+	/*for all*/
+	.landing-layout-flex .landing-sidebar {
+		width: 262px;
+		min-width: 262px; /* 30% * 992px */
+	}
+
+	.landing-layout-flex .landing-main {
+		width: calc(100% - 262px);
+	}
+}
+
+/*
+todo: fix it, not show title row in backend
+*/
+.bx-layout-inner-inner-top-row
+{
+	display: none;
+}

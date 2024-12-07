@@ -6,6 +6,7 @@ class CTest extends CAllTest
 {
 	public static function GetRandFunction()
 	{
-		return " RAND(".rand(0, 1000000).") ";
+		$connection = \Bitrix\Main\Application::getConnection();
+		return $connection->getSqlHelper()->getRandomFunction();
 	}
 }

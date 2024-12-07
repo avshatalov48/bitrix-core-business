@@ -1,0 +1,31 @@
+.bx-im-content-comments__container {
+	position: absolute;
+	top: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 100;
+}
+
+.comments-content-enter-active,
+.comments-content-leave-active {
+	transition: all 0.3s;
+}
+
+.comments-content-enter-from,
+.comments-content-leave-to {
+	transform: translateX(100%);
+}
+
+.comments-content-enter-to,
+.comments-content-leave-from {
+	transform: translateX(0);
+}
+
+.bx-im-content-comments__loader {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	background: #fff;
+}

@@ -17,10 +17,10 @@ class CAllCatalogSku
 
 class CCatalogSku extends CAllCatalogSku
 {
-	const TYPE_CATALOG = 'D';
-	const TYPE_PRODUCT = 'P';
-	const TYPE_OFFERS = 'O';
-	const TYPE_FULL = 'X';
+	public const TYPE_CATALOG = 'D';
+	public const TYPE_PRODUCT = 'P';
+	public const TYPE_OFFERS = 'O';
+	public const TYPE_FULL = 'X';
 
 	static protected $arOfferCache = array();
 	static protected $arProductCache = array();

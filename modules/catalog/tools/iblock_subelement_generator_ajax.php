@@ -16,7 +16,6 @@ if (!Loader::includeModule('catalog') || !Loader::includeModule('fileman'))
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/iblock/admin_tools.php");
 header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-CUtil::JSPostUnescape();
 if (check_bitrix_sessid())
 {
 	if (

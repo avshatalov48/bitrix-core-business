@@ -6,6 +6,7 @@ use Bitrix\Main\Localization\Loc;
 	'ui.design-tokens',
 	'ui.fonts.opensans',
 	'ui.info-helper',
+	'ui.mail.provider-showcase',
 ]);
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
@@ -24,48 +25,48 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 	}
 }
 
+$bodyClass = $APPLICATION->GetPageProperty("BodyClass");
+$APPLICATION->SetPageProperty("BodyClass", ($bodyClass ? $bodyClass." " : "")."workarea-transparent no-background");
+
+$isMainPage = $arParams['VARIABLES']['IS_MAIN_MAIL_PAGE'] ?? false;
 ?>
-<div class="mail-add">
-	<div class="mail-add-inner">
-		<div class="mail-add-header">
-			<div class="mail-add-title"><?=Loc::getMessage('MAIL_CLIENT_CONFIG_PROMPT') ?></div>
-			<div class="mail-add-desc"></div>
-		</div>
-		<div class="mail-add-services">
-			<div class="mail-add-list">
-				<? foreach ($arParams['SERVICES'] as $settings): ?>
-					<? if ($settings['type'] != 'imap' && $settings['ACTIVE'] !== 'N') continue; ?>
-					<a class="mail-add-item"
-						<? if ($arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
-							href="<?=htmlspecialcharsbx(\CHTTP::urlAddParams($newPath, array('id' => $settings['id']))) ?>"
-						<? else: ?>
-							onclick="showLicenseInfoPopup()"
-						<? endif ?>>
-						<?php if ($settings['icon']): ?>
-							<div class="mail-add-image-block">
-								<div class="mail-add-image-container">
-									<img class="mail-add-img" src="<?= $settings['icon'] ?>" alt="<?= htmlspecialcharsbx($settings['name']) ?>">
-								</div>
-							</div>
-							<div class="mail-add-text-block">
-								<span class="mail-add-text mail-add-text-title"><?= htmlspecialcharsbx($settings['serviceName'] ?? ucfirst($settings['name'])) ?></span>
-								<?php if ($settings['name'] === 'other'): ?>
-									<span class="mail-add-text mail-add-text-subtitle">IMAP + SMTP</span>
-								<?php endif; ?>
-							</div>
-						<? else: ?>
-							<span class="mail-add-text <? if (mb_strlen($settings['name']) > 10): ?> mail-add-text-small"<? endif ?>">
-								&nbsp;<?=htmlspecialcharsbx($settings['name']) ?>&nbsp;
-							</span>
-						<? endif ?>
-					</a>
-				<? endforeach ?>
-			</div>
-		</div>
-	</div>
+
+<div class="mail-provider-showcase-container <?= $isMainPage === true ? 'mail-provider-showcase-container-wide' : '' ?>">
+
 </div>
 
-<script type="text/javascript">
+<script>
+	const slider = BX.SidePanel.Instance.getTopSlider();
+	const providerContainer = document.querySelector('.mail-provider-showcase-container');
+	let titleNode = null;
+	<?php if ($isMainPage === true): ?>
+		titleNode = BX.Tag.render`
+			<div class="mail-provider-showcase-title"><?= Loc::getMessage('MAIL_CLIENT_CONFIG_PROMPT') ?></div>
+		`;
+	<?php endif; ?>
+
+	if (slider)
+	{
+		const loader = new BX.Loader({
+			size: 120,
+			color: getComputedStyle(document.body).getPropertyValue('--ui-color-palette-gray-15') || '#e6e7e9',
+			target: providerContainer,
+		});
+
+		loader.show();
+		BX.UI.Mail.ProviderShowcase.renderTo(providerContainer, {})
+			.then(() => {
+				if (!BX.Type.isNull(titleNode))
+				{
+					BX.Dom.prepend(titleNode, providerContainer);
+				}
+				loader.destroy();
+			})
+			.catch(() => {
+				slider.close();
+			})
+		;
+	}
 
 	BX.addCustomEvent(
 		'SidePanel.Slider:onMessage',
@@ -102,14 +103,5 @@ if (!$arResult['CAN_CONNECT_NEW_MAILBOX'])
 			}
 		}
 	);
-
-	function showLicenseInfoPopup()
-	{
-		BX.UI.InfoHelper.show('limit_contact_center_mail_box_number');
-	}
-
-	<? if (!$arResult['CAN_CONNECT_NEW_MAILBOX']): ?>
-		showLicenseInfoPopup();
-	<? endif ?>
 
 </script>

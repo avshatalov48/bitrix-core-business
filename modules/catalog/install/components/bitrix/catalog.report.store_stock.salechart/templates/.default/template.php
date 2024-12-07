@@ -55,6 +55,7 @@ foreach ($jsMessagesCodes as $code)
 	$jsMessages[$code] = Loc::getMessage($code);
 }
 
+$currency = $arResult['chartData']['chartProps']['currency']['id'];
 ?>
 
 <div class="store-stock-sale-chart" id="<?=$arResult['chartData']['chartProps']['id']?>"></div>
@@ -62,8 +63,8 @@ foreach ($jsMessagesCodes as $code)
 <script>
 
 	BX.Currency.setCurrencyFormat(
-		'<?=\CUtil::JSEscape($arResult['chartData']['currency'])?>',
-		<?= \CUtil::PhpToJSObject(\CCurrencyLang::GetFormatDescription($arResult['chartData']['currency']))?>
+		'<?=\CUtil::JSEscape($currency)?>',
+		<?= \CUtil::PhpToJSObject(\CCurrencyLang::GetFormatDescription($currency))?>
 	);
 
 	BX.message(<?=Json::encode($jsMessages)?>);

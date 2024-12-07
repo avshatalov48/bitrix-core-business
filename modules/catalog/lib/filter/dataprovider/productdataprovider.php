@@ -154,6 +154,9 @@ class ProductDataProvider extends ElementDataProvider
 		{
 			return [
 				'items' => ProductTable::getProductTypes(true),
+				'params' => [
+					'multiple' => true,
+				],
 			];
 		}
 

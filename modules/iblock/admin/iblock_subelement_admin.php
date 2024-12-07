@@ -19,7 +19,6 @@ global $adminSidePanelHelper;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 
-CUtil::JSPostUnescape();
 /*
  * this page only for actions and get info
  *

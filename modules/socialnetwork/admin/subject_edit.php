@@ -23,7 +23,7 @@ $bVarsFromForm = false;
 
 $ID = intval($ID);
 
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $socialnetworkModulePermissions>="W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $socialnetworkModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,

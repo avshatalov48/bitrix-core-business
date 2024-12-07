@@ -357,7 +357,7 @@ class ApiHelper
 		$data .= '--' . $boundary . "--\r\n";
 		
 		$http->setHeader('Content-type', 'multipart/form-data; boundary=' . $boundary);
-		$http->setHeader('Content-length', \Bitrix\Main\Text\BinaryString::getLength($data));
+		$http->setHeader('Content-length', strlen($data));
 		
 		$this->logger->addLog("Upload photo HTTP params", [
 			'SERVER' => $uploadServer,

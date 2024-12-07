@@ -92,6 +92,7 @@ export const AdditionalUsers = {
 			:showPopup="showPopup"
 			:loading="loadingAdditionalUsers"
 			:userIds="additionalUsers"
+			:contextDialogId="dialogId"
 			:bindElement="bindElement || {}"
 			:withAngle="false"
 			:forceTop="true"

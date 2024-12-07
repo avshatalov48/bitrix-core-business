@@ -398,7 +398,7 @@ class ContactTable extends Entity\DataManager
 	 */
 	public static function addFromConnector(Connector\Base $connector, ?int $pageNumber = null, int $timeout = 0): array
 	{
-		$startTime = getmicrotime();
+		$startTime = microtime(true);
 		$withoutNav = empty($pageNumber);
 		$result = false;
 		$onlyOneLoop = false;
@@ -431,7 +431,7 @@ class ContactTable extends Entity\DataManager
 			$onlyOneLoop = true;
 		}
 
-		while($timeout==0 || getmicrotime()-$startTime < $timeout)
+		while($timeout==0 || microtime(true)-$startTime < $timeout)
 		{
 			if(!$withoutNav)
 			{

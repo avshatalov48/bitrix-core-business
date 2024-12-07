@@ -59,14 +59,6 @@ class Transport
 	const METHOD_FILTER_APP = 'search_app_adv';
 	const METHOD_GET_SITE_LIST = 'sites_list';
 	const METHOD_GET_SITE_ITEM = 'sites_item';
-	const METHOD_GET_COLLECTIONS = 'get_collections';
-	const METHOD_GET_FULL_COLLECTION = 'get_full_collection';
-	const METHOD_GET_SLIDER = 'get_slider';
-	const METHOD_GET_CATEGORIES_V2 = 'get_categories_v2';
-	const METHOD_MARKET_APP = 'market_app';
-	const METHOD_TOTAL_APPS = 'total_apps';
-	const METHOD_GET_REVIEWS = 'get_reviews';
-	const METHOD_ADD_REVIEW = 'add_review';
 
 	protected static $instance = null;
 
@@ -180,7 +172,7 @@ class Transport
 			$fields['license_key'] = ($LICENSE_KEY == 'DEMO') ? 'DEMO' : md5('BITRIX' . $LICENSE_KEY . 'LICENCE');
 		}
 
-		return Encoding::convertEncoding($fields, LANG_CHARSET, 'utf-8');
+		return $fields;
 	}
 
 	protected function prepareAnswer($response)

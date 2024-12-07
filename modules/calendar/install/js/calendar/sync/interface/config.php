@@ -1,4 +1,5 @@
-<?
+<?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -10,7 +11,9 @@ return [
 	'rel' => [
 		'ui.design-tokens',
 		'ui.fonts.opensans',
+		'ui.icon-set.actions',
 		'calendar.sync.manager',
+		'ui.qrauthorization',
 		'calendar.entry',
 		'ui.tilegrid',
 		'ui.forms',

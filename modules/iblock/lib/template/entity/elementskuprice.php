@@ -8,12 +8,33 @@ namespace Bitrix\Iblock\Template\Entity;
 
 class ElementSkuPrice extends Base
 {
+	protected $ids = null;
+
 	/**
-	 * @param integer $id Catalog product identifier.
+	 * @param array $id Entity identifier.
 	 */
-	public function __construct($id)
+	protected static function getInstance($id)
 	{
-		parent::__construct($id);
+		$key = implode(',', $id);
+		$class = get_called_class();
+		if (!isset(static::$instance[$class]))
+		{
+			static::$instance[$class] = [];
+		}
+		if (!isset(static::$instance[$class][$key]))
+		{
+			static::$instance[$class][$key] = new static($id);
+		}
+		return static::$instance[$class][$key];
+	}
+
+	/**
+	 * @param array|mixed $ids Array of iblock element identifiers.
+	 */
+	public function __construct($ids)
+	{
+		parent::__construct(0);
+		$this->ids = $ids;
 	}
 
 	/**
@@ -44,11 +65,11 @@ class ElementSkuPrice extends Base
 	 */
 	protected function loadFromDatabase()
 	{
-		if (!isset($this->fields))
+		if (!isset($this->fields) && is_array($this->ids))
 		{
 			$this->fields = array();
 			$pricesList =\CPrice::getListEx(array(), array(
-				"=PRODUCT_ID" => $this->id,
+				"=PRODUCT_ID" => $this->ids,
 				"+<=QUANTITY_FROM" => 1,
 				"+>=QUANTITY_TO" => 1,
 			), false, false, array("PRICE", "CURRENCY", "CATALOG_GROUP_ID", "CATALOG_GROUP_CODE"));

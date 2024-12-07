@@ -7,6 +7,7 @@ use Bitrix\Rest\Event\EventBindInterface;
 
 class EventDispatcher
 {
+	public const PLACEMENT_EXTERNAL_PRODUCT = 'CATALOG_EXTERNAL_PRODUCT';
 	const SCOPE_CATALOG = 'catalog';
 	const MODULE_ID = 'catalog';
 
@@ -50,7 +51,10 @@ class EventDispatcher
 		}
 		return [
 			self::SCOPE_CATALOG => [
-				\CRestUtil::EVENTS => $bindings
+				\CRestUtil::EVENTS => $bindings,
+				\CRestUtil::PLACEMENTS => [
+					self::PLACEMENT_EXTERNAL_PRODUCT => [],
+				],
 			]
 		];
 	}

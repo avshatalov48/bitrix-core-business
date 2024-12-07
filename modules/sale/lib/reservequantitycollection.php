@@ -71,12 +71,10 @@ class ReserveQuantityCollection extends Internals\EntityCollection
 
 	/**
 	 * @param BasketItemBase $basketItem
-	 * @return static
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentTypeException
+	 * @return self
 	 * @throws Main\SystemException
 	 */
-	public static function load(BasketItemBase $basketItem) : self
+	public static function load(BasketItemBase $basketItem): self
 	{
 		if (!$basketItem->isReservableItem())
 		{
@@ -97,7 +95,7 @@ class ReserveQuantityCollection extends Internals\EntityCollection
 			foreach ($reservedQuantityList as $item)
 			{
 				$item->setCollection($collection);
-				$collection->addItem($item);
+				$collection->bindItem($item);
 			}
 		}
 

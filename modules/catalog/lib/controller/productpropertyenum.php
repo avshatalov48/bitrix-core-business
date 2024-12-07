@@ -2,16 +2,16 @@
 
 namespace Bitrix\Catalog\Controller;
 
-use Bitrix\Catalog\CatalogIblockTable;
 use Bitrix\Iblock\PropertyEnumerationTable;
 use Bitrix\Iblock\PropertyTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 
 final class ProductPropertyEnum extends ProductPropertyBase
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+
 	// region Actions
 
 	/**
@@ -19,42 +19,18 @@ final class ProductPropertyEnum extends ProductPropertyBase
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRODUCT_PROPERTY_ENUM' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		$filter['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
-
-		return new Page(
-			'PRODUCT_PROPERTY_ENUMS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
-	 * @param int $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction(int $id): ?array
-	{
-		$r = $this->exists($id);
-		if ($r->isSuccess())
-		{
-			return ['PRODUCT_PROPERTY_ENUM' => $this->get($id)];
-		}
-
-		$this->addErrors($r->getErrors());
-		return null;
-	}
 
 	public function addAction(array $fields): ?array
 	{
@@ -83,7 +59,7 @@ final class ProductPropertyEnum extends ProductPropertyBase
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY_ENUM' => $this->get($addResult->getId())];
+		return [$this->getServiceItemName() => $this->get($addResult->getId())];
 	}
 
 	/**
@@ -118,7 +94,7 @@ final class ProductPropertyEnum extends ProductPropertyBase
 			return null;
 		}
 
-		return ['PRODUCT_PROPERTY_ENUM' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**
@@ -171,7 +147,7 @@ final class ProductPropertyEnum extends ProductPropertyBase
 		$propertyEnum = $this->get($id);
 		if (!$propertyEnum || !$this->isIblockCatalog((int)$propertyEnum['IBLOCK_ID']))
 		{
-			$result->addError(new Error('Property enum does not exist'));
+			$result->addError($this->getErrorEntityNotExists());
 		}
 
 		return $result;
@@ -183,5 +159,17 @@ final class ProductPropertyEnum extends ProductPropertyBase
 	protected function getEntityTable()
 	{
 		return PropertyEnumerationTable::class;
+	}
+
+	/**
+	 * @inheritDoc
+	 * @param array $params
+	 * @return array
+	 */
+	protected function modifyListActionParameters(array $params): array
+	{
+		$params['filter']['PROPERTY.IBLOCK_ID'] = $this->getCatalogIds();
+
+		return $params;
 	}
 }

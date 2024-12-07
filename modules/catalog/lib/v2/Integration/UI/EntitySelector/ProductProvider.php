@@ -872,20 +872,19 @@ class ProductProvider extends BaseProvider
 
 	private function getMorePhotoPropertyId(int $iblockId): ?int
 	{
-		$iterator = PropertyTable::getList([
+		$row = PropertyTable::getRow([
 			'select' => ['ID'],
 			'filter' => [
 				'=IBLOCK_ID' => $iblockId,
 				'=CODE' => \CIBlockPropertyTools::CODE_MORE_PHOTO,
 				'=ACTIVE' => 'Y',
 			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
-		if ($row = $iterator->fetch())
-		{
-			return (int)$row['ID'];
-		}
 
-		return null;
+		return $row ? (int)$row['ID'] : null;
 	}
 
 	private function getSearchPropertyIds(int $iblockId): array

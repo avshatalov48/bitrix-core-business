@@ -1,6 +1,15 @@
 .bx-im-keyboard__container {
 	--im-keyboard__background-color: var(--im-color-palette-white-base);
+	--im-keyboard__background-color-white: var(--im-color-palette-white-base-rgb);
+	--im-keyboard__background-color-primary-hover: var(--im-color-palette-blue-70);
+	--im-keyboard__background-color-primary: var(--im-color-accent-blue);
+	--im-keyboard__background-color-alert-hover: var(--im-color-accent-red);
+	--im-keyboard__background-color-alert: var(--im-color-palette-red-50);
 	--im-keyboard__font-color: var(--im-color-palette-black-base);
+	--im-keyboard__font-color-white: var(--im-color-palette-white-base);
+	--im-keyboard__font-color-base: var(--im-color-palette-gray-90);
+	--im-keyboard__font-color-secondary-hover: var(--im-color-palette-blue-70);
+	--im-keyboard__border-radius: var(--im-border-radius-2xl);
 
 	display: block;
 	text-align: left;
@@ -30,14 +39,70 @@
 	user-select: none;
 }
 
+.bx-im-keyboard-button__container.alert,
+.bx-im-keyboard-button__container.secondary,
+.bx-im-keyboard-button__container.primary,
+.bx-im-keyboard-button__container.base {
+	transition: background-color .2s, color .2s;
+}
+
+.bx-im-keyboard-button__container.base {
+	color: var(--im-keyboard__font-color-base);
+	background-color: rgba(var(--im-keyboard__background-color-white), 0.7);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+	border-radius: var(--im-keyboard__border-radius);
+}
+
+.bx-im-keyboard-button__container.base:hover {
+	background-color: rgba(var(--im-keyboard__background-color-white), 0.94);
+	color: var(--im-keyboard__font-color);
+}
+
+.bx-im-keyboard-button__container.primary {
+	background-color: var(--im-keyboard__background-color-primary);
+	color: var(--im-keyboard__font-color-white);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+	border-radius: var(--im-keyboard__border-radius);
+}
+
+.bx-im-keyboard-button__container.primary:hover {
+	background-color: var(--im-keyboard__background-color-primary-hover);
+	color: var(--im-keyboard__font-color-white);
+}
+
+.bx-im-keyboard-button__container.secondary {
+	background-color: rgba(var(--im-keyboard__background-color-white), 0.94);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+	border-radius: var(--im-keyboard__border-radius);
+	color: var(--im-keyboard__background-color-primary);
+}
+
+.bx-im-keyboard-button__container.secondary:hover {
+	color: var(--im-keyboard__font-color-secondary-hover);
+}
+
+.bx-im-keyboard-button__container.alert {
+	color: var(--im-keyboard__font-color-white);
+	background-color: var(--im-keyboard__background-color-alert);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12);
+	border-radius: var(--im-keyboard__border-radius);
+}
+
+.bx-im-keyboard-button__container.alert:hover {
+	background-color: var(--im-keyboard__background-color-alert-hover);
+	color: var(--im-keyboard__font-color-white);
+}
+
 .bx-im-keyboard-button__container.--disabled {
 	cursor: default;
 	opacity: .6;
+	pointer-events: none;
 }
 
 .bx-im-keyboard-button__container.--loading {
 	cursor: wait;
 	opacity: .6;
+	pointer-events: none;
 }
 
 .bx-im-keyboard-button__container.--block {

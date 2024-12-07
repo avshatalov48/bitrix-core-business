@@ -8,9 +8,10 @@ export const DesktopBxLink = {
 	notifications: 'notifications',
 	recentSearch: 'recentSearch',
 	timeManager: 'timemanpwt',
-	openTab: 'openTab',
 	copilot: 'copilot',
 	settings: 'settings',
+	openTab: 'openTab',
+	openPage: 'openPage',
 };
 
 export const LegacyDesktopBxLink = {

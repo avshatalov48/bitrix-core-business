@@ -71,13 +71,13 @@ class CLAnswer
 
 			$arBinds=Array(
 				"ANSWER" => $arFields["ANSWER"],
-				"FEEDBACK" => $arFields["FEEDBACK"],
-				"MATCH_ANSWER" => $arFields["MATCH_ANSWER"],
+				"FEEDBACK" => $arFields["FEEDBACK"] ?? '',
+				"MATCH_ANSWER" => $arFields["MATCH_ANSWER"] ?? '',
 			);
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_answer", $arFields, "learning");
 			$strSql = "UPDATE b_learn_answer SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			return true;
 		}
@@ -94,7 +94,7 @@ class CLAnswer
 
 		$strSql = "DELETE FROM b_learn_answer WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -202,7 +202,7 @@ class CLAnswer
 
 		//echo $strSql;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 
@@ -212,7 +212,7 @@ class CLAnswer
 
 		$ID = intval($ID);
 		$strSql = "SELECT COUNT(*) AS ALL_CNT, SUM(CASE WHEN CORRECT = 'Y' THEN 1 ELSE 0 END) AS CORRECT_CNT FROM b_learn_test_result WHERE ANSWERED = 'Y' AND QUESTION_ID = ".$ID;
-		$rsStat = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rsStat = $DB->Query($strSql);
 		if ($arStat = $rsStat->GetNext())
 		{
 			return array("ALL_CNT" => intval($arStat["ALL_CNT"]), "CORRECT_CNT" => intval($arStat["CORRECT_CNT"]));
@@ -244,7 +244,7 @@ class CLAnswer
 				WHERE ANSWERED = 'Y' AND QUESTION_ID IN (" . implode(',', $arIds) . ")
 				GROUP BY QUESTION_ID ";
 
-			$rsStat = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$rsStat = $DB->Query($strSql);
 			while ($arStat = $rsStat->fetch())
 			{
 				$arResult[$arStat['QUESTION_ID']] = array(

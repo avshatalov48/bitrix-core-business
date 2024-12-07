@@ -26,6 +26,10 @@ export const UserListContent = {
 			required: false,
 			default: false,
 		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
 	},
 	data(): JsonObject
 	{
@@ -98,7 +102,7 @@ export const UserListContent = {
 	template: `
 		<div class="bx-im-user-list-content__container bx-im-user-list-content__scope">
 			<template v-if="!isLoading && !hasError">
-				<UserItem v-for="userId in userIds" :userId="userId" />
+				<UserItem v-for="userId in userIds" :userId="userId" :contextDialogId="contextDialogId" />
 			</template>
 			<div v-else-if="isLoading" class="bx-im-user-list-content__loader-container">
 				<Loader />

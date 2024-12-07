@@ -1,0 +1,22 @@
+.bx-im-comments-header-follow__container {
+	--im-comments-header-follow__background-color_border: var(--im-color-palette-gray-10);
+	--im-comments-header-follow__font-color: var(--im-color-palette-gray-70);
+
+	height: 20px;
+	display: flex;
+	align-items: center;
+	margin-right: 14px;
+	padding: 2px 2px 2px 10px;
+	border: 1px solid var(--im-comments-header-follow__background-color_border);
+	border-radius: 98px;
+	cursor: pointer;
+}
+
+/* 12px gray70 500w */
+
+.bx-im-comments-header-follow__text {
+	margin-right: 8px;
+	font: var(--im-font-size-xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-medium);
+	color: var(--im-comments-header-follow__font-color);
+}

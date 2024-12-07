@@ -1,6 +1,8 @@
 import { Text, Dom, Loc, Tag, Event } from 'main.core';
 import { Dialog } from 'ui.entity-selector';
 import HintInfo from './hint-info';
+import { SettingsModel } from '../../model/index';
+import 'ui.icon-set.actions';
 
 export default class UserSelector
 {
@@ -19,13 +21,16 @@ export default class UserSelector
 	#isOpened: boolean;
 	#onMembersAdded: function;
 
+	#model: SettingsModel;
+
 	constructor(props = {})
 	{
 		this.#layout = {};
 		this.#userSelectorDialog = null;
 		this.#selectedEntityList = {};
 		this.#selectedEntityNodeList = {};
-		this.#defaultUserEntity = props.userInfo || {};
+		this.#model = props.model;
+		this.#defaultUserEntity = this.#model.getUserInfo();
 		this.#isOpened = false;
 		this.#onMembersAdded = props.onMembersAdded;
 
@@ -36,11 +41,11 @@ export default class UserSelector
 	{
 		if (!this.#layout.wrapper)
 		{
+			const contextClass = `--${this.#model.getContext()}`;
+
 			this.#layout.wrapper = Tag.render`
-				<div class="calendar-sharing__user-selector-main">
-					<div class="calendar-sharing__user-selector-title">
-						${this.renderTitle()}
-					</div>
+				<div class="calendar-sharing__user-selector-main ${contextClass}">
+					${this.#renderTitle()}
 					${this.renderUserSelectorWrapper()}
 				</div>
 			`;
@@ -49,13 +54,16 @@ export default class UserSelector
 		return this.#layout.wrapper;
 	}
 
-	renderTitle(): HTMLElement
+	#renderTitle(): HTMLElement
 	{
 		if (!this.#layout.title)
 		{
 			this.#layout.title = Tag.render`
-				<div class="calendar-sharing__user-selector-title-text">
-					${Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2')}
+				<div class="calendar-sharing__user-selector-title">
+					<div class="calendar-sharing__user-selector-title-icon"></div>
+					<div class="calendar-sharing__user-selector-title-text">
+						${this.#getTitleText()}
+					</div>
 				</div>
 			`;
 
@@ -93,6 +101,19 @@ export default class UserSelector
 		return this.#layout.title;
 	}
 
+	#getTitleText(): string
+	{
+		switch (this.#model.getContext())
+		{
+			case 'calendar':
+				return Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_V2');
+			case 'crm':
+				return Loc.getMessage('CALENDAR_SHARING_USER_SELECTOR_TITLE_CRM');
+			default:
+				return '';
+		}
+	}
+
 	renderUserSelectorWrapper(): HTMLElement
 	{
 		if (!this.#layout.userSelectorWrapper)
@@ -101,6 +122,8 @@ export default class UserSelector
 				<div class="calendar-sharing__user-selector-wrapper">
 					${this.renderUserSelector()}
 					<div class="calendar-sharing__user-selector-add">
+						<div class="ui-icon-set --plus-20"></div>
+					</div>
 				</div>
 			`;
 
@@ -132,6 +155,7 @@ export default class UserSelector
 		const key = this.getEntityKey(this.#defaultUserEntity.id);
 		this.#selectedEntityList[key] = this.#defaultUserEntity;
 		this.#selectedEntityNodeList[key] = entityNode;
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 
 		return entityNode;
 	}
@@ -241,7 +265,7 @@ export default class UserSelector
 
 		this.#selectedEntityList[key] = entity;
 		this.#selectedEntityNodeList[key] = entityNode;
-
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 	}
 
 	onUserSelectorDeselect(event): void
@@ -257,6 +281,8 @@ export default class UserSelector
 			delete this.#selectedEntityList[key];
 			delete this.#selectedEntityNodeList[key];
 		}
+
+		this.#model.setMemberIds(this.getSelectedUserIdList());
 	}
 
 	clearSelectedUsers(): void

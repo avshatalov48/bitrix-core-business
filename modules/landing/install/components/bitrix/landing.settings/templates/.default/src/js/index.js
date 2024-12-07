@@ -207,7 +207,7 @@ export class LandingSettings
 
 	onSave()
 	{
-		this.showLoader()
+		this.showLoader();
 
 		const submits = [];
 		for (let page in this.pages)

@@ -2,6 +2,7 @@
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME"] = "Rich formatting for social media";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_GROUP"] = "Rich formatting";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE"] = "Rich formatting";
+$MESS["LANDING_FIELD_TITLE_METAOG_NAME_MAINPAGE"] = "Rich formatting";
 $MESS["LANDING_TPL_ACTION_ADD_IN_SITEMAP"] = "Add page to sitemap";
 $MESS["LANDING_TPL_ACTION_INSTALL_B24"] = "Install Bitrix24 integration module";
 $MESS["LANDING_TPL_ACTION_SETTINGS"] = "Configure";

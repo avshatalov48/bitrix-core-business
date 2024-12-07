@@ -159,15 +159,7 @@ class CSecurityRedirect
 					}
 					$html_mess = str_replace("+", "&#43;", htmlspecialcharsbx($mess));
 
-					//Convert to site encoding
-					if (!defined("BX_UTF") && defined("LANG_CHARSET"))
-					{
-						$url_c = \Bitrix\Main\Text\Encoding::convertEncoding($url, "UTF-8", LANG_CHARSET);
-					}
-					else
-					{
-						$url_c = $url;
-					}
+					$url_c = $url;
 
 					if (preg_match('~^(http|https)(://)(.*?)(?:\\\\|/|\?|#|$)~iD', $url_c, $arMatch))
 					{
@@ -360,37 +352,17 @@ class CSecurityRedirect
 
 	public static function GetDomains()
 	{
-		/**
-		 * global CCacheManager $CACHE_MANAGER
-		 */
-		global $CACHE_MANAGER;
-		if (CACHED_b_lang_domain !== false)
-		{
-			if ($CACHE_MANAGER->Read(CACHED_b_lang_domain, "b_sec_domains", "b_lang_domain"))
-			{
-				$arDomains = $CACHE_MANAGER->Get("b_sec_domains");
-			}
-			else
-			{
-				$arDomains = array();
-				$rs = SiteDomainTable::getList(["select" => ["DOMAIN"]]);
-				while($ar = $rs->Fetch())
-				{
-					$arDomains[] = $ar["DOMAIN"];
-				}
+		$rs = SiteDomainTable::getList([
+			'select' => ['DOMAIN'],
+			'cache' => ['ttl' => 86400],
+		]);
 
-				$CACHE_MANAGER->Set("b_sec_domains", $arDomains);
-			}
-		}
-		else
+		$arDomains = [];
+		while ($ar = $rs->fetch())
 		{
-			$arDomains = array();
-			$rs = SiteDomainTable::getList(["select" => ["DOMAIN"]]);
-			while($ar = $rs->Fetch())
-			{
-				$arDomains[] = $ar["DOMAIN"];
-			}
+			$arDomains[] = $ar['DOMAIN'];
 		}
+
 		return $arDomains;
 	}
 

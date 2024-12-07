@@ -183,10 +183,6 @@ class B24CButtonListAjaxController
 	protected function prepareRequestData()
 	{
 		$this->requestData = $this->request->get('data');
-
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$this->requestData = Encoding::convertEncoding($this->requestData, 'UTF-8', SITE_CHARSET);
-
 	}
 	public function exec()
 	{

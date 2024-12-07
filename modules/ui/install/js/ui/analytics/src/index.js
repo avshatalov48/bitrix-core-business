@@ -1,5 +1,5 @@
 import { sendAnalyticsData } from './functions';
-import type { AnalyticsOptions } from './types';
+import { type AnalyticsOptions as ao } from './types';
 
 export function sendData(data: AnalyticsOptions): void
 {
@@ -7,3 +7,5 @@ export function sendData(data: AnalyticsOptions): void
 	/** @see processAnalyticsDataToGetParameters() */
 	sendAnalyticsData(data);
 }
+
+export type AnalyticsOptions = ao;

@@ -79,5 +79,6 @@
  * @property {string} content_ext
  * @property {array.<string>} js
  * @property {array.<string>} css
+ * @property {object} lang
  * @property {blockManifest} manifest
  */

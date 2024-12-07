@@ -19,7 +19,6 @@ class Rest extends Sender\Base
 	public const ID = 'rest';
 
 	public static $langFields;
-	public static ?int $countRestApps = null;
 
 	public static function isSupported(): bool
 	{
@@ -45,9 +44,15 @@ class Rest extends Sender\Base
 	{
 		if (Loader::includeModule('rest') && \Bitrix\Rest\OAuthService::getEngine()->isRegistered())
 		{
-			static::$countRestApps ??= RestAppTable::getCount();
+			$firstRecord = RestAppTable::getList([
+				'select' => ['ID'],
+				'limit' => 1,
+				'cache' => [
+					'ttl' => 3600,
+				],
+			])->fetchObject();
 
-			return static::$countRestApps > 0;
+			return $firstRecord !== null;
 		}
 
 		return false;

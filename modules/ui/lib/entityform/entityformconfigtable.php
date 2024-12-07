@@ -54,6 +54,15 @@ class EntityFormConfigTable extends Entity\DataManager
 				'values' => ['N', 'Y'],
 				'required' => true,
 				'default_value' => 'N'
+			]),
+			new Entity\BooleanField('AUTO_APPLY_SCOPE', [
+				'values' => ['N', 'Y'],
+				'required' => true,
+				'default_value' => 'N'
+			]),
+			new Entity\StringField('OPTION_CATEGORY', [
+				'required' => true,
+				'size' => 50
 			])
 		];
 	}

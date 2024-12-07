@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
@@ -127,12 +130,10 @@ $strWarning = "";
 //Save permissions
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$strWarning = GetMessage("MAIN_SESSION_EXPIRED");
 }
 elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 {
-	CUtil::JSPostUnescape();
 	$arSavePermission = array();
 
 	if (isset($_POST["REMOVE_PERMISSIONS"]) && $_POST["REMOVE_PERMISSIONS"] == "Y")
@@ -282,9 +283,9 @@ foreach($arUserGroupsID as $access_code):
 	{
 		$permLetter = $currentPermission[$assignFileName][$access_code];
 
-		if (mb_substr($permLetter, 0, 2) == "T_")
+		if (str_starts_with($permLetter, "T_"))
 		{
-			$currentPerm = intval(mb_substr($permLetter, 2));
+			$currentPerm = intval(substr($permLetter, 2));
 			if (!array_key_exists($currentPerm, $arPermTypes))
 				$currentPerm = false;
 		}
@@ -368,7 +369,7 @@ foreach($arUserGroupsID as $code)
 
 <script>
 BX.Access.Init();
-BX.Access.SetSelected(<?=CUtil::PhpToJSObject($arSel)?>);
+BX.Access.SetSelected(<?=Json::encode($arSel)?>);
 
 <?=$jsTaskArray?>
 

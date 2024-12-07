@@ -30,10 +30,13 @@ export default class Color extends BaseProcessor
 		this.opacity = new Opacity();
 		this.opacity.subscribe('onChange', this.onOpacityChange.bind(this));
 
-		this.zeroing = new Zeroing();
+		const zeroingOptions = {
+			styleNode: options.styleNode,
+		};
+		this.zeroing = new Zeroing(zeroingOptions);
 		this.zeroing.subscribe('onChange', this.onZeroingChange.bind(this));
 
-		this.primary = new Primary();
+		this.primary = new Primary(options);
 		this.primary.subscribe('onChange', this.onPrimaryChange.bind(this));
 
 		this.tabs = new Tabs().appendTab('Opacity', Loc.getMessage('LANDING_FIELD_COLOR-TAB_OPACITY'), this.opacity);

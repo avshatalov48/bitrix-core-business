@@ -30,7 +30,7 @@ $message = null;
 $linkedLessonId = null;
 
 $bVarsFromForm = false;
-$COURSE_ID = (is_set($_REQUEST["COURSE_ID"]) ? intval($COURSE_ID) : 0);
+$COURSE_ID = isset($_REQUEST["COURSE_ID"]) ? intval($_REQUEST["COURSE_ID"]) : 0;
 
 $bDenyAutosave = false;
 if ($COURSE_ID !== 0)
@@ -435,7 +435,7 @@ if($Perm>="G"):?>
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
 	<input type="hidden" name="COURSE_ID" value="<?echo $COURSE_ID?>">
-	<?php if($return_url <> ''):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
+	<?php if(!empty($return_url)):?><input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($return_url)?>"><?endif?>
 <?php
 $tabControl->EndEpilogContent();
 $tabControl->Begin();

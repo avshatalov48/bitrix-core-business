@@ -30,7 +30,8 @@ if ($RIGHT <= 'D')
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
 
-$connection = \Bitrix\Main\Application::getConnection();
+$connectionName = $request['connection'] ?: 'default';
+$connection = \Bitrix\Main\Application::getConnection($connectionName);
 $sqlHelper = $connection->getSqlHelper();
 
 function var_import_r($tokens, &$pos, &$result)
@@ -303,9 +304,6 @@ function var_import($str)
 	return $result;
 }
 
-/** @var \Bitrix\Main\HttpRequest $request */
-$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-
 if (
 	$request->isPost()
 	&& $request->get('action') !== null
@@ -314,7 +312,6 @@ if (
 )
 {
 	require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php';
-	CUtil::JSPostUnescape();
 
 	switch ($request->get('action'))
 	{
@@ -353,9 +350,9 @@ if (
 	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/epilog_admin_js.php';
 }
 
-$table_name = $_REQUEST['table_name'];
+$table_name = $request['table_name'];
 $obTable = new CPerfomanceTable;
-$obTable->Init($table_name);
+$obTable->Init($table_name, $connection);
 if (!$obTable->IsExists())
 {
 	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
@@ -383,7 +380,7 @@ foreach ($arFields as $Field => $arField)
 }
 
 $arPrimary = [];
-$arRowPK = isset($_REQUEST['pk']) && is_array($_REQUEST['pk']) ? $_REQUEST['pk'] : [];
+$arRowPK = is_array($request['pk']) ? $request['pk'] : [];
 if ($arRowPK)
 {
 	foreach ($arUniqueIndexes as $arIndexColumns)
@@ -410,7 +407,7 @@ if ($arRowPK)
 	}
 }
 
-if (!isset($_REQUEST['pk']) && !empty($arUniqueIndexes))
+if (!isset($request['pk']) && !empty($arUniqueIndexes))
 {
 	$bNewRow = true;
 	if ($autoIncrement)
@@ -453,7 +450,7 @@ else
 	CTimeZone::Disable();
 	$rsRecord = $obTable->GetList(array_keys($arFields), $arFilter, []);
 	CTimeZone::Enable();
-	$arRecord = $rsRecord->Fetch();
+	$arRecord = $rsRecord->fetch();
 }
 
 if (!$arRecord)
@@ -484,7 +481,7 @@ $aTabs = [
 		'TITLE' => GetMessage('PERFMON_ROW_CACHE_TAB_TITLE'),
 	],
 ];
-$tabControl = new CAdminTabControl('tabControl_' . ToLower($table_name), $aTabs);
+$tabControl = new CAdminTabControl('tabControl_' . mb_strtolower($table_name), $aTabs);
 $bVarsFromForm = false;
 $strError = '';
 
@@ -497,14 +494,14 @@ if (
 	CTimeZone::Disable();
 	$pk = false;
 
-	if (isset($_REQUEST['delete']) && $_REQUEST['delete'] != '')
+	if ($request['delete'] !== '')
 	{
 		if (!$bNewRow)
 		{
 			try
 			{
 				$connection->query('DELETE FROM ' . $sqlHelper->quote($table_name) . $strWhere);
-				LocalRedirect('perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name));
+				LocalRedirect('perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request['connection']) ? '&connection=' . urlencode($connectionName) : ''));
 			}
 			catch (\Bitrix\Main\DB\SqlQueryException $e)
 			{
@@ -523,7 +520,11 @@ if (
 				continue;
 			}
 
-			if (isset($_POST['mark_' . $Field . '_']) && $_POST['mark_' . $Field . '_'] === 'Y')
+			if (isset($_POST[$Field . '_IS_NULL']) && $_POST[$Field . '_IS_NULL'] === 'Y')
+			{
+				$arToInsert[$Field] = null;
+			}
+			elseif (isset($_POST['mark_' . $Field . '_']) && $_POST['mark_' . $Field . '_'] === 'Y')
 			{
 				$arToInsert[$Field] = var_import($_POST[$Field]);
 			}
@@ -531,7 +532,7 @@ if (
 			{
 				$arToInsert[$Field] = Bitrix\Main\Web\Json::encode(var_import($_POST[$Field]));
 			}
-			elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
+			elseif (isset($_POST[$Field]))
 			{
 				$arToInsert[$Field] = $_POST[$Field];
 			}
@@ -596,7 +597,11 @@ if (
 				continue;
 			}
 
-			if (isset($_POST['mark_' . $Field . '_']) && $_POST['mark_' . $Field . '_'] === 'Y')
+			if (isset($_POST[$Field . '_IS_NULL']) && $_POST[$Field . '_IS_NULL'] === 'Y')
+			{
+				$arToUpdate[$Field] = null;
+			}
+			elseif (isset($_POST['mark_' . $Field . '_']) && $_POST['mark_' . $Field . '_'] === 'Y')
 			{
 				$arToUpdate[$Field] = serialize(var_import($_POST[$Field]));
 			}
@@ -604,7 +609,7 @@ if (
 			{
 				$arToUpdate[$Field] = Bitrix\Main\Web\Json::encode(var_import($_POST[$Field]));
 			}
-			elseif (isset($_POST[$Field]) && $_POST[$Field] <> '')
+			elseif (isset($_POST[$Field]))
 			{
 				$arToUpdate[$Field] = $_POST[$Field];
 			}
@@ -673,7 +678,7 @@ if (
 		}
 		else
 		{
-			LocalRedirect('perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name));
+			LocalRedirect('perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : ''));
 		}
 	}
 }
@@ -686,7 +691,7 @@ $aMenu = [
 	[
 		'TEXT' => $table_name,
 		'TITLE' => GetMessage('PERFMON_ROW_EDIT_MENU_LIST_TITLE'),
-		'LINK' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name),
+		'LINK' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : ''),
 		'ICON' => 'btn_list',
 	]
 ];
@@ -704,7 +709,7 @@ $context->Show();
 
 if ($strError)
 {
-	$message  = new CAdminMessage([
+	$message = new CAdminMessage([
 		'MESSAGE' => GetMessage('admin_lib_error'),
 		'DETAILS' => $strError,
 		'TYPE' => 'ERROR',
@@ -961,7 +966,7 @@ if ($strError)
 				$selectValues['REFERENCE'][] = $ar[$arParents[$Field]['PARENT_COLUMN']];
 				$selectValues['REFERENCE_ID'][] = $ar[$arParents[$Field]['PARENT_COLUMN']];
 			}
-			if (count($selectValues['REFERENCE']) >= 20)
+			if (count($selectValues['REFERENCE']) > 20)
 			{
 				$selectValues = null;
 			}
@@ -976,37 +981,92 @@ if ($strError)
 		switch ($editMode)
 		{
 		case 'read_only':
-			$value = $bVarsFromForm ? ($_REQUEST[$Field] ?? $arRowPK[$Field]) : $arRecord[$Field];
+			$value = $bVarsFromForm ? ($request[$Field] ?? $arRowPK[$Field]) : $arRecord[$Field];
 			?>
 			<td width="40%"><?php echo htmlspecialcharsbx($Field) ?>:</td>
 			<td width="60%"><?php echo htmlspecialcharsEx($value); ?></td>
 		<?php
 			break;
 		case 'datetime':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord['FULL_' . $Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord['FULL_' . $Field];
 			?>
 			<td width="40%"><?php echo htmlspecialcharsbx($Field) ?>:</td>
-			<td width="60%"><?php echo CAdminCalendar::CalendarDate($Field, $value, 20, true) ?>
+			<td width="60%"><div class="adm-input-wrap adm-input-wrap-calendar">
+				<input
+					class="adm-input adm-input-calendar"
+					type="text"
+					id="<?php echo htmlspecialcharsbx($Field) ?>"
+					name="<?php echo htmlspecialcharsbx($Field) ?>"
+					size="23"
+					value="<?php echo htmlspecialcharsbx($value) ?>"
+					<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
+				>
+				<span class="adm-calendar-icon" title="<?php echo GetMessage("admin_lib_calend_title") ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: true, bHideTime: false});"></span>
+				</div><?php if ($arField['nullable']): ?>
+						<label><input
+							type="checkbox"
+							value="Y"
+							name="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							<?php echo $value === null ? 'checked' : '' ?>
+							id="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							onclick="document.getElementById('<?php echo htmlspecialcharsbx($Field) ?>').disabled=this.checked"
+						> NULL</label>
+					<?php endif ?></td>
 		<?php
 			break;
 		case 'date':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord['SHORT_' . $Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord['SHORT_' . $Field];
 			?>
 			<td width="40%"><?php echo htmlspecialcharsbx($Field) ?>:</td>
-			<td width="60%"><?php echo CAdminCalendar::CalendarDate($Field, $value, 10, false) ?>
+			<td width="60%"><div class="adm-input-wrap adm-input-wrap-calendar">
+				<input
+					class="adm-input adm-input-calendar"
+					type="text"
+					id="<?php echo htmlspecialcharsbx($Field) ?>"
+					name="<?php echo htmlspecialcharsbx($Field) ?>"
+					size="13"
+					value="<?php echo htmlspecialcharsbx($value) ?>"
+					<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
+				>
+				<span class="adm-calendar-icon" title="<?php echo GetMessage("admin_lib_calend_title") ?>" onclick="BX.calendar({node:this, field:'<?php echo htmlspecialcharsbx($Field) ?>', form: '', bTime: false, bHideTime: false});"></span>
+				</div><?php if ($arField['nullable']): ?>
+						<label><input
+							type="checkbox"
+							value="Y"
+							name="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							<?php echo $value === null ? 'checked' : '' ?>
+							id="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							onclick="document.getElementById('<?php echo htmlspecialcharsbx($Field) ?>').disabled=this.checked"
+						> NULL</label>
+					<?php endif ?></td>
 		<?php
 			break;
 		case 'select':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord[$Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord[$Field];
 			?>
 				<td width="40%"><?php echo htmlspecialcharsbx($Field) ?>:</td>
 				<td width="60%"><?php
-					echo SelectBoxFromArray($Field, $selectValues, $value, $arField['nullable'] ? '(null)' : '');
-					?></td>
+					echo SelectBoxFromArray(
+						$Field,
+						$selectValues,
+						$value,
+						$arField['nullable'] ? '[NULL]' : '',
+						"class='typeselect'" . ($arField['nullable'] ? ' oninput="document.getElementById(\'' . htmlspecialcharsbx($Field . '_IS_NULL') . '\').checked = false;"' : '') . ($value === null && !$bNewRow? ' disabled' : '')
+					);
+					?><?php if ($arField['nullable']): ?>
+						<label><input
+							type="checkbox"
+							value="Y"
+							name="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							<?php echo $value === null ? 'checked' : '' ?>
+							id="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+							onclick="document.getElementById('<?php echo htmlspecialcharsbx($Field) ?>').disabled=!this.checked"
+						> NULL</label>
+					<?php endif ?></td>
 		<?php
 			break;
 		case 'checkbox':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord[$Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord[$Field];
 			?>
 				<td width="40%"><label
 						for="<?php echo htmlspecialcharsbx($Field) ?>"
@@ -1022,11 +1082,12 @@ if ($strError)
 						id="<?php echo htmlspecialcharsbx($Field) ?>"
 						value="Y"
 						<?php echo $value === 'Y' ? 'checked="checked"' : '';?>
+						<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
 						></td>
 		<?php
 			break;
 		case 'text':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord[$Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord[$Field];
 			?>
 				<td width="40%"><?php echo htmlspecialcharsbx($Field) ?>:</td>
 				<td width="60%"><input
@@ -1034,22 +1095,43 @@ if ($strError)
 						maxsize="<?php echo $textSize ?>"
 						size="<?php echo min($textSize, 35) ?>"
 						name="<?php echo htmlspecialcharsbx($Field) ?>"
+						id="<?php echo htmlspecialcharsbx($Field) ?>"
 						value="<?php echo htmlspecialcharsbx($value) ?>"
-						></td>
+						<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
+						><?php if ($arField['nullable']): ?>
+							<label><input
+								type="checkbox"
+								value="Y"
+								name="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+								<?php echo $value === null ? 'checked' : '' ?>
+								id="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+								onclick="document.getElementById('<?php echo htmlspecialcharsbx($Field) ?>').disabled=this.checked"
+							> NULL</label>
+						<?php endif ?></td>
 		<?php
 			break;
 		case 'textarea':
-			$value = $bVarsFromForm ? $_REQUEST[$Field] : $arRecord[$Field];
+			$value = $bVarsFromForm ? $request[$Field] : $arRecord[$Field];
 			?>
 				<td width="40%" class="adm-detail-valign-top"
 					style="padding-top:14px"><?php echo htmlspecialcharsbx($Field) ?>:
 				</td>
 				<td width="60%"><textarea
-						style="width:100%"
+						style="width:90%"
 						rows="1"
 						name="<?php echo htmlspecialcharsbx($Field) ?>"
 						id="<?php echo htmlspecialcharsbx($Field) ?>"
-						><?php echo htmlspecialcharsEx($value) ?></textarea>
+						<?php echo $value === null && !$bNewRow ? 'disabled' : '' ?>
+						><?php echo htmlspecialcharsEx($value) ?></textarea><?php if ($arField['nullable']): ?>
+							<label><input
+								type="checkbox"
+								value="Y"
+								name="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+								<?php echo $value === null ? 'checked' : '' ?>
+								id="<?php echo htmlspecialcharsbx($Field . '_IS_NULL') ?>"
+								onclick="document.getElementById('<?php echo htmlspecialcharsbx($Field) ?>').disabled=this.checked"
+							> NULL</label>
+						<?php endif ?><br>
 					<input
 						type="hidden"
 						value=""
@@ -1105,7 +1187,7 @@ if ($strError)
 	$tabControl->Buttons(
 		[
 			'disabled' => !$isAdmin,
-			'back_url' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name),
+			'back_url' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : ''),
 		]
 	);
 	$tabControl->End();

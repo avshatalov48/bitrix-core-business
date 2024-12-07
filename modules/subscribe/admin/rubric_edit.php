@@ -341,7 +341,7 @@ $tabControl->End();
 $tabControl->ShowWarnings('post_form', $message);
 ?>
 
-<script language="JavaScript">
+<script>
 <!--
 	if(document.post_form.AUTO.checked)
 		tabControl.EnableTab('edit2');

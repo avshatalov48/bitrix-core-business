@@ -8,11 +8,11 @@
 	display: flex;
 	max-width: 100%;
 	min-width: 620px;
+	width: 673px;
 	height: 154px;
 	max-height: 154px;
 	background: var(--im-message-supervisor-base__background-color_content);
 	border-radius: 16px;
-	margin-right: 54px;
 }
 
 .bx-im-message-supervisor-base__content {

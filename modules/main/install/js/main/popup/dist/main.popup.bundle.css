@@ -29,7 +29,7 @@
 }
 
 /* A super hack for legacy code which directly reads and writes popupContainer.style.display */
-.popup-window[style*="block"] {
+.popup-window.--open {
 	display: -webkit-box !important;
 	display: -ms-flexbox !important;
 	display: flex !important;

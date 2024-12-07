@@ -158,10 +158,10 @@ class Comparator
 
 	public static function flatten($value)
 	{
-		$result = preg_replace('/\s*(\(.*\))/i'.BX_UTF_PCRE_MODIFIER, ' ', $value);
-		$result = preg_replace('/[~\'\"\`\!\@\#\$\%\^\&\*\+\=\\\.\,\?\:\;\{\}\[\]\-]/i'.BX_UTF_PCRE_MODIFIER, ' ', $result);
-		$result = preg_replace('/\s{2,}/i'.BX_UTF_PCRE_MODIFIER, ' ', $result);
-		$result = ToUpper($result);
+		$result = preg_replace('/\s*(\(.*\))/iu', ' ', $value);
+		$result = preg_replace('/[~\'\"\`\!\@\#\$\%\^\&\*\+\=\\\.\,\?\:\;\{\}\[\]\-]/iu', ' ', $result);
+		$result = preg_replace('/\s{2,}/iu', ' ', $result);
+		$result = mb_strtoupper($result);
 		$result = self::getReplacement()->changeYoE($result);
 		$result = trim($result);
 
@@ -220,9 +220,9 @@ class Comparator
 				$s = self::flatten($s);
 
 				if(mb_strpos($name, $s.' ') !== false)
-					$regexp = '/^'.$s.'\s+(.*)$/i'.BX_UTF_PCRE_MODIFIER;
+					$regexp = '/^'.$s.'\s+(.*)$/iu';
 				elseif(mb_strpos($name, ' '.$s) !== false)
-					$regexp = '/^(.*)\s+'.$s.'$/i'.BX_UTF_PCRE_MODIFIER;
+					$regexp = '/^(.*)\s+'.$s.'$/iu';
 
 				if($regexp <> '' && preg_match($regexp, $name, $matches))
 				{
@@ -249,15 +249,15 @@ class Comparator
 
 		if($type <> '')
 		{
-			$result[] = ToUpper($type.' '.$name);
-			$result[] = ToUpper($name.' '.$type);
+			$result[] = mb_strtoupper($type.' '.$name);
+			$result[] = mb_strtoupper($name.' '.$type);
 
 			if(is_array($types[$type]) && !empty($types[$type]))
 			{
 				foreach($types[$type] as $t)
 				{
-					$result[] = ToUpper($t.' '.$name);
-					$result[] = ToUpper($name.' '.$t);
+					$result[] = mb_strtoupper($t.' '.$name);
+					$result[] = mb_strtoupper($name.' '.$t);
 				}
 			}
 		}
@@ -265,15 +265,15 @@ class Comparator
 		{
 			foreach($types as $k => $v)
 			{
-				$result[] = ToUpper($k.' '.$name);
-				$result[] = ToUpper($name.' '.$k);
+				$result[] = mb_strtoupper($k.' '.$name);
+				$result[] = mb_strtoupper($name.' '.$k);
 
 				if(is_array($v) && !empty($v))
 				{
 					foreach($v as $vv)
 					{
-						$result[] = ToUpper($vv.' '.$name);
-						$result[] = ToUpper($name.' '.$vv);
+						$result[] = mb_strtoupper($vv.' '.$name);
+						$result[] = mb_strtoupper($name.' '.$vv);
 					}
 				}
 			}

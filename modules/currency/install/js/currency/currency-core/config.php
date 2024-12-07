@@ -10,4 +10,7 @@ return [
 		'main.core',
 	],
 	'skip_core' => false,
+	'settings' => [
+		'region' => \Bitrix\Main\Application::getInstance()->getLicense()->getRegion(),
+	],
 ];

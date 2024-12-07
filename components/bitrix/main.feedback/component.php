@@ -14,17 +14,17 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 $arResult["PARAMS_HASH"] = md5(serialize($arParams).$this->GetTemplateName());
 
 $arParams["USE_CAPTCHA"] = (($arParams["USE_CAPTCHA"] != "N" && !$USER->IsAuthorized()) ? "Y" : "N");
-$arParams["EVENT_NAME"] = trim($arParams["EVENT_NAME"]);
+$arParams["EVENT_NAME"] = trim($arParams["EVENT_NAME"] ?? '');
 if($arParams["EVENT_NAME"] == '')
 	$arParams["EVENT_NAME"] = "FEEDBACK_FORM";
-$arParams["EMAIL_TO"] = trim($arParams["EMAIL_TO"]);
+$arParams["EMAIL_TO"] = trim($arParams["EMAIL_TO"] ?? '');
 if($arParams["EMAIL_TO"] == '')
 	$arParams["EMAIL_TO"] = COption::GetOptionString("main", "email_from");
-$arParams["OK_TEXT"] = trim($arParams["OK_TEXT"]);
+$arParams["OK_TEXT"] = trim($arParams["OK_TEXT"] ?? '');
 if($arParams["OK_TEXT"] == '')
 	$arParams["OK_TEXT"] = GetMessage("MF_OK_MESSAGE");
 
-if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_POST["PARAMS_HASH"]) || $arResult["PARAMS_HASH"] === $_POST["PARAMS_HASH"]))
+if($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["submit"]) && (!isset($_POST["PARAMS_HASH"]) || $arResult["PARAMS_HASH"] === $_POST["PARAMS_HASH"]))
 {
 	$arResult["ERROR_MESSAGE"] = array();
 	if(check_bitrix_sessid())
@@ -85,7 +85,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_POST["submit"] <> '' && (!isset($_P
 	else
 		$arResult["ERROR_MESSAGE"][] = GetMessage("MF_SESS_EXP");
 }
-elseif($_REQUEST["success"] == $arResult["PARAMS_HASH"])
+elseif(isset($_REQUEST["success"]) && $_REQUEST["success"] == $arResult["PARAMS_HASH"])
 {
 	$arResult["OK_MESSAGE"] = $arParams["OK_TEXT"];
 }

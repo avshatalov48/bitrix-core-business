@@ -6,3 +6,7 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.bx-im-sidebar-link-detail__tariff-limit-container {
+	margin: 6px 12px 6px 15px;
+}

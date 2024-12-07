@@ -5,16 +5,21 @@ class CCommentBase
 {
 	protected $component = null;
 	protected $handlers = [];
+	private ?\CUser $user;
 
-	function __construct(&$component)
+	public function __construct(&$component, ?\CUser $user = null)
 	{
 		$this->component = &$component;
+		$this->user = $user;
+
 		$methods = get_class_methods(static::class);
 		foreach ($methods as $method)
 		{
 			if (mb_stripos($method, "On") === 0)
 			{
-				$this->addHandler($method, [$this, $method]);
+				$this->addHandler($method, function() use ($method) {
+					return call_user_func([$this, $method], ...func_get_args());
+				});
 			}
 		}
 	}
@@ -56,5 +61,10 @@ class CCommentBase
 			RemoveEventHandler($handler["moduleId"], $handler["eventName"], $handler["id"]);
 		}
 		$this->handlers = [];
+	}
+
+	protected function getUser(): ?\CUser
+	{
+		return $this->user;
 	}
 }

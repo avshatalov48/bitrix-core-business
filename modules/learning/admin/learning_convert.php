@@ -11,8 +11,6 @@ IncludeModuleLangFile(__FILE__);
 
 if (isset($_REQUEST['learning_process']) && ($_REQUEST['learning_process'] === 'Y'))
 {
-	CUtil::JSPostUnescape();
-
 	require_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php');
 
 	$processedSummary    = 0;
@@ -123,7 +121,7 @@ else
 	require($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php');
 
 	?>
-	<script language='JavaScript'>
+	<script>
 	var learning_stop;
 
 	function StartConvert(maxMessage)

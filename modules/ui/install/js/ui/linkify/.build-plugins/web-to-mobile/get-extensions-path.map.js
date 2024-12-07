@@ -1,0 +1,1 @@
+{"version":3,"file":"get-extensions-path.map.js","names":["path","require","module","exports","getExtensionsPath","modulesDirectory","join","__dirname","split"],"sources":["get-extensions-path.js"],"mappings":"AAAA,MAAMA,KAAOC,QAAQ,QAErBC,OAAOC,QAAU,SAASC,IACzB,MAAMC,EAAmBL,KAAKM,KAAKC,UAAUC,MAAM,WAAW,GAAI,WAClE,OAAOR,KAAKM,KAAKD,EAAkB,SAAU,UAAW,YAAa,SAAU,aAAc,SAC9F"}

@@ -1,18 +1,17 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
 
-
 use Bitrix\Catalog\RoundingTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Rest\Event\EventBindInterface;
 
 final class RoundingRule extends Controller implements EventBindInterface
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+	use CheckExists; // default implementation of existence check
 	use PriceTypeRights;
 
 	//region Actions
@@ -37,7 +36,7 @@ final class RoundingRule extends Controller implements EventBindInterface
 			return null;
 		}
 
-		return ['ROUNDING_RULE' => $this->get($addResult->getId())];
+		return [$this->getServiceItemName() => $this->get($addResult->getId())];
 	}
 
 	/**
@@ -68,7 +67,7 @@ final class RoundingRule extends Controller implements EventBindInterface
 			return null;
 		}
 
-		return ['ROUNDING_RULE' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**
@@ -99,57 +98,18 @@ final class RoundingRule extends Controller implements EventBindInterface
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['ROUNDING_RULE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		return new Page(
-			'ROUNDING_RULES',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
-	 * @param $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction($id): ?array
-	{
-		$r = $this->exists($id);
-		if ($r->isSuccess())
-		{
-			return ['ROUNDING_RULE' => $this->get($id)];
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-			return null;
-		}
-	}
-	//endregion
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function exists($id)
-	{
-		$r = new Result();
-		if (isset($this->get($id)['ID']) == false)
-		{
-			$r->addError(new Error('Rounding does not exist'));
-		}
-
-		return $r;
-	}
 
 	/**
 	 * @inheritDoc

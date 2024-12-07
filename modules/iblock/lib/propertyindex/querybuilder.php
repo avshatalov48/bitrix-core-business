@@ -140,7 +140,7 @@ class QueryBuilder
 						);
 					}
 				}
-				$distinctSelectCapable = (\Bitrix\Main\Application::getConnection()->getType() == "mysql");
+				$distinctSelectCapable = (\Bitrix\Main\Application::getConnection() instanceof \Bitrix\Main\DB\MysqlCommonConnection);
 				if (count($where) == 1 && $distinctSelectCapable)
 				{
 					$this->distinct = true;

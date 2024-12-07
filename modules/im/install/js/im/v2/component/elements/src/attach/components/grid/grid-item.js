@@ -1,11 +1,11 @@
-import {Parser} from 'im.v2.lib.parser';
+import { Parser } from 'im.v2.lib.parser';
 
-import type {AttachGridItemConfig} from 'im.v2.const';
+import type { AttachGridItemConfig } from 'im.v2.const';
 
 export const AttachGridItemDisplayType = {
 	block: 'block',
 	line: 'line',
-	row: 'row'
+	row: 'row',
 };
 const DisplayType = AttachGridItemDisplayType;
 
@@ -16,8 +16,8 @@ export const AttachGridItem = {
 	{
 		config: {
 			type: Object,
-			default: () => {}
-		}
+			default: () => {},
+		},
 	},
 	computed:
 	{
@@ -48,9 +48,9 @@ export const AttachGridItem = {
 
 			return Parser.decodeText(this.internalConfig.value);
 		},
-		color(): string
+		colorToken(): string
 		{
-			return this.internalConfig.color || '';
+			return this.internalConfig.colorToken || 'base';
 		},
 		name(): string
 		{
@@ -59,22 +59,22 @@ export const AttachGridItem = {
 		link(): string
 		{
 			return this.internalConfig.link;
-		}
+		},
 	},
 	template: `
 		<div v-if="display === DisplayType.block" :style="{width}" class="bx-im-attach-grid__item --block">
 			<div class="bx-im-attach-grid__name">{{ name }}</div>
 			<div v-if="link" class="bx-im-attach-grid__value --link">
-				<a :href="link" target="_blank" :style="{color}" v-html="value"></a>
+				<a :href="link" target="_blank" :class="colorToken" v-html="value"></a>
 			</div>
-			<div v-else v-html="value" :style="{color}" class="bx-im-attach-grid__value"></div>
+			<div v-else v-html="value" :class="colorToken" class="bx-im-attach-grid__value"></div>
 		</div>
 		<div v-if="display === DisplayType.line" :style="{width}" class="bx-im-attach-grid__item --line">
 			<div class="bx-im-attach-grid__name">{{ name }}</div>
-			<div v-if="link" :style="{color}" class="bx-im-attach-grid__value --link">
+			<div v-if="link" :class="colorToken" class="bx-im-attach-grid__value --link">
 				<a :href="link" target="_blank" v-html="value"></a>
 			</div>
-			<div v-else class="bx-im-attach-grid__value" :style="{color}" v-html="value"></div>
+			<div v-else class="bx-im-attach-grid__value" :class="colorToken" v-html="value"></div>
 		</div>
 		<div v-if="display === DisplayType.row" class="bx-im-attach-grid__item --row">
 			<table>
@@ -86,7 +86,7 @@ export const AttachGridItem = {
 						<td
 							v-if="value && link"
 							:colspan="name? 1: 2"
-							:style="{color}"
+							:class="colorToken"
 							class="bx-im-attach-grid__value --link"
 						>
 							<a :href="link" target="_blank" v-html="value"></a>
@@ -94,7 +94,7 @@ export const AttachGridItem = {
 						<td
 							v-if="value && !link"
 							:colspan="name? 1: 2"
-							:style="{color}"
+							:class="colorToken"
 							v-html="value"
 							class="bx-im-attach-grid__value"
 						>
@@ -103,5 +103,5 @@ export const AttachGridItem = {
 				</tbody>
 			</table>
 		</div>
-	`
+	`,
 };

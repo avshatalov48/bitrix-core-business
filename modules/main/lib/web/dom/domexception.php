@@ -26,7 +26,7 @@ class DomException extends \Bitrix\Main\SystemException
 	// Introduced in DOM Level 3:
 	const VALIDATION_ERR = 16;
 
-	public function __construct($message = "", $code = 0, \Exception $previous = null)
+	public function __construct($message = "", $code = 0, \Throwable $previous = null)
 	{
 		parent::__construct($message, $code, '', '', $previous);
 	}

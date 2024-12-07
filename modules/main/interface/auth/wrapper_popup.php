@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 
 switch($_REQUEST['bxsender']):
@@ -10,7 +13,7 @@ switch($_REQUEST['bxsender']):
 	case 'core_window_cdialog':
 	case 'core_window_cadmindialog':
 ?>
-<script type="text/javascript" bxrunfirst="true">top.BX.WindowManager.Get().Authorize(<?=CUtil::PhpToJsObject($arAuthResult)?>)</script>
+<script bxrunfirst="true">top.BX.WindowManager.Get().Authorize(<?= Json::encode($arAuthResult) ?>)</script>
 <?
 	break;
 
@@ -20,10 +23,10 @@ switch($_REQUEST['bxsender']):
 
 	case 'admin_wizard_dialog':
 ?>
-<script type="text/javascript" bxrunfirst="true">
+<script bxrunfirst="true">
 	(new top.BX.CAuthDialog({
 		content_url: "/bitrix/admin/wizard_install.php",
-		auth_result: <?=CUtil::PhpToJsObject($arAuthResult)?>,
+		auth_result: <?= Json::encode($arAuthResult) ?>,
 		callback: function() {
 			var frameWindow = top.WizardWindow.currentFrame.contentWindow;
 			var reloadForm = frameWindow.document.forms["wizard_reload_form"];
@@ -46,8 +49,8 @@ switch($_REQUEST['bxsender']):
 
 	case 'fileman_html_editor':
 ?>
-<script type="text/javascript" bxrunfirst="true">
-	top.BX.onCustomEvent(top, 'OnHtmlEditorRequestAuthFailure', ['<?= CUtil::JSEscape($_REQUEST['bxeditor'])?>', <?=CUtil::PhpToJsObject($arAuthResult)?>]);
+<script bxrunfirst="true">
+	top.BX.onCustomEvent(top, 'OnHtmlEditorRequestAuthFailure', ['<?= CUtil::JSEscape($_REQUEST['bxeditor'])?>', <?= Json::encode($arAuthResult) ?>]);
 </script>
 <?
 	break;
@@ -106,11 +109,11 @@ switch($_REQUEST['bxsender']):
 		$form = ob_get_contents();
 		ob_end_clean();
 ?>
-<script type="text/javascript">
+<script>
 var authWnd = top.BX.WindowManager.Get();
 authWnd.SetTitle('<?=GetMessageJS('AUTH_TITLE')?>');
 authWnd.SetContent('<?=CUtil::JSEscape($form)?>');
-authWnd.SetError(<?=CUtil::PhpToJsObject($arAuthResult)?>);
+authWnd.SetError(<?= Json::encode($arAuthResult) ?>);
 authWnd.adjustSizeEx();
 </script>
 <?
@@ -126,4 +129,3 @@ authWnd.adjustSizeEx();
 
 	break;
 endswitch;
-?>

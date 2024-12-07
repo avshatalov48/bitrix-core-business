@@ -1,5 +1,6 @@
 <?php
 namespace Bitrix\Calendar;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main;
 use \Bitrix\Main\Web\Json;
 
@@ -137,16 +138,25 @@ class UserSettings
 		return $resSettings;
 	}
 
-	public static function getFormSettings($formType, $userId = false)
+	public static function getFormSettings($formType, $userId = false, ?string $entryType = null)
 	{
 		if (!$userId)
 		{
 			$userId = \CCalendar::getUserId();
 		}
 
+		$defaultPinnedFields = ['location', 'rrule', 'section'];
+		if ($entryType === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			$pinnedFields = [...$defaultPinnedFields, 'description'];
+		}
+		else
+		{
+			$pinnedFields = $defaultPinnedFields;
+		}
 		$defaultValues = [
 			'slider_main' => [
-				'pinnedFields' => implode(',', ['location', 'rrule', 'section'])
+				'pinnedFields' => implode(',', $pinnedFields),
 			]
 		];
 		if (!isset($defaultValues[$formType]))
@@ -154,7 +164,8 @@ class UserSettings
 			$defaultValues[$formType] = false;
 		}
 		//\CUserOptions::DeleteOption("calendar", $formType);
-		$settings = \CUserOptions::getOption("calendar", $formType, $defaultValues[$formType], $userId);
+		$userOptionName = $entryType ?  sprintf('%s-%s', $formType, $entryType) : $formType;
+		$settings = \CUserOptions::getOption("calendar", $userOptionName, $defaultValues[$formType], $userId);
 		if (!is_array($settings['pinnedFields']))
 		{
 			$settings['pinnedFields'] = explode(',', $settings['pinnedFields']);
@@ -239,6 +250,21 @@ class UserSettings
 	public static function getTrackingGroups($userId = false, $params = [])
 	{
 		$res = [];
+
+		if (!Main\Loader::includeModule('socialnetwork'))
+		{
+			return $res;
+		}
+
+		$isProjectFeatureEnabled = \Bitrix\Socialnetwork\Helper\Feature::isFeatureEnabled(\Bitrix\Socialnetwork\Helper\Feature::PROJECTS_GROUPS)
+			|| \Bitrix\Socialnetwork\Helper\Feature::canTurnOnTrial(\Bitrix\Socialnetwork\Helper\Feature::PROJECTS_GROUPS)
+		;
+
+		if (!$isProjectFeatureEnabled)
+		{
+			return $res;
+		}
+
 		$str = \CUserOptions::getOption("calendar", "superpose_tracking_groups", false, $userId);
 
 		if ($str !== false && CheckSerializedData($str))
@@ -248,9 +274,9 @@ class UserSettings
 			{
 				foreach($ids as $id)
 				{
-					if (intval($id) > 0)
+					if ((int)$id > 0)
 					{
-						$res[] = intval($id);
+						$res[] = (int)$id;
 					}
 				}
 			}
@@ -360,12 +386,14 @@ class UserSettings
 	}
 
 
-	public static function getFollowedSectionIdList($userId = false)
+	public static function getFollowedSectionIdList($userId = false): array
 	{
 		$sectionIdList = [];
 		if ($userId)
 		{
-			$defaultFollowedSectionId = intval(\CUserOptions::GetOption("calendar", "superpose_displayed_default", 0, $userId));
+			$defaultFollowedSectionId = (int)\CUserOptions::GetOption(
+				"calendar", "superpose_displayed_default", 0, $userId
+			);
 			if ($defaultFollowedSectionId)
 			{
 				$sectionIdList[] = $defaultFollowedSectionId;
@@ -379,9 +407,9 @@ class UserSettings
 				{
 					foreach($idList as $id)
 					{
-						if (intval($id) > 0)
+						if ((int)$id > 0)
 						{
-							$sectionIdList[] = intval($id);
+							$sectionIdList[] = (int)$id;
 						}
 					}
 				}

@@ -1,6 +1,6 @@
-import {reactionType as Reaction} from 'ui.reactions-select';
+import type { reactionType as Reaction } from 'ui.reactions-select';
 
-import type {RawChat, RawFile, RawUser, RawMessage} from './common';
+import type { RawChat, RawFile, RawUser, RawMessage, RawMultidialog } from './common';
 
 export type MessageAddParams = {
 	chat?: {[chatId: string]: RawChat} | [],
@@ -72,7 +72,54 @@ export type ReadMessageParams = {
 	lines: boolean,
 	muted: boolean,
 	unread: boolean,
-	viewedMessages: number[]
+	viewedMessages: number[],
+	type: string,
+	parentChatId: number,
+};
+
+export type MessageParams = {
+	chat?: {[chatId: string]: RawChat} | [],
+	chatId: number,
+	counter: number,
+	dateLastActivity: string,
+	dialogId: string,
+	files: {[fileId: string]: RawFile} | [],
+	lines: boolean,
+	message: RawMessage,
+	multidialog: RawMultidialog,
+	notify: boolean,
+	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
+	userInChat: {[chatId: string]: number[]} | [],
+	users: {[userId: string]: RawUser} | null,
+};
+
+export type MessageChatParams = {
+	chat?: {[chatId: string]: RawChat} | [],
+	chatId: number,
+	counter: number,
+	dateLastActivity: string,
+	dialogId: string,
+	files: {[fileId: string]: RawFile} | [],
+	lines: boolean,
+	message: RawMessage,
+	multidialog: RawMultidialog,
+	notify: boolean,
+	userBlockChat: {[chatId: string]: {[userId: string]: boolean}} | [],
+	userInChat: {[chatId: string]: number[]} | [],
+	users: {[userId: string]: RawUser} | null,
+};
+
+export type ReadMessageChatParams = {
+	chatId: number,
+	counter: number,
+	dialogId: string,
+	lastId: number,
+	lines: boolean,
+	muted: boolean,
+	unread: boolean,
+	viewedMessages: number[],
+	type: string,
+	parentChatId: number,
 };
 
 export type UnreadMessageParams = {

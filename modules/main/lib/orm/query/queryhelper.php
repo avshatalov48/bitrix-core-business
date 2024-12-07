@@ -34,6 +34,8 @@ class QueryHelper
 	public static function decompose(Query $query, $fairLimit = true, $separateRelations = true)
 	{
 		$entity = $query->getEntity();
+		$queryClass = $entity->getDataClass()::getQueryClass();
+		$runtimeChains = $query->getRuntimeChains() ?? [];
 		$primaryNames = $entity->getPrimaryArray();
 		$originalSelect = $query->getSelect();
 
@@ -52,9 +54,14 @@ class QueryHelper
 			}
 
 			// reset query
-			$query = $entity->getDataClass()::query();
+			$query = new $queryClass($entity);
 			$query->setSelect($originalSelect);
 			$query->where(static::getPrimaryFilter($primaryNames, $rows));
+
+			foreach ($runtimeChains as $chain)
+			{
+				$query->registerChain('runtime', $chain);
+			}
 		}
 
 		// more than one OneToMany or ManyToMany
@@ -66,7 +73,7 @@ class QueryHelper
 			foreach ($originalSelect as $selectItem)
 			{
 				// init query with select item
-				$selQuery = $entity->getDataClass()::query();
+				$selQuery = new $queryClass($entity);
 				$selQuery->addSelect($selectItem);
 				$selQuery->getQuery(true);
 
@@ -113,10 +120,16 @@ class QueryHelper
 			// select relations
 			foreach ($dividedSelect as $selectItem)
 			{
-				$result = $entity->getDataClass()::query()
+				$relQuery = (new $queryClass($entity))
 					->addSelect($selectItem)
-					->where($primaryFilter)
-					->exec();
+					->where($primaryFilter);
+
+				foreach ($runtimeChains as $chain)
+				{
+					$relQuery->registerChain('runtime', $chain);
+				}
+
+				$result = $relQuery->exec();
 
 				$result->setIdentityMap($im);
 				$result->fetchCollection();

@@ -5,7 +5,7 @@ if (!window.BX)
 	window.BX = {};
 }
 
-var BX = window.BX;
+const BX = window.BX;
 
 BX.namespace('BX.Currency');
 
@@ -16,47 +16,49 @@ if (!BX.Currency.Core || BX.Currency.instance instanceof BX.Currency.Core)
 
 BX.Currency.instance = new BX.Currency.Core();
 
-BX.mergeEx(BX.Currency,
-{
-	setCurrencyFormat: function(currency, format, replace)
+BX.mergeEx(
+	BX.Currency,
 	{
-		return BX.Currency.Core.setCurrencyFormat(currency, format, replace);
-	},
+		setCurrencyFormat: function(currency, format, replace)
+		{
+			return BX.Currency.Core.setCurrencyFormat(currency, format, replace);
+		},
 
-	setCurrencies: function(currencies, replace)
-	{
-		return BX.Currency.Core.setCurrencies(currencies, replace);
-	},
+		setCurrencies: function(currencies, replace)
+		{
+			return BX.Currency.Core.setCurrencies(currencies, replace);
+		},
 
-	getCurrencyFormat: function(currency)
-	{
-		return BX.Currency.Core.getCurrencyFormat(currency);
-	},
+		getCurrencyFormat: function(currency)
+		{
+			return BX.Currency.Core.getCurrencyFormat(currency);
+		},
 
-	getCurrencyIndex: function(currency)
-	{
-		return BX.Currency.Core.getCurrencyIndex(currency);
-	},
+		getCurrencyIndex: function(currency)
+		{
+			return BX.Currency.Core.getCurrencyIndex(currency);
+		},
 
-	clearCurrency: function(currency)
-	{
-		return BX.Currency.Core.clearCurrency(currency);
-	},
+		clearCurrency: function(currency)
+		{
+			return BX.Currency.Core.clearCurrency(currency);
+		},
 
-	clean: function()
-	{
-		return BX.Currency.Core.clean();
-	},
+		clean: function()
+		{
+			return BX.Currency.Core.clean();
+		},
 
-	currencyFormat: function (price, currency, useTemplate)
-	{
-		return BX.Currency.Core.currencyFormat(price, currency, useTemplate);
-	},
+		currencyFormat: function (price, currency, useTemplate)
+		{
+			return BX.Currency.Core.currencyFormat(price, currency, useTemplate);
+		},
 
-	loadCurrencyFormat: function (currency)
-	{
-		return BX.Currency.Core.loadCurrencyFormat(currency);
-	}
-});
+		loadCurrencyFormat: function (currency)
+		{
+			return BX.Currency.Core.loadCurrencyFormat(currency);
+		}
+	},
+);
 
 })(window);

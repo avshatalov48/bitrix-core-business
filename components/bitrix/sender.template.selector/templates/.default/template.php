@@ -24,7 +24,7 @@ Extension::load(['ui.hint', 'ui.design-tokens']);
 $containerId = 'bx-sender-template-selector';
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Template.Selector.init(<?=Json::encode(array(
 			'containerId' => $containerId,

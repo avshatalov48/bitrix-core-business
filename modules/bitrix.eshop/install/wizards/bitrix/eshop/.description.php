@@ -94,10 +94,7 @@ else
 $removeCatalog = false;
 if (Loader::includeModule('catalog'))
 {
-	if (
-		Catalog\Config\State::isUsedInventoryManagement() // already used
-		|| Option::get('catalog', 'once_inventory_management') === 'Y' // exchange 1C
-	)
+	if (Catalog\Config\State::isUsedInventoryManagement())
 	{
 		$removeCatalog = true;
 	}

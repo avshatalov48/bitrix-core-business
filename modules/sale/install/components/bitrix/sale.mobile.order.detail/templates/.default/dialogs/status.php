@@ -20,7 +20,7 @@ unset($arResult["DAILOG"]["STATUSES"]["TITLE"]);
 </div>
 </form>
 
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage('SMOD_D_STATUS')?>"});
 

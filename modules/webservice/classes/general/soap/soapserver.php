@@ -204,7 +204,7 @@ class CWSSOAPResponser extends CSOAPServerResponser
 
 		header("SOAPServer: BITRIX SOAP");
 		header("Content-Type: text/xml; charset=\"UTF-8\"");
-		Header("Content-Length: ".(defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload)));
+		header("Content-Length: " . strlen($payload));
 
 		$APPLICATION->RestartBuffer();
 		$cserver->RawPayloadData = $payload;
@@ -272,7 +272,7 @@ class CSOAPServer
 
 		header("SOAPServer: BITRIX SOAP");
 		header("Content-Type: text/xml; charset=\"UTF-8\"");
-		Header("Content-Length: ".(defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload)));
+		header("Content-Length: " . strlen($payload));
 
 		$APPLICATION->RestartBuffer();
 		$this->RawPayloadData = $payload;
@@ -293,7 +293,7 @@ class CSOAPServer
 
 		header("SOAPServer: BITRIX SOAP");
 		header("Content-Type: text/xml; charset=\"UTF-8\"");
-		Header("Content-Length: ".(defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload)));
+		header("Content-Length: " . strlen($payload));
 
 		$APPLICATION->RestartBuffer();
 
@@ -314,7 +314,7 @@ class CSOAPServer
 
 		header("SOAPServer: BITRIX SOAP");
 		header("Content-Type: text/xml; charset=\"UTF-8\"");
-		Header("Content-Length: ".(defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload)));
+		header("Content-Length: " . strlen($payload));
 
 		$APPLICATION->RestartBuffer();
 		echo $payload;
@@ -328,8 +328,6 @@ class CSOAPServer
 	*/
 	function ProcessRequest()
 	{
-		global $APPLICATION;
-
 		if (
 			$_SERVER["REQUEST_METHOD"] != "POST"
 			||!class_exists("CDataXML")
@@ -345,7 +343,6 @@ class CSOAPServer
 
 		//AddMessage2Log($this->RawPostData);
 		$xmlData = $this->stripHTTPHeader($this->RawPostData);
-		$xmlData = $APPLICATION->ConvertCharset($xmlData, "UTF-8", SITE_CHARSET);
 
 		$xml = new CDataXML();
 

@@ -3,25 +3,26 @@
 $LICENSE_KEY = '';
 include $_SERVER['DOCUMENT_ROOT'] . '/bitrix/license_key.php';
 
-$host = 'www.1c-bitrix.ru';
+$host = 'util.bitrixsoft.com';
 
-$path = '/buy_tmp/backup.php';
+$path = '/backup.php';
 $path .= '?license=' . md5($LICENSE_KEY);
 $path .= '&lang=ru';
+$path .= '&region=ru';
 $path .= '&action=get_info';
 
-$proto = '';
-$port = 80;
+$proto = 'ssl';
+$port = 443;
 $http_timeout = 10;
 
 $result = '';
 $fp = fsockopen($proto . $host, $port, $errno, $errstr, $http_timeout);
 if ($fp)
 {
-	$strRequest = "GET ${path} HTTP/1.0\r\n";
+	$strRequest = "GET " . $path . " HTTP/1.0\r\n";
 	$strRequest .= "Connection: close\r\n";
 	$strRequest .= "Accept: */*\r\n";
-	$strRequest .= "Host: ${host}\r\n";
+	$strRequest .= "Host: " . $host . "\r\n";
 	$strRequest .= "Accept-Language: en\r\n";
 	$strRequest .= "\r\n";
 

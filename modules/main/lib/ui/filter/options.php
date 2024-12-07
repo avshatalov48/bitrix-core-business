@@ -1,4 +1,4 @@
-<?
+<?php
 
 namespace Bitrix\Main\UI\Filter;
 
@@ -457,6 +457,10 @@ class Options
 				if ($request[$id] !== null)
 				{
 					$result["fields"][$id] = $request[$id];
+					if (isset($request[$labelId]))
+					{
+						$result["fields"][$labelId] = $request[$labelId];
+					}
 					$result["rows"][] = $id;
 				}
 			}
@@ -552,7 +556,6 @@ class Options
 		return $this->options["default"];
 	}
 
-
 	/**
 	 * Gets current applied filter id
 	 * @return mixed
@@ -629,7 +632,7 @@ class Options
 	 */
 	public static function isDateField($key = "")
 	{
-		return is_string($key) && mb_substr($key, -8) === "_datesel";
+		return is_string($key) && str_ends_with($key, "_datesel");
 	}
 
 
@@ -693,12 +696,10 @@ class Options
 		return $number;
 	}
 
-
 	public static function isNumberField($key = "")
 	{
-		return is_string($key) && mb_substr($key, -7) === "_numsel";
+		return is_string($key) && str_ends_with($key, "_numsel");
 	}
-
 
 	public static function fetchFieldValuesFromFilterSettings($filterSettings = array(), $additionalFields = array(), $sourceFields = array())
 	{
@@ -730,13 +731,13 @@ class Options
 					$resultFields = array_merge($resultFields, $number);
 				}
 
-				elseif (mb_substr($key, -5) !== "_from" && mb_substr($key, -3) !== "_to")
+				elseif (!str_ends_with($key, "_from") && !str_ends_with($key, "_to"))
 				{
-					if  (mb_substr($key, -8) === "_isEmpty")
+					if  (str_ends_with($key, "_isEmpty"))
 					{
 						$resultFields[substr($key, 0, -8)] = false;
 					}
-					elseif  (mb_substr($key, -12) === "_hasAnyValue")
+					elseif  (str_ends_with($key, "_hasAnyValue"))
 					{
 
 						$resultFields['!'.substr($key, 0, -12)] = false;
@@ -787,7 +788,7 @@ class Options
 				$result["PRESET_ID"] = $currentPresetId;
 				$result["FILTER_ID"] = $currentPresetId;
 				$result["FILTER_APPLIED"] = true;
-				$result["FIND"] = $this->getSearchString();
+				$result["FIND"] = $searchString;
 			}
 		}
 		return $result;

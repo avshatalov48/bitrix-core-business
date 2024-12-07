@@ -4,7 +4,7 @@
 ##############################################
 # Bitrix Site Manager                        #
 # Copyright (c) 2002 - 2007 Bitrix           #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
@@ -38,6 +38,8 @@ class CMailbox extends CAllMailBox
 			if (microtime(true) - $mt > 10 * 1000)
 				break;
 		}
+
+		\Bitrix\Mail\Helper\Message\MessageInternalDateHandler::clearStartInternalDate();
 
 		return "CMailbox::CleanUp();";
 	}

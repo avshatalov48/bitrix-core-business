@@ -1,7 +1,10 @@
 <?php
-$MESS["IM_MESSAGE_REACTION_M_PRIVATE"] = "Отреагировал на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в вашем диалоге\n \"#REACTION_NAME#\"";
-$MESS["IM_MESSAGE_REACTION_F_PRIVATE"] = "Отреагировала на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в вашем диалоге\n \"#REACTION_NAME#\"";
-$MESS["IM_MESSAGE_REACTION_PRIVATE"] = "Отреагировал(а) на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в вашем диалоге\n \"#REACTION_NAME#\"";
-$MESS["IM_MESSAGE_REACTION_M"] = "Отреагировал на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в чате \"[CHAT=#CHAT_ID#]#CHAT_TITLE#[/CHAT]\"\n \"#REACTION_NAME#\"";
-$MESS["IM_MESSAGE_REACTION_F"] = "Отреагировала на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в чате \"[CHAT=#CHAT_ID#]#CHAT_TITLE#[/CHAT]\"\n \"#REACTION_NAME#\"";
-$MESS["IM_MESSAGE_REACTION"] = "Отреагировал(а) на ваше [CONTEXT=#DIALOG_ID#/#MESSAGE_ID#]сообщение[/CONTEXT] \"#QOUTED_MESSAGE#\" в чате \"[CHAT=#CHAT_ID#]#CHAT_TITLE#[/CHAT]\"\n \"#REACTION_NAME#\"";
+$MESS["IM_MESSAGE_REACTION_M_PRIVATE_V2"] = "Отреагировал \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_F_PRIVATE_V2"] = "Отреагировала \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_PRIVATE_V2"] = "Отреагировал(а) \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_M_V2"] = "Отреагировал \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# в чате \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_F_V2"] = "Отреагировала \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# в чате \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_V2"] = "Отреагировал(а) \"#REACTION_NAME#\" на ваше #CONTEXT_START#сообщение#CONTEXT_END# в чате \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_M_COMMENT_V2"] = "Отреагировал \"#REACTION_NAME#\" на ваш #CONTEXT_START#комментарий#CONTEXT_END# \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_F_COMMENT_V2"] = "Отреагировал \"#REACTION_NAME#\" на ваш #CONTEXT_START#комментарий#CONTEXT_END# \"#QOUTED_MESSAGE#\"";
+$MESS["IM_MESSAGE_REACTION_COMMENT_V2"] = "Отреагировал \"#REACTION_NAME#\" на ваш #CONTEXT_START#комментарий#CONTEXT_END# \"#QOUTED_MESSAGE#\"";

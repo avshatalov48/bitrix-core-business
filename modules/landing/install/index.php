@@ -42,7 +42,7 @@ class Landing extends \CModule
 			'onAfterIBlockSectionDelete' => ['\Bitrix\Landing\Connector\Iblock', 'onAfterIBlockSectionDelete']
 		],
 		'intranet' => [
-			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu']
+			'onBuildBindingMenu' => ['\Bitrix\Landing\Connector\Intranet', 'onBuildBindingMenu'],
 		],
 		'landing' => [
 			'onBuildSourceList' => ['\Bitrix\Landing\Connector\Landing', 'onSourceBuildHandler']
@@ -278,7 +278,6 @@ class Landing extends \CModule
 	 */
 	public function setSiteTemplates($install = true)
 	{
-		$clearCache = false;
 		$tplFields = array(
 			'TEMPLATE' => Option::get('landing', 'site_template_id')
 		);
@@ -289,7 +288,6 @@ class Landing extends \CModule
 		));
 		while ($rowCheck = $resCheck->fetch())
 		{
-			$clearCache = true;
 			\Bitrix\Main\SiteTemplateTable::delete(
 				$rowCheck['ID']
 			);
@@ -311,7 +309,6 @@ class Landing extends \CModule
 				// only for b24
 				if (ModuleManager::isModuleInstalled('bitrix24'))
 				{
-					$clearCache = true;
 					\Bitrix\Main\SiteTemplateTable::add(
 						$tplFields + array(
 							'SITE_ID' => $row['LID'],
@@ -337,7 +334,6 @@ class Landing extends \CModule
 			ModuleManager::isModuleInstalled('intranet')
 		)
 		{
-			$clearCache = true;
 			\Bitrix\Main\SiteTemplateTable::add(
 				$tplFields + array(
 					'SITE_ID' => 's1',//@todo
@@ -346,11 +342,6 @@ class Landing extends \CModule
 								   '$GLOBALS[\'APPLICATION\']->GetCurPage(0))'
 				)
 			);
-		}
-
-		if ($clearCache)
-		{
-			$GLOBALS['CACHE_MANAGER']->clean('b_site_template');
 		}
 	}
 
@@ -701,51 +692,5 @@ class Landing extends \CModule
 				)
 			)
 		);
-	}
-
-	/**
-	 * Method for migrate from cloud version.
-	 * @return void
-	 */
-	public function migrateToBox()
-	{
-		// delete some cloud options
-		$keyForDelete = [
-			'shops_limit_count',
-			'site_limit_count',
-			'shops_limit_count_publication',
-			'site_limit_count_publication',
-			'pages_limit_count_publication',
-			'permissions_available',
-			'google_images_key'
-		];
-		foreach ($keyForDelete as $key)
-		{
-			Option::delete(
-				'landing',
-				['name' => $key]
-			);
-		}
-
-		if (\Bitrix\Main\Loader::includeModule('landing'))
-		{
-			// clear all providers in domains
-			$res = Domain::getList([
-				'select' => [
-					'ID'
-				],
-				'filter' => [
-					'!=PROVIDER' => null
-				]
-			]);
-			while ($row = $res->fetch())
-			{
-				Domain::update($row['ID'], [
-					'PROVIDER' => null
-				]);
-			}
-		}
-
-		unset($keyForDelete, $key);
 	}
 }

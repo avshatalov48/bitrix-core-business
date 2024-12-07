@@ -1,3 +1,4 @@
+import { Utils } from 'im.v2.lib.utils';
 import { Type } from 'main.core';
 
 import { convertToString, isNumberOrString } from '../../utils/format';
@@ -53,5 +54,11 @@ export const recentFieldsConfig: FieldsConfig = [
 		fieldName: 'isBirthdayPlaceholder',
 		targetFieldName: 'isBirthdayPlaceholder',
 		checkFunction: Type.isBoolean,
+	},
+	{
+		fieldName: ['dateLastActivity', 'lastActivityDate'],
+		targetFieldName: 'lastActivityDate',
+		checkFunction: [Type.isString, Type.isDate],
+		formatFunction: Utils.date.cast,
 	},
 ];

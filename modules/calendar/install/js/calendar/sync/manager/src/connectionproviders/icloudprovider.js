@@ -10,6 +10,7 @@ export class ICloudProvider extends ConnectionProvider
 			status: options.syncInfo.status || false,
 			connected: options.syncInfo.connected || false,
 			userName: options.syncInfo.userName || '',
+			connectionOriginalName: options.syncInfo.connectionName || '',
 			gridTitle: Loc.getMessage('CALENDAR_TITLE_ICLOUD'),
 			gridColor: '#948f8f',
 			gridIcon: '/bitrix/images/calendar/sync/icloud.svg',
@@ -24,5 +25,15 @@ export class ICloudProvider extends ConnectionProvider
 		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setSections(options.sections);
 		this.setConnections();
+	}
+
+	doSupportReconnectionScenario(): boolean
+	{
+		return true;
+	}
+
+	getFailedConnectionName(): string
+	{
+		return 'iCloud';
 	}
 }

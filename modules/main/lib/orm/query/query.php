@@ -280,12 +280,12 @@ class Query
 	public function __call($method, $arguments)
 	{
 		// where and having proxies
-		if (substr($method, 0, 6) === 'having')
+		if (str_starts_with($method, 'having'))
 		{
 			$method = str_replace('having', 'where', $method);
 		}
 
-		if (substr($method, 0, 5) === 'where')
+		if (str_starts_with($method, 'where'))
 		{
 			if (method_exists($this->filterHandler, $method))
 			{
@@ -298,7 +298,7 @@ class Query
 			}
 		}
 
-		if (substr($method, 0, 4) === 'with')
+		if (str_starts_with($method, 'with'))
 		{
 			$dataClass = $this->entity->getDataClass();
 
@@ -507,6 +507,11 @@ class Query
 	 */
 	public function addOrder($definition, $order = 'ASC')
 	{
+		if (!is_string($order))
+		{
+			throw new Main\ArgumentException('Order must be a string');
+		}
+
 		$order = strtoupper($order);
 
 		if (!in_array($order, array('ASC', 'DESC'), true))
@@ -590,7 +595,7 @@ class Query
 
 	/**
 	 * Puts additional query to union with current.
-	 * Accepts one ore more Query / SqlExpression.
+	 * Accepts one or more Query / SqlExpression.
 	 *
 	 * @return $this
 	 * @throws Main\ArgumentException
@@ -608,7 +613,7 @@ class Query
 
 	/**
 	 * Puts additional query to union (all) with current.
-	 * Accepts one ore more Query / SqlExpression.
+	 * Accepts one or more Query / SqlExpression.
 	 *
 	 * @return $this
 	 * @throws Main\ArgumentException
@@ -907,14 +912,18 @@ class Query
 	 * Used to create ExpressionField in a short way.
 	 * @see Filter::where()
 	 *
+	 * @param ?string $alias Name for ExpressionField
+	 *
 	 * @return Expression
 	 */
-	public static function expr()
+	public static function expr($alias = null)
 	{
 		if (static::$expressionHelper === null)
 		{
 			static::$expressionHelper = new Expression;
 		}
+
+		static::$expressionHelper->alias = $alias;
 
 		return static::$expressionHelper;
 	}
@@ -936,7 +945,7 @@ class Query
 		$ttl = 0;
 		$result = null;
 
-		if($this->cacheTtl > 0 && (empty($this->join_map) || $this->cacheJoins == true))
+		if($this->cacheTtl > 0 && (empty($this->join_map) || $this->cacheJoins))
 		{
 			$ttl = $this->entity->getCacheTtl($this->cacheTtl);
 		}
@@ -945,6 +954,17 @@ class Query
 		{
 			$cacheId = md5($query);
 			$result = $this->entity->readFromCache($ttl, $cacheId, $this->countTotal);
+		}
+
+		if (!is_null($this->limit) && empty($this->limit))
+		{
+			// return empty result TODO
+
+			// or warning for now
+			/*trigger_error(sprintf(
+				'Limit must be different from %s',
+				var_export($this->limit, true)
+			), E_USER_WARNING);*/
 		}
 
 		if($result === null)
@@ -1007,6 +1027,11 @@ class Query
 	 */
 	public function fetchObject()
 	{
+		if (empty($this->select))
+		{
+			$this->addSelect('*');
+		}
+
 		return $this->exec()->fetchObject();
 	}
 
@@ -1019,6 +1044,11 @@ class Query
 	 */
 	public function fetchCollection()
 	{
+		if (empty($this->select))
+		{
+			$this->addSelect('*');
+		}
+
 		return $this->exec()->fetchCollection();
 	}
 
@@ -1145,8 +1175,8 @@ class Query
 			}
 
 			// if there is a shell pattern in final segment, run recursively
-			if ((strlen($localDefinition) > 1 && strpos($localDefinition, '*') !== false)
-				|| strpos($localDefinition, '?') !== false
+			if ((strlen($localDefinition) > 1 && str_contains($localDefinition, '*'))
+				|| str_contains($localDefinition, '?')
 			)
 			{
 				// get fields by pattern
@@ -1165,7 +1195,7 @@ class Query
 
 						// skip uf utm single
 						if (
-							substr($field->getName(), 0, 3) == 'UF_' && substr($field->getName(), -7) == '_SINGLE'
+							str_starts_with($field->getName(), 'UF_') && str_ends_with($field->getName(), '_SINGLE')
 							&& $localEntity->hasField(substr($field->getName(), 0, -7))
 						)
 						{
@@ -1360,7 +1390,6 @@ class Query
 					// hold entity, but get real closing field
 					$dstBuildFromChains = $dstField->getBuildFromChains();
 
-					/** @var Chain $firstChain */
 					$firstChain = $dstBuildFromChains[0];
 					$dstField = $firstChain->getLastElement()->getValue();
 				}
@@ -1402,7 +1431,7 @@ class Query
 				// continue
 				$registerChain = true;
 
-				// if data doubling disabled and it is back-reference - do not register, it will be overwritten
+				// if data doubling disabled, and it is back-reference - do not register, it will be overwritten
 				if ($chain->forcesDataDoublingOff() || ($this->data_doubling_off && $chain->hasBackReference()))
 				{
 					$registerChain = false;
@@ -1489,7 +1518,6 @@ class Query
 						// hold entity, but get real closing field
 						$dstBuildFromChains = $dstField->getBuildFromChains();
 
-						/** @var Chain $firstChain */
 						$firstChain = $dstBuildFromChains[0];
 						$dstField = $firstChain->getLastElement()->getValue();
 					}
@@ -1530,7 +1558,7 @@ class Query
 					// continue
 					$registerChain = true;
 
-					// if data doubling disabled and it is back-reference - do not register, it will be overwritten
+					// if data doubling disabled, and it is back-reference - do not register, it will be overwritten
 					if ($chain->forcesDataDoublingOff() || ($this->data_doubling_off && $chain->hasBackReference()))
 					{
 						$registerChain = false;
@@ -1592,7 +1620,7 @@ class Query
 
 		if ($logic == 'OR')
 		{
-			// if has aggr then move all to having
+			// if it has aggr then move all to having
 			if ($this->checkFilterAggregation($this->filter))
 			{
 				$this->where = array();
@@ -1658,7 +1686,7 @@ class Query
 
 		if ($logic == 'or')
 		{
-			// if has aggr then move all to having
+			// if it has aggr then move all to having
 			if ($this->checkFilterHandlerAggregation($this->filterHandler))
 			{
 				$this->havingHandler = $this->filterHandler;
@@ -1867,6 +1895,12 @@ class Query
 		if ($chain->getLastElement()->getValue() instanceof ExpressionField)
 		{
 			$this->collectExprChains($chain);
+		}
+
+		if ($this->is_distinct)
+		{
+			// make sure field is in select while distinct
+			$this->addToSelectChain($definition);
 		}
 	}
 
@@ -2740,7 +2774,7 @@ class Query
 				$csw_result = $sqlWhere->makeOperation($k);
 				list($field, $operation) = array_values($csw_result);
 
-				if (strpos($field, 'this.') === 0)
+				if (str_starts_with($field, 'this.'))
 				{
 					// parse the chain
 					$definition = str_replace(\CSQLWhere::getOperationByCode($operation).'this.', '', $k);
@@ -2784,11 +2818,11 @@ class Query
 
 					$k = \CSQLWhere::getOperationByCode($operation).$chain->getSqlDefinition();
 				}
-				elseif (strpos($field, 'ref.') === 0)
+				elseif (str_starts_with($field, 'ref.'))
 				{
 					$definition = str_replace(\CSQLWhere::getOperationByCode($operation).'ref.', '', $k);
 
-					if (strpos($definition, '.') !== false)
+					if (str_contains($definition, '.'))
 					{
 						throw new Main\ArgumentException(sprintf(
 							'Reference chain `%s` is not allowed here. First-level definitions only.', $field
@@ -2835,7 +2869,7 @@ class Query
 				}
 				elseif (!is_object($v))
 				{
-					if (strpos($v, 'this.') === 0)
+					if (str_starts_with($v, 'this.'))
 					{
 						$definition = str_replace('this.', '', $v);
 						$absDefinition = $baseDefinition <> ''? $baseDefinition.'.'.$definition : $definition;
@@ -2878,11 +2912,11 @@ class Query
 
 						$field_def = $chain->getSqlDefinition();
 					}
-					elseif (strpos($v, 'ref.') === 0)
+					elseif (str_starts_with($v, 'ref.'))
 					{
 						$definition = str_replace('ref.', '', $v);
 
-						if (strpos($definition, '.') !== false)
+						if (str_contains($definition, '.'))
 						{
 							throw new Main\ArgumentException(sprintf(
 								'Reference chain `%s` is not allowed here. First-level definitions only.', $v
@@ -2993,7 +3027,7 @@ class Query
 				// regular condition
 				$field = $condition->getDefinition();
 
-				if (strpos($field, 'this.') === 0)
+				if (str_starts_with($field, 'this.'))
 				{
 					// parse the chain
 					$definition = str_replace('this.', '', $field);
@@ -3037,11 +3071,11 @@ class Query
 
 					$condition->setColumn($absDefinition);
 				}
-				elseif (strpos($field, 'ref.') === 0)
+				elseif (str_starts_with($field, 'ref.'))
 				{
 					$definition = str_replace('ref.', '', $field);
 
-					if (strpos($definition, '.') !== false)
+					if (str_contains($definition, '.'))
 					{
 						throw new Main\ArgumentException(sprintf(
 							'Reference chain `%s` is not allowed here. First-level definitions only.', $field
@@ -3085,7 +3119,7 @@ class Query
 				}
 				elseif ($v instanceof ColumnExpression)
 				{
-					if (strpos($v->getDefinition(), 'this.') === 0)
+					if (str_starts_with($v->getDefinition(), 'this.'))
 					{
 						$definition = str_replace('this.', '', $v->getDefinition());
 						$absDefinition = $baseDefinition <> ''? $baseDefinition.'.'.$definition : $definition;
@@ -3128,11 +3162,11 @@ class Query
 
 						$v->setDefinition($absDefinition);
 					}
-					elseif (strpos($v->getDefinition(), 'ref.') === 0)
+					elseif (str_starts_with($v->getDefinition(), 'ref.'))
 					{
 						$definition = str_replace('ref.', '', $v->getDefinition());
 
-						if (strpos($definition, '.') !== false)
+						if (str_contains($definition, '.'))
 						{
 							throw new Main\ArgumentException(sprintf(
 								'Reference chain `%s` is not allowed here. First-level definitions only.', $v->getDefinition()
@@ -3266,7 +3300,7 @@ class Query
 				$expression = $field->getFullExpression();
 				$expression = ExpressionField::removeSubqueries($expression);
 
-				preg_match_all('/(?:^|[^a-z0-9_])(DISTINCT)[\s\(]+/i', $expression, $matches);
+				preg_match_all('/(?:^|[^a-z0-9_])(DISTINCT)[\s(]+/i', $expression, $matches);
 
 				if (!empty($matches[1]))
 				{
@@ -3348,7 +3382,6 @@ class Query
 				// replace "build_from" chain end by registered chain end
 				// actually it's better and more correctly to replace the whole chain
 				$bf_chain->removeLastElement();
-				/** @var Chain $reg_chain */
 				$bf_chain->addElement($reg_chain->getLastElement());
 
 				// return buildFrom elements with original start of chain for this query
@@ -3407,7 +3440,7 @@ class Query
 			{
 				// we have a collision
 				// like book.author_id and book.author.id have the same aliases, but different definitions
-				// in most of the cases it's not a problem, there would be the same expected data
+				// in most of the cases it's not a problem, there would be the same expected data,
 				// but we need register this chain separately to be available for internal usage
 				$reg_chain = $chain;
 

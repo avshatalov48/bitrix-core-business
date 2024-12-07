@@ -5,6 +5,7 @@ use Bitrix\Socialnetwork\ComponentHelper;
 use Bitrix\Socialnetwork\Helper\Mention;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
 
 IncludeModuleLangFile(__FILE__);
 
@@ -616,13 +617,13 @@ class CSocNetLogTools
 					"SECOND_NAME" => $arFields["~USER_SECOND_NAME"] ?? null,
 					"LOGIN" => $arFields["~USER_LOGIN"] ?? null,
 				);
-				$arParams["NAME_TEMPLATE"] = $arParams["NAME_TEMPLATE"] ?? '' . $suffix;
+				$arParams["NAME_TEMPLATE"] = ($arParams["NAME_TEMPLATE"] ?? '') . $suffix;
 				$arEntity["TOOLTIP_FIELDS"] = CSocNetLogTools::FormatEvent_FillTooltip($arFieldsTooltip, $arParams);
 				$arEntity["FORMATTED"] = "";
 			}
 		}
 		elseif (
-			$arFields["ENTITY_TYPE"] == SONET_SUBSCRIBE_ENTITY_GROUP
+			($arFields["ENTITY_TYPE"] ?? null) == SONET_SUBSCRIBE_ENTITY_GROUP
 			&& intval($arFields["ENTITY_ID"]) > 0
 		)
 		{
@@ -1534,7 +1535,7 @@ class CSocNetLogTools
 				static $parserLog = false;
 				if (!$parserLog)
 				{
-					$parserLog = new logTextParser(false, $arParams["PATH_TO_SMILE"]);
+					$parserLog = new logTextParser(false, ($arParams["PATH_TO_SMILE"] ?? null));
 				}
 				$arResult["EVENT_FORMATTED"]["SHORT_MESSAGE"] = $parserLog->html_cut(
 					$parserLog->convert(
@@ -3341,20 +3342,31 @@ class CSocNetLogTools
 						$url = $arTmp["URLS"]["MESSAGE_URL"];
 
 						$arMessageFields["NOTIFY_TAG"] = "FORUM|COMMENT|".$messageID;
-						$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("SONET_FORUM_IM_COMMENT", Array(
-							"#title#" => (
-								$url <> ''
-									? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
-									: htmlspecialcharsbx($arParams["TITLE"])
+						$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) =>
+							Loc::getMessage(
+								"SONET_FORUM_IM_COMMENT",
+								[
+									"#title#" => (
+									$url <> ''
+										? "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>"
+										: htmlspecialcharsbx($arParams["TITLE"])
+									)
+								],
+								$languageId
 							)
-						));
+						;
 
-						$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("SONET_FORUM_IM_COMMENT", Array(
-							"#title#" => htmlspecialcharsbx($arParams["TITLE"])
-						)).($url <> ''
-							? " (".$serverName.$url.")"
-							: ""
-						)."#BR##BR#".$arFields["TEXT_MESSAGE"];
+						$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) =>
+							Loc::getMessage(
+								"SONET_FORUM_IM_COMMENT",
+								[
+									"#title#" => htmlspecialcharsbx($arParams["TITLE"])
+								],
+								$languageId
+							)
+							. ($url <> '' ? " (".$serverName.$url.")" : "")
+							."#BR##BR#" . $arFields["TEXT_MESSAGE"]
+						;
 
 						CIMNotify::Add($arMessageFields);
 					}
@@ -6396,33 +6408,33 @@ class logTextParser extends CTextParser
 
 		if ($this->allow["HTML"] !== "Y")
 		{
-			$text = preg_replace("#(<br[\s]*\/>)#is".BX_UTF_PCRE_MODIFIER, "", $text);
+			$text = preg_replace("#(<br[\s]*\/>)#isu", "", $text);
 
 			$text = preg_replace(
 				array(
-					"#<a[^>]+href\s*=\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER,
-					"#<a[^>]+href(\s*=\s*)([^'\"\>])+>(.*?)</a[^>]*>#is".BX_UTF_PCRE_MODIFIER),
+					"#<a[^>]+href\s*=\s*('|\")(.+?)(?:\\1)[^>]*>(.*?)</a[^>]*>#isu",
+					"#<a[^>]+href(\s*=\s*)([^'\"\>])+>(.*?)</a[^>]*>#isu"),
 				"[url=\\2]\\3[/url]", $text);
 
 			$replaced = 0;
 			do
 			{
 				$text = preg_replace(
-					"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/is".BX_UTF_PCRE_MODIFIER,
+					"/<([busi])[^>a-z]*>(.+?)<\\/(\\1)[^>a-z]*>/isu",
 					"[\\1]\\2[/\\1]",
 				$text, -1, $replaced);
 			}
 			while($replaced > 0);
 
 			$text = preg_replace(
-				"#<img[^>]+src\s*=[\s'\"]*(((http|https|ftp)://[.-_:a-z0-9@]+)*(\/[-_/=:.a-z0-9@{}&?%]+)+)[\s'\"]*[^>]*>#is".BX_UTF_PCRE_MODIFIER,
+				"#<img[^>]+src\s*=[\s'\"]*(((http|https|ftp)://[.-_:a-z0-9@]+)*(\/[-_/=:.a-z0-9@{}&?%]+)+)[\s'\"]*[^>]*>#isu",
 				"[img]\\1[/img]", $text);
 
 			$text = preg_replace(
 				array(
-					"/\<font[^>]+size\s*=[\s'\"]*([0-9]+)[\s'\"]*[^>]*\>(.+?)\<\/font[^>]*\>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<font[^>]+color\s*=[\s'\"]*(\#[a-f0-9]{6})[^>]*\>(.+?)\<\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<font[^>]+face\s*=[\s'\"]*([a-z\s\-]+)[\s'\"]*[^>]*>(.+?)\<\/font[^>]*>/is".BX_UTF_PCRE_MODIFIER),
+					"/\<font[^>]+size\s*=[\s'\"]*([0-9]+)[\s'\"]*[^>]*\>(.+?)\<\/font[^>]*\>/isu",
+					"/\<font[^>]+color\s*=[\s'\"]*(\#[a-f0-9]{6})[^>]*\>(.+?)\<\/font[^>]*>/isu",
+					"/\<font[^>]+face\s*=[\s'\"]*([a-z\s\-]+)[\s'\"]*[^>]*>(.+?)\<\/font[^>]*>/isu"),
 				array(
 					"[size=\\1]\\2[/size]",
 					"[color=\\1]\\2[/color]",
@@ -6431,9 +6443,9 @@ class logTextParser extends CTextParser
 
 			$text = preg_replace(
 				array(
-					"/\<ul((\s[^>]*)|(\s*))\>(.+?)<\/ul([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<ol((\s[^>]*)|(\s*))\>(.+?)<\/ol([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<li((\s[^>]*)|(\s*))\>/is".BX_UTF_PCRE_MODIFIER,
+					"/\<ul((\s[^>]*)|(\s*))\>(.+?)<\/ul([^>]*)\>/isu",
+					"/\<ol((\s[^>]*)|(\s*))\>(.+?)<\/ol([^>]*)\>/isu",
+					"/\<li((\s[^>]*)|(\s*))\>/isu",
 					),
 				array(
 					"[list]\\4[/list]",
@@ -6444,9 +6456,9 @@ class logTextParser extends CTextParser
 
 			$text = preg_replace(
 				array(
-					"/\<table((\s[^>]*)|(\s*))\>(.+?)<\/table([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<tr((\s[^>]*)|(\s*))\>(.*?)<\/tr([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
-					"/\<td((\s[^>]*)|(\s*))\>(.*?)<\/td([^>]*)\>/is".BX_UTF_PCRE_MODIFIER,
+					"/\<table((\s[^>]*)|(\s*))\>(.+?)<\/table([^>]*)\>/isu",
+					"/\<tr((\s[^>]*)|(\s*))\>(.*?)<\/tr([^>]*)\>/isu",
+					"/\<td((\s[^>]*)|(\s*))\>(.*?)<\/td([^>]*)\>/isu",
 					),
 				array(
 					"[table]\\4[/table]",
@@ -6472,21 +6484,21 @@ class logTextParser extends CTextParser
 			$text = str_replace("\n", "<br />", $text);
 		}
 
-		$text = preg_replace("#^(<br[\s]*\/>[\s\n]*)+#is".BX_UTF_PCRE_MODIFIER, "", $text);
-		$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+$#is".BX_UTF_PCRE_MODIFIER, "", $text);
+		$text = preg_replace("#^(<br[\s]*\/>[\s\n]*)+#isu", "", $text);
+		$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+$#isu", "", $text);
 
 		if ($this->allow["MULTIPLE_BR"] === "N")
-			$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+#is".BX_UTF_PCRE_MODIFIER, "<br />", $text);
+			$text = preg_replace("#(<br[\s]*\/>[\s\n]*)+#isu", "<br />", $text);
 
 		return trim($text);
 	}
 
-	function convert_anchor_tag($url, $text, $pref="")
+	function convert_anchor_tag($url, $text, $attributes = [])
 	{
 		if ($this->allow["LOG_ANCHOR"] === "N")
 			return "[URL]".$text."[/URL]";
 		else
-			return parent::convert_anchor_tag($url, $text, $pref);
+			return parent::convert_anchor_tag($url, $text, $attributes);
 	}
 
 	function convert_image_tag($url = "", $params = "")
@@ -6515,7 +6527,7 @@ class logTextParser extends CTextParser
 
 	function convert_code_tag($text = "")
 	{
-		$text = preg_replace("#(<br[\s]*\/>)#is".BX_UTF_PCRE_MODIFIER, "", $text);
+		$text = preg_replace("#(<br[\s]*\/>)#isu", "", $text);
 		if ($this->allow["LOG_CODE"] === "N")
 		{
 			$text = str_replace(Array("[nomodify]", "[/nomodify]"), Array("", ""), $text);
@@ -6531,8 +6543,8 @@ class logTextParser extends CTextParser
 		{
 			return preg_replace(
 				array(
-					"/\[quote([^\]\<\>])*\]/i".BX_UTF_PCRE_MODIFIER,
-					"/\[\/quote([^\]\<\>])*\]/i".BX_UTF_PCRE_MODIFIER,
+					"/\[quote([^\]\<\>])*\]/iu",
+					"/\[\/quote([^\]\<\>])*\]/iu",
 				),
 				"",
 			$text);
@@ -6976,7 +6988,7 @@ class CSocNetLogComponent
 		if (!empty($arRelation))
 		{
 			$arFields["DETAIL_TEXT"] = preg_replace_callback(
-				"/\[DISK\s+FILE\s+ID\s*=\s*pseudo@([\d]+)\]/is".BX_UTF_PCRE_MODIFIER,
+				"/\[DISK\s+FILE\s+ID\s*=\s*pseudo@([\d]+)\]/isu",
 				function ($matches) use ($arRelation, $type)
 				{
 					if (isset($arRelation[intval($matches[1])]))
@@ -7274,6 +7286,8 @@ class CSocNetLogComponent
 	{
 		global $USER;
 
+		$isAuthorized = ($USER && is_object($USER) && $USER->IsAuthorized());
+
 		$arResult = array(
 			"COMMENT_RIGHTS_EDIT" => "N",
 			"COMMENT_RIGHTS_DELETE" => "N"
@@ -7356,7 +7370,7 @@ class CSocNetLogComponent
 							$arResult["COMMENT_RIGHTS_DELETE"] = ($bHasDeleteCallback ? "OWN" : "N");
 						}
 					}
-					elseif ($USER->IsAuthorized())
+					elseif ($isAuthorized)
 					{
 						$arResult["COMMENT_RIGHTS_EDIT"] = ($bHasEditCallback ? "OWN" : "N");
 						$arResult["COMMENT_RIGHTS_DELETE"] = ($bHasDeleteCallback ? "OWN" : "N");
@@ -7368,7 +7382,7 @@ class CSocNetLogComponent
 				$arResult["COMMENT_RIGHTS_EDIT"] = ($bHasEditCallback ? "ALL" : "N");
 				$arResult["COMMENT_RIGHTS_DELETE"] = ($bHasDeleteCallback ? "ALL" : "N");
 			}
-			elseif ($USER->IsAuthorized())
+			elseif ($isAuthorized)
 			{
 				$arResult["COMMENT_RIGHTS_EDIT"] = ($bHasEditCallback ? "OWN" : "N");
 				$arResult["COMMENT_RIGHTS_DELETE"] = ($bHasDeleteCallback ? "OWN" : "N");
@@ -7407,7 +7421,7 @@ class CSocNetLogComponent
 			$arParams["ACTION"] = "edit";
 		}
 
-		$arParams["ACTION"] = ToUpper($arParams["ACTION"]);
+		$arParams["ACTION"] = mb_strtoupper($arParams["ACTION"]);
 
 		$rights = CSocNetLogComponent::getCommentRights(array(
 			"EVENT_ID" => $arParams["LOG_EVENT_ID"],

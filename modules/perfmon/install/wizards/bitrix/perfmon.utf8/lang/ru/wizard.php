@@ -5,11 +5,11 @@ $MESS["UTFWIZ_BACKUP_WARNING"] = "Перед началом конвертаци
 $MESS["UTFWIZ_BACKUP_CONSENT"] = "Я выполнил резервное копирование и умею восстанавливать сайт из резервной копии.";
 $MESS["UTFWIZ_SITE_CLOSED_WARNING"] = "На время работы мастера публичная часть сайта будет закрыта.";
 $MESS["UTFWIZ_CHECK_SITE_WARNING"] = "Перед тем как нажать \"Далее\" убедитесь что все файлы доступны для записи. Это можно сделать на странице \"Проверка системы\" во вкладке \"Проверка доступа\".";
+$MESS["UTFWIZ_CONVERT_NOTICE"] = "Обратите внимание, что для конвертации таблиц используется `ALTER TABLE ... CONVERT TO CHARACTER SET charset`, который в качестве стороннего эффекта увеличивает допустимую размерность некоторых символьных полей. Проверка сайта покажет несоответствие структуры базы данных и определений таблиц, как они заданы в модулях. Это несоответствие не является критическим для работы сайта и может быть исправлено выполнением `ALTER TABLE ... CHANGE COLUMN`, полученными из журнала проверки сайта.";
 $MESS["UTFWIZ_STEP2_TITLE"] = "Проверка настроек.";
 $MESS["UTFWIZ_STEP2_DEFAULT_CHARSET"] = "Установите в файле настроек php.ini значение default_charset = \"utf-8\".";
 $MESS["UTFWIZ_STEP2_BX_UTF_CONSTANT"] = "Добавьте в <a target=\"_blank\" href=\"#EDIT_HREF#\">/bitrix/php_interface/dbconn.php</a>: define('BX_UTF', true);";
 $MESS["UTFWIZ_STEP2_SETLOCALE"] = "Удалите вызовы функции setlocale(LC_ALL, ...) в <a target=\"_blank\" href=\"#EDIT_HREF#\">/bitrix/php_interface/dbconn.php</a>.";
-$MESS["UTFWIZ_CONVERT_NOTICE"] = "Обратите внимание, что для конвертации таблиц используется `ALTER TABLE ... CONVERT TO CHARACTER SET charset`, который в качестве стороннего эффекта увеличивает допустимую размерность некоторых символьных полей. Проверка сайта покажет несоответствие структуры базы данных и определений таблиц, как они заданы в модулях. Это несоответствие не является критическим для работы сайта и может быть исправлено выполнением `ALTER TABLE ... CHANGE COLUMN`, полученными из журнала проверки сайта.";
 $MESS["UTFWIZ_STEP2_MB_INSTALLED"] = "Установлено расширение mbstring.";
 $MESS["UTFWIZ_STEP2_MB_INTERNAL_ENCODING"] = "Удалите вызовы функции mb_internal_encoding() в <a target=\"_blank\" href=\"#EDIT_HREF#\">/bitrix/php_interface/dbconn.php</a>. Функция должна возвращать значение 'UTF-8'.";
 $MESS["UTFWIZ_STEP2_MB_FUNC_OVERLOAD"] = "Настройка mbstring.func_overload = 0";

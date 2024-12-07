@@ -3,6 +3,7 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 use Bitrix\Main\UI\FileInputUtility;
 use Bitrix\Socialnetwork\LogCommentTable;
+use Bitrix\Main\Localization\Loc;
 
 global $USER_FIELD_MANAGER;
 
@@ -14,10 +15,6 @@ $action = mb_strtoupper($arParams["ACTION"]);
 $action = ($action == "SUPPORT" ? "FORUM_MESSAGE2SUPPORT" : $action);
 
 $post = $this->request->getPostList()->toArray();
-if (($post["AJAX_POST"] ?? null) == "Y")
-{
-	CUtil::decodeURIComponent($post);
-}
 
 if ($action == '')
 {
@@ -527,12 +524,25 @@ else
 								$url = $arTmp["URLS"]["MESSAGE_URL"];
 
 								$arMessageFields["NOTIFY_TAG"] = "FORUM|COMMENT|".$arParams["MID"];
-								$arMessageFields["NOTIFY_MESSAGE"] = GetMessage("SONET_FORUM_ACTION_IM_COMMENT", Array(
-									"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
-								));
-								$arMessageFields["NOTIFY_MESSAGE_OUT"] = GetMessage("SONET_FORUM_ACTION_IM_COMMENT", Array(
-									"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
-								))." (".$serverName.$url.")#BR##BR#".$sText;
+								$arMessageFields["NOTIFY_MESSAGE"] = fn (?string $languageId = null) =>
+									Loc::getMessage(
+										"SONET_FORUM_ACTION_IM_COMMENT",
+										[
+											"#title#" => "<a href=\"".$url."\" class=\"bx-notifier-item-action\">".htmlspecialcharsbx($arParams["TITLE"])."</a>",
+										],
+										$languageId
+									)
+								;
+								$arMessageFields["NOTIFY_MESSAGE_OUT"] = fn (?string $languageId = null) =>
+									Loc::getMessage(
+										"SONET_FORUM_ACTION_IM_COMMENT",
+										[
+											"#title#" => htmlspecialcharsbx($arParams["TITLE_OUT"])
+										],
+										$languageId
+									)
+									." (".$serverName.$url.")#BR##BR#".$sText
+								;
 
 								CIMNotify::Add($arMessageFields);
 							}

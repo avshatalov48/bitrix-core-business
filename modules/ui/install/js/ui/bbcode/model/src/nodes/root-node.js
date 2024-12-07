@@ -6,6 +6,10 @@ export type RootNodeOptions = {
 	children: Array<BBCodeNode>,
 };
 
+export type BBCodeToStringOptions = {
+	encode?: boolean,
+};
+
 export class BBCodeRootNode extends BBCodeElementNode
 {
 	constructor(options: RootNodeOptions)
@@ -53,11 +57,11 @@ export class BBCodeRootNode extends BBCodeElementNode
 		});
 	}
 
-	toString(): string
+	toString(options: BBCodeToStringOptions = {}): string
 	{
 		return this.getChildren()
 			.map((child: BBCodeContentNode) => {
-				return child.toString();
+				return child.toString(options);
 			})
 			.join('');
 	}

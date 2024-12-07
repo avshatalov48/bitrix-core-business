@@ -272,6 +272,25 @@
 	}
 }
 
+@media (max-width: 650px) {
+	.bx-landing-cookies-popup-warning-inner {
+		align-items: center;
+	}
+
+	.bx-landing-cookies-popup-warning-inner .bx-landing-cookies-popup-warning-right {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.bx-landing-cookies-popup-warning-inner .bx-landing-cookies-popup-warning-right .ui-btn {
+		margin: 15px 0 0 0;
+	}
+
+	.bx-landing-cookies-popup-warning-inner .bx-landing-cookies-popup-warning-right .ui-btn:first-child {
+		margin: 0;
+	}
+}
+
 @media (max-width: 450px) {
 
 	.bx-landing-cookies-popup-footer {

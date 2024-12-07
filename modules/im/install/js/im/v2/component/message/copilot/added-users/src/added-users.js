@@ -59,6 +59,12 @@ export const ChatCopilotAddedUsersMessage = {
 				'#COUNT#': this.addedUsers.restUsers.length,
 			});
 		},
+		preparedDescription(): string
+		{
+			return this.loc('IM_MESSAGE_COPILOT_ADDED_USERS_DESCRIPTION_MENTION_MSGVER_1', {
+				'#BR#': '\n',
+			});
+		},
 	},
 	methods:
 	{
@@ -79,9 +85,9 @@ export const ChatCopilotAddedUsersMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withDefaultContextMenu="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
-			class="bx-im-message-copilot-added-users__scope"
 		>
 			<div class="bx-im-message-copilot-added-users__container">
 				<div class="bx-im-message-copilot-added-users__image"></div>
@@ -89,33 +95,31 @@ export const ChatCopilotAddedUsersMessage = {
 					<div class="bx-im-message-copilot-added-users__title">
 						{{ loc('IM_MESSAGE_COPILOT_ADDED_USERS_TITLE') }}
 					</div>
-					<div class="bx-im-message-copilot-added-users__description">
-						<span
-							class="bx-im-message-copilot-added-users__user"
-							@click="onFirstAddedUserClick"
-						>
-							{{firstAddedUserName}}
+					<div
+						class="bx-im-message-copilot-added-users__description"
+						:title="preparedDescription"
+					>
+						{{ preparedDescription }}
+					</div>
+					<div class="bx-im-message-copilot-added-users__users"> 
+						<span class="bx-im-message-copilot-added-users__user" @click="onFirstAddedUserClick">
+							{{ firstAddedUserName }}
 						</span>
-						<span 
-							v-if="andMoreAddedUsers" 
+						<span
+							v-if="andMoreAddedUsers"
 							class="bx-im-message-copilot-added-users__user"
 							@click="onMoreUsersClick"
 							ref="addedUsersLink"
 						>
-							{{andMoreAddedUsers}}
+							{{ andMoreAddedUsers }}
 						</span>
-					</div>
-					<div 
-						class="bx-im-message-copilot-added-users__description"
-						:title="loc('IM_MESSAGE_COPILOT_ADDED_USERS_DESCRIPTION_MENTION')"
-					>
-						{{loc('IM_MESSAGE_COPILOT_ADDED_USERS_DESCRIPTION_MENTION')}}
 					</div>
 				</div>
 			</div>
 			<UserListPopup
 				:showPopup="showMoreUsers"
 				:userIds="addedUsers.restUsers"
+				:contextDialogId="dialogId"
 				:bindElement="$refs.addedUsersLink || {}"
 				:withAngle="false"
 				:forceTop="true"

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_MENU_ROOT_TITLE"] = "Товарный каталог";
 $MESS["CAT_MENU_ROOT"] = "Каталог товаров";
 $MESS["CAT_MENU_ROOT_MULTI"] = "Каталоги товаров";
@@ -42,4 +42,3 @@ $MESS["CAT_MENU_CATALOG_MARKETPLACE_ADD"] = "Установить из Марк�
 $MESS["CAT_MENU_CATALOG_MARKETPLACE_CATALOG_TOOLS"] = "Установить инструменты из Маркетплейс";
 $MESS["SALE_MENU_MARKETPLACE_MARKETING_ADD"] = "Установить из Маркетплейс";
 $MESS["SALE_MENU_MARKETPLACE_SETTINGS_ADD"] = "Установить из Маркетплейс импорт/экспорт";
-?>

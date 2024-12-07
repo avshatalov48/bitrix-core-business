@@ -71,7 +71,7 @@ $MESS ['FORM_VAL_LIST_HEAD_VAL'] = "Валидатор";
 $MESS ['FORM_VAL_LIST_HEAD_PARAMS'] = "Параметры";
 $MESS ['FORM_VAL_LIST_HEAD_REMOVE'] = "Удалить";
 $MESS ['FORM_VAL_ERROR_MULTITYPE'] = "Механизм валидаторов не поддерживается для вопросов с различными типами ответов";
-$MESS ['FORM_VAL_INVALID'] = 'Валидатор будет игнорироваться. Несоответствие типов.';
-$MESS ['FORM_VAL_VALID'] = 'Валидатор будет выполнен.';
-$MESS ['FORM_ADD_ANSWER'] = 'Добавить ответ';
+$MESS ['FORM_VAL_INVALID'] = "Валидатор будет игнорироваться. Несоответствие типов.";
+$MESS ['FORM_VAL_VALID'] = "Валидатор будет выполнен.";
+$MESS ['FORM_ADD_ANSWER'] = "Добавить ответ";
 ?>

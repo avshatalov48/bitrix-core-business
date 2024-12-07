@@ -1434,7 +1434,7 @@ class CBitrixComponent
 		if (!($arParams['ICON'] ?? '') && !($arParams['SRC'] ?? '') && !($arParams['IMAGE'] ?? ''))
 			$arParams['ICON'] = 'bx-context-toolbar-delete-icon';
 
-		if (mb_substr($deleteLink, 0, 11) != 'javascript:')
+		if (!str_starts_with($deleteLink, 'javascript:'))
 		{
 			if (false === mb_strpos($deleteLink, 'return_url='))
 				$deleteLink.= '&return_url='.urlencode($APPLICATION->getCurPageParam());

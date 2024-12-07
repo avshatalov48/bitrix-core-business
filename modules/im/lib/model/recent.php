@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Im\Model;
 
+use Bitrix\Im\V2\Common\MultiplyInsertTrait;
 use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 use Bitrix\Main;
 
@@ -35,6 +36,7 @@ class RecentTable extends Main\Entity\DataManager
 {
 	use \Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 	use UpdateByFilterTrait;
+	use MultiplyInsertTrait;
 	/**
 	 * Returns DB table name for entity.
 	 *
@@ -102,6 +104,11 @@ class RecentTable extends Main\Entity\DataManager
 				'default_value' => array(__CLASS__, 'getCurrentDate'),
 			),
 			'DATE_UPDATE' => array(
+				'data_type' => 'datetime',
+				'required' => true,
+				'default_value' => array(__CLASS__, 'getCurrentDate'),
+			),
+			'DATE_LAST_ACTIVITY' => array(
 				'data_type' => 'datetime',
 				'required' => true,
 				'default_value' => array(__CLASS__, 'getCurrentDate'),

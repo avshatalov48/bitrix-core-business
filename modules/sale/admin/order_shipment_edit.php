@@ -1,20 +1,19 @@
-<?
+<?php
+
 use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Sale\Order;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Delivery\Requests;
-use \Bitrix\Sale\Exchange\Integration\Admin\Link,
-	\Bitrix\Sale\Exchange\Integration\Admin\Registry,
-	\Bitrix\Sale\Exchange\Integration\Admin\ModeType,
-	\Bitrix\Sale\Helpers\Admin\Blocks\FactoryMode,
-	\Bitrix\Sale\Helpers\Admin\Blocks\BlockType;
+use Bitrix\Sale\Exchange\Integration\Admin\Link;
+use Bitrix\Sale\Exchange\Integration\Admin\Registry;
+use Bitrix\Sale\Exchange\Integration\Admin\ModeType;
+use Bitrix\Sale\Helpers\Admin\Blocks\BlockType;
+use Bitrix\Sale\Helpers\Admin\Blocks\FactoryMode;
+use Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket;
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
-\Bitrix\Main\Loader::includeModule('sale');
-
-
-
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/prolog.php");
 
@@ -22,7 +21,7 @@ $moduleId = "sale";
 
 global $USER, $APPLICATION;
 
-Bitrix\Main\Loader::includeModule('sale');
+Loader::includeModule('sale');
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 if ($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
@@ -32,7 +31,7 @@ CUtil::InitJSCore();
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/helpers/admin/orderedit.php");
 Asset::getInstance()->addCss('/bitrix/themes/.default/sale.css');
 
-/** @var null|\Bitrix\Sale\Order $saleOrder */
+/** @var null|Order $saleOrder */
 $saleOrder = null;
 $shipment = null;
 $dataArray = array();
@@ -393,7 +392,7 @@ else
 						$file_contents = '';
 						if ($file == "." || $file == ".." || $file == ".access.php" || isset($arReports[$file]))
 							continue;
-						if (is_file($dir.$file) && ToUpper(mb_substr($file, -4)) == ".PHP")
+						if (is_file($dir.$file) && mb_strtoupper(mb_substr($file, -4)) == ".PHP")
 						{
 							$rep_title = $file;
 							if ($dir == $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/reports/")
@@ -594,14 +593,14 @@ $context = new CAdminContextMenu($aMenu);
 $context->Show();
 
 // Problem block
-?><div id="sale-adm-order-problem-block"><?
+?><div id="sale-adm-order-problem-block"><?php
 if($shipmentId > 0 && $shipment->getField("MARKED") == "Y")
 {
 	/** @var \Bitrix\Sale\Helpers\Admin\Blocks\OrderMarker $marker */
 	$marker = $factory::create(BlockType::MARKER);
 	echo $marker->getViewForEntity($saleOrder->getId(), $shipmentId);
 }
-?></div><?
+?></div><?php
 
 if(!empty($errors))
 	CAdminMessage::ShowMessage(implode("<br>\n", $errors));
@@ -629,7 +628,7 @@ $action = $link
 	->fill()
 	->build();
 
-?><form method="POST" action="<?=$action?>" name="<?=$formId?>_form" id="<?=$formId?>_form"><?
+?><form method="POST" action="<?= $action ?>" name="<?= $formId ?>_form" id="<?= $formId ?>_form"><?php
 $tabControl = new CAdminTabControlDrag($formId, $aTabs, $moduleId, false, true);
 $tabControl->Begin();
 
@@ -650,13 +649,12 @@ $shipmentOrderBasket = $factory::create(BlockType::SHIPMENT_BASKET, [
 	'jsObjName'=>'BX.Sale.Admin.ShipmentBasketObj',
 	'idPrefix'=>'sale_shipment_basket']);
 ?>
-
-	<input type="hidden" name="lang" id="lang" value="<?=$lang;?>">
-	<input type="hidden" id="order_id" name="order_id" value="<?=$orderId?>">
-	<input type="hidden" id="site_id" name="site_id" value="<?=$siteId;?>">
-<?=bitrix_sessid_post();?>
-<?
-\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_ajaxer.js");
+	<input type="hidden" name="lang" id="lang" value="<?= $lang ?>">
+	<input type="hidden" id="order_id" name="order_id" value="<?= $orderId ?>">
+	<input type="hidden" id="site_id" name="site_id" value="<?= $siteId ?>">
+<?= bitrix_sessid_post() ?>
+<?php
+Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_ajaxer.js");
 \Bitrix\Sale\Delivery\Requests\Manager::initJs();
 
 echo $factory::create(BlockType::ADDITIONAL)->getScripts();
@@ -664,16 +662,17 @@ echo \Bitrix\Sale\Helpers\Admin\OrderEdit::getScripts($saleOrder, $formId);
 echo $factory::create(BlockType::SHIPMENT)->getScripts();
 echo $shipmentOrderBasket->getScripts($dataForRecovery);
 
-require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sale/general/admin_tool.php';
 ?>
 	<tr>
 		<td>
 			<div style="position: relative; vertical-align: top">
-				<?$tabControl->DraggableBlocksStart();?>
-				<?
+				<?php
+				$tabControl->DraggableBlocksStart();
+
 				foreach ($blocksOrder as $blockCode)
 				{
-					$tabControl->DraggableBlockBegin(GetMessage("SALE_BLOCK_TITLE_".toUpper($blockCode)), $blockCode);
+					$tabControl->DraggableBlockBegin(GetMessage("SALE_BLOCK_TITLE_".mb_strtoupper($blockCode)), $blockCode);
 
 					if(BlockType::isDefined(BlockType::resolveId($blockCode)))
 					{
@@ -707,22 +706,21 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.
 			</div>
 		</td>
 	</tr>
-
-<?
+<?php
 
 //--TAB order
 $tabControl->EndTab();
 ?>
 	</form>
-<?
+<?php
 if ($shipmentId > 0):
 	//TAB history --
 	$tabControl->BeginNextTab();
 	?>
 	<tr>
-		<td id="order-history"><?= $historyContent; ?></td>
+		<td id="order-history"><?= $historyContent ?></td>
 	</tr>
-	<?
+	<?php
 	//-- TAB history
 	$tabControl->EndTab();
 
@@ -732,13 +730,13 @@ if ($shipmentId > 0):
 	<tr>
 		<td>
 			<div style="position:relative; vertical-align:top">
-				<?
+				<?php
 				$orderBasket = $factory::create(BlockType::BASKET, [
 					'order'=> $saleOrder,
 					'jsObjName' => "BX.Sale.Admin.OrderBasketObj",
 					'idPrefix' => "sale_order_basket",
 					'createProductBasement' => true,
-					'mode' => \Bitrix\Sale\Helpers\Admin\Blocks\OrderBasket::VIEW_MODE
+					'mode' => OrderBasket::VIEW_MODE
 				]);
 
 				echo $factory::create(BlockType::ANALYSIS)->getView($saleOrder, $orderBasket, false, $shipmentId);
@@ -746,7 +744,7 @@ if ($shipmentId > 0):
 			</div>
 		</td>
 	</tr>
-	<?
+	<?php
 
 	//-- TAB analysis
 	$tabControl->EndTab();
@@ -761,6 +759,7 @@ $tabControl->Buttons(
 $tabControl->End();
 ?>
 <div style="display: none;">
-	<?=$shipmentOrderBasket->getSettingsDialogContent();?>
+	<?= $shipmentOrderBasket->getSettingsDialogContent() ?>
 </div>
-<?require($_SERVER['DOCUMENT_ROOT']."/bitrix/modules/main/include/epilog_admin.php");?>
+<?php
+require $_SERVER['DOCUMENT_ROOT'] .'/bitrix/modules/main/include/epilog_admin.php';

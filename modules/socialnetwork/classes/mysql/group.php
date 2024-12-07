@@ -86,7 +86,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			$strSql =
 				"INSERT INTO b_sonet_group(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = (int)$DB->LastID();
 
@@ -106,14 +106,14 @@ class CSocNetGroup extends CAllSocNetGroup
 				{
 					$DB->Query("
 						DELETE FROM b_sonet_group_site WHERE GROUP_ID = ".$ID."
-					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+					");
 
 					$DB->Query("
 						INSERT INTO b_sonet_group_site(GROUP_ID, SITE_ID)
 						SELECT ".$ID.", LID
 						FROM b_lang
 						WHERE LID IN ('".implode("', '", $arSiteID)."')
-					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+					");
 
 					if (intval($arFields["SUBJECT_ID"]) > 0)
 					{
@@ -249,19 +249,19 @@ class CSocNetGroup extends CAllSocNetGroup
 				"UPDATE b_sonet_group SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if(!empty($arSiteID))
 			{
 				$strSql = "DELETE FROM b_sonet_group_site WHERE GROUP_ID=".$ID;
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 
 				$strSql =
 					"INSERT INTO b_sonet_group_site(GROUP_ID, SITE_ID) ".
 					"SELECT ".$ID.", LID ".
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_SiteID.") ";
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 
 				$arLogID = array();
 
@@ -275,14 +275,14 @@ class CSocNetGroup extends CAllSocNetGroup
 
 				while ($arResult = $dbResult->Fetch())
 				{
-					$DB->Query("DELETE FROM b_sonet_log_site WHERE LOG_ID = ".$arResult["ID"]."", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+					$DB->Query("DELETE FROM b_sonet_log_site WHERE LOG_ID = ".$arResult["ID"]."");
 
 					$DB->Query("
 						INSERT INTO b_sonet_log_site(LOG_ID, SITE_ID)
 						SELECT ".$arResult["ID"].", LID
 						FROM b_lang
 						WHERE LID IN (".$str_SiteID.")
-					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+					");
 
 					$arLogID[] = $arResult["ID"];
 				}
@@ -418,7 +418,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				{
 					$chatId = $chatData[$ID];
 
-					$chat = new CIMChat();
+					$chat = new CIMChat(0);
 
 					if(!empty($arFields["NAME"]))
 					{
@@ -568,7 +568,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -652,7 +652,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -663,7 +663,7 @@ class CSocNetGroup extends CAllSocNetGroup
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -686,7 +686,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 				//echo "!2.2!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-				$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbRes = $DB->Query($strSql_tmp);
 				if ($arSqls["GROUPBY"] == '')
 				{
 					if ($arRes = $dbRes->Fetch())
@@ -696,7 +696,7 @@ class CSocNetGroup extends CAllSocNetGroup
 				}
 				else
 				{
-					// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+					// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 					$cnt += $dbRes->SelectedRowsCount();
 				}
 			}
@@ -720,7 +720,7 @@ class CSocNetGroup extends CAllSocNetGroup
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("SONET_GROUP"));
 		}
 

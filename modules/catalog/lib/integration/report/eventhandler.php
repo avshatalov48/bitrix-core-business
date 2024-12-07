@@ -2,10 +2,8 @@
 
 namespace Bitrix\Catalog\Integration\Report;
 
-use Bitrix\Catalog\Access\AccessController;
-use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\Integration\Report\Dashboard\DashboardManager;
-use Bitrix\Main\Loader;
+use Bitrix\Catalog\Store\EnableWizard\Manager;
 
 final class EventHandler
 {
@@ -16,31 +14,51 @@ final class EventHandler
 
 	public static function onAnalyticPageBatchCollect(): array
 	{
+		if (Manager::isOnecMode())
+		{
+			return [];
+		}
+
 		return DashboardManager::getManager()->getAnalyticBoardBatchList();
 	}
 
 	public static function onAnalyticPageCollect(): array
 	{
+		if (Manager::isOnecMode())
+		{
+			return [];
+		}
+
 		return DashboardManager::getManager()->getAnalyticBoardList();
 	}
 
 	public static function onReportHandlerCollect(): array
 	{
+		if (Manager::isOnecMode())
+		{
+			return [];
+		}
+
 		return DashboardManager::getManager()->getActiveHandlerList();
 	}
 
 	public static function onViewsCollect(): array
 	{
+		if (Manager::isOnecMode())
+		{
+			return [];
+		}
+
 		return DashboardManager::getManager()->getActiveViewList();
 	}
 
 	public static function onDefaultBoardsCollect(): array
 	{
-		return DashboardManager::getManager()->getDashboardList();
-	}
+		if (Manager::isOnecMode())
+		{
+			return [];
+		}
 
-	private static function checkDocumentReadRights(): bool
-	{
-		return Loader::includeModule('catalog') && AccessController::getCurrent()->check(ActionDictionary::ACTION_CATALOG_READ);
+		return DashboardManager::getManager()->getDashboardList();
 	}
 }

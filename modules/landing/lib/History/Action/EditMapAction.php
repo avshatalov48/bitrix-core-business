@@ -4,7 +4,6 @@ namespace Bitrix\Landing\History\Action;
 
 use Bitrix\Landing\Block;
 use Bitrix\Landing\Node;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Json;
 
 class EditMapAction extends BaseAction
@@ -68,7 +67,6 @@ class EditMapAction extends BaseAction
 				? $params['params']['valueBefore']
 				: $params['params']['valueAfter']
 			;
-		$params['params']['value'] = Encoding::convertEncoding($params['params']['value'], SITE_CHARSET, 'UTF-8');
 		$params['params']['value'] = Json::decode($params['params']['value']);
 
 		unset(

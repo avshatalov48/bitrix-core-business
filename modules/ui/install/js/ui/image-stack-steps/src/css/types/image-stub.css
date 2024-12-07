@@ -1,0 +1,6 @@
+.ui-image-stack-steps-image.--image-stub {
+	background: var(--ui-color-base-10);
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}

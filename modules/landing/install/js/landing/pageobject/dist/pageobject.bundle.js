@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,main_core) {
 	'use strict';
@@ -5,16 +6,13 @@ this.BX = this.BX || {};
 	/**
 	 * @memberOf BX.Landing
 	 */
-
 	var PageObject = /*#__PURE__*/function () {
 	  function PageObject() {
 	    babelHelpers.classCallCheck(this, PageObject);
 	    babelHelpers.defineProperty(this, "store", {});
 	  }
-
 	  babelHelpers.createClass(PageObject, [{
 	    key: "top",
-
 	    /**
 	     * @deprecated
 	     * @see PageObject.getTopPanel()
@@ -22,17 +20,14 @@ this.BX = this.BX || {};
 	     */
 	    value: function top() {
 	      var _this = this;
-
 	      return new Promise(function (resolve, reject) {
 	        if (!_this.store.topPanel) {
 	          _this.store.topPanel = PageObject.getTopPanel();
 	        }
-
 	        if (_this.store.topPanel) {
 	          resolve(_this.store.topPanel);
 	          return;
 	        }
-
 	        reject(new Error('Top panel unavailable'));
 	        console.warn('Top panel unavailable');
 	      });
@@ -42,7 +37,6 @@ this.BX = this.BX || {};
 	     * @see BX.Landing.UI.Panel.StylePanel.getInstance()
 	     * @return {Promise}
 	     */
-
 	  }, {
 	    key: "design",
 	    value: function design() {
@@ -53,7 +47,6 @@ this.BX = this.BX || {};
 	     * @see BX.Landing.UI.Panel.ContentEdit.getInstance()
 	     * @return {Promise}
 	     */
-
 	  }, {
 	    key: "content",
 	    value: function content() {
@@ -64,7 +57,6 @@ this.BX = this.BX || {};
 	     * @see BX.Landing.UI.Panel.EditorPanel.getInstance()
 	     * @return {Promise}
 	     */
-
 	  }, {
 	    key: "inlineEditor",
 	    value: function inlineEditor() {
@@ -75,23 +67,19 @@ this.BX = this.BX || {};
 	     * @see PageObject.getEditorWindow()
 	     * @return {Promise}
 	     */
-
 	  }, {
 	    key: "view",
 	    value: function view() {
 	      var _this2 = this;
-
 	      return new Promise(function (resolve, reject) {
 	        if (!_this2.store.view) {
 	          var rootWindow = PageObject.getRootWindow();
 	          _this2.store.view = rootWindow.document.querySelector('.landing-ui-view');
 	        }
-
 	        if (_this2.store.view) {
 	          resolve(_this2.store.view);
 	          return;
 	        }
-
 	        reject(new Error('View iframe unavailable'));
 	        console.warn('View iframe unavailable');
 	      });
@@ -101,7 +89,6 @@ this.BX = this.BX || {};
 	     * @see BX.Landing.Block.storage
 	     * @return {Promise}
 	     */
-
 	  }, {
 	    key: "blocks",
 	    value: function blocks() {
@@ -113,21 +100,20 @@ this.BX = this.BX || {};
 	      if (main_core.Type.isNil(PageObject.instance)) {
 	        PageObject.instance = new PageObject();
 	      }
-
 	      return PageObject.instance;
 	    }
 	  }, {
 	    key: "getRootWindow",
 	    value: function getRootWindow() {
 	      return this.cache.remember('rootWindow', function () {
-	        if (document.body.querySelector('.landing-ui-view')) {
-	          return window;
+	        var frames = window.top.frames;
+	        for (var i = frames.length - 1; i >= 0; i--) {
+	          try {
+	            if (frames[i].document.body && frames[i].document.body.querySelector('.landing-ui-view')) {
+	              return frames[i];
+	            }
+	          } catch (e) {}
 	        }
-
-	        if (window.parent.document.body.querySelector('.landing-ui-view')) {
-	          return window.parent;
-	        }
-
 	        return window.top;
 	      });
 	    }
@@ -135,17 +121,13 @@ this.BX = this.BX || {};
 	    key: "getEditorWindow",
 	    value: function getEditorWindow() {
 	      var _this3 = this;
-
 	      return this.cache.remember('editorWindow', function () {
 	        var rootWindow = _this3.getRootWindow();
-
 	        var rootDocument = rootWindow.document;
 	        var editorFrame = rootDocument.querySelector('.landing-ui-view');
-
 	        if (editorFrame && editorFrame.contentWindow) {
 	          return editorFrame.contentWindow;
 	        }
-
 	        return null;
 	      });
 	    }
@@ -153,7 +135,6 @@ this.BX = this.BX || {};
 	    key: "getTopPanel",
 	    value: function getTopPanel() {
 	      var _this4 = this;
-
 	      return this.cache.remember('topPanel', function () {
 	        return _this4.getRootWindow().document.querySelector('.landing-ui-panel-top');
 	      });
@@ -162,7 +143,6 @@ this.BX = this.BX || {};
 	    key: "getEditPanelContent",
 	    value: function getEditPanelContent() {
 	      var _this5 = this;
-
 	      return this.cache.remember('editPanel', function () {
 	        return _this5.getRootWindow().document.querySelector('.landing-ui-panel-content.landing-ui-panel-content-edit .landing-ui-panel-content-body-content');
 	      });
@@ -171,7 +151,6 @@ this.BX = this.BX || {};
 	    key: "getStylePanelContent",
 	    value: function getStylePanelContent() {
 	      var _this6 = this;
-
 	      return this.cache.remember('stylePanel', function () {
 	        return _this6.getRootWindow().document.querySelector('.landing-ui-panel-content.landing-ui-panel-style .landing-ui-panel-content-body-content');
 	      });

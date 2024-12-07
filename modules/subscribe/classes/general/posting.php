@@ -2,6 +2,7 @@
 IncludeModuleLangFile(__FILE__);
 
 use Bitrix\Main\Mail;
+use Bitrix\Main\Text\Encoding;
 
 class CPosting
 {
@@ -25,7 +26,7 @@ class CPosting
 			WHERE P.ID=' . $ID . '
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//list of categories linked with message
@@ -51,7 +52,7 @@ class CPosting
 				R.LID, R.SORT, R.NAME
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//list of user group linked with message
@@ -74,7 +75,7 @@ class CPosting
 				G.C_SORT, G.ID
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	// delete by ID
@@ -85,18 +86,18 @@ class CPosting
 
 		CPosting::DeleteFile($ID);
 
-		$res = $DB->Query("DELETE FROM b_posting_rubric WHERE POSTING_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query("DELETE FROM b_posting_rubric WHERE POSTING_ID='" . $ID . "'");
 		if ($res)
 		{
-			$res = $DB->Query("DELETE FROM b_posting_group WHERE POSTING_ID='" . $ID . "' ", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query("DELETE FROM b_posting_group WHERE POSTING_ID='" . $ID . "' ");
 		}
 		if ($res)
 		{
-			$res = $DB->Query("DELETE FROM b_posting_email WHERE POSTING_ID='" . $ID . "' ", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query("DELETE FROM b_posting_email WHERE POSTING_ID='" . $ID . "' ");
 		}
 		if ($res)
 		{
-			$res = $DB->Query("DELETE FROM b_posting WHERE ID='" . $ID . "' ", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query("DELETE FROM b_posting WHERE ID='" . $ID . "' ");
 		}
 
 		return $res;
@@ -117,7 +118,7 @@ class CPosting
 		$rsFile = CPosting::GetFileList($ID, $file_id);
 		while ($arFile = $rsFile->Fetch())
 		{
-			$DB->Query('DELETE FROM b_posting_file where POSTING_ID=' . intval($ID) . ' AND FILE_ID=' . intval($arFile['ID']), false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$DB->Query('DELETE FROM b_posting_file where POSTING_ID=' . intval($ID) . ' AND FILE_ID=' . intval($arFile['ID']));
 			CFile::Delete(intval($arFile['ID']));
 		}
 	}
@@ -203,7 +204,7 @@ class CPosting
 		//save file
 		$file['MODULE_ID'] = 'subscribe';
 		$fid = intval(CFile::SaveFile($file, 'subscribe', true, true));
-		if (($fid > 0) && $DB->Query('INSERT INTO b_posting_file (POSTING_ID, FILE_ID) VALUES (' . $ID . ' ,' . $fid . ')', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__))
+		if (($fid > 0) && $DB->Query('INSERT INTO b_posting_file (POSTING_ID, FILE_ID) VALUES (' . $ID . ' ,' . $fid . ')'))
 		{
 			return true;
 		}
@@ -240,7 +241,7 @@ class CPosting
 			ORDER BY F.ID
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//check fields before writing
@@ -297,8 +298,8 @@ class CPosting
 		if (array_key_exists('CHARSET', $arFields))
 		{
 			$sCharset = COption::GetOptionString('subscribe', 'posting_charset');
-			$aCharset = explode(',', ToLower($sCharset));
-			if (!in_array(ToLower($arFields['CHARSET']), $aCharset, true))
+			$aCharset = explode(',', mb_strtolower($sCharset));
+			if (!in_array(mb_strtolower($arFields['CHARSET']), $aCharset, true))
 			{
 				$aMsg[] = ['id' => 'CHARSET', 'text' => GetMessage('class_post_err_charset')];
 			}
@@ -321,7 +322,7 @@ class CPosting
 		global $DB;
 		$ID = intval($ID);
 
-		$DB->Query('DELETE FROM b_posting_rubric WHERE POSTING_ID=' . $ID, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$DB->Query('DELETE FROM b_posting_rubric WHERE POSTING_ID=' . $ID);
 		$arID = [];
 		if (is_array($aRubric))
 		{
@@ -337,7 +338,7 @@ class CPosting
 				SELECT ' . $ID . ', ID
 				FROM b_list_rubric
 				WHERE ID IN (' . implode(', ',$arID) . ')
-				', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__
+				'
 			);
 		}
 	}
@@ -348,7 +349,7 @@ class CPosting
 		global $DB;
 		$ID = intval($ID);
 
-		$DB->Query("DELETE FROM b_posting_group WHERE POSTING_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$DB->Query("DELETE FROM b_posting_group WHERE POSTING_ID='" . $ID . "'");
 		$arID = [];
 		if (is_array($aGroup))
 		{
@@ -364,7 +365,7 @@ class CPosting
 				SELECT ' . $ID . ', ID
 				FROM b_group
 				WHERE ID IN (' . implode(', ',$arID) . ')
-				', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__
+				'
 			);
 		}
 	}
@@ -570,9 +571,9 @@ class CPosting
 	//Send message
 	public function SendMessage($ID, $timeout=0, $maxcount=0, $check_charset=false)
 	{
-		global $DB, $APPLICATION;
+		global $DB;
 
-		$eol = \Bitrix\Main\Mail\Mail::getMailEol();
+		$eol = Mail\Mail::getMailEol();
 		$ID = intval($ID);
 		$timeout = intval($timeout);
 		$start_time = microtime(1);
@@ -661,9 +662,9 @@ class CPosting
 		if ($post_arr['CHARSET'] <> '')
 		{
 			$from_charset = $post_arr['MSG_CHARSET'] ?: SITE_CHARSET;
-			$post_arr['BODY'] = $APPLICATION->ConvertCharset($post_arr['BODY'], $from_charset, $post_arr['CHARSET']);
-			$post_arr['SUBJECT'] = $APPLICATION->ConvertCharset($post_arr['SUBJECT'], $from_charset, $post_arr['CHARSET']);
-			$post_arr['FROM_FIELD'] = $APPLICATION->ConvertCharset($post_arr['FROM_FIELD'], $from_charset, $post_arr['CHARSET']);
+			$post_arr['BODY'] = Encoding::convertEncoding($post_arr['BODY'], $from_charset, $post_arr['CHARSET']);
+			$post_arr['SUBJECT'] = Encoding::convertEncoding($post_arr['SUBJECT'], $from_charset, $post_arr['CHARSET']);
+			$post_arr['FROM_FIELD'] = Encoding::convertEncoding($post_arr['FROM_FIELD'], $from_charset, $post_arr['CHARSET']);
 		}
 
 		//Preparing message header, text, subject
@@ -724,7 +725,7 @@ class CPosting
 				if ($post_arr['CHARSET'] <> '')
 				{
 					$from_charset = $post_arr['MSG_CHARSET'] ?: SITE_CHARSET;
-					$attachment['DEST'] = $APPLICATION->ConvertCharset($attachment['DEST'], $from_charset, $post_arr['CHARSET']);
+					$attachment['DEST'] = Encoding::convertEncoding($attachment['DEST'], $from_charset, $post_arr['CHARSET']);
 				}
 
 				if (COption::GetOptionString('subscribe', 'allow_8bit_chars') <> 'Y')
@@ -788,7 +789,7 @@ class CPosting
 				if ($post_arr['CHARSET'] <> '')
 				{
 					$from_charset = $post_arr['MSG_CHARSET'] ?: SITE_CHARSET;
-					$file_name = $APPLICATION->ConvertCharset($arFile['ORIGINAL_NAME'], $from_charset, $post_arr['CHARSET']);
+					$file_name = Encoding::convertEncoding($arFile['ORIGINAL_NAME'], $from_charset, $post_arr['CHARSET']);
 				}
 				else
 				{
@@ -979,7 +980,7 @@ class CPosting
 		$this->LAST_ERROR = '';
 
 		$strSql = 'SELECT STATUS, VERSION FROM b_posting WHERE ID=' . $ID;
-		$db_result = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$db_result = $DB->Query($strSql);
 		$arResult = $db_result->Fetch();
 		if (!$arResult)
 		{

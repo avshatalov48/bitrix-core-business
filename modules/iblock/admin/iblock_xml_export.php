@@ -30,18 +30,23 @@ $arMessages = array();
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
-	if(array_key_exists("NS", $_POST) && is_array($_POST["NS"]))
+	if (array_key_exists("NS", $_POST) && is_array($_POST["NS"]))
+	{
 		$NS = $_POST["NS"];
+		$NS['next_step'] ??= [];
+	}
 	else
-		$NS = array(
+	{
+		$NS = [
 			"STEP" => 0,
 			"IBLOCK_ID" => $_REQUEST["IBLOCK_ID"],
 			"URL_DATA_FILE" => $_REQUEST["URL_DATA_FILE"],
 			"SECTIONS_FILTER" => $_REQUEST["SECTIONS_FILTER"],
 			"ELEMENTS_FILTER" => $_REQUEST["ELEMENTS_FILTER"],
-			"DOWNLOAD_CLOUD_FILES" => $_REQUEST["DOWNLOAD_CLOUD_FILES"] === "N"? "N": "Y",
-			"next_step" => array(),
-		);
+			"DOWNLOAD_CLOUD_FILES" => ($_REQUEST["DOWNLOAD_CLOUD_FILES"] ?? 'N') === "N" ? "N" : "Y",
+			"next_step" => [],
+		];
+	}
 
 	$NS["catalog"] = CModule::IncludeModule('catalog');
 
@@ -141,7 +146,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 						);
 						if($result)
 						{
-							$NS["SECTIONS"] += $result;
+							$NS['SECTIONS'] ??= 0;
+							$NS['SECTIONS'] += $result;
 						}
 						else
 						{
@@ -162,7 +168,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 						);
 						if($result)
 						{
-							$NS["ELEMENTS"] += $result;
+							$NS['ELEMENTS'] ??= 0;
+							$NS['ELEMENTS'] += $result;
 						}
 						else
 						{
@@ -210,39 +217,92 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Export"]=="Y")
 	{
 		if($NS["STEP"] < 4)
 		{
-			$progressItems = array(
+			$progressItems = [
 				GetMessage("IBLOCK_CML2_METADATA_DONE"),
-			);
+			];
 
-			if($NS["STEP"] < 2)
+			if ($NS["STEP"] < 2)
+			{
 				$progressItems[] = GetMessage("IBLOCK_CML2_SECTIONS");
-			elseif($NS["STEP"] < 3)
-				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])))."</b>";
+			}
+			elseif ($NS["STEP"] < 3)
+			{
+				$progressItems[] =
+					"<b>"
+					. GetMessage(
+						"IBLOCK_CML2_SECTIONS_PROGRESS",
+						[
+							"#COUNT#" => (int)($NS["SECTIONS"] ?? 0),
+						]
+					)
+					. "</b>"
+				;
+			}
 			else
-				$progressItems[] = GetMessage("IBLOCK_CML2_SECTIONS_PROGRESS", array("#COUNT#"=>intval($NS["SECTIONS"])));
+			{
+				$progressItems[] = GetMessage(
+					"IBLOCK_CML2_SECTIONS_PROGRESS",
+					[
+						"#COUNT#" => (int)($NS["SECTIONS"] ?? 0),
+					]
+				);
+			}
 
-			if($NS["STEP"] < 3)
+			if ($NS["STEP"] < 3)
+			{
 				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS");
-			elseif($NS["STEP"] < 4)
-				$progressItems[] = "<b>".GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])))."</b>";
+			}
+			elseif ($NS["STEP"] < 4)
+			{
+				$progressItems[] =
+					"<b>"
+					. GetMessage(
+						"IBLOCK_CML2_ELEMENTS_PROGRESS",
+						[
+							"#COUNT#" => (int)($NS["ELEMENTS"] ?? 0),
+						]
+					)
+					.
+					"</b>"
+				;
+			}
 			else
-				$progressItems[] = GetMessage("IBLOCK_CML2_ELEMENTS_PROGRESS", array("#COUNT#"=>intval($NS["ELEMENTS"])));
+			{
+				$progressItems[] = GetMessage(
+					"IBLOCK_CML2_ELEMENTS_PROGRESS",
+					[
+						"#COUNT#" => (int)($NS["ELEMENTS"] ?? 0),
+					]
+				);
+			}
 
-			CAdminMessage::ShowMessage(array(
+			CAdminMessage::ShowMessage([
 				"DETAILS" => "<p>".implode("</p><p>", $progressItems)."</p>",
 				"HTML" => true,
 				"TYPE" => "PROGRESS",
-			));
+			]);
 
-			if($NS["STEP"] > 0)
-				echo '<script>DoNext('.CUtil::PhpToJSObject(array("NS"=>$NS)).');</script>';
+			if ($NS["STEP"] > 0)
+			{
+				echo '<script>DoNext('.CUtil::PhpToJSObject(array("NS" => $NS)).');</script>';
+			}
 		}
 		else
 		{
-			$progressItems = array(
-				GetMessage("IBLOCK_CML2_DONE_SECTIONS", array("#COUNT#"=>intval($NS["SECTIONS"]))),
-				GetMessage("IBLOCK_CML2_DONE_ELEMENTS", array("#COUNT#"=>intval($NS["ELEMENTS"]))),
-			);
+			$progressItems = [
+				GetMessage(
+					"IBLOCK_CML2_DONE_SECTIONS",
+					[
+						"#COUNT#" => (int)($NS["SECTIONS"] ?? 0),
+					]
+				),
+				GetMessage(
+					"IBLOCK_CML2_DONE_ELEMENTS",
+					[
+						"#COUNT#" => (int)($NS["ELEMENTS"] ?? 0),
+					]
+				),
+			];
 
 			CAdminMessage::ShowMessage(array(
 				"MESSAGE" => GetMessage("IBLOCK_CML2_DONE"),

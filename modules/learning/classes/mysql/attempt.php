@@ -8,23 +8,15 @@ class CTestAttempt extends CAllTestAttempt
 	{
 		global $DB;
 
-		if ($arInsert[0] == '' || $arInsert[0] == '')		// BUG ?
+		if ($arInsert[0] == '')		// BUG ?
 			return false;
 
 		if (!isset($arFields["DATE_START"]))
 		{
-			$arInsert[0] = "DATE_START, ".$arInsert[0];
-			$arInsert[1] = $DB->CurrentTimeFunction().", ".$arInsert[1];
+			$arFields['~DATE_START'] =  $DB->CurrentTimeFunction();
 		}
 
-		$strSql =
-			"INSERT INTO b_learn_attempt(".$arInsert[0].") ".
-			"VALUES(".$arInsert[1].")";
-
-		if($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
-			return $DB->LastID();
-
-		return false;
+		return $DB->Add('b_learn_attempt', $arFields);
 	}
 
 
@@ -44,7 +36,7 @@ class CTestAttempt extends CAllTestAttempt
 				(SELECT MIN(SCORE) 
 					FROM b_learn_test_mark 
 					WHERE SCORE >= 
-						CASE WHEN A.STATUS = 'F' 
+						CASE WHEN A.STATUS = 'F' AND A.MAX_SCORE > 0
 							THEN 1.0*A.SCORE/A.MAX_SCORE*100 
 							ELSE 0 
 						END 

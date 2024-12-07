@@ -25,6 +25,7 @@ $MESS['SALE_CASHBOX_EDIT'] = "Изменить";
 $MESS['SALE_CASHBOX_EDIT_DESCR'] = "Изменить параметры кассы";
 $MESS['SALE_CHECK_DELETE_ERR_INCORRECT_STATUS'] = "Удалять можно только чеки, которые не были напечатаны, либо при печати которых возникла ошибка";
 $MESS['SALE_CHECK_DELETE'] = "Удалить";
+$MESS['SALE_CHECK_REPRINT'] = "Напечатать повторно";
 $MESS['SALE_CHECK_CHECK_STATUS'] = "Обновить статус";
 $MESS['SALE_CHECK_DELETE_CONFIRM'] = "Вы действительно хотите удалить этот чек №#CHECK_ID#";
 $MESS['SALE_CHECK_ID'] = "Номер чека";

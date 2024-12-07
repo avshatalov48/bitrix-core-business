@@ -161,8 +161,8 @@ class ReminderService
 		if ($user !== null)
 		{
 			$attach->AddUser([
-				'NAME' => $user->getFullName(),
-				'AVATAR' => $user->getAvatar(),
+				'NAME' => $user->getName(),
+				'AVATAR' => $user->getAvatar(false),
 			]);
 		}
 

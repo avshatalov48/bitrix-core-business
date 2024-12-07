@@ -12,21 +12,6 @@ use Bitrix\Catalog;
 /** @var int $ID */
 /** @var bool $bCreateRecord */
 
-/** @global string $SUBCAT_BASE_WEIGHT */
-/** @global string $SUBCAT_BASE_WIDTH */
-/** @global string $SUBCAT_BASE_LENGTH */
-/** @global string $SUBCAT_BASE_HEIGHT */
-/** @global string $SUBCAT_MEASURE */
-/** @global string $SUBCAT_BASE_QUANTITY */
-/** @global string $SUBCAT_PRICE_TYPE */
-/** @global string $SUBCAT_RECUR_SCHEME_TYPE */
-/** @global string $SUBCAT_RECUR_SCHEME_LENGTH */
-/** @global string $SUBCAT_TRIAL_PRICE_ID */
-/** @global string $SUBCAT_WITHOUT_ORDER */
-/** @global string $SUBCAT_MEASURE_RATIO */
-/** @global string $SUBCAT_BASE_QUANTITY_RESERVED */
-/** @global string $SUBCAT_VAT_ID */
-/** @global string $SUBCAT_VAT_INCLUDED */
 /** @global array $arCatalogBaseGroup */
 /** @global array $arCatalogBasePrices */
 /** @global array $arCatalogPrices */
@@ -202,19 +187,24 @@ if ($allowEdit)
 		}
 	}
 
+	$vatIncluded = $_POST['SUBCAT_VAT_INCLUDED'] ?? null;
+	if ($vatIncluded !== 'Y')
+	{
+		$vatIncluded = 'N';
+	}
 	$productFields = [
-		'WIDTH' => $SUBCAT_BASE_WIDTH,
-		'LENGTH' => $SUBCAT_BASE_LENGTH,
-		'HEIGHT' => $SUBCAT_BASE_HEIGHT,
-		'VAT_ID' => $SUBCAT_VAT_ID,
-		'VAT_INCLUDED' => $SUBCAT_VAT_INCLUDED,
+		'WIDTH' => $_POST['SUBCAT_BASE_WIDTH'] ?? null,
+		'LENGTH' => $_POST['SUBCAT_BASE_LENGTH'] ?? null,
+		'HEIGHT' => $_POST['SUBCAT_BASE_HEIGHT'] ?? null,
+		'VAT_ID' => $_POST['SUBCAT_VAT_ID'] ?? null,
+		'VAT_INCLUDED' => $vatIncluded,
 		'PRICE_TYPE' => false,
 		'RECUR_SCHEME_TYPE' => false,
 		'RECUR_SCHEME_LENGTH' => false,
 		'TRIAL_PRICE_ID' => false,
 		'WITHOUT_ORDER' => false,
 		'BARCODE_MULTI' => $barcodeMultiply,
-		'MEASURE' => $SUBCAT_MEASURE ?? null,
+		'MEASURE' => $_POST['SUBCAT_MEASURE'] ?? null,
 		'TYPE' => Catalog\ProductTable::TYPE_OFFER,
 	];
 	if ($quantityTrace !== null)
@@ -256,24 +246,42 @@ if ($allowEdit)
 
 	if(!$bUseStoreControl)
 	{
-		$productFields['QUANTITY'] = $SUBCAT_BASE_QUANTITY ?? null;
+		$productFields['QUANTITY'] = $_POST['SUBCAT_BASE_QUANTITY'] ?? null;
 		if ($productFields['QUANTITY'] === '' || $productFields['QUANTITY'] === null)
-			unset($productFields['QUANTITY']);
-		if ($bEnableReservation)
 		{
-			$productFields['QUANTITY_RESERVED'] = $SUBCAT_BASE_QUANTITY_RESERVED ?? null;
-			if ($productFields['QUANTITY_RESERVED'] === '' || $productFields['QUANTITY_RESERVED'] === null)
+			unset($productFields['QUANTITY']);
+		}
+		else
+		{
+			if (is_string($productFields['QUANTITY']))
+			{
+				$productFields['QUANTITY'] = str_replace(',', '.', $productFields['QUANTITY']);
+			}
+		}
+		if ($bEnableReservation && isset($_POST['SUBCAT_BASE_QUANTITY_RESERVED']))
+		{
+			$productFields['QUANTITY_RESERVED'] = $_POST['SUBCAT_BASE_QUANTITY_RESERVED'];
+			if ($productFields['QUANTITY_RESERVED'] === '')
+			{
 				unset($productFields['QUANTITY_RESERVED']);
+			}
+			else
+			{
+				if (is_string($productFields['QUANTITY_RESERVED']))
+				{
+					$productFields['QUANTITY_RESERVED'] = str_replace(',', '.', $productFields['QUANTITY_RESERVED']);
+				}
+			}
 		}
 	}
 
 	if ($arCatalog["SUBSCRIPTION"] == "Y")
 	{
-		$productFields["PRICE_TYPE"] = $SUBCAT_PRICE_TYPE;
-		$productFields["RECUR_SCHEME_TYPE"] = $SUBCAT_RECUR_SCHEME_TYPE;
-		$productFields["RECUR_SCHEME_LENGTH"] = $SUBCAT_RECUR_SCHEME_LENGTH;
-		$productFields["TRIAL_PRICE_ID"] = $SUBCAT_TRIAL_PRICE_ID;
-		$productFields["WITHOUT_ORDER"] = $SUBCAT_WITHOUT_ORDER;
+		$productFields["PRICE_TYPE"] = $_POST['SUBCAT_PRICE_TYPE'] ?? null;
+		$productFields["RECUR_SCHEME_TYPE"] = $_POST['SUBCAT_RECUR_SCHEME_TYPE'] ?? null;
+		$productFields["RECUR_SCHEME_LENGTH"] = $_POST['SUBCAT_RECUR_SCHEME_LENGTH'] ?? null;
+		$productFields["TRIAL_PRICE_ID"] = $_POST['SUBCAT_TRIAL_PRICE_ID'] ?? null;
+		$productFields["WITHOUT_ORDER"] = $_POST['SUBCAT_WITHOUT_ORDER'] ?? null;
 		$productFields["QUANTITY_TRACE"] = Catalog\ProductTable::STATUS_NO;
 		$productFields["CAN_BUY_ZERO"] = Catalog\ProductTable::STATUS_NO;
 	}
@@ -320,8 +328,8 @@ if ($allowEdit)
 
 	$arMeasureRatio = [
 		'PRODUCT_ID' => $PRODUCT_ID,
-		'RATIO' => $SUBCAT_MEASURE_RATIO ?? 1,
-		'IS_DEFAULT' => 'Y'
+		'RATIO' => $_POST['SUBCAT_MEASURE_RATIO'] ?? 1,
+		'IS_DEFAULT' => 'Y',
 	];
 	$newRatio = true;
 	$currentRatioID = 0;
@@ -520,7 +528,7 @@ if ($allowEditPrices)
 		{
 			${"SUBCAT_PRICE_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]} = str_replace([' ', ','], ['', '.'], ${"SUBCAT_PRICE_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]});
 			$arCatalogPrice_tmp[$i] = array(
-				"ID" => (int)(${"SUBCAT_ID_".$arCatGroups["ID"]}[$arCatalogBasePrices[$i]["IND"]]),
+				"ID" => (int)(${"SUBCAT_ID_".$arCatGroups["ID"]}[$arCatalogBasePrices[$i]["IND"]] ?? 0),
 				"EXTRA_ID" => ${"SUBCAT_EXTRA_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]}
 					? (int)(${"SUBCAT_EXTRA_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]})
 					: 0,

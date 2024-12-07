@@ -2,9 +2,6 @@
 
 namespace Bitrix\Main\UserField;
 
-use Bitrix\Main\NotImplementedException;
-use Bitrix\Main\Text\HtmlFilter;
-
 /**
  * Class TypeBase
  * @package Bitrix\Main\UserField
@@ -126,19 +123,19 @@ abstract class TypeBase
 
 						break;
 					default:
-						$value = $arUserField["SETTINGS"]["DEFAULT_VALUE"];
+						$value = $arUserField["SETTINGS"]["DEFAULT_VALUE"] ?? null;
 
 						break;
 				}
 			}
 			else
 			{
-				$value = $arUserField["VALUE"];
+				$value = $arUserField['VALUE'] ?? null;
 			}
 		}
 		else
 		{
-			$value = $_REQUEST[$arUserField["FIELD_NAME"]];
+			$value = $_REQUEST[$arUserField["FIELD_NAME"]] ?? null;
 		}
 
 		return static::normalizeFieldValue($value);

@@ -612,6 +612,10 @@ input.ui-entity-editor-header-title-text {
 
 .field-wrap .field-item:last-child { margin-bottom: 0 !important; }
 
+.ui-entity-editor-content-block-field-custom-text .ui-entity-editor-content-block{
+	min-height: 8px;
+}
+
 /*endregion*/
 
 /*region Editor - Main form*/

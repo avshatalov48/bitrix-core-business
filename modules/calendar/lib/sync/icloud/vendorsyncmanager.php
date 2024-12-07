@@ -145,6 +145,7 @@ class VendorSyncManager
 		$owner = Core\Role\Helper::getRole(\CCalendar::GetUserId(), Core\Role\User::TYPE);
 		$connectionManager = new Managers\ConnectionManager();
 		$connections = $connectionManager->getConnectionsData($owner, [Helper::ACCOUNT_TYPE]);
+		$connectionManager->deactivateConnections($connections);
 		foreach ($connections as $con)
 		{
 			$existPath = $con->getServerScheme()
@@ -163,13 +164,10 @@ class VendorSyncManager
 
 		if ($connection)
 		{
-			if ($connection->isDeleted())
-			{
-				$connection->setDeleted(false);
-				$connection->getServer()->setPassword($appPassword);
-			}
-
+			$connection->setDeleted(false);
+			$connection->getServer()->setPassword($appPassword);
 			$connectionManager->update($connection);
+
 			return $connection->getId();
 		}
 

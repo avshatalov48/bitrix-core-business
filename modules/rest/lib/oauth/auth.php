@@ -17,6 +17,7 @@ use Bitrix\Rest\Engine\Access;
 use Bitrix\Rest\Engine\Access\HoldEntity;
 use Bitrix\Rest\Event\Session;
 use Bitrix\Rest\OAuthService;
+use Bitrix\Main\SystemException;
 
 class Auth
 {
@@ -238,8 +239,19 @@ class Auth
 		$authResult = static::getStorage()->restore($accessToken);
 		if($authResult === false)
 		{
-			$client = OAuthService::getEngine()->getClient();
-			$tokenInfo = $client->checkAuth($accessToken);
+			if (!OAuthService::getEngine()->isRegistered())
+			{
+				try
+				{
+					OAuthService::register();
+				}
+				catch(SystemException $e)
+				{
+					return ['error' => 'CONNECTION_ERROR', 'error_description' => 'Error connecting to authorization server'];
+				}
+			}
+
+			$tokenInfo = OAuthService::getEngine()->getClient()->checkAuth($accessToken);
 
 			if(is_array($tokenInfo))
 			{

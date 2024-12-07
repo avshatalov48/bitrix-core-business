@@ -104,6 +104,14 @@ class Toolbar
 				unset($this->filterButtons[$i]);
 			}
 		}
+
+		foreach ($this->afterTitleButtons as $i => $button)
+		{
+			if ($closure($button, ButtonLocation::AFTER_TITLE) === true)
+			{
+				unset($this->afterTitleButtons[$i]);
+			}
+		}
 	}
 
 	public function shuffleButtons(\Closure $closure, $buttonLocation)

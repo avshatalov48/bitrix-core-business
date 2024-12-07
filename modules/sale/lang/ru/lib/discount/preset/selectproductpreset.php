@@ -17,4 +17,3 @@ $MESS["SALE_BASE_PRESET_HEAD_NAME"] = "Название";
 $MESS["SALE_BASE_PRESET_HEAD_PROPS"] = "Свойства";
 $MESS["SALE_BASE_PRESET_EMPTY_PRODUCT_NOTICE"] = "Если товары не указаны, то действие распространяется на все товары";
 $MESS["SALE_BASE_PRESET_TRY_TO_TEXT"] = "Укажите разделы";
-?>

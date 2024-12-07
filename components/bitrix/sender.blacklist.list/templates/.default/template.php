@@ -106,9 +106,8 @@ $APPLICATION->IncludeComponent(
 		'SHOW_GRID_SETTINGS_MENU' => true,
 		'SHOW_PAGINATION' => true,
 		'SHOW_SELECTED_COUNTER' => true,
-		'SHOW_TOTAL_COUNTER' => true,
+		'SHOW_TOTAL_COUNTER' => false,
 		'ACTION_PANEL' => $controlPanel,
-		"TOTAL_ROWS_COUNT" => $arResult['TOTAL_ROWS_COUNT'],
 		'ALLOW_COLUMNS_SORT' => true,
 		'ALLOW_COLUMNS_RESIZE' => true,
 		"AJAX_MODE" => "Y",
@@ -121,7 +120,7 @@ $APPLICATION->IncludeComponent(
 
 
 ?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 
 			BX.Sender.BlacklistGrid.init(<?=Json::encode(array(

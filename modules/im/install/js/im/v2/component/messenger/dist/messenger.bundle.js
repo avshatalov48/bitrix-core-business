@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_designTokens,ui_fonts_opensans,im_v2_css_tokens,im_v2_css_icons,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_content_chat,im_v2_component_content_createChat,im_v2_component_content_openlines,im_v2_component_content_notification,im_v2_component_content_market,im_v2_component_content_settings,im_v2_component_list_container_copilot,im_v2_component_content_copilot,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme,im_v2_lib_desktop,im_v2_lib_layout) {
+(function (exports,ui_designTokens,ui_fonts_opensans,im_v2_css_tokens,im_v2_css_icons,im_v2_css_classes,im_v2_component_navigation,im_v2_component_list_container_recent,im_v2_component_list_container_openline,im_v2_component_list_container_channel,im_v2_component_content_chat,im_v2_component_content_chatForms,im_v2_component_content_openlines,im_v2_component_content_notification,im_v2_component_content_market,im_v2_component_content_settings,im_v2_component_list_container_copilot,im_v2_component_content_copilot,im_v2_lib_analytics,im_v2_lib_logger,im_v2_lib_init,im_v2_const,im_v2_lib_call,im_v2_lib_theme,im_v2_lib_desktop,im_v2_lib_layout) {
 	'use strict';
 
 	// @vue/component
@@ -11,9 +11,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  components: {
 	    MessengerNavigation: im_v2_component_navigation.MessengerNavigation,
 	    RecentListContainer: im_v2_component_list_container_recent.RecentListContainer,
+	    ChannelListContainer: im_v2_component_list_container_channel.ChannelListContainer,
 	    OpenlineListContainer: im_v2_component_list_container_openline.OpenlineListContainer,
 	    ChatContent: im_v2_component_content_chat.ChatContent,
-	    CreateChatContent: im_v2_component_content_createChat.CreateChatContent,
+	    CreateChatContent: im_v2_component_content_chatForms.CreateChatContent,
+	    UpdateChatContent: im_v2_component_content_chatForms.UpdateChatContent,
 	    OpenlinesContent: im_v2_component_content_openlines.OpenlinesContent,
 	    NotificationContent: im_v2_component_content_notification.NotificationContent,
 	    MarketContent: im_v2_component_content_market.MarketContent,
@@ -23,7 +25,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  data() {
 	    return {
-	      contextMessageId: 0,
 	      openlinesContentOpened: false
 	    };
 	  },
@@ -43,6 +44,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    isOpenline() {
 	      return this.layout.name === im_v2_const.Layout.openlines.name;
+	    },
+	    hasList() {
+	      return Boolean(this.currentLayout.list);
 	    },
 	    containerClasses() {
 	      return {
@@ -71,6 +75,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    im_v2_lib_layout.LayoutManager.init();
 	    im_v2_lib_logger.Logger.warn('MessengerRoot created');
 	    this.getLayoutManager().restoreLastLayout();
+	    this.sendAnalytics();
 	  },
 	  beforeUnmount() {
 	    this.getLayoutManager().destroy();
@@ -82,7 +87,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }) {
 	      let entityId = layoutEntityId;
 	      const lastOpenedElement = this.getLayoutManager().getLastOpenedElement(layoutName);
-	      if (lastOpenedElement) {
+	      if (!entityId && lastOpenedElement) {
 	        entityId = lastOpenedElement;
 	      }
 	      this.getLayoutManager().setLayout({
@@ -101,6 +106,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    },
 	    getLayoutManager() {
 	      return im_v2_lib_layout.LayoutManager.getInstance();
+	    },
+	    sendAnalytics() {
+	      im_v2_lib_analytics.Analytics.getInstance().onOpenMessenger();
 	    }
 	  },
 	  template: `
@@ -115,11 +123,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 							<component :is="currentLayout.list" @selectEntity="onEntitySelect" />
 						</KeepAlive>
 					</div>
-					<div class="bx-im-messenger__content_container">
+					<div class="bx-im-messenger__content_container" :class="{'--with-list': hasList}">
 						<div v-if="openlinesContentOpened" class="bx-im-messenger__openlines_container" :class="{'--hidden': !isOpenline}">
-							<OpenlinesContent v-show="isOpenline" :entityId="entityId" :contextMessageId="contextMessageId" />
+							<OpenlinesContent v-show="isOpenline" :entityId="entityId" />
 						</div>
-						<component v-if="!isOpenline" :is="currentLayout.content" :entityId="entityId" :contextMessageId="contextMessageId" />
+						<component v-if="!isOpenline" :is="currentLayout.content" :entityId="entityId" />
 					</div>
 				</div>
 			</div>
@@ -130,5 +138,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.Messenger = Messenger;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Css,BX.Messenger.v2.Css,BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX,BX,BX.Messenger.v2.Css,BX.Messenger.v2.Css,BX.Messenger.v2.Css,BX.Messenger.v2.Component,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Component.List,BX.Messenger.v2.Component.Content,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=messenger.bundle.js.map

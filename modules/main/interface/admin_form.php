@@ -491,7 +491,7 @@ class CAdminForm extends CAdminTabControl
 					elseif(!empty($this->arFields[$arField["id"]]["custom_html"]))
 					{
 						if($this->group_ajax)
-							echo preg_replace("#<script[^>]*>.*?</script>#im".BX_UTF_PCRE_MODIFIER, "", $this->arFields[$arField["id"]]["custom_html"]);
+							echo preg_replace("#<script[^>]*>.*?</script>#imu", "", $this->arFields[$arField["id"]]["custom_html"]);
 						else
 							echo $this->arFields[$arField["id"]]["custom_html"];
 					}
@@ -601,7 +601,7 @@ class CAdminForm extends CAdminTabControl
 
 	function GetCustomLabel($id, $content)
 	{
-		$bColumnNeeded = mb_substr($content, -1) == ":";
+		$bColumnNeeded = str_ends_with($content, ":");
 
 		if($id === false)
 			return $this->sCurrentLabel;
@@ -616,7 +616,7 @@ class CAdminForm extends CAdminTabControl
 		$bColumnNeeded = false;
 		if ($content !== '')
 		{
-			$bColumnNeeded = mb_substr($content, -1) == ":";
+			$bColumnNeeded = str_ends_with($content, ":");
 		}
 
 		if ($id === false)
@@ -965,7 +965,7 @@ class CAdminForm extends CAdminTabControl
 
 		foreach($arUserFields as $FIELD_NAME => $arUserField)
 		{
-			$arUserField["VALUE_ID"] = intval($readyData[$primaryIdName]);
+			$arUserField["VALUE_ID"] = (int)($readyData[$primaryIdName] ?? null);
 			if(array_key_exists($FIELD_NAME, $this->arCustomLabels))
 				$strLabel = $this->arCustomLabels[$FIELD_NAME];
 			else
@@ -977,9 +977,13 @@ class CAdminForm extends CAdminTabControl
 			if(isset($_REQUEST['def_'.$FIELD_NAME]))
 				$arUserField['SETTINGS']['DEFAULT_VALUE'] = $_REQUEST['def_'.$FIELD_NAME];
 
-			echo $USER_FIELD_MANAGER->GetEditFormHTML($bVarsFromForm, $GLOBALS[$FIELD_NAME], $arUserField);
+			echo $USER_FIELD_MANAGER->GetEditFormHTML(
+				$bVarsFromForm,
+				$GLOBALS[$FIELD_NAME] ?? null,
+				$arUserField
+			);
 
-			$form_value = $GLOBALS[$FIELD_NAME];
+			$form_value = $GLOBALS[$FIELD_NAME] ?? null;
 			if(!$bVarsFromForm)
 				$form_value = $arUserField["VALUE"];
 			elseif($arUserField["USER_TYPE"]["BASE_TYPE"]=="file")
@@ -1029,7 +1033,7 @@ class CAdminForm extends CAdminTabControl
 			{
 				echo '
 <input type="hidden" name="bxpublic" value="Y" /><input type="hidden" name="save" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
+<script>'.$this->publicObject.'.SetButtons(['.$this->publicObject.'.btnSave, '.$this->publicObject.'.btnCancel]);</script>
 ';
 			}
 			elseif (is_array($arJSButtons))
@@ -1037,11 +1041,11 @@ class CAdminForm extends CAdminTabControl
 				$arJSButtons = array_values($arJSButtons);
 				echo '
 <input type="hidden" name="bxpublic" value="Y" />
-<script type="text/javascript">'.$this->publicObject.'.SetButtons([
+<script>'.$this->publicObject.'.SetButtons([
 ';
 				foreach ($arJSButtons as $key => $btn)
 				{
-					if (mb_substr($btn, 0, 1) == '.')
+					if (str_starts_with($btn, '.'))
 						$btn = $this->publicObject.$btn;
 					echo $key ? ',' : '', $btn, "\r\n"; // NO JSESCAPE HERE! string must contain valid js object
 				}
@@ -1083,7 +1087,7 @@ class CAdminFormSettings
 					else
 					{
 						list($arCustomFieldID, $arCustomFieldName) = explode("--#--", $customField);
-						$arCustomFieldName = ltrim($arCustomFieldName, defined("BX_UTF")? "* -\xa0\xc2": "* -\xa0");
+						$arCustomFieldName = ltrim($arCustomFieldName, "* -\xa0\xc2");
 						$arCustomTabs[$arCustomTabID]["FIELDS"][$arCustomFieldID] = $arCustomFieldName;
 					}
 				}

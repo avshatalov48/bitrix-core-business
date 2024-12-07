@@ -57,7 +57,7 @@ export const DefaultMessageContent = {
 		},
 	},
 	template: `
-		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
+		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope" :class="{'--no-text': !withText}">
 			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
 			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
 				<MessageAttach :item="message" :dialogId="dialogId" />
@@ -66,6 +66,7 @@ export const DefaultMessageContent = {
 				<ReactionList 
 					v-if="canSetReactions" 
 					:messageId="message.id" 
+					:contextDialogId="dialogId"
 					class="bx-im-message-default-content__reaction-list" 
 				/>
 				<div v-if="withMessageStatus" class="bx-im-message-default-content__status-container">

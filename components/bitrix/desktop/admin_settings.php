@@ -13,18 +13,10 @@ if (!check_bitrix_sessid() || !$USER->IsAuthorized() || $_SERVER['REQUEST_METHOD
 	CMain::FinalActions();
 }
 
-if (
-	!isset($_REQUEST['save_desktop'])
-	&& (!isset($_REQUEST['save_gadget']) || (isset($_REQUEST['refresh']) && $_REQUEST['refresh'] == "Y"))
-)
-{
-	CUtil::JSPostUnescape();
-}
-
 $desktop_page = intval($_REQUEST['desktop_page'] ?? 0);
 $action = $_REQUEST['action'] ?? '';
 
-if (isset($_REQUEST['desktop_backurl']) && $_REQUEST['desktop_backurl'] && strpos($_REQUEST['desktop_backurl'], "/") === 0)
+if (isset($_REQUEST['desktop_backurl']) && $_REQUEST['desktop_backurl'] && str_starts_with($_REQUEST['desktop_backurl'], "/"))
 {
 	$desktop_backurl = $_REQUEST['desktop_backurl'];
 }
@@ -106,13 +98,13 @@ if (isset($_POST["type"]) && $_POST["type"] == "desktop")
 		CUserOptions::SetOption("intranet", "~gadgets_admin_index", $allOptions);
 
 		?>
-		<script type="text/javascript">
+		<script>
 		<?php
 		if ($action === "new")
 		{
 			?>
 			top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
-			top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl)).(strpos($desktop_backurl, "?") === false ? "?" : "&")."dt_page=".$desktop_page?>';
+			top.location.href = '<?=htmlspecialcharsbx(CUtil::JSEscape($desktop_backurl)).(!str_contains($desktop_backurl, "?") ? "?" : "&")."dt_page=".$desktop_page?>';
 			<?php
 		}
 		else
@@ -132,7 +124,7 @@ if (isset($_POST["type"]) && $_POST["type"] == "desktop")
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function()
 				{
 					if (BX('SETTINGS_COLUMNS'))
@@ -198,7 +190,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 				$arSettings = [];
 				foreach($_POST as $key => $value)
 				{
-					if (mb_strpos($key, "GP_") !== 0)
+					if (!str_starts_with($key, "GP_"))
 						continue;
 
 					$key = mb_substr($key, 3);
@@ -211,7 +203,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 
 				CUserOptions::SetOption("intranet", "~gadgets_admin_index", $allOptions);
 
-				?><script type="text/javascript">
+				?><script>
 				top.BX.closeWait(); top.BX.WindowManager.Get().AllowClose(); top.BX.WindowManager.Get().Close();
 				top.BX.reload();
 				</script><?php
@@ -236,7 +228,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 
 				if (isset($_REQUEST["refresh"]) && $_REQUEST["refresh"] == "Y")
 					foreach($_REQUEST as $key => $value)
-						if (mb_strpos($key, "GP_") === 0)
+						if (str_starts_with($key, "GP_"))
 							$arFormGadgetParams[mb_substr($key, 3)]["VALUE"] = $value;
 
 				$arGadget = BXGadget::GetById($gadget_id, true, $arFormGadgetParams);
@@ -283,7 +275,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 						}
 						elseif($arGadgetParam["TYPE"] == "LIST")
 						{
-							if ($arGadgetParam["MULTIPLE"] == "Y")
+							if (isset($arGadgetParam["MULTIPLE"]) && $arGadgetParam["MULTIPLE"] == "Y")
 							{
 								if (isset($_REQUEST['refresh']) && $_REQUEST['refresh'] == "Y" && is_array($_REQUEST["GP_".$input_id]))
 									$val_tmp = $_REQUEST["GP_".$input_id];
@@ -304,7 +296,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 									$val_tmp = $arGadgetParam["DEFAULT"];
 							}
 
-							?><select style="width:100%" name="GP_<?=$input_id?><?=($arGadgetParam["MULTIPLE"]=="Y"?'[]':'')?>"<?=($arGadgetParam["MULTIPLE"]=="Y"?' multiple="multiple"':'')?><?php if(isset($arGadgetParam["REFRESH"]) && $arGadgetParam["REFRESH"] == "Y"):?> onchange="BX.WindowManager.Get().PostParameters('refresh=Y')"<?php endif;?>><?php
+							?><select style="width:100%" name="GP_<?=$input_id?><?=(isset($arGadgetParam["MULTIPLE"]) && $arGadgetParam["MULTIPLE"]=="Y"?'[]':'')?>"<?=($arGadgetParam["MULTIPLE"]=="Y"?' multiple="multiple"':'')?><?php if(isset($arGadgetParam["REFRESH"]) && $arGadgetParam["REFRESH"] == "Y"):?> onchange="BX.WindowManager.Get().PostParameters('refresh=Y')"<?php endif;?>><?php
 							foreach($arGadgetParam["VALUES"] as $key => $value)
 							{
 								$is_selected = '';
@@ -342,7 +334,7 @@ elseif (isset($_POST["type"]) && $_POST["type"] == "gadget")
 				?>
 				</table>
 				</form>
-				<script type="text/javascript">
+				<script>
 					top.BX.WindowManager.Get().SetButtons([top.BX.WindowManager.Get().btnSave, top.BX.WindowManager.Get().btnCancel]);
 				</script>
 				</div>

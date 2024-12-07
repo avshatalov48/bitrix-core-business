@@ -37,6 +37,20 @@ class DeliveryService extends BaseService
 		'CURRENCY',
 	];
 
+	private const DELIVERY_FIELDS_STRING_TYPE = [
+		'NAME',
+		'ACTIVE',
+		'DESCRIPTION',
+		'CURRENCY',
+	];
+
+	private const DELIVERY_FIELDS_INT_TYPE = [
+		'ID',
+		'PARENT_ID',
+		'SORT',
+		'LOGOTIP',
+	];
+
 	/**
 	 * @param array $data
 	 * @param \CRestServer $server
@@ -70,6 +84,39 @@ class DeliveryService extends BaseService
 		];
 	}
 
+	protected static function castOutcomingFieldsData(array $data): array
+	{
+		$result = [];
+
+		foreach (self::DELIVERY_FIELDS_STRING_TYPE as $stringField)
+		{
+			if (!array_key_exists($stringField, $data))
+			{
+				continue;
+			}
+
+			$result[$stringField] = isset($data[$stringField])
+				? (string)$data[$stringField]
+				: null
+			;
+		}
+
+		foreach (self::DELIVERY_FIELDS_INT_TYPE as $intField)
+		{
+			if (!array_key_exists($intField, $data))
+			{
+				continue;
+			}
+
+			$result[$intField] = isset($data[$intField])
+				? (int)$data[$intField]
+				: null
+			;
+		}
+
+		return $result;
+	}
+
 	/**
 	 * @param $params
 	 * @throws RestException
@@ -87,9 +134,14 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter NAME is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (empty($params['CONFIG']) || !is_array($params['CONFIG']))
+		if (isset($params['CONFIG']))
 		{
-			throw new RestException('Parameter CONFIG is not defined', self::ERROR_CHECK_FAILURE);
+			if (!is_array($params['CONFIG']))
+			{
+				throw new RestException('Parameter CONFIG must be of array type', self::ERROR_CHECK_FAILURE);
+			}
+
+			self::checkConfig($params['CONFIG']);
 		}
 
 		if (empty($params['CURRENCY']))
@@ -115,7 +167,7 @@ class DeliveryService extends BaseService
 
 	private static function prepareParamsBeforeDeliveryAdd(array $params): array
 	{
-		$params['CONFIG'] = self::prepareIncomingConfig($params['CONFIG'], $params);
+		$params['CONFIG'] = self::prepareIncomingConfig($params['CONFIG'] ?? [], $params);
 
 		if (isset($params['LOGOTIP']))
 		{
@@ -141,6 +193,14 @@ class DeliveryService extends BaseService
 		if (!$data)
 		{
 			throw new RestException('Delivery not found', self::ERROR_DELIVERY_NOT_FOUND);
+		}
+
+		if (array_key_exists('NAME', $params))
+		{
+			if (empty($params['NAME']))
+			{
+				throw new RestException('Parameter NAME should not be empty', self::ERROR_CHECK_FAILURE);
+			}
 		}
 
 		if (!self::hasAccessToDelivery($data, $params['APP_ID']))
@@ -203,9 +263,14 @@ class DeliveryService extends BaseService
 			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
-		if (empty($params['CONFIG']) || !is_array($params['CONFIG']))
+		if (isset($params['CONFIG']))
 		{
-			throw new RestException('Parameter CONFIG is not defined', self::ERROR_CHECK_FAILURE);
+			if (!is_array($params['CONFIG']))
+			{
+				throw new RestException('Parameter CONFIG must be of array type', self::ERROR_CHECK_FAILURE);
+			}
+
+			self::checkConfig($params['CONFIG']);
 		}
 
 		$data = Delivery\Services\Manager::getById($params['ID']);
@@ -300,32 +365,33 @@ class DeliveryService extends BaseService
 		self::checkParamsBeforeDeliveryUpdate($params);
 
 		$fields = [];
-		if (isset($params['NAME']))
+
+		if (array_key_exists('NAME', $params))
 		{
-			$fields['NAME'] = $params['NAME'];
+			$fields['NAME'] = (string)$params['NAME'];
 		}
 
-		if (isset($params['ACTIVE']))
+		if (array_key_exists('ACTIVE', $params))
 		{
-			$fields['ACTIVE'] = $params['ACTIVE'];
+			$fields['ACTIVE'] = $params['ACTIVE'] === 'Y' ? 'Y' : 'N';
 		}
 
-		if (isset($params['DESCRIPTION']))
+		if (array_key_exists('DESCRIPTION', $params))
 		{
-			$fields['DESCRIPTION'] = $params['DESCRIPTION'];
+			$fields['DESCRIPTION'] = (string)$params['DESCRIPTION'];
 		}
 
-		if (isset($params['SORT']))
+		if (array_key_exists('SORT', $params))
 		{
-			$fields['SORT'] = $params['SORT'];
+			$fields['SORT'] = (int)$params['SORT'];
 		}
 
-		if (isset($params['CURRENCY']))
+		if (array_key_exists('CURRENCY', $params))
 		{
-			$fields['CURRENCY'] = $params['CURRENCY'];
+			$fields['CURRENCY'] = (string)$params['CURRENCY'];
 		}
 
-		if (isset($params['LOGOTIP']))
+		if (array_key_exists('LOGOTIP', $params))
 		{
 			$fields['LOGOTIP'] = self::saveFile($params['LOGOTIP']);
 		}
@@ -381,18 +447,10 @@ class DeliveryService extends BaseService
 				: self::ALLOWED_DELIVERY_FIELDS
 		;
 
-		$filter = [];
-		$filterFromParams = isset($params['FILTER']) && is_array($params['FILTER']) ? $params['FILTER'] : [];
-		if ($filterFromParams)
-		{
-			$incomingFieldsMap = self::getIncomingFieldsMap();
-			foreach ($filterFromParams as $rawName => $value)
-			{
-				$filterField = \CSqlUtil::GetFilterOperation($rawName);
-				$fieldName = $incomingFieldsMap[$filterField['FIELD']] ?? $filterField['FIELD'];
-				$filter[$filterField['OPERATION'] . $fieldName] = $value;
-			}
-		}
+		$filter = isset($params['FILTER']) && is_array($params['FILTER'])
+			? $params['FILTER']
+			: []
+		;
 
 		$order =
 			isset($params['ORDER']) && is_array($params['ORDER'])
@@ -428,7 +486,10 @@ class DeliveryService extends BaseService
 
 			if ($diffSelect)
 			{
-				throw new RestException(implode(', ', $diffSelect) . ' not allowed for select');
+				throw new RestException(
+					implode(', ', $diffSelect) . ' not allowed for select',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 
@@ -449,7 +510,10 @@ class DeliveryService extends BaseService
 			$diffFilter = array_diff($filterFields, self::ALLOWED_DELIVERY_FIELDS);
 			if ($diffFilter)
 			{
-				throw new RestException(implode(', ', $diffFilter) . ' not allowed for filter');
+				throw new RestException(
+					implode(', ', $diffFilter) . ' not allowed for filter',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 
@@ -463,7 +527,10 @@ class DeliveryService extends BaseService
 			$diffOrder = array_diff(array_keys($order), self::ALLOWED_DELIVERY_FIELDS);
 			if ($diffOrder)
 			{
-				throw new RestException(implode(', ', $diffOrder) . ' not allowed for order');
+				throw new RestException(
+					implode(', ', $diffOrder) . ' not allowed for order',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 	}
@@ -517,7 +584,7 @@ class DeliveryService extends BaseService
 		$result = Delivery\Services\Manager::update(
 			$params['ID'],
 			[
-				'CONFIG' => self::prepareIncomingConfig($params['CONFIG'], $params)
+				'CONFIG' => self::prepareIncomingConfig($params['CONFIG'] ?? [], $params)
 			]
 		);
 		if ($result->isSuccess())
@@ -568,5 +635,30 @@ class DeliveryService extends BaseService
 		}
 
 		return $result;
+	}
+
+	private static function checkConfig(array $config): void
+	{
+		$requiredFields = [
+			'CODE',
+			'VALUE',
+		];
+
+		foreach ($config as $configItem)
+		{
+			foreach ($requiredFields as $requiredField)
+			{
+				if (
+					!isset($configItem[$requiredField])
+					|| $configItem[$requiredField] === ''
+				)
+				{
+					throw new RestException(
+						'Config item ' . $requiredField . ' is not specified',
+						self::ERROR_CHECK_FAILURE
+					);
+				}
+			}
+		}
 	}
 }

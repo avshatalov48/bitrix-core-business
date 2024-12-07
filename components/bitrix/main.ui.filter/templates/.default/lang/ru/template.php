@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["MAIN_UI_FILTER__FILTER"] = "Фильтры";
 $MESS["MAIN_UI_FILTER__ADD_FILTER"] = "Сохранить фильтр";
 $MESS["MAIN_UI_FILTER__BUTTON_SAVE"] = "Сохранить";
@@ -29,3 +29,8 @@ $MESS["MAIN_UI_FILTER__ADDITIONAL_FILTER_MENU_HAS_ANY_VALUE"] = "Заполне�
 $MESS["MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_IS_EMPTY"] = "Не заполнено";
 $MESS["MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HAS_ANY_VALUE"] = "Заполнено любым значением";
 $MESS["MAIN_UI_FILTER__ADDITIONAL_FILTER_PLACEHOLDER_HOW"] = "Как это работает";
+$MESS["MAIN_UI_FILTER__FIELDS_SETTINGS_TITLE"] = "Настройка полей фильтра";
+$MESS["MAIN_UI_FILTER__FIELD_SEARCH_PLACEHOLDER"] = "Поиск по полям";
+$MESS["MAIN_UI_FILTER__FIELD_EMPTY_STATE_TITLE"] = "Такого поля нет";
+$MESS["MAIN_UI_FILTER__FIELD_EMPTY_STATE_DESCRIPTION"] = "Проверьте, нет ли опечаток";
+$MESS["MAIN_UI_FILTER__FIELD_ALL_SECTIONS_DISABLED"] = "Выберите элемент для показа полей";

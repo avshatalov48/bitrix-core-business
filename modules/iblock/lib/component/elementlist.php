@@ -668,13 +668,13 @@ abstract class ElementList extends Base
 	{
 		$addParam = \CAjax::GetSessionParam($this->arParams['AJAX_ID']);
 
-		$regexpLinks = '/(<a\s[^>]*?>.*?<\/a>)/is'.BX_UTF_PCRE_MODIFIER;
-		$regexpParams = '/([\w\-]+)\s*=\s*([\"\'])(.*?)\2/is'.BX_UTF_PCRE_MODIFIER;
+		$regexpLinks = '/(<a\s[^>]*?>.*?<\/a>)/isu';
+		$regexpParams = '/([\w\-]+)\s*=\s*([\"\'])(.*?)\2/isu';
 
 		$this->checkPcreLimit($data);
-		$arData = preg_split($regexpLinks, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
+		$preparedData = preg_split($regexpLinks, $data, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-		$dataCount = count($arData);
+		$dataCount = count($preparedData);
 		if ($dataCount < 2)
 			return;
 
@@ -692,7 +692,7 @@ abstract class ElementList extends Base
 
 		for ($i = 1; $i < $dataCount; $i += 2)
 		{
-			if (!preg_match('/^<a\s([^>]*?)>(.*?)<\/a>$/is'.BX_UTF_PCRE_MODIFIER, $arData[$i], $match))
+			if (!preg_match('/^<a\s([^>]*?)>(.*?)<\/a>$/isu', $preparedData[$i], $match))
 				continue;
 
 			$params = $match[1];
@@ -744,7 +744,7 @@ abstract class ElementList extends Base
 					$realUrl .= mb_strpos($url, '?') === false ? '?' : '&';
 					$realUrl .= $addParam;
 
-					$arData[$i] = \CAjax::GetLinkEx($realUrl, $url, $match[2], 'comp_'.$this->arParams['AJAX_ID'], $strAdditional);
+					$preparedData[$i] = \CAjax::GetLinkEx($realUrl, $url, $match[2], 'comp_'.$this->arParams['AJAX_ID'], $strAdditional);
 
 					$dataChanged = true;
 				}
@@ -753,7 +753,7 @@ abstract class ElementList extends Base
 
 		if ($dataChanged)
 		{
-			$data = implode('', $arData);
+			$data = implode('', $preparedData);
 		}
 	}
 
@@ -1927,9 +1927,16 @@ abstract class ElementList extends Base
 	 */
 	protected function getBigDataInfo()
 	{
-		$rows = array();
+		if (!Main\Analytics\Catalog::isOn())
+		{
+			return [
+				'enabled' => false,
+			];
+		}
+
+		$rows = [];
 		$count = 0;
-		$rowsRange = array();
+		$rowsRange = [];
 		$variantsMap = static::getTemplateVariantsMap();
 
 		if (!empty($this->arParams['PRODUCT_ROW_VARIANTS']))
@@ -1950,7 +1957,7 @@ abstract class ElementList extends Base
 			}
 		}
 
-		$shownIds = array();
+		$shownIds = [];
 		if (!empty($this->elements))
 		{
 			foreach ($this->elements as $element)
@@ -1959,19 +1966,19 @@ abstract class ElementList extends Base
 			}
 		}
 
-		return array(
+		return [
 			'enabled' => $count > 0,
 			'rows' => $rows,
 			'count' => $count,
 			'rowsRange' => $rowsRange,
 			'shownIds' => $shownIds,
-			'js' => array(
+			'js' => [
 				'cookiePrefix' => \COption::GetOptionString('main', 'cookie_name', 'BITRIX_SM'),
 				'cookieDomain' => Main\Web\Cookie::getCookieDomain(),
 				'serverTime' => $count > 0 ? time() : 0,
-			),
+			],
 			'params' => $this->getBigDataServiceRequestParams(($this->arParams['RCM_TYPE'] ?? ''))
-		);
+		];
 	}
 
 	// getting positions of enlarged elements

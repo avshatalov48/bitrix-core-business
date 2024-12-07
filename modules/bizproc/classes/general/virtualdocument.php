@@ -1200,32 +1200,43 @@ class CBPVirtualDocument extends CIBlockDocument
 	private static function prepareSectionForPrint($value, $iblockId = 0)
 	{
 		if ($iblockId <= 0)
+		{
 			$iblockId = COption::GetOptionInt("intranet", "iblock_tasks", 0);
+		}
 		if ($iblockId <= 0)
+		{
 			return false;
+		}
 
-		$arReturn = array();
-
+		$arReturn = [];
 		$valueTmp = $value;
 		if (!is_array($valueTmp))
-			$valueTmp = array($valueTmp);
+		{
+			$valueTmp = [$valueTmp];
+		}
 
 		foreach ($valueTmp as $val)
 		{
-			$ar = array();
+			$ar = [];
+			$dbSectionsList = CIBlockSection::GetNavChain(
+				$iblockId,
+				$val,
+				['ID', 'NAME', 'XML_ID'],
+			);
 
-			$dbSectionsList = CIBlockSection::GetNavChain($iblockId, $val);
-			while ($arSection = $dbSectionsList->GetNext())
-				$ar[$arSection["ID"]] = array("NAME" => $arSection["NAME"], "XML_ID" => $arSection["XML_ID"]);
+			while ($arSection = $dbSectionsList->fetch())
+			{
+				$ar[$arSection["ID"]] = ["NAME" => $arSection["NAME"], "XML_ID" => $arSection["XML_ID"]];
+			}
 
 			$arReturn[] = $ar;
 		}
 
-		return (is_array($value) ? $arReturn : ((count($arReturn) > 0) ? $arReturn[0] : array()));
+		return (is_array($value) ? $arReturn : ($arReturn[0] ?? []));
 	}
 
 	/**
-	* @param string $documentId
+	 * @param string $documentId
 	* @return string - document admin page url.
 	*/
 	public static function getDocumentAdminPage($documentId)
@@ -1733,7 +1744,7 @@ class CBPVirtualDocument extends CIBlockDocument
 
 		if (mb_strstr($arFields["type"], ":") !== false)
 		{
-			list($arFieldsTmp["PROPERTY_TYPE"], $arFieldsTmp["USER_TYPE"]) = explode(":", $arFields["type"], 2);
+			[$arFieldsTmp["PROPERTY_TYPE"], $arFieldsTmp["USER_TYPE"]] = explode(":", $arFields["type"], 2);
 			if ($arFields["type"] == "E:EList")
 				$arFieldsTmp["LINK_IBLOCK_ID"] = $arFields["options"];
 		}
@@ -2081,7 +2092,7 @@ class CBPVirtualDocument extends CIBlockDocument
 
 		ob_start();
 
-		echo CAdminCalendar::ShowScript();
+		CAdminCalendar::ShowScript();
 		?>
 		<script>
 		<?= $objectName ?>.GetGUIFieldEdit = function(field, value, showAddButton, inputName)

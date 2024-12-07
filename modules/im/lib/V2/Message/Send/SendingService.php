@@ -2,11 +2,9 @@
 
 namespace Bitrix\Im\V2\Message\Send;
 
+use Bitrix\Im\V2\Bot\BotService;
 use Bitrix\Im\V2\Message\Param\ParamError;
 use Bitrix\Im\V2\MessageCollection;
-use Bitrix\Main;
-use Bitrix\Main\Event;
-use Bitrix\Main\EventResult;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Im\Message\Uuid;
 use Bitrix\Im\V2\Message;
@@ -30,7 +28,7 @@ class SendingService
 		EVENT_AFTER_MESSAGE_ADD = 'OnAfterMessagesAdd',
 		EVENT_BEFORE_CHAT_MESSAGE_ADD = 'OnBeforeChatMessageAdd',
 		EVENT_BEFORE_NOTIFY_ADD = 'OnBeforeMessageNotifyAdd',
-		EVENT_AFTER_NOTIFY_ADD = 'OnBeforeMessageNotifyAdd'
+		EVENT_AFTER_NOTIFY_ADD = 'OnAfterMessageNotifyAdd'
 	;
 
 	/**
@@ -45,6 +43,11 @@ class SendingService
 		$this->sendingConfig = $sendingConfig;
 	}
 
+	public function getConfig(): SendingConfig
+	{
+		return $this->sendingConfig;
+	}
+
 	//region UUID
 
 	/**
@@ -55,35 +58,38 @@ class SendingService
 	{
 		$result = new Result;
 
-		if (
-			$message->getUuid()
-			&& !$message->isSystem()
-			&& Uuid::validate($message->getUuid())
-		)
+		if (!$this->needToCheckDuplicate($message))
 		{
-			$this->uuidService = new Uuid($message->getUuid());
-			$uuidAddResult = $this->uuidService->add();
-			// if it is false, then UUID already exists
-			if (!$uuidAddResult)
-			{
-				$messageIdByUuid = $this->uuidService->getMessageId();
+			return $result;
+		}
 
-				// if we got message_id, then message already exists, and we don't need to add it, so return with ID.
-				if (!is_null($messageIdByUuid))
-				{
-					return $result->setResult(['messageId' => $messageIdByUuid]);
-				}
+		$this->uuidService = new Uuid($message->getUuid());
+		$alreadyExists = !$this->uuidService->add();
+		if (!$alreadyExists)
+		{
+			return $result;
+		}
 
-				// if there is no message_id and entry date is expired,
-				// then update date_create and return false to delay next sending on the client.
-				if (!$this->uuidService->updateIfExpired())
-				{
-					return $result->addError(new MessageError(MessageError::MESSAGE_DUPLICATED_BY_UUID));
-				}
-			}
+		$messageIdByUuid = $this->uuidService->getMessageId();
+		// if we got message_id, then message already exists, and we don't need to add it, so return with ID.
+		if (!is_null($messageIdByUuid))
+		{
+			return $result->setResult(['messageId' => $messageIdByUuid]);
+		}
+
+		// if there is no message_id and entry date is expired,
+		// then update date_create and return false to delay next sending on the client.
+		if (!$this->uuidService->updateIfExpired())
+		{
+			return $result->addError(new MessageError(MessageError::MESSAGE_DUPLICATED_BY_UUID));
 		}
 
 		return $result;
+	}
+
+	protected function needToCheckDuplicate(Message $message): bool
+	{
+		return $message->getUuid() && !$message->isSystem() && Uuid::validate($message->getUuid());
 	}
 
 	/**
@@ -103,70 +109,6 @@ class SendingService
 	//region Events
 
 	/**
-	 * Fires event `im:OnBeforeMessageAdd` on before message send.
-	 *
-	 * @event im:OnBeforeMessageAdd
-	 * @param Chat $chat
-	 * @param Message $message
-	 * @return Result
-	 */
-	public function fireEventBeforeSend(Chat $chat, Message $message): Result
-	{
-		$result = new Result;
-
-		$event = new Event('im', static::EVENT_BEFORE_MESSAGE_ADD, [
-			'message' => $message->toArray(),
-			'parameters' => $this->sendingConfig->toArray(),
-		]);
-		$event->send();
-
-		foreach ($event->getResults() as $eventResult)
-		{
-			$eventParams = $eventResult->getParameters();
-			if ($eventResult->getType() === EventResult::SUCCESS)
-			{
-				if ($eventParams)
-				{
-					if (isset($eventParams['message']) && is_array($eventParams['message']))
-					{
-						unset(
-							$eventParams['message']['MESSAGE_ID'],
-							$eventParams['message']['CHAT_ID'],
-							$eventParams['message']['AUTHOR_ID'],
-							$eventParams['message']['FROM_USER_ID']
-						);
-						$message->fill($eventParams['message']);
-					}
-					if (isset($eventParams['parameters']) && is_array($eventParams['parameters']))
-					{
-						$this->sendingConfig->fill($eventParams['parameters']);
-					}
-				}
-			}
-			elseif ($eventResult->getType() === EventResult::ERROR)
-			{
-				if ($eventParams && isset($eventParams['error']))
-				{
-					if ($eventParams['error'] instanceof Main\Error)
-					{
-						$result->addError($eventParams['error']);
-					}
-					elseif (is_string($eventParams['error']))
-					{
-						$result->addError(new ChatError(ChatError::BEFORE_SEND_EVENT, $eventParams['error']));
-					}
-				}
-				else
-				{
-					$result->addError(new ChatError(ChatError::BEFORE_SEND_EVENT));
-				}
-			}
-		}
-
-		return $result;
-	}
-
-	/**
 	 * Fires event `im:OnBeforeChatMessageAdd` on before message send.
 	 *
 	 * @event im:OnBeforeChatMessageAdd
@@ -178,16 +120,13 @@ class SendingService
 	{
 		$result = new Result;
 
-		$compatibleFields = array_merge(
-			$message->toArray(),
-			$this->sendingConfig->toArray(),
-		);
-		$compatibleChatFields = $chat->toArray();
+		$compatibleFields = $this->getMessageForEvent($message);
+		$compatibleChatFields = $this->getChatForEvent($message);
 
 		foreach (\GetModuleEvents('im', self::EVENT_BEFORE_CHAT_MESSAGE_ADD, true) as $event)
 		{
 			$eventResult = \ExecuteModuleEventEx($event, [$compatibleFields, $compatibleChatFields]);
-			if ($eventResult === false || isset($eventResult['result']) && $eventResult['result'] === false)
+			if ($eventResult === false || (isset($eventResult['result']) && $eventResult['result'] === false))
 			{
 				$reason = $this->detectReasonSendError($chat->getType(), $eventResult['reason'] ?? '');
 				return $result->addError(new ChatError(ChatError::FROM_OTHER_MODULE, $reason));
@@ -222,14 +161,8 @@ class SendingService
 		$result = new Result;
 
 		$compatibleFields = array_merge(
-			$message->toArray(),
-			$chat->toArray(),
-			[
-				'FILES' => [], //todo: Move it into Message
-				'EXTRA_PARAMS' => [],
-				'URL_ATTACH' => [],
-				'BOT_IN_CHAT' => [],
-			],
+			$this->getMessageForEvent($message, false),
+			$this->getChatForEvent($message, true),
 			$this->sendingConfig->toArray(),
 		);
 
@@ -238,7 +171,29 @@ class SendingService
 			\ExecuteModuleEventEx($event, [$message->getMessageId(), $compatibleFields]);
 		}
 
+		(new BotService($this->sendingConfig))->setContext($this->context)->runMessageCommand($message->getId(), $compatibleFields);
+
 		return $result;
+	}
+
+	public function fireEventBeforeSend(Chat $chat, Message $message): Result
+	{
+		if (!$this->sendingConfig->isSkipFireEventBeforeMessageNotifySend())
+		{
+			$result = $this->fireEventBeforeMessageNotifySend($chat, $message);
+
+			if (!$result->isSuccess())
+			{
+				return $result;
+			}
+		}
+
+		if (!$chat instanceof Chat\PrivateChat)
+		{
+			return $this->fireEventBeforeMessageSend($chat, $message);
+		}
+
+		return new Result();
 	}
 
 	/**
@@ -249,23 +204,28 @@ class SendingService
 	 * @param Message $message
 	 * @return Result
 	 */
-	public function fireEventBeforeNotifySend(Chat $chat, Message $message): Result
+	public function fireEventBeforeMessageNotifySend(Chat $chat, Message $message): Result
 	{
 		$result = new Result;
 
 		$compatibleFields = array_merge(
-			$message->toArray(),
-			$chat->toArray(),
+			$this->getMessageForEvent($message),
 			$this->sendingConfig->toArray(),
 		);
+		$compatibleFieldsCopy = $compatibleFields;
 
 		foreach (\GetModuleEvents('im', self::EVENT_BEFORE_NOTIFY_ADD, true) as $arEvent)
 		{
 			$eventResult = \ExecuteModuleEventEx($arEvent, [&$compatibleFields]);
-			if ($eventResult === false || isset($eventResult['result']) && $eventResult['result'] === false)
+			if ($eventResult === false || (isset($eventResult['result']) && $eventResult['result'] === false))
 			{
 				$reason = $this->detectReasonSendError($chat->getType(), $eventResult['reason'] ?? '');
 				return $result->addError(new ChatError(ChatError::FROM_OTHER_MODULE, $reason));
+			}
+			if ($compatibleFields !== $compatibleFieldsCopy)
+			{
+				$message->fill($compatibleFields);
+				$this->sendingConfig->fillByLegacy($compatibleFields);
 			}
 		}
 
@@ -296,6 +256,87 @@ class SendingService
 		}
 
 		return $result;
+	}
+
+	protected function getMessageForEvent(Message $message, bool $onlyIdFiles = true): array //todo private
+	{
+		$res = [
+			'MESSAGE' => $message->getMessage(),
+			'TEMPLATE_ID' => $message->getUuid(),
+			'MESSAGE_TYPE' => $message->getChat()->getType(),
+			'FROM_USER_ID' => $message->getAuthorId(),
+			'DIALOG_ID' => $message->getChat()->getDialogId(),
+			'TO_CHAT_ID' => $message->getChatId(),
+			'MESSAGE_OUT' => $message->getMessageOut() ?? '',
+			'PARAMS' => $message->getEnrichedParams()->toArray(),
+			'EXTRA_PARAMS' => $message->getPushParams() ?? [],
+			'NOTIFY_MODULE' => $message->getNotifyModule(),
+			'NOTIFY_EVENT' => $message->getNotifyEvent(),
+			'URL_ATTACH' => $message->getUrl()?->getUrlAttach()?->GetArray() ?? [],
+			'AUTHOR_ID' => $message->getAuthorId(),
+			'SYSTEM' => $message->isSystem() ? 'Y' : 'N',
+		];
+
+		$res['FILES'] = [];
+
+		if ($onlyIdFiles)
+		{
+			$res['FILES'] = $message->getFiles()->getIds();
+		}
+		else
+		{
+			foreach ($message->getFiles() as $file)
+			{
+				$res['FILES'][$file->getId()] = $file->toRestFormat();
+			}
+		}
+
+		if ($message->getChat() instanceof Chat\PrivateChat)
+		{
+			$res['TO_USER_ID'] = $message->getChat()->getDialogId();
+		}
+
+		$res = array_merge($res, $this->sendingConfig->toArray());
+
+		return $res;
+	}
+
+	protected function getChatForEvent(Message $message, bool $withBot = false): array
+	{
+		$chat = $message->getChat();
+		if ($chat instanceof Chat\PrivateChat)
+		{
+			return [];
+		}
+		$authorRelation = $chat->getRelationByUserId($message->getAuthorId());
+
+		$res = [
+			'CHAT_ID' => $chat->getId(),
+			'CHAT_PARENT_ID' => $chat->getParentChatId() ?? 0,
+			'CHAT_PARENT_MID' => $chat->getParentMessageId() ?? 0,
+			'CHAT_TITLE' => $chat->getTitle() ?? '',
+			'CHAT_AUTHOR_ID' => $chat->getAuthorId(),
+			'CHAT_TYPE' => $chat->getType(),
+			'CHAT_AVATAR' => $chat->getAvatarId(),
+			'CHAT_COLOR' => $chat->getColor(),
+			'CHAT_ENTITY_TYPE' => $chat->getEntityType(),
+			'CHAT_ENTITY_ID' => $chat->getEntityId(),
+			'CHAT_ENTITY_DATA_1' => $chat->getEntityData1(),
+			'CHAT_ENTITY_DATA_2' => $chat->getEntityData2(),
+			'CHAT_ENTITY_DATA_3' => $chat->getEntityData3(),
+			'CHAT_EXTRANET' => ($chat->getExtranet() ?? false) ? 'Y' : 'N',
+			'CHAT_PREV_MESSAGE_ID' => $chat->getPrevMessageId() ?? 0,
+			'CHAT_CAN_POST' => $chat->getManageMessages(),
+			'RID' => $authorRelation?->getUserId() ?? 1,
+			'IS_MANAGER' => ($authorRelation?->getManager() ?? false) ? 'Y' : 'N',
+		];
+
+		if ($withBot)
+		{
+			$res['BOT_IN_CHAT'] = $chat->getBotInChat();
+		}
+
+		return $res;
 	}
 
 	private function detectReasonSendError($type, $reason = ''): string
@@ -404,6 +445,11 @@ class SendingService
 
 		$fieldsToSend = $this->checkParams($fieldsToSend, $server);
 		$fieldsToSend = isset($fieldsToSend['COPILOT']) ?$this->checkCopilotParams($fieldsToSend) : $fieldsToSend;
+
+		if (isset($fieldsToSend['COPILOT']))
+		{
+			$fieldsToSend['PARAMS'][Message\Params::COPILOT_PROMPT_CODE] = $fieldsToSend['COPILOT'][Message\Params::COPILOT_PROMPT_CODE];
+		}
 
 		return $result->setResult($fieldsToSend);
 	}
@@ -610,9 +656,10 @@ class SendingService
 		$result = new Result();
 
 		$message = new \Bitrix\Im\V2\Message((int)$fieldsToSend['REPLY_ID']);
-		if (!$message->hasAccess())
+		$messageAccess = $message->checkAccess();
+		if (!$messageAccess->isSuccess())
 		{
-			return $result->addError(new MessageError(MessageError::REPLY_ERROR, 'Action unavailable'));
+			return $result->addErrors($messageAccess->getErrors());
 		}
 
 		if ($message->getChat()->getId() !== $chat->getId())

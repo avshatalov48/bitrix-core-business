@@ -2,12 +2,8 @@
 
 namespace Bitrix\Main\UI\Filter;
 
-
-
 use Bitrix\Main\Event;
 use Bitrix\Main\EventResult;
-use Bitrix\Main\SystemException;
-use Bitrix\Main\Web\WebPacker\Resource\LangAsset;
 
 /**
  * Class Type. Available field types

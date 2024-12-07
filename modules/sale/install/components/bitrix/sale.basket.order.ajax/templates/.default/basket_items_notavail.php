@@ -95,6 +95,6 @@
 		</tbody>
 		</table>
 	<?else:
-		echo ShowNote(GetMessage("SALE_NO_NOACTIVE"));
+		ShowNote(GetMessage("SALE_NO_NOACTIVE"));
 	endif;?>
 </div>

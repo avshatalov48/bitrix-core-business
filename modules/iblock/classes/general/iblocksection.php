@@ -1275,8 +1275,8 @@ class CAllIBlockSection
 	///////////////////////////////////////////////////////////////////
 	public static function Delete($ID, $bCheckPermissions = true)
 	{
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 		global $DB, $APPLICATION, $USER;
+
 		$ID = (int)$ID;
 		if ($ID <= 0)
 		{
@@ -1330,7 +1330,7 @@ class CAllIBlockSection
 							UPDATE b_iblock_element
 							SET IBLOCK_SECTION_ID=".$ar_section_element["IBLOCK_SECTION_ID"]."
 							WHERE ID=".$elementId."
-						", false, $err_mess . __LINE__);
+						");
 					}
 				}
 				elseif((int)$iblockelement["WF_PARENT_ELEMENT_ID"]<=0)
@@ -1344,7 +1344,7 @@ class CAllIBlockSection
 						UPDATE b_iblock_element
 						SET IBLOCK_SECTION_ID=NULL, IN_SECTIONS='N'
 						WHERE ID=".$elementId."
-					", false, $err_mess.__LINE__);
+					");
 				}
 				unset($elementId);
 			}
@@ -1370,7 +1370,7 @@ class CAllIBlockSection
 			if (!isset($arDelCache[$s["IBLOCK_ID"]]))
 			{
 				$arDelCache[$s["IBLOCK_ID"]] = [];
-				$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='G' AND (LINK_IBLOCK_ID=".$s["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)", false, $err_mess.__LINE__);
+				$db_ps = $DB->Query("SELECT ID,IBLOCK_ID,VERSION,MULTIPLE FROM b_iblock_property WHERE PROPERTY_TYPE='G' AND (LINK_IBLOCK_ID=".$s["IBLOCK_ID"]." OR LINK_IBLOCK_ID=0 OR LINK_IBLOCK_ID IS NULL)");
 				while($ar_ps = $db_ps->Fetch())
 				{
 					if($ar_ps["VERSION"]==2)
@@ -1405,7 +1405,7 @@ class CAllIBlockSection
 							if (isset($tableFields["DESCRIPTION_".$prop_id]))
 								$strSql .= ",DESCRIPTION_".$prop_id."=null";
 							$strSql .= " WHERE PROPERTY_".$prop_id."=".$s["ID"];
-							if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+							if(!$DB->Query($strSql))
 								return false;
 						}
 					}
@@ -1413,7 +1413,7 @@ class CAllIBlockSection
 					{
 						$tableFields = $DB->GetTableFields(str_replace("prop_m", "prop_s", $strTable));
 						$strSql = "SELECT IBLOCK_PROPERTY_ID, IBLOCK_ELEMENT_ID FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$rs = $DB->Query($strSql);
 						while($ar = $rs->Fetch())
 						{
 							$strSql = "
@@ -1422,24 +1422,24 @@ class CAllIBlockSection
 									".(isset($tableFields["DESCRIPTION_".$ar["IBLOCK_PROPERTY_ID"]])? ",DESCRIPTION_".$ar["IBLOCK_PROPERTY_ID"]."=null": "")."
 								WHERE IBLOCK_ELEMENT_ID = ".$ar["IBLOCK_ELEMENT_ID"]."
 							";
-							if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+							if(!$DB->Query($strSql))
 								return false;
 						}
 						$strSql = "DELETE FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+						if(!$DB->Query($strSql))
 							return false;
 					}
 					else
 					{
 						$strSql = "DELETE FROM ".$strTable." WHERE IBLOCK_PROPERTY_ID IN (".implode(", ", $arProps).") AND VALUE_NUM=".$s["ID"];
-						if(!$DB->Query($strSql, false, $err_mess.__LINE__))
+						if(!$DB->Query($strSql))
 							return false;
 					}
 				}
 			}
 
 			CIBlockSectionPropertyLink::DeleteBySection($ID);
-			$DB->Query("DELETE FROM b_iblock_section_element WHERE IBLOCK_SECTION_ID=".$ID, false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_iblock_section_element WHERE IBLOCK_SECTION_ID=".$ID);
 
 			if(CModule::IncludeModule("search"))
 				CSearch::DeleteIndex("iblock", "S".$ID);
@@ -1491,7 +1491,7 @@ class CAllIBlockSection
 				}
 			}
 
-			$res = $DB->Query("DELETE FROM b_iblock_section WHERE ID=".$ID, false, $err_mess.__LINE__);
+			$res = $DB->Query("DELETE FROM b_iblock_section WHERE ID=".$ID);
 
 			if($res)
 			{
@@ -2330,7 +2330,7 @@ class CAllIBlockSection
 			".$strSqlSearch."
 		";
 
-		$res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res_cnt = $res->Fetch();
 
 		return (int)($res_cnt["C"] ?? 0);

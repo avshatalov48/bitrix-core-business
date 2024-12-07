@@ -605,7 +605,14 @@ if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 }
 else
 {
-	$lAdmin->DisplayFilter($filterFields);
+	$filterParams = [
+		'CONFIG' => [
+			'popupWidth' => 800,
+		],
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayFilter($filterFields, $filterParams);
 
 	if(!empty($adminNotes))
 	{
@@ -614,10 +621,14 @@ else
 		echo EndNote();
 	}
 
-	$lAdmin->DisplayList();
+	$listParams = [
+		'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+		'ENABLE_FIELDS_SEARCH' => 'Y',
+	];
+	$lAdmin->DisplayList($listParams);
 
 	?>
-	<script language="JavaScript">
+	<script>
 		BX.message({
 			SALE_DSE_CHOOSE_GROUP_TITLE: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_TITLE")?>',
 			SALE_DSE_CHOOSE_GROUP_HEAD: '<?=Loc::getMessage("SALE_DSE_CHOOSE_GROUP_HEAD")?>',

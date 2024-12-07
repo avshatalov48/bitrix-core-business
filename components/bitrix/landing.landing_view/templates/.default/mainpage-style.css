@@ -1,0 +1,22 @@
+.landing-main,
+.landing-layout-flex {
+	padding-right: 12px;
+	padding-left: 12px;
+	padding-top: 12px;
+}
+.landing-layout-flex .landing-main {
+	padding: 0;
+}
+
+.landing-layout-flex .landing-sidebar {
+	width: 262px !important;
+	min-width: 262px !important;
+}
+
+.landing-layout-flex .landing-main {
+	width: calc(100% - 262px) !important;
+}
+
+.landing-editor {
+	background-size: cover;
+}

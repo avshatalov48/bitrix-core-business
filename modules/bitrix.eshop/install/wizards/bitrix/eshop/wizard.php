@@ -15,10 +15,7 @@ trait EShopTools
 	{
 		if (Loader::includeModule('catalog'))
 		{
-			if (
-				Catalog\Config\State::isUsedInventoryManagement() // already used
-				|| Option::get('catalog', 'once_inventory_management') === 'Y' // exchange 1C
-			)
+			if (Catalog\Config\State::isUsedInventoryManagement())
 			{
 				return false;
 			}
@@ -535,7 +532,6 @@ class ShopSettings extends CWizardStep
 				<div class="wizard-input-form-block" >'.
 					$this->ShowSelectField("shopLocalization", array(
 						"ru" => GetMessage("WIZ_SHOP_LOCALIZATION_RUSSIA"),
-						"ua" => GetMessage("WIZ_SHOP_LOCALIZATION_UKRAINE"),
 						"kz" => GetMessage("WIZ_SHOP_LOCALIZATION_KAZAKHSTAN"),
 						"bl" => GetMessage("WIZ_SHOP_LOCALIZATION_BELORUSSIA")
 					), array("onchange" => "langReload()", "id" => "localization_select","class" => "wizard-field", "style"=>"padding:0 0 0 15px")).'
@@ -1130,49 +1126,53 @@ class PaySystem extends CWizardStep
 				</div>';
 		}
 
-		$this->content .= '
-		<div>
-			<div class="wizard-catalog-title">'.GetMessage("WIZ_LOCATION_TITLE").'</div>
-			<div>
-				<div class="wizard-input-form-field wizard-input-form-field-checkbox">';
-		if(in_array(LANGUAGE_ID, array("ru", "ua")))
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+		$isBitrixSiteManagementOnly =
+			!\Bitrix\Main\Loader::includeModule('bitrix24')
+			&& !\Bitrix\Main\Loader::includeModule('intranet')
+		;
+		$allowLocationImport = $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
+		if ($allowLocationImport)
 		{
-			$this->content .=
-				'<div class="wizard-catalog-form-item">'.
-					$this->ShowRadioField("locations_csv", "loc_ussr.csv", array("id" => "loc_ussr", "checked" => "checked"))
-					." <label for=\"loc_ussr\">".GetMessage('WSL_STEP2_GFILE_USSR')."</label>
-				</div>";
-			$this->content .=
-				'<div class="wizard-catalog-form-item">'.
-					$this->ShowRadioField("locations_csv", "loc_ua.csv", array("id" => "loc_ua"))
-					." <label for=\"loc_ua\">".GetMessage('WSL_STEP2_GFILE_UA')."</label>
-				</div>";
-			$this->content .=
-				'<div class="wizard-catalog-form-item">'.
-					$this->ShowRadioField("locations_csv", "loc_kz.csv", array("id" => "loc_kz"))
-					." <label for=\"loc_kz\">".GetMessage('WSL_STEP2_GFILE_KZ')."</label>
-				</div>";
-		}
-		$this->content .=
-			'<div class="wizard-catalog-form-item">'.
-				$this->ShowRadioField("locations_csv", "loc_usa.csv", array("id" => "loc_usa"))
-				." <label for=\"loc_usa\">".GetMessage('WSL_STEP2_GFILE_USA')."</label>
-			</div>";
-		$this->content .=
-			'<div class="wizard-catalog-form-item">'.
-				$this->ShowRadioField("locations_csv", "loc_cntr.csv", array("id" => "loc_cntr"))
-				." <label for=\"loc_cntr\">".GetMessage('WSL_STEP2_GFILE_CNTR')."</label>
-			</div>";
-		$this->content .=
-			'<div class="wizard-catalog-form-item">'.
-				$this->ShowRadioField("locations_csv", "", array("id" => "none"))
-				." <label for=\"none\">".GetMessage('WSL_STEP2_GFILE_NONE')."</label>
-			</div>";
+			$this->content .= '
+				<div>
+					<div class="wizard-catalog-title">'.GetMessage("WIZ_LOCATION_TITLE").'</div>
+					<div>
+						<div class="wizard-input-form-field wizard-input-form-field-checkbox">';
+					if(in_array(LANGUAGE_ID, array("ru", "ua")))
+					{
+						$this->content .=
+							'<div class="wizard-catalog-form-item">'.
+							$this->ShowRadioField("locations_csv", "loc_ussr.csv", array("id" => "loc_ussr", "checked" => "checked"))
+							." <label for=\"loc_ussr\">".GetMessage('WSL_STEP2_GFILE_USSR')."</label>
+						</div>";
+						$this->content .=
+							'<div class="wizard-catalog-form-item">'.
+							$this->ShowRadioField("locations_csv", "loc_kz.csv", array("id" => "loc_kz"))
+							." <label for=\"loc_kz\">".GetMessage('WSL_STEP2_GFILE_KZ')."</label>
+						</div>";
+					}
+					$this->content .=
+						'<div class="wizard-catalog-form-item">'.
+						$this->ShowRadioField("locations_csv", "loc_usa.csv", array("id" => "loc_usa"))
+						." <label for=\"loc_usa\">".GetMessage('WSL_STEP2_GFILE_USA')."</label>
+					</div>";
+					$this->content .=
+						'<div class="wizard-catalog-form-item">'.
+						$this->ShowRadioField("locations_csv", "loc_cntr.csv", array("id" => "loc_cntr"))
+						." <label for=\"loc_cntr\">".GetMessage('WSL_STEP2_GFILE_CNTR')."</label>
+					</div>";
+					$this->content .=
+						'<div class="wizard-catalog-form-item">'.
+						$this->ShowRadioField("locations_csv", "", array("id" => "none"))
+						." <label for=\"none\">".GetMessage('WSL_STEP2_GFILE_NONE')."</label>
+					</div>";
 
-		$this->content .= '
-				</div>
-			</div>
-		</div>';
+					$this->content .= '
+						</div>
+					</div>
+				</div>';
+		}
 
 		$this->content .= '<div class="wizard-catalog-form-item">'.GetMessage("WIZ_DELIVERY_HINT").'</div>';
 

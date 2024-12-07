@@ -6,16 +6,28 @@ use Bitrix\Main\Config\Option;
 use Bitrix\Socialnetwork\Internals\EventService\Event;
 use Bitrix\Socialnetwork\Internals\EventService\EventCollection;
 use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
-use Bitrix\Socialnetwork\Internals\EventService\Push\SpaceListSender;
+use Bitrix\Socialnetwork\Internals\EventService\Queue\Queue;
 use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
 use Bitrix\Socialnetwork\Internals\LiveFeed;
 use Bitrix\Socialnetwork\Internals\Space;
 use Bitrix\Socialnetwork\Space\List\RecentActivity;
+use Bitrix\Socialnetwork\Space\Role;
 
 class SpaceEventProcessor
 {
-	public const STEP_LIMIT = 500;
-	private $spaceEnabledForUsers = null;
+	private Queue $queue;
+	private Role\Event\Service $roleService;
+
+	public function __construct()
+	{
+		$this->queue = Queue::getInstance();
+		$this->roleService = new Role\Event\Service();
+	}
+
+	public function getStepLimit(): int
+	{
+		return (int) Option::get('socialnetwork', 'space_processor_step_limit', 100);
+	}
 
 	/**
 	 * The logic of this process is to find out all recepients involved
@@ -50,63 +62,41 @@ class SpaceEventProcessor
 		}
 	}
 
-	private function processEvent(Event $event, int $offset = 0): void
+	public function processEventForUser(Event $event, Recepient $recipient): void
 	{
-		$recipients = $event->getRecepients()->fetch(self::STEP_LIMIT, $offset);
+		// recount live-feed counters in case event is one of the live-feeds'
+		(new LiveFeed\Counter\CounterController($recipient->getId()))->process($event);
+		// recount space counters and push events for real-time
+		(new Space\Counter\CounterController($recipient->getId()))->process($event, $recipient);
+		// save space recent activity
+		$this->roleService->processEvent($event, $recipient);
+		(new RecentActivity\Event\Service())->processEvent($event, $recipient);
+	}
+
+	private function processEvent(Event $event, int $offset = 0, bool $processInQueue = false): void
+	{
+		$limit = $this->getStepLimit();
+		$recipients = $event->getRecepients()->fetch($limit, $offset);
 
 		foreach ($recipients as $recipient)
 		{
-			/* @var Recepient $recipient */
-
-			// TODO: replace it with functionality that checks if user is watching spaces
-			if (!$this->isFeatureEnabledForUser($recipient->getId()))
+			if ($processInQueue)
 			{
+				$this->queue->add($event, $recipient);
+
 				continue;
 			}
 
-			// recount live-feed counters in case event is one of the live-feeds'
-			(new LiveFeed\Counter\CounterController($recipient->getId()))->process($event);
-			// recount space counters and push events for real-time
-			(new Space\Counter\CounterController($recipient->getId()))->process($event);
-			// save space recent activity
-			(new SpaceListSender())->send($event, $recipient);
-			(new RecentActivity\Event\Service())->processEvent($event, $recipient);
+			$this->processEventForUser($event, $recipient);
 		}
 
-		if (count($recipients) >= self::STEP_LIMIT)
+		$this->queue->save();
+
+		if (count($recipients) >= $limit)
 		{
-			$offset = $offset + self::STEP_LIMIT;
-			$this->processEvent($event, $offset);
+			$processInQueue = true;
+			$offset = $offset + $limit;
+			$this->processEvent($event, $offset, $processInQueue);
 		}
-	}
-
-	/**
-	 * TODO: temporary solution
-	 * @param int $userId
-	 * @return bool
-	 */
-	private function isFeatureEnabledForUser(int $userId): bool
-	{
-		if (is_null($this->spaceEnabledForUsers))
-		{
-			$this->spaceEnabledForUsers = [];
-
-			$filter = [
-				'CATEGORY' => 'socialnetwork.space',
-				'NAME' => 'space_enabled',
-			];
-			$dbRes = \CUserOptions::GetList([], $filter);
-
-			if ($dbRes)
-			{
-				while ($option = $dbRes->fetch())
-				{
-					$userIdFromOption = (int)$option['USER_ID'];
-					$this->spaceEnabledForUsers[$userIdFromOption] = $userIdFromOption;
-				}
-			}
-		}
-
-		return isset($this->spaceEnabledForUsers[$userId]);
 	}
 }

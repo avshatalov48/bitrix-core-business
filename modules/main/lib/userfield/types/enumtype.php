@@ -103,7 +103,7 @@ class EnumType extends BaseType
 				$additionalParameters['VALUE'] = $emptyCaption;
 				return parent::renderAdminListView($userField, $additionalParameters);
 			}
-			while ($item = $enum->GetNext())
+			while ($item = $enum->Fetch())
 			{
 				$cache[$fieldId][(int)$item['ID']] = $item['VALUE'];
 			}

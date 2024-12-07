@@ -1,4 +1,5 @@
 import { FilterToolbar } from 'mail.client.filtertoolbar';
+import { ErrorBox } from 'mail.client.errorbox';
 import { Binding } from 'mail.client.binding';
 import { BaseEvent, EventEmitter } from "main.core.events";
 
@@ -14,6 +15,7 @@ export class Mailer
 		filterId: '',
 		mailboxId: 0,
 		syncAvailable: true,
+		configPath: '',
 	})
 	{
 		//delete the loader (the envelope is bouncing)
@@ -35,6 +37,13 @@ export class Mailer
 		}
 
 		const mailCounterWrapper = document.querySelector('[data-role="mail-counter-toolbar"]');
+		const mailErrorBoxWrapper = document.querySelector('[data-role="mail-error-box-wrapper"]');
+
+		const errorBox = new ErrorBox({
+			wrapper: mailErrorBoxWrapper,
+			errorLink: config['configPath'],
+			currentMailboxId: this.#mailboxId,
+		});
 
 		const filterToolbar = new FilterToolbar({
 			wrapper: mailCounterWrapper,

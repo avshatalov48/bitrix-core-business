@@ -16,7 +16,6 @@ if (!Loader::includeModule('catalog'))
 	return;
 }
 
-CUtil::JSPostUnescape();
 if ($_SERVER['REQUEST_METHOD'] !== 'POST' || !check_bitrix_sessid())
 {
 	return;

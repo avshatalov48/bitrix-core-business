@@ -4,8 +4,6 @@ namespace Bitrix\Main\Controller;
 use Bitrix\Main\Engine;
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Error;
-use Bitrix\Main\Text\Encoding;
-use Bitrix\Main\UI\Extension;
 use Bitrix\Main\UserConsent;
 
 class Agreement extends Engine\Controller

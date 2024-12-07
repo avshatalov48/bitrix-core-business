@@ -13,7 +13,9 @@ export const Actions = Object.freeze({
 	CHEVRON_DOWN: 'chevron-down',
 	LEFT_SEMICIRCULAR_ANTICLOCKWISE_ARROW_2: 'left-semicircular-anticlockwise-arrow-2',
 	EXPAND_1: 'expand-1',
+	EXPAND_DIAGONAL: 'expand-diagonal',
 	COLLAPSE: 'collapse',
+	COLLAPSE_DIAGONAL: 'collapse-diagonal',
 	AGENDA_GAP: 'agenda-gap',
 	EXPAND_TO_FULL_SCREEN: 'expand-to-full-screen',
 	CURVED_ARROW_LEFT: 'curved-arrow-left',
@@ -106,7 +108,7 @@ export const Actions = Object.freeze({
 	KEYBOARD_2: 'keyboard-2',
 	CONNECTION: 'connection',
 	DISCONNECTION: 'disconnection',
-})
+});
 
 export const Social = Object.freeze({
 	CLOUD_SIFRE: 'cloud-sifre',
@@ -145,7 +147,8 @@ export const Social = Object.freeze({
 	APPLE_AND_IOS: 'apple-and-ios',
 	ANDROID: 'android',
 	ZOOM: 'zoom',
-})
+	LINUX: 'linux',
+});
 
 export const Main = Object.freeze({
 	PERSON_LOCATION: 'person-location',
@@ -267,6 +270,7 @@ export const Main = Object.freeze({
 	WINDOW_WITH_POINT: 'window-with-point',
 	WINDOW_CHECK_ARROW: 'window-check-arrow',
 	VIDEO_1: 'video-1',
+	VIDEO_3: 'video-3',
 	VIDEO_AND_CHAT: 'video-and-chat',
 	NO_VIDEO: 'no-video',
 	PICTURE: 'picture',
@@ -526,7 +530,43 @@ export const Main = Object.freeze({
 	CONDITION: 'condition',
 	COMPLETE: 'complete',
 	TRANSLATION: 'translation',
-})
+	TORRENT: 'torrent',
+	ACTIVITY: 'activity',
+	ADD_TO_CHECKLIST: 'add-to-checklist',
+	BP: 'bp',
+	CLOSE_CHAT: 'close-chat',
+	CREATE_PROMPT: 'create-prompt',
+	DEVICES: 'devices',
+	DOCUMENT_SIGN: 'document-sign',
+	FAVOURITE_PROMPT: 'favourite-prompt',
+	LINES_VERTICAL: 'lines-vertical',
+	MAIN: 'main',
+	MOVE_TO_CHECKLIST: 'move-to-checklist',
+	OPEN_CHAT: 'open-chat',
+	PROMPT: 'prompt',
+	PROMPT_VAR: 'prompt-var',
+	PROMPTS_LIBRARY: 'prompts-library',
+	RECORD_VIDEO: 'record-video',
+	ROLES_LIBRARY: 'roles-library',
+	SAVE_PROMPT: 'save-prompt',
+	SCREEN_SHARE: 'screen-share',
+	SUB_POINT: 'sub-point',
+	UNSUB_POINT: 'unsub-point',
+	SUB_TASK: 'subtask',
+	COLLAB: 'collab',
+	NO_PICTURE: 'no-picture',
+	THREAD: 'thread',
+	THREAD_SINGLE: 'thread-single',
+	BUSINESS_PROCESS_1: 'business-process-1',
+	WAITING_POINTS: 'waiting-points',
+	WAITING_LIST: 'waiting-list',
+	LINK_BOLD: 'link-bold',
+	NOTE: 'note',
+	EDIT_MENU: 'edit-menu',
+	DEMONSTRATION_GRAPHICS: 'demonstration-graphics',
+	CALENDAR_CHECK: 'calendar-check',
+	SIGN: 'sign',
+});
 
 export const ContactCenter = Object.freeze({
 	DIAL_5: 'dial-5',
@@ -536,7 +576,12 @@ export const ContactCenter = Object.freeze({
 	MAIL_SENT: 'mail-sent',
 	INCOMING_CALL_SOUND_ON: 'incoming-call-sound-on',
 	SEND_ATTACH_FILE: 'send-attach-file',
-})
+});
+
+export const Animated = Object.freeze({
+	LOADER_CLOCK: 'loader-clock',
+	LOADER_WAIT: 'loader-wait',
+});
 
 export const CRM = Object.freeze({
 	SEND_CONTACT: 'send-contact',
@@ -589,7 +634,6 @@ export const CRM = Object.freeze({
 	TIMELINE_PLUS: 'timeline-plus',
 	PLUS_BASED_ON: 'plus-based-on',
 	DEAL: 'deal',
-	ACTIVITY: 'activity',
 	CUSTOMER_CARD_1: 'customer-card-1',
 	DEAL_PLUS: 'deal-plus',
 	PERSON_PLUS_2: 'person-plus-2',
@@ -610,7 +654,7 @@ export const CRM = Object.freeze({
 	INSERT: 'insert',
 	SEND_FILE: 'send-file',
 	BITRIX_1C: 'bitrix-1c',
-})
+});
 
 export const Editor = Object.freeze({
 	BOLD: 'bold',
@@ -675,11 +719,11 @@ export const Editor = Object.freeze({
 	SPEED_2_0: 'speed-2-0',
 	MAKE_LONGER: 'make-longer',
 	MAKE_SHORTER: 'make-shorter',
-})
+});
 
 export const Special = Object.freeze({
 	// : '',
-})
+});
 
 export const Set = Object.freeze({
 	...Actions,
@@ -689,4 +733,5 @@ export const Set = Object.freeze({
 	...CRM,
 	...Editor,
 	...Special,
-})
+	...Animated,
+});

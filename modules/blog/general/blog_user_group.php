@@ -195,7 +195,7 @@ class CAllBlogUserGroup
 				"SELECT G.ID, G.BLOG_ID, G.NAME ".
 				"FROM b_blog_user_group G ".
 				"WHERE G.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_USER_GROUP"]["BLOG_USER_GROUP_CACHE_".$ID] = $arResult;
@@ -232,7 +232,7 @@ class CAllBlogUserGroup
 					"	AND P.POST_ID = ".$postID." ".
 					"	AND P.USER_GROUP_ID = ".$ID." ".
 					"	AND P.PERMS_TYPE = '".$DB->ForSql($permsType)."' ";
-				$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$dbResult = $DB->Query($strSql);
 				if ($arResult = $dbResult->Fetch())
 				{
 					$GLOBALS["BLOG_USER_GROUP"][$varName.$ID] = $arResult["PERMS"];
@@ -247,7 +247,7 @@ class CAllBlogUserGroup
 				"	AND P.POST_ID IS NULL ".
 				"	AND P.USER_GROUP_ID = ".$ID." ".
 				"	AND P.PERMS_TYPE = '".$DB->ForSql($permsType)."' ";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_USER_GROUP"][$varName.$ID] = $arResult["PERMS"];

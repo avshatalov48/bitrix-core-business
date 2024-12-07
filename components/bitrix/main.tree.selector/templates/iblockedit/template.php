@@ -1,12 +1,15 @@
-<?
-if(!Defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+if(!Defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
 
 use Bitrix\Main\Context;
+use Bitrix\Main\Web\Json;
 
 if ((defined('BX_PUBLIC_MODE')) && (1 == BX_PUBLIC_MODE))
 {
 ?><link rel="stylesheet" type="text/css" href="<?php echo $this->GetFolder().'/style.css'; ?>">
-<script type="text/javascript" src="<?php echo $this->__component->GetPath().'/script.js'; ?>"></script>
+<script src="<?php echo $this->__component->GetPath().'/script.js'; ?>"></script>
 <?php
 }
 
@@ -21,7 +24,7 @@ if($arParams['SHOW_INPUT'] == 'Y'):?>
 	<input type="button" onclick="<?echo $name_x?>.Show()" value="<?echo $arParams['BUTTON_CAPTION'] ? $arParams['BUTTON_CAPTION'] : '...'?>" title="<?php echo ('' != $arParams['BUTTON_TITLE'] ? $arParams['BUTTON_TITLE'] : '');?>" />
 <?endif;?>
 
-<script type="text/javascript">
+<script>
 <?if($arParams['INPUT_NAME'] && !$arParams['ONSELECT']):?>
 	function OnSelect_<?=$name_x?>(value){
 		document.getElementById('<?=$arParams['INPUT_NAME']?>').value = value;
@@ -50,7 +53,7 @@ if ('' != $arParams['BAN_SYM'])
 ?>
 var <?=$name_x?> = new JCTreeSelectControl({
 	'AJAX_PAGE' : '<?echo CUtil::JSEscape($this->GetFolder()."/ajax.php")?>',
-	'AJAX_PARAMS' : <?echo CUtil::PhpToJsObject($arAjaxParams)?>,
+	'AJAX_PARAMS' : <?echo Json::encode($arAjaxParams) ?>,
 	'MULTIPLE' : <?echo $arParams['MULTIPLE'] == 'Y' ? 'true' : 'false'?>,
 	'GET_FULL_INFO': <?echo $arParams['GET_FULL_INFO'] == 'Y' ? 'true' : 'false'?>,
 	'ONSELECT' : function(v){<?echo $arParams['ONSELECT']?>(v)},

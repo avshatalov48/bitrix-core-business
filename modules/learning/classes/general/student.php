@@ -75,14 +75,14 @@ class CStudent
 
 			$arInsert = $DB->PrepareInsert("b_learn_student", $arFields, "learning");
 
-			if ($arInsert[0] == '' || $arInsert[0] == '')
+			if ($arInsert[0] == '')
 				return false;
 
 			$strSql =
 				"INSERT INTO b_learn_student(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
 
-			if(!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+			if(!$DB->Query($strSql))
 				return false;
 
 			CLearnHelper::FireEvent('OnAfterStudentAdd', $arFields);
@@ -117,7 +117,7 @@ class CStudent
 			if($strUpdate <> '')
 			{
 				$strSql = "UPDATE b_learn_student SET ".$strUpdate." WHERE USER_ID=".$ID;
-				$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->QueryBind($strSql, $arBinds);
 			}
 
 			CLearnHelper::FireEvent('OnAfterStudentUpdate', $arFields);
@@ -155,7 +155,7 @@ class CStudent
 
 		$strSql = "DELETE FROM b_learn_student WHERE USER_ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		CLearnHelper::FireEvent('OnAfterStudentDelete', $ID);
@@ -276,6 +276,6 @@ class CStudent
 		$strSql .= $strSqlOrder;
 
 		//echo $strSql;
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 }

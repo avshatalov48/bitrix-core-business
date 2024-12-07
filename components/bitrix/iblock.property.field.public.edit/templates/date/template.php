@@ -17,6 +17,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
  */
 
 Extension::load([
+	'date',
 	'ui.vue3',
 	'ui.forms',
 	'ui.buttons',

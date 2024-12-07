@@ -98,15 +98,22 @@ if ($arResult['SECTIONS_COUNT'] > 0)
 				}
 				else
 				{
+					$altValue = (string)($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] ?? '');
+					if ($altValue === '')
+					{
+						$altValue = $section['NAME'];
+					}
+					$titleValue = (string)($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] ?? '');
+					if ($titleValue === '')
+					{
+						$titleValue = $section['NAME'];
+					}
 					$section['PICTURE'] = [
 						'SRC' => $emptyImagePath,
-						'ALT' => ($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] ?? '') !== ''
-							? $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT']
-							: $section['NAME'],
-						'TITLE' => ($section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] ?? '') !== ''
-							? $section['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE']
-							: $section['NAME'],
+						'ALT' => $altValue,
+						'TITLE' => $titleValue,
 					];
+					unset($titleValue, $altValue);
 
 					$style = "background-image: url('{$section['PICTURE']['SRC']}');";
 				}

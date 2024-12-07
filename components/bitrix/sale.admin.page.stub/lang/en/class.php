@@ -11,7 +11,6 @@ $MESS["SAPS_CAT_VAT_ADMIN"] = "We have moved the Tax rates page to Bitrix24";
 $MESS["SAPS_SALE_ACCOUNT_ADMIN"] = "We have moved the Internal customer accounts page to Bitrix24";
 $MESS["SAPS_SALE_BASKET"] = "We have moved the Abandoned shopping carts page to Bitrix24";
 $MESS["SAPS_SALE_BUYERS"] = "We have moved the Customers page to Bitrix24";
-$MESS["SAPS_SALE_CASHBOX"] = "Connect cash register";
 $MESS["SAPS_SALE_CASHBOX_CHECK"] = "The Receipts page is now available in Bitrix24";
 $MESS["SAPS_SALE_CASHBOX_LIST"] = "The Cash registers page is now available in Bitrix24";
 $MESS["SAPS_SALE_DELIVERY_SERVICE_LIST"] = "The Delivery services page is now available in Bitrix24";

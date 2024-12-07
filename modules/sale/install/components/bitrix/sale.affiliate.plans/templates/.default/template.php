@@ -38,7 +38,7 @@ if (count($arResult) > 0)
 else
 {
 	?>
-	<?=ShowError(GetMessage("SPCAT1_NO_PLANS"))?>
+	<? ShowError(GetMessage("SPCAT1_NO_PLANS"))?>
 	<?
 }
 ?>

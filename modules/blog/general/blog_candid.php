@@ -70,7 +70,7 @@ class CAllBlogCandidate
 				"SELECT U2B.ID, U2B.BLOG_ID, U2B.USER_ID ".
 				"FROM b_blog_user2blog U2B ".
 				"WHERE U2B.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_CANDIDATE"]["BLOG_CANDIDATE_CACHE_".$ID] = $arResult;

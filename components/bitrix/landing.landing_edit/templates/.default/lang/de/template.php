@@ -2,6 +2,7 @@
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME"] = "Rich Text Format für soziale Medien";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_GROUP"] = "Rich Text Format";
 $MESS["LANDING_FIELD_TITLE_METAOG_NAME_KNOWLEDGE"] = "Rich Text Format";
+$MESS["LANDING_FIELD_TITLE_METAOG_NAME_MAINPAGE"] = "Rich Text Format";
 $MESS["LANDING_TPL_ACTION_ADD_IN_SITEMAP"] = "Seite zur Sitemap hinzufügen";
 $MESS["LANDING_TPL_ACTION_INSTALL_B24"] = "Modul der Integration mit Bitrix24 installieren";
 $MESS["LANDING_TPL_ACTION_SETTINGS"] = "Konfigurieren";

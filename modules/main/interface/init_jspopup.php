@@ -9,13 +9,13 @@ function JSPopupRedirectHandler(&$url, $skip_security_check)
 	if(preg_match("#^/bitrix/admin/#", $url))
 	{
 		ob_end_clean();
-		echo '<script type="text/javascript">top.BX.WindowManager.Get().Close(); '.(!$_REQUEST['subdialog'] ? 'top.BX.reload(true);' : '').'</script>';
+		echo '<script>top.BX.WindowManager.Get().Close(); '.(!$_REQUEST['subdialog'] ? 'top.BX.reload(true);' : '').'</script>';
 		die();
 	}
 	else
 	{
 		ob_end_clean();
-		echo '<script type="text/javascript">top.BX.WindowManager.Get().Close(); '.(!$_REQUEST['subdialog'] ? 'top.BX.reload(\''.CUtil::JSEscape($url).'\', true);' : '').'</script>';
+		echo '<script>top.BX.WindowManager.Get().Close(); '.(!$_REQUEST['subdialog'] ? 'top.BX.reload(\''.CUtil::JSEscape($url).'\', true);' : '').'</script>';
 		die();
 	}
 }

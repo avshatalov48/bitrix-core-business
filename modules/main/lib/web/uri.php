@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -40,10 +40,10 @@ class Uri implements \JsonSerializable, UriInterface
 		if ($parsedUrl !== false)
 		{
 			$this->scheme = strtolower($parsedUrl['scheme'] ?? '');
-			$this->host = strtolower($parsedUrl['host'] ?? '');
+			$this->setHost($parsedUrl['host'] ?? '');
 			$this->port = $parsedUrl['port'] ?? null;
-			$this->user = $parsedUrl['user'] ?? '';
-			$this->pass = $parsedUrl['pass'] ?? '';
+			$this->setUser($parsedUrl['user'] ?? '');
+			$this->setPass($parsedUrl['pass'] ?? '');
 			$this->path = $parsedUrl['path'] ?? '';
 			$this->query = $parsedUrl['query'] ?? '';
 			$this->fragment = $parsedUrl['fragment'] ?? '';
@@ -128,22 +128,22 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the password.
+	 * Returns the rawurlencoded password.
 	 * @return string
 	 */
 	public function getPass()
 	{
-		return $this->pass;
+		return rawurlencode($this->pass);
 	}
 
 	/**
-	 * Sets the password.
+	 * Decodes and sets the password.
 	 * @param string $pass Password,
 	 * @return $this
 	 */
 	public function setPass($pass)
 	{
-		$this->pass = $pass;
+		$this->pass = rawurldecode($pass);
 		return $this;
 	}
 
@@ -227,22 +227,22 @@ class Uri implements \JsonSerializable, UriInterface
 	}
 
 	/**
-	 * Returns the user.
+	 * Returns the rawurlencoded user.
 	 * @return string
 	 */
 	public function getUser()
 	{
-		return $this->user;
+		return rawurlencode($this->user);
 	}
 
 	/**
-	 * Sets the user.
+	 * Decodes and sets the user.
 	 * @param string $user User.
 	 * @return $this
 	 */
 	public function setUser($user)
 	{
-		$this->user = $user;
+		$this->user = rawurldecode($user);
 		return $this;
 	}
 
@@ -350,7 +350,7 @@ class Uri implements \JsonSerializable, UriInterface
 
 	/**
 	 * Converts the host to punycode.
-	 * @return string|\Bitrix\Main\Error
+	 * @return string|Main\Error
 	 */
 	public function convertToPunycode()
 	{
@@ -358,7 +358,25 @@ class Uri implements \JsonSerializable, UriInterface
 
 		if (!empty($encodingErrors))
 		{
-			return new \Bitrix\Main\Error(implode("\n", $encodingErrors));
+			return new Main\Error(implode("\n", $encodingErrors));
+		}
+
+		$this->setHost($host);
+
+		return $host;
+	}
+
+	/**
+	 * Converts the host to unicode.
+	 * @return string|Main\Error
+	 */
+	public function convertToUnicode()
+	{
+		$host = \CBXPunycode::ToUnicode($this->getHost(), $encodingErrors);
+
+		if (!empty($encodingErrors))
+		{
+			return new Main\Error(implode("\n", $encodingErrors));
 		}
 
 		$this->setHost($host);

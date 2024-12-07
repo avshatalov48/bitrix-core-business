@@ -10,5 +10,8 @@ module.exports = {
 			'./src/wrap/end.js',
 		],
 	},
+	plugins: {
+		babel: false,
+	},
 	browserslist: true,
 };

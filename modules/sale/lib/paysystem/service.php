@@ -1060,10 +1060,10 @@ class Service implements RestrictableService
 	 * Returns indicator showing if fiscalization is enabled on the payment system side
 	 *
 	 * @param Payment $payment
-	 * @return bool|null
+	 * @return bool
 	 * @throws NotSupportedException
 	 */
-	public function isFiscalizationEnabled(Payment $payment): ?bool
+	public function isFiscalizationEnabled(Payment $payment): bool
 	{
 		if ($this->isFiscalizationAware())
 		{

@@ -5,11 +5,11 @@ if (isset($bizproc_installer_errors) && is_array($bizproc_installer_errors) && (
 	$errors = "";
 	foreach ($bizproc_installer_errors as $e)
 		$errors .= htmlspecialcharsbx($e)."<br>";
-	echo CAdminMessage::ShowMessage(Array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_UNINST_ERR"), "DETAILS"=>$errors, "HTML"=>true));
+	CAdminMessage::ShowMessage(Array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_UNINST_ERR"), "DETAILS"=>$errors, "HTML"=>true));
 }
 else
 {
-	echo CAdminMessage::ShowNote(GetMessage("MOD_UNINST_OK"));
+	CAdminMessage::ShowNote(GetMessage("MOD_UNINST_OK"));
 }
 ?>
 <form action="<?echo $APPLICATION->GetCurPage()?>">

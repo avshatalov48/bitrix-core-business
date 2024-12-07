@@ -13,7 +13,7 @@
 		"SORT" => $arResult["GRID"]["SORT"],
 		"SORT_VARS" => $arResult["GRID"]["SORT_VARS"],
 		"ROWS" => $arResult["GRID"]["DATA"],
-		"FOOTER" => array(array("title" => GetMessage("IDEA_SUBSCRIBE_TOTAL"), "value" => count($arResult["GRID"]["DATA"]))),
+		"FOOTER" => array(array("title" => GetMessage("IDEA_SUBSCRIBE_TOTAL"), "value" => count($arResult["GRID"]["DATA"] ?? []))),
 		"EDITABLE" => false,
 		"ACTIONS" => array(
 			"delete" => true

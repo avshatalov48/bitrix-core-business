@@ -1,5 +1,6 @@
 import 'ui.icons.disk';
 
+import { FileType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
 import { ProgressBar } from './progress-bar';
@@ -15,8 +16,8 @@ export const BaseFileItem = {
 	components: { ProgressBar },
 	props:
 	{
-		item: {
-			type: Object,
+		id: {
+			type: [String, Number],
 			required: true,
 		},
 		messageId: {
@@ -28,11 +29,11 @@ export const BaseFileItem = {
 	{
 		file(): ImModelFile
 		{
-			return this.item;
+			return this.$store.getters['files/get'](this.id, true);
 		},
 		fileShortName(): string
 		{
-			const NAME_MAX_LENGTH = 40;
+			const NAME_MAX_LENGTH = 20;
 
 			return Utils.file.getShortFileName(this.file.name, NAME_MAX_LENGTH);
 		},
@@ -57,6 +58,16 @@ export const BaseFileItem = {
 		isLoaded(): boolean
 		{
 			return this.file.progress === 100;
+		},
+		imageStyles(): {backgroundImage: string}
+		{
+			return {
+				backgroundImage: `url(${this.file.urlPreview})`,
+			};
+		},
+		isImage(): boolean
+		{
+			return this.file.type === FileType.image;
 		},
 	},
 	created()
@@ -85,14 +96,18 @@ export const BaseFileItem = {
 		},
 		openContextMenu(event: PointerEvent)
 		{
-			this.$emit('openContextMenu', event);
+			this.$emit('openContextMenu', {
+				event,
+				fileId: this.id,
+			});
 		},
 	},
 	template: `
-		<div class="bx-im-base-file-item__container bx-im-base-file-item__scope">
+		<div class="bx-im-base-file-item__container">
 			<div class="bx-im-base-file-item__icon-container" ref="loader-icon" v-bind="viewerAttributes" @click="download">
-				<div v-if="isLoaded" :class="iconClass" class="bx-im-base-file-item__type-icon ui-icon"><i></i></div>
-				<ProgressBar v-else :item="file" :messageId="messageId" />
+				<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" :withLabels="false" />
+				<div v-if="isImage" :style="imageStyles" class="bx-im-base-file-item__image"></div>
+				<div v-else :class="iconClass" class="bx-im-base-file-item__type-icon ui-icon"><i></i></div>
 			</div>
 			<div class="bx-im-base-file-item__content" v-bind="viewerAttributes" @click="download">
 				<span :title="file.name" class="bx-im-base-file-item__title">

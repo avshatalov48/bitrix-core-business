@@ -114,6 +114,11 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 		this.eventIds = new Set();
 		this.needReloadStorageKey = 'UI.EntityEditor.needReload';
+
+		this._attributeManager = null;
+
+		this._validationEnabled = true;
+
 	};
 	BX.UI.EntityEditor.prototype =
 	{
@@ -388,13 +393,13 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		initializeManagers: function()
 		{
-
 			this._userFieldManager = BX.prop.get(this._settings, "userFieldManager", null);
 			this._configurationFieldManager = BX.UI.EntityConfigurationManager.create(
 				this._id,
 				{ editor: this }
 			);
-			var eventArgs = {
+
+			let eventArgs = {
 				id: this._id,
 				editor: this,
 				type: 'editor',
@@ -494,6 +499,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 
 			this.releaseAjaxForm();
 			this.releaseReloadAjaxForm();
+			this._attributeManager = null;
 			this._container = BX.remove(this._container);
 
 			this._isReleased = true;
@@ -515,7 +521,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		},
 		onSliderClose: function(event)
 		{
-			if(!this._enableCloseConfirmation)
+			if(!this._enableCloseConfirmation || this.isEmbedded())
 			{
 				return;
 			}
@@ -850,9 +856,18 @@ if(typeof BX.UI.EntityEditor === "undefined")
 		{
 			return this._userFieldManager;
 		},
+		setAttributeManager: function(attributeManager)
+		{
+			if (BX.Type.isObject(attributeManager))
+			{
+				this._attributeManager = attributeManager;
+			}
+
+			return this._attributeManager;
+		},
 		getAttributeManager: function()
 		{
-			return null;
+			return this._attributeManager;
 		},
 		getHtmlEditorConfig: function(fieldName)
 		{
@@ -2383,17 +2398,44 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				this._reloadAjaxForm.submit();
 			}
 		},
+		setValidationEnabled: function(isEnabled)
+		{
+			isEnabled = !!isEnabled;
+
+			this._validationEnabled = isEnabled;
+
+			if (this._userFieldManager)
+			{
+				this._userFieldManager.setValidationEnabled(isEnabled);
+			}
+		},
 		validate: function(result)
 		{
-			for(var i = 0, length = this._activeControls.length; i < length; i++)
+			const promise = new BX.Promise();
+
+			if (this._validationEnabled)
 			{
-				this._activeControls[i].validate(result);
+				for(let i = 0, length = this._activeControls.length; i < length; i++)
+				{
+					this._activeControls[i].validate(result);
+				}
+
+				if (this._userFieldManager)
+				{
+					this._userFieldManager.validate(result).then(
+						BX.delegate(function() { promise.fulfill(); }, this)
+					);
+				}
+				else
+				{
+					promise.fulfill();
+				}
+			}
+			else
+			{
+				promise.fulfill();
 			}
 
-			var promise = new BX.Promise();
-			this._userFieldManager.validate(result).then(
-				BX.delegate(function() { promise.fulfill(); }, this)
-			);
 			return promise;
 		},
 		isRequestRunning: function()
@@ -3148,7 +3190,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "switchToPersonalConfig",
-						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_PERSONAL_CONFIG_MSGVER_1"),
+						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_PERSONAL_CONFIG_MSGVER_2"),
 						onclick: callback,
 						className: configScope === BX.UI.EntityConfigScope.personal
 							? "menu-popup-item-accept" : "menu-popup-item-none"
@@ -3158,7 +3200,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "switchToCommonConfig",
-						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_COMMON_CONFIG_MSGVER_1"),
+						text: BX.message("UI_ENTITY_EDITOR_SWITCH_TO_COMMON_CONFIG_MSGVER_2"),
 						onclick: callback,
 						className: configScope === BX.UI.EntityConfigScope.common
 							? "menu-popup-item-accept" : "menu-popup-item-none"
@@ -3199,7 +3241,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 				items.push(
 					{
 						id: "resetConfig",
-						text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG_MSGVER_1"),
+						text: BX.message("UI_ENTITY_EDITOR_RESET_CONFIG_MSGVER_2"),
 						onclick: callback,
 						className: "menu-popup-item-none"
 					}
@@ -3210,7 +3252,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push(
 						{
 							id: "forceCommonConfigForAllUsers",
-							text: BX.message("UI_ENTITY_EDITOR_FORCE_COMMON_CONFIG_FOR_ALL_MSGVER_1"),
+							text: BX.message("UI_ENTITY_EDITOR_FORCE_COMMON_CONFIG_FOR_ALL_MSGVER_2"),
 							onclick: callback,
 							className: "menu-popup-item-none"
 						}
@@ -3224,7 +3266,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push(
 						{
 							id: "createConfigForCheckedUsers",
-							text: BX.message('UI_ENTITY_EDITOR_CREATE_SCOPE'),
+							text: BX.message('UI_ENTITY_EDITOR_CREATE_SCOPE_MSGVER_1'),
 							onclick: callback,
 							className: "menu-popup-item-none"
 						}
@@ -3233,7 +3275,7 @@ if(typeof BX.UI.EntityEditor === "undefined")
 					items.push(
 						{
 							id: "editCommonConfig",
-							text: BX.message('UI_ENTITY_EDITOR_UPDATE_SCOPE'),
+							text: BX.message('UI_ENTITY_EDITOR_UPDATE_SCOPE_MSGVER_1'),
 							onclick: callback,
 							className: "menu-popup-item-none"
 						}
@@ -3991,7 +4033,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			{
 				return (this._popup || new BX.PopupWindow(this._id, null, {
 					className: 'ui-entity-editor-content-user-scope-popup',
-					titleBar: BX.message('UI_ENTITY_EDITOR_CREATE_SCOPE'),
+					titleBar: BX.message('UI_ENTITY_EDITOR_CREATE_SCOPE_MSGVER_1'),
 					closeIcon : true,
 					autoHide: false,
 					closeByEsc: true,
@@ -4037,7 +4079,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 					props: {
 						className: 'ui-ctl-label-text'
 					},
-					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME')
+					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME_MSGVER_1')
 				}));
 
 				var control = BX.create('div', {
@@ -4051,7 +4093,6 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 						className: 'ui-ctl-element',
 						value: this.getName(),
 						type: 'text',
-						placeholder: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_NAME_PLACEHOLDER')
 					}
 				});
 
@@ -4072,7 +4113,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 					props: {
 						className: 'ui-ctl-label-text'
 					},
-					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_MEMBERS')
+					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_MEMBERS_MSGVER_1')
 				}));
 
 				var control = BX.create('div', {
@@ -4145,8 +4186,11 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 					props:{
 						className: 'ui-ctl-label-text',
 					},
-					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS')
+					text: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_FORCE_INSTALL_TO_USERS_MSGVER_1')
 				}));
+				control.appendChild(
+					BX.UI.Hint.createNode(BX.message('UI_ENTITY_EDITOR_CONFIG_HINT_SCOPE_FORCE_INSTALL_TO_USERS'))
+				);
 
 				container.appendChild(control);
 
@@ -4300,7 +4344,7 @@ if(typeof(BX.UI.EntityEditorScopeConfig) === "undefined")
 			notifyShow: function(response)
 			{
 				window.top.BX.UI.Notification.Center.notify({
-					content: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVED'),
+					content: BX.message('UI_ENTITY_EDITOR_CONFIG_SCOPE_SAVED_MSGVER_1'),
 					width: 'auto',
 				});
 			},

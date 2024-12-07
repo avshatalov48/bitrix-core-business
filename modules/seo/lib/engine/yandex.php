@@ -8,14 +8,11 @@
 
 namespace Bitrix\Seo\Engine;
 
-use Bitrix\Main\ArgumentNullException;
 use Bitrix\Main\Context;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Seo\Engine;
 use Bitrix\Seo\IEngine;
-use Bitrix\Main\Text;
-use Bitrix\Main\Text\Converter;
 
 class Yandex extends Engine\YandexBase implements IEngine
 {
@@ -180,7 +177,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	
 	private function getSiteInfoGeneral($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId);
@@ -194,7 +191,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	
 	private function getSiteInfoStats($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_SUMMARY_URL);
@@ -216,7 +213,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	 */
 	public function getSiteInfoQueries($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 //		get TOTAL_SHOWS
@@ -269,7 +266,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		
 		foreach($existedDomains as $domain)
 		{
-			$domain['DOMAIN'] = ToLower($domain['DOMAIN']);
+			$domain['DOMAIN'] = mb_strtolower($domain['DOMAIN']);
 
 			if(isset($this->hostIds[$domain['DOMAIN']]))
 			{
@@ -285,7 +282,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	
 	public function getOriginalTexts($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 		$counter = 0;
@@ -348,7 +345,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	 */
 	public function addOriginalText($text, $domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 
 //		create JSON data in correct format
@@ -373,7 +370,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	 */
 	public function addSite($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$queryDomain = Context::getCurrent()->getRequest()->isHttps() ? 'https://' . $domain : $domain;
 
 //		create JSON data in correct format
@@ -397,7 +394,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 	 */
 	public function getVerifySiteUin($domain)
 	{
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_VERIFICATION_URL);
@@ -422,7 +419,7 @@ class Yandex extends Engine\YandexBase implements IEngine
 		if (!in_array($verType, self::$verificationTypes))
 			return array('error' => array('message' => 'incorrect verification type'));
 		
-		$domain = ToLower($domain);
+		$domain = mb_strtolower($domain);
 		$hostId = $this->getHostId($domain);
 		
 		$serviceUrl = $this->getServiceUrl($this->userId, $hostId, self::API_VERIFICATION_URL, array('verification_type' => $verType));
@@ -483,8 +480,6 @@ class Yandex extends Engine\YandexBase implements IEngine
 					$this->queryOld($scope, $method, $data, true);
 				}
 			}
-			
-			$http->result = Text\Encoding::convertEncoding($http->result, 'utf-8', LANG_CHARSET);
 			
 			return $http;
 		}

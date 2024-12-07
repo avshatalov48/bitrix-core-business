@@ -124,7 +124,7 @@ if($arID = $lAdmin->GroupAction())
 	{
 		if($ID == '')
 			continue;
-	   	$ID = intval($ID);
+		$ID = intval($ID);
 		//Rights check
 		if(GetRights($ID)<"W")
 			continue;
@@ -303,7 +303,7 @@ if ($saleModulePermissions == "W")
 	{
 		$arDDMenu[] = array(
 			"TEXT" => "[".$arRes["ID"]."] ".$arRes["NAME"]." (".$arRes["LID"].")",
-			"ACTION" => "window.location = 'userfield_edit.php?lang=ru&ENTITY_ID=SALE_ORDER_".$arRes["ID"]."&lang=" . LANGUAGE_ID . "&back_url=%2Fbitrix%2Fadmin%2Fsale_order_uf_props.php?lang=" . LANGUAGE_ID . "';"
+			"ACTION" => "window.location = 'userfield_edit.php?lang=" . LANGUAGE_ID . "&ENTITY_ID=SALE_ORDER_".$arRes["ID"]."&back_url=%2Fbitrix%2Fadmin%2Fsale_order_uf_props.php?lang=" . LANGUAGE_ID . "';"
 		);
 
 	}

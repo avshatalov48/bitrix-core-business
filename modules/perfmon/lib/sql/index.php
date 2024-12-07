@@ -53,6 +53,21 @@ class Index extends BaseObject
 	{
 		if (!$indexName)
 		{
+			if ($tokenizer->testUpperText('IF'))
+			{
+				$tokenizer->skipWhiteSpace();
+
+				if ($tokenizer->testUpperText('NOT'))
+				{
+					$tokenizer->skipWhiteSpace();
+				}
+
+				if ($tokenizer->testUpperText('EXISTS'))
+				{
+					$tokenizer->skipWhiteSpace();
+				}
+			}
+
 			if ($tokenizer->getCurrentToken()->text !== '(')
 			{
 				$indexName = $tokenizer->getCurrentToken()->text;

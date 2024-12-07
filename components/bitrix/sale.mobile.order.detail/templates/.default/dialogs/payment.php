@@ -61,7 +61,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 	}
 	?>
 </form>
-<script type="text/javascript">
+<script>
 
 app.setPageTitle({title: "<?=GetMessage('SMOD_PAYMENT')?>"});
 

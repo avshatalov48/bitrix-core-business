@@ -52,7 +52,7 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 			$strSql =
 				"INSERT INTO b_sonet_group_subject(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = (int)$DB->LastID();
 
@@ -60,14 +60,14 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 			{
 				$DB->Query("
 					DELETE FROM b_sonet_group_subject_site WHERE SUBJECT_ID = ".$ID."
-				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				");
 
 				$DB->Query("
 					INSERT INTO b_sonet_group_subject_site(SUBJECT_ID, SITE_ID)
 					SELECT ".$ID.", LID
 					FROM b_lang
 					WHERE LID IN ('".implode("', '", $arSiteID)."')
-				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				");
 
 				$events = GetModuleEvents("socialnetwork", "OnSocNetGroupSubjectAdd");
 				while ($arEvent = $events->Fetch())
@@ -197,7 +197,7 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 			{
 				return $arRes["CNT"];
@@ -246,7 +246,7 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -257,7 +257,7 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -276,16 +276,16 @@ class CSocNetGroupSubject extends CAllSocNetGroupSubject
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			//$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			//$dbRes = $DB->Query($strSql);
 
 			if (CACHED_b_sonet_group_subjects == false || !$bShouldBeCached)
 			{
-				$dbRes = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$dbRes = $DB->Query($strSql);
 			}
 			else
 			{
 				$arResult = array();
-				$dbRes = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$dbRes = $DB->Query($strSql);
 				while ($ar = $dbRes->Fetch())
 				{
 					$arResult[] = $ar;

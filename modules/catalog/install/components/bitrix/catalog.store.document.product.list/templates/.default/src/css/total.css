@@ -78,17 +78,20 @@
 	border-bottom: 1px solid #f0f3f5;
 }
 
-.catalog-document-product-list-result-grid-total {
-	color: #525c69;
-}
-
 .catalog-document-product-list-result-grid-total-big,
 .catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-total-sum {
 	font-family: var(--ui-font-family-secondary, var(--ui-font-family-open-sans));
 	font-weight: var(--ui-font-weight-semi-bold, 600);
 	font-size: 21px;
-	color: #525c69;
 	padding-top: 10px;
+}
+
+.catalog-document-product-list-result-grid-total {
+	color: rgba(82,92,105,.5);
+}
+
+.catalog-document-product-list-result-grid-total-sum {
+	color: #525c69;
 }
 
 .catalog-document-product-list-result-grid-total-big .catalog-document-product-list-result-grid-item-currency {
@@ -98,3 +101,21 @@
 	padding-left: 5px
 }
 
+.catalog-document-product-list-payment-side-table td.catalog-document-product-list-payment-side-table-td-border {
+	padding-bottom: 18px;
+	position: relative;
+}
+
+.catalog-document-product-list-payment-side-table td {
+	padding-bottom: 8px;
+}
+
+.catalog-document-product-list-payment-side-table-td-border:last-child:after {
+	content: '';
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	width: 200%;
+	height: 1px;
+	background: #f0f3f5;
+}

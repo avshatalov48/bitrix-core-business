@@ -61,11 +61,11 @@ $arIds = array();
 	<?endforeach;?>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.onCustomEvent("onMobileAppNeedJSFile", [{ url: "<?=$templateFolder.'/script.js'?>"}]);
 </script>
 
-<script type="text/javascript">
+<script>
 	checkboxControl_<?=$arResult["DOM_CONTAINER_ID"]?> = new __MACheckBoxControl({
 		containerId: "<?=$arResult["DOM_CONTAINER_ID"]?>",
 		resultCallback: <?=(isset($arParams["JS_RESULT_HANDLER"]) ? '"'.$arParams["JS_RESULT_HANDLER"].'"' : 'false')?>,

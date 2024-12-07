@@ -38,7 +38,7 @@ http://stackoverflow.com/questions/1653308/access-control-allow-origin-multiple-
 ### 1) Include the minified version of file of this plugin. I.e.:
 
 ```
-<script src="amcharts/plugins/dataloader/dataloader.min.js" type="text/javascript"></script>
+<script src="amcharts/plugins/dataloader/dataloader.min.js"></script>
 ```
 
 (this needs to go after all the other amCharts includes)

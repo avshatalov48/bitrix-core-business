@@ -26,11 +26,6 @@ class support extends CModule
 			$this->MODULE_VERSION = $arModuleVersion["VERSION"];
 			$this->MODULE_VERSION_DATE = $arModuleVersion["VERSION_DATE"];
 		}
-		else
-		{
-			$this->MODULE_VERSION = SUPPORT_VERSION;
-			$this->MODULE_VERSION_DATE = SUPPORT_VERSION_DATE;
-		}
 
 		$this->MODULE_NAME = GetMessage("SUP_MODULE_NAME");
 		$this->MODULE_DESCRIPTION = GetMessage("SUP_MODULE_DESCRIPTION");
@@ -161,18 +156,15 @@ class support extends CModule
 	
 	function InstallFiles($arParams = array())
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/admin', $_SERVER['DOCUMENT_ROOT'].'/bitrix/admin');
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/images', $_SERVER['DOCUMENT_ROOT'].'/bitrix/images/support', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/upload/support/not_image', $_SERVER['DOCUMENT_ROOT'].'/'.COption::GetOptionString('main', 'upload_dir', 'upload').'/support/not_image'); 
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/tools', $_SERVER['DOCUMENT_ROOT'].'/bitrix/tools'); 
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/components', $_SERVER['DOCUMENT_ROOT'].'/bitrix/components', true, true);
-		
-			//Theme
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/themes', $_SERVER['DOCUMENT_ROOT'].'/bitrix/themes', true, true);
-		}
-		
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/admin', $_SERVER['DOCUMENT_ROOT'].'/bitrix/admin');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/images', $_SERVER['DOCUMENT_ROOT'].'/bitrix/images/support', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/upload/support/not_image', $_SERVER['DOCUMENT_ROOT'].'/'.COption::GetOptionString('main', 'upload_dir', 'upload').'/support/not_image');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/tools', $_SERVER['DOCUMENT_ROOT'].'/bitrix/tools');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/components', $_SERVER['DOCUMENT_ROOT'].'/bitrix/components', true, true);
+
+		//Theme
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/support/install/themes', $_SERVER['DOCUMENT_ROOT'].'/bitrix/themes', true, true);
+
 		if ($arParams['install_public'] == 'Y' && !empty($arParams['public_dir']))
 		{
 			$bReWriteAdditionalFiles = $arParams['public_rewrite'] == 'Y';

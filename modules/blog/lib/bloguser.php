@@ -130,7 +130,7 @@ class BlogUser
 	{
 		$cache = Cache::createInstance();
 		
-		return $cache->cleanDir(self::CACHE_ID, self::createCacheDir($blogId));
+		$cache->cleanDir(self::CACHE_ID, self::createCacheDir($blogId));
 	}
 	
 	

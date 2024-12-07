@@ -1241,7 +1241,7 @@ class Processor extends \Bitrix\Socialnetwork\Component\LogListCommon\Processor
 					&& $key == 0
 				)
 				{
-					if ($eventFields['DATE_FOLLOW'])
+					if (isset($eventFields['DATE_FOLLOW']))
 					{
 						$logPageProcessorInstance->setDateFirstPageTimestamp($this->makeTimeStampFromDateTime($eventFields['DATE_FOLLOW']));
 					}

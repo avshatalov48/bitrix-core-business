@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)die();
 
 \Bitrix\Main\UI\Extension::load([
@@ -180,7 +183,7 @@ if(!function_exists('__InterfaceFilterRenderField'))
 					$enableWrapper = $field["enableWrapper"] ?? true;
 
 					if($enableWrapper):
-						$wrapperClass = mb_strpos($fieldID, 'UF_') === 0 ? 'bx-user-field-wrap' : 'bx-input-wrap';
+						$wrapperClass = str_starts_with($fieldID, 'UF_') ? 'bx-user-field-wrap' : 'bx-input-wrap';
 						echo '<div class="', $wrapperClass, '">';
 					endif;
 
@@ -552,7 +555,7 @@ if(!(is_string($filterRows) && $filterRows !== ''))
 	$filterRows = implode(',', $fieldIDs);
 }
 
-?><script type="text/javascript">
+?><script>
 	BX.ready(
 			function()
 			{
@@ -587,16 +590,16 @@ if(!(is_string($filterRows) && $filterRows !== ''))
 								"fieldDelimiterContainerPrefix": "<?=CUtil::JSEscape($fieldDelimiterContainerPrefix)?>",
 								"itemContainerPrefix": "<?=CUtil::JSEscape($tabPrefix)?>",
 								"currentTime": <?=(time() + date('Z') + CTimeZone::GetOffset())?>,
-								"fieldInfos": <?=CUtil::PhpToJSObject($infos)?>,
-								"itemInfos":<?=CUtil::PhpToJSObject($savedItems)?>,
+								"fieldInfos": <?= Json::encode($infos) ?>,
+								"itemInfos":<?= Json::encode($savedItems) ?>,
 								"enableProvider": <?=isset($arParams['ENABLE_PROVIDER']) && $arParams['ENABLE_PROVIDER'] ? 'true' : 'false'?>,
 								"isApplied":<?=$isFilterApplied ? 'true' : 'false'?>,
-								"currentValues":<?=CUtil::PhpToJSObject($values)?>,
+								"currentValues":<?= Json::encode($values) ?>,
 								"currentItemId": "<?=CUtil::JSEscape($currentFilterID === '' ? 'filter_default' : $currentFilterID)?>",
 								"defaultItemId": "filter_default",
 								"defaultVisibleRows": "<?=$filterRows?>",
 								"isFolded": <?=$isFilterFolded ? 'true' : 'false'?>,
-								"presetsDeleted": <?=CUtil::PhpToJSObject($presetsDeleted)?>
+								"presetsDeleted": <?= Json::encode($presetsDeleted)?>
 							}
 					)
 				);
@@ -604,7 +607,7 @@ if(!(is_string($filterRows) && $filterRows !== ''))
 				<?if(!empty($navigationBarConfig['items'])):?>
 				BX.InterfaceGridFilterNavigationBar.create(
 					"<?=CUtil::JSEscape($navigationBarID)?>",
-					BX.ParamBag.create(<?=CUtil::PhpToJSObject($navigationBarConfig)?>)
+					BX.ParamBag.create(<?= Json::encode($navigationBarConfig) ?>)
 				);
 				<?endif;?>
 			}

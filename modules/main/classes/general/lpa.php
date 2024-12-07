@@ -24,11 +24,11 @@ class LPA
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (mb_substr($src, 0, 5) == "<?"."php")
-					$src = mb_substr($src, 5);
+				if (str_starts_with($src, "<?php"))
+					$src = substr($src, 5);
 				else
-					$src = mb_substr($src, 2);
-				$src = mb_substr($src, 0, -2);
+					$src = substr($src, 2);
+				$src = substr($src, 0, -2);
 
 				//If it's Component 2, keep the php code. If it's component 1 or ordinary PHP - than replace code by #PHPXXXX# (XXXX - count of PHP scripts)
 				$isComponent2Begin = false;
@@ -76,8 +76,8 @@ class LPA
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (mb_substr($src, 0, 5) == "<?php")
-					$src = '<?'.mb_substr($src, 5);
+				if (str_starts_with($src, "<?php"))
+					$src = '<?'.substr($src, 5);
 
 				//If it's Component 2 - we handle it's params, non components2 will be somehow erased
 				$isComponent2Begin = false;
@@ -181,7 +181,7 @@ class LPA
 			$filesrc = self::EncodePHPTags($filesrc);
 		}
 
-		if (strpos($filesrc, '#PHP') !== false && $old_filesrc !== false) // We have to handle php fragments
+		if (str_contains($filesrc, '#PHP') && $old_filesrc !== false) // We have to handle php fragments
 		{
 			// Get array of PHP scripts from old saved file
 			$arPHP = PHPParser::ParseFile($old_filesrc);
@@ -189,15 +189,10 @@ class LPA
 			$l = count($arPHP);
 			if ($l > 0)
 			{
-				$new_filesrc = '';
-				$end = 0;
 				for ($n = 0; $n < $l; $n++)
 				{
-					$start = $arPHP[$n][0];
-					$new_filesrc .= mb_substr($old_filesrc, $end, $start - $end);
-					$end = $arPHP[$n][1];
 					$src = $arPHP[$n][2];
-					$src = mb_substr($src, (mb_substr($src, 0, 5) == "<?"."php")? 5 : 2, -2); // Trim php tags
+					$src = substr($src, (str_starts_with($src, "<?php"))? 5 : 2, -2); // Trim php tags
 
 					$isComponent2Begin = false;
 					$arIncludeComponentFunctionStrings = PHPParser::getComponentFunctionStrings();
@@ -217,7 +212,7 @@ class LPA
 
 			// Ok, so we already have array of php scripts lets check our new content
 			// LPA-users CAN delete PHP fragments and swap them but CAN'T add new or modify existent:
-			while (preg_match('/#PHP\d{4}#/i'.BX_UTF_PCRE_MODIFIER, $filesrc, $res))
+			while (preg_match('/#PHP\d{4}#/iu', $filesrc, $res))
 			{
 				$php_begin = mb_strpos($filesrc, $res[0]);
 				$php_fr_num = intval(mb_substr($filesrc, $php_begin + 4, 4)) - 1; // Number of PHP fragment from #PHPXXXX# conctruction
@@ -252,10 +247,10 @@ class LPA
 		//all php fragments wraped by ={}
 		foreach ($arParams as $param_name => $paramval)
 		{
-			if (mb_substr($param_name, 0, 2) == '={' && mb_substr($param_name, -1) == '}')
+			if (str_starts_with($param_name, '={') && str_ends_with($param_name, '}'))
 			{
-				$key = mb_substr($param_name, 2, -1);
-				if (strval($key) !== strval(intval($key)))
+				$key = substr($param_name, 2, -1);
+				if ($key !== strval(intval($key)))
 				{
 					unset($arParams[$param_name]);
 					continue;
@@ -266,7 +261,7 @@ class LPA
 				self::ComponentChecker($paramval, $arPHPparams, ($parentParamName !== false? $parentParamName : $param_name));
 				$arParams[$param_name] = $paramval;
 			}
-			elseif (mb_substr($paramval, 0, 2) == '={' && mb_substr($paramval, -1) == '}')
+			elseif (str_starts_with($paramval, '={') && str_ends_with($paramval, '}'))
 			{
 				$arPHPparams[] = ($parentParamName !== false? $parentParamName : $param_name);
 			}

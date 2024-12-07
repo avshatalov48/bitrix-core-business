@@ -46,9 +46,12 @@ class EventManager extends Manager implements EventManagerInterface
 		{
 			// TODO: Remake it: move this logic to parent::request().
 			// Or, better, in separate class.
+			$converter = new EventConverter(
+				event: $event,
+			);
 			$this->httpClient->post(
 				$this->prepareCreateUrl($context),
-				$this->encode((new EventConverter($event))->convertForCreate())
+				$this->encode($converter->convertForCreate())
 			);
 
 			if ($this->isRequestSuccess())
@@ -89,21 +92,18 @@ class EventManager extends Manager implements EventManagerInterface
 			if ($event->getUid())
 			{
 				$event->setUid(null);
+
 				return $this->create($event, $context);
 			}
-			else
-			{
-				$result->addError(new Error($e->getMessage(), $e->getCode()));
-			}
+
+			$result->addError(new Error($e->getMessage(), $e->getCode()));
 		}
 		catch (ArgumentException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to create an event in google'));
 		}
 		catch (ObjectException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to convert event'));
 		}
 
@@ -128,10 +128,14 @@ class EventManager extends Manager implements EventManagerInterface
 		{
 			// TODO: Remake it: move this logic to parent::request().
 			// Or, better, in separate class.
+			$converter = new EventConverter(
+				event: $event,
+				eventConnection: $context->getEventConnection(),
+			);
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareUpdateUrl($context),
-				$this->encode((new EventConverter($event, $context->getEventConnection()))->convertForUpdate())
+				$this->encode($converter->convertForUpdate())
 			);
 
 			if ($this->isRequestSuccess())
@@ -187,12 +191,10 @@ class EventManager extends Manager implements EventManagerInterface
 		}
 		catch (ArgumentException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to update an event in google'));
 		}
 		catch (ObjectException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to convert event'));
 		}
 
@@ -215,10 +217,12 @@ class EventManager extends Manager implements EventManagerInterface
 		{
 			// TODO: Remake it: move this logic to parent::request().
 			// Or, better, in separate class.
+			$converter = new EventConverter($event);
+
 			$this->httpClient->query(
 				HttpClient::HTTP_DELETE,
 				$this->prepareUpdateUrl($context),
-				$this->encode((new EventConverter($event))->convertForDelete())
+				$this->encode($converter->convertForDelete())
 			);
 
 			if ($this->isRequestDeleteSuccess())
@@ -246,12 +250,10 @@ class EventManager extends Manager implements EventManagerInterface
 		}
 		catch (ArgumentException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to delete an event in google'));
 		}
 		catch (ObjectException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to convert event'));
 		}
 
@@ -270,7 +272,6 @@ class EventManager extends Manager implements EventManagerInterface
 		$instanceContext = $this->prepareContextForInstance($event, $context);
 		if ($instanceContext === null)
 		{
-			AddMessage2Log('failed to create instance. id='. $event->getId(), 'calendar', 2, true);
 			return $result->addError(new Error('failed to create an instance in google'));
 		}
 
@@ -278,10 +279,15 @@ class EventManager extends Manager implements EventManagerInterface
 		{
 			// TODO: Remake it: move this logic to parent::request().
 			// Or, better, in separate class.
+
+			$converter = new EventConverter(
+				event: $event,
+				eventConnection: $instanceContext->getEventConnection()
+			);
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareUpdateUrl($instanceContext),
-				$this->encode((new EventConverter($event, $instanceContext->getEventConnection()))->convertForUpdate())
+				$this->encode($converter->convertForUpdate())
 			);
 
 			if ($this->isRequestSuccess())
@@ -306,7 +312,6 @@ class EventManager extends Manager implements EventManagerInterface
 		}
 		catch (ArgumentException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to create an instance in google'));
 		}
 
@@ -360,16 +365,19 @@ class EventManager extends Manager implements EventManagerInterface
 
 		if ($instanceContext === null)
 		{
-			AddMessage2Log('failed to create instance. id='. $event->getId(), 'calendar', 2, true);
 			return $result->addError(new Error('failed to delete an instance in google'));
 		}
 
 		try
 		{
+			$converter = new EventConverter(
+				event: $instance,
+				eventConnection: $instanceContext->getEventConnection()
+			);
 			$this->httpClient->query(
 				HttpClient::HTTP_PUT,
 				$this->prepareUpdateUrl($instanceContext),
-				$this->encode((new EventConverter($instance, $instanceContext->getEventConnection()))->convertForDeleteInstance())
+				$this->encode($converter->convertForDeleteInstance())
 			);
 
 			if ($this->isRequestSuccess())
@@ -392,7 +400,6 @@ class EventManager extends Manager implements EventManagerInterface
 
 		catch (ArgumentException $e)
 		{
-			AddMessage2Log($e->getMessage(), 'calendar', 2, true);
 			$result->addError(new Error('failed to delete an instance in google'));
 		}
 

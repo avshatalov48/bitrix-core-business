@@ -16,7 +16,6 @@ $bFull = !isset($_REQUEST["Full"]) || $_REQUEST["Full"] != "N";
 
 if($_SERVER["REQUEST_METHOD"] == "POST" && $_REQUEST["Reindex"]=="Y")
 {
-	CUtil::JSPostUnescape();
 	@set_time_limit(0);
 
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
@@ -124,7 +123,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 if(is_object($message))
 	echo '<div id="search_message">',$message->Show(),'</div>';
 ?>
-<script language="JavaScript">
+<script>
 var savedNS;
 var stop;
 var interval = 0;
@@ -280,7 +279,7 @@ $tabControl->End();
 ?>
 </form>
 <?if($Continue=="Y"):?>
-<script language="JavaScript">
+<script>
 	savedNS = <?echo CUtil::PhpToJSObject(array("NS"=>$_GET["NS"]));?>;
 	<?if($_GET["Full"]=="Y"):?>
 		document.getElementById('Full').checked = false;

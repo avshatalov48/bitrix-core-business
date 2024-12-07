@@ -397,7 +397,7 @@ class UserFieldConfig extends Controller
 		$fieldName = $field['FIELD_NAME'] ?? '';
 		$entityId = $field['ENTITY_ID'] ?? '';
 		$prefix = 'UF_' . $entityId . '_';
-		if (strpos($fieldName, $prefix) !== 0)
+		if (!str_starts_with($fieldName, $prefix))
 		{
 			$this->addError(new Error(Loc::getMessage('MAIN_USER_FIELD_CONTROLLER_FIELD_NAME_ERROR')));
 			return null;

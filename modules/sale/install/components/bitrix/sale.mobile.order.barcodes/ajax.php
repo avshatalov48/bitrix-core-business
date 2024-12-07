@@ -41,6 +41,4 @@ if(!isset($arResult["ERROR"]))
 	}
 }
 
-$arResult = $APPLICATION->ConvertCharsetArray($arResult, SITE_CHARSET, 'utf-8');
 die(json_encode($arResult));
-?>

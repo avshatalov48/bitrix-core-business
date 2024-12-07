@@ -148,7 +148,7 @@ $MESS["MAIN_OPTION_USE_SECURE_PASSWORD_COOKIE1"] = "Set \"secure\" attribute for
 $MESS["MAIN_OPT_APPLY"] = "Apply";
 $MESS["MAIN_OPT_APPLY_TITLE"] = "Save changes and stay in the form";
 $MESS["MAIN_OPT_BX_FAST_DOWNLOAD"] = "Fast file download using nginx:";
-$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"http://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=22&CHAPTER_ID=04277\">Two-tier configuration</a> enables a web sever send files to a client faster using <a href=\"http://wiki.nginx.org/X-accel\">nginx</a>. <a href=\"/bitrix/admin/site_checker.php\">Site Check</a> will let you know if your server supports this feature.<br><a href=\"http://www.bitrixsoft.com/products/virtual_appliance/\">Bitrix Virtual Appliance</a> supports it by default.";
+$MESS["MAIN_OPT_BX_FAST_DOWNLOAD_HINT"] = "<a href=\"https://www.bitrixsoft.com/support/training/course/index.php?COURSE_ID=22&CHAPTER_ID=04277\">Two-tier configuration</a> enables a web sever send files to a client faster using <a href=\"http://wiki.nginx.org/X-accel\">nginx</a>. <a href=\"/bitrix/admin/site_checker.php\">Site Check</a> will let you know if your server supports this feature.<br><a href=\"https://www.bitrixsoft.com/products/virtual_appliance/\">Bitrix Virtual Appliance</a> supports it by default.";
 $MESS["MAIN_OPT_CANCEL"] = "Cancel";
 $MESS["MAIN_OPT_CANCEL_TITLE"] = "Do not save changes and return";
 $MESS["MAIN_OPT_DIGEST_NOTE"] = "Note that HTTP Digest can only be used with the built-in authentication.";

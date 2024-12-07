@@ -366,7 +366,6 @@ return array(
 		9 => array(
 			'code' => '14.2contacts_3_cols',
 			'anchor' => '',
-			'repo_block' => array(),
 			'cards' => array(
 				'.landing-block-card' => 3,
 			),

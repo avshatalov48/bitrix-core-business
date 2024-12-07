@@ -18,6 +18,6 @@ class CSpacer
 
 	function __InsertSpacesCallback($arMatch)
 	{
-		return $arMatch[1].preg_replace("/([^() \\n\\r\\t%!?{}\\][-]{".$this->iMaxChar."})/".BX_UTF_PCRE_MODIFIER,"\\1".$this->symbol, $arMatch[2]).$arMatch[3];
+		return $arMatch[1].preg_replace("/([^() \\n\\r\\t%!?{}\\][-]{".$this->iMaxChar."})/u","\\1".$this->symbol, $arMatch[2]).$arMatch[3];
 	}
 }

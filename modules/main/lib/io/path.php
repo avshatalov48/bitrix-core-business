@@ -47,7 +47,7 @@ class Path
 		}
 		$pathTmp = preg_replace($pattern, "/", $path);
 
-		if (strpos($pathTmp, "\0") !== false)
+		if (str_contains($pathTmp, "\0"))
 			throw new InvalidPathException($path);
 
 		if (preg_match("#(^|/)(\\.|\\.\\.)(/|\$)#", $pathTmp))
@@ -74,7 +74,7 @@ class Path
 
 		$pathTmp = rtrim($pathTmp, $tailPattern);
 
-		if (mb_substr($path, 0, 1) === "/" && mb_substr($pathTmp, 0, 1) !== "/")
+		if (str_starts_with($path, "/") && !str_starts_with($pathTmp, "/"))
 			$pathTmp = "/".$pathTmp;
 
 		if ($pathTmp === '')
@@ -191,18 +191,7 @@ class Path
 
 	protected static function getLogicalEncoding()
 	{
-		if (defined('BX_UTF'))
-			$logicalEncoding = "utf-8";
-		elseif (defined("SITE_CHARSET") && (SITE_CHARSET <> ''))
-			$logicalEncoding = SITE_CHARSET;
-		elseif (defined("LANG_CHARSET") && (LANG_CHARSET <> ''))
-			$logicalEncoding = LANG_CHARSET;
-		elseif (defined("BX_DEFAULT_CHARSET"))
-			$logicalEncoding = BX_DEFAULT_CHARSET;
-		else
-			$logicalEncoding = "windows-1251";
-
-		return mb_strtolower($logicalEncoding);
+		return "utf-8";
 	}
 
 	protected static function getPhysicalEncoding()
@@ -210,7 +199,7 @@ class Path
 		$physicalEncoding = defined("BX_FILE_SYSTEM_ENCODING") ? BX_FILE_SYSTEM_ENCODING : "";
 		if ($physicalEncoding == "")
 		{
-			if (mb_strtoupper(mb_substr(PHP_OS, 0, 3)) === "WIN")
+			if (strtoupper(substr(PHP_OS, 0, 3)) === "WIN")
 				$physicalEncoding = "windows-1251";
 			else
 				$physicalEncoding = "utf-8";
@@ -294,7 +283,7 @@ class Path
 			return false;
 		}
 
-		if (strpos($path, "\0") !== false)
+		if (str_contains($path, "\0"))
 		{
 			return false;
 		}
@@ -357,7 +346,7 @@ class Path
 
 	public static function isAbsolute($path)
 	{
-		return (mb_substr($path, 0, 1) === "/") || preg_match("#^[a-z]:/#i", $path);
+		return (str_starts_with($path, "/")) || preg_match("#^[a-z]:/#i", $path);
 	}
 
 	protected static function getDirectoryIndexArray()

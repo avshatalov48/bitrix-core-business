@@ -4,6 +4,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Landing\Block\BlockRepo;
 use Bitrix\Landing\Site;
 use Bitrix\Landing\Landing;
 use Bitrix\Landing\Manager;
@@ -27,9 +28,10 @@ use Bitrix\Main\UI\Filter;
 use Bitrix\Iblock;
 use Bitrix\Main;
 use Bitrix\Main\Event;
+use Bitrix\Main\Entity;
+use Bitrix\Main\EventManager;
 use Bitrix\Main\EventResult;
 use Bitrix\Main\Type\Date;
-use Bitrix\Main\Type\DateTime;
 use Bitrix\Crm\Integration\UserConsent;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\Marketplace\Client;
@@ -67,6 +69,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		'PAGE' => 'page',
 		'STORE' => 'shop',
 		'KNOWLEDGE' => 'knowledgeBase',
+		'MAINPAGE' => 'mainpage',
 	];
 
 	protected const FILTER_ID = 'LANDING_FLT_DEMO';
@@ -97,7 +100,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		self::STEP_ID_XML_IMPORT,
 		self::STEP_ID_ADDITIONAL_UPDATE,
 		self::STEP_ID_CATALOG_REINDEX,
-		self::STEP_ID_FINAL
+		self::STEP_ID_FINAL,
 	];
 
 	private const IMPORT_CATALOG_ERROR_ID = 'IMPORT_CATALOG_DATA';
@@ -195,7 +198,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			);
 			$uriEdit = new Uri($redirect);
 			$uriEdit->addParams([
-				'IFRAME' => ($this->arParams['DONT_LEAVE_FRAME'] != 'Y') ? 'N' : 'Y'
+				'IFRAME' => ($this->arParams['DONT_LEAVE_FRAME'] != 'Y') ? 'N' : 'Y',
 			]);
 			\localRedirect($uriEdit->getUri(), true);
 		}
@@ -379,11 +382,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 
 		$res = Demos::getList(array(
 			'select' => array(
-				'MANIFEST', 'APP_CODE'
+				'MANIFEST', 'APP_CODE',
 			),
 			'filter' => array(
-				'ID' => $id
-			)
+				'ID' => $id,
+			),
 		));
 		if ($row = $res->fetch())
 		{
@@ -490,12 +493,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					{
 						$indexEmpty = \Bitrix\Landing\Folder::getList([
 							'select' => [
-								'ID'
+								'ID',
 							],
 							'filter' => [
 								'ID' => $pageData['FOLDER_ID'],
-								'INDEX_ID' => false
-							]
+								'INDEX_ID' => false,
+							],
 						])->fetch();
 						if ($indexEmpty)
 						{
@@ -514,6 +517,9 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					{
 						$this->pagesLayouts[$landingId] = $data['layout'];
 					}
+
+					$this->enableHiddenBlocksForCreatingPage();
+
 					if (!is_array($data['items']))
 					{
 						$data['items'] = [];
@@ -540,12 +546,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 								{
 									$repoBlock = \Bitrix\Landing\Repo::getList(array(
 										'select' => array(
-											'ID'
+											'ID',
 										),
 										'filter' => array(
 											'=APP_CODE' => $block['repo_block']['app_code'],
-											'=XML_ID' => $block['repo_block']['xml_id']
-										)
+											'=XML_ID' => $block['repo_block']['xml_id'],
+										),
 									))->fetch();
 									if ($repoBlock)
 									{
@@ -654,8 +660,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 												$updatedStyles[] = $selectorUpd;
 												$block->setClasses(array(
 													$selectorUpd => array(
-														'classList' => (array)$clVal
-													)
+														'classList' => (array)$clVal,
+													),
 												));
 											}
 										}
@@ -741,8 +747,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 										$updated = true;
 										$block->setClasses(array(
 									   		$selector => array(
-							   					'classList' => array_unique($classes)
-									   		)
+							   					'classList' => array_unique($classes),
+									   		),
 									 	));
 									}
 								}
@@ -846,7 +852,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							\Bitrix\Landing\Internals\BlockTable::update(
 								$block->getId(),
 								[
-									'ACCESS' => $blocksAccess[$block->getId()]
+									'ACCESS' => $blocksAccess[$block->getId()],
 								]
 							);
 						}
@@ -868,6 +874,26 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		}
 
 		return false;
+	}
+
+	/**
+	 * Pass filters to block repository for enable add blocks with type 'null' (hidden from list)
+	 * @return void
+	 */
+	protected function enableHiddenBlocksForCreatingPage(): void
+	{
+		$eventManager = EventManager::getInstance();
+		$eventManager->addEventHandler('landing', 'onBlockRepoSetFilters',
+			function(Event $event)
+			{
+				$result = new Entity\EventResult();
+				$result->modifyFields([
+					'DISABLE' => BlockRepo::FILTER_SKIP_HIDDEN_BLOCKS,
+				]);
+
+				return $result;
+			}
+		);
 	}
 
 	/**
@@ -916,15 +942,15 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			}
 			$res = Demos::getList(array(
 				'select' => array(
-					'PREVIEW_URL'
+					'PREVIEW_URL',
 				),
 				'filter' => array(
 					'=ACTIVE' => 'Y',
 					'=SHOW_IN_LIST' => 'Y',
 					'=TYPE' => $this->arParams['TYPE'],
 					'=APP_CODE' => $appCode,
-					'=XML_ID' => $xmlId
-				)
+					'=XML_ID' => $xmlId,
+				),
 			));
 			if ($row = $res->fetch())
 			{
@@ -1243,7 +1269,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 										$block->saveDynamicParams(
 											$dynamicParams,
 											[
-												'linkReplace' => $landingReplaceDynamic
+												'linkReplace' => $landingReplaceDynamic,
 											]
 										);
 									}
@@ -1289,8 +1315,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				$tplsXml = array();
 				$res = Template::getList(array(
 					'select' => array(
-						'ID', 'XML_ID'
-					)
+						'ID', 'XML_ID',
+					),
 				));
 				while ($row = $res->fetch())
 				{
@@ -1327,7 +1353,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						if (isset($tplsXml[$layout['code']]))
 						{
 							Landing::update($landingId, [
-								'TPL_ID' => $tplsXml[$layout['code']]
+								'TPL_ID' => $tplsXml[$layout['code']],
 							]);
 							if (isset($layout['ref']))
 							{
@@ -1370,17 +1396,17 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						{
 							$res = Landing::getList([
 								'select' => [
-									'TITLE', 'SITE_ID', 'ID'
+									'TITLE', 'SITE_ID', 'ID',
 								],
 								'filter' => [
-									'ID' => $landings[$folderCode]
-								]
+									'ID' => $landings[$folderCode],
+								],
 							]);
 							if ($page = $res->fetch())
 							{
 								$folderIndexId = $page['ID'];
 								$folderId = Site::addFolder($page['SITE_ID'], [
-									'TITLE' => $page['TITLE']
+									'TITLE' => $page['TITLE'],
 								])->getId();
 							}
 						}
@@ -1394,12 +1420,12 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							if (isset($landings[$pageCode]))
 							{
 								Landing::update($landings[$pageCode], array(
-									'FOLDER_ID' => $folderId
+									'FOLDER_ID' => $folderId,
 								));
 								if ($folderIndexId == $landings[$pageCode])
 								{
 									\Bitrix\Landing\Folder::update($folderId, [
-										'INDEX_ID' => $folderIndexId
+										'INDEX_ID' => $folderIndexId,
 									]);
 								}
 							}
@@ -1425,9 +1451,9 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				}
 				\Bitrix\Landing\Rights::setGlobalOn();
 				// send events
-				$event = new \Bitrix\Main\Event('landing', 'onAfterDemoCreate', array(
+				$event = new Event('landing', 'onAfterDemoCreate', array(
 					'id' => $siteData['ID'],
-					'code' => $code
+					'code' => $code,
 				));
 				$event->send();
 				$this->redirectToLanding($firstLandingId);
@@ -1474,7 +1500,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'STATUS' => self::STEP_STATUS_COMPLETE,
 			'MESSAGE' => '',
 			'FINAL' => true,
-			'PROGRESS' => 0
+			'PROGRESS' => 0,
 		];
 
 		$demo = $this->getDemoSite();
@@ -1540,7 +1566,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'sessid' => bitrix_sessid(),
 			'additional' => [
 				'section' => $this->getCurrentShowcaseSectionXmlId(),
-			]
+			],
 		);
 		$post = $this->currentRequest->getPostList();
 		if (!$post->isEmpty())
@@ -1631,16 +1657,16 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					// make some items disable, if they are singleton
 					$res = Site::getList([
 						'select' => [
-							'XML_ID', 'TPL_CODE'
+							'XML_ID', 'TPL_CODE',
 						],
 						'filter' => [
 							'=TYPE' => $this->arParams['TYPE'],
 							'!==XML_ID' => null,
-							'CHECK_PERMISSIONS' => 'N'
+							'CHECK_PERMISSIONS' => 'N',
 						],
 						'group' => [
-							'XML_ID'
-						]
+							'XML_ID',
+						],
 					]);
 					while ($row = $res->fetch())
 					{
@@ -1768,8 +1794,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			//endregion
 
 			// send events
-			$event = new \Bitrix\Main\Event('landing', 'onDemosGetRepository', array(
-				'data' => $data
+			$event = new Event('landing', 'onDemosGetRepository', array(
+				'data' => $data,
 			));
 			$event->send();
 			foreach ($event->getResults() as $result)
@@ -1820,12 +1846,17 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// market checks
 			$marketPrefix = 'market';
 			$marketIdDelimiter = '/';
-			$isNeedMarket =
+			$typesUseMarket = [
+				'PAGE',
+				'MAINPAGE',
+			];
+			$useMarket =
 				($this->arParams['SKIP_REMOTE'] ?? 'N') !== 'Y'
 				&& (!$code || mb_strpos($code, $marketPrefix . $marketIdDelimiter) === 0)
-				&& $this->arParams['TYPE'] === 'PAGE'
+				&& in_array($this->arParams['TYPE'], $typesUseMarket)
 			;
-			if ($isNeedMarket)
+			$hasMarket = false;
+			if ($useMarket)
 			{
 				$hasMarket =
 					Loader::includeModule('rest')
@@ -1836,7 +1867,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$this->setErrors(new Bitrix\Main\Error(Loc::getMessage('LANDING_TPL_REPO_NOT_INSTALL')));
 				}
 			}
-			$cacheId .= ($isNeedMarket && $hasMarket) ? 'Market_v2' : 'NoMarket';
+			$cacheId .= ($useMarket && $hasMarket) ? 'Market_v2' : 'NoMarket';
 
 			// nfr - without cache
 			$cachePath = 'landing/demo';
@@ -1973,7 +2004,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			// endregion
 
 			// region get from zip repository
-			if ($isNeedMarket && $hasMarket)
+			if ($useMarket && $hasMarket)
 			{
 				$query = [
 					'pageSize' => $navigation ? $navigation->getPageSize() : self::COUNT_PER_PAGE,
@@ -2006,7 +2037,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							$marketIdDelimiter,
 							[
 								$marketPrefix,
-								$site['APP_CODE']
+								$site['APP_CODE'],
 							]
 						);
 						if ($code && ($code !== $key))
@@ -2291,98 +2322,98 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'PATH' => 'colors_files/iblock/0d3/0d3ef035d0cf3b821449b0174980a712.jpg',
 			'FILE_NAME' => 'purple.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['BROWN'] = [
 			'XML_ID' => 'brown',
 			'PATH' => 'colors_files/iblock/f5a/f5a37106cb59ba069cc511647988eb89.jpg',
 			'FILE_NAME' => 'brown.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['SEE'] = [
 			'XML_ID' => 'see',
 			'PATH' => 'colors_files/iblock/f01/f01f801e9da96ae5a7f26aae01255f38.jpg',
 			'FILE_NAME' => 'see.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['BLUE'] = [
 			'XML_ID' => 'blue',
 			'PATH' => 'colors_files/iblock/c1b/c1ba082577379bdc75246974a9f08c8b.jpg',
 			'FILE_NAME' => 'blue.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['ORANGERED'] = [
 			'XML_ID' => 'orangered',
 			'PATH' => 'colors_files/iblock/0ba/0ba3b7ecdef03a44b145e43aed0cca57.jpg',
 			'FILE_NAME' => 'orangered.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['REDBLUE'] = [
 			'XML_ID' => 'redblue',
 			'PATH' => 'colors_files/iblock/1ac/1ac0a26c5f47bd865a73da765484a2fa.jpg',
 			'FILE_NAME' => 'redblue.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['RED'] = [
 			'XML_ID' => 'red',
 			'PATH' => 'colors_files/iblock/0a7/0a7513671518b0f2ce5f7cf44a239a83.jpg',
 			'FILE_NAME' => 'red.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['GREEN'] = [
 			'XML_ID' => 'green',
 			'PATH' => 'colors_files/iblock/b1c/b1ced825c9803084eb4ea0a742b2342c.jpg',
 			'FILE_NAME' => 'green.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['WHITE'] = [
 			'XML_ID' => 'white',
 			'PATH' => 'colors_files/iblock/b0e/b0eeeaa3e7519e272b7b382e700cbbc3.jpg',
 			'FILE_NAME' => 'white.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['BLACK'] = [
 			'XML_ID' => 'black',
 			'PATH' => 'colors_files/iblock/d7b/d7bdba8aca8422e808fb3ad571a74c09.jpg',
 			'FILE_NAME' => 'black.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['PINK'] = [
 			'XML_ID' => 'pink',
 			'PATH' => 'colors_files/iblock/1b6/1b61761da0adce93518a3d613292043a.jpg',
 			'FILE_NAME' => 'pink.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['AZURE'] = [
 			'XML_ID' => 'azure',
 			'PATH' => 'colors_files/iblock/c2b/c2b274ad2820451d780ee7cf08d74bb3.jpg',
 			'FILE_NAME' => 'azure.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['JEANS'] = [
 			'XML_ID' => 'jeans',
 			'PATH' => 'colors_files/iblock/24b/24b082dc5e647a3a945bc9a5c0a200f0.jpg',
 			'FILE_NAME' => 'jeans.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['FLOWERS'] = [
 			'XML_ID' => 'flowers',
 			'PATH' => 'colors_files/iblock/64f/64f32941a654a1cbe2105febe7e77f33.jpg',
 			'FILE_NAME' => 'flowers.jpg',
 			'FILE_TYPE' => 'image/jpeg',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 
 		$colors['DARKBLUE'] = [
@@ -2390,35 +2421,35 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'PATH' => 'colors_files/iblock/84a/84afl562rq429820451d780ee7cf08d7.png',
 			'FILE_NAME' => 'darkblue.png',
 			'FILE_TYPE' => 'image/png',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['DARKGREEN'] = [
 			'XML_ID' => 'darkgreen',
 			'PATH' => 'colors_files/iblock/87f/87f5d3ad34562rq429820451d780ee7c.png',
 			'FILE_NAME' => 'darkgreen.png',
 			'FILE_TYPE' => 'image/png',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['GREY'] = [
 			'XML_ID' => 'grey',
 			'PATH' => 'colors_files/iblock/90c/90c274ad2820451d780ee7cf08d74bb3.png',
 			'FILE_NAME' => 'grey.png',
 			'FILE_TYPE' => 'image/png',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['YELLOW'] = [
 			'XML_ID' => 'yellow',
 			'PATH' => 'colors_files/iblock/99a/99a082dc5e647a3a945bc9a5c0a200f0.png',
 			'FILE_NAME' => 'yellow.png',
 			'FILE_TYPE' => 'image/png',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 		$colors['ORANGE'] = [
 			'XML_ID' => 'orange',
 			'PATH' => 'colors_files/iblock/a0d/a0ddba8aca8422e808fb3ad571a74c09.png',
 			'FILE_NAME' => 'orange.png',
 			'FILE_TYPE' => 'image/png',
-			'TITLE' => ''
+			'TITLE' => '',
 		];
 
 		foreach (array_keys($colors) as $index)
@@ -2436,11 +2467,11 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				'UF_FILE' => [
 					'name' => $row['FILE_NAME'],
 					'type' => $row['FILE_TYPE'],
-					'tmp_name' => Manager::getDocRoot().$xmlPath.'/hl/'.$row['PATH']
+					'tmp_name' => Manager::getDocRoot().$xmlPath.'/hl/'.$row['PATH'],
 				],
 				'UF_SORT' => $sort,
 				'UF_DEF' => '0',
-				'UF_XML_ID' => $row['XML_ID']
+				'UF_XML_ID' => $row['XML_ID'],
 			];
 		}
 
@@ -2464,10 +2495,10 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					array (
 						'name' => mb_strtolower($brandName).'.jpg',
 						'type' => 'image/jpeg',
-						'tmp_name' => Manager::getDocRoot() . $xmlPath . '/hl/' . $brandFile
+						'tmp_name' => Manager::getDocRoot() . $xmlPath . '/hl/' . $brandFile,
 					),
 				'UF_SORT' => $sort,
-				'UF_XML_ID' => mb_strtolower($brandName)
+				'UF_XML_ID' => mb_strtolower($brandName),
 			);
 		}
 
@@ -2479,30 +2510,30 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					array(
 						'FIELD_NAME' => 'UF_NAME',
 						'USER_TYPE_ID' => 'string',
-						'XML_ID' => 'UF_COLOR_NAME'
+						'XML_ID' => 'UF_COLOR_NAME',
 					),
 					array(
 						'FIELD_NAME' => 'UF_FILE',
 						'USER_TYPE_ID' => 'file',
-						'XML_ID' => 'UF_COLOR_FILE'
+						'XML_ID' => 'UF_COLOR_FILE',
 					),
 					array(
 						'FIELD_NAME' => 'UF_SORT',
 						'USER_TYPE_ID' => 'double',
-						'XML_ID' => 'UF_COLOR_SORT'
+						'XML_ID' => 'UF_COLOR_SORT',
 					),
 					array(
 						'FIELD_NAME' => 'UF_DEF',
 						'USER_TYPE_ID' => 'boolean',
-						'XML_ID' => 'UF_COLOR_DEF'
+						'XML_ID' => 'UF_COLOR_DEF',
 					),
 					array(
 						'FIELD_NAME' => 'UF_XML_ID',
 						'USER_TYPE_ID' => 'string',
-						'XML_ID' => 'UF_XML_ID'
-					)
+						'XML_ID' => 'UF_XML_ID',
+					),
 				),
-				'values' => $colorValues
+				'values' => $colorValues,
 			),
 			'eshop_brand_reference' => array(
 				'name' => 'BrandReference',
@@ -2510,26 +2541,26 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					array(
 						'FIELD_NAME' => 'UF_NAME',
 						'USER_TYPE_ID' => 'string',
-						'XML_ID' => 'UF_BRAND_NAME'
+						'XML_ID' => 'UF_BRAND_NAME',
 					),
 					array(
 						'FIELD_NAME' => 'UF_FILE',
 						'USER_TYPE_ID' => 'file',
-						'XML_ID' => 'UF_BRAND_FILE'
+						'XML_ID' => 'UF_BRAND_FILE',
 					),
 					array(
 						'FIELD_NAME' => 'UF_SORT',
 						'USER_TYPE_ID' => 'double',
-						'XML_ID' => 'UF_BRAND_SORT'
+						'XML_ID' => 'UF_BRAND_SORT',
 					),
 					array(
 						'FIELD_NAME' => 'UF_XML_ID',
 						'USER_TYPE_ID' => 'string',
-						'XML_ID' => 'UF_XML_ID'
-					)
+						'XML_ID' => 'UF_XML_ID',
+					),
 				),
-				'values' => $brandValues
-			)
+				'values' => $brandValues,
+			),
 		);
 
 		// create tables and fill with demo-data
@@ -2545,8 +2576,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				],
 				'filter' => [
 					'=NAME' => $table['name'],
-					'=TABLE_NAME' => $tableName
-				]
+					'=TABLE_NAME' => $tableName,
+				],
 			]);
 			$row = $res->fetch();
 			unset($res);
@@ -2555,7 +2586,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				// add new hl block
 				$result = Highloadblock\HighloadBlockTable::add(array(
 					'NAME' => $table['name'],
-					'TABLE_NAME' => $tableName
+					'TABLE_NAME' => $tableName,
 				));
 				if ($result->isSuccess())
 				{
@@ -2570,7 +2601,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							array(),
 							array(
 								'ENTITY_ID' => $field['ENTITY_ID'],
-								'FIELD_NAME' => $field['FIELD_NAME']
+								'FIELD_NAME' => $field['FIELD_NAME'],
 							)
 						);
 						if (!$res->Fetch())
@@ -2597,7 +2628,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					$rowColor = $entityClass::getList([
 						'select' => ['ID'],
 						'filter' => [
-							'=UF_XML_ID' => $item['UF_XML_ID']
+							'=UF_XML_ID' => $item['UF_XML_ID'],
 						],
 					])->fetch();
 					if (empty($rowColor))
@@ -2621,7 +2652,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'STATUS' => self::STEP_STATUS_ERROR,
 			'MESSAGE' => '',
 			'FINAL' => true,
-			'PROGRESS' => 0
+			'PROGRESS' => 0,
 		];
 
 		if (
@@ -2717,7 +2748,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 					'STATUS' => self::STEP_STATUS_COMPLETE,
 					'MESSAGE' => Loc::getMessage('LANDING_CMP_LD_MESS_IMPORT_COMPLETE'),
 					'FINAL' => true,
-					'PROGRESS' => 100
+					'PROGRESS' => 100,
 				];
 				break;
 			default:
@@ -2802,7 +2833,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$this->arResult['FILTER_URI'] = $this->getUri(
 				[
 					'IS_AJAX' => 'Y',
-					'IS_FRAME' => $this->arResult['IS_FRAME'] ? 'Y' : 'N'
+					'IS_FRAME' => $this->arResult['IS_FRAME'] ? 'Y' : 'N',
 				],
 				['IFRAME', 'IFRAME_TYPE']
 			);
@@ -2853,7 +2884,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				$this->arResult['LIMIT_REACHED'] = !Manager::checkFeature(
 					Manager::FEATURE_CREATE_SITE,
 					[
-						'type' => $this->arParams['TYPE']
+						'type' => $this->arParams['TYPE'],
 					]
 				);
 			}
@@ -2920,7 +2951,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						$result = [
 							'status' => 'final',
 							'message' => '',
-							'url' => $this->{$stepperFinalUrl}($param, $additional)
+							'url' => $this->{$stepperFinalUrl}($param, $additional),
 						];
 						$application->restartBuffer();
 						echo Main\Web\Json::encode($result);
@@ -2935,7 +2966,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						$result = [
 							'status' => 'continue',
 							'message' => $stepperResult['MESSAGE'],
-							'progress' => $stepperResult['PROGRESS']
+							'progress' => $stepperResult['PROGRESS'],
 						];
 						$application->restartBuffer();
 						echo Main\Web\Json::encode($result);
@@ -2949,7 +2980,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 							'status' => 'final',
 							'message' => $stepperResult['MESSAGE'],
 							'progress' => $stepperResult['PROGRESS'],
-							'url' => $this->{$stepperFinalUrl}($param, $additional)
+							'url' => $this->{$stepperFinalUrl}($param, $additional),
 						];
 						$application->restartBuffer();
 						echo Main\Web\Json::encode($result);
@@ -2986,7 +3017,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			['CODE' => 'BLOG_POST_ID', 'XML_ID' => '43'],
 			['CODE' => 'BLOG_COMMENTS_CNT', 'XML_ID' => '44'],
 			['CODE' => 'BACKGROUND_IMAGE', 'XML_ID' => '45'],
-			['CODE' => 'MORE_PHOTO', 'XML_ID' => 'MORE_PHOTO', 'NEW_XML_ID' => 'CML2_PICTURES']
+			['CODE' => 'MORE_PHOTO', 'XML_ID' => 'MORE_PHOTO', 'NEW_XML_ID' => 'CML2_PICTURES'],
 		];
 		self::changePropertyXmlId($iblockId, $list);
 		unset($list);
@@ -3011,7 +3042,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$xmlCodes = [];
 		$iterator = Iblock\PropertyTable::getList([
 			'select' => ['ID', 'XML_ID'],
-			'filter' => ['=IBLOCK_ID' => $iblockId]
+			'filter' => ['=IBLOCK_ID' => $iblockId],
 		]);
 		while ($row = $iterator->fetch())
 		{
@@ -3031,8 +3062,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				'filter' => [
 					'=IBLOCK_ID' => $iblockId,
 					'=CODE' => $property['CODE'],
-					'=XML_ID' => $property['XML_ID']
-				]
+					'=XML_ID' => $property['XML_ID'],
+				],
 			]);
 			$row = $iterator->fetch();
 			if (!empty($row))
@@ -3137,8 +3168,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						'XML_ID' => '07249452260df37df35152cef9352bec',
 						'NEW_XML_ID' => 'sizeXXXL',
 					],
-				]
-			]
+				],
+			],
 		];
 		self::transferListProperties($iblockId, $list);
 	}
@@ -3164,7 +3195,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						'select' => ['ID', 'PROPERTY_ID'],
 						'filter' => [
 							'=PROPERTY_ID' => $property['ID'],
-							'=DEF' => 'Y'
+							'=DEF' => 'Y',
 						],
 					])->fetch();
 					if (!empty($defaultValue))
@@ -3210,7 +3241,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	{
 		$iterator = Iblock\IblockTable::getList([
 			'select' => ['ID', 'XML_ID'],
-			'filter' => ['=ID' => $iblockId]
+			'filter' => ['=ID' => $iblockId],
 		]);
 		$row = $iterator->fetch();
 		unset($iterator);
@@ -3261,7 +3292,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 	 */
 	private function setXmlBaseCurrency()
 	{
-		$callback = function(\Bitrix\Main\Event $event)
+		$callback = function(Event $event)
 		{
 			static $baseCurrency = null;
 
@@ -3277,8 +3308,8 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			$result = new \Bitrix\Main\Entity\EventResult;
 			$result->modifyFields(array(
 				'fields' => array(
-					'CURRENCY' => $baseCurrency
-				)
+					'CURRENCY' => $baseCurrency,
+				),
 			));
 			return $result;
 		};
@@ -3305,7 +3336,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'STATUS' => self::STEP_STATUS_CONTINUE,
 			'MESSAGE' => '',
 			'FINAL' => true,
-			'PROGRESS' => 0
+			'PROGRESS' => 0,
 		];
 
 		$importer = new \CIBlockXmlImport();
@@ -3353,7 +3384,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 						'STATUS' => self::STEP_STATUS_COMPLETE,
 						'MESSAGE' => Loc::getMessage('LANDING_CMP_LD_MESS_XML_IMPORT_COMPLETE'),
 						'FINAL' => true,
-						'PROGRESS' => 100
+						'PROGRESS' => 100,
 					];
 					$this->resetStepParameters();
 				}
@@ -3405,7 +3436,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			\CCatalog::add(array(
 				'IBLOCK_ID' => $parentIblock,
 				'PRODUCT_IBLOCK_ID' => 0,
-				'SKU_PROPERTY_ID' => 0
+				'SKU_PROPERTY_ID' => 0,
 			));
 		}
 
@@ -3416,7 +3447,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				$offerIblock,
 				array(
 					'PRODUCT_IBLOCK_ID' => $parentIblock,
-					'SKU_PROPERTY_ID' => $propertyId
+					'SKU_PROPERTY_ID' => $propertyId,
 				)
 			);
 		}
@@ -3425,7 +3456,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			\CCatalog::add(array(
 				'IBLOCK_ID' => $offerIblock,
 				'PRODUCT_IBLOCK_ID' => $parentIblock,
-				'SKU_PROPERTY_ID' => $propertyId
+				'SKU_PROPERTY_ID' => $propertyId,
 			));
 		}
 		unset($res);
@@ -3442,20 +3473,20 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				'TRANS_SPACE' => '_',
 				'TRANS_OTHER' => '_',
 				'TRANS_EAT' => 'Y',
-				'USE_GOOGLE' => 'N'
+				'USE_GOOGLE' => 'N',
 			);
 			$iblock = new \CIBlock;
 			$iblock->update($iblockId, array(
 				'FIELDS' => array(
 					'CODE' => array (
 						'IS_REQUIRED' => 'N',
-						'DEFAULT_VALUE' => $defValueCode
+						'DEFAULT_VALUE' => $defValueCode,
 					),
 					'SECTION_CODE' => array (
 						'IS_REQUIRED' => 'N',
-						'DEFAULT_VALUE' => $defValueCode
-					)
-				)
+						'DEFAULT_VALUE' => $defValueCode,
+					),
+				),
 			));
 		}
 	}
@@ -3481,7 +3512,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			[
 				'IBLOCK_ID' => $parentIblock,
 				'SECTION_ID' => $parentSectionId, 'INCLUDE_SUBSECTIONS' => 'Y',
-				'CHECK_PERMISSIONS' => 'N'
+				'CHECK_PERMISSIONS' => 'N',
 			],
 			false,
 			['nTopCount' => 1],
@@ -3498,14 +3529,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$iblockId = $offerIblock;
 		$count = \Bitrix\Iblock\ElementTable::getCount(array(
 			'=IBLOCK_ID' => $iblockId,
-			'=WF_PARENT_ELEMENT_ID' => null
+			'=WF_PARENT_ELEMENT_ID' => null,
 		));
 		if ($count > 0)
 		{
 			$catalogReindex = new \CCatalogProductAvailable('', 0, 0);
 			$catalogReindex->initStep($count, 0, 0);
 			$catalogReindex->setParams(array(
-				'IBLOCK_ID' => $iblockId
+				'IBLOCK_ID' => $iblockId,
 			));
 			$catalogReindex->run();
 		}
@@ -3515,14 +3546,14 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		$count = \Bitrix\Iblock\ElementTable::getCount(array(
 			'=IBLOCK_ID' => $iblockId,
 			'=WF_PARENT_ELEMENT_ID' => null,
-			'>ID' => $borderId
+			'>ID' => $borderId,
 		));
 		if ($count > 0)
 		{
 			$catalogReindex = new \CCatalogProductAvailable('', 0, 0);
 			$catalogReindex->initStep($count, 0, $borderId);
 			$catalogReindex->setParams(array(
-				'IBLOCK_ID' => $iblockId
+				'IBLOCK_ID' => $iblockId,
 			));
 			$catalogReindex->run();
 		}
@@ -3545,7 +3576,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				'STEP_ID' => reset($this->catalogStepList),
 				'XML_LIST' => $showcase['XML_LIST'],
 				'IBLOCK_ID' => array_fill_keys($showcase['XML_LIST'], 0),
-				'STEP_PARAMETERS' => []
+				'STEP_PARAMETERS' => [],
 			];
 
 			$_SESSION['LANDING_DEMO_STORAGE'] = $initData;
@@ -3603,7 +3634,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 		{
 			$_SESSION['LANDING_DEMO_STORAGE']['STEP_PARAMETERS']['CURRENT_XML'] = [
 				'CODE' => reset($_SESSION['LANDING_DEMO_STORAGE']['XML_LIST']),
-				'PROGRESS' => 0
+				'PROGRESS' => 0,
 			];
 		}
 		return $_SESSION['LANDING_DEMO_STORAGE']['STEP_PARAMETERS']['CURRENT_XML']['CODE'];
@@ -3716,7 +3747,7 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 			'filter' => [
 				'=IBLOCK_ID' => $iblockId,
 				'=XML_ID' => $xmlId,
-			]
+			],
 		]);
 		$row = $iterator->fetch();
 		unset($iterator);
@@ -3914,13 +3945,13 @@ class LandingSiteDemoComponent extends LandingBaseComponent
 				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_NEWS'),
 				'fields' => [
 					'DATE' => '2week',
-				]
+				],
 			],
 			'Populars' => [
 				'name' => Loc::getMessage('LANDING_CMP_DEMO_FILTER_PRESET_POPULAR'),
 				'fields' => [
 					'INSTALLS' => '3000',
-				]
+				],
 			],
 		];
 

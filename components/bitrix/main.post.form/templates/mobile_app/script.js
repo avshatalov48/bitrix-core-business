@@ -1,8 +1,11 @@
-;(function(){
-	if (!window["BX"] || window["BX"]["MPF"] || !window["app"])
+;(function() {
+	if (!window.BX || window.BX.MPF || !window.app)
+	{
 		return;
+	}
+
 	var repo = {},
-		fileObj = (function(){
+		fileObj = (function() {
 			var d = function(uri) {
 				if (BX.type.isNotEmptyString(uri))
 				{
@@ -378,7 +381,7 @@
 						delete controller.__onUploadError;
 					}
 				},
-				error : function() {
+				error() {
 					var res = [], ii;
 					for (ii in this.queue)
 					{
@@ -390,26 +393,27 @@
 					while ((ii = res.pop()) && ii)
 						this.clear(this.queue[ii]);
 
-					BX.onCustomEvent(this, "onUploadError", [BX.message("MPFFileWasNotUploaded")]);
-				}
+					BX.onCustomEvent(this, 'onUploadError', [BX.message("MPFFileWasNotUploaded")]);
+				},
 			};
 			return d;
 		})(),
-		simpleForm = (function(){
-			var d = function(handler) {
+		simpleForm = (function() {
+			var d = function(handler, params = {}) {
 				this.handler = handler;
 				this.id = BX.util.getRandomString(8);
 				this.params = {
-					placeholder : BX.message("MPFPlaceholder"),
-					onEvent : BX.delegate(this.handleAppCallback, this),
-					onSend: BX.delegate(this.handleAppData, this)
+					placeholder: BX.message('MPFPlaceholder'),
+					onEvent: BX.delegate(this.handleAppCallback, this),
+					onSend: BX.delegate(this.handleAppData, this),
 				};
+				this.analyticsData = params.analyticsData;
 			};
 			d.prototype = {
-				handleAppData : function(data, repeat) {
-					data = (BX.type.isNotEmptyString(data) ? {text : data} : (BX.type.isPlainObject(data) ? data : {}));
-					var attachedFiles = (data["attachedFiles"] || []),
-						text = (data["text"] || "");
+				handleAppData(data, repeat) {
+					data = (BX.type.isNotEmptyString(data) ? { text: data } : (BX.type.isPlainObject(data) ? data : {}));
+					var attachedFiles = (data.attachedFiles || []),
+						text = (data.text || '');
 					if (!repeat)
 					{
 						this.handler.comment.node = null;
@@ -421,27 +425,27 @@
 
 					this.stopCheckWriting();
 
-					BX.onCustomEvent(this, 'onFormSubmitted', [text, attachedFiles]);
+					BX.onCustomEvent(this, 'onFormSubmitted', [text, attachedFiles, undefined, this.analyticsData]);
 				},
-				handleAppFile : function(uri, repeat) {
+				handleAppFile(uri, repeat) {
 					if (!repeat)
 					{
 						this.handler.comment.node = null;
 					}
 					this.stopCheckWriting();
 					var __this = this;
-					window.BXMobileApp.UI.Page.TextPanel.getText(function(txt){
+					window.BXMobileApp.UI.Page.TextPanel.getText(function(txt) {
 						BX.onCustomEvent(__this, 'onFileSubmitted', [txt, new fileObj(uri)]);
 					});
 				},
-				handleAppCallback : function(e) {
-					if (this.writingParams.lastEvent != e && (!e || e["event"] != "removeFocus"))
+				handleAppCallback(e) {
+					if (this.writingParams.lastEvent != e && (!e || e.event !== 'removeFocus'))
 					{
 						this.writingParams.lastEvent = e;
 						this.writingParams.text += e.text;
-						this.writingParams["~text"] = e.text;
+						this.writingParams['~text'] = e.text;
 
-						BX.onCustomEvent("main.post.form/text", [e.text]);
+						BX.onCustomEvent('main.post.form/text', [e.text]);
 
 						if (this.writingParams.text.length > 4)
 						{
@@ -450,14 +454,14 @@
 						}
 					}
 				},
-				init : function(text, params) {
+				init(text, params) {
 					text = (text || '');
 
 					this.params.text = text;
 					if (
 						BX.type.isNotEmptyObject(params)
 						&& params.hideForm
-						&& typeof window.BX.MobileUI.TextField["setDefaultParams"] == "function"
+						&& typeof window.BX.MobileUI.TextField.setDefaultParams === 'function'
 					)
 					{
 						window.BX.MobileUI.TextField.setDefaultParams(this.params);
@@ -477,40 +481,40 @@
 					if (BX.type.isNotEmptyString(text))
 					{
 						//setTimeout(function(){ window.BXMobileApp.UI.Page.TextPanel.setText(text); }, 100);
-						this.writingParams["~text"] = text;
+						this.writingParams['~text'] = text;
 					}
 					else
 					{
 						//window.BXMobileApp.UI.Page.TextPanel.clear();
-						this.writingParams["~text"] = '';
+						this.writingParams['~text'] = '';
 					}
 
 					this.writingParams.text = '';
 				},
-				show : function(text) {
+				show(text) {
 					if (BX.type.isString(text))
 					{
 						window.BXMobileApp.UI.Page.TextPanel.setText(text);
-						this.writingParams["~text"] = text;
+						this.writingParams['~text'] = text;
 					}
 					window.BXMobileApp.UI.Page.TextPanel.focus();
 				},
-				clear : function() {
+				clear() {
 					this.writingParams.text = '';
-					this.writingParams["~text"] = '';
+					this.writingParams['~text'] = '';
 					window.BXMPage.TextPanel.clear();
 				},
-				writingParams : {
-					lastFired : 0,
-					lastEvent : null, // Because of mobile version bug
-					frequency : 10000,
-					text : '',
-					'~text' : ''
+				writingParams: {
+					lastFired: 0,
+					lastEvent: null, // Because of mobile version bug
+					frequency: 10000,
+					text: '',
+					'~text': '',
 				},
-				stopCheckWriting : function(){
+				stopCheckWriting(){
 					this.writingParams.text = '';
 				},
-				startCheckWriting : function() {
+				startCheckWriting() {
 					var time = new Date();
 
 					if ((time - this.writingParams.lastFired) > this.writingParams.frequency)
@@ -519,12 +523,12 @@
 						this.writingParams.lastFired = time;
 					}
 				},
-				showWait : function() {
+				showWait() {
 					window.BXMobileApp.UI.Page.TextPanel.showLoading(true);
 				},
-				closeWait : function() {
+				closeWait() {
 					window.BXMobileApp.UI.Page.TextPanel.showLoading(false);
-				}
+				},
 			};
 			return d;
 		})(),
@@ -732,7 +736,7 @@
 			this.block = BX.create("DIV", {className : "bx-additional-block-data"});
 			this.form.appendChild(this.block);
 
-			this.simpleForm = new simpleForm(this);
+			this.simpleForm = new simpleForm(this, params);
 			this.extendedForm = new extendedForm(this, params);
 			this.currentForm = null;
 			this.uniqueId = BX.util.getRandomString(8);
@@ -754,157 +758,160 @@
 			},
 			initEvents : function() {
 				BX.addCustomEvent(this.simpleForm, 'onFormSubmitted', BX.delegate(this.submitExtended, this));
-				//BX.addCustomEvent(this.simpleForm, 'onFileSubmitted', BX.delegate(this.submitBase64, this));
+				// BX.addCustomEvent(this.simpleForm, 'onFileSubmitted', BX.delegate(this.submitBase64, this));
 				BX.addCustomEvent(this.simpleForm, 'onUserIsWriting', BX.delegate(this.writing, this));
 				BX.addCustomEvent(this.extendedForm, 'onFormSubmitted', BX.delegate(this.submitExtended, this));
 				BX.addCustomEvent(this.extendedForm, 'onCancelComment', this.cancel.bind(this));
 			},
-			initControllers : function(controllers) {
-				if (controllers || typeof controllers == "object")
+			initControllers(controllers) {
+				if (controllers || typeof controllers === 'object')
 				{
 					var cid, bound = false;
 					for (cid in controllers)
 					{
 						if (controllers.hasOwnProperty(cid))
 						{
-							if (controllers[cid]["USER_TYPE_ID"] == "disk_file")
+							if (controllers[cid].USER_TYPE_ID === 'disk_file')
 							{
 								this.controllers[cid] = new diskController(this, cid, controllers[cid]);
 
 								if (!bound)
 								{
-									BX.addCustomEvent(this, 'onExtendedCheckUpload', this.controllers[cid]["prepareToSaveUF"]);
-									BX.addCustomEvent(this, 'onExtendedCheckData', this.controllers[cid]["parseUF"]);
+									BX.addCustomEvent(this, 'onExtendedCheckUpload', this.controllers[cid].prepareToSaveUF);
+									BX.addCustomEvent(this, 'onExtendedCheckData', this.controllers[cid].parseUF);
 									bound = true;
 								}
 
-								BX.addCustomEvent(this.extendedForm, 'onEditCommentUF', this.controllers[cid]["catchUF"]);
-								BX.addCustomEvent(this.extendedForm, 'onApplyComment', this.controllers[cid]["parseUF"]);
+								BX.addCustomEvent(this.extendedForm, 'onEditCommentUF', this.controllers[cid].catchUF);
+								BX.addCustomEvent(this.extendedForm, 'onApplyComment', this.controllers[cid].parseUF);
 							}
 						}
 					}
 				}
 			},
-			destroy : function() {
+			destroy() {
 				BX.remove(this.form);
 				BX.onCustomEvent(this.handler, 'onMPFHasBeenDestroyed', [this.id, repo[this.id], this]);
 				repo[this.id] = null;
 			},
-			writing : function() {
+			writing() {
 				BX.onCustomEvent(this, 'onMPFUserIsWriting', [this.comment]);
 			},
-			setForm : function(extended) {
+			setForm(extended) {
 				this.currentForm = (extended === true ? this.extendedForm : this.simpleForm);
 			},
-			init : function(comment, params) {
+			init(comment, params) {
 				this.comment = comment;
 				this.setForm(false);
 				this.simpleForm.init(comment.text, {
-					hideForm: (BX.type.isNotEmptyString(this.forumContext) && this.forumContext.toLowerCase() == 'task'),
-					clear: (BX.type.isNotEmptyObject(params) && BX.type.isBoolean(params.clear) && params.clear)
+					hideForm: (BX.type.isNotEmptyString(this.forumContext) && this.forumContext.toLowerCase() === 'task'),
+					clear: (BX.type.isNotEmptyObject(params) && BX.type.isBoolean(params.clear) && params.clear),
 				});
 			},
-			show : function(comment, edit) {
-				BX.onCustomEvent(this, "onShow", [this, comment]);
+			show(comment, edit) {
+				BX.onCustomEvent(this, 'onShow', [this, comment]);
 				this.comment = comment;
 				this.setForm(edit);
 				this.currentForm.show(comment.text, comment.attachments);
 			},
-			clear : function() {
+			clear() {
 				if (this.currentForm !== null)
 				{
 					this.currentForm.clear();
 				}
 			},
-			submitBase64 : function(text, base64)
+			submitBase64(text, base64)
 			{
 				var result = {filesToPost : false};
 
 				BX.onCustomEvent(this, 'onBase64Submitted', [base64, result]); // Let controllers to check and prepare arrays to upload
 
-				if (result["filesToPost"] !== false)
+				if (result.filesToPost !== false)
 				{
-					BX.onCustomEvent(this.comment, "onStart", [this.comment, text, [base64]]);
+					BX.onCustomEvent(this.comment, 'onStart', [this.comment, text, [base64]]);
 
-					BX.addCustomEvent(base64, "onUploadOk", BX.proxy(function(txt, file) { this.submit((BX.type.isNotEmptyString(text) ? text : txt), [file]);}, this));
-					BX.addCustomEvent(base64, "onUploadError", BX.proxy(this.error, this));
+					BX.addCustomEvent(base64, 'onUploadOk', BX.proxy(function(txt, file) { this.submit((BX.type.isNotEmptyString(text) ? text : txt), [file]);}, this));
+					BX.addCustomEvent(base64, 'onUploadError', BX.proxy(this.error, this));
 
-					BX.onCustomEvent(base64, "onUploadStart", [base64]); // Start uploading
+					BX.onCustomEvent(base64, 'onUploadStart', [base64]); // Start uploading
 				}
 				else
 				{
 					this.cancel();
 				}
 			},
-			submitExtended : function(text, attachments, extraData) {
+			submitExtended(text, attachments, extraData, analyticsData) {
 				if (!(BX.type.isNotEmptyString(text) || BX.type.isArray(attachments) && attachments.length > 0))
 				{
 					this.cancel();
+
 					return;
 				}
-				if (typeof extraData != 'undefined' && typeof extraData["uf"] != 'undefined')
+
+				if (typeof extraData !== 'undefined' && typeof extraData.uf !== 'undefined')
 				{
 					for (var ii = 0, id, jj; ii < attachments.length; ii++)
 					{
-						if (attachments[ii] && attachments[ii]["id"] && extraData["uf"][attachments[ii]["id"]])
+						if (attachments[ii] && attachments[ii].id && extraData.uf[attachments[ii].id])
 						{
-							for (jj in extraData["uf"][attachments[ii]["id"]])
+							for (jj in extraData.uf[attachments[ii].id])
 							{
-								if (extraData["uf"][attachments[ii]["id"]].hasOwnProperty(jj))
+								if (extraData.uf[attachments[ii].id].hasOwnProperty(jj))
 								{
 									if (!attachments[ii][jj])
 									{
-										attachments[ii][jj] = extraData["uf"][attachments[ii]["id"]][jj];
+										attachments[ii][jj] = extraData.uf[attachments[ii].id][jj];
 									}
 								}
 							}
-							attachments[ii]["id"] = extraData["uf"][attachments[ii]["id"]]["fieldValue"];
+							attachments[ii].id = extraData.uf[attachments[ii].id].fieldValue;
 						}
 					}
 				}
 
 				var attachmentsData = {
-					attachments: attachments,
+					attachments,
 					uploadTasks: [],
-					taskIdList: []
+					taskIdList: [],
 				};
 
-				this.processAttachments(attachmentsData).then(function() {
+				this.processAttachments(attachmentsData)
+					.then(() => {
+						this.setForm(false);
+						this.clear();
+						this.comment.text = text;
+						this.text.value = this.comment.getText();
+						this.comment.attachments = attachments;
+						this.comment.extraData = extraData;
+						BXMobileApp.onCustomEvent('Comments.UploadQueue::setItem', {
+							commentNodeId: this.comment.node.id,
+							commentVirtualId: attachmentsData.commentVirtualId,
+							formId: this.form.id,
+							formUniqueId: this.uniqueId,
+							entityId: this.comment.id[0],
+							text,
+							attachments: BX.type.isArray(attachmentsData.attachments) ? attachmentsData.attachments : [],
+							taskIdList: BX.type.isArray(attachmentsData.taskIdList) ? attachmentsData.taskIdList : [],
+							extraData: typeof extraData === 'undefined' ? {} : extraData,
+							analyticsData,
+						}, true);
+					});
 
-					this.setForm(false);
-					this.clear();
-					this.comment.text = text;
-					this.text.value = this.comment.getText();
-					this.comment.attachments = attachments;
-					this.comment.extraData = extraData;
-					BXMobileApp.onCustomEvent('Comments.UploadQueue::setItem', {
-						commentNodeId: this.comment.node.id,
-						commentVirtualId: attachmentsData.commentVirtualId,
-						formId: this.form.id,
-						formUniqueId: this.uniqueId,
-						entityId: this.comment.id[0],
-						text: text,
-						attachments: BX.type.isArray(attachmentsData.attachments) ? attachmentsData.attachments : [],
-						taskIdList: BX.type.isArray(attachmentsData.taskIdList) ? attachmentsData.taskIdList : [],
-						extraData: typeof extraData != 'undefined' ? extraData : {}
-					}, true);
-				}.bind(this));
-
-				BX.onCustomEvent(this.comment, "onStart", [this.comment, text, attachments]);
+				BX.onCustomEvent(this.comment, 'onStart', [this.comment, text, attachments]);
 			},
-			cancel : function() {
+			cancel() {
 				this.setForm(false);
 				this.clear();
-				BX.onCustomEvent(this.comment, "onCancel", [this.comment]);
+				BX.onCustomEvent(this.comment, 'onCancel', [this.comment]);
 			},
-			error : function(error) {
+			error(error) {
 				this.setForm(false);
 				this.clear();
-				BX.onCustomEvent(this.comment, "onError", [this.comment, error]);
+				BX.onCustomEvent(this.comment, 'onError', [this.comment, error]);
 			},
-			addComment : function(commentData) {
+			addComment(commentData, analyticsData) {
 				var
-					data = {text : commentData.text},
+					data = { text: commentData.text },
 					attachments = commentData.attachments;
 
 				var queue = new uploadQueue();
@@ -912,36 +919,42 @@
 
 				BX.onCustomEvent(this, 'onExtendedCheckData', [data, attachments]);
 				if (BX.type.isNotEmptyString(data.text))
-					this.submit(data.text, attachments);
+				{
+					this.submit(data.text, attachments, null, analyticsData);
+				}
 				else
+				{
 					this.cancel();
+				}
 			},
-			addError : function(commentData, errorText) {
+			addError(commentData, errorText) {
 				this.cancel();
 			},
-			submit : function(text, attachments, extraData) {
+			submit(text, attachments, extraData, analyticsData = null) {
 				this.setForm(false);
 				this.clear();
 				this.comment.text = text;
 				this.text.value = this.comment.getText();
 				this.comment.attachments = attachments;
 				this.comment.extraData = extraData;
-				BX.onCustomEvent(this.comment, "onSubmit", [this.comment]);
+				BX.onCustomEvent(this.comment, 'onSubmit', [this.comment, analyticsData]);
 			},
-
-			getForm : function(data) {
+			getForm(data) {
 				return BX.ajax.prepareForm(this.form, data).data;
 			},
-			showWait : function() {
+			showWait() {
 				if (this.currentForm !== null)
+				{
 					this.currentForm.showWait();
+				}
 			},
-			closeWait : function() {
+			closeWait() {
 				if (this.currentForm !== null)
+				{
 					this.currentForm.closeWait();
+				}
 			},
-			processAttachments : function(attachmentsData) {
-
+			processAttachments(attachmentsData) {
 				var promise = new Promise(function(resolve, reject)
 				{
 					attachmentsData.commentVirtualId = parseInt(Math.random() * 100000);
@@ -975,7 +988,7 @@
 									type: fileData.type,
 									mimeType: mimeType,
 									folderId: parseInt(BX.message('MOBILE_EXT_UTILS_USER_FOLDER_FOR_SAVED_FILES')),
-//									chunk: parseInt(BX.message('MOBILE_EXT_UTILS_MAX_UPLOAD_CHUNK_SIZE')),
+									// chunk: parseInt(BX.message('MOBILE_EXT_UTILS_MAX_UPLOAD_CHUNK_SIZE')),
 									params: {
 										commentVirtualId: attachmentsData.commentVirtualId
 									},
@@ -1008,15 +1021,19 @@
 				promise.catch(function(error){console.error(error)});
 
 				return promise;
-			}
+			},
 		};
+
 		return d;
 	})();
 	BX.MPF.createInstance = function(params)
 	{
-		if (!repo[params["formId"]])
+		if (!repo[params.formId])
+		{
 			new BX.MPF(params);
-		return repo[params["formId"]];
+		}
+
+		return repo[params.formId];
 	};
 	BX.MPF.getInstance = function(id)
 	{
@@ -1039,7 +1056,7 @@
 					&& formInstance.comment.id[0] == params.entityId
 				)
 				{
-					formInstance.addComment(params.commentData);
+					formInstance.addComment(params.commentData, params.analyticsData);
 					break;
 				}
 			}

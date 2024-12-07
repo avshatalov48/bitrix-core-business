@@ -167,7 +167,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				$strSql =
 					"INSERT INTO b_sonet_log_comment(".$arInsert[0].") ".
 					"VALUES(".$arInsert[1].")";
-				$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$ID = intval($DB->LastID());
 
@@ -456,7 +456,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 					"UPDATE b_sonet_log_comment SET ".
 					"	".$strUpdate." ".
 					"WHERE ID = ".$ID." ";
-				$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$USER_FIELD_MANAGER->Update("SONET_COMMENT", $ID, $arFields);
 
@@ -500,7 +500,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				[
 					'SONET_LOG_COMMENT_ID' => $ID,
 					'SONET_LOG_ID' => $arFields['LOG_ID'],
-					'USER_ID' => $arFields['USER_ID'],
+					'USER_ID' => $arFields['USER_ID'] ?? null,
 				]
 			);
 
@@ -782,7 +782,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -839,7 +839,6 @@ class CSocNetLogComments extends CAllSocNetLogComments
 		{
 			$strSql_tmp =
 				"SELECT COUNT('x') as CNT ".
-				$obUserFieldsSql->GetSelect()." ".
 				"FROM b_sonet_log_comment LC ".
 				"	".$arSqls["FROM"]." ".
 				$obUserFieldsSql->GetJoin("LC.ID")." ";
@@ -880,7 +879,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -906,7 +905,7 @@ class CSocNetLogComments extends CAllSocNetLogComments
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			$dbRes->SetUserFields($USER_FIELD_MANAGER->GetUserFields("SONET_COMMENT"));
 		}
 

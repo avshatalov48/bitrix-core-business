@@ -46,13 +46,15 @@ if (!empty($arResult['Post']['IMPORTANT']))
 		{
 			$stylesList[] = 'display:none;';
 		}
-		?><span id="blog-post-readers-count-<?=$arResult['Post']['ID']?>" class="feed-imp-post-footer-text" style="<?=implode(' ', $stylesList)?>"><?
+		?><span id="blog-post-readers-count-<?=$arResult['Post']['ID']?>" class="feed-imp-post-footer-text" style="<?=implode(' ', $stylesList)?>"
+			title="<?=Loc::getMessage("BLOG_USERS_ALREADY_READ")?> <?=$arResult["Post"]["IMPORTANT"]["COUNT"]?> <?=Loc::getMessage('BLOG_READERS')?>"
+		><?
 			?><?=Loc::getMessage("BLOG_USERS_ALREADY_READ")?>&nbsp;<a class="feed-imp-post-user-link" href="javascript:void(0);"><?
 			?><span><?=$arResult["Post"]["IMPORTANT"]["COUNT"]?></span> <?=Loc::getMessage('BLOG_READERS')?></a><?
 		?></span><?
 	?></div><?
 
-	?><script type="text/javascript">
+	?><script>
 		BX.ready(function(){
 			var sbpimp<?=$arResult['Post']['ID']?> =  new top.SBPImpPostCounter(
 				BX('blog-post-readers-count-<?=$arResult['Post']['ID']?>'),

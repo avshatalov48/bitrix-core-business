@@ -72,25 +72,6 @@ class AppConfiguration
 
 	public static function onEventClearController(Event $event)
 	{
-		$result = null;
-		if (!static::checkAccessImport($event))
-		{
-			return $result;
-		}
-
-		$code = $event->getParameter('CODE');
-		if (static::checkRequiredParams($code))
-		{
-			$option = $event->getParameters();
-			switch ($code)
-			{
-				case 'REST_APPLICATION':
-					$result = static::clearApp($option);
-					break;
-			}
-		}
-
-		return $result;
 	}
 
 	public static function onEventImportController(Event $event)

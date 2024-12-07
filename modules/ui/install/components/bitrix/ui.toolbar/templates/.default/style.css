@@ -66,7 +66,6 @@
 
 .ui-toolbar-star {
 	display: inline-block;
-	margin-bottom: -1px;
 	width: 20px;
 	height: 19px;
 	background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2018%2017%22%3E%3Cpath%20fill%3D%22none%22%20stroke%3D%22%23AFB5BB%22%20d%3D%22M13.915%2016.225l-.936-5.461%203.968-3.868-5.484-.797-2.452-4.97L6.558%206.1l-5.484.797%203.969%203.868-.937%205.461%204.905-2.578%204.904%202.578z%22/%3E%3C/svg%3E');
@@ -77,7 +76,6 @@
 
 .pagetitle-toolbar-field-view .ui-toolbar-star {
 	background-size: 20px auto;
-	margin-bottom: -3px;
 	width: 20px;
 	min-width: 20px;
 	max-width: 20px;

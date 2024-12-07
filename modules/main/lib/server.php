@@ -3,7 +3,6 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main\Type\ParameterDictionary;
-use Bitrix\Main\Text\Encoding;
 
 /**
  * Represents server.
@@ -195,8 +194,8 @@ class Server extends ParameterDictionary
 			// Basic Authorization PHP module
 			return [
 				'basic' => [
-					'username' => Encoding::convertEncodingToCurrent($this['PHP_AUTH_USER']),
-					'password' => Encoding::convertEncodingToCurrent($this['PHP_AUTH_PW']),
+					'username' => $this['PHP_AUTH_USER'],
+					'password' => $this['PHP_AUTH_PW'],
 				]
 			];
 		}
@@ -217,13 +216,12 @@ class Server extends ParameterDictionary
 						// Basic Authorization PHP FastCGI (CGI)
 						$res = trim($matches[1]);
 						$res = base64_decode($res);
-						$res = Encoding::convertEncodingToCurrent($res);
 						[$user, $pass] = explode(':', $res, 2);
-						if (mb_strpos($user, $this['HTTP_HOST']."\\") === 0)
+						if (str_starts_with($user, $this['HTTP_HOST'] . "\\"))
 						{
 							$user = str_replace($this['HTTP_HOST']."\\", "", $user);
 						}
-						elseif (mb_strpos($user, $this['SERVER_NAME']."\\") === 0)
+						elseif (str_starts_with($user, $this['SERVER_NAME'] . "\\"))
 						{
 							$user = str_replace($this['SERVER_NAME']."\\", "", $user);
 						}

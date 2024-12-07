@@ -20,7 +20,7 @@ Loc::loadMessages(__FILE__);
 	<div class="alert alert-info"><?= Loc::getMessage('SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_ROBOXCHANGE_IFRAME_WARNING_RETURN') ?></div>
 </div>
 
-<script type="text/javascript" src="https://auth.robokassa.ru/Merchant/bundle/robokassa_iframe.js"></script>
+<script src="https://auth.robokassa.ru/Merchant/bundle/robokassa_iframe.js"></script>
 <script>
 	function showPaymentFrame(params)
 	{

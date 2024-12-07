@@ -98,11 +98,11 @@ class CCertification extends CAllCertification
 			if (isset($arNavParams['nTopCount']) && ((int) $arNavParams['nTopCount'] > 0))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
-				$res_cnt = $DB->Query("SELECT COUNT(CER.ID) as CNT " . $strSqlFrom, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res_cnt = $DB->Query("SELECT COUNT(CER.ID) as CNT " . $strSqlFrom);
 				$res_cnt = $res_cnt->fetch();
 				$res = new CDBResult();
 				$rc = $res->NavQuery($strSql, $res_cnt['CNT'], $arNavParams, true);
@@ -111,7 +111,7 @@ class CCertification extends CAllCertification
 			}
 		}
 		else
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 
 		return ($res);
 	}

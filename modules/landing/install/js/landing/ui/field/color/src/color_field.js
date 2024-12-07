@@ -1,5 +1,6 @@
 import {Dom, Type} from 'main.core';
 import {BaseField} from 'landing.ui.field.basefield';
+import {TextField} from 'landing.ui.field.textfield';
 
 import BaseProcessor from './processor/base_processor';
 import Color from './processor/color';
@@ -23,6 +24,9 @@ import FillColorSecond from './processor/fill_color_second';
 import ButtonColor from './processor/button_color';
 import {IColorValue} from './types/i_color_value';
 import NavbarCollapseBgColor from './processor/navbar_collapse_bg';
+import ColorValue from './color_value';
+import BgImageValue from './bg_image_value';
+import GradientValue from './gradient_value';
 
 export class ColorField extends BaseField
 {
@@ -39,9 +43,11 @@ export class ColorField extends BaseField
 			styleNode: options.styleNode,
 			selector: options.selector,
 			contentRoot: this.contentRoot,
+			content: options.content,
 		};
 
 		this.changeHandler = (typeof options.onChange === "function") ? options.onChange : (() => {});
+		this.valueChangeHandler = (typeof options.onValueChange === "function") ? options.onValueChange : (() => {});
 		this.resetHandler = (typeof options.onReset === "function") ? options.onReset : (function () {});
 
 		// todo: rename "subtype"
@@ -176,6 +182,32 @@ export class ColorField extends BaseField
 			this.items,
 			this.postfix,
 			this.property,
+		);
+
+		// add fake text field for correctly getValue() in handler
+		const value = this.getValue();
+
+		let content = '';
+		if (value instanceof ColorValue)
+		{
+			content = value.getStyleString();
+		}
+		else if (value instanceof BgImageValue)
+		{
+			content = value.getUrl();
+		}
+		else if (value instanceof GradientValue)
+		{
+			content = value.getStyleString();
+		}
+
+		this.valueChangeHandler(
+			new TextField({
+				selector: this.selector,
+				attribute: this.attribute,
+				content: content,
+				textOnly: true,
+			})
 		);
 
 		this.emit('onChange');

@@ -51,6 +51,7 @@ class UsageEntityTable extends Main\Entity\DataManager
 	const SUB_ENTITY_TYPE_UI = 'U';
 	const SUB_ENTITY_TYPE_AI = 'G';
 	const SUB_ENTITY_TYPE_BI_SUPERSET = 'I';
+	const SUB_ENTITY_TYPE_LANDING_WIDGET = 'W';
 
 	protected static $info = array();
 
@@ -114,6 +115,7 @@ class UsageEntityTable extends Main\Entity\DataManager
 					self::SUB_ENTITY_TYPE_LANDING,
 					self::SUB_ENTITY_TYPE_LANDING_KNOWLEDGE,
 					self::SUB_ENTITY_TYPE_BI_SUPERSET,
+					self::SUB_ENTITY_TYPE_LANDING_WIDGET,
 				),
 				'validation' => array(
 					__CLASS__,

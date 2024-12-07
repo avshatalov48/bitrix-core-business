@@ -9,6 +9,7 @@ const SoundFile = {
 	[SoundType.send]: '/bitrix/js/im/audio/send.mp3',
 	[SoundType.dialtone]: '/bitrix/js/im/audio/video-dialtone.mp3',
 	[SoundType.ringtone]: '/bitrix/js/im/audio/video-ringtone.mp3',
+	[SoundType.ringtoneModern]: '/bitrix/js/im/audio/video-ringtone-modern.mp3?v2',
 	[SoundType.start]: '/bitrix/js/im/audio/video-start.mp3',
 	[SoundType.stop]: '/bitrix/js/im/audio/video-stop.mp3',
 	[SoundType.error]: '/bitrix/js/im/audio/video-error.mp3',

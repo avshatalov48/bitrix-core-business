@@ -11,6 +11,8 @@ class Chats implements Entity
 {
 	private array $chatIds = [];
 	private array $shortInfoChatIds = [];
+	private array $deletedChatIds = [];
+	private array $completeDeleteChatIds = [];
 	private bool $readAll = false;
 	private array $recent;
 	private array $chats;
@@ -22,6 +24,11 @@ class Chats implements Entity
 		{
 			case Event::DELETE_EVENT:
 				$this->shortInfoChatIds[$entityId] = $entityId;
+				$this->deletedChatIds[$entityId] = $entityId;
+				break;
+			case Event::COMPLETE_DELETE_EVENT:
+				$this->shortInfoChatIds[$entityId] = $entityId;
+				$this->completeDeleteChatIds[$entityId] = $entityId;
 				break;
 			case Event::ADD_EVENT:
 				$this->chatIds[$entityId] = $entityId;
@@ -68,7 +75,8 @@ class Chats implements Entity
 		$result = [
 			'addedRecent' => $addedRecent,
 			'addedChats' => $addedChats,
-			'deletedChats' => $this->shortInfoChatIds,
+			'deletedChats' => $this->deletedChatIds,
+			'completeDeletedChats' => $this->completeDeleteChatIds,
 		];
 
 		if ($this->readAll)
@@ -77,5 +85,10 @@ class Chats implements Entity
 		}
 
 		return $result;
+	}
+
+	public function getShortInfoChatIds(): array
+	{
+		return $this->shortInfoChatIds;
 	}
 }

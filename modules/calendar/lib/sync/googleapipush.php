@@ -402,7 +402,7 @@ final class GoogleApiPush
 				$error
 			);
 	}
-	
+
 	/**
 	 * Stop all push channels agent
 	 * Recommended interval - 60 sec. Response from google not required
@@ -413,7 +413,7 @@ final class GoogleApiPush
 	{
 		return null;
 	}
-	
+
 	/**
 	 * @param $channelId
 	 * @param $resourceId
@@ -423,7 +423,7 @@ final class GoogleApiPush
 	{
 		return;
 	}
-	
+
 
 	/**
 	 * Handles incoming push for entity - runs synchronization for connection or for section
@@ -500,50 +500,14 @@ final class GoogleApiPush
 		return false;
 	}
 
+	/** @deprecated  */
 	public static function checkPushChannel(int $lastIdConnection = 0)
 	{
-		$connections = [];
-		$connectionIds = [];
-
-		if (!Loader::includeModule('dav'))
-		{
-			return false;
-		}
-
-		$davConnectionsDb = \CDavConnection::getList(
-			["ID" => "ASC"],
-			[
-				'ACCOUNT_TYPE' => Google\Helper::GOOGLE_ACCOUNT_TYPE_API,
-				'>ID' => $lastIdConnection,
-			],
-			false,
-			['nTopCount' => self::CHECK_LIMIT]
-		);
-
-		while ($davConnection = $davConnectionsDb->fetch())
-		{
-			if (self::isAuthError($davConnection['LAST_RESULT']))
-			{
-				continue;
-			}
-
-			$connections[$davConnection['ID']] = $davConnection;
-			$connectionIds[] = $davConnection['ID'];
-			$lastIdConnection = $davConnection['ID'];
-		}
-
-		if (!empty($connectionIds))
-		{
-			self::checkPushConnectionChannel($connectionIds, $connections);
-			self::checkPushSectionChannel($connectionIds, $connections);
-
-			return false;
-		}
-
-		return false;
+		return;
 	}
 
 	/**
+	 * @deprecated
 	 * @param array $connectionIds
 	 * @param array $connections
 	 */
@@ -642,6 +606,7 @@ final class GoogleApiPush
 	 * @param array $connectionIds
 	 * @param array $connections
 	 * @throws \Exception
+	 * @deprecated
 	 */
 	private static function checkPushSectionChannel(array $connectionIds, array $connections): void
 	{
@@ -771,6 +736,7 @@ final class GoogleApiPush
 	/**
 	 * @param array $row
 	 * @throws \Exception
+	 * @deprecated
 	 */
 	public static function deletePushChannel(array $row): void
 	{
@@ -781,6 +747,7 @@ final class GoogleApiPush
 	 * @param string|null $gApiCalendarId
 	 * @param string|null $externalType
 	 * @return bool
+	 * @deprecated
 	 */
 	private static function isVirtualCalendar(?string $gApiCalendarId, ?string $externalType): bool
 	{
@@ -796,6 +763,7 @@ final class GoogleApiPush
 	 * @param array $inactiveSections
 	 * @param GoogleApiSync $googleApiConnection
 	 * @throws \Exception
+	 * @deprecated
 	 */
 	private static function startChannelForInActiveSections(
 		array $localSections,
@@ -851,6 +819,7 @@ final class GoogleApiPush
 	/**
 	 * @param int $sectionId
 	 * @return string|null
+	 * @deprecated
 	 */
 	private static function getLastResultBySectionId(int $sectionId): ?string
 	{
@@ -874,6 +843,7 @@ final class GoogleApiPush
 	/**
 	 * @param array $localSections
 	 * @return array
+	 * @deprecated
 	 */
 	private static function getNotVirtualSectionIds(array $localSections): array
 	{
@@ -898,6 +868,7 @@ final class GoogleApiPush
 	 * @throws \Bitrix\Main\ArgumentException
 	 * @throws \Bitrix\Main\ObjectPropertyException
 	 * @throws \Bitrix\Main\SystemException
+	 * @deprecated
 	 */
 	public static function getConnectionPushByConnectionId(int $id)
 	{
@@ -912,6 +883,7 @@ final class GoogleApiPush
 	/**
 	 * @param string $type
 	 * @param int $entityId
+	 * @deprecated
 	 */
 	public static function setBlockPush(string $type, int $entityId): void
 	{
@@ -933,6 +905,7 @@ final class GoogleApiPush
 	/**
 	 * @param string $type
 	 * @param int $entityId
+	 * @deprecated
 	 */
 	public static function setUnblockPush(string $type, int $entityId): void
 	{
@@ -956,6 +929,7 @@ final class GoogleApiPush
 	/**
 	 * @param string $type
 	 * @param int $entityId
+	 * @deprecated
 	 */
 	public static function setUnprocessedPush(string $type, int $entityId): void
 	{
@@ -979,6 +953,7 @@ final class GoogleApiPush
 	 * @param string $type
 	 * @param int $entityId
 	 * @return array|null
+	 * @deprecated
 	 */
 	public static function getPush(string $type, int $entityId): ?array
 	{

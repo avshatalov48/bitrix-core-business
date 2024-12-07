@@ -1,0 +1,29 @@
+<svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+	<style>
+		@keyframes rotate {
+			from {
+				transform: rotate(0deg);
+			}
+			to {
+				transform: rotate(360deg);
+			}
+		}
+	</style>
+	<rect
+		x="11.3155"
+		y="12.15"
+		width="4.6692"
+		height="1.205"
+		fill="#525C69"
+		style="transform-origin: center center; animation: rotate 60s linear infinite;"
+	/>
+	<rect
+		style="transform-origin: center center; animation: rotate 1s linear infinite;"
+		x="11.3155"
+		y="8.04"
+		width="1.205"
+		height="5.01"
+		fill="#525C69"
+	/>
+	<circle cx="12" cy="12.7" r="7.5" fill="none" stroke="#525C69" stroke-width="1"/>
+</svg>

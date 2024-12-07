@@ -4,6 +4,7 @@ IncludeModuleLangFile(__FILE__);
 use Bitrix\Im as IM;
 use Bitrix\Im\V2\Chat;
 use Bitrix\Im\V2\Sync;
+use Bitrix\Main\Engine\Response\Converter;
 
 class CAllIMContactList
 {
@@ -21,6 +22,35 @@ class CAllIMContactList
 		$this->user_id = $user_id;
 	}
 
+	private function getDepartments(): array
+	{
+		if (CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser())
+		{
+			return [];
+		}
+
+		$departments = [];
+		$departmentService = IM\V2\Integration\HumanResources\Department\Department::getInstance();
+		foreach ($departmentService->getList() as $department)
+		{
+			$departmentName = $department->name;
+			if (
+				$department->depthLevel > 0
+				&& isset($departments[$department->parent]['name'])
+			)
+			{
+				$departmentName .= ' / ' . $departments[$department->parent]['name'];
+			}
+
+			$departments[$department->id] = [
+				'id' => $department->id,
+				'name' => $departmentName,
+			];
+		}
+
+		return $departments;
+	}
+
 	function GetList($arParams = Array())
 	{
 		global $USER, $CACHE_MANAGER;
@@ -28,7 +58,7 @@ class CAllIMContactList
 		$bLoadUsers = isset($arParams['LOAD_USERS']) && $arParams['LOAD_USERS'] == 'N'? false: true;
 		$bLoadChats = isset($arParams['LOAD_CHATS']) && $arParams['LOAD_CHATS'] == 'N'? false: true;
 
-		$arGroups = array();
+		$arGroups = [];
 		if(defined("BX_COMP_MANAGED_CACHE"))
 			$ttl = 2592000;
 		else
@@ -37,68 +67,10 @@ class CAllIMContactList
 		$bBusShowAll = !IsModuleInstalled('intranet') && COption::GetOptionInt('im', 'contact_list_show_all_bus');
 
 		$bIntranetEnable = false;
-		if(CModule::IncludeModule('intranet') && CModule::IncludeModule('iblock'))
+		if(CModule::IncludeModule('intranet'))
 		{
 			$bIntranetEnable = true;
-			if (!(CModule::IncludeModule('extranet') && !CExtranet::IsIntranetUser()))
-			{
-				if(($iblock_id = COption::GetOptionInt('intranet', 'iblock_structure', 0)) > 0)
-				{
-					$cache_id = 'im_structure_'.$iblock_id;
-					$obIMCache = new CPHPCache;
-					$cache_dir = '/bx/imc/structure';
-
-					if($obIMCache->InitCache($ttl, $cache_id, $cache_dir))
-					{
-						$tmpVal = $obIMCache->GetVars();
-						$arStructureName = $tmpVal['STRUCTURE_NAME'];
-						unset($tmpVal);
-					}
-					else
-					{
-						if(defined("BX_COMP_MANAGED_CACHE"))
-							$CACHE_MANAGER->StartTagCache($cache_dir);
-
-						$arResult["Structure"] = array();
-						$sec = CIBlockSection::GetList(
-							Array("left_margin"=>"asc","SORT"=>"ASC"),
-							Array("ACTIVE"=>"Y","IBLOCK_ID"=>$iblock_id),
-							false,
-							Array('ID', 'NAME', 'DEPTH_LEVEL', 'IBLOCK_SECTION_ID')
-						);
-						$arStructureName = Array();
-						while($ar = $sec->GetNext(true, false))
-						{
-							if ($ar['DEPTH_LEVEL'] > 1)
-								$ar['NAME'] .= ' / '.$arStructureName[$ar['IBLOCK_SECTION_ID']];
-							$arStructureName[$ar['ID']] = $ar['NAME'];
-						}
-
-						if(defined("BX_COMP_MANAGED_CACHE"))
-						{
-							$CACHE_MANAGER->RegisterTag('iblock_id_'.$iblock_id);
-							$CACHE_MANAGER->EndTagCache();
-						}
-
-						if($obIMCache->StartDataCache())
-						{
-							$obIMCache->EndDataCache(array(
-								'STRUCTURE_NAME' => $arStructureName
-							));
-						}
-					}
-
-					unset($obIMCache);
-
-					foreach ($arStructureName as $key => $value)
-					{
-						if ($value <> '')
-						{
-							$arGroups[$key] = Array('id' => $key, 'name' => $value);
-						}
-					}
-				}
-			}
+			$arGroups = $this->getDepartments();
 		}
 
 		$arUserSG = array();
@@ -837,9 +809,9 @@ class CAllIMContactList
 				SELECT R.CHAT_ID
 				FROM b_im_relation R
 				WHERE R.USER_ID = ".$fromUserId."
-					AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_CHAT."', '".IM_MESSAGE_OPEN."', '".IM_MESSAGE_OPEN_LINE."', '".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."')
+					AND R.MESSAGE_TYPE IN ('".IM_MESSAGE_CHAT."', '".IM_MESSAGE_OPEN."', '".IM_MESSAGE_OPEN_LINE."', '".\Bitrix\Im\V2\Chat::IM_TYPE_COPILOT."', '".Chat::IM_TYPE_CHANNEL."', '".Chat::IM_TYPE_OPEN_CHANNEL."')
 					AND R.CHAT_ID = ".$toChatId."";
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				$bResult = true;
 			else
@@ -940,6 +912,21 @@ class CAllIMContactList
 					if ($getHrPhoto && !isset($arCacheResult['hrphoto']))
 					{
 						$arCacheResult['hrphoto'][$userId] = $arCacheResult['users'][$userId]['avatar'];
+					}
+
+					if ($value['bot'])
+					{
+						$converter = new Converter(Converter::TO_SNAKE | Converter::TO_LOWER | Converter::KEYS);
+
+						$botData = \Bitrix\Im\V2\Entity\User\Data\BotData::getInstance((int)$userId)->toRestFormat();
+						$arCacheResult['users'][$userId]['bot_data'] = !empty($botData)
+							? $converter->process($botData)
+							: null
+						;
+					}
+					else
+					{
+						$arCacheResult['users'][$userId]['bot_data'] = null;
 					}
 				}
 				return $arCacheResult;
@@ -1177,6 +1164,21 @@ class CAllIMContactList
 
 		unset($result['source']);
 
+		foreach ($result['users'] as $userId => $user)
+		{
+			if ($user['bot'])
+			{
+				$converter = new Converter(Converter::TO_SNAKE | Converter::TO_LOWER | Converter::KEYS);
+
+				$botData = \Bitrix\Im\V2\Entity\User\Data\BotData::getInstance((int)$userId)->toRestFormat();
+				$result['users'][$userId]['bot_data'] = (!empty($botData)) ? $converter->process($botData) : null;
+			}
+			else
+			{
+				$result['users'][$userId]['bot_data'] = null;
+			}
+		}
+
 		return $result;
 	}
 
@@ -1286,7 +1288,7 @@ class CAllIMContactList
 		$dateUpdate = new \Bitrix\Main\Type\DateTime();
 
 		$arParams['ENTITY_TYPE'] = $arParams['CHAT_TYPE'] ?? $arParams['ENTITY_TYPE'] ?? IM_MESSAGE_PRIVATE;
-		if (in_array($arParams['ENTITY_TYPE'], [IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, IM\V2\Chat::IM_TYPE_COPILOT], true))
+		if (in_array($arParams['ENTITY_TYPE'], [IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, IM\V2\Chat::IM_TYPE_COPILOT, Chat::IM_TYPE_CHANNEL, Chat::IM_TYPE_OPEN_CHANNEL], true))
 		{
 			$itemType = $arParams['ENTITY_TYPE'];
 		}
@@ -1338,6 +1340,7 @@ class CAllIMContactList
 					'PINNED' => $pinned,
 					'DATE_MESSAGE' => $dateMessage,
 					'DATE_UPDATE' => $dateUpdate,
+					'DATE_LAST_ACTIVITY' => $dateMessage,
 				],
 				[
 					'ITEM_MID' => $messageId,
@@ -1346,6 +1349,7 @@ class CAllIMContactList
 					'ITEM_OLID' => $sessionId,
 					'DATE_MESSAGE' => $dateMessage,
 					'DATE_UPDATE' => $dateUpdate,
+					'DATE_LAST_ACTIVITY' => $dateMessage,
 				]
 			);
 			if ($merge && $merge[0] != "")
@@ -1425,7 +1429,7 @@ class CAllIMContactList
 				AND RC.{$itemType}
 				AND RC.{$sqlEntityId}
 		";
-		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);*/
+		$DB->Query($strSQL);*/
 
 		if ($isChat)
 		{
@@ -1449,7 +1453,7 @@ class CAllIMContactList
 		}
 
 		$strSQL = "DELETE FROM b_im_recent WHERE USER_ID = {$userId} AND {$itemType} AND {$sqlEntityId}";
-		$DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query($strSQL);
 
 		if (!$withoutRead && $chat !== null && !($chat instanceof IM\V2\Chat\NullChat) && $chat->getChatId())
 		{
@@ -1463,13 +1467,11 @@ class CAllIMContactList
 				$chat->read();
 			}
 
-			if (!$chat instanceof IM\V2\Chat\OpenLineChat)
-			{
-				Sync\Logger::getInstance()->add(
-					new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::CHAT_ENTITY, $chat->getChatId()),
-					$userId
-				);
-			}
+			Sync\Logger::getInstance()->add(
+				new Sync\Event(Sync\Event::DELETE_EVENT, Sync\Event::CHAT_ENTITY, $chat->getChatId()),
+				$userId,
+				$chat->getType()
+			);
 		}
 
 		if ($isChat && \Bitrix\Main\Loader::includeModule('pull'))
@@ -1484,13 +1486,17 @@ class CAllIMContactList
 			else
 			{
 				\CPullWatch::delete($userId, 'IM_PUBLIC_'.(int)$entityId);
+				if ($chat->getType() === Chat::IM_TYPE_CHANNEL)
+				{
+					\CPullWatch::delete($userId, 'IM_PUBLIC_COMMENT_'.(int)$entityId);
+				}
 			}
 		}
 
 		//\Bitrix\Im\Counter::clearCache($userId);
 
 		$strSQL = $DB->TopSql("SELECT 1 FROM b_im_recent WHERE USER_ID = ".$userId, 1);
-		$rs = $DB->Query($strSQL, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$rs = $DB->Query($strSQL);
 		if (!$rs->Fetch() || $lineRemoveComplete)
 		{
 			$event = new \Bitrix\Main\Event("im", "OnAfterRecentDelete", array(
@@ -1637,7 +1643,7 @@ class CAllIMContactList
 
 		$arMessageId = Array();
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		$counters = (new IM\V2\Message\CounterService($userId))->getForEachChat();
 		while ($arRes = $dbRes->GetNext(true, false))
 		{
@@ -1656,7 +1662,7 @@ class CAllIMContactList
 					continue;
 				}
 			}
-			else if ($arRes['ITEM_TYPE'] == IM_MESSAGE_CHAT || $arRes['ITEM_TYPE'] == IM_MESSAGE_OPEN_LINE || $arRes['ITEM_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
+			else if ($arRes['ITEM_TYPE'] == IM_MESSAGE_CHAT || $arRes['ITEM_TYPE'] == IM_MESSAGE_OPEN_LINE || $arRes['ITEM_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT || $arRes['ITEM_TYPE'] == Chat::IM_TYPE_CHANNEL || $arRes['ITEM_TYPE'] == Chat::IM_TYPE_OPEN_CHANNEL)
 			{
 				if (intval($arRes['RID']) <= 0)
 				{

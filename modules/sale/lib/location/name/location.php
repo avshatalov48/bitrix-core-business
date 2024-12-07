@@ -46,7 +46,7 @@ class LocationTable extends NameEntity
 	{
 		if($data['NAME'] <> '')
 		{
-			$data['NAME_UPPER'] = ToUpper($data['NAME']); // bitrix to upper
+			$data['NAME_UPPER'] = mb_strtoupper($data['NAME']); // bitrix to upper
 
 			if(!isset($data['NAME_NORM']) && isset($data['LANGUAGE_ID']))
 			{
@@ -61,7 +61,7 @@ class LocationTable extends NameEntity
 	{
 		if($data['NAME'] <> '')
 		{
-			$data['NAME_UPPER'] = ToUpper($data['NAME']); // bitrix to upper
+			$data['NAME_UPPER'] = mb_strtoupper($data['NAME']); // bitrix to upper
 
 			if(!isset($data['NAME_NORM']) && isset($data['LANGUAGE_ID']))
 			{

@@ -502,7 +502,6 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 			$ttf_width_x = abs($bbox[2] - $bbox[0]) + 1;
 			$xCaption = $xP0 - $ttf_width_x/2 + ($dX*$bForBarDiagram/2);
 			$yCaption = $yP0 + $dD + $ttf_shift_x - $ttf_base_x;
-			$captionX = \Bitrix\Main\Text\Encoding::convertEncoding($captionX, LANG_CHARSET, "UTF-8");
 			ImageTTFText($ImageHandle, $ttf_size_x, 0, $xCaption, $yCaption, $color000000, $ttf_font_x, $captionX);
 		}
 		else ImageString($ImageHandle, $FontWidth, $xCaption, $yCaption+ImageFontHeight($FontWidth)/2, $captionX, $color000000);
@@ -548,7 +547,6 @@ function DrawCoordinatGrid($arrayX, $arrayY, $width, $height, $ImageHandle, $bgC
 
 			if ($bUseTTFY)
 			{
-				$captionY = \Bitrix\Main\Text\Encoding::convertEncoding($captionY, LANG_CHARSET, "UTF-8");
 				$bbox = imagettfbbox($ttf_size_y, 0, $ttf_font_y, $captionY);
 				$yCaption = $yM1+($ttf_shift_y-$ttf_base_y)/2;
 				ImageTTFText($ImageHandle, $ttf_size_y, 0, $xCaption-abs($bbox[2]-$bbox[0])-1, $yCaption, $color000000, $ttf_font_y, $captionY);

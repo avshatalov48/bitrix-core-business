@@ -1,0 +1,33 @@
+.bx-im-message-image__container {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	border-radius: inherit;
+}
+
+.bx-im-message-image__header {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+	padding: 10px 19px 10px 14px;
+}
+
+.bx-im-message-image__bottom-container {
+	padding: var(--im-message-base__padding_body);
+}
+
+/* External reaction list */
+.bx-im-message-image__reaction-list-container {
+	display: flex;
+	justify-content: flex-end;
+}
+
+.bx-im-message-base__wrap.--opponent .bx-im-message-image__reaction-list-container,
+.bx-im-content-chat__container.--left-align .bx-im-message-image__reaction-list-container {
+	justify-content: flex-start;
+}
+
+.bx-im-message-image__reaction-list-container > .bx-im-reaction-list__container {
+	margin-top: 4px;
+}
+
+/* End external reaction list */

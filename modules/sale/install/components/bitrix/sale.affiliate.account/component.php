@@ -120,7 +120,7 @@ if (CModule::IncludeModule("sale"))
 else
 {
 	?>
-	<b><?=ShowError(GetMessage("SPCA_NO_SHOP"))?></b>
+	<b><? ShowError(GetMessage("SPCA_NO_SHOP")) ?></b>
 	<?
 }
 ?>

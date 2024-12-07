@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http\Socket;
@@ -60,14 +60,26 @@ class Stream extends Http\Stream
 			$flags |= STREAM_CLIENT_ASYNC_CONNECT;
 		}
 
-		// $context can be FALSE
-		if ($context)
+		// Handle E_WARNING from stream_socket_client()
+		set_error_handler(function ($errno, $errstr) {
+			throw new \RuntimeException("[{$errno}] {$errstr}");
+		});
+
+		try
 		{
-			$res = stream_socket_client($this->address, $errno, $errstr, $this->socketTimeout, $flags, $context);
+			// $context can be FALSE
+			if ($context)
+			{
+				$res = stream_socket_client($this->address, $errno, $errstr, $this->socketTimeout, $flags, $context);
+			}
+			else
+			{
+				$res = stream_socket_client($this->address, $errno, $errstr, $this->socketTimeout, $flags);
+			}
 		}
-		else
+		finally
 		{
-			$res = stream_socket_client($this->address, $errno, $errstr, $this->socketTimeout, $flags);
+			restore_error_handler();
 		}
 
 		if (is_resource($res))
@@ -211,5 +223,15 @@ class Stream extends Http\Stream
 		}
 
 		return false;
+	}
+
+	/**
+	 * Retuns the address to connect.
+	 *
+	 * @return string
+	 */
+	public function getAddress(): string
+	{
+		return $this->address;
 	}
 }

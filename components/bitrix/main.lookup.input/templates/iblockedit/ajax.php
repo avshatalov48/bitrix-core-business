@@ -27,8 +27,6 @@ if(!Loader::includeModule('iblock'))
 	die();
 }
 
-CUtil::JSPostUnescape();
-
 $iblockId = (isset($_REQUEST['IBLOCK_ID']) && is_string($_REQUEST['IBLOCK_ID']) ? (int)$_REQUEST['IBLOCK_ID'] : 0);
 $withoutIblock = (isset($_REQUEST['WITHOUT_IBLOCK']) && $_REQUEST['WITHOUT_IBLOCK'] == 'Y');
 $bSection = (isset($_REQUEST['TYPE']) && $_REQUEST['TYPE'] == 'SECTION');

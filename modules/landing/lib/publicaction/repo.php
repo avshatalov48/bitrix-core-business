@@ -31,8 +31,9 @@ class Repo
 		);
 		$result->setResult(array(
 			'is_bad' => $bad,
-			'content' => $content
+			'content' => $content,
 		));
+
 		return $result;
 	}
 
@@ -48,22 +49,8 @@ class Repo
 		$result = new PublicActionResult();
 		$error = new \Bitrix\Landing\Error;
 
-		// unset not allowed keys
-		$notAllowed = array('callbacks');
-		foreach ($notAllowed as $key)
-		{
-			if (isset($manifest[$key]))
-			{
-				unset($manifest[$key]);
-			}
-		}
+		[$fields, $manifest] = static::onRegisterBefore($fields, $manifest);
 
-		if (!is_array($fields))
-		{
-			$fields = array();
-		}
-
-		$check = false;
 		$fields['XML_ID'] = trim($code);
 
 		// check intersect item of nodes and styles for background type
@@ -144,7 +131,7 @@ class Repo
 												'LANDING_APP_PRESET_CONTENT_IS_BAD',
 												array(
 													'#preset#' => $presetCode,
-													'#card#' => $cardCode
+													'#card#' => $cardCode,
 												))
 										);
 										$result->setError($error);
@@ -160,6 +147,7 @@ class Repo
 			}
 		}
 
+		[$fields, $manifest] = static::onRegisterBeforeSave($fields, $manifest);
 		$fields['MANIFEST'] = serialize($manifest);
 
 		// set app code
@@ -169,28 +157,27 @@ class Repo
 		}
 
 		// check unique
+		$exists = false;
 		if ($fields['XML_ID'])
 		{
-			$check = RepoCore::getList(array(
-				'select' => array(
-					'ID'
-				),
+			$exists = RepoCore::getList([
+				'select' => ['ID'],
 				'filter' =>
 					isset($fields['APP_CODE'])
-					? array(
+					? [
 						'=XML_ID' => $fields['XML_ID'],
-						'=APP_CODE' => $fields['APP_CODE']
-					)
-					: array(
-						'=XML_ID' => $fields['XML_ID']
-					)
-			))->fetch();
+						'=APP_CODE' => $fields['APP_CODE'],
+					]
+					: [
+						'=XML_ID' => $fields['XML_ID'],
+					],
+			])->fetch();
 		}
 
 		// register (add / update)
-		if ($check)
+		if ($exists)
 		{
-			$res = RepoCore::update($check['ID'], $fields);
+			$res = RepoCore::update($exists['ID'], $fields);
 		}
 		else
 		{
@@ -219,6 +206,60 @@ class Repo
 	}
 
 	/**
+	 * Some fixes in fields and manifest, specific by scope (mainpage widget or any)
+	 * @param array $fields
+	 * @param array $manifest
+	 * @return array
+	 */
+	protected static function onRegisterBefore(array $fields, array $manifest = []): array
+	{
+		// unset not allowed keys
+		$notAllowedManifestKey = ['callbacks'];
+		foreach ($notAllowedManifestKey as $key)
+		{
+			if (isset($manifest[$key]))
+			{
+				unset($manifest[$key]);
+			}
+		}
+
+		// unset not allowed site types
+		$notAllowedSiteTypes = [
+			'mainpage',
+		];
+		if (isset($manifest['block']['type']))
+		{
+			$manifest['block']['type'] = array_filter(
+				(array)$manifest['block']['type'],
+				function ($item) use ($notAllowedSiteTypes){
+					return !in_array(mb_strtolower($item), $notAllowedSiteTypes);
+				}
+			);
+		}
+
+		// unset not allowed subtypes
+		$notAllowedSubtypes = [
+			'widget',
+		];
+		if (isset($manifest['block']['subtype']))
+		{
+			$manifest['block']['subtype'] = array_filter(
+				(array)$manifest['block']['subtype'],
+				function ($item) use ($notAllowedSubtypes){
+					return !in_array(mb_strtolower($item), $notAllowedSubtypes);
+				}
+			);
+		}
+
+		return [$fields, $manifest];
+	}
+
+	protected static function onRegisterBeforeSave(array $fields, array $manifest = []): array
+	{
+		return [$fields, $manifest];
+	}
+
+	/**
 	 * Unregister block.
 	 * @param string $code Code of block.
 	 * @return \Bitrix\Landing\PublicActionResult
@@ -243,17 +284,17 @@ class Repo
 
 			$row = RepoCore::getList(array(
 				'select' => array(
-					'ID'
+					'ID',
 				),
 				'filter' =>
 					isset($app['CODE'])
 					? array(
 						'=XML_ID' => $code,
-						'=APP_CODE' => $app['CODE']
+						'=APP_CODE' => $app['CODE'],
 					)
 					: array(
-						'=XML_ID' => $code
-					)
+						'=XML_ID' => $code,
+					),
 			))->fetch();
 			if ($row)
 			{
@@ -261,17 +302,17 @@ class Repo
 				$codeToDelete = array();
 				$res = RepoCore::getList(array(
 					'select' => array(
-						'ID'
+						'ID',
 					),
 					'filter' =>
 						isset($app['CODE'])
 						? array(
 							'=XML_ID' => $code,
-							'=APP_CODE' => $app['CODE']
+							'=APP_CODE' => $app['CODE'],
 						)
 						: array(
-							'=XML_ID' => $code
-						)
+							'=XML_ID' => $code,
+						),
 				));
 				while ($rowRepo = $res->fetch())
 				{
@@ -324,7 +365,7 @@ class Repo
 				'PAYMENT_ALLOW' => $appLocal['PAYMENT_ALLOW'],
 				'ICON' => '',
 				'PRICE' => array(),
-				'UPDATES' => 0
+				'UPDATES' => 0,
 			);
 			if (\Bitrix\Main\Loader::includeModule('rest'))
 			{
@@ -342,7 +383,7 @@ class Repo
 					}
 				}
 				$updates = Client::getUpdates(array(
-					$code => $appLocal['VERSION']
+					$code => $appLocal['VERSION'],
 				));
 				if (
 					isset($updates['ITEMS'][0]['VERSIONS']) &&
@@ -386,7 +427,7 @@ class Repo
 
 		$res = Placement::getList(array(
 			'select' => array(
-				'ID'
+				'ID',
 			),
 			'filter' => array(
 				'APP_ID' => isset($fields['APP_ID'])
@@ -397,8 +438,8 @@ class Repo
 							: false,
 				'PLACEMENT_HANDLER' => isset($fields['PLACEMENT_HANDLER'])
 							? $fields['PLACEMENT_HANDLER']
-							: false
-			)
+							: false,
+			),
 		));
 		// add, if not exist
 		if (!$res->fetch())
@@ -476,12 +517,12 @@ class Repo
 		// common ORM params
 		$params = [
 			'select' => [
-				'ID'
+				'ID',
 			],
 			'filter' => [
 				'APP_ID' => $fields['APP_ID'],
-				'=PLACEMENT' => $code
-			]
+				'=PLACEMENT' => $code,
+			],
 		];
 		if ($handler)
 		{
@@ -556,7 +597,7 @@ class Repo
 			$params['filter']['APP_CODE'] = false;
 		}
 
-		$data = array();
+		$data = [];
 		$res = RepoCore::getList($params);
 		while ($row = $res->fetch())
 		{

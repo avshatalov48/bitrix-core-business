@@ -607,7 +607,7 @@ class CAllForumMessage
 					".$DB->DateToCharFunction("FM.EDIT_DATE", "FULL")." as EDIT_DATE
 				FROM b_forum_message FM
 				WHERE FM.ID = ".$ID;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($db_res && $res = $db_res->Fetch())
 			{
 				$GLOBALS["FORUM_CACHE"]["MESSAGE"][$ID] = $res;
@@ -696,7 +696,7 @@ class CAllForumMessage
 				LEFT JOIN b_user U ON (FM.AUTHOR_ID = U.ID)
 				".implode(" ", $arSqlFrom)."
 			WHERE FM.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($db_res && $res = $db_res->Fetch()):
 			if ($arAddParams["FILTER_MESSAGE_INFO"] == "N"):
@@ -704,18 +704,18 @@ class CAllForumMessage
 			endif;
 
 			if ($arAddParams["GET_TOPIC_INFO"] == "Y" && COption::GetOptionString("forum", "FILTER", "Y") == "Y"):
-				$arTopic = array();
+				$arTopic = [];
 				foreach ($res as $key => $val):
-					if (mb_substr($key, 0, 3) == "FT_")
+					if (strpos($key, "FT_") === 0)
 						$arTopic[mb_substr($key, 3)] = $val;
 				endforeach;
-				if (!empty($arTopic)):
-					$GLOBALS["FORUM_CACHE"]["TOPIC"][intval($res["TOPIC_INFO"]["ID"])] = $arTopic;
+				if (!empty($arTopic['ID'])):
+					$GLOBALS["FORUM_CACHE"]["TOPIC"][intval($arTopic['ID'])] = $arTopic;
 					$db_res_filter = new CDBResult;
 					$db_res_filter->InitFromArray(array($arTopic));
 					$db_res_filter = new _CTopicDBResult($db_res_filter);
 					if ($res_filter = $db_res_filter->Fetch())
-						$GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][intval($res["TOPIC_INFO"]["ID"])] = $res_filter;
+						$GLOBALS["FORUM_CACHE"]["TOPIC_FILTER"][$arTopic['ID']] = $res_filter;
 				endif;
 			endif;
 			$db_res = new CDBResult;
@@ -1251,7 +1251,7 @@ class _CMessageDBResult extends CDBResult
 					}
 					$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
 					$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intval($res["ID"]);
-					if ($DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+					if ($DB->QueryBind($strSql, $arFields))
 					{
 						foreach ($arFields as $key => $val)
 							$res[$key] = $val;
@@ -1283,7 +1283,7 @@ class _CMessageDBResult extends CDBResult
 						$arFields = array("HTML" => serialize($arr));
 						$strUpdate = $DB->PrepareUpdate("b_forum_message", $arFields);
 						$strSql = "UPDATE b_forum_message SET ".$strUpdate." WHERE ID = ".intval($res["ID"]);
-						$DB->QueryBind($strSql, $arFields, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+						$DB->QueryBind($strSql, $arFields);
 					}
 					foreach ($arr as $key => $val)
 					{
@@ -1299,8 +1299,11 @@ class _CMessageDBResult extends CDBResult
 					{
 						foreach ($arr as $key => $val)
 						{
-							$res["~FT_".$key] = $res["FT_".$key];
-							$res["FT_".$key] = $val;
+							if (isset($res["FT_".$key]))
+							{
+								$res["~FT_".$key] = $res["FT_".$key];
+								$res["FT_".$key] = $val;
+							}
 						}
 					}
 				}
@@ -1312,9 +1315,11 @@ class _CMessageDBResult extends CDBResult
 					{
 						foreach ($arr as $key => $val)
 						{
-							$res["~F_".$key] = $res["F_".$key];
-							$res["F_".$key] = $val;
-
+							if (isset($res["F_".$key]))
+							{
+								$res["~F_".$key] = $res["F_".$key];
+								$res["F_".$key] = $val;
+							}
 						}
 					}
 					if (!empty($res["FT_TITLE"]))
@@ -1518,7 +1523,7 @@ class CALLForumFiles
 			$arParams["FILE_ID"] = $fileID;
 			$arInsert = $GLOBALS["DB"]->PrepareInsert("b_forum_file", $arParams, $strUploadDir);
 			$strSql = "INSERT INTO b_forum_file(".$arInsert[0].") VALUES(".$arInsert[1].")";
-			$GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$GLOBALS["DB"]->Query($strSql);
 		}
 		return true;
 	}
@@ -1568,7 +1573,7 @@ class CALLForumFiles
 			return false;
 		$strUpdate = $GLOBALS["DB"]->PrepareUpdate("b_forum_file", $arFields);
 		$strSql = "UPDATE b_forum_file SET ".$strUpdate." WHERE FILE_ID IN(".implode(",", $ID).")";
-		$GLOBALS["DB"]->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$GLOBALS["DB"]->Query($strSql);
 	}
 
 	public static function Delete($fields = [], $params = [])
@@ -1608,7 +1613,7 @@ class CALLForumFiles
 		}
 		if (!empty($arSQL))
 		{
-			$db_res = $DB->Query('SELECT * from b_forum_file where '.implode(' AND ', $arSQL), false, 'FILE: '.__FILE__.' LINE:'.__LINE__);
+			$db_res = $DB->Query('SELECT * from b_forum_file where '.implode(' AND ', $arSQL));
 			if ($db_res && $res = $db_res->Fetch())
 			{
 				do
@@ -1624,7 +1629,7 @@ class CALLForumFiles
 		$result = true;
 		if($arFile["MODULE_ID"] == "forum")
 		{
-			$GLOBALS["DB"]->Query("DELETE from b_forum_file where FILE_ID=".$arFile["ID"], false, "FILE: ".__FILE__." LINE:".__LINE__);
+			$GLOBALS["DB"]->Query("DELETE from b_forum_file where FILE_ID=".$arFile["ID"]);
 		}
 		return $result;
 	}

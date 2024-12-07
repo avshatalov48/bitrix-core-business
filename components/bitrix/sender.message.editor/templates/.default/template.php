@@ -135,7 +135,7 @@ $getHintHtml = function (array $option)
 
 $fieldPrefix = 'CONFIGURATION_';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Message.Editor.init(<?=Json::encode(array(
 			'containerId' => $containerId,
@@ -324,7 +324,7 @@ $fieldPrefix = 'CONFIGURATION_';
 						array('HIDE_ICONS' => 'Y')
 					);
 					?>
-						<script type="text/javascript">
+						<script>
 							BX.ready(function () {
 								var list = document.getElementsByClassName('diskuf-selectdialog-switcher');
 								list.length > 0 ? BX.fireEvent(list.item(0), 'click') : null;

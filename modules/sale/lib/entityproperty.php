@@ -202,13 +202,7 @@ abstract class EntityProperty
 
 				try
 				{
-					$result = Main\Web\Json::decode(
-						Main\Text\Encoding::convertEncoding(
-							$value,
-							SITE_CHARSET,
-							'UTF-8'
-						)
-					);
+					$result = Main\Web\Json::decode($value);
 				}
 				catch (\Exception $exception)
 				{
@@ -424,13 +418,13 @@ abstract class EntityProperty
 			{
 				foreach ($error as $message)
 				{
-					$result->addError(new ResultError($this->getField('NAME').' '.$message));
+					$result->addError(new ResultError($message));
 					$errors[$this->getId()][] = $message;
 				}
 			}
 			else
 			{
-				$result->addError(new ResultError($this->getName().' '.$error));
+				$result->addError(new ResultError($error));
 				$errors[$this->getId()][] = $error;
 			}
 		}

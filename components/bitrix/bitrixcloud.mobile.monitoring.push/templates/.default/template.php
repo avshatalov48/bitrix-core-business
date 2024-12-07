@@ -35,8 +35,8 @@ if ($arResult['DOMAIN'] == '')
 						. '<a href="javascript:void(0);">' . htmlspecialcharsEx($converter->Decode($domainName)) . '</a>'
 					. '</li>'
 				. '</ul>'
-				. '<script type="text/javascript">'
-					. 'BX.ready(function(){ bcPush.makeFastButton("'. CUtil::JSEscape('li_id_' . $domainName) . '", "' . CUtil::JSEscape($domLink) . '");});'
+				. '<script>'
+					. 'BX.ready(function(){ bcPush.makeFastButton("' . CUtil::JSEscape('li_id_' . $domainName) . '", "' . CUtil::JSEscape($domLink) . '");});'
 				. '</script>'
 		];
 	}
@@ -91,7 +91,7 @@ $APPLICATION->IncludeComponent(
 
 ?>
 
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage('BCMMP_TITLE')?>"});
 

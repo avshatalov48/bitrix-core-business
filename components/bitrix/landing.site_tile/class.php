@@ -259,7 +259,11 @@ class LandingSiteTileComponent extends LandingBaseComponent
 
 			$accessPublication = $item['ACCESS_PUBLICATION'] === 'Y';
 			$publicationError = [];
-			if ($accessPublication && \Bitrix\Main\Config\Option::get('catalog', 'is_external_catalog', 'N') === 'Y')
+			if (
+				$accessPublication
+				&& \Bitrix\Main\Loader::includeModule('catalog')
+				&& \Bitrix\Catalog\Config\State::isExternalCatalog()
+			)
 			{
 				if ($item['TYPE'] === 'STORE' && !str_starts_with($item['TPL_CODE'], 'store-chats'))
 				{

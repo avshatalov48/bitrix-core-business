@@ -1,5 +1,5 @@
 import 'ui.cnt';
-import {Reflection} from 'main.core';
+import { Reflection } from 'main.core';
 
 /**
  * @memberOf BX.Grid
@@ -19,6 +19,7 @@ export class Counters
 		GRAY: 'ui-counter-gray',
 		LIGHT: 'ui-counter-light',
 		DARK: 'ui-counter-dark',
+		WARNING: 'ui-counter-warning',
 	};
 
 	static Size = {

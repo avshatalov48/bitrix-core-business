@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
@@ -13,7 +13,7 @@ use Bitrix\Main\Web\HttpDebug;
 
 trait DebugInterfaceTrait
 {
-	protected int $debugLevel = HttpDebug::REQUEST_HEADERS | HttpDebug::RESPONSE_HEADERS;
+	protected int $debugLevel = HttpDebug::CONNECT | HttpDebug::REQUEST_HEADERS | HttpDebug::RESPONSE_HEADERS;
 
 	/**
 	 * Sets debug level using HttpDebug::* constants.

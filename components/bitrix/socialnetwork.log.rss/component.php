@@ -259,7 +259,7 @@ if ($arResult["NAME"])
 			$day = intval($arDateTmp["DD"]);
 			$month = intval($arDateTmp["MM"]);
 			$year = intval($arDateTmp["YYYY"]);
-			$dateFormated = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
+			$dateFormated = $day.' '.mb_strtolower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
 			$timeFormated = $arDateTmp["HH"].':'.$arDateTmp["MI"].':'.$arDateTmp["SS"];
 
 			$arEvents["MESSAGE_FORMAT"] = htmlspecialcharsback($arEvents["MESSAGE"]);

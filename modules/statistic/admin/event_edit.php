@@ -90,7 +90,7 @@ $arrHandlers = CStatEvent::GetHandlerList($arUSER_HANDLERS);
 
 // prepare file for loading from CSV
 $CSV_LOADING_OK = false;
-if ($Load!="" && $tabControl_active_tab=="load_csv_tab" && $REQUEST_METHOD=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
+if ($Load!="" && $tabControl_active_tab=="load_csv_tab" && $_SERVER['REQUEST_METHOD']=="POST" && $STAT_RIGHT>="W" && check_bitrix_sessid())
 {
 	$arFile = $_FILES["file_name"];
 	$file = $arFile["tmp_name"];
@@ -278,7 +278,7 @@ if ($success == '' || $success == "Y")
 	</table>
 	</td></tr></table>
 
-	<script language="JavaScript" type="text/javascript">
+	<script>
 	function DoNext()
 	{
 		window.location='<?=$link?>';
@@ -317,8 +317,9 @@ if ($success == '' || $success == "Y")
 	</td></tr></table>
 <?endif;?>
 
-<script language="JavaScript">
+<script>
 <!--
+const dateEnter = '<?php echo CUtil::JSEscape(CalendarDate('DATE_ENTER_#id#', '', 'form1', '18'))?>';
 function addNewRow(currentId)
 {
 	if(currentId<document.form1.nums.value)
@@ -334,7 +335,7 @@ function addNewRow(currentId)
 	oCell.innerHTML = id;
 
 	oCell = oRow.insertCell(i++);
-	oCell.innerHTML = '<input type="checkbox" value="Y" name="LOAD_'+id+'" checked>';
+	oCell.innerHTML = '<input class="adm-designed-checkbox-label" type="checkbox" value="Y" name="LOAD_'+id+'" checked>';
 
 	oCell = oRow.insertCell(i++);
 	oCell.noWrap = true;
@@ -344,7 +345,14 @@ function addNewRow(currentId)
 	oCell.innerHTML = '<input type="text" size="20" name="EVENT3_'+id+'" value="" OnFocus="addNewRow('+id+')">';
 
 	oCell = oRow.insertCell(i++);
-	oCell.innerHTML = '<input type="text" name="DATE_ENTER_'+id+'" size="18" value=""> <a href="javascript:void(0);" onClick="Calendar(\'name=DATE_ENTER_'+id+'&from=&to=&form=form1\', document.form1.DATE_ENTER_'+id+'.value);" title="<?echo GetMessage("STAT_CALENDAR")?>"><img src="/bitrix/images/icons/calendar.gif" alt="<?echo GetMessage("STAT_CALENDAR")?>" width="15" height="15" border="0"></a>';
+	var ob = BX.processHTML(dateEnter.replaceAll('#id#', id), false);
+	oCell.innerHTML = ob.HTML;
+	for (let i = 0; i < ob.SCRIPT.length; i++)
+	{
+		var script = document.createElement('script');
+		script.text = ob.SCRIPT[i].JS;
+		oCell.appendChild(script);
+	}
 
 	oCell = oRow.insertCell(i++);
 	oCell.innerHTML = '<input type="text" name="PARAM_'+id+'" value="" OnFocus="addNewRow('+id+')">';
@@ -358,7 +366,7 @@ function addNewRow(currentId)
 	<?=$strJavaCurArray?>
 	var objPrevSelect = document.getElementsByName("CURRENCY_"+(id-1))[0];
 	var prevSelectValue = objPrevSelect[objPrevSelect.selectedIndex].value;
-	strSelectBox = '<select name="CURRENCY_'+id+'">';
+	strSelectBox = '<select class="typeselect" name="CURRENCY_'+id+'">';
 	for (var ii=0;ii<arrCur.length;ii++)
 	{
 		strSelectBox = strSelectBox+'<option value="'+arrCur[ii]+'"';
@@ -369,7 +377,7 @@ function addNewRow(currentId)
 	<?endif;?>
 
 	oCell = oRow.insertCell(i++);
-	oCell.innerHTML = '<input type="checkbox" value="Y" name="CHARGEBACK_'+id+'">';
+	oCell.innerHTML = '<input class="adm-designed-checkbox-label" type="checkbox" value="Y" name="CHARGEBACK_'+id+'">';
 
 	oCell = oRow.insertCell(i++);
 	oCell.innerHTML = '<a href="javascript: Copy('+id+')"><img src="/bitrix/images/statistic/copy.gif" width="15" height="15" border=0 class="tb2" hspace="2" alt="<?echo GetMessage("STAT_COPY")?>"></a>';
@@ -420,7 +428,7 @@ if (is_array($arUSER_HANDLERS) && count($arUSER_HANDLERS)>0)
 }
 
 ?>
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
 <!--
 function SelectHandler()
 {
@@ -579,7 +587,7 @@ $tabControl->BeginNextTab();
 <?=bitrix_sessid_post();?>
 </form>
 
-<SCRIPT LANGUAGE="JavaScript">
+<SCRIPT>
 <!--
 ClickPreview();
 SelectHandler();

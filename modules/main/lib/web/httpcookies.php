@@ -45,6 +45,7 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$str .= ($str == '' ? '' : '; ') . rawurlencode($cookie->getName()) . '=' . rawurlencode($cookie->getValue());
 		}
+
 		return $str;
 	}
 
@@ -74,6 +75,7 @@ class HttpCookies extends \Bitrix\Main\Type\Dictionary
 		{
 			$cookies[$cookie->getName()] = $cookie->getValue();
 		}
+
 		return $cookies;
 	}
 

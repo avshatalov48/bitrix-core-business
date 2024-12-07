@@ -291,17 +291,6 @@ class FormVkontakte extends LeadAds\Form
 			;
 	}
 
-	protected function encodeString($text, $length = 60): string
-	{
-		$text = Encoding::convertEncoding(
-			$text,
-			Context::getCurrent()->getCulture()->getCharset(),
-			'UTF-8'
-		);
-
-		return mb_substr($text, 0, $length);
-	}
-
 	/**
 	 * Get list.
 	 *

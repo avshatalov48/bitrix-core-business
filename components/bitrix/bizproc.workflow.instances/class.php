@@ -53,6 +53,20 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
+		$typeFilter = $this->request->get('type');
+
+		if ($typeFilter)
+		{
+			$uri = new \Bitrix\Main\Web\Uri($this->request->getRequestUri());
+			$uri->deleteParams(['type']);
+			$uri->addParams([
+				'TYPE' => $typeFilter,
+				'apply_filter' => 'Y',
+			]);
+
+			LocalRedirect($uri->getLocator());
+		}
+
 		if (empty($params['NAME_TEMPLATE']))
 		{
 			$params['NAME_TEMPLATE'] = COption::GetOptionString(
@@ -333,8 +347,7 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 				}
 				elseif ($value === 'is_locked')
 				{
-					global $DB;
-					$filter['<OWNED_UNTIL'] = date($DB->DateFormatToPHP(FORMAT_DATETIME), $this->getLockedTime());
+					$filter['<OWNED_UNTIL'] = \Bitrix\Main\Type\DateTime::createFromTimestamp($this->getLockedTime());
 				}
 
 				continue;
@@ -535,14 +548,8 @@ class BizprocWorkflowInstances extends \CBitrixComponent
 
 	private function getGridFilter(): array
 	{
-		$typeFilter = $this->request->get('type');
 		$filterOptions = new \Bitrix\Main\UI\Filter\Options(static::GRID_ID . '_filter');
-		$gridFilter = $filterOptions->getFilter();
-
-		if ($typeFilter && empty($gridFilter['TYPE'])) //compatible
-		{
-			$gridFilter['TYPE'] = $typeFilter;
-		}
+		$gridFilter = $filterOptions->getFilter($this->getFilter());
 
 		$filter = $this->prepareFilter($gridFilter);
 

@@ -60,6 +60,6 @@
 		</tbody>
 		</table>
 	<?else:
-		echo ShowNote(GetMessage("SALE_NO_SUBSCRIBE_PROD"));
+		ShowNote(GetMessage("SALE_NO_SUBSCRIBE_PROD"));
 	endif;?>
 </div>

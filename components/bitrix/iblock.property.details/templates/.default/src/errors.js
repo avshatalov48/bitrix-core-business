@@ -1,3 +1,5 @@
+import { Type } from 'main.core';
+
 export class Errors
 {
 	errorsMessage: HTMLElement;
@@ -11,7 +13,14 @@ export class Errors
 
 	show(errors: Array): void
 	{
-		this.errorsMessage.innerHTML = errors.map((i) => i.message).join("\n");
+		if (Type.isArray(errors))
+		{
+			this.errorsMessage.innerHTML = errors.map((i) => i.message).join("\n");
+		}
+		else
+		{
+			this.errorsMessage.innerHTML = 'Unknown error';
+		}
 		this.errorsWrapper.style.display = 'block';
 	}
 
@@ -20,4 +29,4 @@ export class Errors
 		this.errorsMessage.innerHTML = '';
 		this.errorsWrapper.style.display = 'none';
 	}
-};
+}

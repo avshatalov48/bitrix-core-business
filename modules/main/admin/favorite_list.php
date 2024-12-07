@@ -22,7 +22,7 @@ else
 	$oSort = new CAdminSorting($sTableID, "sort", "asc");
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-function CheckFilter() // проверка введенных полей
+function CheckFilter() // РїСЂРѕРІРµСЂРєР° РІРІРµРґРµРЅРЅС‹С… РїРѕР»РµР№
 {
 	global $FilterArr, $lAdmin;
 	foreach ($FilterArr as $f) global $$f;
@@ -308,7 +308,7 @@ $oFilter = new CAdminFilter($sTableID."_filter", $arFRows);
 	<td><?echo GetMessage("fav_list_flt_mod1")?></td>
 	<td><?
 	$a = CModule::GetDropDownList();
-	while ($ar = $a->Fetch())
+	while ($ar = $a->fetch())
 	{
 		$ref_id[] = $ar["REFERENCE_ID"];
 		$ref[] = $ar["REFERENCE"];

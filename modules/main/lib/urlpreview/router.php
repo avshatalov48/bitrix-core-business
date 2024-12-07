@@ -95,9 +95,9 @@ class Router
 				//replace parameters variables with values
 				foreach($result['PARAMETERS'] as $parameterName => &$parameterValue)
 				{
-					if(mb_strpos($parameterValue, '$') === 0)
+					if(str_starts_with($parameterValue, '$'))
 					{
-						$variableName = mb_substr($parameterValue, 1);
+						$variableName = substr($parameterValue, 1);
 						if(isset($matches[$variableName]))
 						{
 							$parameterValue = $matches[$variableName];
@@ -107,14 +107,14 @@ class Router
 				unset($parameterValue);
 
 				$uriQuery = $uri->getQuery();
-				if (mb_strlen($uriQuery) > 0)
+				if (!empty($uriQuery))
 				{
 					$uriQueryParams = static::parseQueryParams($uriQuery);
 					foreach ($result['PARAMETERS'] as $parameterName => &$parameterValue)
 					{
-						if (mb_strpos($parameterValue, '$') === 0)
+						if (str_starts_with($parameterValue, '$'))
 						{
-							$variableName = mb_substr($parameterValue, 1);
+							$variableName = substr($parameterValue, 1);
 							if (isset($uriQueryParams[$variableName]))
 							{
 								$parameterValue = $uriQueryParams[$variableName];

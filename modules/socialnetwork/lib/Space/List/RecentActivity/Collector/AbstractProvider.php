@@ -13,12 +13,6 @@ abstract class AbstractProvider implements ProviderInterface
 	abstract protected function isAvailable(): bool;
 	abstract protected function fill(): void;
 
-	/** @return array<int> */
-	protected function getEntityIdsFromRecentActivityItems(): array
-	{
-		return array_map(fn(RecentActivityData $item): int => $item->getEntityId(), $this->recentActivityDataItems);
-	}
-
 	protected function addEntity(int $id, $entity): void
 	{
 		$this->entities[$id] = $entity;
@@ -36,7 +30,7 @@ abstract class AbstractProvider implements ProviderInterface
 
 	final public function fillData(): void
 	{
-		if (!$this->isAvailable())
+		if (!$this->isAvailable() || empty($this->recentActivityDataItems))
 		{
 			return;
 		}

@@ -1102,20 +1102,20 @@ class CZip implements IBXArchive
 		{
 			if ($removeDir != "")
 			{
-				if (mb_substr($removeDir, -1) != '/')
+				if (!str_ends_with($removeDir, '/'))
 				{
 					$removeDir .= "/";
 				}
 
-				if ((mb_substr($filename, 0, 2) == "./") || (mb_substr($removeDir, 0, 2) == "./"))
+				if ((str_starts_with($filename, "./")) || (str_starts_with($removeDir, "./")))
 				{
-					if ((mb_substr($filename, 0, 2) == "./") && (mb_substr($removeDir, 0, 2) != "./"))
+					if ((str_starts_with($filename, "./")) && (!str_starts_with($removeDir, "./")))
 					{
 						$removeDir = "./" . $removeDir;
 					}
-					if ((mb_substr($filename, 0, 2) != "./") && (mb_substr($removeDir, 0, 2) == "./"))
+					if ((!str_starts_with($filename, "./")) && (str_starts_with($removeDir, "./")))
 					{
-						$removeDir = mb_substr($removeDir, 2);
+						$removeDir = substr($removeDir, 2);
 					}
 				}
 
@@ -1137,7 +1137,7 @@ class CZip implements IBXArchive
 
 		if ($addDir != "")
 		{
-			if (mb_substr($addDir, -1) == "/")
+			if (str_ends_with($addDir, "/"))
 			{
 				$storedFilename = $addDir . $storedFilename;
 			}
@@ -1468,7 +1468,7 @@ class CZip implements IBXArchive
 		$removeAllPath = $arParams['remove_all_path'];
 
 		//path checking
-		if (($path == "") || ((mb_substr($path, 0, 1) != "/") && (mb_substr($path, 0, 3) != "../") && (mb_substr($path, 1, 2) != ":/")))
+		if (($path == "") || ((!str_starts_with($path, "/")) && (!str_starts_with($path, "../")) && (mb_substr($path, 1, 2) != ":/")))
 		{
 			$path = "./" . $path;
 		}
@@ -1477,14 +1477,14 @@ class CZip implements IBXArchive
 		if (($path != "./") && ($path != "/"))
 		{
 			// checking path end '/'
-			while (mb_substr($path, -1) == "/")
+			while (str_ends_with($path, "/"))
 			{
-				$path = mb_substr($path, 0, mb_strlen($path) - 1);
+				$path = substr($path, 0, -1);
 			}
 		}
 
 		//path should end with the /
-		if (($removePath != "") && (mb_substr($removePath, -1) != '/'))
+		if (($removePath != "") && (!str_ends_with($removePath, '/')))
 		{
 			$removePath .= '/';
 		}
@@ -1543,11 +1543,11 @@ class CZip implements IBXArchive
 				for ($j = 0; $j < $count && !$extract; $j++)
 				{
 					//is directory
-					if (mb_substr($arParams['by_name'][$j], -1) == "/")
+					if (str_ends_with($arParams['by_name'][$j], "/"))
 					{
 						//is dir in the filename path
 						if ((mb_strlen($header['stored_filename']) > mb_strlen($arParams['by_name'][$j]))
-							&& (mb_substr($header['stored_filename'], 0, mb_strlen($arParams['by_name'][$j])) == $arParams['by_name'][$j]))
+							&& (str_starts_with($header['stored_filename'], $arParams['by_name'][$j])))
 						{
 							$extract = true;
 						}
@@ -1686,11 +1686,10 @@ class CZip implements IBXArchive
 					return $res;
 				}
 
-				$removePath_size = mb_strlen($removePath);
-				if (mb_substr($arEntry['filename'], 0, $removePath_size) == $removePath)
+				if (str_starts_with($arEntry['filename'], $removePath))
 				{
 					//remove path
-					$arEntry['filename'] = mb_substr($arEntry['filename'], $removePath_size);
+					$arEntry['filename'] = substr($arEntry['filename'], strlen($removePath));
 				}
 			}
 		}
@@ -1757,7 +1756,7 @@ class CZip implements IBXArchive
 				else
 				{
 					//check the directory availability and create it if necessary
-					if ((($arEntry['external'] & 0x00000010) == 0x00000010) || (mb_substr($arEntry['filename'], -1) == '/'))
+					if ((($arEntry['external'] & 0x00000010) == 0x00000010) || (str_ends_with($arEntry['filename'], '/')))
 					{
 						$checkDir = $arEntry['filename'];
 					}
@@ -2068,7 +2067,7 @@ class CZip implements IBXArchive
 		$arHeader['status'] = 'ok';
 
 		//is directory?
-		if (mb_substr($arHeader['filename'], -1) == '/')
+		if (str_ends_with($arHeader['filename'], '/'))
 		{
 			$arHeader['external'] = 0x41FF0010;
 		}
@@ -2259,11 +2258,11 @@ class CZip implements IBXArchive
 				//if the filename is in the list
 				for ($j = 0, $n = count($arParams['by_name']); $j < $n && !$isFound; $j++)
 				{
-					if (mb_substr($arParams['by_name'][$j], -1) == "/")
+					if (str_ends_with($arParams['by_name'][$j], "/"))
 					{
 						//if the directory is in the filename path
 						if ((mb_strlen($arHeaders[$extractedCounter]['stored_filename']) > mb_strlen($arParams['by_name'][$j]))
-							&& (mb_substr($arHeaders[$extractedCounter]['stored_filename'], 0, mb_strlen($arParams['by_name'][$j])) == $arParams['by_name'][$j]))
+							&& (str_starts_with($arHeaders[$extractedCounter]['stored_filename'], $arParams['by_name'][$j])))
 						{
 							$isFound = true;
 						}
@@ -2440,9 +2439,9 @@ class CZip implements IBXArchive
 		$res = 1;
 
 		//remove '/' at the end
-		if (($isDir) && (mb_substr($dir, -1) == '/'))
+		if (($isDir) && (str_ends_with($dir, '/')))
 		{
-			$dir = mb_substr($dir, 0, mb_strlen($dir) - 1);
+			$dir = substr($dir, 0, -1);
 		}
 
 		//check if dir is available
@@ -2736,7 +2735,7 @@ class CZip implements IBXArchive
 			}
 
 			//change windows directory separator
-			if ((mb_strpos($path, '\\') > 0) || (mb_substr($path, 0, 1) == '\\'))
+			if ((strpos($path, '\\') > 0) || (str_starts_with($path, '\\')))
 			{
 				$path = strtr($path, '\\', '/');
 			}
@@ -2754,7 +2753,7 @@ class CZip implements IBXArchive
 
 		if (isset($arFileList) && $arFileList <> '')
 		{
-			if (mb_strpos($arFileList, "\"") === 0)
+			if (str_starts_with($arFileList, "\""))
 			{
 				return [trim($arFileList, "\"")];
 			}
@@ -2775,7 +2774,7 @@ class CZip implements IBXArchive
 		$path = str_replace(["\\", "//"], "/", $path);
 
 		//remove file name
-		if (mb_substr($path, -1) != "/")
+		if (!str_ends_with($path, "/"))
 		{
 			$p = mb_strrpos($path, "/");
 			$path = mb_substr($path, 0, $p);

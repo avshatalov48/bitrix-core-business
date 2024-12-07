@@ -90,7 +90,6 @@ else
 
 	if($arResult['RETURN_AS_ARRAY'])
 	{
-		$arOrders = $APPLICATION->ConvertCharsetArray($arOrders, SITE_CHARSET, 'utf-8');
 		$arJsonRes = array('orders' => $arOrders);
 
 		if($arResult['BOTTOM_REACHED'])
@@ -127,7 +126,7 @@ if(isset($_REQUEST['filter_name']))
 }
 
 ?>
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=$pageTitle?>"});
 

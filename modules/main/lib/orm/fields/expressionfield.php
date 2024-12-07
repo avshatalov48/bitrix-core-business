@@ -57,7 +57,7 @@ class ExpressionField extends Field implements IReadable
 	protected static
 		$aggrFunctionsMYSQL = array('AVG', 'BIT_AND', 'BIT_OR', 'BIT_XOR', 'COUNT',
 			'GROUP_CONCAT', 'MAX', 'MIN', 'STD', 'STDDEV_POP', 'STDDEV_SAMP',
-			'STDDEV', 'SUM', 'VAR_POP', 'VAR_SAMP', 'VARIANCE'
+			'STDDEV', 'SUM', 'VAR_POP', 'VAR_SAMP', 'VARIANCE', 'ANY_VALUE'
 		),
 		$aggrFunctionsMSSQL = array('AVG', 'MIN', 'CHECKSUM_AGG', 'OVER', 'COUNT',
 			'ROWCOUNT_BIG', 'COUNT_BIG', 'STDEV', 'GROUPING', 'STDEVP',
@@ -74,6 +74,10 @@ class ExpressionField extends Field implements IReadable
 			'STATS_T_TEST_PAIRED', 'STATS_T_TEST_INDEP', 'STATS_T_TEST_INDEPU',
 			'STATS_WSR_TEST', 'STDDEV', 'STDDEV_POP', 'STDDEV_SAMP', 'SUM',
 			'VAR_POP', 'VAR_SAMP', 'VARIANCE'
+		),
+		$aggrFunctionsPGSQL = array(
+			'AVG', 'ARRAY_AGG', 'BOOL_AND', 'BOOL_OR', 'COUNT', 'STRING_AGG', 'SUM',
+			'MAX', 'MIN'
 		),
 		$aggrFunctions;
 
@@ -314,7 +318,7 @@ class ExpressionField extends Field implements IReadable
 		if (empty(self::$aggrFunctions))
 		{
 			self::$aggrFunctions = array_unique(array_merge(
-				self::$aggrFunctionsMYSQL, self::$aggrFunctionsMSSQL, self::$aggrFunctionsORACLE
+				self::$aggrFunctionsMYSQL, self::$aggrFunctionsMSSQL, self::$aggrFunctionsORACLE, self::$aggrFunctionsPGSQL
 			));
 		}
 

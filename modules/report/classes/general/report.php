@@ -109,8 +109,7 @@ class CReport
 		$strSql = "UPDATE b_report SET ".$strUpdate." WHERE ID='".$DB->ForSQL($ID)."'";
 
 		$result = $DB->QueryBind(
-			$strSql, array('SETTINGS' => $settings, 'DESCRIPTION' => $description),false,
-			"File: ".__FILE__."<br>Line: ".__LINE__
+			$strSql, array('SETTINGS' => $settings, 'DESCRIPTION' => $description)
 		);
 
 		// post-events
@@ -144,7 +143,7 @@ class CReport
 		}
 
 		// save data
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		// post-events
 		foreach (GetModuleEvents("report", "OnReportDelete", true) as $arEvent)
@@ -244,7 +243,7 @@ class CReport
 
 		$strSql = "SELECT COUNT(ID) AS CNT FROM b_report WHERE CREATED_BY='".$DB->ForSql($USER->GetID())."' AND OWNER_ID='".$DB->ForSql($owner)."'";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$row = $res->Fetch();
 
 		return (int) $row['CNT'];
@@ -734,7 +733,7 @@ class CReport
 					foreach ($entity->GetPrimaryArray() as $primary)
 					{
 						$filter['='.$primary] = new CSQLWhereExpression(
-							'?#', ToLower($entity->getCode()).'.'.$primary
+							'?#', mb_strtolower($entity->getCode()).'.'.$primary
 						);
 					}
 

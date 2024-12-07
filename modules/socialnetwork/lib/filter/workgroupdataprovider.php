@@ -37,18 +37,15 @@ class WorkgroupDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 	 */
 	protected function getFieldName($fieldID): string
 	{
-		switch ($fieldID)
+		$name = match ($fieldID)
 		{
-			case 'OWNER':
-				$name = (
-					ModuleManager::isModuleInstalled('intranet')
-						? Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}_INTRANET")
-						: Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}")
-				);
-				break;
-			default:
-				$name = Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}");
-		}
+			'OWNER' => ModuleManager::isModuleInstalled('intranet')
+				? Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}_INTRANET")
+				: Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}")
+			,
+			'LANDING' => Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}_MSGVER_1"),
+			default => Loc::getMessage("SOCIALNETWORK_WORKGROUP_FILTER_{$fieldID}"),
+		};
 
 		if ($name === null)
 		{
@@ -144,7 +141,6 @@ class WorkgroupDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 				{
 					$items = [
 						'NEW_COMMENTS' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_NEW_COMMENTS'),
-						'PROJECT_NEW_COMMENTS' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_PROJECT_NEW_COMMENTS'),
 					];
 				}
 				elseif ($this->additionalParams['MODE'] === WorkgroupList::MODE_TASKS_PROJECT)
@@ -152,8 +148,6 @@ class WorkgroupDataProvider extends \Bitrix\Main\Filter\EntityDataProvider
 					$items = [
 						'EXPIRED' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_EXPIRED'),
 						'NEW_COMMENTS' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_NEW_COMMENTS'),
-						'PROJECT_EXPIRED' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_PROJECT_EXPIRED'),
-						'PROJECT_NEW_COMMENTS' => Loc::getMessage('SOCIALNETWORK_WORKGROUP_FILTER_COUNTERS_LIST_VALUE_PROJECT_NEW_COMMENTS'),
 					];
 				}
 			}

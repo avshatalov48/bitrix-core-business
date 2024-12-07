@@ -15,6 +15,7 @@ class AddressField
 	#addresses: [];
 	#isMultiple: boolean = false;
 	#showMap: boolean = true;
+	#showDetailsToggle: boolean = true;
 
 	#fieldConfig = {};
 	#additionalProperties = {};
@@ -38,7 +39,8 @@ class AddressField
 		});
 
 		const showMap = params.showMap ?? true;
-		let addressFieldParams = {
+		const showDetailsToggle = Boolean(params.showDetailsToggle ?? true);
+		const addressFieldParams = {
 			addresses: addresses,
 			wrapper: wrapper,
 			mode: mode,
@@ -48,6 +50,7 @@ class AddressField
 			},
 			isMultiple: params.isMultiple,
 			showMap,
+			showDetailsToggle,
 		};
 
 		if (params.additionalProperties)
@@ -69,6 +72,7 @@ class AddressField
 		this.#fieldConfig = params.fieldConfig;
 		this.#isMultiple = params.isMultiple;
 		this.#showMap = params.showMap;
+		this.#showDetailsToggle = Boolean(params.showDetailsToggle ?? true);
 		if (params.additionalProperties)
 		{
 			this.#additionalProperties = params.additionalProperties;
@@ -98,6 +102,7 @@ class AddressField
 				isMultiple: this.#isMultiple,
 				compactMode: this.#additionalProperties.compactMode ?? false,
 				showMap: this.#showMap,
+				showDetailsToggle: this.#showDetailsToggle,
 			});
 		}
 

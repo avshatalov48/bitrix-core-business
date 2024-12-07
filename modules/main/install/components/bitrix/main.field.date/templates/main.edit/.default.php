@@ -1,6 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 /**
  * @var DateUfComponent $component
@@ -34,8 +37,7 @@ $component = $this->getComponent();
 
 	if(
 		$arResult['userField']['MULTIPLE'] === 'Y'
-		&&
-		$arResult['additionalParameters']['SHOW_BUTTON'] !== 'N'
+		&& ($arResult['additionalParameters']['SHOW_BUTTON'] ?? 'Y') !== 'N'
 	)
 	{
 		print $component->getHtmlBuilder()->getCloneButton($arResult['fieldName']);

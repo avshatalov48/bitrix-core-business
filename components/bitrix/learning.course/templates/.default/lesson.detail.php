@@ -31,16 +31,16 @@
 			"LESSON_PATH"	=> $arResult["VARIABLES"]["LESSON_PATH"],
 			"COURSE_ID"	=> $arParams["COURSE_ID"],
 			"SELF_TEST_TEMPLATE"	=> $arResult["FOLDER"].$arResult["URL_TEMPLATES"]["test.self"],
-			"CHECK_PERMISSIONS" => $arParams["CHECK_PERMISSIONS"],
-			"SET_TITLE" => $arParams["SET_TITLE"],
-			"CACHE_TIME" => $arParams["CACHE_TIME"],
-			"CACHE_TYPE" => $arParams["CACHE_TYPE"],
-			"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER_PROFILE"],
+			"CHECK_PERMISSIONS" => $arParams["CHECK_PERMISSIONS"] ?? null,
+			"SET_TITLE" => $arParams["SET_TITLE"] ?? null,
+			"CACHE_TIME" => $arParams["CACHE_TIME"] ?? null,
+			"CACHE_TYPE" => $arParams["CACHE_TYPE"] ?? null,
+			"PATH_TO_USER_PROFILE" => $arParams["PATH_TO_USER_PROFILE"] ?? '',
 			),
 			$component
 		);?>
 
-	<?if (intval($arParams["COURSE_ID"]) > 0):?>
+	<?if (isset($arParams["COURSE_ID"]) && intval($arParams["COURSE_ID"]) > 0):?>
 		<br /><br />
 		<?$APPLICATION->IncludeComponent("bitrix:learning.course.tree", "navigation", Array(
 			"COURSE_ID"	=> $arParams["COURSE_ID"],
@@ -63,4 +63,3 @@
 
 </tr>
 </table>
-

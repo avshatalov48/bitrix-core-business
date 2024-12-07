@@ -1078,6 +1078,10 @@ class CIBlockSectionRights extends CIBlockRights
 
 class CIBlockElementRights extends CIBlockRights
 {
+	public const OPERATION_READ = 'element_read';
+	public const OPERATION_EDIT = 'element_edit';
+	public const OPERATION_RIGHTS_EDIT = 'element_rights_edit';
+
 	function __construct($IBLOCK_ID, $ELEMENT_ID)
 	{
 		parent::__construct($IBLOCK_ID);

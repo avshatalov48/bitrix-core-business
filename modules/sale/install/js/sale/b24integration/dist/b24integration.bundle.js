@@ -93,7 +93,7 @@ this.BX = this.BX || {};
             } else if (Object.values(data.process.list).length > 0) {
               return Stepper.getRejectPromise();
             } else if (!!data.error && data.error.length > 0) {
-              // продолжаем выполнение, т.к. текст ошибки на данном шаге выведен. пропускаем шаг
+              // РїСЂРѕРґРѕР»Р¶Р°РµРј РІС‹РїРѕР»РЅРµРЅРёРµ, С‚.Рє. С‚РµРєСЃС‚ РѕС€РёР±РєРё РЅР° РґР°РЅРЅРѕРј С€Р°РіРµ РІС‹РІРµРґРµРЅ. РїСЂРѕРїСѓСЃРєР°РµРј С€Р°Рі
               return Stepper.getRejectPromise();
             }
           }
@@ -122,11 +122,11 @@ this.BX = this.BX || {};
         value: function clientAdds(batch) {
           var _this2 = this;
 
-          return this.prepareContactFields(batch) //->из исходных данных получили список по локальным пользователям
+          return this.prepareContactFields(batch) //->РёР· РёСЃС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… РїРѕР»СѓС‡РёР»Рё СЃРїРёСЃРѕРє РїРѕ Р»РѕРєР°Р»СЊРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
           .then(function (list) {
-            return _this2.contactRelationVoid(list) //->возвращает локальный список пользователей у которых связь с удаленной сущностью отсутвует/не корректна
+            return _this2.contactRelationVoid(list) //->РІРѕР·РІСЂР°С‰Р°РµС‚ Р»РѕРєР°Р»СЊРЅС‹Р№ СЃРїРёСЃРѕРє РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ Сѓ РєРѕС‚РѕСЂС‹С… СЃРІСЏР·СЊ СЃ СѓРґР°Р»РµРЅРЅРѕР№ СЃСѓС‰РЅРѕСЃС‚СЊСЋ РѕС‚СЃСѓС‚РІСѓРµС‚/РЅРµ РєРѕСЂСЂРµРєС‚РЅР°
             .then(function (addList) {
-              return _this2.contactAdds(addList) //->добавили контакты в удаленную сиситему, обновили связи на локальной. с этого момента для пользователей из batch локально храниться актальная таблица связок к удаленным сущностям
+              return _this2.contactAdds(addList) //->РґРѕР±Р°РІРёР»Рё РєРѕРЅС‚Р°РєС‚С‹ РІ СѓРґР°Р»РµРЅРЅСѓСЋ СЃРёСЃРёС‚РµРјСѓ, РѕР±РЅРѕРІРёР»Рё СЃРІСЏР·Рё РЅР° Р»РѕРєР°Р»СЊРЅРѕР№. СЃ СЌС‚РѕРіРѕ РјРѕРјРµРЅС‚Р° РґР»СЏ РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№ РёР· batch Р»РѕРєР°Р»СЊРЅРѕ С…СЂР°РЅРёС‚СЊСЃСЏ Р°РєС‚Р°Р»СЊРЅР°СЏ С‚Р°Р±Р»РёС†Р° СЃРІСЏР·РѕРє Рє СѓРґР°Р»РµРЅРЅС‹Рј СЃСѓС‰РЅРѕСЃС‚СЏРј
               .then(function () {
                 return Stepper.getFulfillPromise();
               }, function () {
@@ -143,7 +143,7 @@ this.BX = this.BX || {};
         key: "contactRelationVoid",
         value: function contactRelationVoid(list) {
           if (!!list.status && list.status === 'success') {
-            var data = !!list.data ? list.data : {}; //если данных нет пропускаем вызов и возвращаем fulfill promise
+            var data = !!list.data ? list.data : {}; //РµСЃР»Рё РґР°РЅРЅС‹С… РЅРµС‚ РїСЂРѕРїСѓСЃРєР°РµРј РІС‹Р·РѕРІ Рё РІРѕР·РІСЂР°С‰Р°РµРј fulfill promise
 
             if (!!data.result && Object.values(data.result).length > 0) {
               return BX.ajax.runAction('sale.integration.scenarios.resolveUserTypeIAfterComparingRemotelyRelationFromOrderList', {
@@ -162,7 +162,7 @@ this.BX = this.BX || {};
         key: "contactAdds",
         value: function contactAdds(addList) {
           if (!!addList.status && addList.status === 'success') {
-            var data = !!addList.data ? addList.data : {}; //если данных нет пропускаем вызов и возвращаем fulfill promise
+            var data = !!addList.data ? addList.data : {}; //РµСЃР»Рё РґР°РЅРЅС‹С… РЅРµС‚ РїСЂРѕРїСѓСЃРєР°РµРј РІС‹Р·РѕРІ Рё РІРѕР·РІСЂР°С‰Р°РµРј fulfill promise
 
             if (!!data.result && Object.values(data.result).length > 0) {
               return BX.ajax.runAction('sale.integration.scenarios.contactAddsFromOrderList', {
@@ -182,10 +182,10 @@ this.BX = this.BX || {};
         value: function dealUpdateContacts(dealId, batch) {
           var _this3 = this;
 
-          return this.prepareContactFields(batch) //->из исходных данных получили список по локальным пользователям
+          return this.prepareContactFields(batch) //->РёР· РёСЃС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… РїРѕР»СѓС‡РёР»Рё СЃРїРёСЃРѕРє РїРѕ Р»РѕРєР°Р»СЊРЅС‹Рј РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРј
           .then(function (list) {
             return _this3.dealContactItemsUpdate(dealId, list);
-          }, //->обновляем пользоватлей в сделке (обогощаем сделку контактами)
+          }, //->РѕР±РЅРѕРІР»СЏРµРј РїРѕР»СЊР·РѕРІР°С‚Р»РµР№ РІ СЃРґРµР»РєРµ (РѕР±РѕРіРѕС‰Р°РµРј СЃРґРµР»РєСѓ РєРѕРЅС‚Р°РєС‚Р°РјРё)
           function () {
             throw new Error('dealUpdateContacts prepareContactFields Error');
           });
@@ -196,8 +196,8 @@ this.BX = this.BX || {};
           var _this4 = this;
 
           if (!!list.status && list.status === 'success') {
-            var data = !!list.data ? list.data : {}; //если данных нет пропускаем вызов и возвращаем fulfill promise
-            // (например когда в заказе указана компания, а запрашиваются данные клинта-Контакта)
+            var data = !!list.data ? list.data : {}; //РµСЃР»Рё РґР°РЅРЅС‹С… РЅРµС‚ РїСЂРѕРїСѓСЃРєР°РµРј РІС‹Р·РѕРІ Рё РІРѕР·РІСЂР°С‰Р°РµРј fulfill promise
+            // (РЅР°РїСЂРёРјРµСЂ РєРѕРіРґР° РІ Р·Р°РєР°Р·Рµ СѓРєР°Р·Р°РЅР° РєРѕРјРїР°РЅРёСЏ, Р° Р·Р°РїСЂР°С€РёРІР°СЋС‚СЃСЏ РґР°РЅРЅС‹Рµ РєР»РёРЅС‚Р°-РљРѕРЅС‚Р°РєС‚Р°)
 
             if (!!data.result && Object.values(data.result).length > 0) {
               return this.dealContactItemsGet(dealId).then(function (items) {
@@ -218,9 +218,9 @@ this.BX = this.BX || {};
       }, {
         key: "dealContactAdds",
         value: function dealContactAdds(dealId, params) {
-          // метод должен вызываться когда гарантровано есть список пльзоватлей из БУС для обогощения сделки
-          // если у сделки есть контакты, то обогощаем их пользователями
-          // если у сделки нет контактов добавляем всех пользователей
+          // РјРµС‚РѕРґ РґРѕР»Р¶РµРЅ РІС‹Р·С‹РІР°С‚СЊСЃСЏ РєРѕРіРґР° РіР°СЂР°РЅС‚СЂРѕРІР°РЅРѕ РµСЃС‚СЊ СЃРїРёСЃРѕРє РїР»СЊР·РѕРІР°С‚Р»РµР№ РёР· Р‘РЈРЎ РґР»СЏ РѕР±РѕРіРѕС‰РµРЅРёСЏ СЃРґРµР»РєРё
+          // РµСЃР»Рё Сѓ СЃРґРµР»РєРё РµСЃС‚СЊ РєРѕРЅС‚Р°РєС‚С‹, С‚Рѕ РѕР±РѕРіРѕС‰Р°РµРј РёС… РїРѕР»СЊР·РѕРІР°С‚РµР»СЏРјРё
+          // РµСЃР»Рё Сѓ СЃРґРµР»РєРё РЅРµС‚ РєРѕРЅС‚Р°РєС‚РѕРІ РґРѕР±Р°РІР»СЏРµРј РІСЃРµС… РїРѕР»СЊР·РѕРІР°С‚РµР»РµР№
           var users = !!params.list ? params.list : {};
           var contacts = !!params.items ? params.items : {};
 

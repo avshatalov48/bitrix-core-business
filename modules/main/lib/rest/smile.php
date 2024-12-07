@@ -42,7 +42,7 @@ class Smile extends \IRestService
 				{
 					$value = date('c', $value->getTimestamp());
 				}
-				else if (is_string($key) && in_array($key, $options['IMAGE_FIELD']) && is_string($value) && $value && mb_strpos($value, 'http') !== 0)
+				else if (is_string($key) && in_array($key, $options['IMAGE_FIELD']) && is_string($value) && $value && !str_starts_with($value, 'http'))
 				{
 					$value = self::getServerAddress().$value;
 				}

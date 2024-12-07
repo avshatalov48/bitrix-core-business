@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CES_ERROR_NO_FILE"] = "Не указан файл импорта.";
 $MESS["CES_ERROR_NO_ACTION"] = "Не указано действие над файлом импорта.";
 $MESS["CES_ERROR_FILE_NOT_EXIST"] = "Файл импорта не найден:";
@@ -95,4 +95,3 @@ $MESS["CES_MODIFIED_BY"] = "Кем изменен";
 $MESS["CES_TIMESTAMP_X"] = "Дата изменения";
 $MESS["CES_DEFAULT_PROFILE"] = "системный";
 $MESS["CES_CRON_AGENT_ERRORS"] = "Профили одновременно выполняются на агенте и привязаны к cron. Одновременное использование этих возможностей не рекомендуется";
-?>

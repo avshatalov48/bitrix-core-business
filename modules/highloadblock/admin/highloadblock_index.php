@@ -34,19 +34,6 @@ $arHeaders = array(
 
 $lAdmin->AddHeaders($arHeaders);
 
-// menu
-$aMenu = [];
-if (!$lAdmin->isListMode())
-{
-	$aMenu[] = [
-		"TEXT" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
-		"TITLE" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
-		"LINK" => "highloadblock_entity_edit.php?lang=" . LANGUAGE_ID,
-		"ICON" => "btn_new",
-	];
-}
-$context = new CAdminContextMenu($aMenu);
-
 $by = mb_strtoupper($oSort->getField());
 $order = mb_strtoupper($oSort->getOrder());
 $getListOrder = [
@@ -117,7 +104,17 @@ else
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-	$context->Show();
+	// menu
+	$aMenu = [];
+	$aMenu[] = [
+		"TEXT" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
+		"TITLE" => GetMessage('HLBLOCK_ADMIN_ADD_ENTITY_BUTTON'),
+		"LINK" => "highloadblock_entity_edit.php?lang=" . LANGUAGE_ID,
+		"ICON" => "btn_new",
+	];
+
+	$adminContextMenu = new CAdminContextMenu($aMenu);
+	$adminContextMenu->Show();
 }
 
 $lAdmin->CheckListMode();

@@ -37,7 +37,7 @@ class Section
 					return "IBLOCK_'.$iblockId.'_SECTION";
 				}
 				
-				public static function getMap()
+				public static function getMap(): array
 				{
 					$fields = parent::getMap();
 					$fields["PARENT_SECTION"] = array(

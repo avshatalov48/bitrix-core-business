@@ -1,6 +1,6 @@
 <?php
 $MESS["COMPOSITE_BANNER_TEXT"] = "Faster with Bitrix";
-$MESS["COMPOSITE_BANNER_URL"] = "http://www.bitrixsoft.com/composite/";
+$MESS["COMPOSITE_BANNER_URL"] = "https://www.bitrixsoft.com/composite/";
 $MESS["MAIN_ADD"] = "Add";
 $MESS["MAIN_COMPOSITE_ANONYMOUS_GROUP"] = "Unauthorized users";
 $MESS["MAIN_COMPOSITE_AUTO_BUTTON_OFF"] = "Disable Autocomposite Mode";

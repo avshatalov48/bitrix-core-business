@@ -1,9 +1,9 @@
 <?php
+
 namespace Bitrix\Main\Data\LocalStorage\Storage;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Data\Cache;
-use Bitrix\Main\Data\ICacheEngine;
 
 class CacheStorage implements StorageInterface
 {

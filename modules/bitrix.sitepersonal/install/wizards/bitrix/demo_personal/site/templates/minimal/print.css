@@ -1,7 +1,0 @@
-body { background: white !important; }
-
-#panel, #search, #top-menu, #menu-row, #sidebar, #footer-links { display: none !important; }
-
-#content { padding: 0; }
-
-#footer { border: none; }

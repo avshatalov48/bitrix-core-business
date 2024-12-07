@@ -1,0 +1,5 @@
+<?
+$MESS['CALENDAR_PREVIEW_ATTACH_CATEGORY'] = 'Категория';
+$MESS['CALENDAR_PREVIEW_ATTACH_CREATOR'] = 'Создатель';
+$MESS['CALENDAR_PREVIEW_ATTACH_ROOM'] = 'Место проведения';
+?>

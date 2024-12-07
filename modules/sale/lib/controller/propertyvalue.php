@@ -1,9 +1,8 @@
 <?php
 
-
 namespace Bitrix\Sale\Controller;
 
-
+use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Engine\AutoWire\ExactParameter;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Entity\ExpressionField;
@@ -20,7 +19,8 @@ class PropertyValue extends ControllerBase
 		return new ExactParameter(
 			Sale\PropertyValue::class,
 			'propertyValue',
-			function($className, $id) {
+			function($className, $id)
+			{
 				$registry = Sale\Registry::getInstance(Sale\Registry::REGISTRY_TYPE_ORDER);
 
 				/** @var Sale\Property $propertyValueClass */
@@ -31,7 +31,7 @@ class PropertyValue extends ControllerBase
 					'filter'=>['ID'=>$id]
 				]);
 
-				if($row = $r->fetch())
+				if ($row = $r->fetch())
 				{
 					/** @var Sale\Order $orderClass */
 					$orderClass = $registry->getOrderClassName();
@@ -48,6 +48,7 @@ class PropertyValue extends ControllerBase
 				{
 					$this->addError(new Error('property value is not exists', 201040400001));
 				}
+
 				return null;
 			}
 		);
@@ -117,11 +118,15 @@ class PropertyValue extends ControllerBase
 			new \Bitrix\Main\Entity\ReferenceField(
 				'ORDER_PROPS',
 				'\Bitrix\Sale\Internals\OrderPropsTable',
-				array('=this.ORDER_PROPS_ID' => 'ref.ID')
+				[
+					'=this.ORDER_PROPS_ID' => 'ref.ID',
+					'=ref.ENTITY_TYPE' => new SqlExpression('?s', Sale\Registry::ENTITY_ORDER),
+				],
+				['join_type' => 'INNER']
 			)
 		];
 
-		$payments = \Bitrix\Sale\PropertyValue::getList(
+		$propertyValues = \Bitrix\Sale\PropertyValue::getList(
 			[
 				'select' => $select,
 				'filter' => $filter,
@@ -132,7 +137,7 @@ class PropertyValue extends ControllerBase
 			]
 		)->fetchAll();
 
-		return new Page('PROPERTY_VALUES', $payments, function() use ($select, $filter, $runtime)
+		return new Page('PROPERTY_VALUES', $propertyValues, function() use ($select, $filter, $runtime)
 		{
 			return (int) \Bitrix\Sale\PropertyValue::getList([
 				'select' => ['CNT'],

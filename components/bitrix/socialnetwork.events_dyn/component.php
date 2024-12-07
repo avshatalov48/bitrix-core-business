@@ -68,11 +68,6 @@ if (IsModuleInstalled('intranet') && !array_key_exists("PATH_TO_CONPANY_DEPARTME
 
 $arParams["DATE_TIME_FORMAT"] = trim(empty($arParams["DATE_TIME_FORMAT"]) ? $DB->DateFormatToPHP(CSite::GetDateFormat("FULL")) : $arParams["DATE_TIME_FORMAT"]);
 
-if (IsModuleInstalled("video"))
-	if(!isset($arParams["PATH_TO_VIDEO_CALL"]))
-		$arParams["PATH_TO_VIDEO_CALL"] = $arParams["~PATH_TO_VIDEO_CALL"] = "/company/personal/video/#user_id#/";
-
-
 if ($GLOBALS["USER"]->IsAuthorized())
 {
 	// works only for old templates

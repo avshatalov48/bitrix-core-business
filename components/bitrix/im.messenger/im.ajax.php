@@ -737,7 +737,7 @@ else if (isImPostRequest('IM_LOAD_LAST_MESSAGE'))
 			$arMessage = false;
 		}
 
-		if (!$arMessage || $_POST['USER_LOAD'] == 'Y' && empty($arMessage['chat']) || isset($arMessage['chat'][$chatId]) && !in_array($arMessage['chat'][$chatId]['message_type'], Array(IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)))
+		if (!$arMessage || $_POST['USER_LOAD'] == 'Y' && empty($arMessage['chat']) || isset($arMessage['chat'][$chatId]) && !in_array($arMessage['chat'][$chatId]['message_type'], Array(IM_MESSAGE_OPEN, IM_MESSAGE_CHAT, IM_MESSAGE_OPEN_LINE, \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT, \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL, \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL)))
 		{
 			$arMessage = Array();
 			$error = 'ACCESS_DENIED';
@@ -1221,7 +1221,7 @@ else if (isImPostRequest('IM_RECENT_LIST'))
 	$arChat = Array();
 	foreach ($ar as $userId => $value)
 	{
-		if ($value['TYPE'] == IM_MESSAGE_CHAT || $value['TYPE'] == IM_MESSAGE_OPEN || $value['TYPE'] == IM_MESSAGE_OPEN_LINE || $value['TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT)
+		if ($value['TYPE'] == IM_MESSAGE_CHAT || $value['TYPE'] == IM_MESSAGE_OPEN || $value['TYPE'] == IM_MESSAGE_OPEN_LINE || $value['TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT || $value['TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL || $value['TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL)
 		{
 			$arChat[$value['CHAT']['id']] = $value['CHAT'];
 			$value['MESSAGE']['userId'] = $userId;

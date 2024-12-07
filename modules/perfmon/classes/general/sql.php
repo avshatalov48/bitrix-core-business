@@ -1,6 +1,6 @@
 <?php
 
-class CAllPerfomanceSQL
+class CPerfomanceSQL
 {
 	/**
 	 * @param array $arSelect
@@ -182,7 +182,7 @@ class CAllPerfomanceSQL
 				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			', $arNavStartParams['nTopCount']);
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 		elseif (is_array($arNavStartParams))
 		{
@@ -217,7 +217,7 @@ class CAllPerfomanceSQL
 				' . ($bGroup ? 'GROUP BY ' . implode(', ', $arQueryGroup) : '') . '
 				' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 			';
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 		}
 
 		return $res;
@@ -329,5 +329,20 @@ class CAllPerfomanceSQL
 			$strSql = str_replace($arMatch[1], $res, $strSql);
 		}
 		return $strSql;
+	}
+
+	public static function Clear()
+	{
+		global $DB;
+		$res = $DB->Query('TRUNCATE TABLE b_perf_sql_backtrace');
+		if ($res)
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_index_suggest_sql');
+		}
+		if ($res)
+		{
+			$res = $DB->Query('TRUNCATE TABLE b_perf_sql');
+		}
+		return $res;
 	}
 }

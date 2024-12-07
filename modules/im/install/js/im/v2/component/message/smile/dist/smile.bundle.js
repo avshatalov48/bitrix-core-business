@@ -12,9 +12,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    MessageStatus: im_v2_component_message_elements.MessageStatus,
-	    ReactionList: im_v2_component_message_elements.ReactionList,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
-	    ContextMenu: im_v2_component_message_elements.ContextMenu
+	    ReactionList: im_v2_component_message_elements.ReactionList
 	  },
 	  props: {
 	    item: {
@@ -49,21 +47,25 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:dialogId="dialogId"
 			:item="item"
 			:withBackground="false"
-			:withDefaultContextMenu="false"
+			:afterMessageWidthLimit="false"
 		>
-			<div class="bx-im-message-smile__container bx-im-message-smile__scope">
+			<div class="bx-im-message-smile__container">
 				<div class="bx-im-message-smile__content-container">
 					<span class="bx-im-message-smile__text" v-html="text"></span>
 					<div class="bx-im-message-smile__message-status-container">
 						<MessageStatus :item="message" :isOverlay="true" />
 					</div>
-					<ReactionSelector :messageId="message.id" />
 				</div>
-				<ContextMenu :message="message" :menuIsActiveForId="menuIsActiveForId" />
 			</div>
-			<div class="bx-im-message-smile__reactions-container">
-				<ReactionList :messageId="message.id" class="bx-im-message-smile__reactions" />
-			</div>
+			<template #after-message>
+				<div class="bx-im-message-smile__reactions-container">
+					<ReactionList 
+						:messageId="message.id"
+						:contextDialogId="dialogId"
+						class="bx-im-message-smile__reactions"
+					/>
+				</div>
+			</template>
 		</BaseMessage>
 	`
 	};

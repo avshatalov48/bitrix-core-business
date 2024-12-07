@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -25,6 +25,8 @@ if (!headers_sent())
 	header("Content-type: text/html; charset=" . LANG_CHARSET);
 }
 
+$license = Main\Application::getInstance()->getLicense();
+
 if (defined("DEMO") && DEMO == "Y")
 {
 	if (defined("OLDSITEEXPIREDATE") && defined("SITEEXPIREDATE") && OLDSITEEXPIREDATE != SITEEXPIREDATE)
@@ -32,45 +34,10 @@ if (defined("DEMO") && DEMO == "Y")
 		die(GetMessage("expire_mess2"));
 	}
 
-	//wizard customization file
-	$bxProductConfig = [];
-	if (file_exists($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/.config.php"))
-	{
-		include($_SERVER["DOCUMENT_ROOT"] . BX_ROOT . "/.config.php");
-	}
-
-	$delta = $GLOBALS['SiteExpireDate'] - time();
+	$delta = $license->getExpireDate()?->getTimestamp() - time();
 	$daysToExpire = ($delta < 0 ? 0 : ceil($delta / 86400));
-	$bSaas = (COption::GetOptionString('main', '~SAAS_MODE', "N") == "Y");
 
-	if (isset($bxProductConfig["saas"]))
-	{
-		if ($bSaas)
-		{
-			if ($daysToExpire > 0)
-			{
-				if ($daysToExpire <= $bxProductConfig["saas"]["days_before_warning"])
-				{
-					$sWarn = $bxProductConfig["saas"]["public_warning"];
-					$sWarn = str_replace("#RENT_DATE#", COption::GetOptionString('main', '~support_finish_date'), $sWarn);
-					$sWarn = str_replace("#DAYS#", $daysToExpire, $sWarn);
-					echo $sWarn;
-				}
-			}
-			else
-			{
-				echo str_replace("#RENT_DATE#", COption::GetOptionString('main', '~support_finish_date'), $bxProductConfig["saas"]["public_warning_expired"]);
-			}
-		}
-		else
-		{
-			if ($daysToExpire == 0)
-			{
-				echo $bxProductConfig["saas"]["public_trial_expired"];
-			}
-		}
-	}
-	elseif ($daysToExpire == 0)
+	if ($daysToExpire == 0)
 	{
 		echo GetMessage("expire_mess1");
 	}
@@ -83,12 +50,13 @@ elseif (defined("TIMELIMIT_EDITION") && TIMELIMIT_EDITION == "Y")
 	}
 
 	if (
-		isset($GLOBALS['SiteExpireDate'])
-		&& $GLOBALS['SiteExpireDate'] < time()
+		($expireDate = $license->getExpireDate()) !== null
+		&& $expireDate->getTimestamp() < time()
 		&& !Main\ModuleManager::isModuleInstalled('intranet')
 	)
 	{
-		echo GetMessage("expire_mess_timelicense1");
+		$licenseLink = $license->getRenewalLink();
+		echo GetMessage("expire_mess_timelicense2", ['#LINK#' => $licenseLink]);
 	}
 }
 
@@ -116,9 +84,9 @@ if (defined("SITE_TEMPLATE_PREVIEW_MODE") && file_exists($sPreviewFile))
 }
 else
 {
-	\Bitrix\Main\Page\Asset::getInstance()->startTarget('TEMPLATE');
+	Main\Page\Asset::getInstance()->startTarget('TEMPLATE');
 	include_once($_SERVER["DOCUMENT_ROOT"] . SITE_TEMPLATE_PATH . "/header.php");
-	\Bitrix\Main\Page\Asset::getInstance()->startTarget('PAGE');
+	Main\Page\Asset::getInstance()->startTarget('PAGE');
 }
 
 /* Draw edit menu for whole content */
@@ -128,7 +96,7 @@ $BX_GLOBAL_AREA_EDIT_ICON = false;
 if ($APPLICATION->GetShowIncludeAreas())
 {
 	$aUserOpt = CUserOptions::GetOption("global", "settings", []);
-	if ($aUserOpt["page_edit_control_enable"] != "N")
+	if (!isset($aUserOpt["page_edit_control_enable"]) || $aUserOpt["page_edit_control_enable"] != "N")
 	{
 		$documentRoot = CSite::GetSiteDocRoot(SITE_ID);
 		if (isset($_SERVER["REAL_FILE_PATH"]) && $_SERVER["REAL_FILE_PATH"] != "")

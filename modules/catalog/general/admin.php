@@ -1,15 +1,13 @@
 <?php
 /** @global CAdminMenu $adminMenu */
 
-use Bitrix\Main\Loader,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Config\Option,
-	Bitrix\Iblock,
-	Bitrix\Catalog;
-
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Loader;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Config\Option;
+use Bitrix\Iblock;
+use Bitrix\Catalog;
 
 class CCatalogAdmin
 {
@@ -274,10 +272,14 @@ class CCatalogAdmin
 			while ($row = $iterator->fetch())
 			{
 				$iblockId = (int)$row['ID'];
-				if ($iblockId == $defaultCrmIblock)
+				if ($iblockId === $defaultCrmIblock)
+				{
 					continue;
-				if (strncmp($row['XML_ID'], 'crm_external_', 13) === 0)
+				}
+				if (strncmp($row['XML_ID'] ?? '', 'crm_external_', 13) === 0)
+				{
 					unset($arCatalogs[$iblockId]);
+				}
 			}
 			unset($iblockId, $row, $iterator);
 		}
@@ -285,7 +287,9 @@ class CCatalogAdmin
 		$listIblockId = array_keys($arCatalogs);
 
 		if (empty($listIblockId))
+		{
 			return;
+		}
 
 		$defaultProductsName = Loc::getMessage('CAT_MENU_PRODUCT_LIST_EXT');
 		$defaultSectionsName = Loc::getMessage('CAT_MENU_PRODUCT_SECTION_LIST');

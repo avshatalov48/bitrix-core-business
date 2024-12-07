@@ -1,7 +1,10 @@
 import { EventEmitter } from 'main.core.events';
+import { Text, Loc } from 'main.core';
 
-import { EventType } from 'im.v2.const';
+import { EventType, ChatType } from 'im.v2.const';
 import { Parser } from 'im.v2.lib.parser';
+import { CopilotManager } from 'im.v2.lib.copilot';
+import { ChannelManager } from 'im.v2.lib.channel';
 
 import { AuthorTitle } from '../author-title/author-title';
 
@@ -42,29 +45,58 @@ export const MessageHeader = {
 		{
 			return this.$store.getters['messages/isForward'](this.message.id);
 		},
+		isChannelForward(): boolean
+		{
+			return ChannelManager.channelTypes.has(this.message.forward.chatType);
+		},
 		forwardAuthorName(): string
 		{
+			const copilotManager = new CopilotManager();
+			if (copilotManager.isCopilotBot(this.forwardAuthorId))
+			{
+				const forwardMessageId = this.forwardContextId.split('/')[1];
+
+				return copilotManager.getNameWithRole({
+					dialogId: this.forwardAuthorId,
+					messageId: forwardMessageId,
+				});
+			}
+
 			return this.$store.getters['users/get'](this.forwardAuthorId, true).name;
+		},
+		forwardChatName(): string
+		{
+			return this.message.forward.chatTitle ?? this.loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_CLOSED_CHANNEL');
 		},
 		isSystemMessage(): boolean
 		{
 			return this.message.forward.userId === 0;
 		},
-		forwardAuthorTitle(): { prefix: string, name: string }
+		forwardAuthorTitle(): string
 		{
-			const [prefix] = this.loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM').split('#NAME#');
-
-			return {
-				prefix,
-				name: this.forwardAuthorName,
-			};
+			return Loc.getMessage('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_CHAT', {
+				'[user_name]': '<span class="bx-im-message-header__author-name">',
+				'#USER_NAME#': Text.encode(this.forwardAuthorName),
+				'[/user_name]': '</span>',
+			});
+		},
+		forwardChannelTitle(): string
+		{
+			return Loc.getMessage('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_CHANNEL', {
+				'[user_name]': '<span class="bx-im-message-header__author-name">',
+				'#USER_NAME#': Text.encode(this.forwardAuthorName),
+				'[/user_name]': '</span>',
+				'[channel_name]': '<span class="bx-im-message-header__author-name">',
+				'#CHANNEL_NAME#': Text.encode(this.forwardChatName),
+				'[/channel_name]': '</span>',
+			});
 		},
 	},
 	methods:
 	{
-		loc(code: string): string
+		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
 		{
-			return this.$Bitrix.Loc.getMessage(code);
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 		},
 		onForwardClick()
 		{
@@ -84,11 +116,9 @@ export const MessageHeader = {
 	},
 	template: `
 		<div v-if="isForwarded" class="bx-im-message-header__container" @click="onForwardClick">
-			<span v-if="isSystemMessage">{{ loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_SYSTEM')}}</span> 
-			<span v-else>
-				{{ forwardAuthorTitle.prefix }}
-				<span class="bx-im-message-header__author-name">{{ forwardAuthorTitle.name }}</span> 
-			</span>
+			<span v-if="isSystemMessage">{{ loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_SYSTEM')}}</span>
+			<span v-else-if="isChannelForward" v-html="forwardChannelTitle"></span>
+			<span v-else v-html="forwardAuthorTitle"></span>
 		</div>
 		<AuthorTitle v-else-if="withTitle" :item="item" />
 	`,

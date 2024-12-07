@@ -1,4 +1,9 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+<?php
+
+use Bitrix\Main\Web\Json;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+	die();
 
 if($arResult["PHONE_REGISTRATION"])
 {
@@ -77,7 +82,7 @@ if (!empty($arParams["~AUTH_RESULT"]))
 					<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
 				</span>
 				</noscript>
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </script>
 <?endif?>
@@ -115,15 +120,15 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 
 <?if($arResult["PHONE_REGISTRATION"]):?>
 
-<script type="text/javascript">
+<script>
 new BX.PhoneAuth({
 	containerId: 'bx_chpass_resend',
 	errorContainerId: 'bx_chpass_error',
 	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
 	data:
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'signedData' => $arResult["SIGNED_DATA"]
-		])?>,
+		]) ?>,
 	onError:
 		function(response)
 		{

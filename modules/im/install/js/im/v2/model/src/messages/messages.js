@@ -7,17 +7,18 @@ import { Utils } from 'im.v2.lib.utils';
 import { Logger } from 'im.v2.lib.logger';
 import { MessageComponent, MessageType, UserIdNetworkPrefix } from 'im.v2.const';
 import { UserManager } from 'im.v2.lib.user';
+import { formatFieldsWithConfig } from 'im.v2.model';
 
 import { convertToNumber } from '../utils/format';
 import { messageFieldsConfig } from './format/field-config';
-import { formatFieldsWithConfig } from '../utils/validate';
 import { PinModel } from './nested-modules/pin';
 import { ReactionsModel } from './nested-modules/reactions';
+import { CommentsModel } from './nested-modules/comments/comments';
 
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
-import type { RawMessage } from '../type/message';
 import type { AttachConfig } from 'im.v2.const';
+import type { RawMessage } from '../type/message';
 
 type MessagesState = {
 	collection: {
@@ -40,6 +41,7 @@ export class MessagesModel extends BuilderModel
 		return {
 			pin: PinModel,
 			reactions: ReactionsModel,
+			comments: CommentsModel,
 		};
 	}
 
@@ -83,8 +85,8 @@ export class MessagesModel extends BuilderModel
 	getGetters(): GetterTree
 	{
 		return {
-			/** @function messages/get */
-			get: (state: MessagesState) => (chatId: number) => {
+			/** @function messages/getByChatId */
+			getByChatId: (state: MessagesState) => (chatId: number) => {
 				if (!state.chatCollection[chatId])
 				{
 					return [];
@@ -463,7 +465,7 @@ export class MessagesModel extends BuilderModel
 				Logger.warn('Messages model: delete mutation', payload);
 				const { id } = payload;
 				const { chatId } = state.collection[id];
-				state.chatCollection[chatId].delete(id);
+				state.chatCollection[chatId]?.delete(id);
 				delete state.collection[id];
 			},
 			clearCollection: (state: MessagesState, payload: {chatId: number}) => {
@@ -539,7 +541,7 @@ export class MessagesModel extends BuilderModel
 		const fakeAuthorId = convertToNumber(userId);
 		const userManager = new UserManager();
 		const networkId = `${UserIdNetworkPrefix}-${originalAuthorId}-${fakeAuthorId}`;
-		userManager.setUsersToModel({
+		void userManager.setUsersToModel({
 			networkId,
 			name: authorName,
 			avatar: avatar ?? '',

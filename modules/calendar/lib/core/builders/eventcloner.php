@@ -4,6 +4,7 @@ namespace Bitrix\Calendar\Core\Builders;
 
 use Bitrix\Calendar\Core\Base\Date;
 use Bitrix\Calendar\Core\Base\DateTimeZone;
+use Bitrix\Calendar\Core\Builders\EventOption\EventOptionBuilderFromArray;
 use Bitrix\Calendar\Core\Event\Event;
 use Bitrix\Calendar\Core\Event\Properties\AttendeeCollection;
 use Bitrix\Calendar\Core\Event\Properties\ExcludedDatesCollection;
@@ -12,8 +13,11 @@ use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
+use Bitrix\Calendar\Core\eventoption\EventOption;
+use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Section\Section;
+use Bitrix\Main\DI\ServiceLocator;
 use Bitrix\Main\ObjectException;
 
 class EventCloner extends EventBuilder
@@ -399,5 +403,10 @@ class EventCloner extends EventBuilder
 			new Role($role->getRoleEntity())
 			: null
 			;
+	}
+
+	protected function getEventOption(): ?EventOption
+	{
+		return null;
 	}
 }

@@ -114,6 +114,10 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 		 * Public methods and properties
 		 */
 		return {
+			addMenuItem: this.addMenuItem.bind(this),
+			deleteMenuItem: this.deleteMenuItem.bind(this),
+			updateMenuItemText: this.updateMenuItemText.bind(this),
+
 			getItemById: this.getItemById.bind(this),
 			getAllItems: this.getAllItems.bind(this),
 			getHiddenItems: this.getHiddenItems.bind(this),
@@ -797,6 +801,68 @@ if (typeof(BX.Main.interfaceButtons) === 'undefined')
 			this.editMenu = menu;
 
 			return menu;
+		},
+
+		prepareMenuItemData: function(data)
+		{
+			const itemMenuData = {
+				CLASS: "",
+				CLASS_SUBMENU_ITEM: "",
+				COUNTER: 0,
+				COUNTER_ID: data.counterId,
+				DATA_ID: data.dataId,
+				HAS_CHILD: false,
+				HAS_MENU: false,
+				HTML: "",
+				ID: data.id,
+				IS_ACTIVE: false,
+				IS_DISABLED: "false",
+				IS_LOCKED: false,
+				IS_PASSIVE: false,
+				MAX_COUNTER_SIZE: 99,
+				NODE: BX.Tag.render`<div id="${data.id}" class="main-buttons-item"></div>`,
+				ON_CLICK: data.onClick,
+				SUB_LINK: false,
+				SUPER_TITLE: false,
+				TEXT: data.text,
+				TITLE: "",
+				URL: data.url,
+			};
+
+			return itemMenuData;
+		},
+
+		addMenuItem: function(itemData)
+		{
+			const settings = this.getCurrentSettings();
+			const settingsKeys = Object.keys(settings);
+			const menuItemData = this.prepareMenuItemData(itemData);
+			const item = this.createRootItem(menuItemData);
+
+			const afterNode = this.getItemById(settingsKeys[settingsKeys.length - 1]);
+			BX.Dom.insertAfter(item, afterNode);
+			this.initItems();
+		},
+
+		deleteMenuItem: function(itemElement)
+		{
+			this.itemData.delete(itemElement);
+			BX.Dom.remove(itemElement);
+		},
+
+		updateMenuItemText: function(itemElement, itemText)
+		{
+			if (!itemElement || !itemText)
+			{
+				return;
+			}
+
+			const itemData = this.getItemData(itemElement);
+			itemData.TEXT = itemText;
+			const item = this.getItemById(itemData.ID);
+			const classItemText = 'main-buttons-item-text-box';
+			const elementText = BX.Buttons.Utils.getByClass(item, classItemText);
+			elementText.innerText = itemText;
 		},
 
 		getHomeItem: function()

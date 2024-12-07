@@ -19,7 +19,7 @@ class ReplyService
 	public function createMessage(Message $replyingMessage, string $comment): Result
 	{
 		$result = new Result();
-		if (!$replyingMessage->getChat()->hasAccess($this->getContext()->getUserId()))
+		if (!$replyingMessage->getChat()->checkAccess($this->getContext()->getUserId())->isSuccess())
 		{
 			return $result->addError(new Chat\ChatError(Chat\ChatError::ACCESS_DENIED));
 		}

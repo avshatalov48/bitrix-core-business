@@ -22,7 +22,7 @@ final class LatestActivity
 	}
 
 	/** @return array<LatestActivityData> */
-	public function getByActivityIds(int $userId, array $activityIds): array
+	public function getByUserId(int $userId, array $activityIds): array
 	{
 		$queryResult = SpaceUserLatestActivityTable::query()
 			->setSelect(['*'])
@@ -41,9 +41,39 @@ final class LatestActivity
 		return $latestActivities;
 	}
 
+	/** @return array<LatestActivityData> */
+	public function getBySpaceId(int $spaceId, array $activityIds): array
+	{
+		$queryResult = SpaceUserLatestActivityTable::query()
+			->setSelect(['*'])
+			->where('SPACE_ID', $spaceId)
+			->whereIn('ACTIVITY_ID', $activityIds)
+			->exec()
+			->fetchAll()
+		;
+
+		$latestActivities = [];
+		foreach ($queryResult as $item)
+		{
+			$latestActivities[] = LatestActivityData::createFromQueryResult($item);
+		}
+
+		return $latestActivities;
+	}
+
 	public function delete(int $id): void
 	{
 		SpaceUserLatestActivityTable::delete($id);
+	}
+
+	public function deleteMulti(array $idsToDelete): void
+	{
+		$idChunks = array_chunk($idsToDelete, 500);
+
+		foreach ($idChunks as $idChunk)
+		{
+			SpaceUserLatestActivityTable::deleteByFilter(['ID' => $idChunk]);
+		}
 	}
 
 	public function update(LatestActivityData $latestActivityData): void

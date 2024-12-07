@@ -1,355 +1,9 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
-(function (exports,main_popup,main_core_events,calendar_util,main_core) {
+(function (exports,ui_designTokens,ui_tour,main_popup,main_core_events,calendar_util,main_core) {
 	'use strict';
-
-	let _ = t => t,
-	  _t,
-	  _t2,
-	  _t3,
-	  _t4,
-	  _t5;
-	class SyncStatusPopup extends main_core_events.EventEmitter {
-	  constructor(options) {
-	    super();
-	    this.setEventNamespace('BX.Calendar.Sync.Interface.SyncStatusPopup');
-	    this.connections = options.connections;
-	    this.withUpdateButton = options.withUpdateButton;
-	    this.node = options.node;
-	    this.id = options.id;
-	    this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
-	    this.init();
-	  }
-	  static createInstance(options) {
-	    return new this(options);
-	  }
-	  init() {
-	    this.setPopupContent();
-	  }
-	  createPopup() {
-	    this.popup = new main_popup.Popup({
-	      className: this.id,
-	      bindElement: this.node,
-	      content: this.container,
-	      angle: true,
-	      width: 360,
-	      offsetLeft: 60,
-	      offsetTop: 5,
-	      padding: 7,
-	      darkMode: true,
-	      autoHide: true,
-	      zIndexAbsolute: 3010
-	    });
-	  }
-	  show() {
-	    this.createPopup();
-	    this.popup.show();
-	  }
-	  setPopupContent() {
-	    this.container = main_core.Tag.render(_t || (_t = _`
-			<div class="calendar-sync-popup-list"></div>
-		`));
-	    this.connections.forEach(connection => {
-	      if (connection.getConnectStatus() !== true) {
-	        return;
-	      }
-	      const options = {};
-	      options.syncTime = this.getFormattedTime(connection.getSyncDate());
-	      options.classStatus = connection.getSyncStatus() ? 'calendar-sync-popup-item-status-success' : 'calendar-sync-popup-item-status-fail';
-	      if (connection.id === 'google' && !connection.getSyncStatus() && this.isGoogleApplicationRefused) {
-	        options.classStatus = 'calendar-sync-popup-item-status-refused';
-	        options.syncTime = null;
-	      }
-	      options.classLable = 'calendar-sync-popup-item-text-' + connection.getClassLabel();
-	      options.title = connection.getConnectionName();
-	      const block = this.getSyncElement(options);
-	      this.container.append(block);
-	    });
-	    if (this.withUpdateButton) {
-	      this.container.append(this.getContentRefreshBlock());
-	      if (SyncStatusPopup.IS_RUN_REFRESH) {
-	        this.showRefreshStatus();
-	      }
-	    }
-	    return this.container;
-	  }
-	  hide() {
-	    this.popup.destroy();
-	  }
-	  getContainer() {
-	    return this.container;
-	  }
-	  getPopup() {
-	    return this.popup;
-	  }
-	  getFormattedTime(date) {
-	    const now = new Date();
-	    let timestamp = date;
-	    if (main_core.Type.isDate(date)) {
-	      timestamp = Math.round(date.getTime() / 1000);
-	      let secondsAgo = parseInt((now - date) / 1000);
-	      if (secondsAgo < 60) {
-	        return main_core.Loc.getMessage('CAL_JUST');
-	      }
-	    }
-	    return BX.date.format([["tommorow", "tommorow, H:i:s"], ["i", "iago"], ["H", "Hago"], ["d", "dago"], ["m100", "mago"], ["m", "mago"], ["-", ""]], timestamp);
-	  }
-	  getSyncElement(options) {
-	    return main_core.Tag.render(_t2 || (_t2 = _`
-				<div class="calendar-sync-popup-item">
-					<span class="calendar-sync-popup-item-text ${0}">${0}</span>
-					<div class="calendar-sync-popup-item-detail">
-						<span class="calendar-sync-popup-item-time">${0}</span>
-						<span class="calendar-sync-popup-item-status ${0}"></span>
-					</div>
-				</div>
-			`), options.classLable, BX.util.htmlspecialchars(options.title), options.syncTime, options.classStatus);
-	  }
-	  refresh(connections) {
-	    this.connections = connections;
-	    this.popup.setContent(this.setPopupContent());
-	    this.setRefreshStatusBlock();
-	  }
-	  setRefreshStatusBlock() {
-	    setTimeout(() => {
-	      this.removeRefreshStatusBlock();
-	      this.enableRefreshButton();
-	      SyncStatusPopup.IS_RUN_REFRESH = false;
-	    }, 120000);
-	  }
-	  removeRefreshStatusBlock() {
-	    if (main_core.Type.isElementNode(this.refreshStatusBlock)) {
-	      this.refreshStatusBlock.remove();
-	    }
-	  }
-	  enableRefreshButton() {
-	    if (main_core.Type.isElementNode(this.refreshButton)) {
-	      this.refreshButton.className = 'calendar-sync-popup-footer-btn';
-	    }
-	  }
-	  disableRefreshButton() {
-	    if (main_core.Type.isElementNode(this.refreshButton)) {
-	      this.refreshButton.className = 'calendar-sync-popup-footer-btn calendar-sync-popup-footer-btn-disabled';
-	    }
-	  }
-	  getContentRefreshBlock() {
-	    this.footerWrapper = main_core.Tag.render(_t3 || (_t3 = _`
-			<div class="calendar-sync-popup-footer-wrap">
-				${0}
-			</div>
-		`), this.getContentRefreshButton());
-	    return this.footerWrapper;
-	  }
-	  getContentRefreshButton() {
-	    this.refreshButton = main_core.Tag.render(_t4 || (_t4 = _`
-			<button class="calendar-sync-popup-footer-btn">${0}</button>
-		`), main_core.Loc.getMessage('CAL_REFRESH'));
-	    this.refreshButton.addEventListener('click', () => {
-	      main_core.Dom.addClass(this.refreshButton, 'calendar-sync-popup-footer-btn-load');
-	      SyncStatusPopup.IS_RUN_REFRESH = true;
-	      this.refreshButton.innerText = main_core.Loc.getMessage('CAL_REFRESHING');
-	      this.runRefresh();
-	    });
-	    return this.refreshButton;
-	  }
-	  showRefreshStatus() {
-	    this.disableRefreshButton();
-	    this.footerWrapper.prepend(this.getRefreshStatus());
-	  }
-	  getRefreshStatus() {
-	    this.refreshStatusBlock = main_core.Tag.render(_t5 || (_t5 = _`
-			<span class="calendar-sync-popup-footer-status">${0}</span>
-		`), main_core.Loc.getMessage('CAL_REFRESH_JUST'));
-	    return this.refreshStatusBlock;
-	  }
-	  runRefresh() {
-	    this.emit('onRefresh', {});
-	  }
-	  getId() {
-	    return this.id;
-	  }
-	}
-	SyncStatusPopup.IS_RUN_REFRESH = false;
-
-	let _$1 = t => t,
-	  _t$1;
-	class SyncButton {
-	  constructor(options) {
-	    this.BUTTON_SIZE = BX.UI.Button.Size.EXTRA_SMALL;
-	    this.BUTTON_ROUND = true;
-	    this.connectionsProviders = options.connectionsProviders;
-	    this.wrapper = options.wrapper;
-	    this.userId = options.userId;
-	    this.status = options.status;
-	    this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
-	    this.buttonEnterTimeout = null;
-	    this.buttonLeaveTimeout = null;
-	  }
-	  static createInstance(options) {
-	    return new this(options);
-	  }
-	  show() {
-	    const buttonData = this.getButtonData();
-	    this.button = new BX.UI.Button({
-	      text: buttonData.text,
-	      round: this.BUTTON_ROUND,
-	      size: this.BUTTON_SIZE,
-	      color: buttonData.color,
-	      className: 'ui-btn-themes ' + (buttonData.iconClass || ''),
-	      onclick: () => {
-	        this.handleClick();
-	      },
-	      events: {
-	        mouseenter: this.handlerMouseEnter.bind(this),
-	        mouseleave: this.handlerMouseLeave.bind(this)
-	      }
-	    });
-	    this.button.renderTo(this.wrapper);
-	  }
-	  showGoogleApplicationRefusedPopup() {
-	    const popup = new main_popup.Popup({
-	      bindElement: this.button.getContainer(),
-	      borderRadius: '3px',
-	      className: 'calendar-popup-ui-tour-animate',
-	      content: main_core.Tag.render(_t$1 || (_t$1 = _$1`
-				<div class="calendar-sync-popup-status-refused">
-					<div class="calendar-sync-popup-status-refused-title">
-						${0}
-					</div>
-					<div class="calendar-sync-popup-status-refused-text">
-						${0}
-					</div>
-				</div>
-			`), main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TITLE'), main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TEXT')),
-	      width: 400,
-	      angle: {
-	        offset: this.button.getContainer().offsetWidth / 2,
-	        position: 'top'
-	      },
-	      closeIcon: true,
-	      autoHide: true
-	    });
-	    setTimeout(() => {
-	      popup.show();
-	      BX.ajax.runAction('calendar.api.syncajax.disableShowGoogleApplicationRefused');
-	    }, 1000);
-	  }
-	  showPopup(button) {
-	    if (this.status !== 'not_connected') {
-	      const connections = [];
-	      const providersCollection = Object.values(this.connectionsProviders);
-	      providersCollection.forEach(provider => {
-	        const providerConnections = provider.getConnections();
-	        if (providerConnections.length > 0) {
-	          providerConnections.forEach(connection => {
-	            if (connection.getConnectStatus() === true) {
-	              connections.push(connection);
-	            }
-	          });
-	        }
-	      });
-	      this.popup = SyncStatusPopup.createInstance({
-	        connections: connections,
-	        withUpdateButton: true,
-	        node: button.getContainer(),
-	        id: 'calendar-sync-button-status',
-	        isGoogleApplicationRefused: this.isGoogleApplicationRefused
-	      });
-	      this.popup.show();
-	      this.popup.getPopup().getPopupContainer().addEventListener('mouseenter', e => {
-	        clearTimeout(this.buttonEnterTimeout);
-	        clearTimeout(this.buttonLeaveTimeout);
-	      });
-	      this.popup.getPopup().getPopupContainer().addEventListener('mouseleave', () => {
-	        this.hidePopup();
-	      });
-	    }
-	  }
-	  hidePopup() {
-	    if (this.popup) {
-	      this.popup.hide();
-	    }
-	  }
-	  refresh(status) {
-	    this.status = status;
-	    const buttonData = this.getButtonData();
-	    this.button.setColor(buttonData.color);
-	    this.button.setText(buttonData.text);
-	    this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock calendar-sync-btn-icon-refused');
-	    this.button.addClass(buttonData.iconClass);
-	  }
-	  handleClick() {
-	    clearTimeout(this.buttonEnterTimeout);
-	    (window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then(exports => {
-	      if (!main_core.Dom.hasClass(this.button.button, 'ui-btn-clock')) {
-	        this.syncPanel = new exports.SyncPanel({
-	          connectionsProviders: this.connectionsProviders,
-	          userId: this.userId,
-	          status: this.status
-	        });
-	        this.syncPanel.openSlider();
-	      }
-	    });
-	  }
-	  handlerMouseEnter(button) {
-	    clearTimeout(this.buttonEnterTimeout);
-	    this.buttonEnterTimeout = setTimeout(() => {
-	      this.buttonEnterTimeout = null;
-	      if (!main_core.Dom.hasClass(button.button, 'ui-btn-clock')) {
-	        this.showPopup(button);
-	      }
-	    }, 500);
-	  }
-	  handlerMouseLeave() {
-	    if (this.buttonEnterTimeout !== null) {
-	      clearTimeout(this.buttonEnterTimeout);
-	      this.buttonEnterTimeout = null;
-	      return;
-	    }
-	    this.buttonLeaveTimeout = setTimeout(() => {
-	      this.hidePopup();
-	    }, 500);
-	  }
-	  getButtonData() {
-	    if (this.status === 'refused') {
-	      return {
-	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-	        color: BX.UI.Button.Color.LIGHT_BORDER,
-	        iconClass: 'calendar-sync-btn-icon-refused'
-	      };
-	    }
-	    if (this.status === 'success') {
-	      return {
-	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-	        color: BX.UI.Button.Color.LIGHT_BORDER,
-	        iconClass: 'ui-btn-icon-success'
-	      };
-	    } else if (this.status === 'failed') {
-	      return {
-	        text: main_core.Loc.getMessage('STATUS_BUTTON_FAILED'),
-	        color: BX.UI.Button.Color.LIGHT_BORDER,
-	        iconClass: 'ui-btn-icon-fail'
-	      };
-	    } else if (this.status === 'synchronizing') {
-	      return {
-	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
-	        color: BX.UI.Button.Color.LIGHT_BORDER,
-	        iconClass: 'ui-btn-clock'
-	      };
-	    }
-	    return {
-	      text: main_core.Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
-	      color: BX.UI.Button.Color.PRIMARY
-	    };
-	  }
-	  getSyncPanel() {
-	    return this.syncPanel;
-	  }
-	  setConnectionProviders(connectionsProviders) {
-	    this.connectionsProviders = connectionsProviders;
-	  }
-	}
 
 	const isConnectionItemProperty = Symbol.for('BX.Calendar.Sync.Manager.ConnectionItem.isConnectionItem');
 	class ConnectionItem {
@@ -363,6 +17,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.type = options.type;
 	    this.id = options.type;
 	    this.userName = options.userName;
+	    this.accountName = options.accountName;
 	  }
 	  static createInstance(options) {
 	    return new this(options);
@@ -419,6 +74,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  setSyncDate(syncDate) {
 	    this.syncDate = syncDate;
 	  }
+	  getAccountName() {
+	    return this.accountName;
+	  }
 	}
 
 	class ConnectionProvider extends main_core_events.EventEmitter {
@@ -443,6 +101,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.status = options.status;
 	    this.connected = options.connected;
 	    this.userName = options.userName || '';
+	    this.connectionOriginalName = options.connectionOriginalName || '';
 	    this.mainPanel = options.mainPanel === true;
 	    this.pendingStatus = options.pendingStatus === true;
 	    this.gridTitle = options.gridTitle;
@@ -454,6 +113,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    // this.wizardClassName = options.wizardClass || null;
 	    this.connections = [];
 	    this.id = options.id || '';
+	    this.isStartedReconnecting = false;
 	  }
 	  static createInstance(options) {
 	    return new this(options);
@@ -462,6 +122,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    return this.connected;
 	  }
 	  hasMenu() {
+	    return false;
+	  }
+	  doSupportReconnectionScenario() {
 	    return false;
 	  }
 	  setAdditionalParams(options) {
@@ -520,8 +183,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        sections: this.sections,
 	        id: this.id || this.type
 	      },
-	      type: this.type
+	      type: this.type,
+	      accountName: this.getAccountName()
 	    }));
+	  }
+	  getAccountName() {
+	    return this.getType();
 	  }
 	  setInterfaceUnit(interfaceUnit) {
 	    this.interfaceUnit = interfaceUnit;
@@ -531,6 +198,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getConnections() {
 	    return this.connections;
+	  }
+	  getName() {
+	    return this.connectionOriginalName;
 	  }
 	  getConnection() {
 	    return this.connections[0];
@@ -589,8 +259,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.itemSlider.close();
 	    }
 	  }
-	  openInfoConnectionSlider() {
-	    const content = this.getClassTemplateItem().createInstance(this).getInfoConnectionContent();
+	  openInfoConnectionSlider(connection = null) {
+	    const content = this.getClassTemplateItem().createInstance(this, connection).getInfoConnectionContent();
 	    this.openSlider({
 	      sliderId: 'calendar:item-sync-connect-' + this.type,
 	      content: content,
@@ -704,6 +374,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    }
 	  }
 	  handleCreatedConnection() {
+	    if (this.isStartedReconnecting) {
+	      this.setWizardSyncMode(false);
+	    }
 	    this.setStatus(this.STATUS_SUCCESS);
 	    this.getInterfaceUnit().setSyncStatus(this.STATUS_SUCCESS);
 	    BX.ajax.runAction('calendar.api.syncajax.clearSuccessfulConnectionNotifier', {
@@ -718,6 +391,23 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    if (calendarContext) {
 	      calendarContext.syncInterface.refreshDebounce();
 	    }
+	    if (this.isReconnecting()) {
+	      this.handleCloseWizard();
+	      this.endReconnecting();
+	    }
+	  }
+	  startReconnecting() {
+	    if (this.doSupportReconnectionScenario()) {
+	      this.isStartedReconnecting = true;
+	    }
+	  }
+	  endReconnecting() {
+	    if (this.doSupportReconnectionScenario()) {
+	      this.isStartedReconnecting = false;
+	    }
+	  }
+	  isReconnecting() {
+	    return this.isStartedReconnecting;
 	  }
 	  handleCloseWizard() {
 	    const wizard = this.getActiveWizard();
@@ -753,6 +443,280 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.clearConnections();
 	    this.setConnections();
 	  }
+	  getFailedConnectionName() {
+	    return this.getType();
+	  }
+	  getFirstFailedConnection() {
+	    return this.getFailedConnections()[0];
+	  }
+	  getFailedConnectionsCount() {
+	    return this.getFailedConnections().length;
+	  }
+	  getFailedConnections() {
+	    return this.connections.filter(connection => connection.status === false);
+	  }
+	}
+
+	var _guide = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("guide");
+	class SyncStatusPopupV2 extends main_core_events.EventEmitter {
+	  // 30 days
+
+	  constructor(options) {
+	    var _babelHelpers$classPr, _babelHelpers$classPr2;
+	    super();
+	    Object.defineProperty(this, _guide, {
+	      writable: true,
+	      value: void 0
+	    });
+	    this.setEventNamespace('BX.Calendar.Sync.Interface.SyncStatusPopupV2');
+	    const node = options.node;
+	    const failedConnection = options.failedConnection;
+	    this.node = node;
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide] = new ui_tour.Guide({
+	      steps: [{
+	        target: this.node,
+	        title: main_core.Loc.getMessage('CALENDAR_SYNC_MANAGER_AHA_TITLE'),
+	        text: this.getText(failedConnection),
+	        article: null
+	      }],
+	      onEvents: true,
+	      autoHide: true,
+	      overlay: false
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].start();
+	    this.setAsShown(failedConnection);
+	    const linkNode = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].getPopup()) == null ? void 0 : (_babelHelpers$classPr2 = _babelHelpers$classPr.getPopupContainer()) == null ? void 0 : _babelHelpers$classPr2.querySelector('[data-id="calendar-sync-manager__aha-link"]');
+	    if (linkNode) {
+	      main_core.Event.bind(linkNode, 'click', () => {
+	        options.onSyncPanelOpen();
+	        babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].close();
+	      });
+	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _guide)[_guide].getPopup().setWidth(390);
+	  }
+	  static createInstance(options) {
+	    const failedConnection = SyncStatusPopupV2.getNotShownFailedConnection(options);
+	    const isFailed = options.status === 'failed';
+	    const syncErrors = options.syncErrors > 0;
+	    return isFailed && syncErrors && failedConnection ? new this({
+	      failedConnection,
+	      ...options
+	    }) : null;
+	  }
+	  static getNotShownFailedConnection(options) {
+	    return SyncStatusPopupV2.getFailedConnections(options).find(failedConnection => {
+	      return !SyncStatusPopupV2.alreadyShown(failedConnection);
+	    });
+	  }
+	  static getFailedConnections(options) {
+	    const failedConnections = [];
+	    // eslint-disable-next-line no-restricted-syntax
+	    for (const providerName in options.connectionsProviders) {
+	      if (Object.prototype.hasOwnProperty.call(options.connectionsProviders, providerName) && options.connectionsProviders[providerName].getStatus() === 'failed') {
+	        failedConnections.push(...SyncStatusPopupV2.getFailedConnectionsFromProvider(options.connectionsProviders[providerName]));
+	        break;
+	      }
+	    }
+	    return failedConnections;
+	  }
+	  static getFailedConnectionsFromProvider(provider) {
+	    var _provider$getConnecti;
+	    return (_provider$getConnecti = provider.getConnections()) == null ? void 0 : _provider$getConnecti.filter(connection => {
+	      return connection.getStatus() === 'failed';
+	    });
+	  }
+	  static alreadyShown(failedConnection) {
+	    if (main_core.Type.isUndefined(window.localStorage)) {
+	      return true;
+	    }
+	    const key = `${SyncStatusPopupV2.SYNC_POPUP_KEY}_${failedConnection.getConnectionName()}`;
+	    const itemString = window.localStorage.getItem(key);
+	    if (!itemString) {
+	      return false;
+	    }
+	    const item = JSON.parse(itemString);
+	    const now = new Date();
+	    return now.getTime() < item.expire;
+	  }
+	  getText(failedConnection) {
+	    const providerName = main_core.Text.encode(failedConnection.getConnectionName());
+	    const accountName = main_core.Text.encode(failedConnection.getAccountName()).trim();
+	    const accountNameCapitalized = `<span class="calendar-sync-manager__aha-content-element-type">${accountName}</span>`;
+	    return `
+			<div class="calendar-sync-manager__aha-content">
+				<div class="calendar-sync-manager__aha-content-element">
+					${main_core.Loc.getMessage('CALENDAR_SYNC_MANAGER_AHA_TEXT_1', {
+      '#PROVIDER_NAME#': providerName
+    })}
+				</div>
+				<div class="calendar-sync-manager__aha-content-element">
+					${main_core.Loc.getMessage('CALENDAR_SYNC_MANAGER_AHA_TEXT_2', {
+      '#PROVIDER#': accountNameCapitalized
+    })}
+				</div>
+				<div class="calendar-sync-manager__aha-link" data-id="calendar-sync-manager__aha-link">
+					${main_core.Loc.getMessage('CALENDAR_SYNC_MANAGER_AHA_LINK')}
+				</div>
+			</div>
+		`;
+	  }
+	  setAsShown(failedConnection) {
+	    if (main_core.Type.isUndefined(window.localStorage)) {
+	      return;
+	    }
+	    const now = new Date();
+	    const key = `${SyncStatusPopupV2.SYNC_POPUP_KEY}_${failedConnection.getConnectionName()}`;
+	    const payload = {
+	      expire: now.getTime() + SyncStatusPopupV2.SYNC_POPUP_TTL
+	    };
+	    window.localStorage.setItem(key, JSON.stringify(payload));
+	  }
+	}
+	SyncStatusPopupV2.SYNC_POPUP_KEY = 'sync_popup';
+	SyncStatusPopupV2.SYNC_POPUP_TTL = 3600 * 24 * 30 * 1000;
+	SyncStatusPopupV2.IS_RUN_REFRESH = false;
+
+	let _ = t => t,
+	  _t;
+	class SyncButton {
+	  constructor(options) {
+	    this.BUTTON_SIZE = BX.UI.Button.Size.EXTRA_SMALL;
+	    this.BUTTON_ROUND = true;
+	    this.connectionsProviders = options.connectionsProviders;
+	    this.wrapper = options.wrapper;
+	    this.userId = options.userId;
+	    this.status = options.status;
+	    this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
+	    this.counters = options.counters;
+	    this.payAttentionToNewSharingFeature = options.payAttentionToNewSharingFeature;
+	    this.buttonEnterTimeout = null;
+	  }
+	  static createInstance(options) {
+	    return new this(options);
+	  }
+	  show() {
+	    var _buttonData$counter;
+	    const buttonData = this.getButtonData();
+	    this.button = new BX.UI.Button({
+	      text: buttonData.text,
+	      round: this.BUTTON_ROUND,
+	      size: this.BUTTON_SIZE,
+	      color: buttonData.color,
+	      counter: (_buttonData$counter = buttonData.counter) != null ? _buttonData$counter : 0,
+	      className: 'ui-btn-themes ' + (buttonData.iconClass || ''),
+	      onclick: () => {
+	        this.handleClick();
+	      }
+	    });
+	    this.button.renderTo(this.wrapper);
+	    if (!this.payAttentionToNewSharingFeature) {
+	      this.showAhaMoment(this.button);
+	    }
+	  }
+	  showAhaMoment(button) {
+	    setTimeout(() => {
+	      var _this$counters$sync_e;
+	      SyncStatusPopupV2.createInstance({
+	        status: this.status,
+	        syncErrors: (_this$counters$sync_e = this.counters.sync_errors) != null ? _this$counters$sync_e : 0,
+	        connectionsProviders: this.connectionsProviders,
+	        node: button.getContainer(),
+	        id: 'calendar-sync-v2__dialog',
+	        onSyncPanelOpen: () => this.handleClick()
+	      });
+	    }, 1000);
+	  }
+	  showGoogleApplicationRefusedPopup() {
+	    const popup = new main_popup.Popup({
+	      bindElement: this.button.getContainer(),
+	      borderRadius: '3px',
+	      className: 'calendar-popup-ui-tour-animate',
+	      content: main_core.Tag.render(_t || (_t = _`
+				<div class="calendar-sync-popup-status-refused">
+					<div class="calendar-sync-popup-status-refused-title">
+						${0}
+					</div>
+					<div class="calendar-sync-popup-status-refused-text">
+						${0}
+					</div>
+				</div>
+			`), main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TITLE'), main_core.Loc.getMessage('CAL_SYNC_INFO_STATUS_REFUSED_POPUP_TEXT')),
+	      width: 400,
+	      angle: {
+	        offset: this.button.getContainer().offsetWidth / 2,
+	        position: 'top'
+	      },
+	      closeIcon: true,
+	      autoHide: true
+	    });
+	    setTimeout(() => {
+	      popup.show();
+	      BX.ajax.runAction('calendar.api.syncajax.disableShowGoogleApplicationRefused');
+	    }, 1000);
+	  }
+	  refresh(status, counters = null) {
+	    var _buttonData$counter2;
+	    this.status = status;
+	    this.counters = counters != null ? counters : this.counters;
+	    const buttonData = this.getButtonData();
+	    this.button.setColor(buttonData.color);
+	    this.button.setText(buttonData.text);
+	    this.button.removeClass('ui-btn-icon-fail ui-btn-icon-success ui-btn-clock calendar-sync-btn-icon-refused calendar-sync-btn-counter');
+	    this.button.addClass(buttonData.iconClass);
+	    this.button.setCounter((_buttonData$counter2 = buttonData.counter) != null ? _buttonData$counter2 : 0);
+	  }
+	  handleClick() {
+	    clearTimeout(this.buttonEnterTimeout);
+	    (window.top.BX || window.BX).Runtime.loadExtension('calendar.sync.interface').then(exports => {
+	      if (!main_core.Dom.hasClass(this.button.button, 'ui-btn-clock')) {
+	        this.syncPanel = new exports.SyncPanel({
+	          connectionsProviders: this.connectionsProviders,
+	          userId: this.userId,
+	          status: this.status
+	        });
+	        this.syncPanel.openSlider();
+	      }
+	    });
+	  }
+	  getButtonData() {
+	    if (this.status === 'refused') {
+	      return {
+	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+	        color: BX.UI.Button.Color.LIGHT_BORDER,
+	        iconClass: 'calendar-sync-btn-icon-refused'
+	      };
+	    }
+	    if (this.status === 'success') {
+	      return {
+	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+	        color: BX.UI.Button.Color.LIGHT_BORDER,
+	        iconClass: 'ui-btn-icon-success'
+	      };
+	    } else if (this.status === 'failed') {
+	      return {
+	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+	        color: BX.UI.Button.Color.LIGHT_BORDER,
+	        iconClass: 'calendar-sync-btn-counter',
+	        counter: this.counters.sync_errors || 1
+	      };
+	    } else if (this.status === 'synchronizing') {
+	      return {
+	        text: main_core.Loc.getMessage('STATUS_BUTTON_SYNCHRONIZATION'),
+	        color: BX.UI.Button.Color.LIGHT_BORDER,
+	        iconClass: 'ui-btn-clock'
+	      };
+	    }
+	    return {
+	      text: main_core.Loc.getMessage('STATUS_BUTTON_SYNC_CALENDAR_NEW'),
+	      color: BX.UI.Button.Color.PRIMARY
+	    };
+	  }
+	  getSyncPanel() {
+	    return this.syncPanel;
+	  }
+	  setConnectionProviders(connectionsProviders) {
+	    this.connectionsProviders = connectionsProviders;
+	  }
 	}
 
 	class GoogleProvider extends ConnectionProvider {
@@ -762,6 +726,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      status: options.syncInfo.status || false,
 	      connected: options.syncInfo.connected || false,
 	      userName: options.syncInfo.userName || '',
+	      connectionOriginalName: options.syncInfo.connectionName || '',
 	      gridTitle: main_core.Loc.getMessage('CALENDAR_TITLE_GOOGLE'),
 	      gridColor: '#387ced',
 	      gridIcon: '/bitrix/images/calendar/sync/google.svg',
@@ -778,6 +743,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setSections(options.sections);
 	    this.setConnections();
+	  }
+	  doSupportReconnectionScenario() {
+	    return true;
 	  }
 	  getSyncLink() {
 	    return this.syncLink;
@@ -836,6 +804,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      status: options.syncInfo.status || false,
 	      connected: options.syncInfo.connected || false,
 	      userName: options.syncInfo.userName || options.syncInfo.connectionName || '',
+	      connectionOriginalName: options.syncInfo.connectionName || '',
 	      gridTitle: main_core.Loc.getMessage('CALENDAR_TITLE_OFFICE365'),
 	      gridColor: '#fc1d1d',
 	      gridIcon: '/bitrix/images/calendar/sync/office365.svg',
@@ -851,6 +820,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setSections(options.sections);
 	    this.setConnections();
+	  }
+	  doSupportReconnectionScenario() {
+	    return true;
 	  }
 	  getSyncLink() {
 	    return this.syncLink;
@@ -895,6 +867,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      status: options.syncInfo.status || false,
 	      connected: options.syncInfo.connected || false,
 	      userName: options.syncInfo.userName || '',
+	      connectionOriginalName: options.syncInfo.connectionName || '',
 	      gridTitle: main_core.Loc.getMessage('CALENDAR_TITLE_ICLOUD'),
 	      gridColor: '#948f8f',
 	      gridIcon: '/bitrix/images/calendar/sync/icloud.svg',
@@ -908,6 +881,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.setSyncDate(options.syncInfo.syncOffset);
 	    this.setSections(options.sections);
 	    this.setConnections();
+	  }
+	  doSupportReconnectionScenario() {
+	    return true;
+	  }
+	  getFailedConnectionName() {
+	    return 'iCloud';
 	  }
 	}
 
@@ -932,6 +911,9 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	class CaldavConnection extends ConnectionProvider {
 	  constructor(options) {
 	    super(options);
+	  }
+	  doSupportReconnectionScenario() {
+	    return true;
 	  }
 	  static calculateStatus(connections) {
 	    if (connections.length === 0) {
@@ -1004,8 +986,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      zIndexAbsolute: this.MENU_INDEX,
 	      autoHide: true,
 	      closeByEsc: true,
-	      id: this.getType() + '-menu',
-	      offsetLeft: -40
+	      offsetTop: 5,
+	      id: this.getType() + '-menu'
 	    });
 	  }
 	  setConnections() {
@@ -1021,10 +1003,19 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	            userName: connection.syncInfo.userName,
 	            server: connection.syncInfo.server
 	          },
-	          type: this.type
+	          type: this.type,
+	          accountName: this.getAccountName(connection)
 	        }));
 	      });
 	    }
+	  }
+	  getAccountName(connection) {
+	    return connection.syncInfo.connectionName;
+	  }
+	  getFailedConnectionName() {
+	    var _this$getFirstFailedC;
+	    const connectionName = (_this$getFirstFailedC = this.getFirstFailedConnection().connectionName) == null ? void 0 : _this$getFirstFailedC.trim();
+	    return main_core.Type.isStringFilled(connectionName) ? connectionName : super.getFailedConnectionName();
 	  }
 	}
 
@@ -1192,7 +1183,178 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    }
 	    this.setConnections();
 	  }
+	  getAccountName(connection) {
+	    return main_core.Loc.getMessage('CALENDAR_TITLE_YANDEX');
+	  }
 	}
+
+	let _$1 = t => t,
+	  _t$1,
+	  _t2,
+	  _t3,
+	  _t4,
+	  _t5;
+	class SyncStatusPopup extends main_core_events.EventEmitter {
+	  constructor(options) {
+	    super();
+	    this.setEventNamespace('BX.Calendar.Sync.Interface.SyncStatusPopup');
+	    this.connections = options.connections;
+	    this.withUpdateButton = options.withUpdateButton;
+	    this.node = options.node;
+	    this.id = options.id;
+	    this.isGoogleApplicationRefused = options.isGoogleApplicationRefused;
+	    this.init();
+	  }
+	  static createInstance(options) {
+	    return new this(options);
+	  }
+	  init() {
+	    this.setPopupContent();
+	  }
+	  createPopup() {
+	    this.popup = new main_popup.Popup({
+	      className: this.id,
+	      bindElement: this.node,
+	      content: this.container,
+	      angle: true,
+	      width: 360,
+	      offsetLeft: 60,
+	      offsetTop: 5,
+	      padding: 7,
+	      darkMode: true,
+	      autoHide: true,
+	      zIndexAbsolute: 3010
+	    });
+	  }
+	  show() {
+	    this.createPopup();
+	    this.popup.show();
+	  }
+	  setPopupContent() {
+	    this.container = main_core.Tag.render(_t$1 || (_t$1 = _$1`
+			<div class="calendar-sync-popup-list"></div>
+		`));
+	    this.connections.forEach(connection => {
+	      if (connection.getConnectStatus() !== true) {
+	        return;
+	      }
+	      const options = {};
+	      options.syncTime = this.getFormattedTime(connection.getSyncDate());
+	      options.classStatus = connection.getSyncStatus() ? 'calendar-sync-popup-item-status-success' : 'calendar-sync-popup-item-status-fail';
+	      if (connection.id === 'google' && !connection.getSyncStatus() && this.isGoogleApplicationRefused) {
+	        options.classStatus = 'calendar-sync-popup-item-status-refused';
+	        options.syncTime = null;
+	      }
+	      options.classLable = 'calendar-sync-popup-item-text-' + connection.getClassLabel();
+	      options.title = connection.getConnectionName();
+	      const block = this.getSyncElement(options);
+	      this.container.append(block);
+	    });
+	    if (this.withUpdateButton) {
+	      this.container.append(this.getContentRefreshBlock());
+	      if (SyncStatusPopup.IS_RUN_REFRESH) {
+	        this.showRefreshStatus();
+	      }
+	    }
+	    return this.container;
+	  }
+	  hide() {
+	    this.popup.destroy();
+	  }
+	  getContainer() {
+	    return this.container;
+	  }
+	  getPopup() {
+	    return this.popup;
+	  }
+	  getFormattedTime(date) {
+	    const now = new Date();
+	    let timestamp = date;
+	    if (main_core.Type.isDate(date)) {
+	      timestamp = Math.round(date.getTime() / 1000);
+	      let secondsAgo = parseInt((now - date) / 1000);
+	      if (secondsAgo < 60) {
+	        return main_core.Loc.getMessage('CAL_JUST');
+	      }
+	    }
+	    return BX.date.format([["tommorow", "tommorow, H:i:s"], ["i", "iago"], ["H", "Hago"], ["d", "dago"], ["m100", "mago"], ["m", "mago"], ["-", ""]], timestamp);
+	  }
+	  getSyncElement(options) {
+	    return main_core.Tag.render(_t2 || (_t2 = _$1`
+				<div class="calendar-sync-popup-item">
+					<span class="calendar-sync-popup-item-text ${0}">${0}</span>
+					<div class="calendar-sync-popup-item-detail">
+						<span class="calendar-sync-popup-item-time">${0}</span>
+						<span class="calendar-sync-popup-item-status ${0}"></span>
+					</div>
+				</div>
+			`), options.classLable, BX.util.htmlspecialchars(options.title), options.syncTime, options.classStatus);
+	  }
+	  refresh(connections) {
+	    this.connections = connections;
+	    this.popup.setContent(this.setPopupContent());
+	    this.setRefreshStatusBlock();
+	  }
+	  setRefreshStatusBlock() {
+	    setTimeout(() => {
+	      this.removeRefreshStatusBlock();
+	      this.enableRefreshButton();
+	      SyncStatusPopup.IS_RUN_REFRESH = false;
+	    }, 120000);
+	  }
+	  removeRefreshStatusBlock() {
+	    if (main_core.Type.isElementNode(this.refreshStatusBlock)) {
+	      this.refreshStatusBlock.remove();
+	    }
+	  }
+	  enableRefreshButton() {
+	    if (main_core.Type.isElementNode(this.refreshButton)) {
+	      this.refreshButton.className = 'calendar-sync-popup-footer-btn';
+	    }
+	  }
+	  disableRefreshButton() {
+	    if (main_core.Type.isElementNode(this.refreshButton)) {
+	      this.refreshButton.className = 'calendar-sync-popup-footer-btn calendar-sync-popup-footer-btn-disabled';
+	    }
+	  }
+	  getContentRefreshBlock() {
+	    this.footerWrapper = main_core.Tag.render(_t3 || (_t3 = _$1`
+			<div class="calendar-sync-popup-footer-wrap">
+				${0}
+			</div>
+		`), this.getContentRefreshButton());
+	    return this.footerWrapper;
+	  }
+	  getContentRefreshButton() {
+	    this.refreshButton = main_core.Tag.render(_t4 || (_t4 = _$1`
+			<button class="calendar-sync-popup-footer-btn">${0}</button>
+		`), main_core.Loc.getMessage('CAL_REFRESH'));
+	    this.refreshButton.addEventListener('click', () => {
+	      main_core.Dom.addClass(this.refreshButton, 'calendar-sync-popup-footer-btn-load');
+	      SyncStatusPopup.IS_RUN_REFRESH = true;
+	      this.refreshButton.innerText = main_core.Loc.getMessage('CAL_REFRESHING');
+	      this.runRefresh();
+	    });
+	    return this.refreshButton;
+	  }
+	  showRefreshStatus() {
+	    this.disableRefreshButton();
+	    this.footerWrapper.prepend(this.getRefreshStatus());
+	  }
+	  getRefreshStatus() {
+	    this.refreshStatusBlock = main_core.Tag.render(_t5 || (_t5 = _$1`
+			<span class="calendar-sync-popup-footer-status">${0}</span>
+		`), main_core.Loc.getMessage('CAL_REFRESH_JUST'));
+	    return this.refreshStatusBlock;
+	  }
+	  runRefresh() {
+	    this.emit('onRefresh', {});
+	  }
+	  getId() {
+	    return this.id;
+	  }
+	}
+	SyncStatusPopup.IS_RUN_REFRESH = false;
 
 	class Manager extends main_core_events.EventEmitter {
 	  constructor(options) {
@@ -1223,12 +1385,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    this.isSetSyncOffice365Settings = options.isSetSyncOffice365Settings;
 	    this.refreshDebounce = main_core.Runtime.debounce(this.refresh, this.REFRESH_DELAY, this);
 	    this.refreshContentDebounce = main_core.Runtime.debounce(this.refreshContent, this.REFRESH_CONTENT_DELAY, this);
+	    this.payAttentionToNewSharingFeature = options.payAttentionToNewSharingFeature;
 	    this.init();
 	    this.subscribeOnEvent();
 	  }
 	  subscribeOnEvent() {
 	    main_core_events.EventEmitter.subscribe('BX.Calendar.Sync.Interface.SyncStatusPopup:onRefresh', event => {
 	      this.refreshDebounce(event);
+	    });
+	    main_core_events.EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:onRefresh', event => {
+	      this.onRefresh(event.data.data, event.data.event);
 	    });
 	    main_core_events.EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:reDrawCalendarGrid', event => {
 	      this.reDrawCalendarGrid();
@@ -1240,12 +1406,15 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	    });
 	  }
 	  showSyncButton() {
+	    var _this$syncInfo$counte;
 	    this.syncButton = new SyncButton({
 	      status: this.status,
 	      wrapper: this.wrapper,
 	      connectionsProviders: this.connectionsProviders,
 	      userId: this.userId,
-	      isGoogleApplicationRefused: this.isGoogleApplicationRefused
+	      isGoogleApplicationRefused: this.isGoogleApplicationRefused,
+	      counters: (_this$syncInfo$counte = this.syncInfo.counters) != null ? _this$syncInfo$counte : {},
+	      payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature
 	    });
 	    this.syncButton.show();
 	    if (this.needToShowGoogleRefusedPopup()) {
@@ -1365,28 +1534,33 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	          requestUid: calendar_util.Util.registerRequestId()
 	        }
 	      }).then(response => {
-	        this.setSyncInfo(response.data);
-	        this.status = this.getSummarySyncStatus();
-	        if (this.needToShowGoogleRefusedPopup()) {
-	          this.syncButton.showGoogleApplicationRefusedPopup();
-	          this.showGoogleApplicationRefused = false;
-	        }
-	        const activePopup = event && event.getTarget ? event.getTarget() : null;
-	        this.refreshContent(activePopup);
+	        this.onRefresh(response.data, event);
 	        resolve();
 	      });
 	    });
 	  }
-	  refreshContent(activePopup = {}) {
+	  onRefresh(data, event = {}) {
+	    this.setSyncInfo(data);
+	    this.status = this.getSummarySyncStatus();
+	    if (this.needToShowGoogleRefusedPopup()) {
+	      this.syncButton.showGoogleApplicationRefusedPopup();
+	      this.showGoogleApplicationRefused = false;
+	    }
+	    const activePopup = event && event.getTarget ? event.getTarget() : null;
+	    this.refreshContent(activePopup, event);
+	  }
+	  refreshContent(activePopup = {}, event = {}) {
 	    this.init();
 	    this.refreshCalendarGrid();
 	    if (this.syncButton) {
-	      this.syncButton.refresh(this.status);
+	      this.syncButton.refresh(this.status, this.syncInfo.counters);
 	      this.syncButton.setConnectionProviders(this.connectionsProviders);
 	    }
 	    if (activePopup) {
 	      this.refreshActivePopup(activePopup);
 	      this.refreshOpenSliders(activePopup);
+	    } else {
+	      this.refreshOpenSliders({}, event);
 	    }
 	  }
 	  refreshCalendarGrid() {
@@ -1399,11 +1573,13 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      this.syncButton.popup.refresh(this.getConnections());
 	    }
 	  }
-	  refreshOpenSliders(activePopup = {}) {
+	  refreshOpenSliders(activePopup = {}, event = {}) {
 	    const openSliders = BX.SidePanel.Instance.getOpenSliders();
 	    if (openSliders.length > 0) {
 	      openSliders.forEach(slider => {
 	        if (slider.getUrl() === 'calendar:auxiliary-sync-slider') {
+	          this.refreshMainSlider(this.syncButton.getSyncPanel());
+	        } else if (slider.getUrl() === 'calendar:sync-slider' && event.doRefreshMainSlider) {
 	          this.refreshMainSlider(this.syncButton.getSyncPanel());
 	        } else if (slider.getUrl().indexOf('calendar:item-sync-') !== -1) {
 	          this.refreshConnectionSlider(slider, activePopup);
@@ -1559,6 +1735,7 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	        this.connectionsProviders[providerName].subscribe('onStartWaitingMode', this.handleStartWaitingMode.bind(this));
 	        this.connectionsProviders[providerName].subscribe('onEndWaitingMode', this.handleEndWaitingMode.bind(this));
 	        this.connectionsProviders[providerName].subscribe('onCloseSyncWizard', this.handleCloseSyncWizard.bind(this));
+	        this.connectionsProviders[providerName].subscribe('onReconnecting', this.handleReconnecting.bind(this));
 	      }
 	    }
 	  }
@@ -1569,6 +1746,11 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      }
 	    } else {
 	      this.refreshContentDebounce();
+	    }
+	  }
+	  handleReconnecting() {
+	    if (this.isSyncInProcess() && this.syncButton) {
+	      this.syncButton.refresh(this.STATUS_SYNCHRONIZING);
 	    }
 	  }
 	  handleStartWaitingMode() {
@@ -1600,9 +1782,12 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	  }
 	  getSummarySyncStatus() {
 	    let status = this.STATUS_NOT_CONNECTED;
+	    if (this.isStatusFailed()) {
+	      return this.STATUS_FAILED;
+	    }
 	    for (let providerName in this.connectionsProviders) {
 	      if (this.connectionsProviders.hasOwnProperty(providerName)) {
-	        if ([this.STATUS_SUCCESS, this.STATUS_FAILED].includes(this.connectionsProviders[providerName].getStatus())) {
+	        if ([this.STATUS_SUCCESS].includes(this.connectionsProviders[providerName].getStatus())) {
 	          status = this.connectionsProviders[providerName].getStatus();
 	          break;
 	        }
@@ -1612,6 +1797,16 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	      status = this.STATUS_REFUSED;
 	    }
 	    return status;
+	  }
+	  isStatusFailed() {
+	    for (const providerName in this.connectionsProviders) {
+	      if (Object.prototype.hasOwnProperty.call(this.connectionsProviders, providerName)) {
+	        if (this.STATUS_FAILED === this.connectionsProviders[providerName].getStatus()) {
+	          return true;
+	        }
+	      }
+	    }
+	    return false;
 	  }
 	  needToShowGoogleRefusedPopup() {
 	    return this.syncButton && this.isGoogleApplicationRefused && this.showGoogleApplicationRefused && this.hasRefusedStatus();
@@ -1735,7 +1930,8 @@ this.BX.Calendar.Sync = this.BX.Calendar.Sync || {};
 	exports.Manager = Manager;
 	exports.SyncButton = SyncButton;
 	exports.SyncStatusPopup = SyncStatusPopup;
+	exports.SyncStatusPopupV2 = SyncStatusPopupV2;
 	exports.ConnectionItem = ConnectionItem;
 
-}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX.Main,BX.Event,BX.Calendar,BX));
+}((this.BX.Calendar.Sync.Manager = this.BX.Calendar.Sync.Manager || {}),BX,BX.UI.Tour,BX.Main,BX.Event,BX.Calendar,BX));
 //# sourceMappingURL=manager.bundle.js.map

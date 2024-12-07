@@ -23,7 +23,6 @@ switch($_REQUEST['mode'])
 {
 	case 'search':
 	{
-		CUtil::JSPostUnescape();
 		$APPLICATION->RestartBuffer();
 
 		$minPermission = 'R';

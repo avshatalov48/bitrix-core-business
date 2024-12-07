@@ -1,2 +1,2 @@
-}((this.BX.UI.Bbcode = this.BX.UI.Bbcode || {}),BX,BX.UI.Bbcode));
+}((this.BX.UI.BBCode = this.BX.UI.BBCode || {}),BX.UI.BBCode,BX,BX.UI.BBCode,BX.UI,BX.UI.BBCode));
 //# sourceMappingURL=parser.bundle.js.map

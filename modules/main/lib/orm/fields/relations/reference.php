@@ -169,11 +169,11 @@ class Reference extends Relation
 	{
 		if (substr_count($definition, '.') == 1)
 		{
-			if (strpos($definition, 'this.') === 0)
+			if (str_starts_with($definition, 'this.'))
 			{
 				return static::ELEMENTAL_THIS;
 			}
-			elseif (strpos($definition, 'ref.') === 0)
+			elseif (str_starts_with($definition, 'ref.'))
 			{
 				return static::ELEMENTAL_REF;
 			}

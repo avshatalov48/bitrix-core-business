@@ -17,8 +17,8 @@ if (!CModule::IncludeModule("learning"))
 
 //Params
 $arParams["TRANSCRIPT_DETAIL_TEMPLATE"] = (
-	$arParams["TRANSCRIPT_DETAIL_TEMPLATE"] <> '' ? 
-	htmlspecialcharsbx($arParams["TRANSCRIPT_DETAIL_TEMPLATE"]) : 
+	$arParams["TRANSCRIPT_DETAIL_TEMPLATE"] <> '' ?
+	htmlspecialcharsbx($arParams["TRANSCRIPT_DETAIL_TEMPLATE"]) :
 	"certification/?TRANSCRIPT_ID=#TRANSCRIPT_ID#"
 );
 
@@ -44,21 +44,21 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT" && $USER_ID >
 	{
 		$rsPhoto = $DB->Query("SELECT PERSONAL_PHOTO FROM b_user WHERE ID='$USER_ID'");
 		$arPhoto = $rsPhoto->Fetch();
-		$arPersonPhoto = $_FILES["PERSONAL_PHOTO"];
-		$arPersonPhoto["old_file"] = $arPhoto["PERSONAL_PHOTO"];
-		$arPersonPhoto["del"] = $_POST["PERSONAL_PHOTO_del"];
+		$arPersonPhoto = $_FILES["PERSONAL_PHOTO"] ?? [];
+		$arPersonPhoto["old_file"] = $arPhoto["PERSONAL_PHOTO"] ?? '';
+		$arPersonPhoto["del"] = $_POST["PERSONAL_PHOTO_del"] ?? '';
 
 		$arFields = Array(
-			"NAME"					=> $_POST["NAME"],
-			"LAST_NAME"				=> $_POST["LAST_NAME"],
-			"EMAIL"					=> $_POST["EMAIL"],
-			"PERSONAL_WWW"			=> $_POST["PERSONAL_WWW"],
-			"PERSONAL_ICQ"			=> $_POST["PERSONAL_ICQ"],
-			"PERSONAL_STREET"			=> $_POST["PERSONAL_STREET"],
-			"PERSONAL_CITY"		=> $_POST["PERSONAL_CITY"],
-			"PERSONAL_ZIP"		=> $_POST["PERSONAL_ZIP"],
-			"PERSONAL_STATE"		=> $_POST["PERSONAL_STATE"],
-			"PERSONAL_COUNTRY"	=> $_POST["PERSONAL_COUNTRY"],
+			"NAME"					=> $_POST["NAME"] ?? '',
+			"LAST_NAME"				=> $_POST["LAST_NAME"] ?? '',
+			"EMAIL"					=> $_POST["EMAIL"] ?? '',
+			"PERSONAL_WWW"			=> $_POST["PERSONAL_WWW"] ?? '',
+			"PERSONAL_ICQ"			=> $_POST["PERSONAL_ICQ"] ?? '',
+			"PERSONAL_STREET"			=> $_POST["PERSONAL_STREET"] ?? '',
+			"PERSONAL_CITY"		=> $_POST["PERSONAL_CITY"] ?? '',
+			"PERSONAL_ZIP"		=> $_POST["PERSONAL_ZIP"] ?? '',
+			"PERSONAL_STATE"		=> $_POST["PERSONAL_STATE"] ?? '',
+			"PERSONAL_COUNTRY"	=> $_POST["PERSONAL_COUNTRY"] ?? '',
 			"PERSONAL_PHOTO"		=> $arPersonPhoto,
 		);
 
@@ -70,8 +70,8 @@ if ($_SERVER["REQUEST_METHOD"]=="POST" && $_POST["ACTION"]=="EDIT" && $USER_ID >
 	if ($strError == '')
 	{
 		$arStudentFields = Array(
-			"RESUME" => $_POST["RESUME"],
-			"PUBLIC_PROFILE" => ($_POST["PUBLIC_PROFILE"]=="Y" ? "Y" : "N")
+			"RESUME" => $_POST["RESUME"] ?? '',
+			"PUBLIC_PROFILE" => (isset($_POST["PUBLIC_PROFILE"]) && $_POST["PUBLIC_PROFILE"]=="Y" ? "Y" : "N")
 		);
 
 		$rsStudent = CStudent::GetList(Array(), Array("USER_ID" => $USER_ID));
@@ -117,7 +117,7 @@ if ($arStudent = $rsStudent->GetNext())
 {
 	$arResult["STUDENT"] = $arStudent;
 	$arResult["TRANSCRIPT_DETAIL_URL"] = CComponentEngine::MakePathFromTemplate(
-		$arParams["TRANSCRIPT_DETAIL_TEMPLATE"], 
+		$arParams["TRANSCRIPT_DETAIL_TEMPLATE"],
 		Array("TRANSCRIPT_ID" => $arStudent["TRANSCRIPT"]."-".$arStudent["USER_ID"])
 	);
 }

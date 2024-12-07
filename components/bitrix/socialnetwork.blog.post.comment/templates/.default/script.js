@@ -2,9 +2,9 @@
 	if (!!window.__blogEditComment)
 		return;
 
-window.checkForQuote = function(e, node, ENTITY_XML_ID, author_id) {
+window.checkForQuote = function(e, node, ENTITY_XML_ID, author_id, options) {
 	if (window.mplCheckForQuote)
-		mplCheckForQuote(e, node, ENTITY_XML_ID, author_id)
+		mplCheckForQuote(e, node, ENTITY_XML_ID, author_id, options)
 };
 
 window.__blogLinkEntity = function(entities, xmlId) {
@@ -29,7 +29,7 @@ window.__blogLinkEntity = function(entities, xmlId) {
 				var placeHolder = document.getElementById('blog-post-addc-add-' + entities[ii][1]);
 				if (placeHolder)
 				{
-					placeHolder.addEventListener('click', window['UC'][ii].reply.bind(window['UC'][ii]));
+					placeHolder.addEventListener('click', window['UC'][ii].reply.bind(window['UC'][ii], placeHolder, 'comment_button'));
 				}
 			}
 		}

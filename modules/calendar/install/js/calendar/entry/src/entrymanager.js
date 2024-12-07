@@ -1,4 +1,4 @@
-import { Entry } from 'calendar.entry';
+import { Entry } from './entry';
 import { SectionManager } from 'calendar.sectionmanager';
 import { Util } from 'calendar.util';
 import {Dom, Event, Loc, Tag, Type} from 'main.core';
@@ -180,15 +180,14 @@ export class EntryManager {
 			new bx.Calendar.SliderLoader(
 				options.entry ? 'EDIT' + options.entry.id : 'NEW',
 				{
-					calendarContext: options.calendarContext,
+					calendarContext: options.calendarContext || bx.Calendar.Util.getCalendarContext(),
 					entry: options.entry || null,
 					type: options.type,
 					isLocationCalendar: options.isLocationCalendar || false,
 					roomsManager: options.roomsManager || null,
 					locationAccess: options.locationAccess || false,
-					dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 					locationCapacity: options.locationCapacity || 0,
-					ownerId: options.ownerId,
+					ownerId: options.ownerId || 0,
 					userId: options.userId,
 					formDataValue: options.formDataValue || null,
 					jumpToControl: options.jumpToControl,
@@ -207,7 +206,6 @@ export class EntryManager {
 				new bx.Calendar.SliderLoader(eventId, {
 					entryDateFrom: options.from,
 					timezoneOffset: options.timezoneOffset,
-					dayOfWeekMonthFormat: options.dayOfWeekMonthFormat || false,
 					calendarContext: options.calendarContext || null,
 					link: options.link,
 				}).show();
@@ -260,7 +258,7 @@ export class EntryManager {
 
 			if (status === 'N' && !params.confirmed)
 			{
-				if (entry.isRecursive())
+				if (entry.isRecursive() && !entry.isOpenEvent())
 				{
 					this.showConfirmStatusDialog(entry, resolve);
 					return false;
@@ -339,7 +337,8 @@ export class EntryManager {
 		{
 			this.confirmEditDialog = this.createConfirmEditDialog();
 		}
-		this.confirmEditDialog.show();
+
+		this.confirmEditDialog.show(options);
 
 		if (Type.isFunction(options.callback))
 		{
@@ -431,7 +430,7 @@ export class EntryManager {
 		{
 			this.limitationEmailDialog = this.createEmailLimitationDialog();
 		}
-		this.limitationEmailDialog.subscribe('onClose', ()=>{
+		this.limitationEmailDialog.subscribe('onSaveWithoutAttendees', () => {
 			if (Type.isFunction(options.callback))
 			{
 				options.callback();
@@ -705,34 +704,39 @@ export class EntryManager {
 		Util.setUserSettings(userSettings);
 	}
 
-	//this is because extensions cant be loaded in iframe with import
+	// this is because extensions cant be loaded in iframe with import
 	static createConfirmEditDialog()
 	{
 		const bx = Util.getBX();
+
 		return new bx.Calendar.Controls.ConfirmEditDialog();
 	}
 
 	static createConfirmStatusDialog()
 	{
 		const bx = Util.getBX();
+
 		return new bx.Calendar.Controls.ConfirmStatusDialog();
 	}
 
 	static createReinviteUserDialog()
 	{
 		const bx = Util.getBX();
+
 		return new bx.Calendar.Controls.ReinviteUserDialog();
 	}
 
 	static createConfirmedEmailDialog()
 	{
 		const bx = Util.getBX();
+
 		return new bx.Calendar.Controls.ConfirmedEmailDialog();
 	}
 
 	static createEmailLimitationDialog()
 	{
 		const bx = Util.getBX();
+
 		return new bx.Calendar.Controls.EmailLimitationDialog();
 	}
 }

@@ -94,6 +94,7 @@ $MESS['LANDING_FORM_ACTIONS_SUCCESS_FIELD_TITLE'] = 'При успешной о�
 $MESS['LANDING_FORM_ACTIONS_FAILURE_FIELD_TITLE'] = 'При неуспешной отправке';
 $MESS['LANDING_FORM_ACTIONS_REFILL_CAPTION_FIELD_TITLE'] = 'Текст на кнопке обратного заполнения';
 $MESS['LANDING_FORM_ACTIONS_REFILL_CAPTION'] = 'Заполнить еще раз';
+$MESS['LANDING_FORM_ACTIONS_LINK_WARNING_MESSAGE'] = 'Ссылка должна начинаться с https://';
 
 $MESS['LANDING_FORM_ACTIONS_CHECKBOX_TITLE'] = 'Показывать кнопку «Заполнить ещё раз»';
 

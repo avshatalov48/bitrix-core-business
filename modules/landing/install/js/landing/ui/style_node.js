@@ -68,7 +68,6 @@
 			this.value = this.getValue();
 		},
 
-
 		getNode: function(all)
 		{
 			const elements = slice(this.iframe.document.querySelectorAll(this.relativeSelector));
@@ -88,7 +87,9 @@
 
 		getElementIndex: function(element)
 		{
-			return [].indexOf.call(this.getNode(true), element);
+			const index = [].indexOf.call(this.getNode(true), element);
+
+			return index === -1 ? 0 : index;
 		},
 
 

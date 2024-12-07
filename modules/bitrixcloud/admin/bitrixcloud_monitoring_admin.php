@@ -102,7 +102,7 @@ if (is_object($monitoringResults))
 	{
 		$arResult[] = [
 			'DOMAIN' => $domainName,
-			];
+		];
 	}
 }
 $rsData->InitFromArray($arResult);

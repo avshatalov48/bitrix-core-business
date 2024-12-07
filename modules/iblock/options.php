@@ -273,7 +273,7 @@ foreach($arAllOptions as $arOption)
 				if (isset($optionHints[$id]))
 				{
 					?><span id="hint_<?= $controlId; ?>"></span>
-					<script type="text/javascript">BX.hint_replace(BX('hint_<?=$controlId;?>'), '<?=\CUtil::JSEscape($optionHints[$id]); ?>');</script>&nbsp;<?php
+					<script>BX.hint_replace(BX('hint_<?=$controlId;?>'), '<?=\CUtil::JSEscape($optionHints[$id]); ?>');</script>&nbsp;<?php
 				}
 				?><label for="<?= $controlId; ?>"><?= htmlspecialcharsbx($arOption[1]); ?></label>
 			<td>
@@ -327,7 +327,7 @@ $tabControl->BeginNextTab();
 		}
 		?>
 		</table>
-		<script type="text/javascript">
+		<script>
 		function deleteRow(button)
 		{
 			var my_row = button.parentNode.parentNode,
@@ -406,7 +406,7 @@ $tabControl->Buttons();?>
 $tabControl->End();
 ?>
 </form>
-<script type="text/javascript">
+<script>
 function checkFeatures()
 {
 	var featureControl = BX('property_features_enabled');

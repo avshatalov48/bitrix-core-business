@@ -10,7 +10,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const RecentItem = {
 	  name: 'RecentItem',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  props: {
 	    item: {
@@ -25,9 +25,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    recentItem() {
 	      return this.item;
-	    },
-	    formattedCounter() {
-	      return this.dialog.counter > 99 ? '99+' : this.dialog.counter.toString();
 	    },
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.recentItem.dialogId, true);
@@ -47,6 +44,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    invitation() {
 	      return this.recentItem.invitation;
 	    },
+	    totalCounter() {
+	      return this.dialog.counter + this.channelCommentsCounter;
+	    },
+	    channelCommentsCounter() {
+	      return this.$store.getters['counters/getChannelCommentsCounter'](this.dialog.chatId);
+	    },
+	    formattedCounter() {
+	      return this.totalCounter > 99 ? '99+' : this.totalCounter.toString();
+	    },
 	    wrapClasses() {
 	      return {
 	        '--pinned': this.recentItem.pinned
@@ -54,7 +60,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    itemClasses() {
 	      return {
-	        '--no-counter': this.dialog.counter === 0
+	        '--no-counter': this.totalCounter === 0
 	      };
 	    }
 	  },
@@ -69,8 +75,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div :class="itemClasses" class="bx-im-list-recent-compact-item__container" ref="container">
 				<div class="bx-im-list-recent-compact-item__avatar_container">
 					<div v-if="invitation.isActive" class="bx-im-list-recent-compact-item__avatar_invitation"></div>
-					<Avatar v-else :dialogId="recentItem.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
-					<div v-if="dialog.counter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
+					<ChatAvatar 
+						v-else 
+						:contextDialogId="recentItem.dialogId"
+						:avatarDialogId="recentItem.dialogId"
+						:size="AvatarSize.M" 
+						:withSpecialTypes="false"
+					/>
+					<div v-if="totalCounter > 0" :class="{'--muted': isChatMuted}" class="bx-im-list-recent-compact-item__avatar_counter">
 						{{ formattedCounter }}
 					</div>
 				</div>
@@ -83,7 +95,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ActiveCall = {
 	  name: 'ActiveCall',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  props: {
 	    item: {
@@ -117,7 +129,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<div :data-id="activeCall.dialogId" class="bx-im-list-recent-compact-item__wrap">
 			<div @click="onClick" class="bx-im-list-recent-compact-item__container">
 				<div class="bx-im-list-recent-compact-item__avatar_container">
-					<Avatar :dialogId="activeCall.dialogId" :size="AvatarSize.M" :withSpecialTypes="false" />
+					<ChatAvatar 
+						:avatarDialogId="activeCall.dialogId"
+						:contextDialogId="activeCall.dialogId"
+						:size="AvatarSize.M" 
+						:withSpecialTypes="false" 
+					/>
 					<div class="bx-im-list-recent-compact-active-call__icon" :class="'--' + activeCall.state"></div>
 				</div>
 			</div>
@@ -171,8 +188,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return result;
 	      });
 	      return [...filteredCollection].sort((a, b) => {
-	        const firstDate = this.$store.getters['recent/getMessageDate'](a.dialogId);
-	        const secondDate = this.$store.getters['recent/getMessageDate'](b.dialogId);
+	        const firstDate = this.$store.getters['recent/getSortDate'](a.dialogId);
+	        const secondDate = this.$store.getters['recent/getSortDate'](b.dialogId);
 	        return secondDate - firstDate;
 	      });
 	    },
@@ -281,5 +298,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.RecentList = RecentList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Css,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Css,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements));
 //# sourceMappingURL=recent-compact.bundle.js.map

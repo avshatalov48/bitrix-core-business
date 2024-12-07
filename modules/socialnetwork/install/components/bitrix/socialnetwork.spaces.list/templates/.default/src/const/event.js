@@ -15,6 +15,7 @@ export const EventTypes = Object.freeze({
 	changeSpaceListState: 'socialnetwork:spacesList:changeSpaceListState',
 	recentActivityUpdate: 'socialnetwork:spacesList:recentActivityUpdate',
 	recentActivityDelete: 'socialnetwork:spacesList:recentActivityDelete',
+	recentActivityRemoveFromSpace: 'socialnetwork:spacesList:recentActivityRemoveFromSpace',
 	openSpaceFromContextMenu: 'socialnetwork:spacesList:openSpaceFromContextMenu',
 	changeMode: 'socialnetwork:spacesList:changeMode',
 });

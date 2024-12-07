@@ -3,6 +3,7 @@
 namespace Bitrix\Socialnetwork\Internals\Space\Counter;
 
 use Bitrix\Socialnetwork\Internals\EventService\Event;
+use Bitrix\Socialnetwork\Internals\EventService\Recepients\Recepient;
 use Bitrix\Socialnetwork\Internals\Space\Counter;
 
 class CounterController
@@ -14,7 +15,7 @@ class CounterController
 		$this->userId = $userId;
 	}
 
-	public function process(Event $event): void
+	public function process(Event $event, Recepient $user): void
 	{
 		if (!in_array($event->getType(), Dictionary::SUPPORTED_EVENTS, true))
 		{
@@ -22,6 +23,11 @@ class CounterController
 		}
 
 		Counter::getInstance($this->userId)->updateLeftMenuCounter();
+
+		if (!$user->isWatchingSpaces())
+		{
+			return;
+		}
 
 		(new PushSender())->createPush(
 			[$this->userId],

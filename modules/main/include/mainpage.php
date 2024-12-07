@@ -120,10 +120,8 @@ class CMainPage
 			$cur_page = GetPagePath();
 			if ($arSite["DIR"] != '')
 			{
-				global $REQUEST_URI;
-				$REQUEST_URI = $arSite["DIR"] . $cur_page;
-				$_SERVER["REQUEST_URI"] = $REQUEST_URI;
-				return $_SERVER["DOCUMENT_ROOT"] . $REQUEST_URI;
+				$_SERVER["REQUEST_URI"] = $arSite["DIR"] . $cur_page;
+				return $_SERVER["DOCUMENT_ROOT"] . $_SERVER["REQUEST_URI"];
 			}
 		}
 		return false;

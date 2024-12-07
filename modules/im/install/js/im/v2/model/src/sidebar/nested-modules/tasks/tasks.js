@@ -1,10 +1,12 @@
-import type { JsonObject } from 'main.core';
 import { Type } from 'main.core';
 import { BuilderModel } from 'ui.vue3.vuex';
+
+import { Core } from 'im.v2.application.core';
 
 import { sidebarTaskFieldsConfig } from './format/field-config';
 import { formatFieldsWithConfig } from '../../../utils/validate';
 
+import type { JsonObject } from 'main.core';
 import type { ImModelSidebarTaskItem } from '../../../registry';
 import type { GetterTree, ActionTree, MutationTree } from 'ui.vue3.vuex';
 
@@ -20,6 +22,13 @@ type ChatState = {
 	lastId: number
 }
 
+type TasksPayload = {
+	chatId?: number,
+	tasks?: Object[],
+	hasNextPage?: boolean,
+	lastId?: number,
+}
+
 /* eslint-disable no-param-reassign */
 export class TasksModel extends BuilderModel
 {
@@ -27,6 +36,8 @@ export class TasksModel extends BuilderModel
 	{
 		return {
 			collection: {},
+			collectionSearch: {},
+			historyLimitExceededCollection: {},
 		};
 	}
 
@@ -74,7 +85,16 @@ export class TasksModel extends BuilderModel
 
 				return [...state.collection[chatId].items.values()].sort((a, b) => b.id - a.id);
 			},
-			/** @function sidebar/tasks/hasNextPage */
+			/** @function sidebar/tasks/getSearchResultCollection */
+			getSearchResultCollection: (state) => (chatId: number): ImModelSidebarTaskItem[] => {
+				if (!state.collectionSearch[chatId])
+				{
+					return [];
+				}
+
+				return [...state.collectionSearch[chatId].items.values()].sort((a, b) => b.id - a.id);
+			},
+			/** @function sidebar/tasks/getSize */
 			getSize: (state) => (chatId: number): number => {
 				if (!state.collection[chatId])
 				{
@@ -101,6 +121,25 @@ export class TasksModel extends BuilderModel
 
 				return state.collection[chatId].lastId;
 			},
+			/** @function sidebar/tasks/getSearchResultCollectionLastId */
+			getSearchResultCollectionLastId: (state) => (chatId: number): boolean => {
+				if (!state.collectionSearch[chatId])
+				{
+					return false;
+				}
+
+				return state.collectionSearch[chatId].lastId;
+			},
+			/** @function sidebar/tasks/isHistoryLimitExceeded */
+			isHistoryLimitExceeded: (state) => (chatId: number): boolean => {
+				const isAvailable = Core.getStore().getters['application/tariffRestrictions/isHistoryAvailable'];
+				if (isAvailable)
+				{
+					return false;
+				}
+
+				return state.historyLimitExceededCollection[chatId] ?? false;
+			},
 		};
 	}
 
@@ -109,11 +148,13 @@ export class TasksModel extends BuilderModel
 		return {
 			/** @function sidebar/tasks/set */
 			set: (store, payload) => {
-				const { chatId, tasks, hasNextPage, lastId } = payload;
-				if (!Type.isArrayFilled(tasks) || !Type.isNumber(chatId))
+				const { chatId, tasks, hasNextPage, lastId, isHistoryLimitExceeded = false } = payload;
+				if (!Type.isNumber(chatId))
 				{
 					return;
 				}
+
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
 
 				if (!Type.isNil(hasNextPage))
 				{
@@ -128,6 +169,34 @@ export class TasksModel extends BuilderModel
 				tasks.forEach((task) => {
 					const preparedTask = { ...this.getElementState(), ...this.formatFields(task) };
 					store.commit('add', { chatId, task: preparedTask });
+				});
+			},
+			/** @function sidebar/tasks/clearSearch */
+			clearSearch: (store) => {
+				store.commit('clearSearch', {});
+			},
+			/** @function sidebar/tasks/setSearch */
+			setSearch: (store, payload: TasksPayload) => {
+				const { chatId, tasks, hasNextPage, lastId, isHistoryLimitExceeded = false } = payload;
+				if (!Type.isNumber(chatId))
+				{
+					return;
+				}
+
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
+				if (!Type.isNil(hasNextPage))
+				{
+					store.commit('setHasNextPageSearch', { chatId, hasNextPage });
+				}
+
+				if (!Type.isNil(lastId))
+				{
+					store.commit('setLastIdSearch', { chatId, lastId });
+				}
+
+				tasks.forEach((task) => {
+					const preparedTask = { ...this.getElementState(), ...this.formatFields(task) };
+					store.commit('addSearch', { chatId, task: preparedTask });
 				});
 			},
 			/** @function sidebar/tasks/delete */
@@ -162,8 +231,24 @@ export class TasksModel extends BuilderModel
 
 				state.collection[chatId].items.set(task.id, task);
 			},
+			addSearch: (state, payload: {chatId: number, task: ImModelSidebarTaskItem}) => {
+				const { chatId, task } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].items.set(task.id, task);
+			},
 			delete: (state, payload: {id: number, chatId: number}) => {
 				const { id, chatId } = payload;
+				const hasCollectionSearch = !Type.isNil(state.collectionSearch[chatId]);
+				if (hasCollectionSearch)
+				{
+					state.collectionSearch[chatId].items.delete(id);
+				}
 				state.collection[chatId].items.delete(id);
 			},
 			setHasNextPage: (state, payload) => {
@@ -177,6 +262,17 @@ export class TasksModel extends BuilderModel
 
 				state.collection[chatId].hasNextPage = hasNextPage;
 			},
+			setHasNextPageSearch: (state, payload: TasksPayload) => {
+				const { chatId, hasNextPage } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].hasNextPage = hasNextPage;
+			},
 			setLastId: (state, payload) => {
 				const { chatId, lastId } = payload;
 
@@ -187,6 +283,29 @@ export class TasksModel extends BuilderModel
 				}
 
 				state.collection[chatId].lastId = lastId;
+			},
+			setLastIdSearch: (state, payload: TasksPayload) => {
+				const { chatId, lastId } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].lastId = lastId;
+			},
+			clearSearch: (state) => {
+				state.collectionSearch = {};
+			},
+			setHistoryLimitExceeded: (state, payload) => {
+				const { chatId, isHistoryLimitExceeded } = payload;
+				if (state.historyLimitExceededCollection[chatId] && !isHistoryLimitExceeded)
+				{
+					return;
+				}
+
+				state.historyLimitExceededCollection[chatId] = isHistoryLimitExceeded;
 			},
 		};
 	}

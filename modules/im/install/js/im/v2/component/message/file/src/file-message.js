@@ -2,19 +2,18 @@ import { FileType } from 'im.v2.const';
 import { UnsupportedMessage } from 'im.v2.component.message.unsupported';
 import { Utils } from 'im.v2.lib.utils';
 
-import { ImageMessage } from './components/image-message';
+import { MediaMessage } from './components/media-message';
 import { BaseFileMessage } from './components/base-file-message';
-import { VideoMessage } from './components/video-message';
 import { AudioMessage } from './components/audio-message';
+import { FileCollectionMessage } from './components/file-collection-message';
 
 import type { ImModelMessage, ImModelFile } from 'im.v2.model';
 
 const FileMessageType = Object.freeze({
-	image: 'ImageMessage',
+	media: 'MediaMessage',
 	audio: 'AudioMessage',
-	video: 'VideoMessage',
 	base: 'BaseFileMessage',
-	collection: 'CollectionFileMessage',
+	collection: 'FileCollectionMessage',
 });
 
 // @vue/component
@@ -22,10 +21,10 @@ export const FileMessage = {
 	name: 'FileMessage',
 	components: {
 		BaseFileMessage,
-		ImageMessage,
-		VideoMessage,
+		MediaMessage,
 		AudioMessage,
 		UnsupportedMessage,
+		FileCollectionMessage,
 	},
 	props: {
 		item: {
@@ -68,14 +67,23 @@ export const FileMessage = {
 
 			return files;
 		},
+		isGallery(): boolean
+		{
+			return this.messageFiles.every((file) => [FileType.image, FileType.video].includes(file.type));
+		},
 		componentName(): string
 		{
+			if (this.messageFiles.length > 1)
+			{
+				return this.isGallery ? FileMessageType.media : FileMessageType.collection;
+			}
+
 			const file = this.messageFiles[0];
 			const hasPreview = Boolean(file.image);
 
 			if (file.type === FileType.image && hasPreview)
 			{
-				return FileMessageType.image;
+				return FileMessageType.media;
 			}
 
 			if (file.type === FileType.audio)
@@ -87,7 +95,7 @@ export const FileMessage = {
 			const isVideo = file.type === FileType.video || Utils.file.getFileExtension(file.name) === 'mkv';
 			if (isVideo && hasPreview)
 			{
-				return FileMessageType.video;
+				return FileMessageType.media;
 			}
 
 			return FileMessageType.base;

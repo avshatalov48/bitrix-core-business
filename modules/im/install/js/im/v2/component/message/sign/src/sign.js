@@ -17,6 +17,7 @@ import type { SignMessageComponentParams } from './const/sign';
 const PARAMS_KEY = {
 	STAGE_ID: 'stageId',
 	USER: 'user',
+	INITIATOR: 'initiator',
 	DOCUMENT: 'document',
 	HELP_ARTICLE: 'helpArticle',
 };
@@ -53,6 +54,10 @@ export const SignMessage = {
 		user(): ?Object
 		{
 			return this.componentParams[PARAMS_KEY.USER];
+		},
+		initiator(): ?Object
+		{
+			return this.componentParams[PARAMS_KEY.INITIATOR];
 		},
 		document(): ?Object
 		{
@@ -116,14 +121,16 @@ export const SignMessage = {
 		{
 			let text = phrase ?? '';
 			const userLink = Utils.user.getProfileLink(this.user?.id);
-			const articleLink = `javascript: BX.Helper?.show('redirect=detail&code=${this.helpArticle}')`;
+			const initiatorLink = Utils.user.getProfileLink(this.initiator?.id);
+			const articleLink = `BX.Helper?.show('redirect=detail&code=${this.helpArticle}')`;
 			const LINK_CLASS = 'bx-im-message-sign__link';
 			const DOCUMENT_CLASS = 'bx-im-message-sign__document';
 
 			const phrases = {
 				'#DOCUMENT_NAME#': `<span class="${DOCUMENT_CLASS}">${Text.encode(this.document?.name)}</span>`,
 				'#USER_LINK#': `<a href="${userLink}" class="${LINK_CLASS}">${Text.encode(this.user?.name)}</a>`,
-				'[helpdesklink]': `<a href="${articleLink}" class="${LINK_CLASS}">`,
+				'#INITIATOR_LINK#': `<a href="${initiatorLink}" class="${LINK_CLASS}">${Text.encode(this.initiator?.name)}</a>`,
+				'[helpdesklink]': `<a onclick="${articleLink}" class="${LINK_CLASS}">`,
 				'[/helpdesklink]': '</a>',
 			};
 
@@ -140,6 +147,8 @@ export const SignMessage = {
 			v-else
 			:dialogId="dialogId"
 			:item="item"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
 			class="bx-im-message-sign__scope"
 		>

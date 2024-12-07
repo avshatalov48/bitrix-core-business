@@ -142,7 +142,7 @@ $MESS["CL_QSEC0020_DESC"] = "Administrative user accounts have higher security l
 $MESS["CL_QSEC0030_DESC"] = "Assigned permissions to the user groups; verified the capabilities of members of each user group in Control Panel (\"/bitrix/admin\") when authorized. Any excessive permissions must be unavailable.";
 $MESS["CL_QSEC0040_DESC"] = "The developer test accounts deleted. Test data and pages deleted.";
 $MESS["CL_QSEC0050_DESC"] = "A strong password is used for database connection; required database privileges are all set (not root).";
-$MESS["CL_QSEC0060_DESC"] = "Debug mode is off; no errors or warnings are shown: \$DBDebug - disabled (http://www.bitrixsoft.com/help/source/main/help/en/developer/general/magic_vars.php.html); inspect at Settings > System Settings > Module Settings > Kernel (Main): \"Error reporting mode\" -> \"None\".";
+$MESS["CL_QSEC0060_DESC"] = "Debug mode is off; no errors or warnings are shown: \$DBDebug - disabled (https://www.bitrixsoft.com/help/source/main/help/en/developer/general/magic_vars.php.html); inspect at Settings > System Settings > Module Settings > Kernel (Main): \"Error reporting mode\" -> \"None\".";
 $MESS["CL_QSEC0070_DESC"] = "System event log is on.";
 $MESS["CL_QSEC0080_DESC"] = "Scans your source code for possible vulnerabilities.";
 $MESS["CL_QSEC0090_DESC"] = "No issues have been detected in \"Settings > Proactive Protection > <a href=\"/bitrix/admin/security_scanner.php\" target=\"_blank\">Security Scanner</a>\" area. Security scan results are not outdated.";

@@ -4,7 +4,7 @@
 
 <div id="pull-events-box"></div>
 
-<script type="text/javascript">
+<script>
 	function sendRealtimeEvent()
 	{
 		BX.ajax({

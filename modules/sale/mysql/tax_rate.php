@@ -14,7 +14,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 		$strSql =
 			"INSERT INTO b_sale_tax_rate(".$arInsert[0].", TIMESTAMP_X) ".
 			"VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -54,7 +54,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 			else
 				$bInvert = false;
 
-			switch (ToUpper($key))
+			switch (mb_strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "TR.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -151,8 +151,8 @@ class CSaleTaxRate extends CAllSaleTaxRate
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC")
 				$order = "DESC";
 
@@ -187,7 +187,7 @@ class CSaleTaxRate extends CAllSaleTaxRate
 		$strSql .= $strSqlOrder;
 		//echo "<br>".htmlspecialcharsbx($strSql)."<br>";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 }

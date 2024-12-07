@@ -1,5 +1,5 @@
 import { BaseEvent } from 'main.core.events';
-import { getFilesFromDataTransfer } from 'ui.uploader.core';
+import { getFilesFromDataTransfer, isFilePasted } from 'ui.uploader.core';
 import { runAction } from 'im.v2.lib.rest';
 
 import { Core } from 'im.v2.application.core';
@@ -55,6 +55,27 @@ type UploadFilesParams = {
 	sendAsFile: boolean
 }
 
+type UploadFromClipboardParams = {
+	clipboardEvent: ClipboardEvent,
+	dialogId: string,
+	autoUpload: boolean,
+	imagesOnly: boolean,
+}
+
+type UploadFromInputParams = {
+	event: InputEvent,
+	dialogId: string,
+	autoUpload: boolean,
+	sendAsFile: boolean,
+}
+
+type UploadFromDragAndDrop = {
+	event: DragEvent,
+	dialogId: string,
+	autoUpload: boolean,
+	sendAsFile: boolean,
+}
+
 export class UploadingService
 {
 	#store: Store;
@@ -93,6 +114,82 @@ export class UploadingService
 		this.#initUploader();
 	}
 
+	async uploadFromClipboard(params: UploadFromClipboardParams): Promise<{files: UploaderFile[], uploaderId: string}>
+	{
+		const { clipboardEvent, dialogId, autoUpload, imagesOnly } = params;
+
+		const { clipboardData } = clipboardEvent;
+		if (!clipboardData || !isFilePasted(clipboardData))
+		{
+			return '';
+		}
+
+		clipboardEvent.preventDefault();
+
+		let files: File[] = await getFilesFromDataTransfer(clipboardData);
+		if (imagesOnly)
+		{
+			files = files.filter((file) => Utils.file.isImage(file.name));
+			if (imagesOnly.length === 0)
+			{
+				return '';
+			}
+		}
+
+		const { uploaderFiles, uploaderId } = await this.#addFiles({
+			files,
+			dialogId,
+			autoUpload,
+		});
+
+		if (uploaderFiles.length === 0)
+		{
+			return '';
+		}
+
+		return uploaderId;
+	}
+
+	async uploadFromInput(params: UploadFromInputParams): Promise<string>
+	{
+		const { event, sendAsFile, autoUpload, dialogId } = params;
+		const rawFiles = Object.values(event.target.files);
+		if (rawFiles.length === 0)
+		{
+			return '';
+		}
+
+		const { uploaderId } = await this.#addFiles({
+			files: rawFiles,
+			dialogId,
+			autoUpload,
+			sendAsFile,
+		});
+
+		return uploaderId;
+	}
+
+	async uploadFromDragAndDrop(params: UploadFromDragAndDrop): Promise<string>
+	{
+		const { event, dialogId, autoUpload, sendAsFile } = params;
+		event.preventDefault();
+
+		const rawFiles = await getFilesFromDataTransfer(event.dataTransfer);
+		if (rawFiles.length === 0)
+		{
+			return '';
+		}
+
+		const { uploaderId } = await this.#addFiles({
+			files: rawFiles,
+			dialogId,
+			autoUpload,
+			sendAsFile,
+		});
+
+		return uploaderId;
+	}
+
 	#createUploader(params: { dialogId: string, autoUpload: boolean }): Promise<string>
 	{
 		const { dialogId, autoUpload } = params;
@@ -110,41 +207,7 @@ export class UploadingService
 		});
 	}
 
-	addFilesFromClipboard(clipboardData: DataTransfer, dialogId): Promise<{files: UploaderFile[], uploaderId: string}>
-	{
-		return getFilesFromDataTransfer(clipboardData).then((files: File[]) => {
-			const imagesOnly = files.filter((file) => Utils.file.isImage(file.name));
-			if (imagesOnly.length === 0)
-			{
-				return {
-					files: [],
-					uploaderId: '',
-				};
-			}
-
-			return this.addFiles({
-				files: imagesOnly,
-				dialogId,
-				autoUpload: false,
-			});
-		});
-	}
-
-	addFilesFromInput(files: File[], dialogId: string, sendAsFile: boolean)
-	{
-		if (files.length === 0)
-		{
-			return;
-		}
-
-		this.addFiles({ files, dialogId, autoUpload: true, sendAsFile }).then(({ uploaderId }) => {
-			this.#tryToSendMessages(uploaderId);
-		}).catch((error) => {
-			Logger.error('SendingService: sendFilesFromInput error', error);
-		});
-	}
-
-	addFiles(params: UploadFilesParams): Promise<{files: UploaderFile[], uploaderId: string}>
+	#addFiles(params: UploadFilesParams): Promise<{uploaderFiles: UploaderFile[], uploaderId: string}>
 	{
 		const { files, dialogId, autoUpload, sendAsFile = false } = params;
 
@@ -159,7 +222,7 @@ export class UploadingService
 			this.#registerFiles(uploaderId, addedFiles, dialogId, autoUpload);
 
 			return {
-				files: addedFiles,
+				uploaderFiles: addedFiles,
 				uploaderId,
 			};
 		});
@@ -414,6 +477,7 @@ export class UploadingService
 			chatId: file.getCustomData('chatId'),
 			authorId: Core.getUserId(),
 			name: fileBinary.name,
+			size: file.getSize(),
 			type: this.#getFileType(fileBinary),
 			extension: this.#getFileExtension(fileBinary),
 			status: file.isFailed() ? FileStatus.error : FileStatus.progress,

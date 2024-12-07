@@ -246,7 +246,7 @@ class PhraseIndexSearch
 		// search by code
 		if (!empty($filterIn['INCLUDE_PHRASE_CODES']))
 		{
-			$codes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['INCLUDE_PHRASE_CODES']);
+			$codes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['INCLUDE_PHRASE_CODES']);
 			$codes = \array_filter($codes);
 			if (\count($codes) > 0)
 			{
@@ -272,7 +272,7 @@ class PhraseIndexSearch
 		}
 		if (!empty($filterIn['EXCLUDE_PHRASE_CODES']))
 		{
-			$codes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['EXCLUDE_PHRASE_CODES']);
+			$codes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['EXCLUDE_PHRASE_CODES']);
 			$codes = \array_filter($codes);
 			if (\count($codes) > 0)
 			{
@@ -371,7 +371,7 @@ class PhraseIndexSearch
 
 		if (!empty($filterIn['INCLUDE_PATHS']))
 		{
-			$pathIncludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['INCLUDE_PATHS']);
+			$pathIncludes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['INCLUDE_PATHS']);
 			$pathIncludes = \array_filter($pathIncludes);
 			if (\count($pathIncludes) > 0)
 			{
@@ -422,7 +422,7 @@ class PhraseIndexSearch
 		}
 		if (!empty($filterIn['EXCLUDE_PATHS']))
 		{
-			$pathExcludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['EXCLUDE_PATHS']);
+			$pathExcludes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['EXCLUDE_PATHS']);
 			$pathExcludes = \array_filter($pathExcludes);
 			if (\count($pathExcludes) > 0)
 			{
@@ -544,7 +544,7 @@ class PhraseIndexSearch
 							// identical full text match
 							// MATCH(PHRASE) AGAINST ('+smth' IN BOOLEAN MODE)
 							//$phraseSearch["*={$fieldAlias}"] = $fulltextIndexSearchStr;
-							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, " +", $fulltextIndexSearchStr);
+							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/iu", " +", $fulltextIndexSearchStr);
 							$runtime[] = (new ExpressionField(
 								'PHRASE_FTS',
 								"MATCH (%s) AGAINST ('({$fulltextIndexSearchStr})')",
@@ -557,7 +557,7 @@ class PhraseIndexSearch
 							// partial full text match
 							// MATCH(PHRASE) AGAINST ('+smth*' IN BOOLEAN MODE)
 							//$phraseSearch["*{$fieldAlias}"] = $fulltextIndexSearchStr;
-							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, "* +", $fulltextIndexSearchStr) . "*";
+							$fulltextIndexSearchStr = "+" . \preg_replace("/\s+/iu", "* +", $fulltextIndexSearchStr) . "*";
 							$runtime[] = (new ExpressionField(
 								'PHRASE_FTS',
 								"MATCH (%s) AGAINST ('({$fulltextIndexSearchStr})')",
@@ -602,22 +602,23 @@ class PhraseIndexSearch
 				elseif (self::disallowFtsIndex($langId))
 				{
 					//todo: preg_replace has bug when replaces Thai unicode Non-spacing mark
-					$likeStr = "%%" . \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, "%%", $str) . "%%";
+					$likeStr = "%%" . \preg_replace("/\s+/iu", "%%", $str) . "%%";
 				}
 				else
 				{
-					$likeStr = "%%" . \preg_replace("/\W+/i" . \BX_UTF_PCRE_MODIFIER, "%%", $str) . "%%";
+					$likeStr = "%%" . \preg_replace("/\W+/iu", "%%", $str) . "%%";
 				}
+				$likeStr = str_replace('%%%%', '%%', $likeStr);
 
 				if (self::allowICURegularExpression())
 				{
-					$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
+					$regStr = \preg_replace("/\s+/iu", '[[:blank:]]+', $str);
 				}
 				else
 				{
 					if ($case)
 					{
-						$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $str);
+						$regStr = \preg_replace("/\s+/iu", '[[:blank:]]+', $str);
 					}
 					else
 					{
@@ -646,13 +647,14 @@ class PhraseIndexSearch
 								$regStr .= $c0;
 							}
 						}
-						$regStr = \preg_replace("/\s+/i" . \BX_UTF_PCRE_MODIFIER, '[[:blank:]]+', $regStr);
+						$regStr = \preg_replace("/\s+/iu", '[[:blank:]]+', $regStr);
 					}
 				}
+				$regStr = str_replace('%', '%%', $regStr);
 
 				$regExpStart = '';
 				$regExpEnd = '';
-				if (\preg_match("/^[[:alnum:]]+/i" . \BX_UTF_PCRE_MODIFIER, $str))
+				if (\preg_match("/^[[:alnum:]]+/iu", $str))
 				{
 					if (self::allowICURegularExpression())
 					{
@@ -663,7 +665,7 @@ class PhraseIndexSearch
 						$regExpStart = '[[:<:]]';
 					}
 				}
-				if (\preg_match("/[[:alnum:]]+$/i" . \BX_UTF_PCRE_MODIFIER, $str))
+				if (\preg_match("/[[:alnum:]]+$/iu", $str))
 				{
 					if (self::allowICURegularExpression())
 					{
@@ -810,17 +812,17 @@ class PhraseIndexSearch
 	{
 		$minLengthFulltextWorld = self::getFullTextMinLength();
 
-		$text = \preg_replace("/\b\w{1,{$minLengthFulltextWorld}}\b/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = \preg_replace("/\b\w{1,{$minLengthFulltextWorld}}\b/iu", '', $text);
 
 		$stopWorlds = self::getFullTextStopWords();
 		foreach ($stopWorlds as $stopWorld)
 		{
-			$text = \preg_replace("/\b{$stopWorld}\b/i".\BX_UTF_PCRE_MODIFIER, '', $text);
+			$text = \preg_replace("/\b{$stopWorld}\b/iu", '', $text);
 		}
 
-		$text = \preg_replace("/^\W+/i".\BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = \preg_replace("/\W+$/i".\BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = \preg_replace("/\W+/i".\BX_UTF_PCRE_MODIFIER, ' ', $text);
+		$text = \preg_replace("/^\W+/iu", '', $text);
+		$text = \preg_replace("/\W+$/iu", '', $text);
+		$text = \preg_replace("/\W+/iu", ' ', $text);
 
 		return $text;
 	}

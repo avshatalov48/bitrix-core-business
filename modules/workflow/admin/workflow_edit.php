@@ -8,7 +8,6 @@ if ($WORKFLOW_RIGHT == "D")
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/workflow/include.php");
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","workflow_list.php");
 $fname = $_REQUEST["fname"];
 $message = null;
@@ -196,7 +195,7 @@ if ($del_id > 0 && $WORKFLOW_RIGHT > "R" && check_bitrix_sessid())
 if($ID > 0)
 {
 	// check if it is exists in the database
-	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID='$ID'", false, $err_mess.__LINE__);
+	$z = $DB->Query("SELECT ID FROM b_workflow_document WHERE ID='$ID'");
 	if (!($zr=$z->Fetch()))
 	{
 		if($fname <> '')
@@ -395,7 +394,7 @@ if (
 								"FILENAME" => "'".$DB->ForSql($pathto, 255)."'",
 								"FILESIZE" => intval($arFile["size"]),
 							);
-							$FILE_ID = $DB->Insert("b_workflow_file", $arFields, $err_mess.__LINE__);
+							$FILE_ID = $DB->Insert("b_workflow_file", $arFields);
 							$arUploadedFiles[] = intval($FILE_ID);
 						}
 					}
@@ -646,7 +645,7 @@ CAdminMessage::ShowNote($strNote);
 $tabControl->Begin();
 
 ?>
-<script type="text/javascript">
+<script>
 function NewFileName(ob, counter)
 {
 	var str_fname;

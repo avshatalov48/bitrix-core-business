@@ -481,10 +481,9 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 
 		$postData = static::encode($params);
 		PaySystem\Logger::addDebugInfo(
-			static::class.': request data: '.Main\Text\Encoding::convertEncoding($postData, 'UTF-8', LANG_CHARSET)
+			static::class.': request data: '.$postData
 		);
 
-		$params = (array)Main\Text\Encoding::convertEncoding($params, LANG_CHARSET, 'UTF-8');
 		$response = $httpClient->post($url, $params);
 		if ($response === false)
 		{
@@ -498,7 +497,7 @@ class SberbankOnlineHandler extends PaySystem\ServiceHandler implements PaySyste
 		}
 
 		PaySystem\Logger::addDebugInfo(
-			static::class.': response data: '.Main\Text\Encoding::convertEncoding($response, 'UTF-8', LANG_CHARSET)
+			static::class.': response data: '.$response
 		);
 
 		$response = static::decode($response);

@@ -33,7 +33,7 @@
 	const LONG_POLLING_TIMEOUT = 60;
 	const RESTORE_WEBSOCKET_TIMEOUT = 30 * 60;
 	const CONFIG_TTL = 24 * 60 * 60;
-	const CONFIG_CHECK_INTERVAL = 60000;
+	const CONFIG_CHECK_INTERVAL = 60 * 1000;
 	const MAX_IDS_TO_STORE = 10;
 	const OFFLINE_STATUS_DELAY = 5000;
 
@@ -197,11 +197,11 @@
 
 			if (typeof params.configTimestamp !== 'undefined')
 			{
-				this.configTimestamp = params.configTimestamp;
+				this.configTimestamp = Number(params.configTimestamp);
 			}
 			else if (typeof BX.message !== 'undefined' && BX.message.pull_config_timestamp)
 			{
-				this.configTimestamp = BX.message.pull_config_timestamp;
+				this.configTimestamp = Number(BX.message.pull_config_timestamp);
 			}
 			else
 			{
@@ -1134,7 +1134,7 @@
 				return false;
 			}
 
-			if (config.server.config_timestamp < this.configTimestamp)
+			if (Number(config.server.config_timestamp) !== this.configTimestamp)
 			{
 				return false;
 			}
@@ -1220,6 +1220,8 @@
 			{
 				this.setPublicIds(Utils.objectValues(config.publicChannels));
 			}
+
+			this.configTimestamp = Number(config.server.config_timestamp);
 
 			if (this.storage && allowCaching)
 			{

@@ -101,7 +101,10 @@ class CBPCreateListsDocumentActivity extends CBPCreateDocumentActivity
 			$fieldsMap = [];
 			foreach ($resultFields as $key => $field)
 			{
-				$fieldsMap[$key] = $documentFields[$key];
+				if (array_key_exists($key, $documentFields))
+				{
+					$fieldsMap[$key] = $documentFields[$key];
+				}
 			}
 
 			$this->logDebugFields($fieldsMap, $resultFields);

@@ -142,5 +142,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.UserStatusManager = UserStatusManager;
 
-}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Lib = this.BX.Messenger.v2.Lib || {}),BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Service));
 //# sourceMappingURL=user-status.bundle.js.map

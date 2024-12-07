@@ -51,6 +51,7 @@ $MESS["SALE_CHECK_ID"] = "Receipt #";
 $MESS["SALE_CHECK_LOOK"] = "View";
 $MESS["SALE_CHECK_PAYMENTS_PAID"] = "Paid";
 $MESS["SALE_CHECK_PAYMENTS_UNPAID"] = "Unpaid";
+$MESS["SALE_CHECK_REPRINT"] = "Print again";
 $MESS["SALE_F_CASHBOX"] = "Cash Registers";
 $MESS["SALE_F_CHECK_CREATE"] = "Receipt created on";
 $MESS["SALE_F_FROM"] = "from";

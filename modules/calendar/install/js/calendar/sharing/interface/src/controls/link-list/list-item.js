@@ -5,8 +5,7 @@ import { MenuManager, Menu } from 'main.popup';
 import { MessageBox } from 'ui.dialogs.messagebox';
 import { Button, ButtonSize, ButtonColor } from 'ui.buttons';
 import { EventEmitter } from 'main.core.events';
-import 'ui.icon-set.actions'
-
+import 'ui.icon-set.actions';
 
 const MAX_AVATAR_COUNT = 4;
 
@@ -35,6 +34,7 @@ export default class ListItem
 		copyButton: HTMLElement,
 		deleteButton: HTMLElement,
 	};
+
 	#avatarPopup: Menu;
 	#deletePopup: MessageBox;
 
@@ -113,7 +113,7 @@ export default class ListItem
 	{
 		return Tag.render`
 			<div class="calendar-sharing__dialog-link-list-item-more">
-				<div class="calendar-sharing__dialog-link-list-item-more-text">${'+' + counter}</div>
+				<div class="calendar-sharing__dialog-link-list-item-more-text">${`+${counter}`}</div>
 			</div>
 		`;
 	}
@@ -125,7 +125,7 @@ export default class ListItem
 			const uid = BX.util.getRandomString(6);
 
 			this.#avatarPopup = MenuManager.create({
-				id: 'calendar-sharing-dialog_' + uid,
+				id: `calendar-sharing-dialog_${uid}`,
 				bindElement: this.#layout.avatarContainer,
 				bindOptions: {
 					position: 'top',
@@ -143,6 +143,7 @@ export default class ListItem
 
 			const menuContainer = this.#avatarPopup.getMenuContainer();
 
+			// eslint-disable-next-line init-declarations
 			let timeout;
 
 			Event.bind(menuContainer, 'mouseleave', () => {
@@ -252,7 +253,7 @@ export default class ListItem
 
 	renderDeleteButton(): HTMLElement
 	{
-		if (!this.#props.members.length)
+		if (this.#props.members.length === 0)
 		{
 			return Tag.render`<div class="calendar-sharing__dialog-link-list-item-delete"></div>`;
 		}
@@ -306,7 +307,7 @@ export default class ListItem
 			new Button({
 				size: ButtonSize.MEDIUM,
 				color: ButtonColor.DANGER,
-				text: Loc.getMessage('SHARING_WARNING_POPUP_DELETE'),
+				text: Loc.getMessage('SHARING_WARNING_POPUP_SUBMIT_BUTTON_NEW_MSGVER_1'),
 				events: {
 					click: () => {
 						this.deleteLink();

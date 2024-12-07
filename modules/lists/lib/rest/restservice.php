@@ -594,7 +594,7 @@ class RestService extends \IRestService
 		}
 
 		$element = new Element($param);
-		if (is_array($params["FILTER"]))
+		if (is_array($params["FILTER"] ?? null))
 		{
 			list($availableFields, $listCustomFields) = $element->getAvailableFields();
 			$element->resultSanitizeFilter = self::getSanitizeFilter(

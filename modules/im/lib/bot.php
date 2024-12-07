@@ -781,7 +781,7 @@ class Bot
 			$joinFields['CHAT_TYPE'] != IM_MESSAGE_PRIVATE
 			&& $bot['TYPE'] == self::TYPE_SUPERVISOR
 			&& (empty($joinFields['SILENT_JOIN']) || $joinFields['SILENT_JOIN'] !== 'Y') // suppress any system message
-			&& $bot['CODE'] !== CopilotChatBot::BOT_CODE
+			&& $bot['CODE'] !== 'copilot' /** @see \Bitrix\Imbot\Bot\CopilotChatBot::BOT_CODE */
 		)
 		{
 			\CIMMessenger::Add(Array(
@@ -823,6 +823,9 @@ class Bot
 				$joinFields['CHAT_TYPE'] == IM_MESSAGE_CHAT
 				|| $joinFields['CHAT_TYPE'] == IM_MESSAGE_OPEN_LINE
 				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COPILOT
+				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_CHANNEL
+				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_OPEN_CHANNEL
+				|| $joinFields['CHAT_TYPE'] == \Bitrix\Im\V2\Chat::IM_TYPE_COMMENT
 			)
 			&& $joinFields['FROM_USER_ID'] != $joinFields['BOT_ID']
 		)

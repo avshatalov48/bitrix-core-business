@@ -1,11 +1,13 @@
-import { SocialVideo } from 'ui.vue3.components.socialvideo';
+import { Type } from 'main.core';
 
 import { Utils } from 'im.v2.lib.utils';
+import { VideoPlayer } from	'im.v2.component.elements';
+
 import { ProgressBar } from './progress-bar';
 
 import '../../css/items/video.css';
 
-import type { ImModelFile } from 'im.v2.model';
+import type { ImModelFile, ImModelMessage } from 'im.v2.model';
 
 const VIDEO_SIZE_TO_AUTOPLAY = 5_000_000;
 const MAX_WIDTH = 420;
@@ -18,23 +20,27 @@ const DEFAULT_HEIGHT = 180;
 // @vue/component
 export const VideoItem = {
 	name: 'VideoItem',
-	components: { SocialVideo, ProgressBar },
+	components: { VideoPlayer, ProgressBar },
 	props:
 	{
-		item: {
-			type: Object,
+		id: {
+			type: [String, Number],
 			required: true,
 		},
-		messageId: {
-			type: [String, Number],
+		message: {
+			type: Object,
 			required: true,
 		},
 	},
 	computed:
 	{
+		messageItem(): ImModelMessage
+		{
+			return this.message;
+		},
 		file(): ImModelFile
 		{
-			return this.item;
+			return this.$store.getters['files/get'](this.id, true);
 		},
 		autoplay(): boolean
 		{
@@ -93,6 +99,10 @@ export const VideoItem = {
 		{
 			return this.file.progress === 100;
 		},
+		isForward(): boolean
+		{
+			return Type.isStringFilled(this.messageItem.forward.id);
+		},
 	},
 	methods:
 	{
@@ -106,28 +116,22 @@ export const VideoItem = {
 			const url = this.file.urlDownload ?? this.file.urlShow;
 			window.open(url, '_blank');
 		},
-		getPlayCallback()
-		{
-			if (this.autoplay)
-			{
-				return null;
-			}
-
-			return () => {};
-		},
 	},
 	template: `
-		<div @click="download" class="bx-im-video-item__container bx-im-video-item__scope">
-			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageId" />
-			<SocialVideo
-				v-bind="viewerAttributes"
-				:id="file.id"
+		<div
+			class="bx-im-video-item__container bx-im-video-item__scope"
+			:class="{'--with-forward': isForward}"
+			@click="download"
+		>
+			<ProgressBar v-if="!isLoaded" :item="file" :messageId="messageItem.id" />
+			<VideoPlayer
+				:fileId="file.id"
 				:src="file.urlShow"
-				:preview="file.urlPreview"
+				:previewImageUrl="file.urlPreview"
 				:elementStyle="imageSize"
-				:autoplay="autoplay"
-				:showControls="isLoaded"
-				:playCallback="getPlayCallback()"
+				:withAutoplay="autoplay"
+				:withPlayerControls="isLoaded"
+				:viewerAttributes="viewerAttributes"
 			/>
 		</div>
 	`,

@@ -1,13 +1,21 @@
 import { Event, Loc, Tag } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
+type Params = {
+	canUse: boolean,
+}
+
 export class ChatAction extends EventEmitter
 {
-	constructor()
+	#canUse: boolean;
+
+	constructor(params: Params)
 	{
 		super();
 
 		this.setEventNamespace('BX.Socialnetwork.Spaces.Settings.ChatAction');
+
+		this.#canUse = params.canUse === true;
 	}
 
 	render(): HTMLElement
@@ -16,11 +24,13 @@ export class ChatAction extends EventEmitter
 		const openChatId = 'spaces-settings-open-chat';
 		const createChatId = 'spaces-settings-create-chat';
 
+		const disabled = this.#canUse ? '' : '--disabled';
+
 		const node = Tag.render`
 			<div class="sn-spaces__popup-communication">
 				<div
 					data-id="${videoCallId}"
-					class="sn-spaces__popup-communication-item"
+					class="sn-spaces__popup-communication-item ${disabled}"
 				>
 					<div
 						class="ui-icon-set --video-1"
@@ -32,7 +42,7 @@ export class ChatAction extends EventEmitter
 				</div>
 				<div
 					data-id="${openChatId}"
-					class="sn-spaces__popup-communication-item"
+					class="sn-spaces__popup-communication-item ${disabled}"
 				>
 					<div
 						class="ui-icon-set --chat-1"
@@ -44,7 +54,7 @@ export class ChatAction extends EventEmitter
 				</div>
 				<div
 					data-id="${createChatId}"
-					class="sn-spaces__popup-communication-item"
+					class="sn-spaces__popup-communication-item ${disabled}" 
 				>
 					<div
 						class="ui-icon-set --add-chat"

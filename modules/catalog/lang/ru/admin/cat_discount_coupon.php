@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["ERROR_UPDATE_DISCOUNT_CPN"] = "Ошибка обновления параметров купона с кодом #ID#";
 $MESS["ERROR_DELETE_DISCOUNT_CPN"] = "Ошибка удаления купона с кодом #ID#";
 $MESS["DSC_NAV"] = "Купоны";
@@ -27,4 +27,3 @@ $MESS["DSC_CREATED_BY"] = "Кем создан";
 $MESS["DSC_DATE_CREATE"] = "Дата создания";
 $MESS["DSC_MODIFIED_BY"] = "Кем изменен";
 $MESS["DSC_TIMESTAMP_X"] = "Дата изменения";
-?>

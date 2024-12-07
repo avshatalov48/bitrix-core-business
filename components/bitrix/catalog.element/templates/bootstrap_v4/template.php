@@ -143,18 +143,24 @@ $arParams['MESS_BTN_ADD_TO_BASKET'] = $arParams['MESS_BTN_ADD_TO_BASKET'] ?: Loc
 
 if ($arResult['MODULES']['catalog'] && $arResult['PRODUCT']['TYPE'] === ProductTable::TYPE_SERVICE)
 {
+	$arParams['~MESS_NOT_AVAILABLE_SERVICE'] ??= '';
 	$arParams['~MESS_NOT_AVAILABLE'] = $arParams['~MESS_NOT_AVAILABLE_SERVICE']
 		?: Loc::getMessage('CT_BCE_CATALOG_NOT_AVAILABLE_SERVICE')
 	;
+
+	$arParams['MESS_NOT_AVAILABLE_SERVICE'] ??= '';
 	$arParams['MESS_NOT_AVAILABLE'] = $arParams['MESS_NOT_AVAILABLE_SERVICE']
 		?: Loc::getMessage('CT_BCE_CATALOG_NOT_AVAILABLE_SERVICE')
 	;
 }
 else
 {
+	$arParams['~MESS_NOT_AVAILABLE'] ??= '';
 	$arParams['~MESS_NOT_AVAILABLE'] = $arParams['~MESS_NOT_AVAILABLE']
 		?: Loc::getMessage('CT_BCE_CATALOG_NOT_AVAILABLE')
 	;
+
+	$arParams['MESS_NOT_AVAILABLE'] ??= '';
 	$arParams['MESS_NOT_AVAILABLE'] = $arParams['MESS_NOT_AVAILABLE']
 		?: Loc::getMessage('CT_BCE_CATALOG_NOT_AVAILABLE')
 	;
@@ -1758,7 +1764,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											?>
 											<label>
 												<input type="radio" name="<?=$arParams['PRODUCT_PROPS_VARIABLE']?>[<?=$propId?>]"
-													value="<?=$valueId?>" <?=($valueId == $propInfo['SELECTED'] ? '"checked"' : '')?>>
+													value="<?=$valueId?>" <?=($valueId == $propInfo['SELECTED'] ? 'checked' : '')?>>
 												<?=$value?>
 											</label>
 											<br>
@@ -1773,7 +1779,7 @@ $themeClass = isset($arParams['TEMPLATE_THEME']) ? ' bx-'.$arParams['TEMPLATE_TH
 											foreach ($propInfo['VALUES'] as $valueId => $value)
 											{
 												?>
-												<option value="<?=$valueId?>" <?=($valueId == $propInfo['SELECTED'] ? '"selected"' : '')?>>
+												<option value="<?=$valueId?>" <?=($valueId == $propInfo['SELECTED'] ? 'selected' : '')?>>
 													<?=$value?>
 												</option>
 												<?php

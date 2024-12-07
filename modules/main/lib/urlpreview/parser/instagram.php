@@ -11,7 +11,7 @@ use Bitrix\Main\UrlPreview\HtmlDocument;
 
 class Instagram extends Oembed
 {
-	protected $versionApiPrefix = 'v11.0';
+	protected $versionApiPrefix = 'v19.0';
 
 	protected const METADATA_TTL = 43200; // 12 hours
 

@@ -89,7 +89,7 @@ function stemming_stop_en($sWord)
 
 function stemming_upper_en($sText)
 {
-	return ToUpper($sText);
+	return mb_strtoupper($sText);
 }
 
 function stemming_en($word)

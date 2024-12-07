@@ -2,10 +2,14 @@
 /** @global CMain $APPLICATION */
 /** @global array $arParams */
 /** @global array $arResult */
+/** @var CBlogPostCommentEdit $component */
+/** @var string $templateFolder */
 CJSCore::Init(array("image"));
 
 $iblockId = (isset($_REQUEST['IBLOCK_ID']) && is_string($_REQUEST['IBLOCK_ID']) ? (int)$_REQUEST['IBLOCK_ID'] : 0);
 $elementId = (isset($_REQUEST['ELEMENT_ID']) && is_string($_REQUEST['ELEMENT_ID']) ? (int)$_REQUEST['ELEMENT_ID'] : 0);
+
+$isPostPreview = (string)($_POST['preview'] ?? null) !== '';
 
 ?><script>
 BX.ready( function(){
@@ -285,6 +289,7 @@ else
 		$prevTab = 0;
 		function ShowComment($comment, $tabCount=0, $tabSize=2.5, $canModerate=false, $User=Array(), $use_captcha=false, $bCanUserComment=false, $errorComment=false, $arParams = array())
 		{
+			global $isPostPreview;
 			$iblockId = (isset($_REQUEST['IBLOCK_ID']) && is_string($_REQUEST['IBLOCK_ID']) ? (int)$_REQUEST['IBLOCK_ID'] : 0);
 			$elementId = (isset($_REQUEST['ELEMENT_ID']) && is_string($_REQUEST['ELEMENT_ID']) ? (int)$_REQUEST['ELEMENT_ID'] : 0);
 
@@ -331,8 +336,10 @@ else
 					$aditStyle = "";
 					if($arParams["is_ajax_post"] == "Y" || $comment["NEW"] == "Y")
 						$aditStyle .= " blog-comment-new";
-					if($comment["AuthorIsAdmin"] == "Y")
+					if (($comment['AuthorIsAdmin'] ?? null) === 'Y')
+					{
 						$aditStyle = " blog-comment-admin";
+					}
 					if(intval($comment["AUTHOR_ID"]) > 0)
 						$aditStyle .= " blog-comment-user-".intval($comment["AUTHOR_ID"]);
 					if($comment["AuthorIsPostAuthor"] == "Y")
@@ -474,24 +481,30 @@ else
 							<?
 						}
 
-						if($comment["urlToDelete"] <> '' && $comment["AuthorEmail"] <> '')
+						$urlToDelete = (string)($comment['urlToDelete'] ?? null);
+						$email = (string)($comment["AuthorEmail"] ?? null);
+						if ($urlToDelete !== '' && $email !== '')
 						{
 							?>
-							(<a href="mailto:<?=$comment["AuthorEmail"]?>"><?=$comment["AuthorEmail"]?></a>)
+							(<a href="mailto:<?= $email; ?>"><?= $email; ?></a>)
 							<?
 						}
+						unset($email, $urlToDelete);
 
 						?>
 						<div class="blog-comment-date"><?=$comment["DateFormated"]?></div>
 					</div>
 					<div class="blog-clear-float"></div>
 					<div class="blog-comment-content">
-						<?if($comment["TitleFormated"] <> '')
+						<?php
+						$titleFormatted = (string)($comment['TitleFormated'] ?? null);
+						if ($titleFormatted !== '')
 						{
 							?>
-							<b><?=$comment["TitleFormated"]?></b><br />
+							<b><?= $titleFormatted; ?></b><br />
 							<?
 						}
+						unset($titleFormatted);
 						?>
 						<?=$comment["TextFormated"]?>
 						<?
@@ -512,7 +525,7 @@ else
 							<?
 						}
 
-						if($comment["COMMENT_PROPERTIES"]["SHOW"] == "Y")
+						if (($comment['COMMENT_PROPERTIES']['SHOW'] ?? null) === 'Y')
 						{
 							$eventHandlerID = AddEventHandler('main', 'system.field.view.file', Array('CBlogTools', 'blogUFfileShow'));
 							?><div><?
@@ -560,52 +573,60 @@ else
 							<span class="blog-comment-edit"><a href="javascript:void(0)" onclick="return editCommentNew('<?=$comment["ID"]?>', <?=$comment["POST_ID"]?>)"><?=GetMessage("BPC_MES_EDIT")?></a></span>
 							<?
 						}
-						if($comment["urlToShow"] <> '')
+						$urlToShow = (string)($comment['urlToShow'] ?? null);
+						if ($urlToShow !== '')
 						{
 							?>
 							<span class="blog-vert-separator"></span>
 							<span class="blog-comment-show">
 								<?if($arParams["AJAX_POST"] == "Y"):?>
-									<a href="javascript:void(0)" onclick="return hideShowComment('<?=$comment["urlToShow"]."&".bitrix_sessid_get()?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_SHOW")?>">
+									<a href="javascript:void(0)" onclick="return hideShowComment('<?= $urlToShow . "&".bitrix_sessid_get()?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_SHOW")?>">
 								<?else:?>
-									<a href="<?=$comment["urlToShow"]."&".bitrix_sessid_get()?>" title="<?=GetMessage("BPC_MES_SHOW")?>">
+									<a href="<?= $urlToShow . "&".bitrix_sessid_get()?>" title="<?=GetMessage("BPC_MES_SHOW")?>">
 								<?endif;?>
 								<?=GetMessage("BPC_MES_SHOW")?></a></span>
 							<?
 						}
-						if($comment["urlToHide"] <> '')
+						unset($urlToShow);
+						$urlToHide = (string)($comment['urlToHide'] ?? null);
+						if ($urlToHide !== '')
 						{
 							?>
 							<span class="blog-vert-separator"></span>
 							<span class="blog-comment-show">
 								<?if($arParams["AJAX_POST"] == "Y"):?>
-									<a href="javascript:void(0)" onclick="return hideShowComment('<?=$comment["urlToHide"]."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_HIDE")?>">
+									<a href="javascript:void(0)" onclick="return hideShowComment('<?= $urlToHide."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_HIDE")?>">
 								<?else:?>
-									<a href="<?=$comment["urlToHide"]."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>" title="<?=GetMessage("BPC_MES_HIDE")?>">
+									<a href="<?= $urlToHide."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>" title="<?=GetMessage("BPC_MES_HIDE")?>">
 								<?endif;?>
 								<?=GetMessage("BPC_MES_HIDE")?></a></span>
 							<?
 						}
-						if($comment["urlToDelete"] <> '')
+						unset($urlToHide);
+						$urlToDelete = (string)($comment['urlToDelete'] ?? null);
+						if ($urlToDelete !== '')
 						{
 							?>
 							<span class="blog-vert-separator"></span>
 							<span class="blog-comment-delete">
 								<?if($arParams["AJAX_POST"] == "Y"):?>
-									<a href="javascript:void(0)" onclick="if(confirm('<?=GetMessage("BPC_MES_DELETE_POST_CONFIRM")?>')) deleteComment('<?=$comment["urlToDelete"]."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_DELETE")?>">
+									<a href="javascript:void(0)" onclick="if(confirm('<?=GetMessage("BPC_MES_DELETE_POST_CONFIRM")?>')) deleteComment('<?=$urlToDelete."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>', '<?=$comment["ID"]?>');" title="<?=GetMessage("BPC_MES_DELETE")?>">
 								<?else:?>
-									<a href="javascript:if(confirm('<?=GetMessage("BPC_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$comment["urlToDelete"]."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>'" title="<?=GetMessage("BPC_MES_DELETE")?>">
+									<a href="javascript:if(confirm('<?=GetMessage("BPC_MES_DELETE_POST_CONFIRM")?>')) window.location='<?=$urlToDelete."&".bitrix_sessid_get()?>&IBLOCK_ID=<?=$iblockId; ?>&ELEMENT_ID=<?=$elementId; ?>'" title="<?=GetMessage("BPC_MES_DELETE")?>">
 								<?endif;?>
 								<?=GetMessage("BPC_MES_DELETE")?></a></span>
 							<?
 						}
-						if($comment["urlToSpam"] <> '')
+						unset($urlToDelete);
+						$urlToSpam = (string)($comment['urlToSpam'] ?? null);
+						if ($urlToSpam <> '')
 						{
 							?>
 							<span class="blog-vert-separator"></span>
-							<span class="blog-comment-delete blog-comment-spam"><a href="<?=$comment["urlToSpam"]?>" title="<?=GetMessage("BPC_MES_SPAM_TITLE")?>"><?=GetMessage("BPC_MES_SPAM")?></a></span>
+							<span class="blog-comment-delete blog-comment-spam"><a href="<?=$urlToSpam?>" title="<?=GetMessage("BPC_MES_SPAM_TITLE")?>"><?=GetMessage("BPC_MES_SPAM")?></a></span>
 							<?
 						}
+						unset($urlToSpam);
 						if ($arParams["SHOW_RATING"] == "Y")
 						{
 							?>
@@ -640,7 +661,7 @@ else
 						<div class="blog-clear-float"></div>
 
 					<?
-					if($errorComment == '' && ($_POST["preview"] <> '' && $_POST["show_preview"] != "N") && (intval($_POST["parentId"]) > 0 || intval($_POST["edit_id"]) > 0)
+					if($errorComment == '' && ($isPostPreview && $_POST["show_preview"] != "N") && (intval($_POST["parentId"]) > 0 || intval($_POST["edit_id"]) > 0)
 						&& ( (intval($_POST["parentId"])==$comment["ID"] && intval($_POST["edit_id"]) <= 0)
 							|| (intval($_POST["edit_id"]) > 0 && intval($_POST["edit_id"]) == $comment["ID"] && $comment["CAN_EDIT"] == "Y")))
 					{
@@ -677,7 +698,7 @@ else
 
 
 					<?
-					if(($errorComment <> '' || $_POST["preview"] <> '')
+					if(($errorComment <> '' || $isPostPreview)
 						&& (intval($_POST["parentId"])==$comment["ID"] || intval($_POST["edit_id"]) == $comment["ID"])
 						&& $bCanUserComment===true)
 					{
@@ -717,9 +738,9 @@ else
 					if(!empty($arSumComments[$comment["ID"]]))
 					{
 						$comment["CAN_EDIT"] = $arSumComments[$comment["ID"]]["CAN_EDIT"];
-						$comment["SHOW_AS_HIDDEN"] = $arSumComments[$comment["ID"]]["SHOW_AS_HIDDEN"];
+						$comment["SHOW_AS_HIDDEN"] = $arSumComments[$comment["ID"]]["SHOW_AS_HIDDEN"] ?? null;
 						$comment["SHOW_SCREENNED"] = $arSumComments[$comment["ID"]]["SHOW_SCREENNED"];
-						$comment["NEW"] = $arSumComments[$comment["ID"]]["NEW"];
+						$comment["NEW"] = $arSumComments[$comment["ID"]]["NEW"] ?? null;
 					}
 					ShowComment($comment, $level, 2.5, $canModerate, $User, $use_captcha, $bCanUserComment, $errorComment, $arParams);
 					if(!empty($sArray[$comment["ID"]]))
@@ -729,9 +750,9 @@ else
 							if(!empty($arSumComments[$key1["ID"]]))
 							{
 								$key1["CAN_EDIT"] = $arSumComments[$key1["ID"]]["CAN_EDIT"];
-								$key1["SHOW_AS_HIDDEN"] = $arSumComments[$key1["ID"]]["SHOW_AS_HIDDEN"];
+								$key1["SHOW_AS_HIDDEN"] = $arSumComments[$key1["ID"]]["SHOW_AS_HIDDEN"] ?? null;
 								$key1["SHOW_SCREENNED"] = $arSumComments[$key1["ID"]]["SHOW_SCREENNED"];
-								$key1["NEW"] = $arSumComments[$key1["ID"]]["NEW"];
+								$key1["NEW"] = $arSumComments[$key1["ID"]]["NEW"] ?? null;
 							}
 							ShowComment($key1, ($level+1), 2.5, $canModerate, $User, $use_captcha, $bCanUserComment, $errorComment, $arParams);
 
@@ -746,8 +767,7 @@ else
 				}
 			}
 		}
-		?>
-		<?
+
 		if($arResult["is_ajax_post"] != "Y")
 		{
 			if($arResult["CanUserComment"])
@@ -800,8 +820,8 @@ else
 					<div id="record-<?=$arParams["ENTITY_XML_ID"]?>-0-placeholder" class="blog-comment-edit feed-com-add-block blog-post-edit" style="display:none;"></div>
 
 				</div>
-				<?
-				if(($arResult["COMMENT_ERROR"] <> '' || $_POST["preview"] <> '')
+				<?php
+				if (($arResult["COMMENT_ERROR"] <> '' || $isPostPreview)
 					&& intval($_POST["parentId"]) == 0 && mb_strlen($_POST["parentId"]) < 2 && intval($_POST["edit_id"]) <= 0)
 				{
 					?>
@@ -817,7 +837,7 @@ else
 
 		$arParams["RATING"] = $arResult["RATING"];
 		$arParams["component"] = $component;
-		$arParams["arImages"] = $arResult["arImages"];
+		$arParams["arImages"] = $arResult["arImages"] ?? null;
 		if($arResult["is_ajax_post"] == "Y")
 			$arParams["is_ajax_post"] = "Y";
 
@@ -833,7 +853,21 @@ else
 			}
 		}
 		else
-			RecursiveComments($arResult["CommentsResult"], $arResult["firstLevel"], 0, true, $arResult["canModerate"], $arResult["User"], $arResult["use_captcha"], $arResult["CanUserComment"], $arResult["COMMENT_ERROR"], $arResult["Comments"], $arParams);
+		{
+			RecursiveComments(
+				$arResult["CommentsResult"],
+				$arResult["firstLevel"] ?? null,
+				0,
+				true,
+				$arResult["canModerate"],
+				$arResult["User"],
+				$arResult["use_captcha"],
+				$arResult["CanUserComment"],
+				$arResult["COMMENT_ERROR"],
+				$arResult["Comments"],
+				$arParams
+			);
+		}
 
 		if($arResult["is_ajax_post"] != "Y")
 		{

@@ -13,7 +13,6 @@ $SITE_ID = isset($_GET["SITE_ID"]) ? $_GET["SITE_ID"] : SITE_ID;
 
 if (isset($_REQUEST["mode"]) && $_REQUEST["mode"] == "search")
 {
-	CUtil::decodeURIComponent($_GET);
 	$APPLICATION->RestartBuffer();
 
 	CSocNetTools::InitGlobalExtranetArrays($SITE_ID);

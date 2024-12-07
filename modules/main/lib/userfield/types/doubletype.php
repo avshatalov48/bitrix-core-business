@@ -45,20 +45,21 @@ class DoubleType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$prec = (int)$userField['SETTINGS']['PRECISION'];
-		$size = (int)$userField['SETTINGS']['SIZE'];
-		$min = (double)$userField['SETTINGS']['MIN_VALUE'];
-		$max = (double)$userField['SETTINGS']['MAX_VALUE'];
+		$prec = (int)($userField['SETTINGS']['PRECISION'] ?? 0);
+		$size = (int)($userField['SETTINGS']['SIZE'] ?? 0);
+		$min = (double)($userField['SETTINGS']['MIN_VALUE'] ?? 0);
+		$max = (double)($userField['SETTINGS']['MAX_VALUE'] ?? 0);
+		$defaultValue = is_numeric($userField['SETTINGS']['DEFAULT_VALUE'] ?? null)
+			? (double)$userField['SETTINGS']['DEFAULT_VALUE']
+			: null
+		;
 
 		return [
 			'PRECISION' => ($prec < 0 ? 0 : ($prec > 12 ? 12 : $prec)),
 			'SIZE' => ($size <= 1 ? 20 : ($size > 255 ? 225 : $size)),
 			'MIN_VALUE' => $min,
 			'MAX_VALUE' => $max,
-			'DEFAULT_VALUE' => $userField['SETTINGS']['DEFAULT_VALUE'] <> ''
-				? (double)$userField['SETTINGS']['DEFAULT_VALUE']
-				: null
-			,
+			'DEFAULT_VALUE' => $defaultValue,
 		];
 	}
 

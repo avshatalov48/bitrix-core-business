@@ -11,6 +11,11 @@
 	background: var(--entity-catalog__gray_light);
 }
 
+.bx-firefox .ui-entity-catalog__main-content-body {
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
 .ui-entity-catalog__main-content-body::-webkit-scrollbar {
 	width: 4px;
 }

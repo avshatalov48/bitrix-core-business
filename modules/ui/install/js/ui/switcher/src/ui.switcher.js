@@ -100,7 +100,9 @@ export class Switcher {
 		this.events = {
 			toggled: 'toggled',
 			checked: 'checked',
-			unchecked: 'unchecked'
+			unchecked: 'unchecked',
+			lock: 'lock',
+			unlock: 'unlock',
 		};
 
 		if (options.node)
@@ -205,9 +207,11 @@ export class Switcher {
 			return;
 		}
 
+		this.#disabled = disabled;
+
 		fireEvents = fireEvents !== false;
 
-		if (this.#disabled)
+		if (disabled)
 		{
 			Dom.addClass(this.node, this.#classNameLock);
 			fireEvents ? this.#fireEvent(this.events.lock) : null;
@@ -216,11 +220,6 @@ export class Switcher {
 		{
 			Dom.removeClass(this.node, this.#classNameLock);
 			fireEvents ? this.#fireEvent(this.events.unlock) : null;
-		}
-
-		if (fireEvents)
-		{
-			this.#fireEvent(this.events.toggled)
 		}
 	}
 

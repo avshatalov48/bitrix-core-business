@@ -47,12 +47,11 @@ elseif (CModule::IncludeModule('tasks'))
 	$showTour = $firstProjectCreationTour->proceed();
 	if ($showTour)
 	{
-		\Bitrix\Tasks\AnalyticLogger::logToFile(
-			'markShowedStep',
-			'firstProjectCreation',
-			'0',
-			'tourGuide'
-		);
+		$logger = \Bitrix\Tasks\Helper\Analytics::getInstance();
+		if (method_exists($logger, 'onFirstProjectCreation'))
+		{
+			$logger->onFirstProjectCreation();
+		}
 	}
 
 	$APPLICATION->IncludeComponent(

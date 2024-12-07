@@ -79,7 +79,7 @@ class CAllBlogGroup
 				"SELECT G.ID, G.NAME, G.SITE_ID ".
 				"FROM b_blog_group G ".
 				"WHERE G.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_GROUP"]["BLOG_GROUP_CACHE_".$ID] = $arResult;

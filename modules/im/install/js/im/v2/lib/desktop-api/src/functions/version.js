@@ -21,11 +21,15 @@ export const versionFunctions = {
 	},
 	isFeatureSupported(code: DesktopFeatureItem): boolean
 	{
+		return this.isFeatureSupportedInVersion(this.getApiVersion(), code);
+	},
+	isFeatureSupportedInVersion(version: number, code: DesktopFeatureItem): boolean
+	{
 		if (!DesktopFeature[code])
 		{
 			return false;
 		}
 
-		return this.getApiVersion() >= DesktopFeature[code].version;
+		return version >= DesktopFeature[code].version;
 	},
 };

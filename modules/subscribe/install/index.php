@@ -92,7 +92,7 @@ class subscribe extends CModule
 		{
 			$this->errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/db/' . $connection->getType() . '/uninstall.sql');
 			$strSql = "SELECT ID FROM b_file WHERE MODULE_ID='subscribe'";
-			$rsFile = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$rsFile = $DB->Query($strSql);
 			while ($arFile = $rsFile->Fetch())
 			{
 				CFile::Delete($arFile['ID']);
@@ -121,7 +121,7 @@ class subscribe extends CModule
 	{
 		global $DB;
 		$sIn = "'LIST_MESSAGE','SUBSCRIBE_CONFIRM'";
-		$rs = $DB->Query('SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (' . $sIn . ') ', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$rs = $DB->Query('SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN (' . $sIn . ') ');
 		$ar = $rs->Fetch();
 		if ($ar['C'] <= 0)
 		{
@@ -134,8 +134,8 @@ class subscribe extends CModule
 	{
 		global $DB;
 		$sIn = "'LIST_MESSAGE','SUBSCRIBE_CONFIRM'";
-		$DB->Query('DELETE FROM b_event_message WHERE EVENT_NAME IN (' . $sIn . ') ', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
-		$DB->Query('DELETE FROM b_event_type WHERE EVENT_NAME IN (' . $sIn . ') ', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$DB->Query('DELETE FROM b_event_message WHERE EVENT_NAME IN (' . $sIn . ') ');
+		$DB->Query('DELETE FROM b_event_type WHERE EVENT_NAME IN (' . $sIn . ') ');
 		return true;
 	}
 
@@ -271,11 +271,6 @@ class subscribe extends CModule
 				$APPLICATION->IncludeAdminFile(GetMessage('inst_uninst_title'), $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/subscribe/install/uninst2.php');
 			}
 		}
-	}
-
-	public function migrateToBox()
-	{
-		COption::SetOptionString('subscribe', 'mail_additional_parameters', '');
 	}
 
 	public static function OnGetTableSchema()

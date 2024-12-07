@@ -27,7 +27,7 @@ ShowMessage($arResult["MESSAGE"] ?? '');
 if($USER->IsAuthorized()):
 ?>
 
-<script type="text/javascript">
+<script>
 var bx_app_pass_mess = {
 	deleteButton: '<?=CUtil::JSEscape(GetMessage("main_app_pass_del"))?>',
 	templatePath: '<?=CUtil::JSEscape($this->GetFolder())?>'

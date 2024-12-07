@@ -1,7 +1,6 @@
 <?
 namespace Bitrix\Main\Composite;
 
-use Bitrix\Main;
 use Bitrix\Main\Composite\Debug\Logger;
 
 /**
@@ -238,11 +237,11 @@ class Responder
 			$compress = "";
 			if ($compositeOptions["COMPRESS"] && isset($_SERVER["HTTP_ACCEPT_ENCODING"]))
 			{
-				if (strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "x-gzip") !== false)
+				if (str_contains($_SERVER["HTTP_ACCEPT_ENCODING"], "x-gzip"))
 				{
 					$compress = "x-gzip";
 				}
-				elseif (strpos($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip") !== false)
+				elseif (str_contains($_SERVER["HTTP_ACCEPT_ENCODING"], "gzip"))
 				{
 					$compress = "gzip";
 				}

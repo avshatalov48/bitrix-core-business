@@ -6,7 +6,7 @@ import { Utils } from 'im.v2.lib.utils';
 import { BaseMenu } from 'im.v2.lib.menu';
 import { CallManager } from 'im.v2.lib.call';
 import { PermissionManager } from 'im.v2.lib.permission';
-import { ChatActionType, EventType, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, SidebarDetailBlock } from 'im.v2.const';
 
 import type { MenuItem } from 'im.v2.lib.menu';
 import type { ImModelUser } from 'im.v2.model';
@@ -28,7 +28,6 @@ export class SearchContextMenu extends BaseMenu
 	{
 		return [
 			this.getOpenItem(),
-			this.getCallItem(),
 			this.getOpenProfileItem(),
 			this.getChatsWithUserItem(),
 		];
@@ -45,24 +44,6 @@ export class SearchContextMenu extends BaseMenu
 		};
 	}
 
-	getCallItem(): ?MenuItem
-	{
-		const chatCanBeCalled = this.callManager.chatCanBeCalled(this.context.dialogId);
-		const chatIsAllowedToCall = this.permissionManager.canPerformAction(ChatActionType.call, this.context.dialogId);
-		if (!chatCanBeCalled || !chatIsAllowedToCall)
-		{
-			return null;
-		}
-
-		return {
-			text: Loc.getMessage('IM_LIB_MENU_CALL_2'),
-			onclick: () => {
-				this.callManager.startCall(this.context.dialogId);
-				this.menuInstance.close();
-			},
-		};
-	}
-
 	getOpenProfileItem(): ?MenuItem
 	{
 		if (!this.isUser() || this.isBot())
@@ -73,7 +54,7 @@ export class SearchContextMenu extends BaseMenu
 		const profileUri = Utils.user.getProfileLink(this.context.dialogId);
 
 		return {
-			text: Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE'),
+			text: Loc.getMessage('IM_LIB_MENU_OPEN_PROFILE_V2'),
 			href: profileUri,
 			onclick: () => {
 				this.menuInstance.close();

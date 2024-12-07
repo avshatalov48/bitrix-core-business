@@ -10,14 +10,14 @@ include_once($path);
 if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-error">
-	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+	<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 endif;
 if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="forum-note-box forum-note-success">
-	<div class="forum-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
+	<div class="forum-note-box-text"><? ShowNote($arResult["OK_MESSAGE"], "forum-note-success")?></div>
 </div>
 <?
 endif;
@@ -55,8 +55,8 @@ endif;
 
 $tabControl = new CForumTabControl("forum_user", $aTabs);
 ?>
-<?=$tabControl->Begin();?>
-<?=$tabControl->BeginNextTab();?>
+<? $tabControl->Begin();?>
+<? $tabControl->BeginNextTab();?>
 	<tr>
 		<th><?=GetMessage("F_NAME")?></th>
 		<td><input type="text" name="NAME" size="40" maxlength="50" value="<?=$arResult["str_NAME"]?>"/></td>
@@ -107,7 +107,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 	</tr>
 <?endif?>
 	<tr><th colspan="2"><span class="starrequired">*</span> <?=GetMessage("F_REQUIED_FILEDS")?></th></tr>
-<?=$tabControl->BeginNextTab();?>
+<? $tabControl->BeginNextTab();?>
 	<tr>
 		<th><?=GetMessage("F_PROFESSION")?></th>
 		<td><input type="text" name="PERSONAL_PROFESSION" size="45" maxlength="255" value="<?=$arResult["str_PERSONAL_PROFESSION"]?>"/></td>
@@ -183,7 +183,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<th><?=GetMessage("F_CITY")?></th>
 		<td><input type="text" name="PERSONAL_CITY" size="45" maxlength="255" value="<?=$arResult["str_PERSONAL_CITY"]?>"/></td>
 	</tr>
-<?=$tabControl->BeginNextTab();?>
+<? $tabControl->BeginNextTab();?>
 	<tr>
 		<th><?=GetMessage("F_COMPANY_NAME")?></th>
 		<td><input type="text" name="WORK_COMPANY" size="45" maxlength="255" value="<?=$arResult["str_WORK_COMPANY"]?>"/></td>
@@ -228,7 +228,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 		<th><?=GetMessage("F_CITY")?></th>
 		<td><input type="text" name="WORK_CITY" size="45" maxlength="255" value="<?=$arResult["str_WORK_CITY"]?>"/></td>
 	</tr>
-<?=$tabControl->BeginNextTab();?>
+<? $tabControl->BeginNextTab();?>
 	<tr><th><?=GetMessage("F_SETTINGS")?></th>
 		<td>
 	<?if (CForumUser::IsAdmin()):?>
@@ -285,7 +285,7 @@ $tabControl = new CForumTabControl("forum_user", $aTabs);
 	<?endif;?>
 <?// ********************* User properties ***************************************************?>
 <?if($arResult["USER_PROPERTIES"]["SHOW"] == "Y"):?>
-	<?=$tabControl->BeginNextTab();?>
+	<? $tabControl->BeginNextTab();?>
 	<?$first = true;?>
 	<?foreach ($arResult["USER_PROPERTIES"]["DATA"] as $FIELD_NAME => $arUserField):?>
 	<tr><th>

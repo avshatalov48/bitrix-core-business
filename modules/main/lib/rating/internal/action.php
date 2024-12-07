@@ -37,7 +37,7 @@ class Action
 					$params['ACTION'] === 'plus'
 					&& !empty($params['REACTION'])
 						? $params['REACTION']
-						: \CAllRatings::REACTION_DEFAULT
+						: \CRatings::REACTION_DEFAULT
 				),
 			]);
 
@@ -52,7 +52,7 @@ class Action
 				'REACTION' => (
 				!empty($params['REACTION'])
 					? $params['REACTION']
-					: \CAllRatings::REACTION_DEFAULT
+					: \CRatings::REACTION_DEFAULT
 				)
 			]);
 		}

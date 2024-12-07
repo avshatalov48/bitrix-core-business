@@ -23,26 +23,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  constructor() {
 	    this.instances = {};
 	    this.sidePanelManager = BX.SidePanel.Instance;
-	    this.v2enabled = false;
 	    im_v2_lib_logger.Logger.warn('Slider: class created');
-	    this.initSettings();
 	    this.bindEvents();
 	    this.store = im_v2_application_core.Core.getStore();
 	  }
 	  bindEvents() {
-	    if (!this.v2enabled) {
-	      im_v2_lib_logger.Logger.warn('Slider: v2 is not enabled');
-	      return false;
-	    }
 	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onCloseByEsc', this.onCloseByEsc.bind(this));
 	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onClose', this.onClose.bind(this));
 	    main_core_events.EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.onDestroy.bind(this));
 	    main_core.Event.ready(this.initZIndex.bind(this));
 	    return true;
-	  }
-	  initSettings() {
-	    const settings = main_core.Extension.getSettings('im.v2.lib.slider');
-	    this.v2enabled = settings.get('v2enabled', false);
 	  }
 	  openSlider() {
 	    if (im_v2_lib_desktop.DesktopManager.isChatWindow()) {

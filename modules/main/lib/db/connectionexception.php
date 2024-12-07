@@ -12,9 +12,9 @@ class ConnectionException extends Exception
 	/**
 	 * @param string $message Application message.
 	 * @param string $databaseMessage Database reason.
-	 * @param \Exception $previous The previous exception used for the exception chaining.
+	 * @param \Throwable | null $previous The previous exception used for the exception chaining.
 	 */
-	public function __construct($message = "", $databaseMessage = "", \Exception $previous = null)
+	public function __construct($message = "", $databaseMessage = "", \Throwable $previous = null)
 	{
 		parent::__construct($message, $databaseMessage, $previous);
 	}

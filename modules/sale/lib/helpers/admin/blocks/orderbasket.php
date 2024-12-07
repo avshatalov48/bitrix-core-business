@@ -401,7 +401,7 @@ class OrderBasket
 			"SALE_ORDER_BASKET_POSITION_EXISTS", "SALE_ORDER_BASKET_ADD_COUPON_ERROR", "SALE_ORDER_BASKET_NO_NAME",
 			"SALE_ORDER_BASKET_PRODUCT_UNAVAILABLE"
 		);
-		$result = '<script type="text/javascript">';
+		$result = '<script>';
 
 		foreach($langPhrases as $phrase)
 			$result .= ' BX.message({'.$phrase.': "'.\CUtil::jsEscape(Loc::getMessage($phrase)).'"});';

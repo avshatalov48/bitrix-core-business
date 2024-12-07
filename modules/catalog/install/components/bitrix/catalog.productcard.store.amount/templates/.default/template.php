@@ -23,6 +23,7 @@ Extension::load([
 	'ui.notification',
 	'ui.dialogs.messagebox',
 	'ui.hint',
+	'catalog.store-enable-wizard',
 ]);
 
 ?>

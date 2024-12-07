@@ -45,6 +45,7 @@ create table b_sonet_group
 	SCRUM_MASTER_ID int null,
 	SCRUM_SPRINT_DURATION int null,
 	SCRUM_TASK_RESPONSIBLE char(1) null,
+	TYPE varchar(10) default null,
 	primary key (ID),
 	index IX_SONET_GROUP_1(OWNER_ID)
 );
@@ -535,6 +536,7 @@ create table if not exists b_sonet_space_user_recent_activity
 	TYPE_ID   varchar(32) not null,
 	ENTITY_ID int(11) unsigned default null,
 	DATETIME datetime not null,
+	SECONDARY_ENTITY_ID int unsigned default null,
 	primary key (ID),
 	index ix_sonet_space_recent_activity_datetime (DATETIME),
 	index ix_sonet_space_user_recent_activity_user_id_space_id (USER_ID, SPACE_ID),
@@ -549,4 +551,23 @@ create table if not exists b_sonet_space_user_latest_activity
 	ACTIVITY_ID int(11) unsigned not null,
 	primary key (ID),
 	unique index ix_sonet_space_user_latest_activity_user_id_space_id (USER_ID, SPACE_ID)
+);
+
+create table if not exists b_sonet_space_live_watch
+(
+	USER_ID     integer not null,
+	DATETIME    timestamp not null,
+	primary key (USER_ID),
+	index ix_b_sonet_live_watch_date (datetime)
+);
+
+create table if not exists b_sonet_event_queue (
+	ID          int unsigned not null auto_increment,
+	USER_ID     int unsigned not null,
+	EVENT_ID    int unsigned not null,
+	PRIORITY    int unsigned not null,
+	DATETIME    timestamp not null,
+	PRIMARY KEY (ID),
+	index ix_sonet_event_queue_datetime (DATETIME),
+	index ix_sonet_event_queue_priority (PRIORITY)
 );

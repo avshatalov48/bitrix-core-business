@@ -49,16 +49,42 @@ class PersonTypeSiteTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'PERSON_TYPE_ID' => array(
+		return [
+			'PERSON_TYPE_ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
-			),
-			'SITE_ID' => array(
+			],
+			'SITE_ID' => [
 				'data_type' => 'string',
 				'primary' => true
-			),
-		);
+			],
+		];
 	}
 
+	public static function deleteByPersonTypeId($personTypeId)
+	{
+		$result = new Main\ORM\Data\DeleteResult();
+
+		$dbRes = static::getList([
+			'select' => ['PERSON_TYPE_ID', 'SITE_ID'],
+			'filter' => [
+				'=PERSON_TYPE_ID' => $personTypeId
+			]
+		]);
+
+		while ($item = $dbRes->fetch())
+		{
+			$r = static::delete([
+				'PERSON_TYPE_ID' => $personTypeId,
+				'SITE_ID' => $item['SITE_ID'],
+			]);
+
+			if (!$r->isSuccess())
+			{
+				$result->addErrors($r->getErrors());
+			}
+		}
+
+		return $result;
+	}
 }

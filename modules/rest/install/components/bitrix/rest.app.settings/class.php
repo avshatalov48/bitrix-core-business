@@ -10,6 +10,7 @@ use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Rest\AppTable;
+use Bitrix\Rest\FormConfig\EventType;
 use Bitrix\UI\Toolbar\Facade\Toolbar;
 use Bitrix\Rest\Event\Sender;
 use Bitrix\Main\Engine\CurrentUser;
@@ -114,27 +115,12 @@ class RestAppSettingsComponent extends CBitrixComponent implements Controllerabl
 
 		try
 		{
-			$app = AppTable::getByClientId($clientId);
-
-			$uri = new Uri($app['URL_SETTINGS']);
-			$httpClient = new HttpClient();
-			$params = Sender::getDefaultEventParams();
-			$params['sendRefreshToken'] = true;
-			$event = [
-				'data' => $formData,
-				'auth' => Sender::getAuth(
-					$clientId,
-					CurrentUser::get()->getId() ?? 0,
-					[],
-					$params
-				)
-			];
-			$result = $httpClient->post($uri, $event);
-			$responseData = [];
-			$responseData = Json::decode($result);
-			if ($httpClient->getStatus() !== 200)
+			$app = new \Bitrix\Rest\App($clientId);
+			$responseData = $app->fetchAppFormConfig($formData, EventType::Change);
+			$responseData = Json::decode($responseData);
+			if (isset($responseData['errors']) && is_array($responseData['errors']))
 			{
-				$errors = $responseData['errors'] ?? [];
+				$errors = $responseData['errors'];
 				foreach ($errors as $error)
 				{
 					$this->errorCollection->setError(
@@ -153,6 +139,7 @@ class RestAppSettingsComponent extends CBitrixComponent implements Controllerabl
 			return AjaxJson::createError($this->errorCollection);
 		}
 		$responseData = $this->prepareConfig($responseData);
+
 		return AjaxJson::createSuccess($responseData);
 	}
 }

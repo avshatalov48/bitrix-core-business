@@ -35,7 +35,7 @@ CJSCore::Init();
 		<a id="event_list_filter_show" href="javascript:void(0)" onclick="__logFilterShow(); return false;"><?=GetMessage("EVENT_LIST_FILTER_HIDE");?></a>
 		<div class="event-list-filter-line"></div>
 		<form method="GET" name="log_filter" >
-			<script type="text/javascript">
+			<script>
 				var arFltFeaturesID = [];
 			</script>
 			<?if (!$arResult["NO_ACTIVE_FEATURES"]):?>
@@ -43,7 +43,7 @@ CJSCore::Init();
 				<?
 				$bCheckedAll = true;
 				foreach ($arResult["ActiveFeatures"] as $featureID => $featureName):
-					?><script type="text/javascript">
+					?><script>
 						arFltFeaturesID.push('<?=$featureID?>');
 					</script><?
 					if (isset($arResult["flt_event_id"]) && in_array($featureID, $arResult["flt_event_id"]) || empty($arParams["EVENT_ID"]) || (!empty($arParams["EVENT_ID"]) && in_array($featureID, $arParams["EVENT_ID"])))
@@ -140,7 +140,7 @@ CJSCore::Init();
 								array("HIDE_ICONS"	=> true)
 							);?></span>
 					</span>
-					<script type="text/javascript">
+					<script>
 						BX.ready(function(){__logOnDateChange(document.forms['log_filter'].flt_date_datesel)});
 					</script>
 				</td>

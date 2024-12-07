@@ -324,7 +324,7 @@ class OrderStatus
 			"SALE_ORDER_STATUS_CANCELED", "SALE_ORDER_STATUS_CANCELING");
 
 		$result = '
-			<script type="text/javascript">
+			<script>
 				BX.ready(function(){
 					BX.Sale.Admin.OrderEditPage.registerFieldsUpdaters({
 						STATUS_ID: {

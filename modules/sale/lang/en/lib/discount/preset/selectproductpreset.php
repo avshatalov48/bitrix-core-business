@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_ADD"] = "Error adding a discount rule";
 $MESS["SALE_BASE_PRESET_DISCOUNT_EDIT_ERR_UPDATE"] = "Error updating a discount rule";
 $MESS["SALE_BASE_PRESET_ORDERAMOUNT_FIELD_NAME"] = "Discount name";
@@ -17,4 +17,3 @@ $MESS["SALE_BASE_PRESET_HEAD_NAME"] = "Name";
 $MESS["SALE_BASE_PRESET_HEAD_PROPS"] = "Properties";
 $MESS["SALE_BASE_PRESET_EMPTY_PRODUCT_NOTICE"] = "Action will apply to all products if no products are selected";
 $MESS["SALE_BASE_PRESET_TRY_TO_TEXT"] = "Select sections";
-?>

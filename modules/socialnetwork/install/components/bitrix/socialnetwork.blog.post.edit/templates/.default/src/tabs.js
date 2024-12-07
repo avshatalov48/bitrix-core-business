@@ -1,4 +1,4 @@
-import {Type, Loc, Dom, Event, Runtime, ajax as Ajax } from 'main.core';
+import { Type, Loc, Dom, Event, Runtime, ajax as Ajax, Text } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import PostForm from './form';
 import { MenuManager } from "main.popup";
@@ -811,10 +811,14 @@ export default class PostFormTabs extends EventEmitter
 		let tabsDefault = tabContainer.querySelectorAll('span.feed-add-post-form-link-lists-default');
 		let menuItemsListsDefault = [];
 		let menuItemsLists = [];
+		let canOpenInSlider = false;
 
-		if(tabs.length)
+		if (tabs.length > 0)
 		{
-			menuItemsLists = this.getMenuItems(tabs, this.createOnclickLists);
+			menuItemsLists = this.getMenuItems(
+				tabs,
+				canOpenInSlider ? this.#handleCreateListInSlider.bind(this) : this.createOnclickLists,
+			);
 			menuItemsListsDefault = this.getMenuItemsDefault(tabsDefault);
 			menuItemsLists = menuItemsLists.concat(menuItemsListsDefault);
 			this.showMoreMenuLists(menuItemsLists);
@@ -823,7 +827,7 @@ export default class PostFormTabs extends EventEmitter
 		{
 			let siteId = null;
 
-			if(document.getElementById('bx-lists-select-site-id'))
+			if (document.getElementById('bx-lists-select-site-id'))
 			{
 				siteId = document.getElementById('bx-lists-select-site-id').value;
 			}
@@ -838,8 +842,10 @@ export default class PostFormTabs extends EventEmitter
 					sessid: Loc.getMessage('bitrix_sessid')
 				},
 				onsuccess: (result) => {
-					if(result.success)
+					if (result.success)
 					{
+						canOpenInSlider = Text.toBoolean(result.canOpenInSlider);
+
 						for(let k in result.lists)
 						{
 							if (!result.lists.hasOwnProperty(k))
@@ -854,20 +860,24 @@ export default class PostFormTabs extends EventEmitter
 									'data-description': result.lists[k].DESCRIPTION,
 									'data-picture-small': result.lists[k].PICTURE_SMALL,
 									'data-code': result.lists[k].CODE,
-									'iblockId': result.lists[k].ID
+									iblockId: result.lists[k].ID,
+									iblockTypeId: result.lists[k].IBLOCK_TYPE_ID,
 								},
 								props: {
 									className: 'feed-add-post-form-link-lists',
-									id: 'feed-add-post-form-tab-lists'
+									id: 'feed-add-post-form-tab-lists',
 								},
 								style: {
-									display: 'none'
-								}
+									display: 'none',
+								},
 							}));
 						}
 
 						tabs = tabContainer.querySelectorAll('span.feed-add-post-form-link-lists');
-						menuItemsLists = this.getMenuItems(tabs, this.createOnclickLists);
+						menuItemsLists = this.getMenuItems(
+							tabs,
+							canOpenInSlider ? this.#handleCreateListInSlider.bind(this) : this.createOnclickLists,
+						);
 
 						if(!tabsDefault.length)
 						{
@@ -962,11 +972,11 @@ export default class PostFormTabs extends EventEmitter
 		{
 			const id = tabs[i].getAttribute('id').replace('feed-add-post-form-tab-', '');
 
-			if(createOnclickLists)
+			if (createOnclickLists)
 			{
 				menuItemsLists.push({
 					tabId: id,
-					text: BX.util.htmlspecialchars(tabs[i].getAttribute("data-name")),
+					text: BX.util.htmlspecialchars(tabs[i].getAttribute('data-name')),
 					className: `feed-add-post-form-${id} feed-add-post-form-${id}-item`,
 					onclick: createOnclickLists(
 						id,
@@ -975,9 +985,10 @@ export default class PostFormTabs extends EventEmitter
 							tabs[i].getAttribute('data-name'),
 							tabs[i].getAttribute('data-description'),
 							tabs[i].getAttribute('data-picture'),
-							tabs[i].getAttribute('data-code')
-						]
-					)
+							tabs[i].getAttribute('data-code'),
+							tabs[i].getAttribute('iblockTypeId'),
+						],
+					),
 				});
 			}
 			else
@@ -1045,16 +1056,70 @@ export default class PostFormTabs extends EventEmitter
 			spanIcon[i].innerHTML = spanDataPicture[i].getAttribute('data-picture-small');
 		}
 
+		if (!this.listsMenu.popupWindow.isShown())
+		{
+			Runtime.loadExtension('ui.analytics')
+				.then(({ sendData }) => {
+					sendData({
+						tool: 'automation',
+						category: 'bizproc_operations',
+						event: 'drawer_open',
+						c_section: 'feed',
+						c_element: 'button',
+					});
+				})
+				.catch(() => {})
+			;
+		}
+
 		this.listsMenu.popupWindow.show();
 	};
 
 	createOnclickLists(id, iblock)
 	{
-		return () =>
-		{
+		return () => {
 			PostFormTabs.getInstance().changePostFormTab(id, iblock);
 			PostFormTabs.getInstance().listsMenu.popupWindow.close();
 			PostFormTabs.getInstance().menu.popupWindow.close();
-		}
-	};
+		};
+	}
+
+	#handleCreateListInSlider(id, iblock): Function
+	{
+		return () => {
+			Runtime.loadExtension('lists.element.creation-guide')
+				.then(({ CreationGuide }) => {
+					if (CreationGuide)
+					{
+						PostFormTabs.getInstance().listsMenu.popupWindow.close();
+						PostFormTabs.getInstance().menu.popupWindow.close();
+
+						CreationGuide.open({
+							iBlockTypeId: iblock[5],
+							iBlockId: Text.toInteger(iblock[0]),
+							analyticsSection: 'feed',
+							analyticsP1: iblock[1],
+							onClose: () => {
+								if (BX.Livefeed && BX.Livefeed.PageInstance)
+								{
+									BX.Livefeed.PageInstance.refresh();
+								}
+								else
+								{
+									window.location.reload();
+								}
+							},
+						});
+
+						return;
+					}
+
+					this.createOnclickLists(id, iblock)();
+				})
+				.catch(() => {
+					this.createOnclickLists(id, iblock)();
+				})
+			;
+		};
+	}
 }

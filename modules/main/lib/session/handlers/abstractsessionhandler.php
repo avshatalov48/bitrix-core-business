@@ -3,7 +3,6 @@
 namespace Bitrix\Main\Session\Handlers;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\EventManager;
 use Bitrix\Main\HttpResponse;
 use Bitrix\Main\Security\Random;
 

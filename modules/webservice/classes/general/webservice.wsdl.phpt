@@ -14,7 +14,7 @@ class CGenericWSDLTestWS extends IWebService
 {
 	function wsTestStart($str1, $str2)
 	{
-		return $str1.$str2." :Эта функция склеила два входящих параметра.";
+		return $str1.$str2." :Р­С‚Р° С„СѓРЅРєС†РёСЏ СЃРєР»РµРёР»Р° РґРІР° РІС…РѕРґСЏС‰РёС… РїР°СЂР°РјРµС‚СЂР°.";
 	}	
 	
 	function wsTestStart2($str1, $stra /*array str*/)

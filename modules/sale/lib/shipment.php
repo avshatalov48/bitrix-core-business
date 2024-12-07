@@ -26,8 +26,10 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	protected $service = null;
 
 	protected $extraServices = null;
+	protected bool $areExtraServicesChanged = false;
 
 	protected $storeId = null;
+	protected bool $isStoreIdChanged = false;
 
 	/** @var int */
 	protected $internalId = 0;
@@ -292,7 +294,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 				$condition === ReserveCondition::ON_SHIP
 				&& $this->isShipped()
 			)
-		;
+			;
 	}
 
 	/**
@@ -937,6 +939,11 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 
 		$this->callEventOnBeforeEntitySaved();
 
+		if (!$this->isChanged())
+		{
+			return $result;
+		}
+
 		if ($id > 0)
 		{
 			$r = $this->update();
@@ -1157,8 +1164,8 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	{
 		/** @var Main\Entity\Event $event */
 		$event = new Main\Event('sale', 'OnBeforeSaleShipmentEntitySaved', [
-				'ENTITY' => $this,
-				'VALUES' => $this->fields->getOriginalValues()
+			'ENTITY' => $this,
+			'VALUES' => $this->fields->getOriginalValues()
 		]);
 
 		$event->send();
@@ -1290,7 +1297,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 			$name === 'BASE_PRICE_DELIVERY'
 			|| $name === 'PRICE_DELIVERY'
 			|| $name === 'DISCOUNT_PRICE'
-		;
+			;
 	}
 
 	/**
@@ -2067,28 +2074,32 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	}
 
 	/**
-	 * @return null
+	 * @return array
 	 */
 	public function getExtraServices()
 	{
-		if($this->extraServices === null)
+		if ($this->extraServices === null)
 		{
-			$this->setExtraServices(
-				Delivery\ExtraServices\Manager::getValuesForShipment(
-					$this->getId(),
-					$this->getDeliveryId()
-				)
+			$this->extraServices = Delivery\ExtraServices\Manager::getValuesForShipment(
+				$this->getId(),
+				$this->getDeliveryId()
 			);
 		}
 
 		return $this->extraServices;
 	}
 
-	/**
-	 * @param array $extraServices
-	 */
 	public function setExtraServices(array $extraServices)
 	{
+		$currentExtraServices = $this->getExtraServices();
+		if (
+			!empty(array_diff_assoc($currentExtraServices, $extraServices))
+			|| !empty(array_diff_assoc($extraServices, $currentExtraServices))
+		)
+		{
+			$this->areExtraServicesChanged = true;
+		}
+
 		$this->extraServices = $extraServices;
 	}
 
@@ -2117,24 +2128,25 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 	 */
 	public function getStoreId()
 	{
-		if($this->storeId === null)
+		if ($this->storeId === null)
 		{
-			$this->setStoreId(
-				Delivery\ExtraServices\Manager::getStoreIdForShipment(
-					$this->getId(),
-					$this->getDeliveryId()
-			));
+			$this->storeId = Delivery\ExtraServices\Manager::getStoreIdForShipment(
+				$this->getId(),
+				$this->getDeliveryId()
+			);
 		}
 
 		return $this->storeId;
 	}
 
-	/**
-	 * @param $storeId
-	 */
-	public function setStoreId($storeId)
+	public function setStoreId(int $storeId)
 	{
-		$this->storeId = (int)$storeId;
+		if ($storeId !== $this->getStoreId())
+		{
+			$this->isStoreIdChanged = true;
+		}
+
+		$this->storeId = $storeId;
 	}
 
 	/**
@@ -2663,9 +2675,6 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 
 	/**
 	 * @return bool
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ObjectNotFoundException
 	 */
 	public function isChanged()
 	{
@@ -2674,7 +2683,12 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 			return true;
 		}
 
-		return $this->getShipmentItemCollection()->isChanged();
+		return (
+			$this->getShipmentItemCollection()->isChanged()
+			|| $this->getPropertyCollection()->isChanged()
+			|| $this->isStoreIdChanged
+			|| $this->areExtraServicesChanged
+		);
 	}
 
 	/**
@@ -2839,6 +2853,7 @@ class Shipment extends Internals\CollectableEntity implements IBusinessValueProv
 		$result = parent::toArray();
 
 		$result['ITEMS'] = $this->getShipmentItemCollection()->toArray();
+		$result['PROPERTIES'] = $this->getPropertyCollection()->toArray();
 
 		return $result;
 	}

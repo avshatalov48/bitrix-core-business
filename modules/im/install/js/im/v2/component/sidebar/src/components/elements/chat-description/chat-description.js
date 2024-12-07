@@ -1,12 +1,23 @@
-import { Parser } from 'im.v2.lib.parser';
-import { ChatType } from 'im.v2.const';
+import { Loc } from 'main.core';
+
+import { ChatType, Layout } from 'im.v2.const';
 
 import './chat-description.css';
 
 import type { JsonObject } from 'main.core';
-import type { ImModelUser, ImModelChat } from 'im.v2.model';
+import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
 const MAX_DESCRIPTION_SYMBOLS = 25;
+const NEW_LINE_SYMBOL = '\n';
+
+const DescriptionByChatType = {
+	[ChatType.user]: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_USER'),
+	[ChatType.channel]: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_CHANNEL'),
+	[ChatType.openChannel]: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_CHANNEL'),
+	[ChatType.generalChannel]: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_CHANNEL'),
+	[ChatType.comment]: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_COMMENTS'),
+	default: Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_GROUP_V2'),
+};
 
 // @vue/component
 export const ChatDescription = {
@@ -40,6 +51,12 @@ export const ChatDescription = {
 
 			return user.bot === true;
 		},
+		isLongDescription(): boolean
+		{
+			const hasNewLine = this.dialog.description.includes(NEW_LINE_SYMBOL);
+
+			return this.dialog.description.length > MAX_DESCRIPTION_SYMBOLS || hasNewLine;
+		},
 		previewDescription(): string
 		{
 			if (this.dialog.description.length === 0)
@@ -47,7 +64,7 @@ export const ChatDescription = {
 				return this.chatTypeText;
 			}
 
-			if (this.dialog.description.length > MAX_DESCRIPTION_SYMBOLS)
+			if (this.isLongDescription)
 			{
 				return `${this.dialog.description.slice(0, MAX_DESCRIPTION_SYMBOLS)}...`;
 			}
@@ -56,23 +73,21 @@ export const ChatDescription = {
 		},
 		descriptionToShow(): string
 		{
-			const rawText = this.expanded ? this.dialog.description : this.previewDescription;
-
-			return Parser.purifyText(rawText);
+			return this.expanded ? this.dialog.description : this.previewDescription;
 		},
 		chatTypeText(): string
 		{
+			if (this.isCopilotLayout)
+			{
+				return this.$store.getters['copilot/getProvider'];
+			}
+
 			if (this.isBot)
 			{
 				return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_BOT');
 			}
 
-			if (this.isUser)
-			{
-				return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_USER');
-			}
-
-			return this.$Bitrix.Loc.getMessage('IM_SIDEBAR_CHAT_TYPE_GROUP_V2');
+			return DescriptionByChatType[this.dialog.type] ?? DescriptionByChatType.default;
 		},
 		showExpandButton(): boolean
 		{
@@ -81,7 +96,13 @@ export const ChatDescription = {
 				return false;
 			}
 
-			return this.dialog.description.length >= MAX_DESCRIPTION_SYMBOLS;
+			return this.isLongDescription;
+		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
 		},
 	},
 	methods:
@@ -95,9 +116,7 @@ export const ChatDescription = {
 		<div class="bx-im-sidebar-chat-description__container">
 			<div class="bx-im-sidebar-chat-description__text-container" :class="[expanded ? '--expanded' : '']">
 				<div class="bx-im-sidebar-chat-description__icon"></div>
-				<div class="bx-im-sidebar-chat-description__text">
-					{{ descriptionToShow }}
-				</div>
+				<div class="bx-im-sidebar-chat-description__text"> {{ descriptionToShow }}</div>
 			</div>
 			<button
 				v-if="showExpandButton"

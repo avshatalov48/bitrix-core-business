@@ -18,6 +18,7 @@ return [
 		'calendar.planner',
 		'ui.entity-selector',
 		'main.core.events',
+		'ui.info-helper',
 		'main.popup',
 		'calendar.controls',
 		'intranet.control-button',

@@ -4,7 +4,6 @@ class CSession
 {
 	public static function GetAttentiveness($DATE_STAT, $SITE_ID=false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if ($SITE_ID!==false)
 			$str = " and S.FIRST_SITE_ID = '".$DB->ForSql($SITE_ID,2)."' ";
@@ -51,7 +50,7 @@ class CSession
 			$str
 			";
 
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		$ar = $rs->Fetch();
 		$arKeys = array_keys($ar);
 		foreach($arKeys as $key)
@@ -71,7 +70,6 @@ class CSession
 
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$select = "";
@@ -284,7 +282,7 @@ class CSession
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

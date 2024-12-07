@@ -57,7 +57,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 
 		$location = \CSaleLocation::GetByID($delivery->getValue());
 
-		$regId = $location["REGION_ID"];
+		$regId = $location['REGION_ID'] ?? 0;
 
 		$params = $this->service->getField('TARIF');
 
@@ -75,7 +75,7 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 		elseif ($fullPrice <= 500000)
 			$tariffNum = "3";
 
-		if (isset($tariffNum))
+		if (isset($tariffNum) && isset($tarifs["TARIFS"][$tariffNum]))
 		{
 			$percent = 0;
 			if ($tarifs["TARIFS"][$tariffNum]["UPPER_SUMM"] < $payment->getSum())
@@ -101,8 +101,14 @@ class CashOnDeliveryCalcHandler extends PaySystem\BaseServiceHandler implements 
 		$arRegIds = array_keys($tarifs);
 		$regNames = @\CSaleLocation::GetRegionsNamesByIds($arRegIds);
 
+		$csvTariffs = [];
+		if (isset($tarifs[0]))
+		{
+			$csvTariffs = self::getTariffArrayCSV($tarifs[0]);
+		}
+
 		$result[] = array(
-			'TARIFS' => self::getTariffArrayCSV($tarifs[0]),
+			'TARIFS' => $csvTariffs,
 			'REG_NAME' => Loc::getMessage('SALE_HPS_CASH_ON_DELIVERY_TARIF_DEFAULT')
 		);
 

@@ -33,7 +33,7 @@ that. (see further down this file for instructions)
 1. Include the minified version of file of this plugin. I.e.:
 
 ```
-<script src="amcharts/plugins/responsive/responsive.min.js" type="text/javascript"></script>
+<script src="amcharts/plugins/responsive/responsive.min.js"></script>
 ```
 
 (this needs to go after all the other amCharts includes)

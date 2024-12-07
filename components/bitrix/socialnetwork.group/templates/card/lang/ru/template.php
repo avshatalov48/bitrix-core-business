@@ -51,6 +51,7 @@ $MESS["SONET_C6_CARD_MENU_ABOUT_PROJECT"] = "О проекте";
 $MESS["SONET_C6_CARD_MENU_ABOUT_SCRUM"] = "О Скраме";
 $MESS["SONET_C6_CARD_MENU_MEMBERS"] = "Участники";
 $MESS["SONET_C6_CARD_MENU_ROLES"] = "Роли и права";
+$MESS['SONET_C6_CARD_MENU_FLOWS'] = 'Потоки';
 $MESS["SONET_C6_CARD_CHANGE_THEME"] = "Сменить тему оформления";
 $MESS["SONET_C6_CARD_MEMBERS_TITLE"] = "Участники группы";
 $MESS["SONET_C6_CARD_MEMBERS_TITLE_PROJECT"] = "Участники проекта";

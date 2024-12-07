@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Main\UI;
 
+use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 
 class FileInputUtility
@@ -26,6 +27,11 @@ class FileInputUtility
 	{
 	}
 
+	public function isAccessible(): bool
+	{
+		return Application::getInstance()->getSession()->isAccessible();
+	}
+
 	public function registerControl($CID, $controlId = "")
 	{
 		if (func_num_args() == 1)
@@ -40,17 +46,17 @@ class FileInputUtility
 
 	public function registerFile($CID, $fileId)
 	{
-		\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID][] = $fileId;
+		Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID][] = $fileId;
 	}
 
 	public function unRegisterFile($CID, $fileId)
 	{
-		if (isset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]))
+		if (isset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]))
 		{
-			$key = array_search($fileId, \Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
+			$key = array_search($fileId, Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
 			if($key !== false)
 			{
-				unset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID][$key]);
+				unset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID][$key]);
 				return true;
 			}
 		}
@@ -114,15 +120,15 @@ class FileInputUtility
 
 	public function checkFile($CID, $fileId)
 	{
-		return isset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID])
-			&& in_array($fileId, \Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
+		return isset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID])
+			&& in_array($fileId, Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
 	}
 
 	public function getControlByCid($CID)
 	{
 		$ts = time();
 		$found = null;
-		foreach (\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST] as $controlId => $d)
+		foreach (Application::getInstance()->getSession()[self::SESSION_LIST] as $controlId => $d)
 		{
 			if (array_key_exists($CID, $d))
 			{
@@ -130,8 +136,8 @@ class FileInputUtility
 				if($r["SESSID"] != bitrix_sessid()
 					|| $ts-$r["TS"] > self::SESSION_TTL)
 				{
-					unset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$CID]);
-					unset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
+					unset(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$CID]);
+					unset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
 				}
 				else
 				{
@@ -157,29 +163,29 @@ class FileInputUtility
 	{
 		$ts = time();
 
-		if(!isset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
+		if(!isset(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
 		{
-			\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] = array();
+			Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] = array();
 		}
 		else
 		{
-			foreach(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] as $key => $arSession)
+			foreach(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] as $key => $arSession)
 			{
 				if($arSession["SESSID"] != bitrix_sessid()
 					|| $ts-$arSession["TS"] > self::SESSION_TTL)
 				{
-					unset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$key]);
-					unset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$key]);
+					unset(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$key]);
+					unset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$key]);
 				}
 			}
 		}
-		if (!array_key_exists($CID, \Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
+		if (!array_key_exists($CID, Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
 		{
-			\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$CID] = array(
+			Application::getInstance()->getSession()[self::SESSION_LIST][$controlId][$CID] = array(
 				"TS" => $ts,
 				"SESSID" => bitrix_sessid()
 			);
-			\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID] = array();
+			Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID] = array();
 		}
 	}
 
@@ -187,13 +193,14 @@ class FileInputUtility
 	{
 		$res = array();
 
-		if(isset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
+		if(isset(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId]))
 		{
-			foreach(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] as $CID => $arSession)
+			foreach(Application::getInstance()->getSession()[self::SESSION_LIST][$controlId] as $CID => $arSession)
 			{
-				if(isset(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]) && is_array(\Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]))
+				if(isset(Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]) && is_array(
+						Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]))
 				{
-					$res = array_merge($res, \Bitrix\Main\Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
+					$res = array_merge($res, Application::getInstance()->getSession()[self::SESSION_VAR_PREFIX.$CID]);
 				}
 			}
 		}

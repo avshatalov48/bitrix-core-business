@@ -36,27 +36,27 @@ final class WordStatTable extends Entity\DataManager
 
 	// tmp
 	protected static $blackList = array(
-		'ÐÀÉÎÍ' => true,
-		'ÎÁËÀÑÒÜ' => true,
-		'ÓËÈÖÀ' => true,
-		'ÒÓÏÈÊ' => true,
-		'ÃÅÍÅÐÀËÀ' => true,
-		'ÏÅÐÅÓËÎÊ' => true,
-		'ÏÎÑ¨ËÎÊ' => true,
-		'ÑÅËÎ' => true,
-		'ÃÎÐÎÄÑÊÎÃÎ' => true,
-		'ÒÈÏÀ' => true,
-		'ÃÎÐÎÄÎÊ' => true,
-		'ÑÍÒ' => true,
-		'ÍÀÑÅË¨ÍÍÛÉ' => true,
-		'ÏÓÍÊÒ' => true,
-		'ÄÅÐÅÂÍß' => true,
-		'ÄÀ×ÍÛÉ' => true,
-		'ÄÍÏ' => true,
-		'ÄÍÒ' => true,
-		'ÏËÎÙÀÄÜ' => true,
-		'ÏÐÎÅÇÄ' => true,
-		'ÀËËÅß' => true
+		'Ð ÐÐ™ÐžÐ' => true,
+		'ÐžÐ‘Ð›ÐÐ¡Ð¢Ð¬' => true,
+		'Ð£Ð›Ð˜Ð¦Ð' => true,
+		'Ð¢Ð£ÐŸÐ˜Ðš' => true,
+		'Ð“Ð•ÐÐ•Ð ÐÐ›Ð' => true,
+		'ÐŸÐ•Ð Ð•Ð£Ð›ÐžÐš' => true,
+		'ÐŸÐžÐ¡ÐÐ›ÐžÐš' => true,
+		'Ð¡Ð•Ð›Ðž' => true,
+		'Ð“ÐžÐ ÐžÐ”Ð¡ÐšÐžÐ“Ðž' => true,
+		'Ð¢Ð˜ÐŸÐ' => true,
+		'Ð“ÐžÐ ÐžÐ”ÐžÐš' => true,
+		'Ð¡ÐÐ¢' => true,
+		'ÐÐÐ¡Ð•Ð›ÐÐÐÐ«Ð™' => true,
+		'ÐŸÐ£ÐÐšÐ¢' => true,
+		'Ð”Ð•Ð Ð•Ð’ÐÐ¯' => true,
+		'Ð”ÐÐ§ÐÐ«Ð™' => true,
+		'Ð”ÐÐŸ' => true,
+		'Ð”ÐÐ¢' => true,
+		'ÐŸÐ›ÐžÐ©ÐÐ”Ð¬' => true,
+		'ÐŸÐ ÐžÐ•Ð—Ð”' => true,
+		'ÐÐ›Ð›Ð•Ð¯' => true
 	);
 
 	public static function parseQuery($query)

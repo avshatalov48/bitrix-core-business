@@ -20,9 +20,15 @@ if (!$arResult['hasAccessToCatalog'])
 }
 
 $component = $this->getComponent();
+
+$randString = $this->randString();
+if ($component->isAjaxRequest())
+{
+	$randString .= time();
+}
 ?>
 
-<span class="fields enumeration field-wrap">
+<span class="fields enumeration field-wrap" data-has-input="no">
 	<?php
 	$multipleClass = ($arResult['userField']['MULTIPLE'] === 'Y' ? '-multiselect' : '-select');
 	if($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_LIST)
@@ -64,13 +70,41 @@ $component = $this->getComponent();
 		</span>
 		<?php
 	}
+	elseif($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_DIALOG)
+	{
+		$containerName = $arResult['userField']['FIELD_NAME'] . '-' . $randString;
+		?>
+		<input type="hidden" value="" id="<?= $arResult['userField']['FIELD_NAME'] ?>_default">
+		<div id="<?= $containerName ?>"></div>
+		<?php
+		$params = \Bitrix\Main\Web\Json::encode([
+			'fieldName' => $arResult['userField']['FIELD_NAME'],
+			'iblockId' => (int)$arResult['userField']['SETTINGS']['IBLOCK_ID'],
+			'value' => $arResult['value'],
+			'isMultiple' => $arResult['userField']['MULTIPLE'] === 'Y',
+			'type' => SectionType::USER_TYPE_ID,
+		]);
+
+		$script = <<<EOT
+		<script>
+			BX.ready(() => {
+				const elementSelector = new BX.Iblock.UserFieldSelector('{$params}');
+				elementSelector.renderTo(document.getElementById('{$containerName}'));
+				
+				BX.Event.EventEmitter.subscribe(elementSelector, 'change', () => {
+					BX.fireEvent(BX('{$arResult['userField']['FIELD_NAME']}_default'), 'change');
+				});
+			});
+		</script>
+EOT;
+		print $script;
+	}
 	elseif($arResult['userField']['SETTINGS']['DISPLAY'] === SectionType::DISPLAY_UI)
 	{
 		?>
 
 		<input
 			type="hidden"
-			name="<?= $arResult['userField']['FIELD_NAME'] ?>"
 			value=""
 			id="<?= $arResult['userField']['FIELD_NAME'] ?>_default"
 		>
@@ -156,6 +190,8 @@ $component = $this->getComponent();
 						node: BX('{$arResult['controlNodeIdJs']}').firstChild
 					});
 			}));
+			
+			BX.fireEvent(BX('{$arResult['controlNodeIdJs']}'), 'click');
 		});
 	</script>
 EOT;

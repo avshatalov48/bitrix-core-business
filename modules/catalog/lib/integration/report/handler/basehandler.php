@@ -306,7 +306,7 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 		$formattedFilter = $this->getFormattedFilter();
 		$differenceFilter = $formattedFilter;
 		$currentTime = new DateTime();
-		$filterTimeTo = new DateTime($differenceFilter['REPORT_INTERVAL']['TO']);
+		$filterTimeTo = new DateTime($differenceFilter['REPORT_INTERVAL']['TO'] ?? null);
 		if ($currentTime > $filterTimeTo)
 		{
 			$differenceFilter['REPORT_INTERVAL']['FROM'] = $differenceFilter['REPORT_INTERVAL']['TO'];
@@ -506,7 +506,7 @@ abstract class BaseHandler extends BaseReport  implements IReportMultipleData
 		$filter = $this->getFilter();
 		$filterId = $filter->getFilterParameters()['FILTER_ID'];
 
-		if (!$filterParameters[$filterId])
+		if (!isset($filterParameters[$filterId]))
 		{
 			$options = new Options($filterId, $filter::getPresetsList());
 			$fieldList = $filter::getFieldsList();

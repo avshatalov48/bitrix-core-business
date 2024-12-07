@@ -15,6 +15,7 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 $pageId = "group_requests";
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $componentParameters = [
 	"PATH_TO_USER" => $arParams["PATH_TO_USER"],

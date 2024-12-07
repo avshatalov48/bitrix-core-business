@@ -102,6 +102,8 @@ if (SITE_TEMPLATE_ID === 'bitrix24')
 {
 	include('util_group_blog_menu.php');
 }
+include("util_group_limit.php");
+
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.sidepanel.wrapper',
 	'',

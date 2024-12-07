@@ -57,7 +57,7 @@ class CSearchTitle extends CAllSearchTitle
 					,sc.URL as URL
 					,scsite.URL as SITE_URL
 					,scsite.SITE_ID
-					,if(locate('".$DB->ForSQL(ToUpper($phrase))."', upper(sc.TITLE)) > 0, 1, 0) RANK1
+					,if(locate('".$DB->ForSQL(mb_strtoupper($phrase))."', upper(sc.TITLE)) > 0, 1, 0) RANK1
 					,count(1) RANK2
 					,min(ct.POS) RANK3
 				FROM
@@ -93,7 +93,7 @@ class CSearchTitle extends CAllSearchTitle
 	function getRankFunction($phrase)
 	{
 		$DB = CDatabase::GetModuleConnection('search');
-		return "if(locate('".$DB->ForSQL(ToUpper($phrase))."', upper(sc.TITLE)) > 0, 1, 0)";
+		return "if(locate('".$DB->ForSQL(mb_strtoupper($phrase))."', upper(sc.TITLE)) > 0, 1, 0)";
 	}
 
 	function getSqlOrder($bOrderByRank)

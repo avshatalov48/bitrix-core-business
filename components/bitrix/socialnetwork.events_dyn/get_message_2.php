@@ -8,9 +8,6 @@ define("PUBLIC_AJAX_MODE", true);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/bx_root.php");
 
-$cuid = intval($_REQUEST["cuid"]);
-$site = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]) : "";
-
 if (isset($_REQUEST["is"]))
 	$ImageSize = intval($_REQUEST["is"]);
 else
@@ -21,6 +18,9 @@ if ($ImageSize <= 0)
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 use Bitrix\Main\Localization\Loc;
+
+$cuid = intval($_REQUEST["cuid"] ?? null);
+$site = (isset($_REQUEST["site"]) && is_string($_REQUEST["site"])) ? trim($_REQUEST["site"]) : "";
 
 $logCnt = 0;
 if ($GLOBALS["USER"]->IsAuthorized())
@@ -50,7 +50,10 @@ $rsSites = CSite::GetByID($site);
 if ($arSite = $rsSites->Fetch())
 {
 	$DateTimeFormat = $arSite["FORMAT_DATETIME"];
-	define("LANGUAGE_ID", $arSite["LANGUAGE_ID"]);
+	if (!defined('LANGUAGE_ID'))
+	{
+		define("LANGUAGE_ID", $arSite["LANGUAGE_ID"]);
+	}
 	Loc::loadLanguageFile(__FILE__);
 }
 else
@@ -60,20 +63,20 @@ else
 
 if(CModule::IncludeModule("socialnetwork"))
 {
-	$userID = intval($_REQUEST["user_id"]);
-	$mptr = Trim($_REQUEST["mptr"]);
+	$userID = intval($_REQUEST["user_id"] ?? null);
+	$mptr = Trim($_REQUEST["mptr"] ?? '');
 
 	if(isset($_REQUEST["log"]))
-		$log = Trim($_REQUEST["log"]);
+		$log = Trim($_REQUEST["log"] ?? '');
 	else
 		$log = "N";
 
-	$arParams["PATH_TO_USER"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["up"]));
-	$arParams["PATH_TO_GROUP"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["gp"]));
-	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["mpm"]));
+	$arParams["PATH_TO_USER"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["up"] ?? ''));
+	$arParams["PATH_TO_GROUP"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["gp"] ?? ''));
+	$arParams["PATH_TO_MESSAGE_FORM_MESS"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["mpm"] ?? ''));
 
-	if (trim($_REQUEST["nt"]) <> '')
-		$arParams["NAME_TEMPLATE"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"]));
+	if (trim($_REQUEST["nt"] ?? '') <> '')
+		$arParams["NAME_TEMPLATE"] = Trim($GLOBALS["APPLICATION"]->UnJSEscape($_REQUEST["nt"] ?? ''));
 	else
 		$arParams["NAME_TEMPLATE"] = CSite::GetNameFormat();
 
@@ -83,7 +86,7 @@ if(CModule::IncludeModule("socialnetwork"))
 		$arParams["NAME_TEMPLATE"]
 	);
 
-	if (trim($_REQUEST["sl"]) == "N")
+	if (trim($_REQUEST["sl"] ?? '') == "N")
 		$bUseLogin = false;
 	else
 		$bUseLogin = true;

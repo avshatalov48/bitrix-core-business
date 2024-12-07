@@ -206,7 +206,7 @@ if(empty($arError))
 if (!empty($arError))
 {
 	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_after.php");
-	echo ShowError((!empty($arError["title"]) ? $arError["title"] : $arError["code"]));
+	ShowError((!empty($arError["title"]) ? $arError["title"] : $arError["code"]));
 	require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog.php");
 	die();
 }
@@ -256,7 +256,7 @@ else
 }
 // *****************************************************************************************
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/prolog_after.php");
-echo ShowError(GetMessage("F_ATTACH_NOT_FOUND"));
+ShowError(GetMessage("F_ATTACH_NOT_FOUND"));
 require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog.php");
 // *****************************************************************************************
 ?>

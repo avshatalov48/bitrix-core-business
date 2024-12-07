@@ -51,13 +51,10 @@ $strWarning = "";
 //Save page settings
 if ($_SERVER["REQUEST_METHOD"] == "POST" && !check_bitrix_sessid())
 {
-	CUtil::JSPostUnescape();
 	$strWarning = GetMessage("MAIN_SESSION_EXPIRED");
 }
 elseif ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_REQUEST["save"]))
 {
-	CUtil::JSPostUnescape();
-
 	//Title
 	if (isset($_POST["pageTitle"]) && $_POST["pageTitle"] <> '')
 		$fileContent = SetPrologTitle($fileContent, $_POST["pageTitle"]);

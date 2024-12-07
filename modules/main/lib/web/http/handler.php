@@ -22,7 +22,7 @@ class Handler implements Log\LoggerAwareInterface, DebugInterface
 	protected int $bodyLengthMax = 0;
 
 	protected RequestInterface $request;
-	protected ResponseBuilder $responseBuilder;
+	protected ResponseBuilderInterface $responseBuilder;
 	protected $shouldFetchBody = null;
 	protected string $responseHeaders = '';
 	protected ?Response $response = null;
@@ -30,10 +30,10 @@ class Handler implements Log\LoggerAwareInterface, DebugInterface
 
 	/**
 	 * @param RequestInterface $request
-	 * @param ResponseBuilder $responseBuilder
+	 * @param ResponseBuilderInterface $responseBuilder
 	 * @param array $options
 	 */
-	public function __construct(RequestInterface $request, ResponseBuilder $responseBuilder, array $options = [])
+	public function __construct(RequestInterface $request, ResponseBuilderInterface $responseBuilder, array $options = [])
 	{
 		$this->request = $request;
 		$this->responseBuilder = $responseBuilder;

@@ -166,7 +166,7 @@ else
 
 $arRightsUseSites = array();
 
-echo "<script type=\"text/javascript\">\n".
+echo "<script>\n".
 	"var arRightsUseSites = new Array();\n";
 
 if (array_key_exists("use_site", $ar))
@@ -180,7 +180,7 @@ if (array_key_exists("use_site", $ar))
 
 echo "</script>\n";
 
-echo "<script type=\"text/javascript\">\n".
+echo "<script>\n".
 	"if ('__GroupRightsChangeSite' != typeof window.noFunc) { \n".
 		"function __GroupRightsChangeSite(el)\n".
 		"{\n".
@@ -203,7 +203,7 @@ echo "<script type=\"text/javascript\">\n".
 	"}\n".
 	"</script>\n";
 
-if($REQUEST_METHOD=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $MODULE_RIGHT=="W" && check_bitrix_sessid())
 {
 	if (!empty($GROUPS))
 	{
@@ -320,7 +320,7 @@ foreach($arGROUPS as $value)
 <tr>
 	<td></td>
 	<td style="padding-bottom:10px;">
-<script type="text/javascript">
+<script>
 
 function settingsSetGroupID(el)
 {

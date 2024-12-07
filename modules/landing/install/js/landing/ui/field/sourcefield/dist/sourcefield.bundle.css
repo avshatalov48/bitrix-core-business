@@ -17,7 +17,7 @@
 }
 
 .landing-ui-field-source-placeholder {
-	background-color: #B8E9F8;
+	background-color: #b8e9f8;
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -27,7 +27,7 @@
 }
 
 .landing-ui-field-source-placeholder-text {
-	color: #000000;
+	color: #000;
 	font-size: 15px;
 	max-width: 200px;
 	white-space: nowrap;
@@ -144,4 +144,31 @@
 
 .landing-ui-field-source-placeholder-text-plain:last-child {
 	padding-right: 6px;
+}
+
+.landing-ui-field-link-container {
+	font-size: 12px;
+	line-height: 14px;
+	padding-top: 5px;
+	padding-bottom: 15px;
+}
+
+.landing-ui-field-link-container .landing-ui-field-link {
+	border-bottom: 1px rgba(169, 173, 178, .65) solid;
+	color: #a9adb2;
+	opacity: .45;
+	cursor: default;
+}
+
+.landing-ui-field-link-container a[href].landing-ui-field-link {
+	border-bottom: 1px rgba(169, 173, 178, .65) solid;
+	color: #a9adb2;
+	opacity: 1;
+	cursor: pointer;
+}
+
+.landing-ui-field-link-container a[href].landing-ui-field-link:hover {
+	opacity: .45;
+	color: #a9adb2;
+	text-decoration: none;
 }

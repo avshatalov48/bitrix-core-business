@@ -163,13 +163,20 @@ final class UserTypePropertyFieldAssembler extends FieldAssembler
 
 				$separator = '';
 
-				$isCommaSeparator = in_array($property['USER_TYPE'], [
-					PropertyTable::USER_TYPE_DATE,
-					PropertyTable::USER_TYPE_DATETIME,
-				]);
-				if ($isCommaSeparator)
+				// TODO: replace this hack (custom separator for some types of properties)
+				if (in_array(
+						$property['USER_TYPE'],
+						[
+							PropertyTable::USER_TYPE_DATE,
+							PropertyTable::USER_TYPE_DATETIME,
+						]
+				))
 				{
 					$separator = ', ';
+				}
+				elseif ($property['USER_TYPE'] === PropertyTable::USER_TYPE_DIRECTORY)
+				{
+					$separator = ' / ';
 				}
 
 				return join($separator, $tmp);

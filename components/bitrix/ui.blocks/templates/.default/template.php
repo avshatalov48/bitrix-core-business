@@ -8,28 +8,28 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 <div class="ui-block-wrapper">
 	<div class="ui-block-title">
-		<div class="ui-block-title-text">Контактная информация</div>
+		<div class="ui-block-title-text">РљРѕРЅС‚Р°РєС‚РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ</div>
 		<div class="ui-block-title-actions">
-			<a href="" class="ui-block-title-actions-link">Изменить</a>
+			<a href="" class="ui-block-title-actions-link">РР·РјРµРЅРёС‚СЊ</a>
 		</div>
 	</div>
 	<div class="ui-block-content">
 		<div class="ui-block-field-container">
-			<div class="ui-block-field-title">ФИО</div>
-			<div class="ui-block-field-content">Александра Сандровская Михайловна</div>
+			<div class="ui-block-field-title">Р¤РРћ</div>
+			<div class="ui-block-field-content">РђР»РµРєСЃР°РЅРґСЂР° РЎР°РЅРґСЂРѕРІСЃРєР°СЏ РњРёС…Р°Р№Р»РѕРІРЅР°</div>
 		</div>
 		<div class="ui-block-field-container">
-			<div class="ui-block-field-title">Должность</div>
-			<div class="ui-block-field-content">Менеджер по маркетингу</div>
+			<div class="ui-block-field-title">Р”РѕР»Р¶РЅРѕСЃС‚СЊ</div>
+			<div class="ui-block-field-content">РњРµРЅРµРґР¶РµСЂ РїРѕ РјР°СЂРєРµС‚РёРЅРіСѓ</div>
 		</div>
 		<div class="ui-block-field-container">
-			<div class="ui-block-field-title">Подразделения</div>
-			<div class="ui-block-field-content">Моя компания</div>
+			<div class="ui-block-field-title">РџРѕРґСЂР°Р·РґРµР»РµРЅРёСЏ</div>
+			<div class="ui-block-field-content">РњРѕСЏ РєРѕРјРїР°РЅРёСЏ</div>
 		</div>
 	</div>
 	<div class="ui-block-content-actions">
-		<a class="ui-block-content-actions-link" href="">Выбрать поле</a>
-		<a class="ui-block-content-actions-link" href="">Создать поле</a>
+		<a class="ui-block-content-actions-link" href="">Р’С‹Р±СЂР°С‚СЊ РїРѕР»Рµ</a>
+		<a class="ui-block-content-actions-link" href="">РЎРѕР·РґР°С‚СЊ РїРѕР»Рµ</a>
 	</div>
 </div>
 
@@ -38,9 +38,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 <div class="ui-block-wrapper">
 	<div class="ui-block-title">
-		<div class="ui-block-title-text">Контактная информация</div>
+		<div class="ui-block-title-text">РљРѕРЅС‚Р°РєС‚РЅР°СЏ РёРЅС„РѕСЂРјР°С†РёСЏ</div>
 		<div class="ui-block-title-actions">
-			<a href="" class="ui-block-title-actions-link">Изменить</a>
+			<a href="" class="ui-block-title-actions-link">РР·РјРµРЅРёС‚СЊ</a>
 		</div>
 	</div>
 	<div class="ui-block-content">
@@ -56,7 +56,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 			<label for="" class="ui-block-field-title">select (custom div)</label>
 			<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100">
 				<div class="ui-ctl-after ui-ctl-icon-angle"></div>
-				<div class="ui-ctl-element"> Выбранная опция </div>
+				<div class="ui-ctl-element"> Р’С‹Р±СЂР°РЅРЅР°СЏ РѕРїС†РёСЏ </div>
 			</div>
 		</div>
 		<div class="ui-block-field-container">
@@ -65,9 +65,9 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 				<div class="ui-ctl ui-ctl-after-icon ui-ctl-dropdown ui-ctl-w100">
 					<div class="ui-ctl-after ui-ctl-icon-angle"></div>
 					<select class="ui-ctl-element">
-						<option value="">Опция #1</option>
-						<option value="">Опция #2</option>
-						<option value="">Опция #3</option>
+						<option value="">РћРїС†РёСЏ #1</option>
+						<option value="">РћРїС†РёСЏ #2</option>
+						<option value="">РћРїС†РёСЏ #3</option>
 					</select>
 				</div>
 			</div>
@@ -86,11 +86,11 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 			<div class="ui-block-field-editor">
 				<div class="ui-ctl ui-ctl-multiple-select ui-ctl-w100  ui-ctl-lg">
 					<select class="ui-ctl-element" multiple size="3">
-						<option value="">Опция #1</option>
-						<option value="">Опция #2</option>
-						<option value="">Опция #3442</option>
-						<option value="">Опция #5434</option>
-						<option value="">Опция #6433</option>
+						<option value="">РћРїС†РёСЏ #1</option>
+						<option value="">РћРїС†РёСЏ #2</option>
+						<option value="">РћРїС†РёСЏ #3442</option>
+						<option value="">РћРїС†РёСЏ #5434</option>
+						<option value="">РћРїС†РёСЏ #6433</option>
 					</select>
 				</div>
 			</div>
@@ -105,7 +105,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 		</div>
 	</div>
 	<div class="ui-block-content-actions">
-		<a class="ui-block-content-actions-link" href="">Выбрать поле</a>
-		<a class="ui-block-content-actions-link" href="">Создать поле</a>
+		<a class="ui-block-content-actions-link" href="">Р’С‹Р±СЂР°С‚СЊ РїРѕР»Рµ</a>
+		<a class="ui-block-content-actions-link" href="">РЎРѕР·РґР°С‚СЊ РїРѕР»Рµ</a>
 	</div>
 </div>

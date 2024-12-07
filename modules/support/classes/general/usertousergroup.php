@@ -119,7 +119,7 @@ class CSupportUser2UserGroup
 			$strQuery .= ' ORDER BY ' . $strOrder;
 		}
 
-		$res = $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strQuery);
 		$res->arReplacedAliases = array('UG_CMUGM' => 'CAN_MAIL_UPDATE_GROUP_MESSAGES');
 
 		return $res;
@@ -131,7 +131,7 @@ class CSupportUser2UserGroup
 		if (CSupportUser2UserGroup::CheckFields($arFields))
 		{
 			$arInsert = $DB->PrepareInsert('b_ticket_user_ugroup', $arFields);
-			return $DB->Query('INSERT INTO b_ticket_user_ugroup ('.$arInsert[0].') VALUES ('.$arInsert[1].')', false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return $DB->Query('INSERT INTO b_ticket_user_ugroup ('.$arInsert[0].') VALUES ('.$arInsert[1].')');
 		}
 		return false;
 	}
@@ -148,7 +148,7 @@ class CSupportUser2UserGroup
 			if ($strUpdate <> '')
 			{
 				$strSql = "UPDATE b_ticket_user_ugroup SET $strUpdate WHERE USER_ID=$userID AND GROUP_ID=$groupID";
-				return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				return $DB->Query($strSql);
 			}
 		}
 		return false;

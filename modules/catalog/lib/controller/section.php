@@ -1,12 +1,12 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
 
-
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Iblock\SectionTable;
 use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
+use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\Result;
 use Bitrix\Main\UI\PageNavigation;
 
@@ -15,25 +15,32 @@ final class Section extends Controller
 	//region Actions
 	public function getFieldsAction(): array
 	{
-		return ['SECTION' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param $select
-	 * @param $filter
-	 * @param $order
 	 * @param PageNavigation $pageNavigation
+	 * @param array $select
+	 * @param array $filter
+	 * @param array $order
+	 * @param bool $__calculateTotalCount
 	 * @return Page|null
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): ?Page
+	public function listAction(
+		PageNavigation $pageNavigation,
+		array $select = [],
+		array $filter = [],
+		array $order = [],
+		bool $__calculateTotalCount = true
+	): ?Page
 	{
 		$r = $this->checkPermissionIBlockSectionList($filter['IBLOCK_ID']);
-		if($r->isSuccess())
+		if ($r->isSuccess())
 		{
 			$result = [];
 
-			$select = empty($select)? ['*']:$select;
-			$order = empty($order)? ['ID'=>'ASC']:$order;
+			$select = empty($select) ? ['*'] : $select;
+			$order = empty($order) ? ['ID'=>'ASC'] : $order;
 
 			if (isset($filter['IBLOCK_SECTION_ID']))
 			{
@@ -41,18 +48,28 @@ final class Section extends Controller
 				unset($filter['IBLOCK_SECTION_ID']);
 			}
 
-			$r = \CIBlockSection::GetList($order, $filter, false, $select, self::getNavData($pageNavigation->getOffset()));
+			$r = \CIBlockSection::GetList(
+				$order,
+				$filter,
+				false,
+				$select,
+				self::getNavData($pageNavigation->getOffset())
+			);
 			while ($l = $r->fetch())
-				$result[] = $l;
-
-			return new Page('SECTIONS', $result, function() use ($filter)
 			{
-				return \CIBlockSection::GetCount($filter);
-			});
+				$result[] = $l;
+			}
+			unset($l, $r);
+
+			return new Page(
+				$this->getServiceListName(),
+				$result,
+				$__calculateTotalCount ? $this->getCount($filter) : 0);
 		}
 		else
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 
@@ -60,102 +77,131 @@ final class Section extends Controller
 
 	public function getAction($id)
 	{
-		$r = $this->checkPermissionIBlockSectionGet($id);
-		if($r->isSuccess())
+		$result = $this->checkPermissionIBlockSectionGet($id);
+		if (!$result->isSuccess())
 		{
-			$r = $this->exists($id);
-			if($r->isSuccess())
-			{
-				return ['SECTION'=>$this->get($id)];
-			}
-			else
-			{
-				$this->addErrors($r->getErrors());
-				return null;
-			}
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
+			$this->addErrors($result->getErrors());
+
 			return null;
 		}
+
+		$row = $this->get($id);
+		if (!is_array($row))
+		{
+			$this->addErrorEntityNotExists();
+
+			return null;
+		}
+
+		return [
+			$this->getServiceItemName() => $row,
+		];
 	}
 
 	public function addAction($fields)
 	{
 		$r = $this->checkPermissionIBlockSectionAdd($fields['IBLOCK_ID']);
-		if($r->isSuccess())
+
+		$id = 0;
+		if ($r->isSuccess())
 		{
 			if (isset($fields['IBLOCK_SECTION_ID']) && (int)$fields['IBLOCK_SECTION_ID'] > 0)
 			{
 				$r = $this->checkPermissionIBlockSectionSectionBindUpdate($fields['IBLOCK_SECTION_ID']);
-			}
-		}
 
-		if($r->isSuccess())
-		{
-			$id = 0;
-			$section = new \CIBlockSection();
-
-			$r = $this->addValidate($fields);
-			if($r->isSuccess())
-			{
-				$id = $section->Add($fields);
-				if($section->LAST_ERROR<>'')
+				if (!$r->isSuccess())
 				{
-					$r->addError(new Error($section->LAST_ERROR));
+					$this->addErrors($r->getErrors());
+
+					return null;
 				}
 			}
+
+			$r = $this->addValidate($fields);
+
+			if ($r->isSuccess())
+			{
+				$section = new \CIBlockSection();
+				$id = $section->Add($fields);
+
+				$error = $section->getLastError();
+				if ($error !== '')
+				{
+					$r->addError(new Error($error, 200700300000));
+				}
+				unset(
+					$error,
+					$section,
+				);
+			}
 		}
 
-		if(!$r->isSuccess())
+		if ($r->isSuccess())
 		{
-			$this->addErrors($r->getErrors());
-			return null;
+			return [$this->getServiceItemName() => $this->get($id)];
 		}
 		else
 		{
-			return ['SECTION'=>$this->get($id)];
+			$this->addErrors($r->getErrors());
+
+			return null;
 		}
 	}
 
 	public function updateAction($id, array $fields)
 	{
-		$r = $this->checkPermissionIBlockSectionUpdate($id);
-		if($r->isSuccess())
+		$r = $this->exists($id);
+
+		if ($r->isSuccess())
 		{
+			$r = $this->checkPermissionIBlockSectionUpdate($id);
+
+			if (!$r->isSuccess())
+			{
+				$this->addErrors($r->getErrors());
+
+				return null;
+			}
+
 			if (isset($fields['IBLOCK_SECTION_ID']) && (int)$fields['IBLOCK_SECTION_ID'] > 0)
 			{
 				$r = $this->checkPermissionIBlockSectionSectionBindUpdate($fields['IBLOCK_SECTION_ID']);
-			}
-		}
 
-		if($r->isSuccess())
-		{
-			$section = new \CIBlockSection();
-
-			$r = $this->exists($id);
-			if($r->isSuccess())
-			{
-				$r = $this->updateValidate($fields+['ID'=>$id]);
-				if($r->isSuccess())
+				if (!$r->isSuccess())
 				{
-					$section->Update($id, $fields);
-					if($section->LAST_ERROR<>'')
-					{
-						$r->addError(new Error($section->LAST_ERROR));
-					}
+					$this->addErrors($r->getErrors());
+
+					return null;
 				}
 			}
+
+			$r = $this->updateValidate($fields + ['ID' => $id]);
+
+			if ($r->isSuccess())
+			{
+				$section = new \CIBlockSection();
+				$section->Update($id, $fields);
+
+				$error = $section->getLastError();
+				if ($error !== '')
+				{
+					$r->addError(new Error($error, 200700300010));
+				}
+				unset(
+					$error,
+					$section,
+				);
+			}
 		}
 
-		if($r->isSuccess())
+		if ($r->isSuccess())
 		{
-			return ['SECTION'=>$this->get($id)];
+			return [$this->getServiceItemName() => $this->get($id)];
 		}
 		else
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 	}
@@ -163,28 +209,35 @@ final class Section extends Controller
 	public function deleteAction($id)
 	{
 		$r = $this->checkPermissionIBlockSectionDelete($id);
-		if($r->isSuccess())
+
+		if ($r->isSuccess())
 		{
 			$r = $this->exists($id);
-			if($r->isSuccess())
+
+			if ($r->isSuccess())
 			{
 				if (!\CIBlockSection::Delete($id))
 				{
 					if ($ex = self::getApplication()->GetException())
+					{
 						$r->addError(new Error($ex->GetString(), $ex->GetId()));
+					}
 					else
-						$r->addError(new Error('delete section error'));
+					{
+						$r->addError(new Error('delete section error', 200700300020));
+					}
 				}
 			}
 		}
 
-		if($r->isSuccess())
+		if ($r->isSuccess())
 		{
 			return true;
 		}
 		else
 		{
 			$this->addErrors($r->getErrors());
+
 			return null;
 		}
 	}
@@ -192,11 +245,22 @@ final class Section extends Controller
 
 	protected function exists($id)
 	{
-		$r = new Result();
-		if(isset($this->get($id)['ID']) == false)
-			$r->addError(new Error('Section is not exists'));
+		$result = new Result();
 
-		return $r;
+		$iterator = \CIBlockSection::GetList(
+			[],
+			['ID' => (int)$id],
+			false,
+			['ID']
+		);
+		$row = $iterator->Fetch();
+		unset($iterator);
+		if (empty($row))
+		{
+			$result->addError($this->getErrorEntityNotExists());
+		}
+
+		return $result;
 	}
 
 	protected function get($id)
@@ -204,14 +268,96 @@ final class Section extends Controller
 		return \CIBlockSection::GetByID($id)->Fetch();
 	}
 
-	protected function addValidate($fields)
+	protected function getErrorCodeEntityNotExists(): string
 	{
-		return new Result();
+		return ErrorCode::SECTION_ENTITY_NOT_EXISTS;
 	}
 
-	protected function updateValidate($fields)
+	protected function addValidate($fields): Result
 	{
-		return new Result();
+		$r = new Result();
+
+		if (isset($fields['CODE']))
+		{
+			$isCodeUnique = $this->isCodeUnique($fields);
+
+			if (!$isCodeUnique->isSuccess())
+			{
+				$r->addError($isCodeUnique->getErrors()[0]);
+			}
+		}
+
+		return $r;
+	}
+
+	protected function updateValidate($fields): Result
+	{
+		$r = new Result();
+
+		if (isset($fields['CODE']))
+		{
+			$isCodeUnique = $this->isCodeUnique($fields);
+
+			if (!$isCodeUnique->isSuccess())
+			{
+				$r->addError($isCodeUnique->getErrors()[0]);
+			}
+		}
+
+		return $r;
+	}
+
+	private function isCodeUnique(array $fields): Result
+	{
+		$r = new Result();
+
+		$iblock = \CIBlock::GetArrayByID($fields['IBLOCK_ID']);
+
+		if (isset($iblock['FIELDS']['SECTION_CODE']['DEFAULT_VALUE']))
+		{
+			if (
+				$iblock['FIELDS']['SECTION_CODE']['DEFAULT_VALUE']['TRANSLITERATION'] === 'Y'
+				&& $iblock['FIELDS']['SECTION_CODE']['DEFAULT_VALUE']['UNIQUE'] === 'Y'
+			)
+			{
+				$filter = [
+					'=IBLOCK_ID' => $fields['IBLOCK_ID'],
+					'=CODE' => $fields['CODE'],
+				];
+
+				if (isset($fields['ID']))
+				{
+					$filter['!=ID'] = $fields['ID'];
+				}
+
+				$existsResult = $this->existsByFilter($filter);
+
+				if ($existsResult->isSuccess())
+				{
+					$r->addError($this->getErrorDublicateFieldCode());
+				}
+			}
+		}
+
+		return $r;
+	}
+
+	private function getErrorDublicateFieldCode(): Error
+	{
+		return new Error('Duplicate entry for key [code]', 200700300040);
+	}
+
+	protected function getEntityTable(): DataManager
+	{
+		return new SectionTable();
+	}
+
+	private function getCount(array $filter): \Closure
+	{
+		return function() use ($filter)
+		{
+			return \CIBlockSection::GetCount($filter);
+		};
 	}
 
 	//region checkPermissionController
@@ -231,6 +377,7 @@ final class Section extends Controller
 		{
 			$r->addError(new Error('Access Denied', 200040300010));
 		}
+
 		return $r;
 	}
 	//endregion
@@ -244,6 +391,7 @@ final class Section extends Controller
 	protected function checkPermissionIBlockSectionUpdate($sectionId)
 	{
 		$iblockId = $this->getIBlockBySectionId($sectionId);
+
 		return $this->checkPermissionIBlockSectionModify($iblockId, $sectionId);
 	}
 
@@ -251,16 +399,23 @@ final class Section extends Controller
 	{
 		$r = new Result();
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_EDIT);
-		else
-			$bBadBlock = true;
+		$iblock = \CIBlock::GetArrayByID($iblockId);
+		$isBadIblock = false;
 
-		if($bBadBlock)
+		if ($iblock)
+		{
+			$isBadIblock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_EDIT);
+		}
+		else
+		{
+			$r->addError(new Error('Iblock is not exists', 200700300050));
+		}
+
+		if ($isBadIblock)
 		{
 			$r->addError(new Error('Access Denied', 200040300040));
 		}
+
 		return $r;
 	}
 
@@ -268,22 +423,30 @@ final class Section extends Controller
 	{
 		$r = new Result();
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $iblockSectionId, self::IBLOCK_SECTION_SECTION_BIND); //access update
-		else
-			$bBadBlock = true;
+		$iblock = \CIBlock::GetArrayByID($iblockId);
+		$isBadIblock = false;
 
-		if($bBadBlock)
+		if ($iblock)
+		{
+			$isBadIblock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $iblockSectionId, self::IBLOCK_SECTION_SECTION_BIND); //access update
+		}
+		else
+		{
+			$r->addError(new Error('Iblock is not exists', 200700300050));
+		}
+
+		if ($isBadIblock)
 		{
 			$r->addError(new Error('Access Denied', 200040300050));
 		}
+
 		return $r;
 	}
 
 	protected function checkPermissionIBlockSectionSectionBindUpdate($iblockSectionId)
 	{
 		$iblockId = $this->getIBlockBySectionId($iblockSectionId);
+
 		return $this->checkPermissionIBlockSectionModify($iblockId, $iblockSectionId);
 	}
 
@@ -291,9 +454,9 @@ final class Section extends Controller
 	{
 		$r = new Result();
 		$iblockId = \CIBlockElement::GetIBlockByID($sectionId);
-		$bBadBlock = !\CIBlockElementRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_SECTION_DELETE); //access delete
+		$isBadIblock = !\CIBlockElementRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_SECTION_DELETE); //access delete
 
-		if($bBadBlock)
+		if ($isBadIblock)
 		{
 			$r->addError(new Error('Access Denied', 200040300050));
 		}
@@ -306,17 +469,13 @@ final class Section extends Controller
 		$r = new Result();
 
 		$iblockId = $this->getIBlockBySectionId($sectionId);
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
+		$isBadIblock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_SECTION_READ);
 
-		if($arIBlock)
-			$bBadBlock = !\CIBlockSectionRights::UserHasRightTo($iblockId, $sectionId, self::IBLOCK_SECTION_READ);
-		else
-			$bBadBlock = true;
-
-		if($bBadBlock)
+		if ($isBadIblock)
 		{
 			$r->addError(new Error('Access Denied', 200040300040));
 		}
+
 		return $r;
 	}
 
@@ -324,16 +483,23 @@ final class Section extends Controller
 	{
 		$r = new Result();
 
-		$arIBlock = \CIBlock::GetArrayByID($iblockId);
-		if($arIBlock)
-			$bBadBlock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_READ);
-		else
-			$bBadBlock = true;
+		$iblock = \CIBlock::GetArrayByID($iblockId);
+		$isBadIblock = false;
 
-		if($bBadBlock)
+		if ($iblock)
+		{
+			$isBadIblock = !\CIBlockRights::UserHasRightTo($iblockId, $iblockId, self::IBLOCK_READ);
+		}
+		else
+		{
+			$r->addError(new Error('Iblock is not exists', 200700300050));
+		}
+
+		if ($isBadIblock)
 		{
 			$r->addError(new Error('Access Denied', 200040300030));
 		}
+
 		return $r;
 	}
 

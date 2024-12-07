@@ -21,7 +21,10 @@ $lockedBy = (int) $arResult["LOCKED_BY"];
 
 <div id="<?=$widgetContainerId?>" class="lists-lock-status-widget-container">
 	<div class="lists-lock-status-widget-<?=$lockStatus?>">
-		<?=$elementName.Loc::getMessage("LISTS_LOCK_STATUS_".mb_strtoupper($lockStatus))?>
+		<?=Loc::getMessage(
+			"LISTS_LOCK_STATUS_" . mb_strtoupper($lockStatus) . '_MSGVER_1',
+			["#ELEMENT#" => $elementName]
+		)?>
 	</div>
 	<?php if ($lockStatus == "red"): ?>
 		<div class="lists-lock-status-widget-locked-by">

@@ -2,6 +2,7 @@
 
 namespace Bitrix\Bizproc\Automation\Engine;
 
+use Bitrix\Main;
 use Bitrix\Bizproc;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowInstanceTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
@@ -19,6 +20,7 @@ class Runtime
 
 	protected $target;
 	protected static $startedTemplates = [];
+	private static array $clearMap = [];
 
 	public function setTarget(BaseTarget $target)
 	{
@@ -164,6 +166,11 @@ class Runtime
 				{
 					$this->writeTriggerTracking($workflowId, $trigger);
 					$this->writeTriggerAnalytics($documentComplexId, $trigger);
+				}
+
+				if ($useForcedTracking && !$isDebug)
+				{
+					$this->clearOldTrack($documentComplexId, $template->getId(), $workflowId);
 				}
 			}
 		}
@@ -416,5 +423,52 @@ class Runtime
 		}
 
 		return $use;
+	}
+
+	private function clearOldTrack(array $documentId, int $templateId, $currentWorkflowId): void
+	{
+		$rowList = WorkflowStateTable::getList([
+			'select' => ['ID'],
+			'filter' => [
+				'!=ID' => $currentWorkflowId,
+				'=MODULE_ID' => $documentId[0],
+				'=ENTITY' => $documentId[1],
+				'=DOCUMENT_ID' => $documentId[2],
+				'=WORKFLOW_TEMPLATE_ID' => $templateId,
+			],
+			'limit' => 10,
+		])->fetchAll();
+
+		if ($rowList)
+		{
+			foreach ($rowList as $row)
+			{
+				static::$clearMap[$row['ID']] = true;
+			}
+			$this->setClearJob();
+		}
+	}
+
+	private function setClearJob()
+	{
+		static $inserted = false;
+
+		if (!$inserted)
+		{
+			Main\Application::getInstance()->addBackgroundJob(
+				\Closure::fromCallable([$this, 'doBackgroundJob']),
+				[],
+				Main\Application::JOB_PRIORITY_LOW - 10
+			);
+			$inserted = true;
+		}
+	}
+
+	private function doBackgroundJob()
+	{
+		foreach (array_keys(static::$clearMap) as $id)
+		{
+			\CBPTrackingService::deleteByWorkflow($id);
+		}
 	}
 }

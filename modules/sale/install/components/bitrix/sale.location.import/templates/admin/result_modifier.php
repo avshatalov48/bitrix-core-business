@@ -10,7 +10,6 @@ if(is_array($arResult['LAYOUT']) && is_array($arResult['LAYOUT']['']))
 {
 	$leftTopLevel = array(
 		'RUSSIA' => 		'0000028023',
-		'URKAIN' => 		'0000000364',
 		'KAZAKHSTAN' => 	'0000000276',
 		'BELARUS' => 		'0000000001'
 	);
@@ -32,7 +31,7 @@ if(is_array($arResult['LAYOUT']) && is_array($arResult['LAYOUT']['']))
 			'CODE' => 'WORLD',
 			'PARENT_CODE' => '',
 			'NAME' => array(
-				ToUpper(LANGUAGE_ID) => array('NAME' => Loc::getMessage('SALE_SLI_WORLD_CATEGORY'))
+				mb_strtoupper(LANGUAGE_ID) => array('NAME' => Loc::getMessage('SALE_SLI_WORLD_CATEGORY'))
 			)
 		);
 	}

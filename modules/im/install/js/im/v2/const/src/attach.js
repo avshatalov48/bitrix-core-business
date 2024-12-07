@@ -1,3 +1,5 @@
+import { ColorToken } from 'im.v2.const';
+
 export const AttachType = Object.freeze({
 	Delimiter: 'delimiter',
 	File: 'file',
@@ -18,7 +20,7 @@ export const AttachDescription = Object.freeze({
 export type AttachConfig = {
 	id: number,
 	description: string,
-	color: string,
+	colorToken?: $Values<typeof ColorToken>,
 	blocks: AttachConfigBlock[]
 };
 
@@ -60,7 +62,7 @@ export type AttachGridItemConfig = {
 	name: string,
 	value: string,
 	width?: number,
-	color?: string,
+	colorToken?: $Values<typeof ColorToken>,
 	link?: string
 };
 

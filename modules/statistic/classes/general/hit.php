@@ -3,7 +3,6 @@ class CHit
 {
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$select = "";
@@ -154,14 +153,13 @@ class CHit
 			".$strSqlOrder."
 		";
 
-		$res = $DB->Query(CStatistics::DBTopSql($strSql), false, $err_mess.__LINE__);
+		$res = $DB->Query(CStatistics::DBTopSql($strSql));
 
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		$res = $DB->Query("
@@ -177,7 +175,7 @@ class CHit
 				LEFT JOIN b_stat_city CITY ON (CITY.ID = H.CITY_ID)
 			WHERE
 				H.ID = '$ID'
-		", false, $err_mess.__LINE__);
+		");
 
 		$res = new CStatResult($res);
 		return $res;

@@ -29,9 +29,9 @@ class HttpResponse extends Response
 	public function flush($text = '')
 	{
 		//clear all buffers - the response is responsible alone for its content
-		while (@ob_end_clean())
+		while (ob_get_length() !== false)
 		{
-			;
+			ob_end_clean();
 		}
 
 		if (function_exists('fastcgi_finish_request'))

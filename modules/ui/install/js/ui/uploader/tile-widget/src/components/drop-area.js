@@ -14,15 +14,16 @@ export const DropArea: BitrixVueComponentProps = {
 		this.uploader.assignBrowse(this.$refs.dropArea);
 	},
 	computed: {
-		dropLabel(): string {
+		dropLabel(): string
+		{
 			return Loc.getMessage('TILE_UPLOADER_DROP_FILES_HERE');
-		}
+		},
 	},
 	methods: {
 		handleSettingsClick()
 		{
 			this.emitter.emit('onSettingsButtonClick', { button: this.$refs['ui-tile-uploader-settings'] });
-		}
+		},
 	},
 	// language=Vue
 	template: `
@@ -32,5 +33,5 @@ export const DropArea: BitrixVueComponentProps = {
 				<SettingsButton v-if="widgetOptions.showSettingsButton" />
 			</div>
 		</div>
-	`
+	`,
 };

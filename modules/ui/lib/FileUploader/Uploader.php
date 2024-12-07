@@ -288,6 +288,21 @@ class Uploader
 		return $results;
 	}
 
+	public function getFileInfo(array $ids): array
+	{
+		$result = [];
+		$loadResults = $this->load(array_unique($ids));
+		foreach ($loadResults as $loadResult)
+		{
+			if ($loadResult->isSuccess() && $loadResult->getFile() !== null)
+			{
+				$result[] = $loadResult->getFile()->jsonSerialize();
+			}
+		}
+
+		return $result;
+	}
+
 	public function remove(array $ids): RemoveResultCollection
 	{
 		$controller = $this->getController();

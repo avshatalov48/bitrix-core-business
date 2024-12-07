@@ -18,7 +18,7 @@ $arTemplateParameters = array(
 		"VALUES" => CComponentUtil::GetDefaultNameTemplates(),
 		"MULTIPLE" => "N",
 		"ADDITIONAL_VALUES" => "Y",
-		"DEFAULT" => GetMessage("TP_BSP_NAME_TEMPLATE_DEFAULT"),
+		"DEFAULT" => "",
 		"PARENT" => "ADDITIONAL_SETTINGS",
 	),
 	"SHOW_LOGIN" => Array(
@@ -47,15 +47,6 @@ if (IsModuleInstalled('socialnetwork'))
 			"NAME" => GetMessage("TP_BSP_PATH_TO_CONPANY_DEPARTMENT"),
 			"PARENT" => "ADDITIONAL_SETTINGS",
 		);
-
-	if (IsModuleInstalled("video"))
-		$arTemplateParameters["PATH_TO_VIDEO_CALL"] = array(
-			"NAME" => GetMessage("TP_BSP_PATH_TO_VIDEO_CALL"),
-			"TYPE" => "STRING",
-			"DEFAULT" => "/company/personal/video/#USER_ID#/",
-			"PARENT" => "ADDITIONAL_SETTINGS",
-		);
-
 }
 
 if(COption::GetOptionString("search", "use_social_rating") == "Y")

@@ -95,4 +95,14 @@ final class MembersManager
 			|| $groupPermissions['UserCanModifyGroup']
 			|| Helper\Workgroup::isCurrentUserModuleAdmin();
 	}
+
+	public function isUserMember(int $userId, int $spaceId): bool
+	{
+		$groupPermissions = Helper\Workgroup::getPermissions([
+			'userId' => $userId,
+			'groupId' => $spaceId,
+		]);
+
+		return (bool) $groupPermissions['UserIsMember'];
+	}
 }

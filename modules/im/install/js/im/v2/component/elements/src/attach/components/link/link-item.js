@@ -1,24 +1,19 @@
-import {Parser} from 'im.v2.lib.parser';
-import {Color} from 'im.v2.const';
+import { Parser } from 'im.v2.lib.parser';
 
-import {AttachImage} from '../image/image';
+import { AttachImage } from '../image/image';
 
-import type {AttachLinkItemConfig, AttachImageConfig} from 'im.v2.const';
+import type { AttachLinkItemConfig, AttachImageConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachLinkItem = {
 	name: 'AttachLinkItem',
-	components: {AttachImage},
+	components: { AttachImage },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -56,9 +51,9 @@ export const AttachLinkItem = {
 					preview: this.internalConfig.preview,
 					width: this.internalConfig.width,
 					height: this.internalConfig.height,
-				}]
+				}],
 			};
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-attach-link__item">
@@ -70,8 +65,8 @@ export const AttachLinkItem = {
 			</span>
 			<div v-if="internalConfig.html || description" class="bx-im-attach-link__desc" v-html="html"></div>
 			<div v-if="preview" class="bx-im-attach-link__image">
-				<AttachImage :config="imageConfig" :color="color" />
+				<AttachImage :config="imageConfig" />
 			</div>
 		</div>
-	`
+	`,
 };

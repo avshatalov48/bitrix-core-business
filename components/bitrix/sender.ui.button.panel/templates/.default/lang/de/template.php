@@ -1,5 +1,0 @@
-<?
-$MESS["SENDER_UI_BUTTON_PANEL_SAVE"] = "Speichern";
-$MESS["SENDER_UI_BUTTON_PANEL_CANCEL"] = "Abbrechen";
-$MESS["SENDER_UI_BUTTON_PANEL_CLOSE"] = "Schließen";
-?>

@@ -3,12 +3,14 @@ import { EventEmitter } from 'main.core.events';
 
 type Params = {
 	pin: boolean,
+	canUse: boolean,
 }
 
 export class Pin extends EventEmitter
 {
 	#pin: boolean;
 	#disabled: boolean;
+	#canUse: boolean;
 	#node: HTMLElement;
 
 	constructor(params: Params)
@@ -18,6 +20,8 @@ export class Pin extends EventEmitter
 		this.setEventNamespace('BX.Socialnetwork.Spaces.Settings.Pin');
 
 		this.#pin = params.pin;
+		this.#canUse = params.canUse === true;
+
 		this.#disabled = false;
 
 		this.#bindEvents();
@@ -29,10 +33,12 @@ export class Pin extends EventEmitter
 
 		const iconClass = this.#pin ? '--pin-2' : '--pin-1';
 
+		const disabled = this.#canUse ? '' : '--disabled';
+
 		this.#node = Tag.render`
 			<div
 				data-id="${pinId}"
-				class="sn-spaces__popup-item --mini"
+				class="sn-spaces__popup-item --mini ${disabled}"
 			>
 				<div class="sn-spaces__popup-icon-round">
 					<div

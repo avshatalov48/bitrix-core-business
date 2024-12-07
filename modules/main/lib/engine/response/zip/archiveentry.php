@@ -2,7 +2,6 @@
 namespace Bitrix\Main\Engine\Response\Zip;
 
 use Bitrix\Main\Application;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Web\Uri;
 use CFile;
@@ -212,11 +211,7 @@ class ArchiveEntry
 	public function __toString()
 	{
 		$crc32 = $this->getCrc32()?: '-';
-		$name = Encoding::convertEncoding(
-			$this->getName(),
-			LANG_CHARSET,
-			'UTF-8'
-		);
+		$name = $this->getName();
 
 		return "{$crc32} {$this->getSize()} {$this->getPath()} {$name}";
 	}

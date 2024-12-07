@@ -8,7 +8,7 @@
 
 .bx-im-sidebar-file-media-detail-item__container {
 	width: 92px;
-	height: 112px;
+	height: 111px;
 	position: relative;
 }
 
@@ -22,7 +22,7 @@
 	outline: 1px solid var(--im-sidebar-file-media-item__border-color_item-content);
 	outline-offset: -1px;
 	border-radius: 10px;
-	margin-top: -9px;
+	margin-top: -7px;
 	cursor: pointer;
 	display: flex;
 	align-items: center;

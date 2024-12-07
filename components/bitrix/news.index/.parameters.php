@@ -1,5 +1,6 @@
 <?php
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
+
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
@@ -33,18 +34,27 @@ while($arRes = $db_iblock->Fetch())
 	$arIBlocks[$arRes["ID"]] = "[" . $arRes["ID"] . "] " . $arRes["NAME"];
 }
 
-$arProperty_LNS = array();
+$arProperty_LNS = [];
 if (
 	!empty($arCurrentValues['IBLOCKS'])
 	&& is_array($arCurrentValues['IBLOCKS'])
 	&& count($arCurrentValues['IBLOCKS']) === 1
 )
 {
-	$rsProp = CIBlockProperty::GetList(Array("sort"=>"asc", "name"=>"asc"), Array("ACTIVE"=>"Y", "IBLOCK_ID"=>$arCurrentValues["IBLOCKS"][0]));
-	while ($arr=$rsProp->Fetch())
+	$rsProp = CIBlockProperty::GetList(
+		[
+			'sort'=>'asc',
+			'name'=>'asc',
+		],
+		[
+			'ACTIVE'=>'Y',
+			'IBLOCK_ID' => $arCurrentValues['IBLOCKS'][0],
+		]
+	);
+	while ($arr = $rsProp->Fetch())
 	{
 		$arProperty[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
-		if (in_array($arr["PROPERTY_TYPE"], array("L", "N", "S")))
+		if (in_array($arr["PROPERTY_TYPE"], ["L", "N", "S"]))
 		{
 			$arProperty_LNS[$arr["CODE"]] = "[".$arr["CODE"]."] ".$arr["NAME"];
 		}

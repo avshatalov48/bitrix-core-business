@@ -229,104 +229,11 @@ BX.IM = function(domNode, params)
 	BX.ImEventHandler.init(this);
 	BX.MessengerProxy.init(this);
 
-	if (BX.getClass('BX.Voximplant.PhoneCallsController') && this.init && !this.options.v2layout)
-	{
-		this.telephonyController = new BX.Voximplant.PhoneCallsController({
-			phoneEnabled: BX.prop.getBoolean(params.webrtc, 'phoneEnabled', false),
-
-			userId: BX.type.isNumber(params.userId) ? params.userId : 0,
-			userEmail: params.userEmail,
-			isAdmin: BX.type.isBoolean(params.isAdmin) ? params.isAdmin : false,
-
-			restApps: params.webrtc && params.webrtc.phoneCallCardRestApps || [],
-			canInterceptCall: params.webrtc && params.webrtc.phoneCanInterceptCall || false,
-
-			deviceActive: params.webrtc && params.webrtc.phoneDeviceActive == 'Y' || false,
-			defaultLineId: params.webrtc && params.webrtc.phoneDefaultLineId || '',
-			availableLines: params.webrtc && params.webrtc.availableLines || [],
-
-			messengerFacade: {
-				isThemeDark: () => BX.MessengerTheme.isDark(),
-				isDesktop: () => BX.MessengerCommon.isDesktop(),
-				hasActiveCall: () => this.callController.hasActiveCall(),
-				repeatSound: (melodyName, time, force) => this.repeatSound(melodyName, time, force),
-				stopRepeatSound: (melodyName) => this.stopRepeatSound(melodyName),
-				playSound: (melodyName, force) => this.playSound(melodyName, force),
-
-				setLocalConfig: (key, value, ttl) => this.setLocalConfig(key, value, ttl),
-				getLocalConfig: (key) => this.getLocalConfig(key),
-
-				getAvatar: (userId) => {
-					const userData = BX.MessengerCommon.getUser(userId);
-					if (userData)
-					{
-						return userData.avatar;
-					}
-				},
-			},
-			events: {
-				[BX.Voximplant.PhoneCallsController.Events.onCallCreated]: (e) => {
-					if (BX.MessengerCommon.isDesktop() && this.init)
-					{
-						BX.desktop.syncPause(true);
-					}
-				},
-				[BX.Voximplant.PhoneCallsController.Events.onCallConnected]: (event) => {
-					const data = event.getData();
-
-					if (!data.isIncoming && !data.isDeviceCall && BX.MessengerCommon.isDesktop())
-					{
-						// if (BX.MessengerCommon.isPage())
-						// {
-						// 	BX.MessengerWindow.changeTab('im');
-						// }
-
-						const DesktopApi = BX.Reflection.getClass('BX.Messenger.v2.Lib.DesktopApi');
-						if (DesktopApi)
-						{
-							const target = DesktopApi.findWindow('callWindow') ?? window;
-							DesktopApi.activateWindow(target);
-						}
-						else
-						{
-							BX.desktop.windowCommand("show");
-						}
-					}
-				},
-				[BX.Voximplant.PhoneCallsController.Events.onCallDestroyed]: (e) => {
-					if (BX.MessengerCommon.isDesktop() && this.init)
-					{
-						BX.desktop.syncPause(false);
-					}
-
-					// this.BXIM.desktop.closeTopmostWindow();
-				},
-				[BX.Voximplant.PhoneCallsController.Events.onDeviceCallStarted]: (e) => {
-					if (BX.MessengerCommon.isDesktop())
-					{
-						BX.desktop.changeTab('im');
-						const DesktopApi = BX.Reflection.getClass('BX.Messenger.v2.Lib.DesktopApi');
-						if (DesktopApi)
-						{
-							const target = DesktopApi.findWindow('callWindow') ?? window;
-							DesktopApi.activateWindow(target);
-						}
-						else
-						{
-							BX.desktop.windowCommand("show");
-						}
-						this.desktop.closeTopmostWindow();
-					}
-				},
-
-			}
-		})
-	}
+	this.telephonyController = null;
 
 	this.webrtc = new BX.IM.WebRTC(this, {
 		'bitrixCallEnabled': BX.prop.getBoolean(params.webrtc, 'bitrixCallEnabled', false),
 		'desktopClass': this.desktop,
-		'telephonyController': this.telephonyController,
 
 		'phoneCanPerformCalls': params.webrtc && params.webrtc.phoneCanPerformCalls == 'Y' || false,
 		'phoneCanCallUserNumber': params.webrtc && params.webrtc.phoneCanCallUserNumber || false,
@@ -339,105 +246,7 @@ BX.IM = function(domNode, params)
 		'panel': domNode != null? domNode: BX.create('div')
 	});
 
-	this.callController = new BX.Call.Controller({
-		init: this.init && !this.options.v2layout,
-		messenger: null,
-		language: this.language,
-		incomingVideoStrategyType: this.settings.callAcceptIncomingVideo,
-		formatRecordDate: params.webrtc && params.webrtc.formatRecordDate || 'd.m.Y',
-		messengerFacade: {
-			getDefaultZIndex: () => BX.MessengerCommon.getDefaultZIndex(),
-			isThemeDark: () => BX.MessengerTheme.isDark(),
-			openMessenger: (dialogId) =>{
-				return new Promise((resolve, reject) =>	{
-					this.messenger.openMessenger(dialogId)
-						.then(() => resolve())
-						.catch((e) => reject(e))
-				})
-			},
-			isMessengerOpen: () => !!this.messenger.popupMessenger,
-			isSliderFocused: () => BX.MessengerSlider && BX.MessengerSlider.isFocus(),
-			openHistory: (dialogId) => this.messenger.openHistory(dialogId),
-			openSettings: (params) => this.openSettings(params),
-			openHelpArticle: (articleId) => BX.MessengerLimit.showHelpSlider(articleId),
-			getContainer: () => BX.MessengerWindow ? BX.MessengerWindow.content : this.messenger.popupMessengerContent,
-
-			getMessageCount: () => this.messenger.messageCount,
-			getCurrentDialogId: () => this.messenger.currentTab,
-
-			isPromoRequired: (promoCode) => BX.MessengerPromo.needToShow(promoCode),
-			showUserSelector: (params) => {
-				return new Promise((resolve) => {
-					BX.loadExt('im.component.call.invite-popup').then(() => {
-						if (this.callInvitePopup)
-						{
-							this.callInvitePopup.close();
-							return;
-						}
-						this.callInvitePopup = new BX.Messenger.Call.InvitePopup({
-							viewElement: params.viewElement,
-							bindElement: params.bindElement,
-							zIndex: params.zIndex,
-							darkMode: params.darkMode,
-							idleUsers: params.idleUsers,
-							allowNewUsers: params.allowNewUsers,
-							onDestroy: () => {
-								this.callInvitePopup = null;
-								params.onDestroy();
-							},
-							onSelect: (e) => params.onSelect(e),
-						});
-
-						this.callInvitePopup.show();
-						resolve(this.callInvitePopup);
-					})
-				})
-			},
-
-			repeatSound: (melodyName, time, force) => this.repeatSound(melodyName, time, force),
-			stopRepeatSound: (melodyName) => this.stopRepeatSound(melodyName),
-		},
-		events: {
-			[BX.Call.Controller.Events.onPromoViewed]: (event) => {
-				const data = event.getData();
-				if (BX.MessengerPromo)
-				{
-					BX.MessengerPromo.save(data.code);
-				}
-			},
-			[BX.Call.Controller.Events.onOpenVideoConference]: (event) => {
-				const data = event.getData();
-				const dialogId = data.dialogId;
-				if (this.messenger.chat.hasOwnProperty(dialogId))
-				{
-					this.openVideoconf(this.messenger.chat[dialogId].public.code);
-				}
-			},
-			[BX.Call.Controller.Events.onCallLeft]: (event) => {
-				this.messenger.dialogStatusRedraw();
-				const data = event.getData();
-				const callDetails = data.callDetails;
-				if (callDetails.wasConnected)
-				{
-					if (this.messenger.currentTab)
-					{
-						BXIM.callController.lastCallDetails = callDetails;
-						BX.MessengerCommon.drawMessage(callDetails.chatId, {
-							'id': 'call' + callDetails.id,
-							'chatId': this.messenger.getChatId(),
-							'senderId': 0,
-							'recipientId': this.messenger.currentTab,
-							'date': new Date(),
-							'text': '<span class="bx-messenger-ajax" onclick="BXIM.callController.showFeedbackPopup();">' + BX.message('IM_CALL_RATE_CALL') + '</span>',
-							'textOriginal': BX.message('IM_CALL_RATE_CALL'),
-							'params': {}
-						});
-					}
-				}
-			},
-			[BX.Call.Controller.Events.onCallDestroyed]: () => this.messenger.dialogStatusRedraw()
-		}
-	});
+	this.callController = null;
 
 	this.desktop.webrtc = this.webrtc;
 
@@ -588,7 +397,6 @@ BX.IM = function(domNode, params)
 		'openNotify' : typeof(params.openNotify) != 'undefined'? params.openNotify: false,
 	});
 	this.webrtc.messenger = this.messenger;
-	this.callController.messenger = this.messenger;
 	this.notify.messenger = this.messenger;
 	this.desktop.messenger = this.messenger;
 	this.disk.messenger = this.messenger;
@@ -676,11 +484,6 @@ BX.IM.prototype.isFocus = function(context)
 {
 	context = typeof(context) == 'undefined'? 'dialog': context;
 	if (!BX.MessengerCommon.isPage() && (this.messenger == null || this.messenger.popupMessenger == null))
-	{
-		return false;
-	}
-
-	if (this.callController.hasActiveCall() && this.callController.hasVisibleCall())
 	{
 		return false;
 	}
@@ -814,7 +617,7 @@ BX.IM.prototype.autoHide = function(e)
 			this.messenger.popupHistory.destroy();
 		else if (BX.DiskFileDialog && BX.DiskFileDialog.popupWindow != null)
 			BX.DiskFileDialog.popupWindow.destroy();
-		else if (!this.callController.hasActiveCall() && this.messenger.popupMessenger != null)
+		else if (this.messenger.popupMessenger != null)
 			this.messenger.popupMessenger.destroy();
 	}
 };
@@ -938,7 +741,7 @@ BX.IM.prototype.openNotify = function(params)
 BX.IM.prototype.closeNotify = function()
 {
 	BX.onCustomEvent(window, 'onImNotifyWindowClose', []);
-	if (this.messenger.popupMessenger != null && !this.callController.hasActiveCall())
+	if (this.messenger.popupMessenger != null)
 		this.messenger.popupMessenger.destroy();
 };
 
@@ -1000,49 +803,12 @@ BX.IM.prototype.phoneTo = function(number, params)
 		return;
 	}
 
-	if (!this.telephonyController)
-	{
-		return;
-	}
-
-	this.telephonyController.loadPhoneLines().then(function()
-	{
-		this._doPhoneTo(number, params)
-	}.bind(this))
+	return;
 }
 
 BX.IM.prototype._doPhoneTo = function(number, params)
 {
-	params = params? params: {};
-	var lineId = params['LINE_ID'] ? params['LINE_ID'] : this.webrtc.phoneDefaultLineId;
-	if (typeof(params) != 'object')
-	{
-		try { params = JSON.parse(params); } catch(e) { params = {} }
-	}
-
-	if(this.telephonyController.isRestLine(lineId))
-	{
-		this.telephonyController.startCallViaRestApp(number, lineId, params);
-		return true;
-	}
-
-	if (!BX.MessengerCommon.isDesktop() && this.desktopStatus && this.desktopVersion >= 18)
-	{
-		var stringParams = params ? '/params/' + BX.desktopUtils.encodeParamsJson(params) : '';
-
-		this.telephonyController.closeKeyPad();
-
-		this.checkDesktop(function(){
-			BX.desktopUtils.goToBx("bx://callto/phone/"+escape(number)+stringParams)
-		}, BX.delegate(function(){
-			this.telephonyController.phoneCall(number, params);
-		}, this));
-	}
-	else
-	{
-		this.telephonyController.phoneCall(number, params);
-	}
-	return true;
+	return false;
 };
 
 /**
@@ -1053,34 +819,13 @@ BX.IM.prototype._doPhoneTo = function(number, params)
  */
 BX.IM.prototype.startCallList = function(callListId, params)
 {
-	params = params? params: {};
-	callListId = parseInt(callListId);
-	if(callListId == 0 || !this.telephonyController)
-		return;
-
-	if (!this.desktop.ready() && this.desktopStatus && this.desktopVersion >= 18)
-	{
-		this.checkDesktop(
-			function()
-			{
-				BX.desktopUtils.goToBx("bx://calllist/id/"+callListId+/params/+BX.desktopUtils.encodeParams(params))
-			},
-			BX.delegate(function()
-			{
-				this.telephonyController.startCallList(callListId, params);
-			}, this)
-		);
-	}
-	else
-	{
-		this.telephonyController.startCallList(callListId, params);
-	}
-	return true;
-
+	return false;
 };
 
 BX.IM.prototype.checkCallSupport = function(dialogId)
 {
+	return false;
+
 	var userCheck = true;
 	if (typeof(dialogId) != 'undefined')
 	{
@@ -1157,18 +902,7 @@ BX.IM.prototype.openMessengerSlider = function(dialogId, params)
 
 BX.IM.prototype.callTo = function(dialogId, video)
 {
-	video = !(typeof(video) != 'undefined' && !video);
-
-	this.checkDesktop(
-		function()
-		{
-			BX.desktopUtils.goToBx("bx://callto/" + (video? 'video': 'audio') + "/" + dialogId);
-		},
-		function()
-		{
-			this.callController.startCall(dialogId, video);
-		}.bind(this)
-	);
+	return false;
 };
 
 BX.IM.prototype.openVideoconf = function(code)
@@ -1607,49 +1341,49 @@ BX.IM.prototype.openSettings = function(params)
 			this.bitrix24net? {'title': BX.message('IM_SETTINGS_PRIVACY_PROFILE'), name: 'privacyProfile', 'type': 'select', items: [{title: BX.message('IM_SETTINGS_SELECT_1_3'), value: 'all'}, {title: BX.message('IM_SETTINGS_SELECT_2_3'), value: 'contact'}, {title: BX.message('IM_SETTINGS_SELECT_3_3'), value: 'nobody'}], 'value': this.settings.privacyProfile}: null
 		]
 	};
-	this.settingsView.hardware = {
-		'title' : BX.message('IM_SETTINGS_CALLS'),
-		'settings': [
-			{'title': 'hardwareError', 'type': 'html', 'value': '<div id="bx-messenger-settings-hardware-error"></div>'},
-			{'title': 'cameraImage', 'type': 'html', 'value': '<div class="bx-messenger-settings-hardware-camera-image"><div id="bx-messenger-settings-hardware-camera-image"></div></div>'},
-			{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA'), 'type': 'select', 'name':'defaultCamera', 'items': {}, 'callback': this.changeHardwareSettings.bind(this), 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-camera', e.value);} },
-			{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_PREFER_HD_QUALITY'), 'type': 'checkbox', 'name':'preferHdQuality', 'items': {}, 'checked': BX.Call.Hardware.preferHdQuality,  'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-camera-prefer-hd', (e.checked ? 'Y' : 'N'));} },
-			{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_ENABLE_MIRRORING'), 'type': 'checkbox', 'name':'enableMirroring', 'items': {}, 'checked': BX.Call.Hardware.enableMirroring, 'callback': function(e){ BX.Call.Hardware.emit('changeMirroringVideoSetting', { enableMirroring: e.target.checked }); }, 'saveCallback': function(e){ BX.Call.Hardware.enableMirroring = e.checked; }},
-
-			BX.MessengerCommon.isDesktop() && this.desktop.enableInVersion(64)? {'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE'), 'tooltip': BX.message('IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE_HINT'), 'type': 'checkrange', 'checked': BX.desktop.cameraSmoothingStatus(), 'range': BX.desktop.cameraSmoothingLambda(), 'callback': function(elements){
-				BX.desktop.cameraSmoothingStatus(elements.checkbox.checked);
-				if (elements.checkbox.checked)
-				{
-					BX.desktop.cameraSmoothingLambda(elements.range.value);
-				}
-			}}: null,
-			{'type': 'space'},
-			{'title': BX.message('IM_SETTINGS_HARDWARE_MICROPHONE'), 'type': 'select', 'name':'defaultMicrophone', 'items': {}, 'callback': this.changeHardwareSettings.bind(this), 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-microphone', e.value);} },
-			{'type': 'space'},
-			{'title': 'microphoneLevel', 'type': 'html', 'value': '<div id="bx-messenger-settings-hardware-microphone-level" class="bx-messenger-settings-level-meter-container"></div>'},
-			{'type': 'space'},
-			{'title': BX.message('IM_SETTINGS_HARDWARE_SPEAKER'), 'type': 'select', 'name':'defaultSpeaker', 'items': {}, 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-speaker', e.value);} },
-			{'type': 'space'},
-			{
-				'title': BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO'),
-				'type': 'select',
-				'name': 'callAcceptIncomingVideo',
-				'items': [
-					{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_ACCEPT_ALL'), value: BX.Call.VideoStrategy.Type.AllowAll},
-					{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_ACCEPT_SPEAKING'), value: BX.Call.VideoStrategy.Type.CurrentlyTalking},
-					{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_DENY_ALL'), value: BX.Call.VideoStrategy.Type.AllowNone}
-				],
-				'value': this.settings.callAcceptIncomingVideo,
-				'saveCallback': function(e)
-				{
-					var videoStrategyType = e[e.selectedIndex].value;
-					this.callController.setVideoStrategyType(videoStrategyType)
-					return videoStrategyType;
-				}.bind(this)
-			}
-		],
-		'click': BX.delegate(this.showHardwareSettings, this)
-	};
+	// this.settingsView.hardware = {
+	// 	'title' : BX.message('IM_SETTINGS_CALLS'),
+	// 	'settings': [
+	// 		{'title': 'hardwareError', 'type': 'html', 'value': '<div id="bx-messenger-settings-hardware-error"></div>'},
+	// 		{'title': 'cameraImage', 'type': 'html', 'value': '<div class="bx-messenger-settings-hardware-camera-image"><div id="bx-messenger-settings-hardware-camera-image"></div></div>'},
+	// 		{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA'), 'type': 'select', 'name':'defaultCamera', 'items': {}, 'callback': this.changeHardwareSettings.bind(this), 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-camera', e.value);} },
+	// 		{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_PREFER_HD_QUALITY'), 'type': 'checkbox', 'name':'preferHdQuality', 'items': {}, 'checked': BX.Call.Hardware.preferHdQuality,  'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-camera-prefer-hd', (e.checked ? 'Y' : 'N'));} },
+	// 		{'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_ENABLE_MIRRORING'), 'type': 'checkbox', 'name':'enableMirroring', 'items': {}, 'checked': BX.Call.Hardware.enableMirroring, 'callback': function(e){ BX.Call.Hardware.emit('changeMirroringVideoSetting', { enableMirroring: e.target.checked }); }, 'saveCallback': function(e){ BX.Call.Hardware.enableMirroring = e.checked; }},
+	//
+	// 		BX.MessengerCommon.isDesktop() && this.desktop.enableInVersion(64)? {'title': BX.message('IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE'), 'tooltip': BX.message('IM_SETTINGS_HARDWARE_CAMERA_FACE_IMPROVE_HINT'), 'type': 'checkrange', 'checked': BX.desktop.cameraSmoothingStatus(), 'range': BX.desktop.cameraSmoothingLambda(), 'callback': function(elements){
+	// 			BX.desktop.cameraSmoothingStatus(elements.checkbox.checked);
+	// 			if (elements.checkbox.checked)
+	// 			{
+	// 				BX.desktop.cameraSmoothingLambda(elements.range.value);
+	// 			}
+	// 		}}: null,
+	// 		{'type': 'space'},
+	// 		{'title': BX.message('IM_SETTINGS_HARDWARE_MICROPHONE'), 'type': 'select', 'name':'defaultMicrophone', 'items': {}, 'callback': this.changeHardwareSettings.bind(this), 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-microphone', e.value);} },
+	// 		{'type': 'space'},
+	// 		{'title': 'microphoneLevel', 'type': 'html', 'value': '<div id="bx-messenger-settings-hardware-microphone-level" class="bx-messenger-settings-level-meter-container"></div>'},
+	// 		{'type': 'space'},
+	// 		{'title': BX.message('IM_SETTINGS_HARDWARE_SPEAKER'), 'type': 'select', 'name':'defaultSpeaker', 'items': {}, 'saveCallback': function(e){if(!localStorage) return e.value; localStorage.setItem('bx-im-settings-default-speaker', e.value);} },
+	// 		{'type': 'space'},
+	// 		{
+	// 			'title': BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO'),
+	// 			'type': 'select',
+	// 			'name': 'callAcceptIncomingVideo',
+	// 			'items': [
+	// 				{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_ACCEPT_ALL'), value: BX.Call.VideoStrategy.Type.AllowAll},
+	// 				{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_ACCEPT_SPEAKING'), value: BX.Call.VideoStrategy.Type.CurrentlyTalking},
+	// 				{title: BX.message('IM_SETTINGS_CALLS_INCOMING_VIDEO_DENY_ALL'), value: BX.Call.VideoStrategy.Type.AllowNone}
+	// 			],
+	// 			'value': this.settings.callAcceptIncomingVideo,
+	// 			'saveCallback': function(e)
+	// 			{
+	// 				var videoStrategyType = e[e.selectedIndex].value;
+	// 				this.callController.setVideoStrategyType(videoStrategyType)
+	// 				return videoStrategyType;
+	// 			}.bind(this)
+	// 		}
+	// 	],
+	// 	'click': BX.delegate(this.showHardwareSettings, this)
+	// };
 
 	var hotkeysCollection = [
 		BX.create('tr', {children: [
@@ -2728,10 +2462,7 @@ BX.IM.prototype.closeHardwareSettings = function()
 		this.settingsLevelMeter.stop();
 
 	this.settingsCameraTestMediaStream = null;
-	if (this.telephonyController)
-	{
-		this.telephonyController.readDefaults();
-	}
+
 	BX.Event.EventEmitter.unsubscribe('IM.Settings:changeVideoMirroring', this.changeVideoMirroring.bind(this));
 };
 
@@ -4079,7 +3810,7 @@ BX.MessengerNotify.prototype.newNotify = function(send)
 	if (send && !this.BXIM.xmppStatus)
 		this.BXIM.playSound("reminder");
 
-	if (send && BX.MessengerCommon.isDesktop() && !this.BXIM.callController.isFullScreen())
+	if (send && BX.MessengerCommon.isDesktop())
 	{
 		if (
 			!document.hasFocus()
@@ -6653,15 +6384,9 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 
 	if (this.popupMessenger != null)
 	{
-		var callToggle = (
-			this.BXIM.callController.hasActiveCall()
-			&& this.BXIM.callController.hasVisibleCall()
-			&& this.BXIM.callController.currentCall.associatedEntity.id != userId
-		);
 		BX.MessengerCommon.openDialog(
 			userId,
-			this.BXIM.dialogOpen? false: true,
-			callToggle
+			this.BXIM.dialogOpen? false: true
 		);
 		if (!(BX.browser.IsAndroid() || BX.browser.IsIOS() || window != window.top))
 		{
@@ -6731,7 +6456,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 		contactListExtendCollapsedElements += 39;
 	}
 
-	this.popupMessengerContent = BX.create("div", { props : { className : "bx-messenger-box bx-messenger-mark bx-messenger-global-context-"+this.BXIM.context.toLowerCase()+" "+(this.BXIM.callController.hasActiveCall()? ' bx-messenger-call'+(this.callOverlayMinimize? '': ' bx-messenger-call-maxi'): '')+(BX.MessengerCommon.isPage()? ' bx-messenger-box-desktop': '')+(BX.browser.IsMac()? '': ' bx-messenger-custom-scroll')+(this.BXIM.options.showRecent? '': ' bx-messenger-hide-recent')+(BX.MessengerTheme.isDark() ? ' bx-messenger-dark' : '') }, style: styleOfContent, children : [
+	this.popupMessengerContent = BX.create("div", { props : { className : "bx-messenger-box bx-messenger-mark bx-messenger-global-context-"+this.BXIM.context.toLowerCase()+" "+(BX.MessengerCommon.isPage()? ' bx-messenger-box-desktop': '')+(BX.browser.IsMac()? '': ' bx-messenger-custom-scroll')+(this.BXIM.options.showRecent? '': ' bx-messenger-hide-recent')+(BX.MessengerTheme.isDark() ? ' bx-messenger-dark' : '') }, style: styleOfContent, children : [
 		/* CL */
 		this.popupContactListWrap = BX.create("div", { props : { className : "bx-messenger-box-contact bx-messenger-box-contact-normal" }, style : {width: this.popupContactListSize+'px'},  children : [
 			BX.create("div", { props : { className : "bx-messenger-cl-search"+(this.BXIM.options.showSearch? '': ' bx-messenger-cl-search-hide') }, children : [
@@ -7054,7 +6779,7 @@ BX.MessengerChat.prototype.openMessenger = function(userId, params)
 	this.popupMessengerTopLine = BX.create("div", { props : { className : "bx-messenger-box-topline"}});
 	this.popupMessengerContent.insertBefore(this.popupMessengerTopLine, this.popupMessengerContent.firstChild);
 
-	if (!BX.MessengerCommon.isDesktop() && this.BXIM.bitrixIntranet && this.BXIM.platformName != '' && this.BXIM.settings.bxdNotify)
+	if (false && !BX.MessengerCommon.isDesktop() && this.BXIM.bitrixIntranet && this.BXIM.platformName != '' && this.BXIM.settings.bxdNotify)
 	{
 		clearTimeout(this.popupMessengerDesktopTimeout);
 		this.popupMessengerDesktopTimeout = setTimeout(BX.delegate(function(){
@@ -7806,7 +7531,6 @@ BX.MessengerChat.prototype.closeMessenger = function()
 {
 	if (
 		!this.popupMessenger
-		|| this.BXIM.callController.hasActiveCall()
 		|| BX.MessengerCommon.isPopupPage() && BX.MessengerSlider.count() > 1
 	)
 	{
@@ -10515,14 +10239,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		offsetLeft = 20;
 
 		menuItems = [
-			{icon: 'bx-messenger-menu-call-video', text: BX.message('IM_M_CALL_BTN_JOIN_MENU_VIDEO'), onclick: BX.delegate(function(){
-				this.BXIM.callController.joinCall(params.currentCall.call.id, true);
-				this.closeMenuPopup();
-			}, this)},
-			{icon: 'bx-messenger-menu-call-voice', text: BX.message('IM_M_CALL_BTN_JOIN_MENU_AUDIO'), onclick: BX.delegate(function(){
-				this.BXIM.callController.joinCall(params.currentCall.call.id, false);
-				this.closeMenuPopup();
-			}, this)},
+
 		];
 	}
 	else if (type == 'callMenu')
@@ -10715,7 +10432,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 			menuItems = [
 				!userInChat || isAnnouncement? null: {icon: 'bx-messenger-menu-chat-put', text: BX.message('IM_M_CHAT_PUT'), onclick: BX.delegate(function(){ this.insertTextareaText(this.popupMessengerTextarea, ' '+BX.util.htmlspecialcharsback(this.users[userId].name)+' ', false); BX.MessengerCommon.addMentionList(this.currentTab, BX.util.htmlspecialcharsback(this.users[userId].name), userId); this.popupMessengerTextarea.focus(); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-write', text: BX.message('IM_M_WRITE_MESSAGE'), onclick: BX.delegate(function(){ this.openMessenger(userId); this.closeMenuPopup(); }, this)},
-				(!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall())? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
+				//(!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall())? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-history', text: BX.message('IM_M_OPEN_HISTORY'), onclick: BX.delegate(function(){ this.openHistory(userId); this.closeMenuPopup();}, this)},
 				{icon: 'bx-messenger-menu-profile', text: BX.message('IM_M_OPEN_PROFILE'), href: this.users[userId].profile, onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)},
 				canKick? {icon: 'bx-messenger-menu-chat-exit', text: BX.message('IM_M_CHAT_KICK'), onclick: BX.delegate(function(){ this.kickFromChat(chatId, userId); this.closeMenuPopup();}, this)}: {}
@@ -10864,7 +10581,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 				openNewWindow,
 				isOpenlines || !pinEnable? null: {icon: 'bx-messenger-menu-pin', text: dialogPinnedText, onclick: BX.delegate(function(){ BX.MessengerCommon.pinDialog(userId, !dialogIsPinned); this.closeMenuPopup(); }, this)},
 				!isAnnouncement && !isOpenlines && !hideItem && muteEnable ? {icon: 'bx-messenger-menu-chat-mute', text: chatMuteText, onclick: BX.delegate(function(){ BX.MessengerCommon.muteMessageChat(userId); this.closeMenuPopup();}, this)}: {},
-				!isCallAllowed || isAnnouncement || isOpenlines || (!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall()) || (userIsChat && (this.chat[userId.toString().substr(4)].type == 'call' || this.chat[userId.toString().substr(4)].type == 'lines')) ? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
+				//!isCallAllowed || isAnnouncement || isOpenlines || (!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall()) || (userIsChat && (this.chat[userId.toString().substr(4)].type == 'call' || this.chat[userId.toString().substr(4)].type == 'lines')) ? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
 				hideItem && !userIsChat? null: {icon: 'bx-messenger-menu-history', text: BX.message('IM_M_OPEN_HISTORY'), onclick: BX.delegate(function(){ this.openHistory(userId); this.closeMenuPopup();}, this)},
 				!userIsChat? {icon: 'bx-messenger-menu-profile', text: BX.message('IM_M_OPEN_PROFILE'), href: this.users[userId].profile, onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)}: {},
 				!hideItem && !isAnnouncement && userIsChat && this.chat[userId.toString().substr(4)].type != 'call' && !BX.MessengerCommon.checkRestriction(userId.toString().substr(4), 'RENAME') ? {icon: 'bx-messenger-menu-chat-rename', text: BX.message('IM_M_CHAT_RENAME'), onclick: BX.delegate(function(){ if (this.currentTab != userId) { this.openMessenger(userId); } else { this.renameChatDialog(); }   this.closeMenuPopup();}, this)}: {},
@@ -10876,7 +10593,7 @@ BX.MessengerChat.prototype.openPopupMenu = function(bind, type, setAngle, params
 		{
 			menuItems = [
 				{icon: 'bx-messenger-menu-write', text: BX.message('IM_M_WRITE_MESSAGE'), onclick: BX.delegate(function(){ this.openMessenger(userId); this.closeMenuPopup(); }, this)},
-				(!userIsChat && (!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall()))? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
+				//(!userIsChat && (!this.BXIM.checkCallSupport(userId) || BX.MessengerCalls.hasActiveCall()))? null: {icon: 'bx-messenger-menu-video', text: BX.message('IM_M_CALL_VIDEO_HD'), onclick: BX.delegate(function(){ this.BXIM.callTo(userId, true); this.closeMenuPopup(); }, this)},
 				{icon: 'bx-messenger-menu-history', text: BX.message('IM_M_OPEN_HISTORY'), onclick: BX.delegate(function(){ this.openHistory(userId); this.closeMenuPopup();}, this)},
 				{icon: 'bx-messenger-menu-profile', text: BX.message('IM_M_OPEN_PROFILE'), href: this.users[userId].profile, onclick: BX.delegate(function(){ this.closeMenuPopup(); }, this)}
 			];
@@ -14007,10 +13724,7 @@ BX.MessengerChat.prototype.setClosingByEsc = function(result)
 
 	if (result)
 	{
-		if (!this.BXIM.callController.hasActiveCall())
-		{
-			this.popupMessenger.setClosingByEsc(true);
-		}
+		this.popupMessenger.setClosingByEsc(true);
 	}
 	else
 	{
@@ -17180,7 +16894,7 @@ BX.MessengerChat.prototype.newMessage = function(send)
 	//if (this.BXIM.settings.status == 'dnd')
 	//	return false;
 
-	if (BX.MessengerCommon.isDesktop() && !this.BXIM.callController.isFullScreen())
+	if (BX.MessengerCommon.isDesktop())
 	{
 		if (
 			!document.hasFocus()
@@ -17684,10 +17398,6 @@ BX.MessengerChat.prototype.closeMenuPopup = function()
 	{
 		this.videoConfCreateLinkPopup.close();
 	}
-	if (this.BXIM.callController.feedbackPopup)
-	{
-		this.BXIM.callController.feedbackPopup.destroy();
-	}
 	if (window.obCrm && window.obCrm.olCrmSelector && window.obCrm.olCrmSelector.popup)
 	{
 		window.obCrm.olCrmSelector.popup.close();
@@ -17876,7 +17586,7 @@ BX.MessengerChat.prototype.storageSet = function(params)
 	}
 	else if (params.key == 'mcam' && !this.BXIM.ppServerStatus)
 	{
-		if (this.popupMessenger != null && !this.BXIM.callController.hasActiveCall())
+		if (this.popupMessenger != null)
 			this.popupMessenger.close();
 	}
 };
@@ -19036,14 +18746,6 @@ BX.IM.Desktop = function(BXIM, params)
 						BX.MessengerCommon.contactListSearch({'keyCode': 27});
 						this.messenger.popupMessengerTextarea.focus();
 					}
-					else if (this.BXIM.callController.hasActiveCall())
-					{
-
-					}
-					else if (this.BXIM.callController.feedbackPopup)
-					{
-						this.BXIM.callController.feedbackPopup.destroy();
-					}
 					else
 					{
 						if (BX.util.trim(this.messenger.popupMessengerEditTextarea.value).length > 0)
@@ -19297,37 +18999,9 @@ BX.IM.Desktop = function(BXIM, params)
 				}
 				else if (command == 'callto')
 				{
-					if (params.video)
-					{
-						this.BXIM.callTo(params.video, true);
-						BX.desktop.setActiveWindow();
-						BX.desktop.windowCommand("show");
-					}
-					else if (params.audio)
-					{
-						this.BXIM.callTo(params.audio, false);
-						BX.desktop.setActiveWindow();
-						BX.desktop.windowCommand("show");
-					}
-					else if (params.phone)
-					{
-						if (params.params)
-						{
-							this.BXIM.telephonyController.phoneCall(unescape(params.phone), BX.desktopUtils.decodeParamsJson(params.params));
-						}
-						else
-						{
-							this.BXIM.phoneTo(unescape(params.phone));
-						}
-					}
-
 				}
 				else if (command == 'calllist')
 				{
-					if(!params.id)
-						return;
-
-					this.BXIM.startCallList(params.id, BX.desktopUtils.decodeParams(params.params));
 				}
 				// compatibility layer with new chat
 				else if (command == 'chat')
@@ -19756,14 +19430,6 @@ BX.IM.Desktop.prototype.showActiveVideocall = function()
 	if (this.callToggleCount % 2 == 0)
 	{
 		return true;
-	}
-
-	if (
-		this.BXIM.callController.hasActiveCall()
-		&& this.BXIM.callController.callView && this.BXIM.callController.callView.visible
-	)
-	{
-		this.BXIM.callController.unfold();
 	}
 
 	this.videoConfList = this.videoConfList.filter(function(name) {
@@ -20235,7 +19901,6 @@ BX.IM.WebRTC = function(BXIM, params)
 		this.parent.constructor.apply(this, arguments);
 	}
 	this.BXIM = BXIM;
-	this.telephonyController = params.telephonyController;
 
 	this.panel = params.panel;
 	this.desktop = params.desktopClass;
@@ -20329,24 +19994,10 @@ BX.IM.WebRTC = function(BXIM, params)
 
 BX.IM.WebRTC.prototype.openKeyPad = function(e)
 {
-	if (this.telephonyController)
-	{
-		if (!BX.type.isPlainObject(e))
-		{
-			e = {}
-		}
-		this.messenger.setClosingByEsc(false);
-		e.onClose = this.onKeyPadClose.bind(this)
-		this.telephonyController.openKeyPad(e)
-	}
 };
 
 BX.IM.WebRTC.prototype.closeKeyPad = function(e)
 {
-	if (this.telephonyController)
-	{
-		this.telephonyController.closeKeyPad(e);
-	}
 };
 
 BX.IM.WebRTC.prototype.onKeyPadClose = function()
@@ -20369,13 +20020,13 @@ BX.IM.WebRTC.prototype.onKeyPadClose = function()
 
 BX.IM.WebRTC.prototype.ready = function()
 {
-	return this.enabled;
+	return false; //this.enabled;
 };
 
 
 BX.IM.WebRTC.prototype.phoneSupport = function()
 {
-	return this.telephonyController && this.telephonyController.phoneSupport();
+	return false;
 };
 
 BX.IM.WebRTC.prototype.initAudio = function(onlyError)
@@ -20425,6 +20076,8 @@ BX.IM.WebRTC.prototype.initAudio = function(onlyError)
 /* WebRTC Signaling API  */
 BX.IM.WebRTC.prototype.callSupport = function(dialogId, messengerClass)
 {
+	return false;
+
 	messengerClass = messengerClass? messengerClass: this.messenger;
 	var userCheck = true;
 	if (typeof(dialogId) != 'undefined')
@@ -22370,66 +22023,11 @@ MessengerSlider.prototype.isSomeOpen = function()
 MessengerSlider.prototype.canOpen = function(dialogId)
 {
 	return true;
-	if (!this.BXIM.callController.hasActiveCall())
-	{
-		return true;
-	}
-
-	this.BXIM.openConfirm(BX.message('IM_M_CALL_OPEN_CHAT'), [
-		new BX.PopupWindowButton({
-			text : BX.message('IM_M_CALL_CLOSE_CHAT_YES'),
-			className : "popup-window-button-decline",
-			events : { click : BX.delegate(function() {
-				this.BXIM.callController.currentCall.hangup();
-				BX.proxy_context.popupWindow.close();
-				this.BXIM.openMessenger(dialogId);
-			}, this) }
-		}),
-		new BX.PopupWindowButton({
-			text : BX.message('IM_M_CALL_CLOSE_CHAT_NO'),
-			className : "popup-window-button",
-			events : { click : function() { this.popupWindow.close(); } }
-		})
-	]);
-
-	return false;
 };
 
 MessengerSlider.prototype.canClose = function()
 {
-	if (
-		!this.BXIM.callController.hasActiveCall()
-		|| !this.BXIM.callController.currentCall
-	)
-	{
-		return true;
-	}
-
-	this.BXIM.openConfirm(BX.message('IM_M_CALL_CLOSE_CHAT'), [
-		new BX.PopupWindowButton({
-			text : BX.message('IM_M_CALL_CLOSE_CHAT_YES'),
-			className : "popup-window-button-decline",
-			events : { click : BX.delegate(function() {
-				if (this.BXIM.callController.currentCall)
-				{
-					this.BXIM.callController.currentCall.hangup();
-				}
-				else if (this.BXIM.callController.callView)
-				{
-					this.BXIM.callController.callView.close();
-				}
-				this.close();
-				BX.proxy_context.popupWindow.close();
-			}, this) }
-		}),
-		new BX.PopupWindowButton({
-			text : BX.message('IM_M_CALL_CLOSE_CHAT_NO'),
-			className : "popup-window-button",
-			events : { click : function() { this.popupWindow.close(); } }
-		})
-	]);
-
-	return false;
+	return true;
 };
 
 MessengerSlider.prototype.canCloseByEsc = function()
@@ -22464,7 +22062,7 @@ MessengerSlider.prototype.canCloseByEsc = function()
 		if (BX.util.trim(this.BXIM.messenger.popupMessengerEditTextarea.value).length > 0)
 		{
 		}
-		else if (BX.util.trim(this.BXIM.messenger.popupMessengerTextarea.value).length <= 0 && !this.BXIM.callController.hasActiveCall())
+		else if (BX.util.trim(this.BXIM.messenger.popupMessengerTextarea.value).length <= 0)
 		{
 			cancelClose = false;
 		}
@@ -22622,30 +22220,7 @@ MessengerCalls.prototype.get = function()
 
 MessengerCalls.prototype.hasActiveCall = function(dialogId)
 {
-	if (!this.BXIM || this.BXIM.callController.hasActiveCall())
-	{
-		return true;
-	}
-
-	dialogId = dialogId? dialogId.toString(): '';
-
-	var findFunction;
-	if (dialogId)
-	{
-		findFunction = function(item) {
-			return item.dialogId === dialogId && item.state === 'join';
-		};
-	}
-	else
-	{
-		findFunction = function(item) {
-			return item.state === 'join';
-		};
-	}
-
-	var finded = this.calls.find(findFunction);
-
-	return !!finded;
+	return false;
 }
 
 MessengerCalls.prototype.hasWaitCall = function(dialogId)
@@ -22678,16 +22253,7 @@ MessengerCalls.prototype.hasWaitCall = function(dialogId)
 
 MessengerCalls.prototype.hasActiveSharing = function(call)
 {
-	if (
-		!this.BXIM
-		|| !this.BXIM.callController.hasActiveCall()
-		|| !this.BXIM.callController.currentCall.isScreenSharingStarted()
-	)
-	{
-		return false;
-	}
-
-	return true;
+	return false;
 }
 
 MessengerCalls.prototype.drawElement = function(call)
@@ -22732,21 +22298,6 @@ MessengerCalls.prototype.drawElement = function(call)
 	{
 		className += " bx-messenger-cl-status-"+BX.MessengerCommon.getUserStatus(entity);
 	}
-	if (call.state === 'join')
-	{
-		className += ' bx-messenger-cl-item-call-join';
-	}
-	else
-	{
-		className += ' bx-messenger-cl-item-call-wait';
-	}
-	if (!(
-		call.state === 'wait' && userIsChat
-		|| call.state === 'join' && this.BXIM.callController.hasActiveCall()
-	))
-	{
-		className += ' bx-messenger-cl-item-call-single';
-	}
 
 	var chatType = 'private';
 	if (dialogId.includes('chat'))
@@ -22766,8 +22317,6 @@ MessengerCalls.prototype.drawElement = function(call)
 				'</span>'+
 				'<span class="bx-messenger-cl-user">'+
 					'<div class="bx-messenger-cl-user-title'+(entity.extranet? " bx-messenger-user-extranet": "")+'" title="'+userName+'">'+userName+'</div>'+
-					(call.state === 'wait' && userIsChat? '<div class="bx-messenger-cl-user-desc">'+BX.message('IM_M_CALL_BTN_JOIN')+'</div>': '')+
-					(call.state === 'join' && this.BXIM.callController.hasActiveCall() ? '<div class="bx-messenger-cl-user-desc">'+BX.message(userIsChat? 'IM_M_CALL_BTN_DISCONNECT': 'IM_M_CALL_BTN_HANGUP')+'</div>': '')+
 				'</span>'
 	});
 };
@@ -22797,20 +22346,6 @@ MessengerCalls.prototype.onClick = function(event)
 		}
 
 		BX.MessengerCommon.openDialog(dialogId);
-
-		return BX.MessengerCommon.preventDefault(event);
-	}
-	else if (callState === 'join')
-	{
-		if (event.target.className === 'bx-messenger-cl-user-desc')
-		{
-			this.BXIM.callController.leaveCurrentCall();
-		}
-		else
-		{
-			this.BXIM.callController.unfold();
-			BX.MessengerCommon.openDialog(dialogId);
-		}
 
 		return BX.MessengerCommon.preventDefault(event);
 	}
@@ -22872,9 +22407,6 @@ MessengerCalls.prototype.setBxIm = function(dom)
 	{
 		return false;
 	}
-
-	BX.addCustomEvent(window, 'CallEvents::callCreated', this.onCallCreated.bind(this));
-	BX.addCustomEvent(window, 'CallController::onFold', function() { BX.MessengerCommon.readMessage(this.BXIM.messenger.currentTab); }.bind(this));
 
 	return true;
 }
@@ -23037,27 +22569,27 @@ MessengerLimit.prototype.showHelpSlider = function(id)
 
 MessengerLimit.prototype.disableExtensions = function()
 {
-	if (this.isActive('call_screen_sharing'))
-	{
-		var optionScreenSharing = BX.Call.Controller.FeatureState.Limited;
-		if (this.BXIM.userExtranet)
-		{
-			optionScreenSharing = BX.Call.Controller.FeatureState.Disabled;
-		}
-
-		this.BXIM.callController.setFeatureScreenSharing(optionScreenSharing);
-	}
-
-	if (this.isActive('call_record'))
-	{
-		var optionRecord = BX.Call.Controller.FeatureState.Limited;
-		if (this.BXIM.userExtranet)
-		{
-			optionRecord = BX.Call.Controller.FeatureState.Disabled;
-		}
-
-		this.BXIM.callController.setFeatureRecord(optionRecord);
-	}
+	// if (this.isActive('call_screen_sharing'))
+	// {
+	// 	var optionScreenSharing = BX.Call.Controller.FeatureState.Limited;
+	// 	if (this.BXIM.userExtranet)
+	// 	{
+	// 		optionScreenSharing = BX.Call.Controller.FeatureState.Disabled;
+	// 	}
+	//
+	// 	this.BXIM.callController.setFeatureScreenSharing(optionScreenSharing);
+	// }
+	//
+	// if (this.isActive('call_record'))
+	// {
+	// 	var optionRecord = BX.Call.Controller.FeatureState.Limited;
+	// 	if (this.BXIM.userExtranet)
+	// 	{
+	// 		optionRecord = BX.Call.Controller.FeatureState.Disabled;
+	// 	}
+	//
+	// 	this.BXIM.callController.setFeatureRecord(optionRecord);
+	// }
 
 	if (!BX.desktop)
 	{
@@ -24168,7 +23700,7 @@ MessengerProxy.prototype.playNewUserSound = function() {
 
 MessengerProxy.prototype.getCallController = function()
 {
-	return this.BXIM.callController;
+	return null;
 }
 
 MessengerProxy.prototype.getPushServerStatus = function()

@@ -80,6 +80,6 @@ class WeakPassword
 
 		$passwords = $indexFile->getContents();
 
-		return (strpos($passwords, "\n" . $password . "\n") !== false);
+		return (str_contains($passwords, "\n" . $password . "\n"));
 	}
 }

@@ -17,7 +17,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		$arInsert = $DB->PrepareInsert("b_catalog_discount", $arFields);
 
 		$strSql = "INSERT INTO b_catalog_discount(".$arInsert[0].") VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = (int)$DB->LastID();
 
@@ -65,7 +65,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		if (!empty($strUpdate))
 		{
 			$strSql = "UPDATE b_catalog_discount SET ".$strUpdate." WHERE ID = ".$ID." AND TYPE = ".self::ENTITY_ID;
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			if (isset($arFields['HANDLERS']))
 				self::updateDiscountHandlers($ID, $arFields['HANDLERS'], true);
@@ -129,7 +129,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			"CD.PRIORITY, CD.LAST_DISCOUNT, CD.VERSION, CD.CONDITIONS, CD.UNPACK, CD.SALE_ID ".
 			"FROM b_catalog_discount CD WHERE CD.ID = ".$ID." AND CD.TYPE = ".self::ENTITY_ID;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 
@@ -273,7 +273,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -302,7 +302,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -324,7 +324,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -388,7 +388,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -417,7 +417,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -439,7 +439,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -477,7 +477,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -506,7 +506,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -528,7 +528,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -566,7 +566,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -595,7 +595,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -617,7 +617,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -656,7 +656,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -685,7 +685,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -707,7 +707,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -747,7 +747,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		$strFilter = 'N';
 		$arDiscList = array();
 		$strQuery = str_replace('#ENTITY_ID#', $arParams['ENTITY_ID'], "SELECT DISCOUNT_ID FROM b_catalog_discount_cond WHERE #ENTITY_ID# != -1");
-		$rsDiscounts = $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rsDiscounts = $DB->Query($strQuery);
 		while ($arDiscount = $rsDiscounts->Fetch())
 		{
 			$arDiscList[] = intval($arDiscount['DISCOUNT_ID']);
@@ -756,7 +756,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		{
 			$arDiscList = array_unique($arDiscList);
 			$strQuery = "SELECT 'x' FROM b_catalog_discount D WHERE ID IN (".implode(',', $arDiscList).") AND D.ACTIVE = 'Y' AND (D.ACTIVE_TO > ".$DB->CurrentTimeFunction()." OR D.ACTIVE_TO IS NULL) LIMIT 0, 1";
-			$rsDiscounts = $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsDiscounts = $DB->Query($strQuery);
 			if ($arDiscount= $rsDiscounts->Fetch())
 				$strFilter = 'Y';
 		}
@@ -786,7 +786,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		if ($active !== 'Y' && $active !== 'N')
 		{
 			$strQuery = 'select ID, ACTIVE from b_catalog_discount where ID = '.$intDiscountID;
-			$rsActive = $DB->Query($strQuery,  false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rsActive = $DB->Query($strQuery);
 			if ($activeFromDatabase = $rsActive->Fetch())
 			{
 				$active = $activeFromDatabase['ACTIVE'];
@@ -808,7 +808,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		if ($boolResult)
 		{
 			$strQuery = 'DELETE from b_catalog_discount_cond where DISCOUNT_ID = '.$intDiscountID;
-			$DB->Query($strQuery,  false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strQuery);
 
 			foreach ($arConditions as $arOneCondition)
 			{
@@ -822,7 +822,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 				}
 				$arInsert = $DB->PrepareInsert("b_catalog_discount_cond", $arRow);
 				$strInserCond = "INSERT INTO b_catalog_discount_cond(".$arInsert[0].") VALUES(".$arInsert[1].")";
-				$DB->Query($strInserCond, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strInserCond);
 			}
 			if (isset($arOneCondition))
 				unset($arOneCondition);
@@ -905,7 +905,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 		$strQuery = "SELECT ".$arSqls["SELECT"]." FROM b_catalog_discount_cond DC WHERE ".$arSqls["WHERE"];
 
 		$arDiscountID = array();
-		$rsDiscounts = $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rsDiscounts = $DB->Query($strQuery);
 		if ($boolRest)
 		{
 			$arRestrictions = array();
@@ -1035,7 +1035,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			if ($update)
 			{
 				$sqlQuery = 'delete from b_catalog_discount_module where DISCOUNT_ID = '.$discountID;
-				$DB->Query($sqlQuery, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+				$DB->Query($sqlQuery);
 			}
 			if (!empty($handlers['MODULES']))
 			{
@@ -1047,7 +1047,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 					);
 					$insert = $DB->PrepareInsert('b_catalog_discount_module', $fields);
 					$sqlQuery = "insert into b_catalog_discount_module(".$insert[0].") values(".$insert[1].")";
-					$DB->Query($sqlQuery, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+					$DB->Query($sqlQuery);
 				}
 				unset($oneModuleID);
 			}
@@ -1071,7 +1071,7 @@ class CCatalogDiscount extends CAllCatalogDiscount
 			foreach ($discountRows as &$oneRow)
 			{
 				$sqlQuery = 'select * from b_catalog_discount_module where DISCOUNT_ID IN ('.implode(', ', $oneRow).')';
-				$resQuery = $DB->Query($sqlQuery, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+				$resQuery = $DB->Query($sqlQuery);
 				while ($row = $resQuery->Fetch())
 				{
 					$row['DISCOUNT_ID'] = (int)$row['DISCOUNT_ID'];

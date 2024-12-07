@@ -46,11 +46,6 @@ if (!preg_match("#([\xC2-\xDF][\x80-\xBF]|\xE0[\xA0-\xBF][\x80-\xBF]|[\xE1-\xEC\
 	die("Filename is out of range.");
 }
 
-if (!defined("BX_UTF"))
-{
-	$requestUri = \Bitrix\Main\Text\Encoding::convertEncoding($requestUri, "utf-8", (defined("BX_DEFAULT_CHARSET")? BX_DEFAULT_CHARSET : "windows-1251"));
-}
-
 $requestUri = preg_replace("/(\\.)(\\.[\\\\\\/])/is", "\\1 \\2", $requestUri);
 $requestUri = preg_replace("/[\\.\\/\\\\\\x20\\x22\\x3c\\x3e\\x5c]{30,}/", " X ", $requestUri);
 
@@ -67,7 +62,7 @@ if ($documentRootLength >= mb_strlen($requestUriAbsolute)
 
 $urlTmp = mb_substr($requestUriAbsolute, $documentRootLength);
 $urlTmp = str_replace(".", "", $urlTmp);
-if (mb_substr($urlTmp, 0, 7) == "bitrix/")
+if (str_starts_with($urlTmp, "bitrix/"))
 {
 	CHTTP::SetStatus("403 Forbidden");
 	die("Path is out of range.");

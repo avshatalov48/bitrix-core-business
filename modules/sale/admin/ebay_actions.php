@@ -40,7 +40,7 @@ if(isset($_REQUEST["action"]))
 			$tabControl->End();
 			?>
 
-			<script type="text/javascript">
+			<script>
 				if(BX.Sale.EbayAdmin.setOpenerFieldsFromHash('SFTP_TOKEN'))
 					window.close();
 			</script>
@@ -71,7 +71,7 @@ if(isset($_REQUEST["action"]))
 			$tabControl->End();
 			?>
 
-				<script type="text/javascript">
+				<script>
 						if(BX.Sale.EbayAdmin.setOpenerFieldsFromHash('API_TOKEN'))
 							window.close();
 				</script>
@@ -80,7 +80,7 @@ if(isset($_REQUEST["action"]))
 
 		case "APP_REJECTED":
 			?>
-				<script type="text/javascript">
+				<script>
 					if(BX.Sale.EbayAdmin.showAlertOpener("<?=Loc::getMessage("SALE_EBAY_AUTH_FAIL")?>"))
 						window.close();
 				</script>
@@ -90,7 +90,7 @@ if(isset($_REQUEST["action"]))
 
 		case "GET_TOKEN_ERROR":
 			?>
-			<script type="text/javascript">
+			<script>
 				var splitted = window.location.hash.substring(1).split("&"),
 					message = "<?=Loc::getMessage("SALE_EBAY_GET_TOKEN_FAIL")?>";
 

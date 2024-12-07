@@ -1,33 +1,24 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup) {
+(function (exports,ui_buttons,main_core,main_popup) {
 	'use strict';
 
 	let _ = t => t,
 	  _t,
 	  _t2;
 	class Stage {
-	  constructor({
-	    id,
-	    name,
-	    color,
-	    backgroundColor,
-	    isFilled,
-	    events,
-	    isSuccess,
-	    isFail,
-	    fillingColor
-	  }) {
+	  constructor(params) {
 	    this.backgroundImage = "url('data:image/svg+xml;charset=UTF-8,%3csvg width=%27295%27 height=%2732%27 viewBox=%270 0 295 32%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cmask id=%27mask0_2_11%27 style=%27mask-type:alpha%27 maskUnits=%27userSpaceOnUse%27 x=%270%27 y=%270%27 width=%27295%27 height=%2732%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3c/mask%3e%3cg mask=%27url(%23mask0_2_11)%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3cpath d=%27M0 30H295V32H0V30Z%27 fill=%27#COLOR1#%27/%3e%3c/g%3e%3c/svg%3e') 3 10 3 3 fill repeat";
-	    this.id = id;
-	    this.name = name;
-	    this.color = color;
-	    this.backgroundColor = backgroundColor;
-	    this.isFilled = isFilled;
-	    this.events = events;
-	    this.success = isSuccess;
-	    this.fail = isFail;
-	    this.fillingColor = fillingColor;
+	    this.id = params.id;
+	    this.name = params.name;
+	    this.color = params.color;
+	    this.backgroundColor = params.backgroundColor;
+	    this.isFilled = params.isFilled;
+	    this.events = params.events;
+	    this.success = params.isSuccess;
+	    this.fail = params.isFail;
+	    this.fillingColor = params.fillingColor;
+	    this.isDisable = params.isDisable;
 	  }
 	  static create(data) {
 	    if (main_core.Type.isPlainObject(data) && data.id && data.name && data.color && data.backgroundColor) {
@@ -35,12 +26,9 @@ this.BX = this.BX || {};
 	      data.name = data.name.toString();
 	      data.color = data.color.toString();
 	      data.backgroundColor = data.backgroundColor.toString();
-	      if (!main_core.Type.isPlainObject(data.events)) {
-	        data.events = {};
-	      }
-	      if (!main_core.Type.isBoolean(data.isFilled)) {
-	        data.isFilled = false;
-	      }
+	      data.events = main_core.Type.isPlainObject(data.events) ? data.events : {};
+	      data.isFilled = main_core.Type.isBoolean(data.isFilled) ? data.isFilled : false;
+	      data.isDisable = main_core.Type.isBoolean(data.isDisable) ? data.isDisable : false;
 	      if (data.id > 0) {
 	        return new Stage(data);
 	      }
@@ -69,6 +57,19 @@ this.BX = this.BX || {};
 	  isFinal() {
 	    return this.isFail() || this.isSuccess();
 	  }
+	  isDisabled() {
+	    return this.isDisable;
+	  }
+	  setDisable(isDisable = true) {
+	    if (this.isDisable === isDisable) {
+	      return this;
+	    }
+	    if (this.node) {
+	      main_core.Dom.toggleClass(this.node, '--disabled');
+	    }
+	    this.isDisable = isDisable;
+	    return this;
+	  }
 	  getColor() {
 	    return this.color;
 	  }
@@ -80,9 +81,10 @@ this.BX = this.BX || {};
 	    if (this.node) {
 	      this.textNode.style.backgroundImage = this.getBackgroundImage();
 	    } else {
+	      const disableClass = this.isDisabled() ? '--disabled' : '';
 	      this.textNode = main_core.Tag.render(_t || (_t = _`<div style="border-image: ${0};" class="ui-stageflow-stage-item-text">${0}</div>`), this.getBackgroundImage(), main_core.Text.encode(this.getName()));
 	      this.node = main_core.Tag.render(_t2 || (_t2 = _`<div 
-					class="ui-stageflow-stage" 
+					class="ui-stageflow-stage ${0}" 
 					data-stage-id="${0}" 
 					onmouseenter="${0}" 
 					onmouseleave="${0}"
@@ -91,7 +93,7 @@ this.BX = this.BX || {};
 				<div class="ui-stageflow-stage-item">
 					${0}
 				</div>
-			</div>`), this.getId(), this.onMouseEnter.bind(this), this.onMouseLeave.bind(this), this.onClick.bind(this), this.textNode);
+			</div>`), disableClass, this.getId(), this.onMouseEnter.bind(this), this.onMouseLeave.bind(this), this.onClick.bind(this), this.textNode);
 	    }
 	    this.textNode.style.color = Stage.calculateTextColor('#' + (this.isFilled ? this.color : this.backgroundColor));
 	    return this.node;
@@ -455,7 +457,6 @@ this.BX = this.BX || {};
 	  getSemanticSelectorPopup() {
 	    let popup = main_popup.PopupManager.getPopupById(semanticSelectorPopupId);
 	    if (!popup) {
-	      let failSemanticText = this.getFailStageName();
 	      popup = main_popup.PopupManager.create({
 	        id: semanticSelectorPopupId,
 	        autoHide: true,
@@ -463,23 +464,7 @@ this.BX = this.BX || {};
 	        closeIcon: true,
 	        maxWidth: 420,
 	        content: main_core.Tag.render(_t2$1 || (_t2$1 = _$1`<div class="ui-stageflow-popup-title">${0}</div>`), this.labels.finalStagePopupTitle),
-	        buttons: [new BX.UI.Button({
-	          color: BX.UI.Button.Color.SUCCESS,
-	          text: this.getSuccessStage().getName(),
-	          onclick: () => {
-	            this.isActive = true;
-	            this.onStageClick(this.getSuccessStage());
-	          }
-	        }), failSemanticText ? new BX.UI.Button({
-	          color: BX.UI.Button.Color.DANGER,
-	          text: failSemanticText,
-	          onclick: () => {
-	            popup.close();
-	            const finalStagePopup = this.getFinalStageSelectorPopup();
-	            finalStagePopup.show();
-	            this.isActive = false;
-	          }
-	        }) : null],
+	        buttons: [this.getSemanticPopupSuccessButton(), this.getSemanticPopupFailureButton()],
 	        events: {
 	          onClose: () => {
 	            this.setCurrentStageId(this.currentStage);
@@ -489,6 +474,33 @@ this.BX = this.BX || {};
 	      });
 	    }
 	    return popup;
+	  }
+	  getSemanticPopupSuccessButton() {
+	    return new BX.UI.Button({
+	      color: BX.UI.Button.Color.SUCCESS,
+	      text: this.getSuccessStage().getName(),
+	      onclick: () => {
+	        this.isActive = true;
+	        this.onStageClick(this.getSuccessStage());
+	      }
+	    });
+	  }
+	  getSemanticPopupFailureButton() {
+	    const failureSemanticText = this.getFailStageName();
+	    if (!failureSemanticText) {
+	      return null;
+	    }
+	    return new BX.UI.Button({
+	      color: BX.UI.Button.Color.DANGER,
+	      text: failureSemanticText,
+	      onclick: () => {
+	        var _PopupManager$getPopu;
+	        (_PopupManager$getPopu = main_popup.PopupManager.getPopupById(semanticSelectorPopupId)) == null ? void 0 : _PopupManager$getPopu.close();
+	        const finalStagePopup = this.getFinalStageSelectorPopup();
+	        finalStagePopup.show();
+	        this.isActive = false;
+	      }
+	    });
 	  }
 	  getFinalStageSemanticSelector(isSuccess = null) {
 	    if (!this.finalStageSemanticSelector) {
@@ -517,25 +529,6 @@ this.BX = this.BX || {};
 	    return this.finalStageSemanticSelector;
 	  }
 	  getFinalStageSelectorPopup(isSuccess = false) {
-	    let titleBar = {};
-	    let content = main_core.Tag.render(_t4 || (_t4 = _$1`<div class="ui-stageflow-final-fail-stage-list-wrapper"></div>`));
-	    if (!isSuccess) {
-	      const failStages = this.getFailStages();
-	      if (failStages.length > 1) {
-	        let isChecked = true;
-	        failStages.forEach(stage => {
-	          content.appendChild(main_core.Tag.render(_t5 || (_t5 = _$1`<div class="ui-stageflow-final-fail-stage-list-section">
-						<input data-stage-id="${0}" id="ui-stageflow-final-fail-stage-${0}" name="ui-stageflow-final-fail-stage-input" class="crm-list-fail-deal-button" type="radio" ${0}>
-						<label for="ui-stageflow-final-fail-stage-${0}">${0}</label>
-					</div>`), stage.getId(), stage.getId(), isChecked ? 'checked="checked"' : '', stage.getId(), stage.getName()));
-	          isChecked = false;
-	        });
-	      }
-	    }
-	    titleBar.content = main_core.Tag.render(_t6 || (_t6 = _$1`<div class="ui-stageflow-stage-selector-block">
-			<span>${0} </span>
-			${0}
-		</div>`), this.labels.finalStageSelectorTitle, this.getFinalStageSemanticSelector(isSuccess));
 	    let popup = main_popup.PopupManager.getPopupById(finalStageSelectorPopupId);
 	    if (!popup) {
 	      popup = main_popup.PopupManager.create({
@@ -566,9 +559,61 @@ this.BX = this.BX || {};
 	        }
 	      });
 	    }
-	    popup.setContent(content);
-	    popup.setTitleBar(titleBar);
+	    popup.setContent(this.getFinalStagePopupFailStagesWrapper(isSuccess));
+	    popup.setTitleBar(this.getFinalStagePopupTitleBar(isSuccess));
 	    return popup;
+	  }
+	  getFinalStagePopupFailStagesWrapper(isSuccess = false) {
+	    const failStageListWrapper = main_core.Tag.render(_t4 || (_t4 = _$1`<div class="ui-stageflow-final-fail-stage-list-wrapper"></div>`));
+	    if (isSuccess) {
+	      return failStageListWrapper;
+	    }
+	    const failStages = this.getFailStages();
+	    if (failStages.length > 1) {
+	      failStages.forEach(stage => {
+	        main_core.Dom.append(this.getFinalStagePopupFailStage(stage), failStageListWrapper);
+	      });
+	      this.setCheckedStageInFailStagesWrapper(failStageListWrapper);
+	    }
+	    return failStageListWrapper;
+	  }
+	  setCheckedStageInFailStagesWrapper(failStageListWrapper) {
+	    const failStagesNodeList = this.extractFinalStagePopupFailStages(failStageListWrapper);
+	    if (!main_core.Type.isArrayFilled(failStagesNodeList)) {
+	      return;
+	    }
+	    const firstFailStageInput = failStagesNodeList[0].querySelector('input');
+	    if (firstFailStageInput) {
+	      firstFailStageInput.checked = true;
+	    }
+	  }
+	  extractFinalStagePopupFailStages(failStageListWrapper) {
+	    var _failStageListWrapper;
+	    return (_failStageListWrapper = failStageListWrapper.querySelectorAll('.ui-stageflow-final-fail-stage-list-section')) != null ? _failStageListWrapper : [];
+	  }
+	  getFinalStagePopupFailStage(stage) {
+	    return main_core.Tag.render(_t5 || (_t5 = _$1`
+			<div class="ui-stageflow-final-fail-stage-list-section">
+				<input
+					data-stage-id="${0}"
+					id="ui-stageflow-final-fail-stage-${0}"
+					name="ui-stageflow-final-fail-stage-input"
+					class="crm-list-fail-deal-button"
+					type="radio"
+				>
+				<label for="ui-stageflow-final-fail-stage-${0}">${0}</label>
+			</div>
+		`), stage.getId(), stage.getId(), stage.getId(), stage.getName());
+	  }
+	  getFinalStagePopupTitleBar(isSuccess = false) {
+	    const titleBar = {};
+	    titleBar.content = main_core.Tag.render(_t6 || (_t6 = _$1`
+			<div class="ui-stageflow-stage-selector-block">
+				<span>${0}</span>
+				${0}
+			</div>
+		`), this.labels.finalStageSelectorTitle, this.getFinalStageSemanticSelector(isSuccess));
+	    return titleBar;
 	  }
 	  onSemanticSelectorClick() {
 	    const failStageName = this.getFailStageName();
@@ -617,10 +662,14 @@ this.BX = this.BX || {};
 	    if (failStagesLength <= 0) {
 	      return null;
 	    } else if (failStagesLength === 1) {
-	      return this.getFirstFailStage().getName();
+	      return this.getFirstFailStageName();
 	    } else {
 	      return this.labels.finalStagePopupFail;
 	    }
+	  }
+	  getFirstFailStageName() {
+	    var _this$getFirstFailSta;
+	    return (_this$getFirstFailSta = this.getFirstFailStage()) == null ? void 0 : _this$getFirstFailSta.getName();
 	  }
 	  increaseStageWidthForNameVisibility(stage) {
 	    if (!stage.isNameCropped()) {
@@ -640,5 +689,5 @@ this.BX = this.BX || {};
 
 	exports.StageFlow = StageFlow;
 
-}((this.BX.UI = this.BX.UI || {}),BX,BX.Main));
+}((this.BX.UI = this.BX.UI || {}),BX.UI,BX,BX.Main));
 //# sourceMappingURL=stageflow.bundle.js.map

@@ -72,15 +72,6 @@ class Landing extends \Bitrix\Landing\Source\DataLoader
 	 */
 	protected function getSearchSnippet(string $query, string $content): string
 	{
-		$isUtf = defined('BX_UTF') && BX_UTF === true;
-
-		if (!$isUtf)
-		{
-			[$content, $query] = \Bitrix\Main\Text\Encoding::convertEncoding(
-				[$content, $query], SITE_CHARSET, 'UTF-8'
-			);
-		}
-
 		$phrases = explode(' ', $query);
 		\trimArr($phrases, true);
 		$newContent = '';
@@ -100,13 +91,6 @@ class Landing extends \Bitrix\Landing\Source\DataLoader
 								$phrasePos + mb_strlen($phrase) + $snippetOffset
 							) .
 							'... ';
-		}
-
-		if (!$isUtf)
-		{
-			$newContent = \Bitrix\Main\Text\Encoding::convertEncoding(
-				$newContent, 'UTF-8', SITE_CHARSET
-			);
 		}
 
 		return $newContent;

@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -11,7 +11,7 @@
 	};
 
 	BX.Grid.Resize.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 
@@ -22,7 +22,7 @@
 			this.registerPinnedTableButtons();
 		},
 
-		destroy: function()
+		destroy()
 		{
 			BX.removeCustomEvent(window, 'Grid::updated', BX.proxy(this.registerTableButtons, this));
 			BX.removeCustomEvent(window, 'Grid::headerUpdated', BX.proxy(this.registerPinnedTableButtons, this));
@@ -30,13 +30,13 @@
 			(this.getButtons() || []).forEach(jsDD.unregisterObject);
 		},
 
-		registerTableButtons: function()
+		registerTableButtons()
 		{
 			(this.getButtons() || []).forEach(this.register, this);
 			this.registerPinnedTableButtons();
 		},
 
-		register: function(item)
+		register(item)
 		{
 			if (BX.type.isDomNode(item))
 			{
@@ -47,13 +47,13 @@
 			}
 		},
 
-		registerPinnedTableButtons: function()
+		registerPinnedTableButtons()
 		{
 			if (this.parent.getParam('ALLOW_PIN_HEADER'))
 			{
-				var pinnedTableButtons = this.getPinnedTableButtons();
+				const pinnedTableButtons = this.getPinnedTableButtons();
 
-				if (BX.type.isArray(this.lastRegisterButtons) && this.lastRegisterButtons.length)
+				if (BX.type.isArray(this.lastRegisterButtons) && this.lastRegisterButtons.length > 0)
 				{
 					this.lastRegisterButtons.forEach(jsDD.unregisterObject);
 				}
@@ -64,31 +64,31 @@
 			}
 		},
 
-		getButtons: function()
+		getButtons()
 		{
 			return BX.Grid.Utils.getByClass(this.parent.getRows().getHeadFirstChild().getNode(), this.parent.settings.get('classResizeButton'));
 		},
 
-		getPinnedTableButtons: function()
+		getPinnedTableButtons()
 		{
 			return BX.Grid.Utils.getByClass(this.parent.getPinHeader().getFixedTable(), this.parent.settings.get('classResizeButton'));
 		},
 
-		_onDragStart: function()
+		_onDragStart()
 		{
-			var cell = BX.findParent(jsDD.current_node, {className: this.parent.settings.get('classHeadCell')});
-			var cells = this.parent.getRows().getHeadFirstChild().getCells();
-			var cellsKeys = Object.keys(cells);
-			var cellContainer;
+			const cell = BX.findParent(jsDD.current_node, { className: this.parent.settings.get('classHeadCell') });
+			const cells = this.parent.getRows().getHeadFirstChild().getCells();
+			const cellsKeys = Object.keys(cells);
+			let cellContainer;
 
-			this.__overlay = BX.create('div', {props: {className: 'main-grid-cell-overlay'}});
+			this.__overlay = BX.create('div', { props: { className: 'main-grid-cell-overlay' } });
 			BX.append(this.__overlay, cell);
 			this.__resizeCell = cell.cellIndex;
 
-			cellsKeys.forEach(function(key) {
+			cellsKeys.forEach((key) => {
 				if (!BX.hasClass(cells[key], 'main-grid-special-empty'))
 				{
-					var width = BX.width(cells[key]);
+					let width = BX.width(cells[key]);
 
 					if (key > 0)
 					{
@@ -103,16 +103,17 @@
 			});
 		},
 
-		_onDrag: function(x)
+		_onDrag(x)
 		{
-			var table = this.parent.getTable();
-			var fixedTable = this.parent.getParam('ALLOW_PIN_HEADER') ? this.parent.getPinHeader().getFixedTable() : null;
-			var cell = table.rows[0].cells[this.__resizeCell];
-			var fixedCell, fixedCellContainer;
+			const table = this.parent.getTable();
+			const fixedTable = this.parent.getParam('ALLOW_PIN_HEADER') ? this.parent.getPinHeader().getFixedTable() : null;
+			const cell = table.rows[0].cells[this.__resizeCell];
+			let fixedCell; let
+				fixedCellContainer;
 
-			var cpos = BX.pos(cell);
-			var cellAttrWidth = parseFloat(cell.style.width);
-			var sX;
+			const cpos = BX.pos(cell);
+			const cellAttrWidth = parseFloat(cell.style.width);
+			let sX;
 
 			x -= cpos.left;
 			sX = x;
@@ -128,16 +129,16 @@
 
 			if (x !== cpos.width)
 			{
-				var fixedCells = this.parent.getAllRows()[0]
+				const fixedCells = this.parent.getAllRows()[0]
 					.querySelectorAll('.main-grid-fixed-column').length;
-				var column = this.parent.getColumnByIndex(this.__resizeCell - fixedCells);
+				let column = this.parent.getColumnByIndex(this.__resizeCell - fixedCells);
 
 				// Resize current column
-				column.forEach(function(item) {
-					item.style.width = x+'px';
-					item.style.minWidth = x+'px';
-					item.style.maxWidth = x+'px';
-					BX.Dom.style(item.firstElementChild, 'width', x+'px');
+				column.forEach((item) => {
+					item.style.width = `${x}px`;
+					item.style.minWidth = `${x}px`;
+					item.style.maxWidth = `${x}px`;
+					BX.Dom.style(item.firstElementChild, 'width', `${x}px`);
 				});
 
 				// Resize false columns
@@ -145,10 +146,10 @@
 				{
 					column = this.parent.getColumnByIndex(this.__resizeCell - fixedCells + 1);
 
-					column.forEach(function(item) {
-						item.style.width = x+'px';
-						item.style.minWidth = x+'px';
-						item.style.maxWidth = x+'px';
+					column.forEach((item) => {
+						item.style.width = `${x}px`;
+						item.style.minWidth = `${x}px`;
+						item.style.maxWidth = `${x}px`;
 					});
 				}
 
@@ -159,20 +160,20 @@
 				{
 					fixedCell = fixedTable.rows[0].cells[this.__resizeCell];
 					fixedCellContainer = BX.firstChild(fixedCell);
-					fixedCellContainer.style.width = x+'px';
-					fixedCellContainer.style.minWidth = x+'px';
-					fixedCell.style.width = x+'px';
-					fixedCell.style.minWidth = x+'px';
+					fixedCellContainer.style.width = `${x}px`;
+					fixedCellContainer.style.minWidth = `${x}px`;
+					fixedCell.style.width = `${x}px`;
+					fixedCell.style.minWidth = `${x}px`;
 				}
 			}
 
 			BX.onCustomEvent(window, 'Grid::columnResize', []);
 		},
 
-		_onDragEnd: function()
+		_onDragEnd()
 		{
 			this.saveSizes();
-			const cell = BX.findParent(jsDD.current_node, {className: this.parent.settings.get('classHeadCell')});
+			const cell = BX.findParent(jsDD.current_node, { className: this.parent.settings.get('classHeadCell') });
 			const overlay = cell.querySelector('.main-grid-cell-overlay');
 			if (overlay)
 			{
@@ -180,13 +181,13 @@
 			}
 		},
 
-		getColumnSizes: function()
+		getColumnSizes()
 		{
-			var cells = this.parent.getRows().getHeadFirstChild().getCells();
-			var columns = {};
-			var name;
+			const cells = this.parent.getRows().getHeadFirstChild().getCells();
+			const columns = {};
+			let name;
 
-			[].forEach.call(cells, function(current) {
+			[].forEach.call(cells, (current) => {
 				name = BX.data(current, 'name');
 
 				if (BX.type.isNotEmptyString(name))
@@ -198,9 +199,9 @@
 			return columns;
 		},
 
-		saveSizes: function()
+		saveSizes()
 		{
 			this.parent.getUserOptions().setColumnSizes(this.getColumnSizes(), 1);
-		}
+		},
 	};
 })();

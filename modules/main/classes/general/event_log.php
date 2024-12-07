@@ -48,11 +48,17 @@ class CEventLog
 		];
 
 		$url = preg_replace("/(&?sessid=[0-9a-z]+)/", "", $_SERVER["REQUEST_URI"]);
-		$SITE_ID = defined("ADMIN_SECTION") && ADMIN_SECTION==true ? false : SITE_ID;
-		$session = \Bitrix\Main\Application::getInstance()->getSession();
+
+		$SITE_ID = (defined("ADMIN_SECTION") && ADMIN_SECTION==true) || !defined('SITE_ID')
+			? false
+			: SITE_ID;
+
+		$session = \Bitrix\Main\Application::getInstance()->isInitialized()
+			? \Bitrix\Main\Application::getInstance()->getSession()
+			: null;
 
 		$arFields = array(
-			"SEVERITY" => isset($arSeverity[$arFields["SEVERITY"]]) ? $arFields["SEVERITY"] : "UNKNOWN",
+			"SEVERITY" => isset($arSeverity[$arFields["SEVERITY"] ?? null]) ? $arFields["SEVERITY"] : "UNKNOWN",
 			"AUDIT_TYPE_ID" => $arFields["AUDIT_TYPE_ID"] == ''? "UNKNOWN": $arFields["AUDIT_TYPE_ID"],
 			"MODULE_ID" => $arFields["MODULE_ID"] == ''? "UNKNOWN": $arFields["MODULE_ID"],
 			"ITEM_ID" => $arFields["ITEM_ID"] == ''? "UNKNOWN": $arFields["ITEM_ID"],
@@ -61,7 +67,7 @@ class CEventLog
 			"REQUEST_URI" => $url,
 			"SITE_ID" => empty($arFields["SITE_ID"]) ? $SITE_ID : $arFields["SITE_ID"],
 			"USER_ID" => is_object($USER) && ($USER->GetID() > 0)? $USER->GetID(): false,
-			"GUEST_ID" => ($session->isStarted() && $session->has("SESS_GUEST_ID") && $session["SESS_GUEST_ID"] > 0? $session["SESS_GUEST_ID"]: false),
+			"GUEST_ID" => (isset($session) && $session->isStarted() && $session->has("SESS_GUEST_ID") && $session["SESS_GUEST_ID"] > 0? $session["SESS_GUEST_ID"]: false),
 			"DESCRIPTION" => $arFields["DESCRIPTION"],
 			"~TIMESTAMP_X" => $DB->GetNowFunction(),
 		);

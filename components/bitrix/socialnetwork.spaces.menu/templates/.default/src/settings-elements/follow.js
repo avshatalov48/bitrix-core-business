@@ -3,11 +3,13 @@ import { EventEmitter } from 'main.core.events';
 
 type Params = {
 	follow: boolean,
+	canUse: boolean,
 }
 
 export class Follow extends EventEmitter
 {
 	#follow: boolean;
+	#canUse: boolean;
 	#disabled: boolean;
 	#node: HTMLElement;
 
@@ -18,6 +20,8 @@ export class Follow extends EventEmitter
 		this.setEventNamespace('BX.Socialnetwork.Spaces.Settings.Follow');
 
 		this.#follow = params.follow;
+		this.#canUse = params.canUse === true;
+
 		this.#disabled = false;
 
 		this.#bindEvents();
@@ -29,10 +33,12 @@ export class Follow extends EventEmitter
 
 		const iconClass = this.#follow ? '--sound-on' : '--sound-off';
 
+		const disabled = this.#canUse ? '' : '--disabled';
+
 		this.#node = Tag.render`
 			<div
 				data-id="${followId}"
-				class="sn-spaces__popup-item --mini"
+				class="sn-spaces__popup-item --mini ${disabled}"
 			>
 				<div class="sn-spaces__popup-icon-round">
 					<div

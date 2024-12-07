@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web;
@@ -61,6 +61,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	protected $useCurl = false;
 	protected $curlLogFile = null;
 	protected $shouldFetchBody = null;
+	protected Http\ResponseBuilderInterface $responseBuilder;
 
 	protected HttpHeaders $headers;
 	protected ?Http\Request $request = null;
@@ -92,6 +93,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	 * 		"headers" array of headers for HTTP request.
 	 * 		"useCurl" bool Enable CURL (default false).
 	 *		"curlLogFile" string Full path to CURL log file.
+	 *      "responseBuilder" Http\ResponseBuilderInterface Response builder.
 	 * 	Almost all options can be set separately with setters.
 	 */
 	public function __construct(array $options = null)
@@ -174,6 +176,10 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			if (isset($options['curlLogFile']))
 			{
 				$this->curlLogFile = $options['curlLogFile'];
+			}
+			if (isset($options['responseBuilder']))
+			{
+				$this->setResponseBuilder($options['responseBuilder']);
 			}
 		}
 
@@ -805,7 +811,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 		$uri = $request->getUri();
 		$body = $request->getBody();
 
-		$punyUri = new Uri('http://' . $uri->getHost());
+		$punyUri = new Uri((string)$uri);
 		if (($punyHost = $punyUri->convertToPunycode()) != $uri->getHost())
 		{
 			$uri = $uri->withHost($punyHost);
@@ -901,7 +907,7 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			return false;
 		}
 
-		$punyUri = new Uri('http://' . $uri->getHost());
+		$punyUri = new Uri((string)$uri);
 		$error = $punyUri->convertToPunycode();
 		if ($error instanceof \Bitrix\Main\Error)
 		{
@@ -1003,15 +1009,18 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 			'curlLogFile' => $this->curlLogFile,
 		];
 
-		$responseBuilder = new Http\ResponseBuilder();
+		if (!isset($this->responseBuilder))
+		{
+			$this->responseBuilder = new Http\ResponseBuilder();
+		}
 
 		if ($this->useCurl)
 		{
-			$handler = new Http\Curl\Handler($request, $responseBuilder, $handlerOptions);
+			$handler = new Http\Curl\Handler($request, $this->responseBuilder, $handlerOptions);
 		}
 		else
 		{
-			$handler = new Http\Socket\Handler($request, $responseBuilder, $handlerOptions);
+			$handler = new Http\Socket\Handler($request, $this->responseBuilder, $handlerOptions);
 		}
 
 		if ($this->logger !== null)
@@ -1084,6 +1093,18 @@ class HttpClient implements Log\LoggerAwareInterface, ClientInterface, Http\Debu
 	public function shouldFetchBody(callable $callback)
 	{
 		$this->shouldFetchBody = $callback;
+		return $this;
+	}
+
+	/**
+	 * Sets a builder for a response.
+	 *
+	 * @param Http\ResponseBuilderInterface $responseBuilder
+	 * @return $this
+	 */
+	public function setResponseBuilder(Http\ResponseBuilderInterface $responseBuilder)
+	{
+		$this->responseBuilder = $responseBuilder;
 		return $this;
 	}
 }

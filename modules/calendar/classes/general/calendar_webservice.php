@@ -1,6 +1,8 @@
 <?
 if (!\Bitrix\Main\Loader::includeModule('webservice'))
+{
 	return;
+}
 
 class CCalendarWebService extends IWebService
 {
@@ -85,7 +87,9 @@ class CCalendarWebService extends IWebService
 	function __makeDateTime($ts = null)
 	{
 		if (null === $ts)
+		{
 			$ts = time();
+		}
 
 		return date('Y-m-d', $ts).'T'.date('H:i:s', $ts).'Z';
 	}
@@ -115,7 +119,7 @@ class CCalendarWebService extends IWebService
 			);
 		}
 
-		$listName = ToUpper(CIntranetUtils::makeGUID($listName_original));
+		$listName = mb_strtoupper(CIntranetUtils::makeGUID($listName_original));
 		$arSections = CCalendarSect::GetList(
 			array(
 				'arFilter' => array('XML_ID' => mb_strtolower($listName_original))
@@ -123,10 +127,11 @@ class CCalendarWebService extends IWebService
 		);
 
 		if (!$arSections || !is_array($arSections[0]))
+		{
 			return new CSoapFault(
-				'List not found',
-				'List with '.$listName.' GUID not found'
+				'List not found', 'List with ' . $listName . ' GUID not found'
 			);
+		}
 		$arSection = $arSections[0];
 
 		$data = new CXMLCreator('List');
@@ -191,10 +196,12 @@ class CCalendarWebService extends IWebService
 			$ts_finish -= $event['~USER_OFFSET_FROM'];
 		}
 
-		$TZBias = intval(date('Z'));
+		$TZBias = (int)date('Z');
 		$duration = $event['DT_LENGTH'];
 		if ($bAllDay)
+		{
 			$duration -= 20;
+		}
 
 		if (!$bAllDay || defined('OLD_OUTLOOK_VERSION'))
 		{
@@ -205,7 +212,7 @@ class CCalendarWebService extends IWebService
 		$obRow = new CXMLCreator('z:row');
 		$obRow->setAttribute('ows_ID', $event['ID']);
 		$obRow->setAttribute('ows_Title', htmlspecialcharsback($event['NAME'])); // we have data htmlspecialchared yet
-		$version = $event['VERSION'] ? $event['VERSION'] : 1;
+		$version = $event['VERSION'] ?: 1;
 		$obRow->setAttribute('ows_Attachments', 0);
 		$obRow->setAttribute('ows_owshiddenversion', $version);
 		$obRow->setAttribute('ows_MetaInfo_vti_versionhistory', md5($event['ID']).':'.$version);
@@ -223,9 +230,9 @@ class CCalendarWebService extends IWebService
 		*/
 
 		$status = $arStatusValues[$event['ACCESSIBILITY']];
-		$obRow->setAttribute('ows_MetaInfo_BusyStatus', $status === null ? -1 : $status);
-		$obRow->setAttribute('ows_MetaInfo_Priority', intval($arPriorityValues[$event['IMPORTANCE']]));
-		$obRow->setAttribute('ows_Created', $this->__makeDateTime(MakeTimeStamp($event['DATE_CREATE'])-$TZBias));
+		$obRow->setAttribute('ows_MetaInfo_BusyStatus', $status ?? -1);
+		$obRow->setAttribute('ows_MetaInfo_Priority', (int)$arPriorityValues[$event['IMPORTANCE']]);
+		$obRow->setAttribute('ows_Created', $this->__makeDateTime(MakeTimeStamp($event['DATE_CREATE']) - $TZBias));
 		$obRow->setAttribute('ows_Modified', $this->__makeDateTime($change - $TZBias));
 		$obRow->setAttribute('ows_EventType', $bRecurrent ? 1 : 0);
 		$obRow->setAttribute('ows_Location', CCalendar::GetTextLocation($event['LOCATION']));
@@ -239,29 +246,40 @@ class CCalendarWebService extends IWebService
 		$obRow->setAttribute('ows_fRecurrence', $bRecurrent);
 		if ($bRecurrent)
 		{
+			$isDaylightSavingTime = self::isDaylightSavingTime($event['TZ_FROM'] ?? null);
+
 			$obRow->setAttribute('ows_UID', CIntranetUtils::makeGUID(md5($event['ID'].'_'.$change)));
-			$tz_data = '';
-			$tz_data .= '<timeZoneRule>';
-			$tz_data .= '<standardBias>'.(-intval(($TZBias - (date('I') ? 3600 : 0)) /60)).'</standardBias>';
-			$tz_data .= '<additionalDaylightBias>-60</additionalDaylightBias>';
+			$tz_data = '<timeZoneRule>';
+			$tz_data .= '<standardBias>'.(-(int)(($TZBias - (date('I') ? 3600 : 0)) / 60)).'</standardBias>';
 
-			$bUseTransition = COption::GetOptionString('intranet', 'tz_transition', 'Y') == 'Y';
+			if ($isDaylightSavingTime)
+			{
+				$tz_data .= '<additionalDaylightBias>-60</additionalDaylightBias>';
+			}
 
-			if ($bUseTransition)
+			$bUseTransition = COption::GetOptionString('intranet', 'tz_transition', 'Y') === 'Y';
+
+			if ($bUseTransition && !$isDaylightSavingTime)
 			{
 				$transition_standard = COption::GetOptionString('intranet', 'tz_transition_standard', '');
-				$transition_daylight = COption::GetOptionString('intranet', 'tz_transition_daylight', '');
-				if (!$transition_standard) $transition_standard = '<transitionRule month="10" day="su" weekdayOfMonth="last" /><transitionTime>3:0:0</transitionTime>';
-				if (!$transition_daylight) $transition_daylight = '<transitionRule  month="3" day="su" weekdayOfMonth="last" /><transitionTime>2:0:0</transitionTime>';
+				if (!$transition_standard)
+				{
+					$transition_standard = '<transitionRule month="10" day="su" weekdayOfMonth="last" /><transitionTime>3:0:0</transitionTime>';
+				}
+				$tz_data .= '<standardDate>'.$transition_standard.'</standardDate>';
 
-				$tz_data .= '<standardDate>'.$transition_standard.'</standardDate><daylightDate>'.$transition_daylight.'</daylightDate>';
+				$transition_daylight = COption::GetOptionString('intranet', 'tz_transition_daylight', '');
+				if (!$transition_daylight)
+				{
+					$transition_daylight = '<transitionRule  month="3" day="su" weekdayOfMonth="last" /><transitionTime>2:0:0</transitionTime>';
+				}
+				$tz_data .= '<daylightDate>'.$transition_daylight.'</daylightDate>';
 			}
 
 			$tz_data .= '</timeZoneRule>';
 			$obRow->setAttribute('ows_XMLTZone', $tz_data);
 
-			$recurence_data = '';
-			$recurence_data .= '<recurrence>';
+			$recurence_data = '<recurrence>';
 			$recurence_data .= '<rule>';
 			$recurence_data .= '<firstDayOfWeek>'.$first_week_day.'</firstDayOfWeek>';
 
@@ -275,7 +293,9 @@ class CCalendarWebService extends IWebService
 				case 'WEEKLY':
 					$days = '';
 					foreach ($rrule['BYDAY'] as $day)
-						$days .= mb_strtolower($day).'="TRUE" ';
+					{
+						$days .= mb_strtolower($day) . '="TRUE" ';
+					}
 					$recurence_data .= '<weekly '.$days.'weekFrequency="'.$rrule['INTERVAL'].'" />';
 				break;
 
@@ -305,12 +325,8 @@ class CCalendarWebService extends IWebService
 			$recurence_data .= '</recurrence>';
 
 			$obRow->setAttribute('ows_RecurrenceData', $recurence_data);
-			$obRow->setAttribute('ows_Duration', $duration);
 		}
-		else
-		{
-			$obRow->setAttribute('ows_Duration', $duration);
-		}
+		$obRow->setAttribute('ows_Duration', $duration);
 
 		$obRow->setAttribute('ows_UniqueId', $event['ID'].';#'.$listName);
 		$obRow->setAttribute('ows_FSObjType', $event['ID'].';#0');
@@ -333,10 +349,8 @@ class CCalendarWebService extends IWebService
 		{
 			return $res;
 		}
-		else
-		{
-			return array('GetListItemChangesResult' => $res['GetListItemChangesSinceTokenResult']);
-		}
+
+		return array('GetListItemChangesResult' => $res['GetListItemChangesSinceTokenResult']);
 	}
 
 	function GetListItemChangesSinceToken($listName, $viewFields = '', $query = '', $rowLimit = 0, $changeToken = '')
@@ -352,10 +366,10 @@ class CCalendarWebService extends IWebService
 
 		$arSections = CCalendarSect::GetList(array('arFilter' => array('XML_ID' => $listName_original)));
 		if (!$arSections || !is_array($arSections[0]))
-			return new CSoapFault(
-				'List not found',
-				'List with '.$listName.' GUID not found!'
-			);
+		{
+			return new CSoapFault('List not found', 'List with ' . $listName . ' GUID not found!');
+		}
+
 		$arSection = $arSections[0];
 
 		$userId = (is_object($USER) && $USER->GetID()) ? $USER->GetID() : 1;
@@ -417,9 +431,12 @@ class CCalendarWebService extends IWebService
 		$data->setAttribute('xmlns:z', '#RowsetSchema');
 
 		if ($last_change > 0)
+		{
 			$obChanges->setAttribute('LastChangeToken', $last_change);
+		}
 
 		CCalendar::SaveMultipleSyncDate($userId, 'outlook', $arSection['ID']);
+
 		return array('GetListItemChangesSinceTokenResult' => $data);
 	}
 
@@ -824,17 +841,17 @@ class CCalendarWebService extends IWebService
 
 	public static function ClearOutlookHtml($html)
 	{
-		$q = tolower($html);
+		$q = mb_strtolower($html);
 		if (($pos = mb_strrpos($q, '</head>')) !== false)
 		{
 			$html = mb_substr($html, $pos + 7);
-			$q = tolower($html);
+			$q = mb_strtolower($html);
 		}
 
-		if (mb_strpos($q, '<body') !== false)
+		if (str_contains($q, '<body'))
 		{
 			$html = preg_replace("/((\s|\S)*)<body[^>]*>((\s|\S)*)/is", "$3", $html);
-			$q = tolower($html);
+			$q = mb_strtolower($html);
 		}
 
 		if (($pos = mb_strrpos($q, '</body>')) !== false)
@@ -842,8 +859,7 @@ class CCalendarWebService extends IWebService
 			$html = mb_substr($html, 0, $pos);
 		}
 
-		$html = str_replace('</DIV>', "\r\n</DIV>", $html);
-		$html = str_replace(array("&#10;", "&#13;"), "", $html);
+		$html = str_replace(array('</DIV>', "&#10;", "&#13;"), array("\r\n</DIV>", "", ""), $html);
 		$html = preg_replace("/<![^>]*>/", '', $html);
 		$html = trim($html);
 
@@ -853,9 +869,29 @@ class CCalendarWebService extends IWebService
 		// mantis: 75493
 		$html = preg_replace("/.*\/\*\s*Style\s*Definitions\s*\*\/\s.+?;\}/isu","", $html);
 
-		$html = CCalendar::ParseHTMLToBB($html);
+		return CCalendar::ParseHTMLToBB($html);
+	}
 
-		return $html;
+	public static function isDaylightSavingTime($timezone): bool
+	{
+		if (empty($timezone))
+		{
+			return false;
+		}
+
+		try
+		{
+			$dateTimeZone = new DateTimeZone($timezone);
+		}
+		catch (\Throwable)
+		{
+			return false;
+		}
+
+		$dateTime = new DateTime('15.06.2024', $dateTimeZone);
+		$transitions = $dateTimeZone->getTransitions($dateTime->getTimestamp(), $dateTime->getTimestamp());
+
+		return !empty($transitions) && $transitions[0]['isdst'];
 	}
 }
 ?>

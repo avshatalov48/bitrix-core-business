@@ -1,7 +1,7 @@
-import { Dom, Event, Loc, Tag, Text, Type } from 'main.core';
+import { Dom, Tag } from 'main.core';
 import { Util } from 'calendar.util';
 import { TagSelector } from 'ui.entity-selector';
-import { TrackingUsersForm } from "./trackingusersform"
+import { TrackingUsersForm } from './trackingusersform';
 
 export class TrackingGroupsForm extends TrackingUsersForm
 {
@@ -20,7 +20,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 		}
 
 		this.selectorWrap = this.DOM.innerWrap.appendChild(
-			Dom.create('DIV', { props: { className: 'calendar-list-slider-selector-wrap' } })
+			Dom.create('DIV', { props: { className: 'calendar-list-slider-selector-wrap' } }),
 		);
 
 		this.groupTagSelector = new TagSelector({
@@ -36,17 +36,21 @@ export class TrackingGroupsForm extends TrackingUsersForm
 				},
 				entities: [
 					{
-						id: 'project'
-					}
-				]
-			}
+						id: 'project',
+						options: {
+							lockProjectLink: !Util.isProjectFeatureEnabled(),
+							lockProjectLinkFeatureId: 'socialnetwork_projects_groups',
+						},
+					},
+				],
+			},
 		});
 
 		this.groupTagSelector.renderTo(this.selectorWrap);
 
 		// List of sections
 		this.sectionsWrap = this.DOM.innerWrap.appendChild(
-			Tag.render`<div class="calendar-list-slider-sections-wrap"></div>`
+			Tag.render`<div class="calendar-list-slider-sections-wrap"></div>`,
 		);
 		this.createButtons();
 
@@ -73,7 +77,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 			Dom.remove(this.updateSectionLoader);
 		}
 		this.updateSectionLoader = this.sectionsWrap.appendChild(
-			Dom.adjust(Util.getLoader(), {style: {height: '140px'}})
+			Dom.adjust(Util.getLoader(), { style: { height: '140px' } }),
 		);
 
 		if (this.updateSectionTimeout)
@@ -83,11 +87,11 @@ export class TrackingGroupsForm extends TrackingUsersForm
 
 		this.checkInnerWrapHeight();
 		BX.ajax.runAction('calendar.api.calendarajax.getTrackingSections', {
-				data: {
-					groupIdList: this.trackingGroupIdList,
-					type: 'groups'
-				}
-			})
+			data: {
+				groupIdList: this.trackingGroupIdList,
+				type: 'groups',
+			},
+		})
 			.then(
 				(response) => {
 					Dom.clean(this.sectionsWrap);
@@ -97,12 +101,12 @@ export class TrackingGroupsForm extends TrackingUsersForm
 					// Groups calendars
 					this.createSectionBlock({
 						sectionList: response.data.sections,
-						wrap: this.sectionsWrap
+						wrap: this.sectionsWrap,
 					});
 				},
 				(response) => {
 					Util.displayError(response.errors);
-				}
+				},
 			);
 	}
 
@@ -120,7 +124,7 @@ export class TrackingGroupsForm extends TrackingUsersForm
 				return;
 			}
 			sections.push(parseInt(section.id));
-		}, this);
+		});
 
 		return sections;
 	}

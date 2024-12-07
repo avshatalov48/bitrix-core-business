@@ -38,6 +38,7 @@
 	--ui-icon-set__path_instagram-direct: url('/bitrix/js/ui/icon-set/social/images/instagram-direct.svg');
 	--ui-icon-set__path_whatsapp: url('/bitrix/js/ui/icon-set/social/images/whatsapp.svg');
 	--ui-icon-set__path_zoom: url('/bitrix/js/ui/icon-set/social/images/zoom.svg');
+	--ui-icon-set__path_linux: url('/bitrix/js/ui/icon-set/social/images/linux.svg');
 }
 
 .ui-icon-set.--cloud-sifre {
@@ -158,6 +159,10 @@
 
 .ui-icon-set.--apple-and-ios {
 	--ui-icon-set__icon-path: var(--ui-icon-set__path_apple-and-ios);
+}
+
+.ui-icon-set.--linux {
+	--ui-icon-set__icon-path: var(--ui-icon-set__path_linux);
 }
 
 .ui-icon-set.--chats-computer {

@@ -1,9 +1,10 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\ORM\Data;
@@ -50,23 +51,8 @@ abstract class DataManager
 	/** @var Collection[] Cache of class names */
 	protected static $collectionClass;
 
-	/** @var EntityObject[][] Objects that called delete() method themself */
+	/** @var EntityObject[][] Objects that called delete() method themselves */
 	protected static $currentDeletingObjects;
-
-	/** @var array Restricted words for object class name */
-	protected static $reservedWords = [
-		// keywords
-		'abstract', 'and', 'array', 'as', 'break', 'callable', 'case', 'catch', 'class', 'clone', 'const', 'continue',
-		'declare', 'default', 'die', 'do', 'echo', 'else', 'elseif', 'empty', 'enddeclare', 'endfor', 'endforeach',
-		'endif', 'endswitch', 'endwhile', 'eval', 'exit', 'extends', 'final', 'finally', 'for', 'foreach', 'function',
-		'global', 'goto', 'if', 'implements', 'include', 'include_once', 'instanceof', 'insteadof', 'interface', 'isset',
-		'list', 'namespace', 'new', 'or', 'print', 'private', 'protected', 'public', 'require', 'require_once', 'return',
-		'static', 'switch', 'throw', 'trait', 'try', 'unset', 'use', 'var', 'while', 'xor', 'yield',
-		// classes
-		'self', 'parent',
-		// others
-		'int', 'float', 'bool', 'string', 'true', 'false', 'null', 'void', 'iterable', 'object', 'resource', 'mixed', 'numeric',
-	];
 
 	/**
 	 * Returns entity object
@@ -118,7 +104,7 @@ abstract class DataManager
 	}
 
 	/**
-	 * @return string
+	 * @return string | null
 	 */
 	public static function getTitle()
 	{
@@ -1963,10 +1949,28 @@ abstract class DataManager
 		self::$currentDeletingObjects[$entityClass][$object->primaryAsString] = $object;
 	}
 
+	/**
+	 * Cleans the tablet cache after data modifications.
+	 *
+	 * @return void
+	 */
 	public static function cleanCache(): void
 	{
-		$entity = static::getEntity();
-		$entity->cleanCache();
+		if (static::isCacheable())
+		{
+			$entity = static::getEntity();
+			$entity->cleanCache();
+		}
+	}
+
+	/**
+	 * You can disable cache for the tablet completely.
+	 *
+	 * @return bool
+	 */
+	public static function isCacheable(): bool
+	{
+		return true;
 	}
 
 	/*

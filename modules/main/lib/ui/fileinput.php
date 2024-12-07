@@ -1,9 +1,11 @@
 <?php
 
 namespace Bitrix\Main\UI;
+
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UI\Uploader\Uploader;
+use Bitrix\Main\Web\Json;
 
 Loc::loadMessages(__FILE__);
 
@@ -327,7 +329,7 @@ HTML
 				{
 					$patt["#".$pat."#"] = htmlspecialcharsbx($rep);
 				}
-				if (array_key_exists("#description#", $patt) && strpos($patt["#description#"], "&amp;quot;") !== false)
+				if (array_key_exists("#description#", $patt) && str_contains($patt["#description#"], "&amp;quot;"))
 				{
 					$patt["#description#"] = str_replace("&amp;quot;", "&quot;", $patt["#description#"]);
 				}
@@ -386,9 +388,9 @@ HTML
 		$uploadSetts["maxIndex"] = $maxIndex;
 		$template = \CUtil::JSEscape($this->templates["new"]);
 		$classSingle = (array_key_exists("maxCount", $uploadSetts) && intval($uploadSetts["maxCount"]) == 1 ? "adm-fileinput-wrapper-single" : "");
-		$uploadSetts = \CUtil::PhpToJSObject($uploadSetts);
-		$elementSetts = \CUtil::PhpToJSObject($this->elementSetts);
-		$values = \CUtil::PhpToJSObject($this->files);
+		$uploadSetts = Json::encode($uploadSetts);
+		$elementSetts = Json::encode($this->elementSetts);
+		$values = Json::encode($this->files);
 		$mes = array(
 			"preview" => GetMessage("BXU_Preview"),
 			"nonPreview" => GetMessage("BXU_NonPreview")

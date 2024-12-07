@@ -711,7 +711,7 @@ class CatalogBigdataProductsComponent extends CSaleBestsellersComponent
 			$jsToBasket .= "JCCatalogBigdataProducts.productsByRecommendation[{$item['ID']}] = \"{$this->recommendationIdToProduct[$item['ID']]}\";\n";
 		}
 
-		return "<script type=\"text/javascript\">
+		return "<script>
 			BX.cookie_prefix = '{$jsCookiePrefix}';
 			BX.cookie_domain = '{$jsCookieDomain}';
 			BX.current_server_time = '{$jsServerTime}';

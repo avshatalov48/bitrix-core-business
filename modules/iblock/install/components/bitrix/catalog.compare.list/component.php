@@ -62,7 +62,7 @@ if (isset($_REQUEST[$arParams['ACTION_VARIABLE']]) && isset($_REQUEST[$arParams[
 	$resultCount = 0;
 	if ($productID > 0)
 	{
-		switch (ToUpper($_REQUEST[$arParams['ACTION_VARIABLE']]))
+		switch (mb_strtoupper($_REQUEST[$arParams['ACTION_VARIABLE']]))
 		{
 			case 'ADD_TO_COMPARE_LIST':
 				$actionMessage = GetMessage('CP_BCCL_MESS_SUCCESSFUL_ADD_TO_COMPARE');

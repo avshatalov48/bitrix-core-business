@@ -67,7 +67,7 @@
 
 	<?if ($arResult["TEST"]["TIME_LIMIT"]>0 && $arParams["SHOW_TIME_LIMIT"] == "Y"):?>
 		<div id="learn-test-timer" title="<?=GetMessage("LEARNING_TEST_TIME_LIMIT");?>"><?=$arResult["SECONDS_TO_END_STRING"]?></div>
-		<script type="text/javascript">
+		<script>
 			var clockID = null; clockID = setTimeout("UpdateClock(<?=$arResult["SECONDS_TO_END"]?>)", 950);
 		</script>
 	<?endif?>
@@ -108,7 +108,7 @@
 				<select name="answer[]">
 					<option value="0">&nbsp;</option>
 					<?php for ($j = 0; $j < sizeof($arResult["QUESTION"]["ANSWERS"]); $j++):?>
-						<option value="<?php echo $arResult["QUESTION"]["ANSWERS"][$j]["ID"]?>" <?php echo ($arResult["QUESTION"]["ANSWERS"][$j]["ID"] == $arResult["QBAR"][$arResult["NAV"]["PAGE_NUMBER"]]["RESPONSE"][$i] ? " selected" : "")?>><?php echo $arResult["QUESTION"]["ANSWERS"][$j]["ANSWER"]?></option>
+						<option value="<?php echo $arResult["QUESTION"]["ANSWERS"][$j]["ID"]?>" <?php echo (isset($arResult["QBAR"][$arResult["NAV"]["PAGE_NUMBER"]]["RESPONSE"][$i]) && $arResult["QUESTION"]["ANSWERS"][$j]["ID"] == $arResult["QBAR"][$arResult["NAV"]["PAGE_NUMBER"]]["RESPONSE"][$i] ? " selected" : "")?>><?php echo $arResult["QUESTION"]["ANSWERS"][$j]["ANSWER"]?></option>
 					<?php endfor?>
 				</select>
 				</div>
@@ -150,7 +150,7 @@
 	<?elseif ($arResult["TEST_FINISHED"] === true):?>
 
 		<?ShowError($arResult["ERROR_MESSAGE"]);?>
-		<?php if ($arResult["ATTEMPT"]["COMPLETED"]):?>
+		<?php if (isset($arResult["ATTEMPT"]["COMPLETED"])):?>
 			<?php if ($arResult["ATTEMPT"]["COMPLETED"] == "N"):?>
 				<?php ShowError(GetMessage("LEARNING_TEST_FAILED"))?>
 			<?php elseif ($arResult["ATTEMPT"]["COMPLETED"] == "Y"):?>
@@ -171,21 +171,23 @@
 				<?php endif?>
 
 				<?
-				$percent = round($arResult["ATTEMPT"]["SCORE"] / $arResult["ATTEMPT"]["MAX_SCORE"] * 100, 2);
+				$score = $arResult["ATTEMPT"]["SCORE"] ?? 0;
+				$maxScore = $arResult["ATTEMPT"]["MAX_SCORE"] ?? 0;
+				$percent = $score > 0 && $maxScore > 0 ? round($score / $maxScore * 100, 2) : 0;
 				?>
 
 				<?php if ($arResult["TEST"]["FINAL_INDICATION_SCORE"] == "Y"):?>
 				<tr>
 					<th><?php echo GetMessage("LEARNING_RESULT_MAX_SCORE")?></th>
-					<td><?php echo $arResult["ATTEMPT"]["MAX_SCORE"]?></td>
+					<td><?php echo $maxScore?></td>
 				</tr>
 				<tr>
 					<th><?php echo GetMessage("LEARNING_RESULT_SCORE")?></th>
-					<td><?php echo $arResult["ATTEMPT"]["SCORE"]?> (<?=$percent?>%)</td>
+					<td><?php echo $score?> (<?=$percent?>%)</td>
 				</tr>
 				<?php endif?>
 				<?php if (
-					$arResult["ATTEMPT"]["MARK"] &&
+					isset($arResult["ATTEMPT"]["MARK"]) &&
 					(
 						$arResult["ATTEMPT"]["COMPLETED"] === "Y" ||
 						(
@@ -200,7 +202,7 @@
 							<td><?php echo $arResult["ATTEMPT"]["MARK"]?></td>
 						</tr>
 					<?php endif?>
-					<?php if ($arResult["ATTEMPT"]["MESSAGE"] && $arResult["TEST"]["FINAL_INDICATION_MESSAGE"] == "Y"):?>
+					<?php if (isset($arResult["ATTEMPT"]["MESSAGE"]) && $arResult["TEST"]["FINAL_INDICATION_MESSAGE"] == "Y"):?>
 						<tr>
 							<th><?php echo GetMessage("LEARNING_RESULT_MESSAGE")?></th>
 							<td><?php echo $arResult["ATTEMPT"]["MESSAGE"]?></td>
@@ -211,11 +213,11 @@
 		<?php endif?>
 		<?ShowNote(GetMessage("LEARNING_COMPLETED"));?>
 
-		<?php if ($arResult["GRADEBOOK_URL"]):?>
+		<?php if (!empty($arResult["GRADEBOOK_URL"])):?>
 		<a href="<?=$arResult["GRADEBOOK_URL"]?>"><?=GetMessage("LEARNING_PROFILE")?></a>
 		<?php endif?>
 
-	<?elseif ($arResult["ERROR_MESSAGE"] <> ''):?>
+	<?elseif (!empty($arResult["ERROR_MESSAGE"])):?>
 
 		<?ShowError($arResult["ERROR_MESSAGE"]);?>
 		<br />

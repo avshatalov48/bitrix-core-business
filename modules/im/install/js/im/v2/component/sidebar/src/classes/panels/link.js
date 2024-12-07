@@ -25,7 +25,6 @@ export class Link
 	chatId: number;
 	userManager: UserManager;
 	restClient: RestClient;
-
 	constructor({ dialogId }: {dialogId: string})
 	{
 		this.store = Core.getStore();
@@ -97,13 +96,16 @@ export class Link
 
 	handleUrlGetResponse(response: {list: [], users: []}): Promise
 	{
-		const { list, users } = response;
+		const { list, users, tariffRestrictions = {} } = response;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
 
 		const addUsersPromise = this.userManager.setUsersToModel(users);
 		const setLinksPromise = this.store.dispatch('sidebar/links/set', {
 			chatId: this.chatId,
 			links: list,
 			hasNextPage: list.length === REQUEST_ITEMS_LIMIT,
+			isHistoryLimitExceeded,
 		});
 
 		return Promise.all([setLinksPromise, addUsersPromise]);

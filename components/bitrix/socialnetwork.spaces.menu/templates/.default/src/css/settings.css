@@ -136,6 +136,11 @@
 	transition: .2s;
 }
 
+.sn-spaces__popup-communication-item.--disabled {
+	opacity: 0.3;
+	pointer-events: none;
+}
+
 .sn-spaces__popup-communication-item:first-of-type {
 	border-top-left-radius: var(--ui-border-radius-lg);
 	border-bottom-left-radius: var(--ui-border-radius-lg);

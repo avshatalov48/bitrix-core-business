@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Diag;
 
 class SqlTrackerQuery implements \ArrayAccess
@@ -34,7 +35,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 * Starts sql timer.
 	 *
 	 * @param string $sql Query text.
-	 * @param array $binds Binded variables used with query.
+	 * @param array|null $binds Binded variables used with query.
 	 *
 	 * @return void
 	 */
@@ -67,7 +68,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 * combined with refinishQuery allows additional time to be included into execution.
 	 *
 	 * @return void
-	 * @see \Bitrix\Main\Diag\SqlTrackerQuery::refinishQuery
+	 * @see SqlTrackerQuery::refinishQuery
 	 */
 	public function restartQuery()
 	{
@@ -79,7 +80,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 * Use with restartQuery.
 	 *
 	 * @return void
-	 * @see \Bitrix\Main\Diag\SqlTrackerQuery::restartQuery
+	 * @see SqlTrackerQuery::restartQuery
 	 */
 	public function refinishQuery()
 	{
@@ -103,7 +104,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param string $sql Sql text.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
 	public function setSql($sql)
 	{
@@ -127,7 +128,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param array $binds Sql binds.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
 	public function setBinds(array $binds)
 	{
@@ -151,7 +152,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param string $state Page state.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
 	public function setState($state)
 	{
@@ -175,7 +176,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param string $node Cluster node identifier.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
 	public function setNode($node)
 	{
@@ -199,7 +200,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param float $time Sql execution time in seconds.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
 	public function setTime($time)
 	{
@@ -237,18 +238,19 @@ class SqlTrackerQuery implements \ArrayAccess
 	 * Sets tracked sql backtrace.
 	 * Returns the object for call chaining.
 	 *
-	 * @param array $trace Query backtrace.
+	 * @param array|null $trace Query backtrace.
 	 *
-	 * @return \Bitrix\Main\Diag\SqlTrackerQuery
+	 * @return SqlTrackerQuery
 	 */
-	public function setTrace(array $trace)
+	public function setTrace(array $trace = null)
 	{
-		$this->trace = $this->filterTrace($trace);
+		$this->trace = ($trace !== null ? $this->filterTrace($trace) : []);
+
 		return $this;
 	}
 
 	/**
-	 * Whether a offset exists.
+	 * Whether an offset exists.
 	 * Part of ArrayAccess implementation made for backward compatibility.
 	 *
 	 * @param mixed $offset Array key.
@@ -305,7 +307,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 * @param mixed $offset Array key.
 	 * @param mixed $value Array value.
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function offsetSet($offset, $value): void
 	{
@@ -317,7 +319,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	 *
 	 * @param mixed $offset Array key.
 	 *
-	 * @return mixed
+	 * @return void
 	 */
 	public function offsetUnset($offset): void
 	{
@@ -333,7 +335,7 @@ class SqlTrackerQuery implements \ArrayAccess
 	protected function filterTrace($trace)
 	{
 		$filtered = array();
-		foreach ($trace as $i => $tr)
+		foreach ($trace as $tr)
 		{
 			$args = array();
 			if (!empty($tr["args"]) && is_array($tr["args"]))

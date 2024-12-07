@@ -9,7 +9,8 @@ use \Bitrix\Main\Localization\Loc;
 return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_9_SEPARATOR_NAME'),
-		'section' => ['separator', 'recommended'],
+		'type' => ['page', 'store', 'smn', 'knowledge', 'group', 'mainpage'],
+		'section' => ['separator', 'recommended', 'widgets_separators'],
 	],
 	'cards' => [],
 	'nodes' => [],

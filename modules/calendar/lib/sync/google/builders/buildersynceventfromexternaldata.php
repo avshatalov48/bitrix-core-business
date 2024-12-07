@@ -8,6 +8,8 @@ use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\ExcludedDatesCollection;
 use Bitrix\Calendar\Sync;
+use Bitrix\Calendar\Sync\Connection\Connection;
+use Bitrix\Calendar\Sync\Entities\SyncSection;
 use Bitrix\Calendar\Util;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
@@ -15,6 +17,9 @@ use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 
 class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 {
+	/**
+	 * @var Sync\Entities\SyncSection
+	 */
 	private Sync\Entities\SyncSection $syncSection;
 	/**
 	 * @var array
@@ -27,7 +32,8 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 
 	/**
 	 * @param mixed $item
-	 * @param Sync\Connection\Connection $connection
+	 * @param Connection $connection
+	 * @param SyncSection $syncSection
 	 */
 	public function __construct(
 		array $item,
@@ -156,18 +162,16 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 	 */
 	public function prepareEventConnection(Core\Event\Event $event): Sync\Connection\EventConnection
 	{
-		return (new Sync\Connection\EventConnection)
+		return (new Sync\Connection\EventConnection())
 			->setConnection($this->connection)
 			->setEntityTag($this->item['etag'] ?? null)
 			->setVendorEventId($this->item['id'] ?? null)
-			// ->setVendorVersionId(($this->item['sequence'] ?? 0))
 			->setVendorVersionId($this->item['etag'] ?? null)
 			->setVersion(($this->item['sequence'] ?? 0))
-			// ->setVersion($event->getVersion())
 			->setLastSyncStatus(Sync\Dictionary::SYNC_STATUS['success'])
 			->setRecurrenceId($this->item['recurringEventId'] ?? null)
 			->setEvent($event)
-
+			->setData($this->getEventConnectionData($event))
 		;
 	}
 
@@ -445,5 +449,21 @@ class BuilderSyncEventFromExternalData implements Core\Builders\Builder
 			->setHideGuests(true)
 			->setLanguageId(\CCalendar::getUserLanguageId($userId))
 		;
+	}
+
+
+	/**
+	 * @param Core\Event\Event $event
+	 * @return array
+	 */
+	private function getEventConnectionData(Core\Event\Event $event): array
+	{
+		$data = [];
+		if (!empty($this->item['attendees']))
+		{
+			$data['attendees'] = $this->item['attendees'];
+		}
+
+		return $data;
 	}
 }

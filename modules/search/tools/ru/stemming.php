@@ -2,7 +2,7 @@
 global $STEMMING_RU_VOWELS;
 $STEMMING_RU_VOWELS = "АЕИОУЫЭЮЯ";
 global $STEMMING_RU_PERFECTIVE_GERUND;
-$STEMMING_RU_PERFECTIVE_GERUND = "/(ЫВШИСЬ|ИВШИСЬ|ЯВШИСЬ|АВШИСЬ|ЫВШИ|ИВШИ|ЯВШИ|АВШИ|ЫВ|ИВ|ЯВ|АВ)$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_PERFECTIVE_GERUND = "/(ЫВШИСЬ|ИВШИСЬ|ЯВШИСЬ|АВШИСЬ|ЫВШИ|ИВШИ|ЯВШИ|АВШИ|ЫВ|ИВ|ЯВ|АВ)$/u";
 
 $STEMMING_RU_ADJECTIVE=array("ЕЕ"=>2, "ИЕ"=>2, "ЫЕ"=>2, "ОЕ"=>2, "ИМИ"=>3, "ЫМИ"=>3, "ЕЙ"=>2, "ИЙ"=>2, "ЫЙ"=>2, "ОЙ"=>2, "ЕМ"=>2, "ИМ"=>2, "ЫМ"=>2, "ОМ"=>2, "ЕГО"=>2, "ОГО"=>3, "ЕМУ"=>3, "ОМУ"=>3, "ИХ"=>2, "ЫХ"=>2, "УЮ"=>2, "ЮЮ"=>2, "АЯ"=>2, "ЯЯ"=>2, "ОЮ"=>2, "ЕЮ"=>2);
 $STEMMING_RU_PARTICIPLE_GR1=array("ЕМ"=>2, "НН"=>2, "ВШ"=>2, "ЮЩ"=>2, "Щ"=>1);
@@ -16,21 +16,21 @@ foreach($STEMMING_RU_ADJECTIVE as $i => $il)
 }
 global $STEMMING_RU_ADJECTIVAL1;
 arsort($STEMMING_RU_ADJECTIVAL_GR1);
-$STEMMING_RU_ADJECTIVAL1="/([АЯ])(".implode("|", array_keys($STEMMING_RU_ADJECTIVAL_GR1)).")$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_ADJECTIVAL1="/([АЯ])(".implode("|", array_keys($STEMMING_RU_ADJECTIVAL_GR1)).")$/u";
 
 global $STEMMING_RU_ADJECTIVAL2;
 foreach($STEMMING_RU_ADJECTIVE as $i => $il)
 	$STEMMING_RU_ADJECTIVAL_GR2[$i]=$il;
 arsort($STEMMING_RU_ADJECTIVAL_GR2);
-$STEMMING_RU_ADJECTIVAL2="/(".implode("|", array_keys($STEMMING_RU_ADJECTIVAL_GR2)).")$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_ADJECTIVAL2="/(".implode("|", array_keys($STEMMING_RU_ADJECTIVAL_GR2)).")$/u";
 
 global $STEMMING_RU_VERB1;
-$STEMMING_RU_VERB1="/([АЯ])(ННО|ЕТЕ|ЙТЕ|ЕШЬ|ЛА|НА|ЛИ|ЕМ|ЛО|НО|ЕТ|ЮТ|НЫ|ТЬ|Й|Л|Н)$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_VERB1="/([АЯ])(ННО|ЕТЕ|ЙТЕ|ЕШЬ|ЛА|НА|ЛИ|ЕМ|ЛО|НО|ЕТ|ЮТ|НЫ|ТЬ|Й|Л|Н)$/u";
 
 global $STEMMING_RU_VERB2;
-$STEMMING_RU_VERB2="/(ЕЙТЕ|УЙТЕ|ИЛА|ЫЛА|ЕНА|ИТЕ|ИЛИ|ЫЛИ|ИЛО|ЫЛО|ЕНО|УЕТ|УЮТ|ЕНЫ|ИТЬ|ЫТЬ|ИШЬ|ЕЙ|УЙ|ИЛ|ЫЛ|ИМ|ЫМ|ЕН|ЯТ|ИТ|ЫТ|УЮ|Ю)$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_VERB2="/(ЕЙТЕ|УЙТЕ|ИЛА|ЫЛА|ЕНА|ИТЕ|ИЛИ|ЫЛИ|ИЛО|ЫЛО|ЕНО|УЕТ|УЮТ|ЕНЫ|ИТЬ|ЫТЬ|ИШЬ|ЕЙ|УЙ|ИЛ|ЫЛ|ИМ|ЫМ|ЕН|ЯТ|ИТ|ЫТ|УЮ|Ю)$/u";
 global $STEMMING_RU_NOUN;
-$STEMMING_RU_NOUN="/(ИЯМИ|ИЯХ|ИЕМ|ИЯМ|АМИ|ЯМИ|ЬЯ|ИЯ|ЬЮ|ИЮ|ЯХ|АХ|ОМ|АМ|ЕМ|ЯМ|ИЙ|ОЙ|ЕЙ|ИЕЙ|ИИ|ЕИ|ЬЕ|ИЕ|ОВ|ЕВ|Ю|Ь|Ы|У|О|Й|И|Е|Я|А)$/".BX_UTF_PCRE_MODIFIER;
+$STEMMING_RU_NOUN="/(ИЯМИ|ИЯХ|ИЕМ|ИЯМ|АМИ|ЯМИ|ЬЯ|ИЯ|ЬЮ|ИЮ|ЯХ|АХ|ОМ|АМ|ЕМ|ЯМ|ИЙ|ОЙ|ЕЙ|ИЕЙ|ИИ|ЕИ|ЬЕ|ИЕ|ОВ|ЕВ|Ю|Ь|Ы|У|О|Й|И|Е|Я|А)$/u";
 function stemming_letter_ru()
 {
 	return "ёйцукенгшщзхъфывапролджэячсмитьбюЁЙЦУКЕНГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ";
@@ -79,7 +79,7 @@ function stemming_stop_ru($sWord)
 
 function stemming_upper_ru($sText)
 {
-	return str_replace(array("Ё"), array("Е"), ToUpper($sText, "ru"));
+	return str_replace(array("Ё"), array("Е"), mb_strtoupper($sText));
 }
 
 function stemming_ru($word, $flags = 0)
@@ -136,7 +136,7 @@ function stemming_ru($word, $flags = 0)
 	//In any word, RV is the region after the first vowel, or the end of the word if it contains no vowel.
 	//All tests take place in the the RV part of the word.
 	$found=array();
-	if(preg_match("/^(.*?[$STEMMING_RU_VOWELS])(.+)$/".BX_UTF_PCRE_MODIFIER, $word, $found))
+	if(preg_match("/^(.*?[$STEMMING_RU_VOWELS])(.+)$/u", $word, $found))
 	{
 		$rv = $found[2];
 		$word = $found[1];
@@ -173,7 +173,7 @@ function stemming_ru($word, $flags = 0)
 	// As soon as one of the endings (1) to (3) is found remove it, and terminate step 1.
 	else
 	{
-		$rv = preg_replace("/(СЯ|СЬ)$/".BX_UTF_PCRE_MODIFIER, "", $rv);
+		$rv = preg_replace("/(СЯ|СЬ)$/u", "", $rv);
 		//ADJECTIVAL
 		if(preg_match($STEMMING_RU_ADJECTIVAL1, $rv, $found))
 			$rv = mb_substr($rv, 0, -mb_strlen($found[2]));
@@ -192,7 +192,7 @@ function stemming_ru($word, $flags = 0)
 		$rv = mb_substr($rv, 0, -1);
 	//Step 3: Search for a DERIVATIONAL ending in R2 (i.e. the entire ending must lie in R2), and if one is found, remove it.
 	//R1 is the region after the first non-vowel following a vowel, or the end of the word if there is no such non-vowel.
-	if(preg_match("/(ОСТЬ|ОСТ)$/".BX_UTF_PCRE_MODIFIER, $rv))
+	if(preg_match("/(ОСТЬ|ОСТ)$/u", $rv))
 	{
 		$R1=0;
 		$rv_len = mb_strlen($rv);
@@ -215,10 +215,10 @@ function stemming_ru($word, $flags = 0)
 			$rv = mb_substr($rv, 0, $rv_len - 3);
 	}
 	//Step 4: (1) Undouble н (n), or, (2) if the word ends with a SUPERLATIVE ending, remove it and undouble н (n), or (3) if the word ends ь (') (soft sign) remove it.
-	$rv = preg_replace("/(ЕЙШЕ|ЕЙШ)$/".BX_UTF_PCRE_MODIFIER, "", $rv);
-	$r = preg_replace("/НН$/".BX_UTF_PCRE_MODIFIER, "Н", $rv);
+	$rv = preg_replace("/(ЕЙШЕ|ЕЙШ)$/u", "", $rv);
+	$r = preg_replace("/НН$/u", "Н", $rv);
 	if($r == $rv)
-		$rv = preg_replace("/Ь$/".BX_UTF_PCRE_MODIFIER, "", $rv);
+		$rv = preg_replace("/Ь$/u", "", $rv);
 	else
 		$rv = $r;
 

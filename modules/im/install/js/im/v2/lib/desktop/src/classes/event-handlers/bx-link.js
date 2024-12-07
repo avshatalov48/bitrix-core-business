@@ -1,9 +1,9 @@
 /* eslint-disable unicorn/prefer-switch */
+import { Encoder } from '../encoder';
+import { DesktopManager } from '../../desktop-manager';
 import { Messenger } from 'im.public';
 import { EventType, DesktopBxLink, LegacyDesktopBxLink } from 'im.v2.const';
-import { DesktopManager } from '../../desktop-manager';
 import { DesktopApi } from 'im.v2.lib.desktop-api';
-import { Encoder } from '../encoder';
 
 export class BxLinkHandler
 {
@@ -31,7 +31,8 @@ export class BxLinkHandler
 
 			if (command === DesktopBxLink.chat)
 			{
-				void Messenger.openChat(params.dialogId);
+				const messageId = params.messageId ?? 0;
+				void Messenger.openChat(params.dialogId, messageId);
 			}
 			else if (command === DesktopBxLink.lines)
 			{
@@ -79,6 +80,11 @@ export class BxLinkHandler
 			else if (command === DesktopBxLink.openTab)
 			{
 				DesktopApi.setActiveTab();
+			}
+			else if (command === DesktopBxLink.openPage)
+			{
+				const options = Encoder.decodeParamsJson(params.options);
+				DesktopApi.openPage(options.url, options.options);
 			}
 		});
 	}

@@ -1,8 +1,6 @@
-import {Color} from 'im.v2.const';
-
 import './delimiter.css';
 
-import type {AttachDelimiterConfig} from 'im.v2.const';
+import type { AttachDelimiterConfig } from 'im.v2.const';
 
 // @vue/component
 export const AttachDelimiter = {
@@ -11,12 +9,8 @@ export const AttachDelimiter = {
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -26,19 +20,22 @@ export const AttachDelimiter = {
 		},
 		styles(): Object
 		{
-			const result = {
-				backgroundColor: this.internalConfig.delimiter.color ?? this.color
-			};
+			const result = {};
 
-			if (this.internalConfig.delimiter.size)
+			if (this.internalConfig.delimiter.color)
+			{
+				result.backgroundColor = this.internalConfig.delimiter.color;
+			}
+
+			if (this.internalConfig.delimiter.size > 0)
 			{
 				result.width = `${this.internalConfig.delimiter.size}px`;
 			}
 
 			return result;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-attach-delimiter__container" :style="styles"></div>
-	`
+	`,
 };

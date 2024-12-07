@@ -1,5 +1,6 @@
 import { Type } from 'main.core';
 import { BBCodeNode, privateMap, nameSymbol, type BBCodeNodeOptions } from './node';
+import { type BBCodeToStringOptions } from './root-node';
 
 export const contentSymbol = Symbol('content');
 
@@ -33,13 +34,6 @@ export class BBCodeTextNode extends BBCodeNode
 		return Type.isString(value) || Type.isNumber(value);
 	}
 
-	static decodeSpecialChars(content: BBCodeTextNodeContent): string
-	{
-		return String(content)
-			.replaceAll('&#91;', '[')
-			.replaceAll('&#93;', ']');
-	}
-
 	setName(name: string)
 	{}
 
@@ -47,13 +41,13 @@ export class BBCodeTextNode extends BBCodeNode
 	{
 		if (BBCodeTextNode.isTextNodeContent(content))
 		{
-			this[contentSymbol] = BBCodeTextNode.decodeSpecialChars(content);
+			this[contentSymbol] = content;
 		}
 	}
 
 	getContent(): BBCodeTextNodeContent
 	{
-		return BBCodeTextNode.decodeSpecialChars(this[contentSymbol]);
+		return this[contentSymbol];
 	}
 
 	adjustChildren()
@@ -150,14 +144,19 @@ export class BBCodeTextNode extends BBCodeNode
 		return [leftNode, rightNode];
 	}
 
-	toString(): string
+	toString(options: BBCodeToStringOptions = {}): string
 	{
+		if (options.encode !== false)
+		{
+			return this.getEncoder().encodeText(this.getContent());
+		}
+
 		return this.getContent();
 	}
 
 	toPlainText(): string
 	{
-		return this.toString();
+		return this.toString({ encode: false });
 	}
 
 	toJSON(): BBCodeSerializedTextNode

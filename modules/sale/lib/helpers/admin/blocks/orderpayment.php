@@ -286,7 +286,7 @@ class OrderPayment
 			'PAYMENT_CONFIRM_DELETE' => Loc::getMessage('SALE_ORDER_PAYMENT_CONFIRM_DELETE'),
 			'PAYMENT_CASHBOX_CHECK_ADD_WINDOW_TITLE' => Loc::getMessage('PAYMENT_CASHBOX_CHECK_ADD_WINDOW_TITLE')
 		);
-		return '<script type="text/javascript">
+		return '<script>
 			BX.message('.\CUtil::PhpToJSObject($message).');
 			logoList = '.\CUtil::PhpToJSObject($imgPathList).';
 

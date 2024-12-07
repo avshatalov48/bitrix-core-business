@@ -931,8 +931,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    autoStartDesktop() {
 	      return im_v2_lib_desktopApi.DesktopApi.getAutostartStatus();
 	    },
-	    openChatInDesktop() {
+	    openPortalLinkInDesktop() {
 	      return this.$store.getters['application/settings/get'](im_v2_const.Settings.desktop.enableRedirect);
+	    },
+	    openPortalLinkInDesktopPhrase() {
+	      if (!im_v2_lib_desktopApi.DesktopApi.isFeatureSupported(im_v2_lib_desktopApi.DesktopFeature.openPage.id)) {
+	        return this.loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT');
+	      }
+	      return this.loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_PORTAL_LINK_V2');
 	    },
 	    openLinksInSlider() {
 	      const sliderBindingStatus = im_v2_lib_desktopApi.DesktopApi.getCustomSetting(im_v2_lib_desktopApi.DesktopSettingsKey.sliderBindingsStatus, '1');
@@ -957,7 +963,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onAutoStartDesktopChange(newValue) {
 	      im_v2_lib_desktopApi.DesktopApi.setAutostartStatus(newValue);
 	    },
-	    onOpenChatInDesktopChange(newValue) {
+	    onOpenPortalLinkInDesktopChange(newValue) {
 	      this.getSettingsService().changeSetting(im_v2_const.Settings.desktop.enableRedirect, newValue);
 	    },
 	    onOpenLinksInSliderChange(newValue) {
@@ -992,7 +998,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				</div>
 				<CheckboxOption
 					:value="twoWindowMode"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_TWO_WINDOW_MODE_V2')"
 					@change="onTwoWindowModeChange"
 				/>
 				<CheckboxOption
@@ -1006,19 +1012,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_LINKS') }}
 				</div>
 				<CheckboxOption
-					:value="openChatInDesktop"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_ALWAYS_OPEN_CHAT')"
-					@change="onOpenChatInDesktopChange"
+					:value="openPortalLinkInDesktop"
+					:text="openPortalLinkInDesktopPhrase"
+					@change="onOpenPortalLinkInDesktopChange"
 				/>
 				<CheckboxOption
 					:value="openLinksInSlider"
-					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER')"
+					:text="loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_OPEN_LINKS_IN_SLIDER_V2')"
 					@change="onOpenLinksInSliderChange"
 				/>
 			</div>
 			<div class="bx-im-settings-section-content__block">
 				<div class="bx-im-settings-section-content__block_title">
-					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_REST') }}
+					{{ loc('IM_CONTENT_SETTINGS_OPTION_DESKTOP_BLOCK_ADDITIONAL') }}
 				</div>
 				<CheckboxOption
 					:value="sendTelemetry"
@@ -1131,5 +1137,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SettingsContent = SettingsContent;
 
-}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Provider.Service));
+}((this.BX.Messenger.v2.Component.Content = this.BX.Messenger.v2.Component.Content || {}),BX.Messenger.v2.Lib,BX.UI.Feedback,BX.Messenger.v2.Component.Dialog,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Const,BX.Messenger.v2.Service));
 //# sourceMappingURL=settings-content.bundle.js.map

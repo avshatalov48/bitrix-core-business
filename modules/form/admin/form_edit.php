@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 - 2006 Bitrix           #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -19,7 +19,7 @@ CModule::IncludeModule('form');
 ClearVars();
 
 IncludeModuleLangFile(__FILE__);
-$err_mess = "File: ".__FILE__."<br>Line: ";
+
 define("HELP_FILE","form_list.php");
 $old_module_version = CForm::IsOldVersion();
 $bSimple = (COption::GetOptionString("form", "SIMPLE") == "Y");
@@ -48,9 +48,9 @@ $message = null;
 ***************************************************************************/
 
 
-$ID = intval($_REQUEST['ID']);
-$copy_id = intval($_REQUEST['copy_id']);
-$reset_id = intval($_REQUEST['reset_id']);
+$ID = intval($_REQUEST['ID'] ?? 0);
+$copy_id = intval($_REQUEST['copy_id'] ?? 0);
+$reset_id = intval($_REQUEST['reset_id'] ?? 0);
 $strError = '';
 
 if ($ID > 0)
@@ -101,11 +101,11 @@ while ($ar = $rs->Fetch())
 	$arrSites[$ar["ID"]] = $ar;
 }
 
-if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_METHOD']=="POST" && ($F_RIGHT>=30 || $ID<=0) && check_bitrix_sessid())
+if ((!empty($_REQUEST['save']) || !empty($_REQUEST['apply'])) && $_SERVER['REQUEST_METHOD']=="POST" && ($F_RIGHT>=30 || $ID<=0) && check_bitrix_sessid())
 {
 	$arIMAGE_ID = $_FILES["IMAGE_ID"];
 	$arIMAGE_ID["MODULE_ID"] = "form";
-	$arIMAGE_ID["del"] = $_REQUEST["IMAGE_ID_del"];
+	$arIMAGE_ID["del"] = $_REQUEST["IMAGE_ID_del"] ?? null;
 
 	$SID = $_REQUEST['SID'];
 
@@ -114,10 +114,10 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 		$SID = "SIMPLE_FORM_".randString(8);
 	}
 
-	$RESTRICT_STATUS = $_REQUEST['RESTRICT_STATUS'];
-	$RESTRICT_USER = intval($_REQUEST['RESTRICT_USER']);
-	$RESTRICT_TIME = intval($_REQUEST['RESTRICT_TIME']);
-	$RESTRICT_TIME_MULTIPLYER = intval($_REQUEST['RESTRICT_TIME_MULTIPLYER']);
+	$RESTRICT_STATUS = $_REQUEST['RESTRICT_STATUS'] ?? null;
+	$RESTRICT_USER = intval($_REQUEST['RESTRICT_USER'] ?? 0);
+	$RESTRICT_TIME = intval($_REQUEST['RESTRICT_TIME'] ?? 0);
+	$RESTRICT_TIME_MULTIPLYER = intval($_REQUEST['RESTRICT_TIME_MULTIPLYER'] ?? 0);
 
 	$RESTRICT_TIME *= $RESTRICT_TIME_MULTIPLYER;
 
@@ -135,14 +135,14 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 		"SID"						=> $SID,
 		"C_SORT"					=> $_REQUEST['C_SORT'],
 		"BUTTON"					=> $_REQUEST['BUTTON'],
-		"USE_CAPTCHA"				=> $_REQUEST['USE_CAPTCHA'] == "Y" ? "Y" : "N",
+		"USE_CAPTCHA"				=> isset($_REQUEST['USE_CAPTCHA']) && $_REQUEST['USE_CAPTCHA'] == "Y" ? "Y" : "N",
 		"DESCRIPTION"				=> $_REQUEST['FORM_DESCRIPTION'],
 		"DESCRIPTION_TYPE"			=> $_REQUEST['FORM_DESCRIPTION_TYPE'],
-		"SHOW_TEMPLATE"				=> $_REQUEST['SHOW_TEMPLATE'],
-		"SHOW_RESULT_TEMPLATE"		=> $_REQUEST['SHOW_RESULT_TEMPLATE'],
-		"PRINT_RESULT_TEMPLATE"		=> $_REQUEST['PRINT_RESULT_TEMPLATE'],
-		"EDIT_RESULT_TEMPLATE"		=> $_REQUEST['EDIT_RESULT_TEMPLATE'],
-		"USE_RESTRICTIONS"			=> $_REQUEST['USE_RESTRICTIONS'] == "Y" ? "Y" : "N",
+		"SHOW_TEMPLATE"				=> $_REQUEST['SHOW_TEMPLATE'] ?? null,
+		"SHOW_RESULT_TEMPLATE"		=> $_REQUEST['SHOW_RESULT_TEMPLATE'] ?? null,
+		"PRINT_RESULT_TEMPLATE"		=> $_REQUEST['PRINT_RESULT_TEMPLATE'] ?? null,
+		"EDIT_RESULT_TEMPLATE"		=> $_REQUEST['EDIT_RESULT_TEMPLATE'] ?? null,
+		"USE_RESTRICTIONS"			=> isset($_REQUEST['USE_RESTRICTIONS']) && $_REQUEST['USE_RESTRICTIONS'] == "Y" ? "Y" : "N",
 		"RESTRICT_USER"				=> $RESTRICT_USER,
 		"RESTRICT_TIME"				=> $RESTRICT_TIME,
 		"arRESTRICT_STATUS"			=> $arRestrictStatus,
@@ -210,7 +210,7 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 						"IN_RESULTS_TABLE" => $arQuestion["inResultsTable"] == "Y" ? "Y" : "N",
 						"IN_EXCEL_TABLE" => $arQuestion["inExcelTable"] == "Y" ? "Y" : "N",
 						"ACTIVE"	 => CForm::isFieldInTemplate($arQuestion["FIELD_SID"], $FORM_TEMPLATE) ? "Y" : "N",
-						'FILTER_TITLE' => $arQuestion['FILTER_TITLE'],
+						'FILTER_TITLE' => $arQuestion['FILTER_TITLE'] ?? null,
 					);
 
 					$FIELD_ID = $arQuestion["isNew"] == "Y" ? false : $arQuestion["ID"];
@@ -321,7 +321,7 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 			$arCrmParams = array(
 				'CRM_ID' => $_REQUEST['CRM_ID'],
 				'LINK_TYPE' => $_REQUEST['CRM_LINK_TYPE'],
-				'CRM_FIELDS' => $_REQUEST['CRM_FIELD'],
+				'CRM_FIELDS' => $_REQUEST['CRM_FIELD'] ?? null,
 				'FORM_FIELDS' => $_REQUEST['CRM_FORM_FIELD'],
 			);
 
@@ -332,7 +332,7 @@ if (($_REQUEST['save'] <> '' || $_REQUEST['apply'] <> '') && $_SERVER['REQUEST_M
 
 		if ($strError == '')
 		{
-			if ($_REQUEST['save'] <> '')
+			if (!empty($_REQUEST['save']))
 			{
 				if (!empty($_REQUEST["back_url"])) LocalRedirect("/".ltrim($_REQUEST["back_url"], "/"));
 				else LocalRedirect("/bitrix/admin/form_list.php?lang=".LANGUAGE_ID);
@@ -499,7 +499,6 @@ if($strError)
 	$message = new CAdminMessage(GetMessage("FORM_ERROR_SAVE"), $e);
 	echo $message->Show();
 }
-ShowNote($strNote);
 
 if ($bEditTemplate):
 ?>
@@ -590,7 +589,7 @@ $tabControl->BeginNextTab();
 		{
 			$str_USE_MAIL = 'checked OnClick="template_warn()"';
 ?>
-<script type="text/javascript">
+<script>
 function template_warn()
 {
 	if (document.getElementById('mail_check').checked==false)
@@ -686,7 +685,7 @@ if ($bEditTemplate):
 <script>
 var _global_newinput_counter = 0;
 var _global_newanswer_counter = 0;
-var _global_BX_UTF = <?if (defined('BX_UTF') && BX_UTF === true):?>true<?else:?>false<?endif?>;
+var _global_BX_UTF = true;
 </script><script src="/bitrix/js/form/form_info.js?<?=@filemtime($_SERVER['DOCUMENT_ROOT'].'/bitrix/js/form/form_info.js')?>"></script><script>
 var arrInputObjects = [];
 
@@ -1058,7 +1057,7 @@ function set_event2()
 	if ($old_module_version=="Y"):
 
 	$strSql = "SELECT ID FROM b_form_result WHERE FORM_ID='".$ID."' ORDER BY ID desc";
-	$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+	$z = $DB->Query($strSql);
 	$zr = $z->Fetch();
 	$RESULT_ID = intval($zr["ID"]);
 
@@ -1234,7 +1233,7 @@ else:
 		$arFormFields[] = $arFld;
 	}
 
-	if (false && !$bLinkCreated):
+	if (!$bLinkCreated):
 ?>
 	<tr>
 		<td colspan="2" align="center"><?echo BeginNote(),GetMessage('FORM_CRM_NOT_SET'),EndNote();?></td>
@@ -1242,7 +1241,7 @@ else:
 <?
 	else:
 ?>
-	<script type="text/javascript">BX.ready(BX.defer(function(){loadCrmFields('<?=$arFormCrmLink['CRM_ID']?>', function() {
+	<script>BX.ready(BX.defer(function(){loadCrmFields('<?=$arFormCrmLink['CRM_ID']?>', function() {
 <?
 	if ($bLinkCreated):
 		foreach ($arFormCrmFields as $ar):
@@ -1270,7 +1269,7 @@ else:
 .action-edit {background: scroll transparent url(/bitrix/images/form/options_buttons.gif) no-repeat 0 0; }
 .action-delete {background: scroll transparent url(/bitrix/images/form/options_buttons.gif) no-repeat -29px 0; }
 </style>
-<script type="text/javascript">
+<script>
 function _showPass(el)
 {
 	el.parentNode.replaceChild(BX.create('INPUT', {
@@ -1716,7 +1715,7 @@ $tabControl->BeginNextTab();
 	}
 
 $tabControl->EndTab();
-$tabControl->Buttons(array("disabled"=>(!(($ID>0 && $F_RIGHT>=30) || CForm::IsAdmin())), "back_url"=>($back_url <> '' ? $back_url : "form_list.php?lang=".LANGUAGE_ID)));
+$tabControl->Buttons(array("disabled"=>(!(($ID>0 && $F_RIGHT>=30) || CForm::IsAdmin())), "back_url"=>(!empty($_REQUEST['back_url']) ? $_REQUEST['back_url'] : "form_list.php?lang=".LANGUAGE_ID)));
 $tabControl->End();
 ?>
 </form>

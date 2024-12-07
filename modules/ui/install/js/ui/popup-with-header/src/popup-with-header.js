@@ -1,22 +1,27 @@
-import { Dom, Tag, Text, Type, Event } from 'main.core';
+import { Dom, Tag, Text, Type } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { PopupComponentsMaker } from 'ui.popupcomponentsmaker';
 import { PopupHeader } from './popup-header';
 import { Popup } from 'main.popup';
 import { BaseTemplate } from 'ui.popup-with-header';
 import './styles.css';
+import { Skeleton } from './skeleton';
 
 export class PopupWithHeader extends PopupComponentsMaker
 {
 	headerWrapper: ?HTMLElement;
+	#popupOptions: Object;
 
 	constructor(options)
 	{
 		super(options);
 		this.header = (options.header instanceof PopupHeader) ? options.header : null;
 		this.template = options.template instanceof BaseTemplate ? options.template : null;
-		this.asyncData = options.asyncData instanceof BX.Promise ? options.asyncData : null;
+		this.asyncData = (options.asyncData instanceof BX.Promise || options.asyncData instanceof Promise) ? options.asyncData : null;
+		this.animationTemplate = options.animationTemplate ?? true;
+		this.skeletonSize = options.skeletonSize ?? 473;
 		this.analyticsCallback = Type.isFunction(options.analyticsCallback) ? options.analyticsCallback : null;
+		this.#popupOptions = Type.isPlainObject(options.popupOptions) ? options.popupOptions : {};
 	}
 
 	getPopup(): Popup
@@ -40,7 +45,7 @@ export class PopupWithHeader extends PopupComponentsMaker
 				}
 			}
 
-			this.popup = new Popup(popupId, this.target, {
+			this.popup = new Popup(popupId, this.target, ({
 				className: 'ui-popupcomponentmaker',
 				contentBackground: 'transparent',
 				contentPadding: this.contentPadding,
@@ -56,24 +61,10 @@ export class PopupWithHeader extends PopupComponentsMaker
 				closeByEsc: true,
 				padding: 0,
 				animation: 'fading-slide',
-				content: content,
+				content,
 				cacheable: this.cacheable,
-			});
-
-			if (this.blurBlackground)
-			{
-				Dom.addClass(this.popup.getPopupContainer(), 'popup-with-radius');
-				this.setBlurBackground();
-				EventEmitter.subscribe(
-					EventEmitter.GLOBAL_TARGET,
-					'BX.Intranet.Bitrix24:ThemePicker:onThemeApply',
-					() => {
-						setTimeout(() => {
-							this.setBlurBackground();
-						}, 200);
-					},
-				);
-			}
+				...this.#popupOptions,
+			}));
 
 			if (this.asyncData)
 			{
@@ -88,7 +79,6 @@ export class PopupWithHeader extends PopupComponentsMaker
 				}
 
 				this.asyncData.then((response) => {
-					this.popup.show();
 					Dom.clean(container);
 					response.data.header.analyticsCallback = this.analyticsCallback;
 					this.header = PopupHeader.createByJson(popupId, response.data.header);
@@ -136,30 +126,19 @@ export class PopupWithHeader extends PopupComponentsMaker
 
 					if (hasContent)
 					{
-						Dom.addClass(this.getContentWrapper(), 'ui-popup-with-header__content');
-
-						if (this.popup.isBottomAngle())
+						if (this.popup.isShown())
 						{
-							Dom.style(this.getContentWrapper(), 'transition', 'none');
-						}
-
-						if (this.getContentWrapper().scrollHeight > 287 && !Dom.hasClass(this.getContentWrapper(), '--active-scroll'))
-						{
-							Dom.style(this.getContentWrapper(), 'height', '287px');
-							Dom.style(this.getContentWrapper(), 'overflow-y', 'scroll');
-							Dom.addClass(content, 'active-scroll');
+							this.#prepareItemsContent(content);
 						}
 						else
 						{
-							Dom.style(this.getContentWrapper(), 'height', `${this.getContentWrapper().scrollHeight}px`);
+							this.popup.subscribeOnce('onShow', () => {
+								this.#prepareItemsContent(content);
+							});
 						}
+					}
 
-						this.popup.adjustPosition({ forceBindPosition: true, position: this.popup.isBottomAngle() ? 'top' : 'bottom' });
-					}
-					else
-					{
-						this.popup.adjustPosition({forceBindPosition: true, position: this.popup.isBottomAngle() ? 'top' : 'bottom' });
-					}
+					this.popup.adjustPosition({ forceBindPosition: true, position: this.popup.isBottomAngle() ? 'top' : 'bottom' });
 				});
 			}
 
@@ -169,55 +148,40 @@ export class PopupWithHeader extends PopupComponentsMaker
 		return this.popup;
 	}
 
+	#prepareItemsContent(content: HTMLElement): void
+	{
+		Dom.addClass(this.getContentWrapper(), 'ui-popup-with-header__content');
+		content.append(Tag.render`<div class="ui-popupcomponentmaker__content-wrap">${this.getContentWrapper()}</div>`);
+
+		if (this.popup.isBottomAngle() || !this.animationTemplate)
+		{
+			Dom.style(this.getContentWrapper(), 'transition', 'none');
+		}
+
+		if (this.getContentWrapper().scrollHeight > 287 && !Dom.hasClass(this.getContentWrapper(), '--active-scroll'))
+		{
+			Dom.style(this.getContentWrapper(), 'height', '287px');
+			Dom.style(this.getContentWrapper(), 'overflow-y', 'scroll');
+			Dom.addClass(content, 'active-scroll');
+		}
+		else
+		{
+			Dom.style(this.getContentWrapper(), 'height', `${this.getContentWrapper().scrollHeight}px`);
+		}
+	}
+
 	getSkeleton(): HTMLElement
 	{
 		if (!this.skeleton)
 		{
-			this.skeleton = Tag.render`
-				<div class="popup-with-header-skeleton__wrap">
-					<div class="popup-with-header-skeleton__header">
-						<div class="popup-with-header-skeleton__header-top">
-							<div class="popup-with-header-skeleton__header-circle">
-								<div class="popup-with-header-skeleton__header-circle-inner"></div>
-							</div>
-							<div style="width: 100%;">
-								<div style="margin-bottom: 12px; max-width: 219px; height: 6px; background: rgba(255,255,255,.8);" class="popup-with-header-skeleton__line"></div>
-								<div style="max-width: 119px; height: 4px;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-						<div class="popup-with-header-skeleton__header-bottom">
-							<div class="popup-with-header-skeleton__header-bottom-circle-box">
-								<div class="popup-with-header-skeleton__header-bottom-circle"></div>
-								<div class="popup-with-header-skeleton__header-bottom-circle-blue"></div>
-							</div>
-							<div style="width: 100%;">
-								<div style="margin-bottom: 9px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 15px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 156px; height: 2px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 93px; height: 2px;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-					</div>
-					<div class="popup-with-header-skeleton__bottom">
-						<div class="popup-with-header-skeleton__bottom-inner">
-							<div class="popup-with-header-skeleton__bottom-left">
-								<div style="margin-bottom: 11px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 17px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 168px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 131px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 150px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 56px; height: 5px; background: rgba(32,102,176,.23);" class="popup-with-header-skeleton__line"></div>
-							</div>
-							<div class="popup-with-header-skeleton__bottom-right">
-								<div class="popup-with-header-skeleton-btn"></div>
-								<div style="margin: 0 auto; max-width: 36px; height: 3px; background: #d9d9d9;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			`;
+			this.skeleton = (new Skeleton(this.skeletonSize)).get();
 
-			const theme = this.#getThemePicker().getAppliedTheme();
+			const theme = this.#getThemePicker()?.getAppliedTheme();
+			if (!theme)
+			{
+				return this.skeleton;
+			}
+
 			const headerContainer = this.skeleton.querySelector('.popup-with-header-skeleton__header');
 			this.#applyTheme(headerContainer, theme);
 
@@ -239,25 +203,28 @@ export class PopupWithHeader extends PopupComponentsMaker
 
 		if (Type.isDomNode(angly))
 		{
-			const theme = this.#getThemePicker().getAppliedTheme()
-			this.#applyTheme(angly, theme);
+			const theme = this.#getThemePicker()?.getAppliedTheme();
+			if (theme)
+			{
+				this.#applyTheme(angly, theme);
 
-			EventEmitter.subscribe(
-				'BX.Intranet.Bitrix24:ThemePicker:onThemeApply',
-				(event) =>
-				{
-					this.#applyTheme(angly, event.data.theme);
-				},
-			);
+				EventEmitter.subscribe(
+					'BX.Intranet.Bitrix24:ThemePicker:onThemeApply',
+					(event) =>
+					{
+						this.#applyTheme(angly, event.data.theme);
+					},
+				);
+			}
 
 			Dom.style(angly, 'background-position', 'center top');
 			Dom.addClass(popupContainer?.parentNode, '--with-header');
 		}
 	}
 
-	#getThemePicker(): BX.Intranet.Bitrix24.ThemePicker
+	#getThemePicker(): ?BX.Intranet.Bitrix24.ThemePicker
 	{
-		return BX.Intranet.Bitrix24.ThemePicker.Singleton ?? top.BX.Intranet.Bitrix24.ThemePicker.Singleton;
+		return BX.Intranet?.Bitrix24?.ThemePicker.Singleton ?? top.BX.Intranet?.Bitrix24?.ThemePicker.Singleton;
 	}
 
 	#applyTheme(container, theme): void

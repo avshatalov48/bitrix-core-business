@@ -1,9 +1,7 @@
 <?php
 namespace Bitrix\Main\Composite;
 
-use Bitrix\Main;
 use Bitrix\Main\Composite\Data\CacheProvider;
-use Bitrix\Main\Composite\Data;
 use Bitrix\Main\Composite\Debug\Logger;
 use Bitrix\Main\Composite\Internals\Model\PageTable;
 use Bitrix\Main\Composite\Internals\PageManager;

@@ -1,0 +1,1 @@
+{"version":3,"file":"make-deps-php-content.map.js","names":["module","exports","makeDepsPhpContent","dependencies","renderedList","map","moduleName","join"],"sources":["make-deps-php-content.js"],"mappings":"AAIAA,OAAOC,QAAU,SAASC,EAAmBC,GAC5C,MAAMC,EAAeD,EAAaE,KAAKC,GAC/B,UAAUA,QACfC,KAAK,IAER,MAAO,yCAAyCH,aACjD"}

@@ -7,7 +7,6 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admi
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/prolog.php");
 IncludeModuleLangFile(__FILE__);
 
-CUtil::JSPostUnescape();
 /*
  * this page only for actions and get info
  *

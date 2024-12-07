@@ -1,6 +1,6 @@
 <?
 $MESS["IBLOCK_CML2_WRONG_FILE_ERROR"] = "Указанный файл не является xml файлом формата CommerceML второй редакции.";
-$MESS["IBLOCK_CML2_TABLE_CREATE_ERROR"] = "Ошибка создания временных таблиц для импорта.";
+$MESS["IBLOCK_CML2_TABLE_PREPARE_ERROR"] = "Ошибка подготовки временных таблиц для импорта.";
 $MESS["IBLOCK_CML2_FILE_ERROR"] = "Ошибка открытия файла.";
 $MESS["IBLOCK_CML2_INDEX_ERROR"] = "Произошла ошибка создания индекса.";
 $MESS["IBLOCK_CML2_TABLES_DROPPED"] = "Временные таблицы оставшиеся после предыдущего импорта удалены.";

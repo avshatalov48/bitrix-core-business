@@ -1,11 +1,11 @@
 // @flow
+
 'use strict';
 
 import { Loc, Tag, Event } from 'main.core';
 import SyncWizard from './syncwizard';
 import SyncStageUnit from './syncstageunit';
 import { Util } from 'calendar.util';
-
 
 export default class GoogleSyncWizard extends SyncWizard
 {
@@ -14,11 +14,11 @@ export default class GoogleSyncWizard extends SyncWizard
 	STAGE_1_CODE = 'google-to-b24';
 	STAGE_2_CODE = 'b24-to-google';
 	STAGE_3_CODE = 'b24-events-to-google';
-	GOOGLE_ON_MOBILE_HELPDESK = 15456338;
+	GOOGLE_ON_MOBILE_HELPDESK = 15_456_338;
 
-	constructor()
+	constructor(options = {})
 	{
-		super();
+		super(options);
 		this.setEventNamespace('BX.Calendar.Sync.Interface.GoogleSyncWizard');
 		this.setAccountName(Loc.getMessage('CALENDAR_TITLE_GOOGLE'));
 		this.setSyncStages();
@@ -27,7 +27,7 @@ export default class GoogleSyncWizard extends SyncWizard
 
 	getHelpLinkWrapper()
 	{
-		let link;
+		let link = '';
 		this.helpLinkWrapper = Tag.render`
 			<div class="calendar-sync__content-block --align-center --space-bottom" style="display: none;">
 				${link = Tag.render`<a href="#" class="calendar-sync__content-link">
@@ -38,9 +38,9 @@ export default class GoogleSyncWizard extends SyncWizard
 
 		Event.bind(link, 'click', () => {
 			const helper = Util.getBX().Helper;
-			if(helper)
+			if (helper)
 			{
-				helper.show("redirect=detail&code=" + this.GOOGLE_ON_MOBILE_HELPDESK);
+				helper.show(`redirect=detail&code=${this.GOOGLE_ON_MOBILE_HELPDESK}`);
 			}
 		});
 
@@ -64,6 +64,7 @@ export default class GoogleSyncWizard extends SyncWizard
 				${this.getNewEventCardWrapper()}
 			</div>
 		`;
+
 		return this.finalCheckWrapper;
 	}
 
@@ -72,16 +73,16 @@ export default class GoogleSyncWizard extends SyncWizard
 		this.syncStagesList = [
 			new SyncStageUnit({
 				name: this.STAGE_1_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_1')
+				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_1'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_2_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_2')
+				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_2'),
 			}),
 			new SyncStageUnit({
 				name: this.STAGE_3_CODE,
-				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_3')
-			})
+				title: Loc.getMessage('CAL_SYNC_STAGE_GOOGLE_3'),
+			}),
 		];
 	}
 
@@ -99,7 +100,7 @@ export default class GoogleSyncWizard extends SyncWizard
 			}
 			else if (
 				stateData.stage === 'import_finished'
-			    && (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
+				&& (stage.name === this.STAGE_1_CODE || stage.name === this.STAGE_2_CODE)
 			)
 			{
 				stage.setDone();
@@ -109,11 +110,18 @@ export default class GoogleSyncWizard extends SyncWizard
 				stage.setDone();
 				if (stage.name === this.STAGE_3_CODE)
 				{
-					this.setActiveStatusFinished();
-					this.showButtonWrapper();
-					this.showInfoStatusWrapper();
+					if (this.mode === 'reconnecting')
+					{
+						this.handleCloseWizard();
+					}
+					else
+					{
+						this.setActiveStatusFinished();
+						this.showButtonWrapper();
+						this.showInfoStatusWrapper();
+					}
 					this.showConfetti();
-					
+
 					this.emit('onConnectionCreated');
 				}
 			}

@@ -134,7 +134,7 @@ else:
 			$component
 		);
 		?>
-		<script type="text/javascript">
+		<script>
 
 			function wiki_version_delete_grid(title, message, btnTitle, path)
 			{

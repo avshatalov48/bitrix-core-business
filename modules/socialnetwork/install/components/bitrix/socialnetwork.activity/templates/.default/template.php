@@ -19,7 +19,7 @@ else
 		<?
 	}
 	?>
-	<script language="JavaScript">
+	<script>
 	<!--
 		function SoNetSwitchBody(ind, val)
 		{
@@ -48,7 +48,7 @@ else
 		<?
 		foreach ($arResult["Features"] as $featureID)
 		{
-			$featureName = GetMessage(toUpper("SONET_ACTIVITY_T_".$featureID));
+			$featureName = GetMessage(mb_strtoupper("SONET_ACTIVITY_T_".$featureID));
 			?><option value="<?=$featureID?>" <?=($featureID == $_REQUEST["flt_event_id"] ? "selected" : "")?>><?=$featureName?></option><?
 		}
 		?>

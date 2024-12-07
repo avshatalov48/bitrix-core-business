@@ -21,16 +21,16 @@ $instance = Application::getInstance();
 $context = $instance->getContext();
 $request = $context->getRequest();
 
-$lang = ($request->get('lang') !== null) ? trim($request->get('lang')) : "ru";
+$lang = trim((string)($request->get('lang') ?? 'ru'));
 $context->setLanguage($lang);
 
-Loc::loadMessages(__FILE__);
-
-$arResult = array("ERROR" => "");
+$arResult = [
+	'ERROR' => '',
+];
 
 if (!\Bitrix\Main\Loader::includeModule('sale'))
 {
-	$arResult["ERROR"] = "Error! Can't include module \"Sale\"";
+	$arResult['ERROR'] = 'Error! Can\'t include module "Sale"';
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/delivery/inputs.php");
@@ -38,15 +38,15 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/lib/cashbox/inputs/
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
 
-if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_sessid())
+if($arResult["ERROR"] === '' && $saleModulePermissions >= "W" && check_bitrix_sessid())
 {
-	$action = trim((string)$request->get('action'));
+	$action = trim((string)($request->get('action') ?? ''));
 
 	switch ($action)
 	{
-		case "get_restriction_params_html":
+		case 'get_restriction_params_html':
 			Manager::getClassesList();
-			$className = trim((string)$request->get('className'));
+			$className = trim((string)($request->get('className') ?? ''));
 			$params = $request->get('params');
 			if (!is_array($params))
 			{
@@ -90,7 +90,7 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 		case "save_restriction":
 			Manager::getClassesList();
 
-			$className = trim((string)$request->get('className'));
+			$className = trim((string)($request->get('className') ?? ''));
 			$params = $request->get('params');
 			if (!is_array($params))
 			{
@@ -120,28 +120,28 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				}
 			}
 
-			if ($arResult["ERROR"] == '')
+			if ($arResult['ERROR'] === '')
 			{
-				$fields = array(
+				$fields = [
 					"SERVICE_ID" => $paySystemId,
 					"SERVICE_TYPE" => RestrictionManager::SERVICE_TYPE_PAYMENT,
 					"SORT" => $sort,
 					"PARAMS" => $params
-				);
+				];
 
 				/** @var \Bitrix\Sale\Result $res */
 				$res = $className::save($fields, $restrictionId);
 				if ($res->isSuccess())
 				{
 					$validateResult = $className::validateRestriction($fields);
-					$arResult["ERROR"] .= implode(".", $validateResult->getErrorMessages());
+					$arResult['ERROR'] .= implode(".", $validateResult->getErrorMessages());
 				}
 				else
 				{
-					$arResult["ERROR"] .= implode(".", $res->getErrorMessages());
+					$arResult['ERROR'] .= implode(".", $res->getErrorMessages());
 				}
 
-				$arResult["HTML"] = getRestrictionHtml($paySystemId);
+				$arResult['HTML'] = getRestrictionHtml($paySystemId);
 			}
 
 			break;
@@ -152,12 +152,15 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 			$restrictionId = (int)$request->get('restrictionId');
 			$paySystemId = (int)$request->get('paySystemId');
 
-			if(!$restrictionId)
+			if (!$restrictionId)
+			{
 				throw new \Bitrix\Main\ArgumentNullException('restrictionId');
+			}
 
 			$dbRes =  \Bitrix\Sale\Internals\ServiceRestrictionTable::getById($restrictionId);
-
-			if($fields = $dbRes->fetch())
+			$fields = $dbRes->fetch();
+			unset($dbRes);
+			if ($fields)
 			{
 				/** @var \Bitrix\Sale\Result $res */
 				$res = $fields["CLASS_NAME"]::delete($restrictionId, $paySystemId);
@@ -251,19 +254,23 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 
 			$tariff = \Bitrix\Sale\PaySystem\Manager::getTariff($handler);
 			if (!$tariff)
+			{
 				$tariff = CSalePaySystemsHelper::getPaySystemTarif($handler, 0, 0);
+			}
 
 			$tariffBlock = '';
 			if($tariff)
 			{
-				$tariffBlock = '<tr class="heading"><td align="center" colspan="2">'.Loc::getMessage('SALE_PS_TARIFF').'</td></tr>';
+				$tariffBlock = '<tr class="heading"><td style="text-align: center;" colspan="2">'.Loc::getMessage('SALE_PS_TARIFF').'</td></tr>';
 
 				$arMultiControlQuery = array();
 				foreach ($tariff as $fieldId => $arField)
 				{
-					if(!empty($arMultiControlQuery)
+					if (
+						!empty($arMultiControlQuery)
 						&&
-						(!isset($arField['MCS_ID'])|| !array_key_exists($arField['MCS_ID'], $arMultiControlQuery))
+						(!isset($arField['MCS_ID'])|| !array_key_exists($arField['MCS_ID'], $arMultiControlQuery)
+					)
 					)
 					{
 						$tariffBlock .= CSaleHelper::getAdminMultilineControl($arMultiControlQuery);
@@ -303,17 +310,31 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 				elseif (isset($description))
 				{
 					if (is_array($description))
-						$arResult["DESCRIPTION"] = (array_key_exists('MAIN', $description)) ? $description['MAIN'] : implode("\n", $description);
+					{
+						$arResult['DESCRIPTION'] = (
+							array_key_exists('MAIN', $description))
+								? $description['MAIN']
+								: implode("\n", $description)
+						;
+					}
 					else
-						$arResult["DESCRIPTION"] = $description;
+					{
+						$arResult['DESCRIPTION'] = $description;
+					}
 				}
 
 				if ($paySystemId <= 0)
 				{
-					if (isset($data))
-						$arResult["NAME"] = $arResult["PSA_NAME"] = $data['NAME'];
+					if (isset($data['NAME']))
+					{
+						$arResult['NAME'] = $data['NAME'];
+						$arResult['PSA_NAME'] = $data['NAME'];
+					}
 					elseif (isset($psTitle))
-						$arResult["NAME"] = $arResult["PSA_NAME"] = $psTitle;
+					{
+						$arResult['NAME'] = $psTitle;
+						$arResult['PSA_NAME'] = $psTitle;
+					}
 
 					$arResult['SORT'] = 100;
 
@@ -327,8 +348,10 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 						}
 					}
 
-					if (!isset($arResult['LOGOTIP'])
-						&& IO\File::isFileExists($_SERVER['DOCUMENT_ROOT'].'/bitrix/images/sale/sale_payments/'.$handler.'.png'))
+					if (
+						!isset($arResult['LOGOTIP'])
+						&& IO\File::isFileExists($_SERVER['DOCUMENT_ROOT'].'/bitrix/images/sale/sale_payments/'.$handler.'.png')
+					)
 					{
 						$arResult['LOGOTIP']['NAME'] = $handler.'.png';
 						$arResult['LOGOTIP']['PATH'] = '/bitrix/images/sale/sale_payments/'.$handler.'.png';
@@ -365,9 +388,9 @@ if($arResult["ERROR"] == '' && $saleModulePermissions >= "W" && check_bitrix_ses
 
 			break;
 		case 'checkHttps':
-			$params = array(
-				'waitResponse' => 10
-			);
+			$params = [
+				'waitResponse' => 10,
+			];
 			$http = new \Bitrix\Main\Web\HttpClient();
 			$response = @$http->get('https://'.$_SERVER['HTTP_HOST'].'/bitrix/tools/sale_ps_result.php');
 			if ($response === false || $http->getStatus() != 200)

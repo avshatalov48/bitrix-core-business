@@ -3,7 +3,7 @@ namespace Bitrix\Calendar\Controller;
 
 use Bitrix\Calendar\UserField\ResourceBooking;
 use Bitrix\Main\Engine\ActionFilter;
-use Bitrix\Main\Text\Encoding;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Web\Json;
 
@@ -33,6 +33,11 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 	public function getPlannerDataAction()
 	{
 		$request = $this->getRequest();
+
+		if (Loader::includeModule('intranet') && !\Bitrix\Intranet\Util::isIntranetUser())
+		{
+			return [];
+		}
 
 		return \CCalendarPlanner::prepareData(array(
 			'user_id' => \CCalendar::getCurUserId(),
@@ -81,7 +86,6 @@ class ResourceBookingAjax extends \Bitrix\Main\Engine\Controller
 
 		if (is_string($settingsData) && $settingsData)
 		{
-			$settingsData = Encoding::convertEncoding($settingsData, SITE_CHARSET, 'UTF-8');
 			$settingsData = Json::decode($settingsData);
 		}
 

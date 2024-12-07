@@ -47,10 +47,81 @@ class RestService extends \IRestService
 	const ERROR_PAY_INVOICE_NOT_SUPPORTED = 'ERROR_INVOICE_NO_SUPPORTED';
 
 	private const ALLOWED_PAYSYSTEM_FIELDS = [
-		'ID', 'PERSON_TYPE_ID', 'NAME', 'PSA_NAME', 'SORT', 'DESCRIPTION', 'ACTION_FILE', 'RESULT_FILE',
-		'NEW_WINDOW', 'TARIF', 'PS_MODE', 'HAVE_PAYMENT', 'HAVE_ACTION', 'HAVE_RESULT', 'HAVE_PREPAY',
-		'HAVE_PRICE', 'HAVE_RESULT_RECEIVE', 'ENCODING', 'LOGOTIP', 'ACTIVE', 'ALLOW_EDIT_PAYMENT',
-		'IS_CASH', 'AUTO_CHANGE_1C', 'CAN_PRINT_CHECK', 'ENTITY_REGISTRY_TYPE', 'XML_ID'
+		'ID' => [
+			'TYPE' => 'integer',
+		],
+		'PERSON_TYPE_ID' => [
+			'TYPE' => 'integer',
+		],
+		'NAME' => [
+			'TYPE' => 'string',
+		],
+		'PSA_NAME' => [
+			'TYPE' => 'string',
+		],
+		'SORT' => [
+			'TYPE' => 'integer',
+		],
+		'DESCRIPTION' => [
+			'TYPE' => 'string',
+		],
+		'ACTION_FILE' => [
+			'TYPE' => 'string',
+		],
+		'RESULT_FILE' => [
+			'TYPE' => 'string',
+		],
+		'NEW_WINDOW' => [
+			'TYPE' => 'string',
+		],
+		'TARIF' => [
+			'TYPE' => 'string',
+		],
+		'PS_MODE' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_PAYMENT' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_ACTION' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_RESULT' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_PREPAY' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_PRICE' => [
+			'TYPE' => 'string',
+		],
+		'HAVE_RESULT_RECEIVE' => [
+			'TYPE' => 'string',
+		],
+		'ENCODING' => [
+			'TYPE' => 'string',
+		],
+		'ACTIVE' => [
+			'TYPE' => 'string',
+		],
+		'ALLOW_EDIT_PAYMENT' => [
+			'TYPE' => 'string',
+		],
+		'IS_CASH' => [
+			'TYPE' => 'string',
+		],
+		'AUTO_CHANGE_1C' => [
+			'TYPE' => 'string',
+		],
+		'CAN_PRINT_CHECK' => [
+			'TYPE' => 'string',
+		],
+		'ENTITY_REGISTRY_TYPE' => [
+			'TYPE' => 'string',
+		],
+		'XML_ID' => [
+			'TYPE' => 'string',
+		],
 	];
 
 	public static function onRestAppDelete(array $fields): void
@@ -153,8 +224,8 @@ class RestService extends \IRestService
 		$fields = [
 			'NAME' => $params['NAME'],
 			'PSA_NAME' => $params['NAME'],
-			'NEW_WINDOW' => $params['NEW_WINDOW'] ?: 'N',
-			'ACTIVE' => $params['ACTIVE'] ?: 'N',
+			'NEW_WINDOW' => isset($params['NEW_WINDOW']) && $params['NEW_WINDOW'] === 'Y' ? 'Y' : 'N',
+			'ACTIVE' => isset($params['ACTIVE']) && $params['ACTIVE'] === 'Y' ? 'Y' : 'N',
 			'PERSON_TYPE_ID' => $params['PERSON_TYPE_ID'],
 			'ACTION_FILE' => $params['BX_REST_HANDLER'],
 			'HAVE_PREPAY' => 'N',
@@ -231,6 +302,11 @@ class RestService extends \IRestService
 		if ($params['APP_ID'] && !empty($handlerData['APP_ID']) && $handlerData['APP_ID'] !== $params['APP_ID'])
 		{
 			throw new AccessException();
+		}
+
+		if (!isset($params['NAME']) || $params['NAME'] === '')
+		{
+			throw new RestException('Parameter NAME is not defined', self::ERROR_CHECK_FAILURE);
 		}
 
 		$dbRes = Internals\PersonTypeTable::getList([
@@ -324,6 +400,11 @@ class RestService extends \IRestService
 			$fields['ACTION_FILE'] = $params['FIELDS']['BX_REST_HANDLER'];
 		}
 
+		if (isset($params['FIELDS']['XML_ID']))
+		{
+			$fields['XML_ID'] = $params['FIELDS']['XML_ID'];
+		}
+
 		if (isset($params['FIELDS']['LOGOTIP']))
 		{
 			$fields['LOGOTIP'] = self::saveFile($params['FIELDS']['LOGOTIP']);
@@ -348,15 +429,20 @@ class RestService extends \IRestService
 	{
 		$handlerList = Manager::getHandlerList();
 
-		$handler = $params['FIELDS']['BX_REST_HANDLER'];
-		if (!isset($handlerList['USER'][$handler]) && !isset($handlerList['SYSTEM'][$handler]))
+		$handler = $params['FIELDS']['BX_REST_HANDLER'] ?? null;
+		if ($handler && !isset($handlerList['USER'][$handler]) && !isset($handlerList['SYSTEM'][$handler]))
 		{
 			throw new RestException('Handler not found', self::ERROR_HANDLER_NOT_FOUND);
 		}
 
+		if ((int)($params['ID'] ?? 0) === 0)
+		{
+			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
 		$dbRes = Manager::getList([
 			'filter' => [
-				'ID' => $params['ID']
+				'ID' => $params['ID'],
 			]
 		]);
 
@@ -371,15 +457,18 @@ class RestService extends \IRestService
 			throw new AccessException();
 		}
 
-		$dbRes = Internals\PersonTypeTable::getList([
-			'filter' => [
-				'=ID' => $params['FIELDS']['PERSON_TYPE_ID'],
-				'=ENTITY_REGISTRY_TYPE' => $data['ENTITY_REGISTRY_TYPE'],
-			]
-		]);
-		if (!$dbRes->fetch())
+		if (isset($params['FIELDS']['PERSON_TYPE_ID']))
 		{
-			throw new RestException('Incorrect person type id!', self::ERROR_PERSON_TYPE_NOT_FOUND);
+			$dbRes = Internals\PersonTypeTable::getList([
+				'filter' => [
+					'=ID' => $params['FIELDS']['PERSON_TYPE_ID'],
+					'=ENTITY_REGISTRY_TYPE' => $data['ENTITY_REGISTRY_TYPE'],
+				]
+			]);
+			if (!$dbRes->fetch())
+			{
+				throw new RestException('Incorrect person type id!', self::ERROR_PERSON_TYPE_NOT_FOUND);
+			}
 		}
 	}
 
@@ -400,6 +489,11 @@ class RestService extends \IRestService
 
 		foreach ($params['SETTINGS'] as $field => $value)
 		{
+			if (!is_array($value))
+			{
+				throw new RestException('The value of SETTINGS[' . $field . '] is not valid', self::ERROR_CHECK_FAILURE);
+			}
+
 			$result = BusinessValue::setMapping(
 				$field,
 				Service::PAY_SYSTEM_PREFIX.$params['ID'],
@@ -536,6 +630,11 @@ class RestService extends \IRestService
 	 */
 	protected static function checkParamsBeforePaySystemDelete($params)
 	{
+		if ((int)($params['ID'] ?? 0) === 0)
+		{
+			throw new RestException('Parameter ID is not defined', self::ERROR_CHECK_FAILURE);
+		}
+
 		$data = Manager::getById($params['ID']);
 		if (!$data)
 		{
@@ -566,7 +665,7 @@ class RestService extends \IRestService
 		$data = [
 			'NAME' => $params['NAME'],
 			'CODE' => $params['CODE'],
-			'SORT' => $params['SORT'] ?: 100,
+			'SORT' => $params['SORT'] ?? 100,
 			'SETTINGS' => $params['SETTINGS'],
 			'APP_ID' => $params['APP_ID'],
 		];
@@ -694,7 +793,7 @@ class RestService extends \IRestService
 	 */
 	private static function checkParamsOnUpdateHandler(array $params)
 	{
-		if (!isset($params['FIELDS']))
+		if (!isset($params['FIELDS']) || !is_array($params['FIELDS']))
 		{
 			throw new RestException('Parameter FIELDS is not defined', self::ERROR_CHECK_FAILURE);
 		}
@@ -773,7 +872,7 @@ class RestService extends \IRestService
 		$dbRes = Manager::getList(array('filter' => array('ACTION_FILE' => $data['CODE'])));
 		if ($dbRes->fetch())
 		{
-			throw new RestException('Pay system with handler '.ToUpper($data['CODE']).' exists!', self::ERROR_PAY_SYSTEM_DELETE);
+			throw new RestException('Pay system with handler '.mb_strtoupper($data['CODE']).' exists!', self::ERROR_PAY_SYSTEM_DELETE);
 		}
 	}
 
@@ -814,7 +913,7 @@ class RestService extends \IRestService
 		$select =
 			isset($params['SELECT']) && is_array($params['SELECT'])
 				? array_flip(self::prepareIncomingParams(array_flip($params['SELECT'])))
-				: self::ALLOWED_PAYSYSTEM_FIELDS
+				: array_keys(self::ALLOWED_PAYSYSTEM_FIELDS)
 		;
 
 		$filter = [];
@@ -826,7 +925,7 @@ class RestService extends \IRestService
 			{
 				$filterField = \CSqlUtil::GetFilterOperation($rawName);
 				$fieldName = $incomingFieldsMap[$filterField['FIELD']] ?? $filterField['FIELD'];
-				$filter[$filterField['OPERATION'] . $fieldName] = $value;
+				$filter[$fieldName] = $value;
 			}
 		}
 
@@ -860,11 +959,17 @@ class RestService extends \IRestService
 		if ($select)
 		{
 			$select = array_flip(self::prepareIncomingParams(array_flip($select)));
-			$diffSelect = array_diff($select, self::ALLOWED_PAYSYSTEM_FIELDS);
+			$diffSelect = array_diff(
+				$select,
+				array_keys(self::ALLOWED_PAYSYSTEM_FIELDS)
+			);
 
 			if ($diffSelect)
 			{
-				throw new RestException(implode(', ', $diffSelect) . ' not allowed for select');
+				throw new RestException(
+					implode(', ', $diffSelect) . ' not allowed for select',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 
@@ -882,10 +987,16 @@ class RestService extends \IRestService
 			}
 
 			$filterFields = array_flip(self::prepareIncomingParams(array_flip($filterFields)));
-			$diffFilter = array_diff($filterFields, self::ALLOWED_PAYSYSTEM_FIELDS);
+			$diffFilter = array_diff(
+				$filterFields,
+				array_keys(self::ALLOWED_PAYSYSTEM_FIELDS)
+			);
 			if ($diffFilter)
 			{
-				throw new RestException(implode(', ', $diffFilter) . ' not allowed for filter');
+				throw new RestException(
+					implode(', ', $diffFilter) . ' not allowed for filter',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 
@@ -896,10 +1007,16 @@ class RestService extends \IRestService
 		;
 		if ($order)
 		{
-			$diffOrder = array_diff(array_keys($order), self::ALLOWED_PAYSYSTEM_FIELDS);
+			$diffOrder = array_diff(
+				array_keys($order),
+				array_keys(self::ALLOWED_PAYSYSTEM_FIELDS)
+			);
 			if ($diffOrder)
 			{
-				throw new RestException(implode(', ', $diffOrder) . ' not allowed for order');
+				throw new RestException(
+					implode(', ', $diffOrder) . ' not allowed for order',
+					self::ERROR_CHECK_FAILURE
+				);
 			}
 		}
 	}
@@ -913,7 +1030,7 @@ class RestService extends \IRestService
 	 */
 	public static function getSettingsByInvoice(array $params, $n, \CRestServer $server)
 	{
-		static::checkOrderPermission();
+		static::checkInvoicePermission();
 
 		$params = self::preparePaySystemParams($params, $server);
 
@@ -970,7 +1087,7 @@ class RestService extends \IRestService
 
 		self::checkParamsBeforeSettingsByPaymentGet($params);
 
-		list($orderId, $paymentId) = Manager::getIdsByPayment($params['PAYMENT_ID']);
+		[$orderId, $paymentId] = Manager::getIdsByPayment($params['PAYMENT_ID']);
 
 		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 
@@ -1006,7 +1123,7 @@ class RestService extends \IRestService
 			throw new RestException('Pay invoice is not supported!', self::ERROR_PAY_INVOICE_NOT_SUPPORTED);
 		}
 
-		static::checkOrderPermission();
+		static::checkInvoicePermission();
 
 		$params = self::prepareIncomingParams($params);
 
@@ -1340,8 +1457,8 @@ class RestService extends \IRestService
 	}
 
 	/**
+	 * @return void
 	 * @throws AccessException
-	 * @throws Main\LoaderException
 	 */
 	protected static function checkOrderPermission()
 	{
@@ -1349,8 +1466,37 @@ class RestService extends \IRestService
 
 		if (IsModuleInstalled('intranet') && Main\Loader::includeModule('crm'))
 		{
+			if (
+				!\Bitrix\Crm\Order\Permissions\Order::checkCreatePermission()
+				&& !\Bitrix\Crm\Order\Permissions\Order::checkUpdatePermission(0)
+			)
+			{
+				throw new AccessException();
+			}
+		}
+		else
+		{
+			$saleModulePermissions = $APPLICATION->GetGroupRight("sale");
+
+			if ($saleModulePermissions == "D")
+			{
+				throw new AccessException();
+			}
+		}
+	}
+
+	/**
+	 * @throws AccessException
+	 */
+	protected static function checkInvoicePermission(): void
+	{
+		global $APPLICATION;
+
+		if (IsModuleInstalled('intranet') && Main\Loader::includeModule('crm'))
+		{
 			$CCrmInvoice = new \CCrmInvoice();
-			if ($CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'WRITE')
+			if (
+				$CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'WRITE')
 				&& $CCrmInvoice->cPerms->HavePerm('INVOICE', BX_CRM_PERM_NONE, 'ADD')
 			)
 			{
@@ -1415,13 +1561,59 @@ class RestService extends \IRestService
 		];
 	}
 
-	/**
-	 * @param array $data
-	 * @return array
-	 */
 	private static function prepareOutcomingFields(array $data): array
 	{
-		return self::replaceOutcomingKeys($data);
+		return self::replaceOutcomingKeys(
+			static::castOutcomingFieldsData($data)
+		);
+	}
+
+	private static function getFieldNamesOfType(string $type): array
+	{
+		return array_keys(
+			array_filter(
+				self::ALLOWED_PAYSYSTEM_FIELDS,
+				static function ($field) use ($type)
+				{
+					return isset($field['TYPE']) && $field['TYPE'] === $type;
+				}
+			)
+		);
+	}
+
+	protected static function castOutcomingFieldsData(array $data): array
+	{
+		$result = [];
+
+		$stringFields = self::getFieldNamesOfType('string');
+		foreach ($stringFields as $stringField)
+		{
+			if (!array_key_exists($stringField, $data))
+			{
+				continue;
+			}
+
+			$result[$stringField] = isset($data[$stringField])
+				? (string)$data[$stringField]
+				: null
+			;
+		}
+
+		$intFields = self::getFieldNamesOfType('integer');
+		foreach ($intFields as $intField)
+		{
+			if (!array_key_exists($intField, $data))
+			{
+				continue;
+			}
+
+			$result[$intField] = isset($data[$intField])
+				? (int)$data[$intField]
+				: null
+			;
+		}
+
+		return $result;
 	}
 
 	/**
@@ -1457,7 +1649,11 @@ class RestService extends \IRestService
 				unset($data[$key]);
 			}
 
-			if (isset($data['FIELDS']) && array_key_exists($key, $data['FIELDS']))
+			if (
+				isset($data['FIELDS'])
+				&& is_array($data['FIELDS'])
+				&& array_key_exists($key, $data['FIELDS'])
+			)
 			{
 				$data['FIELDS'][$newKey] = $data['FIELDS'][$key];
 				unset($data['FIELDS'][$key]);
@@ -1544,7 +1740,7 @@ class RestService extends \IRestService
 		}
 
 		$handlerData = Internals\PaySystemRestHandlersTable::getList([
-			'filter' => ['CODE' => $code],
+			'filter' => ['=CODE' => $code],
 			'limit' => 1,
 		])->fetch();
 		if (is_array($handlerData))

@@ -21,6 +21,15 @@ use Bitrix\Main\Security\Random;
  */
 class Expression
 {
+	/** @var ?string Name for expression */
+	public $alias;
+
+	public function setAlias(?string $alias): static
+	{
+		$this->alias = $alias;
+		return $this;
+	}
+
 	/**
 	 * Expression with COUNT(...) function.
 	 *
@@ -30,7 +39,7 @@ class Expression
 	 */
 	public function count($columnName)
 	{
-		$alias = static::getTmpName('COUNT');
+		$alias = $this->alias ?: static::getTmpName('COUNT');
 		return new ExpressionField($alias, 'COUNT(%s)', $columnName);
 	}
 
@@ -43,7 +52,7 @@ class Expression
 	 */
 	public function countDistinct($columnName)
 	{
-		$alias = static::getTmpName('COUNT_DISTINCT');
+		$alias = $this->alias ?: static::getTmpName('COUNT_DISTINCT');
 		return new ExpressionField($alias, 'COUNT(DISTINCT %s)', $columnName);
 	}
 
@@ -56,7 +65,7 @@ class Expression
 	 */
 	public function sum($columnName)
 	{
-		$alias = static::getTmpName('SUM');
+		$alias = $this->alias ?: static::getTmpName('SUM');
 		return new ExpressionField($alias, 'SUM(%s)', $columnName);
 	}
 
@@ -69,7 +78,7 @@ class Expression
 	 */
 	public function min($columnName)
 	{
-		$alias = static::getTmpName('MIN');
+		$alias = $this->alias ?: static::getTmpName('MIN');
 		return new ExpressionField($alias, 'MIN(%s)', $columnName);
 	}
 
@@ -82,7 +91,7 @@ class Expression
 	 */
 	public function avg($columnName)
 	{
-		$alias = static::getTmpName('AVG');
+		$alias = $this->alias ?: static::getTmpName('AVG');
 		return new ExpressionField($alias, 'AVG(%s)', $columnName);
 	}
 
@@ -95,7 +104,7 @@ class Expression
 	 */
 	public function max($columnName)
 	{
-		$alias = static::getTmpName('MAX');
+		$alias = $this->alias ?: static::getTmpName('MAX');
 		return new ExpressionField($alias, 'MAX(%s)', $columnName);
 	}
 
@@ -109,7 +118,7 @@ class Expression
 	public function length($columnName)
 	{
 		$helper = Application::getConnection()->getSqlHelper();
-		$alias = static::getTmpName('LENGTH');
+		$alias = $this->alias ?: static::getTmpName('LENGTH');
 
 		return new ExpressionField($alias, $helper->getLengthFunction('%s'), $columnName);
 	}
@@ -123,7 +132,7 @@ class Expression
 	 */
 	public function lower($columnName)
 	{
-		$alias = static::getTmpName('LOWER');
+		$alias = $this->alias ?: static::getTmpName('LOWER');
 		return new ExpressionField($alias, 'LOWER(%s)', $columnName);
 	}
 
@@ -136,7 +145,7 @@ class Expression
 	 */
 	public function upper($columnName)
 	{
-		$alias = static::getTmpName('UPPER');
+		$alias = $this->alias ?: static::getTmpName('UPPER');
 		return new ExpressionField($alias, 'UPPER(%s)', $columnName);
 	}
 
@@ -151,7 +160,7 @@ class Expression
 	{
 		$helper = Application::getConnection()->getSqlHelper();
 		$columns = func_get_args();
-		$alias = static::getTmpName('CONCAT');
+		$alias = $this->alias ?: static::getTmpName('CONCAT');
 
 		// get ... format as well as single array
 		if (count($columns) == 1 && is_array($columns[0]))

@@ -68,7 +68,7 @@ class CAllForumUser
 			".$DB->DateToCharFunction("FUT.LAST_VISIT", "FULL")." as LAST_VISIT
 			FROM b_forum_user_topic FUT
 			WHERE (FORUM_ID=".$forumID." AND USER_ID=".$userID." AND TOPIC_ID IN (".$sTopicIDs."))";
-		$rVisit = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rVisit = $DB->Query($strSql);
 		if ($rVisit)
 		{
 			while ($arVisit = $rVisit->Fetch())
@@ -394,7 +394,7 @@ class CAllForumUser
 			$strSqlSearch = " WHERE (".implode(") AND (", $arSqlSearch).") ";
 
 		$strSql = "SELECT COUNT(FU.ID) AS CNT FROM b_forum_user FU INNER JOIN b_user U ON (U.ID = FU.USER_ID)".$strSqlSearch;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($ar_res = $db_res->Fetch())
 			return $ar_res["CNT"];
 
@@ -421,7 +421,7 @@ class CAllForumUser
 					".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT
 				FROM b_forum_user FU
 				WHERE FU.ID = ".$ID;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($res = $db_res->Fetch())
 			{
 				$GLOBALS["FORUM_CACHE"]["USER"][$ID] = $res;
@@ -449,7 +449,7 @@ class CAllForumUser
 				"SELECT ID AS USER_ID
 				FROM b_user
 				WHERE LOGIN='".$Name."'";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$res = $db_res->Fetch();
 			if (!empty($res["USER_ID"]))
 			{
@@ -462,7 +462,7 @@ class CAllForumUser
 						".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT
 					FROM b_forum_user FU
 					WHERE FU.USER_ID = ".$res["USER_ID"];
-				$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$db_res = $DB->Query($strSql);
 				if ($res = $db_res->Fetch())
 				{
 					$GLOBALS["FORUM_CACHE"]["USER"][$res["USER_ID"]] = $res;
@@ -505,7 +505,7 @@ class CAllForumUser
 				) : "")."\n".
 			" FROM b_user U, b_forum_user FU \n".
 			" WHERE FU.USER_ID = U.ID AND FU.ID = ".$ID." ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -534,7 +534,7 @@ class CAllForumUser
 					".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT
 				FROM b_forum_user FU
 				WHERE FU.USER_ID = ".$USER_ID;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($db_res && $res = $db_res->Fetch())
 			{
@@ -553,26 +553,26 @@ class CAllForumUser
 		$USER_ID = intval($USER_ID);
 		$strSql =
 			"SELECT F_USER.*, FU.ID, FU.USER_ID, FU.SHOW_NAME, FU.DESCRIPTION, FU.IP_ADDRESS,\n ".
-				"	FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS,\n ".
-				"	FU.INTERESTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,\n ".
-				"	FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, FU.POINTS,\n ".
-				"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,\n ".
-				"	".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT,\n ".
-				"	U.EMAIL, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE,\n ".
-				"	U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION,\n ".
-				"	U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.EXTERNAL_AUTH_ID, U.PERSONAL_PHOTO, U.PERSONAL_GENDER,\n ".
-				"	".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ".
-				(array_key_exists("SHOW_ABC", $arAddParams) || in_array("SHOW_ABC", $arAddParams) ?
-					", \n\t".CForumUser::GetFormattedNameFieldsForSelect(
-						array_merge(
-							$arAddParams,
-							array(
-								"sUserTablePrefix" => "U.",
-								"sForumUserTablePrefix" => "FU.",
-								"sFieldName" => "SHOW_ABC"),
-							false
-						)
-					) : ""). "\n".
+			"	FU.REAL_IP_ADDRESS, FU.AVATAR, FU.NUM_POSTS, FU.POINTS as NUM_POINTS,\n ".
+			"	FU.INTERESTS, FU.HIDE_FROM_ONLINE, FU.SUBSC_GROUP_MESSAGE, FU.SUBSC_GET_MY_MESSAGE,\n ".
+			"	FU.LAST_POST, FU.ALLOW_POST, FU.SIGNATURE, FU.RANK_ID, FU.POINTS,\n ".
+			"	".$DB->DateToCharFunction("FU.DATE_REG", "SHORT")." as DATE_REG,\n ".
+			"	".$DB->DateToCharFunction("FU.LAST_VISIT", "FULL")." as LAST_VISIT,\n ".
+			"	U.EMAIL, U.NAME, U.SECOND_NAME, U.LAST_NAME, U.LOGIN, U.PERSONAL_BIRTHDATE,\n ".
+			"	U.PERSONAL_ICQ, U.PERSONAL_WWW, U.PERSONAL_PROFESSION,\n ".
+			"	U.PERSONAL_CITY, U.PERSONAL_COUNTRY, U.EXTERNAL_AUTH_ID, U.PERSONAL_PHOTO, U.PERSONAL_GENDER,\n ".
+			"	".$DB->DateToCharFunction("U.PERSONAL_BIRTHDAY", "SHORT")." as PERSONAL_BIRTHDAY ".
+			(array_key_exists("SHOW_ABC", $arAddParams) || in_array("SHOW_ABC", $arAddParams) ?
+				", \n\t".CForumUser::GetFormattedNameFieldsForSelect(
+					array_merge(
+						$arAddParams,
+						array(
+							"sUserTablePrefix" => "U.",
+							"sForumUserTablePrefix" => "FU.",
+							"sFieldName" => "SHOW_ABC"),
+						false
+					)
+				) : ""). "\n".
 			" FROM b_forum_user FU \n".
 			" INNER JOIN b_user U ON (FU.USER_ID = U.ID) \n".
 			" LEFT JOIN ( \n".
@@ -582,7 +582,7 @@ class CAllForumUser
 			"	 GROUP BY FM.AUTHOR_ID \n".
 			"	) F_USER ON (F_USER.AUTHOR_ID = FU.USER_ID) \n".
 			" WHERE (FU.USER_ID = ".$USER_ID.")";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($db_res && $res = $db_res->Fetch())
 		{
@@ -642,10 +642,10 @@ class CAllForumUser
 				$Fields["FORUM_ID"] = $FORUM_ID;
 				$DB->Insert("b_forum_user_forum", $Fields, "File: ".__FILE__."<br>Line: ".__LINE__);
 			elseif ($FORUM_ID <= 0):
-				$DB->Query("DELETE FROM b_forum_user_forum WHERE (FORUM_ID > 0 AND USER_ID=".$USER_ID.")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				$DB->Query("DELETE FROM b_forum_user_topic WHERE (USER_ID=".$USER_ID.")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("DELETE FROM b_forum_user_forum WHERE (FORUM_ID > 0 AND USER_ID=".$USER_ID.")");
+				$DB->Query("DELETE FROM b_forum_user_topic WHERE (USER_ID=".$USER_ID.")");
 			else:
-				$DB->Query("DELETE FROM b_forum_user_topic WHERE (FORUM_ID=".$FORUM_ID." AND USER_ID=".$USER_ID.")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("DELETE FROM b_forum_user_topic WHERE (FORUM_ID=".$FORUM_ID." AND USER_ID=".$USER_ID.")");
 			endif;
 		else:
 			$Fields = array("LAST_VISIT" => $LAST_VISIT);
@@ -656,13 +656,10 @@ class CAllForumUser
 				$Fields = array("LAST_VISIT" => $LAST_VISIT, "FORUM_ID" => $FORUM_ID, "USER_ID" => $USER_ID);
 				$DB->Insert("b_forum_user_forum", $Fields, "File: ".__FILE__."<br>Line: ".__LINE__);
 			elseif ($FORUM_ID <= 0):
-				$DB->Query("DELETE FROM b_forum_user_forum WHERE (FORUM_ID > 0 AND USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")",
-					false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				$DB->Query("DELETE FROM b_forum_user_topic WHERE (USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")",
-					false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("DELETE FROM b_forum_user_forum WHERE (FORUM_ID > 0 AND USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")");
+				$DB->Query("DELETE FROM b_forum_user_topic WHERE (USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")");
 			else:
-				$DB->Query("DELETE FROM b_forum_user_topic WHERE (FORUM_ID=".$FORUM_ID." AND USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")",
-					false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("DELETE FROM b_forum_user_topic WHERE (FORUM_ID=".$FORUM_ID." AND USER_ID=".$USER_ID." AND LAST_VISIT <= ".$LAST_VISIT.")");
 			endif;
 		endif;
 		return true;
@@ -723,7 +720,7 @@ class CAllForumUser
 				INNER JOIN b_user U ON (U.ID = FUF.USER_ID)
 			WHERE 1=1 ".$strSqlSearch."
 			".$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 	//---------------> User visited
@@ -796,7 +793,7 @@ class CAllForumUser
 				".($arAddParams["NUM_POSTS"] ? "" : "FU.NUM_POSTS, ")."FP2P.MIN_NUM_POSTS, FP2P.POINTS_PER_POST
 			ORDER BY FP2P.MIN_NUM_POSTS DESC";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($arAddParams["RETURN_FETCH"] == "Y"):
 			return $db_res;
 		elseif ($db_res && ($res = $db_res->Fetch())):
@@ -832,7 +829,12 @@ class CAllForumUser
 
 	public static function SetStat($userId = 0, $params = [])
 	{
-		if (empty($userId) || (!empty($params['MESSAGE']['APPROVED']) && $params['MESSAGE']['APPROVED'] !== 'Y'))
+		$enableCalculateStatistics = COption::GetOptionString('forum', 'enable_calculate_statistics', 'Y');
+		if (
+			$enableCalculateStatistics === 'N'
+			|| empty($userId)
+			|| (!empty($params['MESSAGE']['APPROVED']) && $params['MESSAGE']['APPROVED'] !== 'Y')
+		)
 		{
 			return;
 		}
@@ -935,7 +937,7 @@ class CAllForumUser
 					FU.USER_ID = $user_id
 				and FU.AVATAR = F.ID
 				";
-			$z = $DB->Query($strSql, false, "FILE: ".__FILE__." LINE:".__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch()) CFile::Delete($zr["ID"]);
 
 			$DB->Query("DELETE FROM b_forum_user WHERE USER_ID = ".$user_id."");
@@ -963,7 +965,7 @@ class CAllForumUser
 			"SELECT U.ID, U.NAME, U.LAST_NAME, U.LOGIN, F.SHOW_NAME ".
 			"FROM b_forum_user F LEFT JOIN b_user U ON(F.USER_ID = U.ID)".
 			"WHERE ((F.SHOW_NAME='Y')AND(U.NAME LIKE '".$template."' OR U.LAST_NAME LIKE '".$template."')) OR(( U.LOGIN LIKE '".$template."')AND(F.SHOW_NAME='N'))";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		return $dbRes;
 	}
 
@@ -1133,7 +1135,7 @@ class CAllForumUser
 				WHERE 1=1
 				".$strSqlSearch;
 
-			$dbCount_res = $DB->Query($strCountSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbCount_res = $DB->Query($strCountSql);
 			if ($dbCount_res && $arCount = $dbCount_res->Fetch())
 			{
 				$cnt = $arCount['CNT'];
@@ -1142,7 +1144,7 @@ class CAllForumUser
 
 		if (empty($arNavigation) || !$cnt)
 		{
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 		else
 		{
@@ -1284,7 +1286,7 @@ class CAllForumSubscribe
 
 		$strUpdate = $DB->PrepareUpdate("b_forum_subscribe", $arFields);
 		$strSql = "UPDATE b_forum_subscribe SET ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -1300,7 +1302,7 @@ class CAllForumSubscribe
 	{
 		global $DB;
 		$USER_ID = intval($USER_ID);
-		return $DB->Query("DELETE FROM b_forum_subscribe WHERE USER_ID = ".$USER_ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query("DELETE FROM b_forum_subscribe WHERE USER_ID = ".$USER_ID);
 	}
 
 	public static function UpdateLastSend($MID, $sIDs)
@@ -1376,7 +1378,7 @@ class CAllForumSubscribe
 		if (is_set($arAddParams, "bDescPageNumbering") || is_set($arAddParams, "nCount"))
 		{
 			$strSql = "SELECT COUNT(FP.ID) AS CNT FROM b_forum_subscribe FP WHERE 1 = 1 ".$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($ar_res = $db_res->Fetch())
 				$iCnt = intval($ar_res["CNT"]);
 			if (is_set($arAddParams, "nCount"))
@@ -1421,7 +1423,7 @@ class CAllForumSubscribe
 		}
 		else
 		{
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 
 		return $db_res;
@@ -1597,7 +1599,7 @@ class CAllForumSubscribe
 			".$strSqlGroup."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1611,7 +1613,7 @@ class CAllForumSubscribe
 			"	".$DB->DateToCharFunction("FP.START_DATE", "FULL")." as START_DATE ".
 			"FROM b_forum_subscribe FP ".
 			"WHERE FP.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -1683,17 +1685,17 @@ class CAllForumRank
 
 		$strUpdate = $DB->PrepareUpdate("b_forum_rank", $arFields);
 		$strSql = "UPDATE b_forum_rank SET ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (is_set($arFields, "LANG"))
 		{
-			$DB->Query("DELETE FROM b_forum_rank_lang WHERE RANK_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_forum_rank_lang WHERE RANK_ID = ".$ID);
 
 			foreach ($arFields["LANG"] as $i => $val)
 			{
 				$arInsert = $DB->PrepareInsert("b_forum_rank_lang", $arFields["LANG"][$i]);
 				$strSql = "INSERT INTO b_forum_rank_lang(RANK_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		return $ID;
@@ -1775,7 +1777,7 @@ class CAllForumRank
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1842,7 +1844,7 @@ class CAllForumRank
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1855,7 +1857,7 @@ class CAllForumRank
 			"SELECT FR.ID, FR.MIN_NUM_POSTS ".
 			"FROM b_forum_rank FR ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -1874,7 +1876,7 @@ class CAllForumRank
 			"FROM b_forum_rank FR ".
 			"	LEFT JOIN b_forum_rank_lang FRL ON (FR.ID = FRL.RANK_ID AND FRL.LID = '".$DB->ForSql($strLang)."') ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -1893,7 +1895,7 @@ class CAllForumRank
 			"FROM b_forum_rank_lang FRL ".
 			"WHERE FRL.RANK_ID = ".$RANK_ID." ".
 			"	AND FRL.LID = '".$DB->ForSql($strLang)."' ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -2167,7 +2169,7 @@ class CALLForumStat
 			".$strSqlGroup."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 

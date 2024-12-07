@@ -207,7 +207,7 @@ class PhotoUploader
 		$request .= '--' . $boundary . "--\r\n";
 		
 		$http->setHeader('Content-type', 'multipart/form-data; boundary=' . $boundary);
-		$http->setHeader('Content-length', \Bitrix\Main\Text\BinaryString::getLength($request));
+		$http->setHeader('Content-length', strlen($request));
 		
 		$this->logger->addLog("Upload photo HTTP params", [
 			'SERVER' => $uploadServer,

@@ -4,12 +4,27 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)
 
 COption::SetOptionString('socialnetwork', 'allow_tooltip', 'N', false , $site_id);
 
+$stickerTaskId = 0;
+$stickerPerm = [];
+if (CModule::IncludeModule('fileman'))
+{
+	$rsDB = \Bitrix\Main\TaskTable::getList([
+		'select' => ['ID'],
+		'filter' => ['=MODULE_ID' => 'fileman', '=NAME' => 'stickers_edit'],
+	]);
+	if ($arTask = $rsDB->fetch())
+	{
+		$stickerTaskId = (int)$arTask['ID'];
+		$stickerPerm = CSticker::GetAccessPermissions();
+	}
+}
+
 $userGroupID = "";
 $dbGroup = CGroup::GetList("", "", Array("STRING_ID" => "content_editor"));
 
 if($arGroup = $dbGroup -> Fetch())
 {
-	$userGroupID = $arGroup["ID"];
+	$userGroupID = (int)$arGroup["ID"];
 }
 else
 {
@@ -22,10 +37,14 @@ else
 	  "USER_ID"      => array(),
 	  "STRING_ID"      => "content_editor",
 	  );
-	$userGroupID = $group->Add($arFields);
-	$DB->Query("INSERT INTO b_sticker_group_task(GROUP_ID, TASK_ID)	SELECT ".intval($userGroupID).", ID FROM b_task WHERE NAME='stickers_edit' AND MODULE_ID='fileman'", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+	$userGroupID = (int)$group->Add($arFields);
+
+	if ($stickerTaskId > 0)
+	{
+		$stickerPerm[$userGroupID] = $stickerTaskId;
+	}
 }
-if(intval($userGroupID) > 0)
+if ($userGroupID > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
 	
@@ -69,4 +88,8 @@ if(intval($userGroupID) > 0)
 	WizardServices::SetFilePermission(Array($siteID, $SiteDir . "/products/"), Array($userGroupID => "W"));
 	WizardServices::SetFilePermission(Array($siteID, $SiteDir . "/search/"), Array($userGroupID => "W"));
 }
-?>
+
+if ($stickerTaskId > 0 && !empty($stickerPerm))
+{
+	CSticker::SaveAccessPermissions($stickerPerm);
+}

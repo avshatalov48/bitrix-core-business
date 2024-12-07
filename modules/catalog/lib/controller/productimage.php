@@ -18,6 +18,8 @@ use Bitrix\Main\Result;
 
 final class ProductImage extends Controller
 {
+	use CheckExists; // default implementation of existence check
+
 	//region Actions
 	/**
 	 * REST method catalog.productImage.getFiles
@@ -30,7 +32,7 @@ final class ProductImage extends Controller
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['PRODUCT_IMAGE' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
@@ -113,7 +115,7 @@ final class ProductImage extends Controller
 		/** @var BaseImage $image */
 		$image = $product->getImageCollection()->findById($id);
 
-		return ['PRODUCT_IMAGE' => $this->prepareFileStructure($image, $restServer)];
+		return [$this->getServiceItemName() => $this->prepareFileStructure($image, $restServer)];
 	}
 
 	/**
@@ -188,6 +190,8 @@ final class ProductImage extends Controller
 		if (!$r->isSuccess())
 		{
 			$this->addErrors($r->getErrors());
+
+			return null;
 		}
 
 		if ($fields['TYPE'] === DetailImage::CODE)
@@ -202,9 +206,15 @@ final class ProductImage extends Controller
 		{
 			$morePhotos = $product->getImageCollection()->getMorePhotos();
 			$image = end($morePhotos);
+			if (!$image)
+			{
+				$this->addError(new Error('Empty image.'));
+
+				return null;
+			}
 		}
 
-		return ['PRODUCT_IMAGE' => $this->prepareFileStructure($image, $restServer)];
+		return [$this->getServiceItemName() => $this->prepareFileStructure($image, $restServer)];
 	}
 
 	/**
@@ -333,18 +343,7 @@ final class ProductImage extends Controller
 		$image = $product->getImageCollection()->findById($id);
 		if (!$image)
 		{
-			$r->addError(new Error('Image does not exist'));
-		}
-
-		return $r;
-	}
-
-	protected function exists($id)
-	{
-		$r = new Result();
-		if (!isset($this->get($id)['ID']))
-		{
-			$r->addError(new Error('Image does not exist'));
+			$r->addError($this->getErrorEntityNotExists());
 		}
 
 		return $r;

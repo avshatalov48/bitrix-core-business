@@ -5,7 +5,6 @@ class CStatEvent extends CAllStatEvent
 {
 	public static function GetListByGuest($GUEST_ID, $EVENT_ID=false, $EVENT3=false, $SEC=false)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$strSqlSearch = "";
@@ -25,25 +24,24 @@ class CStatEvent extends CAllStatEvent
 				E.GUEST_ID = ".intval($GUEST_ID)."
 				".$strSqlSearch."
 		";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function Add($EVENT_ID, $EVENT3, $DATE_ENTER, $PARAM, $MONEY="", $CURRENCY="", $CHARGEBACK="N")
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		$EVENT_ID = intval($EVENT_ID);
 		$EVENT_LIST_ID = 0;
 		$strSql = "SELECT KEEP_DAYS FROM b_stat_event WHERE ID = $EVENT_ID";
-		$rsEvent = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsEvent = $DB->Query($strSql);
 		if ($arEvent = $rsEvent->Fetch())
 		{
 			$MONEY = doubleval($MONEY);
 
-			// если указана валюта то конвертируем
+			// РµСЃР»Рё СѓРєР°Р·Р°РЅР° РІР°Р»СЋС‚Р° С‚Рѕ РєРѕРЅРІРµСЂС‚РёСЂСѓРµРј
 			if (trim($CURRENCY) <> '')
 			{
 				$base_currency = GetStatisticBaseCurrency();
@@ -97,26 +95,26 @@ class CStatEvent extends CAllStatEvent
 				"CHARGEBACK"	=> "'".$CHARGEBACK."'",
 				"SITE_ID"		=> ($SITE_ID <> '') ? "'".$DB->ForSql($SITE_ID,2)."'" : "null"
 				);
-			$EVENT_LIST_ID = $DB->Insert("b_stat_event_list",$arFields, $err_mess.__LINE__);
+			$EVENT_LIST_ID = $DB->Insert("b_stat_event_list",$arFields);
 
-			// увеличиваем счетчик для страны
+			// СѓРІРµР»РёС‡РёРІР°РµРј СЃС‡РµС‚С‡РёРє РґР»СЏ СЃС‚СЂР°РЅС‹
 			if ($COUNTRY_ID <> '')
 				CStatistics::UpdateCountry($COUNTRY_ID, Array("C_EVENTS" => 1));
 
-			// если нужно обновляем дату первого события для данного типа события
+			// РµСЃР»Рё РЅСѓР¶РЅРѕ РѕР±РЅРѕРІР»СЏРµРј РґР°С‚Сѓ РїРµСЂРІРѕРіРѕ СЃРѕР±С‹С‚РёСЏ РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ
 			$arFields = Array("DATE_ENTER" => $DB->GetNowFunction());
-			$DB->Update("b_stat_event",$arFields,"WHERE ID='".$EVENT_ID."' and DATE_ENTER is null",$err_mess.__LINE__);
-			// обновляем счетчик по дням для данного типа события
+			$DB->Update("b_stat_event",$arFields,"WHERE ID='".$EVENT_ID."' and DATE_ENTER is null");
+			// РѕР±РЅРѕРІР»СЏРµРј СЃС‡РµС‚С‡РёРє РїРѕ РґРЅСЏРј РґР»СЏ РґР°РЅРЅРѕРіРѕ С‚РёРїР° СЃРѕР±С‹С‚РёСЏ
 			$arFields = Array(
 					"DATE_LAST"	=> $DB->GetNowFunction(),
 					"COUNTER"	=> "COUNTER + 1",
 					"MONEY"		=> "MONEY + ".$MONEY
 					);
-			$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".$EVENT_ID."' and DATE_STAT = ".$DAY_ENTER_SQL, $err_mess.__LINE__);
-			// если обсчета по дням нет то
+			$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".$EVENT_ID."' and DATE_STAT = ".$DAY_ENTER_SQL);
+			// РµСЃР»Рё РѕР±СЃС‡РµС‚Р° РїРѕ РґРЅСЏРј РЅРµС‚ С‚Рѕ
 			if (intval($rows)<=0)
 			{
-				// добавляем его
+				// РґРѕР±Р°РІР»СЏРµРј РµРіРѕ
 				$arFields_i = Array(
 					"DATE_STAT"	=> $DAY_ENTER_SQL,
 					"DATE_LAST"	=> $TIME_ENTER_SQL,
@@ -124,62 +122,62 @@ class CStatEvent extends CAllStatEvent
 					"COUNTER"	=> 1,
 					"MONEY"		=> $MONEY
 					);
-				$DB->Insert("b_stat_event_day",$arFields_i, $err_mess.__LINE__);
+				$DB->Insert("b_stat_event_day",$arFields_i);
 			}
-			elseif (intval($rows)>1) // если обновили более одного дня то
+			elseif (intval($rows)>1) // РµСЃР»Рё РѕР±РЅРѕРІРёР»Рё Р±РѕР»РµРµ РѕРґРЅРѕРіРѕ РґРЅСЏ С‚Рѕ
 			{
-				// удалим лишние
+				// СѓРґР°Р»РёРј Р»РёС€РЅРёРµ
 				$strSql = "SELECT ID FROM b_stat_event_day WHERE EVENT_ID='".$EVENT_ID."' and DATE_STAT = ".$DAY_ENTER_SQL." ORDER BY ID";
 				$i=0;
-				$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$rs = $DB->Query($strSql);
 				while ($ar = $rs->Fetch())
 				{
 					$i++;
 					if ($i>1)
 					{
 						$strSql = "DELETE FROM b_stat_event_day WHERE ID = ".$ar["ID"];
-						$DB->Query($strSql, false, $err_mess.__LINE__);
+						$DB->Query($strSql);
 					}
 				}
 			}
 
-			// обновляем сессию и гостя
+			// РѕР±РЅРѕРІР»СЏРµРј СЃРµСЃСЃРёСЋ Рё РіРѕСЃС‚СЏ
 			$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-			$DB->Update("b_stat_session",$arFields,"WHERE ID=".$SESSION_ID, $err_mess.__LINE__,false,false,false);
-			$DB->Update("b_stat_guest",$arFields,"WHERE ID=".$GUEST_ID, $err_mess.__LINE__,false,false,false);
+			$DB->Update("b_stat_session",$arFields,"WHERE ID=".$SESSION_ID, '',false,false,false);
+			$DB->Update("b_stat_guest",$arFields,"WHERE ID=".$GUEST_ID, '',false,false,false);
 
-			// обновляем дневной счетчик
+			// РѕР±РЅРѕРІР»СЏРµРј РґРЅРµРІРЅРѕР№ СЃС‡РµС‚С‡РёРє
 			$arFields = Array("C_EVENTS" => "C_EVENTS + 1");
-			$DB->Update("b_stat_day",$arFields,"WHERE DATE_STAT = ".$DAY_ENTER_SQL, $err_mess.__LINE__,false,false,false);
+			$DB->Update("b_stat_day",$arFields,"WHERE DATE_STAT = ".$DAY_ENTER_SQL, '',false,false,false);
 
-			// увеличиваем счетчик траффика
+			// СѓРІРµР»РёС‡РёРІР°РµРј СЃС‡РµС‚С‡РёРє С‚СЂР°С„С„РёРєР°
 			CTraffic::IncParam(array("EVENT" => 1), array(), false, $DATE_ENTER);
 
-			// если сайт определен то
+			// РµСЃР»Рё СЃР°Р№С‚ РѕРїСЂРµРґРµР»РµРЅ С‚Рѕ
 			if ($SITE_ID <> '')
 			{
-				// обновляем дневной счетчик
+				// РѕР±РЅРѕРІР»СЏРµРј РґРЅРµРІРЅРѕР№ СЃС‡РµС‚С‡РёРє
 				$arFields = Array("C_EVENTS" => "C_EVENTS+1");
-				$DB->Update("b_stat_day_site", $arFields, "WHERE SITE_ID='".$DB->ForSql($SITE_ID,2)."' and DATE_STAT = ".$DAY_ENTER_SQL, $err_mess.__LINE__);
+				$DB->Update("b_stat_day_site", $arFields, "WHERE SITE_ID='".$DB->ForSql($SITE_ID,2)."' and DATE_STAT = ".$DAY_ENTER_SQL);
 
-				// увеличиваем счетчик траффика
+				// СѓРІРµР»РёС‡РёРІР°РµРј СЃС‡РµС‚С‡РёРє С‚СЂР°С„С„РёРєР°
 				CTraffic::IncParam(array(), array("EVENT" => 1), $SITE_ID, $DATE_ENTER);
 			}
 
 			if ($ADV_ID>0)
 			{
-				$a = $DB->Query("SELECT 'x' FROM b_stat_adv WHERE ID='".$ADV_ID."'", false, $err_mess.__LINE__);
-				// если есть такая рекламная кампания то
+				$a = $DB->Query("SELECT 'x' FROM b_stat_adv WHERE ID='".$ADV_ID."'");
+				// РµСЃР»Рё РµСЃС‚СЊ С‚Р°РєР°СЏ СЂРµРєР»Р°РјРЅР°СЏ РєР°РјРїР°РЅРёСЏ С‚Рѕ
 				if ($ar = $a->Fetch())
 				{
-					// увеличиваем доход рекламной кампании
+					// СѓРІРµР»РёС‡РёРІР°РµРј РґРѕС…РѕРґ СЂРµРєР»Р°РјРЅРѕР№ РєР°РјРїР°РЅРёРё
 					if ($MONEY!=0)
 					{
 						$sign = ($CHARGEBACK=="Y") ? "-" : "+";
 						$arFields = array("REVENUE" => "REVENUE ".$sign." ".$MONEY);
-						$DB->Update("b_stat_adv",$arFields,"WHERE ID='$ADV_ID'",$err_mess.__LINE__,false,false,false);
+						$DB->Update("b_stat_adv",$arFields,"WHERE ID='$ADV_ID'",'',false,false,false);
 					}
-					// обновляем счетчик связки рекламной кампании и типа события
+					// РѕР±РЅРѕРІР»СЏРµРј СЃС‡РµС‚С‡РёРє СЃРІСЏР·РєРё СЂРµРєР»Р°РјРЅРѕР№ РєР°РјРїР°РЅРёРё Рё С‚РёРїР° СЃРѕР±С‹С‚РёСЏ
 					if ($ADV_BACK=="Y")
 					{
 						$arFields = array(
@@ -194,11 +192,11 @@ class CStatEvent extends CAllStatEvent
 							"MONEY"		=> "MONEY + ".$MONEY
 							);
 					}
-					$rows = $DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='$ADV_ID' and EVENT_ID='$EVENT_ID'",$err_mess.__LINE__);
-					// если связки нет то
+					$rows = $DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='$ADV_ID' and EVENT_ID='$EVENT_ID'");
+					// РµСЃР»Рё СЃРІСЏР·РєРё РЅРµС‚ С‚Рѕ
 					if (intval($rows)<=0 && intval($ADV_ID)>0 && intval($EVENT_ID)>0)
 					{
-						// вставляем связку
+						// РІСЃС‚Р°РІР»СЏРµРј СЃРІСЏР·РєСѓ
 						$arFields = Array(
 							"ADV_ID"	=> "'".intval($ADV_ID)."'",
 							"EVENT_ID"	=> "'".intval($EVENT_ID)."'"
@@ -213,10 +211,10 @@ class CStatEvent extends CAllStatEvent
 							$arFields["COUNTER"] = 1;
 							$arFields["MONEY"] = $MONEY;
 						}
-						$DB->Insert("b_stat_adv_event", $arFields, $err_mess.__LINE__);
+						$DB->Insert("b_stat_adv_event", $arFields);
 					}
 
-					// обновляем счетчик связки по дням
+					// РѕР±РЅРѕРІР»СЏРµРј СЃС‡РµС‚С‡РёРє СЃРІСЏР·РєРё РїРѕ РґРЅСЏРј
 					if ($ADV_BACK=="Y")
 					{
 						$arFields = array(
@@ -231,11 +229,11 @@ class CStatEvent extends CAllStatEvent
 							"MONEY"		=> "MONEY + ".$MONEY
 							);
 					}
-					$rows = $DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='$ADV_ID' and EVENT_ID='$EVENT_ID' and DATE_STAT = ".$DAY_ENTER_SQL, $err_mess.__LINE__,false,false,false);
-					// если нет такой связки то
+					$rows = $DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='$ADV_ID' and EVENT_ID='$EVENT_ID' and DATE_STAT = ".$DAY_ENTER_SQL, '',false,false,false);
+					// РµСЃР»Рё РЅРµС‚ С‚Р°РєРѕР№ СЃРІСЏР·РєРё С‚Рѕ
 					if (intval($rows)<=0 && intval($ADV_ID)>0 && intval($EVENT_ID)>0)
 					{
-						// вставляем ее
+						// РІСЃС‚Р°РІР»СЏРµРј РµРµ
 						$arFields = Array(
 							"DATE_STAT"	=> $DAY_ENTER_SQL,
 							"ADV_ID"	=> "'".$ADV_ID."'",
@@ -251,7 +249,7 @@ class CStatEvent extends CAllStatEvent
 							$arFields["COUNTER"] = 1;
 							$arFields["MONEY"] = $MONEY;
 						}
-						$DB->Insert("b_stat_adv_event_day", $arFields, $err_mess.__LINE__);
+						$DB->Insert("b_stat_adv_event_day", $arFields);
 					}
 				}
 			}
@@ -262,7 +260,6 @@ class CStatEvent extends CAllStatEvent
 
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$arSqlSearch_h = Array();
@@ -455,14 +452,13 @@ class CStatEvent extends CAllStatEvent
 				";
 		}
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function Delete($ID)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 		$strSql = "
@@ -485,50 +481,50 @@ class CStatEvent extends CAllStatEvent
 				L.ID = '$ID'
 			and E.ID = L.EVENT_ID
 			";
-		$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $DB->Query($strSql);
 		if ($ar = $a->Fetch())
 		{
-			// уменьшаем счетчик у страны
+			// СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє Сѓ СЃС‚СЂР°РЅС‹
 			CStatistics::UpdateCountry($ar["COUNTRY_ID"], Array("C_EVENTS" => 1), $ar["DATE_ENTER"], "SHORT", "-");
 
-			// уменьшаем счетчик по дням
+			// СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє РїРѕ РґРЅСЏРј
 			$arFields = Array(
 				"COUNTER"	=> "COUNTER-1",
 				"MONEY"		=> "MONEY - ".doubleval($ar["MONEY"])
 				);
-			$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".intval($ar["EVENT_ID"])."' and DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')",$err_mess.__LINE__);
-			// если уже была свертка то
+			$rows = $DB->Update("b_stat_event_day",$arFields,"WHERE EVENT_ID='".intval($ar["EVENT_ID"])."' and DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')");
+			// РµСЃР»Рё СѓР¶Рµ Р±С‹Р»Р° СЃРІРµСЂС‚РєР° С‚Рѕ
 			if (intval($rows)<=0)
 			{
-				// уменьшим счетчик на типе события
+				// СѓРјРµРЅСЊС€РёРј СЃС‡РµС‚С‡РёРє РЅР° С‚РёРїРµ СЃРѕР±С‹С‚РёСЏ
 				$arFields = Array(
 					"COUNTER"	=> "COUNTER-1",
 					"MONEY"		=> "MONEY - ".doubleval($ar["MONEY"])
 					);
-				$DB->Update("b_stat_event",$arFields,"WHERE ID='".intval($ar["EVENT_ID"])."'",$err_mess.__LINE__);
+				$DB->Update("b_stat_event",$arFields,"WHERE ID='".intval($ar["EVENT_ID"])."'");
 			}
-			// если в связке есть нулевые значения то ее можно удалить
+			// РµСЃР»Рё РІ СЃРІСЏР·РєРµ РµСЃС‚СЊ РЅСѓР»РµРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С‚Рѕ РµРµ РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ
 			$strSql = "DELETE FROM b_stat_event_day WHERE COUNTER=0";
-			$DB->Query($strSql,false,$err_mess.__LINE__);
+			$DB->Query($strSql);
 
-			// чистим сессию
+			// С‡РёСЃС‚РёРј СЃРµСЃСЃРёСЋ
 			$arFields = Array("C_EVENTS" => "C_EVENTS-1");
-			$DB->Update("b_stat_session",$arFields,"WHERE ID='".intval($ar["SESSION_ID"])."'",$err_mess.__LINE__,false,false,false);
+			$DB->Update("b_stat_session",$arFields,"WHERE ID='".intval($ar["SESSION_ID"])."'",'',false,false,false);
 
-			// чистим гостя
-			$DB->Update("b_stat_guest",$arFields,"WHERE ID='".intval($ar["GUEST_ID"])."'",$err_mess.__LINE__,false,false,false);
+			// С‡РёСЃС‚РёРј РіРѕСЃС‚СЏ
+			$DB->Update("b_stat_guest",$arFields,"WHERE ID='".intval($ar["GUEST_ID"])."'",'',false,false,false);
 
 			if (intval($ar["ADV_ID"])>0)
 			{
-				// изменяем доход рекламной кампании
+				// РёР·РјРµРЅСЏРµРј РґРѕС…РѕРґ СЂРµРєР»Р°РјРЅРѕР№ РєР°РјРїР°РЅРёРё
 				if (doubleval($ar["MONEY"])!=0)
 				{
 					$sign = ($ar["CHARGEBACK"]=="Y") ? "+" : "-";
 					$arFields = array("REVENUE" => "REVENUE ".$sign." ".doubleval($ar["MONEY"]));
-					$DB->Update("b_stat_adv",$arFields,"WHERE ID='".intval($ar["ADV_ID"])."'", $err_mess.__LINE__,false,false,false);
+					$DB->Update("b_stat_adv",$arFields,"WHERE ID='".intval($ar["ADV_ID"])."'", '',false,false,false);
 				}
 
-				// чистим связку с рекламной кампанией
+				// С‡РёСЃС‚РёРј СЃРІСЏР·РєСѓ СЃ СЂРµРєР»Р°РјРЅРѕР№ РєР°РјРїР°РЅРёРµР№
 				if ($ar["ADV_BACK"]=="Y")
 				{
 					$arFields = array(
@@ -543,9 +539,9 @@ class CStatEvent extends CAllStatEvent
 						"MONEY"		=> "MONEY - ".doubleval($ar["MONEY"]),
 						);
 				}
-				$DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='".intval($ar["ADV_ID"])."' and EVENT_ID='".$ar["EVENT_ID"]."'",$err_mess.__LINE__);
+				$DB->Update("b_stat_adv_event",$arFields,"WHERE ADV_ID='".intval($ar["ADV_ID"])."' and EVENT_ID='".$ar["EVENT_ID"]."'");
 
-				// чистим связку с рекламной кампанией по дням
+				// С‡РёСЃС‚РёРј СЃРІСЏР·РєСѓ СЃ СЂРµРєР»Р°РјРЅРѕР№ РєР°РјРїР°РЅРёРµР№ РїРѕ РґРЅСЏРј
 				if ($ar["ADV_BACK"]=="Y")
 				{
 					$arFields = array(
@@ -560,32 +556,32 @@ class CStatEvent extends CAllStatEvent
 						"MONEY"		=> "MONEY - ".doubleval($ar["MONEY"]),
 						);
 				}
-				$DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='".intval($ar["ADV_ID"])."' and EVENT_ID='".$ar["EVENT_ID"]."' and DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')",$err_mess.__LINE__,false,false,false);
+				$DB->Update("b_stat_adv_event_day",$arFields,"WHERE ADV_ID='".intval($ar["ADV_ID"])."' and EVENT_ID='".$ar["EVENT_ID"]."' and DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')",'',false,false,false);
 			}
-			// если в связках остались нулевые значения то их можно удалить
+			// РµСЃР»Рё РІ СЃРІСЏР·РєР°С… РѕСЃС‚Р°Р»РёСЃСЊ РЅСѓР»РµРІС‹Рµ Р·РЅР°С‡РµРЅРёСЏ С‚Рѕ РёС… РјРѕР¶РЅРѕ СѓРґР°Р»РёС‚СЊ
 			$strSql = "DELETE FROM b_stat_adv_event WHERE COUNTER<=0 and COUNTER_BACK<=0";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "DELETE FROM b_stat_adv_event_day WHERE COUNTER<=0 and COUNTER_BACK<=0";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 
-			// уменьшаем счетчик по дням
+			// СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє РїРѕ РґРЅСЏРј
 			$arFields = Array("C_EVENTS" => "C_EVENTS-1");
-			$DB->Update("b_stat_day",$arFields,"WHERE DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')", $err_mess.__LINE__);
+			$DB->Update("b_stat_day",$arFields,"WHERE DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')");
 
-			// уменьшаем счетчик траффика
+			// СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє С‚СЂР°С„С„РёРєР°
 			CTraffic::DecParam(array("EVENT" => 1), array(), false, $ar["DATE_ENTER_FULL"]);
 
 			if ($ar["SITE_ID"] <> '')
 			{
 				$arFields = Array("C_EVENTS" => "C_EVENTS-1");
-				$DB->Update("b_stat_day_site",$arFields,"WHERE SITE_ID = '".$DB->ForSql($ar["SITE_ID"], 2)."' and  DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')", $err_mess.__LINE__);
+				$DB->Update("b_stat_day_site",$arFields,"WHERE SITE_ID = '".$DB->ForSql($ar["SITE_ID"], 2)."' and  DATE_STAT = FROM_UNIXTIME('".MkDateTime(ConvertDateTime($ar["DATE_ENTER"],"D.M.Y"),"d.m.Y")."')");
 
-				// уменьшаем счетчик траффика
+				// СѓРјРµРЅСЊС€Р°РµРј СЃС‡РµС‚С‡РёРє С‚СЂР°С„С„РёРєР°
 				CTraffic::DecParam(array(), array("EVENT" => 1), $ar["SITE_ID"], $ar["DATE_ENTER_FULL"]);
 			}
 
 			$strSql = "DELETE FROM b_stat_event_list WHERE ID='$ID'";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 
 			return true;
 		}

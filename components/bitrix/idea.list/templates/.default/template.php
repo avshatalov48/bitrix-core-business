@@ -60,7 +60,7 @@ if(!empty($arResult["ERROR_MESSAGE"]))
 ?>
 <div id="idea-posts-content">
 <?
-if(count($arResult["POST"])>0)
+if(count($arResult["POST"] ?? [])>0)
 {
 	$arStatusList = CIdeaManagment::getInstance()->Idea()->GetStatusList();
 	foreach($arResult["POST"] as $CurPost)
@@ -95,7 +95,7 @@ if(count($arResult["POST"])>0)
 			</span>
 		</div>
 		<?endif;
-		$status = GetMessage("IDEA_STATUS_".ToUpper($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
+		$status = GetMessage("IDEA_STATUS_".mb_strtoupper($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
 		if($status == '')
 			$status = $arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["VALUE"];
 		?>
@@ -103,7 +103,7 @@ if(count($arResult["POST"])>0)
 			<div class="blog-qtr">
 				<div class="blog-idea-body">
 					<div class="idea-owner">
-						<div class="bx-idea-condition-description status-color-<?=ToLower($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
+						<div class="bx-idea-condition-description status-color-<?=mb_strtolower($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
 							<div <?if($arResult["IDEA_MODERATOR"]):?>class="status-action idea-action-cursor" onclick="JSPublicIdea.ShowStatusDialog(this, '<?=$CurPost["ID"]?>')" id="status-<?=$CurPost["ID"]?>"<?endif;?>><?=htmlspecialcharsbx($status)?></div>
 						</div>
 						<?=GetMessage("IDEA_INTRODUCED_TITLE")?> <img class="idea-user-avatar" src="<?=$arResult["AUTHOR_AVATAR"][$CurPost["arUser"]["ID"]]["src"]?>" align="top">
@@ -316,7 +316,7 @@ if(count($arResult["POST"])>0)
 <?
 	}
 ?><?=$arResult["NAV_STRING"];?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	var res = BX('idea-posts-content').firstChild;
 	do {

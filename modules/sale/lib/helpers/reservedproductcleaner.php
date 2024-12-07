@@ -1,4 +1,5 @@
-<?
+<?php
+
 namespace Bitrix\Sale\Helpers;
 
 use Bitrix\Main\Config\Option;
@@ -23,14 +24,18 @@ class ReservedProductCleaner extends Stepper
 		/** @var Sale\Order $orderClass */
 		$orderClass = $registry->getOrderClassName();
 
-		$days_ago = (int) Option::get("sale", "product_reserve_clear_period");
+		$daysAgo = (int)Option::get("sale", "product_reserve_clear_period");
 
-		if ($days_ago > 0)
+		if ($daysAgo > 0)
 		{
 			global $USER;
+			$initUser = false;
+			$oldUser = null;
 
-			if (!is_object($USER))
+			if (!(isset($USER) && $USER instanceof \CUser))
 			{
+				$initUser = true;
+				$oldUser = $USER ?? null;
 				$USER = new \CUser;
 			}
 
@@ -149,10 +154,15 @@ class ReservedProductCleaner extends Stepper
 			}
 
 			// crutch for #120087
-			if (!is_object($USER) || $USER->GetID() <= 0)
+			if ($initUser)
 			{
 				ORM\Entity::destroy(Sale\Internals\OrderTable::getEntity());
+				if ($oldUser !== null)
+				{
+					$USER = $oldUser;
+				}
 			}
+			unset($oldUser);
 		}
 
 		if ($processedRecords < self::RECORD_LIMIT)

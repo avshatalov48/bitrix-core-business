@@ -144,13 +144,13 @@ class BXGadget
 							foreach ($arAllCurrentValues as $k => $v)
 							{
 								$pref = "G_".mb_strtoupper($id)."_";
-								if(mb_substr($k, 0, mb_strlen($pref)) == $pref)
-									$arCurrentValues[mb_substr($k, mb_strlen($pref))] = $v;
+								if(str_starts_with($k, $pref))
+									$arCurrentValues[substr($k, strlen($pref))] = $v;
 								else
 								{
 									$pref = "GU_".mb_strtoupper($id)."_";
-									if(mb_substr($k, 0, mb_strlen($pref)) == $pref)
-										$arCurrentValues[mb_substr($k, mb_strlen($pref))] = $v;
+									if(str_starts_with($k, $pref))
+										$arCurrentValues[substr($k, strlen($pref))] = $v;
 								}
 							}
 						}
@@ -163,7 +163,7 @@ class BXGadget
 						{
 							include($gdDir."/".$id."/.parameters.php");
 						}
-						$arDescription["PARAMETERS"] = $arParameters["PARAMETERS"];
+						$arDescription["PARAMETERS"] = $arParameters["PARAMETERS"] ?? [];
 						$arDescription["USER_PARAMETERS"] = array(
 							"TITLE_STD" => array(
 								"NAME" => GetMessage("CMDESKTOP_UP_TITLE_STD"),
@@ -180,7 +180,7 @@ class BXGadget
 					$arDescription["PATH_SITEROOT"] = $gdDirSiteRoot."/".$id;
 
 					$arDescription["ID"] = mb_strtoupper($id);
-					if ($arDescription["ICON"] && mb_substr($arDescription["ICON"], 0, 1) != "/")
+					if ($arDescription["ICON"] && !str_starts_with($arDescription["ICON"], "/"))
 						$arDescription["ICON"] = "/bitrix/gadgets/".$NS."/".$id."/".$arDescription["ICON"];
 
 					unset($arDescription["NOPARAMS"]);
@@ -314,8 +314,8 @@ class BXGadget
 		return [
 			"DEFAULT_ID" => ($arParams["DEFAULT_ID"] ?: ''),
 			"ID" => $arParams["ID"],
-			"MULTIPLE" => $arParams["MULTIPLE"],
-			"DESKTOP_PAGE" => (int)$arParams["DESKTOP_PAGE"],
+			"MULTIPLE" => $arParams["MULTIPLE"] ?? null,
+			"DESKTOP_PAGE" => (int)($arParams["DESKTOP_PAGE"] ?? 0),
 		];
 	}
 }

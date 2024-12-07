@@ -44,7 +44,7 @@ this.BX.Location = this.BX.Location || {};
 	  };
 	}();
 
-	// @function bind(fn: Function, …): Function
+	// @function bind(fn: Function, â€¦): Function
 	// Returns a new function bound to the arguments passed, like [Function.prototype.bind](https://developer.mozilla.org/docs/Web/JavaScript/Reference/Global_Objects/Function/bind).
 	// Has a `L.bind()` shortcut.
 	function bind(fn, obj) {
@@ -168,7 +168,7 @@ this.BX.Location = this.BX.Location || {};
 	// Simple templating facility, accepts a template string of the form `'Hello {a}, {b}'`
 	// and a data object like `{a: 'foo', b: 'bar'}`, returns evaluated string
 	// `('Hello foo, bar')`. You can also specify functions instead of strings for
-	// data values — they will be evaluated passing `data` as an argument.
+	// data values â€” they will be evaluated passing `data` as an argument.
 	function template(str, data) {
 	  return str.replace(templateRe, function (str, key) {
 	    var value = data[key];
@@ -527,7 +527,7 @@ this.BX.Location = this.BX.Location || {};
 	  },
 	  // @method fire(type: String, data?: Object, propagate?: Boolean): this
 	  // Fires an event of the specified type. You can optionally provide an data
-	  // object — the first argument of the listener function will contain its
+	  // object â€” the first argument of the listener function will contain its
 	  // properties. The event can optionally be propagated to event parents.
 	  fire: function fire(type, data, propagate) {
 	    if (!this.listens(type, propagate)) {
@@ -572,8 +572,8 @@ this.BX.Location = this.BX.Location || {};
 	    }
 	    return false;
 	  },
-	  // @method once(…): this
-	  // Behaves as [`on(…)`](#evented-on), except the listener will only get fired once and then removed.
+	  // @method once(â€¦): this
+	  // Behaves as [`on(â€¦)`](#evented-on), except the listener will only get fired once and then removed.
 	  once: function once(types, fn, context) {
 	    if (babelHelpers["typeof"](types) === 'object') {
 	      for (var type in types) {
@@ -615,27 +615,27 @@ this.BX.Location = this.BX.Location || {};
 
 	// aliases; we should ditch those eventually
 
-	// @method addEventListener(…): this
-	// Alias to [`on(…)`](#evented-on)
+	// @method addEventListener(â€¦): this
+	// Alias to [`on(â€¦)`](#evented-on)
 	Events.addEventListener = Events.on;
 
-	// @method removeEventListener(…): this
-	// Alias to [`off(…)`](#evented-off)
+	// @method removeEventListener(â€¦): this
+	// Alias to [`off(â€¦)`](#evented-off)
 
-	// @method clearAllEventListeners(…): this
+	// @method clearAllEventListeners(â€¦): this
 	// Alias to [`off()`](#evented-off)
 	Events.removeEventListener = Events.clearAllEventListeners = Events.off;
 
-	// @method addOneTimeEventListener(…): this
-	// Alias to [`once(…)`](#evented-once)
+	// @method addOneTimeEventListener(â€¦): this
+	// Alias to [`once(â€¦)`](#evented-once)
 	Events.addOneTimeEventListener = Events.once;
 
-	// @method fireEvent(…): this
-	// Alias to [`fire(…)`](#evented-fire)
+	// @method fireEvent(â€¦): this
+	// Alias to [`fire(â€¦)`](#evented-fire)
 	Events.fireEvent = Events.fire;
 
-	// @method hasEventListeners(…): Boolean
-	// Alias to [`listens(…)`](#evented-listens)
+	// @method hasEventListeners(â€¦): Boolean
+	// Alias to [`listens(â€¦)`](#evented-listens)
 	Events.hasEventListeners = Events.listens;
 	var Evented = Class.extend(Events);
 
@@ -1467,7 +1467,7 @@ this.BX.Location = this.BX.Location || {};
 	 * @namespace Projection
 	 * @projection L.Projection.SphericalMercator
 	 *
-	 * Spherical Mercator projection — the most common projection for online maps,
+	 * Spherical Mercator projection â€” the most common projection for online maps,
 	 * used by almost all free and commercial tile providers. Assumes that Earth is
 	 * a sphere. Used by the `EPSG:3857` CRS.
 	 */
@@ -2749,7 +2749,7 @@ this.BX.Location = this.BX.Location || {};
 	 * @aka L.Map
 	 * @inherits Evented
 	 *
-	 * The central class of the API — it is used to create a map on a page and manipulate it.
+	 * The central class of the API â€” it is used to create a map on a page and manipulate it.
 	 *
 	 * @example
 	 *
@@ -3213,7 +3213,7 @@ this.BX.Location = this.BX.Location || {};
 	    return this;
 	  },
 	  // @method invalidateSize(options: Zoom/pan options): this
-	  // Checks if the map container size changed and updates the map if so —
+	  // Checks if the map container size changed and updates the map if so â€”
 	  // call it after you've changed the map size dynamically, also animating
 	  // pan by default. If `options.pan` is `false`, panning will not occur.
 	  // If `options.debounceMoveend` is `true`, it will delay `moveend` event so
@@ -3222,7 +3222,7 @@ this.BX.Location = this.BX.Location || {};
 
 	  // @alternative
 	  // @method invalidateSize(animate: Boolean): this
-	  // Checks if the map container size changed and updates the map if so —
+	  // Checks if the map container size changed and updates the map if so â€”
 	  // call it after you've changed the map size dynamically, also animating
 	  // pan by default.
 	  invalidateSize: function invalidateSize(options) {
@@ -5615,7 +5615,7 @@ this.BX.Location = this.BX.Location || {};
 	 *
 	 * @projection L.Projection.LonLat
 	 *
-	 * Equirectangular, or Plate Carree projection — the most simple projection,
+	 * Equirectangular, or Plate Carree projection â€” the most simple projection,
 	 * mostly used by GIS enthusiasts. Directly maps `x` as longitude, and `y` as
 	 * latitude. Also suitable for flat worlds, e.g. game maps. Used by the
 	 * `EPSG:4326` and `Simple` CRS.
@@ -5635,7 +5635,7 @@ this.BX.Location = this.BX.Location || {};
 	 * @namespace Projection
 	 * @projection L.Projection.Mercator
 	 *
-	 * Elliptical Mercator projection — more complex than Spherical Mercator. Assumes that Earth is an ellipsoid. Used by the EPSG:3395 CRS.
+	 * Elliptical Mercator projection â€” more complex than Spherical Mercator. Assumes that Earth is an ellipsoid. Used by the EPSG:3395 CRS.
 	 */
 
 	var Mercator = {
@@ -5797,7 +5797,7 @@ this.BX.Location = this.BX.Location || {};
 	    // By default the layer will be added to the map's [overlay pane](#map-overlaypane). Overriding this option will cause the layer to be placed on another pane by default.
 	    pane: 'overlayPane',
 	    // @option attribution: String = null
-	    // String to be shown in the attribution control, e.g. "© OpenStreetMap contributors". It describes the layer data and is often a legal obligation towards copyright holders and tile providers.
+	    // String to be shown in the attribution control, e.g. "Â© OpenStreetMap contributors". It describes the layer data and is often a legal obligation towards copyright holders and tile providers.
 	    attribution: null,
 	    bubblingMouseEvents: true
 	  },
@@ -6074,7 +6074,7 @@ this.BX.Location = this.BX.Location || {};
 	  clearLayers: function clearLayers() {
 	    return this.eachLayer(this.removeLayer, this);
 	  },
-	  // @method invoke(methodName: String, …): this
+	  // @method invoke(methodName: String, â€¦): this
 	  // Calls `methodName` on every layer contained in this group, passing any
 	  // additional parameters. Has no effect if the layers contained do not
 	  // implement `methodName`.
@@ -7448,7 +7448,7 @@ this.BX.Location = this.BX.Location || {};
 	 *
 	 * A class for drawing polygon overlays on a map. Extends `Polyline`.
 	 *
-	 * Note that points you pass when creating a polygon shouldn't have an additional last point equal to the first one — it's better to filter out such points.
+	 * Note that points you pass when creating a polygon shouldn't have an additional last point equal to the first one â€” it's better to filter out such points.
 	 *
 	 *
 	 * @example
@@ -10204,7 +10204,7 @@ this.BX.Location = this.BX.Location || {};
 	 * 'http://{s}.somedomain.com/blabla/{z}/{x}/{y}{r}.png'
 	 * ```
 	 *
-	 * `{s}` means one of the available subdomains (used sequentially to help with browser parallel requests per domain limitation; subdomain values are specified in options; `a`, `b` or `c` by default, can be omitted), `{z}` — zoom level, `{x}` and `{y}` — tile coordinates. `{r}` can be used to add "&commat;2x" to the URL to load retina tiles.
+	 * `{s}` means one of the available subdomains (used sequentially to help with browser parallel requests per domain limitation; subdomain values are specified in options; `a`, `b` or `c` by default, can be omitted), `{z}` â€” zoom level, `{x}` and `{y}` â€” tile coordinates. `{r}` can be used to add "&commat;2x" to the URL to load retina tiles.
 	 *
 	 * You can use custom keys in the template, which will be [evaluated](#util-template) from TileLayer options, like this:
 	 *
@@ -10425,7 +10425,7 @@ this.BX.Location = this.BX.Location || {};
 	 * 	layers: 'nexrad-n0r-900913',
 	 * 	format: 'image/png',
 	 * 	transparent: true,
-	 * 	attribution: "Weather data © 2012 IEM Nexrad"
+	 * 	attribution: "Weather data Â© 2012 IEM Nexrad"
 	 * });
 	 * ```
 	 */

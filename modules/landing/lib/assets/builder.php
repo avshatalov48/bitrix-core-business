@@ -82,6 +82,17 @@ abstract class Builder
 	 */
 	abstract public function setOutput();
 
+	/**
+	 * Get all assets as normalized array by types
+	 * @return array
+	 */
+	public function getOutput(): array
+	{
+		$this->normalizeResources();
+
+		return $this->normalizedResources;
+	}
+
 	abstract protected function normalizeResources();
 
 	protected function initResourcesAsJsExtension(array $resources, $extName = null): void

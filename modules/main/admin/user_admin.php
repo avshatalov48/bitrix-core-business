@@ -209,7 +209,7 @@ if($lAdmin->EditAction())
 
 		foreach($arFields as $key => $field)
 		{
-			if(!isset($editableFields[$key]) && strpos($key, "UF_") !== 0)
+			if(!isset($editableFields[$key]) && !str_starts_with($key, "UF_"))
 			{
 				unset($arFields[$key]);
 			}

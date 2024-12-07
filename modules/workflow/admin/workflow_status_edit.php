@@ -82,7 +82,7 @@ else
 		WHERE
 			STATUS_ID='$ID'
 		";
-	$z = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+	$z = $DB->Query($strSql);
 	while ($zr=$z->Fetch())
 	{
 		if ($zr["PERMISSION_TYPE"]=="1") $arPERMISSION_M[] = $zr["GROUP_ID"];

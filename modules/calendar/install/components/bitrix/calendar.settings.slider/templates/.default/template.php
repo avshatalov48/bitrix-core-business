@@ -1,6 +1,7 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
 <?
 use \Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
 
 $id = $arParams['id'];
 
@@ -16,6 +17,21 @@ $isPersonal = $arParams['is_personal'];
 $showGeneralSettings = $arParams['show_general_settings'];
 $showAccess = $arParams['show_access_control'] || $showGeneralSettings;
 $showPersonalTitle = $showGeneralSettings && $isPersonal;
+
+$listLockedFeatures = (
+	is_array($arParams['list_locked_features'] ?? null)
+		? $arParams['list_locked_features']
+		: []
+);
+
+$syncTasksLocked = (
+	isset($listLockedFeatures['sync_tasks'])
+	&& ($listLockedFeatures['sync_tasks']['locked'] ?? null) === true
+);
+$syncTasksLockCode = ((
+	$syncTasksLocked
+	&& is_string($listLockedFeatures['sync_tasks']['code'] ?? null)
+) ? $listLockedFeatures['sync_tasks']['code'] : '');
 ?>
 <div class="webform-buttons calendar-form-buttons-fixed">
 	<span data-role="save_btn" class="ui-btn ui-btn-success"><?= Loc::getMessage('EC_T_SAVE')?></span>
@@ -91,11 +107,17 @@ $showPersonalTitle = $showGeneralSettings && $isPersonal;
 				</div>
 				<div class="calendar-settings-control calendar-settings-checkbox">
 					<div class="calendar-field-container calendar-field-container-checkbox">
-						<div class="calendar-field-block">
+						<div class="calendar-field-block <?= $syncTasksLocked ? '--locked' : ''?>">
 							<label type="text" class="calendar-field-checkbox-label">
-								<input data-role="sync_tasks" type="checkbox" class="calendar-field-checkbox">
+								<input
+									data-role="sync_tasks"
+									type="checkbox"
+									class="calendar-field-checkbox"
+									data-lock-code="<?= HtmlFilter::encode($syncTasksLockCode) ?>"
+								>
 								<?=Loc::getMessage('EC_OPTION_SYNC_TASKS')?>
 							</label>
+							<div class="tariff-lock"></div>
 						</div>
 					</div>
 				</div>

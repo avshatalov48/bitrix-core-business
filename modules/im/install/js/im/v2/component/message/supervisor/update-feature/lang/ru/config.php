@@ -1,0 +1,21 @@
+<?php
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DETAIL_BUTTON_TITLE'] = 'Повысить тариф';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_INFO_BUTTON_TITLE'] = 'Подробнее';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_office_no_document'] = 'Работайте с документами онлайн';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_office_no_document'] = 'Вы сможете одновременно с коллегами редактировать  документы и презентации на следующих тарифах';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_lead_unlimited'] = 'Работайте с лидами в CRM';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_lead_unlimited'] = 'Не теряйте потенциальных клиентов, анализируйте конверсию лидов в сделки на следующих тарифах';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_contact_center_mail_box_number'] = 'Подключайте больше почтовых ящиков';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_contact_center_mail_box_number'] = 'Вы сможете подключать больше почтовых ящиков для каждого пользователя на следующих тарифах';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_info_enterprise_admin'] = 'Назначайте больше администраторов';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_info_enterprise_admin'] = 'Вы сможете назначать больше администраторов на тарифе Энтерпрайз';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_office_login_history'] = 'История входов на тарифе Энтерпрайз';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_office_login_history'] = 'Вы сможете отслеживать все устройства и IP-адреса, с которых сотрудники заходили в Битрикс24';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_history_view'] = 'Отслеживайте историю изменений в CRM';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_history_view'] = 'Вы сможете увидеть всю историю изменений элементов CRM на следующих тарифах';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_tasks_robots'] = 'Автоматизируйте работу с задачами';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_tasks_robots'] = 'Вы сможете использовать роботов в задачах и проектах на профессиональном тарифе';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_analytics_max_number'] = 'Анализируйте больше данных в отчетах';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_analytics_max_number'] = 'Вы сможете строить отчеты по большему количеству элементов в CRM-аналитике на следующем тарифе';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_TITLE_limit_crm_free_invoices'] = 'Выставляйте счета клиентам';
+$MESS['IM_MESSAGE_SUPERVISOR_UPDATE_FEATURE_TARIFF_DESCRIPTION_limit_crm_free_invoices'] = 'Вы сможете создавать счета в CRM, информация о клиенте и товарах будет заполняться автоматически';

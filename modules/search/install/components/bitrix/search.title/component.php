@@ -18,7 +18,6 @@ if(
 	)
 )
 {
-	CUtil::decodeURIComponent($query);
 	if (!$isSearchInstalled)
 	{
 		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/search/tools/language.php");

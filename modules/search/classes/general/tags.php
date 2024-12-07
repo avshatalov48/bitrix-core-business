@@ -70,7 +70,7 @@ class CSearchTags
 				if (count($arTags) > 0)
 				{
 					$strTag = array_pop($arTags);
-					$arQueryWhere[] = "UPPER(stags.NAME) LIKE '".$DB->ForSql(ToUpper($strTag))."%'";
+					$arQueryWhere[] = "UPPER(stags.NAME) LIKE '".$DB->ForSql(mb_strtoupper($strTag))."%'";
 				}
 				break;
 			case "MODULE_ID":
@@ -192,7 +192,7 @@ class CSearchTags
 			else
 			{
 				$arTags = array();
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 				while ($ar = $res->Fetch())
 				{
 					$arTags[] = $ar;
@@ -205,7 +205,7 @@ class CSearchTags
 		}
 		else
 		{
-			return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			return $DB->Query($strSql);
 		}
 	}
 
@@ -216,7 +216,7 @@ class CSearchTags
 			if ($content_id !== false)
 			{
 				$DB = CDatabase::GetModuleConnection('search');
-				$rs = $DB->Query("SELECT NAME FROM b_search_tags WHERE SEARCH_CONTENT_ID = ".intval($content_id), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$rs = $DB->Query("SELECT NAME FROM b_search_tags WHERE SEARCH_CONTENT_ID = ".intval($content_id));
 				$arTags = array();
 				while ($ar = $rs->Fetch())
 				{

@@ -11,7 +11,6 @@ namespace Bitrix\Main;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
-use Bitrix\Main\PhoneNumber;
 use Bitrix\Main\Localization\Loc;
 
 /**

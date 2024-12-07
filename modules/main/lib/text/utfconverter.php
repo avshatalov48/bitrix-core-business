@@ -2,15 +2,18 @@
 
 namespace Bitrix\Main\Text;
 
+/**
+ * @deprecated Does nothing.
+ */
 class UtfConverter extends Converter
 {
 	public function encode($text, $textType = "")
 	{
-		return Encoding::convertEncodingToCurrent($text);
+		return $text;
 	}
 
 	public function decode($text, $textType = "")
 	{
-		return Encoding::convertToUtf($text);
+		return $text;
 	}
 }

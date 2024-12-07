@@ -9,3 +9,4 @@ $MESS["USER_TYPE_STRING_REGEXP"] = "Validation regular expression";
 $MESS["USER_TYPE_STRING_REGEXP_ERROR"] = "\"#FIELD_NAME#\" does not match the validation regular expression.";
 $MESS["USER_TYPE_STRING_ROWS"] = "Row count";
 $MESS["USER_TYPE_STRING_SIZE"] = "Input field size";
+$MESS["USER_TYPE_STRING_VALUE_IS_MULTIPLE"] = "The field \"#FIELD_NAME#\" cannot be a multiple field.";

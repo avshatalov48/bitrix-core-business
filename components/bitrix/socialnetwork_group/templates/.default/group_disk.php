@@ -26,6 +26,7 @@ $pageId = "group_files";
 
 include("util_group_menu.php");
 include("util_group_profile.php");
+include("util_group_limit.php");
 
 $componentParams = array_merge($arResult, [
 	'STORAGE' => $arResult['VARIABLES']['STORAGE'],
@@ -121,7 +122,7 @@ $APPLICATION->SetPageProperty('FavoriteTitleTemplate', $arResult['PAGES_TITLE_TE
 			$component,
 			["HIDE_ICONS" => "Y"]
 		); ?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function() {
 				if (BX('BXDiskRightInputPlug') && BX.DiskUpload.getObj('FolderList'))
 				{

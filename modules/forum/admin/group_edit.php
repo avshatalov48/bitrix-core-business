@@ -233,4 +233,4 @@ if (!empty($arError))
 		$tabControl->End();
 		?>
 	</form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

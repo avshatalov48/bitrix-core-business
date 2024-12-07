@@ -42,7 +42,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid())
 	}
 	elseif (isset($_REQUEST["action"]) && $_REQUEST["action"] == "savesettings")
 	{
-		CUtil::decodeURIComponent($_POST);
 		$aOptions["tabs"] = $_POST["tabs"];
 
 		if($_REQUEST["set_default_settings"] == "Y" && $USER->CanDoOperation('edit_other_settings'))

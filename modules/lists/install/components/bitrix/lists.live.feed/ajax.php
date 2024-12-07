@@ -421,7 +421,7 @@ class LiveFeedAjaxController extends Controller
 					);
 				}
 				$listUser[$userId]['id'] = $userId;
-				$listUser[$userId]['img'] = $file['src'];
+				$listUser[$userId]['img'] = $file['src'] ?? null;
 				$listUser[$userId]['name'] = CUser::FormatName($nameTemplate, $user, false);
 			}
 		}
@@ -438,7 +438,7 @@ class LiveFeedAjaxController extends Controller
 				false
 			);
 			$listUser[$user['ID']]['id'] = $user['ID'];
-			$listUser[$user['ID']]['img'] = $file['src'];
+			$listUser[$user['ID']]['img'] = $file['src'] ?? null;
 			$listUser[$user['ID']]['name'] = CUser::FormatName($nameTemplate, $user, false);
 		}
 
@@ -679,11 +679,6 @@ class LiveFeedAjaxController extends Controller
 		$this->sendJsonSuccessResponse(array(
 			'listUser' => $listUser
 		));
-	}
-
-	protected function unEscape($data)
-	{
-		return Main\Text\Encoding::convertEncoding($data, 'UTF-8', LANG_CHARSET);
 	}
 
 	protected function processActionCheckDataElementCreation()

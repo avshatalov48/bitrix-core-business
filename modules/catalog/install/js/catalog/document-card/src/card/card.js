@@ -1,14 +1,15 @@
-import { Dom, Event, Loc, Reflection, Tag, Type, Text } from 'main.core';
 import { BaseCard } from 'catalog.entity-card';
-import { EventEmitter } from 'main.core.events';
+import { AnalyticsContextList, EnableWizardOpener } from 'catalog.store-enable-wizard';
+import { Dom, Event, Loc, Reflection, Tag, Text, Type } from 'main.core';
+import { type BaseEvent, EventEmitter } from 'main.core.events';
+import { MenuManager, Popup } from 'main.popup';
 import { Button } from 'ui.buttons';
 import { Dialog } from 'ui.entity-selector';
+import StoreDocumentFieldConfigurationManager from '../configurator/store-document-field-configurator-manager';
 import ControllersFactory from '../controllers-factory';
-import ModelFactory from '../model/model-factory';
 import FieldsFactory from '../editor-fields/fields-factory';
-import { MenuManager, Popup } from 'main.popup';
+import ModelFactory from '../model/model-factory';
 import ProductListController from '../product-list/controller';
-import { StoreSlider } from 'catalog.store-use';
 
 class DocumentCard extends BaseCard
 {
@@ -165,9 +166,12 @@ class DocumentCard extends BaseCard
 	{
 		const card = this;
 
-		new StoreSlider().open(
+		new EnableWizardOpener().open(
 			this.masterSliderUrl,
 			{
+				urlParams: {
+					analyticsContextSection: AnalyticsContextList.DOCUMENT_CARD,
+				},
 				data: {
 					openGridOnDone: false,
 				},
@@ -238,6 +242,24 @@ class DocumentCard extends BaseCard
 		this.subscribeToEntityCreateEvent();
 		this.subscribeToBeforeEntityRedirectEvent();
 		this.subscribeToCreateUserFieldEvent();
+		this.subscribeToFieldConfiguratorEvent();
+	}
+
+	subscribeToFieldConfiguratorEvent()
+	{
+		EventEmitter.subscribe('BX.UI.EntityConfigurationManager:onInitialize', this.onConfigurationManagerInit.bind(this));
+	}
+
+	onConfigurationManagerInit(event: BaseEvent)
+	{
+		const [, eventArgs] = event.getCompatData();
+
+		if (!eventArgs.type || eventArgs.type === 'editor')
+		{
+			eventArgs.configurationFieldManager = StoreDocumentFieldConfigurationManager.create(this.id, eventArgs);
+		}
+
+		event.stopImmediatePropagation();
 	}
 
 	subscribeToCreateUserFieldEvent()

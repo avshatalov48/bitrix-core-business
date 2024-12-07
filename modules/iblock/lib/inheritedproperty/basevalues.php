@@ -106,7 +106,11 @@ abstract class BaseValues
 		$result = array();
 		foreach ($this->values as $CODE => $row)
 		{
-			$result[$CODE] = htmlspecialcharsEx($row["VALUE"]);
+			$result[$CODE] = \Bitrix\Main\Text\HtmlFilter::encode(
+				$row['VALUE'],
+				ENT_COMPAT,
+				false
+			);
 		}
 		return $result;
 	}

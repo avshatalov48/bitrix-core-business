@@ -126,6 +126,7 @@ class CurrencyFormat
 		{
 			$formatSetting["THOUSANDS_SEP"] = $formatSetting["THOUSANDS_SEPARATOR"];
 			$formatSetting["DEC_POINT"] = $formatSetting["DECIMAL_SEPARATOR"];
+			$formatSetting['CURRENCY'] = $currency;
 
 			return \CCurrencyLang::formatValue($price, $formatSetting);
 		}
@@ -136,6 +137,7 @@ class CurrencyFormat
 			&& isset($langSetting["FORMAT_STRING"])
 		)
 		{
+			$langSetting['CURRENCY'] = $currency;
 			return \CCurrencyLang::formatValue($price, $langSetting);
 		}
 		else

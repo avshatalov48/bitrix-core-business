@@ -4,6 +4,8 @@ namespace Bitrix\Calendar\Sync\Connection;
 
 use Bitrix\Calendar\Core\Base\EntityInterface;
 use Bitrix\Calendar\Core\Event\Event;
+use Bitrix\Calendar\Internals\EventConnectionTable;
+use Bitrix\Main\ArgumentException;
 
 class EventConnection implements EntityInterface
 {
@@ -218,6 +220,29 @@ class EventConnection implements EntityInterface
 		$this->data = $data;
 
 		return $this;
+	}
+
+	public function fetchData(): ?array
+	{
+		if ($this->id <= 0)
+		{
+			return null;
+		}
+
+		try
+		{
+			$fetchDataResult = EventConnectionTable::query()
+				->setSelect(['DATA'])
+				->where('ID', $this->id)
+				->fetch()
+			;
+
+			return $fetchDataResult['DATA'] ?? null;
+		}
+		catch (ArgumentException $e)
+		{}
+
+		return null;
 	}
 
 	/**

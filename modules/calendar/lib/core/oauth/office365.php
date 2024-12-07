@@ -26,7 +26,7 @@ class Office365 extends Base
 	 */
 	protected function checkService(): bool
 	{
-		return \CCalendar::IsCalDAVEnabled() && \CCalendar::isOffice365ApiEnabled();
+		return \CCalendar::isOffice365ApiEnabled();
 	}
 
 	/**

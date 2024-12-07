@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Mobile = this.BX.Mobile || {};
 this.BX.Mobile.Field = this.BX.Mobile.Field || {};
@@ -5,8 +6,7 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	'use strict';
 
 	var BX = window.BX,
-	    BXMobileApp = window.BXMobileApp;
-
+	  BXMobileApp = window.BXMobileApp;
 	var nodeUrl = function () {
 	  var nodeUrl = function nodeUrl(node, container) {
 	    this.node = node;
@@ -16,7 +16,6 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    this.callback = BX.delegate(this.callback, this);
 	    BX.bind(this.container, 'click', this.click);
 	  };
-
 	  nodeUrl.prototype = {
 	    click: function click(e) {
 	      if (e.toElement.tagName !== 'A') {
@@ -49,20 +48,17 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	    },
 	    callback: function callback(data) {
 	      data.text = BX.util.htmlspecialchars(data.text) || '';
-
 	      if (data.text === '') {
 	        this.node.textContent = this.nodeLink.getAttribute('placeholder');
 	        this.node.setAttribute('href', '#');
 	      } else {
 	        this.node.textContent = data.text;
-
 	        if (this.checkUrl(data.text)) {
 	          this.node.setAttribute('href', data.text);
 	        } else {
 	          this.node.setAttribute('href', 'http://' + data.text);
 	        }
 	      }
-
 	      this.nodeLink.value = data.text;
 	      BX.onCustomEvent(this, 'onChange', [this, this.nodeLink]);
 	    },
@@ -72,22 +68,17 @@ this.BX.Mobile.Field = this.BX.Mobile.Field || {};
 	  };
 	  return nodeUrl;
 	}();
-
 	window.app.exec('enableCaptureKeyboard', true);
-
 	BX.Mobile.Field.Url = function (params) {
 	  this.init(params);
 	};
-
 	BX.Mobile.Field.Url.prototype = {
 	  __proto__: BX.Mobile.Field.prototype,
 	  bindElement: function bindElement(node) {
 	    var result = null;
-
 	    if (BX(node)) {
 	      result = new nodeUrl(node, node.parentElement);
 	    }
-
 	    return result;
 	  }
 	};

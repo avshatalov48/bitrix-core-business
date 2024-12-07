@@ -93,7 +93,6 @@ class CWizardSolPanel
 						'define("WIZARD_DEFAULT_SITE_ID", "'.$newSiteID.'");'.
 						'define("WIZARD_DEFAULT_TONLY", true);'.
 						'define("PRE_LANGUAGE_ID","'.LANGUAGE_ID.'");'.
-						'define("PRE_INSTALL_CHARSET","'.SITE_CHARSET.'");'.
 						'include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard/wizard.php");'.
 						'?'.'>';
 

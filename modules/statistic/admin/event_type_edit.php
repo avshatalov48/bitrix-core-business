@@ -13,7 +13,6 @@ $aTabs = array(
 );
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
-$err_mess = "File: ".__FILE__."<br>Line: ";
 define("HELP_FILE","event_type_list.php");
 
 /***************************************************************************
@@ -24,12 +23,12 @@ InitBVar($ADV_VISIBLE);
 InitBVar($DIAGRAM_DEFAULT);
 $bVarsFromForm = false;
 
-if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $STAT_RIGHT=="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD'] == "POST" && ($save!="" || $apply!="") && $STAT_RIGHT=="W" && check_bitrix_sessid())
 {
 	$cEventType = new CStatEventType();
 
 	$strSql = "SELECT KEEP_DAYS FROM b_stat_event WHERE ID = $ID";
-	$rsEvent = $statDB->Query($strSql, false, $err_mess.__LINE__);
+	$rsEvent = $statDB->Query($strSql);
 	$arEvent = $rsEvent->Fetch();
 
 	$statDB->PrepareFields("b_stat_event");
@@ -53,18 +52,18 @@ if($REQUEST_METHOD == "POST" && ($save!="" || $apply!="") && $STAT_RIGHT=="W" &&
 		$statDB->StartTransaction();
 		if ($ID>0)
 		{
-			$statDB->Update("b_stat_event",$arFields,"WHERE ID='".$ID."'",$err_mess.__LINE__);
+			$statDB->Update("b_stat_event",$arFields,"WHERE ID='".$ID."'");
 			if (intval($KEEP_DAYS)!=$arEvent["KEEP_DAYS"])
 			{
 				$arFields = array("KEEP_DAYS" => $sql_KEEP_DAYS);
-				$statDB->Update("b_stat_event_list",$arFields,"WHERE EVENT_ID=$ID",$err_mess.__LINE__);
+				$statDB->Update("b_stat_event_list",$arFields,"WHERE EVENT_ID=$ID");
 			}
 		}
 		else
 		{
 			$arFields["DATE_ENTER"] = "null";
 			$arFields["DATE_CLEANUP"] = "null";
-			$ID = $statDB->Insert("b_stat_event",$arFields, $err_mess.__LINE__);
+			$ID = $statDB->Insert("b_stat_event",$arFields);
 			$new = "Y";
 		}
 		$statDB->Commit();

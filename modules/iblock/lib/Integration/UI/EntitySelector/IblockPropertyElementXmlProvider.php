@@ -8,8 +8,15 @@ use Bitrix\UI\EntitySelector\SearchQuery;
 
 class IblockPropertyElementXmlProvider extends IblockPropertyElementProvider
 {
-	protected const ENTITY_ID = 'iblock-property-element-xml';
+	public const ENTITY_ID = 'iblock-property-element-xml';
 
+	/**
+	 * Add to dialog object search results.
+	 *
+	 * @param SearchQuery $searchQuery Query object.
+	 * @param Dialog $dialog Dialog object.
+	 * @return void
+	 */
 	public function doSearch(SearchQuery $searchQuery, Dialog $dialog): void
 	{
 		$filter = [];

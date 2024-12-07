@@ -15,6 +15,14 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 <script>
 BX.Messenger.Public.disableDesktopRedirect();
 
+const button = document.querySelector('.bx-im-online-page__button');
+if (button)
+{
+	button.addEventListener('click', function() {
+		BX.Messenger.Public.openChat();
+	});
+}
+
 <?if (
 	!isset($_GET['IM_SETTINGS'])
 	&& !isset($_GET['IM_HISTORY'])
@@ -29,14 +37,6 @@ BX.Messenger.Public.disableDesktopRedirect();
 	BX.addCustomEvent('onImInit', function(im){
 		im.messenger.openMessenger();
 	});
-
-	const button = document.querySelector('.bx-im-online-page__button');
-	if (button)
-	{
-		button.addEventListener('click', function() {
-			BX.Messenger.Public.openChat();
-		});
-	}
 
 	<?if (isset($arResult['MESSENGER_V2']) && $arResult['MESSENGER_V2'] === 'Y'):?>
 		BX.Messenger.Public.openChat();

@@ -1554,6 +1554,7 @@ export default class Popup extends EventEmitter
 
 		this.showOverlay();
 		this.getPopupContainer().style.display = 'block';
+		Dom.addClass(this.getPopupContainer(), '--open');
 
 		if (this.shouldFrontOnShow())
 		{
@@ -1629,6 +1630,7 @@ export default class Popup extends EventEmitter
 			this.hideOverlay();
 
 			this.getPopupContainer().style.display = 'none';
+			Dom.removeClass(this.getPopupContainer(), '--open');
 
 			Dom.removeClass(this.getPopupContainer(), this.animationCloseClassName);
 

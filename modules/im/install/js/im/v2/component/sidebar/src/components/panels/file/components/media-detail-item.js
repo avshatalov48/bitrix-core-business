@@ -1,8 +1,7 @@
 import 'ui.viewer';
-import { SocialVideo } from 'ui.vue3.components.socialvideo';
 
 import { ImModelSidebarFileItem, ImModelFile } from 'im.v2.model';
-import { Avatar, AvatarSize } from 'im.v2.component.elements';
+import { MessageAvatar, AvatarSize } from 'im.v2.component.elements';
 import { Utils } from 'im.v2.lib.utils';
 
 import '../css/media-detail-item.css';
@@ -10,10 +9,14 @@ import '../css/media-detail-item.css';
 // @vue/component
 export const MediaDetailItem = {
 	name: 'MediaDetailItem',
-	components: { SocialVideo, Avatar },
+	components: { MessageAvatar },
 	props: {
 		fileItem: {
 			type: Object,
+			required: true,
+		},
+		contextDialogId: {
+			type: String,
 			required: true,
 		},
 	},
@@ -121,7 +124,11 @@ export const MediaDetailItem = {
 		>
 			<div class="bx-im-sidebar-file-media-detail-item__header-container">
 				<div class="bx-im-sidebar-file-media-detail-item__avatar-container">
-					<Avatar :dialogId="sidebarFileItem.authorId" :size="AvatarSize.S"></Avatar>
+					<MessageAvatar 
+						:messageId="sidebarFileItem.messageId" 
+						:authorId="sidebarFileItem.authorId"
+						:size="AvatarSize.S" 
+					/>
 				</div>
 				<button
 					v-if="showContextButton"

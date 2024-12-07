@@ -361,6 +361,13 @@ BitrixVue.component('bx-im-component-conference-edit',
 
 			this.switchModeForAllFields(ConferenceFieldState.view);
 		},
+		openConference()
+		{
+			if (window.top["BX"])
+			{
+				window.top["BX"].Messenger.Public.openConference({ link: this.publicLink });
+			}
+		},
 		copyInvitation()
 		{
 			let link = '';
@@ -626,7 +633,7 @@ BitrixVue.component('bx-im-component-conference-edit',
 				<!-- Action buttons -->
 				<template v-if="!isFormCreateMode">
 					<div class="im-conference-create-section im-conference-create-actions">
-						<a :href="publicLink" target="_blank" class="ui-btn ui-btn-sm ui-btn-primary ui-btn-icon-camera">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_START'] }}</a>
+						<button @click="openConference" class="ui-btn ui-btn-sm ui-btn-primary ui-btn-icon-camera">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_START'] }}</button>
 						<button @click="copyInvitation" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-share">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_INVITATION_COPY'] }}</button>
 						<button @click="openChat" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-icon-chat">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_CHAT'] }}</button>
 						<button @click="editAll" class="ui-btn ui-btn-sm ui-btn-light">{{ localize['BX_IM_COMPONENT_CONFERENCE_BUTTON_EDIT'] }}</button>

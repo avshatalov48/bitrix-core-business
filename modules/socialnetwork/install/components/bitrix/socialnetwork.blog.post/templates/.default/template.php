@@ -1063,9 +1063,11 @@ else
 
 								BX.Livefeed.FeedInstance.init();
 
-								setTimeout(function() {
-									BX.Livefeed.MoreButton.recalcPostsList();
-								}, 1000);
+								<?php if (isset($arParams["TYPE"]) && in_array($arParams['TYPE'], ['DRAFT', 'MODERATION'])): ?>
+									setTimeout(function() {
+										BX.Livefeed.MoreButton.recalcPostsList();
+									}, 1000);
+								<?php endif; ?>
 
 								BX.Livefeed.FeedInstance.addMoreButton(
 									'blog_post_<?= $arResult['Post']['ID'] ?>',
@@ -1330,6 +1332,7 @@ else
 						{
 							$postId = (int)$arResult['Post']['ID'];
 							$blogPostButtonCopilotId = "blog_post_button_copilot_$postId";
+							$pathToPostCreate = $arResult['PATH_TO_CREATE_NEW_POST'];
 							?>
 
 							<span id="<?= $blogPostButtonCopilotId ?>"></span>
@@ -1337,12 +1340,14 @@ else
 								BX.ready(() => new BX.Socialnetwork.Blog.Post.BlogCopilotReadonly({
 									container: BX('<?= $blogPostButtonCopilotId ?>'),
 									blogText: '<?= CUtil::JSEscape($arResult['Post']['DETAIL_TEXT']) ?>',
-									enabledBySettings: '<?= ($arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] ?? true) ? 'Y' : 'N' ?>',
+									enabledBySettings: <?= ($arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] ?? true) ? 'true' : 'false' ?>,
 									copilotParams: {
 										moduleId: 'socialnetwork',
 										contextId: 'socialnetwork_blog_post_<?= $postId ?>',
 										category: 'readonly_livefeed',
 									},
+									blogId: 'BLOG_<?= $postId ?>',
+									pathToPostCreate: '<?= $pathToPostCreate?>',
 								}));
 							</script>
 

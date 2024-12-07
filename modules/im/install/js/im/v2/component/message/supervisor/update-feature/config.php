@@ -8,9 +8,10 @@ return [
 	'css' => 'dist/update-feature.bundle.css',
 	'js' => 'dist/update-feature.bundle.js',
 	'rel' => [
-		'main.polyfill.core',
 		'im.v2.component.elements',
 		'im.v2.component.message.supervisor.base',
+		'main.core',
+		'im.v2.lib.analytics',
 	],
-	'skip_core' => true,
+	'skip_core' => false,
 ];

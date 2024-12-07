@@ -1,8 +1,8 @@
 <?php
+
 namespace Bitrix\Sale;
 
 use Bitrix\Main;
-use Bitrix\Main\Entity\DeleteResult;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\ObjectNotFoundException;
 use Bitrix\Sale;
@@ -59,11 +59,6 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 	/**
 	 * @param BasketItemBase $basketItem
 	 * @return BasketPropertiesCollectionBase|null
-	 * @throws Main\ArgumentException
-	 * @throws Main\ArgumentNullException
-	 * @throws Main\ArgumentTypeException
-	 * @throws NotImplementedException
-	 * @throws ObjectNotFoundException
 	 */
 	public static function load(BasketItemBase $basketItem)
 	{
@@ -83,7 +78,7 @@ abstract class BasketPropertiesCollectionBase extends Internals\EntityCollection
 			foreach ($propertyList as $property)
 			{
 				$property->setCollection($basketPropertyCollection);
-				$basketPropertyCollection->addItem($property);
+				$basketPropertyCollection->bindItem($property);
 			}
 		}
 

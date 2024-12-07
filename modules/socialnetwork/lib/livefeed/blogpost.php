@@ -136,7 +136,7 @@ class BlogPost extends Provider
 		}
 
 		$result = truncateText(str_replace('&#39;', "'", htmlspecialcharsBack(\CTextParser::clearAllTags($post['DETAIL_TEXT']))), 100);
-		$result = preg_replace('/^' . (\Bitrix\Main\Application::isUtfMode() ? "\xC2\xA0" : "\xA0") . '$/', '', $result);
+		$result = preg_replace('/^' . "\xC2\xA0" . '$/', '', $result);
 
 		if (
 			$result === ''
@@ -302,7 +302,7 @@ class BlogPost extends Provider
 
 	public function getSuffix(): string
 	{
-		return '2';
+		return '3';
 	}
 }
 

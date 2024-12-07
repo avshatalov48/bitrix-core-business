@@ -7,8 +7,8 @@ import {
 	UploaderFile,
 	UploaderEvent,
 	UploaderError,
-	UploaderOptions,
-	UploaderFileInfo,
+	type UploaderOptions,
+	type UploaderFileInfo,
 } from 'ui.uploader.core';
 
 /**
@@ -19,8 +19,9 @@ export default class VueUploaderAdapter extends EventEmitter
 	#uploader: Uploader = null;
 	#items: VueRefValue<Array> = null;
 	#uploaderError = null;
+	#removeFilesFromServer: boolean = true;
 
-	constructor(uploaderOptions: UploaderOptions)
+	constructor(uploaderOptions: UploaderOptions | Uploader)
 	{
 		super();
 		this.setEventNamespace('BX.UI.Uploader.Vue.Adapter');
@@ -28,9 +29,7 @@ export default class VueUploaderAdapter extends EventEmitter
 		this.#items = ref([]);
 		this.#uploaderError = shallowRef(null);
 
-		const options = Type.isPlainObject(uploaderOptions) ? Object.assign({}, uploaderOptions) : {};
-		const userEvents = options.events;
-		options.events = {
+		const events = {
 			[UploaderEvent.FILE_ADD_START]: this.#handleFileAdd.bind(this),
 			[UploaderEvent.FILE_REMOVE]: this.#handleFileRemove.bind(this),
 			[UploaderEvent.FILE_STATE_CHANGE]: this.#handleFileStateChange.bind(this),
@@ -41,8 +40,32 @@ export default class VueUploaderAdapter extends EventEmitter
 			[UploaderEvent.UPLOAD_COMPLETE]: this.#handleUploadComplete.bind(this),
 		};
 
-		this.#uploader = new Uploader(options);
-		this.#uploader.subscribeFromOptions(userEvents);
+		if (uploaderOptions instanceof Uploader)
+		{
+			this.#uploader = uploaderOptions;
+			if (this.#uploader.getFileCount() > 0)
+			{
+				throw new Error('VueUploaderAdapter: an uploader have some files. We cannot create an adapter.');
+			}
+
+			// Resubscribe events because adapter events must be first
+			Object.keys(events).forEach((eventName) => {
+				const currentListeners = [...this.#uploader.getListeners(eventName).keys()];
+				this.#uploader.unsubscribeAll(eventName);
+				this.#uploader.subscribe(eventName, events[eventName]);
+				currentListeners.forEach((listener) => {
+					this.#uploader.subscribe(eventName, listener);
+				});
+			});
+		}
+		else
+		{
+			const options: UploaderOptions = Type.isPlainObject(uploaderOptions) ? { ...uploaderOptions } : {};
+			const userEvents = options.events;
+			options.events = events;
+			this.#uploader = new Uploader(options);
+			this.#uploader.subscribeFromOptions(userEvents);
+		}
 	}
 
 	getUploader(): Uploader
@@ -70,9 +93,14 @@ export default class VueUploaderAdapter extends EventEmitter
 		return this.getItems().find((item: UploaderFileInfo): boolean => item.id === id) || null;
 	}
 
+	setRemoveFilesFromServerWhenDestroy(value: boolean = true): void
+	{
+		this.#removeFilesFromServer = value;
+	}
+
 	destroy(): void
 	{
-		this.#uploader.destroy();
+		this.#uploader.destroy({ removeFilesFromServer: this.#removeFilesFromServer });
 		this.#uploader = null;
 	}
 

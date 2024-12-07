@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BX_STEP_OPERATION_PROGRESS_TEMPLATE"] = "<p>Общее число элементов: #ALL#<br>Обработано: #COUNT#</p>";
 $MESS["BX_STEP_OPERATION_CATALOG_TITLE"] = "Товары инфоблока #NAME# [#ID#]";
 $MESS["BX_STEP_OPERATION_OFFERS_TITLE"] = "Торговые предложения инфоблока #NAME# [#ID#]";
@@ -8,4 +8,3 @@ $MESS["BX_CATALOG_REINDEX_ERR_PRODUCT_PRICE_UPDATE_FAIL_EXT"] = "Ошибка п
 $MESS["BX_CATALOG_REINDEX_ERR_OFFER_PRICE_UPDATE_FAIL_EXT"] = "Ошибка переиндексации цен торгового предложения [#ID#] #NAME#: #ERROR#.";
 $MESS["BX_CATALOG_REINDEX_ERR_PRODUCT_UPDATE_FAIL_EXT"] = "Ошибка переиндексации товара [#ID#] #NAME#: #ERROR#.";
 $MESS["BX_CATALOG_REINDEX_ERR_OFFER_UPDATE_FAIL_EXT"] = "Ошибка переиндексации торгового предложения [#ID#] #NAME#: #ERROR#.";
-?>

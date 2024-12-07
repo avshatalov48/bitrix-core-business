@@ -102,7 +102,7 @@ class OrderFinanceInfo
 		\Bitrix\Main\Page\Asset::getInstance()->addJs("/bitrix/js/sale/admin/order_financeinfo.js");
 
 		return '
-			<script type="text/javascript">
+			<script>
 				BX.ready(function(){
 					BX.Sale.Admin.OrderEditPage.registerFieldsUpdaters( BX.Sale.Admin.FinanceInfo.getFieldsUpdaters() );
 				});

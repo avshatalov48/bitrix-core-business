@@ -1,0 +1,39 @@
+.calendar-open-events-list-item__block-name {
+	row-gap: 8px;
+	margin-top: 4px;
+	margin-right: 16px;
+}
+
+.calendar-open-events-list-item__event-name {
+	display: -webkit-box;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+	overflow: hidden;
+	color: var(--ui-color-base-solid);
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-medium);
+}
+
+.calendar-open-events-list-item__event-name-with-counter {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	column-gap: 8px;
+}
+
+.calendar-open-events-list-event-name-category {
+	position: absolute;
+	top: -18px;
+	max-width: 100%;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	color: var(--ui-color-accent-light-blue);
+	font-weight: var(--ui-font-weight-medium);
+	font-size: 12px;
+	pointer-events: none;
+}
+
+.calendar-open-events-list-item__event-name-with-counter:hover {
+	cursor: pointer;
+}

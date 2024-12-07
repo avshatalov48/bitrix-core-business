@@ -26,7 +26,7 @@ trait ContextCustomer
 
 	/**
 	 * Provides local context for the action.
-	 * @param int|User $user
+	 * @param int|User|\Bitrix\Im\V2\Entity\User\User $user
 	 * @return static
 	 */
 	public function withContextUser($user): self
@@ -40,7 +40,7 @@ trait ContextCustomer
 			$context = new Context;
 		}
 
-		if ($user instanceof User)
+		if ($user instanceof User || $user instanceof \Bitrix\Im\V2\Entity\User\User)
 		{
 			$context->setUser($user);
 		}
@@ -59,6 +59,24 @@ trait ContextCustomer
 	 */
 	public function setContext(?Context $context): self
 	{
+		$this->context = $context;
+
+		return $this;
+	}
+
+	public function setContextUser($user): self
+	{
+		$context = new Context;
+
+		if ($user instanceof User || $user instanceof \Bitrix\Im\V2\Entity\User\User)
+		{
+			$context->setUser($user);
+		}
+		elseif (is_numeric($user))
+		{
+			$context->setUserId((int)$user);
+		}
+
 		$this->context = $context;
 
 		return $this;

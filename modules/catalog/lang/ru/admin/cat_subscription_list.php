@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["PSL_PAGE_TITLE"] = "Список подписок";
 $MESS["PSL_ACCESS_DENIED"] = "Доступ запрещен";
 $MESS["PSL_USER_CONTACT"] = "Контакт пользователя";
@@ -30,4 +30,3 @@ $MESS["PSL_FILTER_ANY"] = "(любой)";
 $MESS["PSL_FILTER_YES"] = "Да";
 $MESS["PSL_FILTER_NO"] = "Нет";
 $MESS["PSL_ERR_BUILDER_ADSENT"] = "Не найден генератор ссылок.";
-?>

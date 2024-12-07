@@ -9,13 +9,12 @@ use Bitrix\Main\Loader;
 
 /**
  * @var CMain $APPLICATION
- * @var CUser $USER
+ * @var ?CUser $user
  * @var array $arResult
  * @var array $arParams
  * @var CBitrixComponentTemplate $this
  * @var ForumCommentsComponent $this->__component
  */
-
 if ($arResult["ERROR_MESSAGE"] && mb_strpos($arResult["ERROR_MESSAGE"], "MID=") !== false)
 {
 	$arResult["ERROR_MESSAGE"] = preg_replace(array("/\(MID\=\d+\)/is", "/\s\s/", "/\s\./"), array("", " ", "."), $arResult["ERROR_MESSAGE"]);
@@ -32,6 +31,7 @@ $arParams["FORM_ID"] = "COMMENTS_".$arParams["form_index"];
 $arParams["jsObjName"] = "oLHE_FC".$arParams["form_index"];
 $arParams["LheId"] = "idLHE_FC".$arParams["form_index"];
 $arParams["tplID"] = 'COMMENT_'.$arParams["ENTITY_TYPE"].'_'.$arParams["form_index"];
+$user = $arParams['USER'] ?? null;
 
 include_once(__DIR__."/functions.php");
 include_once(__DIR__."/../.default/functions.php");
@@ -223,6 +223,6 @@ $arResult["bTasksAvailable"] = (
 	$arResult["bTasksInstalled"]
 	&& (
 		!Loader::includeModule('bitrix24')
-		|| CBitrix24BusinessTools::isToolAvailable($USER->getId(), "tasks")
+		|| CBitrix24BusinessTools::isToolAvailable($user?->getId(), "tasks")
 	)
 );

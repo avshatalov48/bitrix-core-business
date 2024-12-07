@@ -1,7 +1,7 @@
 ;BX.namespace('BX.Bizproc');
 if (typeof BX.Bizproc.doInlineTask === 'undefined')
 {
-	BX.Bizproc.doInlineTask = function (parameters, callback, scope)
+	BX.Bizproc.doInlineTask = function (parameters, callback, scope, onError)
 	{
 		if (scope)
 		{
@@ -30,6 +30,10 @@ if (typeof BX.Bizproc.doInlineTask === 'undefined')
 				if (response.ERROR)
 				{
 					window.alert(response.ERROR);
+					if (onError)
+					{
+						onError(response.ERROR);
+					}
 				}
 
 				if (scope)

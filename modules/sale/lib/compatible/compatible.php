@@ -474,7 +474,7 @@ class OrderQuery extends AliasedQuery
 				{
 					if ($name = $this->getAliasName($alias))
 					{
-						if (is_string($key) && ($aggregate = ToUpper($key)) && $aggregates[$aggregate])
+						if (is_string($key) && ($aggregate = mb_strtoupper($key)) && $aggregates[$aggregate])
 						{
 							$this->addAggregatedSelect($alias, $aggregate, $name);
 						}
@@ -515,7 +515,7 @@ class OrderQuery extends AliasedQuery
 
 					if ($name = $this->getAliasName($alias))
 					{
-						if (is_string($key) && ($aggregate = ToUpper($key)) && $aggregates[$aggregate])
+						if (is_string($key) && ($aggregate = mb_strtoupper($key)) && $aggregates[$aggregate])
 						{
 							$this->addAggregatedSelect($alias, $aggregate, $name);
 						}

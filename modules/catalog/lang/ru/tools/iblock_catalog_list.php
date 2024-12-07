@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_HEADER_NAME_NAME"] = "Название";
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_HEADER_TITLE_NAME"] = "Название инфоблока";
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_HEADER_NAME_IBLOCK_TYPE_ID"] = "Тип";
@@ -27,4 +27,3 @@ $MESS["CATALOG_ADM_IBLOCK_CATALOG_LIST_MESS_EDIT_CATALOG"] = "Изменить �
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_LIST_CONTEXT_EDIT"] = "Изменить параметры";
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_LIST_REFRESH"] = "Обновить список";
 $MESS["CATALOG_ADM_IBLOCK_CATALOG_LIST_REFRESH_TITLE"] = "Обновить список инфоблоков";
-?>

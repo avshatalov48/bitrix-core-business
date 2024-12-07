@@ -5,6 +5,7 @@ import { BaseEvent, EventEmitter } from 'main.core.events';
 import { FileStatus } from './enums/file-status';
 import { FileOrigin } from './enums/file-origin';
 import { FileEvent } from './enums/file-event';
+import isSupportedVideo from './helpers/is-supported-video';
 
 import UploaderError from './uploader-error';
 import AbstractUploadController from './backend/abstract-upload-controller';
@@ -160,6 +161,8 @@ export default class UploaderFile extends EventEmitter
 		{
 			return;
 		}
+
+		this.#setStatus(FileStatus.PREPARING);
 
 		const prepareEvent: BaseEvent = new BaseEvent({ data: { file: this } });
 		this.emitAsync(FileEvent.PREPARE_FILE_ASYNC, prepareEvent)
@@ -437,6 +440,11 @@ export default class UploaderFile extends EventEmitter
 	isUploading(): boolean
 	{
 		return this.getStatus() === FileStatus.UPLOADING;
+	}
+
+	isPreparing(): boolean
+	{
+		return this.getStatus() === FileStatus.PREPARING;
 	}
 
 	isLoading(): boolean
@@ -766,6 +774,11 @@ export default class UploaderFile extends EventEmitter
 		return this.getWidth() > 0 && this.getHeight() > 0 && isResizableImage(this.getName(), this.getType());
 	}
 
+	isVideo(): boolean
+	{
+		return isSupportedVideo(this.getName());
+	}
+
 	getProgress(): number
 	{
 		return this.#progress;
@@ -863,6 +876,7 @@ export default class UploaderFile extends EventEmitter
 			extension: this.getExtension(),
 			origin: this.getOrigin(),
 			isImage: this.isImage(),
+			isVideo: this.isVideo(),
 			failed: this.isFailed(),
 			width: this.getWidth(),
 			height: this.getHeight(),

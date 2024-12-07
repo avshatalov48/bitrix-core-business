@@ -28,17 +28,17 @@ $arStatus = Array(
 
 $message = null;
 $bVarsFromForm = false;
-$ID = intval($ID);
+$ID = isset($_REQUEST['ID']) ? intval($_REQUEST['ID']) : 0;
 $bBadAttempt = false;
 
 if (!$bBadAttempt)
 {
 	$r = CTestAttempt::GetList(
-		array(), 
+		array(),
 		array(
-			'ID' => $ID, 
-			'ACCESS_OPERATIONS' => 
-				CLearnAccess::OP_LESSON_READ 
+			'ID' => $ID,
+			'ACCESS_OPERATIONS' =>
+				CLearnAccess::OP_LESSON_READ
 				| CLearnAccess::OP_LESSON_WRITE
 			)
 		);
@@ -107,6 +107,8 @@ if (!$bBadAttempt && $_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && ch
 	}
 	else
 	{
+		CTestAttempt::OnAttemptChange($ID, $arFields['COMPLETED'] === 'Y');
+
 		if($apply == '')
 		{
 			if ($return_url <> '')

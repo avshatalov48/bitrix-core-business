@@ -845,7 +845,16 @@ abstract class CCatalogDocsTypes
 			self::ACTIVE_STORES => [],
 		];
 		$iterator = Catalog\StoreTable::getList([
-			'select' => ['ID', 'ACTIVE'],
+			'select' => [
+				'ID',
+				'ACTIVE'
+			],
+			'order' => [
+				'ID' => 'ASC',
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
 		]);
 		while ($row = $iterator->fetch())
 		{

@@ -64,7 +64,6 @@ return array(
 		2 => array(
 			'code' => '14.2contacts_3_cols',
 			'anchor' => '',
-			'repo_block' => array(),
 			'cards' => array(
 				'.landing-block-card' => 3
 			),
@@ -129,7 +128,6 @@ return array(
 		3 => array(
 			'code' => '15.2.social_circles',
 			'anchor' => '',
-			'repo_block' => array(),
 			'cards' => array(
 				'.landing-block-node-list-item' => 5,
 			),

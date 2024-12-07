@@ -2,6 +2,7 @@
 
 namespace Bitrix\Calendar\Internals;
 
+use Bitrix\Calendar\Internals\Trait\UpdateByFilterTrait;
 use Bitrix\Calendar\Util;
 use Bitrix\Main;
 use Bitrix\Main\Entity\ReferenceField;
@@ -34,7 +35,8 @@ use Bitrix\Main\ORM\Fields\Validators\LengthValidator;
 class EventTable extends Main\Entity\DataManager
 {
 	use DeleteByFilterTrait;
-	
+	use UpdateByFilterTrait;
+
 	/**
 	 * Returns DB table name for entity.
 	 *

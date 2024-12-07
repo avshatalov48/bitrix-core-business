@@ -5,14 +5,11 @@
 
 .bx-im-message-retry-button__container {
 	display: flex;
+	align-self: center;
 	place-items: center;
 	width: 46px;
-	align-self: stretch;
 	flex-shrink: 0;
-}
-
-.--center-align .bx-im-message-retry-button__container {
-	flex-direction: row-reverse;
+	margin-left: 8px;
 }
 
 .bx-im-message-retry-button__arrow {

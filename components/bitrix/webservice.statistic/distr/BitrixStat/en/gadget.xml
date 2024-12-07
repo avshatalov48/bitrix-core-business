@@ -4,7 +4,7 @@
 	<namespace>bitrix</namespace>
 	<version>1.0.0.0</version>
 	<author name="Bitrix">
-		<info url="http://www.bitrixsoft.com/?referer1=gadget&amp;referer2=info" text="www.bitrixsoft.com" />
+		<info url="https://www.bitrixsoft.com/" text="www.bitrixsoft.com" />
 		<logo src="logo.png" />
 	</author>
 	<copyright>Bitrix &#169; 2007</copyright>

@@ -23,11 +23,19 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/learning/admin_tools_use
 
 ClearVars();
 
-$ID = intval($ID);
+$ID = isset($_REQUEST['ID']) ? intval($_REQUEST['ID']) : 0;
 $bCopy = false;
 $bBadResult = false;
 $message = null;
 $arMembers = array();
+$str_ID = '';
+$str_ACTIVE = '';
+$str_TITLE = '';
+$str_CODE = '';
+$str_SORT = '';
+$str_ACTIVE_FROM = '';
+$str_ACTIVE_TO = '';
+$str_COURSE_LESSON_ID = '';
 
 if ($ID != 0)
 {
@@ -74,17 +82,18 @@ if($bBadResult)
 
 $aTabs = array(
 	array(
-		"DIV" => "edit1", 
-		"TAB" => GetMessage("LEARNING_ADMIN_TAB1"), 
-		"ICON"=>"main_user_edit", 
+		"DIV" => "edit1",
+		"TAB" => GetMessage("LEARNING_ADMIN_TAB1"),
+		"ICON"=>"main_user_edit",
 		"TITLE"=>GetMessage("LEARNING_ADMIN_TAB1_EX")
 	)
 );
 
 $aTabs[] = $USER_FIELD_MANAGER->EditFormTab('LEARNING_LGROUPS');
 $tabControl = new CAdminForm("learningGroupResultTabControl", $aTabs);
+$bVarsFromForm = false;
 
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $Update <> '' && check_bitrix_sessid())
+if ($_SERVER["REQUEST_METHOD"] == "POST" && !empty($_REQUEST['Update']) && check_bitrix_sessid())
 {
 	if ($ACTIVE !== 'Y')
 		$ACTIVE = 'N';
@@ -251,8 +260,8 @@ if (!isset($str_SORT))
 	<?=bitrix_sessid_post()?>
 	<?echo GetFilterHiddens("filter_");?>
 	<input type="hidden" name="Update" value="Y">
-	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from)?>">
-	<input type="hidden" name="return_url" value="<?echo htmlspecialcharsbx($return_url)?>">
+	<input type="hidden" name="from" value="<?echo htmlspecialcharsbx($from ?? '')?>">
+	<input type="hidden" name="return_url" value="<?echo htmlspecialcharsbx($return_url ?? '')?>">
 	<input type="hidden" name="ID" value="<?echo $ID?>">
 <?php $tabControl->EndEpilogContent();?>
 <?$tabControl->Begin();?>
@@ -277,6 +286,7 @@ if (!isset($str_SORT))
 	<tr class="adm-detail-required-field">
 		<td><?echo $tabControl->GetCustomLabelHTML()?>:</td>
 		<td><?php
+			$arLesson = [];
 			if ($str_COURSE_LESSON_ID)
 			{
 				$rsLesson = CLearnLesson::GetByID($str_COURSE_LESSON_ID);
@@ -296,7 +306,7 @@ if (!isset($str_SORT))
 			</script>
 			<div style="padding:0px;">
 				<span id="attached_lesson_name"><?php
-					if ($arLesson)
+					if (!empty($arLesson))
 						echo htmlspecialcharsbx($arLesson['NAME']);
 				?></span><?php
 				if ($ID == 0)
@@ -304,9 +314,9 @@ if (!isset($str_SORT))
 					?>
 					(<a href="javascript:void(0);" class="bx-action-href"
 						onclick="window.open('/bitrix/admin/learn_unilesson_admin.php?lang=<?php echo LANGUAGE_ID;
-							?>&amp;search_retpoint=module_learning_js_admin_function_change_attached_lesson&amp;search_mode_type=attach_question_to_lesson', 
-							'module_learning_js_admin_window_select_lessons_for_attach', 
-							'scrollbars=yes,resizable=yes,width=960,height=500,top='+Math.floor((screen.height - 560)/2-14)+',left='+Math.floor((screen.width - 960)/2-5));" 
+							?>&amp;search_retpoint=module_learning_js_admin_function_change_attached_lesson&amp;search_mode_type=attach_question_to_lesson',
+							'module_learning_js_admin_window_select_lessons_for_attach',
+							'scrollbars=yes,resizable=yes,width=960,height=500,top='+Math.floor((screen.height - 560)/2-14)+',left='+Math.floor((screen.width - 960)/2-5));"
 						><?php echo GetMessage('LEARNING_ADMIN_CHANGE_ATTACHED_COURSE'); ?></a>)
 					<?php
 				}
@@ -346,7 +356,7 @@ $tabControl->EndCustomField("SORT");
 $tabControl->AddSection("LEARNING_ACTIVATION_SCHEDULE", GetMessage('LEARNING_ACTIVATION_SCHEDULE'));
 $tabControl->BeginCustomField("PROPERTY_2", GetMessage('LEARNING_ACTIVATION_SCHEDULE_TITLE'), false);
 
-$html = '<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tb'.md5($name).'">';
+$html = '<table cellpadding="0" cellspacing="0" border="0" class="nopadding" width="100%" id="tb_learn_group_edit">';
 
 $arLessons = $arDelays = array();
 
@@ -382,7 +392,7 @@ $html .= '</table>';
 	?></td>
 </tr>
 <?
-$tabControl->EndCustomField("PROPERTY_2", $hidden);
+$tabControl->EndCustomField("PROPERTY_2");
 
 $tabControl->AddSection("LEARNING_ELEMENT_USERS", GetMessage('LEARNING_GROUP_MEMBERSHIP'));
 
@@ -414,14 +424,14 @@ foreach($prop_fields['VALUE'] as $id => $value)
 $tabControl->BeginCustomField("PROPERTY_1".$prop_fields["ID"], $prop_fields["NAME"], $prop_fields["IS_REQUIRED"]==="Y");
 ?>
 <tr id="tr_PROPERTY_<?echo $prop_fields["ID"];?>"<?if ($prop_fields["PROPERTY_TYPE"]=="F"):?> class="adm-detail-file-row"<?endif?>>
-	<td class="adm-detail-valign-top" width="40%"><?if($prop_fields["HINT"]!=""):
-		?><span id="hint_<?echo $prop_fields["ID"];?>"></span><script>BX.hint_replace(BX('hint_<?echo $prop_fields["ID"];?>'), '<?echo CUtil::JSEscape($prop_fields["HINT"])?>');</script>&nbsp;<?
+	<td class="adm-detail-valign-top" width="40%"><?if(!empty($prop_fields["HINT"])):
+		?><span id="hint_<?echo $prop_fields["ID"];?>"></span><script>BX.hint_replace(BX('hint_<?echo $prop_fields["ID"];?>'), '<?echo CUtil::JSEscape($prop_fields["HINT"] ?? '')?>');</script>&nbsp;<?
 	endif;?><?echo $tabControl->GetCustomLabelHTML();?>:</td>
 	<td width="60%"><?php
 		if(!($USER->CanDoOperation('view_subordinate_users') || $USER->CanDoOperation('view_all_users')))
 			echo GetMessage('LEARNING_ACCESS_DENIED_TO_USERS');
 		else
-			echo _ShowUserPropertyField('PROP['.$prop_fields["ID"].']', $prop_fields, $prop_fields["VALUE"], false, false, 50000, $tabControl->GetFormName(), $bCopy)
+			_ShowUserPropertyField('PROP['.$prop_fields["ID"].']', $prop_fields, $prop_fields["VALUE"], false, false, 50000, $tabControl->GetFormName(), $bCopy)
 	?></td>
 </tr>
 <?
@@ -466,7 +476,7 @@ $tabControl->BeginCustomField("UFS", '', false);
 		<?php
 	}
 
-	$USER_FIELD_MANAGER->EditFormShowTab('LEARNING_LGROUPS', $bVarsFromForm, $ID); 
+	$USER_FIELD_MANAGER->EditFormShowTab('LEARNING_LGROUPS', $bVarsFromForm, $ID);
 
 $tabControl->EndCustomField("UFS");
 ?></div><?php

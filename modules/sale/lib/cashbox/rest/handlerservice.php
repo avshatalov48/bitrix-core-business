@@ -23,6 +23,7 @@ class HandlerService extends RestService
 {
 	private const ERROR_HANDLER_ALREADY_EXISTS = 'ERROR_HANDLER_ALREADY_EXIST';
 	private const ERROR_HANDLER_NOT_FOUND = 'ERROR_HANDLER_NOT_FOUND';
+	private const ERROR_HANDLER_ADD = 'ERROR_HANDLER_ADD';
 	private const ERROR_HANDLER_UPDATE = 'ERROR_HANDLER_UPDATE';
 	private const ERROR_HANDLER_DELETE = 'ERROR_HANDLER_DELETE';
 
@@ -266,7 +267,8 @@ class HandlerService extends RestService
 	/**
 	 * @param $params
 	 * @param \CRestServer $server
-	 * @return array|bool|int
+	 * @return array|int
+	 * @throws RestException
 	 */
 	public static function addHandler($params, $page, \CRestServer $server)
 	{
@@ -292,7 +294,8 @@ class HandlerService extends RestService
 			return $result->getId();
 		}
 
-		return false;
+		$errors = implode("\n", $result->getErrorMessages());
+		throw new RestException($errors, self::ERROR_HANDLER_ADD);
 	}
 
 	/**

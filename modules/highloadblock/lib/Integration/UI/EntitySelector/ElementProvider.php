@@ -4,7 +4,6 @@ namespace Bitrix\Highloadblock\Integration\UI\EntitySelector;
 
 use Bitrix\Main\ORM;
 use Bitrix\Highloadblock\HighloadBlockTable;
-use Bitrix\Highloadblock\HighloadBlockRightsTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
 use Bitrix\UI\EntitySelector\Item;
@@ -294,18 +293,19 @@ class ElementProvider extends BaseProvider
 			'VALUE' => $fields['VALUE'],
 			'TITLE' => $fields['TITLE'],
 		];
+		$order = [
+			$fields['ORDER'] => $this->getDirection(),
+		];
 		if ($fields['ORDER'] !== 'ID')
 		{
 			$select[] = $fields['ORDER'];
+			$order['ID'] = 'ASC';
 		}
 
 		$result = [
 			'select' => $select,
 			'filter' => $settings['filter'] ?? [],
-			'order' => [
-				$fields['ORDER'] => $this->getDirection(),
-				'ID' => 'ASC',
-			],
+			'order' => $order,
 		];
 
 		if (isset($settings['limit']))

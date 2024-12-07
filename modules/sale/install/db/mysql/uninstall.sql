@@ -145,3 +145,4 @@ drop table if exists b_sale_facebook_conversion_params;
 drop table if exists b_sale_analytics;
 drop table if exists b_sale_order_payment_ps_available;
 drop table if exists b_sale_basket_reservation_history;
+drop table if exists b_sale_entity_label;

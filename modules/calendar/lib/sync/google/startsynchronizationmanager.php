@@ -9,11 +9,11 @@ use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
 use Bitrix\Calendar\Sync\Managers\NotificationManager;
-use Bitrix\Calendar\Sync\Util\FlagRegistry;
 use Bitrix\Calendar\Sync\Util\HandleStatusTrait;
 use Bitrix\Calendar\Sync\Connection\Connection;
 use Bitrix\Calendar\Sync\Factories\SyncSectionFactory;
 use Bitrix\Calendar\Sync\Handlers\MasterPushHandler;
+use Bitrix\Calendar\Sync\Managers;
 use Bitrix\Calendar\Sync\Managers\OutgoingManager;
 use Bitrix\Calendar\Sync\Managers\StartSynchronization;
 use Bitrix\Calendar\Sync\Managers\VendorDataExchangeManager;
@@ -142,6 +142,10 @@ class StartSynchronizationManager implements StartSynchronization
 	 */
 	public function createConnection(Mappers\Connection $mapper): Connection
 	{
+		$connectionManager = new Managers\ConnectionManager();
+		$connections = $connectionManager->getConnectionsData($this->user, [Factory::SERVICE_NAME]);
+		$connectionManager->deactivateConnections($connections);
+
 		$connection = (new Builders\BuilderConnectionFromExternalData($this->user))->build();
 		$factory = new Factory($connection);
 		/** @var Result $nameResult */

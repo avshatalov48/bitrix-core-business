@@ -453,9 +453,8 @@ class VendorSynchronization
 		}
 		if (!$eventLink)
 		{
-			$result->addError(new Error('Instance connection not found'));
-
-			return $result;
+			// Trying to create instance then, there are some broken events onto sync side
+			return $this->createInstance($event, $context);
 		}
 
 		if ($masterEvent = $this->getMasterEvent($event))

@@ -5,6 +5,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM;
 use Bitrix\Main\ORM\Event;
 use Bitrix\Main\ORM\EventResult;
+use Bitrix\Main\ORM\Fields\Validators;
 use Bitrix\Main\Type\DateTime;
 
 /**
@@ -59,6 +60,9 @@ use Bitrix\Main\Type\DateTime;
 
 class SectionTable extends ORM\Data\DataManager
 {
+	public const TYPE_TEXT = 'text';
+	public const TYPE_HTML = 'html';
+
 	private static array $oldValues = [];
 
 	/**
@@ -66,7 +70,7 @@ class SectionTable extends ORM\Data\DataManager
 	 *
 	 * @return string
 	 */
-	public static function getTableName()
+	public static function getTableName(): string
 	{
 		return 'b_iblock_section';
 	}
@@ -76,16 +80,16 @@ class SectionTable extends ORM\Data\DataManager
 	 *
 	 * @return array
 	 */
-	public static function getMap()
+	public static function getMap(): array
 	{
-		return array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_ID_FIELD'),
-			),
-			'TIMESTAMP_X' => array(
+			],
+			'TIMESTAMP_X' => [
 				'data_type' => 'datetime',
 				'required' => true,
 				'default_value' => function()
@@ -94,168 +98,143 @@ class SectionTable extends ORM\Data\DataManager
 					}
 				,
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_TIMESTAMP_X_FIELD'),
-			),
-			'MODIFIED_BY' => array(
+			],
+			'MODIFIED_BY' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_MODIFIED_BY_FIELD'),
-			),
-			'DATE_CREATE' => array(
+			],
+			'DATE_CREATE' => [
 				'data_type' => 'datetime',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_DATE_CREATE_FIELD'),
-			),
-			'CREATED_BY' => array(
+			],
+			'CREATED_BY' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_CREATED_BY_FIELD'),
-			),
-			'IBLOCK_ID' => array(
+			],
+			'IBLOCK_ID' => [
 				'data_type' => 'integer',
 				'required' => true,
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_IBLOCK_ID_FIELD'),
-			),
-			'IBLOCK_SECTION_ID' => array(
+			],
+			'IBLOCK_SECTION_ID' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_IBLOCK_SECTION_ID_FIELD'),
-			),
-			'ACTIVE' => array(
+			],
+			'ACTIVE' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'default_value' => 'Y',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_ACTIVE_FIELD'),
-			),
-			'GLOBAL_ACTIVE' => array(
+			],
+			'GLOBAL_ACTIVE' => [
 				'data_type' => 'boolean',
-				'values' => array('N', 'Y'),
+				'values' => ['N', 'Y'],
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_GLOBAL_ACTIVE_FIELD'),
-			),
-			'SORT' => array(
+			],
+			'SORT' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_SORT_FIELD'),
-			),
-			'NAME' => array(
+			],
+			'NAME' => [
 				'data_type' => 'string',
 				'required' => true,
-				'validation' => array(__CLASS__, 'validateName'),
+				'validation' => function()
+				{
+					return [
+						new Validators\LengthValidator(null, 255),
+					];
+				},
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_NAME_FIELD'),
-			),
-			'PICTURE' => array(
+			],
+			'PICTURE' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_PICTURE_FIELD'),
-			),
-			'LEFT_MARGIN' => array(
+			],
+			'LEFT_MARGIN' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_LEFT_MARGIN_FIELD'),
-			),
-			'RIGHT_MARGIN' => array(
+			],
+			'RIGHT_MARGIN' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_RIGHT_MARGIN_FIELD'),
-			),
-			'DEPTH_LEVEL' => array(
+			],
+			'DEPTH_LEVEL' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_DEPTH_LEVEL_FIELD'),
-			),
-			'DESCRIPTION' => array(
+			],
+			'DESCRIPTION' => [
 				'data_type' => 'text',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_DESCRIPTION_FIELD'),
-			),
-			'DESCRIPTION_TYPE' => array(
+			],
+			'DESCRIPTION_TYPE' => [
 				'data_type' => 'enum',
 				'required' => true,
-				'values' => array('text', 'html'),
-				'default_value' => 'text',
+				'values' => [
+					self::TYPE_TEXT,
+					self::TYPE_HTML,
+				],
+				'default_value' => self::TYPE_TEXT,
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_DESCRIPTION_TYPE_FIELD'),
-			),
-			'SEARCHABLE_CONTENT' => array(
+			],
+			'SEARCHABLE_CONTENT' => [
 				'data_type' => 'text',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_SEARCHABLE_CONTENT_FIELD'),
-			),
-			'CODE' => array(
+			],
+			'CODE' => [
 				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateCode'),
+				'validation' => function()
+				{
+					return [
+						new Validators\LengthValidator(null, 255),
+					];
+				},
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_CODE_FIELD'),
-			),
-			'XML_ID' => array(
+			],
+			'XML_ID' => [
 				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateXmlId'),
+				'validation' => function()
+				{
+					return [
+						new Validators\LengthValidator(null, 255),
+					];
+				},
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_XML_ID_FIELD'),
-			),
-			'TMP_ID' => array(
+			],
+			'TMP_ID' => [
 				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateTmpId'),
+				'validation' => function()
+				{
+					return [
+						new Validators\LengthValidator(null, 40),
+					];
+				},
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_TMP_ID_FIELD'),
-			),
-			'DETAIL_PICTURE' => array(
+			],
+			'DETAIL_PICTURE' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_DETAIL_PICTURE_FIELD'),
-			),
-			'SOCNET_GROUP_ID' => array(
+			],
+			'SOCNET_GROUP_ID' => [
 				'data_type' => 'integer',
 				'title' => Loc::getMessage('IBLOCK_SECTION_ENTITY_SOCNET_GROUP_ID_FIELD'),
-			),
-			'IBLOCK' => array(
+			],
+			'IBLOCK' => [
 				'data_type' => 'Bitrix\Iblock\Iblock',
-				'reference' => array('=this.IBLOCK_ID' => 'ref.ID'),
-			),
-			'PARENT_SECTION' => array(
+				'reference' => ['=this.IBLOCK_ID' => 'ref.ID'],
+			],
+			'PARENT_SECTION' => [
 				'data_type' => 'Bitrix\Iblock\Section',
-				'reference' => array('=this.IBLOCK_SECTION_ID' => 'ref.ID'),
-			),
-			'CREATED_BY_USER' => array(
+				'reference' => ['=this.IBLOCK_SECTION_ID' => 'ref.ID'],
+			],
+			'CREATED_BY_USER' => [
 				'data_type' => 'Bitrix\Main\User',
-				'reference' => array('=this.CREATED_BY' => 'ref.ID'),
-			),
-			'MODIFIED_BY_USER' => array(
+				'reference' => ['=this.CREATED_BY' => 'ref.ID'],
+			],
+			'MODIFIED_BY_USER' => [
 				'data_type' => 'Bitrix\Main\User',
-				'reference' => array('=this.MODIFIED_BY' => 'ref.ID'),
-			),
-		);
-	}
-
-	/**
-	 * Returns validators for NAME field.
-	 *
-	 * @return array
-	 */
-	public static function validateName()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-
-	/**
-	 * Returns validators for CODE field.
-	 *
-	 * @return array
-	 */
-	public static function validateCode()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-
-	/**
-	 * Returns validators for XML_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateXmlId()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 255),
-		);
-	}
-
-	/**
-	 * Returns validators for TMP_ID field.
-	 *
-	 * @return array
-	 */
-	public static function validateTmpId()
-	{
-		return array(
-			new ORM\Fields\Validators\LengthValidator(null, 40),
-		);
+				'reference' => ['=this.MODIFIED_BY' => 'ref.ID'],
+			],
+		];
 	}
 
 	/**
@@ -278,7 +257,7 @@ class SectionTable extends ORM\Data\DataManager
 		return $result;
 	}
 
-	public static function onAfterAdd(Event $event)
+	public static function onAfterAdd(Event $event): void
 	{
 		/** @var EO_Section $section */
 		$section = $event->getParameter('object');
@@ -311,7 +290,7 @@ class SectionTable extends ORM\Data\DataManager
 		return $result;
 	}
 
-	public static function onUpdate(Event $event)
+	public static function onUpdate(Event $event): void
 	{
 		/** @var EO_Section $section */
 		$section = $event->getParameter('object');
@@ -336,7 +315,7 @@ class SectionTable extends ORM\Data\DataManager
 		self::$oldValues = $row !== null ? $row : [];
 	}
 
-	public static function onAfterUpdate(Event $event)
+	public static function onAfterUpdate(Event $event): void
 	{
 		/** @var EO_Section $section */
 		$section = $event->getParameter('object');
@@ -350,7 +329,7 @@ class SectionTable extends ORM\Data\DataManager
 		self::$oldValues = [];
 	}
 
-	public static function onDelete(Event $event)
+	public static function onDelete(Event $event): void
 	{
 		$section = static::wakeUpObject($event->getParameter('id'));
 		$section->fill(['IBLOCK_ID']);
@@ -359,7 +338,7 @@ class SectionTable extends ORM\Data\DataManager
 		\CIBlock::clearIblockTagCache($section->getIblockId());
 	}
 
-	public static function onAfterDelete(Event $event)
+	public static function onAfterDelete(Event $event): void
 	{
 		// recount tree
 		$primary = $event->getParameter('id');

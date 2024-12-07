@@ -11,7 +11,7 @@ class Vk extends OpenGraph
 	public function handle(HtmlDocument $document)
 	{
 		$uri = $document->getUri();
-		if(mb_strpos($uri->getPath(), '/video') !== 0)
+		if(!str_starts_with($uri->getPath(), '/video'))
 		{
 			return;
 		}

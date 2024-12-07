@@ -17,7 +17,7 @@ class CSearchLanguageEn extends CSearchLanguage
 	function GetBigrammLetterFreq()
 	{
 		return array(
-		//           à,    â,   ñ,   d,   å,   f,   g,   í,   i,   j,   ê,   l,   ì,   n,   î,   ð,   q,   r,   s,   ò,   u,   v,   w,   x,   y,   z,
+		//           Ã ,    Ã¢,   Ã±,   d,   Ã¥,   f,   g,   Ã­,   i,   j,   Ãª,   l,   Ã¬,   n,   Ã®,   Ã°,   q,   r,   s,   Ã²,   u,   v,   w,   x,   y,   z,
 		"a"=>array(   4,  20,  28,  52,   2,  11,  28,   4,  32,   4,   6,  62,  23, 167,   2,  14,   0,  83,  76, 127,   7,  25,   8,   1,   9,   1),
 		"b"=>array(  13,   0,   0,   0,  55,   0,   0,   0,   8,   2,   0,  22,   0,   0,  11,   0,null,  15,   4,   2,  13,   0,   0,   0,  15,   0),
 		"c"=>array(  32,   0,   7,   1,  69,   0,   0,  33,  17,null,  10,   9,   1,   0,  50,   3,   0,  10,   0,  28,  11,   0,   0,null,   3,   0),

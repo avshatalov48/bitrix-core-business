@@ -11,7 +11,8 @@ $curUserId = $USER->IsAuthorized() ? $USER->GetID() : '';
 
 if(!CModule::IncludeModule("calendar") || !class_exists("CCalendar"))
 {
-	return ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+	ShowError(GetMessage("EC_CALENDAR_MODULE_NOT_INSTALLED"));
+	return;
 }
 
 // Limits

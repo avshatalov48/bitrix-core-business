@@ -20,7 +20,7 @@ export class Section
 		arrowTop: '--chevron-up',
 		arrowDown: '--chevron-down',
 		arrowRight: '--chevron-right',
-		bodyActive: '--body-active'
+		bodyActive: '--body-active ',
 	};
 	rowsWrapper: ?HTMLElement;
 	sectionWrapper: ?HTMLElement;
@@ -42,6 +42,11 @@ export class Section
 		Type.isStringFilled(params.iconArrowDown) ? (this.className.arrowDown = params.iconArrowDown) : '';
 		Type.isStringFilled(params.iconArrowTop) ? (this.className.arrowTop = params.iconArrowTop) : '';
 		Type.isStringFilled(params.iconArrowRight) ? (this.className.arrowRight = params.iconArrowRight) : '';
+
+		if (Type.isStringFilled(params.bodyActive))
+		{
+			this.className.bodyActive += params.bodyActive;
+		}
 
 		this.isOpen = Type.isBoolean(params.isOpen) ? params.isOpen : true;
 		this.isEnable = Type.isBoolean(params.isEnable) ? params.isEnable : true;
@@ -142,13 +147,13 @@ export class Section
 
 		this.sectionWrapper = Tag.render`
 			<div id="${this.id}" class="ui-section__wrapper ${this.isOpen ? this.className.bodyActive : ''} ${this.canCollapse || this.singleLink.href ? 'clickable' : ''}">
-				<div class="ui-section__header">
+				<div class="ui-section__header ${!this.title ? '--hidden' : ''}">
 					<span class="ui-section__title-icon ${this.className.titleIcon}"></span>
 					<span class="ui-section__title">${this.title}</span>
 					${this.isEnable ? '' : this.renderLockElement()}
 					${this.singleLink.href ? this.#linkIconRender() : this.#collapseIconRender()}
 				</div>
-				<div class="ui-section__separator"></div>
+				<div class="ui-section__separator ${!this.title ? '--hidden' : ''}"></div>
 				<div class="ui-section__content ui-section__section-body_inner">
 					<div class="ui-section__section-section-body_container">
 						<div class="ui-section__row_box"></div>
@@ -204,6 +209,11 @@ export class Section
 	append(content: HTMLElement): void
 	{
 		Dom.append(content, this.#getRowsWrapper());
+	}
+
+	prepend(content: HTMLElement)
+	{
+		Dom.prepend(content, this.#getRowsWrapper());
 	}
 
 	renderTo(targetNode: HTMLElement): HTMLElement

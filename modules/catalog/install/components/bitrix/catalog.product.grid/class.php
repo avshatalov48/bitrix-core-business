@@ -191,6 +191,13 @@ class CatalogProductGridComponent extends \CBitrixComponent
 		}
 	}
 
+	protected function showCatalogStub(): void
+	{
+		$this->arResult['STUB_REDIRECT'] = Loader::includeModule('crm') ? '/crm/' : '/';
+
+		$this->includeComponentTemplate('stub');
+	}
+
 	protected function includeErrorComponent(string $errorMessage, string $description = null): void
 	{
 		UI\Toolbar\Facade\Toolbar::deleteFavoriteStar();
@@ -602,6 +609,11 @@ class CatalogProductGridComponent extends \CBitrixComponent
 			$this->grid->getFilter(),
 			[
 				'GRID_ID' => $this->grid->getId(),
+				'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+				'ENABLE_FIELDS_SEARCH' => 'Y',
+				'CONFIG' => [
+					'popupWidth' => 800,
+				],
 			]
 		);
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($options);
@@ -706,6 +718,11 @@ class CatalogProductGridComponent extends \CBitrixComponent
 	{
 		$additional = [
 			'NAV_STRING' => $this->productNavString,
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+			'ENABLE_FIELDS_SEARCH' => 'Y',
+			'CONFIG' => [
+				'popupWidth' => 800,
+			],
 		];
 		$this->arResult = [
 			'GRID' => \Bitrix\Main\Grid\Component\ComponentParams::get($this->grid, $additional),
@@ -1277,6 +1294,13 @@ class CatalogProductGridComponent extends \CBitrixComponent
 		if ($this->checkPermissions()->hasErrors())
 		{
 			$this->showErrors();
+
+			return;
+		}
+
+		if (State::isExternalCatalog())
+		{
+			$this->showCatalogStub();
 
 			return;
 		}

@@ -5,7 +5,7 @@
 	<input type="hidden" name="install" value="Y">
 	<input type="hidden" name="step" value="2">
 
-	<script language="JavaScript">
+	<script>
 	function ChangeInstallPublic(val, lan)
 	{
 		var name1 = 'is404_'+lan;
@@ -62,7 +62,7 @@
 		<input type="checkbox" name="install_smiles" value="Y" id="install_smiles" checked>&nbsp;<label for="install_smiles"><?=GetMessage("BLI_INSTALL_SMILES") ?></label>
 	</p>
 
-	<script language="JavaScript">
+	<script>
 	<?foreach($arSites as $fSite):?>
 		ChangeInstallPublic(false, '<?=CUtil::JSEscape($fSite["SITE_ID"]);?>');
 	<?endforeach;?>

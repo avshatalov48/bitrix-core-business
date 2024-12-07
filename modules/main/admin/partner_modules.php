@@ -57,10 +57,10 @@ if($isAdmin && $_SERVER["REQUEST_METHOD"] == "POST" && !empty($_POST["module"]) 
 		elseif(isset($_POST["act"]) && $_POST["act"] == "add_opinion")
 		{
 			$arF = Array(
-					"comments" => $GLOBALS["APPLICATION"]->ConvertCharset($_POST["comments"], SITE_CHARSET, "windows-1251"),
+					"comments" => $_POST["comments"],
 					"lkey" => Application::getInstance()->getLicense()->getPublicHashKey(),
 					"act" => "add_delete_comment",
-					"name" => $GLOBALS["APPLICATION"]->ConvertCharset($USER->GetFullName(), SITE_CHARSET, "windows-1251"),
+					"name" => $USER->GetFullName(),
 					"email" => $USER->GetEmail(),
 					"reason" => $_POST["reason"],
 				);
@@ -142,7 +142,7 @@ foreach($folders as $folder)
 		{
 			while (false !== ($dir = readdir($handle)))
 			{
-				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && strpos($dir, ".") !== false)
+				if(!isset($arModules[$dir]) && is_dir($_SERVER["DOCUMENT_ROOT"].$folder."/".$dir) && $dir!="." && $dir!=".." && str_contains($dir, "."))
 				{
 					$module_dir = $_SERVER["DOCUMENT_ROOT"].$folder."/".$dir;
 					if($info = CModule::CreateModuleObject($dir))
@@ -479,7 +479,7 @@ while($info = $rsData->Fetch())
 
 	$row =& $lAdmin1->AddRow($info["ID"], $info);
 
-	$row->AddViewField("NAME", "<b><a href=\"http://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["NAME"])."</a></b> (".htmlspecialcharsbx($info["ID"]).")<br />".htmlspecialcharsbx($info["DESCRIPTION"]));
+	$row->AddViewField("NAME", "<b><a href=\"https://marketplace.1c-bitrix.ru/".htmlspecialcharsbx($info["ID"])."\" target=\"_blank\">".htmlspecialcharsbx($info["NAME"])."</a></b> (".htmlspecialcharsbx($info["ID"]).")<br />".htmlspecialcharsbx($info["DESCRIPTION"]));
 	$row->AddViewField("PARTNER", $info["PARTNER"]);
 
 	if($info["UPDATE_END"] == "Y")

@@ -46,7 +46,7 @@ class PgsqlConnection extends Connection
 		}
 
 		set_error_handler([$this, 'connectionErrorHandler']);
-		if ($this->options & self::PERSISTENT)
+		if ($this->isPersistent())
 		{
 			$connection = @pg_pconnect($connectionString);
 		}
@@ -59,7 +59,7 @@ class PgsqlConnection extends Connection
 		if (!$connection)
 		{
 			throw new ConnectionException(
-				'Pgsql connect error ['.$this->host.']',
+				'Pgsql connect error [' . $this->host . ']',
 				error_get_last()['message']
 			);
 		}
@@ -130,7 +130,7 @@ class PgsqlConnection extends Connection
 	public function add($tableName, array $data, $identity = "ID")
 	{
 		$insert = $this->getSqlHelper()->prepareInsert($tableName, $data);
-		if(
+		if (
 			$identity !== null
 			&& (
 				!isset($data[$identity])
@@ -138,15 +138,15 @@ class PgsqlConnection extends Connection
 			)
 		)
 		{
-			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].") RETURNING ".$identity;
+			$sql = "INSERT INTO " . $tableName . "(" . $insert[0] . ") VALUES (" . $insert[1] . ") RETURNING " . $identity;
 			$row = $this->query($sql)->fetch();
 			return intval(array_shift($row));
 		}
 		else
 		{
-			$sql = "INSERT INTO ".$tableName."(".$insert[0].") VALUES (".$insert[1].")";
+			$sql = "INSERT INTO " . $tableName . "(" . $insert[0] . ") VALUES (" . $insert[1] . ")";
 			$this->query($sql);
-			return $data[$identity];
+			return $data[$identity] ?? null;
 		}
 	}
 
@@ -182,11 +182,12 @@ class PgsqlConnection extends Connection
 			SELECT tablename
 			FROM  pg_tables
 			WHERE schemaname = 'public'
-			AND tablename  = '".$this->getSqlHelper()->forSql($tableName)."'
+			AND tablename  = '" . $this->getSqlHelper()->forSql($tableName) . "'
 		");
 		$row = $result->fetch();
 		return is_array($row);
 	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -194,6 +195,7 @@ class PgsqlConnection extends Connection
 	{
 		return $this->getIndexName($tableName, $columns) !== null;
 	}
+
 	/**
 	 * @inheritDoc
 	 */
@@ -209,11 +211,11 @@ class PgsqlConnection extends Connection
 			SELECT a.attnum, a.attname
 			FROM pg_class t
 			LEFT JOIN pg_attribute a ON a.attrelid = t.oid
-			WHERE t.relname = '".$this->getSqlHelper()->forSql($tableName)."'
+			WHERE t.relname = '" . $this->getSqlHelper()->forSql($tableName) . "'
 		");
 		while ($a = $r->fetch())
 		{
-			if ($a['ATTNUM']> 0)
+			if ($a['ATTNUM'] > 0)
 			{
 				$tableColumns[$a['ATTNUM']] = $a['ATTNAME'];
 			}
@@ -226,7 +228,7 @@ class PgsqlConnection extends Connection
 			AND pg_class.oid IN (
 				SELECT indexrelid
 				FROM pg_index, pg_class
-				WHERE pg_class.relname = '".$this->getSqlHelper()->forSql($tableName)."'
+				WHERE pg_class.relname = '" . $this->getSqlHelper()->forSql($tableName) . "'
 				AND pg_class.oid = pg_index.indrelid
 			)
 		");
@@ -333,10 +335,10 @@ class PgsqlConnection extends Connection
 	/**
 	 * @inheritDoc
 	 */
-	public function createTable($tableName, $fields, $primary = array(), $autoincrement = array())
+	public function createTable($tableName, $fields, $primary = [], $autoincrement = [])
 	{
-		$sql = 'CREATE TABLE IF NOT EXISTS '.$this->getSqlHelper()->quote($tableName).' (';
-		$sqlFields = array();
+		$sql = 'CREATE TABLE IF NOT EXISTS ' . $this->getSqlHelper()->quote($tableName) . ' (';
+		$sqlFields = [];
 
 		foreach ($fields as $columnName => $field)
 		{
@@ -372,8 +374,7 @@ class PgsqlConnection extends Connection
 			}
 			$sqlFields[] = $this->getSqlHelper()->quote($realColumnName)
 				. ' ' . $type
-				. ($field->isNullable() ? '' : ' NOT NULL')
-			;
+				. ($field->isNullable() ? '' : ' NOT NULL');
 		}
 
 		$sql .= join(', ', $sqlFields);
@@ -386,13 +387,12 @@ class PgsqlConnection extends Connection
 				$primaryColumn = $this->getSqlHelper()->quote($realColumnName);
 			}
 
-			$sql .= ', PRIMARY KEY('.join(', ', $primary).')';
+			$sql .= ', PRIMARY KEY(' . join(', ', $primary) . ')';
 		}
 
 		$sql .= ')';
 
 		$this->query($sql);
-
 	}
 
 	/**
@@ -402,7 +402,7 @@ class PgsqlConnection extends Connection
 	{
 		if (!is_array($columnNames))
 		{
-			$columnNames = array($columnNames);
+			$columnNames = [$columnNames];
 		}
 
 		$sqlHelper = $this->getSqlHelper();
@@ -432,7 +432,7 @@ class PgsqlConnection extends Connection
 	 */
 	public function renameTable($currentName, $newName)
 	{
-		$this->query('ALTER TABLE '.$this->getSqlHelper()->quote($currentName).' RENAME TO '.$this->getSqlHelper()->quote($newName));
+		$this->query('ALTER TABLE ' . $this->getSqlHelper()->quote($currentName) . ' RENAME TO ' . $this->getSqlHelper()->quote($newName));
 	}
 
 	/**
@@ -440,7 +440,7 @@ class PgsqlConnection extends Connection
 	 */
 	public function dropTable($tableName)
 	{
-		$this->query('DROP TABLE '.$this->getSqlHelper()->quote($tableName));
+		$this->query('DROP TABLE ' . $this->getSqlHelper()->quote($tableName));
 	}
 
 	/**
@@ -561,7 +561,7 @@ class PgsqlConnection extends Connection
 			$this->version = $ar[1];
 		}
 
-		return array($this->version, null);
+		return [$this->version, null];
 	}
 
 	/**

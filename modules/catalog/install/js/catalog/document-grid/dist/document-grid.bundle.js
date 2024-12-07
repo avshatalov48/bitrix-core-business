@@ -1,6 +1,6 @@
 /* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core,main_popup,ui_buttons,catalog_storeUse,ui_dialogs_messagebox) {
+(function (exports,main_core,main_popup,ui_dialogs_messagebox,catalog_storeEnableWizard) {
 	'use strict';
 
 	var _templateObject, _templateObject2;
@@ -29,7 +29,7 @@ this.BX = this.BX || {};
 	        top.BX.UI.InfoHelper.show(this.inventoryManagementFeatureCode);
 	        return;
 	      }
-	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT'), function (messageBox, button) {
+	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_DELETE_CONTENT_2'), function (messageBox, button) {
 	        button.setWaiting();
 	        main_core.ajax.runAction('catalog.document.deleteList', {
 	          data: {
@@ -78,7 +78,7 @@ this.BX = this.BX || {};
 	      }
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
 	      actionConfig.analyticsLabel.mode = 'single';
-	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT'), function (messageBox, button) {
+	      ui_dialogs_messagebox.MessageBox.confirm(main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CONDUCT_CONTENT_2'), function (messageBox, button) {
 	        button.setWaiting();
 	        main_core.ajax.runAction('catalog.document.conductList', actionConfig).then(function () {
 	          messageBox.close();
@@ -121,7 +121,7 @@ this.BX = this.BX || {};
 	      }
 	      actionConfig.analyticsLabel.mode = 'single';
 	      actionConfig.analyticsLabel.inventoryManagementSource = this.inventoryManagementSource;
-	      var content = main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT');
+	      var content = main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_CONTENT_2');
 	      if (settings.get('isProductBatchMethodSelected')) {
 	        var text = main_core.Loc.getMessage('DOCUMENT_GRID_DOCUMENT_CANCEL_BATCH_SELECTED_CONTENT', {
 	          '#HELP_LINK#': '<help-link></help-link>'
@@ -310,7 +310,10 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "openStoreMasterSlider",
 	    value: function openStoreMasterSlider() {
-	      new catalog_storeUse.StoreSlider().open(this.masterSliderUrl, {
+	      new catalog_storeEnableWizard.EnableWizardOpener().open(this.masterSliderUrl, {
+	        urlParams: {
+	          analyticsContextSection: catalog_storeEnableWizard.AnalyticsContextList.DOCUMENT_LIST
+	        },
 	        data: {
 	          openGridOnDone: false
 	        },
@@ -348,5 +351,5 @@ this.BX = this.BX || {};
 
 	exports.DocumentGridManager = DocumentGridManager;
 
-}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI,BX.Catalog.StoreUse,BX.UI.Dialogs));
+}((this.BX.Catalog = this.BX.Catalog || {}),BX,BX.Main,BX.UI.Dialogs,BX.Catalog.Store));
 //# sourceMappingURL=document-grid.bundle.js.map

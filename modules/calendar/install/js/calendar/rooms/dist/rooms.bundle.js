@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Calendar = this.BX.Calendar || {};
 (function (exports,calendar_controls,calendar_sectioninterface,main_core_events,main_core,calendar_util,ui_entitySelector,ui_dialogs_messagebox) {
@@ -389,6 +390,27 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	  initDialogStandard() {
 	    main_core.Event.bind(this.DOM.accessButton, 'click', () => {
+	      const entities = [{
+	        id: 'user',
+	        options: {
+	          analyticsSource: 'calendar'
+	        }
+	      }, {
+	        id: 'department',
+	        options: {
+	          selectMode: 'usersAndDepartments'
+	        }
+	      }, {
+	        id: 'meta-user',
+	        options: {
+	          'all-users': true
+	        }
+	      }];
+	      if (calendar_util.Util.isProjectFeatureEnabled()) {
+	        entities.push({
+	          id: 'project'
+	        });
+	      }
 	      this.entitySelectorDialog = new ui_entitySelector.Dialog({
 	        targetNode: this.DOM.accessButton,
 	        context: 'CALENDAR',
@@ -401,21 +423,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	        popupOptions: {
 	          targetContainer: document.body
 	        },
-	        entities: [{
-	          id: 'user'
-	        }, {
-	          id: 'project'
-	        }, {
-	          id: 'department',
-	          options: {
-	            selectMode: 'usersAndDepartments'
-	          }
-	        }, {
-	          id: 'meta-user',
-	          options: {
-	            'all-users': true
-	          }
-	        }]
+	        entities
 	      });
 	      this.entitySelectorDialog.show();
 	    });
@@ -435,7 +443,10 @@ this.BX.Calendar = this.BX.Calendar || {};
 	          targetContainer: document.body
 	        },
 	        entities: [{
-	          id: 'user'
+	          id: 'user',
+	          options: {
+	            analyticsSource: 'calendar'
+	          }
 	        }, {
 	          id: 'department',
 	          options: {

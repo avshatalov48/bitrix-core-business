@@ -97,7 +97,7 @@ function _ShowStringPropertyField($name, $property_fields, $values, $bInitDef = 
 	if ($property_fields["MULTIPLE"] == "Y")
 	{
 		echo '<tr><td><input type="button" value="'.GetMessage("IBLOCK_AT_PROP_ADD").'" onClick="BX.IBlock.Tools.addNewRow(\'tb'.md5($name).'\')"></td></tr>';
-		echo "<script type=\"text/javascript\">BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(mb_strlen($name) + 1).")=='".CUtil::JSEscape($name)."['){BX.IBlock.Tools.addNewRow('tb".md5($name)."')}}})</script>";
+		echo "<script>BX.addCustomEvent('onAutoSaveRestore', function(ob, data) {for (var i in data){if (i.substring(0,".(mb_strlen($name) + 1).")=='".CUtil::JSEscape($name)."['){BX.IBlock.Tools.addNewRow('tb".md5($name)."')}}})</script>";
 	}
 
 	echo "</table>";
@@ -230,7 +230,7 @@ function _ShowElementPropertyField($name, $property_fields, $values, $bVarsFromF
 	}
 
 	echo '</table>';
-	echo '<script type="text/javascript">'."\r\n";
+	echo '<script>'."\r\n";
 	echo "var MV_".md5($name)." = ".$index.";\r\n";
 	echo "function InS".md5($name)."(id, name){ \r\n";
 	echo "	oTbl=document.getElementById('tb".md5($name)."');\r\n";
@@ -788,7 +788,7 @@ function IBlockShowRights($entity_type, $iblock_id, $id, $section_title, $variab
 	?>
 	<tr>
 		<td colspan="2" align="center">
-			<script type="text/javascript">
+			<script>
 				BX.message({
 						langApplyTitle: '<?=CUtil::JSEscape(GetMessage("IBLOCK_AT_OVERWRITE_TIP"))?>',
 						langApply1Title: '<?=CUtil::JSEscape(GetMessage("IBLOCK_AT_OVERWRITE_1"))?>',

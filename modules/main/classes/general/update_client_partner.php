@@ -434,7 +434,7 @@ class CUpdateClientPartner
 		return $arResult;
 	}
 
-	/** Пишет сообщения в лог файл системы обновлений. Чистит лог, если нужно. **/
+	/** РџРёС€РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ РІ Р»РѕРі С„Р°Р№Р» СЃРёСЃС‚РµРјС‹ РѕР±РЅРѕРІР»РµРЅРёР№. Р§РёСЃС‚РёС‚ Р»РѕРі, РµСЃР»Рё РЅСѓР¶РЅРѕ. **/
 	public static function AddMessage2Log($sText, $sErrorCode = "")
 	{
 		$MAX_LOG_SIZE = 1000000;
@@ -542,7 +542,7 @@ class CUpdateClientPartner
 		return $license->getKey();
 	}
 
-	// Распаковывает архив файлов update_archive.gz в папкy $updatesDir
+	// Р Р°СЃРїР°РєРѕРІС‹РІР°РµС‚ Р°СЂС…РёРІ С„Р°Р№Р»РѕРІ update_archive.gz РІ РїР°РїРєy $updatesDir
 	public static function UnGzipArchive(&$updatesDir, &$strError, $bDelArch = true)
 	{
 		$strError_tmp = '';
@@ -725,7 +725,7 @@ class CUpdateClientPartner
 			return true;
 	}
 
-	// Возвращает информацию по загруженным в папку $updatesDir обновлениям модулей
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ Р·Р°РіСЂСѓР¶РµРЅРЅС‹Рј РІ РїР°РїРєСѓ $updatesDir РѕР±РЅРѕРІР»РµРЅРёСЏРј РјРѕРґСѓР»РµР№
 	public static function CheckUpdatability($updatesDir, &$strError)
 	{
 		$strError_tmp = "";
@@ -794,7 +794,7 @@ class CUpdateClientPartner
 			return true;
 	}
 
-	// Возвращает информацию по загруженным в папку $updatesDir обновлениям модулей
+	// Р’РѕР·РІСЂР°С‰Р°РµС‚ РёРЅС„РѕСЂРјР°С†РёСЋ РїРѕ Р·Р°РіСЂСѓР¶РµРЅРЅС‹Рј РІ РїР°РїРєСѓ $updatesDir РѕР±РЅРѕРІР»РµРЅРёСЏРј РјРѕРґСѓР»РµР№
 	public static function GetStepUpdateInfo($updatesDir, &$strError)
 	{
 		$arResult = array();
@@ -864,7 +864,7 @@ class CUpdateClientPartner
 
 			$dbv = $GLOBALS["DB"]->GetVersion();
 
-			$strResult = "utf=".urlencode(defined('BX_UTF') ? "Y" : "N").
+			$strResult = "utf=Y".
 				"&lang=".urlencode($lang).
 				"&stable=".urlencode($stableVersionsOnly).
 				"&CANGZIP=".urlencode((CUpdateClientPartner::__IsGzipInstalled()) ? "Y" : "N").
@@ -939,7 +939,7 @@ class CUpdateClientPartner
 		return false;
 	}
 
-	/** Собирает клиентские модули с версиями **/
+	/** РЎРѕР±РёСЂР°РµС‚ РєР»РёРµРЅС‚СЃРєРёРµ РјРѕРґСѓР»Рё СЃ РІРµСЂСЃРёСЏРјРё **/
 	public static function GetCurrentModules(&$strError)
 	{
 		$arClientModules = array();
@@ -1003,7 +1003,7 @@ class CUpdateClientPartner
 		return $arClientModules;
 	}
 
-	/* Получить список доступных обновлений */
+	/* РџРѕР»СѓС‡РёС‚СЊ СЃРїРёСЃРѕРє РґРѕСЃС‚СѓРїРЅС‹С… РѕР±РЅРѕРІР»РµРЅРёР№ */
 	public static function GetUpdatesList(&$strError, $lang = false, $stableVersionsOnly = "Y", $arRequestedModules = array(), $aditData = Array())
 	{
 		$strError_tmp = "";
@@ -1263,8 +1263,6 @@ class CUpdateClientPartner
 
 	private static function getSocketError($errstr, $errno, $addrParams)
 	{
-		if (class_exists('CUtil') && method_exists('CUtil', 'ConvertToLangCharset'))
-			$errstr = CUtil::ConvertToLangCharset($errstr);
 		$error = GetMessage("SUPP_GHTTP_ER").": [".$errno."] ".$errstr.". ";
 		if (intval($errno) <= 0)
 			$error .= GetMessage("SUPP_GHTTP_ER_DEF")." ";
@@ -1655,7 +1653,7 @@ class CUpdateClientPartner
 					{
 						while (false !== ($dir = readdir($handle)))
 						{
-							if (mb_substr($dir, 0, 7) == "updater")
+							if (str_starts_with($dir, "updater"))
 							{
 								$bPostUpdater = "N";
 								if (is_file($updateDirFrom."/".$dir))
@@ -1861,7 +1859,7 @@ class CUpdateClientPartner
 			return true;
 	}
 
-	/** Запускает updater модуля **/
+	/** Р—Р°РїСѓСЃРєР°РµС‚ updater РјРѕРґСѓР»СЏ **/
 	public static function __RunUpdaterScript($path, &$strError, $updateDirFrom, $moduleID)
 	{
 		global $DBType, $DB, $APPLICATION, $USER;
@@ -1901,10 +1899,10 @@ class CUpdateClientPartner
 		unset($updater);
 	}
 
-	/** Сравнение двух версий в формате XX.XX.XX. **/
-	/** Возвращает 1, если $strVers1 > $strVers2  **/
-	/** Возвращает -1, если $strVers1 < $strVers2 **/
-	/** Возвращает 0, если $strVers1 == $strVers2 **/
+	/** РЎСЂР°РІРЅРµРЅРёРµ РґРІСѓС… РІРµСЂСЃРёР№ РІ С„РѕСЂРјР°С‚Рµ XX.XX.XX. **/
+	/** Р’РѕР·РІСЂР°С‰Р°РµС‚ 1, РµСЃР»Рё $strVers1 > $strVers2  **/
+	/** Р’РѕР·РІСЂР°С‰Р°РµС‚ -1, РµСЃР»Рё $strVers1 < $strVers2 **/
+	/** Р’РѕР·РІСЂР°С‰Р°РµС‚ 0, РµСЃР»Рё $strVers1 == $strVers2 **/
 	public static function __CompareVersions($strVers1, $strVers2)
 	{
 		$strVers1 = trim($strVers1);
@@ -1932,9 +1930,9 @@ class CUpdateClientPartner
 	}
 
 	/**
-	 * Запрашивает методом POST страницу $page со списком параметров
-	 * $strVars и возвращает тело ответа. В параметре $strError
-	 * возвращается текст ошибки, если таковая была.
+	 * Р—Р°РїСЂР°С€РёРІР°РµС‚ РјРµС‚РѕРґРѕРј POST СЃС‚СЂР°РЅРёС†Сѓ $page СЃРѕ СЃРїРёСЃРєРѕРј РїР°СЂР°РјРµС‚СЂРѕРІ
+	 * $strVars Рё РІРѕР·РІСЂР°С‰Р°РµС‚ С‚РµР»Рѕ РѕС‚РІРµС‚Р°. Р’ РїР°СЂР°РјРµС‚СЂРµ $strError
+	 * РІРѕР·РІСЂР°С‰Р°РµС‚СЃСЏ С‚РµРєСЃС‚ РѕС€РёР±РєРё, РµСЃР»Рё С‚Р°РєРѕРІР°СЏ Р±С‹Р»Р°.
 	 */
 	public static function __GetHTTPPage($page, $strVars, &$strError)
 	{
@@ -2070,8 +2068,8 @@ class CUpdateClientPartner
 		return $content;
 	}
 
-	/** Проверяет на ошибки ответ сервера $strServerOutput. **/
-	/** Парсит в массив $arRes. **/
+	/** РџСЂРѕРІРµСЂСЏРµС‚ РЅР° РѕС€РёР±РєРё РѕС‚РІРµС‚ СЃРµСЂРІРµСЂР° $strServerOutput. **/
+	/** РџР°СЂСЃРёС‚ РІ РјР°СЃСЃРёРІ $arRes. **/
 	public static function __ParseServerData(&$strServerOutput, &$arRes, &$strError)
 	{
 		$strError_tmp = "";
@@ -2133,7 +2131,7 @@ class CUpdateClientPartner
 			return true;
 	}
 
-	/** Проверка на установку GZip компрессии **/
+	/** РџСЂРѕРІРµСЂРєР° РЅР° СѓСЃС‚Р°РЅРѕРІРєСѓ GZip РєРѕРјРїСЂРµСЃСЃРёРё **/
 	public static function __IsGzipInstalled()
 	{
 		if (function_exists("gzcompress"))
@@ -2151,20 +2149,20 @@ class CUpdateClientPartner
 		return $cnt;
 	}
 
-	/** Создание путя, если его нет, и установка прав писать **/
+	/** РЎРѕР·РґР°РЅРёРµ РїСѓС‚СЏ, РµСЃР»Рё РµРіРѕ РЅРµС‚, Рё СѓСЃС‚Р°РЅРѕРІРєР° РїСЂР°РІ РїРёСЃР°С‚СЊ **/
 	public static function __CheckDirPath($path, $bPermission = true)
 	{
 		$badDirs = Array();
 		$path = str_replace("\\", "/", $path);
 		$path = str_replace("//", "/", $path);
 
-		if ($path[mb_strlen($path) - 1] != "/") //отрежем имя файла
+		if ($path[mb_strlen($path) - 1] != "/") //РѕС‚СЂРµР¶РµРј РёРјСЏ С„Р°Р№Р»Р°
 		{
 			$p = CUpdateClientPartner::__bxstrrpos($path, "/");
 			$path = mb_substr($path, 0, $p);
 		}
 
-		while (mb_strlen($path) > 1 && $path[mb_strlen($path) - 1]=="/") //отрежем / в конце, если есть
+		while (mb_strlen($path) > 1 && $path[mb_strlen($path) - 1]=="/") //РѕС‚СЂРµР¶РµРј / РІ РєРѕРЅС†Рµ, РµСЃР»Рё РµСЃС‚СЊ
 			$path = mb_substr($path, 0, mb_strlen($path) - 1);
 
 		$p = CUpdateClientPartner::__bxstrrpos($path, "/");
@@ -2191,7 +2189,7 @@ class CUpdateClientPartner
 		}
 	}
 
-	/** Рекурсивное копирование из $path_from в $path_to **/
+	/** Р РµРєСѓСЂСЃРёРІРЅРѕРµ РєРѕРїРёСЂРѕРІР°РЅРёРµ РёР· $path_from РІ $path_to **/
 	public static function __CopyDirFiles($path_from, $path_to, &$strError, $bSkipUpdater = true)
 	{
 		$strError_tmp = "";
@@ -2233,7 +2231,7 @@ class CUpdateClientPartner
 							if ($file == "." || $file == "..")
 								continue;
 
-							if ($bSkipUpdater && mb_substr($file, 0, mb_strlen("updater")) == "updater")
+							if ($bSkipUpdater && str_starts_with($file, "updater"))
 								continue;
 
 							if (is_dir($path_from."/".$file))
@@ -2310,7 +2308,7 @@ class CUpdateClientPartner
 			return true;
 	}
 
-	/** Рекурсивное удаление $path **/
+	/** Р РµРєСѓСЂСЃРёРІРЅРѕРµ СѓРґР°Р»РµРЅРёРµ $path **/
 	public static function __DeleteDirFilesEx($path)
 	{
 		if (!file_exists($path))
@@ -2352,7 +2350,7 @@ class CUpdateClientPartner
 		return $index;
 	}
 
-	/** Возвращает экземпляр класса-инсталятора модуля по абсолютному пути $path **/
+	/** Р’РѕР·РІСЂР°С‰Р°РµС‚ СЌРєР·РµРјРїР»СЏСЂ РєР»Р°СЃСЃР°-РёРЅСЃС‚Р°Р»СЏС‚РѕСЂР° РјРѕРґСѓР»СЏ РїРѕ Р°Р±СЃРѕР»СЋС‚РЅРѕРјСѓ РїСѓС‚Рё $path **/
 	public static function __GetModuleInfo($path)
 	{
 		$module_code = basename($path);

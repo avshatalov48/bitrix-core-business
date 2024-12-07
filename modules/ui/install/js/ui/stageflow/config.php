@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/stageflow.bundle.css',
 	'js' => 'dist/stageflow.bundle.js',
 	'rel' => [
+		'ui.buttons',
 		'main.core',
 		'main.popup',
 		'ui.fonts.opensans',

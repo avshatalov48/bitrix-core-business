@@ -39,10 +39,10 @@ export default class DefaultStub extends BaseStub
 					<div class="ui-selector-tab-default-stub-titles">
 						<div class="ui-selector-tab-default-stub-title">${title}</div>
 						${
-							subtitle ? 
-								Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>` 
-								: ''
-						}
+				subtitle ?
+					Tag.render`<div class="ui-selector-tab-default-stub-subtitle">${subtitle}</div>`
+					: ''
+			}
 					</div>
 					
 					${arrow ? Tag.render`<div class="ui-selector-tab-default-stub-arrow"></div>` : ''}
@@ -51,9 +51,13 @@ export default class DefaultStub extends BaseStub
 		});
 	}
 
-	getDefaultTitle()
+	getDefaultTitle(): string
 	{
 		const titleNode = this.getTab().getTitleNode();
+		if (titleNode === null)
+		{
+			return Loc.getMessage('UI_SELECTOR_TAB_STUB_TITLE').replace(/#TAB_TITLE#/, '');
+		}
 
 		const titleContainer = Tag.render`<span class="ui-selector-tab-default-stub-title"></span>`;
 		titleNode.renderTo(titleContainer);

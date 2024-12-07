@@ -22,6 +22,8 @@ class PersonalOrderSection extends CBitrixComponent
 			$params['VARIABLE_ALIASES'] = [];
 		}
 
+		$params['PATH_TO_LIST'] = trim((string)($params['PATH_TO_LIST'] ?? ''));
+
 		$params['SHOW_ACCOUNT_PAGE'] = (string)($params['SHOW_ACCOUNT_PAGE'] ?? 'Y');
 		$params['SHOW_ORDER_PAGE'] = (string)($params['SHOW_ORDER_PAGE'] ?? 'Y');
 		$params['SHOW_PRIVATE_PAGE'] = (string)($params['SHOW_PRIVATE_PAGE'] ?? 'Y');
@@ -43,7 +45,11 @@ class PersonalOrderSection extends CBitrixComponent
 		$params['CACHE_TIME'] = (int)($params['CACHE_TIME'] ?? 3600);
 		$params['CACHE_GROUPS'] = (string)($params['CACHE_GROUPS'] ?? 'Y');
 
-		$params['CUSTOM_PAGES'] ??= '';
+		$params['CUSTOM_PAGES'] ??= '[]';
+		if (!is_string($params['CUSTOM_PAGES']) || trim($params['CUSTOM_PAGES']) === '')
+		{
+			$params['CUSTOM_PAGES'] = '[]';
+		}
 
 		$params['SHOW_ACCOUNT_COMPONENT'] = (string)($params['SHOW_ACCOUNT_COMPONENT'] ?? 'Y');
 		$params['SHOW_ACCOUNT_PAY_COMPONENT'] = (string)($params['SHOW_ACCOUNT_PAY_COMPONENT'] ?? 'Y');
@@ -185,7 +191,8 @@ class PersonalOrderSection extends CBitrixComponent
 			{
 				$this->arResult["PATH_TO_" . mb_strtoupper($url)] = $this->arParams["SEF_FOLDER"].$value;
 			}
-			$this->arResult["PATH_TO_ORDER_COPY"] = $this->arResult["PATH_TO_ORDERS"]."?COPY_ORDER=Y&ID=#ID#";
+			$urlSign = str_contains($this->arParams['PATH_TO_LIST'], '?') ? '&' : '?';
+			$this->arResult['PATH_TO_ORDER_COPY'] = $this->arResult['PATH_TO_ORDERS'] . $urlSign . 'COPY_ORDER=Y&ID=#ID#';
 			$this->arResult['PATH_TO_PROFILE_DELETE'] = $this->arResult['PATH_TO_PROFILE'] . '?del_id=#ID#';
 
 			$variableAliases = CComponentEngine::makeComponentVariableAliases(array(), $this->arParams["VARIABLE_ALIASES"]);

@@ -260,7 +260,7 @@ class CIBlock extends CAllIBlock
 			$strSqlOrder = "";
 		}
 
-		return $DB->Query($strSql.$strSqlOrder, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		return $DB->Query($strSql.$strSqlOrder);
 	}
 
 	public static function _Upper($str)
@@ -270,8 +270,6 @@ class CIBlock extends CAllIBlock
 
 	public function _Add($ID)
 	{
-		global $DB;
-		$err_mess = 'FILE: ' . __FILE__ . '<br>LINE: ';
 		$ID = (int)$ID;
 
 		$connection = Application::getConnection();

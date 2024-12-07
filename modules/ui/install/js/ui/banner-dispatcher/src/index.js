@@ -1,5 +1,5 @@
-import {BannerDispatcher} from './banner-dispatcher';
+import { BannerDispatcher } from './banner-dispatcher';
 
 export {
-	BannerDispatcher
+	BannerDispatcher,
 };

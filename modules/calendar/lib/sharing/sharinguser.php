@@ -43,7 +43,7 @@ final class SharingUser
 
 		if (
 			$USER->isAuthorized()
-			&& in_array($USER->GetParam('EXTERNAL_AUTH_ID'), ['calendar_sharing', null], true)
+			&& in_array($USER->GetParam('EXTERNAL_AUTH_ID'), [self::EXTERNAL_AUTH_ID, null], true)
 		)
 		{
 			if ($needToCreateUser)
@@ -67,7 +67,7 @@ final class SharingUser
 
 			if ($needToCreateUser)
 			{
-				$this->updateUserPersonalInfo($USER->GetID(), $userParams);
+				$this->updateUserPersonalInfo($user->getId(), $userParams);
 			}
 
 			return $user->getId();
@@ -198,7 +198,7 @@ final class SharingUser
 	{
 		$user = \CUser::GetByID($userId)->Fetch();
 
-		if (($user['EXTERNAL_AUTH_ID'] ?? null) !== 'calendar_sharing')
+		if (($user['EXTERNAL_AUTH_ID'] ?? null) !== self::EXTERNAL_AUTH_ID)
 		{
 			return;
 		}

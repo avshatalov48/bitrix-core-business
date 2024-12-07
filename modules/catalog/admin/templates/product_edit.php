@@ -233,7 +233,7 @@ while ($l_res = $l->Fetch())
 		echo ' ' . GetMessage("IBLOCK_TREADONLY");
 	}
 	?>
-<script type="text/javascript">
+<script>
 var allowPriceEdit = <?= ($allowEditPrices ? 'true' : 'false'); ?>;
 var allowEdit = <?= ($allowEdit ? 'true' : 'false'); ?>;
 
@@ -621,7 +621,7 @@ else
 				);
 				?>
 				<span id="hint_CAT_VAT_ID"></span>
-				<script type="text/javascript">
+				<script>
 					BX.hint_replace(BX('hint_CAT_VAT_ID'), '<?= \CUtil::JSEscape($hintMessage); ?>');
 				</script>&nbsp;<?php
 			}
@@ -694,7 +694,7 @@ else
 	echo GetMessage("BASE_PRICE")?> (<?= GetMessage('C2IT_PRICE_TYPE'); ?> "<?= htmlspecialcharsbx(!empty($arBaseGroup['NAME_LANG']) ? $arBaseGroup['NAME_LANG'] : $arBaseGroup["NAME"]); ?>"):
 		</td>
 		<td width="60%">
-<script type="text/javascript">
+<script>
 var arExtra = [], arExtraPrc = [];
 	<?php
 	$db_extras = CExtra::GetList(($by3="NAME"), ($order3="ASC"));
@@ -990,7 +990,7 @@ function OnChangePriceExist()
 		</td>
 	</tr>
 </table>
-<script type="text/javascript">
+<script>
 	SetFieldsStyle('catalog_vat_table');
 </script>
 	<?php
@@ -1080,7 +1080,7 @@ function OnChangePriceExist()
 					<?php
 					echo CCurrency::SelectBox("CAT_CURRENCY_".$arCatalogGroup["ID"], $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeCurrency(".$arCatalogGroup["ID"].")", $disablePrice.' id="'."CAT_CURRENCY_".$arCatalogGroup["ID"].'" ')
 					?>
-					<script type="text/javascript">
+					<script>
 						ChangeExtra(<?= $arCatalogGroup["ID"] ?>);
 					</script>
 				</td>
@@ -1096,7 +1096,7 @@ function OnChangePriceExist()
 // extended price form
 	?>
 <div id="prices_ext" style="display: <?=$bUseExtendedPrice ? 'block' : 'none'?>;">
-<script type="text/javascript">
+<script>
 function CloneBasePriceGroup()
 {
 	if (!allowPriceEdit)
@@ -1678,7 +1678,7 @@ function CloneBarcodeField()
 		<input type="button" value="<?= htmlspecialcharsbx(GetMessage("C2IT_MORE")); ?>" OnClick="ClonePriceSections()">
 	</td>
 </tr>
-<script type="text/javascript">
+<script>
 	arCatalogGroups = [];
 	catalogGroupsInd = 0;
 </script>
@@ -1694,7 +1694,7 @@ function CloneBarcodeField()
 	while ($arCatalogGroup = $dbCatalogGroups->Fetch())
 	{
 		?>
-	<script type="text/javascript">
+	<script>
 		arCatalogGroups[catalogGroupsInd] = <?= $arCatalogGroup["ID"] ?>;
 		catalogGroupsInd++;
 	</script>
@@ -1780,7 +1780,7 @@ function CloneBarcodeField()
 						<td valign="top" align="center">
 
 							<?= CCurrency::SelectBox("CAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeCurrencyEx(this)", $allowEditPrices.' id="'."CAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
-							<script type="text/javascript">
+							<script>
 								jsUtils.addEvent(window, 'load', function() {ChangeExtraEx(document.getElementById('CAT_EXTRA_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>'));});
 							</script>
 
@@ -1826,7 +1826,7 @@ function CloneBarcodeField()
 							<td valign="top" align="center">
 
 								<?= CCurrency::SelectBox("CAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind, $str_CAT_CURRENCY, GetMessage("VAL_BASE"), true, "ChangeCurrencyEx(this)", $allowEditPrices.' id="'."CAT_CURRENCY_".$arCatalogGroup["ID"]."_".$ind.'" ') ?>
-								<script type="text/javascript">
+								<script>
 									jsUtils.addEvent(window, 'load', function () {ChangeExtraEx(document.getElementById('CAT_EXTRA_<?= $arCatalogGroup["ID"] ?>_<?= $ind ?>'));});
 								</script>
 
@@ -2221,7 +2221,7 @@ function CloneBarcodeField()
 	<tr>
 		<td width="40%"><?= GetMessage("C2IT_PAY_TYPE"); ?></td>
 		<td width="60%">
-			<script type="text/javascript">
+			<script>
 			function ChangePriceType()
 			{
 				if (!allowEdit)
@@ -2357,7 +2357,7 @@ function CloneBarcodeField()
 	unset($productUserFieldsHtml);
 	?>
 </table>
-<script type="text/javascript">
+<script>
 	SetFieldsStyle('catalog_properties_table');
 <?php
 if ('Y' == $arMainCatalog['SUBSCRIPTION'])
@@ -2372,7 +2372,7 @@ if ('Y' == $arMainCatalog['SUBSCRIPTION'])
 if ('Y' == $arMainCatalog['SUBSCRIPTION']):
 	$tabControl1->BeginNextTab();
 	?>
-<script type="text/javascript">
+<script>
 	function CatGroupsActivate(obj, id)
 	{
 		if (!allowEdit)
@@ -2647,8 +2647,14 @@ endif;
 			{
 				$storeId = (int)$row['STORE_ID'];
 				$row['AMOUNT'] = (string)$row['AMOUNT'];
-				$row['QUANTITY_RESERVED'] = (string)$row['QUANTITY_RESERVED'];
-				if ($row['AMOUNT'] !== '0' || $row['QUANTITY_RESERVED'] !== '0')
+				$row['QUANTITY_RESERVED'] = (string)($row['QUANTITY_RESERVED'] ?? '');
+				if (
+					$row['AMOUNT'] !== '0'
+					|| (
+						$row['QUANTITY_RESERVED'] !== '0'
+						&& $row['QUANTITY_RESERVED'] !== ''
+					)
+				)
 				{
 					$storeLink[$storeId]['PRODUCT_AMOUNT'] = $row['AMOUNT'];
 				}
@@ -2818,7 +2824,7 @@ endif;
 	{
 		$tabControl1->BeginNextTab();
 		?>
-		<script type="text/javascript">
+		<script>
 			function getDataSubscriptions() {
 				BX.ajax({
 					method: 'POST',
@@ -2884,7 +2890,7 @@ endif;
 
 	$tabControl1->End();
 	?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	var basePrice = BX('CAT_BASE_PRICE');
 	if (!!basePrice && !basePrice.disabled)

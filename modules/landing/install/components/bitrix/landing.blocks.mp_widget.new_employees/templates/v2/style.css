@@ -1,0 +1,202 @@
+.block-mp-widget-new-employees-v2 .landing-widget-wrapper {
+	--widget-color-h-v2: initial;
+}
+
+.landing-widget-new-employees-v2 {
+	display: flex;
+	flex-direction: column;
+	font-family: var(--ui-font-family-system);
+	cursor: default;
+}
+
+.landing-widget-new-employees-v2 .landing-widget-view-main {
+	padding: 32px 50px 46px 50px;
+}
+
+.landing-widget-new-employees-v2-title {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-bottom: 40px;
+	font: var(--ui-font-weight-semi-bold) 28px var(--ui-font-family-system);
+	line-height: 33px;
+	color: var(--widget-color-h-v2);
+}
+
+.landing-widget-new-employees-v2-content {
+	display: grid;
+	grid-gap: 26px;
+	grid-template-columns: repeat(auto-fill, minmax(264px, 1fr));
+}
+
+.landing-widget-new-employees-v2-content-item {
+	position: relative;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 0 9px;
+	height: 72px;
+	border-radius: var(--ui-border-radius-pill);
+	background-color: var(--ui-color-background-primary);
+	background-size: cover;
+	box-shadow: 0 4px 6px 0 rgba(67, 72, 74, .1);
+	box-sizing: border-box;
+}
+
+.landing-widget-new-employees-v2-content-item-img, .landing-widget-new-employees-v2-content-item-img-default {
+	margin-right: 8px;
+	min-width: 52px;
+	height: 52px;
+	border-radius: var(--ui-border-radius-circle);
+	background-size: contain;
+}
+
+.landing-widget-new-employees-v2-content-item-img-default {
+	background: var(--primary) url(./images/img.svg) no-repeat center;
+}
+
+a[href].landing-widget-new-employees-v2-content-item-img:hover,
+a[href].landing-widget-new-employees-v2-content-item-img-default:hover {
+	opacity: .9;
+}
+
+.landing-widget-new-employees-v2-content-item-text-box {
+	flex-grow: 1;
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+.landing-widget-new-employees-v2-content-item-text-name,
+.landing-widget-new-employees-v2-content-item-text-work-position,
+.landing-widget-new-employees-v2-content-item-text-date {
+	max-width: 100%;
+	line-height: 14px;
+	text-align: left;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+	overflow: hidden;
+}
+
+.landing-widget-new-employees-v2-content-item-text-name {
+	padding-bottom: 2px;
+	line-height: 18px;
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--primary);
+}
+
+.landing-widget-new-employees-v2-content-item-text-name:hover {
+	color: var(--ui-color-base-90);
+}
+
+a[href].landing-widget-new-employees-v2-content-item-text-name:hover {
+	opacity: .9;
+}
+
+.landing-widget-new-employees-v2-content-item-text-work-position {
+	padding-bottom: 3px;
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-regular);
+	color: #959ca4;
+}
+
+.landing-widget-new-employees-v2-content-item-text-date {
+	font-size: var(--ui-font-size-xs);
+	font-weight: var(--ui-font-weight-regular);
+	color: #959ca4;
+}
+
+/* region Empty State */
+
+.landing-widget-new-employees-v2-empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.landing-widget-new-employees-v2-empty-state-icon {
+	display: block;
+	margin-bottom: 8px;
+	width: 281px;
+	height: 261px;
+	background: url(./images/landing-widget-new-employees-v2-icon.svg) center no-repeat;
+}
+
+.landing-widget-new-employees-v2-empty-state-text {
+	display: block;
+	color: var(--ui-color-base-60);
+	font-size: var(--ui-font-size-2xl);
+	text-align: center;
+}
+
+/* endregion */
+
+/*
+sidebar view
+ */
+.landing-widget-new-employees-v2 .landing-widget-view-sidebar .landing-widget-view-sidebar-content {
+	padding: 20px 19px 28px;
+	display: flex;
+	flex-direction: column;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-title {
+	font: var(--ui-font-weight-medium) 16px var(--ui-font-family-system);
+	margin-bottom: 0;
+	padding-bottom: 19px;
+	padding-left: 2px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content {
+	grid-gap: 15px;
+	grid-template-columns: repeat(auto-fill, minmax(224px, 1fr));
+	max-height: 335px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item {
+	height: 55px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-img ,
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-img-default {
+	min-width: 36px;
+	height: 36px;
+	margin-right: 8px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-text-name,
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-text-work-position {
+	padding: 0;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-text-name {
+	font-size: var(--ui-font-size-xs);
+	line-height: 16px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-text-work-position {
+	font-size: var(--ui-font-size-4xs);
+	line-height: 14px;
+}
+
+.landing-widget-view-sidebar .landing-widget-new-employees-v2-content-item-text-date {
+	font-size: var(--ui-font-size-5xs);
+	line-height: 12px;
+}
+
+.landing-widget-new-employees-v2 .landing-widget-view-sidebar .landing-widget-new-employees-v2-empty-state-icon {
+	background-size: contain !important;
+	width: 153px;
+	height: 142px;
+	margin-top: 53px;
+	margin-bottom: 26px;
+}
+
+.landing-widget-new-employees-v2 .landing-widget-view-sidebar .landing-widget-new-employees-v2-empty-state-text {
+	margin-bottom: 18px;
+	font-size: var(--ui-font-size-lg);
+	line-height: 18px;
+	color: #959ca4;
+}
+

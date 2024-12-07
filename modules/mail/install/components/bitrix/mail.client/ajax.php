@@ -586,7 +586,6 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 		$rawData = (array) \Bitrix\Main\Application::getInstance()->getContext()->getRequest()->getPostList()->getRaw('data');
 
 		$decodedData = $rawData;
-		\CUtil::decodeUriComponent($decodedData);
 
 		$hostname = $this->getHostname();
 
@@ -941,7 +940,7 @@ class CMailClientAjaxController extends \Bitrix\Main\Engine\Controller
 				}
 			);
 
-			$result = $mailboxHelper->mail(array_merge(
+			$mailboxHelper->mail(array_merge(
 				$outgoingParams,
 				array(
 					'HEADER' => array_merge(

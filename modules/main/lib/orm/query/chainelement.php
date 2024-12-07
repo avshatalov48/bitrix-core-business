@@ -252,7 +252,7 @@ class ChainElement
 			$expr = $this->value->getExpression();
 
 			// insert talias
-			if (strpos($expr, '%%TABLE_ALIAS') !== false)
+			if (str_contains($expr, '%%TABLE_ALIAS'))
 			{
 				$expr = str_replace('%%TABLE_ALIAS', $helper->quote($this->getParameter('talias')), $expr);
 			}

@@ -1,7 +1,6 @@
-import { Dom, Loc, Tag, Text, Type } from "main.core";
-import { EventEmitter } from "main.core.events";
+import { Dom, Loc, Tag, Text, Type } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { HelpMessage } from 'ui.section';
-
 
 export class BaseField extends EventEmitter
 {
@@ -15,6 +14,7 @@ export class BaseField extends EventEmitter
 	#helpMessageProvider: function;
 	#helpMessage: ?HelpMessage = null;
 	#errorContainer: HTMLElement;
+	#isFieldDisabled: boolean = false;
 
 	constructor(params)
 	{
@@ -43,6 +43,7 @@ export class BaseField extends EventEmitter
 		this.#bannerCode = Type.isStringFilled(params.bannerCode) ? params.bannerCode : null;
 		this.#helpDeskCode = Type.isStringFilled(params.helpDesk) ? params.helpDesk : null;
 		this.#helpMessageProvider = params.helpMessageProvider;
+		this.#isFieldDisabled = Type.isBoolean(params.isFieldDisabled) ? params.isFieldDisabled : false;
 	}
 
 	getHelpMessage(): ?HelpMessage
@@ -61,20 +62,28 @@ export class BaseField extends EventEmitter
 	cleanError()
 	{
 		Dom.clean(this.#errorContainer);
+		Dom.removeClass(this.getErrorBox(), '--error');
 	}
 
 	setErrors(errorMessages): void
 	{
 		this.cleanError();
+		Dom.addClass(this.getErrorBox(), '--error');
 		for (let message of errorMessages)
 		{
 			let error = Tag.render`
-			<div class="ui-section__error-message">
-				<span class="ui-icon-set --warning"></span>
-				<span>${message}</span>
-			</div>`;
+				<div class="ui-section__error-message">
+					<span class="ui-icon-set --warning"></span>
+					<span>${message}</span>
+				</div>
+			`;
 			Dom.append(error, this.renderErrors());
 		}
+	}
+
+	getErrorBox(): HTMLElement
+	{
+		return this.getInputNode();
 	}
 
 	renderErrors()
@@ -84,9 +93,7 @@ export class BaseField extends EventEmitter
 			return this.#errorContainer;
 		}
 
-
 		this.#errorContainer = Tag.render`<div class="ui-section__error-container"></div>`;
-
 
 		return this.#errorContainer;
 	}
@@ -113,7 +120,7 @@ export class BaseField extends EventEmitter
 
 	getName(): string
 	{
-		return this.#inputName
+		return this.#inputName;
 	}
 
 	getInputNode(): HTMLElement
@@ -126,10 +133,7 @@ export class BaseField extends EventEmitter
 		this.#inputName = name;
 	}
 
-	cancel(): void
-	{
-		return;
-	}
+	cancel(): void {}
 
 	render(): HTMLElement
 	{
@@ -200,7 +204,13 @@ export class BaseField extends EventEmitter
 	{
 		return `
 			<a class="more" href="javascript:top.BX.Helper.show('${helpdeskCode}');">
-				${Loc.getMessage("INTRANET_SETTINGS_CANCEL_MORE")}
-			</a>`;
+				${Loc.getMessage('INTRANET_SETTINGS_CANCEL_MORE')}
+			</a>
+		`;
+	}
+
+	isFieldDisabled(): boolean
+	{
+		return this.#isFieldDisabled;
 	}
 }

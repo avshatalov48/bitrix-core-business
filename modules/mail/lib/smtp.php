@@ -3,7 +3,6 @@
 namespace Bitrix\Mail;
 
 use Bitrix\Main;
-use Bitrix\Main\Text\BinaryString;
 use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
 
@@ -376,7 +375,7 @@ class Smtp
 	protected function sendData($data)
 	{
 		$fails = 0;
-		while (BinaryString::getLength($data) > 0 && !feof($this->stream))
+		while (strlen($data) > 0 && !feof($this->stream))
 		{
 			$bytes = @fputs($this->stream, $data);
 
@@ -392,10 +391,10 @@ class Smtp
 
 			$fails = 0;
 
-			$data = BinaryString::getSubstring($data, $bytes);
+			$data = substr($data, $bytes);
 		}
 
-		if (BinaryString::getLength($data) > 0)
+		if (strlen($data) > 0)
 		{
 			$this->reset();
 			return false;

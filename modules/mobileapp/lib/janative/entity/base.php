@@ -17,24 +17,36 @@ abstract class Base
 	protected static array $modificationDates = [];
 	protected static array $dependencies = [];
 	protected static array $expandedDependencies = [];
+	protected static array $configs = [];
 	protected $path;
 	protected $namespace;
 	protected $baseFileName;
 	public $name;
 	private $config;
 
-
-	protected function getConfig(): ?array {
-		if ($this->config == null) {
-			$this->config = [];
-			$file = new File("$this->path/deps.php");
-			$result = [];
-			if ($file->isExists())
+	protected function getConfig(): ?array
+	{
+		if ($this->config == null)
+		{
+			if (!isset(self::$configs[$this->path]))
 			{
-				$this->config = include($file->getPath());
-				if (!is_array($this->config)) {
-					$this->config = [];
+				$this->config = [];
+				$file = new File("$this->path/deps.php");
+				$result = [];
+				if ($file->isExists())
+				{
+					$this->config = include($file->getPath());
+					if (!is_array($this->config))
+					{
+						$this->config = [];
+					}
 				}
+
+				self::$configs[$this->path] = $this->config;
+			}
+			else
+			{
+				$this->config = self::$configs[$this->path];
 			}
 		}
 
@@ -43,7 +55,8 @@ abstract class Base
 
 	public function getModificationMarker()
 	{
-		if (defined("JN_DEV_RELOAD")) {
+		if (defined("JN_DEV_RELOAD"))
+		{
 			return "1.0";
 		}
 
@@ -54,8 +67,14 @@ abstract class Base
 			return static::$modificationDates[$fullyQualifiedName];
 		}
 
+		$marks = [];
+
 		$file = new File("{$this->path}/{$this->baseFileName}.js");
-		$marks = [Utils::getFileHash($file)];
+		if ($file->isExists())
+		{
+			$marks[] = Utils::getFileHash($file);
+		}
+
 		$langDirectory = new Directory("{$this->path}/lang/");
 		if ($langDirectory->isExists())
 		{
@@ -64,8 +83,11 @@ abstract class Base
 			{
 				if ($lang->isDirectory())
 				{
-					$langFile = new File($lang->getPath()."/{$this->baseFileName}.php");
-					$marks[] = Utils::getFileHash($langFile);
+					$langFile = new File($lang->getPath() . "/{$this->baseFileName}.php");
+					if ($langFile->isExists())
+					{
+						$marks[] = Utils::getFileHash($langFile);
+					}
 				}
 			}
 		}
@@ -85,8 +107,9 @@ abstract class Base
 		return $value;
 	}
 
-	public function getFullyQualifiedName(): string {
-		return  "$this->namespace:$this->name";
+	public function getFullyQualifiedName(): string
+	{
+		return "$this->namespace:$this->name";
 	}
 
 	public function getDependencies()
@@ -102,18 +125,21 @@ abstract class Base
 	public function getPath()
 	{
 		$relativePath = str_replace(Application::getDocumentRoot(), "", "{$this->path}/");
+
 		return Path::normalize($relativePath);
 	}
 
 	public function getRelativePathToFile()
 	{
 		$relativePath = $this->getPath() . "/{$this->baseFileName}.js";
+
 		return Path::normalize($relativePath);
 	}
 
 	public function getLangMessages()
 	{
 		$langPhrases = Localization\Loc::loadLanguageFile("{$this->path}/{$this->baseFileName}.php");
+
 		return $langPhrases ?: [];
 	}
 
@@ -126,7 +152,8 @@ abstract class Base
 		{
 			if (array_keys($config) !== range(0, count($config) - 1))
 			{
-				if(array_key_exists('extensions', $config)) {
+				if (array_key_exists('extensions', $config))
+				{
 					$list = $config['extensions'];
 				}
 			}
@@ -135,8 +162,10 @@ abstract class Base
 				$list = $config;
 			}
 		}
-		if (!empty($list)) {
-			foreach ($list as $ext) {
+		if (!empty($list))
+		{
+			foreach ($list as $ext)
+			{
 				$result[] = Base::expandDependency($ext);
 			}
 
@@ -149,15 +178,19 @@ abstract class Base
 		return $result;
 	}
 
-	public function getBundleFiles(): array {
+	public function getBundleFiles(): array
+	{
 		$config = $this->getConfig();
 		$list = [];
-		if (isset($config["bundle"])) {
+		if (isset($config["bundle"]))
+		{
 			$list = array_map(function ($file) {
-				$path = Path::normalize($this->path."/$file");
-				if (Path::getExtension($path) !== "js") {
+				$path = Path::normalize($this->path . "/$file");
+				if (Path::getExtension($path) !== "js")
+				{
 					$path .= ".js";
 				}
+
 				return $path;
 			}, $config["bundle"]);
 		}
@@ -171,9 +204,12 @@ abstract class Base
 		$result = [];
 		if (is_array($config))
 		{
-			if (array_keys($config) !== range(0, count($config) - 1)) {
-				if (isset($config['components'])) {
-					if (is_array($config['components'])) {
+			if (array_keys($config) !== range(0, count($config) - 1))
+			{
+				if (isset($config['components']))
+				{
+					if (is_array($config['components']))
+					{
 						return $config['components'];
 					}
 				}
@@ -203,7 +239,7 @@ abstract class Base
 			return [];
 		}
 
-		if ( isset(self::$expandedDependencies[$ext]))
+		if (isset(self::$expandedDependencies[$ext]))
 		{
 			return self::$expandedDependencies[$ext];
 		}
@@ -211,27 +247,26 @@ abstract class Base
 		$findChildren = false;
 		$relativeExtDir = $ext;
 
-
-		if(mb_strpos($ext, "*") === (mb_strlen($ext) - 1))
+		if (mb_strpos($ext, "*") === (mb_strlen($ext) - 1))
 		{
 			$relativeExtDir = str_replace(["/*", "*"], "", $ext);
 			$findChildren = true;
 		}
 
 		$absolutePath = Manager::getExtensionPath($relativeExtDir);
-		if($findChildren && $absolutePath != null)
+		if ($findChildren && $absolutePath != null)
 		{
 			$dir = new Directory($absolutePath);
 			$items = $dir->getChildren();
 			for ($i = 0, $l = count($items); $i < $l; $i++)
 			{
-				/** @var Directory $entry **/
+				/** @var Directory $entry */
 				$entry = $items[$i];
 				if ($entry->isDirectory())
 				{
 					$toAdd = $entry->getChildren();
-					$extensionFile = new File($entry->getPath(). '/extension.js');
-					if($extensionFile->isExists())
+					$extensionFile = new File($entry->getPath() . '/extension.js');
+					if ($extensionFile->isExists())
 					{
 						$result[] = $extensionFile->getPath();
 					}
@@ -241,18 +276,19 @@ abstract class Base
 				}
 			}
 
-			$result = array_map(function($path) use ($absolutePath, $relativeExtDir) {
-				return str_replace([$absolutePath, "/extension.js"],[$relativeExtDir, ""], $path);
+			$result = array_map(function ($path) use ($absolutePath, $relativeExtDir) {
+				return str_replace([$absolutePath, "/extension.js"], [$relativeExtDir, ""], $path);
 			}, $result);
 		}
 
 		$rootExtension = new File($absolutePath . '/extension.js');
-		if($rootExtension->isExists())
+		if ($rootExtension->isExists())
 		{
 			$result[] = $relativeExtDir;
 		}
 
 		self::$expandedDependencies[$ext] = $result;
+
 		return $result;
 	}
 
@@ -262,6 +298,7 @@ abstract class Base
 		if (!empty($langPhrases))
 		{
 			$jsonLangMessages = Utils::jsonEncode($langPhrases, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_UNESCAPED_UNICODE);
+
 			return <<<JS
 BX.message($jsonLangMessages);
 JS;
@@ -271,7 +308,7 @@ JS;
 	}
 
 	abstract protected function onBeforeModificationMarkerSave(array &$value);
-	abstract protected function resolveDependencies();
 
+	abstract protected function resolveDependencies();
 
 }

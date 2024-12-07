@@ -24,6 +24,11 @@ class SectionEventViewTitleRule extends \Bitrix\Main\Access\Rule\AbstractRule
 			return false;
 		}
 
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			return true;
+		}
+
 		if (!$this->hasCurrentUser())
 		{
 			return true;

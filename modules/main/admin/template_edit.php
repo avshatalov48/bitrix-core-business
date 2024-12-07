@@ -184,7 +184,7 @@ if ($lpa || $lpa_view)
 			$new_content .= $s_cont;
 
 			$src = $arPHP[$n][2];
-			$src = mb_substr($src, (mb_substr($src, 0, 5) == "<?"."php")? 5 : 2, -2); // Trim php tags
+			$src = substr($src, (str_starts_with($src, "<?php"))? 5 : 2, -2); // Trim php tags
 
 			$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
 			if (mb_strtoupper(mb_substr($src, 0, mb_strlen($comp2_begin))) == $comp2_begin) //If it's Component 2, keep the php code

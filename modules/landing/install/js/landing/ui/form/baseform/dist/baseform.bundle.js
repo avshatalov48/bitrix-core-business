@@ -27,6 +27,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.type = Reflect.has(_this.data, 'type') ? _this.data.type : 'content';
 	    _this.code = Reflect.has(_this.data, 'code') ? _this.data.code : '';
 	    _this.descriptionText = Reflect.has(_this.data, 'description') ? _this.data.description : '';
+	    _this.descriptionHintStyle = Reflect.has(_this.data, 'descriptionHintStyle') ? _this.data.descriptionHintStyle : '';
 	    _this.serializeModifier = _this.options.serializeModifier || function (value) {
 	      return value;
 	    };
@@ -49,7 +50,11 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      main_core.Dom.append(document.createTextNode(_this.title), _this.header);
 	    }
 	    if (main_core.Type.isString(_this.descriptionText) && _this.descriptionText !== '') {
-	      _this.description.innerHTML = _this.descriptionText;
+	      if (main_core.Type.isString(_this.descriptionHintStyle) && _this.descriptionHintStyle === 'blueHint') {
+	        _this.description.innerHTML = "<div class=\"landing-ui-form-description-blue-hint\">".concat(_this.descriptionText, "</div");
+	      } else {
+	        _this.description.innerHTML = _this.descriptionText;
+	      }
 	    }
 	    if (main_core.Type.isArray(_this.data.fields) && _this.data.fields.length > 0) {
 	      _this.data.fields.forEach(function (field) {

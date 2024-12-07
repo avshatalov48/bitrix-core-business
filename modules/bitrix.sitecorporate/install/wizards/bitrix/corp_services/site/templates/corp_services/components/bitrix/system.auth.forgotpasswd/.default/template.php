@@ -37,7 +37,7 @@ if ($arResult["BACKURL"] <> '')
 
 <div class="field"><a href="<?=$arResult["AUTH_AUTH_URL"]?>"><b><?=GetMessage("AUTH_AUTH")?></b></a></div> 
 </form>
-<script type="text/javascript">
+<script>
 document.bform.USER_LOGIN.focus();
 </script>
 </div>

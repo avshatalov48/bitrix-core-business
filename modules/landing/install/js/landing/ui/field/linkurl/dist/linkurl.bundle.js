@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
@@ -654,7 +655,7 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	   * @return {BX.Landing.UI.Field.Dropdown}
 	   */
 	  createTypeSwitcher() {
-	    //type = PAGE || STORE || KNOWLEDGE
+	    //type = PAGE || STORE || KNOWLEDGE || GROUP || MAINPAGE
 	    const type = BX.Landing.Env.getInstance().getType();
 	    const items = [{
 	      name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_SELECT"),
@@ -663,15 +664,18 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    }, {
 	      name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_PAGE"),
 	      value: LinkUrl.TYPE_HREF_PAGE,
-	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--b24'
+	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--b24',
+	      type: ['PAGE', 'STORE', 'KNOWLEDGE', 'GROUP']
 	    }, {
 	      name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_BLOCK"),
 	      value: LinkUrl.TYPE_HREF_BLOCK,
-	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--b24'
+	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--b24',
+	      type: ['PAGE', 'STORE', 'KNOWLEDGE', 'GROUP']
 	    }, {
 	      name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_CRM"),
 	      value: LinkUrl.TYPE_HREF_CRM_FORM,
-	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--crm'
+	      className: 'landing-ui-field-link-url-select-action-item fas landing-ui-field-link-url-icon--crm',
+	      type: ['PAGE', 'STORE', 'KNOWLEDGE', 'GROUP']
 	    }, {
 	      name: BX.Landing.Loc.getMessage("LANDING_LINK_URL_ACTION_PRODUCT"),
 	      value: LinkUrl.TYPE_HREF_PRODUCT,

@@ -5,10 +5,15 @@ export const CheckboxListCategory = {
 		'columnCount',
 		'category',
 		'options',
+		'context',
 		'isActiveSearch',
 		'isEditableOptionsTitle',
 		'onChange',
 		'setOptionRef',
+	],
+
+	emits: [
+		'onToggleOption',
 	],
 
 	components: {
@@ -22,6 +27,10 @@ export const CheckboxListCategory = {
 			{
 				this.setOptionRef(ref.getId(), ref);
 			}
+		},
+		onToggleOption(event)
+		{
+			this.$emit('onToggleOption', event);
 		},
 	},
 
@@ -42,13 +51,14 @@ export const CheckboxListCategory = {
 					:key="option.id"
 				>
 					<checkbox-list-option
-						v-else
+						:context="context"
 						:id="option.id"
 						:title="option.title"
 						:isChecked="option.value"
 						:isLocked="option?.locked"
 						:isEditable="isEditableOptionsTitle"
 						:ref="setRef"
+						@onToggleOption="onToggleOption"
 					/>
 				</div>
 			</div>

@@ -377,7 +377,7 @@ $user_name = $abtest['USER_ID'] ? CUser::formatName(
 		</div>
 
 		<? if (!empty($arGraphData)) : ?>
-		<script type="text/javascript">
+		<script>
 
 		AmCharts.ready(function()
 		{
@@ -570,7 +570,7 @@ $user_name = $abtest['USER_ID'] ? CUser::formatName(
 				</div>
 
 				<? if ($sum > 0) : ?>
-				<script type="text/javascript">
+				<script>
 
 				AmCharts.ready(function()
 				{
@@ -640,7 +640,7 @@ $user_name = $abtest['USER_ID'] ? CUser::formatName(
 				</div>
 
 				<? if ($sum > 0) : ?>
-				<script type="text/javascript">
+				<script>
 
 				AmCharts.ready(function()
 				{
@@ -764,7 +764,7 @@ $user_name = $abtest['USER_ID'] ? CUser::formatName(
 		</div>
 		<? endforeach; ?>
 	</div>
-	<script type="text/javascript">
+	<script>
 
 	var scale_30_1_list = [].concat(
 		BX.findChildrenByClassName(BX('counters-a'), 'scale-num-30-1', true),

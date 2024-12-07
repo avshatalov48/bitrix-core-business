@@ -188,7 +188,7 @@ function BPRIAChangeFieldType(type, value)
 	if (typeof value == "undefined")
 		value = "";
 
-	if (objFields.arFieldTypes[type['Type']]['Complex'] == "Y")
+	if (objFields.arFieldTypes[type['Type']]?.Complex === "Y")
 	{
 		objFields.GetFieldInputControl4Type(
 			type,

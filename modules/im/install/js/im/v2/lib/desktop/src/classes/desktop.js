@@ -11,6 +11,7 @@ import { AuthHandler } from './event-handlers/auth';
 import { StatusHandler } from './event-handlers/status';
 import { CounterHandler } from './event-handlers/counter';
 import { HotkeyHandler } from './event-handlers/hotkey';
+import { NewTabHandler } from './event-handlers/new-tab';
 
 /* eslint-disable no-undef */
 export class Desktop
@@ -29,6 +30,7 @@ export class Desktop
 		BxLinkHandler.init();
 		CounterHandler.init();
 		HotkeyHandler.init();
+		NewTabHandler.init();
 
 		this.#sendInitEvent();
 		this.#subscribeOnErrorEvent();

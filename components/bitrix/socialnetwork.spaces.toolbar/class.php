@@ -402,6 +402,15 @@ class SpacesToolbarComponent extends CBitrixComponent implements Controllerable,
 
 	private function includeSelectedComponentTemplate(): void
 	{
+		$membersManager = new Socialnetwork\Space\MembersManager();
+		if (
+			$this->arResult['pageType'] === 'group'
+			&& !$membersManager->isUserMember($this->arResult['userId'], $this->arResult['groupId'])
+		)
+		{
+			$this->componentTemplate = 'empty';
+		}
+
 		parent::includeComponentTemplate($this->componentTemplate);
 	}
 

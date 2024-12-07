@@ -1,0 +1,18 @@
+{
+  "private": "true",
+  "name": "lexical",
+  "dependencies": {
+    "lexical": "^0.17.1",
+    "@lexical/html": "^0.17.1",
+    "@lexical/clipboard": "^0.17.1",
+    "@lexical/history": "^0.17.1",
+    "@lexical/link": "^0.17.1",
+    "@lexical/list": "^0.17.1",
+    "@lexical/rich-text": "^0.17.1",
+    "@lexical/selection": "^0.17.1",
+    "@lexical/table": "^0.17.1",
+    "@lexical/text": "^0.17.1",
+    "@lexical/utils": "^0.17.1",
+    "rollup-plugin-replace": "^2.2.0"
+  }
+}

@@ -16,6 +16,7 @@ use Bitrix\Main\ORM\Fields\StringField;
 use Bitrix\Main\ORM\Fields\TextField;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Type\DateTime;
+use COption;
 
 Loc::loadMessages(__FILE__);
 
@@ -480,6 +481,12 @@ class Forum implements \ArrayAccess {
 
 	public function calculateStatistic()
 	{
+		$enableCalculateStatistics = COption::GetOptionString('forum', 'enable_calculate_statistics', 'Y');
+		if ($enableCalculateStatistics === 'N')
+		{
+			return;
+		}
+
 		$forumId = (int) $this->getId();
 		global $DB;
 		$statSQL = <<<SQL
@@ -573,6 +580,11 @@ SQL;
 
 	public function incrementStatistic(array $message)
 	{
+		$enableCalculateStatistics = COption::GetOptionString('forum', 'enable_calculate_statistics', 'Y');
+		if ($enableCalculateStatistics === 'N')
+		{
+			return;
+		}
 		$fields = [
 			"ABS_LAST_POSTER_ID" => $message["AUTHOR_ID"],
 			"ABS_LAST_POSTER_NAME" => $message["AUTHOR_NAME"],
@@ -615,6 +627,11 @@ SQL;
 
 	public function decrementStatistic(array $message)
 	{
+		$enableCalculateStatistics = COption::GetOptionString('forum', 'enable_calculate_statistics', 'Y');
+		if ($enableCalculateStatistics === 'N')
+		{
+			return;
+		}
 		$forumId = (int) $this->getId();
 		if ($message['APPROVED'] == 'Y')
 		{

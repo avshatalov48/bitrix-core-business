@@ -1,4 +1,3 @@
-/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
 (function (exports,ui_fonts_opensans,ui_designTokens,ui_notification,ui_entitySelector,ui_dialogs_messagebox,main_loader,main_core,main_core_events,main_popup,ui_buttons,ui_sidepanel_layout) {
@@ -1747,6 +1746,7 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _reader)[_reader] = new FileReader();
 	    babelHelpers.classPrivateFieldLooseBase(this, _queue)[_queue] = new Map();
 	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image] = new Image();
+	    babelHelpers.classPrivateFieldLooseBase(this, _image)[_image].crossOrigin = 'anonymous';
 	    babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas] = main_core.Tag.render(_t$8 || (_t$8 = _$8`<canvas id="loadercanvas"></canvas>`));
 	    // document.querySelector('#workarea-content').appendChild(this.#canvas);
 	    babelHelpers.classPrivateFieldLooseBase(this, _context)[_context] = babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas].getContext('2d');
@@ -1772,7 +1772,6 @@ this.BX.UI = this.BX.UI || {};
 	          resolve(babelHelpers.classPrivateFieldLooseBase(this.constructor, _dataURLToBlob)[_dataURLToBlob](babelHelpers.classPrivateFieldLooseBase(this, _canvas)[_canvas].toDataURL(fileType)));
 	        }
 	      } catch (e) {
-	        e.message = 'Packing error: ' + e.message;
 	        reject(e);
 	      }
 	    });
@@ -2554,6 +2553,8 @@ this.BX.UI = this.BX.UI || {};
 	var _value = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("value");
 	var _defaultValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("defaultValue");
 	var _containerWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("containerWidth");
+	var _minValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("minValue");
+	var _maxValue = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("maxValue");
 	var _scale = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("scale");
 	var _knob = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("knob");
 	var _getContainerWidth = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getContainerWidth");
@@ -2592,6 +2593,14 @@ this.BX.UI = this.BX.UI || {};
 	      writable: true,
 	      value: 0
 	    });
+	    Object.defineProperty(this, _minValue, {
+	      writable: true,
+	      value: -1
+	    });
+	    Object.defineProperty(this, _maxValue, {
+	      writable: true,
+	      value: 1
+	    });
 	    Object.defineProperty(this, _scale, {
 	      writable: true,
 	      value: void 0
@@ -2620,7 +2629,7 @@ this.BX.UI = this.BX.UI || {};
 	    this.reset();
 	  }
 	  setDefaultValue(defaultValue) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue] = defaultValue > 0 && defaultValue <= 1 ? defaultValue : 0;
+	    babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue] = defaultValue > babelHelpers.classPrivateFieldLooseBase(this, _minValue)[_minValue] && defaultValue <= babelHelpers.classPrivateFieldLooseBase(this, _maxValue)[_maxValue] ? defaultValue : 0;
 	    return this;
 	  }
 	  getValue() {
@@ -2631,8 +2640,9 @@ this.BX.UI = this.BX.UI || {};
 	    babelHelpers.classPrivateFieldLooseBase(this, _adjust)[_adjust]();
 	  }
 	  setValue(value) {
+	    // eslint-disable-next-line no-param-reassign
 	    value = Math.ceil(value * 1000) / 1000;
-	    if (value !== babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] && value >= 0 && value <= 1) {
+	    if (value !== babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] && value >= babelHelpers.classPrivateFieldLooseBase(this, _minValue)[_minValue] && value <= babelHelpers.classPrivateFieldLooseBase(this, _maxValue)[_maxValue]) {
 	      babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] = value;
 	      babelHelpers.classPrivateFieldLooseBase(this, _adjust)[_adjust]();
 	      this.emit('onChange', babelHelpers.classPrivateFieldLooseBase(this, _value)[_value] - babelHelpers.classPrivateFieldLooseBase(this, _defaultValue)[_defaultValue]);
@@ -2664,7 +2674,7 @@ this.BX.UI = this.BX.UI || {};
 	    return babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth];
 	  }
 	  const containerPos = main_core.Dom.getPosition(babelHelpers.classPrivateFieldLooseBase(this, _scale)[_scale]);
-	  let width = containerPos.width - main_core.Dom.getPosition(babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob]).width;
+	  const width = containerPos.width - main_core.Dom.getPosition(babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob]).width;
 	  if (width > 0) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth] = width;
 	    return babelHelpers.classPrivateFieldLooseBase(this, _containerWidth)[_containerWidth];
@@ -2676,9 +2686,11 @@ this.BX.UI = this.BX.UI || {};
 	  this.setValue(value);
 	}
 	function _adjust2() {
+	  const middle = babelHelpers.classPrivateFieldLooseBase(this, _getContainerWidth)[_getContainerWidth]() / (babelHelpers.classPrivateFieldLooseBase(this, _maxValue)[_maxValue] - babelHelpers.classPrivateFieldLooseBase(this, _minValue)[_minValue]);
+	  const value = middle + middle * this.getValue();
 	  main_core.Dom.adjust(babelHelpers.classPrivateFieldLooseBase(this, _knob)[_knob], {
 	    style: {
-	      left: [Math.ceil(babelHelpers.classPrivateFieldLooseBase(this, _getContainerWidth)[_getContainerWidth]() * this.getValue()), 'px'].join('')
+	      left: [Math.ceil(value), 'px'].join('')
 	    }
 	  });
 	}

@@ -13,7 +13,6 @@ use Bitrix\Main;
 use Bitrix\Main\Web;
 use Bitrix\Main\Security;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\Authentication\Internal;
 use Bitrix\Main\Authentication\Internal\EO_UserDevice;
 use Bitrix\Main\Authentication\Internal\EO_UserDeviceLogin;
 use Bitrix\Main\Web\UserAgent\Browser;

@@ -22,7 +22,7 @@ class CCalendarSync
 	public static $handleExchangeMeeting;
 	public static $doNotSendToGoogle = false;
 	private static $mobileBannerDisplay;
-	
+
 
 	/**
 	 * @param $calendarId
@@ -66,9 +66,11 @@ class CCalendarSync
 			$currentEvent = CCalendarEvent::getList([
 				'arFilter' => [
 					'DAV_XML_ID' => $arNewFields['DAV_XML_ID'],
-					'DELETED' => 'N'
-				]
+					'DELETED' => 'N',
+				],
+				'limit' => 1,
 			]);
+
 			if ($currentEvent)
 			{
 				$currentEvent = $currentEvent[0];
@@ -319,18 +321,9 @@ class CCalendarSync
 
 	public static function DoSaveToDav(&$arFields, $params = [], $event = false)
 	{
-		// if (self::$doNotSendToGoogle)
-		// {
-		// 	return true;
-		// }
-
 		$sectionId = $params['sectionId'];
 		$modeSync = $params['modeSync'];
 		$parameters['editInstance'] = $params['editInstance'];
-		// $parameters['originalDavXmlId'] = $params['originalDavXmlId'];
-		// $parameters['editParentEvents'] = $params['editParentEvents'];
-		// $parameters['editNextEvents'] = $params['editNextEvents'];
-		// $parameters['instanceTz'] = $params['instanceTz'];
 		$bExchange = $params['bExchange'];
 		$bCalDav = $params['bCalDav'];
 		$parameters['syncCaldav'] = $params['syncCaldav'];
@@ -355,7 +348,6 @@ class CCalendarSync
 		{
 			$arFields['G_EVENT_ID'] = $event['G_EVENT_ID'];
 		}
-
 
 		$section = CCalendarSect::GetById($sectionId, false);
 
@@ -563,7 +555,7 @@ class CCalendarSync
 		return true;
 	}
 
-	public static function syncCalendarSections($connectionType, $arCalendars, $entityType, $entityId, $connectionId = null): array
+	public static function SyncCalendarSections($connectionType, $arCalendars, $entityType, $entityId, $connectionId = null): array
 	{
 		//Array(
 		//	[0] => Array(
@@ -721,7 +713,7 @@ class CCalendarSync
 
 		return $result;
 	}
-	
+
 	public static function GetExchangeEmailForUser($idList = [])
 	{
 		global $DB;
@@ -761,7 +753,7 @@ class CCalendarSync
 						U.ACTIVE = 'Y' AND
 						U.ID in (".$strIdList.")";
 
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$res = $DB->Query($strSql);
 				while($entry = $res->Fetch())
 				{
 					$users[$entry['ID']] = (($exchangeUseLogin === "Y")
@@ -771,70 +763,6 @@ class CCalendarSync
 					if (empty($users[$entry['ID']]))
 					{
 						$users[$entry['ID']] = $entry['EMAIL'];
-					}
-				}
-			}
-		}
-
-		return $users;
-	}
-
-	public static function GetUsersByEmailList($emailList = array())
-	{
-		global $DB;
-		$users = [];
-
-		if (CCalendar::IsSocNet())
-		{
-			$exchangeMailbox = COption::GetOptionString("dav", "exchange_mailbox", "");
-			$exchangeUseLogin = COption::GetOptionString("dav", "exchange_use_login", "Y");
-			$exchangeMailboxStrlen = mb_strlen($exchangeMailbox);
-
-			$strValue = "";
-			foreach($emailList as $email)
-			{
-				$strValue .= ",'".$DB->ForSql($email)."'";
-			}
-			$strValue = trim($strValue, ', ');
-
-			if($strValue != '')
-			{
-				$strSql = "SELECT U.ID, BUF.UF_BXDAVEX_MAILBOX
-						FROM b_user U
-						LEFT JOIN b_uts_user BUF ON (BUF.VALUE_ID = U.ID)
-						WHERE
-							U.ACTIVE = 'Y' AND
-							BUF.UF_BXDAVEX_MAILBOX in (".$strValue.")";
-
-				$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-				$checkedEmails = [];
-				while($entry = $res->Fetch())
-				{
-					$checkedEmails[] = mb_strtolower($entry["UF_BXDAVEX_MAILBOX"]);
-					$users[] = $entry['ID'];
-				}
-
-				if ($exchangeUseLogin == "Y")
-				{
-					$strLogins = '';
-					foreach($emailList as $email)
-					{
-						if(!in_array(mb_strtolower($email), $checkedEmails) && mb_strtolower(mb_substr($email, mb_strlen($email) - $exchangeMailboxStrlen)) == mb_strtolower($exchangeMailbox))
-						{
-							$value = mb_substr($email, 0, mb_strlen($email) - $exchangeMailboxStrlen);
-							$strLogins .= ",'".$DB->ForSql($value)."'";
-						}
-					}
-					$strLogins = trim($strLogins, ', ');
-
-					if ($strLogins !== '')
-					{
-						$res = $DB->Query("SELECT U.ID, U.LOGIN FROM b_user U WHERE U.ACTIVE = 'Y' AND U.LOGIN in (".$strLogins.")", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-
-						while($entry = $res->Fetch())
-						{
-							$users[] = $entry['ID'];
-						}
 					}
 				}
 			}
@@ -856,48 +784,6 @@ class CCalendarSync
 	{
 		$userSettings = UserSettings::get();
 		return $userSettings['showTasks'] === 'Y' && $userSettings['syncTasks'] === 'Y';
-	}
-
-	/**
-	 * @throws \Bitrix\Main\ObjectPropertyException
-	 * @throws \Bitrix\Main\SystemException
-	 * @throws \Bitrix\Main\ArgumentException
-	 */
-	private static function GetPassDates($id, $exDates)
-	{
-		$excludeDates = [];
-
-		$instancesDM = Internals\EventTable::query()
-			->addFilter('=RECURRENCE_ID', $id)
-			->setSelect(['ORIGINAL_DATE_FROM'])
-			->exec()
-		;
-		// $instances = Internals\EventTable::getList([
-		// 	'filter' => [
-		// 		'=RECURRENCE_ID' => $id,
-		// 	],
-		// 	'select' => [
-		// 		'ORIGINAL_DATE_FROM'
-		// 	],
-		// ]);
-
-		while ($instance = $instancesDM->fetch())
-		{
-			if ($instance['ORIGINAL_DATE_FROM'] instanceof Type\Date)
-			{
-				$excludeDates[] = $instance['ORIGINAL_DATE_FROM']->format('d.m.Y');
-			}
-		}
-
-		if ($excludeDates)
-		{
-			$eventExDate = explode(';', $exDates);
-			$result = array_diff($eventExDate, $excludeDates);
-
-			return implode(';', $result);
-		}
-
-		return $exDates;
 	}
 
 	/**
@@ -930,359 +816,6 @@ class CCalendarSync
 		return trim(preg_replace("%,%", "", $description, $countSeparators));
 	}
 
-	/**
-	 * @param array $externalEvents
-	 * @param array $localEvents
-	 * @param $localCalendar
-	 */
-	private static function SaveExternalEvents(array $externalEvents, array $localEvents, $localCalendar): void
-	{
-		foreach ($externalEvents as $externalEvent)
-		{
-			$eventExists = !empty($localEvents[$externalEvent['G_EVENT_ID']]);
-			// find parent event
-			if (
-				isset($externalEvent['recurringEventId'])
-				&& $externalEvent['isRecurring'] === 'Y'
-				&& !isset($localEvents[$externalEvent['recurringEventId']])
-			)
-			{
-				$parentEvent = self::getLocalEventsList($localCalendar, [$externalEvent['recurringEventId']]);
-				if (!empty($parentEvent))
-				{
-					$localEvents[$externalEvent['recurringEventId']] = $parentEvent[$externalEvent['recurringEventId']];
-				}
-			}
-
-			// delete events
-			if ($externalEvent['status'] === 'cancelled')
-			{
-				$originalEvent = $localEvents[$externalEvent['G_EVENT_ID']];
-
-				// event exists
-				if ($eventExists)
-				{
-					if (!empty($externalEvents[$externalEvent['recurringEventId']])
-						&& $externalEvents[$externalEvent['recurringEventId']]['status'] === 'cancelled'
-						&& !empty($localEvents[$externalEvent['recurringEventId']])
-						&& (int)$originalEvent['ID'] === (int)$originalEvent['PARENT_ID']
-					)
-					{
-						CCalendarEvent::Delete([
-							'id' => $localEvents[$externalEvent['recurringEventId']]['ID'],
-							'bMarkDeleted' => true,
-							'Event' => $localEvents[$externalEvent['recurringEventId']],
-							'userId' => $localCalendar['OWNER_ID'],
-							'sendNotification' => false
-						]);
-					}
-
-					if (!empty($localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING']) && $localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING'])
-					{
-						self::$doNotSendToGoogle = false;
-					}
-
-					//if host single event then delete instance and  change meeting status if invitation
-					if ((int)$originalEvent['ID'] !== (int)$originalEvent['PARENT_ID'])
-					{
-						CCalendarEvent::SetMeetingStatus([
-							'userId' => (int)$originalEvent['OWNER_ID'],
-							'eventId' => (int)$originalEvent['ID'],
-							'status' => 'N',
-							'personalNotification' => true,
-							'doSendMail' => false,
-						]);
-					}
-					else // delete event
-					{
-						CCalendarEvent::Delete([
-							'id' => $originalEvent['ID'],
-							'bMarkDeleted' => true,
-							'Event' => $originalEvent,
-							'userId' => $localCalendar['OWNER_ID'],
-							'sendNotification' => false
-						]);
-					}
-
-					if (!empty($originalEvent['IS_MEETING']) && $originalEvent['IS_MEETING'])
-					{
-						self::$doNotSendToGoogle = true;
-					}
-
-					// enumeration local instances and change status if invitation or delete if host instance
-					foreach ($localEvents as $localEvent)
-					{
-						if (
-							!empty($localEvent['RECURRENCE_ID'])
-							&& $localEvent['RECURRENCE_ID'] === $originalEvent['ID']
-						)
-						{
-							if ((int)$localEvent['ID'] !== (int)$localEvent['PARENT_ID'])
-							{
-								CCalendarEvent::SetMeetingStatus([
-									'userId' => (int)$localEvent['OWNER_ID'],
-									'eventId' => (int)$localEvent['ID'],
-									'status' => 'N',
-									'personalNotification' => true,
-									'doSendMail' => false,
-								]);
-							}
-							else
-							{
-								CCalendarEvent::Delete([
-									'id' => $localEvent['ID'],
-									'bMarkDeleted' => true,
-									'Event' => $localEvent,
-									'userId' => $localCalendar['OWNER_ID'],
-									'sendNotification' => false
-								]);
-							}
-						}
-					}
-				}
-				elseif (!empty($externalEvent['recurringEventId'])
-					&& !empty($localEvents[$externalEvent['recurringEventId']])
-					&& $externalEvent['isRecurring'] === 'Y'
-				) // update parent event exdate
-				{
-					$excludeDates = CCalendarEvent::GetExDate($localEvents[$externalEvent['recurringEventId']]['EXDATE']);
-					$excludeDates[] = $externalEvent['EXDATE'];
-					$localEvents[$externalEvent['recurringEventId']]['EXDATE'] = implode(';', $excludeDates);
-
-					$newParentData = [
-						'arFields' => $localEvents[$externalEvent['recurringEventId']],
-						'userId' => $localCalendar['OWNER_ID'],
-						'fromWebservice' => true
-					];
-
-					$newParentData['arFields']['EXDATE'] = CCalendarEvent::SetExDate($excludeDates);
-					$newParentData['arFields']['RRULE'] = CCalendarEvent::ParseRRULE($newParentData['arFields']['RRULE']);
-					CCalendar::SaveEvent($newParentData);
-				}
-				continue;
-			}
-
-			// handle single or recurrence events
-			if ($externalEvent['isRecurring'] === "N")
-			{
-				//new event
-				if (!$eventExists)
-				{
-					$newEventData = array_merge(
-						$externalEvent,
-						[
-							'SECTIONS' => [$localCalendar['ID']],
-							'OWNER_ID' => $localCalendar['OWNER_ID'],
-							'userId' => $localCalendar['OWNER_ID']
-						]
-					);
-
-					$newEvent = $newEventData;
-					$newEvent['ID'] = CCalendarEvent::Edit(['arFields' => $newEventData, 'path' => CCalendar::GetPath('user', $newEventData['OWNER_ID'])]);
-					$localEvents[$externalEvent['DAV_XML_ID']] = $newEvent;
-				}
-				else // event exists
-				{
-					$newParentData = [
-						'arFields' => array_merge([
-							'ID' => $localEvents[$externalEvent['G_EVENT_ID']]['ID'],
-							'MEETING' => $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING'],
-						], $externalEvent),
-						'userId' => $localCalendar['OWNER_ID'],
-						'fromWebservice' => true
-					];
-
-					// update do not sync with google
-					if (!empty($localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING']) && $localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING'])
-					{
-						self::$doNotSendToGoogle = false;
-					}
-
-					if (empty($newParentData['arFields']['MEETING']['LANGUAGE_ID']))
-					{
-						$newParentData['arFields']['MEETING']['LANGUAGE_ID'] = CCalendar::getUserLanguageId((int)$newParentData['arFields']['OWNER_ID']);
-					}
-
-					$newParentData['arFields']['DESCRIPTION'] = self::CutAttendeesFromDescription(
-						$newParentData['arFields']['DESCRIPTION'],
-						self::getAttendeesCodesForCut($localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES_CODES'] ?? null),
-						$newParentData['arFields']['MEETING']['LANGUAGE_ID']
-					);
-
-					$newParentData['dontSyncParent'] = true;
-					$newParentData['arFields']['SYNC_STATUS'] = Google\Dictionary::SYNC_STATUS['success'];
-
-					CCalendar::SaveEvent($newParentData);
-
-					if (!empty($localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING']) && $localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING'])
-					{
-						self::$doNotSendToGoogle = true;
-					}
-				}
-			}
-			elseif ($externalEvent['isRecurring'] === "Y") // is instance
-			{
-				// change time
-				if ($externalEvent['status'] === 'confirmed' && $externalEvent['hasMoved'] === "Y")
-				{
-					// find parent event
-					$recurrentParentEventExists = !empty($localEvents[$externalEvent['recurringEventId']]);
-					if (empty($recurrentParentEventExists))
-					{
-//						$parentGEventId = str_replace('@google.com', '',  $externalEvent['recurringEventId']);
-						$parentEvent = self::getLocalEventsList($localCalendar, [$externalEvent['recurringEventId']]);
-						if (!empty($parentEvent))
-						{
-							$localEvents[$externalEvent['recurringEventId']] = $parentEvent[$externalEvent['recurringEventId']];
-							$recurrentParentEventExists = $parentEvent[$externalEvent['recurringEventId']];
-						}
-					}
-
-					// update exdate to parent event
-					if ($recurrentParentEventExists)
-					{
-						$recurrenceId = NULL;
-
-						if ($localEvents[$externalEvent['recurringEventId']])
-						{
-							$recurrenceId = $localEvents[$externalEvent['recurringEventId']]['ID'];
-
-							$excludeDates = CCalendarEvent::GetExDate($localEvents[$externalEvent['recurringEventId']]['EXDATE']);
-							$excludeDates[] = $externalEvent['EXDATE'];
-							$localEvents[$externalEvent['recurringEventId']]['EXDATE'] = implode(';', $excludeDates);
-							$newParentData = [
-								'arFields' => $localEvents[$externalEvent['recurringEventId']],
-								'userId' => $localCalendar['OWNER_ID'],
-								'fromWebservice' => true
-							];
-
-							$newParentData['arFields']['EXDATE'] = CCalendarEvent::SetExDate($excludeDates);
-							$newParentData['arFields']['RRULE'] = CCalendarEvent::ParseRRULE($newParentData['arFields']['RRULE']);
-							$newParentData['arFields']['SYNC_STATUS'] = Google\Dictionary::SYNC_STATUS['success'];
-
-							$newParentData['sync'] = true;
-
-							CCalendar::SaveEvent($newParentData);
-						}
-
-
-						// find meeting field in instance exists or parent event
-						if (empty($externalEvent['MEETING']))
-						{
-							$externalEvent['MEETING'] = !empty($localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING'])
-								? $localEvents[$externalEvent['G_EVENT_ID'] . '@google.com']['MEETING']
-								: $localEvents[$externalEvent['DAV_XML_ID']]['MEETING'];
-						}
-
-						// set lang id
-						if (empty($externalEvent['MEETING']['LANGUAGE_ID']))
-						{
-							$externalEvent['MEETING']['LANGUAGE_ID'] = CCalendar::getUserLanguageId((int)$externalEvent['OWNER_ID']);
-						}
-
-						// handle description
-						if (isset($externalEvent['DESCRIPTION']))
-						{
-							$externalEvent['DESCRIPTION'] = self::CutAttendeesFromDescription(
-								$externalEvent['DESCRIPTION'],
-								self::getAttendeesCodesForCut($localEvents[$externalEvent['recurringEventId']]['ATTENDEES_CODES'] ?? null),
-								$externalEvent['MEETING']['LANGUAGE_ID']
-							);
-						}
-
-						// save instance
-						CCalendar::SaveEvent([
-							'arFields' => array_merge($externalEvent, [
-								'RECURRENCE_ID' => $recurrenceId,
-								'DATE_FROM' => $externalEvent['DATE_FROM'],
-								'SECTIONS' => [$localCalendar['ID']],
-								'DATE_TO' => $externalEvent['DATE_TO'],
-								'SYNC_STATUS' => Google\Dictionary::SYNC_STATUS['success'],
-								'ATTENDEES' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES'])
-									? $localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES']
-									: $localEvents[$externalEvent['DAV_XML_ID']]['ATTENDEES'],
-								'ATTENDEES_CODES' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES_CODES'])
-									? $localEvents[$externalEvent['G_EVENT_ID']]['ATTENDEES_CODES']
-									: $localEvents[$externalEvent['DAV_XML_ID']]['ATTENDEES_CODES'],
-								'IS_MEETING' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING'])
-									? $localEvents[$externalEvent['G_EVENT_ID']]['IS_MEETING']
-									: $localEvents[$externalEvent['DAV_XML_ID']]['IS_MEETING'],
-								'MEETING_STATUS' => !empty($localEvents[$externalEvent['G_EVENT_ID']]['MEETING_STATUS'])
-									? $localEvents[$externalEvent['G_EVENT_ID']]['MEETING_STATUS']
-									: $localEvents[$externalEvent['DAV_XML_ID']]['MEETING_STATUS'],
-							]),
-							'userId' => $localCalendar['OWNER_ID'],
-							'fromWebservice' => true,
-							'sync' => true,
-						]);
-					}
-				}
-			}
-		}
-	}
-
-	/**
-	 * @param $localCalendar
-	 * @return array|mixed|null
-	 */
-	public static function getLocalEventsList($localCalendar, $externalEventsGEventId)
-	{
-		$eventsDb = Internals\EventTable::query()
-			->where('SECTION_ID', $localCalendar['ID'])
-			->whereIn('G_EVENT_ID', $externalEventsGEventId)
-			->setSelect([
-				"ID",
-				"CAL_TYPE",
-				"DT_SKIP_TIME",
-				"DATE_FROM",
-				"DATE_TO",
-				"TZ_FROM",
-				"TZ_TO",
-				"PARENT_ID",
-				"IS_MEETING",
-				"MEETING_STATUS",
-				"MEETING",
-				"LOCATION",
-				"RRULE",
-				"EXDATE",
-				"DAV_XML_ID",
-				"RECURRENCE_ID",
-				"G_EVENT_ID",
-				"ATTENDEES_CODES",
-				"OWNER_ID",
-			])->exec();
-
-		$eventList = [];
-		while ($event = $eventsDb->fetch())
-		{
-			if (!static::$attendeeList[$event['PARENT_ID']])
-			{
-				static::$attendeeList[$event['PARENT_ID']] = !CCalendarEvent::getAttendeeList($event['PARENT_ID'])
-					?: CCalendarEvent::getAttendeeList($event['PARENT_ID'])['attendeeList'][$event['PARENT_ID']];
-			}
-
-			if (is_array(static::$attendeeList[$event['PARENT_ID']]))
-			{
-				$event['ATTENDEES'] = array_column(static::$attendeeList[$event['PARENT_ID']], 'id');
-			}
-
-			if (is_string($event['MEETING']))
-			{
-				$event['MEETING'] = unserialize($event['MEETING'], ['allowed_classes' => false]);
-			}
-
-			if (!empty($event['G_EVENT_ID']))
-			{
-				$eventList[$event['G_EVENT_ID']] = $event;
-			}
-			elseif (!empty($event['DAV_XML_ID']))
-			{
-				$eventList[str_replace('@google', '',$event['DAV_XML_ID'])] = $event;
-			}
-		}
-
-		return $eventList;
-	}
 
 	/**
 	 * @param $attendeesCodes
@@ -1301,27 +834,6 @@ class CCalendarSync
 		}
 
 		return null;
-	}
-
-	public static function GetUserSyncInfo($userId)
-	{
-		require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/dav/classes/mysql/connection.php');
-		require_once ($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/dav/classes/general/dav.php');
-		$connectionList = [];
-		$davConnections = \CDavConnection::GetList(
-			["ID" => "ASC"],
-			[
-				'ENTITY_ID' => $userId,
-				'IS_DELETED' => 'N',
-			],
-		);
-
-		while($connection = $davConnections->fetch())
-		{
-			$connectionList[] = $connection;
-		}
-
-		return $connectionList;
 	}
 
 	public static function getTimestampWithUserOffset($userId): Closure
@@ -1368,7 +880,6 @@ class CCalendarSync
 				'connected' => $iphoneSyncInfo['connected'],
 				'status' => $iphoneSyncInfo['status'],
 				'syncOffset' => time() - $calculateTimestamp($iphoneSyncInfo['date']),
-
 			],
 			'android' => [
 				'type' => 'android',
@@ -1408,12 +919,16 @@ class CCalendarSync
 		{
 			$syncInfo = array_merge($syncInfo, $caldavConnections);
 		}
-		
+
 		$newSyncConnections = self::getNewSyncItemsInfo($userId, $calculateTimestamp);
 		if (!empty($newSyncConnections))
 		{
 			$syncInfo = array_merge($syncInfo, $newSyncConnections);
 		}
+
+		$syncInfo['counters']['sync_errors'] = Internals\Counter::getInstance($userId)->get(
+			Internals\Counter\CounterDictionary::COUNTER_SYNC_ERRORS
+		);
 
 		return $syncInfo;
 	}
@@ -1724,6 +1239,13 @@ class CCalendarSync
 				\CDavExchangeCalendar::DoDataSync($userId, $error);
 				echo $error;
 			}
+
+			Internals\Counter\CounterService::addEvent(
+				Internals\Counter\Event\EventDictionary::SYNC_CHANGED,
+				[
+					'user_ids' => [$userId],
+				]
+			);
 		}
 
 		return true;

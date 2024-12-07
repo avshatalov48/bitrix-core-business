@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CListFieldList
@@ -206,16 +206,38 @@ class CListFieldList
 			return null;
 
 		global $DB;
+		$cache = Bitrix\Main\Data\Cache::createInstance();
+		$cacheId = CACHED_b_lists_field_prefix . $this->iblock_id;
+		$needClearCache = false;
 
-		//read list meta from module table
-		$rsFields = $DB->Query("
-			SELECT * FROM b_lists_field
-			WHERE IBLOCK_ID = ".$this->iblock_id."
-			ORDER BY SORT ASC
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$dbFields = array();
-		while($arField = $rsFields->Fetch())
-			$dbFields[$arField["FIELD_ID"]] = $arField;
+		$dbFields = false;
+		if (
+			(CACHED_b_lists_field !== false)
+			&& $cache->initCache(CACHED_b_lists_field, $cacheId, 'b_lists_field')
+		)
+		{
+			$dbFields = $cache->getVars();
+		}
+
+		if ($dbFields === false)
+		{
+			$dbFields = [];
+			//read list meta from module table
+			$rsFields = $DB->Query("
+				SELECT * FROM b_lists_field
+				WHERE IBLOCK_ID = ".$this->iblock_id."
+			");
+			while ($arField = $rsFields->Fetch())
+			{
+				$dbFields[$arField["FIELD_ID"]] = $arField;
+			}
+
+			if (CACHED_b_lists_field !== false)
+			{
+				$cache->startDataCache(CACHED_b_lists_field);
+				$cache->endDataCache($dbFields);
+			}
+		}
 
 		$fields = array();
 		$customTabs = CUserOptions::GetOption("form", $form_id);
@@ -264,7 +286,8 @@ class CListFieldList
 					DELETE FROM b_lists_field
 					WHERE IBLOCK_ID = ".$this->iblock_id."
 					AND FIELD_ID = '".$DB->ForSQL($FIELD_ID)."'
-				", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				");
+				$needClearCache = true;
 			}
 		}
 		else//or from module metadata
@@ -283,9 +306,15 @@ class CListFieldList
 						DELETE FROM b_lists_field
 						WHERE IBLOCK_ID = ".$this->iblock_id."
 						AND FIELD_ID = '".$DB->ForSQL($FIELD_ID)."'
-					", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					");
+					$needClearCache = true;
 				}
 			}
+		}
+
+		if ($needClearCache && (CACHED_b_lists_field !== false))
+		{
+			$cache->clean($cacheId, 'b_lists_field');
 		}
 
 		return $fields;
@@ -338,7 +367,13 @@ class CListFieldList
 		$DB->Query("
 			DELETE FROM b_lists_field
 			WHERE IBLOCK_ID = ".$iblock_id."
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
+
+		if (CACHED_b_lists_field !== false)
+		{
+			$cache = \Bitrix\Main\Data\Cache::createInstance();
+			$cache->clean(CACHED_b_lists_field_prefix . $iblock_id, 'b_lists_field');
+		}
 
 		$rsOptions = CUserOptions::GetList(array("ID" => "ASC"), array(
 			"CATEGORY" => "form",

@@ -4,7 +4,7 @@ if ($arResult["AFFILIATE"] == "Y")
 {
 	if ($arResult["UNACTIVE_AFFILIATE"] == "Y")
 	{
-		?><?=ShowError(GetMessage("SPCR1_UNACTIVE_AFF"))?><?
+		?><? ShowError(GetMessage("SPCR1_UNACTIVE_AFF"))?><?
 	}
 }
 else
@@ -12,7 +12,7 @@ else
 	if ($arResult["USER_AUTHORIZED"] == "N")
 	{
 		?>
-		<?=ShowError($arResult["ERROR_MESSAGE"])?>
+		<? ShowError($arResult["ERROR_MESSAGE"])?>
 		<table class="affiliate-formatting-table">
 			<tbody>
 				<tr>
@@ -192,7 +192,7 @@ else
 	else
 	{
 		?>
-		<?=ShowError($arResult["ERROR_MESSAGE"])?>
+		<? ShowError($arResult["ERROR_MESSAGE"])?>
 		<form method="post" action="<?=$arResult["CURRENT_PAGE"]?>">
 			<?=bitrix_sessid_post()?>
 			<table class="data-table">

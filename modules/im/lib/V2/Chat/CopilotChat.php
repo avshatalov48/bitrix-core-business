@@ -11,12 +11,14 @@ use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message\Params;
 use Bitrix\ImBot\Bot;
 use Bitrix\Imbot\Bot\CopilotChatBot;
+use Bitrix\Main\Config\Option;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
 class CopilotChat extends GroupChat
 {
 	private const COUNTER_CHAT_CODE = 'copilot_chat_counter';
+	private const COPILOT_ROLE_UPDATED = 'COPILOT_ROLE_UPDATED';
 
 	public function __construct($source = null)
 	{
@@ -89,7 +91,12 @@ class CopilotChat extends GroupChat
 			return $result->addError(new ChatError(ChatError::IMBOT_NOT_INSTALLED));
 		}
 
-		if (!(new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable())
+		if (!self::isAvailable())
+		{
+			return $result->addError(new Error(Restriction::AI_AVAILABLE_ERROR));
+		}
+
+		if (!self::isActive())
 		{
 			return $result->addError(new Error(Restriction::AI_TEXT_ERROR));
 		}
@@ -107,23 +114,23 @@ class CopilotChat extends GroupChat
 		return parent::add($params, $context);
 	}
 
-	public function addUsers(array $userIds, array $managerIds = [], ?bool $hideHistory = null, bool $withMessage = true, bool $skipRecent = false): Chat
+	public function addUsers(
+		array $userIds,
+		array $managerIds = [],
+		?bool $hideHistory = null,
+		bool $withMessage = true,
+		bool $skipRecent = false,
+		Im\V2\Relation\Reason $reason = Im\V2\Relation\Reason::DEFAULT
+	): Chat
 	{
 		if (empty($userIds) || !$this->getChatId())
 		{
 			return $this;
 		}
 
-		$usersToAdd = $this->filterUsersToAdd($userIds);
+		$usersToAdd = $this->getUsersWithoutBots($userIds);
 
-		if (empty($usersToAdd))
-		{
-			return $this;
-		}
-
-		$usersToAdd = $this->getUsersWithoutBots($usersToAdd);
-
-		return parent::addUsers($usersToAdd, $managerIds, $hideHistory, $withMessage, $skipRecent);
+		return parent::addUsers($usersToAdd, $managerIds, $hideHistory, $withMessage, $skipRecent, $reason);
 	}
 
 	protected function getUsersWithoutBots(array $userIds): array
@@ -132,8 +139,10 @@ class CopilotChat extends GroupChat
 
 		foreach ($userIds as $userId)
 		{
+			$userId = (int)$userId;
+
 			$user = Im\V2\Entity\User\User::getInstance($userId);
-			if (!$user->isBot())
+			if ($user->isExist() && $user->isActive() && !$user->isBot())
 			{
 				$usersToAdd[$userId] = $userId;
 			}
@@ -169,19 +178,32 @@ class CopilotChat extends GroupChat
 		return;
 	}
 
-	protected function sendBanner(?int $authorId = null): void
+	public function sendBanner(?int $authorId = null, ?string $copilotName = null, ?bool $isUpdate = false): void
 	{
+		if (!isset($copilotName))
+		{
+			$roleManager = new Im\V2\Integration\AI\RoleManager();
+			$copilotCode = $roleManager->getMainRole($this->getChatId());
+			$copilotName = $roleManager->getRoles([$copilotCode], $this->getContext()->getUserId())[$copilotCode]['name'];
+		}
+
 		\CIMMessage::Add([
 			'MESSAGE_TYPE' => $this->getType(),
 			'TO_CHAT_ID' => $this->getChatId(),
 			'FROM_USER_ID' => Bot\CopilotChatBot::getBotId(),
-			'MESSAGE' => Loc::getMessage('IM_CHAT_CREATE_COPILOT_WELCOME'),
+			"SYSTEM" => 'Y',
+			'MESSAGE' => $isUpdate
+				? Loc::getMessage('IM_CHAT_CREATE_COPILOT_WELCOME_UPDATE', ['#COPILOT_NAME#' => $copilotName])
+				: Loc::getMessage('IM_CHAT_CREATE_COPILOT_WELCOME_CREATE', ['#COPILOT_NAME#' => $copilotName])
+			,
 			'SKIP_USER_CHECK' => 'Y',
 			'PUSH' => 'N',
 			'SKIP_COUNTER_INCREMENTS' => 'Y',
 			'PARAMS' => [
 				Params::COMPONENT_ID => Bot\CopilotChatBot::MESSAGE_COMPONENT_START,
+				Params::COMPONENT_PARAMS => [self::COPILOT_ROLE_UPDATED => $isUpdate],
 				Params::NOTIFY => 'N',
+				Params::COPILOT_ROLE => (new Im\V2\Integration\AI\RoleManager())->getMainRole($this->getId()),
 			]
 		]);
 	}
@@ -203,7 +225,7 @@ class CopilotChat extends GroupChat
 			'FROM_USER_ID' => Bot\CopilotChatBot::getBotId(),
 			"SYSTEM" => 'Y',
 			'MESSAGE' => Loc::getMessage(
-				"IM_CHAT_CREATE_COPILOT_COLLECTIVE_{$author->getGender()}",
+				"IM_CHAT_CREATE_COPILOT_COLLECTIVE_{$author->getGender()}_MSGVER_1",
 				[
 					'#USER_1_NAME#' => htmlspecialcharsback($author->getName()),
 					'#USER_2_NAME#' => $this->getUsersForBanner($addedUsers)
@@ -217,6 +239,7 @@ class CopilotChat extends GroupChat
 					'AUTHOR_ID' => $author->getId(),
 					'ADDED_USERS' => array_values($addedUsers),
 				],
+				Params::COPILOT_ROLE => (new Im\V2\Integration\AI\RoleManager())->getMainRole($this->getId()),
 			],
 		]);
 	}
@@ -312,30 +335,33 @@ class CopilotChat extends GroupChat
 		return Bot\CopilotChatBot::getBotId() ?: Bot\CopilotChatBot::register();
 	}
 
-	public static function isAvailable(): bool
+	public static function isActive(): bool
 	{
 		return Loader::includeModule('imbot')
-			&& (new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable()
+			&& (new Restriction(Restriction::AI_COPILOT_CHAT))->isActive()
 			&& static::getBotIdOrRegister();
 	}
 
-	public function deleteUser(int $userId, bool $withMessage = true, bool $skipRecent = false, bool $withNotification = true): Result
+	public static function isAvailable(): bool
+	{
+		return (new Restriction(Restriction::AI_COPILOT_CHAT))->isAvailable();
+	}
+
+	public function deleteUser(int $userId, bool $withMessage = true, bool $skipRecent = false, bool $withNotification = true, bool $skipCheckReason = false): Result
 	{
 		if (CopilotChatBot::getBotId() === $userId && $this->getContext()->getUserId() !== $userId)
 		{
 			return (new Result())->addError(new ChatError(ChatError::COPILOT_DELETE_ERROR));
 		}
 
-		return parent::deleteUser($userId, $withMessage, $skipRecent);
+		return parent::deleteUser($userId, $withMessage, $skipRecent, $skipCheckReason);
 	}
 
-	public function toRestFormat(array $option = []): array
+	public function toPullFormat(): array
 	{
-		$chatData = parent::toRestFormat($option);
+		$pull = parent::toPullFormat();
+		$pull['ai_provider'] = IM\V2\Integration\AI\AIHelper::getProviderName();
 
-		$providerName = Im\V2\Integration\AI\AIHelper::getProviderName();
-		$chatData['aiProvider'] = $providerName;
-
-		return $chatData;
+		return $pull;
 	}
 }

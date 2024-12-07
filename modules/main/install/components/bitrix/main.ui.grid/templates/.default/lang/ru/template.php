@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["interface_grid_check_all"] = "Отметить все/снять отметку у всех";
 $MESS["interface_grid_actions"] = "Колонка действий";
 $MESS["interface_grid_sort"] = "Сортировка:";
@@ -128,11 +128,17 @@ $MESS["interface_grid_all_selected"] = "Отмечены все записи";
 $MESS["interface_grid_settings_close"] = "Закрыть";
 $MESS["interface_grid_settings_confirm_message"] = "Это действие изменит размеры, порядок, количество и названия колонок, также изменит сортировку";
 $MESS["interface_grid_settings_for_all_label"] = "Для всех";
+$MESS["interface_grid_settings_for_label"] = "Применить";
+$MESS["interface_grid_settings_for_for_all_label"] = "для всех";
+$MESS["interface_grid_settings_for_for_me_label"] = "для меня";
 $MESS["interface_grid_settings_for_all_confirm_message"] = "Применить настройки для всех пользователей";
 $MESS["interface_grid_settings_for_all_apply"] = "Применить";
 $MESS["interface_grid_settings_for_all_cancel"] = "Отменить";
+$MESS["interface_grid_field_search_placeholder"] = "Поиск по полям";
+$MESS["interface_grid_field_empty_state_title"] = "Такого поля нет";
+$MESS["interface_grid_field_empty_state_description"] = "Проверьте, нет ли опечаток";
+$MESS["interface_grid_field_all_sections_disabled"] = "Выберите элемент для показа полей";
 $MESS["interface_grid_settings_select_all_columns"] = "Выбрать все";
 $MESS["interface_grid_settings_unselect_all_columns"] = "Отменить все";
 $MESS["interface_grid_image_editor_button_edit"] = "Загрузить";
 $MESS["interface_grid_image_editor_button_remove"] = "Удалить";
-?>

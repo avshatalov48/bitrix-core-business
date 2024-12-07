@@ -16,11 +16,11 @@ if (!empty($arResult['ERRORS']))
 }
 if ($arResult['SUCCESS'])
 {
-	?><script type="text/javascript">top.window.location.reload();</script><?
+	?><script>top.window.location.reload();</script><?
 }
 ?>
 
-<script type="text/javascript">
+<script>
 	var isMenuShown = false;
 	var menu = null;
 

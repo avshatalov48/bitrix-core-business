@@ -14,6 +14,7 @@ use Bitrix\Landing\History\Action\EditLinkAction;
 use Bitrix\Landing\History\Action\EditMapAction;
 use Bitrix\Landing\History\Action\EditStyleAction;
 use Bitrix\Landing\History\Action\EditTextAction;
+use Bitrix\Landing\History\Action\EditComponentAction;
 use Bitrix\Landing\History\Action\RemoveBlockAction;
 use Bitrix\Landing\History\Action\RemoveCardAction;
 use Bitrix\Landing\History\Action\ReplaceLanding;
@@ -76,6 +77,10 @@ class ActionFactory
 		'EDIT_LINK' => [
 			self::UNDO => EditLinkAction::class,
 			self::REDO => EditLinkAction::class,
+		],
+		'EDIT_COMPONENT' => [
+			self::UNDO => EditComponentAction::class,
+			self::REDO => EditComponentAction::class,
 		],
 		'EDIT_STYLE' => [
 			self::UNDO => EditStyleAction::class,

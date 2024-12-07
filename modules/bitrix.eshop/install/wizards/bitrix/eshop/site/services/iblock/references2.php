@@ -223,14 +223,14 @@ if ($BRAND_ID > 0)
 				'UF_NAME' => GetMessage("WZD_REF_BRAND_".$brandName),
 				'UF_FILE' =>
 					array (
-						'name' => ToLower($brandName).".png",
+						'name' => mb_strtolower($brandName).".png",
 						'type' => 'image/png',
 						'tmp_name' => WIZARD_ABSOLUTE_PATH."/site/services/iblock/".$brandFile
 					),
 				'UF_SORT' => $sort,
 				'UF_DESCRIPTION' => GetMessage("WZD_REF_BRAND_DESCR_".$brandName),
 				'UF_FULL_DESCRIPTION' => GetMessage("WZD_REF_BRAND_FULL_DESCR_".$brandName),
-				'UF_XML_ID' => ToLower($brandName)
+				'UF_XML_ID' => mb_strtolower($brandName)
 			);
 			$USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_'.$BRAND_ID, $arData);
 			$USER_FIELD_MANAGER->checkFields('HLBLOCK_'.$BRAND_ID, null, $arData);

@@ -54,6 +54,13 @@ class messageservice extends \CModule
 
 		\Bitrix\Main\Config\Option::set('messageservice', 'clean_up_period', '14');
 
+		/** @see \Bitrix\MessageService\Providers\Edna\RegionHelper::REGION_RU */
+		$region = \Bitrix\Main\Application::getInstance()->getLicense()->getRegion();
+		if (!in_array($region, ['ru', 'by'], true))
+		{
+			\Bitrix\Main\Config\Option::set('messageservice', 'disable_international', 'Y');
+		}
+
 		/** @see \Bitrix\MessageService\Queue::cleanUpAgent */
 		\CAgent::AddAgent('Bitrix\MessageService\Queue::cleanUpAgent();',"messageservice", "Y", 86400);
 		/** @see \Bitrix\MessageService\IncomingMessage::cleanUpAgent */

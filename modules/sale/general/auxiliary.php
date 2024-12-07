@@ -33,7 +33,7 @@ class CAllSaleAuxiliary
 			return False;
 
 		$periodType = Trim($periodType);
-		$periodType = ToUpper($periodType);
+		$periodType = mb_strtoupper($periodType);
 		if ($periodType == '')
 			return False;
 

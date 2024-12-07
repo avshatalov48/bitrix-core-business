@@ -4,6 +4,7 @@ namespace Bitrix\Im\Model;
 use Bitrix\Im\Internals\Query;
 use Bitrix\Im\V2\Common\InsertSelectTrait;
 use Bitrix\Im\V2\Common\MultiplyInsertTrait;
+use Bitrix\Im\V2\Common\UpdateByFilterTrait;
 use Bitrix\Main\Application;
 use Bitrix\Main\ORM\Data\DataManager;
 use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
@@ -49,6 +50,7 @@ class MessageUnreadTable extends DataManager
 	use MergeTrait;
 	use InsertSelectTrait;
 	use MultiplyInsertTrait;
+	use UpdateByFilterTrait;
 
 	/**
 	 * Returns DB table name for entity.
@@ -113,6 +115,12 @@ class MessageUnreadTable extends DataManager
 					{
 						return new DateTime();
 					},
+				]
+			),
+			'PARENT_ID' => new IntegerField(
+				'PARENT_ID',
+				[
+					'required' => true,
 				]
 			),
 		];

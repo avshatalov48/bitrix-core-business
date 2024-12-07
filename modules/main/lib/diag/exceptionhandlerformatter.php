@@ -21,10 +21,19 @@ class ExceptionHandlerFormatter
 	{
 		$formatter = new LogFormatter((bool)($level & static::SHOW_PARAMETERS), static::MAX_CHARS);
 
-		$result = $formatter->format("{exception}{trace}{delimiter}\n", [
-			'exception' => $exception,
-			'trace' => static::getTrace($exception),
-		]);
+		$result = '';
+		do
+		{
+			if ($result != '')
+			{
+				$result .= "Previous exception: ";
+			}
+			$result .= $formatter->format("{exception}{trace}{delimiter}\n", [
+				'exception' => $exception,
+				'trace' => static::getTrace($exception),
+			]);
+		}
+		while (($exception = $exception->getPrevious()) !== null);
 
 		if ($htmlMode)
 		{

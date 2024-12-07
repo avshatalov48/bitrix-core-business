@@ -140,13 +140,13 @@ class Dispatcher
 
 			$this->reloadUserFieldInfo($fieldInfo['ENTITY_ID']);
 
-			$addFieldInfo = array(
+			$addFieldInfo = [
 				'ENTITY_ID' => $fieldInfo['ENTITY_ID'],
 				'ENTITY_VALUE_ID' => $fieldInfo['ENTITY_VALUE_ID'],
 				'FIELD' => $fieldInfo['FIELD'],
 				'VALUE' => $fieldInfo['VALUE'],
-				'CONTEXT' => $fieldInfo['CONTEXT'],
-			);
+				'CONTEXT' => $fieldInfo['CONTEXT'] ?? null,
+			];
 
 			$addFieldInfo['SIGNATURE'] = $this->getSignature($addFieldInfo);
 
@@ -367,12 +367,12 @@ class Dispatcher
 			{
 				if(is_array($valueDescription))
 				{
-					$enumValues['n'.$key] = array(
-						'XML_ID' => $valueDescription['XML_ID'],
+					$enumValues['n' . $key] = [
+						'XML_ID' => $valueDescription['XML_ID'] ?? null,
 						'VALUE' => $valueDescription['VALUE'],
-						'DEF' => $valueDescription['DEF'] === 'Y' ? 'Y' : 'N',
-						'SORT' => $valueDescription['SORT'],
-					);
+						'DEF' => ($valueDescription['DEF'] ?? 'N') === 'Y' ? 'Y' : 'N',
+						'SORT' => $valueDescription['SORT'] ?? 0,
+					];
 				}
 			}
 			$setEnumResult = $enumValuesManager->setEnumValues($fieldId, $enumValues);
@@ -417,17 +417,22 @@ class Dispatcher
 
 						unset($deletedEnum[$enumItem['ID']]);
 					}
-					$itemKey = $enumItem['ID'] > 0
-						? $enumItem['ID']
-						: 'n'.($countAdded++);
 
+					$enumTypeId = $enumItem['ID'] ?? null;
+					$itemKey = (
+						$enumTypeId > 0
+							? $enumTypeId
+							: 'n' . ($countAdded++)
+					);
+
+					$isDefault = ($enumItem['DEF'] ?? 'N');
 					$itemDescription = array(
 						'VALUE' => $enumItem['VALUE'],
-						'DEF' => $enumItem['DEF'] === 'Y' ? 'Y' : 'N',
+						'DEF' => $isDefault === 'Y' ? 'Y' : 'N',
 						'SORT' => $enumItem['SORT'],
 					);
 
-					if($enumItem['XML_ID'] <> '')
+					if (!empty($enumItem['XML_ID']))
 					{
 						$itemDescription['XML_ID'] = $enumItem['XML_ID'];
 					}

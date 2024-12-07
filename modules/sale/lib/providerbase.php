@@ -1065,7 +1065,6 @@ abstract class ProviderBase
 	 */
 	public static function getProductDataByList(array $products, $providerClassName, array $select, array $context, array $options = array())
 	{
-
 		$result = new Result();
 		$resultList = array();
 

@@ -37,6 +37,11 @@ body {
 	line-height: 0;
 }
 
+.preview-desktop.--main-page {
+	background: url(./images/preview-bg-orion.png);
+	background-size: cover;
+}
+
 .preview-desktop img {
 	width: 100%;
 	height: auto;
@@ -171,6 +176,38 @@ input {
 
 /* new-preview-mod */
 
+.preview-desktop.--main-page {
+	display: grid;
+	grid-template-columns: 63px 1fr 63px;
+	grid-template-areas:
+        "menu header sidebar"
+        "menu content sidebar";
+}
+
+.preview-desktop.--main-page .preview-header {
+	grid-area: header;
+	height: 63px;
+}
+
+.preview-desktop.--main-page .preview-menu {
+	grid-area: menu;
+	background: url(./images/preview-left-menu.svg) no-repeat;
+}
+
+.preview-sidebar {
+	grid-area: sidebar;
+	background: url(./images/preview-chatbar.svg) no-repeat;
+}
+
+.bitrix24-light-theme .preview-desktop.--main-page .preview-menu,
+.bitrix24-default-theme .preview-desktop.--main-page .preview-menu {
+	background: url(./images/preview-left-menu-dark.svg) no-repeat;
+}
+
+.preview-desktop.--main-page .preview-desktop-body {
+	grid-area: content;
+}
+
 .landing-edit-footer-fixed,
 .landing-template-demo-preview-header {
 	display: none;
@@ -234,6 +271,10 @@ input {
 	max-width: 240px;
 	color: #535c69;
 	vertical-align: top;
+}
+
+.landing-ui-panel-top-logo-text-mainpage {
+	margin-left: 5px;
 }
 
 .landing-ui-panel-top-logo-color {
@@ -438,15 +479,52 @@ input {
 	flex-direction: column;
 	margin: auto auto 100px;
 }
+
 .landing-popup-import-repeat.hide {
 	display: none;
 }
+
 .landing-popup-import-repeat-button {
 	width: fit-content;
 	min-width: 150px;
 	margin: auto;
 }
+
 .landing-popup-import-repeat-text {
 	text-align: center;
 	padding-bottom: 15px;
+}
+
+.preview-header {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.preview-header-right {
+	width: 439px;
+	height: 63px;
+	background: url(./images/preview-head-bar.svg) no-repeat;
+}
+
+.preview-header-balloon {
+	width: 220px;
+	height: 30px;
+	border-radius: var(--ui-border-radius-2xl);
+	background: var(--ui-color-background-primary);
+}
+
+.bitrix24-light-theme .preview-header-right,
+.bitrix24-default-theme .preview-header-right {
+	background: url(./images/preview-head-bar-dark.svg) no-repeat;
+}
+
+.bitrix24-light-theme .preview-header-balloon,
+.bitrix24-default-theme .preview-header-balloon {
+	background: rgba(var(--ui-color-palette-gray-80-rgb), var(--ui-opacity-60));
+}
+
+.landing-template-preview-create-popup .popup-window-titlebar-text,
+.landing-template-preview-create-popup .popup-window-content {
+	color: #535c69;
 }

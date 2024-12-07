@@ -93,3 +93,9 @@ CREATE TABLE b_location_recent_address (
 );
 CREATE INDEX ix_b_location_recent_address_user_id_used_at ON b_location_recent_address (user_id, used_at);
 CREATE INDEX ix_b_location_recent_address_used_at ON b_location_recent_address (used_at);
+
+CREATE TABLE b_location_static_map_file (
+	HASH char(40) NOT NULL,
+	FILE_ID int NOT NULL,
+	PRIMARY KEY (HASH)
+);

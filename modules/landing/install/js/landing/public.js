@@ -23,46 +23,58 @@
 			// endregion
 
 			// region PSEUDO LINKS
-			const pseudoLinks = [].slice.call(document.querySelectorAll("[data-pseudo-url*=\"{\"]"));
-			if (pseudoLinks.length)
+			const pseudoLinks = [].slice.call(document.querySelectorAll('[data-pseudo-url*="{"]'));
+			if (pseudoLinks.length > 0)
 			{
-				pseudoLinks.forEach(link => {
-					const linkOptions = BX.Landing.Utils.data(link, "data-pseudo-url");
+				pseudoLinks.forEach((link) => {
+					const linkOptions = BX.Landing.Utils.data(link, 'data-pseudo-url');
 					if (
 						linkOptions.href
 						&& linkOptions.enabled
 						&& linkOptions.href.indexOf('/bitrix/services/main/ajax.php?action=landing.api.diskFile.download') !== 0
 					)
 					{
-						if (linkOptions.target === "_self" || linkOptions.target === "_blank")
+						if (linkOptions.target === '_self' || linkOptions.target === '_blank')
 						{
-							link.addEventListener("click", event => {
+							link.addEventListener('click', (event) => {
 								event.preventDefault();
-								let url;
-								try {
+								let url = null;
+								try
+								{
 									url = new URL(linkOptions.href);
-								} catch (e) {
-									url = null;
 								}
-								if (
-									url
-									&& url.hostname === window.location.host
-									&& url.pathname !== window.location.pathname
-									&& url.searchParams.get('IFRAME') !== "Y"
-								)
+								catch (error)
 								{
-									BX.addClass(document.body, "landing-page-transition");
-									linkOptions.href = url.href;
-									setTimeout(() => {
+									console.error(error);
+								}
+								if (url)
+								{
+									const isSameHost = url.hostname === window.location.hostname;
+									const isIframe = url.searchParams.get('IFRAME') === 'Y';
+
+									if (isSameHost && !isIframe)
+									{
+										const isDifferentPath = url.pathname !== window.location.pathname;
+										if (isDifferentPath)
+										{
+											BX.addClass(document.body, 'landing-page-transition');
+											linkOptions.href = url.href;
+											setTimeout(() => {
+												openPseudoLinks(linkOptions, event);
+											}, 400);
+											setTimeout(() => {
+												BX.removeClass(document.body, 'landing-page-transition');
+											}, 3000);
+										}
+										else if (isBlockLink(linkOptions.href))
+										{
+											onBlockLinkClick(event);
+										}
+									}
+									else
+									{
 										openPseudoLinks(linkOptions, event);
-									}, 400);
-									setTimeout(() => {
-										BX.removeClass(document.body, "landing-page-transition");
-									}, 3000);
-								}
-								else
-								{
-									openPseudoLinks(linkOptions, event);
+									}
 								}
 							});
 						}

@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager                        #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 require_once(__DIR__."/../include/prolog_admin_before.php");
@@ -11,7 +11,6 @@ define("HELP_FILE", "settings/mail_events/messagetype_admin.php");
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Mail\Internal\EventTypeTable;
 
-$err_mess = "File: ".__FILE__."<br>Line: ";
 $arFilter = array();
 $error = false;
 

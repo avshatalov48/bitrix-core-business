@@ -2,6 +2,7 @@
 
 use Bitrix\Main\EventResult;
 use Bitrix\Main\EventManager;
+use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Copyright;
 
 IncludeModuleLangFile(__FILE__);
@@ -125,7 +126,6 @@ $jsCoreRel = [
 	'im.application.launch',
 	'im.old-chat-embedding.application.left-panel',
 	'im.old-chat-embedding.application.sidebar',
-	'im.call',
 ];
 
 $jsCoreRelMobile = array('im_common', 'uploader', 'mobile.pull.client');
@@ -231,8 +231,9 @@ CJSCore::RegisterExt('im_timecontrol', array(
 
 if ($isLegacyChatActivated)
 {
-	$GLOBALS["APPLICATION"]->AddJSKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
-	$GLOBALS["APPLICATION"]->AddCSSKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
+	$asset = Asset::getInstance();
+	$asset->addJsKernelInfo('im', array_merge(['/bitrix/js/im/common.js', '/bitrix/js/im/window.js'], $jsIm));
+	$asset->addCssKernelInfo('im', array('/bitrix/js/im/css/common.css', '/bitrix/js/im/css/dark_im.css', '/bitrix/js/im/css/window.css', '/bitrix/js/im/css/im.css', '/bitrix/js/im/css/call/view.css', '/bitrix/js/im/css/call/sidebar.css', '/bitrix/js/im/css/call/promo-popup.css'));
 }
 
 /* Copyrights */

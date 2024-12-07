@@ -288,7 +288,7 @@ if ($arUser = $dbUser->Fetch())
 			$day = intval($arDateTmp["DD"]);
 			$month = intval($arDateTmp["MM"]);
 			$year = intval($arDateTmp["YYYY"]);
-			$dateFormated = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
+			$dateFormated = $day.' '.mb_strtolower(GetMessage('MONTH_'.$month.'_S')).' '.$year;
 			$timeFormated = $arDateTmp["HH"].':'.$arDateTmp["MI"].':'.$arDateTmp["SS"];
 
 			$arEvents["MESSAGE_FORMAT"] = htmlspecialcharsback($arEvents["MESSAGE"]);
@@ -438,7 +438,7 @@ if ($arUser = $dbUser->Fetch())
 				$arTmpEvent["USER_LOGIN"] 			= $arTmpUser["LOGIN"];
 			}
 
-			if (preg_match("/#USER_NAME#/i".BX_UTF_PCRE_MODIFIER, $arTmpEvent["TITLE_FORMAT"], $res))
+			if (preg_match("/#USER_NAME#/iu", $arTmpEvent["TITLE_FORMAT"], $res))
 			{
 				if (intval($arEvents["USER_ID"]) > 0)
 				{

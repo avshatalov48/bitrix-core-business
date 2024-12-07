@@ -42,9 +42,9 @@ $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
 while ($arCCard = $dbRes->NavNext(false))
 {
-	$row =& $lAdmin->AddRow($arCCard["EXTERNAL_ID"], $arCCard, "sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"]."&handler=".ToLower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID);
+	$row =& $lAdmin->AddRow($arCCard["EXTERNAL_ID"], $arCCard, "sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"]."&handler=".mb_strtolower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID);
 
-	$row->AddField("EXTERNAL_ID", "<a href=\"sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"].'&handler='.ToLower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID."\">".$arCCard["EXTERNAL_ID"]."</a>");
+	$row->AddField("EXTERNAL_ID", "<a href=\"sale_ps_handler_refund_edit.php?".$arCCard["LINK_PARAMS"].'&handler='.mb_strtolower($arCCard["HANDLER"])."&lang=".LANGUAGE_ID."\">".$arCCard["EXTERNAL_ID"]."</a>");
 	$row->AddField("NAME", htmlspecialcharsbx($arCCard["NAME"]));
 	$row->AddField("CONFIGURED", GetMessage("SALE_REFUND_HANDLERS_LIST_CONFIGURED_".$arCCard["CONFIGURED"]));
 }

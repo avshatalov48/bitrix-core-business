@@ -1,22 +1,21 @@
 <?php
 
-
 namespace Bitrix\Catalog\Controller;
-
 
 use Bitrix\Catalog\Access\ActionDictionary;
 use Bitrix\Catalog\VatTable;
-use Bitrix\Main\Engine\Response\DataType\Page;
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\UI\PageNavigation;
-use Bitrix\Rest\Event\EventBindInterface;
 
 /**
  * @todo temporary - remake it when Vat gets implemented as a \Bitrix\Catalog\Model\Entity
  */
 final class Vat extends Controller
 {
+	use ListAction; // default listAction realization
+	use GetAction; // default getAction realization
+	use CheckExists; // default implementation of existence check
+
 	//region Actions
 
 	/**
@@ -43,7 +42,7 @@ final class Vat extends Controller
 			return null;
 		}
 
-		return ['VAT' => $this->get($addResult)];
+		return [$this->getServiceItemName() => $this->get($addResult)];
 	}
 
 	/**
@@ -69,7 +68,7 @@ final class Vat extends Controller
 			return null;
 		}
 
-		return ['VAT' => $this->get($id)];
+		return [$this->getServiceItemName() => $this->get($id)];
 	}
 
 	/**
@@ -102,58 +101,18 @@ final class Vat extends Controller
 	 */
 	public function getFieldsAction(): array
 	{
-		return ['VAT' => $this->getViewFields()];
+		return [$this->getServiceItemName() => $this->getViewFields()];
 	}
 
 	/**
-	 * @param array $select
-	 * @param array $filter
-	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
-	 * @return Page
+	 * public function listAction
+	 * @see ListAction::listAction
 	 */
-	public function listAction(PageNavigation $pageNavigation, array $select = [], array $filter = [], array $order = []): Page
-	{
-		return new Page(
-			'VATS',
-			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
-		);
-	}
 
 	/**
-	 * @param $id
-	 * @return array|null
+	 * public function getAction
+	 * @see GetAction::getAction
 	 */
-	public function getAction($id): ?array
-	{
-		$r = $this->exists($id);
-		if($r->isSuccess())
-		{
-			return ['VAT' => $this->get($id)];
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-
-			return null;
-		}
-	}
-	//endregion
-
-	/**
-	 * @inheritDoc
-	 */
-	protected function exists($id)
-	{
-		$r = new Result();
-		if (!isset($this->get($id)['ID']))
-		{
-			$r->addError(new Error('VAT does not exist'));
-		}
-
-		return $r;
-	}
 
 	/**
 	 * @inheritDoc

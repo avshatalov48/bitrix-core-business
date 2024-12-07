@@ -13,7 +13,6 @@ if (!empty($siteId) && is_string($siteId))
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_before.php');
 
 $request = \Bitrix\Main\Application::getInstance()->getContext()->getRequest();
-$request->addFilter(new \Bitrix\Main\Web\PostDecodeFilter);
 
 if (!\Bitrix\Main\Loader::includeModule('iblock'))
 	return;

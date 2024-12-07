@@ -134,7 +134,7 @@ $oFilter = new CAdminFilter($sFilterID,array(
 	GetMessage("STAT_F_EVENTS"),
 ));
 ?>
-<script type="text/javascript">
+<script>
 function applyFilter()
 {
 	jsSelectUtils.selectAllOptions('find_events[]');
@@ -162,7 +162,7 @@ $oFilter->Begin();
 	<td><?
 	echo SelectBoxMFromArray("find_events[]",array("REFERENCE"=>$find_events_names, "REFERENCE_ID"=>$find_events), false, "", false, "11", 'id="find_events[]"');
 	?>
-	<script language="Javascript">
+	<script>
 	function selectEventType(form, field)
 	{
 		jsUtils.OpenWindow('event_multiselect.php?target_control=select&lang=<?=LANG?>&form='+form+'&field='+field, 600, 600);

@@ -49,7 +49,6 @@ class CSOAPResponse extends CSOAPEnvelope
 
 		$xml = new CDataXML();
 
-		$stream = $APPLICATION->ConvertCharset($stream, "UTF-8", SITE_CHARSET);
 		if (!$xml->LoadString( $stream ))
 		{
 			$APPLICATION->ThrowException( "Error: Can't parse request xml data. ");
@@ -363,7 +362,7 @@ class CSOAPResponse extends CSOAPEnvelope
 		$body = new CXMLCreator( "soap:Body" );
 
 		// Check if it's a fault
-		if (is_object($this->Value) && ToUpper(get_class($this->Value)) == 'CSOAPFAULT')
+		if (is_object($this->Value) && mb_strtoupper(get_class($this->Value)) == 'CSOAPFAULT')
 		{
 			$fault = new CXMLCreator( "soap:Fault" );
 

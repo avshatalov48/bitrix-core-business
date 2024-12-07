@@ -2,13 +2,13 @@
 
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
-use Bitrix\Catalog\Component\SkuTree;
 use Bitrix\Catalog\StoreTable;
 use Bitrix\Catalog\StoreProductTable;
 use Bitrix\Catalog\v2\Product\Product;
 use Bitrix\Main\Engine\Contract\Controllerable;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorableImplementation;
+use Bitrix\Main\Grid\Options;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
@@ -32,12 +32,16 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 	private const NAVIGATION_ID = 'page';
 	private const DEFAULT_PAGE_SIZE = 5;
 	private $navigation;
-	private $measures;
+	private array $measures = [];
 	private $filterPresets;
 	private $storeProductCount;
 	private $storeProducts;
 	private $gridId;
-	private $productId;
+	private int $productId;
+	private BaseProduct $product;
+	private array $headers;
+	private Options $gridOptions;
+	private PageNavigation $pageNavigation;
 
 	public function __construct($component = null)
 	{
@@ -167,7 +171,8 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 			$this->pageNavigation
 				->allowAllRecords(false)
 				->setPageSize($this->getPageSize())
-				->initFromUri();
+				->initFromUri()
+			;
 
 			$this->pageNavigation->setRecordCount($this->getStoreProductsCount());
 		}
@@ -179,7 +184,7 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 	{
 		if (!isset($this->gridOptions))
 		{
-			$this->gridOptions = new Bitrix\Main\Grid\Options($this->getGridId());
+			$this->gridOptions = new Options($this->getGridId());
 		}
 		return $this->gridOptions;
 	}
@@ -323,6 +328,7 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 		if (!isset($this->product))
 		{
 			$repositoryFacade = ServiceContainer::getRepositoryFacade();
+			/** @var \Bitrix\Catalog\v2\Sku\BaseSku $variation */
 			$variation = $repositoryFacade->loadVariation($this->getProductId());
 			if (!$variation)
 			{
@@ -536,7 +542,6 @@ class CatalogProductStoreAmountDetailsComponent extends \CBitrixComponent implem
 
 	private function getSkuTreeById($skuId)
 	{
-		/** @var SkuTree $skuTree */
 		$skuTree = ServiceContainer::make('sku.tree', ['iblockId' => $this->getProduct()->getIblockId()]);
 		if (!$skuTree)
 		{

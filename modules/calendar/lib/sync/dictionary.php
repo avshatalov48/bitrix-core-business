@@ -6,6 +6,7 @@ namespace Bitrix\Calendar\Sync;
 class Dictionary
 {
 	public const RECURRENCE_SYNC_MODE = [
+		'exceptionNewSeries' => 0b110,
 		'exception' => 0b100,
 		'oldMaster' => 0b011,
 		'newMaster' => 0b010,

@@ -5,7 +5,6 @@ class CUserOnline
 	public static function GetGuestCount()
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$interval = intval(COption::GetOptionString("statistic", "ONLINE_INTERVAL"));
 		$strSql = "
 			SELECT
@@ -17,7 +16,7 @@ class CUserOnline
 				S.DATE_STAT = curdate()
 				and S.DATE_LAST > DATE_ADD(now(), INTERVAL - $interval SECOND)
 		";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		$ar = $rs->Fetch();
 		return intval($ar["CNT"]);
 	}
@@ -25,7 +24,6 @@ class CUserOnline
 	public static function GetList(&$guest_count, &$session_count, $arOrder=Array(), $arFilter=Array())
 	{
 		$DB = CDatabase::GetModuleConnection('statistic');
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$interval = intval(COption::GetOptionString("statistic", "ONLINE_INTERVAL"));
 
 		$arSqlSearch = Array();
@@ -196,7 +194,7 @@ class CUserOnline
 
 		$arr = array();
 		$arrG = array();
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while($ar = $rs->Fetch())
 		{
 			$arr[] = $ar;

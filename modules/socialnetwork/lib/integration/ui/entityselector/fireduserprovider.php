@@ -60,7 +60,7 @@ class FiredUserProvider extends UserProvider
 			 * If a referenceClass is not null,
 			 * then we reduce the list of fired users only have reference in the referenceClass entity
 			 */
-			$fieldName = Application::getConnection()->getSqlHelper()->forSql($options['fieldName']);
+			$fieldName = Application::getConnection()->getSqlHelper()->quote($options['fieldName']);
 			$tableName = mb_strtolower($query->getEntity()->getCode());
 
 			$query->whereExists(new SqlExpression(

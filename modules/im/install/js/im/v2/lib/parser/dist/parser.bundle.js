@@ -179,12 +179,26 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    user1 = Number.parseInt(user1, 10);
 	    user2 = Number.parseInt(user2, 10);
 	    if (getCore().getUserId() === user1) {
-	      return `${user2}/${messageId}}`;
+	      return `${user2}/${messageId}`;
 	    }
 	    if (getCore().getUserId() === user2) {
-	      return `${user1}/${messageId}}`;
+	      return `${user1}/${messageId}`;
 	    }
 	    return '';
+	  },
+	  getDialogIdFromFinalContextTag(finalContextTag) {
+	    if (!/^(chat\d+|\d+)\/\d+$/.test(finalContextTag)) {
+	      return '';
+	    }
+	    const [dialogId] = finalContextTag.split('/');
+	    return dialogId;
+	  },
+	  getDialogIdByChatId(chatId) {
+	    const dialog = getCore().store.getters['chats/getByChatId'](chatId);
+	    if (!dialog) {
+	      return '';
+	    }
+	    return dialog.dialogId;
 	  }
 	};
 
@@ -277,9 +291,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      if (attachDescription === AttachDescription.skipMessage) {
 	        attachDescription = '';
 	      } else {
-	        attachDescription = Parser.purifyText(attachDescription, {
-	          showPhraseMessageWasDeleted: false
-	        });
+	        attachDescription = Parser.purifyText(attachDescription);
 	      }
 	    } else {
 	      const icon = this.getIcon(FileIconType.attach);
@@ -337,6 +349,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  EventType
 	} = getConst();
 	const QUOTE_SIGN = '&gt;&gt;';
+	const NO_CONTEXT_TAG = 'none';
 	const ParserQuote = {
 	  decodeArrowQuote(text) {
 	    if (!text.includes(QUOTE_SIGN)) {
@@ -349,7 +362,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        continue;
 	      }
 	      const quoteStartIndex = i;
-	      const outerContainerStart = '<div class="bx-im-message-quote --inline">';
+	      const outerContainerStart = `<div data-context="${NO_CONTEXT_TAG}" class="bx-im-message-quote --inline">`;
 	      const innerContainerStart = '<div class="bx-im-message-quote__wrap">';
 	      const containerEnd = '</div>';
 	      textLines[quoteStartIndex] = textLines[quoteStartIndex].replace(QUOTE_SIGN, `${outerContainerStart}${innerContainerStart}`);
@@ -370,46 +383,25 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    text = text.replace(new RegExp(`^(${QUOTE_SIGN}(.*))`, 'gim'), ParserIcon.getQuoteBlock() + spaceLetter);
 	    return text;
 	  },
-	  decodeQuote(text) {
-	    text = ParserRecursionPrevention.cutTags(text);
-	    text = text.replace(/-{54}(<br \/>(.*?)\[(.*?)]( #(?:chat\d+|\d+:\d+)\/\d+)?)?<br \/>(.*?)-{54}(<br \/>)?/gs, (whole, userBlock, userName, timeTag, contextTag, text) => {
-	      const skipUserBlock = !userName || !timeTag;
-	      if (skipUserBlock && !text)
-	        // greedy date detector :(
-	        {
-	          text = `${timeTag}`;
-	        }
-	      let userContainer = '';
-	      if (!skipUserBlock) {
-	        userContainer = main_core.Tag.render(_t || (_t = _`
-						<div class='bx-im-message-quote__name'>
-							<div class="bx-im-message-quote__name-text">${0}</div>
-							<div class="bx-im-message-quote__name-time">${0}</div>
-						</div>
-					`), userName, timeTag);
-	      }
-	      let quoteBaseClass = 'bx-im-message-quote';
-	      if (contextTag) {
-	        contextTag = contextTag.trim().slice(1);
-	        contextTag = ParserUtils.getFinalContextTag(contextTag);
-	      }
-	      if (contextTag) {
-	        quoteBaseClass += ' --with-context';
-	      } else {
-	        contextTag = 'none';
-	      }
-	      const layout = main_core.Tag.render(_t2 || (_t2 = _`
-					<div class='${0}' data-context='${0}'>
+	  decodeQuote(text, {
+	    contextDialogId = ''
+	  } = {}) {
+	    const sanitizedText = ParserRecursionPrevention.cutTags(text);
+	    const decodedText = sanitizedText.replaceAll(/-{54}(<br \/>(.*?)\[(.*?)]( #(?:chat\d+|\d+:\d+)\/\d+)?)?<br \/>(.*?)-{54}(<br \/>)?/gs, (whole, userBlock, userName, timeTag, contextTag, quoteText) => {
+	      const preparedQuoteText = getQuoteText(userName, timeTag, quoteText);
+	      const userContainer = getUserBlock(userName, timeTag);
+	      const finalContextTag = getFinalContextTag(contextTag, contextDialogId);
+	      const layout = main_core.Tag.render(_t || (_t = _`
+					<div class='bx-im-message-quote' data-context='${0}'>
 						<div class='bx-im-message-quote__wrap'>
 							${0}
 							<div class='bx-im-message-quote__text'>${0}</div>
 						</div>
 					</div>
-				`), quoteBaseClass, contextTag, userContainer, text);
+				`), finalContextTag, userContainer, preparedQuoteText);
 	      return layout.outerHTML;
 	    });
-	    text = ParserRecursionPrevention.recoverTags(text);
-	    return text;
+	    return ParserRecursionPrevention.recoverTags(decodedText);
 	  },
 	  purifyQuote(text, spaceLetter = ' ') {
 	    return text.replace(/-{54}(.*?)-{54}/gims, ParserIcon.getQuoteBlock() + spaceLetter);
@@ -432,8 +424,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (!event.target.className.startsWith('bx-im-message-quote') && !(event.target.parentNode && event.target.parentNode.className.startsWith('bx-im-message-quote'))) {
 	      return;
 	    }
-	    const target = getUtils().dom.recursiveBackwardNodeSearch(event.target, '--with-context');
-	    if (!target || target.dataset.context === 'none') {
+	    const target = getUtils().dom.recursiveBackwardNodeSearch(event.target, 'bx-im-message-quote');
+	    if (!target || target.dataset.context === NO_CONTEXT_TAG) {
 	      return;
 	    }
 	    const [dialogId, messageId] = target.dataset.context.split('/');
@@ -442,6 +434,45 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      dialogId: dialogId.toString()
 	    });
 	  }
+	};
+	const getQuoteText = (userName, timeTag, text) => {
+	  const hasUserBlock = userName && timeTag;
+	  if (!hasUserBlock && !text) {
+	    // the case, when inside the quote we have only some string in square brackets
+	    return String(timeTag);
+	  }
+	  const BR_HTML_TAG = '<br />';
+	  if (text.endsWith(BR_HTML_TAG)) {
+	    return text.slice(0, -BR_HTML_TAG.length);
+	  }
+	  return text;
+	};
+	const getUserBlock = (userName, timeTag) => {
+	  const hasDataForUserBlock = userName && timeTag;
+	  if (!hasDataForUserBlock) {
+	    return '';
+	  }
+	  return main_core.Tag.render(_t2 || (_t2 = _`
+		<div class='bx-im-message-quote__name'>
+			<div class="bx-im-message-quote__name-text">${0}</div>
+			<div class="bx-im-message-quote__name-time">${0}</div>
+		</div>
+	`), userName.trim(), timeTag.trim());
+	};
+	const getFinalContextTag = (contextTag, contextDialogId) => {
+	  if (!contextTag) {
+	    return NO_CONTEXT_TAG;
+	  }
+	  const tagWithoutHashSign = contextTag.trim().slice(1);
+	  const finalContextTag = ParserUtils.getFinalContextTag(tagWithoutHashSign);
+	  if (!isQuoteFromTheSameChat(finalContextTag, contextDialogId)) {
+	    return NO_CONTEXT_TAG;
+	  }
+	  return finalContextTag;
+	};
+	const isQuoteFromTheSameChat = (finalContextTag, dialogId) => {
+	  const contextDialogId = ParserUtils.getDialogIdFromFinalContextTag(finalContextTag);
+	  return contextDialogId === dialogId;
 	};
 
 	const ParserImage = {
@@ -476,14 +507,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    });
 	  },
 	  purifyLink(text) {
-	    text = text.replace(/(.)?((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+)?)/gi, function (whole, letter, url) {
-	      if (letter && !['>', ']', ' '].includes(letter) || !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i) || url.toLowerCase().indexOf("/docs/pub/") > 0 || url.toLowerCase().indexOf("logout=yes") > 0) {
+	    return text.replaceAll(/(.)?(https?:\/\/\S+)/gi, (whole, symbolBeforeUrl, url) => {
+	      if (!canPurifyLink(symbolBeforeUrl, url)) {
 	        return whole;
-	      } else {
-	        return (letter ? letter : '') + ParserIcon.getImageBlock();
 	      }
+	      const firstSymbol = symbolBeforeUrl || '';
+	      return `${firstSymbol}${ParserIcon.getImageBlock()}`;
 	    });
-	    return text;
 	  },
 	  // eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
 	  decodeIcon(text) {
@@ -589,6 +619,23 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      result.parentNode.innerHTML = `<a href="${encodeURI(element.src)}" target="_blank">${element.src}</a>`;
 	    }
 	  }
+	};
+	function isLinkFromDisk(url) {
+	  return url.toLowerCase().indexOf('/docs/pub/') > 0;
+	}
+	function isLogoutLink(url) {
+	  return url.toLowerCase().indexOf('logout=yes') > 0;
+	}
+	function hasImageFileExtension(url) {
+	  const [urlWithoutQueryString] = url.split('?');
+	  return /\.(jpg|jpeg|png|gif|webp)$/i.test(urlWithoutQueryString);
+	}
+	function hasLeadingTextBeforeUrl(symbolBeforeUrl) {
+	  const AllowedSymbolsBeforeImageUrl = new Set(['>', ']', ' ']);
+	  return main_core.Type.isStringFilled(symbolBeforeUrl) && !AllowedSymbolsBeforeImageUrl.has(symbolBeforeUrl);
+	}
+	const canPurifyLink = (symbolBeforeUrl, url) => {
+	  return hasImageFileExtension(url) && !isLinkFromDisk(url) && !isLogoutLink(url) && !hasLeadingTextBeforeUrl(symbolBeforeUrl);
 	};
 
 	let _$1 = t => t,
@@ -939,10 +986,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }).outerHTML;
 	  },
 	  executeClickEvent(event) {
+	    var _getDialogIdByMessage;
 	    if (!main_core.Dom.hasClass(event.target, 'bx-im-message-command')) {
 	      return;
 	    }
 	    const element = event.target;
+	    const messageId = getMessageIdForClickElement(element);
+	    const dialogId = (_getDialogIdByMessage = getDialogIdByMessageId(messageId)) != null ? _getDialogIdByMessage : '';
 	    if (element.dataset.entity === ActionType.put) {
 	      const {
 	        innerText: textToInsert = ''
@@ -951,7 +1001,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      main_core_events.EventEmitter.emit(EventType$1.textarea.insertText, {
-	        text: textToInsert
+	        text: textToInsert,
+	        dialogId
 	      });
 	    } else if (element.dataset.entity === ActionType.send) {
 	      const {
@@ -961,10 +1012,29 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        return;
 	      }
 	      main_core_events.EventEmitter.emit(EventType$1.textarea.sendMessage, {
-	        text: textToSend
+	        text: textToSend,
+	        dialogId
 	      });
 	    }
 	  }
+	};
+	const getMessageIdForClickElement = element => {
+	  const messageElement = element.closest('.bx-im-message-base__wrap');
+	  if (!messageElement || !messageElement.dataset.id) {
+	    return null;
+	  }
+	  return messageElement.dataset.id;
+	};
+	const getDialogIdByMessageId = messageId => {
+	  const message = getCore().getStore().getters['messages/getById'](messageId);
+	  if (!message) {
+	    return null;
+	  }
+	  const dialog = getCore().getStore().getters['chats/getByChatId'](message.chatId);
+	  if (!dialog) {
+	    return null;
+	  }
+	  return dialog.dialogId;
 	};
 
 	const {
@@ -1235,12 +1305,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const Parser = {
 	  decodeMessage(message) {
 	    const messageFiles = getCore().store.getters['messages/getMessageFiles'](message.id);
+	    const contextDialogId = ParserUtils.getDialogIdByChatId(message.chatId);
 	    return this.decode({
 	      text: message.text,
 	      attach: message.attach,
 	      files: messageFiles,
-	      replaces: message.replaces,
-	      showIconIfEmptyText: false
+	      showIconIfEmptyText: false,
+	      contextDialogId
 	    });
 	  },
 	  decodeNotification(notification) {
@@ -1248,7 +1319,6 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    return this.decode({
 	      text: notification.text,
 	      attach: (_notification$params$ = notification.params.attach) != null ? _notification$params$ : false,
-	      replaces: notification.replaces,
 	      showIconIfEmptyText: false,
 	      showImageFromLink: false,
 	      urlTarget: im_v2_lib_desktopApi.DesktopApi.isDesktop() ? '_blank' : '_self'
@@ -1291,6 +1361,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      removeLinks = false,
 	      showIconIfEmptyText = true,
 	      showImageFromLink = true,
+	      contextDialogId = '',
 	      urlTarget = '_blank'
 	    } = config;
 	    if (!main_core.Type.isString(text)) {
@@ -1332,7 +1403,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    text = ParserDisk.decode(text);
 	    text = ParserAction.decodeDate(text);
 	    text = ParserQuote.decodeArrowQuote(text);
-	    text = ParserQuote.decodeQuote(text);
+	    text = ParserQuote.decodeQuote(text, {
+	      contextDialogId
+	    });
 	    text = ParserRecursionPrevention.recoverSendTag(text);
 	    text = ParserAction.decodeSend(text);
 	    text = ParserRecursionPrevention.recoverPutTag(text);

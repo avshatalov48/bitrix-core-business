@@ -556,7 +556,7 @@ if ($STEP == 2)
 
 			?></table>
 			<input type="hidden" name="count_checked" id="count_checked" value="<? echo $intCountChecked; ?>">
-			<script type="text/javascript">
+			<script>
 			function checkAll(obj,cnt)
 			{
 				var boolCheck = obj.checked;
@@ -639,7 +639,7 @@ if ($STEP < 3)
 $tabControl->End();
 
 ?></form>
-<script type="text/javascript">
+<script>
 <?if ($STEP < 2):?>
 tabControl.SelectTab("edit1");
 tabControl.DisableTab("edit2");

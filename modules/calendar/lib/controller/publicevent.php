@@ -10,7 +10,6 @@ use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Engine\ActionFilter;
-use Bitrix\Main\Text\Encoding;
 
 Loc::loadMessages(__FILE__);
 
@@ -104,7 +103,7 @@ class PublicEvent extends \Bitrix\Main\Engine\Controller
 			return IcsManager::getInstance()->getIcsFileContent($this->event, $descriptionParams);
 		}
 
-		return Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, 'utf-8');
+		return $attachmentManager->getContent();
 	}
 
 	private function getEventArrayForIcs(array $descriptionParams): array

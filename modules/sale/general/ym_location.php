@@ -69,7 +69,7 @@ class CSaleYMLocation
 			$result[$loc['ID']] = str_replace(
 				$replaceFrom,
 				Loc::getMessage('SALE_YML_REPLACE_TO'),
-				ToLower($loc['NAME_NAME'])
+				mb_strtolower($loc['NAME_NAME'])
 			);
 		}
 
@@ -90,9 +90,7 @@ class CSaleYMLocation
 					Loc::getMessage('SALE_YML_REPLACE_FROM')
 				),
 				Loc::getMessage('SALE_YML_REPLACE_TO'),
-				ToLower(
-					$cityName
-				)
+				mb_strtolower($cityName)
 			),
 			$this->cityNames
 		);

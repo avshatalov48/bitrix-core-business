@@ -25,7 +25,7 @@ if(typeof BX.UI.EntityConfigScope === "undefined")
 		*
 		*/
 		return BX.message(
-			"UI_ENTITY_EDITOR_CONFIG_SCOPE_" + (scope === BX.UI.EntityConfigScope.common ? "COMMON" : "PERSONAL") + "_MSGVER_1"
+			"UI_ENTITY_EDITOR_CONFIG_SCOPE_" + (scope === BX.UI.EntityConfigScope.common ? "COMMON" : "PERSONAL") + "_MSGVER_2"
 		);
 	};
 }

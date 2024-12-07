@@ -1,9 +1,11 @@
-<?
+<?php
+
 define("STOP_STATISTICS", true);
 define("BX_SECURITY_SHOW_MESSAGE", true);
 define('NO_AGENT_CHECK', true);
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 if (isset($_REQUEST['admin']) && is_string($_REQUEST['admin']) && $_REQUEST['admin'] == 'Y')
 	define('ADMIN_SECTION', true);
@@ -23,8 +25,6 @@ if(!CModule::IncludeModule('iblock'))
 	ShowError(Loc::getMessage("BT_COMP_MTS_AJAX_ERR_MODULE_ABSENT"));
 	die();
 }
-
-CUtil::JSPostUnescape();
 
 $iblock_id = intval($_REQUEST["IBLOCK_ID"]);
 
@@ -68,9 +68,9 @@ if (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'section')
 	}
 
 	$APPLICATION->RestartBuffer();
-	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-	echo CUtil::PhpToJsObject(array("SECTION_ID" => intval($SECTION_ID), "arElements" => $arResult));
-	die();
+	header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+	echo Json::encode(array("SECTION_ID" => intval($SECTION_ID), "arElements" => $arResult));
+	CMain::FinalActions();
 }
 elseif (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'search')
 {
@@ -98,9 +98,9 @@ elseif (isset($_REQUEST['MODE']) && $_REQUEST['MODE'] == 'search')
 	}
 
 	$APPLICATION->RestartBuffer();
-	Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
-	echo CUtil::PhpToJsObject($arResult);
-	die();
+	header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+	echo Json::encode($arResult);
+	CMain::FinalActions();
 }
 else
 {
@@ -173,7 +173,7 @@ if(isset($_REQUEST['value']))
 </table>
 </div>
 <script>
-var current_selected = <?echo CUtil::PhpToJsObject(array_values($arValues))?>;
+var current_selected = <?echo Json::encode(array_values($arValues)) ?>;
 </script>
 <div class="content" id="_f_popup_content" style="height: 403px; overflow-x: hidden; oveflow-y: auto; padding: 0;"><input id="bx_emp_search_control" type="text" style="width: 99.99%" value="" autocomplete="off" />
 

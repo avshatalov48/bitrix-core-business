@@ -1,17 +1,18 @@
-<?
-if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
+<?php
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
 }
 
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\UI\Extension;
-use Bitrix\Main\UI\Filter\AdditionalNumberType;
-use Bitrix\Main\UI\Filter\Type;
-use Bitrix\Main\UI\Filter\DateType;
-use Bitrix\Main\UI\Filter\AdditionalDateType;
-use Bitrix\Main\UI\Filter\NumberType;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\UI\Extension;
+use Bitrix\Main\UI\Filter\AdditionalDateType;
+use Bitrix\Main\UI\Filter\AdditionalNumberType;
+use Bitrix\Main\UI\Filter\DateType;
+use Bitrix\Main\UI\Filter\NumberType;
+use Bitrix\Main\UI\Filter\Type;
+use Bitrix\Main\Web\Json;
 
 Extension::load([
 	"ui.design-tokens",
@@ -23,6 +24,7 @@ Extension::load([
 	"loader",
 	"date",
 	"ui.icons.service",
+	"ui.notification",
 ]);
 
 global $USER;
@@ -249,7 +251,7 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 </script>
 
 <?
-    $messages = CUtil::phpToJSObject(Loc::loadLanguageFile(__FILE__), false);
+    $messages = Json::encode(Loc::loadLanguageFile(__FILE__));
 ?>
 
 <script>
@@ -258,13 +260,13 @@ if ($arResult["ENABLE_ADDITIONAL_FILTERS"])
 		BX.Main.filterManager.push(
 			'<?=\CUtil::jSEscape($arParams["FILTER_ID"])?>',
 			new BX.Main.Filter(
-				<?=CUtil::PhpToJSObject($arResult, false, false, true)?>,
-				<?=CUtil::PhpToJSObject($arParams["CONFIG"])?>,
-				<?=CUtil::PhpToJSObject(Type::getList())?>,
-				<?=CUtil::PhpToJSObject(DateType::getList())?>,
-				<?=CUtil::PhpToJSObject(NumberType::getList())?>,
-				<?=CUtil::PhpToJSObject(AdditionalDateType::getList())?>,
-				<?=CUtil::PhpToJSObject(AdditionalNumberType::getList())?>
+				<?= Json::encode($arResult) ?>,
+				<?= Json::encode($arParams["CONFIG"]) ?>,
+				<?= Json::encode(Type::getList()) ?>,
+				<?= Json::encode(DateType::getList()) ?>,
+				<?= Json::encode(NumberType::getList()) ?>,
+				<?= Json::encode(AdditionalDateType::getList()) ?>,
+				<?= Json::encode(AdditionalNumberType::getList()) ?>
 			)
 		);
 	});

@@ -13,7 +13,7 @@ interface RestConvertible
 	/**
 	 * Returns an array in JSON like format to return the entity as a rest response.
 	 * @param array $option
-	 * @return array
+	 * @return array|null
 	 */
-	public function toRestFormat(array $option = []): array;
+	public function toRestFormat(array $option = []): ?array;
 }

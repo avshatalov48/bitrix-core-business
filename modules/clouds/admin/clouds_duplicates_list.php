@@ -2,6 +2,11 @@
 define('ADMIN_MODULE_NAME', 'clouds');
 
 require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
+/** @global CUser $USER */
+global $USER;
+/** @global CMain $APPLICATION */
+global $APPLICATION;
+
 if (!$USER->CanDoOperation('clouds_config'))
 {
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
@@ -29,7 +34,7 @@ if (!$obBucket->Init())
 	die();
 }
 
-if ($obBucket->READ_ONLY == 'Y')
+if ($obBucket->READ_ONLY === 'Y')
 {
 	require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_after.php';
 	$message = new CAdminMessage([
@@ -57,7 +62,7 @@ if (
 	$deletedSize = (int)$_REQUEST['deletedSize'];
 
 
-	AddEventHandler("clouds", "OnAfterDeleteFile", function ($bucket, $eventData, $filePath)
+	AddEventHandler('clouds', 'OnAfterDeleteFile', function ($bucket, $eventData, $filePath)
 	{
 		global $deletedSize;
 		$deletedSize += $eventData['size'];
@@ -140,6 +145,8 @@ if (
 }
 
 $oSort = new CAdminSorting($sTableID, 'FILE_HASH', 'asc');
+/** @var string $by */
+/** @var string $order */
 $lAdmin = new CAdminList($sTableID, $oSort);
 
 $arID = $lAdmin->GroupAction();
@@ -153,9 +160,8 @@ if ($action && is_array($arID))
 			continue;
 		}
 
-		switch ($action)
+		if ($action === 'process')
 		{
-		case 'process':
 			$fileSizeAndHash = explode(',', $ID, 2);
 			$fileIds = \Bitrix\Clouds\FileHashTable::getFileDuplicates($obBucket->ID, $fileSizeAndHash[1], $fileSizeAndHash[0]);
 			$originalId = \Bitrix\Clouds\FileHashTable::prepareDuplicates($obBucket->ID, $fileIds);
@@ -163,9 +169,6 @@ if ($action && is_array($arID))
 			{
 				CFile::DeleteDuplicates($originalId, $fileIds);
 			}
-			break;
-		default:
-			break;
 		}
 	}
 }
@@ -199,9 +202,9 @@ $arHeaders = [
 ];
 $lAdmin->AddHeaders($arHeaders);
 
-if ($order && $by && in_array($by, ['FILE_HASH', 'FILE_SIZE', 'FILE_COUNT']))
+if ($order && $by && in_array($by, ['FILE_HASH', 'FILE_SIZE', 'FILE_COUNT'], true))
 {
-	$sort = [$by => ($order == 'desc' ? 'desc' : 'asc')];
+	$sort = [$by => ($order === 'desc' ? 'desc' : 'asc')];
 }
 else
 {

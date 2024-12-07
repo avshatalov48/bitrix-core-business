@@ -13,7 +13,6 @@ use Bitrix\Main\Access\AccessCode;
 use Bitrix\Main\Loader;
 use Bitrix\Main\UI\AccessRights\Avatar;
 use Bitrix\Main\UserTable;
-use Bitrix\Main\Web\Uri;
 
 class User extends EntityBase
 {

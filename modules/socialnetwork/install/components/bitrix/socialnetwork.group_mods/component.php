@@ -217,7 +217,7 @@ else
 			if ($arResult["CurrentUserPerms"]["UserCanModifyGroup"])
 			{
 				$js = '/bitrix/js/main/popup_menu.js';
-				$GLOBALS['APPLICATION']->AddHeadString('<script type="text/javascript" src="'.$js.'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].$js).'"></script>');
+				$GLOBALS['APPLICATION']->AddHeadString('<script src="'.$js.'?v='.filemtime($_SERVER['DOCUMENT_ROOT'].$js).'"></script>');
 				$GLOBALS["APPLICATION"]->AddHeadString('<link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/pubstyles.css" />');
 			}
 		}

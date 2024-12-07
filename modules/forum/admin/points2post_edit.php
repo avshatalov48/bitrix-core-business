@@ -14,7 +14,7 @@ $ID = isset($ID) ? intval($ID) : null;
 
 $message = false;
 $bInitVars = false;
-if (isset($save) && ($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
+if (isset($save) && ($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $forumPermissions=="W" && check_bitrix_sessid())
 {
 	$POINTS_PER_POST = str_replace(",", ".", $POINTS_PER_POST);
 
@@ -148,4 +148,4 @@ echo BeginNote();?>
 	<?= GetMessage("FORUM_PPE_NOTES") ?>
 <?echo EndNote();?>
 
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

@@ -8,7 +8,7 @@
 	<input type="hidden" name="uninstall" value="Y">
 	<input type="hidden" name="step" value="2">
 	<?php
-	$message  = new CAdminMessage(GetMessage('MOD_UNINST_WARN'));
+	$message = new CAdminMessage(GetMessage('MOD_UNINST_WARN'));
 	echo $message->Show();
 	?>
 	<p><?php echo GetMessage('MOD_UNINST_SAVE')?></p>

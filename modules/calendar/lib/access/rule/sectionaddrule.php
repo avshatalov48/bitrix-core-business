@@ -6,10 +6,10 @@ use Bitrix\Calendar\Access\Model\SectionModel;
 use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\Rule\Traits\CurrentUserTrait;
 use Bitrix\Calendar\Access\Rule\Traits\ExtranetUserTrait;
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Main\Access\AccessibleItem;
 use Bitrix\Calendar\Access\ActionDictionary;
 use Bitrix\Calendar\Access\Rule\Traits\SectionTrait;
-use Bitrix\Calendar\Core\Event;
 
 class SectionAddRule extends \Bitrix\Main\Access\Rule\AbstractRule
 {
@@ -32,7 +32,12 @@ class SectionAddRule extends \Bitrix\Main\Access\Rule\AbstractRule
 			return false;
 		}
 
-		if ($item->getType() === Event\Tools\Dictionary::CALENDAR_TYPE['user'])
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['open_event'])
+		{
+			return true;
+		}
+
+		if ($item->getType() === Dictionary::CALENDAR_TYPE['user'])
 		{
 			return $this->isOwner($item, $this->user->getUserId());
 		}

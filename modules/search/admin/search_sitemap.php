@@ -132,7 +132,7 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_aft
 if(is_object($message))
 	echo $message->Show();
 ?>
-<script language="JavaScript">
+<script>
 var savedNS;
 var stop;
 var interval = 0;

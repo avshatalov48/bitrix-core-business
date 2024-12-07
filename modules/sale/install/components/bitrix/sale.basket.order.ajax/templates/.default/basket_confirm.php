@@ -35,7 +35,7 @@ if (!empty($arResult["ORDER"]))
 						if ($arResult["PAY_SYSTEM"]["NEW_WINDOW"] == "Y")
 						{
 							?>
-							<script language="JavaScript">
+							<script>
 								window.open('<?=$arParams["PATH_TO_PAYMENT"]?>?ORDER_ID=<?= $arResult["ORDER_BASKET"]["ORDER_ID"] ?>');
 							</script>
 							<?= GetMessage("SOA_TEMPL_PAY_LINK", Array("#LINK#" => $arParams["PATH_TO_PAYMENT"]."?ORDER_ID=".$arResult["ORDER_BASKET"]["ORDER_ID"])) ?>

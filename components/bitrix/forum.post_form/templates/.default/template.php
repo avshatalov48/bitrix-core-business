@@ -50,7 +50,7 @@ if (!empty($arResult["ERROR_MESSAGE"]))
 {
 ?>
 <div class="forum-note-box forum-note-error">
-	<div class="forum-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
+	<div class="forum-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"], "forum-note-error");?></div>
 </div>
 <?
 };
@@ -85,7 +85,7 @@ if (($arResult["SHOW_PANEL_NEW_TOPIC"] == "Y" || $arResult["SHOW_PANEL_GUEST"] =
 			<label for="TITLE<?=$arParams["form_index"]?>"><?=GetMessage("F_TOPIC_NAME")?><span class="forum-required-field">*</span></label>
 			<input name="TITLE" id="TITLE<?=$arParams["form_index"]?>" type="text" value="<?=$arResult["TOPIC"]["TITLE"];?>" <?
 				?>tabindex="<?=$tabIndex++;?>" size="70" <?if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?>onfocus="BX.Forum.transliterate(this);"<? }?> /><?
-				if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?><input name="TITLE_SEO" type="hidden" value="<?=$arResult["TOPIC"]["TITLE_SEO_REAL"];?>" /><? }
+				if($arParams["SEO_USE_AN_EXTERNAL_SERVICE"] == "Y"){ ?><input name="TITLE_SEO" type="hidden" value="<?=$arResult["TOPIC"]["TITLE_SEO_REAL"] ?? '';?>" /><? }
 		?></div>
 		<div class="forum-reply-field forum-reply-field-desc">
 			<label for="DESCRIPTION<?=$arParams["form_index"]?>"><?=GetMessage("F_TOPIC_DESCR")?></label>

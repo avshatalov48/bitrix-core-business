@@ -1,10 +1,13 @@
 <?php
+
 namespace Bitrix\Catalog\Access\Component;
 
 use Bitrix\Catalog\Access\Component\PermissionConfig\RoleMembersInfo;
 use Bitrix\Catalog\Access\Permission\PermissionDictionary;
 use Bitrix\Catalog\Access\Permission\PermissionTable;
 use Bitrix\Catalog\Access\Permission\PermissionArticles;
+use Bitrix\Catalog\Store\EnableWizard\Manager;
+use Bitrix\Catalog\Store\EnableWizard\ModeList;
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -12,6 +15,7 @@ use Bitrix\Catalog\Access\Role\RoleUtil;
 use Bitrix\Catalog\Access\Role\RoleDictionary;
 use Bitrix\Catalog\Config\State;
 use Bitrix\Main\ModuleManager;
+use Bitrix\Main\SystemException;
 
 Loc::loadMessages(__FILE__);
 
@@ -37,7 +41,19 @@ class PermissionConfig
 	{
 		if (State::isUsedInventoryManagement())
 		{
-			return $this->getAccessRightsWithInventoryManagement();
+			if (Manager::getCurrentMode() === ModeList::B24)
+			{
+				return $this->getAccessRightsWithInventoryManagement();
+			}
+			elseif (Manager::getCurrentMode() === ModeList::ONEC && State::isExternalCatalog())
+			{
+				return $this->getAccessRightsWithExternalCatalog();
+			}
+		}
+
+		if (State::isExternalCatalog())
+		{
+			throw new SystemException('Standalone catalog is not supported');
 		}
 
 		return $this->getAccessRightsGeneral();
@@ -57,6 +73,49 @@ class PermissionConfig
 		foreach ($sections as $sectionName => $permissions)
 		{
 			$isStoreSectionName = isset($storeDocumentsMap[$sectionName]);
+			$rights = [];
+			foreach ($permissions as $permissionId)
+			{
+				if ($isStoreSectionName)
+				{
+					[$permissionId, $documentId] = explode('_', $permissionId);
+					$rights[] = PermissionDictionary::getStoreDocumentPermission($permissionId, $documentId);
+				}
+				else
+				{
+					$rights[] = PermissionDictionary::getPermission($permissionId);
+				}
+			}
+
+			$res[] = [
+				'sectionCode' => $sectionName,
+				'sectionTitle' => Loc::getMessage('CATALOG_CONFIG_PERMISSIONS_' . $sectionName) ?? $sectionName,
+				'sectionHint' => Loc::getMessage('HINT_CATALOG_CONFIG_PERMISSIONS_' . $sectionName),
+				'rights' => $rights
+			];
+		}
+
+		$res = $this->appendArticleLinks($res);
+
+		return $res;
+	}
+
+	/**
+	 * All access rights for the case of external catalog.
+	 *
+	 * @return array
+	 */
+	private function getAccessRightsWithExternalCatalog(): array
+	{
+		$res = [];
+
+		$sections = $this->getSectionsForExternalCatalog();
+		$realizationSection = [
+			self::SECTION_STORE_DOCUMENT_SALES_ORDER => StoreDocumentTable::TYPE_SALES_ORDERS,
+		];
+		foreach ($sections as $sectionName => $permissions)
+		{
+			$isStoreSectionName = isset($realizationSection[$sectionName]);
 			$rights = [];
 			foreach ($permissions as $permissionId)
 			{
@@ -233,6 +292,38 @@ class PermissionConfig
 		return $sections;
 	}
 
+	private function getSectionsForExternalCatalog(): array
+	{
+		$sections = [
+			self::SECTION_CATALOG => $this->getCommonCatalogSectionForExternalCatalog(),
+		];
+
+		$sections[self::SECTION_INVENTORY_MANAGMENT] = [
+			PermissionDictionary::CATALOG_STORE_VIEW,
+		];
+
+		$sections[self::SECTION_INVENTORY_MANAGMENT][] = PermissionDictionary::CATALOG_SETTINGS_STORE_DOCUMENT_CARD_EDIT;
+
+		$sections[self::SECTION_STORE_DOCUMENT_SALES_ORDER] = $this->getStoreDocumentsSectionPermissions(StoreDocumentTable::TYPE_SALES_ORDERS);
+
+		$reservationSection = $this->getReservationSection();
+		if ($reservationSection)
+		{
+			$sections[self::SECTION_RESERVATION] = $reservationSection;
+		}
+
+		$sections[self::SECTION_CATALOG_SETTINGS] = $this->getCatalogSettingsSectionForExternalCatalog();
+		$sections[self::SECTION_SETTINGS] = [
+			PermissionDictionary::CATALOG_SETTINGS_ACCESS,
+			PermissionDictionary::CATALOG_SETTINGS_EDIT_RIGHTS,
+			PermissionDictionary::CATALOG_SETTINGS_SELL_NEGATIVE_COMMODITIES,
+		];
+
+		$sections[self::SECTION_RESERVATION][] = PermissionDictionary::CATALOG_RESERVE_SETTINGS;
+
+		return $sections;
+	}
+
 	private function getReservationSection(): array
 	{
 		$result = [];
@@ -272,6 +363,15 @@ class PermissionConfig
 		return $result;
 	}
 
+	private function getCommonCatalogSectionForExternalCatalog(): array
+	{
+		return [
+			PermissionDictionary::CATALOG_PRODUCT_PURCHASING_PRICE_VIEW,
+			PermissionDictionary::CATALOG_PRODUCT_EDIT_ENTITY_PRICE,
+			PermissionDictionary::CATALOG_PRODUCT_SET_DISCOUNT,
+		];
+	}
+
 	private function getCatalogSettingsSection(): array
 	{
 		$result = [
@@ -295,6 +395,14 @@ class PermissionConfig
 		return $result;
 	}
 
+	private function getCatalogSettingsSectionForExternalCatalog(): array
+	{
+		return [
+			PermissionDictionary::CATALOG_SETTINGS_PRODUCT_CARD_EDIT,
+			PermissionDictionary::CATALOG_SETTINGS_PRODUCT_CARD_SET_PROFILE_FOR_USERS,
+		];
+	}
+
 	private function getStoreDocumentSectionCodesMap(): array
 	{
 		return [
@@ -315,13 +423,25 @@ class PermissionConfig
 	 */
 	private function getStoreDocumentsSectionPermissions(string $typeId): array
 	{
-		$permissions = [
-			PermissionDictionary::CATALOG_STORE_DOCUMENT_VIEW,
-			PermissionDictionary::CATALOG_STORE_DOCUMENT_MODIFY,
-			PermissionDictionary::CATALOG_STORE_DOCUMENT_CONDUCT,
-			PermissionDictionary::CATALOG_STORE_DOCUMENT_CANCEL,
-			PermissionDictionary::CATALOG_STORE_DOCUMENT_DELETE,
-		];
+		if (Manager::isOnecMode())
+		{
+			$permissions = [
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_VIEW,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_MODIFY,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_CONDUCT,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_DELETE,
+			];
+		}
+		else
+		{
+			$permissions = [
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_VIEW,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_MODIFY,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_CONDUCT,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_CANCEL,
+				PermissionDictionary::CATALOG_STORE_DOCUMENT_DELETE,
+			];
+		}
 
 		$typesWithNag = [
 			StoreDocumentTable::TYPE_DEDUCT,

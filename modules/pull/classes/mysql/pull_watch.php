@@ -12,7 +12,7 @@ class CPullWatch extends CAllPullWatch
 		$connection = \Bitrix\Main\Application::getConnection();
 
 		$strSql = "DELETE FROM b_pull_watch WHERE DATE_CREATE < " . $connection->getSqlHelper()->addSecondsToDateTime(-32 * 60);
-		$result = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$result = $DB->Query($strSql);
 
 		if (
 			$result

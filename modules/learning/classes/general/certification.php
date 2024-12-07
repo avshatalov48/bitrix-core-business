@@ -141,7 +141,7 @@ class CAllCertification
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_certification", $arFields, "learning");
 			$strSql = "UPDATE b_learn_certification SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			CLearnHelper::FireEvent('OnAfterCertificateUpdate', $arFields);
 
@@ -166,7 +166,7 @@ class CAllCertification
 					INNER JOIN b_learn_gradebook G ON (G.TEST_ID = T.ID AND G.STUDENT_ID = C.STUDENT_ID)
 					WHERE C.ID = ".$ID;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		//Gradebook
 		while($arRecord = $res->Fetch())
@@ -177,7 +177,7 @@ class CAllCertification
 
 		$strSql = "DELETE FROM b_learn_certification WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		CLearnHelper::FireEvent('OnAfterCertificateDelete', $ID);
@@ -262,7 +262,7 @@ class CAllCertification
 		WHERE T.COURSE_ID = '".$COURSE_ID."' AND TUL.ACTIVE = 'Y' AND T.ACTIVE = 'Y'
 		";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		$cntAll = $cntCompleted = null;
 
@@ -319,7 +319,7 @@ class CAllCertification
 			$strSql = "SELECT SUM(G.RESULT) CNT, SUM(G.MAX_RESULT) MAX_CNT FROM b_learn_gradebook G
 			INNER JOIN b_learn_test T ON T.ID = G.TEST_ID
 			WHERE G.COMPLETED = 'Y' AND G.STUDENT_ID = '".$STUDENT_ID."' AND T.COURSE_ID = '".$COURSE_ID."'";
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 
 			$SUMMARY = $MAX_SUMMARY = 0;
 
@@ -348,7 +348,7 @@ class CAllCertification
 				$arParams['CHECK_PERMISSIONS'] = 'N';
 
 			$strSql = "SELECT ID FROM b_learn_certification WHERE STUDENT_ID = '".$STUDENT_ID."' AND COURSE_ID = '".$COURSE_ID."'";
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 			if ($ar = $res->Fetch())
 			{
 				return CCertification::Update($ar["ID"], Array("SUMMARY" => $SUMMARY, "MAX_SUMMARY" => $MAX_SUMMARY, "ACTIVE" => "Y"), $arParams);

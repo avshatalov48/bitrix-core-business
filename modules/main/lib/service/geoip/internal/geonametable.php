@@ -4,14 +4,13 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Service\GeoIp\Internal;
 
 use Bitrix\Main\ORM\Data;
 use Bitrix\Main\ORM\Fields;
-use Bitrix\Main\Text\UtfConverter;
 
 /**
  * Class GeonameTable
@@ -51,7 +50,7 @@ class GeonameTable extends Data\DataManager
 
 	public static function save(array $data): void
 	{
-		$existing = static::get(array_keys($data), false);
+		$existing = static::get(array_keys($data));
 
 		foreach ($data as $geoid => $names)
 		{
@@ -76,7 +75,7 @@ class GeonameTable extends Data\DataManager
 		}
 	}
 
-	public static function get(array $ids, bool $decode = true): array
+	public static function get(array $ids): array
 	{
 		$existing = [];
 
@@ -88,9 +87,7 @@ class GeonameTable extends Data\DataManager
 				->exec()
 			;
 
-			$converter = ($decode? new UtfConverter(): null);
-
-			while ($record = $query->fetch($converter))
+			while ($record = $query->fetch())
 			{
 				$existing[$record['ID']][$record['LANGUAGE_CODE']] = $record['NAME'];
 			}

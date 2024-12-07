@@ -175,7 +175,7 @@ export default class QueueManager
 			return;
 		}
 
-		Promise
+		void Promise
 			.all(event.data.promises)
 			.then((values) => {
 				if (!Type.isArrayFilled(values))
@@ -195,6 +195,47 @@ export default class QueueManager
 
 	showOutdatedDataDialog(): void
 	{
+		if (this.#hasManyOpenSliders())
+		{
+			return;
+		}
+
+		const sliderInstance = this.#getSliderInstance();
+		if (sliderInstance)
+		{
+			EventEmitter.subscribe(
+				sliderInstance,
+				'SidePanel.Slider:onClose',
+				this.#createAndShowNotify.bind(this),
+			);
+		}
+		else
+		{
+			this.#createAndShowNotify();
+		}
+	}
+
+	#hasManyOpenSliders(): boolean
+	{
+		return (top.BX && top.BX.SidePanel && top.BX.SidePanel.Instance.getOpenSlidersCount() > 1);
+	}
+
+	#getSliderInstance(): BX.SidePanel.Slider | null
+	{
+		if (top.BX && top.BX.SidePanel)
+		{
+			const slider = top.BX.SidePanel.Instance.getTopSlider();
+			if (slider && slider.isOpen())
+			{
+				return slider;
+			}
+		}
+
+		return null;
+	}
+
+	#createAndShowNotify(): void
+	{
 		const showOutdatedDataDialog = this.#options.config?.showOutdatedDataDialog;
 		const { onReload } = this.#options.callbacks;
 		if (
@@ -207,6 +248,14 @@ export default class QueueManager
 
 		if (this.#notifier)
 		{
+			if (
+				this.#notifier.getState() === BX.UI.Notification.State.OPENING
+				|| this.#notifier.getState() === BX.UI.Notification.State.OPEN
+			)
+			{
+				return;
+			}
+
 			this.#notifier.show();
 
 			return;

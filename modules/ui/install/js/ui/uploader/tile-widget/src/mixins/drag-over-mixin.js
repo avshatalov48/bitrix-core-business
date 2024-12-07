@@ -8,6 +8,11 @@ export const DragOverMixin = {
 		drop: {
 			beforeMount(el, binding, vnode): void
 			{
+				if (binding.value === false)
+				{
+					return;
+				}
+
 				function addClass(): void
 				{
 					binding.instance.dragOver = true;
@@ -22,16 +27,21 @@ export const DragOverMixin = {
 
 				let lastEnterTarget = null;
 				Event.bind(el, 'dragenter', (event: DragEvent): void => {
-					hasDataTransferOnlyFiles(event.dataTransfer, false).then((success): void => {
-						if (success)
-						{
-							event.preventDefault();
-							event.stopPropagation();
+					hasDataTransferOnlyFiles(event.dataTransfer, false)
+						.then((success): void => {
+							if (success)
+							{
+								event.preventDefault();
+								event.stopPropagation();
 
-							lastEnterTarget = event.target;
-							addClass();
-						}
-					});
+								lastEnterTarget = event.target;
+								addClass();
+							}
+						})
+						.catch(() => {
+							// no-op
+						})
+					;
 				});
 
 				Event.bind(el, 'dragleave', (event: DragEvent): void => {
@@ -51,17 +61,22 @@ export const DragOverMixin = {
 
 			unmounted(el, binding, vnode)
 			{
+				if (binding.value === false)
+				{
+					return;
+				}
+
 				binding.instance.dragOver = false;
 				Event.unbindAll(el, 'dragenter');
 				Event.unbindAll(el, 'dragleave');
 				Event.unbindAll(el, 'drop');
-			}
+			},
 		},
 	},
 	data()
 	{
 		return {
 			dragOver: false,
-		}
+		};
 	},
- };
+};

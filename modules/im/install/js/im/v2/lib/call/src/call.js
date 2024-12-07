@@ -1,7 +1,8 @@
+import { Extension } from 'main.core';
 import { EventEmitter, BaseEvent } from 'main.core.events';
 import { Store } from 'ui.vue3.vuex';
+import { Controller, State as CallState } from 'call.core';
 
-import { Controller, State as CallState } from 'im.call';
 import { Messenger } from 'im.public';
 import { Core } from 'im.v2.application.core';
 import { MessengerSlider } from 'im.v2.lib.slider';
@@ -43,18 +44,38 @@ export class CallManager
 	constructor()
 	{
 		this.#store = Core.getStore();
-		this.#controller = this.#getController();
+		if (this.isAvailable())
+		{
+			this.#controller = this.#getController();
+		}
 
 		this.#subscribeToEvents();
 	}
 
+	isAvailable(): Boolean
+	{
+		const { callInstalled } = Extension.getSettings('im.v2.lib.call');
+
+		return callInstalled === true;
+	}
+
 	createBetaCallRoom(chatId: number)
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		BetaCallService.createRoom(chatId);
 	}
 
 	startCall(dialogId: string, withVideo: boolean = true)
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		Logger.warn('CallManager: startCall', dialogId, withVideo);
 		if (this.#isUser(dialogId))
 		{
@@ -65,19 +86,29 @@ export class CallManager
 
 	joinCall(callId: string, withVideo: boolean = true)
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		Logger.warn('CallManager: joinCall', callId, withVideo);
 		this.#controller.joinCall(callId, withVideo);
 	}
 
 	leaveCurrentCall()
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		Logger.warn('CallManager: leaveCurrentCall');
 		this.#controller.leaveCurrentCall();
 	}
 
 	foldCurrentCall()
 	{
-		if (!this.#controller.hasActiveCall() || !this.#controller.hasVisibleCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall() || !this.#controller.hasVisibleCall())
 		{
 			return;
 		}
@@ -87,7 +118,7 @@ export class CallManager
 
 	unfoldCurrentCall()
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall())
 		{
 			return;
 		}
@@ -97,17 +128,17 @@ export class CallManager
 
 	getCurrentCallDialogId(): string
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall())
 		{
 			return '';
 		}
 
-		return this.#controller.currentCall.associatedEntity.id;
+		return this.#controller?.currentCall?.associatedEntity.id;
 	}
 
 	getCurrentCall(): boolean
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall())
 		{
 			return false;
 		}
@@ -117,12 +148,17 @@ export class CallManager
 
 	hasCurrentCall(): boolean
 	{
+		if (!this.isAvailable())
+		{
+			return false;
+		}
+
 		return this.#controller.hasActiveCall();
 	}
 
 	hasCurrentScreenSharing(): boolean
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall())
 		{
 			return false;
 		}
@@ -132,7 +168,7 @@ export class CallManager
 
 	hasVisibleCall(): boolean
 	{
-		if (!this.#controller.hasActiveCall())
+		if (!this.isAvailable() || !this.#controller.hasActiveCall())
 		{
 			return false;
 		}
@@ -142,6 +178,11 @@ export class CallManager
 
 	startTest()
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		this.#controller.test();
 	}
 
@@ -153,6 +194,41 @@ export class CallManager
 		}
 
 		this.#controller.debug = debug;
+	}
+
+	chatCanBeCalled(dialogId: string): boolean
+	{
+		if (!this.isAvailable())
+		{
+			return false;
+		}
+
+		const callSupported = this.#checkCallSupport(dialogId);
+		const hasCurrentCall = this.#store.getters['recent/calls/hasActiveCall'](dialogId);
+
+		return callSupported && !hasCurrentCall;
+	}
+
+	hasActiveCurrentCall(dialogId: string): boolean
+	{
+		return this.#store.getters['recent/calls/hasActiveCall'](dialogId)
+			&& this.getCurrentCallDialogId() === dialogId;
+	}
+
+	hasActiveAnotherCall(dialogId: string): boolean
+	{
+		return this.#store.getters['recent/calls/hasActiveCall']()
+			&& !this.hasActiveCurrentCall(dialogId);
+	}
+
+	getCallUserLimit(): number
+	{
+		return BX.Call.Util.getUserLimit();
+	}
+
+	isChatUserLimitExceeded(dialogId: string): boolean
+	{
+		return this.#getChatUserCounter(dialogId) > this.getCallUserLimit();
 	}
 
 	#getController(): Controller
@@ -279,12 +355,11 @@ export class CallManager
 		this.foldCurrentCall();
 	}
 
-	chatCanBeCalled(dialogId: string): boolean
+	isConference(dialogId: string): boolean
 	{
-		const callSupported = this.#checkCallSupport(dialogId);
-		const hasCurrentCall = this.#store.getters['recent/calls/hasActiveCall'](dialogId);
+		const dialog: ImModelChat = this.#store.getters['chats/get'](dialogId);
 
-		return callSupported && !hasCurrentCall;
+		return dialog.type === ChatType.videoconf;
 	}
 
 	#checkCallSupport(dialogId: string): boolean
@@ -309,21 +384,15 @@ export class CallManager
 			&& !user.bot
 			&& !user.network
 			&& user.id !== Core.getUserId()
-			&& !!user.lastActivityDate
+			&& Boolean(user.lastActivityDate)
 		);
 	}
 
 	#checkChatCallSupport(dialogId: string): boolean
 	{
-		const dialog = this.#store.getters['chats/get'](dialogId);
-		if (!dialog)
-		{
-			return false;
-		}
+		const userCounter = this.#getChatUserCounter(dialogId);
 
-		const {userCounter} = dialog;
-
-		return userCounter > 1 && userCounter <= BX.Call.Util.getUserLimit();
+		return (userCounter > 1 || this.isConference(dialogId)) && userCounter <= this.getCallUserLimit();
 	}
 
 	#pushServerIsActive(): boolean
@@ -345,11 +414,17 @@ export class CallManager
 	#isUser(dialogId: string): boolean
 	{
 		const dialog: ImModelChat = this.#store.getters['chats/get'](dialogId);
+
 		return dialog?.type === ChatType.user;
 	}
 
 	#prepareUserCall(dialogId: string)
 	{
+		if (!this.isAvailable())
+		{
+			return;
+		}
+
 		const currentUserId = Core.getUserId();
 		const currentUser: ImModelUser = Core.getStore().getters['users/get'](currentUserId);
 		const currentCompanion: ImModelUser = Core.getStore().getters['users/get'](dialogId);
@@ -360,8 +435,15 @@ export class CallManager
 			userData: {
 				[currentUserId]: currentUser,
 				[currentCompanion.id]: currentCompanion,
-			}
+			},
 		});
+	}
+
+	#getChatUserCounter(dialogId: string): number
+	{
+		const { userCounter } = this.#store.getters['chats/get'](dialogId, true);
+
+		return userCounter;
 	}
 	// endregion call events
 }

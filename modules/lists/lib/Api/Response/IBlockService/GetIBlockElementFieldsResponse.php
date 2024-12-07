@@ -29,4 +29,16 @@ class GetIBlockElementFieldsResponse extends Response
 
 		return $this;
 	}
+
+	public function setAll(array $all): static
+	{
+		$this->data['all'] = $all;
+
+		return $this;
+	}
+
+	public function getAll()
+	{
+		return $this->data['all'] ?? [];
+	}
 }

@@ -3,6 +3,7 @@
 use Bitrix\Catalog;
 use Bitrix\Catalog\Access\AccessController;
 use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Config\State;
 use Bitrix\Catalog\Document\Type\StoreDocumentArrivalTable;
 use Bitrix\Catalog\Document\Type\StoreDocumentDeductTable;
 use Bitrix\Catalog\Document\Type\StoreDocumentMovingTable;
@@ -605,6 +606,10 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$result['SHOW_ROW_CHECKBOXES'] = true;
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = true;
 		$result['SHOW_ACTION_PANEL'] = true;
+		$result['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'] = (bool)(
+			$this->arParams['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'] ?? \Bitrix\Main\ModuleManager::isModuleInstalled('ui')
+		);
+		$result['ENABLE_FIELDS_SEARCH'] = 'Y';
 
 		$actionPanelItems = [];
 		$snippet = new \Bitrix\Main\Grid\Panel\Snippet();
@@ -727,7 +732,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$sliderOptions = \CUtil::PhpToJSObject($sliderOptions,false, false, true);
 		$actions = [
 			[
-				'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_OPEN_TITLE'),
 				'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_OPEN_TEXT'),
 				'ONCLICK' => "BX.SidePanel.Instance.open('" . $urlToDocumentDetail . "', " . $sliderOptions . ")",
 				'DEFAULT' => true,
@@ -738,8 +742,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_CONDUCT, $item['DOC_TYPE']))
 			{
 				$actions[] = [
-					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TITLE'),
-					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TEXT'),
+					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CONDUCT_TEXT_2'),
 					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.conductDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
 				];
 			}
@@ -747,7 +750,6 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_DELETE, $item['DOC_TYPE']))
 			{
 				$actions[] = [
-					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TITLE'),
 					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_DELETE_TEXT'),
 					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.deleteDocument(" . $item['ID'] . ")",
 				];
@@ -758,8 +760,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			if ($this->accessController->checkByValue(ActionDictionary::ACTION_STORE_DOCUMENT_CANCEL, $item['DOC_TYPE']))
 			{
 				$actions[] = [
-					'TITLE' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TITLE'),
-					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TEXT'),
+					'TEXT' => Loc::getMessage('DOCUMENT_LIST_ACTION_CANCEL_TEXT_2'),
 					'ONCLICK' => "BX.Catalog.DocumentGridManager.Instance.cancelDocument(" . $item['ID'] . ", '" . $item['DOC_TYPE'] . "')",
 				];
 			}
@@ -787,7 +788,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 				<div class="catalog-store-document-stub-transfer-content">
 					<div class="catalog-store-document-stub-transfer-info">
 						<div class="catalog-store-document-stub-transfer-info-text">
-							' . Loc::getMessage('DOCUMENT_LIST_STUB_MIGRATION_TITLE') . '
+							' . Loc::getMessage('DOCUMENT_LIST_STUB_MIGRATION_TITLE_MSGVER_1') . '
 						</div>
 						' . $this->getStubLogoList() . '
 					</div>
@@ -1139,7 +1140,10 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
 			'CONFIG' => [
 				'AUTOFOCUS' => false,
+				'popupWidth' => 800,
 			],
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 		Toolbar::addFilter($filterOptions);
 
@@ -1349,7 +1353,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 			$this->mode === self::ARRIVAL_MODE
 			&& !$isGuideOver
 			&& $this->isFirstTime()
-			&& Catalog\Component\UseStore::isUsed()
+			&& State::isUsedInventoryManagement()
 			&& $canModifyAdjustDocument
 		);
 	}
@@ -1364,7 +1368,7 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$canUserChangeSettings = $this->accessController->check(ActionDictionary::ACTION_CATALOG_SETTINGS_ACCESS);
 		$shouldShowPopupOption = Main\Config\Option::get('catalog', 'should_show_batch_method_onboarding', 'N') === 'Y';
 		$userOptions = CUserOptions::GetOption('catalog', 'document-list', []);
-		$wasPopupShownForUser = $userOptions['was_batch_method_popup_shown'] ?? 'N' === 'Y';
+		$wasPopupShownForUser = ($userOptions['was_batch_method_popup_shown'] ?? 'N') === 'Y';
 		// the settings slider is in crm
 		$isCrmIncluded = Loader::includeModule('crm');
 
@@ -1373,9 +1377,14 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 
 	private function isShowProfitReportTour(): bool
 	{
+		if (!Loader::includeModule('report'))
+		{
+			return false;
+		}
+
 		$shouldShowTourOption = Main\Config\Option::get('catalog', 'should_show_batch_method_onboarding', 'N') === 'Y';
 		$userOptions = CUserOptions::GetOption('catalog', 'document-list', []);
-		$wasTourShownForUser = $userOptions['was_profit_report_tour_shown'] ?? 'N' === 'Y';
+		$wasTourShownForUser = ($userOptions['was_profit_report_tour_shown'] ?? 'N') === 'Y';
 		$isInventoryManagementUsed = Catalog\Config\State::isUsedInventoryManagement();
 
 		return !$wasTourShownForUser && $shouldShowTourOption && $isInventoryManagementUsed;
@@ -1612,12 +1621,13 @@ class CatalogStoreDocumentListComponent extends CBitrixComponent implements Cont
 		$request = $context->getRequest();
 
 		$this->arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER'] =
-			Catalog\Component\UseStore::needShowSlider()
-			&& $request->get(Catalog\Component\UseStore::URL_PARAM_STORE_MASTER_HIDE) !== 'Y'
+			State::isUsedInventoryManagement() === false
+			&& $request->get('STORE_MASTER_HIDE') !== 'Y'
 		;
-		$this->arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER_ON_ACTION'] = !Catalog\Component\UseStore::isUsed();
+		$this->arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER_IN_B24_MODE'] = $request->get('b24new') === 'Y';
+		$this->arResult['OPEN_INVENTORY_MANAGEMENT_SLIDER_ON_ACTION'] = !State::isUsedInventoryManagement();
 
-		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.warehouse.master.clear');
+		$sliderPath = \CComponentEngine::makeComponentPath('bitrix:catalog.store.enablewizard');
 		$sliderPath = getLocalPath('components' . $sliderPath . '/slider.php');
 		if ($this->arResult['INVENTORY_MANAGEMENT_SOURCE'])
 		{

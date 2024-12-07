@@ -24,7 +24,7 @@ class CPHPCache
 
 	public function CleanDir($initdir = false, $basedir = "cache")
 	{
-		return $this->cache->cleanDir($initdir, $basedir);
+		$this->cache->cleanDir($initdir, $basedir);
 	}
 
 	public function InitCache($TTL, $uniq_str, $initdir = false, $basedir = "cache")
@@ -88,84 +88,16 @@ class CPHPCache
 
 	public static function ClearCache($full = false, $initdir = '')
 	{
-		if ($full !== true && $full !== false && $initdir === "" && is_string($full))
+		if ($initdir === "" && is_string($full))
 		{
 			$initdir = $full;
 			$full = true;
 		}
-
-		$res = true;
 
 		if ($full === true)
 		{
 			$obCache = new CPHPCache;
 			$obCache->CleanDir($initdir, "cache");
 		}
-
-		$path = $_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/cache" . $initdir;
-		if (is_dir($path) && ($handle = opendir($path)))
-		{
-			while (($file = readdir($handle)) !== false)
-			{
-				if ($file == "." || $file == "..")
-				{
-					continue;
-				}
-
-				if (is_dir($path . "/" . $file))
-				{
-					if (!BXClearCache($full, $initdir . "/" . $file))
-					{
-						$res = false;
-					}
-					else
-					{
-						@chmod($path . "/" . $file, BX_DIR_PERMISSIONS);
-						//We suppress error handle here because there may be valid cache files in this dir
-						@rmdir($path . "/" . $file);
-					}
-				}
-				elseif ($full)
-				{
-					@chmod($path . "/" . $file, BX_FILE_PERMISSIONS);
-					if (!unlink($path . "/" . $file))
-					{
-						$res = false;
-					}
-				}
-				elseif (mb_substr($file, -5) == ".html")
-				{
-					$obCache = new CPHPCache();
-					if ($obCache->IsCacheExpired($path . "/" . $file))
-					{
-						@chmod($path . "/" . $file, BX_FILE_PERMISSIONS);
-						if (!unlink($path . "/" . $file))
-						{
-							$res = false;
-						}
-					}
-				}
-				elseif (mb_substr($file, -4) == ".php")
-				{
-					$obCache = new CPHPCache();
-					if ($obCache->IsCacheExpired($path . "/" . $file))
-					{
-						@chmod($path . "/" . $file, BX_FILE_PERMISSIONS);
-						if (!unlink($path . "/" . $file))
-						{
-							$res = false;
-						}
-					}
-				}
-				else
-				{
-					//We should skip unknown file
-					//it will be deleted with full cache cleanup
-				}
-			}
-			closedir($handle);
-		}
-
-		return $res;
 	}
 }

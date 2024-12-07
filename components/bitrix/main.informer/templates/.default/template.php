@@ -1,11 +1,16 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<script type="text/javascript">
+<?php
+
+use Bitrix\Main\Web\Json;
+
+if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
+?>
+<script>
 	jsBXMI.Init(
 		{
 			'STEP': '<?echo CUtil::JSEscape($arResult["informer"]["step"]);?>',		
 			'STEPS': '<?echo CUtil::JSEscape($arResult["informer"]["steps"]);?>',
 			'ID': '<?echo CUtil::JSEscape($arParams["ID"])?>',
-			'TEXT': <?echo CUtil::PhpToJSObject($arResult["text"])?>			
+			'TEXT': <?echo Json::encode($arResult["text"])?>
 		}
 	);
 </script>

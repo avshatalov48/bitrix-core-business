@@ -2,7 +2,10 @@ import Type from '../type';
 import parse from './internal/parse';
 import renderNode from './internal/render-node';
 
-export default function render(sections: Array<string>, ...substitutions: Array<any>): HTMLElement | Array<HTMLElement>
+export default function render(
+	sections: Array<string>,
+	...substitutions: Array<any>
+): HTMLElement | Array<HTMLElement> | { root: HTMLElement, [key: string]: HTMLElement }
 {
 	const html = sections
 		.reduce((acc, item, index) => {

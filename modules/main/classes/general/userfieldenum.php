@@ -67,7 +67,7 @@ class CUserFieldEnum
 			if(array_key_exists($arEnum["ID"], $values))
 			{
 				$value = $values[$arEnum["ID"]];
-				if((string)$value["VALUE"] == '' || $value["DEL"] == "Y")
+				if ((string)($value['VALUE'] ?? '') === '' || (($value['DEL'] ?? 'N') === 'Y'))
 				{
 				}
 				elseif(
@@ -98,9 +98,16 @@ class CUserFieldEnum
 							}
 						}
 					}
-					if($bUnique)
+
+					if ($bUnique)
 					{
-						$arAdded[$value["XML_ID"]]++;
+						$xmlId = $value['XML_ID'];
+						if (!isset($arAdded[$xmlId]))
+						{
+							$arAdded[$xmlId] = 0;
+						}
+
+						$arAdded[$xmlId]++;
 					}
 				}
 			}
@@ -123,8 +130,10 @@ class CUserFieldEnum
 				if(!isset($value["XML_ID"]) || $value["XML_ID"] == '')
 					$value["XML_ID"] = md5($value["VALUE"]);
 
-				if($value["DEF"] != "Y")
-					$value["DEF"] = "N";
+				if (!isset($value["DEF"]) || $value['DEF'] !== 'Y')
+				{
+					$value['DEF'] = 'N';
+				}
 
 				$value["USER_FIELD_ID"] = $FIELD_ID;
 				$id = $DB->Add("b_user_field_enum", $value);
@@ -139,7 +148,7 @@ class CUserFieldEnum
 			if(array_key_exists($arEnum["ID"], $values))
 			{
 				$value = $values[$arEnum["ID"]];
-				if((string)$value["VALUE"] == '' || $value["DEL"] == "Y")
+				if ((string)($value['VALUE'] ?? '') === '' || (($value['DEL'] ?? 'N') === 'Y'))
 				{
 					$DB->Query("DELETE FROM b_user_field_enum WHERE ID = " . $arEnum["ID"]);
 				}

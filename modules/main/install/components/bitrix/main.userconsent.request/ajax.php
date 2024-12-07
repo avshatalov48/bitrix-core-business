@@ -11,7 +11,6 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_befo
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\UserConsent\Consent;
 use Bitrix\Main\UserConsent\Agreement;
-use Bitrix\Main\Text\Encoding;
 
 Loc::loadMessages(__FILE__);
 
@@ -67,7 +66,6 @@ class MainUserConsentRequestAjaxController extends \Bitrix\Main\UserConsent\Inte
 
 		$replace = $this->request->get('replace');
 		$replace = is_array($replace) ? $replace : array();
-		$replace = Encoding::convertEncoding($replace, 'UTF-8', SITE_CHARSET);
 		$agreement->setReplace($replace);
 
 		$this->responseData['text'] = $agreement->getText();

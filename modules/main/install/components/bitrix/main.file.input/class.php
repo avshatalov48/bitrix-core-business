@@ -3,14 +3,11 @@
 // ALLOW_UPLOAD_EXT = comma-separated list of allowed file extensions (ALLOW_UPLOAD='F')
 
 use Bitrix\Main\Event;
-use \Bitrix\Main\Localization\Loc;
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Web\Json;
-use \Bitrix\Main\ErrorCollection;
-use \Bitrix\Main\Error;
-use \Bitrix\Main\UI\Uploader\Uploader;
-use \Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Main\ErrorCollection;
+use Bitrix\Main\Error;
+
 include_once(__DIR__."/file.php");
+
 class MFIComponent extends \CBitrixComponent
 {
 	/** @var ErrorCollection */
@@ -134,11 +131,11 @@ class MFIComponent extends \CBitrixComponent
 			$arParams['ALLOW_UPLOAD'] = 'A';
 		}
 
-		if (mb_substr($arParams['INPUT_NAME'], -2) == '[]')
+		if (str_ends_with($arParams['INPUT_NAME'], '[]'))
 		{
-			$arParams['INPUT_NAME'] = mb_substr($arParams['INPUT_NAME'], 0, -2);
+			$arParams['INPUT_NAME'] = substr($arParams['INPUT_NAME'], 0, -2);
 		}
-		if (mb_substr($arParams['INPUT_NAME_UNSAVED'], -2) == '[]')
+		if (str_ends_with($arParams['INPUT_NAME_UNSAVED'], '[]'))
 		{
 			$arParams['INPUT_NAME_UNSAVED'] = mb_substr($arParams['INPUT_NAME_UNSAVED'], 0, -2);
 		}

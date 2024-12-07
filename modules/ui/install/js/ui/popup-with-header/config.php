@@ -12,10 +12,12 @@ return [
 		'main.loader',
 		'ui.progressround',
 		'ui.popupcomponentsmaker',
+		'ui.icon-set.api.core',
 		'main.popup',
 		'ui.popup-with-header',
 		'main.core',
 		'ui.buttons',
+		'ui.info-helper',
 	],
 	'skip_core' => false,
 ];

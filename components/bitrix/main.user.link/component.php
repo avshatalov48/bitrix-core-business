@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -392,18 +394,6 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			);
 		}
 
-		if (CModule::IncludeModule("video"))
-		{
-			$arResult["Urls"]["VideoCall"] = CComponentEngine::MakePathFromTemplate(
-				$arParams["~PATH_TO_VIDEO_CALL"] ?? '',
-				[
-					"user_id" => $arParams["ID"],
-					"USER_ID" => $arParams["ID"],
-					"ID" => $arParams["ID"]
-				]
-			);
-		}
-
 		if (
 			(!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			&& $arParams['AJAX_CALL'] == 'INFO'
@@ -426,7 +416,7 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 			);
 
 			if ($arResult["User"]["PERSONAL_WWW"] <> '')
-				$arResult["User"]["PERSONAL_WWW"] = ((strpos($arResult["User"]["PERSONAL_WWW"], "http") === false) ? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
+				$arResult["User"]["PERSONAL_WWW"] = ((!str_contains($arResult["User"]["PERSONAL_WWW"], "http")) ? "http://" : "").$arResult["User"]["PERSONAL_WWW"];
 
 			$arMonths_r = array();
 			for ($i = 1; $i <= 12; $i++)
@@ -448,7 +438,7 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 				&& intval($_GET["entityId"]) > 0
 			)
 			{
-				$arTmpUser["DETAIL_URL"] .= (strpos($arTmpUser["DETAIL_URL"], '?') === false ? '?' : '&')."entityType=".urlencode($_GET["entityType"])."&entityId=".intval($_GET["entityId"]);
+				$arTmpUser["DETAIL_URL"] .= (!str_contains($arTmpUser["DETAIL_URL"], '?') ? '?' : '&')."entityType=".urlencode($_GET["entityType"])."&entityId=".intval($_GET["entityId"]);
 			}
 
 			$rsCurrentUser = CUser::GetById($USER->GetId());
@@ -513,7 +503,7 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 
 						$strOnclick = "return BX.tooltip.openCallTo(".$arResult["User"]["ID"].");";
 						$strToolbar2 .= '<li id="im-video-call-button'.$arResult["User"]["ID"].'" class="bx-icon bx-icon-video"><span onmouseover="'.$strOnmouseover.'" onmouseout="'.$strOnmouseout.'" onclick="'.$strOnclick.'">'.GetMessage("MAIN_UL_TOOLBAR_VIDEO_CALL").'</span></li>';
-						$strToolbar2 .= '<script type="text/javascript">BX.ready(function() {BX.tooltip.checkCallTo(\'im-video-call-button'.$arResult["User"]["ID"].'\'); };</script>';
+						$strToolbar2 .= '<script>BX.ready(function() {BX.tooltip.checkCallTo(\'im-video-call-button'.$arResult["User"]["ID"].'\'); };</script>';
 					}
 				}
 				elseif (
@@ -569,12 +559,11 @@ if (!isset($arResult["FatalError"]) || $arResult["FatalError"] == '')
 
 			$APPLICATION->RestartBuffer();
 
-			Header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
+			header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-			echo CUtil::PhpToJsObject(array('RESULT' => $arResult));
+			echo Json::encode(array('RESULT' => $arResult));
 
 			require($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");
-			die();
 		}
 	}
 	else
@@ -638,8 +627,8 @@ elseif($arParams['AJAX_CALL'] == 'INFO') // fatal error for ajax page
 
 	header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 
-	echo CUtil::PhpToJsObject(array('RESULT' => $arResult));
-	die();
+	echo Json::encode(array('RESULT' => $arResult));
+	CMain::FinalActions();
 }
 
 if (!isset($arParams["AJAX_ONLY"]) || $arParams["AJAX_ONLY"] != "Y")

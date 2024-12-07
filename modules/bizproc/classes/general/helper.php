@@ -927,7 +927,7 @@ class CBPHelper
 		$entity = trim($entity);
 		if ($entity == '')
 		{
-			throw new Exception("entity");
+			throw new CBPArgumentNullException("entity");
 		}
 
 		if (is_array($documentId))
@@ -1055,168 +1055,19 @@ class CBPHelper
 		return $str;
 	}
 
+	/**
+	 * @deprecated
+	 * @param $objectName
+	 * @param $arDocumentFields
+	 * @param $arDocumentFieldTypes
+	 * @return false|string
+	 */
 	public static function getJSFunctionsForFields($objectName, $arDocumentFields, $arDocumentFieldTypes)
 	{
 		ob_start();
+		CAdminCalendar::ShowScript();
 
-		echo CAdminCalendar::ShowScript();
-		?>
-		<script>
-		<?= $objectName ?>.GetGUIFieldEdit = function(field, value, showAddButton, inputName)
-		{
-			alert("Deprecated method GetGUIFieldEdit used");
-
-			if (!this.arDocumentFields[field])
-				return "";
-
-			if (typeof showAddButton == "undefined")
-				showAddButton = false;
-
-			if (typeof inputName == "undefined")
-				inputName = field;
-
-			var type = this.arDocumentFields[field]["Type"];
-
-			var bAddSelection = false;
-			var bAddButton = true;
-
-			s = "";
-			if (type == "int" || type == "double")
-			{
-				s += '<input type="text" size="10" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-			else if (type == "select")
-			{
-				s += '<select name="' + inputName + '_1">';
-				s += '<option value=""></option>';
-				for (k in this.arDocumentFields[field]["Options"])
-				{
-					s += '<option value="' + k + '"' + (value == this.arDocumentFields[field]["Options"][k] ? " selected" : "") + '>' + this.arDocumentFields[field]["Options"][k] + '</option>';
-					if (value == this.arDocumentFields[field]["Options"][k])
-						value = "";
-				}
-				s += '</select>';
-				bAddSelection = true;
-			}
-			else if (type == "file")
-			{
-				s += '<input type="file" id="id_' + field + '_1" name="' + inputName + '">';
-				bAddSelection = true;
-				bAddButton = true;
-			}
-			else if (type == "bool")
-			{
-				s += '<select name="' + inputName + '_1">';
-				s += '<option value=""></option>';
-				s += '<option value="Y"' + (value == "Y" ? " selected" : "") + '><?= GetMessage("BPCGHLP_YES") ?></option>';
-				s += '<option value="N"' + (value == "N" ? " selected" : "") + '><?= GetMessage("BPCGHLP_NO") ?></option>';
-				s += '</select>';
-				bAddSelection = true;
-				if (value == "Y" || value == "N")
-					value = "";
-			}
-			else if (type == "datetime" || type == "date")
-			{
-				s += '<span style="white-space:nowrap;">';
-				s += '<input type="text" name="' + inputName + '" id="id_' + field + '" size="10" value="' + this.HtmlSpecialChars(value) + '">';
-				s += '<a href="javascript:void(0);" title="<?= GetMessage("BPCGHLP_CALENDAR") ?>">';
-				s += '<img src="<?= ADMIN_THEMES_PATH ?>/<?= ADMIN_THEME_ID ?>/images/calendar/icon.gif" alt="<?= GetMessage("BPCGHLP_CALENDAR") ?>" class="calendar-icon" onclick="jsAdminCalendar.Show(this, \'' + inputName + '\', \'\', \'\', ' + ((type == "datetime") ? 'true' : 'false') + ', <?= time() + date("Z") + CTimeZone::GetOffset() ?>);" onmouseover="this.className+=\' calendar-icon-hover\';" onmouseout="this.className = this.className.replace(/\s*calendar-icon-hover/ig, \'\');">';
-				s += '</a></span>';
-			}
-			else // type == "S"
-			{
-				s += '<input type="text" size="40" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-
-			if (bAddSelection)
-				s += '<br /><input type="text" id="id_' + field + '" name="' + inputName + '" value="' + this.HtmlSpecialChars(value) + '">';
-
-			if (bAddButton && showAddButton)
-				s += '<input type="button" value="..." onclick="BPAShowSelector(\'id_' + field + '\', \'' + type + '\');">';
-
-			return s;
-		}
-
-		<?= $objectName ?>.SetGUIFieldEdit = function(field)
-		{
-			alert("Deprecated method SetGUIFieldEdit used");
-		}
-
-		<?= $objectName ?>.GetGUIFieldEditSimple = function(type, value, name)
-		{
-			alert("Deprecated method GetGUIFieldEditSimple used");
-
-			if (typeof name == "undefined" || name.length <= 0)
-				name = "BPVDDefaultValue";
-
-			if (typeof value == "undefined")
-			{
-				value = "";
-
-				var obj = document.getElementById('id_' + name);
-				if (obj)
-				{
-					if (obj.type.substr(0, "select".length) == "select")
-						value = obj.options[obj.selectedIndex].value;
-					else
-						value = obj.value;
-				}
-			}
-
-			s = "";
-			if (type == "file")
-			{
-				s += '';
-			}
-			else if (type == "bool")
-			{
-				s += '<select name="' + name + '" id="id_' + name + '">';
-				s += '<option value=""></option>';
-				s += '<option value="Y"' + (value == "Y" ? " selected" : "") + '><?= GetMessage("BPCGHLP_YES") ?></option>';
-				s += '<option value="N"' + (value == "N" ? " selected" : "") + '><?= GetMessage("BPCGHLP_NO") ?></option>';
-				s += '</select>';
-			}
-			else if (type == "user")
-			{
-				s += '<input type="text" size="10" id="id_' + name + '" name="' + name + '" value="' + this.HtmlSpecialChars(value) + '">';
-				s += '<input type="button" value="..." onclick="BPAShowSelector(\'id_' + name + '\', \'user\')">';
-			}
-			else
-			{
-				s += '<input type="text" size="10" id="id_' + name + '" name="' + name + '" value="' + this.HtmlSpecialChars(value) + '">';
-			}
-
-			return s;
-		}
-
-		<?= $objectName ?>.SetGUIFieldEditSimple = function(type, name)
-		{
-			alert("Deprecated method SetGUIFieldEditSimple used");
-
-			if (typeof name == "undefined" || name.length <= 0)
-				name = "BPVDDefaultValue";
-
-			s = "";
-			if (type != "file")
-			{
-				var obj = document.getElementById('id_' + name);
-				if (obj)
-				{
-					if (obj.type.substr(0, "select".length) == "select")
-						s = obj.options[obj.selectedIndex].value;
-					else
-						s = obj.value;
-				}
-			}
-
-			return s;
-		}
-		</script>
-		<?
-		$str = ob_get_contents();
-		ob_end_clean();
-
-		return $str;
+		return ob_get_clean();
 	}
 
 	public static function getDocumentFieldTypes()
@@ -1954,6 +1805,13 @@ class CBPHelper
 	 */
 	public static function extractUsersFromExtendedGroup($code)
 	{
+		static $cache = [];
+
+		if (isset($cache[$code]))
+		{
+			return $cache[$code];
+		}
+
 		if (mb_strpos($code, 'group_') !== 0)
 		{
 			return false;
@@ -1982,6 +1840,7 @@ class CBPHelper
 			{
 				$result[] = $user['ID'];
 			}
+			$cache[$code] = $result;
 
 			return $result;
 		}
@@ -2002,49 +1861,17 @@ class CBPHelper
 			{
 				$result[] = $user['ID'];
 			}
+			$cache[$code] = $result;
+
 			return $result;
 		}
 
-		if (preg_match('/^(D|DR)([0-9]+)$/', $code, $match) && CModule::IncludeModule('intranet'))
+		if (preg_match('/^(D|DR)([0-9]+)$/', $code, $match))
 		{
-			$recursive = $match[1] == 'DR';
-			$id = $match[2];
-			$iblockId = COption::GetOptionInt('intranet', 'iblock_structure');
-			$departmentIds = array($id);
+			$userService = CBPRuntime::getRuntime()->getUserService();
+			$cache[$code] = $userService->extractUsersFromDepartment($match[2], $match[1] === 'DR');
 
-			if ($recursive)
-			{
-				//TODO: replace with \CIntranetUtils::getSubStructure($id)
-				$iterator = CIBlockSection::GetList(
-					array('ID' => 'ASC'),
-					array('=IBLOCK_ID' => $iblockId, 'ID'=> $id),
-					false,
-					array('ID', 'LEFT_MARGIN', 'RIGHT_MARGIN', 'DEPTH_LEVEL')
-				);
-				$section = $iterator->fetch();
-				$filter = array (
-					'=IBLOCK_ID' => $iblockId,
-					">LEFT_MARGIN" => $section["LEFT_MARGIN"],
-					"<RIGHT_MARGIN" => $section["RIGHT_MARGIN"],
-					">DEPTH_LEVEL" => $section['DEPTH_LEVEL'],
-				);
-				$iterator = CIBlockSection::GetList(array("left_margin"=>"asc"), $filter, false, array('ID'));
-				while($section = $iterator->fetch())
-				{
-					$departmentIds[] =  $section['ID'];
-				}
-				unset($iterator, $section, $filter);
-			}
-			$result = array();
-			$iterator = CUser::GetList("id", "asc",
-				array('ACTIVE' => 'Y', 'UF_DEPARTMENT' => $departmentIds),
-				array('FIELDS' => array('ID'))
-			);
-			while($user = $iterator->fetch())
-			{
-				$result[] = $user['ID'];
-			}
-			return $result;
+			return $cache[$code];
 		}
 		if ($code == 'Dextranet' && CModule::IncludeModule('extranet'))
 		{
@@ -2060,6 +1887,8 @@ class CBPHelper
 			{
 				$result[] = $user['ID'];
 			}
+			$cache[$code] = $result;
+
 			return $result;
 		}
 		if (preg_match('/^SG([0-9]+)_?([AEK])?$/', $code, $match) && CModule::IncludeModule('socialnetwork'))
@@ -2083,6 +1912,8 @@ class CBPHelper
 			{
 				$result[] = $user['USER_ID'];
 			}
+			$cache[$code] = $result;
+
 			return $result;
 		}
 
@@ -2446,7 +2277,7 @@ class CBPHelper
 			COption::SetOptionString("bizproc", "forum_id", $forumId);
 		}
 
-		return $forumId;
+		return (int)$forumId;
 	}
 
 	public static function getDistrName()
@@ -2513,45 +2344,18 @@ class CBPHelper
 				$data[$k] = isset($data[$k]) ? (array) CUtil::JsObjectToPhp($data[$k]) : array();
 			}
 		}
-
-		if (mb_strtolower(LANG_CHARSET) != 'utf-8')
-		{
-			foreach ($data as $key => $value)
-			{
-				if (!in_array($key, $jsonParams))
-				{
-					$data[$key] = static::decodeArrayKeys($data[$key]);
-				}
-			}
-		}
 	}
 
-	/**
-	 * @deprecated
-	 * @param $item
-	 * @param false $reverse
-	 * @return array
-	 */
-	public static function decodeArrayKeys($item, $reverse = false)
-	{
-		$from = !$reverse ? 'UTF-8' : LANG_CHARSET;
-		$to = !$reverse ? LANG_CHARSET : 'UTF-8';
-
-		if (is_array($item))
-		{
-			$ar = array();
-			foreach ($item as $k => $v)
-				$ar[$GLOBALS["APPLICATION"]->ConvertCharset($k, $from, $to)] = self::decodeArrayKeys($v, $reverse);
-			return $ar;
-		}
-		return $item;
-	}
-
-	public static function makeTimestamp($date)
+	public static function makeTimestamp($date, bool $appendOffset = false)
 	{
 		if (!$date)
 		{
 			return 0;
+		}
+
+		if (is_array($date))
+		{
+			$date = current(static::flatten($date));
 		}
 
 		//serialized date string
@@ -2562,7 +2366,7 @@ class CBPHelper
 
 		if ($date instanceof Bizproc\BaseType\Value\Date)
 		{
-			return $date->getTimestamp();
+			return $date->getTimestamp() + ($appendOffset ? $date->getOffset() : 0);
 		}
 
 		if ($date instanceof Main\Type\Date)

@@ -11,7 +11,7 @@ IncludeTemplateLangFile(__FILE__);
 	<meta name="robots" content="noindex, follow" />
 	<link rel="stylesheet" href="<?=SITE_TEMPLATE_PATH."/print_style.css"?>" type="text/css" />
 <?endif?>
-<script type="text/javascript" src="<?=SITE_TEMPLATE_PATH."/js/imgshw.js"?>"></script>
+<script src="<?=SITE_TEMPLATE_PATH."/js/imgshw.js"?>"></script>
 <title><?$APPLICATION->ShowTitle()?></title>
 </head>
 

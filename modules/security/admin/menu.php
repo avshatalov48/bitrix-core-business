@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Security\W\Rules\RuleRecordTable;
+
 IncludeModuleLangFile(__FILE__);
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/security/prolog.php");
 
@@ -17,6 +20,23 @@ $aMenu = array(
 /** @global CUser $USER */
 if($USER->isAdmin())
 {
+	if (RuleRecordTable::getCount([], ['ttl' => 5]))
+	{
+		$wwallIcon = "security_status_warning_menu_icon";
+	}
+	else
+	{
+		$wwallIcon = "security_status_menu_icon";
+	}
+
+	$aMenu["items"][] = [
+		"text" => GetMessage("SEC_MENU_WWALL"),
+		"url" => "security_dashboard.php?lang=".LANGUAGE_ID,
+		"more_url" => ["security_dashboard.php"],
+		"title" => "Super title",
+		"icon" => $wwallIcon,
+	];
+
 	$aMenu["items"][] = array(
 		"text" => GetMessage("SEC_MENU_SCANNER_ITEM"),
 		"url" => "security_scanner.php?lang=".LANGUAGE_ID,

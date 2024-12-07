@@ -7,8 +7,8 @@
  */
 
 namespace Bitrix\Main\ORM\Fields;
+
 use Bitrix\Main\DB\SqlExpression;
-use Bitrix\Main\ORM\Fields\FieldTypeMask;
 
 /**
  * Scalar entity field class for non-array and non-object data types
@@ -277,6 +277,6 @@ abstract class ScalarField extends Field implements IStorable, ITypeHintable
 	 */
 	protected function getNullableTypeHint(string $type): string
 	{
-		return $this->is_nullable ? '?' . $type : $type;
+		return $this->is_nullable ? 'null|' . $type : $type;
 	}
 }

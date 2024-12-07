@@ -31,11 +31,11 @@ $arIds = array();
 	</ul>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.onCustomEvent("onMobileAppNeedJSFile", [{ url: "<?=$templateFolder.'/script.js'?>"}]);
 </script>
 
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 
 	radioButtonsControl_<?=$arResult["DOM_CONTAINER_ID"]?> = new __MARadioButtonsControl({

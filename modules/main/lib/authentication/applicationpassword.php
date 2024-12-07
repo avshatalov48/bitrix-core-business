@@ -159,8 +159,17 @@ class ApplicationPasswordTable extends Data\DataManager
 		}
 
 		$appPasswords = static::getList(array(
-			'select' => array('ID', 'PASSWORD', 'APPLICATION_ID'),
-			'filter' => array('=USER_ID' => $userId),
+			'select' => [
+				'ID',
+				'PASSWORD',
+				'APPLICATION_ID',
+			],
+			'filter' => [
+				'=USER_ID' => $userId,
+			],
+			'order' => [
+				'ID' => 'desc',
+			],
 		));
 		while(($appPassword = $appPasswords->fetch()))
 		{

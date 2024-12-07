@@ -298,7 +298,7 @@ final class Handlers
 
 			// For composite site this script must not be changing often!!!
 			Asset::getInstance()->addString(
-				'<script type="text/javascript">
+				'<script>
 					(function () {
 						"use strict";
 

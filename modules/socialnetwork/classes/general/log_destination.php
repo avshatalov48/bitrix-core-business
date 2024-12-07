@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\Text\Emoji;
 use Bitrix\Socialnetwork\UserToGroupTable;
@@ -16,11 +17,9 @@ class CSocNetLogDestination
 	*/
 	public static function GetLastUser()
 	{
-		global $USER;
-
 		static $resultCache = array();
 
-		$userId = intval($USER->GetID());
+		$userId = intval(CurrentUser::get()->getId());
 
 		if(!isset($resultCache[$userId]))
 		{
@@ -258,11 +257,11 @@ class CSocNetLogDestination
 
 	public static function GetExtranetUser(array $arParams = array())
 	{
-		global $USER, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
 		static $resultCache = array();
 
-		$userId = (int)$USER->getID();
+		$userId = (int)CurrentUser::get()->getId();
 
 		if(!isset($resultCache[$userId]))
 		{
@@ -344,9 +343,9 @@ class CSocNetLogDestination
 
 	public static function GetUsers($arParams = Array(), $bSelf = true)
 	{
-		global $USER, $CACHE_MANAGER;
+		global $CACHE_MANAGER;
 
-		$userId = (int)$USER->GetID();
+		$userId = (int)CurrentUser::get()->getId();
 
 		if (
 			isset($arParams['all'])
@@ -502,7 +501,7 @@ class CSocNetLogDestination
 				$rsSonetGroup = CSocNetUserToGroup::GetList(
 					array(),
 					array(
-						"USER_ID" => $USER->GetId(),
+						"USER_ID" => $userId,
 						"GROUP_SITE_ID" => $extranetSiteId
 					),
 					false,
@@ -514,7 +513,7 @@ class CSocNetLogDestination
 					$CACHE_MANAGER->RegisterTag("sonet_user2group_G".$arSonetGroup["GROUP_ID"]);
 				}
 
-				$CACHE_MANAGER->RegisterTag("sonet_user2group_U".$USER->GetId());
+				$CACHE_MANAGER->RegisterTag("sonet_user2group_U" . $userId);
 
 				$arUsers = Array();
 				$arExtranetUsers = CExtranet::GetMyGroupsUsersFull($extranetSiteId, $bSelf);
@@ -578,6 +577,8 @@ class CSocNetLogDestination
 					'select' => $select
 				]);
 
+				global $USER;
+				
 				while ($arUser = $res->fetch())
 				{
 					foreach($arUser as $key => $value)
@@ -587,7 +588,7 @@ class CSocNetLogDestination
 							$arUser[$key] = \Bitrix\Main\Text\HtmlFilter::encode($value);
 						}
 					}
-
+					
 					if (
 						!$bSelf
 						&& is_object($USER)
@@ -691,11 +692,9 @@ class CSocNetLogDestination
 
 	public static function GetGratMedalUsers($arParams = Array())
 	{
-		global $USER;
-
 		static $resultCache = array();
 
-		$userId = intval($USER->GetID());
+		$userId = intval(CurrentUser::get()->getId());
 
 		if(!isset($resultCache[$userId]))
 		{
@@ -783,9 +782,7 @@ class CSocNetLogDestination
 
 	public static function searchUsers($search, &$nt = "", $bSelf = true, $bEmployeesOnly = false, $bExtranetOnly = false, $departmentId = false)
 	{
-		global $USER, $DB;
-
-		CUtil::JSPostUnescape();
+		global $DB;
 
 		$nameTemplate = $nt;
 		$bEmailUsers = false;
@@ -841,14 +838,14 @@ class CSocNetLogDestination
 		$bEmailUsersAll = ($bMailEnabled && \Bitrix\Main\Config\Option::get('socialnetwork', 'email_users_all', 'N') === 'Y');
 		$bExtranetUser = ($bExtranetEnabled && !CExtranet::IsIntranetUser());
 
-		$current_user_id = (int)$USER->getId();
+		$current_user_id = (int)CurrentUser::get()->getId();
 
 		if ($bExtranetEnabled)
 		{
 			CSocNetTools::InitGlobalExtranetArrays();
 		}
 
-		$arSearchValue = preg_split('/\s+/', trim(ToUpper($search)));
+		$arSearchValue = preg_split('/\s+/', trim(mb_strtoupper($search)));
 		array_walk($arSearchValue, array('CSocNetLogDestination', '__percent_walk'));
 
 		$arMyUserId = array();
@@ -1189,11 +1186,7 @@ class CSocNetLogDestination
 
 	public static function searchSonetGroups($params = array())
 	{
-		global $USER;
-
 		$result = array();
-
-		CUtil::JSPostUnescape();
 
 		$search = is_array($params) && isset($params['SEARCH']) ? trim($params['SEARCH']) : '';
 		if (empty($search))
@@ -1236,7 +1229,7 @@ class CSocNetLogDestination
 
 		if (!$currentUserAdmin)
 		{
-			$filter["CHECK_PERMISSIONS"] = $USER->getId();
+			$filter["CHECK_PERMISSIONS"] = (int)CurrentUser::get()->getId();
 		}
 
 		$res = CSocnetGroup::getList(
@@ -1587,10 +1580,9 @@ class CSocNetLogDestination
 
 	public static function getSocnetGroup($arParams = array(), &$limitReached = false)
 	{
-		global $USER;
 		static $staticCache = array();
 
-		$userId = (int)$USER->GetID();
+		$userId = (int)CurrentUser::get()->getId();
 
 		$arSocnetGroups = [];
 		$arSelect = [];
@@ -1677,7 +1669,7 @@ class CSocNetLogDestination
 			else
 			{
 				$filter = array(
-					"CHECK_PERMISSIONS" => $USER->GetID(),
+					"CHECK_PERMISSIONS" => (int)CurrentUser::get()->getId(),
 					"SITE_ID" => $siteId,
 					"ACTIVE" => "Y",
 					"ID" => $arSelect,
@@ -1878,8 +1870,6 @@ class CSocNetLogDestination
 
 	private static function GetSocnetGroupFilteredByInitiatePerms(&$arGroups)
 	{
-		global $USER;
-
 		$arGroupsIDs = array();
 		foreach($arGroups as $value)
 		{
@@ -1892,7 +1882,7 @@ class CSocNetLogDestination
 		}
 
 		if (
-			$USER->IsAdmin()
+			CurrentUser::get()->isAdmin()
 			|| CSocNetUser::IsCurrentUserModuleAdmin(CSite::GetDefSite())
 		)
 		{
@@ -1919,7 +1909,7 @@ class CSocNetLogDestination
 
 		$res = UserToGroupTable::getList(array(
 			'filter' => array(
-				'USER_ID' => $USER->getId(),
+				'USER_ID' => (int)CurrentUser::get()->getId(),
 				'@GROUP_ID' => $arGroupsIDs
 			),
 			'select' => array('GROUP_ID', 'ROLE')
@@ -1930,7 +1920,7 @@ class CSocNetLogDestination
 			$userRolesList[$relation['GROUP_ID']] = $relation['ROLE'];
 		}
 
-		$userId = $USER->getId();
+		$userId = (int)CurrentUser::get()->getId();
 
 		foreach ($arGroups as $key => $group)
 		{
@@ -2031,7 +2021,7 @@ class CSocNetLogDestination
 					if ($isProjectRoles)
 					{
 						// todo remove after new system the project roles.
-						list($users, $userIds) = self::getUsersByRole($groupId, $match[2], $users, $userIds);
+						[$users, $userIds] = self::getUsersByRole($groupId, $match[2], $users, $userIds);
 
 						continue;
 					}
@@ -2301,7 +2291,7 @@ class CSocNetLogDestination
 
 	public static function getUsersAll($arParams = [])
 	{
-		global $DB, $USER;
+		global $DB;
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
 
@@ -2325,7 +2315,7 @@ class CSocNetLogDestination
 			"FIELD" => "case when U.LAST_ACTIVITY_DATE > " . $helper->addSecondsToDateTime(-CUser::getSecondsForLimitOnline()) . " then 'Y' else 'N' end"
 		);
 
-		$currentUserId = $USER->GetId();
+		$currentUserId = (int)CurrentUser::get()->getId();
 
 		if (!$currentUserId)
 		{
@@ -2494,7 +2484,7 @@ class CSocNetLogDestination
 
 		//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 
 		$maxCount = (IsModuleInstalled('bitrix24') ? 200 : 500);
 		$resultCount = 0;
@@ -2816,7 +2806,7 @@ class CSocNetLogDestination
 		);
 
 		if (isset($fields["EXTERNAL_AUTH_ID"]) && $fields["EXTERNAL_AUTH_ID"] === "replica")
-			list(,$domain) = explode("@", $fields["LOGIN"], 2);
+			[,$domain] = explode("@", $fields["LOGIN"], 2);
 		else
 			$domain = $fields["CLIENT_DOMAIN"];
 

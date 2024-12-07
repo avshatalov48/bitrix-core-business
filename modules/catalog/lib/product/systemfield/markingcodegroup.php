@@ -84,41 +84,8 @@ class MarkingCodeGroup extends Highloadblock
 		{
 			return false;
 		}
-		if (!static::isBitrix24())
-		{
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => [
-					'=ID' => 'ru',
-					'=ACTIVE' => 'Y',
-				],
-			]);
-			$row = $iterator->fetch();
-			unset($iterator);
-			if (empty($row))
-			{
-				return false;
-			}
-			$iterator = LanguageTable::getList([
-				'select' => ['ID'],
-				'filter' => [
-					'@ID' => ['ua', 'by', 'kz'],
-					'=ACTIVE' => 'Y',
-				],
-				'limit' => 1,
-			]);
-			$row = $iterator->fetch();
-			unset($iterator);
-			if (!empty($row))
-			{
-				return false;
-			}
-			return true;
-		}
-		else
-		{
-			return (\CBitrix24::getPortalZone() === 'ru');
-		}
+
+		return Main\Application::getInstance()->getLicense()->getRegion() === 'ru';
 	}
 
 	protected static function getTitleInternal(): ?string

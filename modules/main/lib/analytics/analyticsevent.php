@@ -7,6 +7,7 @@ namespace Bitrix\Main\Analytics;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Context;
+use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Web\Json;
 
@@ -252,6 +253,11 @@ final class AnalyticsEvent
 		}
 
 		$data = $this->buildLogData();
+		if ($this->isDevMode())
+		{
+			$this->triggerDebugEvent($data);
+		}
+
 		$jsonData = Json::encode($data, JSON_UNESCAPED_UNICODE);
 
 		$fp = @fopen(ANALYTICS_V2_FILENAME, "ab");
@@ -262,6 +268,12 @@ final class AnalyticsEvent
 			@flock($fp, LOCK_UN);
 			@fclose($fp);
 		}
+	}
+
+	private function triggerDebugEvent(array $data): void
+	{
+		$event = new Event('main', 'OnAnalyticsEvent', ['analyticsEvent' => $this, 'eventData' => $data]);
+		$event->send();
 	}
 
 	private function buildLogData(): array

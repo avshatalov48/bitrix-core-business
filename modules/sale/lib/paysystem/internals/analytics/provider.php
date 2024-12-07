@@ -3,6 +3,7 @@ namespace Bitrix\Sale\PaySystem\Internals\Analytics;
 
 use Bitrix\Sale;
 use Bitrix\Main;
+use Bitrix\Sale\BusinessValue;
 
 /**
  * Class Provider
@@ -76,10 +77,64 @@ final class Provider extends Sale\Internals\Analytics\Provider
 			$result = [
 				'pay_system' => $this->paySystemService->getField('ACTION_FILE'),
 				'transactions' => $paymentData,
+				'ps_mode' => $this->paySystemService->getField('PS_MODE'),
+				'sum' => $this->payment->getField('SUM'),
+				'shopId' => $this->getShopId(),
 			];
 		}
 
 		return $result;
+	}
+
+	private function getShopId(): ?string
+	{
+		$actionFile = $this->paySystemService->getField('ACTION_FILE');
+		if ($actionFile === 'yandexcheckout')
+		{
+			$paysytemId = $this->paySystemService->getField('ID');
+			$shopId = BusinessValue::getMapping(
+				'YANDEX_CHECKOUT_SHOP_ID',
+				'PAYSYSTEM_' . $paysytemId,
+				null,
+				[
+					'MATCH' => BusinessValue::MATCH_EXACT
+				]
+			);
+			if (empty($shopId))
+			{
+				$shopId = BusinessValue::getMapping(
+					'YANDEX_CHECKOUT_SHOP_ID',
+					'PAYSYSTEM_' . $paysytemId,
+					null,
+					[
+						'MATCH' => BusinessValue::MATCH_COMMON
+					]
+				);
+			}
+			if (isset($shopId['PROVIDER_VALUE']) && $shopId['PROVIDER_VALUE'])
+			{
+				return (int)$shopId['PROVIDER_VALUE'];
+			}
+
+			if (!\Bitrix\Main\Loader::includeModule('seo'))
+			{
+				return null;
+			}
+
+			$yookassa = new \Bitrix\Seo\Checkout\Services\AccountYookassa();
+			$yookassa->setService(\Bitrix\Seo\Checkout\Service::getInstance());
+
+			return $yookassa->getProfile() ? $yookassa->getProfile()['ID'] : null;
+		}
+
+		if ($actionFile === 'roboxchange')
+		{
+			$robokassaShopSettings = (new \Bitrix\Sale\PaySystem\Robokassa\ShopSettings())->get();
+
+			return $robokassaShopSettings['ROBOXCHANGE_SHOPLOGIN'] ?? null;
+		}
+
+		return null;
 	}
 
 	/**

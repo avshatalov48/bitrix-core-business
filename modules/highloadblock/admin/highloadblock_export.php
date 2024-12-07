@@ -1,6 +1,9 @@
 <?php
-define('ADMIN_MODULE_NAME', 'highloadblock');
+const ADMIN_MODULE_NAME = 'highloadblock';
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+
+/** @global CUser $USER */
+/** @global CMain $APPLICATION */
 
 // libs
 use Bitrix\Highloadblock as HL;
@@ -127,6 +130,7 @@ if (
 	{
 		$error = Loc::getMessage('XML_FILENAME_IS_NOT_XML');
 	}
+	$n = [];
 	if (!preg_match('/^[a-zA-Z0-9_\/.]+$/', $NS['url_data_file'], $n))
 	{
 		$error = Loc::getMessage('XML_FILENAME_IS_NOT_CORRECT');
@@ -197,6 +201,7 @@ if (
 				{
 					$row = \CUserTypeEntity::getById($row['ID']);//for get langs
 					$row['BASE_TYPE'] = '';
+					$enumValues = [];
 					if (isset($USER_FIELD_MANAGER))
 					{
 						$type = $USER_FIELD_MANAGER->GetUserType($row['USER_TYPE_ID']);
@@ -207,8 +212,7 @@ if (
 							if ($type['BASE_TYPE'] == 'enum')
 							{
 								$i = 0;
-								$row['enums'] = array();
-								$enumValues = array();
+								$row['enums'] = [];
 								$resE = \CUserFieldEnum::GetList(
 									array(),
 									array(
@@ -296,20 +300,23 @@ if (
 				{
 					foreach ($row as $k => $v)
 					{
-						if ($userFelds[$k]['BASE_TYPE'] == 'file')
+						if ($k !== 'ID')
 						{
-							$NS['has_files'] = 1;
-						}
-						$v = __hlExportPrepareField(
+							if ($userFelds[$k]['BASE_TYPE'] === 'file')
+							{
+								$NS['has_files'] = 1;
+							}
+							$v = __hlExportPrepareField(
 								$v,
 								$userFelds[$k],
 								array(
 									'path' => $filesPath,
 								)
 							);
-						if (is_array($v))
-						{
-							$v = 'serialize#' . serialize($v);
+							if (is_array($v))
+							{
+								$v = 'serialize#'.serialize($v);
+							}
 						}
 						$row[$k] = $v;
 					}
@@ -455,7 +462,7 @@ $APPLICATION->SetTitle(Loc::getMessage('ADMIN_TOOLS_TITLE_EXPORT'));
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 ?>
 <div id="tools_result_div"></div>
-<script type="text/javascript">
+<script>
 	var running = false;
 
 	function DoNext(NS)
@@ -507,16 +514,16 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 </script>
 
 <form name="form_tools" method="get" action="<?=$APPLICATION->GetCurPage()?>">
-	<?
+	<?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?>
 	<tr>
-		<td width="40%"><?= Loc::getMessage('ADMIN_TOOLS_FIELD_EXPORT_FILE')?>:</td>
+		<td style="width: 40%;"><?= Loc::getMessage('ADMIN_TOOLS_FIELD_EXPORT_FILE')?>:</td>
 		<td>
 			<input type="text" id="url_data_file" size="30" value="" />
 			<input type="button" value="..." OnClick="BtnClick()">
-			<?
+			<?php
 			CAdminFileDialog::ShowScript
 			(
 				Array(
@@ -540,9 +547,13 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 		<td>
 			<select id="object">
 				<option value="0"></option>
-				<?foreach ($hlsVisual as $row):?>
-				<option value="<?= intval($row['ID'])?>"><?= htmlspecialcharsbx($row['NAME_LANG'])?> [<?= $row['ID']?>]</option>
-				<?endforeach;?>
+				<?php
+				foreach ($hlsVisual as $row):
+					?>
+					<option value="<?= intval($row['ID'])?>"><?= htmlspecialcharsbx($row['NAME_LANG'])?> [<?= $row['ID']?>]</option>
+					<?php
+				endforeach;
+				?>
 			</select>
 		</td>
 	</tr>
@@ -558,10 +569,14 @@ require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admi
 			<input type="checkbox" id="export_data" value="Y" checked="checked" />
 		</td>
 	</tr>
-	<?$tabControl->Buttons();?>
+	<?php
+	$tabControl->Buttons();
+	?>
 	<input type="button" id="start_button" value="<?= Loc::getMessage('ADMIN_TOOLS_START_EXPORT')?>" OnClick="StartExport();" class="adm-btn-save" />
 	<input type="button" id="stop_button" value="<?= Loc::getMessage('ADMIN_TOOLS_STOP_EXPORT')?>" OnClick="EndExport();" />
-	<?$tabControl->End();?>
+	<?php
+	$tabControl->End();
+	?>
 </form>
 <?php
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');

@@ -1,11 +1,17 @@
 <?php
 namespace Bitrix\Im\Update;
 
+use Bitrix\Im\V2\Integration\HumanResources\Department\Department;
+use Bitrix\Main\Loader;
+
 class Bot
 {
 	public static function removeDepartmentLinkAgent()
 	{
-		if (!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet'))
+		if (
+			!\Bitrix\Main\ModuleManager::isModuleInstalled('intranet')
+			|| !Loader::includeModule('iblock')
+		)
 		{
 			return "";
 		}
@@ -24,10 +30,14 @@ class Bot
 			$user->Update($row['ID'], ['UF_DEPARTMENT' => []]);
 		}
 
-		$departmentId = \Bitrix\Im\Bot\Department::getId(true);
-		if ($departmentId && \CModule::IncludeModule('iblock'))
+		$botDepartments = Department::getInstance()->getListByXml('im_bot');
+
+		foreach ($botDepartments as $department)
 		{
-			\CIBlockSection::Delete($departmentId);
+			if ($department->id !== null)
+			{
+				\CIBlockSection::Delete($department->id);
+			}
 		}
 
 		return "";

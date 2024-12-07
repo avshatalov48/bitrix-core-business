@@ -17,6 +17,7 @@ $blogPageId = '';
 
 include("util_group_menu.php");
 include("util_copy_blog.php");
+include("util_group_limit.php");
 
 if (SITE_TEMPLATE_ID === 'bitrix24')
 {

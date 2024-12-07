@@ -37,7 +37,7 @@ if ($arResult["MODE"] == "AJAX")
 	?><div id="sonet-log-filter" class="sonet-log-filter-block">
 		<div class="filter-block-title sonet-log-filter-title"><?=GetMessage("SONET_C30_T_FILTER_TITLE")?></div>
 		<form method="GET" name="log_filter" target="_self" action="<?=$postFormUrl !== '' ? $postFormUrl: POST_FORM_ACTION_URI?>">
-		<input type="hidden" name="SEF_APPLICATION_CUR_PAGE_URL" value="<?=GetPagePath()?>"><?
+		<?
 		$userName = "";
 		if ($createdByID > 0)
 		{
@@ -142,7 +142,7 @@ if ($arResult["MODE"] == "AJAX")
 		</span>
 		</div>
 
-		<script type="text/javascript">
+		<script>
 		BX.ready(function(){
 			__logOnDateChange(document.forms['log_filter'].flt_date_datesel);
 		});
@@ -169,7 +169,7 @@ if ($arResult["MODE"] == "AJAX")
 }
 else
 {
-	?><script type="text/javascript">
+	?><script>
 
 		function showLentaMenuBody(bindElement)
 		{

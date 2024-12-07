@@ -1,14 +1,20 @@
 import { Type } from 'main.core';
 
-import { MessageStatus, ReactionList, DefaultMessageContent, ReactionSelector, ContextMenu, MessageHeader } from 'im.v2.component.message.elements';
+import {
+	MessageStatus,
+	ReactionList,
+	DefaultMessageContent,
+	MessageHeader,
+	MessageFooter,
+} from 'im.v2.component.message.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { FileType } from 'im.v2.const';
+import { ChatType, FileType } from 'im.v2.const';
 
 import { ImageItem } from './items/image';
 
 import '../css/image-messsage.css';
 
-import type { ImModelMessage, ImModelFile } from 'im.v2.model';
+import type { ImModelMessage, ImModelFile, ImModelChat } from 'im.v2.model';
 
 // @vue/component
 export const ImageMessage = {
@@ -19,9 +25,8 @@ export const ImageMessage = {
 		MessageStatus,
 		DefaultMessageContent,
 		ImageItem,
-		ReactionSelector,
-		ContextMenu,
 		MessageHeader,
+		MessageFooter,
 	},
 	props: {
 		item: {
@@ -48,13 +53,29 @@ export const ImageMessage = {
 		{
 			return this.item;
 		},
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId);
+		},
 		onlyImage(): boolean
 		{
 			return this.message.text.length === 0 && this.message.attach.length === 0;
 		},
-		onlyImageOrVideo(): boolean
+		hasText(): boolean
 		{
-			return this.messageFile.type === FileType.image || this.messageFile.type === FileType.video;
+			return this.message.text.length > 0;
+		},
+		hasAttach(): boolean
+		{
+			return this.message.attach.length > 0;
+		},
+		showContextMenu(): boolean
+		{
+			return this.onlyImage;
+		},
+		showBottomContainer(): boolean
+		{
+			return this.hasText || this.hasAttach;
 		},
 		messageFile(): ImModelFile
 		{
@@ -62,55 +83,41 @@ export const ImageMessage = {
 
 			return this.$store.getters['files/get'](firstFileId, true);
 		},
-		needBackground(): boolean
-		{
-			if (this.message.text.length > 0)
-			{
-				return true;
-			}
-
-			return !this.onlyImageOrVideo;
-		},
 		canSetReactions(): boolean
 		{
 			return Type.isNumber(this.message.id);
 		},
 	},
 	template: `
-		<BaseMessage 
-			:item="item" 
-			:dialogId="dialogId" 
-			:withBackground="needBackground" 
-			:withDefaultContextMenu="!onlyImage"
-		>
+		<BaseMessage :item="item" :dialogId="dialogId">
 			<div class="bx-im-message-image__container">
-				<div class="bx-im-message-image__content-with-menu">
-					<div class="bx-im-message-image__content-with-header">
-						<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
-						<div class="bx-im-message-image__content">
-							<ImageItem
-								:key="messageFile.id"
-								:item="messageFile"
-								:message="message"
-							/>
-							<template v-if="onlyImage">
-								<div class="bx-im-message-image__message-status-container">
-									<MessageStatus :item="message" :isOverlay="onlyImage" />
-								</div>
-								<ReactionSelector :messageId="message.id" />
-							</template>
-						</div>
+				<MessageHeader :withTitle="false" :item="item" class="bx-im-message-image__header" />
+				<div class="bx-im-message-image__content">
+					<ImageItem
+						:key="messageFile.id"
+						:item="messageFile"
+						:message="message"
+					/>
+					<div v-if="onlyImage" class="bx-im-message-image__message-status-container">
+						<MessageStatus :item="message" :isOverlay="onlyImage" />
 					</div>
-					<ContextMenu v-if="onlyImage" :message="message" :menuIsActiveForId="menuIsActiveForId" />
 				</div>
+				<div v-if="showBottomContainer" class="bx-im-message-image__bottom-container">
+					<DefaultMessageContent
+						v-if="hasText || hasAttach"
+						:item="item"
+						:dialogId="dialogId"
+						:withText="hasText"
+						:withAttach="hasAttach"
+					/>
+				</div>
+				<MessageFooter :item="item" :dialogId="dialogId" />
+			</div>
+			<template #after-message>
 				<div v-if="onlyImage" class="bx-im-message-image__reaction-list-container">
 					<ReactionList :messageId="message.id" />
 				</div>
-				<div v-if="!onlyImage" class="bx-im-message-image__default-message-container">
-					<DefaultMessageContent :item="item" :dialogId="dialogId" />
-					<ReactionSelector :messageId="message.id" />
-				</div>
-			</div>
+			</template>
 		</BaseMessage>
 	`,
 };

@@ -167,6 +167,11 @@ abstract class BaseBuilder
 		$this->setIblockListMode(Iblock\IblockTable::LIST_MODE_SEPARATE);
 	}
 
+	public function getListMode(): string
+	{
+		return $this->iblockListMode;
+	}
+
 	public function preloadUrlData(string $entityType, array $entityIds): void
 	{
 		switch ($entityType)

@@ -56,47 +56,45 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 		$params['sef_url'][$code] = $arParams['SEF_FOLDER'] . $url;
 	}
 }
-?>
 
-<?if ($designBlockId):?>
-
-<?$APPLICATION->includeComponent(
-	'bitrix:landing.landing_designblock',
-	'.default',
-	array(
-		'TYPE' => $arParams['TYPE'],
-		'SITE_ID' => $arResult['VARS']['site_show'],
-		'LANDING_ID' => $arResult['VARS']['landing_edit'],
-		'BLOCK_ID' => $designBlockId
-	),
-	$component
-);?>
-
-<?php else:?>
-
-<?$APPLICATION->includeComponent(
-	'bitrix:landing.landing_view',
-	'.default',
-	array(
-		'TYPE' => $arParams['TYPE'],
-		'SITE_ID' => $arResult['VARS']['site_show'],
-		'LANDING_ID' => $arResult['VARS']['landing_edit'],
-		'FULL_PUBLICATION' => $arParams['EDIT_FULL_PUBLICATION'],
-		'DONT_LEAVE_AFTER_PUBLICATION' => $arParams['EDIT_DONT_LEAVE_FRAME'],
-		'PANEL_LIGHT_MODE' => $arParams['EDIT_PANEL_LIGHT_MODE'],
-		'PAGE_URL_URL_SITES' => $arParams['PAGE_URL_SITES'],
-		'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
-		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
-		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
-		'PAGE_URL_LANDING_SETTINGS' => $arParams['PAGE_URL_LANDING_SETTINGS'],
-		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
-		'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
-		'DRAFT_MODE' => $arParams['DRAFT_MODE'],
-		'PARAMS' => $params,
-		'SEF' => $params['sef_url'],
-		'AGREEMENT' => $arResult['AGREEMENT']
-	),
-	$component
-);?>
-
-<?php endif; ?>
+if ($designBlockId)
+{
+	$APPLICATION->includeComponent(
+		'bitrix:landing.landing_designblock',
+		'.default',
+		array(
+			'TYPE' => $arParams['TYPE'],
+			'SITE_ID' => $arResult['VARS']['site_show'],
+			'LANDING_ID' => $arResult['VARS']['landing_edit'],
+			'BLOCK_ID' => $designBlockId
+		),
+		$component
+	);
+}
+else
+{
+	$APPLICATION->includeComponent(
+		'bitrix:landing.landing_view',
+		'.default',
+		array(
+			'TYPE' => $arParams['TYPE'],
+			'SITE_ID' => $arResult['VARS']['site_show'],
+			'LANDING_ID' => $arResult['VARS']['landing_edit'],
+			'FULL_PUBLICATION' => $arParams['EDIT_FULL_PUBLICATION'],
+			'DONT_LEAVE_AFTER_PUBLICATION' => $arParams['EDIT_DONT_LEAVE_FRAME'],
+			'PANEL_LIGHT_MODE' => $arParams['EDIT_PANEL_LIGHT_MODE'],
+			'PAGE_URL_URL_SITES' => $arParams['PAGE_URL_SITES'],
+			'PAGE_URL_LANDINGS' => $arParams['PAGE_URL_SITE_SHOW'],
+			'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
+			'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
+			'PAGE_URL_LANDING_SETTINGS' => $arParams['PAGE_URL_LANDING_SETTINGS'],
+			'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+			'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
+			'DRAFT_MODE' => $arParams['DRAFT_MODE'],
+			'PARAMS' => $params,
+			'SEF' => $params['sef_url'],
+			'AGREEMENT' => $arResult['AGREEMENT']
+		),
+		$component
+	);
+}

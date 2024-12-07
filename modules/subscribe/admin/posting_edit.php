@@ -549,7 +549,7 @@ $tabControl->BeginNextTab();
 	</tr>
 	<tr>
 		<td colspan="2" align="center">
-		<script language="JavaScript">
+		<script>
 		<!--
 		function ShowEMails()
 		{
@@ -723,7 +723,7 @@ $tabControl->BeginNextTab();
 		$aCharset = explode(',', COption::GetOptionString('subscribe', 'posting_charset'));
 		foreach ($aCharset as $strCharset)
 		{
-			?><option value="<?php echo htmlspecialcharsbx($strCharset)?>" <?php echo ($ID > 0 && ToLower($str_CHARSET) === ToLower($strCharset)) ? 'selected' : '';?>><?php echo htmlspecialcharsEx($strCharset)?></option><?php
+			?><option value="<?php echo htmlspecialcharsbx($strCharset)?>" <?php echo ($ID > 0 && mb_strtolower($str_CHARSET) === mb_strtolower($strCharset)) ? 'selected' : '';?>><?php echo htmlspecialcharsEx($strCharset)?></option><?php
 		}
 		?>
 		</select>
@@ -749,7 +749,7 @@ $tabControl->BeginNextTab();
 		<td><?php echo GetMessage('post_send_time') . ':'?><span class="required"><sup>2</sup></span></td>
 		<td><?php echo CalendarDate('AUTO_SEND_TIME', $str_AUTO_SEND_TIME, 'post_form', '20')?></td>
 	</tr>
-<script language="JavaScript">
+<script>
 <!--
 function EnableAutoSend()
 {

@@ -88,7 +88,10 @@ foreach($arAllowableUserGroups as $gId=>$gName)
 	{
 		$a = $documentService->GetUsersFromUserGroup($gId, $documentType);
 	}
-	$arUsers = array_merge($arUsers, $a);
+	if ($a)
+	{
+		$arUsers = array_merge($arUsers, $a);
+	}
 }
 $arUsers = array_values(array_unique($arUsers));
 

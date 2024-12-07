@@ -657,11 +657,6 @@ if (
 		&& $_POST["post"] <> ''
 	)
 	{
-		if (($_POST["decode"] ?? null) === "Y")
-		{
-			CUtil::JSPostUnescape();
-		}
-
 		if ($arResult["Perm"] >= Permissions::PREMODERATE)
 		{
 			if (!empty($arBlog))
@@ -734,14 +729,12 @@ if (
 			{
 				if ($arResult["use_captcha"])
 				{
-					include_once($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/classes/general/captcha.php');
 					$captchaCode = (string)$_POST["captcha_code"];
 					$captchaWord = (string)$_POST["captcha_word"];
 					$cpt = new CCaptcha();
-					$captchaPass = Option::get('main', 'captcha_password');
 					if ($captchaCode !== '')
 					{
-						if (!$cpt->CheckCodeCrypt($captchaWord, $captchaCode, $captchaPass))
+						if (!$cpt->CheckCodeCrypt($captchaWord, $captchaCode))
 						{
 							$strErrorMessage .= Loc::getMessage('B_B_PC_CAPTCHA_ERROR') . "<br />";
 						}
@@ -750,15 +743,6 @@ if (
 					{
 						$strErrorMessage .= Loc::getMessage('B_B_PC_CAPTCHA_ERROR') . "<br />";
 					}
-				}
-
-				if (
-					isset($_POST['webdav_history'], $_POST['comment'])
-					&& $_POST['webdav_history'] === 'Y'
-					&& $_POST['comment'] <> ''
-				)
-				{
-					$_POST["comment"] = Text\Encoding::convertEncoding($_POST["comment"], 'UTF-8', LANG_CHARSET);
 				}
 
 				$UserIP = CBlogUser::GetUserIP();
@@ -774,18 +758,15 @@ if (
 					"SEARCH_GROUP_ID" => Option::get("socialnetwork", "userbloggroup_id", false, SITE_ID)
 				);
 
-				if (\Bitrix\Main\Config\Configuration::getValue("utf_mode") === true)
-				{
-					$conn = \Bitrix\Main\Application::getConnection();
-					$table = \Bitrix\Blog\CommentTable::getTableName();
+				$conn = \Bitrix\Main\Application::getConnection();
+				$table = \Bitrix\Blog\CommentTable::getTableName();
 
-					if (
-						((string)$arFields['POST_TEXT'] !== '')
-						&& !$conn->isUtf8mb4($table, 'POST_TEXT')
-					)
-					{
-						$arFields["POST_TEXT"] = Text\Emoji::encode($arFields["POST_TEXT"]);
-					}
+				if (
+					((string)$arFields['POST_TEXT'] !== '')
+					&& !$conn->isUtf8mb4($table, 'POST_TEXT')
+				)
+				{
+					$arFields["POST_TEXT"] = Text\Emoji::encode($arFields["POST_TEXT"]);
 				}
 
 				if ($arResult["Perm"] === Permissions::PREMODERATE)
@@ -953,6 +934,30 @@ if (
 								"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 								"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
 							);
+
+							if (isset($this->request->getValues()['ANALYTICS_LABEL']))
+							{
+								$analyticsInfo = $this->request->getValues()['ANALYTICS_LABEL'];
+								$eventId = CSocNetLog::GetList(
+									arFilter: ['MODULE_ID' => 'blog', 'SOURCE_ID' => $arPost['ID']],
+									arSelectFields: ['EVENT_ID'],
+								)->Fetch()['EVENT_ID'] ?? '';
+								$analytics = \Bitrix\Socialnetwork\Helper\Analytics::getInstance();
+
+								$typeMap = [
+									'blog_post_vote' => $analytics::TYPE_POLL,
+									'blog_post_grat' => $analytics::TYPE_APPRECIATION,
+									'blog_post_important' => $analytics::TYPE_ANNOUNCEMENT,
+									'blog_post' => $analytics::TYPE_POST,
+								];
+
+								$analytics->onCommentAdd(
+									$analyticsInfo['section'] ?? '',
+									$analyticsInfo['context'] ?? '',
+									'',
+									$typeMap[$eventId] ?? '',
+								);
+							}
 
 							$commentUrl .= (mb_strpos($commentUrl, "?") !== false ? "&" : "?");
 							if (
@@ -1706,7 +1711,8 @@ if (
 					$arConvertParams = Array(
 						"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 						"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
-						"pathToUser" => $arParams["PATH_TO_USER"]
+						"pathToUser" => $arParams["PATH_TO_USER"],
+						"ATTRIBUTES" => $arParams["ATTRIBUTES"] ?? null,
 					);
 
 					if (!empty($arParams["LOG_ID"]))
@@ -2003,8 +2009,8 @@ if (
 							$arComment["DATE_CREATE_DATE"] = FormatDateFromDB($arComment["DATE_CREATE"], FORMAT_DATE);
 							if (strcasecmp(LANGUAGE_ID, 'EN') !== 0 && strcasecmp(LANGUAGE_ID, 'DE') !== 0)
 							{
-								$arComment["DateFormated"] = ToLower($arComment["DateFormated"]);
-								$arComment["DATE_CREATE_DATE"] = ToLower($arComment["DATE_CREATE_DATE"]);
+								$arComment["DateFormated"] = mb_strtolower($arComment["DateFormated"]);
+								$arComment["DATE_CREATE_DATE"] = mb_strtolower($arComment["DATE_CREATE_DATE"]);
 							}
 							// strip current year
 							if (!empty($arParams['DATE_TIME_FORMAT_S']) && ($arParams['DATE_TIME_FORMAT_S'] === 'j F Y G:i' || $arParams['DATE_TIME_FORMAT_S'] === 'j F Y g:i a'))
@@ -2080,15 +2086,8 @@ if (
 
 		if ($arResult["use_captcha"])
 		{
-			include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/captcha.php");
 			$cpt = new CCaptcha();
-			$captchaPass = Option::get('main', 'captcha_password');
-			if ($captchaPass === '')
-			{
-				$captchaPass = \Bitrix\Main\Security\Random::getString(10);
-				Option::set('main', 'captcha_password', $captchaPass);
-			}
-			$cpt->SetCodeCrypt($captchaPass);
+			$cpt->SetCodeCrypt();
 			$arResult["CaptchaCode"] = htmlspecialcharsbx($cpt->GetCodeCrypt());
 		}
 
@@ -2104,6 +2103,7 @@ if (
 				"imageWidth" => $arParams["IMAGE_MAX_WIDTH"],
 				"imageHeight" => $arParams["IMAGE_MAX_HEIGHT"],
 				"pathToUser" => $arParams["PATH_TO_USER"],
+				"ATTRIBUTES" => $arParams["ATTRIBUTES"] ?? null,
 			);
 
 			$handlerManager = new CommentAux\HandlerManager();

@@ -83,7 +83,7 @@ class CSupportEMail
 			$arSubjects[$i] = Trim($arSubjects[$i]);
 			if($arSubjects[$i] <> '')
 			{
-				if(preg_match("/".$arSubjects[$i]."/".BX_UTF_PCRE_MODIFIER, $arMessageFields["SUBJECT"], $regs))
+				if(preg_match("/".$arSubjects[$i]."/u", $arMessageFields["SUBJECT"], $regs))
 				{
 					$TID = intval($regs[1]);
 					break;
@@ -134,7 +134,7 @@ class CSupportEMail
 		if($title == '')
 		{
 			$title = trim($arMessageFields["BODY"]);
-			$title = preg_replace("/[\n\r\t ]+/s".BX_UTF_PCRE_MODIFIER, " ", $title);
+			$title = preg_replace("/[\n\r\t ]+/su", " ", $title);
 			$title = mb_substr($title, 0, 50);
 		}
 

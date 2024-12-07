@@ -1,0 +1,13 @@
+<svg xmlns:xlink="http://www.w3.org/1999/xlink" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 150 22" width="150" height="22">
+	<rect x="0" y="0" width="150" rx="8" fill="#e5e5e5" height="22" id="animated-elements"></rect>
+	<rect id="msk1" width="100%" fill="url(#msk_gd)" mask="url(#headerMsk)" height="100%"></rect>
+	<mask id="headerMsk" fill="white">
+		<use xlink:href="#animated-elements"></use>
+	</mask>
+	<linearGradient x1="66.6%" y1="50%" x2="33.3%" y2="50%" id="msk_gd">
+		<stop stop-color="#000000" stop-opacity="0" offset="0%"></stop>
+		<stop stop-color="#000000" stop-opacity="0.07" offset="50%"></stop>
+		<stop stop-color="#000000" stop-opacity="0" offset="100%"></stop>
+	</linearGradient>
+	<animate xlink:href="#msk1" attributeName="x" from="-100%" to="100%" dur="1s" begin="0s" repeatCount="indefinite"></animate>
+</svg>

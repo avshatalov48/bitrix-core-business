@@ -3,30 +3,56 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core) {
+(function (exports,im_v2_component_elements,im_v2_component_message_supervisor_base,main_core,im_v2_lib_analytics,stafftrack_userStatisticsLink) {
 	'use strict';
 
 	const EnableFeatures = Object.freeze({
 	  copilot: 'copilot',
-	  newsLine: 'newsLine',
-	  chatCalls: 'chatCalls',
+	  newsLine: 'news',
+	  chatCalls: 'instant_messenger',
 	  calendar: 'calendar',
-	  documents: 'documents',
+	  documents: 'docs',
 	  mail: 'mail',
-	  groups: 'groups',
+	  groups: 'workgroups',
 	  tasks: 'tasks',
 	  crm: 'crm',
 	  marketing: 'marketing',
 	  automation: 'automation',
-	  warehouseAccounting: 'warehouseAccounting',
+	  warehouseAccounting: 'inventory_management',
 	  sign: 'sign',
-	  websitesStores: 'websitesStores'
+	  scrum: 'scrum',
+	  invoices: 'invoices',
+	  saleshub: 'saleshub',
+	  websitesStores: 'sites',
+	  checkIn: 'checkIn',
+	  checkInGeo: 'checkInGeo'
 	});
 	const UpdateFeatures = Object.freeze({
-	  tariff: 'tariff'
+	  collaborativeDocumentEditing: 'limit_office_no_document',
+	  leadsCRM: 'limit_crm_lead_unlimited',
+	  mailBoxNumber: 'limit_contact_center_mail_box_number',
+	  enterpriseAdmin: 'info_enterprise_admin',
+	  loginHistory: 'limit_office_login_history',
+	  crmHistory: 'limit_crm_history_view',
+	  tasksRobots: 'limit_tasks_robots',
+	  crmAnalytics: 'limit_crm_analytics_max_number',
+	  crmInvoices: 'limit_crm_free_invoices'
 	});
 
-	const onOpenToolsSettings = () => BX.SidePanel.Instance.open(`${window.location.origin}/settings/configs/?page=tools`);
+	const onOpenToolsSettings = toolId => {
+	  return () => {
+	    im_v2_lib_analytics.Analytics.getInstance().onOpenToolsSettings(toolId);
+	    BX.SidePanel.Instance.open(`${window.location.origin}/settings/configs/?page=tools`);
+	  };
+	};
+	const openCheckInQrCode = () => {
+	  if (!stafftrack_userStatisticsLink.UserStatisticsLink) {
+	    return;
+	  }
+	  new stafftrack_userStatisticsLink.UserStatisticsLink({
+	    intent: stafftrack_userStatisticsLink.UserStatisticsLink.CHECK_IN_SETTINGS_INTENT
+	  }).show();
+	};
 	const onHelpClick = ARTICLE_CODE => BX.Helper.show(`redirect=detail&code=${ARTICLE_CODE}`);
 	const metaData = {
 	  [EnableFeatures.copilot]: {
@@ -34,7 +60,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_COPILOT_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.copilot)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
@@ -46,11 +72,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_NEWS_LINE_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.newsLine)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('18634548')
 	    }
 	  },
 	  [EnableFeatures.chatCalls]: {
@@ -58,7 +84,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHAT_CALLS_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.chatCalls)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
@@ -70,11 +96,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CALENDAR_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.calendar)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('17525000')
 	    }
 	  },
 	  [EnableFeatures.documents]: {
@@ -82,11 +108,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_DOCUMENTS_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.documents)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('20338924')
 	    }
 	  },
 	  [EnableFeatures.mail]: {
@@ -94,11 +120,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_MAIL_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.mail)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('12487078')
 	    }
 	  },
 	  [EnableFeatures.groups]: {
@@ -106,11 +132,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_GROUPS_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.groups)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('6481473')
 	    }
 	  },
 	  [EnableFeatures.tasks]: {
@@ -118,11 +144,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_TASKS_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.tasks)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('17962166')
 	    }
 	  },
 	  [EnableFeatures.crm]: {
@@ -130,11 +156,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CRM_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.crm)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('1470510')
 	    }
 	  },
 	  [EnableFeatures.marketing]: {
@@ -142,11 +168,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_MARKETING_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.marketing)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('10437776')
 	    }
 	  },
 	  [EnableFeatures.automation]: {
@@ -154,11 +180,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_AUTOMATION_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.automation)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('16547618')
 	    }
 	  },
 	  [EnableFeatures.warehouseAccounting]: {
@@ -166,11 +192,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_WAREHOUSE_ACCOUNTING_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.warehouseAccounting)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('17792018')
 	    }
 	  },
 	  [EnableFeatures.sign]: {
@@ -178,11 +204,11 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_SIGN_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.sign)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('16555500')
 	    }
 	  },
 	  [EnableFeatures.websitesStores]: {
@@ -190,11 +216,71 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_WEBSITES_STORES_DESCRIPTION'),
 	    detailButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
-	      callback: onOpenToolsSettings
+	      callback: onOpenToolsSettings(EnableFeatures.websitesStores)
 	    },
 	    infoButton: {
 	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
-	      callback: () => onHelpClick('12925062')
+	      callback: () => onHelpClick('17540360')
+	    }
+	  },
+	  [EnableFeatures.scrum]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_SCRUM_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_SCRUM_DESCRIPTION'),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+	      callback: onOpenToolsSettings(EnableFeatures.scrum)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+	      callback: () => onHelpClick('13660630')
+	    }
+	  },
+	  [EnableFeatures.invoices]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_INVOICES_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_INVOICES_DESCRIPTION'),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+	      callback: onOpenToolsSettings(EnableFeatures.invoices)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+	      callback: () => onHelpClick('17614982')
+	    }
+	  },
+	  [EnableFeatures.saleshub]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_SALESHUB_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_SALESHUB_DESCRIPTION'),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+	      callback: onOpenToolsSettings(EnableFeatures.saleshub)
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+	      callback: () => onHelpClick('9289135')
+	    }
+	  },
+	  [EnableFeatures.checkIn]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_DESCRIPTION'),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+	      callback: () => openCheckInQrCode()
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+	      callback: () => onHelpClick('20922794')
+	    }
+	  },
+	  [EnableFeatures.checkInGeo]: {
+	    title: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_GEO_TITLE'),
+	    description: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_CHECK_IN_GEO_DESCRIPTION'),
+	    detailButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_OPEN_SETTINGS'),
+	      callback: () => openCheckInQrCode()
+	    },
+	    infoButton: {
+	      text: main_core.Loc.getMessage('IM_MESSAGE_SUPERVISOR_ENABLE_FEATURE_BUTTON_MORE_DETAILED'),
+	      callback: () => onHelpClick('20922794')
 	    }
 	  }
 	};
@@ -274,5 +360,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.SupervisorEnableFeatureMessage = SupervisorEnableFeatureMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.Message,BX,BX.Messenger.v2.Lib,BX.Stafftrack));
 //# sourceMappingURL=enable-feature.bundle.js.map

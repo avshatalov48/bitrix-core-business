@@ -3,14 +3,50 @@ namespace Bitrix\Sale;
 
 use Bitrix\Catalog;
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Data\LocalStorage\SessionLocalStorage;
 use Bitrix\Sale;
-
-Main\Localization\Loc::loadMessages(__FILE__);
 
 class BasketComponentHelper
 {
-	static $cacheRatio = array();
-	static $cacheRatioData = array();
+	private const STORAGE_NAME = 'SALE_USER_BASKET';
+	private const SECTION_QUANTITY = 'SALE_USER_BASKET_QUANTITY';
+	private const SECTION_PRICE = 'SALE_USER_BASKET_PRICE';
+
+	private static array $currentState;
+
+	static array $cacheRatio = [];
+	static array $cacheRatioData = [];
+
+	/**
+	 * Returns true, if the fuser basket summary quantity has already been calculated.
+	 *
+	 * @param int|null $fuserId
+	 * @param string|null $siteId
+	 * @return bool
+	 */
+	public static function existsFUserBasketQuantity(?int $fuserId, ?string $siteId = null): bool
+	{
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
+
+		return self::getCurrentBasketQuantity($fuserId, $siteId) !== null;
+	}
+
+	/**
+	 * Returns true, if the fuser basket summary price has bedd already calculated.
+	 *
+	 * @param int|null $fuserId
+	 * @param string|null $siteId
+	 * @return bool
+	 */
+	public static function existsFUserBasketPrice(?int $fuserId, ?string $siteId = null): bool
+	{
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
+
+		return self::getCurrentBasketPrice($fuserId, $siteId) !== null;
+	}
 
 	/**
 	 * @param null|int $fuserId
@@ -20,26 +56,14 @@ class BasketComponentHelper
 	 */
 	public static function getFUserBasketQuantity($fuserId, $siteId = null)
 	{
-		if ($fuserId === null)
-		{
-			return 0;
-		}
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
-		$quantity = null;
-		if (!empty($_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId]) && is_array($_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId])
-			&& array_key_exists($fuserId, $_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId]))
-		{
-			$quantity = $_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fuserId];
-		}
-
+		$quantity = self::getCurrentBasketQuantity($fuserId, $siteId);
 		if ($quantity === null)
 		{
 			static::updateFUserBasketQuantity($fuserId, $siteId);
-			$quantity = $_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fuserId];
+			$quantity = self::getCurrentBasketQuantity($fuserId, $siteId);
 		}
 
 		return $quantity;
@@ -53,89 +77,71 @@ class BasketComponentHelper
 	 */
 	public static function getFUserBasketPrice($fuserId, $siteId = null)
 	{
-		if ($fuserId === null)
-		{
-			return 0;
-		}
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
-		$price = null;
-		if (!empty($_SESSION['SALE_USER_BASKET_PRICE'][$siteId]) && is_array($_SESSION['SALE_USER_BASKET_PRICE'][$siteId])
-			&& array_key_exists($fuserId, $_SESSION['SALE_USER_BASKET_PRICE'][$siteId]))
-		{
-			$price = $_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fuserId];
-		}
-
+		$price = self::getCurrentBasketPrice($fuserId, $siteId);
 		if ($price === null)
 		{
 			static::updateFUserBasketPrice($fuserId, $siteId);
-			$price = $_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fuserId];
+			$price = self::getCurrentBasketPrice($fuserId, $siteId);
 		}
 
 		return $price;
 	}
 
 	/**
-	 * @param int         $fUserId
+	 * @param int         $fuserId
 	 * @param int|float   $quantity
 	 * @param string|null $siteId
 	 * @return void
 	 */
-	protected static function setFUserBasketQuantity($fUserId, $quantity, $siteId = null)
+	public static function setFUserBasketQuantity($fuserId, $quantity, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
+		$quantity = self::prepareValue($quantity);
 
-		$_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fUserId] = $quantity;
+		self::setCurrentBasketQuantity($fuserId, $siteId, $quantity);
 	}
 
 	/**
-	 * @param      $fUserId
+	 * @param      $fuserId
 	 * @param null $siteId
 	 */
-	public static function clearFUserBasketQuantity($fUserId, $siteId = null)
+	public static function clearFUserBasketQuantity($fuserId, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
-		unset($_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fUserId]);
+		self::clearCurrentBasketQuantity($fuserId, $siteId);
 	}
 
 	/**
-	 * @param int         $fUserId
+	 * @param int         $fuserId
 	 * @param int|float   $price
 	 * @param string|null $siteId
 	 * @return void
 	 */
-	protected static function setFUserBasketPrice($fUserId, $price, $siteId = null)
+	public static function setFUserBasketPrice($fuserId, $price, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
+		$price = self::prepareValue($price);
 
-		$_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fUserId] = $price;
+		self::setCurrentBasketPrice($fuserId, $siteId, $price);
 	}
 
 	/**
-	 * @param      $fUserId
+	 * @param      $fuserId
 	 * @param null $siteId
 	 */
-	public static function clearFUserBasketPrice($fUserId, $siteId = null)
+	public static function clearFUserBasketPrice($fuserId, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
-		unset($_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fUserId]);
+		self::clearCurrentBasketPrice($fuserId, $siteId);
 	}
 
 	/**
@@ -147,10 +153,8 @@ class BasketComponentHelper
 	 */
 	public static function updateFUserBasketPrice($fuserId, $siteId = null, $basketList = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
 		$price = 0;
 
@@ -177,10 +181,8 @@ class BasketComponentHelper
 	 */
 	public static function updateFUserBasketQuantity($fuserId, $siteId = null, $basketList = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
 		$quantity = 0;
 
@@ -205,10 +207,8 @@ class BasketComponentHelper
 	 */
 	public static function updateFUserBasket($fuserId, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
 		$basketList = static::getFUserBasketList($fuserId, $siteId);
 
@@ -224,25 +224,23 @@ class BasketComponentHelper
 	 */
 	protected static function getFUserBasketList($fuserId, $siteId = null)
 	{
-		if ($siteId === null)
-		{
-			$siteId = SITE_ID;
-		}
+		$siteId = self::prepareSiteId($siteId);
+		$fuserId = self::prepareFuserId($fuserId);
 
 		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
 		/** @var Sale\Basket $basketClassName */
 		$basketClassName = $registry->getBasketClassName();
 
-		$basketList = array();
-		$res = $basketClassName::getList(array(
-			'filter' => array(
+		$basketList = [];
+		$res = $basketClassName::getList([
+			'filter' => [
 				'=FUSER_ID' => $fuserId,
 				'=ORDER_ID' => null,
 				'=LID' => $siteId,
 				'=CAN_BUY' => 'Y',
-				'=DELAY' => 'N'
-			)
-		));
+				'=DELAY' => 'N',
+			],
+		]);
 		while ($data = $res->fetch())
 		{
 			if (\CSaleBasketHelper::isSetItem($data))
@@ -284,9 +282,10 @@ class BasketComponentHelper
 		);
 
 		$registry = Registry::getInstance(Registry::REGISTRY_TYPE_ORDER);
-		/** @var Sale\Basket $basketClassName */
+
 		$basketClassName = $registry->getBasketClassName();
 
+		/** @var Basket $basket */
 		$basket = $basketClassName::create(SITE_ID);
 		$basket->setFUserId($fuserId);
 		foreach ($basketList as $oldItem)
@@ -307,19 +306,18 @@ class BasketComponentHelper
 	 *
 	 * @return Main\EventResult
 	 */
-	public static function onSaleBasketItemEntitySaved(Main\Event $event)
+	public static function onSaleBasketItemEntitySaved(Main\Event $event): Main\EventResult
 	{
 		$fuserId = Fuser::getId(true);
 		$basketItem = $event->getParameter('ENTITY');
 
-		$originalValues = $event->getParameter('VALUES');
-		if ((!$basketItem instanceof BasketItem))
+		if (!($basketItem instanceof BasketItem))
 		{
 			return new Main\EventResult( Main\EventResult::SUCCESS, null, 'sale');
 		}
 
 		/** @var \Bitrix\Sale\Basket $basket */
-		if ((!$basket = $basketItem->getCollection())
+		if (!($basket = $basketItem->getCollection())
 			|| ($basketItem->getFUserId() != $fuserId)
 		)
 		{
@@ -328,6 +326,8 @@ class BasketComponentHelper
 
 		if ($basketItem->isChanged())
 		{
+			$originalValues = $event->getParameter('VALUES');
+
 			$updateSessionData = false;
 
 			if (!$basket->getOrder())
@@ -376,11 +376,11 @@ class BasketComponentHelper
 	}
 
 	/**
-	 * @param \Bitrix\Main\Event $event
+	 * @param Main\Event $event
 	 *
-	 * @return \Bitrix\Main\EventResult
+	 * @return Main\EventResult
 	 */
-	public static function onSaleBasketItemDeleted(Main\Event $event)
+	public static function onSaleBasketItemDeleted(Main\Event $event): Main\EventResult
 	{
 		$fuserId = Fuser::getId(true);
 		$originalValues = $event->getParameter('VALUES');
@@ -706,5 +706,194 @@ class BasketComponentHelper
 	public static function getRatioDataCache()
 	{
 		return static::$cacheRatioData;
+	}
+
+	private static function getLocalStorage(): SessionLocalStorage
+	{
+		return Application::getInstance()->getLocalSession(self::STORAGE_NAME);
+	}
+
+	private static function loadStateFromStorage(): void
+	{
+		if (isset(self::$currentState))
+		{
+			return;
+		}
+		$storage = self::getLocalStorage();
+		self::$currentState = self::verifyState($storage->getData());
+	}
+
+	private static function saveStateToStorage(): void
+	{
+		if (!isset(self::$currentState))
+		{
+			return;
+		}
+		$storage = self::getLocalStorage();
+		$storage->setData(self::$currentState);
+	}
+
+	private static function getEmptyState(): array
+	{
+		return [
+			self::SECTION_PRICE => [],
+			self::SECTION_QUANTITY => [],
+		];
+	}
+
+	private static function verifyState(array $state): array
+	{
+		$emptyState = self::getEmptyState();
+		$state = array_intersect_key($state, $emptyState);
+
+		$result = [];
+		foreach ($state as $sectionId => $sites)
+		{
+			if (!is_array($sites))
+			{
+				continue;
+			}
+			$result[$sectionId] = self::verifySection($sites);
+		}
+
+		return array_merge($emptyState, $result);
+	}
+
+	private static function verifySection(array $section): array
+	{
+		$result = [];
+		foreach ($section as $siteId => $users)
+		{
+			if (!is_string($siteId) || !is_array($users))
+			{
+				continue;
+			}
+			$newUsers = [];
+			foreach ($users as $userId => $value)
+			{
+				if (!is_int($userId))
+				{
+					continue;
+				}
+				$newUsers[$userId] = (float)$value;
+			}
+			$result[$siteId] = $newUsers;
+			unset($newUsers);
+		}
+
+		return $result;
+	}
+
+	private static function getCurrentValue(string $sectionId, ?int $fuserId, string $siteId): null|int|float
+	{
+		if ($fuserId === null)
+		{
+			return 0;
+		}
+		self::loadStateFromStorage();
+
+		return (self::$currentState[$sectionId][$siteId][$fuserId] ?? null);
+	}
+
+	private static function setCurrentValue(string $sectionId, ?int $fuserId, string $siteId, int|float $value): void
+	{
+		if ($fuserId === null)
+		{
+			return;
+		}
+		if (!isset(self::$currentState[$sectionId]))
+		{
+			return;
+		}
+		self::$currentState[$sectionId][$siteId] ??= [];
+		self::$currentState[$sectionId][$siteId][$fuserId] = $value;
+		self::saveStateToStorage();
+	}
+
+	private static function clearCurrentValue(string $sectionId, ?int $fuserId, string $siteId): void
+	{
+		if ($fuserId === null)
+		{
+			return;
+		}
+		self::loadStateFromStorage();
+		if (!isset(self::$currentState[$sectionId]))
+		{
+			return;
+		}
+		unset(self::$currentState[$sectionId][$siteId][$fuserId]);
+		self::saveStateToStorage();
+	}
+
+	private static function getCurrentBasketPrice(?int $fuserId, string $siteId): null|int|float
+	{
+		return self::getCurrentValue(self::SECTION_PRICE, $fuserId, $siteId);
+	}
+
+	private static function setCurrentBasketPrice(?int $fuserId, string $siteId, int|float $price): void
+	{
+		self::setCurrentValue(self::SECTION_PRICE, $fuserId, $siteId, $price);
+	}
+
+	private static function clearCurrentBasketPrice(?int $fuserId, string $siteId): void
+	{
+		self::clearCurrentValue(self::SECTION_PRICE, $fuserId, $siteId);
+	}
+
+	private static function getCurrentBasketQuantity(?int $fuserId, string $siteId): null|int|float
+	{
+		return self::getCurrentValue(self::SECTION_QUANTITY, $fuserId, $siteId);
+	}
+
+	private static function setCurrentBasketQuantity(?int $fuserId, string $siteId, int|float $quantity): void
+	{
+		self::setCurrentValue(self::SECTION_QUANTITY, $fuserId, $siteId, $quantity);
+	}
+
+	private static function clearCurrentBasketQuantity(?int $fuserId, string $siteId): void
+	{
+		self::clearCurrentValue(self::SECTION_QUANTITY, $fuserId, $siteId);
+	}
+
+	private static function prepareSiteId(mixed $siteId): string
+	{
+		if ($siteId !== null)
+		{
+			$siteId = trim((string)$siteId);
+			if ($siteId === '')
+			{
+				$siteId = null;
+			}
+		}
+		if ($siteId === null)
+		{
+			$siteId = SITE_ID;
+		}
+
+		return $siteId;
+	}
+
+	private static function prepareFuserId(mixed $fuserId): ?int
+	{
+		if ($fuserId !== null)
+		{
+			$fuserId = (int)$fuserId;
+			if ($fuserId <= 0)
+			{
+				$fuserId = null;
+			}
+		}
+
+		return $fuserId;
+	}
+
+	private static function prepareValue(mixed $value): int|float
+	{
+		if (is_int($value) || is_float($value))
+		{
+			return $value;
+		}
+
+		return (float)$value;
 	}
 }

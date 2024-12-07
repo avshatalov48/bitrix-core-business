@@ -255,8 +255,6 @@ class Workgroup
 
 	public static function unlinkChat($params)
 	{
-		$result = false;
-
 		if (
 			!array($params)
 			|| !isset($params['group_id'])
@@ -265,19 +263,41 @@ class Workgroup
 			|| !Loader::includeModule('im')
 		)
 		{
-			return $result;
+			return false;
 		}
 
-		$groupItem = Item\Workgroup::getById($params['group_id']);
-		if (!$groupItem)
+		$groupId = (int)$params['group_id'];
+		$groupName = ($params['group_name'] ?? null);
+		$isProject = ($params['group_project'] ?? null);
+
+		if ($groupName === null || $isProject === null)
 		{
-			return $result;
+			$queryObject = \Bitrix\Socialnetwork\WorkgroupTable::getList([
+				'filter' => ['ID' => $groupId],
+				'select' => ['NAME', 'PROJECT'],
+			]);
+			$groupFields = $queryObject->fetch();
+			$groupName = ($groupFields ? $groupFields['NAME'] : '');
+			$isProject = $groupFields['PROJECT'] === 'Y';
 		}
 
-		$groupFields = $groupItem->getFields();
+		if ($groupName === '')
+		{
+			return false;
+		}
 
 		$chatMessageFields = array(
-			"MESSAGE" => str_replace('#GROUP_NAME#', $groupFields['NAME'], Loc::getMessage($groupItem->isProject() ? "SOCIALNETWORK_WORKGROUP_CHAT_UNLINKED_PROJECT" : "SOCIALNETWORK_WORKGROUP_CHAT_UNLINKED")),
+			"MESSAGE" => str_replace(
+				'#GROUP_NAME#',
+				$groupName,
+				Loc::getMessage(
+					(
+						$isProject
+							? "SOCIALNETWORK_WORKGROUP_CHAT_UNLINKED_PROJECT"
+							: "SOCIALNETWORK_WORKGROUP_CHAT_UNLINKED"
+					)
+				)
+			),
 			"SYSTEM" => "Y"
 		);
 
@@ -285,7 +305,7 @@ class Workgroup
 			'select' => Array('ID'),
 			'filter' => array(
 				'=ENTITY_TYPE' => self::CHAT_ENTITY_TYPE,
-				'=ENTITY_ID' => $params['group_id']
+				'=ENTITY_ID' => $groupId
 			)
 		));
 		while ($chat = $res->fetch())
@@ -303,9 +323,7 @@ class Workgroup
 			}
 		}
 
-		$result = true;
-
-		return $result;
+		return true;
 	}
 
 	/**

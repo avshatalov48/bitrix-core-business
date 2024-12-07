@@ -1,9 +1,6 @@
 <?php
-namespace Bitrix\Main;
 
-use Bitrix\Main\Component;
-use Bitrix\Main\Config;
-use Bitrix\Main\IO;
+namespace Bitrix\Main;
 
 class UrlRewriter
 {
@@ -100,7 +97,7 @@ class UrlRewriter
 			foreach ($arFilter as $keyFilter => $valueFilter)
 			{
 				$isNegative = false;
-				if (mb_substr($keyFilter, 0, 1) === "!")
+				if (str_starts_with($keyFilter, "!"))
 				{
 					$isNegative = true;
 					$keyFilter = mb_substr($keyFilter, 1);
@@ -157,7 +154,7 @@ class UrlRewriter
 
 		$arUrlRewrite = static::loadRules($siteId);
 
-		// if rule is exist – return
+		// if rule is exist â€“ return
 		foreach ($arUrlRewrite as $rule)
 		{
 			if ($arFields["CONDITION"] == $rule["CONDITION"])
@@ -347,7 +344,7 @@ class UrlRewriter
 		$siteId = "";
 		foreach ($arSites as $site)
 		{
-			if (mb_substr($pathAbs."/", 0, mb_strlen($site["path"]."/")) == $site["path"]."/")
+			if (str_starts_with($pathAbs . "/", $site["path"] . "/"))
 			{
 				$siteId = $site["site_id"];
 				break;
@@ -371,7 +368,7 @@ class UrlRewriter
 				//this is not first step and we had stopped here, so go on to reindex
 				if ($maxExecutionTime <= 0
 					|| $ns["FLG"] == ''
-					|| mb_substr($ns["ID"]."/", 0, mb_strlen($child->getPath()."/")) == $child->getPath()."/"
+					|| str_starts_with($ns["ID"] . "/", $child->getPath() . "/")
 				)
 				{
 					if (static::recursiveReindex($rootPath, mb_substr($child->getPath(), mb_strlen($rootPath)), $arSites, $maxExecutionTime, $ns) === false)
@@ -509,7 +506,7 @@ class UrlRewriter
 		}
 
 		$file = IO\Path::getName($path);
-		if (mb_substr($file, 0, 1) === ".")
+		if (str_starts_with($file, "."))
 			return 0;
 
 		foreach ($arExc as $preg_mask)
@@ -589,13 +586,10 @@ class UrlRewriterRuleMaker
 	protected function _callback(array $match)
 	{
 		$this->variables[] = trim($match[0], "#");
-		if (mb_substr($match[0], -6) == "_PATH#")
+		if (str_ends_with($match[0], "_PATH#"))
 		{
 			return "(.+?)";
 		}
-		else
-		{
-			return "([^/]+?)";
-		}
+		return "([^/]+?)";
 	}
 }

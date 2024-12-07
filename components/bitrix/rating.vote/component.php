@@ -96,7 +96,7 @@ $arResult['VOTE_ID'] = (
 	!empty($arParams['VOTE_ID'])
 		? $arParams['VOTE_ID']
 		: $arResult['ENTITY_TYPE_ID'] . '-' . $arResult['ENTITY_ID'].'-' . (
-			$arParams["VOTE_RAND"] > 0
+			isset($arParams["VOTE_RAND"]) && $arParams["VOTE_RAND"] > 0
 				? (int)$arParams["VOTE_RAND"]
 				: (time() + random_int(0, 1000))
 		)

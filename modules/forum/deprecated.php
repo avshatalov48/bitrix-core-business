@@ -342,7 +342,7 @@ function ForumSetLastVisit($forumId = false, $TID = false, $arAddParams = array(
 	{
 		$GLOBALS["SHOW_FORUM_ICON"] = true; // out-of-date param
 		$forumUser = \Bitrix\Forum\User::getById($USER->getID());
-		$forumUser->setLastVisit();
+		$forumUser->setLastVisit()->setLocation($forumId, (int) $TID);
 
 		if (!isset($_SESSION['FORUM']))
 		{

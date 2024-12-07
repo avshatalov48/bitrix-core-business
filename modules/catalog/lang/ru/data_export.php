@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS['CATI_DATA_EXPORT'] = "Экспорт данных";
 $MESS['CATI_NO_IBLOCK'] = "Информационный блок не выбран. Выгрузка невозможна.";
 $MESS['CATI_NO_FORMAT'] = "Укажите формат файла данных и его свойства.";
@@ -57,4 +57,3 @@ $MESS["CATI_NO_RIGHTS_FILE"] = "У вас недостаточно прав дл
 $MESS["CET_ERROR_IBLOCK_PERM"] = "Недостаточно прав для работы с инфоблоком ##IBLOCK_ID#";
 $MESS["CES_ERROR_BAD_EXPORT_FILENAME"] = "Имя файла экспорта содержит запрещенные символы";
 $MESS["CATI_NO_RIGHTS_EXPORT_FILES_PATH"] = "Невозможно создать папку #PATH#";
-?>

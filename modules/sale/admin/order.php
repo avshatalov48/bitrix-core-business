@@ -21,7 +21,7 @@ Main\UI\Extension::load('sale.admin_order_list');
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/admin_tool.php");
 
 $saleModulePermissions = $APPLICATION->GetGroupRight("sale");
-$isCanUsePersonalization = Sale\Configuration::isCanUsePersonalization();
+$isCanUsePersonalization = Sale\Configuration::isCanUsePersonalization() && Main\Analytics\Catalog::isOn();
 
 if($saleModulePermissions == "D")
 	$APPLICATION->AuthForm(Loc::getMessage("ACCESS_DENIED"));
@@ -908,9 +908,9 @@ $arID = array();
 if(($arID = $lAdmin->GroupAction()) && $saleModulePermissions >= "P")
 {
 	$arAffectedOrders = array();
-	$forAll =($_REQUEST['action_target'] == 'selected');
+	$forAll = Main\Application::getInstance()->getContext()->getRequest()->get('action_target') === 'selected';
 
-	if($forAll)
+	if ($forAll)
 	{
 		$filter = $arFilterTmp;
 		$arID = array();
@@ -3713,7 +3713,7 @@ if (!$publicMode && \Bitrix\Sale\Update\CrmEntityCreatorStepper::isNeedStub())
 else
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		function fToggleSetItems(setParentId)
 		{
 			var elements = document.getElementsByClassName('set_item_' + setParentId);
@@ -3899,7 +3899,7 @@ else
 		<tr>
 			<td><?echo Loc::getMessage("SALE_F_ID");?>:</td>
 			<td>
-				<script type="text/javascript">
+				<script>
 					function filter_id_from_Change()
 					{
 						if(document.find_form.filter_id_to.value.length<=0)
@@ -4209,7 +4209,7 @@ else
 		<tr>
 			<td><?echo Loc::getMessage("SO_PRODUCT_ID")?></td>
 			<td>
-				<script type="text/javascript">
+				<script>
 					function FillProductFields(arParams)
 					{
 						if(arParams["id"])
@@ -4272,7 +4272,7 @@ else
 				<IFRAME name="hiddenframe_affiliate" id="id_hiddenframe_affiliate" src="" width="0" height="0" style="width:0px; height:0px; border: 0px"></IFRAME>
 				<input type="button" class="button" name="FindAffiliate" OnClick="window.open('/bitrix/admin/sale_affiliate_search.php?func_name=SetAffiliateID', '', 'scrollbars=yes,resizable=yes,width=800,height=500,top='+Math.floor((screen.height - 500)/2-14)+',left='+Math.floor((screen.width - 400)/2-5));" value="...">
 				<span id="div_affiliate_name"></span>
-				<script type="text/javascript">
+				<script>
 					function SetAffiliateID(id)
 					{
 						document.find_form.filter_affiliate_id.value = id;
@@ -4475,7 +4475,7 @@ else
 	if($link->getType() == Admin\ModeType::APP_LAYOUT_TYPE)
 	{
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.ready(
 				function()
 				{
@@ -4509,7 +4509,7 @@ else
 	else
 	{
 		?>
-		<script type="text/javascript">
+		<script>
 
 			function sendDeliveryRequestsForCurrentOrders(selectedOnly)
 			{

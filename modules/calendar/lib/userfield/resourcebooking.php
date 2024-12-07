@@ -340,9 +340,9 @@ class ResourceBooking extends \Bitrix\Main\UserField\TypeBase
 		$resourseList = Internals\ResourceTable::getList(
 			array(
 				"filter" => array(
-					"PARENT_TYPE" => $userField['ENTITY_ID'],
-					"PARENT_ID" => $userField['ENTITY_VALUE_ID'],
-					"UF_ID" => $userField['ID']
+					"=PARENT_TYPE" => $userField['ENTITY_ID'],
+					"=PARENT_ID" => $userField['ENTITY_VALUE_ID'],
+					"=UF_ID" => $userField['ID'],
 				)
 			)
 		);

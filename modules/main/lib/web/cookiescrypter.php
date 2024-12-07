@@ -5,27 +5,36 @@ namespace Bitrix\Main\Web;
 use Bitrix\Main\Config;
 use Bitrix\Main\Security\Cipher;
 use Bitrix\Main\Security\SecurityException;
+use Bitrix\Main\Session\KernelSession;
 use Bitrix\Main\SystemException;
 
+/**
+ * Class CookiesCrypter
+ * Designed to encrypt and decrypt cookies.
+ */
 final class CookiesCrypter
 {
-	public const COOKIE_MAX_SIZE              = 4096;
+	public const COOKIE_MAX_SIZE = 4096;
 	public const COOKIE_RESERVED_SUFFIX_BYTES = 3;
 
-	private const SIGN_PREFIX       = '-crpt-';
+	private const SIGN_PREFIX = '-crpt-';
 	private const CIPHER_KEY_SUFFIX = 'cookiecrypter';
 
-	/** @var string */
-	protected $cipherKey;
-	/** @var Cipher */
-	protected $cipher;
+	protected ?string $cipherKey;
+	protected Cipher $cipher;
 
 	public function __construct()
-	{}
+	{
+	}
 
+	/**
+	 * Builds cipher object.
+	 * @return $this
+	 * @throws SystemException
+	 */
 	protected function buildCipher(): self
 	{
-		if ($this->cipher)
+		if (isset($this->cipher))
 		{
 			return $this;
 		}
@@ -43,14 +52,22 @@ final class CookiesCrypter
 		return $this;
 	}
 
+	/**
+	 * Prepends suffix to key.
+	 * @param string $key Key to prepend suffix to.
+	 * @return string
+	 */
 	protected function prependSuffixToKey(string $key): string
 	{
 		return $key . self::CIPHER_KEY_SUFFIX;
 	}
 
 	/**
-	 * @param CryptoCookie $cookie
+	 * Packs and encrypts cookie.
+	 * @param CryptoCookie $cookie Cookie to encrypt.
 	 * @return iterable|Cookie[]
+	 * @throws SecurityException
+	 * @throws SystemException
 	 */
 	public function encrypt(CryptoCookie $cookie): iterable
 	{
@@ -64,6 +81,13 @@ final class CookiesCrypter
 		return $result;
 	}
 
+	/**
+	 * Decrypts cookie if needed.
+	 * @param string $name Cookie name.
+	 * @param string $value Encrypted cookie value.
+	 * @param iterable $cookies Cookies to decrypt.
+	 * @return string
+	 */
 	public function decrypt(string $name, string $value, iterable $cookies): string
 	{
 		if (!$this->shouldDecrypt($name, $value))
@@ -75,7 +99,7 @@ final class CookiesCrypter
 		{
 			return $this->unpackCookie($value, $cookies);
 		}
-		catch (SecurityException $e)
+		catch (SecurityException)
 		{
 			//just skip cookies which we can't decrypt.
 		}
@@ -84,14 +108,15 @@ final class CookiesCrypter
 	}
 
 	/**
-	 * @param CryptoCookie $cookie
-	 * @param string       $encryptedValue
+	 * Packs cookie into several parts to fit into cookie size limit.
+	 * @param CryptoCookie $cookie Cookie to pack.
+	 * @param string       $encryptedValue Encrypted cookie value.
 	 * @return iterable|Cookie[]
 	 */
 	protected function packCookie(CryptoCookie $cookie, string $encryptedValue): iterable
 	{
-		$length = strlen($encryptedValue);
-		$maxContentLength = static::COOKIE_MAX_SIZE - static::COOKIE_RESERVED_SUFFIX_BYTES - strlen($cookie->getName());
+		$length = \strlen($encryptedValue);
+		$maxContentLength = self::COOKIE_MAX_SIZE - self::COOKIE_RESERVED_SUFFIX_BYTES - \strlen($cookie->getName());
 
 		$i = 0;
 		$parts = ($length / $maxContentLength);
@@ -115,6 +140,12 @@ final class CookiesCrypter
 		return $pack;
 	}
 
+	/**
+	 * Unpacks cookie from several parts.
+	 * @param string $mainCookie Main cookie value.
+	 * @param iterable $cookies Cookies to decrypt.
+	 * @return string
+	 */
 	protected function unpackCookie(string $mainCookie, iterable $cookies): string
 	{
 		$mainCookie = $this->removeSign($mainCookie);
@@ -129,7 +160,7 @@ final class CookiesCrypter
 			}
 
 			$parts[$packedNames[$name]] = $value;
-			if (count($parts) === count($packedNames))
+			if (\count($parts) === \count($packedNames))
 			{
 				break;
 			}
@@ -140,10 +171,18 @@ final class CookiesCrypter
 		return $this->decryptValue($encryptedValue);
 	}
 
+	/**
+	 * Encrypts value.
+	 * Also compresses value if possible.
+	 * @param string $value Value to encrypt.
+	 * @return string
+	 * @throws SecurityException
+	 * @throws SystemException
+	 */
 	protected function encryptValue(string $value): string
 	{
 		$this->buildCipher();
-		if (function_exists('gzencode'))
+		if (\function_exists('gzencode'))
 		{
 			$value = gzencode($value);
 		}
@@ -151,12 +190,19 @@ final class CookiesCrypter
 		return $this->encodeUrlSafeB64($this->cipher->encrypt($value, $this->getCipherKey()));
 	}
 
+	/**
+	 * Decrypts value.
+	 * @param string $value Value to decrypt.
+	 * @return string
+	 * @throws SecurityException
+	 * @throws SystemException
+	 */
 	protected function decryptValue(string $value): string
 	{
 		$this->buildCipher();
 
 		$value = $this->cipher->decrypt($this->decodeUrlSafeB64($value), $this->getCipherKey());
-		if (function_exists('gzdecode'))
+		if (\function_exists('gzdecode'))
 		{
 			$value = gzdecode($value);
 		}
@@ -164,39 +210,79 @@ final class CookiesCrypter
 		return $value;
 	}
 
-	private function decodeUrlSafeB64($input)
+	/**
+	 * Decodes url safe base64.
+	 * @param string $input Input string.
+	 * @return string
+	 */
+	private function decodeUrlSafeB64(string $input): string
 	{
-		$padLength = 4 - strlen($input) % 4;
+		$padLength = 4 - \strlen($input) % 4;
 		$input .= str_repeat('=', $padLength);
 
-		return base64_decode(strtr($input, '-_', '+/'));
+		return base64_decode(strtr($input, '-_', '+/')) ?: '';
 	}
 
-	private function encodeUrlSafeB64($input)
+	/**
+	 * Encodes url safe base64 to avoid issues with cookie values.
+	 * @param string $input Input string.
+	 * @return string
+	 */
+	private function encodeUrlSafeB64(string $input): string
 	{
 		return str_replace('=', '', strtr(base64_encode($input), '+/', '-_'));
 	}
 
+	/**
+	 * Checks if cookie should be encrypted.
+	 * @param Cookie $cookie Cookie to check.
+	 * @return bool
+	 */
 	public function shouldEncrypt(Cookie $cookie): bool
 	{
 		return $cookie instanceof CryptoCookie;
 	}
 
+	/**
+	 * Checks if cookie should be decrypted.
+	 * @param string $cookieName Cookie name.
+	 * @param string $cookieValue Cookie value.
+	 * @return bool
+	 */
 	public function shouldDecrypt(string $cookieName, string $cookieValue): bool
 	{
-		return strpos($cookieValue, self::SIGN_PREFIX) === 0;
+		if ($cookieName === KernelSession::COOKIE_NAME)
+		{
+			return true;
+		}
+
+		return str_starts_with($cookieValue, self::SIGN_PREFIX);
 	}
 
+	/**
+	 * Prepends sign to value.
+	 * @param string $value Value to prepend sign to.
+	 * @return string
+	 */
 	protected function prependSign(string $value): string
 	{
 		return self::SIGN_PREFIX . $value;
 	}
 
+	/**
+	 * Removes sign prefix from value.
+	 * @param string $value Value to remove sign from.
+	 * @return string
+	 */
 	protected function removeSign(string $value): string
 	{
-		return substr($value, strlen(self::SIGN_PREFIX));
+		return substr($value, \strlen(self::SIGN_PREFIX));
 	}
 
+	/**
+	 * Returns cipher key.
+	 * @return string
+	 */
 	public function getCipherKey(): string
 	{
 		return $this->cipherKey;

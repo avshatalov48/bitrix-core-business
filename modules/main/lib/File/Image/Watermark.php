@@ -173,11 +173,10 @@ class Watermark
 		{
 			foreach(['top', 'center', 'bottom'] as $k)
 			{
-				$l = strlen($k);
-				if(substr($params["position"], 0, $l) == $k)
+				if(str_starts_with($params["position"], $k))
 				{
 					$position['y'] = $k;
-					$position['x'] = substr($params["position"], $l);
+					$position['x'] = substr($params["position"], strlen($k));
 					if($position['x'] == '')
 					{
 						$position['x'] = ($k == 'center'? 'center' : 'right');

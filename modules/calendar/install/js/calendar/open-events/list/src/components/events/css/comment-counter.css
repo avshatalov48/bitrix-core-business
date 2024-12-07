@@ -1,0 +1,10 @@
+.calendar-open-events-list-item-comment-counter {
+	display: flex;
+	column-gap: 4px;
+	cursor: pointer;
+}
+
+.calendar-open-events-list-item-comment-counter .ui-icon-set {
+	--ui-icon-set__icon-size: 20px;
+	--ui-icon-set__icon-color: var(--ui-color-base-70);
+}

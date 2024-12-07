@@ -35,7 +35,6 @@ class CSearchSphinx extends CSearchFullText
 	);
 	private $errorText = "";
 	private $errorNumber = 0;
-	private $recodeToUtf = false;
 	public $tags = "";
 	public $query = "";
 	public $SITE_ID = "";
@@ -141,15 +140,6 @@ class CSearchSphinx extends CSearchFullText
 		$this->indexName = $indexName;
 		$this->connectionIndex = $connectionIndex;
 
-		//2.2.1 version test (they added HAVING support and moved to UTF8)
-		if (
-			!defined("BX_UTF")
-			&& $this->query("select id from ".$this->indexName." where id=1 group by id having count(*) = 1")
-		)
-		{
-			$this->recodeToUtf = true;
-		}
-
 		return true;
 	}
 
@@ -162,42 +152,6 @@ class CSearchSphinx extends CSearchFullText
 	public function deleteById($ID)
 	{
 		$this->query("delete from ".$this->indexName." where id = ".intval($ID));
-	}
-
-	public function recodeTo($text)
-	{
-		if ($this->recodeToUtf)
-		{
-			$error = "";
-			$result = \Bitrix\Main\Text\Encoding::convertEncoding($text, SITE_CHARSET, "UTF-8", $error);
-			if (!$result && !empty($error))
-				#$this->ThrowException($error, "ERR_CHAR_BX_CONVERT");
-				return $text;
-
-			return $result;
-		}
-		else
-		{
-			return $text;
-		}
-	}
-
-	public function recodeFrom($text)
-	{
-		if ($this->recodeToUtf)
-		{
-			$error = "";
-			$result = \Bitrix\Main\Text\Encoding::convertEncoding($text, "UTF-8", SITE_CHARSET, $error);
-			if (!$result && !empty($error))
-				#$this->ThrowException($error, "ERR_CHAR_BX_CONVERT");
-				return $text;
-
-			return $result;
-		}
-		else
-		{
-			return $text;
-		}
 	}
 
 	public function replace($ID, $arFields)
@@ -270,8 +224,8 @@ class CSearchSphinx extends CSearchFullText
 				,(".$this->rights($arFields["PERMISSIONS"]).")
 				,(".$this->sites($arFields["SITE_ID"]).")
 				,(".$this->params($arFields["PARAMS"]).")
-				,'".$this->recodeTo($this->Escape($arFields["TITLE"]))."'
-				,'".$this->recodeTo($this->Escape($BODY))."'
+				,'".$this->Escape($arFields["TITLE"])."'
+				,'".$this->Escape($BODY)."'
 			)
 		";
 		$result = $this->query($sql);
@@ -598,7 +552,7 @@ class CSearchSphinx extends CSearchFullText
 		$strQuery = trim($arParams["QUERY"]);
 		if ($strQuery != "")
 		{
-			$arWhere[] = "MATCH('".$this->recodeTo($this->Escape($strQuery))."')";
+			$arWhere[] = "MATCH('".$this->Escape($strQuery)."')";
 			$this->query = $strQuery;
 		}
 
@@ -756,7 +710,7 @@ class CSearchSphinx extends CSearchFullText
 			$arWhere[] = "right in (".$rights.")";
 
 		$arWhere[] = "site = ".sprintf("%u", crc32(SITE_ID));
-		$arWhere[] = "match('".$this->recodeTo($match)."')";
+		$arWhere[] = "match('".$match."')";
 
 		$sql = "
 			select id
@@ -1331,9 +1285,9 @@ class CSearchSphinxFormatter extends CSearchFormatter
 	public function buildExcerpts($str)
 	{
 		$sql = "CALL SNIPPETS(
-			'".$this->sphinx->Escape2($this->sphinx->recodeTo($str))."'
+			'".$this->sphinx->Escape2($str)."'
 			,'".$this->sphinx->Escape($this->sphinx->indexName)."'
-			,'".$this->sphinx->Escape($this->sphinx->recodeTo($this->sphinx->query." ".$this->sphinx->tags))."'
+			,'".$this->sphinx->Escape($this->sphinx->query." ".$this->sphinx->tags)."'
 			,500 as limit
 			,1 as query_mode
 		)";
@@ -1344,7 +1298,7 @@ class CSearchSphinxFormatter extends CSearchFormatter
 			$res = $this->sphinx->fetch($result);
 			if ($res)
 			{
-				return $this->sphinx->recodeFrom($res["snippet"]);
+				return $res["snippet"];
 			}
 			else
 			{

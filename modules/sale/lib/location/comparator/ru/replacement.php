@@ -50,11 +50,9 @@ class Replacement
 	public static function isCountryRussia($countryName)
 	{
 		return in_array(
-			ToUpper(
-				trim(
+			mb_strtoupper(trim(
 					$countryName
-				)
-			),
+				)),
 			array(
 				'РФ',
 				'РОССИЙСКАЯ ФЕДЕРАЦИЯ',

@@ -60,12 +60,20 @@ final class FileVersion extends Base
 			}
 		}
 
-		if (Loader::includeModule('disk') && !Configuration::isEnabledKeepVersion())
+		$availableGenders = ['M', 'F'];
+		if (!in_array($gender, $availableGenders, true))
 		{
-			return Loc::getMessage('SONET_COMMENTAUX_HEAD_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : ''));
+			$gender = '';
 		}
 
-		return Loc::getMessage('SONET_COMMENTAUX_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : ''));
+		if (Loader::includeModule('disk') && !Configuration::isEnabledKeepVersion())
+		{
+			return Loc::getMessage(
+				'SONET_COMMENTAUX_HEAD_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : '')
+			) ?? '';
+		}
+
+		return Loc::getMessage('SONET_COMMENTAUX_FILEVERSION_TEXT' . (!empty($gender) ? '_' . $gender : '')) ?? '';
 	}
 
 	protected function getRatingNotificationFollowValue(int $userId = 0, array $ratingVoteParams = [], array $fields = [])

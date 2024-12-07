@@ -2,8 +2,6 @@
 
 namespace Bitrix\Main\UserField;
 
-use CUserTypeManager;
-
 /**
  * Class Renderer
  * @package Bitrix\Main\UserField

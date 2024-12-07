@@ -5,7 +5,6 @@ class CStoplist extends CAllStopList
 {
 	public static function GetList($by = 's_id', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
@@ -138,7 +137,7 @@ class CStoplist extends CAllStopList
 			LIMIT ".intval(COption::GetOptionString('statistic','RECORDS_LIMIT'))."
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -219,7 +218,7 @@ class CStoplist extends CAllStopList
 					)
 				";
 
-			$z = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$z = $DB->Query($strSql);
 			if($zr = $z->Fetch())
 			{
 				$arStopRecord = array(

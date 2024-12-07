@@ -633,7 +633,7 @@ $tabControl->BeginCustomField('RANGES',GetMessage('BT_CAT_DISC_SAVE_EDIT_FIELDS_
 	<tr id="tr_RANGES" class="adm-detail-required-field">
 		<td valign="top" width="40%"><? echo $tabControl->GetCustomLabelHTML(); ?>:</td>
 		<td width="60%">
-<script type="text/javascript">
+<script>
 var CellTPL = new Array();
 <?
 foreach ($arCellTemplates as $key => $value)
@@ -741,7 +741,7 @@ $tabControl->Show();
 
 $tabControl->ShowWarnings("cat_disc_save", $obMessages);
 
-?><script type="text/javascript">
+?><script>
 BX.ready(function(){
 	var obCountPeriod = BX('COUNT_PERIOD');
 	var obCountFrom = BX('tr_COUNT_FROM');

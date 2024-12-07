@@ -64,7 +64,7 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -95,7 +95,7 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -123,7 +123,7 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -141,7 +141,7 @@ class CSaleOrderUserProps extends CAllSaleOrderUserProps
 		$strSql =
 			"INSERT INTO b_sale_user_props(".$arInsert[0].", DATE_UPDATE) ".
 			"VALUES(".$arInsert[1].", ".$DB->GetNowFunction().")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 

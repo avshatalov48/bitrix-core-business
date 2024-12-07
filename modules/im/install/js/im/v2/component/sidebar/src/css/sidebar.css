@@ -6,6 +6,15 @@
 	border-left: 1px solid rgb(0 0 0 / 6%);
 }
 
+.popup-window-content {
+	--im-sidebar__font-color_context-menu_delete: var(--ui-color-palette-red-solid);
+}
+
+.bx-im-sidebar__context-menu_delete .menu-popup-item-text,
+.bx-im-sidebar__context-menu_delete:hover .menu-popup-item-text {
+	color: var(--im-sidebar__font-color_context-menu_delete);
+}
+
 .top-level-panel-enter-active,
 .top-level-panel-leave-active {
 	transition: all 0.3s;

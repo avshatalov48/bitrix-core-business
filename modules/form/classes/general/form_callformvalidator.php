@@ -6,13 +6,6 @@
 
 class CAllFormValidator
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllFormValidator<br>File: ".__FILE__;
-	}
-
 	/**
 	 * Get filtered list of validators assigned to current field
 	 *
@@ -81,7 +74,7 @@ class CAllFormValidator
 			$strWhere = "";
 
 		$query = "SELECT * FROM b_form_field_validator ".$strWhere." ORDER BY ".$by." ".$order;
-		$rsList = $DB->Query($query, false, __LINE__);
+		$rsList = $DB->Query($query);
 
 		$arCurrentValidators = array();
 		$rsFullList = CFormValidator::GetAllList();
@@ -327,6 +320,6 @@ class CAllFormValidator
 	{
 		global $DB;
 		$query = "DELETE FROM b_form_field_validator WHERE FIELD_ID='".$DB->ForSql($FIELD_ID)."'";
-		$DB->Query($query, false, __LINE__);
+		$DB->Query($query);
 	}
 }

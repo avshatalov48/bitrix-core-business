@@ -296,8 +296,13 @@ class CBPWorkflowTemplateLoader
 			throw new Exception("id");
 		}
 
-		$instanceCnt = WorkflowInstanceTable::getCount(['=WORKFLOW_TEMPLATE_ID' => $id]);
-		if ($instanceCnt <= 0)
+		$hasInstance = (bool)WorkflowInstanceTable::getRow([
+			'select' => ['ID'],
+			'filter' => ['=WORKFLOW_TEMPLATE_ID' => $id],
+			'order' => ['DOCUMENT_ID' => 'DESC'],
+		]);
+
+		if (!$hasInstance)
 		{
 			WorkflowTemplateTable::delete($id);
 
@@ -311,6 +316,7 @@ class CBPWorkflowTemplateLoader
 			EventManager::getInstance()->send($event);
 
 			WorkflowDurationStatTable::deleteAllByTemplateId($id);
+			Bitrix\Main\Config\Option::delete('bizproc', ['name' => 'tpl_track_on_' . $id]);
 		}
 		else
 		{
@@ -1112,7 +1118,7 @@ class CBPWorkflowTemplateLoader
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -1141,7 +1147,7 @@ class CBPWorkflowTemplateLoader
 			if ($arSqls["GROUPBY"] <> '')
 				$strSql_tmp .= "GROUP BY ".$arSqls["GROUPBY"]." ";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -1161,7 +1167,7 @@ class CBPWorkflowTemplateLoader
 			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		$dbRes = new CBPWorkflowTemplateResult($dbRes, $this->useGZipCompression);
@@ -1180,7 +1186,7 @@ class CBPWorkflowTemplateLoader
 		$strSql =
 			"INSERT INTO b_bp_workflow_template (".$arInsert[0].", MODIFIED) ".
 			"VALUES(".$arInsert[1].", ".$DB->CurrentTimeFunction().")";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$id = (int)$DB->LastID();
 
@@ -1216,7 +1222,7 @@ class CBPWorkflowTemplateLoader
 			"	".$strUpdate.", ".
 			"	MODIFIED = ".$DB->CurrentTimeFunction()." ".
 			"WHERE ID = ".intval($id)." ";
-		$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$event = new Event(
 			'bizproc',

@@ -36,28 +36,28 @@ $presetManager = \Bitrix\Sale\Discount\Preset\Manager::getInstance();
 $presetManager->enableRestrictedGroupsMode($enableRestrictedGroupsMode);
 
 $preset = null;
-if(!empty($_GET['DISCOUNT_ID']))
+if (!empty($_GET['DISCOUNT_ID']))
 {
-	$discountId = $_GET['DISCOUNT_ID'];
+	$discountId = (int)$_GET['DISCOUNT_ID'];
 	$discountFields = Internals\DiscountTable::getById($discountId)->fetch();
 
-	if(!$discountFields || empty($discountFields['PRESET_ID']))
+	if (!$discountFields || empty($discountFields['PRESET_ID']))
 	{
 		return;
 	}
 	$preset = $presetManager->getPresetById($discountFields['PRESET_ID']);
 	$preset->setDiscount($discountFields);
 }
-elseif(!empty($_GET['PRESET_ID']))
+elseif (!empty($_GET['PRESET_ID']))
 {
-	$preset = $presetManager->getPresetById($_GET['PRESET_ID']);
+	$preset = $presetManager->getPresetById((string)$_GET['PRESET_ID']);
 }
 else
 {
 	return;
 }
 
-if(!$preset)
+if (!$preset)
 {
 	require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 	ShowError(Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_ERROR_NOT_FOUND_PRESET'));
@@ -65,18 +65,18 @@ if(!$preset)
 	die();
 }
 
-if(!empty($_GET['action']))
+if (!empty($_GET['action']))
 {
-	$preset->executeAjaxAction($_GET['action']);
+	$preset->executeAjaxAction((string)$_GET['action']);
 }
 
 $preset->exec();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
-if($preset->hasErrors())
+if ($preset->hasErrors())
 {
-	$errorsText = array();
+	$errorsText = [];
 	foreach($preset->getErrors() as $error)
 	{
 		$errorsText[] = $error->getMessage();
@@ -85,12 +85,12 @@ if($preset->hasErrors())
 	$message = new CAdminMessage(implode("<br>", $errorsText));
 	echo $message->Show();
 }
-if(!empty($_GET['from_list']))
+if (!empty($_GET['from_list']))
 {
-	$contextMenuItems = array();
-	$contextListButtonParams = array();
+	$contextMenuItems = [];
+	$contextListButtonParams = [];
 
-	if($_GET['from_list'] === 'discount')
+	if ($_GET['from_list'] === 'discount')
 	{
 		$discountUrl = "sale_discount.php?lang=".LANGUAGE_ID;
 		$discountUrl = $adminSidePanelHelper->editUrlToPublicPage($discountUrl);
@@ -99,7 +99,7 @@ if(!empty($_GET['from_list']))
 		$contextListButtonParams["ICON"] = "btn_list";
 		$contextMenuItems = array($contextListButtonParams);
 	}
-	elseif($_GET['from_list'] === 'preset')
+	elseif ($_GET['from_list'] === 'preset')
 	{
 		$presetListUrl = $selfFolderUrl."sale_discount_preset_list.php?lang=".LANGUAGE_ID;
 		$presetListUrl = $adminSidePanelHelper->editUrlToPublicPage($presetListUrl);
@@ -108,7 +108,7 @@ if(!empty($_GET['from_list']))
 		$contextListButtonParams["ICON"] = "btn_list";
 		$contextMenuItems = array($contextListButtonParams);
 	}
-	elseif($_GET['from_list'] === 'coupon')
+	elseif ($_GET['from_list'] === 'coupon')
 	{
 		$couponListUrl = $selfFolderUrl."sale_discount_coupons.php?lang=".LANGUAGE_ID;
 		$contextListButtonParams["TEXT"] = Loc::getMessage('SALE_DISCOUNT_PRESET_DETAIL_COUPON_LIST');

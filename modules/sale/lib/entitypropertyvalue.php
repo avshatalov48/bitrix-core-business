@@ -148,22 +148,25 @@ abstract class EntityPropertyValue extends CollectableEntity
 			$propRelation[$row['ID']] = [];
 		}
 
-		$dbRes = OrderPropsRelationTable::getList(
-			[
-				'select' => [
-					'PROPERTY_ID',
-					'ENTITY_ID',
-					'ENTITY_TYPE'
-				],
-				'filter' => [
-					'PROPERTY_ID' => array_keys($properties)
-				]
-			]
-		);
-
-		while ($row = $dbRes->fetch())
+		if (!empty($properties))
 		{
-			$propRelation[$row['PROPERTY_ID']][] = $row;
+			$dbRes = OrderPropsRelationTable::getList(
+				[
+					'select' => [
+						'PROPERTY_ID',
+						'ENTITY_ID',
+						'ENTITY_TYPE'
+					],
+					'filter' => [
+						'PROPERTY_ID' => array_keys($properties)
+					]
+				]
+			);
+
+			while ($row = $dbRes->fetch())
+			{
+				$propRelation[$row['PROPERTY_ID']][] = $row;
+			}
 		}
 
 		return [$properties, $propertyValues, $propRelation, $propertyValuesMap];

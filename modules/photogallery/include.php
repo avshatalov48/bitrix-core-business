@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager IBlock                 #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 CModule::AddAutoloadClasses(
@@ -159,7 +159,7 @@ function PhotoFormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="D
 	$strDate = trim($strDate);
 
 	$new_format = str_replace("MI","I", $new_format);
-	$new_format = preg_replace("/([DMYIHS])\\1+/is".BX_UTF_PCRE_MODIFIER, "\\1", $new_format);
+	$new_format = preg_replace("/([DMYIHS])\\1+/isu", "\\1", $new_format);
 	$new_format_len = mb_strlen($new_format);
 	$arFormat = preg_split('/[^0-9A-Za-z]/', mb_strtoupper($format));
 	$arDate = preg_split('/[^0-9]/', $strDate);

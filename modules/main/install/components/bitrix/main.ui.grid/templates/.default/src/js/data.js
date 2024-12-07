@@ -1,9 +1,9 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
 
-	var originalUpdatePageData = window.parent.BX.ajax.UpdatePageData;
+	const originalUpdatePageData = window.parent.BX.ajax.UpdatePageData;
 
 	function disableBxAjaxUpdatePageData()
 	{
@@ -25,7 +25,6 @@
 		this.parent = parent;
 		this.reset();
 	};
-
 
 	/**
 	 * Reset to default values
@@ -50,7 +49,6 @@
 		this.isValidResponse = null;
 	};
 
-
 	/**
 	 * Gets filter
 	 * @return {BX.Main.Filter}
@@ -60,7 +58,6 @@
 		return this.parent;
 	};
 
-
 	/**
 	 * Validates server response
 	 * @return {boolean}
@@ -69,12 +66,11 @@
 	{
 		if (!BX.type.isBoolean(this.isValidResponse))
 		{
-			this.isValidResponse = !!this.getResponse() && !!BX.Grid.Utils.getByClass(this.getResponse(), this.getParent().settings.get('classContainer'), true);
+			this.isValidResponse = Boolean(this.getResponse()) && Boolean(BX.Grid.Utils.getByClass(this.getResponse(), this.getParent().settings.get('classContainer'), true));
 		}
 
 		return this.isValidResponse;
 	};
-
 
 	/**
 	 * Send request
@@ -87,36 +83,36 @@
 	 */
 	BX.Grid.Data.prototype.request = function(url, method, data, action, then, error)
 	{
-		if(!BX.type.isString(url))
+		if (!BX.type.isString(url))
 		{
-			url = "";
-		}
-		if(!BX.type.isNotEmptyString(method))
-		{
-			method = "GET";
+			url = '';
 		}
 
-		if(!BX.type.isPlainObject(data))
+		if (!BX.type.isNotEmptyString(method))
+		{
+			method = 'GET';
+		}
+
+		if (!BX.type.isPlainObject(data))
 		{
 			data = {};
 		}
 
-		var eventArgs =
-			{
-				gridId: this.parent.getId(),
-				url: url,
-				method: method,
-				data: data
-			};
+		const eventArgs =			{
+			gridId: this.parent.getId(),
+			url,
+			method,
+			data,
+		};
 
 		this.parent.disableCheckAllCheckboxes();
 		BX.onCustomEvent(
 			window,
-			"Grid::beforeRequest",
-			[this, eventArgs]
+			'Grid::beforeRequest',
+			[this, eventArgs],
 		);
 
-		if(eventArgs.hasOwnProperty("cancelRequest") && eventArgs.cancelRequest === true)
+		if (eventArgs.hasOwnProperty('cancelRequest') && eventArgs.cancelRequest === true)
 		{
 			return;
 		}
@@ -132,7 +128,7 @@
 
 		if ('apply_filter' in data && data.apply_filter === 'Y')
 		{
-			url = BX.Grid.Utils.addUrlParams(url, {apply_filter: 'Y'});
+			url = BX.Grid.Utils.addUrlParams(url, { apply_filter: 'Y' });
 		}
 		else
 		{
@@ -141,59 +137,61 @@
 
 		if ('clear_nav' in data && data.clear_nav === 'Y')
 		{
-			url = BX.Grid.Utils.addUrlParams(url, {clear_nav: 'Y'});
+			url = BX.Grid.Utils.addUrlParams(url, { clear_nav: 'Y' });
 		}
 		else
 		{
 			url = BX.util.remove_url_param(url, 'clear_nav');
 		}
 
-		url = BX.Grid.Utils.addUrlParams(url, {grid_action: action || 'showpage'});
+		url = BX.Grid.Utils.addUrlParams(url, { grid_action: action || 'showpage' });
 
 		method = eventArgs.method;
 		data = eventArgs.data;
 
 		this.reset();
 
-		var self = this;
+		const self = this;
 
-		setTimeout(function() {
-			var formData = BX.Http.Data.convertObjectToFormData(data);
+		setTimeout(() => {
+			const formData = BX.Http.Data.convertObjectToFormData(data);
 
 			disableBxAjaxUpdatePageData();
 
 			var xhr = BX.ajax({
 				url: BX.Grid.Utils.ajaxUrl(url, self.getParent().getAjaxId()),
 				data: formData,
-				method: method,
+				method,
 				dataType: 'html',
 				headers: [
-					{name: 'X-Ajax-Grid-UID', value: self.getParent().getAjaxId()},
-					{name: 'X-Ajax-Grid-Req', value: JSON.stringify({action: action || 'showpage'})}
+					{ name: 'X-Ajax-Grid-UID', value: self.getParent().getAjaxId() },
+					{ name: 'X-Ajax-Grid-Req', value: JSON.stringify({ action: action || 'showpage' }) },
 				],
 				processData: true,
 				scriptsRunFirst: false,
 				start: false,
 				preparePost: false,
-				onsuccess: function(response) {
-					self.response = BX.create('div', {html: response});
-					self.response = self.response.querySelector('#'+self.parent.getContainerId());
+				onsuccess(response) {
+					self.response = BX.create('div', { html: response });
+					self.response = self.response.querySelector(`#${self.parent.getContainerId()}`);
 					self.xhr = xhr;
 
 					if (self.parent.getParam('HANDLE_RESPONSE_ERRORS'))
 					{
-						var res;
+						let res;
 
 						try
 						{
 							res = JSON.parse(response);
-						} catch(err) {
-							res = {messages: []};
+						}
+						catch
+						{
+							res = { messages: [] };
 						}
 
-						if (res.messages.length)
+						if (res.messages.length > 0)
 						{
-							self.parent.arParams['MESSAGES'] = res.messages;
+							self.parent.arParams.MESSAGES = res.messages;
 							self.parent.messages.show();
 
 							self.parent.tableUnfade();
@@ -202,6 +200,7 @@
 							{
 								BX.delegate(error, self)(xhr);
 							}
+
 							return;
 						}
 					}
@@ -214,7 +213,7 @@
 
 					enableBxAjaxUpdatePageData();
 				},
-				onerror: function(err) {
+				onerror(err) {
 					self.error = error;
 					self.xhr = xhr;
 
@@ -223,13 +222,12 @@
 						self.parent.enableCheckAllCheckboxes();
 						BX.delegate(error, self)(xhr, err);
 					}
-				}
+				},
 			});
 
 			xhr.send(formData);
 		}, 0);
 	};
-
 
 	/**
 	 * Gets server response
@@ -269,7 +267,6 @@
 		return this.headRows;
 	};
 
-
 	/**
 	 * Gets body rows of grid form server request
 	 * @return {?HTMLTableRowElement[]}
@@ -284,7 +281,6 @@
 		return this.bodyRows;
 	};
 
-
 	/**
 	 * Gets rows by parent id
 	 * @param {string|number} id
@@ -296,13 +292,12 @@
 		{
 			this.rowsByParentId[id] = BX.Grid.Utils.getBySelector(
 				this.getResponse(),
-				'.'+this.getParent().settings.get('classBodyRow')+'[data-parent-id="'+id+'"]'
+				`.${this.getParent().settings.get('classBodyRow')}[data-parent-id="${id}"]`,
 			);
 		}
 
 		return this.rowsByParentId[id];
 	};
-
 
 	/**
 	 * Gets row by row id
@@ -315,14 +310,13 @@
 		{
 			this.rowById[id] = BX.Grid.Utils.getBySelector(
 				this.getResponse(),
-				'.'+this.getParent().settings.get('classBodyRow')+'[data-id="'+id+'"]',
-				true
+				`.${this.getParent().settings.get('classBodyRow')}[data-id="${id}"]`,
+				true,
 			);
 		}
 
 		return this.rowById[id];
 	};
-
 
 	/**
 	 * Gets tfoot rows of grid from request
@@ -338,7 +332,6 @@
 		return this.footRows;
 	};
 
-
 	/**
 	 * Gets more button from request
 	 * @return {?HTMLElement}
@@ -350,13 +343,12 @@
 			this.moreButton = BX.Grid.Utils.getByClass(
 				this.getResponse(),
 				this.getParent().settings.get('classMoreButton'),
-				true
+				true,
 			);
 		}
 
 		return this.moreButton;
 	};
-
 
 	/**
 	 * Gets pagination of grid from request
@@ -369,7 +361,7 @@
 			this.pagination = BX.Grid.Utils.getByClass(
 				this.getResponse(),
 				this.getParent().settings.get('classPagination'),
-				true
+				true,
 			);
 
 			if (BX.type.isDomNode(this.pagination))
@@ -380,7 +372,6 @@
 
 		return this.pagination;
 	};
-
 
 	/**
 	 * Gets counter of displayed rows
@@ -393,13 +384,12 @@
 			this.counterDisplayed = BX.Grid.Utils.getByClass(
 				this.getResponse(),
 				this.getParent().settings.get('classCounterDisplayed'),
-				true
+				true,
 			);
 		}
 
 		return this.counterDisplayed;
 	};
-
 
 	/**
 	 * Gets counter of selected rows
@@ -412,13 +402,12 @@
 			this.counterSelected = BX.Grid.Utils.getByClass(
 				this.getResponse(),
 				this.getParent().settings.get('classCounterSelected'),
-				true
+				true,
 			);
 		}
 
 		return this.counterSelected;
 	};
-
 
 	/**
 	 * Gets counter of total rows count
@@ -428,13 +417,12 @@
 	{
 		if (!BX.type.isDomNode(this.counterTotal))
 		{
-			var selector = '.'+this.getParent().settings.get('classCounterTotal')+' .'+this.getParent().settings.get('classPanelCellContent');
+			const selector = `.${this.getParent().settings.get('classCounterTotal')} .${this.getParent().settings.get('classPanelCellContent')}`;
 			this.counterTotal = BX.Grid.Utils.getBySelector(this.getResponse(), selector, true);
 		}
 
 		return this.counterTotal;
 	};
-
 
 	/**
 	 * Gets dropdown of pagesize
@@ -450,7 +438,6 @@
 		return this.limit;
 	};
 
-
 	/**
 	 * Gets dropdown of pagesize
 	 * @alias BX.Grid.Data.prototype.getLimit
@@ -460,7 +447,6 @@
 	{
 		return this.getLimit();
 	};
-
 
 	/**
 	 * Gets action panel of grid
@@ -473,7 +459,7 @@
 			this.actionPanel = BX.Grid.Utils.getByClass(
 				this.getResponse(),
 				this.getParent().settings.get('classActionPanel'),
-				true
+				true,
 			);
 		}
 

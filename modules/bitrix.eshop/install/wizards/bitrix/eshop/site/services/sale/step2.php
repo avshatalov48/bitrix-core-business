@@ -65,7 +65,7 @@ if(COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SITE_ID) !=
 
 			if($bRus)
 				$groupLang[] = array("LID" => $lang, "NAME" => GetMessage("SALE_WIZARD_GROUP"));
-				
+
 			$locationGroupID = CSaleLocationGroup::Add(
 					array(
 						"SORT" => 150,
@@ -279,9 +279,7 @@ if(!empty($delivery["ups"]))
 				"SID" => "ups",
 				"MARGIN_VALUE" => 0,
 				"MARGIN_TYPE" => "%",
-				"OLD_SETTINGS" => array(
-					"SETTINGS" => "/bitrix/modules/sale/delivery/ups/ru_csv_zones.csv;/bitrix/modules/sale/delivery/ups/ru_csv_export.csv",
-				)
+				"OLD_SETTINGS" => serialize("/bitrix/modules/sale/delivery/ups/ru_csv_zones.csv;/bitrix/modules/sale/delivery/ups/ru_csv_export.csv"),
 			)
 		)
 	);
@@ -338,6 +336,11 @@ foreach($deliveryItems as $code => $fields)
 		catch(\Bitrix\Main\SystemException $e)
 		{
 			continue;
+		}
+
+		if ($code === 'ups') // dirty hack
+		{
+			$fields['CONFIG']['MAIN']['OLD_SETTINGS'] = $deliveryItems[$code]['CONFIG']['MAIN']['OLD_SETTINGS'];
 		}
 
 		$res = \Bitrix\Sale\Delivery\Services\Manager::add($fields);
@@ -433,12 +436,12 @@ if(CModule::IncludeModule('subscribe'))
 			"LID"		=> WIZARD_SITE_ID,
 			"AUTO"		=> "Y",
 			"DAYS_OF_MONTH"	=> "",
-			"DAYS_OF_WEEK"	=> "1,2,3,4,5,6,7",  
+			"DAYS_OF_WEEK"	=> "1,2,3,4,5,6,7",
 			"TIMES_OF_DAY"	=> "05:00",
 			"TEMPLATE"	=> mb_substr($template, mb_strlen($_SERVER["DOCUMENT_ROOT"]."/")),
 			"VISIBLE"	=> "Y",
 			"FROM_FIELD"	=> COption::GetOptionString("main", "email_from", "info@ourtestsite.com"),
-			"LAST_EXECUTED"	=> ConvertTimeStamp(false, "FULL"), 
+			"LAST_EXECUTED"	=> ConvertTimeStamp(false, "FULL"),
 		);
 		$obRubric = new CRubric;
 		$ID = $obRubric->Add($arFields);
@@ -479,7 +482,7 @@ if(COption::GetOptionString('main', 'CAPTCHA_presets', '') == '')
 	COption::SetOptionString('main', 'CAPTCHA_arTTFFiles', 'bitrix_captcha.ttf');
 	COption::SetOptionString('main', 'CAPTCHA_letters', 'ABCDEFGHJKLMNPQRSTWXYZ23456789');
 	COption::SetOptionString('main', 'CAPTCHA_presets', '2');
-}	
+}
 COption::SetOptionString('socialnetwork', 'allow_tooltip', 'N', false ,  WIZARD_SITE_ID);
 
 //Edit profile task
@@ -520,7 +523,7 @@ if(!($rsGroups->Fetch()))
 		);
 	$NEW_GROUP_ID = $group->Add($arFields);
 	COption::SetOptionString('main', 'new_user_registration_def_group', $NEW_GROUP_ID);
-	
+
 	$rsTasks = CTask::GetList(array(), array("MODULE_ID"=>"main", "SYS"=>"Y", "BINDIG"=>"module","LETTER"=>"P"));
 	if($arTask = $rsTasks->Fetch())
 	{
@@ -567,15 +570,15 @@ if(intval($userGroupID) > 0)
 			$arOps[] = $arOp["ID"];
 		CTask::SetOperations($new_task_id, $arOps);
 	}
-	
+
 	$rsTasks = CTask::GetList(array(), array("MODULE_ID"=>"main", "SYS"=>"N", "BINDIG"=>"module","LETTER"=>"Q"));
 	if($arTask = $rsTasks->Fetch())
 	{
 		CGroup::SetModulePermission($userGroupID, $arTask["MODULE_ID"], $arTask["ID"]);
 	}
-	
+
 	CMain::SetGroupRight("sale", $userGroupID, "U");
-	
+
 	$rsTasks = CTask::GetList(array(), array("MODULE_ID"=>"catalog", "SYS"=>"Y", "BINDIG"=>"module","LETTER"=>"T"));
 	while($arTask = $rsTasks->Fetch())
 	{
@@ -658,19 +661,19 @@ else
 if ($userGroupID > 0)
 {
 	WizardServices::SetFilePermission(Array($siteID, "/bitrix/admin"), Array($userGroupID => "R"));
-	
+
 	$rsTasks = CTask::GetList(array(), array("MODULE_ID"=>"main", "SYS"=>"Y", "BINDIG"=>"module","LETTER"=>"P"));
 	if($arTask = $rsTasks->Fetch())
 	{
 		CGroup::SetModulePermission($userGroupID, $arTask["MODULE_ID"], $arTask["ID"]);
 	}
-	
+
 	$rsTasks = CTask::GetList(array(), array("MODULE_ID"=>"fileman", "SYS"=>"Y", "BINDIG"=>"module","LETTER"=>"F"));
 	while($arTask = $rsTasks->Fetch())
 	{
 		CGroup::SetModulePermission($userGroupID, $arTask["MODULE_ID"], $arTask["ID"]);
 	}
-	
+
 	$SiteDir = "";
 	if(WIZARD_SITE_ID != "s1")
 	{

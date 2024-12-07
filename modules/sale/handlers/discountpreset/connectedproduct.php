@@ -2,7 +2,6 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
 use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
@@ -10,10 +9,6 @@ use Bitrix\Sale\Discount\Preset\ArrayHelper;
 use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\SelectProductPreset;
 use Bitrix\Sale\Discount\Preset\State;
-use Bitrix\Sale\Internals;
-
-
-Loc::loadMessages(__FILE__);
 
 class ConnectedProduct extends SelectProductPreset
 {
@@ -27,11 +22,14 @@ class ConnectedProduct extends SelectProductPreset
 	{
 		parent::init();
 
-		\CJSCore::RegisterExt('order_amount_preset', array(
-			'js' => '/bitrix/js/sale/admin/discountpreset/connected_product_preset.js',
-		));
+		\CJSCore::RegisterExt(
+			'order_amount_preset',
+			[
+				'js' => '/bitrix/js/sale/admin/discountpreset/connected_product_preset.js',
+			]
+		);
 
-		\CUtil::InitJSCore(array('order_amount_preset'));
+		\Bitrix\Main\UI\Extension::load(['order_amount_preset']);
 	}
 
 	public function getSort()
@@ -136,7 +134,7 @@ class ConnectedProduct extends SelectProductPreset
 				<tr>
 					<td class="adm-detail-content-cell-l" style="width:20%;"><strong>' . Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT') . ':</strong></td>
 					<td class="adm-detail-content-cell-r" style="width:80%;">
-						<textarea name="discount_prediction_text_act" id="discount_prediction_text_act" cols="55" rows="1" style="width: 90%; margin-top: 0px; margin-bottom: 0px; height: 50px;">' . htmlspecialcharsbx($state->get('discount_prediction_text_act', Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT_DEFAULT_ACT'))) . '</textarea>
+						<textarea name="discount_prediction_text_act" id="discount_prediction_text_act" cols="55" rows="1" style="width: 90%; margin-top: 0; margin-bottom: 0; height: 50px;">' . htmlspecialcharsbx($state->get('discount_prediction_text_act', Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT_DEFAULT_ACT'))) . '</textarea>
 						<input style="float:right" type="button" id="menu_prediction_text" value="...">
 					</td>
 				</tr>
@@ -149,7 +147,7 @@ class ConnectedProduct extends SelectProductPreset
 	{
 		if(!trim($state->get('discount_value')))
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE'));
+			$this->addErrorEmptyActionValue();
 		}
 
 		$this->validateSectionsAndProductsState($state, $this->errorCollection);
@@ -166,7 +164,7 @@ class ConnectedProduct extends SelectProductPreset
 	{
 		$this->setStepTitle(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_TITLE_DISCOUNT_WHEN'));
 		$this->setStepDescription(Loc::getMessage("SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_DESCR_WHEN_DISCOUNT"));
-		
+
 		$lid = $state->get('discount_lid');
 		$sectionCount = count($state->get('discount_cond_section', array()));
 
@@ -219,7 +217,7 @@ class ConnectedProduct extends SelectProductPreset
 				<tr>
 					<td class="adm-detail-content-cell-l" style="width:20%;"><strong>' . Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT') . ':</strong></td>
 					<td class="adm-detail-content-cell-r" style="width:80%;">
-						<textarea name="discount_prediction_text_cond" id="discount_prediction_text_cond" cols="55" rows="1" style="width: 90%; margin-top: 0px; margin-bottom: 0px; height: 50px;">' . htmlspecialcharsbx($state->get('discount_prediction_text_cond', Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT_DEFAULT_COND'))) . '</textarea>
+						<textarea name="discount_prediction_text_cond" id="discount_prediction_text_cond" cols="55" rows="1" style="width: 90%; margin-top: 0; margin-bottom: 0; height: 50px;">' . htmlspecialcharsbx($state->get('discount_prediction_text_cond', Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_CP_DISCOUNT_PREDICTION_TEXT_DEFAULT_COND'))) . '</textarea>
 						<input style="float:right" type="button" id="menu_prediction_text" value="...">
 					</td>
 				</tr>
@@ -443,7 +441,7 @@ class ConnectedProduct extends SelectProductPreset
 	{
 		$product = $state->get('discount_cond_product', array());
 		$section = $state->get('discount_cond_section', array());
-		
+
 		if($product)
 		{
 			return array($this::TYPE_PRODUCT, $product);
@@ -452,7 +450,7 @@ class ConnectedProduct extends SelectProductPreset
 		{
 			return array($this::TYPE_SECTION, $section);
 		}
-		
+
 		return null;
 	}
 
@@ -460,7 +458,7 @@ class ConnectedProduct extends SelectProductPreset
 	{
 		$product = $state->get('discount_product', array());
 		$section = $state->get('discount_section', array());
-		
+
 		if($product)
 		{
 			return array($this::TYPE_PRODUCT, $product);
@@ -469,7 +467,7 @@ class ConnectedProduct extends SelectProductPreset
 		{
 			return array($this::TYPE_SECTION, $section);
 		}
-		
+
 		return null;
 	}
 

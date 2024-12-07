@@ -8,14 +8,13 @@ this.BX = this.BX || {};
 	  }
 	};
 
-	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+	function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+	function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { babelHelpers.defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
 	var optionsKey = Symbol('options');
+
 	/**
 	 * @memberOf BX.Landing
 	 */
-
 	var Env = /*#__PURE__*/function () {
 	  babelHelpers.createClass(Env, null, [{
 	    key: "getInstance",
@@ -28,21 +27,17 @@ this.BX = this.BX || {};
 	      var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	      Env.instance = new Env(options);
 	      var parentEnv = main_core.Reflection.getClass('parent.BX.Landing.Env');
-
 	      if (parentEnv) {
 	        parentEnv.instance = Env.instance;
 	      }
-
 	      return Env.instance;
 	    }
 	  }]);
-
 	  function Env() {
 	    var options = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
 	    babelHelpers.classCallCheck(this, Env);
 	    this[optionsKey] = Object.seal(main_core.Runtime.merge(defaultOptions, options));
 	  }
-
 	  babelHelpers.createClass(Env, [{
 	    key: "getOptions",
 	    value: function getOptions() {
@@ -57,6 +52,11 @@ this.BX = this.BX || {};
 	    key: "getType",
 	    value: function getType() {
 	      return this.getOptions().params.type;
+	    }
+	  }, {
+	    key: "getSpecialType",
+	    value: function getSpecialType() {
+	      return this.getOptions().specialType;
 	    }
 	  }, {
 	    key: "getSiteId",

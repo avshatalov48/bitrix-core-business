@@ -16,22 +16,22 @@ IncludeModuleLangFile(__FILE__);
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/socialnetwork/prolog.php");
 
-// èäåíòèôèêàòîð òàáëèöû
+// Ð¸Ð´ÐµÐ½Ñ‚Ð¸Ñ„Ð¸ÐºÐ°Ñ‚Ð¾Ñ€ Ñ‚Ð°Ð±Ð»Ð¸Ñ†Ñ‹
 $sTableID = "tbl_socnet_smile";
 
-// èíèöèàëèçàöèÿ ñîðòèðîâêè
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¾Ñ€Ñ‚Ð¸Ñ€Ð¾Ð²ÐºÐ¸
 $oSort = new CAdminSorting($sTableID, "ID", "asc");
-// èíèöèàëèçàöèÿ ñïèñêà
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-// èíèöèàëèçàöèÿ ïàðàìåòðîâ ñïèñêà - ôèëüòðû
+// Ð¸Ð½Ð¸Ñ†Ð¸Ð°Ð»Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² ÑÐ¿Ð¸ÑÐºÐ° - Ñ„Ð¸Ð»ÑŒÑ‚Ñ€Ñ‹
 $arFilterFields = array();
 
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
 
-// îáðàáîòêà äåéñòâèé ãðóïïîâûõ è îäèíî÷íûõ
+// Ð¾Ð±Ñ€Ð°Ð±Ð¾Ñ‚ÐºÐ° Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ð¹ Ð³Ñ€ÑƒÐ¿Ð¿Ð¾Ð²Ñ‹Ñ… Ð¸ Ð¾Ð´Ð¸Ð½Ð¾Ñ‡Ð½Ñ‹Ñ…
 if (($arID = $lAdmin->GroupAction()) && $sonetModulePermissions >= "W")
 {
 	if ($_REQUEST['action_target']=='selected')
@@ -98,10 +98,10 @@ $dbResultList = CSocNetSmile::GetList(
 $dbResultList = new CAdminResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-// óñòàíîâêå ïàðàìåòðîâ ñïèñêà
+// ÑƒÑÑ‚Ð°Ð½Ð¾Ð²ÐºÐµ Ð¿Ð°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ð¾Ð² ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("PAGES")));
 
-// çàãîëîâîê ñïèñêà
+// Ð·Ð°Ð³Ð¾Ð»Ð¾Ð²Ð¾Ðº ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddHeaders(array(
 	array("id"=>"ID", "content"=>GetMessage("SMILE_ID"), "sort"=>"ID", "default"=>true),
 	array("id"=>"SORT","content"=>GetMessage("SMILE_SORT"), "sort"=>"SORT", "default"=>true),
@@ -113,7 +113,7 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-// ïîñòðîåíèå ñïèñêà
+// Ð¿Ð¾ÑÑ‚Ñ€Ð¾ÐµÐ½Ð¸Ðµ ÑÐ¿Ð¸ÑÐºÐ°
 while ($arSocNet = $dbResultList->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_ID, $arSocNet);
@@ -147,7 +147,7 @@ while ($arSocNet = $dbResultList->NavNext(true, "f_"))
 	$row->AddActions($arActions);
 }
 
-// "ïîäâàë" ñïèñêà
+// "Ð¿Ð¾Ð´Ð²Ð°Ð»" ÑÐ¿Ð¸ÑÐºÐ°
 $lAdmin->AddFooter(
 	array(
 		array(
@@ -162,7 +162,7 @@ $lAdmin->AddFooter(
 	)
 );
 
-// ïîêàç ôîðìû ñ êíîïêàìè äîáàâëåíèÿ, ...
+// Ð¿Ð¾ÐºÐ°Ð· Ñ„Ð¾Ñ€Ð¼Ñ‹ Ñ ÐºÐ½Ð¾Ð¿ÐºÐ°Ð¼Ð¸ Ð´Ð¾Ð±Ð°Ð²Ð»ÐµÐ½Ð¸Ñ, ...
 $lAdmin->AddGroupActionTable(
 	array(
 		"delete" => GetMessage("MAIN_ADMIN_LIST_DELETE"),
@@ -182,7 +182,7 @@ if ($sonetModulePermissions >= "W")
 	$lAdmin->AddAdminContextMenu($aContext);
 }
 
-// ïðîâåðêà íà âûâîä òîëüêî ñïèñêà (â ñëó÷àå ñïèñêà, ñêðèïò äàëüøå âûïîëíÿòüñÿ íå áóäåò)
+// Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ° Ð½Ð° Ð²Ñ‹Ð²Ð¾Ð´ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÑÐ¿Ð¸ÑÐºÐ° (Ð² ÑÐ»ÑƒÑ‡Ð°Ðµ ÑÐ¿Ð¸ÑÐºÐ°, ÑÐºÑ€Ð¸Ð¿Ñ‚ Ð´Ð°Ð»ÑŒÑˆÐµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÑÑ‚ÑŒÑÑ Ð½Ðµ Ð±ÑƒÐ´ÐµÑ‚)
 $lAdmin->CheckListMode();
 
 

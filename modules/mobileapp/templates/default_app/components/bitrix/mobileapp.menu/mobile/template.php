@@ -77,7 +77,7 @@ CJSCore::Init(array("fx"))
 
 </div>
 
-<script type="text/javascript">
+<script>
 
 	BXMSlider.setStateEnabled(BXMSlider.state.LEFT, true);
 	document.addEventListener("DOMContentLoaded", function ()

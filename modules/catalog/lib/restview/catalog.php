@@ -42,7 +42,7 @@ final class Catalog extends Base
 				'TYPE'=>DataType::TYPE_INT
 			],
 			'IBLOCK_TYPE_ID'=>[
-				'TYPE'=>DataType::TYPE_INT,
+				'TYPE'=>DataType::TYPE_STRING,
 				'ATTRIBUTES'=>[
 					Attributes::READONLY
 				]

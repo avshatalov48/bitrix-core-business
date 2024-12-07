@@ -1,0 +1,539 @@
+.inventory-management__solo.catalog-warehouse-master-clear__wrapper {
+	display: flex;
+	flex-direction: column;
+}
+
+.inventory-management__solo.catalog-warehouse-master-clear__wrapper .ui-slider-page {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 15px 15px 20px;
+}
+
+.catalog-warehouse-master-clear__wrapper.ui-page-slider-wrapper {
+	background-image: url(./../images/inventory-slider-bg.svg)!important;
+	background-position: bottom left!important;
+	background-repeat: no-repeat!important;
+	overflow-y: auto;
+}
+
+.inventory-management__solo.catalog-warehouse-master-clear__wrapper .ui-page-slider-workarea-content-padding {
+	padding: 0;
+	overflow-y: auto;
+}
+
+.catalog-warehouse-master-clear__wrapper .ui-page-slider-workarea-content-padding {
+	overflow-y: auto;
+}
+
+.inventory-management__solo.catalog-warehouse-master-clear__wrapper .ui-page-slider-workarea {
+	display: flex;
+	flex-direction: column;
+}
+
+/* region Title */
+
+.inventory-management-card-title-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	margin-block: 25px;
+}
+
+.inventory-management-card-title {
+	display: block;
+	margin-bottom: 5px;
+	font-size: var(--ui-font-size-5xl);
+	font-weight: var(--ui-font-weight-medium);
+	color: var(--ui-color-text-primary);
+	text-align: center;
+	letter-spacing: -.2px;
+}
+
+.inventory-management-card-subtitle {
+	display: block;
+	font-size: var(--ui-font-size-xl);
+	color: var(--ui-color-base-70);
+	text-align: center;
+	letter-spacing: -.4px;
+}
+
+/* endregion */
+
+/* region Card item */
+
+.inventory-management__card-box {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(400px, 445px));
+	gap: 10px;
+	font-family: var(--ui-font-family-system);
+}
+
+.inventory-management__card-item {
+	padding: 27px 30px 20px 30px;
+	min-height: 565px;
+	border-radius: var(--ui-border-radius-lg);
+	background: rgba(var(--ui-color-base-03-rgb), var(--ui-opacity-90));
+	font-family: var(--ui-font-family-system);
+	color: var(--ui-color-base-70);
+	transition: background .3s;
+	backdrop-filter: blur(6px);
+	box-sizing: border-box;
+}
+
+.inventory-management__card-item:hover,
+.inventory-management__card-item.--active {
+	background: var(--ui-color-background-primary);
+}
+
+.inventory-management__card-logo {
+	display: block;
+	margin: 0 0 28px 0;
+	width: 114px;
+	height: 20px;
+	background: url(./../images/logo-b24.svg) no-repeat;
+}
+
+.inventory-management__card-logo.--ru {
+	background: url(./../images/logo-b24-ru.svg) no-repeat;
+}
+
+.inventory-management__card-item.--1c .inventory-management__card-logo {
+	width: 40px;
+	height: 20px;
+	background: url(./../images/logo-1c.svg) no-repeat;
+}
+
+.inventory-management__card-title {
+	display: block;
+	margin: 0 0 20px 0;
+	font-size: 23px;
+	font-weight: var(--ui-font-weight-bold);
+	line-height: 27px;
+	letter-spacing: -.3px;
+	transition: color .3s;
+}
+
+.inventory-management__card-item.--inner-field .inventory-management__card-title {
+	margin-bottom: 32px;
+}
+
+.inventory-management__card-item:hover .inventory-management__card-title,
+.inventory-management__card-item.--active .inventory-management__card-title {
+	color: #151515;
+}
+
+.inventory-management__card-list {
+	margin: 0 0 20px 0;
+	padding: 0;
+}
+
+.inventory-management__card-list-item,
+.inventory-management__card-desc {
+	display: block;
+	margin-bottom: 13px;
+	list-style: none;
+	font-size: var(--ui-font-size-lg);
+	letter-spacing: -.6px;
+	transition: color .3s;
+}
+
+.inventory-management__card-list-item {
+	margin-bottom: 9px;
+}
+
+.inventory-management__card-item:hover .inventory-management__card-list-item,
+.inventory-management__card-item.--active .inventory-management__card-list-item {
+	color: var(--ui-color-base-90);
+}
+
+.inventory-management__card-list-item:last-child {
+	margin-bottom: 0;
+}
+
+.inventory-management__card-list-item .ui-icon-set {
+	position: relative;
+	top: 3px;
+	margin-right: 3px;
+	--ui-icon-set__icon-size: 19px;
+	--ui-icon-set__icon-color: var(--ui-color-base-35);
+}
+
+.inventory-management__card-item:hover .inventory-management__card-list-item .ui-icon-set,
+.inventory-management__card-item.--active .inventory-management__card-list-item .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-palette-green-50);
+}
+
+.inventory-management__card-action-box {
+	display: grid;
+	grid-template-columns: repeat(3, 1fr);
+	gap: 10px;
+	margin: 0 5px 22px 5px;
+}
+
+.inventory-management__card-action-item {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 10px 5px;
+	height: 82px;
+	background: rgba(var(--ui-color-background-primary-rgb), var(--ui-opacity-20));
+	border-radius: var(--ui-border-radius-lg);
+	font-size: var(--ui-font-size-xs);
+	text-align: center;
+	transition: background .3s, color .3s;
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .11);
+	opacity: var(--ui-opacity-80);
+	box-sizing: border-box;
+}
+
+.inventory-management__card-item:hover .inventory-management__card-action-item,
+.inventory-management__card-item.--active .inventory-management__card-action-item {
+	background: var(--ui-color-background-primary);
+	color: var(--ui-color-base-90);
+}
+
+.inventory-management__card-action-item .ui-icon-set {
+	margin-bottom: 7px;
+	height: 28px;
+	--ui-icon-set__icon-size: 24px;
+	--ui-icon-set__icon-color: var(--ui-color-palette-blue-50);
+}
+
+.inventory-management__card-item.--1c .inventory-management__card-action-item .ui-icon-set {
+	--ui-icon-set__icon-color: var(--ui-color-palette-red-45);
+}
+
+.inventory-management__card-action-text {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	min-height: 30px;
+	line-height: 14px;
+	overflow: hidden;
+	letter-spacing: -.4px;
+}
+
+.inventory-management__card-select-box {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	padding: 18px 21px 18px 18px;
+	margin: 0 5px 22px 5px;
+	height: 76px;
+	border-radius: var(--ui-border-radius-lg);
+	background: rgba(var(--ui-color-background-primary-rgb), var(--ui-opacity-20));
+	transition: background .3s;
+	opacity: var(--ui-opacity-80);
+	box-shadow: 0 1px 3px 0 rgba(0, 0, 0, .11);
+	box-sizing: border-box;
+}
+
+.inventory-management__card-item:hover .inventory-management__card-select-box,
+.inventory-management__card-item.--active .inventory-management__card-select-box {
+	background: rgba(31, 134, 255, .07);
+	box-shadow: none;
+}
+
+.inventory-management__card-select-text {
+	margin-right: 30px;
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-medium);
+	line-height: 20px;
+	color: rgba(var(--ui-color-base-50-rgb), var(--ui-opacity-70));
+	letter-spacing: -.8px;
+	transition: color .3s;
+}
+
+.inventory-management__card-item:hover .inventory-management__card-select-text,
+.inventory-management__card-item.--active .inventory-management__card-select-text {
+	color: var(--ui-color-link-primary-base);
+}
+
+.inventory-management__card-select-icon {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	min-width: 25px;
+	height: 25px;
+	border-radius: var(--ui-border-radius-circle);
+	border: 1px solid rgba(var(--ui-color-link-primary-base-rgb), var(--ui-opacity-20));
+}
+
+.inventory-management__card-item:hover .inventory-management__card-select-icon,
+.inventory-management__card-item.--active .inventory-management__card-select-icon {
+	background: var(--ui-color-palette-blue-50);
+	border: none;
+}
+
+.inventory-management__card-select-icon .ui-icon-set {
+	transition: opacity .3s;
+	opacity: 0;
+	--ui-icon-set__icon-size: 16px;
+	--ui-icon-set__icon-color: var(--ui-color-on-primary);
+}
+
+.inventory-management__card-item:hover .inventory-management__card-select-icon .ui-icon-set,
+.inventory-management__card-item.--active .inventory-management__card-select-icon .ui-icon-set {
+	opacity: 1;
+}
+
+.inventory-management__card-control-box {
+	display: flex;
+	align-items: center;
+	margin: 0 -4px 0 4px;
+	min-height: 73px;
+}
+
+.inventory-management__card-control-box .ui-btn {
+	background: var(--ui-color-background-transparent);
+	border-color: var(--ui-color-background-transparent);
+	color: var(--ui-color-base-90);
+}
+
+.inventory-management__card-item:hover .inventory-management__card-control-box .ui-btn,
+.inventory-management__card-item.--active .inventory-management__card-control-box .ui-btn {
+	background: var(--ui-btn-background);
+	border-color: var(--ui-btn-border-color);
+	color: var(--ui-btn-color);
+}
+
+.inventory-management__card-control-box .ui-btn:hover {
+	background: var(--ui-btn-background-hover)!important;
+	border-color: var(--ui-btn-border-color-hover)!important;
+	color: var(--ui-btn-color-hover)!important;
+}
+
+.inventory-management__card-help {
+	display: flex;
+	align-items: center;
+	margin: 0 24px 0 auto;
+	cursor: pointer;
+}
+
+.inventory-management__card-help-text {
+	font-size: var(--ui-font-size-xs);
+	color: var(--ui-color-base-50);
+}
+
+.inventory-management__action-hint {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	width: 115px;
+	height: 82px;
+}
+/* endregion */
+
+/* region Inner field */
+
+.inventory-management__card-item.--inner-field {
+	display: flex;
+	flex-direction: column;
+}
+
+.inventory-management__card-item-inner {
+	flex: 1;
+}
+
+.inventory-management__card-desc {
+	line-height: 21px;
+}
+
+.inventory-management__card-item.--inner-field .inventory-management__card-desc {
+	max-width: 670px;
+}
+
+.inventory-management__card-desc span {
+	font-weight: var(--ui-font-weight-semi-bold);
+}
+
+.inventory-management__card-link {
+	display: inline-block;
+	margin-bottom: 41px;
+	font-size: var(--ui-font-size-lg);
+	color: var(--ui-color-link-primary-base);
+}
+
+.inventory-management__card-item.--1c .inventory-management__card-link {
+	margin-bottom: 16px;
+}
+
+.inventory-management__popup-link,
+.inventory-management__card-link {
+	border-bottom: 1px solid rgba(32, 102, 176, .4);
+	transition: border-bottom .3s;
+}
+
+.inventory-management__card-link:hover,
+.inventory-management__popup-link:hover {
+	border-bottom: 1px solid transparent;
+}
+
+.inventory-management__popup-link.--hint-link {
+	display: inline-block;
+	margin: 0;
+	font-size: var(--ui-font-size-sm);
+	color: #2fc6f6;
+	border-bottom: 1px solid rgba(47, 198, 246, .4);
+}
+
+.inventory-management__popup-link.--hint-link:hover {
+	border-bottom: 1px solid rgba(47, 198, 246, 1);
+}
+
+.inventory-management__card-select-field {
+	margin-bottom: 33px;
+	max-width: 670px;
+}
+
+.inventory-management__card-select-title, .inventory-management__card-select-title-wo-star {
+	display: block;
+	margin-bottom: 5px;
+	font-size: var(--ui-font-size-sm);
+	color: var(--ui-color-base-90);
+	opacity: var(--ui-opacity-50);
+}
+
+.inventory-management__card-select-title:after {
+	content: '*';
+	font-size: var(--ui-font-size-sm);
+	color: var(--ui-color-text-alert);
+}
+
+.inventory-management__card-limit {
+	display: flex;
+	align-items: center;
+}
+
+.inventory-management__card-limit-text {
+	font-size: var(--ui-font-size-md);
+	font-weight: var(--ui-font-weight-bold);
+	color: var(--ui-color-base-90);
+}
+
+.inventory-management__card-limit .inventory-management__icon-hint {
+	height: 23px;
+}
+
+.inventory-management__card-footer {
+	position: relative;
+}
+
+.inventory-management__card-footer .inventory-management__icon-hint {
+	position: absolute;
+	top: 50%;
+	right: 0;
+	transform: translateY(-50%);
+}
+
+.bx-win .inventory-management__card-limit-text .inventory-management__icon-hint {
+	position: relative;
+	top: 2px;
+}
+
+/* endregion */
+
+/* region Popup */
+
+.inventory-management__popup {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding-inline: 20px;
+	font-family: var(--ui-font-family-system);
+}
+
+.inventory-management__popup-icon {
+	display: block;
+	margin: 7px 0 12px 0;
+	width: 120px;
+	height: 120px;
+	background: url(./../images/popup-icon.svg) no-repeat;
+}
+
+.inventory-management__popup-title {
+	display: block;
+	margin: 0 0 24px 0;
+	font-size: 23px;
+	font-weight: var(--ui-font-weight-bold);
+	line-height: 27px;
+	letter-spacing: -.3px;
+	text-align: center;
+}
+
+.inventory-management__popup-text {
+	display: block;
+	margin-bottom: 13px;
+	font-size: var(--ui-font-size-lg);
+	color: var(--ui-color-base-90);
+	line-height: 21px;
+	text-align: center;
+	letter-spacing: -.6px;
+}
+
+.inventory-management__popup-text.--no-margin {
+	margin-bottom: 0;
+}
+
+.inventory-management__popup-link {
+	display: inline-block;
+	margin-bottom: 32px;
+	font-size: var(--ui-font-size-lg);
+	color: var(--ui-color-link-primary-base);
+}
+
+/* endregion */
+
+/* region Solo */
+
+.inventory-management__card-box-solo {
+	position: relative;
+	display: flex;
+	justify-content: center;
+	margin-top: 74px;
+	padding-block: 40px;
+}
+
+.inventory-management__card-solo-icon {
+	position: absolute;
+	top: 49%;
+	left: 86px;
+	display: block;
+	width: 314px;
+	height: 623px;
+	background: url(./../images/card-eng.png) no-repeat;
+	background-size: 320px 628px;
+	transform: translateY(-50%);
+	z-index: 2;
+}
+
+.inventory-management__card-solo-icon.--ru {
+	background: url(./../images/card.png) no-repeat;
+	background-size: 320px 628px;
+}
+
+.inventory-management__card-box-solo .inventory-management__card-item {
+	margin-left: 323px;
+	padding: 33px 28px 20px 58px;
+	max-width: 470px;
+	border-radius: 0 var(--ui-border-radius-lg) var(--ui-border-radius-lg) 0;
+}
+
+.inventory-management__card-logo {
+	margin-bottom: 20px;
+}
+
+.inventory-management__card-title {
+	margin-bottom: 27px;
+}
+
+.inventory-management__card-list {
+	margin-left: -2px;
+}
+
+/* endregion */

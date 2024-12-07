@@ -253,7 +253,7 @@ final class CurrencyClassifier
 	}
 
 	/**
-	 * Fill thousand separator description.
+	 * Fill a thousand separator description.
 	 *
 	 * @param array $languageIds
 	 * @return void

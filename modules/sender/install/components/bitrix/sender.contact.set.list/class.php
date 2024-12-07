@@ -56,7 +56,6 @@ class SenderContactSetListComponent extends \CBitrixComponent
 		{
 			case 'edit':
 				$editFields = $this->request->get('FIELDS');
-				$editFields = \Bitrix\Main\Text\Encoding::convertEncoding($editFields, 'UTF-8', LANG_CHARSET);
 				if (!is_array($editFields))
 				{
 					$editFields = [];

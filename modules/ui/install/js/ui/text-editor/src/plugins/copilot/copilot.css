@@ -1,0 +1,12 @@
+@keyframes ui-text-editor-copilot-loading {
+	from {
+		transform: rotate(0deg);
+	}
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.ui-text-editor-copilot-loading {
+	animation: ui-text-editor-copilot-loading 2s linear infinite;
+}

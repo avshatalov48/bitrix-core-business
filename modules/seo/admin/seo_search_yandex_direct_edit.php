@@ -647,7 +647,7 @@ if(!$bReadOnly)
 			$v = $config['type'] == 'float' ? doubleval($v) : intval($v);
 ?>
 	<tr<?=$config['mandatory'] ? ' class="adm-detail-required-field"' : ''?>>
-		<td><?=Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.ToUpper($param))?></td>
+		<td><?=Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.mb_strtoupper($param))?></td>
 		<td><input type="text" name="STRATEGY_SETTINGS[<?=$strategy?>][<?=$param?>]"
 				value="<?=$v === 0 ? '' : $v?>" size="5" id="param_<?=$key?>_<?=$param?>"> <?=($config['type'] === 'float')?$clientCurrency:'';?></td>
 	</tr>
@@ -667,7 +667,7 @@ elseif($strategyKey)
 		$v = $config['type'] == 'float' ? doubleval($v) : intval($v);
 ?>
 		<tr<?=$config['mandatory'] ? ' class="adm-detail-required-field"' : ''?>>
-			<td><?=Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.ToUpper($param))?></td>
+			<td><?=Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.mb_strtoupper($param))?></td>
 			<td><b><?=$v === 0 ? '' : $v?></b></td>
 		</tr>
 <?
@@ -1058,7 +1058,7 @@ if(!$bReadOnly): ?>
 	<? endif; ?>
 		<input type="hidden" name="ID" value="<?=$ID?>">
 	
-	<script type="text/javascript">
+	<script>
 		function showStrategyParams(key)
 		{
 			<? foreach (Adv\YandexCampaignTable::$supportedStrategy as $key => $strategy): ?>
@@ -1087,7 +1087,7 @@ if(!$bReadOnly): ?>
 <?endif; ?>
 
 <?if($bAllowUpdate):?>
-	<script type="text/javascript">
+	<script>
 		function updateCampaign(btn, campaignId)
 		{
 			if(!!btn._innerHTML)

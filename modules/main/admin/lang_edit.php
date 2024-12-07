@@ -1,9 +1,9 @@
-<?
+<?php
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 /**
@@ -14,6 +14,7 @@
 
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "settings/lang_edit.php");
@@ -205,12 +206,12 @@ while($cult = $cultureRes->fetch())
 	$cultures[] = $cult;
 }
 ?>
-<script type="text/javascript">
+<script>
 function BXSetCulture()
 {
 	var selObj = BX('bx_culture_select');
 	var form = selObj.form;
-	var cultures = <?=CUtil::PhpToJSObject($cultures)?>;
+	var cultures = <?= Json::encode($cultures) ?>;
 	//noinspection JSUnusedAssignment
 	var culture = cultures[selObj.selectedIndex];
 

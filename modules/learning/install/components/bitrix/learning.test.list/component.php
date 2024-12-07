@@ -52,7 +52,7 @@ if ((int) $arParams["TESTS_PER_PAGE"] > 0)
 }
 
 
-if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 {
 	$arFilter = array(
 		"COURSE_ID"         => $arParams["COURSE_ID"],
@@ -67,7 +67,7 @@ else
 		$arFilter = array();
 
 	$arWhiteList = array(
-		'ID', 'SORT', 'ATTEMPT_LIMIT', 'TIME_LIMIT', 'NAME', 'DESCRIPTION', 
+		'ID', 'SORT', 'ATTEMPT_LIMIT', 'TIME_LIMIT', 'NAME', 'DESCRIPTION',
 		'APPROVED', 'INCLUDE_SELF_TEST', 'RANDOM_ANSWERS', 'RANDOM_QUESTIONS',
 		'QUESTIONS_FROM', 'QUESTIONS_FROM_ID', 'PASSAGE_TYPE'
 	);
@@ -96,7 +96,7 @@ $arResult["NAV_RESULT"] = $rsTest;
 
 while($arTest = $rsTest->GetNext())
 {
-	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+	// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 	// can be changed in future without any notifications.
 	if (isset($arTest['DESCRIPTION']))
 	{
@@ -114,9 +114,6 @@ while($arTest = $rsTest->GetNext())
 			"COURSE_ID" => $arTest["COURSE_ID"],
 		)
 	);
-
-	if ($_SERVER['REDIRECT_STATUS'] == '404' || isset($_REQUEST["SEF_APPLICATION_CUR_PAGE_URL"]))
-		$arTest["TEST_DETAIL_URL"] = "/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=".urlencode($arTest["TEST_DETAIL_URL"]);
 
 	//Unfinished attempt exists?
 	$arTest["ATTEMPT"] = false;
@@ -139,7 +136,7 @@ while($arTest = $rsTest->GetNext())
 	if ($arTest["PREVIOUS_TEST_ID"] > 0 && $arTest["PREVIOUS_TEST_SCORE"] > 0)
 	{
 		$rsPrevTest = CTest::GetList(
-			array(), 
+			array(),
 			array(
 				"ID" => $arTest["PREVIOUS_TEST_ID"],
 				'CHECK_PERMISSIONS' => 'N'

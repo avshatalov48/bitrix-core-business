@@ -49,14 +49,14 @@ class ResultSerializable
 			}
 		}
 
-		$result['CHARSET'] = ToUpper(SITE_CHARSET);
+		$result['CHARSET'] = mb_strtoupper(SITE_CHARSET);
 
 		return $result;
 	}
 
 	public function __unserialize(array $vars): void
 	{
-		$isNeedRecode = !empty($vars['CHARSET']) && $vars['CHARSET'] != ToUpper(SITE_CHARSET);
+		$isNeedRecode = !empty($vars['CHARSET']) && $vars['CHARSET'] != mb_strtoupper(SITE_CHARSET);
 		$this->errors = new ErrorCollection();
 
 		foreach($vars as $name => $value)

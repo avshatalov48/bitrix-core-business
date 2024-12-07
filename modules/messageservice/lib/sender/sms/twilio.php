@@ -1,7 +1,6 @@
 <?php
 namespace Bitrix\MessageService\Sender\Sms;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
@@ -276,13 +275,6 @@ class Twilio extends Sender\BaseConfigurable
 		}
 
 		$httpClient->setAuthorization($sid, $token);
-
-		$isUtf = Application::getInstance()->isUtfMode();
-
-		if (!$isUtf)
-		{
-			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-		}
 
 		$result = new Sender\Result\HttpRequestResult();
 		$answer = array();

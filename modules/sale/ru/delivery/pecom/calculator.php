@@ -78,9 +78,6 @@ class Calculator
 
 		if(is_array($arInfo) && !empty($arInfo))
 		{
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$arInfo = \Bitrix\Main\Text\Encoding::convertEncodingArray($arInfo, 'UTF-8', SITE_CHARSET);
-
 			if(isset($arInfo[$this->profileId][2]))
 			{
 				$price = 0;
@@ -128,9 +125,6 @@ class Calculator
 				if(isset($arInfo["error"]))
 				{
 					$error = implode("<br>", $arInfo["error"]);
-
-					if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-						$error = $APPLICATION->ConvertCharset($error, 'utf-8', SITE_CHARSET);
 				}
 				else
 				{

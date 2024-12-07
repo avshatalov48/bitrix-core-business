@@ -460,7 +460,7 @@ $APPLICATION->SetTitle($archive ? Loc::getMessage("SEO_YANDEX_DIRECT_TITLE_ARCHI
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 ?>
-<script type="text/javascript">
+<script>
 function updateCampaign(btn, campaignId)
 {
 	if(btn.type == 'button')

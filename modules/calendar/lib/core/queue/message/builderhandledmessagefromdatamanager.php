@@ -24,8 +24,14 @@ class BuilderHandledMessageFromDataManager implements Builder
 	 */
 	public function build(): ?HandledMessage
 	{
+		if (empty($this->data->getMessage()) || empty($this->data->getQueueId()))
+		{
+			return null;
+		}
+
 		$message = (new BuilderMessageFromDataManager($this->data->getMessage()))->build();
 		$queue = (new QueueFactory())->getById($this->data->getQueueId());
+
 		return (new HandledMessage())
 			->setId($this->data->getId())
 			->setMessage($message)

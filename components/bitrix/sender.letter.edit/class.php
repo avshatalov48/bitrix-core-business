@@ -246,7 +246,6 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 			return;
 		}
 
-
 		$templateType = $this->letter->get('TEMPLATE_TYPE');
 		$templateId = $this->letter->get('TEMPLATE_ID');
 		$message = $this->request->get('CONFIGURATION_MESSAGE');
@@ -312,11 +311,8 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		}
 		$this->letter->mergeData($data);
 
-		// copy template
-		if ($this->errors->isEmpty())
-		{
-			$this->preparePostSaveAsTemplate();
-		}
+		$configuration = $this->letter->getMessage()->getConfiguration();
+		$configuration->set('save_as_template', $this->request->get('save_as_template'));
 
 		// add message
 		if ($this->errors->isEmpty())
@@ -333,6 +329,12 @@ class SenderLetterEditComponent extends Bitrix\Sender\Internals\CommonSenderComp
 		{
 			$this->errors->add($this->letter->getErrors());
 			return;
+		}
+
+		// copy template
+		if ($this->errors->isEmpty())
+		{
+			$this->preparePostSaveAsTemplate();
 		}
 
 		// redirect

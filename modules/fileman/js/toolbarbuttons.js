@@ -57,7 +57,7 @@ arButtons['pasteword']	=	['BXButton', {'src': '/bitrix/images/fileman/htmledit2/
 arButtons['new']	=	['BXButton', {'src': '/bitrix/images/fileman/htmledit2/new.gif', 'codeEditorMode': true, 'name': BX_MESS.TBNewPage,
 							'handler': function ()
 							{
-								if(this.pMainObj.bNotSaved && !confirm("Документ был изменен. При создании нового документа, все изменения будут утеряны. Продолжить?"))
+								if(this.pMainObj.bNotSaved && !confirm("Р”РѕРєСѓРјРµРЅС‚ Р±С‹Р» РёР·РјРµРЅРµРЅ. РџСЂРё СЃРѕР·РґР°РЅРёРё РЅРѕРІРѕРіРѕ РґРѕРєСѓРјРµРЅС‚Р°, РІСЃРµ РёР·РјРµРЅРµРЅРёСЏ Р±СѓРґСѓС‚ СѓС‚РµСЂСЏРЅС‹. РџСЂРѕРґРѕР»Р¶РёС‚СЊ?"))
 									return;
 
 							}
@@ -516,7 +516,7 @@ arCMButtons["TD"] = [
 var arToolbars = Array();
 /*
 arToolbars['manage'] = [
-	'Управление и настройки',
+	'РЈРїСЂР°РІР»РµРЅРёРµ Рё РЅР°СЃС‚СЂРѕР№РєРё',
 		[ arButtons['exit'],
 		'separator', arButtons['new'], arButtons['save'], arButtons['saveas'],
 		'separator', arButtons['pageprops'],
@@ -581,7 +581,7 @@ arToolbars['template'] = [
 
 /*
 arToolbars['table'] = [
-	'Таблица',
+	'РўР°Р±Р»РёС†Р°',
 	['insrow', 'delrow', 'inscol', 'delcol', 'inscell', 'delcell', 'mergecell', 'splitcell']
 	];
 */

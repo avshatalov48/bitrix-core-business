@@ -19,6 +19,8 @@ use Bitrix\Crm;
  */
 final class State
 {
+	private const EXTERNAL_CATALOG_OPTION = 'is_external_catalog';
+
 	/** @var array */
 	private static $landingSections;
 	/** @var array */
@@ -39,7 +41,7 @@ final class State
 	 */
 	public static function isUsedInventoryManagement(): bool
 	{
-		if (!Feature::isInventoryManagementEnabled())
+		if (!Feature::checkInventoryManagementFeatureByCurrentMode())
 		{
 			return false;
 		}
@@ -52,9 +54,19 @@ final class State
 	 *
 	 * @return bool
 	 */
-	public final static function isEnabledInventoryManagement(): bool
+	final public static function isEnabledInventoryManagement(): bool
 	{
 		return (Main\Config\Option::get('catalog', 'default_use_store_control') === 'Y');
+	}
+
+	final public static function isExternalCatalog(): bool
+	{
+		return Main\Config\Option::get('catalog', self::EXTERNAL_CATALOG_OPTION, 'N') === 'Y';
+	}
+
+	final public static function setIsExternalCatalog(bool $isEnabled): void
+	{
+		Main\Config\Option::set('catalog', self::EXTERNAL_CATALOG_OPTION, $isEnabled ? 'Y' : 'N');
 	}
 
 	/**

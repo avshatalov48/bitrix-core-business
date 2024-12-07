@@ -1,4 +1,4 @@
-<?
+<?php
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/include.php");
 
@@ -25,7 +25,7 @@ $USER_FIELD_MANAGER->AdminListAddFilterFields("TIMETABLE", $arFilterFields);
 $lAdmin->InitFilter($arFilterFields);
 
 $arFilter = array();
-if (strlen($filter_name) > 0)
+if ($filter_name <> '')
 {
 	$arFilter["~NAME"] = "%".$filter_name."%";
 }
@@ -44,7 +44,7 @@ if(($arID = $lAdmin->GroupAction()))
 
 	foreach ($arID as $ID)
 	{
-		if (strlen($ID) <= 0)
+		if ($ID == '')
 		{
 			continue;
 		}

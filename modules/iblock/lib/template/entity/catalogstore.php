@@ -33,7 +33,9 @@ class CatalogStore extends Base
 		if (intval($entity) > 0)
 		{
 			if (\Bitrix\Main\Loader::includeModule('catalog'))
-				return new CatalogStore(intval($entity));
+			{
+				return CatalogStore::getInstance(intval($entity));
+			}
 		}
 		return parent::resolve($entity);
 	}

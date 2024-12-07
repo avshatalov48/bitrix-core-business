@@ -6,7 +6,7 @@ import { Type } from 'main.core';
 
 import { Button as ButtonComponent, ButtonSize, ButtonIcon } from 'im.v2.component.elements';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { MessageHeader, DefaultMessageContent, ReactionSelector } from 'im.v2.component.message.elements';
+import { MessageHeader, DefaultMessageContent } from 'im.v2.component.message.elements';
 import { Utils } from 'im.v2.lib.utils';
 
 import './css/call-invite.css';
@@ -26,7 +26,6 @@ export const CallInviteMessage = {
 	components: {
 		ButtonComponent,
 		BaseMessage,
-		ReactionSelector,
 		DefaultMessageContent,
 		MessageHeader,
 	},
@@ -146,7 +145,6 @@ export const CallInviteMessage = {
 					</div>
 				</div>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" :withAttach="false" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>
 	`,

@@ -42,7 +42,6 @@ class BundleCollection extends BasketItemCollection
 	/**
 	 * @param CollectableEntity $item
 	 * @return CollectableEntity
-	 * @throws Main\ArgumentTypeException
 	 */
 	public function addItem(CollectableEntity $item)
 	{

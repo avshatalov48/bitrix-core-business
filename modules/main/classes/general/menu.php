@@ -278,9 +278,9 @@ class CMenu
 			if(!$bSkipMenuItem)
 				$ITEM_INDEX++;
 
-			if(($pos = mb_strpos($LINK, "?"))!==false)
+			if((mb_strpos($LINK, "?"))!==false)
 				$ITEM_TYPE = "U";
-			elseif(mb_substr($LINK, -1) == "/")
+			elseif(str_ends_with($LINK, "/"))
 				$ITEM_TYPE = "D";
 			else
 				$ITEM_TYPE = "P";

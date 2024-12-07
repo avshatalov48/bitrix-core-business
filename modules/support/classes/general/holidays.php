@@ -22,17 +22,10 @@ class CSupportHolidays
 	const table_s2h = "b_ticket_sla_2_holidays";
 	const table_sla = "b_ticket_sla";
 	
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $module_id . "/install/version.php");
-		return "<br>Module: " . $module_id . " <br>Class: CSupportHolidays<br>File: " . __FILE__;
-	}
-	
 	public static function Set($arFields, $arFieldsSLA) //$arFields, $arFieldsSLA = array(0 => array("HOLIDAYS_ID" => 1, "SLA_ID" => 1), 1 => array("HOLIDAYS_ID" => 2, "SLA_ID" => 2) ...)
 	{
 		global $DB, $APPLICATION;
-		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
+
 		$isDemo = null;
 		$isSupportClient = null;
 		$isSupportTeam = null;
@@ -104,12 +97,12 @@ class CSupportHolidays
 		{
 			if($isNew)
 			{
-				$res = $DB->Insert($table, $arFields_i, $err_mess . __LINE__);
+				$res = $DB->Insert($table, $arFields_i);
 				$f->ID = $res;
 			}
 			else
 			{
-				$res = $DB->Update($table, $arFields_i, "WHERE ID=" . $f->ID . "", $err_mess . __LINE__);
+				$res = $DB->Update($table, $arFields_i, "WHERE ID=" . $f->ID . "");
 			}
 		}
 		
@@ -119,7 +112,7 @@ class CSupportHolidays
 			return false;
 		}
 		
-		$DB->Query("DELETE FROM $table_s2h WHERE HOLIDAYS_ID = " . $f->ID, false, $err_mess . __LINE__);
+		$DB->Query("DELETE FROM $table_s2h WHERE HOLIDAYS_ID = " . $f->ID);
 		$f_s->ResetNext();
 		while($f_s->Next())
 		{
@@ -127,7 +120,7 @@ class CSupportHolidays
 			if($f_s->SLA_ID > 0)
 			{
 				$strSql = "INSERT INTO " . $table_s2h . "(SLA_ID, HOLIDAYS_ID) VALUES (" . $f_s->SLA_ID . ", " . $f_s->HOLIDAYS_ID . ")";
-				$res = $DB->Query($strSql, false, $err_mess . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 		}
 		
@@ -139,9 +132,8 @@ class CSupportHolidays
 	// get Holidays list
 	public static function GetList($arSort, $arFilter)
 	{
-	
-		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $APPLICATION;
+
 		$filter_keys = array_keys($arFilter);
 		$table = self::table;
 		$table_s2h = self::table_s2h;
@@ -225,15 +217,15 @@ class CSupportHolidays
 			$strSqlSearch
 			$strSqlOrder
 		";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		return $rs;
 	}
 	
 	// get Holidays list
 	public static function GetSLAByID($id, $needObj = false)
 	{
-		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
-		global $DB, $USER, $APPLICATION;		
+		global $DB, $USER, $APPLICATION;
+
 		$table_s2h = self::table_s2h;
 		$table_sla = self::table_sla;
 		$id = intval($id);
@@ -251,7 +243,7 @@ class CSupportHolidays
 			ORDER BY
 				SLA.NAME
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		if(!$needObj) return $res;
 		$f_s = new CSupportTableFields(self::$sla2holidays, CSupportTableFields::C_Table);
 		$f_s->RemoveExistingRows();
@@ -293,7 +285,6 @@ class CSupportHolidays
 	// delete Holiday
 	public static function Delete($id, $checkRights=true)
 	{
-		$err_mess = (self::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$id = intval($id);
 		$table = self::table;
@@ -329,8 +320,8 @@ class CSupportHolidays
 		}
 
 		// delete
-		$DB->Query("DELETE FROM $table WHERE ID = $id", false, $err_mess . __LINE__);
-		$DB->Query("DELETE FROM $table_s2h WHERE HOLIDAYS_ID = $id", false, $err_mess . __LINE__);
+		$DB->Query("DELETE FROM $table WHERE ID = $id");
+		$DB->Query("DELETE FROM $table_s2h WHERE HOLIDAYS_ID = $id");
 
 		// recalculate only affected sla
 		CSupportTimetableCache::toCache(array("SLA_ID" => $affected_sla));

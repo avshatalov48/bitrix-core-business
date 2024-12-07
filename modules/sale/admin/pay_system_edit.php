@@ -597,7 +597,7 @@ $contextMenu->Show();
 <?if ($errorMessage !== '')
 	CAdminMessage::ShowMessage(array("DETAILS"=>$errorMessage, "TYPE"=>"ERROR", "MESSAGE"=>Loc::getMessage("SPSN_ERROR"), "HTML"=>true));?>
 
-<script language="JavaScript">
+<script>
 function setLHEClass(lheDivId)
 {
 	BX.ready(
@@ -687,10 +687,10 @@ $tabControl->BeginNextTab();
 					<optgroup label="<?=Loc::getMessage("SPS_ACT_USER");?>">
 						<?foreach($handlerList['USER'] as $handler => $title): ?>
 							<?
-								if (ToLower($handlerName) == ToLower($handler))
+								if (mb_strtolower($handlerName) == mb_strtolower($handler))
 									$selected = true;
 							?>
-							<option value="<?=htmlspecialcharsbx($handler) ?>"<?=(ToLower($handlerName) == ToLower($handler)) ? " selected" : '';?>>
+							<option value="<?=htmlspecialcharsbx($handler) ?>"<?=(mb_strtolower($handlerName) == mb_strtolower($handler)) ? " selected" : '';?>>
 								<?=htmlspecialcharsbx($title);?>
 							</option>
 						<?endforeach;?>
@@ -700,7 +700,7 @@ $tabControl->BeginNextTab();
 					<?
 					foreach($mainHandlers as $handler):?>
 						<?if (isset($handlerList['SYSTEM'][$handler])):?>
-							<option value="<?=htmlspecialcharsbx($handler) ?>"<?=((!$selected && ToLower($handlerName) == ToLower($handler)) ? " selected" : '');?>>
+							<option value="<?=htmlspecialcharsbx($handler) ?>"<?=((!$selected && mb_strtolower($handlerName) == mb_strtolower($handler)) ? " selected" : '');?>>
 								<?=htmlspecialcharsEx($handlerList['SYSTEM'][$handler]) ?>
 							</option>
 							<?unset($handlerList['SYSTEM'][$handler])?>
@@ -718,14 +718,14 @@ $tabControl->BeginNextTab();
 								|| (
 									IsModuleInstalled('documentgenerator')
 									&& mb_strpos($handler, 'bill') === 0
-									&& ToLower($handlerName) !== ToLower($handler)
+									&& mb_strtolower($handlerName) !== mb_strtolower($handler)
 								)
 							)
 							{
 								continue;
 							}
 						?>
-						<option value="<?=htmlspecialcharsbx($handler) ?>"<?=((!$selected && ToLower($handlerName) == ToLower($handler)) ? " selected" : '');?>>
+						<option value="<?=htmlspecialcharsbx($handler) ?>"<?=((!$selected && mb_strtolower($handlerName) == mb_strtolower($handler)) ? " selected" : '');?>>
 							<?=htmlspecialcharsEx($title) ?>
 						</option>
 					<?endforeach;?>
@@ -877,7 +877,7 @@ $tabControl->BeginNextTab();
 				$description = $CBXSanitizer->SanitizeHtml($description);
 			?>
 			<?=wrapDescrLHE("DESCRIPTION", $description, "hndl_dscr_".$id);?>
-			<script language="JavaScript">setLHEClass('bxlhe_frame_hndl_dscr_<?=$id;?>'); </script>
+			<script>setLHEClass('bxlhe_frame_hndl_dscr_<?=$id;?>'); </script>
 		</td>
 	</tr>
 	<tr>
@@ -1107,7 +1107,7 @@ $tabControl->BeginNextTab();
 					$tariffBlock .= CSaleHelper::getAdminMultilineControl($arMultiControlQuery);
 
 				echo $tariffBlock;
-				echo "<script type=\"text/javascript\">BX.Sale.PaySystem.initTariffLoad();</script>";
+				echo "<script>BX.Sale.PaySystem.initTariffLoad();</script>";
 			}
 		?>
 	</tbody>
@@ -1212,7 +1212,7 @@ $tabControl->Buttons(array("disabled" => ($saleModulePermissions < "W"), "back_u
 $tabControl->End();
 ?>
 </form>
-<script language="JavaScript">
+<script>
 	BX.message({
 		SALE_RDL_RESTRICTION: '<?=Loc::getMessage("SALE_RDL_RESTRICTION")?>',
 		SALE_RDL_SAVE: '<?=Loc::getMessage("SALE_RDL_SAVE")?>',

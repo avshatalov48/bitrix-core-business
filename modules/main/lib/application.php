@@ -691,22 +691,14 @@ abstract class Application
 	}
 
 	/**
-	 * Returns true id server is in utf-8 mode. False - otherwise.
+	 * Returns true if server is in UTF-8 mode. False - otherwise.
 	 *
-	 * @return bool
+	 * @deprecated Always returns true.
+	 * @return true
 	 */
 	public static function isUtfMode()
 	{
-		static $isUtfMode = null;
-		if ($isUtfMode === null)
-		{
-			$isUtfMode = Config\Configuration::getValue("utf_mode");
-			if ($isUtfMode === null)
-			{
-				$isUtfMode = false;
-			}
-		}
-		return $isUtfMode;
+		return true;
 	}
 
 	/**
@@ -786,10 +778,6 @@ abstract class Application
 			{
 				opcache_reset();
 			}
-		}
-		elseif (function_exists("wincache_refresh_if_changed"))
-		{
-			wincache_refresh_if_changed();
 		}
 	}
 

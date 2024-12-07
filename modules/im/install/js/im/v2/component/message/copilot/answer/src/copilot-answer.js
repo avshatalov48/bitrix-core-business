@@ -1,11 +1,10 @@
 import 'ui.notification';
 import { Dom, Loc, Type } from 'main.core';
 
+import { Utils } from 'im.v2.lib.utils';
 import { Parser } from 'im.v2.lib.parser';
 import { BaseMessage } from 'im.v2.component.message.base';
-import { DefaultMessageContent, MessageStatus } from 'im.v2.component.message.elements';
-
-import { CopilotAuthorTitle } from './components/copilot-author-title';
+import { ReactionList, MessageStatus, AuthorTitle } from 'im.v2.component.message.elements';
 
 import './css/copilot-answer.css';
 
@@ -14,7 +13,7 @@ import type { ImModelMessage } from 'im.v2.model';
 // @vue/component
 export const CopilotMessage = {
 	name: 'CopilotMessage',
-	components: { CopilotAuthorTitle, BaseMessage, DefaultMessageContent, MessageStatus },
+	components: { AuthorTitle, BaseMessage, ReactionList, MessageStatus },
 	props:
 	{
 		item: {
@@ -65,14 +64,12 @@ export const CopilotMessage = {
 	},
 	methods:
 	{
-		onCopyClick()
+		async onCopyClick()
 		{
-			if (BX.clipboard?.copy(this.message.text))
-			{
-				BX.UI.Notification.Center.notify({
-					content: Loc.getMessage('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY_SUCCESS'),
-				});
-			}
+			await Utils.text.copyToClipboard(this.message.text);
+			BX.UI.Notification.Center.notify({
+				content: Loc.getMessage('IM_MESSAGE_COPILOT_ANSWER_ACTION_COPY_SUCCESS'),
+			});
 		},
 		onWarningDetailsClick(event: PointerEvent)
 		{
@@ -92,9 +89,15 @@ export const CopilotMessage = {
 	template: `
 		<BaseMessage :item="item" :dialogId="dialogId" class="bx-im-message-copilot-base-message__container">
 			<div class="bx-im-message-default__container bx-im-message-copilot-answer__container" :class="{'--error': isError}">
-				<CopilotAuthorTitle v-if="withTitle" :item="item" />
+				<AuthorTitle v-if="withTitle" :item="item" />
 				<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
 					<div class="bx-im-message-default-content__text" v-html="formattedText"></div>
+					<ReactionList
+						v-if="canSetReactions"
+						:messageId="message.id"
+						:contextDialogId="dialogId"
+						class="bx-im-message-default-content__reaction-list"
+					/>
 					<div v-if="isError" class="bx-im-message-default-content__bottom-panel">
 						<div class="bx-im-message-default-content__status-container">
 							<MessageStatus :item="message" />

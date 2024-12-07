@@ -9,7 +9,6 @@ $MESS ['SALE_DELIVERY_REQ_VIEW_TITLE'] = "Просмотр транспортн�
 $MESS ['SALE_DELIVERY_REQ_VIEW_TO_LIST'] = "К списку";
 $MESS ['SALE_DELIVERY_REQ_VIEW_DELETE'] = "Удалить заявку";
 $MESS ['SALE_DELIVERY_REQ_VIEW_ACTIONS'] = "Действия";
-$MESS ['SALE_DELIVERY_REQ_VIEW_ERROR'] = "Ошибка";
 $MESS ['SALE_DELIVERY_REQ_VIEW_F_ID'] = "Идентификатор";
 $MESS ['SALE_DELIVERY_REQ_VIEW_F_DATE_INSERT'] = "Дата и время создания";
 $MESS ['SALE_DELIVERY_REQ_VIEW_F_DELIVERY_IDT'] = "Служба доставки";

@@ -229,10 +229,12 @@ class CIMMessageParam
 		$sql = "
 			SELECT 
 				C.ID as CHAT_ID, 
+				C.PARENT_ID as CHAT_PARENT_ID,
 				C.TYPE as MESSAGE_TYPE, 
 				M.AUTHOR_ID, 
 				C.ENTITY_TYPE as CHAT_ENTITY_TYPE, 
-				C.ENTITY_ID as CHAT_ENTITY_ID
+				C.ENTITY_ID as CHAT_ENTITY_ID,
+				C.LAST_MESSAGE_ID as CHAT_LAST_MESSAGE_ID
 			FROM b_im_message M INNER JOIN b_im_chat C ON M.CHAT_ID = C.ID
 			WHERE M.ID = ".$messageId."
 		";
@@ -295,22 +297,29 @@ class CIMMessageParam
 
 		$arMessages = CIMMessageLink::prepareShow($arMessages, $params);
 		$arPullMessage['params'] = CIMMessenger::PrepareParamsForPull($arMessages[$messageId]['params']);
-
-		\Bitrix\Pull\Event::add(array_keys($relations), Array(
+		$pull = [
 			'module_id' => 'im',
 			'command' => 'messageParamsUpdate',
 			'params' => $arPullMessage,
 			'extra' => \Bitrix\Im\Common::getPullExtra()
-		));
+		];
 
-		if ($messageData['MESSAGE_TYPE'] == IM_MESSAGE_OPEN || $messageData['MESSAGE_TYPE'] == IM_MESSAGE_OPEN_LINE)
+		if ($messageData['MESSAGE_TYPE'] === IM\V2\Chat::IM_TYPE_COMMENT)
 		{
-			CPullWatch::AddToStack('IM_PUBLIC_'.$messageData['CHAT_ID'], Array(
-				'module_id' => 'im',
-				'command' => 'messageParamsUpdate',
-				'params' => $arPullMessage,
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
+			CPullWatch::AddToStack('IM_PUBLIC_COMMENT_'.$messageData['CHAT_PARENT_ID'], $pull);
+		}
+		else
+		{
+			\Bitrix\Pull\Event::add(array_keys($relations), $pull);
+		}
+
+		if (CIMMessenger::needToSendPublicPull($messageData['MESSAGE_TYPE']))
+		{
+			CPullWatch::AddToStack('IM_PUBLIC_'.$messageData['CHAT_ID'], $pull);
+		}
+		if ($messageData['MESSAGE_TYPE'] === IM\V2\Chat::IM_TYPE_OPEN_CHANNEL && (int)$messageId === (int)$messageData['CHAT_LAST_MESSAGE_ID'])
+		{
+			IM\V2\Chat\OpenChannelChat::sendSharedPull($pull);
 		}
 
 		return true;
@@ -782,6 +791,11 @@ class CIMMessageParamAttach
 		}
 	}
 
+	public function setColorToken($color): void
+	{
+		$this->result['COLOR_TOKEN'] = IM\V2\Message\Color\Color::validateColor($color);
+	}
+
 	public function AddUser($params)
 	{
 		$add = Array();
@@ -1049,6 +1063,8 @@ class CIMMessageParamAttach
 				$result['LINK'] = $grid['LINK'];
 			}
 
+			$result['COLOR_TOKEN'] = IM\V2\Message\Color\Color::validateColor($grid['COLOR_TOKEN'] ?? null);
+
 			$add[] = $result;
 		}
 		if (empty($add))
@@ -1169,16 +1185,19 @@ class CIMMessageParamAttach
 	{
 		if (is_string($array))
 		{
-			$array = \CUtil::JsObjectToPhp($array);
+			$array = \CUtil::JsObjectToPhp($array, true);
 		}
 		if (!is_array($array))
 		{
 			return null;
 		}
 
+		$array = self::convertServiceSymbolsForJson($array);
+
 		$color = \CIMMessageParamAttach::CHAT;
 		$attach = null;
 		$description = '';
+		$colorToken = null;
 
 		if (isset($array['BLOCKS']))
 		{
@@ -1192,6 +1211,10 @@ class CIMMessageParamAttach
 			{
 				$description = $array['DESCRIPTION'];
 			}
+			if (isset($array['COLOR_TOKEN']))
+			{
+				$colorToken = $array['COLOR_TOKEN'];
+			}
 		}
 		else
 		{
@@ -1200,6 +1223,7 @@ class CIMMessageParamAttach
 
 		$attach = new CIMMessageParamAttach();
 		$attach->SetColor($color);
+		$attach->setColorToken($colorToken);
 		$attach->SetDescription($description);
 		foreach ($blocks as $data)
 		{
@@ -1283,6 +1307,24 @@ class CIMMessageParamAttach
 		}
 
 		return $attach->IsEmpty()? null: $attach;
+	}
+
+	private static function convertServiceSymbolsForJson(array $array): array
+	{
+		foreach ($array as $key => $value)
+		{
+			if (is_string($value))
+			{
+				$array[$key] = str_replace(["\\n", "\\t", '\\"', "\\\\"], ["\n", "\t", '"', "\\"], $value);
+			}
+
+			if (is_array($value))
+			{
+				$array[$key] = self::convertServiceSymbolsForJson($value);
+			}
+		}
+
+		return $array;
 	}
 
 	public static function PrepareAttach($attach)

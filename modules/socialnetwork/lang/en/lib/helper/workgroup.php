@@ -42,6 +42,7 @@ $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_EXTERNAL"] = "External Workgroup"
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_EXTERNAL_DESC"] = "The workgroup is visible only to workgroup members. External users can be invited to the workgroup.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING"] = "Workgroup for posting at Bitrix24.Sites";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2"] = "For external publishing";
+$MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING2_MSGVER_1"] = "For posting on Bitrix24 Sites";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC"] = "The workgroup is used as a source for publishing activity stream posts at Bitrix24.Sites. The workgroup is visible only to workgroup members. Invitation is required to become a workgroup member.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2"] = "Publish news and posts on Bitrix24.Sites. The workgroup is visible to members only. Moderator's approval is required to become a workgroup member.";
 $MESS["SOCIALNETWORK_ITEM_WORKGROUP_TYPE_GROUP_LANDING_DESC2_MSGVER_1"] = "Publish news and posts on sites. The workgroup is visible to members only. Moderator's approval is required to become a workgroup member.";

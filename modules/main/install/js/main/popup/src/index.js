@@ -29,7 +29,7 @@ import CloseIconSize from './popup/popup-close-icon-size';
 import Menu from './menu/menu';
 import MenuManager from './menu/menu-manager';
 import MenuItem from './menu/menu-item';
-import { type PopupOptions } from './popup/popup-types';
+import type { PopupOptions, PopupTarget, PopupTargetOptions, PopupAnimationOptions } from './popup/popup-types';
 import { type MenuOptions, type MenuItemOptions } from './menu/menu-types';
 import type PositionEvent from './popup/position-event';
 
@@ -61,6 +61,9 @@ export {
 
 export type {
 	PopupOptions,
+	PopupTarget,
+	PopupTargetOptions,
+	PopupAnimationOptions,
 	MenuOptions,
 	MenuItemOptions,
 	PositionEvent,

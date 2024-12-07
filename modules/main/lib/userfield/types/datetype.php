@@ -2,14 +2,14 @@
 
 namespace Bitrix\Main\UserField\Types;
 
-use Bitrix\Main\Localization\Loc;
-use CUserTypeManager;
 use Bitrix\Main;
-use Bitrix\Main\Type;
-use CLang;
-use CDatabase;
-use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\Context;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Type;
+use CDatabase;
+use CLang;
+use CUserTypeManager;
 
 Loc::loadMessages(__FILE__);
 
@@ -59,22 +59,26 @@ class DateType extends BaseType
 	 */
 	public static function prepareSettings(array $userField): array
 	{
-		$def = $userField['SETTINGS']['DEFAULT_VALUE'];
+		$def = ($userField['SETTINGS']['DEFAULT_VALUE'] ?? null);
 		$value = '';
 
 		if(!is_array($def))
 		{
 			$def = ['TYPE' => static::TYPE_NONE, 'VALUE' => $value];
 		}
-		elseif($def['TYPE'] === static::TYPE_FIXED)
+		elseif(isset($def['TYPE']) && $def['TYPE'] === static::TYPE_FIXED)
 		{
-			$def['VALUE'] = CDatabase::FormatDate(
-				$def['VALUE'],
-				CLang::GetDateFormat(static::FORMAT_TYPE_SHORT),
-				'YYYY-MM-DD'
-			);
+			$dateObject = \DateTime::createFromFormat('Y-m-d', $def['VALUE']);
+			if (!$dateObject || $dateObject->format('Y-m-d') !== $def['VALUE'])
+			{
+				$def['VALUE'] = CDatabase::FormatDate(
+					$def['VALUE'],
+					CLang::GetDateFormat(static::FORMAT_TYPE_SHORT),
+					'YYYY-MM-DD'
+				);
+			}
 		}
-		elseif($def['TYPE'] === static::TYPE_NOW)
+		elseif(isset($def['TYPE']) && $def['TYPE'] === static::TYPE_NOW)
 		{
 			$def['VALUE'] = $value;
 		}

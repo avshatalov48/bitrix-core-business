@@ -20,7 +20,7 @@ Loc::loadMessages(__FILE__);
 );?>
 
 <?if (!$arResult['CHECK_FEATURE_PERM']):?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function()
 		{
 			var disableFunc = function(e)

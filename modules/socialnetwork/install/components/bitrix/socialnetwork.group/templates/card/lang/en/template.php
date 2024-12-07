@@ -32,6 +32,7 @@ $MESS["SONET_C6_CARD_MEMBERS_TITLE_SCRUM"] = "Scrum team members";
 $MESS["SONET_C6_CARD_MENU_ABOUT"] = "About workgroup";
 $MESS["SONET_C6_CARD_MENU_ABOUT_PROJECT"] = "About project";
 $MESS["SONET_C6_CARD_MENU_ABOUT_SCRUM"] = "About scrum";
+$MESS["SONET_C6_CARD_MENU_FLOWS"] = "Flows";
 $MESS["SONET_C6_CARD_MENU_MEMBERS"] = "Members";
 $MESS["SONET_C6_CARD_MENU_ROLES"] = "Roles and permissions";
 $MESS["SONET_C6_CARD_MOD"] = "Moderators";

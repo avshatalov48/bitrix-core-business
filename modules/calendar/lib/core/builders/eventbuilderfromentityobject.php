@@ -15,6 +15,7 @@ use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
 use Bitrix\Calendar\Core\Event\Tools\UidGenerator;
+use Bitrix\Calendar\Core\EventOption\EventOption;
 use Bitrix\Calendar\Core\Mappers\Factory;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
@@ -458,5 +459,18 @@ class EventBuilderFromEntityObject extends EventBuilder
 	protected function getSpecialLabel(): ?string
 	{
 		return $this->event->getEventType();
+	}
+
+	protected function getEventOption(): ?EventOption
+	{
+		if ($eventId = $this->event->getId())
+		{
+			/** @var Factory $mapperFactory */
+			$mapperFactory = ServiceLocator::getInstance()->get('calendar.service.mappers.factory');
+
+			return $mapperFactory->getEventOption()->getMap(['=EVENT_ID' => $eventId])->fetch();
+		}
+
+		return null;
 	}
 }

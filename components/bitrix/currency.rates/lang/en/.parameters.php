@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CURRENCY_FROM"] = "Array of original currencies for convertion";
 $MESS["CURRENCY_BASE"] = "Convert all original currencies to the currency";
 $MESS["CURRENCY_RATE_DAY"] = "Date to show currency exchange rates (in \"Y-m-d\" format)";
@@ -9,4 +9,3 @@ $MESS["RATE_DAY_TIP"] = "Specify the currency quote date. If there is no quote f
 $MESS["SHOW_CB_TIP"] = "This option is only effective if the destination currency is RUB. If checked, the RUB rates will be shown using data supplied by the Bank of Russia.";
 $MESS["CACHE_TYPE_TIP"] = "<i>Auto</i>: the cache is valid during the time set in the cache settings;<br /><i>Cache</i>: always cache for the period specified in the field beside;<br /><i>Do not cahce</i>: no caching is performed.";
 $MESS["CACHE_TIME_TIP"] = "Specify here the period of time during which the cache is valid.";
-?>

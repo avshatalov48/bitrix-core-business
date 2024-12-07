@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -23,10 +25,12 @@ $this->setFrameMode(false);
 
 $arParams["ID"] = (isset($arParams["ID"])? preg_replace("/[^a-z0-9_]/i", "", $arParams["ID"]) : "gdholder1");
 
-if ($arParams["MULTIPLE"] == "Y")
+if (isset($arParams["MULTIPLE"]) && $arParams["MULTIPLE"] == "Y")
 {
 	$arParams["DESKTOP_PAGE"] = (int)($_REQUEST['dt_page'] ?? 0);
 }
+
+$arParams["MODE"] = $arParams["MODE"] ?? null;
 
 if (
 	in_array($arParams["MODE"], array("SU", "SG"))
@@ -94,8 +98,6 @@ if (IsModuleInstalled('intranet'))
 		$arParams["PM_URL"] = "/company/personal/messages/chat/#USER_ID#/";
 	if (!array_key_exists("PATH_TO_CONPANY_DEPARTMENT", $arParams))
 		$arParams["PATH_TO_CONPANY_DEPARTMENT"] = "/company/structure.php?set_filter_structure=Y&structure_UF_DEPARTMENT=#ID#";
-	if (IsModuleInstalled("video") && !array_key_exists("PATH_TO_VIDEO_CALL", $arParams))
-		$arParams["PATH_TO_VIDEO_CALL"] = "/company/personal/video/#USER_ID#/";
 }
 
 if (
@@ -187,7 +189,7 @@ if($USER->IsAuthorized() && $arResult["PERMISSION"]>"R" && check_bitrix_sessid()
 
 					if (
 						$arParams["MULTIPLE"] == "Y"
-						&& array_key_exists($arParams["DESKTOP_PAGE"], $arUserOptions)
+						&& isset($arUserOptions[$arParams["DESKTOP_PAGE"]])
 					)
 					{
 						$arUserOptionsTmp = $arUserOptions;
@@ -312,7 +314,7 @@ if ($gdAjax === $arParams['ID'])
 					{
 						$pref = "GU_" . $gadget_id . "_";
 						$idParam = substr($id, strlen($pref));
-						if (strpos($id, $pref) === 0 && isset($arGadgetParams[$idParam]))
+						if (str_starts_with($id, $pref) && isset($arGadgetParams[$idParam]))
 						{
 							$arGadgetParams[$idParam]["VALUE"] = $p;
 						}
@@ -326,7 +328,7 @@ if ($gdAjax === $arParams['ID'])
 						}
 					}
 
-					echo CUtil::PhpToJSObject($arGadgetParams);
+					echo Json::encode($arGadgetParams);
 				}
 				break;
 
@@ -368,10 +370,7 @@ if ($gdAjax === $arParams['ID'])
 				break;
 
 			case 'update_position':
-				if (isset($_REQUEST['POS']) && is_array($_REQUEST['POS']))
-				{
-					BXGadget::SavePositions($arParams, $_REQUEST['POS']);
-				}
+				BXGadget::SavePositions($arParams, $_REQUEST['POS'] ?? []);
 				break;
 		}
 	}
@@ -433,7 +432,7 @@ if (!$arUserOptions)
 
 $arResult["DESKTOPS"] = array();
 
-if ($arParams["MULTIPLE"] == "Y")
+if (isset($arParams["MULTIPLE"]) && $arParams["MULTIPLE"] == "Y")
 {
 	if (!is_array($arUserOptions) || !array_key_exists($arParams["DESKTOP_PAGE"], $arUserOptions))
 		$arParams["DESKTOP_PAGE"] = 0;
@@ -577,7 +576,7 @@ foreach($arGadgets as $gadget)
 		continue;
 	if (isset($gadget["OO_ONLY"]) && $gadget["OO_ONLY"] == true && !$USER->CanDoOperation('view_other_settings'))
 		continue;
-	if ($arParams["MODE"] != "AI" && $gadget["AI_ONLY"] == true)
+	if ($arParams["MODE"] != "AI" && isset($gadget["AI_ONLY"]) && $gadget["AI_ONLY"] == true)
 		continue;
 
 	if ($arParams["MODE"] == "SU" && $gadget["SU_ONLY"] != true && $gadget["SU"] != true)
@@ -800,12 +799,12 @@ if(is_array($arUserOptions))
 				foreach($arParams as $id=>$p)
 				{
 					$pref = "G_".$gadget_id."_";
-					if(mb_strpos($id, $pref) === 0)
-						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
+					if(str_starts_with($id, $pref))
+						$arGadgetParams[substr($id, strlen($pref))] = $p;
 
 					$pref = "GU_".$gadget_id."_";
-					if(mb_strpos($id, $pref) === 0 && !isset($arGadgetParams[mb_substr($id, mb_strlen($pref))]))
-						$arGadgetParams[mb_substr($id, mb_strlen($pref))]=$p;
+					if(str_starts_with($id, $pref) && !isset($arGadgetParams[substr($id, strlen($pref))]))
+						$arGadgetParams[substr($id, strlen($pref))] = $p;
 				}
 
 				if(intval($gadgetUserSettings["COLUMN"])<=0 || intval($gadgetUserSettings["COLUMN"])>=$arResult["COLS"])

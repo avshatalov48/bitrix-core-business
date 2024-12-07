@@ -23,7 +23,7 @@ $MESS["SUP_SUBT_LICENCE"] = "Лицензионное соглашение";
 $MESS["SUP_SUBT_LICENCE_HINT"] = "Перед использованием системы обновлений вы должны принять новое лицензионное соглашение";
 $MESS["SUP_SUBT_LICENCE_BUTTON"] = "Открыть лицензионное соглашение";
 $MESS["SUP_SUBT_AGREE"] = "Я принимаю лицензионное соглашение";
-$MESS["SUP_SUBT_AGREE_PRIVACY"] = "Я ознакомился с <a href=\"http://marketplace.1c-bitrix.ru/about/privacy.php\" target=\"_blank\">Условиями о конфиденциальности</a> и согласен с ними";
+$MESS["SUP_SUBT_AGREE_PRIVACY"] = "Я ознакомился с <a href=\"https://marketplace.1c-bitrix.ru/about/privacy.php\" target=\"_blank\">Условиями о конфиденциальности</a> и согласен с ними";
 $MESS["SUP_APPLY"] = "Применить";
 $MESS["SUP_SUBT_ERROR_LICENCE"] = "Ошибка принятия лицензии";
 $MESS["SUP_SUBK_KEY"] = "Ввод лицензионного ключа";
@@ -55,8 +55,8 @@ $MESS["SUP_SUBA_RI_URI1"] = "Все домены, которые будут ис
 $MESS["SUP_SUBA_RI_PHONE"] = "Телефон владельца данной копии продукта (с указанием кода города)";
 $MESS["SUP_SUBA_RI_PHONE1"] = "Телефон владельца данной копии (организации или частного лица)";
 $MESS["SUP_SUBA_USERINFO"] = "Пользователь на сайте продукта";
-$MESS["SUP_SUBA_UI_HINT"] = "Вы можете получить доступ к <a href=\"http://www.1c-bitrix.ru/support/\">технической поддержке</a>, <a href=\"http://www.1c-bitrix.ru/support/forum/forum7/\">закрытому клиентскому форуму</a>, а также к возможности <a href=\"http://www.1c-bitrix.ru/download/private/index.php\">скачивать дистрибутивы продукта в виде исходных кодов</a>. Для этого вам необходим аккаунт на сайте <a href=\"http://www.1c-bitrix.ru\">www.1c-bitrix.ru</a>:";
-$MESS["SUP_SUBA_UI_CREATE"] = "У меня нет аккаунта на сайте <a href=\"http://www.1c-bitrix.ru\">www.1c-bitrix.ru</a>, я хочу создать новый;";
+$MESS["SUP_SUBA_UI_HINT"] = "Вы можете получить доступ к <a href=\"https://www.1c-bitrix.ru/support/\">технической поддержке</a>, <a href=\"https://www.1c-bitrix.ru/support/forum/forum7/\">закрытому клиентскому форуму</a>, а также к возможности <a href=\"https://www.1c-bitrix.ru/download/private/index.php\">скачивать дистрибутивы продукта в виде исходных кодов</a>. Для этого вам необходим аккаунт на сайте <a href=\"https://www.1c-bitrix.ru\">www.1c-bitrix.ru</a>:";
+$MESS["SUP_SUBA_UI_CREATE"] = "У меня нет аккаунта на сайте <a href=\"https://www.1c-bitrix.ru\">www.1c-bitrix.ru</a>, я хочу создать новый;";
 $MESS["SUP_SUBA__UI_NAME"] = "Ваше имя";
 $MESS["SUP_SUBA_UI_LASTNAME"] = "Ваша фамилия";
 $MESS["SUP_SUBA_UI_LOGIN"] = "Логин (не менее 3 символов)";
@@ -156,7 +156,7 @@ $MESS["SUP_MYSQL_LCP_ERROR"] = "Кодировка используемой ва
 $MESS["SUP_LICENSE_KEY_MD5"] = "Код лицензионного ключа";
 $MESS["SUP_CHECK_UPDATES_SYSTEM"] = "Обновления системных модулей";
 $MESS["SUP_SULL_PARTNER_NAME"] = "Компания";
-$MESS["SUP_SULL_MODULE_PATH"] = "http://marketplace.1c-bitrix.ru/#NAME#";
+$MESS["SUP_SULL_MODULE_PATH"] = "https://marketplace.1c-bitrix.ru/#NAME#";
 $MESS["SUP_SUAC_LOAD_M_BUTTON"] = "Загрузить";
 $MESS["SUP_SUAC_LOAD_M_BUTTON_CONF"] = "Внимание! Компания 1С-Битрикс не несет ответственности за разработки партнеров. По всем вопросам, связанным с работой сторонних решений, а также в случаях нарушения работы сайта, вызванного некорректной работой сторонних решений, обращайтесь к партнерам-разработчикам. Загрузить решение?";
 $MESS["SUPP_SUBR_REG"] = "Регистрация решений";

@@ -171,7 +171,7 @@ class CAllBlogImage
 				"SELECT G.* ".
 				"FROM b_blog_image G ".
 				"WHERE G.ID = ".$ID."";
-			$dbResult = $DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbResult = $DB->Query($strSql);
 			if ($arResult = $dbResult->Fetch())
 			{
 				$GLOBALS["BLOG_IMAGE"]["BLOG_IMAGE_CACHE_".$ID] = $arResult;

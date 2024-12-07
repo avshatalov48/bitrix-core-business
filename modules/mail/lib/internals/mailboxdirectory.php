@@ -4,6 +4,7 @@ namespace Bitrix\Mail\Internals;
 
 use Bitrix\Mail\Internals\Entity\MailboxDirectory;
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\Entity;
 
 /**
  * Class MailboxDirectoryTable
@@ -121,7 +122,9 @@ class MailboxDirectoryTable extends DataManager
 			],
 			'SYNC_LOCK'     => [
 				'data_type' => 'integer',
-			]
+			],
+			new Entity\BooleanField('IS_DATE_CACHED'),
+			new Entity\DatetimeField('INTERNAL_START_DATE'),
 		];
 	}
 }

@@ -178,7 +178,7 @@ if (isset($_REQUEST['unique_id']) && $_REQUEST['unique_id'])
 				SetStatus("302 Found");
 				$protocol = (IsHTTPS() ? "https" : "http");
 				$host = $_SERVER['HTTP_HOST'];
-				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && strpos($_SERVER['HTTP_HOST'], ":") === false)
+				if($_SERVER['SERVER_PORT'] <> 80 && $_SERVER['SERVER_PORT'] <> 443 && $_SERVER['SERVER_PORT'] > 0 && !str_contains($_SERVER['HTTP_HOST'], ":"))
 					$host .= ":".$_SERVER['SERVER_PORT'];
 				$url = "?redirect_test=Y&done=Y&unique_id=".checker_get_unique_id();
 				header("Request-URI: ".$protocol."://".$host.$url);

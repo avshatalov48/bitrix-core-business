@@ -56,7 +56,7 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 				'TYPE_ID' // cut off?
 			)),
 			'filter' => array(
-				'NAME.LANGUAGE_ID' => LANGUAGE_ID
+				'=NAME.LANGUAGE_ID' => LANGUAGE_ID
 			)
 		);
 	}
@@ -358,10 +358,19 @@ class CBitrixLocationSelectorStepsComponent extends CBitrixLocationSelectorSearc
 			}
 
 			// drop meaningless data
-			foreach($data['ITEMS'] as $k => &$item)
+			if (!empty($data['ITEMS']))
 			{
-				if($data['ITEMS'][$k]['IS_PARENT'] == '0')
-					unset($data['ITEMS'][$k]['IS_PARENT']);
+				foreach (array_keys($data['ITEMS']) as $k)
+				{
+					if (!array_key_exists('IS_PARENT', $data['ITEMS'][$k]))
+					{
+						continue;
+					}
+					if ($data['ITEMS'][$k]['IS_PARENT'] == '0')
+					{
+						unset($data['ITEMS'][$k]['IS_PARENT']);
+					}
+				}
 			}
 		}
 

@@ -134,7 +134,7 @@ class CBlogSearch
 					b.ID
 			";
 			//CBlogSearch::Trace('OnSearchReindex', 'strSql', $strSql);
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				if($ar["USE_SOCNET"] == "Y")
@@ -250,7 +250,7 @@ class CBlogSearch
 			/*		AND bp.PUBLISH_STATUS = '".$DB->ForSQL(BLOG_PUBLISH_STATUS_PUBLISH)."'*/
 			//AND b.SEARCH_INDEX = 'Y'
 			//CBlogSearch::Trace('OnSearchReindex', 'strSql', $strSql);
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				//Check permissions
@@ -492,13 +492,13 @@ class CBlogSearch
 							{
 								$Result["PARAM2"] = $ar["BLOG_ID"];
 								$sqlR = "UPDATE b_blog_post SET BLOG_ID=".intval($arF["BLOG_ID"])." WHERE ID=".intval($ar["ID"]);
-								$DB->Query($sqlR, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$DB->Query($sqlR);
 								$sqlR = "UPDATE b_blog_post_category SET BLOG_ID=".intval($arF["BLOG_ID"])." WHERE POST_ID=".intval($ar["ID"]);
-								$DB->Query($sqlR, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$DB->Query($sqlR);
 								$sqlR = "UPDATE b_blog_image SET BLOG_ID=".intval($arF["BLOG_ID"])." WHERE POST_ID=".intval($ar["ID"]);
-								$DB->Query($sqlR, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$DB->Query($sqlR);
 								$sqlR = "UPDATE b_blog_comment SET BLOG_ID=".intval($arF["BLOG_ID"])." WHERE POST_ID=".intval($ar["ID"]);
-								$DB->Query($sqlR, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+								$DB->Query($sqlR);
 							}
 							$sqlR = "SELECT * FROM b_blog_socnet_rights where POST_ID=".intval($ar["ID"]);
 							$dbBB = $DB->Query($sqlR);
@@ -682,7 +682,7 @@ class CBlogSearch
 			$strSql = \Bitrix\Main\Application::getConnection()->getSqlHelper()->getTopSql($strSql, $limit);
 
 			//CBlogSearch::Trace('OnSearchReindex', 'strSql', $strSql);
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				//Check permissions
@@ -803,7 +803,7 @@ class CBlogSearch
 					bu.ID
 			";
 			//CBlogSearch::Trace('OnSearchReindex', 'strSql', $strSql);
-			$rs = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				if($ar["USE_SOCNET"] == "Y")

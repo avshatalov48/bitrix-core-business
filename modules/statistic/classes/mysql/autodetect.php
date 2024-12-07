@@ -4,7 +4,6 @@ class CAutoDetect
 {
 	public static function GetList($by = 's_counter', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 		$arSqlSearch_h = Array();
@@ -90,7 +89,7 @@ class CAutoDetect
 			$strSqlOrder
 		";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

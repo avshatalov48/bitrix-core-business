@@ -76,7 +76,10 @@ if (!$bHasPath)
 			do
 			{
 				// back one level
-				if (mb_substr($sFilePath, -1) == "/") $sFilePath = mb_substr($sFilePath, 0, -1);
+				if (str_ends_with($sFilePath, "/"))
+				{
+					$sFilePath = substr($sFilePath, 0, -1);
+				}
 				$slash_pos = mb_strrpos($sFilePath, "/");
 				$sFilePath = mb_substr($sFilePath, 0, $slash_pos + 1);
 
@@ -91,7 +94,7 @@ if (!$bHasPath)
 }
 else
 {
-	if (mb_substr($arParams['PATH'], 0, 1) != '/')
+	if (!str_starts_with($arParams['PATH'], '/'))
 	{
 		// if page in SEF mode check real path
 		if ($sRealFilePath <> '')

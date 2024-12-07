@@ -1,6 +1,7 @@
 <?php
 $MESS["CATALOG_SELECTOR_VIEW_NAME_TITLE"] = "Наименование товара";
 $MESS["CATALOG_SELECTOR_BEFORE_SEARCH_TITLE"] = "Найти или создать новый товар";
+$MESS["CATALOG_SELECTOR_RECENT_TAB_STUB_TITLE"] = "Введите название товара";
 $MESS["CATALOG_SELECTOR_IS_EMPTY_TITLE"] = "Товар не найден";
 $MESS["CATALOG_SELECTOR_IS_EMPTY_SUBTITLE"] = "Создать новый товар?";
 $MESS["CATALOG_SELECTOR_NEW_TAG_TITLE"] = "новый";
@@ -38,3 +39,18 @@ $MESS['CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_FOOTER_EDIT_HINT'] = "Недост
 $MESS['CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_FOOTER_ALL_HINT'] = 'Недостаточно прав для создания и редактирования товара. #ADMIN_HINT#';
 $MESS['CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_ADMIN_B4_HINT'] = 'Обратитесь к вашему руководителю или администратору Битрикс24.';
 $MESS['CATALOG_SELECTOR_SEARCH_POPUP_DISABLED_ADMIN_HINT'] = 'Обратитесь к администратору портала.';
+$MESS['CATALOG_SELECTOR_1C_CONNECTING'] = 'Подключение';
+$MESS['CATALOG_SELECTOR_1C_CONNECTED'] = 'Подключено';
+$MESS['CATALOG_SELECTOR_1C_NOT_CONNECTED'] = 'Настройка не завершена';
+$MESS['CATALOG_SELECTOR_1C_NOT_RESPONDING'] = 'Нет ответа от 1С';
+$MESS['CATALOG_SELECTOR_1C_NOT_RESPONDING_ERROR'] = 'Нет ответа от 1С. Обратитесь к руководителю или администратору вашего Битрикс24, чтобы проверить подключение';
+$MESS['CATALOG_SELECTOR_1C_SEARCH'] = 'Ищем товар в 1С';
+$MESS['CATALOG_SELECTOR_1C_HELP_LINK'] = 'Подробнее';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_SEARCH_TITLE'] = 'Поиск товаров в 1С';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_SEARCH_SUBTITLE'] = 'Начните вводить название товара в поле, чтобы найти его';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_INIT_FAILURE_TITLE'] = 'Завершите настройку в 1С';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_INIT_FAILURE_SUBTITLE'] = 'Обратитесь к руководителю или администратору,[break]чтобы завершить настройку';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_NO_RESPONSE_TITLE'] = 'Нет ответа от 1С';
+$MESS['CATALOG_SELECTOR_1C_RECENT_TAB_NO_RESPONSE_SUBTITLE'] = 'Обратитесь к руководителю или администратору,[break]чтобы проверить подключение';
+$MESS['CATALOG_SELECTOR_1C_INPUT_PLACEHOLDER'] = 'Найти товар';
+$MESS['CATALOG_SELECTOR_1C_RETRY_TEXT'] = 'перезапуск';

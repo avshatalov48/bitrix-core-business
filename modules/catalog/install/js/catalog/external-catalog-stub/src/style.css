@@ -1,0 +1,43 @@
+.inventory-management__empty-state {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	padding: 95px 100px;
+	height: 100%;
+	width: 100%;
+	background: var(--ui-color-background-primary);
+	font-family: var(--ui-font-family-system);
+	box-sizing: border-box;
+}
+
+.inventory-management__empty-state-title {
+	display: block;
+	font-size: var(--ui-font-size-5xl);
+	font-weight: var(--ui-font-weight-light);
+	color: var(--ui-color-text-primary);
+	margin-bottom: 32px;
+}
+
+.inventory-management__empty-state-text {
+	max-width: 550px;
+	display: block;
+	margin-bottom: 62px;
+	font-size: var(--ui-font-size-md);
+	color: var(--ui-color-base-90);
+	line-height: 20px;
+	text-align: center;
+}
+
+.inventory-management__empty-state-logo {
+	width: 219px;
+	height: 178px;
+	margin-bottom: 68px;
+}
+
+.inventory-management__empty-state-logo.--docs {
+	background: url(./../images/inventory-docs.svg) no-repeat;
+}
+
+.inventory-management__empty-state-logo.--1c {
+	background: url(./../images/inventory-1c.svg) no-repeat;
+}

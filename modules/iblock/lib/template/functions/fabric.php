@@ -15,7 +15,7 @@ namespace Bitrix\Iblock\Template\Functions;
  */
 class Fabric
 {
-	protected static $defaultFunctionMap = [
+	protected static array $defaultFunctionMap = [
 		'upper' => FunctionUpper::class,
 		'lower' => FunctionLower::class,
 		'translit' => FunctionTranslit::class,
@@ -27,9 +27,10 @@ class Fabric
 		'distinct' => FunctionDistinct::class,
 		'ucfirst' => FunctionUcfirst::class,
 		'ucwords' => FunctionUcwords::class,
+		'striptags' => FunctionStripTags::class,
 	];
 
-	protected static $functionMap = [];
+	protected static array $functionMap = [];
 	/**
 	 * Instantiates an function object by function name.
 	 *
@@ -197,7 +198,7 @@ class FunctionUpper extends FunctionBase
 	 */
 	public function calculate(array $parameters)
 	{
-		return toUpper($this->parametersToString($parameters));
+		return mb_strtoupper($this->parametersToString($parameters));
 	}
 }
 
@@ -218,7 +219,7 @@ class FunctionLower extends FunctionBase
 	 */
 	public function calculate(array $parameters)
 	{
-		return toLower($this->parametersToString($parameters));
+		return mb_strtolower($this->parametersToString($parameters));
 	}
 }
 

@@ -197,9 +197,6 @@ if ((empty($request["preview_comment"]) || $request["preview_comment"] == "N"))
 		if (!empty($_FILES)):
 			foreach ($_FILES as $key => $val):
 				if (mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW" && !empty($val["name"])):
-					if ($post["AJAX_POST"] == "Y")
-						$val["name"] = $APPLICATION->ConvertCharset($val["name"], "UTF-8", LANG_CHARSET);
-
 					$arFiles[] = $val;
 				endif;
 			endforeach;
@@ -234,7 +231,7 @@ if ((empty($request["preview_comment"]) || $request["preview_comment"] == "N"))
 		endif;
 
 		$strURL = (!empty($post["back_page"]) ? $post["back_page"] : $APPLICATION->GetCurPageParam("",
-			array("MID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid")));
+			array("MID", BX_AJAX_PARAM_ID, "result", "AJAX_CALL", "bxajaxid")));
 		$bNotModerated = ($arResult["FORUM"]["MODERATION"] != "Y" || CForumNew::CanUserModerateForum($arParams["FORUM_ID"], $USER->GetUserGroupArray()));
 		$strURL = ForumAddPageParams($strURL, array("MID" => $MID, "result" => ($bNotModerated ? "reply" : "not_approved")), true, false);
 		$strURL .= ($bNotModerated ? "#message".$MID : "#reviewnote");
@@ -267,8 +264,6 @@ elseif ($post["save_product_review"] == "Y") // preview
 
 	foreach ($_FILES as $key => $val):
 		if ((mb_substr($key, 0, mb_strlen("FILE_NEW")) == "FILE_NEW") && !empty($val["name"])):
-			if ($post["AJAX_POST"] == "Y")
-				$val["name"] = $APPLICATION->ConvertCharset($val["name"], "UTF-8", LANG_CHARSET);
 			$arFiles[] = $val;
 		endif;
 	endforeach;

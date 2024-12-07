@@ -591,7 +591,7 @@ export class FormStyleAdapter extends EventEmitter
 	// eslint-disable-next-line class-methods-use-this
 	isCrmFormPage(): boolean
 	{
-		return Env.getInstance().getOptions().specialType === 'crm_forms';
+		return Env.getInstance().getSpecialType() === 'crm_forms';
 	}
 
 	saveFormDesign()

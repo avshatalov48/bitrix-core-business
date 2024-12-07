@@ -913,7 +913,7 @@ class ComponentHelper
 		$result = false;
 
 		if (
-			preg_match_all("#\\[disk file id=(n?\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $text, $matches)
+			preg_match_all("#\\[disk file id=(n?\\d+)\\]#isu", $text, $matches)
 			&& Loader::includeModule('disk')
 		)
 		{
@@ -1216,18 +1216,14 @@ class ComponentHelper
 			$text = $parser->convertHtmlToBB($text);
 		}
 
-		preg_match_all("/\[url\s*=\s*([^\]]*)\](.+?)\[\/url\]/is".BX_UTF_PCRE_MODIFIER, $text, $res);
+		preg_match_all("/\[url\s*=\s*([^\]]*)\](.+?)\[\/url\]/isu", $text, $res);
 
 		if (
 			!empty($res)
 			&& !empty($res[1])
 		)
 		{
-			$url = (
-				!Application::isUtfMode()
-					? \Bitrix\Main\Text\Encoding::convertEncoding($res[1][0], 'UTF-8', \Bitrix\Main\Context::getCurrent()->getCulture()->getCharset())
-					: $res[1][0]
-			);
+			$url = $res[1][0];
 
 			$metaData = UrlPreview::getMetadataAndHtmlByUrl($url, true, false);
 			if (
@@ -2967,13 +2963,13 @@ class ComponentHelper
 		$inlineDiskAttachedObjectIdList = [];
 
 		// parse inline disk object ids
-		if (preg_match_all('#\\[disk file id=(n\\d+)\\]#is' . BX_UTF_PCRE_MODIFIER, $text, $matches))
+		if (preg_match_all('#\\[disk file id=(n\\d+)\\]#isu', $text, $matches))
 		{
 			$inlineDiskObjectIdList = array_map(function($a) { return (int)mb_substr($a, 1); }, $matches[1]);
 		}
 
 		// parse inline disk attached object ids
-		if (preg_match_all('#\\[disk file id=(\\d+)\\]#is' . BX_UTF_PCRE_MODIFIER, $text, $matches))
+		if (preg_match_all('#\\[disk file id=(\\d+)\\]#isu', $text, $matches))
 		{
 			$inlineDiskAttachedObjectIdList = array_map(function($a) { return (int)$a; }, $matches[1]);
 		}
@@ -3812,15 +3808,17 @@ class ComponentHelper
 				"NOTIFY_TAG" => "SONET|BLOG_POST_CONVERT|".$postId,
 				"PARSE_LINK" => "N",
 				"LOG_ID" => $logId,
-				"NOTIFY_MESSAGE" => Loc::getMessage('SONET_HELPER_VIDEO_CONVERSION_COMPLETED', array(
+				"NOTIFY_MESSAGE" => fn (?string $languageId = null) => Loc::getMessage('SONET_HELPER_VIDEO_CONVERSION_COMPLETED', array(
 					'#POST_TITLE#' => '<a href="'.$authorPostUrl.'" class="bx-notifier-item-action">'.htmlspecialcharsbx($postFields["TITLE"]).'</a>'
-				)),
-				"NOTIFY_MESSAGE_OUT" => Loc::getMessage('SONET_HELPER_VIDEO_CONVERSION_COMPLETED', array(
-						'#POST_TITLE#' => htmlspecialcharsbx($postFields["TITLE"]),
-					))." ".$serverName.$authorPostUrl,
+				), $languageId),
+				"NOTIFY_MESSAGE_OUT" => fn (?string $languageId = null) => Loc::getMessage('SONET_HELPER_VIDEO_CONVERSION_COMPLETED', array(
+					'#POST_TITLE#' => htmlspecialcharsbx($postFields["TITLE"]),
+				), $languageId)." ".$serverName.$authorPostUrl,
 			);
 
-			$messageFields['PUSH_MESSAGE'] = $messageFields['NOTIFY_MESSAGE'];
+			$messageFields['PUSH_MESSAGE'] = Loc::getMessage('SONET_HELPER_VIDEO_CONVERSION_COMPLETED', array(
+				'#POST_TITLE#' => '<a href="'.$authorPostUrl.'" class="bx-notifier-item-action">'.htmlspecialcharsbx($postFields["TITLE"]).'</a>'
+			));
 			$messageFields['PUSH_PARAMS'] = array(
 				'ACTION' => 'transform',
 				'TAG' => $messageFields['NOTIFY_TAG']

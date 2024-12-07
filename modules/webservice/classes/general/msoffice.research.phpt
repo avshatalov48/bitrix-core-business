@@ -40,9 +40,9 @@ class CMSSOAPResearch extends CSOAPServerResponser
 			$providers = array(
 				
 					"Provider" => array (
-						"Message" => "Òåñòîâàÿ ñëóæáà.",
+						"Message" => "Ð¢ÐµÑÑ‚Ð¾Ð²Ð°Ñ ÑÐ»ÑƒÐ¶Ð±Ð°.",
 						"Id" => "{$this->provider_id}",
-						"Name" => "Òåñòîâàÿ ñëóæáà. {$this->add_tittle}",
+						"Name" => "Ð¢ÐµÑÑ‚Ð¾Ð²Ð°Ñ ÑÐ»ÑƒÐ¶Ð±Ð°. {$this->add_tittle}",
 						"QueryPath" => $this->query_path,
 						"RegistrationPath" => $this->registration_path,
 						"AboutPath" => "http://www.bitrix.ru/",
@@ -51,8 +51,8 @@ class CMSSOAPResearch extends CSOAPServerResponser
 						"Services" => array(
 							"Service" => array(
 								"Id" => "{$this->service_id}",
-								"Name" => "Òåñòîâàÿ ñëóæáà. {$this->add_tittle}",
-								"Description" => "Òåñòîâàÿ ñëóæáà äëÿ òåñòèðîâàíèÿ soap ñåðâåðà.",
+								"Name" => "Ð¢ÐµÑÑ‚Ð¾Ð²Ð°Ñ ÑÐ»ÑƒÐ¶Ð±Ð°. {$this->add_tittle}",
+								"Description" => "Ð¢ÐµÑÑ‚Ð¾Ð²Ð°Ñ ÑÐ»ÑƒÐ¶Ð±Ð° Ð´Ð»Ñ Ñ‚ÐµÑÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ñ soap ÑÐµÑ€Ð²ÐµÑ€Ð°.",
 								"Copyright" => "(c) Bitrix.",
 								"Display" => "On",
 								"Category" => "ECOMMERCE_GENERAL",

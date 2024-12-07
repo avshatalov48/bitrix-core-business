@@ -8,9 +8,9 @@ $MESS['SALE_HANDLERS_PAY_SYSTEM_TEMPLATE_BEPAID_ERIP_INSTRUCTION'] = '
 <br>
 Для проведения платежа необходимо найти магазин в дереве ЕРИП по коду услуги <strong>#ERIP_SERVICE_CODE#</strong> или воспользоваться инструкцией:<br>
 <ol>
-  <li>Выбрать пункт ЕРИП</li>
-  <li>Выбрать последовательно пункты: <i>#INSTRUCTION#</i></li>
-  <li>Ввести номер <strong>#ACCOUNT_NUMBER#</strong></li>
-  <li>Проверить корректность информации</li>
-  <li>Совершить платеж</li>
+<li>Выбрать пункт ЕРИП</li>
+<li>Выбрать последовательно пункты: <i>#INSTRUCTION#</i></li>
+<li>Ввести номер <strong>#ACCOUNT_NUMBER#</strong></li>
+<li>Проверить корректность информации</li>
+<li>Совершить платеж</li>
 </ol>';

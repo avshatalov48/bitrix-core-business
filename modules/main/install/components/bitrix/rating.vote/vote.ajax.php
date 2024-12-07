@@ -8,6 +8,7 @@ const DisableEventsCheck = true;
 
 use Bitrix\Main\Application;
 use Bitrix\Main\Rating\Internal\Action;
+use Bitrix\Main\Web\Json;
 
 /** @global CMain $APPLICATION */
 /** @global CUser $USER */
@@ -68,8 +69,8 @@ if ($isAccess && check_bitrix_sessid())
 
 		$voteList = Action::list($params);
 
-		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
-		echo CUtil::PhpToJsObject($voteList);
+		header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+		echo Json::encode($voteList);
 	}
 	else if (isset($_POST['RATING_VOTE']) && $_POST['RATING_VOTE'] === 'Y')
 	{
@@ -111,14 +112,14 @@ if ($isAccess && check_bitrix_sessid())
 		$voteList = Action::vote($params);
 		if (!empty($voteList))
 		{
-			Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
-			echo CUtil::PhpToJsObject($voteList);
+			header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+			echo Json::encode($voteList);
 		}
 	}
 	else if (isset($_POST['RATING_RESULT']) && $_POST['RATING_RESULT'] === 'Y')
 	{
-		Header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
-		echo CUtil::PhpToJsObject(Action::getVoteResult($entityTypeId, $entityId));
+		header('Content-Type: application/x-javascript; charset=' . LANG_CHARSET);
+		echo Json::encode(Action::getVoteResult($entityTypeId, $entityId));
 	}
 
 	Application::getConnection()->unlock($key);

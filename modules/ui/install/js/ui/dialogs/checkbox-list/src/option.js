@@ -1,3 +1,5 @@
+import { EventEmitter } from 'main.core.events';
+
 const viewMode = {
 	view: 'view',
 	edit: 'edit',
@@ -10,6 +12,11 @@ export const CheckboxListOption = {
 		'isChecked',
 		'isLocked',
 		'isEditable',
+		'context',
+	],
+
+	emits: [
+		'onToggleOption',
 	],
 
 	data()
@@ -67,14 +74,48 @@ export const CheckboxListOption = {
 				{ '--editable': (this.isEditMode && !this.isLocked) },
 			];
 		},
+		emitHandleCheckBox(event): void
+		{
+			setTimeout(() => {
+				const { id, title, isChecked, isLocked, isEditable, context } = this;
+
+				EventEmitter.emit(
+					'ui:checkbox-list:check-option',
+					{
+						id,
+						title,
+						isChecked,
+						isLocked,
+						isEditable,
+						context,
+						viewMode: this.viewMode,
+					},
+				);
+			});
+		},
 		handleCheckBox(event): void
 		{
 			if (this.isLocked)
 			{
-				return;
+				// eslint-disable-next-line no-param-reassign
+				event.target.checked = !event.target.checked;
+			}
+			else
+			{
+				this.isCheckedValue = !this.isCheckedValue;
 			}
 
-			this.isCheckedValue = !this.isCheckedValue;
+			const { id, title, isLocked, isCheckedValue, isEditable, context } = this;
+
+			this.$emit('onToggleOption', {
+				id,
+				title,
+				isChecked: isCheckedValue,
+				isLocked,
+				isEditable,
+				context,
+				viewMode: this.viewMode,
+			});
 		},
 		onToggleViewMode(): void
 		{
@@ -125,12 +166,12 @@ export const CheckboxListOption = {
 		<label
 			:title="titleData"
 			:class="getOptionClassName({ isChecked: isCheckedValue, isLocked })"
+			@click="this.emitHandleCheckBox"
 		>
 			<input
 				type="checkbox"
 				class="ui-ctl-element ui-checkbox-list__field-item_input"
 				:checked="isCheckedValue"
-				:disabled="(isLocked === true || isEditMode) ? 'disabled' : null"
 				@click="this.handleCheckBox"
 			>
 			<div

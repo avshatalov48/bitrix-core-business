@@ -701,7 +701,7 @@ class CBitrixComponentTemplate
 					elseif (is_file($_SERVER["DOCUMENT_ROOT"].$fname))
 					{
 						$this->__file = $fname;
-						if (strpos($this->__name, "/") !== false)
+						if (str_contains($this->__name, "/"))
 							$this->__folder = $folder["path"]."/".mb_substr($this->__name, 0, bxstrrpos($this->__name, "/"));
 					}
 				}

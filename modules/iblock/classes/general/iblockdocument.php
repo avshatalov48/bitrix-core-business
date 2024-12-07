@@ -178,7 +178,7 @@ class CIBlockDocument
 			{
 				$GLOBALS["CBPVirtualDocumentCloneRowPrinted"] = 1;
 				?>
-				<script language="JavaScript">
+				<script>
 				function CBPVirtualDocumentCloneRow(tableID)
 				{
 					var tbl = document.getElementById(tableID);
@@ -1070,6 +1070,23 @@ class CIBlockDocument
 
 	/**
 	 * @param $documentId
+	 * @return bool - is document exists.
+	 */
+	public static function isDocumentExists($documentId): bool
+	{
+		$dbResult = CIBlockElement::GetList(
+			[],
+			["ID" => $documentId, "SHOW_NEW" => "Y", "SHOW_HISTORY" => "Y"],
+			false,
+			false,
+			["ID", "IBLOCK_ID"],
+		);
+
+		return (bool)$dbResult->Fetch();
+	}
+
+	/**
+	 * @param $documentId
 	 * @return array - document fields array.
 	 * @throws CBPArgumentNullException
 	 * @throws CBPArgumentOutOfRangeException
@@ -1687,7 +1704,7 @@ class CIBlockDocument
 			}
 			else
 			{
-				list($arFieldsTmp["PROPERTY_TYPE"], $arFieldsTmp["USER_TYPE"]) = explode(":", $arFields["type"], 2);
+				[$arFieldsTmp["PROPERTY_TYPE"], $arFieldsTmp["USER_TYPE"]] = explode(":", $arFields["type"], 2);
 				if ($arFields["type"] == "E:EList")
 					$arFieldsTmp["LINK_IBLOCK_ID"] = $arFields["options"];
 			}
@@ -1948,7 +1965,7 @@ class CIBlockDocument
 			WHERE IBLOCK_ELEMENT_ID = ".intval($documentId)."
 			AND LOCKED_BY = '".$DB->ForSQL($workflowId, 32)."'
 		";
-		$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+		$z = $DB->Query($strSql);
 		if($z->Fetch())
 		{
 			//Success lock because documentId already locked by workflowId
@@ -1964,7 +1981,7 @@ class CIBlockDocument
 				WHERE ID = ".intval($documentId)."
 				AND EL.IBLOCK_ELEMENT_ID IS NULL
 			";
-			$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$z = $DB->Query($strSql);
 			return $z->AffectedRowsCount() > 0;
 		}
 	}
@@ -1977,7 +1994,7 @@ class CIBlockDocument
 			SELECT * FROM b_iblock_element_lock
 			WHERE IBLOCK_ELEMENT_ID = ".intval($documentId)."
 		";
-		$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+		$z = $DB->Query($strSql);
 		if($z->Fetch())
 		{
 			$strSql = "
@@ -1985,7 +2002,7 @@ class CIBlockDocument
 				WHERE IBLOCK_ELEMENT_ID = ".intval($documentId)."
 				AND (LOCKED_BY = '".$DB->ForSQL($workflowId, 32)."' OR '".$DB->ForSQL($workflowId, 32)."' = '')
 			";
-			$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+			$z = $DB->Query($strSql);
 			$result = $z->AffectedRowsCount();
 		}
 		else
@@ -2012,7 +2029,7 @@ class CIBlockDocument
 			WHERE IBLOCK_ELEMENT_ID = ".intval($documentId)."
 			AND LOCKED_BY <> '".$DB->ForSQL($workflowId, 32)."'
 		";
-		$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+		$z = $DB->Query($strSql);
 		if($z->Fetch())
 			return true;
 		else
@@ -2645,7 +2662,7 @@ class CIBlockDocument
 
 				CIBlockElement::WF_CleanUpHistoryCopies($PARENT_ID, 0);
 				$strSql = "update b_iblock_element set WF_STATUS_ID='1', WF_NEW=NULL WHERE ID=".$PARENT_ID." AND WF_PARENT_ELEMENT_ID IS NULL";
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$DB->Query($strSql);
 				CIBlockElement::UpdateSearch($PARENT_ID);
 				\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($ar_element["IBLOCK_ID"], $PARENT_ID);
 
@@ -2655,7 +2672,7 @@ class CIBlockDocument
 			{
 				CIBlockElement::WF_CleanUpHistoryCopies($ID, 0);
 				$strSql = "update b_iblock_element set WF_STATUS_ID='1', WF_NEW=NULL WHERE ID=".$ID." AND WF_PARENT_ELEMENT_ID IS NULL";
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+				$DB->Query($strSql);
 				CIBlockElement::UpdateSearch($ID);
 				\Bitrix\Iblock\PropertyIndex\Manager::updateElementIndex($ar_element["IBLOCK_ID"], $ID);
 
@@ -2797,7 +2814,7 @@ class CIBlockDocument
 		global $DB;
 		CIBlockElement::WF_CleanUpHistoryCopies($documentId, 0);
 		$strSql = "update b_iblock_element set WF_STATUS_ID='2', WF_NEW='Y' WHERE ID=".intval($documentId)." AND WF_PARENT_ELEMENT_ID IS NULL";
-		$z = $DB->Query($strSql, false, "FILE: ".__FILE__."<br>LINE: ".__LINE__);
+		$z = $DB->Query($strSql);
 		CIBlockElement::UpdateSearch($documentId);
 	}
 
@@ -2906,7 +2923,7 @@ class CIBlockDocument
 			$result .= '<textarea id="WFSFormOptionsX" rows="5" cols="30">'.htmlspecialcharsbx($str).'</textarea><br />';
 			$result .= GetMessage("IBD_DOCUMENT_XFORMOPTIONS1").'<br />';
 			$result .= GetMessage("IBD_DOCUMENT_XFORMOPTIONS2").'<br />';
-			$result .= '<script type="text/javascript">
+			$result .= '<script>
 				function WFSFormOptionsXFunction()
 				{
 					var result = {};

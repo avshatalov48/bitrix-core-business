@@ -361,10 +361,10 @@ class CAllForumTopic
 				CForumTopic::Update($res["ID"], array("FORUM_ID" => $FID), true);
 				// move message
 				$strSql = "UPDATE b_forum_message SET FORUM_ID=".$FID.", POST_MESSAGE_HTML='' WHERE TOPIC_ID=".$res["ID"];
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 				// move subscribe
 				$strSql = "UPDATE b_forum_subscribe SET FORUM_ID=".intval($FID)." WHERE TOPIC_ID=".$res["ID"];
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$arForums[$res["FORUM_ID"]] = $res["FORUM_ID"];
 				unset($GLOBALS["FORUM_CACHE"]["TOPIC"][$res["ID"]]);
@@ -459,7 +459,7 @@ class CAllForumTopic
 			else
 				$strSql .= "WHERE FT.XML_ID = '".$DB->ForSql($ID)."'";
 
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			if ($db_res && $res = $db_res->Fetch())
 			{
 				$GLOBALS["FORUM_CACHE"]["TOPIC"][$ID] = $res;
@@ -529,7 +529,7 @@ class CAllForumTopic
 			"FROM b_forum_topic FT \n".
 			"	".$arSQL["join"]."\n".
 			"WHERE FT.ID = ".$ID;
-		$db_res = new _CTopicDBResult($DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__));
+		$db_res = new _CTopicDBResult($DB->Query($strSql));
 
 		if ($res = $db_res->Fetch())
 		{
@@ -780,7 +780,7 @@ class CAllForumTopic
 			$res["CNT"] = ($res["CNT"] > 0 ? $res["CNT"] : 0);
 			if (intval($res["ABS_FIRST_MESSAGE_ID"]) > 0 && intval($res["ABS_FIRST_MESSAGE_ID"]) != intval($res["FIRST_MESSAGE_ID"]))
 			{
-				$GLOBALS["DB"]->Query("UPDATE b_forum_message SET NEW_TOPIC = (CASE WHEN ID=".intval($res["ABS_FIRST_MESSAGE_ID"])." THEN 'Y' ELSE 'N' END) WHERE TOPIC_ID=".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$GLOBALS["DB"]->Query("UPDATE b_forum_message SET NEW_TOPIC = (CASE WHEN ID=".intval($res["ABS_FIRST_MESSAGE_ID"])." THEN 'Y' ELSE 'N' END) WHERE TOPIC_ID=".$ID);
 
 				CForumMessage::Reindex($res["ABS_FIRST_MESSAGE_ID"]);
 				CForumMessage::Reindex($res["FIRST_MESSAGE_ID"]);
@@ -1022,7 +1022,7 @@ class _CTopicDBResult extends CDBResult
 					if (!empty($arSqlSearch)):
 						$strSql = "SELECT FM.ID, ".$DB->DateToCharFunction("FM.POST_DATE", "FULL")." AS POST_DATE ".
 							"FROM b_forum_message FM WHERE ".implode(" OR ", $arSqlSearch);
-						$db_res = $DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+						$db_res = $DB->Query($strSql);
 						if($db_res && $val = $db_res->Fetch()):
 							do
 							{

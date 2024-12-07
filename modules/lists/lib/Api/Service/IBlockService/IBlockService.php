@@ -35,6 +35,8 @@ final class IBlockService
 	private int $socNetGroupId;
 	private bool $isBpFeatureEnabled;
 
+	private static array $cache = [];
+
 	public function __construct(
 		Param $parameters,
 		AccessService $accessService,
@@ -280,6 +282,7 @@ final class IBlockService
 
 		$list = new \CList($iBlockId);
 
+		$all = [];
 		$fields = [];
 		$props = [];
 		foreach ($list->GetFields() as $fieldId => $property)
@@ -294,6 +297,7 @@ final class IBlockService
 				}
 			}
 
+			$all[$fieldId] = $property;
 			if ($list->is_field($fieldId))
 			{
 				$fields[$fieldId] = $property;
@@ -304,7 +308,7 @@ final class IBlockService
 			}
 		}
 
-		return $response->setFields($fields)->setProps($props);
+		return $response->setFields($fields)->setProps($props)->setAll($all);
 	}
 
 	private function loadEnumValuesByTypeL(array $property): array
@@ -355,7 +359,41 @@ final class IBlockService
 
 			if ($iBlock && Loader::includeModule('iblock'))
 			{
-				$hasSections = SectionTable::getCount(['=IBLOCK_ID' => $iBlockId]) !== 0 ? 'Y' : 'N';
+				if (!isset(self::$cache[$iBlockId]))
+				{
+					self::$cache[$iBlockId] = [];
+				}
+
+				if (!isset(self::$cache[$iBlockId]['hasSections']))
+				{
+					$section = (
+						SectionTable::query()
+							->setSelect(['ID'])
+							->where('IBLOCK_ID', $iBlockId)
+							->setLimit(1)
+							->exec()
+							->fetchObject()
+					);
+
+					self::$cache[$iBlockId]['hasSections'] = (bool)$section;
+				}
+
+				if (
+					self::$cache[$iBlockId]['hasSections']
+					&& $request->loadEnumValues
+					&& !isset(self::$cache[$iBlockId]['sections'])
+				)
+				{
+					$sections = [];
+					$iterator = \CIBlockSection::GetTreeList(['IBLOCK_ID' => $iBlockId]);
+					while ($section = $iterator->GetNext())
+					{
+						$sectionId = (int)$section['ID'];
+						$sections[$sectionId] = $section;
+					}
+
+					self::$cache[$iBlockId]['sections'] = $sections;
+				}
 
 				$fields = [
 					'IBLOCK_SECTION_ID' => [
@@ -372,7 +410,12 @@ final class IBlockService
 							'EDIT_READ_ONLY_FIELD' => 'N',
 						],
 						'LINK_IBLOCK_ID' => $iBlockId,
-						'HAS_SECTIONS' => $hasSections,
+						'HAS_SECTIONS' => self::$cache[$iBlockId]['hasSections'] ? 'Y' : 'N',
+						'ENUM_VALUES' => (
+							$request->loadEnumValues && isset(self::$cache[$iBlockId]['sections'])
+								? self::$cache[$iBlockId]['sections']
+								: []
+						),
 					],
 				];
 
@@ -420,7 +463,7 @@ final class IBlockService
 				$response->setId($elementId);
 				if ($elementId <= 0)
 				{
-					$response->addError(new Error($iBlockElement->LAST_ERROR));
+					$response->addErrors($this->separateUpsertErrors($iBlockElement->LAST_ERROR));
 				}
 
 				if ($wfStarter && $elementId > 0)
@@ -511,7 +554,7 @@ final class IBlockService
 					else
 					{
 						$response
-							->addError(new Error($iBlockElement->LAST_ERROR))
+							->addErrors($this->separateUpsertErrors($iBlockElement->LAST_ERROR))
 							->setIsSuccessUpdate(false)
 						;
 					}
@@ -559,5 +602,22 @@ final class IBlockService
 		}
 
 		return $element;
+	}
+
+	private function separateUpsertErrors(string $errorMessages): array
+	{
+		$errors = [];
+
+		$messages = explode('<br>', $errorMessages);
+		foreach ($messages as $message)
+		{
+			$message = trim($message);
+			if ($message)
+			{
+				$errors[] = new Error($message);
+			}
+		}
+
+		return $errors;
 	}
 }

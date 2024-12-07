@@ -2,10 +2,10 @@
 
 namespace Bitrix\Sale\Discount\Preset;
 
-
 use Bitrix\Main\HttpRequest;
-use Bitrix\Main\Type\Dictionary;
 use Bitrix\Main\Security\Sign\Signer;
+use Bitrix\Main\Type\Dictionary;
+use Bitrix\Main\Web\Json;
 
 final class State extends Dictionary
 {
@@ -13,12 +13,11 @@ final class State extends Dictionary
 	private const CHAIN_NAME_VAR = '__chain';
 	private const STATE_SIGNER_SALT = 'discount.preset.state';
 
-	/** @var Signer */
-	private $signer = null;
+	private Signer $signer;
 
 	/**
 	 * State constructor.
-	 * @param array $values
+	 * @param array|null $values
 	 */
 	public function __construct(array $values = null)
 	{
@@ -28,9 +27,9 @@ final class State extends Dictionary
 		$this->initSigner();
 	}
 
-	private function setDefaultValues()
+	private function setDefaultValues(): void
 	{
-		if(empty($this[self::CHAIN_NAME_VAR]))
+		if (empty($this[self::CHAIN_NAME_VAR]))
 		{
 			$this[self::CHAIN_NAME_VAR] = array();
 		}
@@ -52,10 +51,11 @@ final class State extends Dictionary
 		{
 			$signedData = $this->signer->unsign($data, self::STATE_SIGNER_SALT);
 		}
-		catch(\Bitrix\Main\Security\Sign\BadSignatureException $e)
+		catch (\Bitrix\Main\Security\Sign\BadSignatureException)
 		{
 			die('Bad signature.');
 		}
+
 		return $signedData;
 	}
 
@@ -68,9 +68,9 @@ final class State extends Dictionary
 		return $this;
 	}
 
-	public function append(array $values)
+	public function append(array $values): State
 	{
-		foreach($values as $name => $value)
+		foreach ($values as $name => $value)
 		{
 			$this[$name] = $value;
 		}
@@ -92,14 +92,14 @@ final class State extends Dictionary
 			return $defaultValue($value);
 		}
 
-		return $value !== null? $value : $defaultValue;
+		return $value !== null ? $value : $defaultValue;
 	}
 
 	public static function createFromEncodedData($data)
 	{
 		$state = new State;
 
-		if(empty($data))
+		if (empty($data))
 		{
 			return $state;
 		}
@@ -107,30 +107,30 @@ final class State extends Dictionary
 		$data = $state->unSign($data);
 
 		$data = base64_decode($data);
-		if($data === false)
+		if ($data === false)
 		{
 			return $state;
 		}
-		$data = unserialize($data, ['allowed_classes' => ['Bitrix\Main\Type\DateTime', 'DateTime']]);
+		$data = Json::decode($data);
 
-		return $state->set($data?: array());
+		return $state->set($data ?: []);
 	}
 
-	public static function createFromRequest(HttpRequest $request)
+	public static function createFromRequest(HttpRequest $request): State
 	{
 		$prevState = self::createFromEncodedData($request->getPost(self::STATE_NAME_VAR));
 
-		$postData = array();
-		foreach($request->getPostList()->toArray() as $name => $data)
+		$postData = [];
+		foreach ($request->getPostList()->toArray() as $name => $data)
 		{
-			if(is_array($data) && count($data) === 1 && ($data[0] !== '0' && empty($data[0])))
+			if (is_array($data) && count($data) === 1 && ($data[0] !== '0' && empty($data[0])))
 			{
 				//empty array
 				unset($prevState[$name]);
 				continue;
 			}
 
-			if(is_array($data) && ($data[0] !== '0' && empty($data[0])))
+			if (is_array($data) && ($data[0] !== '0' && empty($data[0])))
 			{
 				unset($data[0]);
 			}
@@ -140,12 +140,12 @@ final class State extends Dictionary
 		return new State(array_merge($prevState->toArray(), $postData));
 	}
 
-	public function addStepChain($step)
+	public function addStepChain($step): State
 	{
 		$chain = $this[self::CHAIN_NAME_VAR];
 		$lastStep = end($chain);
 
-		if($lastStep != $step)
+		if ($lastStep != $step)
 		{
 			$chain[] = $step;
 			$this[self::CHAIN_NAME_VAR] = $chain;
@@ -166,23 +166,33 @@ final class State extends Dictionary
 
 	public function getPrevStep()
 	{
-		return end($this[self::CHAIN_NAME_VAR]);
+		$steps = $this->getStepChain();
+
+		return end($steps);
 	}
 
 	private function getStepChain(): array
 	{
-		return $this->get(self::CHAIN_NAME_VAR, array());
+		return $this->get(self::CHAIN_NAME_VAR, []);
 	}
 
 	public function __toString()
 	{
 		$data = $this->toArray();
-		$value = $this->sign(base64_encode(serialize($data)));
+		try
+		{
+			$data = Json::encode($data);
+		}
+		catch (\Bitrix\Main\SystemException)
+		{
+			$data = '';
+		}
+		$value = $this->sign(base64_encode($data));
 
 		return '<input type="hidden" name="' . self::STATE_NAME_VAR . '" value="' . $value . '">';
 	}
 
-	public function toString()
+	public function toString(): string
 	{
 		return $this->__toString();
 	}
@@ -194,13 +204,13 @@ final class State extends Dictionary
 		unset(
 			$toArray['sessid'],
 			$toArray['lang'],
-			$toArray['__next_step']
+			$toArray['__next_step'],
 		);
 
 		return $toArray;
 	}
 
-	public function getStepNumber()
+	public function getStepNumber(): int
 	{
 		$countPrevSteps = count($this->getStepChain());
 

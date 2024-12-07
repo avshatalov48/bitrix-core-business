@@ -1,6 +1,6 @@
 this.BX = this.BX || {};
 this.BX.UI = this.BX.UI || {};
-(function (exports,main_core_events,ui_uploader_vue,ui_progressround,main_popup,ui_icons_generator,ui_uploader_tileWidget,main_core,ui_uploader_core) {
+(function (exports,main_core_events,ui_uploader_vue,ui_icons_generator,main_popup,ui_progressround,ui_uploader_tileWidget,main_core,ui_uploader_core) {
 	'use strict';
 
 	const SettingsButton = {
@@ -65,67 +65,6 @@ this.BX.UI = this.BX.UI || {};
 			</div>
 		</div>
 	`
-	};
-
-	/**
-	 * @memberof BX.UI.Uploader
-	 */
-	const UploadLoader = {
-	  props: {
-	    progress: {
-	      type: Number,
-	      default: 0
-	    },
-	    width: {
-	      type: Number,
-	      default: 45
-	    },
-	    lineSize: {
-	      type: Number,
-	      default: 3
-	    },
-	    colorTrack: {
-	      type: String,
-	      default: '#eeeff0'
-	    },
-	    colorBar: {
-	      type: String,
-	      default: '#2fc6f6'
-	    },
-	    rotation: {
-	      type: Boolean,
-	      default: true
-	    }
-	  },
-	  mounted() {
-	    this.createProgressbar();
-	  },
-	  watch: {
-	    progress() {
-	      this.updateProgressbar();
-	    }
-	  },
-	  methods: {
-	    createProgressbar() {
-	      this.loader = new ui_progressround.ProgressRound({
-	        width: this.width,
-	        lineSize: this.lineSize,
-	        colorBar: this.colorBar,
-	        colorTrack: this.colorTrack,
-	        rotation: this.rotation,
-	        value: this.progress,
-	        color: ui_progressround.ProgressRound.Color.SUCCESS
-	      });
-	      this.loader.renderTo(this.$refs.container);
-	    },
-	    updateProgressbar() {
-	      if (!this.loader) {
-	        this.createProgressbar();
-	      }
-	      this.loader.update(this.progress);
-	    }
-	  },
-	  template: `<span ref="container"></span>`
 	};
 
 	/**
@@ -263,6 +202,144 @@ this.BX.UI = this.BX.UI || {};
 	  template: '<span></span>'
 	};
 
+	const InsertIntoTextButton = {
+	  name: 'InsertIntoTextButton',
+	  inject: ['emitter'],
+	  props: {
+	    item: {
+	      type: Object,
+	      default: {}
+	    }
+	  },
+	  computed: {
+	    isInserted() {
+	      var _this$item$customData;
+	      return ((_this$item$customData = this.item.customData) == null ? void 0 : _this$item$customData.tileSelected) === true;
+	    }
+	  },
+	  methods: {
+	    click() {
+	      this.emitter.emit('onInsertIntoText', {
+	        item: this.item
+	      });
+	    },
+	    handleMouseEnter(event) {
+	      if (this.hintPopup) {
+	        return;
+	      }
+	      const targetNode = event.currentTarget;
+	      const targetNodeWidth = targetNode.offsetWidth;
+	      this.hintPopup = new main_popup.Popup({
+	        content: main_core.Loc.getMessage('TILE_UPLOADER_INSERT_INTO_THE_TEXT'),
+	        cacheable: false,
+	        animation: 'fading-slide',
+	        bindElement: targetNode,
+	        offsetTop: 0,
+	        bindOptions: {
+	          position: 'top'
+	        },
+	        darkMode: true,
+	        events: {
+	          onClose: () => {
+	            this.hintPopup.destroy();
+	            this.hintPopup = null;
+	          },
+	          onShow: event => {
+	            const popup = event.getTarget();
+	            const popupWidth = popup.getPopupContainer().offsetWidth;
+	            const offsetLeft = targetNodeWidth / 2 - popupWidth / 2;
+	            const angleShift = main_popup.Popup.getOption('angleLeftOffset') - main_popup.Popup.getOption('angleMinTop');
+	            popup.setAngle({
+	              offset: popupWidth / 2 - angleShift
+	            });
+	            popup.setOffset({
+	              offsetLeft: offsetLeft + main_popup.Popup.getOption('angleLeftOffset')
+	            });
+	          }
+	        }
+	      });
+	      this.hintPopup.show();
+	    },
+	    handleMouseLeave(event) {
+	      if (this.hintPopup) {
+	        this.hintPopup.close();
+	        this.hintPopup = null;
+	      }
+	    }
+	  },
+	  // language=Vue
+	  template: `
+		<div 
+			class="ui-tile-uploader-insert-into-text-button"
+			:class="[{ '--inserted': isInserted }]"
+			@mouseenter="handleMouseEnter" 
+			@mouseleave="handleMouseLeave" 
+			@click="click"
+		></div>
+	`
+	};
+
+	/**
+	 * @memberof BX.UI.Uploader
+	 */
+	const UploadLoader = {
+	  props: {
+	    progress: {
+	      type: Number,
+	      default: 0
+	    },
+	    width: {
+	      type: Number,
+	      default: 45
+	    },
+	    lineSize: {
+	      type: Number,
+	      default: 3
+	    },
+	    colorTrack: {
+	      type: String,
+	      default: '#eeeff0'
+	    },
+	    colorBar: {
+	      type: String,
+	      default: '#2fc6f6'
+	    },
+	    rotation: {
+	      type: Boolean,
+	      default: true
+	    }
+	  },
+	  mounted() {
+	    this.createProgressbar();
+	  },
+	  watch: {
+	    progress() {
+	      this.updateProgressbar();
+	    }
+	  },
+	  methods: {
+	    createProgressbar() {
+	      this.loader = new ui_progressround.ProgressRound({
+	        width: this.width,
+	        lineSize: this.lineSize,
+	        colorBar: this.colorBar,
+	        colorTrack: this.colorTrack,
+	        rotation: this.rotation,
+	        value: this.progress,
+	        color: ui_progressround.ProgressRound.Color.SUCCESS
+	      });
+	      this.loader.renderTo(this.$refs.container);
+	    },
+	    updateProgressbar() {
+	      if (!this.loader) {
+	        this.createProgressbar();
+	      }
+	      this.loader.update(this.progress);
+	    }
+	  },
+	  template: '<span ref="container"></span>'
+	};
+
 	const TileItem = {
 	  components: {
 	    UploadLoader,
@@ -278,7 +355,7 @@ this.BX.UI = this.BX.UI || {};
 	  },
 	  data() {
 	    return {
-	      tileId: 'tile-uploader-' + main_core.Text.getRandom().toLowerCase(),
+	      tileId: `tile-uploader-${main_core.Text.getRandom().toLowerCase()}`,
 	      showError: false
 	    };
 	  },
@@ -286,12 +363,12 @@ this.BX.UI = this.BX.UI || {};
 	    FileStatus: () => ui_uploader_core.FileStatus,
 	    status() {
 	      if (this.item.status === ui_uploader_core.FileStatus.UPLOADING) {
-	        return this.item.progress + '%';
-	      } else if (this.item.status === ui_uploader_core.FileStatus.LOAD_FAILED || this.item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
-	        return main_core.Loc.getMessage('TILE_UPLOADER_ERROR_STATUS');
-	      } else {
-	        return main_core.Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
+	        return `${this.item.progress}%`;
 	      }
+	      if (this.item.status === ui_uploader_core.FileStatus.LOAD_FAILED || this.item.status === ui_uploader_core.FileStatus.UPLOAD_FAILED) {
+	        return main_core.Loc.getMessage('TILE_UPLOADER_ERROR_STATUS');
+	      }
+	      return main_core.Loc.getMessage('TILE_UPLOADER_WAITING_STATUS');
 	    },
 	    fileSize() {
 	      if ([ui_uploader_core.FileStatus.LOADING, ui_uploader_core.FileStatus.LOAD_FAILED].includes(this.item.status) && this.item.origin === ui_uploader_core.FileOrigin.SERVER) {
@@ -330,6 +407,29 @@ this.BX.UI = this.BX.UI || {};
 	    },
 	    menuItems() {
 	      const items = [];
+	      items.push({
+	        id: 'filesize',
+	        text: main_core.Loc.getMessage('TILE_UPLOADER_FILE_SIZE', {
+	          '#filesize#': this.item.sizeFormatted
+	        }),
+	        disabled: true
+	      }, {
+	        delimiter: true
+	      });
+	      if (this.widgetOptions.insertIntoText === true) {
+	        items.push({
+	          id: 'insert-into-text',
+	          text: main_core.Loc.getMessage('TILE_UPLOADER_INSERT_INTO_THE_TEXT'),
+	          onclick: () => {
+	            if (this.menu) {
+	              this.menu.close();
+	            }
+	            this.emitter.emit('onInsertIntoText', {
+	              item: this.item
+	            });
+	          }
+	        });
+	      }
 	      if (main_core.Type.isStringFilled(this.item.downloadUrl)) {
 	        items.push({
 	          id: 'download',
@@ -340,8 +440,7 @@ this.BX.UI = this.BX.UI || {};
 	              this.menu.close();
 	            }
 	          }
-	        });
-	        items.push({
+	        }, {
 	          id: 'remove',
 	          text: main_core.Loc.getMessage('TILE_UPLOADER_MENU_REMOVE'),
 	          onclick: () => {
@@ -352,7 +451,10 @@ this.BX.UI = this.BX.UI || {};
 	      return items;
 	    },
 	    extraAction() {
-	      return this.widgetOptions.slots && this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] ? this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] : null;
+	      return this.widgetOptions.slots && this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] ? this.widgetOptions.slots[ui_uploader_tileWidget.TileWidgetSlot.ITEM_EXTRA_ACTION] : this.widgetOptions.insertIntoText === true ? InsertIntoTextButton : null;
+	    },
+	    isSelected() {
+	      return this.item.customData.tileSelected === true;
 	    }
 	  },
 	  created() {
@@ -377,38 +479,41 @@ this.BX.UI = this.BX.UI || {};
 	      this.showError = false;
 	    },
 	    toggleMenu() {
-	      if (this.menu) {
-	        if (this.menu.getPopupWindow().isShown()) {
-	          this.menu.close();
-	          return;
-	        } else {
+	      setTimeout(() => {
+	        if (this.menu) {
+	          if (this.menu.getPopupWindow().isShown()) {
+	            this.menu.close();
+	            return;
+	          }
 	          this.menu.destroy();
 	        }
-	      }
-	      this.menu = main_popup.MenuManager.create({
-	        id: this.tileId,
-	        bindElement: this.$refs.menu,
-	        angle: true,
-	        offsetLeft: 13,
-	        minWidth: 100,
-	        cacheable: false,
-	        items: this.menuItems,
-	        events: {
-	          onDestroy: () => this.menu = null
-	        }
+	        this.menu = main_popup.MenuManager.create({
+	          id: this.tileId,
+	          bindElement: this.$refs.menu,
+	          angle: true,
+	          offsetLeft: 13,
+	          minWidth: 100,
+	          cacheable: false,
+	          items: this.menuItems,
+	          events: {
+	            onDestroy: () => {
+	              this.menu = null;
+	            }
+	          }
+	        });
+	        this.emitter.emit('TileItem:onMenuCreate', {
+	          menu: this.menu,
+	          item: this.item
+	        });
+	        this.menu.show();
 	      });
-	      this.emitter.emit('TileItem:onMenuCreate', {
-	        menu: this.menu,
-	        item: this.item
-	      });
-	      this.menu.show();
 	    }
 	  },
 	  // language=Vue
 	  template: `
 	<div
 		class="ui-tile-uploader-item"
-		:class="['ui-tile-uploader-item--' + item.status, { '--image': item.isImage, '--selected': item.tileWidgetData?.selected } ]"
+		:class="['ui-tile-uploader-item--' + item.status, { '--image': item.isImage, '--selected': isSelected } ]"
 		ref="container"
 	>
 		<ErrorPopup v-if="item.error && showError" :error="item.error" :popup-options="errorPopupOptions"/>
@@ -628,6 +733,9 @@ this.BX.UI = this.BX.UI || {};
 	  directives: {
 	    drop: {
 	      beforeMount(el, binding, vnode) {
+	        if (binding.value === false) {
+	          return;
+	        }
 	        function addClass() {
 	          binding.instance.dragOver = true;
 	          el.classList.add('--drag-over');
@@ -645,6 +753,8 @@ this.BX.UI = this.BX.UI || {};
 	              lastEnterTarget = event.target;
 	              addClass();
 	            }
+	          }).catch(() => {
+	            // no-op
 	          });
 	        });
 	        main_core.Event.bind(el, 'dragleave', event => {
@@ -659,6 +769,9 @@ this.BX.UI = this.BX.UI || {};
 	        });
 	      },
 	      unmounted(el, binding, vnode) {
+	        if (binding.value === false) {
+	          return;
+	        }
 	        binding.instance.dragOver = false;
 	        main_core.Event.unbindAll(el, 'dragenter');
 	        main_core.Event.unbindAll(el, 'dragleave');
@@ -715,21 +828,13 @@ this.BX.UI = this.BX.UI || {};
 	        [ui_uploader_tileWidget.TileWidgetSlot.BEFORE_DROP_AREA]: slots[ui_uploader_tileWidget.TileWidgetSlot.BEFORE_DROP_AREA],
 	        [ui_uploader_tileWidget.TileWidgetSlot.AFTER_DROP_AREA]: slots[ui_uploader_tileWidget.TileWidgetSlot.AFTER_DROP_AREA]
 	      };
+	    },
+	    enableDropzone() {
+	      return this.widgetOptions.enableDropzone !== false;
 	    }
 	  },
 	  created() {
 	    this.autoCollapse = main_core.Type.isBoolean(this.widgetOptions.autoCollapse) ? this.widgetOptions.autoCollapse : this.items.length > 0;
-
-	    // Current Items
-	    this.items.forEach(item => {
-	      item['tileWidgetData'] = {};
-	    });
-
-	    // New Items
-	    this.adapter.subscribe('Item:onBeforeAdd', event => {
-	      const item = event.getData().item;
-	      item['tileWidgetData'] = {};
-	    });
 	    this.adapter.subscribe('Item:onAdd', event => {
 	      this.uploaderError = null;
 	    });
@@ -738,7 +843,9 @@ this.BX.UI = this.BX.UI || {};
 	    });
 	  },
 	  mounted() {
-	    this.uploader.assignDropzone(this.$refs.container);
+	    if (this.enableDropzone) {
+	      this.uploader.assignDropzone(this.$refs.container);
+	    }
 	    this.isMounted = true;
 	  },
 	  methods: {
@@ -756,7 +863,7 @@ this.BX.UI = this.BX.UI || {};
 	  },
 	  // language=Vue
 	  template: `
-		<div class="ui-tile-uploader" ref="container" v-drop>
+		<div class="ui-tile-uploader" ref="container" v-drop="enableDropzone">
 			<component :is="slots[TileWidgetSlot.BEFORE_TILE_LIST]"></component>
 			<TileList 
 				v-if="items.length !== 0" 
@@ -809,5 +916,5 @@ this.BX.UI = this.BX.UI || {};
 	exports.UploadLoader = UploadLoader;
 	exports.DragOverMixin = DragOverMixin;
 
-}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Event,BX.UI.Uploader,BX.UI,BX.Main,BX.UI.Icons.Generator,BX.UI.Uploader,BX,BX.UI.Uploader));
+}((this.BX.UI.Uploader = this.BX.UI.Uploader || {}),BX.Event,BX.UI.Uploader,BX.UI.Icons.Generator,BX.Main,BX.UI,BX.UI.Uploader,BX,BX.UI.Uploader));
 //# sourceMappingURL=ui.uploader.tile-widget.bundle.js.map

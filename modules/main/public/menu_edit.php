@@ -13,8 +13,6 @@ if(!CModule::IncludeModule('fileman'))
 if(!$USER->CanDoOperation('fileman_edit_menu_elements'))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-CUtil::JSPostUnescape();
-
 IncludeModuleLangFile(__FILE__);
 
 $site = CFileMan::__CheckSite($site);
@@ -112,7 +110,7 @@ else
 $only_edit = !$USER->CanDoOperation('fileman_add_element_to_menu') || !$USER->CanDoFileOperation('fm_create_new_file', $arPath_m);
 
 /******* POST **********/
-//ïðîâåðèì ïðàâà íà äîñòóï â ýòó ïàïêó
+//Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ð¼ Ð¿Ñ€Ð°Ð²Ð° Ð½Ð° Ð´Ð¾ÑÑ‚ÑƒÐ¿ Ð² ÑÑ‚Ñƒ Ð¿Ð°Ð¿ÐºÑƒ
 if(!$USER->CanDoOperation('fileman_edit_existent_files') || !$USER->CanDoFileOperation('fm_edit_existent_file', $arPath_m) || (!$bEdit && $only_edit))
 {
 	$strWarning = GetMessage("ACCESS_DENIED");
@@ -130,7 +128,7 @@ else
 		$aMenuLinksTmp = $res["aMenuLinks"];
 		$aMenuLinksTmp_ = Array();
 
-		//ñîáåðåì $aMenuLinksTmp èç òîãî ÷òî ïðèøëî ñ ôîðìû
+		//ÑÐ¾Ð±ÐµÑ€ÐµÐ¼ $aMenuLinksTmp Ð¸Ð· Ñ‚Ð¾Ð³Ð¾ Ñ‡Ñ‚Ð¾ Ð¿Ñ€Ð¸ÑˆÐ»Ð¾ Ñ Ñ„Ð¾Ñ€Ð¼Ñ‹
 		$aMenuSort = Array();
 		foreach ($ids as $num)
 		{
@@ -173,7 +171,7 @@ else
 			}
 		}
 
-		//òåïåðü $aMenuLinksTmp ïðÿìî â òàêîì ãîòîâîì âèäå, ÷òî õîòü ìåíþ ðèñóé :-)
+		//Ñ‚ÐµÐ¿ÐµÑ€ÑŒ $aMenuLinksTmp Ð¿Ñ€ÑÐ¼Ð¾ Ð² Ñ‚Ð°ÐºÐ¾Ð¼ Ð³Ð¾Ñ‚Ð¾Ð²Ð¾Ð¼ Ð²Ð¸Ð´Ðµ, Ñ‡Ñ‚Ð¾ Ñ…Ð¾Ñ‚ÑŒ Ð¼ÐµÐ½ÑŽ Ñ€Ð¸ÑÑƒÐ¹ :-)
 		if (!check_bitrix_sessid())
 		{
 			$strWarning = GetMessage('MENU_EDIT_SESSION_EXPIRED');
@@ -269,7 +267,7 @@ $obJSPopup = new CJSPopup('',
 // ======================== Show titlebar ============================= //
 $obJSPopup->ShowTitlebar();
 ?>
-<script src="/bitrix/js/main/dd.js" type="text/javascript"></script>
+<script src="/bitrix/js/main/dd.js"></script>
 
 <?
 // ======================== Show description ============================= //
@@ -366,7 +364,7 @@ CAdminFileDialog::ShowScript(
 </div>
 	<?if(!$only_edit):?><br /><input type="button" onClick="menuAdd()" value="<?echo GetMessage("MENU_EDIT_ADD_ITEM")?>" /><?endif;?>
 	<input type="hidden" name="itemcnt" value="<?echo $itemcnt?>" />
-<script type="text/javascript">
+<script>
 var currentLink = -1;
 var currentRow = null;
 

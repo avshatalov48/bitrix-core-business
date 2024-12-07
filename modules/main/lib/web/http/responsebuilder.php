@@ -4,18 +4,17 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Web\Http;
 
 use Bitrix\Main\Web\HttpHeaders;
 
-class ResponseBuilder
+class ResponseBuilder implements ResponseBuilderInterface
 {
 	/**
-	 * @param string $response
-	 * @return Response
+	 * @inheritdoc
 	 */
 	public function createFromString(string $response): Response
 	{

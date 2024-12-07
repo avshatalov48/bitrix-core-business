@@ -24,8 +24,8 @@ class Element extends ElementBase
 		$queueOption = [
 			"sectionId" => $sectionId,
 			"copiedSectionId" => $copiedSectionId,
-			"enumRatio" => ($this->enumRatio[$sectionId] ?: []),
-			"sectionsRatio" => ($this->sectionsRatio[$sectionId] ?: [])
+			"enumRatio" => ($this->enumRatio[$sectionId] ?? []),
+			"sectionsRatio" => ($this->sectionsRatio[$sectionId] ?? [])
 		];
 		Option::set($this->moduleId, "SectionGroupStepper_".$copiedSectionId, serialize($queueOption));
 

@@ -43,8 +43,6 @@ $sendResponse = function($result)
 	die();
 };
 
-CUtil::JSPostUnescape();
-
 if (!isset($_REQUEST['sender_id']))
 {
 	return;

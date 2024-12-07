@@ -40,7 +40,7 @@ $type = $arParams['TYPE'];
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 	new BX.Seo.SeoPostSelector( {
 		accountId: '<?=$accountId?>',
 		clientId: '<?=$clientId?>',

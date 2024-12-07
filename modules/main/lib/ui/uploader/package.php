@@ -140,7 +140,7 @@ class Package
 	{
 		if (!is_string($CID))
 			throw new ArgumentNullException("CID");
-		else if (strpos($CID, "/") !== false)
+		else if (str_contains($CID, "/"))
 			throw new ArgumentException("CID contains a forbidden symbol /");
 		$this->CID = preg_replace("/[^a-z0-9_\\-.]/i", "_", $CID);
 	}

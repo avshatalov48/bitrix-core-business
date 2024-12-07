@@ -59,10 +59,9 @@ class FactoryComponents
 			case 'vtimezone':
 				$this->component = $this->getTimezoneComponent($properties, $subComponents);
 				break;
-			case 'valarm':
-				break; //TODO: Add VALARM component support
+			//TODO: Add VALARM component support
 			default:
-				$this->addMessageLog();
+				break;
 		}
 
 		return $this;
@@ -162,13 +161,5 @@ class FactoryComponents
 			->setTimezoneId($properties['tzid'] ?? null)
 			->setTimezoneUrl($properties['tzurl'] ?? null)
 			->setSubComponents($subComponents);
-	}
-
-	/**
-	 * @return void
-	 */
-	private function addMessageLog(): void
-	{
-		AddMessage2Log("Component not found: {$this->componentName}", "calendar", 2);
 	}
 }

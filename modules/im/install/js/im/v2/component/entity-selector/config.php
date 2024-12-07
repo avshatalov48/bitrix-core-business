@@ -12,6 +12,7 @@ return [
 		'ui.entity-selector',
 		'im.v2.application.core',
 		'im.v2.provider.service',
+		'im.v2.lib.channel',
 		'main.popup',
 		'im.v2.component.elements',
 		'main.core.events',

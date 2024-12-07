@@ -269,12 +269,12 @@ class CWikiUtils
 
 	static function CheckServicePage($NAME, &$SERVICE_NAME)
 	{
-		$arStream = array('category', ToLower(GetMessage('CATEGORY_NAME')));
+		$arStream = array('category', mb_strtolower(GetMessage('CATEGORY_NAME')));
 		$arSplit = explode(':', $NAME);
 
 		if (count($arSplit) >= 2)
 		{
-			$SERVICE_PAGE = ToLower($arSplit[0]);
+			$SERVICE_PAGE = mb_strtolower($arSplit[0]);
 			if (in_array($SERVICE_PAGE, $arStream))
 			{
 				unset($arSplit[0]);
@@ -291,14 +291,14 @@ class CWikiUtils
 	static function IsCategoryPage($NAME, &$CATEGORY_NAME)
 	{
 		$sServiceName = self::CheckServicePage($NAME, $CATEGORY_NAME);
-		return ($sServiceName == 'category' || $sServiceName == ToLower(GetMessage('CATEGORY_NAME')));
+		return ($sServiceName == 'category' || $sServiceName == mb_strtolower(GetMessage('CATEGORY_NAME')));
 	}
 
 	static function OnBeforeIndex($arFields)
 	{
 		static $groupSiteList = array();
 
-		$arFields['NAME'] = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
+		$arFields['NAME'] = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
 		$CWikiParser = new CWikiParser();
 		$arFields['BODY'] = $CWikiParser->parseForSearch($arFields['BODY']);
 
@@ -477,7 +477,7 @@ class CWikiUtils
 
 	static function UnlocalizeCategoryName($categoryName)
 	{
-		return preg_replace('/^'.GetMessage('CATEGORY_NAME').':/i'.BX_UTF_PCRE_MODIFIER, 'category:', $categoryName);
+		return preg_replace('/^'.GetMessage('CATEGORY_NAME').':/iu', 'category:', $categoryName);
 	}
 
 	static function GetTagsAsLinks($arTags)

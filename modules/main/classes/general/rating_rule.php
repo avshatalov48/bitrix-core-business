@@ -98,7 +98,7 @@ class CRatingRule
 		if ($sOrder == '')
 			$sOrder = "PR.ID DESC";
 
-		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
+		$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
 
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
@@ -352,7 +352,7 @@ class CRatingRule
 
 		if ($sOrder == '')
 			$sOrder = "ID ASC";
-		$strSqlOrder = " ORDER BY ".TrimEx($sOrder,",");
+		$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
 
 		$strSql = "SELECT * FROM b_rating_rule_vetting WHERE $strSqlSearch $strSqlOrder";
 		return  $DB->Query($strSql);

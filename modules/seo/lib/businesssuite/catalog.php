@@ -83,11 +83,6 @@ abstract class Catalog extends AbstractBase
 			return $this->createResponseWithError('Empty product data.');
 		}
 
-		if (!Application::getInstance()->isUtfMode())
-		{
-			$productData = (array)Encoding::convertEncoding($productData, 'Windows-1251', 'UTF-8');
-		}
-
 		return $this->sendRequest('catalog.products.batch', [
 			'allow_upsert' => true,
 			'requests' => $productData,

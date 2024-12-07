@@ -1,5 +1,6 @@
 <?php
 
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Iblock;
 
@@ -10,6 +11,11 @@ class CIBlockPropertyFileMan
 
 	public static function GetUserTypeDescription()
 	{
+		if (Loader::includeModule('bitrix24'))
+		{
+			return [];
+		}
+
 		return [
 			'PROPERTY_TYPE' => Iblock\PropertyTable::TYPE_STRING,
 			'USER_TYPE' => Iblock\PropertyTable::USER_TYPE_FILE_MAN,

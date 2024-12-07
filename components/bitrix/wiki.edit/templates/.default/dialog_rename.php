@@ -20,7 +20,7 @@
 							<td><input type="text" name="NEW_NAME" value="<? echo ($sCatName ? $sCatName : htmlspecialcharsbx($arResult['ELEMENT']['NAME_LOCALIZE']))?>"></td>
 						</tr>
 				</form>
-				<script type="text/javascript">
+				<script>
 					BX.WindowManager.Get().SetTitle('<?=GetMessage("WIKI_DIALOG_RENAME_TITLE")?>');
 					var _BTN = [
 						{
@@ -50,7 +50,7 @@
 							<td><?=$arResult['ERROR_MESSAGE']?></td>
 						</tr>
 				</form>
-				<script type="text/javascript">
+				<script>
 					BX.WindowManager.Get().SetTitle('<?=GetMessage("WIKI_DIALOG_RENAME_ERROR")?>');
 					var _BTN = [
 						{

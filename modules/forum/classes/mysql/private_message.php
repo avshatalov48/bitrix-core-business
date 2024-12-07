@@ -87,7 +87,7 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 		if ($arAddParams["bCount"] || is_set($arAddParams, "bDescPageNumbering"))
 		{
 			$strSql = "SELECT COUNT(PM.ID) AS CNT FROM b_forum_private_message PM WHERE (1=1) ".$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = ($db_res && ($res = $db_res->Fetch()) ? intval($res["CNT"]) : 0);
 			if ($arAddParams["bCount"])
 				return $iCnt;
@@ -150,7 +150,7 @@ class CForumPrivateMessage extends CAllForumPrivateMessage
 		} else {
 			if ($arAddParams["nTopCount"] > 0)
 				$strSql .= " LIMIT 0,".$arAddParams["nTopCount"];
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 		}
 		return $db_res;
 	}

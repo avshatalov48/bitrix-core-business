@@ -27,6 +27,7 @@ export class InitManager
 		Logger.warn('InitManager: start');
 		this.#initCurrentUser();
 		this.#initSettings();
+		this.#initTariffRestrictions();
 
 		CounterManager.init();
 		PermissionManager.init();
@@ -50,7 +51,7 @@ export class InitManager
 			return;
 		}
 
-		new UserManager().setUsersToModel([currentUser]);
+		void new UserManager().setUsersToModel([currentUser]);
 	}
 
 	static #initLogger()
@@ -73,6 +74,18 @@ export class InitManager
 		}
 
 		Logger.warn('InitManager: settings', settings);
-		Core.getStore().dispatch('application/settings/set', settings);
+		void Core.getStore().dispatch('application/settings/set', settings);
+	}
+
+	static #initTariffRestrictions()
+	{
+		const { tariffRestrictions } = Core.getApplicationData();
+		if (!tariffRestrictions)
+		{
+			return;
+		}
+
+		Logger.warn('InitManager: tariffRestrictions', tariffRestrictions);
+		void Core.getStore().dispatch('application/tariffRestrictions/set', tariffRestrictions);
 	}
 }

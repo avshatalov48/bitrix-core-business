@@ -2,10 +2,10 @@
 
 namespace Bitrix\Im\V2\Integration\AI;
 
-use Bitrix\AI\Context;
 use Bitrix\AI\Engine;
+use Bitrix\AI\Facade\Bitrix24;
 use Bitrix\AI\Tuning\Defaults;
-use Bitrix\Main\Config\Option;
+use Bitrix\Main\Application;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 
@@ -16,6 +16,9 @@ class Restriction
 	public const AI_TEXTAREA = 'textarea';
 	public const AI_COPILOT_CHAT = 'copilot_chat';
 	public const SETTING_COPILOT_CHAT_PROVIDER = 'im_chat_answer_provider';
+	public const AI_TEXT_ERROR = 'AI_TEXT_NOT_ACTIVE';
+	public const AI_AVAILABLE_ERROR = 'AI_NOT_AVAILABLE';
+	public const AI_IMAGE_ERROR = 'AI_IMAGE_NOT_ACTIVE';
 
 	private const CATEGORIES_BY_TYPE = [
 		self::AI_TEXTAREA => self::AI_TEXT_CATEGORY,
@@ -27,9 +30,9 @@ class Restriction
 		self::AI_COPILOT_CHAT => self::SETTING_COPILOT_CHAT,
 		self::AI_TEXTAREA => self::SETTING_TEXTAREA_CHAT,
 	];
-
-	public const AI_TEXT_ERROR = 'AI_TEXT_NOT_AVAILABLE';
-	public const AI_IMAGE_ERROR = 'AI_IMAGE_NOT_AVAILABLE';
+	private const PORTAL_ZONE_BLACKLIST = [
+		'cn',
+	];
 
 	private string $type;
 
@@ -38,14 +41,13 @@ class Restriction
 		$this->type = $type;
 	}
 
-	public function isAvailable(): bool
+	public function isActive(): bool
 	{
-		if (!Loader::includeModule('ai'))
-		{
-			return false;
-		}
-
-		if (!isset(self::CATEGORIES_BY_TYPE[$this->type]))
+		if (
+			!Loader::includeModule('ai')
+			|| !$this->isAvailable()
+			|| !isset(self::CATEGORIES_BY_TYPE[$this->type])
+		)
 		{
 			return false;
 		}
@@ -64,6 +66,11 @@ class Restriction
 		}
 
 		return $copilotSetting->getValue();
+	}
+
+	public function isAvailable(): bool
+	{
+		return $this->isZoneAvailable();
 	}
 
 	public static function onTuningLoad(): \Bitrix\Main\Entity\EventResult
@@ -110,5 +117,13 @@ class Restriction
 		]);
 
 		return $result;
+	}
+
+	private function isZoneAvailable(): bool
+	{
+		// todo: need to support changes
+		$portalZone = Application::getInstance()->getLicense()->getRegion() ?? 'ru';
+
+		return !in_array($portalZone, self::PORTAL_ZONE_BLACKLIST, true);
 	}
 }

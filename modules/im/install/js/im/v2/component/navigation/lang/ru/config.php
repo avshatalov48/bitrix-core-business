@@ -1,8 +1,9 @@
 <?php
 $MESS["IM_NAVIGATION_CHATS"] = "Чаты";
+$MESS["IM_NAVIGATION_CHANNELS"] = "Каналы";
 $MESS["IM_NAVIGATION_NOTIFICATIONS"] = "Уведомления";
 $MESS["IM_NAVIGATION_OPENLINES"] = "Контакт-центр";
-$MESS["IM_NAVIGATION_CALLS"] = "Звонки";
+$MESS["IM_NAVIGATION_CALLS_V2"] = "Телефония";
 $MESS["IM_NAVIGATION_SETTINGS"] = "Настройки";
 $MESS["IM_NAVIGATION_COPILOT"] = "CoPilot";
 $MESS["IM_NAVIGATION_TIMEMANAGER"] = "Время";
@@ -18,6 +19,6 @@ $MESS["IM_USER_SETTINGS_CHAT_ALIGNMENT"] = "Расположение сообщ�
 $MESS["IM_USER_SETTINGS_FEEDBACK"] = "Обратная связь";
 $MESS["IM_USER_SETTINGS_CONNECTED_BITRIX24"] = "Подключённые Битрикс24";
 $MESS["IM_USER_SETTINGS_CONNECT_BITRIX24"] = "+Подключить";
-$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT"] = "Подключить";
-$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT"] = "Отключить";
-$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE"] = "Удалить";
+$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT_V2"] = "Перейти";
+$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT_V2"] = "Выйти";
+$MESS["IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE_V2"] = "Убрать из списка";

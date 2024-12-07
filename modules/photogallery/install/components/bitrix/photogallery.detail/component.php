@@ -1,13 +1,20 @@
 <?if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 if (!CModule::IncludeModule("photogallery"))
-	return ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("P_MODULE_IS_NOT_INSTALLED"));
+	return;
+}
 elseif (!IsModuleInstalled("iblock"))
-	return ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("IBLOCK_MODULE_NOT_INSTALLED"));
+	return;
+}
 elseif (intval($arParams["ELEMENT_ID"]) <= 0)
 {
 	if ($arParams["SET_STATUS_404"] == "Y")
 		CHTTP::SetStatus("404 Not Found");
-	return ShowError(GetMessage("PHOTO_ELEMENT_NOT_FOUND"));
+	ShowError(GetMessage("PHOTO_ELEMENT_NOT_FOUND"));
+	return;
 }
 /********************************************************************
 				For custom components

@@ -94,7 +94,7 @@ class CRubric
 				b_list_rubric R
 			' . $sFilter . $sOrder;
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//Get by ID
@@ -111,7 +111,7 @@ class CRubric
 			WHERE R.ID = ' . $ID . '
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//Count of subscribers
@@ -126,7 +126,7 @@ class CRubric
 			WHERE SR.LIST_RUBRIC_ID = " . $ID . '
 		';
 
-		$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query($strSql);
 		if ($res_arr = $res->Fetch())
 		{
 			return intval($res_arr['CNT']);
@@ -145,14 +145,14 @@ class CRubric
 
 		$DB->StartTransaction();
 
-		$res = $DB->Query('DELETE FROM b_subscription_rubric WHERE LIST_RUBRIC_ID=' . $ID, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query('DELETE FROM b_subscription_rubric WHERE LIST_RUBRIC_ID=' . $ID);
 		if ($res)
 		{
-			$res = $DB->Query('DELETE FROM b_posting_rubric WHERE LIST_RUBRIC_ID=' . $ID, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query('DELETE FROM b_posting_rubric WHERE LIST_RUBRIC_ID=' . $ID);
 		}
 		if ($res)
 		{
-			$res = $DB->Query('DELETE FROM b_list_rubric WHERE ID=' . $ID, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query('DELETE FROM b_list_rubric WHERE ID=' . $ID);
 		}
 
 		if ($res)
@@ -170,7 +170,7 @@ class CRubric
 	public static function OnBeforeLangDelete($lang)
 	{
 		global $DB, $APPLICATION;
-		$rs = $DB->Query("SELECT count(*) C FROM b_list_rubric WHERE LID='" . $DB->ForSql($lang, 2) . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$rs = $DB->Query("SELECT count(*) C FROM b_list_rubric WHERE LID='" . $DB->ForSql($lang, 2) . "'");
 		$ar = $rs->Fetch();
 		if ($ar['C'] > 0)
 		{
@@ -357,7 +357,7 @@ class CRubric
 		if ($strUpdate != '')
 		{
 			$strSql = 'UPDATE b_list_rubric SET ' . $strUpdate . ' WHERE ID=' . $ID;
-			$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$DB->Query($strSql);
 			if ($ID > 0 && $arFields['ACTIVE'] == 'Y' && $arFields['AUTO'] == 'Y' && COption::GetOptionString('subscribe', 'subscribe_template_method') !== 'cron')
 			{
 					CAgent::AddAgent('CPostingTemplate::Execute();', 'subscribe', 'N', COption::GetOptionString('subscribe', 'subscribe_template_interval'));

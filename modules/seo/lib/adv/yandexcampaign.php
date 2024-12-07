@@ -525,7 +525,7 @@ class YandexCampaignTable extends AdvEntity
 							Loc::getMessage(
 								'SEO_CAMPAIGN_ERROR_STRATEGY_PARAM_MANDATORY',
 								array(
-									'#PARAM#' => Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.ToUpper($key)),
+									'#PARAM#' => Loc::getMessage('SEO_CAMPAIGN_STRATEGY_PARAM_'.mb_strtoupper($key)),
 									'#STRATEGY#' => Loc::getMessage('SEO_CAMPAIGN_STRATEGY_'.$strategy),
 								)
 							)

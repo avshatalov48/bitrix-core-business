@@ -461,8 +461,8 @@ function bxhtmlspecialchars(str)
 }
 
 /*
-Глобальный объект, который будет собирать все необходимые обработчики глобальных событий,
-и при их возникновении на документе или внутри ифрэймов - вызывать их.
+Р“Р»РѕР±Р°Р»СЊРЅС‹Р№ РѕР±СЉРµРєС‚, РєРѕС‚РѕСЂС‹Р№ Р±СѓРґРµС‚ СЃРѕР±РёСЂР°С‚СЊ РІСЃРµ РЅРµРѕР±С…РѕРґРёРјС‹Рµ РѕР±СЂР°Р±РѕС‚С‡РёРєРё РіР»РѕР±Р°Р»СЊРЅС‹С… СЃРѕР±С‹С‚РёР№,
+Рё РїСЂРё РёС… РІРѕР·РЅРёРєРЅРѕРІРµРЅРёРё РЅР° РґРѕРєСѓРјРµРЅС‚Рµ РёР»Рё РІРЅСѓС‚СЂРё РёС„СЂСЌР№РјРѕРІ - РІС‹Р·С‹РІР°С‚СЊ РёС….
 */
 
 function BXEventDispatcher()
@@ -471,8 +471,8 @@ function BXEventDispatcher()
 	this.arEditorHandlers = Array();
 	this.arEditors = Array();
 	/*
-	Функция-диспетчер делает объект событие совместимый с IE/FF,
-	вычисляет параметры pageX/pageY - координаты относительно главного окна
+	Р¤СѓРЅРєС†РёСЏ-РґРёСЃРїРµС‚С‡РµСЂ РґРµР»Р°РµС‚ РѕР±СЉРµРєС‚ СЃРѕР±С‹С‚РёРµ СЃРѕРІРјРµСЃС‚РёРјС‹Р№ СЃ IE/FF,
+	РІС‹С‡РёСЃР»СЏРµС‚ РїР°СЂР°РјРµС‚СЂС‹ pageX/pageY - РєРѕРѕСЂРґРёРЅР°С‚С‹ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РіР»Р°РІРЅРѕРіРѕ РѕРєРЅР°
 	*/
 	BXEventDispatcher.prototype.OnEvent = function(pDoc, e)
 	{
@@ -528,7 +528,7 @@ function BXEventDispatcher()
 	}
 
 	/*
-	Метод добавляет обработчик pEventHandler для глобального события eventName
+	РњРµС‚РѕРґ РґРѕР±Р°РІР»СЏРµС‚ РѕР±СЂР°Р±РѕС‚С‡РёРє pEventHandler РґР»СЏ РіР»РѕР±Р°Р»СЊРЅРѕРіРѕ СЃРѕР±С‹С‚РёСЏ eventName
 	*/
 	BXEventDispatcher.prototype.AddHandler = function (eventName, pEventHandler)
 	{
@@ -557,7 +557,7 @@ function BXEventDispatcher()
 	}
 
 	/*
-	Служебный метод для добавления объекта типа BXHTMLEditor
+	РЎР»СѓР¶РµР±РЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РґРѕР±Р°РІР»РµРЅРёСЏ РѕР±СЉРµРєС‚Р° С‚РёРїР° BXHTMLEditor
 	*/
 	BXEventDispatcher.prototype.__Add = function (pObject)
 	{
@@ -571,7 +571,7 @@ function BXEventDispatcher()
 	}
 
 	/*
-	Установка курсора для всех документов
+	РЈСЃС‚Р°РЅРѕРІРєР° РєСѓСЂСЃРѕСЂР° РґР»СЏ РІСЃРµС… РґРѕРєСѓРјРµРЅС‚РѕРІ
 	*/
 	BXEventDispatcher.prototype.SetCursor = function (sCursor)
 	{
@@ -770,7 +770,7 @@ function BXPHPValArray(ob)
 
 
 
-// инициализация глобального объекта
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РіР»РѕР±Р°Р»СЊРЅРѕРіРѕ РѕР±СЉРµРєС‚Р°
 var pBXEventDispatcher = new BXEventDispatcher();
 
 var BXEditorLoaded = false;

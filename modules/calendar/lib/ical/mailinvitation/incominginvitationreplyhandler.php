@@ -13,7 +13,6 @@ use Bitrix\Main\IO\FileNotFoundException;
 use Bitrix\Main\LoaderException;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Text\Encoding;
 use CCalendarEvent;
 
 class IncomingInvitationReplyHandler extends IncomingInvitationHandler
@@ -150,19 +149,18 @@ class IncomingInvitationReplyHandler extends IncomingInvitationHandler
 					try
 					{
 						$fileObject = new File($file['tmp_name'], $event->getParameter('site_id'));
-						$fileContent = Encoding::convertEncoding($fileObject->getContents(), SenderInvitation::CHARSET, SITE_CHARSET);
+						$fileContent = $fileObject->getContents();
 					}
 					catch (FileNotFoundException $e)
 					{
-						AddMessage2Log('File ics not found', 'calendar', 2);
-						die();
+						return false;
 					}
 
 					$icalComponent = InboxManager::createInstance($fileContent)
 						->parseContent()
 						->getComponent();
 
-					if ($icalComponent->getMethod() === Dictionary::METHOD['reply'])
+					if ($icalComponent?->getMethod() === Dictionary::METHOD['reply'])
 					{
 						return self::fromComponent($icalComponent)
 							->handle()

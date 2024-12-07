@@ -51,7 +51,7 @@ $arJSParams = array(
 	'tabList' => $tabIDList
 );
 ?>
-<script type="text/javascript">
+<script>
 var <?=$jsObjName?> = new JCCatalogTabs(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 </script>
 <?

@@ -16,7 +16,7 @@ class ConnectorLine
 		$this->utils = $utils;
 	}
 
-	public function getLineId(): ?int
+	public function getLineId(?int $subjectId = null): ?int
 	{
 		if (!Loader::includeModule('imconnector'))
 		{
@@ -28,11 +28,19 @@ class ConnectorLine
 		{
 			if ($status->isConfigured())
 			{
-				return (int)$status->getLine();
+				$data = $status->getData();
+				if (isset($data['subjectId']) && $data['subjectId'] == $subjectId)
+				{
+					return (int)$status->getLine();
+				}
+				elseif (!isset($data['subjectId']))
+				{
+					$commonLine = (int)$status->getLine();
+				}
 			}
 		}
 
-		return null;
+		return $commonLine ?? null;
 	}
 
 	public function testConnection(): Result

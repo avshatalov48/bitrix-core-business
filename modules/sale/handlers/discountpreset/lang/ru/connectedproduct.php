@@ -14,4 +14,3 @@ $MESS["SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_TITLE_DISCOUNT_WHEN"] = "Товар/
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_DESCR_INPUT_NAME"] = "При добавлении определенного товара в корзину, система может автоматически создавать скидки на другие товары или разделы, что позволит увеличить средний чек покупки.";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_DESCR_FOR_DISCOUNT"] = "Выберите товары или разделы, на которые автоматически будет рассчитана скидка при появлении в корзине товаров, указанных на следующем шаге.";
 $MESS["SALE_HANDLERS_DISCOUNTPRESET_CP_STEP_DESCR_WHEN_DISCOUNT"] = "Выберите товары или разделы, которые при добавлении в корзину будут инициировать скидки на другие товары.";
-?>

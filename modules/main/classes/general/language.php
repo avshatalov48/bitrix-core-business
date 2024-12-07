@@ -274,8 +274,7 @@ class CAllLanguage
 			$ar["NAME"] = htmlspecialcharsbx($ar["NAME"]);
 			$ar["SELECTED"] = ($ar["LID"]==LANG);
 
-			global $QUERY_STRING;
-			$p = rtrim(str_replace("&#", "#", preg_replace("/lang=[^&#]*&*/", "", $QUERY_STRING)), "&");
+			$p = rtrim(str_replace("&#", "#", preg_replace("/lang=[^&#]*&*/", "", $_SERVER["QUERY_STRING"])), "&");
 			$ar["PATH"] = $APPLICATION->GetCurPage()."?lang=".$ar["LID"].($p <> ''? '&amp;'.htmlspecialcharsbx($p) : '');
 
 			$result[] = $ar;

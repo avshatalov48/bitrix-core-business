@@ -73,7 +73,7 @@ $type = $arParams['TYPE'];
 		</div>
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 	window.seoAudience = new BX.Seo.SeoAudience( {
 		accountId: '<?=$accountId?>',
 		clientId: '<?=$clientId?>',

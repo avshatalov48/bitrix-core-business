@@ -1,0 +1,36 @@
+<?
+$MESS ['SALE_EDIT_RECORD'] = "Детальная информация о заказе N#ID#";
+$MESS ['SALE_RECORDS_LIST'] = "В список заказов";
+$MESS ['P_ORDER_ID'] = "Заказ";
+$MESS ['P_ORDER_DATE'] = "Дата заказа";
+$MESS ['P_ORDER_LANG'] = "Язык заказа";
+$MESS ['P_ORDER_STATUS'] = "Статус";
+$MESS ['P_ORDER_STATUS_DATE'] = "сменен";
+$MESS ['P_ORDER_PRICE'] = "Сумма заказа";
+$MESS ['P_ORDER_UPDATE_DATE'] = "последнее изменение";
+$MESS ['P_ORDER_CANCELED'] = "Отменен";
+$MESS ['P_ORDER_DATE_CANCELED'] = "отменен";
+$MESS ['P_ORDER_PERS_TYPE'] = "Тип плательщика";
+$MESS ['P_ORDER_USER'] = "Параметры заказа";
+$MESS ['P_ORDER_PAYMENT'] = "Оплата и доставка";
+$MESS ['P_ORDER_PAY_SYSTEM'] = "Платежная система";
+$MESS ['P_ORDER_PAYED'] = "Оплачен";
+$MESS ['P_ORDER_DATE_PAYED'] = "оплачен";
+$MESS ['P_ORDER_DELIVERY'] = "Служба доставки";
+$MESS ['P_ORDER_COMMENTS'] = "Комментарий";
+$MESS ['P_ORDER_USER_COMMENT'] = "Комментарии покупателя";
+$MESS ['P_ORDER_BASKET'] = "Содержимое заказа";
+$MESS ['SALE_SAVE'] = "Сохранить";
+$MESS ['SALE_APPLY'] = "Применить";
+$MESS ['SALE_RESET'] = "Отмена";
+$MESS ['P_ORDER_ALLOW_DELIVERY'] = "Доставка разрешена";
+$MESS ['P_ORDER_DATE_ALLOW_DELIVERY'] = "разрешено";
+$MESS ['SALE_ORDER_CODE'] = "Код заказа";
+$MESS ['SALE_YES'] = "Да";
+$MESS ['SALE_NO'] = "Нет";
+$MESS ['SALE_CANCEL_ORDER'] = "Отменить";
+$MESS ['SALE_REPEAT_PAY'] = "Повторить оплату";
+$MESS ['SALE_CONTENT_NAME'] = "Название";
+$MESS ['SALE_CONTENT_QUANTITY'] = "Количество";
+$MESS ['SALE_NO_ORDER_F'] = "Заказ не найден";
+?>

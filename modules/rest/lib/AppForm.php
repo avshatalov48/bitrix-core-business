@@ -2,18 +2,15 @@
 
 namespace Bitrix\Rest;
 
-use Bitrix\Main\Loader;
-
 class AppForm
 {
 	public function __construct(
-		private string $config,
-		private MessageTransportInterface $transport
+		private string $config
 	)
 	{}
 
-	public function sendShowMessage(): bool
+	public function sendShowMessage(MessageTransportInterface $transport): bool
 	{
-		return $this->transport->send('showForm', ['config' => $this->config]);
+		return $transport->send('showForm', ['config' => $this->config]);
 	}
 }

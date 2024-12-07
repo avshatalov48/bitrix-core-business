@@ -116,10 +116,8 @@ class Product extends DataConverter
 		$this->result["description"] = strip_tags($this->result["description"]);
 
 		$this->result['description'] = $this->validateDescription($this->result['description'], $logger);
-		$this->result["description"] = self::convertToUtf8($this->result["description"]);
 
 		$this->result['NAME'] = $this->validateName($this->result['NAME'], $logger);
-		$this->result['NAME'] = self::convertToUtf8($this->result['NAME']);
 
 		return array($data["ID"] => $this->result);
 	}

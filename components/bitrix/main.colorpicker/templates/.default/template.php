@@ -1,7 +1,7 @@
 <?
 if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 ?>
-<script type="text/javascript">
+<script>
 jsColorPickerMess = window.jsColorPickerMess = {
 	DefaultColor: '<?echo CUtil::JSEscape(GetMessage('DefaultColor'));?>'
 }
@@ -13,7 +13,7 @@ if ($arParams['SHOW_BUTTON'] == 'Y')
 ?>
 <span id="bx_colorpicker_<?echo $ID?>"></span>
 <style>#bx_btn_<?echo $ID?>{background-position: -280px -21px;}</style>
-<script type="text/javascript">
+<script>
 var CP_<?echo CUtil::JSEscape($ID)?> = new window.BXColorPicker({
 	'id':'<?echo CUtil::JSEscape($ID)?>'<?if (!empty($arParams['NAME'])):?>,'name':'<?echo CUtil::JSEscape($arParams['~NAME']);?>'<?endif;if ($arParams['ONSELECT']):?>,'OnSelect':<?echo $arParams['ONSELECT'];endif;?>
 });

@@ -119,6 +119,7 @@ class SectionType extends ElementType
 			return;
 		}
 
+		$userField['MANDATORY'] ??= 'N';
 		$userField['SETTINGS']['IBLOCK_ID'] ??= 0;
 		$userField['SETTINGS']['SHOW_NO_VALUE'] ??= 'Y';
 		$userField['SETTINGS']['DISPLAY'] ??= '';
@@ -147,22 +148,109 @@ class SectionType extends ElementType
 			];
 		}
 
-		$sectionEnumList = CIBlockSectionEnum::getTreeList(
+		$filter = [];
+
+		$checkValue = ($additionalParameters['mode'] ?? '') === self::MODE_VIEW;
+		if ($checkValue)
+		{
+			$currentValues = static::getFieldValue($userField, $additionalParameters);
+			if (!empty($currentValues))
+			{
+				if (is_array($currentValues))
+				{
+					Type\Collection::normalizeArrayValuesByInt($currentValues);
+				}
+				else
+				{
+					$currentValues = (int)$currentValues;
+					if ($currentValues <= 0)
+					{
+						$currentValues = null;
+					}
+				}
+			}
+			if (!empty($currentValues))
+			{
+				$filter['ID'] = $currentValues;
+			}
+			else
+			{
+				$userField['USER_TYPE']['FIELDS'] = $result;
+
+				return;
+			}
+		}
+		$filter['ACTIVE'] = $userField['SETTINGS']['ACTIVE_FILTER'] === 'Y';
+
+		$sections = self::getElements(
 			(int)$userField['SETTINGS']['IBLOCK_ID'],
-			$userField['SETTINGS']['ACTIVE_FILTER']
+			$filter
 		);
 
-		if(!is_object($sectionEnumList))
+		if (!is_array($sections))
 		{
 			return;
 		}
 
-		while($section = $sectionEnumList->Fetch())
+		if (!empty($currentValues))
 		{
-			$result[$section['ID']] = $section['NAME'];
+			$result = $sections;
+		}
+		else
+		{
+			$result = array_replace($result, $sections);
 		}
 
 		$userField['USER_TYPE']['FIELDS'] = $result;
+	}
+
+	protected static function getElements(int $iblockId, array $additionalFilter = [])
+	{
+		if (self::$iblockIncluded === null)
+		{
+			self::$iblockIncluded = Loader::includeModule('iblock');
+		}
+		if ($iblockId <= 0 || !self::$iblockIncluded)
+		{
+			return null;
+		}
+
+		$additionalFilter['ACTIVE'] ??= false;
+
+		$filter = [
+			'IBLOCK_ID' => $iblockId,
+			'CHECK_PERMISSIONS' => 'Y',
+			'MIN_PERMISSION' => \CIBlockRights::PUBLIC_READ,
+		];
+		if ($additionalFilter['ACTIVE'])
+		{
+			$filter['ACTIVE'] = 'Y';
+		}
+		if (isset($additionalFilter['ID']))
+		{
+			$filter['ID'] = $additionalFilter['ID'];
+		}
+
+		$result = [];
+		$iterator = \CIBlockSection::GetList(
+			[
+				'LEFT_MARGIN' => 'ASC',
+			],
+			$filter,
+			false,
+			[
+				'ID',
+				'NAME',
+			]
+		);
+
+		while ($element = $iterator->Fetch())
+		{
+			$result[$element['ID']] = $element['NAME'];
+		}
+		unset($element, $iterator);
+
+		return $result;
 	}
 
 	/**

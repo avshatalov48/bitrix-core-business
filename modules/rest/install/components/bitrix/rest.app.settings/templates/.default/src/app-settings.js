@@ -50,6 +50,7 @@ export class AppSettings extends EventEmitter
 		}
 
 		this.#formConstructor.renderTo(this.#wrapper);
+		BX.UI.ButtonPanel.show();
 	}
 
 	subscribeEvents(): void
@@ -74,22 +75,8 @@ export class AppSettings extends EventEmitter
 				}
 			},
 		);
-
-		this.#formConstructor.subscribe('onReadySave', () => {
-			if (this.isReadySave())
-			{
-				BX.UI.ButtonPanel.show();
-			}
-			else
-			{
-				BX.UI.ButtonPanel.hide();
-			}
-		});
-		this.#formConstructor.subscribe('onUnreadySave', () => {
-			BX.UI.ButtonPanel.hide();
-		});
 		this.#formConstructor.subscribe('onFieldChange', () => {
-			this.reload()
+			this.reload();
 		});
 	}
 
@@ -102,8 +89,6 @@ export class AppSettings extends EventEmitter
 
 		EventEmitter.unsubscribeAll(EventEmitter.GLOBAL_TARGET, 'button-click');
 		this.#formConstructor.unsubscribeAll('onSave');
-		this.#formConstructor.unsubscribeAll('onReadySave');
-		this.#formConstructor.unsubscribeAll('onUnreadySave');
 		this.#formConstructor.unsubscribeAll('onFieldChange');
 	}
 
@@ -194,7 +179,6 @@ export class AppSettings extends EventEmitter
 			{
 				Dom.removeClass(buttonWaitState, 'ui-btn-wait');
 			}
-			BX.UI.ButtonPanel.hide();
 		});
 	}
 

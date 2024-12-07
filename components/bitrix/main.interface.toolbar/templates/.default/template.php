@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 ?>
@@ -60,8 +63,8 @@ foreach($arParams["BUTTONS"] as $index=>$item):
 		if(!empty($item["MENU"])):
 ?>
 			<td>
-				<script type="text/javascript">
-				var jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?> = <?=CUtil::PhpToJSObject($item["MENU"])?>;
+				<script>
+				var jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?> = <?= Json::encode($item["MENU"]) ?>;
 				</script>
 				<a href="javascript:void(0);" hidefocus="true" 
 					onclick="this.blur(); jsPopup_<?=$arParams["TOOLBAR_ID"]?>.ShowMenu(this, jsMnu_<?=$arParams["TOOLBAR_ID"].'_'.$index?>); return false;" 
@@ -98,7 +101,7 @@ endforeach;
 	</tr>
 </table>
 
-<script type="text/javascript">
+<script>
 var jsPopup_<?=$arParams["TOOLBAR_ID"]?> = new PopupMenu('Popup<?=$arParams["TOOLBAR_ID"]?>');
 </script>
 

@@ -34,7 +34,7 @@ if(array_key_exists("DATA", $arResult["POST_PROPERTIES"])
 //Disable vote (reasons: duplicate, completed status)
 $arResult["DISABLE_VOTE"] = false;
 if($arResult["IS_DUPLICATE"]
-	||ToLower($arStatusList[$arResult["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFStatusField]["VALUE"]]["XML_ID"])=='completed'
+	||mb_strtolower($arStatusList[$arResult["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFStatusField]["VALUE"]]["XML_ID"])=='completed'
 	||$arResult["Post"]["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
 )
 	$arResult["DISABLE_VOTE"] = true;

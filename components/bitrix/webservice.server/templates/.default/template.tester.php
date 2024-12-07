@@ -28,7 +28,7 @@
 		foreach ($opdecl["output"] as $pname => $pparam) break;
 		$methodDeclared .= "<i>{$pname}";
 		if (isset($pparam["arrType"])) $methodDeclared .= "[]";
-		$methodDeclared .= ":{$pparam[varType]}</i>";
+		$methodDeclared .= ":{$pparam['varType']}</i>";
 		$methodDeclared .= " ";
 	}
 				
@@ -212,7 +212,7 @@
 			header("Pragma: no-cache");
 			header( "SOAPServer: BITRIX SOAP" );
 	        header( "Content-Type: text/xml; charset=\"UTF-8\"" );
-	        Header( "Content-Length: " . (defined('BX_UTF') && BX_UTF == 1 && function_exists('mb_strlen')? mb_strlen($payload, 'latin1') : mb_strlen($payload)) );
+	        header( "Content-Length: " . strlen($payload));
 	        echo $payload;
 	        die();
 		} 

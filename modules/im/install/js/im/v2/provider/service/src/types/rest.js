@@ -4,6 +4,7 @@ import { MessageStatus, ChatType } from 'im.v2.const';
 export type ChatLoadRestResult = {
 	additionalMessages: RawMessage[],
 	chat: RawChat,
+	commentInfo: RawCommentInfo[],
 	files: RawFile[],
 	hasNextPage: boolean,
 	hasPrevPage: boolean,
@@ -11,7 +12,13 @@ export type ChatLoadRestResult = {
 	pins: RawPin[],
 	reactions: RawReaction[],
 	users: RawUser[],
-	usersShort: RawShortUser[]
+	usersShort: RawShortUser[],
+	copilot: RawCopilot,
+	tariffRestrictions: RawTariffRestrictions,
+};
+
+export type RawTariffRestrictions = {
+	isHistoryLimitExceeded: boolean,
 };
 
 export type RawMessage = {
@@ -27,6 +34,14 @@ export type RawMessage = {
 	uuid: string | null,
 	viewed: boolean,
 	viewedByOthers: boolean
+};
+
+export type RawCommentInfo = {
+	chatId: number,
+	lastUserIds: number[],
+	messageCount: 0,
+	messageId: number,
+	isUserSubscribed: boolean,
 };
 
 export type RawChat = {
@@ -67,7 +82,7 @@ export type RawChat = {
 	role: string,
 	type: string,
 	unreadId: number,
-	userCounter: number
+	userCounter: number,
 };
 
 type RawRestrictions = {
@@ -159,6 +174,22 @@ export type RawShortUser = {
 	avatar: string
 };
 
+type RawPrompt = {
+	code: string,
+	promptType: string,
+	text: string,
+	title: string
+};
+
+export type RawCopilotRole = {
+	code: string,
+	name: string,
+	desc: string,
+	default: boolean,
+	avatarId: number,
+	prompts: RawPrompt[],
+};
+
 // Recent
 
 export type RecentRestResult = {
@@ -166,7 +197,16 @@ export type RecentRestResult = {
 	hasMore: boolean,
 	hasMorePages: boolean,
 	items: RawRecentItem[],
+	copilot: RawCopilot,
 };
+
+export type RawCopilot = {
+	chats: {[string]: string},
+	messages: {[number]: string},
+	recommendedRoles?: string[],
+	aiProvider?: string,
+	roles: {[string]: RawCopilotRole},
+}
 
 export type RawRecentItem = {
 	id: string, // dialogId
@@ -177,7 +217,7 @@ export type RawRecentItem = {
 		attach: boolean,
 		author_id: number,
 		date: string,
-		file: boolean,
+		file: boolean | {},
 		id: number,
 		temporaryId?: string,
 		status: $Keys<typeof MessageStatus>,
@@ -193,4 +233,19 @@ export type RawRecentItem = {
 	unread: boolean,
 	has_reminder: boolean,
 	options: {},
+};
+
+export type ChannelRestResult = {
+	hasNextPage: boolean,
+	chats: RawChat[],
+	files: RawFile[],
+	recentItems: RawRecentItem[],
+	users: RawUser[],
+	messages: RawMessage[],
+	additionalMessages: RawMessage[],
+};
+
+export type CommentInfoRestResult = {
+	commentInfo: RawCommentInfo[],
+	usersShort: RawShortUser[],
 };

@@ -41,7 +41,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.restClient = BX.rest;
 	  }
 	  initStorage() {
-	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.ChatsModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.CountersModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create());
+	    const builder = ui_vue3_vuex.Builder.init().addModel(im_v2_model.ApplicationModel.create()).addModel(im_v2_model.MessagesModel.create()).addModel(im_v2_model.ChatsModel.create()).addModel(im_v2_model.FilesModel.create()).addModel(im_v2_model.UsersModel.create()).addModel(im_v2_model.RecentModel.create()).addModel(im_v2_model.CountersModel.create()).addModel(im_v2_model.NotificationsModel.create()).addModel(im_v2_model.SidebarModel.create()).addModel(im_v2_model.MarketModel.create()).addModel(im_v2_model.CopilotModel.create());
 	    return builder.build().then(result => {
 	      this.store = result.store;
 	      this.storeBuilder = result.builder;
@@ -104,12 +104,16 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      const bitrixVue = ui_vue3.BitrixVue.createApp(initConfig);
 	      bitrixVue.config.errorHandler = function (err, vm, info) {
 	        // eslint-disable-next-line no-console
-	        console.error(err, info);
+	        console.error(err, vm, info);
 	      };
 	      bitrixVue.config.warnHandler = function (warn, vm, trace) {
 	        // eslint-disable-next-line no-console
-	        console.warn(warn, trace);
+	        console.warn(warn, vm, trace);
 	      };
+
+	      // todo: remove after updating Vue to 3.3+
+	      bitrixVue.config.unwrapInjectedRef = true;
+
 	      // eslint-disable-next-line no-param-reassign
 	      application.bitrixVue = bitrixVue;
 	      bitrixVue.use(this.store).mount(initConfig.el);

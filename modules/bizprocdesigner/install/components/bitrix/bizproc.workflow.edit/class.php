@@ -120,6 +120,16 @@ protected function listKeysSignedParameters()
 					$arTemplate["DOCUMENT_TYPE"]
 				);
 
+				if (!CBPHelper::isEqualDocument(
+					[MODULE_ID, ENTITY, $documentType],
+					$arTemplate["DOCUMENT_TYPE"],
+				))
+				{
+					ShowError(Loc::getMessage("BIZPROC_WFEDIT_ERROR_COMPLEX_TYPE"));
+
+					return;
+				}
+
 				$documentType = $arTemplate["DOCUMENT_TYPE"][2];
 
 				$workflowTemplateName = $arTemplate["NAME"];
@@ -354,6 +364,23 @@ protected function listKeysSignedParameters()
 				</script><?
 				die();
 			}
+
+			if (isset($_POST["workflowTemplateTrackOn"]))
+			{
+				if ($_POST["workflowTemplateTrackOn"] === 'Y')
+				{
+					$trackOn = (int)Bitrix\Main\Config\Option::get('bizproc', 'tpl_track_on_' . $ID, 0);
+					if ((time() - (7 * 86400)) > $trackOn)
+					{
+						Bitrix\Main\Config\Option::set('bizproc', 'tpl_track_on_' . $ID, time());
+					}
+				}
+				else
+				{
+					Bitrix\Main\Config\Option::delete('bizproc', ['name' => 'tpl_track_on_' . $ID]);
+				}
+			}
+
 			?><!--SUCCESS--><script>
 				BPTemplateIsModified = false;
 				window.location = '<?=(!empty($_REQUEST["apply"])? CUtil::JSEscape($applyUrl) : CUtil::JSEscape($saveUrl))?>';
@@ -371,7 +398,7 @@ protected function listKeysSignedParameters()
 				header("HTTP/1.1 200 OK");
 				header("Content-Type: application/force-download; name=\"bp-".$ID.".bpt\"");
 				header("Content-Transfer-Encoding: binary");
-				header("Content-Length: ". \Bitrix\Main\Text\BinaryString::getLength($datum));
+				header("Content-Length: ". strlen($datum));
 				header("Content-Disposition: attachment; filename=\"bp-".$ID.".bpt\"");
 				header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
 				header("Expires: 0");

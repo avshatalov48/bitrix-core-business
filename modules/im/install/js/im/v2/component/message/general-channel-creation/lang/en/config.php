@@ -1,0 +1,5 @@
+<?php
+$MESS["IM_MESSAGE_GENERAL_CHANNEL_CREATION_LIST_EYE"] = "Keep up on the developments";
+$MESS["IM_MESSAGE_GENERAL_CHANNEL_CREATION_LIST_FORWARD"] = "Post company news and announcements";
+$MESS["IM_MESSAGE_GENERAL_CHANNEL_CREATION_LIST_LIKE"] = "Leave comments and likes";
+$MESS["IM_MESSAGE_GENERAL_CHANNEL_CREATION_TITLE"] = "Company news";

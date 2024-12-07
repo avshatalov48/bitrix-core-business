@@ -1,5 +1,6 @@
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Editor} from '../editor';
+import { Loc, Runtime } from 'main.core';
+import { EventEmitter, BaseEvent } from 'main.core.events';
+import { Editor } from '../editor';
 
 export default function bindToolbar(editor: Editor, htmlEditor)
 {

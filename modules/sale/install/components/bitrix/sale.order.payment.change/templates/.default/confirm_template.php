@@ -173,7 +173,7 @@ else
 		if (!$arResult['IS_CASH'] && !empty($arResult['PAYMENT_LINK']))
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				window.open('<?=CUtil::JSEscape($arResult['PAYMENT_LINK'])?>');
 			</script>
 			<?

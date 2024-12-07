@@ -74,7 +74,7 @@ $containerId = 'ui-tile-list-';
 $containerId .= $arParams['ID'] ?: 'def';
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		new BX.UI.TileList.Manager(<?=Json::encode(array(
 			'containerId' => $containerId,

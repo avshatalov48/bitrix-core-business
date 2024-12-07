@@ -55,7 +55,7 @@ class CPerfomanceIndexComplete
 			' . ($strQueryWhere ? 'WHERE ' . $strQueryWhere : '') . '
 			' . (count($arQueryOrder) ? 'ORDER BY ' . implode(', ', $arQueryOrder) : '') . '
 		';
-		$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -19,30 +19,30 @@
 	};
 
 	BX.Grid.Loader.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 			this.table = this.parent.getTable();
 			this.loader = new BX.Loader({
-				target: this.getContainer()
+				target: this.getContainer(),
 			});
 		},
 
-		adjustLoaderOffset: function()
+		adjustLoaderOffset()
 		{
 			this.windowHeight = BX.height(window);
 			this.tbodyPos = BX.pos(this.table.tBodies[0]);
 			this.headerPos = BX.pos(this.table.tHead);
 
-			var scrollY = window.scrollY;
+			let scrollY = window.scrollY;
 
 			if (this.parent.isIE())
 			{
 				scrollY = document.documentElement.scrollTop;
 			}
 
-			var bottomPos = (scrollY + this.windowHeight) - this.tbodyPos.top;
-			var posTop = scrollY - this.tbodyPos.top;
+			let bottomPos = (scrollY + this.windowHeight) - this.tbodyPos.top;
+			let posTop = scrollY - this.tbodyPos.top;
 
 			if (bottomPos > (this.tbodyPos.bottom - this.tbodyPos.top))
 			{
@@ -59,23 +59,23 @@
 				bottomPos += this.headerPos.height;
 			}
 
-			requestAnimationFrame(function() {
+			requestAnimationFrame(() => {
 				if (posTop !== this.lastPosTop)
 				{
-					this.getContainer().style.transform = 'translate3d(0px, ' + posTop + 'px, 0)';
+					this.getContainer().style.transform = `translate3d(0px, ${posTop}px, 0)`;
 				}
 
 				if (bottomPos !== this.lastBottomPos)
 				{
-					this.getContainer().style.height = bottomPos + 'px';
+					this.getContainer().style.height = `${bottomPos}px`;
 				}
 
 				this.lastPosTop = posTop;
 				this.lastBottomPos = bottomPos;
-			}.bind(this));
+			});
 		},
 
-		getContainer: function()
+		getContainer()
 		{
 			if (!this.container)
 			{
@@ -85,39 +85,39 @@
 			return this.container;
 		},
 
-		show: function()
+		show()
 		{
 			if (!this.loader.isShown())
 			{
 				this.adjustLoaderOffset();
-				this.getContainer().style.display = "block";
-				this.getContainer().style.opacity = "1";
-				this.getContainer().style.visibility = "visible";
+				this.getContainer().style.display = 'block';
+				this.getContainer().style.opacity = '1';
+				this.getContainer().style.visibility = 'visible';
 
-				var rowsCount = this.parent.getRows().getCountDisplayed();
+				const rowsCount = this.parent.getRows().getCountDisplayed();
 
 				if (rowsCount > 0 && rowsCount <= 2)
 				{
-					this.loader.setOptions({size: 60});
+					this.loader.setOptions({ size: 60 });
 					this.loader.show();
 				}
 				else
 				{
-					this.loader.setOptions({size: 110});
+					this.loader.setOptions({ size: 110 });
 					this.loader.show();
 				}
 			}
 		},
 
-		hide: function()
+		hide()
 		{
 			if (this.loader.isShown())
 			{
 				this.adjustLoaderOffset();
-				this.loader.hide().then(function() {
-					this.getContainer().style.display = "none";
-				}.bind(this));
+				this.loader.hide().then(() => {
+					this.getContainer().style.display = 'none';
+				});
 			}
-		}
+		},
 	};
 })();

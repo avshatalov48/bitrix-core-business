@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -17,34 +17,34 @@
 	};
 
 	BX.Grid.Element.prototype = {
-		init: function(node, parent)
+		init(node, parent)
 		{
 			this.node = node;
 			this.parent = parent;
 			this.resetOnclickAttr();
 		},
 
-		getParent: function()
+		getParent()
 		{
 			return this.parent;
 		},
 
-		load: function()
+		load()
 		{
 			BX.addClass(this.getNode(), this.getParent().settings.get('classLoad'));
 		},
 
-		unload: function()
+		unload()
 		{
 			BX.removeClass(this.getNode(), this.getParent().settings.get('classLoad'));
 		},
 
-		isLoad: function()
+		isLoad()
 		{
 			return BX.hasClass(this.getNode(), this.getParent().settings.get('classLoad'));
 		},
 
-		resetOnclickAttr: function()
+		resetOnclickAttr()
 		{
 			if (BX.type.isDomNode(this.getNode()))
 			{
@@ -52,27 +52,30 @@
 			}
 		},
 
-		getObserver: function()
+		getObserver()
 		{
 			return BX.Grid.observer;
 		},
 
-		getNode: function()
+		getNode()
 		{
 			return this.node;
 		},
 
-		getLink: function()
+		getLink()
 		{
-			var result;
+			let result;
 
-			try {
+			try
+			{
 				result = this.getNode().href;
-			} catch (err) {
+			}
+			catch
+			{
 				result = null;
 			}
 
 			return result;
-		}
+		},
 	};
 })();

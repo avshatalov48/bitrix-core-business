@@ -90,7 +90,7 @@ class User extends Base
 			{
 				$type = 'list';
 			}
-			elseif(mb_substr($uf['USER_TYPE']['USER_TYPE_ID'], 0, 5) === 'rest_')
+			elseif(str_starts_with($uf['USER_TYPE']['USER_TYPE_ID'], 'rest_'))
 			{
 				// skip REST type fields here
 				continue;

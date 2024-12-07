@@ -1,11 +1,13 @@
-<?
-define("STOP_STATISTICS", true);
+<?php
 
-define('DLSERVER', 'www.1c-bitrix.ru');
-define('DLPORT', 80);
-define('DLPATH', '/download/files/locations/');
-define('DLMETHOD', 'GET');
-define('DLZIPFILE', 'zip_ussr.csv');
+/** @global CMain $APPLICATION */
+
+const STOP_STATISTICS = true;
+
+const DLSERVER = 'https://www.1c-bitrix.ru';
+const DLPATH = '/download/files/locations/';
+const DLMETHOD = 'GET';
+const DLZIPFILE = 'zip_ussr.csv';
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_before.php");
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/wizard.php");
@@ -23,25 +25,27 @@ if ($saleModulePermissions < "W")
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sale/general/location_import.php");
 
-$arLoadParams = array(
-	'STEP' => intval($_REQUEST['STEP']),
-	'CSVFILE' => $_REQUEST['CSVFILE'],
-	'LOADZIP' => $_REQUEST['LOADZIP'],
+$arLoadParams = [
+	'STEP' => (int)($_REQUEST['STEP'] ?? 0),
+	'CSVFILE' => $_REQUEST['CSVFILE'] ?? '',
+	'LOADZIP' => $_REQUEST['LOADZIP'] ?? '',
 	'DLSERVER' => DLSERVER,
-	'DLPORT' => DLPORT,
+	'DLPORT' => null,
 	'DLPATH' => DLPATH,
 	'DLMETHOD' => DLMETHOD,
-	'DLZIPFILE' => DLZIPFILE
-);
+	'DLZIPFILE' => DLZIPFILE,
+];
 
 $arLoadResult = saleLocationLoadFile($arLoadParams);
 
-if ($arLoadResult['ERROR'] <> '')
+if ($arLoadResult['ERROR'] !== '')
 {
 	echo $arLoadResult['ERROR'];
 
-	if(isset($arLoadResult['RUN_ERROR']) && $arLoadResult['RUN_ERROR'] == true)
+	if (isset($arLoadResult['RUN_ERROR']) && $arLoadResult['RUN_ERROR'] === true)
+	{
 		echo '<script>RunError()</script>';
+	}
 }
 elseif (isset($arLoadResult['COMPLETE']) && $arLoadResult['COMPLETE'] === true)
 {
@@ -50,11 +54,12 @@ elseif (isset($arLoadResult['COMPLETE']) && $arLoadResult['COMPLETE'] === true)
 }
 elseif ($arLoadResult['STEP'] !== false)
 {
-	if($arLoadResult['MESSAGE'] <> '')
+	if ($arLoadResult['MESSAGE'] !== '')
+	{
 		echo $arLoadResult['MESSAGE'];
+	}
 
 	echo '<script>Run('.$arLoadResult['STEP'].')</script>';
 }
 
 require_once($_SERVER["DOCUMENT_ROOT"].BX_ROOT."/modules/main/include/epilog_after.php");
-?>

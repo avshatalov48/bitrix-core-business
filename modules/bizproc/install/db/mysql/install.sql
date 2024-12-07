@@ -73,7 +73,7 @@ CREATE TABLE b_bp_workflow_instance (
 );
 
 CREATE TABLE b_bp_tracking (
-	ID int NOT NULL auto_increment,
+	ID bigint NOT NULL auto_increment,
 	WORKFLOW_ID varchar(32) NOT NULL,
 	TYPE int NOT NULL,
 	MODIFIED datetime NOT NULL,
@@ -253,6 +253,7 @@ CREATE TABLE b_bp_script_queue (
 		WORKFLOW_PARAMETERS mediumtext NULL,
 		primary key (ID),
 		index ix_bp_sq_script_id(SCRIPT_ID),
+		index ix_bp_sq_script_id_status(SCRIPT_ID, STATUS),
 		index ix_bp_sq_started_by(STARTED_BY)
 );
 
@@ -396,4 +397,17 @@ CREATE TABLE b_bp_task_search_content
 	primary key (TASK_ID),
 	index ix_bp_task_search_1(WORKFLOW_ID),
 	fulltext index ix_bp_task_search_2 (SEARCH_CONTENT)
+);
+
+CREATE TABLE b_bp_workflow_user_comment
+(
+	USER_ID int NOT NULL DEFAULT 0,
+	WORKFLOW_ID varchar(32) NOT NULL,
+	UNREAD_CNT int NOT NULL DEFAULT 0,
+	LAST_TYPE tinyint NOT NULL DEFAULT 0,
+	MODIFIED datetime NOT NULL,
+	primary key (USER_ID, WORKFLOW_ID),
+	index ix_bp_wuc_wf(WORKFLOW_ID),
+	index ix_bp_wuc_lt(LAST_TYPE),
+	index ix_bp_wuc_ltm(LAST_TYPE, MODIFIED)
 );

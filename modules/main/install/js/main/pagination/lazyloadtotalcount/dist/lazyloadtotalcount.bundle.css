@@ -1,0 +1,20 @@
+.main-pagination-lazyload-count_counter {
+	cursor: pointer;
+}
+
+.main-pagination-lazyload-count_loader {
+	display: inline;
+	height: 12px;
+	width: 12px;
+	animation: rotate 1s linear infinite;
+	transform-origin: center center;
+}
+
+.main-pagination-lazyload-count_loader-path {
+	stroke: #868d95;
+	stroke-width: 7px;
+	stroke-dasharray: 60, 200;
+	stroke-dashoffset: 0;
+	animation: dash 1.5s ease-in-out infinite;
+	stroke-linecap: round;
+}

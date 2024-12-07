@@ -28,7 +28,8 @@ type ManagerOptions = {
 	isRuZone: boolean,
 	calendarInstance: window.BXEventCalendar.Core,
 	isSetSyncGoogleSettings: boolean,
-	isSetSyncOffice365Settings: boolean
+	isSetSyncOffice365Settings: boolean,
+	payAttentionToNewSharingFeature: boolean,
 };
 
 export default class Manager extends EventEmitter
@@ -64,6 +65,7 @@ export default class Manager extends EventEmitter
 		this.isSetSyncOffice365Settings = options.isSetSyncOffice365Settings;
 		this.refreshDebounce = Runtime.debounce(this.refresh, this.REFRESH_DELAY, this);
 		this.refreshContentDebounce = Runtime.debounce(this.refreshContent, this.REFRESH_CONTENT_DELAY, this);
+		this.payAttentionToNewSharingFeature = options.payAttentionToNewSharingFeature;
 
 		this.init();
 		this.subscribeOnEvent();
@@ -73,6 +75,10 @@ export default class Manager extends EventEmitter
 	{
 		EventEmitter.subscribe('BX.Calendar.Sync.Interface.SyncStatusPopup:onRefresh', event => {
 			this.refreshDebounce(event);
+		});
+
+		EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:onRefresh', (event) => {
+			this.onRefresh(event.data.data, event.data.event);
 		});
 
 		EventEmitter.subscribe('BX.Calendar.Sync.Interface.InterfaceTemplate:reDrawCalendarGrid', event => {
@@ -95,6 +101,8 @@ export default class Manager extends EventEmitter
 			connectionsProviders: this.connectionsProviders,
 			userId: this.userId,
 			isGoogleApplicationRefused: this.isGoogleApplicationRefused,
+			counters: this.syncInfo.counters ?? {},
+			payAttentionToNewSharingFeature: this.payAttentionToNewSharingFeature,
 		});
 		this.syncButton.show();
 
@@ -273,23 +281,28 @@ export default class Manager extends EventEmitter
 					requestUid: Util.registerRequestId(),
 				}
 			}).then((response) => {
-				this.setSyncInfo(response.data);
-				this.status = this.getSummarySyncStatus();
-
-				if (this.needToShowGoogleRefusedPopup())
-				{
-					this.syncButton.showGoogleApplicationRefusedPopup();
-					this.showGoogleApplicationRefused = false;
-				}
-
-				const activePopup = (event && event.getTarget) ? event.getTarget() : null;
-				this.refreshContent(activePopup);
+				this.onRefresh(response.data, event);
 				resolve();
 			});
 		});
 	}
 
-	refreshContent(activePopup = {})
+	onRefresh(data, event = {})
+	{
+		this.setSyncInfo(data);
+		this.status = this.getSummarySyncStatus();
+
+		if (this.needToShowGoogleRefusedPopup())
+		{
+			this.syncButton.showGoogleApplicationRefusedPopup();
+			this.showGoogleApplicationRefused = false;
+		}
+
+		const activePopup = (event && event.getTarget) ? event.getTarget() : null;
+		this.refreshContent(activePopup, event);
+	}
+
+	refreshContent(activePopup = {}, event = {})
 	{
 		this.init();
 
@@ -297,7 +310,7 @@ export default class Manager extends EventEmitter
 
 		if (this.syncButton)
 		{
-			this.syncButton.refresh(this.status);
+			this.syncButton.refresh(this.status, this.syncInfo.counters);
 			this.syncButton.setConnectionProviders(this.connectionsProviders);
 		}
 
@@ -305,6 +318,10 @@ export default class Manager extends EventEmitter
 		{
 			this.refreshActivePopup(activePopup);
 			this.refreshOpenSliders(activePopup);
+		}
+		else
+		{
+			this.refreshOpenSliders({}, event);
 		}
 	}
 
@@ -325,13 +342,17 @@ export default class Manager extends EventEmitter
 		}
 	}
 
-	refreshOpenSliders(activePopup = {})
+	refreshOpenSliders(activePopup = {}, event = {})
 	{
 		const openSliders = BX.SidePanel.Instance.getOpenSliders();
 		if (openSliders.length > 0)
 		{
-			openSliders.forEach(slider => {
+			openSliders.forEach((slider) => {
 				if (slider.getUrl() === 'calendar:auxiliary-sync-slider')
+				{
+					this.refreshMainSlider(this.syncButton.getSyncPanel());
+				}
+				else if (slider.getUrl() === 'calendar:sync-slider' && event.doRefreshMainSlider)
 				{
 					this.refreshMainSlider(this.syncButton.getSyncPanel());
 				}
@@ -583,6 +604,11 @@ export default class Manager extends EventEmitter
 					'onCloseSyncWizard',
 					this.handleCloseSyncWizard.bind(this)
 				);
+
+				this.connectionsProviders[providerName].subscribe(
+					'onReconnecting',
+					this.handleReconnecting.bind(this),
+				);
 			}
 		}
 	}
@@ -599,6 +625,14 @@ export default class Manager extends EventEmitter
 		else
 		{
 			this.refreshContentDebounce();
+		}
+	}
+
+	handleReconnecting()
+	{
+		if (this.isSyncInProcess() && this.syncButton)
+		{
+			this.syncButton.refresh(this.STATUS_SYNCHRONIZING);
 		}
 	}
 
@@ -655,12 +689,17 @@ export default class Manager extends EventEmitter
 	getSummarySyncStatus()
 	{
 		let status = this.STATUS_NOT_CONNECTED;
+
+		if (this.isStatusFailed())
+		{
+			return this.STATUS_FAILED;
+		}
+
 		for (let providerName in this.connectionsProviders)
 		{
 			if (this.connectionsProviders.hasOwnProperty(providerName))
 			{
-				if ([this.STATUS_SUCCESS, this.STATUS_FAILED]
-					.includes(this.connectionsProviders[providerName].getStatus()))
+				if ([this.STATUS_SUCCESS].includes(this.connectionsProviders[providerName].getStatus()))
 				{
 					status = this.connectionsProviders[providerName].getStatus();
 					break;
@@ -674,6 +713,22 @@ export default class Manager extends EventEmitter
 		}
 
 		return status;
+	}
+
+	isStatusFailed()
+	{
+		for (const providerName in this.connectionsProviders)
+		{
+			if (Object.prototype.hasOwnProperty.call(this.connectionsProviders, providerName))
+			{
+				if (this.STATUS_FAILED === this.connectionsProviders[providerName].getStatus())
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
 	}
 
 	needToShowGoogleRefusedPopup()

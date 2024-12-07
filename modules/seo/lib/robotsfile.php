@@ -44,11 +44,11 @@ class RobotsFile extends IO\File
 		$this->load();
 		if($bCheckUnique)
 		{
-			$strRule = ToUpper($this->getRuleText($rule));
+			$strRule = mb_strtoupper($this->getRuleText($rule));
 			$arRules = $this->getSection($section);
 			foreach($arRules as $existingRule)
 			{
-				$strExistingRule = ToUpper($this->getRuleText($existingRule));
+				$strExistingRule = mb_strtoupper($this->getRuleText($existingRule));
 				if($strRule == $strExistingRule)
 				{
 					return true;
@@ -84,10 +84,10 @@ class RobotsFile extends IO\File
 		$arRules = array();
 		if(isset($this->contents[$section]))
 		{
-			$rule = ToUpper($rule);
+			$rule = mb_strtoupper($rule);
 			foreach ($this->contents[$section] as $arRule)
 			{
-				if(ToUpper($arRule[0]) == $rule)
+				if(mb_strtoupper($arRule[0]) == $rule)
 				{
 					$arRules[] = $arRule;
 				}
@@ -98,10 +98,10 @@ class RobotsFile extends IO\File
 
 	protected function getSection($section)
 	{
-		$section = ToUpper($section);
+		$section = mb_strtoupper($section);
 		foreach($this->contents as $currentAgent => $arRules)
 		{
-			if(ToUpper($currentAgent) == $section)
+			if(mb_strtoupper($currentAgent) == $section)
 			{
 				return $arRules;
 			}
@@ -112,10 +112,10 @@ class RobotsFile extends IO\File
 
 	protected function addSectionRule($section, $rule)
 	{
-		$section = ToUpper($section);
+		$section = mb_strtoupper($section);
 		foreach($this->contents as $currentAgent => $arRules)
 		{
-			if(ToUpper($currentAgent) == $section)
+			if(mb_strtoupper($currentAgent) == $section)
 			{
 				$this->contents[$section][] = $rule;
 				return;
@@ -134,7 +134,7 @@ class RobotsFile extends IO\File
 			$currentAgent = '';
 			if(count($arLines) > 0)
 			{
-				$strSectionCompare = ToUpper(self::SECTION_RULE);
+				$strSectionCompare = mb_strtoupper(self::SECTION_RULE);
 				foreach($arLines as $line)
 				{
 					$line = trim($line);
@@ -142,7 +142,7 @@ class RobotsFile extends IO\File
 					if($line <> '')
 					{
 						$rule = $this->parseRule($line);
-						if(ToUpper($rule[0]) == $strSectionCompare)
+						if(mb_strtoupper($rule[0]) == $strSectionCompare)
 						{
 							$currentAgent = $rule[1];
 						}

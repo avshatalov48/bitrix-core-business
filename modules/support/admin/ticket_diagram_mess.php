@@ -3,7 +3,7 @@
 ##############################################
 # Bitrix: SiteManager                        #
 # Copyright (c) 2004 Bitrix                  #
-# http://www.bitrix.ru                       #
+# https://www.bitrixsoft.com          #
 # mailto:admin@bitrix.ru                     #
 ##############################################
 */
@@ -66,12 +66,12 @@ foreach ($arrMess as $key => $value)
 {
 	$arr[] = array("COLOR"=> $arrColor[$key], "COUNTER" => $arrMess[$key]);
 }
-// ñîçäàåì èçîáðàæåíèå
+// ÑÐ¾Ð·Ð´Ð°ÐµÐ¼ Ð¸Ð·Ð¾Ð±Ñ€Ð°Ð¶ÐµÐ½Ð¸Ðµ
 $ImageHendle = CreateImageHandle($diameter, $diameter);
 
-// ðèñóåì êðóãîâóþ äèàãðàììó
+// Ñ€Ð¸ÑÑƒÐµÐ¼ ÐºÑ€ÑƒÐ³Ð¾Ð²ÑƒÑŽ Ð´Ð¸Ð°Ð³Ñ€Ð°Ð¼Ð¼Ñƒ
 Circular_Diagram($ImageHendle, $arr, "FFFFFF", $diameter, $diameter/2, $diameter/2);
 
-// îòîáðàæàåì
+// Ð¾Ñ‚Ð¾Ð±Ñ€Ð°Ð¶Ð°ÐµÐ¼
 ShowImageHeader($ImageHendle);
 ?>

@@ -2,11 +2,9 @@
 
 namespace Bitrix\MessageService\Providers\Edna\WhatsApp;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
 use Bitrix\MessageService\DTO\Request;
@@ -64,7 +62,7 @@ class ExternalSender extends \Bitrix\MessageService\Providers\Edna\ExternalSende
 
 		if (isset($requestParams) && $queryMethod === HttpClient::HTTP_POST)
 		{
-			$requestParams = Json::encode($this->convertRequestParams($requestParams));
+			$requestParams = Json::encode($requestParams, JSON_UNESCAPED_UNICODE);
 		}
 
 		if (isset($requestParams) && $queryMethod === HttpClient::HTTP_GET)
@@ -153,16 +151,6 @@ class ExternalSender extends \Bitrix\MessageService\Providers\Edna\ExternalSende
 		}
 
 		return (isset($response['status']) && (int)$response['status'] === 200) || !isset($response['status']);
-	}
-
-	protected function convertRequestParams(array $requestParams): array
-	{
-		if (!Application::isUtfMode())
-		{
-			$requestParams = Encoding::convertEncoding($requestParams, SITE_CHARSET, 'UTF-8');
-		}
-
-		return $requestParams;
 	}
 
 	/**

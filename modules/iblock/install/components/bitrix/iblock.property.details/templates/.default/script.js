@@ -58,9 +58,13 @@ this.BX = this.BX || {};
 	  babelHelpers.createClass(Errors, [{
 	    key: "show",
 	    value: function show(errors) {
-	      this.errorsMessage.innerHTML = errors.map(function (i) {
-	        return i.message;
-	      }).join("\n");
+	      if (main_core.Type.isArray(errors)) {
+	        this.errorsMessage.innerHTML = errors.map(function (i) {
+	          return i.message;
+	        }).join("\n");
+	      } else {
+	        this.errorsMessage.innerHTML = 'Unknown error';
+	      }
 	      this.errorsWrapper.style.display = 'block';
 	    }
 	  }, {
@@ -397,12 +401,12 @@ this.BX = this.BX || {};
 	          _this3.errors.show(response.errors);
 	          return false;
 	        }
-	        top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [response.data]);
 	        _classPrivateMethodGet(_this3, _getSlider, _getSlider2).call(_this3).close();
+	        top.BX.Event.EventEmitter.emit('IblockPropertyDetails:saved', [response.data]);
 	        return true;
 	      })["catch"](function (response) {
 	        _this3.progress.stop();
-	        _this3.errors.show(response.errors);
+	        _this3.errors.show(response.errors || []);
 	        return false;
 	      });
 	    }

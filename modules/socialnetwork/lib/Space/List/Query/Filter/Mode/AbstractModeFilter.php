@@ -2,9 +2,9 @@
 
 namespace Bitrix\Socialnetwork\Space\List\Query\Filter\Mode;
 
-use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ORM\Query\Filter\ConditionTree;
 use Bitrix\Main\ORM\Query\Query;
+use Bitrix\Socialnetwork\Helper\User;
 use Bitrix\Socialnetwork\Space\List\Query\Filter\FilterInterface;
 use Bitrix\Socialnetwork\UserToGroupTable;
 
@@ -14,7 +14,7 @@ abstract class AbstractModeFilter implements FilterInterface
 
 	public function __construct(protected int $userId)
 	{
-		$currentUserId = (int)CurrentUser::get()->getId();
+		$currentUserId = User::getCurrentUserId();
 
 		$this->isSuperAdmin =
 			$currentUserId === $this->userId

@@ -81,11 +81,11 @@ class HtmlBuilder
 	 */
 	public function encodeUrl(?string $url): string
 	{
-		if(!preg_match('/^(callto:|mailto:|[a-z0-9]+:\/\/)/i', $url))
+		if (!preg_match('/^(callto:|mailto:|\/|[a-z0-9]+:\/\/)/i', $url))
 		{
 			$url = 'http://' . $url;
 		}
 
-		return (new Uri($url))->getUri();
+		return (new \Bitrix\Main\Web\Uri($url))->getUri();
 	}
 }

@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Main');
@@ -16,14 +16,14 @@
 	BX.Main.gridManager = {
 		data: [],
 
-		push: function(id, instance)
+		push(id, instance)
 		{
 			if (BX.type.isNotEmptyString(id) && instance)
 			{
-				var object = {
-					id: id,
-					instance: instance,
-					old: null
+				const object = {
+					id,
+					instance,
+					old: null,
 				};
 
 				if (this.getById(id) === null)
@@ -37,34 +37,35 @@
 			}
 		},
 
-		getById: function(id)
+		getById(id)
 		{
-			var result = this.data.filter(function(current) {
+			const result = this.data.filter((current) => {
 				return (current.id === id) || (current.id.replace('main_grid_', '') === id);
 			});
 
 			return result.length === 1 ? result[0] : null;
 		},
 
-		getInstanceById: function(id)
+		getInstanceById(id)
 		{
-			var result = this.getById(id);
-			return BX.type.isPlainObject(result) ? result["instance"] : null;
+			const result = this.getById(id);
+
+			return BX.type.isPlainObject(result) ? result.instance : null;
 		},
 
-		reload: function(id, url)
+		reload(id, url)
 		{
-			var instance = this.getInstanceById(id);
-			if(instance)
+			const instance = this.getInstanceById(id);
+			if (instance)
 			{
 				instance.reload(url);
 			}
 		},
 
-		getDataIndex: function(id)
+		getDataIndex(id)
 		{
-			var result = null;
-			this.data.forEach(function(item, index) {
+			let result = null;
+			this.data.forEach((item, index) => {
 				if (item.id === id)
 				{
 					result = index;
@@ -74,16 +75,16 @@
 			return result;
 		},
 
-		destroy: function(id)
+		destroy(id)
 		{
 			if (BX.type.isNotEmptyString(id))
 			{
-				var grid = this.getInstanceById(id);
+				const grid = this.getInstanceById(id);
 
 				if (grid instanceof BX.Main.grid)
 				{
 					grid.destroy();
-					var index = this.getDataIndex(id);
+					const index = this.getDataIndex(id);
 
 					if (index !== null)
 					{
@@ -91,6 +92,6 @@
 					}
 				}
 			}
-		}
+		},
 	};
 })();

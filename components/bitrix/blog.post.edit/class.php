@@ -999,17 +999,17 @@ class CBlogPostEdit extends CBitrixComponent
 		$dbCategory = CBlogCategory::GetList(Array(), Array("BLOG_ID" => $blogParams["ID"]));
 		while ($category = $dbCategory->Fetch())
 		{
-			$arCatBlog[ToLower($category["NAME"])] = $category["ID"];
+			$arCatBlog[mb_strtolower($category["NAME"])] = $category["ID"];
 		}
 		$tags = explode(",", $_POST["TAGS"]);
 		foreach ($tags as $tg)
 		{
 			$tg = trim($tg);
-			if (!in_array($arCatBlog[ToLower($tg)], $categoriesIds))
+			if (!in_array($arCatBlog[mb_strtolower($tg)], $categoriesIds))
 			{
-				if (intval($arCatBlog[ToLower($tg)]) > 0)
+				if (intval($arCatBlog[mb_strtolower($tg)]) > 0)
 				{
-					$categoriesIds[] = $arCatBlog[ToLower($tg)];
+					$categoriesIds[] = $arCatBlog[mb_strtolower($tg)];
 				}
 				else
 				{
@@ -1274,16 +1274,16 @@ class CBlogPostEdit extends CBitrixComponent
 					$dbCategory = CBlogCategory::GetList(Array(), Array("BLOG_ID" => $arCopyBlog["ID"]));
 					while ($arCategory = $dbCategory->Fetch())
 					{
-						$arCatBlogCopy[ToLower($arCategory["NAME"])] = $arCategory["ID"];
+						$arCatBlogCopy[mb_strtolower($arCategory["NAME"])] = $arCategory["ID"];
 					}
 					
 					$dbCat = CBlogPostCategory::GetList(Array("NAME" => "ASC"), Array("BLOG_ID" => $blogParams["ID"], "POST_ID" => $this->arParams["ID"]));
 					while ($arCat = $dbCat->Fetch())
 					{
-						if (empty($arCatBlogCopy[ToLower($arCat["NAME"])]))
+						if (empty($arCatBlogCopy[mb_strtolower($arCat["NAME"])]))
 							$v = CBlogCategory::Add(array("BLOG_ID" => $arCopyBlog["ID"], "NAME" => $arCat["NAME"]));
 						else
-							$v = $arCatBlogCopy[ToLower($arCat["NAME"])];
+							$v = $arCatBlogCopy[mb_strtolower($arCat["NAME"])];
 						CBlogPostCategory::Add(Array("BLOG_ID" => $arCopyBlog["ID"], "POST_ID" => $copyID, "CATEGORY_ID" => $v));
 						$arCopyCat[] = $v;
 					}

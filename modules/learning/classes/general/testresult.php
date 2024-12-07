@@ -114,7 +114,7 @@ class CTestResult
 				($arTestResult["QUESTION_TYPE"] != "R" ? "AND A.CORRECT = 'Y' " : "").
 				"ORDER BY A.SORT ASC, A.ID ASC";
 
-				if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+				if (!$res = $DB->Query($strSql))
 					return false;
 
 				$arAnswer = Array();
@@ -178,7 +178,7 @@ class CTestResult
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_test_result", $arFields, "learning");
 			$strSql = "UPDATE b_learn_test_result SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 			return true;
 		}
 
@@ -194,7 +194,7 @@ class CTestResult
 
 		$strSql = "DELETE FROM b_learn_test_result WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -288,7 +288,7 @@ class CTestResult
 			if (isset($arNavParams['nTopCount']) && ((int) $arNavParams['nTopCount'] > 0))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -299,7 +299,7 @@ class CTestResult
 			}
 		}
 		else
-			$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 
 		return $res;
 	}
@@ -365,7 +365,7 @@ class CTestResult
 		"FROM b_learn_test_result TR ".
 		"WHERE TR.ID = '".$TEST_RESULT_ID."'";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arAttemptResult = $res->Fetch())
 			return false;
 
@@ -375,7 +375,7 @@ class CTestResult
 		"INNER JOIN b_learn_question Q ON TR.QUESTION_ID = Q.ID ".
 		"WHERE TR.ATTEMPT_ID = '".$arAttemptResult["ATTEMPT_ID"]."'";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		if (!$arSum = $res->Fetch())
 			return false;
 
@@ -383,7 +383,7 @@ class CTestResult
 		"UPDATE b_learn_attempt SET SCORE = '".$arSum["SUM_POINT"]."', MAX_SCORE ='".$arSum["MAX_POINT"]."' ".
 		"WHERE ID = '".$arAttemptResult["ATTEMPT_ID"]."'";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return false;
 
 		return CTestAttempt::OnAttemptChange($arAttemptResult["ATTEMPT_ID"]);
@@ -398,7 +398,7 @@ class CTestResult
 					"FROM b_learn_test_result ".
 					"WHERE ATTEMPT_ID = ".$ATTEMPT_ID." ".
 					"GROUP BY ANSWERED";
-		$rs=$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rs=$DB->Query($strSql);
 		while($ar=$rs->Fetch())
 		{
 			if($ar["ANSWERED"]=="Y")
@@ -418,7 +418,7 @@ class CTestResult
 		"FROM b_learn_test_result TR ".
 		"WHERE TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."'";
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 		$res_cnt = $res->Fetch();
 
 		return intval($res_cnt["C"]);
@@ -440,7 +440,7 @@ class CTestResult
 		"FROM b_learn_test_result TR, b_learn_question Q ".
 		"WHERE TR.ATTEMPT_ID = '".intval($ATTEMPT_ID)."' AND TR.QUESTION_ID = Q.ID";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return false;
 
 		if (!$arStat = $res->Fetch())
@@ -456,7 +456,7 @@ class CTestResult
 
 		$strSql = "SELECT SUM(CASE WHEN TR.CORRECT = 'Y' THEN 1 ELSE 0 END) AS CNT FROM b_learn_test_result TR WHERE TR.ATTEMPT_ID = ".intval($ATTEMPT_ID)." GROUP BY ATTEMPT_ID";
 
-		if (!$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$res = $DB->Query($strSql))
 			return 0;
 
 		if (!$arStat = $res->Fetch())

@@ -1,0 +1,54 @@
+.ui-typography-spoiler {
+	background: #fcfcfc;
+	border: 1px solid #eee;
+	border-radius: 10px;
+	margin-top: var(--ui-typography-block-space-stack);
+	margin-bottom: var(--ui-typography-block-space-stack);
+
+	font-family: var(--ui-typography-font-family), sans-serif;
+	font-size: var(--ui-typography-font-size);
+	line-height: var(--ui-typography-line-height);
+	color: var(--ui-typography-color-text);
+}
+
+.ui-typography-spoiler-title {
+	cursor: pointer;
+	padding: 5px 5px 5px 24px;
+	position: relative;
+	font-weight: bold;
+	list-style: none;
+	outline: none;
+	user-select: contain;
+}
+
+.ui-typography-spoiler-title:empty:after {
+	content: '\00A0';
+}
+
+.ui-typography-spoiler-title::marker,
+.ui-typography-spoiler-title::-webkit-details-marker {
+	display: none;
+}
+
+.ui-typography-spoiler-title:before {
+	display: block;
+	content: '';
+	position: absolute;
+	left: 3px;
+	top: 7px;
+	width: 20px;
+	height: 20px;
+	mask-image: var(--ui-icon-set__path_plus-in-circle);
+	mask-size: 20px;
+	mask-position: center;
+	background-color: rgba(var(--ui-color-text-secondary-rgb), 0.5);
+}
+
+.ui-typography-spoiler[open] > .ui-typography-spoiler-title:before {
+	mask-image: var(--ui-icon-set__path_minus-in-circle);
+}
+
+.ui-typography-spoiler-content {
+	padding: 0 5px 0 20px;
+	margin-top: calc(var(--ui-typography-block-space-stack) / -2);
+}

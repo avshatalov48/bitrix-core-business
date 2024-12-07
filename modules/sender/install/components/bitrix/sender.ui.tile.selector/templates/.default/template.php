@@ -41,7 +41,7 @@ $getTileTemplate = function () use ($arParams)
 $containerId = 'sender-ui-tile-selector-';
 $containerId .= $arParams['ID'] ?: 'def';
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		new BX.Sender.UI.TileSelector(<?=Json::encode(array(
 			'containerId' => $containerId,

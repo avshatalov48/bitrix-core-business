@@ -69,6 +69,41 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  log: () => {}
 	};
 
+	class Desktop {
+	  constructor() {
+	    const settings = main_core.Extension.getSettings('im.public');
+	    this.v2enabled = settings.get('v2enabled', false);
+	  }
+	  async openPage(url, options = {}) {
+	    if (!this.v2enabled) {
+	      return Promise.resolve(false);
+	    }
+	    const anchorElement = main_core.Dom.create({
+	      tag: 'a',
+	      attrs: {
+	        href: url
+	      }
+	    });
+	    if (anchorElement.host !== location.host) {
+	      return Promise.resolve(false);
+	    }
+	    const skipNativeBrowser = Boolean(options.skipNativeBrowser);
+	    const DesktopManager = main_core.Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
+	    const isRedirectAllowed = await (DesktopManager == null ? void 0 : DesktopManager.getInstance().checkForOpenBrowserPage());
+	    if (isRedirectAllowed) {
+	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().openPage(anchorElement.href, {
+	        skipNativeBrowser
+	      });
+	    }
+	    if (skipNativeBrowser === true) {
+	      return Promise.resolve(false);
+	    }
+	    window.open(anchorElement.href, '_blank');
+	    return Promise.resolve(true);
+	  }
+	}
+	const desktop = new Desktop();
+
 	const SectionNameMap = {
 	  notify: 'notification'
 	};
@@ -82,8 +117,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    this.v2enabled = false;
 	    const settings = main_core.Extension.getSettings('im.public');
 	    this.v2enabled = settings.get('v2enabled', false);
+	    this.desktop = desktop;
 	  }
-	  async openChat(dialogId = '', text = '') {
+	  async openChat(dialogId = '', messageId = 0) {
 	    var _getOpener;
 	    if (!this.v2enabled) {
 	      window.BXIM.openMessenger(dialogId);
@@ -92,9 +128,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    const DesktopManager = main_core.Reflection.getClass('BX.Messenger.v2.Lib.DesktopManager');
 	    const isRedirectAllowed = await (DesktopManager == null ? void 0 : DesktopManager.getInstance().checkForRedirect());
 	    if (isRedirectAllowed) {
-	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().redirectToChat(dialogId);
+	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().redirectToChat(dialogId, messageId);
 	    }
-	    return (_getOpener = getOpener()) == null ? void 0 : _getOpener.openChat(dialogId, text);
+	    return (_getOpener = getOpener()) == null ? void 0 : _getOpener.openChat(dialogId, messageId);
 	  }
 	  async openLines(dialogId = '') {
 	    var _getOpener2;
@@ -110,7 +146,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    }
 	    return (_getOpener2 = getOpener()) == null ? void 0 : _getOpener2.openLines(dialogId);
 	  }
-	  async openCopilot(dialogId = '') {
+	  async openCopilot(dialogId = '', contextId = 0) {
 	    var _getOpener3;
 	    if (!this.v2enabled) {
 	      window.BXIM.openMessenger(dialogId);
@@ -121,7 +157,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    if (isRedirectAllowed) {
 	      return DesktopManager == null ? void 0 : DesktopManager.getInstance().redirectToCopilot(dialogId);
 	    }
-	    return (_getOpener3 = getOpener()) == null ? void 0 : _getOpener3.openCopilot(dialogId);
+	    return (_getOpener3 = getOpener()) == null ? void 0 : _getOpener3.openCopilot(dialogId, contextId);
 	  }
 	  async openLinesHistory(dialogId = '') {
 	    var _getOpener4;

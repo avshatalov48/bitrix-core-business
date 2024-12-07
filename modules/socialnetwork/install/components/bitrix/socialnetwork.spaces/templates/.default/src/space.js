@@ -1,4 +1,5 @@
 import { ajax, AjaxError, AjaxResponse, Cache, Dom, Event, Type, Uri } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 import { BaseEvent } from 'main.core.events';
 import { Disk } from './disk';
 
@@ -113,7 +114,7 @@ export class Space
 
 		this.#overlays.set(popupId, topOverlay);
 
-		topOverlay.show();
+		topOverlay.append();
 	}
 
 	hideOverlay(popupId: string): void
@@ -126,9 +127,19 @@ export class Space
 		this.#unblockScroll(popupId);
 	}
 
-	hideOverlays(): void
+	#showOverlays(): void
 	{
-		this.#overlays.forEach((overlay) => overlay.remove());
+		this.#overlays.forEach((overlay: Overlay) => overlay.show());
+	}
+
+	#hideOverlays(): void
+	{
+		this.#overlays.forEach((overlay: Overlay) => overlay.hide());
+	}
+
+	#removeOverlays(): void
+	{
+		this.#overlays.forEach((overlay: Overlay) => overlay.remove());
 	}
 
 	#blockScroll(popupId: string)
@@ -184,7 +195,14 @@ export class Space
 		});
 
 		this.#frame.subscribe('unload', () => {
-			this.hideOverlays();
+			this.#removeOverlays();
+		});
+
+		EventEmitter.subscribe('SidePanel.Slider:onOpen', () => {
+			this.#hideOverlays();
+		});
+		EventEmitter.subscribe('SidePanel.Slider:onClose', () => {
+			this.#showOverlays();
 		});
 
 		new MutationObserver(() => {

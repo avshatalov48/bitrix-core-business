@@ -9,7 +9,6 @@
 namespace Bitrix\Main\UI\AccessRights;
 
 use Bitrix\Main\Access\AccessCode;
-use Bitrix\Main\UI\AccessRights\Entity;
 use Bitrix\Main\UI\AccessRights\Exception\UnknownEntityTypeException;
 
 class DataProvider

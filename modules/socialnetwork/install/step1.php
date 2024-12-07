@@ -5,7 +5,7 @@
 	<input type="hidden" name="install" value="Y">
 	<input type="hidden" name="step" value="2">
 
-	<script language="JavaScript">
+	<script>
 	<!--
 	function ChangeInstallPublic(val, lan)
 	{
@@ -78,7 +78,7 @@
 	$arSiteTabControl->End();
 	?>
 
-	<script language="JavaScript">
+	<script>
 	<!--
 	<?foreach($arSites as $arSite):?>
 		ChangeInstallPublic(false, '<?=CUtil::JSEscape($arSite["SITE_ID"]);?>');

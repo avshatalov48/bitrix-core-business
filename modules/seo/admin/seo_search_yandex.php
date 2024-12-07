@@ -76,7 +76,7 @@ $rsData = new CAdminResult($dbSites, $sTableID);
 
 while($arSite = $dbSites->fetch(Converter::getHtmlConverter()))
 {
-	$arSite['DOMAIN'] = ToLower($arSite['DOMAIN']);
+	$arSite['DOMAIN'] = mb_strtolower($arSite['DOMAIN']);
 
 	$row =& $lAdmin->AddRow($arSite['DOMAIN'], $arSite);
 
@@ -113,7 +113,7 @@ if($strError != '')
 
 ?>
 <div id="ajax_status"></div>
-<script type="text/javascript">
+<script>
 	BX.message({'SEO_VERIFY_STATUS_NONE':'<?=Loc::getMessage('SEO_VERIFY_STATUS_NONE')?>'});
 	BX.message({'SEO_VERIFY_STATUS_VERIFIED':'<?=Loc::getMessage('SEO_VERIFY_STATUS_VERIFIED')?>'});
 	BX.message({'SEO_VERIFY_STATUS_IN_PROGRESS':'<?=Loc::getMessage('SEO_VERIFY_STATUS_IN_PROGRESS')?>'});
@@ -266,7 +266,7 @@ function setAjaxStatus(text)
 
 $arYandexSites = array();
 ?>
-<script type="text/javascript">
+<script>
 function makeNewAuth()
 {
 	BX.showWait(BX('auth_result'));
@@ -308,7 +308,7 @@ if(!$bNeedAuth)
 <?
 	}
 ?>
-<script type="text/javascript">updateInfo();</script>
+<script>updateInfo();</script>
 <?
 }
 ?>

@@ -6,12 +6,12 @@ import { RecentService } from 'im.v2.provider.service';
 import { RecentMenu } from 'im.v2.lib.menu';
 import { DraftManager } from 'im.v2.lib.draft';
 import { CreateChatManager } from 'im.v2.lib.create-chat';
+import { ListLoadingState as LoadingState } from 'im.v2.component.elements';
 
 import { RecentItem } from './components/recent-item/recent-item';
 import { ActiveCall } from './components/active-call';
 import { CreateChat } from './components/create-chat';
 import { EmptyState } from './components/empty-state';
-import { LoadingState } from './components/loading-state';
 
 import { BroadcastManager } from './classes/broadcast-manager';
 import { LikeManager } from './classes/like-manager';
@@ -63,8 +63,8 @@ export const RecentList = {
 			});
 
 			return [...filteredCollection].sort((a, b) => {
-				const firstDate = this.$store.getters['recent/getMessageDate'](a.dialogId);
-				const secondDate = this.$store.getters['recent/getMessageDate'](b.dialogId);
+				const firstDate = this.$store.getters['recent/getSortDate'](a.dialogId);
+				const secondDate = this.$store.getters['recent/getSortDate'](b.dialogId);
 
 				return secondDate - firstDate;
 			});
@@ -110,7 +110,7 @@ export const RecentList = {
 		await this.getRecentService().loadFirstPage({ ignorePreloadedItems: true });
 		this.isLoading = false;
 
-		DraftManager.getInstance().initDraftHistory();
+		void DraftManager.getInstance().initDraftHistory();
 	},
 	beforeUnmount()
 	{
@@ -121,12 +121,12 @@ export const RecentList = {
 	},
 	methods:
 	{
-		async onScroll(event)
+		async onScroll(event: Event)
 		{
 			this.listIsScrolled = event.target.scrollTop > 0;
 
 			this.contextMenuManager.close();
-			if (!this.oneScreenRemaining(event) || !this.getRecentService().hasMoreItemsToLoad)
+			if (!Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad)
 			{
 				return;
 			}
@@ -158,14 +158,6 @@ export const RecentList = {
 		onCallClick({ item, $event })
 		{
 			this.onClick(item, $event);
-		},
-		oneScreenRemaining(event): boolean
-		{
-			const bottomPointOfVisibleContent = event.target.scrollTop + event.target.clientHeight;
-			const containerHeight = event.target.scrollHeight;
-			const oneScreenHeight = event.target.clientHeight;
-
-			return bottomPointOfVisibleContent >= containerHeight - oneScreenHeight;
 		},
 		initBroadcastManager()
 		{
@@ -234,7 +226,7 @@ export const RecentList = {
 		},
 	},
 	template: `
-		<div class="bx-im-list-recent__scope bx-im-list-recent__container">
+		<div class="bx-im-list-recent__container">
 			<div v-if="activeCalls.length > 0" class="bx-im-list-recent__calls_container" :class="{'--with-shadow': listIsScrolled}">
 				<ActiveCall
 					v-for="activeCall in activeCalls"
@@ -247,7 +239,7 @@ export const RecentList = {
 			<LoadingState v-if="isLoading && !firstPageLoaded" />
 			<div v-else @scroll="onScroll" class="bx-im-list-recent__scroll-container">
 				<EmptyState v-if="isEmptyCollection" />
-				<div v-if="pinnedItems.length > 0" class="bx-im-list-recent__pinned_scope bx-im-list-recent__pinned_container">
+				<div v-if="pinnedItems.length > 0" class="bx-im-list-recent__pinned_container">
 					<RecentItem
 						v-for="item in pinnedItems"
 						:key="item.dialogId"

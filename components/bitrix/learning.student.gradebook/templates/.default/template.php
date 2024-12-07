@@ -15,14 +15,14 @@
 <?if (!empty($arResult["RECORDS"])):?>
 
 <?php
-$strQuickInfoPrefix = $strQuickInfoPrefix = '';
+$strQuickInfoPrefix = $strQuickInfoPostfix = '';
 foreach($arResult["RECORDS"] as $arGradebook):
 	if (($arGradebook['APPROVED'] === 'N') && ($arGradebook["COMPLETED"]!="Y"))
 	{
 		$strQuickInfoPrefix = ' <span href="javascript:void(0);" 
 			style="text-decoration:none; border-bottom:1px dashed blue;"
-			title="' 
-			. GetMessage('LEARNING_TEST_CHECKED_MANUALLY_SO_NOT_ALL_RESULTS_CAN_BE_ACTUAL') 
+			title="'
+			. GetMessage('LEARNING_TEST_CHECKED_MANUALLY_SO_NOT_ALL_RESULTS_CAN_BE_ACTUAL')
 			. '">';
 
 		$strQuickInfoPostfix = '</span>';
@@ -45,7 +45,7 @@ foreach($arResult["RECORDS"] as $arGradebook):
 			else
 				echo $strQuickInfoPrefix . GetMessage("LEARNING_PROFILE_NO") . $strQuickInfoPostfix;
 
-			?> <?php if ($arGradebook["MARK"]):?>(<?php echo GetMessage("LEARNING_PROFILE_MARK")?>: <?php echo $arGradebook["MARK"]?>)<?php endif?></td>
+			?> <?php if (isset($arGradebook["MARK"])):?>(<?php echo GetMessage("LEARNING_PROFILE_MARK")?>: <?php echo $arGradebook["MARK"]?>)<?php endif?></td>
 		<td>
 			<a title="<?=GetMessage("LEARNING_PROFILE_TEST_DETAIL")?>" href="<?=$arGradebook["ATTEMPT_DETAIL_URL"]?>"><?=$arGradebook["ATTEMPTS"]?></a>
 			<?if ($arGradebook["ATTEMPT_LIMIT"]>0):?>

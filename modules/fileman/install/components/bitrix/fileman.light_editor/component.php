@@ -1,7 +1,10 @@
 <?
 if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 if(!CModule::IncludeModule("fileman"))
-	return ShowError(GetMessage("EC_FILEMAN_MODULE_NOT_INSTALLED"));
+{
+	ShowError(GetMessage("EC_FILEMAN_MODULE_NOT_INSTALLED"));
+	return;
+}
 
 $toolbarConfig = array(
 	'Bold', 'Italic', 'Underline', 'Strike', 'RemoveFormat',

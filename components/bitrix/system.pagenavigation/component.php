@@ -14,8 +14,8 @@ if (is_object($arParams["NAV_RESULT"]) &&  is_subclass_of($arParams["NAV_RESULT"
 
 	$arResult = Array();
 
-	$arResult["NavShowAlways"] = $arParams["SHOW_ALWAYS"];
-	$arResult["NavTitle"] = $arParams["NAV_TITLE"];
+	$arResult["NavShowAlways"] = $arParams["SHOW_ALWAYS"] ?? false;
+	$arResult["NavTitle"] = $arParams["NAV_TITLE"] ?? '';
 	$arResult["NavRecordCount"] = $dbresult->NavRecordCount;
 	$arResult["NavPageCount"] = $dbresult->NavPageCount;
 	$arResult["NavPageNomer"] = $dbresult->NavPageNomer;

@@ -75,19 +75,24 @@ if (0 < $arResult["SECTIONS_COUNT"])
 				$this->AddDeleteAction($arSection['ID'], $arSection['DELETE_LINK'], $strSectionDelete, $arSectionDeleteParams);
 
 				if (false === $arSection['PICTURE'])
+				{
+					$altValue = (string)($arSection['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] ?? '');
+					if ($altValue === '')
+					{
+						$altValue = $arSection['NAME'];
+					}
+					$titleValue = (string)($arSection['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] ?? '');
+					if ($titleValue === '')
+					{
+						$titleValue = $arSection['NAME'];
+					}
 					$arSection['PICTURE'] = array(
 						'SRC' => $arCurView['EMPTY_IMG'],
-						'ALT' => (
-							'' != $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_ALT"]
-							? $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_ALT"]
-							: $arSection["NAME"]
-						),
-						'TITLE' => (
-							'' != $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_TITLE"]
-							? $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_TITLE"]
-							: $arSection["NAME"]
-						)
+						'ALT' => $altValue,
+						'TITLE' => $titleValue,
 					);
+					unset($titleValue, $altValue);
+				}
 				?><li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>">
 				<a
 					href="<? echo $arSection['SECTION_PAGE_URL']; ?>"
@@ -132,19 +137,24 @@ if (0 < $arResult["SECTIONS_COUNT"])
 				$this->AddDeleteAction($arSection['ID'], $arSection['DELETE_LINK'], $strSectionDelete, $arSectionDeleteParams);
 
 				if (false === $arSection['PICTURE'])
+				{
+					$altValue = (string)($arSection['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_ALT'] ?? '');
+					if ($altValue === '')
+					{
+						$altValue = $arSection['NAME'];
+					}
+					$titleValue = (string)($arSection['IPROPERTY_VALUES']['SECTION_PICTURE_FILE_TITLE'] ?? '');
+					if ($titleValue === '')
+					{
+						$titleValue = $arSection['NAME'];
+					}
 					$arSection['PICTURE'] = array(
 						'SRC' => $arCurView['EMPTY_IMG'],
-						'ALT' => (
-							'' != $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_ALT"]
-							? $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_ALT"]
-							: $arSection["NAME"]
-						),
-						'TITLE' => (
-							'' != $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_TITLE"]
-							? $arSection["IPROPERTY_VALUES"]["SECTION_PICTURE_FILE_TITLE"]
-							: $arSection["NAME"]
-						)
+						'ALT' => $altValue,
+						'TITLE' => $titleValue,
 					);
+					unset($titleValue, $altValue);
+				}
 				?><li id="<? echo $this->GetEditAreaId($arSection['ID']); ?>">
 				<a
 					href="<? echo $arSection['SECTION_PAGE_URL']; ?>"

@@ -99,7 +99,7 @@ else
 	}
 	?>
 	
-	<script language="JavaScript">
+	<script>
 	var user_count = 1;
 
 	function addField()

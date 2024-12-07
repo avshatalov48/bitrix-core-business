@@ -41,21 +41,25 @@ class PushService
 			return;
 		}
 
-		\Bitrix\Pull\Event::add($this->getRecipient($reaction), [
+		$pull = [
 			'module_id' => 'im',
 			'command' => $eventName,
 			'params' => $params,
 			'extra' => \Bitrix\Im\Common::getPullExtra()
-		]);
+		];
 
-		if ($chat->getType() === Chat::IM_TYPE_OPEN || $chat->getType() === Chat::IM_TYPE_OPEN_LINE)
+		if ($chat->getType() === Chat::IM_TYPE_COMMENT)
 		{
-			\CPullWatch::AddToStack('IM_PUBLIC_'.$chat->getChatId(), Array(
-				'module_id' => 'im',
-				'command' => $eventName,
-				'params' => $params,
-				'extra' => \Bitrix\Im\Common::getPullExtra()
-			));
+			\CPullWatch::AddToStack('IM_PUBLIC_COMMENT_'.$chat->getParentChatId(), $pull);
+		}
+		else
+		{
+			\Bitrix\Pull\Event::add($this->getRecipient($reaction), $pull);
+		}
+
+		if ($chat->needToSendPublicPull())
+		{
+			\CPullWatch::AddToStack('IM_PUBLIC_'.$chat->getChatId(), $pull);
 		}
 	}
 

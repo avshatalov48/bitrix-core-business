@@ -13,7 +13,6 @@ $MESS["SALE_HPS_ASSIST_FIRST_NAME"] = "Customer name";
 $MESS["SALE_HPS_ASSIST_LAST_NAME"] = "Customer last name";
 $MESS["SALE_HPS_ASSIST_MIDDLE_NAME"] = "Customer middle name";
 $MESS["SALE_HPS_ASSIST_ORDER_ID"] = "Payment #";
-$MESS["SALE_HPS_ASSIST_PAYMENT_AssistIDCCPayment"] = "Pay with credit card using Assist®ID";
 $MESS["SALE_HPS_ASSIST_PAYMENT_CardPayment"] = "Use Assist authorization pages to authorize";
 $MESS["SALE_HPS_ASSIST_PAYMENT_QIWIPayment"] = "use QIWI payment system";
 $MESS["SALE_HPS_ASSIST_PAYMENT_WebMoneyPayment"] = "Use WebMoney Transfer payment system";

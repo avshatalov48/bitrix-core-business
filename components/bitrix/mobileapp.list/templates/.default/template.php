@@ -94,7 +94,7 @@ foreach ($arResult["ITEMS"] as $arItem)
 		</a>';
 
 	if(isset($arItem['TOGGLABLE']) && $arItem['TOGGLABLE'] == true)
-		$itemHtml .= '<script type="text/javascript">'.
+		$itemHtml .= '<script>'.
 						'BX.ready(function(){ mobileAppList.makeFastButton("mobile-list-item-'.CUtil::JSEscape($arItem["ID"]).'");})'.
 					'</script>';
 
@@ -106,7 +106,6 @@ foreach ($arResult["ITEMS"] as $arItem)
 
 if($arResult["AJAX_MODE"])
 {
-	$arItemsHtml = $APPLICATION->ConvertCharsetArray($arItemsHtml, SITE_CHARSET, 'utf-8');
 	echo json_encode($arItemsHtml);
 	die();
 }
@@ -116,7 +115,7 @@ echo $finalHtml;
 ?>
 		</div>
 
-<script type="text/javascript">
+<script>
 
 	<?if(isset($arParams["TITLE"])):?>
 		app.setPageTitle({title: "<?=$arParams["TITLE"]?>"});

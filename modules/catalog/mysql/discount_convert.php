@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CCatalogDiscountConvertTmp
 {
 	public static $strTableName = 'b_catalog_dsc_tmp';
@@ -143,4 +144,3 @@ class CCatalogDiscountConvertTmp
 		}
 	}
 }
-?>

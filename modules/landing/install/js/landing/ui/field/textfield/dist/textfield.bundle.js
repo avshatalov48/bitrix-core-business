@@ -1,15 +1,23 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 this.BX.Landing.UI = this.BX.Landing.UI || {};
 (function (exports,landing_ui_field_basefield,main_core,main_core_events,landing_ui_component_internal) {
 	'use strict';
 
+	var _templateObject;
+	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
+	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
+	function _classPrivateMethodGet(receiver, privateSet, fn) { if (!privateSet.has(receiver)) { throw new TypeError("attempted to get private field on non-instance"); } return fn; }
+	var _createFooter = /*#__PURE__*/new WeakSet();
 	var TextField = /*#__PURE__*/function (_BaseField) {
 	  babelHelpers.inherits(TextField, _BaseField);
 	  function TextField(options) {
+	    var _this$options$footerT;
 	    var _this;
 	    babelHelpers.classCallCheck(this, TextField);
 	    _this = babelHelpers.possibleConstructorReturn(this, babelHelpers.getPrototypeOf(TextField).call(this, options));
+	    _classPrivateMethodInitSpec(babelHelpers.assertThisInitialized(_this), _createFooter);
 	    _this.setEventNamespace('BX.Landing.UI.Field.TextField');
 	    _this.subscribeFromOptions(landing_ui_component_internal.fetchEventsFromOptions(options));
 	    _this.bind = _this.options.bind;
@@ -19,6 +27,8 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	    _this.textOnly = main_core.Type.isBoolean(_this.options.textOnly) ? _this.options.textOnly : false;
 	    _this.content = _this.textOnly ? main_core.Text.encode(_this.content) : _this.content;
 	    _this.input.innerHTML = _this.content;
+	    _classPrivateMethodGet(babelHelpers.assertThisInitialized(_this), _createFooter, _createFooter2).call(babelHelpers.assertThisInitialized(_this));
+	    _this.setFooterText((_this$options$footerT = _this.options.footerText) !== null && _this$options$footerT !== void 0 ? _this$options$footerT : '');
 	    _this.onInputClick = _this.onInputClick.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onInputMousedown = _this.onInputMousedown.bind(babelHelpers.assertThisInitialized(_this));
 	    _this.onDocumentMouseup = _this.onDocumentMouseup.bind(babelHelpers.assertThisInitialized(_this));
@@ -192,9 +202,38 @@ this.BX.Landing.UI = this.BX.Landing.UI || {};
 	      }
 	      return this.adjustTags(main_core.Runtime.clone(this.input)).innerHTML.replace(/&nbsp;/g, '');
 	    }
+	  }, {
+	    key: "setFooterText",
+	    value: function setFooterText(text) {
+	      this.footer.innerText = text;
+	    }
+	  }, {
+	    key: "showFooter",
+	    value: function showFooter() {
+	      main_core.Dom.show(this.footer);
+	    }
+	  }, {
+	    key: "hideFooter",
+	    value: function hideFooter() {
+	      main_core.Dom.hide(this.footer);
+	    }
+	  }, {
+	    key: "setWarningStatus",
+	    value: function setWarningStatus() {
+	      main_core.Dom.addClass(this.getLayout(), 'landing-ui-field-warning');
+	    }
+	  }, {
+	    key: "unsetWarningStatus",
+	    value: function unsetWarningStatus() {
+	      main_core.Dom.removeClass(this.layout, 'landing-ui-field-warning');
+	    }
 	  }]);
 	  return TextField;
 	}(landing_ui_field_basefield.BaseField);
+	function _createFooter2() {
+	  this.footer = main_core.Tag.render(_templateObject || (_templateObject = babelHelpers.taggedTemplateLiteral(["<div class=\"landing-ui-field-bottom ui-ctl-bottom\" hidden></div>"])));
+	  main_core.Dom.append(this.footer, this.getLayout());
+	}
 
 	exports.TextField = TextField;
 	exports.Text = TextField;

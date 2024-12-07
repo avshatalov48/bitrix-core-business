@@ -405,6 +405,7 @@ this.BX = this.BX || {};
 	var _jsObjName = /*#__PURE__*/new WeakMap();
 	var _LHEId$1 = /*#__PURE__*/new WeakMap();
 	var _sended = /*#__PURE__*/new WeakMap();
+	var _editMode = /*#__PURE__*/new WeakMap();
 	var _popup = /*#__PURE__*/new WeakMap();
 	var _sendBtn = /*#__PURE__*/new WeakMap();
 	var _postData = /*#__PURE__*/new WeakMap();
@@ -506,6 +507,10 @@ this.BX = this.BX || {};
 	      writable: true,
 	      value: void 0
 	    });
+	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _editMode, {
+	      writable: true,
+	      value: void 0
+	    });
 	    _classPrivateFieldInitSpec$4(babelHelpers.assertThisInitialized(_this), _popup, {
 	      writable: true,
 	      value: void 0
@@ -557,6 +562,7 @@ this.BX = this.BX || {};
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _jsObjName, "oPostFormLHE_blogPostForm".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$2)));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _LHEId$1, "idPostFormLHE_".concat(babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _formId$2)));
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _sended, false);
+	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _editMode, babelHelpers.classPrivateFieldGet(babelHelpers.assertThisInitialized(_this), _postId) > 0);
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _postFormRouter, new PostFormRouter({
 	      pathToDefaultRedirect: params.pathToDefaultRedirect,
 	      pathToGroupRedirect: params.pathToGroupRedirect
@@ -670,7 +676,11 @@ this.BX = this.BX || {};
 	function _afterClose2() {
 	  if (babelHelpers.classPrivateFieldGet(this, _sended)) {
 	    _classPrivateMethodGet$3(this, _clearForm, _clearForm2).call(this);
-	    BX.Livefeed.PageInstance.refresh();
+	    if (BX.Livefeed && BX.Livefeed.PageInstance) {
+	      BX.Livefeed.PageInstance.refresh();
+	    } else {
+	      babelHelpers.classPrivateFieldGet(this, _postFormRouter).redirectTo(babelHelpers.classPrivateFieldGet(this, _groupId));
+	    }
 	  }
 	}
 	function _sendForm2() {
@@ -711,6 +721,7 @@ this.BX = this.BX || {};
 	function _clearForm2() {
 	  babelHelpers.classPrivateFieldGet(this, _postData).setData(babelHelpers.classPrivateFieldGet(this, _initData));
 	  _classPrivateMethodGet$3(this, _clearSelector, _clearSelector2).call(this);
+	  babelHelpers.classPrivateFieldGet(this, _titleNode).querySelector('input').value = '';
 	  babelHelpers.classPrivateFieldGet(this, _postFormManager).clearEditorText();
 	  _classPrivateMethodGet$3(this, _clearFiles, _clearFiles2).call(this);
 	  babelHelpers.classPrivateFieldGet(this, _postFormTags).clear();

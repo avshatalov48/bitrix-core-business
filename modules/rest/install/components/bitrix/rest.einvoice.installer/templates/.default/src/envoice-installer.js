@@ -17,10 +17,6 @@ export class EInvoiceInstaller extends EventEmitter
 		this.setEventNamespace('BX.Rest.EInvoiceInstaller');
 		this.#options = options;
 		this.render('selection');
-		this.#formListener = new Listener('showForm', (data) => {
-			(new AppForm(data.params)).show();
-			this.render('selection');
-		});
 		this.#getPageProvider().getPageByType('selection').subscribe('start-install-app', this.#onStartInstall.bind(this));
 	}
 
@@ -51,9 +47,9 @@ export class EInvoiceInstaller extends EventEmitter
 
 	#onStartInstall(event: BaseEvent): void
 	{
-		this.#formListener.listen();
 		this.#getPageProvider().getPageByType('install').emit('install-app', new BaseEvent({
 			data: {
+				source: this,
 				code: event.data.code,
 				name: event.data.name,
 				install: this.#installApplicationByCode(event.data.code),

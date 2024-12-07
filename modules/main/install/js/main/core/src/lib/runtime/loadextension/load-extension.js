@@ -22,7 +22,7 @@ export default async function loadExtension(...extensionName: Array<string>): Pr
 		.all(result)
 		.then((exports: Array<any>) => {
 			return exports.reduce((acc, currentExports) => {
-				if (Type.isPlainObject(currentExports))
+				if (Type.isObject(currentExports))
 				{
 					return { ...acc, ...currentExports };
 				}

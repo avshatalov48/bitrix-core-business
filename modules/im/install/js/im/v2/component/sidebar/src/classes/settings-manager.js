@@ -1,39 +1,25 @@
-import { Extension } from 'main.core';
-
 import { Core } from 'im.v2.application.core';
+import { Feature, FeatureManager } from 'im.v2.lib.feature';
 
 import type { Store } from 'ui.vue3.vuex';
 
 export class SettingsManager
 {
 	store: Store;
-	settings: Object;
 
 	constructor()
 	{
-		this.settings = Extension.getSettings('im.v2.component.sidebar');
 		this.saveSettings();
 	}
 
 	async saveSettings()
 	{
 		await Core.ready();
-		void Core.getStore().dispatch('sidebar/setFilesMigrated', this.settings.get('filesMigrated', false));
-		void Core.getStore().dispatch('sidebar/setLinksMigrated', this.settings.get('linksAvailable', false));
-	}
 
-	canShowBriefs(): boolean
-	{
-		return this.settings.get('canShowBriefs', false);
-	}
+		const filesMigrated = FeatureManager.isFeatureAvailable(Feature.sidebarFiles);
+		const linksAvailable = FeatureManager.isFeatureAvailable(Feature.sidebarLinks);
 
-	isLinksMigrationFinished(): boolean
-	{
-		return Core.getStore().state.sidebar.isLinksMigrated;
-	}
-
-	isFileMigrationFinished(): boolean
-	{
-		return Core.getStore().state.sidebar.isFilesMigrated;
+		void Core.getStore().dispatch('sidebar/setFilesMigrated', filesMigrated);
+		void Core.getStore().dispatch('sidebar/setLinksMigrated', linksAvailable);
 	}
 }

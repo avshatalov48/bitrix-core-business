@@ -300,7 +300,7 @@ $isCrmEnabled = ($arResult['CRM_ENABLE'] === 'Y');
 	</div>
 </div>
 
-<script type="text/javascript">
+<script>
 
 	BX.message({
 		EMAILS_LIMIT_TO_SEND_MESSAGE: '<?=$emailsLimitToSendMessage?>',

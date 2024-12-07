@@ -84,9 +84,9 @@ class CSearchLanguage
 				{
 					$text = file_get_contents($file_name);
 					$keyboard = $this->GetKeyboardLayout();
-					if (defined("BX_UTF") && isset($keyboard["trigram_charset"]))
+					if (isset($keyboard["trigram_charset"]))
 					{
-						$text = $GLOBALS["APPLICATION"]->ConvertCharset($text, $keyboard["trigram_charset"], "utf8");
+						$text = \Bitrix\Main\Text\Encoding::convertEncoding($text, $keyboard["trigram_charset"], "utf8");
 					}
 					$ar = explode("\n", $text);
 					foreach($ar as $trigramm)
@@ -181,18 +181,11 @@ class CSearchLanguage
 
 	public static function StrToArray($str)
 	{
-		if(defined("BX_UTF"))
-		{
-			$result = array();
-			$len = mb_strlen($str);
-			for($i = 0;$i < $len; $i++)
-				$result[] = mb_substr($str, $i, 1);
-			return $result;
-		}
-		else
-		{
-			return str_split($str);
-		}
+		$result = array();
+		$len = mb_strlen($str);
+		for($i = 0;$i < $len; $i++)
+			$result[] = mb_substr($str, $i, 1);
+		return $result;
 	}
 
 	//This function converts text between layouts
@@ -236,20 +229,13 @@ class CSearchLanguage
 
 		if(isset($keyboards[$combo]))
 		{
-			if (defined("BX_UTF"))
+			$text = static::StrToArray($text);
+			foreach ($text as $pos => $char)
 			{
-				$text = static::StrToArray($text);
-				foreach ($text as $pos => $char)
-				{
-					if (isset($keyboards[$combo][$char]))
-						$text[$pos] = $keyboards[$combo][$char];
-				}
-				return implode('', $text);
+				if (isset($keyboards[$combo][$char]))
+					$text[$pos] = $keyboards[$combo][$char];
 			}
-			else
-			{
-				return strtr($text, $keyboards[$combo]);
-			}
+			return implode('', $text);
 		}
 		else
 		{
@@ -507,7 +493,7 @@ class CSearchLanguage
 	//This is model of the text
 	function ConvertToBigramms($arScancodes)
 	{
-		$result = array();
+		$result = array('count' => 0);
 
 		$len = count($arScancodes)-1;
 		for($i = 0; $i < $len; $i++)
@@ -517,6 +503,12 @@ class CSearchLanguage
 			if($code1 !== false && $code2 !== false)
 			{
 				$result["count"]++;
+
+				if (!isset($result[$code1." ".$code2]))
+				{
+					$result[$code1." ".$code2] = 0;
+				}
+
 				$result[$code1." ".$code2]++;
 			}
 		}
@@ -541,7 +533,7 @@ class CSearchLanguage
 			$keyboard_lo = $keyboard["lo"];
 			$keyboard_hi = $keyboard["hi"];
 
-			$result = array();
+			$result = array('count' => 0);
 			foreach($bigramms as $letter1 => $row)
 			{
 				$p1 = mb_strpos($keyboard_lo, $letter1);

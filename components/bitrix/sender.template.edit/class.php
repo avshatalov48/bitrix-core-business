@@ -2,6 +2,7 @@
 
 use Bitrix\Fileman;
 use Bitrix\Main\Context;
+use Bitrix\Main\Error;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -52,6 +53,17 @@ class SenderTemplateEditComponent extends Bitrix\Sender\Internals\CommonSenderCo
 	protected function preparePost()
 	{
 		$content = $this->request->getPostList()->getRaw('CONTENT');
+		$sizeInBytes = mb_strlen($content ?? "");
+		$sizeInKilobytes = $sizeInBytes / 1024;
+		$limitInKilobytes = 2.4 * 1024;
+
+		if ($sizeInKilobytes > $limitInKilobytes)
+		{
+			$this->errors->add([new Error(Loc::getMessage('SENDER_COMP_TEMPLATE_BODY_LIMIT'))]);
+
+			return;
+		}
+
 		$content = Security\Sanitizer::sanitizeHtml($content, $this->entityTemplate->get('CONTENT'));
 		$data = Array(
 			"CONTENT"	=> $content,

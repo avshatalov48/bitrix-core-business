@@ -3,6 +3,8 @@
 use Bitrix\Catalog\StoreDocumentTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog\Config\State;
+use Bitrix\Catalog\Store\EnableWizard\TariffChecker;
 
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
@@ -58,19 +60,24 @@ return [
 		'catalog.sku-tree',
 		'main.loader',
 		'ui.info-helper',
-		'ui.entity-selector',
-		'catalog.product-model',
-		'catalog.product-selector',
 		'catalog.barcode-scanner',
+		'ui.qrauthorization',
+		'ui.tour',
+		'spotlight',
+		'main.core.events',
+		'ui.entity-selector',
+		'ui.icon-set.main',
+		'catalog.tool-availability-manager',
 		'ui.notification',
 		'main.core',
-		'main.core.events',
-		'ui.qrauthorization',
-		'spotlight',
-		'ui.tour',
+		'catalog.product-selector',
+		'catalog.product-model',
+		'catalog.external-catalog-placement',
 	],
 	'skip_core' => false,
 	'settings' => [
+		'isExternalCatalog' => State::isExternalCatalog(),
+		'is1cPlanRestricted' => TariffChecker::isOnecInventoryManagementRestricted(),
 		'limitInfo' => $limitInfo,
 		'isInstallMobileApp' => $isInstallMobileApp,
 		'isEnabledQrAuth' => $isEnabledQrAuth,

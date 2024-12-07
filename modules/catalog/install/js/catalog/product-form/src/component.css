@@ -662,6 +662,10 @@
 	line-height: 39px;
 }
 
+.catalog-pf-product-input:focus-visible {
+	outline: none;
+}
+
 .catalog-pf-product-input-wrapper--disabled,
 .catalog-pf-product-input--disabled {
 	cursor: not-allowed;

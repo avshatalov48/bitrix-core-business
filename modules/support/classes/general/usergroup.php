@@ -78,7 +78,7 @@ class CSupportUserGroup
 		{
 			$strQuery .= ' ORDER BY ' . $strOrder;
 		}
-		return $DB->Query($strQuery, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strQuery);
 	}
 
 	public static function Add($arFields)

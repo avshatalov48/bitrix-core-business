@@ -953,11 +953,15 @@ class CBitrixBasketComponent extends CBitrixComponent
 		return Catalog\Product\Basket::addProductToBasketWithPermissions($basket, $fields, $context, false);
 	}
 
-	protected function getUserId()
+	protected function getUserId(): ?int
 	{
 		global $USER;
 
-		return $USER instanceof CUser ? $USER->GetID() : null;
+		return
+			isset($USER) && $USER instanceof \CUser
+				? (int)$USER->GetID()
+				: null
+		;
 	}
 
 	protected function needToReloadGifts(array $result)
@@ -972,7 +976,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			{
 				if (!empty($result['BASKET_DATA']['FULL_DISCOUNT_LIST']))
 				{
-					$giftManager = Sale\Discount\Gift\Manager::getInstance()->setUserId($this->getUserId());
+					$giftManager = Sale\Discount\Gift\Manager::getInstance()->setUserId($this->getUserId() ?? 0);
 
 					Sale\Compatible\DiscountCompatibility::stopUsageCompatible();
 					$collections = $giftManager->getCollectionsByBasket(
@@ -1013,7 +1017,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			{
 				if (strncmp($value, 'PROPERTY_', 9) === 0)
 				{
-					$propCode = ToUpper(mb_substr($value, 9));
+					$propCode = mb_strtoupper(mb_substr($value, 9));
 
 					if ($propCode == '')
 					{
@@ -2471,8 +2475,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 		$basket = $this->getBasketStorage()->getOrderableBasket();
 		$fUserId = $this->getFuserId();
-
-		$sessionBasketPrice = $this->getSessionFUserBasketPrice($fUserId);
+		$siteId = $this->getSiteId();
 
 		$basketPrice = 0;
 		/** @var Sale\BasketItemBase $basketItem */
@@ -2484,13 +2487,14 @@ class CBitrixBasketComponent extends CBitrixComponent
 			}
 		}
 
-		if ($sessionBasketPrice === null || $sessionBasketPrice != $basketPrice)
+		if (
+			!Sale\BasketComponentHelper::existsFUserBasketPrice($fUserId, $siteId)
+			|| $this->getSessionFUserBasketPrice($fUserId) != $basketPrice
+		)
 		{
 			$state = 'Y';
 			$this->setSessionFUserBasketPrice($basketPrice, $fUserId);
 		}
-
-		$sessionBasketQuantity = $this->getSessionFUserBasketQuantity($fUserId);
 
 		$basketItemQuantity = 0;
 		/** @var Sale\BasketItemBase $basketItem */
@@ -2502,7 +2506,10 @@ class CBitrixBasketComponent extends CBitrixComponent
 			}
 		}
 
-		if ($sessionBasketQuantity === null || $sessionBasketQuantity != $basketItemQuantity)
+		if (
+			!Sale\BasketComponentHelper::existsFUserBasketQuantity($fUserId, $siteId)
+			|| $this->getSessionFUserBasketQuantity($fUserId) != $basketItemQuantity
+		)
 		{
 			$state = 'Y';
 			$this->setSessionFUserBasketQuantity($basketItemQuantity, $fUserId);
@@ -2515,38 +2522,22 @@ class CBitrixBasketComponent extends CBitrixComponent
 
 	protected function getSessionFUserBasketPrice($fUserId)
 	{
-		$price = null;
-		$siteId = $this->getSiteId();
-
-		if (isset($_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fUserId]))
-		{
-			$price = $_SESSION['SALE_USER_BASKET_PRICE'][$siteId][$fUserId];
-		}
-
-		return $price;
+		return Sale\BasketComponentHelper::getFUserBasketPrice($fUserId, $this->getSiteId());
 	}
 
 	protected function setSessionFUserBasketPrice($price, $fUserId)
 	{
-		$_SESSION['SALE_USER_BASKET_PRICE'][$this->getSiteId()][$fUserId] = $price;
+		Sale\BasketComponentHelper::setFUserBasketPrice($fUserId, $price, $this->getSiteId());
 	}
 
 	protected function getSessionFUserBasketQuantity($fUserId)
 	{
-		$quantity = null;
-		$siteId = $this->getSiteId();
-
-		if (isset($_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fUserId]))
-		{
-			$quantity = $_SESSION['SALE_USER_BASKET_QUANTITY'][$siteId][$fUserId];
-		}
-
-		return $quantity;
+		return Sale\BasketComponentHelper::getFUserBasketQuantity($fUserId, $this->getSiteId());
 	}
 
 	protected function setSessionFUserBasketQuantity($quantity, $fUserId)
 	{
-		$_SESSION['SALE_USER_BASKET_QUANTITY'][$this->getSiteId()][$fUserId] = $quantity;
+		Sale\BasketComponentHelper::setFUserBasketQuantity($fUserId, $quantity, $this->getSiteId());
 	}
 
 	protected function getAffectedReformattedBasketItemsInDiscount(Sale\BasketBase $basket, array $discountData, array $calcResults)
@@ -3717,7 +3708,7 @@ class CBitrixBasketComponent extends CBitrixComponent
 			$result['DELETED_BASKET_ITEMS'][] = $item->getId();
 
 			// compatibility
-			$userId = $this->getUserId();
+			$userId = $this->getUserId() ?? 0;
 
 			if ($item->getField('SUBSCRIBE') === 'Y' && is_array($_SESSION['NOTIFY_PRODUCT'][$userId]))
 			{

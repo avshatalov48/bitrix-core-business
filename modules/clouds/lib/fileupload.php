@@ -1,45 +1,32 @@
 <?php
 namespace Bitrix\Clouds;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc;
-Loc::loadMessages(__FILE__);
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Fields;
 
 /**
  * Class FileUploadTable
- * 
+ *
  * Fields:
  * <ul>
- * <li> ID string(32) mandatory </li>
- * <li> TIMESTAMP_X datetime mandatory default 'CURRENT_TIMESTAMP' </li>
- * <li> FILE_PATH string(500) mandatory </li>
- * <li> FILE_SIZE int optional </li>
- * <li> TMP_FILE string(500) optional </li>
- * <li> BUCKET_ID int mandatory </li>
- * <li> PART_SIZE int mandatory </li>
- * <li> PART_NO int mandatory </li>
- * <li> PART_FAIL_COUNTER int mandatory </li>
- * <li> NEXT_STEP string optional </li>
- * <li> BUCKET reference to {@link \Bitrix\Clouds\FileBucketTable} </li>
+ * <li> ID string(32) mandatory
+ * <li> TIMESTAMP_X datetime mandatory
+ * <li> FILE_PATH string(500) mandatory
+ * <li> FILE_SIZE int optional
+ * <li> TMP_FILE string(500) optional
+ * <li> BUCKET_ID int mandatory
+ * <li> PART_SIZE int mandatory
+ * <li> PART_NO int mandatory
+ * <li> PART_FAIL_COUNTER int mandatory
+ * <li> NEXT_STEP text optional
+ * <li> BUCKET_ID reference to {@link \Bitrix\Clouds\CloudsFileBucketTable}
  * </ul>
  *
  * @package Bitrix\Clouds
- *
- * DO NOT WRITE ANYTHING BELOW THIS
- *
- * <<< ORMENTITYANNOTATION
- * @method static EO_FileUpload_Query query()
- * @method static EO_FileUpload_Result getByPrimary($primary, array $parameters = array())
- * @method static EO_FileUpload_Result getById($id)
- * @method static EO_FileUpload_Result getList(array $parameters = array())
- * @method static EO_FileUpload_Entity getEntity()
- * @method static \Bitrix\Clouds\EO_FileUpload createObject($setDefaultValues = true)
- * @method static \Bitrix\Clouds\EO_FileUpload_Collection createCollection()
- * @method static \Bitrix\Clouds\EO_FileUpload wakeUpObject($row)
- * @method static \Bitrix\Clouds\EO_FileUpload_Collection wakeUpCollection($rows)
- */
+ **/
 
-class FileUploadTable extends Main\Entity\DataManager
+class FileUploadTable extends DataManager
 {
 	/**
 	 * Returns DB table name for entity.
@@ -58,94 +45,120 @@ class FileUploadTable extends Main\Entity\DataManager
 	 */
 	public static function getMap()
 	{
-		return array(
-			'ID' => array(
-				'data_type' => 'string',
-				'primary' => true,
-				'validation' => array(__CLASS__, 'validateId'),
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_ID_FIELD'),
+		return [
+			new Fields\StringField(
+				'ID',
+				[
+					'primary' => true,
+					'validation' => [__CLASS__, 'validateId'],
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_ID_FIELD'),
+				]
 			),
-			'TIMESTAMP_X' => array(
-				'data_type' => 'datetime',
-				'required' => true,
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_TIMESTAMP_X_FIELD'),
+			new Fields\DatetimeField(
+				'TIMESTAMP_X',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_TIMESTAMP_X_FIELD'),
+				]
 			),
-			'FILE_PATH' => array(
-				'data_type' => 'string',
-				'required' => true,
-				'validation' => array(__CLASS__, 'validateFilePath'),
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_FILE_PATH_FIELD'),
+			new Fields\StringField(
+				'FILE_PATH',
+				[
+					'required' => true,
+					'validation' => [__CLASS__, 'validateFilePath'],
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_FILE_PATH_FIELD'),
+				]
 			),
-			'FILE_SIZE' => array(
-				'data_type' => 'integer',
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_FILE_SIZE_FIELD'),
+			new Fields\IntegerField(
+				'FILE_SIZE',
+				[
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_FILE_SIZE_FIELD'),
+					'size' => 8,
+				]
 			),
-			'TMP_FILE' => array(
-				'data_type' => 'string',
-				'validation' => array(__CLASS__, 'validateTmpFile'),
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_TMP_FILE_FIELD'),
+			new Fields\StringField(
+				'TMP_FILE',
+				[
+					'validation' => [__CLASS__, 'validateTmpFile'],
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_TMP_FILE_FIELD'),
+				]
 			),
-			'BUCKET_ID' => array(
-				'data_type' => 'integer',
-				'required' => true,
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_BUCKET_ID_FIELD'),
+			new Fields\IntegerField(
+				'BUCKET_ID',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_BUCKET_ID_FIELD'),
+				]
 			),
-			'PART_SIZE' => array(
-				'data_type' => 'integer',
-				'required' => true,
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_SIZE_FIELD'),
+			new Fields\IntegerField(
+				'PART_SIZE',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_SIZE_FIELD'),
+				]
 			),
-			'PART_NO' => array(
-				'data_type' => 'integer',
-				'required' => true,
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_NO_FIELD'),
+			new Fields\IntegerField(
+				'PART_NO',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_NO_FIELD'),
+				]
 			),
-			'PART_FAIL_COUNTER' => array(
-				'data_type' => 'integer',
-				'required' => true,
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_FAIL_COUNTER_FIELD'),
+			new Fields\IntegerField(
+				'PART_FAIL_COUNTER',
+				[
+					'required' => true,
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_PART_FAIL_COUNTER_FIELD'),
+				]
 			),
-			'NEXT_STEP' => array(
-				'data_type' => 'text',
-				'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_NEXT_STEP_FIELD'),
+			new Fields\TextField(
+				'NEXT_STEP',
+				[
+					'title' => Loc::getMessage('FILE_UPLOAD_ENTITY_NEXT_STEP_FIELD'),
+				]
 			),
-			'BUCKET' => array(
-				'data_type' => 'Bitrix\Clouds\FileBucket',
-				'reference' => array('=this.BUCKET_ID' => 'ref.ID'),
+			new Fields\Relations\Reference(
+				'BUCKET',
+				'\Bitrix\Clouds\CloudsFileBucket',
+				['=this.BUCKET_ID' => 'ref.ID'],
+				['join_type' => 'LEFT']
 			),
-		);
+		];
 	}
+
 	/**
 	 * Returns validators for ID field.
 	 *
 	 * @return array
 	 */
-	public static function validateId()
+	public static function validateId(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(0, 32),
-		);
+		return [
+			new Fields\Validators\LengthValidator(null, 32),
+		];
 	}
+
 	/**
 	 * Returns validators for FILE_PATH field.
 	 *
 	 * @return array
 	 */
-	public static function validateFilePath()
+	public static function validateFilePath(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(0, 500),
-		);
+		return [
+			new Fields\Validators\LengthValidator(null, 500),
+		];
 	}
+
 	/**
 	 * Returns validators for TMP_FILE field.
 	 *
 	 * @return array
 	 */
-	public static function validateTmpFile()
+	public static function validateTmpFile(): array
 	{
-		return array(
-			new Main\Entity\Validator\Length(0, 500),
-		);
+		return [
+			new Fields\Validators\LengthValidator(null, 500),
+		];
 	}
 }

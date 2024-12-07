@@ -155,7 +155,9 @@ class OrderShipment
 			$extraServiceHTML = self::getExtraServiceEditControl($extraService, $index, false, self::$shipment);
 
 		if ($data['DELIVERY_ID'] > 0)
-			$map = self::getMap($data['DELIVERY_ID'], $index, $data['DELIVERY_STORE_ID']);
+		{
+			$map = self::getMap($data['DELIVERY_ID'], $index, $data['DELIVERY_STORE_ID'] ?? 0);
+		}
 
 		$dataId = (int)($data['ID'] ?? 0);
 		if ($dataId > 0)
@@ -442,7 +444,7 @@ class OrderShipment
 					<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_TRACKING_NUMBER').':</td>
 					<td class="adm-detail-content-cell-r tal"><input type="text" class="adm-bus-input" name="SHIPMENT['.$index.'][TRACKING_NUMBER]" value="'.$trackingNumber.'"><br></td>
 				</tr>'.(
-				$data['HAS_TRACKING'] && $trackingNumber <> '' && intval($data['ID'] > 0)
+				($data['HAS_TRACKING'] ?? null) && $trackingNumber <> '' && intval($data['ID'] > 0)
 				?
 				'<tr>
 					<td class="adm-detail-content-cell-l" width="40%">'.Loc::getMessage('SALE_ORDER_SHIPMENT_TRACKING_STATUS').':</td>
@@ -512,7 +514,7 @@ class OrderShipment
 			</div>';
 		}
 
-		if(is_array($data['DELIVERY_ADDITIONAL_INFO_EDIT']) && !empty($data['DELIVERY_ADDITIONAL_INFO_EDIT']))
+		if (!empty($data['DELIVERY_ADDITIONAL_INFO_EDIT']) && is_array($data['DELIVERY_ADDITIONAL_INFO_EDIT']))
 		{
 			$result .= '<div class="adm-bus-table-container caption border">
 							<div class="adm-bus-table-caption-title" style="background: #eef5f5;">'.Loc::getMessage('SALE_ORDER_SHIPMENT_BLOCK_DELIVERY_ADDITIONAL').'</div>
@@ -1557,7 +1559,7 @@ class OrderShipment
 			'shipment_statuses' => $jsShipmentStatus,
 			'isAjax' => true,
 			'active' => $isActive,
-			'discounts' => $data["DISCOUNTS"],
+			'discounts' => $data['DISCOUNTS'] ?? [],
 			'discountsMode' => ($formType == "edit" ? "edit" : "view"),
 			'templateType' => 'view',
 			'weightKoef' => self::getWeightKoef($data['SITE_ID']),
@@ -1835,7 +1837,10 @@ class OrderShipment
 			if($fields['HAS_TRACKING'] && intval($fields['DELIVERY_ID']) > 0)
 			{
 				$trackingManager = \Bitrix\Sale\Delivery\Tracking\Manager::getInstance();
-				$fields['TRACKING_URL'] = $trackingManager->getTrackingUrl($fields['DELIVERY_ID'], $fields['TRACKING_NUMBER']);
+				$fields['TRACKING_URL'] = $trackingManager->getTrackingUrl(
+					$fields['DELIVERY_ID'],
+					$fields['TRACKING_NUMBER'] ?? ''
+				);
 			}
 
 			$fields['DELIVERY_ADDITIONAL_INFO_EDIT'] = $delivery->getAdditionalInfoShipmentEdit(self::$shipment);

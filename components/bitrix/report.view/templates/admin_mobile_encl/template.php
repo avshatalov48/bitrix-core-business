@@ -485,6 +485,6 @@ $APPLICATION->IncludeComponent(
 );
 
 ?>
-<script type="text/javascript">
+<script>
 	app.setPageTitle({title: "<?=GetMessage('REPORT_REPORT').": ".$arResult['report']['TITLE']?>"});
 </script>

@@ -14,20 +14,6 @@ use Bitrix\Catalog;
 /** @var bool $bCreateRecord */
 /** @var array $arShowTabs */
 
-/** @global string $CAT_BASE_WEIGHT */
-/** @global string $CAT_BASE_WIDTH */
-/** @global string $CAT_BASE_LENGTH */
-/** @global string $CAT_BASE_HEIGHT */
-/** @global string $CAT_MEASURE */
-/** @global string $CAT_BASE_QUANTITY */
-/** @global string $CAT_PRICE_TYPE */
-/** @global string $CAT_RECUR_SCHEME_TYPE */
-/** @global string $CAT_RECUR_SCHEME_LENGTH */
-/** @global string $CAT_TRIAL_PRICE_ID */
-/** @global string $CAT_WITHOUT_ORDER */
-/** @global string $CAT_MEASURE_RATIO */
-/** @global string $CAT_VAT_ID */
-/** @global string $CAT_VAT_INCLUDED */
 /** @global array $arCatalogBaseGroup */
 /** @global array $arCatalogBasePrices */
 /** @global array $arCatalogPrices */
@@ -280,19 +266,24 @@ if ($allowEdit)
 				}
 	}
 
+	$vatIncluded = $_POST['CAT_VAT_INCLUDED'] ?? null;
+	if ($vatIncluded !== 'Y')
+	{
+		$vatIncluded = 'N';
+	}
 	$productFields = [
-		'WIDTH' => $CAT_BASE_WIDTH ?? null,
-		'LENGTH' => $CAT_BASE_LENGTH ?? null,
-		'HEIGHT' => $CAT_BASE_HEIGHT ?? null,
-		'VAT_ID' => $CAT_VAT_ID,
-		'VAT_INCLUDED' => $CAT_VAT_INCLUDED,
+		'WIDTH' => $_POST['CAT_BASE_WIDTH'] ?? null,
+		'LENGTH' => $_POST['CAT_BASE_LENGTH'] ?? null,
+		'HEIGHT' => $_POST['CAT_BASE_HEIGHT'] ?? null,
+		'VAT_ID' => $_POST['CAT_VAT_ID'] ?? null,
+		'VAT_INCLUDED' => $vatIncluded,
 		'PRICE_TYPE' => false,
 		'RECUR_SCHEME_TYPE' => false,
 		'RECUR_SCHEME_LENGTH' => false,
 		'TRIAL_PRICE_ID' => false,
 		'WITHOUT_ORDER' => false,
 		'BARCODE_MULTI' => $barcodeMultiply,
-		'MEASURE' => $CAT_MEASURE ?? null,
+		'MEASURE' => $_POST['CAT_MEASURE'] ?? null,
 	];
 	if ($quantityTrace !== null)
 	{
@@ -333,24 +324,42 @@ if ($allowEdit)
 
 	if(!$bUseStoreControl && !$isService)
 	{
-		$productFields['QUANTITY'] = $CAT_BASE_QUANTITY ?? null;
+		$productFields['QUANTITY'] = $_POST['CAT_BASE_QUANTITY'] ?? null;
 		if ($productFields['QUANTITY'] === '' || $productFields['QUANTITY'] === null)
-			unset($productFields['QUANTITY']);
-		if ($bEnableReservation && isset($CAT_BASE_QUANTITY_RESERVED))
 		{
-			$productFields['QUANTITY_RESERVED'] = $CAT_BASE_QUANTITY_RESERVED ?? null;
-			if ($productFields['QUANTITY_RESERVED'] === '' || $productFields['QUANTITY_RESERVED'] === null)
+			unset($productFields['QUANTITY']);
+		}
+		else
+		{
+			if (is_string($productFields['QUANTITY']))
+			{
+				$productFields['QUANTITY'] = str_replace(',', '.', $productFields['QUANTITY']);
+			}
+		}
+		if ($bEnableReservation && isset($_POST['CAT_BASE_QUANTITY_RESERVED']))
+		{
+			$productFields['QUANTITY_RESERVED'] = $_POST['CAT_BASE_QUANTITY_RESERVED'];
+			if ($productFields['QUANTITY_RESERVED'] === '')
+			{
 				unset($productFields['QUANTITY_RESERVED']);
+			}
+			else
+			{
+				if (is_string($productFields['QUANTITY_RESERVED']))
+				{
+					$productFields['QUANTITY_RESERVED'] = str_replace(',', '.', $productFields['QUANTITY_RESERVED']);
+				}
+			}
 		}
 	}
 
-	if ($arCatalog["SUBSCRIPTION"] == "Y")
+	if ($arCatalog['SUBSCRIPTION'] === 'Y')
 	{
-		$productFields["PRICE_TYPE"] = $CAT_PRICE_TYPE;
-		$productFields["RECUR_SCHEME_TYPE"] = $CAT_RECUR_SCHEME_TYPE;
-		$productFields["RECUR_SCHEME_LENGTH"] = $CAT_RECUR_SCHEME_LENGTH;
-		$productFields["TRIAL_PRICE_ID"] = $CAT_TRIAL_PRICE_ID;
-		$productFields["WITHOUT_ORDER"] = $CAT_WITHOUT_ORDER;
+		$productFields["PRICE_TYPE"] = $_POST['CAT_PRICE_TYPE'] ?? null;
+		$productFields["RECUR_SCHEME_TYPE"] = $_POST['CAT_RECUR_SCHEME_TYPE'] ?? null;
+		$productFields["RECUR_SCHEME_LENGTH"] = $_POST['CAT_RECUR_SCHEME_LENGTH'] ?? null;
+		$productFields["TRIAL_PRICE_ID"] = $_POST['CAT_TRIAL_PRICE_ID'] ?? null;
+		$productFields["WITHOUT_ORDER"] = $_POST['CAT_WITHOUT_ORDER'] ?? null;
 		$productFields["QUANTITY_TRACE"] = Catalog\ProductTable::STATUS_NO;
 		$productFields["CAN_BUY_ZERO"] = Catalog\ProductTable::STATUS_NO;
 	}
@@ -423,8 +432,8 @@ if ($allowEdit)
 	$ratioList = [];
 	$arMeasureRatio = [
 		'PRODUCT_ID' => $PRODUCT_ID,
-		'RATIO' => $CAT_MEASURE_RATIO ?? 1,
-		'IS_DEFAULT' => 'Y'
+		'RATIO' => $_POST['CAT_MEASURE_RATIO'] ?? 1,
+		'IS_DEFAULT' => 'Y',
 	];
 	$newRatio = true;
 	$currentRatioID = 0;
@@ -623,7 +632,7 @@ if ($allowEditPrices)
 		{
 			${"CAT_PRICE_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]} = str_replace([' ', ','], ['', '.'], ${"CAT_PRICE_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]});
 			$arCatalogPrice_tmp[$i] = array(
-				"ID" => (int)(${"CAT_ID_".$arCatGroups["ID"]}[$arCatalogBasePrices[$i]["IND"]]),
+				"ID" => (int)(${"CAT_ID_".$arCatGroups["ID"]}[$arCatalogBasePrices[$i]["IND"]] ?? 0),
 				"EXTRA_ID" => ${"CAT_EXTRA_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]}
 					? (int)(${"CAT_EXTRA_".$arCatGroups["ID"]."_".$arCatalogBasePrices[$i]["IND"]})
 					: 0,

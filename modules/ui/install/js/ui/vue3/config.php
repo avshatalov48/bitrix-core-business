@@ -13,6 +13,7 @@ if (
 	$rel = [
 		'main.core',
 		'main.core.events',
+		'ui.vue3.bitrixvue',
 		'ui.vue3.devtools',
 	];
 	$settings = [
@@ -25,6 +26,7 @@ else
 	$rel = [
 		'main.core',
 		'main.core.events',
+		'ui.vue3.bitrixvue',
 	];
 	$settings = [];
 }

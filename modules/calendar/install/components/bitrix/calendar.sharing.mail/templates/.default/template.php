@@ -88,7 +88,97 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 									<td align="center" style="padding-top: 50px; padding-left: 28px; padding-right: 28px; padding-bottom: 28px;">
 
 										<table class="w100" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="width: 100%; margin: 0 auto;">
-											<tbody>
+											<?php if ($arResult['IS_SEND_LINK']): ?>
+												<tbody>
+													<tr class="owner-avatar">
+														<td align="center" style="padding-bottom: 16px;">
+															<img src="<?= $arParams['OWNER_AVATAR']?>" class="icon" style="display: block;width: 70px;height: 70px;border-radius: 50%;"/>
+														</td>
+													</tr>
+													<tr class="owner-name">
+														<td align="center" style="">
+															<div style="margin-bottom: 24px;">
+																<div style="display: block;font-weight: 400;font-size: 16px;color: #151515;"><?= $arParams['OWNER_NAME']?></div>
+															</div>
+														</td>
+													</tr>
+													<tr class="separator">
+														<td align="left" style="">
+															<table class="w100" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="width: 100%;border: 1px solid #DFE0E3;margin: 0 auto;border-bottom: none;">
+																<tbody>
+																	<tr>
+																		<td valign="top" align="left" style="vertical-align:top;">
+																			<div style="font-size: 0px;"></div>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</td>
+													</tr>
+													<tr class="info">
+														<td align="center" style="">
+															<div style="margin-top: 24px; margin-bottom: 34px;">
+																<div class="title" style="display: block;font-size: 18px;margin-bottom: 12px;font-weight: 600;color: #151515;text-align: center;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_SELECT_SLOT_TITLE')?></div>
+																<div class="subtitle" style="display: block;font-weight: 400;font-size: 15px;color: #525c69;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_SELECT_SLOT_SUBTITLE')?></div>
+															</div>
+														</td>
+													</tr>
+													<tr class="members">
+														<td align="center" style="height: 80px">
+															<?php if (!empty($arParams['AVATARS'])): ?>
+																<div class="users" style="display: block;padding-bottom: 15px;">
+																	<div style="margin-bottom: 6px;font-size:12px;font-weight:400;color:#959ca4;letter-spacing:0.5px;">
+																		<?= ($arResult['IS_EVENT_STATUS'] ?? false)
+																			? Loc::getMessage('CALENDAR_SHARING_MAIL_MEETING_ATTENDEES')
+																			: Loc::getMessage('CALENDAR_SHARING_MAIL_MEETING_HAS_MORE_USERS')
+																		?>
+																	</div>
+																	<table cellspacing="0" cellpadding="0" border="0" align="center" style="">
+																		<tbody>
+																		<tr>
+																			<?php foreach($arParams['AVATARS'] as $avatar): ?>
+																				<td width="30" height="30" align="left" style="">
+																					<!--[if (gte mso 9)|(IE)]>
+																						<v:oval xmlns:v="urn:schemas-microsoft-com:vml" fill="true" style='width:30px;height:30px' stroke="false">
+																							<v:fill type="tile" src="<?= $avatar ?>" />
+																						</v:oval>
+																					<![endif]-->
+																					<img style="border-radius: 600px;" width="30" height="30" src="<?= $avatar ?>" />
+																				</td>
+																			<?php endforeach; ?>
+																			<?php if ($arParams['SHOW_DOTS'] ?? false): ?>
+																				<td width="30" height="30" align="left" style="">
+																					<!--[if (gte mso 9)|(IE)]>
+																						<v:oval xmlns:v="urn:schemas-microsoft-com:vml" fill="true" style='width:30px;height:30px' stroke="false">
+																							<v:fill type="tile" src="<?= $arParams['ICON_DOTS'] ?>" />
+																						</v:oval>
+																					<![endif]-->
+																					<img style="border-radius: 600px;" width="30" height="30" src="<?= $arParams['ICON_DOTS'] ?>" />
+																				</td>
+																			<?php endif; ?>
+																		</tr>
+																		</tbody>
+																	</table>
+																</div>
+															<?php endif; ?>
+														</td>
+													</tr>
+													<tr class="select-slot">
+														<td align="center" style="padding-bottom: 10px;">
+															<div><!--[if mso]>
+																<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $arParams['CALENDAR_LINK'] ?>" style="height:36px;v-text-anchor:middle;width:300px;padding-top: 5px; padding-bottom: 5px;" arcsize="12%" strokecolor="#415C6F" fillcolor="#ffffff">
+																<w:anchorlock/>
+																<center style="color:#ffffff;font-family:sans-serif;font-size:17px;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_SELECT_SLOT')?></center>
+																</v:roundrect>
+																<![endif]-->
+																<a href="<?= $arParams['CALENDAR_LINK'] ?>"
+																   style="background-color:#415C6F;border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:17px;line-height:36px;text-align:center;text-decoration:none;width:300px;padding-top: 5px; padding-bottom: 5px;-webkit-text-size-adjust:none;mso-hide:all;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_SELECT_SLOT')?></a>
+															</div>
+														</td>
+													</tr>
+												</tbody>
+											<?php else: ?>
+												<tbody>
 													<tr>
 														<td align="center" style="padding-bottom: 30px;">
 															<img src="<?= $arParams['ICON']?>" class="icon" style="display: block;width: 70px;height: 70px;border-radius: 50%;"/>
@@ -115,7 +205,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																					<div style="display: block;font-size: 10px;font-weight: 600;color: #83919b;text-align: center; white-space: nowrap;"><?= $arParams['CALENDAR_TIME']?></div>
 																				</div>
 																			</div>
-																			<div class="header-info" style="display: inline-block;padding-top:20px;padding-right: 20px;padding-bottom:16px; width: 190px;box-sizing: content-box;">
+																			<div class="header-info" style="display: inline-block;padding-top:19px;padding-right: 20px;padding-bottom:19px; width: 190px;box-sizing: content-box;">
 																				<div class="datetime">
 																					<div style="display: block;margin-bottom:5px;line-height:initial;font-size:14px;font-weight:400;color:#333333;"><?= $arParams['EVENT_DATE']?></div>
 																					<div class="interval" style="display: block;margin-bottom:5px;font-weight: 400;font-size: 14px;color: #333333;">
@@ -125,10 +215,10 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																						<?php endif ?>
 																					</div>
 																					<div class="timezone" style="display: block;color: #828b95;font-weight: 400;font-size: 12px;"><?= $arParams['TIMEZONE']?></div>
-																					<div class="users" style="display: block;padding-top:13px;">
-																						<?php if (!empty($arParams['AVATARS'])): ?>
+																					<?php if (!empty($arParams['AVATARS'])): ?>
+																						<div class="users" style="display: block;padding-top:13px;">
 																							<div style="margin-bottom: 6px;font-size:12px;font-weight:400;color:#959ca4;letter-spacing:0.5px;">
-																								<?= $arResult['IS_EVENT_STATUS']
+																								<?= ($arResult['IS_EVENT_STATUS'] ?? false)
 																									? Loc::getMessage('CALENDAR_SHARING_MAIL_MEETING_ATTENDEES')
 																									: Loc::getMessage('CALENDAR_SHARING_MAIL_MEETING_HAS_MORE_USERS')
 																								?>
@@ -163,8 +253,8 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																								</tr>
 																								</tbody>
 																							</table>
-																						<?php endif; ?>
-																					</div>
+																						</div>
+																					<?php endif; ?>
 																				</div>
 																			</div>
 																		</td>
@@ -203,7 +293,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																			</td>
 																			<td valign="center" align="left">
 																				<a href="<?= $arParams['CANCEL_LINK']?>"
-																				   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;text-transform: lowercase;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_CANCEL_EVENT')?></a>
+																				   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_CANCEL_EVENT')?></a>
 																			</td>
 																		</tr>
 																		</tbody>
@@ -224,7 +314,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 																			</td>
 																			<td valign="center" align="left">
 																				<a href="<?= $arParams['DECISION_NO_LINK']?>"
-																				   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;text-transform: lowercase;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_DECLINE_MEETING')?></a>
+																				   style="color:#A8ADB4;display:inline-block;border-bottom: 1px dotted rgba(168, 173, 180, .8);font-size:14px;text-align:center;text-decoration:none;vertical-align: middle;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_DECLINE_MEETING')?></a>
 																			</td>
 																		</tr>
 																		</tbody>
@@ -265,13 +355,13 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 														<tr>
 															<td align="center" style="padding-bottom: 10px;">
 																<div><!--[if mso]>
-																	<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $arParams['VIDEOCONFERENCE_LINK'] ?>" style="height:36px;v-text-anchor:middle;width:300px;" arcsize="12%" strokecolor="#DFE0E3" fillcolor="#ffffff">
+																	<v:roundrect xmlns:v="urn:schemas-microsoft-com:vml" xmlns:w="urn:schemas-microsoft-com:office:word" href="<?= $arParams['VIDEOCONFERENCE_LINK'] ?>" style="height:36px;v-text-anchor:middle;width:300px;" arcsize="12%" strokecolor="#415C6F" fillcolor="#ffffff">
 																	<w:anchorlock/>
-																	<center style="color:#333333;font-family:sans-serif;font-size:15px;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE')?></center>
+																	<center style="color:#ffffff;font-family:sans-serif;font-size:15px;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE')?></center>
 																	</v:roundrect>
 																	<![endif]-->
 																	<a href="<?= $arParams['VIDEOCONFERENCE_LINK'] ?>"
-																	   style="background-color:#ffffff;border:1px solid #DFE0E3;border-radius:4px;color:#333333;display:inline-block;font-family:sans-serif;font-size:15px;line-height:36px;text-align:center;text-decoration:none;width:300px;-webkit-text-size-adjust:none;mso-hide:all;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE')?></a>
+																	   style="background-color:#415C6F;border-radius:4px;color:#ffffff;display:inline-block;font-family:sans-serif;font-size:15px;line-height:36px;text-align:center;text-decoration:none;width:300px;-webkit-text-size-adjust:none;mso-hide:all;"><?= Loc::getMessage('CALENDAR_SHARING_MAIL_OPEN_VIDEOCONFERENCE')?></a>
 																</div>
 															</td>
 														</tr>
@@ -322,6 +412,7 @@ $hasBitrix24Link = is_string($arParams['BITRIX24_LINK']) && $arParams['BITRIX24_
 														</tr>
 													<?php endif ?>
 												</tbody>
+											<?php endif; ?>
 										</table>
 
 									</td>

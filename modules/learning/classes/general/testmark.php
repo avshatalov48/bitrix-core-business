@@ -81,7 +81,7 @@ class CLTestMark
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_test_mark", $arFields, "learning");
 			$strSql = "UPDATE b_learn_test_mark SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			return true;
 		}
@@ -99,7 +99,7 @@ class CLTestMark
 
 		$strSql = "DELETE FROM b_learn_test_mark WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		return true;
@@ -231,6 +231,6 @@ class CLTestMark
 
 		//echo $strSql;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 }

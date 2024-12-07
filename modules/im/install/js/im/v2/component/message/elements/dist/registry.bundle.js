@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,ui_vue3_components_reactions,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_quote,main_core,im_v2_application_core,im_v2_lib_menu,im_v2_provider_service,main_core_events,im_v2_const,im_v2_lib_parser) {
+(function (exports,im_v2_lib_dateFormatter,ui_vue3,ui_lottie,im_v2_lib_user,im_v2_lib_logger,ui_reactionsSelect,ui_vue3_components_reactions,im_v2_lib_utils,im_v2_application_core,im_v2_lib_menu,im_v2_lib_parser,im_v2_lib_copilot,im_v2_lib_channel,main_core,main_core_events,im_v2_const,im_v2_component_elements,im_v2_lib_permission,im_v2_component_animation,im_v2_provider_service) {
 	'use strict';
 
 	// @vue/component
@@ -137,11 +137,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const ReactionUser = {
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  props: {
 	    userId: {
 	      type: Number,
+	      required: true
+	    },
+	    contextDialogId: {
+	      type: String,
 	      required: true
 	    }
 	  },
@@ -161,8 +165,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-reaction-list__user_avatar">
-			<Avatar 
-				:dialogId="userId" 
+			<ChatAvatar 
+				:avatarDialogId="userId" 
+				:contextDialogId="contextDialogId" 
 				:size="AvatarSize.XS" 
 				:withAvatarLetters="false"
 				:withTooltip="false"
@@ -234,6 +239,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    bindElement: {
 	      type: Object,
 	      required: true
+	    },
+	    contextDialogId: {
+	      type: String,
+	      required: true
 	    }
 	  },
 	  emits: ['close'],
@@ -285,6 +294,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			:showPopup="showPopup"
 			:loading="loadingAdditionalUsers"
 			:userIds="additionalUsers"
+			:contextDialogId="contextDialogId"
 			:bindElement="bindElement || {}"
 			:withAngle="false"
 			:offsetLeft="-112"
@@ -327,6 +337,15 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    animate: {
 	      type: Boolean,
 	      required: true
+	    },
+	    showAvatars: {
+	      type: Boolean,
+	      required: false,
+	      default: true
+	    },
+	    contextDialogId: {
+	      type: String,
+	      required: true
 	    }
 	  },
 	  emits: ['click'],
@@ -337,6 +356,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  computed: {
 	    showUsers() {
+	      if (!this.showAvatars) {
+	        return false;
+	      }
 	      const userLimitIsNotReached = this.counter <= USERS_TO_SHOW;
 	      const weHaveUsersData = this.counter === this.users.length;
 	      return userLimitIsNotReached && weHaveUsersData;
@@ -399,7 +421,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div class="bx-im-reaction-list__item_icon" :class="reactionClass" ref="reactionIcon"></div>
 			<div v-if="showUsers" class="bx-im-reaction-list__user_container" ref="users">
 				<TransitionGroup name="bx-im-reaction-list__user_animation">
-					<ReactionUser v-for="user in preparedUsers" :key="user" :userId="user" />
+					<ReactionUser 
+						v-for="user in preparedUsers" 
+						:key="user" 
+						:userId="user"
+						:contextDialogId="contextDialogId"
+					/>
 				</TransitionGroup>
 			</div>
 			<div v-else class="bx-im-reaction-list__item_counter" ref="counter">{{ counter }}</div>
@@ -407,6 +434,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				:show="showAdditionalUsers"
 				:bindElement="$refs['users'] || $refs['counter'] || {}"
 				:messageId="messageId"
+				:contextDialogId="contextDialogId"
 				:reaction="type"
 				@close="showAdditionalUsers = false"
 			/>
@@ -469,6 +497,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    messageId: {
 	      type: [String, Number],
 	      required: true
+	    },
+	    contextDialogId: {
+	      type: String,
+	      required: true
 	    }
 	  },
 	  data() {
@@ -480,6 +512,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    Reaction: () => ui_reactionsSelect.reactionType,
 	    message() {
 	      return this.$store.getters['messages/getById'](this.messageId);
+	    },
+	    dialog() {
+	      return this.$store.getters['chats/getByChatId'](this.message.chatId);
 	    },
 	    reactionsData() {
 	      return this.$store.getters['messages/reactions/getByMessageId'](this.messageId);
@@ -494,6 +529,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    showReactionsContainer() {
 	      return Object.keys(this.reactionCounters).length > 0;
+	    },
+	    isChannel() {
+	      return im_v2_lib_channel.ChannelManager.isChannel(this.dialog.dialogId);
+	    },
+	    showAvatars() {
+	      return !this.isChannel;
 	    }
 	  },
 	  watch: {
@@ -513,6 +554,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    onReactionSelect(reaction, event) {
 	      var _this$ownReactions;
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.setReaction, this.dialog.dialogId)) {
+	        return;
+	      }
 	      const {
 	        animateItemFunction
 	      } = event;
@@ -549,6 +594,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					:users="getReactionUsers(reactionType)"
 					:selected="ownReactions.has(reactionType)"
 					:animate="mounted"
+					:showAvatars="showAvatars"
+					:contextDialogId="contextDialogId"
 					@click="onReactionSelect(reactionType, $event)"
 				/>
 			</template>
@@ -558,7 +605,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	const SHOW_DELAY = 500;
 	const HIDE_DELAY = 800;
-	const chatTypesWithReactionDisabled = new Set([im_v2_const.ChatType.copilot]);
 
 	// @vue/component
 	const ReactionSelector = {
@@ -583,15 +629,19 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      var _this$reactionsData, _this$reactionsData$o;
 	      return ((_this$reactionsData = this.reactionsData) == null ? void 0 : (_this$reactionsData$o = _this$reactionsData.ownReactions) == null ? void 0 : _this$reactionsData$o.size) > 0;
 	    },
-	    isGuest() {
-	      return this.dialog.role === im_v2_const.UserRole.guest;
-	    },
 	    isBot() {
 	      const user = this.$store.getters['users/get'](this.dialog.dialogId);
 	      return (user == null ? void 0 : user.bot) === true;
 	    },
+	    hasError() {
+	      return this.message.error;
+	    },
 	    canSetReactions() {
-	      return main_core.Type.isNumber(this.messageId) && !this.isGuest && !this.isBot && !this.areReactionsDisabledForType(this.dialog.type);
+	      return main_core.Type.isNumber(this.messageId) && this.canSetReactionsByRole && !this.isBot && !this.hasError;
+	    },
+	    canSetReactionsByRole() {
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.setReaction, this.dialog.dialogId);
 	    }
 	  },
 	  methods: {
@@ -658,9 +708,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        this.reactionService = new ReactionService();
 	      }
 	      return this.reactionService;
-	    },
-	    areReactionsDisabledForType(type) {
-	      return chatTypesWithReactionDisabled.has(this.dialog.type);
 	    }
 	  },
 	  template: `
@@ -721,7 +768,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    }
 	  },
 	  template: `
-		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope">
+		<div class="bx-im-message-default-content__container bx-im-message-default-content__scope" :class="{'--no-text': !withText}">
 			<div v-if="withText" class="bx-im-message-default-content__text" v-html="formattedText"></div>
 			<div v-if="withAttach && message.attach.length > 0" class="bx-im-message-default-content__attach">
 				<MessageAttach :item="message" :dialogId="dialogId" />
@@ -730,6 +777,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<ReactionList 
 					v-if="canSetReactions" 
 					:messageId="message.id" 
+					:contextDialogId="dialogId"
 					class="bx-im-message-default-content__reaction-list" 
 				/>
 				<div v-if="withMessageStatus" class="bx-im-message-default-content__status-container">
@@ -744,7 +792,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const AuthorTitle = {
 	  name: 'AuthorTitle',
 	  components: {
-	    ChatTitle: im_v2_component_elements.ChatTitle
+	    MessageAuthorTitle: im_v2_component_elements.MessageAuthorTitle
 	  },
 	  props: {
 	    item: {
@@ -788,27 +836,38 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	        return this.message.authorId.toString();
 	      }
 	      return this.dialogId;
+	    },
+	    isCopilot() {
+	      const authorId = Number.parseInt(this.authorDialogId, 10);
+	      return this.$store.getters['users/bots/isCopilot'](authorId);
 	    }
 	  },
 	  methods: {
 	    onAuthorNameClick() {
 	      const authorId = Number.parseInt(this.authorDialogId, 10);
-	      if (!authorId || authorId === im_v2_application_core.Core.getUserId()) {
+	      if (!authorId || authorId === im_v2_application_core.Core.getUserId() || this.isCopilot) {
 	        return;
 	      }
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertMention, {
 	        mentionText: this.user.name,
-	        mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.user.id, this.user.name)
+	        mentionReplacement: im_v2_lib_utils.Utils.text.getMentionBbCode(this.user.id, this.user.name),
+	        dialogId: this.dialog.dialogId
 	      });
 	    }
 	  },
 	  template: `
-		<div v-if="showTitle" @click="onAuthorNameClick" class="bx-im-message-author-title__container">
-			<ChatTitle
+		<div 
+			v-if="showTitle" 
+			@click="onAuthorNameClick" 
+			class="bx-im-message-author-title__container" 
+			:class="{'--clickable': !isCopilot}"
+		>
+			<MessageAuthorTitle
 				:dialogId="authorDialogId"
+				:messageId="message.id"
 				:showItsYou="false"
 				:withColor="true"
-				:withLeftIcon="true"
+				:withLeftIcon="!isCopilot"
 			/>
 		</div>
 	`
@@ -818,6 +877,10 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const ContextMenu = {
 	  name: 'ContextMenu',
 	  props: {
+	    dialogId: {
+	      type: String,
+	      required: true
+	    },
 	    message: {
 	      type: Object,
 	      required: true
@@ -842,28 +905,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  methods: {
 	    onMenuClick(event) {
-	      if (im_v2_lib_utils.Utils.key.isCombination(event, ['Alt+Ctrl'])) {
-	        const message = {
-	          ...this.message
-	        };
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.insertText, {
-	          text: im_v2_lib_quote.Quote.prepareQuoteText(message),
-	          withNewLine: true,
-	          replace: false
-	        });
-	        return;
-	      }
-	      if (im_v2_lib_utils.Utils.key.isCmdOrCtrl(event)) {
-	        const message = {
-	          ...this.message
-	        };
-	        main_core_events.EventEmitter.emit(im_v2_const.EventType.textarea.replyMessage, {
-	          messageId: message.id
-	        });
-	        return;
-	      }
 	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.onClickMessageContextMenu, {
 	        message: this.message,
+	        dialogId: this.dialogId,
 	        event
 	      });
 	    }
@@ -1027,23 +1071,48 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    isForwarded() {
 	      return this.$store.getters['messages/isForward'](this.message.id);
 	    },
+	    isChannelForward() {
+	      return im_v2_lib_channel.ChannelManager.channelTypes.has(this.message.forward.chatType);
+	    },
 	    forwardAuthorName() {
+	      const copilotManager = new im_v2_lib_copilot.CopilotManager();
+	      if (copilotManager.isCopilotBot(this.forwardAuthorId)) {
+	        const forwardMessageId = this.forwardContextId.split('/')[1];
+	        return copilotManager.getNameWithRole({
+	          dialogId: this.forwardAuthorId,
+	          messageId: forwardMessageId
+	        });
+	      }
 	      return this.$store.getters['users/get'](this.forwardAuthorId, true).name;
+	    },
+	    forwardChatName() {
+	      var _this$message$forward;
+	      return (_this$message$forward = this.message.forward.chatTitle) != null ? _this$message$forward : this.loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_CLOSED_CHANNEL');
 	    },
 	    isSystemMessage() {
 	      return this.message.forward.userId === 0;
 	    },
 	    forwardAuthorTitle() {
-	      const [prefix] = this.loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM').split('#NAME#');
-	      return {
-	        prefix,
-	        name: this.forwardAuthorName
-	      };
+	      return main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_CHAT', {
+	        '[user_name]': '<span class="bx-im-message-header__author-name">',
+	        '#USER_NAME#': main_core.Text.encode(this.forwardAuthorName),
+	        '[/user_name]': '</span>'
+	      });
+	    },
+	    forwardChannelTitle() {
+	      return main_core.Loc.getMessage('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_CHANNEL', {
+	        '[user_name]': '<span class="bx-im-message-header__author-name">',
+	        '#USER_NAME#': main_core.Text.encode(this.forwardAuthorName),
+	        '[/user_name]': '</span>',
+	        '[channel_name]': '<span class="bx-im-message-header__author-name">',
+	        '#CHANNEL_NAME#': main_core.Text.encode(this.forwardChatName),
+	        '[/channel_name]': '</span>'
+	      });
 	    }
 	  },
 	  methods: {
-	    loc(code) {
-	      return this.$Bitrix.Loc.getMessage(code);
+	    loc(phraseCode, replacements = {}) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    },
 	    onForwardClick() {
 	      const contextCode = im_v2_lib_parser.Parser.getContextCodeFromForwardId(this.forwardContextId);
@@ -1059,13 +1128,188 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div v-if="isForwarded" class="bx-im-message-header__container" @click="onForwardClick">
-			<span v-if="isSystemMessage">{{ loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_SYSTEM')}}</span> 
-			<span v-else>
-				{{ forwardAuthorTitle.prefix }}
-				<span class="bx-im-message-header__author-name">{{ forwardAuthorTitle.name }}</span> 
-			</span>
+			<span v-if="isSystemMessage">{{ loc('IM_MESSENGER_MESSAGE_HEADER_FORWARDED_FROM_SYSTEM')}}</span>
+			<span v-else-if="isChannelForward" v-html="forwardChannelTitle"></span>
+			<span v-else v-html="forwardAuthorTitle"></span>
 		</div>
 		<AuthorTitle v-else-if="withTitle" :item="item" />
+	`
+	};
+
+	// @vue/component
+	const CommentsPanel = {
+	  name: 'CommentsPanel',
+	  components: {
+	    ChatAvatar: im_v2_component_elements.ChatAvatar,
+	    FadeAnimation: im_v2_component_animation.FadeAnimation
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId);
+	    },
+	    message() {
+	      return this.item;
+	    },
+	    commentInfo() {
+	      return this.$store.getters['messages/comments/getByMessageId'](this.message.id);
+	    },
+	    commentsChatId() {
+	      return this.commentInfo.chatId;
+	    },
+	    commentsCount() {
+	      // remove first system message from count
+	      if (this.commentInfo.messageCount > 0) {
+	        return this.commentInfo.messageCount - 1;
+	      }
+	      return this.commentInfo.messageCount;
+	    },
+	    commentsCountText() {
+	      return main_core.Loc.getMessagePlural('IM_MESSAGE_COMMENTS_PANEL_COMMENT_COUNT', this.commentsCount, {
+	        '#COUNT#': this.commentsCount
+	      });
+	    },
+	    noComments() {
+	      return this.commentsCount === 0;
+	    },
+	    lastUsers() {
+	      return [...this.commentInfo.lastUserIds].map(userId => {
+	        return this.$store.getters['users/get'](userId);
+	      }).reverse();
+	    },
+	    unreadCount() {
+	      const counter = this.$store.getters['counters/getSpecificCommentsCounter']({
+	        channelId: this.dialog.chatId,
+	        commentChatId: this.commentsChatId
+	      });
+	      if (!counter) {
+	        return '';
+	      }
+	      return `+${counter}`;
+	    },
+	    isSubscribed() {
+	      return this.$store.getters['messages/comments/isUserSubscribed'](this.message.id);
+	    },
+	    showSubscribeIcon() {
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      return permissionManager.canPerformAction(im_v2_const.ChatActionType.subscribeToComments, this.dialogId);
+	    },
+	    subscribeIconTitle() {
+	      if (this.isSubscribed) {
+	        return this.loc('IM_MESSAGE_COMMENTS_PANEL_ICON_UNSUBSCRIBE');
+	      }
+	      return this.loc('IM_MESSAGE_COMMENTS_PANEL_ICON_SUBSCRIBE');
+	    }
+	  },
+	  methods: {
+	    onCommentsClick() {
+	      const permissionManager = im_v2_lib_permission.PermissionManager.getInstance();
+	      if (!permissionManager.canPerformAction(im_v2_const.ChatActionType.openComments, this.dialogId)) {
+	        return;
+	      }
+	      main_core_events.EventEmitter.emit(im_v2_const.EventType.dialog.openComments, {
+	        messageId: this.message.id
+	      });
+	    },
+	    onSubscribeIconClick() {
+	      if (this.isSubscribed) {
+	        im_v2_provider_service.CommentsService.unsubscribe(this.message.id);
+	        return;
+	      }
+	      im_v2_provider_service.CommentsService.subscribe(this.message.id);
+	    },
+	    loc(phraseCode) {
+	      return this.$Bitrix.Loc.getMessage(phraseCode);
+	    }
+	  },
+	  template: `
+		<div class="bx-im-message-comments-panel__container" @click="onCommentsClick">
+			<div class="bx-im-message-comments-panel__left">
+				<div v-if="noComments" class="bx-im-message-comments-panel__empty_container">
+					<div class="bx-im-message-comments-panel__empty_icon"></div>
+					<div class="bx-im-message-comments-panel__text">{{ loc('IM_MESSAGE_COMMENTS_PANEL_EMPTY_TEXT') }}</div>
+				</div>
+				<div v-else class="bx-im-message-comments-panel__meta_container">
+					<div class="bx-im-message-comments-panel__user_container">
+						<TransitionGroup name="bx-im-message-comments-panel__user_animation">
+							<div v-for="(user, index) in lastUsers" :key="user.id" class="bx-im-message-comments-panel__user_avatar" :class="'--image-' + (index + 1)">
+								<ChatAvatar
+									:avatarDialogId="user.id"
+									:contextDialogId="dialogId"
+									:size="AvatarSize.S"
+									:withTooltip="false"
+								/>
+							</div>
+						</TransitionGroup>
+					</div>
+					<div class="bx-im-message-comments-panel__text">{{ commentsCountText }}</div>
+					<FadeAnimation :duration="200">
+						<div v-if="unreadCount" class="bx-im-message-comments-panel__unread-counter">{{ unreadCount }}</div>
+					</FadeAnimation>
+				</div>
+			</div>
+			<div v-if="showSubscribeIcon" :title="subscribeIconTitle" class="bx-im-message-comments-panel__right">
+				<div
+					@click.stop="onSubscribeIconClick"
+					class="bx-im-message-comments-panel__subscribe-icon"
+					:class="{'--active': isSubscribed}"
+				></div>
+			</div>
+		</div>
+	`
+	};
+
+	// @vue/component
+	const MessageFooter = {
+	  name: 'MessageFooter',
+	  components: {
+	    CommentsPanel
+	  },
+	  props: {
+	    item: {
+	      type: Object,
+	      required: true
+	    },
+	    dialogId: {
+	      type: String,
+	      required: true
+	    }
+	  },
+	  data() {
+	    return {};
+	  },
+	  computed: {
+	    dialog() {
+	      return this.$store.getters['chats/get'](this.dialogId);
+	    },
+	    message() {
+	      return this.item;
+	    },
+	    isChannelPost() {
+	      return im_v2_lib_channel.ChannelManager.isChannel(this.dialogId);
+	    },
+	    isSystemMessage() {
+	      return this.message.authorId === 0;
+	    },
+	    showCommentsPanel() {
+	      return this.isChannelPost && !this.isSystemMessage;
+	    }
+	  },
+	  template: `
+		<CommentsPanel v-if="showCommentsPanel" :dialogId="dialogId" :item="item" />
 	`
 	};
 
@@ -1079,6 +1323,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	exports.ContextMenu = ContextMenu;
 	exports.RetryButton = RetryButton;
 	exports.MessageHeader = MessageHeader;
+	exports.MessageFooter = MessageFooter;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Vue3.Components,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Vue3,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Ui,BX.Vue3.Components,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Event,BX.Messenger.v2.Const,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Animation,BX.Messenger.v2.Service));
 //# sourceMappingURL=registry.bundle.js.map

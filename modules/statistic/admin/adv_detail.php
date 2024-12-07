@@ -125,7 +125,7 @@ function advlist_format_alt($value, $total, $title)
 	else
 		return "";
 }
-function advlist_format_link($value, $is_back, $group, $alt, $url="", $show_money)
+function advlist_format_link($value, $is_back, $group, $alt, $url="", $show_money="")
 {
 	if($value["C"]>0)
 	{
@@ -1087,7 +1087,7 @@ $oFilter = new CAdminFilter($sFilterID, array(
 	));
 ?>
 
-<script type="text/javascript">
+<script>
 var currentTable = null;
 var cached = new Array('<?=$sTableID_tab1?>');
 var urls = [];

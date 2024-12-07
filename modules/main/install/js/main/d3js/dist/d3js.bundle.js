@@ -15,9 +15,9 @@ this.BX = this.BX || {};
     var compare1, compare2, delta;
 
     // If an accessor is specified, promote it to a comparator. In this case we
-    // can test whether the search value is (self-) comparable. We can’t do this
-    // for a comparator (except for specific, known comparators) because we can’t
-    // tell if the comparator is symmetric, and an asymmetric comparator can’t be
+    // can test whether the search value is (self-) comparable. We canвЂ™t do this
+    // for a comparator (except for specific, known comparators) because we canвЂ™t
+    // tell if the comparator is symmetric, and an asymmetric comparator canвЂ™t be
     // used to test whether a single value is comparable.
     if (f.length !== 2) {
       compare1 = ascending;
@@ -233,7 +233,7 @@ this.BX = this.BX || {};
   }
 
   // Given a target array T, a source array S, sets each value T[i] to the average
-  // of {S[i - r], �, S[i], �, S[i + r]}, where r = ?radius?, start <= i < stop,
+  // of {S[i - r], …, S[i], …, S[i + r]}, where r = ?radius?, start <= i < stop,
   // for each i, i + step, i + 2 * step, etc., and where S[j] is clamped between
   // S[start] (inclusive) and S[stop] (exclusive). If the given radius is not an
   // integer, S[i - r - 1] and S[i + r + 1] are added to the sum, each weighted
@@ -1029,11 +1029,11 @@ this.BX = this.BX || {};
         // values, which is substantially faster.
         if (tz[0] <= x0) step = tickIncrement(x0, x1, tn);
 
-        // If the last threshold is coincident with the domain’s upper bound, the
+        // If the last threshold is coincident with the domainвЂ™s upper bound, the
         // last bin will be zero-width. If the default domain is used, and this
         // last threshold is coincident with the maximum input value, we can
         // extend the niced upper bound by one tick to ensure uniform bin widths;
-        // otherwise, we simply remove the last threshold. Note that we don’t
+        // otherwise, we simply remove the last threshold. Note that we donвЂ™t
         // coerce values or the domain to numbers, and thus must be careful to
         // compare order (>=) rather than strict equality (===)!
         if (tz[tz.length - 1] >= x1) {
@@ -2356,7 +2356,7 @@ this.BX = this.BX || {};
   // Given something array like (or null), returns something that is strictly an
   // array. This is used to ensure that array-like objects passed to d3.selectAll
   // or selection.selectAll are converted into proper arrays when creating a
-  // selection; we don’t ever want to create a selection backed by a live
+  // selection; we donвЂ™t ever want to create a selection backed by a live
   // HTMLCollection or NodeList. However, note that selection.selectAll will use a
   // static NodeList as a group, since it safely derived from querySelectorAll.
   function array$1(x) {
@@ -2493,7 +2493,7 @@ this.BX = this.BX || {};
       }
     }
 
-    // Put any non-null nodes that don�t fit into exit.
+    // Put any non-null nodes that don’t fit into exit.
     for (; i < groupLength; ++i) {
       if (node = group[i]) {
         exit[i] = node;
@@ -2582,10 +2582,10 @@ this.BX = this.BX || {};
 
   // Given some data, this returns an array-like view of it: an object that
   // exposes a length property and allows numeric indexing. Note that unlike
-  // selectAll, this isn�t worried about �live� collections because the resulting
+  // selectAll, this isn’t worried about “live” collections because the resulting
   // array will only be used briefly while data is being bound. (It is possible to
   // cause the data to change while iterating by using a key function, but please
-  // don�t; we�d rather avoid a gratuitous copy.)
+  // don’t; we’d rather avoid a gratuitous copy.)
   function arraylike(data) {
     return babelHelpers["typeof"](data) === "object" && "length" in data ? data // Array, TypedArray, NodeList, array-like
     : Array.from(data); // Map, Set, iterable, string, or anything else
@@ -4442,7 +4442,7 @@ this.BX = this.BX || {};
         i,
         S;
 
-      // Special case for u0 ≅ u1.
+      // Special case for u0 в‰… u1.
       if (d2 < epsilon2) {
         S = Math.log(w1 / w0) / rho;
         i = function i(t) {
@@ -4623,7 +4623,7 @@ this.BX = this.BX || {};
   }
   function timerFlush() {
     now(); // Get the current time, if not already set.
-    ++frame; // Pretend we’ve set an alarm, if we haven’t already.
+    ++frame; // Pretend weвЂ™ve set an alarm, if we havenвЂ™t already.
     var t = taskHead,
       e;
     while (t) {
@@ -4880,7 +4880,7 @@ this.BX = this.BX || {};
         tween = schedule$$1.tween;
 
       // If this node shared tween with the previous node,
-      // just assign the updated shared tween and we’re done!
+      // just assign the updated shared tween and weвЂ™re done!
       // Otherwise, copy-on-write.
       if (tween !== tween0) {
         tween1 = tween0 = tween;
@@ -4903,7 +4903,7 @@ this.BX = this.BX || {};
         tween = schedule$$1.tween;
 
       // If this node shared tween with the previous node,
-      // just assign the updated shared tween and we’re done!
+      // just assign the updated shared tween and weвЂ™re done!
       // Otherwise, copy-on-write.
       if (tween !== tween0) {
         tween1 = (tween0 = tween).slice();
@@ -5144,7 +5144,7 @@ this.BX = this.BX || {};
         on = schedule$$1.on;
 
       // If this node shared a dispatch with the previous node,
-      // just assign the updated shared dispatch and we’re done!
+      // just assign the updated shared dispatch and weвЂ™re done!
       // Otherwise, copy-on-write.
       if (on !== on0) (on1 = (on0 = on).copy()).on(name, listener);
       schedule$$1.on = on1;
@@ -5252,7 +5252,7 @@ this.BX = this.BX || {};
         listener = schedule$$1.value[key] == null ? remove || (remove = styleRemove$1(name)) : undefined;
 
       // If this node shared a dispatch with the previous node,
-      // just assign the updated shared dispatch and we’re done!
+      // just assign the updated shared dispatch and weвЂ™re done!
       // Otherwise, copy-on-write.
       if (on !== on0 || listener0 !== listener) (on1 = (on0 = on).copy()).on(event, listener0 = listener);
       schedule$$1.on = on1;
@@ -5364,7 +5364,7 @@ this.BX = this.BX || {};
           on = schedule$$1.on;
 
         // If this node shared a dispatch with the previous node,
-        // just assign the updated shared dispatch and we’re done!
+        // just assign the updated shared dispatch and weвЂ™re done!
         // Otherwise, copy-on-write.
         if (on !== on0) {
           on1 = (on0 = on).copy();
@@ -5834,7 +5834,7 @@ this.BX = this.BX || {};
     return navigator.maxTouchPoints || "ontouchstart" in this;
   }
 
-  // Like d3.local, but with the name “__brush” rather than auto-generated.
+  // Like d3.local, but with the name вЂњ__brushвЂќ rather than auto-generated.
   function local$1(node) {
     while (!node.__brush) if (!(node = node.parentNode)) return;
     return node.__brush;
@@ -6615,7 +6615,7 @@ this.BX = this.BX || {};
           this._append(_templateObject11 || (_templateObject11 = babelHelpers.taggedTemplateLiteral(["L", ",", ""])), x0, y0);
         }
 
-        // Is this arc empty? We’re done.
+        // Is this arc empty? WeвЂ™re done.
         if (!r) return;
 
         // Does the angle go the wrong way? Flip the direction.
@@ -8012,8 +8012,8 @@ this.BX = this.BX || {};
           var ab = (dx * ey - dy * ex) * 2;
           if (Math.abs(ab) < 1e-9) {
             // For a degenerate triangle, the circumcenter is at the infinity, in a
-            // direction orthogonal to the halfedge and away from the “center” of
-            // the diagram <bx, by>, defined as the hull’s barycenter.
+            // direction orthogonal to the halfedge and away from the вЂњcenterвЂќ of
+            // the diagram <bx, by>, defined as the hullвЂ™s barycenter.
             if (bx === undefined) {
               bx = by = 0;
               var _iterator = _createForOfIteratorHelper$x(hull),
@@ -9267,7 +9267,7 @@ this.BX = this.BX || {};
 
     // If the quadtree has no extent, initialize them.
     // Integer extent are necessary so that if we later double the extent,
-    // the existing quadrant boundaries don’t change due to floating point error!
+    // the existing quadrant boundaries donвЂ™t change due to floating point error!
     if (isNaN(x0)) {
       x1 = (x0 = Math.floor(x)) + 1;
       y1 = (y0 = Math.floor(y)) + 1;
@@ -9347,7 +9347,7 @@ this.BX = this.BX || {};
       radius *= radius;
     }
     while (q = quads.pop()) {
-      // Stop searching if this quadrant can’t contain a closer node.
+      // Stop searching if this quadrant canвЂ™t contain a closer node.
       if (!(node = q.node) || (x1 = q.x0) > x3 || (y1 = q.y0) > y3 || (x2 = q.x1) < x0 || (y2 = q.y1) < y0) continue;
 
       // Bisect the current quadrant.
@@ -9364,7 +9364,7 @@ this.BX = this.BX || {};
         }
       }
 
-      // Visit this point. (Visiting coincident points isn’t necessary!)
+      // Visit this point. (Visiting coincident points isnвЂ™t necessary!)
       else {
         var dx = x - +this._x.call(null, node.data),
           dy = y - +this._y.call(null, node.data),
@@ -10139,7 +10139,7 @@ this.BX = this.BX || {};
   // significant digits p, where x is positive and p is in [1, 21] or undefined.
   // For example, formatDecimalParts(1.23) returns ["123", 0].
   function formatDecimalParts(x, p) {
-    if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0) return null; // NaN, ±Infinity
+    if ((i = (x = p ? x.toExponential(p - 1) : x.toExponential()).indexOf("e")) < 0) return null; // NaN, В±Infinity
     var i,
       coefficient = x.slice(0, i);
 
@@ -10293,7 +10293,7 @@ this.BX = this.BX || {};
   }
 
   var map$2 = Array.prototype.map,
-    prefixes = ["y", "z", "a", "f", "p", "n", "�", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y"];
+    prefixes = ["y", "z", "a", "f", "p", "n", "µ", "m", "", "k", "M", "G", "T", "P", "E", "Z", "Y"];
   function formatLocale (locale) {
     var group = locale.grouping === undefined || locale.thousands === undefined ? identity$3 : formatGroup(map$2.call(locale.grouping, Number), locale.thousands + ""),
       currencyPrefix = locale.currency === undefined ? "" : locale.currency[0] + "",
@@ -10369,8 +10369,8 @@ this.BX = this.BX || {};
           valuePrefix = (valueNegative ? sign === "(" ? sign : minus : sign === "-" || sign === "(" ? "" : sign) + valuePrefix;
           valueSuffix = (type === "s" ? prefixes[8 + prefixExponent / 3] : "") + valueSuffix + (valueNegative && sign === "(" ? ")" : "");
 
-          // Break the formatted value into the integer �value� part that can be
-          // grouped, and fractional or exponential �suffix� part that is not.
+          // Break the formatted value into the integer “value” part that can be
+          // grouped, and fractional or exponential “suffix” part that is not.
           if (maybeSuffix) {
             i = -1, n = value.length;
             while (++i < n) {
@@ -10614,7 +10614,7 @@ this.BX = this.BX || {};
     phi = phi / 2 + quarterPi; // half the angular distance from south pole
 
     // Spherical excess E for a spherical triangle with vertices: south pole,
-    // previous point, current point.  Uses a formula derived from Cagnoli’s
+    // previous point, current point.  Uses a formula derived from CagnoliвЂ™s
     // theorem.  See Todhunter, Spherical Trig. (1871), Sec. 103, Eq. (2).
     var dLambda = lambda - lambda0,
       sdLambda = dLambda >= 0 ? 1 : -1,
@@ -10780,8 +10780,8 @@ this.BX = this.BX || {};
   }
 
   // Finds the left-right distance between two longitudes.
-  // This is almost the same as (lambda1 - lambda0 + 360�) % 360�, except that we want
-  // the distance between �180� to be 360�.
+  // This is almost the same as (lambda1 - lambda0 + 360°) % 360°, except that we want
+  // the distance between ±180° to be 360°.
   function angle(lambda0, lambda1) {
     return (lambda1 -= lambda0) < 0 ? lambda1 + 360 : lambda1;
   }
@@ -11019,7 +11019,7 @@ this.BX = this.BX || {};
     return forward;
   }
 
-  // Generates a circle centered at [0°, 0°], with a given radius and precision.
+  // Generates a circle centered at [0В°, 0В°], with a given radius and precision.
   function circleStream(stream, radius, delta, direction, t0, t1) {
     if (!delta) return;
     var cosRadius = cos$1(radius),
@@ -11242,7 +11242,7 @@ this.BX = this.BX || {};
         sum$$1.add(atan2(k * sign$$1 * sin$1(absDelta), cosPhi0 * cosPhi1 + k * cos$1(absDelta)));
         angle += antimeridian ? delta + sign$$1 * tau$4 : delta;
 
-        // Are the longitudes either side of the point’s meridian (lambda),
+        // Are the longitudes either side of the pointвЂ™s meridian (lambda),
         // and are the latitudes smaller than the parallel (phi)?
         if (antimeridian ^ lambda0 >= lambda ^ lambda1 >= lambda) {
           var arc = cartesianCross(cartesian(point0), cartesian(point1));
@@ -11566,7 +11566,7 @@ this.BX = this.BX || {};
         pb = cartesian(b);
 
       // We have two planes, n1.p = d1 and n2.p = d2.
-      // Find intersection line p(t) = c1 n1 + c2 n2 + t (n1 ⨯ n2).
+      // Find intersection line p(t) = c1 n1 + c2 n2 + t (n1 вЁЇ n2).
       var n1 = [1, 0, 0],
         // normal
         n2 = cartesianCross(pa, pb),
@@ -11688,7 +11688,7 @@ this.BX = this.BX || {};
   var clipMax = 1e9,
     clipMin = -clipMax;
 
-  // TODO Use d3-polygon’s polygonContains here for the ring check?
+  // TODO Use d3-polygonвЂ™s polygonContains here for the ring check?
   // TODO Eliminate duplicate buffering in clipBuffer and polygon.push?
 
   function clipRectangle(x0, y0, x1, y1) {
@@ -12943,7 +12943,7 @@ this.BX = this.BX || {};
   }
 
   // A composite projection for the United States, configured by default for
-  // 960×500. The projection also works quite well at 960×600 if you change the
+  // 960Г—500. The projection also works quite well at 960Г—600 if you change the
   // scale to 1285 and adjust the translate accordingly. The set of standard
   // parallels for each region comes from USGS, which is published here:
   // http://egsc.usgs.gov/isb/pubs/MapProjections/projections.html#albers
@@ -13585,7 +13585,7 @@ this.BX = this.BX || {};
       links = [];
     root.each(function (node) {
       if (node !== root) {
-        // Don’t include the root’s parent, if any.
+        // DonвЂ™t include the rootвЂ™s parent, if any.
         links.push({
           source: node.parent,
           target: node
@@ -13938,13 +13938,13 @@ this.BX = this.BX || {};
     b.next = a.previous = c;
     c.next = b.previous = a;
 
-    // Attempt to place each remaining circle�
+    // Attempt to place each remaining circle…
     pack: for (i = 3; i < n; ++i) {
       place(a._, b._, c = circles[i]), c = new Node$1(c);
 
       // Find the closest intersecting circle on the front-chain, if any.
-      // �Closeness� is determined by linear distance along the front-chain.
-      // �Ahead� or �behind� is likewise determined by linear distance.
+      // “Closeness” is determined by linear distance along the front-chain.
+      // “Ahead” or “behind” is likewise determined by linear distance.
       j = b.next, k = a.previous, sj = b._.r, sk = a._.r;
       do {
         if (sj <= sk) {
@@ -14243,7 +14243,7 @@ this.BX = this.BX || {};
   }
 
   // Walk backwards to find the first slash that is not the leading slash, e.g.:
-  // "/foo/bar" ⇥ "/foo", "/foo" ⇥ "/", "/" ↦ "". (The root is special-cased
+  // "/foo/bar" в‡Ґ "/foo", "/foo" в‡Ґ "/", "/" в†¦ "". (The root is special-cased
   // because the id of the root must be a truthy value.)
   function parentof(path) {
     var i = path.length;
@@ -14315,7 +14315,7 @@ this.BX = this.BX || {};
     }
   }
 
-  // If vi-’s ancestor is a sibling of v, returns vi-’s ancestor. Otherwise,
+  // If vi-вЂ™s ancestor is a sibling of v, returns vi-вЂ™s ancestor. Otherwise,
   // returns the specified (default) ancestor.
   function nextAncestor(vim, v, ancestor) {
     return vim.a.parent === v.parent ? vim.a : ancestor;
@@ -14365,7 +14365,7 @@ this.BX = this.BX || {};
     function tree(root) {
       var t = treeRoot(root);
 
-      // Compute the layout using Buchheim et al.’s algorithm.
+      // Compute the layout using Buchheim et al.вЂ™s algorithm.
       t.eachAfter(firstWalk), t.parent.m = -t.z;
       t.eachBefore(secondWalk);
 
@@ -17452,7 +17452,7 @@ this.BX = this.BX || {};
             oc;
 
           // Restrict the corner radius according to the sector angle. If this
-          // intersection fails, it�s probably because the arc is too small, so
+          // intersection fails, it’s probably because the arc is too small, so
           // disable the corner radius entirely.
           if (da < pi$4) {
             if (oc = intersect(x01, y01, x00, y00, x11, y11, x10, y10)) {
@@ -17473,7 +17473,7 @@ this.BX = this.BX || {};
         // Is the sector collapsed to a line?
         if (!(da1 > epsilon$6)) context.moveTo(x01, y01);
 
-        // Does the sector�s outer ring have rounded corners?
+        // Does the sector’s outer ring have rounded corners?
         else if (rc1 > epsilon$6) {
           t0 = cornerTangents(x00, y00, x01, y01, r1, rc1, cw);
           t1 = cornerTangents(x11, y11, x10, y10, r1, rc1, cw);
@@ -17493,11 +17493,11 @@ this.BX = this.BX || {};
         // Or is the outer ring just a circular arc?
         else context.moveTo(x01, y01), context.arc(0, 0, r1, a01, a11, !cw);
 
-        // Is there no inner ring, and it�s a circular sector?
-        // Or perhaps it�s an annular sector collapsed due to padding?
+        // Is there no inner ring, and it’s a circular sector?
+        // Or perhaps it’s an annular sector collapsed due to padding?
         if (!(r0 > epsilon$6) || !(da0 > epsilon$6)) context.lineTo(x10, y10);
 
-        // Does the sector�s inner ring (or point) have rounded corners?
+        // Does the sector’s inner ring (or point) have rounded corners?
         else if (rc0 > epsilon$6) {
           t0 = cornerTangents(x10, y10, x11, y11, r0, -rc0, cw);
           t1 = cornerTangents(x01, y01, x00, y00, r0, -rc0, cw);
@@ -18895,7 +18895,7 @@ this.BX = this.BX || {};
   }
 
   // According to https://en.wikipedia.org/wiki/Cubic_Hermite_spline#Representations
-  // "you can express cubic Hermite interpolation in terms of cubic Bézier curves
+  // "you can express cubic Hermite interpolation in terms of cubic BГ©zier curves
   // with respect to the four values p0, p0 + m0 / 3, p1 - m1 / 3, p1".
   function _point$3(that, t0, t1) {
     var x0 = that._x0,
@@ -19593,7 +19593,7 @@ this.BX = this.BX || {};
         clearTimeout(g.wheel);
       }
 
-      // If this wheel event won’t trigger a transform change, ignore it.
+      // If this wheel event wonвЂ™t trigger a transform change, ignore it.
       else if (t.k === k) return;
 
       // Otherwise, capture the mouse point and location at the start.

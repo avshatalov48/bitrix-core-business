@@ -14,8 +14,6 @@ use Bitrix\Sale\Discount\Preset\HtmlHelper;
 use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\State;
 
-Loc::loadMessages(__FILE__);
-
 final class Cumulative extends BasePreset
 {
 	const TYPE_FIXED   = Actions::VALUE_TYPE_FIX;
@@ -88,7 +86,7 @@ final class Cumulative extends BasePreset
 	public function processShowInputRanges(State $state)
 	{
 		$lid = $state->get('discount_lid');
-		$currency = \CSaleLang::getLangCurrency($lid);
+		$currency = \Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($lid);
 
 		$rows = $this->generateRows($state);
 		$templateRow = $this->generateRow(-1, array(), 'display: none');
@@ -165,7 +163,7 @@ final class Cumulative extends BasePreset
 				
 				</tbody>	
 			</table>
-			<script type="text/javascript">
+			<script>
 				BX.ready(function(){
 					BX.bind(BX("discount_type_sum_period"), "change", function(){
 						var table = BX("count_period_table");
@@ -206,7 +204,7 @@ final class Cumulative extends BasePreset
 	protected function generateJavascript()
 	{
 		return '
-			<script type="text/javascript">
+			<script>
 				BX.ready(function(){
 					BX.bind(BX("clone_range"), "click", function(){
 						var row = BX("range_-1").cloneNode(true);
@@ -249,9 +247,9 @@ final class Cumulative extends BasePreset
 
 	protected function generateRow($index, array $range, $style = '')
 	{
-		$sum = $range['sum'];
-		$value = $range['value'];
-		$type = $range['type'];
+		$sum = $range['sum'] ?? '';
+		$value = $range['value'] ?? '';
+		$type = $range['type'] ?? '';
 
 		$this->fillValueInsteadMarkedEmpty($sum);
 		$this->fillValueInsteadMarkedEmpty($value);

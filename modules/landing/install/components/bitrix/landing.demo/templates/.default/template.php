@@ -124,7 +124,7 @@ if (!$component->isAjax())
 				['HIDE_ICONS' => true]
 			);
 			?>
-			<script type="text/javascript">
+			<script>
 				BX.Landing.Component.Demo.ajaxPath = '<?=\CUtil::jsEscape($arResult['FILTER_URI'])?>';
 			</script>
 		</div>
@@ -345,7 +345,7 @@ if (!$component->isAjax())
 	</a>
 <?endif;?>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function ()
 	{
 		<?if ($arResult['LIMIT_REACHED']):?>

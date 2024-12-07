@@ -9,6 +9,7 @@ $MESS["SONET_UM_DISK"] = "Диск";
 $MESS["SONET_UM_SIGN"] = "Подписанные документы";
 $MESS["SONET_UM_BLOG"] = "Сообщения";
 $MESS["SONET_UM_STREAM_NEWS"] = "Новости";
+$MESS["SONET_UM_STREAM_NEWS_2"] = "Лента";
 $MESS["SONET_UM_TASKS"] = "Задачи";
 $MESS["SONET_UM_SEARCH"] = "Поиск";
 $MESS["SONET_UM_MICROBLOG"] = "Микроблог";

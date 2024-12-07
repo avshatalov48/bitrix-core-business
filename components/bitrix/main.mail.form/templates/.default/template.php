@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,16 +9,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
+	'main.core',
 	'ui.alerts',
 	'ui.buttons',
 	'ui.entity-selector',
 	'calendar.util',
 	'ui.tour',
+	'ui.mail.sender-selector',
 ]);
 
 $htmlFormId = htmlspecialcharsbx('main_mail_form_'.$arParams['FORM_ID']);
+$renderFieldOptions = [
+	'isSenderAvailable' => $arParams['IS_SMTP_AVAILABLE'] ?? false,
+];
 
-$renderField = function($htmlFormId, $field, $isExt = false, $version)
+$renderField = function($htmlFormId, $field, $isExt = false, $version, $renderFieldOptions)
 {
 	global $APPLICATION;
 
@@ -72,25 +80,48 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 					<span class="main-mail-form-field-spacer-25"></span>
 					<span class="main-mail-form-field-title"><?=preg_replace('/[\r\n]+/', '<br>', htmlspecialcharsbx($field['title'])) ?>:</span>
 				</td>
-				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>">
-					<? $mailboxes = $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', array()); ?>
-					<input type="hidden"
-						id="<?=$htmlFieldId ?>_value"
-						name="<?=htmlspecialcharsbx($field['name']) ?>"
-						value="<?=htmlspecialcharsbx($field['value']) ?>">
-					<span class="main-mail-form-field-spacer-25"></span>
-					<span class="main-mail-form-field-from-icon"></span>
-					<span class="main-mail-form-field-title main-mail-form-field-value-menu"><?
-						echo htmlspecialcharsbx($field['value'] ?: $field['placeholder']);
-					?></span>
-					<? if (!empty($field['copy'])): ?>
-						<label class="main-mail-form-field-from-copy">
-							<span class="main-mail-form-field-spacer-25"></span>
-							<input class="main-mail-form-field-from-copy-checkbox" type="checkbox"
-								name="<?=htmlspecialcharsbx($field['copy']) ?>" value="Y" id="<?=$htmlFieldId ?>_copy">
-							<span class="main-mail-form-field-title main-mail-form-field-from-copy-text"><?=getMessage('MAIN_MAIL_FORM_FROM_FIELD_COPY') ?></span>
-						</label>
-					<? endif ?>
+				<td class="main-mail-form-fields-table-cell <?=$valueSubClass ?>" id="main-mail-from-field">
+					<?php $mailboxes = $APPLICATION->includeComponent('bitrix:main.mail.confirm', '', []); ?>
+					<script>
+						fieldId = '<?= CUtil::JSEscape($htmlFieldId) ?>_value';
+						if (BX.UI.Mail?.SenderSelector && !fieldId.includes('crm_mail_template_edit_form'))
+						{
+							const senderSelector = new BX.UI.Mail.SenderSelector({
+								fieldId: '<?= CUtil::JSEscape($htmlFieldId) ?>_value',
+								fieldName: '<?= CUtil::JSEscape(htmlspecialcharsbx($field['name'])) ?>',
+								fieldValue: '<?= CUtil::JSEscape(htmlspecialcharsbx($field['value'])) ?>',
+								mailboxes: <?= Json::encode($field['mailboxes']) ?>,
+								isSenderAvailable: <?= Json::encode($renderFieldOptions['isSenderAvailable']) ?>,
+							});
+							senderSelector.renderTo(BX('main-mail-from-field'));
+						}
+						else
+						{
+							const oldSelector = BX.Tag.render`
+								<div>
+									<input type="hidden"
+										id="<?= $htmlFieldId ?>_value"
+										name="<?= htmlspecialcharsbx($field['name']) ?>"
+										value="<?= htmlspecialcharsbx($field['value']) ?>"
+									>
+									<span class="main-mail-form-field-spacer-25"></span>
+									<span class="main-mail-form-field-from-icon"></span>
+									<span class="main-mail-form-field-title main-mail-form-field-value-menu">
+										<?= htmlspecialcharsbx($field['value'] ?: $field['placeholder']); ?>
+									</span>
+									<?php if (!empty($field['copy'])): ?>
+										<label class="main-mail-form-field-from-copy">
+											<span class="main-mail-form-field-spacer-25"></span>
+											<input class="main-mail-form-field-from-copy-checkbox" type="checkbox"
+												name="<?=htmlspecialcharsbx($field['copy']) ?>" value="Y" id="<?=$htmlFieldId ?>_copy">
+											<span class="main-mail-form-field-title main-mail-form-field-from-copy-text"><?=getMessage('MAIN_MAIL_FORM_FROM_FIELD_COPY') ?></span>
+										</label>
+									<? endif; ?>
+								</div>
+							`;
+							BX.Dom.append(oldSelector, BX('main-mail-from-field'))
+						}
+					</script>
 				</td>
 				<?
 				break;
@@ -346,7 +377,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 			</tr>
 			<?
 			foreach ($arParams['FIELDS'] as $field)
-				$renderField($htmlFormId, $field, false, $arParams['VERSION']);
+				$renderField($htmlFormId, $field, false, $arParams['VERSION'], $renderFieldOptions);
 			?>
 			<tr id="<?=sprintf('%s_fields_footer', $htmlFormId) ?>">
 				<td class="main-mail-form-fields-footer-cell" colspan="2">
@@ -482,7 +513,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 			<table class="main-mail-form-fields-table">
 				<?
 				foreach ($arParams['FIELDS_EXT'] as $field)
-					$renderField($htmlFormId, $field, true, $arParams['VERSION']);
+					$renderField($htmlFormId, $field, true, $arParams['VERSION'], $renderFieldOptions);
 				?>
 				<tr id="<?=sprintf('%s_fields_ext_footer', $htmlFormId) ?>">
 					<td class="main-mail-form-fields-footer-cell" colspan="2">
@@ -539,7 +570,7 @@ $renderField = function($htmlFormId, $field, $isExt = false, $version)
 	<input type="submit" name="<?=sprintf('%s_submit', $htmlFormId) ?>" value="Y" style="display: none; ">
 </div>
 
-<script type="text/javascript">
+<script>
 
 BX.ready(function()
 {
@@ -562,6 +593,26 @@ BX.ready(function()
 	<? if (empty($arParams['LAYOUT_ONLY'])): ?>
 		form.init();
 	<? endif ?>
+
+	BX.addCustomEvent(
+		'SidePanel.Slider:onMessage',
+		function (event)
+		{
+			const $eventId = event.getEventId();
+			if (!$eventId)
+			{
+				return;
+			}
+
+			if (
+				$eventId === 'mail-mailbox-config-success'
+				|| $eventId === 'mail-mailbox-config-delete'
+			)
+			{
+				BX.SidePanel.Instance.postMessage(window, $eventId, event.data)
+			}
+		}
+	);
 });
 
 </script>

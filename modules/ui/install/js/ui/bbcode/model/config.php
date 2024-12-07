@@ -8,6 +8,7 @@ return [
 	'css' => 'dist/model.bundle.css',
 	'js' => 'dist/model.bundle.js',
 	'rel' => [
+		'ui.bbcode.encoder',
 		'main.core',
 	],
 	'skip_core' => false,

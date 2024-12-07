@@ -344,6 +344,11 @@ describe('core/uri', () => {
 			const uri = new Uri('http://test.com/?test1=1');
 			assert(uri.getFragment() === '');
 		});
+
+		it('Should parse complicated fragment', () => {
+			const uri = new Uri('http://test.com/?test1=1#user%3A%20%D0%98comma,2+2=4&2*2=4!');
+			assert(uri.getFragment() === 'user%3A%20%D0%98comma,2+2=4&2*2=4!');
+		});
 	});
 
 	describe('#setFragment()', () => {
@@ -382,9 +387,9 @@ describe('core/uri', () => {
 
 	it('Should works with encoded values', () => {
 		const params = {
-			test1: encodeURIComponent('тестовое значение'),
-			test2: encodeURIComponent('тестовое значение 2'),
-			test3: encodeURIComponent('тестовое значение 3'),
+			test1: encodeURIComponent('С‚РµСЃС‚РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ'),
+			test2: encodeURIComponent('С‚РµСЃС‚РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ 2'),
+			test3: encodeURIComponent('С‚РµСЃС‚РѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ 3'),
 		};
 		const uri = new Uri('//test.com');
 

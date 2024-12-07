@@ -222,7 +222,7 @@ echo BeginNote();
 ?><span class="required" style="vertical-align: super; font-size: smaller;">1</span> - <?php
 echo GetMessage('BX_CURRENCY_RATE_EDIT_MESS_AMOUNT');
 echo EndNote();
-?><script type="text/javascript">
+?><script>
 function getCurrencyRate()
 {
 	BX('currency_query_error_div').innerHTML = '';

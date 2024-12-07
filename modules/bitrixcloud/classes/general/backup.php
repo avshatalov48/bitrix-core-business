@@ -55,7 +55,7 @@ class CBitrixCloudBackup
 		$node = $this->infoXML->SelectNodes('/control/quota/allow');
 		if (is_object($node))
 		{
-			$this->quota =  \Bitrix\Main\Config\Ini::unformatInt($node->textContent());
+			$this->quota = \Bitrix\Main\Config\Ini::unformatInt($node->textContent());
 		}
 
 		$node = $this->infoXML->SelectNodes('/control/files');
@@ -68,7 +68,7 @@ class CBitrixCloudBackup
 			foreach ($nodeFiles as $nodeFile)
 			{
 				/* @var CDataXMLNode $nodeFile */
-				$size =  \Bitrix\Main\Config\Ini::unformatInt($nodeFile->getAttribute('size'));
+				$size = \Bitrix\Main\Config\Ini::unformatInt($nodeFile->getAttribute('size'));
 				$name = $nodeFile->getAttribute('name');
 				$this->total_size += $size;
 				$this->files[] = [
@@ -167,6 +167,7 @@ class CBitrixCloudBackup
 		$secret_key = (is_object($node = $obXML->SelectNodes('/control/bucket/secret_key'))) ? $node->textContent() : '';
 		$session_token = (is_object($node = $obXML->SelectNodes('/control/bucket/session_token'))) ? $node->textContent() : '';
 		$file_name = (is_object($node = $obXML->SelectNodes('/control/bucket/file_name'))) ? $node->textContent() : '';
+		$service_id = (is_object($node = $obXML->SelectNodes('/control/bucket/bucket_service_id'))) ? $node->textContent() : '';
 
 		return new CBitrixCloudBackupBucket(
 			$bucket_name,
@@ -176,7 +177,8 @@ class CBitrixCloudBackup
 			$session_token,
 			$check_word,
 			$file_name,
-			$bucket_location
+			$bucket_location,
+			$service_id
 		);
 	}
 

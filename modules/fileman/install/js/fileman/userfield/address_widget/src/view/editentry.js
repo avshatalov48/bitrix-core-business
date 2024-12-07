@@ -1,8 +1,8 @@
-import {Address as AddressWidget, AutocompleteFeature, Factory, State} from "location.widget";
-import {Address as AddressEntity, AddressStringConverter, AddressType, ControlMode, Format} from "location.core";
-import {Dom, Event, Tag, Loc, Text} from "main.core";
-import type {EditEntryProps} from "./editentryprops";
-import {EventEmitter} from "main.core.events";
+import { Address as AddressEntity, AddressStringConverter, AddressType, ControlMode, Format } from 'location.core';
+import { Address as AddressWidget, AutocompleteFeature, Factory, State } from 'location.widget';
+import { Dom, Event, Loc, Tag, Text } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import type { EditEntryProps } from './editentryprops';
 
 export class EditEntry extends EventEmitter
 {
@@ -20,6 +20,7 @@ export class EditEntry extends EventEmitter
 	#isLoading: boolean = false;
 	#isDropdownLoading: boolean = false;
 	#isDestroyed: boolean = false;
+	#showDetailsToggle: boolean = true;
 
 	static onRemoveInputButtonClickedEvent = 'onRemoveInputButtonClicked';
 
@@ -33,6 +34,7 @@ export class EditEntry extends EventEmitter
 		this.#enableRemoveButton = props.enableRemoveButton;
 		this.#initialAddressId = props.initialAddressId;
 		this.#showMap = props.showMap;
+		this.#showDetailsToggle = Boolean(props.showDetailsToggle ?? true);
 
 		if (props.address)
 		{
@@ -61,15 +63,20 @@ export class EditEntry extends EventEmitter
 			useFeatures: {
 				fields: true,
 				map: this.#showMap,
-				autocomplete: true
-			}
+				autocomplete: true,
+			},
 		});
 
 		this.#nodes.userInput = Tag.render`<input type="text" class="ui-ctl-element" />`;
 
 		this.#nodes.fieldsContainer = Tag.render`<div class="location-fields-control-block"></div>`;
-		this.#nodes.detailsToggle = Tag.render`<span class="ui-link ui-link-secondary address-control-mode-switch">${Loc.getMessage('ADDRESS_USERFIELD_DETAILS')}</span>`;
-		Event.bind(this.#nodes.detailsToggle, 'click', this.onDetailsToggleClick.bind(this));
+
+		if (this.#showDetailsToggle)
+		{
+			this.#nodes.detailsToggle = Tag.render`<span class="ui-link ui-link-secondary address-control-mode-switch">${Loc.getMessage(
+				'ADDRESS_USERFIELD_DETAILS')}</span>`;
+			Event.bind(this.#nodes.detailsToggle, 'click', this.onDetailsToggleClick.bind(this));
+		}
 
 		let inputValue = this.getInitialAddressFieldValue();
 		this.#nodes.fieldValueInput = Tag.render`<input type="hidden" name="${this.#fieldFormName}" value="${inputValue}" />`;
@@ -100,9 +107,7 @@ export class EditEntry extends EventEmitter
 
 		this.#nodes.layout = Tag.render`
 			<div class="edit-entry-layout-wrapper ${this.getLayoutSizeClass()}">
-				<div class="address-control-mode-switch-wrapper">
-					${this.#nodes.detailsToggle}
-				</div>
+				${this.#getAddressControlSwitchContainer()}
 				${this.#nodes.hiddenFormattedAddressInput}
 				${this.#nodes.entryWrapper}
 				${manualEditFlagNode}
@@ -124,6 +129,20 @@ export class EditEntry extends EventEmitter
 		});
 
 		return this.#nodes.layout;
+	}
+
+	#getAddressControlSwitchContainer(): ?HTMLElement
+	{
+		if (!this.#showDetailsToggle)
+		{
+			return null;
+		}
+
+		return Tag.render`
+			<div class="address-control-mode-switch-wrapper">
+				${this.#nodes.detailsToggle}
+			</div>
+		`;
 	}
 
 	getUserInputSizeClass(): string

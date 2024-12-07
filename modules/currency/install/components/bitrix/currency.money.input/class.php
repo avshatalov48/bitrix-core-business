@@ -12,18 +12,22 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
  * @global CMain $APPLICATION
  */
 
+use Bitrix\Currency;
+use Bitrix\Currency\UserField\Types\MoneyType;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Security\Random;
 use Bitrix\Main\SystemException;
+use Bitrix\Main\UI\Extension;
 
 class CCurrencyMoneyInputComponent extends \CBitrixComponent
 {
-	protected $currencyList = array();
+	protected array $currencyList = [];
 
 	/**
 	 * Load language file.
 	 */
-	public function onIncludeComponentLang()
+	public function onIncludeComponentLang(): void
 	{
 		$this->includeComponentLang(basename(__FILE__));
 		Loc::loadMessages(__FILE__);
@@ -31,12 +35,25 @@ class CCurrencyMoneyInputComponent extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
-		$params['CONTROL_ID'] = !empty($params['CONTROL_ID']) ? trim($params['CONTROL_ID']) : 'bxme_'.(\Bitrix\Main\Security\Random::getString(5));
-		$params['FIELD_NAME'] = !empty($params['FIELD_NAME']) ? trim($params['FIELD_NAME']) : 'money_'.(\Bitrix\Main\Security\Random::getString(5));
-		$params['FIELD_NAME_CURRENCY'] = !empty($params['FIELD_NAME_CURRENCY']) ? trim($params['FIELD_NAME']) : '';
-		$params['VALUE'] = $params['VALUE'] <> '' ? trim($params['VALUE']) : '';
+		$params['CONTROL_ID'] = trim((string)($params['CONTROL_ID'] ?? ''));
+		if ($params['CONTROL_ID'] === '')
+		{
+			$params['CONTROL_ID'] = 'bxme_' . Random::getString(5);
+		}
+		$params['FIELD_NAME'] = trim((string)($params['FIELD_NAME'] ?? ''));
+		if ($params['FIELD_NAME'] === '')
+		{
+			$params['FIELD_NAME'] = 'money_' . Random::getString(5);
+		}
+		$params['FIELD_NAME_CURRENCY'] = trim((string)($params['FIELD_NAME_CURRENCY'] ?? ''));
 
-		$params['EXTENDED_CURRENCY_SELECTOR'] = $params['EXTENDED_CURRENCY_SELECTOR'] === 'Y' ? 'Y' : 'N';
+		$params['VALUE'] = trim((string)($params['VALUE'] ?? ''));
+
+		$params['EXTENDED_CURRENCY_SELECTOR'] =
+			($params['EXTENDED_CURRENCY_SELECTOR'] ?? null) === 'Y'
+				? 'Y'
+				: 'N'
+		;
 
 		return $params;
 	}
@@ -44,100 +61,90 @@ class CCurrencyMoneyInputComponent extends \CBitrixComponent
 	/**
 	 * Check Required Modules
 	 *
-	 * @throws Exception
+	 * @return bool
 	 */
-	protected function checkModules()
+	protected function checkModules(): bool
 	{
-		if(!Loader::includeModule('currency'))
-		{
-			throw new SystemException(Loc::getMessage('CMI_CURRENCY_MODULE_NOT_INSTALLED'));
-		}
+		return Loader::includeModule('currency');
 	}
 
-	protected function prepareData()
+	protected function prepareData(): void
 	{
-		$this->currencyList = \Bitrix\Currency\Helpers\Editor::getListCurrency();
+		$this->currencyList = Currency\Helpers\Editor::getListCurrency();
 	}
 
-	protected function formatResult()
+	protected function formatResult(): void
 	{
-		$this->arResult['CURRENCY_LIST'] = array();
+		$this->arResult['CURRENCY_LIST'] = [];
 
 		$defaultCurrency = '';
-		foreach($this->currencyList as $currency => $currencyInfo)
+		foreach ($this->currencyList as $currency => $currencyInfo)
 		{
-			if($defaultCurrency === '' || $currencyInfo['BASE'] == 'Y')
+			if ($defaultCurrency === '' || $currencyInfo['BASE'] === 'Y')
 			{
 				$defaultCurrency = $currency;
 			}
-
 			$this->arResult['CURRENCY_LIST'][$currency] = $currencyInfo['NAME'];
 		}
 
-		$this->arResult['VALUE_NUMBER'] = '';
-		$this->arResult['VALUE_CURRENCY'] = '';
-
-		if($this->arParams['VALUE'] <> '')
+		$value = '';
+		if ($this->arParams['VALUE'] !== '')
 		{
-			list($this->arResult['VALUE_NUMBER'], $this->arResult['VALUE_CURRENCY']) = explode('|', $this->arParams['VALUE']);
+			list($value, $currency) = MoneyType::unFormatFromDb($this->arParams['VALUE']);
 
-			$this->arResult['VALUE_NUMBER'] = $this->formatNumber($this->arResult['VALUE_NUMBER'], $this->arResult['VALUE_CURRENCY']);
+			$value = $this->formatNumber($value, $currency);
 
-			if ($this->arResult['VALUE_CURRENCY'] !== '' && !isset($this->arResult['CURRENCY_LIST'][$this->arResult['VALUE_CURRENCY']]))
-				$this->arResult['CURRENCY_LIST'][$this->arResult['VALUE_CURRENCY']] = $this->arResult['VALUE_CURRENCY'];
+			if ($currency !== '' && !isset($this->arResult['CURRENCY_LIST'][$currency]))
+			{
+				$this->arResult['CURRENCY_LIST'][$currency] = $currency;
+			}
 		}
 		else
 		{
-			$this->arResult['VALUE_CURRENCY'] = $defaultCurrency;
+			$currency = $defaultCurrency;
 		}
+		$this->arResult['VALUE_NUMBER'] = $value;
+		$this->arResult['VALUE_CURRENCY'] = $currency;
 	}
 
-	protected function formatNumber($currentValue, $currentCurrency)
+	protected function formatNumber($currentValue, $currentCurrency): string
 	{
-		if($currentValue !== '')
+		if ($currentValue !== '')
 		{
-			$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-			//TODO: in the future - remove this hack
-			if ($format['THOUSANDS_VARIANT'] == \CCurrencyLang::SEP_NBSPACE)
-			{
-				$format['THOUSANDS_VARIANT'] = \CCurrencyLang::SEP_SPACE;
-				$separators = \CCurrencyLang::GetSeparators();
-				$format['THOUSANDS_SEP'] = $separators[\CCurrencyLang::SEP_SPACE];
-				unset($separators);
-			}
-			$currentValue = \CCurrencyLang::formatValue($currentValue, $format, false);
-			unset($format);
+			$currentValue = \CCurrencyLang::formatEditValue(
+				$currentValue,
+				\CCurrencyLang::GetFormatDescription($currentCurrency)
+			);
 		}
 
 		return $currentValue;
 	}
 
-	protected function initCore()
+	protected function initCore(): void
 	{
-		if($this->arParams['EXTENDED_CURRENCY_SELECTOR'] === 'Y')
+		$extensions = [
+			'core_money_editor',
+		];
+		if ($this->arParams['EXTENDED_CURRENCY_SELECTOR'] === 'Y')
 		{
-			\CJSCore::Init(array('core_money_editor', 'ui'));
+			$extensions[] = 'ui';
 		}
-		else
-		{
-			\CJSCore::Init(array('core_money_editor'));
-		}
+		Extension::load($extensions);
 	}
 
 	public function executeComponent()
 	{
-		try
+		if ($this->checkModules())
 		{
-			$this->checkModules();
 			$this->prepareData();
 			$this->formatResult();
 			$this->initCore();
 
 			$this->includeComponentTemplate();
 		}
-		catch(SystemException $e)
+		else
 		{
-			ShowError($e->getMessage());
+			ShowError(Loc::getMessage('CMI_CURRENCY_MODULE_NOT_INSTALLED'));
 		}
 	}
 }

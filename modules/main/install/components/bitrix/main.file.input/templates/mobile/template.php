@@ -5,6 +5,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
 use Bitrix\Main\Context;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Web\Json;
 
 /**
  * @var array $arParams
@@ -23,7 +24,7 @@ if($arParams['ALLOW_UPLOAD'] === 'N' && empty($arResult['FILES']))
 $cnt = count($arResult['FILES']);
 $id = CUtil::JSEscape($arParams['CONTROL_ID']);
 
-if($arParams['MULTIPLE'] === 'Y' && mb_substr($arParams['INPUT_NAME'], -2) !== '[]')
+if($arParams['MULTIPLE'] === 'Y' && !str_ends_with($arParams['INPUT_NAME'], '[]'))
 {
 	$arParams['INPUT_NAME'] .= '[]';
 }
@@ -181,15 +182,15 @@ $listClass = ($arParams['MULTIPLE'] === 'Y' ? 'multiple' : 'single');
 	}
 	?>
 
-	<script type='text/javascript'>
-		BX.message(<?=CUtil::PhpToJSObject([
+	<script>
+		BX.message(<?= Json::encode([
 			'MFI_THUMB' => $thumb,
 			'MFI_THUMB2' => $thumbForUploaded,
 			'MFI_UPLOADING_ERROR' => Loc::getMessage('MFI_UPLOADING_ERROR')
-		])?>);
+		]) ?>);
 		BX.ready(function ()
 		{
-			BX.MFInput.init(<?=CUtil::PhpToJSObject([
+			BX.MFInput.init(<?= Json::encode([
 				'controlId' => $arParams['CONTROL_ID'],
 				'controlUid' => $arParams['CONTROL_UID'],
 				'controlSign' => $arParams['CONTROL_SIGN'],
@@ -202,7 +203,7 @@ $listClass = ($arParams['MULTIPLE'] === 'Y' ? 'multiple' : 'single');
 				'uploadMaxFilesize' => $arParams['MAX_FILE_SIZE'],
 				'enableCamera' => ($arParams['ENABLE_CAMERA'] !== 'N'),
 				'urlUpload' => $arParams['URL_TO_UPLOAD']
-			])?>);
+			]) ?>);
 		});
 	</script>
 </div>

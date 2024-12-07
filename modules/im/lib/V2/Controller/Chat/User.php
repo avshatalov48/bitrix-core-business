@@ -3,6 +3,7 @@
 namespace Bitrix\Im\V2\Controller\Chat;
 
 use Bitrix\Im\V2\Controller\BaseController;
+use Bitrix\Im\V2\RelationCollection;
 
 class User extends BaseController
 {
@@ -13,8 +14,8 @@ class User extends BaseController
 	{
 		$relationOrder = $this->prepareRelationOrder($order);
 		$limit = $this->getLimit($limit);
-		$relationFilter = ['ACTIVE' => true];
-		$relations = $chat->getRelations(['FILTER' => $relationFilter, 'ORDER' => $relationOrder, 'LIMIT' => $limit]);
+		$relationFilter = ['ACTIVE' => true, 'CHAT_ID' => $chat->getId()];
+		$relations = RelationCollection::find($relationFilter, $relationOrder, $limit);
 
 		return $this->toRestFormat($relations->getUsers());
 	}

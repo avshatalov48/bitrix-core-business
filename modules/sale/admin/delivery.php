@@ -283,7 +283,7 @@ $oFilter->Begin();
 	<tr>
 		<td><?echo GetMessage("SALE_F_LANG");?>:</td>
 		<td>
-			<script language="JavaScript">
+			<script>
 			var arLang = new Array();
 			var arCurr = new Array();
 			<?
@@ -346,7 +346,7 @@ $oFilter->Begin();
 			<?echo GetMessage("SALE_F_TO")?>
 			<input type="text" name="filter_order_price_to" value="<?echo htmlspecialcharsbx($filter_order_price_to) ?>" size="10">
 			<input type="text" name="f_currency" value="<?echo CSaleLang::GetLangCurrency($filter_lang) ?>" size="3" readonly>
-			<script language="JavaScript">
+			<script>
 			LangChange();
 			</script>
 			<br>

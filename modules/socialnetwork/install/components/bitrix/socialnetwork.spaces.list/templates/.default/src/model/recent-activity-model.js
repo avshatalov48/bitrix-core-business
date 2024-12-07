@@ -1,7 +1,8 @@
 export type RecentActivityModel = {
 	typeId: string,
-	entityId: number,
+	entityId: number | null,
 	description: string,
 	date: Date,
 	timestamp: number,
+	secondaryEntityId: number | null,
 };

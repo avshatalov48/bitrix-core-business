@@ -8,7 +8,6 @@ use Bitrix\Main\Application;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Uri;
 use Bitrix\Main\Error;
 USE Bitrix\Main\IO\File;
@@ -54,7 +53,7 @@ class CRestConfigurationImportComponent extends CBitrixComponent
 			$path = $uri->getPath();
 
 			$name = bx_basename($path);
-			$prepareName = Encoding::convertEncoding($name,  LANG_CHARSET, "UTF-8");
+			$prepareName = $name;
 			$prepareName = rawurlencode($prepareName);
 
 			$path = str_replace($name, $prepareName, $path);

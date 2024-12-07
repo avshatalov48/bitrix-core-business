@@ -1,27 +1,21 @@
 <?php
+
 /**
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2022 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
-/**
- * usertype.php, Пользовательские свойства
- *
- * Содержит классы для поддержки пользовательских свойств.
- * @author Bitrix <support@bitrixsoft.com>
- * @version 1.0
- * @package usertype
- * @todo Добавить подсказку
- */
+use Bitrix\Main\UserFieldTable;
+use Bitrix\Main\UserFieldLangTable;
 
 IncludeModuleLangFile(__FILE__);
 
 /**
- * Данный класс используется для управления метаданными пользовательских свойств.
+ * This class is used to manage metadata of user properties.
  *
- * <p>Выборки, Удаление Добавление и обновление метаданных таблицы b_user_field.</p>
+ * <p>Selections, Deletion, Addition, and Update of metadata in the b_user_field table.</p>
  * create table b_user_field (
  * ID    int(11) not null auto_increment,
  * ENTITY_ID  varchar(50),
@@ -128,13 +122,13 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция для выборки метаданных пользовательского свойства.
-	 *
-	 * <p>Возвращает ассоциативный массив метаданных который можно передать в Update.</p>
-	 * @param integer $ID идентификатор свойства
-	 * @return array Если свойство не найдено, то возвращается false
-	 * @static
-	 */
+	* Function to fetch metadata of a user property.
+	*
+	* <p>Returns an associative array of metadata that can be passed to Update.</p>
+	* @param integer $ID Property identifier
+	* @return array If the property is not found, false is returned
+	* @static
+	*/
 	public static function GetByID($ID)
 	{
 		global $DB;
@@ -161,16 +155,16 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция для выборки метаданных пользовательских свойств.
-	 *
-	 * <p>Возвращает CDBResult - выборку в зависимости от фильтра и сортировки.</p>
-	 * <p>Параметр aSort по умолчанию имеет вид array("SORT"=>"ASC", "ID"=>"ASC").</p>
-	 * <p>Если в aFilter передается LANG, то дополнительно выбираются языковые сообщения.</p>
-	 * @param array $aSort ассоциативный массив сортировки (ID, ENTITY_ID, FIELD_NAME, SORT, USER_TYPE_ID)
-	 * @param array $aFilter ассоциативный массив фильтра со строгим сообветствием (<b>равно</b>) (ID, ENTITY_ID, FIELD_NAME, USER_TYPE_ID, SORT, MULTIPLE, MANDATORY, SHOW_FILTER)
-	 * @return CDBResult
-	 * @static
-	 */
+	* Function to fetch metadata of user properties.
+	*
+	* <p>Returns CDBResult - a selection based on filter and sorting.</p>
+	* <p>The aSort parameter defaults to array("SORT"=>"ASC", "ID"=>"ASC").</p>
+	* <p>If LANG is passed in aFilter, language messages are additionally selected.</p>
+	* @param array $aSort Associative array for sorting (ID, ENTITY_ID, FIELD_NAME, SORT, USER_TYPE_ID)
+	* @param array $aFilter Associative array for filtering with strict matching (<b>equals</b>) (ID, ENTITY_ID, FIELD_NAME, USER_TYPE_ID, SORT, MULTIPLE, MANDATORY, SHOW_FILTER)
+	* @return CDBResult
+	* @static
+	*/
 	public static function GetList($aSort = array(), $aFilter = array())
 	{
 		global $DB, $CACHE_MANAGER;
@@ -195,7 +189,7 @@ class CAllUserTypeEntity extends CDBResult
 			if(is_array($val) || (string)$val == '')
 				continue;
 
-			$key = mb_strtoupper($key);
+			$key = strtoupper($key);
 			$val = $DB->ForSql($val);
 
 			switch($key)
@@ -223,8 +217,8 @@ class CAllUserTypeEntity extends CDBResult
 		$arOrder = array();
 		foreach($aSort as $key => $val)
 		{
-			$key = mb_strtoupper($key);
-			$ord = (mb_strtoupper($val) <> "ASC" ? "DESC" : "ASC");
+			$key = strtoupper($key);
+			$ord = (strtoupper($val) <> "ASC" ? "DESC" : "ASC");
 			switch($key)
 			{
 				case "ID":
@@ -299,28 +293,28 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция проверки корректности значений метаданных пользовательских свойств.
-	 *
-	 * <p>Вызывается в методах Add и Update для проверки правильности введенных значений.</p>
-	 * <p>Проверки:</p>
-	 * <ul>
-	 * <li>ENTITY_ID - обязательное
-	 * <li>ENTITY_ID - не более 50-ти символов
-	 * <li>ENTITY_ID - не должно содержать никаких символов кроме 0-9 A-Z и _
-	 * <li>FIELD_NAME - обязательное
-	 * <li>FIELD_NAME - не менее 4-х символов
-	 * <li>FIELD_NAME - не более 50-ти символов
-	 * <li>FIELD_NAME - не должно содержать никаких символов кроме 0-9 A-Z и _
-	 * <li>FIELD_NAME - должно начинаться на UF_
-	 * <li>USER_TYPE_ID - обязательное
-	 * <li>USER_TYPE_ID - должен быть зарегистрирован
-	 * </ul>
-	 * <p>В случае ошибки ловите исключение приложения!</p>
-	 * @param integer $ID - идентификатор свойства. 0 - для нового.
-	 * @param array $arFields метаданные свойства
-	 * @param bool $bCheckUserType
-	 * @return boolean false - если хоть одна проверка не прошла.
-	 */
+	* Function to validate metadata values of user properties.
+	*
+	* <p>Called in Add and Update methods to check the correctness of the entered values.</p>
+	* <p>Validations:</p>
+	* <ul>
+	* <li>ENTITY_ID - required
+	* <li>ENTITY_ID - no more than 50 characters
+	* <li>ENTITY_ID - must not contain any characters other than 0-9, A-Z, and _
+	* <li>FIELD_NAME - required
+	* <li>FIELD_NAME - at least 4 characters
+	* <li>FIELD_NAME - no more than 50 characters
+	* <li>FIELD_NAME - must not contain any characters other than 0-9, A-Z, and _
+	* <li>FIELD_NAME - must start with UF_
+	* <li>USER_TYPE_ID - required
+	* <li>USER_TYPE_ID - must be registered
+	* </ul>
+	* <p>In case of an error, catch the application exception!</p>
+	* @param integer $ID - property identifier. 0 - for new.
+	* @param array $arFields Property metadata
+	* @param bool $bCheckUserType
+	* @return boolean false - if any validation fails.
+	*/
 	function CheckFields($ID, $arFields, $bCheckUserType = true)
 	{
 		/** @global CUserTypeManager $USER_FIELD_MANAGER */
@@ -371,45 +365,45 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция добавляет пользовательское свойство.
-	 *
-	 * <p>Сначала вызывается метод экземпляра объекта CheckFields (т.е. $this->CheckFields($arFields) ).</p>
-	 * <p>Если проверка прошла успешно, выполняется проверка на существование такого поля для данной сущности.</p>
-	 * <p>Далее при необходимости создаются таблички вида <b>b_uts_[ENTITY_ID]</b> и <b>b_utm_[ENTITY_ID]</b>.</p>
-	 * <p>После чего метаданные сохраняются в БД.</p>
-	 * <p>И только после этого <b>изменяется стуктура таблицы b_uts_[ENTITY_ID]</b>.</p>
-	 * <p>Массив arFields:</p>
-	 * <ul>
-	 * <li>ENTITY_ID - сущность
-	 * <li>FIELD_NAME - фактически имя столбца в БД в котором будут храниться значения свойства.
-	 * <li>USER_TYPE_ID - тип свойства
-	 * <li>XML_ID - идентификатор для использования при импорте/экспорте
-	 * <li>SORT - порядок сортировки (по умолчанию 100)
-	 * <li>MULTIPLE - признак множественности Y/N (по умолчанию N)
-	 * <li>MANDATORY - признак обязательности ввода значения Y/N (по умолчанию N)
-	 * <li>SHOW_FILTER - показывать или нет в фильтре админ листа и какой тип использовать. см. ниже.
-	 * <li>SHOW_IN_LIST - показывать или нет в админ листе (по умолчанию Y)
-	 * <li>EDIT_IN_LIST - разрешать редактирование в формах, но не в API! (по умолчанию Y)
-	 * <li>IS_SEARCHABLE - поле участвует в поиске (по умолчанию N)
-	 * <li>SETTINGS - массив с настройками свойства зависимыми от типа свойства. Проходят "очистку" через обработчик типа PrepareSettings.
-	 * <li>EDIT_FORM_LABEL - массив языковых сообщений вида array("ru"=>"привет", "en"=>"hello")
-	 * <li>LIST_COLUMN_LABEL
-	 * <li>LIST_FILTER_LABEL
-	 * <li>ERROR_MESSAGE
-	 * <li>HELP_MESSAGE
-	 * </ul>
-	 * <p>В случае ошибки ловите исключение приложения!</p>
-	 * <p>Значения для SHOW_FILTER:</p>
-	 * <ul>
-	 * <li>N - не показывать
-	 * <li>I - точное совпадение
-	 * <li>E - маска
-	 * <li>S - подстрока
-	 * </ul>
-	 * @param array $arFields метаданные нового свойства
-	 * @param bool $bCheckUserType
-	 * @return integer - иднтификатор добавленного свойства, false - если свойство не было добавлено.
-	 */
+	* Function to add a user property.
+	*
+	* <p>First, the instance method CheckFields is called (i.e., $this->CheckFields($arFields) ).</p>
+	* <p>If the validation is successful, a check is performed to see if such a field already exists for the given entity.</p>
+	* <p>Then, if necessary, tables of the form <b>b_uts_[ENTITY_ID]</b> and <b>b_utm_[ENTITY_ID]</b> are created.</p>
+	* <p>After that, the metadata is saved in the database.</p>
+	* <p>Only after this, <b>the structure of the table b_uts_[ENTITY_ID] is modified</b>.</p>
+	* <p>Array arFields:</p>
+	* <ul>
+	* <li>ENTITY_ID - entity
+	* <li>FIELD_NAME - the actual column name in the database where the property values will be stored.
+	* <li>USER_TYPE_ID - property type
+	* <li>XML_ID - identifier for use in import/export
+	* <li>SORT - sort order (default 100)
+	* <li>MULTIPLE - multiplicity flag Y/N (default N)
+	* <li>MANDATORY - mandatory value input flag Y/N (default N)
+	* <li>SHOW_FILTER - whether to show in the admin list filter and what type to use. see below.
+	* <li>SHOW_IN_LIST - whether to show in the admin list (default Y)
+	* <li>EDIT_IN_LIST - allow editing in forms, but not in API! (default Y)
+	* <li>IS_SEARCHABLE - field participates in search (default N)
+	* <li>SETTINGS - array with property settings dependent on the property type. They are "cleaned" through the type handler PrepareSettings.
+	* <li>EDIT_FORM_LABEL - array of language messages in the form array("ru"=>"РїСЂРёРІРµС‚", "en"=>"hello")
+	* <li>LIST_COLUMN_LABEL
+	* <li>LIST_FILTER_LABEL
+	* <li>ERROR_MESSAGE
+	* <li>HELP_MESSAGE
+	* </ul>
+	* <p>In case of an error, catch the application exception!</p>
+	* <p>Values for SHOW_FILTER:</p>
+	* <ul>
+	* <li>N - do not show
+	* <li>I - exact match
+	* <li>E - mask
+	* <li>S - substring
+	* </ul>
+	* @param array $arFields Metadata of the new property
+	* @param bool $bCheckUserType
+	* @return integer - identifier of the added property, false - if the property was not added.
+	*/
 	function Add($arFields, $bCheckUserType = true)
 	{
 		global $DB, $APPLICATION, $USER_FIELD_MANAGER, $CACHE_MANAGER;
@@ -470,7 +464,7 @@ class CAllUserTypeEntity extends CDBResult
 
 			if($eventResult === false)
 			{
-				if($e = $APPLICATION->GetException())
+				if($APPLICATION->GetException())
 				{
 					return false;
 				}
@@ -567,6 +561,9 @@ class CAllUserTypeEntity extends CDBResult
 				$arInsert = $DB->PrepareInsert("b_user_field_lang", $arLangFields);
 				$DB->Query("INSERT INTO b_user_field_lang (".$arInsert[0].") VALUES (".$arInsert[1].")");
 			}
+
+			UserFieldTable::cleanCache();
+			UserFieldLangTable::cleanCache();
 		}
 
 		// post event
@@ -581,32 +578,32 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция изменяет метаданные пользовательского свойства.
-	 *
-	 * <p>Надо сказать, что для скорейшего завершения разработки было решено пока не реализовывать
-	 * такую же гибкость как в инфоблоках (обойдемся пока без alter'ов и прочего).</p>
-	 * <p>Сначала вызывается метод экземпляра объекта CheckFields (т.е. $this->CheckFields($arFields) ).</p>
-	 * <p>После чего метаданные сохраняются в БД.</p>
-	 * <p>Массив arFields (только то что можно изменять):</p>
-	 * <ul>
-	 * <li>SORT - порядок сортировки
-	 * <li>MANDATORY - признак обязательности ввода значения Y/N
-	 * <li>SHOW_FILTER - признак показа в фильтре списка Y/N
-	 * <li>SHOW_IN_LIST - признак показа в списке Y/N
-	 * <li>EDIT_IN_LIST - разрешать редактирование поля в формах админки или нет Y/N
-	 * <li>IS_SEARCHABLE - признак поиска Y/N
-	 * <li>SETTINGS - массив с настройками свойства зависимыми от типа свойства. Проходят "очистку" через обработчик типа PrepareSettings.
-	 * <li>EDIT_FORM_LABEL - массив языковых сообщений вида array("ru"=>"привет", "en"=>"hello")
-	 * <li>LIST_COLUMN_LABEL
-	 * <li>LIST_FILTER_LABEL
-	 * <li>ERROR_MESSAGE
-	 * <li>HELP_MESSAGE
-	 * </ul>
-	 * <p>В случае ошибки ловите исключение приложения!</p>
-	 * @param integer $ID идентификатор свойства
-	 * @param array $arFields новые метаданные свойства
-	 * @return boolean - true в случае успешного обновления, false - в противном случае.
-	 */
+	* Function to modify metadata of a user property.
+	*
+	* <p>It should be noted that for the sake of faster development, it was decided not to implement
+	* the same flexibility as in infoblocks (we will do without alters and other things for now).</p>
+	* <p>First, the instance method CheckFields is called (i.e., $this->CheckFields($arFields) ).</p>
+	* <p>After that, the metadata is saved in the database.</p>
+	* <p>Array arFields (only what can be changed):</p>
+	* <ul>
+	* <li>SORT - sort order
+	* <li>MANDATORY - mandatory value input flag Y/N
+	* <li>SHOW_FILTER - flag to show in the list filter Y/N
+	* <li>SHOW_IN_LIST - flag to show in the list Y/N
+	* <li>EDIT_IN_LIST - allow editing the field in admin forms or not Y/N
+	* <li>IS_SEARCHABLE - search flag Y/N
+	* <li>SETTINGS - array with property settings dependent on the property type. They are "cleaned" through the type handler PrepareSettings.
+	* <li>EDIT_FORM_LABEL - array of language messages in the form array("ru"=>"РїСЂРёРІРµС‚", "en"=>"hello")
+	* <li>LIST_COLUMN_LABEL
+	* <li>LIST_FILTER_LABEL
+	* <li>ERROR_MESSAGE
+	* <li>HELP_MESSAGE
+	* </ul>
+	* <p>In case of an error, catch the application exception!</p>
+	* @param integer $ID Property identifier
+	* @param array $arFields New property metadata
+	* @return boolean - true if the update is successful, false otherwise.
+	*/
 	function Update($ID, $arFields)
 	{
 		global $DB, $USER_FIELD_MANAGER, $CACHE_MANAGER, $APPLICATION;
@@ -642,7 +639,7 @@ class CAllUserTypeEntity extends CDBResult
 		{
 			if(ExecuteModuleEventEx($arEvent, array(&$arFields)) === false)
 			{
-				if($e = $APPLICATION->GetException())
+				if($APPLICATION->GetException())
 				{
 					return false;
 				}
@@ -672,7 +669,7 @@ class CAllUserTypeEntity extends CDBResult
 		$arLangs = array();
 		foreach($arLabels as $label)
 		{
-			if(is_array($arFields[$label]))
+			if (isset($arFields[$label]) && is_array($arFields[$label]))
 			{
 				foreach($arFields[$label] as $lang => $value)
 				{
@@ -711,6 +708,9 @@ class CAllUserTypeEntity extends CDBResult
 					}
 			}
 
+			UserFieldTable::cleanCache();
+			UserFieldLangTable::cleanCache();
+
 			foreach(GetModuleEvents("main", "OnAfterUserTypeUpdate", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($arFields, $ID));
@@ -721,15 +721,15 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция удаляет пользовательское свойство и все его значения.
-	 *
-	 * <p>Сначала удаляются метаданные свойства.</p>
-	 * <p>Затем из таблички вида <b>b_utm_[ENTITY_ID]</b> удаляются все значения множественных свойств.</p>
-	 * <p>После чего у таблички вида <b>b_uts_[ENTITY_ID]</b> дропается колонка.</p>
-	 * <p>И если это было "последнее" свойство для сущности, то дропаются сами таблички хранившие значения.</p>
-	 * @param integer $ID идентификатор свойства
-	 * @return CDBResult - результат выполнения последнего запроса функции.
-	 */
+	* Function to delete a user property and all its values.
+	*
+	* <p>First, the property metadata is deleted.</p>
+	* <p>Then, all values of multiple properties are deleted from the table of the form <b>b_utm_[ENTITY_ID]</b>.</p>
+	* <p>After that, the column is dropped from the table of the form <b>b_uts_[ENTITY_ID]</b>.</p>
+	* <p>And if this was the "last" property for the entity, the tables storing the values are dropped themselves.</p>
+	* @param integer $ID Property identifier
+	* @return CDBResult | false - result of the last query executed by the function.
+	*/
 	function Delete($ID)
 	{
 		global $DB, $CACHE_MANAGER, $USER_FIELD_MANAGER, $APPLICATION;
@@ -750,7 +750,7 @@ class CAllUserTypeEntity extends CDBResult
 
 				if($eventResult === false)
 				{
-					if($e = $APPLICATION->GetException())
+					if($APPLICATION->GetException())
 					{
 						return false;
 					}
@@ -824,6 +824,9 @@ class CAllUserTypeEntity extends CDBResult
 				}
 			}
 
+			UserFieldTable::cleanCache();
+			UserFieldLangTable::cleanCache();
+
 			foreach(GetModuleEvents("main", "OnAfterUserTypeDelete", true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($arField, $ID));
@@ -833,14 +836,14 @@ class CAllUserTypeEntity extends CDBResult
 	}
 
 	/**
-	 * Функция удаляет ВСЕ пользовательские свойства сущности.
-	 *
-	 * <p>Сначала удаляются метаданные свойств.</p>
-	 * <p>Можно вызвать при удалении инфоблока например.</p>
-	 * <p>Затем таблички вида <b>b_utm_[ENTITY_ID]</b> и <b>b_uts_[ENTITY_ID]</b> дропаются.</p>
-	 * @param string $entity_id идентификатор сущности
-	 * @return CDBResult - результат выполнения последнего запроса функции.
-	 */
+	* Function to delete ALL user properties of an entity.
+	*
+	* <p>First, the property metadata is deleted.</p>
+	* <p>Can be called, for example, when deleting an infoblock.</p>
+	* <p>Then, the tables of the form <b>b_utm_[ENTITY_ID]</b> and <b>b_uts_[ENTITY_ID]</b> are dropped.</p>
+	* @param string $entity_id Entity identifier
+	* @return CDBResult - result of the last query executed by the function.
+	*/
 	function DropEntity($entity_id)
 	{
 		global $DB, $CACHE_MANAGER, $USER_FIELD_MANAGER;
@@ -880,15 +883,18 @@ class CAllUserTypeEntity extends CDBResult
 		if(is_object($USER_FIELD_MANAGER))
 			$USER_FIELD_MANAGER->CleanCache();
 
+		UserFieldTable::cleanCache();
+		UserFieldLangTable::cleanCache();
+
 		return $rs;
 	}
 
 	/**
-	 * Функция Fetch.
-	 *
-	 * <p>Десериализует поле SETTINGS.</p>
-	 * @return array возвращает false в случае последней записи выборки.
-	 */
+	* Fetch function.
+	*
+	* <p>Deserializes the SETTINGS field.</p>
+	* @return array Returns false in case of the last record in the selection.
+	*/
 	function Fetch()
 	{
 		$res = parent::Fetch();

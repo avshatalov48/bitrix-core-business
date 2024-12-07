@@ -402,7 +402,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 								foreach($arLanguages as $langID)
 								{
 									$data["NAME"][$langID] = array(
-										'NAME' => GetMessage("WIZ_COUNTRY_".ToUpper($shopCountry))
+										'NAME' => GetMessage("WIZ_COUNTRY_".mb_strtoupper($shopCountry))
 									);
 								}
 
@@ -455,7 +455,7 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 					$db_contList = CSaleLocation::GetList(
 						Array(),
 						Array(
-							"COUNTRY_NAME" => GetMessage("WIZ_COUNTRY_".ToUpper($shopLocalization)),
+							"COUNTRY_NAME" => GetMessage("WIZ_COUNTRY_".mb_strtoupper($shopLocalization)),
 							"LID" => $lang
 						)
 					);
@@ -468,13 +468,13 @@ if($bRus || COption::GetOptionString("eshop", "wizard_installed", "N", WIZARD_SI
 					if(intval($CurCountryID) <= 0)
 					{
 						$arArrayTmp = Array();
-						$arArrayTmp["NAME"] = GetMessage("WIZ_COUNTRY_".ToUpper($shopLocalization));
+						$arArrayTmp["NAME"] = GetMessage("WIZ_COUNTRY_".mb_strtoupper($shopLocalization));
 						foreach($arLanguages as $langID)
 						{
 							WizardServices::IncludeServiceLang("step1.php", $langID);
 							$arArrayTmp[$langID] = array(
 									"LID" => $langID,
-									"NAME" => GetMessage("WIZ_COUNTRY_".ToUpper($shopLocalization))
+									"NAME" => GetMessage("WIZ_COUNTRY_".mb_strtoupper($shopLocalization))
 								);
 						}
 						$CurCountryID = CSaleLocation::AddCountry($arArrayTmp);

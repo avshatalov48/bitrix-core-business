@@ -94,8 +94,6 @@ if($_SERVER['REQUEST_METHOD']=="POST" && (!empty($_POST['save']) || !empty($_POS
 
 }
 
-if (isset($_REQUEST["encoded"]) && $_REQUEST["encoded"] == "Y")
-	CUtil::decodeURIComponent($_REQUEST["name"]);
 $str_NAME = htmlspecialcharsbx($_REQUEST["name"]);
 $str_URL = htmlspecialcharsbx($_REQUEST["addurl"]);
 $str_C_SORT = 100;
@@ -233,12 +231,12 @@ if($isAdmin):
 	<option value=""><?echo GetMessage("fav_edit_modules_not")?></option>
 <?
 $a = CModule::GetDropDownList();
-while($ar = $a->Fetch()):
+while($ar = $a->fetch()):
 ?>
 	<option value="<?echo htmlspecialcharsbx($ar["REFERENCE_ID"])?>"<?if($ar["REFERENCE_ID"] == $str_MODULE_ID) echo " selected"?>><?echo htmlspecialcharsbx($ar["REFERENCE"])?></option>
 <?endwhile?>
 </select>
-<script type="text/javascript">
+<script>
 function EnableControls(checked)
 {
 document.favform.USER_ID.disabled = document.favform.FindUser.disabled = checked;

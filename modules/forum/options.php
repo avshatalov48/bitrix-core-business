@@ -25,7 +25,7 @@ $arNameStatuses = @unserialize(COption::GetOptionString("forum", "statuses_name"
 $db_res = CLanguage::GetList();
 if ($db_res && $res = $db_res->Fetch())
 {
-	do 
+	do
 	{
 		$arLangs[$res["LID"]] = $res;
 		$name = array(
@@ -57,10 +57,10 @@ GetMessage("FR_ADMINISTRATOR");
 			}
 		endif;
 	} while ($res = $db_res->Fetch());
-	$tmp = array_diff(array_keys($arNameStatuses), array_keys($arNameStatusesDefault)); 
+	$tmp = array_diff(array_keys($arNameStatuses), array_keys($arNameStatusesDefault));
 	foreach ($arNameStatuses as $k => $v):
 		if (!is_set($arNameStatusesDefault, $k))
-			unset($arNameStatuses[$k]); 
+			unset($arNameStatuses[$k]);
 	endforeach;
 }
 if ($_SERVER["REQUEST_METHOD"] == "POST" && $FORUM_RIGHT == "W" && $_REQUEST["Update"] <> '' && check_bitrix_sessid())
@@ -69,6 +69,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $FORUM_RIGHT == "W" && $_REQUEST["Up
 	COption::SetOptionString("forum", "avatar_max_width", $_REQUEST["avatar_max_width"]);
 	COption::SetOptionString("forum", "avatar_max_height", $_REQUEST["avatar_max_height"]);
 	COption::SetOptionString("forum", "file_max_size", $_REQUEST["file_max_size"]);
+	COption::SetOptionString("forum", "enable_calculate_statistics", ($_REQUEST["enable_calculate_statistics"] == "Y" ? "Y" : "N"));
 	COption::SetOptionString("forum", "parser_nofollow", ($_REQUEST["parser_nofollow"] == "Y" ? "Y" : "N"));
 	COption::SetOptionString("forum", "parser_link_target", ($_REQUEST["parser_link_target"] == "_blank" ? "_blank" : "_self"));
 	COption::SetOptionInt("forum", "smile_gallery_id", $_REQUEST["smile_gallery_id"]);
@@ -114,7 +115,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $FORUM_RIGHT == "W" && $_REQUEST["Up
 			$arNameStatuses[$lid][$key] = (!empty($n) ? $n : $arNameStatuses[$lid][$key]);
 		endforeach;
 	endforeach;
-	
+
 	COption::SetOptionString("forum", "statuses_name", serialize($arNameStatuses));
 //*****************************************************************************************************************
 }
@@ -250,6 +251,12 @@ $tabControl->BeginNextTab();
 			<?$val = COption::GetOptionString("forum", "file_max_size", 5242880);?>
 			<input type="text" size="35" maxlength="255" value="<?=htmlspecialcharsbx($val)?>" name="file_max_size"></td>
 	</tr>
+	<tr>
+		<td><?=GetMessage("FORUM_ENABLE_CALCULATE_STATISTICS")?>:</td>
+		<td>
+			<?$val = COption::GetOptionString("forum", "enable_calculate_statistics", "Y");?>
+			<input type="checkbox" value="Y" name="enable_calculate_statistics" id="enable_calculate_statistics" <?if ($val=="Y") echo "checked";?>></td>
+	</tr>
 	<tr class="heading"><td colspan="2"><?=GetMessage("F_PM_SETTINGS")?></td></tr>
 	<tr>
 		<td><?=GetMessage("UsePMVersion")?>:</td>
@@ -297,7 +304,7 @@ $tabControl->BeginNextTab();
 			foreach ($names as $key => $val):
 ?>
 					<td><input type="text" style="width:110px" name="STATUS_NAME[<?=$lid?>][<?=$key?>]" value="<?=htmlspecialcharsbx($val)?>" /></td>
-<?				
+<?
 			endforeach;
 ?>
 				</tr>

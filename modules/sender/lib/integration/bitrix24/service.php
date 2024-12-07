@@ -345,6 +345,11 @@ class Service
 			}
 		}
 
+		return static::replaceTrackingDomainIfNeed($uri);
+	}
+
+	public static function replaceTrackingDomainIfNeed(string $uri): string
+	{
 		// exclude com.br & com.de domains
 		if (
 			self::isCloud()
@@ -356,8 +361,9 @@ class Service
 
 			if (!\CBitrix24::isCustomDomain())
 			{
-				$domain = preg_replace('/^([-\.\w]+)\.bitrix24\.([-\.\w]+)/', '$2.$1', $domain);
-				$domain = "mailinternetsub.com/" . $domain;
+				$queryDomain = preg_replace('/^([-\.\w]+)\.bitrix24\.([-\.\w]+)/', '$2.$1', $domain);
+				$subdomain = rtrim(mb_substr(str_replace('.','-', $queryDomain), 0, 63), '-');
+				$domain = "$subdomain.mailinetservice.net/$queryDomain";
 			}
 
 			$uri = "https://$domain$uri";

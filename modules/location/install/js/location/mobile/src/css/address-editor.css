@@ -609,3 +609,114 @@
 	opacity: 0;
 }
 /* endregion */
+
+/* region Dark theme */
+
+.dark .mobile-address--scope {
+	--color-dark-main: #1b1f23;
+	--color-dark-sub-background: #22272b;
+	--color-dark-title: #cbced1;
+	--color-dark-text: #f8f8f8;
+	--color-dark-subtext: #a7abaf;
+}
+
+.dark .mobile-address-container {
+	background-color: #101214;
+}
+
+.dark .mobile-address-autocomplete__inner,
+.dark .mobile-address-autocomplete-query-query,
+.dark .mobile-address-autocomplete-query-map-link,
+.dark .mobile-address-map-search,
+.dark .mobile-address-autocomplete-results-result-item,
+.dark .mobile-address-map-address-address,
+.dark .mobile-address-map-address-details,
+.dark .mobile-address-map-address-details-textarea,
+.dark .mobile-address-autocomplete-results-empty-state,
+.dark .mobile-address-fields-item-wrap,
+.dark .mobile-address-fields-search-container,
+.dark .mobile-address-field {
+	background-color: var(--color-dark-main);
+}
+
+.dark .mobile-address-autocomplete-query-query {
+	color: var(--ui-color-on-primary);
+}
+
+.dark .mobile-address-autocomplete-query-search-icon {
+	background: url(../../image/search-dark.svg) center no-repeat;
+}
+
+.dark .mobile-address-autocomplete-query-clear {
+	background: url(../../image/clear-dark.svg) center no-repeat;
+}
+
+.dark .mobile-address-autocomplete-query-map-link,
+.dark .mobile-address-map-search {
+	border-color: #1c2d37;
+}
+
+.dark .mobile-address-autocomplete-results-result-item-name,
+.dark .mobile-address-map-address-address,
+.dark .mobile-address-autocomplete-results-result-item-no-bottom-border,
+.dark .mobile-address-map-address-details-textarea,
+.dark .mobile-address-fields-search,
+.dark .mobile-address-field {
+	color: var(--color-dark-text);
+}
+
+.dark .mobile-address-autocomplete-results-result-item-address-details,
+.dark .mobile-address-autocomplete-results-result-item-not-found,
+.dark .mobile-address-autocomplete-results-empty-state-desc {
+	color: var(--color-dark-subtext);
+}
+
+.dark .mobile-address-autocomplete-results-result-item:before,
+.dark .mobile-address-autocomplete-results-result-item-no-bottom-border:before {
+	background: url(../../image/marker-autocomplete-dark.svg) center no-repeat;
+}
+
+.dark .mobile-address-autocomplete-results-result-item-not-found-container,
+.dark .mobile-address-autocomplete-results-title,
+.dark .mobile-address-autocomplete-results-result-item-no-bottom-border,
+.dark .mobile-address-autocomplete-results-result-item-container .mobile-address-autocomplete-results-result-item {
+	background-color: var(--color-dark-sub-background);
+}
+
+.dark .mobile-address-autocomplete-results-result-item-not-found-text,
+.dark .mobile-address-autocomplete-results-title,
+.dark .mobile-address-autocomplete-results-empty-state-title,
+.dark .mobile-address-field-title {
+	color: var(--color-dark-title);
+}
+
+.dark .mobile-address-autocomplete-results-result-item-not-found:after {
+	background: url(../../image/pencil-dark.svg) center no-repeat;
+}
+
+.dark .mobile-address-map-address-address {
+	border-color: var(--color-dark-main);
+}
+
+.dark .mobile-address-map-address-details-title {
+	color: #82878b;
+}
+
+.dark .mobile-address-autocomplete-results-empty-state-icon {
+	background: url(../../image/empty-state-dark.png) center no-repeat;
+	background-size: cover;
+}
+
+.dark .mobile-address-map-address-container.mobile-address-map-address-container-map-searching:before {
+	background: url(../../image/skeleton-map-dark.svg) center no-repeat;
+}
+
+.dark .mobile-address-fields-search {
+	border-color: #65696f;
+}
+
+.dark .mobile-address-fields-search-icon-search {
+	background: url(../../image/search-lg-dark.svg) center no-repeat;
+}
+
+/* endregion */

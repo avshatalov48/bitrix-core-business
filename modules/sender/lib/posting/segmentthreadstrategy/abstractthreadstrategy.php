@@ -37,6 +37,8 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 	public function fillThreads(): void
 	{
 		$insertData = [];
+
+		\CTimeZone::Disable();
 		for ($thread = 0; $thread < static::THREADS_COUNT; $thread++)
 		{
 			$insertData[] = [
@@ -48,6 +50,7 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 		}
 
 		SqlBatch::insert(GroupThreadTable::getTableName(), $insertData);
+		\CTimeZone::Enable();
 	}
 
 	/**
@@ -63,6 +66,8 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 		{
 			return self::THREAD_UNAVAILABLE;
 		}
+
+		\CTimeZone::Disable();
 		$thread = GroupThreadTable::getList(
 			[
 				"select" => [
@@ -85,6 +90,7 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 				"limit" => 1
 			]
 		)->fetch();
+		\CTimeZone::Enable();
 
 		if (!isset($thread["THREAD_ID"]))
 		{
@@ -150,6 +156,8 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 
 		try
 		{
+			\CTimeZone::Disable();
+
 			$counter = (int)($status === GroupThreadTable::STATUS_IN_PROGRESS);
 			$tableName = GroupThreadTable::getTableName();
 			$expireAt = (new \DateTime())->modify("+10 minutes")->format('Y-m-d H:i:s');
@@ -162,9 +170,14 @@ abstract class AbstractThreadStrategy implements ThreadStrategy
 			THREAD_ID = ' . $this->threadId . ' 
 			AND GROUP_STATE_ID = ' . $this->groupStateId;
 			Application::getConnection()->query($updateQuery);
+
 		} catch (\Exception $e)
 		{
 			return false;
+		}
+		finally
+		{
+			\CTimeZone::Enable();
 		}
 
 		return true;

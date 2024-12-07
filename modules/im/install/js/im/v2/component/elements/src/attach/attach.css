@@ -1,5 +1,9 @@
 .bx-im-attach__scope {
 	--im-attach__font_primary: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-helvetica);
+	--im-attach__background-color-primary: var(--im-color-palette-blue-70);
+	--im-attach__background-color-base: var(--im-color-accent-blue);
+	--im-attach__background-color-alert: var(--im-color-palette-red-50);
+	--im-attach__background-color-secondary: rgba(var(--im-color-palette-gray-90-rgb), 0.2);
 }
 
 .bx-im-attach__container {
@@ -19,6 +23,22 @@
 	margin-right: 14px;
 	border-left: 3px solid transparent;
 	border-radius: var(--im-border-radius-2xs)/var(--im-border-radius-xs);
+}
+
+.bx-im-attach__border.base {
+	background-color: var(--im-attach__background-color-base);
+}
+
+.bx-im-attach__border.primary {
+	background-color: var(--im-attach__background-color-primary);
+}
+
+.bx-im-attach__border.secondary {
+	background-color: var(--im-attach__background-color-secondary);
+}
+
+.bx-im-attach__border.alert {
+	background-color: var(--im-attach__background-color-alert);
 }
 
 .bx-im-attach__content {

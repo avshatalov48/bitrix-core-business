@@ -5,7 +5,7 @@ $STAT_RIGHT = $APPLICATION->GetGroupRight("statistic");
 if($STAT_RIGHT=="D") $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
 /***************************************************************************
-Convertation of the standard RegNow CSV file to the 
+Convertation of the standard RegNow CSV file to the
 CSV file format of the Statistics module.
 ***************************************************************************/
 
@@ -19,7 +19,7 @@ $SEPARATOR = ","; // CSV separator
 
 function CleanUpCsv(&$item)
 {
-	$item = TrimEx($item, "\"");
+	$item = trim(trim($item), "\"");
 }
 
 function PrepareQuotes(&$item)
@@ -33,13 +33,13 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 	if (mb_substr($OUTPUT_CSV_FILE, 0, mb_strlen($upload_dir)) == $upload_dir && $fp_out = fopen($OUTPUT_CSV_FILE,"wb"))
 	{
 		$i = 0; // counter of the read valuable lines
-		$j = 0; // counter of the written to the resulting  file lines 
+		$j = 0; // counter of the written to the resulting  file lines
 		$lang_date_format = FORMAT_DATE; // date format for the current language
 		$event1 = "regnow";
 		$event2 = "buy";
 		$EVENT_ID = CStatEventType::ConditionSet($event1, $event2, $arEventType)." (".$event1." / ".$event2.")";
 		$SITE_ID = GetEventSiteID(); // short site identifier (ID)
-		while (!feof($fp_in)) 
+		while (!feof($fp_in))
 		{
 			$arrCSV = fgetcsv($fp_in, 4096, $SEPARATOR);
 			if (is_array($arrCSV) && count($arrCSV)>1)
@@ -50,10 +50,10 @@ if ($fp_in = fopen($INPUT_CSV_FILE,"rb"))
 				// if it is the first line then
 				if ($i==1)
 				{
-					// get an array with the field numbers 
+					// get an array with the field numbers
 					$arrS = array_flip($arrCSV);
 				}
-				elseif (is_array($arrS) && count($arrS)>0) // else form the CSV line in module format and write it to the resulting file 
+				elseif (is_array($arrS) && count($arrS)>0) // else form the CSV line in module format and write it to the resulting file
 				{
 					$arrRes = array();
 

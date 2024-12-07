@@ -494,7 +494,7 @@ export default class Dom
 
 			if ('text' in data && !Type.isNil(data.text))
 			{
-				element.innerText = data.text;
+				element.textContent = data.text;
 				return element;
 			}
 

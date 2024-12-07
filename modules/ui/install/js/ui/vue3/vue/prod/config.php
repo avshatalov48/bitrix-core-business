@@ -6,11 +6,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 
 return [
 	'rel' => [
-		'main.core.events',
-		'main.core',
-		'rest.client',
-		'pull.client',
-		'ui.vue3',
+		'main.polyfill.core',
+		'ui.vue3.bitrixvue',
 	],
-	'skip_core' => false,
+	'skip_core' => true,
 ];

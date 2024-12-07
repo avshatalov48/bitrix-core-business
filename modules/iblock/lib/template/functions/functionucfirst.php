@@ -21,7 +21,7 @@ class FunctionUcfirst extends FunctionBase
 	 *
 	 * @return string
 	 */
-	public function calculate(array $parameters)
+	public function calculate(array $parameters): string
 	{
 		$value = $this->parametersToString($parameters);
 

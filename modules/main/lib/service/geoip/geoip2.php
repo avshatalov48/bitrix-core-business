@@ -3,7 +3,6 @@
 namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main\Error;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Localization\Loc;
 use GeoIp2\Exception;
 use GeoIp2\Database;
@@ -76,10 +75,10 @@ class GeoIP2 extends Base
 			$geoData->ipNetwork = $record->traits->network;
 
 			$geoData->continentCode = $record->continent->code;
-			$geoData->continentName = Encoding::convertEncodingToCurrent(($record->continent->names[$geoData->lang] ?? $record->continent->name));
+			$geoData->continentName = ($record->continent->names[$geoData->lang] ?? $record->continent->name);
 
 			$geoData->countryCode = $record->country->isoCode;
-			$geoData->countryName = Encoding::convertEncodingToCurrent(($record->country->names[$geoData->lang] ?? $record->country->name));
+			$geoData->countryName = ($record->country->names[$geoData->lang] ?? $record->country->name);
 
 			if ($record instanceof \GeoIp2\Model\City)
 			{
@@ -88,7 +87,7 @@ class GeoIP2 extends Base
 					/** @var \GeoIp2\Record\Subdivision $subdivision */
 					$subdivision = $record->subdivisions[0];
 					$geoData->regionCode = $subdivision->isoCode;
-					$geoData->regionName = Encoding::convertEncodingToCurrent(($subdivision->names[$geoData->lang] ?? $subdivision->name));
+					$geoData->regionName = ($subdivision->names[$geoData->lang] ?? $subdivision->name);
 					$geoData->regionGeonameId = $subdivision->geonameId;
 
 					if ($subdivision->geonameId)
@@ -102,7 +101,7 @@ class GeoIP2 extends Base
 					/** @var \GeoIp2\Record\Subdivision $subdivision */
 					$subdivision = $record->subdivisions[1];
 					$geoData->subRegionCode = $subdivision->isoCode;
-					$geoData->subRegionName = Encoding::convertEncodingToCurrent(($subdivision->names[$geoData->lang] ?? $subdivision->name));
+					$geoData->subRegionName = ($subdivision->names[$geoData->lang] ?? $subdivision->name);
 					$geoData->subRegionGeonameId = $subdivision->geonameId;
 
 					if ($subdivision->geonameId)
@@ -111,7 +110,7 @@ class GeoIP2 extends Base
 					}
 				}
 
-				$geoData->cityName = Encoding::convertEncodingToCurrent(($record->city->names[$geoData->lang] ?? $record->city->name));
+				$geoData->cityName = ($record->city->names[$geoData->lang] ?? $record->city->name);
 				$geoData->cityGeonameId = $record->city->geonameId;
 
 				if ($record->city->geonameId)
@@ -133,11 +132,11 @@ class GeoIP2 extends Base
 
 			$dataResult->setGeoData($geoData);
 		}
-		catch(Exception\AddressNotFoundException $e)
+		catch(Exception\AddressNotFoundException)
 		{
 			// is it an error?
 		}
-		catch(Reader\InvalidDatabaseException $e)
+		catch(Reader\InvalidDatabaseException)
 		{
 			$dataResult->addError(new Error(Loc::getMessage("geoip_geoip2_err_reading")));
 		}
@@ -232,7 +231,7 @@ class GeoIP2 extends Base
 			{
 				static::$reader = new Database\Reader($this->config['FILE']);
 			}
-			catch(Reader\InvalidDatabaseException $e)
+			catch(Reader\InvalidDatabaseException)
 			{
 				$dataResult->addError(new Error(Loc::getMessage("geoip_geoip2_err_reading")));
 			}

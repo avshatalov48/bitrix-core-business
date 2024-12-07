@@ -8,7 +8,7 @@ if(is_array($arResult["POST"]) && !empty($arResult["POST"]))
 		//Disable vote (reasons: duplicate, completed status, not published)
 		$arResult["POST"][$key]["DISABLE_VOTE"] = false;
 		if($arResult["POST"][$key]["IS_DUPLICATE"]
-			||ToLower($arStatusList[$arPost["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFStatusField]["VALUE"]]["XML_ID"])=='completed'
+			||mb_strtolower($arStatusList[$arPost["POST_PROPERTIES"]["DATA"][CIdeaManagment::UFStatusField]["VALUE"]]["XML_ID"])=='completed'
 			||$arResult["POST"][$key]["PUBLISH_STATUS"] != BLOG_PUBLISH_STATUS_PUBLISH
 		)
 			$arResult["POST"][$key]["DISABLE_VOTE"] = true;

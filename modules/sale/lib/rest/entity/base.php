@@ -1,13 +1,13 @@
 <?php
 
-
 namespace Bitrix\Sale\Rest\Entity;
-
 
 use Bitrix\Main\Engine\Response\Converter;
 use Bitrix\Main\Error;
 use Bitrix\Main\NotImplementedException;
 use Bitrix\Main\Type\Date;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Rest\Integration\View\DataType;
 use Bitrix\Sale\Rest\Attributes;
 use Bitrix\Sale\Result;
 
@@ -163,7 +163,22 @@ abstract class Base
 
 	private function resolveFieldName($name)
 	{
-		return ($name === 'ID_1_C') ? 'ID_1C':$name;
+		if ($name === 'ID_1_C')
+		{
+			return 'ID_1C';
+		}
+
+		if ($name === 'VERSION_1_C')
+		{
+			return 'VERSION_1C';
+		}
+
+		if ($name === 'UPDATED_1_C')
+		{
+			return 'UPDATED_1C';
+		}
+
+		return $name;
 	}
 	//endregion
 
@@ -529,36 +544,81 @@ abstract class Base
 	// region externalize fields
 	public function externalizeFields($fields)
 	{
-		$result = [];
-		$fieldsInfo = $this->getListFieldInfo($this->getFields(), ['filter'=>['ignoredAttributes'=>[Attributes::Hidden]]]);
+        if (!is_array($fields))
+        {
+            return [];
+        }
 
-		if(is_array($fields) && count($fields)>0)
-		{
-			foreach($fields as $name => $value)
-			{
-				$info = isset($fieldsInfo[$name]) ? $fieldsInfo[$name] : null;
-				if(!$info)
-				{
-					continue;
-				}
+        $result = [];
 
-				/*$attributes = isset($info['ATTRIBUTES']) ? $info['ATTRIBUTES']:[];
-				$skipAttr = in_array(Attributes::Hidden, $attributes, true);
+        $fieldsInfo = $this->getListFieldInfo(
+            $this->getFields(),
+            [
+                'filter' => [
+                    'ignoredAttributes' => [
+                        Attributes::Hidden,
+                    ],
+                ],
+            ]
+        );
 
-				if($skipAttr)
-				{
-					continue;
-				}*/
+        foreach ($fields as $name => $value)
+        {
+            $info = $fieldsInfo[$name] ?? null;
+            if (!$info)
+            {
+                continue;
+            }
 
-				$type = isset($info['TYPE']) ? $info['TYPE']:'';
-				if($type === self::TYPE_FILE)
-				{
-					//externalizeFileField()
-				}
+            $type = $info['TYPE'] ?? '';
+            $hasValue = isset($value) && $value !== '';
 
-				$result[$name] = $value;
-			}
-		}
+            switch ($type)
+            {
+                case DataType::TYPE_STRING:
+                case DataType::TYPE_CHAR:
+                case DataType::TYPE_TEXT:
+                    $value = (string)$value;
+                    break;
+                case DataType::TYPE_FLOAT:
+                    $value = $hasValue ? (float)$value : null;
+                    break;
+                case DataType::TYPE_INT:
+                    $value = $hasValue ? (int)$value : null;
+                    break;
+                case DataType::TYPE_DATE:
+                    if ($hasValue)
+                    {
+                        $time = strtotime($value);
+                        $value = $time ? Date::createFromTimestamp($time) : null;
+                    }
+                    else
+                    {
+                        $value = null;
+                    }
+                    break;
+                case DataType::TYPE_DATETIME:
+                    if ($hasValue)
+                    {
+                        $time = strtotime($value);
+                        $value = $time ? DateTime::createFromTimestamp($time) : null;
+                    }
+                    else
+                    {
+                        $value = null;
+                    }
+                    break;
+                case DataType::TYPE_DATATYPE:
+                case DataType::TYPE_LIST:
+                    break;
+                default:
+                    $value = null;
+                    break;
+            }
+
+            $result[$name] = $value;
+        }
+
 		return $result;
 	}
 

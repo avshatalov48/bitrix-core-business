@@ -15,7 +15,7 @@ class CacheEngineApc extends CacheEngine
 
 	protected function connect($config)
 	{
-		self::$isConnected = function_exists('apcu_fetch');
+		self::$isConnected = function_exists('apcu_fetch') && 'cli' !== \PHP_SAPI;
 	}
 
 	public function set($key, $ttl, $value)
@@ -39,17 +39,39 @@ class CacheEngineApc extends CacheEngine
 		return apcu_add($key, $value, $ttl);
 	}
 
+	public function checkInSet($key, $value) : bool
+	{
+		$cacheKey = sha1($key . '|' . $value);
+		$iexKey = $key . '|iex|' . $cacheKey;
+		$itemExist = apcu_fetch($iexKey);
+
+		if ($itemExist === $cacheKey)
+		{
+			return true;
+		}
+
+		$list = apcu_fetch($key);
+
+		if (!is_array($list))
+		{
+			$list = [];
+		}
+
+		if (array_key_exists($value, $list))
+		{
+			apcu_store($iexKey, $cacheKey, 2591000);
+			return true;
+		}
+
+		return false;
+	}
+
 	public function addToSet($key, $value)
 	{
 		$cacheKey = sha1($key . '|' . $value);
-		if (array_key_exists($cacheKey, self::$listKeys))
-		{
-			return;
-		}
-
 		$iexKey = $key . '|iex|' . $cacheKey;
 		$itemExist = apcu_fetch($iexKey);
-		if ($itemExist == $cacheKey)
+		if ($itemExist === $cacheKey)
 		{
 			return;
 		}
@@ -64,12 +86,9 @@ class CacheEngineApc extends CacheEngine
 		if (!array_key_exists($value, $list))
 		{
 			$list[$value] = 1;
-
 			apcu_store($key, $list, 0);
-			self::$listKeys[$cacheKey] = 1;
 		}
-
-		$this->set($iexKey, 2591000, $cacheKey);
+		apcu_store($iexKey, $cacheKey, 2591000);
 	}
 
 	public function getSet($key) : array
@@ -86,25 +105,28 @@ class CacheEngineApc extends CacheEngine
 	public function deleteBySet($key, $prefix = '')
 	{
 		$list = apcu_fetch($key);
+		apcu_delete($key);
+
 		if (is_array($list) && !empty($list))
 		{
-			foreach ($list as $iKey => $value)
+			$list = array_keys($list);
+			foreach ($list as $iKey)
 			{
-				if ($prefix == '')
-				{
-					apcu_delete($iKey);
+				$delKey = $prefix . $iKey;
+				apcu_delete($key . '|iex|' . sha1($key . '|' . $iKey));
 
-				}
-				else
+				if ($this->useLock)
 				{
-					apcu_delete($prefix . $iKey);
+					if ($cachedData = apcu_fetch($delKey))
+					{
+						apcu_store($delKey . '|old', $cachedData, $this->ttlOld);
+					}
 				}
 
-				$cacheKey = sha1($key . '|' . $iKey);
-				$iexKey = $key . '|iex|' . $cacheKey;
-				$this->del($iexKey);
+				apcu_delete($delKey);
 			}
 		}
+		unset($list);
 	}
 
 	public function delFromSet($key, $member)
@@ -114,6 +136,7 @@ class CacheEngineApc extends CacheEngine
 		if (is_array($list) && !empty($list))
 		{
 			$rewrite = false;
+			$tmpKey = $key . '|iex|';
 			if (is_array($member))
 			{
 				foreach ($member as $keyID)
@@ -123,10 +146,8 @@ class CacheEngineApc extends CacheEngine
 						$rewrite = true;
 						$cacheKey = sha1($key . '|' . $keyID);
 						unset($list[$keyID]);
-						unset(self::$listKeys[$cacheKey]);
 
-						$iexKey = $key . '|iex|' . $cacheKey;
-						$this->del($iexKey);
+						apcu_delete($tmpKey . $cacheKey);
 					}
 				}
 			}
@@ -134,11 +155,9 @@ class CacheEngineApc extends CacheEngine
 			{
 				$rewrite = true;
 				$cacheKey = sha1($key . '|' . $member);
-				unset(self::$listKeys[$cacheKey]);
 				unset($list[$member]);
 
-				$iexKey = $key . '|iex|' . $cacheKey;
-				$this->del($iexKey);
+				apcu_delete($tmpKey . $cacheKey);
 			}
 
 			if ($rewrite)

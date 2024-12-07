@@ -7,17 +7,20 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED!==true)
 
 use Bitrix\Currency\Helpers\Editor;
 use Bitrix\Currency\UserField\Types\MoneyType;
+use Bitrix\Main\UI\Extension;
 
-CJSCore::init(['core_uf_money']);
+Extension::load([
+	'core_uf_money',
+]);
 
 $value = '';
 
 /** @var $arResult [] */
-if(isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
+if (isset($arResult['additionalParameters']['bVarsFromForm']) && $arResult['additionalParameters']['bVarsFromForm'])
 {
 	$value = $GLOBALS[$arResult['additionalParameters']['NAME']]['DEFAULT_VALUE'];
 }
-elseif(isset($arResult['userField']) && is_array($arResult['userField']))
+elseif (isset($arResult['userField']) && is_array($arResult['userField']))
 {
 	$value = $arResult['userField']['SETTINGS']['DEFAULT_VALUE'];
 }
@@ -26,9 +29,9 @@ else
 	$defaultValue = '';
 	$defaultCurrency = '';
 	$currencyList = Editor::getListCurrency();
-	foreach($currencyList as $currencyInfo)
+	foreach ($currencyList as $currencyInfo)
 	{
-		if($currencyInfo['BASE'] === 'Y')
+		if ($currencyInfo['BASE'] === 'Y')
 		{
 			$defaultCurrency = $currencyInfo['CURRENCY'];
 		}

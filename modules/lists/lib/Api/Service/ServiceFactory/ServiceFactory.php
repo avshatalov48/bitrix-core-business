@@ -15,6 +15,7 @@ use Bitrix\Lists\Api\Request\IBlockService\UpdateIBlockElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\AddElementRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetAverageIBlockTemplateDurationRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetElementDetailInfoRequest;
+use Bitrix\Lists\Api\Request\ServiceFactory\GetElementUrlRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockFieldsRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetIBlockInfoRequest;
 use Bitrix\Lists\Api\Request\ServiceFactory\GetListRequest;
@@ -24,6 +25,7 @@ use Bitrix\Lists\Api\Response\ServiceFactory\AddElementResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetAverageIBlockTemplateDurationResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetCatalogResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetElementDetailInfoResponse;
+use Bitrix\Lists\Api\Response\ServiceFactory\GetElementUrlResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetIBlockFieldsResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetIBlockInfoResponse;
 use Bitrix\Lists\Api\Response\ServiceFactory\GetListResponse;
@@ -143,6 +145,30 @@ abstract class ServiceFactory
 				->addErrors($iBlockListResult->getErrors())
 				->setCatalog($iBlockListResult->getIBlocks())
 			;
+		}
+
+		return $response;
+	}
+
+	public function getAddElementCatalog(): GetCatalogResponse
+	{
+		$response = new GetCatalogResponse();
+
+		$catalogResponse = $this->getCatalog();
+		$response->fillFromResponse($catalogResponse);
+
+		if ($response->isSuccess())
+		{
+			$catalog = [];
+			foreach ($catalogResponse->getCatalog() as $iBlock)
+			{
+				if ($this->accessService->canUserAddElement(0, (int)$iBlock['ID'])->isSuccess())
+				{
+					$catalog[] = $iBlock;
+				}
+			}
+
+			$response->setCatalog($catalog);
 		}
 
 		return $response;
@@ -305,9 +331,14 @@ abstract class ServiceFactory
 			$response->addErrors($iBlockFieldsResponse->getErrors());
 
 			$fields = $iBlockFieldsResponse->getFields();
+			$defaultFields = [];
 			if ($request->loadDefaultFields)
 			{
-				$iBlockDefaultFieldsRequest = new GetIBlockDefaultFieldsRequest($iBlockId, false);
+				$iBlockDefaultFieldsRequest = new GetIBlockDefaultFieldsRequest(
+					$iBlockId,
+					false,
+					$request->loadEnumValues,
+				);
 				$defaultFieldsRequest = $this->iBlockService->getIBlockDefaultFields($iBlockDefaultFieldsRequest);
 				$response->addErrors($defaultFieldsRequest->getErrors());
 
@@ -320,6 +351,7 @@ abstract class ServiceFactory
 
 			$response->setFields($fields);
 			$response->setProps($iBlockFieldsResponse->getProps());
+			$response->setAll(array_merge($iBlockFieldsResponse->getAll(), $defaultFields));
 		}
 
 		return $response;
@@ -441,9 +473,16 @@ abstract class ServiceFactory
 		);
 
 		$response->addErrors($averageTimeResult->getErrors());
-		if ($averageTimeResult->isSuccess() && $averageTimeResult->getAverageDuration())
+
+		if ($averageTimeResult->isSuccess() && $averageTimeResult->getAverageDuration() !== null)
 		{
-			$response->setAverageDuration($averageTimeResult->getAverageDuration());
+			$response->setAverageDuration(
+				$averageTimeResult->getAverageDuration()
+			);
+			if ($request->isNeedRound && method_exists($averageTimeResult, 'getRoundedAverageDuration'))
+			{
+				$response->setAverageDuration($averageTimeResult->getRoundedAverageDuration());
+			}
 		}
 
 		return $response;
@@ -461,4 +500,27 @@ abstract class ServiceFactory
 		return [];
 	}
 
+	public function getElementUrl(GetElementUrlRequest $request): GetElementUrlResponse
+	{
+		$response = (new GetElementUrlResponse());
+
+		if ($request->iBlockId <= 0 || $request->elementId <= 0)
+		{
+			return $response;
+		}
+
+		$urlTemplate = \CList::getUrlByIblockId($request->iBlockId);
+		if (!is_string($urlTemplate))
+		{
+			return $response;
+		}
+
+		$url = str_replace(
+			['#list_id#', '#section_id#', '#element_id#'],
+			[$request->iBlockId, 0, $request->elementId],
+			$urlTemplate
+		);
+
+		return $response->setUrl($url);
+	}
 }

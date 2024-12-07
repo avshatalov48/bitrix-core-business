@@ -824,7 +824,7 @@ $tabControl->BeginNextTab();
 					$str2 .= ");\r\n";
 				}
 				?>
-				<script type="text/javascript">
+				<script>
 
 				itm_name['<?= $arIBlock["ID"] ?>'] = {};
 				itm_id['<?= $arIBlock["ID"] ?>'] = {};
@@ -835,7 +835,7 @@ $tabControl->BeginNextTab();
 				<?php
 			}
 			?>
-			<script type="text/javascript">
+			<script>
 			itm_lev = <?= $maxLevel ?>;
 			var aff_cnt = 0;
 

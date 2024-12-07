@@ -216,7 +216,7 @@ class CBPTerminateActivity extends CBPActivity
 				'Name' => GetMessage('BPTA1_STATE_TITLE_NAME'),
 				'FieldName' => 'state_title',
 				'Type' => 'string',
-				'Default' => GetMessage('BPTA1_STATE_TITLE'),
+				'Default' => GetMessage('BPTA1_STATE_TITLE_MSGVER_1'),
 			],
 			'TerminateType' => [
 				'Name' => GetMessage('BPTA1_TERMINATE'),

@@ -1,7 +1,12 @@
-<?
+<?php
+
+if(class_exists("sender"))
+{
+	return;
+}
+
 IncludeModuleLangFile(__FILE__);
 
-if(class_exists("sender")) return;
 class sender extends CModule
 {
 	var $MODULE_ID = "sender";
@@ -53,12 +58,7 @@ class sender extends CModule
 			RegisterModule("sender");
 			CModule::IncludeModule("sender");
 
-			$errors = $DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sender/install/db/' . $connection->getType() . '/install_ft.sql');
-			if ($errors === false)
-			{
-				$entity = \Bitrix\Sender\Internals\Model\LetterTable::getEntity();
-				$entity->enableFullTextIndex("SEARCH_CONTENT");
-			}
+			$DB->RunSQLBatch($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/sender/install/db/' . $connection->getType() . '/install_ft.sql');
 
 			// read and click notifications
 			RegisterModuleDependences("main", "OnMailEventMailRead", "sender", "bitrix\\sender\\postingmanager", "onMailEventMailRead");
@@ -100,17 +100,25 @@ class sender extends CModule
 			RegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
 			RegisterModuleDependences("im", "OnGetNotifySchema", "sender", "Bitrix\\Sender\\SenderNotifySchema", "OnGetNotifySchema" );
 
+			RegisterModuleDependences("main", "OnAfterFileSave", "sender", "Bitrix\\Sender\\Integration\\Main\\FileManager", "OnAfterFileSave" );
+
 			CTimeZone::Disable();
 
 			\Bitrix\Sender\Runtime\Job::actualizeAll();
-			\Bitrix\Sender\Trigger\Manager::activateAllHandlers(true);
-			\CAgent::AddAgent(
+			\Bitrix\Sender\Trigger\Manager::activateAllHandlers();
+			CAgent::AddAgent(
 				'Bitrix\\Sender\\Access\\Install\\AccessInstaller::installAgent();',
 				"sender", "N", 60, "", "Y",
-				\ConvertTimeStamp(time()+\CTimeZone::GetOffset()+450, "FULL")
+				ConvertTimeStamp(time()+CTimeZone::GetOffset()+450, "FULL")
 			);
 
 			CTimeZone::Enable();
+
+			\Bitrix\Main\Update\Stepper::bindClass(
+				'\Bitrix\Sender\Install\SetFileInfoStepper',
+				'sender',
+				600
+			);
 
 			return true;
 		}
@@ -119,6 +127,7 @@ class sender extends CModule
 	function UnInstallDB($arParams = array())
 	{
 		global $DB, $APPLICATION;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
@@ -166,6 +175,8 @@ class sender extends CModule
 		UnRegisterModuleDependences("pull", "OnGetDependentModule", "sender", "Bitrix\\Sender\\SenderPullSchema", "OnGetDependentModule" );
 		UnRegisterModuleDependences("im", "OnGetNotifySchema", "sender", "Bitrix\\Sender\\SenderNotifySchema", "OnGetNotifySchema" );
 
+		UnRegisterModuleDependences("main", "OnAfterFileSave", "sender", "Bitrix\\Sender\\Integration\\Main\\FileManager", "OnAfterFileSave" );
+
 		UnRegisterModule("sender");
 
 		if($this->errors !== false)
@@ -176,23 +187,23 @@ class sender extends CModule
 
 		return true;
 	}
+
 	function GetEventCountByName($eventName)
 	{
 		global $DB;
-		$result = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN ('".$DB->ForSql($eventName)."') ",
-			false,
-			"File: ".__FILE__."<br>Line: ".__LINE__
+		$result = $DB->Query("SELECT count(*) C FROM b_event_type WHERE EVENT_NAME IN ('".$DB->ForSql($eventName)."') "
 		);
 		$array = $result->Fetch();
 		return $array['C'];
 	}
+
 	function InstallEvents()
 	{
 		$senderSubscribeEventCount = $this->getEventCountByName("SENDER_SUBSCRIBE_CONFIRM") ?? 0;
-		$senderSubscribeEvent =  $senderSubscribeEventCount <= 0? true : false;
+		$senderSubscribeEvent = $senderSubscribeEventCount <= 0;
 
 		$senderConsentEventCount = $this->getEventCountByName("SENDER_CONSENT") ?? 0;
-		$senderConsentEvent =  $senderConsentEventCount <= 0? true : false;
+		$senderConsentEvent = $senderConsentEventCount <= 0;
 
 		if($senderSubscribeEvent || $senderConsentEvent)
 		{
@@ -200,13 +211,15 @@ class sender extends CModule
 		}
 		return true;
 	}
+
 	function DeleteEventByName($name)
 	{
 		global $DB;
 		$realEscapeName = $DB->ForSql($name);
-		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN ('".$realEscapeName."') ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN ('".$realEscapeName."') ", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_event_message WHERE EVENT_NAME IN ('".$realEscapeName."') ");
+		$DB->Query("DELETE FROM b_event_type WHERE EVENT_NAME IN ('".$realEscapeName."') ");
 	}
+
 	function UnInstallEvents()
 	{
 		$this->DeleteEventByName("SENDER_SUBSCRIBE_CONFIRM");
@@ -216,37 +229,32 @@ class sender extends CModule
 
 	function InstallFiles($arParams = array())
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
-		}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/themes", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", True, True);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
 
 		return true;
 	}
 
 	function UnInstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			//admin files
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools");
-			//css
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
-			DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js");
-		}
+		//admin files
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin");
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools");
+		//css
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/themes/.default/", $_SERVER["DOCUMENT_ROOT"]."/bitrix/themes/.default");
+		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js");
 
 		return true;
 	}
 
 	function DoInstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$POST_RIGHT = $APPLICATION->GetGroupRight("sender");
 		if($POST_RIGHT == "W")
 		{
@@ -260,7 +268,7 @@ class sender extends CModule
 				if($this->InstallDB())
 				{
 					$this->InstallEvents();
-					$this->InstallFiles(array());
+					$this->InstallFiles();
 				}
 				$GLOBALS["errors"] = $this->errors;
 				$APPLICATION->IncludeAdminFile(GetMessage("SENDER_MODULE_INST_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/sender/install/inst2.php");
@@ -270,7 +278,8 @@ class sender extends CModule
 
 	function DoUninstall()
 	{
-		global $DB, $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$POST_RIGHT = $APPLICATION->GetGroupRight("sender");
 		if($POST_RIGHT == "W")
 		{
@@ -297,4 +306,3 @@ class sender extends CModule
 	}
 
 }
-?>

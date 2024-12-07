@@ -13,7 +13,11 @@ require $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_a
 global $APPLICATION;
 $APPLICATION->SetTitle(Main\Localization\Loc::getMessage('CATALOG_ADMIN_AGENT_CONTRACT_TITLE'));
 
-$APPLICATION->IncludeComponent('bitrix:ui.toolbar', 'admin', []);
+$APPLICATION->IncludeComponent(
+	'bitrix:ui.toolbar',
+	'admin',
+	[]
+);
 
 $APPLICATION->IncludeComponent(
 	'bitrix:catalog.agent.contract.controller',

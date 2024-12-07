@@ -5,7 +5,6 @@ class CStatistics extends CAllStatistics
 {
 	public static function CleanUpTableByDate($cleanup_date, $table_name, $date_name)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		if ($cleanup_date <> '')
 		{
@@ -13,14 +12,13 @@ class CStatistics extends CAllStatistics
 			if ($stmp)
 			{
 				$strSql = "DELETE FROM $table_name WHERE $date_name<FROM_UNIXTIME('$stmp')";
-				$DB->Query($strSql, false, $err_mess.__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 	}
 
 	public static function GetSessionDataByMD5($GUEST_MD5)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$php_session_time = intval(ini_get("session.gc_maxlifetime"));
 		$strSql = "
@@ -34,7 +32,7 @@ class CStatistics extends CAllStatistics
 			and DATE_LAST > DATE_ADD(now(), INTERVAL - $php_session_time SECOND)
 			LIMIT 1
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
@@ -42,7 +40,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "PATH_DAYS"));
 		//$STEPS = intval(COption::GetOptionString("statistic", "MAX_PATH_STEPS"));
@@ -53,17 +50,17 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_STAT is null
 			";//STEPS removed due to insert check
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "
 				DELETE FROM b_stat_path_adv
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_STAT is null
 			";//STEPS removed due to insert check
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_path", false, $err_mess.__LINE__);
-				$DB->Query("OPTIMIZE TABLE b_stat_path_adv", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_path");
+				$DB->Query("OPTIMIZE TABLE b_stat_path_adv");
 			}
 		}
 	}
@@ -75,7 +72,6 @@ class CStatistics extends CAllStatistics
 		{
 			set_time_limit(0);
 			ignore_user_abort(true);
-			$err_mess = "File: ".__FILE__."<br>Line: ";
 			$DB = CDatabase::GetModuleConnection('statistic');
 			$php_session_time = intval(ini_get("session.gc_maxlifetime"));
 			$strSql = "
@@ -83,7 +79,7 @@ class CStatistics extends CAllStatistics
 					DATE_HIT < DATE_ADD(now(), INTERVAL - $php_session_time SECOND) or
 					DATE_HIT is null
 					";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 		}
 		return "CStatistics::CleanUpPathCache();";
 	}
@@ -95,7 +91,6 @@ class CStatistics extends CAllStatistics
 		{
 			set_time_limit(0);
 			ignore_user_abort(true);
-			$err_mess = "File: ".__FILE__."<br>Line: ";
 			$DB = CDatabase::GetModuleConnection('statistic');
 			$php_session_time = intval(ini_get("session.gc_maxlifetime"));
 			$strSql = "
@@ -103,7 +98,7 @@ class CStatistics extends CAllStatistics
 					DATE_LAST < DATE_ADD(now(), INTERVAL - $php_session_time SECOND) or
 					DATE_LAST is null
 					";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 		}
 		return "CStatistics::CleanUpSessionData();";
 	}
@@ -112,7 +107,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "SEARCHER_DAYS"));
 		$SID = 0;
@@ -125,7 +119,7 @@ class CStatistics extends CAllStatistics
 				FROM
 					b_stat_searcher
 				";
-			$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$w = $DB->Query($strSql);
 			while ($wr = $w->Fetch())
 			{
 				$SDAYS = intval($wr["DYNAMIC_KEEP_DAYS"]);
@@ -140,7 +134,7 @@ class CStatistics extends CAllStatistics
 						SEARCHER_ID = $SID
 						AND DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $SDAYS DAY)
 				";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr=$z->Fetch())
 				{
 					$ID = $zr["ID"];
@@ -150,15 +144,15 @@ class CStatistics extends CAllStatistics
 							"DATE_CLEANUP"	=> $DB->GetNowFunction(),
 							"TOTAL_HITS"	=> "TOTAL_HITS + ".intval($zr["TOTAL_HITS"]),
 							);
-						$DB->Update("b_stat_searcher",$arFields,"WHERE ID='$SID'",$err_mess.__LINE__);
+						$DB->Update("b_stat_searcher",$arFields,"WHERE ID='$SID'");
 					}
 					$strSql = "DELETE FROM b_stat_searcher_day WHERE ID='$ID'";
-					$DB->Query($strSql, false, $err_mess.__LINE__);
+					$DB->Query($strSql);
 				}
 			}
 			if (intval($SID)>0 && COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_searcher_day", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_searcher_day");
 			}
 		}
 	}
@@ -167,7 +161,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "EVENT_DYNAMIC_DAYS"));
 		$EID = 0;
@@ -180,7 +173,7 @@ class CStatistics extends CAllStatistics
 				FROM
 					b_stat_event
 				";
-			$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$w = $DB->Query($strSql);
 			while ($wr = $w->Fetch())
 			{
 				$EDAYS = intval($wr["DYNAMIC_KEEP_DAYS"]);
@@ -196,7 +189,7 @@ class CStatistics extends CAllStatistics
 						EVENT_ID = ".$EID."
 						AND DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL ".$EDAYS." DAY)
 				";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr=$z->Fetch())
 				{
 					$ID = $zr["ID"];
@@ -207,15 +200,15 @@ class CStatistics extends CAllStatistics
 							"COUNTER"	=> "COUNTER + ".intval($zr["COUNTER"]),
 							"MONEY"		=> "MONEY + ".doubleval($zr["MONEY"])
 							);
-						$DB->Update("b_stat_event",$arFields,"WHERE ID='$EID'",$err_mess.__LINE__);
+						$DB->Update("b_stat_event",$arFields,"WHERE ID='$EID'");
 					}
 					$strSql = "DELETE FROM b_stat_event_day WHERE ID='$ID'";
-					$DB->Query($strSql, false, $err_mess.__LINE__);
+					$DB->Query($strSql);
 				}
 			}
 			if (intval($EID)>0 && COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_event_day", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_event_day");
 			}
 		}
 	}
@@ -224,7 +217,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "ADV_DAYS"));
 		if ($DAYS>=0)
@@ -234,17 +226,17 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_STAT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "
 				DELETE FROM b_stat_adv_event_day
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_STAT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_adv_day", false, $err_mess.__LINE__);
-				$DB->Query("OPTIMIZE TABLE b_stat_adv_event_day", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_adv_day");
+				$DB->Query("OPTIMIZE TABLE b_stat_adv_event_day");
 			}
 		}
 	}
@@ -253,7 +245,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "PHRASES_DAYS"));
 		if ($DAYS>=0)
@@ -263,10 +254,10 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_HIT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_HIT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_phrase_list", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_phrase_list");
 			}
 		}
 	}
@@ -275,7 +266,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "REFERER_LIST_DAYS"));
 		if($DAYS>=0)
@@ -285,10 +275,10 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_HIT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_HIT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_referer_list", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_referer_list");
 			}
 		}
 	}
@@ -297,7 +287,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = COption::GetOptionString("statistic", "REFERER_DAYS");
 		$TOP = COption::GetOptionString("statistic", "REFERER_TOP");
@@ -305,7 +294,7 @@ class CStatistics extends CAllStatistics
 		if ($DAYS>=0)
 		{
 			$strSql = "SELECT ID FROM b_stat_referer ORDER BY SESSIONS desc LIMIT ".intval($TOP);
-			$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			$str = "0";
 			while ($zr=$z->Fetch()) $str .= ",".$zr["ID"];
 			$strSql = "
@@ -315,10 +304,10 @@ class CStatistics extends CAllStatistics
 					OR DATE_LAST is null)
 					and ID not in ($str)
 					";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_referer", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_referer");
 			}
 		}
 	}
@@ -327,7 +316,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$VISIT_DAYS = COption::GetOptionString("statistic", "VISIT_DAYS");
 		$VISIT_DAYS = intval($VISIT_DAYS);
@@ -339,18 +327,18 @@ class CStatistics extends CAllStatistics
 					DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $VISIT_DAYS DAY)
 					OR DATE_STAT is null
 				";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			$strSql = "
 				DELETE FROM b_stat_page_adv
 				WHERE
 					DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $VISIT_DAYS DAY)
 					OR DATE_STAT is null
 				";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_page", false, $err_mess.__LINE__);
-				$DB->Query("OPTIMIZE TABLE b_stat_page_adv", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_page");
+				$DB->Query("OPTIMIZE TABLE b_stat_page_adv");
 			}
 		}
 	}
@@ -359,7 +347,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "CITY_DAYS"));
 		if($DAYS >= 0)
@@ -368,10 +355,10 @@ class CStatistics extends CAllStatistics
 				DELETE FROM b_stat_city_day
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_city_day", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_city_day");
 			}
 		}
 	}
@@ -380,7 +367,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "COUNTRY_DAYS"));
 		if($DAYS >= 0)
@@ -390,10 +376,10 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_STAT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_STAT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_country_day", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_country_day");
 			}
 		}
 	}
@@ -402,7 +388,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "GUEST_DAYS"));
 		if($DAYS>=0)
@@ -412,10 +397,10 @@ class CStatistics extends CAllStatistics
 				WHERE LAST_DATE <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR LAST_DATE is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_guest", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_guest");
 			}
 		}
 	}
@@ -424,7 +409,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "SESSION_DAYS"));
 		if ($DAYS>=0)
@@ -434,11 +418,11 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_LAST <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_LAST is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_session", false, $err_mess.__LINE__);
-				$DB->Query("OPTIMIZE TABLE b_stat_session_data", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_session");
+				$DB->Query("OPTIMIZE TABLE b_stat_session_data");
 			}
 		}
 	}
@@ -447,7 +431,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "HIT_DAYS"));
 		if ($DAYS>=0)
@@ -457,10 +440,10 @@ class CStatistics extends CAllStatistics
 				WHERE DATE_HIT <= DATE_SUB(CURDATE(),INTERVAL $DAYS DAY)
 				OR DATE_HIT is null
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if (COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_hit", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_hit");
 			}
 		}
 	}
@@ -469,7 +452,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "SEARCHER_HIT_DAYS"));
 
@@ -478,7 +460,7 @@ class CStatistics extends CAllStatistics
 			WHERE HIT_KEEP_DAYS IS NULL
 			AND DATE_HIT <= DATE_SUB(CURDATE(), INTERVAL $DAYS DAY)
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		$strSql = "
 			DELETE sh.* FROM
@@ -488,11 +470,11 @@ class CStatistics extends CAllStatistics
 			AND s.HIT_KEEP_DAYS is not null
 			AND sh.DATE_HIT <= DATE_SUB(CURDATE(), INTERVAL s.HIT_KEEP_DAYS DAY)
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 		{
-			$DB->Query("OPTIMIZE TABLE b_stat_searcher_hit", false, $err_mess.__LINE__);
+			$DB->Query("OPTIMIZE TABLE b_stat_searcher_hit");
 		}
 	}
 
@@ -500,7 +482,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ADV_GUEST_DAYS = COption::GetOptionString("statistic", "ADV_GUEST_DAYS");
 		$ADV_GUEST_DAYS = intval($ADV_GUEST_DAYS);
@@ -520,10 +501,10 @@ class CStatistics extends CAllStatistics
 					length(DATE_HOST_HIT)<=0
 				)
 			";
-			$DB->Query($strSql, false, $err_mess.__LINE__);
+			$DB->Query($strSql);
 			if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 			{
-				$DB->Query("OPTIMIZE TABLE b_stat_adv_guest", false, $err_mess.__LINE__);
+				$DB->Query("OPTIMIZE TABLE b_stat_adv_guest");
 			}
 		}
 	}
@@ -532,7 +513,6 @@ class CStatistics extends CAllStatistics
 	{
 		set_time_limit(0);
 		ignore_user_abort(true);
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$DAYS = intval(COption::GetOptionString("statistic", "EVENTS_DAYS"));
 
@@ -541,7 +521,7 @@ class CStatistics extends CAllStatistics
 			WHERE KEEP_DAYS IS NULL
 			AND DATE_ENTER <= DATE_SUB(CURDATE(), INTERVAL $DAYS DAY)
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		$strSql = "
 			DELETE el.* FROM
@@ -551,17 +531,16 @@ class CStatistics extends CAllStatistics
 			AND e.KEEP_DAYS is not null
 			AND el.DATE_ENTER <= DATE_SUB(CURDATE(), INTERVAL e.KEEP_DAYS DAY)
 		";
-		$DB->Query($strSql, false, $err_mess.__LINE__);
+		$DB->Query($strSql);
 
 		if(COption::GetOptionString("statistic", "USE_AUTO_OPTIMIZE")=="Y")
 		{
-			$DB->Query("OPTIMIZE TABLE b_stat_event_list", false, $err_mess.__LINE__);
+			$DB->Query("OPTIMIZE TABLE b_stat_event_list");
 		}
 	}
 
 	public static function SetNewDayForSite($SITE_ID=false, $HOSTS=0, $TOTAL_HOSTS=0, $SESSIONS=0, $HITS=0)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 
 		if ($SITE_ID===false)
@@ -575,7 +554,7 @@ class CStatistics extends CAllStatistics
 		if ($SITE_ID <> '')
 		{
 			$strSql = "SELECT D.ID FROM b_stat_day_site D WHERE D.DATE_STAT=CURDATE() AND SITE_ID = '".$DB->ForSql($SITE_ID, 2)."'";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			if (!$rs->Fetch())
 			{
 				$arFields = Array(
@@ -585,7 +564,7 @@ class CStatistics extends CAllStatistics
 					"SESSIONS"	=> intval($SESSIONS),
 					"HITS"		=> intval($HITS),
 					);
-				$ID = $DB->Insert("b_stat_day_site", $arFields, $err_mess.__LINE__, false, "", true);
+				$ID = $DB->Insert("b_stat_day_site", $arFields, '', false, "", true);
 			}
 			//Calculate attentiveness for yesturday
 			$strSql = "
@@ -594,11 +573,11 @@ class CStatistics extends CAllStatistics
 				WHERE D.DATE_STAT=DATE_SUB(CURDATE(),INTERVAL 1 DAY)
 				AND SITE_ID = '".$DB->ForSql($SITE_ID, 2)."'
 			";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			if($ar=$rs->Fetch())
 			{
 				$arF = CSession::GetAttentiveness($ar["DATE_STAT"], $SITE_ID);
-				if (is_array($arF)) $DB->Update("b_stat_day_site",$arF,"WHERE ID='".$ar["ID"]."'",$err_mess.__LINE__);
+				if (is_array($arF)) $DB->Update("b_stat_day_site",$arF,"WHERE ID='".$ar["ID"]."'");
 			}
 		}
 	}
@@ -608,11 +587,10 @@ class CStatistics extends CAllStatistics
 		__SetNoKeepStatistics();
 		if ((!isset($_SESSION["SESS_NO_AGENT_STATISTIC"]) || $_SESSION["SESS_NO_AGENT_STATISTIC"]!="Y") && !defined("NO_AGENT_STATISTIC"))
 		{
-			$err_mess = "File: ".__FILE__."<br>Line: ";
 			$DB = CDatabase::GetModuleConnection('statistic');
 
 			$strSql = "SELECT D.ID FROM b_stat_day D WHERE D.DATE_STAT=CURDATE()";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			if(!$rs->Fetch())
 			{
 				$arFields = Array(
@@ -624,7 +602,7 @@ class CStatistics extends CAllStatistics
 					"FAVORITES"	=> intval($FAVORITES),
 					"NEW_GUESTS"	=> intval($NEW_GUESTS),
 					);
-				$ID = $DB->Insert("b_stat_day", $arFields, $err_mess.__LINE__, false, "", true);
+				$ID = $DB->Insert("b_stat_day", $arFields, '', false, "", true);
 			}
 			//Calculate attentiveness for yesturday
 			$strSql = "
@@ -632,11 +610,11 @@ class CStatistics extends CAllStatistics
 				FROM b_stat_day D
 				WHERE D.DATE_STAT=DATE_SUB(CURDATE(),INTERVAL 1 DAY)
 			";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			if($ar=$rs->Fetch())
 			{
 				$arF = CSession::GetAttentiveness($ar["DATE_STAT"]);
-				if (is_array($arF)) $DB->Update("b_stat_day",$arF,"WHERE ID='".$ar["ID"]."'",$err_mess.__LINE__);
+				if (is_array($arF)) $DB->Update("b_stat_day",$arF,"WHERE ID='".$ar["ID"]."'");
 			}
 		}
 		return "CStatistics::SetNewDay();";

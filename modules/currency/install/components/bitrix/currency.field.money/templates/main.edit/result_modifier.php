@@ -1,43 +1,51 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main\Text\HtmlFilter;
-use Bitrix\Main\Page\Asset;
+/**
+ * @var array $arResult
+ * @var array $arParams
+ */
+
 use Bitrix\Currency\UserField\Types\MoneyType;
 use Bitrix\Currency\CurrencyManager;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\UI\Extension;
 
-CJSCore::init(['uf', 'core_uf_money']);
+Extension::load([
+	'uf',
+	'core_uf_money',
+]);
 
 $arResult['currencies'] = CurrencyManager::getInstalledCurrencies();
 
 $i = 0;
+$asset = Asset::getInstance();
 
-foreach($arResult['value'] as $key => $rawValue)
+/** @var $component MoneyUfComponent */
+$component = $this->getComponent();
+$isMobileMode = $component->isMobileMode();
+unset($component);
+
+foreach ($arResult['value'] as $key => $rawValue)
 {
 	$explode = MoneyType::unFormatFromDB($rawValue);
-	$currentValue = $value = ($explode[0] <> ''? (float)$explode[0] : '');
-	$currentCurrency = $explode[1] ?? '';
-
-	$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
 	$arResult['value'][$key] = [
 		'value' => $rawValue,
-		'currentValue' => $currentValue,
-		'currentCurrency' => $currentCurrency,
+		'currentValue' => $explode[0],
+		'currentCurrency' => $explode[1],
 	];
+	unset($explode);
 
-	/**
-	 * @var $component MoneyUfComponent
-	 */
-
-	$component = $this->getComponent();
-	if($component->isMobileMode())
+	if ($isMobileMode)
 	{
-		Asset::getInstance()->addJs(
+		$asset->addJs(
 			'/bitrix/js/mobile/userfield/mobile_field.js'
 		);
-		Asset::getInstance()->addJs(
+		$asset->addJs(
 			'/bitrix/components/bitrix/currency.field.money/templates/main.view/mobile.js'
 		);
 
@@ -53,5 +61,6 @@ foreach($arResult['value'] as $key => $rawValue)
 		$attrList['data-user-field-type-name'] = 'BX.Mobile.Field.Money';
 		$arResult['value'][$key]['attrList'] = $attrList;
 	}
-
 }
+
+unset($asset);

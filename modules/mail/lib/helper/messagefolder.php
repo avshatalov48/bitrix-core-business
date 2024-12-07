@@ -1,6 +1,7 @@
 <?php
 
 namespace Bitrix\Mail\Helper;
+use Bitrix\Mail\Internals\Entity\MailboxDirectory;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Mail\Internals\MailboxDirectoryTable;
@@ -17,9 +18,11 @@ class MessageFolder
 	const OUTCOME = 'outcome';
 	const DRAFTS = 'drafts';
 
-	public static function increaseDirCounter($mailboxId, $dirForMoveMessages = false, $dirForMoveMessagesId, $idsUnseenCount)
+
+	public static function increaseDirCounter($mailboxId, ?MailboxDirectory $dirForMoveMessages, $dirForMoveMessagesId, $idsUnseenCount): void
 	{
-		if(!is_null($dirForMoveMessages) && $dirForMoveMessages === false || !$dirForMoveMessages->isInvisibleToCounters()){
+		if ($idsUnseenCount > 0 && (is_null($dirForMoveMessages) || !$dirForMoveMessages->isInvisibleToCounters()))
+		{
 			if (MailCounterTable::getCount([
 				'=MAILBOX_ID' => $mailboxId,
 				'=ENTITY_TYPE' => 'DIR',
@@ -43,16 +46,14 @@ class MessageFolder
 				MailCounterTable::add([
 					'MAILBOX_ID' => $mailboxId,
 					'ENTITY_TYPE' => 'DIR',
-					'ENTITY_ID' => $dirForMoveMessagesId
-				],
-					[
-						"VALUE" => $idsUnseenCount,
-					]);
+					'ENTITY_ID' => $dirForMoveMessagesId,
+					"VALUE" => $idsUnseenCount,
+				]);
 			}
 		}
 	}
 
-	public static function decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount)
+	public static function decreaseDirCounter($mailboxId, $dirWithMessagesId, $idsUnseenCount): void
 	{
 		if($dirWithMessagesId)
 		{
@@ -70,7 +71,7 @@ class MessageFolder
 						'ENTITY_ID' => $dirWithMessagesId
 					],
 					[
-						"VALUE" => new \Bitrix\Main\DB\SqlExpression("?# - $idsUnseenCount", "VALUE")
+						"VALUE" => new \Bitrix\Main\DB\SqlExpression("CASE WHEN ?# >= $idsUnseenCount THEN ?# - $idsUnseenCount ELSE 0 END", "VALUE", "VALUE")
 					]
 				);
 			}

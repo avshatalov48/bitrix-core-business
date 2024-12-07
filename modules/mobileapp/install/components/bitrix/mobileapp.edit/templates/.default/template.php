@@ -19,13 +19,13 @@ if(isset($arParams["HEAD"])):?>
 <?endif;?>
 
 <?if(isset($arParams["TITLE"])):?>
-	<script type="text/javascript">
+	<script>
 		app.setPageTitle({title: "<?=$arParams["TITLE"]?>"});
 	</script>
 <?endif;?>
 
 <?if(isset($arParams["BUTTONS"]) && is_array($arParams["BUTTONS"])):?>
-	<script type="text/javascript">
+	<script>
 	<?if(in_array("SAVE", $arParams["BUTTONS"])):?>
 		app.addButtons({
 			saveButton:

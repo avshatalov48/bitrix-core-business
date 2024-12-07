@@ -633,7 +633,7 @@ class CPullOptions
 
 			if (CPullOptions::CheckNeedRun())
 			{
-				Asset::getInstance()->addString('<script type="text/javascript">BX.bind(window, "load", function(){BX.PULL.start();});</script>');
+				Asset::getInstance()->addString('<script>BX.bind(window, "load", function(){BX.PULL.start();});</script>');
 			}
 		}
 	}

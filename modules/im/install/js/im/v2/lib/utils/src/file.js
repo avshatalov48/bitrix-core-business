@@ -9,7 +9,7 @@ export const FileUtil = {
 			return '';
 		}
 
-		return fileName.split('.').splice(-1)[0];
+		return fileName.split('.').splice(-1)[0].toLowerCase();
 	},
 
 	getIconTypeByFilename(fileName: string): string

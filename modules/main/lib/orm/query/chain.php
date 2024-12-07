@@ -287,7 +287,7 @@ class Chain
 			{
 				$ref_entity_name = substr($def_element, 0, $pos_wh);
 
-				if (strpos($ref_entity_name, '\\') === false)
+				if (!str_contains($ref_entity_name, '\\'))
 				{
 					// if reference has no namespace, then it'is in the namespace of previous entity
 					$ref_entity_name = $prev_entity->getNamespace().$ref_entity_name;

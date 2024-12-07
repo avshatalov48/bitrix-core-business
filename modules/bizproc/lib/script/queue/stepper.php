@@ -74,7 +74,7 @@ final class Stepper extends Main\Update\Stepper
 				$startParameters = [];
 			}
 
-			$startParameters[\CBPDocument::PARAM_TAGRET_USER] = $queue->getStartedBy();
+			$startParameters[\CBPDocument::PARAM_TAGRET_USER] = 'user_' . $queue->getStartedBy();
 			$startParameters[\CBPDocument::PARAM_USE_FORCED_TRACKING] = true;
 			$startParameters[\CBPDocument::PARAM_IGNORE_SIMULTANEOUS_PROCESSES_LIMIT] = true;
 			$startParameters[\CBPDocument::PARAM_DOCUMENT_TYPE] = $documentType;

@@ -25,43 +25,43 @@ class Xscan extends Controller
 			switch ($k)
 			{
 				case 'mtime_from':
-					$filter['>=mtime'] = $v;
+					$filter['>=MTIME'] = $v;
 					break;
 				case 'mtime_to':
-					$filter['<=mtime'] = $v;
+					$filter['<=MTIME'] = $v;
 					break;
 				case 'ctime_from':
-					$filter['>=ctime'] = $v;
+					$filter['>=CTIME'] = $v;
 					break;
 				case 'ctime_to':
-					$filter['<=ctime'] = $v;
+					$filter['<=CTIME'] = $v;
 					break;
 				case 'tags':
 					foreach ($v as $t)
 					{
-						$filter[] = ['%tags' => $t];
+						$filter[] = ['%TAGS' => $t];
 					}
 					break;
 
 				case 'preset':
 					switch ($v){
 						case 'a':
-							$filter[] = ['%src' => '/bitrix/admin'];
+							$filter[] = ['%SRC' => '/bitrix/admin'];
 							break;
 						case 'm':
-							$filter[] = ['%src' => '/bitrix/modules'];
+							$filter[] = ['%SRC' => '/bitrix/modules'];
 							break;
 						case 'c':
-							$filter[] = ['%src' => '/bitrix/components'];
+							$filter[] = ['%SRC' => '/bitrix/components'];
 							break;
 						case '!m':
-							$filter[] = ['!%src' => '/bitrix/modules'];
+							$filter[] = ['!%SRC' => '/bitrix/modules'];
 							break;
 						case 'pop':
 							$filter[] = ['LOGIC' => 'OR',
-								['%src' => '/prolog_after.php'], ['%src' => '/index.php'],
-								['%src' => '/content.php'], ['%src' => '/main.php'], ['%src' => '/spread.php'],
-								['%src' => '/bx_root.php'], ['%src' => '/.access.php'], ['%src' => '/radio.php']
+								['%SRC' => '/prolog_after.php'], ['%SRC' => '/index.php'],
+								['%SRC' => '/content.php'], ['%SRC' => '/main.php'], ['%SRC' => '/spread.php'],
+								['%SRC' => '/bx_root.php'], ['%SRC' => '/.access.php'], ['%SRC' => '/radio.php']
 							];
 							break;
 					}
@@ -71,11 +71,11 @@ class Xscan extends Controller
 					if (strpos($v, '!') === 0)
 					{
 						$v = ltrim($v, '!');
-						$filter[] = ['LOGIC' => 'AND', ['!%src' => $v], ['!%message' => $v]];
+						$filter[] = ['LOGIC' => 'AND', ['!%SRC' => $v], ['!%MESSAGE' => $v]];
 					}
 					else
 					{
-						$filter[] = ['LOGIC' => 'OR', ['%src' => $v], ['%message' => $v]];
+						$filter[] = ['LOGIC' => 'OR', ['%SRC' => $v], ['%MESSAGE' => $v]];
 					}
 					break;
 			}
@@ -152,11 +152,11 @@ class Xscan extends Controller
 		$file = '/' . trim($file, '/');
 		$msg = '';
 
-		$ent = XScanResultTable::getList(['select' => ['id'], 'filter' => ['src' => $file]])->fetch();
+		$ent = XScanResultTable::getList(['select' => ['ID'], 'filter' => ['SRC' => $file]])->fetch();
 
 		if ($ent)
 		{
-			XScanResultTable::delete($ent['id']);
+			XScanResultTable::delete($ent['ID']);
 			$msg = \CBitrixXscan::ShowMsg(Loc::getMessage("BITRIX_XSCAN_HIDED") . htmlspecialcharsbx($file));
 		}
 
@@ -167,7 +167,7 @@ class Xscan extends Controller
 	{
 		\Bitrix\Main\Type\Collection::normalizeArrayValuesByInt($files);
 
-		$filter = $all === 'true' ? self::getFilter(): ['@id' => $files];
+		$filter = $all === 'true' ? self::getFilter(): ['@ID' => $files];
 
 		XScanResultTable::deleteList($filter);
 
@@ -180,7 +180,7 @@ class Xscan extends Controller
 
 		if ($file)
 		{
-			XScanResultTable::add(['type' => 'file', 'src' => $file, 'message' => 'error', 'score' => 0.5]);
+			XScanResultTable::add(['TYPE' => 'file', 'SRC' => $file, 'MESSAGE' => 'error', 'SCORE' => 0.5]);
 		}
 
 		return '';

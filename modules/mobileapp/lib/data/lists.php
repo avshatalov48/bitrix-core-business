@@ -55,21 +55,12 @@ class Lists
 
 	public function showJSON()
 	{
-		/**
-		 * @var $APPLICATION \CMain
-		 */
-		global $APPLICATION;
-
 		$listData = array(
 			"data" => $this->items,
 			"sections" => $this->sections,
 			"names" => $this->categoryNames,
 		);
 
-		if(SITE_CHARSET != "UTF8")
-		{
-			$listData = Encoding::convertEncodingArray($listData, SITE_CHARSET, "UTF8");
-		}
 		header("Content-Type: application/x-javascript");
 		echo json_encode($listData);
 	}

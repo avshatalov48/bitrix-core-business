@@ -13,6 +13,7 @@ export type TagItemOptions = {
 	fontWeight?: string,
 	link?: string,
 	onclick?: Function,
+	clickable?: boolean,
 	maxWidth?: number,
 	deselectable?: boolean,
 	animate?: boolean,

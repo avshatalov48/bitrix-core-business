@@ -1,19 +1,27 @@
 import { Extension } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
-import { UploadingService } from 'im.v2.provider.service';
-import { Button as MessengerButton, ButtonSize, ButtonColor } from 'im.v2.component.elements';
-import { isSendMessageCombination, isNewLineCombination } from 'im.v2.lib.hotkey';
-import { Textarea } from 'im.v2.lib.textarea';
+import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
+import { EventType, FileType } from 'im.v2.const';
 import { DraftManager } from 'im.v2.lib.draft';
-import { EventType } from 'im.v2.const';
+import { isNewLineCombination, isSendMessageCombination } from 'im.v2.lib.hotkey';
+import { Textarea } from 'im.v2.lib.textarea';
+import { UploadingService } from 'im.v2.provider.service';
 
+import { ResizeDirection, ResizeManager } from '../../classes/resize-manager';
 import { FileItem } from './file-item';
 
 import '../../css/upload-preview/upload-preview-content.css';
 
-import type { UploaderFile } from 'ui.uploader.core';
+import type { JsonObject } from 'main.core';
 import type { ImModelFile } from 'im.v2.model';
+import type { UploaderFile } from 'ui.uploader.core';
+
+const BUTTONS_CONTAINER_HEIGHT = 74;
+const TextareaHeight = {
+	max: 208,
+	min: 46,
+};
 
 // @vue/component
 export const UploadPreviewContent = {
@@ -34,13 +42,15 @@ export const UploadPreviewContent = {
 			default: '',
 		},
 	},
-	emits: ['sendFiles', 'close'],
-	data(): { text: string }
+	emits: ['sendFiles', 'close', 'updateTitle'],
+	data(): JsonObject
 	{
 		return {
 			text: '',
 			sendAsFile: false,
 			files: [],
+			textareaHeight: TextareaHeight.min,
+			textareaResizedHeight: 0,
 		};
 	},
 	computed:
@@ -74,9 +84,31 @@ export const UploadPreviewContent = {
 
 			return settings.get('maxLength');
 		},
+		textareaHeightStyle(): number | string
+		{
+			return this.textareaHeight === 'auto' ? 'auto' : `${this.textareaHeight}px`;
+		},
+		title(): string
+		{
+			const onlyImages = this.filesFromStore.every((file) => {
+				return file.type === FileType.image;
+			});
+
+			return onlyImages
+				? this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE')
+				: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE_FILES');
+		},
 	},
 	watch:
 	{
+		text()
+		{
+			void this.adjustTextareaHeight();
+		},
+		title()
+		{
+			this.$emit('updateTitle', this.title);
+		},
 		sendAsFile(newValue: boolean)
 		{
 			this.files.forEach((file: UploaderFile) => {
@@ -86,21 +118,53 @@ export const UploadPreviewContent = {
 	},
 	created()
 	{
-		this.text = this.textareaValue;
-		this.insertText('');
+		this.initResizeManager();
 		this.files = this.getUploadingService().getFiles(this.uploaderId);
 	},
 	mounted()
 	{
+		this.text = this.textareaValue;
+		this.insertText('');
 		this.$refs.messageText.focus();
 	},
 	beforeUnmount()
 	{
 		this.insertText(this.text);
 		DraftManager.getInstance().setDraftText(this.dialogId, this.text);
+		this.resizeManager.destroy();
 	},
 	methods:
 	{
+		async adjustTextareaHeight()
+		{
+			this.textareaHeight = 'auto';
+			await this.$nextTick();
+
+			if (!this.$refs.messageText)
+			{
+				return;
+			}
+
+			const TEXTAREA_BORDERS_WIDTH = 2;
+			const newMaxPoint = Math.min(TextareaHeight.max, this.$refs.messageText.scrollHeight + TEXTAREA_BORDERS_WIDTH);
+			if (this.doesContentOverflowScreen(newMaxPoint))
+			{
+				const textareaTopPoint = this.$refs.messageText.getBoundingClientRect().top;
+				const availableHeight = window.innerHeight - textareaTopPoint - BUTTONS_CONTAINER_HEIGHT;
+				this.textareaHeight = Math.max(TextareaHeight.min, availableHeight);
+
+				return;
+			}
+
+			if (this.resizedTextareaHeight)
+			{
+				this.textareaHeight = Math.max(newMaxPoint, this.resizedTextareaHeight);
+
+				return;
+			}
+
+			this.textareaHeight = Math.max(newMaxPoint, TextareaHeight.min);
+		},
 		getUploadingService(): UploadingService
 		{
 			if (!this.uploadingService)
@@ -164,8 +228,37 @@ export const UploadPreviewContent = {
 		{
 			EventEmitter.emit(EventType.textarea.insertText, {
 				text,
+				dialogId: this.dialogId,
 				replace: true,
 			});
+		},
+		loc(phraseCode: string, replacements: {[p: string]: string} = {}): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
+		},
+		initResizeManager()
+		{
+			this.resizeManager = new ResizeManager({
+				direction: ResizeDirection.down,
+				minHeight: TextareaHeight.min,
+				maxHeight: TextareaHeight.max,
+			});
+			this.resizeManager.subscribe(ResizeManager.events.onHeightChange, ({ data: { newHeight } }) => {
+				this.textareaHeight = newHeight;
+			});
+			this.resizeManager.subscribe(ResizeManager.events.onResizeStop, () => {
+				this.resizedTextareaHeight = this.textareaHeight;
+			});
+		},
+		onResizeStart(event)
+		{
+			this.resizeManager.onResizeStart(event, this.textareaHeight);
+		},
+		doesContentOverflowScreen(newMaxPoint: number): boolean
+		{
+			const textareaTop = this.$refs.messageText.getBoundingClientRect().top;
+
+			return textareaTop + newMaxPoint + BUTTONS_CONTAINER_HEIGHT > window.innerHeight;
 		},
 	},
 	template: `
@@ -182,28 +275,29 @@ export const UploadPreviewContent = {
 				<!--</label>-->
 				<textarea
 					ref="messageText"
-					type="text"
 					v-model="text"
-					@keydown="onKeyDownHandler"
+					:placeholder="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
+					:maxlength="inputMaxLength"
+					:style="{'height': textareaHeightStyle}"
 					class="bx-im-upload-preview__message-text"
 					rows="1"
-					:placeholder="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_INPUT_PLACEHOLDER')"
-					:maxlength="inputMaxLength"
+					@keydown="onKeyDownHandler"
 				></textarea>
+				<div @mousedown="onResizeStart" class="bx-im-upload-preview__drag-handle"></div>
 			</div>
 			<div class="bx-im-upload-preview__controls-buttons">
 				<MessengerButton
 					:color="ButtonColor.Primary"
 					:size="ButtonSize.L"
 					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
+					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_SEND')"
 					@click="onSend"
 				/>
 				<MessengerButton
 					:color="ButtonColor.LightBorder"
 					:size="ButtonSize.L"
 					:isRounded="true"
-					:text="$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
+					:text="loc('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_BUTTON_CANCEL')"
 					@click="onCancel"
 				/>
 			</div>

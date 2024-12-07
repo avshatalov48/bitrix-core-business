@@ -11,6 +11,7 @@ namespace Bitrix\Sender\Internals;
 use Bitrix\Main\Application;
 use Bitrix\Main\Context;
 use Bitrix\Main\HttpRequest;
+use Bitrix\Sender\Internals\Model\FileInfoTable;
 
 /**
  * Class PostFiles
@@ -89,6 +90,7 @@ class PostFiles
 		foreach ($filesToDelete as $fileId)
 		{
 			\CFile::Delete($fileId);
+			FileInfoTable::delete($fileId);
 		}
 
 

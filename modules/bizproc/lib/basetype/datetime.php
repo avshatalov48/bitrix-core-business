@@ -19,4 +19,12 @@ class Datetime extends Date
 	{
 		return FieldType::DATETIME;
 	}
+
+	public static function compareValues($valueA, $valueB)
+	{
+		$valueA = \CBPHelper::makeTimestamp($valueA, true);
+		$valueB = \CBPHelper::makeTimestamp($valueB, true);
+
+		return Base::compareValues($valueA, $valueB);
+	}
 }

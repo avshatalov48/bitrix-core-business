@@ -1,5 +1,6 @@
 export type PullExtraParams = {
 	im_revision: number,
+	is_shared_event: boolean,
 	im_revision_mobile: number,
 	revision_im_mobile: number,
 	revision_im_rest: number,
@@ -31,10 +32,13 @@ export type RawChat = {
 	extranet: boolean,
 	id: string,
 	manager_list: number[],
+	message_count: number,
 	message_type: string,
 	mute_list: {[userId: string]: boolean},
 	name: string,
 	owner: string,
+	parent_chat_id: number,
+	parent_message_id: number,
 	public: string,
 	type: string
 };
@@ -129,4 +133,13 @@ export type RawMessage = {
 		users: RawUser[],
 		usersShort: RawShortUser[],
 	},
+};
+
+export type RawMultidialog = {
+	botId: string,
+	dialogId: string,
+	chatId: number,
+	status: string,
+	isSupport?: true,
+	dateMessage?: string,
 };

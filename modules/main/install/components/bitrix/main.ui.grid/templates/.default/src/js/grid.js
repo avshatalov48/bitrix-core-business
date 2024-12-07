@@ -1,5 +1,5 @@
-;(function() {
-	"use strict";
+(function() {
+	'use strict';
 
 	BX.namespace('BX.Main');
 
@@ -42,6 +42,8 @@
 	 * @param {string} arParams.CONFIRM_RESET_MESSAGE
 	 * @param {object} arParams.COLUMNS_ALL_WITH_SECTIONS
 	 * @param {boolean} arParams.ENABLE_FIELDS_SEARCH
+	 * @param {object} arParams.CHECKBOX_LIST_OPTIONS
+	 * @param {array} arParams.HEADERS_SECTIONS
 	 * @param {string} arParams.RESET_DEFAULT
 	 * @param {object} userOptions
 	 * @param {object} userOptionsActions
@@ -61,7 +63,7 @@
 		panelActions,
 		panelTypes,
 		editorTypes,
-		messageTypes
+		messageTypes,
 	)
 	{
 		BX.Event.EventEmitter.makeObservable(this, 'BX.Main.Grid');
@@ -99,12 +101,12 @@
 			panelActions,
 			panelTypes,
 			editorTypes,
-			messageTypes
+			messageTypes,
 		);
 	};
 
 	BX.Main.grid.prototype = {
-		init: function(containerId, arParams, userOptions, userOptionsActions, userOptionsHandlerUrl, panelActions, panelTypes, editorTypes, messageTypes)
+		init(containerId, arParams, userOptions, userOptionsActions, userOptionsHandlerUrl, panelActions, panelTypes, editorTypes, messageTypes)
 		{
 			this.baseUrl = window.location.pathname + window.location.search;
 			this.container = BX(containerId);
@@ -120,13 +122,13 @@
 			}
 			else
 			{
-				throw new Error('BX.Main.grid.init: arParams isn\'t object');
+				throw new TypeError('BX.Main.grid.init: arParams isn\'t object');
 			}
 
 			this.settings = new BX.Grid.Settings();
 			this.containerId = containerId;
 			this.userOptions = new BX.Grid.UserOptions(this, userOptions, userOptionsActions, userOptionsHandlerUrl);
-			this.gridSettings = new BX.Grid.SettingsWindow(this);
+			this.gridSettings = new BX.Grid.SettingsWindow.Manager(this);
 			this.messages = new BX.Grid.Message(this, messageTypes);
 			this.cache = new BX.Cache.MemoryCache();
 
@@ -156,7 +158,7 @@
 
 			if (!BX.type.isDomNode(this.getContainer()))
 			{
-				throw 'BX.Main.grid.init: Failed to find container with id ' + this.getContainerId();
+				throw `BX.Main.grid.init: Failed to find container with id ${this.getContainerId()}`;
 			}
 
 			if (!BX.type.isDomNode(this.getTable()))
@@ -200,7 +202,7 @@
 			}
 		},
 
-		destroy: function()
+		destroy()
 		{
 			BX.removeCustomEvent(window, 'Grid::unselectRow', BX.proxy(this._onUnselectRows, this));
 			BX.removeCustomEvent(window, 'Grid::unselectRows', BX.proxy(this._onUnselectRows, this));
@@ -218,12 +220,12 @@
 			this.getPageSize() && this.getPageSize().destroy();
 		},
 
-		_onFrameResize: function()
+		_onFrameResize()
 		{
 			BX.onCustomEvent(window, 'Grid::resize', [this]);
 		},
 
-		_onGridUpdated: function()
+		_onGridUpdated()
 		{
 			this.initStickedColumns();
 			this.adjustFadePosition(this.getFadeOffset());
@@ -233,16 +235,16 @@
 		 * @private
 		 * @return {string}
 		 */
-		getFrameId: function()
+		getFrameId()
 		{
-			return "main-grid-tmp-frame-"+this.getContainerId();
+			return `main-grid-tmp-frame-${this.getContainerId()}`;
 		},
 
-		enableActionsPanel: function()
+		enableActionsPanel()
 		{
 			if (this.getParam('SHOW_ACTION_PANEL'))
 			{
-				var panel = this.getActionsPanel().getPanel();
+				const panel = this.getActionsPanel().getPanel();
 
 				if (BX.type.isDomNode(panel))
 				{
@@ -251,11 +253,11 @@
 			}
 		},
 
-		disableActionsPanel: function()
+		disableActionsPanel()
 		{
 			if (this.getParam('SHOW_ACTION_PANEL'))
 			{
-				var panel = this.getActionsPanel().getPanel();
+				const panel = this.getActionsPanel().getPanel();
 
 				if (BX.type.isDomNode(panel))
 				{
@@ -264,15 +266,15 @@
 			}
 		},
 
-		getSettingsWindow: function()
+		getSettingsWindow()
 		{
 			return this.gridSettings;
 		},
 
-		_onUnselectRows: function()
+		_onUnselectRows()
 		{
-			var panel = this.getActionsPanel();
-			var checkbox;
+			const panel = this.getActionsPanel();
+			let checkbox;
 
 			if (panel instanceof BX.Grid.ActionPanel)
 			{
@@ -291,7 +293,7 @@
 		/**
 		 * @return {boolean}
 		 */
-		isIE: function()
+		isIE()
 		{
 			if (!BX.type.isBoolean(this.ie))
 			{
@@ -301,11 +303,10 @@
 			return this.ie;
 		},
 
-
 		/**
 		 * @return {boolean}
 		 */
-		isTouch: function()
+		isTouch()
 		{
 			if (!BX.type.isBoolean(this.touch))
 			{
@@ -315,40 +316,38 @@
 			return this.touch;
 		},
 
-
 		/**
 		 * @param {string} paramName
 		 * @param {*} [defaultValue]
 		 * @return {*}
 		 */
-		getParam: function(paramName, defaultValue)
+		getParam(paramName, defaultValue)
 		{
-			if(defaultValue === undefined)
+			if (defaultValue === undefined)
 			{
 				defaultValue = null;
 			}
+
 			return (this.arParams.hasOwnProperty(paramName) ? this.arParams[paramName] : defaultValue);
 		},
-
 
 		/**
 		 * @return {HTMLElement[]}
 		 */
-		getCounterTotal: function()
+		getCounterTotal()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classCounterTotal'), true);
 		},
 
-		getActionKey: function()
+		getActionKey()
 		{
-			return ('action_button_' + this.getId());
+			return (`action_button_${this.getId()}`);
 		},
-
 
 		/**
 		 * @return {?BX.Grid.PinHeader}
 		 */
-		getPinHeader: function()
+		getPinHeader()
 		{
 			if (this.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -358,11 +357,10 @@
 			return this.pinHeader;
 		},
 
-
 		/**
 		 * @return {BX.Grid.Resize}
 		 */
-		getResize: function()
+		getResize()
 		{
 			if (!(this.resize instanceof BX.Grid.Resize) && this.getParam('ALLOW_COLUMNS_RESIZE'))
 			{
@@ -372,10 +370,10 @@
 			return this.resize;
 		},
 
-		confirmForAll: function(container)
+		confirmForAll(container)
 		{
-			var checkbox;
-			var self = this;
+			let checkbox;
+			const self = this;
 
 			if (BX.type.isDomNode(container))
 			{
@@ -385,8 +383,8 @@
 			if (checkbox.checked)
 			{
 				this.getActionsPanel().confirmDialog(
-					{CONFIRM: true, CONFIRM_MESSAGE: this.arParams.CONFIRM_FOR_ALL_MESSAGE},
-					function() {
+					{ CONFIRM: true, CONFIRM_MESSAGE: this.arParams.CONFIRM_FOR_ALL_MESSAGE },
+					() => {
 						if (BX.type.isDomNode(checkbox))
 						{
 							checkbox.checked = true;
@@ -402,7 +400,7 @@
 						self.lastRowAction = null;
 						BX.onCustomEvent(window, 'Grid::allRowsSelected', []);
 					},
-					function() {
+					() => {
 						if (BX.type.isDomNode(checkbox))
 						{
 							checkbox.checked = null;
@@ -412,7 +410,7 @@
 							self.adjustCheckAllCheckboxes();
 							self.lastRowAction = null;
 						}
-					}
+					},
 				);
 			}
 			else
@@ -428,35 +426,35 @@
 			}
 		},
 
-		disableCheckAllCheckboxes: function()
+		disableCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(checkbox) {
+			this.getCheckAllCheckboxes().forEach((checkbox) => {
 				checkbox.getNode().disabled = true;
 			});
 		},
 
-		enableCheckAllCheckboxes: function()
+		enableCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(checkbox) {
+			this.getCheckAllCheckboxes().forEach((checkbox) => {
 				checkbox.getNode().disabled = false;
 			});
 		},
 
-		indeterminateCheckAllCheckboxes: function()
+		indeterminateCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(checkbox) {
+			this.getCheckAllCheckboxes().forEach((checkbox) => {
 				checkbox.getNode().indeterminate = true;
 			});
 		},
 
-		determinateCheckAllCheckboxes: function()
+		determinateCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(checkbox) {
+			this.getCheckAllCheckboxes().forEach((checkbox) => {
 				checkbox.getNode().indeterminate = false;
 			});
 		},
 
-		editSelected: function()
+		editSelected()
 		{
 			this.disableCheckAllCheckboxes();
 			this.getRows().editSelected();
@@ -469,25 +467,25 @@
 			BX.onCustomEvent(window, 'Grid::resize', [this]);
 		},
 
-		editSelectedSave: function()
+		editSelectedSave()
 		{
-			var data = {'FIELDS': this.getRows().getEditSelectedValues(true)};
+			const data = { FIELDS: this.getRows().getEditSelectedValues(true) };
 
-			if (this.getParam("ALLOW_VALIDATE"))
+			if (this.getParam('ALLOW_VALIDATE'))
 			{
 				this.tableFade();
 				data[this.getActionKey()] = 'validate';
-				this.getData().request('', 'POST', data, 'validate', function(res) {
+				this.getData().request('', 'POST', data, 'validate', (res) => {
 					res = JSON.parse(res);
 
-					if (res.messages.length)
+					if (res.messages.length > 0)
 					{
-						this.arParams['MESSAGES'] = res.messages;
+						this.arParams.MESSAGES = res.messages;
 						this.messages.show();
 
-						var editButton = this.getActionsPanel().getButtons()
-							.find(function(button) {
-								return button.id === "grid_edit_button_control";
+						const editButton = this.getActionsPanel().getButtons()
+							.find((button) => {
+								return button.id === 'grid_edit_button_control';
 							});
 
 						this.tableUnfade();
@@ -498,7 +496,7 @@
 						data[this.getActionKey()] = 'edit';
 						this.reloadTable('POST', data);
 					}
-				}.bind(this));
+				});
 
 				return;
 			}
@@ -507,30 +505,32 @@
 			{
 				data[this.getActionKey()] = 'edit';
 
-				var self = this;
+				const self = this;
 				this.tableFade();
 
 				this.getData().request(
 					'',
-					"POST",
+					'POST',
 					data,
 					'',
 					function(res) {
 						try
 						{
 							res = JSON.parse(res);
-						} catch(err) {
-							res = {messages: []};
+						}
+						catch
+						{
+							res = { messages: [] };
 						}
 
-						if (res.messages.length)
+						if (res.messages.length > 0)
 						{
-							self.arParams['MESSAGES'] = res.messages;
+							self.arParams.MESSAGES = res.messages;
 							self.messages.show();
 
-							var editButton = self.getActionsPanel().getButtons()
-								.find(function(button) {
-									return button.id === "grid_edit_button_control";
+							const editButton = self.getActionsPanel().getButtons()
+								.find((button) => {
+									return button.id === 'grid_edit_button_control';
 								});
 
 							self.tableUnfade();
@@ -540,7 +540,7 @@
 						}
 
 						self.getRows().reset();
-						var bodyRows = this.getBodyRows();
+						const bodyRows = this.getBodyRows();
 
 						self.getUpdater().updateContainer(this.getContainer());
 						self.getUpdater().updateHeadRows(this.getHeadRows());
@@ -582,10 +582,10 @@
 
 						BX.onCustomEvent(window, 'Grid::updated', [self]);
 					},
-					function(res) {
-						var editButton = self.getActionsPanel().getButtons()
-							.find(function(button) {
-								return button.id === "grid_edit_button_control";
+					(res) => {
+						const editButton = self.getActionsPanel().getButtons()
+							.find((button) => {
+								return button.id === 'grid_edit_button_control';
 							});
 
 						self.tableUnfade();
@@ -600,14 +600,14 @@
 			this.reloadTable('POST', data);
 		},
 
-		getForAllKey: function()
+		getForAllKey()
 		{
-			return 'action_all_rows_' + this.getId();
+			return `action_all_rows_${this.getId()}`;
 		},
 
-		updateRow: function(id, data, url, callback)
+		updateRow(id, data, url, callback)
 		{
-			var row = this.getRows().getById(id);
+			const row = this.getRows().getById(id);
 
 			if (row instanceof BX.Grid.Row)
 			{
@@ -615,9 +615,9 @@
 			}
 		},
 
-		removeRow: function(id, data, url, callback)
+		removeRow(id, data, url, callback)
 		{
-			var row = this.getRows().getById(id);
+			const row = this.getRows().getById(id);
 
 			if (row instanceof BX.Grid.Row)
 			{
@@ -625,15 +625,15 @@
 			}
 		},
 
-		addRow: function(data, url, callback)
+		addRow(data, url, callback)
 		{
-			var action = this.getUserOptions().getAction('GRID_ADD_ROW');
-			var rowData = {action: action, data: data};
-			var self = this;
+			const action = this.getUserOptions().getAction('GRID_ADD_ROW');
+			const rowData = { action, data };
+			const self = this;
 
 			this.tableFade();
 			this.getData().request(url, 'POST', rowData, null, function() {
-				var bodyRows = this.getBodyRows();
+				const bodyRows = this.getBodyRows();
 				self.getUpdater().updateBodyRows(bodyRows);
 				self.tableUnfade();
 				self.getRows().reset();
@@ -659,19 +659,20 @@
 					self.rowsSortable.reinit();
 				}
 
-				BX.onCustomEvent(window, 'Grid::rowAdded', [{data: data, grid: self, response: this}]);
+				BX.onCustomEvent(window, 'Grid::rowAdded', [{ data, grid: self, response: this }]);
 				BX.onCustomEvent(window, 'Grid::updated', [self]);
 
 				if (BX.type.isFunction(callback))
 				{
-					callback({data: data, grid: self, response: this});
+					callback({ data, grid: self, response: this });
 				}
 			});
 		},
 
-		editSelectedCancel: function()
+		editSelectedCancel()
 		{
 			this.getRows().editSelectedCancel();
+			this.enableCheckAllCheckboxes();
 
 			if (this.getParam('ALLOW_PIN_HEADER'))
 			{
@@ -679,30 +680,30 @@
 			}
 		},
 
-		removeSelected: function()
+		removeSelected()
 		{
-			var data = { 'ID': this.getRows().getSelectedIds() };
-			var values = this.getActionsPanel().getValues();
+			const data = { ID: this.getRows().getSelectedIds() };
+			const values = this.getActionsPanel().getValues();
 			data[this.getActionKey()] = 'delete';
 			data[this.getForAllKey()] = this.getForAllKey() in values ? values[this.getForAllKey()] : 'N';
 			this.reloadTable('POST', data);
 		},
 
-		sendSelected: function()
+		sendSelected()
 		{
-			var values = this.getActionsPanel().getValues();
-			var selectedRows = this.getRows().getSelectedIds();
-			var data = {
+			const values = this.getActionsPanel().getValues();
+			const selectedRows = this.getRows().getSelectedIds();
+			const data = {
 				rows: selectedRows,
-				controls: values
+				controls: values,
 			};
 
 			this.reloadTable('POST', data);
 		},
 
-		sendRowAction: function(action, data)
+		sendRowAction(action, data)
 		{
-			if(!BX.type.isPlainObject(data))
+			if (!BX.type.isPlainObject(data))
 			{
 				data = {};
 			}
@@ -715,49 +716,50 @@
 		/**
 		 * @return {?BX.Grid.ActionPanel}
 		 */
-		getActionsPanel: function()
+		getActionsPanel()
 		{
 			return this.actionPanel;
 		},
 
-		getPinPanel: function()
+		getPinPanel()
 		{
 			return this.pinPanel;
 		},
 
-		getApplyButton: function()
+		getApplyButton()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classPanelButton'), true);
 		},
 
-		getEditor: function()
+		getEditor()
 		{
 			return this.editor;
 		},
 
-		reload: function(url)
+		reload(url)
 		{
-			this.reloadTable("GET", {}, null, url);
+			this.reloadTable('GET', {}, null, url);
 		},
 
-		getPanels: function()
+		getPanels()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classPanels'), true);
 		},
 
-		getEmptyBlock: function()
+		getEmptyBlock()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classEmptyBlock'), true);
 		},
 
-		adjustEmptyTable: function(rows)
+		adjustEmptyTable(rows)
 		{
-			function adjustEmptyBlockPosition(event) {
-				var target = event.currentTarget;
-				BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(target) + 'px, 0px, 0');
+			function adjustEmptyBlockPosition(event)
+			{
+				const target = event.currentTarget;
+				BX.style(emptyBlock, 'transform', `translate3d(${BX.scrollLeft(target)}px, 0px, 0`);
 			}
 
-			var filteredRows = rows.filter(function(row) {
+			const filteredRows = rows.filter((row) => {
 				return (
 					BX.Dom.attr(row, 'data-id') !== 'template_0'
 					&& !BX.Dom.hasClass(row, 'main-grid-hide')
@@ -770,30 +772,30 @@
 				&& BX.hasClass(filteredRows[0], this.settings.get('classEmptyRows'))
 			)
 			{
-				var gridRect = BX.pos(this.getContainer());
-				var scrollBottom = BX.scrollTop(window) + BX.height(window);
-				var diff = gridRect.bottom - scrollBottom;
-				var panelsHeight = BX.height(this.getPanels());
+				const gridRect = BX.pos(this.getContainer());
+				const scrollBottom = BX.scrollTop(window) + BX.height(window);
+				const diff = gridRect.bottom - scrollBottom;
+				const panelsHeight = BX.height(this.getPanels());
 				var emptyBlock = this.getEmptyBlock();
-				var containerWidth = BX.width(this.getContainer());
+				const containerWidth = BX.width(this.getContainer());
 
 				if (containerWidth)
 				{
 					BX.width(emptyBlock, containerWidth);
 				}
 
-				BX.style(emptyBlock, 'transform', 'translate3d(' + BX.scrollLeft(this.getScrollContainer()) + 'px, 0px, 0');
+				BX.style(emptyBlock, 'transform', `translate3d(${BX.scrollLeft(this.getScrollContainer())}px, 0px, 0`);
 
 				BX.unbind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
 				BX.bind(this.getScrollContainer(), 'scroll', adjustEmptyBlockPosition);
 
-				var parent = this.getContainer();
-				var paddingOffset = 0;
+				let parent = this.getContainer();
+				let paddingOffset = 0;
 
 				while (parent = parent.parentElement)
 				{
-					var parentPaddingTop = parseFloat(BX.style(parent, "padding-top"));
-					var parentPaddingBottom = parseFloat(BX.style(parent, "padding-bottom"));
+					const parentPaddingTop = parseFloat(BX.style(parent, 'padding-top'));
+					const parentPaddingBottom = parseFloat(BX.style(parent, 'padding-bottom'));
 
 					if (!isNaN(parentPaddingTop))
 					{
@@ -808,11 +810,16 @@
 
 				if (diff > 0)
 				{
-					BX.style(this.getTable(), 'min-height', (gridRect.height - diff - panelsHeight - paddingOffset) + 'px');
+					BX.style(this.getTable(), 'min-height', `${gridRect.height - diff - panelsHeight - paddingOffset}px`);
+				}
+				else if (Math.abs(diff) === scrollBottom)
+				{
+					// If the grid is hidden
+					BX.style(this.getTable(), 'min-height', '');
 				}
 				else
 				{
-					BX.style(this.getTable(), 'min-height', (gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset) + 'px');
+					BX.style(this.getTable(), 'min-height', `${gridRect.height + Math.abs(diff) - panelsHeight - paddingOffset}px`);
 				}
 
 				BX.Dom.addClass(this.getContainer(), 'main-grid-empty-stub');
@@ -828,35 +835,35 @@
 
 				// Chrome hack for 0116845 bug. @todo refactoring
 				BX.style(this.getTable(), 'height', '1px');
-				requestAnimationFrame(function() {
+				requestAnimationFrame(() => {
 					BX.style(this.getTable(), 'height', '1px');
-				}.bind(this));
+				});
 
 				this.showPanels();
 				BX.Dom.removeClass(this.getContainer(), 'main-grid-empty-stub');
 			}
 		},
 
-		reloadTable: function(method, data, callback, url)
+		reloadTable(method, data, callback, url)
 		{
-			var bodyRows;
+			let bodyRows;
 
-			if(!BX.type.isNotEmptyString(method))
+			if (!BX.type.isNotEmptyString(method))
 			{
-				method = "GET";
+				method = 'GET';
 			}
 
-			if(!BX.type.isPlainObject(data))
+			if (!BX.type.isPlainObject(data))
 			{
 				data = {};
 			}
 
-			var self = this;
+			const self = this;
 			this.tableFade();
 
-			if(!BX.type.isString(url))
+			if (!BX.type.isString(url))
 			{
-				url = "";
+				url = '';
 			}
 
 			this.getData().request(url, method, data, '', function() {
@@ -908,6 +915,7 @@
 				{
 					callback();
 				}
+
 				if (self.getParam('ALLOW_PIN_HEADER'))
 				{
 					self.getPinHeader()._onGridUpdate();
@@ -915,20 +923,20 @@
 			});
 		},
 
-		getGroupEditButton: function()
+		getGroupEditButton()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classGroupEditButton'), true);
 		},
 
-		getGroupDeleteButton: function()
+		getGroupDeleteButton()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classGroupDeleteButton'), true);
 		},
 
-		enableGroupActions: function()
+		enableGroupActions()
 		{
-			var editButton = this.getGroupEditButton();
-			var deleteButton = this.getGroupDeleteButton();
+			const editButton = this.getGroupEditButton();
+			const deleteButton = this.getGroupDeleteButton();
 
 			if (BX.type.isDomNode(editButton))
 			{
@@ -941,10 +949,10 @@
 			}
 		},
 
-		disableGroupActions: function()
+		disableGroupActions()
 		{
-			var editButton = this.getGroupEditButton();
-			var deleteButton = this.getGroupDeleteButton();
+			const editButton = this.getGroupEditButton();
+			const deleteButton = this.getGroupDeleteButton();
 
 			if (BX.type.isDomNode(editButton))
 			{
@@ -957,77 +965,76 @@
 			}
 		},
 
-		closeActionsMenu: function()
+		closeActionsMenu()
 		{
-			var rows = this.getRows().getRows();
-			for(var i = 0, l = rows.length; i < l; i++)
+			const rows = this.getRows().getRows();
+			for (let i = 0, l = rows.length; i < l; i++)
 			{
 				rows[i].closeActionsMenu();
 			}
 		},
 
-		getPageSize: function()
+		getPageSize()
 		{
 			return this.pageSize;
 		},
 
-
 		/**
 		 * @return {?BX.Grid.Fader}
 		 */
-		getFader: function()
+		getFader()
 		{
 			return this.fader;
 		},
 
-
 		/**
 		 * @return {BX.Grid.Data}
 		 */
-		getData: function()
+		getData()
 		{
 			this.data = this.data || new BX.Grid.Data(this);
+
 			return this.data;
 		},
-
 
 		/**
 		 * @return {BX.Grid.Updater}
 		 */
-		getUpdater: function()
+		getUpdater()
 		{
 			this.updater = this.updater || new BX.Grid.Updater(this);
+
 			return this.updater;
 		},
 
-		isSortableHeader: function(item)
+		isSortableHeader(item)
 		{
 			return (
 				BX.hasClass(item, this.settings.get('classHeaderSortable'))
 			);
 		},
 
-		isNoSortableHeader: function(item)
+		isNoSortableHeader(item)
 		{
 			return (
 				BX.hasClass(item, this.settings.get('classHeaderNoSortable'))
 			);
 		},
 
-		bindOnClickHeader: function()
+		bindOnClickHeader()
 		{
-			var self = this;
-			var cell;
+			const self = this;
+			let cell;
 
-			BX.bind(this.getContainer(), 'click', function(event) {
-				cell = BX.findParent(event.target, {tag: 'th'}, true, false);
+			BX.bind(this.getContainer(), 'click', (event) => {
+				cell = BX.findParent(event.target, { tag: 'th' }, true, false);
 
 				if (cell && self.isSortableHeader(cell) && !self.preventSortableClick)
 				{
-					var onBeforeSortEvent = new BX.Event.BaseEvent({
+					const onBeforeSortEvent = new BX.Event.BaseEvent({
 						data: {
 							grid: self,
-							columnName: BX.data(cell, 'name')
+							columnName: BX.data(cell, 'name'),
 						},
 					});
 					BX.Event.EventEmitter.emit('BX.Main.grid:onBeforeSort', onBeforeSortEvent);
@@ -1041,49 +1048,51 @@
 			});
 		},
 
-		enableEditMode: function()
+		enableEditMode()
 		{
 			this.isEditMode = true;
 		},
 
-		disableEditMode: function()
+		disableEditMode()
 		{
 			this.isEditMode = false;
 		},
 
-		isEditMode: function()
+		isEditMode()
 		{
 			return this.isEditMode;
 		},
 
-		getColumnHeaderCellByName: function(name)
+		getColumnHeaderCellByName(name)
 		{
 			return BX.Grid.Utils.getBySelector(
 				this.getContainer(),
-				'#'+this.getId()+' th[data-name="'+name+'"]',
-				true
+				`#${this.getId()} th[data-name="${name}"]`,
+				true,
 			);
 		},
 
-		getColumnByName: function(name)
+		getColumnByName(name)
 		{
-			var columns = this.getParam('DEFAULT_COLUMNS');
-			return !!name && name in columns ? columns[name] : null;
+			const columns = this.getParam('DEFAULT_COLUMNS');
+
+			return Boolean(name) && name in columns ? columns[name] : null;
 		},
 
-		adjustIndex: function(index)
+		adjustIndex(index)
 		{
-			var fixedCells = this.getAllRows()[0]
+			const fixedCells = this.getAllRows()[0]
 				.querySelectorAll('.main-grid-fixed-column').length;
+
 			return (index + fixedCells);
 		},
 
-		getColumnByIndex: function(index)
+		getColumnByIndex(index)
 		{
 			index = this.adjustIndex(index);
 
 			return this.getAllRows()
-				.reduce(function(accumulator, row) {
+				.reduce((accumulator, row) => {
 					if (!row.classList.contains('main-grid-row-custom') && !row.classList.contains('main-grid-row-empty'))
 					{
 						accumulator.push(row.children[index]);
@@ -1093,10 +1102,10 @@
 				}, []);
 		},
 
-		getAllRows: function()
+		getAllRows()
 		{
-			var rows = [].slice.call(this.getTable().rows);
-			var fixedTable = this.getContainer().parentElement.querySelector(".main-grid-fixed-bar table");
+			const rows = [].slice.call(this.getTable().rows);
+			const fixedTable = this.getContainer().parentElement.querySelector('.main-grid-fixed-bar table');
 
 			if (fixedTable)
 			{
@@ -1111,7 +1120,7 @@
 			return this.getAllRows().some((row) => BX.hasClass(row, 'main-grid-row-empty'));
 		},
 
-		initStickedColumns: function()
+		initStickedColumns()
 		{
 			if (this.hasEmptyRow())
 			{
@@ -1132,29 +1141,29 @@
 			}
 		},
 
-		setStickedColumns: function(columns)
+		setStickedColumns(columns)
 		{
 			if (BX.type.isArray(columns))
 			{
-				var options = this.getUserOptions();
-				var actions = [
+				const options = this.getUserOptions();
+				const actions = [
 					{
 						action: options.getAction('GRID_SET_STICKED_COLUMNS'),
-						stickedColumns: columns
-					}
+						stickedColumns: columns,
+					},
 				];
 
-				options.batch(actions, function() {
+				options.batch(actions, () => {
 					this.reloadTable();
-				}.bind(this));
+				});
 			}
 		},
 
-		getStickedColumns: function()
+		getStickedColumns()
 		{
-			var columns = [].slice.call(this.getHead().querySelectorAll('.main-grid-cell-head'));
+			const columns = [].slice.call(this.getHead().querySelectorAll('.main-grid-cell-head'));
 
-			return columns.reduce(function(acc, column) {
+			return columns.reduce((acc, column) => {
 				if (
 					BX.hasClass(column, 'main-grid-fixed-column')
 					&& !BX.hasClass(column, 'main-grid-cell-checkbox')
@@ -1165,36 +1174,36 @@
 				}
 
 				return acc;
-			}.bind(this), []);
+			}, []);
 		},
 
-		stickyColumnByIndex: function(index)
+		stickyColumnByIndex(index)
 		{
-			var column = this.getColumnByIndex(index);
-			var cellWidth = column[0].clientWidth;
+			const column = this.getColumnByIndex(index);
+			const cellWidth = column[0].clientWidth;
 
-			var heights = column.map(function(cell) {
+			const heights = column.map((cell) => {
 				return BX.height(cell);
 			});
 
 			column.forEach(function(cell, cellIndex) {
-				cell.style.minWidth = cellWidth + 'px';
-				cell.style.width = cellWidth + 'px';
-				cell.style.minHeight = heights[cellIndex] + 'px';
+				cell.style.minWidth = `${cellWidth}px`;
+				cell.style.width = `${cellWidth}px`;
+				cell.style.minHeight = `${heights[cellIndex]}px`;
 
-				var clone = BX.clone(cell);
+				const clone = BX.clone(cell);
 
-				var lastStickyCell = this.getLastStickyCellFromRowByIndex(cellIndex);
+				const lastStickyCell = this.getLastStickyCellFromRowByIndex(cellIndex);
 
 				if (lastStickyCell)
 				{
-					var lastStickyCellLeft = parseInt(BX.style(lastStickyCell, 'left'));
-					var lastStickyCellWidth = parseInt(BX.style(lastStickyCell, 'width'));
+					let lastStickyCellLeft = parseInt(BX.style(lastStickyCell, 'left'));
+					let lastStickyCellWidth = parseInt(BX.style(lastStickyCell, 'width'));
 
 					lastStickyCellLeft = isNaN(lastStickyCellLeft) ? 0 : lastStickyCellLeft;
 					lastStickyCellWidth = isNaN(lastStickyCellWidth) ? 0 : lastStickyCellWidth;
 
-					cell.style.left = (lastStickyCellLeft + lastStickyCellWidth) + 'px';
+					cell.style.left = `${lastStickyCellLeft + lastStickyCellWidth}px`;
 				}
 
 				cell.classList.add('main-grid-fixed-column');
@@ -1208,31 +1217,30 @@
 				}
 
 				BX.insertAfter(clone, cell);
-
 			}, this);
 
 			this.adjustFadePosition(this.getFadeOffset());
 		},
 
-		adjustFixedColumnsPosition: function()
+		adjustFixedColumnsPosition()
 		{
-			var fixedCells = this.getAllRows()[0]
+			const fixedCells = this.getAllRows()[0]
 				.querySelectorAll('.main-grid-fixed-column').length;
 
-			var columnsPosition = [].slice.call(this.getAllRows()[0].children)
-				.reduce(function(accumulator, cell, index, columns) {
-					var cellLeft;
-					var cellWidth;
+			const columnsPosition = [].slice.call(this.getAllRows()[0].children)
+				.reduce((accumulator, cell, index, columns) => {
+					let cellLeft;
+					let cellWidth;
 
-					if (columns[index-1] && columns[index-1].classList.contains('main-grid-fixed-column'))
+					if (columns[index - 1] && columns[index - 1].classList.contains('main-grid-fixed-column'))
 					{
-						cellLeft = parseInt(BX.style(columns[index-1], 'left'));
-						cellWidth = parseInt(BX.style(columns[index-1], 'width'));
+						cellLeft = parseInt(BX.style(columns[index - 1], 'left'));
+						cellWidth = parseInt(BX.style(columns[index - 1], 'width'));
 
 						cellLeft = isNaN(cellLeft) ? 0 : cellLeft;
 						cellWidth = isNaN(cellWidth) ? 0 : cellWidth;
 
-						accumulator.push({index: index+1, left: (cellLeft + cellWidth)});
+						accumulator.push({ index: index + 1, left: (cellLeft + cellWidth) });
 					}
 
 					return accumulator;
@@ -1240,31 +1248,31 @@
 
 			columnsPosition
 				.forEach(function(item) {
-					var column = this.getColumnByIndex(item.index - fixedCells);
+					const column = this.getColumnByIndex(item.index - fixedCells);
 
-					column.forEach(function(cell) {
-						if (item.index !== columnsPosition[columnsPosition.length-1].index)
+					column.forEach((cell) => {
+						if (item.index !== columnsPosition[columnsPosition.length - 1].index)
 						{
-							cell.style.left = item.left + 'px';
+							cell.style.left = `${item.left}px`;
 						}
 					});
 				}, this);
 
 			this.getAllRows()
-				.forEach(function(row) {
-					var height = BX.height(row);
-					var cells = [].slice.call(row.children);
+				.forEach((row) => {
+					const height = BX.height(row);
+					const cells = [].slice.call(row.children);
 
-					cells.forEach(function(cell) {
-						cell.style.minHeight = height + 'px';
+					cells.forEach((cell) => {
+						cell.style.minHeight = `${height}px`;
 					});
 				});
 		},
 
-		getLastStickyCellFromRowByIndex: function(index)
+		getLastStickyCellFromRowByIndex(index)
 		{
 			return [].slice.call(this.getAllRows()[index].children)
-				.reduceRight(function(accumulator, cell) {
+				.reduceRight((accumulator, cell) => {
 					if (!accumulator && cell.classList.contains('main-grid-fixed-column'))
 					{
 						accumulator = cell;
@@ -1274,15 +1282,15 @@
 				}, null);
 		},
 
-		getFadeOffset: function()
+		getFadeOffset()
 		{
-			var fadeOffset = 0;
-			var lastStickyCell = this.getLastStickyCellFromRowByIndex(0);
+			let fadeOffset = 0;
+			const lastStickyCell = this.getLastStickyCellFromRowByIndex(0);
 
 			if (lastStickyCell)
 			{
-				var lastStickyCellLeft = parseInt(BX.style(lastStickyCell, 'left'));
-				var lastStickyCellWidth = lastStickyCell.offsetWidth;
+				let lastStickyCellLeft = parseInt(BX.style(lastStickyCell, 'left'));
+				let lastStickyCellWidth = lastStickyCell.offsetWidth;
 
 				lastStickyCellLeft = isNaN(lastStickyCellLeft) ? 0 : lastStickyCellLeft;
 				lastStickyCellWidth = isNaN(lastStickyCellWidth) ? 0 : lastStickyCellWidth;
@@ -1293,42 +1301,42 @@
 			return fadeOffset;
 		},
 
-		adjustFadePosition: function(offset)
+		adjustFadePosition(offset)
 		{
-			var earLeft = this.getFader().getEarLeft();
-			var shadowLeft = this.getFader().getShadowLeft();
+			const earLeft = this.getFader().getEarLeft();
+			const shadowLeft = this.getFader().getShadowLeft();
 
-			earLeft.style.left = offset + 'px';
-			shadowLeft.style.left = offset + 'px';
+			earLeft.style.left = `${offset}px`;
+			shadowLeft.style.left = `${offset}px`;
 		},
 
 		/**
 		 * @param {string|object} column
 		 */
-		sortByColumn: function(column)
+		sortByColumn(column)
 		{
-			var headerCell = null;
-			var header = null;
+			let headerCell = null;
+			let header = null;
 
-			if (!BX.type.isPlainObject(column))
-			{
-				headerCell = this.getColumnHeaderCellByName(column);
-				header = this.getColumnByName(column);
-			}
-			else
+			if (BX.type.isPlainObject(column))
 			{
 				header = column;
 				header.sort_url = this.prepareSortUrl(column);
 			}
-
-			if (header && (!!headerCell && !BX.hasClass(headerCell, this.settings.get('classLoad')) || !headerCell))
+			else
 			{
-				!!headerCell && BX.addClass(headerCell, this.settings.get('classLoad'));
+				headerCell = this.getColumnHeaderCellByName(column);
+				header = this.getColumnByName(column);
+			}
+
+			if (header && (Boolean(headerCell) && !BX.hasClass(headerCell, this.settings.get('classLoad')) || !headerCell))
+			{
+				Boolean(headerCell) && BX.addClass(headerCell, this.settings.get('classLoad'));
 				this.tableFade();
 
-				var self = this;
+				const self = this;
 
-				this.getUserOptions().setSort(header.sort_by, header.sort_order, function() {
+				this.getUserOptions().setSort(header.sort_by, header.sort_order, () => {
 					self.getData().request(header.sort_url, null, null, 'sort', function() {
 						self.rows = null;
 						self.getUpdater().updateHeadRows(this.getHeadRows());
@@ -1369,106 +1377,104 @@
 			}
 		},
 
-		prepareSortUrl: function(header)
+		prepareSortUrl(header)
 		{
-			var url = window.location.toString();
+			let url = window.location.toString();
 
 			if ('sort_by' in header)
 			{
-				url = BX.util.add_url_param(url, {by: header.sort_by});
+				url = BX.util.add_url_param(url, { by: header.sort_by });
 			}
 
 			if ('sort_order' in header)
 			{
-				url = BX.util.add_url_param(url, {order: header.sort_order});
+				url = BX.util.add_url_param(url, { order: header.sort_order });
 			}
 
 			return url;
 		},
 
-		_clickOnSortableHeader: function(header, event)
+		_clickOnSortableHeader(header, event)
 		{
 			event.preventDefault();
 
 			this.sortByColumn(BX.data(header, 'name'));
 		},
 
-		getObserver: function()
+		getObserver()
 		{
 			return BX.Grid.observer;
 		},
 
-		initRowsDragAndDrop: function()
+		initRowsDragAndDrop()
 		{
 			this.rowsSortable = new BX.Grid.RowsSortable(this);
 		},
 
-		initColsDragAndDrop: function()
+		initColsDragAndDrop()
 		{
 			this.colsSortable = new BX.Grid.ColsSortable(this);
 		},
 
-
 		/**
 		 * @return {BX.Grid.RowsSortable}
 		 */
-		getRowsSortable: function()
+		getRowsSortable()
 		{
 			return this.rowsSortable;
 		},
 
-
 		/**
 		 * @return {BX.Grid.ColsSortable}
 		 */
-		getColsSortable: function()
+		getColsSortable()
 		{
 			return this.colsSortable;
 		},
 
-		getUserOptionsHandlerUrl: function()
+		getUserOptionsHandlerUrl()
 		{
 			return this.userOptionsHandlerUrl || '';
 		},
 
-
 		/**
 		 * @return {BX.Grid.UserOptions}
 		 */
-		getUserOptions: function()
+		getUserOptions()
 		{
 			return this.userOptions;
 		},
 
-		getCheckAllCheckboxes: function()
+		getCheckAllCheckboxes()
 		{
-			var checkAllNodes = BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classCheckAllCheckboxes'));
-			return checkAllNodes.map(function(current) {
+			const checkAllNodes = BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classCheckAllCheckboxes'));
+
+			return checkAllNodes.map((current) => {
 				return new BX.Grid.Element(current);
 			});
 		},
 
-		selectAllCheckAllCheckboxes: function()
+		selectAllCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(current) {
+			this.getCheckAllCheckboxes().forEach((current) => {
 				current.getNode().checked = true;
 			});
 		},
 
-		unselectAllCheckAllCheckboxes: function()
+		unselectAllCheckAllCheckboxes()
 		{
-			this.getCheckAllCheckboxes().forEach(function(current) {
+			this.getCheckAllCheckboxes().forEach((current) => {
 				current.getNode().checked = false;
 			});
 		},
 
-		adjustCheckAllCheckboxes: function()
+		adjustCheckAllCheckboxes()
 		{
-			var total = this.getRows().getBodyChild().filter(function(row) {
-				return row.isShown() && !!row.getCheckbox();
+			const total = this.getRows().getBodyChild().filter((row) => {
+				return row.isShown() && Boolean(row.getCheckbox());
 			}).length;
 
-			var selected = this.getRows().getSelected().filter(function(row) {
+			const selected = this.getRows().getSelected().filter((row) => {
 				return row.isShown();
 			}).length;
 
@@ -1491,21 +1497,21 @@
 			}
 		},
 
-		bindOnCheckAll: function()
+		bindOnCheckAll()
 		{
-			var self = this;
+			const self = this;
 
-			this.getCheckAllCheckboxes().forEach(function(current) {
+			this.getCheckAllCheckboxes().forEach((current) => {
 				current.getObserver().add(
 					current.getNode(),
 					'change',
 					self._clickOnCheckAll,
-					self
+					self,
 				);
 			});
 		},
 
-		_clickOnCheckAll: function(event)
+		_clickOnCheckAll(event)
 		{
 			event.preventDefault();
 
@@ -1513,10 +1519,10 @@
 			this.determinateCheckAllCheckboxes();
 		},
 
-		toggleSelectionAll: function()
+		toggleSelectionAll()
 		{
-			if (!this.getRows().isAllSelected() &&
-				(this.lastRowAction === 'select' || !this.lastRowAction))
+			if (!this.getRows().isAllSelected()
+				&& (this.lastRowAction === 'select' || !this.lastRowAction))
 			{
 				this.getRows().selectAll();
 				this.selectAllCheckAllCheckboxes();
@@ -1536,37 +1542,37 @@
 			this.updateCounterSelected();
 		},
 
-		bindOnClickPaginationLinks: function()
+		bindOnClickPaginationLinks()
 		{
-			var self = this;
+			const self = this;
 
-			this.getPagination().getLinks().forEach(function(current) {
+			this.getPagination().getLinks().forEach((current) => {
 				current.getObserver().add(
 					current.getNode(),
 					'click',
 					self._clickOnPaginationLink,
-					self
+					self,
 				);
 			});
 		},
 
-		bindOnMoreButtonEvents: function()
+		bindOnMoreButtonEvents()
 		{
-			var self = this;
+			const self = this;
 
 			this.getMoreButton().getObserver().add(
 				this.getMoreButton().getNode(),
 				'click',
 				self._clickOnMoreButton,
-				self
+				self,
 			);
 		},
 
-		bindOnRowEvents: function()
+		bindOnRowEvents()
 		{
-			var observer = this.getObserver();
-			var showCheckboxes = this.getParam('SHOW_ROW_CHECKBOXES');
-			var enableCollapsibleRows = this.getParam('ENABLE_COLLAPSIBLE_ROWS');
+			const observer = this.getObserver();
+			const showCheckboxes = this.getParam('SHOW_ROW_CHECKBOXES');
+			const enableCollapsibleRows = this.getParam('ENABLE_COLLAPSIBLE_ROWS');
 
 			this.getRows().getBodyChild().forEach(function(current) {
 				showCheckboxes && observer.add(current.getNode(), 'click', this._onClickOnRow, this);
@@ -1576,12 +1582,12 @@
 			}, this);
 		},
 
-		_onCollapseButtonClick: function(event)
+		_onCollapseButtonClick(event)
 		{
 			event.preventDefault();
 			event.stopPropagation();
 
-			var row = this.getRows().get(event.currentTarget);
+			const row = this.getRows().get(event.currentTarget);
 			row.toggleChildRows();
 
 			if (row.isCustom())
@@ -1596,45 +1602,48 @@
 			BX.fireEvent(document.body, 'click');
 		},
 
-		_clickOnRowActionsButton: function(event)
+		_clickOnRowActionsButton(event)
 		{
-			var row = this.getRows().get(event.target);
+			const row = this.getRows().get(event.target);
 			event.preventDefault();
 
-			if (!row.actionsMenuIsShown())
-			{
-				row.showActionsMenu();
-			}
-			else
+			if (row.actionsMenuIsShown())
 			{
 				row.closeActionsMenu();
 			}
+			else
+			{
+				row.showActionsMenu();
+			}
 		},
 
-		_onRowDblclick: function(event)
+		_onRowDblclick(event)
 		{
 			event.preventDefault();
-			var row = this.getRows().get(event.target);
-			var defaultJs = '';
+			const row = this.getRows().get(event.target);
+			let defaultJs = '';
 
 			if (!row.isEdit())
 			{
 				clearTimeout(this.clickTimer);
 				this.clickPrevent = true;
 
-				try {
+				try
+				{
 					defaultJs = row.getDefaultAction();
 					eval(defaultJs);
-				} catch (err) {
+				}
+				catch (err)
+				{
 					console.warn(err);
 				}
 			}
 		},
 
-		_onClickOnRow: function(event)
+		_onClickOnRow(event)
 		{
-			var clickDelay = 50;
-			var selection = window.getSelection();
+			const clickDelay = 50;
+			const selection = window.getSelection();
 
 			if (event.target.nodeName === 'LABEL')
 			{
@@ -1649,7 +1658,8 @@
 				}
 
 				this.clickTimer = setTimeout(BX.delegate(function() {
-					if (!this.clickPrevent) {
+					if (!this.clickPrevent)
+					{
 						clickActions.apply(this, [event]);
 					}
 					this.clickPrevent = false;
@@ -1658,8 +1668,9 @@
 
 			function clickActions(event)
 			{
-				var rows, row, containsNotSelected, min, max, contentContainer;
-				var isPrevent = true;
+				let rows; let row; let containsNotSelected; let min; let max; let
+					contentContainer;
+				let isPrevent = true;
 
 				if (event.target.nodeName !== 'A' && event.target.nodeName !== 'INPUT')
 				{
@@ -1690,22 +1701,7 @@
 
 								this.lastIndex = this.lastIndex || this.currentIndex;
 
-								if (!event.shiftKey)
-								{
-									if (!row.isSelected())
-									{
-										this.lastRowAction = 'select';
-										row.select();
-										BX.onCustomEvent(window, 'Grid::selectRow', [row, this]);
-									}
-									else
-									{
-										this.lastRowAction = 'unselect';
-										row.unselect();
-										BX.onCustomEvent(window, 'Grid::unselectRow', [row, this]);
-									}
-								}
-								else
+								if (event.shiftKey)
 								{
 									min = Math.min(this.currentIndex, this.lastIndex);
 									max = Math.max(this.currentIndex, this.lastIndex);
@@ -1716,13 +1712,13 @@
 										min++;
 									}
 
-									containsNotSelected = rows.some(function(current) {
+									containsNotSelected = rows.some((current) => {
 										return !current.isSelected();
 									});
 
 									if (containsNotSelected)
 									{
-										rows.forEach(function(current) {
+										rows.forEach((current) => {
 											current.select();
 										});
 										this.lastRowAction = 'select';
@@ -1730,13 +1726,26 @@
 									}
 									else
 									{
-										rows.forEach(function(current) {
+										rows.forEach((current) => {
 											current.unselect();
 										});
 										this.lastRowAction = 'unselect';
 										BX.onCustomEvent(window, 'Grid::unselectRows', [rows, this]);
 									}
 								}
+								else
+									if (row.isSelected())
+									{
+										this.lastRowAction = 'unselect';
+										row.unselect();
+										BX.onCustomEvent(window, 'Grid::unselectRow', [row, this]);
+									}
+									else
+									{
+										this.lastRowAction = 'select';
+										row.select();
+										BX.onCustomEvent(window, 'Grid::selectRow', [row, this]);
+									}
 
 								this.updateCounterSelected();
 								this.lastIndex = this.currentIndex;
@@ -1750,7 +1759,7 @@
 			}
 		},
 
-		adjustRows: function()
+		adjustRows()
 		{
 			if (this.getRows().isSelected())
 			{
@@ -1764,36 +1773,36 @@
 			}
 		},
 
-		getPagination: function()
+		getPagination()
 		{
 			return new BX.Grid.Pagination(this);
 		},
 
-		getState: function()
+		getState()
 		{
 			return window.history.state;
 		},
 
-		tableFade: function()
+		tableFade()
 		{
 			BX.addClass(this.getTable(), this.settings.get('classTableFade'));
 			this.getLoader().show();
 			BX.onCustomEvent('Grid::disabled', [this]);
 		},
 
-		tableUnfade: function()
+		tableUnfade()
 		{
 			BX.removeClass(this.getTable(), this.settings.get('classTableFade'));
 			this.getLoader().hide();
 			BX.onCustomEvent('Grid::enabled', [this]);
 		},
 
-		_clickOnPaginationLink: function(event)
+		_clickOnPaginationLink(event)
 		{
 			event.preventDefault();
 
-			var self = this;
-			var link = this.getPagination().getLink(event.target);
+			const self = this;
+			const link = this.getPagination().getLink(event.target);
 
 			if (!link.isLoad())
 			{
@@ -1841,12 +1850,12 @@
 			}
 		},
 
-		_clickOnMoreButton: function(event)
+		_clickOnMoreButton(event)
 		{
 			event.preventDefault();
 
-			var self = this;
-			var moreButton = this.getMoreButton();
+			const self = this;
+			const moreButton = this.getMoreButton();
 
 			moreButton.load();
 
@@ -1880,20 +1889,23 @@
 				}
 
 				self.unselectAllCheckAllCheckboxes();
+
+				BX.onCustomEvent(window, 'Grid::updated', [self]);
 			});
 		},
 
-		getAjaxId: function()
+		getAjaxId()
 		{
 			return BX.data(
 				this.getContainer(),
-				this.settings.get('ajaxIdDataProp')
+				this.settings.get('ajaxIdDataProp'),
 			);
 		},
 
-		update: function(data, action)
+		update(data, action)
 		{
-			var newRows, newHeadRows, newNavPanel, thisBody, thisHead, thisNavPanel;
+			let newRows; let newHeadRows; let newNavPanel; let thisBody; let thisHead; let
+				thisNavPanel;
 
 			if (!BX.type.isNotEmptyString(data))
 			{
@@ -1904,7 +1916,7 @@
 			thisHead = BX.Grid.Utils.getByTag(this.getTable(), 'thead', true);
 			thisNavPanel = BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classNavPanel'), true);
 
-			data = BX.create('div', {html: data});
+			data = BX.create('div', { html: data });
 			newHeadRows = BX.Grid.Utils.getByClass(data, this.settings.get('classHeadRow'));
 			newRows = BX.Grid.Utils.getByClass(data, this.settings.get('classDataRows'));
 			newNavPanel = BX.Grid.Utils.getByClass(data, this.settings.get('classNavPanel'), true);
@@ -1928,7 +1940,6 @@
 				BX.cleanNode(thisBody);
 				thisHead.appendChild(newHeadRows[0]);
 				this.getRows().addRows(newRows);
-
 			}
 
 			thisNavPanel.innerHTML = newNavPanel.innerHTML;
@@ -1944,67 +1955,67 @@
 			this.sortable.reinit();
 		},
 
-		getCounterDisplayed: function()
+		getCounterDisplayed()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classCounterDisplayed'));
 		},
 
-		getCounterSelected: function()
+		getCounterSelected()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classCounterSelected'));
 		},
 
-		updateCounterDisplayed: function()
+		updateCounterDisplayed()
 		{
-			var counterDisplayed = this.getCounterDisplayed();
-			var rows;
+			const counterDisplayed = this.getCounterDisplayed();
+			let rows;
 
 			if (BX.type.isArray(counterDisplayed))
 			{
 				rows = this.getRows();
-				counterDisplayed.forEach(function(current) {
+				counterDisplayed.forEach((current) => {
 					if (BX.type.isDomNode(current))
 					{
 						current.innerText = rows.getCountDisplayed();
 					}
-				}, this);
+				});
 			}
 		},
 
-		updateCounterSelected: function()
+		updateCounterSelected()
 		{
-			var counterSelected = this.getCounterSelected();
-			var rows;
+			const counterSelected = this.getCounterSelected();
+			let rows;
 
 			if (BX.type.isArray(counterSelected))
 			{
 				rows = this.getRows();
-				counterSelected.forEach(function(current) {
+				counterSelected.forEach((current) => {
 					if (BX.type.isDomNode(current))
 					{
 						current.innerText = rows.getCountSelected();
 					}
-				}, this);
+				});
 			}
 		},
 
-		getContainerId: function()
+		getContainerId()
 		{
 			return this.containerId;
 		},
 
-		getId: function()
+		getId()
 		{
-			//ID is equals to container Id
+			// ID is equals to container Id
 			return this.containerId;
 		},
 
-		getContainer: function()
+		getContainer()
 		{
 			return BX(this.getContainerId());
 		},
 
-		getCounter: function()
+		getCounter()
 		{
 			if (!this.counter)
 			{
@@ -2014,9 +2025,9 @@
 			return this.counter;
 		},
 
-		enableForAllCounter: function()
+		enableForAllCounter()
 		{
-			var counter = this.getCounter();
+			const counter = this.getCounter();
 
 			if (BX.type.isArray(counter))
 			{
@@ -2026,9 +2037,9 @@
 			}
 		},
 
-		disableForAllCounter: function()
+		disableForAllCounter()
 		{
-			var counter = this.getCounter();
+			const counter = this.getCounter();
 
 			if (BX.type.isArray(counter))
 			{
@@ -2038,7 +2049,7 @@
 			}
 		},
 
-		getScrollContainer: function()
+		getScrollContainer()
 		{
 			if (!this.scrollContainer)
 			{
@@ -2048,7 +2059,7 @@
 			return this.scrollContainer;
 		},
 
-		getWrapper: function()
+		getWrapper()
 		{
 			if (!this.wrapper)
 			{
@@ -2058,7 +2069,7 @@
 			return this.wrapper;
 		},
 
-		getFadeContainer: function()
+		getFadeContainer()
 		{
 			if (!this.fadeContainer)
 			{
@@ -2068,56 +2079,56 @@
 			return this.fadeContainer;
 		},
 
-		getTable: function()
+		getTable()
 		{
 			return BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classTable'), true);
 		},
 
-		getHeaders: function()
+		getHeaders()
 		{
-			return BX.Grid.Utils.getBySelector(this.getWrapper(), '.main-grid-header[data-relative="' + this.getContainerId() + '"]');
+			return BX.Grid.Utils.getBySelector(this.getWrapper(), `.main-grid-header[data-relative="${this.getContainerId()}"]`);
 		},
 
-		getHead: function()
+		getHead()
 		{
 			return BX.Grid.Utils.getByTag(this.getContainer(), 'thead', true);
 		},
 
-		getBody: function()
+		getBody()
 		{
 			return BX.Grid.Utils.getByTag(this.getContainer(), 'tbody', true);
 		},
 
-		getFoot: function()
+		getFoot()
 		{
 			return BX.Grid.Utils.getByTag(this.getContainer(), 'tfoot', true);
 		},
 
-
 		/**
 		 * @return {BX.Grid.Rows}
 		 */
-		getRows: function()
+		getRows()
 		{
 			if (!(this.rows instanceof BX.Grid.Rows))
 			{
-				this.rows = new BX.Grid.Rows(this)
+				this.rows = new BX.Grid.Rows(this);
 			}
+
 			return this.rows;
 		},
 
-		getMoreButton: function()
+		getMoreButton()
 		{
-			var node = BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classMoreButton'), true);
+			const node = BX.Grid.Utils.getByClass(this.getContainer(), this.settings.get('classMoreButton'), true);
+
 			return new BX.Grid.Element(node, this);
 		},
-
 
 		/**
 		 * Gets loader instance
 		 * @return {BX.Grid.Loader}
 		 */
-		getLoader: function()
+		getLoader()
 		{
 			if (!(this.loader instanceof BX.Grid.Loader))
 			{
@@ -2127,11 +2138,11 @@
 			return this.loader;
 		},
 
-		blockSorting: function()
+		blockSorting()
 		{
-			var headerCells = BX.Grid.Utils.getByClass(
+			const headerCells = BX.Grid.Utils.getByClass(
 				this.getContainer(),
-				this.settings.get('classHeadCell')
+				this.settings.get('classHeadCell'),
 			);
 
 			headerCells.forEach(function(header) {
@@ -2143,11 +2154,11 @@
 			}, this);
 		},
 
-		unblockSorting: function()
+		unblockSorting()
 		{
-			var headerCells = BX.Grid.Utils.getByClass(
+			const headerCells = BX.Grid.Utils.getByClass(
 				this.getContainer(),
-				this.settings.get('classHeadCell')
+				this.settings.get('classHeadCell'),
 			);
 
 			headerCells.forEach(function(header) {
@@ -2159,9 +2170,10 @@
 			}, this);
 		},
 
-		confirmDialog: function(action, then, cancel)
+		confirmDialog(action, then, cancel)
 		{
-			var dialog, popupContainer, applyButton, cancelButton;
+			let dialog; let popupContainer; let applyButton; let
+				cancelButton;
 
 			if ('CONFIRM' in action && action.CONFIRM)
 			{
@@ -2170,54 +2182,55 @@
 				action.CONFIRM_CANCEL_BUTTON = action.CONFIRM_CANCEL_BUTTON || this.arParams.CONFIRM_CANCEL;
 
 				dialog = new BX.PopupWindow(
-					this.getContainerId() + '-confirm-dialog',
+					`${this.getContainerId()}-confirm-dialog`,
 					null,
 					{
-						content: '<div class="main-grid-confirm-content">'+action.CONFIRM_MESSAGE+'</div>',
+						content: `<div class="main-grid-confirm-content">${action.CONFIRM_MESSAGE}</div>`,
 						titleBar: 'CONFIRM_TITLE' in action ? action.CONFIRM_TITLE : '',
 						autoHide: false,
 						zIndex: 9999,
 						overlay: 0.4,
 						offsetTop: -100,
-						closeIcon : true,
-						closeByEsc : true,
+						closeIcon: false,
+						closeByEsc: true,
 						events: {
-							onClose: function()
+							onClose()
 							{
 								BX.unbind(window, 'keydown', hotKey);
-							}
+								dialog.destroy();
+							},
 						},
 						buttons: [
 							new BX.PopupWindowButton({
 								text: action.CONFIRM_APPLY_BUTTON,
-								id: this.getContainerId() + '-confirm-dialog-apply-button',
+								id: `${this.getContainerId()}-confirm-dialog-apply-button`,
 								events: {
-									click: function()
+									click()
 									{
 										BX.type.isFunction(then) ? then() : null;
 										this.popupWindow.close();
 										this.popupWindow.destroy();
 										BX.onCustomEvent(window, 'Grid::confirmDialogApply', [this]);
 										BX.unbind(window, 'keydown', hotKey);
-									}
-								}
+									},
+								},
 							}),
 							new BX.PopupWindowButtonLink({
 								text: action.CONFIRM_CANCEL_BUTTON,
-								id: this.getContainerId() + '-confirm-dialog-cancel-button',
+								id: `${this.getContainerId()}-confirm-dialog-cancel-button`,
 								events: {
-									click: function()
+									click()
 									{
 										BX.type.isFunction(cancel) ? cancel() : null;
 										this.popupWindow.close();
 										this.popupWindow.destroy();
 										BX.onCustomEvent(window, 'Grid::confirmDialogCancel', [this]);
 										BX.unbind(window, 'keydown', hotKey);
-									}
-								}
-							})
-						]
-					}
+									},
+								},
+							}),
+						],
+					},
 				);
 
 				if (!dialog.isShown())
@@ -2226,8 +2239,8 @@
 					popupContainer = dialog.popupContainer;
 					BX.removeClass(popupContainer, this.settings.get('classCloseAnimation'));
 					BX.addClass(popupContainer, this.settings.get('classShowAnimation'));
-					applyButton = BX(this.getContainerId() + '-confirm-dialog-apply-button');
-					cancelButton = BX(this.getContainerId() + '-confirm-dialog-cancel-button');
+					applyButton = BX(`${this.getContainerId()}-confirm-dialog-apply-button`);
+					cancelButton = BX(`${this.getContainerId()}-confirm-dialog-cancel-button`);
 
 					BX.bind(window, 'keydown', hotKey);
 				}
@@ -2255,9 +2268,9 @@
 			}
 		},
 
-		getCurrentPage: function()
+		getCurrentPage()
 		{
-			var currentPage = parseInt(this.arParams.CURRENT_PAGE);
+			const currentPage = parseInt(this.arParams.CURRENT_PAGE);
 			if (BX.Type.isNumber(currentPage))
 			{
 				return currentPage;
@@ -2270,7 +2283,7 @@
 		 * @private
 		 * @return {Element | any}
 		 */
-		getEmptyStub: function()
+		getEmptyStub()
 		{
 			return this.getTable().querySelector('.main-grid-row-empty');
 		},
@@ -2278,7 +2291,7 @@
 		/**
 		 * @private
 		 */
-		showEmptyStub: function()
+		showEmptyStub()
 		{
 			const stub = this.getEmptyStub();
 			if (stub)
@@ -2295,7 +2308,7 @@
 		/**
 		 * @private
 		 */
-		hideEmptyStub: function()
+		hideEmptyStub()
 		{
 			const stub = this.getEmptyStub();
 			if (stub)
@@ -2310,7 +2323,7 @@
 		/**
 		 * @private
 		 */
-		showPanels: function()
+		showPanels()
 		{
 			BX.Dom.show(this.getPanels());
 			if (this.getPanels().offsetHeight > 0)
@@ -2322,7 +2335,7 @@
 		/**
 		 * @private
 		 */
-		hidePanels: function()
+		hidePanels()
 		{
 			BX.Dom.hide(this.getPanels());
 			BX.Dom.addClass(this.getContainer(), 'main-grid-empty-footer');
@@ -2331,7 +2344,7 @@
 		/**
 		 * @return {BX.Grid.Row}
 		 */
-		getTemplateRow: function()
+		getTemplateRow()
 		{
 			const templateRow = BX.Runtime.clone(
 				this.getRows().getBodyChild(true).find((row) => {
@@ -2355,9 +2368,10 @@
 		 * @private
 		 * @return {{}[]}
 		 */
-		getRowEditorValue: function(withTemplate)
+		getRowEditorValue(withTemplate)
 		{
 			this.rows = null;
+
 			return this.getRows().getSelected(withTemplate).map((row) => {
 				return row.getEditorValue();
 			});
@@ -2367,17 +2381,17 @@
 		 * @private
 		 * @return {HTMLElement|HTMLBodyElement}
 		 */
-		getRowEditorActionPanel: function()
+		getRowEditorActionPanel()
 		{
 			if (!this.rowEditorActionPanel)
 			{
 				this.rowEditorActionPanel = BX.Dom.create({
 					tag: 'div',
-					props: {className: 'main-ui-grid-row-editor-actions-panel'},
+					props: { className: 'main-ui-grid-row-editor-actions-panel' },
 					children: [
 						BX.Dom.create({
 							tag: 'span',
-							props: {className: 'ui-btn ui-btn-success'},
+							props: { className: 'ui-btn ui-btn-success' },
 							text: this.arParams.SAVE_BUTTON_LABEL,
 							events: {
 								click: this.saveRows.bind(this),
@@ -2385,7 +2399,7 @@
 						}),
 						BX.Dom.create({
 							tag: 'span',
-							props: {className: 'ui-btn ui-btn-link'},
+							props: { className: 'ui-btn ui-btn-link' },
 							text: this.arParams.CANCEL_BUTTON_LABEL,
 							events: {
 								click: this.hideRowsEditor.bind(this),
@@ -2401,7 +2415,7 @@
 		/**
 		 * @private
 		 */
-		showRowEditorActionsPanel: function()
+		showRowEditorActionsPanel()
 		{
 			const panel = this.getRowEditorActionPanel();
 			BX.Dom.append(panel, this.actionPanel.getPanel());
@@ -2410,7 +2424,7 @@
 		/**
 		 * @private
 		 */
-		hideRowEditorActionsPanel: function()
+		hideRowEditorActionsPanel()
 		{
 			BX.Dom.remove(this.getRowEditorActionPanel());
 		},
@@ -2418,7 +2432,7 @@
 		/**
 		 * @return {BX.Grid.Row}
 		 */
-		prependRowEditor: function()
+		prependRowEditor()
 		{
 			return this.addRowEditor('prepend');
 		},
@@ -2426,7 +2440,7 @@
 		/**
 		 * @return {BX.Grid.Row}
 		 */
-		appendRowEditor: function()
+		appendRowEditor()
 		{
 			return this.addRowEditor('append');
 		},
@@ -2434,7 +2448,7 @@
 		/**
 		 * @return {BX.Grid.Row}
 		 */
-		addRowEditor: function(direction = 'prepend')
+		addRowEditor(direction = 'prepend')
 		{
 			BX.Dom.style(this.getTable(), 'min-height', null);
 			const templateRow = this.getTemplateRow();
@@ -2470,7 +2484,7 @@
 			return templateRow;
 		},
 
-		hideRowsEditor: function()
+		hideRowsEditor()
 		{
 			this.editableRows.forEach((row) => {
 				BX.Dom.remove(row.getNode());
@@ -2478,11 +2492,11 @@
 			this.editableRows = [];
 		},
 
-		saveRows: function()
+		saveRows()
 		{
 			const value = this.getRowEditorValue(true);
 
-			this.emitAsync('onAddRowsAsync', {rows: value})
+			this.emitAsync('onAddRowsAsync', { rows: value })
 				.then((result) => {
 					result.forEach((rowData, rowIndex) => {
 						const row = this.editableRows[rowIndex];

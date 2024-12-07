@@ -84,7 +84,7 @@ $LHE->Show(array(
 	<?endif;?>
 	<?=bitrix_sessid_post()?>
 </form>
-<script type="text/javascript">
+<script>
 function gdhtmlsave()
 {
 	oGadgetLHE.SaveContent();

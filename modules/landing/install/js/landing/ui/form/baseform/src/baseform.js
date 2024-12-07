@@ -32,6 +32,7 @@ export class BaseForm extends EventEmitter
 		this.type = Reflect.has(this.data, 'type') ? this.data.type : 'content';
 		this.code = Reflect.has(this.data, 'code') ? this.data.code : '';
 		this.descriptionText = Reflect.has(this.data, 'description') ? this.data.description : '';
+		this.descriptionHintStyle = Reflect.has(this.data, 'descriptionHintStyle') ? this.data.descriptionHintStyle : '';
 		this.serializeModifier = this.options.serializeModifier || ((value) => value);
 		this.headerCheckbox = this.data.headerCheckbox;
 		this.cache = new Cache.MemoryCache();
@@ -62,7 +63,14 @@ export class BaseForm extends EventEmitter
 
 		if (Type.isString(this.descriptionText) && this.descriptionText !== '')
 		{
-			this.description.innerHTML = this.descriptionText;
+			if (Type.isString(this.descriptionHintStyle) && this.descriptionHintStyle === 'blueHint')
+			{
+				this.description.innerHTML = `<div class="landing-ui-form-description-blue-hint">${this.descriptionText}</div`;
+			}
+			else
+			{
+				this.description.innerHTML = this.descriptionText;
+			}
 		}
 
 		if (Type.isArray(this.data.fields) && this.data.fields.length > 0)

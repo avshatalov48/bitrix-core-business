@@ -149,7 +149,7 @@ $langId = $arParams['CURRENT_LANG'];
 if (!$isAjax)
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function(){
 
 			BX.Translate.Editor.init(<?=Json::encode(array(

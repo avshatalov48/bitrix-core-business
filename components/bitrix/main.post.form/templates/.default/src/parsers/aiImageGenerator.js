@@ -9,8 +9,8 @@ export default class AIImageGenerator extends Default
 		iconClassName: 'feed-add-post-editor-btn-ai-image',
 		disabledForTextarea: false,
 		toolbarSort: 398,
-		compact: true
-	}
+		compact: true,
+	};
 
 	handler()
 	{

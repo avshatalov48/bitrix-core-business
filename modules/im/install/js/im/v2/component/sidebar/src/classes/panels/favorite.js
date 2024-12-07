@@ -10,14 +10,12 @@ import type { JsonObject } from 'main.core';
 import type { RestClient } from 'rest.client';
 
 const REQUEST_ITEMS_LIMIT = 50;
-
 export class Favorite
 {
 	store: Store;
 	dialogId: string;
 	userManager: UserManager;
 	restClient: RestClient;
-
 	constructor({ dialogId }: {dialogId: string})
 	{
 		this.store = Core.getStore();
@@ -94,8 +92,10 @@ export class Favorite
 
 	updateModels(resultData: {list: [], users: [], files: []}): Promise
 	{
-		const { list = [], users = [], files = [] } = resultData;
+		const { list = [], users = [], files = [], tariffRestrictions = {} } = resultData;
 		const addUsersPromise = this.userManager.setUsersToModel(users);
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
 
 		const rawMessages = list.map((favorite) => favorite.message);
 		const hasNextPage = list.length === REQUEST_ITEMS_LIMIT;
@@ -108,6 +108,7 @@ export class Favorite
 			favorites: list,
 			hasNextPage,
 			lastId,
+			isHistoryLimitExceeded,
 		});
 
 		return Promise.all([

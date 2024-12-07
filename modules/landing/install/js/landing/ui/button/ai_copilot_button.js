@@ -140,6 +140,7 @@
 			{
 				this.hideEditorPanel(true);
 				const currentElement = this.editor.currentElement;
+
 				this.copilot.show({
 					currentElement,
 					width: COPILOT_WIDTH,

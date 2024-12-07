@@ -1,7 +1,7 @@
 <?
 $MESS["IBLOCK_XML_IMPORT_ERR_BAD_STEP_ID"] = "Неверный идентификатор операции импорта.";
 $MESS["IBLOCK_XML_IMPORT_ERR_PARAMETER_FILE_IS_EMPTY"] = "Не указан файл импорта.";
-$MESS["IBLOCK_XML_IMPORT_ERR_CANNOT_CREATE_TEMPORARY_TABLES"] = "Ошибка создания временных таблиц.";
+$MESS["IBLOCK_XML_IMPORT_ERR_CANNOT_PREPARE_TEMPORARY_TABLES"] = "Ошибка подготовки временных таблиц.";
 $MESS["IBLOCK_XML_IMPORT_ERR_OPEN_XML_FILE"] = "Ошибка открытия файла импорта.";
 $MESS["IBLOCK_XML_IMPORT_MESS_XML_FILE_READ_COMPLETE"] = "Файл импорта прочитан.";
 $MESS["IBLOCK_XML_IMPORT_MESS_XML_FILE_READ_PROGRESS"] = "Обработано #PERCENT#% файла.";

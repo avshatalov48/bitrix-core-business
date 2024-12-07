@@ -57,8 +57,8 @@ CSaleExportCML2::ExportOrders2Xml($arFilter, 0, "", false, 0, false, $options);
 $contents = ob_get_contents();
 ob_end_clean();
 
-if(toUpper(LANG_CHARSET) != "WINDOWS-1251")
-	$contents = $APPLICATION->ConvertCharset($contents, LANG_CHARSET, "windows-1251");
+if(mb_strtoupper(LANG_CHARSET) != "WINDOWS-1251")
+	$contents = \Bitrix\Main\Text\Encoding::convertEncoding($contents, LANG_CHARSET, "windows-1251");
 
 $str = strlen($contents);
 

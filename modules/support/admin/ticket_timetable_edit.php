@@ -26,7 +26,7 @@ function Tab1($adminForm)
 function Tab2_JS()
 {
 	?>
-	<script type="text/javascript">
+	<script>
 	<!--
 		function HideRC(ob, tableId)
 		{
@@ -274,7 +274,7 @@ class CSupportPage
 		if($presSave || $presApply)
 		{
 			self::$id = intval(CSupportTimetable::Set(self::$postTimeTableFields, self::$postTimeTableSheduleFields));
-			// Если сохранить не удалось то self::$id будет равен 0 и read() не сработает данные возьмутся из POST без изменений
+			// Р•СЃР»Рё СЃРѕС…СЂР°РЅРёС‚СЊ РЅРµ СѓРґР°Р»РѕСЃСЊ С‚Рѕ self::$id Р±СѓРґРµС‚ СЂР°РІРµРЅ 0 Рё read() РЅРµ СЃСЂР°Р±РѕС‚Р°РµС‚ РґР°РЅРЅС‹Рµ РІРѕР·СЊРјСѓС‚СЃСЏ РёР· POST Р±РµР· РёР·РјРµРЅРµРЅРёР№
 			if(self::$id > 0)
 			{
 				if(!$presApply)
@@ -554,7 +554,7 @@ class CSupportPage
 			$res[self::$timeTableSheduleFields->WEEKDAY_NUMBER]["CUSTOM_TIME"][] = array("MINUTE_FROM" => self::TimeToStr(self::$timeTableSheduleFields->MINUTE_FROM), "MINUTE_TILL" => self::TimeToStr(self::$timeTableSheduleFields->MINUTE_TILL));
 				
 		}
-		// дополняем для покза
+		// РґРѕРїРѕР»РЅСЏРµРј РґР»СЏ РїРѕРєР·Р°
 		for($i=0; $i<=6; $i++)
 		{
 			if(!isset($res[$i]) || !is_array($res[$i]) || (count($res[$i]) <= 0))
@@ -570,82 +570,6 @@ class CSupportPage
 		}
 		return $res;
 	}
-	
-	/*static function ShowClock($arrREQ, $jsonON = false)
-	{
-		global $APPLICATION;
-		
-		if(!isset($arrREQ["CClockAJAXData"]) || !is_array($arrREQ["CClockAJAXData"]) || (count($arrREQ["CClockAJAXData"]) <= 0) ||  !CSupportTools::array_keys_exists("i,j", $arrREQ["CClockAJAXData"]))
-		{
-			return false;
-		}
-		$arr = $arrREQ["CClockAJAXData"];
-		$i = intval($arr["i"]);
-		$j = intval($arr["j"]);
-		$val = array(
-			1 => (isset($arr["ValF"]) && strlen($arr["ValF"]) > 0) ? CUtil::JSEscape($arr["ValF"]) : self::DEFAULT_TIME,
-			2 => (isset($arr["ValT"]) && strlen($arr["ValT"]) > 0) ? CUtil::JSEscape($arr["ValT"]) : self::DEFAULT_TIME,
-		);
-		$ft = array(
-			1 => "FROM",
-			2 => "TILL",
-		);
-		
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/tools/clock.php");
-		$clock = array();
-		for($k = 1; $k < 3; $k++)
-		{
-			ob_start();
-			CClock::Show(
-				array(
-					'inputId' => ("MINUTE_" . $ft[$k] . "_" .$i . "_" . $j),
-					'inputName' => "ArrShedule[$i][CUSTOM_TIME][$j][MINUTE_" . $ft[$k] . "]",
-					'view' => "label", //"inline","label","select",
-					'showIcon' => true,
-					'initTime' => $val[$k],
-					'am_pm_mode' => false,
-					//'step' => 5
-				)
-			);
-
-			$clock[$k] = ob_get_contents();
-			ob_end_clean();
-		}
-		
-		if($jsonON)	
-		{
-			$res = array( 
-				$clock[1],
-				'<nobr>&nbsp;-&nbsp;</nobr>',
-				$clock[2],
-				'<a title="' . GetMessage("MAIN_ADMIN_MENU_COPY") . '" href="javascript: Copy(' . $i . ',' . $j . ')"><img src="/bitrix/images/support/copy.gif" width="15" height="15" border=0 hspace="2" alt="' . GetMessage("MAIN_ADMIN_MENU_COPY") . '"></a>'
-			);
-			
-			if (ToUpper(SITE_CHARSET) !== 'UTF-8')
-			{
-				$res0 = array();
-				foreach($res as $k => $v)
-				{
-					$res0[$k] = $APPLICATION->ConvertCharset($v, SITE_CHARSET, 'utf-8');
-				}
-				$res = $res0;
-			}
-			$res = json_encode($res);	
-		}
-		else
-		{
-			$res = '
-				<td>' . $clock[1] . '</td>
-				<td nowrap="" valign="middle" align="center"><nobr>&nbsp;-&nbsp;</nobr></td>
-				<td>' . $clock[2] . '</td>
-				<td>
-					<a title="' . GetMessage("MAIN_ADMIN_MENU_COPY") . '" href="javascript: Copy(' . $i . ',' . $j . ')"><img src="/bitrix/images/support/copy.gif" width="15" height="15" border=0 hspace="2" alt="' . GetMessage("MAIN_ADMIN_MENU_COPY") . '"></a>
-				</td>';
-		}
-
-		return $res;
-	}*/
-	
 }
 
 

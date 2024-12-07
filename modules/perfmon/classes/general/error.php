@@ -55,7 +55,7 @@ class CPerfomanceError
 			';
 		}
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetList($arSelect, $arFilter, $arOrder, $bGroup = false)
@@ -220,7 +220,7 @@ class CPerfomanceError
 			';
 		}
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function Clear()

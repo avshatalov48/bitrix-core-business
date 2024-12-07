@@ -31,8 +31,6 @@ if (
 	&& (isset($_REQUEST['operation']) && !is_array($_REQUEST['operation']) && (string)$_REQUEST['operation'] == 'Y')
 )
 {
-	CUtil::JSPostUnescape();
-
 	$params = array(
 		'sessID' => $_GET['ajaxSessionID'],
 		'maxExecutionTime' => $_GET['maxExecutionTime'],
@@ -124,7 +122,7 @@ else
 		)
 	);
 	?>
-<script type="text/javascript">
+<script>
 var jsStepOperations = new BX.Catalog.StepOperations(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
 </script>
 	<?

@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 (function (exports,landing_main,main_core,landing_backend,landing_pageobject,landing_ui_highlight) {
 	'use strict';
@@ -338,9 +339,41 @@ this.BX = this.BX || {};
 	  });
 	}
 
+	var Entry = function Entry(options) {
+	  babelHelpers.classCallCheck(this, Entry);
+	  this.block = options.block;
+	  this.selector = options.selector;
+	  this.command = main_core.Type.isStringFilled(options.command) ? options.command : '#invalidCommand';
+	  this.params = options.params;
+	};
+
 	var _BX$Landing$Utils$9 = BX.Landing.Utils,
 	  scrollTo$9 = _BX$Landing$Utils$9.scrollTo,
 	  highlight$8 = _BX$Landing$Utils$9.highlight;
+	var editComponent = function editComponent(entry) {
+	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
+	    /**
+	     * @type {BX.Landing.Block}
+	     */
+	    var block = blocks.get(entry.block);
+	    if (!block) {
+	      return Promise.reject();
+	    }
+	    block.forceInit();
+	    if (!block.node) {
+	      return Promise.reject();
+	    }
+	    return scrollTo$9(block.node).then(function () {
+	      return block.applyAttributeChanges(babelHelpers.defineProperty({}, entry.params.selector, {
+	        attrs: entry.params.value
+	      }), true);
+	    }).then(block.reload.bind(block)).then(highlight$8.bind(null, block.node, false, false));
+	  });
+	};
+
+	var _BX$Landing$Utils$a = BX.Landing.Utils,
+	  scrollTo$a = _BX$Landing$Utils$a.scrollTo,
+	  highlight$9 = _BX$Landing$Utils$a.highlight;
 
 	/**
 	 * @param {object} entry
@@ -350,16 +383,16 @@ this.BX = this.BX || {};
 	  return BX.Landing.PageObject.getInstance().blocks().then(function (blocks) {
 	    var block = blocks.get(entry.block);
 	    block.forceInit();
-	    return scrollTo$9(block.node).then(function () {
-	      void highlight$8(block.node);
+	    return scrollTo$a(block.node).then(function () {
+	      void highlight$9(block.node);
 	      return block.updateContent(entry.params.content, true);
 	    });
 	  });
 	}
 
-	var _BX$Landing$Utils$a = BX.Landing.Utils,
-	  scrollTo$a = _BX$Landing$Utils$a.scrollTo,
-	  highlight$9 = _BX$Landing$Utils$a.highlight;
+	var _BX$Landing$Utils$b = BX.Landing.Utils,
+	  scrollTo$b = _BX$Landing$Utils$b.scrollTo,
+	  highlight$a = _BX$Landing$Utils$b.highlight;
 
 	/**
 	 * @param {object} entry
@@ -389,8 +422,8 @@ this.BX = this.BX || {};
 	    var block = blocks.get(blockId);
 	    if (block) {
 	      block.forceInit();
-	      return scrollTo$a(block.node).then(function () {
-	        void highlight$9(block.node);
+	      return scrollTo$b(block.node).then(function () {
+	        void highlight$a(block.node);
 	        if (Object.keys(updateBlockStateData).length > 0) {
 	          block.updateBlockState(updateBlockStateData, true);
 	        }
@@ -399,9 +432,9 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var _BX$Landing$Utils$b = BX.Landing.Utils,
-	  scrollTo$b = _BX$Landing$Utils$b.scrollTo,
-	  highlight$a = _BX$Landing$Utils$b.highlight;
+	var _BX$Landing$Utils$c = BX.Landing.Utils,
+	  scrollTo$c = _BX$Landing$Utils$c.scrollTo,
+	  highlight$b = _BX$Landing$Utils$c.highlight;
 
 	/**
 	 * @param {object} entry
@@ -414,9 +447,9 @@ this.BX = this.BX || {};
 	  });
 	}
 
-	var _BX$Landing$Utils$c = BX.Landing.Utils,
-	  scrollTo$c = _BX$Landing$Utils$c.scrollTo,
-	  highlight$b = _BX$Landing$Utils$c.highlight;
+	var _BX$Landing$Utils$d = BX.Landing.Utils,
+	  scrollTo$d = _BX$Landing$Utils$d.scrollTo,
+	  highlight$c = _BX$Landing$Utils$d.highlight;
 
 	/**
 	 * @param {object} entry
@@ -433,7 +466,7 @@ this.BX = this.BX || {};
 	        reject();
 	      }
 	    }).then(function (block) {
-	      scrollTo$c(block).then(highlight$b.bind(null, block, false, false));
+	      scrollTo$d(block).then(highlight$c.bind(null, block, false, false));
 	    });
 	  });
 	}
@@ -549,6 +582,10 @@ this.BX = this.BX || {};
 	    command: editAttributes
 	  }));
 	  history.registerCommand(new Command({
+	    id: 'editComponent',
+	    command: editComponent
+	  }));
+	  history.registerCommand(new Command({
 	    id: 'multiply',
 	    command: multiply
 	  }));
@@ -639,14 +676,6 @@ this.BX = this.BX || {};
 	  BX.onCustomEvent(rootWindow.window, 'BX.Landing.History:init', [history]);
 	  return Promise.resolve(history);
 	}
-
-	var Entry = function Entry(options) {
-	  babelHelpers.classCallCheck(this, Entry);
-	  this.block = options.block;
-	  this.selector = options.selector;
-	  this.command = main_core.Type.isStringFilled(options.command) ? options.command : '#invalidCommand';
-	  this.params = options.params;
-	};
 
 	function _classPrivateMethodInitSpec(obj, privateSet) { _checkPrivateRedeclaration(obj, privateSet); privateSet.add(obj); }
 	function _checkPrivateRedeclaration(obj, privateCollection) { if (privateCollection.has(obj)) { throw new TypeError("Cannot initialize the same private elements twice on an object"); } }
@@ -1057,7 +1086,8 @@ this.BX = this.BX || {};
 	          return command.command(entry).then(function () {
 	            _this5.commandState = RESOLVED;
 	            return _this5;
-	          })["catch"](function () {
+	          })["catch"](function (err) {
+	            console.error("History error in command ".concat(command.id, "."), err);
 	            _this5.commandState = RESOLVED;
 	            return _this5;
 	          });

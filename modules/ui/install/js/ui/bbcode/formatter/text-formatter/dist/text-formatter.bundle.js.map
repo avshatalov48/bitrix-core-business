@@ -1,0 +1,1 @@
+{"version":3,"file":"text-formatter.bundle.js","sources":["../src/text-formatter.js"],"sourcesContent":["import { Formatter } from 'ui.bbcode.formatter';\n\nexport class TextFormatter extends Formatter\n{}\n"],"names":["TextFormatter","Formatter"],"mappings":";;;;;;;CAEO,MAAMA,aAAa,SAASC,6BAAS,CAC5C;;;;;;;;"}

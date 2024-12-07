@@ -1,0 +1,21 @@
+.bx-im-copilot-add-to-chat-hint__scope {
+	--im-copilot-add-to-chat-hint__color_hide-button: var(--im-color-accent-purple);
+
+	padding: 20px 10px;
+	font-size: var(--im-font-size-md);
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-2xs);
+}
+
+.bx-im-copilot-add-to-chat-hint__title {
+	font-weight: var(--im-font-weight-bold);
+}
+
+.bx-im-copilot-add-to-chat-hint__hide {
+	font: inherit;
+	color: var(--im-copilot-add-to-chat-hint__color_hide-button);
+	background-color: transparent;
+	border: none;
+	cursor: pointer;
+	padding: 0;
+}

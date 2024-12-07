@@ -115,7 +115,9 @@ this.BX = this.BX || {};
 	    this.events = {
 	      toggled: 'toggled',
 	      checked: 'checked',
-	      unchecked: 'unchecked'
+	      unchecked: 'unchecked',
+	      lock: 'lock',
+	      unlock: 'unlock'
 	    };
 	    if (options.node) {
 	      if (!main_core.Type.isDomNode(options.node)) {
@@ -166,16 +168,14 @@ this.BX = this.BX || {};
 	    if (this.isLoading()) {
 	      return;
 	    }
+	    babelHelpers.classPrivateFieldLooseBase(this, _disabled)[_disabled] = disabled;
 	    fireEvents = fireEvents !== false;
-	    if (babelHelpers.classPrivateFieldLooseBase(this, _disabled)[_disabled]) {
+	    if (disabled) {
 	      main_core.Dom.addClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameLock)[_classNameLock]);
 	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.lock) : null;
 	    } else {
 	      main_core.Dom.removeClass(this.node, babelHelpers.classPrivateFieldLooseBase(this, _classNameLock)[_classNameLock]);
 	      fireEvents ? babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.unlock) : null;
-	    }
-	    if (fireEvents) {
-	      babelHelpers.classPrivateFieldLooseBase(this, _fireEvent)[_fireEvent](this.events.toggled);
 	    }
 	  }
 	  check(checked, fireEvents) {

@@ -61,7 +61,7 @@ class UserTagTable extends Entity\DataManager
 					return array(
 						function ($text)
 						{
-							return ToLower($text);
+							return mb_strtolower($text);
 						}
 					);
 				},
@@ -69,7 +69,7 @@ class UserTagTable extends Entity\DataManager
 					return array(
 						function ($text)
 						{
-							return ToLower($text);
+							return mb_strtolower($text);
 						}
 					);
 				}

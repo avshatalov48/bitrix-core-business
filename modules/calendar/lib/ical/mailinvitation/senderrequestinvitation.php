@@ -6,7 +6,6 @@ use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ORM\Data\UpdateResult;
-use Bitrix\Main\Text\Encoding;
 
 class SenderRequestInvitation extends SenderInvitation
 {
@@ -17,7 +16,7 @@ class SenderRequestInvitation extends SenderInvitation
 		$this->uid = $attachmentManager->getUid();
 
 		return [[
-			'CONTENT' => Encoding::convertEncoding($attachmentManager->getContent(), SITE_CHARSET, 'utf-8'),
+			'CONTENT' => $attachmentManager->getContent(),
 			'CONTENT_TYPE' => self::CONTENT_TYPE,
 			'METHOD' => mb_strtolower(self::METHOD),
 			'CHARSET' => self::CHARSET,

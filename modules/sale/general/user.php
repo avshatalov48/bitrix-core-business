@@ -399,7 +399,7 @@ class CAllSaleUserAccount
 						"ORDER_ID" => ($orderID > 0 ? $orderID : false),
 						"PAYMENT_ID" => ($paymentId > 0 ? $paymentId : false),
 						"DESCRIPTION" => "CC_CHARGE_OFF",
-						"EMPLOYEE_ID" => ($USER->IsAuthorized() ? $USER->GetID() : false)
+						"EMPLOYEE_ID" => self::getEmployeeId()
 					);
 				CTimeZone::Disable();
 				CSaleUserTransact::Add($arFields);
@@ -453,7 +453,7 @@ class CAllSaleUserAccount
 					"ORDER_ID" => ($orderID > 0 ? $orderID : false),
 					"PAYMENT_ID" => ($paymentId > 0 ? $paymentId : false),
 					"DESCRIPTION" => "ORDER_PAY",
-					"EMPLOYEE_ID" => ($USER->IsAuthorized() ? $USER->GetID() : False)
+					"EMPLOYEE_ID" => self::getEmployeeId()
 				);
 			CTimeZone::Disable();
 			CSaleUserTransact::Add($arFields);
@@ -565,7 +565,7 @@ class CAllSaleUserAccount
 						"DEBIT" => "N",
 						"ORDER_ID" => ($orderID > 0 ? $orderID : false),
 						"DESCRIPTION" => "ORDER_PAY",
-						"EMPLOYEE_ID" => ($USER->IsAuthorized() ? $USER->GetID() : false)
+						"EMPLOYEE_ID" => self::getEmployeeId()
 					);
 				CTimeZone::Disable();
 				CSaleUserTransact::Add($arFields);
@@ -679,7 +679,7 @@ class CAllSaleUserAccount
 					"PAYMENT_ID" => ($paymentId > 0 ? $paymentId : false),
 					"DESCRIPTION" => (($description <> '') ? $description : null),
 					"NOTES" => (($notes <> '') ? $notes : False),
-					"EMPLOYEE_ID" => ($USER->IsAuthorized() ? $USER->GetID() : false)
+					"EMPLOYEE_ID" => self::getEmployeeId()
 				);
 			CTimeZone::Disable();
 			CSaleUserTransact::Add($arFields);
@@ -688,6 +688,26 @@ class CAllSaleUserAccount
 
 		CSaleUserAccount::UnLock($userID, $currency);
 		return $result;
+	}
+
+	private static function getEmployeeId(): bool|int
+	{
+		global $USER;
+
+		if (
+			isset($USER)
+			&& $USER instanceof \CUser
+			&& $USER->IsAuthorized()
+		)
+		{
+			$userId = (int)$USER->GetID();
+			if ($userId > 0)
+			{
+				return $userId;
+			}
+		}
+
+		return false;
 	}
 
 	//********** EVENTS **************//

@@ -122,4 +122,53 @@ abstract class Registrar extends Providers\Base\Registrar implements Providers\S
 
 		return 'https://app.edna.ru/';
 	}
+
+	public function resetCallback(): Result
+	{
+		\Bitrix\MessageService\Providers\Edna\WhatsApp\Utils::cleanTemplatesCache();
+
+		if (!$this->isRegistered())
+		{
+			return (new Result())->addError(new Error('It is impossible to reinstall the callback url because the provider is not registered'));
+		}
+
+		$fields = $this->getOwnerInfo();
+
+		$subjectIdList = [];
+		foreach (explode(';', (string)$fields[InternalOption::SENDER_ID][0]) as $senderId)
+		{
+			$senderId = trim($senderId);
+			if ($senderId !== '')
+			{
+				$subjectIdList[] = (int)$senderId;
+			}
+		}
+
+		if (!$this->utils->checkActiveChannelBySubjectIdList($subjectIdList, $this->channelType))
+		{
+			return (new Result())->addError(new Error(Loc::getMessage('MESSAGESERVICE_EDNARU_INACTIVE_CHANNEL_ERROR')));
+		}
+
+		foreach ($subjectIdList as $subjectId)
+		{
+			$setCallbackResult = $this->utils->setCallback(
+				$this->getCallbackUrl(),
+				$this->getCallbackTypeList(),
+				$subjectId
+			);
+			if (!$setCallbackResult->isSuccess())
+			{
+				$errorData = $setCallbackResult->getData();
+
+				if (isset($errorData['detail']))
+				{
+					return (new Result())->addError(new Error($errorData['detail']));
+				}
+
+				return $setCallbackResult;
+			}
+		}
+
+		return new Result();
+	}
 }

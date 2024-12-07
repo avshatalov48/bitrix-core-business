@@ -44,12 +44,10 @@ class CWizardUtil
 
 					if (LANGUAGE_ID != "en" && LANGUAGE_ID != "ru")
 					{
-						if (file_exists(($fname = $wizardPath."/".$dirName."/lang/".LangSubst(LANGUAGE_ID)."/.description.php")))
-							__IncludeLang($fname, false, true);
+						__IncludeLang($wizardPath."/".$dirName."/lang/".LangSubst(LANGUAGE_ID)."/.description.php", false);
 					}
 
-					if (file_exists(($fname = $wizardPath."/".$dirName."/lang/".LANGUAGE_ID."/.description.php")))
-						__IncludeLang($fname, false, true);
+					__IncludeLang($wizardPath."/".$dirName."/lang/".LANGUAGE_ID."/.description.php", false);
 
 					$arWizardDescription = array();
 					include($wizardPath."/".$dirName."/.description.php");
@@ -74,12 +72,10 @@ class CWizardUtil
 							{
 								if (LANGUAGE_ID != "en" && LANGUAGE_ID != "ru")
 								{
-									if (file_exists(($fname = $pathToWizard."/lang/".LangSubst(LANGUAGE_ID)."/.description.php")))
-										__IncludeLang($fname, false, true);
+									__IncludeLang($pathToWizard."/lang/".LangSubst(LANGUAGE_ID)."/.description.php", false);
 								}
 
-								if (file_exists(($fname = $pathToWizard."/lang/".LANGUAGE_ID."/.description.php")))
-									__IncludeLang($fname, false, true);
+								__IncludeLang($pathToWizard."/lang/".LANGUAGE_ID."/.description.php", false);
 
 								$arWizardDescription = array();
 								include($pathToWizard."/.description.php");
@@ -135,12 +131,10 @@ class CWizardUtil
 									{
 										if (LANGUAGE_ID != "en" && LANGUAGE_ID != "ru")
 										{
-											if (file_exists(($fname = $pathToWizard."/lang/".LangSubst(LANGUAGE_ID)."/.description.php")))
-												__IncludeLang($fname, false, true);
+											__IncludeLang($pathToWizard."/lang/".LangSubst(LANGUAGE_ID)."/.description.php", false);
 										}
 
-										if (file_exists(($fname = $pathToWizard."/lang/".LANGUAGE_ID."/.description.php")))
-											__IncludeLang($fname, false, true);
+										__IncludeLang($pathToWizard."/lang/".LANGUAGE_ID."/.description.php", false);
 
 										$arWizardDescription = array();
 										include($pathToWizard."/.description.php");
@@ -437,7 +431,7 @@ class CWizardUtil
 		if (function_exists("gd_info"))
 		{
 			$arGDInfo = gd_info();
-			$bGD2 = strpos($arGDInfo['GD Version'], "2.") !== false;
+			$bGD2 = str_contains($arGDInfo['GD Version'], "2.");
 		}
 
 		//Create Preview

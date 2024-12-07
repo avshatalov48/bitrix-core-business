@@ -2,7 +2,7 @@
 
 namespace Bitrix\Im\V2\Link\Calendar;
 
-use Bitrix\Im\Model\LinkCalendarIndexTable;
+use Bitrix\Calendar\Internals\EventTable;
 use Bitrix\Im\Model\LinkCalendarTable;
 use Bitrix\Im\V2\Common\ContextCustomer;
 use Bitrix\Im\V2\Common\SidebarFilterProcessorTrait;
@@ -10,6 +10,9 @@ use Bitrix\Im\V2\Link\BaseLinkCollection;
 use Bitrix\Im\V2\Result;
 use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Service\Locator;
+use Bitrix\Main\Loader;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\ORM\Query\Query;
 
 /**
@@ -28,6 +31,11 @@ class CalendarCollection extends BaseLinkCollection
 		?Context $context = null
 	): self
 	{
+		if (!Loader::includeModule('calendar'))
+		{
+			return new static();
+		}
+
 		$context = $context ?? Locator::getContext();
 
 		$calendarOrder = ['ID' => 'DESC'];
@@ -94,6 +102,16 @@ class CalendarCollection extends BaseLinkCollection
 		{
 			$query->withSearchByTitle($filter['SEARCH_TITLE']);
 		}
+
+		// temporary
+		$query->registerRuntimeField(
+			new Reference(
+				'CALENDAR',
+				EventTable::class,
+				Join::on('this.CALENDAR_ID', 'ref.ID'),
+				['join_type' => Join::TYPE_INNER]
+			)
+		);
 	}
 
 	public static function getCollectionElementClass(): string

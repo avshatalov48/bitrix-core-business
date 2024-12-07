@@ -208,7 +208,7 @@ $APPLICATION->IncludeComponent(
 </form>
 
 
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		window.Toloka = BX.Sender.Toloka.create(<?=Json::encode(
 			[

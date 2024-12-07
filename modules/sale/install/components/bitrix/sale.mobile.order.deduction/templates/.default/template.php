@@ -31,7 +31,7 @@ if($arParams['DEDUCTED'] == 'N')
 							'<a href="javascript:void(0);">'.GetMessage("SMODE_STORE").'</a>'.
 						'</li>'.
 					'</ul>'.
-					'<script type="text/javascript">'.
+					'<script>'.
 						'BX.ready(function(){ bsmode.makeFastButton("store_link_cont_'.$basketItem["ID"].'", "'.$storeLink.'");});'.
 					'</script>'
 			);
@@ -45,7 +45,7 @@ if($arParams['DEDUCTED'] == 'N')
 								'<a href="javascript:void(0);">'.GetMessage("SMODE_BARCODE").'</a>'.
 							'</li>'.
 						'</ul>'.
-						'<script type="text/javascript">'.
+						'<script>'.
 							'BX.ready(function(){ bsmode.makeFastButton("barcode_link_cont_'.$basketItem["ID"].'", "'.$barcodeLink.'"); });'.
 						'</script>'.
 					'</div>'
@@ -94,7 +94,7 @@ $APPLICATION->IncludeComponent(
 );
 
 ?>
-<script type="text/javascript">
+<script>
 
 	var jsParams = {
 		ajaxUrl: "<?=$arResult['AJAX_URL']?>",

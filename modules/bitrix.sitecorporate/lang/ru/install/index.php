@@ -4,5 +4,5 @@ $MESS["SCOM_INSTALL_DESCRIPTION"] = "Мастер создания корпор�
 $MESS["SCOM_INSTALL_TITLE"] = "Установка модуля";
 $MESS["SCOM_UNINSTALL_TITLE"] = "Удаление модуля";
 $MESS["SPER_PARTNER"] = "1С-Битрикс";
-$MESS["PARTNER_URI"] = "http://www.1c-bitrix.ru";
+$MESS["PARTNER_URI"] = "https://www.1c-bitrix.ru";
 ?>

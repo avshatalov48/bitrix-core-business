@@ -1,14 +1,16 @@
 <?php
+
 /**
  * Bitrix Framework
- * @package    bitrix
+ * @package bitrix
  * @subpackage main
- * @copyright  2001-2012 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 namespace Bitrix\Main\Data;
 
 use Bitrix\Main;
+use Bitrix\Main\DB;
 use Bitrix\Main\Config;
 
 /**
@@ -16,19 +18,18 @@ use Bitrix\Main\Config;
  */
 class ConnectionPool
 {
+	const DEFAULT_CONNECTION_NAME = "default";
+
 	/**
-	 * @var Connection[]
+	 * @var Connection[] | DB\Connection
 	 */
 	protected $connections = [];
-
 	protected $connectionParameters = [];
-
 	protected $slavePossible = true;
 	protected $ignoreDml = 0;
 	protected $masterOnly = 0;
 	protected $slaveConnection = null;
-
-	const DEFAULT_CONNECTION_NAME = "default";
+	protected array $modifiedTables = [];
 
 	/**
 	 * Creates connection pool object
@@ -46,6 +47,11 @@ class ConnectionPool
 	protected function createConnection($name, $parameters)
 	{
 		$className = $parameters['className'];
+
+		if (isset($parameters['module']))
+		{
+			\Bitrix\Main\Loader::includeModule($parameters['module']);
+		}
 
 		if (!class_exists($className))
 		{
@@ -65,7 +71,7 @@ class ConnectionPool
 	 * Returns database connection by its name. Creates new connection if necessary.
 	 *
 	 * @param string $name Connection name.
-	 * @return Connection|Main\DB\Connection|null
+	 * @return Connection | DB\Connection|null
 	 */
 	public function getConnection($name = "")
 	{
@@ -96,30 +102,24 @@ class ConnectionPool
 	 *
 	 * @param string $name Connection name
 	 * @return array|null
-	 * @throws \Bitrix\Main\ArgumentTypeException
 	 * @throws \Bitrix\Main\ArgumentNullException
 	 */
-	protected function getConnectionParameters($name)
+	protected function getConnectionParameters(string $name)
 	{
-		if (!is_string($name))
-		{
-			throw new Main\ArgumentTypeException("name", "string");
-		}
-
 		if ($name === "")
 		{
 			throw new Main\ArgumentNullException("name");
 		}
 
 		$params = null;
-		if (isset($this->connectionParameters[$name]) && !empty($this->connectionParameters[$name]))
+		if (!empty($this->connectionParameters[$name]))
 		{
 			$params = $this->connectionParameters[$name];
 		}
 		else
 		{
 			$configParams = Config\Configuration::getValue('connections');
-			if (isset($configParams[$name]) && !empty($configParams[$name]))
+			if (!empty($configParams[$name]))
 			{
 				$params = $configParams[$name];
 			}
@@ -127,7 +127,7 @@ class ConnectionPool
 
 		if ($params !== null && $name === static::DEFAULT_CONNECTION_NAME && !isset($params["include_after_connected"]))
 		{
-			$params["include_after_connected"] = \Bitrix\Main\Loader::getPersonal("php_interface/after_connect_d7.php");
+			$params["include_after_connected"] = Main\Loader::getPersonal("php_interface/after_connect_d7.php");
 		}
 
 		return $params;
@@ -144,7 +144,7 @@ class ConnectionPool
 	{
 		$this->connectionParameters[$name] = $parameters;
 
-		if(isset($this->connections[$name]))
+		if (isset($this->connections[$name]))
 		{
 			unset($this->connections[$name]);
 		}
@@ -154,38 +154,62 @@ class ConnectionPool
 	 * Returns a slave connection or null if the query should go to the master.
 	 *
 	 * @param string $sql A SQL string. Only SELECT will go to a slave.
-	 * @return Main\DB\Connection|null
+	 * @return DB\Connection|null
 	 */
 	public function getSlaveConnection($sql)
 	{
-		if($this->masterOnly > 0)
+		if ($this->masterOnly > 0)
 		{
-			//We requested to process all queries
-			//by master connection
+			// We requested to process all queries by master connection.
+			return null;
 		}
-		elseif($this->slavePossible)
+
+		$this->useMasterOnly(true);
+		$cluster = Main\ModuleManager::isModuleInstalled('cluster');
+		$this->useMasterOnly(false);
+
+		if (!$cluster)
 		{
-			$isSelect = preg_match('/^\s*(select|show)/i', $sql) && !preg_match('/get_lock/i', $sql);
-			if(!$isSelect && $this->ignoreDml <= 0)
+			// Slave connection is impossible, cluster module is not installed.
+			return null;
+		}
+
+		$isSelect = preg_match('/^\s*(select|show)/i', $sql) && !preg_match('/get_lock/i', $sql);
+
+		if (!$isSelect && $this->ignoreDml <= 0)
+		{
+			$tables = $this->getConnection()->getSqlHelper()->getQueryTables($sql, 0);
+			foreach ($tables as $table)
 			{
-				$this->slavePossible = false;
+				$this->modifiedTables[$table] = 1;
 			}
 
-			if($isSelect)
+			$this->slavePossible = false;
+		}
+		elseif ($isSelect)
+		{
+			if (!$this->slavePossible && !empty($this->modifiedTables))
 			{
-				if($this->slaveConnection === null)
+				$tables = $this->getConnection()->getSqlHelper()->getQueryTables($sql);
+				foreach ($tables as $table)
 				{
-					$this->useMasterOnly(true);
-
-					$this->slaveConnection = $this->createSlaveConnection();
-
-					$this->useMasterOnly(false);
+					if (isset($this->modifiedTables[$table]))
+					{
+						return null;
+					}
 				}
+			}
 
-				if(is_object($this->slaveConnection))
-				{
-					return $this->slaveConnection;
-				}
+			if ($this->slaveConnection === null)
+			{
+				$this->useMasterOnly(true);
+				$this->slaveConnection = $this->createSlaveConnection();
+				$this->useMasterOnly(false);
+			}
+
+			if (is_object($this->slaveConnection))
+			{
+				return $this->slaveConnection;
 			}
 		}
 		return null;
@@ -199,7 +223,7 @@ class ConnectionPool
 	 */
 	public function useMasterOnly($mode)
 	{
-		if($mode)
+		if ($mode)
 		{
 			$this->masterOnly++;
 		}
@@ -217,7 +241,7 @@ class ConnectionPool
 	 */
 	public function ignoreDml($mode)
 	{
-		if($mode)
+		if ($mode)
 		{
 			$this->ignoreDml++;
 		}
@@ -230,22 +254,22 @@ class ConnectionPool
 	/**
 	 * Creates a new slave connection.
 	 *
-	 * @return bool|Main\DB\Connection
+	 * @return bool | DB\Connection
 	 */
 	protected function createSlaveConnection()
 	{
-		if(!Main\Loader::includeModule('cluster'))
+		if (!Main\Loader::includeModule('cluster'))
 		{
 			return false;
 		}
 
 		$found = \CClusterSlave::GetRandomNode();
 
-		if($found !== false)
+		if ($found !== false)
 		{
 			$node = \CClusterDBNode::GetByID($found["ID"]);
 
-			if(is_array($node) && $node["ACTIVE"] == "Y" && ($node["STATUS"] == "ONLINE" || $node["STATUS"] == "READY"))
+			if (is_array($node) && $node["ACTIVE"] == "Y" && ($node["STATUS"] == "ONLINE" || $node["STATUS"] == "READY"))
 			{
 				$parameters = [
 					'host' => $node["DB_HOST"],
@@ -254,9 +278,9 @@ class ConnectionPool
 					'password' => $node["DB_PASSWORD"],
 				];
 
-				$connection = $this->cloneConnection(self::DEFAULT_CONNECTION_NAME, "node".$node["ID"], $parameters);
+				$connection = $this->cloneConnection(self::DEFAULT_CONNECTION_NAME, "node" . $node["ID"], $parameters);
 
-				if($connection instanceof Main\DB\Connection)
+				if ($connection instanceof DB\Connection)
 				{
 					$connection->setNodeId($node["ID"]);
 				}
@@ -273,10 +297,10 @@ class ConnectionPool
 	 * @param string $name Copy source.
 	 * @param string $newName Copy target.
 	 * @param array $parameters Parameters to be passed to createConnection method.
-	 * @throws Config\ConfigurationException
 	 * @return Connection
+	 * @throws Config\ConfigurationException
 	 */
-	public function cloneConnection($name, $newName, array $parameters=array())
+	public function cloneConnection($name, $newName, array $parameters = [])
 	{
 		$defParameters = $this->getConnectionParameters($name);
 		if (empty($defParameters) || !is_array($defParameters))
@@ -317,7 +341,7 @@ class ConnectionPool
 	{
 		foreach ($this->connections as $connection)
 		{
-			if ($connection instanceof Main\DB\Connection)
+			if ($connection instanceof DB\Connection)
 			{
 				$connection->disconnect();
 			}

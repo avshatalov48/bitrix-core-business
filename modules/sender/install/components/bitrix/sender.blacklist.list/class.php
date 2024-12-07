@@ -1,4 +1,4 @@
-<?
+<?php
 
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\Grid\Options as GridOptions;
@@ -49,11 +49,8 @@ class SenderBlackListListComponent extends Bitrix\Sender\Internals\CommonSenderC
 		$this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] = isset($this->arParams['RENDER_FILTER_INTO_VIEW_SORT']) ? $this->arParams['RENDER_FILTER_INTO_VIEW_SORT'] : 10;
 
 		$this->arParams['SET_TITLE'] = isset($this->arParams['SET_TITLE']) ? $this->arParams['SET_TITLE'] == 'Y' : true;
-		$this->arParams['CAN_EDIT'] = isset($this->arParams['CAN_EDIT'])
-			?
-			$this->arParams['CAN_EDIT']
-			:
-			Security\Access::getInstance()->canModifyBlacklist();
+		$this->arParams['CAN_EDIT'] =
+			$this->arParams['CAN_EDIT'] ?? Security\Access::getInstance()->canModifyBlacklist();
 	}
 
 	protected function preparePost()
@@ -133,7 +130,8 @@ class SenderBlackListListComponent extends Bitrix\Sender\Internals\CommonSenderC
 
 		// create nav
 		$nav = new PageNavigation("page-sender-blacklist");
-		$nav->allowAllRecords(false)->setPageSize(10)->initFromUri();
+		$pageSize = 10;
+		$nav->allowAllRecords(true)->setPageSize($pageSize)->initFromUri();
 
 		// get rows
 		$list = ContactTable::getList(array(
@@ -141,19 +139,17 @@ class SenderBlackListListComponent extends Bitrix\Sender\Internals\CommonSenderC
 			'filter' => $this->getDataFilter(),
 			'offset' => $nav->getOffset(),
 			'limit' => $nav->getLimit(),
-			'count_total' => true,
 			'order' => $this->getGridOrder()
 		));
+
 		foreach ($list as $item)
 		{
 			$item['TYPE_NAME'] = Recipient\Type::getName($item['TYPE_ID']);
 			$this->arResult['ROWS'][] = $item;
 		}
 
-		$this->arResult['TOTAL_ROWS_COUNT'] = $list->getCount();
-
+		$nav->setRecordCount($nav->getOffset() + count($this->arResult['ROWS'] ?? []) + 1);
 		// set rec count to nav
-		$nav->setRecordCount($list->getCount());
 		$this->arResult['NAV_OBJECT'] = $nav;
 
 		return true;
@@ -169,7 +165,7 @@ class SenderBlackListListComponent extends Bitrix\Sender\Internals\CommonSenderC
 		$filterOptions = new FilterOptions($this->arParams['FILTER_ID']);
 		$requestFilter = $filterOptions->getFilter($this->arResult['FILTERS']);
 
-		$filter = array('BLACKLISTED' => true);
+		$filter = array('=BLACKLISTED' => true);
 		if (isset($requestFilter['NAME']) && $requestFilter['NAME'])
 		{
 			$filter['NAME'] = '%' . $requestFilter['NAME'] . '%';

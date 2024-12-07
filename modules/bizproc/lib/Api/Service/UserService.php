@@ -2,12 +2,49 @@
 
 namespace Bitrix\Bizproc\Api\Service;
 
+use Bitrix\Bizproc\Api\Data\UserService\UsersToGet;
 use Bitrix\Bizproc\Api\Response\UserService\GetCurrentUserResponse;
+use Bitrix\Bizproc\Api\Response\UserService\GetUsersViewResponse;
+use Bitrix\Bizproc\UI\UserView;
 use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\Loader;
+use Bitrix\Main\UserTable;
 
 class UserService
 {
+	public function getUsersView(UsersToGet $request): GetUsersViewResponse
+	{
+		$currentUserResponse = $this->getCurrentUser();
+		if (!$currentUserResponse->isSuccess())
+		{
+			$response = new GetUsersViewResponse();
+			$response->addErrors($currentUserResponse->getErrors());
+
+			return $response;
+		}
+
+		$ids = $request->getUserIds();
+
+		if (!$ids)
+		{
+			return new GetUsersViewResponse();
+		}
+
+		$userIterator = UserTable::query()
+			->setSelect(['ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'LOGIN', 'PERSONAL_PHOTO', 'WORK_POSITION'])
+			->setFilter(['ID' => $ids])
+			->exec()
+		;
+
+		$response = new GetUsersViewResponse();
+		while ($user = $userIterator->fetchObject())
+		{
+			$response->addUserView(new UserView($user));
+		}
+
+		return $response;
+	}
+
 	public function getCurrentUser(): GetCurrentUserResponse
 	{
 		$currentUser = CurrentUser::get();

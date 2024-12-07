@@ -46,7 +46,7 @@ foreach ($arParams['SEF_URL_TEMPLATES'] as $code => $url)
 <?php if ($arParams['REOPEN_LOCATION_IN_SLIDER'] === 'Y' && $request->get('IS_AJAX') !== 'Y'):
 	CJSCore::init('sidepanel');
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function()
 		{
 			BX.SidePanel.Instance.open(window.location.href, { customLeftBoundary: 60});

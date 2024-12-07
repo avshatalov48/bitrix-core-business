@@ -98,7 +98,12 @@ abstract class Manager extends ServiceBase
 		}
 		
 		$oAuthEntity = $oAuth->getEntityOAuth();
-		$oAuthEntity->addScope(Helper::NEED_SCOPE);
+		$oAuthEntity->addScope([
+			'https://www.googleapis.com/auth/calendar',
+			'https://www.googleapis.com/auth/calendar.readonly'
+		]);
+		$oAuthEntity->removeScope('https://www.googleapis.com/auth/drive');
+
 		$oAuthEntity->setUser($userId);
 		
 		$tokens = $this->getStorageToken($userId);

@@ -35,7 +35,7 @@ else
 	{
 		$APPLICATION->SetTitle(GetMessage("BPABL_ERROR"));
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
-		echo ShowError(GetMessage("BPABL_NO_PERMS"));
+		ShowError(GetMessage("BPABL_NO_PERMS"));
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");
 		die();
 	}

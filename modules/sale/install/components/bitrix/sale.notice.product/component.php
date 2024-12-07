@@ -2,6 +2,13 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 //CUtil::InitJSCore(array('popup'));
 
+/**
+ * @deprecated deprecated since sale 16.5.0
+ * @see catalog.product.subscribe
+ *
+ * Attention! Strongly recommended use catalog.product.subscribe.
+ */
+
 global $USER;
 
 $arParams["NOTIFY_ID"] = intval($arParams["NOTIFY_ID"]);

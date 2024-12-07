@@ -13,7 +13,7 @@ $POST_RIGHT = $APPLICATION->GetGroupRight("sender");
 if($POST_RIGHT <= "R")
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-if($REQUEST_METHOD == "POST" && $POST_RIGHT=="W" && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD'] == "POST" && $POST_RIGHT=="W" && check_bitrix_sessid())
 {
 	require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.php");
 
@@ -59,7 +59,7 @@ $aTabs = array(
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
-<script type="text/javascript">
+<script>
 	var stop = false;
 	var started = false;
 	function StartConvert()

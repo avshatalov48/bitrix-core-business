@@ -2,7 +2,7 @@ import { hint } from 'ui.vue3.directives.hint';
 
 import { Toggle, ToggleSize } from 'im.v2.component.elements';
 
-import './auto-delete.css';
+import './css/auto-delete.css';
 
 // @vue/component
 export const AutoDelete = {

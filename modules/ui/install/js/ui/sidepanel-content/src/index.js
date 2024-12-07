@@ -29,14 +29,30 @@ type LinkOptions = {
 
 export class StubNotAvailable
 {
-	#options: StubNotAvailableOptions;
+	#options: StubNotAvailableOptions = {};
 
 	constructor(options?: StubNotAvailableOptions)
 	{
+		this.#options.title = options?.title || null;
+		this.#options.desc = options?.desc || null;
+
+		if (options?.type === StubType.noAccess)
+		{
+			if (!this.#options.title)
+			{
+				this.#options.title = Loc.getMessage('UI_SIDEPANEL_CONTENT_NO_ACCESS_TITLE');
+			}
+
+			if (!this.#options.desc)
+			{
+				this.#options.desc = Loc.getMessage('UI_SIDEPANEL_CONTENT_NO_ACCESS_DESC');
+			}
+		}
+
 		this.#options = {
-			title: Text.encode(options?.title || Loc.getMessage('UI_SIDEPANEL_CONTENT_TITLE')),
-			desc: Text.encode(options?.desc || Loc.getMessage('UI_SIDEPANEL_CONTENT_DESC')),
-			type: options?.type || StubType.noAccess,
+			title: Text.encode(this.#options.title || Loc.getMessage('UI_SIDEPANEL_CONTENT_TITLE')),
+			desc: Text.encode(this.#options.desc || Loc.getMessage('UI_SIDEPANEL_CONTENT_DESC')),
+			type: options?.type || StubType.notAvailable,
 			link: options?.link || null,
 		};
 	}

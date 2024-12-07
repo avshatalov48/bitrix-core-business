@@ -5,6 +5,7 @@ namespace Bitrix\Lists\Api\Data\IBlockService;
 use Bitrix\Lists\Api\Request\IBlockService\AddIBlockElementRequest;
 use Bitrix\Lists\Api\Response\IBlockService\IBlockElementToAddValues;
 use Bitrix\Lists\Api\Response\IBlockService\IBlockElementToUpdateValues;
+use Bitrix\Lists\UI\Fields\Field;
 use Bitrix\Main\ArgumentOutOfRangeException;
 
 final class IBlockElementToAdd extends IBlockElementToUpdate
@@ -84,13 +85,7 @@ final class IBlockElementToAdd extends IBlockElementToUpdate
 		$prepared = [];
 		foreach ($fields as $fieldId => $property)
 		{
-			$showAddForm = !in_array($fieldId, ['DATE_CREATE', 'TIMESTAMP_X', 'CREATED_BY', 'MODIFIED_BY']);
-			if (isset($property['SETTINGS']['SHOW_ADD_FORM']))
-			{
-				$showAddForm = $property['SETTINGS']['SHOW_ADD_FORM'] === 'Y';
-			}
-
-			$isAddReadOnlyField = ($property['SETTINGS']['ADD_READ_ONLY_FIELD'] ?? 'N') === 'Y';
+			$field = new Field($property);
 
 			if (in_array($fieldId, ['PREVIEW_TEXT', 'DETAIL_TEXT'], true))
 			{
@@ -98,8 +93,22 @@ final class IBlockElementToAdd extends IBlockElementToUpdate
 				$prepared[$fieldId . '_TYPE'] = $useEditor ? 'html' : 'text';
 			}
 
+			// calculated value
+			if ($field->getId() === 'ACTIVE_FROM' && $field->isAddReadOnlyField())
+			{
+				$prepared[$fieldId] = $field->getDefaultValue();
+				if ($field->isShowInAddForm() && $this->getFieldValueById($fieldId))
+				{
+					$prepared[$fieldId] = $this->getFieldValueById($fieldId);
+				}
+
+				continue;
+			}
+
 			$prepared[$fieldId] =
-				$showAddForm && !$isAddReadOnlyField ? $this->getFieldValueById($fieldId) : ($property['DEFAULT_VALUE'] ?? null)
+				$field->isShowInAddForm() && !$field->isAddReadOnlyField()
+					? $this->getFieldValueById($fieldId)
+					: $field->getDefaultValue()
 			;
 		}
 
@@ -126,9 +135,20 @@ final class IBlockElementToAdd extends IBlockElementToUpdate
 			{
 				$prepared[$property['ID']] = $this->preparePropValue($requestValues, $property, $result);
 			}
-			elseif ($defaultValue)
+			elseif (array_key_exists('DEFAULT_VALUE', $property) || ($defaultValue !== null))
 			{
-				$prepared[$property['ID']] = ['n0' => ['VALUE' => $defaultValue]];
+				if (is_array($defaultValue) && in_array($property['PROPERTY_TYPE'], ['L', 'E', 'G']))
+				{
+					$prepared[$property['ID']] = [];
+					foreach ($defaultValue as $key => $value)
+					{
+						$prepared[$property['ID']][$key] = $value;
+					}
+				}
+				else
+				{
+					$prepared[$property['ID']] = ['n0' => ['VALUE' => $defaultValue]];
+				}
 			}
 		}
 

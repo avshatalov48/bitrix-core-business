@@ -232,7 +232,7 @@ class CStatRegion
 			";
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 }
 
@@ -390,7 +390,7 @@ class CCity
 			";
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 
@@ -456,8 +456,7 @@ class CCity
 	{
 		if($str && $this->lookup->charset)
 		{
-			global $APPLICATION;
-			$str = $APPLICATION->ConvertCharset($str, $this->lookup->charset, LANG_CHARSET);
+			$str = \Bitrix\Main\Text\Encoding::convertEncoding($str, $this->lookup->charset, LANG_CHARSET);
 		}
 		return $str;
 	}
@@ -519,7 +518,6 @@ class CCity
 
 	public static function GetGraphArray($arFilter, &$arLegend, $sort = false, $top = 0)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		global $arCityColor;
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
@@ -584,7 +582,7 @@ class CCity
 				D.DATE_STAT, D.CITY_ID
 		";
 
-		$rsD = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsD = $DB->Query($strSql);
 		while ($arD = $rsD->Fetch())
 		{
 			$arrDays[$arD["DATE_STAT"]]["D"] = $arD["DAY"];
@@ -944,7 +942,6 @@ class CCity
 
 	public static function LoadCSV($file_name, $step, &$file_position)
 	{
-		global $APPLICATION;
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arCache = array();
 		$arLookupCache = array();
@@ -959,7 +956,7 @@ class CCity
 		fseek($fp, $file_position);
 
 		if($step > 0)
-			$end_time = getmicrotime() + $step;
+			$end_time = microtime(true) + $step;
 		else
 			$end_time = 0;
 
@@ -1071,8 +1068,8 @@ class CCity
 			//$arr = fgetcsv($fp, 4096, $delimiter);
 			$arr = fgets($fp, 4096);
 			if($bConv && preg_match("/[^a-zA-Z0-9 \t\n\r]/", $arr))
-				$arr = $APPLICATION->ConvertCharset($arr, $char_set, LANG_CHARSET);
-			$arr = preg_split("/".$delimiter."/".BX_UTF_PCRE_MODIFIER, $arr);
+				$arr = \Bitrix\Main\Text\Encoding::convertEncoding($arr, $char_set, LANG_CHARSET);
+			$arr = preg_split("/".$delimiter."/u", $arr);
 
 			$arAllSQLFields = array();
 			$arFields = array();
@@ -1094,8 +1091,6 @@ class CCity
 				{
 					$value = trim($arr[$arField["index"]], "\" \n\r\t");
 				}
-				//if($bConv && $arField["enc"] && preg_match("/[^a-zA-Z0-9 \t\n\r]/", $value))
-				//	$value = $APPLICATION->ConvertCharset($value, $char_set, LANG_CHARSET);
 				if(!$value && $arField["default"])
 					$value = $arField["default"];
 
@@ -1113,8 +1108,6 @@ class CCity
 							foreach($arField["master"] as $MASTER_FIELD_ID => $arMasterField)
 							{
 								$m_value = trim($arr[$arMasterField["index"]], "\"");
-								//if($bConv && $arMasterField["enc"] && preg_match("/[^a-zA-Z0-9 \t\n\r]/", $m_value))
-								//	$m_value = $APPLICATION->ConvertCharset($m_value, $char_set, LANG_CHARSET);
 								if(!$m_value && $arMasterField["default"])
 									$m_value = $arMasterField["default"];
 								$arNewMaster[$MASTER_FIELD_ID] = $m_value;
@@ -1248,7 +1241,7 @@ class CCity
 				$arCache[$strWhere] = true;
 			}
 
-			if($end_time && getmicrotime() > $end_time)
+			if($end_time && microtime(true) > $end_time)
 			{
 				$file_position = ftell($fp);
 				return "N";

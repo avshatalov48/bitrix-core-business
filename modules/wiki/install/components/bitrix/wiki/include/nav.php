@@ -3,7 +3,7 @@
 $sPageName = $arResult['ELEMENT']['NAME'] = CWikiUtils::htmlspecialcharsback($arResult['ELEMENT']['NAME'], false);
 $sCatName = '';
 if (CWikiUtils::IsCategoryPage($sPageName, $sCatName))
-	$sPageName = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $sPageName);
+	$sPageName = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $sPageName);
 
 if (CWikiSocnet::IsSocNet())
 {

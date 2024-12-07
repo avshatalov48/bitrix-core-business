@@ -22,9 +22,11 @@ class CAllTest
 				$arMsg[] = array("id"=>"COURSE_ID", "text"=> GetMessage("LEARNING_BAD_COURSE_ID_EX"));
 		}
 
-		if ( $arFields["APPROVED"] == "Y" &&
-			is_set($arFields, "COMPLETED_SCORE") &&
-			(intval($arFields["COMPLETED_SCORE"]) <= 0 || intval($arFields["COMPLETED_SCORE"]) > 100)
+		if (
+			isset($arFields["APPROVED"])
+			&& $arFields["APPROVED"] === "Y"
+			&& is_set($arFields, "COMPLETED_SCORE")
+			&& (intval($arFields["COMPLETED_SCORE"]) <= 0 || intval($arFields["COMPLETED_SCORE"]) > 100)
 		)
 			$arMsg[] = array("id"=>"COMPLETED_SCORE", "text"=> GetMessage("LEARNING_BAD_COMPLETED_SCORE"));
 
@@ -64,8 +66,10 @@ class CAllTest
 		if (is_set($arFields, "APPROVED") && $arFields["APPROVED"] != "Y")
 			$arFields["APPROVED"] = "N";
 
-		if($arFields["APPROVED"] == "N")
+		if (isset($arFields["APPROVED"]) && $arFields["APPROVED"] == "N")
+		{
 			$arFields["COMPLETED_SCORE"] = "";
+		}
 
 		if (is_set($arFields, "INCLUDE_SELF_TEST") && $arFields["INCLUDE_SELF_TEST"] != "Y")
 			$arFields["INCLUDE_SELF_TEST"] = "N";
@@ -130,7 +134,7 @@ class CAllTest
 			unset($arFields["ID"]);
 
 			$arBinds = array(
-				"DESCRIPTION" => $arFields["DESCRIPTION"]
+				"DESCRIPTION" => $arFields["DESCRIPTION"] ?? ''
 			);
 
 			foreach(GetModuleEvents('learning', 'OnBeforeTestUpdate', true) as $arEvent)
@@ -138,7 +142,7 @@ class CAllTest
 
 			$strUpdate = $DB->PrepareUpdate("b_learn_test", $arFields, "learning");
 			$strSql = "UPDATE b_learn_test SET ".$strUpdate." WHERE ID=".$ID;
-			$DB->QueryBind($strSql, $arBinds, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, $arBinds);
 
 			foreach(GetModuleEvents('learning', 'OnAfterTestUpdate', true) as $arEvent)
 				ExecuteModuleEventEx($arEvent, array($arFields, $ID));
@@ -192,7 +196,7 @@ class CAllTest
 
 		$strSql = "DELETE FROM b_learn_test WHERE ID = ".$ID;
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return false;
 
 		CEventLog::add(array(
@@ -279,7 +283,7 @@ class CAllTest
 		if ( ! empty($arSqlSearch) )
 			$strSqlSearch .= ' AND ' . implode(' AND ', $arSqlSearch) . ' ';
 
-		$strSql = 
+		$strSql =
 			"SELECT COUNT(*) as CNT 
 			FROM b_learn_test LT 
 			INNER JOIN b_learn_course C 
@@ -291,7 +295,7 @@ class CAllTest
 
 		$strSql .= $strSqlSearch;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($ar = $res->Fetch())
 			return intval($ar["CNT"]);
@@ -310,12 +314,12 @@ class CAllTest
 			FROM b_learn_gradebook 
 			WHERE 
 				STUDENT_ID = ".$USER->GetID()." AND 
-				COMPLETED=\"Y\" AND 
+				COMPLETED='Y' AND 
 				TEST_ID = ".$ID." AND 
 				1.0*RESULT/MAX_RESULT*100 >= ".$SCORE
 		;
 
-		$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($res->Fetch())
 			return true;
@@ -330,7 +334,7 @@ class CAllTest
 
 		$ID = intval($ID);
 		$strSql = "SELECT COUNT(*) AS ALL_CNT, SUM(CASE WHEN COMPLETED = 'Y' THEN 1 ELSE 0 END) AS CORRECT_CNT FROM b_learn_attempt WHERE STATUS = 'F' AND TEST_ID = ".$ID;
-		$rsStat = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$rsStat = $DB->Query($strSql);
 		if ($arStat = $rsStat->GetNext())
 		{
 			return array("ALL_CNT" => intval($arStat["ALL_CNT"]), "CORRECT_CNT" => intval($arStat["CORRECT_CNT"]));
@@ -421,7 +425,7 @@ class CAllTest
 			if (isset($arNavParams['nTopCount']) && ((int) $arNavParams['nTopCount'] > 0))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 			}
 			else
 			{
@@ -432,7 +436,7 @@ class CAllTest
 			}
 		}
 		else
-			$res = $DB->Query($strSql, false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 
 		return $res;
 	}

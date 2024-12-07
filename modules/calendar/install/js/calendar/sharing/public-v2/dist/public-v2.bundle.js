@@ -957,8 +957,8 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      };
 	    });
 	  }
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId] === 'UTC' || !babelHelpers.classPrivateFieldLooseBase(this, _timezoneList)[_timezoneList][babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId]]) {
-	    babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId] = 'Africa/Dakar';
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _timezoneList)[_timezoneList][babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId]]) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _selectedTimezoneId)[_selectedTimezoneId] = 'UTC';
 	  }
 	}
 	function _separate2(take, array) {
@@ -2562,7 +2562,7 @@ this.BX.Calendar = this.BX.Calendar || {};
 	  }
 	}
 	function _isPhoneTypeInput2() {
-	  return babelHelpers.classPrivateFieldLooseBase(this, _isPhoneContactOnly)[_isPhoneContactOnly]() || babelHelpers.classPrivateFieldLooseBase(this, _showFullContactPlaceholder)[_showFullContactPlaceholder]() && this.contactData.slice(0, 1) === '+';
+	  return babelHelpers.classPrivateFieldLooseBase(this, _isPhoneContactOnly)[_isPhoneContactOnly]() || babelHelpers.classPrivateFieldLooseBase(this, _showFullContactPlaceholder)[_showFullContactPlaceholder]() && babelHelpers.classPrivateFieldLooseBase(this, _inputData)[_inputData].contactData.slice(0, 1) === '+';
 	}
 	function _isDigit2(key) {
 	  return /^\d+$/.test(key);
@@ -4396,6 +4396,9 @@ this.BX.Calendar = this.BX.Calendar || {};
 	      babelHelpers.classPrivateFieldLooseBase(this, _welcomePage)[_welcomePage].handleWelcomePageButtonClick();
 	      babelHelpers.classPrivateFieldLooseBase(this, _welcomePage)[_welcomePage].hideButton();
 	      babelHelpers.classPrivateFieldLooseBase(this, _slotsBlock)[_slotsBlock].openAccessDenied();
+	    }
+	    if (_options.action === 'opened') {
+	      babelHelpers.classPrivateFieldLooseBase(this, _welcomePage)[_welcomePage].handleWelcomePageButtonClick();
 	    }
 
 	    // this.showFreeSlots();

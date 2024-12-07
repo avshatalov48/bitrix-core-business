@@ -126,8 +126,8 @@ class BXInstallServices
 
 		return array(
 			"ID" => implode(":", $ar),
-			"NAME" => (BXInstallServices::IsUTFString($arWizardDescription["NAME"]) && function_exists("mb_convert_encoding") ? mb_convert_encoding($arWizardDescription["NAME"], INSTALL_CHARSET, "utf-8") : $arWizardDescription["NAME"]),
-			"DESCRIPTION" => (BXInstallServices::IsUTFString($arWizardDescription["DESCRIPTION"]) && function_exists("mb_convert_encoding") ? mb_convert_encoding($arWizardDescription["DESCRIPTION"], INSTALL_CHARSET, "utf-8") : $arWizardDescription["DESCRIPTION"]),
+			"NAME" => $arWizardDescription["NAME"],
+			"DESCRIPTION" => $arWizardDescription["DESCRIPTION"],
 			"IMAGE" => $arWizardDescription["IMAGE"],
 			"VERSION" => $arWizardDescription["VERSION"],
 		);
@@ -236,7 +236,7 @@ class BXInstallServices
 
 	public static function CopyDirFiles($path_from, $path_to, $rewrite = true)
 	{
-		if (strpos($path_to."/", $path_from."/") === 0)
+		if (str_starts_with($path_to . "/", $path_from . "/"))
 			return false;
 
 		if (is_dir($path_from))
@@ -547,81 +547,6 @@ class BXInstallServices
 		);
 	}
 
-	public static function IsUTFString($string)
-	{
-		return preg_match('//u', $string);
-	}
-
-	public static function EncodeFile($filePath, $charsetFrom)
-	{
-		$position = strrpos($filePath, ".");
-		$extension = strtolower(substr($filePath, $position + 1, strlen($filePath) - $position));
-
-		if ($extension != "php" && $extension != "sql" && $extension != "js" && $extension != "csv" && $extension != "snp" && $extension != "html" && $extension != "xml")
-			return;
-
-		$fileContent = file_get_contents($filePath);
-		if ($fileContent === false)
-			return;
-		if($extension == "xml")
-		{
-			if(substr($fileContent, 0, 5) === "<?xml" && strpos(substr($fileContent, 0, 100), "encoding") === false)
-			{
-				$fileContent = mb_convert_encoding($fileContent, "utf-8", $charsetFrom);
-				file_put_contents($filePath, $fileContent);
-			}
-		}
-		else
-		{
-			$fileContent = mb_convert_encoding($fileContent, "utf-8", $charsetFrom);
-			file_put_contents($filePath, $fileContent);
-		}
-	}
-
-	public static function EncodeDir($dirPath, $charsetFrom, $encodeALL = false)
-	{
-		$dirPath = str_replace("\\", "/", $dirPath);
-		$dirPath = rtrim($dirPath, "/");
-
-		if (!is_dir($dirPath))
-			return false;
-
-		if (!$handle = @opendir($dirPath))
-			return false;
-
-		while (($file = readdir($handle)) !== false)
-		{
-			if ($file == "." || $file == "..")
-				continue;
-
-			$filePath = $dirPath."/".$file;
-
-			if (is_dir($filePath))
-				BXInstallServices::EncodeDir($filePath, $charsetFrom, $encodeALL);
-			else
-			{
-				if (
-					$encodeALL === false &&
-					!preg_match("@/(ru|de|la|ua)/@", $filePath, $matches) ||
-					strpos($filePath, "/bitrix/modules/main/lang/".LANGUAGE_ID."/install.php") !== false
-				)
-					continue;
-
-				if ($encodeALL)
-					BXInstallServices::EncodeFile($filePath, $charsetFrom);
-				else
-				{
-					if($matches[1]=='de')
-						BXInstallServices::EncodeFile($filePath, "iso-8859-15");
-					elseif($matches[1]=='ru' || $matches[1]=='ua')
-						BXInstallServices::EncodeFile($filePath, "windows-1251");
-					elseif($matches[1]=='la')
-						BXInstallServices::EncodeFile($filePath, "iso-8859-1");
-				}
-			}
-		}
-	}
-
 	public static function SetStatus($status)
 	{
 		$bCgi = (stristr(php_sapi_name(), "cgi") !== false);
@@ -749,19 +674,13 @@ class BXInstallServices
 
 		$lic_edition = serialize($arClientModules);
 
-		if (defined("INSTALL_CHARSET") && INSTALL_CHARSET <> '')
-			$charset = INSTALL_CHARSET;
-		else
-			$charset = "windows-1251";
-
 		if(LANGUAGE_ID == "ru")
 			$host = "www.1c-bitrix.ru";
 		else
 			$host = "www.bitrixsoft.com";
 
-		$maxUsers = (defined('TRIAL_RENT_VERSION_MAX_USERS') ? TRIAL_RENT_VERSION_MAX_USERS : 0);
+		$maxUsers = 0;
 		$path = "/bsm_register_key.php";
-		$port = 80;
 		$query = "sur_name=$lic_key_user_surname&first_name=$lic_key_user_name&email=$lic_key_email&site=$lic_site&modules=".urlencode($lic_edition)."&db=$DBType&lang=".LANGUAGE_ID."&bx=Y&max_users=".$maxUsers;
 
 		if(defined("install_license_type"))
@@ -770,12 +689,12 @@ class BXInstallServices
 			$query .= "&edition=".install_edition;
 
 		$page_content = "";
-		$fp = @fsockopen("$host", "$port", $errnum, $errstr, 30);
+		$fp = @fsockopen("ssl://" . $host, 443, $errnum, $errstr, 30);
 		if ($fp)
 		{
 			fputs($fp, "POST {$path} HTTP/1.1\r\n");
 			fputs($fp, "Host: {$host}\r\n");
-			fputs($fp, "Content-type: application/x-www-form-urlencoded; charset=\"".$charset."\"\r\n");
+			fputs($fp, "Content-type: application/x-www-form-urlencoded; charset=\"UTF-8\"\r\n");
 			fputs($fp, "User-Agent: bitrixKeyReq\r\n");
 			fputs($fp, "Content-length: " . strlen($query) . "\r\n");
 			fputs($fp, "Connection: close\r\n\r\n");

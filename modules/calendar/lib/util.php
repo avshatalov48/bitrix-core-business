@@ -1,6 +1,7 @@
 <?php
 namespace Bitrix\Calendar;
 
+use Bitrix\Calendar\Core\Event\Tools\Dictionary;
 use Bitrix\Calendar\Sync\Util\MsTimezoneConverter;
 use Bitrix\Main;
 use Bitrix\Main\Application;
@@ -594,7 +595,7 @@ class Util
 		$key = $type . $ownerId;
 		if (!isset(self::$pathCache[$key]) || !is_string(self::$pathCache[$key]))
 		{
-			if ($type === 'user')
+			if ($type === 'user' || $type === Dictionary::CALENDAR_TYPE['open_event'])
 			{
 				$path = \COption::GetOptionString(
 					'calendar',
@@ -644,15 +645,23 @@ class Util
 				$path =  '';
 			}
 
-			if (!empty($path) && $ownerId > 0)
+			// substitute user=0 for links to open events
+			if (!empty($path))
 			{
-				if ($type === 'user')
+				if ($ownerId > 0)
+				{
+					if ($type === 'user')
+					{
+						$path = str_replace(['#user_id#', '#USER_ID#'], $ownerId, $path);
+					}
+					elseif ($type === 'group')
+					{
+						$path = str_replace(['#group_id#', '#GROUP_ID#'], $ownerId, $path);
+					}
+				}
+				elseif ($type === Dictionary::CALENDAR_TYPE['open_event'])
 				{
 					$path = str_replace(['#user_id#', '#USER_ID#'], $ownerId, $path);
-				}
-				elseif ($type === 'group')
-				{
-					$path = str_replace(['#group_id#', '#GROUP_ID#'], $ownerId, $path);
 				}
 			}
 			self::$pathCache[$key] = $path;

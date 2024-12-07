@@ -1,0 +1,55 @@
+.bx-im-message-channel-creation__container {
+	--im-message-channe-creation__background-color_content: rgb(255 255 255 / 90%);
+	--im-message-channe-creation__font-color_title: #151515;
+	--im-message-channe-creation__font-color_description: var(--im-color-palette-gray-70);
+
+	display: flex;
+	width: 534px;
+	min-height: 125px;
+	background: var(--im-message-channe-creation__background-color_content);
+	border-radius: 16px;
+	font-family: var(--im-font-family-system);
+	line-height: var(--im-font-line-height-3xs);
+}
+
+.bx-im-message-general-base__wrap + .bx-im-message-general-chat-creation__scope {
+	margin-top: 24px;
+}
+
+.bx-im-message-channel-creation__scope + .bx-im-message-base__wrap {
+	margin-top: 24px;
+}
+
+.bx-im-message-channel-creation__image {
+	width: 166px;
+	background-image: url('./images/group-chat.svg');
+	background-repeat: no-repeat;
+	border-radius: 16px;
+}
+
+.bx-im-message-channel-creation__content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	max-width: calc(100% - 166px);
+	padding-left: 17px;
+	padding-right: 17px;
+}
+
+.bx-im-message-channel-creation__title {
+	font-size: var(--im-font-size-2xl);
+	color: var(--im-message-channe-creation__font-color_title);
+	font-weight: var(--im-font-weight-bold);
+	margin: 8px 0 8px 0;
+	user-select: none;
+}
+
+.bx-im-message-channel-creation__description {
+	max-width: 100%;
+	margin-bottom: 16px;
+	font-size: var(--im-font-size-md);
+	color: var(--im-message-channe-creation__font-color_description);
+	user-select: none;
+	overflow: hidden;
+}
+

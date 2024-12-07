@@ -215,7 +215,7 @@ $tabControl->BeginNextTab();
 		echo FindUserID('USER_ID', ($str_USER_ID > 0 ? $str_USER_ID : ''), $sUser, 'subscrform', '10', '', ' ... ', '', '');
 
 		if ((integer)$str_USER_ID == 0):
-		?><script language="JavaScript">document.subscrform.USER_ID.disabled=document.subscrform.FindUser.disabled=true;</script><?php
+		?><script>document.subscrform.USER_ID.disabled=document.subscrform.FindUser.disabled=true;</script><?php
 		endif;
 		?></td>
 	</tr>
@@ -236,7 +236,7 @@ $tabControl->BeginNextTab();
 		<td><?php echo CSite::SelectBox('SITE_ID', $request['SITE_ID']);?></td>
 	</tr>
 <?php if ($request['SEND_CONFIRM'] !== 'Y'):?>
-	<script language="JavaScript">document.subscrform.SITE_ID.disabled=true;</script>
+	<script>document.subscrform.SITE_ID.disabled=true;</script>
 <?php endif;?>
 <?php
 //********************

@@ -54,7 +54,7 @@ else
 echo EndNote();
 ?>
 
-<script type="text/javascript">
+<script>
 	function makeNewAuth()
 	{
 		BX.showWait(BX('auth_result'));

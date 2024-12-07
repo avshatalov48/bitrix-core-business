@@ -11,4 +11,4 @@
 	?>
 	<title><?$APPLICATION->ShowTitle()?></title>
 </head>
-<body class="<?=$APPLICATION->ShowProperty("BodyClass");?>">
+<body class="<? $APPLICATION->ShowProperty("BodyClass"); ?>">

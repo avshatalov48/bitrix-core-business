@@ -1,7 +1,8 @@
 import { EventEmitter } from 'main.core.events';
 
 import { EntityCreator } from 'im.v2.lib.entity-creator';
-import { EventType, SidebarDetailBlock } from 'im.v2.const';
+import { EventType, Layout, SidebarDetailBlock, ChatActionType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
 import { Button as MessengerButton, ButtonColor, ButtonSize } from 'im.v2.component.elements';
 
 import { TaskMenu } from '../../../../classes/context-menu/task/task-menu';
@@ -32,6 +33,10 @@ export const TaskPreview = {
 		{
 			return this.$store.getters['sidebar/tasks/get'](this.chatId)[0];
 		},
+		showAddButton(): boolean
+		{
+			return PermissionManager.getInstance().canPerformAction(ChatActionType.createTask, this.dialogId);
+		},
 		dialog(): ImModelChat
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
@@ -39,6 +44,21 @@ export const TaskPreview = {
 		chatId(): number
 		{
 			return this.dialog.chatId;
+		},
+		isCopilotLayout(): boolean
+		{
+			const { name: currentLayoutName } = this.$store.getters['application/getLayout'];
+
+			return currentLayoutName === Layout.copilot.name;
+		},
+		addButtonColor(): ButtonColor
+		{
+			if (this.isCopilotLayout)
+			{
+				return this.ButtonColor.Copilot;
+			}
+
+			return this.ButtonColor.PrimaryLight;
 		},
 	},
 	created()
@@ -53,16 +73,11 @@ export const TaskPreview = {
 	{
 		getEntityCreator(): EntityCreator
 		{
-			if (!this.entityCreator)
-			{
-				this.entityCreator = new EntityCreator(this.chatId);
-			}
-
-			return this.entityCreator;
+			return (new EntityCreator(this.chatId));
 		},
 		onAddClick()
 		{
-			this.getEntityCreator().createTaskForChat();
+			void this.getEntityCreator().createTaskForChat();
 		},
 		onOpenDetail()
 		{
@@ -85,6 +100,10 @@ export const TaskPreview = {
 
 			this.contextMenu.openMenu(item, target);
 		},
+		loc(phraseCode: string): string
+		{
+			return this.$Bitrix.Loc.getMessage(phraseCode);
+		},
 	},
 	template: `
 		<div class="bx-im-sidebar-task-preview__scope">
@@ -96,15 +115,16 @@ export const TaskPreview = {
 				>
 					<div class="bx-im-sidebar-task-preview__title">
 						<span class="bx-im-sidebar-task-preview__title-text">
-							{{ $Bitrix.Loc.getMessage('IM_SIDEBAR_TASK_DETAIL_TITLE') }}
+							{{ loc('IM_SIDEBAR_TASK_DETAIL_TITLE') }}
 						</span>
 						<div v-if="firstTask" class="bx-im-sidebar__forward-icon"></div>
 					</div>
 					<transition name="add-button">
 						<MessengerButton
-							:text="$Bitrix.Loc.getMessage('IM_SIDEBAR_ADD_BUTTON_TEXT')"
+							v-if="showAddButton"
+							:text="loc('IM_SIDEBAR_ADD_BUTTON_TEXT')"
 							:size="ButtonSize.S"
-							:color="ButtonColor.PrimaryLight"
+							:color="addButtonColor"
 							:isRounded="true"
 							:isUppercase="false"
 							icon="plus"
@@ -113,10 +133,14 @@ export const TaskPreview = {
 						/>
 					</transition>
 				</div>
-				<TaskItem v-if="firstTask" :task="firstTask" @contextMenuClick="onContextMenuClick"/>
+				<TaskItem 
+					v-if="firstTask"
+					:contextDialogId="dialogId"
+					:task="firstTask" @contextMenuClick="onContextMenuClick"
+				/>
 				<DetailEmptyState 
 					v-else 
-					:title="$Bitrix.Loc.getMessage('IM_SIDEBAR_TASKS_EMPTY')"
+					:title="loc('IM_SIDEBAR_TASKS_EMPTY')"
 					:iconType="SidebarDetailBlock.task"
 				/>
 			</div>

@@ -33,8 +33,8 @@ export const SearchInput = {
 			default: false,
 		},
 		delayForFocusOnStart: {
-			type: Number,
-			default: 0,
+			type: Number || null,
+			default: null,
 		},
 	},
 	emits: ['queryChange', 'inputFocus', 'inputBlur', 'keyPressed', 'close'],
@@ -69,9 +69,13 @@ export const SearchInput = {
 			}
 		},
 	},
-	created()
+	mounted()
 	{
-		if (this.delayForFocusOnStart > 0)
+		if (this.delayForFocusOnStart === 0)
+		{
+			this.focus();
+		}
+		else if (this.delayForFocusOnStart > 0)
 		{
 			setTimeout(() => {
 				this.focus();

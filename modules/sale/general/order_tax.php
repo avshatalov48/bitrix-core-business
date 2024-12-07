@@ -81,7 +81,7 @@ class CAllSaleOrderTax
 		$strSql = "UPDATE ".static::getTableName()." SET ".
 			"	".$strUpdate." ".
 			"WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -109,7 +109,7 @@ class CAllSaleOrderTax
 			"SELECT ID, ORDER_ID, TAX_NAME, VALUE, VALUE_MONEY, APPLY_ORDER, CODE, IS_PERCENT, IS_IN_PRICE ".
 			"FROM ".static::getTableName()." ".
 			"WHERE ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{

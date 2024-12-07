@@ -2,10 +2,12 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 use Bitrix\Mail\Helper\MessageEventManager;
 use Bitrix\Mail\Internals\MessageUploadQueueTable;
 use Bitrix\Main\DB\Connection;
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\EntityError;
 use Bitrix\Main\EventManager;
 use Bitrix\Main\Localization;
 
@@ -195,6 +197,40 @@ class MailMessageUidTable extends Entity\DataManager
 		EventManager::getInstance()->removeEventHandler('mail', 'onMailMessageDeleted', $eventKey);
 
 		return true;
+	}
+
+	public static function getMessage(
+		int $mailboxId,
+		$select,
+		int $id = null,
+		int $uid = null,
+	): array|null
+	{
+		if (!is_null($id))
+		{
+			$filter = [
+				'=MESSAGE_ID' => $id,
+				'=MAILBOX_ID' => $mailboxId,
+			];
+		}
+		else if(!is_null($uid))
+		{
+			$filter = [
+				'=MSG_UID' => $uid,
+				'=MAILBOX_ID' => $mailboxId,
+			];
+		}
+		else
+		{
+			return null;
+		}
+
+		return self::getRow(
+			[
+				'select' => $select,
+				'filter' => $filter,
+			]
+		);
 	}
 
 	/**
@@ -437,6 +473,34 @@ class MailMessageUidTable extends Entity\DataManager
 				'default' => 0,
 			),
 		);
+	}
+	/**
+	 * @param Entity\Event $event
+	 * @return Entity\EventResult
+	 */
+	public static function onAfterUpdate(Entity\Event $event)
+	{
+		$result = new Entity\EventResult;
+		$parameters = $event->getParameters();
+		if ($parameters['primary'] && is_set($parameters['fields']['IS_OLD']))
+		{
+			$message = self::getById($parameters['primary'])->fetch();
+			if (!$message)
+			{
+				return $result;
+			}
+
+			$mailboxId = (int)$message['MAILBOX_ID'];
+			$dirMd5 = $message['DIR_MD5'];
+
+			$updateResult = MessageInternalDateHandler::clearStartInternalDate($mailboxId, $dirMd5);
+			if (!$updateResult->isSuccess())
+			{
+				$result->setErrors($updateResult->getErrors());
+			}
+		}
+
+		return $result;
 	}
 
 }

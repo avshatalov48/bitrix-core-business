@@ -434,7 +434,9 @@
 			}
 			else
 			{
-				dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit') && !params.entry.isLocation();
+				dragAllowed = this.calendar.entryController.canDo(params.entry, 'edit')
+					&& !params.entry.isLocation()
+					&& !params.entry.isOpenEvent();
 			}
 
 			jsDD.registerObject(node);

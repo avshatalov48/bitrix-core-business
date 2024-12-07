@@ -4,7 +4,7 @@
 	position: relative;
 }
 
-.--opponent .bx-im-message-smile__container {
+.bx-im-message-base__wrap.--opponent .bx-im-message-smile__container {
 	justify-content: flex-start;
 }
 
@@ -31,11 +31,7 @@
 	justify-content: flex-end;
 }
 
-.--self .bx-im-message-smile__reactions-container {
-	padding-right: var(--im-message-base__offset_context-menu);
-}
-
-.--opponent .bx-im-message-smile__reactions-container,
+.bx-im-message-base__wrap.--opponent .bx-im-message-smile__reactions-container,
 .bx-im-content-chat__container.--left-align .bx-im-message-smile__reactions-container {
 	justify-content: flex-start;
 }

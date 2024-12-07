@@ -5,7 +5,7 @@ if (!$templateData['showSubscribe'])
 	return;
 
 if($templateData['jsObject']): ?>
-<script type="text/javascript">
+<script>
 	BX.ready(BX.defer(function(){
 		if (!!window.<?= $templateData['jsObject']; ?>)
 		{

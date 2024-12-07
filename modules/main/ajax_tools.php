@@ -120,7 +120,7 @@ class CAjax
 		}
 		$rnd = $rndGenerator->randString(6);
 		return '
-<form ' . trim($form_params) . '><input type="hidden" name="' . BX_AJAX_PARAM_ID . '" id="' . BX_AJAX_PARAM_ID . '_' . $ajax_id . '_' . $rnd . '" value="' . $ajax_id . '" /><input type="hidden" name="AJAX_CALL" value="Y" /><script type="text/javascript">
+<form ' . trim($form_params) . '><input type="hidden" name="' . BX_AJAX_PARAM_ID . '" id="' . BX_AJAX_PARAM_ID . '_' . $ajax_id . '_' . $rnd . '" value="' . $ajax_id . '" /><input type="hidden" name="AJAX_CALL" value="Y" /><script>
 function _processform_' . $rnd . '(){
 	if (BX(\'' . BX_AJAX_PARAM_ID . '_' . $ajax_id . '_' . $rnd . '\'))
 	{

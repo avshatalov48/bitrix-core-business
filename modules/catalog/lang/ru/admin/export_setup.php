@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CES_ERROR_NO_FILE"] = "Не указан файл экспорта.";
 $MESS["CES_ERROR_NO_ACTION"] = "Не указано действие над файлом экспорта.";
 $MESS["CES_ERROR_FILE_NOT_EXIST"] = "Файл экспорта не найден:";
@@ -95,4 +95,3 @@ $MESS["CES_CRON_AGENT_ERRORS"] = "Профили одновременно вып
 $MESS["CES_AUTO_REFRESH"] = "Если страница не обновляется автоматически, нажмите на ссылку";
 $MESS["CES_AUTO_REFRESH_STEP"] = "Следующий шаг";
 $MESS["CES_STEP_TITLE"] = "Пошаговый экспорт";
-?>

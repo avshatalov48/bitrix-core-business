@@ -88,7 +88,7 @@
 	font-weight: var(--ui-font-weight-regular);
 	font-size: var(--ui-font-size-3xs);
 	line-height: 14px;
-	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-70));
+	color: rgba(var(--ui-color-on-primary-rgb), var(--ui-opacity-50));
 	letter-spacing: -.18px;
 }
 

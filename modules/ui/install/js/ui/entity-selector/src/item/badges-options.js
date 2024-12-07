@@ -1,4 +1,5 @@
 export type BadgesOptions = {
 	fitContent: boolean,
-	maxWidth: number | string
+	maxWidth: number | string,
+	justifyContent: 'left' | 'right' | 'center',
 };

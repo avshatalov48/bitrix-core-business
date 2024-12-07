@@ -4,43 +4,60 @@ namespace Bitrix\Im\V2\Call;
 
 use Bitrix\Im\Call\Call;
 use Bitrix\Im\Call\Util;
+use Bitrix\Main\Error;
 use Bitrix\Main\Security\Random;
 use Bitrix\Main\Web\JWT;
 
+
 class BitrixCall extends Call
 {
-	protected function initCall()
+	protected $provider = parent::PROVIDER_BITRIX;
+
+	/**
+	 * @return void
+	 */
+	protected function initCall(): void
 	{
 		if (!$this->endpoint)
 		{
 			$this->uuid = Util::generateUUID();
 			$this->secretKey = Random::getString(10, true);
 
-			$callControllerClient = new ControllerClient();
-			$createResult = $callControllerClient->createCall(
-				$this->getUuid(),
-				$this->getSecretKey(),
-				$this->getInitiatorId(),
-				$this->getId()
-			);
+			if (!$this->getId())
+			{
+				$this->save();
+			}
+
+			$createResult = (new ControllerClient())->createCall($this);
 
 			if (!$createResult->isSuccess())
 			{
-				$this->finish();
+				parent::finish();
 
-				throw new \Exception($createResult->getErrorMessages()[0]);
+				$this->addErrors($createResult->getErrors());
 			}
 			$callData = $createResult->getData();
 			if (!$callData['endpoint'])
 			{
-				$this->finish();
+				parent::finish();
 
-				throw new \Exception('Empty endpoint');
+				$this->addError(new Error('Empty endpoint', 'empty_endpoint'));
+
+				return;
 			}
 
 			$this->setEndpoint($callData['endpoint']);
 			$this->save();
 		}
+	}
+
+	public function finish(): void
+	{
+		if ($this->getState() != static::STATE_FINISHED)
+		{
+			(new ControllerClient())->finishCall($this);
+		}
+		parent::finish();
 	}
 
 	protected function generateJwt(int $userId): string
@@ -62,7 +79,7 @@ class BitrixCall extends Call
 		];
 	}
 
-	public function inviteUsers(int $senderId, array $toUserIds, $isLegacyMobile, $video = false, $sendPush = true)
+	public function inviteUsers(int $senderId, array $toUserIds, $isLegacyMobile, $video = false, $sendPush = true): void
 	{
 		foreach ($toUserIds as $toUserId)
 		{
@@ -77,8 +94,8 @@ class BitrixCall extends Call
 		}
 	}
 
-	public function getMaxUsers()
+	public function getMaxUsers(): int
 	{
-		return static::getMaxCallServerParticipants();
+		return parent::getMaxCallServerParticipants();
 	}
 }

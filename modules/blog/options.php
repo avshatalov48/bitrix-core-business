@@ -9,7 +9,7 @@ IncludeModuleLangFile($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/blog/options.ph
 
 CModule::IncludeModule('blog');
 
-if ($REQUEST_METHOD=="GET" && $RestoreDefaults <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="GET" && $RestoreDefaults <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid())
 {
 	COption::RemoveOption("blog");
 	$z = CGroup::GetList("id", "asc", array("ACTIVE" => "Y", "ADMIN" => "N"));
@@ -45,7 +45,7 @@ $arAllOptions = array(
 );
 
 $strWarning = "";
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid() && $use_sonnet_button == '')
+if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $BLOG_RIGHT=="W" && check_bitrix_sessid() && $use_sonnet_button == '')
 {
 	foreach($arAllOptions as $option)
 	{
@@ -277,7 +277,7 @@ $tabControl->BeginNextTab();
 
 	<?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");?>
 <?$tabControl->Buttons();?>
-<script language="JavaScript">
+<script>
 function RestoreDefaults()
 {
 	if (confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

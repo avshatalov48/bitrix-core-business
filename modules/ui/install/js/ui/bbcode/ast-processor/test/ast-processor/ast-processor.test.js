@@ -55,12 +55,12 @@ describe('ui.bbcode.ast-processor', () => {
 	});
 
 	it('AstProcessor.parseSelector', () => {
-		const sourceSelector = 'ElementNode[name="table"] > ElementNode[name="tr"]';
+		const sourceSelector = 'BBCodeElementNode[name="table"] > BBCodeElementNode[name="tr"]';
 		const parsedSelector = AstProcessor.parseSelector(sourceSelector);
 
-		assert.deepEqual(parsedSelector.at(0), {nodeName: 'ElementNode', props: [['name', 'table']]});
+		assert.deepEqual(parsedSelector.at(0), {nodeName: 'BBCodeElementNode', props: [['name', 'table']]});
 		assert.deepEqual(parsedSelector.at(1), '>');
-		assert.deepEqual(parsedSelector.at(2), {nodeName: 'ElementNode', props: [['name', 'tr']]});
+		assert.deepEqual(parsedSelector.at(2), {nodeName: 'BBCodeElementNode', props: [['name', 'tr']]});
 	});
 
 	it('AstProcessor.findElements', () => {
@@ -81,17 +81,17 @@ describe('ui.bbcode.ast-processor', () => {
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		const allTextNodes = AstProcessor.findElements(ast, 'TextNode');
+		const allTextNodes = AstProcessor.findElements(ast, 'BBCodeTextNode');
 		assert.ok(allTextNodes.length === 5);
-		assert.ok(allTextNodes.every((node) => node.constructor.name === 'TextNode'));
+		assert.ok(allTextNodes.every((node) => node.constructor.name === 'BBCodeTextNode'));
 
-		const allTrNodes = AstProcessor.findElements(ast, 'ElementNode[name="tr"]');
+		const allTrNodes = AstProcessor.findElements(ast, 'BBCodeElementNode[name="tr"]');
 		assert.ok(allTrNodes.length === 2);
-		assert.ok(allTrNodes.every((node) => node.constructor.name === 'ElementNode' && node.getName() === 'tr'));
+		assert.ok(allTrNodes.every((node) => node.constructor.name === 'BBCodeElementNode' && node.getName() === 'tr'));
 
-		const allTrNodes2 = AstProcessor.findElements(ast, 'ElementNode[name="table"] > ElementNode[name="tr"]');
+		const allTrNodes2 = AstProcessor.findElements(ast, 'BBCodeElementNode[name="table"] > BBCodeElementNode[name="tr"]');
 		assert.ok(allTrNodes2.length === 2);
-		assert.ok(allTrNodes2.every((node) => node.constructor.name === 'ElementNode' && node.getName() === 'tr'));
+		assert.ok(allTrNodes2.every((node) => node.constructor.name === 'BBCodeElementNode' && node.getName() === 'tr'));
 	});
 
 	it('AstProcessor.findElements', () => {
@@ -99,7 +99,7 @@ describe('ui.bbcode.ast-processor', () => {
 			[code]
 			aaa
 			[/code]
-
+			
 			[code=1]
 			Text
 			[code=2]
@@ -108,17 +108,9 @@ describe('ui.bbcode.ast-processor', () => {
 		const parser = new BBCodeParser();
 		const ast = parser.parse(bbcode);
 
-		const allCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code"]');
+		const allCodeNodes = AstProcessor.findElements(ast, 'BBCodeElementNode[name="code"]');
 
-		assert.ok(allCodeNodes.length === 3);
-		assert.ok(allCodeNodes.every((node) => node.constructor.name === 'ElementNode' && node.getName() === 'code'));
-
-		const onlyVoidCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code" void="true"]');
-		assert.ok(onlyVoidCodeNodes.length === 2);
-		assert.ok(onlyVoidCodeNodes.at(0).getValue() === '1');
-		assert.ok(onlyVoidCodeNodes.at(1).getValue() === '2');
-
-		const ordinaryCodeNodes = AstProcessor.findElements(ast, 'ElementNode[name="code" void="false"]');
-		assert.ok(ordinaryCodeNodes.length === 1);
+		assert.ok(allCodeNodes.length === 1);
+		assert.ok(allCodeNodes.every((node) => node.constructor.name === 'BBCodeElementNode' && node.getName() === 'code'));
 	});
 });

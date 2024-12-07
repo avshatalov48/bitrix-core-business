@@ -213,7 +213,7 @@ if (($ids = $lAdmin->GroupAction()) && $saleModulePermissions >= "W")
 			array(
 				'select' => array('ID'),
 				'filter' => $filter,
-				'order' => array(ToUpper($by) => ToUpper($order))
+				'order' => array(mb_strtoupper($by) => mb_strtoupper($order))
 			)
 		);
 
@@ -269,7 +269,7 @@ $params = array(
 
 if (isset($by) && (in_array($by, array_keys(Internals\CashboxZReportTable::getMap())) || $by == 'CALCULATE_SUM'))
 {
-	$params['order'] = array(ToUpper($by) => ToUpper($order));
+	$params['order'] = array(mb_strtoupper($by) => mb_strtoupper($order));
 }
 
 $dbResultList = new CAdminUiResult(Internals\CashboxZReportTable::getList($params), $tableId);
@@ -454,7 +454,7 @@ $lAdmin->DisplayList();
 	}
 	?>
 </select>
-<script language="JavaScript">
+<script>
 	BX.message(
 		{
 			CASHBOX_CREATE_ZREPORT_WINDOW_TITLE: '<?=Loc::getMessage("CASHBOX_CREATE_ZREPORT_WINDOW_TITLE")?>',

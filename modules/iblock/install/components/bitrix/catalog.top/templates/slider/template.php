@@ -112,7 +112,7 @@ if (1 < $itemsCount)
 		'rotateTimer' => $arParams['ROTATE_TIMER']
 	);
 ?>
-<script type="text/javascript">
+<script>
 	var ob<? echo $strContID; ?> = new JCCatalogTopBannerList(<? echo CUtil::PhpToJSObject($arJSParams, false, true); ?>);
 </script>
 <?

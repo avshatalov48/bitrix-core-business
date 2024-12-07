@@ -177,7 +177,8 @@
 	display: flex;
 	align-items: center;
 	justify-content: center;
-	color: #fff;
+	color: var(--im-color-palette-white-base);
+	font-weight: var(--im-font-weight-medium);
 	text-transform: uppercase;
 	user-select: none;
 }
@@ -250,7 +251,10 @@
 }
 
 .bx-im-avatar__container.--open .bx-im-avatar__icon,
-.bx-im-avatar__container.--open .bx-im-avatar__special-type_icon {
+.bx-im-avatar__container.--open .bx-im-avatar__special-type_icon,
+.bx-im-avatar__container.--channel .bx-im-avatar__icon,
+.bx-im-avatar__container.--openChannel .bx-im-avatar__icon
+{
 	background-image: url(./images/chat-type/open.svg);
 }
 
@@ -274,12 +278,16 @@
 	background-image: url(./images/chat-type/call.svg);
 }
 
-.bx-im-avatar__container.--support24Notifier .bx-im-avatar__icon,
-.bx-im-avatar__container.--support24Notifier .bx-im-avatar__special-type_icon,
 .bx-im-avatar__container.--support24Question .bx-im-avatar__icon,
 .bx-im-avatar__container.--support24Question .bx-im-avatar__special-type_icon {
-	background-image: url(./images/chat-type/support24.svg);
-	background-color: #0165af!important;
+	background-image: url(./images/chat-type/support24Question.svg);
+	background-color: transparent !important;
+}
+
+.bx-im-avatar__container.--support24Notifier .bx-im-avatar__icon,
+.bx-im-avatar__container.--support24Notifier .bx-im-avatar__special-type_icon {
+	background-image: url(./images/chat-type/support24Notifier.svg);
+	background-color: #0165af !important;
 }
 
 .bx-im-avatar__container.--crm .bx-im-avatar__icon,

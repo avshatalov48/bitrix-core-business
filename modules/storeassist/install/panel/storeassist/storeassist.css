@@ -201,9 +201,7 @@
 	-o-border-image: url(images/thermometer1.png) 10 32 0 32 repeat;
 	border-image: url(images/thermometer1.png) 10 32 0 32 fill repeat;
 }
-.bx-ie8 .adm-s-thermometer-track{
-	border: none;
-}
+
 .adm-s-thermometer-track-shadow{
 	position: absolute;
 	top: 52%;
@@ -535,9 +533,6 @@ h2.adm-s-setting-title{
 .adm-s-setting-content-block.one .adm-s-setting-content-block-title-container{
 	height:92px;
 }
-.bx-ie8 .adm-s-setting-content-block-title-container{
-	border: 1px solid #b3bcbd;
-}
 
 .adm-s-setting-content-block-line{
 	position:absolute;
@@ -704,10 +699,7 @@ h2.adm-s-setting-title{
 	background:#fff;
 	box-shadow:0 0 1px 0 rgba(0,0,0,.4);
 }
-.bx-ie8 .adm-s-setting-content-block-body-container{
-	border: 1px solid #b3bcbd;
-	border-top: none;
-}
+
 .adm-s-setting-content-block-body-container p{
 	font-size:12px;
 	margin-top:0;

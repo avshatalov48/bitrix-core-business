@@ -9,7 +9,6 @@ $MESS["SALE_DELIVERY_REQ_VIEW_TITLE"] = "Transportbestellung anzeigen";
 $MESS["SALE_DELIVERY_REQ_VIEW_TO_LIST"] = "Zurück zur Liste";
 $MESS["SALE_DELIVERY_REQ_VIEW_DELETE"] = "Transportbestellung löschen";
 $MESS["SALE_DELIVERY_REQ_VIEW_ACTIONS"] = "Aktionen";
-$MESS["SALE_DELIVERY_REQ_VIEW_ERROR"] = "Fehler";
 $MESS["SALE_DELIVERY_REQ_VIEW_F_ID"] = "ID";
 $MESS["SALE_DELIVERY_REQ_VIEW_F_DATE_INSERT"] = "Erstellt am";
 $MESS["SALE_DELIVERY_REQ_VIEW_F_DELIVERY_IDT"] = "Lieferservice";

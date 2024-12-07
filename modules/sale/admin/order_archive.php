@@ -929,7 +929,7 @@ $APPLICATION->SetTitle(Loc::getMessage("SALE_SECTION_TITLE"));
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_after.php");
 
 ?>
-<script type="text/javascript">
+<script>
 function fToggleSetItems(setParentId)
 {
 	var elements = document.getElementsByClassName('set_item_' + setParentId);
@@ -990,7 +990,7 @@ $oFilter->Begin();
 	<tr>
 		<td><?= Loc::getMessage("SALE_F_ORDER_ID"); ?>:</td>
 		<td>
-			<script type="text/javascript">
+			<script>
 				function filter_id_from_Change()
 				{
 					if(document.find_form.filter_order_id_to.value.length<=0)
@@ -1140,7 +1140,7 @@ $oFilter->Begin();
 	<tr>
 		<td><?= Loc::getMessage("SALE_F_ID"); ?>:</td>
 		<td>
-			<script type="text/javascript">
+			<script>
 				function filter_id_from_Change()
 				{
 					if(document.find_form.filter_id_to.value.length<=0)
@@ -1158,7 +1158,7 @@ $oFilter->Begin();
 	<tr>
 		<td><?= Loc::getMessage("SO_PRODUCT_ID"); ?></td>
 		<td>
-			<script type="text/javascript">
+			<script>
 				function FillProductFields(arParams)
 				{
 					if(arParams["id"])

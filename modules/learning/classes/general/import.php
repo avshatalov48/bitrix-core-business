@@ -60,8 +60,6 @@ class CCourseImport
 
 		$this->arSITE_ID = $arSITE_ID;
 
-		require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/xml.php");
-
 		$this->objXML = new CDataXML();
 		if (!$this->objXML->Load($this->package_dir."/imsmanifest.xml"))
 		{

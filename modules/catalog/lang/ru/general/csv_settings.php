@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CATI_FI_UNIXML_EXT"] = "Внешний код (уникальный идентификатор)";
 $MESS["CATI_FI_NAME"] = "Название";
 $MESS["CATI_FI_ACTIV"] = "Активность";
@@ -45,4 +45,3 @@ $MESS["CATI_FG_CODE_EXT2"] = "Символьный код";
 $MESS["CATI_FG_PICTURE"] = "Изображение";
 $MESS["CATI_FG_DETAIL_PICTURE"] = "Детальная картинка";
 $MESS["BX_CAT_CSV_SETTINGS_PRODUCT_FIELD_NAME_MEASURE_ID"] = "ID единицы измерения";
-?>

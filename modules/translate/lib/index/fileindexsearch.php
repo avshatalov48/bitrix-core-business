@@ -265,7 +265,7 @@ class FileIndexSearch
 
 		if (!empty($filterIn['INCLUDE_PATHS']))
 		{
-			$pathIncludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['INCLUDE_PATHS']);
+			$pathIncludes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['INCLUDE_PATHS']);
 			$pathIncludes = \array_filter($pathIncludes);
 			if (\count($pathIncludes) > 0)
 			{
@@ -316,7 +316,7 @@ class FileIndexSearch
 		}
 		if (!empty($filterIn['EXCLUDE_PATHS']))
 		{
-			$pathExcludes = \preg_split("/[\r\n\t,; ]+/".\BX_UTF_PCRE_MODIFIER, $filterIn['EXCLUDE_PATHS']);
+			$pathExcludes = \preg_split("/[\r\n\t,; ]+/u", $filterIn['EXCLUDE_PATHS']);
 			$pathExcludes = \array_filter($pathExcludes);
 			if (\count($pathExcludes) > 0)
 			{

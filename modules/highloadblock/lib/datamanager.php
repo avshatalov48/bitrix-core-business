@@ -585,7 +585,7 @@ abstract class DataManager extends Entity\DataManager
 			else
 			{
 				// remove empty (false) values
-				$tmpValue = array_filter($tmpValue, array('static', 'isNotNull'));
+				$tmpValue = array_filter($tmpValue, [__CLASS__, 'isNotNull']);
 
 				$data[$k] = $tmpValue;
 				$multiValues[$k] = $tmpValue;

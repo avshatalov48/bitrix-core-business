@@ -1,6 +1,7 @@
 import {Dom, Event, Text, Tag, Type, Loc, Reflection} from 'main.core';
 import {BaseEvent, EventEmitter} from "main.core.events";
 import {PopupWindowManager} from "main.popup";
+import EntitySelectorAdapter from '../selector/entity-selector-adapter';
 import Base from "./base";
 import ColumnItemOptions from "../columnitem";
 
@@ -513,6 +514,18 @@ export default class Member extends Base
 
 	showUserSelectorPopup(): void
 	{
+		if (this.grid.useEntitySelectorDialogAsPopup)
+		{
+			this.#showEntitySelector();
+		}
+		else
+		{
+			this.#showSelectorV2();
+		}
+	}
+
+	#showSelectorV2(): void
+	{
 		const selectorInstance = BX.Main
 			.selectorManagerV2.controls[this.popupContainer]
 			?.selectorInstance
@@ -532,5 +545,21 @@ export default class Member extends Base
 			selectorId: this.popupContainer,
 			selectedItems: this.userGroup.accessCodes
 		}]);
+	}
+
+	#showEntitySelector(): void
+	{
+		if (!this.entitySelectorAdapter)
+		{
+			this.entitySelectorAdapter = new EntitySelectorAdapter(
+				this.grid.entitySelectorDialogOptions,
+			);
+		}
+
+		this.entitySelectorAdapter.show(
+			this.getId(),
+			this.userGroup.accessCodes,
+			this.addUserToRole,
+		);
 	}
 }

@@ -90,7 +90,7 @@ abstract class MessageBase implements Message\iBase, Message\iAds
 				'name' => (($this->getCode() === self::CODE_ADS_VK)
 					? Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_USER_LIST_ID')
 					: Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_ID')),
-				'required' => true,
+				'required' => false,
 			),
 			array(
 				'type' => 'string',

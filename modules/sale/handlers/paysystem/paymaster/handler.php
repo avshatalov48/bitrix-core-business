@@ -170,7 +170,7 @@ class PayMasterHandler extends WebMoneyHandler
 
 		$hash = base64_encode(hash($algorithm, $string, true));
 
-		return ToUpper($hash) == ToUpper($request->get('LMI_HASH'));
+		return mb_strtoupper($hash) == mb_strtoupper($request->get('LMI_HASH'));
 	}
 
 	/**

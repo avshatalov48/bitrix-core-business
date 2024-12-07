@@ -1,4 +1,4 @@
-import { Color, AttachType } from 'im.v2.const';
+import { AttachType, ColorToken } from 'im.v2.const';
 
 import { AttachDelimiter } from './components/delimiter/delimiter';
 import { AttachFile } from './components/file/file';
@@ -46,10 +46,6 @@ export const Attach = {
 			type: Object,
 			default: () => {},
 		},
-		baseColor: {
-			type: String,
-			default: Color.base,
-		},
 	},
 	computed:
 	{
@@ -61,29 +57,11 @@ export const Attach = {
 		{
 			return this.internalConfig.blocks;
 		},
-		color(): string
+		colorToken(): string
 		{
-			if (!this.internalConfig.color)
-			{
-				return this.baseColor;
-			}
+			const { colorToken = ColorToken.base } = this.internalConfig;
 
-			// todo: in future we should set color for rich link on the backend. Remove after we delete the old chat.
-			if (this.internalConfig.color === Color.transparent && this.hasRichLink)
-			{
-				return '#2FC6F6';
-			}
-
-			if (this.internalConfig.color === Color.transparent)
-			{
-				return '';
-			}
-
-			return this.internalConfig.color;
-		},
-		hasRichLink(): boolean
-		{
-			return this.blocks.some((block: AttachConfigBlock) => block[AttachType.Rich]);
+			return colorToken;
 		},
 	},
 	methods:
@@ -101,13 +79,13 @@ export const Attach = {
 	},
 	template: `
 		<div class="bx-im-attach__container bx-im-attach__scope">
-			<div v-if="color" class="bx-im-attach__border" :style="{borderColor: color}"></div>
+			<div class="bx-im-attach__border" :class="colorToken"></div>
 			<div class="bx-im-attach__content">
 				<component
 					v-for="(block, index) in blocks"
 					:is="getComponentForBlock(block)"
 					:config="block"
-					:color="color"
+					:colorToken="colorToken"
 					:key="index"
 					:attachId="internalConfig.id.toString()"
 				/>

@@ -134,7 +134,7 @@ abstract class Base extends \CBitrixComponent
 				if ($code == self::ERROR_404)
 				{
 					Tools::process404(
-						trim($this->arParams['MESSAGE_404']) ?: $error->getMessage(),
+						$this->arParams['MESSAGE_404'] ?: $error->getMessage(),
 						true,
 						$this->arParams['SET_STATUS_404'] === 'Y',
 						$this->arParams['SHOW_404'] === 'Y',
@@ -523,6 +523,11 @@ abstract class Base extends \CBitrixComponent
 		{
 			$params['FILTER_IDS'] = [$params['FILTER_IDS']];
 		}
+
+		$params['MESSAGE_404'] = trim((string)($params['MESSAGE_404'] ?? ''));
+		$params['SET_STATUS_404'] = ($params['SET_STATUS_404'] ?? 'N') === 'Y' ? 'Y' : 'N';
+		$params['SHOW_404'] = ($params['SHOW_404'] ?? 'N') === 'Y' ? 'Y' : 'N';
+		$params['FILE_404'] = trim((string)($params['FILE_404'] ?? ''));
 
 		return $params;
 	}
@@ -2852,6 +2857,7 @@ abstract class Base extends \CBitrixComponent
 		foreach (array_keys($items) as $index)
 		{
 			$id = $items[$index]['ID'];
+			$items[$index]['CAN_BUY'] = false;
 			if (!isset($this->calculatePrices[$id]))
 				continue;
 			if (empty($this->prices[$id]))
@@ -4306,7 +4312,7 @@ abstract class Base extends \CBitrixComponent
 			$addByAjax = $this->request->get('ajax_basket') === 'Y';
 			if ($addByAjax)
 			{
-				$this->request->set(Main\Text\Encoding::convertEncoding($this->request->toArray(), 'UTF-8', SITE_CHARSET));
+				$this->request->set($this->request->toArray());
 			}
 
 			[$successfulAdd, $errorMsg] = $this->addProductToBasket($productId, $action);
@@ -4556,6 +4562,7 @@ abstract class Base extends \CBitrixComponent
 			$rewriteFields = $this->getRewriteFields($action);
 			if (isset($rewriteFields['SUBSCRIBE']) && $rewriteFields['SUBSCRIBE'] == 'Y')
 			{
+				// Deprecated. Only for compatibility with older customized templates.
 				if (!SubscribeProduct($productId, $rewriteFields, $productProperties))
 				{
 					if ($ex = $APPLICATION->GetException())
@@ -4818,9 +4825,10 @@ abstract class Base extends \CBitrixComponent
 	/**
 	 * Send answer for AJAX request.
 	 *
-	 * @param array $result
+	 * @param array $result Ajax result.
+	 * @return void
 	 */
-	public static function sendJsonAnswer(array $result = array())
+	public static function sendJsonAnswer(array $result = [])
 	{
 		global $APPLICATION;
 
@@ -4901,6 +4909,11 @@ abstract class Base extends \CBitrixComponent
 		return $this->arResult['ID'] ?? false;
 	}
 
+	/**
+	 * Returns prepared all component parameters after verify template parameters .
+	 *
+	 * @return array
+	 */
 	public function applyTemplateModifications()
 	{
 		$this->prepareTemplateParams();
@@ -5017,6 +5030,13 @@ abstract class Base extends \CBitrixComponent
 		//
 	}
 
+	/**
+	 * Check item properties for enlarge images.
+	 *
+	 * @param array $item Element description.
+	 * @param string $propertyCode Image property code.
+	 * @return void
+	 */
 	public static function checkEnlargedData(&$item, $propertyCode)
 	{
 		if (!empty($item) && is_array($item))

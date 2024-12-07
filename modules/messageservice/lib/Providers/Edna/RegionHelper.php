@@ -3,7 +3,7 @@ namespace Bitrix\MessageService\Providers\Edna;
 
 abstract class RegionHelper
 {
-	public const REGION_RU = ['ru', 'by'];
+	public const REGION_RU = ['ru'];
 	public const REGION_OPTION_FORCE = 'force_region';
 	public const REGION_PHRASE_POSTFIX = '_IO';
 

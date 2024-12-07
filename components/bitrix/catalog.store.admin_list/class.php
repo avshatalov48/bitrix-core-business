@@ -145,6 +145,8 @@ class CatalogStoreAdminList extends CBitrixComponent
 		$result['SHOW_CHECK_ALL_CHECKBOXES'] = true;
 		$result['SHOW_ACTION_PANEL'] = true;
 		$result['HANDLE_RESPONSE_ERRORS'] = true;
+		$result['USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP'] = \Bitrix\Main\ModuleManager::isModuleInstalled('ui');
+		$result['ENABLE_FIELDS_SEARCH'] = 'Y';
 
 		$snippet = new \Bitrix\Main\Grid\Panel\Snippet();
 		$removeButton = $snippet->getRemoveButton();
@@ -339,7 +341,10 @@ class CatalogStoreAdminList extends CBitrixComponent
 			'THEME' => Bitrix\Main\UI\Filter\Theme::LIGHT,
 			'CONFIG' => [
 				'AUTOFOCUS' => false,
-			]
+				'popupWidth' => 800,
+			],
+			'USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP' => \Bitrix\Main\ModuleManager::isModuleInstalled('ui'),
+			'ENABLE_FIELDS_SEARCH' => 'Y',
 		];
 		\Bitrix\UI\Toolbar\Facade\Toolbar::addFilter($filterOptions);
 	}

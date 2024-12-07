@@ -12,7 +12,7 @@ return array(
 	'name' => Loc::getMessage('LANDING_DEMO_EMPTY_TITLE_PAGE'),
 	'description' => Loc::getMessage('LANDING_DEMO_EMPTY_DESCRIPTION'),
 	'active' => true,
-	'type' => ['page', 'knowledge', 'group'],
+	'type' => ['page', 'knowledge', 'group', 'mainpage'],
 	'fields' => array(
 		'ADDITIONAL_FIELDS' => array(
 			'THEME_COLOR' => '#4fd2c2',

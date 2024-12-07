@@ -1,7 +1,7 @@
 <?php
+
 namespace Bitrix\Main\Text;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Config\Configuration;
 
 class Encoding
@@ -40,7 +40,7 @@ class Encoding
 				return $data;
 			}
 		}
-		catch(\ValueError $e)
+		catch (\ValueError)
 		{
 			return $data;
 		}
@@ -50,19 +50,19 @@ class Encoding
 
 	protected static function resolveAlias($alias)
 	{
-		static $map = array(
+		static $map = [
 			'csksc56011987' => 'euc-kr',
 			'ks_c_5601-1987' => 'euc-kr',
 			'ks_c_5601-1989' => 'euc-kr',
 			'ksc5601' => 'euc-kr',
 			'ksc_5601' => 'euc-kr',
 			'windows-1257' => 'ISO-8859-13',
-		);
+		];
 
-		if(is_string($alias))
+		if (is_string($alias))
 		{
 			$alias = strtolower(trim($alias));
-			if(isset($map[$alias]))
+			if (isset($map[$alias]))
 			{
 				return $map[$alias];
 			}
@@ -118,37 +118,16 @@ class Encoding
 
 	/**
 	 * @param string $string
-	 * @return bool|string
+	 * @return string
 	 */
 	public static function convertEncodingToCurrent($string)
 	{
-		$isUtf8String = self::detectUtf8($string);
-		$isUtf8Config = Application::isUtfMode();
-
-		$from = '';
-		$to = '';
-		if ($isUtf8Config && !$isUtf8String)
-		{
-			$from = static::getCurrentEncoding();
-			$to = 'UTF-8';
-		}
-		elseif (!$isUtf8Config && $isUtf8String)
-		{
-			$from = 'UTF-8';
-			$to = static::getCurrentEncoding();
-		}
-
-		if ($from !== $to)
-		{
-			$string = self::convertEncoding($string, $from, $to);
-		}
-
-		return $string;
+		return self::convertToUtf($string);
 	}
 
 	/**
 	 * @param string $string
-	 * @return bool|string
+	 * @return string
 	 */
 	public static function convertToUtf($string)
 	{
@@ -157,47 +136,14 @@ class Encoding
 			return $string;
 		}
 
-		$from = '';
-		$to = '';
-		if (!Application::isUtfMode())
+		$from = Configuration::getValue("default_charset");
+
+		if (!$from)
 		{
-			$from = static::getCurrentEncoding();
-			$to = 'UTF-8';
+			$from = defined('BX_DEFAULT_CHARSET') ? constant('BX_DEFAULT_CHARSET') : 'Windows-1251';
 		}
 
-		if ($from !== $to)
-		{
-			$string = self::convertEncoding($string, $from, $to);
-		}
-
-		return $string;
-	}
-
-	protected static function getCurrentEncoding(): string
-	{
-		$currentCharset = null;
-
-		$context = Application::getInstance()->getContext();
-		if ($context != null)
-		{
-			$culture = $context->getCulture();
-			if ($culture != null)
-			{
-				$currentCharset = $culture->getCharset();
-			}
-		}
-
-		if ($currentCharset == null)
-		{
-			$currentCharset = Configuration::getValue("default_charset");
-		}
-
-		if ($currentCharset == null)
-		{
-			$currentCharset = "Windows-1251";
-		}
-
-		return $currentCharset;
+		return self::convertEncoding($string, $from, 'UTF-8');
 	}
 
 	/**

@@ -1,19 +1,26 @@
-import { Text } from 'main.core';
+import { Text, Loc } from 'main.core';
 
 import { ChatType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 import { highlightText } from 'im.v2.lib.text-highlighter';
 import { DateFormatter, DateTemplate } from 'im.v2.lib.date-formatter';
-import { Avatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, ChatTitleWithHighlighting } from 'im.v2.component.elements';
 
 import '../css/search-item.css';
 
 import type { ImModelChat, ImModelUser } from 'im.v2.model';
 
+const ItemTextByChatType = {
+	[ChatType.openChannel]: Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
+	[ChatType.generalChannel]: Loc.getMessage('IM_SEARCH_ITEM_OPEN_CHANNEL_TYPE_GROUP'),
+	[ChatType.channel]: Loc.getMessage('IM_SEARCH_ITEM_PRIVATE_CHANNEL_TYPE_GROUP'),
+	default: Loc.getMessage('IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2'),
+};
+
 // @vue/component
 export const SearchItem = {
 	name: 'SearchItem',
-	components: { Avatar, ChatTitleWithHighlighting },
+	components: { ChatAvatar, ChatTitleWithHighlighting },
 	props: {
 		dialogId: {
 			type: String,
@@ -76,7 +83,7 @@ export const SearchItem = {
 		},
 		chatItemText(): string
 		{
-			return this.loc('IM_SEARCH_ITEM_CHAT_TYPE_GROUP_V2');
+			return ItemTextByChatType[this.dialog.type] ?? ItemTextByChatType.default;
 		},
 		itemText(): string
 		{
@@ -132,7 +139,11 @@ export const SearchItem = {
 			:class="{'--selected': selected}"
 		>
 			<div class="bx-im-search-item__avatar-container">
-				<Avatar :dialogId="dialogId" :size="AvatarSize.XL" />
+				<ChatAvatar 
+					:avatarDialogId="dialogId" 
+					:contextDialogId="dialogId" 
+					:size="AvatarSize.XL" 
+				/>
 			</div>
 			<div class="bx-im-search-item__content-container">
 				<div class="bx-im-search-item__content_header">

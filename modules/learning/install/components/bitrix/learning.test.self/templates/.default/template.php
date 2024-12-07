@@ -73,7 +73,7 @@
 </div>
 <?endforeach?>
 
-<script type="text/javascript">var LearnTab_<?=$arResult["LESSON"]["ID"]?> = new LearnTabs(<?=$arResult["LESSON"]["ID"]?>, 1);</script>
+<script>var LearnTab_<?=$arResult["LESSON"]["ID"]?> = new LearnTabs(<?=$arResult["LESSON"]["ID"]?>, 1);</script>
 <noscript><?=GetMessage("LEARNING_ENABLE_JAVASCRIPT");?></noscript>
 
 <?endif?>

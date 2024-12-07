@@ -611,6 +611,18 @@ class FieldType
 		return $normalized;
 	}
 
+	public static function normalizePropertyList(array $props): array
+	{
+		$normalized = [];
+		foreach ($props as $id => $item)
+		{
+			$item['Id'] ??= $id;
+			$normalized[] = static::normalizeProperty($item);
+		}
+
+		return $normalized;
+	}
+
 	/**
 	 * @param $value
 	 * @return void

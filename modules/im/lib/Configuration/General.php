@@ -168,7 +168,7 @@ class General extends Base
 			];
 		}
 
-		OptionStateTable::addMulti($rows, true);
+		OptionStateTable::multiplyInsertWithoutDuplicate($rows);
 	}
 
 	/**
@@ -555,6 +555,11 @@ class General extends Base
 			else
 			{
 				$decodedSettings[$decodedName] = $value;
+			}
+
+			if ($decodedName === 'backgroundImageId')
+			{
+				$decodedSettings[$decodedName] = (int)$value;
 			}
 		}
 

@@ -167,7 +167,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 
 		Helper::dropTable(static::getTableName());
 
-		$binary = ToLower($dbConnection->getType()) == 'mysql' ? 'binary' : ''; // http://bugs.mysql.com/bug.php?id=34096
+		$binary = mb_strtolower($dbConnection->getType()) == 'mysql' ? 'binary' : ''; // http://bugs.mysql.com/bug.php?id=34096
 
 		// ORACE: OK, MSSQL: OK
 		Main\HttpApplication::getConnection()->query("create table ".static::getTableName()." (
@@ -209,7 +209,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 		$result = array();
 		foreach($words as $k => &$word)
 		{
-			$word = ToUpper(trim($word));
+			$word = mb_strtoupper(trim($word));
 			$word = str_replace('%', '', $word);
 
 			if($word == '')
@@ -225,7 +225,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 
 	public static function parseString($query)
 	{
-		$query = ToUpper(Trim($query));
+		$query = mb_strtoupper(Trim($query));
 
 		//$query = str_replace(array_keys(static::$blackList), static::$blackList, ' '.$query.' ');
 		$query = str_replace(array(')', '(', '%', '_'), array('', '', '', ''), $query);
@@ -414,7 +414,7 @@ final class WordTable extends Entity\DataManager implements \Serializable
 		$word = trim($word);
 
 		$dbConnection = Main\HttpApplication::getConnection();
-		$sql = "select MIN(POSITION) as INF, MAX(POSITION) as SUP from ".static::getTableName()." where WORD like '".ToUpper($dbConnection->getSqlHelper()->forSql($word))."%'";
+		$sql = "select MIN(POSITION) as INF, MAX(POSITION) as SUP from ".static::getTableName()." where WORD like '".mb_strtoupper($dbConnection->getSqlHelper()->forSql($word))."%'";
 
 		return $dbConnection->query($sql)->fetch();
 	}

@@ -15,7 +15,7 @@ class BinderArgumentException extends ArgumentException
 	 *
 	 * @param Error[] $addedErrorsFromClosure
 	 */
-	public function __construct($message = "", $parameter = "", array $addedErrorsFromClosure = [], \Exception $previous = null)
+	public function __construct($message = "", $parameter = "", array $addedErrorsFromClosure = [], \Throwable $previous = null)
 	{
 		parent::__construct($message, $parameter, $previous);
 		$this->addedErrorsFromClosure = $addedErrorsFromClosure;

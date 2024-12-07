@@ -326,7 +326,7 @@ class Crm
 			);
 			foreach ($requisitesRaw as $requisite)
 			{
-				$requisiteData = Encoding::convertEncoding(json_decode($requisite['requisiteData'], 1), 'UTF-8', SITE_CHARSET);
+				$requisiteData = json_decode($requisite['requisiteData'], 1);
 				if (!empty($requisiteData['viewData']['fields']))
 				{
 					$requisites[$requisite['requisiteId']] = [

@@ -10,9 +10,9 @@ return [
 	'rel' => [
 		'im.v2.lib.draft',
 		'main.date',
-		'im.v2.component.elements',
 		'im.v2.lib.utils',
 		'im.v2.lib.parser',
+		'im.v2.component.elements',
 		'im.v2.lib.date-formatter',
 		'im.v2.application.core',
 		'im.v2.const',

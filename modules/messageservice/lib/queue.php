@@ -4,26 +4,35 @@ namespace Bitrix\MessageService;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config;
 use Bitrix\Main\Error;
-use Bitrix\Main\Event;
-use Bitrix\Main\EventManager;
 use Bitrix\Main\ORM\Query\Query;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\MessageService\Internal\Entity\MessageTable;
 use Bitrix\MessageService\Sender\Result\SendMessage;
 use Bitrix\MessageService\Sender\SmsManager;
 use Bitrix\Main\Localization\Loc;
-
+use Bitrix\MessageService\Internal\Entity\Message\SuccessExec;
+use Bitrix\MessageService\Queue\Event\AfterProcessQueueEvent;
+use Bitrix\MessageService\Queue\Event\AfterSendMessageFromQueueEvent;
+use Bitrix\MessageService\Queue\Event\BeforeProcessQueueEvent;
+use Bitrix\MessageService\Queue\Event\BeforeSendMessageFromQueueEvent;
 
 class Queue
 {
+	/**
+	 * @deprecated
+	 * @see \Bitrix\MessageService\Queue\Event\AfterSendMessageFromQueueEvent
+	 */
 	public const EVENT_SEND_RESULT = 'messageSendResult';
+
+	private const OPTION_QUEUE_STOP_MODULE = 'messageservice';
+	private const OPTION_QUEUE_STOP_NAME = 'queue_stopped';
 
 	public static function hasMessages(): bool
 	{
 		$result = MessageTable::getList([
 			'select' => ['ID'],
 			'filter' => [
-				'=SUCCESS_EXEC' => 'N',
+				'=SUCCESS_EXEC' => SuccessExec::NO,
 				[
 					'LOGIC' => 'OR',
 					'<NEXT_EXEC' => new DateTime(),
@@ -53,7 +62,7 @@ class Queue
 			return null;
 		}
 
-		if (!static::hasMessages())
+		if (static::isStopped() || !static::hasMessages())
 		{
 			return "";
 		}
@@ -64,20 +73,32 @@ class Queue
 	}
 
 	/**
-	 * @return string
+	 * @return string|null
 	 */
-	public static function sendMessages()
+	public static function sendMessages(): ?string
 	{
+		if (static::isStopped())
+		{
+			return '';
+		}
+
 		$lockTag = 'b_messageservice_message';
 		if (!Application::getConnection()->lock($lockTag))
 		{
-			return "";
+			return '';
 		}
 
-		$counts = Internal\Entity\MessageTable::getAllDailyCount();
+		$event = new BeforeProcessQueueEvent();
+		$event->send();
+		if (!$event->canProcessQueue())
+		{
+			Application::getConnection()->unlock($lockTag);
 
-		$limit = abs((int)Config\Option::get("messageservice", "queue_limit", 5));
-		if (!$limit)
+			return '';
+		}
+
+		$limit = (int)Config\Option::get('messageservice', 'queue_limit');
+		if ($limit < 1)
 		{
 			$limit = 5;
 		}
@@ -97,7 +118,7 @@ class Queue
 					->logic('or')
 					->where(Query::filter()
 						->logic('and')
-						->where('SUCCESS_EXEC', 'N')
+						->where('SUCCESS_EXEC', SuccessExec::NO)
 						->where(Query::filter()
 							->logic('or')
 							->where('NEXT_EXEC', '<', new DateTime())
@@ -106,7 +127,7 @@ class Queue
 					)
 					->where(Query::filter()
 						->logic('and')
-						->where('SUCCESS_EXEC', 'P')
+						->where('SUCCESS_EXEC', SuccessExec::PROCESSED)
 						->where('NEXT_EXEC', '<', (new DateTime())->add('-2 MINUTE'))
 					)
 				)
@@ -120,45 +141,62 @@ class Queue
 		}
 		$messageFieldsList = $query->fetchAll();
 
-		if (!empty($messageFieldsList))
+		if (empty($messageFieldsList))
 		{
-			$idList = array_column($messageFieldsList, 'ID');
-			MessageTable::updateMulti(
-				$idList,
-				[
-					'SUCCESS_EXEC' => 'P',
-					'NEXT_EXEC' => (new DateTime())->add('+2 MINUTE'),
-				],
-				true
-			);
+			Application::getConnection()->unlock($lockTag);
+
+			return null;
+		}
+
+		$idList = array_column($messageFieldsList, 'ID');
+		MessageTable::updateMulti(
+			$idList,
+			[
+				'SUCCESS_EXEC' => SuccessExec::PROCESSED,
+				'NEXT_EXEC' => (new DateTime())->add('+2 MINUTE'),
+			],
+			true
+		);
+
+		$hasDailyLimits = Sender\Limitation::hasDailyLimits();
+		if ($hasDailyLimits)
+		{
+			$counts = Internal\Entity\MessageTable::getAllDailyCount();
+		}
+		else
+		{
+			$counts = [];
 		}
 
 		$nextDay = static::getNextExecTime();
 		foreach ($messageFieldsList as $messageFields)
 		{
-			$serviceId = $messageFields['SENDER_ID'] . ':' . $messageFields['MESSAGE_FROM'];
 			$message = Message::createFromFields($messageFields);
 
-			if (!isset($counts[$serviceId]))
+			if ($hasDailyLimits)
 			{
-				$counts[$serviceId] = 0;
-			}
-
-			$sender = $message->getSender();
-			if ($sender)
-			{
-				$limit = Sender\Limitation::getDailyLimit($sender->getId(), $messageFields['MESSAGE_FROM']);
-				$current = $counts[$serviceId];
-
-				if ($limit > 0 && $current >= $limit)
+				$sender = $message->getSender();
+				if ($sender)
 				{
-					$message->update([
-						'STATUS_ID' => MessageStatus::DEFERRED,
-						'NEXT_EXEC' => $nextDay,
-					]);
-					continue;
+					$limit = Sender\Limitation::getDailyLimit($sender->getId(), $messageFields['MESSAGE_FROM']);
+					if ($limit > 0)
+					{
+						$serviceId = $sender->getId() . ':' . $messageFields['MESSAGE_FROM'];
+
+						$counts[$serviceId] ??= 0;
+						if ($counts[$serviceId] >= $limit)
+						{
+							$message->update([
+								'STATUS_ID' => MessageStatus::DEFERRED,
+								'NEXT_EXEC' => $nextDay,
+							]);
+
+							continue;
+						}
+
+						++$counts[$serviceId];
+					}
 				}
-				++$counts[$serviceId];
 			}
 
 			try
@@ -172,13 +210,17 @@ class Queue
 
 				$message->update([
 					'STATUS_ID' => MessageStatus::EXCEPTION,
-					'SUCCESS_EXEC' => 'E',
+					'SUCCESS_EXEC' => SuccessExec::ERROR,
 					'DATE_EXEC' => new DateTime(),
 					'EXEC_ERROR' => $e->getMessage(),
 				]);
+
 				break;
 			}
 		}
+
+		$event = new AfterProcessQueueEvent();
+		$event->send();
 
 		Application::getConnection()->unlock($lockTag);
 
@@ -191,13 +233,21 @@ class Queue
 	 */
 	private static function sendMessage(array $messageFields)
 	{
+		$event = new BeforeSendMessageFromQueueEvent($messageFields);
+		$event->send();
+
+		$sendResult = $event->processResults() ?? new SendMessage;
+		if (!$sendResult->isSuccess())
+		{
+			return $sendResult;
+		}
+
 		$type = $messageFields['TYPE'];
 		if ($type === MessageType::SMS)
 		{
 			$sender = SmsManager::getSenderById($messageFields['SENDER_ID']);
 			if (!$sender)
 			{
-				$sendResult = new SendMessage();
 				$sendResult->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_SENDER_NOT_FOUND")));
 			}
 			else
@@ -209,14 +259,12 @@ class Queue
 		}
 		else
 		{
-			$sendResult = new SendMessage();
 			$sendResult->addError(new Error(Loc::getMessage("MESSAGESERVICE_QUEUE_MESSAGE_TYPE_ERROR")));
 		}
 
-		EventManager::getInstance()->send(new Event("messageservice", static::EVENT_SEND_RESULT, [
-			'message' => $messageFields,
-			'sendResult' => $sendResult,
-		]));
+		$event = new AfterSendMessageFromQueueEvent($messageFields, $sendResult);
+		$event->send();
+		$event->sendAlias(static::EVENT_SEND_RESULT);
 
 		return $sendResult;
 	}
@@ -243,6 +291,21 @@ class Queue
 			$nextDay->setTime($retryTime['h'], $retryTime['i'], 0);
 		}
 		return $nextDay;
+	}
+
+	public static function stop(): void
+	{
+		Config\Option::set(self::OPTION_QUEUE_STOP_MODULE, self::OPTION_QUEUE_STOP_NAME, 'Y');
+	}
+
+	public static function resume(): void
+	{
+		Config\Option::set(self::OPTION_QUEUE_STOP_MODULE, self::OPTION_QUEUE_STOP_NAME, 'N');
+	}
+
+	public static function isStopped(): bool
+	{
+		return Config\Option::get(self::OPTION_QUEUE_STOP_MODULE, self::OPTION_QUEUE_STOP_NAME) === 'Y';
 	}
 
 	/**

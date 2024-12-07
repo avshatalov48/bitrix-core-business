@@ -1,4 +1,5 @@
-<?
+<?php
+
 class CAllCatalogImport
 {
 	public static function CheckFields($ACTION, &$arFields)
@@ -92,7 +93,7 @@ class CAllCatalogImport
 		$ID = (int)$ID;
 		if ($ID <= 0)
 			return false;
-		return $DB->Query("DELETE FROM b_catalog_export WHERE ID = ".$ID." AND IS_EXPORT = 'N'", true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query("DELETE FROM b_catalog_export WHERE ID = ".$ID." AND IS_EXPORT = 'N'", true);
 	}
 
 	public static function GetList($arOrder = array("ID" => "ASC"), $arFilter = array(), $bCount = false)
@@ -176,7 +177,7 @@ class CAllCatalogImport
 				$strSqlFrom.
 				"WHERE CE.IS_EXPORT = 'N' ".
 				$strSqlSearch;
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 			$iCnt = 0;
 			if ($ar_res = $db_res->Fetch())
 			{
@@ -227,7 +228,7 @@ class CAllCatalogImport
 
 		$strSql .= $strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -243,7 +244,7 @@ class CAllCatalogImport
 			"FROM b_catalog_export CE ".
 			"WHERE CE.ID = ".intval($ID)." ".
 			"	AND CE.IS_EXPORT = 'N'";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{

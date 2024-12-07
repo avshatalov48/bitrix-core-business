@@ -74,7 +74,6 @@ export default class SliderIntegration
 	{
 		this.sliders.clear();
 		this.unbindEvents();
-		this.getDialog().unfreeze();
 	}
 
 	handleSliderOpen(event: BaseEvent): void

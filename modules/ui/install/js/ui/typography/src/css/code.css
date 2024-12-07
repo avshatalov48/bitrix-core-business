@@ -1,0 +1,65 @@
+.ui-typography-code {
+	display: block;
+	background-color: #fdf6e3;
+	padding: var(--ui-space-inset-md) var(--ui-space-inset-sm2);
+	margin: var(--ui-typography-block-space-stack) 0;
+	overflow-x: auto;
+	position: relative;
+	tab-size: 2;
+	text-decoration: none;
+	border-radius: var(--ui-border-radius-sm);
+	white-space: pre-wrap;
+
+	font-family: var(--ui-font-family-system-mono), monospace;
+	font-size: var(--ui-typography-font-size);
+	line-height: var(--ui-typography-line-height);
+	color: #333;
+}
+
+.ui-typography-token-operator {
+	color: #f60d04;
+}
+
+.ui-typography-token-punctuation {
+	color: #999;
+}
+
+.ui-typography-token-comment {
+	color: #839496;
+}
+
+.ui-typography-token-word {
+	color: var(--ui-color-text-secondary);
+}
+
+.ui-typography-token-keyword {
+	color: #6c71c4;
+}
+
+.ui-typography-token-regex {
+	color: #2aa198;
+}
+
+.ui-typography-token-number {
+	color: #cb4b16;
+}
+
+.ui-typography-token-string {
+	color: #859900;
+}
+
+.ui-typography-token-semicolon {
+	color: #6c71c4;
+}
+
+.ui-typography-token-bracket {
+	color: #268bd2;
+}
+
+.ui-typography-token-brace {
+	color: #dc322f;
+}
+
+.ui-typography-token-parentheses {
+	color: #af9a9a;
+}

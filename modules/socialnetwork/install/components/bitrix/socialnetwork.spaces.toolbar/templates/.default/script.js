@@ -3430,17 +3430,12 @@ this.BX.Socialnetwork = this.BX.Socialnetwork || {};
 	function _renderHeader2() {
 	  return main_core.Tag.render(_t2$4 || (_t2$4 = _$6`
 			<div class="sn-spaces-discussions-composition-header" data-id="spaces-discussions-composition-header">
-				<div>
-					<div class="sn-spaces-discussions-composition-header-title">
-						${0}
-					</div>
-					<div class="sn-spaces-discussions-composition-header-space-name">
-						${0}
-					</div>
+				<div class="sn-spaces-discussions-composition-header-title">
+					${0}
 				</div>
 				<div class="sn-spaces-discussions-composition-header-icon"></div>
 			</div>
-		`), main_core.Loc.getMessage('SN_SPACES_DISCUSSION_COMPOSITION_TITLE'), main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _spaceName)[_spaceName]));
+		`), main_core.Loc.getMessage('SN_SPACES_DISCUSSION_COMPOSITION_TITLE').replace('%SPACE_NAME%', `<span>${main_core.Text.encode(babelHelpers.classPrivateFieldLooseBase(this, _spaceName)[_spaceName])}</span>`));
 	}
 	function _renderFilters2() {
 	  const filtersContainer = main_core.Tag.render(_t3$3 || (_t3$3 = _$6`

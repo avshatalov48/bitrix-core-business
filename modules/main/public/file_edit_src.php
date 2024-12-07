@@ -8,8 +8,6 @@ require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_js.
 if (!($USER->CanDoOperation('edit_php')))
 	$APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
 
-CUtil::JSPostUnescape();
-
 $obJSPopup = new CJSPopup();
 
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/fileman/include.php");
@@ -54,7 +52,7 @@ if(($new == '' || $filename == '') && !$io->FileExists($abs_path))
 	}
 }
 
-if($new <> '' && $filename <> '' && ($io->FileExists($abs_path) || $io->DirectoryExists($abs_path)))		// если мы хотим создать новый файл, но уже такой есть - ругаемся
+if($new <> '' && $filename <> '' && ($io->FileExists($abs_path) || $io->DirectoryExists($abs_path)))		// РµСЃР»Рё РјС‹ С…РѕС‚РёРј СЃРѕР·РґР°С‚СЊ РЅРѕРІС‹Р№ С„Р°Р№Р», РЅРѕ СѓР¶Рµ С‚Р°РєРѕР№ РµСЃС‚СЊ - СЂСѓРіР°РµРјСЃСЏ
 {
 	$strWarning = GetMessage("FILEMAN_FILEEDIT_FILE_EXISTS")." ";
 	$bEdit = false;
@@ -110,7 +108,7 @@ if($strWarning == '')
 			$filesrc_tmp = CFileman::GetTemplateContent($arTemplates[0]["file"], LANGUAGE_ID, array($site_template));
 	}
 
-	if($REQUEST_METHOD=="POST" && $save <> '')
+	if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '')
 	{
 		if(!check_bitrix_sessid())
 		{
@@ -188,7 +186,7 @@ if($strWarning == '')
 			if($strWarning == '')
 			{
 ?>
-<script type="text/javascript" bxrunfirst="true">
+<script bxrunfirst="true">
 top.BX.showWait();
 top.BX.reload('<?=CUtil::JSEscape($_REQUEST["back_url"])?>', true);
 top.<?=$obJSPopup->jsPopup?>.Close();
@@ -228,7 +226,7 @@ if (CAutoSave::Allowed())
 {
 	echo CJSCore::Init(array('autosave'), true);
 	$AUTOSAVE->Init();
-?><script type="text/javascript">BX.WindowManager.Get().setAutosave();</script><?
+?><script>BX.WindowManager.Get().setAutosave();</script><?
 }
 ?>
 
@@ -275,7 +273,7 @@ if(COption::GetOptionString('fileman', "use_code_editor", "Y") == "Y" && CModule
 	$ceid = CCodeEditor::Show(array('textareaId' => 'bx-filesrc', 'forceSyntax' => $forceSyntax));
 }
 ?>
-<script type="text/javascript">
+<script>
 var border = null, ta = null, wnd = BX.WindowManager.Get();
 
 function TAResize(data)

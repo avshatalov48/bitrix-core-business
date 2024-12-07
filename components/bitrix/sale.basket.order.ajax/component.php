@@ -1157,9 +1157,8 @@ else
 								AddEventHandler("main", "OnEndBufferContent", "ChangeEncoding");
 								function ChangeEncoding($content)
 								{
-									global $APPLICATION;
 									header("Content-Type: text/html; charset=".BX_SALE_ENCODING);
-									$content = $APPLICATION->ConvertCharset($content, SITE_CHARSET, BX_SALE_ENCODING);
+									$content = \Bitrix\Main\Text\Encoding::convertEncoding($content, SITE_CHARSET, BX_SALE_ENCODING);
 									$content = str_replace("charset=".SITE_CHARSET, "charset=".BX_SALE_ENCODING, $content);
 								}
 							}

@@ -5,14 +5,18 @@ import { BaseMessage } from 'im.v2.component.message.base';
 
 import './css/chat-creation-message.css';
 
+import { Analytics } from 'im.v2.lib.analytics';
 import type { CustomColorScheme } from 'im.v2.component.elements';
+import { CallManager } from 'im.v2.lib.call';
 import type { ImModelMessage } from 'im.v2.model';
+import { hint } from 'ui.vue3.directives.hint';
 
 const BUTTON_COLOR = '#00ace3';
 
 // @vue/component
 export const ChatCreationMessage = {
 	name: 'ChatCreationMessage',
+	directives: { hint },
 	components: { ButtonComponent, AddToChat, BaseMessage },
 	props: {
 		item: {
@@ -56,14 +60,68 @@ export const ChatCreationMessage = {
 		{
 			return this.$store.getters['chats/get'](this.dialogId, true);
 		},
-		userCountInChat(): number
+		hasActiveCurrentCall(): boolean
 		{
-			return this.dialog?.userCounter ?? 0
+			return CallManager
+				.getInstance()
+				.hasActiveCurrentCall(this.dialogId);
 		},
-		isDisabledStartCallButton(): boolean
+		hasActiveAnotherCall(): boolean
 		{
-			return !this.userCountInChat || this.userCountInChat <= 1
-		}
+			return CallManager
+				.getInstance()
+				.hasActiveAnotherCall(this.dialogId);
+		},
+		isActive(): boolean
+		{
+			if (
+				this.hasActiveCurrentCall
+			)
+			{
+				return true;
+			}
+
+			if (this.hasActiveAnotherCall)
+			{
+				return false;
+			}
+
+			return CallManager
+				.getInstance()
+				.chatCanBeCalled(this.dialogId);
+		},
+		userLimit(): number
+		{
+			return CallManager
+				.getInstance()
+				.getCallUserLimit();
+		},
+		isChatUserLimitExceeded(): boolean
+		{
+			return CallManager
+				.getInstance()
+				.isChatUserLimitExceeded(this.dialogId);
+		},
+		hintContent(): Object | null
+		{
+			if (this.isChatUserLimitExceeded)
+			{
+				return {
+					text: this.loc('IM_LIB_CALL_USER_LIMIT_EXCEEDED_TOOLTIP', { '#USER_LIMIT#': this.userLimit }),
+					popupOptions: {
+						bindOptions: {
+							position: 'bottom',
+						},
+						angle: { position: 'top' },
+						targetContainer: document.body,
+						offsetLeft: 82,
+						offsetTop: 0,
+					},
+				};
+			}
+
+			return null;
+		},
 	},
 	methods:
 	{
@@ -73,6 +131,13 @@ export const ChatCreationMessage = {
 		},
 		onCallButtonClick()
 		{
+			Analytics.getInstance().onStartCallClick({
+				type: Analytics.AnalyticsType.groupCall,
+				section: Analytics.AnalyticsSection.chatWindow,
+				subSection: Analytics.AnalyticsSubSection.window,
+				element: Analytics.AnalyticsElement.initialBanner,
+				chatId: this.chatId,
+			});
 			Messenger.startVideoCall(this.dialogId);
 		},
 		onInviteButtonClick()
@@ -84,7 +149,8 @@ export const ChatCreationMessage = {
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withDefaultContextMenu="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
 			class="bx-im-message-chat-creation__scope"
 		>
@@ -106,7 +172,8 @@ export const ChatCreationMessage = {
 								:isRounded="true"
 								:text="loc('IM_MESSAGE_CHAT_CREATION_BUTTON_VIDEOCALL')"
 								@click="onCallButtonClick"
-								:isDisabled="isDisabledStartCallButton"
+								:isDisabled="!isActive"
+								v-hint="hintContent"
 							/>
 						</div>
 						<div class="bx-im-message-chat-creation__buttons_item">

@@ -66,7 +66,7 @@ export const FieldInvitation =
 						return this.invitation.value
 							.replace(/#CREATOR#/gm, Text.encode(this.chatHost.FULL_NAME))
 							.replace(/#TITLE#/gm, `"${Text.encode(title)}"`)
-							.replace(/#LINK#/gm, `<a href="${this.publicLink}" target="_blank">${this.publicLink}</a>`);
+							.replace(/#LINK#/gm, `<a href="${this.publicLink}" target="_blank" class="im-conference-create-invitation-content-text-link">${this.publicLink}</a>`);
 					},
 					localize()
 					{

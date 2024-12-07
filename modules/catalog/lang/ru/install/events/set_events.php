@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["SMAIL_FOOTER_BR"] = "С уважением, администрация";
 $MESS["SMAIL_FOOTER_SHOP"] = "Интернет-магазина";
 $MESS["SMAIL_UNSUBSCRIBE"] = "Отписаться";
@@ -61,4 +61,3 @@ $MESS["CATALOG_PRODUCT_SUBSCRIBE_NOTIFY_REPEATED_HTML_TEXT"] = "
 Не отвечайте на письмо, оно сформировано автоматически.<br><br>
 Спасибо, что вы с нами!<br>
 ";
-?>

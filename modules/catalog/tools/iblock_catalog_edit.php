@@ -410,7 +410,7 @@ $jsParams = array(
 	),
 	'ajaxSteps' => $ajaxSteps
 );
-?><script type="text/javascript">
+?><script>
 var iblockCatalogControl = new BX.Catalog.Admin.IblockCatalog(<? echo CUtil::PhpToJSObject($jsParams, false, false, true); ?>);
 BX.ready(function()
 {

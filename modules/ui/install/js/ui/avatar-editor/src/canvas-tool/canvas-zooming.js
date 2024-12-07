@@ -1,5 +1,5 @@
-import {Event, Dom} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Event, Dom } from 'main.core';
+import { EventEmitter } from 'main.core.events';
 
 export default class CanvasZooming extends EventEmitter
 {
@@ -7,19 +7,21 @@ export default class CanvasZooming extends EventEmitter
 	#value = 0;
 	#defaultValue = 0;
 	#containerWidth = 0;
+	#minValue = -1;
+	#maxValue = 1;
 	#scale: Element;
 	#knob: Element;
 
-	constructor({knob, scale, minus, plus}, defaultValue: ?Number)
+	constructor({ knob, scale, minus, plus }, defaultValue: ?Number)
 	{
 		super();
 		this.setEventNamespace('Main.Avatar.Editor');
 
 		Event.bind(minus, 'click', () => {
-			this.#makeAStep(false)
+			this.#makeAStep(false);
 		});
 		Event.bind(plus, 'click', () => {
-			this.#makeAStep(true)
+			this.#makeAStep(true);
 		});
 
 		this.stopMoving = this.stopMoving.bind(this);
@@ -37,13 +39,14 @@ export default class CanvasZooming extends EventEmitter
 		this.reset();
 	}
 
-	setDefaultValue(defaultValue)
+	setDefaultValue(defaultValue): CanvasZooming
 	{
-		this.#defaultValue = defaultValue > 0 && defaultValue <= 1 ? defaultValue : 0;
+		this.#defaultValue = defaultValue > this.#minValue && defaultValue <= this.#maxValue ? defaultValue : 0;
+
 		return this;
 	}
 
-	getValue()
+	getValue(): Number
 	{
 		return this.#value;
 	}
@@ -55,12 +58,14 @@ export default class CanvasZooming extends EventEmitter
 			return this.#containerWidth;
 		}
 		const containerPos = Dom.getPosition(this.#scale);
-		let width = containerPos.width - Dom.getPosition(this.#knob).width;
+		const width = containerPos.width - Dom.getPosition(this.#knob).width;
 		if (width > 0)
 		{
 			this.#containerWidth = width;
+
 			return this.#containerWidth;
 		}
+
 		return 0;
 	}
 
@@ -72,8 +77,9 @@ export default class CanvasZooming extends EventEmitter
 
 	setValue(value)
 	{
+		// eslint-disable-next-line no-param-reassign
 		value = Math.ceil(value * 1000) / 1000;
-		if (value !== this.#value && value >= 0 && value <= 1)
+		if (value !== this.#value && value >= this.#minValue && value <= this.#maxValue)
 		{
 			this.#value = value;
 			this.#adjust();
@@ -86,22 +92,25 @@ export default class CanvasZooming extends EventEmitter
 		const value = Math.min(
 			Math.max(
 				this.getValue() + (increase === false ? (-1) : 1) * this.#stepSize,
-				0),
-			1
+				0,
+			),
+			1,
 		);
 		this.setValue(value);
 	}
 
 	#adjust()
 	{
+		const middle = this.#getContainerWidth() / (this.#maxValue - this.#minValue);
+		const value = middle + (middle * this.getValue());
 		Dom.adjust(this.#knob, {
 			style: {
-				left: [Math.ceil(this.#getContainerWidth() * this.getValue()), 'px'].join('')
-			}
+				left: [Math.ceil(value), 'px'].join(''),
+			},
 		});
 	}
 
-	move({pageX})
+	move({ pageX })
 	{
 		if (pageX > 0 && this.#getContainerWidth() > 0)
 		{
@@ -111,7 +120,7 @@ export default class CanvasZooming extends EventEmitter
 		}
 	}
 
-	startMoving({pageX})
+	startMoving({ pageX })
 	{
 		this.#knob.startPageX = pageX;
 

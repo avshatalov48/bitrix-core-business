@@ -1,4 +1,21 @@
-import {Tag, Text, Type} from 'main.core';
+import { Dom, Tag, Text, Type } from 'main.core';
+
+declare type StageParams = {
+	id: number,
+	name: string,
+	color: string,
+	backgroundColor: string,
+	isFilled?: boolean,
+	events?: {
+		onMouseEnter: (stage: Stage) => void,
+		onMouseLeave: (stage: Stage) => void,
+		onClick: (stage: Stage) => void,
+	},
+	isSuccess?: boolean,
+	isFail?: boolean,
+	isDisable?: boolean,
+	fillingColor?: string,
+};
 
 export class Stage
 {
@@ -12,53 +29,36 @@ export class Stage
 	isFilled;
 	node;
 	textNode;
+	isDisable;
 	backgroundImage = "url('data:image/svg+xml;charset=UTF-8,%3csvg width=%27295%27 height=%2732%27 viewBox=%270 0 295 32%27 fill=%27none%27 xmlns=%27http://www.w3.org/2000/svg%27%3e%3cmask id=%27mask0_2_11%27 style=%27mask-type:alpha%27 maskUnits=%27userSpaceOnUse%27 x=%270%27 y=%270%27 width=%27295%27 height=%2732%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3c/mask%3e%3cg mask=%27url(%23mask0_2_11)%27%3e%3cpath fill=%27#COLOR2#%27 d=%27M0 2.9961C0 1.3414 1.33554 0 2.99805 0L285.905 7.15256e-07C287.561 7.15256e-07 289.366 1.25757 289.937 2.80757L295 16.5505L290.007 29.2022C289.397 30.7474 287.567 32 285.905 32H2.99805C1.34227 32 0 30.6657 0 29.0039V2.9961Z%27/%3e%3cpath d=%27M0 30H295V32H0V30Z%27 fill=%27#COLOR1#%27/%3e%3c/g%3e%3c/svg%3e') 3 10 3 3 fill repeat";
 
-	constructor({id, name, color, backgroundColor, isFilled, events, isSuccess, isFail, fillingColor})
+	constructor(params: StageParams)
 	{
-		this.id = id;
-		this.name = name;
-		this.color = color;
-		this.backgroundColor = backgroundColor;
-		this.isFilled = isFilled;
-		this.events = events;
-		this.success = isSuccess;
-		this.fail = isFail;
-		this.fillingColor = fillingColor;
+		this.id = params.id;
+		this.name = params.name;
+		this.color = params.color;
+		this.backgroundColor = params.backgroundColor;
+		this.isFilled = params.isFilled;
+		this.events = params.events;
+		this.success = params.isSuccess;
+		this.fail = params.isFail;
+		this.fillingColor = params.fillingColor;
+		this.isDisable = params.isDisable;
 	}
 
-	static create(data: {
-		id: number,
-		name: string,
-		isSuccess: boolean,
-		isFail: boolean,
-		color: string,
-		backgroundColor: string,
-		fillingColor: string,
-		isFilled: boolean,
-		events: {
-				onMouseEnter: ?Function,
-				onMouseLeave: ?Function,
-				onClick: ?Function,
-		}
-	}): ?Stage
+	static create(data: StageParams): ?Stage
 	{
-		if(Type.isPlainObject(data) && data.id && data.name && data.color && data.backgroundColor)
+		if (Type.isPlainObject(data) && data.id && data.name && data.color && data.backgroundColor)
 		{
 			data.id = Text.toInteger(data.id);
 			data.name = data.name.toString();
 			data.color = data.color.toString();
 			data.backgroundColor = data.backgroundColor.toString();
-			if(!Type.isPlainObject(data.events))
-			{
-				data.events = {};
-			}
-			if(!Type.isBoolean(data.isFilled))
-			{
-				data.isFilled = false;
-			}
+			data.events = Type.isPlainObject(data.events) ? data.events : {};
+			data.isFilled = Type.isBoolean(data.isFilled) ? data.isFilled : false;
+			data.isDisable = Type.isBoolean(data.isDisable) ? data.isDisable : false;
 
-			if(data.id > 0)
+			if (data.id > 0)
 			{
 				return new Stage(data);
 			}
@@ -103,6 +103,28 @@ export class Stage
 		return (this.isFail() || this.isSuccess());
 	}
 
+	isDisabled(): boolean
+	{
+		return this.isDisable;
+	}
+
+	setDisable(isDisable: boolean = true): Stage
+	{
+		if (this.isDisable === isDisable)
+		{
+			return this;
+		}
+
+		if (this.node)
+		{
+			Dom.toggleClass(this.node, '--disabled');
+		}
+
+		this.isDisable = isDisable;
+
+		return this;
+	}
+
 	getColor(): string
 	{
 		return this.color;
@@ -123,9 +145,11 @@ export class Stage
 		}
 		else
 		{
+			const disableClass = this.isDisabled() ? '--disabled' : '';
+
 			this.textNode = Tag.render`<div style="border-image: ${this.getBackgroundImage()};" class="ui-stageflow-stage-item-text">${Text.encode(this.getName())}</div>`;
 			this.node = Tag.render`<div 
-					class="ui-stageflow-stage" 
+					class="ui-stageflow-stage ${disableClass}" 
 					data-stage-id="${this.getId()}" 
 					onmouseenter="${this.onMouseEnter.bind(this)}" 
 					onmouseleave="${this.onMouseLeave.bind(this)}"
@@ -214,6 +238,28 @@ export class Stage
 			this.textNode.style.borderImage = this.getBackgroundImage();
 			this.textNode.style.color = Stage.calculateTextColor('#' + (this.isFilled ? this.fillingColor : this.backgroundColor));
 		}
+	}
+
+	getMinWidthForFullNameVisibility(): number
+	{
+		if (!this.textNode)
+		{
+			return 0;
+		}
+
+		const {clientWidth, offsetWidth, scrollWidth } = this.textNode;
+
+		return scrollWidth + (offsetWidth - clientWidth) + 2;
+	}
+
+	isNameCropped(): boolean
+	{
+		if (!this.textNode)
+		{
+			return false;
+		}
+
+		return this.textNode.offsetWidth < this.textNode.scrollWidth
 	}
 
 	static calculateTextColor(baseColor)

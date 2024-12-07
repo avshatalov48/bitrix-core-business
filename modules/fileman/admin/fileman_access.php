@@ -103,7 +103,7 @@ if ($USER->CanDoOperation('edit_subordinate_users') && !$USER->CanDoOperation('e
 	$subordinate = true;
 }
 
-if($REQUEST_METHOD=="POST" && is_array($files) && count($files)>0 && $saveperm <> '' && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders'))
+if($_SERVER['REQUEST_METHOD']=="POST" && is_array($files) && count($files)>0 && $saveperm <> '' && check_bitrix_sessid() && $USER->CanDoOperation('fileman_admin_folders'))
 {
 	$CUR_PERM = GetAccessArrTmp($path);
 	$arPermissions=Array();
@@ -219,7 +219,7 @@ function Conf(ob)
 <input type="hidden" name="lang" value="<?= LANG?>">
 <?=bitrix_sessid_post()?>
 <?for($i = 0; $i < $filesCount; $i++):?>
-	<?$ii = $arFiles[$i];if(mb_strtoupper(LANG_CHARSET) != "UTF-8")$ii = $GLOBALS["APPLICATION"]->ConvertCharset($ii, LANG_CHARSET, "UTF-8");?>
+	<?$ii = $arFiles[$i];?>
 	<input type="hidden" name="files[]" value="<?= htmlspecialcharsbx($ii)?>">
 <?endfor?>
 

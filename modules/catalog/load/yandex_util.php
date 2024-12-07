@@ -6,7 +6,7 @@ define('NO_AGENT_CHECK', true);
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_admin_before.php");
 if (check_bitrix_sessid())
 {
-	echo "<script type=\"text/javascript\">\n";
+	echo "<script>\n";
 
 	$bNoTree = true;
 	$bIBlock = false;

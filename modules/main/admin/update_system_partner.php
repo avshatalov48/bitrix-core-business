@@ -94,7 +94,7 @@ if ($errorMessage <> '')
 }
 
 ?>
-<script language="JavaScript">
+<script>
 	var updRand = 0;
 
 	function PrepareString(str)
@@ -226,7 +226,7 @@ $tabControl->BeginNextTab();
 						</table>
 						<br>
 					</div>
-					<SCRIPT LANGUAGE="JavaScript">
+					<SCRIPT>
 					function RegisterSystem()
 					{
 						ShowWaitWindow();
@@ -333,7 +333,7 @@ $tabControl->BeginNextTab();
 					</table>
 				</div>
 
-				<script language="JavaScript">
+				<script>
 				var updSelectDiv = document.getElementById("upd_select_div");
 				var updInstallDiv = document.getElementById("upd_install_div");
 				var updSuccessDiv = document.getElementById("upd_success_div");
@@ -672,7 +672,7 @@ $tabControl->BeginNextTab();
 							$arModuleTmp["@"]["ID"] = preg_replace("#[^A-Za-z0-9._-]#", "", $arModuleTmp["@"]["ID"]);
 							if($myaddmodule <> '')
 							{
-								if(strtolower($myaddmodule) != strtolower($arModuleTmp["@"]["ID"]) && strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) === false)
+								if(strtolower($myaddmodule) != strtolower($arModuleTmp["@"]["ID"]) && !str_contains(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])))
 									$checked = "";
 							}
 							$strTitleTmp = $arModuleTmp["@"]["NAME"]." (".$arModuleTmp["@"]["ID"].")\n".$arModuleTmp["@"]["DESCRIPTION"]."\n";
@@ -703,7 +703,7 @@ $tabControl->BeginNextTab();
 									else
 									{
 										echo GetMessage("SUP_SULL_REF_N");
-										if(strtolower($myaddmodule) == strtolower($arModuleTmp["@"]["ID"]) || strpos(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])) !== false)
+										if(strtolower($myaddmodule) == strtolower($arModuleTmp["@"]["ID"]) || str_contains(strtolower($myaddmodule), strtolower($arModuleTmp["@"]["ID"])))
 										{
 											?>
 											<script>
@@ -727,7 +727,7 @@ $tabControl->BeginNextTab();
 					}
 					?>
 				</table>
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 					var arModuleUpdatesDescr = {<?
 					if (isset($arUpdateList["MODULE"]))
 					{
@@ -1190,7 +1190,7 @@ $tabControl->BeginNextTab();
 						</tr>
 					</table>
 				</div>
-				<SCRIPT LANGUAGE="JavaScript">
+				<SCRIPT>
 				function ActivateCoupon()
 				{
 					document.getElementById("id_coupon_btn").disabled = true;

@@ -302,7 +302,7 @@ function AddRekvMore(ind)
 
 	<tr>
 		<td colspan="2">
-			<script language="JavaScript">
+			<script>
 			<!--
 			var paySysActVisible_<?= $arPersonType["ID"] ?> = true;
 			<?
@@ -414,7 +414,7 @@ function AddRekvMore(ind)
 				<div id="export_<?= $val["ID"] ?>" style="display: block;"></div>
 				<iframe style="width:0px; height:0px; border: 0px" name="hidden_action_frame_<?= $val["ID"] ?>" src="" width="0" height="0"></iframe>
 				<input type="hidden" name="export_fields_<?=$val["ID"]?>" id="export_fields_<?=$val["ID"]?>" value="">
-				<script language="JavaScript">
+				<script>
 				<!--
 				BX.ready(function(){ActionFileChange(<?=CUtil::JSEscape($val["ID"])?>, '');});
 				//-->

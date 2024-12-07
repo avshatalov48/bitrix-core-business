@@ -609,8 +609,10 @@ class SubscribeTable extends Entity\DataManager
 			$listSiteId = array();
 			foreach($notify as $siteId => $data)
 			{
-				if($data['use'] != 'Y')
+				if (($data['use'] ?? 'N') !== 'Y')
+				{
 					$listSiteId[] = $siteId;
+				}
 			}
 			if($listSiteId)
 				$filter['!=SITE_ID'] = $listSiteId;

@@ -1256,6 +1256,15 @@ T,en,Oktjabrskoe,ru,Октябрьское
 T,en,Gaspra,ru,Гаспра
 T,en,Gresovskij,ru,Грэсовский
 T,en,Krasnogvardijskoe,ru,Красногвардейское
+R,en,Hersonskaya obl,ru,Херсонская обл
+T,en,Kherson,ru,Херсон
+R,en,Donetskaya Narodnaya Resp obl,ru,Донецкая Народная Респ
+T,en,Donetsk,ru,Донецк
+T,en,Mariupol,ru,Мариуполь
+R,en,Luganskaya Narodnaya Resp obl,ru,Луганская Народная Респ
+T,en,Luhansk,ru,Луганск
+R,en,Zaporozskaya obl,ru,Запорожская обл
+T,en,Zaporizhia,ru,Запорожье
 S,en,Georgia,ru,Грузия
 T,en,Tbilisi,ru,Тбилиси
 T,en,Batumi,ru,Батуми
@@ -1274,28 +1283,6 @@ T,en,Klaipeda,ru,Клайпеда
 S,en,Moldova,ru,Молдавия
 T,en,Kishinev,ru,Кишинев
 T,en,Tiraspol,ru,Тирасполь
-S,en,Ukraine,ru,Украина
-T,en,Kiev,ru,Киев
-T,en,Kharkiv,ru,Харьков
-T,en,Dnipropetrovsk,ru,Днепропетровск
-T,en,Odessa,ru,Одесса
-T,en,Donetsk,ru,Донецк
-T,en,Zaporizhia,ru,Запорожье
-T,en,Lviv,ru,Львов
-T,en,Kryvyj Rih,ru,Кривой Рог
-T,en,Mykolaiv,ru,Николаев
-T,en,Mariupol,ru,Мариуполь
-T,en,Luhansk,ru,Луганск
-T,en,Vinnitsia,ru,Винница
-T,en,Kherson,ru,Херсон
-T,en,Poltava,ru,Полтава
-T,en,Chernihiv,ru,Чернигов
-T,en,Cherkasy,ru,Черкасcы
-T,en,Sumy,ru,Сумы
-T,en,Zhytomir,ru,Житомир
-T,en,Dniprodzerzhynsk,ru,Днепродзержинск
-T,en,Kirovohrad,ru,Кировоград
-T,en,Khmelnytskyi,ru,Хмельницкий
 S,en,Kazakhstan,ru,Казахстан
 T,en,Astana,ru,Астана
 T,en,Aqtobe,ru,Актобе

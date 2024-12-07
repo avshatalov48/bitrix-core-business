@@ -1,0 +1,34 @@
+.bx-im-sidebar-copilot-preview-group-chat__avatar-container {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	height: 172px;
+	padding: 25px 16px 0;
+}
+
+.bx-im-sidebar-copilot-preview-group-chat__title {
+	flex-grow: 1;
+}
+
+.bx-im-sidebar-copilot-preview-group-chat__title .bx-im-chat-title__content {
+	text-align: center;
+}
+
+.bx-im-sidebar-copilot-preview-group-chat__title .bx-im-chat-title__text {
+	font: var(--im-font-size-xl)/18px var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	padding: 2px 0;
+}
+
+
+.bx-im-sidebar-copilot-preview-group-chat__chat-members {
+	height: 42px;
+	padding: 7px 16px 11px;
+}
+
+.bx-im-sidebar-copilot-preview-group-chat__settings {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	padding: 5px 16px 14px;
+}

@@ -20,7 +20,8 @@ IncludeModuleLangFile(__FILE__);
 $aContext = array();
 $oAccess = CLearnAccess::GetInstance($USER->GetID());
 
-$COURSE_ID = intval($COURSE_ID);
+$COURSE_ID = isset($_REQUEST['COURSE_ID']) ? intval($_REQUEST['COURSE_ID']) : 0;
+
 $course = CCourse::GetByID($COURSE_ID);
 
 $bBadCourse = true;
@@ -118,17 +119,20 @@ if ( ! $isReadOnly && $lAdmin->EditAction()) // save from the list
 			{
 				$e = $APPLICATION->GetException();
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
 // group and single actions processing
 if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 {
-	if($_REQUEST['action_target']=='selected')
+	if(isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
 	{
 		$rsData = CTest::GetList(Array($by=>$order), $arFilter);
 		while($arRes = $rsData->Fetch())
@@ -141,7 +145,8 @@ if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 			continue;
 		$ID = intval($ID);
 
-		switch($_REQUEST['action'])
+		$action = $_REQUEST['action'] ?? '';
+		switch($action)
 		{
 		case "delete":
 			@set_time_limit(0);
@@ -152,12 +157,15 @@ if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("LEARNING_DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "activate":
 		case "deactivate":
 			$ch = new CTest;
-			$arFields = Array("ACTIVE"=>($_REQUEST['action']=="activate"?"Y":"N"));
+			$arFields = Array("ACTIVE"=>($action=="activate"?"Y":"N"));
 			if(!$ch->Update($ID, $arFields))
 				if($e = $APPLICATION->GetException())
 					$lAdmin->AddGroupError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
@@ -165,11 +173,11 @@ if( ! $isReadOnly && ($arID = $lAdmin->GroupAction()) )
 		}
 	}
 
-	if(isset($return_url) && $return_url <> '' && check_bitrix_sessid())
-		LocalRedirect($return_url);
+	if(!empty($_REQUEST['return_url']) && check_bitrix_sessid())
+	{
+		LocalRedirect($_REQUEST['return_url']);
+	}
 }
-
-
 
 // fetch data
 $rsData = CTest::GetList(Array($by=>$order),$arFilter);
@@ -224,8 +232,8 @@ while($arRes = $rsData->NavNext(true, "f_"))
 
 	$editUrl = "learn_test_edit.php?lang=" . LANG
 			. "&COURSE_ID=" . $COURSE_ID
-			. '&PARENT_LESSON_ID=' . intval($_GET['PARENT_LESSON_ID'])
-			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+			. '&PARENT_LESSON_ID=' . intval($_GET['PARENT_LESSON_ID'] ?? 0)
+			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 			. "&ID=" . $f_ID
 			. "&filter=Y&set_filter=Y";
 
@@ -276,8 +284,8 @@ if ( ! $isReadOnly )
 			"TEXT"=>GetMessage("LEARNING_ADD"),
 			"LINK"=>"learn_test_edit.php?lang=" . LANG
 				. "&COURSE_ID=" . $COURSE_ID
-				. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-				. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+				. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+				. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? '')
 				. GetFilterParams("filter_"),
 			"TITLE"=>GetMessage("LEARNING_ADD_ALT")
 	);
@@ -301,7 +309,7 @@ $filter = new CAdminFilter(
 ?>
 
 <form method="get" action="learn_test_admin.php?lang=<?=LANG?>&COURSE_ID=<?=$COURSE_ID?>&PARENT_LESSON_ID=<?php
-	echo ($_GET['PARENT_LESSON_ID'] + 0); ?>&LESSON_PATH=<?php echo htmlspecialcharsbx($_GET['LESSON_PATH']); ?>" name="find_form" onsubmit="return this.set_filter.onclick();">
+	echo htmlspecialcharsbx($_GET['PARENT_LESSON_ID'] ?? 0); ?>&LESSON_PATH=<?php echo htmlspecialcharsbx($_GET['LESSON_PATH'] ?? ''); ?>" name="find_form" onsubmit="return this.set_filter.onclick();">
 <?$filter->Begin();?>
 	<tr>
 		<td align="right"><?echo GetMessage("LEARNING_NAME")?>:</td>
@@ -327,8 +335,8 @@ $filter->Buttons(
 	array(
 		"table_id" => $sTableID,
 		"url"      => "learn_test_admin.php?lang=" . LANG
-			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] + 0)
-			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'])
+			. '&PARENT_LESSON_ID=' . ($_GET['PARENT_LESSON_ID'] ?? 0)
+			. '&LESSON_PATH=' . htmlspecialcharsbx($_GET['LESSON_PATH'] ?? 0)
 			. "&COURSE_ID=" . $COURSE_ID,
 		"form"     => "find_form"
 	)

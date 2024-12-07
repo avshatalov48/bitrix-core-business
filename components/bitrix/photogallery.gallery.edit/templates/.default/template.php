@@ -13,14 +13,14 @@ endif;
 if (!empty($arResult["ERROR_MESSAGE"])):
 ?>
 <div class="photo-note-box photo-note-error">
-	<div class="photo-note-box-text"><?=ShowError($arResult["ERROR_MESSAGE"])?></div>
+	<div class="photo-note-box-text"><? ShowError($arResult["ERROR_MESSAGE"])?></div>
 </div>
 <?
 endif;
 if (!empty($arResult["OK_MESSAGE"])):
 ?>
 <div class="photo-note-box photo-note-note">
-	<div class="photo-note-box-text"><?=ShowNote($arResult["OK_MESSAGE"])?></div>
+	<div class="photo-note-box-text"><? ShowNote($arResult["OK_MESSAGE"])?></div>
 </div>
 <?
 endif;

@@ -52,7 +52,7 @@ else
 	</div>
 
 	<div id="form_new"></div>
-	<script type="text/javascript">
+	<script>
 		function ShowBasketItems(val)
 		{
 			if(val == 4)

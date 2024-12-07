@@ -24,8 +24,6 @@ use Bitrix\Main\Request;
 use Bitrix\Main\Response;
 use Bitrix\Main\Security\Sign\BadSignatureException;
 use Bitrix\Main\SystemException;
-use Bitrix\Main\Web\FileDecodeFilter;
-use Bitrix\Main\Web\PostDecodeFilter;
 use Bitrix\Main\Web\Uri;
 
 class Controller implements Errorable, Controllerable
@@ -202,7 +200,7 @@ class Controller implements Errorable, Controllerable
 	 */
 	final public function getActionUri(string $actionName, array $params = [], bool $absolute = false): Uri
 	{
-		if (strpos($this->getFilePath(), '/components/') === false)
+		if (!str_contains($this->getFilePath(), '/components/'))
 		{
 			return UrlManager::getInstance()->createByController($this, $actionName, $params, $absolute);
 		}
@@ -419,10 +417,6 @@ class Controller implements Errorable, Controllerable
 			$this->setCurrentAction($action);
 
 			$this->attachFilters($action);
-			if ($this->shouldDecodePostData($action))
-			{
-				$this->decodePostData();
-			}
 
 			if ($this->prepareParams() &&
 				$this->processBeforeAction($action) === true &&
@@ -539,18 +533,6 @@ class Controller implements Errorable, Controllerable
 	protected function processBeforeAction(Action $action)
 	{
 		return true;
-	}
-
-	protected function shouldDecodePostData(Action $action): bool
-	{
-		return $this->request->isPost();
-	}
-
-	final protected function decodePostData(): void
-	{
-		\CUtil::jSPostUnescape();
-		$this->request->addFilter(new PostDecodeFilter);
-		$this->request->addFilter(new FileDecodeFilter);
 	}
 
 	/**

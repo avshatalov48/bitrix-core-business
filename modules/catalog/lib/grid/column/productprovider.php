@@ -158,7 +158,7 @@ class ProductProvider extends CatalogProvider
 
 			$result['QUANTITY_RESERVED'] = [
 				'type' => Grid\Column\Type::FLOAT,
-				'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_PRODUCT_QUANTITY_RESERVED'),
+				'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_PRODUCT_QUANTITY_RESERVED_MSGVER_1'),
 				'necessary' => false,
 				'editable' => $allowProductEdit && !$useInventoryManagment,
 				'multiple' => false,
@@ -180,8 +180,8 @@ class ProductProvider extends CatalogProvider
 
 		$result['QUANTITY_TRACE'] = [
 			'type' => Grid\Column\Type::CHECKBOX,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_QUANTITY_TRACE'),
-			'title' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_QUANTITY_TRACE'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_QUANTITY_TRACE_MSGVER_1'),
+			'title' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_QUANTITY_TRACE_MSGVER_1'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
 			'multiple' => false,
@@ -191,7 +191,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['CAN_BUY_ZERO'] = [
 			'type' => Grid\Column\Type::CHECKBOX,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_CAN_BUY_ZERO'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_CAN_BUY_ZERO_MSGVER_1'),
 			'title' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_TITLE_CAN_BUY_ZERO'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
@@ -212,7 +212,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['WEIGHT'] = [
 			'type' => Grid\Column\Type::FLOAT,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_WEIGHT'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_WEIGHT_MSGVER_1'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
 			'multiple' => false,
@@ -222,7 +222,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['WIDTH'] = [
 			'type' => Grid\Column\Type::FLOAT,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_WIDTH'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_WIDTH_MSGVER_1'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
 			'multiple' => false,
@@ -232,7 +232,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['LENGTH'] = [
 			'type' => Grid\Column\Type::FLOAT,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_LENGTH'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_LENGTH_MSGVER_1'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
 			'multiple' => false,
@@ -242,7 +242,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['HEIGHT'] = [
 			'type' => Grid\Column\Type::FLOAT,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_HEIGHT'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_HEIGHT_MSGVER_1'),
 			'necessary' => false,
 			'editable' => $allowProductEdit,
 			'multiple' => false,
@@ -293,7 +293,7 @@ class ProductProvider extends CatalogProvider
 
 		$result['PURCHASING_PRICE'] = [
 			'type' => Grid\Column\Type::MONEY,
-			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_PURCHASING_PRICE'),
+			'name' => Loc::getMessage('PRODUCT_COLUMN_PROVIDER_FIELD_PURCHASING_PRICE_MSGVER_1'),
 			'necessary' => false,
 			'editable' => Catalog\Config\State::isUsedInventoryManagement() ? false : new MoneyConfig('PURCHASING_PRICE'),
 			'multiple' => false,

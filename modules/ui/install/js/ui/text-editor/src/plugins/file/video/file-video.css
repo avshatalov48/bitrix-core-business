@@ -1,0 +1,12 @@
+.ui-text-editor-file-video-component {
+
+}
+
+.ui-text-editor-file-video-component.--selected {
+	outline: 2px solid rgb(60,132,244);
+	user-select: none;
+}
+
+.ui-text-editor-file-video-component.--draggable {
+	cursor: grab;
+}

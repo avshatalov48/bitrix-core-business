@@ -298,6 +298,16 @@ class CBPTaskUserStatus
 		}
 		return null;
 	}
+
+	public static function isPositive(int $status): bool
+	{
+		return $status === self::Yes || $status === self::Ok;
+	}
+
+	public static function isNegative(int $status): bool
+	{
+		return $status === self::No || $status === self::Cancel;
+	}
 }
 
 class CBPTaskChangedStatus

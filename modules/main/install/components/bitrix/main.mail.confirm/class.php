@@ -44,7 +44,7 @@ class MainMailConfirmComponent extends CBitrixComponent
 			? \CBitrix24::isPortalAdmin($USER->getId())
 			: $USER->isAdmin();
 
-		$this->includeComponentTemplate();
+		$this->includeComponentTemplate('');
 
 		return $this->arParams['MAILBOXES'];
 	}

@@ -109,7 +109,13 @@ export class FileUnsorted
 
 	updateModels(resultData): Promise
 	{
-		const { users, files } = resultData;
+		const { users, files, tariffRestrictions = {} } = resultData;
+
+		const isHistoryLimitExceeded = Boolean(tariffRestrictions.isHistoryLimitExceeded);
+		const historyLimitPromise = this.store.dispatch('sidebar/files/setHistoryLimitExceeded', {
+			chatId: this.chatId,
+			isHistoryLimitExceeded,
+		});
 
 		const preparedFiles = files.map((file) => {
 			return { ...file, subType: SidebarDetailBlock.fileUnsorted };
@@ -136,7 +142,12 @@ export class FileUnsorted
 		});
 
 		return Promise.all([
-			setFilesPromise, setSidebarFilesPromise, addUsersPromise, hasNextPagePromise, setLastIdPromise,
+			setFilesPromise,
+			setSidebarFilesPromise,
+			addUsersPromise,
+			hasNextPagePromise,
+			setLastIdPromise,
+			historyLimitPromise,
 		]);
 	}
 

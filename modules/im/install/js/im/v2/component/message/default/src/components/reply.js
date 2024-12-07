@@ -1,6 +1,10 @@
+import { Type } from 'main.core';
+
 import { Parser } from 'im.v2.lib.parser';
 
 import type { ImModelChat, ImModelMessage, ImModelUser } from 'im.v2.model';
+
+const NO_CONTEXT_TAG = 'none';
 
 // @vue/component
 export const Reply = {
@@ -22,11 +26,19 @@ export const Reply = {
 	},
 	computed:
 	{
-		replyMessage(): ImModelMessage
+		dialog(): ImModelChat
+		{
+			return this.$store.getters['chats/get'](this.dialogId, true);
+		},
+		replyMessage(): ?ImModelMessage
 		{
 			return this.$store.getters['messages/getById'](this.replyId);
 		},
-		replyAuthor(): ImModelUser
+		replyMessageChat(): ?ImModelChat
+		{
+			return this.$store.getters['chats/getByChatId'](this.replyMessage?.chatId);
+		},
+		replyAuthor(): ?ImModelUser
 		{
 			return this.$store.getters['users/get'](this.replyMessage.authorId);
 		},
@@ -41,44 +53,41 @@ export const Reply = {
 
 			return text;
 		},
+		isQuoteFromTheSameChat(): boolean
+		{
+			return this.replyMessage?.chatId === this.dialog.chatId;
+		},
 		replyContext(): string
 		{
+			if (!this.isQuoteFromTheSameChat)
+			{
+				return NO_CONTEXT_TAG;
+			}
+
 			if (!this.isForward)
 			{
 				return `${this.dialogId}/${this.replyId}`;
 			}
 
-			const replyMessageChat = this.getChatByChatId(this.replyMessage.chatId);
-			if (!replyMessageChat)
-			{
-				return '';
-			}
-
-			return `${replyMessageChat.dialogId}/${this.replyId}`;
+			return `${this.replyMessageChat.dialogId}/${this.replyId}`;
 		},
-		hasReplyContext(): boolean
+		canShowReply(): boolean
 		{
-			return this.replyContext.length > 0;
+			return !Type.isNil(this.replyMessage) && !Type.isNil(this.replyMessageChat);
 		},
 	},
 	methods:
 	{
-		getChatByChatId(chatId: number): ImModelChat
-		{
-			return this.$store.getters['chats/getByChatId'](chatId, true);
-		},
 		loc(phraseCode: string): string
 		{
 			return this.$Bitrix.Loc.getMessage(phraseCode);
 		},
 	},
 	template: `
-		<div class="bx-im-message-quote" :class="{'--with-context': hasReplyContext}" :data-context="replyContext">
+		<div v-if="canShowReply" class="bx-im-message-quote" :data-context="replyContext">
 			<div class="bx-im-message-quote__wrap">
 				<div class="bx-im-message-quote__name">
-					<div class="bx-im-message-quote__name-text">
-						{{ replyTitle }}
-					</div>
+					<div class="bx-im-message-quote__name-text">{{ replyTitle }}</div>
 				</div>
 				<div class="bx-im-message-quote__text" v-html="replyText"></div>
 			</div>

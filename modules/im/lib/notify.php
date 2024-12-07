@@ -1,8 +1,10 @@
 <?php
 namespace Bitrix\Im;
 
+use Bitrix\Im\V2\Message;
 use Bitrix\Im\V2\Message\CounterService;
 use Bitrix\Im\V2\Message\ReadService;
+use Bitrix\Im\V2\MessageCollection;
 use Bitrix\Main\Type\DateTime;
 
 class Notify
@@ -403,7 +405,7 @@ class Notify
 
 		$batches = [];
 		$result = \Bitrix\Im\Model\MessageTable::getList([
-			'select' => ['ID'],
+			'select' => ['ID', 'CHAT_ID'],
 			'filter' => [
 				'=NOTIFY_TYPE' => [IM_NOTIFY_CONFIRM, IM_NOTIFY_FROM, IM_NOTIFY_SYSTEM],
 				'<DATE_CREATE' => ConvertTimeStamp((time() - 86400 * $dayCount), 'FULL')
@@ -411,7 +413,7 @@ class Notify
 			'limit' => $limit
 		]);
 
-		$batch = [];
+		$batch = new MessageCollection();
 		$i = 0;
 
 		while ($row = $result->fetch())
@@ -420,12 +422,13 @@ class Notify
 			{
 				$i = 0;
 				$batches[] = $batch;
-				$batch = [];
+				$batch = new MessageCollection();
 			}
 
-			$batch[] = (int)$row['ID'];
+			$message = (new Message())->setMessageId((int)$row['ID'])->setChatId((int)$row['CHAT_ID']);
+			$batch->add($message);
 		}
-		if (!empty($batch))
+		if ($batch->count() !== 0)
 		{
 			$batches[] = $batch;
 		}
@@ -433,13 +436,18 @@ class Notify
 		$counterService = new CounterService();
 		foreach ($batches as $batch)
 		{
+			$messageIds = $batch->getIds();
+			if (empty($messageIds))
+			{
+				continue;
+			}
 			\Bitrix\Im\Model\MessageTable::deleteBatch([
-				'=ID' => $batch
+				'=ID' => $messageIds
 			]);
 			\Bitrix\Im\Model\MessageParamTable::deleteBatch([
-				'=MESSAGE_ID' => $batch
+				'=MESSAGE_ID' => $messageIds
 			]);
-			$counterService->deleteByMessageIdsForAll($batch);
+			$counterService->deleteByMessagesForAll($batch);
 		}
 
 		return __METHOD__. '();';

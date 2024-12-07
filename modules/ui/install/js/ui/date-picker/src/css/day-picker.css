@@ -1,0 +1,347 @@
+.ui-day-picker {
+	display: flex !important; /* Day Picker determines a fixed width that's why it's always visible */
+	flex-direction: column;
+	width: 100%;
+	position: relative;
+	z-index: 1;
+	background-color: #fff;
+
+	--ui-day-picker-range-color: #d7f5ff;
+	--ui-day-picker-day-bg-color: transparent;
+}
+
+.ui-day-picker-content {
+	display: flex;
+	flex-direction: row;
+	width: 100%;
+	justify-content: center;
+	gap: 10px;
+}
+
+.ui-day-picker.--full-year .ui-day-picker-content {
+	flex-wrap: wrap;
+	justify-content: flex-start;
+}
+
+.ui-day-picker.--full-year .ui-date-picker-header {
+	justify-content: flex-start;
+	margin-bottom: 10px;
+}
+
+.ui-day-picker.--full-year .ui-date-picker-header .ui-date-picker-button {
+	position: static;
+}
+
+.ui-day-picker.--full-year .ui-date-picker-header-title {
+	flex-grow: 0;
+	justify-content: flex-start;
+	margin: 0 5px;
+}
+
+.ui-date-picker-header-full-year {
+	font-size: var(--ui-font-size-4xl);
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--ui-color-text-primary);
+}
+
+.ui-day-picker-month-header {
+	display: flex;
+	justify-content: flex-start;
+	margin-left: 10px;
+	font-size: var(--ui-font-size-lg);
+	font-weight: var(--ui-font-weight-semi-bold);
+	color: var(--ui-color-text-primary);
+}
+
+.ui-day-picker-month {
+	display: flex;
+	flex-direction: column;
+}
+
+.ui-day-picker-week {
+	display: flex;
+	justify-content: space-between;
+}
+
+.ui-day-picker-week.--week-days {
+	margin-top: 4px;
+}
+
+.ui-day-picker-week:last-child {
+	margin-bottom: 0;
+}
+
+.ui-day-picker-week-day {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 36px;
+	height: 28px;
+	color: var(--ui-color-base-50);
+	font-size: var(--ui-font-size-xs)
+}
+
+.ui-day-picker-week-number {
+	display: flex;
+	width: 36px;
+	height: 36px;
+	align-items: center;
+	justify-content: center;
+	font-size: var(--ui-font-size-xs);
+	color: var(--ui-color-base-40);
+}
+
+.ui-day-picker-day {
+	display: flex;
+	width: 36px;
+	height: 36px;
+	padding: 0 0 1px 0;
+	margin: 0;
+	position: relative;
+	cursor: pointer;
+	align-items: center;
+	justify-content: center;
+	user-select: none;
+
+	appearance: none;
+	background: none;
+	color: inherit;
+	font: inherit;
+	border: none;
+	box-sizing: content-box;
+	outline: none;
+}
+
+/*.ui-day-picker-day:focus-visible .ui-day-picker-day-inner:before,*/
+.ui-day-picker-day.--focus-visible .ui-day-picker-day-inner:before {
+	content: '';
+	position: absolute;
+	border-radius: var(--ui-border-radius-pill);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+
+	border: 2px solid var(--ui-date-picker-outiline-color);
+}
+
+.ui-day-picker-day-inner {
+	border-radius: var(--ui-border-radius-pill);
+	color: var(--ui-color-text-primary);
+	background-color: var(--ui-day-picker-day-bg-color);
+	position: relative;
+	display: flex;
+	align-items: center;
+	width: 100%;
+	height: 100%;
+	justify-content: center;
+	z-index: 10;
+	pointer-events: none;
+}
+
+.ui-day-picker-day.--outside.--hidden {
+	visibility: hidden;
+	pointer-events: none;
+}
+
+.ui-day-picker-day.--outside .ui-day-picker-day-inner {
+	color: var(--ui-color-base-50);
+}
+
+.ui-day-picker-day.--current .ui-day-picker-day-inner {
+	color: var(--ui-color-primary);
+}
+
+.ui-day-picker-day.--selected .ui-day-picker-day-inner {
+	background-color: var(--ui-color-primary);
+	color: var(--ui-color-on-primary);
+}
+
+.ui-day-picker-day[data-text-color]:not(.--selected, .--range-in) .ui-day-picker-day-inner {
+	color: var(--ui-day-picker-day-text-color);
+}
+
+.ui-day-picker-day.--range-in .ui-day-picker-day-inner {
+	border-radius: 0;
+}
+
+.ui-day-picker-day.--range-in.--selected:not(.--range-from):not(.--range-to) .ui-day-picker-day-inner {
+	border-radius: var(--ui-border-radius-pill);
+}
+
+.ui-day-picker-day.--range-in:not(.--selected) .ui-day-picker-day-inner {
+	background-color: var(--ui-day-picker-range-color);
+}
+
+.ui-day-picker-day.--range-in-start .ui-day-picker-day-inner {
+	border-top-left-radius: var(--ui-border-radius-pill);
+	border-bottom-left-radius: var(--ui-border-radius-pill);
+}
+
+.ui-day-picker-day.--range-in-end .ui-day-picker-day-inner {
+	border-top-right-radius: var(--ui-border-radius-pill);
+	border-bottom-right-radius: var(--ui-border-radius-pill);
+}
+
+.ui-day-picker-day.--range-from .ui-day-picker-day-inner,
+.ui-day-picker-day.--range-to .ui-day-picker-day-inner {
+	border-radius: var(--ui-border-radius-pill);
+}
+
+.ui-day-picker-day.--range-in-selected:not(.--range-in-start):before,
+.ui-day-picker-day.--range-in-selected:not(.--range-in-end):after,
+.ui-day-picker-day.--range-to:not(.--range-in-start):before,
+.ui-day-picker-day.--range-from:not(.--range-in-end):after {
+	content: '';
+	background-color: var(--ui-day-picker-range-color);
+	position: absolute;
+	top: 0;
+	bottom: 1px; /* see padding-bottom: 1px above */
+	pointer-events: none;
+}
+
+.ui-day-picker-day.--range-in-selected:not(.--range-in-start):before,
+.ui-day-picker-day.--range-to:not(.--range-in-start):before {
+	left: 0;
+	right: 50%;
+}
+
+.ui-day-picker-day.--range-in-selected:not(.--range-in-end):after,
+.ui-day-picker-day.--range-from:not(.--range-in-end):after {
+	left: 50%;
+	right: 0;
+}
+
+.ui-day-picker-day.--focused:not(.--selected) .ui-day-picker-day-inner:after {
+	content: '';
+	position: absolute;
+	background-color: rgba(var(--ui-color-primary-rgb), 0.20);
+	border-radius: var(--ui-border-radius-pill);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+}
+
+.ui-day-picker-day.--outside[data-bg-color]:not(.--selected, .--range-in) .ui-day-picker-day-inner:after {
+	background-color: rgba(255, 255, 255, 0.3);
+	content: '';
+	position: absolute;
+	border-radius: var(--ui-border-radius-pill);
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	z-index: 10;
+}
+
+.ui-day-picker-day.--focused[data-bg-color]:not(.--selected) .ui-day-picker-day-inner:after {
+	background-color: rgba(0, 0, 0, 0.05);
+}
+
+.ui-day-picker-day.--focused.--range-in:not(.--selected) .ui-day-picker-day-inner:after {
+	background-color: rgba(var(--ui-color-primary-rgb), 0.20);
+}
+
+.ui-day-picker-day.--selected.--range-from.--range-to.--range-selected .ui-day-picker-day-inner {
+	border: 2px solid #30c6f6;
+	box-sizing: border-box;
+	box-shadow: inset #fff 0 0 0 2px;
+}
+
+.ui-day-picker-day.--day-off .ui-day-picker-day-inner {
+	color: var(--ui-color-text-alert);
+}
+
+.ui-day-picker-day.--day-off.--selected .ui-day-picker-day-inner {
+	color: var(--ui-color-on-primary);
+}
+
+.ui-day-picker-day-marks {
+	display: flex;
+	position: absolute;
+	bottom: 5px;
+	align-items: center;
+	z-index: 15;
+}
+
+.ui-day-picker-day-mark {
+	width: 4px;
+	height: 4px;
+	background-color: blue;
+	border-radius: var(--ui-border-radius-pill);
+	margin-right: 2px;
+}
+
+.ui-day-picker-day-mark:last-child {
+	margin-right: 0;
+}
+
+.ui-day-picker-day.--outside .ui-day-picker-day-mark {
+	opacity: 0.4;
+}
+
+.ui-date-picker-time-container {
+	display: flex;
+	height: 27px;
+	align-items: start;
+	padding: 0 10px;
+}
+
+.ui-date-picker-time-container.--range-start-set.--range-end-set {
+	justify-content: space-around;
+}
+
+.ui-date-picker-time-box {
+	display: none;
+	align-items: center;
+	cursor: pointer;
+	--ui-date-picker-time-color: var(--ui-color-text-primary);
+
+	padding: 4px 9px;
+	margin: 0 0 0 -7px;
+	appearance: none;
+	background: none;
+	color: inherit;
+	font: inherit;
+	border: none;
+	box-sizing: content-box;
+	border-radius: var(--ui-border-radius-pill);
+}
+
+.ui-date-picker-time-box:hover {
+	background-color: rgba(47, 198, 246, 0.15);
+}
+
+.ui-date-picker-time-box:focus-visible,
+.ui-date-picker-time-box.--focus-visible {
+	outline: 2px solid var(--ui-date-picker-outiline-color);
+}
+
+.ui-date-picker-time-range-slot {
+	display: flex;
+	width: 50%;
+	justify-content: center;
+}
+
+.ui-date-picker-time-container.--time-set .ui-date-picker-time-box,
+.ui-date-picker-time-container.--range-start-set .ui-date-picker-time-box.--range-start,
+.ui-date-picker-time-container.--range-end-set .ui-date-picker-time-box.--range-end {
+	display: flex;
+}
+
+.ui-date-picker-time-clock {
+	display: flex;
+	background-image: url(images/clock.svg);
+	background-repeat: no-repeat;
+	width: 13px;
+	height: 13px;
+	margin-right: 4px;
+	margin-top: 1px;
+}
+
+.ui-date-picker-time-value {
+	color: var(--ui-date-picker-time-color);
+}

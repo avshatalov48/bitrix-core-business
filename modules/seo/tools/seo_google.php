@@ -15,8 +15,6 @@ IncludeModuleLangFile(__FILE__);
 Loader::includeModule('seo');
 Loader::includeModule('socialservices');
 
-CUtil::JSPostUnescape();
-
 if (isset($_REQUEST['action']) && check_bitrix_sessid())
 {
 	$res = [];

@@ -4,16 +4,8 @@ require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/support/classes/general/
 
 class CTicketDictionary extends CAllTicketDictionary
 {
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CTicketDictionary<br>File: ".__FILE__;
-	}
-
 	public static function GetList($by = 's_c_sort', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = (CTicketDictionary::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
 		$leftJoinSite = "";
@@ -149,7 +141,7 @@ class CTicketDictionary extends CAllTicketDictionary
 					else ''	end,
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}

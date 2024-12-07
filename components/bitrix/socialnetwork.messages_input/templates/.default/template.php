@@ -19,7 +19,7 @@ else
 		<?
 	}
 	?>
-	<script language="javascript">
+	<script>
 	<!--
 	function SelectAllRows(checkbox)
 	{

@@ -653,7 +653,7 @@ export default class Form extends Base
 
 	#isPhoneTypeInput(): boolean
 	{
-		return this.#isPhoneContactOnly() || (this.#showFullContactPlaceholder() && this.contactData.slice(0, 1) === '+');
+		return this.#isPhoneContactOnly() || (this.#showFullContactPlaceholder() && this.#inputData.contactData.slice(0, 1) === '+');
 	}
 
 	#isDigit(key): boolean

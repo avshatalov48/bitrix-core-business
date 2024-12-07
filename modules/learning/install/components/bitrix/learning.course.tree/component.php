@@ -60,7 +60,7 @@ if (!$arCourse = $rsCourse->GetNext())
 	return;
 }
 
-// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour 
+// Resolve links "?COURSE_ID={SELF}". Don't relay on it, this behaviour
 // can be changed in future without any nitifications.
 if (isset($arCourse['DETAIL_TEXT']))
 {
@@ -98,11 +98,11 @@ $arResult["ITEMS"][] = Array(
 	"NAME" => GetMessage("LEARNING_COURSE_DESCRIPTION"),
 	"URL" => $url,
 	"TYPE" => "CD",
-	"SELECTED" => $parent->arResult["VARIABLES"]["INDEX"] == "Y",
+	"SELECTED" => isset($parent->arResult["VARIABLES"]["INDEX"]) && $parent->arResult["VARIABLES"]["INDEX"] === "Y",
 	"DEPTH_LEVEL" => 1
 );
 
-$CHAPTER_ID = $parent->arResult["VARIABLES"]["CHAPTER_ID"];
+$CHAPTER_ID = $parent->arResult["VARIABLES"]["CHAPTER_ID"] ?? 0;
 
 if ($CHAPTER_ID > 0)
 {
@@ -196,7 +196,10 @@ foreach ($arContents as $arContent)
 			Array("LESSON_ID" => $arContent["ID"], "SELF_TEST_ID" => $arContent["ID"], "COURSE_ID" => $arParams["COURSE_ID"])
 		);*/
 
-		$arContent["SELECTED"] = $parent->arResult["VARIABLES"]["LESSON_ID"] == $arContent["ID"];//_IsItemSelected(Array($itemURL, $selftestURL));
+		$arContent["SELECTED"] = (
+			isset($parent->arResult["VARIABLES"]["LESSON_ID"])
+			&& $parent->arResult["VARIABLES"]["LESSON_ID"] == $arContent["ID"]
+		); //_IsItemSelected(Array($itemURL, $selftestURL));
 	}
 
 	$lessonCount++;
@@ -240,7 +243,7 @@ if ($testsCount > 0)
 		'NAME'        =>  GetMessage('LEARNING_TEST_LIST') . '&nbsp;(' . $testsCount . ')',
 		'URL'         =>  $url,
 		'TYPE'        => 'TL',
-		'SELECTED'    =>  $parent->arResult['VARIABLES']['TEST_LIST'] == 'Y',
+		'SELECTED'    =>  isset($parent->arResult['VARIABLES']['TEST_LIST']) && $parent->arResult['VARIABLES']['TEST_LIST'] == 'Y',
 		'DEPTH_LEVEL' =>  1
 	);
 }

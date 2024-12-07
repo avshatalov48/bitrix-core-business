@@ -8,7 +8,7 @@ $bADS = $bDemo == 'Y' || $bAdmin == 'Y' || $bSupportTeam == 'Y';
 
 ?>
 
-<script type="text/javascript">BX.loadCSS('<? echo CUtil::JSEscape( $this->GetFolder() ); ?>/style.css');</script>
+<script>BX.loadCSS('<? echo CUtil::JSEscape( $this->GetFolder() ); ?>/style.css');</script>
 
 <a href="<?=$APPLICATION->GetCurPage()."?show_wizard=Y"?>"><?=GetMessage("SUP_ASK")?></a>
 

@@ -48,7 +48,8 @@
 	display: flex;
 	justify-content: center;
 	width: 100%;
-	max-width: 130px;
+	margin: 0 10px;
+	max-width: 140px;
 	font-family: var(--ui-font-family-primary);
 	font-size: var(--ui-font-size-sm);
 	font-weight: var(--ui-font-weight-normal);
@@ -60,8 +61,8 @@
 	display: flex;
 	align-items: center;
 	width: 100%;
-	max-width: 110px;
-	justify-content: flex-end;
+	max-width: 100px;
+	justify-content: center;
 	gap: 20px;
 }
 
@@ -106,9 +107,9 @@
 
 .sender-item-owner-info {
 	display: flex;
-	align-content: center;
 	align-items: center;
 	gap: 5px;
+	justify-content: center;
 }
 
 .sender-item-owner-avatar {
@@ -116,6 +117,12 @@
 	border-radius: 50%;
 	width: 25px;
 	height: 25px;
+}
+
+.sender-item-author-container {
+	max-width: 120px;
+	width: 100%;
+	margin-right: 5px;
 }
 
 .sender-item-owner-avatar-icon {

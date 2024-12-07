@@ -29,7 +29,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
 		</div>
 	</div>
 </form>
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage('SMOD_DELIVERY');?>"});
 

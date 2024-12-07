@@ -5,11 +5,16 @@
  * @subpackage socialnetwork
  * @copyright 2001-2012 Bitrix
  */
+
 namespace Bitrix\Socialnetwork;
 
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\NotImplementedException;
+use Bitrix\Main\ORM\Fields\StringField;
+use Bitrix\Socialnetwork\Internals\Group\GroupEntity;
+use Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection;
+use Bitrix\Socialnetwork\Item\Workgroup\Type;
 
 Loc::loadMessages(__FILE__);
 
@@ -24,155 +29,166 @@ Loc::loadMessages(__FILE__);
  * @method static EO_Workgroup_Result getById($id)
  * @method static EO_Workgroup_Result getList(array $parameters = [])
  * @method static EO_Workgroup_Entity getEntity()
- * @method static \Bitrix\Socialnetwork\EO_Workgroup createObject($setDefaultValues = true)
- * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection createCollection()
- * @method static \Bitrix\Socialnetwork\EO_Workgroup wakeUpObject($row)
- * @method static \Bitrix\Socialnetwork\EO_Workgroup_Collection wakeUpCollection($rows)
+ * @method static \Bitrix\Socialnetwork\Internals\Group\GroupEntity createObject($setDefaultValues = true)
+ * @method static \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection createCollection()
+ * @method static \Bitrix\Socialnetwork\Internals\Group\GroupEntity wakeUpObject($row)
+ * @method static \Bitrix\Socialnetwork\Internals\Group\GroupEntityCollection wakeUpCollection($rows)
  */
 class WorkgroupTable extends Entity\DataManager
 {
-	const AUTO_MEMBERSHIP_YES = 'Y';
-	const AUTO_MEMBERSHIP_NO = 'N';
+	public const AUTO_MEMBERSHIP_YES = 'Y';
+	public const AUTO_MEMBERSHIP_NO = 'N';
 
-	public static function getAutoMembershipValuesAll()
+	public static function getObjectClass(): string
 	{
-		return array(self::AUTO_MEMBERSHIP_NO, self::AUTO_MEMBERSHIP_YES);
+		return GroupEntity::class;
 	}
 
-	public static function getTableName()
+	public static function getCollectionClass(): string
+	{
+		return GroupEntityCollection::class;
+	}
+
+	public static function getAutoMembershipValuesAll(): array
+	{
+		return [self::AUTO_MEMBERSHIP_NO, self::AUTO_MEMBERSHIP_YES];
+	}
+
+	public static function getTableName(): string
 	{
 		return 'b_sonet_group';
 	}
 
-	public static function getUfId()
+	public static function getUfId(): string
 	{
 		return 'SONET_GROUP';
 	}
 
-	public static function getMap()
+	public static function getMap(): array
 	{
-		$fieldsMap = array(
-			'ID' => array(
+		return [
+			'ID' => [
 				'data_type' => 'integer',
 				'primary' => true,
 				'autocomplete' => true,
-			),
-			'ACTIVE' => array(
+			],
+			'ACTIVE' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'SITE_ID' => array(
+				'values' => ['N', 'Y'],
+			],
+			'SITE_ID' => [
 				'data_type' => 'string',
-			),
-			'SUBJECT_ID' => array(
+			],
+			'SUBJECT_ID' => [
 				'data_type' => 'integer',
-			),
-			'WORKGROUP_SUBJECT' => array(
+			],
+			'WORKGROUP_SUBJECT' => [
 				'data_type' => '\Bitrix\Socialnetwork\WorkgroupSubject',
-				'reference' => array('=this.SUBJECT_ID' => 'ref.ID')
-			),
-			'NAME' => array(
+				'reference' => ['=this.SUBJECT_ID' => 'ref.ID'],
+			],
+			'NAME' => [
 				'data_type' => 'string',
-				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
-				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
-			),
-			'DESCRIPTION' => array(
+				'save_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getSaveModificator'],
+				'fetch_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getFetchModificator'],
+			],
+			'DESCRIPTION' => [
 				'data_type' => 'text',
-				'save_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getSaveModificator'),
-				'fetch_data_modification' => array('\Bitrix\Main\Text\Emoji', 'getFetchModificator'),
-			),
-			'KEYWORDS' => array(
-				'data_type' => 'string'
-			),
-			'CLOSED' => array(
+				'save_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getSaveModificator'],
+				'fetch_data_modification' => ['\Bitrix\Main\Text\Emoji', 'getFetchModificator'],
+			],
+			'KEYWORDS' => [
+				'data_type' => 'string',
+			],
+			'CLOSED' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'VISIBLE' => array(
+				'values' => ['N', 'Y'],
+			],
+			'VISIBLE' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'OPENED' => array(
+				'values' => ['N', 'Y'],
+			],
+			'OPENED' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'DATE_CREATE' => array(
-				'data_type' => 'datetime'
-			),
-			'DATE_UPDATE' => array(
-				'data_type' => 'datetime'
-			),
-			'DATE_ACTIVITY' => array(
-				'data_type' => 'datetime'
-			),
-			'IMAGE_ID' => array(
+				'values' => ['N', 'Y'],
+			],
+			'DATE_CREATE' => [
+				'data_type' => 'datetime',
+			],
+			'DATE_UPDATE' => [
+				'data_type' => 'datetime',
+			],
+			'DATE_ACTIVITY' => [
+				'data_type' => 'datetime',
+			],
+			'IMAGE_ID' => [
 				'data_type' => 'integer',
-			),
+			],
 			'AVATAR_TYPE' => [
 				'data_type' => 'string',
 			],
-			'OWNER_ID' => array(
+			'OWNER_ID' => [
 				'data_type' => 'integer',
-			),
-			'WORKGROUP_OWNER' => array(
+			],
+			'WORKGROUP_OWNER' => [
 				'data_type' => '\Bitrix\Main\User',
-				'reference' => array('=this.OWNER_ID' => 'ref.ID')
-			),
-			'INITIATE_PERMS' => array(
-				'data_type' => 'string'
-			),
-			'NUMBER_OF_MEMBERS' => array(
+				'reference' => ['=this.OWNER_ID' => 'ref.ID'],
+			],
+			'INITIATE_PERMS' => [
+				'data_type' => 'string',
+			],
+			'NUMBER_OF_MEMBERS' => [
 				'data_type' => 'integer',
-			),
-			'NUMBER_OF_MODERATORS' => array(
+			],
+			'NUMBER_OF_MODERATORS' => [
 				'data_type' => 'integer',
-			),
-			'PROJECT' => array(
+			],
+			'PROJECT' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'PROJECT_DATE_START' => array(
-				'data_type' => 'datetime'
-			),
-			'PROJECT_DATE_FINISH' => array(
-				'data_type' => 'datetime'
-			),
-			'SEARCH_INDEX' => array(
+				'values' => ['N', 'Y'],
+			],
+			'PROJECT_DATE_START' => [
+				'data_type' => 'datetime',
+			],
+			'PROJECT_DATE_FINISH' => [
+				'data_type' => 'datetime',
+			],
+			'SEARCH_INDEX' => [
 				'data_type' => 'text',
-			),
-			'LANDING' => array(
+			],
+			'LANDING' => [
 				'data_type' => 'boolean',
-				'values' => array('N','Y')
-			),
-			'SCRUM_OWNER_ID' => array(
+				'values' => ['N', 'Y'],
+			],
+			'SCRUM_OWNER_ID' => [
 				'data_type' => 'integer',
-			),
-			'SCRUM_MASTER_ID' => array(
+			],
+			'SCRUM_MASTER_ID' => [
 				'data_type' => 'integer',
-			),
-			'SCRUM_SPRINT_DURATION' => array(
+			],
+			'SCRUM_SPRINT_DURATION' => [
 				'data_type' => 'integer',
-			),
+			],
 			'SCRUM_TASK_RESPONSIBLE' => [
 				'data_type' => 'string',
-				'values' => ['A', 'M']
+				'values' => ['A', 'M'],
 			],
-		);
-
-		return $fieldsMap;
+			(new StringField('TYPE'))
+				->configureNullable()
+				->configureDefaultValue(null),
+		];
 	}
 
-	public static function add(array $data)
+	public static function add(array $data): void
 	{
 		throw new NotImplementedException("Use CSocNetGroup class.");
 	}
 
-	public static function update($primary, array $data)
+	public static function update($primary, array $data): void
 	{
 		throw new NotImplementedException("Use CSocNetGroup class.");
 	}
 
-	public static function delete($primary)
+	public static function delete($primary): void
 	{
 		throw new NotImplementedException("Use CSocNetGroup class.");
 	}

@@ -28,3 +28,9 @@ export const SpaceUserRoles = Object.freeze({
 	invited: 'invited',
 	member: 'member',
 });
+
+export const SpaceCommonToCommentActivityTypes = Object.freeze({
+	calendar: 'calendar_comment',
+	task: 'task_comment',
+	livefeed: 'livefeed_comment',
+});

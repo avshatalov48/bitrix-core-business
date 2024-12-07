@@ -48,7 +48,7 @@ class Options extends \CGridOptions
 
 	/**
 	 * Gets $USER object
-	 * @return \CUser
+	 * @return \CUser | null
 	 */
 	protected static function getUser()
 	{
@@ -236,8 +236,7 @@ class Options extends \CGridOptions
 	 */
 	protected static function getUserId()
 	{
-		$userId = static::getUser()->getID();
-		return is_scalar($userId) ? (int) $userId : 0;
+		return (int)static::getUser()?->getID();
 	}
 
 
@@ -247,7 +246,7 @@ class Options extends \CGridOptions
 	 */
 	protected static function isAuthorized()
 	{
-		return static::getUser()->isAuthorized();
+		return (bool)static::getUser()?->isAuthorized();
 	}
 
 
@@ -258,7 +257,7 @@ class Options extends \CGridOptions
 	{
 		$gridId = $this->getId();
 
-		if (static::getUser()->isAuthorized())
+		if (static::isAuthorized())
 		{
 			\CUserOptions::setOption("main.interface.grid", $gridId, $this->all_options);
 		}
@@ -278,7 +277,7 @@ class Options extends \CGridOptions
 	{
 		$currentOptions = $this->getCurrentOptions();
 
-		if (is_string($currentOptions["columns"]) && $currentOptions["columns"] !== "")
+		if (isset($currentOptions["columns"]) && is_string($currentOptions["columns"]) && $currentOptions["columns"] !== "")
 		{
 			return explode(",", $currentOptions["columns"]);
 		}

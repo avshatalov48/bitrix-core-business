@@ -21,7 +21,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();?>
 	</div>
 </form>
 
-<script type="text/javascript">
+<script>
 
 app.setPageTitle({title: "<?=$arResult['ORDER']['CANCELED'] == 'N' ? GetMessage('SMOD_CANCEL') : GetMessage('SMOD_CANCEL_CANCEL');?>"});
 

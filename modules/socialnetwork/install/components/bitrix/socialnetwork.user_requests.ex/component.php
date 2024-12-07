@@ -109,11 +109,6 @@ else
 		&& check_bitrix_sessid()
 	)
 	{
-		if (($_POST["ajax_request"] ?? null) === "Y")
-		{
-			CUtil::JSPostUnescape();
-		}
-
 		$errorMessage = "";
 
 		$arUserRelationIDs = array();

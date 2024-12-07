@@ -2,24 +2,13 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
-use Bitrix\Iblock\SectionTable;
-use Bitrix\Main;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Basket;
 use Bitrix\Sale\Discount\Preset\ArrayHelper;
 use Bitrix\Sale\Discount\Preset\BasePreset;
 use Bitrix\Sale\Discount\Preset\HtmlHelper;
 use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\State;
-use Bitrix\Sale\Helpers\Admin\OrderEdit;
-use Bitrix\Sale\Internals;
-use Bitrix\Sale\Helpers\Admin\Blocks;
-use Bitrix\Sale\Order;
-
-
-Loc::loadMessages(__FILE__);
 
 class OrderPerDay extends BasePreset
 {
@@ -27,7 +16,7 @@ class OrderPerDay extends BasePreset
 	{
 		return 200;
 	}
-	
+
 	public function getTitle()
 	{
 		return Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ORDER_PERDAY_NAME');
@@ -64,7 +53,7 @@ class OrderPerDay extends BasePreset
 	public function processShowInputAmount(State $state)
 	{
 		$lid = $state->get('discount_lid');
-		$currency = \CSaleLang::getLangCurrency($lid);
+		$currency = \Bitrix\Sale\Internals\SiteCurrencyTable::getSiteCurrency($lid);
 
 		$days = array(
 			1 => Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ORDER_PERDAY_DAY_OF_WEEK_1'),
@@ -102,7 +91,7 @@ class OrderPerDay extends BasePreset
 	{
 		if(!trim($state->get('discount_value')))
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE'));
+			$this->addErrorEmptyActionValue();
 		}
 
 		if(!$state->get('discount_days'))
@@ -132,57 +121,60 @@ class OrderPerDay extends BasePreset
 	{
 		$discountFields = $this->normalizeDiscountFields($discountFields);
 
-		$stateFields = array(
+		$stateFields = [
 			'discount_lid' => $discountFields['LID'],
 			'discount_name' => $discountFields['NAME'],
 			'discount_groups' => $this->getUserGroupsByDiscount($discountFields['ID']),
 			'discount_value' => ArrayHelper::getByPath($discountFields, 'ACTIONS.CHILDREN.0.DATA.Value'),
 			'discount_type' => ArrayHelper::getByPath($discountFields, 'ACTIONS.CHILDREN.0.DATA.Unit'),
 			'discount_days' => ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.0.DATA.value'),
-		);
+		];
 
 		return parent::generateState($discountFields)->append($stateFields);
 	}
 
 	public function generateDiscount(State $state)
 	{
-		return array_merge(parent::generateDiscount($state), array(
-			'CONDITIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-					'True' => 'True',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'CondSaleCmnDayOfWeek',
-						'DATA' => array(
-							'logic' => 'Equal',
-							'value' => $state->get('discount_days'),
-						),
-					),
-				),
-			),
-			'ACTIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'ActSaleBsktGrp',
-						'DATA' => array(
-							'Type' => 'Discount',
-							'Value' => $state->get('discount_value'),
-							'Unit' => $state->get('discount_type', 'CurAll'),
-							'Max' => 0,
-							'All' => 'AND',
-							'True' => 'True',
-						),
-						'CHILDREN' => array(),
-					),
-				),
-			),
-		));
+		return array_merge(
+			parent::generateDiscount($state),
+			[
+				'CONDITIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+						'True' => 'True',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'CondSaleCmnDayOfWeek',
+							'DATA' => [
+								'logic' => 'Equal',
+								'value' => $state->get('discount_days'),
+							],
+						],
+					],
+				],
+				'ACTIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'ActSaleBsktGrp',
+							'DATA' => [
+								'Type' => 'Discount',
+								'Value' => $state->get('discount_value'),
+								'Unit' => $state->get('discount_type', 'CurAll'),
+								'Max' => 0,
+								'All' => 'AND',
+								'True' => 'True',
+							],
+							'CHILDREN' => [],
+						],
+					],
+				],
+			]
+		);
 	}
 }

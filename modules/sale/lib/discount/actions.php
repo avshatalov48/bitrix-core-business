@@ -665,9 +665,9 @@ class Actions
 
 		$orderCurrency = static::getCurrency();
 		$value = (float)$action['VALUE'];
-		$limitValue = (int)$action['LIMIT_VALUE'];
+		$limitValue = 0;
 		$unit = (string)$action['UNIT'];
-		$currency = (isset($action['CURRENCY']) ? $action['CURRENCY'] : $orderCurrency);
+		$currency = (string)($action['CURRENCY'] ?? $orderCurrency);
 		$maxBound = false;
 		if ($unit == self::VALUE_TYPE_FIX && $value < 0)
 			$maxBound = (isset($action['MAX_BOUND']) && $action['MAX_BOUND'] == 'Y');

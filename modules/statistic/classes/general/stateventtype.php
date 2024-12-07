@@ -5,25 +5,24 @@ class CAllStatEventType
 {
 	public static function Delete($ID, $DELETE_EVENT="Y")
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$ID = intval($ID);
 
 		$strSql = "SELECT ID FROM b_stat_event_list WHERE EVENT_ID='$ID'";
-		$a = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$a = $DB->Query($strSql);
 		while ($ar = $a->Fetch())
 		{
 			CStatEvent::Delete($ar["ID"]);
 		}
 
-		$DB->Query("DELETE FROM b_stat_event_day WHERE EVENT_ID='$ID'", false, $err_mess.__LINE__);
+		$DB->Query("DELETE FROM b_stat_event_day WHERE EVENT_ID='$ID'");
 		if ($DELETE_EVENT=="Y")
 		{
-			$DB->Query("DELETE FROM b_stat_event WHERE ID='$ID'", false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_stat_event WHERE ID='$ID'");
 		}
 		else
 		{
-			$DB->Query("UPDATE b_stat_event SET DATE_ENTER=null WHERE ID='$ID'", false, $err_mess.__LINE__);
+			$DB->Query("UPDATE b_stat_event SET DATE_ENTER=null WHERE ID='$ID'");
 		}
 		return true;
 	}
@@ -31,7 +30,6 @@ class CAllStatEventType
 	// returns arrays which is nedded for plot drawing
 	public static function GetGraphArray($arFilter, &$arrLegend)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$arSqlSearch = Array();
 
@@ -73,7 +71,7 @@ class CAllStatEventType
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$summa = $arFilter["SUMMA"]=="Y" ? "Y" : "N";
 		$strSql = CStatEventType::GetGraphArray_SQL($strSqlSearch);
-		$rsD = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsD = $DB->Query($strSql);
 		while ($arD = $rsD->Fetch())
 		{
 			$arrDays[$arD["DATE_STAT"]]["D"] = $arD["DAY"];
@@ -131,7 +129,6 @@ class CAllStatEventType
 
 	public static function GetByEvents($event1, $event2)
 	{
-		$err_mess = "File: ".__FILE__."<br>Line: ";
 		$DB = CDatabase::GetModuleConnection('statistic');
 		$event1 = $DB->ForSql(trim($event1),200);
 		$event2 = $DB->ForSql(trim($event2),200);
@@ -149,7 +146,7 @@ class CAllStatEventType
 				b_stat_event
 			WHERE $where1 and $where2
 			";
-		$w = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$w = $DB->Query($strSql);
 		return $w;
 	}
 

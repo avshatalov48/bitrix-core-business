@@ -4,7 +4,6 @@ header('Content-Type: application/x-javascript; charset='.LANG_CHARSET);
 // **************************************************************************************
 if (CModule::IncludeModule("search")):
 {
-	CUtil::JSPostUnescape();
 	$arParams = array();
 	$params = explode(",", $_POST["params"]);
 	foreach ($params as $param)

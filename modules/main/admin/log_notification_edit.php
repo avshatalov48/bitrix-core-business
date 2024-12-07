@@ -1,4 +1,4 @@
-<?
+<?php
 /**
  * @global CUser $USER
  * @global CMain $APPLICATION
@@ -13,6 +13,7 @@ use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Text\HtmlFilter;
 use Bitrix\Main\EventLog;
+use Bitrix\Main\Web\Json;
 
 $aTabs = array(
 	array("DIV" => "edit1", "TAB" => Loc::getMessage("notification_edit_conditions"), "ICON" => "message_edit", "TITLE" => Loc::getMessage("notification_edit_conditions_title")),
@@ -251,7 +252,7 @@ $messages = [
 ];
 ?>
 <script>
-BX.message(<?=CUtil::PhpToJSObject($messages)?>);
+BX.message(<?= Json::encode($messages) ?>);
 
 function BxAddNotificationAction()
 {

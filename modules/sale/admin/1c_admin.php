@@ -2,7 +2,7 @@
 ##############################################
 # Bitrix Site Manager 6                      #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # admin@bitrixsoft.com                       #
 ##############################################
 

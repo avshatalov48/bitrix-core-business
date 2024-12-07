@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Integration\AI;
 
 use Bitrix\AI\Engine;
 use Bitrix\AI\Tuning\Manager;
+use Bitrix\Imbot\Bot\CopilotChatBot;
 use Bitrix\Main\Loader;
 
 class AIHelper
@@ -38,5 +39,10 @@ class AIHelper
 		}
 
 		return null;
+	}
+
+	public static function containsCopilotBot(array $userIds): bool
+	{
+		return Loader::includeModule('imbot') && in_array(CopilotChatBot::getBotId(), $userIds, true);
 	}
 }

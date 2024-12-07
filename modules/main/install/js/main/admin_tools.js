@@ -846,19 +846,22 @@ function TabControl(name, unique_name, aTabs)
 	this.ShowDisabledTab = function(tab_id, disabled)
 	{
 		var tab = document.getElementById('tab_cont_'+tab_id);
-		if(disabled)
+		if (tab)
 		{
-			tab.className = 'tab-container-disabled';
-			tab.onclick = null;
-			tab.onmouseover = null;
-			tab.onmouseout = null;
-		}
-		else
-		{
-			tab.className = 'tab-container';
-			tab.onclick = function(){_this.SelectTab(tab_id);};
-			tab.onmouseover = function(){_this.HoverTab(tab_id, true);};
-			tab.onmouseout = function(){_this.HoverTab(tab_id, false);};
+			if(disabled)
+			{
+				tab.className = 'tab-container-disabled';
+				tab.onclick = null;
+				tab.onmouseover = null;
+				tab.onmouseout = null;
+			}
+			else
+			{
+				tab.className = 'tab-container';
+				tab.onclick = function(){_this.SelectTab(tab_id);};
+				tab.onmouseover = function(){_this.HoverTab(tab_id, true);};
+				tab.onmouseout = function(){_this.HoverTab(tab_id, false);};
+			}
 		}
 	}
 
@@ -1683,7 +1686,7 @@ function ImgShw(ID, width, height, alt)
 	var wnd = window.open("","","scrollbars="+scroll+",resizable=yes,width="+width+",height="+height+",left="+left+",top="+top);
 	wnd.document.write(
 		"<html><head>"+
-		"<"+"script type=\"text/javascript\">"+
+		"<"+"script>"+
 		"function KeyPress()"+
 		"{"+
 		"	if(window.event.keyCode == 27) "+

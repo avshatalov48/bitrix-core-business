@@ -232,7 +232,7 @@ namespace
 		</table>
 
 		<?if($adminMessage = $wizardStep->getAdminMessage()):?>
-			<script type="text/javascript">
+			<script>
 				BX.ready( function(){
 					BX("adm-sale-ebay-wiazard-admin-msg").innerHTML = "<?=CUtil::JSEscape($adminMessage->Show())?>";
 				});

@@ -18,7 +18,7 @@ $containerId = 'bx-sender-sms-sender';
 
 \Bitrix\Main\UI\Extension::load('ui.design-tokens');
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.SMS.Sender.init(<?=Json::encode(array(
 			'containerId' => $containerId,

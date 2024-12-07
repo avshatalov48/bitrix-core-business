@@ -142,7 +142,7 @@ else
 										name="fields[ADDITIONAL_FIELDS][SETTINGS_SECTION_ID]"
 										value="<?= (int)$field->getValue() ?>"
 									>
-									<script type="text/javascript">
+									<script>
 										const fieldSection = new BX.Landing.UI.Field.LinkUrl({
 											title: "",
 											textOnly: true,
@@ -259,7 +259,7 @@ else
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		new BX.UI.LayoutForm({container: BX('landing-site-catalog-set-form')});
 		const editComponent = new BX.Landing.EditComponent('<?= $template->getFieldId('ACTION_CLOSE') ?>');

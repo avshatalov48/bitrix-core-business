@@ -44,7 +44,7 @@ class AuthorizeHandler extends PaySystem\BaseServiceHandler
 			$queryString  = "x_version=3.1";
 			$queryString .= "&x_login=".urlencode($params["AUTHORIZE_LOGIN"]);
 			$queryString .= "&x_tran_key=".urlencode($params["AUTHORIZE_TRANSACTION_KEY"]);
-			$queryString .= "&x_test_request=".($this->isTestMode($payment) ? "TRUE" : "TRUE");
+			$queryString .= "&x_test_request=".($this->isTestMode($payment) ? "TRUE" : "FALSE");
 
 			$queryString .= "&x_delim_data=True";
 			$queryString .= "&x_relay_response=False";

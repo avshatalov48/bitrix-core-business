@@ -463,38 +463,42 @@ class Landing
 	 * @param array $params Params array.
 	 * @return PublicActionResult
 	 */
-	private static function changeParentOfBlock($lid, $block, array $params)
+	private static function changeParentOfBlock($lid, $block, array $params): PublicActionResult
 	{
 		$result = new PublicActionResult();
 		$landing = LandingCore::createInstance($lid);
-		$afterId = isset($params['AFTER_ID']) ? $params['AFTER_ID'] : 0;
+		$afterId = $params['AFTER_ID'] ?? 0;
 		if ($landing->exist())
 		{
 			if ($params['MOVE'])
 			{
-				$res = $landing->moveBlock($block, $afterId);
+				$res = $landing->moveBlock((int)$block, $afterId);
 			}
 			else
 			{
-				$res = $landing->copyBlock($block, $afterId);
+				$res = $landing->copyBlock((int)$block, $afterId);
 			}
 
-			if (
-				isset($params['RETURN_CONTENT']) &&
-				$params['RETURN_CONTENT'] == 'Y'
-			)
+			if ($res)
 			{
-				$result->setResult(array(
-					'result' => $res > 0,
-					'content' => BlockCore::getBlockContent($res, true)
-				));
-			}
-			else
-			{
-				$result->setResult($res);
+				if (
+					isset($params['RETURN_CONTENT']) &&
+					$params['RETURN_CONTENT'] == 'Y'
+				)
+				{
+					$result->setResult(array(
+						'result' => $res > 0,
+						'content' => BlockCore::getBlockContent($res, true)
+					));
+				}
+				else
+				{
+					$result->setResult($res);
+				}
 			}
 		}
 		$result->setError($landing->getError());
+
 		return $result;
 	}
 

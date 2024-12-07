@@ -2,12 +2,14 @@
 
 namespace Bitrix\Bizproc\Api\Data\WorkflowStateService;
 
+use Bitrix\Bizproc\Workflow\Entity\WorkflowUserCommentTable;
 use Bitrix\Bizproc\Workflow\Entity\WorkflowUserTable;
 use Bitrix\Bizproc\Workflow\Task\TaskSearchContentTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Main\ORM\Query;
+use Bitrix\Main\Type\DateTime;
 
 class WorkflowStateToGet
 {
@@ -227,12 +229,37 @@ class WorkflowStateToGet
 		}
 		elseif ($filterPresetId === WorkflowStateFilter::PRESET_IN_WORK)
 		{
-			$filter['=WORKFLOW_STATUS'] = new SqlExpression('?i', WorkflowUserTable::WORKFLOW_STATUS_ACTIVE);
-			$filter[] = [
-				'LOGIC' => 'OR',
-				'=IS_AUTHOR' => 1,
-				'=TASK_STATUS' => WorkflowUserTable::TASK_STATUS_ACTIVE,
+			$inWorkFilter = ['LOGIC' => 'OR'];
+			$inWorkFilter[] = [
+				'=WORKFLOW_STATUS' => new SqlExpression('?i', WorkflowUserTable::WORKFLOW_STATUS_ACTIVE),
+				0 => [
+					'LOGIC' => 'OR',
+					'=IS_AUTHOR' => 1,
+					'=TASK_STATUS' => WorkflowUserTable::TASK_STATUS_ACTIVE,
+				],
 			];
+
+			$inWorkFilter[] = [
+				'!=COMMENTS.UNREAD_CNT' => null,
+				0 => [
+					'LOGIC' => 'OR',
+					'=COMMENTS.LAST_TYPE' => new SqlExpression('?i', WorkflowUserCommentTable::COMMENT_TYPE_DEFAULT),
+					0 => [
+						'=COMMENTS.LAST_TYPE' => WorkflowUserCommentTable::COMMENT_TYPE_SYSTEM,
+						'>COMMENTS.MODIFIED' => DateTime::createFromTimestamp(time() - 86400) // one day
+					],
+				],
+			];
+
+			$filter[] = $inWorkFilter;
+		}
+		elseif ($filterPresetId === WorkflowStateFilter::PRESET_ACTIVE_TASK)
+		{
+			$filter['=TASK_STATUS'] = WorkflowUserTable::TASK_STATUS_ACTIVE;
+		}
+		elseif ($filterPresetId === WorkflowStateFilter::PRESET_COMMENT)
+		{
+			$filter['!=COMMENTS.UNREAD_CNT'] = null;
 		}
 
 		if (!empty($this->filterSearchQuery))
@@ -270,17 +297,7 @@ class WorkflowStateToGet
 
 	public function getOrder(): array
 	{
-		$filterPresetId = $this->filterPresetId ?? WorkflowStateFilter::PRESET_DEFAULT;
-
-		if (
-			$filterPresetId === WorkflowStateFilter::PRESET_ALL_COMPLETED
-			|| $filterPresetId === WorkflowStateFilter::PRESET_STARTED
-		)
-		{
-			return ['MODIFIED' => 'DESC'];
-		}
-
-		return ['TASK_STATUS' => 'DESC', 'MODIFIED' => 'DESC'];
+		return ['MODIFIED' => 'DESC'];
 	}
 
 	public function getLimit(): int

@@ -96,10 +96,13 @@ if($lAdmin->EditAction()) //save from the list
 			if($e = $APPLICATION->GetException())
 			{
 				$lAdmin->AddUpdateError(GetMessage("SAVE_ERROR").$ID.": ".$e->GetString(), $ID);
-				$DB->Rollback();
 			}
+			$DB->Rollback();
 		}
-		$DB->Commit();
+		else
+		{
+			$DB->Commit();
+		}
 	}
 }
 
@@ -133,7 +136,10 @@ if($arID = $lAdmin->GroupAction())
 				$DB->Rollback();
 				$lAdmin->AddGroupError(GetMessage("LEARNING_DELETE_ERROR"), $ID);
 			}
-			$DB->Commit();
+			else
+			{
+				$DB->Commit();
+			}
 			break;
 		case "activate":
 		case "deactivate":

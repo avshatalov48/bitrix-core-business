@@ -121,7 +121,7 @@ class CAllForumPoints
 
 		$strUpdate = $DB->PrepareUpdate("b_forum_points", $arFields);
 		$strSql = "UPDATE b_forum_points SET ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		if (is_set($arFields, "LANG"))
 		{
@@ -131,7 +131,7 @@ class CAllForumPoints
 			{
 				$arInsert = $DB->PrepareInsert("b_forum_points_lang", $arFields["LANG"][$i]);
 				$strSql = "INSERT INTO b_forum_points_lang(POINTS_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 		return $ID;
@@ -210,7 +210,7 @@ class CAllForumPoints
 			$strSqlOrder;
 
 		//echo htmlspecialcharsbx($strSql);
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetListEx($arOrder = array("MIN_POINTS"=>"ASC"), $arFilter = array())
@@ -284,7 +284,7 @@ class CAllForumPoints
 			$strSqlOrder;
 
 		//echo htmlspecialcharsbx($strSql);
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	public static function GetByID($ID)
@@ -296,7 +296,7 @@ class CAllForumPoints
 			"SELECT FR.ID, FR.MIN_POINTS, FR.CODE, FR.VOTES ".
 			"FROM b_forum_points FR ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -315,7 +315,7 @@ class CAllForumPoints
 			"FROM b_forum_points FR ".
 			"	LEFT JOIN b_forum_points_lang FRL ON (FR.ID = FRL.POINTS_ID AND FRL.LID = '".$DB->ForSql($strLang)."') ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -334,7 +334,7 @@ class CAllForumPoints
 			"FROM b_forum_points_lang FRL ".
 			"WHERE FRL.POINTS_ID = ".$POINTS_ID." ".
 			"	AND FRL.LID = '".$DB->ForSql($strLang)."' ";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -436,7 +436,7 @@ class CAllForumPoints2Post
 			return false;
 		$strUpdate = $DB->PrepareUpdate("b_forum_points2post", $arFields);
 		$strSql = "UPDATE b_forum_points2post SET ".$strUpdate." WHERE ID = ".$ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -507,7 +507,7 @@ class CAllForumPoints2Post
 			".$strSqlSearch."
 			".$strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -520,7 +520,7 @@ class CAllForumPoints2Post
 			"SELECT FR.ID, FR.MIN_NUM_POSTS, FR.POINTS_PER_POST ".
 			"FROM b_forum_points2post FR ".
 			"WHERE FR.ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -586,7 +586,7 @@ class CAllForumUserPoints
 		}
 
 		$strSql = "UPDATE b_forum_user_points SET ".$strUpdate.$strDatePostValue." WHERE FROM_USER_ID = ".$FROM_USER_ID." AND TO_USER_ID = ".$TO_USER_ID;
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		// Recount user points.
 		$arUserFields = array();
@@ -690,7 +690,7 @@ class CAllForumUserPoints
 			"FROM b_forum_user_points FR ".
 			$strSqlSearch." ".
 			$strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -711,7 +711,7 @@ class CAllForumUserPoints
 			FROM b_forum_user_points FR
 			WHERE FR.FROM_USER_ID = ".$FROM_USER_ID."
 				AND FR.TO_USER_ID = ".$TO_USER_ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		if ($res = $db_res->Fetch())
 			return $res;
 		return False;
@@ -728,7 +728,7 @@ class CAllForumUserPoints
 			"SELECT SUM(FR.POINTS) as SM ".
 			"FROM b_forum_user_points FR ".
 			"WHERE FR.TO_USER_ID = ".$TO_USER_ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{

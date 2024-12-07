@@ -121,7 +121,7 @@ abstract class CAllFilterQuery
 			$q
 		);
 		$q="( $q )";
-		$q = preg_replace("/\\s+/".BX_UTF_PCRE_MODIFIER, " ", $q);
+		$q = preg_replace("/\\s+/u", " ", $q);
 
 		return $q;
 	}
@@ -193,70 +193,65 @@ abstract class CAllFilterQuery
 	public function PrepareQuery($q)
 	{
 		$state = 0;
-		$qu = "";
+		$qu = '';
 		$n = 0;
-		$this->error = "";
+		$this->error = '';
 
-		$t=strtok($q," ");
-
-		while (($t!="") && ($this->error==""))
+		foreach (preg_split('/ +/', $q) as $t)
 		{
-			switch ($state)
+			if ($state)
 			{
-			case 0:
-				if(($t=="||") || ($t=="&&") || ($t==")"))
+				if (($t === '||') || ($t === '&&'))
 				{
-					$this->error=GetMessage("FILTER_ERROR2")." ".$t;
-					$this->errorno=2;
+					$state = 0;
+					$qu .= $t === '||' ? ' OR ' : ' AND ';
 				}
-				elseif($t=="!")
-				{
-					$state=0;
-					$qu="$qu NOT ";
-					break;
-				}
-				elseif($t=="(")
-				{
-					$n++;
-					$state=0;
-					$qu="$qu(";
-				}
-				else
-				{
-					$state=1;
-					$qu="$qu ".$this->BuildWhereClause($t)." ";
-				}
-				break;
-
-			case 1:
-				if(($t=="||") || ($t=="&&"))
-				{
-					$state=0;
-					if($t=='||') $qu="$qu OR ";
-					else $qu="$qu AND ";
-				}
-				elseif($t==")")
+				elseif ($t === ')')
 				{
 					$n--;
-					$state=1;
-					$qu="$qu)";
+					$qu .= ')';
 				}
 				else
 				{
-					$this->error=GetMessage("FILTER_ERROR2")." ".$t;
-					$this->errorno=2;
+					$this->error = GetMessage('FILTER_ERROR2') . ' ' . $t;
+					$this->errorno = 2;
+					break;
 				}
-				break;
 			}
-			$t=strtok(" ");
+			else
+			{
+				if (($t === '||') || ($t === '&&') || ($t === ')'))
+				{
+					$this->error = GetMessage('FILTER_ERROR2') . ' ' . $t;
+					$this->errorno = 2;
+				}
+				elseif ($t === '!')
+				{
+					$qu .= ' NOT ';
+				}
+				elseif ($t === '(')
+				{
+					$n++;
+					$qu .= '(';
+				}
+				else
+				{
+					$state = 1;
+					$qu .= ' ' . $this->BuildWhereClause($t) . ' ';
+				}
+			}
 		}
 
-		if(($this->error=="") && ($n != 0))
+		if (($this->error === '') && ($n !== 0))
 		{
-			$this->error=GetMessage("FILTER_ERROR1");
-			$this->errorno=1;
+			$this->error = GetMessage('FILTER_ERROR1');
+			$this->errorno = 1;
 		}
-		if($this->error!="") return 0;
+
+		if ($this->error !== '')
+		{
+			return 0;
+		}
 
 		return $qu;
 	}
@@ -287,7 +282,7 @@ class CFilterQuery extends CAllFilterQuery
 					(upper($field) like upper('%".$DB->ForSqlLike($word, 2000)."%') and $field is not null)
 					";
 			}
-			elseif (strpos($word, "%") !== false || strpos($word, "_") !== false)
+			elseif (str_contains($word, "%") || str_contains($word, "_"))
 			{
 				$ret.= "
 					(upper($field) like upper('".$DB->ForSqlLike($word, 2000)."') and $field is not null)

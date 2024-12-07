@@ -63,9 +63,9 @@ trait InitSkuCollectionFromParams
 				$sku->getPriceCollection()->setValues($fields['PRICES']);
 			}
 
-			if (isset($fields['MEASURE']))
+			if (isset($fields['MEASURE_RATIO']))
 			{
-				$sku->getMeasureRatioCollection()->setDefault($fields['MEASURE']);
+				$sku->getMeasureRatioCollection()->setDefault((float)$fields['MEASURE_RATIO']);
 			}
 
 			if (isset($fields['BARCODES']))

@@ -63,7 +63,7 @@ Class CIdeaManagment
 		//Post CNT
 		$numPosts = intval($numPosts);
 		//RSS type
-		$type = ToLower(preg_replace("/[^a-zA-Z0-9.]/is", "", $type));
+		$type = mb_strtolower(preg_replace("/[^a-zA-Z0-9.]/is", "", $type));
 		if(!in_array($type, array("rss2.0", "atom.03", "rss.92")))
 			$type = "rss.92";
 
@@ -223,8 +223,8 @@ Class CIdeaManagment
 				$url = htmlspecialcharsbx("http://".$arSettings["SERVER_NAME"].CBlogPost::PreparePath(htmlspecialcharsbx($arPost["BLOG_URL"]), $arPost["ID"], $arPost["BLOG_GROUP_SITE_ID"]));
 
 			$category = "";
-			if(isset($arPost[self::UFCategroryCodeField]) && is_array($arSettings["CATEGORIES"][ToUpper($arPost[self::UFCategroryCodeField])]))
-				$category = htmlspecialcharsbx($arSettings["CATEGORIES"][ToUpper($arPost[self::UFCategroryCodeField])]["NAME"]);
+			if(isset($arPost[self::UFCategroryCodeField]) && is_array($arSettings["CATEGORIES"][mb_strtoupper($arPost[self::UFCategroryCodeField])]))
+				$category = htmlspecialcharsbx($arSettings["CATEGORIES"][mb_strtoupper($arPost[self::UFCategroryCodeField])]["NAME"]);
 
 			if($arPathTemplates["USER"] <> '')
 				$authorURL = htmlspecialcharsbx("http://".$arSettings["SERVER_NAME"].CComponentEngine::MakePathFromTemplate($arPathTemplates["USER"], array("user_id"=>$arPost["AUTHOR_ID"], "group_id"=>$arPost["BLOG_SOCNET_GROUP_ID"])));

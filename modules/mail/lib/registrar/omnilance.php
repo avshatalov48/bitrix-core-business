@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Mail\Registrar;
 
-use \Bitrix\Main\Text\Encoding;
-
 class Omnilance extends Registrar
 {
 	/**
@@ -98,7 +96,6 @@ class Omnilance extends Registrar
 	public static function checkDomain(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
 
 		$omnilance = new self($user, $password);
 
@@ -162,7 +159,6 @@ class Omnilance extends Registrar
 	public static function createDomain(string $user, string $password, string $domain, array $params, ?string &$error): ?bool
 	{
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
 
 		$payLoad = json_encode([
 			'domain' => [
@@ -196,7 +192,6 @@ class Omnilance extends Registrar
 	public static function renewDomain(string $user, string $password, string $domain, ?string &$error): ?bool
 	{
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
 
 		$payLoad = json_encode([
 			'domain' => [
@@ -231,8 +226,6 @@ class Omnilance extends Registrar
 	{
 		$error = null;
 		$domain = mb_strtolower($domain);
-		$domain = Encoding::convertEncoding($domain, SITE_CHARSET, 'UTF-8');
-		$params = Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
 
 		$first = true;
 		foreach ($params as $dns)

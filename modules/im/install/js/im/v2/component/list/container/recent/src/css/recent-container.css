@@ -18,20 +18,19 @@
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	padding: var(--im-space-inset-md) 13px 14px 13px;
+	padding: 16px 13px 14px 13px;
 	border-bottom: 1px solid var(--im-list-container-recent__background-color_separator);
 }
 
 .bx-im-list-container-recent__search-input_container {
 	flex-grow: 1;
-	/*width: 276px;*/
-	margin-right: var(--im-space-inline-md);
+	margin-right: 16px;
 }
 
 .bx-im-list-container-recent__header-menu_icon {
 	width: 30px;
 	height: 30px;
-	margin-right: var(--im-space-inline-xs);
+	margin-right: 8px;
 	background-image: url(./images/settings.svg);
 	background-position: center;
 	background-repeat: no-repeat;

@@ -10,6 +10,7 @@ namespace Bitrix\Sale;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Internals;
+use Bitrix\Sale\Internals\CollectableEntity;
 
 Loc::loadMessages(__FILE__);
 
@@ -218,8 +219,6 @@ class ShipmentItemCollection
 			$shipmentItemBundle = $itemClassName::create($this, $bundleBasketItem);
 			$this->addItem($shipmentItemBundle);
 
-
-
 			if ($shipment->isSystem())
 			{
 				$shipmentItemBundle->setFieldNoDemand('QUANTITY', $quantity);
@@ -240,17 +239,23 @@ class ShipmentItemCollection
 	/**
 	 * @param Internals\CollectableEntity $shipmentItem
 	 * @return Internals\CollectableEntity|void
-	 * @throws Main\NotSupportedException
 	 */
 	protected function addItem(Internals\CollectableEntity $shipmentItem)
 	{
 		parent::addItem($shipmentItem);
 
-		$this->shipmentItemIndexMap[$shipmentItem->getBasketCode()] = $shipmentItem->getInternalIndex();
-
 		/** @var Shipment $shipment */
 		$shipment = $this->getShipment();
 		$shipment->onShipmentItemCollectionModify(EventActions::ADD, $shipmentItem);
+	}
+
+	protected function bindItem(CollectableEntity $shipmentItem): CollectableEntity
+	{
+		$item = parent::bindItem($shipmentItem);
+
+		$this->shipmentItemIndexMap[$shipmentItem->getBasketCode()] = $shipmentItem->getInternalIndex();
+
+		return $item;
 	}
 
 	protected function createIndex()
@@ -645,7 +650,6 @@ class ShipmentItemCollection
 
 		if ($shipment->getId() > 0)
 		{
-
 			/** @var ShipmentCollection $shipmentCollection */
 			if (!$shipmentCollection = $shipment->getCollection())
 			{
@@ -666,7 +670,7 @@ class ShipmentItemCollection
 			foreach ($shipmentItemList as $shipmentItem)
 			{
 				$shipmentItem->setCollection($shipmentItemCollection);
-				$shipmentItemCollection->addItem($shipmentItem);
+				$shipmentItemCollection->bindItem($shipmentItem);
 				
 				if (!$basketItem = $shipmentItem->getBasketItem())
 				{
@@ -678,7 +682,6 @@ class ShipmentItemCollection
 
 					$r = new Result();
 					$r->addError( new ResultError($msg, 'SALE_SHIPMENT_ITEM_COLLECTION_BASKET_ITEM_NOT_FOUND'));
-
 
 					$registry = Registry::getInstance(static::getRegistryType());
 					/** @var EntityMarker $entityMarker */

@@ -1,5 +1,4 @@
 import { Core } from 'im.v2.application.core';
-import { Color } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
 import { AttachImage } from '../image/image';
@@ -17,10 +16,6 @@ export const AttachRichItem = {
 		config: {
 			type: Object,
 			default: () => {},
-		},
-		color: {
-			type: String,
-			default: Color.transparent,
 		},
 		attachId: {
 			type: String,
@@ -131,7 +126,7 @@ export const AttachRichItem = {
 				></button>
 			</div>
 			<div v-if="preview" class="bx-im-attach-rich__image" @click="openLink" :style="imageStyles">
-				<AttachImage :config="imageConfig" :color="color" />
+				<AttachImage :config="imageConfig" />
 			</div>
 		</div>
 	`,

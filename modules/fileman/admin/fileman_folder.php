@@ -56,7 +56,7 @@ else
 	// let's get array of access rights for whole folder
 	$CUR_PERM = GetAccessArrTmp($arParsedPath["PREV"]);
 
-	if($REQUEST_METHOD=="POST" && $save <> '' && $propeditmore == '' && check_bitrix_sessid())
+	if($_SERVER['REQUEST_METHOD']=="POST" && $save <> '' && $propeditmore == '' && check_bitrix_sessid())
 	{
 		$bNeedSectionFile = False;
 

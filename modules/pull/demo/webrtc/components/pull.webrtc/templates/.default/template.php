@@ -3,7 +3,7 @@
 
 <div id="webrtc-demo-placeholder"></div>
 
-<script type="text/javascript">
+<script>
 	YourCompanyPrefix.webrtc = new YourCompanyPrefix.webrtc({
 		'placeholder': BX('webrtc-demo-placeholder'),
 		'signalingLink': '<?=$arResult['signalingLink']?>'

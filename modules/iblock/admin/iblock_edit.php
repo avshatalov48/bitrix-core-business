@@ -32,7 +32,7 @@ const PROPERTY_EMPTY_ROW_SIZE = 5;
 $strPREFIX_OF_PROPERTY = 'OF_PROPERTY_';
 $strPREFIX_IB_PROPERTY = 'IB_PROPERTY_';
 
-$arDefPropInfo = array(
+$arDefPropInfo = [
 	'ID' => 0,
 	'IBLOCK_ID' => 0,
 	'FILE_TYPE' => '',
@@ -41,7 +41,7 @@ $arDefPropInfo = array(
 	'COL_COUNT' => '30',
 	'LINK_IBLOCK_ID' => '0',
 	'DEFAULT_VALUE' => '',
-	'USER_TYPE_SETTINGS' => array(),
+	'USER_TYPE_SETTINGS' => [],
 	'WITH_DESCRIPTION' => '',
 	'SEARCHABLE' => '',
 	'FILTRABLE' => '',
@@ -57,25 +57,25 @@ $arDefPropInfo = array(
 	'SORT' => '500',
 	'CODE' => '',
 	'SHOW_DEL' => 'N',
-	'VALUES' => array(),
+	'VALUES' => [],
 	'SECTION_PROPERTY' => 'Y',
 	'SMART_FILTER' => 'N',
 	'DISPLAY_TYPE' => '',
 	'DISPLAY_EXPANDED' => 'N',
 	'FILTER_HINT' => '',
-	'FEATURES' => []
-);
+	'FEATURES' => [],
+];
 
-$arDisabledPropFields = array(
+$arDisabledPropFields = [
 	'ID',
 	'IBLOCK_ID',
 	'TIMESTAMP_X',
 	'TMP_ID',
 	'VERSION',
 	'PROPINFO',
-);
+];
 
-$arHiddenPropFields = array(
+$arHiddenPropFields = [
 	'IBLOCK_ID',
 	'FILE_TYPE',
 	'LIST_TYPE',
@@ -96,12 +96,11 @@ $arHiddenPropFields = array(
 	'DISPLAY_TYPE',
 	'DISPLAY_EXPANDED',
 	'FILTER_HINT',
-	'FEATURES'
-);
+	'FEATURES',
+];
 
 function CheckIBlockTypeID($strIBlockTypeID,$strNewIBlockTypeID,$strNeedAdd): array
 {
-	$arResult = false;
 	$strNeedAdd = ('Y' == $strNeedAdd ? 'Y': 'N');
 	$strNewIBlockTypeID = trim($strNewIBlockTypeID);
 	$strIBlockTypeID = trim($strIBlockTypeID);
@@ -111,85 +110,87 @@ function CheckIBlockTypeID($strIBlockTypeID,$strNewIBlockTypeID,$strNeedAdd): ar
 		if ('' != $strNewIBlockTypeID)
 		{
 			$rsIBlockTypes = CIBlockType::GetByID($strNewIBlockTypeID);
-			if ($arIBlockType = $rsIBlockTypes->Fetch())
+			$arIBlockType = $rsIBlockTypes->Fetch();
+			if ($arIBlockType)
 			{
-				$arResult = array(
+				$arResult = [
 					'RESULT' => 'OK',
 					'VALUE' => $strNewIBlockTypeID,
-				);
+				];
 			}
 			else
 			{
-				$arFields = array(
+				$arFields = [
 					'ID' => $strNewIBlockTypeID,
 					'SECTIONS' => 'N',
 					'IN_RSS' => 'N',
 					'SORT' => 500,
-				);
-				$rsLanguages = CLanguage::GetList("sort", "desc", array('ACTIVE' => 'Y'));
+				];
+				$rsLanguages = CLanguage::GetList("sort", "desc", ['ACTIVE' => 'Y']);
 				while ($arLanguage = $rsLanguages->Fetch())
 				{
 					$arFields['LANG'][$arLanguage['LID']]['NAME'] = $strNewIBlockTypeID;
 				}
 				$mxOffersType = $obIBlockType->Add($arFields);
-				if (false == $mxOffersType)
+				if (!$mxOffersType)
 				{
-					$arResult = array(
+					$arResult = [
 						'RESULT' => 'ERROR',
-						'MESSAGE' => $obIBlockType->LAST_ERROR,
-					);
+						'MESSAGE' => $obIBlockType->getLastError(),
+					];
 				}
 				else
 				{
-					$arResult = array(
+					$arResult = [
 						'RESULT' => 'OK',
 						'VALUE' => $strNewIBlockTypeID,
-					);
+					];
 				}
 			}
 		}
 		else
 		{
-			$arResult = array(
+			$arResult = [
 				'RESULT' => 'ERROR',
 				'MESSAGE' => GetMessage('IB_E_OF_ERR_NEW_IBLOCK_TYPE_ABSENT'),
-			);
+			];
 		}
 	}
 	else
 	{
 		if ('' == $strIBlockTypeID)
 		{
-			$arResult = array(
+			$arResult = [
 				'RESULT' => 'ERROR',
 				'MESSAGE' => GetMessage('IB_E_OF_ERR_IBLOCK_TYPE_ABSENT')
-			);
+			];
 		}
 		else
 		{
 			$rsIBlockTypes = CIBlockType::GetByID($strIBlockTypeID);
 			if (!($arIBlockType = $rsIBlockTypes->Fetch()))
 			{
-				$arResult = array(
+				$arResult = [
 					'RESULT' => 'ERROR',
 					'MESSAGE' => GetMessage('IB_E_OF_ERR_IBLOCK_TYPE_BAD')
-				);
+				];
 			}
 			else
 			{
-				$arResult = array(
+				$arResult = [
 					'RESULT' => 'OK',
 					'VALUE' => $strIBlockTypeID,
-				);
+				];
 			}
 		}
 	}
+
 	return $arResult;
 }
 
-function ConvProp(&$arProperty,$arHiddenPropFields)
+function ConvProp(&$arProperty, $arHiddenPropFields): void
 {
-	$arEncodedProp = array();
+	$arEncodedProp = [];
 	foreach ($arHiddenPropFields as $strPropField)
 	{
 		if (isset($arProperty[$strPropField]))
@@ -201,22 +202,23 @@ function ConvProp(&$arProperty,$arHiddenPropFields)
 	$arProperty['PROPINFO'] = base64_encode(serialize($arEncodedProp));
 }
 
-function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropFields = array())
+function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropFields = [])
 {
 	global $arDefPropInfo;
 	$boolUnpack = ($boolUnpack === true);
-	$arResult = false;
-
 	if (!is_array($arHiddenPropFields))
-		return $arResult;
+	{
+		return false;
+	}
 
+	$arResult = false;
 	if (isset($_POST[$strPrefix.$ID.'_NAME']) && ($_POST[$strPrefix.$ID.'_NAME'] <> '') && isset($_POST[$strPrefix.$ID.'_PROPINFO']))
 	{
 		$strEncodePropInfo = $_POST[$strPrefix.$ID.'_PROPINFO'];
 		$strPropInfo = base64_decode($strEncodePropInfo);
 		if (CheckSerializedData($strPropInfo))
 		{
-			$arResult = array(
+			$arResult = [
 				'ID' => (isset($_POST[$strPrefix.$ID.'_ID']) && 0 < intval($_POST[$strPrefix.$ID.'_ID']) ? intval($_POST[$strPrefix.$ID.'_ID']) : 0),
 				'NAME' => strval($_POST[$strPrefix.$ID."_NAME"]),
 				'SORT' => (0 < intval($_POST[$strPrefix.$ID."_SORT"]) ? intval($_POST[$strPrefix.$ID."_SORT"]) : 500),
@@ -225,7 +227,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 				'IS_REQUIRED' => (isset($_POST[$strPrefix.$ID."_IS_REQUIRED"]) && 'Y' == $_POST[$strPrefix.$ID."_IS_REQUIRED"] ? 'Y' : 'N'),
 				'ACTIVE' => (isset($_POST[$strPrefix.$ID."_ACTIVE"]) && 'Y' == $_POST[$strPrefix.$ID."_ACTIVE"] ? 'Y' : 'N'),
 				'USER_TYPE' => false,
-			);
+			];
 
 			if (isset($_POST[$strPrefix . $ID . '_PROPERTY_TYPE']))
 			{
@@ -283,6 +285,7 @@ function GetPropertyInfo($strPrefix, $ID, $boolUnpack = true, $arHiddenPropField
 			}
 		}
 	}
+
 	return $arResult;
 }
 
@@ -292,29 +295,30 @@ function CheckSKUProperty($ID, $SKUID): array
 	$SKUID = (int)$SKUID;
 	if ($ID > 0 && $SKUID > 0)
 	{
-		$propertyId = CIBlockPropertyTools::createProperty($SKUID, CIBlockPropertyTools::CODE_SKU_LINK, array('LINK_IBLOCK_ID' => $ID));
+		$propertyId = CIBlockPropertyTools::createProperty($SKUID, CIBlockPropertyTools::CODE_SKU_LINK, ['LINK_IBLOCK_ID' => $ID]);
 		if ($propertyId)
 		{
-			$arResult = array(
+			$arResult = [
 				'RESULT' => 'OK',
 				'VALUE' => $propertyId
-			);
+			];
 		}
 		else
 		{
-			$arResult = array(
+			$arResult = [
 				'RESULT' => 'ERROR',
-				'MESSAGE' => implode('. ',CIBlockPropertyTools::getErrors())
-			);
+				'MESSAGE' => implode('. ', CIBlockPropertyTools::getErrors())
+			];
 		}
 	}
 	else
 	{
-		$arResult = array(
+		$arResult = [
 			'RESULT' => 'ERROR',
 			'MESSAGE' => GetMessage('IB_E_OF_ERR_SKU_IBLOCKS_IS_ABSENT'),
-		);
+		];
 	}
+
 	return $arResult;
 }
 
@@ -332,7 +336,7 @@ function ConvertToSafe($arProp, $arDisFields)
 				}
 				else
 				{
-					$arTempo = array();
+					$arTempo = [];
 					foreach ($value as $subkey => $subvalue)
 					{
 						$arTempo[$subkey] = htmlspecialcharsbx($subvalue);
@@ -346,26 +350,29 @@ function ConvertToSafe($arProp, $arDisFields)
 	{
 		$arProp = htmlspecialcharsbx($arProp);
 	}
+
 	return $arProp;
 }
 
 function __AddPropCellID($intOFPropID, $strPrefix, $arPropInfo)
 {
 	$intOFPropID = (int)$intOFPropID;
+
 	return ($intOFPropID > 0 ? $intOFPropID : '');
 }
 
-function __AddPropCellName($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellName($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="text" size="25" maxlength="255" name="<?echo $strPrefix.$intOFPropID?>_NAME" id="<?echo $strPrefix.$intOFPropID?>_NAME" value="<?echo $arPropInfo['NAME']?>"><?
-	?><input type="hidden" name="<? echo $strPrefix.$intOFPropID?>_PROPINFO" id="<? echo $strPrefix.$intOFPropID?>_PROPINFO" value="<?=htmlspecialcharsbx($arPropInfo['PROPINFO']); ?>"><?
+	?><input type="text" size="25" maxlength="255" name="<?= $strPrefix . $intOFPropID ?>_NAME" id="<?= $strPrefix . $intOFPropID ?>_NAME" value="<?= $arPropInfo['NAME'] ?>"><?php
+	?><input type="hidden" name="<?= $strPrefix.$intOFPropID?>_PROPINFO" id="<?= $strPrefix.$intOFPropID?>_PROPINFO" value="<?=htmlspecialcharsbx($arPropInfo['PROPINFO']); ?>"><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellType($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellType($intOFPropID, $strPrefix, $arPropInfo)
 {
 	static $baseTypeList = null;
 	static $arUserTypeList = null;
@@ -375,91 +382,97 @@ function __AddPropCellType($intOFPropID,$strPrefix,$arPropInfo)
 	if ($arUserTypeList === null)
 	{
 		$arUserTypeList = CIBlockProperty::GetUserType();
-		\Bitrix\Main\Type\Collection::sortByColumn($arUserTypeList, array('DESCRIPTION' => SORT_STRING));
+		\Bitrix\Main\Type\Collection::sortByColumn($arUserTypeList, ['DESCRIPTION' => SORT_STRING]);
 	}
 	$boolUserPropExist = !empty($arUserTypeList);
 	ob_start();
-	?><select name="<?echo $strPrefix.$intOFPropID?>_PROPERTY_TYPE" id="<?echo $strPrefix.$intOFPropID?>_PROPERTY_TYPE" style="width:150px"><?
+	?><select name="<?= $strPrefix.$intOFPropID?>_PROPERTY_TYPE" id="<?= $strPrefix.$intOFPropID?>_PROPERTY_TYPE" style="width:150px"><?php
 	if ($boolUserPropExist)
 	{
-		?><optgroup label="<? echo GetMessage('IB_E_PROP_BASE_TYPE_GROUP'); ?>"><?
+		?><optgroup label="<?= GetMessage('IB_E_PROP_BASE_TYPE_GROUP'); ?>"><?php
 	}
 	foreach ($baseTypeList as $typeId => $typeTitle)
 	{
-		?><option value="<?=$typeId; ?>" <?=($arPropInfo['PROPERTY_TYPE'] == $typeId && !$arPropInfo['USER_TYPE'] ? ' selected' : '');?>><?=htmlspecialcharsbx($typeTitle); ?></option><?
+		?><option value="<?=$typeId; ?>" <?=($arPropInfo['PROPERTY_TYPE'] == $typeId && !$arPropInfo['USER_TYPE'] ? ' selected' : '');?>><?=htmlspecialcharsbx($typeTitle); ?></option><?php
 	}
 	unset($typeTitle);
 	unset($typeId);
 
 	if ($boolUserPropExist)
 	{
-		?></optgroup><optgroup label="<? echo GetMessage('IB_E_PROP_USER_TYPE_GROUP'); ?>"><?
+		?></optgroup><optgroup label="<?= GetMessage('IB_E_PROP_USER_TYPE_GROUP'); ?>"><?php
 	}
 	foreach($arUserTypeList as $ar)
 	{
 		?><option value="<?=htmlspecialcharsbx($ar["PROPERTY_TYPE"].":".$ar["USER_TYPE"])?>" <?if($arPropInfo['PROPERTY_TYPE']==$ar["PROPERTY_TYPE"] && $arPropInfo['USER_TYPE']==$ar["USER_TYPE"])echo " selected"?>><?=htmlspecialcharsbx($ar["DESCRIPTION"])?></option>
-		<?
+		<?php
 	}
 	if ($boolUserPropExist)
 	{
-		?></optgroup><?
+		?></optgroup><?php
 	}
 	?>
-	</select><?
+	</select><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellActive($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellActive($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="hidden" name="<?echo $strPrefix.$intOFPropID?>_ACTIVE" id="<?echo $strPrefix.$intOFPropID?>_ACTIVE_N" value="N">
-	<input type="checkbox" name="<?echo $strPrefix.$intOFPropID?>_ACTIVE" id="<?echo $strPrefix.$intOFPropID?>_ACTIVE_Y" value="Y"<?
-	if ($arPropInfo['ACTIVE']=="Y") echo " checked"; ?> title="<?=htmlspecialcharsbx(GetMessage("IB_E_PROP_ACTIVE_SHORT")); ?>"><?
+	?><input type="hidden" name="<?= $strPrefix.$intOFPropID?>_ACTIVE" id="<?= $strPrefix.$intOFPropID?>_ACTIVE_N" value="N">
+	<input type="checkbox" name="<?= $strPrefix.$intOFPropID?>_ACTIVE" id="<?= $strPrefix.$intOFPropID?>_ACTIVE_Y" value="Y"<?php
+	if ($arPropInfo['ACTIVE']=="Y") echo " checked"; ?> title="<?=htmlspecialcharsbx(GetMessage("IB_E_PROP_ACTIVE_SHORT")); ?>"><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellMulti($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellMulti($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="hidden" name="<?echo $strPrefix.$intOFPropID?>_MULTIPLE" id="<?echo $strPrefix.$intOFPropID?>_MULTIPLE_N" value="N">
-	<input type="checkbox" name="<?echo $strPrefix.$intOFPropID?>_MULTIPLE" id="<?echo $strPrefix.$intOFPropID?>_MULTIPLE_Y" value="Y"<?
+	?><input type="hidden" name="<?= $strPrefix.$intOFPropID?>_MULTIPLE" id="<?= $strPrefix.$intOFPropID?>_MULTIPLE_N" value="N">
+	<input type="checkbox" name="<?= $strPrefix.$intOFPropID?>_MULTIPLE" id="<?= $strPrefix.$intOFPropID?>_MULTIPLE_Y" value="Y"<?php
 	if($arPropInfo['MULTIPLE']=="Y")echo " checked"?> title="<?=htmlspecialcharsbx(GetMessage("IB_E_PROP_MULT_SHORT")); ?>">
-	<?
+	<?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellReq($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellReq($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="hidden" name="<?echo $strPrefix.$intOFPropID?>_IS_REQUIRED" id="<?echo $strPrefix.$intOFPropID?>_IS_REQUIRED_N" value="N">
-	<input type="checkbox" name="<?echo $strPrefix.$intOFPropID?>_IS_REQUIRED" id="<?echo $strPrefix.$intOFPropID?>_IS_REQUIRED_Y" value="Y"<?
-	if($arPropInfo['IS_REQUIRED']=="Y")echo " checked"?> title="<?=htmlspecialcharsbx(GetMessage("IB_E_PROP_REQIRED_SHORT")); ?>"><?
+	?><input type="hidden" name="<?= $strPrefix.$intOFPropID?>_IS_REQUIRED" id="<?= $strPrefix.$intOFPropID?>_IS_REQUIRED_N" value="N">
+	<input type="checkbox" name="<?= $strPrefix.$intOFPropID?>_IS_REQUIRED" id="<?= $strPrefix.$intOFPropID?>_IS_REQUIRED_Y" value="Y"<?php
+	if($arPropInfo['IS_REQUIRED']=="Y")echo " checked"?> title="<?=htmlspecialcharsbx(GetMessage("IB_E_PROP_REQIRED_SHORT")); ?>"><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellSort($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellSort($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="text" size="3" maxlength="10"  name="<?echo $strPrefix.$intOFPropID?>_SORT" id="<?echo $strPrefix.$intOFPropID?>_SORT" value="<?echo $arPropInfo['SORT']?>"><?
+	?><input type="text" size="3" maxlength="10"  name="<?= $strPrefix.$intOFPropID?>_SORT" id="<?= $strPrefix.$intOFPropID?>_SORT" value="<?= $arPropInfo['SORT']?>"><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
-function __AddPropCellCode($intOFPropID,$strPrefix,$arPropInfo)
+function __AddPropCellCode($intOFPropID, $strPrefix, $arPropInfo)
 {
 	ob_start();
-	?><input type="text" size="20" maxlength="50" name="<?echo $strPrefix.$intOFPropID?>_CODE" id="<?echo $strPrefix.$intOFPropID?>_CODE" value="<?echo $arPropInfo['CODE']?>"><?
+	?><input type="text" size="20" maxlength="50" name="<?= $strPrefix.$intOFPropID?>_CODE" id="<?= $strPrefix.$intOFPropID?>_CODE" value="<?= $arPropInfo['CODE']?>"><?php
 	$strResult = ob_get_contents();
 	ob_end_clean();
+
 	return $strResult;
 }
 
@@ -473,12 +486,13 @@ function __AddPropCellDelete($intOFPropID,$strPrefix,$arPropInfo): string
 	$strResult = '&nbsp;';
 	if (isset($arPropInfo['SHOW_DEL']) && $arPropInfo['SHOW_DEL'] == 'Y')
 		$strResult = '<input type="checkbox" name="'.$strPrefix.$intOFPropID.'_DEL" id="'.$strPrefix.$intOFPropID.'_DEL" value="Y">';
+
 	return $strResult;
 }
 
 function __AddPropRow($intOFPropID,$strPrefix,$arPropInfo): string
 {
-	$strResult = '<tr id="'.$strPrefix.$intOFPropID.'">
+	return '<tr id="'.$strPrefix.$intOFPropID.'">
 	<td style="vertical-align:middle;">'.__AddPropCellID($intOFPropID,$strPrefix,$arPropInfo).'</td>
 	<td>'.__AddPropCellName($intOFPropID,$strPrefix,$arPropInfo).'</td>
 	<td>'.__AddPropCellType($intOFPropID,$strPrefix,$arPropInfo).'</td>
@@ -490,12 +504,11 @@ function __AddPropRow($intOFPropID,$strPrefix,$arPropInfo): string
 	<td style="text-align: center; vertical-align:middle;">'.__AddPropCellDetail($intOFPropID,$strPrefix,$arPropInfo).'</td>
 	<td style="text-align: center; vertical-align:middle;">'.__AddPropCellDelete($intOFPropID,$strPrefix,$arPropInfo).'</td>
 	</tr>';
-	return $strResult;
 }
 
 $arNewPropInfo = $arDefPropInfo;
 ConvProp($arNewPropInfo,$arHiddenPropFields);
-$arCellTemplates = array();
+$arCellTemplates = [];
 $arCellTemplates[] = CUtil::JSEscape(__AddPropCellID('tmp_xxx','PREFIX',$arNewPropInfo));
 $arCellTemplates[] = CUtil::JSEscape(__AddPropCellName('tmp_xxx','PREFIX',$arNewPropInfo));
 $arCellTemplates[] = CUtil::JSEscape(__AddPropCellType('tmp_xxx','PREFIX',$arNewPropInfo));
@@ -507,7 +520,7 @@ $arCellTemplates[] = CUtil::JSEscape(__AddPropCellCode('tmp_xxx','PREFIX',$arNew
 $arCellTemplates[] = CUtil::JSEscape(__AddPropCellDetail('tmp_xxx','PREFIX',$arNewPropInfo));
 $arCellTemplates[] = CUtil::JSEscape(__AddPropCellDelete('tmp_xxx','PREFIX',$arNewPropInfo));
 
-$arCellAttr = array(4,5,6,9,10);
+$arCellAttr = [4,5,6,9,10];
 
 $returnUrl = trim((string)$request->get('return_url'));
 $isAdminUrl = $request->get('admin') === 'Y' ? 'Y' : 'N';
@@ -590,8 +603,6 @@ if (
 	&& $request->getPost('propedit') === null
 )
 {
-	$adminSidePanelHelper->decodeUriComponent();
-
 	$DB->StartTransaction();
 
 	$arPICTURE = $_FILES["PICTURE"] ?? [];
@@ -647,7 +658,7 @@ if (
 	{
 		$stringList[] = 'XML_ID';
 	}
-	if ($arIBTYPE['SECTIONS'] == 'Y')
+	if ($arIBTYPE['SECTIONS'] === 'Y')
 	{
 		$stringList[] = 'SECTION_PAGE_URL';
 		$stringList[] = 'SECTIONS_NAME';
@@ -765,10 +776,10 @@ if (
 	//Assembly properties for check followed by add/update
 
 	$ibp = new CIBlockProperty();
-	$arProperties = array();
+	$arProperties = [];
 	if($ID > 0)
 	{
-		$props = CIBlockProperty::GetList(array(), array("IBLOCK_ID" => $ID, "CHECK_PERMISSIONS" => "N"));
+		$props = CIBlockProperty::GetList([], ["IBLOCK_ID" => $ID, "CHECK_PERMISSIONS" => "N"]);
 		while($p = $props->Fetch())
 		{
 			$arProperty = GetPropertyInfo($strPREFIX_IB_PROPERTY, $p['ID'], true, $arHiddenPropFields);
@@ -780,9 +791,9 @@ if (
 			else
 			{
 				$res = $ibp->CheckFields($arProperty, $p["ID"], true);
-				if(!$res)
+				if (!$res)
 				{
-					$strWarning .= GetMessage("IB_E_PROPERTY_ERROR").": ".$ibp->LAST_ERROR."<br>";
+					$strWarning .= GetMessage("IB_E_PROPERTY_ERROR") . ': ' . $ibp->getLastError() . '<br>';
 					$bVarsFromForm = true;
 				}
 			}
@@ -799,7 +810,7 @@ if (
 		$res = $ibp->CheckFields($arProperty, false, true);
 		if(!$res)
 		{
-			$strWarning .= $ibp->LAST_ERROR."<br>";
+			$strWarning .= $ibp->getLastError() . '<br>';
 			$bVarsFromForm = true;
 		}
 
@@ -807,8 +818,8 @@ if (
 	}
 
 	$bDublicate = false;
-	$arDublicateCodes = array();
-	$arPropertyCodes = array();
+	$arDublicateCodes = [];
+	$arPropertyCodes = [];
 	$bSectionProperty = false;
 	foreach($arProperties as $i => $arProperty)
 	{
@@ -937,7 +948,7 @@ if (
 
 		if (!$res)
 		{
-			$strWarning .= $ib->LAST_ERROR."<br>";
+			$strWarning .= $ib->getLastError() . '<br>';
 			$bVarsFromForm = true;
 		}
 		else
@@ -1000,7 +1011,7 @@ if (
 						$res = $ibp->Update($property_id, $arProperty);
 						if(!$res)
 						{
-							$strWarning .= GetMessage("IB_E_PROPERTY_ERROR").": ".$ibp->LAST_ERROR."<br>";
+							$strWarning .= GetMessage("IB_E_PROPERTY_ERROR") . ': ' . $ibp->getLastError() . '<br>';
 							$bVarsFromForm = true;
 						}
 					}
@@ -1010,7 +1021,7 @@ if (
 					$PropID = (int)$ibp->Add($arProperty);
 					if($PropID <= 0)
 					{
-						$strWarning .= $ibp->LAST_ERROR."<br>";
+						$strWarning .= $ibp->getLastError() . '<br>';
 						$bVarsFromForm = true;
 					}
 				}
@@ -1038,7 +1049,7 @@ if (
 
 			if (!$bVarsFromForm && !$bCreateRecord && $bBizproc)
 			{
-				$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(array("iblock", "CIBlockDocument", "iblock_".$ID));
+				$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(["iblock", "CIBlockDocument", "iblock_".$ID]);
 				foreach ($arWorkflowTemplates as $t)
 				{
 					$create_bizproc = $request->getPost('create_bizproc_' . $t['ID']) === 'Y';
@@ -1052,10 +1063,10 @@ if (
 						$arErrorsTmp = [];
 						CBPDocument::UpdateWorkflowTemplate(
 							$t["ID"],
-							array("iblock", "CIBlockDocument", "iblock_".$ID),
-							array(
+							["iblock", "CIBlockDocument", "iblock_".$ID],
+							[
 								"AUTO_EXECUTE" => (($create_bizproc ? 1 : 0) | ($edit_bizproc ? 2 : 0))
-							),
+							],
 							$arErrorsTmp
 						);
 					}
@@ -1133,12 +1144,12 @@ if (
 					if (is_array($arCatalog) && $arCatalog['CATALOG_TYPE'] == 'O')
 					{
 						$IS_CATALOG = 'Y';
-						$arOffersFields = array(
+						$arOffersFields = [
 							'IBLOCK_ID' => $ID,
 							'SUBSCRIPTION' => $SUBSCRIPTION,
 							'YANDEX_EXPORT' => $YANDEX_EXPORT,
 							'VAT_ID' => $VAT_ID,
-						);
+						];
 						$boolFlag = $obCatalog->Update($ID,$arOffersFields);
 						if (!$boolFlag)
 						{
@@ -1156,12 +1167,12 @@ if (
 					}
 					else
 					{
-						$arOffersFields = array(
+						$arOffersFields = [
 							'IBLOCK_ID' => $ID,
 							'SUBSCRIPTION' => $SUBSCRIPTION,
 							'YANDEX_EXPORT' => $YANDEX_EXPORT,
 							'VAT_ID' => $VAT_ID,
-						);
+						];
 
 						if (false == $arCatalog || 'P' == $arCatalog['CATALOG_TYPE'])
 						{
@@ -1234,7 +1245,7 @@ if (
 									if (!$bVarsFromForm)
 									{
 										$intCountOFProp = intval($OFFERS_PROPERTY_COUNT);
-										$arOfPropList = array();
+										$arOfPropList = [];
 										for ($i = 0; $i < $intCountOFProp; $i++)
 										{
 											$arOFProperty = GetPropertyInfo(
@@ -1248,7 +1259,7 @@ if (
 												$res = $ibp->CheckFields($arOFProperty, false, true);
 												if (!$res)
 												{
-													$strWarning .= GetMessage('IB_E_PROPERTY_ERROR') . ': ' . $ibp->LAST_ERROR . '<br>';
+													$strWarning .= GetMessage('IB_E_PROPERTY_ERROR') . ': ' . $ibp->getLastError() . '<br>';
 													$bVarsFromForm = true;
 												}
 												$arOfPropList[] = $arOFProperty;
@@ -1258,7 +1269,7 @@ if (
 
 									if (!$bVarsFromForm)
 									{
-										$arOffersFields = array(
+										$arOffersFields = [
 											"ACTIVE"=>'Y',
 											"NAME"=>$OF_IBLOCK_NAME,
 											"IBLOCK_TYPE_ID"=>$OF_IBLOCK_TYPE_ID,
@@ -1269,13 +1280,13 @@ if (
 											"SECTION_PAGE_URL" => '',
 											"DETAIL_PAGE_URL" => '#PRODUCT_URL#',
 											"INDEX_SECTION" => "N",
-										);
+										];
 										$arOffersFields["RIGHTS_MODE"] = $RIGHTS_MODE;
 										if ($arOffersFields["RIGHTS_MODE"] == "E")
 										{
 											if(is_array($_POST["RIGHTS"]))
 											{
-												$arOffersFields["RIGHTS"] = array();
+												$arOffersFields["RIGHTS"] = [];
 												$s_rights = new CIBlockRights($ID);
 												foreach($s_rights->GetRights() as $k=>$v)
 													$arOffersFields["RIGHTS"]["n".$k] = $v;
@@ -1296,7 +1307,7 @@ if (
 											}
 											else
 											{
-												$arOffersFields["RIGHTS"] = array();
+												$arOffersFields["RIGHTS"] = [];
 											}
 										}
 										else
@@ -1313,7 +1324,7 @@ if (
 
 											$arOffersFields["GROUP_ID"] = $arGroup;
 										}
-										$arLogFields = array();
+										$arLogFields = [];
 										if (!empty($_REQUEST["FIELDS"]))
 										{
 											foreach ($_REQUEST["FIELDS"] as $strLogField => $arOneLogField)
@@ -1329,12 +1340,12 @@ if (
 										$mxOffersID = $obIBlock->Add($arOffersFields);
 										if (!$mxOffersID)
 										{
-											$strWarning .= $obIBlock->LAST_ERROR . '<br>';
+											$strWarning .= $obIBlock->getLastError() . '<br>';
 											$bVarsFromForm = true;
 										}
 										else
 										{
-											$res_log = array();
+											$res_log = [];
 											$res_log['NAME'] = $OF_IBLOCK_NAME;
 											$OF_IBLOCK_ID = $mxOffersID;
 											if (COption::GetOptionString("iblock", "event_log_iblock", "N") === "Y")
@@ -1357,7 +1368,7 @@ if (
 											$PropID = $ibp->Add($arOFProperty);
 											if (intval($PropID)<=0)
 											{
-												$strWarning .= $ibp->LAST_ERROR."<br>";
+												$strWarning .= $ibp->getLastError() . '<br>';
 												$bVarsFromForm = true;
 											}
 										}
@@ -1368,7 +1379,7 @@ if (
 								{
 									if (CIBlockRights::UserHasRightTo($OF_IBLOCK_ID, $OF_IBLOCK_ID, "iblock_edit"))
 									{
-										$arOffersFields = array();
+										$arOffersFields = [];
 										$arOffersFields['LID'] = $LID;
 
 										if ('Y' == $SKU_RIGHTS)
@@ -1378,7 +1389,7 @@ if (
 											{
 												if(is_array($_POST["RIGHTS"]))
 												{
-													$arOffersFields["RIGHTS"] = array();
+													$arOffersFields["RIGHTS"] = [];
 													$s_rights = new CIBlockRights($ID);
 													foreach($s_rights->GetRights() as $k=>$v)
 														$arOffersFields["RIGHTS"]["n".$k] = $v;
@@ -1399,7 +1410,7 @@ if (
 												}
 												else
 												{
-													$arOffersFields["RIGHTS"] = array();
+													$arOffersFields["RIGHTS"] = [];
 												}
 											}
 											else
@@ -1417,7 +1428,7 @@ if (
 												$arOffersFields["GROUP_ID"] = $arGroup;
 											}
 										}
-										$arLogFields = array();
+										$arLogFields = [];
 										if (!empty($_REQUEST["FIELDS"]))
 										{
 											foreach ($_REQUEST["FIELDS"] as $strLogField => $arOneLogField)
@@ -1438,14 +1449,14 @@ if (
 
 										$obIBlock = new CIBlock();
 										$mxOffersID = $obIBlock->Update($OF_IBLOCK_ID,$arOffersFields);
-										if (false == $mxOffersID)
+										if (!$mxOffersID)
 										{
-											$strWarning .= $obIBlock->LAST_ERROR."<br>";
+											$strWarning .= $obIBlock->getLastError() . '<br>';
 											$bVarsFromForm = true;
 										}
 										else
 										{
-											$res_log = array();
+											$res_log = [];
 											$res_log['NAME'] = CIBlock::GetArrayByID($OF_IBLOCK_ID,'NAME');
 											if (COption::GetOptionString("iblock", "event_log_iblock", "N") === "Y")
 												CEventLog::Log(
@@ -1493,11 +1504,11 @@ if (
 									}
 									if ((false === $arCatalog) || ($arCatalog['OFFERS_IBLOCK_ID'] != $OF_IBLOCK_ID))
 									{
-										$arOffersFields = array(
+										$arOffersFields = [
 											'IBLOCK_ID' => $OF_IBLOCK_ID,
 											'PRODUCT_IBLOCK_ID' => $ID,
-											'SKU_PROPERTY_ID' => $intSKUPropID
-										);
+											'SKU_PROPERTY_ID' => $intSKUPropID,
+										];
 										$arOFCatalog = CCatalog::GetByID($OF_IBLOCK_ID);
 										if ($arOFCatalog)
 										{
@@ -1557,10 +1568,10 @@ if (
 				if(
 					$bBizproc
 					&& $_REQUEST['BIZ_PROC_ADD_DEFAULT_TEMPLATES']=='Y'
-					&& CBPDocument::GetNumberOfWorkflowTemplatesForDocumentType(array("iblock", "CIBlockDocument", "iblock_".$ID))<=0
+					&& CBPDocument::GetNumberOfWorkflowTemplatesForDocumentType(["iblock", "CIBlockDocument", "iblock_".$ID])<=0
 					&& $arFields["BIZPROC"] == "Y"
 				)
-					CBPDocument::AddDefaultWorkflowTemplates(array("iblock", "CIBlockDocument", "iblock_".$ID));
+					CBPDocument::AddDefaultWorkflowTemplates(["iblock", "CIBlockDocument", "iblock_".$ID]);
 
 				$DB->Commit();
 
@@ -1571,7 +1582,7 @@ if (
 				{
 					if ($boolNeedAgent)
 					{
-						$intYandexExport = CCatalog::GetList(array(),array('YANDEX_EXPORT' => 'Y'),array());
+						$intYandexExport = CCatalog::GetList([], ['YANDEX_EXPORT' => 'Y'], []);
 						CAgent::RemoveAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog");
 						if (0 < $intYandexExport)
 							CAgent::AddAgent("CCatalog::PreGenerateXML(\"yandex\");", "catalog", "N", intval(COption::GetOptionString("catalog", "yandex_xml_period", "24"))*60*60, "", "Y");
@@ -1633,7 +1644,7 @@ if (
 )
 {
 	$arErrorTmp = [];
-	CBPDocument::DeleteWorkflowTemplate($_REQUEST["delete_bizproc_template"], array("iblock", "CIBlockDocument", "iblock_".$ID), $arErrorTmp);
+	CBPDocument::DeleteWorkflowTemplate($_REQUEST["delete_bizproc_template"], ["iblock", "CIBlockDocument", "iblock_".$ID], $arErrorTmp);
 	if (!empty($arErrorTmp))
 	{
 		foreach ($arErrorTmp as $e)
@@ -1652,9 +1663,9 @@ if ($adminSidePanelHelper->isAjaxRequest() && $bVarsFromForm && $strWarning)
 
 
 if($ID>0)
-	$APPLICATION->SetTitle(GetMessage("IB_E_EDIT_TITLE", array("#IBLOCK_TYPE#"=>$arIBTYPE["NAME"])));
+	$APPLICATION->SetTitle(GetMessage("IB_E_EDIT_TITLE", ["#IBLOCK_TYPE#"=>$arIBTYPE["NAME"]]));
 else
-	$APPLICATION->SetTitle(GetMessage("IB_E_NEW_TITLE", array("#IBLOCK_TYPE#"=>$arIBTYPE["NAME"])));
+	$APPLICATION->SetTitle(GetMessage("IB_E_NEW_TITLE", ["#IBLOCK_TYPE#"=>$arIBTYPE["NAME"]]));
 
 
 ClearVars("str_");
@@ -1708,7 +1719,7 @@ $str_PRODUCT_IBLOCK_TYPE_ID = '';
 $str_PRODUCT_IBLOCK_NAME = '';
 $str_SKU_PROPERTY_ID = 0;
 
-$str_IPROPERTY_TEMPLATES = array();
+$str_IPROPERTY_TEMPLATES = [];
 
 $str_SKU_RIGHTS = 'N';
 
@@ -1719,7 +1730,7 @@ $boolRecurringError = false;
 
 $bCurrentBPDisabled = true;
 
-$ib_result = CIBlock::GetList(array(), array("=ID" => $ID, "CHECK_PERMISSIONS"=>"N"));
+$ib_result = CIBlock::GetList([], ["=ID" => $ID, "CHECK_PERMISSIONS"=>"N"]);
 if(!$ib_result->ExtractFields("str_"))
 {
 	$ID = 0;
@@ -1764,7 +1775,7 @@ else
 				$str_PRODUCT_IBLOCK_ID = $arCatalog['PRODUCT_IBLOCK_ID'];
 				$str_SKU_PROPERTY_ID = $arCatalog['SKU_PROPERTY_ID'];
 			}
-			if (in_array($arCatalog['CATALOG_TYPE'],array('P','X')))
+			if (in_array($arCatalog['CATALOG_TYPE'], ['P','X']))
 			{
 				$str_USED_SKU = 'Y';
 				$str_OF_IBLOCK_ID = $arCatalog['OFFERS_IBLOCK_ID'];
@@ -1821,16 +1832,16 @@ if($bVarsFromForm)
 }
 
 if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_edit")):
-	$aMenu = array(
-		array(
+	$aMenu = [
+		[
 			"TEXT" => GetMessage("IBLOCK_BACK_TO_ADMIN"),
 			"LINK" => '/bitrix/admin/iblock_admin.php?lang=' . LANGUAGE_ID
 				. '&type=' . urlencode($type)
 				. '&admin=' . urlencode($isAdminUrl)
 			,
 			"ICON" => "btn_list",
-		)
-	);
+		],
+	];
 
 $context = new CAdminContextMenu($aMenu);
 $context->Show();
@@ -1838,57 +1849,57 @@ $context->Show();
 $u = new CAdminPopupEx(
 	"mnu_LIST_PAGE_URL",
 	CIBlockParameters::GetPathTemplateMenuItems("LIST", "__SetUrlVar", "mnu_LIST_PAGE_URL", "LIST_PAGE_URL"),
-	array("zIndex" => 2000)
+	["zIndex" => 2000]
 );
 $u->Show();
 
 $u = new CAdminPopupEx(
 	"mnu_SECTION_PAGE_URL",
 	CIBlockParameters::GetPathTemplateMenuItems("SECTION", "__SetUrlVar", "mnu_SECTION_PAGE_URL", "SECTION_PAGE_URL"),
-	array("zIndex" => 2000)
+	["zIndex" => 2000]
 );
 $u->Show();
 
 $arItems = CIBlockParameters::GetPathTemplateMenuItems("DETAIL", "__SetUrlVar", "mnu_DETAIL_PAGE_URL", "DETAIL_PAGE_URL");
 if($str_CATALOG_TYPE == 'O')
 {
-	$arItems[] = array("SEPARATOR" => true);
-	$arItems[] = array(
+	$arItems[] = ["SEPARATOR" => true];
+	$arItems[] = [
 		"TEXT" => GetMessage("IB_E_URL_PRODUCT_ID"),
 		"TITLE" => "#PRODUCT_URL# - ".GetMessage("IB_E_URL_PRODUCT_ID"),
 		"ONCLICK" => "__SetUrlVar('#PRODUCT_URL#', 'mnu_DETAIL_PAGE_URL', 'DETAIL_PAGE_URL')",
-	);
+	];
 }
 $u = new CAdminPopupEx(
 	"mnu_DETAIL_PAGE_URL",
 	$arItems,
-	array("zIndex" => 2000)
+	["zIndex" => 2000]
 );
 $u->Show();
 
 $arItems = CIBlockParameters::GetPathTemplateMenuItems("DETAIL", "__SetUrlVar", "mnu_CANONICAL_PAGE_URL", "CANONICAL_PAGE_URL");
-array_unshift($arItems, array("SEPARATOR" => true));
-array_unshift($arItems, array(
+array_unshift($arItems, ["SEPARATOR" => true]);
+array_unshift($arItems, [
 	"TEXT" => "https://",
 	"TITLE" => "",
 	"ONCLICK" => "__SetUrlVar('https://', 'mnu_CANONICAL_PAGE_URL', 'CANONICAL_PAGE_URL')",
-));
-array_unshift($arItems, array(
+]);
+array_unshift($arItems, [
 	"TEXT" => "http://",
 	"TITLE" => "",
 	"ONCLICK" => "__SetUrlVar('http://', 'mnu_CANONICAL_PAGE_URL', 'CANONICAL_PAGE_URL')",
-));
+]);
 $u = new CAdminPopupEx(
 	"mnu_CANONICAL_PAGE_URL",
 	$arItems,
-	array("zIndex" => 2000)
+	["zIndex" => 2000]
 );
 $u->Show();
 ?>
 <script>
 	var InheritedPropertiesTemplates = new JCInheritedPropertiesTemplates(
 		'frm',
-		'iblock_templates.ajax.php?ENTITY_TYPE=B&ENTITY_ID=<?echo intval($ID)?>&bxpublic=y'
+		'iblock_templates.ajax.php?ENTITY_TYPE=B&ENTITY_ID=<?= (int)$ID ?>&bxpublic=y'
 	);
 	BX.ready(function(){
 		setTimeout(function(){
@@ -1928,31 +1939,35 @@ $u->Show();
 		obj_ta.focus();
 	}
 </script>
-<script type="text/javascript">
+<script>
 var CellTPL = [],
 	CellAttr = [];
-<?
+<?php
 foreach ($arCellTemplates as $key => $value)
 {
 	?>CellTPL[<?= $key; ?>] = '<?= $value; ?>';
-<?
+<?php
 }
 foreach ($arCellAttr as $key => $value)
 {
 	?>CellAttr[<?= $key; ?>] = '<?= $value; ?>';
-<?
+<?php
 }
 ?>
 </script>
 
-<form method="POST" name="frm" id="frm" action="/bitrix/admin/iblock_edit.php?type=<?echo htmlspecialcharsbx($type)?>&amp;lang=<?echo LANGUAGE_ID?>&amp;admin=<?echo htmlspecialcharsbx($isAdminUrl)?>"  ENCTYPE="multipart/form-data">
+<form method="POST" name="frm" id="frm" action="/bitrix/admin/iblock_edit.php?type=<?= htmlspecialcharsbx($type) ?>&amp;lang=<?= LANGUAGE_ID ?>&amp;admin=<?= htmlspecialcharsbx($isAdminUrl)?>"  ENCTYPE="multipart/form-data">
 <?=bitrix_sessid_post()?>
-<?echo GetFilterHiddens("find_");?>
-<?if($bBizproc && $bCurrentBPDisabled):?>
-<input type="hidden" name="BIZ_PROC_ADD_DEFAULT_TEMPLATES" value="Y">
-<?endif?>
+<?= GetFilterHiddens("find_") ?>
+<?php
+if($bBizproc && $bCurrentBPDisabled):
+	?>
+	<input type="hidden" name="BIZ_PROC_ADD_DEFAULT_TEMPLATES" value="Y">
+	<?php
+endif;
+?>
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="ID" value="<?echo $ID?>">
+<input type="hidden" name="ID" value="<?= $ID ?>">
 <?php
 if ($returnUrl !== ''):?>
 	<input type="hidden" name="return_url" value="<?=htmlspecialcharsbx($returnUrl); ?>">
@@ -1965,511 +1980,562 @@ $bTab3 = ($arIBTYPE["IN_RSS"]=="Y");
 $bWorkflow = Loader::includeModule("workflow");
 $bBizprocTab = $bBizproc && $str_BIZPROC == "Y";
 
-$aTabs = array(
-	array(
+$aTabs = [
+	[
 		"DIV" => "edit1",
 		"TAB" => GetMessage("IB_E_TAB2"),
 		"ICON" => "iblock",
 		"TITLE" => GetMessage("IB_E_TAB2_T"),
-	),
-	array(
+	],
+	[
 		"DIV" => "edit10",
 		"TAB" => GetMessage("IB_E_TAB10"),
 		"ICON" => "iblock_iprops",
 		"TITLE" => GetMessage("IB_E_TAB10_T"),
-	),
-	array(
+	],
+	[
 		"DIV" => "edit6",
 		"TAB" => GetMessage("IB_E_TAB6"),
 		"ICON" => "iblock_fields",
 		"TITLE" => GetMessage("IB_E_TAB6_T"),
-	),
-	array(
+	],
+	[
 		"DIV" => "edit2",
 		"TAB" => GetMessage("IB_E_TAB3"),
 		"ICON" => "iblock_props",
 		"TITLE" => GetMessage("IB_E_TAB3_T"),
-	),
-	array(
+	],
+	[
 		"DIV" => "edit8",
 		"TAB" => GetMessage("IB_E_TAB8"),
 		"ICON" => "section_fields",
 		"TITLE" => GetMessage("IB_E_TAB8_T"),
-	),
-);
+	],
+];
 if($bTab3)
 {
-	$aTabs[] = array(
+	$aTabs[] = [
 		"DIV" => "edit3",
 		"TAB" => GetMessage("IB_E_TAB7"),
 		"ICON" => "iblock_rss",
 		"TITLE" => GetMessage("IB_E_TAB7_T"),
-	);
+	];
 }
 if($bCatalog)
 {
-	$aTabs[] = array(
+	$aTabs[] = [
 		"DIV" => "edit9",
 		"TAB" => GetMessage("IB_E_TAB9"),
 		"ICON" => "iblock",
 		"TITLE" => GetMessage("IB_E_TAB9_T"),
-	);
+	];
 }
 if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 {
-	$aTabs[] = array(
+	$aTabs[] = [
 		"DIV" => "edit4",
 		"TAB" => GetMessage("IB_E_TAB4"),
 		"ICON"=>"iblock_access",
 		"TITLE"=>GetMessage("IB_E_TAB4_T"),
-	);
+	];
 }
-$aTabs[] = array(
+$aTabs[] = [
 	"DIV" => "edit5",
 	"TAB" => GetMessage("IB_E_TAB5"),
 	"ICON" => "iblock",
 	"TITLE" => GetMessage("IB_E_TAB5_T"),
-);
+];
 if ($bBizprocTab)
 {
-	$aTabs[] = array(
+	$aTabs[] = [
 		"DIV" => "edit7",
 		"TAB" => GetMessage("IB_E_TAB7_BP"),
 		"ICON" => "iblock",
 		"TITLE" => GetMessage("IB_E_TAB7_BP"),
-	);
+	];
 }
-$aTabs[] = array(
+$aTabs[] = [
 	"DIV" => "log",
 	"TAB" => GetMessage("IB_E_TAB_LOG"),
 	"ICON" => "iblock",
 	"TITLE" => GetMessage("IB_E_TAB_LOG_TITLE"),
-);
+];
 
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 $tabControl->Begin();
 
 $tabControl->BeginNextTab();
 ?>
-	<?if($ID>0):?>
+	<?php
+	if ($ID > 0):
+		?>
 		<tr>
-			<td width="40%"><?=GetMessage("IB_E_ID")?>:</td>
-			<td width="60%"><?echo $str_ID?></td>
+			<td width="40%"><?= GetMessage("IB_E_ID")?>:</td>
+			<td width="60%"><?= $str_ID ?></td>
 		</tr>
 		<tr>
-			<td width="40%" class="adm-detail-valign-top"><?=GetMessage("IB_E_PROPERTY_STORAGE")?></td>
+			<td width="40%" class="adm-detail-valign-top"><?= GetMessage("IB_E_PROPERTY_STORAGE")?></td>
 			<td width="60%">
-				<input type="hidden" name="VERSION" value="<?=$str_VERSION?>">
-				<?if($str_VERSION==1)echo GetMessage("IB_E_COMMON_STORAGE")?>
-				<?if($str_VERSION==2)echo GetMessage("IB_E_SEPARATE_STORAGE")?>
-				<br><a href="/bitrix/admin/iblock_convert.php?lang=<?=LANGUAGE_ID; ?>&amp;IBLOCK_ID=<?echo $str_ID?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
+				<input type="hidden" name="VERSION" value="<?= $str_VERSION ?>">
+				<?php
+				if ($str_VERSION==1)
+				{
+					echo GetMessage("IB_E_COMMON_STORAGE");
+				}
+				if ($str_VERSION==2)
+				{
+					echo GetMessage("IB_E_SEPARATE_STORAGE");
+				}
+				?>
+				<br><a href="/bitrix/admin/iblock_convert.php?lang=<?=LANGUAGE_ID; ?>&amp;IBLOCK_ID=<?= $str_ID ?>"><?=$str_LAST_CONV_ELEMENT>0?"<span class=\"required\">".GetMessage("IB_E_CONVERT_CONTINUE"):GetMessage("IB_E_CONVERT_START")."</span>"?></a>
 			</td>
 		</tr>
 		<tr>
-			<td ><?echo GetMessage("IB_E_LAST_UPDATE")?></td>
-			<td><?echo $str_TIMESTAMP_X?></td>
+			<td ><?= GetMessage("IB_E_LAST_UPDATE")?></td>
+			<td><?= $str_TIMESTAMP_X ?></td>
 		</tr>
-	<? else: ?>
+		<?php
+	else:
+		?>
 		<tr>
-			<td width="40%" class="adm-detail-valign-top"><?=GetMessage("IB_E_PROPERTY_STORAGE")?></td>
+			<td width="40%" class="adm-detail-valign-top"><?= GetMessage("IB_E_PROPERTY_STORAGE")?></td>
 			<td width="60%">
-				<label><input type="radio" name="VERSION" value="1" <?if($str_VERSION==1)echo " checked"?>><?=GetMessage("IB_E_COMMON_STORAGE")?></label><br>
-				<label><input type="radio" name="VERSION" value="2" <?if($str_VERSION==2)echo " checked"?>><?=GetMessage("IB_E_SEPARATE_STORAGE")?></label>
+				<label><input type="radio" name="VERSION" value="1"<?= ($str_VERSION==1 ? ' checked' : '') ?>><?= GetMessage("IB_E_COMMON_STORAGE")?></label><br>
+				<label><input type="radio" name="VERSION" value="2" <?= ($str_VERSION==2 ? ' checked' : '') ?>><?= GetMessage("IB_E_SEPARATE_STORAGE")?></label>
 			</td>
 		</tr>
-	<? endif; ?>
+		<?php
+	endif;
+	?>
 	<tr>
-		<td><label for="ACTIVE"><?echo GetMessage("IB_E_ACTIVE")?>:</label></td>
+		<td><label for="ACTIVE"><?= GetMessage("IB_E_ACTIVE")?>:</label></td>
 		<td>
 			<input type="hidden" name="ACTIVE" value="N">
-			<input type="checkbox" id="ACTIVE" name="ACTIVE" value="Y"<?if($str_ACTIVE=="Y")echo " checked"?>>
+			<input type="checkbox" id="ACTIVE" name="ACTIVE" value="Y"<?= ($str_ACTIVE=="Y" ? ' checked' : '') ?>>
 			<span style="display:none;"><input type="submit" name="save" value="Y" style="width:0px;height:0px"></span>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><? echo GetMessage("IB_E_CODE")?>:</td>
+		<td width="40%"><?= GetMessage("IB_E_CODE")?>:</td>
 		<td width="60%">
-			<input type="text" name="CODE" size="50" maxlength="50" value="<?echo $str_CODE?>" >
+			<input type="text" name="CODE" size="50" maxlength="50" value="<?= $str_CODE ?>" >
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><? echo GetMessage("IB_E_API_CODE")?>:</td>
+		<td width="40%"><?= GetMessage("IB_E_API_CODE")?>:</td>
 		<td width="60%">
-			<input type="text" name="API_CODE" size="50" maxlength="50" value="<?echo $str_API_CODE?>" >
+			<input type="text" name="API_CODE" size="50" maxlength="50" value="<?= $str_API_CODE ?>" >
 		</td>
 	</tr>
 	<tr>
-		<td><label for="REST_ON"><?echo GetMessage("IB_E_REST_ON")?></label></td>
+		<td><label for="REST_ON"><?= GetMessage("IB_E_REST_ON")?></label></td>
 		<td>
 			<input type="hidden" name="REST_ON" value="N">
-			<input type="checkbox" id="REST_ON" name="REST_ON" value="Y"<?if($str_REST_ON=="Y")echo " checked"?>>
+			<input type="checkbox" id="REST_ON" name="REST_ON" value="Y"<?= ($str_REST_ON == "Y" ? ' checked' : '') ?>>
 		</td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td class="adm-detail-valign-top"><?echo GetMessage("IB_E_SITES")?></td>
+		<td class="adm-detail-valign-top"><?= GetMessage("IB_E_SITES")?></td>
 		<td>
-			<?
+			<?php
 		if ('O' == $str_CATALOG_TYPE)
 		{
-			?><div class="adm-list"><?
+			?><div class="adm-list"><?php
 			$l = CLang::GetList();
 			$arLidValue = $str_LID;
-			if(!is_array($arLidValue))
-				$arLidValue = array($arLidValue);
+			if (!is_array($arLidValue))
+			{
+				$arLidValue = [$arLidValue];
+			}
 			while($l_arr = $l->Fetch())
 			{
 				?><div class="adm-list-item">
-					<div class="adm-list-control"><input type="checkbox" name="LID_SHOW[]" value="<? echo htmlspecialcharsex($l_arr["LID"]); ?>" id="<? echo htmlspecialcharsex($l_arr["LID"]);?>" class="typecheckbox"<? echo (in_array($l_arr["LID"], $arLidValue) ? ' checked':''); ?> disabled></div>
-					<div class="adm-list-label"><label for="<? echo htmlspecialcharsex($l_arr["LID"]); ?>">[<? echo htmlspecialcharsex($l_arr["LID"]); ?>]&nbsp;<? echo htmlspecialcharsex($l_arr["NAME"]); ?></label></div>
-				</div><?
+					<div class="adm-list-control"><input type="checkbox" name="LID_SHOW[]" value="<?= htmlspecialcharsex($l_arr["LID"]); ?>" id="<?= htmlspecialcharsex($l_arr["LID"]);?>" class="typecheckbox"<?= (in_array($l_arr["LID"], $arLidValue) ? ' checked' : '' ) ?> disabled></div>
+					<div class="adm-list-label"><label for="<?= htmlspecialcharsex($l_arr["LID"]); ?>">[<?= htmlspecialcharsex($l_arr["LID"]); ?>]&nbsp;<?= htmlspecialcharsex($l_arr["NAME"]); ?></label></div>
+				</div><?php
 			}
 			echo "<br>".str_replace('#LINK#','/bitrix/admin/iblock_edit.php?type='.$str_PRODUCT_IBLOCK_TYPE_ID.'&lang='.LANGUAGE_ID.'&ID='.$str_PRODUCT_IBLOCK_ID.'&admin=Y',GetMessage('IB_E_OF_SITES'));
 
 			foreach ($arLidValue as &$strLid)
 			{
-				?><input type="hidden" name="LID[]" value="<? echo htmlspecialcharsex($strLid); ?>"><?
+				?><input type="hidden" name="LID[]" value="<?= htmlspecialcharsex($strLid); ?>"><?php
 			}
-			?></div><?
+			?></div><?php
 		}
 		else
 		{
-			?><?=CLang::SelectBoxMulti("LID", $str_LID);?><?
+			?><?=CLang::SelectBoxMulti("LID", $str_LID);?><?php
 		}
 		?></td>
 	</tr>
 	<tr class="adm-detail-required-field">
-		<td ><? echo GetMessage("IB_E_NAME")?>:</td>
+		<td ><?= GetMessage("IB_E_NAME")?>:</td>
 		<td>
-			<input type="text" name="NAME" size="55" maxlength="255" value="<?echo $str_NAME?>">
+			<input type="text" name="NAME" size="55" maxlength="255" value="<?= $str_NAME ?>">
 		</td>
 	</tr>
 	<tr>
-		<td ><? echo GetMessage("IB_E_SORT")?>:</td>
+		<td ><?= GetMessage("IB_E_SORT")?>:</td>
 		<td>
-			<input type="text" name="SORT" size="10" maxlength="10" value="<?echo $str_SORT?>">
+			<input type="text" name="SORT" size="10" maxlength="10" value="<?= $str_SORT ?>">
 		</td>
 	</tr>
-	<?if(COption::GetOptionString("iblock", "show_xml_id", "N")=="Y"):?>
+	<?php
+	if(COption::GetOptionString("iblock", "show_xml_id", "N")=="Y"):
+		?>
 		<tr>
-			<td ><?echo GetMessage("IB_E_XML_ID")?>:</td>
+			<td ><?= GetMessage("IB_E_XML_ID")?>:</td>
 			<td>
-				<input type="text" name="XML_ID"  size="55" maxlength="255" value="<?echo $str_XML_ID?>">
+				<input type="text" name="XML_ID"  size="55" maxlength="255" value="<?= $str_XML_ID ?>">
 			</td>
 		</tr>
-	<?endif?>
+		<?php
+	endif;
+	?>
 	<tr>
-		<td ><?echo GetMessage("IB_E_LIST_PAGE_URL")?></td>
+		<td ><?= GetMessage("IB_E_LIST_PAGE_URL")?></td>
 		<td>
-			<input type="text" name="LIST_PAGE_URL" id="LIST_PAGE_URL" size="55" maxlength="255" value="<?echo $str_LIST_PAGE_URL?>">
+			<input type="text" name="LIST_PAGE_URL" id="LIST_PAGE_URL" size="55" maxlength="255" value="<?= $str_LIST_PAGE_URL ?>">
 			<input type="button" id="mnu_LIST_PAGE_URL" value='...'>
 		</td>
 	</tr>
-	<?if($arIBTYPE["SECTIONS"]=="Y"):?>
+	<?php
+	if($arIBTYPE["SECTIONS"]=="Y"):
+		?>
 		<tr>
-			<td ><?echo GetMessage("IB_E_SECTION_PAGE_URL")?></td>
+			<td ><?= GetMessage("IB_E_SECTION_PAGE_URL")?></td>
 			<td>
-				<input type="text" name="SECTION_PAGE_URL" id="SECTION_PAGE_URL" size="55" maxlength="255" value="<?echo $str_SECTION_PAGE_URL?>">
+				<input type="text" name="SECTION_PAGE_URL" id="SECTION_PAGE_URL" size="55" maxlength="255" value="<?= $str_SECTION_PAGE_URL ?>">
 				<input type="button" id="mnu_SECTION_PAGE_URL" value='...'>
 			</td>
 		</tr>
-	<?endif?>
+		<?php
+	endif;
+	?>
 	<tr>
-		<td ><?echo GetMessage("IB_E_DETAIL_PAGE_URL")?></td>
+		<td ><?= GetMessage("IB_E_DETAIL_PAGE_URL")?></td>
 		<td>
-			<input type="text" name="DETAIL_PAGE_URL" id="DETAIL_PAGE_URL" size="55" maxlength="255" value="<?echo $str_DETAIL_PAGE_URL?>">
+			<input type="text" name="DETAIL_PAGE_URL" id="DETAIL_PAGE_URL" size="55" maxlength="255" value="<?= $str_DETAIL_PAGE_URL ?>">
 			<input type="button" id="mnu_DETAIL_PAGE_URL" value='...'>
 		</td>
 	</tr>
 	<tr>
-		<td ><?echo GetMessage("IB_E_CANONICAL_PAGE_URL")?></td>
+		<td ><?= GetMessage("IB_E_CANONICAL_PAGE_URL")?></td>
 		<td>
-			<input type="text" name="CANONICAL_PAGE_URL" id="CANONICAL_PAGE_URL" size="55" maxlength="255" value="<?echo $str_CANONICAL_PAGE_URL?>">
+			<input type="text" name="CANONICAL_PAGE_URL" id="CANONICAL_PAGE_URL" size="55" maxlength="255" value="<?= $str_CANONICAL_PAGE_URL ?>">
 			<input type="button" id="mnu_CANONICAL_PAGE_URL" value='...'>
 		</td>
 	</tr>
-	<?if($arIBTYPE["SECTIONS"]=="Y"):?>
+	<?php
+	if($arIBTYPE["SECTIONS"]=="Y"):
+		?>
 		<tr>
-			<td><label for="INDEX_SECTION"><?echo GetMessage("IB_E_INDEX_SECTION")?></label></td>
+			<td><label for="INDEX_SECTION"><?= GetMessage("IB_E_INDEX_SECTION")?></label></td>
 			<td>
 				<input type="hidden" name="INDEX_SECTION" value="N">
-				<input type="checkbox" id="INDEX_SECTION" name="INDEX_SECTION" value="Y"<?if($str_INDEX_SECTION=="Y")echo " checked"?>>
+				<input type="checkbox" id="INDEX_SECTION" name="INDEX_SECTION" value="Y"<?= ($str_INDEX_SECTION=="Y" ? ' checked' : '') ?>>
 			</td>
 		</tr>
-	<?endif?>
+		<?php
+	endif;
+	?>
 	<tr>
-		<td><label for="INDEX_ELEMENT"><?echo GetMessage("IB_E_INDEX_ELEMENT")?></label></td>
+		<td><label for="INDEX_ELEMENT"><?= GetMessage("IB_E_INDEX_ELEMENT")?></label></td>
 		<td>
 			<input type="hidden" name="INDEX_ELEMENT" value="N">
-			<input type="checkbox" id="INDEX_ELEMENT" name="INDEX_ELEMENT" value="Y"<?if($str_INDEX_ELEMENT=="Y")echo " checked"?>>
+			<input type="checkbox" id="INDEX_ELEMENT" name="INDEX_ELEMENT" value="Y"<?= ($str_INDEX_ELEMENT=="Y" ? ' checked' : '') ?>>
 		</td>
 	</tr>
-	<?if($bWorkflow && $bBizproc):?>
+	<?php
+	if($bWorkflow && $bBizproc):
+		?>
 		<tr>
-			<td><?echo GetMessage("IB_E_WF_TYPE")?></td>
+			<td><?= GetMessage("IB_E_WF_TYPE")?></td>
 			<td>
 				<select name="WF_TYPE">
-					<option value="N" <? if($str_WORKFLOW != "Y" && $str_BIZPROC !="Y") echo "selected"; ?>><?echo GetMessage("IB_E_WF_TYPE_NONE")?></option>
-					<option value="WF" <?if($str_WORKFLOW=="Y")echo "selected"?>><?echo GetMessage("IB_E_WF_TYPE_WORKFLOW")?></option>
-					<option value="BP" <?if($str_BIZPROC=="Y")echo "selected"?>><?echo GetMessage("IB_E_WF_TYPE_BIZPROC")?></option>
+					<option value="N"<?= ($str_WORKFLOW != "Y" && $str_BIZPROC !="Y" ? ' selected' : '') ?>><?= GetMessage("IB_E_WF_TYPE_NONE")?></option>
+					<option value="WF"<?= ($str_WORKFLOW=="Y" ? ' selected' : '') ?>><?= GetMessage("IB_E_WF_TYPE_WORKFLOW")?></option>
+					<option value="BP"<?= ($str_BIZPROC=="Y" ? ' selected' : '') ?>><?= GetMessage("IB_E_WF_TYPE_BIZPROC")?></option>
 				</select>
 			</td>
 		</tr>
-	<?elseif($bWorkflow && !$bBizproc):?>
+		<?php
+	elseif ($bWorkflow && !$bBizproc):
+		?>
 		<tr>
-			<td><label for="WF_TYPE"><?echo GetMessage("IB_E_WORKFLOW")?></label></td>
+			<td><label for="WF_TYPE"><?= GetMessage("IB_E_WORKFLOW")?></label></td>
 			<td>
 				<input type="hidden" name="WF_TYPE" value="N">
-				<input type="checkbox" id="WF_TYPE" name="WF_TYPE" value="WF"<?if($str_WORKFLOW=="Y")echo " checked"?>>
+				<input type="checkbox" id="WF_TYPE" name="WF_TYPE" value="WF"<?= ($str_WORKFLOW=="Y" ? ' checked' : '') ?>>
 			</td>
 		</tr>
-	<?elseif($bBizproc && !$bWorkflow):?>
+		<?php
+	elseif ($bBizproc && !$bWorkflow):
+		?>
 		<tr>
-			<td><label for="WF_TYPE"><?echo GetMessage("IB_E_BIZPROC")?></label></td>
+			<td><label for="WF_TYPE"><?= GetMessage("IB_E_BIZPROC")?></label></td>
 			<td>
 				<input type="hidden" name="WF_TYPE" value="N">
-				<input type="checkbox" id="WF_TYPE" name="WF_TYPE" value="BP"<?if($str_BIZPROC=="Y")echo " checked"?>>
+				<input type="checkbox" id="WF_TYPE" name="WF_TYPE" value="BP"<?= ($str_BIZPROC=="Y" ? ' checked' : '') ?>>
 			</td>
 		</tr>
-	<?endif?>
+		<?php
+	endif;
+	?>
 	<tr>
-		<td><?echo GetMessage("IB_E_SECTION_CHOOSER")?>:</td>
+		<td><?= GetMessage("IB_E_SECTION_CHOOSER")?>:</td>
 		<td>
 			<select name="SECTION_CHOOSER">
-			<option value="L"<?if($str_SECTION_CHOOSER=="L")echo " selected"?>><?echo GetMessage("IB_E_SECTION_CHOOSER_LIST")?></option>
-			<option value="D"<?if($str_SECTION_CHOOSER=="D")echo " selected"?>><?echo GetMessage("IB_E_SECTION_CHOOSER_DROPDOWNS")?></option>
-			<option value="P"<?if($str_SECTION_CHOOSER=="P")echo " selected"?>><?echo GetMessage("IB_E_SECTION_CHOOSER_POPUP")?></option>
+			<option value="L"<?= ($str_SECTION_CHOOSER=="L" ? ' selected' : '') ?>><?= GetMessage("IB_E_SECTION_CHOOSER_LIST")?></option>
+			<option value="D"<?= ($str_SECTION_CHOOSER=="D" ? ' selected' : '') ?>><?= GetMessage("IB_E_SECTION_CHOOSER_DROPDOWNS")?></option>
+			<option value="P"<?= ($str_SECTION_CHOOSER=="P" ? ' selected' : '') ?>><?= GetMessage("IB_E_SECTION_CHOOSER_POPUP")?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_LIST_MODE")?>:</td>
+		<td><?= GetMessage("IB_E_LIST_MODE")?>:</td>
 		<td>
 			<select name="LIST_MODE">
-			<option value=""><?echo GetMessage("IB_E_LIST_MODE_GLOBAL")?></option>
-			<option value="S"<?if($str_LIST_MODE=="S") echo " selected"?>><?echo GetMessage("IB_E_LIST_MODE_SECTIONS")?></option>
-			<option value="C"<?if($str_LIST_MODE=="C") echo " selected"?>><?echo GetMessage("IB_E_LIST_MODE_COMBINED")?></option>
+			<option value=""><?= GetMessage("IB_E_LIST_MODE_GLOBAL")?></option>
+			<option value="S"<?= ($str_LIST_MODE=="S" ? ' selected' : '') ?>><?= GetMessage("IB_E_LIST_MODE_SECTIONS")?></option>
+			<option value="C"<?= ($str_LIST_MODE=="C" ? ' selected' : '') ?>><?= GetMessage("IB_E_LIST_MODE_COMBINED")?></option>
 			</select>
 		</td>
 	</tr>
 	<tr>
 		<td>
-		<?
-		CAdminFileDialog::ShowScript
-		(
-			Array(
-				"event" => "BtnClick",
-				"arResultDest" => array("FORM_NAME" => "frm", "FORM_ELEMENT_NAME" => "EDIT_FILE_BEFORE"),
-				"arPath" => array("PATH" => GetDirPath($str_EDIT_FILE_BEFORE)),
-				"select" => 'F',// F - file only, D - folder only
-				"operation" => 'O',// O - open, S - save
-				"showUploadTab" => true,
-				"showAddToMenuTab" => false,
-				"fileFilter" => 'php',
-				"allowAllFiles" => true,
-				"SaveConfig" => true,
-			)
-		);
+		<?php
+		CAdminFileDialog::ShowScript([
+			"event" => "BtnClick",
+			"arResultDest" => [
+				"FORM_NAME" => "frm",
+				"FORM_ELEMENT_NAME" => "EDIT_FILE_BEFORE",
+			],
+			"arPath" => [
+				"PATH" => GetDirPath($str_EDIT_FILE_BEFORE),
+			],
+			"select" => 'F',// F - file only, D - folder only
+			"operation" => 'O',// O - open, S - save
+			"showUploadTab" => true,
+			"showAddToMenuTab" => false,
+			"fileFilter" => 'php',
+			"allowAllFiles" => true,
+			"SaveConfig" => true,
+		]);
 		?>
-		<?echo GetMessage("IB_E_FILE_BEFORE")?></td>
-		<td><input type="text" name="EDIT_FILE_BEFORE" size="55"  maxlength="255" value="<?echo $str_EDIT_FILE_BEFORE?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
+		<?= GetMessage("IB_E_FILE_BEFORE")?></td>
+		<td><input type="text" name="EDIT_FILE_BEFORE" size="55"  maxlength="255" value="<?= $str_EDIT_FILE_BEFORE ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick()"></td>
 	</tr>
 	<tr>
 		<td>
-		<?
-		CAdminFileDialog::ShowScript
-		(
-			Array(
-				"event" => "BtnClick2",
-				"arResultDest" => array("FORM_NAME" => "frm", "FORM_ELEMENT_NAME" => "EDIT_FILE_AFTER"),
-				"arPath" => array("PATH" => GetDirPath($str_EDIT_FILE_AFTER)),
-				"select" => 'F',// F - file only, D - folder only
-				"operation" => 'O',// O - open, S - save
-				"showUploadTab" => true,
-				"showAddToMenuTab" => false,
-				"fileFilter" => 'php',
-				"allowAllFiles" => true,
-				"SaveConfig" => true,
-			)
-		);
+		<?php
+		CAdminFileDialog::ShowScript([
+			"event" => "BtnClick2",
+			"arResultDest" => [
+				"FORM_NAME" => "frm",
+				"FORM_ELEMENT_NAME" => "EDIT_FILE_AFTER",
+			],
+			"arPath" => [
+				"PATH" => GetDirPath($str_EDIT_FILE_AFTER),
+			],
+			"select" => 'F',// F - file only, D - folder only
+			"operation" => 'O',// O - open, S - save
+			"showUploadTab" => true,
+			"showAddToMenuTab" => false,
+			"fileFilter" => 'php',
+			"allowAllFiles" => true,
+			"SaveConfig" => true,
+		]);
 		?>
-		<?echo GetMessage("IB_E_FILE_AFTER")?></td>
-		<td><input type="text" name="EDIT_FILE_AFTER" size="55"  maxlength="255" value="<?echo $str_EDIT_FILE_AFTER?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
+		<?= GetMessage("IB_E_FILE_AFTER")?></td>
+		<td><input type="text" name="EDIT_FILE_AFTER" size="55"  maxlength="255" value="<?= $str_EDIT_FILE_AFTER ?>">&nbsp;<input type="button" name="browse" value="..." onClick="BtnClick2()"></td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IB_E_DESCRIPTION")?></td>
+		<td colspan="2"><?= GetMessage("IB_E_DESCRIPTION")?></td>
 	</tr>
 	<tr class="adm-detail-file-row">
-		<td class="adm-detail-valign-top"><?echo GetMessage("IB_E_PICTURE")?></td>
+		<td class="adm-detail-valign-top"><?= GetMessage("IB_E_PICTURE")?></td>
 		<td>
-			<?echo CFileInput::Show('PICTURE', $str_PICTURE, array(
-				"IMAGE" => "Y",
-				"PATH" => "Y",
-				"FILE_SIZE" => "Y",
-				"DIMENSIONS" => "Y",
-				"IMAGE_POPUP" => "Y",
-				"MAX_SIZE" => array(
-					"W" => COption::GetOptionString("iblock", "detail_image_size"),
-					"H" => COption::GetOptionString("iblock", "detail_image_size"),
-				),
-			), array(
-				'upload' => true,
-				'medialib' => false,
-				'file_dialog' => false,
-				'cloud' => false,
-				'del' => true,
-				'description' => false,
-			));?>
+			<?= CFileInput::Show(
+				'PICTURE',
+				$str_PICTURE,
+				[
+					"IMAGE" => "Y",
+					"PATH" => "Y",
+					"FILE_SIZE" => "Y",
+					"DIMENSIONS" => "Y",
+					"IMAGE_POPUP" => "Y",
+					"MAX_SIZE" => [
+						"W" => COption::GetOptionString("iblock", "detail_image_size"),
+						"H" => COption::GetOptionString("iblock", "detail_image_size"),
+					],
+				],
+				[
+					'upload' => true,
+					'medialib' => false,
+					'file_dialog' => false,
+					'cloud' => false,
+					'del' => true,
+					'description' => false,
+				]
+			);?>
 		</td>
 	</tr>
-	<?if(COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && Loader::includeModule("fileman")):?>
+	<?php
+	if(COption::GetOptionString("iblock", "use_htmledit", "Y")=="Y" && Loader::includeModule("fileman")):?>
 		<tr>
 			<td colspan="2" align="center">
-				<?CFileMan::AddHTMLEditorFrame(
+				<?php
+				CFileMan::AddHTMLEditorFrame(
 					"DESCRIPTION",
 					$str_DESCRIPTION,
 					"DESCRIPTION_TYPE",
 					$str_DESCRIPTION_TYPE,
-					array(
+					[
 						'height' => 450,
-						'width' => '100%'
-					)
-				);?>
+						'width' => '100%',
+					]
+				);
+				?>
 			</td>
 		</tr>
-	<?else:?>
+		<?php
+	else:
+		?>
 		<tr>
-			<td ><?echo GetMessage("IB_E_DESCRIPTION_TYPE")?></td>
+			<td ><?= GetMessage("IB_E_DESCRIPTION_TYPE")?></td>
 			<td >
-				<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE1" value="text"<?if($str_DESCRIPTION_TYPE!="html")echo " checked"?>><label for="DESCRIPTION_TYPE1"> <?echo GetMessage("IB_E_DESCRIPTION_TYPE_TEXT")?></label> /
-				<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE2" value="html"<?if($str_DESCRIPTION_TYPE=="html")echo " checked"?>><label for="DESCRIPTION_TYPE2"> <?echo GetMessage("IB_E_DESCRIPTION_TYPE_HTML")?></label>
+				<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE1" value="text"<?= ($str_DESCRIPTION_TYPE!="html" ? ' checked' : '') ?>><label for="DESCRIPTION_TYPE1"> <?= GetMessage("IB_E_DESCRIPTION_TYPE_TEXT")?></label> /
+				<input type="radio" name="DESCRIPTION_TYPE" id="DESCRIPTION_TYPE2" value="html"<?= ($str_DESCRIPTION_TYPE=="html" ? ' checked' : '') ?>><label for="DESCRIPTION_TYPE2"> <?= GetMessage("IB_E_DESCRIPTION_TYPE_HTML")?></label>
 			</td>
 		</tr>
 		<tr>
 			<td colspan="2" align="center">
-				<textarea cols="60" rows="15" name="DESCRIPTION" style="width:100%;"><?echo $str_DESCRIPTION?></textarea>
+				<textarea cols="60" rows="15" name="DESCRIPTION" style="width:100%;"><?= $str_DESCRIPTION ?></textarea>
 			</td>
 		</tr>
-	<?endif?>
-<?
+		<?php
+	endif;
+
 $tabControl->BeginNextTab();
 ?>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_SECTIONS")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_SECTIONS")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_META_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_META_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_KEYWORDS")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_KEYWORDS")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_DESCRIPTION")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_DESCRIPTION")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_SECTION_PAGE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_SECTION_PAGE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_ELEMENTS")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_ELEMENTS")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_META_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_META_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_KEYWORDS")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_KEYWORDS")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_META_KEYWORDS", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_META_DESCRIPTION")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_META_DESCRIPTION")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_META_DESCRIPTION", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_PAGE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_PAGE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_PAGE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_SECTIONS_PICTURE")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_SECTIONS_PICTURE")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_ALT")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_ALT")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_NAME")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_NAME")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_SECTIONS_DETAIL_PICTURE")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_SECTIONS_DETAIL_PICTURE")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_ALT")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_ALT")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_NAME")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_NAME")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "SECTION_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "S")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_ELEMENTS_PREVIEW_PICTURE")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_ELEMENTS_PREVIEW_PICTURE")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_ALT")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_ALT")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_NAME")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_NAME")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_PREVIEW_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_FOR_ELEMENTS_DETAIL_PICTURE")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_FOR_ELEMENTS_DETAIL_PICTURE")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_ALT")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_ALT")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_ALT", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_TITLE")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_TITLE")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_TITLE", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="adm-detail-valign-top">
-	<td width="40%"><?echo GetMessage("IB_E_SEO_FILE_NAME")?></td>
-	<td width="60%"><?echo IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E")?></td>
+	<td width="40%"><?= GetMessage("IB_E_SEO_FILE_NAME")?></td>
+	<td width="60%"><?= IBlockInheritedPropertyInput($ID, "ELEMENT_DETAIL_PICTURE_FILE_NAME", $str_IPROPERTY_TEMPLATES, "E")?></td>
 </tr>
 <tr class="heading">
-	<td colspan="2"><?echo GetMessage("IB_E_SEO_MANAGEMENT")?></td>
+	<td colspan="2"><?= GetMessage("IB_E_SEO_MANAGEMENT")?></td>
 </tr>
 <tr>
-	<td width="40%"><label for="IPROPERTY_CLEAR_VALUES"><?echo GetMessage("IB_E_SEO_CLEAR_VALUES")?></label></td>
+	<td width="40%"><label for="IPROPERTY_CLEAR_VALUES"><?= GetMessage("IB_E_SEO_CLEAR_VALUES")?></label></td>
 	<td width="60%">
 		<input type="checkbox" id="IPROPERTY_CLEAR_VALUES" name="IPROPERTY_CLEAR_VALUES" value="Y" />
 	</td>
 </tr>
-<?
+<?php
 $tabControl->BeginNextTab();
 ?>
 	<tr><td colspan="2"><table border="0" cellspacing="0" cellpadding="0" class="internal" style="width:690px; margin: 0 auto;">
 		<tr class="heading">
-			<td width="125" style="text-align: left !important;"><?echo GetMessage("IB_E_FIELD_NAME")?></td>
-			<td width="40"><?echo GetMessage("IB_E_FIELD_IS_REQUIRED")?></td>
-			<td width="450" style="text-align: left !important;"><?echo GetMessage("IB_E_FIELD_DEFAULT_VALUE")?></td>
+			<td width="125" style="text-align: left !important;"><?= GetMessage("IB_E_FIELD_NAME")?></td>
+			<td width="40"><?= GetMessage("IB_E_FIELD_IS_REQUIRED")?></td>
+			<td width="450" style="text-align: left !important;"><?= GetMessage("IB_E_FIELD_DEFAULT_VALUE")?></td>
 		</tr>
-		<?
+		<?php
 		if($bVarsFromForm)
 			$arFields = $_REQUEST["FIELDS"];
 		else
@@ -2484,8 +2550,17 @@ $tabControl->BeginNextTab();
 			{
 				continue;
 			}
+			$checkboxAttrs = '';
+			if ($arFields[$FIELD_ID]["IS_REQUIRED"] === "Y" || $arField["IS_REQUIRED"] !== false)
+			{
+				$checkboxAttrs .= ' checked';
+			}
+			if ($arField["IS_REQUIRED"] !==false )
+			{
+				$checkboxAttrs .= ' disabled';
+			}
 			?>
-		<tr <?
+		<tr <?php
 			if (
 				$FIELD_ID === "PREVIEW_PICTURE"
 				|| $FIELD_ID === "PREVIEW_TEXT"
@@ -2495,69 +2570,69 @@ $tabControl->BeginNextTab();
 			)
 				echo  'class="adm-detail-valign-top"';
 		?>>
-			<td><?echo $arDefFields[$FIELD_ID]["NAME"]?></td>
+			<td><?= $arField["NAME"] ?></td>
 			<td style="text-align:center">
-				<input type="hidden" value="N" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]">
-				<input type="checkbox" value="Y" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" <?if($arFields[$FIELD_ID]["IS_REQUIRED"]==="Y" || $arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "checked"?> <?if($arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "disabled"?>>
+				<input type="hidden" value="N" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]">
+				<input type="checkbox" value="Y" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]"<?= $checkboxAttrs ?>>
 			</td>
 			<td>
-			<?
+			<?php
 			switch($FIELD_ID)
 			{
 			case "IBLOCK_SECTION":
 				?>
-				<input type="hidden" name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]" value="N">
+				<input type="hidden" name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]" value="N">
 				<input type="checkbox"
-					name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]"
-					id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]"
+					name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]"
+					id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]"
 					value="Y"
-					<?if ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["KEEP_IBLOCK_SECTION_ID"] === "Y") echo 'checked="checked"'?>
-				/><label for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]">
-				<?echo GetMessage("IB_E_FIELD_IBLOCK_SECTION_KEEP_IBLOCK_SECTION_ID")?>
+					<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["KEEP_IBLOCK_SECTION_ID"] === "Y" ? 'checked="checked"' : '') ?>
+				/><label for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][KEEP_IBLOCK_SECTION_ID]">
+				<?= GetMessage("IB_E_FIELD_IBLOCK_SECTION_KEEP_IBLOCK_SECTION_ID")?>
 				</label>
-				<?
+				<?php
 				break;
 			case "ACTIVE":
 				?>
-				<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" height="1">
-					<option value="Y" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="Y") echo "selected"?>><?echo GetMessage("MAIN_YES")?></option>
-					<option value="N" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="N") echo "selected"?>><?echo GetMessage("MAIN_NO")?></option>
+				<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" height="1">
+					<option value="Y"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "Y" ? ' selected' : '') ?>><?= GetMessage("MAIN_YES")?></option>
+					<option value="N"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="N" ? ' selected' : '') ?>><?= GetMessage("MAIN_NO")?></option>
 				</select>
-				<?
+				<?php
 				break;
 			case "ACTIVE_FROM":
 				?>
-				<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" height="1">
-					<option value="" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="") echo "selected"?>><?echo GetMessage("IB_E_FIELD_ACTIVE_FROM_EMPTY")?></option>
-					<option value="=now" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="=now") echo "selected"?>><?echo GetMessage("IB_E_FIELD_ACTIVE_FROM_NOW")?></option>
-					<option value="=today" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="=today") echo "selected"?>><?echo GetMessage("IB_E_FIELD_ACTIVE_FROM_TODAY")?></option>
+				<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" height="1">
+					<option value=""<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "" ? ' selected' : '') ?>><?= GetMessage("IB_E_FIELD_ACTIVE_FROM_EMPTY")?></option>
+					<option value="=now"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "=now" ? ' selected' : '') ?>><?= GetMessage("IB_E_FIELD_ACTIVE_FROM_NOW")?></option>
+					<option value="=today"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "=today" ? ' selected' : '') ?>><?= GetMessage("IB_E_FIELD_ACTIVE_FROM_TODAY")?></option>
 				</select>
-				<?
+				<?php
 				break;
 			case "ACTIVE_TO":
 				?>
-				<label for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]"><?echo GetMessage("IB_E_FIELD_ACTIVE_TO")?></label>
-				<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="5">
-				<?
+				<label for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]"><?= GetMessage("IB_E_FIELD_ACTIVE_TO")?></label>
+				<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="5">
+				<?php
 				break;
 			case "NAME":
 				?>
-				<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="60">
-				<?
+				<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="60">
+				<?php
 				break;
 			case "SORT":
 				?>
-				<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" type="hidden" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>">
-				<?
+				<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" type="hidden" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>">
+				<?php
 				break;
 			case "DETAIL_TEXT_TYPE":
 			case "PREVIEW_TEXT_TYPE":
 				?>
 				<div class="adm-list">
 				<div class="adm-list-item">
-					<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" height="1">
-						<option value="text" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="text") echo "selected"?>>text</option>
-						<option value="html" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="html") echo "selected"?>>html</option>
+					<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" height="1">
+						<option value="text"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "text" ? ' selected' : '') ?>>text</option>
+						<option value="html"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "html" ? ' selected' : '') ?>>html</option>
 					</select>
 				</div>
 				<div class="adm-list-item">
@@ -2565,14 +2640,14 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							name="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							name="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-							name="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							name="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							<?php
 							if($arFields[$FIELD_ID."_ALLOW_CHANGE"]["DEFAULT_VALUE"]!=="N")
 								echo "checked";
 							?>
@@ -2580,18 +2655,18 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-						><?echo GetMessage("IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+						><?= GetMessage("IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE")?></label>
 					</div>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "DETAIL_TEXT":
 			case "PREVIEW_TEXT":
 				?>
-				<textarea name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" rows="5" cols="47"><?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?></textarea>
-				<?
+				<textarea name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" rows="5" cols="47"><?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?></textarea>
+				<?php
 				break;
 			case "PREVIEW_PICTURE":
 				?>
@@ -2601,33 +2676,33 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["FROM_DETAIL"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]').style.display =
 								this.checked ? 'block': 'none';
 								"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_FROM_DETAIL")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_FROM_DETAIL")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-					style="padding-left: 16px; display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+					style="padding-left: 16px; display:<?php
 					echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["FROM_DETAIL"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -2635,15 +2710,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"]==="Y")
 								echo "checked"
 							?>
@@ -2651,8 +2726,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_UPDATE_WITH_DETAIL_EXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_UPDATE_WITH_DETAIL_EXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -2660,15 +2735,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["DELETE_WITH_DETAIL"]==="Y")
 								echo "checked"
 							?>
@@ -2676,8 +2751,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_DELETE_WITH_DETAIL")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_DELETE_WITH_DETAIL")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -2685,53 +2760,53 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -2739,15 +2814,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["IGNORE_ERRORS"]==="Y")
 								echo "checked";
 							?>
@@ -2755,13 +2830,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -2769,15 +2844,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value=""
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
 						>
 						<input
 							type="checkbox"
 							value="resample"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["METHOD"]==="resample")
 									echo "checked";
 							?>
@@ -2785,23 +2860,23 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage(
+					<?= GetMessage(
 							"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
-							array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+							['#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality()]
 						)?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
 						style="width: 30px"
 					>
 				</div>
@@ -2810,42 +2885,47 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClick".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -2853,35 +2933,36 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_FILE_"
+					]);?>
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_FILE_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
 						size="35"
-					>&nbsp;<input type="button" value="..." onClick="BtnClick<?echo $FIELD_ID?>()">
+					>&nbsp;<input type="button" value="..." onClick="BtnClick<?= $FIELD_ID ?>()">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_FILE_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -2893,50 +2974,55 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
 						size="35"
 					>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClickFont".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -2944,77 +3030,79 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'ttf',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
+					]);
+					?>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
 						size="35">&nbsp;<input
 						type="button"
 						value="..."
-						onClick="BtnClickFont<?echo $FIELD_ID?>()"
+						onClick="BtnClickFont<?= $FIELD_ID ?>()"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-						id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+						id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
 						size="7"
 					><script>
-						function <?echo $FIELD_ID?>WATERMARK_TEXT_COLOR(color)
+						function <?= $FIELD_ID ?>WATERMARK_TEXT_COLOR(color)
 						{
-							BX('FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
+							BX('FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
 						}
 					</script>&nbsp;<input
 						type="button"
 						value="..."
 						onclick="BX.findChildren(this.parentNode, {'tag': 'IMG'}, true)[0].onclick();"
-					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?
+					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?php
 						$APPLICATION->IncludeComponent(
 							"bitrix:main.colorpicker",
 							"",
-							array(
+							[
 								"SHOW_BUTTON" =>"Y",
 								"ONSELECT" => $FIELD_ID."WATERMARK_TEXT_COLOR",
-							)
+							]
 						);
 					?></span>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -3022,7 +3110,7 @@ $tabControl->BeginNextTab();
 					);?>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "DETAIL_PICTURE":
 				?>
@@ -3032,53 +3120,53 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3086,15 +3174,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["IGNORE_ERRORS"]==="Y")
 								echo "checked";
 							?>
@@ -3102,13 +3190,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3116,15 +3204,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value=""
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
 						>
 						<input
 							type="checkbox"
 							value="resample"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["METHOD"]==="resample")
 									echo "checked";
 							?>
@@ -3132,23 +3220,23 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage(
+					<?= GetMessage(
 						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
-						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+						['#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality()]
 					)?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
 						style="width: 30px"
 					>
 				</div>
@@ -3157,42 +3245,47 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClick".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -3200,35 +3293,37 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_FILE_"
+					]);
+					?>
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_FILE_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
 						size="35"
-					>&nbsp;<input type="button" value="..." onClick="BtnClick<?echo $FIELD_ID?>()">
+					>&nbsp;<input type="button" value="..." onClick="BtnClick<?= $FIELD_ID ?>()">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_FILE_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -3240,50 +3335,55 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
 						size="35"
 					>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClickFont".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -3291,77 +3391,79 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'ttf',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
+					]);
+					?>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
 						size="35">&nbsp;<input
 						type="button"
 						value="..."
-						onClick="BtnClickFont<?echo $FIELD_ID?>()"
+						onClick="BtnClickFont<?= $FIELD_ID ?>()"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-						id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+						id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
 						size="7"
 					><script>
-						function <?echo $FIELD_ID?>WATERMARK_TEXT_COLOR(color)
+						function <?= $FIELD_ID ?>WATERMARK_TEXT_COLOR(color)
 						{
-							BX('FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
+							BX('FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
 						}
 					</script>&nbsp;<input
 						type="button"
 						value="..."
 						onclick="BX.findChildren(this.parentNode, {'tag': 'IMG'}, true)[0].onclick();"
-					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?
+					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?php
 						$APPLICATION->IncludeComponent(
 							"bitrix:main.colorpicker",
 							"",
-							array(
+							[
 								"SHOW_BUTTON" =>"Y",
 								"ONSELECT" => $FIELD_ID."WATERMARK_TEXT_COLOR",
-							)
+							]
 						);
 					?></span>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -3369,7 +3471,7 @@ $tabControl->BeginNextTab();
 					);?>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "CODE":
 				?>
@@ -3379,15 +3481,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["UNIQUE"]==="Y")
 								echo "checked";
 							?>
@@ -3395,8 +3497,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-						><?echo GetMessage("IB_E_FIELD_CODE_UNIQUE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+						><?= GetMessage("IB_E_FIELD_CODE_UNIQUE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -3404,94 +3506,94 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-						><?echo GetMessage("IB_E_FIELD_EL_TRANSLITERATION")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+						><?= GetMessage("IB_E_FIELD_EL_TRANSLITERATION")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_LEN")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]"
+					<?= GetMessage("IB_E_FIELD_TRANS_LEN")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_LEN"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_LEN"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_CASE")?>:&nbsp;<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]">
-						<option value=""><?echo GetMessage("IB_E_FIELD_TRANS_CASE_LEAVE")?>
+					<?= GetMessage("IB_E_FIELD_TRANS_CASE")?>:&nbsp;<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]">
+						<option value=""><?= GetMessage("IB_E_FIELD_TRANS_CASE_LEAVE")?>
 						</option>
-						<option value="L" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"]==="L") echo "selected"?>>
-							<?echo GetMessage("IB_E_FIELD_TRANS_CASE_LOWER")?>
+						<option value="L"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"] === "L" ? ' selected' : '') ?>>
+							<?= GetMessage("IB_E_FIELD_TRANS_CASE_LOWER")?>
 						</option>
-						<option value="U" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"]==="U") echo "selected"?>>
-							<?echo GetMessage("IB_E_FIELD_TRANS_CASE_UPPER")?>
+						<option value="U"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"] === "U" ? ' selected' : '') ?>>
+							<?= GetMessage("IB_E_FIELD_TRANS_CASE_UPPER")?>
 						</option>
 					</select>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_SPACE")?>&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]"
+					<?= GetMessage("IB_E_FIELD_TRANS_SPACE")?>&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_SPACE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_SPACE"])?>"
 						size="2"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_OTHER")?>&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]"
+					<?= GetMessage("IB_E_FIELD_TRANS_OTHER")?>&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_OTHER"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_OTHER"])?>"
 						size="2"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3499,14 +3601,14 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_EAT"]==="Y")
 									echo "checked";
 							?>
@@ -3514,13 +3616,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-						><?echo GetMessage("IB_E_FIELD_TRANS_EAT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+						><?= GetMessage("IB_E_FIELD_TRANS_EAT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3528,15 +3630,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_GOOGLE"]==="Y")
 									echo "checked";
 							?>
@@ -3544,38 +3646,40 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-						><?echo GetMessage("IB_E_FIELD_EL_TRANS_USE_SERVICE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+						><?= GetMessage("IB_E_FIELD_EL_TRANS_USE_SERVICE")?></label>
 					</div>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			default:
 				?>
-				<input type="hidden" value="" name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]">&nbsp;
-				<?
+				<input type="hidden" value="" name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]">&nbsp;
+				<?php
 				break;
 			}
 			?>
 			</td>
 		</tr>
-		<?endforeach?>
+		<?php
+		endforeach;
+		?>
 	</table> </td> </tr>
-<?
+<?php
 $tabControl->BeginNextTab();
 ?>
 	<tr>
 		<td>
-			<script type="text/javascript">
+			<script>
 			var obIBProps = new JCIBlockProperty({
-				'PREFIX': '<? echo $strPREFIX_IB_PROPERTY ?>',
+				'PREFIX': '<?= $strPREFIX_IB_PROPERTY ?>',
 				'FORM_ID': 'frm',
 				'TABLE_PROP_ID': 'ib_prop_list',
 				'PROP_COUNT_ID': 'INT_IBLOCK_PROPERTY_COUNT',
-				'IBLOCK_ID': <? echo $ID; ?>,
-				'LANG': '<? echo LANGUAGE_ID; ?>',
-				'TITLE': '<? echo GetMessageJS('IB_E_IB_PROPERTY_DETAIL'); ?>',
+				'IBLOCK_ID': <?= $ID ?>,
+				'LANG': '<?= LANGUAGE_ID ?>',
+				'TITLE': '<?= GetMessageJS('IB_E_IB_PROPERTY_DETAIL') ?>',
 				'OBJ': 'obIBProps'
 			});
 			obIBProps.SetCells(CellTPL,8,CellAttr);
@@ -3583,37 +3687,52 @@ $tabControl->BeginNextTab();
 			<table class="internal" style="margin: 0 auto" id="ib_prop_list">
 				<tr class="heading">
 					<td>ID</td>
-					<td><?echo GetMessage("IB_E_PROP_NAME_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_TYPE_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_ACTIVE_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_MULT_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_REQIRED_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_SORT_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_CODE_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_MODIFY_SHORT"); ?></td>
-					<td><?echo GetMessage("IB_E_PROP_DELETE_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_NAME_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_TYPE_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_ACTIVE_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_MULT_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_REQIRED_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_SORT_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_CODE_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_MODIFY_SHORT"); ?></td>
+					<td><?= GetMessage("IB_E_PROP_DELETE_SHORT"); ?></td>
 				</tr>
-				<?
-				$arPropList = array();
+				<?php
+				$arPropList = [];
 				if (0 < $ID)
 				{
 					$arPropLinks = CIBlockSectionPropertyLink::GetArray($ID, 0);
-					$rsProps =  CIBlockProperty::GetList(array("SORT"=>"ASC",'ID' => 'ASC'), array("IBLOCK_ID" => $ID, "CHECK_PERMISSIONS" => "N"));
+					$rsProps =  CIBlockProperty::GetList(
+						[
+							"SORT" => "ASC",
+							'ID' => 'ASC',
+						],
+						[
+							"IBLOCK_ID" => $ID,
+							"CHECK_PERMISSIONS" => "N",
+						]
+					);
 					while ($arProp = $rsProps->Fetch())
 					{
 						if ('L' == $arProp['PROPERTY_TYPE'])
 						{
-							$arProp['VALUES'] = array();
-							$rsLists = CIBlockProperty::GetPropertyEnum($arProp['ID'],array('SORT' => 'ASC','ID' => 'ASC'));
+							$arProp['VALUES'] = [];
+							$rsLists = CIBlockProperty::GetPropertyEnum(
+								$arProp['ID'],
+								[
+									'SORT' => 'ASC',
+									'ID' => 'ASC',
+								]
+							);
 							while($res = $rsLists->Fetch())
 							{
-								$arProp['VALUES'][$res["ID"]] = array(
+								$arProp['VALUES'][$res["ID"]] = [
 									'ID' => $res["ID"],
 									'VALUE' => $res["VALUE"],
 									'SORT' => $res['SORT'],
 									'XML_ID' => $res["XML_ID"],
 									'DEF' => $res['DEF'],
-								);
+								];
 							}
 						}
 
@@ -3696,21 +3815,21 @@ $tabControl->BeginNextTab();
 				}
 			?></table>
 			<div style="width: 100%; text-align: center; margin: 10px 0;">
-				<input class="adm-btn-big" onclick="obIBProps.addPropRow();" type="button" value="<? echo GetMessage('IB_E_SHOW_ADD_PROP_ROW')?>" title="<? echo GetMessage('IB_E_SHOW_ADD_PROP_ROW_DESCR')?>">
+				<input class="adm-btn-big" onclick="obIBProps.addPropRow();" type="button" value="<?= GetMessage('IB_E_SHOW_ADD_PROP_ROW')?>" title="<?= GetMessage('IB_E_SHOW_ADD_PROP_ROW_DESCR')?>">
 			</div>
-			<input type="hidden" name="IBLOCK_PROPERTY_COUNT" id="INT_IBLOCK_PROPERTY_COUNT" value="<? echo $intPropNumber; ?>">
+			<input type="hidden" name="IBLOCK_PROPERTY_COUNT" id="INT_IBLOCK_PROPERTY_COUNT" value="<?= $intPropNumber ?>">
 		</td>
 	</tr>
-<?
+<?php
 $tabControl->BeginNextTab();
 ?>
 	<tr><td colspan="2"><table border="0" cellspacing="0" cellpadding="0" class="internal" style="width:690px; margin: 0 auto;">
 		<tr class="heading">
-			<td width="125" style="text-align: left !important;"><?echo GetMessage("IB_E_SECTION_FIELD_NAME")?></td>
-			<td width="40"><?echo GetMessage("IB_E_SECTION_FIELD_IS_REQUIRED")?></td>
-			<td width="450" style="text-align: left !important;"><?echo GetMessage("IB_E_SECTION_FIELD_DEFAULT_VALUE")?></td>
+			<td width="125" style="text-align: left !important;"><?= GetMessage("IB_E_SECTION_FIELD_NAME")?></td>
+			<td width="40"><?= GetMessage("IB_E_SECTION_FIELD_IS_REQUIRED")?></td>
+			<td width="450" style="text-align: left !important;"><?= GetMessage("IB_E_SECTION_FIELD_DEFAULT_VALUE")?></td>
 		</tr>
-		<?
+		<?php
 		if($bVarsFromForm)
 			$arFields = $_REQUEST["FIELDS"];
 		else
@@ -3725,8 +3844,17 @@ $tabControl->BeginNextTab();
 			{
 				continue;
 			}
+			$checkboxAttrs = '';
+			if ($arFields[$FIELD_ID]['IS_REQUIRED'] === 'Y' || $arField['IS_REQUIRED'] !== false)
+			{
+				$checkboxAttrs .= ' checked';
+			}
+			if ($arField['IS_REQUIRED'] !== false)
+			{
+				$checkboxAttrs .= ' disabled';
+			}
 			?>
-		<tr <?
+		<tr <?php
 			if (
 				$FIELD_ID === "SECTION_DESCRIPTION"
 				|| $FIELD_ID === "SECTION_PICTURE"
@@ -3735,27 +3863,27 @@ $tabControl->BeginNextTab();
 			)
 				echo  'class="adm-detail-valign-top"';
 		?>>
-			<td><?echo $arDefFields[$FIELD_ID]["NAME"]?></td>
+			<td><?= $arField["NAME"] ?></td>
 			<td style="text-align:center">
-				<input type="hidden" value="N" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]">
-				<input type="checkbox" value="Y" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" <?if($arFields[$FIELD_ID]["IS_REQUIRED"]==="Y" || $arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "checked"?> <?if($arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "disabled"?>>
+				<input type="hidden" value="N" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]">
+				<input type="checkbox" value="Y" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]"<?= $checkboxAttrs ?>>
 			</td>
 			<td>
-			<?
+			<?php
 			switch($FIELD_ID)
 			{
 			case "SECTION_NAME":
 				?>
-				<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="60">
-				<?
+				<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?>" size="60">
+				<?php
 				break;
 			case "SECTION_DESCRIPTION_TYPE":
 				?>
 				<div class="adm-list">
 				<div class="adm-list-item">
-					<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" height="1">
-						<option value="text" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="text") echo "selected"?>>text</option>
-						<option value="html" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]==="html") echo "selected"?>>html</option>
+					<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" height="1">
+						<option value="text"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "text" ? ' selected' : '') ?>>text</option>
+						<option value="html"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"] === "html" ? ' selected' : '') ?>>html</option>
 					</select>
 				</div>
 				<div class="adm-list-item">
@@ -3763,14 +3891,14 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							name="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							name="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-							name="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							name="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+							<?php
 							if($arFields[$FIELD_ID."_ALLOW_CHANGE"]["DEFAULT_VALUE"]!=="N")
 								echo "checked";
 							?>
@@ -3778,17 +3906,17 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>_ALLOW_CHANGE][DEFAULT_VALUE]"
-						><?echo GetMessage("IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>_ALLOW_CHANGE][DEFAULT_VALUE]"
+						><?= GetMessage("IB_E_FIELD_TEXT_TYPE_ALLOW_CHANGE")?></label>
 					</div>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "SECTION_DESCRIPTION":
 				?>
-				<textarea name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]" rows="5" cols="47"><?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?></textarea>
-				<?
+				<textarea name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]" rows="5" cols="47"><?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"])?></textarea>
+				<?php
 				break;
 			case "SECTION_PICTURE":
 				?>
@@ -3798,33 +3926,33 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["FROM_DETAIL"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]').style.display =
 								this.checked ? 'block': 'none';
 								"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][FROM_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_FROM_DETAIL")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][FROM_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_FROM_DETAIL")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-					style="padding-left: 16px; display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+					style="padding-left: 16px; display:<?php
 					echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["FROM_DETAIL"]==="Y") ? 'block': 'none';
 					?>"
 				>
@@ -3832,15 +3960,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["UPDATE_WITH_DETAIL"]==="Y")
 								echo "checked"
 							?>
@@ -3848,8 +3976,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_UPDATE_WITH_DETAIL_EXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UPDATE_WITH_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_UPDATE_WITH_DETAIL_EXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -3857,15 +3985,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["DELETE_WITH_DETAIL"]==="Y")
 								echo "checked"
 							?>
@@ -3873,8 +4001,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
-						><?echo GetMessage("IB_E_FIELD_PREVIEW_PICTURE_DELETE_WITH_DETAIL")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][DELETE_WITH_DETAIL]"
+						><?= GetMessage("IB_E_FIELD_PREVIEW_PICTURE_DELETE_WITH_DETAIL")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -3882,53 +4010,53 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3936,15 +4064,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["IGNORE_ERRORS"]==="Y")
 								echo "checked";
 							?>
@@ -3952,13 +4080,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -3966,15 +4094,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value=""
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
 						>
 						<input
 							type="checkbox"
 							value="resample"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["METHOD"]==="resample")
 									echo "checked";
 							?>
@@ -3982,23 +4110,23 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage(
+					<?= GetMessage(
 						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
-						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+						['#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality()]
 					)?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
 						style="width: 30px"
 					>
 				</div>
@@ -4007,42 +4135,47 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClick".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -4050,35 +4183,37 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_FILE_"
+					]);
+					?>
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_FILE_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
 						size="35"
-					>&nbsp;<input type="button" value="..." onClick="BtnClick<?echo $FIELD_ID?>()">
+					>&nbsp;<input type="button" value="..." onClick="BtnClick<?= $FIELD_ID ?>()">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_FILE_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -4090,50 +4225,55 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
 						size="35"
 					>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClickFont".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -4141,77 +4281,79 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'ttf',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
+					]);
+					?>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
 						size="35">&nbsp;<input
 						type="button"
 						value="..."
-						onClick="BtnClickFont<?echo $FIELD_ID?>()"
+						onClick="BtnClickFont<?= $FIELD_ID ?>()"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-						id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+						id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
 						size="7"
 					><script>
-						function <?echo $FIELD_ID?>WATERMARK_TEXT_COLOR(color)
+						function <?= $FIELD_ID ?>WATERMARK_TEXT_COLOR(color)
 						{
-							BX('FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
+							BX('FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
 						}
 					</script>&nbsp;<input
 						type="button"
 						value="..."
 						onclick="BX.findChildren(this.parentNode, {'tag': 'IMG'}, true)[0].onclick();"
-					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?
+					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?php
 						$APPLICATION->IncludeComponent(
 							"bitrix:main.colorpicker",
 							"",
-							array(
+							[
 								"SHOW_BUTTON" =>"Y",
 								"ONSELECT" => $FIELD_ID."WATERMARK_TEXT_COLOR",
-							)
+							]
 						);
 					?></span>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -4219,7 +4361,7 @@ $tabControl->BeginNextTab();
 					);?>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "SECTION_DETAIL_PICTURE":
 				?>
@@ -4229,53 +4371,53 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][SCALE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][SCALE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_SCALE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_WIDTH")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WIDTH]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WIDTH"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
+					<?= GetMessage("IB_E_FIELD_PICTURE_HEIGHT")?>:&nbsp;<input name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][HEIGHT]" type="text" value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["HEIGHT"])?>" size="7">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -4283,15 +4425,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["IGNORE_ERRORS"]==="Y")
 								echo "checked";
 							?>
@@ -4299,13 +4441,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][IGNORE_ERRORS]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][IGNORE_ERRORS]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_IGNORE_ERRORS")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD_DIV]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD_DIV]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -4313,15 +4455,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value=""
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
 						>
 						<input
 							type="checkbox"
 							value="resample"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["METHOD"]==="resample")
 									echo "checked";
 							?>
@@ -4329,23 +4471,23 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][METHOD]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][METHOD]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_METHOD")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["SCALE"]==="Y")? 'block': 'none';
 					?>"
 				>
-					<?echo GetMessage(
+					<?= GetMessage(
 						"IB_E_FIELD_PICTURE_COMPRESSION_EXT",
-						array('#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality())
+						['#DEFAULT_VALUE#' => CIBlock::getDefaultJpegQuality()]
 					)?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][COMPRESSION]"
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][COMPRESSION]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["COMPRESSION"])?>"
 						style="width: 30px"
 					>
 				</div>
@@ -4354,42 +4496,47 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_FILE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_FILE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClick".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_FILE_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -4397,35 +4544,37 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'jpg,jpeg,png,gif,webp',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_FILE_"
+					]);
+					?>
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_FILE_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE"])?>"
 						size="35"
-					>&nbsp;<input type="button" value="..." onClick="BtnClick<?echo $FIELD_ID?>()">
+					>&nbsp;<input type="button" value="..." onClick="BtnClick<?= $FIELD_ID ?>()">
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_FILE_ALPHA")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_ALPHA]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_FILE_ALPHA"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_FILE_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_FILE"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?php
+					echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_FILE_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -4437,50 +4586,55 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-						><?echo GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+						><?= GetMessage("IB_E_FIELD_PICTURE_USE_WATERMARK_TEXT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_WATERMARK_TEXT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT"])?>"
 						size="35"
 					>
-					<?CAdminFileDialog::ShowScript(array(
+					<?php
+					CAdminFileDialog::ShowScript([
 						"event" => "BtnClickFont".$FIELD_ID,
-						"arResultDest" => array("ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"),
-						"arPath" => array("PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"]))),
+						"arResultDest" => [
+							"ELEMENT_ID" => "FIELDS_".$FIELD_ID."__DEFAULT_VALUE__WATERMARK_TEXT_FONT_",
+						],
+						"arPath" => [
+							"PATH" => GetDirPath(($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])),
+						],
 						"select" => 'F',// F - file only, D - folder only
 						"operation" => 'O',// O - open, S - save
 						"showUploadTab" => true,
@@ -4488,77 +4642,79 @@ $tabControl->BeginNextTab();
 						"fileFilter" => 'ttf',
 						"allowAllFiles" => false,
 						"SaveConfig" => true,
-					));?>
+					]);
+					?>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
-						id="FIELDS_<?echo $FIELD_ID?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_FONT")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_FONT]"
+						id="FIELDS_<?= $FIELD_ID ?>__DEFAULT_VALUE__WATERMARK_TEXT_FONT_"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_FONT"])?>"
 						size="35">&nbsp;<input
 						type="button"
 						value="..."
-						onClick="BtnClickFont<?echo $FIELD_ID?>()"
+						onClick="BtnClickFont<?= $FIELD_ID ?>()"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
-						id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_TEXT_COLOR")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
+						id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_COLOR"])?>"
 						size="7"
 					><script>
-						function <?echo $FIELD_ID?>WATERMARK_TEXT_COLOR(color)
+						function <?= $FIELD_ID ?>WATERMARK_TEXT_COLOR(color)
 						{
-							BX('FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
+							BX('FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_COLOR]').value = color.substring(1);
 						}
 					</script>&nbsp;<input
 						type="button"
 						value="..."
 						onclick="BX.findChildren(this.parentNode, {'tag': 'IMG'}, true)[0].onclick();"
-					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?
+					><span style="float:left;width:1px;height:1px;visibility:hidden;position:absolute;"><?php
 						$APPLICATION->IncludeComponent(
 							"bitrix:main.colorpicker",
 							"",
-							array(
+							[
 								"SHOW_BUTTON" =>"Y",
 								"ONSELECT" => $FIELD_ID."WATERMARK_TEXT_COLOR",
-							)
+							]
 						);
 					?></span>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_SIZE")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_SIZE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["WATERMARK_TEXT_SIZE"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_WATERMARK_TEXT"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION")?>:&nbsp;<?echo SelectBox(
+					<?= GetMessage("IB_E_FIELD_PICTURE_WATERMARK_POSITION") ?>:&nbsp;<?php
+						echo SelectBox(
 						"FIELDS[".$FIELD_ID."][DEFAULT_VALUE][WATERMARK_TEXT_POSITION]",
 						IBlockGetWatermarkPositions(),
 						"",
@@ -4566,7 +4722,7 @@ $tabControl->BeginNextTab();
 					);?>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			case "SECTION_CODE":
 				?>
@@ -4576,15 +4732,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["UNIQUE"]==="Y")
 								echo "checked";
 							?>
@@ -4592,8 +4748,8 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][UNIQUE]"
-						><?echo GetMessage("IB_E_FIELD_CODE_UNIQUE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][UNIQUE]"
+						><?= GetMessage("IB_E_FIELD_CODE_UNIQUE")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item">
@@ -4601,94 +4757,94 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+							<?php
 							if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")
 								echo "checked";
 							?>
 							onclick="
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]').style.display =
-								BX('SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]').style.display =
+								BX('SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]').style.display =
 								this.checked? 'block': 'none';
 							"
 						>
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANSLITERATION]"
-						><?echo GetMessage("IB_E_FIELD_SEC_TRANSLITERATION")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANSLITERATION]"
+						><?= GetMessage("IB_E_FIELD_SEC_TRANSLITERATION")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_LEN")?>:&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_LEN]"
+					<?= GetMessage("IB_E_FIELD_TRANS_LEN")?>:&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_LEN]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_LEN"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_LEN"])?>"
 						size="3"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_CASE")?>:&nbsp;<select name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_CASE]">
-						<option value=""><?echo GetMessage("IB_E_FIELD_TRANS_CASE_LEAVE")?>
+					<?= GetMessage("IB_E_FIELD_TRANS_CASE")?>:&nbsp;<select name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_CASE]">
+						<option value=""><?= GetMessage("IB_E_FIELD_TRANS_CASE_LEAVE") ?>
 						</option>
-						<option value="L" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"]==="L") echo "selected"?>>
-							<?echo GetMessage("IB_E_FIELD_TRANS_CASE_LOWER")?>
+						<option value="L"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"] === "L" ? ' selected' : '') ?>>
+							<?= GetMessage("IB_E_FIELD_TRANS_CASE_LOWER")?>
 						</option>
-						<option value="U" <?if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"]==="U") echo "selected"?>>
-							<?echo GetMessage("IB_E_FIELD_TRANS_CASE_UPPER")?>
+						<option value="U"<?= ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_CASE"] === "U" ? ' selected' : '') ?>>
+							<?= GetMessage("IB_E_FIELD_TRANS_CASE_UPPER")?>
 						</option>
 					</select>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_SPACE")?>&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_SPACE]"
+					<?= GetMessage("IB_E_FIELD_TRANS_SPACE")?>&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_SPACE]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_SPACE"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_SPACE"])?>"
 						size="2"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]"
+					style="padding-left:16px;display:<?php
 						if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y") echo 'block'; else echo 'none';
 					?>"
 				>
-					<?echo GetMessage("IB_E_FIELD_TRANS_OTHER")?>&nbsp;<input
-						name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_OTHER]"
+					<?= GetMessage("IB_E_FIELD_TRANS_OTHER")?>&nbsp;<input
+						name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_OTHER]"
 						type="text"
-						value="<?echo htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_OTHER"])?>"
+						value="<?= htmlspecialcharsbx($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_OTHER"])?>"
 						size="2"
 					>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -4696,14 +4852,14 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANS_EAT"]==="Y")
 									echo "checked";
 							?>
@@ -4711,13 +4867,13 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][TRANS_EAT]"
-						><?echo GetMessage("IB_E_FIELD_TRANS_EAT")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][TRANS_EAT]"
+						><?= GetMessage("IB_E_FIELD_TRANS_EAT")?></label>
 					</div>
 				</div>
 				<div class="adm-list-item"
-					id="SETTINGS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-					style="padding-left:16px;display:<?
+					id="SETTINGS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+					style="padding-left:16px;display:<?php
 						echo ($arFields[$FIELD_ID]["DEFAULT_VALUE"]["TRANSLITERATION"]==="Y")? 'block': 'none';
 					?>"
 				>
@@ -4725,15 +4881,15 @@ $tabControl->BeginNextTab();
 						<input
 							type="hidden"
 							value="N"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]_hidden"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]_hidden"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
 						>
 						<input
 							type="checkbox"
 							value="Y"
-							id="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-							name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-							<?
+							id="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+							name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+							<?php
 								if($arFields[$FIELD_ID]["DEFAULT_VALUE"]["USE_GOOGLE"]==="Y")
 									echo "checked";
 							?>
@@ -4741,58 +4897,60 @@ $tabControl->BeginNextTab();
 					</div>
 					<div class="adm-list-label">
 						<label
-							for="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE][USE_GOOGLE]"
-						><?echo GetMessage("IB_E_FIELD_EL_TRANS_USE_SERVICE")?></label>
+							for="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE][USE_GOOGLE]"
+						><?= GetMessage("IB_E_FIELD_EL_TRANS_USE_SERVICE") ?></label>
 					</div>
 				</div>
 				</div>
-				<?
+				<?php
 				break;
 			default:
 				?>
-				<input type="hidden" value="" name="FIELDS[<?echo $FIELD_ID?>][DEFAULT_VALUE]">&nbsp;
-				<?
+				<input type="hidden" value="" name="FIELDS[<?= $FIELD_ID ?>][DEFAULT_VALUE]">&nbsp;
+				<?php
 				break;
 			}
 			?>
 			</td>
 		</tr>
-		<?endforeach;?>
+		<?php
+		endforeach;
+		?>
 	</table> </td> </tr>
-<?
+<?php
 if($bTab3):
 	$tabControl->BeginNextTab();
 	?>
 	<tr>
-		<td  width="40%"><label for="RSS_ACTIVE"><?echo GetMessage("IB_E_RSS_ACTIVE")?></label></td>
+		<td  width="40%"><label for="RSS_ACTIVE"><?= GetMessage("IB_E_RSS_ACTIVE")?></label></td>
 		<td width="60%">
 			<input type="hidden" name="RSS_ACTIVE" value="N">
-			<input type="checkbox" id="RSS_ACTIVE" name="RSS_ACTIVE" value="Y"<?if($str_RSS_ACTIVE=="Y")echo " checked"?>>
+			<input type="checkbox" id="RSS_ACTIVE" name="RSS_ACTIVE" value="Y"<?= ($str_RSS_ACTIVE == "Y" ? ' checked' : '') ?>>
 		</td>
 	</tr>
 	<tr>
-		<td ><? echo GetMessage("IB_E_RSS_TTL")?></td>
+		<td ><?= GetMessage("IB_E_RSS_TTL")?></td>
 		<td>
-			<input type="text" name="RSS_TTL" size="20"  maxlength="40" value="<?echo $str_RSS_TTL?>">
+			<input type="text" name="RSS_TTL" size="20"  maxlength="40" value="<?= $str_RSS_TTL ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><label for="RSS_FILE_ACTIVE"><?echo GetMessage("IB_E_RSS_FILE_ACTIVE")?></label></td>
+		<td><label for="RSS_FILE_ACTIVE"><?= GetMessage("IB_E_RSS_FILE_ACTIVE")?></label></td>
 		<td>
 			<input type="hidden" name="RSS_FILE_ACTIVE" value="N">
-			<input type="checkbox" id="RSS_FILE_ACTIVE" name="RSS_FILE_ACTIVE" value="Y"<?if($str_RSS_FILE_ACTIVE=="Y")echo " checked"?>>
+			<input type="checkbox" id="RSS_FILE_ACTIVE" name="RSS_FILE_ACTIVE" value="Y"<?= ($str_RSS_FILE_ACTIVE == "Y" ? ' checked' : '') ?>>
 		</td>
 	</tr>
 	<tr>
-		<td  ><? echo GetMessage("IB_E_RSS_FILE_LIMIT")?></td>
+		<td  ><?= GetMessage("IB_E_RSS_FILE_LIMIT")?></td>
 		<td  >
-			<input type="text" name="RSS_FILE_LIMIT"  size="20" maxlength="40" value="<?echo $str_RSS_FILE_LIMIT?>">
+			<input type="text" name="RSS_FILE_LIMIT"  size="20" maxlength="40" value="<?= $str_RSS_FILE_LIMIT ?>">
 		</td>
 	</tr>
 	<tr>
-		<td ><? echo GetMessage("IB_E_RSS_FILE_DAYS")?></td>
+		<td ><?= GetMessage("IB_E_RSS_FILE_DAYS")?></td>
 		<td>
-			<input type="text" name="RSS_FILE_DAYS"  size="20" maxlength="40" value="<?echo $str_RSS_FILE_DAYS?>">
+			<input type="text" name="RSS_FILE_DAYS"  size="20" maxlength="40" value="<?= $str_RSS_FILE_DAYS ?>">
 		</td>
 	</tr>
 
@@ -4801,10 +4959,10 @@ if($bTab3):
 	{
 		?>
 		<tr>
-			<td><label for="RSS_YANDEX_ACTIVE"><?echo GetMessage("IB_E_RSS_YANDEX_ACTIVE")?></label></td>
+			<td><label for="RSS_YANDEX_ACTIVE"><?= GetMessage("IB_E_RSS_YANDEX_ACTIVE")?></label></td>
 			<td>
 				<input type="hidden" name="RSS_YANDEX_ACTIVE" value="N">
-				<input type="checkbox" id="RSS_YANDEX_ACTIVE" name="RSS_YANDEX_ACTIVE" value="Y"<?if($str_RSS_YANDEX_ACTIVE=="Y")echo " checked"?>>
+				<input type="checkbox" id="RSS_YANDEX_ACTIVE" name="RSS_YANDEX_ACTIVE" value="Y"<?= ($str_RSS_YANDEX_ACTIVE == "Y" ? ' checked' : '') ?>>
 			</td>
 		</tr>
 		<?php
@@ -4812,16 +4970,16 @@ if($bTab3):
 	?>
 
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IB_E_RSS_TITLE")?>:</td>
+		<td colspan="2"><?= GetMessage("IB_E_RSS_TITLE")?>:</td>
 	</tr>
 	<tr>
 		<td  colspan="2" align="center">
 			<table class="internal">
 				<tr class="heading">
-					<td><?echo GetMessage("IB_E_RSS_FIELD")?></td>
-					<td><?echo GetMessage("IB_E_RSS_TEMPL")?></td>
+					<td><?= GetMessage("IB_E_RSS_FIELD")?></td>
+					<td><?= GetMessage("IB_E_RSS_TEMPL")?></td>
 				</tr>
-				<?
+				<?php
 				$arCurNodesRSS = CIBlockRSS::GetNodeList(intval($ID));
 				$arNodesRSS = CIBlockRSS::GetRSSNodes();
 				foreach($arNodesRSS as $key => $val):
@@ -4832,21 +4990,26 @@ if($bTab3):
 					?>
 					<tr>
 						<td>
-							<input type="text" size="20" readonly maxlength="50" name="RSS_NODE_<?echo $key?>" value="<?echo $val?>">
+							<input type="text" size="20" readonly maxlength="50" name="RSS_NODE_<?= $key ?>" value="<?= $val ?>">
 						</td>
-						<td><input type="text" size="20" name="RSS_NODE_VALUE_<?echo $key?>" value="<?echo ($arCurNodesRSS[$val] ?? '');?>"></td>
+						<td><input type="text" size="20" name="RSS_NODE_VALUE_<?= $key ?>" value="<?= ($arCurNodesRSS[$val] ?? '') ?>"></td>
 					</tr>
-				<?endforeach;?>
+				<?php
+				endforeach;
+				?>
 			</table>
 		</td>
 	</tr>
-	<?
+	<?php
 endif;
 if ($bCatalog)
 {
-	$arIBlockTypeIDList = array();
-	$arIBlockTypeNameList = array();
-	$rsIBlockTypes = CIBlockType::GetList(array("sort"=>"asc"), array("ACTIVE"=>"Y"));
+	$arIBlockTypeIDList = [];
+	$arIBlockTypeNameList = [];
+	$rsIBlockTypes = CIBlockType::GetList(
+		["sort"=>"asc"],
+		["ACTIVE"=>"Y"]
+	);
 	while ($arIBlockType = $rsIBlockTypes->Fetch())
 	{
 		if ($ar = CIBlockType::GetByIDLang($arIBlockType["ID"], LANGUAGE_ID, true))
@@ -4862,28 +5025,28 @@ if ($bCatalog)
 		}
 	}
 
-	$arIBlockSitesList = array();
-	$arIBlockFullInfo = array();
+	$arIBlockSitesList = [];
+	$arIBlockFullInfo = [];
 
-	$rsIBlocks = CIBlock::GetList(array('IBLOCK_TYPE' => 'ASC','NAME' => 'ASC'));
+	$rsIBlocks = CIBlock::GetList(['IBLOCK_TYPE' => 'ASC','NAME' => 'ASC']);
 	while ($arIBlock = $rsIBlocks->Fetch())
 	{
 		if (false == array_key_exists($arIBlock['ID'],$arIBlockSitesList))
 		{
-			$arLIDList = array();
-			$arWithoutLinks = array();
+			$arLIDList = [];
+			$arWithoutLinks = [];
 			$rsIBlockSites = CIBlock::GetSite($arIBlock['ID']);
 			while ($arIBlockSite = $rsIBlockSites->Fetch())
 			{
 				$arLIDList[] = $arIBlockSite['LID'];
 				$arWithoutLinks[] = htmlspecialcharsbx($arIBlockSite['LID']);
 			}
-			$arIBlockSitesList[$arIBlock['ID']] = array(
+			$arIBlockSitesList[$arIBlock['ID']] = [
 				'SITE_ID' => $arLIDList,
 				'WITHOUT_LINKS' => implode(' ',$arWithoutLinks),
-			);
+			];
 		}
-		$arIBlockItem = array(
+		$arIBlockItem = [
 			'ID' => $arIBlock['ID'],
 			'IBLOCK_TYPE_ID' => $arIBlock['IBLOCK_TYPE_ID'],
 			'SITE_ID' => $arIBlockSitesList[$arIBlock['ID']]['SITE_ID'],
@@ -4898,7 +5061,7 @@ if ($bCatalog)
 			'SKU_PROPERTY_ID' => 0,
 			'OFFERS_IBLOCK_ID' => 0,
 			'IS_OFFERS' => 'N',
-		);
+		];
 		$ar_res1 = CCatalog::GetByID($arIBlock['ID']);
 		if (is_array($ar_res1))
 		{
@@ -4923,43 +5086,54 @@ if ($bCatalog)
 
 	$tabControl->BeginNextTab();
 	?>
-	<script type="text/javascript">
+	<script>
 	var obOFProps = new JCIBlockProperty({
-		'PREFIX': '<? echo $strPREFIX_OF_PROPERTY ?>',
+		'PREFIX': '<?= $strPREFIX_OF_PROPERTY ?>',
 		'FORM_ID': 'frm',
 		'TABLE_PROP_ID': 'of_prop_list',
 		'PROP_COUNT_ID': 'INT_OFFERS_PROPERTY_COUNT',
 		'IBLOCK_ID': 0,
-		'LANG': '<? echo LANGUAGE_ID; ?>',
-		'TITLE': '<? echo GetMessageJS('IB_E_OF_PROPERTY_DETAIL'); ?>',
+		'LANG': '<?= LANGUAGE_ID ?>',
+		'TITLE': '<?= GetMessageJS('IB_E_OF_PROPERTY_DETAIL') ?>',
 		'OBJ': 'obOFProps'
 	});
 
 	obOFProps.SetCells(CellTPL,8,CellAttr);
 	</script>
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IB_E_CATALOG_TITLE")?></td>
+		<td colspan="2"><?= GetMessage("IB_E_CATALOG_TITLE")?></td>
 	</tr>
 	<tr>
-		<td  width="40%"><label for="IS_CATALOG_Y"><?echo GetMessage("IB_E_IS_CATALOG")?></label></td>
+		<td  width="40%"><label for="IS_CATALOG_Y"><?= GetMessage("IB_E_IS_CATALOG")?></label></td>
 		<td width="60%">
-			<input type="hidden" name="IS_CATALOG" id="IS_CATALOG_N" value="N">
-			<input type="checkbox" name="IS_CATALOG" id="IS_CATALOG_Y" value="Y"<?if('Y' == $str_IS_CATALOG)echo " checked"?><? if ('O' == $str_CATALOG_TYPE) echo ' disabled="disabled"'; ?> onclick="ib_checkFldActivity(0);">
+			<?php
+			$hiddenIsCatalog =
+				$str_CATALOG_TYPE === \CCatalogSku::TYPE_OFFERS
+					? 'Y'
+					: 'N'
+			;
+			$checkboxAttrs =
+				($str_IS_CATALOG === 'Y' ? ' checked' : '')
+				. ($str_CATALOG_TYPE === \CCatalogSku::TYPE_OFFERS ? ' disabled="disabled"' : '')
+			;
+			?>
+			<input type="hidden" name="IS_CATALOG" id="IS_CATALOG_N" value="<?= $hiddenIsCatalog ?>">
+			<input type="checkbox" name="IS_CATALOG" id="IS_CATALOG_Y" value="Y"<?= $checkboxAttrs ?> onclick="ib_checkFldActivity(0);">
 		</td>
-	</tr><?
+	</tr><?php
 	if (CBXFeatures::IsFeatureEnabled('SaleRecurring'))
 	{
 	?><tr>
-		<td  width="40%"><label for="IS_CONTENT_Y"><?echo GetMessage("IB_E_IS_CONTENT")?></label></td>
+		<td  width="40%"><label for="IS_CONTENT_Y"><?= GetMessage("IB_E_IS_CONTENT")?></label></td>
 		<td width="60%">
 			<input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N">
-			<input type="checkbox" id="IS_CONTENT_Y" name="SUBSCRIPTION" value="Y"<?if('Y' == $str_SUBSCRIPTION)echo " checked"?> onclick="ib_checkFldActivity(1);">
+			<input type="checkbox" id="IS_CONTENT_Y" name="SUBSCRIPTION" value="Y"<?= ('Y' == $str_SUBSCRIPTION ? ' checked' : '') ?> onclick="ib_checkFldActivity(1);">
 		</td>
-	</tr><?
+	</tr><?php
 	}
 	else
 	{
-		?><input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N"><?
+		?><input type="hidden" id="IS_CONTENT_N" name="SUBSCRIPTION" value="N"><?php
 	}
 	?>
 
@@ -4968,55 +5142,55 @@ if ($bCatalog)
 	{
 		?>
 		<tr>
-			<td  width="40%"><label for="YANDEX_EXPORT_Y"><?echo GetMessage("IB_E_YANDEX_EXPORT")?></label></td>
+			<td  width="40%"><label for="YANDEX_EXPORT_Y"><?= GetMessage("IB_E_YANDEX_EXPORT")?></label></td>
 			<td width="60%">
 				<input type="hidden" id="YANDEX_EXPORT_N" name="YANDEX_EXPORT" value="N">
-				<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<?if('Y' == $str_YANDEX_EXPORT)echo " checked"?> <? if ('Y' != $str_IS_CATALOG) echo 'disabled="disabled"'; ?>>
+				<input type="checkbox" id="YANDEX_EXPORT_Y" name="YANDEX_EXPORT" value="Y"<?= ('Y' == $str_YANDEX_EXPORT ?  ' checked' : '') . ('Y' != $str_IS_CATALOG ? ' disabled="disabled"' : '') ?>>
 			</td>
 		</tr>
 		<?php
 	}
 	?>
 	<tr>
-		<td  width="40%"><label for="VAT_ID"><?echo GetMessage("IB_E_VAT_ID")?></label></td>
-		<td width="60%"><?
-		$arVATRef = CatalogGetVATArray(array(), true);
+		<td  width="40%"><label for="VAT_ID"><?= GetMessage("IB_E_VAT_ID")?></label></td>
+		<td width="60%"><?php
+		$arVATRef = CatalogGetVATArray([], true);
 		?><?=SelectBoxFromArray('VAT_ID', $arVATRef, $str_VAT_ID, '', ('Y' != $str_IS_CATALOG ? 'disabled="disabled"' : ''));?></td>
 	</tr>
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IB_E_SKU_TITLE")?></td>
+		<td colspan="2"><?= GetMessage("IB_E_SKU_TITLE")?></td>
 	</tr>
-	<input type="hidden" name="CATALOG_TYPE" value="<? echo htmlspecialcharsbx($str_CATALOG_TYPE);?>" id="CATALOG_TYPE">
-	<?
+	<input type="hidden" name="CATALOG_TYPE" value="<?= htmlspecialcharsbx($str_CATALOG_TYPE) ?>" id="CATALOG_TYPE">
+	<?php
 	if ('O' == $str_CATALOG_TYPE)
 	{
 	?>
 	<tr>
-		<td  width="40%"><?echo GetMessage("IB_E_IS_SKU")?></td>
-		<td width="60%"><a href="/bitrix/admin/iblock_edit.php?type=<? echo $str_PRODUCT_IBLOCK_TYPE_ID; ?>&lang=<? echo LANGUAGE_ID; ?>&ID=<? echo $str_PRODUCT_IBLOCK_ID; ?>&admin=Y"><? echo htmlspecialcharsbx($str_PRODUCT_IBLOCK_NAME); ?></a>
+		<td  width="40%"><?= GetMessage("IB_E_IS_SKU")?></td>
+		<td width="60%"><a href="/bitrix/admin/iblock_edit.php?type=<?= $str_PRODUCT_IBLOCK_TYPE_ID ?>&lang=<?= LANGUAGE_ID ?>&ID=<?= $str_PRODUCT_IBLOCK_ID ?>&admin=Y"><?= htmlspecialcharsbx($str_PRODUCT_IBLOCK_NAME) ?></a>
 		<input type="hidden" id="USED_SKU_N" name="USED_SKU" value="N"></td>
 	</tr>
-	<?
+	<?php
 	}
 	else
 	{
 	?>
 	<tr>
-		<td  width="40%"><label for="USED_SKU_Y"><?echo GetMessage("IB_E_USED_SKU")?></label></td>
+		<td  width="40%"><label for="USED_SKU_Y"><?= GetMessage("IB_E_USED_SKU")?></label></td>
 		<td width="60%">
 			<input type="hidden" id="USED_SKU_N" name="USED_SKU" value="N">
-			<input type="checkbox" id="USED_SKU_Y" name="USED_SKU" value="Y"<?if('Y' == $str_USED_SKU) echo " checked"?> onclick="ib_skumaster(this)">
+			<input type="checkbox" id="USED_SKU_Y" name="USED_SKU" value="Y"<?= ('Y' == $str_USED_SKU ? ' checked' : '') ?> onclick="ib_skumaster(this)">
 		</td>
 	</tr>
 	<tr>
 	<td colspan="2">
-	<div style="display: <? echo ('Y' == $str_USED_SKU ? 'block' : 'none');?>; width: 100%;" id="SKU-SETTINGS">
+	<div style="display: <?= ('Y' == $str_USED_SKU ? 'block' : 'none') ?>; width: 100%;" id="SKU-SETTINGS">
 		<table style="width: 100%;"><tbody>
 		<tr>
-		<td  width="40%" class="field-name"><?echo GetMessage("IB_E_OF_IBLOCK_INFO")?></td>
+		<td  width="40%" class="field-name"><?= GetMessage("IB_E_OF_IBLOCK_INFO")?></td>
 		<td width="60%"><select id="OF_IBLOCK_ID" name="OF_IBLOCK_ID" class="typeselect" onchange="show_add_offers(this);">
-			<option value="0" <? echo (0 == $str_OF_IBLOCK_ID ? 'selected' : '');?>><? echo GetMessage('IB_E_OF_IBLOCK_EMPTY')?></option>
-			<option value="<? echo CATALOG_NEW_OFFERS_IBLOCK_NEED; ?>" <? echo (CATALOG_NEW_OFFERS_IBLOCK_NEED == $str_OF_IBLOCK_ID ? 'selected' : '');?>><? echo GetMessage('IB_E_OF_IBLOCK_NEW')?></option><?
+			<option value="0" <?= (0 == $str_OF_IBLOCK_ID ? 'selected' : '') ?>><?= GetMessage('IB_E_OF_IBLOCK_EMPTY')?></option>
+			<option value="<?= CATALOG_NEW_OFFERS_IBLOCK_NEED ?>" <?= (CATALOG_NEW_OFFERS_IBLOCK_NEED == $str_OF_IBLOCK_ID ? 'selected' : '') ?>><?= GetMessage('IB_E_OF_IBLOCK_NEW')?></option><?php
 			if (0 < $ID)
 			{
 				// for new iblock only new offers
@@ -5035,9 +5209,9 @@ if ($bCatalog)
 					{
 						if (0 < $ID)
 						{
-							$arDiffParent = array();
+							$arDiffParent = [];
 							$arDiffParent = array_diff($value['SITE_ID'],$str_LID);
-							$arDiffOffer = array();
+							$arDiffOffer = [];
 							$arDiffOffer = array_diff($str_LID,$value['SITE_ID']);
 							if ((false == empty($arDiffParent)) || (false == empty($arDiffOffer)))
 							{
@@ -5047,7 +5221,7 @@ if ($bCatalog)
 					}
 					if ($boolAdd)
 					{
-						?><option value="<? echo intval($value['ID']); ?>"<? echo ($value['ID'] == $str_OF_IBLOCK_ID ? ' selected' : ''); ?>><? echo $value['FULL_NAME']; ?></option><?
+						?><option value="<?= (int)$value['ID'] ?>"<?= ($value['ID'] == $str_OF_IBLOCK_ID ? ' selected' : '') ?>><?= $value['FULL_NAME']; ?></option><?php
 					}
 				}
 			}
@@ -5055,13 +5229,13 @@ if ($bCatalog)
 		</td>
 		</tr>
 		</tbody></table>
-		<?
+		<?php
 		/*
 		?>
 		<div id="offers_rights" style="display: <? echo (0 < intval($str_OF_IBLOCK_ID) ? 'display' : 'none'); ?>; width: 100%; text-align: center;">
 			<table style="width: 100%;"><tbody>
 			<tr>
-			<td  width="40%" class="field-name"><label for="SKU_RIGHTS_Y"><?echo GetMessage("IB_E_OF_RIGHTS"); ?></label></td>
+			<td  width="40%" class="field-name"><label for="SKU_RIGHTS_Y"><?= GetMessage("IB_E_OF_RIGHTS"); ?></label></td>
 			<td width="60%">
 				<input type="hidden" name="SKU_RIGHTS" id="SKU_RIGHTS_N" value="N">
 				<input type="checkbox" name="SKU_RIGHTS" id="SKU_RIGHTS_Y" value="Y"<?if('Y' == $str_SKU_RIGHTS) echo " checked"; ?>>
@@ -5069,35 +5243,41 @@ if ($bCatalog)
 			</tr>
 			</tbody></table>
 			</div>
-			<?
+			<?php
 			*/
 			?>
-			<div id="offers_add_info" style="display: <? echo (CATALOG_NEW_OFFERS_IBLOCK_NEED == $str_OF_IBLOCK_ID ? 'display' : 'none'); ?>; width: 100%; text-align: center;"><table style="margin: auto;"><tbody>
-			<tr><td style="text-align: right; width: 25%;" class="field-name"><? echo GetMessage('IB_E_OF_PR_TITLE'); ?>:</td><td style="text-align: left; width: 75%;"><input type="text" name="OF_IBLOCK_NAME" value="<?=htmlspecialcharsbx($str_OF_IBLOCK_NAME);?>" style="width: 100%;" /></td></tr>
-			<tr><td style="text-align: left; width: 100%;" colspan="2" class="field-name"><input type="radio" value="N" id="OF_CREATE_IBLOCK_TYPE_ID_N" name="OF_CREATE_IBLOCK_TYPE_ID" <? echo ('N' == $str_OF_CREATE_IBLOCK_TYPE_ID ? 'checked="checked"' : '')?> onclick="change_offers_ibtype(this);"><label for="CREATE_OFFERS_TYPE_N"><? echo GetMessage('IB_E_OF_PR_OLD_IBTYPE');?></label></td></tr>
-			<tr><td style="text-align: right; width: 25%;" class="field-name"><? echo GetMessage('IB_E_OF_PR_OFFERS_TYPE'); ?>:</td><td style="text-align: left; width: 75%;"><? echo SelectBoxFromArray('OF_IBLOCK_TYPE_ID',array('REFERENCE' => $arIBlockTypeNameList,'REFERENCE_ID' => $arIBlockTypeIDList),$str_OF_IBLOCK_TYPE_ID,'',('N' == $str_OF_CREATE_IBLOCK_TYPE_ID ? '' : 'disabled="disabled"')); ?></td></tr>
-			<tr><td style="text-align: left; width: 100%;" colspan="2" class="field-name"><input type="radio" value="Y" id="OF_CREATE_IBLOCK_TYPE_ID_Y" name="OF_CREATE_IBLOCK_TYPE_ID" <? echo ('Y' == $str_OF_CREATE_IBLOCK_TYPE_ID ? 'checked="checked"' : '')?> onclick="change_offers_ibtype(this);"><label for="CREATE_OFFERS_TYPE_Y"><? echo GetMessage('IB_E_OF_PR_OFFERS_NEW_IBTYPE');?></label></td></tr>
-			<tr><td style="text-align: right; width: 25%;" class="field-name"><? echo GetMessage('IB_E_OF_PR_OFFERS_NEWTYPE'); ?>:</td><td style="text-align: left; width: 75%;"><input type="text" name="OF_NEW_IBLOCK_TYPE_ID" id="OF_NEW_IBLOCK_TYPE_ID" value="" style="width: 100%;" <? echo ('Y' == $str_OF_CREATE_IBLOCK_TYPE_ID ? '' : 'disabled="disabled"') ?> /></td></tr>
+			<div id="offers_add_info" style="display: <?= (CATALOG_NEW_OFFERS_IBLOCK_NEED == $str_OF_IBLOCK_ID ? 'display' : 'none'); ?>; width: 100%; text-align: center;"><table style="margin: auto;"><tbody>
+			<tr><td style="text-align: right; width: 25%;" class="field-name"><?= GetMessage('IB_E_OF_PR_TITLE'); ?>:</td><td style="text-align: left; width: 75%;"><input type="text" name="OF_IBLOCK_NAME" value="<?=htmlspecialcharsbx($str_OF_IBLOCK_NAME);?>" style="width: 100%;" /></td></tr>
+			<tr><td style="text-align: left; width: 100%;" colspan="2" class="field-name"><input type="radio" value="N" id="OF_CREATE_IBLOCK_TYPE_ID_N" name="OF_CREATE_IBLOCK_TYPE_ID" <?= ('N' == $str_OF_CREATE_IBLOCK_TYPE_ID ? 'checked="checked"' : '') ?> onclick="change_offers_ibtype(this);"><label for="CREATE_OFFERS_TYPE_N"><?= GetMessage('IB_E_OF_PR_OLD_IBTYPE');?></label></td></tr>
+			<tr><td style="text-align: right; width: 25%;" class="field-name"><?= GetMessage('IB_E_OF_PR_OFFERS_TYPE'); ?>:</td><td style="text-align: left; width: 75%;"><?= SelectBoxFromArray('OF_IBLOCK_TYPE_ID',array('REFERENCE' => $arIBlockTypeNameList,'REFERENCE_ID' => $arIBlockTypeIDList),$str_OF_IBLOCK_TYPE_ID,'',('N' == $str_OF_CREATE_IBLOCK_TYPE_ID ? '' : 'disabled="disabled"')); ?></td></tr>
+			<tr><td style="text-align: left; width: 100%;" colspan="2" class="field-name"><input type="radio" value="Y" id="OF_CREATE_IBLOCK_TYPE_ID_Y" name="OF_CREATE_IBLOCK_TYPE_ID" <?= ('Y' == $str_OF_CREATE_IBLOCK_TYPE_ID ? 'checked="checked"' : '') ?> onclick="change_offers_ibtype(this);"><label for="CREATE_OFFERS_TYPE_Y"><?= GetMessage('IB_E_OF_PR_OFFERS_NEW_IBTYPE');?></label></td></tr>
+			<tr><td style="text-align: right; width: 25%;" class="field-name"><?= GetMessage('IB_E_OF_PR_OFFERS_NEWTYPE'); ?>:</td><td style="text-align: left; width: 75%;"><input type="text" name="OF_NEW_IBLOCK_TYPE_ID" id="OF_NEW_IBLOCK_TYPE_ID" value="" style="width: 100%;" <?= ('Y' == $str_OF_CREATE_IBLOCK_TYPE_ID ? '' : 'disabled="disabled"') ?> /></td></tr>
 			</tbody></table>
-			<div><b><? echo GetMessage('IB_E_OFFERS_PROPERTIES'); ?></b></div>
+			<div><b><?= GetMessage('IB_E_OFFERS_PROPERTIES'); ?></b></div>
 			<table class="internal" style="text-align: center; margin: auto;" id="of_prop_list">
 				<tr class="heading">
 					<td>ID</td>
-					<td><?echo GetMessage("IB_E_PROP_NAME_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_TYPE_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_ACTIVE_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_MULT_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_REQIRED_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_SORT_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_CODE_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_MODIFY_SHORT")?></td>
-					<td><?echo GetMessage("IB_E_PROP_DELETE_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_NAME_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_TYPE_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_ACTIVE_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_MULT_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_REQIRED_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_SORT_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_CODE_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_MODIFY_SHORT")?></td>
+					<td><?= GetMessage("IB_E_PROP_DELETE_SHORT")?></td>
 				</tr>
-				<?
-				$arOFPropList = array();
+				<?php
+				$arOFPropList = [];
 				if (0 < intval($str_OF_IBLOCK_ID))
 				{
-					$rsProps = CIBlock::GetProperties($str_OF_IBLOCK_ID, array("SORT"=>"ASC",'ID' => 'ASC'));
+					$rsProps = CIBlock::GetProperties(
+						$str_OF_IBLOCK_ID,
+						[
+							'SORT' => 'ASC',
+							'ID' => 'ASC',
+						]
+					);
 					while ($arProp = $rsProps->Fetch())
 					{
 						ConvProp($arProp,$arHiddenPropFields);
@@ -5150,17 +5330,17 @@ if ($bCatalog)
 				}
 				?></table>
 				<div style="width: 100%; text-align: center; margin: 10px 0;">
-					<input class="adm-btn-big" onclick="obOFProps.addPropRow();" type="button" value="<? echo GetMessage('IB_E_SHOW_ADD_PROP_ROW')?>" title="<? echo GetMessage('IB_E_SHOW_ADD_PROP_ROW_DESCR')?>">
+					<input class="adm-btn-big" onclick="obOFProps.addPropRow();" type="button" value="<?= GetMessage('IB_E_SHOW_ADD_PROP_ROW') ?>" title="<?= GetMessage('IB_E_SHOW_ADD_PROP_ROW_DESCR')?>">
 				</div>
-				<input type="hidden" name="OFFERS_PROPERTY_COUNT" id="INT_OFFERS_PROPERTY_COUNT" value="<? echo $intPropNumber; ?>">
+				<input type="hidden" name="OFFERS_PROPERTY_COUNT" id="INT_OFFERS_PROPERTY_COUNT" value="<?= $intPropNumber ?>">
 			</div>
 	</div>
 	</td>
 	</tr>
-	<?
+	<?php
 	}
 	?>
-<script type="text/javascript">
+<script>
 	var is_cat = BX('IS_CATALOG_Y'),
 		is_cont = BX('IS_CONTENT_Y'),
 		is_yand = BX('YANDEX_EXPORT_Y'),
@@ -5218,7 +5398,7 @@ if ($bCatalog)
 		var value = obj.options[obj.selectedIndex].value;
 		if (undefined !== ob_offers_add)
 		{
-			if (<? echo CATALOG_NEW_OFFERS_IBLOCK_NEED; ?> == value)
+			if (<?= CATALOG_NEW_OFFERS_IBLOCK_NEED ?> == value)
 			{
 				ob_offers_add.style.display = 'block';
 			}
@@ -5249,7 +5429,7 @@ if ($bCatalog)
 		}
 	}
 </script>
-<?
+<?php
 }
 
 if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
@@ -5257,17 +5437,21 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 	$tabControl->BeginNextTab();
 ?>
 	<tr class="heading">
-		<td colspan="2"><?echo GetMessage("IB_E_RIGHTS_MODE_SECTION_TITLE")?></td>
+		<td colspan="2"><?= GetMessage("IB_E_RIGHTS_MODE_SECTION_TITLE")?></td>
 	</tr>
-	<?if($str_RIGHTS_MODE === Iblock\IblockTable::RIGHTS_EXTENDED):?>
+	<?php
+	if($str_RIGHTS_MODE === Iblock\IblockTable::RIGHTS_EXTENDED):
+		?>
 		<tr>
-			<td width="40%" class="adm-detail-valign-top"><label for="RIGHTS_MODE"><?echo GetMessage("IB_E_RIGHTS_MODE")?></label></td>
+			<td width="40%" class="adm-detail-valign-top"><label for="RIGHTS_MODE"><?= GetMessage("IB_E_RIGHTS_MODE")?></label></td>
 			<td width="60%">
 				<input type="hidden" name="RIGHTS_MODE" value="S">
-				<input type="checkbox" id="RIGHTS_MODE" name="RIGHTS_MODE" value="E" checked="checked"><?echo BeginNote(), GetMessage("IB_E_RIGHTS_MODE_NOTE1"), EndNote()?>
+				<input type="checkbox" id="RIGHTS_MODE" name="RIGHTS_MODE" value="E" checked="checked"><?php
+				echo BeginNote(), GetMessage("IB_E_RIGHTS_MODE_NOTE1"), EndNote();
+				?>
 			</td>
 		</tr>
-		<?
+		<?php
 		$obIBlockRights = new CIBlockRights($ID);
 		IBlockShowRights(
 			'iblock',
@@ -5276,60 +5460,67 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 			GetMessage("IB_E_RIGHTS_SECTION_TITLE"),
 			"RIGHTS",
 			$obIBlockRights->GetRightsList(),
-			$obIBlockRights->GetRights(array("count_overwrited" => true)),
+			$obIBlockRights->GetRights(["count_overwrited" => true]),
 			true
 		);
 		?>
 		<tr>
 			<td colspan="2">&nbsp;</td>
 		</tr>
-	<?else:?>
+		<?php
+	else:
+		?>
 		<tr>
-			<td width="40%" class="adm-detail-valign-top"><label for="RIGHTS_MODE"><?echo GetMessage("IB_E_RIGHTS_MODE")?></label></td>
+			<td width="40%" class="adm-detail-valign-top"><label for="RIGHTS_MODE"><?= GetMessage("IB_E_RIGHTS_MODE")?></label></td>
 			<td width="60%">
 				<input type="hidden" name="RIGHTS_MODE" value="S">
-				<input type="checkbox" id="RIGHTS_MODE" name="RIGHTS_MODE" value="E"><?echo BeginNote(), GetMessage("IB_E_RIGHTS_MODE_NOTE2"), EndNote()?>
+				<input type="checkbox" id="RIGHTS_MODE" name="RIGHTS_MODE" value="E"><?php
+				echo BeginNote(), GetMessage("IB_E_RIGHTS_MODE_NOTE2"), EndNote();
+				?>
 			</td>
 		</tr>
-		<?
+		<?php
 		if ($bWorkflow && $str_WORKFLOW=="Y") :
-			$arPermType = array(
+			$arPermType = [
 				"D"=>GetMessage("IB_E_ACCESS_D"),
 				"R"=>GetMessage("IB_E_ACCESS_R"),
 				"S"=>GetMessage("IB_E_ACCESS_S"),
 				"U"=>GetMessage("IB_E_ACCESS_U"),
 				"W"=>GetMessage("IB_E_ACCESS_W"),
-				"X"=>GetMessage("IB_E_ACCESS_X"));
+				"X"=>GetMessage("IB_E_ACCESS_X"),
+			];
 		elseif ($bBizprocTab) :
-			$arPermType = array(
+			$arPermType = [
 				"D"=>GetMessage("IB_E_ACCESS_D"),
 				"R"=>GetMessage("IB_E_ACCESS_R"),
 				"S"=>GetMessage("IB_E_ACCESS_S"),
 				"U"=>GetMessage("IB_E_ACCESS_U2"),
 				"W"=>GetMessage("IB_E_ACCESS_W"),
-				"X"=>GetMessage("IB_E_ACCESS_X"));
+				"X"=>GetMessage("IB_E_ACCESS_X"),
+			];
 		else :
-			$arPermType = array(
+			$arPermType = [
 				"D"=>GetMessage("IB_E_ACCESS_D"),
 				"R"=>GetMessage("IB_E_ACCESS_R"),
 				"S"=>GetMessage("IB_E_ACCESS_S"),
 				"T"=>GetMessage("IB_E_ACCESS_T"),
 				"W"=>GetMessage("IB_E_ACCESS_W"),
-				"X"=>GetMessage("IB_E_ACCESS_X"));
+				"X"=>GetMessage("IB_E_ACCESS_X"),
+			];
 		endif;
 		$perm = CIBlock::GetGroupPermissions($ID);
 		if(!array_key_exists(1, $perm))
 			$perm[1] = "X";
 		?>
 		<tr class="heading">
-			<td colspan="2"><?echo GetMessage("IB_E_DEFAULT_ACCESS_TITLE")?></td>
+			<td colspan="2"><?= GetMessage("IB_E_DEFAULT_ACCESS_TITLE")?></td>
 		</tr>
 		<tr>
-			<td nowrap width="40%"><?echo GetMessage("IB_E_EVERYONE")?> [<a class="tablebodylink" href="/bitrix/admin/group_edit.php?ID=2&amp;lang=<?=LANGUAGE_ID?>">2</a>]:</td>
+			<td nowrap width="40%"><?= GetMessage("IB_E_EVERYONE")?> [<a class="tablebodylink" href="/bitrix/admin/group_edit.php?ID=2&amp;lang=<?=LANGUAGE_ID?>">2</a>]:</td>
 			<td width="60%">
 
 					<select name="GROUP[2]" id="group_2">
-					<?
+					<?php
 					if ($bVarsFromForm)
 					{
 						$strSelected = $GROUP[2] ?? '';
@@ -5340,18 +5531,20 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 					}
 					foreach($arPermType as $key => $val):
 					?>
-						<option value="<?echo $key?>"<?if($strSelected == $key)echo " selected"?>><?echo htmlspecialcharsex($val)?></option>
-					<?endforeach?>
+						<option value="<?= $key ?>"<?= ($strSelected == $key ? ' selected' : '') ?>><?= htmlspecialcharsex($val)?></option>
+					<?php
+					endforeach;
+					?>
 					</select>
 
-					<script type="text/javascript">
+					<script>
 					function OnGroupChange(control, message)
 					{
 						var all = document.getElementById('group_2');
 						var msg = document.getElementById(message);
 						if(all && all.value >= control.value && control.value != '')
 						{
-							if(msg) msg.innerHTML = '<?echo CUtil::JSEscape(GetMessage("IB_E_ACCESS_WARNING"))?>';
+							if(msg) msg.innerHTML = '<?= CUtil::JSEscape(GetMessage("IB_E_ACCESS_WARNING")) ?>';
 						}
 						else
 						{
@@ -5363,10 +5556,10 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 			</td>
 		</tr>
 		<tr class="heading">
-			<td colspan="2"><?echo GetMessage("IB_E_GROUP_ACCESS_TITLE")?></td>
+			<td colspan="2"><?= GetMessage("IB_E_GROUP_ACCESS_TITLE")?></td>
 		</tr>
-		<?
-		$groups = CGroup::GetList("sort", "asc", Array("ID"=>"~2"));
+		<?php
+		$groups = CGroup::GetList("sort", "asc", ["ID"=>"~2"]);
 		while($r = $groups->GetNext()):
 			if ($bVarsFromForm)
 			{
@@ -5390,21 +5583,24 @@ if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 					$strSelected="";
 			?>
 		<tr>
-			<td nowrap width="40%"><?echo $r["NAME"]?> [<a class="tablebodylink" href="/bitrix/admin/group_edit.php?ID=<?=$r["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$r["ID"]?></a>]:</td>
+			<td nowrap width="40%"><?= $r["NAME"] ?> [<a class="tablebodylink" href="/bitrix/admin/group_edit.php?ID=<?=$r["ID"]?>&lang=<?=LANGUAGE_ID?>"><?=$r["ID"]?></a>]:</td>
 			<td width="60%">
 
-					<select name="GROUP[<?echo $r["ID"]?>]" OnChange="OnGroupChange(this, 'spn_group_<?echo $r["ID"]?>');">
-						<option value=""><?echo GetMessage("IB_E_DEFAULT_ACCESS")?></option>
-					<?
+					<select name="GROUP[<?= $r["ID"] ?>]" OnChange="OnGroupChange(this, 'spn_group_<?= $r["ID"] ?>');">
+						<option value=""><?= GetMessage("IB_E_DEFAULT_ACCESS")?></option>
+					<?php
 					foreach($arPermType as $key => $val):
+						?>
+						<option value="<?= $key?>"<?= ($strSelected == $key ? ' selected' : '') ?>><?= htmlspecialcharsex($val) ?></option>
+						<?php
+					endforeach;
 					?>
-						<option value="<?echo $key?>"<?if($strSelected == $key)echo " selected"?>><?echo htmlspecialcharsex($val)?></option>
-					<?endforeach?>
 					</select>
-					<span id="spn_group_<?echo $r["ID"]?>"></span>
+					<span id="spn_group_<?= $r["ID"] ?>"></span>
 			</td>
 		</tr>
-		<?endwhile;
+		<?php
+		endwhile;
 	endif;
 }//if(CIBlockRights::UserHasRightTo($ID, $ID, "iblock_rights_edit"))
 
@@ -5417,124 +5613,136 @@ $tabControl->BeginNextTab();
 	}
 	if($arIBTYPE["SECTIONS"]=="Y"):?>
 	<tr>
-		<td width="40%"><?echo GetMessage("IB_E_SECTIONS_NAME")?></td>
+		<td width="40%"><?= GetMessage("IB_E_SECTIONS_NAME")?></td>
 		<td width="60%">
-			<input type="text" name="SECTIONS_NAME" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["SECTIONS_NAME"])?>">
+			<input type="text" name="SECTIONS_NAME" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["SECTIONS_NAME"])?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_SECTION_NAME")?></td>
+		<td><?= GetMessage("IB_E_SECTION_NAME")?></td>
 		<td>
-			<input type="text" name="SECTION_NAME" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["SECTION_NAME"])?>">
+			<input type="text" name="SECTION_NAME" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["SECTION_NAME"])?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_SECTION_ADD")?></td>
+		<td><?= GetMessage("IB_E_SECTION_ADD")?></td>
 		<td>
-			<input type="text" name="SECTION_ADD" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["SECTION_ADD"])?>">
+			<input type="text" name="SECTION_ADD" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["SECTION_ADD"])?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_SECTION_EDIT")?></td>
+		<td><?= GetMessage("IB_E_SECTION_EDIT")?></td>
 		<td>
-			<input type="text" name="SECTION_EDIT" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["SECTION_EDIT"])?>">
+			<input type="text" name="SECTION_EDIT" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["SECTION_EDIT"])?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_SECTION_DELETE")?></td>
+		<td><?= GetMessage("IB_E_SECTION_DELETE")?></td>
 		<td>
-			<input type="text" name="SECTION_DELETE" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["SECTION_DELETE"])?>">
+			<input type="text" name="SECTION_DELETE" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["SECTION_DELETE"])?>">
 		</td>
 	</tr>
-	<?endif?>
+	<?php
+	endif;
+	?>
 	<tr>
-		<td><?echo GetMessage("IB_E_ELEMENTS_NAME")?></td>
+		<td><?= GetMessage("IB_E_ELEMENTS_NAME")?></td>
 		<td>
-			<input type="text" name="ELEMENTS_NAME" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["ELEMENTS_NAME"])?>">
-		</td>
-	</tr>
-	<tr>
-		<td><?echo GetMessage("IB_E_ELEMENT_NAME")?></td>
-		<td>
-			<input type="text" name="ELEMENT_NAME" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["ELEMENT_NAME"])?>">
+			<input type="text" name="ELEMENTS_NAME" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["ELEMENTS_NAME"])?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_ELEMENT_ADD")?></td>
+		<td><?= GetMessage("IB_E_ELEMENT_NAME")?></td>
 		<td>
-			<input type="text" name="ELEMENT_ADD" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["ELEMENT_ADD"])?>">
+			<input type="text" name="ELEMENT_NAME" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["ELEMENT_NAME"]) ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_ELEMENT_EDIT")?></td>
+		<td><?= GetMessage("IB_E_ELEMENT_ADD") ?></td>
 		<td>
-			<input type="text" name="ELEMENT_EDIT" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["ELEMENT_EDIT"])?>">
+			<input type="text" name="ELEMENT_ADD" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["ELEMENT_ADD"]) ?>">
 		</td>
 	</tr>
 	<tr>
-		<td><?echo GetMessage("IB_E_ELEMENT_DELETE")?></td>
+		<td><?= GetMessage("IB_E_ELEMENT_EDIT") ?></td>
 		<td>
-			<input type="text" name="ELEMENT_DELETE" size="40" maxlength="100" value="<?echo htmlspecialcharsbx($arMessages["ELEMENT_DELETE"])?>">
+			<input type="text" name="ELEMENT_EDIT" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["ELEMENT_EDIT"]) ?>">
 		</td>
 	</tr>
-	<?
+	<tr>
+		<td><?= GetMessage("IB_E_ELEMENT_DELETE") ?></td>
+		<td>
+			<input type="text" name="ELEMENT_DELETE" size="40" maxlength="100" value="<?= htmlspecialcharsbx($arMessages["ELEMENT_DELETE"]) ?>">
+		</td>
+	</tr>
+	<?php
 if ($bBizprocTab):
 $tabControl->BeginNextTab();
 
 	if (!isset($arWorkflowTemplates))
-		$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(array("iblock", "CIBlockDocument", "iblock_".$ID));
+		$arWorkflowTemplates = CBPDocument::GetWorkflowTemplatesForDocumentType(["iblock", "CIBlockDocument", "iblock_".$ID]);
 	?>
 	<tr>
 		<td colspan="2">
-			<?if (count($arWorkflowTemplates) > 0):?>
+			<?php
+			if (count($arWorkflowTemplates) > 0):
+				?>
 				<table border="0" cellspacing="0" cellpadding="0" class="internal">
 					<tr class="heading">
-						<td><?echo GetMessage("IB_E_BP_NAME")?></td>
-						<td><?echo GetMessage("IB_E_BP_CHANGED")?></td>
-						<td><?echo GetMessage("IB_E_BP_AUTORUN")?></td>
+						<td><?= GetMessage("IB_E_BP_NAME") ?></td>
+						<td><?= GetMessage("IB_E_BP_CHANGED") ?></td>
+						<td><?= GetMessage("IB_E_BP_AUTORUN") ?></td>
 					</tr>
-					<?
+					<?php
 					foreach ($arWorkflowTemplates as $arTemplate)
 					{
 						?>
 						<tr>
 							<td>
-								<?if(IsModuleInstalled("bizprocdesigner")):?>
-									<a href="/bitrix/admin/iblock_bizproc_workflow_edit.php?document_type=iblock_<?= $ID ?>&lang=<?=LANGUAGE_ID?>&ID=<?=$arTemplate["ID"]?>&back_url_list=<?= urlencode($APPLICATION->GetCurPageParam("", array()))?>" target="_blank"><?= $arTemplate["NAME"] ?> [<?=$arTemplate["ID"]?>]</a>
-								<?else:?>
-									<?= $arTemplate["NAME"] ?>
-								<?endif?>
+								<?php
+								if(IsModuleInstalled("bizprocdesigner")):
+									?>
+									<a href="/bitrix/admin/iblock_bizproc_workflow_edit.php?document_type=iblock_<?= $ID ?>&lang=<?= LANGUAGE_ID ?>&ID=<?= $arTemplate["ID"] ?>&back_url_list=<?= urlencode($APPLICATION->GetCurPageParam("", [])) ?>" target="_blank"><?= $arTemplate["NAME"] ?> [<?= $arTemplate["ID"] ?>]</a>
+									<?php
+								else:
+									echo $arTemplate["NAME"];
+								endif;
+								?>
 								<br /><?= $arTemplate["DESCRIPTION"] ?></td>
 							<td nowrap><?= $arTemplate["MODIFIED"] ?><br />[<a href="user_edit.php?ID=<?= $arTemplate["USER_ID"] ?>"><?= $arTemplate["USER_ID"] ?></a>] <?= $arTemplate["USER"] ?></td>
 							<td nowrap>
-								<?
+								<?php
 									if($bVarsFromForm)
 										$checked = $_REQUEST["create_bizproc_".$arTemplate["ID"]] == "Y";
 									else
 										$checked = ($arTemplate["AUTO_EXECUTE"] & 1) != 0;
 								?>
-								<label><input type="checkbox" id="id_create_bizproc_<?= $arTemplate["ID"] ?>" name="create_bizproc_<?= $arTemplate["ID"] ?>" value="Y"<?echo $checked? " checked" : ""?>><?echo GetMessage("IB_E_BP_AUTORUN_CREATE")?></label><br />
-								<?
+								<label><input type="checkbox" id="id_create_bizproc_<?= $arTemplate["ID"] ?>" name="create_bizproc_<?= $arTemplate["ID"] ?>" value="Y"<?= ($checked ? ' checked' : '') ?>><?= GetMessage("IB_E_BP_AUTORUN_CREATE") ?></label><br />
+								<?php
 									if($bVarsFromForm)
 										$checked = $_REQUEST["edit_bizproc_".$arTemplate["ID"]] == "Y";
 									else
 										$checked = ($arTemplate["AUTO_EXECUTE"] & 2) != 0;
 								?>
-								<label><input type="checkbox" id="id_edit_bizproc_<?= $arTemplate["ID"] ?>" name="edit_bizproc_<?= $arTemplate["ID"] ?>" value="Y"<?echo $checked? " checked" : ""?>><?echo GetMessage("IB_E_BP_AUTORUN_UPDATE")?></label><br />
+								<label><input type="checkbox" id="id_edit_bizproc_<?= $arTemplate["ID"] ?>" name="edit_bizproc_<?= $arTemplate["ID"] ?>" value="Y"<?= ($checked ? ' checked' : '') ?>><?= GetMessage("IB_E_BP_AUTORUN_UPDATE") ?></label><br />
 							</td>
 						</tr>
-						<?
+						<?php
 					}
 					?>
 				</table>
 				<br>
-			<?endif;
-			if(IsModuleInstalled("bizprocdesigner")):?>
-			<a href="/bitrix/admin/iblock_bizproc_workflow_admin.php?document_type=iblock_<?= $ID ?>&lang=<?=LANGUAGE_ID?>&back_url_list=<?= urlencode($APPLICATION->GetCurPageParam("", array())) ?>" target="_blank"><?echo GetMessage("IB_E_GOTO_BP")?></a>
-			<?endif?>
+			<?php
+			endif;
+			if (IsModuleInstalled("bizprocdesigner")):
+				?>
+				<a href="/bitrix/admin/iblock_bizproc_workflow_admin.php?document_type=iblock_<?= $ID ?>&lang=<?= LANGUAGE_ID ?>&back_url_list=<?= urlencode($APPLICATION->GetCurPageParam("", [])) ?>" target="_blank"><?= GetMessage("IB_E_GOTO_BP") ?></a>
+				<?php
+			endif;
+			?>
 		</td>
 	</tr>
-	<?
+	<?php
 endif;
 
 $tabControl->BeginNextTab();
@@ -5552,15 +5760,25 @@ $tabControl->BeginNextTab();
 		{
 			continue;
 		}
+		$checkboxAttrs = '';
+		if ($arFields[$FIELD_ID]['IS_REQUIRED'] === 'Y' || $arField['IS_REQUIRED'] !== false)
+		{
+			$checkboxAttrs .= ' checked';
+		}
+		if ($arField['IS_REQUIRED'] !== false)
+		{
+			$checkboxAttrs .=  ' disabled';
+		}
 		?>
 		<tr>
-			<td width="40%"><label for="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]"><?echo GetMessage("IB_E_".$FIELD_ID)?></label>:</td>
+			<td width="40%"><label for="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]"><?= GetMessage("IB_E_".$FIELD_ID) ?></label>:</td>
 			<td>
-				<input type="hidden" value="N" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]">
-				<input type="checkbox" value="Y" id="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" name="FIELDS[<?echo $FIELD_ID?>][IS_REQUIRED]" <?if($arFields[$FIELD_ID]["IS_REQUIRED"]==="Y" || $arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "checked"?> <?if($arDefFields[$FIELD_ID]["IS_REQUIRED"]!==false) echo "disabled"?>>
+				<input type="hidden" value="N" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]">
+				<input type="checkbox" value="Y" id="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]" name="FIELDS[<?= $FIELD_ID ?>][IS_REQUIRED]"<?= $checkboxAttrs ?>>
 			</td>
 		</tr>
-	<?endforeach;
+	<?php
+	endforeach;
 
 	$backUrl = $returnUrl;
 	if ($backUrl === '')
@@ -5570,14 +5788,19 @@ $tabControl->BeginNextTab();
 			. '&admin=' . urlencode($isAdminUrl)
 		;
 	}
-	$tabControl->Buttons(array("disabled"=>false, "back_url"=>$backUrl));
+	$tabControl->Buttons([
+		'disabled' => false,
+		'back_url' => $backUrl,
+	]);
 	$tabControl->End();
 	unset($backUrl);
 	?>
 </form>
-<?else:?>
+<?php
+else:
+?>
 <br>
-<?
+<?php
 	ShowError(GetMessage("IBLOCK_BAD_IBLOCK"));
 endif;
 

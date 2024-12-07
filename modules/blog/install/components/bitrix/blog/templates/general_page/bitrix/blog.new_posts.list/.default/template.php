@@ -1,13 +1,16 @@
 <?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();?>
-<?
+<?php
+/** @var array $arParams */
+/** @var array $arResult */
+
 if (!$this->__component->__parent || empty($this->__component->__parent->__name) || $this->__component->__parent->__name != "bitrix:blog"):
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/blog/templates/.default/style.css');
 	$GLOBALS['APPLICATION']->SetAdditionalCSS('/bitrix/components/bitrix/blog/templates/.default/themes/blue/style.css');
 endif;
 ?>
 <div id="blog-new-posts-content">
-<?
-if(is_array($arResult["POSTS"]) && count($arResult["POSTS"])>0)
+<?php
+if (is_array($arResult['POSTS']) && !empty($arResult['POSTS']))
 {
 	foreach($arResult["POSTS"] as $ind => $CurPost)
 	{

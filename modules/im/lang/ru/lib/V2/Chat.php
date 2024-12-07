@@ -1,14 +1,16 @@
 <?php
 $MESS["IM_CHAT_NAME_FORMAT"] = "#COLOR# чат №#NUMBER#";
 $MESS["IM_CHAT_CAN_POST_NONE"] = "Никто";
-$MESS["IM_CHAT_CAN_POST_ALL"] = "Все участники чата";
-$MESS["IM_CHAT_CAN_POST_OWNER"] = "Владелец чата";
-$MESS["IM_CHAT_CAN_POST_MANAGERS"] = "Администраторы чата";
+$MESS["IM_CHAT_CAN_POST_ALL_MSGVER_1"] = "Все участники";
+$MESS["IM_CHAT_CAN_POST_OWNER_MSGVER_1"] = "Владелец";
+$MESS["IM_CHAT_CAN_POST_MANAGERS_MSGVER_1"] = "Владелец и администраторы";
 $MESS["IM_CHAT_SELF_JOIN"] = "К чату присоединились #USERS_NAME#";
 $MESS["IM_CHAT_SELF_JOIN_M"] = "К чату присоединился #USER_NAME#";
 $MESS["IM_CHAT_SELF_JOIN_F"] = "К чату присоединилась #USER_NAME#";
 $MESS["IM_CHAT_JOIN_M"] = "#USER_1_NAME# пригласил в чат #USER_2_NAME#";
 $MESS["IM_CHAT_JOIN_F"] = "#USER_1_NAME# пригласила в чат #USER_2_NAME#";
+$MESS["IM_CHANNEL_JOIN_M"] = "#USER_1_NAME# пригласил в канал #USER_2_NAME#";
+$MESS["IM_CHANNEL_JOIN_F"] = "#USER_1_NAME# пригласила в канал #USER_2_NAME#";
 $MESS["IM_CHAT_KICK_M"] = "#USER_1_NAME# исключил #USER_2_NAME# из чата";
 $MESS["IM_CHAT_KICK_F"] = "#USER_1_NAME# исключила #USER_2_NAME# из чата";
 $MESS["IM_CHAT_KICK_NOTIFICATION_M"] = "#USER_NAME# исключил вас из чата";

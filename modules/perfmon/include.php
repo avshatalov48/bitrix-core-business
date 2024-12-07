@@ -1,21 +1,15 @@
 <?php
 
-$db_type = \Bitrix\Main\Application::getConnection()->getType();
-
 CModule::AddAutoloadClasses(
 	'perfmon',
 	[
 		'perfmon' => 'install/index.php',
 		'CPerfomanceKeeper' => 'classes/general/keeper.php',
-		'CAllPerfomanceHit' => 'classes/general/hit.php',
 		'CPerfomanceHit' => 'classes/general/hit.php',
 		'CPerfomanceComponent' => 'classes/general/component.php',
-		'CAllPerfomanceSQL' => 'classes/general/sql.php',
-		'CPerfomanceSQL' => 'classes/' . $db_type . '/sql.php',
-		'CAllPerfomanceTable' => 'classes/general/table.php',
-		'CPerfomanceTable' => 'classes/' . $db_type . '/table.php',
-		'CPerfomanceTableList' => 'classes/' . $db_type . '/table.php',
-		'CAllPerfomanceError' => 'classes/general/error.php',
+		'CPerfomanceSQL' => 'classes/general/sql.php',
+		'CPerfomanceTable' => 'classes/general/table.php',
+		'CPerfomanceTableList' => 'classes/general/table.php',
 		'CPerfomanceError' => 'classes/general/error.php',
 		'CPerfomanceMeasure' => 'classes/general/measure.php',
 		'CPerfAccel' => 'classes/general/measure.php',

@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['SPS_SEARCH_TITLE'] = "Выбор товаров";
 $MESS ['SPS_CATALOG'] = "Каталог";
 $MESS ['SPS_ID_FROM_TO'] = "начальный и конечный";
@@ -25,4 +25,3 @@ $MESS ['prod_search_find'] = "Найти";
 $MESS ['prod_search_find_title'] = "Найти записи по условию поиска";
 $MESS ['prod_search_cancel'] = "Отменить";
 $MESS ['prod_search_cancel_title'] = "Показать все записи";
-?>

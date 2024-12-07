@@ -32,10 +32,7 @@ $arParamsToDelete = array(
 	"logout_butt",
 );
 
-if(defined("AUTH_404"))
-	$arResult["AUTH_URL"] = htmlspecialcharsback(POST_FORM_ACTION_URI);
-else
-	$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("", $arParamsToDelete);
+$arResult["AUTH_URL"] = $APPLICATION->GetCurPageParam("", $arParamsToDelete);
 
 $arResult["AUTH_LOGIN_URL"] = $APPLICATION->GetCurPageParam("login_form=yes", $arParamsToDelete);
 

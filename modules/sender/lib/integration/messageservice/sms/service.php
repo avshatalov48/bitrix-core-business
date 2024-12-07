@@ -34,16 +34,7 @@ class Service
 		$list = static::getSenderInfoList();
 		foreach ($list as $item)
 		{
-			if (!$item['canUse'])
-			{
-			//	continue;
-			}
-
 			$item['from'] = static::getSenderFromList($item['id']);
-			if (count($item['from']) == 0)
-			{
-			//	continue;
-			}
 
 			$result[] = $item;
 		}

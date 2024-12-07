@@ -411,6 +411,7 @@ class UIFormComponent extends \CBitrixComponent
 		$availableFields = [];
 		$requiredFields = [];
 		$hasEmptyRequiredFields = false;
+		$hasBBCodeFields = false;
 		$htmlFieldNames = [];
 		$bbFieldNames = [];
 		foreach($entityFields as $field)
@@ -429,6 +430,11 @@ class UIFormComponent extends \CBitrixComponent
 			if ($fieldType === 'bb')
 			{
 				$bbFieldNames[] = $name;
+			}
+
+			if ($fieldType === 'bbcode')
+			{
+				$hasBBCodeFields = true;
 			}
 
 			$availableFields[$name] = $field;
@@ -465,6 +471,7 @@ class UIFormComponent extends \CBitrixComponent
 			'available' => $availableFields,
 			'required' => $requiredFields,
 			'hasEmptyRequiredFields' => $hasEmptyRequiredFields,
+			'hasBBCodeFields' => $hasBBCodeFields,
 			'html' => $htmlFieldNames,
 			'bb' => $bbFieldNames,
 		];
@@ -671,6 +678,8 @@ class UIFormComponent extends \CBitrixComponent
 
 		$config = $this->initializeConfigWithColumns($config);
 
+		$this->arResult['ENTITY_AVAILABLE_FIELDS_INFO'] = $fieldsInfo['available'];
+
 		$scheme = $this->processScheme($config, $defaultConfig, $configScope, $fieldsInfo);
 
 		$this->arResult['ENTITY_CONFIG_SCOPE'] = $configScope;
@@ -680,7 +689,9 @@ class UIFormComponent extends \CBitrixComponent
 		$this->arResult['ENTITY_AVAILABLE_FIELDS'] = array_values($fieldsInfo['available']);
 		$this->arResult['ENTITY_HTML_FIELD_NAMES'] = $fieldsInfo['html'];
 		$this->arResult['ENTITY_BB_FIELD_NAMES'] = $fieldsInfo['bb'];
+		$this->arResult['HAS_BBCODE_FIELDS'] = $fieldsInfo['hasBBCodeFields'] ?? false;
 		$this->arResult['DISABLED_HTML_CONTROLS'] = $this->arParams['DISABLED_HTML_CONTROLS'] ?? [];
+		$this->arResult['CHTML_EDITOR_PARAMS'] = $this->arParams['CHTML_EDITOR_PARAMS'] ?? [];
 	}
 
 	protected function loadLanguages(): array

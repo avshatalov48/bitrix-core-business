@@ -1,5 +1,6 @@
+/* eslint-disable */
 this.BX = this.BX || {};
-(function (exports,main_core_events,main_loader,ui_progressround,ui_popupcomponentsmaker,main_popup,ui_popupWithHeader,main_core,ui_buttons) {
+(function (exports,main_core_events,main_loader,ui_progressround,ui_popupcomponentsmaker,ui_iconSet_api_core,main_popup,ui_popupWithHeader,main_core,ui_buttons,ui_infoHelper) {
 	'use strict';
 
 	let _ = t => t,
@@ -25,6 +26,7 @@ this.BX = this.BX || {};
 	var _playButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("playButton");
 	var _stopButton = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("stopButton");
 	var _wrapper = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("wrapper");
+	var _hasAutoPlayed = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("hasAutoPlayed");
 	var _analyticsCallback = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("analyticsCallback");
 	var _onInitVideoMetadata = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onInitVideoMetadata");
 	var _onTick = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("onTick");
@@ -128,6 +130,10 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _wrapper, {
 	      writable: true,
 	      value: void 0
+	    });
+	    Object.defineProperty(this, _hasAutoPlayed, {
+	      writable: true,
+	      value: false
 	    });
 	    Object.defineProperty(this, _analyticsCallback, {
 	      writable: true,
@@ -257,6 +263,12 @@ this.BX = this.BX || {};
 	  this.stop();
 	}
 	function _onVideoEnded2() {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback] && (!babelHelpers.classPrivateFieldLooseBase(this, _videoNode)[_videoNode].muted || !babelHelpers.classPrivateFieldLooseBase(this, _hasAutoPlayed)[_hasAutoPlayed])) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback]('video_finished', `isMuted_${babelHelpers.classPrivateFieldLooseBase(this, _videoNode)[_videoNode].muted ? 'Y' : 'N'}`);
+	  }
+	  if (!babelHelpers.classPrivateFieldLooseBase(this, _hasAutoPlayed)[_hasAutoPlayed]) {
+	    babelHelpers.classPrivateFieldLooseBase(this, _hasAutoPlayed)[_hasAutoPlayed] = babelHelpers.classPrivateFieldLooseBase(this, _videoNode)[_videoNode].muted;
+	  }
 	  this.stop();
 	  main_core.Dom.remove(babelHelpers.classPrivateFieldLooseBase(this, _progressBar)[_progressBar].getContainer());
 	  this.setMute(true);
@@ -269,13 +281,13 @@ this.BX = this.BX || {};
 	}
 	function _onPause2() {
 	  babelHelpers.classPrivateFieldLooseBase(this, _scaleTo)[_scaleTo](1);
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback]) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback] && (!babelHelpers.classPrivateFieldLooseBase(this, _videoNode)[_videoNode].muted || !babelHelpers.classPrivateFieldLooseBase(this, _hasAutoPlayed)[_hasAutoPlayed])) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback]('on-pause');
 	  }
 	}
 	function _onPlay2() {
 	  babelHelpers.classPrivateFieldLooseBase(this, _scaleTo)[_scaleTo](babelHelpers.classPrivateFieldLooseBase(this, _scale)[_scale]);
-	  if (babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback]) {
+	  if (babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback] && (!babelHelpers.classPrivateFieldLooseBase(this, _videoNode)[_videoNode].muted || !babelHelpers.classPrivateFieldLooseBase(this, _hasAutoPlayed)[_hasAutoPlayed])) {
 	    babelHelpers.classPrivateFieldLooseBase(this, _analyticsCallback)[_analyticsCallback]('on-play');
 	  }
 	}
@@ -295,7 +307,9 @@ this.BX = this.BX || {};
 	  _t10,
 	  _t11,
 	  _t12,
-	  _t13;
+	  _t13,
+	  _t14,
+	  _t15;
 	var _options = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("options");
 	var _content$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("content");
 	var _player = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("player");
@@ -370,17 +384,19 @@ this.BX = this.BX || {};
 	    if (!main_core.Type.isNil(descriptionOptions.code)) {
 	      const onclick = e => {
 	        e.stopPropagation();
-	        BX.UI.InfoHelper.getInstance({
+	        ui_infoHelper.FeaturePromotersRegistry.getPromoter({
 	          code: descriptionOptions.code
 	        }).show();
 	      };
 	      main_core.Dom.append(main_core.Tag.render(_t8 || (_t8 = _$1`<a onclick="${0}" target="_blank" class="ui-popupcomponentsmaker-header-tariff__more">${0}<div class="ui-icon-set --chevron-right ui-popupcomponentsmaker-header-tariff__more-icon"></div></a>`), onclick, descriptionOptions.moreLabel), descriptionText);
 	    }
 	    let roundContent = '';
-	    if (main_core.Type.isObject(descriptionOptions.roundContent)) {
+	    if (main_core.Type.isPlainObject(descriptionOptions.roundContent)) {
 	      roundContent = this.renderPlayer(descriptionOptions.roundContent);
 	    } else if (main_core.Type.isStringFilled(descriptionOptions.roundContent)) {
 	      roundContent = this.renderIcon(descriptionOptions.roundContent);
+	    } else if (main_core.Type.isDomNode(descriptionOptions.roundContent)) {
+	      roundContent = this.embedIcon(descriptionOptions.roundContent);
 	    }
 	    const descriptionBlock = main_core.Tag.render(_t9 || (_t9 = _$1`
 			<div class="ui-popupcomponentsmaker-header-tariff__message-wrapper">
@@ -398,7 +414,7 @@ this.BX = this.BX || {};
 	    return description.getContainer();
 	  }
 	  renderBtn(btnOptions) {
-	    const btn = new ui_buttons.Button({
+	    const btn = btnOptions instanceof ui_buttons.Button ? btnOptions : new ui_buttons.Button({
 	      text: btnOptions.label,
 	      color: ui_buttons.ButtonColor.LIGHT_BORDER,
 	      size: ui_buttons.ButtonSize.SMALL,
@@ -409,9 +425,9 @@ this.BX = this.BX || {};
 	        }
 	      },
 	      round: true,
-	      noCaps: true,
-	      className: 'ui-popupcomponentsmaker-header-tariff__button ui-btn-themes'
+	      noCaps: true
 	    });
+	    btn.addClass('ui-popupcomponentsmaker-header-tariff__button ui-btn-themes');
 	    return btn.render();
 	  }
 	  renderIcon(iconClass) {
@@ -424,18 +440,28 @@ this.BX = this.BX || {};
 	    }
 	    return main_core.Tag.render(_t11 || (_t11 = _$1``));
 	  }
+	  embedIcon(icon) {
+	    if (main_core.Type.isDomNode(icon)) {
+	      return main_core.Tag.render(_t12 || (_t12 = _$1`
+				<div class="ui-popupcomponentsmaker-header-tariff__icon">
+					${0}
+				</div>
+			`), icon);
+	    }
+	    return main_core.Tag.render(_t13 || (_t13 = _$1``));
+	  }
 	  render() {
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _content$1)[_content$1]) {
 	      return babelHelpers.classPrivateFieldLooseBase(this, _content$1)[_content$1];
 	    }
 	    let btnContent = '';
 	    if (babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].button) {
-	      btnContent = main_core.Tag.render(_t12 || (_t12 = _$1`
+	      btnContent = main_core.Tag.render(_t14 || (_t14 = _$1`
 				<div class="ui-popupcomponentsmaker-header-tariff__button-bar">
 					${0}
 				</div>`), this.renderBtn(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].button));
 	    }
-	    babelHelpers.classPrivateFieldLooseBase(this, _content$1)[_content$1] = main_core.Tag.render(_t13 || (_t13 = _$1`
+	    babelHelpers.classPrivateFieldLooseBase(this, _content$1)[_content$1] = main_core.Tag.render(_t15 || (_t15 = _$1`
 			<div class="ui-popupcomponentsmaker-header-tariff__wrapper">
 				<div class="ui-popupcomponentsmaker-header-tariff__title-section">
 					${0}
@@ -446,7 +472,7 @@ this.BX = this.BX || {};
 				${0}
 				
 			</div>
-		`), this.renderIcon(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].iconClass), this.renderTitle(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].top), this.renderDescription(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].info), btnContent);
+		`), babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].icon instanceof HTMLElement ? this.embedIcon(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].icon) : this.renderIcon(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].iconClass), this.renderTitle(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].top), this.renderDescription(babelHelpers.classPrivateFieldLooseBase(this, _options)[_options].info), btnContent);
 	    return babelHelpers.classPrivateFieldLooseBase(this, _content$1)[_content$1];
 	  }
 	}
@@ -471,11 +497,14 @@ this.BX = this.BX || {};
 	  }
 	  getContainer() {
 	    if (!this.layout.container) {
-	      const theme = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker)[_getThemePicker]().getAppliedTheme();
+	      var _babelHelpers$classPr;
+	      const theme = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker)[_getThemePicker]()) == null ? void 0 : _babelHelpers$classPr.getAppliedTheme();
 	      this.layout.container = main_core.Tag.render(_t$2 || (_t$2 = _$2`<div class="ui-popupcomponentsmaker__header">${0}</div>`), this.getContent());
 	      this.bacgroundNode = main_core.Tag.render(_t2$2 || (_t2$2 = _$2`<div class="ui-popupcomponentsmaker__header-background"></div>`));
 	      main_core.Dom.append(this.bacgroundNode, this.layout.container);
-	      babelHelpers.classPrivateFieldLooseBase(this, _applyTheme)[_applyTheme](this.bacgroundNode, theme);
+	      if (theme) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _applyTheme)[_applyTheme](this.bacgroundNode, theme);
+	      }
 	      main_core_events.EventEmitter.subscribe('BX.Intranet.Bitrix24:ThemePicker:onThemeApply', event => {
 	        babelHelpers.classPrivateFieldLooseBase(this, _applyTheme)[_applyTheme](this.bacgroundNode, event.data.theme);
 	      });
@@ -497,8 +526,8 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _getThemePicker2() {
-	  var _BX$Intranet$Bitrix;
-	  return (_BX$Intranet$Bitrix = BX.Intranet.Bitrix24.ThemePicker.Singleton) != null ? _BX$Intranet$Bitrix : top.BX.Intranet.Bitrix24.ThemePicker.Singleton;
+	  var _BX$Intranet$Bitrix, _BX$Intranet, _BX$Intranet$Bitrix2, _top$BX$Intranet, _top$BX$Intranet$Bitr;
+	  return (_BX$Intranet$Bitrix = (_BX$Intranet = BX.Intranet) == null ? void 0 : (_BX$Intranet$Bitrix2 = _BX$Intranet.Bitrix24) == null ? void 0 : _BX$Intranet$Bitrix2.ThemePicker.Singleton) != null ? _BX$Intranet$Bitrix : (_top$BX$Intranet = top.BX.Intranet) == null ? void 0 : (_top$BX$Intranet$Bitr = _top$BX$Intranet.Bitrix24) == null ? void 0 : _top$BX$Intranet$Bitr.ThemePicker.Singleton;
 	}
 	function _applyTheme2(container, theme) {
 	  const previewImage = `url('${main_core.Text.encode(theme.previewImage)}')`;
@@ -513,15 +542,88 @@ this.BX = this.BX || {};
 
 	let _$3 = t => t,
 	  _t$3,
-	  _t2$3,
+	  _t2$3;
+	var _size = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("size");
+	var _getInnerBlock = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getInnerBlock");
+	class Skeleton {
+	  constructor(size = 473) {
+	    Object.defineProperty(this, _getInnerBlock, {
+	      value: _getInnerBlock2
+	    });
+	    Object.defineProperty(this, _size, {
+	      writable: true,
+	      value: void 0
+	    });
+	    babelHelpers.classPrivateFieldLooseBase(this, _size)[_size] = size;
+	  }
+	  get() {
+	    return main_core.Tag.render(_t$3 || (_t$3 = _$3`
+			<div style="height: ${0}px;" class="popup-with-header-skeleton__wrap">
+				<div class="popup-with-header-skeleton__header">
+					<div class="popup-with-header-skeleton__header-top">
+						<div class="popup-with-header-skeleton__header-circle">
+							<div class="popup-with-header-skeleton__header-circle-inner"></div>
+						</div>
+						<div style="width: 100%;">
+							<div style="margin-bottom: 12px; max-width: 219px; height: 6px; background: rgba(255,255,255,.8);" class="popup-with-header-skeleton__line"></div>
+							<div style="max-width: 119px; height: 4px;" class="popup-with-header-skeleton__line"></div>
+						</div>
+					</div>
+					<div class="popup-with-header-skeleton__header-bottom">
+						<div class="popup-with-header-skeleton__header-bottom-circle-box">
+							<div class="popup-with-header-skeleton__header-bottom-circle"></div>
+							<div class="popup-with-header-skeleton__header-bottom-circle-blue"></div>
+						</div>
+						<div style="width: 100%;">
+							<div style="margin-bottom: 9px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
+							<div style="margin-bottom: 15px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
+							<div style="margin-bottom: 9px; max-width: 156px; height: 2px;" class="popup-with-header-skeleton__line"></div>
+							<div style="margin-bottom: 9px; max-width: 93px; height: 2px;" class="popup-with-header-skeleton__line"></div>
+						</div>
+					</div>
+				</div>
+				<div class="popup-with-header-skeleton__bottom">
+					${0}
+					${0}
+					${0}
+				</div>
+			</div>
+		`), babelHelpers.classPrivateFieldLooseBase(this, _size)[_size], babelHelpers.classPrivateFieldLooseBase(this, _getInnerBlock)[_getInnerBlock](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerBlock)[_getInnerBlock](), babelHelpers.classPrivateFieldLooseBase(this, _getInnerBlock)[_getInnerBlock]());
+	  }
+	}
+	function _getInnerBlock2() {
+	  return main_core.Tag.render(_t2$3 || (_t2$3 = _$3`
+			<div class="popup-with-header-skeleton__bottom-inner">
+				<div class="popup-with-header-skeleton__bottom-left">
+					<div style="margin-bottom: 11px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
+					<div style="margin-bottom: 17px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
+					<div style="margin-bottom: 9px; max-width: 168px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
+					<div style="margin-bottom: 9px; max-width: 131px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
+					<div style="margin-bottom: 9px; max-width: 150px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
+					<div style="margin-bottom: 9px; max-width: 56px; height: 5px; background: rgba(32,102,176,.23);" class="popup-with-header-skeleton__line"></div>
+				</div>
+				<div class="popup-with-header-skeleton__bottom-right">
+					<div class="popup-with-header-skeleton-btn"></div>
+					<div style="margin: 0 auto; max-width: 36px; height: 3px; background: #d9d9d9;" class="popup-with-header-skeleton__line"></div>
+				</div>
+			</div>
+		`));
+	}
+
+	let _$4 = t => t,
+	  _t$4,
+	  _t2$4,
 	  _t3$2,
 	  _t4$2,
 	  _t5$2,
 	  _t6$1;
+	var _popupOptions = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("popupOptions");
+	var _prepareItemsContent = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("prepareItemsContent");
 	var _getThemePicker$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("getThemePicker");
 	var _applyTheme$1 = /*#__PURE__*/babelHelpers.classPrivateFieldLooseKey("applyTheme");
 	class PopupWithHeader extends ui_popupcomponentsmaker.PopupComponentsMaker {
 	  constructor(options) {
+	    var _options$animationTem, _options$skeletonSize;
 	    super(options);
 	    Object.defineProperty(this, _applyTheme$1, {
 	      value: _applyTheme2$1
@@ -529,10 +631,20 @@ this.BX = this.BX || {};
 	    Object.defineProperty(this, _getThemePicker$1, {
 	      value: _getThemePicker2$1
 	    });
+	    Object.defineProperty(this, _prepareItemsContent, {
+	      value: _prepareItemsContent2
+	    });
+	    Object.defineProperty(this, _popupOptions, {
+	      writable: true,
+	      value: void 0
+	    });
 	    this.header = options.header instanceof PopupHeader ? options.header : null;
 	    this.template = options.template instanceof ui_popupWithHeader.BaseTemplate ? options.template : null;
-	    this.asyncData = options.asyncData instanceof BX.Promise ? options.asyncData : null;
+	    this.asyncData = options.asyncData instanceof BX.Promise || options.asyncData instanceof Promise ? options.asyncData : null;
+	    this.animationTemplate = (_options$animationTem = options.animationTemplate) != null ? _options$animationTem : true;
+	    this.skeletonSize = (_options$skeletonSize = options.skeletonSize) != null ? _options$skeletonSize : 473;
 	    this.analyticsCallback = main_core.Type.isFunction(options.analyticsCallback) ? options.analyticsCallback : null;
+	    babelHelpers.classPrivateFieldLooseBase(this, _popupOptions)[_popupOptions] = main_core.Type.isPlainObject(options.popupOptions) ? options.popupOptions : {};
 	  }
 	  getPopup() {
 	    if (!this.popup) {
@@ -540,13 +652,13 @@ this.BX = this.BX || {};
 	      const popupId = this.id ? `${this.id}-popup` : null;
 	      let content = [];
 	      if (!this.asyncData) {
-	        content = main_core.Tag.render(_t$3 || (_t$3 = _$3`
+	        content = main_core.Tag.render(_t$4 || (_t$4 = _$4`
 					<div>
 						${0}
 					<div>
 				`), this.getHeaderWrapper());
 	        if (this.content.length > 0) {
-	          content.append(main_core.Tag.render(_t2$3 || (_t2$3 = _$3`<div style="padding: 0 ${0}px ${0}px ${0}px">${0}</div>`), this.padding, this.padding, this.padding, this.getContentWrapper()));
+	          content.append(main_core.Tag.render(_t2$4 || (_t2$4 = _$4`<div style="padding: 0 ${0}px ${0}px ${0}px">${0}</div>`), this.padding, this.padding, this.padding, this.getContentWrapper()));
 	        }
 	      }
 	      this.popup = new main_popup.Popup(popupId, this.target, {
@@ -563,18 +675,10 @@ this.BX = this.BX || {};
 	        closeByEsc: true,
 	        padding: 0,
 	        animation: 'fading-slide',
-	        content: content,
-	        cacheable: this.cacheable
+	        content,
+	        cacheable: this.cacheable,
+	        ...babelHelpers.classPrivateFieldLooseBase(this, _popupOptions)[_popupOptions]
 	      });
-	      if (this.blurBlackground) {
-	        main_core.Dom.addClass(this.popup.getPopupContainer(), 'popup-with-radius');
-	        this.setBlurBackground();
-	        main_core_events.EventEmitter.subscribe(main_core_events.EventEmitter.GLOBAL_TARGET, 'BX.Intranet.Bitrix24:ThemePicker:onThemeApply', () => {
-	          setTimeout(() => {
-	            this.setBlurBackground();
-	          }, 200);
-	        });
-	      }
 	      if (this.asyncData) {
 	        const container = this.popup.getContentContainer();
 	        main_core.Dom.clean(container);
@@ -584,11 +688,10 @@ this.BX = this.BX || {};
 	          main_core.Dom.addClass(container.parentNode, '--with-header');
 	        }
 	        this.asyncData.then(response => {
-	          this.popup.show();
 	          main_core.Dom.clean(container);
 	          response.data.header.analyticsCallback = this.analyticsCallback;
 	          this.header = PopupHeader.createByJson(popupId, response.data.header);
-	          content = main_core.Tag.render(_t3$2 || (_t3$2 = _$3`
+	          content = main_core.Tag.render(_t3$2 || (_t3$2 = _$4`
 						<div>
 							${0}
 						<div>
@@ -608,34 +711,25 @@ this.BX = this.BX || {};
 	              main_core.Dom.addClass(this.getHeaderWrapper(), '--without-video');
 	            }
 	            if (this.content.length > 0) {
-	              content.append(main_core.Tag.render(_t4$2 || (_t4$2 = _$3`<div class="ui-popupcomponentmaker__content-wrap">${0}</div>`), this.getContentWrapper()));
+	              content.append(main_core.Tag.render(_t4$2 || (_t4$2 = _$4`<div class="ui-popupcomponentmaker__content-wrap">${0}</div>`), this.getContentWrapper()));
 	            } else {
 	              hasContent = false;
 	            }
 	          }
 	          main_core.Dom.append(content, container);
 	          if (hasContent) {
-	            main_core.Dom.addClass(this.getContentWrapper(), 'ui-popup-with-header__content');
-	            if (this.popup.isBottomAngle()) {
-	              main_core.Dom.style(this.getContentWrapper(), 'transition', 'none');
-	            }
-	            if (this.getContentWrapper().scrollHeight > 287 && !main_core.Dom.hasClass(this.getContentWrapper(), '--active-scroll')) {
-	              main_core.Dom.style(this.getContentWrapper(), 'height', '287px');
-	              main_core.Dom.style(this.getContentWrapper(), 'overflow-y', 'scroll');
-	              main_core.Dom.addClass(content, 'active-scroll');
+	            if (this.popup.isShown()) {
+	              babelHelpers.classPrivateFieldLooseBase(this, _prepareItemsContent)[_prepareItemsContent](content);
 	            } else {
-	              main_core.Dom.style(this.getContentWrapper(), 'height', `${this.getContentWrapper().scrollHeight}px`);
+	              this.popup.subscribeOnce('onShow', () => {
+	                babelHelpers.classPrivateFieldLooseBase(this, _prepareItemsContent)[_prepareItemsContent](content);
+	              });
 	            }
-	            this.popup.adjustPosition({
-	              forceBindPosition: true,
-	              position: this.popup.isBottomAngle() ? 'top' : 'bottom'
-	            });
-	          } else {
-	            this.popup.adjustPosition({
-	              forceBindPosition: true,
-	              position: this.popup.isBottomAngle() ? 'top' : 'bottom'
-	            });
 	          }
+	          this.popup.adjustPosition({
+	            forceBindPosition: true,
+	            position: this.popup.isBottomAngle() ? 'top' : 'bottom'
+	          });
 	        });
 	      }
 	      this.popup.getContentContainer().style.overflowX = null;
@@ -644,50 +738,12 @@ this.BX = this.BX || {};
 	  }
 	  getSkeleton() {
 	    if (!this.skeleton) {
-	      this.skeleton = main_core.Tag.render(_t5$2 || (_t5$2 = _$3`
-				<div class="popup-with-header-skeleton__wrap">
-					<div class="popup-with-header-skeleton__header">
-						<div class="popup-with-header-skeleton__header-top">
-							<div class="popup-with-header-skeleton__header-circle">
-								<div class="popup-with-header-skeleton__header-circle-inner"></div>
-							</div>
-							<div style="width: 100%;">
-								<div style="margin-bottom: 12px; max-width: 219px; height: 6px; background: rgba(255,255,255,.8);" class="popup-with-header-skeleton__line"></div>
-								<div style="max-width: 119px; height: 4px;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-						<div class="popup-with-header-skeleton__header-bottom">
-							<div class="popup-with-header-skeleton__header-bottom-circle-box">
-								<div class="popup-with-header-skeleton__header-bottom-circle"></div>
-								<div class="popup-with-header-skeleton__header-bottom-circle-blue"></div>
-							</div>
-							<div style="width: 100%;">
-								<div style="margin-bottom: 9px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 15px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 156px; height: 2px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 93px; height: 2px;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-					</div>
-					<div class="popup-with-header-skeleton__bottom">
-						<div class="popup-with-header-skeleton__bottom-inner">
-							<div class="popup-with-header-skeleton__bottom-left">
-								<div style="margin-bottom: 11px; max-width: 193px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 17px; max-width: 163px; height: 5px;" class="popup-with-header-skeleton__line"></div>
-								<div style="margin-bottom: 9px; max-width: 168px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 131px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 150px; height: 3px; background: rgba(149,156,164,.23);" class="popup-with-header-skeleton__line --dark-animation"></div>
-								<div style="margin-bottom: 9px; max-width: 56px; height: 5px; background: rgba(32,102,176,.23);" class="popup-with-header-skeleton__line"></div>
-							</div>
-							<div class="popup-with-header-skeleton__bottom-right">
-								<div class="popup-with-header-skeleton-btn"></div>
-								<div style="margin: 0 auto; max-width: 36px; height: 3px; background: #d9d9d9;" class="popup-with-header-skeleton__line"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			`));
-	      const theme = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker$1)[_getThemePicker$1]().getAppliedTheme();
+	      var _babelHelpers$classPr;
+	      this.skeleton = new Skeleton(this.skeletonSize).get();
+	      const theme = (_babelHelpers$classPr = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker$1)[_getThemePicker$1]()) == null ? void 0 : _babelHelpers$classPr.getAppliedTheme();
+	      if (!theme) {
+	        return this.skeleton;
+	      }
 	      const headerContainer = this.skeleton.querySelector('.popup-with-header-skeleton__header');
 	      babelHelpers.classPrivateFieldLooseBase(this, _applyTheme$1)[_applyTheme$1](headerContainer, theme);
 	      main_core_events.EventEmitter.subscribe('BX.Intranet.Bitrix24:ThemePicker:onThemeApply', event => {
@@ -700,11 +756,14 @@ this.BX = this.BX || {};
 	    var _popupContainer$paren;
 	    const angly = popupContainer == null ? void 0 : (_popupContainer$paren = popupContainer.parentNode) == null ? void 0 : _popupContainer$paren.querySelector('.popup-window-angly--arrow');
 	    if (main_core.Type.isDomNode(angly)) {
-	      const theme = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker$1)[_getThemePicker$1]().getAppliedTheme();
-	      babelHelpers.classPrivateFieldLooseBase(this, _applyTheme$1)[_applyTheme$1](angly, theme);
-	      main_core_events.EventEmitter.subscribe('BX.Intranet.Bitrix24:ThemePicker:onThemeApply', event => {
-	        babelHelpers.classPrivateFieldLooseBase(this, _applyTheme$1)[_applyTheme$1](angly, event.data.theme);
-	      });
+	      var _babelHelpers$classPr2;
+	      const theme = (_babelHelpers$classPr2 = babelHelpers.classPrivateFieldLooseBase(this, _getThemePicker$1)[_getThemePicker$1]()) == null ? void 0 : _babelHelpers$classPr2.getAppliedTheme();
+	      if (theme) {
+	        babelHelpers.classPrivateFieldLooseBase(this, _applyTheme$1)[_applyTheme$1](angly, theme);
+	        main_core_events.EventEmitter.subscribe('BX.Intranet.Bitrix24:ThemePicker:onThemeApply', event => {
+	          babelHelpers.classPrivateFieldLooseBase(this, _applyTheme$1)[_applyTheme$1](angly, event.data.theme);
+	        });
+	      }
 	      main_core.Dom.style(angly, 'background-position', 'center top');
 	      main_core.Dom.addClass(popupContainer == null ? void 0 : popupContainer.parentNode, '--with-header');
 	    }
@@ -715,7 +774,7 @@ this.BX = this.BX || {};
 	    }
 	    if (!this.headerWrapper) {
 	      var _this$header, _this$header2, _this$header3, _this$header4, _this$header4$html;
-	      this.headerWrapper = main_core.Tag.render(_t6$1 || (_t6$1 = _$3`
+	      this.headerWrapper = main_core.Tag.render(_t5$2 || (_t5$2 = _$4`
 				<div class="ui-popupcomponentmaker__header-content"></div>
 			`));
 	      if (this.content.length <= 0) {
@@ -740,9 +799,23 @@ this.BX = this.BX || {};
 	    return this.headerWrapper;
 	  }
 	}
+	function _prepareItemsContent2(content) {
+	  main_core.Dom.addClass(this.getContentWrapper(), 'ui-popup-with-header__content');
+	  content.append(main_core.Tag.render(_t6$1 || (_t6$1 = _$4`<div class="ui-popupcomponentmaker__content-wrap">${0}</div>`), this.getContentWrapper()));
+	  if (this.popup.isBottomAngle() || !this.animationTemplate) {
+	    main_core.Dom.style(this.getContentWrapper(), 'transition', 'none');
+	  }
+	  if (this.getContentWrapper().scrollHeight > 287 && !main_core.Dom.hasClass(this.getContentWrapper(), '--active-scroll')) {
+	    main_core.Dom.style(this.getContentWrapper(), 'height', '287px');
+	    main_core.Dom.style(this.getContentWrapper(), 'overflow-y', 'scroll');
+	    main_core.Dom.addClass(content, 'active-scroll');
+	  } else {
+	    main_core.Dom.style(this.getContentWrapper(), 'height', `${this.getContentWrapper().scrollHeight}px`);
+	  }
+	}
 	function _getThemePicker2$1() {
-	  var _BX$Intranet$Bitrix;
-	  return (_BX$Intranet$Bitrix = BX.Intranet.Bitrix24.ThemePicker.Singleton) != null ? _BX$Intranet$Bitrix : top.BX.Intranet.Bitrix24.ThemePicker.Singleton;
+	  var _BX$Intranet$Bitrix, _BX$Intranet, _BX$Intranet$Bitrix2, _top$BX$Intranet, _top$BX$Intranet$Bitr;
+	  return (_BX$Intranet$Bitrix = (_BX$Intranet = BX.Intranet) == null ? void 0 : (_BX$Intranet$Bitrix2 = _BX$Intranet.Bitrix24) == null ? void 0 : _BX$Intranet$Bitrix2.ThemePicker.Singleton) != null ? _BX$Intranet$Bitrix : (_top$BX$Intranet = top.BX.Intranet) == null ? void 0 : (_top$BX$Intranet$Bitr = _top$BX$Intranet.Bitrix24) == null ? void 0 : _top$BX$Intranet$Bitr.ThemePicker.Singleton;
 	}
 	function _applyTheme2$1(container, theme) {
 	  const previewImage = `url('${main_core.Text.encode(theme.previewImage)}')`;
@@ -764,9 +837,9 @@ this.BX = this.BX || {};
 	  }
 	}
 
-	let _$4 = t => t,
-	  _t$4,
-	  _t2$4,
+	let _$5 = t => t,
+	  _t$5,
+	  _t2$5,
 	  _t3$3,
 	  _t4$3,
 	  _t5$3,
@@ -833,7 +906,7 @@ this.BX = this.BX || {};
 	  }
 	}
 	function _getItemContent2(config) {
-	  return main_core.Tag.render(_t$4 || (_t$4 = _$4`
+	  return main_core.Tag.render(_t$5 || (_t$5 = _$5`
 			<div class="ui-popupconstructor-content-item-wrapper">
 				<div class="ui-popupconstructor-content-item-wrapper_information">
 					<div class="ui-popupconstructor-content-item-wrapper-title">
@@ -850,17 +923,17 @@ this.BX = this.BX || {};
 					${0}
 				</div>
 			</div>
-		`), config.icon ? babelHelpers.classPrivateFieldLooseBase(this, _getIcon)[_getIcon](config.icon) : null, config.title ? babelHelpers.classPrivateFieldLooseBase(this, _getTitle)[_getTitle](config.title) : null, config.description ? babelHelpers.classPrivateFieldLooseBase(this, _getDescription)[_getDescription](config.description) : null, config.more ? babelHelpers.classPrivateFieldLooseBase(this, _getMoreLink)[_getMoreLink](config.more) : null, config.button ? babelHelpers.classPrivateFieldLooseBase(this, _getButton)[_getButton](config.button) : null, config.button.description ? babelHelpers.classPrivateFieldLooseBase(this, _getButtonDescription)[_getButtonDescription](config.button.description) : null);
+		`), config.icon ? babelHelpers.classPrivateFieldLooseBase(this, _getIcon)[_getIcon](config.icon) : null, config.title ? babelHelpers.classPrivateFieldLooseBase(this, _getTitle)[_getTitle](config.title) : null, config.description ? babelHelpers.classPrivateFieldLooseBase(this, _getDescription)[_getDescription](config.description) : null, config.more ? babelHelpers.classPrivateFieldLooseBase(this, _getMoreLink)[_getMoreLink](config.more, config.button) : null, config.button ? babelHelpers.classPrivateFieldLooseBase(this, _getButton)[_getButton](config.button) : null, config.button.description ? babelHelpers.classPrivateFieldLooseBase(this, _getButtonDescription)[_getButtonDescription](config.button.description) : null);
 	}
 	function _getTitle2(config) {
-	  const title = main_core.Tag.render(_t2$4 || (_t2$4 = _$4`
+	  const title = main_core.Tag.render(_t2$5 || (_t2$5 = _$5`
 			<div class="ui-popupconstructor-content-item__title">${0}</div>
 		`), config.text);
 	  babelHelpers.classPrivateFieldLooseBase(this, _setTextStyles)[_setTextStyles](title, config);
 	  return title;
 	}
 	function _getIcon2(config) {
-	  const icon = main_core.Tag.render(_t3$3 || (_t3$3 = _$4`
+	  const icon = main_core.Tag.render(_t3$3 || (_t3$3 = _$5`
 			<div class="ui-popupconstructor-content-item__icon ui-icon-set --${0}"></div>
 		`), config.name);
 	  if (config.color) {
@@ -869,7 +942,7 @@ this.BX = this.BX || {};
 	  return icon;
 	}
 	function _getDescription2(config) {
-	  const description = main_core.Tag.render(_t4$3 || (_t4$3 = _$4`
+	  const description = main_core.Tag.render(_t4$3 || (_t4$3 = _$5`
 			<div class="ui-popupconstructor-content-item__description">
 				${0}
 			</div>
@@ -877,27 +950,42 @@ this.BX = this.BX || {};
 	  babelHelpers.classPrivateFieldLooseBase(this, _setTextStyles)[_setTextStyles](description, config);
 	  return description;
 	}
-	function _getMoreLink2(config) {
+	function _getMoreLink2(config, configMainButton) {
 	  const onclick = () => {
-	    top.BX.Helper.show(`redirect=detail&code=${config.code}`);
+	    var _this$options;
+	    if (config.code) {
+	      ui_infoHelper.FeaturePromotersRegistry.getPromoter({
+	        code: config.code
+	      }).show();
+	    } else if (config.articleId) {
+	      top.BX.Helper.show(`redirect=detail&code=${config.articleId}`);
+	    }
+	    if ((_this$options = this.options) != null && _this$options.analyticsCallback) {
+	      this.options.analyticsCallback('click-more', configMainButton.url);
+	    }
 	  };
-	  const moreLink = main_core.Tag.render(_t5$3 || (_t5$3 = _$4`
+	  const moreLink = main_core.Tag.render(_t5$3 || (_t5$3 = _$5`
 			<div class="ui-popupconstructor-content-item__more-link" onclick="${0}">${0}</div>
 		`), onclick, config.text.text);
 	  babelHelpers.classPrivateFieldLooseBase(this, _setTextStyles)[_setTextStyles](moreLink, config.text);
 	  return moreLink;
 	}
 	function _getButton2(config) {
+	  const buttonTag = config.target ? ui_buttons.ButtonTag.BUTTON : ui_buttons.ButtonTag.LINK;
 	  const button = new ui_buttons.Button({
 	    round: true,
 	    text: config.text,
 	    size: ui_buttons.Button.Size.EXTRA_SMALL,
 	    color: ui_buttons.Button.Color.SUCCESS,
 	    noCaps: true,
-	    link: config.url,
+	    tag: buttonTag,
+	    link: config.target ? null : config.url,
 	    onclick: () => {
-	      var _this$options;
-	      if ((_this$options = this.options) != null && _this$options.analyticsCallback) {
+	      var _this$options2;
+	      if (config.target) {
+	        window.open(config.url, config.target);
+	      }
+	      if ((_this$options2 = this.options) != null && _this$options2.analyticsCallback) {
 	        this.options.analyticsCallback('click-button', config.url);
 	      }
 	    }
@@ -909,7 +997,7 @@ this.BX = this.BX || {};
 	  return button.render();
 	}
 	function _getButtonDescription2(config) {
-	  const buttonDescription = main_core.Tag.render(_t6$2 || (_t6$2 = _$4`
+	  const buttonDescription = main_core.Tag.render(_t6$2 || (_t6$2 = _$5`
 			<div class="ui-popupconstructor-content-item__button-description">
 				${0}
 			</div>
@@ -934,5 +1022,5 @@ this.BX = this.BX || {};
 	exports.SaleTemplate = SaleTemplate;
 	exports.BaseTemplate = BaseTemplate;
 
-}((this.BX.UI = this.BX.UI || {}),BX.Event,BX,BX.UI,BX.UI,BX.Main,BX.UI,BX,BX.UI));
+}((this.BX.UI = this.BX.UI || {}),BX.Event,BX,BX.UI,BX.UI,BX.UI.IconSet,BX.Main,BX.UI,BX,BX.UI,BX.UI));
 //# sourceMappingURL=popup-with-header.bundle.js.map

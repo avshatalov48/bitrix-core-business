@@ -5,6 +5,7 @@ export const SoundType = {
 	send: 'send',
 	dialtone: 'dialtone',
 	ringtone: 'ringtone',
+	ringtoneModern: 'ringtoneModern',
 	start: 'start',
 	stop: 'stop',
 	error: 'error',

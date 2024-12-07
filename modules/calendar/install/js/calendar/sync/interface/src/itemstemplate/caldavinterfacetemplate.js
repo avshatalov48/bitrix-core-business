@@ -14,7 +14,17 @@ export class CaldavInterfaceTemplate extends InterfaceTemplate
 
 	getContentInfoBody()
 	{
-		const formObject = new ConnectionControls();
+		let options = null;
+		if (this.connection !== null)
+		{
+			options = {
+				server: this.connection.addParams.server,
+				userName: this.connection.addParams.userName,
+				connectionName: this.connection.connectionName,
+			};
+		}
+
+		const formObject = new ConnectionControls(options);
 		const formBlock = formObject.getWrapper();
 		const form = formObject.getForm();
 		const button = formObject.getAddButton();
@@ -109,5 +119,10 @@ export class CaldavInterfaceTemplate extends InterfaceTemplate
 		});
 
 		messageBox.show();
+	}
+
+	handleConnectButton(): void
+	{
+		this.provider.openInfoConnectionSlider(this.provider.getFirstFailedConnection());
 	}
 }

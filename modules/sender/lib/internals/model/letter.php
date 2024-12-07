@@ -7,6 +7,7 @@
  */
 namespace Bitrix\Sender\Internals\Model;
 
+use Bitrix\Sender;
 use Bitrix\Main\Entity;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
@@ -254,7 +255,22 @@ class LetterTable extends Entity\DataManager
 				{
 					if((int)$file)
 					{
-						\CFile::Delete((int)$file);
+						$hasFiles = Sender\FileTable::getList([
+								'select' => ['ID'],
+								'filter' => [
+									'=FILE_ID' => (int)$file,
+									'!=ENTITY_ID' => $fields['MESSAGE_ID'],
+									'=ENTITY_TYPE' => FileTable::TYPES['LETTER'],
+								],
+								'limit' => 1,
+							]
+						)->fetch();
+
+						if (!$hasFiles)
+						{
+							\CFile::Delete((int)$file);
+							FileInfoTable::delete((int)$file);
+						}
 					}
 				}
 			}

@@ -527,7 +527,7 @@ class Mail
 			return false;
 		}
 
-		if (mb_strpos($attachment['CONTENT_TYPE'], 'image/') === 0)
+		if (str_starts_with($attachment['CONTENT_TYPE'], 'image/'))
 		{
 			return true;
 		}
@@ -972,11 +972,11 @@ class Mail
 		}
 
 		$srcTrimmed = trim($src);
-		if(mb_substr($srcTrimmed, 0, 2) == "//")
+		if(str_starts_with($srcTrimmed, "//"))
 		{
 			$src = $this->trackLinkProtocol . ":" . $srcTrimmed;
 		}
-		else if(mb_substr($srcTrimmed, 0, 1) == "/")
+		elseif(str_starts_with($srcTrimmed, "/"))
 		{
 			$srcModified = false;
 			if(!empty($this->attachment))
@@ -1067,7 +1067,7 @@ class Mail
 		}
 
 		$url = $this->trackReadLink;
-		if (mb_substr($url, 0, 4) !== 'http')
+		if (!str_starts_with($url, 'http'))
 		{
 			$url = $this->trackLinkProtocol . "://" . $this->settingServerName . $url;
 		}
@@ -1114,12 +1114,12 @@ class Mail
 			return $matches[0];
 		}
 
-		if(mb_substr($href, 0, 2) == '//')
+		if(str_starts_with($href, '//'))
 		{
 			$href = $this->trackLinkProtocol . ':' . $href;
 		}
 
-		if(mb_substr($href, 0, 1) == '/')
+		if(str_starts_with($href, '/'))
 		{
 			$href = $this->trackLinkProtocol . '://' . $this->settingServerName . $href;
 		}
@@ -1133,7 +1133,7 @@ class Mail
 					$hrefAddParam .= '&'.htmlspecialcharsbx($k).'='.htmlspecialcharsbx($v);
 
 				$parsedHref = explode("#", $href);
-				$parsedHref[0] .= (strpos($parsedHref[0], '?') === false? '?' : '&').mb_substr($hrefAddParam, 1);
+				$parsedHref[0] .= (!str_contains($parsedHref[0], '?') ? '?' : '&').mb_substr($hrefAddParam, 1);
 				$href = implode("#", $parsedHref);
 			}
 

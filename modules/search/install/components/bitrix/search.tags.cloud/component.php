@@ -18,15 +18,15 @@ global $CACHE_MANAGER;
 if(!isset($arParams["CACHE_TIME"]))
 	$arParams["CACHE_TIME"] = 3600;
 
-$arParams["SORT"] = ($arParams["SORT"] == "CNT" ? "CNT" : "NAME");
-$arParams["SORT_BY"] = ($arParams["SORT_BY"] == "ASC" ? "ASC" : "DESC");
+$arParams["SORT"] = (isset($arParams["SORT"]) && $arParams["SORT"] == "CNT" ? "CNT" : "NAME");
+$arParams["SORT_BY"] = (isset($arParams["SORT_BY"]) && $arParams["SORT_BY"] == "ASC" ? "ASC" : "DESC");
 $arParams["PAGE_ELEMENTS"] = ((intval($arParams["PAGE_ELEMENTS"]) > 0) ? intval($arParams["PAGE_ELEMENTS"]) : 1000);
 $arParams["PERIOD"] = intval($arParams["PERIOD"]);
 $arParams["CHECK_DATES"] = ($arParams["CHECK_DATES"]=="Y" ? true : false);
-$arParams["~TAGS"] = (empty($arParams["~TAGS"]) ? $_REQUEST["tags"] : $arParams["~TAGS"]);
+$arParams["~TAGS"] = (empty($arParams["~TAGS"]) ? ($_REQUEST["tags"] ?? '') : $arParams["~TAGS"]);
 $arParams["~TAGS"] = trim($arParams["~TAGS"]);
 $arParams["TAGS"] = htmlspecialcharsex($arParams["~TAGS"]);
-$arParams["SEARCH"] = (empty($arParams["SEARCH"]) ? $_REQUEST["q"] : $arParams["~SEARCH"]);
+$arParams["SEARCH"] = (empty($arParams["SEARCH"]) ? ($_REQUEST["q"] ?? '') : $arParams["~SEARCH"]);
 $arParams["~SEARCH"] = trim($arParams["SEARCH"]);
 $arParams["SEARCH"] = htmlspecialcharsbx($arParams["~SEARCH"]);
 
@@ -66,7 +66,7 @@ if ($this->StartResultCache(false, array($USER->GetGroups())))
 	if(defined("BX_COMP_MANAGED_CACHE"))
 		$CACHE_MANAGER->registerTag("bitrix:search.tags.cloud");
 
-	if($arParams["FILTER_NAME"] == '' || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
+	if(empty($arParams["FILTER_NAME"]) || !preg_match("/^[A-Za-z_][A-Za-z01-9_]*$/", $arParams["FILTER_NAME"]))
 		$arFILTERCustom = array();
 	else
 	{
@@ -123,6 +123,7 @@ if ($this->StartResultCache(false, array($USER->GetGroups())))
 			$res["TIME"] = MakeTimeStamp($res["FULL_DATE_CHANGE"]);
 			$arResult["TIME_MIN"] = $res["TIME"];
 			$arResult["TIME_MAX"] = $res["TIME"];
+			$arResult["CNT_ALL"] = 0;
 
 			$arTags = array();
 			if (($arParams["TAGS_INHERIT"] != "N") && ($arParams["TAGS"] <> ''))
@@ -162,7 +163,7 @@ if ($this->StartResultCache(false, array($USER->GetGroups())))
 
 				$res["URL"] = str_replace("#TAGS#", urlencode($tags), $arResult["URL"]);
 
-				$res["NAME_HTML"] = ToLower($res["NAME"]);
+				$res["NAME_HTML"] = mb_strtolower($res["NAME"]);
 
 				$arResult["SEARCH"][] = $res;
 				$arResult["CNT"][$res["NAME"]] = $res["CNT"];
@@ -202,7 +203,7 @@ if ($this->StartResultCache(false, array($USER->GetGroups())))
 		}
 	}
 	$this->IncludeComponentTemplate();
-	
+
 	return count($arResult["SEARCH"]);
 }
 ?>

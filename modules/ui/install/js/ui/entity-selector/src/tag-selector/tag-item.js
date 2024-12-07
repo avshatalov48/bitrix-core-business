@@ -26,6 +26,7 @@ export default class TagItem
 
 	link: ?string = null;
 	onclick: ?Function = null;
+	clickable: boolean = null;
 
 	deselectable: ?boolean = null;
 	customData: Map<string, any> = null;
@@ -64,6 +65,7 @@ export default class TagItem
 		this.setTextColor(options.textColor);
 		this.setBgColor(options.bgColor);
 		this.setFontWeight(options.fontWeight);
+		this.setClickable(options.clickable);
 	}
 
 	getId(): string | number
@@ -115,11 +117,13 @@ export default class TagItem
 		{
 			return this.avatar;
 		}
-		else if (this.getSelector().getTagAvatar() !== null)
+
+		if (this.getSelector().getTagAvatar() !== null)
 		{
 			return this.getSelector().getTagAvatar();
 		}
-		else if (this.getEntityTagOption('avatar') !== null)
+
+		if (this.getEntityTagOption('avatar') !== null)
 		{
 			return this.getEntityTagOption('avatar');
 		}
@@ -192,7 +196,8 @@ export default class TagItem
 		{
 			return this.textColor;
 		}
-		else if (this.getSelector().getTagTextColor() !== null)
+
+		if (this.getSelector().getTagTextColor() !== null)
 		{
 			return this.getSelector().getTagTextColor();
 		}
@@ -214,7 +219,8 @@ export default class TagItem
 		{
 			return this.bgColor;
 		}
-		else if (this.getSelector().getTagBgColor() !== null)
+
+		if (this.getSelector().getTagBgColor() !== null)
 		{
 			return this.getSelector().getTagBgColor();
 		}
@@ -236,7 +242,8 @@ export default class TagItem
 		{
 			return this.fontWeight;
 		}
-		else if (this.getSelector().getTagFontWeight() !== null)
+
+		if (this.getSelector().getTagFontWeight() !== null)
 		{
 			return this.getSelector().getTagFontWeight();
 		}
@@ -258,7 +265,8 @@ export default class TagItem
 		{
 			return this.maxWidth;
 		}
-		else if (this.getSelector().getTagMaxWidth() !== null)
+
+		if (this.getSelector().getTagMaxWidth() !== null)
 		{
 			return this.getSelector().getTagMaxWidth();
 		}
@@ -284,7 +292,7 @@ export default class TagItem
 
 	isDeselectable(): boolean
 	{
-		return this.deselectable !== null ? this.deselectable : this.getSelector().isDeselectable();
+		return this.deselectable === null ? this.getSelector().isDeselectable() : this.deselectable;
 	}
 
 	getCustomData(): Map<string, any>
@@ -302,6 +310,39 @@ export default class TagItem
 		return this.onclick;
 	}
 
+	setClickable(flag: boolean): void
+	{
+		if (Type.isBoolean(flag))
+		{
+			this.clickable = flag;
+		}
+	}
+
+	isClickable(): boolean
+	{
+		if (this.clickable !== null)
+		{
+			return this.clickable;
+		}
+
+		if (this.getSelector().getTagClickable() !== null)
+		{
+			return this.getSelector().getTagClickable();
+		}
+
+		if (this.getEntityTagOption('clickable') !== null)
+		{
+			return this.getEntityTagOption('clickable');
+		}
+
+		if (this.getEntityItemOption('clickable') !== null)
+		{
+			return this.getEntityItemOption('clickable');
+		}
+
+		return false;
+	}
+
 	render(): void
 	{
 		const titleNode = this.getTitleNode();
@@ -309,12 +350,13 @@ export default class TagItem
 		{
 			titleNode.renderTo(this.getTitleContainer());
 
-			//Dom.attr(this.getContentContainer(), 'title', this.getTitle());
+			const title = this.getTitleContainer().textContent;
+			this.getContentContainer().setAttribute('title', this.constructor.#sanitizeTitle(title));
 		}
 		else
 		{
 			this.getTitleContainer().textContent = '';
-			Dom.attr(this.getContentContainer(), 'title', '');
+			Dom.attr(this.getContentContainer(), 'title', null);
 		}
 
 		const avatar = this.getAvatar();
@@ -374,6 +416,11 @@ export default class TagItem
 		this.rendered = true;
 	}
 
+	static #sanitizeTitle(text: string): string
+	{
+		return text.replaceAll(/[\t ]+/gm, ' ').replaceAll(/\n+/gm, '\n').trim();
+	}
+
 	getContainer(): HTMLElement
 	{
 		return this.cache.remember('container', () => {
@@ -381,8 +428,8 @@ export default class TagItem
 				<div class="ui-tag-selector-item ui-tag-selector-tag">
 					${this.getContentContainer()}
 					${this.getRemoveIcon()}
-				</div>`
-			;
+				</div>
+			`;
 		});
 	}
 
@@ -403,20 +450,18 @@ export default class TagItem
 					</a>
 				`;
 			}
-			else
-			{
-				const className = Type.isFunction(this.getOnclick()) ? ' ui-tag-selector-tag-content--clickable' : '';
-				return Tag.render`
-					<div 
-						class="ui-tag-selector-tag-content${className}" 
-						onclick="${this.handleContainerClick.bind(this)}"
-					>
-						${this.getAvatarContainer()}
-						${this.getTitleContainer()}
-					</div>
-					
-				`;
-			}
+
+			const className = this.isClickable() || this.getOnclick() !== null ? ' ui-tag-selector-tag-content--clickable' : '';
+
+			return Tag.render`
+				<div
+					class="ui-tag-selector-tag-content${className}"
+					onclick="${this.handleContainerClick.bind(this)}"
+				>
+					${this.getAvatarContainer()}
+					${this.getTitleContainer()}
+				</div>
+			`;
 		});
 	}
 
@@ -467,26 +512,31 @@ export default class TagItem
 		if (animate === false)
 		{
 			Dom.remove(this.getContainer());
+
 			return Promise.resolve();
 		}
 
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			Dom.style(this.getContainer(), 'width', `${this.getContainer().offsetWidth}px`);
 			Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--remove');
 			Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-remove').then(() => {
 				Dom.remove(this.getContainer());
 				resolve();
+			}).catch(() => {
+				// Fail silently
 			});
 		});
 	}
 
 	show(): Promise
 	{
-		return new Promise(resolve => {
+		return new Promise((resolve) => {
 			Dom.addClass(this.getContainer(), 'ui-tag-selector-tag--show');
 			Animation.handleAnimationEnd(this.getContainer(), 'ui-tag-selector-tag-show').then(() => {
 				Dom.removeClass(this.getContainer(), 'ui-tag-selector-tag--show');
 				resolve();
+			}).catch(() => {
+				// Fail silently
 			});
 		});
 	}
@@ -498,6 +548,9 @@ export default class TagItem
 		{
 			fn(this);
 		}
+
+		const selector = this.getSelector();
+		selector.emit('TagItem:onClick', { item: this });
 	}
 
 	handleRemoveIconClick(event: MouseEvent): void

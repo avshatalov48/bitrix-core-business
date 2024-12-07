@@ -3,6 +3,7 @@ namespace Bitrix\Im\V2\Chat\User;
 
 use Bitrix\Im\Model\ChatTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Main\UserAccessTable;
 use Bitrix\Main\UserTable;
 
@@ -24,7 +25,8 @@ class OwnerService
 			self::DELAY_AFTER_USER_FIRED,
 			'',
 			'Y',
-			ConvertTimeStamp(time() + \CTimeZone::GetOffset() + self::DELAY_AFTER_USER_FIRED, "FULL")
+			ConvertTimeStamp(time() + \CTimeZone::GetOffset() + self::DELAY_AFTER_USER_FIRED, "FULL"),
+			existError: false
 		);
 	}
 
@@ -41,23 +43,14 @@ class OwnerService
 		{
 			$chat = Chat\ChatFactory::getInstance()->getChat($ownerChat['ID']);
 
-			$ownerRelation = $chat->getRelations([
-				'FILTER' => [
-					'USER_ID' => $ownerId
-				],
-				'LIMIT' => 1
-			]);
-			if ($ownerRelation->getIterator()->current())
+			$ownerRelation = $chat->getRelationByUserId($ownerId);
+			if ($ownerRelation)
 			{
-				$ownerRelation->getIterator()->current()->setManager(false);
-				$ownerRelation->getIterator()->current()->save();
+				$ownerRelation->setManager(false);
+				$ownerRelation->save();
 			}
 
-			$relations = $chat->getRelations([
-				'FILTER' => [
-					'!USER_ID' => $ownerId
-				]
-			]);
+			$relations = RelationCollection::find(['CHAT_ID' => $chat->getId(), '!USER_ID' => $ownerId]);
 			if ($relations->count())
 			{
 				foreach ($relations as $relation)
@@ -142,7 +135,7 @@ class OwnerService
 		if ($canPostAll)
 		{
 			$generalChat
-				->setCanPost(Chat::MANAGE_RIGHTS_MEMBER)
+				->setManageMessages(Chat::MANAGE_RIGHTS_MEMBER)
 				->save();
 
 			return '';
@@ -184,7 +177,7 @@ class OwnerService
 		}
 
 		$generalChat
-			->setCanPost(Chat::MANAGE_RIGHTS_MANAGERS)
+			->setManageMessages(Chat::MANAGE_RIGHTS_MANAGERS)
 			->save();
 
 		return '';

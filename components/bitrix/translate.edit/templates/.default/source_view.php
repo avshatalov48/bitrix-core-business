@@ -143,7 +143,7 @@ if (!empty($arResult['ERROR_MESSAGE']))
 if (!$isAjax)
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function(){
 
 			BX.Translate.Editor.init(<?=Json::encode(array(

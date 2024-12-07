@@ -35,13 +35,14 @@ export const Parser = {
 	decodeMessage(message: ImModelMessage): string
 	{
 		const messageFiles = getCore().store.getters['messages/getMessageFiles'](message.id);
+		const contextDialogId = ParserUtils.getDialogIdByChatId(message.chatId);
 
 		return this.decode({
 			text: message.text,
 			attach: message.attach,
 			files: messageFiles,
-			replaces: message.replaces,
 			showIconIfEmptyText: false,
+			contextDialogId,
 		});
 	},
 
@@ -50,7 +51,6 @@ export const Parser = {
 		return this.decode({
 			text: notification.text,
 			attach: notification.params.attach ?? false,
-			replaces: notification.replaces,
 			showIconIfEmptyText: false,
 			showImageFromLink: false,
 			urlTarget: DesktopApi.isDesktop() ? '_blank' : '_self',
@@ -99,6 +99,7 @@ export const Parser = {
 			removeLinks = false,
 			showIconIfEmptyText = true,
 			showImageFromLink = true,
+			contextDialogId = '',
 			urlTarget = '_blank',
 		} = config;
 
@@ -147,7 +148,7 @@ export const Parser = {
 		text = ParserAction.decodeDate(text);
 
 		text = ParserQuote.decodeArrowQuote(text);
-		text = ParserQuote.decodeQuote(text);
+		text = ParserQuote.decodeQuote(text, { contextDialogId });
 
 		text = ParserRecursionPrevention.recoverSendTag(text);
 		text = ParserAction.decodeSend(text);

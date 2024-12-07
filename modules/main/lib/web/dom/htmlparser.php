@@ -1,7 +1,7 @@
 <?php
 namespace Bitrix\Main\Web\DOM;
 
-use \Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Text\HtmlFilter;
 
 class HtmlParser extends Parser
 {
@@ -238,7 +238,7 @@ class HtmlParser extends Parser
 		if ($text !== "")
 		{
 			preg_match_all("/(?'name'[\w\-_:?&]+)(?'eq'\s*=\s*)?(?(eq)([\"'])(?'val'.*?)\g{-2})/s", $text, $attrTmp);
-			if(strpos($text, "&") === false)
+			if(!str_contains($text, "&"))
 			{
 				foreach($attrTmp['name'] as $i => $attrName)
 				{
@@ -339,11 +339,11 @@ class HtmlParser extends Parser
 			}
 		}
 
-		if(mb_substr($tag, 0, 2) === '</')
+		if(str_starts_with($tag, '</'))
 		{
 			// closed tag
 			//TODO: find closest opened parent with same nodeName and return it
-			$cleaned = mb_strtoupper(mb_substr($tag, 2, -mb_strlen('>')));
+			$cleaned = mb_strtoupper(mb_substr($tag, 2, -1));
 			$searchableNode = $parentNode;
 			$isSearchableNodeFound = false;
 
@@ -399,13 +399,13 @@ class HtmlParser extends Parser
 				}
 			}
 		}
-		elseif(mb_substr($tag, 0, 4) === '<!--')
+		elseif(str_starts_with($tag, '<!--'))
 		{
 			// Comment
-			$cleaned = mb_substr($tag, 4);
-			if(mb_substr($tag, -3) == '-->')
+			$cleaned = substr($tag, 4);
+			if(str_ends_with($tag, '-->'))
 			{
-				$cleaned = mb_substr($cleaned, 0, -3);
+				$cleaned = substr($cleaned, 0, -3);
 				$parentNode->bxNodeFoundCloseTag = true;
 			}
 			else
@@ -417,26 +417,26 @@ class HtmlParser extends Parser
 			//$parentNode->bxNodeFoundCloseTag = false;
 			$node = $document->createComment($cleaned);
 		}
-		elseif(mb_substr($tag, 0, 1) === '<')
+		elseif(str_starts_with($tag, '<'))
 		{
 
 			// Element
-			if(mb_substr($tag, -2) === '/>')
+			if(str_ends_with($tag, '/>'))
 			{
 				// empty tag
-				$cleaned = mb_substr($tag, 1, -2);
+				$cleaned = substr($tag, 1, -2);
 				$bxNodeWithCloseTag = false;
 			}
 			else
 			{
-				$cleaned = mb_substr($tag, 1, -1);
+				$cleaned = substr($tag, 1, -1);
 				$isSingleTag = false;
 				$bxNodeWithCloseTag = true;
 			}
 
 			$list = $this->parseElement($cleaned);
 
-			$isDocType = mb_substr($list['NAME'], 0, mb_strlen('!DOCTYPE')) === '!DOCTYPE';
+			$isDocType = str_starts_with($list['NAME'], '!DOCTYPE');
 
 			if(isset($tagsWithoutClose[$list['NAME']]) || $isDocType)
 			{
@@ -463,7 +463,7 @@ class HtmlParser extends Parser
 		else
 		{
 			// Text
-			$cleaned = html_entity_decode($tag, ENT_QUOTES, (defined("BX_UTF") ? "UTF-8" : "ISO-8859-1"));
+			$cleaned = html_entity_decode($tag, ENT_QUOTES, "UTF-8");
 			$node = $document->createTextNode($cleaned);
 		}
 

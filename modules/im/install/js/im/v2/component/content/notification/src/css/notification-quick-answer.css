@@ -37,6 +37,7 @@
 }
 
 .bx-im-content-notification-quick-answer__textarea {
+	font: var(--im-font-size-md)/var(--im-font-line-height-sm) var(--im-font-family-system);
 	width: 100%;
 	height: 95px;
 	border: 1px solid var(--im-notification-quick-answer-textarea-border-color);

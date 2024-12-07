@@ -44,7 +44,7 @@ else
 	$ID = 0;
 }
 
-if ($REQUEST_METHOD == "POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT == "W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "POST" && ($save <> '' || $apply <> '') && $MOD_RIGHT == "W" && check_bitrix_sessid())
 {
 	$ICON = $_FILES['ICON'];
 	$ICON['old_file'] = $str_ICON;
@@ -236,7 +236,7 @@ $tabControl = new CAdminTabControl("tabControl", $aTabs);
 	<input type="hidden" value="Y" name="apply">
 
 
-<script type="text/javascript">
+<script>
 
 	function change_type()
 	{

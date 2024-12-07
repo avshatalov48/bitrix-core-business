@@ -7,6 +7,6 @@ global $APPLICATION;
 $loadCurrency = Loader::includeModule('currency');
 CJSCore::Init(array('popup', 'currency', 'ui.fonts.opensans'));
 ?>
-<script type="text/javascript">
+<script>
 	BX.Currency.setCurrencies(<? echo $templateData['CURRENCIES']; ?>);
 </script>

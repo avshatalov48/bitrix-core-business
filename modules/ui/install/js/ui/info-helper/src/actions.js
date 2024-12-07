@@ -1,4 +1,6 @@
 import { ajax, Extension, Uri } from 'main.core';
+import { sendData } from 'ui.analytics';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
 
 export class Actions
 {
@@ -32,6 +34,48 @@ export class Actions
 		Actions.openSlider({ url: '/settings/license_all.php' });
 	}
 
+	static openChatWithHead(data): void
+	{
+		const opener = top.BX.Messenger.Public.openChat();
+		const analyticData = {
+			tool: 'InfoHelper',
+			c_section: document.location.href,
+			event: 'create_chatforrequest',
+		};
+
+		if (data.toolId)
+		{
+			ajax.runAction('intranet.tools.tool.createHeadChat', {
+				data: {
+					toolId: data.toolId,
+				},
+			}).then((response) => {
+				opener.then(() => {
+					top.BX.Messenger.Public.openChat(`chat${response.data.chatId}`);
+				});
+				analyticData.type = data.toolId;
+				analyticData.category = 'tool_off';
+				sendData(analyticData);
+			});
+		}
+
+		if (data.featureCode)
+		{
+			ajax.runAction('bitrix24.license.upgraderequest.createHeadChat', {
+				data: {
+					code: data.featureCode,
+				},
+			}).then((response) => {
+				opener.then(() => {
+					top.BX.Messenger.Public.openChat(`chat${response.data.chatId}`);
+				});
+				analyticData.type = data.featureCode;
+				analyticData.category = 'limit';
+				sendData(analyticData);
+			});
+		}
+	}
+
 	static openCheckout(data): void
 	{
 		if (data.mpSubscribe && Extension.getSettings('ui.info-helper').licenseType)
@@ -54,7 +98,7 @@ export class Actions
 
 	static openToolsSettings(): void
 	{
-		Actions.openSlider({ url: '/settings/configs/?page=tools' });
+		Actions.openSlider({ url: Extension.getSettings('ui.info-helper').settingsUrl + '?page=tools' });
 	}
 
 	static openInformer(data)
@@ -73,7 +117,7 @@ export class Actions
 			const callback = (result) => {
 				const slider = BX.SidePanel.Instance.getTopSlider();
 
-				if (slider)
+				if (slider && result.error)
 				{
 					BX.UI.InfoHelper.sliderProviderForOldFormat?.getFrame().contentWindow.postMessage(
 						{
@@ -82,6 +126,20 @@ export class Actions
 						},
 						'*',
 					);
+				}
+
+				if (!result.error)
+				{
+					const settings = Extension.getSettings('ui.info-helper');
+
+					if (settings.licenseNeverPayed)
+					{
+						Actions.openInformer({ code: 'limit_market_trial_active' });
+					}
+					else if (settings.marketUrl)
+					{
+						Actions.openSlider({ url: settings.marketUrl });
+					}
 				}
 			};
 

@@ -393,9 +393,6 @@ class Location extends ExternalLocationMap
 		set_time_limit(0);
 		$content = File::getFileContents($path);
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$content = Encoding::convertEncoding($content, 'UTF-8', SITE_CHARSET);
-
 		if($content === false)
 			return false;
 

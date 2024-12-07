@@ -1,32 +1,31 @@
 import { DateTimeFormat } from '../../src/date-time-format';
 
+global.loadMessages({
+	langFile: `${__dirname}/../../../../../../lang/en/date_format.php`, // main/lang/en/date_format.php
+});
+
 const BX = {
 	Main: {
 		Date: DateTimeFormat,
 	}
 };
 
-/*
-The test uses formats that don't rely on Loc.getMessage, AM_PM and any global/external values.
-Therefore, only a limited number of formats and combinations is tested.
- */
+const now = new Date(2022, 11, 3, 15, 0, 55);
 
-const now = 1670068855;
-
-const tomorrow = now + 3600 * 24;
-const twoSecondsAgo = now - 2;
-const twoHoursAgo = now - 3600 * 2;
-const twoDaysAgo = now - 3600 * 24 * 2 - 3600 * 6;
-const twoMonthsAgo = now - 3600 * 24 * 30 * 2;
-const yearAgo = now - 3600 * 24 * 365;
-const twoYearsAgo = now - 3600 * 24 * 365 * 2;
+const tomorrow = new Date(2022, 11, 4, 15, 0, 55);
+const twoSecondsAgo = new Date(2022, 11, 3, 15, 0, 53);
+const twoHoursAgo = new Date(2022, 11, 3, 13, 0, 55);
+const twoDaysAndSixHoursAgo = new Date(2022, 11, 1, 9, 0, 55);
+const twoMonthsAgo = new Date(2022, 9, 3, 15, 0, 55);
+const yearAgo = new Date(2021, 11, 3, 15, 0, 55);
+const twoYearsAgo = new Date(2020, 11, 3, 15, 0, 55);
 
 describe('DateTimeFormat', () => {
 	describe('format', () => {
 		it('should format the date ', () => {
-			assert.equal(DateTimeFormat.format('d-m-Y H:i:s', twoDaysAgo, now), '01-12-2022 09:00:55');
-			assert.equal(DateTimeFormat.format('^d-m-Y H:i:s', twoDaysAgo, now), '01-12-2022 09:00:55');
-			assert.equal(DateTimeFormat.format('H:m:s \\m \\i\\s \\m\\o\\n\\t\\h', twoDaysAgo, now), '09:12:55 m is month');
+			assert.equal(DateTimeFormat.format('d-m-Y H:i:s', twoDaysAndSixHoursAgo, now), '01-12-2022 09:00:55');
+			assert.equal(DateTimeFormat.format('^d-m-Y H:i:s', twoDaysAndSixHoursAgo, now), '01-12-2022 09:00:55');
+			assert.equal(DateTimeFormat.format('H:m:s \\m \\i\\s \\m\\o\\n\\t\\h', twoDaysAndSixHoursAgo, now), '09:12:55 m is month');
 		});
 
 		it('should choose the format with appropriate boundaries if multiple formats are provided', () => {
@@ -43,7 +42,7 @@ describe('DateTimeFormat', () => {
 			assert.equal(DateTimeFormat.format(formats, tomorrow, now), '15:00:55');
 			assert.equal(DateTimeFormat.format(formats, twoSecondsAgo, now), 'sec');
 			assert.equal(DateTimeFormat.format(formats, twoHoursAgo, now), 'hours');
-			assert.equal(DateTimeFormat.format(formats, twoDaysAgo, now), 'days');
+			assert.equal(DateTimeFormat.format(formats, twoDaysAndSixHoursAgo, now), 'days');
 			assert.equal(DateTimeFormat.format(formats, twoMonthsAgo, now), 'months');
 			assert.equal(DateTimeFormat.format(formats, yearAgo, now), '13 months');
 			assert.equal(DateTimeFormat.format(formats, twoYearsAgo, now), 'very long ago');

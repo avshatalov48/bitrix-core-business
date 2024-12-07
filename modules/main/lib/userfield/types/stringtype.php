@@ -76,7 +76,7 @@ class StringType extends BaseType
 			'REGEXP' => $regExp,
 			'MIN_LENGTH' => $min,
 			'MAX_LENGTH' => $max,
-			'DEFAULT_VALUE' => is_array($userField['SETTINGS']) ? $userField['SETTINGS']['DEFAULT_VALUE'] : '',
+			'DEFAULT_VALUE' => is_array($userField['SETTINGS']) ? ($userField['SETTINGS']['DEFAULT_VALUE'] ?? '') : '',
 		];
 	}
 
@@ -109,7 +109,20 @@ class StringType extends BaseType
 				? $userField['EDIT_FORM_LABEL'] : $userField['FIELD_NAME']
 		);
 
+		if (is_array($value))
+		{
+			return [
+				'id' => $userField['FIELD_NAME'],
+				'text' => Loc::getMessage('USER_TYPE_STRING_VALUE_IS_MULTIPLE',
+					[
+						'#FIELD_NAME#' => $fieldName,
+					]
+				),
+			];
+		}
+
 		$msg = [];
+
 		if($value != '' && mb_strlen($value) < $userField['SETTINGS']['MIN_LENGTH'])
 		{
 			$msg[] = [
@@ -155,6 +168,7 @@ class StringType extends BaseType
 				),
 			];
 		}
+
 		return $msg;
 	}
 
@@ -190,7 +204,7 @@ class StringType extends BaseType
 	 * array('CUserTypeString', 'onBeforeGetPublicView')
 	 * );
 	 * You can do the same for editing:
-	 * onBeforeGetPublicEdit (EDIT_COMPONENT_NAME è EDIT_COMPONENT_TEMPLATE)
+	 * onBeforeGetPublicEdit (EDIT_COMPONENT_NAME Ð¸ EDIT_COMPONENT_TEMPLATE)
 	 */
 	/*
 		public static function onBeforeGetPublicView($event)

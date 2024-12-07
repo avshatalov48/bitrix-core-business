@@ -84,6 +84,11 @@ export default class PublicV2
 			this.#slotsBlock.openAccessDenied();
 		}
 
+		if (options.action === 'opened')
+		{
+			this.#welcomePage.handleWelcomePageButtonClick();
+		}
+
 		// this.showFreeSlots();
 	}
 

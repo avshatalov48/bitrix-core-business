@@ -18,7 +18,7 @@ if ($ex = $APPLICATION->GetException())
 }
 else
 {
-	echo CAdminMessage::ShowNote(GetMessage('MOD_UNINST_OK'));
+	CAdminMessage::ShowNote(GetMessage('MOD_UNINST_OK'));
 }
 ?>
 <form action="<?php echo $APPLICATION->GetCurPage()?>">

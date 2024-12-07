@@ -1,4 +1,4 @@
-<?
+<?php
 IncludeModuleLangFile(__FILE__);
 
 class CSearchStemTable extends CSearchFullText
@@ -12,10 +12,10 @@ class CSearchStemTable extends CSearchFullText
 		$DB = CDatabase::GetModuleConnection('search');
 		if (BX_SEARCH_VERSION > 1)
 		{
-			$DB->Query("TRUNCATE TABLE b_search_stem", false, "File: ".__FILE__."<br>Line: ".__LINE__);
-			$DB->Query($s="TRUNCATE TABLE b_search_content_text", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("TRUNCATE TABLE b_search_stem");
+			$DB->Query("TRUNCATE TABLE b_search_content_text");
 		}
-		$DB->Query($s="TRUNCATE TABLE b_search_content_stem", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("TRUNCATE TABLE b_search_content_stem");
 	}
 
 	public function deleteById($ID)
@@ -23,9 +23,9 @@ class CSearchStemTable extends CSearchFullText
 		$DB = CDatabase::GetModuleConnection('search');
 		if (BX_SEARCH_VERSION > 1)
 		{
-			$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID);
 		}
-		$DB->Query($s="DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query("DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID);
 	}
 
 	public function replace($ID, $arFields)
@@ -42,25 +42,23 @@ class CSearchStemTable extends CSearchFullText
 				if(!$arText || $arText["SEARCH_CONTENT_MD5"] !== $text_md5)
 				{
 					CSearch::CleanFreqCache($ID);
-					$DB->Query("DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+					$DB->Query("DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID);
 					if (COption::GetOptionString("search", "agent_stemming") === "Y")
 						CSearchStemTable::DelayStemIndex($ID);
 					else
 						CSearch::StemIndex($arFields["SITE_ID"], $ID, $arFields["SEARCHABLE_CONTENT"]);
-					$DB->Query("DELETE FROM b_search_content_text WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
-					$arText = array(
-						"ID" => 1,
+					$arInsert = $DB->PrepareInsert('b_search_content_text', [
 						"SEARCH_CONTENT_ID" => $ID,
 						"SEARCH_CONTENT_MD5" => $text_md5,
 						"SEARCHABLE_CONTENT" => $arFields["SEARCHABLE_CONTENT"]
-					);
-					$DB->Add("b_search_content_text", $arText, Array("SEARCHABLE_CONTENT"));
+					]);
+					$DB->Query('INSERT IGNORE INTO b_search_content_text (' . $arInsert[0] . ') VALUES (' . $arInsert[1] . ')');
 				}
 			}
 			else
 			{
 				CSearch::CleanFreqCache($ID);
-				$DB->Query("DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query("DELETE FROM b_search_content_stem WHERE SEARCH_CONTENT_ID = ".$ID);
 				if (COption::GetOptionString("search", "agent_stemming") === "Y")
 					CSearchStemTable::DelayStemIndex($ID);
 				else
@@ -157,4 +155,3 @@ class CSearchStemTable extends CSearchFullText
 		return "CSearchStemTable::DelayedStemIndex();";
 	}
 }
-?>

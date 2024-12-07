@@ -2,15 +2,12 @@
 /** var CMain $APPLICATION */
 IncludeModuleLangFile(__FILE__);
 
-use Bitrix\Calendar\Core\Mappers;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
-use Bitrix\Calendar\Sharing;
 
 class CCalendarNotify
 {
 	const PUSH_MESSAGE_MAX_LENGTH = 255;
-	public const NOTIFY_USERS_ADDED_TO_MULTI_LINK = 'users_added_to_multi_link';
 
 	public static function Send($params)
 	{
@@ -19,7 +16,6 @@ class CCalendarNotify
 			return false;
 		}
 
-//		$params['rrule'] = CCalendarEvent::GetRRULEDescription($params['fields'] ?? null, false, false);
 		$params["eventId"] = (int)($params["eventId"] ?? null);
 		$mode = $params['mode'];
 		$fromUser = (int)$params["userId"];
@@ -860,7 +856,7 @@ class CCalendarNotify
 
 			// Here we don't need info about users
 			$attendees = CCalendarEvent::GetAttendees($aId);
-			if (is_array($attendees) && is_array($attendees[$aId]))
+			if (is_array($attendees) && is_array($attendees[$aId] ?? null))
 			{
 				if (!$instanceDate)
 				{
@@ -1132,11 +1128,11 @@ class CCalendarNotify
 	private static function getFromFormatted($params, ?string $languageId = null): string
 	{
 		$culture = \Bitrix\Main\Context::getCurrent()?->getCulture();
-		$result = FormatDate($culture?->getFullDateFormat(), $params['from_timestamp'], false);
+		$result = FormatDate($culture?->getFullDateFormat(), $params['from_timestamp'], false, $languageId);
 
 		if (($params['fields']['DT_SKIP_TIME'] ?? null) !== 'Y')
 		{
-			$result .= ' ' . FormatDate($culture?->getShortTimeFormat(), $params['from_timestamp'], false);
+			$result .= ' ' . FormatDate($culture?->getShortTimeFormat(), $params['from_timestamp'], false, $languageId);
 		}
 
 		return $result;

@@ -98,7 +98,7 @@ class DataInstallStep extends \DataInstallStep
 		$nextStepVarName = $wizard->GetRealName("nextStep");
 		$messages = Loc::loadLanguageFile(__FILE__);
 		?>
-		<script type="text/javascript">
+		<script>
 			BX.message(<?=\CUtil::PhpToJSObject($messages)?>);
 			var ajaxForm = new CAjaxForm("<?=$formName?>", "iframe-post-form", "<?=$nextStepVarName?>");
 			ajaxForm.Post("<?=$firstService?>", "<?=$stage?>", "<?=$status?>");

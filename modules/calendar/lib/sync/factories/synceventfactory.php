@@ -169,11 +169,20 @@ class SyncEventFactory
 		$timestamp = time() - self::TIME_SLICE;
 		$eventDb = EventTable::query()
 			->setSelect([
-	            '*',
-	            'EVENT_CONNECTION.*',
-	            'EVENT_CONNECTION.CONNECTION',
-	            'EVENT_CONNECTION.EVENT',
-            ])
+				'*',
+				'EVENT_CONNECTION.ID',
+				'EVENT_CONNECTION.EVENT_ID',
+				'EVENT_CONNECTION.CONNECTION_ID',
+				'EVENT_CONNECTION.VENDOR_EVENT_ID',
+				'EVENT_CONNECTION.SYNC_STATUS',
+				'EVENT_CONNECTION.RETRY_COUNT',
+				'EVENT_CONNECTION.ENTITY_TAG',
+				'EVENT_CONNECTION.VERSION',
+				'EVENT_CONNECTION.VENDOR_VERSION_ID',
+				'EVENT_CONNECTION.RECURRENCE_ID',
+				'EVENT_CONNECTION.CONNECTION',
+				'EVENT_CONNECTION.EVENT',
+			])
 			->where('OWNER_ID', $userId)
 			->where('CAL_TYPE', Dictionary::CALENDAR_TYPE['user'])
 			->where('DELETED', 'N')

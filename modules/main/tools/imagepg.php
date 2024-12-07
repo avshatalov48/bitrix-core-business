@@ -29,7 +29,7 @@ if (isset($_GET["alt"]) && is_string($_GET["alt"]))
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<script language="JavaScript">
+<script>
 function KeyPress()
 {
 	if (window.event.keyCode == 27)

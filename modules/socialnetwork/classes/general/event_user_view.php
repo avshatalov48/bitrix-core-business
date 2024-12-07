@@ -1045,7 +1045,7 @@ class CAllSocNetEventUserView
 							AND EVENT_ID = '".$DB->ForSQL($event_id)."'
 							AND USER_ID IN (0, ".$user_id.")";
 
-		$dbRes = $GLOBALS["DB"]->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $GLOBALS["DB"]->Query($strSQL);
 		if ($arRes = $dbRes->Fetch())
 			return true;
 		else

@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 IncludeModuleLangFile(__FILE__);
@@ -340,7 +340,7 @@ class CHotKeysCode
 		if ($sOrder == '')
 			$sOrder = "NAME ASC";
 
-		$strSqlOrder = " ORDER BY ".TrimEx($sOrder, ",");
+		$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
 		$strSqlSearch = GetFilterSqlSearch($arSqlSearch);
 		$strSql = "
 			SELECT
@@ -363,7 +363,6 @@ class CHotKeys
 	/** @var CHotKeys */
 	protected static $instance;
 	protected static $optUse; //Global settings option
-	protected static $cacheId;
 	protected $hkCacheTtl = 3600;
 	protected $arList; //For Cache //private
 	protected $arServSymb = array(
@@ -435,8 +434,6 @@ class CHotKeys
 
 	public static function GetInstance()
 	{
-		global $USER;
-
 		if (!isset(self::$instance))
 		{
 			$c = __CLASS__;
@@ -444,7 +441,6 @@ class CHotKeys
 			self::$codes = new CHotKeysCode;
 			self::$optUse = COption::GetOptionString('main', "use_hot_keys", "Y") == "Y";
 			self::$ExpImpFileName = "hk_export_" . ($_SERVER['HTTP_HOST'] ?? 'CLI') . ".srl";
-			self::$cacheId = "b_hot_keys".$USER->GetID().LANGUAGE_ID;
 			if(self::$optUse)
 			{
 				self::$instance->LoadToCache();
@@ -461,14 +457,15 @@ class CHotKeys
 		if(is_array($this->arList) || !self::$optUse)
 			return false;
 
-		if(isset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]) && \Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"] == false)
+		if(isset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]) && !\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"])
 			return false;
 
 		$uid = $USER->GetID();
+		$cacheId = static::getCacheId($uid);
 
-		if($CACHE_MANAGER->Read($this->hkCacheTtl, self::$cacheId))
+		if($CACHE_MANAGER->Read($this->hkCacheTtl, $cacheId))
 		{
-			$this->arList = $CACHE_MANAGER->Get(self::$cacheId);
+			$this->arList = $CACHE_MANAGER->Get($cacheId);
 		}
 		else
 		{
@@ -482,7 +479,7 @@ class CHotKeys
 
 		if(is_array($this->arList))
 		{
-			$CACHE_MANAGER->Set(self::$cacheId, $this->arList);
+			$CACHE_MANAGER->Set($cacheId, $this->arList);
 			\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"] = true;
 		}
 		else  //for the first user's login let's try to set default keys
@@ -508,13 +505,24 @@ class CHotKeys
 		return true;
 	}
 
-	protected function CleanCache()
+	protected static function CleanCache($userId = null)
 	{
 		global $CACHE_MANAGER;
 
-		$CACHE_MANAGER->Clean(self::$cacheId);
+		$CACHE_MANAGER->Clean(static::getCacheId($userId));
 
 		return true;
+	}
+
+	protected static function getCacheId($userId = null)
+	{
+		global $USER;
+
+		if ($userId === null)
+		{
+			$userId = $USER->GetID();
+		}
+		return "b_hot_keys" . $userId . LANGUAGE_ID;
 	}
 
 	protected function GetByCodeID($codeID)
@@ -657,7 +665,7 @@ class CHotKeys
 			if(!is_array($arHK))
 				continue;
 
-			$retHtml .= "<script type='text/javascript'> var d = BX('".$arCode["TITLE_OBJ"]."'); if (!d) d=BX.findChild(document, {attribute: {'name': '".$arCode["TITLE_OBJ"]."'}}, true ); if(d) d.title+=' (".$space.Cutil::JSEscape($this->ShowHKAsChar($arHK["KEYS_STRING"])).$space.") ';</script>";
+			$retHtml .= "<script> var d = BX('".$arCode["TITLE_OBJ"]."'); if (!d) d=BX.findChild(document, {attribute: {'name': '".$arCode["TITLE_OBJ"]."'}}, true ); if(d) d.title+=' (".$space.Cutil::JSEscape($this->ShowHKAsChar($arHK["KEYS_STRING"])).$space.") ';</script>";
 		}
 
 		return $retHtml;
@@ -682,11 +690,11 @@ class CHotKeys
 			$retStr .= ' BXHotKeys.Add("'.htmlspecialcharsbx($arExec["KEYS_STRING"]).'", "'.$code.'", '.intval($arExec["CODE_ID"]).", '".strip_tags(addslashes($arExec["NAME"]),"<b>")."', ".intval($arExec["HK_ID"])."); ";
 		}
 
-		if($checkHK == true)
+		if($checkHK)
 			$retStr = ' if(window.BXHotKeys!==undefined) { '.$retStr.' } ';
 
-		if($scriptTags == true)
-			$retStr = '<script type="text/javascript">'.$retStr.'</script>';
+		if($scriptTags)
+			$retStr = '<script>'.$retStr.'</script>';
 
 		return $retStr;
 	}
@@ -787,7 +795,7 @@ class CHotKeys
 		}
 
 		if ($sOrder <> '')
-			$strSqlOrder = " ORDER BY ".TrimEx($sOrder, ",");
+			$strSqlOrder = " ORDER BY ".trim($sOrder, ", ");
 		else
 			$strSqlOrder = "";
 
@@ -811,16 +819,18 @@ class CHotKeys
 
 		global $DB;
 
-		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
-		$this->CleanCache();
-
 		$arPrepFields = array(
 			"KEYS_STRING" => $arFields["KEYS_STRING"],
 			"CODE_ID" => intval($arFields["CODE_ID"]),
 			"USER_ID" => intval($arFields["USER_ID"]),
 		);
 
-		return $DB->Add("b_hot_keys", $arPrepFields);
+		$result = $DB->Add("b_hot_keys", $arPrepFields);
+
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
+		static::CleanCache();
+
+		return $result;
 	}
 
 	public function Update($ID, $arFields)
@@ -830,9 +840,6 @@ class CHotKeys
 
 		global $DB;
 
-		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
-		$this->CleanCache();
-
 		$strUpdate = $DB->PrepareUpdate("b_hot_keys", $arFields);
 
 		if($strUpdate != "")
@@ -840,6 +847,9 @@ class CHotKeys
 			$strSql = "UPDATE b_hot_keys SET ".$strUpdate." WHERE ID=".intval($ID);
 			if(!$DB->Query($strSql))
 				return false;
+
+			unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
+			static::CleanCache();
 		}
 		return true;
 	}
@@ -848,23 +858,23 @@ class CHotKeys
 	{
 		global $DB;
 
-		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
-		$this->CleanCache();
-
 		$sql = "DELETE FROM b_hot_keys WHERE ID=".intval($ID);
 		$res = $DB->Query($sql);
+
+		unset(\Bitrix\Main\Application::getInstance()->getSession()["hasHotKeys"]);
+		static::CleanCache();
 
 		return $res->AffectedRowsCount();
 	}
 
-	public function DeleteByUser($USER_ID)
+	public static function DeleteByUser($USER_ID)
 	{
 		global $DB;
 
-		$this->CleanCache();
-
 		$sql = 'DELETE FROM b_hot_keys WHERE USER_ID = ' . intval($USER_ID);
 		$res = $DB->Query($sql);
+
+		static::CleanCache($USER_ID);
 
 		return $res->AffectedRowsCount();
 	}
@@ -888,17 +898,16 @@ class CHotKeys
 					'filter' => [
 						'=ID' => $next_user['MIN_USER_ID'],
 					],
-					'select' => ['ID']
+					'select' => ['ID'],
 				]
 			);
 			if (!$res->fetch())
 			{
 				$DB->Query('DELETE FROM b_hot_keys WHERE USER_ID = ' . $next_user['MIN_USER_ID']);
+				static::CleanCache($next_user['MIN_USER_ID']);
 			}
 		}
 		while (microtime(1) < $etime);
-
-		CHotKeys::GetInstance()->CleanCache();
 
 		return 'CHotKeys::CleanUp(' . $next_user['MIN_USER_ID'] . ');';
 	}
@@ -923,7 +932,7 @@ class CHotKeys
 			$arPrepFields = array(
 				"KEYS_STRING" => $arHK["KEYS_STRING"],
 				"CODE_ID" => $arHK["CODE_ID"],
-				"USER_ID" => $uid
+				"USER_ID" => $uid,
 			);
 
 			$insRes = $DB->Add("b_hot_keys",$arPrepFields);
@@ -980,7 +989,7 @@ class CHotKeys
 			return false;
 
 		global $USER;
-		$htmlOut = "<script type='text/javascript'>
+		$htmlOut = "<script>
 			BXHotKeys.MesNotAssign = '".GetMessageJS("HK_NOT_ASSIGN")."';
 			BXHotKeys.MesClToChange = '".GetMessageJS("HK_CLICK_TO_CHANGE")."';
 			BXHotKeys.MesClean = '".GetMessageJS("HK_CLEAN")."';
@@ -1190,7 +1199,7 @@ class CHotKeys
 				'KEYS_STRING' => $arHK['KEYS_STRING'],
 				'CLASS_NAME' => $arTmpCode['CLASS_NAME'],
 				'NAME' => $arTmpCode['NAME'],
-				'IS_CUSTOM'	=> $arTmpCode['IS_CUSTOM']
+				'IS_CUSTOM'	=> $arTmpCode['IS_CUSTOM'],
 			);
 
 			if($arTmpCode['IS_CUSTOM'])
@@ -1257,14 +1266,14 @@ class CHotKeys
 					'COMMENTS' => $arHotKey['COMMENTS'] ?? "",
 					'TITLE_OBJ' => $arHotKey['TITLE_OBJ'] ?? "",
 					'URL' => $arHotKey['URL'] ?? "",
-					'IS_CUSTOM' => $arHotKey['IS_CUSTOM']
+					'IS_CUSTOM' => $arHotKey['IS_CUSTOM'],
 				));
 			}
 			else //if system code
 			{
 				$resCodes = self::$codes->GetList(array(), array(
 					'CLASS_NAME' => $arHotKey['CLASS_NAME'] ?? '',
-					'NAME' => $arHotKey['NAME']
+					'NAME' => $arHotKey['NAME'],
 				));
 				$arCode = $resCodes->Fetch();
 
@@ -1277,7 +1286,7 @@ class CHotKeys
 
 			$resHK = $this->GetList(array(), array(
 				"CODE_ID" => $codeID,
-				"USER_ID" => intval($userID)
+				"USER_ID" => intval($userID),
 			));
 			$arHK = $resHK->Fetch();
 
@@ -1288,7 +1297,7 @@ class CHotKeys
 				$this->Update( $hkID, array(
 					"KEYS_STRING" => $arHotKey["KEYS_STRING"],
 					"CODE_ID" => $codeID,
-					"USER_ID" => intval($userID)
+					"USER_ID" => intval($userID),
 				));
 			}
 			else
@@ -1296,7 +1305,7 @@ class CHotKeys
 				$hkID = $this->Add( array(
 					"KEYS_STRING" => $arHotKey["KEYS_STRING"],
 					"CODE_ID" => $codeID,
-					"USER_ID" => intval($userID)
+					"USER_ID" => intval($userID),
 				));
 			}
 

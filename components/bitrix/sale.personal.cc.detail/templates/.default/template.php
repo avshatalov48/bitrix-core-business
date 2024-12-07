@@ -2,7 +2,7 @@
 <a name="tb"></a>
 <a href="<?=$arParams["PATH_TO_LIST"]?>"><?=GetMessage("STPC_TO_LIST")?></a>
 <br /><br />
-<?=ShowError($arResult["ERROR_MESSAGE"])?>
+<? ShowError($arResult["ERROR_MESSAGE"])?>
 <form method="post" action="<?=POST_FORM_ACTION_URI?>">
 <?=bitrix_sessid_post()?>
 <input type="hidden" name="ID" value="<?=$arResult["ID"]?>">

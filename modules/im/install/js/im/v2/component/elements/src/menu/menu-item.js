@@ -13,6 +13,7 @@ export const MenuItemIcon = {
 	vote: 'vote',
 	aiText: 'ai-text',
 	aiImage: 'ai-image',
+	copilot: 'copilot',
 };
 
 // @vue/component
@@ -23,31 +24,27 @@ export const MenuItem = {
 		icon: {
 			type: String,
 			required: false,
-			default: ''
+			default: '',
 		},
 		title: {
 			type: String,
-			required: true
+			required: true,
 		},
 		subtitle: {
 			type: String,
 			required: false,
-			default: ''
+			default: '',
 		},
 		disabled: {
 			type: Boolean,
 			required: false,
-			default: false
+			default: false,
 		},
 		counter: {
 			type: Number,
 			required: false,
-			default: 0
-		}
-	},
-	data()
-	{
-		return {};
+			default: 0,
+		},
 	},
 	computed:
 	{
@@ -59,7 +56,7 @@ export const MenuItem = {
 			}
 
 			return this.counter > 99 ? '99+' : `${this.counter}`;
-		}
+		},
 	},
 	template: `
 		<div class="bx-im-menu-item__container" :class="{'--disabled': disabled}">
@@ -74,5 +71,5 @@ export const MenuItem = {
 				</div>
 			</div>
 		</div>
-	`
+	`,
 };

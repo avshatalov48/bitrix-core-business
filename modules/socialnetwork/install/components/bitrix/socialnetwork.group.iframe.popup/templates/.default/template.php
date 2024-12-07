@@ -7,7 +7,7 @@ $this->setFrameMode(true);
 
 $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/socialnetwork/sonet-iframe-popup.js");
 ?>
-<script type="text/javascript">
+<script>
 
 if (typeof(window["<?=$arParams["IFRAME_POPUP_VAR_NAME"]?>"]) == 'undefined')
 {

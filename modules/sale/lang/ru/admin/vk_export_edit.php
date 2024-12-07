@@ -54,6 +54,7 @@ $MESS["SALE_VK_SETTINGS_ACCESS_TOKEN_REGET"] = "Ключ доступа полу
 $MESS["SALE_VK_SETTINGS_ACCESS_TOKEN_REGET_BUTTON"] = "Переполучить ключ";
 $MESS["SALE_VK_SETTINGS_ACCESS_TOKEN_ERROR"] = "Ошибка при получении ключа доступа:<br>";
 $MESS["SALE_VK_SETTINGS_ACCESS_TOKEN_NEED_GET"] = "Необходимо получить ключ доступа";
+$MESS["SALE_VK_SETTINGS_NOTE"] = "Для получения кодов необходимо <a target=\"_blank\" href=\"https://id.vk.com/about/business/go\">зарегистрировать приложение</a> ВКонтакте (для платформы Web).<br />В поле \"Доверенный redirect URL\" можно указать значение <a href=\"#URL#\">#URL#</a>";
 
 $MESS["SALE_VK_SETTINGS_AGRESSIVE_EXPORT"] = "Перезаписывать изменения";
 $MESS["SALE_VK_SETTINGS_AGRESSIVE_EXPORT_HELP"] = "При включенной опции экспорт будет принудительно переписывать все изменения, которые вы сделали в товарах и альбомах (названия, цены и т.п.) на стороне ВКонтакте.<br>При выключенной - товары не будут изменяться после первой выгрузки.";

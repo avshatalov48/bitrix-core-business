@@ -1,8 +1,8 @@
 /*
-класс обработки тулбарсетов
+РєР»Р°СЃСЃ РѕР±СЂР°Р±РѕС‚РєРё С‚СѓР»Р±Р°СЂСЃРµС‚РѕРІ
 
-pWnd - указатель на ячейку таблицы <td> в котором находится тулбарсет
-bVertical - тулбарсет для вертикальных или горизонтальных тулбаров
+pWnd - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЏС‡РµР№РєСѓ С‚Р°Р±Р»РёС†С‹ <td> РІ РєРѕС‚РѕСЂРѕРј РЅР°С…РѕРґРёС‚СЃСЏ С‚СѓР»Р±Р°СЂСЃРµС‚
+bVertical - С‚СѓР»Р±Р°СЂСЃРµС‚ РґР»СЏ РІРµСЂС‚РёРєР°Р»СЊРЅС‹С… РёР»Рё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹С… С‚СѓР»Р±Р°СЂРѕРІ
 
 */
 function BXToolbarSet(pColumn, pMainObj, bVertical)
@@ -27,13 +27,13 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 	}
 
 	/*
-	проверяет - попадает ли координата в область тулбарсета (плюс погрешность рядышком)
-	возвращает
-		массив:
-			"row" => строка,
-			"col" => столбец в который ближе всего попадает координата,
-			"addrow" => попала между двумя строками тулбаров
-	 или false если она слишком далеко
+	РїСЂРѕРІРµСЂСЏРµС‚ - РїРѕРїР°РґР°РµС‚ Р»Рё РєРѕРѕСЂРґРёРЅР°С‚Р° РІ РѕР±Р»Р°СЃС‚СЊ С‚СѓР»Р±Р°СЂСЃРµС‚Р° (РїР»СЋСЃ РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ СЂСЏРґС‹С€РєРѕРј)
+	РІРѕР·РІСЂР°С‰Р°РµС‚
+		РјР°СЃСЃРёРІ:
+			"row" => СЃС‚СЂРѕРєР°,
+			"col" => СЃС‚РѕР»Р±РµС† РІ РєРѕС‚РѕСЂС‹Р№ Р±Р»РёР¶Рµ РІСЃРµРіРѕ РїРѕРїР°РґР°РµС‚ РєРѕРѕСЂРґРёРЅР°С‚Р°,
+			"addrow" => РїРѕРїР°Р»Р° РјРµР¶РґСѓ РґРІСѓРјСЏ СЃС‚СЂРѕРєР°РјРё С‚СѓР»Р±Р°СЂРѕРІ
+	 РёР»Рё false РµСЃР»Рё РѕРЅР° СЃР»РёС€РєРѕРј РґР°Р»РµРєРѕ
 	*/
 	BXToolbarSet.prototype.HitTest = function (px, py)
 	{
@@ -51,7 +51,7 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 			result["col"] = 0;
 			result["addrow"] = false;
 
-			// найдем все имеющиеся внутри тулбары
+			// РЅР°Р№РґРµРј РІСЃРµ РёРјРµСЋС‰РёРµСЃСЏ РІРЅСѓС‚СЂРё С‚СѓР»Р±Р°СЂС‹
 			var allNodes;
 			if(this.bVertical)
 				allNodes = this.pWnd.rows[0].cells;
@@ -102,7 +102,7 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 				}
 				else
 				{
-					// если точка находится внутри таблицы по высоте
+					// РµСЃР»Рё С‚РѕС‡РєР° РЅР°С…РѕРґРёС‚СЃСЏ РІРЅСѓС‚СЂРё С‚Р°Р±Р»РёС†С‹ РїРѕ РІС‹СЃРѕС‚Рµ
 					if(toolbar_position["top"] - delta < py && py < toolbar_position["bottom"] + delta)
 					{
 						if(toolbar_position["top"] + delta > py)
@@ -150,14 +150,14 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 	}
 
 	/*
-	Добавляет тулбар в тулбарсет в заданную позицию
-	Параметры:
-		pToolbar - ссылка на объект типа BXToolbar,
-		row, col - строка, столбец в который добавить тулбар,
-		bAddRow - true: всегда добавлять новую строку на месте col, false - пытаться добавлять в строку row
-	Устанавливает флажок BXToolbar.bDocked, делает тулбар relative с родителем в нужном месте, убирает шапку
-	и добавляет справа и слева обрамляющие области.
-	Чтобы отклеить тулбар метод BXToolbar.UnDock
+	Р”РѕР±Р°РІР»СЏРµС‚ С‚СѓР»Р±Р°СЂ РІ С‚СѓР»Р±Р°СЂСЃРµС‚ РІ Р·Р°РґР°РЅРЅСѓСЋ РїРѕР·РёС†РёСЋ
+	РџР°СЂР°РјРµС‚СЂС‹:
+		pToolbar - СЃСЃС‹Р»РєР° РЅР° РѕР±СЉРµРєС‚ С‚РёРїР° BXToolbar,
+		row, col - СЃС‚СЂРѕРєР°, СЃС‚РѕР»Р±РµС† РІ РєРѕС‚РѕСЂС‹Р№ РґРѕР±Р°РІРёС‚СЊ С‚СѓР»Р±Р°СЂ,
+		bAddRow - true: РІСЃРµРіРґР° РґРѕР±Р°РІР»СЏС‚СЊ РЅРѕРІСѓСЋ СЃС‚СЂРѕРєСѓ РЅР° РјРµСЃС‚Рµ col, false - РїС‹С‚Р°С‚СЊСЃСЏ РґРѕР±Р°РІР»СЏС‚СЊ РІ СЃС‚СЂРѕРєСѓ row
+	РЈСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С„Р»Р°Р¶РѕРє BXToolbar.bDocked, РґРµР»Р°РµС‚ С‚СѓР»Р±Р°СЂ relative СЃ СЂРѕРґРёС‚РµР»РµРј РІ РЅСѓР¶РЅРѕРј РјРµСЃС‚Рµ, СѓР±РёСЂР°РµС‚ С€Р°РїРєСѓ
+	Рё РґРѕР±Р°РІР»СЏРµС‚ СЃРїСЂР°РІР° Рё СЃР»РµРІР° РѕР±СЂР°РјР»СЏСЋС‰РёРµ РѕР±Р»Р°СЃС‚Рё.
+	Р§С‚РѕР±С‹ РѕС‚РєР»РµРёС‚СЊ С‚СѓР»Р±Р°СЂ РјРµС‚РѕРґ BXToolbar.UnDock
 	*/
 	BXToolbarSet.prototype.AddToolbar = function (pToolbar, row, col, bAddRow)
 	{
@@ -246,9 +246,9 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 	}
 
 	/*
-	Удаляет тулбар pToolbar из тулбарсета:
-		удаляет его из ячейки таблицы тулбарсета, если таблица тулбарсета пустая, удаляет и ее.
-		обнуляет BXToolbar.pToolbarSet
+	РЈРґР°Р»СЏРµС‚ С‚СѓР»Р±Р°СЂ pToolbar РёР· С‚СѓР»Р±Р°СЂСЃРµС‚Р°:
+		СѓРґР°Р»СЏРµС‚ РµРіРѕ РёР· СЏС‡РµР№РєРё С‚Р°Р±Р»РёС†С‹ С‚СѓР»Р±Р°СЂСЃРµС‚Р°, РµСЃР»Рё С‚Р°Р±Р»РёС†Р° С‚СѓР»Р±Р°СЂСЃРµС‚Р° РїСѓСЃС‚Р°СЏ, СѓРґР°Р»СЏРµС‚ Рё РµРµ.
+		РѕР±РЅСѓР»СЏРµС‚ BXToolbar.pToolbarSet
 	*/
 	BXToolbarSet.prototype.DelToolbar = function (pToolbar)
 	{
@@ -288,14 +288,14 @@ function BXToolbarSet(pColumn, pMainObj, bVertical)
 		else
 		{
 			allNodes = this.pWnd.childNodes;
-			for(i=allNodes.length-1; i>=0; i--) // горизонтальные таблицы (строки)
+			for(i=allNodes.length-1; i>=0; i--) // РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Рµ С‚Р°Р±Р»РёС†С‹ (СЃС‚СЂРѕРєРё)
 			{
 				var tbl = allNodes[i];
 				for(j=tbl.rows[0].cells.length-1; j>=0; j--)
 					if(tbl.rows[0].cells[j].childNodes.length<=0)
 						tbl.rows[0].deleteCell(j);
 
-				//если в строке нет ячеек, удаляем всю таблицу
+				//РµСЃР»Рё РІ СЃС‚СЂРѕРєРµ РЅРµС‚ СЏС‡РµРµРє, СѓРґР°Р»СЏРµРј РІСЃСЋ С‚Р°Р±Р»РёС†Сѓ
 				if(tbl.rows[0].cells.length<=0)
 					this.pWnd.removeChild(tbl);
 			}
@@ -342,17 +342,17 @@ BXToolbar.prototype.fun = function(e)
 
 
 /////////////////////////////////////////////////////////////////////////////////////
-// класс BXToolbar - тулбар
-//   pWnd - указатель на TABLE тулбара
-//   bDragging - состояние перетягивания
-//   bDocked - состояние - в окне (false) или пристыкован (true)
-//	 pTitleRow - указатель на строку <tr> в которой находится заголовок тулбара
-//	 pIconsTable - указатель на таблицу <table> в ячейках которой находятся кнопки тулбара
-//	 pToolbarSet - указатель на объект BXToolbarSet, к которому приклеен тулбар
-//	 	bVertical - вертикальный или горизонтальный тулбар
-//	 	parentCell - указатель на конкретную ячейку таблицы из тулбарсета
-//	 	row - номер строки в тулбарсете
-//	 	col - номер столбца в тулбарсете
+// РєР»Р°СЃСЃ BXToolbar - С‚СѓР»Р±Р°СЂ
+//   pWnd - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° TABLE С‚СѓР»Р±Р°СЂР°
+//   bDragging - СЃРѕСЃС‚РѕСЏРЅРёРµ РїРµСЂРµС‚СЏРіРёРІР°РЅРёСЏ
+//   bDocked - СЃРѕСЃС‚РѕСЏРЅРёРµ - РІ РѕРєРЅРµ (false) РёР»Рё РїСЂРёСЃС‚С‹РєРѕРІР°РЅ (true)
+//	 pTitleRow - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃС‚СЂРѕРєСѓ <tr> РІ РєРѕС‚РѕСЂРѕР№ РЅР°С…РѕРґРёС‚СЃСЏ Р·Р°РіРѕР»РѕРІРѕРє С‚СѓР»Р±Р°СЂР°
+//	 pIconsTable - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° С‚Р°Р±Р»РёС†Сѓ <table> РІ СЏС‡РµР№РєР°С… РєРѕС‚РѕСЂРѕР№ РЅР°С…РѕРґСЏС‚СЃСЏ РєРЅРѕРїРєРё С‚СѓР»Р±Р°СЂР°
+//	 pToolbarSet - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЉРµРєС‚ BXToolbarSet, Рє РєРѕС‚РѕСЂРѕРјСѓ РїСЂРёРєР»РµРµРЅ С‚СѓР»Р±Р°СЂ
+//	 	bVertical - РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ РёР»Рё РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Р№ С‚СѓР»Р±Р°СЂ
+//	 	parentCell - СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РєРѕРЅРєСЂРµС‚РЅСѓСЋ СЏС‡РµР№РєСѓ С‚Р°Р±Р»РёС†С‹ РёР· С‚СѓР»Р±Р°СЂСЃРµС‚Р°
+//	 	row - РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё РІ С‚СѓР»Р±Р°СЂСЃРµС‚Рµ
+//	 	col - РЅРѕРјРµСЂ СЃС‚РѕР»Р±С†Р° РІ С‚СѓР»Р±Р°СЂСЃРµС‚Рµ
 /////////////////////////////////////////////////////////////////////////////////////
 function BXToolbar(pMainObj, title, dx, dy)
 {
@@ -451,7 +451,7 @@ function BXToolbar(pMainObj, title, dx, dy)
 	//this.pMainObj.TranslateEvent(this.pTable);
 
 	///////////////////////////////////////////////////
-	// методы
+	// РјРµС‚РѕРґС‹
 	///////////////////////////////////////////////////
 
 	BXToolbar.prototype.SetDirection = function(bVertical)
@@ -538,7 +538,7 @@ function BXToolbar(pMainObj, title, dx, dy)
 	}
 
 	/*
-	добавляет кнопку в тулбар
+	РґРѕР±Р°РІР»СЏРµС‚ РєРЅРѕРїРєСѓ РІ С‚СѓР»Р±Р°СЂ
 	*/
 	BXToolbar.prototype.AddButton = function (pButton, num)
 	{
@@ -564,9 +564,9 @@ function BXToolbar(pMainObj, title, dx, dy)
 }
 
 /*
-при нажатии на левую кнопку мыши:
-	проверяем - находимся ли мы над областью этого тулбара,
-	если да, то начинаем drag
+РїСЂРё РЅР°Р¶Р°С‚РёРё РЅР° Р»РµРІСѓСЋ РєРЅРѕРїРєСѓ РјС‹С€Рё:
+	РїСЂРѕРІРµСЂСЏРµРј - РЅР°С…РѕРґРёРјСЃСЏ Р»Рё РјС‹ РЅР°Рґ РѕР±Р»Р°СЃС‚СЊСЋ СЌС‚РѕРіРѕ С‚СѓР»Р±Р°СЂР°,
+	РµСЃР»Рё РґР°, С‚Рѕ РЅР°С‡РёРЅР°РµРј drag
 */
 BXToolbar.prototype.MouseDown = function (e)
 {
@@ -597,8 +597,8 @@ BXToolbar.prototype.MouseDown = function (e)
 }
 
 /*
-при отпускании кнопки мыши:
-	если было перетягивание этого тулбара, то прекращаем это
+РїСЂРё РѕС‚РїСѓСЃРєР°РЅРёРё РєРЅРѕРїРєРё РјС‹С€Рё:
+	РµСЃР»Рё Р±С‹Р»Рѕ РїРµСЂРµС‚СЏРіРёРІР°РЅРёРµ СЌС‚РѕРіРѕ С‚СѓР»Р±Р°СЂР°, С‚Рѕ РїСЂРµРєСЂР°С‰Р°РµРј СЌС‚Рѕ
 */
 BXToolbar.prototype.MouseUp = function (e)
 {
@@ -613,10 +613,10 @@ BXToolbar.prototype.MouseUp = function (e)
 }
 
 /*
-Отклеивает тулбар от тулбарсета
-	удаляет его из тулбарсета при помощи BXToolbarSet.DelToolbar
-	делает ему position = "absolute";
-	прячет рамки и показывает заголовок тулбара
+РћС‚РєР»РµРёРІР°РµС‚ С‚СѓР»Р±Р°СЂ РѕС‚ С‚СѓР»Р±Р°СЂСЃРµС‚Р°
+	СѓРґР°Р»СЏРµС‚ РµРіРѕ РёР· С‚СѓР»Р±Р°СЂСЃРµС‚Р° РїСЂРё РїРѕРјРѕС‰Рё BXToolbarSet.DelToolbar
+	РґРµР»Р°РµС‚ РµРјСѓ position = "absolute";
+	РїСЂСЏС‡РµС‚ СЂР°РјРєРё Рё РїРѕРєР°Р·С‹РІР°РµС‚ Р·Р°РіРѕР»РѕРІРѕРє С‚СѓР»Р±Р°СЂР°
 */
 BXToolbar.prototype.UnDock = function ()
 {
@@ -634,10 +634,10 @@ BXToolbar.prototype.UnDock = function ()
 }
 
 /*
-При движении мыши
-	если состояние перетягивания, то проверяем при помощи BXToolToolbarSet.HitTest в
-	какой тулбарсет попадаем и в зависимости от этого либо прикрепляем к тулбарсету,
-	либо отлепляем, либо перемещаем внутри его и либо перемещаем "отклееным"
+РџСЂРё РґРІРёР¶РµРЅРёРё РјС‹С€Рё
+	РµСЃР»Рё СЃРѕСЃС‚РѕСЏРЅРёРµ РїРµСЂРµС‚СЏРіРёРІР°РЅРёСЏ, С‚Рѕ РїСЂРѕРІРµСЂСЏРµРј РїСЂРё РїРѕРјРѕС‰Рё BXToolToolbarSet.HitTest РІ
+	РєР°РєРѕР№ С‚СѓР»Р±Р°СЂСЃРµС‚ РїРѕРїР°РґР°РµРј Рё РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЌС‚РѕРіРѕ Р»РёР±Рѕ РїСЂРёРєСЂРµРїР»СЏРµРј Рє С‚СѓР»Р±Р°СЂСЃРµС‚Сѓ,
+	Р»РёР±Рѕ РѕС‚Р»РµРїР»СЏРµРј, Р»РёР±Рѕ РїРµСЂРµРјРµС‰Р°РµРј РІРЅСѓС‚СЂРё РµРіРѕ Рё Р»РёР±Рѕ РїРµСЂРµРјРµС‰Р°РµРј "РѕС‚РєР»РµРµРЅС‹Рј"
 */
 BXToolbar.prototype.MouseMove = function (e)
 {
@@ -646,7 +646,7 @@ BXToolbar.prototype.MouseMove = function (e)
 	if(this.pMainObj.bDragging && this.bDragging)
 	{
 		//var position = GetRealPos(this.pWnd);
-		// проверяем: попадаем ли в тулбарсет
+		// РїСЂРѕРІРµСЂСЏРµРј: РїРѕРїР°РґР°РµРј Р»Рё РІ С‚СѓР»Р±Р°СЂСЃРµС‚
 		var bDocked = false;
 		var actToolbarSet = false;
 		var arToolbarSet = this.pMainObj.GetToolbarSet();
@@ -661,13 +661,13 @@ BXToolbar.prototype.MouseMove = function (e)
 			}
 		}
 
-		if(this.bDocked && !bDocked) // тулбар вышел из тулбарсета
+		if(this.bDocked && !bDocked) // С‚СѓР»Р±Р°СЂ РІС‹С€РµР» РёР· С‚СѓР»Р±Р°СЂСЃРµС‚Р°
 		{
 			this.UnDock();
 			this.pWnd.style.left = e.realX - this.pMainObj.iLeftDragOffset;
 			this.pWnd.style.top = e.realY - this.pMainObj.iTopDragOffset;
 		}
-		else if(!this.bDocked && bDocked && actToolbarSet) // тулбар попадает в тулбарсет
+		else if(!this.bDocked && bDocked && actToolbarSet) // С‚СѓР»Р±Р°СЂ РїРѕРїР°РґР°РµС‚ РІ С‚СѓР»Р±Р°СЂСЃРµС‚
 		{
 			if(this.pToolbarSet)
 				this.pToolbarSet.DelToolbar(this);
@@ -730,19 +730,19 @@ function BXTaskbarSet(pColumn, pMainObj, iNum)
 	var r = this.pWnd.insertRow(-1);
 	switch(this.iNum)
 	{
-		case 0: //верхний
+		case 0: //РІРµСЂС…РЅРёР№
 			this.pMainCell = r.insertCell(-1);
 			this.pMoveColumn = this.pWnd.insertRow(-1).insertCell(-1);
 			break;
-		case 1: //левый
+		case 1: //Р»РµРІС‹Р№
 			this.pMainCell = r.insertCell(-1);
 			this.pMoveColumn = r.insertCell(-1);
 			break;
-		case 2: //правый
+		case 2: //РїСЂР°РІС‹Р№
 			this.pMoveColumn = r.insertCell(-1);
 			this.pMainCell = r.insertCell(-1);
 			break;
-		case 3: //нижний
+		case 3: //РЅРёР¶РЅРёР№
 			this.pMoveColumn = r.insertCell(-1);
 			this.pMainCell = this.pWnd.insertRow(-1).insertCell(-1);
 			break;
@@ -761,14 +761,14 @@ function BXTaskbarSet(pColumn, pMainObj, iNum)
 
 	switch(this.iNum)
 	{
-		case 0: //верхний
-		case 3: //нижний
+		case 0: //РІРµСЂС…РЅРёР№
+		case 3: //РЅРёР¶РЅРёР№
 			this.pMoveColumn.style.cursor = "N-resize";
 			this.pMoveColumn.style.height = "6px";
 			this.pMoveImg = this.pMoveColumn.appendChild(this.pMainObj.CreateElement("IMG", {"border": "0", "width": "48", "height": "6"}));
 			break;
-		case 1: //левый
-		case 2: //правый
+		case 1: //Р»РµРІС‹Р№
+		case 2: //РїСЂР°РІС‹Р№
 			this.pMoveColumn.style.cursor = "W-resize";
 			this.pMoveColumn.style.width = "6px";
 			this.pMoveImg = this.pMoveColumn.appendChild(this.pMainObj.CreateElement("IMG", {"border": "0", "width": "6", "height": "48"}));
@@ -1273,13 +1273,13 @@ BXTaskbar.prototype.MouseMove = function (e)
 			}
 		}
 
-		if(this.bDocked && !bDocked) // тулбар вышел из тулбарсета
+		if(this.bDocked && !bDocked) // С‚СѓР»Р±Р°СЂ РІС‹С€РµР» РёР· С‚СѓР»Р±Р°СЂСЃРµС‚Р°
 		{
 			this.UnDock();
 			this.pWnd.style.left = e.realX - this.pMainObj.iLeftDragOffset;
 			this.pWnd.style.top = e.realY - this.pMainObj.iTopDragOffset;
 		}
-		else if(!this.bDocked && bDocked && actTaskbarSet) // тулбар попадает в тулбарсет
+		else if(!this.bDocked && bDocked && actTaskbarSet) // С‚СѓР»Р±Р°СЂ РїРѕРїР°РґР°РµС‚ РІ С‚СѓР»Р±Р°СЂСЃРµС‚
 		{
 			if(this.pTaskbarSet)
 				this.pTaskbarSet.DelTaskbar(this);
@@ -1402,7 +1402,7 @@ function BXPropertiesTaskbar()
 
 	BXPropertiesTaskbar.prototype.OnSelectionChange = function (sReloadControl)
 	{
-		// obj - сам таскбар
+		// obj - СЃР°Рј С‚Р°СЃРєР±Р°СЂ
 		//alert('1');
 		//try {swsw();} catch(e){}
 		var oSelected = obj.pMainObj.GetSelectionObject();
@@ -1768,14 +1768,14 @@ function BXCreateTaskbars(pMainObj, arParams)
 
 	/*
 	var pTaskbar = new BXExplorerTaskbar();
-	pTaskbar.Create(pMainObj, 'Проводник');
+	pTaskbar.Create(pMainObj, 'РџСЂРѕРІРѕРґРЅРёРє');
 	pMainObj.arTaskbarSet[2].AddTaskbar(pTaskbar);
 	pTaskbar1.SetActive();
 	*/
 
 
 	//pTaskbar1 = new BXPropertiesTaskbar();
-	//pTaskbar1.Create(pMainObj, 'Свойства');
+	//pTaskbar1.Create(pMainObj, 'РЎРІРѕР№СЃС‚РІР°');
 	//pMainObj.arTaskbarSet[1].AddTaskbar(pTaskbar1);
 
 	pTaskbar = new BXPropertiesTaskbar();
@@ -1785,11 +1785,11 @@ function BXCreateTaskbars(pMainObj, arParams)
 
 	/*
 	pTaskbar = new BXHelpTaskbar();
-	pTaskbar.Create(pMainObj, 'Помощь');
+	pTaskbar.Create(pMainObj, 'РџРѕРјРѕС‰СЊ');
 	pMainObj.arTaskbarSet[3].AddTaskbar(pTaskbar);
 
 	pTaskbar = new BXHelpTaskbar();
-	pTaskbar.Create(pMainObj, 'Помощь');
+	pTaskbar.Create(pMainObj, 'РџРѕРјРѕС‰СЊ');
 	pMainObj.arTaskbarSet[2].AddTaskbar(pTaskbar);
 
 	pTaskbar1.SetActive();

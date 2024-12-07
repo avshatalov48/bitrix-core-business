@@ -442,7 +442,8 @@ create table if not exists b_catalog_store_docs
 	ITEMS_RECEIVED_DATE DATETIME NULL,
 	DOC_NUMBER VARCHAR(64) NULL,
 	WAS_CANCELLED CHAR(1) DEFAULT 'N',
-	PRIMARY KEY (ID)
+	PRIMARY KEY (ID),
+	INDEX IX_B_CATALOG_STORE_DOCS_MOBILE(DOC_TYPE, DATE_MODIFY)
 );
 
 create table if not exists b_catalog_store_document_file

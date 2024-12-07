@@ -27,7 +27,7 @@ CClock::Show(
 	)
 );
 
-?><script type="text/javascript">BX.onCustomEvent('onClockRegister',[{<?=CUtil::JSEscape($_REQUEST['clock_id'])?>:'<?=$clock_input_id?>'}])</script><?
+?><script>BX.onCustomEvent('onClockRegister',[{<?=CUtil::JSEscape($_REQUEST['clock_id'])?>:'<?=$clock_input_id?>'}])</script><?
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_after.php");
 ?>

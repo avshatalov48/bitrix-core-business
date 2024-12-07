@@ -15,9 +15,6 @@ $crmMode = (defined("BX_PUBLIC_MODE") && BX_PUBLIC_MODE && array_key_exists("CRM
 
 if ($crmMode)
 {
-	CUtil::DecodeUriComponent($_GET);
-	CUtil::DecodeUriComponent($_POST);
-
 	echo '<link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/sale.css" />';
 }
 
@@ -1597,7 +1594,7 @@ if (
 		if ($strPropsList <> '')
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				var arProps = {<?=$strPropsList?>},
 					key,
 					el,
@@ -2383,7 +2380,7 @@ if ((!isset($LID) OR $LID == "") AND (defined('BX_PUBLIC_MODE') AND BX_PUBLIC_MO
 						?>
 					</select>
 				</div>
-				<script type="text/javascript">
+				<script>
 					function fLidChange(el)
 					{
 						BX.showWait();
@@ -2593,7 +2590,7 @@ else
 CAdminMessage::ShowMessage($errorMessage);
 
 //double function from sale.ajax.location/process.js
-?><script type="text/javascript">
+?><script>
 function getLocation(country_id, region_id, city_id, arParams, site_id, admin_section)
 {
 	BX.showWait();
@@ -2923,7 +2920,7 @@ if ($ID <= 0)
 
 		<?=fGetBuyerType($str_PERSON_TYPE_ID, $LID, $str_USER_ID, $ID, $bVarsFromForm);?>
 
-		<script type="text/javascript">
+		<script>
 
 		function insertHtmlResult(container, result)
 		{
@@ -3517,7 +3514,7 @@ $tabControl->BeginCustomField("DELIVERY_SERVICE", GetMessage("NEWO_DELIVERY_SERV
 			?>
 			<input type="text" onChange="fChangeDeliveryPrice();" name="PRICE_DELIVERY" id="DELIVERY_ID_PRICE" size="10" maxlength="20" value="<?=$deliveryPrice;?>" >
 			<input type="hidden" name="change_delivery_price" value="N" id="change_delivery_price">
-			<script type="text/javascript">
+			<script>
 				function fChangeDeliveryPrice()
 				{
 					document.getElementById("change_delivery_price").value = "Y";
@@ -3610,7 +3607,7 @@ $tabControl->BeginCustomField("BUYER_PAY_SYSTEM", GetMessage("SOE_PAY_SYSTEM"), 
 <tr>
 	<td id="buyer_type_delivery" colspan="2">
 		<?=fGetPaySystemsHTML($str_PERSON_TYPE_ID, $str_PAY_SYSTEM_ID);?>
-		<script type="text/javascript">
+		<script>
 			function fChangePaymentSystem()
 			{
 				fGetRelatedOrderProps();
@@ -3751,18 +3748,17 @@ if (isset($arRelFilter["RELATED"]) && ($arRelFilter["RELATED"]["DELIVERY_ID"] <>
 	}
 
 	$propsHTML = getOrderPropertiesHTML($arProps, $arPropsValues, $LID, $str_USER_ID, $ID, $bVarsFromForm);
+	$tabControl->AddSection("RELATED_PROPS", GetMessage("NEW_ORDER_RELATED_PROPS"));
+	$tabControl->BeginCustomField("RELATED_PROPS_DATA", GetMessage("NEW_ORDER_RELATED_PROPS"), true);
+	?>
+	<tr>
+		<td id="related_props_content" colspan="2">
+			<?= $propsHTML ?>
+		</td>
+	</tr>
+	<?php
+	$tabControl->EndCustomField("RELATED_PROPS_DATA");
 }
-
-$tabControl->AddSection("RELATED_PROPS", GetMessage("NEW_ORDER_RELATED_PROPS"));
-$tabControl->BeginCustomField("RELATED_PROPS_DATA", GetMessage("NEW_ORDER_RELATED_PROPS"), true);
-?>
-<tr>
-	<td id="related_props_content" colspan="2">
-		<?=$propsHTML?>
-	</td>
-</tr>
-<?
-$tabControl->EndCustomField("RELATED_PROPS_DATA");
 
 $tabControl->AddSection("NEWO_COMMENTS", GetMessage("NEWO_COMMENTS"));
 $tabControl->BeginCustomField("NEWO_COMMENTS_A", GetMessage("NEWO_COMMENTS"), true);
@@ -3812,7 +3808,7 @@ if($ID > 0)
 			<textarea id="REASON_MARKED" name="REASON_MARKED"<?if (!$bUserCanMarkOrder) echo " disabled";?> rows="5" cols="40"><?= $str_REASON_MARKED ?></textarea>
 		</td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 		function fShowReasonMarkedBlock(isChecked)
 		{
 			var reasonBlock = BX('reason_marked_block');
@@ -3929,7 +3925,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 			echo EndNote();
 		}
 		?>
-		<script type="text/javascript">
+		<script>
 			var arProduct = [];
 			var arProductEditCountProps = [];
 			var countProduct = 0;
@@ -4397,7 +4393,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 						<input type="hidden" name="edit_page_url_<?=$val["ID"]?>"                    id="edit_page_url_<?=$val["ID"]?>" value="<?=$val["EDIT_PAGE_URL"]?>" />
 
 						<span id="product_props_<?=$val["ID"]?>"><?=$propsProd?></span>
-						<script type="text/javascript">
+						<script>
 							arProduct[<? echo $val["ID"]; ?>] = '<? echo $val["PRODUCT_ID"]; ?>';
 							arProductEditCountProps[<? echo $val["ID"]; ?>] = <? echo $countProp; ?>;
 							countProduct = countProduct + 1;
@@ -4511,7 +4507,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 													<input name="PRODUCT[<?=$val["ID"]?>][STORES][<?=$storeId?>][STORE_NAME]" id="PRODUCT[<?=$val["ID"]?>][STORES][<?=$storeId?>][STORE_NAME]" type="hidden" value="<?=$arStore["STORE_NAME"]?>">
 													<input name="PRODUCT[<?=$val["ID"]?>][STORES][<?=$storeId?>][AMOUNT]" id="PRODUCT[<?=$val["ID"]?>][STORES][<?=$storeId?>][AMOUNT]" type="hidden" value="<?=$arStore["AMOUNT"]?>">
 												</div>
-												<script type="text/javascript"> //store selector change
+												<script> //store selector change
 													BX.bind(BX('<? echo $strSelectID; ?>'), 'change', function() {
 																		return fChangeStoreSelector(this, '<? echo $val["ID"]; ?>', '<? echo $ind; ?>', '<? echo CUtil::JSEscape(CUtil::PHPToJsObject($arBasketItem[$val["ID"]]["STORES"])); ?>');
 													});
@@ -4520,7 +4516,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 												if ($ind > 0)
 												{
 												?>
-												<script type="text/javascript"> //store delete button
+												<script> //store delete button
 													BX.bind(BX('store_select_wrapper_<?=$val["ID"]?>_<?=$storeId?>'), 'mouseover', function() {
 															BX.addClass(BX('store_select_delete_<?=$val["ID"]?>_<?=$storeId?>'), "store_select_delete_button");
 														}
@@ -4876,7 +4872,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 		$ORDER_PRICE_WITH_DISCOUNT = 0;
 	?>
 	</table>
-	<script type="text/javascript">
+	<script>
 		function fToggleSetItems(setParentId)
 		{
 			var elements = document.getElementsByClassName('set_item_' + setParentId);
@@ -4961,7 +4957,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 		</div>
 
 		<div style="float:right">
-			<script type="text/javascript">
+			<script>
 				function fMouseOver(el)
 				{
 					BX.addClass(BX(el.id), "tr_hover");
@@ -5048,7 +5044,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 			<span title="<?=GetMessage("SOE_ADD_ITEMS")?>" onClick="AddProductSearch();" style="display:inline;" class="adm-btn adm-btn-green adm-btn-add"><?=GetMessage("SOE_ADD_ITEMS")?></span>
 		</div>
 
-<script type="text/javascript">
+<script>
 	var currencyBase = '<?=CSaleLang::GetLangCurrency($LID);?>',
 		orderWeight = '<?=$productWeight?>',
 		orderPrice = '<?=$str_PRICE?>';
@@ -7863,7 +7859,7 @@ $tabControl->BeginCustomField("BASKET_CONTAINER", GetMessage("NEWO_BASKET_CONTAI
 
 						</div>
 					</div>
-					<script type="text/javascript">
+					<script>
 					function fTabsSelect(tabText, el)
 					{
 						BX('tab_1').className = "tabs";
@@ -8018,7 +8014,7 @@ if (isset($_GET["user_id"]) && isset($_GET["LID"]) && !$bVarsFromForm)
 	$LID = trim($_GET["LID"]);
 
 	$arParams = array();
-	echo '<script type="text/javascript">';
+	echo '<script>';
 	echo 'window.onload = function () {';
 	echo 'fUserGetProfile(BX(\'user_id\'));';
 
@@ -8074,7 +8070,7 @@ echo '</div>';//end div for form
 	<input type="hidden" value="" name="popup-params-product" id="popup-params-product" >
 	<input type="hidden" value="" name="popup-params-type" id="popup-params-type" >
 </div>
-<script type="text/javascript">
+<script>
 	var wind = new BX.PopupWindow('popup_sku', this, {
 		offsetTop : 10,
 		offsetLeft : 0,

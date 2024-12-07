@@ -5,4 +5,5 @@ module.exports = {
 		css: './style.css',
 	},
 	adjustConfigPhp: false,
+	browserslist: true,
 };

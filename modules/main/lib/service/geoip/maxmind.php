@@ -4,7 +4,6 @@ namespace Bitrix\Main\Service\GeoIp;
 
 use Bitrix\Main;
 use Bitrix\Main\Error;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Localization\Loc;
 
@@ -133,11 +132,6 @@ class MaxMind extends Base
 			$lang = $geoData->lang;
 
 			$data = $res->getData();
-
-			if (strtolower(SITE_CHARSET) != 'utf-8')
-			{
-				$data = Encoding::convertEncoding($data, 'UTF-8', SITE_CHARSET);
-			}
 
 			$geoData->ipNetwork = $data['traits']['network'] ?? null;
 

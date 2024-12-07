@@ -166,7 +166,14 @@
 							className: 'webform-small-button webform-small-button-transparent'
 						},
 						events: {
-							click: BX.delegate(this.showAllItems, this)
+							click: function() {
+								if (this.items[0]?.count > 0)
+								{
+									return this.loadMore();
+								}
+
+								return this.showAllItems();
+							}.bind(this),
 						},
 						html: this.manager.mess.showMore
 					})
@@ -176,10 +183,43 @@
 			return this.showMoreButton;
 		},
 
-		showAllItems: function (node)
+		showAllItems: function(showBtn = false)
 		{
 			this.layout.container.classList.add('sender-tpl-items-show-all');
-			this.showMoreButton.classList.add('sender-tpl-item-show-hide');
+			if (!showBtn)
+			{
+				this.showMoreButton.classList.add('sender-tpl-item-show-hide');
+			}
+		},
+
+		loadMore: function()
+		{
+			if (this.id === 'USER' && this.items[this.items.length - 1].data)
+			{
+				BX.ajax.runComponentAction('bitrix:sender.template.selector', 'load', {
+					data: {
+						lastId: this.items[this.items.length - 1].data.templateId,
+						templateType: 'USER',
+					},
+				}).then((response) => {
+					if (response.data && response.data.items)
+					{
+						var count = 0;
+						response.data.items.forEach((item) => {
+							item.manager = this.manager;
+							item.buttons = [];
+							item.tpl = this.manager.tpls.item;
+							item.tplButton = this.manager.tpls.button;
+							count = item.count;
+							this.items.push(new GridItem(item));
+						});
+						this.layout.container.parentElement.removeChild(this.layout.container);
+						this.layout.container = null;
+						this.manager.container.appendChild(this.render());
+						this.showAllItems(count >= 9);
+					}
+				}).catch((e) => {});
+			}
 		},
 
 		render: function ()
@@ -195,7 +235,7 @@
 				this.layout.items.appendChild(item.render(i));
 			}
 
-			if(this.items.length > (this.manager.getItemInRow() * 3) + 1)
+			if((!this.items[0].count && this.items.length > (this.manager.getItemInRow() * 3) + 1) || this.items[0].count > 9)
 			{
 				this.layout.items.appendChild(this.getShowMoreButton());
 			}
@@ -219,6 +259,7 @@
 		this.tplButton = options.tplButton;
 		this.hot = options.hot;
 		this.hint = options.hint;
+		this.count = options.count || 0;
 		this.layout = {
 			container: null,
 			title: null,

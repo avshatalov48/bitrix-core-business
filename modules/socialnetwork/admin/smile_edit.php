@@ -34,7 +34,7 @@ while ($arLang = $db_lang->Fetch())
 
 $strErrorMessage = "";
 $bInitVars = false;
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && $sonetPermissions=="W" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && $sonetPermissions=="W" && check_bitrix_sessid())
 {
 	$SORT = intval($SORT);
 	if ($SORT<=0) $SORT = 150;
@@ -339,4 +339,4 @@ $tabControl->Buttons(
 $tabControl->End();
 
 ?></form>
-<?require($DOCUMENT_ROOT."/bitrix/modules/main/include/epilog_admin.php");?>
+<?require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");?>

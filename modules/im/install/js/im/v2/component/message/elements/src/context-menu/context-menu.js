@@ -2,7 +2,6 @@ import { EventEmitter } from 'main.core.events';
 
 import { EventType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-import { Quote } from 'im.v2.lib.quote';
 
 import './context-menu.css';
 
@@ -13,6 +12,10 @@ export const ContextMenu = {
 	name: 'ContextMenu',
 	props:
 	{
+		dialogId: {
+			type: String,
+			required: true,
+		},
 		message: {
 			type: Object,
 			required: true,
@@ -44,31 +47,9 @@ export const ContextMenu = {
 	{
 		onMenuClick(event: PointerEvent)
 		{
-			if (Utils.key.isCombination(event, ['Alt+Ctrl']))
-			{
-				const message = { ...this.message };
-
-				EventEmitter.emit(EventType.textarea.insertText, {
-					text: Quote.prepareQuoteText(message),
-					withNewLine: true,
-					replace: false,
-				});
-
-				return;
-			}
-
-			if (Utils.key.isCmdOrCtrl(event))
-			{
-				const message = { ...this.message };
-				EventEmitter.emit(EventType.textarea.replyMessage, {
-					messageId: message.id,
-				});
-
-				return;
-			}
-
 			EventEmitter.emit(EventType.dialog.onClickMessageContextMenu, {
 				message: this.message,
+				dialogId: this.dialogId,
 				event,
 			});
 		},

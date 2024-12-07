@@ -425,8 +425,7 @@ class CCalendarConvert
 				$arFieldName[$arLanguage["LID"]] = $arProps[$i][1];
 			$arFields["EDIT_FORM_LABEL"] = $arFieldName;
 			$obUserField  = new CUserTypeEntity;
-			$r = $obUserField->Add($arFields);
-			$USER_FIELD_MANAGER->arFieldsCache = array();
+			$obUserField->Add($arFields);
 		}
 	}
 
@@ -438,8 +437,7 @@ class CCalendarConvert
 		while ($r = $db_res->GetNext())
 		{
 			$obUserField  = new CUserTypeEntity;
-			$r = $obUserField->Delete($r["ID"]);
-			$USER_FIELD_MANAGER->arFieldsCache = array();
+			$obUserField->Delete($r["ID"]);
 		}
 	}
 

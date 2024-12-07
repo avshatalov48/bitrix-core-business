@@ -1009,7 +1009,7 @@ if (($request->isPost() || $CUR_FILE_POS > 0) && $STEP > 1 && check_bitrix_sessi
 					$strError.= $strErrorR;
 				}
 
-				if ($max_execution_time > 0 && (getmicrotime() - START_EXEC_TIME) > $max_execution_time)
+				if ($max_execution_time > 0 && (microtime(true) - START_EXEC_TIME) > $max_execution_time)
 				{
 					$bAllLinesLoaded = false;
 					break;
@@ -1263,7 +1263,7 @@ if (!$bAllLinesLoaded)
 	echo GetMessage("IBLOCK_ADM_IMP_AUTO_REFRESH"); ?>
 	<a href="<?= $APPLICATION->GetCurPage(); ?>?lang=<?= LANGUAGE_ID; ?>&<?= $strParams ?>"><?= GetMessage("IBLOCK_ADM_IMP_AUTO_REFRESH_STEP"); ?></a><br>
 
-	<script type="text/javascript">
+	<script>
 	function DoNext()
 	{
 		window.location="<?= $APPLICATION->GetCurPage(); ?>?lang=<?= LANGUAGE_ID; ?>&<?= $strParams ?>";
@@ -1366,7 +1366,7 @@ if ($STEP == 2)
 	<tr>
 		<td width="40%">&nbsp;</td>
 		<td width="60%">
-			<script type="text/javascript">
+			<script>
 			function DeactivateAllExtra()
 			{
 				document.getElementById("table_r").disabled = true;
@@ -1809,7 +1809,7 @@ if ($STEP < 4): ?>
 	if ($STEP === 2)
 	{
 		?>
-		<script type="text/javascript">
+		<script>
 			DeactivateAllExtra();
 			ChangeExtra();
 		</script>
@@ -1825,7 +1825,7 @@ if ($STEP < 4): ?>
 $tabControl->End();
 ?>
 </form>
-<script type="text/javascript">
+<script>
 <?php
 if ($STEP < 2):
 ?>

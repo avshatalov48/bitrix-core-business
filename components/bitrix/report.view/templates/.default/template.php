@@ -449,9 +449,9 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 		{
 			$chartTypeIds = array();
 			foreach ($chartTypes as $chartTypeInfo)
-            {
-                $chartTypeIds[] = $chartTypeInfo['id'];
-            }
+			{
+				$chartTypeIds[] = $chartTypeInfo['id'];
+			}
 			$chartTypesIndexes = array_flip($chartTypeIds);
 			$columnYValueTypes = $chartTypes[$chartTypesIndexes[$chartInfo['requestData']['type']]]['value_types'];
 			if (isset($chartInfo['requestData']['type']) && in_array($chartInfo['requestData']['type'], $chartTypeIds))
@@ -841,7 +841,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 	?>
 	<div style="margin-bottom: 14px;"><a id="report-chart-showhide" class="report-chart-show"><?= htmlspecialcharsbx(GetMessage('REPORT_CHART_HIDE')) ?></a></div>
 	<div id="report-chart-container" class="graph"<?php echo ($chartErrorCode > 0) ? '' : ' style="height: 540px;"'; ?>><?= htmlspecialcharsbx($chartErrorMessage) ?></div>
-	<script type="text/javascript">
+	<script>
 		function reportChartShowHide()
 		{
 			var chartContainer = BX("report-chart-container");
@@ -1284,7 +1284,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 			</tbody>
 		</table>
 		</div>
-		<script type="text/javascript">
+		<script>
 		BX.ready(function(){
 			var rows = BX.findChildren(BX('<?= $resultTableId ?>'), {tag:'th'}, true);
 			for (i = 0 ; i < rows.length ; i++)
@@ -1414,7 +1414,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 			<option value="true"><?=htmlspecialcharsbx(GetMessage('REPORT_BOOLEAN_VALUE_TRUE'))?></option>
 			<option value="false"><?=htmlspecialcharsbx(GetMessage('REPORT_BOOLEAN_VALUE_FALSE'))?></option>
 		</select>
-		<script type="text/javascript">
+		<script>
 			function RTFilter_chooseBooleanCatch(value)
 			{
 				setSelectValue(RTFilter_chooseBoolean_LAST_CALLER, value);
@@ -1485,7 +1485,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				?>"><input type="text" size="5" class="filter-date-days"
 						value="<?= htmlspecialcharsbx($arResult['form_date']['days']) ?>"
 						name="F_DATE_DAYS"/> <?= htmlspecialcharsbx(GetMessage("TASKS_REPORT_DAYS")); ?></span>
-				<script type="text/javascript">
+				<script>
 
 					function OnTaskIntervalChange(select)
 					{
@@ -1571,7 +1571,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 					$name = isset($chFilter['name']) ? $chFilter['name'] : ($field ? $field->GetName() : '');
 					$info[] = array(
 						'TITLE' => $chFilter['title'],
-						'COMPARE' => ToLower(GetMessage('REPORT_FILTER_COMPARE_VAR_'.$chFilter['compare'])),
+						'COMPARE' => mb_strtolower(GetMessage('REPORT_FILTER_COMPARE_VAR_'.$chFilter['compare'])),
 						'NAME' =>$chFilter['formName'],
 						'ID' => $chFilter['formId'],
 						'VALUE' => $chFilter['value'],
@@ -1618,7 +1618,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 					);
 				}
 			?>
-			<script type="text/javascript">
+			<script>
 
 			BX.ready(function() {
 				var info = <?=CUtil::PhpToJSObject($info)?>;
@@ -1727,7 +1727,7 @@ function getResultColumnDataType(&$viewColumnInfo, &$customColumnTypes, $helperC
 				<input id="report-rewrite-filter-button" type="submit" value="<?=htmlspecialcharsbx(GetMessage('REPORT_FILTER_APPLY'))?>" class="filter-submit">&nbsp;&nbsp;<input id="report-reset-filter-button" type="submit" name="del_filter_company_search" value="<?=GetMessage('REPORT_FILTER_CANCEL')?>" class="filter-submit">
 			</div>
 
-			<script type="text/javascript">
+			<script>
 
 			BX.ready(function(){
 				BX.bind(BX('report-reset-filter-button'), 'click', function(){
@@ -2022,7 +2022,7 @@ if ($arResult['allowHorizontalScroll'])
 		'classFadeShadowRight' => 'main-grid-fade-shadow-right'
 	);
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function () {
 			BX.loadScript(
 				[
@@ -2313,7 +2313,7 @@ if (is_array($arResult['STEXPORT_PARAMS']))
 	Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/report/lrpdialog.js');
 	Bitrix\Main\Page\Asset::getInstance()->addJs('/bitrix/js/report/stexport.js');
 	?>
-	<script type="text/javascript">
+	<script>
 		BX.ready(
 			function()
 			{

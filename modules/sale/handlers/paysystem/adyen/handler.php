@@ -303,7 +303,6 @@ class AdyenHandler
 		$data = array_map(static function($value) {
 			return str_replace(":", "\\:", str_replace("\\", "\\\\", $value));
 		}, $data);
-		$data = Main\Text\Encoding::convertEncoding($data, LANG_CHARSET, "UTF-8");
 
 		return implode(":", $data);
 	}

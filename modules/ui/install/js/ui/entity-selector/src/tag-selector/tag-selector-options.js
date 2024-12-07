@@ -27,5 +27,6 @@ export type TagSelectorOptions = {
 	tagMaxWidth?: number,
 	tagTextColor?: string,
 	tagBgColor?: string,
-	tagFontWeight?: string
+	tagFontWeight?: string,
+	tagClickable?: boolean,
 };

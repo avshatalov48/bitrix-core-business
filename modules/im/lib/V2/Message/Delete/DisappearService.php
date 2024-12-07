@@ -4,6 +4,7 @@ namespace Bitrix\Im\V2\Message\Delete;
 
 use Bitrix\Im\Model\MessageDisappearingTable;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Chat\ChatError;
 use Bitrix\Im\V2\Message;
 use Bitrix\Main\Localization\Loc;
 use \Bitrix\Main\Result;
@@ -53,6 +54,13 @@ class DisappearService
 
 	public static function disappearMessage(Message $message, int $hours): Result
 	{
+		if (!self::isTimeValid($hours, 0))
+		{
+			return (new Result())
+				->addError(new ChatError(ChatError::WRONG_DISAPPEARING_DURATION, 'Wrong disappearing duration'))
+			;
+		}
+
 		if (
 			$message->isDisappearing()
 		)
@@ -69,6 +77,13 @@ class DisappearService
 
 	public static function disappearChat(Chat $chat, int $hours): Result
 	{
+		if (!self::isTimeValid($hours, -1))
+		{
+			return (new Result())
+				->addError(new ChatError(ChatError::WRONG_DISAPPEARING_DURATION, 'Wrong disappearing duration'))
+			;
+		}
+
 		$prevDisappearingTime = $chat->getDisappearingTime();
 		if ((int)$prevDisappearingTime === $hours)
 		{
@@ -115,6 +130,11 @@ class DisappearService
 		}
 
 		return $result;
+	}
+
+	protected static function isTimeValid(int $hours, int $minTime): bool
+	{
+		return $hours > $minTime && in_array($hours, self::TIME_WHITELIST, true);
 	}
 
 	public static function getMessagesDisappearingTime(array $messageIds): array

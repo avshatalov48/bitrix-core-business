@@ -25,7 +25,7 @@ class CSaleBasket extends CAllSaleBasket
 			"DELETE ".
 			"FROM b_sale_basket ".
 			"WHERE ((ORDER_ID IS NULL) OR (ORDER_ID = 0)) AND CAN_BUY = 'N' AND SUBSCRIBE = 'Y' AND TO_DAYS(DATE_INSERT) < (TO_DAYS(NOW()) - ".$dayDelete.") LIMIT 500";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		return true;
 	}
@@ -50,7 +50,7 @@ class CSaleBasket extends CAllSaleBasket
 				$arFilter = array();
 			$arGroupBy = false;
 
-			if (ToUpper($arFilter["ORDER_ID"]) == "NULL")
+			if (mb_strtoupper($arFilter["ORDER_ID"]) == "NULL")
 			{
 				$arFilter["ORDER_ID"] = 0;
 			}
@@ -251,7 +251,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -283,7 +283,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -308,7 +308,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -361,7 +361,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -392,7 +392,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -417,7 +417,7 @@ class CSaleBasket extends CAllSaleBasket
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -612,7 +612,7 @@ class CSaleBasket extends CAllSaleBasket
 				$arInsert = $DB->PrepareInsert("b_sale_basket", $arFields);
 
 				$strSql = "INSERT INTO b_sale_basket(".$arInsert[0].", DATE_INSERT, DATE_UPDATE) VALUES(".$arInsert[1].", ".$DB->GetNowFunction().", ".$DB->GetNowFunction().")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 
 				$ID = intval($DB->LastID());
 
@@ -631,7 +631,7 @@ class CSaleBasket extends CAllSaleBasket
 							$arInsert = $DB->PrepareInsert("b_sale_basket_props", $prop);
 
 							$strSql = "INSERT INTO b_sale_basket_props(BASKET_ID, ".$arInsert[0].") VALUES(".$ID.", ".$arInsert[1].")";
-							$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+							$DB->Query($strSql);
 						}
 					}
 					if (isset($prop))
@@ -995,7 +995,7 @@ class CSaleBasket extends CAllSaleBasket
 				$strSql_tmp .= "HAVING " . $arSqlsH["WHERE"] . " ";
 			}
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = $dbRes->SelectedRowsCount();
 
 			$dbRes = new CDBResult();
@@ -1009,7 +1009,7 @@ class CSaleBasket extends CAllSaleBasket
 				$strSql .= "LIMIT " . $topCount;
 			}
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -1071,7 +1071,7 @@ class CSaleUser extends CAllSaleUser
 		$strSql =
 			"INSERT INTO b_sale_fuser(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return (int)$DB->LastID();
 	}
@@ -1091,7 +1091,7 @@ class CSaleUser extends CAllSaleUser
 			"	AND f.USER_ID is null ".
 			"LIMIT 300";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		while ($ar_res = $db_res->Fetch())
 		{
 			CSaleBasket::DeleteAll($ar_res["ID"], false);
@@ -1205,7 +1205,7 @@ class CSaleUser extends CAllSaleUser
 
 			// echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = $dbRes->SelectedRowsCount();
 
 			$dbRes = new CDBResult();
@@ -1221,7 +1221,7 @@ class CSaleUser extends CAllSaleUser
 
 			// echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

@@ -10,6 +10,7 @@ export class Selector extends BaseField
 	#hintTitleElement: HTMLElement;
 	#hintDescElement: HTMLElement;
 	#inputNode: HTMLElement;
+	#selectorNode: HTMLElement;
 	#hintSeparatorElement: HTMLElement;
 
 	constructor(params)
@@ -23,7 +24,7 @@ export class Selector extends BaseField
 		this.#hintTitleElement = Tag.render`<div class="ui-section__title"></div>`;
 		this.#hintDescElement = Tag.render`<div class="ui-section__description"></div>`;
 		this.#hintSeparatorElement = Tag.render`<div class="ui-section__field-inline-separator"></div>`;
-		this.#inputNode = this.#buildSelector()
+		this.#inputNode = this.#buildSelector();
 	}
 
 	getHint(key: string)
@@ -44,8 +45,11 @@ export class Selector extends BaseField
 
 	setHint(key: string): void
 	{
-		const moreElement = this.renderMoreElement(this.getHelpdeskCode()).outerHTML;
-		const more = !Type.isNil(this.getHelpdeskCode()) ? moreElement : '';
+		const more = (
+			Type.isNil(this.getHelpdeskCode())
+				? ''
+				: this.renderMoreElement(this.getHelpdeskCode()).outerHTML
+		);
 
 		const hint = this.getHint(key);
 		this.#hintTitleElement.innerText = !Type.isNil(hint) ? this.#hintTitle : '';
@@ -56,38 +60,35 @@ export class Selector extends BaseField
 		if (!Type.isNil(hint))
 		{
 			Dom.addClass(this.field, '--field-separator');
-			const fieldContainer = this.field.querySelector('.ui-section__field-inline-box .ui-section__field');
+			const fieldContainer = this.field
+				.querySelector('.ui-section__field-inline-box .ui-section__field')
+			;
 			Dom.insertAfter(this.#hintSeparatorElement, fieldContainer);
 		}
 	}
 
 	renderContentField(): HTMLElement
 	{
-		const disableClass = !this.isEnable() ? 'ui-ctl-disabled' : '';
-		const lockElement = !this.isEnable() ? this.renderLockElement() : null;
+		const lockElement = this.isEnable() ? null : this.renderLockElement();
 
 		return Tag.render`
-		<div id="${this.getId()}" class="ui-section__field-selector ">
-			<div class="ui-section__field-container">
-				<div class="ui-section__field-label_box">
-					<label class="ui-section__field-label" for="${this.getName()}">${this.getLabel()}</label> 
-					${lockElement}
-				</div>			
-				<div class="ui-section__field-inline-box">
-					<div class="ui-section__field">				
-						<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon ui-ctl-dropdown ${disableClass}">
-							<div class="ui-ctl-after ui-ctl-icon-angle"></div>
-							${this.getInputNode()}
-						</div>		
+			<div id="${this.getId()}" class="ui-section__field-selector ">
+				<div class="ui-section__field-container">
+					<div class="ui-section__field-label_box">
+						<label class="ui-section__field-label" for="${this.getName()}">${this.getLabel()}</label> 
+						${lockElement}
 					</div>
-							
-					<div class="ui-section__hint">
-						${this.#hintTitleElement}
-						${this.#hintDescElement}
-					</div>				
-				</div>			
+					<div class="ui-section__field-inline-box">
+						<div class="ui-section__field">
+							${this.getSelector()}
+						</div>
+						<div class="ui-section__hint">
+							${this.#hintTitleElement}
+							${this.#hintDescElement}
+						</div>
+					</div>
+				</div>
 			</div>
-		</div>
 		`;
 	}
 
@@ -99,6 +100,30 @@ export class Selector extends BaseField
 		return render;
 	}
 
+	getItems()
+	{
+		return this.#items;
+	}
+
+	getValue(): string
+	{
+		return this.getInputNode().value;
+	}
+
+	getSelector(): HTMLElement
+	{
+		const disableClass = !this.isEnable() || this.isFieldDisabled() ? 'ui-ctl-disabled' : '';
+
+		this.#selectorNode ??= Tag.render`
+			<div class="ui-ctl ui-ctl-w100 ui-ctl-after-icon ui-ctl-dropdown ${disableClass}">
+				<div class="ui-ctl-after ui-ctl-icon-angle"></div>
+				${this.getInputNode()}
+			</div>
+		`;
+
+		return this.#selectorNode;
+	}
+
 	getInputNode(): HTMLElement
 	{
 		return this.#inputNode;
@@ -107,14 +132,26 @@ export class Selector extends BaseField
 	#buildSelector(): HTMLElement
 	{
 		let options = [];
-		for (let {value, name, selected} of this.#items)
+		for (let { value, name, selected, disabled, hidden } of this.#items)
 		{
 			let selectedAttr = '';
+			let disabledAttr = '';
+			let hiddenAttr = '';
 			if (selected === true)
 			{
 				selectedAttr = 'selected';
 			}
-			options.push(Tag.render`<option ${selectedAttr} value="${value}">${name}</option>`);
+
+			if (disabled === true)
+			{
+				disabledAttr = 'disabled';
+			}
+
+			if (hidden === true)
+			{
+				hiddenAttr = 'hidden';
+			}
+			options.push(Tag.render`<option ${selectedAttr} ${disabledAttr} ${hiddenAttr} value="${value}">${name}</option>`);
 		}
 
 		return Dom.create('select', {
@@ -138,11 +175,11 @@ export class Selector extends BaseField
 					}
 				},
 				mousedown: (event) => {
-					if (!this.isEnable())
+					if (!this.isEnable() || this.isFieldDisabled())
 					{
 						event.preventDefault();
 					}
-				}
+				},
 			},
 			children: options,
 		});

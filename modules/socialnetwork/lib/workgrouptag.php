@@ -87,7 +87,7 @@ class WorkgroupTagTable extends Entity\DataManager
 		{
 			self::processAdd(array(
 				'GROUP_ID' => intval($params['groupId']),
-				'NAME' => toLower($tag)
+				'NAME' => mb_strtolower($tag)
 			));
 		}
 

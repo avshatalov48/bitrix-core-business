@@ -2,6 +2,7 @@
 namespace Bitrix\Socialnetwork\Internals\Space\RecentActivity;
 
 use Bitrix\Main\ORM\Data\DataManager;
+use Bitrix\Main\ORM\Data\Internal\DeleteByFilterTrait;
 use Bitrix\Main\ORM\Data\Internal\MergeTrait;
 use Bitrix\Main\ORM\Fields\IntegerField;
 
@@ -35,6 +36,7 @@ use Bitrix\Main\ORM\Fields\IntegerField;
 final class SpaceUserLatestActivityTable extends DataManager
 {
 	use MergeTrait;
+	use DeleteByFilterTrait;
 	/**
 	 * Returns DB table name for entity.
 	 *

@@ -7,9 +7,14 @@ use Bitrix\Im\V2\Call\CallError;
 use Bitrix\Im\V2\Call\CallFactory;
 use Bitrix\Main\Service\MicroService\BaseReceiver;
 
+/**
+ * @deprecated
+ * @use \Bitrix\Call\Controller\CallController
+ */
 class CallController extends BaseReceiver
 {
 	/**
+	 * @deprecated
 	 * @restMethod im.v2.Call.CallController.finishCall
 	 */
 	public function finishCallAction(string $callUuid): ?array
@@ -36,6 +41,7 @@ class CallController extends BaseReceiver
 	}
 
 	/**
+	 * @deprecated
 	 * @restMethod im.v2.Call.CallController.disconnectUser
 	 */
 	public function disconnectUserAction(string $callUuid, int $userId): ?array

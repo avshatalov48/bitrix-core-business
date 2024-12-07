@@ -95,7 +95,7 @@ class CounterDataTable extends Entity\DataManager
 			$dataSizeLimit = 45000;
 
 			// make an optimal dataset
-			$dataSize = mb_strlen(base64_encode(json_encode(array_values($rows))));
+			$dataSize = strlen(base64_encode(json_encode(array_values($rows))));
 
 			// records to delete
 			$toDelete = array();
@@ -106,8 +106,8 @@ class CounterDataTable extends Entity\DataManager
 
 				foreach ($rows as $id => $row)
 				{
-					$rowSize = mb_strlen(base64_encode(json_encode(array_values($row))));
-					$reducedDataSize = mb_strlen(base64_encode(json_encode(array_values($reducedRows))));
+					$rowSize = strlen(base64_encode(json_encode(array_values($row))));
+					$reducedDataSize = strlen(base64_encode(json_encode(array_values($reducedRows))));
 
 					if ($rowSize > $dataSizeLimit)
 					{
@@ -145,7 +145,7 @@ class CounterDataTable extends Entity\DataManager
 					$out = "POST /bx_stat HTTP/1.1\r\n";
 					$out .= "Host: bitrix.info\r\n";
 					$out .= "Content-type: application/x-www-form-urlencoded\r\n";
-					$out .= "Content-length: ".mb_strlen($data) . "\r\n";
+					$out .= "Content-length: ".strlen($data) . "\r\n";
 					$out .= "User-Agent: Bitrix Stats Counter\r\n";
 					$out .= "Connection: Close\r\n";
 					$out .= "\r\n";
@@ -163,7 +163,7 @@ class CounterDataTable extends Entity\DataManager
 					fclose($f);
 
 					// delete rows if service received data
-					if(mb_strpos($response, '200 OK'))
+					if(strpos($response, '200 OK'))
 					{
 						$toDelete = array_merge($toDelete, array_keys($rows));
 					}

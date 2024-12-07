@@ -1,0 +1,29 @@
+.ui-typography-table {
+	border: 1px double #bfbfbf;
+	border-collapse: collapse;
+	border-spacing: 0;
+	overflow-y: scroll;
+	overflow-x: scroll;
+	margin-top: var(--ui-typography-block-space-stack);
+	margin-bottom: var(--ui-typography-block-space-stack);
+}
+
+.ui-typography-table-row {
+
+}
+
+.ui-typography-table-cell {
+	border: 1px solid #bfbfbf;
+	overflow-wrap: break-word;
+	min-width: 30px;
+	vertical-align: top;
+	text-align: start;
+	padding: 0 var(--ui-typography-block-space-stack);
+	position: relative;
+	outline: none;
+}
+
+.ui-typography-table-cell-header {
+	background: rgba(0,0,0,.05);
+	text-align: start;
+}

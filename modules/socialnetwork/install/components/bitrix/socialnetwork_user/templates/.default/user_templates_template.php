@@ -46,7 +46,13 @@ if (Context::getCurrent()->getRequest()->get('IFRAME'))
 	}
 	elseif (Loader::includeModule('tasks'))
 	{
-		if ($action === 'edit')
+		$context = Context::getCurrent()->getRequest()->get('context');
+
+		if ($context === 'flow' && $templateId <= 0)
+		{
+			$popupComponentTemplate = 'flow';
+		}
+		elseif ($action === 'edit')
 		{
 			$popupComponentTemplate = '';
 		}

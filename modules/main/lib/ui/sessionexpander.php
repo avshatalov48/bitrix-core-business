@@ -28,7 +28,7 @@ class SessionExpander
 
 		\CJSCore::Init(['ajax', 'ls']);
 
-		$jsCode = '<script type="text/javascript">'."\n";
+		$jsCode = '<script>'."\n";
 
 		$showMess = ($USER->IsAuthorized() && Config\Option::get("main", "session_show_message", "Y") <> "N");
 		if($showMess)

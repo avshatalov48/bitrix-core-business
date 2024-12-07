@@ -301,7 +301,7 @@ class CSocNetForumComments
 							$entity_id = $arLog["ENTITY_ID"];
 
 							$sText = (COption::GetOptionString("forum", "FILTER", "Y") == "Y" ? $arMessage["POST_MESSAGE_FILTER"] : $arMessage["POST_MESSAGE"]);
-							$strURL = $APPLICATION->GetCurPageParam("", array("IFRAME", "MID", "SEF_APPLICATION_CUR_PAGE_URL", BX_AJAX_PARAM_ID, "result"));
+							$strURL = $APPLICATION->GetCurPageParam("", array("IFRAME", "MID", BX_AJAX_PARAM_ID, "result"));
 							$strURL = ForumAddPageParams(
 								$strURL,
 								array(

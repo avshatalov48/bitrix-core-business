@@ -133,7 +133,7 @@ if($this->NavRecordCount>0)
 if (!isset($_REQUEST['admin_history']))
 {
 ?>
-	<script type="text/javascript">
+	<script>
 		var topWindow = (window.BX||window.parent.BX).PageObject.getRootWindow();
 		var parentWindow = (window.BX||window.parent.BX).PageObject.getParentWindowOfCurrentHost(window);
 		topWindow.BX.adminHistory.put('<?=CUtil::JSEscape($sUrlPath.'?PAGEN_'.$this->NavNum.'='.$this->NavPageNomer.'&amp;SIZEN_'.$this->NavNum.'='.$this->NavPageSize.$strNavQueryString)?>', topWindow.BX.proxy((topWindow.<?=$this->table_id?>)?parentWindow.<?=$this->table_id?>.<?=$nav_func_name?>:<?=$this->table_id?>.<?=$nav_func_name?>, window.<?=$this->table_id?>), ['mode', 'table_id']);</script>

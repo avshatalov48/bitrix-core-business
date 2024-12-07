@@ -1,0 +1,32 @@
+.ui-rich-text-area-drop-area {
+	border: 2px dashed #2fc6f6;
+	position: absolute;
+	background-color: #fff;
+	z-index: 100;
+	border-radius: 10px;
+	inset: 0;
+}
+
+.ui-rich-text-area-drop-area-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 0 10px;
+	height: 100%;
+}
+
+.ui-rich-text-area-drop-area-text {
+	font: 26px var(--ui-font-family-primary);
+	color: #999;
+}
+
+.ui-rich-text-area-fade-enter-active,
+.ui-rich-text-area-fade-leave-active {
+	transition: opacity 0.2s linear;
+}
+
+.ui-rich-text-area-fade-enter-from,
+.ui-rich-text-area-fade-leave-to {
+	opacity: 0;
+}

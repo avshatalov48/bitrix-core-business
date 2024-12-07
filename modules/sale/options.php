@@ -1741,7 +1741,7 @@ foreach ($optionMainList as $option):
 			if (isset($option['HINT']))
 			{
 				?><span id="hint_<?= $optionName; ?>"></span>
-				<script type="text/javascript">BX.hint_replace(BX('hint_<?= $optionName; ?>'), '<?= CUtil::JSEscape($option['HINT']); ?>');</script>&nbsp;<?php
+				<script>BX.hint_replace(BX('hint_<?= $optionName; ?>'), '<?= CUtil::JSEscape($option['HINT']); ?>');</script>&nbsp;<?php
 			}
 			if ($option['TYPE'] === 'checkbox')
 			{
@@ -2534,7 +2534,7 @@ endforeach;
 	<?php
 	$tabControl->BeginNextTab();
 	?>
-<script type="text/javascript">
+<script>
 var cur_site = {WEIGHT:'<?=CUtil::JSEscape($siteList[0]["ID"])?>',ADDRESS:'<?=CUtil::JSEscape($siteList[0]["ID"])?>'};
 function changeSiteList(value, add_id)
 {
@@ -3266,7 +3266,7 @@ $tabControl->BeginNextTab();
 			?>
 			<input type="hidden" name="ALLOW_DEDUCTION_ON_DELIVERY" id="ALLOW_DEDUCTION_ON_DELIVERY_hidden" value="N">
 			<input type="checkbox" name="ALLOW_DEDUCTION_ON_DELIVERY" id="ALLOW_DEDUCTION_ON_DELIVERY" value="Y"<?= ($valDeductOnDelivery === 'Y' ? ' checked' : ''); ?> onclick="javascript:toggleDefaultStores(this);">
-			<script type="text/javascript">
+			<script>
 				function toggleDefaultStores(el)
 				{
 					var elements = document.getElementsByClassName('default_deduct_store_control');
@@ -3676,7 +3676,7 @@ $systemTabControl = new CAdminTabControl('saleSysTabControl', $systemTabs, true,
 	}
 	$systemTabControl->End();
 	?>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		var numeratorSettingsToggle = BX('hideNumeratorSettings');
 

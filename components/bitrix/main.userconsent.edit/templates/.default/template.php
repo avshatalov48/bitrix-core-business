@@ -43,7 +43,7 @@ $formAction = (new Uri($APPLICATION->getCurPageParam()))
 	<?php endforeach; ?>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Main.UserConsent.Edit = new BX.Main.UserConsent.Edit(<?=Json::encode([
 			'isSaved' => $arResult['IS_SAVED'],

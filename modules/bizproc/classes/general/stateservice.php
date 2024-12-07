@@ -72,10 +72,16 @@ class CBPStateService extends CBPRuntimeService
 
 	public static function getStateDocumentId($workflowId)
 	{
+		static $cache = [];
 		$workflowId = trim($workflowId);
 		if ($workflowId === '')
 		{
 			throw new Exception("workflowId");
+		}
+
+		if (isset($cache[$workflowId]))
+		{
+			return $cache[$workflowId];
 		}
 
 		$result = WorkflowStateTable::query()
@@ -85,7 +91,9 @@ class CBPStateService extends CBPRuntimeService
 
 		if ($result)
 		{
-			return [$result['MODULE_ID'], $result['ENTITY'], $result['DOCUMENT_ID']];
+			$cache[$workflowId] = [$result['MODULE_ID'], $result['ENTITY'], $result['DOCUMENT_ID']];
+
+			return $cache[$workflowId];
 		}
 
 		return false;

@@ -1,14 +1,15 @@
-import {Dom, Tag} from 'main.core';
-import {EventEmitter} from 'main.core.events';
+import { Dom, Tag } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+
 import { ParserRecursionPrevention } from '../utils/recursion-prevention';
+import { ParserUtils } from '../utils/utils';
+import { getUtils, getConst } from '../utils/core-proxy';
+import { ParserIcon } from './icon';
 
-import {ParserUtils} from '../utils/utils';
-import {getUtils, getConst} from '../utils/core-proxy';
-import {ParserIcon} from './icon';
-
-const {EventType} = getConst();
+const { EventType } = getConst();
 
 const QUOTE_SIGN = '&gt;&gt;';
+const NO_CONTEXT_TAG = 'none';
 
 export const ParserQuote = {
 
@@ -31,7 +32,7 @@ export const ParserQuote = {
 
 			const quoteStartIndex = i;
 
-			const outerContainerStart = '<div class="bx-im-message-quote --inline">';
+			const outerContainerStart = `<div data-context="${NO_CONTEXT_TAG}" class="bx-im-message-quote --inline">`;
 			const innerContainerStart = '<div class="bx-im-message-quote__wrap">';
 			const containerEnd = '</div>';
 			textLines[quoteStartIndex] = textLines[quoteStartIndex].replace(QUOTE_SIGN, `${outerContainerStart}${innerContainerStart}`);
@@ -63,61 +64,31 @@ export const ParserQuote = {
 		return text;
 	},
 
-	decodeQuote(text): string
+	decodeQuote(text, { contextDialogId = '' } = {}): string
 	{
-		text = ParserRecursionPrevention.cutTags(text);
+		const sanitizedText = ParserRecursionPrevention.cutTags(text);
 
-		text = text.replace(
+		const decodedText = sanitizedText.replaceAll(
 			/-{54}(<br \/>(.*?)\[(.*?)]( #(?:chat\d+|\d+:\d+)\/\d+)?)?<br \/>(.*?)-{54}(<br \/>)?/gs,
-			(whole, userBlock, userName, timeTag, contextTag, text): string => {
-				const skipUserBlock = !userName || !timeTag;
-				if (skipUserBlock && !text) // greedy date detector :(
-				{
-					text = `${timeTag}`;
-				}
-
-				let userContainer = '';
-				if (!skipUserBlock)
-				{
-					userContainer = Tag.render`
-						<div class='bx-im-message-quote__name'>
-							<div class="bx-im-message-quote__name-text">${userName}</div>
-							<div class="bx-im-message-quote__name-time">${timeTag}</div>
-						</div>
-					`;
-				}
-
-				let quoteBaseClass = 'bx-im-message-quote';
-				if (contextTag)
-				{
-					contextTag = contextTag.trim().slice(1);
-					contextTag = ParserUtils.getFinalContextTag(contextTag);
-				}
-				if (contextTag)
-				{
-					quoteBaseClass += ' --with-context';
-				}
-				else
-				{
-					contextTag = 'none';
-				}
+			(whole, userBlock, userName, timeTag, contextTag, quoteText): string => {
+				const preparedQuoteText = getQuoteText(userName, timeTag, quoteText);
+				const userContainer = getUserBlock(userName, timeTag);
+				const finalContextTag = getFinalContextTag(contextTag, contextDialogId);
 
 				const layout = Tag.render`
-					<div class='${quoteBaseClass}' data-context='${contextTag}'>
+					<div class='bx-im-message-quote' data-context='${finalContextTag}'>
 						<div class='bx-im-message-quote__wrap'>
 							${userContainer}
-							<div class='bx-im-message-quote__text'>${text}</div>
+							<div class='bx-im-message-quote__text'>${preparedQuoteText}</div>
 						</div>
 					</div>
 				`;
 
 				return layout.outerHTML;
-			}
+			},
 		);
 
-		text = ParserRecursionPrevention.recoverTags(text);
-
-		return text;
+		return ParserRecursionPrevention.recoverTags(decodedText);
 	},
 
 	purifyQuote(text: string, spaceLetter: string = ' '): string
@@ -154,8 +125,8 @@ export const ParserQuote = {
 			return;
 		}
 
-		const target = getUtils().dom.recursiveBackwardNodeSearch(event.target, '--with-context');
-		if (!target || target.dataset.context === 'none')
+		const target = getUtils().dom.recursiveBackwardNodeSearch(event.target, 'bx-im-message-quote');
+		if (!target || target.dataset.context === NO_CONTEXT_TAG)
 		{
 			return;
 		}
@@ -166,4 +137,59 @@ export const ParserQuote = {
 			dialogId: dialogId.toString(),
 		});
 	},
+};
+
+const getQuoteText = (userName, timeTag, text): string => {
+	const hasUserBlock = userName && timeTag;
+	if (!hasUserBlock && !text)
+	{
+		// the case, when inside the quote we have only some string in square brackets
+		return String(timeTag);
+	}
+
+	const BR_HTML_TAG = '<br />';
+
+	if (text.endsWith(BR_HTML_TAG))
+	{
+		return text.slice(0, -BR_HTML_TAG.length);
+	}
+
+	return text;
+};
+
+const getUserBlock = (userName: string, timeTag: string): HTMLElement | '' => {
+	const hasDataForUserBlock = userName && timeTag;
+	if (!hasDataForUserBlock)
+	{
+		return '';
+	}
+
+	return Tag.render`
+		<div class='bx-im-message-quote__name'>
+			<div class="bx-im-message-quote__name-text">${userName.trim()}</div>
+			<div class="bx-im-message-quote__name-time">${timeTag.trim()}</div>
+		</div>
+	`;
+};
+
+const getFinalContextTag = (contextTag: string, contextDialogId: string): string => {
+	if (!contextTag)
+	{
+		return NO_CONTEXT_TAG;
+	}
+
+	const tagWithoutHashSign = contextTag.trim().slice(1);
+	const finalContextTag = ParserUtils.getFinalContextTag(tagWithoutHashSign);
+	if (!isQuoteFromTheSameChat(finalContextTag, contextDialogId))
+	{
+		return NO_CONTEXT_TAG;
+	}
+
+	return finalContextTag;
+};
+
+const isQuoteFromTheSameChat = (finalContextTag: string, dialogId: string): boolean => {
+	const contextDialogId = ParserUtils.getDialogIdFromFinalContextTag(finalContextTag);
+
+	return contextDialogId === dialogId;
 };

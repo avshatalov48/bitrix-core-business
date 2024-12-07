@@ -136,6 +136,6 @@ if($arResult["ERROR_MESSAGE"] == '')
 	}
 }
 else
-	echo ShowError($arResult["ERROR_MESSAGE"]);
+	ShowError($arResult["ERROR_MESSAGE"]);
 ?>
 </div>

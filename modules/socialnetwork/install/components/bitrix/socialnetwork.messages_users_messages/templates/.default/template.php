@@ -43,7 +43,7 @@ else
 	</tr>
 	</table>
 
-	<script language="javascript">
+	<script>
 	<!--
 	function SelectAllRows(checkbox)
 	{

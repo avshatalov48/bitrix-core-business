@@ -33,7 +33,7 @@ switch ($arParams['VIEW_MODE'])
 
 if (isset($templateData['TEMPLATE_THEME']))
 {
-	$APPLICATION->SetAdditionalCSS($templateFolder.'/'.ToLower($arParams['VIEW_MODE']).'/themes/'.$arParams['TEMPLATE_THEME'].'/style.css');
+	$APPLICATION->SetAdditionalCSS($templateFolder.'/'.mb_strtolower($arParams['VIEW_MODE']).'/themes/'.$arParams['TEMPLATE_THEME'].'/style.css');
 }
 
 if (isset($templateData['TEMPLATE_LIBRARY']) && !empty($templateData['TEMPLATE_LIBRARY']))
@@ -50,8 +50,8 @@ if (isset($templateData['TEMPLATE_LIBRARY']) && !empty($templateData['TEMPLATE_L
 	if ($loadCurrency)
 	{
 		?>
-		<script type="text/javascript">
-			 BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
+		<script>
+			BX.Currency.setCurrencies(<?=$templateData['CURRENCIES']?>);
 		</script>
 		<?
 	}

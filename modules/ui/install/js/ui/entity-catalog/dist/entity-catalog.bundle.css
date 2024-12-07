@@ -170,6 +170,11 @@
 	overflow-y: scroll;
 }
 
+.bx-firefox .ui-entity-catalog__main-groups-content {
+	overflow-y: auto;
+	scrollbar-width: thin;
+}
+
 .ui-entity-catalog__main-groups-content::-webkit-scrollbar-track {
 	background: transparent;
 }
@@ -201,6 +206,11 @@
 	box-sizing: border-box;
 	padding: 12px 8px 17px 14px;
 	background: var(--entity-catalog__gray_light);
+}
+
+.bx-firefox .ui-entity-catalog__main-content-body {
+	overflow-y: auto;
+	scrollbar-width: thin;
 }
 
 .ui-entity-catalog__main-content-body::-webkit-scrollbar {

@@ -64,6 +64,13 @@ class Dummy extends \Bitrix\MessageService\Sender\Base
 			]);
 		}
 
+		// emulation of the delay in sending a request to the provider
+		$timeout = (int)\Bitrix\Main\Config\Option::get('messageservice', 'dummy_timeout_ms');
+		if ($timeout > 0)
+		{
+			usleep($timeout * 1000);
+		}
+
 		return $result;
 	}
 

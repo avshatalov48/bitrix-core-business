@@ -12,7 +12,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  components: {
 	    BaseMessage: im_v2_component_message_base.BaseMessage,
 	    DefaultMessageContent: im_v2_component_message_elements.DefaultMessageContent,
-	    ReactionSelector: im_v2_component_message_elements.ReactionSelector,
 	    AuthorTitle: im_v2_component_message_elements.AuthorTitle
 	  },
 	  props: {
@@ -51,7 +50,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 					<div class="bx-im-message-deleted__text">{{ loc('IM_MESSENGER_MESSAGE_DELETED') }}</div>	
 				</div>
 				<DefaultMessageContent :item="item" :dialogId="dialogId" :withText="false" />
-				<ReactionSelector :messageId="message.id" />
 			</div>
 		</BaseMessage>
 	`

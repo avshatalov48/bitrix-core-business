@@ -32,6 +32,19 @@ use Bitrix\Main\SystemException;
  */
 class EventConnectionTable extends DataManager
 {
+	// without data field
+	public const defaultSelect = [
+		'ID',
+		'EVENT_ID',
+		'CONNECTION_ID',
+		'VENDOR_EVENT_ID',
+		'SYNC_STATUS',
+		'RETRY_COUNT',
+		'ENTITY_TAG',
+		'VERSION',
+		'VENDOR_VERSION_ID',
+		'RECURRENCE_ID',
+	];
 	public static function getTableName()
 	{
 		return 'b_calendar_event_connection';

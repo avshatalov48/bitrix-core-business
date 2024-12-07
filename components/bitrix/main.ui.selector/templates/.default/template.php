@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Main\Web\Json;
+
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -69,7 +71,7 @@ if (!empty($arParams['LOAD_JS']))
 				tagId: BX('<?= ($arParams['TAG_ID'] ?? '')?>'),
 				openDialogWhenInit: openDialogWhenInit,
 				bindNode: BX('<?=$arParams['BIND_ID']?>'),
-				options: <?= CUtil::phpToJSObject($arParams["OPTIONS"]) ?>,
+				options: <?= Json::encode($arParams["OPTIONS"]) ?>,
 				callback : {
 					select: <?=(!empty($arParams["CALLBACK"]["select"]) ? $arParams["CALLBACK"]["select"] : 'null')?>,
 					unSelect: <?=(!empty($arParams["CALLBACK"]["unSelect"]) ? $arParams["CALLBACK"]["unSelect"] : 'null')?>,
@@ -86,15 +88,15 @@ if (!empty($arParams['LOAD_JS']))
 					context: <?=(!empty($arParams["CALLBACK_BEFORE"]) && !empty($arParams["CALLBACK_BEFORE"]["context"]) ? $arParams["CALLBACK_BEFORE"]["context"] : 'null')?>,
 				},
 				items : {
-					selected: <?= CUtil::phpToJSObject($arParams['ITEMS_SELECTED']) ?>,
-					undeletable: <?= CUtil::phpToJSObject($arParams['ITEMS_UNDELETABLE']) ?>,
-					hidden: <?= CUtil::phpToJSObject($arParams['ITEMS_HIDDEN']) ?>
+					selected: <?= Json::encode($arParams['ITEMS_SELECTED']) ?>,
+					undeletable: <?= Json::encode($arParams['ITEMS_UNDELETABLE']) ?>,
+					hidden: <?= Json::encode($arParams['ITEMS_HIDDEN']) ?>
 				},
 				entities: {
-					users: <?= CUtil::phpToJSObject($arResult['ENTITIES']['USERS'] ?? []) ?>,
-					groups: <?= CUtil::phpToJSObject($arResult['ENTITIES']['GROUPS'] ?? []) ?>,
-					sonetgroups: <?= CUtil::phpToJSObject($arResult['ENTITIES']['SONETGROUPS'] ?? []) ?>,
-					department: <?= CUtil::phpToJSObject($arResult['ENTITIES']['DEPARTMENTS'] ?? []) ?>
+					users: <?= Json::encode($arResult['ENTITIES']['USERS'] ?? []) ?>,
+					groups: <?= Json::encode($arResult['ENTITIES']['GROUPS'] ?? []) ?>,
+					sonetgroups: <?= Json::encode($arResult['ENTITIES']['SONETGROUPS'] ?? []) ?>,
+					department: <?= Json::encode($arResult['ENTITIES']['DEPARTMENTS'] ?? []) ?>
 				}
 			});
 

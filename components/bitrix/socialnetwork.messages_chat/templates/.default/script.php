@@ -5,7 +5,7 @@ include_once($path);
 $MESS1 =& $MESS;
 $GLOBALS["MESS"] = $MESS1 + $GLOBALS["MESS"];
 ?>
-<script type="text/javascript">
+<script>
 var bSendForm = false;
 
 if (typeof oErrors != "object")
@@ -49,7 +49,7 @@ oHelp['CLOSE_CLICK'] = "<?=CUtil::addslashes(GetMessage("FORUM_HELP_CLICK_CLOSE"
 oHelp['TRANSLIT'] = "<?=CUtil::addslashes(GetMessage("FORUM_HELP_TRANSLIT"))?>";
 
 var smallEngLettersReg = new Array(/e'/g, /ch/g, /sh/g, /yo/g, /jo/g, /zh/g, /yu/g, /ju/g, /ya/g, /ja/g, /a/g, /b/g, /v/g, /g/g, /d/g, /e/g, /z/g, /i/g, /j/g, /k/g, /l/g, /m/g, /n/g, /o/g, /p/g, /r/g, /s/g, /t/g, /u/g, /f/g, /h/g, /c/g, /w/g, /~/g, /y/g, /'/g);
-var smallRusLetters = new Array("˝", "˜", "¯", "∏", "∏", "Ê", "˛", "˛", "ˇ", "ˇ", "‡", "·", "‚", "„", "‰", "Â", "Á", "Ë", "È", "Í", "Î", "Ï", "Ì", "Ó", "Ô", "", "Ò", "Ú", "Û", "Ù", "ı", "ˆ", "˘", "˙", "˚", "¸");
+var smallRusLetters = new Array("—ç", "—á", "—à", "—ë", "—ë", "–∂", "—é", "—é", "—è", "—è", "–∞", "–±", "–≤", "–≥", "–¥", "–µ", "–∑", "–∏", "–π", "–∫", "–ª", "–º", "–Ω", "–æ", "–ø", "—Ä", "—Å", "—Ç", "—É", "—Ñ", "—Ö", "—Ü", "—â", "—ä", "—ã", "—å");
 
 var capitEngLettersReg = new Array(
 	/Ch/g, /Sh/g, 
@@ -57,20 +57,20 @@ var capitEngLettersReg = new Array(
 	/Yu/g, /Ya/g, 
 	/E'/g, /CH/g, /SH/g, /YO/g, /JO/g, /ZH/g, /YU/g, /JU/g, /YA/g, /JA/g, /A/g, /B/g, /V/g, /G/g, /D/g, /E/g, /Z/g, /I/g, /J/g, /K/g, /L/g, /M/g, /N/g, /O/g, /P/g, /R/g, /S/g, /T/g, /U/g, /F/g, /H/g, /C/g, /W/g, /Y/g);
 var capitRusLetters = new Array(
-	"◊", "ÿ",
-	"®", "∆",
-	"ﬁ", "ﬂ",
-	"›", "◊", "ÿ", "®", "®", "∆", "ﬁ", "ﬁ", "\ﬂ", "\ﬂ", "¿", "¡", "¬", "√", "ƒ", "≈", "«", "»", "…", " ", "À", "Ã", "Õ", "Œ", "œ", "–", "—", "“", "”", "‘", "’", "÷", "Ÿ", "€");
+	"–ß", "–®",
+	"–Å", "–ñ",
+	"–Æ", "–Ø",
+	"–≠", "–ß", "–®", "–Å", "–Å", "–ñ", "–Æ", "–Æ", "\–Ø", "\–Ø", "–ê", "–ë", "–í", "–ì", "–î", "–ï", "–ó", "–ò", "–ô", "–ö", "–õ", "–ú", "–ù", "–û", "–ü", "–†", "–°", "–¢", "–£", "–§", "–•", "–¶", "–©", "–´");
 	
 // '//
-var smallRusLettersReg = new Array(/˝/g, /˜/g, /¯/g, /∏/g, /∏/g,/Ê/g, /˛/g, /˛/g, /ˇ/g, /ˇ/g, /‡/g, /·/g, /‚/g, /„/g, /‰/g, /Â/g, /Á/g, /Ë/g, /È/g, /Í/g, /Î/g, /Ï/g, /Ì/g, /Ó/g, /Ô/g, //g, /Ò/g, /Ú/g, /Û/g, /Ù/g, /ı/g, /ˆ/g, /˘/g, /˙/g, /˚/g, /¸/g );
+var smallRusLettersReg = new Array(/—ç/g, /—á/g, /—à/g, /—ë/g, /—ë/g,/–∂/g, /—é/g, /—é/g, /—è/g, /—è/g, /–∞/g, /–±/g, /–≤/g, /–≥/g, /–¥/g, /–µ/g, /–∑/g, /–∏/g, /–π/g, /–∫/g, /–ª/g, /–º/g, /–Ω/g, /–æ/g, /–ø/g, /—Ä/g, /—Å/g, /—Ç/g, /—É/g, /—Ñ/g, /—Ö/g, /—Ü/g, /—â/g, /—ä/g, /—ã/g, /—å/g );
 var smallEngLetters = new Array("e", "ch", "sh", "yo", "jo", "zh", "yu", "ju", "ya", "ja", "a", "b", "v", "g", "d", "e", "z", "i", "j", "k", "l", "m", "n", "o", "p", "r", "s", "t", "u", "f", "h", "c", "w", "~", "y", "'");
 
 var capitRusLettersReg = new Array(
-	/◊(?=[^¿-ﬂ])/g, /ÿ(?=[^¿-ﬂ])/g, 
-	/®(?=[^¿-ﬂ])/g, /∆(?=[^¿-ﬂ])/g, 
-	/ﬁ(?=[^¿-ﬂ])/g, /ﬂ(?=[^¿-ﬂ])/g, 
-	/›/g, /◊/g, /ÿ/g, /®/g, /®/g, /∆/g, /ﬁ/g, /ﬁ/g, /ﬂ/g, /ﬂ/g, /¿/g, /¡/g, /¬/g, /√/g, /ƒ/g, /≈/g, /«/g, /»/g, /…/g, / /g, /À/g, /Ã/g, /Õ/g, /Œ/g, /œ/g, /–/g, /—/g, /“/g, /”/g, /‘/g, /’/g, /÷/g, /Ÿ/g, /⁄/g, /€/g, /‹/g);
+	/–ß(?=[^–ê-–Ø])/g, /–®(?=[^–ê-–Ø])/g, 
+	/–Å(?=[^–ê-–Ø])/g, /–ñ(?=[^–ê-–Ø])/g, 
+	/–Æ(?=[^–ê-–Ø])/g, /–Ø(?=[^–ê-–Ø])/g, 
+	/–≠/g, /–ß/g, /–®/g, /–Å/g, /–Å/g, /–ñ/g, /–Æ/g, /–Æ/g, /–Ø/g, /–Ø/g, /–ê/g, /–ë/g, /–í/g, /–ì/g, /–î/g, /–ï/g, /–ó/g, /–ò/g, /–ô/g, /–ö/g, /–õ/g, /–ú/g, /–ù/g, /–û/g, /–ü/g, /–†/g, /–°/g, /–¢/g, /–£/g, /–§/g, /–•/g, /–¶/g, /–©/g, /–™/g, /–´/g, /–¨/g);
 var capitEngLetters = new Array(
 	"Ch", "Sh",
 	"Yo", "Zh",

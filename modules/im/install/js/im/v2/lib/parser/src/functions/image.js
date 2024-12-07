@@ -1,4 +1,4 @@
-import { Dom, Loc, Text } from 'main.core';
+import { Dom, Loc, Text, Type } from 'main.core';
 
 import { getUtils, getBigSmileOption } from '../utils/core-proxy';
 import { ParserIcon } from './icon';
@@ -48,26 +48,18 @@ export const ParserImage = {
 		});
 	},
 
-	purifyLink(text): string
+	purifyLink(text: string): string
 	{
-		text = text.replace(/(.)?((https|http):\/\/(\S+)\.(jpg|jpeg|png|gif|webp)(\?\S+)?)/gi, function(whole, letter, url): string
-		{
-			if(
-				letter && !(['>', ']', ' '].includes(letter))
-				|| !url.match(/(\.(jpg|jpeg|png|gif|webp)\?|\.(jpg|jpeg|png|gif|webp)$)/i)
-				|| url.toLowerCase().indexOf("/docs/pub/") > 0
-				|| url.toLowerCase().indexOf("logout=yes") > 0
-			)
+		return text.replaceAll(/(.)?(https?:\/\/\S+)/gi, (whole, symbolBeforeUrl, url): string => {
+			if (!canPurifyLink(symbolBeforeUrl, url))
 			{
 				return whole;
 			}
-			else
-			{
-				return (letter? letter: '') + ParserIcon.getImageBlock();
-			}
-		});
 
-		return text;
+			const firstSymbol = symbolBeforeUrl || '';
+
+			return `${firstSymbol}${ParserIcon.getImageBlock()}`;
+		});
 	},
 
 	// eslint-disable-next-line max-lines-per-function,sonarjs/cognitive-complexity
@@ -234,4 +226,35 @@ export const ParserImage = {
 			result.parentNode.innerHTML = `<a href="${encodeURI(element.src)}" target="_blank">${element.src}</a>`;
 		}
 	},
+};
+
+function isLinkFromDisk(url: string): boolean
+{
+	return url.toLowerCase().indexOf('/docs/pub/') > 0;
+}
+
+function isLogoutLink(url: string): boolean
+{
+	return url.toLowerCase().indexOf('logout=yes') > 0;
+}
+
+function hasImageFileExtension(url: string): boolean
+{
+	const [urlWithoutQueryString: string] = url.split('?');
+
+	return /\.(jpg|jpeg|png|gif|webp)$/i.test(urlWithoutQueryString);
+}
+
+function hasLeadingTextBeforeUrl(symbolBeforeUrl: string): boolean
+{
+	const AllowedSymbolsBeforeImageUrl = new Set(['>', ']', ' ']);
+
+	return Type.isStringFilled(symbolBeforeUrl) && !AllowedSymbolsBeforeImageUrl.has(symbolBeforeUrl);
+}
+
+const canPurifyLink = (symbolBeforeUrl: string, url: string): boolean => {
+	return hasImageFileExtension(url)
+		&& !isLinkFromDisk(url)
+		&& !isLogoutLink(url)
+		&& !hasLeadingTextBeforeUrl(symbolBeforeUrl);
 };

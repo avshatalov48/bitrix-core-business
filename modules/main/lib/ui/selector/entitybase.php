@@ -2,13 +2,6 @@
 
 namespace Bitrix\Main\UI\Selector;
 
-use Bitrix\Main\Event;
-use Bitrix\Main\EventResult;
-use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\ModuleManager;
-use Bitrix\Main\FinderDestTable;
-use Bitrix\Main\Loader;
-
 abstract class EntityBase
 {
 	public function getData()

@@ -190,7 +190,7 @@ class CFinder
 					</div>';
 
 		if ($bopened)
-			$html .= '<script type="text/javascript">BX.ready(function(){setTimeout(function(){BX.Finder.OpenItemFolder(BX(\'bx-finder-box-item-t3-'.$arResult['ID'].'\'))}, 100)});</script>';
+			$html .= '<script>BX.ready(function(){setTimeout(function(){BX.Finder.OpenItemFolder(BX(\'bx-finder-box-item-t3-'.$arResult['ID'].'\'))}, 100)});</script>';
 
 
 		return $html;
@@ -276,7 +276,7 @@ class CFinder
 
 		$html = '<div class="bx-finder-company-department" '.($bopened? 'id="bx-finder-company-department-'.$arResult['ID'].'"': '').'><a href="#'.$arResult['ID'].'" class="bx-finder-company-department-inner" onclick="return BX.Finder.OpenCompanyDepartment(\''.$arResult['PROVIDER'].'\', \''.$arResult['ID'].'\', this.parentNode)" hidefocus="true"><div class="bx-finder-company-department-arrow"></div><div class="bx-finder-company-department-text">'.$arResult['NAME'].'</div></a></div>';
 		if ($bopened)
-			$html .= '<script type="text/javascript">BX.ready(function(){setTimeout(function(){BX.Finder.OpenCompanyDepartment(\''.$arResult['PROVIDER'].'\', \''.$arResult['ID'].'\', BX(\'bx-finder-company-department-'.$arResult['ID'].'\'))}, 100)});</script>';
+			$html .= '<script>BX.ready(function(){setTimeout(function(){BX.Finder.OpenCompanyDepartment(\''.$arResult['PROVIDER'].'\', \''.$arResult['ID'].'\', BX(\'bx-finder-company-department-'.$arResult['ID'].'\'))}, 100)});</script>';
 
 		return $html;
 	}

@@ -227,7 +227,7 @@ $tabControl->BeginNextTab();
 		<td><?php echo GetMessage('imp_send_reg')?></td>
 		<td><input type="checkbox" name="SEND_REG_INFO" value="Y" <?php echo ($SEND_REG_INFO === 'Y') ? 'checked' : '';?>>
 <?php if ($MAIN_RIGHT < 'W'):?>
-		<script language="JavaScript">
+		<script>
 		function DisableControls(bDisable)
 		{
 			document.impform.SEND_REG_INFO.disabled=bDisable;
@@ -249,7 +249,7 @@ $tabControl->BeginNextTab();
 		?><OPTION VALUE="<?php echo $gr['ID']?>" <?php echo (in_array($gr['ID'], $USER_GROUP_ID)) ? 'SELECTED' : '';?>><?php echo htmlspecialcharsbx($gr['NAME']) . ' [' . $gr['ID'] . ']'?></OPTION><?php
 		endwhile;
 		?></SELECT>
-		<script language="JavaScript">
+		<script>
 		function DisableControls(bDisable)
 		{
 		document.impform.SEND_REG_INFO.disabled=bDisable;

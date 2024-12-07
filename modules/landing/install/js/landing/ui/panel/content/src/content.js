@@ -2,7 +2,6 @@ import 'ui.design-tokens';
 import 'ui.fonts.opensans';
 
 import {Type, Dom, Tag, Event} from 'main.core';
-import {Main} from 'landing.main';
 import {BasePanel} from 'landing.ui.panel.base';
 import getDeltaFromEvent from './internal/get-delta-from-event';
 import calculateDurationTransition from './internal/calculate-duration-transition';
@@ -309,7 +308,8 @@ export class Content extends BasePanel
 			{
 				Dom.addClass(document.body, "landing-ui-action-panels-disable-scrollbar");
 			}
-
+			Event.bind(this.layout, 'click', this.onContentClick.bind(this));
+			Event.bind(this.content, 'scroll', this.onContentScroll.bind(this));
 			void BX.Landing.Utils.Show(this.overlay);
 
 			return BX.Landing.Utils.Show(this.layout).then(() => {
@@ -320,8 +320,19 @@ export class Content extends BasePanel
 		return Promise.resolve(true);
 	}
 
+	onContentClick(event)
+	{
+		this.emit('onClick', { event });
+	}
+
+	onContentScroll(event)
+	{
+		this.emit('onScroll');
+	}
+
 	hide(): Promise<any>
 	{
+		this.emit('onHide');
 		if (this.isShown())
 		{
 			if (this.shouldAdjustActionsPanels())

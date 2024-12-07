@@ -1,6 +1,7 @@
 import { Tag, Loc } from 'main.core';
 import { Loader } from 'main.loader';
 import { BasePage } from './base-page';
+import { AppForm, EventType } from 'rest.app-form';
 
 export class InstallPage extends BasePage
 {
@@ -19,7 +20,22 @@ export class InstallPage extends BasePage
 		this.setEventNamespace('BX.Rest.EInvoiceInstaller.InstallPage');
 		this.subscribe('install-app', (event) => {
 			this.#getLoader().show();
-			event.data.install.catch(() => {
+			const installer = event.data.source;
+			event.data.install
+				.then((response) => {
+					if (!response.status)
+					{
+						return Promise.reject();
+					}
+
+					return AppForm.buildByApp(response.data.id, EventType.INSTALL);
+				})
+				.then((appForm) => {
+					this.#getLoader().hide();
+					appForm.show();
+					installer.render('selection');
+				})
+				.catch(() => {
 				this.#getLoader().hide();
 				this.#onAfterUnsuccessfulInstallApplication();
 			});

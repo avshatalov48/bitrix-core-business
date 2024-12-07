@@ -6,6 +6,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Type;
 use Bitrix\Main\UI;
 use Bitrix\Iblock;
+use Bitrix\Iblock\Integration\UI\EntitySelector\IblockPropertySectionProvider;
 
 class Section
 {
@@ -46,8 +47,8 @@ class Section
 		{
 			$config['SEARCH_SUBTITLE'] = Loc::getMessage('IBLOCK_UI_INPUT_SECTION_SELECTOR_SEARCH_SUBTITLE');
 		}
-		// TODO: replace entityId value to constant
-		$config['ENTITY_ID'] = (string)($config['ENTITY_ID'] ?? 'iblock-property-section');
+
+		$config['ENTITY_ID'] = (string)($config['ENTITY_ID'] ?? IblockPropertySectionProvider::ENTITY_ID);
 
 		$config['CHANGE_EVENTS'] ??= [];
 		if (!is_array($config['CHANGE_EVENTS']))

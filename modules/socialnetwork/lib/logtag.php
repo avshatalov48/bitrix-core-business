@@ -165,7 +165,7 @@ class LogTagTable extends Entity\DataManager
 
 		foreach($params['tags'] as $tag)
 		{
-			$lowerCaseTag = toLower($tag);
+			$lowerCaseTag = mb_strtolower($tag);
 			if (in_array($lowerCaseTag, $addedLowerCaseTagsList))
 			{
 				continue;

@@ -2,18 +2,12 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
-use Bitrix\Main;
-use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Sale\Discount\Preset\ArrayHelper;
 use Bitrix\Sale\Discount\Preset\Manager;
 use Bitrix\Sale\Discount\Preset\SelectProductPreset;
 use Bitrix\Sale\Discount\Preset\State;
 use Bitrix\Sale\Internals;
-
-
-Loc::loadMessages(__FILE__);
 
 class SimpleProduct extends SelectProductPreset
 {
@@ -52,10 +46,10 @@ class SimpleProduct extends SelectProductPreset
 
 	public function processShowInputAmount(State $state)
 	{
-		$lid = $state->get('discount_lid');
-		$currency = \CSaleLang::getLangCurrency($lid);
+		$lid = (string)$state->get('discount_lid');
+		$currency = Internals\SiteCurrencyTable::getSiteCurrency($lid);
 
-		$sectionCount = count($state->get('discount_section', array()));
+		$sectionCount = count($state->get('discount_section', []));
 
 		return '
 			<table width="100%" border="0" cellspacing="7" cellpadding="0">
@@ -75,26 +69,26 @@ class SimpleProduct extends SelectProductPreset
 			});
 			</script>
 
-			' . $this->renderElementBlock($state) . '			
-			' . $this->renderSectionBlock($state) . '			
+			' . $this->renderElementBlock($state) . '
+			' . $this->renderSectionBlock($state) . '
 		';
 	}
 
 	public function processSaveInputAmount(State $state)
 	{
-		if(!trim($state->get('discount_value')))
+		if (!trim((string)$state->get('discount_value')))
 		{
-			$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE'));
+			$this->addErrorEmptyActionValue();
 		}
 
 		$this->validateSectionsAndProductsState($state, $this->errorCollection);
 
-		if(!$this->errorCollection->isEmpty())
+		if (!$this->errorCollection->isEmpty())
 		{
-			return array($state, 'InputAmount');
+			return [$state, 'InputAmount'];
 		}
 
-		return array($state, 'CommonSettings');
+		return [$state, 'CommonSettings'];
 	}
 
 	public function processShowCommonSettings(State $state)
@@ -111,62 +105,65 @@ class SimpleProduct extends SelectProductPreset
 	{
 		$discountFields = $this->normalizeDiscountFields($discountFields);
 
-		$stateFields = array(
+		$stateFields = [
 			'discount_value' => ArrayHelper::getByPath($discountFields, 'ACTIONS.CHILDREN.0.DATA.Value'),
 			'discount_type' => ArrayHelper::getByPath($discountFields, 'ACTIONS.CHILDREN.0.DATA.Unit'),
 			'discount_section' => $this->getSectionsFromConditions(ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.0.CHILDREN')),
 			'discount_product' => $this->getProductsFromConditions(ArrayHelper::getByPath($discountFields, 'CONDITIONS.CHILDREN.0.CHILDREN')),
-		);
+		];
 
 		return parent::generateState($discountFields)->append($stateFields);
 	}
 
 	public function generateDiscount(State $state)
 	{
-		return array_merge(parent::generateDiscount($state), array(
-			'CONDITIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-					'True' => 'True',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'CondBsktProductGroup',
-						'DATA' => array(
-							'Found' => 'Found',
-							'All' => 'OR',
-						),
-						'CHILDREN' => array_merge(
-							$this->generateSectionConditions($state->get('discount_section')),
-							$this->generateProductConditions($state->get('discount_product'))
-						),
-					)
-				),
-			),
-			'ACTIONS' => array(
-				'CLASS_ID' => 'CondGroup',
-				'DATA' => array(
-					'All' => 'AND',
-				),
-				'CHILDREN' => array(
-					array(
-						'CLASS_ID' => 'ActSaleBsktGrp',
-						'DATA' => array(
-							'Type' => $this->getTypeOfDiscount(),
-							'Value' => $state->get('discount_value'),
-							'Unit' => $state->get('discount_type', 'CurAll'),
-							'Max' => 0,
-							'All' => 'OR',
-							'True' => 'True',
-						),
-						'CHILDREN' => array(
-							$this->generateSectionActions($state->get('discount_section')),
-							$this->generateProductActions($state->get('discount_product')),
-						),
-					),
-				),
-			),
-		));
+		return array_merge(
+			parent::generateDiscount($state),
+			[
+				'CONDITIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+						'True' => 'True',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'CondBsktProductGroup',
+							'DATA' => [
+								'Found' => 'Found',
+								'All' => 'OR',
+							],
+							'CHILDREN' => array_merge(
+								$this->generateSectionConditions($state->get('discount_section')),
+								$this->generateProductConditions($state->get('discount_product'))
+							),
+						]
+					],
+				],
+				'ACTIONS' => [
+					'CLASS_ID' => 'CondGroup',
+					'DATA' => [
+						'All' => 'AND',
+					],
+					'CHILDREN' => [
+						[
+							'CLASS_ID' => 'ActSaleBsktGrp',
+							'DATA' => [
+								'Type' => $this->getTypeOfDiscount(),
+								'Value' => $state->get('discount_value'),
+								'Unit' => $state->get('discount_type', 'CurAll'),
+								'Max' => 0,
+								'All' => 'OR',
+								'True' => 'True',
+							],
+							'CHILDREN' => [
+								$this->generateSectionActions($state->get('discount_section')),
+								$this->generateProductActions($state->get('discount_product')),
+							],
+						],
+					],
+				],
+			]
+		);
 	}
 }

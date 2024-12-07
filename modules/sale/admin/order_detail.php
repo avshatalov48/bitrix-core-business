@@ -10,9 +10,6 @@ $crmMode = (defined("BX_PUBLIC_MODE") && BX_PUBLIC_MODE && isset($_REQUEST["CRM_
 
 if ($crmMode)
 {
-	CUtil::DecodeUriComponent($_REQUEST);
-	CUtil::DecodeUriComponent($_POST);
-
 	echo '<link rel="stylesheet" type="text/css" href="/bitrix/themes/.default/sale.css" />';
 }
 
@@ -118,7 +115,6 @@ $bUserCanDeleteOrder = CSaleOrder::CanUserDeleteOrder($ID, $arUserGroups, $intUs
 
 if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_bitrix_sessid())
 {
-	CUtil::DecodeUriComponent($_REQUEST);
 	$type = $_REQUEST["type"];
 
 	$order = CSaleOrder::getById($ID);
@@ -239,7 +235,6 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 		if (isset($change) && $change == "Y" && $bUserCanEditOrder && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
-			CUtil::DecodeUriComponent($comment);
 			CSaleOrder::CommentsOrder($ID, $comment);
 		}
 		$arResult = array('message' => 'ok');
@@ -261,7 +256,6 @@ if (isset($_REQUEST["ORDER_AJAX"]) AND $_REQUEST["ORDER_AJAX"] == "Y" AND check_
 
 		if (isset($change) && $change == "Y" && $bUserCanEditOrder && !CSaleOrder::IsLocked($ID, $lockedBY, $dateLock))
 		{
-			CUtil::DecodeUriComponent($tracking_number);
 			CSaleOrder::Update($ID, array("TRACKING_NUMBER" => $tracking_number));
 		}
 		$arResult = array('message' => 'ok');
@@ -1172,7 +1166,7 @@ if ($bUseOldHistory)
 	foreach ($arHistoryData as $index => $arHistoryRecord)
 		$arIds[$index]  = $arHistoryRecord["ID"];
 
-	array_multisort($arData, constant("SORT_".ToUpper($order)), $arIds, constant("SORT_".ToUpper($order)), $arHistoryData);
+	array_multisort($arData, constant("SORT_".mb_strtoupper($order)), $arIds, constant("SORT_".mb_strtoupper($order)), $arHistoryData);
 }
 
 $dbRes = new CDBResult;
@@ -1587,7 +1581,7 @@ else
 										}
 										?>
 										&nbsp;<span id="change_status_err" style="display: none;"></span>
-										<script type="text/javascript">
+										<script>
 											function fChangeStatus()
 											{
 												var obStatusErr = BX('change_status_err');
@@ -1725,7 +1719,7 @@ else
 									</tr>
 								</table>
 							</div>
-							<script type="text/javascript">
+							<script>
 								function fCancelCancelOrder()
 								{
 									BX.showWait();
@@ -2265,7 +2259,7 @@ else
 									</tr>
 								</table>
 							</div>
-							<script type="text/javascript">
+							<script>
 								function fChangeOrderStatus()
 								{
 									BX('change_status').value='Y';
@@ -2547,7 +2541,7 @@ else
 							?>
 							<input type="hidden" name="change_tracking_number" id="id_change_tracking_number_hidden" value="N">
 
-							<script type="text/javascript">
+							<script>
 								function fChangeTrackingNumber(el)
 								{
 									BX(el).style.display = 'none';
@@ -2672,7 +2666,7 @@ else
 						endforeach;
 					endif;
 					?>
-					<script type="text/javascript">
+					<script>
 						function fToggleDeliveryInfo()
 						{
 							var elements = document.getElementsByClassName('hidden-delivery-info');
@@ -2827,7 +2821,7 @@ else
 									</tr>
 								</table>
 							</div>
-							<script type="text/javascript">
+							<script>
 								function fPayChangeOrderStatus()
 								{
 									BX('change_status').value='Y';
@@ -3191,7 +3185,7 @@ else
 								</table>
 							</div>
 
-							<script type="text/javascript">
+							<script>
 								function fCancelMarkOrder()
 								{
 									BX.showWait();
@@ -3338,7 +3332,7 @@ else
 						?>
 						<input type="hidden" name="change_comments" id="id_change_comments_hidden" value="N">
 
-						<script type="text/javascript">
+						<script>
 							function fShowComment(el)
 							{
 								BX(el).style.display = 'none';
@@ -3435,7 +3429,7 @@ else
 									</tr>
 								</table>
 							</div>
-							<script type="text/javascript">
+							<script>
 								function fUndoDeductOrderResult(res)
 								{
 									BX.closeWait();
@@ -3548,7 +3542,7 @@ else
 						<table  id="BASKET_TABLE" cellpadding="3" cellspacing="1" border="0" width="100%" class="internal">
 
 						<tr class="heading">
-							<?=getColumnsHeaders($arUserColumns, "detail", false);?>
+							<? getColumnsHeaders($arUserColumns, "detail", false); ?>
 						</tr>
 						<?
 						$bXmlId = COption::GetOptionString("sale", "show_order_product_xml_id", "N");
@@ -3862,7 +3856,7 @@ else
 						</table>
 					</td>
 				</tr>
-				<script type="text/javascript">
+				<script>
 					function fToggleSetItems(setParentId)
 					{
 						var elements = document.getElementsByClassName('set_item_' + setParentId);
@@ -4040,7 +4034,7 @@ else
 									?>
 									</div>
 								</div>
-								<script type="text/javascript">
+								<script>
 								function fTabsSelect(tabText, el)
 								{
 									BX('tab_1').className = "tabs";
@@ -4121,7 +4115,7 @@ else
 						</tr>
 						</table>
 
-						<script type="text/javascript">
+						<script>
 								/*
 								* click on recommendet More
 								*/
@@ -4334,7 +4328,7 @@ else
 	<input type="hidden" value="" name="popup-params-product" id="popup-params-product" >
 </div>
 
-	<script type="text/javascript">
+	<script>
 			var wind = new BX.PopupWindow('popup_sku', this, {
 				offsetTop : 10,
 				offsetLeft : 0,

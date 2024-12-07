@@ -12,15 +12,28 @@ export class Loc extends MainLoc
 {
 	static getMessage(key: string): string
 	{
-		const pageType = (() => {
+		const types = (() => {
 			const type = Env.getInstance().getType();
-			return pageTypeAlias[type] || type;
+			const specialType = Env.getInstance().getSpecialType() || '';
+
+			return {
+				type: pageTypeAlias[type] || type,
+				specialType: specialType.toUpperCase(),
+			};
 		})();
 
-		if (pageType)
+		if (types)
 		{
-			const typedMessageKey = `${key}__${pageType}`;
+			if (types.specialType.length > 0)
+			{
+				const specialTypeMessageKey = `${key}__${types.specialType}`;
+				if (Type.isString(BX.message[specialTypeMessageKey]))
+				{
+					return MainLoc.getMessage(specialTypeMessageKey);
+				}
+			}
 
+			const typedMessageKey = `${key}__${types.type}`;
 			if (Type.isString(BX.message[typedMessageKey]))
 			{
 				return MainLoc.getMessage(typedMessageKey);

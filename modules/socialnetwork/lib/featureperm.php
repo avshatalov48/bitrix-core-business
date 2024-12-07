@@ -27,11 +27,20 @@ use Bitrix\Main\Entity;
  */
 class FeaturePermTable extends Entity\DataManager
 {
-	const PERM_OWNER = SONET_ROLES_OWNER;
-	const PERM_MODERATOR = SONET_ROLES_MODERATOR;
-	const PERM_USER = SONET_ROLES_USER;
-	const PERM_AUTHORIZED = SONET_ROLES_AUTHORIZED;
-	const PERM_ALL = SONET_ROLES_ALL;
+	/** @see SONET_ROLES_OWNER */
+	public const PERM_OWNER = 'A';
+
+	/** @see SONET_ROLES_MODERATOR */
+	public const PERM_MODERATOR = 'E';
+
+	/** @see SONET_ROLES_USER */
+	public const PERM_USER = 'K';
+
+	/** @see SONET_ROLES_AUTHORIZED */
+	public const PERM_AUTHORIZED = 'L';
+
+	/** @see SONET_ROLES_ALL */
+	public const PERM_ALL = 'N';
 
 	public static function getTableName()
 	{

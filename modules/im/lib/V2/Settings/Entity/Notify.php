@@ -23,6 +23,11 @@ class Notify extends BaseSettings
 		$result = [];
 		foreach ($this->settings as $moduleId => $moduleConfig)
 		{
+			if (!isset($notifyNames[$moduleId]))
+			{
+				continue;
+			}
+
 			$newModuleConfig = [
 				'id' => $moduleId,
 				'label' => $notifyNames[$moduleId]['NAME'],

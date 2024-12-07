@@ -230,7 +230,7 @@ $formParams = [
 
 			window.SLEC = {
 				form : BX('<?=$formParams["FORM_ID"]?>'),
-				actionUrl : '/bitrix/urlrewrite.php?SEF_APPLICATION_CUR_PAGE_URL=<?=str_replace("%23", "#", urlencode(($arResult["urlToPost"] ?? '')))?>',
+				actionUrl : '<?= CUtil::JSEscape($arResult["urlToPost"] ?? '') ?>',
 				editorId : '<?=$formParams["LHE"]["id"]?>',
 				jsMPFName : 'PlEditor<?=$formParams["FORM_ID"]?>',
 				formKey : 'f<?=$formParams["FORM_ID"]?>'

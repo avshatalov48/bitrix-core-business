@@ -1,21 +1,23 @@
-import { BitrixVue } from 'ui.vue3';
-
 import { ChatDialog } from 'im.v2.component.dialog.chat';
 
 import { CopilotMessageList } from './message-list';
 
-import '../css/dialog.css';
-
-import type { BitrixVueComponentProps } from 'ui.vue3';
-
 // @vue/component
-export const CopilotDialog = BitrixVue.cloneComponent(ChatDialog, {
+export const CopilotDialog = {
 	name: 'CopilotDialog',
-	computed:
+	components: { ChatDialog, CopilotMessageList },
+	props:
 	{
-		messageListComponent(): BitrixVueComponentProps
-		{
-			return CopilotMessageList;
+		dialogId: {
+			type: String,
+			required: true,
 		},
 	},
-});
+	template: `
+		<ChatDialog :dialogId="dialogId">
+			<template #message-list>
+				<CopilotMessageList :dialogId="dialogId" />
+			</template>
+		</ChatDialog>	
+	`,
+};

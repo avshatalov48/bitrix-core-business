@@ -20,6 +20,17 @@ if(
 	;
 }
 
+$availableDisplays = [
+	ElementType::DISPLAY_CHECKBOX,
+	ElementType::DISPLAY_LIST,
+	ElementType::DISPLAY_UI,
+];
+
+if (!in_array($arResult['userField']['SETTINGS']['DISPLAY'], $availableDisplays, true))
+{
+	$arResult['userField']['SETTINGS']['DISPLAY'] = ElementType::DISPLAY_UI;
+}
+
 if ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 {
 	CJSCore::Init('ui');
@@ -49,8 +60,7 @@ if ($arResult['userField']['SETTINGS']['DISPLAY'] === ElementType::DISPLAY_UI)
 
 		if(
 			($arResult['userField']['ENTITY_VALUE_ID'] <= 0 && $item['DEF'] === 'Y')
-			||
-			in_array((string)$item['ID'], $arResult['value'], true)
+			|| in_array($item['ID'], $arResult['value'])
 		)
 		{
 			$startValue[] = $element;

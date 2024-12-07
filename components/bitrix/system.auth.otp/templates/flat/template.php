@@ -30,7 +30,7 @@ $APPLICATION->SetAdditionalCSS("/bitrix/css/main/system.auth/flat/style.css");
 <div class="bx-authform">
 
 <?
-if(!empty($arParams["~AUTH_RESULT"])):
+if(!empty($arParams["~AUTH_RESULT"]["MESSAGE"])):
 	$text = str_replace(array("<br>", "<br />"), "\n", $arParams["~AUTH_RESULT"]["MESSAGE"]);
 ?>
 	<div class="alert <?=($arParams["~AUTH_RESULT"]["TYPE"] == "OK"? "alert-success":"alert-danger")?>"><?=nl2br(htmlspecialcharsbx($text))?></div>
@@ -87,7 +87,7 @@ if(!empty($arParams["~AUTH_RESULT"])):
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 try{document.form_auth.USER_OTP.focus();}catch(e){}
 </script>
 <?endif;?>

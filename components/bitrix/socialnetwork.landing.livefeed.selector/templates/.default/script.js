@@ -46,6 +46,8 @@
 				this.urlToGroupCreate = settings.urlToGroupCreate;
 			}
 
+			this.isProjectFeatureEnabled = settings.isProjectFeatureEnabled === true;
+
 			BX.addCustomEvent("BX.Main.Filter:beforeApply", function(eventFilterId, values, ob, filterPromise) {
 				if (eventFilterId != this.id)
 				{
@@ -148,7 +150,19 @@
 			if (BX('slls_group_create'))
 			{
 				BX.bind(BX('slls_group_create'), 'click', function() {
-					BX.SidePanel.Instance.open(this.urlToGroupCreate);
+					if (this.isProjectFeatureEnabled)
+					{
+						BX.SidePanel.Instance.open(this.urlToGroupCreate);
+					}
+					else
+					{
+						top.BX.Runtime.loadExtension('socialnetwork.limit').then((exports) => {
+							const { Limit } = exports;
+							Limit.showInstance({
+								featureId: 'socialnetwork_projects_groups',
+							});
+						});
+					}
 				}.bind(this));
 			}
 		},

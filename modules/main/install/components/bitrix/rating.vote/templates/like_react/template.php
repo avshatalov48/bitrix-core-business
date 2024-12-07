@@ -82,7 +82,7 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/
 	{
 		foreach($arParams['TOP_DATA'] as $userData)
 		{
-			if ($userData['ID'] == $USER->getId())
+			if ($userData['ID'] == $USER?->getId())
 			{
 				$topCount--;
 			}
@@ -141,7 +141,7 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/
 				{
 					$userList[] = array(
 						'ID' => (int)$userData['ID'],
-						'NAME_FORMATTED' => ((int)$userData['ID'] === (int)$USER->getId() ? Loc::getMessage('RATING_LIKE_TOP_TEXT3_YOU') : $userData['NAME_FORMATTED']),
+						'NAME_FORMATTED' => ((int)$userData['ID'] === (int)$USER?->getId() ? Loc::getMessage('RATING_LIKE_TOP_TEXT3_YOU') : $userData['NAME_FORMATTED']),
 						'WEIGHT' => (float)$userData['WEIGHT']
 					);
 					continue;
@@ -202,7 +202,7 @@ $APPLICATION->SetAdditionalCSS('/bitrix/components/bitrix/rating.vote/templates/
 
 				foreach($arParams['TOP_DATA'] as $userData)
 				{
-					if ((int)$userData['ID'] === (int)$USER->getId())
+					if ((int)$userData['ID'] === (int)$USER?->getId())
 					{
 						$youInTop = true;
 						continue;
@@ -293,7 +293,7 @@ if ($arResult['AJAX_MODE'] === 'Y')
 			entityTypeId: '<?= CUtil::JSEscape($arResult['ENTITY_TYPE_ID']) ?>',
 			entityId: '<?= (int) $arResult['ENTITY_ID'] ?>',
 			available: '<?= CUtil::JSEscape($arResult['VOTE_AVAILABLE']) ?>',
-			userId: '<?= $USER->GetId() ?>',
+			userId: '<?= (int)$USER?->GetId() ?>',
 			localize: {
 				'LIKE_Y': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',
 				'LIKE_N': '<?= htmlspecialcharsBx(CUtil::JSEscape($arResult['RATING_TEXT_LIKE_Y'])) ?>',

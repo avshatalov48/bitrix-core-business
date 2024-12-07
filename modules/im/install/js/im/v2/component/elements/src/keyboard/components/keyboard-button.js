@@ -1,7 +1,7 @@
 import { Text } from 'main.core';
 
 import { Logger } from 'im.v2.lib.logger';
-import { KeyboardButtonDisplay } from 'im.v2.const';
+import { KeyboardButtonDisplay, ColorToken } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
 
 import type { JsonObject } from 'main.core';
@@ -34,37 +34,28 @@ export const KeyboardButton = {
 		},
 		buttonClasses(): string[]
 		{
-			const displayClass = this.button.display === KeyboardButtonDisplay.block ? '--block' : '--line';
-			const classes = [displayClass];
-			if (this.keyboardBlocked || this.button.disabled)
+			const { bgColorToken = ColorToken.base, display, disabled, wait } = this.button;
+			const displayClass = display === KeyboardButtonDisplay.block ? '--block' : '--line';
+			const classes = [displayClass, bgColorToken];
+			if (this.keyboardBlocked || disabled)
 			{
 				classes.push('--disabled');
 			}
 
-			if (this.button.wait)
+			if (wait)
 			{
 				classes.push('--loading');
 			}
 
 			return classes;
 		},
-		buttonStyles(): { width?: string, backgroundColor?: string, color?: string }
+		buttonStyles(): { width?: string, backgroundColor?: string }
 		{
 			const styles = {};
-			const { width, bgColor, textColor } = this.button;
+			const { width } = this.button;
 			if (width)
 			{
 				styles.width = `${width}px`;
-			}
-
-			if (bgColor)
-			{
-				styles.backgroundColor = bgColor;
-			}
-
-			if (textColor)
-			{
-				styles.color = textColor;
 			}
 
 			return styles;

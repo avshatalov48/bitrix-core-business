@@ -38,6 +38,15 @@ export const ReactionItem = {
 			type: Boolean,
 			required: true,
 		},
+		showAvatars: {
+			type: Boolean,
+			required: false,
+			default: true,
+		},
+		contextDialogId: {
+			type: String,
+			required: true,
+		},
 	},
 	emits: ['click'],
 	data(): Object
@@ -50,6 +59,10 @@ export const ReactionItem = {
 	{
 		showUsers(): boolean
 		{
+			if (!this.showAvatars)
+			{
+				return false;
+			}
 			const userLimitIsNotReached = this.counter <= USERS_TO_SHOW;
 			const weHaveUsersData = this.counter === this.users.length;
 
@@ -120,7 +133,12 @@ export const ReactionItem = {
 			<div class="bx-im-reaction-list__item_icon" :class="reactionClass" ref="reactionIcon"></div>
 			<div v-if="showUsers" class="bx-im-reaction-list__user_container" ref="users">
 				<TransitionGroup name="bx-im-reaction-list__user_animation">
-					<ReactionUser v-for="user in preparedUsers" :key="user" :userId="user" />
+					<ReactionUser 
+						v-for="user in preparedUsers" 
+						:key="user" 
+						:userId="user"
+						:contextDialogId="contextDialogId"
+					/>
 				</TransitionGroup>
 			</div>
 			<div v-else class="bx-im-reaction-list__item_counter" ref="counter">{{ counter }}</div>
@@ -128,6 +146,7 @@ export const ReactionItem = {
 				:show="showAdditionalUsers"
 				:bindElement="$refs['users'] || $refs['counter'] || {}"
 				:messageId="messageId"
+				:contextDialogId="contextDialogId"
 				:reaction="type"
 				@close="showAdditionalUsers = false"
 			/>

@@ -451,7 +451,7 @@ class CSocNetSearchReindex extends CSocNetSearch
 				}
 
 				if(isset($CWikiParser))
-					$title = preg_replace('/^category:/i'.BX_UTF_PCRE_MODIFIER, GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
+					$title = preg_replace('/^category:/iu', GetMessage('CATEGORY_NAME').':', $arFields['NAME']);
 				else
 					$title = $arFields["NAME"];
 

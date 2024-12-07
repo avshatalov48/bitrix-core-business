@@ -1,8 +1,6 @@
 <?php
 namespace Bitrix\Main\Composite\Data;
 
-use Bitrix\Main;
-
 /**
  * Class AbstractStorage
  * Represents the interface for a cache storage

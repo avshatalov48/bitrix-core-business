@@ -1,14 +1,11 @@
 <?php
 namespace Bitrix\MessageService\Sender\Sms;
 
-use Bitrix\Main\Application;
 use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
-use Bitrix\Main\Result;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
-use Bitrix\Main\Loader;
 
 use Bitrix\MessageService\Sender;
 use Bitrix\MessageService\Sender\Result\MessageStatus;
@@ -341,8 +338,6 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 		$httpClient->setHeader('User-Agent', 'Bitrix24');
 		$httpClient->setCharset('UTF-8');
 
-		$isUtf = Application::getInstance()->isUtfMode();
-
 		if (!isset($params['user']))
 		{
 			$params['user'] = $this->getOption('user');
@@ -353,11 +348,6 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 			$params['password'] = $this->getOption('password');
 		}
 
-		if (!$isUtf)
-		{
-			$params = \Bitrix\Main\Text\Encoding::convertEncoding($params, SITE_CHARSET, 'UTF-8');
-		}
-
 		$result = new Sender\Result\HttpRequestResult();
 		$result->setHttpRequest(new MessageService\DTO\Request([
 			'method' => HttpClient::HTTP_POST,
@@ -365,7 +355,7 @@ class SmsAssistentBy extends Sender\BaseConfigurable
 			'headers' => method_exists($httpClient, 'getRequestHeaders') ? $httpClient->getRequestHeaders()->toArray() : [],
 			'body' => $params,
 		]));
-		$answer = [];
+		$answer = 0;
 
 		if ($httpClient->query(HttpClient::HTTP_POST, $url, $params) && $httpClient->getStatus() == '200')
 		{

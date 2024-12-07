@@ -1,6 +1,8 @@
 import { EventEmitter } from 'main.core.events';
 
-import { UserRole, ChatType } from 'im.v2.const';
+import { LayoutManager } from 'im.v2.lib.layout';
+
+import { UserRole, ChatType, Layout } from 'im.v2.const';
 
 const EVENT_NAMESPACE = 'BX.Messenger.v2.CreateChatManager';
 
@@ -54,6 +56,19 @@ export class CreateChatManager extends EventEmitter
 	{
 		super(props);
 		this.setEventNamespace(EVENT_NAMESPACE);
+	}
+
+	startChatCreation(chatTypeToCreate: ChatTypeItem, params: { clearCurrentCreation: boolean } = {})
+	{
+		const { clearCurrentCreation = true } = params;
+		if (clearCurrentCreation)
+		{
+			this.setCreationStatus(false);
+		}
+		void LayoutManager.getInstance().setLayout({
+			name: Layout.createChat.name,
+			entityId: chatTypeToCreate,
+		});
 	}
 
 	isCreating(): boolean

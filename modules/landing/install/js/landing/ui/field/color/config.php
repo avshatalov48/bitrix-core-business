@@ -9,6 +9,7 @@ return [
 	'js' => 'dist/color_field.bundle.js',
 	'rel' => [
 		'landing.ui.field.basefield',
+		'landing.ui.field.textfield',
 		'main.popup',
 		'ui.fonts.opensans',
 		'ui.design-tokens',

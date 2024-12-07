@@ -2,9 +2,10 @@ import { Type, Reflection, Event, Runtime } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 import { OrderedArray } from 'main.core.collections';
 import { ZIndexManager } from 'main.core.z-index-manager';
+import { type PopupManager } from 'main.popup';
 
 import LaunchItem from './launch-item';
-import type { LaunchItemCallback, LaunchItemOptions } from './launch-item-options';
+import type { LaunchItemCallback, LaunchItemContext, LaunchItemOptions } from './launch-item-options';
 
 export const LauncherState = {
 	IDLE: 'idle',
@@ -34,9 +35,19 @@ export default class Launcher
 		this.#startDebounced = Runtime.debounce(this.#start, 1000, this);
 	}
 
-	static canShowOnTop(): boolean
+	static canShowOnTop(context: LaunchItemContext = {}): boolean
 	{
-		const popupManager = Reflection.getClass('BX.Main.PopupManager');
+		return (
+			!this.#hasOpenPopup()
+			&& !this.#hasOpenSlider(context)
+			&& !this.#hasOverlayDialog()
+			&& !this.#hasOpenViewer()
+		);
+	}
+
+	static #hasOpenPopup(): boolean
+	{
+		const popupManager: Class<PopupManager> = Reflection.getClass('BX.Main.PopupManager');
 		if (popupManager)
 		{
 			const popups = popupManager.getPopups();
@@ -53,34 +64,56 @@ export default class Launcher
 					|| BX.Dom.hasClass(popup.getPopupContainer(), 'b24-whatsnew__popup')
 				)
 				{
-					return false;
+					return true;
 				}
 			}
 		}
 
-		const viewer = Reflection.getClass('BX.UI.Viewer.Instance');
-		if (viewer && viewer.isOpen())
+		return false;
+	}
+
+	static #hasOpenSlider(context: LaunchItemContext): boolean
+	{
+		const sidePanel: BX.SidePanel.Manager = Reflection.getClass('BX.SidePanel.Instance');
+		if (sidePanel)
 		{
-			return false;
+			const topSlider = sidePanel.getTopSlider();
+			if (topSlider === null || topSlider === context.slider || topSlider.getUrl() === context.sliderId)
+			{
+				return false;
+			}
+
+			const isIframe: boolean = window !== window.top;
+			const isInsideTopSlider: boolean = isIframe && sidePanel.getTopSlider()?.getWindow() === window;
+			if (!isInsideTopSlider && sidePanel.getOpenSlidersCount() > 0)
+			{
+				return true;
+			}
 		}
 
-		const sidePanel = Reflection.getClass('BX.SidePanel.Instance');
-		if (sidePanel && sidePanel.getOpenSlidersCount() > 0)
-		{
-			return false;
-		}
+		return false;
+	}
 
+	static #hasOverlayDialog(): boolean
+	{
 		const stack = ZIndexManager.getStack(document.body);
 		const components = stack === null ? [] : stack.getComponents();
 		for (const component of components)
 		{
 			if (component.getOverlay() !== null && component.getOverlay().offsetWidth > 0)
 			{
-				return false;
+				return true;
 			}
 		}
 
-		return true;
+		return false;
+	}
+
+	static #hasOpenViewer(): boolean
+	{
+		const viewer = Reflection.getClass('BX.UI.Viewer.Instance');
+
+		return viewer !== null && viewer.isOpen();
 	}
 
 	register(callback: LaunchItemCallback, options: LaunchItemOptions = {})
@@ -190,10 +223,10 @@ export default class Launcher
 		{
 			this.#tryDequeue();
 		}
-		else if (this.constructor.canShowOnTop() || this.#currentItem.canShowOnTop())
+		else if (this.constructor.canShowOnTop(this.#currentItem.getContext()) || this.#currentItem.canShowOnTop())
 		{
 			this.#launchTimeoutId = setTimeout(() => {
-				if (this.constructor.canShowOnTop() || this.#currentItem.canShowOnTop())
+				if (this.constructor.canShowOnTop(this.#currentItem.getContext()) || this.#currentItem.canShowOnTop())
 				{
 					this.#launchCount++;
 					this.#currentItem.launch(() => {

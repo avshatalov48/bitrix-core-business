@@ -123,3 +123,24 @@
 .landing-ui-form-header-checkbox-help:hover::before {
 	opacity: 1;
 }
+
+.landing-ui-form-description-blue-hint {
+	cursor: default;
+	padding: 12px 10px;
+	background: #D7F4FD;
+	border-radius: 4px;
+	color: #777;
+	align-items: center;
+}
+
+.landing-ui-form-description-blue-hint a {
+	cursor: pointer;
+	color: #2B61A1 !important;
+	border-bottom: 1px #2B61A1 solid;
+	opacity: 1;
+}
+.landing-ui-form-description-blue-hint a:hover {
+	color: #4F83BF !important;
+	border-bottom: 1px #4F83BF solid;
+	opacity: 1 !important;
+}

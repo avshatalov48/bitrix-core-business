@@ -476,7 +476,7 @@ class CAllSaleTax
 			"	TIMESTAMP_X = ".$DB->GetNowFunction().", ".
 			"	".$strUpdate." ".
 			"WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -505,7 +505,7 @@ class CAllSaleTax
 			"SELECT ID, LID, NAME, CODE, DESCRIPTION, ".$DB->DateToCharFunction("TIMESTAMP_X", "FULL")." as TIMESTAMP_X ".
 			"FROM b_sale_tax ".
 			"WHERE ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -543,7 +543,7 @@ class CAllSaleTax
 			else
 				$bInvert = false;
 
-			switch (ToUpper($key))
+			switch (mb_strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "T.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -574,8 +574,8 @@ class CAllSaleTax
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC")
 				$order = "DESC";
 
@@ -602,7 +602,7 @@ class CAllSaleTax
 			$strSqlOrder .= $arSqlOrder[$i];
 		}
 		$strSql .= $strSqlOrder;
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -643,7 +643,7 @@ class CAllSaleTax
 			{
 				$val = $vals[$j];
 
-				switch (ToUpper($key))
+				switch (mb_strtoupper($key))
 				{
 					case "GROUP_ID":
 						$arSqlSearch_tmp[] = "TE2G.GROUP_ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -681,7 +681,7 @@ class CAllSaleTax
 			"WHERE 1 = 1 ".
 			"	".$strSqlSearch." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -698,7 +698,7 @@ class CAllSaleTax
 		$strSql =
 			"INSERT INTO b_sale_tax_exempt2group(GROUP_ID, TAX_ID) ".
 			"VALUES(".$arFields["GROUP_ID"].", ".$arFields["TAX_ID"].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return True;
 	}

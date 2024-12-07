@@ -8,6 +8,11 @@ body {
 	height: 100%;
 }
 
+#main-mail-unsubscribe-container
+{
+	min-height: calc(100vh - 16px);
+}
+
 .main-mail-unsubscribe-main {
 	margin: 0 auto;
 	padding: 20px;

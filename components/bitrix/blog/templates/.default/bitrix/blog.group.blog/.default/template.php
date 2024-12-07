@@ -18,7 +18,7 @@ if($arResult["FATAL_ERROR"] <> '')
 }
 else
 {
-	if(is_array($arResult["BLOG"]) && count($arResult["BLOG"])>0)
+	if (is_array($arResult['BLOG']) && !empty($arResult['BLOG']))
 	{
 		foreach($arResult["BLOG"] as $arBlog)
 		{

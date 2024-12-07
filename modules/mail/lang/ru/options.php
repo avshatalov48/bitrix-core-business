@@ -5,6 +5,7 @@ $MESS ['MAIL_OPTIONS_TIMEOUT'] = "Таймаут соединения:";
 $MESS ['MAIL_OPTIONS_CHECKSPAM'] = "Проверять сообщения на спам при получении почты:";
 $MESS ['MAIL_OPTIONS_LOG_SAVE'] = "Хранить журнал работы (дней):";
 $MESS ['MAIL_OPTIONS_SYNC_OLD_LIMIT'] = "Срок хранения писем в днях (0 - без ограничений):";
+$MESS ['MAIL_SYNC_OLD_LIMIT_POSTGRESQL'] = "На установках с БД PostgreSQL сообщения не удаляются";
 $MESS ['MAIL_OPTIONS_SAVE'] = "Сохранить";
 $MESS ['MAIL_OPTIONS_RESET'] = "Отменить";
 $MESS ['MAIN_TAB_SMTP'] = "SMTP-сервер";

@@ -8,7 +8,7 @@
 
 		<div class="landing-block-node-card-container">
 			<div class="landing-block-node-card row g-mb-50 js-countdown u-countdown"
-				data-end-date="1712938800000"
+				data-end-date="1744474800000"
 				data-days-format="%D"
 				data-hours-format="%H"
 				data-minutes-format="%M"

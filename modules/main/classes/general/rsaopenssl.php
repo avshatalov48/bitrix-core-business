@@ -100,7 +100,7 @@ class CRsaOpensslProvider extends CRsaProvider
 	
 		if(!empty($bodyItems))
 		{
-			if(is_object($bodyItems[1]) && is_object($bodyItems[2]) && is_object($bodyItems[3]))
+			if(is_object($bodyItems[1]) && is_object($bodyItems[2]) && is_object($bodyItems[3] ?? null))
 			{
 				$n = $bodyItems[1]->GetValue();
 				$e = $bodyItems[2]->GetValue();

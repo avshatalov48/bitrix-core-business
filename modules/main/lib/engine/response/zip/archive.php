@@ -2,7 +2,6 @@
 namespace Bitrix\Main\Engine\Response\Zip;
 
 use Bitrix\Main\HttpResponse;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Web\Uri;
 
 class Archive extends HttpResponse
@@ -51,11 +50,7 @@ class Archive extends HttpResponse
 	private function convertEntryInterfaceToString(EntryInterface $entry): string
 	{
 		$crc32 = ($entry->getCrc32() !== '') ? $entry->getCrc32() : '-';
-		$name = Encoding::convertEncoding(
-			$entry->getPath(),
-			LANG_CHARSET,
-			'UTF-8'
-		);
+		$name = $entry->getPath();
 
 		return "{$crc32} {$entry->getSize()} {$entry->getServerRelativeUrl()} {$name}";
 	}

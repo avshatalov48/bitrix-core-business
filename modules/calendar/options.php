@@ -39,7 +39,7 @@ if (CModule::IncludeModule("forum"))
 		$arForums[$ar["ID"]] = "[".$ar["ID"]."] ".$ar["NAME"];
 }
 
-if ($REQUEST_METHOD == "POST" && isset($_REQUEST['save_type']) && $_REQUEST['save_type'] == 'Y' && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD'] == "POST" && isset($_REQUEST['save_type']) && $_REQUEST['save_type'] == 'Y' && check_bitrix_sessid())
 {
 	//CUtil::JSPostUnEscape();
 	$APPLICATION->RestartBuffer();
@@ -77,7 +77,7 @@ if ($REQUEST_METHOD == "POST" && isset($_REQUEST['save_type']) && $_REQUEST['sav
 	die();
 }
 
-if($REQUEST_METHOD=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
+if($_SERVER['REQUEST_METHOD']=="POST" && $Update.$Apply.$RestoreDefaults <> '' && check_bitrix_sessid())
 {
 	if($RestoreDefaults <> '')
 	{
@@ -518,7 +518,7 @@ $GLOBALS['APPLICATION']->AddHeadScript("/bitrix/js/calendar/cal-controlls.js");
 			$arXML_ID[$type['XML_ID']] = true;
 		?>
 			<tr><td>
-			<?= OutputTypeHtml($type)?>
+			<? OutputTypeHtml($type) ?>
 			</td></tr>
 		<?endfor;?>
 	</table>

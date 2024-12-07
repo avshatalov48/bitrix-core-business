@@ -1,5 +1,3 @@
-import { Color } from 'im.v2.const';
-
 import { AttachRichItem } from './rich-item';
 
 import './rich.css';
@@ -14,10 +12,6 @@ export const AttachRich = {
 		config: {
 			type: Object,
 			default: () => {},
-		},
-		color: {
-			type: String,
-			default: Color.transparent,
 		},
 		attachId: {
 			type: String,
@@ -35,8 +29,7 @@ export const AttachRich = {
 		<div class="bx-im-attach-rich__container">
 			<AttachRichItem 
 				v-for="(rich, index) in internalConfig.richLink" 
-				:config="rich" 
-				:color="color" 
+				:config="rich"
 				:key="index" 
 				:attachId="attachId" 
 			/>

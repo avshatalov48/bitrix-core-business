@@ -15,22 +15,37 @@ class CSocNetMessages extends CAllSocNetMessages
 		{
 			if ($arFields["MESSAGE_TYPE"] == SONET_MESSAGE_SYSTEM)
 			{
+				// TODO: complex notification logic for API use
 				$ID = CIMNotify::Add($arFields);
 				return $ID;
 			}
+
+			CIMMessenger::SpeedFileDelete($arFields['TO_USER_ID'], IM_SPEED_MESSAGE);
+		}
+
+		if (isset($arFields['MESSAGE']) && is_callable($arFields['MESSAGE']))
+		{
+			if ($arFields['MESSAGE'] instanceof \Closure)
+			{
+				$arFields['MESSAGE'] = $arFields['MESSAGE'](null);
+			}
 			else
 			{
-				CIMMessenger::SpeedFileDelete($arFields['TO_USER_ID'], IM_SPEED_MESSAGE);
+				$arFields['MESSAGE'] = '';
 			}
 		}
 
 		if (defined("INTASK_SKIP_SOCNET_MESSAGES1") && INTASK_SKIP_SOCNET_MESSAGES1)
+		{
 			$arFields["=DATE_VIEW"] = $DB->CurrentTimeFunction();
+		}
 
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
 		if (!CSocNetMessages::CheckFields("ADD", $arFields))
+		{
 			return false;
+		}
 
 		$db_events = GetModuleEvents("socialnetwork", "OnBeforeSocNetMessagesAdd");
 		while ($arEvent = $db_events->Fetch())
@@ -46,7 +61,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			$strSql =
 				"INSERT INTO b_sonet_messages(".$arInsert[0].") ".
 				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$ID = intval($DB->LastID());
 
@@ -90,7 +105,7 @@ class CSocNetMessages extends CAllSocNetMessages
 				"UPDATE b_sonet_messages SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$events = GetModuleEvents("socialnetwork", "OnSocNetMessagesUpdate");
 			while ($arEvent = $events->Fetch())
@@ -193,7 +208,7 @@ class CSocNetMessages extends CAllSocNetMessages
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -225,7 +240,7 @@ class CSocNetMessages extends CAllSocNetMessages
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -234,7 +249,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -251,7 +266,7 @@ class CSocNetMessages extends CAllSocNetMessages
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -288,7 +303,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			"	AND FROM_DELETED = 'N' ) ".
 			"	AND MESSAGE_TYPE = 'P' ";
 
-		$dbResult = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbResult = $DB->Query($strSql);
 
 		if ($arResult = $dbResult->Fetch())
 		{
@@ -389,7 +404,7 @@ class CSocNetMessages extends CAllSocNetMessages
 				"	AND (IS_LOG IS NULL OR NOT IS_LOG = 'Y') ".
 				(($date !== false || $replyMessId > 0) ? " AND M.MESSAGE_TYPE = 'P' " : "");
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arRes = $dbRes->Fetch())
 			{
@@ -407,7 +422,7 @@ class CSocNetMessages extends CAllSocNetMessages
 				$strSql .= "LIMIT " . (int)$arNavStartParams["nTopCount"];
 			}
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -464,7 +479,7 @@ class CSocNetMessages extends CAllSocNetMessages
 					"AND FROM_USER_ID = ".$userID." ".
 					"AND FROM_DELETED = 'N'";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($dbRes)
 				$cnt = $dbRes->SelectedRowsCount();
@@ -477,7 +492,7 @@ class CSocNetMessages extends CAllSocNetMessages
 			if (is_array($arNavStartParams) && intval($arNavStartParams["nTopCount"]) > 0)
 				$strSql .= "LIMIT ".intval($arNavStartParams["nTopCount"]);
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

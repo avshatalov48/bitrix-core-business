@@ -24,7 +24,7 @@ Extension::load('ui.fonts.opensans');
 	<?= getWrapperMenu($arResult['ITEMS']);?>
 </div>
 
-<script type="text/javascript">
+<script>
     BX.message({
         UI_SIDEPANEL_MENU_BUTTON_OPEN: '<?=GetMessageJS("UI_SIDEPANEL_MENU_BUTTON_OPEN")?>',
         UI_SIDEPANEL_MENU_BUTTON_CLOSE: '<?=GetMessageJS("UI_SIDEPANEL_MENU_BUTTON_CLOSE")?>',

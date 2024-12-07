@@ -5,6 +5,7 @@ namespace Bitrix\Main\Page;
 use Bitrix\Main;
 use Bitrix\Main\IO;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Web\Json;
 
 class Asset
 {
@@ -967,7 +968,7 @@ class Asset
 		}
 
 		$url = trim(stripslashes($url), "'\" \r\n\t");
-		if (mb_substr($url, 0, 1) == "/")
+		if (str_starts_with($url, "/"))
 		{
 			return $quote.$url.$quote;
 		}
@@ -1816,7 +1817,7 @@ class Asset
 
 			if (!empty($assets))
 			{
-				$res .= '<script>BX.setJSList('.\CUtil::phpToJSObject($assets).');</script>';
+				$res .= '<script>BX.setJSList(' . Json::encode($assets) . ');</script>';
 				$res .= "\n";
 			}
 		}
@@ -1837,7 +1838,7 @@ class Asset
 
 			if (!empty($assets))
 			{
-				$res .= '<script>BX.setCSSList('.\CUtil::phpToJSObject($assets).');</script>';
+				$res .= '<script>BX.setCSSList(' . Json::encode($assets) . ');</script>';
 				$res .= "\n";
 			}
 		}
@@ -2325,7 +2326,7 @@ class Asset
 			}
 		}
 
-		$label = (($type == 'css') && ($prefix == 'template' || mb_substr($prefix, 0, 9) == 'template_') ? ' data-template-style="true" ' : '');
+		$label = (($type == 'css') && ($prefix == 'template' || str_starts_with($prefix, 'template_')) ? ' data-template-style="true" ' : '');
 
 		$bundleFile = '';
 		$extendData = ($data != '' ? ' '.trim($data) : '');

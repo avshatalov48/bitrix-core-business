@@ -30,7 +30,7 @@ $APPLICATION->IncludeComponent('bitrix:main.field.config.list', '', [
 	'detailUrl' => $detailUrl,
 ]);
 
-$hint = Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT_MSGVER_1', [
+$hint = Loc::getMessage('CATALOG_COMPONENT_STORE_FIELD_CONFIG_LIST_HINT_MSGVER_2', [
 	'#LINK_START#' => '<a href="' . Util::getArticleUrlByCode((string)$arParams['HELPDESK_ARTICLE_ID']) . '">',
 	'#LINK_END#' => '</a>',
 ]);

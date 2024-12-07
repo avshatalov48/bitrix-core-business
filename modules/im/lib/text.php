@@ -363,11 +363,6 @@ class Text
 
 	public static function getEmoji($code, $fallbackText = '')
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return $fallbackText;
-		}
-
 		if (!isset(self::$emojiList[$code]))
 		{
 			return $fallbackText;
@@ -378,11 +373,6 @@ class Text
 
 	public static function getEmojiList(): ?array
 	{
-		if (!\Bitrix\Main\Application::isUtfMode())
-		{
-			return null;
-		}
-
 		return array_map(fn ($element) => self::decodeEmoji($element), self::$emojiList);
 	}
 

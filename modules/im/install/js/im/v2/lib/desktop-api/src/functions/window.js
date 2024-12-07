@@ -1,3 +1,5 @@
+import { settingsFunctions } from './settings';
+import { Utils } from 'im.v2.lib.utils';
 import { Type, Event, Dom, Extension } from 'main.core';
 import { BaseEvent, EventEmitter } from 'main.core.events';
 import { EventType } from 'im.v2.const';
@@ -80,6 +82,37 @@ export const windowFunctions = {
 
 		return mainWindow.BXWindows.find((window) => window?.name === name);
 	},
+	openPage(url: string, options: { skipNativeBrowser?: boolean } = {}): Promise
+	{
+		const anchorElement: HTMLAnchorElement = Dom.create({ tag: 'a', attrs: { href: url } });
+		if (anchorElement.host !== location.host)
+		{
+			setTimeout(() => this.hideWindow(), 100);
+
+			return Promise.resolve(false);
+		}
+
+		if (!settingsFunctions.isTwoWindowMode())
+		{
+			if (options.skipNativeBrowser === true)
+			{
+				setTimeout(() => this.hideWindow(), 100);
+
+				return Promise.resolve(false);
+			}
+
+			Utils.browser.openLink(anchorElement.href);
+
+			// workaround timeout, if application is activated on hit, it cant be hidden immediately
+			setTimeout(() => this.hideWindow(), 100);
+
+			return Promise.resolve(true);
+		}
+
+		this.createTab(anchorElement.href);
+
+		return Promise.resolve(true);
+	},
 	createTab(path: string): void
 	{
 		const preparedPath = Dom.create({ tag: 'a', attrs: { href: path } }).href;
@@ -111,24 +144,34 @@ export const windowFunctions = {
 	},
 	prepareHtml(html: string | HTMLElement, js: string | HTMLElement): string
 	{
+		let plainHtml = '';
 		if (Type.isDomNode(html))
 		{
-			html = html.outerHTML;
+			plainHtml = html.outerHTML;
+		}
+		else
+		{
+			plainHtml = html;
 		}
 
+		let plainJs = '';
 		if (Type.isDomNode(js))
 		{
-			js = js.outerHTML;
+			plainJs = js.outerHTML;
+		}
+		else
+		{
+			plainJs = js;
 		}
 
 		Event.ready();
 
-		if (Type.isStringFilled(js))
+		if (Type.isStringFilled(plainJs))
 		{
-			js = `
+			plainJs = `
 				<script>
 					BX.ready(() => {
-						${js}
+						${plainJs}
 					});
 				</script>
 			`;
@@ -138,20 +181,20 @@ export const windowFunctions = {
 
 		return `
 			<!DOCTYPE html>
-			<html>
+			<html lang="">
 				${head}
 				<body class="im-desktop im-desktop-popup">
-					${html}${js}
+					${plainHtml}${plainJs}
 				</body>
 			</html>
 		`;
 	},
 	setWindowSize(width: number, height: number)
 	{
-		BXDesktopWindow.SetProperty("clientSize", { Width: width, Height: height });
+		BXDesktopWindow.SetProperty('clientSize', { Width: width, Height: height });
 	},
 	setMinimumWindowSize(width: number, height: number)
 	{
-		BXDesktopWindow.SetProperty("minClientSize", { Width: width, Height: height });
+		BXDesktopWindow.SetProperty('minClientSize', { Width: width, Height: height });
 	},
 };

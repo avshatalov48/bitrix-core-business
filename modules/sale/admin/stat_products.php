@@ -181,8 +181,8 @@ $arPrices = Array("PRICE", "PRICE_ORDER", "PRICE_ORDER_PAYED", "PRICE_ORDER_ALLO
 function bxStatSort($a, $b)
 {
 	global $by, $order, $arPrices, $arCurUsed;
-	$by = toUpper($by);
-	$order = toUpper($order);
+	$by = mb_strtoupper($by);
+	$order = mb_strtoupper($order);
 
 	if(in_array($by, Array("PRODUCT_ID", "PAYED", "ALLOW_DELIVERY", "ORDER_COUNT", "COUNT", "QUANTITY", "DELAY", "ORDER_QUANTITY", "BASKET_QUANTITY")))
 	{

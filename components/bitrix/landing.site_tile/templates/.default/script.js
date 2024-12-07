@@ -1,3 +1,4 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.Landing = this.BX.Landing || {};
 (function (exports,ui_designTokens,main_popup,ui_dialogs_messagebox,main_core_events,ui_notification,main_core) {

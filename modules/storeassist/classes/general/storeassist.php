@@ -151,7 +151,7 @@ class CStoreAssist
 
 		$partnerUrl = Bitrix\Main\Config\Option::get("storeassist", "partner_url", '');
 		if ($partnerUrl)
-			$bxProductConfig["admin"]["links"] = '<a href="http://www.1c-bitrix.ru/">www.1c-bitrix.ru</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="'.htmlspecialcharsbx($partnerUrl).'" class="adm-main-support-link">'.Loc::getMessage("STOREAS_SUPPORT").'</a>';
+			$bxProductConfig["admin"]["links"] = '<a href="https://www.1c-bitrix.ru/">www.1c-bitrix.ru</a>&nbsp;&nbsp;|&nbsp;&nbsp;<a href="'.htmlspecialcharsbx($partnerUrl).'" class="adm-main-support-link">'.Loc::getMessage("STOREAS_SUPPORT").'</a>';
 
 		if (!$pageId)
 		{

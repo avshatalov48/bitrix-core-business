@@ -38,7 +38,8 @@ class Intranet
 				'system' => true,
 				'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_TITLE'),
 				'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
-					'?menuId=' . $bindCode . '\', {allowChangeHistory: false});'
+					'?menuId=' . $bindCode . '\', {allowChangeHistory: false});',
+				'sectionCode' => Menu::SECTIONS['knowledge']
 			];
 			if (Rights::hasAdditionalRight('create', null, false, true))
 			{
@@ -47,7 +48,8 @@ class Intranet
 					'system' => true,
 					'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_BIND_CREATE_TITLE'),
 					'onclick' => 'BX.SidePanel.Instance.open(\'' . SITE_DIR . self::PATH_SERVICE_LIST .
-						'?menuId=' . $bindCode . '&create=Y\', {allowChangeHistory: false});'
+						'?menuId=' . $bindCode . '&create=Y\', {allowChangeHistory: false});',
+					'sectionCode' => Menu::SECTIONS['knowledge']
 				];
 			}
 		}
@@ -137,7 +139,8 @@ class Intranet
 						'id' => 'landing_unbind',
 						'extension' => 'landing.connector.intranet',
 						'text' => Loc::getMessage('LANDING_CONNECTOR_INTRANET_MENU_HIDE_TITLE'),
-						'items' => $unbindItems
+						'items' => $unbindItems,
+						'sectionCode' => Menu::SECTIONS['knowledge']
 					];
 				}
 				$items[] = [

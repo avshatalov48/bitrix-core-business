@@ -77,8 +77,9 @@ class CPerfomanceKeeper
 		define('PERFMON_STARTED', $DB->ShowSqlStat . '|' . \Bitrix\Main\Data\Cache::getShowCacheStat() . '|' . $APPLICATION->ShowIncludeStat);
 
 		$DB->ShowSqlStat = true;
-		$application = \Bitrix\Main\Application::getInstance();
-		$application->getConnectionPool()->getConnection()->startTracker();
+		/** @var \Bitrix\Main\DB\Connection $connection */
+		$connection = \Bitrix\Main\Application::getConnection();
+		$connection->startTracker();
 
 		\Bitrix\Main\Data\Cache::setShowCacheStat(COption::GetOptionString('perfmon', 'cache_log') === 'Y');
 		$APPLICATION->ShowIncludeStat = true;
@@ -127,8 +128,8 @@ class CPerfomanceKeeper
 		$START_EXEC_CURRENT_TIME = microtime();
 
 		global $DB, $APPLICATION;
-		$pool = \Bitrix\Main\Application::getInstance()->getConnectionPool();
-		$connection = $pool->getConnection();
+		/** @var \Bitrix\Main\DB\Connection $connection */
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$connection->stopTracker();
 		$DB->ShowSqlStat = false;

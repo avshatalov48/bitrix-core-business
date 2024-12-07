@@ -105,4 +105,3 @@ class CCommentRatings extends CCommentBase
 		return $arReturn;
 	}
 }
-?>

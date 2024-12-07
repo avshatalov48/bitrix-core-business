@@ -10,6 +10,7 @@ export class GoogleProvider extends ConnectionProvider
 			status: options.syncInfo.status || false,
 			connected: options.syncInfo.connected || false,
 			userName: options.syncInfo.userName || '',
+			connectionOriginalName: options.syncInfo.connectionName || '',
 			gridTitle: Loc.getMessage('CALENDAR_TITLE_GOOGLE'),
 			gridColor: '#387ced',
 			gridIcon: '/bitrix/images/calendar/sync/google.svg',
@@ -27,6 +28,11 @@ export class GoogleProvider extends ConnectionProvider
 		this.setSyncDate(options.syncInfo.syncOffset);
 		this.setSections(options.sections);
 		this.setConnections();
+	}
+
+	doSupportReconnectionScenario(): boolean
+	{
+		return true;
 	}
 
 	getSyncLink()

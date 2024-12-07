@@ -15,19 +15,25 @@ abstract class Entity extends Stepper
 
 	protected function getContainerCollection($elementIds, array $sectionsRatio, array $enumRatio, $targetIblockId = 0)
 	{
+		$dictionary = new Dictionary([
+			'targetIblockId' => $targetIblockId,
+			'enumRatio' => $enumRatio,
+			'sectionsRatio' => $sectionsRatio,
+		]);
+
+		return $this->fillContainerCollection($elementIds, $dictionary);
+	}
+
+	protected function fillContainerCollection(array $elementIds, Dictionary $dictionary): ContainerCollection
+	{
 		$containerCollection = new ContainerCollection();
 
 		foreach ($elementIds as $elementId)
 		{
 			$container = new Container($elementId);
-			$dictionary = new Dictionary(
-				[
-					"targetIblockId" => $targetIblockId,
-					"enumRatio" => $enumRatio,
-					"sectionsRatio" => $sectionsRatio
-				]
-			);
-			$container->setDictionary($dictionary);
+			$copyDictionary = clone $dictionary;
+			$container->setDictionary($copyDictionary);
+			unset($copyDictionary);
 
 			$containerCollection[] = $container;
 		}

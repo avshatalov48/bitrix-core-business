@@ -12,25 +12,27 @@ include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/statistic/colors.php");
 
 $arGadgetParams["RND_STRING"] = randString(8);
 
-$arGadgetParams["HIDE_GRAPH"] = ($arGadgetParams["HIDE_GRAPH"] == "Y" ? "Y" : "N");
+$arGadgetParams["HIDE_GRAPH"] = (($arGadgetParams["HIDE_GRAPH"] ?? '') == "Y" ? "Y" : "N");
 
 if ($arGadgetParams["HIDE_GRAPH"] != "Y")
 {
-	if (intval($arGadgetParams["GRAPH_DAYS"]) <= 0 || intval($arGadgetParams["GRAPH_DAYS"]) > 400)
+	if (!isset($arGadgetParams["GRAPH_DAYS"]) || intval($arGadgetParams["GRAPH_DAYS"]) <= 0 || intval($arGadgetParams["GRAPH_DAYS"]) > 400)
 		$arGadgetParams["GRAPH_DAYS"] = 30;
 
-	if (!is_array($arGadgetParams["GRAPH_PARAMS"])
+	if (
+		!isset($arGadgetParams["GRAPH_PARAMS"])
+		|| !is_array($arGadgetParams["GRAPH_PARAMS"])
 		|| count($arGadgetParams["GRAPH_PARAMS"]) <= 0
 	)
 		$arGadgetParams["GRAPH_PARAMS"] = array("HOST", "SESSION", "EVENT", "GUEST");
 
-	if (intval($arGadgetParams["GRAPH_WIDTH"]) <= 50 || intval($arGadgetParams["GRAPH_WIDTH"]) > 1000)
+	if (intval(($arGadgetParams["GRAPH_WIDTH"] ?? 0)) <= 50 || intval($arGadgetParams["GRAPH_WIDTH"]) > 1000)
 		$arGadgetParams["GRAPH_WIDTH"] = 400;
-	if (intval($arGadgetParams["GRAPH_HEIGHT"]) <= 50 || intval($arGadgetParams["GRAPH_HEIGHT"]) > 1000)
+	if (intval(($arGadgetParams["GRAPH_HEIGHT"] ?? 0)) <= 50 || intval($arGadgetParams["GRAPH_HEIGHT"]) > 1000)
 		$arGadgetParams["GRAPH_HEIGHT"] = 300;
 }
 
-if ($arGadgetParams["SITE_ID"] == '')
+if (($arGadgetParams["SITE_ID"] ?? '') == '')
 	$arGadgetParams["SITE_ID"] = false;
 elseif ($arGadgetParams["TITLE_STD"] == '')
 {
@@ -75,7 +77,7 @@ if ($arGadgetParams["HIDE_GRAPH"] != "Y")
 	$dateGraph1 = ConvertTimeStamp(AddToTimeStamp(array("DD" => -($arGadgetParams["GRAPH_DAYS"]), "MM" => 0, "YYYY" => 0, "HH" => 0, "MI" => 0, "SS" => 0), time()), "SHORT");
 	$dateGraph2 = ConvertTimeStamp(time(), "SHORT");
 
-	$days = CTraffic::DynamicDays($dateGraph1, $dateGraph2, $arFilter["SITE_ID"]);
+	$days = CTraffic::DynamicDays($dateGraph1, $dateGraph2, ($arFilter["SITE_ID"] ?? ''));
 	if ($days < 2)
 	{
 		?><div class="bx-gadgets-content-padding-rl bx-gadgets-content-padding-t"><?CAdminMessage::ShowMessage(GetMessage("STAT_NOT_ENOUGH_DATA"));?></div><?
@@ -138,7 +140,7 @@ if ($arGadgetParams["HIDE_GRAPH"] != "Y")
 	}
 }
 ?>
-<script type="text/javascript">
+<script>
 	var gdStatsTabControl_<?=$arGadgetParams["RND_STRING"]?> = false;
 </script><?
 $aTabs = array(
@@ -245,7 +247,7 @@ $tabControl = new CAdminViewTabControl("statsTabControl_".$arGadgetParams["RND_S
 		}
 	?></div><?
 ?></div>
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		gdStatsTabControl_<?=$arGadgetParams["RND_STRING"]?> = new gdTabControl('bx_gd_tabset_stat_<?=$arGadgetParams["RND_STRING"]?>');
 	});

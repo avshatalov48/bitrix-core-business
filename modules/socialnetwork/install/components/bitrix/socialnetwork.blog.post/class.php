@@ -26,26 +26,26 @@ final class SocialnetworkBlogPost extends CBitrixComponent
 
 	protected function clearTextForColoredPost(string $text = '')
 	{
-		$text = preg_replace('/\[DISK\s+FILE\s+ID\s*\=\s*[n]?[0-9]+\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*QUOTE\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*CODE\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*LEFT\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*RIGHT\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*CENTER\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*JUSTIFY\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[COLOR\s*=\s*[^\]]+\](.+?)\[\/COLOR\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $text);
-		$text = preg_replace('/\[FONT\s+[^\]]+\](.+?)\[\/FONT\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $text);
-		$text = preg_replace('/\[SIZE\s+[^\]]+\](.+?)\[\/SIZE\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $text);
-		$text = preg_replace('/\[IMG[^\]]*\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[LIST[^\]]*\](.+?)\[\/LIST\]/is'.BX_UTF_PCRE_MODIFIER, '\\1', $text);
-		$text = preg_replace('/\[\*\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
-		$text = preg_replace('/\[\/*VIDEO\]/is'.BX_UTF_PCRE_MODIFIER, '', $text);
+		$text = preg_replace('/\[DISK\s+FILE\s+ID\s*\=\s*[n]?[0-9]+\]/isu', '', $text);
+		$text = preg_replace('/\[\/*QUOTE\]/isu', '', $text);
+		$text = preg_replace('/\[\/*CODE\]/isu', '', $text);
+		$text = preg_replace('/\[\/*LEFT\]/isu', '', $text);
+		$text = preg_replace('/\[\/*RIGHT\]/isu', '', $text);
+		$text = preg_replace('/\[\/*CENTER\]/isu', '', $text);
+		$text = preg_replace('/\[\/*JUSTIFY\]/isu', '', $text);
+		$text = preg_replace('/\[COLOR\s*=\s*[^\]]+\](.+?)\[\/COLOR\]/isu', '\\1', $text);
+		$text = preg_replace('/\[FONT\s+[^\]]+\](.+?)\[\/FONT\]/isu', '\\1', $text);
+		$text = preg_replace('/\[SIZE\s+[^\]]+\](.+?)\[\/SIZE\]/isu', '\\1', $text);
+		$text = preg_replace('/\[IMG[^\]]*\]/isu', '', $text);
+		$text = preg_replace('/\[LIST[^\]]*\](.+?)\[\/LIST\]/isu', '\\1', $text);
+		$text = preg_replace('/\[\*\]/isu', '', $text);
+		$text = preg_replace('/\[\/*VIDEO\]/isu', '', $text);
 		$text = preg_replace(
 			[
-				'/\[B\](.+?)\[\/B\]/is'.BX_UTF_PCRE_MODIFIER,
-				'/\[I\](.+?)\[\/I\]/is'.BX_UTF_PCRE_MODIFIER,
-				'/\[U\](.+?)\[\/U\]/is'.BX_UTF_PCRE_MODIFIER,
-				'/\[S\](.+?)\[\/S\]/is'.BX_UTF_PCRE_MODIFIER,
+				'/\[B\](.+?)\[\/B\]/isu',
+				'/\[I\](.+?)\[\/I\]/isu',
+				'/\[U\](.+?)\[\/U\]/isu',
+				'/\[S\](.+?)\[\/S\]/isu',
 			],
 			'\\1',
 			$text
@@ -209,18 +209,16 @@ final class SocialnetworkBlogPost extends CBitrixComponent
 		$this->arResult['IS_COPILOT_READONLY_ENABLED'] = $this->isCopilotEnabled();
 		$this->arResult['IS_COPILOT_READONLY_ENABLED_BY_SETTINGS'] = $this->isCopilotEnabledBySettings();
 
+		$userId = \Bitrix\Main\Engine\CurrentUser::get()->getId();
+		$pathToPostEdit = $this->arParams['PATH_TO_POST_EDIT'];
+		$this->arResult['PATH_TO_CREATE_NEW_POST'] = str_replace(['#user_id#', '#post_id#'], [$userId, 0], $pathToPostEdit);
+
 		return $this->__includeComponent();
 	}
 
 	private function isCopilotEnabled(): bool
 	{
 		if (!Loader::includeModule('ai'))
-		{
-			return false;
-		}
-
-		$isCopilotFeatureEnabled = \COption::GetOptionString('fileman', 'isCopilotFeatureEnabled', 'N') === 'Y';
-		if (!$isCopilotFeatureEnabled)
 		{
 			return false;
 		}

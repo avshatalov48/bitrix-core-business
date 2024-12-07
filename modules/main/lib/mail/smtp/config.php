@@ -2,8 +2,8 @@
 
 namespace Bitrix\Main\Mail\Smtp;
 
-use \Bitrix\Main;
-use \Bitrix\Mail;
+use Bitrix\Main;
+use Bitrix\Mail;
 
 class Config
 {
@@ -56,6 +56,8 @@ class Config
 	 * @var bool
 	 */
 	protected bool $isOauth = false;
+
+	protected ?CloudOAuthRefreshData $cloudOAuthRefreshData = null;
 
 	public function __construct(array $params = null)
 	{
@@ -157,6 +159,18 @@ class Config
 	public function getIsOauth(): bool
 	{
 		return $this->isOauth;
+	}
+
+	public function getCloudOAuthRefreshData(): ?CloudOAuthRefreshData
+	{
+		return $this->cloudOAuthRefreshData;
+	}
+
+	public function setCloudOAuthRefreshData(?CloudOAuthRefreshData $data): static
+	{
+		$this->cloudOAuthRefreshData = $data;
+
+		return $this;
 	}
 
 	public static function canCheck()

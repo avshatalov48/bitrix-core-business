@@ -5,7 +5,6 @@ if(!CModule::IncludeModule('iblock'))
 
 IncludeModuleLangFile(__FILE__);
 
-
 CModule::AddAutoloadClasses(
 	'wiki',
 	array(

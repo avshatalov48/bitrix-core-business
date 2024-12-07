@@ -89,41 +89,6 @@ class BusinessValuePersonDomain extends ControllerBase
 		}
 	}
 
-	/** @deprecated  */
-	public function getAction($personTypeId)
-	{
-		$r = $this->exists($personTypeId);
-		if($r->isSuccess())
-		{
-			return ['BUSINESS_VALUE_PERSON_DOMAIN'=>$this->get($personTypeId)];
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-			return null;
-		}
-	}
-
-	/** @deprecated  */
-	public function deleteAction($personTypeId)
-	{
-		$r = $this->exists($personTypeId);
-		if($r->isSuccess())
-		{
-			\Bitrix\Sale\Internals\BusinessValuePersonDomainTable::deleteByPersonTypeId((int)$personTypeId);
-		}
-
-		if($r->isSuccess())
-		{
-			return true;
-		}
-		else
-		{
-			$this->addErrors($r->getErrors());
-			return null;
-		}
-	}
-
 	public function deleteByFilterAction($fields)
 	{
 		$r = $this->checkFields($fields);

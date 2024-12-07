@@ -19,7 +19,7 @@ $aTabs[] = $USER_FIELD_MANAGER->EditFormTab("BLOG_BLOG");
 $tabControl = new CAdminTabControl("tabControl", $aTabs);
 
 $ID = intval($ID);
-if ($REQUEST_METHOD=="POST" && $Update <> '' && $blogModulePermissions>="W" && check_bitrix_sessid())
+if ($_SERVER['REQUEST_METHOD']=="POST" && $Update <> '' && $blogModulePermissions>="W" && check_bitrix_sessid())
 {
 	$arFields = array(
 		"NAME" => $NAME,

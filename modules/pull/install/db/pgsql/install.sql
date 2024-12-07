@@ -32,7 +32,7 @@ CREATE TABLE b_pull_push (
   UNIQUE_HASH varchar(50),
   DEVICE_ID varchar(255),
   DEVICE_NAME varchar(50),
-  DEVICE_TOKEN varchar(255) NOT NULL,
+  DEVICE_TOKEN varchar(255) NOT NULL DEFAULT '',
   VOIP_TYPE varchar(50),
   VOIP_TOKEN varchar(255),
   DATE_CREATE timestamp NOT NULL,

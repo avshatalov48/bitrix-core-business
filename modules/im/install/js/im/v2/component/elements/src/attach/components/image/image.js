@@ -1,5 +1,3 @@
-import { Color } from 'im.v2.const';
-
 import { AttachImageItem } from './image-item';
 
 import './image.css';
@@ -14,10 +12,6 @@ export const AttachImage = {
 		config: {
 			type: Object,
 			default: () => {},
-		},
-		color: {
-			type: String,
-			default: Color.transparent,
 		},
 	},
 	computed:

@@ -15,9 +15,16 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/prolog.php';
 
 IncludeModuleLangFile(__FILE__);
 
-$table_name = $_REQUEST['table_name'];
+/** @var \Bitrix\Main\HttpRequest $request */
+$request = \Bitrix\Main\Context::getCurrent()->getRequest();
+
+$connectionName = $request['connection'] ?: 'default';
+$connection = \Bitrix\Main\Application::getConnection($connectionName);
+$sqlHelper = $connection->getSqlHelper();
+
+$table_name = $request['table_name'];
 $obTable = new CPerfomanceTable;
-$obTable->Init($table_name);
+$obTable->Init($table_name, $connection);
 
 $RIGHT = CMain::GetGroupRight('perfmon');
 if ($RIGHT == 'D' || !$obTable->IsExists())
@@ -25,21 +32,25 @@ if ($RIGHT == 'D' || !$obTable->IsExists())
 	$APPLICATION->AuthForm(GetMessage('ACCESS_DENIED'));
 }
 
-/** @var \Bitrix\Main\HttpRequest $request */
-$request = \Bitrix\Main\Context::getCurrent()->getRequest();
-
 if (
 	$request->getRequestMethod() === 'GET'
 	&& $request->get('ajax_tooltip') === 'y'
-	&& $request->get('find_type') !== null
-	&& $request->get('find') !== null
 	&& check_bitrix_sessid()
 )
 {
 	require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_js.php';
 
-	$rsData = $obTable->GetList(['*'], ['=' . $request->get('find_type') => $request->get('find')]);
-	$arData = $rsData->Fetch();
+	$filter = [];
+	foreach ($obTable->GetTableFields() as $FIELD_NAME => $FIELD_INFO)
+	{
+		if ($request->get('f_' . $FIELD_NAME) !== null)
+		{
+			$filter['=' . $FIELD_NAME] = $request->get('f_' . $FIELD_NAME);
+		}
+	}
+
+	$rsData = $obTable->GetList(['*'], $filter);
+	$arData = $rsData->fetch();
 	if ($arData)
 	{
 		?><table class="list"><?php
@@ -72,12 +83,12 @@ foreach ($arFieldsEx as $FIELD_NAME => $FIELD_INFO)
 $arUniqueIndexes = $obTable->GetUniqueIndexes();
 $sTableID = 'tbl_perfmon_table' . md5($table_name);
 $oSort = new CAdminUiSorting($sTableID, 'ID', 'asc');
-$by = mb_strtoupper($oSort->getField());
+$by = $oSort->getField();
 $order = mb_strtoupper($oSort->getOrder());
 $lAdmin = new CAdminUiList($sTableID, $oSort);
 
 $arID = $lAdmin->GroupAction();
-if ($arID && $RIGHT >= 'W')
+if (isset($_REQUEST['action']) && $arID && $RIGHT >= 'W')
 {
 	foreach ($arID as $ID)
 	{
@@ -105,14 +116,14 @@ if ($arID && $RIGHT >= 'W')
 					{
 						if ($value <> '')
 						{
-							$strSql .= ' AND ' . $DB->quote($column) . " = '" . $DB->ForSql($value) . "'";
+							$strSql .= ' AND ' . $sqlHelper->quote($column) . " = '" . $sqlHelper->forSql($value) . "'";
 						}
 						else
 						{
-							$strSql .= ' AND (' . $DB->quote($column) . " = '" . $DB->ForSql($value) . "' OR " . $DB->quote($column) . ' is null)';
+							$strSql .= ' AND (' . $sqlHelper->quote($column) . " = '" . $sqlHelper->forSql($value) . "' OR " . $sqlHelper->quote($column) . ' is null)';
 						}
 					}
-					$DB->Query($strSql);
+					$connection->query($strSql);
 				}
 			}
 		}
@@ -319,7 +330,7 @@ if ($lAdmin->isTotalCountRequest())
 	$lAdmin->sendTotalCountResponse($count);
 }
 
-if (isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel')
+if ($request['mode'] === 'excel')
 {
 	$arNavParams = false;
 }
@@ -342,25 +353,26 @@ CTimeZone::Enable();
 
 function TableExists($tableName)
 {
-	global $DB;
+	global $connection;
 	static $cache = [];
+
 	if (!isset($cache[$tableName]))
 	{
-		$cache[$tableName] = $DB->TableExists($tableName);
+		$cache[$tableName] = $connection->isTableExists($tableName);
 	}
+
 	return $tableName;
 }
 
-$rsData = new CAdminResult($rsData, $sTableID);
 $precision = ini_get('precision') >= 0 ? ini_get('precision') : 2;
 $max_display_url = COption::GetOptionInt('perfmon', 'max_display_url');
 
 $n = 0;
 $pageSize = $lAdmin->getNavSize();
-while ($arRes = $rsData->Fetch())
+while ($arRes = $rsData->fetch())
 {
 	$n++;
-	if ($n > $pageSize && !(isset($_REQUEST['mode']) && $_REQUEST['mode'] == 'excel'))
+	if (($n > $pageSize) && !($request['mode'] === 'excel'))
 	{
 		break;
 	}
@@ -388,14 +400,19 @@ while ($arRes = $rsData->Fetch())
 	$editUrl = '';
 	if ($bDelete && (count($arPKColumns) == count($arRowPK)))
 	{
-		$editUrl = 'perfmon_row_edit.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . '&' . implode('&', $arRowPK);
+		$editUrl = 'perfmon_row_edit.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '') . '&' . implode('&', $arRowPK);
 	}
 
-	$row =& $lAdmin->AddRow($ID, $arRes, $editUrl);
+	$row = $lAdmin->AddRow($ID, $arRes, $editUrl);
 
 	foreach ($arFields as $FIELD_NAME => $FIELD_TYPE)
 	{
-		if ($arRes[$FIELD_NAME] <> '')
+		if ($arRes[$FIELD_NAME] === null)
+		{
+			$val = '<i>[NULL]</i>';
+			$row->AddViewField($FIELD_NAME, $val);
+		}
+		elseif ($arRes[$FIELD_NAME] !== '')
 		{
 			if ($FIELD_TYPE == 'int')
 			{
@@ -420,7 +437,7 @@ while ($arRes = $rsData->Fetch())
 
 			if (array_key_exists($FIELD_NAME, $arParents) && TableExists($arParents[$FIELD_NAME]['PARENT_TABLE']))
 			{
-				$href = 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . $arParents[$FIELD_NAME]['PARENT_TABLE'] . '&apply_filter=Y&find=' . urlencode($arRes[$FIELD_NAME]) . '&find_type=' . urlencode($arParents[$FIELD_NAME]['PARENT_COLUMN']) . '&' . urlencode($arParents[$FIELD_NAME]['PARENT_COLUMN']) . '=' . urlencode($arRes[$FIELD_NAME]);
+				$href = 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . $arParents[$FIELD_NAME]['PARENT_TABLE'] . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '') . '&apply_filter=Y&' . urlencode('f_' . $arParents[$FIELD_NAME]['PARENT_COLUMN']) . '=' . urlencode($arRes[$FIELD_NAME]);
 				$val = '<a onmouseover="addTimer(this)" onmouseout="removeTimer(this)" href="' . htmlspecialcharsbx($href) . '" onclick="' . htmlspecialcharsbx('window.location=\'' . CUtil::JSEscape($href) . '\'') . '	">' . $val . '</a>';
 			}
 
@@ -441,7 +458,7 @@ while ($arRes = $rsData->Fetch())
 			'ICON' => 'delete',
 			'DEFAULT' => false,
 			'TEXT' => GetMessage('MAIN_DELETE'),
-			'ACTION' => $lAdmin->ActionDoGroup($ID, 'delete', 'table_name=' . urlencode($table_name)),
+			'ACTION' => $lAdmin->ActionDoGroup($ID, 'delete', 'table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '')),
 		];
 		if ($arRowActions)
 		{
@@ -451,7 +468,7 @@ while ($arRes = $rsData->Fetch())
 				$confirm = isset($rowAction['confirm']) ? "if(confirm('" . CUtil::JSEscape($rowAction['confirm']) . "')) " : '';
 				$arActions[] = [
 					'TEXT' => $rowAction['title'],
-					'ACTION' => $confirm . $lAdmin->ActionDoGroup($ID, $rowActionId, 'table_name=' . urlencode($table_name)),
+					'ACTION' => $confirm . $lAdmin->ActionDoGroup($ID, $rowActionId, 'table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '')),
 				];
 			}
 		}
@@ -464,7 +481,7 @@ while ($arRes = $rsData->Fetch())
 		{
 			if (TableExists($arChild['CHILD_TABLE']))
 			{
-				$href = 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($arChild['CHILD_TABLE']) . '&apply_filter=Y&' . urlencode($arChild['CHILD_COLUMN']) . '=' . urlencode($arRes[$arChild['PARENT_COLUMN']]);
+				$href = 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($arChild['CHILD_TABLE']) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : '') . '&apply_filter=Y&' . urlencode('f_' . $arChild['CHILD_COLUMN']) . '=' . urlencode($arRes[$arChild['PARENT_COLUMN']]);
 				$arActions[] = [
 					'ICON' => '',
 					'DEFAULT' => false,
@@ -484,14 +501,12 @@ while ($arRes = $rsData->Fetch())
 $nav->setRecordCount($nav->getOffset() + $n);
 $lAdmin->setNavigation($nav, GetMessage('PERFMON_TABLE_PAGE'), false);
 
-$lAdmin->AddFooter(
+$lAdmin->AddFooter([
 	[
-		[
-			'title' => GetMessage('MAIN_ADMIN_LIST_SELECTED'),
-			'value' => $rsData->SelectedRowsCount(),
-		],
-	]
-);
+		'title' => GetMessage('MAIN_ADMIN_LIST_SELECTED'),
+		'value' => $rsData->getSelectedRowsCount(),
+	],
+]);
 
 $aContext = [];
 
@@ -504,7 +519,9 @@ if ($arPKColumns)
 	];
 }
 
-$sLastTables = CUserOptions::GetOption('perfmon', 'last_tables', '');
+$lAdmin->AddAdminContextMenu($aContext);
+
+$sLastTables = CUserOptions::GetOption('perfmon', 'last_tables' . (isset($request->getQueryList()['connection']) ? '_' . $connectionName : ''), '');
 if ($sLastTables <> '')
 {
 	$arLastTables = array_flip(explode(',', $sLastTables));
@@ -513,40 +530,13 @@ else
 {
 	$arLastTables = [];
 }
-unset($arLastTables[mb_strtolower($table_name)]);
-$arLastTables[mb_strtolower($table_name)] = true;
-if (count($arLastTables) > 10)
+unset($arLastTables[$table_name]);
+$arLastTables[$table_name] = true;
+while (count($arLastTables) > 10)
 {
 	array_shift($arLastTables);
 }
-CUserOptions::SetOption('perfmon', 'last_tables', implode(',', array_keys($arLastTables)));
-
-unset($arLastTables[$table_name]);
-if (count($arLastTables) > 0)
-{
-	$ar = [
-		'MENU' => [],
-	];
-	ksort($arLastTables);
-	foreach ($arLastTables as $table => $flag)
-	{
-		if (TableExists($table))
-		{
-			$ar['MENU'][] = [
-				'TEXT' => $table,
-				'ACTION' => $lAdmin->ActionRedirect('perfmon_table.php?table_name=' . $table),
-			];
-		}
-		else
-		{
-			unset($arLastTables[$table]);
-		}
-	}
-	$ar['TEXT'] = GetMessage('PERFMON_TABLE_RECENTLY_BROWSED', ['#COUNT#' => count($arLastTables)]);
-	$aContext[] = $ar;
-}
-
-$lAdmin->AddAdminContextMenu($aContext);
+CUserOptions::SetOption('perfmon', 'last_tables' . (isset($request->getQueryList()['connection']) ? '_' . $connectionName : ''), implode(',', array_keys($arLastTables)));
 
 $lAdmin->BeginPrologContent();
 ?>
@@ -762,7 +752,7 @@ CJSCore::Init(['ajax', 'popup']);
 $lAdmin->DisplayFilter($filterFields);
 $lAdmin->DisplayList([
 	'SHOW_COUNT_HTML' => true,
-	'SERVICE_URL' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name),
+	'SERVICE_URL' => 'perfmon_table.php?lang=' . LANGUAGE_ID . '&table_name=' . urlencode($table_name) . (isset($request->getQueryList()['connection']) ? '&connection=' . urlencode($connectionName) : ''),
 ]);
 
 echo BeginNote();

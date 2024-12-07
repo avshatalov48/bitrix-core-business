@@ -56,7 +56,7 @@ class CSticker
 		global $DB;
 
 		$strSql = 'SELECT * FROM b_sticker_group_task SGT';
-		$res = $DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql );
 
 		$arResult = array();
 		while($arRes = $res->Fetch())
@@ -68,13 +68,13 @@ class CSticker
 	public static function SaveAccessPermissions($arTaskPerm)
 	{
 		global $DB;
-		$DB->Query("DELETE FROM b_sticker_group_task WHERE 1=1", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("DELETE FROM b_sticker_group_task WHERE 1=1");
 
 		foreach($arTaskPerm as $group_id => $task_id)
 		{
 			$arInsert = $DB->PrepareInsert("b_sticker_group_task", array("GROUP_ID" => $group_id, "TASK_ID" => $task_id));
 			$strSql = "INSERT INTO b_sticker_group_task(".$arInsert[0].") VALUES(".$arInsert[1].")";
-			$DB->Query($strSql , false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql );
 		}
 	}
 
@@ -138,7 +138,6 @@ class CSticker
 			"MARKER_ADJUST" => Array("FIELD_NAME" => "ST.MARKER_ADJUST", "FIELD_TYPE" => "string")
 		);
 
-		$err_mess = (CSticker::GetErrorMess())."<br>Function: GetList<br>Line: ";
 		$arSqlSearch = array();
 		$strSqlSearch = "";
 
@@ -205,7 +204,7 @@ class CSticker
 				$strSqlSearch
 			$strOrderBy";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		if ($arFilter['USER_ID'] > 0 || !$bDBResult)
 		{
@@ -291,7 +290,6 @@ class CSticker
 					return $cachedRes['page_list'];
 			}
 		}
-		$err_mess = (CSticker::GetErrorMess())."<br>Function: GetPagesList<br>Line: ";
 		$strSql = "
 			select PAGE_URL, PAGE_TITLE, max(DATE_UPDATE) as MAX_DATE_UPDATE
 			from b_sticker
@@ -304,7 +302,7 @@ class CSticker
 
 		$strSql = $DB->TopSQL($strSql, 10);
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		$arResult = array();
 		while($arRes = $res->Fetch())
@@ -353,8 +351,7 @@ class CSticker
 			WHERE
 				$strSqlSearch";
 
-		$err_mess = (CSticker::GetErrorMess())."<br>Function: GetCount<br>Line: ";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		$count = 0;
 		if($arRes = $res->Fetch())
@@ -413,7 +410,7 @@ class CSticker
 					$strUpdate.
 				" WHERE ID=".intval($ID);
 
-			$DB->QueryBind($strSql, Array("CONTENT" => $arFields["CONTENT"], "MARKER_ADJUST" => $arFields["MARKER_ADJUST"]), false,  "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->QueryBind($strSql, Array("CONTENT" => $arFields["CONTENT"], "MARKER_ADJUST" => $arFields["MARKER_ADJUST"]));
 		}
 
 		CSticker::ClearCache();
@@ -426,7 +423,7 @@ class CSticker
 			return GetMessage('FMST_DEL_ACCESS_ERROR');
 
 		global $DB;
-		if (!$DB->Query("DELETE FROM b_sticker WHERE 1=1", false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query("DELETE FROM b_sticker WHERE 1=1"))
 			return GetMessage('FMST_REQ_ERROR');
 
 		CSticker::ClearCache();
@@ -450,7 +447,7 @@ class CSticker
 			$strIds .= ",".intval($ids[$i]);
 		$strSql = "DELETE FROM b_sticker WHERE ID in (".trim($strIds, ", ").")";
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return GetMessage('FMST_REQ_ERROR');
 
 		CSticker::ClearCache();
@@ -485,7 +482,7 @@ class CSticker
 				$strUpdate.
 			" WHERE ID in (".trim($strIds, ", ").")";
 
-		if (!$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__))
+		if (!$DB->Query($strSql))
 			return GetMessage('FMST_REQ_ERROR');
 
 		CSticker::ClearCache();
@@ -544,7 +541,7 @@ class CSticker
 	{
 		if(is_array(self::$Params))
 		{
-			return '<script type="text/javascript">BX.ready(function(){'.CSticker::AppendLangMessages()." window.oBXSticker = new BXSticker(".CUtil::PhpToJSObject(self::$Params['JSCONFIG']).", ".CUtil::PhpToJSObject(self::$Params['STICKERS']).", BXST_MESS);});</script>";
+			return '<script>BX.ready(function(){'.CSticker::AppendLangMessages()." window.oBXSticker = new BXSticker(".CUtil::PhpToJSObject(self::$Params['JSCONFIG']).", ".CUtil::PhpToJSObject(self::$Params['STICKERS']).", BXST_MESS);});</script>";
 		}
 	}
 
@@ -642,11 +639,6 @@ class CSticker
 			'stickers' => $Stickers,
 			'curPageCount' => $curPageCount
 		));
-	}
-
-	public static function GetErrorMess()
-	{
-		return "Class: CSticker<br>File: ".__FILE__;
 	}
 
 	public static function GetScriptStr($mode)

@@ -91,32 +91,6 @@ class CSpellchecker
 		{
 			return pspell_check($this->pspell_link, $word);
 		}
-		//custom
-//		elseif($this->custom_spell)
-//		{
-//			if ($this->lang == 'ru')
-//			{
-//				$word = $APPLICATION->ConvertCharset($word, "UTF-8", "Windows-1251");
-//			}
-//
-//			if (strlen($word) <= $this->skip_len)
-//			{
-//				return true;
-//			}
-//
-//			$first_let = $this->codeLetter(strtolower($word{0}));
-//
-//			if (!isset($this->dic[$first_let]))
-//			{
-//				$this->loadDic($first_let);
-//			}
-//			//check if word exist in array
-//			if (isset($this->dic[$first_let][strtolower($word)]))
-//			{
-//				return true;
-//			}
-//			return false;
-//		}
 	}
 
 
@@ -145,62 +119,7 @@ class CSpellchecker
 		if ($this->pspell)
 		{
 			$suggestions = pspell_suggest($this->pspell_link, $word);
-			if ($this->lang == 'ru')
-			{
-				for ($i = 0; $i < count($suggestions); $i++)
-				{
-					//$suggestions[$i] = $APPLICATION->ConvertCharset($suggestions[$i], "KOI8-R", "Windows-1251");
-				}
-			}
 		}
-		//custom
-//		elseif($this->custom_spell)
-//		{
-//			if ($this->lang == 'ru')
-//			{
-//				$word = $APPLICATION->ConvertCharset($word, "UTF-8", "Windows-1251");
-//			}
-//
-//			$first_let = $this->codeLetter(strtolower($word{0}));
-//			$wordLen = strlen($word);
-//			$n = $wordLen;
-//			$lcount = count($this->letters);
-//
-//			for ($i=1;$i<=$wordLen;$i++)
-//			{
-//				//skip letter
-//				$variant = substr($word,0,$i-1).substr($word,-($wordLen-$i),$wordLen-$i);
-//				if ($this->dic[$first_let][strtolower($variant)])
-//					$suggestions[] = $variant;
-//
-//				//change letter
-//				for ($j = 0; $j < $lcount; $j++)
-//				{
-//					$variant = substr($word,0,$i-1).$this->letters[$j].substr($word,-($wordLen-$i),$wordLen-$i);
-//					if ($this->dic[$first_let][strtolower($variant)])
-//						$suggestions[] = $variant;
-//
-//				}
-//			}
-//			for ($i=1;$i<=$wordLen;$i++)
-//			{
-//				for ($j=0;$j<$lcount;$j++)
-//				{
-//					//insert letter
-//					$variant = substr($word,0,$i).$this->letters[$j].substr($word,$i);
-//					if ($this->dic[$first_let][strtolower($variant)])
-//						$suggestions[] = $variant;
-//				}
-//			}
-//
-//			for ($i=0;$i<=$wordLen-2;$i++)
-//			{
-//				//swap letters
-//				$variant = substr($word,0,$i).substr($word,$i+1,1).substr($word,$i,1).substr($word,$i+2);
-//				if ($this->dic[$first_let][strtolower($variant)])
-//					$suggestions[] = $variant;
-//			}
-//		}
 		return array_unique($suggestions);
 	}
 
@@ -214,24 +133,5 @@ class CSpellchecker
 				return false;
 			}
 		}
-		//custom
-//		elseif($this->custom_spell)
-//		{
-//			if ($this->lang == 'ru')
-//			{
-//				$word = $APPLICATION->ConvertCharset($word, "UTF-8", "Windows-1251");
-//			}
-//			$path = $this->dic_path.'/dics/'.$this->lang.'_';
-//
-//			$letter = $this->codeLetter(strtolower($word{0}));
-//			$path .= $letter.'.dic';
-//			if (!$handle = fopen($path, 'a'))
-//				return false;
-//			if (fwrite($handle, $word."\n") === FALSE)
-//				return false;
-//			fclose($handle);
-//			return true;
-//		}
 	}
 }
-?>

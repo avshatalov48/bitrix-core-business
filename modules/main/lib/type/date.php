@@ -28,19 +28,19 @@ class Date
 
 			$parsedValue = $this->parse($format, $date);
 
-			if($parsedValue === false)
+			if ($parsedValue === false)
 			{
-				throw new Main\ObjectException("Incorrect date: ".$date);
+				throw new Main\ObjectException("Incorrect date: " . $date);
 			}
 
-			if(isset($parsedValue["timestamp"]))
+			if (isset($parsedValue["timestamp"]))
 			{
 				$this->value->setTimestamp($parsedValue["timestamp"]);
 			}
 			else
 			{
 				$this->value->setDate($parsedValue['year'], $parsedValue['month'], $parsedValue['day']);
-  			}
+			}
 		}
 		$this->value->setTime(0, 0);
 	}
@@ -80,7 +80,7 @@ class Date
 			}
 		}
 
-		if(isset($parsedValue["relative"]["second"]) && $parsedValue["relative"]["second"] <> 0)
+		if (isset($parsedValue["relative"]["second"]) && $parsedValue["relative"]["second"] <> 0)
 		{
 			return [
 				"timestamp" => $parsedValue["relative"]["second"],
@@ -88,11 +88,11 @@ class Date
 		}
 
 		//normalize values
-		if($parsedValue['month'] === false)
+		if ($parsedValue['month'] === false)
 		{
 			$parsedValue['month'] = 1;
 		}
-		if($parsedValue['day'] === false)
+		if ($parsedValue['day'] === false)
 		{
 			$parsedValue['day'] = 1;
 		}
@@ -150,7 +150,10 @@ class Date
 			$i = \DateInterval::createFromDateString($interval);
 		}
 
-		$this->value->add($i);
+		if ($i instanceof \DateInterval)
+		{
+			$this->value->add($i);
+		}
 
 		return $this;
 	}
@@ -160,7 +163,7 @@ class Date
 	 * @param int $year
 	 * @param int $month
 	 * @param int $day
-	 * 
+	 *
 	 * @return $this
 	 */
 	public function setDate($year, $month, $day)
@@ -172,7 +175,7 @@ class Date
 
 	private function tryToCreateIntervalByDesignators($interval)
 	{
-		if (!is_string($interval) || strpos($interval, ' ') !== false)
+		if (!is_string($interval) || str_contains($interval, ' '))
 		{
 			return null;
 		}
@@ -192,7 +195,7 @@ class Date
 
 			if ($firstChar !== "P")
 			{
-				$intervalTmp = "P".$intervalTmp;
+				$intervalTmp = "P" . $intervalTmp;
 			}
 			$i = new \DateInterval($intervalTmp);
 			if ($isNegative)
@@ -200,7 +203,7 @@ class Date
 				$i->invert = 1;
 			}
 		}
-		catch (\Exception $e)
+		catch (\Exception)
 		{
 		}
 
@@ -262,12 +265,12 @@ class Date
 	{
 		static $defaultCulture = null;
 
-		if($culture === null)
+		if ($culture === null)
 		{
-			if($defaultCulture === null)
+			if ($defaultCulture === null)
 			{
 				$context = Context::getCurrent();
-				if($context)
+				if ($context)
 				{
 					$defaultCulture = $context->getCulture();
 				}
@@ -289,7 +292,7 @@ class Date
 	 */
 	protected static function getCultureFormat(Context\Culture $culture = null)
 	{
-		if($culture)
+		if ($culture)
 		{
 			return $culture->getDateFormat();
 		}
@@ -305,7 +308,7 @@ class Date
 	 */
 	public static function convertFormatToPhp($format)
 	{
-		static $from = array(
+		static $from = [
 			"YYYY", // 1999
 			"MMMM", // January - December
 			"MM", // 01 - 12
@@ -314,8 +317,8 @@ class Date
 			"T", // am - pm
 			"MI", // 00 - 59
 			"SS", // 00 - 59
-		);
-		static $to = array(
+		];
+		static $to = [
 			"Y", // 1999
 			"F", // January - December
 			"m", // 01 - 12
@@ -324,7 +327,7 @@ class Date
 			"a", // am - pm
 			"i", // 00 - 59
 			"s", // 00 - 59
-		);
+		];
 
 		$format = str_replace($from, $to, $format);
 
@@ -366,7 +369,7 @@ class Date
 		{
 			new static($time, $format);
 		}
-		catch (Main\ObjectException $ex)
+		catch (Main\ObjectException)
 		{
 			$result = false;
 		}
@@ -418,7 +421,7 @@ class Date
 		{
 			return null;
 		}
-		
+
 		return $result[0]->getDate();
 	}
 }

@@ -196,7 +196,7 @@ class WebMoneyHandler extends PaySystem\ServiceHandler
 
 		$hash = hash($algorithm, $string);
 
-		return ToUpper($hash) == ToUpper($request->get('LMI_HASH'));
+		return mb_strtoupper($hash) == mb_strtoupper($request->get('LMI_HASH'));
 	}
 
 	/**

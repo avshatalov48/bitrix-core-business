@@ -693,18 +693,6 @@ class CSmile
 					$csvFile->SetFirstHeader(false);
 					while($smile = $csvFile->Fetch())
 					{
-						if (defined('BX_UTF') && BX_UTF)
-						{
-							if ($res["LID"] == 'ru')
-							{
-								$smile[1] = \Bitrix\Main\Text\Encoding::convertEncoding($smile[1], 'windows-1251', 'utf-8');
-							}
-							elseif ($res["LID"] == 'de')
-							{
-								$smile[1] = \Bitrix\Main\Text\Encoding::convertEncoding($smile[1], 'iso8859-15', 'utf-8');
-							}
-						}
-
 						$arLang[$smile[0]][$res["LID"]] = $smile[1];
 					}
 				}
@@ -776,20 +764,20 @@ class CSmile
 							$smileHR = self::IMAGE_SD;
 							$smileType = CSmile::TYPE_SMILE;
 							$smileCode = GetFileNameWithoutExtension($file);
-							if (strpos($file, 'smile_') === 0)
+							if (str_starts_with($file, 'smile_'))
 							{
 								$smileCode = mb_substr($smileCode, 6);
 							}
-							elseif (strpos($file, 'smile') === 0)
+							elseif (str_starts_with($file, 'smile'))
 							{
 								$smileCode = mb_substr($smileCode, 5);
 							}
-							elseif (strpos($file, 'icon_') === 0)
+							elseif (str_starts_with($file, 'icon_'))
 							{
 								$smileType = CSmile::TYPE_ICON;
 								$smileCode = mb_substr($smileCode, 5);
 							}
-							else if (strpos($file, 'icon') === 0)
+							else if (str_starts_with($file, 'icon'))
 							{
 								$smileType = CSmile::TYPE_ICON;
 								$smileCode = mb_substr($smileCode, 4);

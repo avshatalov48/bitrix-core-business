@@ -15,12 +15,6 @@ class ResponseVkads extends Response
 
 	public function parse($data)
 	{
-		// Need for preserve double UTF-conversion, because VK return JSON answer in result
-		if (is_string($data))
-		{
-			$data = Encoding::convertEncoding($data, SITE_CHARSET, 'UTF-8');
-		}
-
 		$parsed = is_array($data) ? $data : Json::decode($data);
 		if ($parsed['error'])
 		{

@@ -11,7 +11,11 @@ class CSocNetSubscription extends CAllSocNetSubscription
 		$arFields1 = \Bitrix\Socialnetwork\Util::getEqualityFields($arFields);
 
 		if (!CSocNetSubscription::CheckFields("ADD", $arFields))
+		{
 			return false;
+		}
+
+		$connection = \Bitrix\Main\Application::getConnection();
 
 		$arInsert = $DB->PrepareInsert("b_sonet_subscription", $arFields);
 		\Bitrix\Socialnetwork\Util::processEqualityFieldsToInsert($arFields1, $arInsert);
@@ -19,12 +23,15 @@ class CSocNetSubscription extends CAllSocNetSubscription
 		$ID = false;
 		if ($arInsert[0] <> '')
 		{
-			$strSql =
-				"INSERT INTO b_sonet_subscription(".$arInsert[0].") ".
-				"VALUES(".$arInsert[1].")";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$sql = $connection->getSqlHelper()->getInsertIgnore(
+				'b_sonet_subscription',
+				"(".$arInsert[0].")",
+				"VALUES(".$arInsert[1].")"
+			);
 
-			$ID = intval($DB->LastID());
+			$connection->query($sql);
+
+			$ID = (int)$connection->getInsertedId();
 		}
 
 		if(defined("BX_COMP_MANAGED_CACHE"))
@@ -64,7 +71,7 @@ class CSocNetSubscription extends CAllSocNetSubscription
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -95,7 +102,7 @@ class CSocNetSubscription extends CAllSocNetSubscription
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -104,7 +111,7 @@ class CSocNetSubscription extends CAllSocNetSubscription
 			}
 			else
 			{
-				// ÒÎËÜÊÎ ÄËß MYSQL!!! ÄËß ORACLE ÄÐÓÃÎÉ ÊÎÄ
+				// Ð¢ÐžÐ›Ð¬ÐšÐž Ð”Ð›Ð¯ MYSQL!!! Ð”Ð›Ð¯ ORACLE Ð”Ð Ð£Ð“ÐžÐ™ ÐšÐžÐ”
 				$cnt = $dbRes->SelectedRowsCount();
 			}
 
@@ -121,7 +128,7 @@ class CSocNetSubscription extends CAllSocNetSubscription
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;

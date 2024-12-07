@@ -82,16 +82,13 @@ class OccupancyChecker
 					$checkingEventsStartedCount++;
 				}
 			}
+			else if ($isEnd)
+			{
+				$existingEventsStartedCount--;
+			}
 			else
 			{
-				if ($isEnd)
-				{
-					$existingEventsStartedCount--;
-				}
-				else
-				{
-					$existingEventsStartedCount++;
-				}
+				$existingEventsStartedCount++;
 			}
 
 			if ($checkingEventsStartedCount > 0 && $existingEventsStartedCount > 0)
@@ -103,7 +100,7 @@ class OccupancyChecker
 					break;
 				}
 				$disturbingEventDate = $this->getEventFormattedDate($disturbingEvent);
-				if (!in_array($disturbingEventDate, $disturbingEventDates))
+				if (!in_array($disturbingEventDate, $disturbingEventDates, true))
 				{
 					$disturbingEventDates[] = $disturbingEventDate;
 				}
@@ -223,6 +220,7 @@ class OccupancyChecker
 			'DATE_FROM',
 			'DATE_TO',
 			'PARENT_ID',
+			'CAL_TYPE',
 			'TZ_FROM',
 			'TZ_TO',
 			'TZ_OFFSET_FROM',
@@ -235,15 +233,27 @@ class OccupancyChecker
 			'MEETING_HOST',
 			'MEETING_STATUS',
 			'IMPORTANCE',
+			'PRIVATE_EVENT',
 		];
 
 		$toLimit = $this->getCheckLimit($event);
+
+		$sections = [$roomId];
+
+		$additionalLocationConnection = AccessibilityManager::getAdditionalLocationAccessibilityConnection($roomId);
+		if (!empty($additionalLocationConnection))
+		{
+			$sections = [
+				...$sections,
+				...$additionalLocationConnection,
+			];
+		}
 
 		return \CCalendarEvent::GetList(
 			[
 				'arSelect' => $arSelect,
 				'arFilter' => [
-					'SECTION' => [$roomId],
+					'SECTION' => $sections,
 					'FROM_LIMIT' => $event['DATE_FROM'],
 					'TO_LIMIT' => DateTime::createFromTimestamp($toLimit)->toString(),
 					'DELETED' => 'N',

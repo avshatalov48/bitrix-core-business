@@ -2,10 +2,12 @@
 
 namespace Bitrix\Mail;
 
+use Bitrix\Mail\Repository\MailboxDirRepository;
 use Bitrix\Main;
 use Bitrix\Main\ORM;
 use Bitrix\Mail\Internals;
 use Bitrix\Main\Text\Emoji;
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 
 class Helper
 {
@@ -145,7 +147,10 @@ class Helper
 	{
 		$mailboxHelper = Helper\Mailbox::createInstance($id, false);
 
-		$result = empty($mailboxHelper) ? false : $mailboxHelper->syncOutgoing();
+		if ($mailboxHelper)
+		{
+			$mailboxHelper->syncOutgoing();
+		}
 
 		return '';
 	}
@@ -296,7 +301,10 @@ class Helper
 	{
 		$mailboxHelper = Helper\Mailbox::createInstance($id, false);
 
-		$result = empty($mailboxHelper) ? false : $mailboxHelper->resortTree();
+		if ($mailboxHelper)
+		{
+			$mailboxHelper->resortTree();
+		}
 
 		return '';
 	}
@@ -428,52 +436,11 @@ class Helper
 	public static function getStartInternalDateForDir(
 		$mailboxId,
 		$dirPath,
-		$order = 'ASC',
-		$filter =
-		[
-			'!=MESSAGE_UID.IS_OLD' => 'Y',
-			'==MESSAGE_UID.DELETE_TIME' => 0,
-			'!@MESSAGE_UID.IS_OLD' => ['M', 'R'],
-		]
 	)
 	{
-		$firstSyncUID = MailMessageTable::getList(
-			[
-				'runtime' => [
-					new ORM\Fields\Relations\Reference(
-						'MESSAGE_UID', MailMessageUidTable::class, [
-						'=this.MAILBOX_ID' => 'ref.MAILBOX_ID',
-						'=this.ID' => 'ref.MESSAGE_ID',
-					], [
-							'join_type' => 'INNER',
-						]
-					),
-				],
-				'select' => [
-					'INTERNALDATE' => 'MESSAGE_UID.INTERNALDATE',
-				],
-				'filter' => array_merge(
-					[
-						'=MAILBOX_ID' => $mailboxId,
-						'=MESSAGE_UID.DIR_MD5' => md5(Emoji::encode($dirPath)),
-					],
-					$filter
-				),
-				'order' => [
-					'FIELD_DATE' => $order,
-				],
-				'limit' => 1,
-			]
-		)->fetchAll();
+		$startInternalDate =  MessageInternalDateHandler::getStartInternalDateForDir($mailboxId, $dirPath);
 
-		if(isset($firstSyncUID[0]['INTERNALDATE']))
-		{
-			return $firstSyncUID[0]['INTERNALDATE'];
-		}
-		else
-		{
-			return false;
-		}
+		return $startInternalDate ?? false;
 	}
 
 	public static function getImapUnseenSyncForDir($mailbox = null, $dirPath ,$mailboxID = null)
@@ -503,7 +470,7 @@ class Helper
 		return false;
 	}
 
-	public static function setMailboxUnseenCounter($mailboxId,$count)
+	public static function setMailboxUnseenCounter($mailboxId,$count): void
 	{
 		$keyRow = [
 			'MAILBOX_ID' => $mailboxId,
@@ -516,6 +483,11 @@ class Helper
 			'=ENTITY_TYPE' => $keyRow['ENTITY_TYPE'],
 			'=ENTITY_ID' => $keyRow['ENTITY_ID']
 		];
+
+		if ($count < 0)
+		{
+			$count = 0;
+		}
 
 		$rowValue = ['VALUE' => $count];
 
@@ -592,7 +564,7 @@ class Helper
 				$keyRow = [
 					'MAILBOX_ID' => $mailboxId,
 					'ENTITY_TYPE' => 'DIR',
-					'ENTITY_ID'=>$dir->getId()
+					'ENTITY_ID' => $dir->getId()
 				];
 
 				$filter = [

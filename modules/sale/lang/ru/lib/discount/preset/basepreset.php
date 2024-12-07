@@ -20,5 +20,4 @@ $MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_PERCENT"] = "%";
 $MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_CUR_EACH"] = "#CUR# на каждый товар";
 $MESS["SHD_BT_SALE_ACT_GROUP_BASKET_SELECT_CUR_ALL"] = "#CUR# на общую сумму товаров";
 $MESS["SALE_BASE_PRESET_FINAL_OK"] = "Скидка \"#NAME#\" успешно сохранена.";
-$MESS["SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE"] = "Не указана скидка на заказ";
-?>
+$MESS['SALE_HANDLERS_DISCOUNTPRESET_ERROR_EMPTY_VALUE_MSGVER_1'] = "Не указана величина скидки";

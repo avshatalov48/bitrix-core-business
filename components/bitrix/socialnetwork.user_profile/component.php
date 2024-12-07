@@ -633,7 +633,7 @@ else
 
 			$arMonths_r = array();
 			for ($i = 1; $i <= 12; $i++)
-				$arMonths_r[$i] = ToLower(GetMessage('MONTH_'.$i.'_S'));
+				$arMonths_r[$i] = mb_strtolower(GetMessage('MONTH_'.$i.'_S'));
 
 			if (count($arParams["USER_FIELDS_MAIN"]) > 0
 				|| count($arParams["USER_FIELDS_CONTACT"]) > 0

@@ -1177,7 +1177,7 @@ try
 						continue;
 					}
 
-					$_sub_init_table_alias = ToLower($entity->getCode());
+					$_sub_init_table_alias = mb_strtolower($entity->getCode());
 
 					$subFilter = array();
 

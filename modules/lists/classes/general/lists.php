@@ -36,7 +36,7 @@ class CLists
 		$DB->Query("
 			delete from b_lists_permission
 			where IBLOCK_TYPE_ID = '".$DB->ForSQL($iblock_type_id)."'
-		", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		");
 		if(count($grp))
 		{
 			$DB->Query("
@@ -48,7 +48,7 @@ class CLists
 				where
 					ibt.ID =  '".$DB->ForSQL($iblock_type_id)."'
 					and ug.ID in (".implode(", ", $grp).")
-			", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			");
 		}
 
 		if(CACHED_b_lists_permission !== false)
@@ -69,7 +69,7 @@ class CLists
 		if($arResult === false)
 		{
 			$arResult = array();
-			$res = $DB->Query("select IBLOCK_TYPE_ID, GROUP_ID from b_lists_permission", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			$res = $DB->Query("select IBLOCK_TYPE_ID, GROUP_ID from b_lists_permission");
 			while($ar = $res->Fetch())
 				$arResult[$ar["IBLOCK_TYPE_ID"]][] = $ar["GROUP_ID"];
 
@@ -116,7 +116,7 @@ class CLists
 		$DB->Query("
 			delete from b_lists_socnet_group
 			where IBLOCK_ID = ".$iblock_id."
-		", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		");
 		foreach($arToDB as $role => $permission)
 		{
 			$DB->Query("
@@ -124,7 +124,7 @@ class CLists
 				(IBLOCK_ID, SOCNET_ROLE, PERMISSION)
 				values
 				(".$iblock_id.", '".$role."', '".$permission."')
-			", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+			");
 		}
 
 		if(CACHED_b_lists_permission !== false)
@@ -155,7 +155,7 @@ class CLists
 						select SOCNET_ROLE, PERMISSION
 						from b_lists_socnet_group
 						where IBLOCK_ID=".$iblock_id."
-					", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+					");
 					while($ar = $res->Fetch())
 						$arCache[$iblock_id][$ar["SOCNET_ROLE"]] = $ar["PERMISSION"];
 
@@ -168,7 +168,7 @@ class CLists
 					select SOCNET_ROLE, PERMISSION
 					from b_lists_socnet_group
 					where IBLOCK_ID=".$iblock_id."
-				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				");
 				while($ar = $res->Fetch())
 					$arCache[$iblock_id][$ar["SOCNET_ROLE"]] = $ar["PERMISSION"];
 			}
@@ -235,7 +235,7 @@ class CLists
 					FROM b_lists_permission
 					WHERE b_lists_permission.IBLOCK_TYPE_ID = b_iblock_type_lang.IBLOCK_TYPE_ID
 				)
-		", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		");
 		return $res;
 	}
 
@@ -269,8 +269,8 @@ class CLists
 		global $DB, $CACHE_MANAGER;
 		$iblock_id = intval($iblock_id);
 
-		$DB->Query("delete from b_lists_url where IBLOCK_ID=".$iblock_id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
-		$DB->Query("delete from b_lists_socnet_group where IBLOCK_ID=".$iblock_id, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+		$DB->Query("delete from b_lists_url where IBLOCK_ID=".$iblock_id);
+		$DB->Query("delete from b_lists_socnet_group where IBLOCK_ID=".$iblock_id);
 		$CACHE_MANAGER->Clean("b_lists_perm".$iblock_id);
 
 		CListFieldList::DeleteFields($iblock_id);
@@ -346,7 +346,7 @@ class CLists
 				SELECT * FROM b_lists_field
 				WHERE IBLOCK_ID = ".$iblock_id."
 				ORDER BY SORT ASC
-			", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			");
 			if($rsFields->Fetch())
 			{
 				$arNewFields = array(
@@ -411,7 +411,7 @@ class CLists
 		}
 		else
 		{
-			$url = '/'.$iblockId.'/element/#section_id#/#element_id#/';
+			$url = Option::get('lists', 'livefeed_url') . $iblockId . '/element/#section_id#/#element_id#/';
 			$DB->Query("INSERT INTO b_lists_url (IBLOCK_ID, URL, LIVE_FEED) values (".$iblockId.", '".$DB->ForSQL($url)."', ".$checked.")");
 		}
 	}
@@ -584,8 +584,7 @@ class CLists
 
 		if (!empty($listError))
 		{
-			$errorObject = new CAdminException($listError);
-			$stringError = $errorObject->getString();
+			$stringError = implode(PHP_EOL, array_column($listError, 'text'));
 		}
 
 		return $stringError;
@@ -1025,9 +1024,7 @@ class CLists
 		global $DB;
 		$iblockId = intval($iblockId);
 		$DB->Query(
-			"delete from b_lists_url where IBLOCK_ID=" . $iblockId,
-			false,
-			"FILE: ".__FILE__."<br> LINE: ".__LINE__
+			"delete from b_lists_url where IBLOCK_ID=" . $iblockId
 		);
 	}
 
@@ -1279,7 +1276,7 @@ class CLists
 		{
 			$strUpdate = $DB->prepareUpdate("b_iblock_element", array("SEARCHABLE_CONTENT" => $seachableContent));
 			$strSql = "UPDATE b_iblock_element SET ".$strUpdate." WHERE ID=".intval($elementId);
-			$DB->query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->query($strSql);
 		}
 
 		return $rebuildedElementCount;
@@ -1316,7 +1313,7 @@ class CLists
 		{
 			$strUpdate = $DB->prepareUpdate("b_iblock_element", array("SEARCHABLE_CONTENT" => $seachableContent));
 			$strSql = "UPDATE b_iblock_element SET ".$strUpdate." WHERE ID=".intval($elementId);
-			$DB->query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->query($strSql);
 		}
 	}
 
@@ -1437,6 +1434,7 @@ class CLists
 	private static function createSeachableContentForProperty($fields)
 	{
 		$searchableContent = '';
+		$userIds = [];
 
 		global $DB;
 		$properties = array();
@@ -1594,13 +1592,9 @@ class CLists
 						}
 						case "employee":
 						{
-							$siteNameFormat = CSite::getNameFormat(false);
 							foreach($properties[$propertyId] as $value)
 							{
-								$user = new CUser();
-								$userDetails = $user->getByID($value)->fetch();
-								if(is_array($userDetails))
-									$propertyValues[] = CUser::formatName($siteNameFormat, $userDetails,true,false);
+								$userIds[] = $value;
 							}
 							break;
 						}
@@ -1743,6 +1737,21 @@ class CLists
 				}
 				foreach($propertyValues as $propertyValue)
 					$searchableContent .= "\r\n".$propertyValue;
+			}
+		}
+
+		if ($userIds)
+		{
+			$siteNameFormat = CSite::getNameFormat(false);
+			$userResult = \Bitrix\Main\UserTable::getList([
+				'filter' => ['@ID' => $userIds],
+				'select' => ['ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'LOGIN', 'TITLE', 'EMAIL'],
+				'cache' => ['ttl' => 3600],
+			]);
+
+			foreach($userResult as $user)
+			{
+				$searchableContent .= "\r\n" . CUser::formatName($siteNameFormat, $user,true,false);
 			}
 		}
 

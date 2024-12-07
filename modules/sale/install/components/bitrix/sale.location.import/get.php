@@ -13,8 +13,6 @@ Loader::includeModule('sale');
 
 CBitrixComponent::includeComponentClass('bitrix:sale.location.import');
 
-CUtil::JSPostUnescape();
-
 $result = true;
 $errors = array();
 

@@ -226,6 +226,7 @@ return [
 		'landing.ui.field.link',
 		'landing.ui.field.linkurl',
 		'landing.ui.field.icon',
+		'landing.ui.field.userselect',
 		'landing.ui.panel.base',
 		'landing.ui.panel.content',
 		'landing.ui.panel.createpage',

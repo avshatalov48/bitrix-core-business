@@ -13,7 +13,7 @@ class CAllSaleOrderPropsGroup
 			"SELECT * ".
 			"FROM b_sale_order_props_group ".
 			"WHERE ID = ".$ID."";
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -63,7 +63,7 @@ class CAllSaleOrderPropsGroup
 		$strUpdate = $DB->PrepareUpdate("b_sale_order_props_group", $arFields);
 
 		$strSql = "UPDATE b_sale_order_props_group SET ".$strUpdate." WHERE ID = ".$ID."";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}

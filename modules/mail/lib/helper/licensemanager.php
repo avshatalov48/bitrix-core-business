@@ -2,12 +2,15 @@
 
 namespace Bitrix\Mail\Helper;
 
+use Bitrix\Main\ORM\Query\Join;
+use Bitrix\Main\ORM\Fields\Relations\Reference;
 use Bitrix\Mail\Internals\MailEntityOptionsTable;
 use Bitrix\Main;
 use Bitrix\Bitrix24;
 use Bitrix\Mail\MailboxTable;
-use Bitrix\Mail\Integration\Im\Notification;
 use Bitrix\Main\Mail\Internal\SenderTable;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Mail\Integration\Im\Notification;
 
 /**
  * Class LicenseManager
@@ -17,23 +20,92 @@ class LicenseManager
 	private const MAILBOX_IS_LOCKED_PROPERTY = 1;
 	private const MAILBOX_IS_AVAILABLE_PROPERTY = 0;
 
+	private static function sendNotificationsAboutBlockedMailboxes($ids): void
+	{
+		foreach ($ids as $id)
+		{
+			Notification::add(
+				null,
+				'imposed_tariff_restrictions_on_the_mailbox',
+				null,
+				$id,
+			);
+		}
+	}
+
+	private static function getTariffRestrictionsMailboxListsByDBData($mailboxes, $filterByStatus = null): array
+	{
+		$lists = [
+			'IDS_FOR_ADD' => [],
+			'IDS_FOR_UPDATE' => [],
+			'IDS_ALL' => [],
+		];
+
+		foreach ($mailboxes as $mailbox)
+		{
+			$mailboxId = (int) $mailbox['ID'];
+
+			if (is_null($mailbox['TARIFF_RESTRICTIONS']))
+			{
+				$lists['IDS_FOR_ADD'][] = $mailboxId;
+				$lists['IDS_ALL'][] = $mailboxId;
+			}
+			else if(is_null($filterByStatus) || (int)$mailbox['TARIFF_RESTRICTIONS'] === $filterByStatus)
+			{
+				$lists['IDS_FOR_UPDATE'][] = $mailboxId;
+				$lists['IDS_ALL'][] = $mailboxId;
+			}
+		}
+
+		return $lists;
+	}
+
+	private static function checkIdInTariffRestrictionsMailboxLists($checkedMailboxId, $lists): bool
+	{
+		foreach ($lists as $list)
+		{
+			foreach ($list as $id)
+			{
+				if ($id === $checkedMailboxId)
+				{
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
+
+	private static function getAvailabilitySyncStatusByMailboxList($checkedMailboxId, $mailboxList): bool
+	{
+		foreach ($mailboxList as $mailbox)
+		{
+			if ($checkedMailboxId === (int) $mailbox['ID'])
+			{
+				return !($mailbox['TARIFF_RESTRICTIONS']);
+			}
+		}
+
+		return true;
+	}
+
 	public static function checkTheMailboxForSyncAvailability(int $checkedMailboxId): bool
 	{
 		$maxCountAvailableMailboxes = self::getUserMailboxesLimit();
-
-		if ($maxCountAvailableMailboxes < 0)
-		{
-			return true;
-		}
-
 		static $checkedMailboxes = [];
 
 		if (!array_key_exists($checkedMailboxId, $checkedMailboxes))
 		{
-			$checkedMailboxes[$checkedMailboxId] = MailboxTable::getById($checkedMailboxId)->fetch();
+			$checkedMailboxes[$checkedMailboxId] = MailboxTable::getList(([
+				'select' => [
+					'ID',
+					'USER_ID',
+				],
+				'filter' => [
+					'=ID' => $checkedMailboxId,
+				],
+			]))->fetch();
 		}
-
-		$mailboxAvailabilitySyncStatus = false;
 
 		if ($checkedMailboxes[$checkedMailboxId] && isset($checkedMailboxes[$checkedMailboxId]['USER_ID']))
 		{
@@ -43,144 +115,129 @@ class LicenseManager
 
 			if (!array_key_exists($userId, $userMailboxes))
 			{
-				$userMailboxes[$userId] = MailboxTable::getList([
-					'select' => [
-						'ID',
-					],
-					'filter' => [
-						'=USER_ID' => $userId,
-						'=ACTIVE' => 'Y',
-					],
-					'order' => [
-						'ID' => 'ASC',
-					],
-				])->fetchAll();
+				$userMailboxes = MailboxTable::query()->addSelect('ID')
+				->setSelect([
+					'ID',
+					'TARIFF_RESTRICTIONS' => 'OPTIONS.VALUE',
+				])
+				->where('USER_ID', $userId)
+				->where('ACTIVE', 'Y')
+				->registerRuntimeField(
+					'',
+					new Reference(
+						'OPTIONS',
+						MailEntityOptionsTable::class,
+						Join::on('this.ID', 'ref.MAILBOX_ID')->where('ref.PROPERTY_NAME', 'TARIFF_RESTRICTIONS'),
+						['join_type' => Join::TYPE_LEFT],
+					),
+				)->fetchAll();
 			}
 
-			$mailboxNumber = 1;
-
-			foreach ($userMailboxes[$userId] as $mailbox)
+			if ($maxCountAvailableMailboxes < 0)
 			{
-				if (isset($mailbox['ID']))
-				{
-					$mailboxId = (int) $mailbox['ID'];
-					if ($mailboxNumber <= $maxCountAvailableMailboxes)
-					{
-						if ($mailboxId === $checkedMailboxId)
-						{
-							$mailboxAvailabilitySyncStatus = true;
-						}
-
-						static::removeTariffRestrictionsOnTheMailbox($mailboxId);
-					}
-					else
-					{
-						static::imposeTariffRestrictionsOnTheMailbox($mailboxId);
-					}
-				}
-
-				$mailboxNumber ++;
-			}
-		}
-
-		return $mailboxAvailabilitySyncStatus;
-	}
-
-	private static function getMailboxTariffRestrictions($mailboxId, $overwriteCache = false): int
-	{
-		static $mailboxesRestriction = [];
-
-		if ($overwriteCache || !array_key_exists($mailboxId, $mailboxesRestriction))
-		{
-			$filter = [
-				'=MAILBOX_ID' => $mailboxId,
-				'=ENTITY_TYPE' => 'MAILBOX',
-				'=ENTITY_ID' => $mailboxId,
-				'=PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
-			];
-
-			$restriction = MailEntityOptionsTable::getList([
-				'select' => [
-					'VALUE',
-				],
-				'filter' => $filter,
-				'limit' => 1,
-			])->fetch();
-
-			if (isset($restriction['VALUE']))
-			{
-				$mailboxesRestriction[$mailboxId] = (int) $restriction['VALUE'];
+				$activateMailboxes = self::getTariffRestrictionsMailboxListsByDBData(array_slice($userMailboxes, 0, count($userMailboxes)), static::MAILBOX_IS_LOCKED_PROPERTY);
+				static::changeTariffRestrictionsOnTheMailboxes($activateMailboxes, static::MAILBOX_IS_AVAILABLE_PROPERTY);
+				$mailboxAvailabilitySyncStatus = true;
 			}
 			else
 			{
-				$mailboxesRestriction[$mailboxId] = 0;
+				$activateMailboxes = self::getTariffRestrictionsMailboxListsByDBData(array_slice($userMailboxes, 0, $maxCountAvailableMailboxes), static::MAILBOX_IS_LOCKED_PROPERTY);
+				$blockMailboxes = self::getTariffRestrictionsMailboxListsByDBData(array_slice($userMailboxes, $maxCountAvailableMailboxes), static::MAILBOX_IS_AVAILABLE_PROPERTY);
+
+				if (self::checkIdInTariffRestrictionsMailboxLists($checkedMailboxId, $activateMailboxes))
+				{
+					$mailboxAvailabilitySyncStatus = true;
+				}
+				else if(self::checkIdInTariffRestrictionsMailboxLists($checkedMailboxId, $blockMailboxes))
+				{
+					$mailboxAvailabilitySyncStatus = false;
+				}
+				else
+				{
+					$mailboxAvailabilitySyncStatus = self::getAvailabilitySyncStatusByMailboxList($checkedMailboxId, $userMailboxes);
+				}
+
+				self::sendNotificationsAboutBlockedMailboxes($blockMailboxes['IDS_ALL']);
+				static::changeTariffRestrictionsOnTheMailboxes($activateMailboxes, static::MAILBOX_IS_AVAILABLE_PROPERTY);
+				static::changeTariffRestrictionsOnTheMailboxes($blockMailboxes, static::MAILBOX_IS_LOCKED_PROPERTY);
+			}
+
+			return $mailboxAvailabilitySyncStatus;
+		}
+
+		return false;
+	}
+
+	public static function changeTariffRestrictionsOnTheMailboxes($tariffRestrictionsMailboxLists, $tariffRestrictionsType): void
+	{
+		if (isset($tariffRestrictionsMailboxLists['IDS_FOR_ADD']) && count($tariffRestrictionsMailboxLists['IDS_FOR_ADD']))
+		{
+			$rowsForAdd = [];
+			foreach ($tariffRestrictionsMailboxLists['IDS_FOR_ADD'] as $id)
+			{
+				$rowsForAdd[] = [
+					'MAILBOX_ID' => $id,
+					'ENTITY_TYPE' => 'MAILBOX',
+					'ENTITY_ID' => $id,
+					'PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
+					'VALUE' => $tariffRestrictionsType,
+					'DATE_INSERT' => new DateTime(),
+				];
+			}
+
+			foreach ($rowsForAdd as $row)
+			{
+				$filter = [
+					'=MAILBOX_ID' => $row['MAILBOX_ID'],
+					'=ENTITY_TYPE' => 'MAILBOX',
+					'=ENTITY_ID' => $row['ENTITY_ID'],
+					'=PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
+				];
+
+				$keyRow = [
+					'MAILBOX_ID' => $row['MAILBOX_ID'],
+					'ENTITY_TYPE' => 'MAILBOX',
+					'ENTITY_ID' => $row['ENTITY_ID'],
+					'PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
+				];
+
+				if (MailEntityOptionsTable::getCount($filter))
+				{
+					MailEntityOptionsTable::update(
+						$keyRow,
+						[
+							'VALUE' => $row['VALUE'],
+							'DATE_INSERT' => new DateTime(),
+						],
+					);
+				}
+				else
+				{
+					MailEntityOptionsTable::add($row);
+				}
 			}
 		}
 
-		return $mailboxesRestriction[$mailboxId];
-	}
-
-	private static function removeTariffRestrictionsOnTheMailbox($mailboxId): void
-	{
-		if (static::getMailboxTariffRestrictions($mailboxId) !== static::MAILBOX_IS_AVAILABLE_PROPERTY)
+		if (isset($tariffRestrictionsMailboxLists['IDS_FOR_UPDATE']) && count($tariffRestrictionsMailboxLists['IDS_FOR_UPDATE']))
 		{
-			static::setTheOptionOfTariffRestrictions($mailboxId, static::MAILBOX_IS_AVAILABLE_PROPERTY);
-			static::getMailboxTariffRestrictions($mailboxId, true);
-		}
-	}
+			$rowsForUpdate = [];
+			foreach ($tariffRestrictionsMailboxLists['IDS_FOR_UPDATE'] as $id)
+			{
+				$rowsForUpdate[] = [
+					'MAILBOX_ID' => $id,
+					'ENTITY_TYPE' => 'MAILBOX',
+					'ENTITY_ID' => $id,
+					'PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
+				];
+			}
 
-	private static function imposeTariffRestrictionsOnTheMailbox($mailboxId): void
-	{
-		if (static::getMailboxTariffRestrictions($mailboxId) !== static::MAILBOX_IS_LOCKED_PROPERTY)
-		{
-			Notification::add(
-				null,
-				'imposed_tariff_restrictions_on_the_mailbox',
-				null,
-				$mailboxId
-			);
-
-			static::setTheOptionOfTariffRestrictions($mailboxId, static::MAILBOX_IS_LOCKED_PROPERTY);
-			static::getMailboxTariffRestrictions($mailboxId, true);
-		}
-	}
-
-	private static function setTheOptionOfTariffRestrictions($mailboxId, $optionValue): void
-	{
-		$filter = [
-			'=MAILBOX_ID' => $mailboxId,
-			'=ENTITY_TYPE' => 'MAILBOX',
-			'=ENTITY_ID' => $mailboxId,
-			'=PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
-		];
-
-		$keyRow = [
-			'MAILBOX_ID' => $mailboxId,
-			'ENTITY_TYPE' => 'MAILBOX',
-			'ENTITY_ID' => $mailboxId,
-			'PROPERTY_NAME' => 'TARIFF_RESTRICTIONS',
-		];
-
-		$fields = $keyRow;
-
-		$fields['DATE_INSERT'] = new Main\Type\DateTime();
-		$fields['VALUE'] = $optionValue;
-
-		if (MailEntityOptionsTable::getCount($filter))
-		{
-			MailEntityOptionsTable::update(
-				$keyRow,
-				[
-					'VALUE' => $optionValue,
-					'DATE_INSERT' => new Main\Type\DateTime(),
-				],
-			);
-		}
-		else
-		{
-			MailEntityOptionsTable::add(
-				$fields
-			);
+			if (count($rowsForUpdate))
+			{
+				MailEntityOptionsTable::updateMulti($rowsForUpdate, [
+					'VALUE' => $tariffRestrictionsType,
+					'DATE_INSERT' => new DateTime(),
+				]);
+			}
 		}
 	}
 
@@ -366,8 +423,13 @@ class LicenseManager
 	 *
 	 * @return bool
 	 */
-	public static function isCleanupOldEnabled()
+	public static function isCleanupOldEnabled(): bool
 	{
+		if (Main\Application::getConnection()->getType() === 'pgsql')
+		{
+			return false; // not implemented yet
+		}
+
 		return static::getSyncOldLimit() > 0;
 	}
 

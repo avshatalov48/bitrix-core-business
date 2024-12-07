@@ -210,13 +210,13 @@ if (
 					$inlineDiskObjectIdList = $inlineDiskAttachedObjectIdList = array();
 
 					// parse inline disk object ids
-					if (preg_match_all("#\\[disk file id=(n\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
+					if (preg_match_all("#\\[disk file id=(n\\d+)\\]#isu", $comment['POST_TEXT'], $matches))
 					{
 						$inlineDiskObjectIdList = array_map(function($a) { return (int)mb_substr($a, 1); }, $matches[1]);
 					}
 
 					// parse inline disk attached object ids
-					if (preg_match_all("#\\[disk file id=(\\d+)\\]#is".BX_UTF_PCRE_MODIFIER, $comment['POST_TEXT'], $matches))
+					if (preg_match_all("#\\[disk file id=(\\d+)\\]#isu", $comment['POST_TEXT'], $matches))
 					{
 						$inlineDiskAttachedObjectIdList = array_map(function($a) { return (int)$a; }, $matches[1]);
 					}

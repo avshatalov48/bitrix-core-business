@@ -8,7 +8,7 @@ const MicLevel = {
 		return {
 			bars: [],
 			barDisabledColor: 'rgba(255,255,255,0.42)',
-			barEnabledColor: '#B3E600'
+			barEnabledColor: '#2FC6F6'
 		}
 	},
 	watch:

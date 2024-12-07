@@ -96,6 +96,7 @@
 	background-image: url('./images/video.svg');
 	background-repeat: no-repeat;
 	background-position: center;
+	flex-shrink: 0;
 }
 
 .bx-im-message-panel__image_img {

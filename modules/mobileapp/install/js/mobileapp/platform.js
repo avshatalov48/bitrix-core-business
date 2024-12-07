@@ -4,6 +4,28 @@
 	const inProgressModules = {};
 	const SEPARATOR = '.';
 
+
+	class ModulesList {
+		#modules = {}
+
+		addModule(moduleName, module) {
+			this.#modules[moduleName] = module
+		}
+
+		getModuleExports(moduleName) {
+			return this.#modules[moduleName]?.exports
+		}
+	}
+	if (typeof globalThis.nativeModules === 'undefined') {
+		Object.defineProperty(globalThis, 'nativeModules', {
+			enumerable: false,
+			writable: false,
+			configurable: true,
+			value: new ModulesList(),
+		})
+	}
+
+
 	function build(module)
 	{
 		const factory = module.factory;
@@ -26,12 +48,18 @@
 	let require = function(id) {
 		if (id.startsWith('native/'))
 		{
-			if (typeof nativeRequire === 'function')
-			{
-				return nativeRequire(id.replace('native/', ''));
+			if (typeof nativeRequire !== 'function') {
+				return {}
 			}
 
-			return {};
+			const moduleName = id.replace('native/', '');
+			let exports = globalThis.nativeModules.getModuleExports(moduleName)
+			if (typeof exports === 'undefined' && exports !== null) {
+				exports = nativeRequire(moduleName)
+				globalThis.nativeModules.addModule(moduleName, { exports })
+			}
+
+			return exports
 		}
 
 		if (!modules[id])
@@ -193,16 +221,33 @@
 						delayedCallback[ext].forEach((callback) => callback.success.call());
 					}
 				}).catch((e) => {
-					delete loadingExtension[ext];
-					if (delayedCallback[ext])
-					{
-						delayedCallback[ext].forEach((callback) => callback.fail.call(null, e));
-					}
-				});
+				delete loadingExtension[ext];
+				if (delayedCallback[ext])
+				{
+					delayedCallback[ext].forEach((callback) => callback.fail.call(null, e));
+				}
+			});
+		});
+	};
+
+	const getExtensionCodeText = (moduleId) => {
+		return new Promise((resolve, reject) => {
+			if (typeof moduleId !== 'string')
+			{
+				reject(new Error(`Expected argument 'ext' with value ${moduleId} to be a string`));
+			}
+
+			BX.ajax({
+				url: `/mobileapp/jn/${moduleId}/?type=extension&onlyTextOfExt=true`,
+				method: 'POST',
+				dataType: 'html',
+				onsuccess: resolve,
+				onfailure: reject,
+			});
 		});
 	};
 
 	this.jn = {
-		moduleUsage, define, require, export: jnexport, import: jnImport,
+		moduleUsage, define, require, export: jnexport, import: jnImport, getExtensionCodeText,
 	};
 })();

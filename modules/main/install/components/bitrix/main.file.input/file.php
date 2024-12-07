@@ -2,12 +2,11 @@
 if (!defined("B_PROLOG_INCLUDED"))
 	require_once(__DIR__."/ajax.php");
 
-use \Bitrix\Main\Application;
-use \Bitrix\Main\Web\Json;
-use \Bitrix\Main\Error;
-use \Bitrix\Main\UI\Uploader\Uploader;
-use \Bitrix\Main\UI\FileInputUtility;
-use \Bitrix\Main\UI\Uploader\File;
+use Bitrix\Main\Web\Json;
+use Bitrix\Main\Error;
+use Bitrix\Main\UI\Uploader\Uploader;
+use Bitrix\Main\UI\FileInputUtility;
+use Bitrix\Main\UI\Uploader\File;
 
 class MFIController
 {
@@ -206,7 +205,7 @@ class MFIController
 			$this->sendJSResponse("
 				<script>
 					var target = (parent.frameElement ? parent : window);
-					target.FILE_UPLOADER_CALLBACK_{$uid}(".CUtil::PhpToJsObject($response).", {$uid});
+					target.FILE_UPLOADER_CALLBACK_{$uid}(" . Json::encode($response) . ", {$uid});
 				</script>
 			");
 		}
@@ -289,7 +288,7 @@ class MFIController
 		$result = array();
 		for ($i = 0; $i < $count; $i++)
 		{
-			$fileName = \CUtil::ConvertToLangCharset($_FILES["mfi_files"]["name"][$i]);
+			$fileName = $_FILES["mfi_files"]["name"][$i];
 			$file = array(
 				"name" => $fileName,
 				"size" => $_FILES["mfi_files"]["size"][$i],
@@ -350,7 +349,7 @@ class MFIController
 			$file["file_id"] = $tmp["fileID"];
 
 			if (
-				strpos($file["type"], 'image/') === 0
+				str_starts_with($file["type"], 'image/')
 				&& ($thumb = CFile::ResizeImageGet(
 					$tmp['fileID'],
 					["width" => 90, "height" => 90],

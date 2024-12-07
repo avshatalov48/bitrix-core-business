@@ -885,7 +885,7 @@ abstract class Provider
 		)
 		{
 			$result = preg_replace_callback(
-				"#\\[disk file id=(n\\d+)\\]#is" . BX_UTF_PCRE_MODIFIER,
+				"#\\[disk file id=(n\\d+)\\]#isu",
 				[ $this, 'parseDiskObjectsCloned' ],
 				$result
 			);
@@ -897,7 +897,7 @@ abstract class Provider
 		)
 		{
 			$result = preg_replace_callback(
-				"#\\[disk file id=(\\d+)\\]#is" . BX_UTF_PCRE_MODIFIER,
+				"#\\[disk file id=(\\d+)\\]#isu",
 				[ $this, 'parseAttachedDiskObjectsCloned' ],
 				$result
 			);

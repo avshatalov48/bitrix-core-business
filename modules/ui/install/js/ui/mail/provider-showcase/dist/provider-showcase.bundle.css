@@ -130,6 +130,8 @@
 	font-size: var(--ui-font-size-md);
 	font-weight: var(--ui-font-weight-semi-bold);
 	color: var(--ui-color-palette-gray-80);
+	text-align: center;
+	margin: 0 5px;
 }
 
 .mail-provider-item-subtitle {

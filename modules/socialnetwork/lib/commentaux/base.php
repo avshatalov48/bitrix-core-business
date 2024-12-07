@@ -211,8 +211,8 @@ abstract class Base
 			'NOTIFY_MODULE' => 'main',
 			'NOTIFY_EVENT' => 'rating_vote',
 			'NOTIFY_TAG' => $this->getRatingNotificationNotigyTag($ratingVoteParams, $fields),
-			'NOTIFY_MESSAGE' => \CIMEvent::getMessageRatingVote($ratingVoteParams),
-			'NOTIFY_MESSAGE_OUT' => \CIMEvent::getMessageRatingVote($ratingVoteParams, true),
+			'NOTIFY_MESSAGE' => fn (?string $languageId = null) => \CIMEvent::getMessageRatingVote($ratingVoteParams, false, $languageId),
+			'NOTIFY_MESSAGE_OUT' => fn (?string $languageId = null) => \CIMEvent::getMessageRatingVote($ratingVoteParams, true, $languageId),
 		];
 
 		\CIMNotify::add($messageFields);

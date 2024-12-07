@@ -4,7 +4,6 @@ namespace Bitrix\MessageService\Sender\Sms;
 
 use Bitrix\Main\Error;
 use Bitrix\Main\Result;
-use Bitrix\Main\Text\Encoding;
 use Bitrix\Main\Type\Collection;
 use Bitrix\Main\Web\HttpClient;
 use Bitrix\Main\Web\Json;
@@ -220,7 +219,6 @@ XML;
 			'body' => $body
 		]));
 
-		$body = Encoding::convertEncoding($body, SITE_CHARSET, 'utf-8');
 		if (!$httpClient->query(HttpClient::HTTP_POST, $this->getServiceEndpoint(), $body))
 		{
 			$result->setHttpResponse(new DTO\Response([

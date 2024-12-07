@@ -294,7 +294,7 @@ class CLearningGroup
 			if (isset($arNavParams['nTopCount']))
 			{
 				$strSql = $DB->TopSql($strSql, (int) $arNavParams['nTopCount']);
-				$res = $DB->Query($strSql, $bIgnoreErrors = false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+				$res = $DB->Query($strSql);
 				$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("LEARNING_LGROUPS"));
 			}
 			else
@@ -308,7 +308,7 @@ class CLearningGroup
 		}
 		else
 		{
-			$res = $DB->Query($strSql, $bIgnoreErrors = false, "File: " . __FILE__ . "<br>Line: " . __LINE__);
+			$res = $DB->Query($strSql);
 			$res->SetUserFields($USER_FIELD_MANAGER->GetUserFields("LEARNING_LGROUPS"));
 		}
 

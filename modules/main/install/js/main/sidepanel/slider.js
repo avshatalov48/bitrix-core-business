@@ -174,13 +174,8 @@ BX.SidePanel.Slider = function(url, options)
 			this.copyLinkLabel.getIconBox(),
 			{
 				text: () => {
-					if (BX.Type.isStringFilled(options.newWindowUrl))
-					{
-						return options.newWindowUrl;
-					}
-
 					const link = document.createElement('a');
-					link.href = this.getUrl();
+					link.href = BX.Type.isStringFilled(options.newWindowUrl) ? options.newWindowUrl : this.getUrl();
 
 					return link.href;
 				}
@@ -641,6 +636,7 @@ BX.SidePanel.Slider.prototype =
 	{
 		return (
 			this.allowChangeHistory &&
+			!this.allowCrossOrigin &&
 			!this.isSelfContained() &&
 			!this.getUrl().match(/^\/bitrix\/(components|tools)\//i)
 		);
@@ -2025,7 +2021,9 @@ BX.SidePanel.Slider.prototype =
 	 */
 	handleCrossOriginWindowMessage: function(event)
 	{
-		if (this.url.indexOf(event.origin) !== 0)
+		const frameUrl = new URL(this.url);
+		const eventUrl = new URL(event.origin);
+		if (eventUrl.origin !== frameUrl.origin)
 		{
 			return;
 		}

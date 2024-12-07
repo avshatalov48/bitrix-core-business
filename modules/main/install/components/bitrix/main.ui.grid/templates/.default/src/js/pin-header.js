@@ -1,8 +1,7 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
-
 
 	/**
 	 * BX.Grid.PinHeader
@@ -17,33 +16,33 @@
 		this.container = null;
 		this.parentNodeResizeObserver = null;
 
-		var adminPanel = this.getAdminPanel();
+		const adminPanel = this.getAdminPanel();
 
 		if (adminPanel)
 		{
 			this.mo = new MutationObserver(this.onAdminPanelMutation.bind(this));
-			this.mo.observe(document.documentElement, {attributes: true});
+			this.mo.observe(document.documentElement, { attributes: true });
 		}
 
 		this.init(parent);
 	};
 
 	BX.Grid.PinHeader.prototype = {
-		init: function(parent)
+		init(parent)
 		{
 			this.parent = parent;
 			this.rect = BX.pos(this.parent.getHead());
 			this.gridRect = BX.pos(this.parent.getTable());
 
-			var workArea = BX.Grid.Utils.getBySelector(document, '#workarea-content', true);
+			let workArea = BX.Grid.Utils.getBySelector(document, '#workarea-content', true);
 
 			if (!workArea)
 			{
 				workArea = this.parent.getContainer().parentNode;
-				workArea = !!workArea ? workArea.parentNode : workArea;
+				workArea = workArea ? workArea.parentNode : workArea;
 			}
 
-			if (!!workArea)
+			if (workArea)
 			{
 				this.parentNodeResizeObserver = new BX.ResizeObserver(BX.proxy(this.refreshRect, this));
 				this.parentNodeResizeObserver.observe(workArea);
@@ -51,22 +50,22 @@
 
 			this.create(true);
 
-			document.addEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({passive: true}));
-			document.addEventListener('resize', BX.proxy(this._onResize, this), BX.Grid.Utils.listenerParams({passive: true}));
+			document.addEventListener('scroll', BX.proxy(this._onScroll, this), BX.Grid.Utils.listenerParams({ passive: true }));
+			document.addEventListener('resize', BX.proxy(this._onResize, this), BX.Grid.Utils.listenerParams({ passive: true }));
 			BX.addCustomEvent('Grid::updated', BX.proxy(this._onGridUpdate, this));
 			BX.addCustomEvent('Grid::resize', BX.proxy(this._onGridUpdate, this));
 			BX.bind(window, 'resize', BX.proxy(this._onGridUpdate, this));
 		},
 
-		refreshRect: function()
+		refreshRect()
 		{
 			this.gridRect = BX.pos(this.parent.getTable());
 			this.rect = BX.pos(this.parent.getHead());
 		},
 
-		_onGridUpdate: function()
+		_onGridUpdate()
 		{
-			var isPinned = this.isPinned();
+			const isPinned = this.isPinned();
 
 			BX.remove(this.getContainer());
 			this.create();
@@ -81,18 +80,17 @@
 			BX.onCustomEvent(window, 'Grid::headerUpdated', []);
 		},
 
-		create: function(async)
+		create(async)
 		{
-			var cells = BX.Grid.Utils.getByTag(this.parent.getHead(), 'th');
-			var cloneThead = BX.clone(this.parent.getHead());
-			var cloneCells = BX.Grid.Utils.getByTag(cloneThead, 'th');
+			const cells = BX.Grid.Utils.getByTag(this.parent.getHead(), 'th');
+			const cloneThead = BX.clone(this.parent.getHead());
+			const cloneCells = BX.Grid.Utils.getByTag(cloneThead, 'th');
 
-			var resizeCloneCells = function ()
+			const resizeCloneCells = function()
 			{
 				cells.forEach(
-					function (cell, index)
-					{
-						var width = BX.width(cell);
+					(cell, index) => {
+						let width = BX.width(cell);
 
 						if (index > 0)
 						{
@@ -100,13 +98,13 @@
 							width -= parseInt(BX.style(cell, 'border-right-width'));
 						}
 
-						cloneCells[index].firstElementChild && (cloneCells[index].firstElementChild.style.width = width + 'px');
+						cloneCells[index].firstElementChild && (cloneCells[index].firstElementChild.style.width = `${width}px`);
 
 						if (cells.length - 1 > index)
 						{
-							cloneCells[index].style.width = width + 'px';
+							cloneCells[index].style.width = `${width}px`;
 						}
-					}
+					},
 				);
 			};
 
@@ -116,13 +114,13 @@
 				block: 'main-grid-fixed-bar',
 				mix: 'main-grid-fixed-top',
 				attrs: {
-					style: 'width: ' + BX.width(this.parent.getContainer()) + 'px'
+					style: `width: ${BX.width(this.parent.getContainer())}px`,
 				},
 				content: {
 					block: 'main-grid-table',
 					tag: 'table',
-					content: cloneThead
-				}
+					content: cloneThead,
+				},
 			});
 
 			this.container.hidden = true;
@@ -130,17 +128,17 @@
 			this.parent.getWrapper().appendChild(this.container);
 		},
 
-		getContainer: function()
+		getContainer()
 		{
 			return this.container;
 		},
 
-		getFixedTable: function()
+		getFixedTable()
 		{
 			return this.table || (this.table = BX.Grid.Utils.getByTag(this.getContainer(), 'table', true));
 		},
 
-		getAdminPanel: function()
+		getAdminPanel()
 		{
 			if (!this.adminPanel)
 			{
@@ -150,14 +148,14 @@
 			return this.adminPanel;
 		},
 
-		isAdminPanelPinned: function()
+		isAdminPanelPinned()
 		{
 			return BX.hasClass(document.documentElement, 'adm-header-fixed');
 		},
 
-		getPinOffset: function()
+		getPinOffset()
 		{
-			var adminPanel = this.getAdminPanel();
+			const adminPanel = this.getAdminPanel();
 
 			if (adminPanel && this.isAdminPanelPinned())
 			{
@@ -167,9 +165,9 @@
 			return 0;
 		},
 
-		pin: function()
+		pin()
 		{
-			var container = this.getContainer();
+			const container = this.getContainer();
 
 			if (container)
 			{
@@ -179,9 +177,9 @@
 			BX.onCustomEvent(window, 'Grid::headerPinned', []);
 		},
 
-		unpin: function()
+		unpin()
 		{
-			var container = this.getContainer();
+			const container = this.getContainer();
 
 			if (container)
 			{
@@ -191,45 +189,43 @@
 			BX.onCustomEvent(window, 'Grid::headerUnpinned', []);
 		},
 
-		stopPin: function()
+		stopPin()
 		{
 			BX.Grid.Utils.styleForEach([this.getContainer()], {
-				'position': 'absolute',
-				'top': ((this.gridRect.bottom - this.rect.height - this.gridRect.top) + 'px'),
-				'box-shadow': 'none'
+				position: 'absolute',
+				top: (`${this.gridRect.bottom - this.rect.height - this.gridRect.top}px`),
+				'box-shadow': 'none',
 			});
 		},
 
-		startPin: function()
+		startPin()
 		{
 			BX.Grid.Utils.styleForEach([this.getContainer()], {
-				'position': 'fixed',
-				'top': this.getPinOffset() + 'px',
-				'box-shadow': ''
+				position: 'fixed',
+				top: `${this.getPinOffset()}px`,
+				'box-shadow': '',
 			});
 		},
 
-		isPinned: function()
+		isPinned()
 		{
 			return !this.getContainer().hidden;
 		},
 
-		_onScroll: function()
+		_onScroll()
 		{
-			var scrollY = 0;
+			let scrollY = 0;
 
 			if (this.scrollRect)
 			{
 				scrollY = this.scrollRect.scrollTop;
 			}
 			else
-			{
 				if (document.scrollingElement)
 				{
 					this.scrollRect = document.scrollingElement;
 				}
 				else
-				{
 					if (document.documentElement.scrollTop > 0)
 					{
 						this.scrollRect = document.documentElement;
@@ -238,14 +234,12 @@
 					{
 						this.scrollRect = document.body;
 					}
-				}
-			}
 
 			if (this.gridRect.bottom > (scrollY + this.rect.height))
 			{
 				this.startPin();
 
-				var offset = this.getPinOffset();
+				const offset = this.getPinOffset();
 
 				if ((this.rect.top - offset) <= scrollY)
 				{
@@ -262,14 +256,14 @@
 			}
 		},
 
-		onAdminPanelMutation: function()
+		onAdminPanelMutation()
 		{
 			this._onScroll();
 		},
 
-		_onResize: function()
+		_onResize()
 		{
 			this.rect = BX.pos(this.parent.getHead());
-		}
-	}
+		},
+	};
 })();

@@ -106,7 +106,7 @@ if (CModule::IncludeModule("sale"))
 else
 {
 	?>
-	<b><?=ShowError(GetMessage("SPCAT3_NO_SHOP"))?></b>
+	<b><? ShowError(GetMessage("SPCAT3_NO_SHOP")) ?></b>
 	<?
 }
 ?>

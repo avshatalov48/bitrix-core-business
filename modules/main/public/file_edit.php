@@ -42,7 +42,7 @@ while($arSiteTemplate = $rsSiteTemplates->Fetch())
 $io = CBXVirtualIo::GetInstance();
 
 $bVarsFromForm = false;	// if 'true' - we will get content  and variables from form, if 'false' - from saved file
-$bSessIDRefresh = false;	// ôëàã, óêàçûâàþùèé, íóæíî ëè îáíîâëÿòü èä ñåññèè íà êëèåíòå
+$bSessIDRefresh = false;	// Ñ„Ð»Ð°Ð³, ÑƒÐºÐ°Ð·Ñ‹Ð²Ð°ÑŽÑ‰Ð¸Ð¹, Ð½ÑƒÐ¶Ð½Ð¾ Ð»Ð¸ Ð¾Ð±Ð½Ð¾Ð²Ð»ÑÑ‚ÑŒ Ð¸Ð´ ÑÐµÑÑÐ¸Ð¸ Ð½Ð° ÐºÐ»Ð¸ÐµÐ½Ñ‚Ðµ
 $editor_name = $_REQUEST['editor_name'] ?? 'filesrc_pub';
 $filename = $_REQUEST['filename'] ?? '';
 $new = $_REQUEST['new'] ?? '';
@@ -121,7 +121,7 @@ if(
 }
 elseif($strWarning == '')
 {
-	if(!$USER->IsAdmin() && mb_substr(CFileman::GetFileName($abs_path), 0, 1) == ".")
+	if(!$USER->IsAdmin() && str_starts_with(CFileman::GetFileName($abs_path), "."))
 	{
 		$strWarning = GetMessage("FILEMAN_FILEEDIT_BAD_FNAME")." ";
 		$bEdit = false;
@@ -318,7 +318,7 @@ if($strWarning == '')
 <?
 if(!isset($_REQUEST['subdialog']) || $_REQUEST['subdialog'] != 'Y'):
 	$url = $_REQUEST["back_url"] ?? '';
-	if(mb_substr($url, 0, 1) != "/" || mb_substr($url, 1, 1) == "/")
+	if(!str_starts_with($url, "/") || mb_substr($url, 1, 1) == "/")
 	{
 		//only local /url is allowed
 		$url = '';
@@ -386,11 +386,11 @@ if(!$bVarsFromForm)
 
 				//Trim php tags
 				$src = $arPHP[$n][2];
-				if (mb_substr($src, 0, 5) == "<?"."php")
-					$src = mb_substr($src, 5);
+				if (str_starts_with($src, "<?php"))
+					$src = substr($src, 5);
 				else
-					$src = mb_substr($src, 2);
-				$src = mb_substr($src, 0, -2);
+					$src = substr($src, 2);
+				$src = substr($src, 0, -2);
 
 				//If it's Component 2, keep the php code. If it's component 1 or ordinary PHP - than replace code by #PHPXXXX# (XXXX - count of PHP scripts)
 				$comp2_begin = '$APPLICATION->INCLUDECOMPONENT(';
@@ -429,7 +429,7 @@ if (CAutoSave::Allowed())
 {
 	echo CJSCore::Init(array('autosave'), true);
 	$AUTOSAVE->Init();
-?><script type="text/javascript">BX.WindowManager.Get().setAutosave();</script><?
+?><script>BX.WindowManager.Get().setAutosave();</script><?
 }
 ?>
 <?=bitrix_sessid_post()?>
@@ -753,7 +753,7 @@ else //if ($bDisableEditor)
 {
 	?>
 <textarea name="<?=htmlspecialcharsbx($editor_name)?>" id="<?=htmlspecialcharsbx($editor_name)?>" style="height: 99%; width: 100%;"><?=htmlspecialcharsex($filesrc)?></textarea>
-<script type="text/javascript">
+<script>
 var
 	border,
 	wnd = BX.WindowManager.Get();

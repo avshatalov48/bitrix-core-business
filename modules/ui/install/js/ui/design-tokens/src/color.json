@@ -7,6 +7,12 @@
 		"on-primary-alt": { "value": "{color.palette.white.base}" },
 		"extranet": { "value": "{color.palette.orange.60}" },
 
+		"copilot": {
+			"dark": { "value": "#682AC6" },
+			"secondary": { "value": "#B095DC" },
+			"primary": { "value": "#8E52EC" }
+		},
+
 		"text": {
 			"primary": { "value": "{color.palette.black.base}" },
 			"secondary": { "value": "{color.palette.gray.90}" },

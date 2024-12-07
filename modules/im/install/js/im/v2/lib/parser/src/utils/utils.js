@@ -1,6 +1,6 @@
-import {Type} from 'main.core';
+import { Type } from 'main.core';
 
-import {getCore} from './core-proxy';
+import { getCore } from './core-proxy';
 
 const RECURSIVE_LIMIT = 10;
 export const ParserUtils = {
@@ -51,13 +51,37 @@ export const ParserUtils = {
 		user2 = Number.parseInt(user2, 10);
 		if (getCore().getUserId() === user1)
 		{
-			return `${user2}/${messageId}}`;
+			return `${user2}/${messageId}`;
 		}
+
 		if (getCore().getUserId() === user2)
 		{
-			return `${user1}/${messageId}}`;
+			return `${user1}/${messageId}`;
 		}
 
 		return '';
+	},
+
+	getDialogIdFromFinalContextTag(finalContextTag: string): string
+	{
+		if (!/^(chat\d+|\d+)\/\d+$/.test(finalContextTag))
+		{
+			return '';
+		}
+
+		const [dialogId] = finalContextTag.split('/');
+
+		return dialogId;
+	},
+
+	getDialogIdByChatId(chatId: number): string
+	{
+		const dialog = getCore().store.getters['chats/getByChatId'](chatId);
+		if (!dialog)
+		{
+			return '';
+		}
+
+		return dialog.dialogId;
 	},
 };

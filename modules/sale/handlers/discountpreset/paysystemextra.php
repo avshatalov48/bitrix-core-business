@@ -2,14 +2,8 @@
 
 namespace Sale\Handlers\DiscountPreset;
 
-
-use Bitrix\Main;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Sale\Internals;
-use Bitrix\Sale\Helpers\Admin\Blocks;
-
-
-Loc::loadMessages(__FILE__);
 
 class PaySystemExtra extends PaySystem
 {
@@ -31,5 +25,10 @@ class PaySystemExtra extends PaySystem
 	public function getSort()
 	{
 		return 300;
+	}
+
+	protected function addErrorEmptyActionValue(): void
+	{
+		$this->errorCollection[] = new Error(Loc::getMessage('SALE_HANDLERS_DISCOUNTPRESET_PAYSYSTEMEXTRA_EMPTY_DISCOUNT_VALUE'));
 	}
 }

@@ -3,7 +3,7 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_public,im_v2_component_elements,im_v2_component_entitySelector,im_v2_component_message_base) {
+(function (exports,im_public,im_v2_component_elements,im_v2_component_entitySelector,im_v2_component_message_base,im_v2_lib_analytics,im_v2_lib_call,ui_vue3_directives_hint) {
 	'use strict';
 
 	const BUTTON_COLOR = '#00ace3';
@@ -11,6 +11,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	// @vue/component
 	const ChatCreationMessage = {
 	  name: 'ChatCreationMessage',
+	  directives: {
+	    hint: ui_vue3_directives_hint.hint
+	  },
 	  components: {
 	    ButtonComponent: im_v2_component_elements.Button,
 	    AddToChat: im_v2_component_entitySelector.AddToChat,
@@ -52,12 +55,47 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    dialog() {
 	      return this.$store.getters['chats/get'](this.dialogId, true);
 	    },
-	    userCountInChat() {
-	      var _this$dialog$userCoun, _this$dialog;
-	      return (_this$dialog$userCoun = (_this$dialog = this.dialog) == null ? void 0 : _this$dialog.userCounter) != null ? _this$dialog$userCoun : 0;
+	    hasActiveCurrentCall() {
+	      return im_v2_lib_call.CallManager.getInstance().hasActiveCurrentCall(this.dialogId);
 	    },
-	    isDisabledStartCallButton() {
-	      return !this.userCountInChat || this.userCountInChat <= 1;
+	    hasActiveAnotherCall() {
+	      return im_v2_lib_call.CallManager.getInstance().hasActiveAnotherCall(this.dialogId);
+	    },
+	    isActive() {
+	      if (this.hasActiveCurrentCall) {
+	        return true;
+	      }
+	      if (this.hasActiveAnotherCall) {
+	        return false;
+	      }
+	      return im_v2_lib_call.CallManager.getInstance().chatCanBeCalled(this.dialogId);
+	    },
+	    userLimit() {
+	      return im_v2_lib_call.CallManager.getInstance().getCallUserLimit();
+	    },
+	    isChatUserLimitExceeded() {
+	      return im_v2_lib_call.CallManager.getInstance().isChatUserLimitExceeded(this.dialogId);
+	    },
+	    hintContent() {
+	      if (this.isChatUserLimitExceeded) {
+	        return {
+	          text: this.loc('IM_LIB_CALL_USER_LIMIT_EXCEEDED_TOOLTIP', {
+	            '#USER_LIMIT#': this.userLimit
+	          }),
+	          popupOptions: {
+	            bindOptions: {
+	              position: 'bottom'
+	            },
+	            angle: {
+	              position: 'top'
+	            },
+	            targetContainer: document.body,
+	            offsetLeft: 82,
+	            offsetTop: 0
+	          }
+	        };
+	      }
+	      return null;
 	    }
 	  },
 	  methods: {
@@ -65,6 +103,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
 	    },
 	    onCallButtonClick() {
+	      im_v2_lib_analytics.Analytics.getInstance().onStartCallClick({
+	        type: im_v2_lib_analytics.Analytics.AnalyticsType.groupCall,
+	        section: im_v2_lib_analytics.Analytics.AnalyticsSection.chatWindow,
+	        subSection: im_v2_lib_analytics.Analytics.AnalyticsSubSection.window,
+	        element: im_v2_lib_analytics.Analytics.AnalyticsElement.initialBanner,
+	        chatId: this.chatId
+	      });
 	      im_public.Messenger.startVideoCall(this.dialogId);
 	    },
 	    onInviteButtonClick() {
@@ -75,7 +120,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 		<BaseMessage
 			:dialogId="dialogId"
 			:item="item"
-			:withDefaultContextMenu="false"
+			:withContextMenu="false"
+			:withReactions="false"
 			:withBackground="false"
 			class="bx-im-message-chat-creation__scope"
 		>
@@ -97,7 +143,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 								:isRounded="true"
 								:text="loc('IM_MESSAGE_CHAT_CREATION_BUTTON_VIDEOCALL')"
 								@click="onCallButtonClick"
-								:isDisabled="isDisabledStartCallButton"
+								:isDisabled="!isActive"
+								v-hint="hintContent"
 							/>
 						</div>
 						<div class="bx-im-message-chat-creation__buttons_item">
@@ -128,5 +175,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.ChatCreationMessage = ChatCreationMessage;
 
-}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Component.Message));
+}((this.BX.Messenger.v2.Component.Message = this.BX.Messenger.v2.Component.Message || {}),BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Component.EntitySelector,BX.Messenger.v2.Component.Message,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Vue3.Directives));
 //# sourceMappingURL=chat-creation.bundle.js.map

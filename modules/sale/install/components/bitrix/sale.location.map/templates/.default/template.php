@@ -33,7 +33,7 @@ Loc::loadMessages(__FILE__);
 	</tr>
 <?endif;?>
 
-<script type="text/javascript">
+<script>
 
 	BX.message({
 		"SALE_LOCATION_MAP_CLOSE": "<?=Loc::getMessage("SALE_LOCATION_MAP_CLOSE")?>",

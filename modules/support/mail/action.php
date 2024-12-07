@@ -67,7 +67,7 @@ if(CModule::IncludeModule("support")):
 			{
 				$subject = preg_quote($subject, "/");
 				$subject = str_replace("#ID#", "([0-9]+)", $subject);
-				$subject = preg_replace("/#[-A-Z_0-9]+#/i".BX_UTF_PCRE_MODIFIER, ".*?", $subject);
+				$subject = preg_replace("/#[-A-Z_0-9]+#/iu", ".*?", $subject);
 				$w_subject .= $subject."\r\n";
 			}
 			$W_SUPPORT_SUBJECT = $w_subject;
@@ -105,7 +105,7 @@ while ($ar = $rs->Fetch())
 	<?=SelectBox("W_SUPPORT_CRITICALITY", CTicket::GetRefBookValues("K", $W_SUPPORT_SITE_ID), " ", $W_SUPPORT_CRITICALITY);?>
 	</td>
 </tr>
-<script type="text/javascript">
+<script>
 <!--
 var arCriticality = Array();
 var arCategory = Array();

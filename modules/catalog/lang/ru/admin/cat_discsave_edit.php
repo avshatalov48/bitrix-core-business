@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["BT_CAT_DISC_SAVE_EDIT_TAB_NAME_MAIN"] = "Накопительная программа";
 $MESS["BT_CAT_DISC_SAVE_EDIT_TAB_TITLE_MAIN"] = "Основные параметры";
 $MESS["BT_CAT_DISC_SAVE_EDIT_TAB_NAME_RANGES"] = "Скидки накопительной программы";
@@ -67,4 +67,3 @@ $MESS["BT_CAT_DISC_SAVE_EDIT_ERR_COUNT_PERIOD"] = "Неверный период
 $MESS["BT_CAT_DISC_SAVE_EDIT_ERR_RANGES_EMPTY"] = "Не заданы размеры скидок и суммы накоплений";
 $MESS["BT_CAT_DISC_SAVE_EDIT_MESS_REQUIRED_FIELDS"] = "Поля, обязательные для заполнения.";
 $MESS["CAT_FEATURE_NOT_ALLOW"] = "Данный функционал не входит в Вашу редакцию продукта.";
-?>

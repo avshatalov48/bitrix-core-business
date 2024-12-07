@@ -22,17 +22,10 @@ class CSupportTimetable
 	const TABLE = "b_ticket_timetable";
 	const TABLE_SHEDULE = "b_ticket_sla_shedule";
 	
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/" . $module_id . "/install/version.php");
-		return "<br>Module: " . $module_id . " <br>Class: CSupportTimetable<br>File: " . __FILE__;
-	}
-	
 	public static function Set($arFields, $arFieldsShedule) //$arFields, $arFieldsShedule = array(0 => array("ID" => 1 ...), 1 => array("ID" => 3 ...) ...)
 	{
 		global $DB, $APPLICATION;
-		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
+
 		$isDemo = null;
 		$isSupportClient = null;
 		$isSupportTeam = null;
@@ -80,11 +73,11 @@ class CSupportTimetable
 		{
 			if($isNew)
 			{
-				$res = $DB->Insert($table, $arFields_i, $err_mess . __LINE__);
+				$res = $DB->Insert($table, $arFields_i);
 			}
 			else
 			{
-				$res = $DB->Update($table, $arFields_i, "WHERE ID=" . $id . "", $err_mess . __LINE__);
+				$res = $DB->Update($table, $arFields_i, "WHERE ID=" . $id . "");
 			}
 		}
 		
@@ -98,7 +91,7 @@ class CSupportTimetable
 			$id = $res;
 		}
 		
-		$DB->Query("DELETE FROM $table_shedule WHERE TIMETABLE_ID = $id", false, $err_mess . __LINE__);
+		$DB->Query("DELETE FROM $table_shedule WHERE TIMETABLE_ID = $id");
 		$noWrite = array();
 		$f_s->ResetNext();
 		while($f_s->Next())
@@ -112,7 +105,7 @@ class CSupportTimetable
 			{
 				continue;
 			}
-			$DB->Insert($table_shedule, $f_s->ToArray(CSupportTableFields::ALL, array(CSupportTableFields::NOT_NULL), true), $err_mess . __LINE__);
+			$DB->Insert($table_shedule, $f_s->ToArray(CSupportTableFields::ALL, array(CSupportTableFields::NOT_NULL), true));
 			$noWrite[$f_s->WEEKDAY_NUMBER] = $f_s->OPEN_TIME;
 		}
 		for($i = 0; $i <= 6; $i++) 
@@ -127,7 +120,7 @@ class CSupportTimetable
 			);
 			if (!isset($noWrite[$i]))
 			{
-				$DB->Insert($table_shedule, $a, $err_mess . __LINE__);
+				$DB->Insert($table_shedule, $a);
 			}
 		}
 
@@ -148,7 +141,6 @@ class CSupportTimetable
 	// get Timetable list
 	public static function GetList($arSort = null, $arFilter = null)
 	{
-		$err_mess = (self::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$table = self::TABLE;
 		$arSqlSearch = Array();
@@ -219,14 +211,13 @@ class CSupportTimetable
 			$strSqlSearch
 			$strSqlOrder
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		return $rs;
 	}
 	
 	public static function GetSheduleByID($id, $needObj = false)
 	{
 		global $DB;
-		$err_mess = (self::err_mess())."<br>Function: Set<br>Line: ";
 		$tableShedule = self::TABLE_SHEDULE;
 		$id = intval($id);
 		
@@ -238,7 +229,7 @@ class CSupportTimetable
 			WHERE
 				T.TIMETABLE_ID = $id
 			";
-		$res = $DB->Query($strSql, false, $err_mess . __LINE__);
+		$res = $DB->Query($strSql);
 		if(!$needObj)
 		{
 			return $res;
@@ -256,7 +247,6 @@ class CSupportTimetable
 	// delete Timetable
 	public static function Delete($id, $checkRights=true)
 	{
-		$err_mess = (self::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$id = intval($id);
 		$table = self::TABLE;
@@ -286,11 +276,11 @@ class CSupportTimetable
 		
 		
 		$strSql = "SELECT DISTINCT 'x' FROM b_ticket_sla WHERE TIMETABLE_ID = $id";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		if (!$rs->Fetch())
 		{
-				$DB->Query("DELETE FROM $table WHERE ID = $id", false, $err_mess . __LINE__);
-				$DB->Query("DELETE FROM $tableShedule WHERE TIMETABLE_ID = $id", false, $err_mess . __LINE__);
+				$DB->Query("DELETE FROM $table WHERE ID = $id");
+				$DB->Query("DELETE FROM $tableShedule WHERE TIMETABLE_ID = $id");
 				return true;
 		}
 		else

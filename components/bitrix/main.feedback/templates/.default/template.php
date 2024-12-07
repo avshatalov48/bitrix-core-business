@@ -16,7 +16,7 @@ if(!defined("B_PROLOG_INCLUDED")||B_PROLOG_INCLUDED!==true)die();
 	foreach($arResult["ERROR_MESSAGE"] as $v)
 		ShowError($v);
 }
-if($arResult["OK_MESSAGE"] <> '')
+if(!empty($arResult["OK_MESSAGE"]))
 {
 	?><div class="mf-ok-text"><?=$arResult["OK_MESSAGE"]?></div><?
 }
@@ -41,7 +41,7 @@ if($arResult["OK_MESSAGE"] <> '')
 		<div class="mf-text">
 			<?=GetMessage("MFT_MESSAGE")?><?if(empty($arParams["REQUIRED_FIELDS"]) || in_array("MESSAGE", $arParams["REQUIRED_FIELDS"])):?><span class="mf-req">*</span><?endif?>
 		</div>
-		<textarea name="MESSAGE" rows="5" cols="40"><?=$arResult["MESSAGE"]?></textarea>
+		<textarea name="MESSAGE" rows="5" cols="40"><?=($arResult["MESSAGE"] ?? '')?></textarea>
 	</div>
 
 	<?if($arParams["USE_CAPTCHA"] == "Y"):?>

@@ -3,11 +3,15 @@ this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
-(function (exports,im_v2_lib_draft,main_date,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_parser,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_provider_service,main_core,im_public,im_v2_lib_menu) {
+(function (exports,im_v2_lib_draft,main_date,im_v2_lib_utils,im_v2_lib_parser,im_v2_component_elements,im_v2_lib_dateFormatter,im_v2_application_core,im_v2_const,im_v2_lib_logger,im_v2_provider_service,main_core,im_public,im_v2_lib_menu) {
 	'use strict';
 
 	// @vue/component
 	const MessageText = {
+	  name: 'MessageText',
+	  components: {
+	    MessageAvatar: im_v2_component_elements.MessageAvatar
+	  },
 	  props: {
 	    item: {
 	      type: Object,
@@ -18,6 +22,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    return {};
 	  },
 	  computed: {
+	    AvatarSize: () => im_v2_component_elements.AvatarSize,
 	    recentItem() {
 	      return this.item;
 	    },
@@ -93,10 +98,13 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 				<span v-else-if="!showLastMessage">{{ hiddenMessageText }}</span>
 				<template v-else>
 					<span v-if="isLastMessageAuthor" class="bx-im-list-copilot-item__message_author-icon --self"></span>
-					<template v-else-if="message.authorId">
-						<span v-if="lastMessageAuthorAvatar" :style="lastMessageAuthorAvatarStyle" class="bx-im-list-copilot-item__message_author-icon --user"></span>
-						<span v-else class="bx-im-list-copilot-item__message_author-icon --user --default"></span>
-					</template>
+					<span v-else-if="message.authorId" class="bx-im-list-copilot-item__message_author-icon --user">
+						<MessageAvatar 
+							:messageId="message.id"
+							:authorId="message.authorId"
+							:size="AvatarSize.XXS" 
+						/>
+					</span>
 					<span class="bx-im-list-copilot-item__message_text_content">{{ formattedMessageText }}</span>
 				</template>
 			</span>
@@ -108,7 +116,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CopilotItem = {
 	  name: 'CopilotItem',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
+	    ChatAvatar: im_v2_component_elements.ChatAvatar,
 	    ChatTitle: im_v2_component_elements.ChatTitle,
 	    MessageText
 	  },
@@ -191,7 +199,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 			<div :class="itemClasses" class="bx-im-list-copilot-item__container">
 				<div class="bx-im-list-copilot-item__avatar_container">
 					<div class="bx-im-list-copilot-item__avatar_content">
-						<div class="bx-im-list-copilot-item__avatar_icon"></div>
+						<ChatAvatar
+							:avatarDialogId="recentItem.dialogId"
+							:contextDialogId="recentItem.dialogId"
+							:withSpecialTypes="false"
+							:size="AvatarSize.XL"
+						/>
 						<div v-if="isSomeoneTyping" class="bx-im-list-copilot-item__avatar_typing"></div>
 					</div>
 				</div>
@@ -264,7 +277,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	class CopilotRecentMenu extends im_v2_lib_menu.RecentMenu {
 	  getMenuItems() {
-	    return [this.getOpenItem(), this.getPinMessageItem(), this.getHideItem()];
+	    return [this.getPinMessageItem(), this.getHideItem(), this.getLeaveItem()];
 	  }
 	  getOpenItem() {
 	    return {
@@ -277,7 +290,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  }
 	  getHideItem() {
 	    return {
-	      text: main_core.Loc.getMessage('IM_LIST_COPILOT_MENU_HIDE'),
+	      text: main_core.Loc.getMessage('IM_LIB_MENU_HIDE_MSGVER_1'),
 	      onclick: () => {
 	        this.getRecentService().hideChat(this.context.dialogId);
 	        this.menuInstance.close();
@@ -296,12 +309,14 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	const CopilotList = {
 	  name: 'CopilotList',
 	  components: {
-	    CopilotItem
+	    CopilotItem,
+	    LoadingState: im_v2_component_elements.ListLoadingState
 	  },
 	  emits: ['chatClick'],
 	  data() {
 	    return {
-	      isLoading: false
+	      isLoading: false,
+	      isLoadingNextPage: false
 	    };
 	  },
 	  computed: {
@@ -310,8 +325,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    },
 	    sortedItems() {
 	      return [...this.collection].sort((a, b) => {
-	        const firstDate = this.$store.getters['recent/getMessageDate'](a.dialogId);
-	        const secondDate = this.$store.getters['recent/getMessageDate'](b.dialogId);
+	        const firstDate = this.$store.getters['recent/getSortDate'](a.dialogId);
+	        const secondDate = this.$store.getters['recent/getSortDate'](b.dialogId);
 	        return secondDate - firstDate;
 	      });
 	    },
@@ -324,6 +339,9 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	      return this.sortedItems.filter(item => {
 	        return item.pinned === false;
 	      });
+	    },
+	    isEmptyCollection() {
+	      return this.collection.length === 0;
 	    }
 	  },
 	  async created() {
@@ -331,7 +349,7 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    this.isLoading = true;
 	    await this.getRecentService().loadFirstPage();
 	    this.isLoading = false;
-	    im_v2_lib_draft.CopilotDraftManager.getInstance().initDraftHistory();
+	    void im_v2_lib_draft.CopilotDraftManager.getInstance().initDraftHistory();
 	  },
 	  beforeUnmount() {
 	    this.contextMenuManager.destroy();
@@ -339,12 +357,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  methods: {
 	    async onScroll(event) {
 	      this.contextMenuManager.close();
-	      if (!this.oneScreenRemaining(event) || !this.getRecentService().hasMoreItemsToLoad) {
+	      if (!im_v2_lib_utils.Utils.dom.isOneScreenRemaining(event.target) || !this.getRecentService().hasMoreItemsToLoad) {
 	        return;
 	      }
-	      this.isLoading = true;
+	      this.isLoadingNextPage = true;
 	      await this.getRecentService().loadNextPage();
-	      this.isLoading = false;
+	      this.isLoadingNextPage = false;
 	    },
 	    onClick(item, event) {
 	      this.$emit('chatClick', item.dialogId);
@@ -352,12 +370,6 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	    onRightClick(item, event) {
 	      event.preventDefault();
 	      this.contextMenuManager.openMenu(item, event.currentTarget);
-	    },
-	    oneScreenRemaining(event) {
-	      const bottomPointOfVisibleContent = event.target.scrollTop + event.target.clientHeight;
-	      const containerHeight = event.target.scrollHeight;
-	      const oneScreenHeight = event.target.clientHeight;
-	      return bottomPointOfVisibleContent >= containerHeight - oneScreenHeight;
 	    },
 	    getRecentService() {
 	      if (!this.service) {
@@ -371,7 +383,12 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 	  },
 	  template: `
 		<div class="bx-im-list-copilot__scope bx-im-list-copilot__container">
-			<div @scroll="onScroll" class="bx-im-list-copilot__scroll-container">
+			<LoadingState v-if="isLoading && isEmptyCollection" />
+			<div v-else @scroll="onScroll" class="bx-im-list-copilot__scroll-container">
+				<div v-if="isEmptyCollection" class="bx-im-list-copilot__empty">
+					<div class="bx-im-list-copilot__empty_icon"></div>
+					<div class="bx-im-list-copilot__empty_text">{{ loc('IM_LIST_COPILOT_EMPTY') }}</div>
+				</div>
 				<div v-if="pinnedItems.length > 0" class="bx-im-list-copilot__pinned_container">
 					<CopilotItem
 						v-for="item in pinnedItems"
@@ -389,12 +406,8 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 						@click="onClick(item, $event)"
 						@click.right="onRightClick(item, $event)"
 					/>
-				</div>	
-				<div v-if="isLoading" class="bx-im-list-copilot__loading"></div>
-				<div v-else-if="collection.length === 0" class="bx-im-list-copilot__empty">
-					<div class="bx-im-list-copilot__empty_icon"></div>
-					<div class="bx-im-list-copilot__empty_text">{{ loc('IM_LIST_COPILOT_EMPTY') }}</div>
 				</div>
+				<LoadingState v-if="isLoadingNextPage" />
 			</div>
 		</div>
 	`
@@ -402,5 +415,5 @@ this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {};
 
 	exports.CopilotList = CopilotList;
 
-}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Provider.Service,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component.List = this.BX.Messenger.v2.Component.List || {}),BX.Messenger.v2.Lib,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib,BX.Messenger.v2.Service,BX,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib));
 //# sourceMappingURL=copilot-list.bundle.js.map

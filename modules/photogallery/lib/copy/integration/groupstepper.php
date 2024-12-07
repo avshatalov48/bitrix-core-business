@@ -41,9 +41,9 @@ class GroupStepper extends Stepper
 			$this->setQueue($queue);
 			$queueOption = $this->getOptionData($this->baseName);
 
-			$copiedGroupId = ($queueOption["copiedGroupId"] ?: 0);
-			$parentSectionId = ($queueOption["parentSectionId"] ?: 0);
-			$newSectionName = ($queueOption["newSectionName"] ?: "");
+			$copiedGroupId = ($queueOption["copiedGroupId"] ?? 0);
+			$parentSectionId = ($queueOption["parentSectionId"] ?? 0);
+			$newSectionName = ($queueOption["newSectionName"] ?? "");
 
 			if ($parentSectionId && $newSectionName)
 			{

@@ -7,17 +7,9 @@ class CAllTicketSLA
 	const SLA_SITE = 1;
 	const SITE_SLA = 2;
 
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CAllTicketSLA<br>File: ".__FILE__;
-	}
-
 	// add new or modify exist SLA
 	public static function Set($arFields, $id, $checkRights=true)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: Set<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$id = intval($id);
 		$table = "b_ticket_sla";
@@ -32,18 +24,18 @@ class CAllTicketSLA
 				$arFields_i = CTicket::PrepareFields($arFields, $table, $id);
 				if (intval($id)>0)
 				{
-					$DB->Update($table, $arFields_i, "WHERE ID=".intval($id), $err_mess.__LINE__);
+					$DB->Update($table, $arFields_i, "WHERE ID=".intval($id));
 				}
 				else
 				{
-					$id = $DB->Insert($table, $arFields_i, $err_mess.__LINE__);
+					$id = $DB->Insert($table, $arFields_i);
 				}
 
 				if (intval($id)>0)
 				{
 					if (is_set($arFields, "arGROUPS"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_2_user_group WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_2_user_group WHERE SLA_ID = $id");
 						if (is_array($arFields["arGROUPS"]) && count($arFields["arGROUPS"])>0)
 						{
 							foreach($arFields["arGROUPS"] as $groupID)
@@ -52,7 +44,7 @@ class CAllTicketSLA
 								if ($groupID>0)
 								{
 									$strSql = "INSERT INTO b_ticket_sla_2_user_group (SLA_ID, GROUP_ID) VALUES ($id, $groupID)";
-									$DB->Query($strSql, false, $err_mess.__LINE__);
+									$DB->Query($strSql);
 								}
 							}
 						}
@@ -60,7 +52,7 @@ class CAllTicketSLA
 
 					if (is_set($arFields, "arSITES"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_2_site WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_2_site WHERE SLA_ID = $id");
 						if (is_array($arFields["arSITES"]) && count($arFields["arSITES"])>0)
 						{
 							foreach($arFields["arSITES"] as $siteID)
@@ -69,49 +61,49 @@ class CAllTicketSLA
 								$FIRST_SITE_ID = $siteID;
 								$siteID = $DB->ForSql($siteID);
 								$strSql = "INSERT INTO b_ticket_sla_2_site (SLA_ID, SITE_ID) VALUES ($id, '$siteID')";
-								$DB->Query($strSql, false, $err_mess.__LINE__);
+								$DB->Query($strSql);
 							}
 						}
 					}
 
 					if (is_set($arFields, "arCATEGORIES"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_2_category WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_2_category WHERE SLA_ID = $id");
 						if (is_array($arFields["arCATEGORIES"]) && count($arFields["arCATEGORIES"])>0)
 						{
 							foreach($arFields["arCATEGORIES"] as $categoryID)
 							{
 								$categoryID = intval($categoryID);
 								$strSql = "INSERT INTO b_ticket_sla_2_category (SLA_ID, CATEGORY_ID) VALUES ($id, $categoryID)";
-								$DB->Query($strSql, false, $err_mess.__LINE__);
+								$DB->Query($strSql);
 							}
 						}
 					}
 
 					if (is_set($arFields, "arCRITICALITIES"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_2_criticality WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_2_criticality WHERE SLA_ID = $id");
 						if (is_array($arFields["arCRITICALITIES"]) && count($arFields["arCRITICALITIES"])>0)
 						{
 							foreach($arFields["arCRITICALITIES"] as $criticalityID)
 							{
 								$criticalityID = intval($criticalityID);
 								$strSql = "INSERT INTO b_ticket_sla_2_criticality (SLA_ID, CRITICALITY_ID) VALUES ($id, $criticalityID)";
-								$DB->Query($strSql, false, $err_mess.__LINE__);
+								$DB->Query($strSql);
 							}
 						}
 					}
 
 					if (is_set($arFields, "arMARKS"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_2_mark WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_2_mark WHERE SLA_ID = $id");
 						if (is_array($arFields["arMARKS"]) && count($arFields["arMARKS"])>0)
 						{
 							foreach($arFields["arMARKS"] as $markID)
 							{
 								$markID = intval($markID);
 								$strSql = "INSERT INTO b_ticket_sla_2_mark (SLA_ID, MARK_ID) VALUES ($id, $markID)";
-								$DB->Query($strSql, false, $err_mess.__LINE__);
+								$DB->Query($strSql);
 							}
 						}
 					}
@@ -119,7 +111,7 @@ class CAllTicketSLA
 					/*
 					if (is_set($arFields, "arSHEDULE"))
 					{
-						$DB->Query("DELETE FROM b_ticket_sla_shedule WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+						$DB->Query("DELETE FROM b_ticket_sla_shedule WHERE SLA_ID = $id");
 						if (is_array($arFields["arSHEDULE"]) && count($arFields["arSHEDULE"])>0)
 						{
 							while(list($weekday, $arSHEDULE) = each($arFields["arSHEDULE"]))
@@ -145,18 +137,18 @@ class CAllTicketSLA
 											$minute_till = intval($a[0]*60 + $a[1]);
 											$arF["MINUTE_TILL"] = $minute_till;
 
-											$DB->Insert("b_ticket_sla_shedule", $arF, $err_mess.__LINE__);
+											$DB->Insert("b_ticket_sla_shedule", $arF);
 										}
 									}
 								}
-								else $DB->Insert("b_ticket_sla_shedule", $arF, $err_mess.__LINE__);
+								else $DB->Insert("b_ticket_sla_shedule", $arF);
 							}
 						}
 					}
 					*/
 
 					$FIRST_SITE_ID = $FIRST_SITE_ID <> '' ? "'".$DB->ForSql($FIRST_SITE_ID)."'" : "null";
-					$DB->Update($table, array("FIRST_SITE_ID" => $FIRST_SITE_ID), "WHERE ID=".intval($id), $err_mess.__LINE__);
+					$DB->Update($table, array("FIRST_SITE_ID" => $FIRST_SITE_ID), "WHERE ID=".intval($id));
 				}
 			}
 		}
@@ -175,7 +167,6 @@ class CAllTicketSLA
 	// delete SLA
 	public static function Delete($id, $checkRights=true)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: Delete<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$id = intval($id);
 		if ($id < 1)
@@ -192,19 +183,19 @@ class CAllTicketSLA
 		if ($isAdmin)
 		{
 			$strSql = "SELECT DISTINCT 'x' FROM b_ticket WHERE SLA_ID = $id";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			if (!$rs->Fetch())
 			{
-				$DB->Query("DELETE FROM b_ticket_sla_2_site WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_sla_2_category WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_sla_2_criticality WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_sla_2_mark WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_sla_2_user_group WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				//$DB->Query("DELETE FROM b_ticket_sla_shedule WHERE SLA_ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_sla_2_holidays WHERE SLA_ID = $id", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_ticket_sla_2_site WHERE SLA_ID = $id");
+				$DB->Query("DELETE FROM b_ticket_sla_2_category WHERE SLA_ID = $id");
+				$DB->Query("DELETE FROM b_ticket_sla_2_criticality WHERE SLA_ID = $id");
+				$DB->Query("DELETE FROM b_ticket_sla_2_mark WHERE SLA_ID = $id");
+				$DB->Query("DELETE FROM b_ticket_sla_2_user_group WHERE SLA_ID = $id");
+				//$DB->Query("DELETE FROM b_ticket_sla_shedule WHERE SLA_ID = $id");
+				$DB->Query("DELETE FROM b_ticket_sla_2_holidays WHERE SLA_ID = $id");
 				
-				$DB->Query("DELETE FROM b_ticket_sla WHERE ID = $id", false, $err_mess.__LINE__);
-				$DB->Query("DELETE FROM b_ticket_timetable_cache WHERE SLA_ID = $id", false, $err_mess . __LINE__);
+				$DB->Query("DELETE FROM b_ticket_sla WHERE ID = $id");
+				$DB->Query("DELETE FROM b_ticket_timetable_cache WHERE SLA_ID = $id");
 				return true;
 			}
 			else
@@ -233,14 +224,13 @@ class CAllTicketSLA
 	// get shedule array by SLA ID
 	public static function GetSheduleArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetSheduleArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT * FROM b_ticket_sla_shedule WHERE SLA_ID = $slaID ORDER BY WEEKDAY_NUMBER, MINUTE_FROM, MINUTE_TILL";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch())
 			{
 				if ($ar["OPEN_TIME"]=="CUSTOM")
@@ -277,14 +267,13 @@ class CAllTicketSLA
 
 	public static function GetGroupArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetGroupArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT GROUP_ID FROM b_ticket_sla_2_user_group WHERE SLA_ID = $slaID";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch()) $arResult[] = $ar["GROUP_ID"];
 		}
 		return $arResult;
@@ -294,10 +283,9 @@ class CAllTicketSLA
 	{
 		global $DB;
 
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetGroupArray<br>Line: ";
 		$arResult = array();
 		$strSql = "SELECT SLA_ID, GROUP_ID FROM b_ticket_sla_2_user_group";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 
 		while($ar = $rs->Fetch())
 		{
@@ -309,14 +297,13 @@ class CAllTicketSLA
 
 	public static function GetSiteArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetSiteArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT SITE_ID FROM b_ticket_sla_2_site WHERE SLA_ID = $slaID";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch()) $arResult[] = $ar["SITE_ID"];
 		}
 		return $arResult;
@@ -331,7 +318,6 @@ class CAllTicketSLA
 		}
 		if(!is_array($GetSiteArrayForAllSLACache))
 		{
-			$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetSiteArrayForAllSLA<br>Line: ";
 			global $DB;
 			$GetSiteArrayForAllSLACache = array();
 			$strSql = "
@@ -341,7 +327,7 @@ class CAllTicketSLA
 				FROM
 					b_ticket_sla_2_site SS
 				";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while ($ar = $rs->Fetch())
 			{
 				$GetSiteArrayForAllSLACache[self::SLA_SITE][$ar["SLA_ID"]][] = $ar["SITE_ID"];
@@ -353,14 +339,13 @@ class CAllTicketSLA
 
 	public static function GetCategoryArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetCategoryArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT CATEGORY_ID FROM b_ticket_sla_2_category WHERE SLA_ID = $slaID";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch()) $arResult[] = $ar["CATEGORY_ID"];
 		}
 		return $arResult;
@@ -368,14 +353,13 @@ class CAllTicketSLA
 
 	public static function GetCriticalityArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetCriticalityArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT CRITICALITY_ID FROM b_ticket_sla_2_criticality WHERE SLA_ID = $slaID";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch()) $arResult[] = $ar["CRITICALITY_ID"];
 		}
 		return $arResult;
@@ -383,14 +367,13 @@ class CAllTicketSLA
 
 	public static function GetMarkArray($slaID)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetMarkArray<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 		$arResult = array();
 		$slaID = intval($slaID);
 		if ($slaID>0)
 		{
 			$strSql = "SELECT MARK_ID FROM b_ticket_sla_2_mark WHERE SLA_ID = $slaID";
-			$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rs = $DB->Query($strSql);
 			while($ar = $rs->Fetch()) $arResult[] = $ar["MARK_ID"];
 		}
 		return $arResult;
@@ -410,7 +393,6 @@ class CAllTicketSLA
 
 	public static function GetForUser($siteID=false, $userID=false)
 	{
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetForUser<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 
 		$slaID = 1; // default SLA
@@ -425,7 +407,7 @@ class CAllTicketSLA
 		if (count($arrGroups)<=0) $arrGroups[] = 2;
 
 		$arSla2Site = array();
-		$rs = $DB->Query("SELECT SLA_ID, SITE_ID FROM b_ticket_sla_2_site", false, $err_mess.__LINE__);
+		$rs = $DB->Query("SELECT SLA_ID, SITE_ID FROM b_ticket_sla_2_site");
 		while ($ar = $rs->Fetch()) $arSla2Site[$ar["SLA_ID"]][] = $ar["SITE_ID"];
 
 		$strSql = "
@@ -441,7 +423,7 @@ class CAllTicketSLA
 			ORDER BY
 				S.PRIORITY DESC
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch())
 		{
 			if (is_array($arSla2Site[$ar["SLA_ID"]]) && (in_array($siteID, $arSla2Site[$ar["SLA_ID"]]) || in_array("ALL", $arSla2Site[$ar["SLA_ID"]])))
@@ -456,7 +438,6 @@ class CAllTicketSLA
 	public static function GetSLA( $siteID, $userID, $categoryID = null, $coupon = ""  )
 	{
 		global $DB;
-		$err_mess = (CAllTicketSLA::err_mess())."<br>Function: GetSLA<br>Line: ";
 
 		$userID = intval($userID);
 			
@@ -530,7 +511,7 @@ class CAllTicketSLA
 							
 		";
 		
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		if( $ar = $rs->Fetch() )
 		{
 			if( is_array( $ar ) && array_key_exists( "SLA_ID", $ar ) )

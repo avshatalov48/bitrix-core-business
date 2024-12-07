@@ -1,4 +1,4 @@
-<?
+<?php
 
 \Bitrix\Main\Loader::registerAutoLoadClasses('b24connector', array(
 	'\Bitrix\B24Connector\Helper' 		=>	'lib/helper.php',

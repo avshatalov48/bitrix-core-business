@@ -38,7 +38,7 @@ $jsLangMesIds = array(
 	"B24C_PB_MY_SITE"
 );
 
-$jsLang = '<script type="text/javascript">BX.ready(function(){'."\n";
+$jsLang = '<script>BX.ready(function(){'."\n";
 
 foreach($jsLangMesIds as $langMesId)
 	$jsLang .= 'BX.message["'.$langMesId.'"] = "'.\CUtil::JSEscape(Loc::getMessage($langMesId)).'";'."\n";

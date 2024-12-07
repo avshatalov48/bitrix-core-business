@@ -1,6 +1,7 @@
 import { Type, Extension, Reflection, type JsonObject } from 'main.core';
 
 import { legacyMessenger, legacyDesktop } from './legacy';
+import { desktop } from './desktop';
 import { prepareSettingsSection } from './functions/settings';
 
 type Opener = {
@@ -27,9 +28,10 @@ class Messenger
 	{
 		const settings = Extension.getSettings('im.public');
 		this.v2enabled = settings.get('v2enabled', false);
+		this.desktop = desktop;
 	}
 
-	async openChat(dialogId: string = '', text: string = ''): Promise
+	async openChat(dialogId: string = '', messageId: number = 0): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -42,10 +44,10 @@ class Messenger
 		const isRedirectAllowed = await DesktopManager?.getInstance().checkForRedirect();
 		if (isRedirectAllowed)
 		{
-			return DesktopManager?.getInstance().redirectToChat(dialogId);
+			return DesktopManager?.getInstance().redirectToChat(dialogId, messageId);
 		}
 
-		return getOpener()?.openChat(dialogId, text);
+		return getOpener()?.openChat(dialogId, messageId);
 	}
 
 	async openLines(dialogId: string = ''): Promise
@@ -68,7 +70,7 @@ class Messenger
 		return getOpener()?.openLines(dialogId);
 	}
 
-	async openCopilot(dialogId: string = ''): Promise
+	async openCopilot(dialogId: string = '', contextId: number = 0): Promise
 	{
 		if (!this.v2enabled)
 		{
@@ -84,7 +86,7 @@ class Messenger
 			return DesktopManager?.getInstance().redirectToCopilot(dialogId);
 		}
 
-		return getOpener()?.openCopilot(dialogId);
+		return getOpener()?.openCopilot(dialogId, contextId);
 	}
 
 	async openLinesHistory(dialogId: string = ''): Promise
@@ -288,7 +290,7 @@ class Messenger
 	{
 		if (!this.v2enabled)
 		{
-			 return;
+			return;
 		}
 
 		const PhoneManager = Reflection.getClass('BX.Messenger.v2.Lib.PhoneManager');

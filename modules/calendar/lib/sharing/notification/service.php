@@ -10,7 +10,7 @@ abstract class Service
 {
 	protected Event $event;
 	protected EventLink $eventLink;
-	protected CrmDealLink $crmDealLink;
+	protected ?CrmDealLink $crmDealLink;
 	protected ?Event $oldEvent = null;
 	private ?array $owner = null;
 

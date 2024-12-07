@@ -537,7 +537,7 @@ class SkbHandler
 			return $result;
 		}
 
-		PaySystem\Logger::addDebugInfo(__CLASS__ . ': response data: ' . Main\Text\Encoding::convertEncoding($response, "UTF-8", LANG_CHARSET));
+		PaySystem\Logger::addDebugInfo(__CLASS__ . ': response data: ' . $response);
 
 		$httpStatus = $httpClient->getStatus();
 		if ($httpStatus === self::HTTP_CODE_OK)

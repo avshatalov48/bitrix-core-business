@@ -7,7 +7,7 @@
 			</div>
 			<div class="landing-block-node-col-text col-md-6 g-py-30 g-px-15 g-px-30--md g-px-45--lg js-animation fadeInRight">
 				<h6 class="landing-block-node-subtitle g-font-weight-700">
-					Alex Teseira &nbsp;&mdash;&nbsp; 5 June 2023
+					Alex Teseira &nbsp;&mdash;&nbsp; 5 June <?= date("Y") ?>
 				</h6>
 				<h3 class="landing-block-node-title g-font-weight-700 mb-4">
 					Exclusive interview with CEO
@@ -34,7 +34,7 @@
 			</div>
 			<div class="landing-block-node-col-text col-md-6 g-py-30 g-px-15 g-px-30--md g-px-45--lg js-animation fadeInRight">
 				<h6 class="landing-block-node-subtitle g-font-weight-700">
-					William Sh. &nbsp;&mdash;&nbsp; 1 June 2023
+					William Sh. &nbsp;&mdash;&nbsp; 1 June <?= date("Y") ?>
 				</h6>
 				<h3 class="landing-block-node-title g-font-weight-700 mb-4">
 					We build your website to realise your vision, project and more

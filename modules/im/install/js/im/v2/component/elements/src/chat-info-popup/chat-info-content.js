@@ -1,26 +1,26 @@
-import {Messenger} from 'im.public';
-import {ChatService} from 'im.v2.provider.service';
-import {ChatType} from 'im.v2.const';
-import {Utils} from 'im.v2.lib.utils';
+import { Messenger } from 'im.public';
+import { ChatService } from 'im.v2.provider.service';
+import { ChatType } from 'im.v2.const';
+import { Utils } from 'im.v2.lib.utils';
 
-import {Avatar, ChatTitle, Button, ButtonColor, ButtonSize} from '../registry';
+import { ChatAvatar, ChatTitle, Button, ButtonColor, ButtonSize } from '../registry';
 
 import './chat-info-content.css';
 
 // @vue/component
 export const ChatInfoContent = {
-	components: {Avatar, ChatTitle, Button},
+	components: { ChatAvatar, ChatTitle, Button },
 	props: {
 		dialogId: {
 			type: String,
-			required: true
-		}
+			required: true,
+		},
 	},
 	data()
 	{
 		return {
 			hasError: false,
-			isLoading: false
+			isLoading: false,
 		};
 	},
 	computed:
@@ -110,7 +110,7 @@ export const ChatInfoContent = {
 			<template v-if="!isLoading && !hasError">
 				<div class="bx-im-chat-info-content__detail-info-container">
 					<div class="bx-im-chat-info-content__avatar-container">
-						<Avatar :dialogId="dialogId" size="XL"/>
+						<ChatAvatar :avatarDialogId="dialogId" :contextDialogId="dialogId" size="XL"/>
 					</div>
 					<div class="bx-im-chat-info-content__title-container">
 						<ChatTitle v-if="isChat" :dialogId="dialogId" />
@@ -153,5 +153,5 @@ export const ChatInfoContent = {
 				</div>
 			</template>
 		</div>
-	`
+	`,
 };

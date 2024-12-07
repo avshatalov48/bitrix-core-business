@@ -1,5 +1,7 @@
 <?
 IncludeModuleLangFile(__FILE__);
+
+use Bitrix\Main\Application;
 use \Bitrix\Main\Type\RandomSequence;
 use \Bitrix\Sale;
 
@@ -2062,9 +2064,11 @@ class CSaleOrderLoader
 		if(isset($positionLast[1]))
 			$endPosition = $positionLast[1];
 
-		if(is_array($_SESSION["BX_CML2_EXPORT"]["proccess_xml_entry"]))
+		$localSession = Application::getInstance()->getLocalSession('BX_CML2_EXPORT');
+		$proccessXmlEntry = $localSession->get('proccess_xml_entry');
+		if (is_array($proccessXmlEntry))
 		{
-			$position = $_SESSION["BX_CML2_EXPORT"]["proccess_xml_entry"];
+			$position = $proccessXmlEntry;
 
 			if(isset($position[1]))
 				$startPosition = $position[1];
@@ -2079,11 +2083,21 @@ class CSaleOrderLoader
 			$startPosition = array_pop($positionStack);
 		}
 
-		$_SESSION["BX_CML2_EXPORT"]["proccess_xml_entry"] = $fileStream->getPosition();
+		$localSession->set('proccess_xml_entry', $fileStream->getPosition());
+
+		if (($endPosition - $startPosition) <= 0)
+		{
+			return '';
+		}
 
 		$xmlChunk = $fileStream->readFilePart($startPosition, $endPosition);
 
 		return \Bitrix\Main\Text\Encoding::convertEncoding($xmlChunk, $positionLast[0], LANG_CHARSET, $error);
+	}
+
+	public function clearSessionData(): void
+	{
+		Application::getInstance()->getLocalSession('BX_CML2_EXPORT')->set('proccess_xml_entry', '');
 	}
 
 	protected function nodeHandlerPartialVersion($arDocument)

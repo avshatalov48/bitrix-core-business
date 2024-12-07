@@ -23,8 +23,6 @@ class MainMailConfirmAjax
 		if (!is_object($USER) || !$USER->isAuthorized())
 			$error = getMessage('MAIN_MAIL_CONFIRM_AUTH');
 
-		\CUtil::jsPostUnescape();
-
 		if ($error === false)
 		{
 			$act = $_REQUEST['act'] ?? null;
@@ -226,6 +224,13 @@ class MainMailConfirmAjax
 						} else {
 							unset($smtp['limit']);
 						}
+					}
+					if(
+						empty($smtp['password'])
+						&& $item['OPTIONS']['smtp']['login'] === $smtp['login']
+					)
+					{
+						$smtp['password'] = $item['OPTIONS']['smtp']['password'];
 					}
 				}
 			}

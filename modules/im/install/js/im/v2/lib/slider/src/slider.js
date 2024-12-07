@@ -1,4 +1,4 @@
-import { Event, ZIndexManager, Runtime, Extension } from 'main.core';
+import { Event, ZIndexManager, Runtime } from 'main.core';
 import { EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
@@ -24,7 +24,6 @@ export class MessengerSlider
 
 	instances: Object = {};
 	sidePanelManager: Object = BX.SidePanel.Instance;
-	v2enabled: boolean = false;
 	store: Store;
 
 	static init()
@@ -47,20 +46,12 @@ export class MessengerSlider
 	constructor()
 	{
 		Logger.warn('Slider: class created');
-		this.initSettings();
 		this.bindEvents();
 		this.store = Core.getStore();
 	}
 
 	bindEvents(): boolean
 	{
-		if (!this.v2enabled)
-		{
-			Logger.warn('Slider: v2 is not enabled');
-
-			return false;
-		}
-
 		EventEmitter.subscribe('SidePanel.Slider:onCloseByEsc', this.onCloseByEsc.bind(this));
 		EventEmitter.subscribe('SidePanel.Slider:onClose', this.onClose.bind(this));
 		EventEmitter.subscribe('SidePanel.Slider:onDestroy', this.onDestroy.bind(this));
@@ -68,12 +59,6 @@ export class MessengerSlider
 		Event.ready(this.initZIndex.bind(this));
 
 		return true;
-	}
-
-	initSettings()
-	{
-		const settings = Extension.getSettings('im.v2.lib.slider');
-		this.v2enabled = settings.get('v2enabled', false);
 	}
 
 	openSlider(): Promise

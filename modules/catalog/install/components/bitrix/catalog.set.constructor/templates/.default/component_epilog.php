@@ -9,6 +9,6 @@ CJSCore::Init(array('popup', 'currency'));
 if (isset($templateData['TEMPLATE_THEME']))
 	$APPLICATION->SetAdditionalCSS($templateData['TEMPLATE_THEME']);
 ?>
-<script type="text/javascript">
+<script>
 	BX.Currency.setCurrencies(<? echo $templateData['CURRENCIES']; ?>);
 </script>

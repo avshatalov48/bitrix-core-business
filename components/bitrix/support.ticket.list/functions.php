@@ -1,4 +1,4 @@
-<?
+<?php
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true)die();
 
 //Functions
@@ -82,7 +82,7 @@ if (!function_exists("_InitFilter"))
 	function _InitFilter($arFilterFields)
 	{
 		//Delete filter
-		if (strlen($_REQUEST["del_filter"])>0)
+		if ($_REQUEST["del_filter"] <> '')
 		{
 			unset($_SESSION["SESS_ADMIN"]["SUPPORT_TICKET_LIST"]);
 
@@ -90,7 +90,7 @@ if (!function_exists("_InitFilter"))
 				$_REQUEST[$field] = "";
 		}
 		//Set filter
-		elseif (strlen($_REQUEST["set_filter"])>0)
+		elseif ($_REQUEST["set_filter"] <> '')
 		{
 			$arFilter = Array();
 			foreach ($arFilterFields as $field)

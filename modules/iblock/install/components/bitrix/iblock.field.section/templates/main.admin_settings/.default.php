@@ -1,6 +1,9 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
 use Bitrix\Iblock\UserField\Types\ElementType;
 use Bitrix\Main\Localization\Loc;
@@ -11,7 +14,7 @@ $value = (int)$arResult['value'];
 $activeFilter = $arResult['activeFilter'];
 
 /**
- * @var ElementUfComponent $component
+ * @var SectionUfComponent $component
  */
 
 if($component->isIblockIncluded())
@@ -106,6 +109,26 @@ else
 <tr>
 	<td class="adm-detail-valign-top"><?= Loc::getMessage('USER_TYPE_ENUM_DISPLAY') ?>:</td>
 	<td>
+		<label>
+			<input
+				type="radio"
+				name="<?= $name ?>[DISPLAY]"
+				value="<?= ElementType::DISPLAY_DIALOG ?>"
+				<?= (ElementType::DISPLAY_DIALOG === $arResult['display'] ? 'checked="checked"' : '') ?>
+			>
+			<?= Loc::getMessage('USER_TYPE_IBSEC_DIALOG') ?>
+		</label>
+		<br>
+		<label>
+			<input
+				type="radio"
+				name="<?= $name ?>[DISPLAY]"
+				value="<?= ElementType::DISPLAY_UI ?>"
+				<?= (ElementType::DISPLAY_UI === $arResult['display'] ? 'checked="checked"' : '') ?>
+			>
+			<?= Loc::getMessage('USER_TYPE_IBSEC_UI') ?>
+		</label>
+		<br>
 		<label>
 			<input
 				type="radio"

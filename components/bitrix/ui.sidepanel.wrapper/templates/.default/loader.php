@@ -20,7 +20,7 @@ $urlToRedirect = array_key_exists('~PAGE_MODE_OFF_BACK_URL', $arParams) && $arPa
 	</svg>
 </div>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		var loader = BX('ui-sidepanel-wrapper-loader');
 		var link = window.location.href;

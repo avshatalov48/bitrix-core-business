@@ -17,15 +17,15 @@ $isAdmin = $USER->CanDoOperation('edit_php');
 
 IncludeModuleLangFile(__FILE__);
 
-// идентификатор таблицы
+// РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂ С‚Р°Р±Р»РёС†С‹
 $sTableID = "tbl_urlrewrite";
 
-// инициализация сортировки
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРѕСЂС‚РёСЂРѕРІРєРё
 $oSort = new CAdminSorting($sTableID, "CONDITION", "asc");
-// инициализация списка
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР°
 $lAdmin = new CAdminList($sTableID, $oSort);
 
-// инициализация параметров списка - фильтры
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЃРїРёСЃРєР° - С„РёР»СЊС‚СЂС‹
 $arFilterFields = array(
 	"filter_path",
 	"filter_site_id",
@@ -50,7 +50,7 @@ if ($filter_condition <> '') $arFilter["CONDITION"] = $filter_condition;
 if ($filter_id <> '') $arFilter["ID"] = $filter_id;
 if ($filter_path <> '') $arFilter["PATH"] = $filter_path;
 
-// обработка действий групповых и одиночных
+// РѕР±СЂР°Р±РѕС‚РєР° РґРµР№СЃС‚РІРёР№ РіСЂСѓРїРїРѕРІС‹С… Рё РѕРґРёРЅРѕС‡РЅС‹С…
 if (($arID = $lAdmin->GroupAction()) && $isAdmin)
 {
 	if (isset($_REQUEST['action_target']) && $_REQUEST['action_target']=='selected')
@@ -75,7 +75,7 @@ if (($arID = $lAdmin->GroupAction()) && $isAdmin)
 	}
 }
 
-// инициализация списка - выборка данных
+// РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРёСЃРєР° - РІС‹Р±РѕСЂРєР° РґР°РЅРЅС‹С…
 $arResultList = UrlRewriter::getList($siteId, $arFilter, array($by => $order));
 
 $dbResultList = new CDBResult;
@@ -84,10 +84,10 @@ $dbResultList->InitFromArray($arResultList);
 $dbResultList = new CAdminResult($dbResultList, $sTableID);
 $dbResultList->NavStart();
 
-// установке параметров списка
+// СѓСЃС‚Р°РЅРѕРІРєРµ РїР°СЂР°РјРµС‚СЂРѕРІ СЃРїРёСЃРєР°
 $lAdmin->NavText($dbResultList->GetNavPrint(GetMessage("SAA_NAV")));
 
-// заголовок списка
+// Р·Р°РіРѕР»РѕРІРѕРє СЃРїРёСЃРєР°
 $lAdmin->AddHeaders(array(
 	array("id"=>"CONDITION", "content"=>GetMessage("MURL_USL"), "sort"=>"CONDITION", "default"=>true),
 	array("id"=>"ID","content"=>GetMessage("MURL_COMPONENT"), "sort"=>"ID", "default"=>true),
@@ -97,7 +97,7 @@ $lAdmin->AddHeaders(array(
 
 $arVisibleColumns = $lAdmin->GetVisibleHeaderColumns();
 
-// построение списка
+// РїРѕСЃС‚СЂРѕРµРЅРёРµ СЃРїРёСЃРєР°
 while ($arResult = $dbResultList->NavNext(true, "f_"))
 {
 	$row =& $lAdmin->AddRow($f_CONDITION ?? '', $arResult, "urlrewrite_edit.php?CONDITION=".UrlEncode($arResult["CONDITION"])."&lang=".LANG."&site_id=".UrlEncode($filter_site_id), GetMessage("MURL_EDIT"));
@@ -115,7 +115,7 @@ while ($arResult = $dbResultList->NavNext(true, "f_"))
 	$row->AddActions($arActions);
 }
 
-// показ формы с кнопками добавления, ...
+// РїРѕРєР°Р· С„РѕСЂРјС‹ СЃ РєРЅРѕРїРєР°РјРё РґРѕР±Р°РІР»РµРЅРёСЏ, ...
 $lAdmin->AddGroupActionTable(
 	array(
 		"delete" => true,
@@ -149,7 +149,7 @@ $aContext = array(
 
 $lAdmin->AddAdminContextMenu($aContext);
 
-// проверка на вывод только списка (в случае списка, скрипт дальше выполняться не будет)
+// РїСЂРѕРІРµСЂРєР° РЅР° РІС‹РІРѕРґ С‚РѕР»СЊРєРѕ СЃРїРёСЃРєР° (РІ СЃР»СѓС‡Р°Рµ СЃРїРёСЃРєР°, СЃРєСЂРёРїС‚ РґР°Р»СЊС€Рµ РІС‹РїРѕР»РЅСЏС‚СЊСЃСЏ РЅРµ Р±СѓРґРµС‚)
 $lAdmin->CheckListMode();
 
 $APPLICATION->SetTitle(GetMessage("MURL_TITLE"));
@@ -205,7 +205,7 @@ $oFilter->End();
 ?>
 </form>
 <?
-// место для вывода списка
+// РјРµСЃС‚Рѕ РґР»СЏ РІС‹РІРѕРґР° СЃРїРёСЃРєР°
 $lAdmin->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/epilog_admin.php");

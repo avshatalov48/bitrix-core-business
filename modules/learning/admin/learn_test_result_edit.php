@@ -19,8 +19,8 @@ IncludeModuleLangFile(__FILE__);
 
 ClearVars();
 
-$ATTEMPT_ID = intval($ATTEMPT_ID);
-$ID = intval($ID);
+$ATTEMPT_ID = isset($_REQUEST['ATTEMPT_ID']) ? intval($_REQUEST['ATTEMPT_ID']) : 0;
+$ID = isset($_REQUEST['ID']) ? intval($_REQUEST['ID']) : 0;
 $bBadResult = false;
 $message = null;
 
@@ -233,7 +233,7 @@ $tabControl->Buttons(Array("back_url" =>"learn_test_result_admin.php?lang=". LAN
 $tabControl->arParams["FORM_ACTION"] = $APPLICATION->GetCurPage()."?lang=".LANG."&ATTEMPT_ID=".$ATTEMPT_ID.GetFilterParams("filter_");
 $tabControl->Show();?>
 
-<script type="text/javascript">
+<script>
 function OnChangeAnswered(val)
 {
 	document.forms["testResultTabControl_form"].elements['POINT'].disabled = !val;

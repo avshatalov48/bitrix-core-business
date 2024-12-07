@@ -16,20 +16,20 @@ $categoryCode = array();
 $arResult["VARIABLES"]["user_id"] = (array_key_exists("user_id", $arResult["VARIABLES"]) ? intval($arResult["VARIABLES"]["user_id"]) : false);
 if ($arResult["VARIABLES"]["user_id"])
 	$arFilter["AUTHOR_ID"] = $arResult["VARIABLES"]["user_id"];
-$arResult["VARIABLES"]["status_code"] = (array_key_exists("status_code", $arResult["VARIABLES"]) ? ToUpper($arResult["VARIABLES"]["status_code"]) : false);
+$arResult["VARIABLES"]["status_code"] = (array_key_exists("status_code", $arResult["VARIABLES"]) ? mb_strtoupper($arResult["VARIABLES"]["status_code"]) : false);
 if ($arResult["VARIABLES"]["status_code"])
 {
 	$arFilter["IDEA_STATUS"] = $arResult["VARIABLES"]["status_code"];
-	$arResult["VARIABLES"]["~status_code"] = ToLower($arResult["VARIABLES"]["status_code"]);
+	$arResult["VARIABLES"]["~status_code"] = mb_strtolower($arResult["VARIABLES"]["status_code"]);
 }
 if (array_key_exists("category_1", $arResult["VARIABLES"]))
 {
-	$arFilter["IDEA_PARENT_CATEGORY_CODE"] = $categoryCode["CATEGORY_1"] = ToUpper($arResult["VARIABLES"]["category_1"]);
-	$categoryCode["~CATEGORY_1"] = ToLower($categoryCode["CATEGORY_1"]);
+	$arFilter["IDEA_PARENT_CATEGORY_CODE"] = $categoryCode["CATEGORY_1"] = mb_strtoupper($arResult["VARIABLES"]["category_1"]);
+	$categoryCode["~CATEGORY_1"] = mb_strtolower($categoryCode["CATEGORY_1"]);
 	if (array_key_exists("category_2", $arResult["VARIABLES"]))
 	{
-		$arFilter["IDEA_PARENT_CATEGORY_CODE"] = $categoryCode["CATEGORY_2"] = ToUpper($arResult["VARIABLES"]["category_2"]);
-		$categoryCode["~CATEGORY_2"] = ToLower($categoryCode["CATEGORY_2"]);
+		$arFilter["IDEA_PARENT_CATEGORY_CODE"] = $categoryCode["CATEGORY_2"] = mb_strtoupper($arResult["VARIABLES"]["category_2"]);
+		$categoryCode["~CATEGORY_2"] = mb_strtolower($categoryCode["CATEGORY_2"]);
 	}
 }
 //Prepare filter for life search (if pagination used)
@@ -77,7 +77,7 @@ if($arResult["LIFE_SEARCH_QUERY"] <> '')
 	<?//Work Field?>
 	<?$this->SetViewTarget("idea_filter", 100)?>
 		<?if($arParams["DISABLE_RSS"] != "Y"):
-			$pathPostfix = ($pageMode == "index" ? "" : "_".ToUpper(str_replace(array("_1", "_2"), "", $pageMode)));/*.
+			$pathPostfix = ($pageMode == "index" ? "" : "_".mb_strtoupper(str_replace(array("_1", "_2"), "", $pageMode)));/*.
 				(strpos($pageMode, "status") !== false ? "_STATUS" : "")*/;
 			?><?
 $APPLICATION->IncludeComponent(
@@ -91,7 +91,7 @@ $APPLICATION->IncludeComponent(
 					"PATH_TO_RSS"		=> CComponentEngine::MakePathFromTemplate(
 							$arResult["PATH_TO_RSS".$pathPostfix],
 							array(
-								"category" => ToLower($arFilter["IDEA_PARENT_CATEGORY_CODE"]),
+								"category" => mb_strtolower($arFilter["IDEA_PARENT_CATEGORY_CODE"]),
 								"status_code" => $arResult["VARIABLES"]["~status_code"],
 								"user_id" => $arFilter["AUTHOR_ID"]
 							)
@@ -102,7 +102,7 @@ $APPLICATION->IncludeComponent(
 			);
 			?>
 		<?endif;?>
-		<?$pathPostfix = ToUpper(str_replace("_status", "", ($pageMode == "index" || $pageMode == "status_0" ? "" : $pageMode)));
+		<?$pathPostfix = mb_strtoupper(str_replace("_status", "", ($pageMode == "index" || $pageMode == "status_0" ? "" : $pageMode)));
 		$APPLICATION->IncludeComponent(
 			"bitrix:idea.filter",
 			"",

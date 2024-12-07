@@ -40,6 +40,7 @@ if (Loader::includeModule('sign'))
 			"POPUP_COMPONENT_PARENT" => $component,
 			'USE_PADDING' => false,
 			'USE_UI_TOOLBAR' => 'Y',
+			'POPUP_COMPONENT_USE_BITRIX24_THEME' => 'Y',
 		]
 	);
 }

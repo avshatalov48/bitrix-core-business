@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["CAT_EDIT_RECORD"] = "Редактирование типа цен # #ID#";
 $MESS["CAT_NEW_RECORD"] = "Новый тип цен";
 $MESS["NAME"] = "Название";
@@ -20,4 +20,3 @@ $MESS["CGEN_TAB_GROUP"] = "Тип цены";
 $MESS["CGEN_TAB_GROUP_DESCR"] = "Параметры типа цены";
 $MESS["BT_CAT_GROUP_EDIT_FIELDS_XML_ID"] = "Внешний код";
 $MESS["CAT_FEATURE_NOT_ALLOW"] = "Данный функционал не входит в Вашу редакцию продукта.";
-?>

@@ -2,16 +2,8 @@
 
 class CFormStatus extends CAllFormStatus
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CFormStatus<br>File: ".__FILE__;
-	}
-
 	public static function GetList($FORM_ID, $by = 's_sort', $order = 'asc', $arFilter = [])
 	{
-		$err_mess = (CFormStatus::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $strError;
 		$FORM_ID = intval($FORM_ID);
 		$arSqlSearch = Array();
@@ -97,14 +89,13 @@ class CFormStatus extends CAllFormStatus
 				$strSqlSearch_h
 			$strSqlOrder
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 
 		return $res;
 	}
 
 	public static function GetByID($ID)
 	{
-		$err_mess = (CFormStatus::err_mess())."<br>Function: GetByID<br>Line: ";
 		global $DB, $strError;
 		$ID = intval($ID);
 		$strSql = "
@@ -119,13 +110,12 @@ class CFormStatus extends CAllFormStatus
 				S.ID = $ID
 			GROUP BY S.ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetDropdown($FORM_ID, $PERMISSION = array("MOVE"), $OWNER_ID=0)
 	{
-		$err_mess = (CFormStatus::err_mess())."<br>Function: GetDropdown<br>Line: ";
 		global $DB, $USER, $strError;
 		$FORM_ID = intval($FORM_ID);
 		if (CForm::IsAdmin())
@@ -183,7 +173,7 @@ class CFormStatus extends CAllFormStatus
 				ORDER BY S.C_SORT
 				";
 		}
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		return $z;
 	}
 }

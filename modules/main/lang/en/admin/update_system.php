@@ -224,5 +224,5 @@ $MESS["SUP_WRONG_INTERNAL_ENCODING_ERROR"] = "The current value of the mbstring.
 $MESS["SUP_WRONG_MBSTRING_OVERLOAD"] = "The <b>mbstring.func_overload</b> parameter has to be removed to update the system. Please fix the issue or contact your hosting provider's technical support.";
 $MESS["UPDATE_SYS_CLASS_NAME"] = "Change database connection settings in the file /bitrix/.settings.php. Set the value of \"className\" to \"\\\\Bitrix\\\\Main\\\\DB\\\\MysqliConnection\".";
 $MESS["UPDATE_SYS_MYSQLI_REQ"] = "The system requires PHP extension \"MySQL Improved Extension\" (mysqli).";
-$MESS["UPDATE_SYS_NEED_UTF"] = "Single-byte encoding support will soon be dropped. Please convert your system instance to UTF-8. Learn more about conversion <a href=\"https://training.bitrix24.com/support/training/course/index.php?COURSE_ID=68&LESSON_ID=26450\">on this page</a>.";
+$MESS["UPDATE_SYS_NEED_UTF_MSGVER_1"] = "Single-byte encodings are no longer supported. Please convert your system instance to UTF-8. Learn more about conversion <a href=\"https://training.bitrix24.com/support/training/course/?COURSE_ID=68&LESSON_ID=26450\">here</a>.";
 $MESS["UPDATE_SYS_OPENSSL_REQ"] = "PHP openssl extension to handle encoding is not installed. Please install the extension or contact your hosting service provider's helpdesk.";

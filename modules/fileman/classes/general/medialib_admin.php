@@ -35,7 +35,7 @@ class CAdminContextMenuML extends CAdminContextMenu
 		}
 
 
-		return parent::Button($item, $hkInst);
+		parent::Button($item, $hkInst);
 	}
 }
 ?>

@@ -98,9 +98,6 @@ if($USER->IsAuthorized() && check_bitrix_sessid() && $isAllowView)
 			$cancel = isset($_REQUEST['cancel']) ? trim($_REQUEST['cancel']) : 'N';
 			$comment = isset($_REQUEST['comment']) ? trim($_REQUEST['comment']) : '';
 
-			if($comment <> '')
-				$comment = $APPLICATION->ConvertCharset($comment, 'utf-8', SITE_CHARSET);
-
 			$result = CSaleOrder::CancelOrder($id, $cancel, $comment);
 
 		break;

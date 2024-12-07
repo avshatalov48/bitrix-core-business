@@ -30,15 +30,16 @@ class FileController extends Builder
 	/**
 	 * Configure file.
 	 *
-	 * @param string $id File ID.
+	 * @param int|null $id File ID.
 	 * @param string $moduleId Bitrix module ID.
 	 * @param string $dir File directory.
 	 * @param string $name Filename.
 	 * @return $this
 	 */
-	public function configureFile($id, $moduleId, $dir, $name)
+	public function configureFile(?int $id, string $moduleId, string $dir, string $name): static
 	{
 		$this->getOutputFile()->setId($id)->setModuleId($moduleId)->setDir($dir)->setName($name);
+
 		return $this;
 	}
 

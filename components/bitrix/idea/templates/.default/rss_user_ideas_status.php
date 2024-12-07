@@ -19,7 +19,7 @@ foreach($arStatuses as $arStatus)
 			"CACHE_TIME" => $arParams["CACHE_TIME"],
 			"FILTER" => array(
 				"AUTHOR_ID" => $AuthorId,
-				CIdeaManagment::UFStatusField => $arStatusesByCode[ToUpper($arResult["VARIABLES"]["status_code"])]["ID"],
+				CIdeaManagment::UFStatusField => $arStatusesByCode[mb_strtoupper($arResult["VARIABLES"]["status_code"])]["ID"],
 			),
 			"PATH_TO_POST" => $arResult["PATH_TO_POST"],
 			"IMAGE_MAX_WIDTH"			=> $arParams["IMAGE_MAX_WIDTH"],
@@ -27,7 +27,7 @@ foreach($arStatuses as $arStatus)
 			"USER"			=> $arResult["PATH_TO_USER"],
 			"INDEX"			=> $arResult["PATH_TO_INDEX"],
 			"RSS_CNT" => 10,
-			"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#USER_NAME#" => $UName, "#IDEA_STATUS#" => $arStatusesByCode[ToUpper($arResult["VARIABLES"]["status_code"])]["VALUE"])),
+			"CUSTOM_TITLE" => GetMessage("RSS_TITLE", array("#USER_NAME#" => $UName, "#IDEA_STATUS#" => $arStatusesByCode[mb_strtoupper($arResult["VARIABLES"]["status_code"])]["VALUE"])),
 			"ALLOW_POST_CODE" => $arParams["ALLOW_POST_CODE"],
 		),
 		$component

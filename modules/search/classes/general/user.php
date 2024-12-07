@@ -57,7 +57,7 @@ class CSearchUser
 		$rs = $DB->Query($DB->TopSql("
 			SELECT * FROM b_search_user_right
 			WHERE USER_ID = ".$this->_user_id."
-		", 1), false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		", 1));
 		return is_array($rs->Fetch());
 	}
 
@@ -67,7 +67,7 @@ class CSearchUser
 		$DB->Query("
 			DELETE FROM b_search_user_right
 			WHERE USER_ID = ".$this->_user_id."
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 	}
 
 	function AddGroups($arGroups)
@@ -88,7 +88,7 @@ class CSearchUser
 				(USER_ID, GROUP_CODE)
 				VALUES
 				(".$this->_user_id.", '".$DB->ForSQL($group_code, 100)."')
-			", true, "File: ".__FILE__."<br>Line: ".__LINE__);
+			", true);
 		}
 	}
 
@@ -99,7 +99,7 @@ class CSearchUser
 			SELECT GROUP_CODE
 			FROM b_search_user_right
 			WHERE USER_ID = ".$this->_user_id."
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 
 		$arGroupsToCheck = array_flip($arGroups);
 		while ($dbCode = $dbCodes->Fetch())
@@ -110,7 +110,7 @@ class CSearchUser
 					DELETE FROM b_search_user_right
 					WHERE USER_ID = ".$this->_user_id."
 					AND GROUP_CODE = '".$DB->ForSQL($dbCode["GROUP_CODE"])."'
-				", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				");
 			}
 			else
 			{

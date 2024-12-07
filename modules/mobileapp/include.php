@@ -1,6 +1,4 @@
 <?
-// delete from updates
-//include("module_updater.php");
 
 CModule::AddAutoloadClasses(
 	"mobileapp",

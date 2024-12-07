@@ -6,7 +6,6 @@ class CBXPunycode
 
 	private static $prefixUcs4 = null;
 	private static $hyphenUcs4 = null;
-	private static $utfMode = null;
 	private static $punycodePrefix = null;
 	private static $punycodePrefixUcs4 = null;
 	private static $punycodePrefixLength = null;
@@ -91,9 +90,6 @@ class CBXPunycode
 
 	public function __construct($encoding = null)
 	{
-		if (self::$utfMode === null)
-			self::$utfMode = defined('BX_UTF');
-
 		if (self::$punycodePrefix === null)
 		{
 			self::$punycodePrefix = "xn--";
@@ -109,12 +105,6 @@ class CBXPunycode
 
 		if (!is_null($encoding))
 			$this->encoding = $encoding;
-		elseif (self::$utfMode)
-			$this->encoding = "utf-8";
-		elseif (defined("SITE_CHARSET") && (SITE_CHARSET <> ''))
-			$this->encoding = SITE_CHARSET;
-		elseif (defined("LANG_CHARSET") && (LANG_CHARSET <> ''))
-			$this->encoding = LANG_CHARSET;
 		else
 			$this->encoding = "utf-8";
 	}

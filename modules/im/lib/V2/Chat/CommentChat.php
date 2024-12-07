@@ -2,10 +2,22 @@
 
 namespace Bitrix\Im\V2\Chat;
 
+use Bitrix\Disk\Folder;
+use Bitrix\Im\Model\ChatTable;
+use Bitrix\Im\Recent;
 use Bitrix\Im\V2\Chat;
+use Bitrix\Im\V2\Message\Send\MentionService;
+use Bitrix\Im\V2\Message\Send\SendingConfig;
+use Bitrix\Im\V2\Message\Send\SendingService;
+use Bitrix\Im\V2\Relation;
+use Bitrix\Im\V2\RelationCollection;
 use Bitrix\Im\V2\Result;
-use Bitrix\Im\V2\Service\Context;
 use Bitrix\Im\V2\Message;
+use Bitrix\Main\Application;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Type\DateTime;
+use Bitrix\Pull\Event;
 
 /**
  * Chat for comments
@@ -13,92 +25,356 @@ use Bitrix\Im\V2\Message;
 class CommentChat extends GroupChat
 {
 	protected ?Chat $parentChat;
+	protected ?Message $parentMessage;
+	protected ?RelationCollection $parentRelations;
+
+	public static function get(Message $message, bool $createIfNotExists = true): Result
+	{
+		$result = new Result();
+		$chat = null;
+		$chatId = static::getIdByMessage($message);
+		if ($chatId)
+		{
+			$chat = Chat::getInstance($chatId);
+		}
+
+		if ($chat instanceof self)
+		{
+			$chat->parentMessage = $message;
+
+			return $result->setResult($chat);
+		}
+
+		if (!$createIfNotExists)
+		{
+			$result->addError(new ChatError(ChatError::NOT_FOUND));
+
+			return $result;
+		}
+
+		return static::create($message);
+	}
+
+	protected function getMentionService(SendingConfig $config): MentionService
+	{
+		return new Message\Send\Mention\CommentMentionService($config);
+	}
+
+	public static function create(Message $message): Result
+	{
+		$result = new Result();
+		$parentChat = $message->getChat();
+
+		if (!$parentChat instanceof ChannelChat)
+		{
+			return $result->addError(new ChatError(ChatError::WRONG_PARENT_CHAT));
+		}
+
+		Application::getConnection()->lock(self::getLockName($message->getId()));
+
+		$chat = Chat::getInstance(static::getIdByMessage($message));
+		if ($chat instanceof self)
+		{
+			Application::getConnection()->unlock(self::getLockName($message->getId()));
+			$chat->parentMessage = $message;
+
+			return $result->setResult($chat);
+		}
+
+		$createResult = static::createInternal($message);
+		Application::getConnection()->unlock(self::getLockName($message->getId()));
+
+		return $createResult;
+	}
+
+	public function join(bool $withMessage = true): Chat
+	{
+		$this->getParentChat()->join();
+
+		return parent::join(false);
+	}
+
+	public function getRole(): string
+	{
+		if (isset($this->role))
+		{
+			return $this->role;
+		}
+
+		$role = parent::getRole();
+
+		if ($role === self::ROLE_MEMBER)
+		{
+			$role = $this->getParentChat()->getRole();
+		}
+
+		$this->role = $role;
+
+		return $role;
+	}
+
+	protected function onAfterMessageSend(Message $message, SendingService $sendingService): void
+	{
+		$this->subscribe(true, $message->getAuthorId());
+		$this->subscribeUsers(true, $message->getUserIdsFromMention(), $message->getPrevId());
+		Message\LastMessages::insert($message);
+
+		if (!$sendingService->getConfig()->skipCounterIncrements())
+		{
+			Recent::raiseChat($this->getParentChat(), $this->getParentRelations(), new DateTime());
+		}
+
+		parent::onAfterMessageSend($message, $sendingService);
+	}
+
+	protected function updateRecentAfterMessageSend(\Bitrix\Im\V2\Message $message, SendingConfig $config): Result
+	{
+		return new Result();
+	}
+
+	public function filterUsersToMention(array $userIds): array
+	{
+		return $this->getParentChat()->filterUsersToMention($userIds);
+	}
+
+	public function getRelations(): RelationCollection
+	{
+		$relations = parent::getRelations();
+		$userIds = $relations->getUserIds();
+		if (empty($userIds))
+		{
+			return $relations;
+		}
+
+		$parentRelations = $this->getParentChat()->getRelationsByUserIds($userIds);
+
+		return $relations->filter(
+			fn (Relation $relation) => $parentRelations->getByUserId($relation->getUserId(), $this->getParentChatId())
+		);
+	}
+
+	public function getRelationsForSendMessage(): RelationCollection
+	{
+		return parent::getRelationsForSendMessage()->filterNotifySubscribed();
+	}
+
+	protected function getParentRelations(): RelationCollection
+	{
+		if (isset($this->parentRelations))
+		{
+			return $this->parentRelations;
+		}
+
+		$userIds = parent::getRelations()->getUserIds();
+		$this->parentRelations = $this->getParentChat()->getRelationsByUserIds($userIds);
+
+		return $this->parentRelations;
+	}
+
+	public function subscribe(bool $subscribe = true, ?int $userId = null): Result
+	{
+		$userId ??= $this->getContext()->getUserId();
+		$result = new Result();
+
+		$relation = $this->getRelationByUserId($userId);
+
+		if ($relation === null)
+		{
+			return $result->addError(new ChatError(ChatError::ACCESS_DENIED));
+		}
+
+		$relation->setNotifyBlock(!$subscribe)->save();
+		$this->sendSubscribePush($subscribe, [$userId]);
+
+		if (!$subscribe)
+		{
+			$this->read();
+		}
+
+		return $result;
+	}
+
+	protected function resolveRelationConflicts(array $userIds, Relation\Reason $reason = Relation\Reason::DEFAULT): array
+	{
+		$userIds = parent::resolveRelationConflicts($this->getValidUsersToAdd($userIds), $reason);
+
+		if (empty($userIds))
+		{
+			return $userIds;
+		}
+
+		return $this->getParentChat()->getRelationsByUserIds($userIds)->getUserIds();
+	}
+
+	public function subscribeUsers(bool $subscribe = true, array $userIds = [], ?int $lastId = null): Result
+	{
+		$result = new Result();
+
+		if (empty($userIds))
+		{
+			return $result;
+		}
+
+		$this->addUsers($userIds, [], false);
+		$relations = $this->getRelations();
+		$subscribedUsers = [];
+		foreach ($userIds as $userId)
+		{
+			$relation = $relations->getByUserId($userId, $this->getId());
+			if ($relation === null || !$relation->getNotifyBlock())
+			{
+				continue;
+			}
+			$relation->setNotifyBlock(false);
+			if ($lastId)
+			{
+				$relation->setLastId($lastId);
+			}
+			$subscribedUsers[] = $userId;
+		}
+
+		$relations->save(true);
+		$this->sendSubscribePush($subscribe, $subscribedUsers);
+
+		return $result;
+	}
+
+	protected function sendSubscribePush(bool $subscribe, array $userIds): void
+	{
+		if (!Loader::includeModule('pull') || empty($userIds))
+		{
+			return;
+		}
+		Event::add(
+			$userIds,
+			[
+				'module_id' => 'im',
+				'command' => 'commentSubscribe',
+				'params' => [
+					'dialogId' => $this->getDialogId(),
+					'subscribe' => $subscribe,
+					'messageId' => $this->getParentMessageId(),
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra(),
+			]
+		);
+	}
+
+	protected function createDiskFolder(): ?Folder
+	{
+		$parentFolder = $this->getParentChat()->getOrCreateDiskFolder();
+		if (!$parentFolder)
+		{
+			return null;
+		}
+
+		$folder = $parentFolder->addSubFolder(
+			[
+				'NAME' => "chat{$this->getId()}",
+				'CREATED_BY' => $this->getContext()->getUserId(),
+			],
+			[],
+			true
+		);
+
+		if ($folder)
+		{
+			$this->setDiskFolderId($folder->getId())->save();
+		}
+
+		return $folder;
+	}
+
+	protected function createRelation(int $userId, bool $hideHistory, array $managersMap, Relation\Reason $reason): Relation
+	{
+		$notifyBlock = $userId !== $this->getParentMessage()->getAuthorId();
+
+		return parent::createRelation($userId, $hideHistory, $managersMap, $reason)->setLastId(0)->setNotifyBlock($notifyBlock);
+	}
 
 	protected function getDefaultType(): string
 	{
 		return self::IM_TYPE_COMMENT;
 	}
 
-	public function setParentChatId(int $parentId): self
+	public function setParentChat(?Chat $chat): self
 	{
-		if (!$parentId)
-		{
-			return $this;
-		}
-
-		$parentChat = ChatFactory::getInstance()->getChat($parentId);
-
-		if ($parentChat->getType() !== self::IM_TYPE_CHAT)
-		{
-			return $this;
-		}
-
-		$this->parentChat = $parentChat;
-
-		return parent::setParentChatId($parentId);
-	}
-
-	public function setParentMessageId(int $messageId): self
-	{
-		if ($messageId)
-		{
-			$message = new Message($messageId);
-			if ($message->getChatId() && $message->getChatId() == $this->getParentChatId())
-			{
-				return parent::setParentMessageId($messageId);
-			}
-		}
+		$this->parentChat = $chat;
 
 		return $this;
 	}
 
-	public function getParent(): ?Chat
+	public function getParentChat(): Chat
 	{
+		$this->parentChat ??= Chat::getInstance($this->getParentChatId());
+
 		return $this->parentChat;
 	}
 
-	public function add(array $params, ?Context $context = null): Result
+	public function setParentMessage(?Message $message): self
 	{
-		$result = new Result;
+		$this->parentMessage = $message;
 
-		$paramsResult = $this->prepareParams($params);
-		if ($paramsResult->isSuccess())
-		{
-			$params = $paramsResult->getResult();
-		}
-		else
-		{
-			return $result->addErrors($paramsResult->getErrors());
-		}
+		return $this;
+	}
 
-		$chat = new static($params);
-		$chat->setParentChatId($params['PARENT_ID']);
-		if (!$chat->getParent())
-		{
-			return $result->addError(new ChatError(ChatError::WRONG_PARENT_CHAT));
-		}
-		$chat
-			->setExtranet($chat->getParent()->getExtranet())
-			->setManageUsersAdd($chat->getParent()->getManageUsersAdd())
-			->setManageUsersDelete($chat->getParent()->getManageUsersDelete())
-			->setManageUI($chat->getParent()->getManageUI())
-			->setParentMessageId($params['PARENT_MID'])
-		;
-		if (!$chat->getParentMessageId())
-		{
-			return $result->addError(new ChatError(ChatError::WRONG_PARENT_MESSAGE));
-		}
-		$chat->save();
+	public function getParentMessage(): ?Message
+	{
+		$this->parentMessage ??= new Message($this->getParentMessageId());
 
-		if (!$chat->getChatId())
-		{
-			return $result->addError(new ChatError(ChatError::CREATION_ERROR));
-		}
+		return $this->parentMessage;
+	}
 
-		$result->setResult([
-			'CHAT_ID' => $chat->getChatId(),
-			'CHAT' => $chat,
+	protected function sendMessageUsersAdd(array $usersToAdd, bool $skipRecent = false): void
+	{
+		return;
+	}
+
+	protected function sendDescriptionMessage(?int $authorId = null): void
+	{
+		return;
+	}
+
+	protected function sendMessageUserDelete(int $userId, bool $skipRecent = false): void
+	{
+		return;
+	}
+
+	protected function sendGreetingMessage(?int $authorId = null)
+	{
+		$messageText = Loc::getMessage('IM_COMMENT_CREATE_V2');
+
+		\CIMMessage::Add([
+			'MESSAGE_TYPE' => $this->getType(),
+			'TO_CHAT_ID' => $this->getChatId(),
+			'FROM_USER_ID' => 0,
+			'MESSAGE' => $messageText,
+			'SYSTEM' => 'Y',
+			'PUSH' => 'N',
+			'SKIP_PULL' => 'Y', // todo: remove
+			'SKIP_COUNTER_INCREMENTS' => 'Y',
+			'PARAMS' => [
+				'NOTIFY' => 'N',
+			],
 		]);
+	}
+
+	protected function sendBanner(?int $authorId = null): void
+	{
+		return;
+	}
+
+	protected static function mirrorDataEntityFields(): array
+	{
+		$result = parent::mirrorDataEntityFields();
+		$result['PARENT_MESSAGE'] = [
+			'set' => 'setParentMessage',
+			'skipSave' => true,
+		];
+		$result['PARENT_CHAT'] = [
+			'set' => 'setParentChat',
+			'skipSave' => true,
+		];
 
 		return $result;
 	}
@@ -107,28 +383,84 @@ class CommentChat extends GroupChat
 	{
 		$result = new Result();
 
-		if (!isset($params['PARENT_ID']) || !(int)$params['PARENT_ID'])
+		if (!isset($params['PARENT_CHAT']) || !$params['PARENT_CHAT'] instanceof Chat)
 		{
 			return $result->addError(new ChatError(ChatError::WRONG_PARENT_CHAT));
 		}
 
-		if (!isset($params['PARENT_MID']) || !(int)$params['PARENT_MID'])
+		if (!isset($params['PARENT_MESSAGE']) || !$params['PARENT_MESSAGE'] instanceof Message)
 		{
 			return $result->addError(new ChatError(ChatError::WRONG_PARENT_MESSAGE));
 		}
 
+		$params['PARENT_ID'] = $params['PARENT_CHAT']->getId();
+		$params['PARENT_MID'] = $params['PARENT_MESSAGE']->getId();
+		$params['USERS'][] = $params['PARENT_MESSAGE']->getAuthorId();
+
 		return parent::prepareParams($params);
 	}
 
-	public function hasAccess($user = null): bool
+	protected static function createInternal(Message $message): Result
 	{
-		$parent = $this->getParent();
-		if ($parent)
+		$result = new Result();
+
+		$parentChat = $message->getChat();
+
+		$addResult = ChatFactory::getInstance()->addChat([
+			'TYPE' => self::IM_TYPE_COMMENT,
+			'PARENT_CHAT' => $parentChat,
+			'PARENT_MESSAGE' => $message,
+			'OWNER_ID' => $parentChat->getAuthorId(),
+			'AUTHOR_ID' => $parentChat->getAuthorId(),
+		]);
+
+		if (!$addResult->isSuccess())
 		{
-			return $parent->hasAccess($user);
+			return $addResult;
 		}
 
-		return false;
+		/** @var static $chat */
+		$chat = $addResult->getResult()['CHAT'];
+		$chat->parentMessage = $message;
+		$chat->sendPushChatCreate();
+
+		return $result->setResult($chat);
+	}
+
+	protected static function getIdByMessage(Message $message): int
+	{
+		$row = ChatTable::query()
+			->setSelect(['ID'])
+			->where('PARENT_ID', $message->getChatId())
+			->where('PARENT_MID', $message->getId())
+			->fetch() ?: []
+		;
+
+		return (int)($row['ID'] ?? 0);
+	}
+
+	protected function sendPushChatCreate(): void
+	{
+		Event::add(
+			$this->getParentChat()->getRelations()->getUserIds(),
+			[
+				'module_id' => 'im',
+				'command' => 'chatCreate',
+				'params' => [
+					'id' => $this->getId(),
+					'parentChatId' => $this->getParentChatId(),
+					'parentMessageId' => $this->getParentMessageId(),
+				],
+				'extra' => \Bitrix\Im\Common::getPullExtra(),
+			]
+		);
+	}
+
+	protected function checkAccessInternal(int $userId): Result
+	{
+		return $this->getParentMessage()?->checkAccess($userId)
+			?? (new Result())->addError(new ChatError(ChatError::ACCESS_DENIED))
+		;
 	}
 
 	protected function addIndex(): Chat
@@ -139,5 +471,10 @@ class CommentChat extends GroupChat
 	protected function updateIndex(): Chat
 	{
 		return $this;
+	}
+
+	protected static function getLockName(int $messageId): string
+	{
+		return 'com_create_' . $messageId;
 	}
 }

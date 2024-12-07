@@ -4,7 +4,6 @@ namespace Bitrix\Main\Web\WebPacker;
 
 use Bitrix\Main\InvalidOperationException;
 use Bitrix\Main\Localization\Loc;
-use Bitrix\Main\Web\Json;
 
 /**
  * Class Converter
@@ -28,7 +27,7 @@ class Converter
 		self::$hasCoreExtension = $builder->hasCoreExtension();
 		if (self::$hasCoreExtension)
 		{
-			$content = Json::encode([
+			$content = JsonEncoder::encode([
 				'address' => Builder::getDefaultSiteUri()
 			]);
 			$content = "var webPacker = $content;" . self::getEol();
@@ -83,7 +82,7 @@ EOD;
 				$properties = $module->getProfile()->getProperties();
 				if (!empty($properties))
 				{
-					$properties = Json::encode($properties);
+					$properties = JsonEncoder::encode($properties);
 					$content .= "module.setProperties($properties);" . self::getEol(1);
 				}
 			}
@@ -99,7 +98,7 @@ EOD;
 			if ($method)
 			{
 				$parameter = $module->getProfile()->getCallParameter();
-				$parameter = $parameter ? Json::encode($parameter) : '{}';
+				$parameter = $parameter ? JsonEncoder::encode($parameter) : '{}';
 				$content .=  "$method($parameter);";
 			}
 		}
@@ -134,7 +133,7 @@ EOD;
 						throw new InvalidOperationException("Resource of type `$type` not allowed without core extension.");
 					}
 
-					$resources = $list = Json::encode($package->toArray($type));
+					$resources = $list = JsonEncoder::encode($package->toArray($type));
 					$content .= "module.loadResources($resources);" . self::getEol();
 					break;
 
@@ -198,8 +197,9 @@ EOD;
 					{
 						$messages = current($messages);
 					}
-					$messages = Json::encode($messages);
-					$languages = Json::encode($languages);
+
+					$messages = JsonEncoder::encode($messages);
+					$languages = JsonEncoder::encode($languages);
 					$content .= "module.language = \"$language\";" . self::getEol(1);
 					$content .= "module.languages = $languages;" . self::getEol(1);
 					$content .= "module.messages = $messages;" . self::getEol();

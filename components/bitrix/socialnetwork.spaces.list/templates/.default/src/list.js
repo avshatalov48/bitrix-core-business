@@ -7,13 +7,15 @@ import { RecentService } from './api/load/recent-service';
 import { PullRequests } from './pull/pull-requests';
 import { EventTypes } from './const/event';
 import { Modes } from './const/mode';
+import { SpaceCommonToCommentActivityTypes } from './const/space';
 import { RecentSearchService } from './api/load/recent-search-service';
 import { BaseEvent } from 'main.core.events';
 import { PULL as Pull } from 'pull.client';
+import { Client } from './api/client';
 
 import type { SpaceModel } from './model/space-model';
 import type { InvitationModel } from './model/invitation-model';
-import { Client } from './api/client';
+import type { RecentActivityModel } from './model/recent-activity-model';
 
 type ListOptions = {
 	recentSpaceIds: number[],
@@ -108,6 +110,7 @@ export class List
 						pullRequests.subscribe(EventTypes.changeSubscription, this.updateSpaceUserData);
 						pullRequests.subscribe(EventTypes.recentActivityUpdate, this.recentActivityUpdate);
 						pullRequests.subscribe(EventTypes.recentActivityDelete, this.recentActivityDelete);
+						pullRequests.subscribe(EventTypes.recentActivityRemoveFromSpace, this.recentActivityRemoveFromSpace);
 						Pull.subscribe(pullRequests);
 					},
 					pinChangedHandler(event): void
@@ -127,16 +130,24 @@ export class List
 					},
 					async recentActivityUpdate(event: BaseEvent): void
 					{
-						const recentActivityData = event.data.recentActivityData;
-						const space: SpaceModel | undefined = this.$store.state.main.spaces.get(recentActivityData.spaceId);
+						const recentActivities = event.data.recentActivities;
+						const spacesToLoad = [];
 
-						if (space)
+						recentActivities.forEach((recentActivityData) => {
+							const space: SpaceModel | undefined = this.$store.state.main.spaces.get(recentActivityData.spaceId);
+							if (space)
+							{
+								this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
+							}
+							else
+							{
+								spacesToLoad.push(recentActivityData.spaceId);
+							}
+						});
+
+						if (spacesToLoad.length > 0)
 						{
-							this.$store.dispatch('updateSpaceRecentActivityData', recentActivityData);
-						}
-						else
-						{
-							await this.loadSpace(recentActivityData.spaceId);
+							await this.loadSpaces(spacesToLoad);
 						}
 					},
 					async recentActivityDelete(event: BaseEvent): void
@@ -145,21 +156,60 @@ export class List
 						const deletedActivityEntityId = event.data.entityId;
 
 						const spaceModels: Array<SpaceModel> = [...this.$store.getters.recentSpaces.values()];
+						const spacesToLoad = [];
 						spaceModels.forEach((space: SpaceModel) => {
-							const wasSpaceRecentActivityDeleted = space.recentActivity.typeId === deletedActivityTypeId
-								&& space.recentActivity.entityId === deletedActivityEntityId
-							;
-
-							if (wasSpaceRecentActivityDeleted)
+							if (this.wasRecentActivityDeleted(space, deletedActivityTypeId, deletedActivityEntityId))
 							{
-								this.loadSpace(space.id);
+								spacesToLoad.push(space.id);
 							}
 						});
+
+						if (spacesToLoad.length > 0)
+						{
+							this.loadSpaces(spacesToLoad);
+						}
+					},
+					wasRecentActivityDeleted(space: SpaceModel, deletedType: string, deletedEntityId: number): boolean
+					{
+						const recentActivity: RecentActivityModel = space.recentActivity;
+
+						if (SpaceCommonToCommentActivityTypes[deletedType])
+						{
+							const commentType = SpaceCommonToCommentActivityTypes[deletedType];
+
+							return (
+								(recentActivity.secondaryEntityId === deletedEntityId && commentType === recentActivity.typeId)
+								|| (recentActivity.entityId === deletedEntityId && deletedType === recentActivity.typeId)
+							);
+						}
+
+						return recentActivity.entityId === deletedEntityId && deletedType === recentActivity.typeId;
+					},
+					async recentActivityRemoveFromSpace(event: BaseEvent): void
+					{
+						const spaceIds = event.data.spaceIds;
+						const spacesIdsToLoad = [];
+						spaceIds.forEach((spaceId) => {
+							const space: SpaceModel | undefined = this.$store.state.main.spaces.get(spaceId);
+							if (space)
+							{
+								spacesIdsToLoad.push(spaceId);
+							}
+						});
+
+						this.loadSpaces(spacesIdsToLoad);
 					},
 					async loadSpace(spaceId: number): void
 					{
 						const requestData = await Client.loadSpaceData(spaceId);
 						this.$store.dispatch('updateSpaceData', requestData);
+					},
+					async loadSpaces(spaceIds: Array<number>): void
+					{
+						const requestData = await Client.loadSpacesData(spaceIds);
+						requestData.forEach((spaceData) => {
+							this.$store.dispatch('updateSpaceData', { space: spaceData, checkInvitation: false });
+						});
 					},
 					async updateSpaceData(event: BaseEvent): void
 					{

@@ -205,7 +205,7 @@ class CIBlockPropertyDirectory
 		}
 
 		return <<<"HIBSELECT"
-<script type="text/javascript">
+<script>
 function getTableHead()
 {
 	BX('hlb_directory_table').innerHTML = '<tr class="heading"><td></td><td>$headingName</td><td>$headingSort</td><td>$headingXmlId</td><td>$headingFile</td><td>$headingLink</td><td>$headingDef</td><td>$headingDescription</td><td>$headingFullDescription</td></tr>$emptyDefaultValue';
@@ -344,7 +344,7 @@ function getDirectoryTableHead(e)
 <tr id="hlb_directory_table_tr">
 	<td colspan="2" style="text-align: center;">
 		<table class="internal" id="hlb_directory_table" style="margin: 0 auto;">
-			<script type="text/javascript">getDirectoryTableRow('full');</script>
+			<script>getDirectoryTableRow('full');</script>
 		</table>
 	</td>
 </tr>
@@ -1228,7 +1228,7 @@ HTML;
 		$viewHtml = '';
 
 		$dataValue = static::getExtendedValue($settings, $value);
-		if ($dataValue)
+		if (isset($dataValue['UF_NAME']))
 		{
 			$viewHtml .= '<div class="brandblock-block-wrapper">';
 

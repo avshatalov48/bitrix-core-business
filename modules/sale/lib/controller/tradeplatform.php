@@ -43,7 +43,7 @@ class TradePlatform extends ControllerBase
 				'filter' => $filter,
 				'order' => $order,
 				'offset' => $pageNavigation->getOffset(),
-				'limit' => $pageNavigation->getOffset(),
+				'limit' => $pageNavigation->getLimit(),
 			]
 		)->fetchAll();
 

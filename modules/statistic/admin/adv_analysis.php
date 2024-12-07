@@ -330,7 +330,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 	<td width="100%" nowrap><?
 		echo SelectBoxMFromArray("find_adv[]",array("REFERENCE"=>$find_adv_names, "REFERENCE_ID"=>$find_adv), $find_adv,"",false,"10", "style=\"width:300px;\"");
 		?>
-	<script language="Javascript">
+	<script>
 	function selectEventType(form, field)
 	{
 		jsUtils.OpenWindow('adv_multiselect.php?lang=<?echo LANGUAGE_ID?>&form='+form+'&field='+field, 600, 600);
@@ -347,7 +347,7 @@ require_once ($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_adm
 
 <?//endif;?>
 
-<script language="JavaScript">
+<script>
 <!--
 function OnChangeAnalysisParam()
 {
@@ -388,7 +388,7 @@ function OnChangeAnalysisParam()
 	<?
 		echo SelectBoxMFromArray("find_events[]",array("REFERENCE"=>$find_events_names, "REFERENCE_ID"=>$find_events), $find_events,"",false,"10", "style=\"width:300px;\"");
 	?>
-	<script language="Javascript">
+	<script>
 	function selectEvent(form, field)
 	{
 		jsUtils.OpenWindow('event_multiselect.php?lang=<?echo LANGUAGE_ID?>&form='+form+'&field='+field, 600, 600);

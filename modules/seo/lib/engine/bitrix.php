@@ -12,14 +12,14 @@ use Bitrix\Main\Loader;
 use Bitrix\Seo\Engine;
 use Bitrix\Seo\IEngine;
 
-if(!defined("BITRIX_CLOUD_ADV_URL"))
+if (!defined("BITRIX_CLOUD_ADV_URL"))
 {
 	define("BITRIX_CLOUD_ADV_URL", 'https://cloud-adv.bitrix.info');
 }
 
-if(!defined("SEO_BITRIX_API_URL"))
+if (!defined("SEO_BITRIX_API_URL"))
 {
-	define("SEO_BITRIX_API_URL", BITRIX_CLOUD_ADV_URL."/rest/");
+	define("SEO_BITRIX_API_URL", BITRIX_CLOUD_ADV_URL . "/rest/");
 }
 
 class Bitrix extends Engine implements IEngine
@@ -27,18 +27,21 @@ class Bitrix extends Engine implements IEngine
 	const ENGINE_ID = 'bitrix';
 
 	protected $engineId = 'bitrix';
-	protected $engineRegistered = false;
 
-	CONST API_URL = SEO_BITRIX_API_URL;
+	const API_URL = SEO_BITRIX_API_URL;
 
 	public function __construct()
 	{
-		$this->engine = static::getEngine($this->engineId);
-		if($this->engine)
+		$this->findEngine();
+		if ($this->engine)
 		{
-			$this->engineRegistered = true;
 			parent::__construct();
 		}
+	}
+
+	protected function findEngine(): void
+	{
+		$this->engine = static::getEngine($this->engineId);
 	}
 
 	/**
@@ -46,27 +49,34 @@ class Bitrix extends Engine implements IEngine
 	 *
 	 * @return bool
 	 */
-	public function isRegistered()
+	public function isRegistered(): bool
 	{
-		return $this->engineRegistered;
+		$this->findEngine();
+
+		return (bool) $this->engine;
 	}
 
 	public function getInterface()
 	{
-		if($this->authInterface === null)
+		$this->findEngine();
+
+		if (!$this->engine || !Loader::includeModule('socialservices'))
 		{
-			if(Loader::includeModule('socialservices'))
-			{
-				$this->authInterface = new \CBitrixSeoOAuthInterface($this->engine['CLIENT_ID'], $this->engine['CLIENT_SECRET']);
-			}
+			return null;
+		}
+
+		if ($this->authInterface === null)
+		{
+			$this->authInterface =
+				new \CBitrixSeoOAuthInterface($this->engine['CLIENT_ID'], $this->engine['CLIENT_SECRET']);
 		}
 
 		return $this->authInterface;
 	}
 
-	public function setAuthSettings($settings = null)
+	public function setAuthSettings($settings = null): void
 	{
-		if(is_array($settings) && array_key_exists("expires_in" ,$settings))
+		if (is_array($settings) && array_key_exists("expires_in", $settings))
 		{
 			$settings["expires_in"] += time();
 		}

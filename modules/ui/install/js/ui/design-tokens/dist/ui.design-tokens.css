@@ -1,6 +1,6 @@
 /**
  * Do not edit directly
- * Generated on Wed, 18 Oct 2023 09:52:35 GMT
+ * Generated on Tue, 26 Mar 2024 08:05:46 GMT
  */
 
 :root {
@@ -413,6 +413,12 @@
   --ui-color-link-primary-base-rgb: 32, 102, 176;
   --ui-color-background-none: none;
   --ui-color-background-transparent: transparent;
+  --ui-color-copilot-primary: #8e52ec;
+  --ui-color-copilot-primary-rgb: 142, 82, 236;
+  --ui-color-copilot-secondary: #b095dc;
+  --ui-color-copilot-secondary-rgb: 176, 149, 220;
+  --ui-color-copilot-dark: #682ac6;
+  --ui-color-copilot-dark-rgb: 104, 42, 198;
   --ui-border-width-thick: 2px;
   --ui-border-width-thin: 1px;
   --ui-border-radius-pill: 99rem;

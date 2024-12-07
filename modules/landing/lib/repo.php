@@ -1,6 +1,8 @@
 <?php
 namespace Bitrix\Landing;
 
+use Bitrix\Landing\Block\BlockRepo;
+use Bitrix\Landing\Site\Type;
 use \Bitrix\Rest\AppTable;
 
 class Repo extends \Bitrix\Landing\Internals\BaseTable
@@ -69,7 +71,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 	 */
 	public static function getRepository()
 	{
-		$items = array();
+		$items = [];
 		$siteId = Manager::getMainSiteId();
 		$siteTemplateId = Manager::getTemplateId($siteId);
 		$langPortal = LANGUAGE_ID;
@@ -119,18 +121,22 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 				$row['NAME'] = $manifest['lang']['en'][$row['NAME']];
 			}
 
-			$items['repo_'. $row['ID']] = array(
+			$blockManifest = [
 				'id' => null,
+				'new' => (time() - $row['DATE_CREATE_TIMESTAMP']) < BlockRepo::NEW_BLOCK_LT,
 				'name' => $row['NAME'],
-				'namespace' => $row['APP_CODE'],
-				'new' => (time() - $row['DATE_CREATE_TIMESTAMP']) < Block::NEW_BLOCK_LT,
-				'section' => explode(',', $row['SECTIONS']),
 				'description' => $row['DESCRIPTION'],
+				'namespace' => $row['APP_CODE'],
+				'type' => (array)($manifest['block']['type'] ?? []),
+				'section' => explode(',', $row['SECTIONS']),
 				'preview' => $row['PREVIEW'],
 				'restricted' => true,
 				'repo_id' => $row['ID'],
-				'app_code' => $row['APP_CODE']
-			);
+				'app_code' => $row['APP_CODE'],
+			];
+
+			$blockManifest = Type::prepareBlockManifest(['block' => $blockManifest]);
+			$items['repo_'. $row['ID']] = $blockManifest['block'];
 		}
 
 		return $items;
@@ -166,18 +172,21 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 					'name' => $block['NAME'],
 					'description' => $block['DESCRIPTION'],
 					'namespace' => $block['APP_CODE'],
+					'type' => (array)($blockDesc['type'] ?? []),
 					'section' => explode(',', $block['SECTIONS']),
 					'preview' => $block['PREVIEW'],
 					'restricted' => true,
 					'repo_id' => $block['ID'],
 					'xml_id' => $block['XML_ID'],
-					'app_code' => $block['APP_CODE']
+					'app_code' => $block['APP_CODE'],
 				);
 				if (isset($blockDesc['subtype']))
 				{
 					$manifestLocal['block']['subtype'] = $blockDesc['subtype'];
+					$manifestLocal['block']['subtype_params'] = $blockDesc['subtype_params'] ?? [];
 				}
-				$manifest[$id] = $manifestLocal;
+
+				$manifest[$id] = Type::prepareBlockManifest($manifestLocal);
 				$manifest[$id]['timestamp'] = $block['DATE_MODIFY']->getTimeStamp();
 			}
 		}
@@ -188,7 +197,7 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 	/**
 	 * Get row by Id.
 	 * @param int $id Id.
-	 * @return Bitrix\Main\DB\Result
+	 * @return \Bitrix\Main\DB\Result
 	 */
 	public static function getById($id)
 	{
@@ -305,8 +314,10 @@ class Repo extends \Bitrix\Landing\Internals\BaseTable
 			{
 				$row['APP_STATUS'] = AppTable::getAppStatusInfo($row, '');
 				$apps[$row['CODE']] = array(
+					'ID' => $row['ID'],
 					'CODE' => $row['CODE'],
 					'APP_NAME' => $row['APP_NAME'],
+					'CLIENT_ID' => $row['CLIENT_ID'],
 					'VERSION' => $row['VERSION'],
 					'DATE_FINISH' => $row['DATE_FINISH'],
 					'PAYMENT_ALLOW' => $row['APP_STATUS']['PAYMENT_ALLOW']

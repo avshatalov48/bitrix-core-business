@@ -1,6 +1,7 @@
 import { Dom, Tag, Loc, Event, Type } from 'main.core';
 import { Icon, Actions } from 'ui.icon-set.api.core';
 import { EventEmitter } from 'main.core.events';
+import { SettingsModel } from '../../model/index';
 import ListItem from './list-item';
 import 'ui.icon-set.actions'
 
@@ -8,9 +9,8 @@ const DEFAULT_LIST_HEIGHT = 300;
 const LIST_PADDING_SUM = 45;
 
 type ListProps = {
-	userInfo: any,
-	onLinkListClose: func,
-	sortJointLinksByFrequentUse: boolean,
+	model: SettingsModel,
+	onLinkListClose: function,
 };
 
 export default class List
@@ -27,7 +27,6 @@ export default class List
 	};
 	#linkList: any;
 	#popupOpenState = false;
-	#sortByFrequentUse: boolean;
 	#pathToUser: string;
 
 	constructor(props: ListProps)
@@ -36,12 +35,16 @@ export default class List
 		this.#layout = {};
 		this.#linkList = null;
 		this.#pathToUser = null;
-		this.#sortByFrequentUse = props.sortJointLinksByFrequentUse;
 		this.getLinkListInfo();
 
 		this.setListItemPopupState = this.setListItemPopupState.bind(this);
 
 		this.eventSubscribe();
+	}
+
+	get #model(): SettingsModel
+	{
+		return this.#props.model;
 	}
 
 	eventSubscribe()
@@ -219,7 +222,7 @@ export default class List
 
 	getListItems(): any
 	{
-		if (this.#sortByFrequentUse)
+		if (this.#model.sortJointLinksByFrequentUse())
 		{
 			return this.getSortedByFrequentUseListItems();
 		}
@@ -250,7 +253,7 @@ export default class List
 			return 0;
 		}).map((item) => new ListItem({
 			...item,
-			userInfo: this.#props.userInfo,
+			userInfo: this.#model.getUserInfo(),
 			pathToUser: this.#pathToUser,
 			setListItemPopupState: this.setListItemPopupState,
 		}));
@@ -261,7 +264,7 @@ export default class List
 		return Object.keys(this.#linkList).sort((a, b) => b - a).map((index) => {
 			return new ListItem({
 				...this.#linkList[index],
-				userInfo: this.#props.userInfo,
+				userInfo: this.#model.getUserInfo(),
 				pathToUser: this.#pathToUser,
 				setListItemPopupState: this.setListItemPopupState,
 			});
@@ -312,19 +315,12 @@ export default class List
 
 	changeListSort(): void
 	{
-		this.#sortByFrequentUse = !this.#sortByFrequentUse;
-		BX.ajax.runAction('calendar.api.sharingajax.setSortJointLinksByFrequentUse', {
-			data: {
-				sortByFrequentUse: this.#sortByFrequentUse ? 'Y' : 'N',
-			},
-		});
-
-		const sortName = this.#getSortingName();
+		this.#model.changeSortJointLinksByFrequentUse();
 
 		if (this.#layout.sortingButtonText)
 		{
 			Dom.adjust(this.#layout.sortingButtonText, {
-				text: sortName,
+				text: this.#getSortingName(),
 			});
 		}
 
@@ -333,7 +329,7 @@ export default class List
 
 	#getSortingName(): string
 	{
-		return this.#sortByFrequentUse
+		return this.#model.sortJointLinksByFrequentUse()
 			? Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_RECENT')
 			: Loc.getMessage('CALENDAR_SHARING_LINK_LIST_SORT_DATE');
 	}

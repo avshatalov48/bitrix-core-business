@@ -1,6 +1,7 @@
 import Column from "./column";
 import Grid from "./grid";
 import {Dom, Reflection, Tag} from 'main.core';
+import type { ChangerOpts } from './item/changer';
 import Title from './item/title';
 import Hint from './item/hint';
 import Member from './item/member';
@@ -33,6 +34,8 @@ type ColumnItemOptions = {
 	allSelectedCode: number;
 	container: HTMLElement;
 	column: Column;
+	groupHead: boolean;
+	changerOptions: ?ChangerOpts;
 };
 
 export default class ColumnItem {
@@ -49,6 +52,19 @@ export default class ColumnItem {
 	{
 		let item = null;
 		const container = Tag.render`<div class='ui-access-rights-column-item'></div>`;
+
+		if (this.options.group)
+		{
+			Dom.addClass(container, 'ui-access-rights-group-children');
+			container.dataset.group = this.options.group;
+
+			this.options.grid.groupElements.push({
+				container,
+				group: this.options.group,
+				isHidden: true,
+			});
+		}
+
 		this.options.container = container;
 		if (this.type === Role.TYPE)
 		{

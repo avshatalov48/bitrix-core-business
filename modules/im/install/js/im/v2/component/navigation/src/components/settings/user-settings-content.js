@@ -1,7 +1,7 @@
 import { MenuManager } from 'main.popup';
 
 import { Core } from 'im.v2.application.core';
-import { Avatar, AvatarSize, UserStatus, UserStatusSize, ScrollWithGradient } from 'im.v2.component.elements';
+import { ChatAvatar, AvatarSize, UserStatus, UserStatusSize, ScrollWithGradient } from 'im.v2.component.elements';
 import { DesktopApi, DesktopFeature } from 'im.v2.lib.desktop-api';
 import { Utils } from 'im.v2.lib.utils';
 import { PopupType, Settings, UserStatus as UserStatusType } from 'im.v2.const';
@@ -18,7 +18,7 @@ import type { ImModelUser } from 'im.v2.model';
 // @vue/component
 export const UserSettingsContent = {
 	name: 'UserSettingsContent',
-	components: { Avatar, UserStatus, ButtonPanel, UserStatusPopup, DesktopAccountList, ScrollWithGradient },
+	components: { ChatAvatar, UserStatus, ButtonPanel, UserStatusPopup, DesktopAccountList, ScrollWithGradient },
 	emits: ['closePopup', 'enableAutoHide', 'disableAutoHide'],
 	data(): Object
 	{
@@ -33,6 +33,10 @@ export const UserSettingsContent = {
 		currentUserId(): number
 		{
 			return Core.getUserId();
+		},
+		currentUserDialogId(): string
+		{
+			return this.currentUserId.toString();
 		},
 		currentUser(): ImModelUser
 		{
@@ -90,7 +94,11 @@ export const UserSettingsContent = {
 		<div class="bx-im-user-settings-popup__scope bx-im-user-settings-popup__container">
 			<div class="bx-im-user-settings-popup__header">
 				<div class="bx-im-user-settings-popup__header_left">
-					<Avatar :dialogId="currentUserId" :size="AvatarSize.XL" />
+					<ChatAvatar 
+						:avatarDialogId="currentUserDialogId" 
+						:contextDialogId="currentUserDialogId" 
+						:size="AvatarSize.XL" 
+					/>
 				</div>
 				<div class="bx-im-user-settings-popup__header_right">
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>

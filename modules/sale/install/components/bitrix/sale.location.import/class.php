@@ -10,6 +10,8 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
 
 //use Bitrix\Main\Config;
 use Bitrix\Main;
+use Bitrix\Main\Application;
+use Bitrix\Main\Error;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
 
@@ -226,15 +228,31 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 			$this->obtainData();
 		}
 
+		$this->arResult['ALLOW_SOURCE_REMOTE'] = self::checkRegion();
 		$this->formatResult();
 
 		$this->includeComponentTemplate();
+	}
+
+	public static function checkRegion(): bool
+	{
+		$region = Application::getInstance()->getLicense()->getRegion();
+		$isBitrixSiteManagementOnly = !Loader::includeModule('bitrix24') && !Loader::includeModule('intranet');
+
+		return $region === 'ru' || $region === 'by' || $region === 'kz' || $isBitrixSiteManagementOnly;
 	}
 
 	public static function doAjaxStuff($parameters = array())
 	{
 		$errors = static::checkAccessPermissions(array('CHECK_CSRF' => true));
 		$data = 	array();
+
+		$options = Application::getInstance()->getContext()->getRequest()->get('OPTIONS') ?? [];
+		$source = $options['SOURCE'] ?? null;
+		if ($source === Import\ImportProcess::SOURCE_REMOTE && !self::checkRegion())
+		{
+			$errors[] = new Error('Region is not allowed');
+		}
 
 		if(count($errors) == 0)
 		{
@@ -369,7 +387,7 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 		$sortedChildren = array();
 		foreach($this->dbResult['LAYOUT'][$code] as $item)
 		{
-			$name = $item['NAME'][ToUpper(LANGUAGE_ID)]['NAME'];
+			$name = $item['NAME'][mb_strtoupper(LANGUAGE_ID)]['NAME'];
 			$sortedChildren[$name] = $item;
 
 			$this->resortLayoutBundleAlphabetically($item['CODE']);
@@ -414,7 +432,7 @@ class CBitrixSaleLocationImportComponent extends CBitrixComponent
 			],
 			[
 				$pCode === 'WORLD' ? '' : $pCode, // a little mixin with view, actually temporal
-				(string) $pName[ToUpper(LANGUAGE_ID)]['NAME'] != '' ? $pName[ToUpper(LANGUAGE_ID)]['NAME'] : $pName['EN']['NAME'],
+				(string) $pName[mb_strtoupper(LANGUAGE_ID)]['NAME'] != '' ? $pName[mb_strtoupper(LANGUAGE_ID)]['NAME'] : $pName['EN']['NAME'],
 				$childrenHtml,
 				$parameters['INPUT_NAME'], //!strlen($childrenHtml) ? $parameters['INPUT_NAME'] : '',
 				$childrenHtml !== '' ? $parameters['EXPANDER_CLASS'] : '',

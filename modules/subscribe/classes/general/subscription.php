@@ -137,7 +137,7 @@ class CSubscription
 				WHERE
 				' . $strSqlSearch;
 
-			$res_cnt = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res_cnt = $DB->Query($strSql);
 			$res_cnt = $res_cnt->Fetch();
 			$cnt = $res_cnt['C'];
 
@@ -191,7 +191,7 @@ class CSubscription
 				) . '
 				ORDER BY ' . implode(', ', $arOrder);
 
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 			$res->is_filtered = (IsFiltered($strSqlSearch));
 
 			return $res;
@@ -209,7 +209,7 @@ class CSubscription
 			WHERE R.ID = SR.LIST_RUBRIC_ID AND SR.SUBSCRIPTION_ID = ' . $ID . '
 			ORDER BY R.LID, R.SORT, R.NAME
 		';
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	//array of subscribed categories
@@ -260,7 +260,7 @@ class CSubscription
 			WHERE S.ID = ' . $ID . '
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 
 	// deletion
@@ -279,10 +279,10 @@ class CSubscription
 
 		$DB->StartTransaction();
 
-		$res = $DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'");
 		if ($res)
 		{
-			$res = $DB->Query("DELETE FROM b_subscription WHERE ID='" . $ID . "' ", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query("DELETE FROM b_subscription WHERE ID='" . $ID . "' ");
 		}
 
 		if ($res)
@@ -351,7 +351,7 @@ class CSubscription
 		{
 			if (intval($arFields['USER_ID']) > 0)
 			{
-				$res = $DB->Query("SELECT 'x' FROM b_user WHERE ID = " . intval($arFields['USER_ID']), false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+				$res = $DB->Query("SELECT 'x' FROM b_user WHERE ID = " . intval($arFields['USER_ID']));
 				if (!$res->Fetch())
 				{
 					$aMsg[] = ['id' => 'USER_ID', 'text' => GetMessage('class_subscr_user')];
@@ -419,7 +419,7 @@ class CSubscription
 				sr.SUBSCRIPTION_ID='" . $ID . "'
 				AND lr.LID='" . $DB->ForSql($SITE_ID) . "'
 			";
-			$rs = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$rs = $DB->Query($strSql);
 			while ($ar = $rs->Fetch())
 			{
 				$strSql = '
@@ -427,7 +427,7 @@ class CSubscription
 				WHERE SUBSCRIPTION_ID=' . intval($ar['SUBSCRIPTION_ID']) . '
 				AND LIST_RUBRIC_ID=' . intval($ar['LIST_RUBRIC_ID']) . '
 				';
-				$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+				$DB->Query($strSql);
 			}
 
 			$sID = '0';
@@ -446,11 +446,11 @@ class CSubscription
 				WHERE ID IN (" . $sID . ")
 				AND LID='" . $DB->ForSql($SITE_ID) . "'
 			";
-			$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$DB->Query($strSql);
 		}
 		else
 		{
-			$DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'", false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$DB->Query("DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID='" . $ID . "'");
 
 			$sID = '0';
 			if (is_array($aRubric))
@@ -467,7 +467,7 @@ class CSubscription
 				FROM b_list_rubric
 				WHERE ID IN (" . $sID . ')
 			';
-			$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$DB->Query($strSql);
 		}
 	}
 
@@ -531,7 +531,7 @@ class CSubscription
 
 		//Check whether email changed. If changed, we must to generate new confirm code.
 		$strSql = 'SELECT EMAIL, CONFIRM_CODE, CONFIRMED FROM b_subscription WHERE ID = ' . $ID;
-		$db_check = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$db_check = $DB->Query($strSql);
 
 		if (!($db_check_arr = $db_check->Fetch()))
 		{
@@ -576,7 +576,7 @@ class CSubscription
 				'UPDATE b_subscription SET ' . $strUpdate . ', ' . '	DATE_UPDATE=' . $DB->GetNowFunction() . ' ' . ($arFields['CONFIRM_CODE'] <> '' ? ',' . '	DATE_CONFIRM=' . $DB->GetNowFunction() . ' '
 				: '')
 				. 'WHERE ID=' . $ID;
-			if (!$DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__))
+			if (!$DB->Query($strSql))
 			{
 				return false;
 			}
@@ -712,7 +712,7 @@ class CSubscription
 		$user_id = intval($user_id);
 
 		$strSql = 'SELECT ID FROM b_subscription WHERE USER_ID = ' . $user_id;
-		$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		$res = $DB->Query($strSql);
 		$arIn = [];
 		while ($res_arr = $res->Fetch())
 		{
@@ -723,8 +723,8 @@ class CSubscription
 		{
 			$sIn = implode(',',$arIn);
 			if (
-				$DB->Query('DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID IN (' . $sIn . ')', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__) &&
-				$DB->Query('DELETE FROM b_subscription WHERE ID IN (' . $sIn . ')', false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__)
+				$DB->Query('DELETE FROM b_subscription_rubric WHERE SUBSCRIPTION_ID IN (' . $sIn . ')') &&
+				$DB->Query('DELETE FROM b_subscription WHERE ID IN (' . $sIn . ')')
 			)
 			{
 				return true;
@@ -749,7 +749,7 @@ class CSubscription
 		if ($user_id > 0)
 		{
 			$strSql = 'SELECT ID FROM b_subscription WHERE USER_ID=' . $user_id;
-			$res = $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+			$res = $DB->Query($strSql);
 			while ($res_arr = $res->Fetch())
 			{
 				$_SESSION['SESS_SUBSCR_AUTH'][$res_arr['ID']] = 'NO';
@@ -821,6 +821,6 @@ class CSubscription
 				" . $sWhere . '
 		';
 
-		return $DB->Query($strSql, false, 'File: ' . __FILE__ . '<br>Line: ' . __LINE__);
+		return $DB->Query($strSql);
 	}
 }

@@ -39,7 +39,7 @@ $enablePhoneVerification =
 ;
 ?>
 <div id="<?= htmlspecialcharsbx($containerId) ?>" class="sender-letter-time">
-	<script type="text/javascript">
+	<script>
 		function BXPhoneVerifyOnSliderClose(result)
 		{
 			if (result)

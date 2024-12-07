@@ -88,11 +88,6 @@ class Demos
 					// always convert to UTF-8 for REST
 					$item['DATA']['encoded'] = true;
 					$item['DATA']['charset'] = 'UTF-8';
-					$item['DATA']['items'] = \Bitrix\Main\Text\Encoding::convertEncoding(
-						$item['DATA']['items'],
-						SITE_CHARSET,
-						'UTF-8'
-					);
 				}
 			}
 			unset($item);

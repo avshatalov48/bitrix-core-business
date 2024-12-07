@@ -113,7 +113,7 @@ $APPLICATION->SetTitle(GetMessage("STAT_COUNTRY_MSEL_TITLE"));
 
 require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");?>
 
-<script type="text/javascript">
+<script>
 <!--
 function setTargetValue(id, form_name, field)
 {

@@ -52,7 +52,7 @@ class CSaleLocation extends CAllSaleLocation
 
 			//echo "!1!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -83,7 +83,7 @@ class CSaleLocation extends CAllSaleLocation
 
 			//echo "!2.1!=".htmlspecialcharsbx($strSql_tmp)."<br>";
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if ($arSqls["GROUPBY"] == '')
 			{
@@ -109,7 +109,7 @@ class CSaleLocation extends CAllSaleLocation
 
 			//echo "!3!=".htmlspecialcharsbx($strSql)."<br>";
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 
 		return $dbRes;
@@ -142,7 +142,7 @@ class CSaleLocation extends CAllSaleLocation
 			LEFT JOIN b_sale_location_region_lang LRL ON (LR.ID = LRL.REGION_ID AND LRL.LID = '".$DB->ForSql($strLang, 2)."')
 		WHERE L.ID = ".$primary." ";
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -180,7 +180,7 @@ class CSaleLocation extends CAllSaleLocation
 			else
 				$bInvert = false;
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 			case "ID":
 				$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -217,8 +217,8 @@ class CSaleLocation extends CAllSaleLocation
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "SORT") $arSqlOrder[] = " SL.SORT ".$order;
@@ -247,7 +247,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$strSql .= $strSqlOrder;
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 
 	/**
@@ -286,7 +286,7 @@ class CSaleLocation extends CAllSaleLocation
 			else
 				$bInvert = false;
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -320,8 +320,8 @@ class CSaleLocation extends CAllSaleLocation
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "SORT") $arSqlOrder[] = " SL.SORT ".$order;
@@ -350,7 +350,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$strSql .= $strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -390,7 +390,7 @@ class CSaleLocation extends CAllSaleLocation
 			else
 				$bInvert = false;
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 					$arSqlSearch[] = "C.ID ".($bInvert?"<>":"=")." ".intval($val)." ";
@@ -424,8 +424,8 @@ class CSaleLocation extends CAllSaleLocation
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "SORT") $arSqlOrder[] = " SL.SORT ".$order;
@@ -454,7 +454,7 @@ class CSaleLocation extends CAllSaleLocation
 
 		$strSql .= $strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -481,7 +481,7 @@ class CSaleLocation extends CAllSaleLocation
 		$strSql =
 			"INSERT INTO b_sale_location_country(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -494,7 +494,7 @@ class CSaleLocation extends CAllSaleLocation
 				$strSql =
 					"INSERT INTO b_sale_location_country_lang(COUNTRY_ID, ".$arInsert[0].") ".
 					"VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -527,7 +527,7 @@ class CSaleLocation extends CAllSaleLocation
 		$strSql =
 			"INSERT INTO b_sale_location_city(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -540,7 +540,7 @@ class CSaleLocation extends CAllSaleLocation
 				$strSql =
 					"INSERT INTO b_sale_location_city_lang(CITY_ID, ".$arInsert[0].") ".
 					"VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -573,7 +573,7 @@ class CSaleLocation extends CAllSaleLocation
 		$strSql =
 			"INSERT INTO b_sale_location_region(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 
@@ -586,7 +586,7 @@ class CSaleLocation extends CAllSaleLocation
 				$strSql =
 					"INSERT INTO b_sale_location_region_lang(REGION_ID, ".$arInsert[0].") ".
 					"VALUES(".$ID.", ".$arInsert[1].")";
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -621,7 +621,7 @@ class CSaleLocation extends CAllSaleLocation
 		$strSql =
 			"INSERT INTO b_sale_location(".$arInsert[0].") ".
 			"VALUES(".$arInsert[1].")";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$ID = intval($DB->LastID());
 

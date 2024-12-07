@@ -253,6 +253,10 @@
 	width: 97%;
 	margin: 0;
 }
+.translate-edit .translate-edit-row.phrase.error-phrase .value.edit textarea
+{
+	background-color: #f8d6d6;
+}
 .translate-edit .translate-edit-row.code .ui-icon
 {
 	vertical-align: middle;

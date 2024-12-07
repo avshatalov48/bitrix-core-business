@@ -95,13 +95,10 @@ class perfmon extends CModule
 
 	public function InstallFiles($arParams = [])
 	{
-		if ($_ENV['COMPUTERNAME'] != 'BX')
-		{
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/themes', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/images', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/images', true, true);
-			CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/wizards', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/wizards', true, true);
-		}
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/admin', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/admin');
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/themes', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/themes', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/images', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/images', true, true);
+		CopyDirFiles($_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/perfmon/install/wizards', $_SERVER['DOCUMENT_ROOT'] . '/bitrix/wizards', true, true);
 		return true;
 	}
 

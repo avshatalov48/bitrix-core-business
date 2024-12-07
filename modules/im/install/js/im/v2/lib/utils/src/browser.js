@@ -79,7 +79,7 @@ export const BrowserUtil = {
 	},
 	openLink(link, target = '_blank')
 	{
-		window.open(link, target, '', true);
+		window.open(link, target);
 	},
 	waitForSelectionToUpdate(): Promise
 	{

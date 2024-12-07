@@ -3,7 +3,7 @@
 $frame = $this->createFrame()->begin(false);
 ?>
 <!-- Bitrix24.LiveChat external config -->
-<script type="text/javascript">
+<script>
 	window.addEventListener('onBitrixLiveChat', function(event)
 	{
 		var config = <?=CUtil::PhpToJSObject($arResult['CONFIG'])?>;

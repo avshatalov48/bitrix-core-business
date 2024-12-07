@@ -25,7 +25,7 @@ class CallUser
 	protected $sharedScreen;
 	protected $recorded;
 
-	public static function create(array $fields)
+	public static function create(array $fields): static
 	{
 		if(!isset($fields['USER_ID']) || !$fields['USER_ID'])
 		{

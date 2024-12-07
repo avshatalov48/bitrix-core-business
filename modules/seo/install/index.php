@@ -1,7 +1,11 @@
 <?php
-IncludeModuleLangFile(__FILE__);
 
-if(class_exists("seo")) return;
+if(class_exists("seo"))
+{
+	return;
+}
+
+IncludeModuleLangFile(__FILE__);
 
 class seo extends CModule
 {
@@ -11,6 +15,7 @@ class seo extends CModule
 	var $MODULE_NAME;
 	var $MODULE_DESCRIPTION;
 	var $MODULE_GROUP_RIGHTS = "Y";
+	var $errors;
 
 	public function __construct()
 	{
@@ -121,30 +126,24 @@ class seo extends CModule
 
 	function InstallFiles()
 	{
-		if($_ENV["COMPUTERNAME"]!='BX')
-		{
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/panel", $_SERVER["DOCUMENT_ROOT"]."/bitrix/panel", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
-			CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
-		}
-		return true;
-	}
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/admin", $_SERVER["DOCUMENT_ROOT"]."/bitrix/admin", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/tools", $_SERVER["DOCUMENT_ROOT"]."/bitrix/tools", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/panel", $_SERVER["DOCUMENT_ROOT"]."/bitrix/panel", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/js", $_SERVER["DOCUMENT_ROOT"]."/bitrix/js", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/images", $_SERVER["DOCUMENT_ROOT"]."/bitrix/images", true, true);
+		CopyDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components", true, true);
 
-	function InstallEvents()
-	{
 		return true;
 	}
 
 	function DoUninstall()
 	{
-		global $DOCUMENT_ROOT, $APPLICATION, $step;
+		global $APPLICATION, $step;
+
 		$step = intval($step);
 		if($step<2)
 		{
-			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/seo/install/unstep1.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/unstep1.php");
 		}
 		elseif($step==2)
 		{
@@ -155,13 +154,14 @@ class seo extends CModule
 
 			CAgent::RemoveModuleAgents('seo');
 
-			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $DOCUMENT_ROOT."/bitrix/modules/seo/install/unstep2.php");
+			$APPLICATION->IncludeAdminFile(GetMessage("SEO_UNINSTALL_TITLE"), $_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/unstep2.php");
 		}
 	}
 
 	function UnInstallDB($arParams = Array())
 	{
-		global $APPLICATION, $DB, $errors;
+		global $APPLICATION, $DB;
+
 		$connection = \Bitrix\Main\Application::getConnection();
 		$this->errors = false;
 
@@ -244,24 +244,6 @@ class seo extends CModule
 		DeleteDirFiles($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/seo/install/components", $_SERVER["DOCUMENT_ROOT"]."/bitrix/components");
 
 		return true;
-	}
-
-	function UnInstallEvents()
-	{
-		return true;
-	}
-
-	/**
-	 * Method for migrate from cloud version.
-	 * @return void
-	 * @throws \Bitrix\Main\LoaderException
-	 */
-	public function migrateToBox(): void
-	{
-		if (\Bitrix\Main\Loader::includeModule('seo'))
-		{
-			\Bitrix\Seo\Service::changeRegisteredDomain();
-		}
 	}
 
 	public function GetModuleTasks()

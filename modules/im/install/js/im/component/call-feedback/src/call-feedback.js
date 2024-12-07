@@ -175,7 +175,6 @@ BitrixVue.component('bx-im-component-call-feedback',
 	template: `
 		<div :class="wrapClasses">
 			<div class="bx-im-call-feedback-header">
-		  		<div class="bx-im-call-feedback-header-icon"></div>
 				<div class="bx-im-call-feedback-header-title">{{ $Bitrix.Loc.getMessage('BX_IM_COMPONENT_CALL_FEEDBACK_VIDEOCALL_FINISHED') }}</div>
 			</div>
 			<div class="bx-im-call-feedback-content">

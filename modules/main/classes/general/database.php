@@ -4,7 +4,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2023 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 use Bitrix\Main;
@@ -17,7 +17,6 @@ abstract class CAllDatabase
 	var $DBHost;
 	var $DBLogin;
 	var $DBPassword;
-
 	var $db_Conn;
 	var $debug;
 	var $DebugToFile;
@@ -26,21 +25,19 @@ abstract class CAllDatabase
 	var $db_ErrorSQL;
 	var $result;
 	var $type;
-
-	static $arNodes = array();
-	var $column_cache = array();
+	var $version;
+	var $column_cache = [];
 	var $bModuleConnection;
 	var $bNodeConnection;
 	var $node_id;
 	/** @var CDatabase */
 	var $obSlave = null;
-
+	static $arNodes = [];
 	/**
 	 * @var Main\DB\Connection
 	 */
 	protected $connection; // d7 connection
 	protected $connectionName = null;
-
 	/**
 	 * @var integer
 	 * @deprecated Use \Bitrix\Main\Application::getConnection()->getTracker()->getCounter();
@@ -55,7 +52,7 @@ abstract class CAllDatabase
 	 * @var \Bitrix\Main\Diag\SqlTrackerQuery[]
 	 * @deprecated Use \Bitrix\Main\Application::getConnection()->getTracker()->getQueries();
 	 **/
-	var $arQueryDebug = array();
+	var $arQueryDebug = [];
 	/**
 	 * @var \Bitrix\Main\Diag\SqlTracker
 	 */
@@ -82,16 +79,20 @@ abstract class CAllDatabase
 	{
 		global $DB;
 
-		if(!array_key_exists($node_id, self::$arNodes))
+		if (!array_key_exists($node_id, self::$arNodes))
 		{
-			if(CModule::IncludeModule('cluster'))
+			if (CModule::IncludeModule('cluster'))
+			{
 				self::$arNodes[$node_id] = CClusterDBNode::GetByID($node_id);
+			}
 			else
+			{
 				self::$arNodes[$node_id] = false;
+			}
 		}
 		$node = &self::$arNodes[$node_id];
 
-		if(
+		if (
 			is_array($node)
 			&& (
 				!$bCheckStatus
@@ -103,7 +104,7 @@ abstract class CAllDatabase
 			&& !isset($node["ONHIT_ERROR"])
 		)
 		{
-			if(!array_key_exists("DB", $node))
+			if (!array_key_exists("DB", $node))
 			{
 				$node_DB = new CDatabase;
 				$node_DB->type = $DB->type;
@@ -112,12 +113,14 @@ abstract class CAllDatabase
 				$node_DB->bNodeConnection = true;
 				$node_DB->node_id = $node_id;
 
-				if($node_DB->Connect($node["DB_HOST"], $node["DB_NAME"], $node["DB_LOGIN"], $node["DB_PASSWORD"], "node".$node_id))
+				if ($node_DB->Connect($node["DB_HOST"], $node["DB_NAME"], $node["DB_LOGIN"], $node["DB_PASSWORD"], "node" . $node_id))
 				{
-					if(defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT===true)
+					if (Main\Application::getConnection("node" . $node_id)?->isDeferred())
 					{
-						if($node_DB->DoConnect("node".$node_id))
+						if ($node_DB->DoConnect("node" . $node_id))
+						{
 							$node["DB"] = $node_DB;
+						}
 					}
 					else
 					{
@@ -126,11 +129,13 @@ abstract class CAllDatabase
 				}
 			}
 
-			if(array_key_exists("DB", $node))
+			if (array_key_exists("DB", $node))
+			{
 				return $node["DB"];
+			}
 		}
 
-		if($bIgnoreErrors)
+		if ($bIgnoreErrors)
 		{
 			return false;
 		}
@@ -147,9 +152,9 @@ abstract class CAllDatabase
 		$response->setStatus('500 Internal Server Error');
 		$response->writeHeaders();
 
-		if(file_exists($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php"))
+		if (file_exists($_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/php_interface/dbconn_error.php"))
 		{
-			include($_SERVER["DOCUMENT_ROOT"].BX_PERSONAL_ROOT."/php_interface/dbconn_error.php");
+			include($_SERVER["DOCUMENT_ROOT"] . BX_PERSONAL_ROOT . "/php_interface/dbconn_error.php");
 		}
 		else
 		{
@@ -168,26 +173,30 @@ abstract class CAllDatabase
 	public static function GetModuleConnection($module_id, $bModuleInclude = false)
 	{
 		$node_id = COption::GetOptionString($module_id, "dbnode_id", "N");
-		if(is_numeric($node_id))
+		if (is_numeric($node_id))
 		{
-			if($bModuleInclude)
+			if ($bModuleInclude)
 			{
 				$status = COption::GetOptionString($module_id, "dbnode_status", "ok");
-				if($status === "move")
+				if ($status === "move")
+				{
 					return false;
+				}
 			}
 
 			$moduleDB = CDatabase::GetDBNodeConnection($node_id, $bModuleInclude);
 
-			if(is_object($moduleDB))
+			if (is_object($moduleDB))
 			{
 				$moduleDB->bModuleConnection = true;
 				return $moduleDB;
 			}
 
-			//There was an connection error
-			if($bModuleInclude && CModule::IncludeModule('cluster'))
+			//There was a connection error
+			if ($bModuleInclude && CModule::IncludeModule('cluster'))
+			{
 				CClusterDBNode::SetOffline($node_id);
+			}
 
 			//TODO: unclear what to return when node went offline
 			//in the middle of the hit.
@@ -210,12 +219,7 @@ abstract class CAllDatabase
 		$this->DBPassword = $DBPassword;
 		$this->connectionName = $connectionName;
 
-		if (!defined("DBPersistent"))
-		{
-			define("DBPersistent", true);
-		}
-
-		if (defined("DELAY_DB_CONNECT") && DELAY_DB_CONNECT === true)
+		if (Main\Application::getConnection($connectionName)?->isDeferred())
 		{
 			return true;
 		}
@@ -224,11 +228,6 @@ abstract class CAllDatabase
 			return $this->DoConnect($connectionName);
 		}
 	}
-
-	/**
-	 * @deprecated Not used.
-	 */
-	abstract protected function ConnectInternal();
 
 	public function DoConnect($connectionName = '')
 	{
@@ -346,9 +345,9 @@ abstract class CAllDatabase
 		return $this->CurrentDateFunction();
 	}
 
-	public function DateToCharFunction($strFieldName, $strType="FULL", $lang=false, $bSearchInSitesOnly=false)
+	public function DateToCharFunction($strFieldName, $strType = "FULL", $lang = false, $bSearchInSitesOnly = false)
 	{
-		static $CACHE = array();
+		static $CACHE = [];
 
 		$id = $strType . ',' . $lang . ',' . $bSearchInSitesOnly;
 		if (!isset($CACHE[$id]))
@@ -380,7 +379,7 @@ abstract class CAllDatabase
 		return str_replace("#FIELD#", $sFieldExpr, $CACHE[$id]);
 	}
 
-	public function CharToDateFunction($strValue, $strType="FULL", $lang=false)
+	public function CharToDateFunction($strValue, $strType = "FULL", $lang = false)
 	{
 		// get user time
 		if ($strValue instanceof Main\Type\DateTime && !$strValue->isUserTimeEnabled())
@@ -399,10 +398,10 @@ abstract class CAllDatabase
 			$format = CLang::GetDateFormat($strType, $lang);
 		}
 
-		$sFieldExpr = "'".CDatabase::FormatDate($strValue, $format, ($strType=="SHORT"? "YYYY-MM-DD":"YYYY-MM-DD HH:MI:SS"))."'";
+		$sFieldExpr = "'" . CDatabase::FormatDate($strValue, $format, ($strType == "SHORT" ? "YYYY-MM-DD" : "YYYY-MM-DD HH:MI:SS")) . "'";
 
 		//time zone
-		if($strType == "FULL" && CTimeZone::Enabled())
+		if ($strType == "FULL" && CTimeZone::Enabled())
 		{
 			$diff = CTimeZone::GetOffset();
 
@@ -425,14 +424,14 @@ abstract class CAllDatabase
 	public function Substr($str, $from, $length = null)
 	{
 		// works for mysql and oracle, redefined for mssql
-		$sql = 'SUBSTR('.$str.', '.$from;
+		$sql = 'SUBSTR(' . $str . ', ' . $from;
 
 		if (!is_null($length))
 		{
-			$sql .= ', '.$length;
+			$sql .= ', ' . $length;
 		}
 
-		return $sql.')';
+		return $sql . ')';
 	}
 
 	public function IsNull($expression, $result)
@@ -447,19 +446,19 @@ abstract class CAllDatabase
 		return $this->connection->getSqlHelper()->getLengthFunction($field);
 	}
 
-	public function ToChar($expr, $len=0)
+	public function ToChar($expr, $len = 0)
 	{
-		return "CAST(".$expr." AS CHAR".($len > 0? "(".$len.")":"").")";
+		return "CAST(" . $expr . " AS CHAR" . ($len > 0 ? "(" . $len . ")" : "") . ")";
 	}
 
 	public function ToNumber($expr)
 	{
-		return "CAST(".$expr." AS SIGNED)";
+		return "CAST(" . $expr . " AS SIGNED)";
 	}
 
 	public static function DateFormatToPHP($format)
 	{
-		static $cache = array();
+		static $cache = [];
 		if (!isset($cache[$format]))
 		{
 			$cache[$format] = Main\Type\Date::convertFormatToPhp($format);
@@ -467,13 +466,17 @@ abstract class CAllDatabase
 		return $cache[$format];
 	}
 
-	public static function FormatDate($strDate, $format="DD.MM.YYYY HH:MI:SS", $new_format="DD.MM.YYYY HH:MI:SS")
+	public static function FormatDate($strDate, $format = "DD.MM.YYYY HH:MI:SS", $new_format = "DD.MM.YYYY HH:MI:SS")
 	{
 		if (empty($strDate))
+		{
 			return false;
+		}
 
-		if ($format===false && defined("FORMAT_DATETIME"))
+		if ($format === false && defined("FORMAT_DATETIME"))
+		{
 			$format = FORMAT_DATETIME;
+		}
 
 		$fromPhpFormat = Main\Type\Date::convertFormatToPhp($format);
 
@@ -482,7 +485,7 @@ abstract class CAllDatabase
 		{
 			$time = new Main\Type\DateTime($strDate, $fromPhpFormat);
 		}
-		catch(Main\ObjectException $e)
+		catch (Main\ObjectException)
 		{
 		}
 
@@ -490,18 +493,18 @@ abstract class CAllDatabase
 		{
 			//Compatibility issue
 			$fixed_format = preg_replace(
-				array(
+				[
 					"/(?<!Y)Y(?!Y)/i",
-					"/(?<!M)M(?!M|I)/i",
+					"/(?<!M)M(?![MI])/i",
 					"/(?<!D)D(?!D)/i",
 					"/(?<!H)H:I:S/i",
-				),
-				array(
+				],
+				[
 					"YYYY",
 					"MM",
 					"DD",
 					"HH:MI:SS",
-				),
+				],
 				mb_strtoupper($new_format)
 			);
 			$toPhpFormat = Main\Type\Date::convertFormatToPhp($fixed_format);
@@ -515,10 +518,14 @@ abstract class CAllDatabase
 	public function TopSql($strSql, $nTopCount)
 	{
 		$nTopCount = intval($nTopCount);
-		if($nTopCount>0)
-			return $strSql."\nLIMIT ".$nTopCount;
+		if ($nTopCount > 0)
+		{
+			return $strSql . "\nLIMIT " . $nTopCount;
+		}
 		else
+		{
 			return $strSql;
+		}
 	}
 
 	public function LastID()
@@ -687,18 +694,20 @@ abstract class CAllDatabase
 		return $res;
 	}
 
-	//query with CLOB
-	public function QueryBind($strSql, $arBinds, $bIgnoreErrors=false)
+	public function QueryBind($strSql, $arBinds, $bIgnoreErrors = false)
 	{
 		return $this->Query($strSql, $bIgnoreErrors);
 	}
 
+	/**
+	 * @deprecated Will be removed.
+	 */
 	public function QueryLong($strSql, $bIgnoreErrors = false)
 	{
 		return $this->Query($strSql, $bIgnoreErrors);
 	}
 
-	public function ForSql($strValue, $iMaxLength=0)
+	public function ForSql($strValue, $iMaxLength = 0)
 	{
 		$this->Doconnect();
 		return $this->connection->getSqlHelper()->forSql($strValue, $iMaxLength);
@@ -725,41 +734,53 @@ abstract class CAllDatabase
 		return '';
 	}
 
-	public function Update($table, $arFields, $WHERE="", $error_position="", $DEBUG=false, $ignore_errors=false, $additional_check=true)
+	public function Update($table, $arFields, $WHERE = "", $error_position = "", $DEBUG = false, $ignore_errors = false, $additional_check = true)
 	{
 		$rows = 0;
-		if(is_array($arFields))
+		if (is_array($arFields))
 		{
-			$ar = array();
-			foreach($arFields as $field => $value)
+			$ar = [];
+			foreach ($arFields as $field => $value)
 			{
 				if ((string)$value == '')
+				{
 					$ar[] = $this->quote($field) . " = ''";
+				}
 				else
-					$ar[] = $this->quote($field) . " = ".$value."";
+				{
+					$ar[] = $this->quote($field) . " = " . $value;
+				}
 			}
 
 			if (!empty($ar))
 			{
-				$strSql = "UPDATE ".$table." SET ".implode(", ", $ar)." ".$WHERE;
+				$strSql = "UPDATE " . $table . " SET " . implode(", ", $ar) . " " . $WHERE;
 				if ($DEBUG)
-					echo "<br>".htmlspecialcharsEx($strSql)."<br>";
+				{
+					echo "<br>" . htmlspecialcharsEx($strSql) . "<br>";
+				}
 				$w = $this->Query($strSql, $ignore_errors, $error_position);
 				if (is_object($w))
 				{
 					$rows = $w->AffectedRowsCount();
 					if ($DEBUG)
-						echo "affected_rows = ".$rows."<br>";
+					{
+						echo "affected_rows = " . $rows . "<br>";
+					}
 
 					if ($rows <= 0 && $additional_check)
 					{
-						$w = $this->Query("SELECT 'x' FROM ".$table." ".$WHERE, $ignore_errors, $error_position);
+						$w = $this->Query("SELECT 'x' FROM " . $table . " " . $WHERE, $ignore_errors, $error_position);
 						if (is_object($w))
 						{
 							if ($w->Fetch())
+							{
 								$rows = $w->SelectedRowsCount();
+							}
 							if ($DEBUG)
-								echo "num_rows = ".$rows."<br>";
+							{
+								echo "num_rows = " . $rows . "<br>";
+							}
 						}
 					}
 				}
@@ -768,32 +789,36 @@ abstract class CAllDatabase
 		return $rows;
 	}
 
-	public function InitTableVarsForEdit($tablename, $strIdentFrom="str_", $strIdentTo="str_", $strSuffixFrom="", $bAlways=false)
+	public function InitTableVarsForEdit($tablename, $strIdentFrom = "str_", $strIdentTo = "str_", $strSuffixFrom = "", $bAlways = false)
 	{
 		$fields = $this->GetTableFields($tablename);
-		foreach($fields as $strColumnName => $field)
+		foreach ($fields as $strColumnName => $field)
 		{
-			$varnameFrom = $strIdentFrom.$strColumnName.$strSuffixFrom;
-			$varnameTo = $strIdentTo.$strColumnName;
+			$varnameFrom = $strIdentFrom . $strColumnName . $strSuffixFrom;
+			$varnameTo = $strIdentTo . $strColumnName;
 			global ${$varnameFrom}, ${$varnameTo};
-			if((isset(${$varnameFrom}) || $bAlways))
+			if ((isset(${$varnameFrom}) || $bAlways))
 			{
-				if(is_array(${$varnameFrom}))
+				if (is_array(${$varnameFrom}))
 				{
-					${$varnameTo} = array();
-					foreach(${$varnameFrom} as $k => $v)
+					${$varnameTo} = [];
+					foreach (${$varnameFrom} as $k => $v)
+					{
 						${$varnameTo}[$k] = htmlspecialcharsbx($v);
+					}
 				}
 				else
+				{
 					${$varnameTo} = htmlspecialcharsbx(${$varnameFrom});
+				}
 			}
 		}
 	}
 
 	/**
-	 * @deprecated Use \Bitrix\Main\DB\Connection::parseSqlBatch()
 	 * @param string $strSql
 	 * @return array
+	 * @deprecated Use \Bitrix\Main\DB\Connection::parseSqlBatch()
 	 */
 	public function ParseSqlBatch($strSql)
 	{
@@ -803,24 +828,24 @@ abstract class CAllDatabase
 
 	public function RunSQLBatch($filepath)
 	{
-		if(!file_exists($filepath) || !is_file($filepath))
+		if (!file_exists($filepath) || !is_file($filepath))
 		{
-			return array("File $filepath is not found.");
+			return ["File $filepath is not found."];
 		}
 
-		$arErr = array();
+		$arErr = [];
 		$contents = file_get_contents($filepath);
 
 		$this->Doconnect();
-		foreach($this->connection->parseSqlBatch($contents) as $strSql)
+		foreach ($this->connection->parseSqlBatch($contents) as $strSql)
 		{
-			if(!$this->Query($strSql, true))
+			if (!$this->Query($strSql, true))
 			{
-				$arErr[] = "<hr><pre>Query:\n".$strSql."\n\nError:\n<font color=red>".$this->GetErrorMessage()."</font></pre>";
+				$arErr[] = "<hr><pre>Query:\n" . $strSql . "\n\nError:\n<font color=red>" . $this->GetErrorMessage() . "</font></pre>";
 			}
 		}
 
-		if(!empty($arErr))
+		if (!empty($arErr))
 		{
 			return $arErr;
 		}
@@ -828,34 +853,45 @@ abstract class CAllDatabase
 		return false;
 	}
 
-	public function IsDate($value, $format=false, $lang=false, $format_type="SHORT")
+	public function IsDate($value, $format = false, $lang = false, $format_type = "SHORT")
 	{
-		if ($format===false) $format = CLang::GetDateFormat($format_type, $lang);
+		if ($format === false)
+		{
+			$format = CLang::GetDateFormat($format_type, $lang);
+		}
 		return CheckDateTime($value, $format);
 	}
 
 	public function GetErrorMessage()
 	{
-		if(is_object($this->obSlave) && $this->obSlave->db_Error <> '')
-			return $this->obSlave->db_Error;
-		elseif($this->db_Error <> '')
+		if (is_object($this->obSlave) && $this->obSlave->db_Error <> '')
 		{
-			return $this->db_Error."!";
+			return $this->obSlave->db_Error;
+		}
+		elseif ($this->db_Error <> '')
+		{
+			return $this->db_Error . "!";
 		}
 		else
+		{
 			return '';
+		}
 	}
 
 	public function GetErrorSQL()
 	{
-		if(is_object($this->obSlave) && $this->obSlave->db_ErrorSQL <> '')
+		if (is_object($this->obSlave) && $this->obSlave->db_ErrorSQL <> '')
+		{
 			return $this->obSlave->db_ErrorSQL;
-		elseif($this->db_ErrorSQL <> '')
+		}
+		elseif ($this->db_ErrorSQL <> '')
 		{
 			return $this->db_ErrorSQL;
 		}
 		else
+		{
 			return '';
+		}
 	}
 
 	public function StartTransaction()
@@ -876,12 +912,12 @@ abstract class CAllDatabase
 		$this->connection->rollbackTransaction();
 	}
 
-	public function DDL($strSql, $bIgnoreErrors=false, $error_position="", $arOptions=array())
+	public function DDL($strSql, $bIgnoreErrors = false, $error_position = "", $arOptions = [])
 	{
 		$res = $this->Query($strSql, $bIgnoreErrors, $error_position, $arOptions);
 
 		//Reset metadata cache
-		$this->column_cache = array();
+		$this->column_cache = [];
 
 		return $res;
 	}
@@ -893,7 +929,7 @@ abstract class CAllDatabase
 		$this->arQueryDebug[] = $this->startSqlTracker()->getNewTrackerQuery()
 			->setSql($strSql)
 			->setTime($exec_time)
-			->setTrace(defined("BX_NO_SQL_BACKTRACE")? null: Main\Diag\Helper::getBackTrace(8, null, 2))
+			->setTrace(defined("BX_NO_SQL_BACKTRACE") ? null : Main\Diag\Helper::getBackTrace(8, null, 2))
 			->setState($GLOBALS["BX_STATE"])
 			->setNode($node_id)
 		;
@@ -901,10 +937,7 @@ abstract class CAllDatabase
 
 	public function addDebugTime($index, $exec_time)
 	{
-		if ($this->arQueryDebug[$index])
-		{
-			$this->arQueryDebug[$index]->addTime($exec_time);
-		}
+		$this->arQueryDebug[$index]?->addTime($exec_time);
 	}
 
 	public function GetIndexName($tableName, $arColumns, $bStrict = false)

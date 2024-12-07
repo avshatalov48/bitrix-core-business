@@ -559,7 +559,7 @@ class OrderBasketShipment extends OrderBasket
 		$keys = array_merge(array_keys($data["ITEMS"]), array_keys($data["UNSHIPPED_PRODUCTS"]));
 
 		$result = '
-			<script type="text/javascript">
+			<script>
 				BX.message({
 					SALE_ORDER_BASKET_ROW_SETTINGS: "'.\CUtil::JSEscape(Loc::getMessage("SALE_ORDER_BASKET_ROW_SETTINGS")).'",
 					SALE_ORDER_BASKET_PROD_MENU_ADD: "'.\CUtil::JSEscape(Loc::getMessage("SALE_ORDER_BASKET_PROD_MENU_ADD")).'",

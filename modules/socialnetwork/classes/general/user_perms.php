@@ -118,7 +118,7 @@ class CAllSocNetUserPerms
 				"UPDATE b_sonet_user_perms SET ".
 				"	".$strUpdate." ".
 				"WHERE ID = ".$ID." ";
-			$DB->Query($strSql, False, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 		}
 		else
 		{

@@ -10,9 +10,9 @@ namespace Bitrix\Socialnetwork\Helper;
 
 class Mention
 {
-	protected const PATTERN_USER = '/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/is' . BX_UTF_PCRE_MODIFIER;
-	protected const PATTERN_PROJECT = '/\[project\s*=\s*([^\]]*)\](.+?)\[\/project\]/is' . BX_UTF_PCRE_MODIFIER;
-	protected const PATTERN_DEPARTMENT = '/\[department\s*=\s*([^\]]*)\](.+?)\[\/department\]/is' . BX_UTF_PCRE_MODIFIER;
+	protected const PATTERN_USER = '/\[user\s*=\s*([^\]]*)\](.+?)\[\/user\]/isu';
+	protected const PATTERN_PROJECT = '/\[project\s*=\s*([^\]]*)\](.+?)\[\/project\]/isu';
+	protected const PATTERN_DEPARTMENT = '/\[department\s*=\s*([^\]]*)\](.+?)\[\/department\]/isu';
 
 	protected static function getPatternsList(): array
 	{

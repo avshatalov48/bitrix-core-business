@@ -1,0 +1,104 @@
+.ui-text-editor-toolbar {
+	border-bottom: 1px solid var(--ui-text-editor-color-toolbar-border);
+	padding: 6px 8px 6px 12px;
+	background-color: var(--ui-text-editor-color-background);
+	border-radius: var(--ui-text-editor-border-radius);
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
+}
+
+.ui-text-editor-toolbar:focus {
+	outline: none;
+}
+
+.ui-text-editor-toolbar-container {
+	display: flex;
+}
+
+.ui-text-editor-toolbar-items {
+	display: flex;
+	align-items: center;
+	flex: 1;
+	height: 30px;
+	overflow: hidden;
+	flex-wrap: wrap;
+	position: relative;
+	transition: height .3s;
+}
+
+.ui-text-editor-toolbar-container.--expanded .ui-text-editor-toolbar-items {
+	height: auto;
+}
+
+.ui-text-editor-toolbar-more-btn {
+	display: none;
+}
+
+.ui-text-editor-toolbar-container.--overflowed .ui-text-editor-toolbar-more-btn {
+	display: block;
+}
+
+.ui-text-editor-toolbar-more-btn-icon {
+	display: inline-block;
+	width: 24px;
+	height: 24px;
+	background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none"><path fill="%23959CA4" fill-rule="evenodd" d="m16.866 8.382-3.895 3.7-.972.96-.972-.96-3.895-3.7-1.375 1.306 6.242 5.93 6.241-5.93-1.374-1.306Z" clip-rule="evenodd"/></svg>');
+	background-repeat: no-repeat;
+	background-position: center;
+	transition: transform .3s;
+}
+
+.ui-text-editor-toolbar-container.--expanded .ui-text-editor-toolbar-more-btn-icon {
+	transform: rotate(180deg);
+}
+
+.ui-text-editor-toolbar:empty,
+.ui-text-editor-toolbar.--hidden {
+	display: none;
+}
+
+.ui-text-editor-toolbar-button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	height: 30px;
+	padding: 0;
+	margin: 0 5px;
+	background: none;
+	border: none;
+	cursor: pointer;
+	opacity: 0.7;
+	border-radius: var(--ui-border-radius-3xs);
+}
+
+.ui-text-editor-toolbar-button:first-child {
+	margin-left: 0;
+}
+
+.ui-text-editor-toolbar-button:hover {
+	opacity: 1;
+}
+
+.ui-text-editor-toolbar-button.--active {
+	background-color: #d3f1fb;
+	opacity: 1;
+}
+
+.ui-text-editor-toolbar-button[disabled="true"] {
+	opacity: 0.3;
+	background-color: initial;
+	pointer-events: none;
+}
+
+.ui-text-editor-toolbar-separator {
+	display: inline-flex;
+	min-width: 1px;
+	height: 20px;
+	margin: 0 10px;
+	background-color: rgba(130,139,149,.2);
+}
+
+.ui-text-editor-floating-toolbar {
+	display: flex;
+	align-items: center;
+}

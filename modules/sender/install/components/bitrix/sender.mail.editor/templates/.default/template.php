@@ -25,7 +25,7 @@ Extension::load([
 ]);
 
 ?>
-<script type="text/javascript">
+<script>
 	BX.ready(function () {
 		BX.Sender.Mail.Editor.init(<?=Json::encode(array(
 			'id' => $arParams['INPUT_NAME'],

@@ -216,7 +216,6 @@ class SendingEmailNotification implements Interfaces\Processor
 
 		if (!is_iterable($invitations))
 		{
-			AddMessage2Log('Ical senders collection is not iterable', 'calendar', 4);
 			return;
 		}
 

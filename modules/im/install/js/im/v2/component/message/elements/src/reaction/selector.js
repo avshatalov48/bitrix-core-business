@@ -1,7 +1,8 @@
 import { Type } from 'main.core';
 import { ReactionsSelect, reactionType as ReactionType } from 'ui.reactions-select';
 
-import { UserRole, ChatType } from 'im.v2.const';
+import { ChatActionType } from 'im.v2.const';
+import { PermissionManager } from 'im.v2.lib.permission';
 
 import { ReactionService } from './classes/reaction-service';
 
@@ -11,8 +12,6 @@ import type { ImModelChat, ImModelMessage, ImModelReactions, ImModelUser } from 
 
 const SHOW_DELAY = 500;
 const HIDE_DELAY = 800;
-
-const chatTypesWithReactionDisabled = new Set([ChatType.copilot]);
 
 // @vue/component
 export const ReactionSelector = {
@@ -42,22 +41,28 @@ export const ReactionSelector = {
 		{
 			return this.reactionsData?.ownReactions?.size > 0;
 		},
-		isGuest(): boolean
-		{
-			return this.dialog.role === UserRole.guest;
-		},
 		isBot(): boolean
 		{
 			const user: ImModelUser = this.$store.getters['users/get'](this.dialog.dialogId);
 
 			return user?.bot === true;
 		},
+		hasError(): boolean
+		{
+			return this.message.error;
+		},
 		canSetReactions(): boolean
 		{
 			return Type.isNumber(this.messageId)
-				&& !this.isGuest
+				&& this.canSetReactionsByRole
 				&& !this.isBot
-				&& !this.areReactionsDisabledForType(this.dialog.type);
+				&& !this.hasError;
+		},
+		canSetReactionsByRole(): boolean
+		{
+			const permissionManager = PermissionManager.getInstance();
+
+			return permissionManager.canPerformAction(ChatActionType.setReaction, this.dialog.dialogId);
 		},
 	},
 	methods:
@@ -137,10 +142,6 @@ export const ReactionSelector = {
 			}
 
 			return this.reactionService;
-		},
-		areReactionsDisabledForType(type: $Values<typeof ChatType>)
-		{
-			return chatTypesWithReactionDisabled.has(this.dialog.type);
 		},
 	},
 	template: `

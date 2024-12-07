@@ -207,11 +207,20 @@ export default class EventEmitter
 	 * @param {boolean} [compatMode=false]
 	 */
 	subscribeFromOptions(
-		options: { [eventName: string]: Function },
+		options: { [eventName: string]: Function } | Array<{ [eventName: string]: Function }>,
 		aliases?: { [alias: string]: { eventName: string, namespace: string } },
-		compatMode?: boolean
+		compatMode?: boolean,
 	)
 	{
+		if (Type.isArrayFilled(options))
+		{
+			options.forEach((events) => {
+				this.subscribeFromOptions(events);
+			});
+
+			return;
+		}
+
 		if (!Type.isPlainObject(options))
 		{
 			return;

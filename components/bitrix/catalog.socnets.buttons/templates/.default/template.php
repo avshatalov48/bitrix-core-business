@@ -14,7 +14,7 @@ $this->setFrameMode(true);
 ?><div class="catalog-sb-area"><?
 if ($arResult["FB_USE"])
 {
-	?> <div class="catalog-sb-item fb"><div id="fb-root"></div><script type="text/javascript">
+	?> <div class="catalog-sb-item fb"><div id="fb-root"></div><script>
 		(function(d, s, id)
 		{
 			var js, fjs = d.getElementsByTagName(s)[0];
@@ -37,7 +37,7 @@ if ($arResult["TW_USE"])
 	if ($arResult["TW_RELATED"] != '')
 		echo ' data-related="'.$arResult["TW_RELATED"].'"';
 	?>><?= GetMessage("CATALOG_SB_TW_MAKE") ?></a>
-	<script type="text/javascript">
+	<script>
 		!function (d, s, id)
 		{
 			var js, fjs = d.getElementsByTagName(s)[0], p = /^http:/.test(d.location) ? 'http' : 'https';
@@ -54,8 +54,8 @@ if ($arResult["TW_USE"])
 
 if ($arResult["VK_USE"])
 {
-	$APPLICATION->AddHeadString('<script type="text/javascript" src="https://vk.com/js/api/share.js?93" charset="windows-1251"></script>');
-	?> <div class="catalog-sb-item vk" id="vk-shared-button-<?$this->randString()?>"></div><script type="text/javascript">
+	$APPLICATION->AddHeadString('<script src="https://vk.com/js/api/share.js?93" charset="windows-1251"></script>');
+	?> <div class="catalog-sb-item vk" id="vk-shared-button-<?$this->randString()?>"></div><script>
 	(function() {
 		var div = document.getElementById("vk-shared-button-<?$this->randString()?>");
 		var button = VK.Share.button({

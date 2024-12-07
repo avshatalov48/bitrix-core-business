@@ -702,7 +702,7 @@ this.BX = this.BX || {};
 	  }, {
 	    key: "isCrmFormPage",
 	    value: function isCrmFormPage() {
-	      return landing_env.Env.getInstance().getOptions().specialType === 'crm_forms';
+	      return landing_env.Env.getInstance().getSpecialType() === 'crm_forms';
 	    }
 	  }, {
 	    key: "saveFormDesign",

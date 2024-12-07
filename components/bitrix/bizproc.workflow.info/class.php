@@ -1,5 +1,10 @@
 <?php
 
+use Bitrix\Bizproc\Api\Request\WorkflowAccessService\CanViewTimelineRequest;
+use Bitrix\Bizproc\Api\Service\WorkflowAccessService;
+use Bitrix\Bizproc\UI\WorkflowUserView;
+use Bitrix\Bizproc\Workflow\Entity\WorkflowStateTable;
+use Bitrix\Bizproc\Workflow\Task\TaskTable;
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 
@@ -25,10 +30,7 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 
 	public function onPrepareComponentParams($params)
 	{
-		if (!isset($params['WORKFLOW_ID']))
-			$params['WORKFLOW_ID'] = '';
-
-		$params['WORKFLOW_ID'] = trim($params['WORKFLOW_ID']);
+		$params['WORKFLOW_ID'] = trim($params['WORKFLOW_ID'] ?? '');
 		if (!$params['WORKFLOW_ID'] && isset($_REQUEST['WORKFLOW_ID']))
 		{
 			$params['WORKFLOW_ID'] = trim($_REQUEST['WORKFLOW_ID']);
@@ -59,8 +61,13 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 	{
 		if ($this->workflowId === null)
 		{
-			$this->workflowId = !empty($this->arParams['WORKFLOW_ID']) ? preg_replace('#[^A-Z0-9\.]#i', '', $this->arParams['WORKFLOW_ID']) : 0;
+			$this->workflowId =
+				!empty($this->arParams['WORKFLOW_ID'])
+				? preg_replace('#[^A-Z0-9\.]#i', '', $this->arParams['WORKFLOW_ID'])
+				: ''
+			;
 		}
+
 		return $this->workflowId;
 	}
 
@@ -98,11 +105,26 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 
 	public function executeComponent()
 	{
+		if ($this->getTemplateName() === 'page-slider')
+		{
+			$this->includeComponentTemplate();
+
+			return;
+		}
+
+		if ($this->getTemplateName() === 'slider')
+		{
+			$this->prepareSliderResult();
+			$this->includeComponentTemplate(empty($this->arResult['errors']) ? '' : 'error');
+
+			return;
+		}
+
 		$id = $this->getWorkflowId();
 		$this->arResult = array(
 			'NeedAuth' => $this->isAuthorizationNeeded()? 'Y' : 'N',
 			'FatalErrorMessage' => '',
-			'ErrorMessage' => ''
+			'ErrorMessage' => '',
 		);
 
 		if ($id)
@@ -153,5 +175,151 @@ class BizprocWorkflowInfo extends \CBitrixComponent
 		{
 			$this->setPageTitle(Loc::getMessage('BPWFI_PAGE_TITLE'));
 		}
+	}
+
+	private function prepareSliderResult(): void
+	{
+		$this->arResult['pageTitle'] = $this->arParams['SET_TITLE'] ? Loc::getMessage('BPWFI_PAGE_TITLE') : '';
+
+		$workflowId = $this->getWorkflowId();
+		if (!$workflowId)
+		{
+			$workflowId = $this->getWorkflowIdFromTask();
+		}
+
+		if (!$workflowId)
+		{
+			$this->arResult['errors'] = [Loc::getMessage('BPWFI_WORKFLOW_NOT_FOUND')];
+
+			return;
+		}
+
+		$currentUserId = $this->getCurrentUserId();
+		$isAdmin = (new CBPWorkflowTemplateUser(CBPWorkflowTemplateUser::CurrentUser))->isAdmin();
+
+		$userId = $this->getUserId() ?: $currentUserId;
+
+		if (!$isAdmin)
+		{
+			$accessService = new WorkflowAccessService();
+			$accessRequest = new CanViewTimelineRequest(workflowId: $workflowId, userId: $userId);
+			$accessResponse = $accessService->canViewTimeline($accessRequest);
+
+			if (!$accessResponse->isSuccess())
+			{
+				$this->arResult['errors'] = $accessResponse->getErrorMessages();
+
+				return;
+			}
+
+			if ($currentUserId !== $userId && !CBPHelper::checkUserSubordination($currentUserId, $userId))
+			{
+				$this->arResult['errors'] = [$accessService::getViewAccessDeniedError()->getMessage()];
+
+				return;
+			}
+		}
+
+		$workflowState = WorkflowStateTable::getById($workflowId)->fetchObject();
+		if (!$workflowState)
+		{
+			$this->arResult['errors'] = [Loc::getMessage('BPWFI_WORKFLOW_NOT_FOUND')];
+
+			return;
+		}
+
+		$workflowView = new WorkflowUserView($workflowState, $userId);
+
+		$this->arResult['workflow'] = $workflowView;
+		$this->arResult['documentUrl'] = \CBPDocument::getDocumentAdminPage($workflowState->getComplexDocumentId());
+		$this->arResult['documentType'] = $this->getDocumentType($workflowState->getComplexDocumentId());
+
+		$this->arResult['isMyTask'] = $currentUserId === $userId;
+		$this->arResult['userName'] = $this->getUserFormatName($userId);
+
+		$this->arResult['task'] = $this->extractTask($workflowView);
+
+		$this->arResult['isAdmin'] = $isAdmin;
+	}
+
+	private function getCurrentUserId()
+	{
+		return (int)(\Bitrix\Main\Engine\CurrentUser::get()->getId());
+	}
+
+	private function getUserId(): int
+	{
+		return (int)($this->arParams['USER_ID'] ?? 0);
+	}
+
+	private function getTaskId(): int
+	{
+		return (int)($this->arParams['TASK_ID'] ?? 0);
+	}
+
+	private function getWorkflowIdFromTask(): ?string
+	{
+		$taskId = $this->getTaskId();
+
+		$row = TaskTable::query()
+			->where('ID', $taskId)
+			->setSelect(['WORKFLOW_ID'])
+			->fetch()
+		;
+
+		return $row['WORKFLOW_ID'] ?? null;
+	}
+
+	private function getUserFormatName(int $userId)
+	{
+		$format = \CSite::GetNameFormat(false);
+		$user = \CUser::GetList(
+			'id',
+			'asc',
+			['ID_EQUAL_EXACT' => $userId],
+			[
+				'FIELDS' => [
+					'TITLE',
+					'NAME',
+					'LAST_NAME',
+					'SECOND_NAME',
+					'NAME_SHORT',
+					'LAST_NAME_SHORT',
+					'SECOND_NAME_SHORT',
+					'EMAIL',
+					'ID',
+				],
+			]
+		)->Fetch();
+
+		return $user ? \CUser::FormatName($format, $user, false, false) : '';
+	}
+
+	private function getDocumentType(array $documentId): ?array
+	{
+		$documentService = \CBPRuntime::getRuntime()->getDocumentService();
+		try
+		{
+			return $documentService->getDocumentType($documentId);
+		}
+		catch (\Exception $exception)
+		{}
+
+		return null;
+	}
+
+	private function extractTask(WorkflowUserView $workflowUserView): ?array
+	{
+		$taskId = $this->getTaskId();
+		if ($taskId > 0)
+		{
+			$task = $workflowUserView->getTaskById($taskId);
+			if ($task)
+			{
+				return $task;
+			}
+		}
+
+		return $workflowUserView->getTasks()[0] ?? null;
 	}
 }

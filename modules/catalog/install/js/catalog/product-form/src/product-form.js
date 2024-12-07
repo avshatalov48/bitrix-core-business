@@ -1,23 +1,22 @@
-import {BitrixVue} from 'ui.vue';
-import {VuexBuilder} from 'ui.vue.vuex';
-import {Loc, Type, Text, Tag, ajax, Extension} from 'main.core';
+import { BitrixVue } from 'ui.vue';
+import { VuexBuilder } from 'ui.vue.vuex';
+import { Loc, Type, Text, Tag, ajax, Extension } from 'main.core';
 import 'ui.notification';
 import 'ui.design-tokens';
 import 'ui.fonts.opensans';
-import {ProductList} from './models/product-list';
-import {config} from "./config";
+import { ProductList } from './models/product-list';
+import { config } from './config';
 import './templates/form';
 import './component.css';
-import {EventEmitter} from "main.core.events";
-import {CurrencyCore} from "currency.currency-core";
-import type {FormOption} from "./types/form-option";
-import {FormElementPosition} from "./types/form-element-position";
-import {DiscountType} from "catalog.product-calculator";
-import {FormInputCode} from "./types/form-input-code";
-import type {BasketItemScheme} from "./types/basket-item-scheme";
-import {FormErrorCode} from "./types/form-error-code";
-import {FormMode} from "./types/form-mode";
-import {FormCompilationType} from "./types/form-compilation-type";
+import { EventEmitter } from 'main.core.events';
+import { CurrencyCore } from 'currency.currency-core';
+import type { FormOption } from './types/form-option';
+import { FormElementPosition } from './types/form-element-position';
+import { DiscountType } from 'catalog.product-calculator';
+import { FormInputCode } from './types/form-input-code';
+import { FormErrorCode } from './types/form-error-code';
+import { FormMode } from './types/form-mode';
+import { FormCompilationType } from './types/form-compilation-type';
 
 class ProductForm
 {
@@ -70,6 +69,7 @@ class ProductForm
 			currencySymbol: settingsCollection.get('currencySymbol'),
 			taxIncluded: settingsCollection.get('taxIncluded'),
 			warehouseOption: settingsCollection.get('warehouseOption'),
+			isCatalogHidden: settingsCollection.get('isCatalogHidden'),
 			showDiscountBlock: settingsCollection.get('showDiscountBlock'),
 			showTaxBlock: settingsCollection.get('showTaxBlock'),
 			allowedDiscountTypes: [DiscountType.PERCENTAGE, DiscountType.MONETARY],
@@ -109,7 +109,7 @@ class ProductForm
 			delete(options.requiredFields);
 		}
 
-		options = {...defaultOptions, ...options};
+		options = { ...defaultOptions, ...options };
 		options.showTaxBlock = 'N';
 
 		if (settingsCollection.get('isEnabledLanding'))
@@ -175,7 +175,7 @@ class ProductForm
 			if (Type.isStringFilled(this.options.currency))
 			{
 				this.setData({
-					currency: this.options.currency
+					currency: this.options.currency,
 				});
 				CurrencyCore.loadCurrencyFormat(this.options.currency);
 			}
@@ -183,8 +183,8 @@ class ProductForm
 			if (this.options.basket.length > 0)
 			{
 				this.setData(
-					{basket: this.options.basket,},
-					{newItemPosition: FormElementPosition.BOTTOM}
+					{ basket: this.options.basket },
+					{ newItemPosition: FormElementPosition.BOTTOM },
 				);
 
 				if (Type.isObject(this.options.totals))
@@ -211,7 +211,7 @@ class ProductForm
 	{
 		this.store.dispatch('productList/addItem', {
 			item,
-			position: this.options.newItemPosition
+			position: this.options.newItemPosition,
 		})
 			.then(() => {
 				this.#onBasketChange();
@@ -221,7 +221,7 @@ class ProductForm
 	#onBasketChange(): void
 	{
 		EventEmitter.emit(this, 'ProductForm:onBasketChange', {
-			basket: this.store.getters['productList/getBasket']()
+			basket: this.store.getters['productList/getBasket'](),
 		});
 	}
 
@@ -242,7 +242,7 @@ class ProductForm
 
 		this.store.dispatch('productList/changeItem', {
 			index: item.index,
-			product
+			product,
 		}).then(() => {
 			this.#onBasketChange();
 		});
@@ -312,7 +312,7 @@ class ProductForm
 	removeProduct(product): void
 	{
 		this.store.dispatch('productList/removeItem', {
-			index: product.index
+			index: product.index,
 		}).then(() => {
 			this.#onBasketChange();
 		});
@@ -335,7 +335,7 @@ class ProductForm
 				{
 					this.store.dispatch('productList/addItem', {
 						item: fields,
-						position: itemPosition
+						position: itemPosition,
 					});
 
 					return;
@@ -346,12 +346,12 @@ class ProductForm
 				{
 					this.store.dispatch('productList/addItem', {
 						item: fields,
-						position: itemPosition
+						position: itemPosition,
 					});
 				}
 				else
 				{
-					this.store.dispatch('productList/changeItem', {basketIndex, fields});
+					this.store.dispatch('productList/changeItem', { basketIndex, fields });
 				}
 			});
 		}
@@ -368,7 +368,7 @@ class ProductForm
 				taxSum: data.total.taxSum,
 				discount: data.total.discount,
 				result: data.total.result,
-			})
+			});
 		}
 
 		if (Type.isObject(data.errors))
@@ -416,7 +416,7 @@ class ProductForm
 
 			this.store.dispatch('productList/changeItem', {
 				index,
-				fields: item
+				fields: item,
 			});
 		});
 
@@ -425,9 +425,9 @@ class ProductForm
 			{
 				data: {
 					configName: optionName,
-					value: value
-				}
-			}
+					value,
+				},
+			},
 		);
 	}
 
@@ -438,11 +438,10 @@ class ProductForm
 		const basket = this.store.getters['productList/getBasket']();
 
 		basket.forEach((item, index) => this.changeProduct({
-				index,
-				product: item	,
-				skipFieldChecking: (basket.length === 1 && index === 0 && item.offerId === null)
-			})
-		);
+			index,
+			product: item,
+			skipFieldChecking: (basket.length === 1 && index === 0 && item.offerId === null),
+		}));
 	}
 
 	getTotal(): void
@@ -485,7 +484,7 @@ class ProductForm
 				FormInputCode.PRODUCT_SELECTOR,
 				FormInputCode.IMAGE_EDITOR,
 				FormInputCode.PRICE,
-				FormInputCode.BRAND
+				FormInputCode.BRAND,
 			];
 			this.options.showResults = false;
 		}
@@ -502,7 +501,7 @@ class ProductForm
 					FormInputCode.PRODUCT_SELECTOR,
 					FormInputCode.IMAGE_EDITOR,
 					FormInputCode.PRICE,
-					FormInputCode.BRAND
+					FormInputCode.BRAND,
 				];
 			}
 			else
@@ -528,16 +527,15 @@ class ProductForm
 		this.options.requiredFields = [];
 		if (mode === FormMode.COMPILATION)
 		{
-			let compilationRequiredFields = [
+			const compilationRequiredFields = [
 				FormInputCode.PRODUCT_SELECTOR, FormInputCode.PRICE,
 			];
 			if (this.options.compilationFormType === FormCompilationType.FACEBOOK)
 			{
-				compilationRequiredFields.push(FormInputCode.IMAGE_EDITOR);
-				compilationRequiredFields.push(FormInputCode.BRAND);
+				compilationRequiredFields.push(FormInputCode.IMAGE_EDITOR, FormInputCode.BRAND);
 			}
 			this.options.requiredFields = this.options.visibleBlocks.filter(
-				item => compilationRequiredFields.includes(item)
+				item => compilationRequiredFields.includes(item),
 			);
 		}
 
@@ -552,9 +550,7 @@ class ProductForm
 		}
 
 		const basket = this.store.getters['productList/getBasket']();
-		const errorItems = basket.filter(
-			item => item.errors.length > 0
-		);
+		const errorItems = basket.filter(item => item.errors.length > 0);
 
 		return errorItems.length > 0;
 	}
@@ -565,4 +561,4 @@ class ProductForm
 	}
 }
 
-export {ProductForm, FormMode}
+export { ProductForm, FormMode };

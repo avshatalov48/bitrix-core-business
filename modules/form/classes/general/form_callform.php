@@ -5,13 +5,6 @@ use Bitrix\Main,
 
 class CAllForm extends CForm_old
 {
-	public static function err_mess()
-	{
-		$module_id = "form";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." (".$arModuleVersion["VERSION"].")<br>Class: CAllForm<br>File: ".__FILE__;
-	}
-
 	public static function IsAdmin()
 	{
 		global $USER, $APPLICATION;
@@ -23,7 +16,6 @@ class CAllForm extends CForm_old
 
 	public static function GetResultAnswerArray($WEB_FORM_ID, &$arrColumns, &$arrAnswers, &$arrAnswersSID, $arFilter=Array())
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetResultAnswerArray<br>Line: ";
 		global $DB, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$arSqlSearch = Array();
@@ -86,7 +78,7 @@ class CAllForm extends CForm_old
 			and RA.FORM_ID = $WEB_FORM_ID
 			ORDER BY RA.RESULT_ID, F.C_SORT, A.C_SORT
 			";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		while ($zr = $z->Fetch())
 		{
 			$arrAnswers[$zr["RESULT_ID"]][$zr["FIELD_ID"]][intval($zr["ANSWER_ID"])]=$zr;
@@ -97,7 +89,7 @@ class CAllForm extends CForm_old
 				"ID"				=> $arFilter["FIELD_ID"] ?? '',
 				"VARNAME"			=> $arFilter["FIELD_SID"] ?? '',
 				"SID"				=> $arFilter["FIELD_SID"] ?? '',
-				"IN_RESULTS_TABLE"	=> $arFilter["IN_RESULTS_TABLE"],
+				"IN_RESULTS_TABLE"	=> $arFilter["IN_RESULTS_TABLE"] ?? '',
 				"IN_EXCEL_TABLE"	=> $arFilter["IN_EXCEL_TABLE"] ?? '',
 				"ACTIVE"			=> "Y")
 			);
@@ -109,7 +101,6 @@ class CAllForm extends CForm_old
 
 	public static function GetMailTemplateArray($FORM_ID)
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetMailTemplateArray<br>Line: ";
 		global $DB, $USER, $strError;
 		$FORM_ID = intval($FORM_ID);
 		if ($FORM_ID<=0) return false;
@@ -122,14 +113,13 @@ class CAllForm extends CForm_old
 			WHERE
 				FM.FORM_ID = $FORM_ID
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch()) $arrRes[] = $ar["MAIL_TEMPLATE_ID"];
 		return $arrRes;
 	}
 
 	public static function GetSiteArray($FORM_ID)
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetSiteArray<br>Line: ";
 		global $DB, $USER, $strError;
 		$FORM_ID = intval($FORM_ID);
 		if ($FORM_ID<=0) return false;
@@ -142,7 +132,7 @@ class CAllForm extends CForm_old
 			WHERE
 				FS.FORM_ID = $FORM_ID
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		while ($ar = $rs->Fetch()) $arrRes[] = $ar["SITE_ID"];
 		return $arrRes;
 	}
@@ -150,7 +140,6 @@ class CAllForm extends CForm_old
 	public static function ExecHandlerBeforeChangeStatus($RESULT_ID, $ACTION, $NEW_STATUS_ID=0)
 	{
 		global $arrPREV_RESULT_STATUS, $DB, $MESS, $APPLICATION, $USER, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: ExecHandlerBeforeChangeStatus<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		if ($RESULT_ID<=0) return;
 		else
@@ -172,7 +161,7 @@ class CAllForm extends CForm_old
 				WHERE
 					R.ID = $RESULT_ID
 				";
-			$rsResult = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rsResult = $DB->Query($strSql);
 			if ($arResult = $rsResult->Fetch())
 			{
 				$arrPREV_RESULT_STATUS[$RESULT_ID] = $arResult["STATUS_ID"];
@@ -182,7 +171,7 @@ class CAllForm extends CForm_old
 					$fname = $handler;
 					$fname = str_replace("\\", "/", $fname);
 					$fname = str_replace("//", "/", $fname);
-					$fname = TrimEx($fname,"/");
+					$fname = trim($fname,"/");
 					$CURRENT_STATUS_ID = $arResult["STATUS_ID"];
 					$fname = $_SERVER["DOCUMENT_ROOT"]."/".$fname;
 					include($fname);
@@ -194,7 +183,6 @@ class CAllForm extends CForm_old
 	public static function ExecHandlerAfterChangeStatus($RESULT_ID, $ACTION)
 	{
 		global $arrCURRENT_RESULT_STATUS, $arrPREV_RESULT_STATUS, $DB, $MESS, $APPLICATION, $USER, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: ExecHandlerAfterChangeStatus<br>Line: ";
 		$RESULT_ID = intval($RESULT_ID);
 		if ($RESULT_ID<=0) return;
 		else
@@ -216,7 +204,7 @@ class CAllForm extends CForm_old
 				WHERE
 					R.ID = $RESULT_ID
 				";
-			$rsResult = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rsResult = $DB->Query($strSql);
 			if ($arResult = $rsResult->Fetch())
 			{
 				$arrCURRENT_RESULT_STATUS[$RESULT_ID] = $arResult["STATUS_ID"];
@@ -226,7 +214,7 @@ class CAllForm extends CForm_old
 					$fname = $handler;
 					$fname = str_replace("\\", "/", $fname);
 					$fname = str_replace("//", "/", $fname);
-					$fname = TrimEx($fname,"/");
+					$fname = trim($fname, "/");
 					$fname = $_SERVER["DOCUMENT_ROOT"]."/".$fname;
 					$CURRENT_STATUS_ID = $arResult["STATUS_ID"];
 					$PREV_STATUS_ID = $arrPREV_RESULT_STATUS[$RESULT_ID];
@@ -266,7 +254,6 @@ class CAllForm extends CForm_old
 	public static function GetPermission($form_id, $arGroups=false, $get_from_database="")
 	{
 		global $DB, $USER, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetPermission<br>Line: ";
 		$default_right = COption::GetOptionString("form","FORM_DEFAULT_PERMISSION");
 		if ($arGroups===false)
 		{
@@ -296,7 +283,7 @@ class CAllForm extends CForm_old
 						FG.FORM_ID = '".$form_id."'
 					and FG.GROUP_ID in (".$groups.")
 					";
-				$t = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$t = $DB->Query($strSql);
 				while ($tr = $t->Fetch())
 					$arr[$tr["GROUP_ID"]] = $tr["PERMISSION"];
 
@@ -320,7 +307,6 @@ class CAllForm extends CForm_old
 
 	public static function GetTemplateList($type="SHOW", $path="xxx", $WEB_FORM_ID=0)
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetTemplateList<br>Line: ";
 		global $DB, $strError;
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		if ($type!="MAIL")
@@ -360,7 +346,7 @@ class CAllForm extends CForm_old
 				WHERE
 					F.ID = $WEB_FORM_ID
 				";
-			$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 
 			$MAIL_EVENT_TYPE = '';
 			$arrSITE = array();
@@ -396,7 +382,6 @@ class CAllForm extends CForm_old
 
 	public static function GetMenuList($arFilter=Array(), $check_rights="Y")
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetMenuList<br>Line: ";
 		global $DB, $USER, $strError;
 		$arSqlSearch = Array();
 		$strSqlSearch = "";
@@ -418,17 +403,17 @@ class CAllForm extends CForm_old
 				if( ((string)$val == '') || ($val === "NOT_REF") )
 					continue;
 				}
-				$match_value_set = (in_array($key."_EXACT_MATCH", $filter_keys)) ? true : false;
+				$match_value_set = in_array($key."_EXACT_MATCH", $filter_keys);
 				$key = strtoupper($key);
 				switch($key)
 				{
 					case "FORM_ID":
 					case "LID":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="N" && $match_value_set) ? "Y" : "N";
 						$arSqlSearch[] = GetFilterQuery("L.".$key,$val,$match);
 						break;
 					case "MENU":
-						$match = ($arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
+						$match = (isset($arFilter[$key."_EXACT_MATCH"]) && $arFilter[$key."_EXACT_MATCH"]=="Y" && $match_value_set) ? "N" : "Y";
 						$arSqlSearch[] = GetFilterQuery("L.MENU", $val, $match);
 						break;
 				}
@@ -479,16 +464,15 @@ class CAllForm extends CForm_old
 				ORDER BY F.C_SORT
 				";
 		}
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetNextSort()
 	{
 		global $DB, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetNextSort<br>Line: ";
 		$strSql = "SELECT max(C_SORT) as MAX_SORT FROM b_form";
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$zr = $z->Fetch();
 		return (intval($zr["MAX_SORT"])+100);
 	}
@@ -568,7 +552,6 @@ class CAllForm extends CForm_old
 
 	public static function GetDropDownFilter($ID, $PARAMETER_NAME, $FID, $field="class=\"inputselect\"")
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: GetDropDownFilter<br>Line: ";
 		global $DB, $MESS, $strError;
 		if ($PARAMETER_NAME=="ANSWER_VALUE") $str=", VALUE as REFERENCE"; else $str=", MESSAGE as REFERENCE";
 		$ID = intval($ID);
@@ -583,7 +566,7 @@ class CAllForm extends CForm_old
 			ORDER BY
 				C_SORT
 			";
-		$z = $DB->Query($strSql,false,$err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		$ref = array();
 		$ref_id = array();
 		while ($zr = $z->Fetch())
@@ -957,13 +940,14 @@ class CAllForm extends CForm_old
 	// check form field values for required fields, date format validation, file type validation, additional validators
 	public static function Check($WEB_FORM_ID, $arrVALUES=false, $RESULT_ID=false, $CHECK_RIGHTS="Y", $RETURN_ARRAY="N")
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: Check<br>Line: ";
 		global $DB, $APPLICATION, $USER;
+
 		if ($arrVALUES===false) $arrVALUES = $_REQUEST;
 
 		$RESULT_ID = intval($RESULT_ID);
 
 		$errors = $RETURN_ARRAY == "Y" ? array() : "";
+		$REQUIRED_FIELDS = [];
 
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		if ($WEB_FORM_ID>0)
@@ -1260,35 +1244,33 @@ class CAllForm extends CForm_old
 						}
 					}
 
-					if (is_array($REQUIRED_FIELDS) && count($REQUIRED_FIELDS)>0)
+					$EMPTY_REQUIRED_NAMES = [];
+					foreach ($REQUIRED_FIELDS as $key => $value)
 					{
-						foreach ($REQUIRED_FIELDS as $key => $value)
+						if ($value == "N")
 						{
-							if ($value == "N")
+							if ($arQuestions[$key]["RESULTS_TABLE_TITLE"] <> '')
 							{
-								if ($arQuestions[$key]["RESULTS_TABLE_TITLE"] <> '')
-								{
-									$title = $arQuestions[$key]["RESULTS_TABLE_TITLE"];
-								}
-								/*elseif (strlen($arQuestions[$key]["FILTER_TITLE"])>0)
-								{
-									$title = TrimEx($arQuestions[$key]["FILTER_TITLE"],":");
-								}*/
-								else
-								{
-									$title = ($arQuestions[$key]["TITLE_TYPE"]=="html") ? strip_tags($arQuestions[$key]["TITLE"]) : $arQuestions[$key]["TITLE"];
-								}
-								if ($RETURN_ARRAY == 'N')
-									$EMPTY_REQUIRED_NAMES[] = $title;
-								else
-									CForm::__check_PushError($errors, GetMessage("FORM_EMPTY_REQUIRED_FIELDS").' '.$title, $key);
+								$title = $arQuestions[$key]["RESULTS_TABLE_TITLE"];
 							}
+							/*elseif (strlen($arQuestions[$key]["FILTER_TITLE"])>0)
+							{
+								$title = trim($arQuestions[$key]["FILTER_TITLE"],":");
+							}*/
+							else
+							{
+								$title = ($arQuestions[$key]["TITLE_TYPE"]=="html") ? strip_tags($arQuestions[$key]["TITLE"]) : $arQuestions[$key]["TITLE"];
+							}
+							if ($RETURN_ARRAY == 'N')
+								$EMPTY_REQUIRED_NAMES[] = $title;
+							else
+								CForm::__check_PushError($errors, GetMessage("FORM_EMPTY_REQUIRED_FIELDS").' '.$title, $key);
 						}
 					}
 
 					if ($RETURN_ARRAY == 'N')
 					{
-						if (is_array($EMPTY_REQUIRED_NAMES) && count($EMPTY_REQUIRED_NAMES)>0)
+						if (!empty($EMPTY_REQUIRED_NAMES))
 						{
 							$errMsg = "";
 							$errMsg .= GetMessage("FORM_EMPTY_REQUIRED_FIELDS")."<br />";
@@ -1305,7 +1287,6 @@ class CAllForm extends CForm_old
 
 	public static function CheckFields($arFields, $FORM_ID, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: CheckFields<br>Line: ";
 		global $DB, $strError, $APPLICATION, $USER;
 		$str = "";
 		$FORM_ID = intval($FORM_ID);
@@ -1338,7 +1319,7 @@ class CAllForm extends CForm_old
 				else
 				{
 					$strSql = "SELECT ID FROM b_form WHERE SID='".$DB->ForSql(trim($arFields["SID"]),50)."' and ID<>'$FORM_ID'";
-					$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+					$z = $DB->Query($strSql);
 					if ($zr = $z->Fetch())
 					{
 						$s = str_replace("#TYPE#", GetMessage("FORM_TYPE_FORM"), GetMessage("FORM_ERROR_WRONG_SID"));
@@ -1348,7 +1329,7 @@ class CAllForm extends CForm_old
 					else
 					{
 						$strSql = "SELECT ID, ADDITIONAL FROM b_form_field WHERE SID='".$DB->ForSql(trim($arFields["SID"]),50)."'";
-						$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+						$z = $DB->Query($strSql);
 						if ($zr = $z->Fetch())
 						{
 							$s = ($zr["ADDITIONAL"]=="Y") ?
@@ -1371,9 +1352,9 @@ class CAllForm extends CForm_old
 
 	public static function Set($arFields, $FORM_ID=false, $CHECK_RIGHTS="Y")
 	{
-		$err_mess = (CAllForm::err_mess())."<br>Function: Set<br>Line: ";
-		global $DB, $USER, $strError, $APPLICATION;
+		global $DB, $strError;
 		global $CACHE_MANAGER;
+
 		$FORM_ID = intval($FORM_ID);
 		if (CForm::CheckFields($arFields, $FORM_ID, $CHECK_RIGHTS))
 		{
@@ -1396,11 +1377,6 @@ class CAllForm extends CForm_old
 
 			if (is_set($arFields, "C_SORT"))
 				$arFields_i["C_SORT"] = intval($arFields["C_SORT"]);//"'".intval($arFields["C_SORT"])."'";
-
-			if (is_array($arrSITE))
-			{
-				$arFields["FIRST_SITE_ID"] = current($arrSITE);
-			}
 
 			if (is_set($arFields, "BUTTON"))
 				$arFields_i["BUTTON"] = $arFields['BUTTON']; //"'".$DB->ForSql($arFields["BUTTON"],255)."'";
@@ -1464,7 +1440,7 @@ class CAllForm extends CForm_old
 				unset($arFields_i["EDIT_RESULT_TEMPLATE"]);
 			}
 
-			$z = $DB->Query("SELECT IMAGE_ID, SID, SID as VARNAME FROM b_form WHERE ID='".$FORM_ID."'", false, $err_mess.__LINE__);
+			$z = $DB->Query("SELECT IMAGE_ID, SID, SID as VARNAME FROM b_form WHERE ID='".$FORM_ID."'");
 			$zr = $z->Fetch();
 			$oldSID = $zr["SID"];
 			if ($arFields["arIMAGE"]["name"] <> '' || $arFields["arIMAGE"]["del"] <> '')
@@ -1560,7 +1536,7 @@ class CAllForm extends CForm_old
 			{
 				if (is_set($arFields, "arSITE"))
 				{
-					$DB->Query("DELETE FROM b_form_2_site WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_2_site WHERE FORM_ID='".$FORM_ID."'");
 					if (is_array($arFields["arSITE"]))
 					{
 						reset($arFields["arSITE"]);
@@ -1572,14 +1548,14 @@ class CAllForm extends CForm_old
 									'".$DB->ForSql($sid,2)."'
 								)
 								";
-							$DB->Query($strSql, false, $err_mess.__LINE__);
+							$DB->Query($strSql);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arMENU"))
 				{
-					$DB->Query("DELETE FROM b_form_menu WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_menu WHERE FORM_ID='".$FORM_ID."'");
 					if (is_array($arFields["arMENU"]))
 					{
 						foreach ($arFields["arMENU"] as $lid => $menu)
@@ -1590,14 +1566,14 @@ class CAllForm extends CForm_old
 								"MENU"		=> "'".$DB->ForSql($menu,50)."'"
 								);
 
-							$DB->Insert("b_form_menu", $arFields_i, $err_mess.__LINE__);
+							$DB->Insert("b_form_menu", $arFields_i);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arMAIL_TEMPLATE"))
 				{
-					$DB->Query("DELETE FROM b_form_2_mail_template WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_2_mail_template WHERE FORM_ID='".$FORM_ID."'");
 					if (is_array($arFields["arMAIL_TEMPLATE"]))
 					{
 						foreach ($arFields["arMAIL_TEMPLATE"] as $mid)
@@ -1608,14 +1584,14 @@ class CAllForm extends CForm_old
 									'".intval($mid)."'
 								)
 								";
-							$DB->Query($strSql, false, $err_mess.__LINE__);
+							$DB->Query($strSql);
 						}
 					}
 				}
 
 				if (is_set($arFields, "arGROUP"))
 				{
-					$DB->Query("DELETE FROM b_form_2_group WHERE FORM_ID='".$FORM_ID."'", false, $err_mess.__LINE__);
+					$DB->Query("DELETE FROM b_form_2_group WHERE FORM_ID='".$FORM_ID."'");
 					if (is_array($arFields["arGROUP"]))
 					{
 						foreach ($arFields["arGROUP"] as $group_id => $perm)
@@ -1627,7 +1603,7 @@ class CAllForm extends CForm_old
 									"GROUP_ID"		=> "'".intval($group_id)."'",
 									"PERMISSION"	=> "'".intval($perm)."'"
 									);
-								$DB->Insert("b_form_2_group", $arFields_i, $err_mess.__LINE__);
+								$DB->Insert("b_form_2_group", $arFields_i);
 							}
 						}
 					}
@@ -1643,7 +1619,6 @@ class CAllForm extends CForm_old
 	public static function Copy($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $APPLICATION, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: Copy<br>Line: ";
 		$ID = intval($ID);
 		if ($CHECK_RIGHTS!="Y" || CForm::IsAdmin())
 		{
@@ -1658,7 +1633,7 @@ class CAllForm extends CForm_old
 				$SID .= "_".RandString(5);
 
 				$strSql = "SELECT 'x' FROM b_form WHERE SID='".$DB->ForSql($SID,50)."'";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				if (!($zr = $z->Fetch())) break;
 			}
 
@@ -1725,7 +1700,6 @@ class CAllForm extends CForm_old
 	public static function Delete($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: Delete<br>Line: ";
 		$ID = intval($ID);
 
 		if ($CHECK_RIGHTS!="Y" || CForm::IsAdmin())
@@ -1747,7 +1721,7 @@ class CAllForm extends CForm_old
 
 				// delete form image
 				$strSql = "SELECT IMAGE_ID FROM b_form WHERE ID='$ID' and IMAGE_ID>0";
-				$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$z = $DB->Query($strSql);
 				while ($zr = $z->Fetch()) CFile::Delete($zr["IMAGE_ID"]);
 
 				// delete mail event type and mail templates, assigned to the current form
@@ -1766,19 +1740,19 @@ class CAllForm extends CForm_old
 				}
 
 				// delete site assignment
-				$DB->Query("DELETE FROM b_form_2_site WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_2_site WHERE FORM_ID='$ID'");
 
 				// delete mail templates assignment
-				$DB->Query("DELETE FROM b_form_2_mail_template WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_2_mail_template WHERE FORM_ID='$ID'");
 
 				// delete form menu
-				$DB->Query("DELETE FROM b_form_menu WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_menu WHERE FORM_ID='$ID'");
 
 				// delete from rights
-				$DB->Query("DELETE FROM b_form_2_group WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form_2_group WHERE FORM_ID='$ID'");
 
 				// and finally delete form
-				$DB->Query("DELETE FROM b_form WHERE ID='$ID'", false, $err_mess.__LINE__);
+				$DB->Query("DELETE FROM b_form WHERE ID='$ID'");
 
 				return true;
 			}
@@ -1790,7 +1764,7 @@ class CAllForm extends CForm_old
 	public static function Reset($ID, $CHECK_RIGHTS="Y")
 	{
 		global $DB, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: Reset<br>Line: ";
+
 		$ID = intval($ID);
 
 		$F_RIGHT = ($CHECK_RIGHTS!="Y") ? 30 : CForm::GetPermission($ID);
@@ -1799,7 +1773,7 @@ class CAllForm extends CForm_old
 			$rsFields = CFormField::GetList($ID, "ALL");
 			while ($arField = $rsFields->Fetch()) CFormField::Reset($arField["ID"], "N");
 
-			$DB->Query("DELETE FROM b_form_result WHERE FORM_ID='$ID'", false, $err_mess.__LINE__);
+			$DB->Query("DELETE FROM b_form_result WHERE FORM_ID='$ID'");
 
 			return true;
 		}
@@ -1810,13 +1784,13 @@ class CAllForm extends CForm_old
 
 	public static function SetMailTemplate($WEB_FORM_ID, $ADD_NEW_TEMPLATE="Y", $old_SID="", $bReturnFullInfo = false)
 	{
-		global $DB, $MESS, $strError;
-		$err_mess = (CAllForm::err_mess())."<br>Function: SetMailTemplates<br>Line: ";
+		global $MESS;
 		$arrReturn = array();
 		$WEB_FORM_ID = intval($WEB_FORM_ID);
 		$q = CForm::GetByID($WEB_FORM_ID);
 		if ($arrForm = $q->Fetch())
 		{
+			$old_MAIL_EVENT_TYPE = '';
 			$MAIL_EVENT_TYPE = "FORM_FILLING_".$arrForm["SID"];
 			if ($old_SID <> '') $old_MAIL_EVENT_TYPE = "FORM_FILLING_".$old_SID;
 
@@ -1859,7 +1833,7 @@ class CAllForm extends CForm_old
 					}
 					else
 					{
-						$FIELD_TITLE = TrimEx($wr["FILTER_TITLE"],":");
+						$FIELD_TITLE = trim($wr["FILTER_TITLE"], ":");
 					}
 
 					$str .= "#".$wr["SID"]."# - ".$FIELD_TITLE."\n";
@@ -1990,6 +1964,8 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 		$dbForm = CForm::GetByID($WEB_FORM_ID);
 		if ($arForm = $dbForm->Fetch())
 		{
+			$bSimple = COption::GetOptionString("form", "SIMPLE", "Y") == "Y";
+
 			if (!$current_section)
 			{
 				$current_script = basename($GLOBALS['APPLICATION']->GetCurPage());
@@ -2004,7 +1980,7 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 					case 'form_field_edit_simple.php':
 					case 'form_field_list.php':
 
-						if (!$bSimple && $_GET['additional'] == 'Y')
+						if (!$bSimple && isset($_GET['additional']) && $_GET['additional'] == 'Y')
 							$current_section = 'field';
 						else
 							$current_section = 'question';
@@ -2023,8 +1999,6 @@ http://#SERVER_NAME#/bitrix/admin/form_result_view.php?lang=".$arrSiteLang[$sid]
 					break;
 				}
 			}
-
-			$bSimple = COption::GetOptionString("form", "SIMPLE", "Y") == "Y";
 
 			$arForm['ADMIN_MENU'] = array();
 

@@ -1,22 +1,35 @@
 export const EnableFeatures = Object.freeze({
 	copilot: 'copilot',
-	newsLine: 'newsLine',
-	chatCalls: 'chatCalls',
+	newsLine: 'news',
+	chatCalls: 'instant_messenger',
 	calendar: 'calendar',
-	documents: 'documents',
+	documents: 'docs',
 	mail: 'mail',
-	groups: 'groups',
+	groups: 'workgroups',
 	tasks: 'tasks',
 	crm: 'crm',
 	marketing: 'marketing',
 	automation: 'automation',
-	warehouseAccounting: 'warehouseAccounting',
+	warehouseAccounting: 'inventory_management',
 	sign: 'sign',
-	websitesStores: 'websitesStores',
+	scrum: 'scrum',
+	invoices: 'invoices',
+	saleshub: 'saleshub',
+	websitesStores: 'sites',
+	checkIn: 'checkIn',
+	checkInGeo: 'checkInGeo',
 });
 
 export const UpdateFeatures = Object.freeze({
-	tariff: 'tariff',
+	collaborativeDocumentEditing: 'limit_office_no_document',
+	leadsCRM: 'limit_crm_lead_unlimited',
+	mailBoxNumber: 'limit_contact_center_mail_box_number',
+	enterpriseAdmin: 'info_enterprise_admin',
+	loginHistory: 'limit_office_login_history',
+	crmHistory: 'limit_crm_history_view',
+	tasksRobots: 'limit_tasks_robots',
+	crmAnalytics: 'limit_crm_analytics_max_number',
+	crmInvoices: 'limit_crm_free_invoices',
 });
 
 export type SupervisorButtonParams = {

@@ -112,9 +112,13 @@ CUtil::InitJSCore(['fx', 'ui.fonts.opensans']);
 
 		</div>
 
-		<?if(($arParams["USE_RATING"]=="Y") && ($arParams["USE_SHARE"] == "Y")) {?> <div class="d-flex justify-content-between"> <? } ?>
+		<?php
+		if (($arParams["USE_RATING"]=="Y") && ($arParams["USE_SHARE"] == "Y"))
+		{
+			?> <div class="d-flex justify-content-between"> <?php
+		}
 
-			<?if($arParams["USE_RATING"]=="Y"):?>
+			if($arParams["USE_RATING"]=="Y"):?>
 				<div>
 					<?$APPLICATION->IncludeComponent(
 						"bitrix:iblock.vote",
@@ -156,11 +160,15 @@ CUtil::InitJSCore(['fx', 'ui.fonts.opensans']);
 						?>
 					</noindex>
 				</div>
-			<?endif?>
+			<?php
+			endif;
 
-		<?if(($arParams["USE_RATING"]=="Y") && ($arParams["USE_SHARE"] == "Y")) {?> </div> <? } ?>
+		if (($arParams["USE_RATING"]=="Y") && ($arParams["USE_SHARE"] == "Y"))
+		{
+			?> </div> <?php
+		}
 
-	<?foreach($arResult["FIELDS"] as $code=>$value):?>
+	foreach($arResult["FIELDS"] as $code=>$value):?>
 		<?if($code == "SHOW_COUNTER"):?>
 			<div class="news-detail-view"><?=GetMessage("IBLOCK_FIELD_".$code)?>: <?=intval($value);?></div>
 		<?elseif($code == "SHOW_COUNTER_START" && $value):?>
@@ -197,7 +205,7 @@ CUtil::InitJSCore(['fx', 'ui.fonts.opensans']);
 
 	</div>
 </div>
-<script type="text/javascript">
+<script>
 	BX.ready(function() {
 		var slider = new JCNewsSlider('<?=CUtil::JSEscape($this->GetEditAreaId($arResult['ID']));?>', {
 			imagesContainerClassName: 'news-detail-slider-container',

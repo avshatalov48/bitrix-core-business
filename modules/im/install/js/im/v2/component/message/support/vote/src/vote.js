@@ -150,7 +150,13 @@ export const SupportVoteMessage = {
 		},
 	},
 	template: `
-		<BaseMessage :item="item" :dialogId="dialogId" :withTitle="withTitle">
+		<BaseMessage
+			:item="item"
+			:dialogId="dialogId"
+			:withTitle="withTitle"
+			:withContextMenu="false"
+			:withReactions="false"
+		>
 			<div class="bx-im-message-support-vote__container">
 				<div class="bx-im-message-support-vote__title">{{ loc('IM_MESSAGE_SUPPORT_VOTE_TITLE') }}</div>
 				<div class="bx-im-message-support-vote__subtitle">{{ voteText }}</div>

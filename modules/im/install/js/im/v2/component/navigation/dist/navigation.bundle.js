@@ -2,7 +2,7 @@
 this.BX = this.BX || {};
 this.BX.Messenger = this.BX.Messenger || {};
 this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
-(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_phone,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_logger,main_core,main_popup,im_v2_lib_menu,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_lib_desktop,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
+(function (exports,ui_vue3_directives_hint,ui_dialogs_messagebox,ui_infoHelper,im_v2_lib_slider,im_v2_lib_call,im_v2_lib_phone,im_v2_lib_feature,im_v2_lib_analytics,im_v2_component_elements,im_v2_lib_utils,im_v2_lib_logger,main_core,main_popup,im_v2_lib_menu,im_v2_lib_desktopApi,im_v2_lib_confirm,im_v2_lib_desktop,ui_buttons,ui_feedback_form,ui_fontawesome4,im_v2_application_core,im_v2_const,im_v2_lib_market) {
 	'use strict';
 
 	// @vue/component
@@ -198,7 +198,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  }
 	}
 	function _getConnectItem2() {
-	  const title = this.context.connected ? main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT') : main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT');
+	  const title = this.context.connected ? main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT_V2') : main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT_V2');
 	  return {
 	    text: title,
 	    onclick: function () {
@@ -215,7 +215,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	}
 	function _getDeleteItem2() {
 	  return {
-	    text: main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE'),
+	    text: main_core.Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE_V2'),
 	    onclick: async function () {
 	      const userChoice = await im_v2_lib_confirm.showDesktopDeleteConfirm();
 	      if (userChoice === true) {
@@ -385,7 +385,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	const UserSettingsContent = {
 	  name: 'UserSettingsContent',
 	  components: {
-	    Avatar: im_v2_component_elements.Avatar,
+	    ChatAvatar: im_v2_component_elements.ChatAvatar,
 	    UserStatus: im_v2_component_elements.UserStatus,
 	    ButtonPanel,
 	    UserStatusPopup,
@@ -403,6 +403,9 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	    UserStatusSize: () => im_v2_component_elements.UserStatusSize,
 	    currentUserId() {
 	      return im_v2_application_core.Core.getUserId();
+	    },
+	    currentUserDialogId() {
+	      return this.currentUserId.toString();
 	    },
 	    currentUser() {
 	      return this.$store.getters['users/get'](this.currentUserId, true);
@@ -448,7 +451,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 		<div class="bx-im-user-settings-popup__scope bx-im-user-settings-popup__container">
 			<div class="bx-im-user-settings-popup__header">
 				<div class="bx-im-user-settings-popup__header_left">
-					<Avatar :dialogId="currentUserId" :size="AvatarSize.XL" />
+					<ChatAvatar 
+						:avatarDialogId="currentUserDialogId" 
+						:contextDialogId="currentUserDialogId" 
+						:size="AvatarSize.XL" 
+					/>
 				</div>
 				<div class="bx-im-user-settings-popup__header_right">
 					<div class="bx-im-user-settings-popup__domain">{{ currentHost }}</div>
@@ -535,7 +542,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  components: {
 	    UserSettingsPopup,
 	    UserStatusPopup,
-	    Avatar: im_v2_component_elements.Avatar
+	    ChatAvatar: im_v2_component_elements.ChatAvatar
 	  },
 	  data() {
 	    return {
@@ -545,8 +552,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  },
 	  computed: {
 	    AvatarSize: () => im_v2_component_elements.AvatarSize,
-	    currentUserId() {
-	      return im_v2_application_core.Core.getUserId();
+	    currentUserDialogId() {
+	      return im_v2_application_core.Core.getUserId().toString();
 	    },
 	    userStatus() {
 	      const status = this.$store.getters['application/settings/get'](im_v2_const.Settings.user.status);
@@ -567,7 +574,11 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	  template: `
 		<div class="bx-im-navigation__user">
 			<div @click="onAvatarClick" class="bx-im-navigation__user_avatar" ref="avatar">
-				<Avatar :dialogId="currentUserId.toString()" :size="AvatarSize.M" />
+				<ChatAvatar 
+					:avatarDialogId="currentUserDialogId"
+					:contextDialogId="currentUserDialogId" 
+					:size="AvatarSize.M" 
+				/>
 				<div @click.stop="onStatusClick" :class="'--' + userStatus" class="bx-im-navigation__user_status" ref="status"></div>
 			</div>
 			<UserStatusPopup
@@ -698,7 +709,12 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        id: im_v2_const.Layout.copilot.name,
 	        text: this.prepareNavigationText('IM_NAVIGATION_COPILOT'),
 	        counter: this.formatCounter(this.$store.getters['counters/getTotalCopilotCounter']),
-	        showCondition: this.isCopilotActive,
+	        clickHandler: this.onCopilotClick,
+	        showCondition: () => im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.copilotAvailable),
+	        active: true
+	      }, {
+	        id: im_v2_const.Layout.channel.name,
+	        text: this.prepareNavigationText('IM_NAVIGATION_CHANNELS'),
 	        active: true
 	      }, {
 	        id: im_v2_const.Layout.openlines.name,
@@ -712,7 +728,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        active: true
 	      }, {
 	        id: im_v2_const.Layout.call.name,
-	        text: this.prepareNavigationText('IM_NAVIGATION_CALLS'),
+	        text: this.prepareNavigationText('IM_NAVIGATION_CALLS_V2'),
 	        clickHandler: this.onCallClick,
 	        showCondition: im_v2_lib_phone.PhoneManager.getInstance().canCall.bind(im_v2_lib_phone.PhoneManager.getInstance()),
 	        active: true
@@ -750,14 +766,13 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	        item.clickHandler(event.target);
 	        return;
 	      }
-	      this.$emit('navigationClick', {
-	        layoutName: item.id,
-	        layoutEntityId: ''
+	      this.sendClickEvent({
+	        layoutName: item.id
 	      });
 	    },
-	    onMarketMenuItemClick({
+	    sendClickEvent({
 	      layoutName,
-	      layoutEntityId
+	      layoutEntityId = ''
 	    }) {
 	      this.$emit('navigationClick', {
 	        layoutName,
@@ -862,13 +877,24 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      var _BX$Timeman, _BX$Timeman$Monitor;
 	      return Boolean((_BX$Timeman = BX.Timeman) == null ? void 0 : (_BX$Timeman$Monitor = _BX$Timeman.Monitor) == null ? void 0 : _BX$Timeman$Monitor.isEnabled());
 	    },
-	    isCopilotActive() {
-	      const settings = main_core.Extension.getSettings('im.v2.component.navigation');
-	      return settings.get('copilotActive');
-	    },
 	    async onTimeManagerClick() {
 	      var _BX$Timeman2, _BX$Timeman2$Monitor;
 	      (_BX$Timeman2 = BX.Timeman) == null ? void 0 : (_BX$Timeman2$Monitor = _BX$Timeman2.Monitor) == null ? void 0 : _BX$Timeman2$Monitor.openReport();
+	    },
+	    onCopilotClick() {
+	      if (!im_v2_lib_feature.FeatureManager.isFeatureAvailable(im_v2_lib_feature.Feature.copilotActive)) {
+	        const promoter = new ui_infoHelper.FeaturePromoter({
+	          code: im_v2_const.SliderCode.copilotDisabled
+	        });
+	        promoter.show();
+	        im_v2_lib_analytics.Analytics.getInstance().onOpenCopilotTab({
+	          isAvailable: false
+	        });
+	        return;
+	      }
+	      this.sendClickEvent({
+	        layoutName: im_v2_const.Layout.copilot.name
+	      });
 	    },
 	    loc(phraseCode, replacements = {}) {
 	      return this.$Bitrix.Loc.getMessage(phraseCode, replacements);
@@ -892,7 +918,7 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 				</template>
 				<!-- Menu items -->
 				<template v-for="item in menuItems">
-					<MarketApps v-if="item.id === 'market'" @clickMarketItem="onMarketMenuItemClick"/>
+					<MarketApps v-if="item.id === 'market'" @clickMarketItem="sendClickEvent"/>
 					<div
 						v-else-if="needToShowMenuItem(item)"
 						:key="item.id"
@@ -925,5 +951,5 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 
 	exports.MessengerNavigation = MessengerNavigation;
 
-}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
+}((this.BX.Messenger.v2.Component = this.BX.Messenger.v2.Component || {}),BX.Vue3.Directives,BX.UI.Dialogs,BX.UI,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Component.Elements,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX,BX.Main,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.Messenger.v2.Lib,BX.UI,BX.UI.Feedback,BX,BX.Messenger.v2.Application,BX.Messenger.v2.Const,BX.Messenger.v2.Lib));
 //# sourceMappingURL=navigation.bundle.js.map

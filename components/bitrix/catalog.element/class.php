@@ -1,16 +1,17 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Iblock\Component\Element,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog,
-	Bitrix\Sale\Internals\FacebookConversion;
+<?php
 
-if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Iblock\Component\Element;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
-if (!\Bitrix\Main\Loader::includeModule('iblock'))
+if (!Loader::includeModule('iblock'))
 {
 	ShowError(Loc::getMessage('IBLOCK_MODULE_NOT_INSTALLED'));
 	return;
@@ -146,19 +147,18 @@ class CatalogElementComponent extends Element
 			$counterData['price'] = $optimalPrice['RESULT_PRICE']['DISCOUNT_PRICE'];
 			$counterData['currency'] = $optimalPrice['RESULT_PRICE']['CURRENCY'];
 
-			// make sure it is in utf8
-			$counterData = Main\Text\Encoding::convertEncoding($counterData, SITE_CHARSET, 'UTF-8');
-
 			// pack value and protocol version
 			$rcmLogCookieName = Main\Config\Option::get('main', 'cookie_name', 'BITRIX_SM') . '_' . Main\Analytics\Catalog::getCookieLogName();
 
-			$this->arResult['counterData'] = array(
-				'item' => base64_encode(json_encode($counterData)),
-				'user_id' => new Main\Text\JsExpression(
-					'function(){return BX.message("USER_ID") ? BX.message("USER_ID") : 0;}'
-				),
-				'recommendation' => new Main\Text\JsExpression(
-					'function() {
+			if (Main\Analytics\Catalog::isOn())
+			{
+				$this->arResult['counterData'] = array(
+					'item' => base64_encode(json_encode($counterData)),
+					'user_id' => new Main\Text\JsExpression(
+						'function(){return BX.message("USER_ID") ? BX.message("USER_ID") : 0;}'
+					),
+					'recommendation' => new Main\Text\JsExpression(
+						'function() {
 							var rcmId = "";
 							var cookieValue = BX.getCookie("' . $rcmLogCookieName . '");
 							var productId = ' . $element["ID"] . ';
@@ -183,10 +183,12 @@ class CatalogElementComponent extends Element
 
 							return rcmId;
 						}'
-				),
-				'v' => '2'
-			);
-			$resultCacheKeys[] = 'counterData';
+					),
+					'v' => '2'
+				);
+
+				$resultCacheKeys[] = 'counterData';
+			}
 
 			if ($this->arParams['SET_VIEWED_IN_COMPONENT'] === 'Y')
 			{
@@ -211,7 +213,7 @@ class CatalogElementComponent extends Element
 	}
 
 	/**
-	 * Save compatible viewed product in catalog.element only.
+	 * Save compatible viewed product in "catalog.element" only.
 	 *
 	 * @return void
 	 */
@@ -219,54 +221,67 @@ class CatalogElementComponent extends Element
 	{
 		if ($this->isEnableCompatible())
 		{
-			if ((string)Main\Config\Option::get('sale', 'product_viewed_save') === 'Y')
+			if (
+				Main\Config\Option::get('sale', 'product_viewed_save') === 'Y'
+				&& Loader::includeModule('sale')
+			)
 			{
-				if (
-					!isset($_SESSION['VIEWED_ENABLE'])
-					&& isset($_SESSION['VIEWED_PRODUCT'])
-					&& $_SESSION['VIEWED_PRODUCT'] != $this->arResult['ID']
-					&& Loader::includeModule('sale')
-				)
+				$session = Main\Application::getInstance()->getSession();
+				if ($session->isAccessible())
 				{
-					$_SESSION['VIEWED_ENABLE'] = 'Y';
-					$fields = array(
-						'PRODUCT_ID' => (int)$_SESSION['VIEWED_PRODUCT'],
-						'MODULE' => 'catalog',
-						'LID' => $this->getSiteId()
-					);
-					/** @noinspection PhpDeprecationInspection */
-					\CSaleViewedProduct::Add($fields);
+					$currentId = (int)$this->arResult['ID'];
+					if (
+						!$session->has('VIEWED_ENABLE')
+						&& $session->has('VIEWED_PRODUCT')
+					)
+					{
+						$viewedProduct = (int)$session->get('VIEWED_PRODUCT');
+						if ($viewedProduct !== $currentId)
+						{
+							$session->set('VIEWED_ENABLE', 'Y');
+							/** @noinspection PhpDeprecationInspection */
+							\CSaleViewedProduct::Add([
+								'PRODUCT_ID' => $viewedProduct,
+								'MODULE' => 'catalog',
+								'LID' => $this->getSiteId()
+							]);
+						}
+						unset($viewedProduct);
+					}
+					if (
+						$session->has('VIEWED_ENABLE')
+						&& $session->get('VIEWED_ENABLE') === 'Y'
+						&& $session->has('VIEWED_PRODUCT')
+					)
+					{
+						$viewedProduct = (int)$session->get('VIEWED_PRODUCT');
+						if ($viewedProduct !== $currentId)
+						{
+							/** @noinspection PhpDeprecationInspection */
+							\CSaleViewedProduct::Add([
+								'PRODUCT_ID' => $currentId,
+								'MODULE' => 'catalog',
+								'LID' => $this->getSiteId(),
+								'IBLOCK_ID' => $this->arResult['IBLOCK_ID']
+							]);
+						}
+						unset($viewedProduct);
+					}
+					$session->set('VIEWED_PRODUCT', $currentId);
+					unset($currentId);
 				}
-
-				if (
-					isset($_SESSION['VIEWED_ENABLE'])
-					&& $_SESSION['VIEWED_ENABLE'] === 'Y'
-					&& $_SESSION['VIEWED_PRODUCT'] != $this->arResult['ID']
-					&& Loader::includeModule('sale')
-				)
-				{
-					$fields = array(
-						'PRODUCT_ID' => $this->arResult['ID'],
-						'MODULE' => 'catalog',
-						'LID' => $this->getSiteId(),
-						'IBLOCK_ID' => $this->arResult['IBLOCK_ID']
-					);
-					/** @noinspection PhpDeprecationInspection */
-					\CSaleViewedProduct::Add($fields);
-				}
-
-				$_SESSION['VIEWED_PRODUCT'] = $this->arResult['ID'];
+				unset($session);
 			}
 
 			if ($this->arParams['SET_VIEWED_IN_COMPONENT'] === 'Y' && !empty($this->arResult['VIEWED_PRODUCT']))
 			{
 				if (Loader::includeModule('catalog') && Loader::includeModule('sale'))
 				{
-					if ((string)Main\Config\Option::get('catalog', 'enable_viewed_products') !== 'N')
+					if (Main\Config\Option::get('catalog', 'enable_viewed_products') !== 'N')
 					{
 						Catalog\CatalogViewedProductTable::refresh(
 							$this->arResult['VIEWED_PRODUCT']['OFFER_ID'],
-							\CSaleBasket::GetBasketUserID(),
+							(int)\Bitrix\Sale\Fuser::getId(),
 							$this->getSiteId(),
 							$this->arResult['VIEWED_PRODUCT']['PRODUCT_ID']
 						);
@@ -277,7 +292,7 @@ class CatalogElementComponent extends Element
 	}
 
 	/**
-	 * Save bigdata analytics for catalog.element only.
+	 * Save bigdata analytics for "catalog.element" only.
 	 *
 	 * @return void
 	 */

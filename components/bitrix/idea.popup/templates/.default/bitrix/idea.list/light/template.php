@@ -11,7 +11,7 @@ $arStatusList = CIdeaManagment::getInstance()->Idea()->GetStatusList();
 	<?foreach($arResult["POST"] as $CurPost)
 	{
 		if($arParams["MESSAGE_COUNT"] <= $i) break;
-		$status = GetMessage("IDEA_STATUS_".ToUpper($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
+		$status = GetMessage("IDEA_STATUS_".mb_strtoupper($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]));
 		if($status == '')
 			$status = $arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["VALUE"];
 		?>
@@ -42,7 +42,7 @@ $arStatusList = CIdeaManagment::getInstance()->Idea()->GetStatusList();
 			<div class="idea-title idea-title-<?=$arParams['RATING_TEMPLATE']?>"><a href="<?=$CurPost["urlToPost"]?>" target="_blank" title="<?=$CurPost["TITLE"]?>"><?=$CurPost["TITLE"]?></a></div>
 		</td>
 		<td style="white-space: nowrap;">
-			<div class="bx-idea-condition-description status-color-<?=ToLower($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
+			<div class="bx-idea-condition-description status-color-<?=mb_strtolower($arStatusList[$CurPost["POST_PROPERTIES"]["DATA"]["UF_STATUS"]["VALUE"]]["XML_ID"]);?>">
 				<div><?=$status?></div>
 				<div class="idea-owner"><?=$CurPost["DATE_PUBLISH_FORMATED"]?></div>
 			</div>

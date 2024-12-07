@@ -629,6 +629,11 @@ $arComponentParameters = array(
 	),
 );
 
+if (!\Bitrix\Main\Analytics\Catalog::isOn())
+{
+	unset($arComponentParameters['GROUPS']['BIG_DATA_SETTINGS']);
+}
+
 if (
 	ModuleManager::isModuleInstalled('bitrix24')
 	|| (isset($arCurrentValues['LANDING_MODE']) && $arCurrentValues['LANDING_MODE'] === 'Y')

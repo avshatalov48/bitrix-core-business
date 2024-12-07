@@ -13,6 +13,7 @@ use Bitrix\Calendar\Core\Event\Properties\MeetingDescription;
 use Bitrix\Calendar\Core\Event\Properties\RecurringEventRules;
 use Bitrix\Calendar\Core\Event\Properties\Relations;
 use Bitrix\Calendar\Core\Event\Properties\RemindCollection;
+use Bitrix\Calendar\Core\eventoption\EventOption;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\Role;
 use Bitrix\Calendar\Core\Role\User;
@@ -81,6 +82,7 @@ abstract class EventBuilder implements Builder
 			->setMeetingStatus($this->getMeetingStatus())
 			->setOriginalDateFrom($this->getOriginalDate())
 			->setRelations($this->getRelations())
+			->setEventOption($this->getEventOption())
 		;
 	}
 
@@ -426,6 +428,8 @@ abstract class EventBuilder implements Builder
 	 * @return Relations|null
 	 */
 	abstract protected function getRelations(): ?Relations;
+
+	abstract protected function getEventOption(): ?EventOption;
 
 	/**
 	 * @param $meeting

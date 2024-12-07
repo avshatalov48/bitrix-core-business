@@ -59,9 +59,6 @@ if($_SERVER['REQUEST_METHOD'] == "POST" && $Update <> '' && CForm::IsAdmin() && 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && $_REQUEST['saveCrm'] && CForm::IsAdmin() && check_bitrix_sessid())
 {
-	if ($_REQUEST['ajax'])
-		CUtil::JSPostUnEscape();
-
 	$arAdditionalAuthData = array();
 	$lastUpdated = '';
 	if (is_array($_REQUEST['CRM']))
@@ -228,7 +225,7 @@ endif;
 		</table>
 	</td>
 </tr>
-<script type="text/javascript">
+<script>
 function _showPass(el)
 {
 	el.parentNode.replaceChild(BX.create('INPUT', {
@@ -477,7 +474,7 @@ endif;
 <?$tabControl->BeginNextTab();?>
 <?require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/admin/group_rights.php");?>
 <?$tabControl->Buttons();?>
-<script type="text/javascript">
+<script>
 function RestoreDefaults()
 {
 	if(confirm('<?echo AddSlashes(GetMessage("MAIN_HINT_RESTORE_DEFAULTS_WARNING"))?>'))

@@ -13,6 +13,7 @@ export type UploaderFileInfo = {
 	extension: string,
 	origin: FileOrigin,
 	isImage: boolean,
+	isVideo: boolean,
 	failed: boolean,
 	width: ?number,
 	height: ?number,

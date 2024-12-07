@@ -1,12 +1,16 @@
 <?php
 
-if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
+
+/** @var array $arResult */
 
 use Bitrix\Currency\UserField\Types\MoneyType;
-use Bitrix\Main\Security\Random;
 use Bitrix\Main\Text\HtmlFilter;
 
-if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
+if ($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 {
 	?>
 	<div class="money-editor">
@@ -26,7 +30,7 @@ if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 			onchange="var currency = this.value; var money = this.previousElementSibling.value; this.parentNode.firstElementChild.value = money+'|'+currency;"
 		>
 			<?php
-			foreach($arResult['CURRENCY_LIST'] as $currency => $currencyTitle)
+			foreach ($arResult['CURRENCY_LIST'] as $currency => $currencyTitle)
 			{
 				?>
 				<option value="<?= HtmlFilter::encode($currency) ?>"
@@ -34,20 +38,20 @@ if($arResult['userField']['EDIT_IN_LIST'] === 'Y')
 				>
 					<?= HtmlFilter::encode($currencyTitle) ?>
 				</option>
-				<?
+				<?php
 			}
 			?>
 		</select>
 	</div>
 	<?php
 }
-elseif($arResult['additionalParameters']['VALUE'] <> '')
+elseif (($arResult['additionalParameters']['VALUE'] ?? '') !== '')
 {
 	$explode = MoneyType::unFormatFromDB($arResult['additionalParameters']['VALUE']);
-	$currentValue = $explode[0]?: '';
+	$currentValue = $explode[0] ?: '';
 	$currentCurrency = $explode[1]?? '';
 
-	if(!$currentCurrency)
+	if (!$currentCurrency)
 	{
 		print ((int)$currentValue? $currentValue : '');
 	}

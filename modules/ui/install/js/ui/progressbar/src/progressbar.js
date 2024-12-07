@@ -22,6 +22,7 @@ export type ProgressBarOptions = {
 	fill: boolean;
 	finished: boolean;
 	rotation: boolean;
+	infiniteLoading: boolean;
 };
 
 export class ProgressBar
@@ -54,6 +55,7 @@ export class ProgressBar
 		this.colorTrack = Type.isString(this.options.colorTrack) ? this.options.colorTrack : null;
 		this.colorBar = Type.isString(this.options.colorBar) ? this.options.colorBar : null;
 		this.color = Type.isString(this.options.color) ? this.options.color : BX.UI.ProgressBar.Color.PRIMARY;
+		this.infiniteLoading = Type.isBoolean(this.options.infiniteLoading) ? this.options.infiniteLoading : false;
 
 		// this.setStatusType(options.statusType);
 		// this.setColorTrack(options.colorTrack);
@@ -453,8 +455,12 @@ export class ProgressBar
 		if (this.bar === null)
 		{
 			this.bar = Dom.create("div", {
-				props: {className: "ui-progressbar-bar"},
-				style: {width: `${this.getStatusPercent()}%`}
+				props: {
+					className: `${this.infiniteLoading ? "ui-progressbar-bar infinite-loading" : "ui-progressbar-bar"}`
+				},
+				style: {
+					width: `${this.getStatusPercent()}%`
+				}
 			});
 		}
 

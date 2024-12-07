@@ -1,51 +1,57 @@
 <?php
 
-if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true) die();
+if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
+{
+	die();
+}
 
-use Bitrix\Main\Text\HtmlFilter;
-use Bitrix\Main\Page\Asset;
+/**
+ * @var array $arResult
+ * @var array $arParams
+ */
+
+
 use Bitrix\Currency\UserField\Types\MoneyType;
 use Bitrix\Currency\CurrencyManager;
+use Bitrix\Main\Page\Asset;
+use Bitrix\Main\UI\Extension;
 
-CJSCore::init(['uf']);
+Extension::load([
+	'uf',
+]);
 
 $arResult['currencies'] = CurrencyManager::getInstalledCurrencies();
 
 $i = 0;
+$asset = Asset::getInstance();
 
-foreach($arResult['value'] as $key => $rawValue)
+/** @var $component MoneyUfComponent */
+$component = $this->getComponent();
+$isMobileMode = $component->isMobileMode();
+unset($component);
+
+foreach ($arResult['value'] as $key => $rawValue)
 {
 	$explode = MoneyType::unFormatFromDB($rawValue);
-	$currentValue = $value = ($explode[0] <> ''? (float)$explode[0] : '');
-	$currentCurrency = $explode[1] ?? '';
+	$currentValue = $explode[0];
+	$currentCurrency = $explode[1];
 
-	$format = \CCurrencyLang::GetFormatDescription($currentCurrency);
-
-	$value = number_format(
-		(float)$value,
-		$format['DECIMALS'],
-		$format['DEC_POINT'],
-		$format['THOUSANDS_SEP']
-	);
-	$value = \CCurrencyLang::applyTemplate($value, $format['FORMAT_STRING']);
+	\CCurrencyLang::disableUseHideZero();
+	$value = \CCurrencyLang::CurrencyFormat($currentValue, $currentCurrency);
+	\CCurrencyLang::enableUseHideZero();
 
 	$arResult['value'][$key] = [
 		'value' => $value,
 		'currentValue' => $currentValue,
-		'currentCurrency' => $currentCurrency
+		'currentCurrency' => $currentCurrency,
 	];
 
-	/**
-	 * @var $component MoneyUfComponent
-	 */
-	$component = $this->getComponent();
-
-	if($component->isMobileMode())
+	if ($isMobileMode)
 	{
-		Asset::getInstance()->addJs(
+		$asset->addJs(
 			'/bitrix/js/mobile/userfield/mobile_field.js'
 		);
-		Asset::getInstance()->addJs(
+		$asset->addJs(
 			'/bitrix/components/bitrix/currency.field.money/templates/main.view/mobile.js'
 		);
 
@@ -61,5 +67,6 @@ foreach($arResult['value'] as $key => $rawValue)
 
 		$arResult['value'][$key]['attrList'] = $attrList;
 	}
-
 }
+
+unset($asset);

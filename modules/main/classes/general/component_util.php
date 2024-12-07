@@ -45,18 +45,19 @@ class CComponentUtil
 
 			foreach ($arData as $dataKey => $dataValue)
 			{
-				if (mb_substr($dataKey, 0, mb_strlen("SEF_URL_TEMPLATES_")) == "SEF_URL_TEMPLATES_")
+				if (str_starts_with($dataKey, "SEF_URL_TEMPLATES_"))
 				{
-					$arData["SEF_URL_TEMPLATES"][mb_substr($dataKey, mb_strlen("SEF_URL_TEMPLATES_"))] = $dataValue;
+					$len = strlen("SEF_URL_TEMPLATES_");
+					$arData["SEF_URL_TEMPLATES"][substr($dataKey, $len)] = $dataValue;
 					unset($arData[$dataKey]);
 
 					if (preg_match_all("'(\\?|&)(.+?)=#([^#]+?)#'is", $dataValue, $arMatches, PREG_SET_ORDER))
 					{
 						foreach ($arMatches as $arMatch)
-							$arData["VARIABLE_ALIASES"][mb_substr($dataKey, mb_strlen("SEF_URL_TEMPLATES_"))][$arMatch[3]] = $arMatch[2];
+							$arData["VARIABLE_ALIASES"][substr($dataKey, $len)][$arMatch[3]] = $arMatch[2];
 					}
 				}
-				elseif (mb_substr($dataKey, 0, mb_strlen("VARIABLE_ALIASES_")) == "VARIABLE_ALIASES_")
+				elseif (str_starts_with($dataKey, "VARIABLE_ALIASES_"))
 				{
 					unset($arData[$dataKey]);
 				}
@@ -69,13 +70,13 @@ class CComponentUtil
 
 			foreach ($arData as $dataKey => $dataValue)
 			{
-				if (mb_substr($dataKey, 0, mb_strlen("SEF_URL_TEMPLATES_")) == "SEF_URL_TEMPLATES_")
+				if (str_starts_with($dataKey, "SEF_URL_TEMPLATES_"))
 				{
 					unset($arData[$dataKey]);
 				}
-				elseif (mb_substr($dataKey, 0, mb_strlen("VARIABLE_ALIASES_")) == "VARIABLE_ALIASES_")
+				elseif (str_starts_with($dataKey, "VARIABLE_ALIASES_"))
 				{
-					$arData["VARIABLE_ALIASES"][mb_substr($dataKey, mb_strlen("VARIABLE_ALIASES_"))] = $dataValue;
+					$arData["VARIABLE_ALIASES"][substr($dataKey, strlen("VARIABLE_ALIASES_"))] = $dataValue;
 					unset($arData[$dataKey]);
 				}
 			}
@@ -891,7 +892,7 @@ class CComponentUtil
 
 		if(
 			(CPageOption::GetOptionString("main","tips_creation","no")=="allowed")
-			&& (strpos($componentPath, "/forum") !== false)
+			&& (str_contains($componentPath, "/forum"))
 		)
 		{
 			//Create directories
@@ -919,7 +920,7 @@ class CComponentUtil
 				fclose($handle);
 				$lang_file_modified = false;
 				//Bug fix
-				if(strpos($lang_contents, "\$MESS['") !== false)
+				if(str_contains($lang_contents, "\$MESS['"))
 				{
 					$lang_contents = str_replace("\$MESS['", "\$MESS ['", $lang_contents);
 					$lang_file_modified = true;
@@ -927,7 +928,7 @@ class CComponentUtil
 				//Check out parameters
 				foreach($arComponentParameters["PARAMETERS"] as $strName=>$arParameter)
 				{
-					if(strpos($lang_contents, "\$MESS ['${strName}_TIP'] = ") === false)
+					if(!str_contains($lang_contents, "\$MESS ['${strName}_TIP'] = "))
 					{
 						$lang_contents = str_replace("?>", "\$MESS ['${strName}_TIP'] = \"".str_replace("\$", "\\\$", str_replace('"','\\"',$arParameter["NAME"]))."\";\n?>", $lang_contents);
 						$lang_file_modified = true;

@@ -3,8 +3,10 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2013 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
+
+use Bitrix\Main\Web\Json;
 
 /**
  * Bitrix vars
@@ -177,7 +179,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST" && (!empty($_POST['save']) || !empty($_P
 				define("WIZARD_DEFAULT_SITE_ID", "'.$LID.'");
 				define("WIZARD_DEFAULT_TONLY", true);
 				define("PRE_LANGUAGE_ID","'.$arSite["LANGUAGE_ID"].'");
-				define("PRE_INSTALL_CHARSET","'.$arSite["CHARSET"].'");
 				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/install/wizard/wizard.php");
 				?'.'>';
 
@@ -409,12 +410,12 @@ while($cult = $cultureRes->fetch())
 	$cultures[] = $cult;
 }
 ?>
-<script type="text/javascript">
+<script>
 function BXSetCulture()
 {
 	var selObj = BX('bx_culture_select');
 	var form = selObj.form;
-	var cultures = <?=CUtil::PhpToJSObject($cultures)?>;
+	var cultures = <?= Json::encode($cultures) ?>;
 	//noinspection JSUnusedAssignment
 	var culture = cultures[selObj.selectedIndex];
 
@@ -498,7 +499,7 @@ endforeach;
 		<td>
 			<input type="radio" name="START_SITE_WIZARD" value="Y"<?= ($str_START_SITE_WIZARD != "N") ? " checked" : "" ?> onclick="TurnStartSiteWizardOn(false)" id="ID_START_SITE_WIZARD_Y"> <label for="ID_START_SITE_WIZARD_Y"><?= GetMessage("M_START_SITE_WIZARD_Y") ?></label><br />
 			<input type="radio" name="START_SITE_WIZARD" value="N"<?= ($str_START_SITE_WIZARD == "N") ? " checked" : "" ?> onclick="TurnStartSiteWizardOn(true)" id="ID_START_SITE_WIZARD_N"> <label for="ID_START_SITE_WIZARD_N"><?= GetMessage("M_START_SITE_WIZARD_N") ?></label><br />
-			<script language="JavaScript">
+			<script>
 			<!--
 				function TurnStartSiteWizardOn(bOn)
 				{
@@ -592,10 +593,10 @@ endforeach;
 					if($bFirst):
 						$bFirst = false;
 					?>
-					<script type="text/javascript">
+					<script>
 						function bx_preview_template(index)
 						{
-							var templateSigns = <?=CUtil::PhpToJSObject($templateSigns)?>;
+							var templateSigns = <?= Json::encode($templateSigns) ?>;
 							var sel = document.getElementById('SITE_TEMPLATE['+index+'][TEMPLATE]');
 							var url = (document.bform.SERVER_NAME.value? 'http://'+document.bform.SERVER_NAME.value : '') + document.bform.DIR.value;
 
@@ -607,7 +608,7 @@ endforeach;
 						}
 					</script>
 					<?endif?>
-					<a title="<?=GetMessage('MAIN_PREVIEW_TEMPLATE')?>" href="javascript:void(0)" onclick="bx_preview_template('<?=$i?>')"><img src="/bitrix/images/main/preview.gif" width="16" height="16" border="0"></a>
+					<a title="<?=GetMessage('MAIN_PREVIEW_TEMPLATE')?>" href="javascript:void(0)" onclick="bx_preview_template('<?=$i?>')"><img src="/bitrix/images/main/preview.gif" width="16" height="16" border="0" alt=""></a>
 				</td>
 				<td><input type="text" size="2" name="SITE_TEMPLATE[<?=$i?>][SORT]" value="<?=htmlspecialcharsex($val["SORT"])?>"></td>
 				<td><?ConditionSelect($i);?></td>

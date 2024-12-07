@@ -6,7 +6,7 @@
 		&& typeof this.BX.Vue3.Pinia !== 'undefined'
 	)
 	{
-		var currentVersion = '2.0.22';
+		var currentVersion = '2.2.2';
 
 		if (this.BX.Vue3.Pinia.version !== currentVersion)
 		{

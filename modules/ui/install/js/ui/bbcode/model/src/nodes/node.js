@@ -1,4 +1,5 @@
 import { Type } from 'main.core';
+import type { BBCodeEncoder } from 'ui.bbcode.encoder';
 import { getByIndex } from '../../../shared';
 import { typeof BBCodeElementNode } from './element-node';
 import { typeof BBCodeTextNode } from './text-node';
@@ -117,6 +118,11 @@ export class BBCodeNode
 	getTagScheme(): BBCodeNodeScheme
 	{
 		return this.getScheme().getTagScheme(this.getName());
+	}
+
+	getEncoder(): BBCodeEncoder
+	{
+		return this.getScheme().getEncoder();
 	}
 
 	prepareCase(value: string): string
@@ -425,16 +431,19 @@ export class BBCodeNode
 
 	removeChild(...children: Array<BBCodeContentNode>)
 	{
-		this.children = this.children.reduce((acc: Array<BBCodeContentNode>, node: BBCodeContentNode) => {
+		const filteredChildren = [];
+		this.children.forEach((node: BBCodeContentNode) => {
 			if (children.includes(node))
 			{
 				node.setParent(null);
-
-				return acc;
 			}
+			else
+			{
+				filteredChildren.push(node);
+			}
+		});
 
-			return [...acc, node];
-		}, []);
+		this.children = filteredChildren;
 	}
 
 	replaceChild(targetNode: BBCodeContentNode, ...children: Array<BBCodeContentNode | BBCodeFragmentNode>)

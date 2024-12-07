@@ -1,4 +1,5 @@
 // @flow
+
 'use strict';
 
 import 'ui.tilegrid';
@@ -7,6 +8,7 @@ import { Dom, Event, Loc, Tag, Type, Text } from 'main.core';
 
 export default class SyncPanelUnit
 {
+	COUNTER_FAILED = 1;
 	logoClassName = '';
 
 	constructor(options)
@@ -19,9 +21,12 @@ export default class SyncPanelUnit
 	{
 		if (!this.connectionTemplate)
 		{
-			this.connectionTemplate = this.connectionProvider.getClassTemplateItem().createInstance(this.connectionProvider);
+			this.connectionTemplate = this.connectionProvider.getClassTemplateItem().createInstance(
+				this.connectionProvider,
+				this.connectionProvider.getConnection(),
+			);
 		}
-		
+
 		return this.connectionTemplate;
 	}
 
@@ -29,7 +34,7 @@ export default class SyncPanelUnit
 	{
 		if (Type.isElementNode(outerWrapper))
 		{
-			outerWrapper.appendChild(this.getContent());
+			Dom.append(this.getContent(), outerWrapper);
 		}
 	}
 
@@ -77,6 +82,8 @@ export default class SyncPanelUnit
 	setSyncStatus(mode)
 	{
 		this.unitNode.className = 'calendar-sync__calendar-item';
+		this.syncInfoWrap.className = 'calendar-sync__account-info';
+
 		switch (mode)
 		{
 			case this.connectionProvider.STATUS_REFUSED:
@@ -88,8 +95,25 @@ export default class SyncPanelUnit
 				this.setSyncInfoStatusText(this.formatSyncTime(this.connectionProvider.getSyncDate()));
 				break;
 			case this.connectionProvider.STATUS_FAILED:
-				Dom.addClass(this.unitNode, '--error');
-				this.setSyncInfoStatusText(Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR'));
+				if (this.connectionProvider.doSupportReconnectionScenario())
+				{
+					Dom.addClass(this.unitNode, '--error-reconnect');
+					Dom.addClass(this.syncInfoWrap, '--error-reconnect');
+					const connectionType = this.connectionProvider.getFailedConnectionName();
+
+					this.setSyncInfoStatusText(
+						Loc.getMessage(
+							'CAL_SYNC_INFO_STATUS_ERROR_RECONNECT',
+							{ '#TYPE#': connectionType === 'iCloud' ? 'iCloud' : Text.capitalize(connectionType) },
+						),
+						false,
+					);
+				}
+				else
+				{
+					Dom.addClass(this.unitNode, '--error');
+					this.setSyncInfoStatusText(Loc.getMessage('CAL_SYNC_INFO_STATUS_ERROR'));
+				}
 				break;
 			case this.connectionProvider.STATUS_PENDING:
 				Dom.addClass(this.unitNode, '--pending');
@@ -110,7 +134,11 @@ export default class SyncPanelUnit
 					this.setSyncInfoStatusText('');
 				}
 				break;
+			default:
+				break;
 		}
+
+		this.refreshButton();
 	}
 
 	setSyncInfoStatusText(text, upperCase = true)
@@ -138,8 +166,8 @@ export default class SyncPanelUnit
 	refreshButton()
 	{
 		Dom.clean(this.buttonsWrap);
-		this.button = this.buttonsWrap.appendChild(this.getButton());
-		this.moreButton = this.buttonsWrap.appendChild(this.getMoreButton());
+		Dom.append(this.getButton(), this.buttonsWrap);
+		Dom.append(this.getMoreButton(), this.buttonsWrap);
 	}
 
 	getButton()
@@ -155,32 +183,56 @@ export default class SyncPanelUnit
 				this.button = Tag.render`
 					<a data-role="status-success" class="ui-btn ui-btn-icon-success ui-btn-link">
 						${Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS')}
-					</a>`;
+					</a>
+				`;
 				break;
 			case this.connectionProvider.STATUS_FAILED:
-				this.button = Tag.render`
-					<a data-role="status-failed" class="ui-btn ui-btn-icon-fail ui-btn-link">
-						${Loc.getMessage('CAL_BUTTON_STATUS_FAILED')}
-					</a>`;
+				if (this.connectionProvider.doSupportReconnectionScenario())
+				{
+					const failedConnectionsCount = this.connectionProvider.getFailedConnectionsCount();
+
+					this.button = Tag.render`
+						<button data-role="status-failed-reconnect" class="ui-btn ui-btn-light-border ui-btn-round">
+							<div class="ui-icon-set --refresh-6 calendar-sync__calendar-item_buttons-error"></div>
+								${Loc.getMessage('CAL_BUTTON_STATUS_FAILED_RECONNECT')}
+							<div class="calendar-sync__calendar-item_buttons-counter">${failedConnectionsCount}</div>
+						</button>
+					`;
+
+					Event.bind(this.button, 'click', () => this.getConnectionTemplate().reconnect());
+				}
+				else
+				{
+					this.button = Tag.render`
+						<a data-role="status-failed" class="ui-btn ui-btn-icon-fail ui-btn-link">
+							${Loc.getMessage('CAL_BUTTON_STATUS_FAILED')}
+						</a>
+					`;
+				}
 				break;
 			case this.connectionProvider.STATUS_PENDING:
 				this.button = Tag.render`
 					<a data-role="status-pending" class="ui-btn ui-btn-disabled ui-btn-link">
 						${Loc.getMessage('CAL_BUTTON_STATUS_PENDING')}
-					</a>`;
+					</a>
+				`;
 				break;
 			case this.connectionProvider.STATUS_NOT_CONNECTED:
 				this.button = Tag.render`
 					<a data-role="status-not_connected" class="ui-btn ui-btn-success ui-btn-round">
 						${Loc.getMessage('CAL_BUTTON_STATUS_NOT_CONNECTED')}
-					</a>`;
+					</a>
+				`;
 				Event.bind(this.button, 'click', this.handleItemClick.bind(this));
 				break;
 			case this.connectionProvider.STATUS_SYNCHRONIZING:
 				this.button = Tag.render`
 					<a data-role="status-not_connected" class="ui-btn ui-btn-success ui-btn-round ui-btn-clock ui-btn-disabled">
 						${Loc.getMessage('CAL_BUTTON_STATUS_SUCCESS')}
-					</a>`;
+					</a>
+				`;
+				break;
+			default:
 				break;
 		}
 		return this.button;
@@ -208,7 +260,7 @@ export default class SyncPanelUnit
 		{
 			if (this.connectionProvider.hasMenu())
 			{
-				this.connectionProvider.showMenu(this.button);
+				this.connectionProvider.showMenu(getComputedStyle(this.moreButton).display !== 'none' ? this.moreButton : this.button);
 			}
 			else if (this.connectionProvider.getConnectStatus())
 			{
@@ -219,7 +271,7 @@ export default class SyncPanelUnit
 				this.connectionProvider.openInfoConnectionSlider();
 			}
 		}
-		else if(status === this.connectionProvider.STATUS_NOT_CONNECTED)
+		else if (status === this.connectionProvider.STATUS_NOT_CONNECTED)
 		{
 			this.getConnectionTemplate().handleConnectButton();
 		}
@@ -232,11 +284,16 @@ export default class SyncPanelUnit
 		if (Type.isDate(date))
 		{
 			timestamp = Math.round(date.getTime() / 1000);
-			const secondsAgo = parseInt((now - date) / 1000);
+			const secondsAgo = parseInt((now - date) / 1000, 10);
 			if (secondsAgo < 60)
 			{
 				return Loc.getMessage('CAL_JUST');
 			}
+		}
+
+		if (timestamp === null)
+		{
+			return Loc.getMessage('CAL_JUST');
 		}
 
 		return BX.date.format(
@@ -247,9 +304,9 @@ export default class SyncPanelUnit
 				["d", "dago"],
 				["m100", "mago"],
 				["m", "mago"],
-				["-", ""]
+				["-", ""],
 			],
-			timestamp
+			timestamp,
 		);
 	}
 }

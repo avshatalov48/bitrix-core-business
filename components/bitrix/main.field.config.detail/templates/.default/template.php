@@ -5,6 +5,7 @@ if(!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 }
 
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Web\Json;
 
 \Bitrix\Main\UI\Extension::load([
 	'ui.design-tokens',
@@ -344,8 +345,8 @@ if(!$hasErrors) {
 <script>
 	BX.ready(function()
 	{
-		<?= 'BX.message('.\CUtil::PhpToJSObject(Loc::loadLanguageFile(__FILE__)).');' ?>
-		var params = <?= CUtil::PhpToJSObject($arResult['jsParams']);?>;
+		<?= 'BX.message(' . Json::encode(Loc::loadLanguageFile(__FILE__)) . ');' ?>
+		var params = <?= Json::encode($arResult['jsParams']) ?>;
 		params.container = document.getElementById('main-user-field-edit-container');
 		params.errorsContainer = document.getElementById('main-user-field-edit-errors');
 		new BX.Main.UserField.Config(params);

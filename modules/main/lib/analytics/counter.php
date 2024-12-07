@@ -29,7 +29,7 @@ class Counter
 		$accountId = static::getAccountId();
 		$params = static::injectDataParams();
 
-		$host = Context::getCurrent()->getServer()->getHttpHost();
+		$host = Context::getCurrent()->getServer()->getHttpHost() ?? '';
 		$host = preg_replace("/:(80|443)$/", "", $host);
 		$host = \CUtil::JSEscape($host);
 
@@ -46,7 +46,7 @@ JS;
 		$js = str_replace(array("\n", "\t"), "", $js);
 		if ($stripTags === false)
 		{
-			return "<script type=\"text/javascript\">".$js."</script>";
+			return "<script>".$js."</script>";
 		}
 		else
 		{

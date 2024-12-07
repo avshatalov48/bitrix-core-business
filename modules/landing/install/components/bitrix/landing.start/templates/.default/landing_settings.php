@@ -1,5 +1,7 @@
 <?php
 
+use Bitrix\Landing\Site\Type;
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -12,6 +14,18 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 if ($arResult['VARS']['landing_edit'] > 0)
 {
+	$pages = [
+		'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
+		'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
+		'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
+		'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
+	];
+
+	if ($arParams['TYPE'] === Type::SCOPE_CODE_MAINPAGE)
+	{
+		unset($pages['PAGE_URL_SITE_EDIT'], $pages['PAGE_URL_SITE_DESIGN']);
+	}
+
 	$APPLICATION->includeComponent(
 		'bitrix:ui.sidepanel.wrapper',
 		'',
@@ -22,12 +36,7 @@ if ($arResult['VARS']['landing_edit'] > 0)
 				'SITE_ID' => $arResult['VARS']['site_show'],
 				'LANDING_ID' => $arResult['VARS']['landing_edit'],
 				'TYPE' => $arParams['TYPE'],
-				'PAGES' => [
-					'PAGE_URL_LANDING_EDIT' => $arParams['PAGE_URL_LANDING_EDIT'],
-					'PAGE_URL_SITE_EDIT' => $arParams['PAGE_URL_SITE_EDIT'],
-					'PAGE_URL_LANDING_DESIGN' => $arParams['PAGE_URL_LANDING_DESIGN'],
-					'PAGE_URL_SITE_DESIGN' => $arParams['PAGE_URL_SITE_DESIGN'],
-				],
+				'PAGES' => $pages,
 			],
 			'USE_PADDING' => false,
 		]

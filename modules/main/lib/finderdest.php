@@ -9,7 +9,6 @@
 namespace Bitrix\Main;
 
 use Bitrix\Main;
-use Bitrix\Main\DB\SqlExpression;
 use Bitrix\Main\Localization\Loc;
 
 Loc::loadMessages(__FILE__);

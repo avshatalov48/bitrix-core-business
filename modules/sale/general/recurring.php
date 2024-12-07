@@ -87,7 +87,7 @@ class CAllSaleRecurring
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_recurring", $arFields);
 		$strSql = "UPDATE b_sale_recurring SET ".$strUpdate." WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		unset($GLOBALS["SALE_RECURRING"]["SALE_RECURRING_CACHE_".$ID]);
 

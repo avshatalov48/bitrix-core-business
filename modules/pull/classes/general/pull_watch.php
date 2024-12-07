@@ -28,13 +28,13 @@ class CAllPullWatch
 					WHERE USER_ID = ".intval($userId)."
 			";
 			CTimeZone::Enable();
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			while ($arRes = $dbRes->Fetch())
 				$arResult[$arRes["TAG"]] = $arRes;
 
 			$CACHE_MANAGER->Set($cache_id, $arResult);
 		}
-		if ($arResult && $arResult[$tag])
+		if (!empty($arResult[$tag]))
 		{
 			if ($arResult[$tag]['DATE_CREATE']+1860 > time())
 			{
@@ -142,7 +142,7 @@ class CAllPullWatch
 		global $DB, $CACHE_MANAGER;
 
 		$strSql = "DELETE FROM b_pull_watch WHERE USER_ID = ".intval($userId).(!is_null($tag)? " AND TAG = '".$DB->ForSQL($tag)."'": "");
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		$CACHE_MANAGER->Clean("b_pw_".$userId, "b_pull_watch");
 
@@ -190,7 +190,7 @@ class CAllPullWatch
 
 		$updateIds = Array();
 		$strSql = "SELECT ID, TAG FROM b_pull_watch WHERE USER_ID = ".intval($userId)." AND TAG IN ('".implode("', '", $tags)."')";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		while ($arRes = $dbRes->Fetch())
 		{
 			$updateIds[] = $arRes['ID'];
@@ -252,7 +252,7 @@ class CAllPullWatch
 
 		$arUsers = Array();
 		$strSql = "SELECT USER_ID FROM b_pull_watch WHERE TAG = '".$DB->ForSQL($tag)."'";
-		$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSql);
 		while ($arRes = $dbRes->Fetch())
 			$arUsers[$arRes['USER_ID']] = $arRes['USER_ID'];
 

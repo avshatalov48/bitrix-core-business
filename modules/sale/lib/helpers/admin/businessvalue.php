@@ -523,10 +523,12 @@ final class BusinessValueControl
 									if (isset($code['CONSUMERS']) && is_array($code['CONSUMERS']) && count($code['CONSUMERS']) > 1)
 									{
 										echo implode(', ', array_map(function ($i) {return htmlspecialcharsbx($i);}, array_flip($code['NAMES'])));
-
 										?>
-										<img src="/bitrix/js/main/core/images/hint.gif" style="cursor: help;"
-										     title="<?=htmlspecialcharsbx(implode(', ', $code['CONSUMERS']))?>">
+										<img
+											src="/bitrix/js/main/core/images/hint.gif"
+											style="cursor: help;"
+											title="<?= htmlspecialcharsbx(implode(', ', $code['CONSUMERS'])) ?>"
+										>
 										<?
 									}
 									else
@@ -555,6 +557,7 @@ final class BusinessValueControl
 											'INPUT' => array(
 													'REQUIRED' => true,
 													'ONCHANGE' => "bizvalChangeValue(this)",
+													'NAME' => $code['NAME'],
 												)
 												+ $code['INPUT']
 										);

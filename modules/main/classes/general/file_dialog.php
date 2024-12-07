@@ -1,12 +1,14 @@
-<?
+<?php
 /*
 ##############################################
 # Bitrix Site Manager                        #
 # Copyright (c) 2002-2007 Bitrix             #
-# http://www.bitrixsoft.com                  #
+# https://www.bitrixsoft.com                 #
 # mailto:admin@bitrixsoft.com                #
 ##############################################
 */
+
+use Bitrix\Main\Web\Json;
 
 // ***** CAdminFileDialog *****
 IncludeModuleLangFile(__FILE__);
@@ -229,7 +231,7 @@ if($bCloudsBrowse && CModule::IncludeModule('clouds'))
 				if (path == '')
 					path = '/';
 
-				var arBuckets = <?echo CUtil::PhpToJSObject($arBuckets)?>;
+				var arBuckets = <?echo Json::encode($arBuckets)?>;
 				if(arBuckets[site])
 				{
 					full = arBuckets[site] + filename;
@@ -1211,9 +1213,9 @@ arFDPermission['<?=$path_js?>'] = {
 				$type == 'file' &&
 				!$USER->CanDoOperation('edit_php') &&
 				(
-					mb_substr($oldName, 0, 1) == "."
+					str_starts_with($oldName, ".")
 					||
-					mb_substr($name, 0, 1) == "."
+					str_starts_with($name, ".")
 					||
 					(
 						HasScriptExtension($oldName) &&
@@ -1407,7 +1409,7 @@ arFDPermission['<?=$path_js?>'] = {
 			{
 				$fn = $io->ExtractNameFromPath($pathto);
 				if($USER->CanDoFileOperation('fm_upload_file', array($site, $pathto)) &&
-					($USER->IsAdmin() || (!HasScriptExtension($fn) && mb_substr($fn, 0, 1) != "." && $io->ValidateFilenameString($fn)))
+					($USER->IsAdmin() || (!HasScriptExtension($fn) && !str_starts_with($fn, ".") && $io->ValidateFilenameString($fn)))
 				)
 				{
 					if(!$io->FileExists($rootPath.$pathto) || $_REQUEST["rewrite"] == "Y")

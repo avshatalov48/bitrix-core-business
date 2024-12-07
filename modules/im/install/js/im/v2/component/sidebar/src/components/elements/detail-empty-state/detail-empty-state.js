@@ -16,12 +16,12 @@ export const DetailEmptyState = {
 		},
 	},
 	computed:
-	{
-		iconClass(): string
 		{
-			return `--${Text.toKebabCase(this.iconType)}`;
+			iconClass(): string
+			{
+				return `--${Text.toKebabCase(this.iconType)}`;
+			},
 		},
-	},
 	template: `
 		<div class="bx-im-sidebar-detail-empty-state__container bx-im-sidebar-detail-empty-state__scope">
 			<span class="bx-im-sidebar-detail-empty-state__icon" :class="[iconClass]"></span>

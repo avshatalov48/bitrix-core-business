@@ -1,7 +1,3 @@
-.bx-im-sidebar-file-media-detail__scope {
-	height: calc(100% - var(--im-sidebar-detail__height_header) - var(--im-sidebar-detail__height_tabs));
-}
-
 .bx-im-sidebar-file-media-detail__items-group {
 	display: flex;
 	flex-wrap: wrap;

@@ -6,7 +6,7 @@ $MESS['SN_SPACES_DISCUSSIONS_ORGANIZE_EVENT'] = 'Организовать соб
 $MESS['SN_SPACES_DISCUSSIONS_UPLOAD_FILE'] = 'Загрузить файл';
 $MESS['SN_SPACES_DISCUSSIONS_START_DISCUSSIONS'] = 'Начать обсуждение';
 $MESS['SN_SPACES_DISCUSSIONS_COMPOSITION'] = 'Состав';
-$MESS['SN_SPACES_DISCUSSION_COMPOSITION_TITLE'] = 'Что вы хотите видеть в ленте пространства';
+$MESS['SN_SPACES_DISCUSSION_COMPOSITION_TITLE'] = 'Что вы хотите видеть в ленте пространства <br>%SPACE_NAME%';
 $MESS['SN_SPACES_DISCUSSIONS_UPLOAD_FILE_NOTIFY_MESSAGE'] = 'Файл добавлен <a href="#path#">Посмотреть</a>';
 $MESS['SN_SPACES_LINE_UPLOAD_FILE_NOTIFY_MESSAGE'] = 'Файл добавлен <a onclick="#handler#">Посмотреть</a>';
 

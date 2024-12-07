@@ -70,6 +70,11 @@
 	min-width: 0;
 	background-color: #fff;
 	position: relative;
+	overflow: hidden;
+}
+
+.bx-im-messenger__content_container.--with-list {
+	max-width: calc(100% - var(--im-messenger__list_width));
 }
 
 .bx-im-messenger__openlines_container {

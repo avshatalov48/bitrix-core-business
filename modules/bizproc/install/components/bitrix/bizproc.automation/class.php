@@ -174,7 +174,8 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 	{
 		if (!Main\Loader::includeModule('bizproc'))
 		{
-			return $this->showError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
+			$this->showError(Loc::getMessage('BIZPROC_MODULE_NOT_INSTALLED'));
+			return;
 		}
 
 		$documentType = $this->getDocumentType();
@@ -200,12 +201,14 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 
 			if (!$target)
 			{
-				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
+				$this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_SUPPORTED'));
+				return;
 			}
 
 			if (!$target->isAvailable())
 			{
-				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
+				$this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NOT_AVAILABLE'));
+				return;
 			}
 		}
 
@@ -245,20 +248,25 @@ class BizprocAutomationComponent extends \Bitrix\Bizproc\Automation\Component\Ba
 
 			if (!$canRead)
 			{
-				return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_ACCESS_DENIED'));
+				$this->showError(Loc::getMessage('BIZPROC_AUTOMATION_ACCESS_DENIED'));
+				return;
 			}
 		}
 
 		if (!$canRead && !$canEdit)
 		{
-			return $this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NO_EDIT_PERMISSIONS'));
+			$this->showError(Loc::getMessage('BIZPROC_AUTOMATION_NO_EDIT_PERMISSIONS'));
+			return;
 		}
 
 		if (isset($this->arParams['ACTION']) && $this->arParams['ACTION'] == 'ROBOT_SETTINGS')
 		{
 			$template = new \Bitrix\Bizproc\Automation\Engine\Template($documentType);
 
-			$dialog = $template->getRobotSettingsDialog($this->arParams['~ROBOT_DATA']);
+			$dialog = $template->getRobotSettingsDialog(
+				$this->arParams['~ROBOT_DATA'],
+				contextRobots: $this->arParams['~CONTEXT_ROBOTS'] ?? null
+			);
 
 			if ($dialog === '')
 			{

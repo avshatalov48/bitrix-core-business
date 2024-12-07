@@ -34,11 +34,13 @@ class ClearSearchContentAgent
 		$helper = $connection->getSqlHelper();
 		$limit = static::CLEAR_LOG_SELECT_LIMIT;
 		$partLimit = static::CLEAR_LOG_DELETE_LIMIT;
-		$sqlInterval = $helper->addDaysToDateTime(-1 * $days);
+		$sqlIntervalLt = $helper->addDaysToDateTime(-1 * $days);
+		$sqlIntervalGt = $helper->addDaysToDateTime(-1 * ($days + 1));
 
 		$strSql = "SELECT st.TASK_ID FROM b_bp_task_search_content st "
 			. "INNER JOIN b_bp_task t ON (st.TASK_ID = t.ID) "
-			. "WHERE t.MODIFIED < {$sqlInterval} LIMIT {$limit}";
+			. "WHERE t.MODIFIED < {$sqlIntervalLt} "
+			. "AND t.MODIFIED > {$sqlIntervalGt} LIMIT {$limit}";
 		$ids = $connection->query($strSql)->fetchAll();
 
 		if (!$ids)

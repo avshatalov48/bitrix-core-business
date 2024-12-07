@@ -63,8 +63,8 @@ class YandexException
 			$this->message = $matches[2];
 			
 //			Try translate error. If unknown error - write as is
-			$codeTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',ToUpper($this->code)));
-			$messageTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',ToUpper($this->message)));
+			$codeTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',mb_strtoupper($this->code)));
+			$messageTranslated = Loc::getMessage('YANDEX_ERROR__'.str_replace(' ','_',mb_strtoupper($this->message)));
 			$this->code = ($codeTranslated <> '') ? $codeTranslated : $this->code;
 			$this->message = ($messageTranslated <> '') ? $messageTranslated : $this->message;
 			

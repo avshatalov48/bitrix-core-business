@@ -6,6 +6,7 @@ import {InterfaceTemplate} from "./interfacetemplate";
 import Office365SyncWizard from '../syncwizard/office365syncwizard';
 import { Util } from 'calendar.util';
 import { MessageBox } from 'ui.dialogs.messagebox';
+import GoogleSyncWizard from '../syncwizard/googlesyncwizard';
 
 export default class Office365template extends InterfaceTemplate
 {
@@ -53,7 +54,13 @@ export default class Office365template extends InterfaceTemplate
 			this.provider.saveConnection();
 			this.openSyncWizard();
 			this.provider.setStatus(this.provider.STATUS_SYNCHRONIZING);
+			this.provider.getInterfaceUnit().setSyncStatus(this.provider.STATUS_SYNCHRONIZING);
 			this.provider.getInterfaceUnit().refreshButton();
+
+			if (this.provider.isReconnecting())
+			{
+				this.provider.emit('onReconnecting');
+			}
 
 			Event.unbind(window, 'hashchange', this.handleSuccessConnectionDebounce);
 		}
@@ -80,7 +87,8 @@ export default class Office365template extends InterfaceTemplate
 
 	openSyncWizard()
 	{
-		this.wizard = new Office365SyncWizard();
+		const mode = this.provider.isStartedReconnecting ? 'reconnect' : 'default';
+		this.wizard = new Office365SyncWizard({ mode });
 		this.wizard.openSlider();
 		this.provider.setActiveWizard(this.wizard);
 	}

@@ -3,15 +3,23 @@
 use Bitrix\Main;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Loader;
+use Bitrix\Main\Text\HtmlFilter;
+use Bitrix\Main\Type;
+use Bitrix\Main\UserField\Types\BaseType;
 use Bitrix\Main\UserField\Types\EnumType;
 use Bitrix\Highloadblock\HighloadBlockTable;
 
-class CUserTypeHlblock extends EnumType
+class CUserTypeHlblock extends BaseType
 {
 	public const USER_TYPE_ID = 'hlblock';
+	public const RENDER_COMPONENT = 'bitrix:highloadblock.field.element';
 
 	public const DISPLAY_LIST = 'LIST';
 	public const DISPLAY_CHECKBOX = 'CHECKBOX';
+	public const DISPLAY_UI = 'UI';
+	public const DISPLAY_DIALOG = 'DIALOG';
+
+	protected static bool $highloadblockIncluded;
 
 	public static function getDescription(): array
 	{
@@ -21,11 +29,160 @@ class CUserTypeHlblock extends EnumType
 		];
 	}
 
+	/**
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderField(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList(
+			$userField,
+			array_merge(
+				$additionalParameters ?? [],
+				['mode' => self::MODE_VIEW]
+			)
+		);
+
+		return parent::renderField($userField, $additionalParameters);
+	}
+
+	/**
+	 * This function is called when the property values are displayed in the public part of the site.
+	 *
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderView(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList(
+			$userField,
+			array_merge(
+				$additionalParameters ?? [],
+				['mode' => self::MODE_VIEW]
+			)
+		);
+
+		return parent::renderView($userField, $additionalParameters);
+	}
+
+	/**
+	 * This function is called when editing property values in the public part of the site.
+	 *
+	 * @param array $userField
+	 * @param array|null $additionalParameters
+	 * @return string
+	 */
+	public static function renderEdit(array $userField, ?array $additionalParameters = []): string
+	{
+		static::getEnumList(
+			$userField,
+			array_merge(
+				$additionalParameters ?? [],
+				['mode' => self::MODE_EDIT]
+			)
+		);
+
+		return parent::renderEdit($userField, $additionalParameters);
+	}
+
+	public static function renderEditForm(array $userField, ?array $additionalParameters): string
+	{
+		$enum = static::getList($userField);
+		if(!$enum)
+		{
+			return '';
+		}
+		$items = [];
+		while($item = $enum->Fetch())
+		{
+			$items[$item['ID']] = $item;
+		}
+		$additionalParameters['items'] = $items;
+
+		return parent::renderEditForm($userField, $additionalParameters);
+	}
+
+	public static function renderFilter(array $userField, ?array $additionalParameters): string
+	{
+		$iterator = static::getList($userField);
+		if (!$iterator)
+		{
+			return '';
+		}
+
+		$items = [];
+		while ($item = $iterator->Fetch())
+		{
+			$items[$item['ID']] = $item['VALUE'];
+		}
+		unset($item, $iterator);
+		$additionalParameters['items'] = $items;
+
+		return parent::renderFilter($userField, $additionalParameters);
+	}
+
+	public static function renderAdminListView(array $userField, ?array $additionalParameters): string
+	{
+		static $cache = [];
+		$emptyCaption = '&nbsp;';
+
+		$value = (int)($additionalParameters['VALUE'] ?? 0);
+
+		if (!isset($cache[$value]))
+		{
+			$iterator = static::getList($userField);
+			if (!$iterator)
+			{
+				$additionalParameters['VALUE'] = $emptyCaption;
+
+				return parent::renderAdminListView($userField, $additionalParameters);
+			}
+			while ($item = $iterator->Fetch())
+			{
+				$cache[(int)$item['ID']] = $item['NAME'];
+			}
+			unset($item, $iterator);
+		}
+		if (!isset($cache[$value]))
+		{
+			$cache[$value] = $emptyCaption;
+		}
+
+		$additionalParameters['VALUE'] = $cache[$value];
+
+		return parent::renderAdminListView($userField, $additionalParameters);
+	}
+
+	public static function renderAdminListEdit(array $userField, ?array $additionalParameters): string
+	{
+		$values = [];
+		$iterator = static::getList($userField);
+		if ($iterator)
+		{
+			while ($item = $iterator->Fetch())
+			{
+				$values[$item['ID']] = $item['VALUE'];
+			}
+			unset($item, $iterator);
+		}
+		$additionalParameters['enumItems'] = $values;
+
+		return parent::renderAdminListEdit($userField, $additionalParameters);
+	}
+
 	public static function getDBColumnType(): string
 	{
 		$connection = \Bitrix\Main\Application::getConnection();
 		$helper = $connection->getSqlHelper();
+
 		return $helper->getColumnTypeByField(new \Bitrix\Main\ORM\Fields\IntegerField('x'));
+	}
+
+	public static function checkFields(array $userField, $value): array
+	{
+		return [];
 	}
 
 	public static function prepareSettings(array $userField): array
@@ -45,152 +202,142 @@ class CUserTypeHlblock extends EnumType
 		return self::verifySettings($settings, $multiple);
 	}
 
-	public static function getSettingsHtml($userField, ?array $additionalParameters, $varsFromForm): string
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return array
+	 */
+	public static function getFilterData(array $userField, array $additionalParameters): array
 	{
-		$result = '';
-
-		if (empty($userField) || !is_array($userField))
+		$items = [];
+		$iterator = static::getList($userField);
+		if ($iterator)
 		{
-			$userField = null;
-		}
-		if (empty($additionalParameters) || !is_array($additionalParameters))
-		{
-			$additionalParameters = null;
-		}
-		if ($additionalParameters === null)
-		{
-			return $result;
+			while ($item = $iterator->GetNext())
+			{
+				$items[$item['ID']] = $item['VALUE'];
+			}
+			unset($item, $enum);
 		}
 
-		$name = $additionalParameters['NAME'];
-		$multiple = false;
-		if (isset($userField['MULTIPLE']) && $userField['MULTIPLE'] === 'Y')
+		return [
+			'id' => $additionalParameters['ID'],
+			'name' => $additionalParameters['NAME'],
+			'type' => 'list',
+			'items' => $items,
+			'params' => [
+				'multiple' => 'Y',
+			],
+			'filterable' => '',
+		];
+	}
+
+	/**
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 */
+	public static function getEnumList(array &$userField, array $additionalParameters = []): void
+	{
+		if (!isset(self::$highloadblockIncluded))
 		{
-			$multiple = true;
-		}
-		$defaultSettings = self::getDefaultSettings($multiple);
-		if ($varsFromForm)
-		{
-			$settings = self::getSettingsFromForm($userField, $additionalParameters);
-		}
-		else
-		{
-			$settings = $userField["SETTINGS"] ?? $defaultSettings;
-		}
-		if (empty($settings) || !is_array($settings))
-		{
-			$settings = $defaultSettings;
+			self::$highloadblockIncluded = Loader::includeModule('highloadblock');
 		}
 
-		$settings = self::verifySettings($settings, $multiple);
+		$userField['MANDATORY'] ??= 'N';
+		$userField['SETTINGS']['HLBLOCK_ID'] ??= 0;
+		$userField['SETTINGS']['HLFIELD_ID'] ??= 0;
+		$userField['SETTINGS']['SHOW_NO_VALUE'] ??= 'Y';
+		$userField['SETTINGS']['DISPLAY'] ??= '';
 
-		$moduleIncluded = Loader::includeModule('highloadblock');
-		if ($moduleIncluded)
-		{
-			$result .= '
-			<tr>
-				<td>' . Loc::getMessage('USER_TYPE_HLEL_DISPLAY') . ':</td>
-				<td>'
-				. self::getHighloadblockSelectorHtml(
-					$name,
-					$settings
-				)
-				. '</td>
-			</tr>
-			';
-		}
 		if (
-			$moduleIncluded
-			&& $settings['HLBLOCK_ID'] > 0
-			&& $settings['HLFIELD_ID'] > 0
+			!self::$highloadblockIncluded
+			|| (int)$userField['SETTINGS']['HLBLOCK_ID'] <= 0
 		)
 		{
+			return;
+		}
 
+		$result = [];
+		$showNoValue = (
+			$userField['MANDATORY'] !== 'Y'
+			|| $userField['SETTINGS']['SHOW_NO_VALUE'] !== 'N'
+			|| (
+				isset($additionalParameters['SHOW_NO_VALUE'])
+				&& $additionalParameters['SHOW_NO_VALUE'] === true
+			)
+		);
 
-			$result .= '
-			<tr>
-				<td>'.Loc::getMessage("USER_TYPE_HLEL_DEFAULT_VALUE").':</td>
-				<td>
-					<select name="' . htmlspecialcharsbx($name) . '[DEFAULT_VALUE]'.($multiple ? '[]' : '').'"' . ($multiple ? ' multiple' : '') . ' size="5">
-						<option value="">'.htmlspecialcharsbx(Loc::getMessage("IBLOCK_VALUE_ANY")).'</option>
-			';
+		if (
+			$showNoValue
+			&& (
+				$userField['SETTINGS']['DISPLAY'] !== 'CHECKBOX'
+				|| $userField['MULTIPLE'] !== 'Y'
+			)
+		)
+		{
+			$result = [
+				null => static::getEmptyCaption($userField)
+			];
+		}
 
-			$rows = static::getHlRows(['SETTINGS' => $settings]);
+		$filter = [];
 
-			foreach ($rows as $row)
+		$checkValue = ($additionalParameters['mode'] ?? '') === self::MODE_VIEW;
+		if ($checkValue)
+		{
+			$currentValues = self::getCurrentValue($userField, $additionalParameters);
+			if (!empty($currentValues))
 			{
-				$selected = '';
-				if ($multiple)
+				if (is_array($currentValues))
 				{
-					if (in_array($row['ID'], $settings['DEFAULT_VALUE']))
-					{
-						$selected = ' selected';
-					}
+					Type\Collection::normalizeArrayValuesByInt($currentValues);
 				}
 				else
 				{
-					if ($row['ID'] === $settings['DEFAULT_VALUE'])
+					$currentValues = (int)$currentValues;
+					if ($currentValues <= 0)
 					{
-						$selected = ' selected';
+						$currentValues = null;
 					}
 				}
-				$result .= '<option value="'.$row["ID"].'"' . $selected .'>'.htmlspecialcharsbx($row['VALUE']).'</option>';
 			}
-			unset($row, $rows);
-
-			$result .= '</select>';
-
-		}
-		else
-		{
-			$result .= '<tr>'
-				. '<td>' . Loc::getMessage('USER_TYPE_HLEL_DEFAULT_VALUE') . ':</td>'
-				. '<td>'
-			;
-			if ($multiple)
+			if (!empty($currentValues))
 			{
-				foreach ($settings['DEFAULT_VALUE'] as $value)
-				{
-					$result .= self::getDefaultValueRowHtml($name, (string)$value, true)
-						. '<br>'
-					;
-				}
-				$result .= self::getDefaultValueRowHtml($name, '', true);
+				$filter['ID'] = $currentValues;
 			}
 			else
 			{
-				$result .= self::getDefaultValueRowHtml($name, (string)$settings['DEFAULT_VALUE'], false);
+				$userField['USER_TYPE']['FIELDS'] = $result;
+
+				return;
 			}
-			$result .= '</td>'
-				. '</tr>'
-			;
 		}
 
-		$result .= '
-		<tr>
-			<td class="adm-detail-valign-top">'.Loc::getMessage("USER_TYPE_ENUM_DISPLAY").':</td>
-			<td>
-				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_LIST.'" '.(self::DISPLAY_LIST == $settings['DISPLAY'] ? 'checked="checked"' : '').'>'.Loc::getMessage("USER_TYPE_HLEL_LIST").'</label><br>
-				<label><input type="radio" name="'.htmlspecialcharsbx($name).'[DISPLAY]" value="'.self::DISPLAY_CHECKBOX.'" '.(self::DISPLAY_CHECKBOX == $settings['DISPLAY'] ? 'checked="checked"': '').'>'.Loc::getMessage("USER_TYPE_HLEL_CHECKBOX").'</label><br>
-			</td>
-		</tr>
-		';
+		$elements = self::loadElement(
+			$userField['SETTINGS'],
+			$filter
+		);
 
-		$result .= '
-		<tr>
-			<td>'.Loc::getMessage("USER_TYPE_HLEL_LIST_HEIGHT").':</td>
-			<td>
-				<input type="text" name="'.htmlspecialcharsbx($name).'[LIST_HEIGHT]" size="10" value="'.$settings['LIST_HEIGHT'].'">
-			</td>
-		</tr>
-		';
+		if (!is_array($elements))
+		{
+			return;
+		}
 
-		return $result;
+		if (!empty($currentValues))
+		{
+			$result = $elements;
+		}
+		else
+		{
+			$result = array_replace($result, $elements);
+		}
+
+		$userField['USER_TYPE']['FIELDS'] = $result;
 	}
 
-	private static function verifySettings(array $settings, bool $multiple): array
+	public static function verifySettings(array $settings, bool $multiple): array
 	{
-		$defaultSettings = self::getDefaultSettings($multiple);
+		$defaultSettings = static::getDefaultSettings($multiple);
 
 		$height = (int)($settings['LIST_HEIGHT'] ?? $defaultSettings['LIST_HEIGHT']);
 		if ($height < 1)
@@ -199,7 +346,12 @@ class CUserTypeHlblock extends EnumType
 		}
 
 		$display = (string)($settings['DISPLAY'] ?? $defaultSettings['DISPLAY']);
-		if ($display !== self::DISPLAY_CHECKBOX && $display !== self::DISPLAY_LIST)
+		if (
+			$display !== static::DISPLAY_CHECKBOX
+			&& $display !== static::DISPLAY_LIST
+			&& $display !== static::DISPLAY_UI
+			&& $display !== static::DISPLAY_DIALOG
+		)
 		{
 			$display = $defaultSettings['DISPLAY'];
 		}
@@ -232,7 +384,7 @@ class CUserTypeHlblock extends EnumType
 				$defaultValue = $defaultSettings['DEFAULT_VALUE'];
 			}
 			$defaultValue = (int)$defaultValue;
-			if ($defaultValue < 0)
+			if ($defaultValue <= 0)
 			{
 				$defaultValue = $defaultSettings['DEFAULT_VALUE'];
 			}
@@ -247,66 +399,15 @@ class CUserTypeHlblock extends EnumType
 		];
 	}
 
-	private static function getDefaultSettings(bool $multiple = false): array
+	public static function getDefaultSettings(bool $multiple = false): array
 	{
 		return [
-			'DISPLAY' => self::DISPLAY_LIST,
+			'DISPLAY' => static::DISPLAY_LIST,
 			'LIST_HEIGHT' => $multiple ? 5 : 1,
 			'HLBLOCK_ID' => 0,
 			'HLFIELD_ID' => 0,
 			'DEFAULT_VALUE' => ($multiple ? [] : ''),
 		];
-	}
-
-	private static function getSettingsFromForm(?array $userField, ?array $control): array
-	{
-		$multiple = ($userField['MULTIPLE'] ?? 'N') === 'Y';
-		$result = self::getDefaultSettings($multiple);
-		if (empty($userField) || empty($control))
-		{
-			return $result;
-		}
-
-		$name = trim($control['NAME'] ?? '');
-		if ($name === '' || !isset($GLOBALS[$name]))
-		{
-			return $result;
-		}
-
-		$result['DISPLAY'] = (string)($GLOBALS[$name]['DISPLAY'] ?? $result['DISPLAY']);
-		$result['LIST_HEIGHT'] = (int)($GLOBALS[$name]['LIST_HEIGHT'] ?? $result['DISPLAY']);
-		$result['HLBLOCK_ID'] = (int)($GLOBALS[$name]['HLBLOCK_ID'] ?? $result['HLBLOCK_ID']);
-		$result['HLFIELD_ID'] = (int)($GLOBALS[$name]['HLFIELD_ID'] ?? $result['HLFIELD_ID']);
-		if (isset($GLOBALS[$name]['DEFAULT_VALUE']))
-		{
-			if ($multiple)
-			{
-				$result['DEFAULT_VALUE'] = is_array($GLOBALS[$name]['DEFAULT_VALUE'])
-					? $GLOBALS[$name]['DEFAULT_VALUE']
-					: [$GLOBALS[$name]['DEFAULT_VALUE']]
-				;
-			}
-			else
-			{
-				$result['DEFAULT_VALUE'] =
-					is_string($GLOBALS[$name]['DEFAULT_VALUE'])
-					? $GLOBALS[$name]['DEFAULT_VALUE']
-					: ''
-				;
-			}
-		}
-
-		return $result;
-	}
-
-	private static function getDefaultValueRowHtml(string $name, string $value, bool $multiple): string
-	{
-		return '<input type="text" size="8" name="'
-			. htmlspecialcharsbx($name).'[DEFAULT_VALUE]'
-			. ($multiple ? '[]' : '') . '"'
-			.' value="' . htmlspecialcharsbx($value)
-			. '">'
-		;
 	}
 
 	private static function getHighloadblockSelectorHtml(string $name, array $select): string
@@ -345,7 +446,7 @@ class CUserTypeHlblock extends EnumType
 
 		// js: changing field selector
 		$html .= '
-			<script type="text/javascript">
+			<script>
 				function hlChangeFieldOnHlblockChanged(hlSelect)
 				{
 					var list = '.CUtil::PhpToJSObject($list).';
@@ -372,16 +473,16 @@ class CUserTypeHlblock extends EnumType
 		return $html;
 	}
 
-	public static function checkFields(array $userField, $value): array
-	{
-		return [];
-	}
-
-	public static function GetList($userField)
+	public static function getList($userField)
 	{
 		$rs = false;
 
-		if (Loader::includeModule('highloadblock'))
+		if (!isset(self::$highloadblockIncluded))
+		{
+			self::$highloadblockIncluded = Loader::includeModule('highloadblock');
+		}
+
+		if (self::$highloadblockIncluded)
 		{
 			$rows = static::getHlRows($userField, true);
 
@@ -394,28 +495,26 @@ class CUserTypeHlblock extends EnumType
 
 	public static function getEntityReferences($userfield, \Bitrix\Main\Entity\ScalarField $entityField): array
 	{
+		// here
 		if ($userfield['SETTINGS']['HLBLOCK_ID'])
 		{
-			$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::getById($userfield['SETTINGS']['HLBLOCK_ID'])->fetch();
+			$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::getByPrimary(
+				$userfield['SETTINGS']['HLBLOCK_ID'], ['cache' => ['ttl' => 3600*24*365]]
+			)->fetch();
 
 			if ($hlblock)
 			{
-				if (class_exists($hlblock['NAME'].'Table'))
-				{
-					$hlentity = \Bitrix\Main\Entity\Base::getInstance($hlblock['NAME']);
-				}
-				else
-				{
-					$hlentity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
-				}
+				$hlentity = \Bitrix\Highloadblock\HighloadBlockTable::compileEntity($hlblock);
 
-				return [
+				$referenceFields = [
 					new \Bitrix\Main\Entity\ReferenceField(
-						$entityField->getName().'_REF',
+						$entityField->getName() . '_REF',
 						$hlentity,
-						['=this.'.$entityField->getName() => 'ref.ID']
+						['=this.' . $entityField->getName() => 'ref.ID']
 					)
 				];
+
+				return $referenceFields;
 			}
 		}
 
@@ -428,8 +527,8 @@ class CUserTypeHlblock extends EnumType
 
 		$rows = array();
 
-		$hlblock_id = (int)$userfield['SETTINGS']['HLBLOCK_ID'];
-		$hlfield_id = (int)$userfield['SETTINGS']['HLFIELD_ID'];
+		$hlblock_id = (int)($userfield['SETTINGS']['HLBLOCK_ID'] ?? 0);
+		$hlfield_id = (int)($userfield['SETTINGS']['HLFIELD_ID'] ?? 0);
 		if ($hlfield_id <= 0)
 		{
 			$hlfield_id = 0;
@@ -492,7 +591,7 @@ class CUserTypeHlblock extends EnumType
 					else
 					{
 						//see #0088117
-						if ($userfield['USER_TYPE_ID'] != 'enumeration' && $clearValues)
+						if ($userfield['USER_TYPE_ID'] !== EnumType::USER_TYPE_ID && $clearValues)
 						{
 							$row['VALUE'] = $row[$userfield['FIELD_NAME']];
 						}
@@ -516,21 +615,23 @@ class CUserTypeHlblock extends EnumType
 
 		$cacheKey = $userField['SETTINGS']['HLBLOCK_ID'].'_v'.$additionalParameters["VALUE"];
 
-		if(!array_key_exists($cacheKey, $cache) && !empty($additionalParameters["VALUE"]))
+		if (!array_key_exists($cacheKey, $cache) && !empty($additionalParameters["VALUE"]))
 		{
-			$rsEnum = call_user_func_array(
-				[$userField["USER_TYPE"]["CLASS_NAME"], "getlist"],
-				[
-					$userField,
-				]
-			);
-			if(!$rsEnum)
+			$iterator = static::getList($userField);
+			if (!$iterator)
+			{
 				return $empty_caption;
-			while($arEnum = $rsEnum->GetNext())
+			}
+			while ($arEnum = $iterator->GetNext())
+			{
 				$cache[$userField['SETTINGS']['HLBLOCK_ID'].'_v'.$arEnum["ID"]] = $arEnum["VALUE"];
+			}
+			unset($arEnum, $iterator);
 		}
-		if(!array_key_exists($cacheKey, $cache))
+		if (!array_key_exists($cacheKey, $cache))
+		{
 			$cache[$cacheKey] = $empty_caption;
+		}
 
 		return $cache[$cacheKey];
 	}
@@ -565,10 +666,15 @@ class CUserTypeHlblock extends EnumType
 		return $list;
 	}
 
-	public static function getDropDownHtml($hlblockId = null, $hlfieldId = null): string
+	public static function getDropDownHtml($hlblockId = null, $hlfieldId = null, string $name = ''): string
 	{
+		if ($name === '')
+		{
+			$name = 'SETTINGS';
+		}
+
 		return self::getHighloadblockSelectorHtml(
-			'SETTINGS',
+			$name,
 			[
 				'HLBLOCK_ID' => (int)$hlblockId,
 				'HLFIELD_ID' => (int)$hlfieldId,
@@ -605,5 +711,154 @@ class CUserTypeHlblock extends EnumType
 		}
 
 		return null;
+	}
+
+	/**
+	 * Don't use. Added only for compatibility with potential box custom children.
+	 * @deprecated deprecated since 24.0.0
+	 *
+	 * @param array $userField
+	 * @param array $additionalParameters
+	 * @return array|mixed|string|null
+	 */
+	public static function getFieldValue(array $userField, array $additionalParameters = [])
+	{
+		return EnumType::getFieldValue($userField, $additionalParameters);
+	}
+
+	private static function getCurrentValue(array $userField, array $additionalParameters = [])
+	{
+		if (isset($additionalParameters['VALUE']))
+		{
+			return $additionalParameters['VALUE'];
+		}
+
+		return $userField['VALUE'] ?? null;
+	}
+
+	/**
+	 * @param array $userField
+	 * @return string
+	 */
+	public static function getEmptyCaption(array $userField): string
+	{
+		$message = (string)($userField['SETTINGS']['CAPTION_NO_VALUE'] ?? '');
+
+		return
+			$message !== ''
+				? HtmlFilter::encode($userField['SETTINGS']['CAPTION_NO_VALUE'])
+				: (string)Loc::getMessage('USER_TYPE_HLEL_NO_VALUE')
+		;
+	}
+
+	public static function getDisplayTypeList(): array
+	{
+		return [
+			static::DISPLAY_LIST => Loc::getMessage('USER_TYPE_HLEL_LIST'),
+			static::DISPLAY_CHECKBOX => Loc::getMessage('USER_TYPE_HLEL_CHECKBOX'),
+		];
+	}
+
+	private static function loadElement(array $settings, array $filter): ?array
+	{
+		global $USER_FIELD_MANAGER;
+
+		if (!isset(self::$highloadblockIncluded))
+		{
+			self::$highloadblockIncluded = Loader::includeModule('highloadblock');
+		}
+		if (!self::$highloadblockIncluded)
+		{
+			return null;
+		}
+
+		$hlblockId = (int)($settings['HLBLOCK_ID'] ?? 0);
+		$hlfieldId = (int)($settings['HLFIELD_ID'] ?? 0);
+		if ($hlblockId <= 0)
+		{
+			return null;
+		}
+
+		$hlblock = \Bitrix\Highloadblock\HighloadBlockTable::resolveHighloadblock($hlblockId);
+		if ($hlblock === null)
+		{
+			return null;
+		}
+
+		$hlblock['ID'] = (int)$hlblock['ID'];
+		$field = self::resolveField($hlblock['ID'], $hlfieldId);
+
+		$entity = HighloadBlockTable::compileEntity($hlblock);
+		$hlDataClass = $entity->getDataClass();
+
+		$select = [
+			'ID',
+			$field['FIELD_NAME'],
+		];
+
+		$order = [
+			'ID' => 'ASC',
+		];
+
+		$rows = [];
+
+		$iterator = $hlDataClass::getList([
+			'select' => $select,
+			'filter' => $filter,
+			'order' => $order,
+		]);
+		while ($row = $iterator->fetch())
+		{
+			$row['ID'] = (int)$row['ID'];
+			if ($field['FIELD_NAME'] === 'ID')
+			{
+				$row['VALUE'] = $row['ID'];
+			}
+			else
+			{
+				$row['VALUE'] =
+					$USER_FIELD_MANAGER->getListView($field, $row[$field['FIELD_NAME']])
+					. ' ['.$row['ID'].']'
+				;
+			}
+			$rows[$row['ID']] = $row['VALUE'];
+		}
+		unset($row, $iterator);
+
+		return $rows;
+	}
+
+	private static function resolveField(int $hlblockId, int $hlfieldId): array
+	{
+		global $USER_FIELD_MANAGER;
+
+		$defaultField = [
+			'FIELD_NAME' => 'ID',
+			'USER_TYPE_ID' => CUserTypeManager::BASE_TYPE_INT,
+		];
+		if ($hlfieldId <= 0)
+		{
+			return $defaultField;
+		}
+
+		$row = Main\UserFieldTable::getRow([
+			'select' => [
+				'*',
+			],
+			'filter' => [
+				'=ENTITY_ID' => HighloadBlockTable::compileEntityId($hlblockId),
+				'=ID' => $hlfieldId,
+			],
+			'cache' => [
+				'ttl' => 86400,
+			],
+		]);
+		if ($row === null)
+		{
+			return $defaultField;
+		}
+		$row['USER_TYPE'] = $USER_FIELD_MANAGER->GetUserType($row['USER_TYPE_ID']);
+
+		return $row;
 	}
 }

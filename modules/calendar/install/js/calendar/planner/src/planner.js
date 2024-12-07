@@ -1,9 +1,11 @@
 // @flow
-import {Runtime, Type, Event, Loc, Dom, Tag, Text, Browser} from 'main.core';
-import {Util} from 'calendar.util';
-import {EventEmitter, BaseEvent} from 'main.core.events';
-import {Selector} from './selector.js';
-import {PopupWindowManager} from "main.popup";
+import { Runtime, Type, Event, Loc, Dom, Tag, Text, Browser, Extension } from 'main.core';
+import { Util } from 'calendar.util';
+import { EventEmitter, BaseEvent } from 'main.core.events';
+import { FeaturePromotersRegistry } from 'ui.info-helper';
+import { Selector } from './selector.js';
+import { PopupWindowManager } from 'main.popup';
+import { DateTimeFormat } from 'main.date';
 
 export class Planner extends EventEmitter
 {
@@ -54,18 +56,26 @@ export class Planner extends EventEmitter
 		super();
 		this.setEventNamespace('BX.Calendar.Planner');
 		this.config = params;
+		this.setEntriesCount(params.entriesCount ?? 0);
 		this.id = params.id;
-		this.dayOfWeekMonthFormat = params.dayOfWeekMonthFormat || 'd F, l';
 		this.userId = parseInt(params.userId || Loc.getMessage('USER_ID'));
 		this.DOM.wrap = params.wrap;
 		this.SCALE_TIME_FORMAT = BX.isAmPmMode() ? 'g a' : 'G';
 		this.userTimezone = Util.getUserSettings().timezoneName;
 		this.currentTimezone = Type.isStringFilled(params.entryTimezone) ? params.entryTimezone : this.userTimezone;
+		this.alwaysBlue = params.alwaysBlue;
 
 		this.expandTimelineDebounce = Runtime.debounce(this.expandTimeline, this.EXPAND_DELAY, this);
 		this.showMoreUsersBind = this.showMoreUsers.bind(this);
 		this.hideMoreUsersBind = this.hideMoreUsers.bind(this);
 		this.setConfig(params);
+	}
+
+	static getMaxPlannerUsers(): number
+	{
+		const settings = Extension.getSettings('calendar.planner');
+
+		return settings.maxPlannerUsers;
 	}
 
 	show()
@@ -90,14 +100,14 @@ export class Planner extends EventEmitter
 			this.hideAnimation = null;
 		}
 
-		if (!this.isBuilt())
+		if (this.isBuilt())
 		{
-			this.build();
-			this.bindEventHandlers();
+			this.resizePlannerWidth(this.width);
 		}
 		else
 		{
-			this.resizePlannerWidth(this.width);
+			this.build();
+			this.bindEventHandlers();
 		}
 
 		this.buildTimeline();
@@ -176,6 +186,35 @@ export class Planner extends EventEmitter
 		this.shown = true;
 	}
 
+	setEntriesCount(entriesCount: number): void
+	{
+		const maxPlannerUsers = Planner.getMaxPlannerUsers();
+		if (maxPlannerUsers > 0 && entriesCount > 0)
+		{
+			this.setVisible(entriesCount <= maxPlannerUsers);
+		}
+	}
+
+	setVisible(isVisible: boolean): void
+	{
+		if (isVisible === this.isVisible)
+		{
+			return;
+		}
+
+		if (isVisible)
+		{
+			this.DOM.wrap.parentElement.style.setProperty('display', '');
+			this.rebuildDebounce({ dontFocus: true });
+		}
+		else
+		{
+			this.DOM.wrap.parentElement.style.setProperty('display', 'none', 'important');
+		}
+
+		this.isVisible = isVisible;
+	}
+
 	setConfig(params)
 	{
 		this.todayLocMessage = Loc.getMessage('EC_PLANNER_TODAY');
@@ -205,7 +244,7 @@ export class Planner extends EventEmitter
 		// readonly
 		if (params.readonly !== undefined)
 		{
-			this.readonly = !!params.readonly;
+			this.readonly = Boolean(params.readonly);
 		}
 		else if (this.readonly === undefined)
 		{
@@ -274,6 +313,7 @@ export class Planner extends EventEmitter
 		this.entriesListWidth = parseInt(params.entriesListWidth) || this.entriesListWidth || 200;
 		this.timelineCellWidth = params.timelineCellWidth || this.timelineCellWidth || 40;
 		this.solidStatus = params.solidStatus === true;
+		this.showWorkTimeNotice = params.showWorkTimeNotice === true;
 
 		this.showEntiesHeader = params.showEntiesHeader === undefined ? true : !!params.showEntiesHeader;
 		this.showEntryName = params.showEntryName === undefined ? true : !!params.showEntryName;
@@ -299,6 +339,11 @@ export class Planner extends EventEmitter
 		if (params.locked !== undefined)
 		{
 			this.locked = params.locked;
+		}
+
+		if (this.isLocked())
+		{
+			this.readonly = true;
 		}
 
 		this.adjustCellWidth();
@@ -523,6 +568,7 @@ export class Planner extends EventEmitter
 			getTimelineWidth: () => {
 				return parseInt(this.DOM.timelineInnerWrap.style.width)
 			},
+			alwaysBlue: this.alwaysBlue === true,
 		});
 		selector.subscribe('onChange', this.handleSelectorChanges.bind(this));
 		selector.subscribe('doCheckStatus', this.doCheckSelectorStatus.bind(this));
@@ -821,7 +867,12 @@ export class Planner extends EventEmitter
 						//F d, l
 						dayTitle = outerDayCont.appendChild(Tag.render`
 							<div class="${dayTitleClass}">
-								<span>${BX.date.format(this.dayOfWeekMonthFormat, this.scaleData[i].timestamp / 1000)}</span>
+								<span>
+									${DateTimeFormat.format(
+										DateTimeFormat.getFormat('DAY_OF_WEEK_MONTH_FORMAT'),
+										this.scaleData[i].timestamp / 1000,
+									)}
+								</span>
 								<div class="calendar-planner-time-day-border"></div>
 							</div>
 						`);
@@ -1254,8 +1305,9 @@ export class Planner extends EventEmitter
 
 	prepareAccessibilityItem(entry)
 	{
-		const userOffset = Util.getTimeZoneOffset(this.userTimezone);
-		const timezoneOffset = Util.getTimeZoneOffset(this.currentTimezone);
+		const date = Util.parseDate(entry.dateFrom);
+		const userOffset = Util.getTimeZoneOffset(this.userTimezone, date);
+		const timezoneOffset = Util.getTimeZoneOffset(this.currentTimezone, date);
 		const timeOffset = (userOffset - timezoneOffset) * 60 * 1000;
 
 		return Planner.prepareAccessibilityItem(entry, timeOffset);
@@ -2508,8 +2560,8 @@ export class Planner extends EventEmitter
 
 	updateTimezone(timezone)
 	{
-		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone);
-		const timezoneOffset = Util.getTimeZoneOffset(timezone);
+		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone, this.currentFromDate);
+		const timezoneOffset = Util.getTimeZoneOffset(timezone, this.currentFromDate);
 		this.currentTimezone = timezone;
 
 		if (currentOffset === timezoneOffset)
@@ -2535,6 +2587,8 @@ export class Planner extends EventEmitter
 			return;
 		}
 
+		this.setEntriesCount(entries.length);
+
 		if (this.entries?.length !== entries.length)
 		{
 			this.doShowTimezoneNoticePopup = true;
@@ -2545,12 +2599,12 @@ export class Planner extends EventEmitter
 		this.preparedAccessibility = [];
 		this.allEvents = [];
 
-		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone);
+		const currentOffset = Util.getTimeZoneOffset(this.currentTimezone, this.currentFromDate);
 		this.entries.forEach((entry) => {
-			this.accessibility[entry.id] = accessibility[entry.id];
-			this.preparedAccessibility[entry.id] = accessibility[entry.id].map((it) => this.prepareAccessibilityItem(it));
+			this.accessibility[entry.id] = accessibility[entry.id] ?? [];
+			this.preparedAccessibility[entry.id] = this.accessibility[entry.id].map((it) => this.prepareAccessibilityItem(it));
 			this.allEvents.push(...this.preparedAccessibility[entry.id]);
-			entry.timezoneOffset = Util.getTimeZoneOffset(entry.timezoneName);
+			entry.timezoneOffset = Util.getTimeZoneOffset(entry.timezoneName, this.currentFromDate);
 			entry.timezoneNameFormatted = Util.getFormattedTimezone(entry.timezoneName);
 			entry.offset = currentOffset - entry.timezoneOffset;
 		});
@@ -2751,6 +2805,7 @@ export class Planner extends EventEmitter
 			this.emit('onDateChange', new BaseEvent({data: data}));
 			this.currentFromDate = data.dateFrom;
 			this.currentToDate = data.dateTo;
+			this.update(this.entries, this.accessibility);
 
 			if (this.currentToDate.getHours() < this.shownScaleTimeFrom
 				&& !(this.currentToDate.getHours() === 0 && this.currentToDate.getMinutes() === 0))
@@ -2829,7 +2884,7 @@ export class Planner extends EventEmitter
 
 	updateTimezoneNotice(selectorTime)
 	{
-		if (this.fullDayMode)
+		if (this.readonly || this.fullDayMode)
 		{
 			this.hideTimezoneNotice();
 
@@ -2840,6 +2895,7 @@ export class Planner extends EventEmitter
 		const warningTimezoneEntries = otherTimezoneEntries.filter((entry) => {
 			const entryTime = new Date(selectorTime.getTime() + entry.offset * 60 * 1000);
 			const entryHours = this.getDateHours(entryTime);
+
 			return entryHours < this.warningHoursFrom || entryHours >= this.warningHoursTo;
 		});
 
@@ -2858,7 +2914,7 @@ export class Planner extends EventEmitter
 
 			if (Type.isDomNode(entryNode))
 			{
-				const top = parseInt(entryNode.style.top);
+				const top = parseInt(entryNode.style.top, 10);
 				this.selector.showTimeNode(top, Util.formatTime(entryTime), entry.timezoneNameFormatted, entry.id, isWarning);
 			}
 
@@ -2897,6 +2953,11 @@ export class Planner extends EventEmitter
 
 	showTimezoneNotice(count, isWarning)
 	{
+		if (this.readonly)
+		{
+			return;
+		}
+
 		this.showTimezoneNoticeCount(count, isWarning);
 		if (isWarning)
 		{
@@ -2910,6 +2971,11 @@ export class Planner extends EventEmitter
 
 	hideTimezoneNotice()
 	{
+		if (this.readonly)
+		{
+			return;
+		}
+
 		this.selector.clearTimeNodes();
 		this.hideTimezoneNoticeCount();
 		this.hideTimezoneNoticePopup();
@@ -2970,6 +3036,11 @@ export class Planner extends EventEmitter
 
 	showSelectorPopup(text)
 	{
+		if (this.readonly)
+		{
+			return;
+		}
+
 		if (this.DOM.selectorPopup.style.display === 'block' && this.DOM.selectorPopup.innerText !== text)
 		{
 			this.DOM.selectorPopup.style.transition = 'color 200ms ease';
@@ -3041,7 +3112,7 @@ export class Planner extends EventEmitter
 
 	isWorkTimeNoticeEnabled()
 	{
-		return !this.solidStatus && Type.isArrayFilled(this.entries);
+		return (!this.solidStatus || this.showWorkTimeNotice) && Type.isArrayFilled(this.entries);
 	}
 
 	getAllEvents()
@@ -3115,7 +3186,7 @@ export class Planner extends EventEmitter
 					timeTo = 24;
 				}
 
-				if (timeFrom <= this.shownScaleTimeFrom)
+				if (timeFrom < this.shownScaleTimeFrom)
 				{
 					dateFrom.setHours(this.shownScaleTimeFrom, 0, 0, 0);
 					ts = dateFrom.getTime();
@@ -3531,9 +3602,7 @@ export class Planner extends EventEmitter
 							<div class="calendar-planner-timeline-locker-icon"></div>
 							<div class="calendar-planner-timeline-text">${Loc.getMessage('EC_PL_LOCKED_TITLE')}</div>
 						</div>
-						<div class="calendar-planner-timeline-locker-button">
-							<a href="javascript:void(0)" onclick="top.BX.UI.InfoHelper.show('limit_crm_calender_planner');" class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">${Loc.getMessage('EC_PL_UNLOCK_FEATURE')}</a>
-						</div>
+						${this.getLockerButton()}
 					</div>
 				</div>
 			`;
@@ -3541,6 +3610,24 @@ export class Planner extends EventEmitter
 
 		Dom.addClass(this.DOM.timelineFixedWrap, '--lock');
 		this.DOM.timelineFixedWrap.appendChild(this.DOM.lockScreen);
+	}
+
+	getLockerButton()
+	{
+		if (!this.DOM.lockButton)
+		{
+			this.DOM.lockButton = Tag.render`
+				<div class="calendar-planner-timeline-locker-button">
+					<div class="ui-btn ui-btn-sm ui-btn-light-border ui-btn-round">${Loc.getMessage('EC_PL_UNLOCK_FEATURE')}</div>
+				</div>
+			`;
+
+			Event.bind(this.DOM.lockButton, 'click', () => {
+				FeaturePromotersRegistry.getPromoter({ featureId: 'calendar_events_with_planner' }).show();
+			});
+		}
+
+		return this.DOM.lockButton;
 	}
 
 	doSegmentsIntersect(x1, x2, y1, y2)
@@ -3554,5 +3641,16 @@ export class Planner extends EventEmitter
 	{
 		this.readonly = true;
 		Dom.addClass(this.DOM.mainWrap, 'calendar-planner-readonly');
+	}
+
+	setSolid()
+	{
+		this.solidStatus = true;
+		this.selector.setSolid();
+	}
+
+	setShowWorkTimeNotice()
+	{
+		this.showWorkTimeNotice = true;
 	}
 }

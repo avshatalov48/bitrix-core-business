@@ -58,7 +58,8 @@
 		errorLess: "error-less",
 		errorMore: "error-more",
 		menuItemChecked: "menu-popup-item-accept",
-		delete: "delete"
+		delete: "delete",
+		errorPhrase: "error-phrase"
 	};
 
 	/**
@@ -748,6 +749,22 @@
 			BX.UI.Notification.Center.notify({
 				content: lastError.message
 			});
+
+			if (
+				lastError.code
+				&& (lastError.code === "ERROR_PHP_TOKEN_PHRASE" || lastError.code === "ERROR_PHP_TOKEN_CODE")
+				&& lastError.customData
+				&& lastError.customData.phraseId
+			)
+			{
+				var nodes = this.getForm().querySelectorAll("." + this.STYLES.editRow + "." + this.STYLES.editRowPhrase + "[rel='" + lastError.customData.phraseId + "']");
+				if (nodes)
+				{
+					nodes.forEach(BX.proxy(function (row) {
+						BX.addClass(row, this.STYLES.errorPhrase);
+					}, this));
+				}
+			}
 		}
 		else
 		{

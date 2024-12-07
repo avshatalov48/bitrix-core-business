@@ -1,9 +1,12 @@
-<?
+<?php
 /**
- * @global \CUser $USER
- * @global \CMain $APPLICATION
- * @global \CDatabase $DB
+ * @global CUser $USER
+ * @global CMain $APPLICATION
+ * @global CDatabase $DB
  */
+
+use Bitrix\Main\Application;
+use Bitrix\Main\DB\SqlQueryException;
 
 require_once(__DIR__."/../include/prolog_admin_before.php");
 define("HELP_FILE", "utilities/sql.php");
@@ -22,54 +25,105 @@ CPageOption::SetOptionString("main", "nav_page_in_session", "N");
 $lAdmin = new CAdminList($sTableID);
 if($_SERVER["REQUEST_METHOD"] == "POST" && !empty($query) && $isAdmin && check_bitrix_sessid())
 {
+	$dbr = null;
 	$first = microtime(true);
 	$arErrors = array();
 	$arQuery = $DB->ParseSQLBatch(str_replace("\r", "", $query));
+
+	$db = Application::getConnection();
+	$db->stopTracker();
+
 	foreach($arQuery as $i => $sql)
 	{
-		$dbr = $DB->Query($sql, true);
-		if(!$dbr)
-			$arErrors[$i] = $DB->GetErrorMessage();
+		try
+		{
+			$dbr = Application::getConnection()->query($sql);
+		}
+		catch (SqlQueryException $e)
+		{
+			$arErrors[$i] = $e->getMessage();
+		}
 	}
+
 	if(empty($arErrors))
 	{
-		$exec_time = round(microtime(true)-$first, 5);
-		$rsData = new CAdminResult($dbr, $sTableID);
-
-		$message = new CAdminMessage(array(
-			"MESSAGE" => GetMessage("SQL_SUCCESS_EXECUTE"),
-			"DETAILS" => GetMessage("SQL_EXEC_TIME")."<b>".$exec_time."</b> ".GetMessage("SQL_SEC"),
-			"TYPE" => "OK",
-			"HTML" => true,
-		));
-
-		$rsData = new CAdminResult($rsData, $sTableID);
-		$rsData->bPostNavigation = true;
-		$rsData->NavStart();
-		$lAdmin->NavText($rsData->GetNavPrint(GetMessage("SQL_PAGES")));
-
-		$intNumFields = $rsData->FieldsCount();
-		$i = 0;
-		$header = Array();
-		$arFieldName = Array();
-		while ($i<$intNumFields)
+		if (isset($_POST['execute_and_download']) && $_POST['execute_and_download'] === 'Y')
 		{
-			$fieldName = htmlspecialcharsbx($rsData->FieldName($i));
-			$header[] =
-				array("id"=>$fieldName, "content"=>$fieldName,	"sort"=>$fieldName, "default"=>true, "align"=>"left", "valign" => "top");
-			$arFieldName[] = $fieldName;
-			$i++;
+			header('Content-Type: text/csv');
+			header('Content-Description: SQL result');
+			header('Content-Disposition: attachment; filename=result.csv');
+
+			set_time_limit(300);
+
+			$fileHandler = new SplFileObject('php://output', 'w');
+			$firstRow = $dbr->fetchRaw();
+			if (empty($firstRow))
+			{
+				$fileHandler->fwrite('empty');
+			}
+			else
+			{
+				$fileHandler->fputcsv(array_keys($firstRow));
+				$fileHandler->fputcsv($firstRow);
+
+				foreach ($dbr as $row)
+				{
+					$fileHandler->fputcsv($row);
+				}
+			}
+
+			die();
 		}
+		else
+		{
+			$exec_time = round(microtime(true)-$first, 5);
+			$rsData = new CAdminResult($dbr, $sTableID);
 
-		$lAdmin->AddHeaders($header);
+			$message = new CAdminMessage(array(
+				"MESSAGE" => GetMessage("SQL_SUCCESS_EXECUTE"),
+				"DETAILS" => GetMessage("SQL_EXEC_TIME")."<b>".$exec_time."</b> ".GetMessage("SQL_SEC"),
+				"TYPE" => "OK",
+				"HTML" => true,
+			));
 
-		$j = 0;
-		while($db_res=$rsData->Fetch()):
-			$row =& $lAdmin->AddRow("ID", $db_res);
-			foreach ($arFieldName as $field_name) :
-				$row->AddViewField($field_name, TxtToHtml($db_res[$field_name]));
-			endforeach;
-		endwhile;
+			$rsData = new CAdminResult($rsData, $sTableID);
+			$rsData->bPostNavigation = true;
+			$rsData->NavStart();
+			$lAdmin->NavText($rsData->GetNavPrint(GetMessage("SQL_PAGES")));
+
+			$intNumFields = $rsData->FieldsCount();
+			$i = 0;
+			$header = Array();
+			$arFieldName = Array();
+			while ($i<$intNumFields)
+			{
+				$fieldName = htmlspecialcharsbx($rsData->FieldName($i));
+				$header[] =
+					array("id"=>$fieldName, "content"=>$fieldName,	"sort"=>$fieldName, "default"=>true, "align"=>"left", "valign" => "top");
+				$arFieldName[] = $fieldName;
+				$i++;
+			}
+
+			$lAdmin->AddHeaders($header);
+
+			$j = 0;
+			while ($db_res = $rsData->Fetch())
+			{
+				$row = $lAdmin->AddRow("ID", $db_res);
+				foreach ($arFieldName as $field_name)
+				{
+					if ($db_res[$field_name] !== null)
+					{
+						$value = TxtToHtml($db_res[$field_name]);
+					}
+					else
+					{
+						$value = '<span style="color: darkgray">NULL</span>';
+					}
+					$row->AddViewField($field_name, $value);
+				}
+			}
+		}
 	}
 	else
 	{
@@ -109,6 +163,19 @@ function __FSQLSubmit()
 		<?=$lAdmin->ActionPost(CUtil::JSEscape($APPLICATION->GetCurPageParam("mode=frame", Array("mode", "PAGEN_1"))))?>
 	}
 }
+function __FSQLSaveToFileSubmit()
+{
+	if(confirm('<?echo GetMessage("SQL_CONFIRM_EXECUTE_AND_DOWNLOAD")?>'))
+	{
+		document.getElementById('query').value = document.getElementById('sql').value;
+
+		<?= $lAdmin->ActionPost(false, 'execute_and_download') ?>
+
+		setTimeout(() => {
+			BX.closeWait('#tbl_sql_result_div');
+		}, 500);
+	}
+}
 </script>
 <?
 $aTabs = array(
@@ -130,6 +197,7 @@ $editTab->BeginNextTab();
 </tr>
 <?$editTab->Buttons();?>
 <input <?if (!$isAdmin) echo "disabled"?> type="button" accesskey="x" name="execute" value="<?echo GetMessage("SQL_EXECUTE")?>" onclick="return __FSQLSubmit();" class="adm-btn-save">
+<input <?if (!$isAdmin) echo "disabled"?> type="button" value="<?echo GetMessage("SQL_EXECUTE_AND_DOWNLOAD")?>" onclick="return __FSQLSaveToFileSubmit();">
 <input type="reset" value="<?echo GetMessage("SQL_RESET")?>">
 <?
 $editTab->End();

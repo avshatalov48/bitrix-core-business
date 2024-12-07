@@ -18,17 +18,17 @@ $MESS["MAIL_BINDING_CHAT_NOT_ACTIVE"] = "в Чат";
 $MESS["MAIL_BINDING_CHAT_ACTIVE"] = "Чат";
 $MESS["MAIL_BINDING_CHAT_TITLE"] = "Обсудить в чате";
 $MESS["MAIL_BINDING_CHAT_TITLE_ACTIVE"] = "Открыть чат";
-$MESS["MAIL_BINDING_CHAT_ERROR"] = 'Установите модуль "Чат"';
+$MESS["MAIL_BINDING_CHAT_ERROR_MSGVER_1"] = 'Установите модуль "Веб-мессенджер"';
 
 $MESS["MAIL_BINDING_POST_NOT_ACTIVE"] = "в Новость";
 $MESS["MAIL_BINDING_POST_ACTIVE"] = "Новость";
 $MESS["MAIL_BINDING_POST_TITLE"] = "Обсудить в ленте";
 $MESS["MAIL_BINDING_POST_TITLE_ACTIVE"] = "Открыть новость";
-$MESS["MAIL_BINDING_POST_ERROR"] = 'Установите модуль "Социальная сеть"';
+$MESS["MAIL_BINDING_POST_ERROR_MSGVER_1"] = 'Установите модуль "Социальная сеть"';
 
 $MESS["MAIL_BINDING_MEETING_NOT_ACTIVE_MSG_1"] = "в Календарь";
 $MESS["MAIL_BINDING_MEETING_ACTIVE"] = "Встреча";
 $MESS["MAIL_BINDING_MEETING_TITLE"]= "Создать встречу в календаре";
 $MESS["MAIL_BINDING_MEETING_TITLE_ACTIVE"]= "Открыть встречу";
-$MESS["MAIL_BINDING_MEETING_ERROR"] = 'Установите модуль "Календарь"';
+$MESS["MAIL_BINDING_MEETING_ERROR_MSGVER_1"] = 'Установите модуль "Календарь событий"';
 

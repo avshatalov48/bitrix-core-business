@@ -531,7 +531,7 @@ class CAllSaleLocation
 			else
 				$bInvert = false;
 
-			switch(ToUpper($key))
+			switch(mb_strtoupper($key))
 			{
 				case "ID":
 
@@ -619,8 +619,8 @@ class CAllSaleLocation
 		$arSqlOrder = Array();
 		foreach ($arOrder as $by=>$order)
 		{
-			$by = ToUpper($by);
-			$order = ToUpper($order);
+			$by = mb_strtoupper($by);
+			$order = mb_strtoupper($order);
 			if ($order!="ASC") $order = "DESC";
 
 			if ($by == "SORT") $arSqlOrder[] = " L.SORT ".$order;
@@ -649,7 +649,7 @@ class CAllSaleLocation
 
 		$strSql .= $strSqlOrder;
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 		return $db_res;
 	}
 
@@ -1044,7 +1044,7 @@ class CAllSaleLocation
 		{
 			$strUpdate = $DB->PrepareUpdate("b_sale_location_country", $arFields);
 			$strSql = "UPDATE b_sale_location_country SET ".$strUpdate." WHERE ID = ".$ID."";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
@@ -1061,7 +1061,7 @@ class CAllSaleLocation
 						"INSERT INTO b_sale_location_country_lang(COUNTRY_ID, ".$arInsert[0].") ".
 						"VALUES(".$ID.", ".$arInsert[1].")";
 				}
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -1158,7 +1158,7 @@ class CAllSaleLocation
 				"SELECT * ".
 				"FROM b_sale_location_country ".
 				"WHERE ID = ".$ID." ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1223,7 +1223,7 @@ class CAllSaleLocation
 				"FROM b_sale_location_country_lang ".
 				"WHERE COUNTRY_ID = ".$ID." ".
 				"	AND LID = '".$DB->ForSql($strLang, 2)."' ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1285,7 +1285,7 @@ class CAllSaleLocation
 		{
 			$strUpdate = $DB->PrepareUpdate("b_sale_location_region", $arFields);
 			$strSql = "UPDATE b_sale_location_region SET ".$strUpdate." WHERE ID = ".$ID."";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
@@ -1303,7 +1303,7 @@ class CAllSaleLocation
 						"INSERT INTO b_sale_location_region_lang(REGION_ID, ".$arInsert[0].") ".
 						"VALUES(".$ID.", ".$arInsert[1].")";
 				}
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -1400,7 +1400,7 @@ class CAllSaleLocation
 				"SELECT * ".
 				"FROM b_sale_location_region ".
 				"WHERE ID = ".$ID." ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1464,7 +1464,7 @@ class CAllSaleLocation
 				"FROM b_sale_location_region_lang ".
 				"WHERE REGION_ID = ".$ID." ".
 				" AND LID = '".$DB->ForSql($strLang, 2)."' ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1535,7 +1535,7 @@ class CAllSaleLocation
 		{
 			$strUpdate = $DB->PrepareUpdate("b_sale_location_city", $arFields);
 			$strSql = "UPDATE b_sale_location_city SET ".$strUpdate." WHERE ID = ".$ID."";
-			$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$DB->Query($strSql);
 
 			$db_lang = CLangAdmin::GetList("sort", "asc", array("ACTIVE" => "Y"));
 			while ($arLang = $db_lang->Fetch())
@@ -1552,7 +1552,7 @@ class CAllSaleLocation
 						"INSERT INTO b_sale_location_city_lang(CITY_ID, ".$arInsert[0].") ".
 						"VALUES(".$ID.", ".$arInsert[1].")";
 				}
-				$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+				$DB->Query($strSql);
 			}
 		}
 
@@ -1683,7 +1683,7 @@ class CAllSaleLocation
 				"SELECT * ".
 				"FROM b_sale_location_city ".
 				"WHERE ID = ".$ID." ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1747,7 +1747,7 @@ class CAllSaleLocation
 				"FROM b_sale_location_city_lang ".
 				"WHERE CITY_ID = ".$ID." ".
 				"	AND LID = '".$DB->ForSql($strLang, 2)."' ";
-			$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$db_res = $DB->Query($strSql);
 
 			if ($res = $db_res->Fetch())
 			{
@@ -1770,7 +1770,7 @@ class CAllSaleLocation
 			$arOrder = array_change_key_case($arOrder, CASE_UPPER);
 			foreach($arOrder as $fld => $direction)
 			{
-				$direction = ToUpper($direction);
+				$direction = mb_strtoupper($direction);
 
 				if($direction != 'ASC' && $direction != 'DESC')
 					continue;
@@ -2109,7 +2109,7 @@ class CAllSaleLocation
 		$dbHelper = $dbConnection->getSqlHelper();
 
 		$types = self::getTypes();
-		$typeCode = ToUpper($dbHelper->forSql($typeCode));
+		$typeCode = mb_strtoupper($dbHelper->forSql($typeCode));
 		$strLang = mb_substr($dbHelper->forSql($strLang), 0, 2);
 
 		$mappedTypes = array("'".intval($types[$typeCode])."'");
@@ -2186,12 +2186,12 @@ class CAllSaleLocation
 
 				if ($nameNang !== '') // search by name
 				{
-					$name = ToUpper(trim($loc['CITY_NAME_LANG']));
+					$name = mb_strtoupper(trim($loc['CITY_NAME_LANG']));
 					$regionName = false;
 
 					foreach (self::$specialCities as $city)
 					{
-						if ($name == ToUpper(GetMessage('CITY_' . $city)))
+						if ($name == mb_strtoupper(GetMessage('CITY_' . $city)))
 						{
 							$regionName = GetMessage('REGION_' . $city);
 						}
@@ -2298,7 +2298,7 @@ class CAllSaleLocation
 
 		$strUpdate = $DB->PrepareUpdate("b_sale_location", $arFields);
 		$strSql = "UPDATE b_sale_location SET ".$strUpdate." WHERE ID = ".$ID."";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		foreach (GetModuleEvents("sale", "OnLocationUpdate", true) as $arEvent)
 			ExecuteModuleEventEx($arEvent, array($ID, $arFields));
@@ -3245,7 +3245,7 @@ WHERE ".$strWhere;
 			return false;
 		}
 
-		foreach (GetModuleEvents('sale', 'OnBefore'.ucfirst(ToLower($typeCode)).'Add', true) as $arEvent)
+		foreach (GetModuleEvents('sale', 'OnBefore'.ucfirst(mb_strtolower($typeCode)).'Add', true) as $arEvent)
 		{
 			if (ExecuteModuleEventEx($arEvent, array($names))===false)
 			{
@@ -3292,7 +3292,7 @@ WHERE ".$strWhere;
 			$id = $res->getId();
 			$uRes = \Bitrix\Sale\Location\LocationTable::update($id, array('CODE' => $id));
 
-			foreach (GetModuleEvents('sale', 'On'.ucfirst(ToLower($typeCode)).'Add', true) as $arEvent)
+			foreach (GetModuleEvents('sale', 'On'.ucfirst(mb_strtolower($typeCode)).'Add', true) as $arEvent)
 			{
 				ExecuteModuleEventEx($arEvent, array($id, $names));
 			}

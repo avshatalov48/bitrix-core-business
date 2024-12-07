@@ -1,6 +1,0 @@
-<?
-$sSectionName = "Themes";
-$arDirProperties = Array(
-
-);
-?>

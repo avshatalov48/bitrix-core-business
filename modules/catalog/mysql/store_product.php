@@ -1,4 +1,5 @@
 <?php
+
 require_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/catalog/general/store_product.php");
 
 class CCatalogStoreProduct extends CCatalogStoreProductAll
@@ -23,7 +24,7 @@ class CCatalogStoreProduct extends CCatalogStoreProductAll
 		$arInsert = $DB->PrepareInsert("b_catalog_store_product", $arFields);
 		$strSql = "INSERT INTO b_catalog_store_product (".$arInsert[0].") VALUES(".$arInsert[1].")";
 
-		$res = $DB->Query($strSql, true, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$res = $DB->Query($strSql, true);
 		if(!$res)
 		{
 			return false;
@@ -76,7 +77,7 @@ class CCatalogStoreProduct extends CCatalogStoreProductAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 			if ($arRes = $dbRes->Fetch())
 				return $arRes["CNT"];
 			else
@@ -104,7 +105,7 @@ class CCatalogStoreProduct extends CCatalogStoreProductAll
 			if (!empty($arSqls["GROUPBY"]))
 				$strSql_tmp .= " GROUP BY ".$arSqls["GROUPBY"];
 
-			$dbRes = $DB->Query($strSql_tmp, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql_tmp);
 			$cnt = 0;
 			if (empty($arSqls["GROUPBY"]))
 			{
@@ -126,7 +127,7 @@ class CCatalogStoreProduct extends CCatalogStoreProductAll
 			{
 				$strSql .= " LIMIT ".$intTopCount;
 			}
-			$dbRes = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSql);
 		}
 		return $dbRes;
 	}

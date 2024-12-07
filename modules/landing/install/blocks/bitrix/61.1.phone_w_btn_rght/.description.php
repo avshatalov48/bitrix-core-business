@@ -10,7 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage('LNDNG_BLCK_61_1_NAME'),
 		'section' => ['contacts'],
-		'type' => 'null',
+		'system' => true,
 	],
 	'cards' => [],
 	'nodes' => [

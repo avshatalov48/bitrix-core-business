@@ -4,6 +4,7 @@ namespace Bitrix\Mail\Helper\Mailbox;
 
 use Bitrix\Mail;
 use Bitrix\Mail\Helper\MailboxDirectoryHelper;
+use Bitrix\Mail\Helper\Message\MessageInternalDateHandler;
 use Bitrix\Mail\MailboxDirectory;
 use Bitrix\Main;
 use Bitrix\Main\Text\Emoji;
@@ -803,16 +804,19 @@ class Imap extends Mail\Helper\Mailbox
 				2) messages that fall under filters are in different folders,
 				and the check goes through one folder.
 			*/
-			$result = $this->unregisterMessages([
-				'!@DIR_MD5' => array_map(
-					'md5',
-					$this->getDirsHelper()->getSyncDirsPath(true)
-				),
-			],
-			[
-				'info' => 'disabled directory synchronization in Bitrix',
-			],
-			true);
+
+			$result = $this->unregisterMessages(
+				[
+					'!@DIR_MD5' => array_map(
+						'md5',
+						$this->getDirsHelper()->getSyncDirsPath(true),
+					),
+				],
+				[
+					'info' => 'disabled directory synchronization in Bitrix',
+				],
+				true,
+			);
 
 			$countDeleted = $result ? $result->getCount() : 0;
 
@@ -1067,7 +1071,12 @@ class Imap extends Mail\Helper\Mailbox
 
 		while ($range = $this->getSyncRange($dir->getPath(), $uidtoken, $intervalSynchronizationAttempts))
 		{
-			$reverse = $range[0] > $range[1];
+			$syncDown = $range[0] > $range[1];
+
+			if ($syncDown)
+			{
+				MessageInternalDateHandler::clearStartInternalDate($dir->getMailboxId(), $dir->getDirMd5());
+			}
 
 			sort($range);
 
@@ -1118,7 +1127,7 @@ class Imap extends Mail\Helper\Mailbox
 				$intervalSynchronizationAttempts = 0;
 			}
 
-			$reverse ? krsort($messages) : ksort($messages);
+			$syncDown ? krsort($messages) : ksort($messages);
 
 			$this->parseHeaders($messages);
 
@@ -1787,32 +1796,53 @@ class Imap extends Mail\Helper\Mailbox
 				{
 					$countUpdated += count($items);
 
-					$this->updateMessagesRegistry(
-						array(
-							'@ID' => array_keys($items),
-						),
-						array(
-							'IS_SEEN' => $seen,
-						),
-						$items = array() // @TODO: fix lazyload in MessageEventManager::processOnMailMessageModified()
-					);
+					$totalValues = count($items);
+					$offset = 0;
+					$batchSize = 100;
+
+					while ($offset < $totalValues)
+					{
+						$batchValues = array_slice($items, $offset, $batchSize, true);
+
+						$this->updateMessagesRegistry(
+							[
+								'@ID' => array_keys($batchValues),
+							],
+							[
+								'IS_SEEN' => $seen,
+							],
+							$items = [], // @TODO: fix lazyload in MessageEventManager::processOnMailMessageModified()
+						);
+
+						$offset += $batchSize;
+					}
 				}
 			}
 		}
 
 		if (!empty($excerpt))
 		{
-			$result = $this->unregisterMessages(
-				[
-					'@ID' => array_keys($excerpt),
-					'=DIR_MD5'  => md5($dirPath),
-				],
-				[
-					'info' => 'deletion of non-existent messages',
-				]
-			);
+			$totalValues = count($excerpt);
+			$offset = 0;
+			$batchSize = 100;
 
-			$countDeleted += $result ? $result->getCount() : 0;
+			while ($offset < $totalValues)
+			{
+				$batchValues = array_slice($excerpt, $offset, $batchSize, true);
+
+				$result = $this->unregisterMessages(
+					[
+						'@ID' => array_keys($batchValues),
+						'=DIR_MD5'  => md5($dirPath),
+					],
+					[
+						'info' => 'deletion of non-existent messages',
+					]
+				);
+
+				$countDeleted += $result ? $result->getCount() : 0;
+				$offset += $batchSize;
+			}
 		}
 
 		$this->lastSyncResult['updatedMessages'] += $countUpdated;

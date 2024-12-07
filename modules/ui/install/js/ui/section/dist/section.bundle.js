@@ -112,7 +112,7 @@ this.BX = this.BX || {};
 	      arrowTop: '--chevron-up',
 	      arrowDown: '--chevron-down',
 	      arrowRight: '--chevron-right',
-	      bodyActive: '--body-active'
+	      bodyActive: '--body-active '
 	    });
 	    babelHelpers.defineProperty(this, "singleLink", {
 	      href: '',
@@ -123,6 +123,9 @@ this.BX = this.BX || {};
 	    main_core.Type.isStringFilled(params.iconArrowDown) ? this.className.arrowDown = params.iconArrowDown : '';
 	    main_core.Type.isStringFilled(params.iconArrowTop) ? this.className.arrowTop = params.iconArrowTop : '';
 	    main_core.Type.isStringFilled(params.iconArrowRight) ? this.className.arrowRight = params.iconArrowRight : '';
+	    if (main_core.Type.isStringFilled(params.bodyActive)) {
+	      this.className.bodyActive += params.bodyActive;
+	    }
 	    this.isOpen = main_core.Type.isBoolean(params.isOpen) ? params.isOpen : true;
 	    this.isEnable = main_core.Type.isBoolean(params.isEnable) ? params.isEnable : true;
 	    this.canCollapse = params.canCollapse !== false;
@@ -215,7 +218,7 @@ this.BX = this.BX || {};
 	      if (this.sectionWrapper) {
 	        return this.sectionWrapper;
 	      }
-	      this.sectionWrapper = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__wrapper ", " ", "\">\n\t\t\t\t<div class=\"ui-section__header\">\n\t\t\t\t\t<span class=\"ui-section__title-icon ", "\"></span>\n\t\t\t\t\t<span class=\"ui-section__title\">", "</span>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__separator\"></div>\n\t\t\t\t<div class=\"ui-section__content ui-section__section-body_inner\">\n\t\t\t\t\t<div class=\"ui-section__section-section-body_container\">\n\t\t\t\t\t\t<div class=\"ui-section__row_box\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.id, this.isOpen ? this.className.bodyActive : '', this.canCollapse || this.singleLink.href ? 'clickable' : '', this.className.titleIcon, this.title, this.isEnable ? '' : this.renderLockElement(), this.singleLink.href ? _classPrivateMethodGet(this, _linkIconRender, _linkIconRender2).call(this) : _classPrivateMethodGet(this, _collapseIconRender, _collapseIconRender2).call(this));
+	      this.sectionWrapper = main_core.Tag.render(_templateObject$1 || (_templateObject$1 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<div id=\"", "\" class=\"ui-section__wrapper ", " ", "\">\n\t\t\t\t<div class=\"ui-section__header ", "\">\n\t\t\t\t\t<span class=\"ui-section__title-icon ", "\"></span>\n\t\t\t\t\t<span class=\"ui-section__title\">", "</span>\n\t\t\t\t\t", "\n\t\t\t\t\t", "\n\t\t\t\t</div>\n\t\t\t\t<div class=\"ui-section__separator ", "\"></div>\n\t\t\t\t<div class=\"ui-section__content ui-section__section-body_inner\">\n\t\t\t\t\t<div class=\"ui-section__section-section-body_container\">\n\t\t\t\t\t\t<div class=\"ui-section__row_box\"></div>\n\t\t\t\t\t</div>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t"])), this.id, this.isOpen ? this.className.bodyActive : '', this.canCollapse || this.singleLink.href ? 'clickable' : '', !this.title ? '--hidden' : '', this.className.titleIcon, this.title, this.isEnable ? '' : this.renderLockElement(), this.singleLink.href ? _classPrivateMethodGet(this, _linkIconRender, _linkIconRender2).call(this) : _classPrivateMethodGet(this, _collapseIconRender, _collapseIconRender2).call(this), !this.title ? '--hidden' : '');
 	      return this.sectionWrapper;
 	    }
 	  }, {
@@ -235,6 +238,11 @@ this.BX = this.BX || {};
 	    key: "append",
 	    value: function append(content) {
 	      main_core.Dom.append(content, _classPrivateMethodGet(this, _getRowsWrapper, _getRowsWrapper2).call(this));
+	    }
+	  }, {
+	    key: "prepend",
+	    value: function prepend(content) {
+	      main_core.Dom.prepend(content, _classPrivateMethodGet(this, _getRowsWrapper, _getRowsWrapper2).call(this));
 	    }
 	  }, {
 	    key: "renderTo",

@@ -266,7 +266,7 @@ export default class Tab
 		return titleNode !== null && !titleNode.isNullable() ? titleNode.getText() : '';
 	}
 
-	getTitleNode(): ?TextNode
+	getTitleNode(): TextNode | null
 	{
 		return this.title;
 	}

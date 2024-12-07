@@ -29,50 +29,21 @@ class Helper
 	public const ICS = 'ics';
 	public const CANCEL = 'cancel';
 	public const CONFERENCE = 'videoconference';
+	public const OPENED = 'opened';
 	public const OWNER_CREATED = 'ownerCreated';
 	public const ACTION_ICS = '?'.self::ACTION.'='.self::ICS;
 	public const ACTION_CANCEL = '?'.self::ACTION.'='.self::CANCEL;
 	public const ACTION_CONFERENCE = '?'.self::ACTION.'='.self::CONFERENCE;
+	public const ACTION_OPENED = '?'.self::ACTION.'='.self::OPENED;
 
 	protected const ABUSE_SENDER_PAGE = 'page';
 	protected const ABUSE_SENDER_EMAIL = 'email';
 
 	/**
-	 * returns true if user didn't view sharing tour in calendar, false otherwise
 	 * @return ?string
 	 */
 	public static function payAttentionToNewSharingFeature(): ?string
 	{
-		$now = time();
-		$defaultValue = 'unset';
-		$optionValue = CUserOptions::getOption(
-			'calendar',
-			self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-			$defaultValue
-		);
-
-		if ($optionValue === $defaultValue)
-		{
-			CUserOptions::setOption(
-				'calendar',
-				self::PAY_ATTENTION_TO_NEW_SHARING_JOINT_FEATURE_OPTION_NAME,
-				$now
-			);
-
-			return null;
-		}
-
-		if ($optionValue === 'N')
-		{
-			return null;
-		}
-
-		$timestamp = (int)$optionValue;
-		if ($timestamp && ($now > $timestamp + self::WEEK_TIMESTAMP))
-		{
-			return self::PAY_ATTENTION_TO_NEW_FEATURE_JOINT;
-		}
-
 		return null;
 	}
 

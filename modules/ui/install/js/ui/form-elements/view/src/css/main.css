@@ -51,6 +51,14 @@
 	align-self: center;
 }
 
+.ui-section__field-switcher.--extra-small .ui-section__title {
+	font-size: var(--ui-font-size-sm);
+}
+
+.ui-section__field-switcher.--small .ui-section__title {
+	font-size: var(--ui-font-size-lg);
+}
+
 .ui-section__content .ui-section__row .ui-section__field-selector .ui-section__hint .ui-section__title,
 .ui-section__field-switcher .ui-section__field-inline-box .ui-section__hint .ui-section__title {
 	margin-block: 0;
@@ -189,6 +197,10 @@
 	margin-bottom: 0;
 }
 
+.ui-section__field-switcher .ui-section__error-container {
+	padding-top: 0;
+}
+
 .ui-section__field-inline-box {
 	display: grid;
 	grid-template-columns: 2fr 1fr;
@@ -273,6 +285,10 @@
 	height: 16px;
 }
 
+.ui-form-elements-menu-item.--selected {
+	font-weight: var(--ui-font-weight-semi-bold);
+}
+
 /* region Picker start */
 .ui-section__picker-wrapper .ui-section__label {
 	margin-bottom: 5px;
@@ -343,6 +359,11 @@
 
 .ui-ctl-element.--readonly {
 	cursor: default;
+}
+
+.ui-form-textarea {
+	height: auto;
+	min-height: auto;
 }
 
 /* endregion */

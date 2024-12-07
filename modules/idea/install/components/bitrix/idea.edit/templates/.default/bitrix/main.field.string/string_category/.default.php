@@ -29,8 +29,8 @@ if(
 	{
 		?>
 		<option
-			value="<?= ToUpper($opt['CODE']) ?>"
-			<?= ((ToUpper($arParams['userField']['VALUE']) == ToUpper($opt['CODE'])) ? ' selected' : '') ?>
+			value="<?= mb_strtoupper($opt['CODE']) ?>"
+			<?= ((mb_strtoupper($arParams['userField']['VALUE']) == mb_strtoupper($opt['CODE'])) ? ' selected' : '') ?>
 		>
 			<?php
 			print str_repeat('&bull; ', $opt['DEPTH_LEVEL'] - 1);

@@ -149,9 +149,4 @@ class pull extends \CModule
 
 		return true;
 	}
-
-	public function migrateToBox()
-	{
-		\Bitrix\Main\Config\Option::delete("pull");
-	}
 }

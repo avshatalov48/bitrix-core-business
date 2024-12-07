@@ -8,16 +8,8 @@ class CTicket extends CAllTicket
 		return "ifnull(" . $field . "," . $alternative . ")";
 	}
 
-	public static function err_mess()
-	{
-		$module_id = "support";
-		@include($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/".$module_id."/install/version.php");
-		return "<br>Module: ".$module_id." <br>Class: CTicket<br>File: ".__FILE__;
-	}
-
 	public static function AutoClose()
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: AutoClose<br>Line: ";
 		global $DB;
 		/*$strSql = "
 			SELECT
@@ -43,7 +35,7 @@ class CTicket extends CAllTicket
 			and T.LAST_MESSAGE_BY_SUPPORT_TEAM = 'Y'
 			";//now()
 
-		$rsTickets = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rsTickets = $DB->Query($strSql);
 		while ($arTicket = $rsTickets->Fetch())
 		{
 			$arFields = array(
@@ -55,27 +47,25 @@ class CTicket extends CAllTicket
 				//"AUTO_CLOSE_DAYS"		=> "null",
 				"AUTO_CLOSED"			=> "'Y'"
 				);
-			$DB->Update("b_ticket",$arFields,"WHERE ID='".$arTicket["ID"]."'",$err_mess.__LINE__);
+			$DB->Update("b_ticket",$arFields,"WHERE ID='".$arTicket["ID"]."'");
 		}
 		return "CTicket::AutoClose();";
 	}
 
 	public static function CleanUpOnline()
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: CleanUpOnline<br>Line: ";
 		global $DB;
 		$onlineInterval = intval(COption::GetOptionString("support", "ONLINE_INTERVAL"));
 		$strSql = "
 			DELETE FROM b_ticket_online WHERE
 				TIMESTAMP_X < DATE_ADD(now(), INTERVAL - $onlineInterval SECOND)
 			";
-		$DB->Query($strSql,false,$err_mess.__LINE__);
+		$DB->Query($strSql);
 		return "CTicket::CleanUpOnline();";
 	}
 
 	public static function GetOnline($ticketID)
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetOnline<br>Line: ";
 		global $DB;
 		$ticketID = intval($ticketID);
 		$onlineInterval = intval(COption::GetOptionString("support", "ONLINE_INTERVAL"));
@@ -100,13 +90,12 @@ class CTicket extends CAllTicket
 				T.USER_ID
 			";
 
-		$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$z = $DB->Query($strSql);
 		return $z;
 	}
 
 	public static function DeleteMessage($ID, $checkRights="Y")
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: DeleteMessage<br>Line: ";
 		global $DB;
 		$ID = intval($ID);
 		if ($ID<=0) return;
@@ -135,7 +124,7 @@ class CTicket extends CAllTicket
 					M.ID='$ID'
 				";
 
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			while ($zr = $z->Fetch())
 			{
 				$ticketID = $zr["TICKET_ID"];
@@ -145,7 +134,7 @@ class CTicket extends CAllTicket
 				}
 			}
 
-			$z = $DB->Query("DELETE FROM b_ticket_message WHERE ID='$ID'", false, $err_mess.__LINE__);
+			$z = $DB->Query("DELETE FROM b_ticket_message WHERE ID='$ID'");
 			if (intval($z->AffectedRowsCount())>0)
 			{
 				//CTicket::UpdateLastParams($ticketID);
@@ -162,7 +151,6 @@ class CTicket extends CAllTicket
 
 	public static function UpdateMessage($MESSAGE_ID, $arFields, $checkRights="Y")
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: UpdateMessage<br>Line: ";
 		global $DB, $USER;
 
 		$MESSAGE_ID = intval($MESSAGE_ID);
@@ -189,7 +177,7 @@ class CTicket extends CAllTicket
 				"TIMESTAMP_X"		=> $DB->GetNowFunction(),
 				"C_NUMBER"			=> intval($arFields["C_NUMBER"]),
 				"MESSAGE"			=> "'".$DB->ForSql($arFields["MESSAGE"])."'",
-				"MESSAGE_SEARCH"	=> "'".ToUpper($DB->ForSql($arFields["MESSAGE"]))."'",
+				"MESSAGE_SEARCH"	=> "'".mb_strtoupper($DB->ForSql($arFields["MESSAGE"]))."'",
 				"SOURCE_ID"			=> (intval($arFields["SOURCE_ID"])>0 ? intval($arFields["SOURCE_ID"]) : "null"),
 				"OWNER_SID"			=> "'".$DB->ForSql($ownerSid, 255)."'",
 				"OWNER_USER_ID"		=> (intval($ownerUserID)>0 ? intval($ownerUserID) : "null"),
@@ -212,7 +200,7 @@ class CTicket extends CAllTicket
 			);
 
 
-			$rows = $DB->Update("b_ticket_message",$arFields_u,"WHERE ID='".$MESSAGE_ID."'",$err_mess.__LINE__);
+			$rows = $DB->Update("b_ticket_message",$arFields_u,"WHERE ID='".$MESSAGE_ID."'");
 			if (intval($rows)>0)
 			{
 				$rsMessage = CTicket::GetMessageByID($MESSAGE_ID, $checkRights);
@@ -220,7 +208,7 @@ class CTicket extends CAllTicket
 				{
 					$ticketID = $arMessage["TICKET_ID"];
 
-					// обновим прикрепленные файлы
+					// РѕР±РЅРѕРІРёРј РїСЂРёРєСЂРµРїР»РµРЅРЅС‹Рµ С„Р°Р№Р»С‹
 					$not_image_extension_suffix = COption::GetOptionString("support", "NOT_IMAGE_EXTENSION_SUFFIX");
 					$not_image_upload_dir = COption::GetOptionString("support", "NOT_IMAGE_UPLOAD_DIR");
 					$max_size = COption::GetOptionString("support", "SUPPORT_MAX_FILESIZE");
@@ -247,26 +235,26 @@ class CTicket extends CAllTicket
 
 								$fid = intval(CFile::SaveFile($arFile, $upload_dir, $max_file_size));
 
-								// если стоял флаг "Удалить" то
+								// РµСЃР»Рё СЃС‚РѕСЏР» С„Р»Р°Рі "РЈРґР°Р»РёС‚СЊ" С‚Рѕ
 								if ($arFile["del"]=="Y")
 								{
-									// удалим связку
+									// СѓРґР°Р»РёРј СЃРІСЏР·РєСѓ
 									$strSql = "
 										DELETE FROM
 											b_ticket_message_2_file
 										WHERE
 											FILE_ID=".intval($arFile["old_file"])."
 										";
-									$DB->Query($strSql, false, $err_mess.__LINE__);
+									$DB->Query($strSql);
 								}
 
-								// если успешно загрузили файл то
+								// РµСЃР»Рё СѓСЃРїРµС€РЅРѕ Р·Р°РіСЂСѓР·РёР»Рё С„Р°Р№Р» С‚Рѕ
 								if ($fid>0)
 								{
-									// если это был новый файл то
+									// РµСЃР»Рё СЌС‚Рѕ Р±С‹Р» РЅРѕРІС‹Р№ С„Р°Р№Р» С‚Рѕ
 									if (intval($arFile["old_file"])<=0)
 									{
-										// добавим связку
+										// РґРѕР±Р°РІРёРј СЃРІСЏР·РєСѓ
 										$md5 = md5(uniqid(mt_rand(), true).time());
 										$arFields_fi = array(
 											"HASH"				=> "'".$DB->ForSql($md5, 255)."'",
@@ -275,16 +263,16 @@ class CTicket extends CAllTicket
 											"TICKET_ID"			=> $ticketID,
 											"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 											);
-										$DB->Insert("b_ticket_message_2_file",$arFields_fi, $err_mess.__LINE__);
+										$DB->Insert("b_ticket_message_2_file",$arFields_fi);
 									}
-									else // иначе
+									else // РёРЅР°С‡Рµ
 									{
-										// обновим связку
+										// РѕР±РЅРѕРІРёРј СЃРІСЏР·РєСѓ
 										$arFields_fu = array(
 											"FILE_ID"			=> $fid,
 											"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 											);
-										$DB->Update("b_ticket_message_2_file", $arFields_fu, "WHERE FILE_ID = ".intval($arFile["old_file"]),$err_mess.__LINE__);
+										$DB->Update("b_ticket_message_2_file", $arFields_fu, "WHERE FILE_ID = ".intval($arFile["old_file"]));
 									}
 								}
 							}
@@ -314,7 +302,6 @@ class CTicket extends CAllTicket
 	{
 		if ($arFields["MESSAGE"] <> '' || (is_array($arFields["FILES"]) && count($arFields["FILES"])>0))
 		{
-			$err_mess = (CTicket::err_mess())."<br>Function: AddMessage<br>Line: ";
 			global $DB, $USER;
 
 			$bAdmin = "N";
@@ -347,14 +334,14 @@ class CTicket extends CAllTicket
 			}
 
 			$strSql = "SELECT RESPONSIBLE_USER_ID, LAST_MESSAGE_USER_ID, REOPEN, SITE_ID, TITLE FROM b_ticket WHERE ID='$ticketID'";
-			$rsTicket = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$rsTicket = $DB->Query($strSql);
 			$arTicket = $rsTicket->Fetch();
 			$currentResponsibleUserID = $arTicket["RESPONSIBLE_USER_ID"];
 			$siteID = $arTicket["SITE_ID"];
 			$tTitle = $arTicket["TITLE"];
 
 			$strSql = "SELECT max(C_NUMBER) MAX_NUMBER FROM b_ticket_message WHERE TICKET_ID='$ticketID'";
-			$z = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$z = $DB->Query($strSql);
 			$zr = $z->Fetch();
 			$maxNumber = intval($zr['MAX_NUMBER']);
 
@@ -463,7 +450,7 @@ class CTicket extends CAllTicket
 				"IS_LOG"						=> "'".$log."'",
 				"IS_OVERDUE"					=> "'".$overdue."'",
 				"MESSAGE"						=> "'".$DB->ForSql($arFields["MESSAGE"])."'",
-				"MESSAGE_SEARCH"				=> "'".$DB->ForSql(ToUpper($arFields["MESSAGE"]))."'",
+				"MESSAGE_SEARCH"				=> "'".$DB->ForSql(mb_strtoupper($arFields["MESSAGE"]))."'",
 				"EXTERNAL_ID"					=> $externalID,
 				"EXTERNAL_FIELD_1"				=> ($externalField1 <> '' ? "'".$DB->ForSql($externalField1)."'" : "null"),
 				"OWNER_USER_ID"					=> $ownerUserID,
@@ -500,13 +487,13 @@ class CTicket extends CAllTicket
 
 
 
-			$mid = $DB->Insert("b_ticket_message",$arFieldsI, $err_mess.__LINE__);
+			$mid = $DB->Insert("b_ticket_message",$arFieldsI);
 			if (intval($mid)>0)
 			{
 				$not_image_extension_suffix = COption::GetOptionString("support", "NOT_IMAGE_EXTENSION_SUFFIX");
 				$not_image_upload_dir = COption::GetOptionString("support", "NOT_IMAGE_UPLOAD_DIR");
 				$max_size = COption::GetOptionString("support", "SUPPORT_MAX_FILESIZE");
-				// сохраняем приаттаченные файлы
+				// СЃРѕС…СЂР°РЅСЏРµРј РїСЂРёР°С‚С‚Р°С‡РµРЅРЅС‹Рµ С„Р°Р№Р»С‹
 				$arFILES = $arFields["FILES"];
 				if (is_array($arFILES) && count($arFILES)>0)
 				{
@@ -548,7 +535,7 @@ class CTicket extends CAllTicket
 									"TICKET_ID"			=> $ticketID,
 									"EXTENSION_SUFFIX"	=> ($fes <> '') ? "'".$DB->ForSql($fes, 255)."'" : "null"
 									);
-								$link_id = $DB->Insert("b_ticket_message_2_file",$arFields_fi, $err_mess.__LINE__);
+								$link_id = $DB->Insert("b_ticket_message_2_file",$arFields_fi);
 								if (intval($link_id)>0)
 								{
 									$arFILE["LINK_ID"] = $link_id;
@@ -560,15 +547,15 @@ class CTicket extends CAllTicket
 				}
 
 				/*
-				// если это не было скрытым сообщением или сообщение лога, то
+				// РµСЃР»Рё СЌС‚Рѕ РЅРµ Р±С‹Р»Рѕ СЃРєСЂС‹С‚С‹Рј СЃРѕРѕР±С‰РµРЅРёРµРј РёР»Рё СЃРѕРѕР±С‰РµРЅРёРµ Р»РѕРіР°, С‚Рѕ
 				if ($notChangeStatus!="Y" && $hidden!="Y" && $log!="Y")
 				{
-					// обновим ряд параметров обращения
+					// РѕР±РЅРѕРІРёРј СЂСЏРґ РїР°СЂР°РјРµС‚СЂРѕРІ РѕР±СЂР°С‰РµРЅРёСЏ
 					if (!isset($arFields["AUTO_CLOSE_DAYS"])) $RESET_AUTO_CLOSE = "Y";
 					
 					CTicket::UpdateLastParams($ticketID, $RESET_AUTO_CLOSE, $changeLastMessageDate, true);
 
-					// при необходимости создадим или удалим агенты-напоминальщики
+					// РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё СЃРѕР·РґР°РґРёРј РёР»Рё СѓРґР°Р»РёРј Р°РіРµРЅС‚С‹-РЅР°РїРѕРјРёРЅР°Р»СЊС‰РёРєРё
 					//CTicketReminder::Update($ticketID);
 				}*/
 
@@ -577,7 +564,7 @@ class CTicket extends CAllTicket
 					CSupportSearch::reindexTicket($ticketID);
 				}
 
-				//если была установлена галочка "не изменять статус обращени" - пересчитаем количество собщений
+				//РµСЃР»Рё Р±С‹Р»Р° СѓСЃС‚Р°РЅРѕРІР»РµРЅР° РіР°Р»РѕС‡РєР° "РЅРµ РёР·РјРµРЅСЏС‚СЊ СЃС‚Р°С‚СѓСЃ РѕР±СЂР°С‰РµРЅРё" - РїРµСЂРµСЃС‡РёС‚Р°РµРј РєРѕР»РёС‡РµСЃС‚РІРѕ СЃРѕР±С‰РµРЅРёР№
 				if ($notChangeStatus == "Y" || $hidden == "Y")
 					CTicket::UpdateMessages($ticketID);
 			}
@@ -587,7 +574,6 @@ class CTicket extends CAllTicket
 
 	public static function GetStatus($ticketID)
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetStatus<br>Line: ";
 		global $DB, $USER;
 
 		$ticketID = intval($ticketID);
@@ -626,7 +612,7 @@ class CTicket extends CAllTicket
 			WHERE
 				ID = $ticketID
 			";
-		$rs = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$rs = $DB->Query($strSql);
 		if ($ar = $rs->Fetch()) return $ar["LAMP"];
 
 		return false;
@@ -634,7 +620,6 @@ class CTicket extends CAllTicket
 
 	public static function GetList($by = 's_default', $order = 'desc', $arFilter = [], $isFiltered = null, $checkRights = "Y", $getUserName = "Y", $getExtraNames = "Y", $siteID = false, $arParams = [])
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetList<br>Line: ";
 		global $DB, $USER, $USER_FIELD_MANAGER;
 
 		/** @var string $d_join Dictionary join */
@@ -735,7 +720,7 @@ class CTicket extends CAllTicket
 								{
 									$str .= ", '".$DB->ForSQL($value)."'";
 								}
-								$str = TrimEx($str, ",");
+								$str = trim($str, ", ");
 								$arSqlSearch[] = " ".$lamp." in (".$str.")";
 							}
 						}
@@ -1354,7 +1339,7 @@ class CTicket extends CAllTicket
 			if($nTopCount > 0)
 			{
 				$strSql = $DB->TopSql($strSql, $nTopCount);
-				$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+				$res = $DB->Query($strSql);
 				$res->SetUserFields( $USER_FIELD_MANAGER->GetUserFields("SUPPORT") );
 			}
 			else
@@ -1375,7 +1360,7 @@ class CTicket extends CAllTicket
 		}
 		else
 		{
-			$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+			$res = $DB->Query($strSql);
 			$res->SetUserFields( $USER_FIELD_MANAGER->GetUserFields("SUPPORT") );
 		}
 
@@ -1384,7 +1369,6 @@ class CTicket extends CAllTicket
 
 	public static function GetSupportTeamList()
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetSupportTeamList<br>Line: ";
 		global $DB;
 		$arrGid = CTicket::GetSupportTeamGroups();
 		$arrAid = CTicket::GetAdminGroups();
@@ -1418,13 +1402,12 @@ class CTicket extends CAllTicket
 			ORDER BY
 				U.ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	/*function GetResponsibleList($user_id)
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetSupportTeamMailList<br>Line: ";
 		global $DB;
 
 		$strSql = "
@@ -1445,13 +1428,12 @@ class CTicket extends CAllTicket
 			ORDER BY
 				U.ID
 			";
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}*/
 
 	public static function GetMessageList($by = 's_number', $order = 'asc', $arFilter = [], $isFiltered = null, $checkRights = "Y", $getUserName = "Y")
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetMessageList<br>Line: ";
 		global $DB, $USER, $APPLICATION;
 
 		if ($checkRights=="Y")
@@ -1577,13 +1559,12 @@ class CTicket extends CAllTicket
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetDynamicList($by = 's_date_create', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetDynamicList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
@@ -1685,13 +1666,12 @@ class CTicket extends CAllTicket
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 
 	public static function GetMessageDynamicList($by = 's_date_create', $order = 'desc', $arFilter = [])
 	{
-		$err_mess = (CTicket::err_mess())."<br>Function: GetMessageDynamicList<br>Line: ";
 		global $DB;
 		$arSqlSearch = Array();
 		if (is_array($arFilter))
@@ -1803,7 +1783,7 @@ class CTicket extends CAllTicket
 			$strSqlOrder
 			";
 
-		$res = $DB->Query($strSql, false, $err_mess.__LINE__);
+		$res = $DB->Query($strSql);
 		return $res;
 	}
 }

@@ -4,7 +4,7 @@ import { ChatActionType, EventType, Layout, SidebarDetailBlock } from 'im.v2.con
 
 import { EventEmitter } from 'main.core.events';
 import {
-	Avatar,
+	ChatAvatar,
 	AvatarSize,
 	Button as MessengerButton,
 	ButtonSize,
@@ -19,12 +19,16 @@ import type { ImModelChat } from 'im.v2.model';
 // @vue/component
 export const ChatMembersAvatars = {
 	name: 'ChatMembersAvatars',
-	components: { Avatar, MessengerButton, AddToChat },
+	components: { ChatAvatar, MessengerButton, AddToChat },
 	props:
 	{
 		dialogId: {
 			type: String,
 			required: true,
+		},
+		showMembers: {
+			type: Boolean,
+			default: true,
 		},
 	},
 	data(): JsonObject
@@ -105,13 +109,14 @@ export const ChatMembersAvatars = {
 	},
 	template: `
 		<div class="bx-im-sidebar-chat-members-avatars__container">
-			<div v-if="canSeeMembers" class="bx-im-sidebar-chat-members-avatars__members" @click="onOpenUsers">
+			<div v-if="canSeeMembers && showMembers" class="bx-im-sidebar-chat-members-avatars__members" @click="onOpenUsers">
 				<div class="bx-im-sidebar-chat-members-avatars__avatars" >
-					<Avatar
-						class="bx-im-sidebar-chat-members-avatars__avatar"
+					<ChatAvatar
 						v-for="id in dialogIds"
 						:size="AvatarSize.S"
-						:dialogId="id"
+						:avatarDialogId="id"
+						:contextDialogId="dialogId"
+						class="bx-im-sidebar-chat-members-avatars__avatar"
 					/>
 				</div>
 				<div v-if="moreUsersCount > 0" class="bx-im-sidebar-chat-members-avatars__text">

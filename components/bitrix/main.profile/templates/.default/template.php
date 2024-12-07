@@ -1,4 +1,7 @@
-<?
+<?php
+
+use Bitrix\Main\Web\Json;
+
 /**
  * @global CMain $APPLICATION
  * @var array $arParams
@@ -7,7 +10,7 @@
 if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 
-if($arResult["SHOW_SMS_FIELD"] == true)
+if(isset($arResult["SHOW_SMS_FIELD"]) && $arResult["SHOW_SMS_FIELD"] == true)
 {
 	CJSCore::Init('phone_auth');
 }
@@ -17,11 +20,11 @@ if($arResult["SHOW_SMS_FIELD"] == true)
 
 <?ShowError($arResult["strProfileError"]);?>
 <?
-if ($arResult['DATA_SAVED'] == 'Y')
+if (isset($arResult['DATA_SAVED']) && $arResult['DATA_SAVED'] == 'Y')
 	ShowNote(GetMessage('PROFILE_DATA_SAVED'));
 ?>
 
-<?if($arResult["SHOW_SMS_FIELD"] == true):?>
+<?if(isset($arResult["SHOW_SMS_FIELD"]) && $arResult["SHOW_SMS_FIELD"] == true):?>
 
 <form method="post" action="<?=$arResult["FORM_TARGET"]?>">
 <?=$arResult["BX_SESSION_CHECK"]?>
@@ -47,7 +50,7 @@ new BX.PhoneAuth({
 	errorContainerId: 'bx_profile_error',
 	interval: <?=$arResult["PHONE_CODE_RESEND_INTERVAL"]?>,
 	data:
-		<?=CUtil::PhpToJSObject([
+		<?= Json::encode([
 			'signedData' => $arResult["SIGNED_DATA"],
 		])?>,
 	onError:
@@ -71,10 +74,10 @@ new BX.PhoneAuth({
 
 <?else:?>
 
-<script type="text/javascript">
+<script>
 <!--
 var opened_sections = [<?
-$arResult["opened"] = $_COOKIE[$arResult["COOKIE_PREFIX"]."_user_profile_open"];
+$arResult["opened"] = $_COOKIE[$arResult["COOKIE_PREFIX"]."_user_profile_open"] ?? '';
 $arResult["opened"] = preg_replace("/[^a-z0-9_,]/i", "", $arResult["opened"]);
 if ($arResult["opened"] <> '')
 {
@@ -96,7 +99,7 @@ var cookie_prefix = '<?=$arResult["COOKIE_PREFIX"]?>';
 <input type="hidden" name="ID" value=<?=$arResult["ID"]?> />
 
 <div class="profile-link profile-user-div-link"><a title="<?=GetMessage("REG_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('reg')"><?=GetMessage("REG_SHOW_HIDE")?></a></div>
-<div class="profile-block-<?= strpos($arResult["opened"], "reg") === false ? "hidden" : "shown"?>" id="user_div_reg">
+<div class="profile-block-<?= !str_contains($arResult["opened"], "reg") ? "hidden" : "shown"?>" id="user_div_reg">
 <table class="profile-table data-table">
 	<thead>
 		<tr>
@@ -176,7 +179,7 @@ var cookie_prefix = '<?=$arResult["COOKIE_PREFIX"]?>';
 					<div class="bx-auth-secure-icon bx-auth-secure-unlock"></div>
 				</span>
 				</noscript>
-<script type="text/javascript">
+<script>
 document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </script>
 		</td>
@@ -216,7 +219,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </table>
 </div>
 <div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('personal')"><?=GetMessage("USER_PERSONAL_INFO")?></a></div>
-<div id="user_div_personal" class="profile-block-<?= strpos($arResult["opened"], "personal") === false ? "hidden" : "shown"?>">
+<div id="user_div_personal" class="profile-block-<?= !str_contains($arResult["opened"], "personal") ? "hidden" : "shown"?>">
 <table class="data-table profile-table">
 	<thead>
 		<tr>
@@ -332,7 +335,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 </div>
 
 <div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('work')"><?=GetMessage("USER_WORK_INFO")?></a></div>
-<div id="user_div_work" class="profile-block-<?= strpos($arResult["opened"], "work") === false ? "hidden" : "shown"?>">
+<div id="user_div_work" class="profile-block-<?= !str_contains($arResult["opened"], "work") ? "hidden" : "shown"?>">
 <table class="data-table profile-table">
 	<thead>
 		<tr>
@@ -428,7 +431,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	?>
 
 <div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('forum')"><?=GetMessage("forum_INFO")?></a></div>
-<div id="user_div_forum" class="profile-block-<?= strpos($arResult["opened"], "forum") === false ? "hidden" : "shown"?>">
+<div id="user_div_forum" class="profile-block-<?= !str_contains($arResult["opened"], "forum") ? "hidden" : "shown"?>">
 <table class="data-table profile-table">
 	<thead>
 		<tr>
@@ -476,7 +479,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	{
 	?>
 <div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('blog')"><?=GetMessage("blog_INFO")?></a></div>
-<div id="user_div_blog" class="profile-block-<?= strpos($arResult["opened"], "blog") === false ? "hidden" : "shown"?>">
+<div id="user_div_blog" class="profile-block-<?= !str_contains($arResult["opened"], "blog") ? "hidden" : "shown"?>">
 <table class="data-table profile-table">
 	<thead>
 		<tr>
@@ -516,7 +519,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	?>
 	<?if ($arResult["INCLUDE_LEARNING"] == "Y"):?>
 	<div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('learning')"><?=GetMessage("learning_INFO")?></a></div>
-	<div id="user_div_learning" class="profile-block-<?= strpos($arResult["opened"], "learning") === false ? "hidden" : "shown"?>">
+	<div id="user_div_learning" class="profile-block-<?= !str_contains($arResult["opened"], "learning") ? "hidden" : "shown"?>">
 	<table class="data-table profile-table">
 		<thead>
 			<tr>
@@ -543,7 +546,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	<?endif;?>
 	<?if($arResult["IS_ADMIN"]):?>
 	<div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('admin')"><?=GetMessage("USER_ADMIN_NOTES")?></a></div>
-	<div id="user_div_admin" class="profile-block-<?= strpos($arResult["opened"], "admin") === false ? "hidden" : "shown"?>">
+	<div id="user_div_admin" class="profile-block-<?= !str_contains($arResult["opened"], "admin") ? "hidden" : "shown"?>">
 	<table class="data-table profile-table">
 		<thead>
 			<tr>
@@ -562,7 +565,7 @@ document.getElementById('bx_auth_secure').style.display = 'inline-block';
 	<?// ********************* User properties ***************************************************?>
 	<?if($arResult["USER_PROPERTIES"]["SHOW"] == "Y"):?>
 	<div class="profile-link profile-user-div-link"><a title="<?=GetMessage("USER_SHOW_HIDE")?>" href="javascript:void(0)" onclick="SectionClick('user_properties')"><?=trim($arParams["USER_PROPERTY_NAME"]) <> '' ? $arParams["USER_PROPERTY_NAME"] : GetMessage("USER_TYPE_EDIT_TAB")?></a></div>
-	<div id="user_div_user_properties" class="profile-block-<?= strpos($arResult["opened"], "user_properties") === false ? "hidden" : "shown"?>">
+	<div id="user_div_user_properties" class="profile-block-<?= !str_contains($arResult["opened"], "user_properties") ? "hidden" : "shown"?>">
 	<table class="data-table profile-table">
 		<thead>
 			<tr>

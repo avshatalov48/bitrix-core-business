@@ -1,9 +1,0 @@
-body, #page-gradient, #page, #star, #header-corners, #footer-wrapper { background: white !important; }
-
-#panel, #rss-link, #top-menu, #sidebar, #footer-links { display: none !important; }
-
-#work-area { width: 820px;}
-
-#content, #header, #copyright { margin: 0; padding: 0;}
-
-#site-name { left: 0;}

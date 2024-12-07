@@ -1,4 +1,4 @@
-import { BaseField } from "./base-field";
+import { BaseField } from './base-field';
 import { Switcher } from 'ui.switcher';
 import { Type, Event } from 'main.core';
 
@@ -27,7 +27,7 @@ export class SingleChecker extends BaseField
 				}
 
 				this.switcher.inputNode.form.dispatchEvent(new window.Event('change'));
-				this.emit('change',this.switcher.isChecked());
+				this.emit('change', this.switcher.isChecked());
 			},
 		);
 	}

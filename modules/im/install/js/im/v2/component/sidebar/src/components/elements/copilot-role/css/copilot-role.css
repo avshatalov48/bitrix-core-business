@@ -1,0 +1,53 @@
+.bx-im-sidebar-copilot-role__container {
+	--im-sidebar-main-preview-settings__color_copilot-title: var(--im-color-palette-copilot-primary);
+	--im-sidebar-main-preview-settings__color_copilot-title-hover: var(--im-color-palette-copilot-dark);
+
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	height: 20px;
+	cursor: pointer;
+	font: var(--im-font-size-md)/var(--im-font-line-height-2xs) var(--im-font-family-system);
+	font-weight: var(--im-font-weight-semi-bold);
+	color: var(--im-sidebar-main-preview-settings__color_copilot-title);
+}
+
+.bx-im-sidebar-copilot-role__container:hover {
+	color: var(--im-sidebar-main-preview-settings__color_copilot-title-hover);
+}
+
+.bx-im-sidebar-copilot-role__title {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	overflow: hidden;
+}
+
+.bx-im-sidebar-copilot-role__title-text {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	position: relative;
+}
+
+.bx-im-sidebar-copilot-role__title-icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: url("./images/icon.svg") no-repeat center;
+}
+
+.bx-im-sidebar-copilot-role__container:hover .bx-im-sidebar-copilot-role__title-icon {
+	background: url("./images/icon-hover.svg") no-repeat center;
+}
+
+.bx-im-sidebar-copilot-role__arrow-icon {
+	flex-shrink: 0;
+	width: 20px;
+	height: 20px;
+	background: url("./images/arrow.svg") no-repeat center;
+}
+
+.bx-im-sidebar-copilot-role__container:hover .bx-im-sidebar-copilot-role__arrow-icon {
+	background: url("./images/arrow-hover.svg") no-repeat center;
+}

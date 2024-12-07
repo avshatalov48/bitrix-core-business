@@ -1,6 +1,7 @@
 <?php
+$MESS["PRODUCT_MAPPING_FIELD_LOCK_TEXT"] = "Insufficient permission to change product visibility.";
 $MESS["PRODUCT_MAPPING_FIELD_TITLE"] = "Product visibility";
-$MESS["PRODUCT_MAPPING_FIELD_TITLE_HINT"] = "Use this option to show or hide the product on the online store's pages. <a onclick=\"top.BX.Helper.show('redirect=detail&code=15440280')\" style=\"cursor: pointer\">Details</a>";
+$MESS["PRODUCT_MAPPING_FIELD_TITLE_HINT_MSGVER_1"] = "Use this option to show or hide the product on the online store's pages.";
 $MESS["PRODUCT_MAPPING_STORAGE_TITLE"] = "Product visibility";
 $MESS["PRODUCT_MAPPING_TYPE_FACEBOOK"] = "Facebook";
 $MESS["PRODUCT_MAPPING_TYPE_LANDING"] = "Online store";

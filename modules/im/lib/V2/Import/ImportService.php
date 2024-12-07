@@ -58,6 +58,7 @@ class ImportService
 				? self::IMPORT_PRIVATE_CHAT_ENTITY_TYPE
 				: self::IMPORT_GROUP_CHAT_ENTITY_TYPE
 		;
+		$chatData['SKIP_ADD_MESSAGE'] = 'Y';
 
 		$chatService = new \CIMChat(0);
 		$chatId = $chatService->Add($chatData);

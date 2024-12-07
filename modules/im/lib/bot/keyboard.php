@@ -8,6 +8,8 @@
 
 namespace Bitrix\Im\Bot;
 
+use Bitrix\Im\V2\Message\Color\Color;
+
 class Keyboard
 {
 	private $botId = 0;
@@ -150,6 +152,8 @@ class Keyboard
 		{
 			$button['BG_COLOR'] = $this->colors['BG_COLOR'];
 		}
+
+		$button['BG_COLOR_TOKEN'] = Color::validateColor($params['BG_COLOR_TOKEN'] ?? null);
 
 		if(isset($params['TEXT_COLOR']) && preg_match('/^#([a-fA-F0-9]){3}(([a-fA-F0-9]){3})?\b$/D', $params['TEXT_COLOR']))
 		{

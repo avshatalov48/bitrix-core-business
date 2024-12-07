@@ -210,7 +210,7 @@ if($this->StartResultCache(false, array($USER->GetGroups(), $arCache)))
 		if(
 			!$arResult['REDIRECTED_FROM']  //to redirect the redirection forbided
 			&& $arResult['REDIRECTED_FROM']!='no' //to get page with redirection
-			&& preg_match("/^\#(REDIRECT|".GetMessage('WIKI_REDIRECT').")\s*\[\[(.+)\]\]/iU".BX_UTF_PCRE_MODIFIER, $arResult['ELEMENT']['DETAIL_TEXT'],$matches))
+			&& preg_match("/^\#(REDIRECT|".GetMessage('WIKI_REDIRECT').")\s*\[\[(.+)\]\]/iUu", $arResult['ELEMENT']['DETAIL_TEXT'],$matches))
 		{
 			if($matches[2])
 			{

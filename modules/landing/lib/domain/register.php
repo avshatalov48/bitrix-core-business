@@ -3,6 +3,7 @@ namespace Bitrix\Landing\Domain;
 
 use \Bitrix\Landing\Manager;
 use \Bitrix\Main\Web\HttpClient;
+use Bitrix\Main\Web\Json;
 
 class Register
 {
@@ -45,7 +46,7 @@ class Register
 		$http = new HttpClient;
 		$zone = ($tld == 'kz') ? 'kz' : Manager::getZone();
 		$ip = $http->get(self::B24_SERVICE_DETECT_IP . $zone);
-		$ip = \CUtil::jsObjectToPhp($ip);
+		$ip = Json::decode($ip);
 
 		return isset($ip['IP']) ? $ip['IP'] : self::B24_DEFAULT_DNS_IP;
 	}
@@ -81,12 +82,19 @@ class Register
 	{
 		$http = new HttpClient;
 		$status = $http->get(self::B24_SERVICE_DETECT_DOMAIN . $domainName);
-		$status = \CUtil::jsObjectToPhp($status);
-		// protect from bad answer
-		if (!isset($status['status']))
+		try
 		{
-			return true;
+			$status = Json::decode($status);
+			// protect from bad answer
+			if (!isset($status['status']))
+			{
+				return true;
+			}
+			return $status['status'] === 'ready';
 		}
-		return $status['status'] === 'ready';
+		catch (\Exception $e)
+		{
+			return false;
+		}
 	}
 }

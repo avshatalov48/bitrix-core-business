@@ -6,6 +6,8 @@ use Bitrix\Calendar\Access\Model\TypeModel;
 use Bitrix\Calendar\Access\TypeAccessController;
 use Bitrix\Calendar\Core\Role\Helper;
 use Bitrix\Calendar\Core\Role\User;
+use Bitrix\Calendar\Internals\Counter\CounterService;
+use Bitrix\Calendar\Internals\Counter\Event\EventDictionary;
 use Bitrix\Calendar\Internals\SectionTable;
 use Bitrix\Calendar\Sync\Google;
 use Bitrix\Calendar\Sync\ICloud;
@@ -48,8 +50,10 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 
 	public function removeConnectionAction($connectionId, $removeCalendars)
 	{
-		\CCalendar::setOwnerId(\CCalendar::getCurUserId());
+		$userId = \CCalendar::GetUserId();
+		\CCalendar::setOwnerId($userId);
 		\CCalendar::RemoveConnection(['id' => (int)$connectionId, 'del_calendars' => $removeCalendars === 'Y']);
+		CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => [$userId]]);
 
 		return true;
 	}
@@ -87,6 +91,8 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 			{
 				$this->addError(new Error($res, 'incorrect_parameters'));
 			}
+
+			CounterService::addEvent(EventDictionary::SYNC_CHANGED, ['user_ids' => [$params['user_id']]]);
 		}
 	}
 
@@ -252,20 +258,6 @@ class SyncAjax extends \Bitrix\Main\Engine\Controller
 		Util::setRequestUid();
 
 		return \CCalendarSync::GetSyncInfo($params);
-	}
-
-	public function getAuthLinkAction()
-	{
-		$type = $this->getRequest()->getPost('type');
-		$type = in_array($type, ['slider', 'banner'], true)
-			? $type
-			: 'banner'
-		;
-		if (\Bitrix\Main\Loader::includeModule("mobile"))
-		{
-			return ['link' => \Bitrix\Mobile\Deeplink::getAuthLink("calendar_sync_".$type)];
-		}
-		return null;
 	}
 
 	/**

@@ -4,6 +4,7 @@ if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 	die();
 }
 
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
@@ -177,9 +178,14 @@ class AddressBookComponent extends CBitrixComponent implements Controllerable
 		$this->includeComponentTemplate();
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private function removeContacts($idSet)
 	{
-		(new Bitrix\Mail\Controller\AddressBook)->removeContactsAction($idSet);
+		$addressBookController = new Bitrix\Mail\Controller\AddressBook();
+		$addressBookController->setCurrentUser(CurrentUser::get());
+		$addressBookController->removeContactsAction($idSet);
 	}
 
 	private function processGridRequests($gridId)

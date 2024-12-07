@@ -116,7 +116,7 @@ if (isset($arResult['ACCESS_CODES']))
 	</button>
 </form>
 
-<script type="text/javascript">
+<script>
 	BX.ready(function(){
 		new BX.Landing.AccessExtended({
 		});
@@ -212,7 +212,7 @@ if (isset($arResult['ACCESS_CODES']))
 	<input type="hidden" name="action" value="mode" />
 </form>
 
-<script type="text/javascript">
+<script>
 	var landingAccessSelected = <?= json_encode(array_fill_keys($accessCodes, true));?>;
 	BX.ready(function(){
 		new BX.Landing.Access({

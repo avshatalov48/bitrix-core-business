@@ -37,9 +37,10 @@ class Cookie
 		$this->expires = $expires;
 	}
 
-	public function setDomain(string $domain): Cookie
+	public function setDomain(string $domain): self
 	{
 		$this->domain = $domain;
+
 		return $this;
 	}
 
@@ -48,9 +49,10 @@ class Cookie
 		return $this->domain;
 	}
 
-	public function setExpires(int $expires): Cookie
+	public function setExpires(int $expires): self
 	{
 		$this->expires = $expires;
+
 		return $this;
 	}
 
@@ -59,9 +61,10 @@ class Cookie
 		return $this->expires;
 	}
 
-	public function setHttpOnly(bool $httpOnly): Cookie
+	public function setHttpOnly(bool $httpOnly): self
 	{
 		$this->httpOnly = $httpOnly;
+
 		return $this;
 	}
 
@@ -70,9 +73,10 @@ class Cookie
 		return $this->httpOnly;
 	}
 
-	public function setName(string $name): Cookie
+	public function setName(string $name): self
 	{
 		$this->name = $name;
+
 		return $this;
 	}
 
@@ -81,9 +85,10 @@ class Cookie
 		return $this->name;
 	}
 
-	public function setPath(string $path): Cookie
+	public function setPath(string $path): self
 	{
 		$this->path = $path;
+
 		return $this;
 	}
 
@@ -92,9 +97,10 @@ class Cookie
 		return $this->path;
 	}
 
-	public function setSecure(bool $secure): Cookie
+	public function setSecure(bool $secure): self
 	{
 		$this->secure = $secure;
+
 		return $this;
 	}
 
@@ -103,9 +109,10 @@ class Cookie
 		return $this->secure;
 	}
 
-	public function setValue(?string $value): Cookie
+	public function setValue(?string $value): self
 	{
 		$this->value = $value;
+
 		return $this;
 	}
 
@@ -114,9 +121,10 @@ class Cookie
 		return $this->value;
 	}
 
-	public function setSameSite(?string $sameSite): Cookie
+	public function setSameSite(?string $sameSite): self
 	{
 		$this->sameSite = $sameSite;
+
 		return $this;
 	}
 

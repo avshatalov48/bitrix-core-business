@@ -60,7 +60,7 @@ final class PushWorker
 		if (!self::$setJob)
 		{
 			Main\Application::getInstance()->addBackgroundJob(
-				[__CLASS__, 'doBackgroundJob'],
+				\Closure::fromCallable([__CLASS__, 'doBackgroundJob']),
 				[],
 				Main\Application::JOB_PRIORITY_LOW - 10
 			);
@@ -68,10 +68,9 @@ final class PushWorker
 		}
 	}
 
-	public static function doBackgroundJob()
+	private static function doBackgroundJob()
 	{
 		$push = new self();
-
 		foreach (self::$queue as [$command, $params, $userIds])
 		{
 			$push->send($command, $params, $userIds);

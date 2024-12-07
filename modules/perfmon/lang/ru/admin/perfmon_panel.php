@@ -84,7 +84,7 @@ $MESS["PERFMON_PANEL_DB_OPTIMIZE_REC"] = "Оптимизировать";
 $MESS["PERFMON_PANEL_REFERENCE_CONFIGURATION"] = "Результаты производительности для эталона получены на виртуальной машине VMBitrix. Вы можете скачать виртуальную машину, самостоятельно выполнить замер производительности и использовать VMBitrix для вашего проекта.
 <p>При замере эталона использовалась следующая конфигурация:</p>
 <ul>
-<li><a href=\"http://www.1c-bitrix.ru/products/vmbitrix/\">1С-Битрикс: Виртуальная машина</a> версии 1.2 с ограничением на 256Мб оперативной памяти и 1 процессором
+<li><a href=\"https://www.1c-bitrix.ru/products/vmbitrix/\">1С-Битрикс: Виртуальная машина</a> версии 1.2 с ограничением на 256Мб оперативной памяти и 1 процессором
 <li>Под управлением VMware Server 1.0.6
 </ul>";
 $MESS["PERFMON_PANEL_TOP_NOTE"] = "<p>Для проведения теста будет включен монитор производительности и будут проведены измерения активности пользователей сайта. По окончании указанного интервала на вкладке \"Разработка\" будет выведена оценка производительности сайта.</p>
@@ -95,7 +95,7 @@ $MESS["PERFMON_PANEL_WARN_NOTE_1"] = "1. Отсутствие кеширован
 $MESS["PERFMON_PANEL_WARN_NOTE_2"] = "2. При включенном автокешировании компоненты не должны выполнять запросы к базе данных. Убедитесь, что в настройках указанного компонента включено кеширование или обратитесь к разработчику компонента для исправления.";
 $MESS["PERFMON_PANEL_WARN_NOTE_3"] = "3. Неэффективное создание больших файлов кеша компонентов. Размер файла кеша не должен превышать одного мегабайта. Убедитесь, что в компоненте используется вызов метода SetResultCacheKeys и не выбираются неиспользуемые данные.";
 $MESS["PERFMON_PANEL_CACHE_STORAGE"] = "Хранение кеша";
-$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Возможные типы хранения:<ul style=\"font-size:100%\"><li>Файлы</li><li>memcached</li><li>redis</li><li>APCu</li></ul><a href=\"http://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=43&amp;LESSON_ID=2795#cache\">Инструкция по настройке.</a>";
+$MESS["PERFMON_PANEL_CACHE_STORAGE_REC"] = "Возможные типы хранения:<ul style=\"font-size:100%\"><li>Файлы</li><li>memcached</li><li>redis</li><li>APCu</li></ul><a href=\"https://dev.1c-bitrix.ru/learning/course/index.php?COURSE_ID=43&amp;LESSON_ID=2795#cache\">Инструкция по настройке.</a>";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS"] = "Фиксация числа показов баннеров";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_ON"] = "Включена и есть баннеры с фиксацией";
 $MESS["PERFMON_PANEL_ADV_BANNERS_FIX_SHOWS_OFF"] = "Выключена или нет баннеров с фиксацией";

@@ -61,14 +61,27 @@ require $vendorPath.'/autoload.php';
 
 // initialize symfony
 use Symfony\Component\Console\Application;
+
 $application = new Application();
 
 // register  commands
-$application->add(new \Bitrix\Main\Cli\OrmAnnotateCommand());
-
-if (\Bitrix\Main\ModuleManager::isModuleInstalled('translate') && \Bitrix\Main\Loader::includeModule('translate'))
+$modules = \Bitrix\Main\ModuleManager::getInstalledModules();
+foreach ($modules as $moduleId => $_)
 {
-	$application->add(new \Bitrix\Translate\Cli\IndexCommand());
+	$config = \Bitrix\Main\Config\Configuration::getInstance($moduleId)->get('console');
+	if (isset($config['commands']) && is_array($config['commands']))
+	{
+		if (\Bitrix\Main\Loader::includeModule($moduleId))
+		{
+			foreach ($config['commands'] as $commandClass)
+			{
+				if (is_a($commandClass, \Symfony\Component\Console\Command\Command::class, true))
+				{
+					$application->add(new $commandClass());
+				}
+			}
+		}
+	}
 }
 
 // run console

@@ -470,7 +470,7 @@ class WizardTemplate extends CWizardTemplate
 			</style>
 		</noscript>
 
-		<script type="text/javascript">
+		<script>
 		<!--
 
 			function SubmitForm(button)
@@ -578,7 +578,7 @@ class WizardTemplate extends CWizardTemplate
 			<td width="10" height="10" valign="bottom"><img src="{$wizardPath}/images/corner_bottom_right.gif" width="10" height="10" alt="" /></td>
 		</tr>
 	</table>
-	<script type="text/javascript">PreloadImages("{$wizardPath}/images/");</script>
+	<script>PreloadImages("{$wizardPath}/images/");</script>
 
 </div>
 </body>

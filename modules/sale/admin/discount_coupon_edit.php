@@ -1,12 +1,17 @@
-<?
+<?php
 /** @global CMain $APPLICATION */
-use Bitrix\Main,
-	Bitrix\Main\Loader,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Sale\Internals;
+use Bitrix\Main;
+use Bitrix\Main\Loader;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Sale\Internals;
 
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
 require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/sale/prolog.php');
+
+/** @global CAdminPage $adminPage */
+global $adminPage;
+/** @global CAdminSidePanelHelper $adminSidePanelHelper */
+global $adminSidePanelHelper;
 
 $selfFolderUrl = $adminPage->getSelfFolderUrl();
 $listUrl = $selfFolderUrl."sale_discount_coupons.php?lang=".LANGUAGE_ID;
@@ -24,7 +29,9 @@ Loader::includeModule('sale');
 Loc::loadMessages(__FILE__);
 
 if ($subWindow)
+{
 	require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/iblock/classes/general/subelement.php');
+}
 
 if (!$subWindow && $ex = $APPLICATION->GetException())
 {
@@ -123,7 +130,6 @@ if (
 	&& (string)$request->getPost('Update') == 'Y'
 )
 {
-	$adminSidePanelHelper->decodeUriComponent($request);
 	$rawData = $request->getPostList();
 	if ($multiCoupons)
 	{
@@ -214,7 +220,7 @@ if (
 		if ($subWindow)
 		{
 			?>
-			<script type="text/javascript">
+			<script>
 				var currentWindow = top.window;
 				if (top.BX.SidePanel && top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 				{
@@ -225,7 +231,7 @@ if (
 				currentWindow.BX.WindowManager.Get().Close();
 				currentWindow.ReloadSubList();
 			</script>
-			<?
+			<?php
 			die();
 		}
 		else
@@ -257,7 +263,7 @@ elseif ($subWindow)
 	if ((string)$request->get('dontsave') != '')
 	{
 		?>
-		<script type="text/javascript">
+		<script>
 			var currentWindow = top.window;
 			if (top.BX.SidePanel.Instance && top.BX.SidePanel.Instance.getTopSlider())
 			{
@@ -267,7 +273,7 @@ elseif ($subWindow)
 			currentWindow.BX.WindowManager.Get().AllowClose();
 			currentWindow.BX.WindowManager.Get().Close();
 		</script>
-		<?
+		<?php
 		die();
 	}
 }
@@ -428,21 +434,21 @@ $control->EndPrologContent();
 $control->BeginEpilogContent();
 echo GetFilterHiddens("filter_");?>
 <input type="hidden" name="Update" value="Y">
-<input type="hidden" name="lang" value="<? echo LANGUAGE_ID; ?>">
-<input type="hidden" name="ID" value="<? echo $couponID; ?>">
-<?
+<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+<input type="hidden" name="ID" value="<?= $couponID ?>">
+<?php
 if ($subWindow)
 {
-	?><input type="hidden" name="DISCOUNT_ID" value="<? echo $discountID; ?>">
-	<input type="hidden" name="MULTI" value="<? echo ($multiCoupons ? 'Y' : 'N');?>"><?
+	?><input type="hidden" name="DISCOUNT_ID" value="<?= $discountID ?>">
+	<input type="hidden" name="MULTI" value="<?= ($multiCoupons ? 'Y' : 'N') ?>"><?php
 }
 if ($copy)
 {
-	?><input type="hidden" name="action" value="copy"><?
+	?><input type="hidden" name="action" value="copy"><?php
 }
 if (!empty($returnUrl))
 {
-	?><input type="hidden" name="return_url" value="<? echo htmlspecialcharsbx($returnUrl); ?>"><?
+	?><input type="hidden" name="return_url" value="<?= htmlspecialcharsbx($returnUrl) ?>"><?php
 }
 echo bitrix_sessid_post();
 $control->EndEpilogContent();
@@ -455,8 +461,8 @@ if ($multiCoupons)
 	$control->AddEditField($prefix.'COUNT', Loc::getMessage('BX_SALE_DISCOUNT_COUPON_COUNT'), true, array(), ($coupon['COUNT'] > 0 ? $coupon['COUNT'] : ''));
 	$control->BeginCustomField($prefix.'PERIOD', Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_PERIOD'), false);
 	?><tr id="tr_COUPON_PERIOD">
-	<td width="40%"><? echo $control->GetCustomLabelHTML(); ?></td>
-	<td width="60%"><?
+	<td width="40%"><?= $control->GetCustomLabelHTML() ?></td>
+	<td width="60%"><?php
 		$periodValue = '';
 		CTimeZone::Disable();
 		$activeFrom = ($coupon['COUPON']['ACTIVE_FROM'] instanceof Main\Type\DateTime ? $coupon['COUPON']['ACTIVE_FROM']->toString() : '');
@@ -478,7 +484,7 @@ if ($multiCoupons)
 		);
 		unset($calendar, $activeTo, $activeFrom, $periodValue);
 		?></td>
-	</tr><?
+	</tr><?php
 	$control->EndCustomField($prefix.'PERIOD');
 	$control->AddDropDownField(
 		$prefix.'TYPE',
@@ -498,7 +504,7 @@ if ($multiCoupons)
 	$control->Buttons(false, '');
 	$control->Show();
 ?>
-<script type="text/javascript">
+<script>
 	var couponType = BX('<?=$prefix.'TYPE'; ?>'),
 		maxUse = BX('<?=$prefix.'MAX_USE'; ?>'),
 		rowMaxUse;
@@ -537,7 +543,7 @@ if ($multiCoupons)
 		}
 	});
 </script>
-<?
+<?php
 }
 else
 {
@@ -585,11 +591,11 @@ else
 			$discountEditPath = $selfFolderUrl.'sale_discount_edit.php?lang='.LANGUAGE_ID.'&return_url='.urlencode($APPLICATION->GetCurPageParam());
 			$discountEditPath = $adminSidePanelHelper->editUrlToPublicPage($discountEditPath);
 			?><tr id="tr_DISCOUNT_ID">
-			<td width="40%"><? echo $control->GetCustomLabelHTML(); ?></td>
+			<td width="40%"><?= $control->GetCustomLabelHTML() ?></td>
 			<td width="60%">
-				<? echo Loc::getMessage('BX_SALE_DISCOUNT_COUPON_MESS_DISCOUNT_ABSENT'); ?> <a href="<? echo $discountEditPath ?>"><?
+				<?= Loc::getMessage('BX_SALE_DISCOUNT_COUPON_MESS_DISCOUNT_ABSENT') ?> <a href="<?= $discountEditPath ?>"><?php
 				echo Loc::getMessage('BX_SALE_DISCOUNT_COUPON_MESS_DISCOUNT_ADD'); ?></a></td>
-			</tr><?
+			</tr><?php
 			unset($discountEditPath);
 			$control->EndCustomField('DISCOUNT_ID');
 		}
@@ -597,12 +603,12 @@ else
 	}
 	$control->BeginCustomField('COUPON', Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_COUPON'), true);
 	?><tr id="tr_COUPON" class="adm-detail-required-field">
-		<td width="40%"><? echo $control->GetCustomLabelHTML(); ?></td>
+		<td width="40%"><?= $control->GetCustomLabelHTML() ?></td>
 		<td width="60%" id="td_COUPON_VALUE">
-			<input type="text" id="COUPON" name="COUPON" size="32" maxlength="32" value="<? echo htmlspecialcharsbx($coupon['COUPON']); ?>" />&nbsp;
-			<input type="button" value="<? echo Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_COUPON_GENERATE'); ?>" id="COUPON_GENERATE">
+			<input type="text" id="COUPON" name="COUPON" size="32" maxlength="32" value="<?= htmlspecialcharsbx($coupon['COUPON']); ?>" />&nbsp;
+			<input type="button" value="<?= htmlspecialcharsbx(Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_COUPON_GENERATE')) ?>" id="COUPON_GENERATE">
 		</td>
-	</tr><?
+	</tr><?php
 	$control->EndCustomField('COUPON',
 		'<input type="hidden" name="COUPON" value="'.htmlspecialcharsbx($coupon['COUPON']).'">'
 	);
@@ -633,8 +639,8 @@ else
 	}
 	$control->BeginCustomField($prefix.'PERIOD', Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_PERIOD'), false);
 	?><tr id="tr_COUPON_PERIOD">
-		<td width="40%"><? echo $control->GetCustomLabelHTML(); ?></td>
-		<td width="60%"><?
+		<td width="40%"><?= $control->GetCustomLabelHTML() ?></td>
+		<td width="60%"><?php
 		$periodValue = '';
 		CTimeZone::Disable();
 		$activeFrom = ($coupon['ACTIVE_FROM'] instanceof Main\Type\DateTime ? $coupon['ACTIVE_FROM']->toString() : '');
@@ -656,12 +662,12 @@ else
 		);
 			unset($activeTo, $activeFrom, $periodValue);
 		?></td>
-	</tr><?
+	</tr><?php
 	$control->EndCustomField($prefix.'PERIOD');
 	$control->BeginCustomField($prefix.'USER_ID', Loc::getMessage('BX_SALE_DISCOUNT_COUPON_FIELD_USER_ID'), false);
 	?><tr id="tr_USER_ID">
-		<td width="40%"><? echo $control->GetCustomLabelHTML(); ?></td>
-		<td width="60%"><?
+		<td width="40%"><?= $control->GetCustomLabelHTML() ?></td>
+		<td width="60%"><?php
 			echo FindUserID(
 				$prefix.'USER_ID',
 				($coupon['USER_ID'] > 0 ? $coupon['USER_ID'] : ''),
@@ -669,7 +675,7 @@ else
 				$couponFormID
 			);
 		?></td>
-	</tr><?
+	</tr><?php
 	$control->EndCustomField($prefix.'USER_ID');
 	if ($showTypeSelect || ($couponID > 0 && $coupon['TYPE'] == Internals\DiscountCouponTable::TYPE_MULTI_ORDER))
 		$control->AddEditField(
@@ -703,7 +709,7 @@ else
 	}
 	$control->Show();
 ?>
-<script type="text/javascript">
+<script>
 BX.ready(function(){
 	var obCouponValue = BX('COUPON'),
 		obCouponBtn = BX('COUPON_GENERATE'),
@@ -794,9 +800,9 @@ BX.ready(function(){
 			BX.style(
 				rowMaxUse,
 				'display',
-				(couponType.value == '<?=Internals\DiscountCouponTable::TYPE_MULTI_ORDER; ?>' ? 'table-row' : 'none')
+				(couponType.value == '<?= Internals\DiscountCouponTable::TYPE_MULTI_ORDER ?>' ? 'table-row' : 'none')
 			);
-			<?
+			<?php
 			if ($subWindow)
 			{
 			?>if (top.BX.WindowManager.Get())
@@ -807,13 +813,13 @@ BX.ready(function(){
 			{
 				BX.WindowManager.Get().adjustSizeEx();
 			}
-			<?
+			<?php
 			}
 			?>
 		});
 	}
 });
-<?
+<?php
 if ($subWindow)
 {
 ?>if (top.BX.WindowManager.Get())
@@ -824,8 +830,8 @@ else
 {
 	BX.WindowManager.Get().adjustSizeEx();
 }
-<?
+<?php
 }
-?></script><?
+?></script><?php
 }
 require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');

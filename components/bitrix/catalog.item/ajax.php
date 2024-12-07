@@ -7,7 +7,6 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use Bitrix\Main\Engine\ActionFilter\Authentication;
 use Bitrix\Main\Engine\ActionFilter\Scope;
-use Bitrix\Main\Engine\Response;
 use Bitrix\Main\Config\Option;
 use Bitrix\Main\Error;
 use Bitrix\Catalog;
@@ -29,27 +28,31 @@ class CatalogItemController extends Controller
 	}
 
 	/**
-	 * @param $skuId
-	 * @param $siteId
+	 * @param int $skuId
+	 * @param string $siteId
 	 * @param int $productId
+	 * @return void
 	 */
 	public function addViewedProductAction(int $skuId, string $siteId, int $productId = 0): void
 	{
 		if (!Loader::includeModule('catalog'))
 		{
 			$this->addError(new Error("Catalog isn't included", 'MODULE_CATALOG_IS_NOT_INCLUDED' ));
+
 			return;
 		}
 
 		if (!Loader::includeModule('sale'))
 		{
 			$this->addError(new Error("Sale isn't included", 'MODULE_SALE_IS_NOT_INCLUDED' ));
+
 			return;
 		}
 
 		if (!Catalog\Product\Basket::isNotCrawler())
 		{
 			$this->addError(new Error("Not allowed", 'SEARCHER' ));
+
 			return;
 		}
 
@@ -74,7 +77,7 @@ class CatalogItemController extends Controller
 
 		Catalog\CatalogViewedProductTable::refresh(
 			$skuId,
-			CSaleBasket::GetBasketUserID(),
+			(int)\Bitrix\Sale\Fuser::getId(),
 			$siteId,
 			$productId,
 			$recommendationId

@@ -68,7 +68,7 @@ if(CModule::IncludeModule("socialservices") && CSocServAuthManager::CheckUniqueK
 			'clientId' => $clientId > 0 ? $clientId : '',
 		];
 		?>
-		<script type="text/javascript">
+		<script>
 			var eventData = <?=CUtil::PhpToJSObject($jsEventData)?>;
 			window.opener.BX.onCustomEvent(
 				window,

@@ -20,7 +20,7 @@ class CGuest extends CAllGuest
 				LEFT JOIN b_stat_adv A ON A.ID = G.LAST_ADV_ID
 				WHERE G.ID='$ID'
 				";
-			$res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$res = $DB->Query($strSql);
 		}
 		else
 		{

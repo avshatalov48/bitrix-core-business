@@ -1,5 +1,5 @@
-import {ajax, Reflection, Runtime, Text, Type} from 'main.core';
-import {type BaseEvent, EventEmitter} from 'main.core.events';
+import { ajax, Reflection, Runtime, Text, Type } from 'main.core';
+import { type BaseEvent, EventEmitter } from 'main.core.events';
 
 class ImageInput
 {
@@ -167,6 +167,12 @@ class ImageInput
 			return;
 		}
 
+		this.#sendEvent({
+			tool: 'catalog',
+			category: 'product_selector',
+			event: 'image_upload',
+		});
+
 		const currentUploadedFile = params['file']['files']['default'];
 		const photoItem = {
 			fileId: itemId,
@@ -236,6 +242,18 @@ class ImageInput
 				]);
 			});
 		}, 500);
+	}
+
+	#sendEvent(data: Object): void
+	{
+		Runtime.loadExtension('ui.analytics')
+			.then((exports) => {
+				const { sendData } = exports;
+
+				sendData(data);
+			}).catch(() => {
+				console.error("catalog.image.input: can't load ui.analytics");
+			});
 	}
 }
 

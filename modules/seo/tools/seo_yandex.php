@@ -12,8 +12,6 @@ use Bitrix\Main\IO\Path;
 \Bitrix\Main\Loader::includeModule('seo');
 \Bitrix\Main\Loader::includeModule('socialservices');
 
-CUtil::JSPostUnescape();
-
 Loc::loadMessages(__DIR__.'/../include.php');
 
 $engine = new Engine\Yandex();

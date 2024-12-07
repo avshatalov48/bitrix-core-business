@@ -127,23 +127,25 @@ class DocumentContractor extends Controller
 	}
 
 	/**
+	 * @param PageNavigation $pageNavigation
 	 * @param array $select
 	 * @param array $filter
 	 * @param array $order
-	 * @param PageNavigation|null $pageNavigation
+	 * @param bool $__calculateTotalCount
 	 * @return Page
 	 */
 	public function listAction(
 		PageNavigation $pageNavigation,
 		array $select = [],
 		array $filter = [],
-		array $order = []
+		array $order = [],
+		bool $__calculateTotalCount = true
 	): Page
 	{
 		return new Page(
 			'DOCUMENT_CONTRACTOR',
 			$this->getList($select, $filter, $order, $pageNavigation),
-			$this->count($filter)
+			$__calculateTotalCount ? $this->count($filter) : 0
 		);
 	}
 

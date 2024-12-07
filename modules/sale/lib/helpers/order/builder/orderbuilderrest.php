@@ -98,7 +98,7 @@ class OrderBuilderRest extends OrderBuilder
 	{
 		$result = new Result();
 
-		if(is_array($products))// если передан products, то считаем, что табличная счасть для отгрузки передана
+		if(is_array($products))// РµСЃР»Рё РїРµСЂРµРґР°РЅ products, С‚Рѕ СЃС‡РёС‚Р°РµРј, С‡С‚Рѕ С‚Р°Р±Р»РёС‡РЅР°СЏ СЃС‡Р°СЃС‚СЊ РґР»СЏ РѕС‚РіСЂСѓР·РєРё РїРµСЂРµРґР°РЅР°
 		{
 			if($this->getSettingsContainer()->getItemValue('deleteShipmentItemIfNotExists'))
 			{
@@ -365,7 +365,7 @@ class OrderBuilderRest extends OrderBuilder
 
 	protected function checkDeliveryRestricted($shipment, $deliveryService, $shipmentFields)
 	{
-		// для rest нет проверки на ограничения. всё что приходит от ключениа считаем корреткным
+		// РґР»СЏ rest РЅРµС‚ РїСЂРѕРІРµСЂРєРё РЅР° РѕРіСЂР°РЅРёС‡РµРЅРёСЏ. РІСЃС‘ С‡С‚Рѕ РїСЂРёС…РѕРґРёС‚ РѕС‚ РєР»СЋС‡РµРЅРёР° СЃС‡РёС‚Р°РµРј РєРѕСЂСЂРµС‚РєРЅС‹Рј
 		return true;
 	}
 

@@ -345,7 +345,7 @@
 	width: 100%;
 	height: 100%;
 	background-repeat: no-repeat;
-	background-size: 100%;
+	background-size: contain;
 }
 
 .landing-form-layout-item-empty .landing-form-layout-item-img {
@@ -457,8 +457,8 @@
 }
 
 .landing-form-select-next:after {
-	 top: 3px;
- }
+	top: 3px;
+}
 
 .landing-form-select-next:before {
 	top: 10px;
@@ -634,4 +634,8 @@ div[data-form-row-hidden] + .ui-form-row-hidden,
 }
 .--copilot .ui-title-input-btn:hover {
 	opacity: .8;
+}
+
+.landing-form-page-layout.--main-page .landing-form-layout-detail {
+	display: none;
 }

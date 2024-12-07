@@ -158,7 +158,8 @@ class RestManager extends \IRestService
 
 		if ($result instanceof Engine\Response\File)
 		{
-			return $result->send();
+			$result->send();
+			return;
 		}
 
 		if ($result instanceof HttpResponse)
@@ -269,6 +270,10 @@ class RestManager extends \IRestService
 		if ($result instanceof Contract\Arrayable)
 		{
 			$result = $result->toArray();
+		}
+		if ($result instanceof \JsonSerializable)
+		{
+			$result = $result->jsonSerialize();
 		}
 
 		if (is_array($result))

@@ -2,6 +2,7 @@
 $MESS['LANDING_BLOCK_CARD_NOT_FOUND'] = 'Карточка блока не найдена';
 $MESS['LANDING_BLOCK_LANDING_NOT_EXIST'] = 'Лендинг не существует';
 $MESS['LANDING_BLOCK_WRONG_VERSION'] = 'Версия блока не соответствует версии модуля';
+$MESS['LANDING_BLOCK_CANT_BE_ADDED'] = 'Блок не добавлен, он не предназначен для данного типа страницы';
 $MESS['LANDING_BLOCK_NOT_FOUND'] = 'Блок или его содержимое не найдены';
 $MESS['LANDING_BLOCK_SEPARATOR_PARTNER_2'] = 'Битрикс24.Маркет';
 $MESS['LANDING_BLOCK_ACCESS_DENIED'] = 'Выполнение операции запрещено';

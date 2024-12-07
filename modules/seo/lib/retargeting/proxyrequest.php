@@ -33,6 +33,11 @@ class ProxyRequest extends Request
 		$parameters['proxy_client_id'] = $this->getAuthAdapter()->getClientId();
 		$parameters['lang'] = LANGUAGE_ID;
 
+		if (!$engine->getInterface())
+		{
+			return false;
+		}
+
 		$transport = $engine->getInterface()->getTransport();
 		if ($params['timeout'])
 		{

@@ -4,6 +4,7 @@ export type SectionParams = {
 	iconArrowDown?: string,
 	iconArrowTop?: string,
 	iconArrowRight?: string,
+	bodyActive?: string,
 	isOpen?: boolean,
 	canCollapse?: boolean,
 	id?: string,

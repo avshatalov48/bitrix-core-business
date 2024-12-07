@@ -459,6 +459,7 @@ class Structure
 
 		$res = StorageTable::getList(
 			[
+				'select' => ['ID', 'CODE'],
 				'filter' => [
 					'<CREATE_TIME' => $deleteDate
 				],
@@ -467,7 +468,13 @@ class Structure
 		);
 		while ($item = $res->fetch())
 		{
-			StorageTable::deleteFile($item);
+			if ($item['CODE'] === Structure::CODE_CONFIGURATION_FILES_LIST
+				|| mb_strpos($item['CODE'], Structure::CODE_CUSTOM_FILE) !== false)
+			{
+				$row = StorageTable::getRowById($item['ID']);
+				StorageTable::deleteFile($row);
+			}
+
 			StorageTable::delete($item['ID']);
 		}
 

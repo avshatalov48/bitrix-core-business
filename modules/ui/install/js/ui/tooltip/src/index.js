@@ -15,8 +15,11 @@ Event.ready(() => {
 	}
 
 	document.addEventListener('mouseover', (e) => {
-
 		const node = e.target;
+		if (!Type.isElementNode(node))
+		{
+			return;
+		}
 
 		const userId = node.getAttribute('bx-tooltip-user-id');
 		const loader = node.getAttribute('bx-tooltip-loader');

@@ -58,7 +58,7 @@ $APPLICATION->IncludeComponent(
 
 ?>
 
-<script type="text/javascript">
+<script>
 
 	app.setPageTitle({title: "<?=GetMessage('SMOP_TITLE')?>"});
 

@@ -20,9 +20,8 @@ return [
 	'rel' => [
 		'main.core',
 		'main.popup',
-		'ui.buttons',
-		'catalog.store-use',
 		'ui.dialogs.messagebox',
+		'catalog.store-enable-wizard',
 	],
 	'skip_core' => false,
 	'settings' => [

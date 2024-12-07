@@ -12,6 +12,7 @@ use \Bitrix\Landing\Manager;
 use \Bitrix\Landing\Rights;
 use \Bitrix\Landing\Connector;
 use \Bitrix\Landing\TemplateRef;
+use \Bitrix\Landing\Site;
 use \Bitrix\Main\Localization\Loc;
 use \Bitrix\Landing\Restriction;
 
@@ -158,13 +159,13 @@ class LandingEditComponent extends LandingBaseFormComponent
 	 */
 	protected function getMeta(): array
 	{
-		$meta = array(
+		$meta = [
 			'title' => '',
 			'description' => '',
 			'og:title' => '',
 			'og:description' => '',
-			'og:image' => ''
-		);
+			'og:image' => '',
+		];
 
 		if ($this->id)
 		{
@@ -184,7 +185,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 			if (isset($hooks['METAMAIN']))
 			{
 				$fields = $hooks['METAMAIN']->getFields();
-				foreach (array('TITLE', 'DESCRIPTION') as $code)
+				foreach (['TITLE', 'DESCRIPTION'] as $code)
 				{
 					if (isset($fields[$code]))
 					{
@@ -281,12 +282,12 @@ class LandingEditComponent extends LandingBaseFormComponent
 			$this->arResult['AI_UNACTIVE_INFO_CODE'] = self::getAiUnactiveInfoCode();
 
 			$this->arResult['LANDINGS'] = $this->arParams['SITE_ID'] > 0
-				? $this->getLandings(array(
-						'filter' => array(
-							'SITE_ID' => $this->arParams['SITE_ID']
-						)
-					))
-				: array();
+				? $this->getLandings([
+						'filter' => [
+							'SITE_ID' => $this->arParams['SITE_ID'],
+						],
+				])
+				: [];
 
 			// if access denied, or not found
 			if (!$this->arResult['LANDING'])
@@ -380,6 +381,8 @@ class LandingEditComponent extends LandingBaseFormComponent
 			}
 			$this->arResult['CURRENT_THEME'] = self::checkCurrentTheme($this->arResult['CURRENT_THEME']);
 			$this->arResult['IS_AREA'] = TemplateRef::landingIsArea($this->id);
+
+			$this->modifyResultByType();
 		}
 
 		// callback for update landing
@@ -423,7 +426,7 @@ class LandingEditComponent extends LandingBaseFormComponent
 						{
 							$res = Landing::add(array(
 								'SITE_ID' => $siteId,
-								'TITLE' =>  Loc::getMessage('LANDING_CMP_AREA') . ' #' . $i
+								'TITLE' =>  Loc::getMessage('LANDING_CMP_AREA') . ' #' . $i,
 							));
 							if ($res->isSuccess())
 							{
@@ -564,5 +567,33 @@ class LandingEditComponent extends LandingBaseFormComponent
 		}
 
 		return $color;
+	}
+
+	protected function modifyResultByType(): array
+	{
+		if ($this->arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE)
+		{
+			// only simple templates
+			$this->arResult['TEMPLATES'] = array_filter($this->arResult['TEMPLATES'], function ($template)
+			{
+				$mainpageAvailable = [
+					'empty',
+					'sidebar_right',
+					'sidebar_left',
+				];
+
+				return in_array($template['XML_ID'], $mainpageAvailable, true);
+			});
+
+			$otherLandingsInSite = $this->arResult['LANDINGS'];
+			unset($otherLandingsInSite[$this->arParams['LANDING_ID']]);
+			$otherLandingsInSite = array_keys($otherLandingsInSite);
+			$this->arResult['TEMPLATES_REF_DEFAULT'] = $otherLandingsInSite;
+
+			$this->arResult['AI_TEXT_AVAILABLE'] = false;
+			$this->arResult['AI_IMAGE_AVAILABLE'] = false;
+		}
+
+		return $this->arResult;
 	}
 }

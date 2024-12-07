@@ -143,7 +143,7 @@ foreach ($arParams['LIST'] as $item):
 				$button['id'] = isset($button['id']) ? $button['id'] : '';
 
 				\Bitrix\Main\Page\Asset::getInstance()->addString("
-					<script type=\"text/javascript\">
+					<script>
 						BX.ready(function () {
 							top.BX.addCustomEvent('onSenderAbuseCountReset', function () {
 								BX.remove(BX('sender-abuse-counter'));

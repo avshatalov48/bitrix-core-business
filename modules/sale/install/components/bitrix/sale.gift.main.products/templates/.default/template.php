@@ -155,7 +155,7 @@ if($arResult['HAS_MAIN_PRODUCTS'])
 }
 ?>
 </div>
-<script type="text/javascript">
+<script>
 BX(function () {
 	BX.Sale['GiftMainProductsClass_<?= $component->getComponentId() ?>'] = new BX.Sale.GiftMainProductsClass({
 		contextAjaxData:  {

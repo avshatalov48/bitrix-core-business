@@ -1,0 +1,10 @@
+.ui-typography-paragraph {
+	margin-top: var(--ui-typography-block-space-stack);
+	margin-bottom: var(--ui-typography-block-space-stack);
+	padding: 0;
+
+	font-family: var(--ui-typography-font-family), sans-serif;
+	font-size: var(--ui-typography-font-size);
+	line-height: var(--ui-typography-line-height);
+	color: var(--ui-typography-color-text);
+}

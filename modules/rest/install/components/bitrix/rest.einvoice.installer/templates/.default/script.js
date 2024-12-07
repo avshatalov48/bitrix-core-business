@@ -131,7 +131,17 @@ this.BX = this.BX || {};
 	    _this.setEventNamespace('BX.Rest.EInvoiceInstaller.InstallPage');
 	    _this.subscribe('install-app', function (event) {
 	      _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _getLoader, _getLoader2).call(babelHelpers.assertThisInitialized(_this)).show();
-	      event.data.install["catch"](function () {
+	      var installer = event.data.source;
+	      event.data.install.then(function (response) {
+	        if (!response.status) {
+	          return Promise.reject();
+	        }
+	        return rest_appForm.AppForm.buildByApp(response.data.id);
+	      }).then(function (appForm) {
+	        _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _getLoader, _getLoader2).call(babelHelpers.assertThisInitialized(_this)).hide();
+	        appForm.show();
+	        installer.render('selection');
+	      })["catch"](function () {
 	        _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _getLoader, _getLoader2).call(babelHelpers.assertThisInitialized(_this)).hide();
 	        _classPrivateMethodGet$1(babelHelpers.assertThisInitialized(_this), _onAfterUnsuccessfulInstallApplication, _onAfterUnsuccessfulInstallApplication2).call(babelHelpers.assertThisInitialized(_this));
 	      });
@@ -574,10 +584,6 @@ this.BX = this.BX || {};
 	    _this.setEventNamespace('BX.Rest.EInvoiceInstaller');
 	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _options$1, options);
 	    _this.render('selection');
-	    babelHelpers.classPrivateFieldSet(babelHelpers.assertThisInitialized(_this), _formListener, new rest_listener.Listener('showForm', function (data) {
-	      new rest_appForm.AppForm(data.params).show();
-	      _this.render('selection');
-	    }));
 	    _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this), _getPageProvider, _getPageProvider2).call(babelHelpers.assertThisInitialized(_this)).getPageByType('selection').subscribe('start-install-app', _classPrivateMethodGet$5(babelHelpers.assertThisInitialized(_this), _onStartInstall, _onStartInstall2).bind(babelHelpers.assertThisInitialized(_this)));
 	    return _this;
 	  }
@@ -605,9 +611,9 @@ this.BX = this.BX || {};
 	  });
 	}
 	function _onStartInstall2(event) {
-	  babelHelpers.classPrivateFieldGet(this, _formListener).listen();
 	  _classPrivateMethodGet$5(this, _getPageProvider, _getPageProvider2).call(this).getPageByType('install').emit('install-app', new main_core_events.BaseEvent({
 	    data: {
+	      source: this,
 	      code: event.data.code,
 	      name: event.data.name,
 	      install: _classPrivateMethodGet$5(this, _installApplicationByCode, _installApplicationByCode2).call(this, event.data.code)

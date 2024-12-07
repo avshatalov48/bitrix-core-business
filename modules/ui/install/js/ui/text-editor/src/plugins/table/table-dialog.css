@@ -1,0 +1,32 @@
+.ui-text-editor-table-dialog {
+	padding: 10px;
+	--ui-text-editor-table-dialog-box-width: 16px;
+	--ui-text-editor-table-dialog-box-margin: 2px;
+}
+
+.ui-text-editor-table-dialog-grid {
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	width: calc(var(--ui-text-editor-table-dialog-box-width) * 10 + var(--ui-text-editor-table-dialog-box-margin) * 20);
+}
+
+.ui-text-editor-table-dialog-box {
+	border: 1px solid #D4E1E4;
+	margin: var(--ui-text-editor-table-dialog-box-margin);
+	min-width: var(--ui-text-editor-table-dialog-box-width);
+	min-height: var(--ui-text-editor-table-dialog-box-width);
+}
+
+.ui-text-editor-table-dialog-box.--selected {
+	background-color: #AFDCEF;
+}
+
+.ui-text-editor-table-dialog-caption {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: var(--ui-size-xl);
+	color: var(--ui-color-text-primary);
+	font-size: var(--ui-font-size-sm);
+}

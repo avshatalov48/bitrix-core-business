@@ -10,7 +10,7 @@ return [
 	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_STORE.ORDER_NAME'),
 		'section' => ['store'],
-		'type' => 'null',
+		'system' => true,
 		'html' => false,
 		'namespace' => 'bitrix',
 	],

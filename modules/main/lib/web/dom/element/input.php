@@ -1,4 +1,5 @@
 <?php
+
 namespace Bitrix\Main\Web\DOM\Element;
 
 use Bitrix\Main\Web\DOM\Element;

@@ -6,6 +6,14 @@ if(!CModule::IncludeModule('iblock'))
 }
 
 if(!defined("CACHED_b_lists_permission")) define("CACHED_b_lists_permission", 36000);
+if(!defined("CACHED_b_lists_field"))
+{
+	define("CACHED_b_lists_field", 36000);
+}
+if(!defined("CACHED_b_lists_field_prefix"))
+{
+	define("CACHED_b_lists_field_prefix", 'b_lists_field_');
+}
 
 define('SONET_LISTS_NEW_POST_ENTITY', 'WF');
 

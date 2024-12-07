@@ -51,7 +51,7 @@ elseif($arResult["DATA"]["TYPE"] == "SECTIONS_SECTION")
 						'<a href="?path='.$path.'">'.$section["TITLE"].'</a>'.
 					'</li>'.
 				'</ul>'.
-				'<script type="text/javascript">'.
+				'<script>'.
 					'BX.ready(function(){ mappPush.makeFastButton("push_section_'.$sectId.'", "'.$sectionLink.'");});'.
 				'</script>'
 			);
@@ -77,7 +77,7 @@ $APPLICATION->IncludeComponent(
 $path = explode("/", $arResult["PATH"]);
 
 ?>
-<script type="text/javascript">
+<script>
 
 	BX.message({
 		"MOBILE_APP_SAVE_ERROR": "<?=GetMessage("MOBILE_APP_SAVE_ERROR")?>",

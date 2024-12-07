@@ -32,7 +32,7 @@ $arFilterFields = Array(
 	"find_next_exec",
 	"find_is_period"
 );
-function CheckFilter($FilterArr) // проверка введенных полей
+function CheckFilter($FilterArr) // РїСЂРѕРІРµСЂРєР° РІРІРµРґРµРЅРЅС‹С… РїРѕР»РµР№
 {
 	foreach($FilterArr as $f)
 	{

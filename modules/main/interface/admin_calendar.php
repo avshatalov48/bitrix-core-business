@@ -3,7 +3,7 @@
  * Bitrix Framework
  * @package bitrix
  * @subpackage main
- * @copyright 2001-2016 Bitrix
+ * @copyright 2001-2024 Bitrix
  */
 
 class CAdminCalendar
@@ -43,8 +43,8 @@ class CAdminCalendar
 		{
 			if (isset($arPeriod[$periodName]))
 				$arReturnPeriod[$periodName] = $lPhrase;
-			elseif (isset($arPeriod[$arPeriodParams[$periodName]]))
-				$arReturnPeriod[$arPeriodParams[$periodName]] = $arPeriod[$arPeriodParams[$periodName]];
+			elseif (isset($arPeriod[$lPhrase]))
+				$arReturnPeriod[$lPhrase] = $arPeriod[$lPhrase];
 		}
 
 		if (empty($arReturnPeriod))
@@ -54,7 +54,7 @@ class CAdminCalendar
 
 	public static function ShowScript()
 	{
-		CJSCore::Init(array('date'));
+		\Bitrix\Main\UI\Extension::load('ui.date-picker');
 	}
 
 	public static function Calendar($sFieldName, $sFromName="", $sToName="", $bTime=false)
@@ -81,7 +81,29 @@ class CAdminCalendar
 		return '
 	<div class="adm-input-wrap adm-input-wrap-calendar">
 		<input class="adm-input adm-input-calendar" type="text" name="'.$sFieldName.'" size="'.(intval($size)+3).'" value="'.htmlspecialcharsbx($sValue).'">
-		<span class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'" onclick="BX.calendar({node:this, field:\''.$sFieldName.'\', form: \'\', bTime: '.($bTime ? 'true' : 'false').', bHideTime: false});"></span>
+		<button type="button" class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'"></button>
+		<script>
+			(function() {
+				const input = document.querySelector(`input[name="' . $sFieldName . '"]`);
+				const button = input.nextElementSibling;
+				let picker = null;
+				const getPicker = () => {
+					if (picker === null)
+					{
+						picker = new BX.UI.DatePicker.DatePicker({
+							targetNode: input,
+							inputField: input,
+							enableTime: '.($bTime ? "true" : "false").',
+							useInputEvents: false,
+						});
+					}
+
+					return picker;
+				};
+
+				BX.Event.bind(button, "click", () => getPicker().show());
+			})();
+		</script>
 	</div>';
 
 	}
@@ -181,17 +203,57 @@ class CAdminCalendar
 			$s .='</select></span>';
 		}
 
-		$s .=''.
-		'<div class="adm-input-wrap adm-calendar-inp adm-calendar-first" style="display: '.($bSelectShow ? 'none' : 'inline-block').';">'.
+		$s .=
+			'<div class="adm-input-wrap adm-calendar-inp adm-calendar-first" style="display: ' .($bSelectShow ? 'none' : 'inline-block').';">'.
 			'<input type="text" class="adm-input adm-calendar-from" id="'.$sFromName.'_calendar_from" name="'.$sFromName.'" size="'.($size+5).'" value="'.htmlspecialcharsbx($sFromVal).'">'.
-			'<span class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'" onclick="BX.calendar({node:this, field:\''.$sFromName.'\', form: \'\', bTime: '.($bTime ? 'true' : 'false').', bHideTime: false});"></span>'.
+			'<button type="button" class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'"></button>'.
 		'</div>
 		<span class="adm-calendar-separate" style="display: '.($bSelectShow ? 'none' : 'inline-block').'"></span>'.
 		'<div class="adm-input-wrap adm-calendar-second" style="display: '.($bSelectShow ? 'none' : 'inline-block').';">'.
 			'<input type="text" class="adm-input adm-calendar-to" id="'.$sToName.'_calendar_to" name="'.$sToName.'" size="'.($size+5).'" value="'.htmlspecialcharsbx($sToVal).'">'.
-			'<span class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'" onclick="BX.calendar({node:this, field:\''.$sToName.'\', form: \'\', bTime: '.($bTime ? 'true' : 'false').', bHideTime: false});"></span>'.
+			'<button type="button" class="adm-calendar-icon" title="'.GetMessage("admin_lib_calend_title").'"></button>'.
 		'</div>'.
-		'<script type="text/javascript">
+		'<script>
+			(function() {
+				const inputFrom = document.getElementById("' . $sFromName . '_calendar_from");
+				const buttonFrom = inputFrom.nextElementSibling;
+				const inputTo = document.getElementById("' . $sToName . '_calendar_to");
+				const buttonTo = inputTo.nextElementSibling;
+
+				let pickerFrom = null;
+				let pickerTo = null;
+				const getPickerFrom = () => {
+					if (pickerFrom === null)
+					{
+						pickerFrom = new BX.UI.DatePicker.DatePicker({
+							targetNode: inputFrom,
+							inputField: inputFrom,
+							useInputEvents: false,
+							enableTime: '.($bTime ? "true" : "false").',
+						});
+					}
+
+					return pickerFrom;
+				};
+
+				const getPickerTo = () => {
+					if (pickerTo === null)
+					{
+						pickerTo = new BX.UI.DatePicker.DatePicker({
+							targetNode: inputTo,
+							inputField: inputTo,
+							useInputEvents: false,
+							enableTime: '.($bTime ? "true" : "false").',
+						});
+					}
+
+					return pickerTo;
+				};
+
+				BX.Event.bind(buttonFrom, "click", () => getPickerFrom().show());
+				BX.Event.bind(buttonTo, "click", () => getPickerTo().show());
+			})();
+
 			window["'.$sFromName.'_bTime"] = '.($bTime ? "true" : "false").';';
 
 		if($bSelectShow)

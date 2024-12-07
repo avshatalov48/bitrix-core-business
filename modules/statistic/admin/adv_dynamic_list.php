@@ -9,7 +9,6 @@ IncludeModuleLangFile(__FILE__);
 
 
 define("HELP_FILE","adv_list.php");
-$err_mess = "File: ".__FILE__."<br>Line: ";
 
 $sTableID = "t_adv_dynamic_list";
 $oSort = new CAdminSorting($sTableID,"s_date", "desc");
@@ -48,7 +47,7 @@ $arFilter = Array(
 $find_adv_id = intval($find_adv_id);
 $statDB = CDatabase::GetModuleConnection('statistic');
 $strSql = "SELECT EVENTS_VIEW FROM b_stat_adv WHERE ID = ".$find_adv_id;
-$a = $statDB->Query($strSql,false,$err_mess.__LINE__);
+$a = $statDB->Query($strSql);
 if (!$ar = $a->Fetch())
 {
 	$lAdmin->BeginCustomContent();

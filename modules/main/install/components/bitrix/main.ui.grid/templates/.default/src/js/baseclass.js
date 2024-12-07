@@ -1,4 +1,4 @@
-;(function() {
+(function() {
 	'use strict';
 
 	BX.namespace('BX.Grid');
@@ -14,9 +14,9 @@
 	};
 
 	BX.Grid.BaseClass.prototype = {
-		getParent: function()
+		getParent()
 		{
 			return this.parent;
-		}
+		},
 	};
 })();

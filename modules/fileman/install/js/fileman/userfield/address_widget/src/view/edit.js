@@ -1,10 +1,10 @@
-import {Dom, Event, Tag, Loc} from "main.core";
-import {Address as AddressEntity} from "location.core";
-import {BaseView} from './baseview';
+import { Address as AddressEntity } from 'location.core';
+import { Dom, Event, Loc, Tag } from 'main.core';
+import { EventEmitter } from 'main.core.events';
+import { BaseView } from './baseview';
 
 import './css/style.css';
-import {EditEntry} from "./editentry";
-import {EventEmitter} from "main.core.events";
+import { EditEntry } from './editentry';
 
 export class Edit extends BaseView
 {
@@ -15,6 +15,7 @@ export class Edit extends BaseView
 	#isMultiple = false;
 	#isCompactMode = false;
 	#showMap = true;
+	#showDetailsToggle: boolean = false;
 	#inputs: EditEntry[] = [];
 
 	constructor(params: Object)
@@ -26,6 +27,7 @@ export class Edit extends BaseView
 		this.#isMultiple = params.isMultiple;
 		this.#isCompactMode = params.compactMode;
 		this.#showMap = params.showMap;
+		this.#showDetailsToggle = Boolean(params.showDetailsToggle ?? false);
 	}
 
 	layout(): Element
@@ -84,6 +86,7 @@ export class Edit extends BaseView
 			initialAddressId: parseInt(address?.id) ?? null,
 			isCompactMode: this.#isCompactMode,
 			showMap: this.#showMap,
+			showDetailsToggle: this.#showDetailsToggle,
 		});
 		EventEmitter.subscribe(entry, EditEntry.onRemoveInputButtonClickedEvent, this.removeInput.bind(this, entry));
 		this.#inputs.push(entry);

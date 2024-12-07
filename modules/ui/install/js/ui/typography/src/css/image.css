@@ -1,0 +1,34 @@
+.ui-typography-image-container {
+	display: inline-block;
+}
+
+.ui-typography-image {
+	max-width: 100%;
+	min-width: 100%;
+}
+
+.ui-typography-image-container.--error {
+	position: relative;
+	background-color: var(--ui-color-base-03);
+}
+
+.ui-typography-image-container.--error .ui-typography-image {
+	min-width: 100px;
+	min-height: 100px;
+}
+
+.ui-typography-image-container.--error:before {
+	display: block;
+	position: absolute;
+	content: '';
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: 50%;
+	height: 50%;
+	mask-image: var(--ui-icon-set__path_picture);
+	mask-size: 100%;
+	mask-position: center;
+	mask-repeat: no-repeat;
+	background-color: var(--ui-color-base-15);
+}

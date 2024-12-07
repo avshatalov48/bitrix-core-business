@@ -40,9 +40,9 @@ if(!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 			</div>
 		</div>
 		<?if (\Bitrix\Main\Context::getCurrent()->getRequest()->isPost()):?>
-			<a href="javascript:void(0)" onclick="BX.Intranet.UserProfile.Security.showRecoveryCodesComponent('print')" class="ui-btn ui-btn-lg ui-btn-primary" target="_blank"><?=toUpper(GetMessage("SEC_PRINT"))?></a>
+			<a href="javascript:void(0)" onclick="BX.Intranet.UserProfile.Security.showRecoveryCodesComponent('print')" class="ui-btn ui-btn-lg ui-btn-primary" target="_blank"><?=mb_strtoupper(GetMessage("SEC_PRINT"))?></a>
 		<?else:?>
-			<a href="<?=$APPLICATION->GetCurPageParam('codesAction=print&ncc=1')?>" class="ui-btn ui-btn-lg ui-btn-primary" target="_blank"><?=toUpper(GetMessage("SEC_PRINT"))?></a>
+			<a href="<?=$APPLICATION->GetCurPageParam('codesAction=print&ncc=1')?>" class="ui-btn ui-btn-lg ui-btn-primary" target="_blank"><?=mb_strtoupper(GetMessage("SEC_PRINT"))?></a>
 		<?endif?>
 		<?
 		if (isset($arParams["PATH_TO_CODES"]))

@@ -1,11 +1,11 @@
 <?php
 
 use Bitrix\Main\Loader;
-use Bitrix\Main\UI\Filter\Type;
-use Bitrix\Main\UI\Filter\FieldAdapter;
-use Bitrix\Main\UI\Filter\DateType;
-use Bitrix\Main\UI\Filter\Theme;
 use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\UI\Filter\DateType;
+use Bitrix\Main\UI\Filter\FieldAdapter;
+use Bitrix\Main\UI\Filter\Theme;
+use Bitrix\Main\UI\Filter\Type;
 
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
 {
@@ -80,6 +80,8 @@ class CMainUiFilter extends CBitrixComponent
 		$this->arResult["VALUE_REQUIRED"] = $this->arParams["VALUE_REQUIRED"] ?? null;
 		$this->arResult["FIELDS_STUBS"] = static::getFieldsStubs();
 		$this->arResult["INITIAL_FILTER"] = $this->getFilter();
+		$this->arResult["USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP"] = (bool)($this->arParams["USE_CHECKBOX_LIST_FOR_SETTINGS_POPUP"] ?? false);
+		$this->arResult["RESTRICTED_FIELDS"] = ($this->arParams["RESTRICTED_FIELDS"] ?? []);
 		$this->arResult["ENABLE_ADDITIONAL_FILTERS"] = $this->arParams["ENABLE_ADDITIONAL_FILTERS"] ?? null;
 		$this->arResult['ENABLE_FIELDS_SEARCH'] = (
 			isset($this->arParams['ENABLE_FIELDS_SEARCH'])

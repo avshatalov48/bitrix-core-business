@@ -936,6 +936,7 @@ class CAllIBlock
 			$CACHE_MANAGER->Clean($cache_id, "b_iblock");
 		}
 		Iblock\IblockTable::cleanCache();
+		Iblock\IblockSiteTable::cleanCache();
 	}
 
 	///////////////////////////////////////////////////////////////////
@@ -1089,14 +1090,14 @@ class CAllIBlock
 			{
 				$DB->Query("
 					DELETE FROM b_iblock_site WHERE IBLOCK_ID = ".$ID."
-				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				");
 
 				$DB->Query("
 					INSERT INTO b_iblock_site(IBLOCK_ID, SITE_ID)
 					SELECT ".$ID.", LID
 					FROM b_lang
 					WHERE LID IN ('".implode("', '", $arLID)."')
-				", false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				");
 			}
 
 			if($arFields["VERSION"] == 2)
@@ -1311,14 +1312,14 @@ class CAllIBlock
 			if(!empty($arLID))
 			{
 				$strSql = "DELETE FROM b_iblock_site WHERE IBLOCK_ID=".$ID;
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 
 				$strSql =
 					"INSERT INTO b_iblock_site(IBLOCK_ID, SITE_ID) ".
 					"SELECT ".$ID.", LID ".
 					"FROM b_lang ".
 					"WHERE LID IN (".$str_LID.") ";
-				$DB->Query($strSql, false, "FILE: ".__FILE__."<br> LINE: ".__LINE__);
+				$DB->Query($strSql);
 			}
 
 			if(CModule::IncludeModule("search"))
@@ -1352,7 +1353,6 @@ class CAllIBlock
 	///////////////////////////////////////////////////////////////////
 	public static function Delete($ID)
 	{
-		$err_mess = "FILE: ".__FILE__."<br>LINE: ";
 		/** @global CDatabase $DB */
 		global $DB;
 		/** @global CMain $APPLICATION */
@@ -1428,29 +1428,29 @@ class CAllIBlock
 
 		CIBlockSectionPropertyLink::DeleteByIBlock($ID);
 
-		$DB->Query("delete from b_iblock_offers_tmp where PRODUCT_IBLOCK_ID=".$ID, false, $err_mess.__LINE__);
-		$DB->Query("delete from b_iblock_offers_tmp where OFFERS_IBLOCK_ID=".$ID, false, $err_mess.__LINE__);
+		$DB->Query("delete from b_iblock_offers_tmp where PRODUCT_IBLOCK_ID=".$ID);
+		$DB->Query("delete from b_iblock_offers_tmp where OFFERS_IBLOCK_ID=".$ID);
 
-		if(!$DB->Query("DELETE FROM b_iblock_messages WHERE IBLOCK_ID = ".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock_messages WHERE IBLOCK_ID = ".$ID))
 			return false;
 
-		if(!$DB->Query("DELETE FROM b_iblock_fields WHERE IBLOCK_ID = ".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock_fields WHERE IBLOCK_ID = ".$ID))
 			return false;
 
 		$USER_FIELD_MANAGER->OnEntityDelete("IBLOCK_".$ID."_SECTION");
 
-		if(!$DB->Query("DELETE FROM b_iblock_group WHERE IBLOCK_ID=".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock_group WHERE IBLOCK_ID=".$ID))
 			return false;
-		if(!$DB->Query("DELETE FROM b_iblock_rss WHERE IBLOCK_ID=".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock_rss WHERE IBLOCK_ID=".$ID))
 			return false;
-		if(!$DB->Query("DELETE FROM b_iblock_site WHERE IBLOCK_ID=".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock_site WHERE IBLOCK_ID=".$ID))
 			return false;
-		if(!$DB->Query("DELETE FROM b_iblock WHERE ID=".$ID, false, $err_mess.__LINE__))
+		if(!$DB->Query("DELETE FROM b_iblock WHERE ID=".$ID))
 			return false;
 
-		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_s".$ID, true, $err_mess.__LINE__);
-		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
-		$DB->DDL("DROP SEQUENCE IF EXISTS sq_b_iblock_element_prop_m".$ID, true, $err_mess.__LINE__);
+		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_s".$ID, true);
+		$DB->DDL("DROP TABLE IF EXISTS b_iblock_element_prop_m".$ID, true);
+		$DB->DDL("DROP SEQUENCE IF EXISTS sq_b_iblock_element_prop_m".$ID, true);
 
 		CIBlock::CleanCache($ID);
 
@@ -1690,7 +1690,7 @@ class CAllIBlock
 			SELECT GROUP_ID, PERMISSION
 			FROM b_iblock_group
 			WHERE IBLOCK_ID = ".$IBLOCK_ID."
-		", false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		");
 		while($ar = $rs->Fetch())
 		{
 			$group_id = (int)$ar["GROUP_ID"];
@@ -1711,7 +1711,7 @@ class CAllIBlock
 				DELETE FROM b_iblock_group
 				WHERE IBLOCK_ID = ".$IBLOCK_ID."
 				AND GROUP_ID in (".implode(", ", $arToDelete).")
-			", false, "File: ".__FILE__."<br>Line: ".__LINE__); //And this should be deleted
+			"); //And this should be deleted
 		}
 
 		if(!empty($arToInsert))
@@ -2481,43 +2481,45 @@ REQ
 		return $DB->Query("DELETE FROM b_iblock_group WHERE GROUP_ID=".intval($group_id), true);
 	}
 
-	public static function MkOperationFilter($key)
+	public static function MkOperationFilter($key): array
 	{
-		static $operations = array(
-			"!><" => "NB", //not between
-			"!="  => "NI", //not Identical
-			"!%"  => "NS", //not substring
-			"><"  => "B",  //between
-			">="  => "GE", //greater or equal
-			"<="  => "LE", //less or equal
-			"="   => "I", //Identical
-			"%"   => "S", //substring
-			"?"   => "?", //logical
-			">"   => "G", //greater
-			"<"   => "L", //less
-			"!"   => "N", // not field LIKE val
-			"*"   => "FT", // partial full text match
-			"*="  => "FTI", // identical full text match
-			"*%"  => "FTL", // partial full text match based on LIKE
-		);
+		static $operations = [
+			'!><' => 'NB', //not between
+			'!='  => 'NI', //not Identical
+			'!%'  => 'NS', //not substring
+			'><'  => 'B',  //between
+			'>='  => 'GE', //greater or equal
+			'<='  => 'LE', //less or equal
+			'='   => 'I', //Identical
+			'%'   => 'S', //substring
+			'?'   => '?', //logical
+			'>'   => 'G', //greater
+			'<'   => 'L', //less
+			'!'   => 'N', // not field LIKE val
+			'*'   => 'FT', // partial full text match
+			'*='  => 'FTI', // identical full text match
+			'*%'  => 'FTL', // partial full text match based on LIKE
+		];
 
 		$key = (string)$key;
-		$result = array(
-			"FIELD" => $key,
-			"OPERATION" => "E",
-			"PREFIX" => ""
-		);
-		if ($key == '')
+		$result = [
+			'FIELD' => $key,
+			'OPERATION' => 'E',
+			'PREFIX' => '',
+		];
+		if ($key === '')
+		{
 			return $result; // zero key
+		}
 
 		for ($i = 3; $i > 0; $i--)
 		{
 			$op = mb_substr($key, 0, $i);
 			if ($op && isset($operations[$op]))
 			{
-				$result["FIELD"] = mb_substr($key, $i);
-				$result["OPERATION"] = $operations[$op];
-				$result["PREFIX"] = $op;
+				$result['FIELD'] = mb_substr($key, $i);
+				$result['OPERATION'] = $operations[$op];
+				$result['PREFIX'] = $op;
 				break;
 			}
 		}
@@ -2702,26 +2704,50 @@ REQ
 						if(is_array($val))
 						{
 							if(count($val)==2)
-								$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' '.$strOperation[0].' \''.DoubleVal($val[0]).'\' '.$strOperation[1].' \''.DoubleVal($val[1]).'\')';
+							{
+								$res[] =
+									($cOperationType == 'NB' ? ' ' . $fname . ' IS NULL OR NOT ' : '')
+									. '(' . $fname . ' ' . $strOperation[0]
+									. ' ' . self::getNumberValueForSql($val[0])
+									. ' ' . $strOperation[1]
+									. ' ' . self::getNumberValueForSql($val[1])
+									. ')'
+								;
+							}
 							else
-								$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' = \''.DoubleVal(array_pop($val[0])).'\')';
+							{
+								$res[] =
+									($cOperationType == 'NB' ? ' ' . $fname . ' IS NULL OR NOT ' : '')
+									. '(' . $fname . ' = ' . self::getNumberValueForSql(array_pop($val[0])) . ')'
+								;
+							}
 						}
 						else
 						{
-							$res[] = ($cOperationType=='NB'?' '.$fname.' IS NULL OR NOT ':'').'('.$fname.' = \''.DoubleVal($val).'\')';
+							$res[] =
+								($cOperationType=='NB' ? ' ' . $fname . ' IS NULL OR NOT ' : '')
+								. '(' . $fname . ' = ' . self::getNumberValueForSql($val) . ')'
+							;
 						}
 					}
 					elseif($bNegative)
 					{
-						$res[] = " ".$fname." IS NULL OR NOT (".$fname." ".$strOperation." '".DoubleVal($val)."')";
+						$parsedValue = self::getNumberValueForSql($val);
+						$res[] = " ".$fname." IS NULL OR NOT (".$fname." ".$strOperation." ".$parsedValue.")";
 						if($strOperation == '=')
-							$arIn[] = DoubleVal($val);
+						{
+							$arIn[] = $parsedValue;
+						}
+						unset($parsedValue);
 					}
 					else
 					{
-						$res[] = "(".$fname." ".$strOperation." '".DoubleVal($val)."')";
+						$parsedValue = self::getNumberValueForSql($val);
+						$res[] = "(".$fname." ".$strOperation." ".$parsedValue.")";
 						if($strOperation == '=')
-							$arIn[] = DoubleVal($val);
+						{
+							$arIn[] = $parsedValue;
+						}
 					}
 					break;
 				case "number_above":
@@ -2793,9 +2819,9 @@ REQ
 		)
 		{
 			if($bNegative)
-				$res = array($fname." IS NULL OR NOT (".$fname." IN ('".implode("', '", $arIn)."'))");
+				$res = array($fname." IS NULL OR NOT (".$fname." IN (".implode(", ", $arIn)."))");
 			else
-				$res = array($fname." IN ('".implode("', '", $arIn)."')");
+				$res = array($fname." IN (".implode(", ", $arIn).")");
 		}
 
 		foreach($res as $i=>$val)
@@ -2812,6 +2838,23 @@ REQ
 			$bFullJoin = false;
 
 		return $strResult;
+	}
+
+	/**
+	 * Returns sql-safe value for numbers (include infinity and NaN).
+	 *
+	 * @param mixed $value
+	 * @return string|float
+	 */
+	private static function getNumberValueForSql(mixed $value): string|float
+	{
+		$value = (float)$value;
+		if (is_nan($value) || is_infinite($value))
+		{
+			return "'" . $value . "'";
+		}
+
+		return $value;
 	}
 
 	public static function isCorrectFullFormatDate($value): bool
@@ -4185,7 +4228,7 @@ REQ
 		$len = 18;
 		$dec = 4;
 		$eps = 1.00 / pow(10, $len + 4);
-		$rounded = round(doubleval($value) + $eps, $len);
+		$rounded = round((float)$value + $eps, $len);
 		if (is_nan($rounded) || is_infinite($rounded))
 			$rounded = 0;
 

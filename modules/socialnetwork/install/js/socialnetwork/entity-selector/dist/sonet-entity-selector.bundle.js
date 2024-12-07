@@ -1,9 +1,10 @@
+/* eslint-disable */
 this.BX = this.BX || {};
 this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 (function (exports,main_core_events,ui_entitySelector,main_core) {
 	'use strict';
 
-	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5;
+	var _templateObject, _templateObject2, _templateObject3, _templateObject4, _templateObject5, _templateObject6, _templateObject7, _templateObject8;
 	var Footer = /*#__PURE__*/function (_DefaultFooter) {
 	  babelHelpers.inherits(Footer, _DefaultFooter);
 	  function Footer(dialog, options) {
@@ -25,8 +26,13 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	        }
 	        var inviteEmployeeLink = _this2.getOption('inviteEmployeeLink');
 	        var inviteGuestLink = _this2.getOption('inviteGuestLink');
+	        var lockGuestLink = _this2.getOption('lockGuestLink', false);
+	        var lockGuestLinkFeatureId = _this2.getOption('lockGuestLinkFeatureId', '');
 	        var inviteEmployeeScope = _this2.getOption('inviteEmployeeScope');
 	        var createProjectLink = _this2.getOption('createProjectLink');
+	        var lockProjectLink = _this2.getOption('lockProjectLink', false);
+	        var lockProjectLinkFeatureId = _this2.getOption('lockProjectLinkFeatureId', '');
+	        var isProject = _this2.getOption('isProject', false);
 	        var complexPhrases = {
 	          '111': 'SOCNET_ENTITY_SELECTOR_EMPLOYEE_OR_PROJECT_OR_GUEST',
 	          '110': 'SOCNET_ENTITY_SELECTOR_INVITE_EMPLOYEE_OR_GUEST',
@@ -51,9 +57,15 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	          }
 	          if (guest) {
 	            var _showIcon = !hideIcon && firstTag === guest;
-	            var guestLink = _this2.createInviteGuestLink(guest.innerHTML, _showIcon);
+	            var guestLink;
+	            if (lockGuestLink) {
+	              guestLink = _this2.createLockedGuestLink(guest.innerHTML, _showIcon, lockGuestLinkFeatureId);
+	              _this2.createLock(guestLink, lockGuestLinkFeatureId);
+	            } else {
+	              guestLink = _this2.createInviteGuestLink(guest.innerHTML, _showIcon);
+	              _this2.createHint(guestLink);
+	            }
 	            phrase.replaceChild(guestLink, guest);
-	            _this2.createHint(guestLink);
 	          }
 	          if (project) {
 	            var _showIcon2 = !hideIcon && firstTag === project;
@@ -85,11 +97,22 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	          }
 	          return _this2.createInviteEmployeeLink(_phrase, true);
 	        } else if (inviteGuestLink) {
-	          var _guestLink = _this2.createInviteGuestLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true);
-	          _this2.createHint(_guestLink);
+	          var _guestLink;
+	          if (lockGuestLink) {
+	            _guestLink = _this2.createLockedGuestLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true, lockGuestLinkFeatureId);
+	            _this2.createLock(_guestLink, lockGuestLinkFeatureId);
+	          } else {
+	            _guestLink = _this2.createInviteGuestLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITE_GUEST'), true);
+	            _this2.createHint(_guestLink);
+	          }
 	          return _guestLink;
 	        } else if (createProjectLink) {
-	          return _this2.createProjectLink(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'), true);
+	          if (lockProjectLink) {
+	            var projectLink = _this2.createLockedProjectLink(isProject ? main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT_1') : main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'), true, lockProjectLinkFeatureId);
+	            _this2.createLock(projectLink, lockProjectLinkFeatureId);
+	            return projectLink;
+	          }
+	          return _this2.createProjectLink(isProject ? main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT_1') : main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_CREATE_PROJECT'), true);
 	        }
 	        return null;
 	      });
@@ -112,10 +135,28 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	      return main_core.Tag.render(_templateObject4 || (_templateObject4 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleInviteGuestClick.bind(this), text);
 	    }
 	  }, {
+	    key: "createLockedGuestLink",
+	    value: function createLockedGuestLink(text, icon, featureId) {
+	      var _this3 = this;
+	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
+	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tclass=\"", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>", "</span>\n\t\t"])), className, function (event) {
+	        return _this3.handleLockedClick(event, featureId);
+	      }, text);
+	    }
+	  }, {
 	    key: "createProjectLink",
 	    value: function createProjectLink(text, icon) {
 	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
-	      return main_core.Tag.render(_templateObject5 || (_templateObject5 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleCreateProjectClick.bind(this), text);
+	      return main_core.Tag.render(_templateObject6 || (_templateObject6 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span class=\"", "\" onclick=\"", "\">", "</span>\n\t\t"])), className, this.handleCreateProjectClick.bind(this), text);
+	    }
+	  }, {
+	    key: "createLockedProjectLink",
+	    value: function createLockedProjectLink(text, icon, featureId) {
+	      var _this4 = this;
+	      var className = "ui-selector-footer-link".concat(icon ? ' ui-selector-footer-link-add' : '');
+	      return main_core.Tag.render(_templateObject7 || (_templateObject7 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t<span\n\t\t\t\tclass=\"", "\"\n\t\t\t\tonclick=\"", "\"\n\t\t\t>", "</span>\n\t\t"])), className, function (event) {
+	        return _this4.handleLockedClick(event, featureId);
+	      }, text);
 	    }
 	  }, {
 	    key: "createHint",
@@ -123,6 +164,17 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	      main_core.Runtime.loadExtension('ui.hint').then(function () {
 	        var hint = BX.UI.Hint.createInstance();
 	        var node = hint.createNode(main_core.Loc.getMessage('SOCNET_ENTITY_SELECTOR_INVITED_GUEST_HINT'));
+	        main_core.Dom.insertAfter(node, link);
+	      });
+	    }
+	  }, {
+	    key: "createLock",
+	    value: function createLock(link, featureId) {
+	      var _this5 = this;
+	      main_core.Runtime.loadExtension('ui.info-helper').then(function () {
+	        var node = main_core.Tag.render(_templateObject8 || (_templateObject8 = babelHelpers.taggedTemplateLiteral(["\n\t\t\t\t<span\n\t\t\t\t\tclass=\"ui-selector-footer-lock tariff-lock\"\n\t\t\t\t\tonclick=\"", "\"\n\t\t\t\t></span>\n\t\t\t"])), function (event) {
+	          return _this5.handleLockedClick(event, featureId);
+	        });
 	        main_core.Dom.insertAfter(node, link);
 	      });
 	    }
@@ -178,6 +230,22 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	          }
 	        });
 	      }
+	    }
+	  }, {
+	    key: "handleLockedClick",
+	    value: function handleLockedClick(event, featureId) {
+	      main_core.Runtime.loadExtension('ui.info-helper').then(function (_ref) {
+	        var FeaturePromotersRegistry = _ref.FeaturePromotersRegistry;
+	        if (FeaturePromotersRegistry) {
+	          FeaturePromotersRegistry.getPromoter({
+	            featureId: featureId
+	          }).show();
+	        } else {
+	          BX.UI.InfoHelper.show("limit_".concat(featureId), {
+	            isLimit: true
+	          });
+	        }
+	      })["catch"](function (error) {});
 	    }
 	  }, {
 	    key: "handleCreateProjectClick",
@@ -241,7 +309,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	  }, {
 	    key: "addUsers",
 	    value: function addUsers(users) {
-	      var _this3 = this;
+	      var _this6 = this;
 	      if (!main_core.Type.isArrayFilled(users)) {
 	        return;
 	      }
@@ -253,7 +321,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	        if (!main_core.Type.isPlainObject(user)) {
 	          return;
 	        }
-	        var item = _this3.getDialog().addItem(Object.assign({}, user, {
+	        var item = _this6.getDialog().addItem(Object.assign({}, user, {
 	          tabs: tab.getId(),
 	          sort: 2
 	        }));
@@ -266,7 +334,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	  }, {
 	    key: "addProjects",
 	    value: function addProjects(projects) {
-	      var _this4 = this;
+	      var _this7 = this;
 	      if (!main_core.Type.isArrayFilled(projects)) {
 	        return;
 	      }
@@ -276,7 +344,7 @@ this.BX.SocialNetwork = this.BX.SocialNetwork || {};
 	        if (!main_core.Type.isPlainObject(project)) {
 	          return;
 	        }
-	        var item = _this4.getDialog().addItem(Object.assign({}, project, {
+	        var item = _this7.getDialog().addItem(Object.assign({}, project, {
 	          tabs: tabId,
 	          sort: 2
 	        }));

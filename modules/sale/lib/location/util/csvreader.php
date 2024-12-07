@@ -119,7 +119,7 @@ final class CSVReader extends \CCSVData
 		{
 			foreach($langFields as &$value)
 			{
-				$value = \CharsetConverter::ConvertCharset($value, self::FILE_ENCODING, SITE_CHARSET);
+				$value = \Bitrix\Main\Text\Encoding::convertEncoding($value, self::FILE_ENCODING, SITE_CHARSET);
 			}
 		}
 

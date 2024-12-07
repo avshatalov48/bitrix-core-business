@@ -20,61 +20,61 @@ abstract class Converter implements IConverter
 	const KOEF_DEFAULT = 1;
 	const CURRENCY_RATE_DEFAULT = 1;
 
-    /** @var ISettings */
-    protected $settings = null;
+	/** @var ISettings */
+	protected $settings = null;
 
-    protected $entityTypeId;
-    protected $documentTypeId;
+	protected $entityTypeId;
+	protected $documentTypeId;
 
-    /** @var Converter[]|null  */
-    private static $instances = null;
+	/** @var Converter[]|null  */
+	private static $instances = null;
 
 	/**
-     * @param int $typeId Type ID.
-     * @return Converter
+	 * @param int $typeId Type ID.
+	 * @return Converter
 	 * @deprecated
-     */
-    public static function getInstance($typeId)
-    {
-        if(!is_int($typeId))
-        {
-            $typeId = (int)$typeId;
-        }
+	 */
+	public static function getInstance($typeId)
+	{
+		if(!is_int($typeId))
+		{
+			$typeId = (int)$typeId;
+		}
 
-        if(!DocumentType::IsDefined($typeId))
-        {
-            throw new ArgumentOutOfRangeException('Is not defined', DocumentType::FIRST, DocumentType::LAST);
-        }
+		if(!DocumentType::IsDefined($typeId))
+		{
+			throw new ArgumentOutOfRangeException('Is not defined', DocumentType::FIRST, DocumentType::LAST);
+		}
 
-        if(self::$instances === null || !isset(self::$instances[$typeId]))
-        {
-            if(self::$instances === null)
-            {
-                self::$instances = array();
-            }
+		if(self::$instances === null || !isset(self::$instances[$typeId]))
+		{
+			if(self::$instances === null)
+			{
+				self::$instances = array();
+			}
 
-            if(!isset(self::$instances[$typeId]))
-            {
+			if(!isset(self::$instances[$typeId]))
+			{
 				self::$instances[$typeId] = ConverterFactory::create($typeId);
-            }
-        }
-        return self::$instances[$typeId];
-    }
+			}
+		}
+		return self::$instances[$typeId];
+	}
 
 	/**
 	 * @return array
 	 */
 	abstract protected function getFieldsInfo();
 
-    /**
-     * @return ISettings
-     */
-    public function getSettings()
-    {
-        return $this->settings;
-    }
+	/**
+	 * @return ISettings
+	 */
+	public function getSettings()
+	{
+		return $this->settings;
+	}
 
-    public function getEntityTypeId()
+	public function getEntityTypeId()
 	{
 		return $this->entityTypeId;
 	}
@@ -138,7 +138,7 @@ abstract class Converter implements IConverter
 
 		return html_entity_decode(
 			strip_tags(
-				preg_replace('/(<br[^>]*>)+/is'.BX_UTF_PCRE_MODIFIER, "\n", $value)
+				preg_replace('/(<br[^>]*>)+/isu', "\n", $value)
 			)
 		);
 	}

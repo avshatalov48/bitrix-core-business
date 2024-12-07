@@ -1,18 +1,17 @@
-<?
+<?php
 /** @global CUser $USER */
 /** @global CMain $APPLICATION */
-define('STOP_STATISTICS', true);
-define('NO_AGENT_CHECK', true);
-define('PUBLIC_AJAX_MODE', true);
+const STOP_STATISTICS = true;
+const NO_AGENT_CHECK = true;
+const PUBLIC_AJAX_MODE = true;
 
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Main\Loader,
-	Bitrix\Catalog,
-	Bitrix\Catalog\Access\ActionDictionary,
-	Bitrix\Catalog\Access\AccessController;
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Main\Loader;
+use Bitrix\Catalog\Access\ActionDictionary;
+use Bitrix\Catalog\Access\AccessController;
 
-require_once($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_before.php');
+require_once $_SERVER['DOCUMENT_ROOT'] . '/bitrix/modules/main/include/prolog_admin_before.php';
 
 Loc::loadMessages(__FILE__);
 
@@ -36,24 +35,24 @@ if (!check_bitrix_sessid())
 
 $request = Main\Context::getCurrent()->getRequest();
 
-$settingIds = array(
+$settingIds = [
 	'default_quantity_trace',
 	'default_can_buy_zero',
 	'default_subscribe',
-);
-$settings = array();
+];
+$settings = [];
 foreach ($settingIds as $id)
-	$settings[$id] = (string)Main\Config\Option::get('catalog', $id);
+{
+	$settings[$id] = Main\Config\Option::get('catalog', $id);
+}
 unset($id);
 
 if (
-	$request->getRequestMethod() == 'GET'
-	&& $request['operation'] == 'Y'
+	$request->getRequestMethod() === 'GET'
+	&& $request->get('operation') === 'Y'
 )
 {
-	CUtil::JSPostUnescape();
-
-	$params = array(
+	$params = [
 		'sessID' => $request['ajaxSessionID'],
 		'maxExecutionTime' => $request['maxExecutionTime'],
 		'maxOperationCounter' => $request['maxOperationCounter'],
@@ -61,7 +60,7 @@ if (
 		'operationCounter' => $request['operationCounter'],
 		'lastID' => $request['lastID'],
 		'IBLOCK_ID' => $request['iblockId']
-	);
+	];
 
 	$productSettings = new CCatalogProductSettings(
 		$params['sessID'],
@@ -142,7 +141,9 @@ else
 
 	$oneStepTime = CCatalogProductSettings::getDefaultExecutionTime();
 
-	if ($_REQUEST["public_mode"] == "Y")
+	$publicMode = $request->get('public_mode') === 'Y';
+
+	if ($publicMode)
 	{
 		require($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/include/prolog_popup_admin.php");
 	}
@@ -151,67 +152,74 @@ else
 		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/prolog_admin_after.php');
 	}
 
-	$tabList = array(
-		array('DIV' => 'productSettingsTab01', 'TAB' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB'), 'ICON' => 'sale', 'TITLE' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB_TITLE'))
-	);
+	$tabList = [
+		[
+			'DIV' => 'productSettingsTab01',
+			'TAB' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB'),
+			'ICON' => 'sale',
+			'TITLE' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_TAB_TITLE'),
+		],
+	];
 	$tabControl = new CAdminTabControl('productSettings', $tabList, true, true);
-	if ($_REQUEST["public_mode"] == "Y")
+	if ($publicMode)
+	{
 		$tabControl->SetPublicMode();
+	}
 	Main\Page\Asset::getInstance()->addJs('/bitrix/js/catalog/step_operations.js');
 
 	?><div id="product_settings_error_div" style="margin:0; display: none;">
 	<div class="adm-info-message-wrap adm-info-message-red">
 		<div class="adm-info-message">
-			<div class="adm-info-message-title"><? echo Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_TITLE'); ?></div>
+			<div class="adm-info-message-title"><?= Loc::getMessage('SALE_DISCOUNT_REINDEX_ERRORS_TITLE'); ?></div>
 			<div id="product_settings_error_cont"></div>
 			<div class="adm-info-message-icon"></div>
 		</div>
 	</div>
 	</div>
-	<form name="product_settings_form" id="product_settings_form" action="<? echo $APPLICATION->GetCurPage(); ?>" method="GET"><?
+	<form name="product_settings_form" id="product_settings_form" action="<?= $APPLICATION->GetCurPage(); ?>" method="GET"><?php
 	$tabControl->Begin();
 	$tabControl->BeginNextTab();
 	?><tr>
-		<td width="40%"><label for="default_quantity_trace"><? echo Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_ENABLE_QUANTITY_TRACE"); ?></label></td>
+		<td width="40%"><label for="default_quantity_trace"><?= Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_ENABLE_QUANTITY_TRACE"); ?></label></td>
 		<td width="60%">
-			<input type="checkbox" name="default_quantity_trace" id="quantity_trace" value="Y"<? echo ($settings['default_quantity_trace'] === 'Y' ? ' checked' : ''); ?>>
+			<input type="checkbox" name="default_quantity_trace" id="quantity_trace" value="Y"<?= ($settings['default_quantity_trace'] === 'Y' ? ' checked' : ''); ?>>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><label for="default_can_buy_zero"><? echo Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_ALLOW_CAN_BUY_ZERO"); ?></label></td>
+		<td width="40%"><label for="default_can_buy_zero"><?= Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_ALLOW_CAN_BUY_ZERO"); ?></label></td>
 		<td width="60%">
-			<input type="checkbox" name="default_can_buy_zero" id="can_buy_zero" value="Y"<? echo ($settings['default_can_buy_zero'] === 'Y' ? ' checked' : ''); ?>>
+			<input type="checkbox" name="default_can_buy_zero" id="can_buy_zero" value="Y"<?= ($settings['default_can_buy_zero'] === 'Y' ? ' checked' : ''); ?>>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><label for="default_subscribe"><? echo Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_PRODUCT_SUBSCRIBE"); ?></label></td>
+		<td width="40%"><label for="default_subscribe"><?= Loc::getMessage("BX_CATALOG_PRODUCT_SETTINGS_PRODUCT_SUBSCRIBE"); ?></label></td>
 		<td width="60%">
-			<input type="checkbox" name="default_subscribe" id="subscribe" value="Y"<?if ($settings['default_subscribe'] === 'Y') echo " checked";?>>
+			<input type="checkbox" name="default_subscribe" id="subscribe" value="Y"<?= ($settings['default_subscribe'] === 'Y' ? ' checked' : ''); ?>>
 		</td>
 	</tr>
 	<tr>
-		<td width="40%"><? echo Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_MAX_EXECUTION_TIME')?></td>
-		<td width="60%"><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?echo $oneStepTime; ?>"></td>
+		<td width="40%"><?= Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_MAX_EXECUTION_TIME'); ?></td>
+		<td width="60%"><input type="text" name="max_execution_time" id="max_execution_time" size="3" value="<?= $oneStepTime; ?>"></td>
 	</tr>
-	<?
+	<?php
 	$tabControl->Buttons();
 	?>
-	<input type="button" id="product_settings_start_button" value="<? echo Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_UPDATE_BTN')?>">
-	<input type="button" id="product_settings_stop_button" value="<? echo Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STOP_BTN')?>" disabled>
+	<input type="button" id="product_settings_start_button" value="<?= Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_UPDATE_BTN'); ?>">
+	<input type="button" id="product_settings_stop_button" value="<?= Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STOP_BTN'); ?>" disabled>
 	<div id="reindexReport" style="display: none;"></div>
-	<?
+	<?php
 	$tabControl->End();
 	?></form>
-	<?
-	$jsParams = array(
+	<?php
+	$jsParams = [
 		'url' => $APPLICATION->GetCurPage(),
-		'options' => array(
+		'options' => [
 			'ajaxSessionID' => 'productSettings',
 			'maxExecutionTime' => $oneStepTime,
 			'maxOperationCounter' => 10,
-			'counter' => 0
-		),
-		'visual' => array(
+			'counter' => 0,
+		],
+		'visual' => [
 			'startBtnID' => 'product_settings_start_button',
 			'stopBtnID' => 'product_settings_stop_button',
 			'timeFieldID' => 'max_execution_time',
@@ -219,27 +227,27 @@ else
 			'prefix' => 'catalog_reindex_iblock_',
 			'resultContID' => 'catalog_reindex_result_div_',
 			'errorContID' => 'catalog_reindex_error_cont_',
-			'errorDivID' => 'catalog_reindex_error_div_'
-		),
-		'ajaxParams' => array(
-			'operation' => 'Y'
-		),
-		'checkboxList' => array(
+			'errorDivID' => 'catalog_reindex_error_div_',
+		],
+		'ajaxParams' => [
+			'operation' => 'Y',
+		],
+		'checkboxList' => [
 			'quantity_trace',
 			'can_buy_zero',
-			'subscribe'
-		),
-		'messages' => array(
+			'subscribe',
+		],
+		'messages' => [
 			'status_yes' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STATUS_YES'),
-			'status_no' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STATUS_NO')
-		)
-	);
+			'status_no' => Loc::getMessage('BX_CATALOG_PRODUCT_SETTINGS_STATUS_NO'),
+		],
+	];
 	?>
-	<script type="text/javascript">
-		var jsProductSettings = new BX.Catalog.ProductSettings(<? echo CUtil::PhpToJSObject($jsParams, false, true); ?>);
+	<script>
+		var jsProductSettings = new BX.Catalog.ProductSettings(<?= CUtil::PhpToJSObject($jsParams, false, true); ?>);
 	</script>
-	<?
-	if ($_REQUEST["public_mode"] != "Y")
+	<?php
+	if (!$publicMode)
 	{
 		require($_SERVER['DOCUMENT_ROOT'].'/bitrix/modules/main/include/epilog_admin.php');
 	}

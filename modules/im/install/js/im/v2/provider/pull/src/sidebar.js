@@ -3,6 +3,16 @@ import { Type } from 'main.core';
 import { Core } from 'im.v2.application.core';
 import { UserManager } from 'im.v2.lib.user';
 import { SidebarDetailBlock } from 'im.v2.const';
+import { ChatUnreadParams } from './types/chat';
+
+import type {
+	AddMultidialogParams,
+	ChangeMultidialogSessionsLimitParams,
+	ChangeMultidialogStatusParams,
+} from './types/multidialog';
+import { MessageChatParams, MessageParams, ReadMessageChatParams, ReadMessageParams } from './types/message';
+import type { ChatUserAddParams, ChatUserLeaveParams } from './types/chat';
+import type { ImModelSidebarMultidialogItem } from 'im.v2.model';
 
 export class SidebarPullHandler
 {
@@ -18,7 +28,7 @@ export class SidebarPullHandler
 	}
 
 	// region members
-	handleChatUserAdd(params)
+	handleChatUserAdd(params: ChatUserAddParams)
 	{
 		if (this.getMembersCountFromStore(params.chatId) === 0)
 		{
@@ -33,7 +43,7 @@ export class SidebarPullHandler
 		});
 	}
 
-	handleChatUserLeave(params)
+	handleChatUserLeave(params: ChatUserLeaveParams)
 	{
 		if (this.getMembersCountFromStore(params.chatId) === 0)
 		{
@@ -227,19 +237,126 @@ export class SidebarPullHandler
 	}
 	// endregion
 
-	// region files unsorted
-	handleMessageChat(params)
+	// region support24
+
+	handleChangeMultidialogSessionsLimit(params: ChangeMultidialogSessionsLimitParams)
 	{
-		// handle new files while migration is not finished.
-		if (!this.isSidebarInited(params.chatId) || this.isFilesMigrated())
+		void this.store.dispatch('sidebar/multidialog/setOpenSessionsLimit', params.limit);
+	}
+
+	handleAddMultidialog(params: AddMultidialogParams)
+	{
+		const { multidialog, count } = params;
+		const isSupport = multidialog.isSupport;
+		if (!isSupport)
 		{
 			return;
 		}
 
-		void this.userManager.setUsersToModel(Object.values(params.users));
-		void this.store.dispatch('files/set', Object.values(params.files));
+		void this.store.dispatch('sidebar/multidialog/setChatsCount', count);
+		void this.store.dispatch('sidebar/multidialog/addMultidialogs', [multidialog]);
+	}
 
-		Object.values(params.files).forEach((file) => {
+	handleReadMessageChat(params: ReadMessageChatParams)
+	{
+		this.deleteUnreadSupportChats(params);
+	}
+
+	handleReadMessage(params: ReadMessageParams)
+	{
+		this.deleteUnreadSupportChats(params);
+	}
+
+	handleChangeMultidialogStatus(params: ChangeMultidialogStatusParams)
+	{
+		const { bot, chat, multidialog } = params;
+
+		const isSupport = multidialog.isSupport;
+		if (!isSupport)
+		{
+			return;
+		}
+
+		if (chat)
+		{
+			void this.store.dispatch('chats/set', chat);
+		}
+
+		if (bot)
+		{
+			void this.userManager.setUsersToModel(bot);
+		}
+
+		void this.store.dispatch('sidebar/multidialog/addMultidialogs', [multidialog]);
+	}
+
+	handleMessage(params: MessageParams)
+	{
+		this.setUnreadSupportTickets(params.multidialog);
+	}
+
+	handleChatUnread(params: ChatUnreadParams)
+	{
+		const { chatId, dialogId } = params;
+
+		const isSupport = this.store.getters['sidebar/multidialog/isSupport'](dialogId);
+		const isInited = this.store.getters['sidebar/multidialog/isInited'];
+
+		if (isSupport && isInited)
+		{
+			void this.store.dispatch('sidebar/multidialog/setUnreadChats', [chatId]);
+		}
+	}
+	// endregion
+
+	// region files unsorted and support24
+	handleMessageChat(params: MessageChatParams)
+	{
+		// handle new files while migration is not finished.
+		this.setFiles(params);
+
+		// handle new unread chats.
+		this.setUnreadSupportTickets(params.multidialog);
+	}
+	// endregion
+
+	deleteUnreadSupportChats(params: ReadMessageChatParams | ReadMessageParams)
+	{
+		const notCounter = params.counter === 0;
+
+		if (notCounter)
+		{
+			void this.store.dispatch('sidebar/multidialog/deleteUnreadChats', params.chatId);
+		}
+	}
+
+	setUnreadSupportTickets(multidialog: ImModelSidebarMultidialogItem)
+	{
+		if (!multidialog)
+		{
+			return;
+		}
+
+		const oldMultidialog = this.store.getters['sidebar/multidialog/get'](multidialog.chatId);
+		const status = oldMultidialog?.status || multidialog.status;
+
+		void this.store.dispatch('sidebar/multidialog/addMultidialogs', [{ ...multidialog, status }]);
+		void this.store.dispatch('sidebar/multidialog/setUnreadChats', [multidialog.chatId]);
+	}
+
+	setFiles(params: MessageChatParams)
+	{
+		const { chatId, users, files } = params;
+
+		if (!this.isSidebarInited(chatId) || this.areFilesMigrated())
+		{
+			return;
+		}
+
+		void this.userManager.setUsersToModel(Object.values(users));
+		void this.store.dispatch('files/set', Object.values(files));
+
+		Object.values(files).forEach((file) => {
 			void this.store.dispatch('sidebar/files/set', {
 				chatId: file.chatId,
 				files: [file],
@@ -247,14 +364,13 @@ export class SidebarPullHandler
 			});
 		});
 	}
-	// endregion
 
 	isSidebarInited(chatId: number): boolean
 	{
 		return this.store.getters['sidebar/isInited'](chatId);
 	}
 
-	isFilesMigrated(): boolean
+	areFilesMigrated(): boolean
 	{
 		return this.store.state.sidebar.isFilesMigrated;
 	}

@@ -1,4 +1,4 @@
-import { MessageComponent } from 'im.v2.const';
+import { MessageComponent, ChatType } from 'im.v2.const';
 
 import type { JsonObject } from 'main.core';
 import type { AttachConfig, KeyboardButtonConfig } from 'im.v2.const';
@@ -16,14 +16,20 @@ export type Message = {
 	error: boolean,
 	componentId: $Values<typeof MessageComponent>,
 	componentParams: Object,
-	forward: {userId: number, id: string},
+	forward: {
+		userId: number,
+		id: string,
+		chatTitle: string | null,
+		chatType: $Values<typeof ChatType>,
+	},
 	files: number[],
 	attach: AttachConfig[] | boolean | string,
 	keyboard: KeyboardButtonConfig[],
 	isEdited: boolean,
 	replyId: number,
 	isDeleted: boolean,
-	removeLinks: boolean
+	removeLinks: boolean,
+	copilotRole?: string,
 };
 
 export type RawMessage = {
@@ -41,4 +47,12 @@ export type RawMessage = {
 	uuid: string | null,
 	viewed: boolean,
 	viewedByOthers: boolean
+};
+
+export type CommentInfo = {
+	chatId: number,
+	lastUserIds: number[],
+	messageCount: 0,
+	messageId: number,
+	isUserSubscribed: boolean,
 };

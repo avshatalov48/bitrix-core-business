@@ -1,64 +1,118 @@
 <?php
+
 namespace Bitrix\Main;
 
 class ModuleManager
 {
-	protected const CACHE_ID = 'b_module';
-
 	protected static $installedModules = [];
 
 	public static function getInstalledModules()
 	{
-		if (empty(self::$installedModules))
+		if (empty(static::$installedModules))
 		{
-			$cacheManager = Application::getInstance()->getManagedCache();
-			if ($cacheManager->read(3600, self::CACHE_ID))
+			$rs =  ModuleTable::getList([
+				'select' => ['ID'],
+				'order' => ['ID' => 'ASC'],
+				'cache' => ['ttl' => 86400],
+			]);
+			while ($ar = $rs->fetch())
 			{
-				self::$installedModules = $cacheManager->get(self::CACHE_ID);
-			}
-
-			if (empty(self::$installedModules))
-			{
-				self::$installedModules = [];
-				$con = Application::getConnection();
-				$rs = $con->query("SELECT ID FROM b_module ORDER BY ID");
-				while ($ar = $rs->fetch())
-				{
-					self::$installedModules[$ar['ID']] = $ar;
-				}
-				$cacheManager->set(self::CACHE_ID, self::$installedModules);
+				static::$installedModules[$ar['ID']] = $ar;
 			}
 		}
 
-		return self::$installedModules;
+		return static::$installedModules;
+	}
+
+	/**
+	 * Returns all modules from disk
+	 *
+	 * @return array
+	 */
+	public static function getModulesFromDisk($withLocal = true)
+	{
+		$modules = [];
+
+		$folders = [
+			"/bitrix/modules"
+		];
+
+		if ($withLocal)
+		{
+			$folders[] = "/local/modules";
+		}
+
+		foreach ($folders as $folder)
+		{
+			$folderPath = $_SERVER["DOCUMENT_ROOT"] . $folder;
+			$handle = null;
+
+			if (is_dir($folderPath) && is_readable($folderPath))
+			{
+				$handle = opendir($folderPath);
+			}
+
+			if (!empty($handle))
+			{
+				while (false !== ($dir = readdir($handle)))
+				{
+					if (
+						!isset($modules[$dir])
+						&& is_dir($folderPath . "/" . $dir)
+						&& !in_array($dir, ['.', '..'], true)
+					)
+					{
+						if ($info = \CModule::CreateModuleObject($dir))
+						{
+							$modules[$dir]["id"] = $info->MODULE_ID;
+							$modules[$dir]["name"] = $info->MODULE_NAME;
+							$modules[$dir]["description"] = $info->MODULE_DESCRIPTION;
+							$modules[$dir]["version"] = $info->MODULE_VERSION;
+							$modules[$dir]["versionDate"] = $info->MODULE_VERSION_DATE;
+							$modules[$dir]["sort"] = $info->MODULE_SORT;
+							$modules[$dir]["isInstalled"] = $info->IsInstalled();
+						}
+					}
+				}
+
+				closedir($handle);
+			}
+		}
+
+		return $modules;
 	}
 
 	public static function getVersion($moduleName)
 	{
-		$moduleName = preg_replace("/[^a-zA-Z0-9_.]+/i", "", trim($moduleName));
-		if ($moduleName == '')
+		if (!static::isValidModule($moduleName))
+		{
 			return false;
+		}
 
-		if (!self::isModuleInstalled($moduleName))
+		if (!static::isModuleInstalled($moduleName))
+		{
 			return false;
+		}
 
 		if ($moduleName == 'main')
 		{
 			if (!defined("SM_VERSION"))
 			{
-				include_once($_SERVER["DOCUMENT_ROOT"]."/bitrix/modules/main/classes/general/version.php");
+				include_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/classes/general/version.php");
 			}
 			$version = SM_VERSION;
 		}
 		else
 		{
-			$modulePath = getLocalPath("modules/".$moduleName."/install/version.php");
+			$modulePath = getLocalPath("modules/" . $moduleName . "/install/version.php");
 			if ($modulePath === false)
+			{
 				return false;
+			}
 
 			$arModuleVersion = [];
-			include($_SERVER["DOCUMENT_ROOT"].$modulePath);
-			$version = (array_key_exists("VERSION", $arModuleVersion)? $arModuleVersion["VERSION"] : false);
+			include($_SERVER["DOCUMENT_ROOT"] . $modulePath);
+			$version = (array_key_exists("VERSION", $arModuleVersion) ? $arModuleVersion["VERSION"] : false);
 		}
 
 		return $version;
@@ -66,16 +120,20 @@ class ModuleManager
 
 	public static function isModuleInstalled($moduleName)
 	{
-		$arInstalledModules = self::getInstalledModules();
-		return isset($arInstalledModules[$moduleName]);
+		if (empty(static::$installedModules))
+		{
+			static::getInstalledModules();
+		}
+
+		return isset(static::$installedModules[$moduleName]);
 	}
 
 	public static function delete($moduleName)
 	{
+		ModuleTable::delete($moduleName);
+
 		$con = Application::getConnection();
 		$module = $con->getSqlHelper()->forSql($moduleName);
-
-		$con->queryExecute("DELETE FROM b_module WHERE ID = '" . $module . "'");
 		$con->queryExecute("UPDATE b_agent SET ACTIVE = 'N' WHERE MODULE_ID = '" . $module . "' AND ACTIVE = 'Y'");
 
 		static::clearCache($moduleName);
@@ -83,10 +141,10 @@ class ModuleManager
 
 	public static function add($moduleName)
 	{
+		ModuleTable::add(['ID' => $moduleName]);
+
 		$con = Application::getConnection();
 		$module = $con->getSqlHelper()->forSql($moduleName);
-
-		$con->queryExecute("INSERT INTO b_module(ID) VALUES('" . $module . "')");
 		$con->queryExecute("UPDATE b_agent SET ACTIVE = 'Y' WHERE MODULE_ID = '" . $module . "' AND ACTIVE = 'N'");
 
 		static::clearCache($moduleName);
@@ -96,7 +154,7 @@ class ModuleManager
 	{
 		static::add($moduleName);
 
-		$event = new Event("main", "OnAfterRegisterModule", array($moduleName));
+		$event = new Event("main", "OnAfterRegisterModule", [$moduleName]);
 		$event->send();
 	}
 
@@ -104,19 +162,18 @@ class ModuleManager
 	{
 		$con = Application::getInstance()->getConnection();
 
-		$con->queryExecute("DELETE FROM b_agent WHERE MODULE_ID='".$con->getSqlHelper()->forSql($moduleName)."'");
+		$con->queryExecute("DELETE FROM b_agent WHERE MODULE_ID='" . $con->getSqlHelper()->forSql($moduleName) . "'");
 		\CMain::DelGroupRight($moduleName);
 
 		static::delete($moduleName);
 
-		$event = new Event("main", "OnAfterUnRegisterModule", array($moduleName));
+		$event = new Event("main", "OnAfterUnRegisterModule", [$moduleName]);
 		$event->send();
 	}
 
 	protected static function clearCache($moduleName)
 	{
-		self::$installedModules = [];
-		Application::getInstance()->getManagedCache()->clean(self::CACHE_ID);
+		static::$installedModules = [];
 
 		Loader::clearModuleCache($moduleName);
 		EventManager::getInstance()->clearLoadedHandlers();

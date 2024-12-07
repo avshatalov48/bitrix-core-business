@@ -1,29 +1,22 @@
-import {lazyload} from 'ui.vue3.directives.lazyload';
-
-import {Color} from 'im.v2.const';
-
-import type {AttachUserItemConfig} from 'im.v2.const';
+import { lazyload } from 'ui.vue3.directives.lazyload';
+import type { AttachUserItemConfig } from 'im.v2.const';
 
 const AVATAR_TYPE = {
 	user: 'user',
 	chat: 'chat',
-	bot: 'bot'
+	bot: 'bot',
 };
 
 // @vue/component
 export const AttachUserItem = {
 	name: 'AttachUserItem',
-	directives: {lazyload},
+	directives: { lazyload },
 	props:
 	{
 		config: {
 			type: Object,
-			default: () => {}
+			default: () => {},
 		},
-		color: {
-			type: String,
-			default: Color.transparent
-		}
 	},
 	computed:
 	{
@@ -47,7 +40,7 @@ export const AttachUserItem = {
 		{
 			return this.internalConfig.link;
 		},
-		avatarTypeClass()
+		avatarTypeClass(): string[] | string
 		{
 			if (this.avatar)
 			{
@@ -65,16 +58,12 @@ export const AttachUserItem = {
 				avatarType = AVATAR_TYPE.bot;
 			}
 
-			return `--${avatarType}`;
+			return [`--${avatarType}`, 'base'];
 		},
-		avatarTypeStyle(): {backgroundColor: string}
-		{
-			return {backgroundColor: !this.avatar ? this.color : ''};
-		}
 	},
 	template: `
 		<div class="bx-im-attach-user__item">
-			<div class="bx-im-attach-user__avatar" :class="avatarTypeClass" :style="avatarTypeStyle">
+			<div class="bx-im-attach-user__avatar" :class="avatarTypeClass">
 				<img v-if="avatar" v-lazyload :data-lazyload-src="avatar" class="bx-im-attach-user__source" alt="name" />
 			</div>
 			<a v-if="link" :href="link" class="bx-im-attach-user__name" target="_blank">
@@ -84,5 +73,5 @@ export const AttachUserItem = {
 				{{ name }}
 			</span>
 		</div>
-	`
+	`,
 };

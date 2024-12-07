@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS["IB_SEG_MAIN_TITLE"] = "Страница генерации торговых предложений";
 $MESS["IB_SEG_TAB_TITLE"] = "Генератор SKU";
 $MESS["IB_SEG_TITLE"] = "Название";
@@ -35,4 +35,3 @@ $MESS["IB_SEG_QUANTITY"] = "Доступное количество:";
 $MESS["IB_SEG_MEASURE"] = "Единица измерения:";
 $MESS["IB_SEG_EMPTY_VALUE"] = "не выбрано";
 $MESS["IB_SEG_PROPERTY_VALUES_EMPTY"] = "Не выбраны значения свойств для генерации торговых предложений";
-?>

@@ -1,4 +1,7 @@
 <?php
+
+use Bitrix\Main\Web\Json;
+
 IncludeModuleLangFile(__FILE__);
 
 class CIBlockPropertyUserID
@@ -305,7 +308,7 @@ class CIBlockPropertyUserID
 				}
 			}
 		}
-		$selectedItems = CUtil::PhpToJSObject($dialogItems);
+		$selectedItems = Json::encode($dialogItems);
 
 		return <<<HTML
 			<div id="{$containerId}" name="{$containerId}"></div>

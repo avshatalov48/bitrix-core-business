@@ -446,18 +446,6 @@ $arComponentParameters = array(
 	),
 );
 
-if (IsModuleInstalled("video"))
-{
-	$arComponentParameters["PARAMETERS"]["PATH_TO_VIDEO_CALL"] = array(
-			"NAME" => GetMessage("SONET_PATH_TO_VIDEO_CALL"),
-			"TYPE" => "STRING",
-			"MULTIPLE" => "N",
-			"DEFAULT" => "/company/personal/video/#user_id#/",
-			"COLS" => 25,
-			"PARENT" => "URL_TEMPLATES",
-		);
-}
-
 if (IsModuleInstalled("bizproc"))
 {
 	$arComponentParameters["PARAMETERS"]["PATH_TO_BIZPROC_TASK_LIST"] = array(

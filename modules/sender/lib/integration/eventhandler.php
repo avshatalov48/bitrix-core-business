@@ -10,6 +10,7 @@ namespace Bitrix\Sender\Integration;
 
 use Bitrix\Main;
 use Bitrix\Main\Entity as MainEntity;
+use Bitrix\Main\Event;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
@@ -98,6 +99,12 @@ class EventHandler
 		if (ModuleManager::isModuleInstalled('crm'))
 		{
 			Crm\EventHandler::onAfterPostingSendRecipientMultiple($eventDataArray, $letter);
+		}
+
+		foreach ($eventDataArray as $eventData)
+		{
+			$event = new Event('sender', 'OnAfterPostingSendRecipient', [$eventData, $letter]);
+			$event->send();
 		}
 	}
 

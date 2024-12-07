@@ -1,20 +1,39 @@
-<?if(!check_bitrix_sessid()) return;?>
-<?
+<?php
+
+/** @global CMain $APPLICATION */
+
+if (!check_bitrix_sessid())
+{
+	return;
+}
+
 global $errors;
 
-if(empty($errors)):
-	echo CAdminMessage::ShowNote(GetMessage("MOD_UNINST_OK"));
+if (empty($errors)):
+	CAdminMessage::ShowNote(GetMessage("MOD_UNINST_OK"));
 else:
-	for($i=0; $i<count($errors); $i++)
-		$alErrors .= $errors[$i]."<br>";
-	echo CAdminMessage::ShowMessage(Array("TYPE"=>"ERROR", "MESSAGE" =>GetMessage("MOD_UNINST_ERR"), "DETAILS"=>$alErrors, "HTML"=>true));
+	$alErrors = implode('<br>', $errors);
+
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
+		'DETAILS' => $alErrors,
+		'HTML' => true,
+	]);
 endif;
-if ($ex = $APPLICATION->GetException())
+
+$ex = $APPLICATION->GetException();
+if ($ex)
 {
-	echo CAdminMessage::ShowMessage(Array("TYPE" => "ERROR", "MESSAGE" => GetMessage("MOD_UNINST_ERR"), "HTML" => true, "DETAILS" => $ex->GetString()));
+	CAdminMessage::ShowMessage([
+		'TYPE' => 'ERROR',
+		'MESSAGE' => GetMessage('MOD_UNINST_ERR'),
+		'HTML' => true,
+		'DETAILS' => $ex->GetString(),
+	]);
 }
 ?>
-<form action="<?echo $APPLICATION->GetCurPage()?>">
-	<input type="hidden" name="lang" value="<?echo LANG?>">
-	<input type="submit" name="" value="<?echo GetMessage("MOD_BACK")?>">	
+<form action="<?= $APPLICATION->GetCurPage() ?>">
+	<input type="hidden" name="lang" value="<?= LANGUAGE_ID ?>">
+	<input type="submit" name="" value="<?= htmlspecialcharsbx(GetMessage('MOD_BACK')) ?>">
 <form>

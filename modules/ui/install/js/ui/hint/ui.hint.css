@@ -9,7 +9,9 @@
 	line-height: 26px;
 }
 
-.ui-hint:hover { opacity: 1; }
+.ui-hint:hover {
+	opacity: 1;
+}
 
 .ui-hint-icon {
 	display: inline-block;
@@ -23,6 +25,7 @@
 .ui-hint-content {
 	display: block;
 	margin: 7px;
+	min-width: 45px;
 	max-width: 400px;
 }
 

@@ -153,7 +153,7 @@ class ModuleInstallStep extends \CWizardStep
 		$messages = Loc::loadLanguageFile(__FILE__);
 		?>
 
-		<script type="text/javascript">
+		<script>
 			BX.message(<?=\CUtil::PhpToJSObject($messages)?>);
 			var moduleWizardForm = new CModuleWizardForm("<?=$formName?>", "iframe-post-form", "<?=$nextStepVarName?>");
 			moduleWizardForm.Post("<?=$firstModule?>", "<?=$stage?>");

@@ -6,7 +6,6 @@ use Bitrix\Main\IO\Directory;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Config\Configuration;
 use Bitrix\Main\Config\Option;
-use Bitrix\Main\ModuleManager;
 
 Loc::loadMessages(__FILE__);
 

@@ -10,9 +10,9 @@ elseif ($arResult["RESULT"]["RESULT"] == "NEXT_STEP")
 else
 {
 	if ($arResult["RESULT"]["RESULT"] == "ERROR")
-		echo ShowError($arResult["RESULT"]["TEXT"]);
+		ShowError($arResult["RESULT"]["TEXT"]);
 	elseif ($arResult["RESULT"]["RESULT"] == "NOTE")
-		echo ShowNote($arResult["RESULT"]["TEXT"]);
+		ShowNote($arResult["RESULT"]["TEXT"]);
 	elseif ($arResult["RESULT"]["RESULT"] == "OK")
 	{
 		?><input type="text" name="<?=$arParams["INPUT_NAME"]?>" value="<?=roundEx($arResult["RESULT"]["VALUE"], SALE_VALUE_PRECISION)?>" <?echo $arParams['INPUT_DISABLED'] == 'Y' ? 'disabled="disabled"' : ''?> <?=$arParams["INPUT_ADDITIONAL"]?> /><?

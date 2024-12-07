@@ -757,6 +757,24 @@
 		return messageText;
 	}
 
+	MessengerCommon.prototype.toBXUrl = function(url)
+	{
+		const isMobileWebComponent = this.isMobile() && this.BXIM.webComponent;
+		const isCurrentDomainUrl = (
+			currentDomain
+			&& typeof(url) === 'string'
+			&& url !== ''
+			&& url.startsWith(currentDomain)
+		);
+
+		if (isMobileWebComponent && isCurrentDomainUrl)
+		{
+			return `bx${url}`;
+		}
+
+		return url;
+	};
+
 	/* Section: Images */
 	MessengerCommon.prototype.formatUrl = function(url)
 	{
@@ -2643,10 +2661,6 @@
 		else
 		{
 			this.BXIM.messenger.openMessenger(BX.proxy_context.getAttribute('data-userId'));
-			if (this.BXIM.callController && this.BXIM.callController.hasActiveCall())
-			{
-				this.BXIM.callController.fold();
-			}
 		}
 	}
 
@@ -2927,7 +2941,7 @@
 				if (this.BXIM.messenger.contactListSearchText <= 0 && !this.BXIM.messenger.chatList)
 				{
 					this.BXIM.messenger.popupContactListSearchInput.value = "";
-					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready() && this.BXIM.callController && !this.BXIM.callController.hasActiveCall())
+					if (!this.isMobile() && this.BXIM.messenger.popupMessenger && !this.BXIM.messenger.desktop.ready())
 					{
 						this.BXIM.messenger.popupMessenger.destroy();
 						return true;
@@ -3889,10 +3903,7 @@
 				this.BXIM.messenger.openLinesFlag = false;
 				this.BXIM.messenger.extraClose();
 			}
-			else if (
-				!this.BXIM.callController
-				|| !this.BXIM.callController.hasActiveCall()
-			)
+			else
 			{
 				this.BXIM.messenger.openMessenger();
 			}
@@ -8759,15 +8770,6 @@
 				{
 					this.readMessage('chat'+params.chatId, true, false, true);
 					this.leaveFromChat(params.chatId, false);
-
-					if (
-						this.BXIM.callController
-						&& this.BXIM.callController.hasActiveCall()
-						&& this.BXIM.callController.currentCall.associatedEntity.id == 'chat'+params.chatId
-					)
-					{
-						this.BXIM.callController.currentCall.hangup();
-					}
 				}
 				else if (this.MobileActionEqual('DIALOG'))
 				{
@@ -9654,15 +9656,6 @@
 		{
 			skipCheck = skipCheck == true || this.isMobile();
 			if (!skipCheck && !BX.MessengerCommon.getCounter(dialogId))
-			{
-				return false;
-			}
-
-			if (
-				this.BXIM.callController
-				&& this.BXIM.callController.hasActiveCall()
-				&& this.BXIM.callController.hasVisibleCall()
-			)
 			{
 				return false;
 			}
@@ -11181,9 +11174,6 @@
 
 		if (extraClose)
 			this.BXIM.messenger.extraClose();
-
-		if (callToggle && this.BXIM.callController && this.BXIM.callController.hasActiveCall())
-			this.BXIM.callController.showChat();
 
 		if (this.isMobile())
 		{
@@ -13294,9 +13284,15 @@
 				}
 				else
 				{
+					let fileUrl = this.formatUrl(file.urlPreview? file.urlPreview: file.preview);
+					if (this.isMobile() && file.type === 'image')
+					{
+						fileUrl = this.toBXUrl(fileUrl);
+					}
+
 					imageNode = BX.create("img", {
 						attrs:{
-							'src': this.formatUrl(file.urlPreview? file.urlPreview: file.preview),
+							'src': fileUrl,
 							'height': file.image? (file.image.height > 400? '400': file.image.height): 'auto'
 						},
 						props : { className: "bx-messenger-file-image-text bx-messenger-file-image-type-"+file.type},
@@ -15322,6 +15318,14 @@
 				sessionId: session.id,
 				ownerId: session.crmDeal,
 				context: 'chat',
+				st: {
+					tool: 'crm',
+					category: 'payments',
+					event: 'payment_create_click',
+					c_section: 'chats',
+					c_sub_section: 'web',
+					type: 'delivery_payment',
+				}
 			};
 			Object.assign(params, additionalParams);
 			var salescenterUrl = BX.util.add_url_param('/saleshub/app/', params);

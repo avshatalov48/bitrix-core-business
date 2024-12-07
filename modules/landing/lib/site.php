@@ -169,9 +169,10 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 	/**
 	 * Get preview picture of the site's main page.
 	 * @param int $siteId Site id.
+	 * @param bool $skipCloud Skip getting picture from cloud.
 	 * @return string
 	 */
-	public static function getPreview(int $siteId): string
+	public static function getPreview(int $siteId, bool $skipCloud = false): string
 	{
 		$res = self::getList([
 			'select' => [
@@ -185,7 +186,7 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 		{
 			if ($row['LANDING_ID_INDEX'])
 			{
-				return Landing::createInstance(0)->getPreview($row['LANDING_ID_INDEX']);
+				return Landing::createInstance(0)->getPreview($row['LANDING_ID_INDEX'], $skipCloud);
 			}
 		}
 
@@ -285,13 +286,14 @@ class Site extends \Bitrix\Landing\Internals\BaseTable
 			return $types;
 		}
 
-		$types = array(
+		$types = [
 			'PAGE' => Loc::getMessage('LANDING_TYPE_PAGE'),
 			'STORE' => Loc::getMessage('LANDING_TYPE_STORE'),
 			'SMN' => Loc::getMessage('LANDING_TYPE_SMN'),
 			'KNOWLEDGE' => Loc::getMessage('LANDING_TYPE_KNOWLEDGE'),
-			'GROUP' => Loc::getMessage('LANDING_TYPE_GROUP')
-		);
+			'GROUP' => Loc::getMessage('LANDING_TYPE_GROUP'),
+			'MAINPAGE' => Loc::getMessage('LANDING_TYPE_MAINPAGE'),
+		];
 
 		return $types;
 	}

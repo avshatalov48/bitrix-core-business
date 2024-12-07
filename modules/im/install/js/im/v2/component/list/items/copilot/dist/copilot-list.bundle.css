@@ -19,16 +19,6 @@
 	background-color: var(--im-list-copilot__background-color)
 }
 
-.bx-im-list-copilot__loading {
-	width: 100%;
-	height: 96px;
-	padding: 28px 0;
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='40' height='40' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M20 4.473C11.425 4.473 4.473 11.425 4.473 20S11.425 35.527 20 35.527 35.527 28.575 35.527 20 28.575 4.473 20 4.473zM.796 20C.796 9.394 9.394.796 20 .796S39.204 9.394 39.204 20 30.606 39.204 20 39.204.796 30.606.796 20z' fill='%238E52EC' fill-opacity='.08'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M1.001 19.796L1 20c0 10.493 8.507 19 19 19s19-8.507 19-19S30.493 1 20 1l-.204.001v3.682c.136-.004.272-.006.408-.006 8.576 0 15.527 6.952 15.527 15.527 0 8.576-6.951 15.527-15.527 15.527-8.575 0-15.527-6.951-15.527-15.527 0-.136.002-.273.006-.408H1z' fill='%238E52EC' fill-opacity='.7'/%3E%3C/svg%3E");
-	background-position: center;
-	background-repeat: no-repeat;
-	animation: imRotate360 .8s linear infinite;
-}
-
 .bx-im-list-copilot__empty {
 	display: flex;
 	justify-content: center;
@@ -137,14 +127,6 @@
 	position: relative;
 }
 
-.bx-im-list-copilot-item__avatar_icon {
-	width: 48px;
-	height: 48px;
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='49' height='48' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M24.5 0c13.255 0 24 10.745 24 24s-10.745 24-24 24S.5 37.255.5 24s10.745-24 24-24z' fill='%238E52EC'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M25.065 31.571a7.763 7.763 0 100-15.527 7.763 7.763 0 000 15.527zm-1.24-13.576a.217.217 0 00-.408 0l-.773 2.088a2.172 2.172 0 01-1.283 1.284l-2.089.773a.217.217 0 000 .407l2.089.773c.594.22 1.063.689 1.283 1.283l.773 2.089c.07.189.337.189.407 0l.773-2.089a2.172 2.172 0 011.284-1.283l2.088-.773a.217.217 0 000-.407l-2.088-.773a2.172 2.172 0 01-1.284-1.284l-.773-2.088zm4.436 6.035a.126.126 0 00-.235 0l-.447 1.207a1.255 1.255 0 01-.741.741l-1.207.447a.126.126 0 000 .235l1.207.447c.343.127.614.398.741.741l.447 1.207c.04.11.195.11.235 0l.447-1.207c.127-.343.398-.614.741-.741l1.207-.447a.126.126 0 000-.235l-1.207-.447a1.255 1.255 0 01-.741-.741l-.447-1.207z' fill='%23fff'/%3E%3Cpath d='M36.236 24.28c.763.032 1.363.68 1.247 1.434-.92 6.032-6.13 10.653-12.418 10.653-6.938 0-12.563-5.625-12.563-12.563 0-6.938 5.625-12.563 12.563-12.563 3.305 0 6.313 1.277 8.555 3.364.56.52.491 1.402-.089 1.901-.579.5-1.447.426-2.022-.077a9.757 9.757 0 00-6.444-2.419c-5.41 0-9.795 4.386-9.795 9.795 0 5.41 4.385 9.795 9.795 9.795 4.798 0 8.79-3.45 9.631-8.004.14-.753.776-1.35 1.54-1.317z' fill='%23fff'/%3E%3C/svg%3E");
-	background-size: contain;
-	background-repeat: no-repeat;
-}
-
 .bx-im-list-copilot-item__avatar_typing {
 	position: absolute;
 	height: 16px;
@@ -206,7 +188,6 @@
 	margin-left: 3px;
 	font: var(--im-font-size-xs)/var(--im-font-line-height-3xs) var(--im-font-family-system);
 	color: var(--im-list-copilot__font-color_message);
-	text-transform: lowercase;
 }
 
 .bx-im-list-copilot-item__content_bottom {
@@ -287,7 +268,6 @@
 	color: var(--im-list-copilot__font-color_message);
 }
 
-
 .bx-im-list-copilot-item__message_author-icon.--self {
 	display: inline-block;
 	width: 11px;
@@ -303,21 +283,8 @@
 .bx-im-list-copilot-item__message_author-icon.--user {
 	display: inline-block;
 	margin-right: 4px;
-	width: 14px;
-	height: 14px;
-	border-radius: 50%;
-	filter: saturate(70%);
-	background-size: cover;
-	background-repeat: no-repeat;
 	vertical-align: text-bottom;
 	margin-bottom: 1px;
-}
-
-.bx-im-list-copilot-item__message_author-icon.--user.--default {
-	background-image: url(data:image/svg+xml;charset=US-ASCII,%3Csvg%20viewBox%3D%220%200%2018%2020%22%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%3E%3Cpath%20d%3D%22M16.79%2015.354c0-.77-1.026-1.65-3.047-2.163a6.926%206.926%200%200%201-1.929-.862c-.13-.072-.11-.745-.11-.745l-.65-.097c0-.055-.056-.862-.056-.862.779-.257.698-1.772.698-1.772.495.27.817-.93.817-.93.585-1.665-.291-1.564-.291-1.564.153-1.017.153-2.05%200-3.067-.39-3.373-6.254-2.457-5.559-1.356-1.713-.31-1.322%203.518-1.322%203.518l.371.991c-.73.465-.222%201.027-.197%201.674.036.955.632.757.632.757.036%201.577.828%201.782.828%201.782.149.99.056.822.056.822l-.705.083a2.7%202.7%200%200%201-.055.672c-.829.362-1.007.575-1.83.93-1.592.684-3.321%201.574-3.629%202.772C.505%2017.136.22%2019.746.22%2019.746h17.433l-.862-4.392z%22%20fill%3D%22%23FFF%22%20fill-rule%3D%22evenodd%22/%3E%3C/svg%3E);
-	background-position: 3px 2px;
-	background-color: #adaaaa;
-	background-size: 8px;
 }
 
 .bx-im-list-copilot-item__message_text {
@@ -354,10 +321,6 @@
 /* Active item */
 .bx-im-list-copilot-item__wrap.--selected {
 	background-color: var(--im-list-copilot-item__background-color_accent);
-}
-
-.bx-im-list-copilot-item__wrap.--selected .bx-im-list-copilot-item__avatar_icon {
-	background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg width='49' height='50' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M24.5 1c13.255 0 24 10.745 24 24s-10.745 24-24 24S.5 38.255.5 25s10.745-24 24-24z' fill='%238E52EC' stroke='%23fff' stroke-opacity='.15'/%3E%3Cpath fill-rule='evenodd' clip-rule='evenodd' d='M25.065 32.571a7.763 7.763 0 100-15.527 7.763 7.763 0 000 15.527zm-1.24-13.576a.217.217 0 00-.408 0l-.773 2.088a2.172 2.172 0 01-1.283 1.284l-2.089.773a.217.217 0 000 .407l2.089.773c.594.22 1.063.689 1.283 1.283l.773 2.089c.07.189.337.189.407 0l.773-2.089a2.172 2.172 0 011.284-1.283l2.088-.773a.217.217 0 000-.407l-2.088-.773a2.172 2.172 0 01-1.284-1.284l-.773-2.088zm4.436 6.035a.126.126 0 00-.235 0l-.447 1.207a1.255 1.255 0 01-.741.741l-1.207.447a.126.126 0 000 .235l1.207.447c.343.127.614.398.741.741l.447 1.207c.04.11.195.11.235 0l.447-1.207c.127-.343.398-.614.741-.741l1.207-.447a.126.126 0 000-.235l-1.207-.447a1.255 1.255 0 01-.741-.741l-.447-1.207z' fill='%23fff'/%3E%3Cpath d='M36.236 25.28c.763.032 1.363.68 1.247 1.434-.92 6.032-6.13 10.653-12.418 10.653-6.938 0-12.563-5.625-12.563-12.563 0-6.938 5.625-12.563 12.563-12.563 3.305 0 6.313 1.277 8.555 3.364.56.52.491 1.402-.089 1.901-.579.5-1.447.426-2.022-.077a9.757 9.757 0 00-6.444-2.419c-5.41 0-9.795 4.386-9.795 9.795 0 5.41 4.385 9.795 9.795 9.795 4.798 0 8.79-3.45 9.631-8.004.14-.753.776-1.35 1.54-1.317z' fill='%23fff'/%3E%3C/svg%3E");
 }
 
 .bx-im-list-copilot-item__wrap.--selected .bx-im-chat-title__text {

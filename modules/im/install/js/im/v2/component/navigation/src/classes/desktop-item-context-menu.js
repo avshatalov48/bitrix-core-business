@@ -30,8 +30,8 @@ export class DesktopItemContextMenu extends BaseMenu
 	#getConnectItem(): MenuItem
 	{
 		const title = this.context.connected
-			? Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT')
-			: Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT')
+			? Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DISCONNECT_V2')
+			: Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_CONNECT_V2')
 		;
 
 		return {
@@ -54,7 +54,7 @@ export class DesktopItemContextMenu extends BaseMenu
 	#getDeleteItem(): MenuItem
 	{
 		return {
-			text: Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE'),
+			text: Loc.getMessage('IM_USER_SETTINGS_DESKTOP_CONTEXT_MENU_DELETE_V2'),
 			onclick: async function() {
 				const userChoice = await showDesktopDeleteConfirm();
 				if (userChoice === true)

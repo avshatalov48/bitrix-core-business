@@ -73,7 +73,7 @@ if (!empty($arParams["~AUTH_RESULT"]))
 	</form>
 </div>
 
-<script type="text/javascript">
+<script>
 try{document.form_auth.USER_OTP.focus();}catch(e){}
 </script>
 <?endif;?>

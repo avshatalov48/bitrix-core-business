@@ -612,7 +612,7 @@ class CAllSocNetLogCounter
 			AND CODE = '**'
 		";
 
-		$dbRes = $DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$dbRes = $DB->Query($strSQL);
 		if ($arRes = $dbRes->Fetch())
 		{
 			return $arRes["CNT"];
@@ -638,7 +638,7 @@ class CAllSocNetLogCounter
 				GROUP BY CODE
 			";
 
-			$dbRes = $DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSQL);
 			while ($arRes = $dbRes->Fetch())
 				$result[$arRes["CODE"]] = $arRes["CNT"];
 		}
@@ -663,7 +663,7 @@ class CAllSocNetLogCounter
 				AND CODE = '".$DB->ForSql($code)."'
 			";
 
-			$dbRes = $DB->Query($strSQL, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+			$dbRes = $DB->Query($strSQL);
 			if ($arRes = $dbRes->Fetch())
 			{
 				$result = MakeTimeStamp($arRes["LAST_DATE"]);
@@ -708,6 +708,6 @@ class CAllSocNetLogCounter
 			$strSql .= "WHERE ".$arSqls["WHERE"]." ";
 		}
 
-		return $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		return $DB->Query($strSql);
 	}
 }

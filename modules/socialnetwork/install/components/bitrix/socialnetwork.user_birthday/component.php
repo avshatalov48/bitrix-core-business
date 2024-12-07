@@ -124,7 +124,7 @@ if (CSocNetUser::IsFriendsAllowed())
 						if ($arResult["Users"]["List"] == false)
 							$arResult["Users"]["List"] = array();
 
-						$val = $day.' '.ToLower(GetMessage('MONTH_'.$month.'_S'));
+						$val = $day.' '.mb_strtolower(GetMessage('MONTH_'.$month.'_S'));
 
 						$arResult["Users"]["List"][] = array(
 							"ID" => $arFriends["ID"],

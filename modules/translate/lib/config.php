@@ -76,13 +76,7 @@ final class Config
 	 */
 	public static function isUtfMode(): bool 
 	{
-		static $flag;
-		if ($flag === null)
-		{
-			$flag = Main\Application::isUtfMode() || defined('BX_UTF');
-		}
-		
-		return $flag;
+		return true;
 	}
 
 	/**

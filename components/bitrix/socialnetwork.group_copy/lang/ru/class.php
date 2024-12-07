@@ -16,6 +16,7 @@ $MESS["SOCNET_GROUP_COPY_FEATURE_ELEMENT"] = "Элементы";
 $MESS["SOCNET_GROUP_COPY_FEATURE_WORKFLOW"] = "Бизнес-процессы";
 $MESS["SOCNET_GROUP_COPY_FEATURE_BLOG"] = "Сообщения в живой ленте";
 $MESS["SOCNET_GROUP_COPY_FEATURE_BLOG2"] = "Сообщения в ленте новостей";
+$MESS["SOCNET_GROUP_COPY_FEATURE_BLOG3"] = "Сообщения в ленте";
 $MESS["SOCNET_GROUP_COPY_FEATURE_VOTE_RESULT"] = "Результаты опросов";
 $MESS["SOCNET_GROUP_COPY_FEATURE_PHOTO"] = "Фотогалерея";
 $MESS["SOCNET_GROUP_COPY_FEATURE_LANDING_KNOWLEDGE"] = "База знаний";

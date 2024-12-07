@@ -1,4 +1,4 @@
-<?
+<?php
 $MESS ['C_ERROR_NO_DATAFILE'] = "Файл с данными не загружен и не выбран. Загрузка невозможна.";
 $MESS ['C_ERROR_NO_IBLOCKTYPE'] = "Тип информационного блока не выбран. Загрузка невозможна.";
 $MESS ['C_DATA_LOADING'] = "Загрузка данных";
@@ -22,4 +22,3 @@ $MESS ['CATI_OF_DEL'] = "удалять";
 $MESS ['CATI_OF_DEACT'] = "деактивировать";
 $MESS ['CATI_OF_KEEP'] = "оставить как есть";
 $MESS ['C_F_IBLOCK_SELECT'] = "выберите";
-?>

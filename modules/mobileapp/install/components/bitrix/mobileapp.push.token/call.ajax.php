@@ -91,7 +91,7 @@ else
 					"DEVICE_ID" => $_REQUEST["uuid"],
 					"DEVICE_TYPE" => $_REQUEST["device_type"],
 					"APP_ID" => $_REQUEST["app_id"],
-					"DATE_AUTH" => ConvertTimeStamp(getmicrotime(), "FULL"),
+					"DATE_AUTH" => ConvertTimeStamp(microtime(true), "FULL"),
 					"USER_ID" => $userId
 				);
 

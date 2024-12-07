@@ -1,4 +1,4 @@
-import {Dom, Tag} from 'main.core';
+import {Dom, Tag, Type} from 'main.core';
 import {BaseEvent} from "main.core.events";
 
 import BaseControl from '../base_control/base_control';
@@ -7,6 +7,8 @@ import Colorpicker from "../colorpicker/colorpicker";
 import Preset from '../../layout/preset/preset';
 import PresetCollection from '../../layout/preset/preset_collection';
 import Reset from '../../layout/reset/reset';
+import hexToHsl from '../../internal/hex-to-hsl';
+import hslStringToHsl from '../../internal/hsl-string-to-hsl';
 
 import Generator from '../../layout/preset/generator';
 import './css/color_set.css';
@@ -16,6 +18,7 @@ export default class ColorSet extends BaseControl
 	constructor(options)
 	{
 		super();
+		this.options = options;
 		this.setEventNamespace('BX.Landing.UI.Field.Color.ColorSet');
 
 		this.reset = new Reset(options);
@@ -107,6 +110,12 @@ export default class ColorSet extends BaseControl
 			this.unsetActive();
 			this.colorpicker.setValue(this.getValue());
 		}
+
+		if (this.getValue() === null && this.options.content)
+		{
+			this.setColorFromContent();
+		}
+
 		this.preset.subscribe('onChange', (event) => {
 			this.blackAndWhitePreset.unsetActive();
 			this.onPresetItemChange(event);
@@ -183,5 +192,32 @@ export default class ColorSet extends BaseControl
 	isActive(): boolean
 	{
 		return this.preset.isActive() || this.blackAndWhitePreset.isActive() || this.colorpicker.isActive();
+	}
+
+	setColorFromContent(): void
+	{
+		const contentValue = this.options.content;
+		let contentHslColor = '';
+		if (contentValue.startsWith('#'))
+		{
+			contentHslColor = hexToHsl(contentValue);
+		}
+
+		if (contentValue.startsWith('hsl'))
+		{
+			contentHslColor = hslStringToHsl(contentValue);
+		}
+
+		if (Type.isObject(contentHslColor))
+		{
+			const contentColorValue = new ColorValue({
+				h: contentHslColor.h,
+				s: contentHslColor.s,
+				l: contentHslColor.l,
+				a: contentHslColor.a,
+			});
+			this.unsetActive();
+			this.colorpicker.setValue(contentColorValue);
+		}
 	}
 }

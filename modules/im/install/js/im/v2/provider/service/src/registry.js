@@ -1,11 +1,25 @@
-export { RecentService } from './recent';
-export { ChatService } from './chat';
-export { MessageService } from './message';
-export { SendingService } from './sending';
-export { NotificationService } from './notification';
-export { DiskService } from './disk';
-export { UnreadRecentService } from './classes/recent/unread-recent';
-export { UploadingService } from './uploading';
-export { SettingsService } from './settings';
-export { LinesService } from './lines';
-export { CopilotService } from './copilot';
+export { RecentService } from './recent/recent';
+export { ChatService } from './chat/chat';
+export { MessageService } from './message/message';
+export { SendingService } from './sending/sending';
+export { NotificationService } from './notification/notification';
+export { DiskService } from './disk/disk';
+export { UploadingService } from './uploading/uploading';
+export { SettingsService } from './settings/settings';
+export { LinesService } from './lines/lines';
+export { CopilotService } from './copilot/copilot';
+export { CommentsService } from './comments/comments';
+
+export type {
+	RawChat,
+	RawMessage,
+	RawCommentInfo,
+	RawFile,
+	RawPin,
+	RawUser,
+	RawReaction,
+	RawShortUser,
+	RawRecentItem,
+	RecentRestResult,
+	ChannelRestResult,
+} from './types/rest';

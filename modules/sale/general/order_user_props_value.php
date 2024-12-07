@@ -25,7 +25,7 @@ class CAllSaleOrderUserPropsValue
 				"WHERE ID = ".$ID."";
 		}
 
-		$db_res = $DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$db_res = $DB->Query($strSql);
 
 		if ($res = $db_res->Fetch())
 		{
@@ -69,7 +69,7 @@ class CAllSaleOrderUserPropsValue
 			"UPDATE b_sale_user_props_value SET ".
 			"	".$strUpdate." ".
 			"WHERE ID = ".$ID." ";
-		$DB->Query($strSql, false, "File: ".__FILE__."<br>Line: ".__LINE__);
+		$DB->Query($strSql);
 
 		return $ID;
 	}
@@ -123,8 +123,9 @@ class CAllSaleOrderUserPropsValue
 		return $id;
 	}
 
-	protected static function addPropertyValueField($tableAlias = 'V', &$arFields, &$arSelectFields)
+	protected static function addPropertyValueField($tableAlias, &$arFields, &$arSelectFields)
 	{
+		$tableAlias ??= 'V';
 		$tableAlias = \Bitrix\Main\HttpApplication::getConnection()->getSqlHelper()->forSql($tableAlias);
 
 		// locations kept in CODEs, but must be shown as IDs

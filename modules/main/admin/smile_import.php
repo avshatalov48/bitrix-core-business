@@ -24,7 +24,7 @@ $bImportComplete = false;
 $APPLICATION->SetTitle(GetMessage("SMILE_IMPORT_TITLE"));
 
 $fileName = '';
-if ($REQUEST_METHOD == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])))
+if ($_SERVER['REQUEST_METHOD'] == "POST" && (!empty($_POST['save']) || !empty($_POST['apply'])))
 {
 	$fileName = 'import'.$USER->GetID().time().'.zip';
 

@@ -46,7 +46,7 @@ class MessageLookalikeVk extends MessageLookalike
 				'type' => 'string',
 				'code' => 'AUDIENCE_ID',
 				'name' => Loc::getMessage('SENDER_INTEGRATION_SEO_MESSAGE_CONFIG_AUDIENCE_ID'),
-				'required' => true,
+				'required' => false,
 			),
 			array(
 				'type' => 'string',

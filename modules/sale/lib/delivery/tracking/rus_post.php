@@ -170,9 +170,6 @@ class RusPostSingle
 	{
 		$result = new Result();
 
-		if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-			$requestData = Encoding::convertEncoding($requestData, SITE_CHARSET, 'UTF-8');
-
 		$httpRes = $this->httpClient->post(self::$url, $requestData);
 		$errors = $this->httpClient->getError();
 
@@ -188,9 +185,6 @@ class RusPostSingle
 		else
 		{
 			$status = $this->httpClient->getStatus();
-
-			if(mb_strtolower(SITE_CHARSET) != 'utf-8')
-				$httpRes = Encoding::convertEncoding($httpRes, 'UTF-8', SITE_CHARSET);
 
 			$objXML = new \CDataXML();
 			$objXML->LoadString($httpRes);

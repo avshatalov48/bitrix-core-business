@@ -9,10 +9,12 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 /** @var array $arResult */
 /** @var array $arParams */
 
+use Bitrix\Bitrix24\Feature;
 use Bitrix\Landing\Assets;
 use Bitrix\Landing\Config;
 use Bitrix\Landing\Manager;
 use Bitrix\Landing\Site;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Page\Asset;
 use Bitrix\Main\UI\Extension;
@@ -21,6 +23,31 @@ Loc::loadMessages(__FILE__);
 Loc::loadMessages(Manager::getDocRoot() . '/bitrix/modules/landing/lib/mutator.php');
 
 $isKnowledge = $arParams['TYPE'] === 'KNOWLEDGE' || $arParams['TYPE'] === 'GROUP';
+$isFormEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
+$isMainpageEditor = $arParams['TYPE'] === Site\Type::SCOPE_CODE_MAINPAGE;
+$isMainpageFeatureAvailable = false;
+if (Loader::includeModule('bitrix24'))
+{
+	$isMainpageFeatureAvailable = Feature::isFeatureEnabled('main_page');
+}
+
+if (
+	$isMainpageEditor
+	&& !\Bitrix\Landing\Mainpage\Manager::isAvailable()
+)
+{
+	?>
+	<div class="landing-error-page">
+		<div class="landing-error-page-inner">
+			<div class="landing-error-page-title">Not vibing yet</div>
+			<div class="landing-error-page-img">
+				<div class="landing-error-page-img-inner"></div>
+			</div>
+		</div>
+	</div>
+	<?php
+	return;
+}
 
 // assets, extensions
 Extension::load([
@@ -61,6 +88,11 @@ $assets->addAsset(
 	Config::get('js_core_edit'),
 	Assets\Location::LOCATION_KERNEL
 );
+
+if ($isMainpageEditor)
+{
+	Asset::getInstance()->addCSS('/bitrix/components/bitrix/landing.landing_view/templates/.default/mainpage-style.css');
+}
 
 Manager::setPageView(
 	'BodyClass',
@@ -115,7 +147,7 @@ if ($arResult['ERRORS'])
 			</div>
 			<div class="landing-view-loader-text"><?= Loc::getMessage('LANDING_WAIT_WHILE_CREATING');?></div>
 		</div>
-		<script type="text/javascript">
+		<script>
 			BX.ready(function()
 			{
 				setTimeout(function() {
@@ -150,7 +182,7 @@ if ($arResult['ERRORS'])
 			else
 			{
 				?>
-				<script type="text/javascript">
+				<script>
 					BX.ready(function()
 					{
 						if (
@@ -189,7 +221,6 @@ $successSave = $arResult['SUCCESS_SAVE'];
 $curUrl = $arResult['CUR_URI'];
 $urls = $arResult['TOP_PANEL_CONFIG']['urls'];
 $this->getComponent()->initAPIKeys();
-$formEditor = $arResult['SPECIAL_TYPE'] == Site\Type::PSEUDO_SCOPE_CODE_FORMS;
 
 $urlLandingAdd = $arParams['PAGE_URL_LANDING_ADD'];
 $urlFolderAdd = str_replace(['#site_show#', '#landing_edit#'], [$siteId, 0], $arParams['~PARAMS']['sef_url']['site_show'] ?? '');
@@ -205,7 +236,7 @@ if (
 	echo $component->getToolUnavailableInfoScript();
 }
 
-if ($formEditor)
+if ($isFormEditor)
 {
 	$arParams['PAGE_URL_URL_SITES'] = '/crm/webform/';
 	Extension::load([
@@ -218,7 +249,7 @@ if ($formEditor)
 if ($request->get('close') == 'Y')
 {
 	?>
-	<script type="text/javascript">
+	<script>
 		if (top.window !== window)
 		{
 			top.window.location.reload();
@@ -260,20 +291,42 @@ if (!$request->offsetExists('landing_mode')):
 	<div class="landing-ui-panel landing-ui-panel-top<?= $panelModifier;?>">
 		<!-- region Logotype -->
 		<div class="landing-ui-panel-top-logo">
-			<a href="<?= ($arParams['TYPE'] === 'GROUP') ? '#' : $arParams['PAGE_URL_URL_SITES']?>" class="landing-ui-panel-top-logo-link" data-slider-ignore-autobinding="true"<?php if ($arParams['TYPE'] !== 'GROUP'){?> target="_top"<?php }?>>
+			<?php
+			$uiPanelTopClassList = 'landing-ui-panel-top-logo-link';
+			if ($arParams['TYPE'] === 'GROUP')
+			{
+				$href = '#';
+			}
+			else if ($isMainpageEditor)
+			{
+				$href = parse_url($curUrl)['path'];
+				$uiPanelTopClassList .= ' --mainpage-link';
+			}
+			else
+			{
+				$href = $arParams['PAGE_URL_URL_SITES'];
+			}
+			?>
+			<a href="<?= $href ?>" class="<?= $uiPanelTopClassList ?>" data-slider-ignore-autobinding="true"<?php if ($arParams['TYPE'] !== 'GROUP'){?> target="_top"<?php }?>>
 				<span class="landing-ui-panel-top-logo-home-btn" data-hint="<?= Loc::getMessage("LANDING_TPL_PREVIEW_EXIT")?>" data-hint-no-icon>
 					<svg class='landing-ui-panel-top-logo-home-btn-icon' width="27" height="27" viewBox="0 0 27 27" fill="none" xmlns="http://www.w3.org/2000/svg">
 						<path fill-rule="evenodd" clip-rule="evenodd" d="M11.902 19.6877V15.8046C11.902 15.5837 12.0811 15.4046 12.302 15.4046H14.5087C14.7296 15.4046 14.9087 15.5837 14.9087 15.8046V19.6877C14.9089 19.9086 15.0879 20.0876 15.3087 20.0878L18.8299 20.0891C19.0508 20.0893 19.2299 19.9103 19.23 19.6894C19.23 19.6893 19.23 19.6893 19.2299 19.6892V13.4563C19.2299 13.4365 19.2275 13.4142 19.2275 13.3943H20.4332C20.6633 13.3943 20.8604 13.2883 20.9909 13.0932C21.1189 12.9005 21.1425 12.6747 21.0581 12.4561C20.9519 12.1816 14.2383 5.92948 14.2047 5.90379C13.7957 5.59077 13.3216 5.58796 12.9131 5.89536C12.8759 5.92337 6.15525 12.1815 6.04901 12.4561C5.96462 12.6729 5.99059 12.9011 6.11629 13.0932C6.24671 13.2859 6.44145 13.3943 6.67162 13.3943H7.87965C7.87729 13.4142 7.87729 13.4365 7.87729 13.4563V19.6846C7.8776 19.9054 8.0565 20.0844 8.27729 20.0849L11.502 20.0874C11.7229 20.0879 11.9021 19.9089 11.9023 19.688C11.9023 19.6879 11.9023 19.6878 11.902 19.6877Z" fill="#525C69"/>
 					</svg>
 				</span>
 				<?
-				if (Manager::isB24() && $formEditor)
+				if (Manager::isB24() && $isFormEditor)
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
 						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
 						.'<span class="landing-ui-panel-top-logo-text">.'.Loc::getMessage('LANDING_TPL_START_PAGE_FORM_LOGO_SMN').'</span>';
 				}
-				else if (!Manager::isB24() && $formEditor)
+				else if (Manager::isB24() && $isMainpageEditor)
+				{
+					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_LOGO").'</span>'
+						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>'
+						.'<span class="landing-ui-panel-top-logo-text-mainpage">'.Loc::getMessage('LANDING_TPL_START_PAGE_MAINPAGE').'</span>';
+				}
+				else if (!Manager::isB24() && $isFormEditor)
 				{
 					echo '<span class="landing-ui-panel-top-logo-text">'.Loc::getMessage("LANDING_TPL_START_PAGE_FORM_LOGO_SMN").'</span>'
 						.'<span class="landing-ui-panel-top-logo-color">'.Loc::getMessage('LANDING_TPL_START_PAGE_LOGO_24').'</span>';
@@ -306,6 +359,7 @@ if (!$request->offsetExists('landing_mode')):
 		<!-- endregion -->
 
 		<!-- region landing.selector -->
+		<?php if (!$isMainpageEditor): ?>
 		<div class="landing-ui-panel-top-selector">
 			<?$APPLICATION->includeComponent('bitrix:landing.selector', '', [
 				'TYPE' => $arParams['TYPE'],
@@ -314,11 +368,12 @@ if (!$request->offsetExists('landing_mode')):
 				'LANDING_ID' => $arResult['LANDING']->getId(),
 				'INPUT_VALUE' => $arResult['LANDING']->getTitle(),
 				'PAGE_URL_LANDING_VIEW' => $arParams['~PARAMS']['sef_url']['landing_view'] ?? '',
-				'PAGE_URL_LANDING_ADD' => !$formEditor ? $urlLandingAdd : '',
-				'PAGE_URL_FOLDER_ADD' => !$formEditor ? $urlFolderAdd : '',
-				'PAGE_URL_FORM_ADD' => $formEditor ? $urlFormAdd : '',
+				'PAGE_URL_LANDING_ADD' => !$isFormEditor ? $urlLandingAdd : '',
+				'PAGE_URL_FOLDER_ADD' => !$isFormEditor ? $urlFolderAdd : '',
+				'PAGE_URL_FORM_ADD' => $isFormEditor ? $urlFormAdd : '',
 			]);?>
 		</div>
+		<?php endif; ?>
 		<!--  endregion -->
 
 		<?
@@ -400,32 +455,83 @@ if (!$request->offsetExists('landing_mode')):
 
 		<div class="landing-ui-panel-top-menu" id="landing-panel-settings">
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
-				<?if ($arResult['IS_AREA'] === false):?>
+				<?if (
+					$arResult['IS_AREA'] === false
+					&& !$isMainpageEditor
+				):?>
 					<div <?
 					?>id="landing-popup-preview-btn" <?
 					   ?>data-domain="<?= $site['DOMAIN_NAME']?>" <?
-					   ?>data-form-verification-required="<?=(($formEditor && $arResult['FORM_VERIFICATION_REQUIRED']) ? '1' : '0')?>" <?
+					   ?>data-form-verification-required="<?=(($isFormEditor && $arResult['FORM_VERIFICATION_REQUIRED']) ? '1' : '0')?>" <?
 					   ?>data-form-verification-entity="<?=(int)$arResult['VERIFY_FORM_ID']?>" <?
 					   ?>class="ui-btn ui-btn-light-border landing-ui-panel-top-menu-link landing-btn-menu">
-						<?= $formEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
+						<?= $isFormEditor ? Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN_FORM') : Loc::getMessage('LANDING_TPL_PREVIEW_URL_OPEN');?>
 					</div>
 				<?endif;?>
 
-				<?if (!$formEditor):?>
+				<?php if (!$isFormEditor): ?>
+					<?php
+						$featuresText = $isMainpageEditor
+							? Loc::getMessage('LANDING_MAINPAGE_FEATURES')
+							: $component->getMessageType('LANDING_TPL_FEATURES');
+					?>
 					<input type="button" id="landing-popup-features-btn"<?
 						?>class="ui-btn ui-btn-light-border ui-btn-round landing-ui-panel-top-menu-link-features" <?
 						?><?if ($formCode){?> data-feedback="landing-feedback-<?= $formCode?>-button"<?}?><?
-						?> value="<?= $component->getMessageType('LANDING_TPL_FEATURES')?>"<?
+						?> value="<?= $featuresText?>"<?
 						?> />
-				<?else:?>
+				<?php else: ?>
 					<span class="ui-btn ui-btn-light-border ui-btn-round landing-form-editor-share-button"><?
 						echo Loc::getMessage('LANDING_FORM_FEATURES')
 					?></span>
-				<?endif;?>
+				<?php endif; ?>
 			<?else:?>
 				<div id="landing-panel-settings-kb"></div>
 			<?endif;?>
 		</div>
+
+		<?php if ($isMainpageEditor && isset($arResult['MAINPAGE_IS_PUBLIC'])): ?>
+			<?php if ($isMainpageFeatureAvailable): ?>
+			<div class="landing-ui-panel-top-mainpage-public">
+				<?php $hide = ' style="display: none;"'; ?>
+
+				<div
+					id="landing-mainpage-unpublication"
+					class="ui-btn ui-btn-light-border"
+					<?= $arResult['MAINPAGE_IS_PUBLIC'] ? '' : $hide ?>
+				>
+					<?= Loc::getMessage('LANDING_MAINPAGE_UNPUBLIC') ?>
+				</div>
+				<div
+					id="landing-mainpage-publication"
+					class="ui-btn ui-btn-primary"
+					<?= $arResult['MAINPAGE_IS_PUBLIC'] ? $hide : '' ?>
+				>
+					<?= Loc::getMessage('LANDING_MAINPAGE_PUBLIC') ?>
+				</div>
+
+				<script>
+					BX.ready(() => {
+						new BX.Landing.Component.View.MainpagePublication({
+							buttonPublic: BX('landing-mainpage-publication'),
+							buttonUnpublic: BX('landing-mainpage-unpublication'),
+							isPublic: <?= $arParams['MAINPAGE_IS_PUBLIC'] ? 'true' : 'false' ?>,
+						});
+					});
+				</script>
+			</div>
+			<?php else: ?>
+				<div class="landing-ui-panel-top-mainpage-public" onclick="BX.UI.InfoHelper.show('limit_office_vibe');">
+					<div
+						id="landing-mainpage-publication-disabled"
+						class="ui-btn ui-btn-primary landing-ui-disabled"
+					>
+						<?= Loc::getMessage('LANDING_MAINPAGE_PUBLIC') ?>
+					</div>
+				</div>
+			<?php endif; ?>
+		<?php endif; ?>
+
 	</div>
 	<div class="landing-ui-view-container">
 <?endif;?>
@@ -441,7 +547,7 @@ else
 }
 ?>
 
-<script type="text/javascript">
+<script>
 	var landingParams = <?= \CUtil::phpToJSObject($arParams);?>;
 	var landingSiteType = '<?= $arParams['TYPE'];?>';
 	BX.ready(function()
@@ -505,7 +611,6 @@ if ($request->offsetExists('landing_mode'))
 {
 	if (SITE_TEMPLATE_ID == 'bitrix24')
 	{
-		Manager::getCacheManager()->clean('b_site_template');
 		$component->refresh();
 	}
 	if ($request->get('landing_mode') == 'edit')
@@ -527,7 +632,7 @@ if ($request->offsetExists('landing_mode'))
 			height: 14px!important;
 		}
 	</style>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function()
 		{
 			<?if ($arParams['DRAFT_MODE'] != 'Y'):?>
@@ -541,7 +646,7 @@ if ($request->offsetExists('landing_mode'))
 		});
 	</script>
 	<?php if ($request->get('forceLoad') == 'true'):?>
-		<script type="text/javascript">
+		<script>
 			BX.namespace('BX.Landing');
 			BX.Landing.Block = function(element) {
 				BX.onCustomEvent(window, 'BX.Landing.Block:init', [
@@ -616,6 +721,37 @@ if ($request->offsetExists('landing_mode'))
 	<?php endif?>
 
 	<?php
+	if (
+		$isMainpageEditor
+		&& \Bitrix\Main\Loader::includeModule('intranet')
+	)
+	{
+		$themePicker = new \Bitrix\Intranet\Integration\Templates\Bitrix24\ThemePicker('bitrix24');
+		$theme = $themePicker->getCurrentTheme();
+		$bg = ($theme && $theme['prefetchImages'] && is_array($theme)) ? current($theme['prefetchImages']) : null;
+		if ($bg)
+		{
+			// exec theme-hooks for design panel
+			$hooksLanding = \Bitrix\Landing\Hook::getForLanding($arResult['LANDING']->getId());
+			$hooksSite = \Bitrix\Landing\Hook::getForSite($arResult['LANDING']->getSiteId());
+			if (
+				(!isset($hooksLanding['BACKGROUND']) || !$hooksLanding['BACKGROUND']->enabled())
+				&&
+				(!isset($hooksSite['BACKGROUND']) || !$hooksSite['BACKGROUND']->enabled())
+			)
+			{
+				$hooksLanding['BACKGROUND']->setData([
+					'USE' => 'Y',
+					'PICTURE' => $bg,
+				]);
+				$hooksLanding['BACKGROUND']->exec();
+			}
+		}
+	}
+
+	?>
+
+	<?php
 }
 // top panel
 else
@@ -662,7 +798,7 @@ else
 			overflow: hidden;
 		}
 	</style>
-	<script type="text/javascript">
+	<script>
 		BX.ready(function() {
 			window.addEventListener('scroll', (e) => {
 				e.preventDefault();
@@ -671,49 +807,49 @@ else
 				);
 			});
 
-			<?if ($successSave):?>
-			if (typeof BX.SidePanel !== 'undefined')
-			{
-				BX.SidePanel.Instance.close();
-			}
-			<?endif;?>
+			<?php if ($successSave): ?>
+				if (typeof BX.SidePanel !== 'undefined')
+				{
+					BX.SidePanel.Instance.close();
+				}
+			<?php endif; ?>
 			BX.Landing.Component.View.create(
 				<?= \CUtil::phpToJSObject($arResult['TOP_PANEL_CONFIG']);?>,
 				true
 			);
-			<?php if (!$isKnowledge):?>
-			new BX.Landing.View.Device({
-				editorFrameWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
-				frameUrl: '<?= \CUtil::JSEscape($urls['preview_device']->getUri())?>',
-				messages: {
-					LANDING_PREVIEW_DEVICE_MOBILES: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_MOBILES'));?>',
-					LANDING_PREVIEW_DEVICE_TABLETS: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_TABLETS'));?>',
-					LANDING_TPL_PREVIEW_LOADING: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_LOADING'));?>',
-				}
-			});
-			new BX.Landing.View.ExternalControls({
-				container: document.querySelector('.landing-ui-view-wrapper'),
-				iframeWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
-				messages: {
-					LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_STYLE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE'))?>',
-					LANDING_TPL_EXT_BUTTON_EDIT_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE'))?>',
-					LANDING_TPL_EXT_BUTTON_DOWN_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DOWN_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_UP_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_UP_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_CUT: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_CUT'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_COPY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_COPY'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK_MSGVER_1'))?>',
-					LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY_MSGVER_1'))?>',
-					LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK'))?>',
-				}
-			});
+			<?php if (!$isKnowledge && !$isMainpageEditor):?>
+				new BX.Landing.View.Device({
+					editorFrameWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
+					frameUrl: '<?= \CUtil::JSEscape($urls['preview_device']->getUri())?>',
+					messages: {
+						LANDING_PREVIEW_DEVICE_MOBILES: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_MOBILES'));?>',
+						LANDING_PREVIEW_DEVICE_TABLETS: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_PREVIEW_DEVICE_TABLETS'));?>',
+						LANDING_TPL_PREVIEW_LOADING: '<?= \CUtil::jsEscape(Loc::getMessage('LANDING_TPL_PREVIEW_LOADING'));?>',
+					}
+				});
+				new BX.Landing.View.ExternalControls({
+					container: document.querySelector('.landing-ui-view-wrapper'),
+					iframeWrapper: document.querySelector('.landing-ui-view-iframe-wrapper'),
+					messages: {
+						LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DESIGNER_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_STYLE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_STYLE_BLOCK_TITLE'))?>',
+						LANDING_TPL_EXT_BUTTON_EDIT_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_EDIT_BLOCK_TITLE'))?>',
+						LANDING_TPL_EXT_BUTTON_DOWN_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_DOWN_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_UP_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_UP_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_BLOCK_TITLE'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_HIDE'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SHOW'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_CUT: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_CUT'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_COPY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_COPY'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_PASTE'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_FEEDBACK_MSGVER_1'))?>',
+						LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_ACTIONS_SAVE_IN_LIBRARY_MSGVER_1'))?>',
+						LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK: '<?= CUtil::JSEscape(Loc::getMessage('LANDING_TPL_EXT_BUTTON_REMOVE_BLOCK'))?>',
+					}
+				});
 			<?php endif?>
 		});
 	</script>

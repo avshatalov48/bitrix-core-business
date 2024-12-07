@@ -2,34 +2,39 @@
 
 namespace Bitrix\Socialnetwork\Integration\UI\EntitySelector;
 
+use Bitrix\Intranet\Settings\Tools\ToolsManager;
 use Bitrix\Main\Application;
 use Bitrix\Main\Config\Option;
+use Bitrix\Main\Loader;
 use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\ModuleManager;
 use Bitrix\Main\ORM\Fields\ExpressionField;
 use Bitrix\Main\ORM\Fields\Relations\Reference;
+use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\Main\ORM\Query\Join;
 use Bitrix\Main\Search\Content;
-use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\EO_Workgroup;
 use Bitrix\Socialnetwork\EO_Workgroup_Collection;
 use Bitrix\Socialnetwork\FeaturePermTable;
 use Bitrix\Socialnetwork\FeatureTable;
+use Bitrix\Socialnetwork\Helper\Feature;
 use Bitrix\Socialnetwork\UserToGroupTable;
 use Bitrix\Socialnetwork\WorkgroupSiteTable;
 use Bitrix\Socialnetwork\WorkgroupTable;
 use Bitrix\Socialnetwork\WorkgroupViewTable;
 use Bitrix\UI\EntitySelector\BaseProvider;
 use Bitrix\UI\EntitySelector\Dialog;
-use Bitrix\Main\ORM\Query\Filter;
 use Bitrix\UI\EntitySelector\Item;
 use Bitrix\UI\EntitySelector\RecentItem;
 use Bitrix\UI\EntitySelector\SearchQuery;
 use Bitrix\UI\EntitySelector\Tab;
-use Bitrix\Intranet\Settings\Tools\ToolsManager;
 
 class ProjectProvider extends BaseProvider
 {
+	protected const ENTITY_ID = 'project';
+	protected const MAX_PROJECTS_IN_RECENT_TAB = 30;
+	protected const SEARCH_LIMIT = 100;
+
 	public function __construct(array $options = [])
 	{
 		parent::__construct();
@@ -54,6 +59,12 @@ class ProjectProvider extends BaseProvider
 			$this->options['features'] = $options['features'];
 		}
 
+		$this->options['checkFeatureForCreate'] = false;
+		if (isset($options['checkFeatureForCreate']) && is_bool($options['checkFeatureForCreate']))
+		{
+			$this->options['checkFeatureForCreate'] = $options['checkFeatureForCreate'];
+		}
+
 		$this->options['fillRecentTab'] = null; // auto
 		if (isset($options['fillRecentTab']) && is_bool($options['fillRecentTab']))
 		{
@@ -64,6 +75,18 @@ class ProjectProvider extends BaseProvider
 		if (isset($options['createProjectLink']) && is_bool($options['createProjectLink']))
 		{
 			$this->options['createProjectLink'] = $options['createProjectLink'];
+		}
+
+		$this->options['lockProjectLinkFeatureId'] = '';
+		if (isset($options['lockProjectLinkFeatureId']) && is_string($options['lockProjectLinkFeatureId']))
+		{
+			$this->options['lockProjectLinkFeatureId'] = $options['lockProjectLinkFeatureId'];
+		}
+
+		$this->options['lockProjectLink'] = false;
+		if (isset($options['lockProjectLink']) && is_bool($options['lockProjectLink']))
+		{
+			$this->options['lockProjectLink'] = $options['lockProjectLink'];
 		}
 
 		if (isset($options['projectId']))
@@ -88,6 +111,33 @@ class ProjectProvider extends BaseProvider
 				$this->options['!projectId'] = (int)$options['!projectId'];
 			}
 		}
+
+		$this->options['maxProjectsInRecentTab'] = static::MAX_PROJECTS_IN_RECENT_TAB;
+		if (isset($options['maxProjectsInRecentTab']) && is_int($options['maxProjectsInRecentTab']))
+		{
+			$this->options['maxProjectsInRecentTab'] = max(
+				1,
+				min($options['maxProjectsInRecentTab'], static::MAX_PROJECTS_IN_RECENT_TAB)
+			);
+		}
+
+		$this->options['searchLimit'] = static::SEARCH_LIMIT;
+		if (isset($options['searchLimit']) && is_int($options['searchLimit']))
+		{
+			$this->options['searchLimit'] = max(1, min($options['searchLimit'], static::SEARCH_LIMIT));
+		}
+
+		$this->options['shouldSelectProjectDates'] = false;
+		if (isset($options['shouldSelectProjectDates']) && is_bool($options['shouldSelectProjectDates']))
+		{
+			$this->options['shouldSelectProjectDates'] = (bool)$options['shouldSelectProjectDates'];
+		}
+
+		$this->options['addProjectMetaUsers'] = false;
+		if (isset($options['addProjectMetaUsers']) && is_bool($options['addProjectMetaUsers']))
+		{
+			$this->options['addProjectMetaUsers'] = (bool)$options['addProjectMetaUsers'];
+		}
 	}
 
 	public function isAvailable(): bool
@@ -106,6 +156,14 @@ class ProjectProvider extends BaseProvider
 	{
 		return $this->getProjectItems([
 			'projectId' => $ids
+		]);
+	}
+
+	public function getPreselectedItems(array $ids): array
+	{
+		return $this->getProjectItems([
+			'projectId' => $ids,
+			'myProjectsOnly' => false,
 		]);
 	}
 
@@ -166,6 +224,14 @@ class ProjectProvider extends BaseProvider
 			($this->options['createProjectLink'] !== false && $onlyProjectsMode)
 		;
 
+		if (
+			$this->options['checkFeatureForCreate']
+			&& !Feature::isFeatureEnabled(Feature::PROJECTS_GROUPS)
+		)
+		{
+			$createProjectLink = false;
+		}
+
 		if ($createProjectLink && self::canCreateProject())
 		{
 			$footerOptions = [];
@@ -173,6 +239,12 @@ class ProjectProvider extends BaseProvider
 			{
 				// Footer could be set from UserProvider
 				$footerOptions = $dialog->getFooterOptions() ?? [];
+			}
+
+			if ($this->options['lockProjectLink'])
+			{
+				$footerOptions['lockProjectLink'] = true;
+				$footerOptions['lockProjectLinkFeatureId'] = $this->options['lockProjectLinkFeatureId'] ?? '';
 			}
 
 			$footerOptions['createProjectLink'] = self::getCreateProjectUrl(UserProvider::getCurrentUserId());
@@ -220,20 +292,29 @@ class ProjectProvider extends BaseProvider
 		}
 
 		$query = WorkgroupTable::query();
-		$query->setSelect(
-			[
-				'ID',
-				'NAME',
-				'ACTIVE',
-				'PROJECT',
-				'CLOSED',
-				'VISIBLE',
-				'OPENED',
-				'IMAGE_ID',
-				'AVATAR_TYPE',
-				'LANDING'
-			]
-		);
+		$selectFields = [
+			'ID',
+			'NAME',
+			'ACTIVE',
+			'PROJECT',
+			'CLOSED',
+			'VISIBLE',
+			'OPENED',
+			'IMAGE_ID',
+			'AVATAR_TYPE',
+			'LANDING',
+		];
+
+		if (
+			isset($options['shouldSelectProjectDates'])
+			&& is_bool(isset($options['shouldSelectProjectDates']))
+			&& $options['shouldSelectProjectDates']
+		)
+		{
+			$selectFields[] = 'PROJECT_DATE_START';
+			$selectFields[] = 'PROJECT_DATE_FINISH';
+		}
+		$query->setSelect($selectFields);
 
 		if (isset($options['visible']) && is_bool(isset($options['visible'])))
 		{
@@ -292,13 +373,11 @@ class ProjectProvider extends BaseProvider
 		$siteId = !empty($options['siteId']) && is_string($options['siteId']) ? $options['siteId'] : SITE_ID;
 		$query->where('PROJECT_SITE.SITE_ID', $siteId);
 
-		if (
-			(
-				!isset($options['myProjectsOnly'])
-				|| $options['myProjectsOnly'] === true
-			)
-			&& !\CSocNetUser::isCurrentUserModuleAdmin()
-		)
+		$options['myProjectsOnly'] ??= true;
+		$notOnlyMyProjects = ($options['myProjectsOnly'] === false);
+
+		$currentUserModuleAdmin = \CSocNetUser::isCurrentUserModuleAdmin();
+		if (!$currentUserModuleAdmin)
 		{
 			$query->registerRuntimeField(
 				new Reference(
@@ -311,9 +390,10 @@ class ProjectProvider extends BaseProvider
 							'<=',
 							UserToGroupTable::ROLE_USER
 						),
-					['join_type' => 'INNER']
+					['join_type' => $notOnlyMyProjects ? Join::TYPE_LEFT : Join::TYPE_INNER]
 				)
 			);
+			$query->addSelect('MY_PROJECT.ROLE', 'PROJECT_ROLE');
 		}
 
 		if (isset($options['viewed']) && is_bool(isset($options['viewed'])))
@@ -486,17 +566,34 @@ class ProjectProvider extends BaseProvider
 			$query->whereNull('SCRUM_MASTER_ID');
 		}
 
-
 		if (isset($options['limit']) && is_int($options['limit']))
 		{
 			$query->setLimit($options['limit']);
 		}
 		elseif ($projectFilter !== 'projectId' || empty($projectIds))
 		{
-			$query->setLimit(100);
+			$query->setLimit($options['searchLimit'] ?? null);
 		}
 
-		return $query->exec()->fetchCollection();
+		$eoWorkgroups = $query->exec()->fetchCollection();
+
+		if ($currentUserModuleAdmin)
+		{
+			return $eoWorkgroups;
+		}
+
+		$workgroups = new EO_Workgroup_Collection();
+		foreach ($eoWorkgroups as $eoWorkgroup)
+		{
+			$isMember = $query->getEntity()->hasField('MY_PROJECT') && !empty($eoWorkgroup->get('MY_PROJECT'));
+			$notSecretGroup = $eoWorkgroup->getVisible() === true;
+			if ($isMember || ($notOnlyMyProjects && $notSecretGroup))
+			{
+				$workgroups->add($eoWorkgroup);
+			}
+		}
+
+		return $workgroups;
 	}
 
 	private static function isAllowedFeatures($feature = ''): bool
@@ -798,7 +895,7 @@ class ProjectProvider extends BaseProvider
 		$result = [];
 		foreach ($projects as $project)
 		{
-			$result[] = self::makeItem($project, $options);
+			$result[] = static::makeItem($project, $options);
 		}
 
 		return $result;
@@ -824,7 +921,7 @@ class ProjectProvider extends BaseProvider
 		$item = new Item(
 			[
 				'id' => $project->getId(),
-				'entityId' => 'project',
+				'entityId' => static::ENTITY_ID,
 				'entityType' => $entityType,
 				'title' => $project->getName(),
 				'avatar' => self::makeProjectAvatar($project),
@@ -835,6 +932,10 @@ class ProjectProvider extends BaseProvider
 					'closed' => $project->getClosed(),
 					'open' => $project->getOpened(),
 					'project' => $project->getProject(),
+					'datePlan' => [
+						'dateStart' => $project->getProjectDateStart()?->getTimestamp(),
+						'dateFinish' => $project->getProjectDateFinish()?->getTimestamp(),
+					],
 				],
 			]
 		);
@@ -842,6 +943,54 @@ class ProjectProvider extends BaseProvider
 		if (!empty($options['tabs']))
 		{
 			$item->addTab($options['tabs']);
+		}
+
+		if (isset($options['addProjectMetaUsers']) && $options['addProjectMetaUsers'] === true)
+		{
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':A',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_OWNER'),
+				'entityId' => static::ENTITY_ID,
+				'entityType' => 'project_metauser',
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_OWNER'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'owner'
+				]
+			]));
+
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':E',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_MODERATOR'),
+				'entityType' => 'project_metauser',
+				'entityId' => static::ENTITY_ID,
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_MODERATOR'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'moderator'
+				]
+			]));
+
+			$item->addChild(new Item([
+				'id' => $project->getId() . ':K',
+				'title' => $project->getName() . '. ' . Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_ALL'),
+				'entityId' => static::ENTITY_ID,
+				'entityType' => 'project_metauser',
+				'nodeOptions' => [
+					'title' => Loc::getMessage('SOCNET_ENTITY_SELECTOR_PROJECTS_METAUSER_ALL'),
+					'renderMode' => 'override',
+				],
+				'customData' => [
+					'projectId' => $project->getId(),
+					'metauser' => 'all'
+				]
+			]));
 		}
 
 		return $item;
@@ -911,13 +1060,12 @@ class ProjectProvider extends BaseProvider
 
 	private function fillRecentTab(Dialog $dialog, EO_Workgroup_Collection $projects): void
 	{
-		$maxProjectsInRecentTab = 30;
+		$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
 
-		$recentItems = $dialog->getRecentItems()->getEntityItems('project');
-		if (count($recentItems) < $maxProjectsInRecentTab)
+		if (count($recentItems) < $this->options['maxProjectsInRecentTab'])
 		{
-			$limit = $maxProjectsInRecentTab - count($recentItems);
-			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems('project');
+			$limit = $this->options['maxProjectsInRecentTab'] - count($recentItems);
+			$recentGlobalItems = $dialog->getGlobalRecentItems()->getEntityItems(static::ENTITY_ID);
 			foreach ($recentGlobalItems as $recentGlobalItem)
 			{
 				if ($limit <= 0)
@@ -932,10 +1080,10 @@ class ProjectProvider extends BaseProvider
 				}
 			}
 
-			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
+			$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
 		}
 
-		if (count($recentItems) < $maxProjectsInRecentTab)
+		if (count($recentItems) < $this->options['maxProjectsInRecentTab'])
 		{
 			$recentIds = array_map('intval', array_keys($recentItems));
 
@@ -944,16 +1092,16 @@ class ProjectProvider extends BaseProvider
 					'!projectId' => $recentIds,
 					'viewed' => true,
 					'order' => ['VIEWED_PROJECT.DATE_VIEW' => 'desc'],
-					'limit' => $maxProjectsInRecentTab - count($recentItems)
+					'limit' => $this->options['maxProjectsInRecentTab'] - count($recentItems)
 				])
 			);
 
-			$recentItems = $dialog->getRecentItems()->getEntityItems('project');
+			$recentItems = $dialog->getRecentItems()->getEntityItems(static::ENTITY_ID);
 		}
 
-		if (count($recentItems) < $maxProjectsInRecentTab)
+		if (count($recentItems) < $this->options['maxProjectsInRecentTab'])
 		{
-			$limit = $maxProjectsInRecentTab - count($recentItems);
+			$limit = $this->options['maxProjectsInRecentTab'] - count($recentItems);
 			foreach ($projects as $project)
 			{
 				if ($limit <= 0)
@@ -969,7 +1117,7 @@ class ProjectProvider extends BaseProvider
 				$dialog->getRecentItems()->add(
 					new RecentItem([
 						'id' => $project->getId(),
-						'entityId' => 'project',
+						'entityId' => static::ENTITY_ID,
 						'loaded' => true,
 					])
 				);

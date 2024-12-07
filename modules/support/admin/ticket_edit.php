@@ -269,7 +269,7 @@ if ($action <> '' && check_bitrix_sessid())
 }
 
 // if button "Save" pressed
-if (($save <> '' || $apply <> '') && $REQUEST_METHOD=="POST" && check_bitrix_sessid())
+if (($save <> '' || $apply <> '') && $_SERVER['REQUEST_METHOD']=="POST" && check_bitrix_sessid())
 {
 	$arFILES = array();
 	if (is_array($_FILES) && count($_FILES)>0)
@@ -719,7 +719,7 @@ foreach($arHK as $n => $s)
 
 ?>
 
-<script language="JavaScript">
+<script>
 <!--
 function htmlspecialcharsback(str)
 {
@@ -807,7 +807,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 		<td align="right" width="20%" nowrap><?=GetMessage("SUP_SITE")?></td>
 		<td width="80%" nowrap><?echo SelectBoxFromArray("SITE_ID", array("reference" => $arrSiteRef, "reference_id" => $arrSiteID), htmlspecialcharsbx($TICKET_SITE), "", "onChange=\"OnSiteChange(this[this.selectedIndex].value)\" id=\"SITE_ID\"");?></td>
 	</tr>
-	<script language="JavaScript">
+	<script>
 	<!--
 	var arSLA = Array();
 	var arStatus = Array();
@@ -1077,7 +1077,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 
 	if ($can_select_owner=="Y"):
 	?>
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT>
 	<!--
 	function SelectSource()
 	{
@@ -1114,6 +1114,10 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 			{
 				$owner_name = $arStrUsers["arUsers"][intval($str_OWNER_USER_ID)]["HTML_NAME"];
 			}
+			elseif (!empty($owner_name))
+			{
+				$owner_name = htmlspecialcharsbx($owner_name);
+			}
 			echo FindUserID("OWNER_USER_ID", $str_OWNER_USER_ID, $owner_name);
 			if ($ID>0):
 				?><br>[&nbsp;<a href="/bitrix/admin/ticket_list.php?set_filter=Y&lang=<?=LANGUAGE_ID?>&<?=implode("&",$arAuthorFilter)?>"><?=GetMessage("SUP_AUTHOR_TICKETS")?></a>&nbsp;]<?
@@ -1121,7 +1125,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 			?>
 		</td>
 	</tr>
-	<SCRIPT LANGUAGE="JavaScript">
+	<SCRIPT>
 	<!--
 	SelectSource();
 	//-->
@@ -1423,7 +1427,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 			<table border="0" cellspacing="0" cellpadding="0" width="100%">
 				<tr>
 					<td></td>
-					<td><?echo $mess->NavPrint(GetMessage("SUP_PAGES"))?></td>
+					<td><? $mess->NavPrint(GetMessage("SUP_PAGES")) ?></td>
 				</tr>
 				<?
 				//while ($mess->NavNext(true, "f_", false))
@@ -1820,7 +1824,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 				?>
 				<tr>
 					<td></td>
-					<td><?echo $mess->NavPrint(GetMessage("SUP_PAGES"))?></td>
+					<td><? $mess->NavPrint(GetMessage("SUP_PAGES")) ?></td>
 				</tr>
 			</table>
 		</td>
@@ -1837,7 +1841,7 @@ if (isset($_GET['TICKET_ID']) && isset($_GET['MESSAGE_ID']))
 
 
 <?if ($can_select_mode=="Y"):?>
-<script type="text/javascript">
+<script>
 <!--
 var timeCounterID = null;
 
@@ -2003,7 +2007,7 @@ function OnModeClick(mode, btn1, btn2)
 
 <?if ($can_select_message_owner=="Y"):?>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function HiddenClick()
 	{
@@ -2082,7 +2086,7 @@ function OnModeClick(mode, btn1, btn2)
 
 	<?if ($str_DATE_CLOSE == ''):?>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function SelectMessageSource()
 	{
@@ -2116,7 +2120,7 @@ function OnModeClick(mode, btn1, btn2)
 			</td>
 	</tr>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	SelectMessageSource();
 	//-->
@@ -2129,7 +2133,7 @@ function OnModeClick(mode, btn1, btn2)
 <?if ($str_DATE_CLOSE == ''):?>
 
 	<?if (($bAdmin=="Y" || $bDemo=="Y" || $bSupportTeam=="Y") && $ID>0) :?>
-	<script type="text/javascript">
+	<script>
 	var answers= new Array();
 	function OnChangeFUA_ID()
 	{
@@ -2166,7 +2170,7 @@ function OnModeClick(mode, btn1, btn2)
 	</tr>
 	<?endif;?>
 
-	<SCRIPT type="text/javascript">
+	<SCRIPT>
 	<!--
 	function SupQuoteMessage(id)
 	{
@@ -2244,7 +2248,7 @@ function OnModeClick(mode, btn1, btn2)
 			</table></td>
 	</tr>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function AddFileInput()
 	{
@@ -2339,7 +2343,7 @@ function OnModeClick(mode, btn1, btn2)
 	<?endif;?>
 
 	<?if ($can_select_responsible=="Y") :?>
-	<script type="text/javascript">
+	<script>
 	<!--
 	var arCategory_RESP = Array();
 	<?
@@ -2356,7 +2360,7 @@ function OnModeClick(mode, btn1, btn2)
 	//-->
 	</script>
 	<?if ($can_select_sla=="Y" && $can_select_site=="Y") :?>
-	<script type="text/javascript">
+	<script>
 	<!--
 	var arSla_RESP = Array();
 	<?
@@ -2373,7 +2377,7 @@ function OnModeClick(mode, btn1, btn2)
 	</script>
 
 	<?if ($can_select_responsible=="Y" || ($can_select_sla=="Y" && $can_select_site=="Y")) :?>
-	<script type="text/javascript">
+	<script>
 	<!--
 	function SetResponsible(select_name)
 	{
@@ -2480,7 +2484,7 @@ while ($arTeam = $dbTeam->Fetch())
 			?><?if ($can_select_responsible=="Y"):?>&nbsp;&nbsp;<a id="icon_2" title="<?=GetMessage("SUP_RESPONSIBLE_SELECT_BY_SLA_ALT")?>" href="javascript:SetResponsible('SLA_ID')"><img src="/bitrix/images/support/resp.gif" width="16" height="16" border="0" alt="<?=GetMessage("SUP_RESPONSIBLE_SELECT_BY_SLA_ALT")?>"></a><?endif;?></td>
 	</tr>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	var arCriticality_SLA = Array();
 	var arCategory_SLA = Array();
@@ -2643,7 +2647,7 @@ while ($arTeam = $dbTeam->Fetch())
 
 	<?if ($str_DATE_CLOSE == ''):?>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function CloseClick()
 	{
@@ -2659,7 +2663,7 @@ while ($arTeam = $dbTeam->Fetch())
 		<td id="edit_24" align="right" nowrap><?echo GetMessage("SUP_CLOSE_TICKET")?>:</td>
 		<td id="edit_25" nowrap><?echo InputType("checkbox","CLOSE","Y",$str_CLOSE, false, "", "OnClick=\"CloseClick()\" id=\"CLOSE\"")?></td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 	<!--
 	CloseClick();
 	//-->
@@ -2667,7 +2671,7 @@ while ($arTeam = $dbTeam->Fetch())
 
 	<?else:?>
 
-	<script type="text/javascript">
+	<script>
 	<!--
 	function OpenClick()
 	{
@@ -2682,7 +2686,7 @@ while ($arTeam = $dbTeam->Fetch())
 		<td align="right" nowrap><?echo GetMessage("SUP_OPEN_TICKET")?>:</td>
 		<td nowrap><?echo InputType("checkbox","OPEN","Y","",false,"","OnClick=\"OpenClick()\" id=\"OPEN\"")?></td>
 	</tr>
-	<script type="text/javascript">
+	<script>
 	<!--
 	OpenClick();
 	//-->
@@ -2712,7 +2716,7 @@ if( $bAdmin == "Y" || $bSupportTeam == "Y" || $bDemo == "Y" )
 	if ( $ID > 0 )
 	{
 	?>
-	<script type="text/javascript">
+	<script>
 
 	function EnDisUserFields( mode )
 	{
@@ -2773,7 +2777,7 @@ $tabControl->End();
 <?echo EndNote();?>
 <?endif;?>
 
-<script language="javascript">
+<script>
 
 HiddenClick();
 

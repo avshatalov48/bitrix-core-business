@@ -1,0 +1,128 @@
+.bx-im-message-check-in__container {
+	--im-message-check-in__background-color_status: rgba(0, 0, 0, 0.2);
+	--im-message-check-in__color_status: var(--im-color-palette-white-base);
+	--im-message-check-in__color_action: #00ace3;
+	--im-message-check-in__color_location: var(--im-color-palette-gray-50);
+	--im-message-check-in__color_action-hover: var(--im-color-palette-blue-70);
+	--im-message-check-in__border-color_action: rgba(17, 169, 217, 0.3);
+	--im-message-check-in__border-color_action-hover: rgba(17, 169, 217, 0.45);
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: 238px;
+	max-width: 238px;
+}
+
+.bx-im-message-check-in__image-container {
+	position: relative;
+	width: calc(100% - 2px);
+	height: 87px;
+	margin: 1px auto 0;
+	border-radius: 5px 5px 9px 9px;
+	overflow: hidden;
+}
+
+.bx-im-message-base__wrap:first-child .bx-im-message-base__body .bx-im-message-check-in__image-container,
+.bx-im-content-chat__container.--center-align .bx-im-message-base__wrap.--self .bx-im-message-base__body .bx-im-message-check-in__image-container {
+	border-top-left-radius: 9px;
+}
+
+.bx-im-message-base__wrap:first-child .bx-im-message-base__body .bx-im-message-check-in__image-container,
+.bx-im-content-chat__container.--left-align .bx-im-message-base__wrap.--self .bx-im-message-base__body .bx-im-message-check-in__image-container,
+.bx-im-content-chat__container .bx-im-message-base__wrap.--opponent .bx-im-message-base__body .bx-im-message-check-in__image-container {
+	border-top-right-radius: 9px;
+}
+
+.bx-im-message-check-in__image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+}
+
+.bx-im-message-check-in__marker {
+	background-image: url("./images/marker.svg");
+	background-repeat: no-repeat;
+	background-position: center;
+	width: 17px;
+	height: 23px;
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.bx-im-message-check-in__status {
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background: var(--im-message-check-in__background-color_status);
+	border-radius: 13px;
+	padding: 3px 12px;
+	font-size: var(--im-font-size-xs);
+	font-weight: var(--im-font-weight-normal);
+	color: var(--im-message-check-in__color_status);
+	max-width: 90%;
+	width: max-content;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-message-check-in__location {
+	color: var(--im-message-check-in__color_location);
+	font-size: var(--im-font-size-xs);
+	font-weight: var(--im-font-weight-normal);
+	margin: 8px 12px 0;
+	display: -webkit-box;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.bx-im-message-check-in__action {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	margin: 12px 13px 7px;
+	padding: 6px 0;
+	max-width: 100%;
+	color: var(--im-message-check-in__color_action);
+	transition: color 0.3s ease;
+	font-size: var(--im-font-size-sm);
+	font-weight: var(--im-font-weight-medium);
+	border: 1px solid var(--im-message-check-in__border-color_action);
+	border-radius: 99px;
+	cursor: pointer;
+}
+
+.bx-im-message-check-in__action:hover {
+	border-color: var(--im-message-check-in__border-color_action-hover);
+	color: var(--im-message-check-in__color_action-hover);
+}
+
+.bx-im-message-check-in__action span {
+	max-width: calc(100% - 44px);
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.bx-im-message-check-in__action-icon {
+	flex-shrink: 0;
+	width: 18px;
+	height: 18px;
+	display: inline-block;
+	background: url("./images/check-in.svg") no-repeat center center;
+	transition: opacity .3s ease;
+}
+
+.bx-im-message-check-in__action:hover .bx-im-message-check-in__action-icon {
+	background-image: url("images/check-in-dark.svg");
+}
+
+.bx-im-message-check-in__bottom-panel {
+	margin: 0 11px 6px;
+}

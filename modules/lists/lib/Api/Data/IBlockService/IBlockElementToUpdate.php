@@ -7,10 +7,13 @@ use Bitrix\Lists\Api\Request\IBlockService\UpdateIBlockElementRequest;
 use Bitrix\Lists\Api\Response\IBlockService\IBlockElementToUpdateValues;
 use Bitrix\Main\ArgumentOutOfRangeException;
 use Bitrix\Main\Error;
+use Bitrix\Main\IO\Path;
+use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Result;
 
 class IBlockElementToUpdate extends Data
 {
+	protected bool $isLocalizationLoaded = false;
 	protected int $modifiedBy;
 	protected int $elementId;
 	protected int $iBlockId;
@@ -264,6 +267,11 @@ class IBlockElementToUpdate extends Data
 		{
 			if (in_array($type, ['L', 'E', 'G'], true))
 			{
+				if ($value === '0')
+				{
+					$value = '';
+				}
+
 				if ($isMultiple)
 				{
 					$values[$key] = $value;
@@ -278,14 +286,26 @@ class IBlockElementToUpdate extends Data
 
 			if ($type === 'N' && !empty($value))
 			{
+				if (is_string($value))
+				{
+					$value = str_replace([',', ' '], ['.', ''], $value);
+				}
+
 				if (is_numeric($value))
 				{
 					$value = (double)$value;
 				}
 				else
 				{
-					// todo: Loc
-					$result->addError(new Error('incorrect number value'));
+					$this->loadLocalization();
+					$result->addError(
+						new Error(
+							Loc::getMessage(
+								'LISTS_LIB_API_DATA_IBLOCK_SERVICE_VALIDATE_FIELD_ERROR',
+								['#FIELD_NAME#' => $property['NAME']]
+							),
+						)
+					);
 
 					return [];
 				}
@@ -505,5 +525,18 @@ class IBlockElementToUpdate extends Data
 		$differences = array_diff($value2, $value1);
 
 		return empty($differences);
+	}
+
+	protected function loadLocalization(): void
+	{
+		if (!$this->isLocalizationLoaded)
+		{
+			Loc::loadLanguageFile(
+				\Bitrix\Main\Application::getDocumentRoot()
+				. Path::normalize('/bitrix/modules/lists/lib/Api/Data/IBlockService/IBlockElementToUpdate')
+			);
+
+			$this->isLocalizationLoaded = true;
+		}
 	}
 }

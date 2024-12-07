@@ -1,14 +1,13 @@
-<?
-use Bitrix\Main,
-	Bitrix\Main\Localization\Loc,
-	Bitrix\Catalog;
+<?php
 
-Loc::loadMessages(__FILE__);
+use Bitrix\Main;
+use Bitrix\Main\Localization\Loc;
+use Bitrix\Catalog;
 
 abstract class CCatalogProductSetAll
 {
-	const TYPE_SET = 1;
-	const TYPE_GROUP = 2;
+	public const TYPE_SET = 1;
+	public const TYPE_GROUP = 2;
 
 	protected static $arErrors = array();
 	protected static $disableShowErrors = 0;
@@ -185,7 +184,7 @@ abstract class CCatalogProductSetAll
 		}
 
 		$strSql = 'delete from b_catalog_product_sets where OWNER_ID='.$intProductID.' and TYPE='.$intSetType;
-		$DB->Query($strSql, false, 'File: '.__FILE__.'<br>Line: '.__LINE__);
+		$DB->Query($strSql);
 		switch ($intSetType)
 		{
 			case self::TYPE_SET:

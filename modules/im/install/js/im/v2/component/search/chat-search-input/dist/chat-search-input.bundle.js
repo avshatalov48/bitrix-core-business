@@ -21,8 +21,8 @@ this.BX.Messenger.v2 = this.BX.Messenger.v2 || {};
 	      required: false
 	    },
 	    delayForFocusOnStart: {
-	      type: Number,
-	      default: 0
+	      type: [Number, null],
+	      default: null
 	    },
 	    withIcon: {
 	      type: Boolean,

@@ -45,6 +45,7 @@ export class EntityCatalog extends EventEmitter
 	static SLOT_GROUP = 'group';
 	static SLOT_GROUP_LIST_FOOTER = 'group-list-footer';
 	static SLOT_MAIN_CONTENT_HEADER = 'main-content-header';
+	static SLOT_MAIN_CONTENT_FOOTER = 'main-content-footer';
 	static SLOT_MAIN_CONTENT_FILTERS_STUB = 'main-content-filter-stub';
 	static SLOT_MAIN_CONTENT_FILTERS_STUB_TITLE = 'main-content-filter-stub-title';
 	static SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND = 'search-not-found';
@@ -53,6 +54,7 @@ export class EntityCatalog extends EventEmitter
 	static SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB = 'main-content-empty-group-stub';
 	static SLOT_MAIN_CONTENT_EMPTY_GROUP_STUB_TITLE = 'main-content-empty-group-stub-title';
 	static SLOT_MAIN_CONTENT_ITEM = 'main-content-item';
+	static SLOT_MAIN_CONTENT_SEARCH_STUB = 'main-content-search-stub';
 
 	#popup: ?Popup;
 	#popupOptions: PopupOptions;
@@ -238,6 +240,9 @@ export class EntityCatalog extends EventEmitter
 						<template #main-content-header>
 							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_HEADER] ?? ''}
 						</template>
+						<template #main-content-footer>
+							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_FOOTER] ?? ''}
+						</template>
 						<template #main-content-filter-stub v-if="${!!this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}">
 							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_FILTERS_STUB]}
 						</template>
@@ -249,6 +254,9 @@ export class EntityCatalog extends EventEmitter
 								this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_NOT_FOUND]
 								?? Loc.getMessage('UI_JS_ENTITY_CATALOG_GROUP_LIST_ITEM_LIST_SEARCH_STUB_DEFAULT_TITLE')
 							}
+						</template>
+						<template v-if="${Boolean(this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB])}" #main-content-search-stub>
+							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_SEARCH_STUB]}
 						</template>
 						<template #main-content-welcome-stub>
 							${this.#slots[EntityCatalog.SLOT_MAIN_CONTENT_WELCOME_STUB] ?? ''}

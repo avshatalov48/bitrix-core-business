@@ -1,4 +1,4 @@
 <?php
 
-$MESS['CATALOG_REPORT_CONFIG_TITLE'] = 'Необходимо выбрать метод расчёта себестоимости';
+$MESS['CATALOG_REPORT_CONFIG_TITLE_MSGVER_1'] = 'Необходимо выбрать метод списания';
 $MESS['CATALOG_REPORT_CONFIG_BUTTON'] = 'Настроить';

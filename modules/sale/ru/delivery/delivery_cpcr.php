@@ -315,7 +315,7 @@ class CDeliveryCPCR
 			if (is_set($arLocationFrom["CITY_ID"]))
 				$arQuery[] = DELIVERY_CPCR_SERVER_POST_FROM_CITY."=".urlencode($arLocationFrom["CITY_ID"]);
 			else
-				$arQuery[] = DELIVERY_CPCR_SERVER_POST_FROM_CITY_NAME."=".urlencode($GLOBALS['APPLICATION']->ConvertCharset($arLocationFrom["CITY"], LANG_CHARSET, 'windows-1251'));
+				$arQuery[] = DELIVERY_CPCR_SERVER_POST_FROM_CITY_NAME."=".urlencode(\Bitrix\Main\Text\Encoding::convertEncoding($arLocationFrom["CITY"], LANG_CHARSET, 'windows-1251'));
 
 			$arQuery[] = DELIVERY_CPCR_SERVER_POST_WEIGHT."=".urlencode($arOrder["WEIGHT"]);
 			$arQuery[] = DELIVERY_CPCR_SERVER_POST_CATEGORY."="."1";//urlencode($arConfig["category"]["VALUE"]);
@@ -334,7 +334,7 @@ class CDeliveryCPCR
 			if (is_set($arLocationTo["CITY_ID"]))
 				$arQuery[] = DELIVERY_CPCR_SERVER_POST_TO_CITY."=".urlencode($arLocationTo["CITY_ID"]);
 			else
-				$arQuery[] = DELIVERY_CPCR_SERVER_POST_TO_CITY_NAME."=".urlencode($GLOBALS['APPLICATION']->ConvertCharset($arLocationTo["CITY"], LANG_CHARSET, 'windows-1251'));
+				$arQuery[] = DELIVERY_CPCR_SERVER_POST_TO_CITY_NAME."=".urlencode(\Bitrix\Main\Text\Encoding::convertEncoding($arLocationTo["CITY"], LANG_CHARSET, 'windows-1251'));
 
 			CDeliveryCPCR::__Write2Log(print_r($arLocationTo, true));
 
@@ -359,7 +359,7 @@ class CDeliveryCPCR
 				);
 
 			if($data)
-				$data = $GLOBALS["APPLICATION"]->ConvertCharset($ob->result, 'windows-1251', LANG_CHARSET);
+				$data = \Bitrix\Main\Text\Encoding::convertEncoding($ob->result, 'windows-1251', LANG_CHARSET);
 
 			CDeliveryCPCR::__Write2Log($query_page);
 			CDeliveryCPCR::__Write2Log($query_string);
@@ -407,9 +407,9 @@ class CDeliveryCPCR
 						{
 							foreach ($arProfiles as $prof => $title)
 							{
-								if (ToUpper($v[0]["#"]) == ToUpper($title))
+								if (mb_strtoupper($v[0]["#"]) == mb_strtoupper($title))
 								{
-									$arTmpResult[ToLower($prof)] = array(
+									$arTmpResult[mb_strtolower($prof)] = array(
 										'VALUE' => $val["#"]["Total_Dost"][0]["#"],
 										'TRANSIT' => $val["#"]["DP"][0]["#"]." ".GetMessage("SALE_DH_CPCR_DAYS")
 									);

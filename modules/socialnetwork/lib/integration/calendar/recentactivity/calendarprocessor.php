@@ -4,6 +4,7 @@ namespace Bitrix\Socialnetwork\Integration\Calendar\RecentActivity;
 
 use Bitrix\Main\Loader;
 use Bitrix\Socialnetwork\Internals\EventService\EventDictionary;
+use Bitrix\Socialnetwork\Space\List\RecentActivity\Dictionary;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Processor\AbstractProcessor;
 use Bitrix\Socialnetwork\Space\List\RecentActivity\Event\Trait\AccessCodeTrait;
 
@@ -18,7 +19,7 @@ final class CalendarProcessor extends AbstractProcessor
 
 	protected function getTypeId(): string
 	{
-		return 'calendar';
+		return Dictionary::ENTITY_TYPE['calendar'];
 	}
 
 	public function process(): void
@@ -34,6 +35,9 @@ final class CalendarProcessor extends AbstractProcessor
 		{
 			case EventDictionary::EVENT_SPACE_CALENDAR_EVENT_DEL:
 				$this->onEventDelete($eventId);
+				break;
+			case EventDictionary::EVENT_SPACE_CALENDAR_EVENT_REMOVE_USERS:
+				$this->onEventRemoveUsers($eventId);
 				break;
 			default:
 				$this->onDefaultEvent($eventId);
@@ -64,6 +68,11 @@ final class CalendarProcessor extends AbstractProcessor
 	}
 
 	private function onEventDelete(int $eventId): void
+	{
+		$this->deleteRecentActivityData($eventId);
+	}
+
+	private function onEventRemoveUsers(int $eventId): void
 	{
 		$this->deleteRecentActivityData($eventId);
 	}

@@ -1,20 +1,37 @@
-import {EventEmitter} from 'main.core.events';
+import { EventEmitter } from 'main.core.events';
+
+type Options = {
+	direction: $Values<typeof ResizeDirection>,
+	maxHeight: number,
+	minHeight: number,
+};
+
+export const ResizeDirection = {
+	up: 'up',
+	down: 'down',
+};
 
 export class ResizeManager extends EventEmitter
 {
 	static eventNamespace = 'BX.Messenger.v2.Textarea.ResizeManager';
-	static minHeight: number = 22;
-	static maxHeight: number = 400;
 	static events = {
 		onHeightChange: 'onHeightChange',
-		onResizeStop: 'onResizeStop'
+		onResizeStop: 'onResizeStop',
 	};
 
 	isDragging: boolean = false;
+	direction: $Values<typeof ResizeDirection>;
+	maxHeight: number;
+	minHeight: number;
 
-	constructor()
+	constructor(options: Options = {})
 	{
 		super();
+		const { direction, maxHeight, minHeight } = options;
+		this.direction = direction;
+		this.maxHeight = maxHeight;
+		this.minHeight = minHeight;
+
 		this.setEventNamespace(ResizeManager.eventNamespace);
 	}
 
@@ -42,10 +59,10 @@ export class ResizeManager extends EventEmitter
 
 		this.resizeCursorControlPoint = event.clientY;
 
-		const maxPoint = Math.min(this.resizeHeightStartPoint + this.resizeCursorStartPoint - this.resizeCursorControlPoint, ResizeManager.maxHeight);
-		const newHeight = Math.max(maxPoint, ResizeManager.minHeight);
+		const maxPoint = this.#calculateNewMaxPoint();
+		const newHeight = Math.max(maxPoint, this.minHeight);
 
-		this.emit(ResizeManager.events.onHeightChange, {newHeight: newHeight});
+		this.emit(ResizeManager.events.onHeightChange, { newHeight });
 	}
 
 	onResizeStop()
@@ -59,6 +76,15 @@ export class ResizeManager extends EventEmitter
 		this.removeResizeEvents();
 
 		this.emit(ResizeManager.events.onResizeStop);
+	}
+
+	#calculateNewMaxPoint(): number
+	{
+		const distance = this.direction === ResizeDirection.up
+			? this.resizeCursorStartPoint - this.resizeCursorControlPoint
+			: this.resizeCursorControlPoint - this.resizeCursorStartPoint;
+
+		return Math.min(this.resizeHeightStartPoint + distance, this.maxHeight);
 	}
 
 	addResizeEvents()

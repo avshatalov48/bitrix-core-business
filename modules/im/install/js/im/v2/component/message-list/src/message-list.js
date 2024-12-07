@@ -1,33 +1,47 @@
 import { BaseEvent, EventEmitter } from 'main.core.events';
 
 import { Core } from 'im.v2.application.core';
-import { ChatType, EventType, MessageComponent } from 'im.v2.const';
+import { ChatType, EventType, MessageComponent, ChatActionType } from 'im.v2.const';
 import { Utils } from 'im.v2.lib.utils';
-import { DialogStatus } from 'im.v2.component.elements';
+import { PermissionManager } from 'im.v2.lib.permission';
+import { Quote } from 'im.v2.lib.quote';
+import { FadeAnimation } from 'im.v2.component.animation';
+import { CopilotManager } from 'im.v2.lib.copilot';
+import { FeatureManager } from 'im.v2.lib.feature';
+import { MessageComponentManager } from 'im.v2.lib.message-component-manager';
 
+import { DialogStatus } from 'im.v2.component.elements';
 import { DialogLoader } from './components/dialog-loader';
-import { MessageComponentManager } from './classes/message-component-manager';
 import { AvatarMenu } from './classes/avatar-menu';
 import { MessageMenu } from './classes/message-menu';
+import { ObserverManager } from './classes/observer-manager';
 
 import { DateGroup } from './components/block/date-group';
 import { AuthorGroup } from './components/block/author-group';
 import { NewMessagesBlock } from './components/block/new-messages';
 import { MarkedMessagesBlock } from './components/block/marked-messages';
 import { EmptyState } from './components/empty-state';
-import { CollectionManager, type FormattedCollectionItem } from './classes/collection-manager';
-import { messageComponents } from './utils/message-components';
+import { HistoryLimitBanner } from './components/history-limit-banner';
+import { CollectionManager, type DateGroupItem } from './classes/collection-manager/collection-manager';
+import { MessageComponents } from './utils/message-components';
 
 import './css/message-list.css';
 
+export { AvatarMenu } from './classes/avatar-menu';
+export { MessageMenu } from './classes/message-menu';
+
 import type { JsonObject } from 'main.core';
-import type { BitrixVueComponentProps } from 'ui.vue3';
 import type { ImModelChat, ImModelMessage, ImModelUser } from 'im.v2.model';
+
+export { AuthorGroup } from './components/block/author-group';
+export { MessageComponents } from './utils/message-components';
+export { CollectionManager } from './classes/collection-manager/collection-manager';
 
 // @vue/component
 export const MessageList = {
 	name: 'MessageList',
-	directives: {
+	directives:
+	{
 		'message-observer': {
 			mounted(element, binding)
 			{
@@ -39,7 +53,8 @@ export const MessageList = {
 			},
 		},
 	},
-	components: {
+	components:
+	{
 		DateGroup,
 		AuthorGroup,
 		NewMessagesBlock,
@@ -47,7 +62,9 @@ export const MessageList = {
 		DialogStatus,
 		DialogLoader,
 		EmptyState,
-		...messageComponents,
+		FadeAnimation,
+		HistoryLimitBanner,
+		...MessageComponents,
 	},
 	props:
 	{
@@ -55,19 +72,15 @@ export const MessageList = {
 			type: String,
 			required: true,
 		},
-		messages: {
-			type: Array,
-			required: true,
-		},
-		observer: {
-			type: Object,
-			required: true,
+		messageMenuClass: {
+			type: Function,
+			default: MessageMenu,
 		},
 	},
-	emits: ['showQuoteButton'],
 	data(): JsonObject
 	{
 		return {
+			windowFocused: false,
 			messageMenuIsActiveForId: 0,
 		};
 	},
@@ -81,6 +94,10 @@ export const MessageList = {
 		{
 			return this.$store.getters['users/get'](this.dialogId, true);
 		},
+		messageCollection(): ImModelMessage[]
+		{
+			return this.$store.getters['messages/getByChatId'](this.dialog.chatId);
+		},
 		isUser(): boolean
 		{
 			return this.dialog.type === ChatType.user;
@@ -89,11 +106,7 @@ export const MessageList = {
 		{
 			return this.dialog.inited;
 		},
-		messageCollection(): ImModelMessage[]
-		{
-			return this.messages;
-		},
-		formattedCollection(): FormattedCollectionItem[]
+		formattedCollection(): DateGroupItem[]
 		{
 			if (!this.dialogInited && this.messageCollection.length === 0)
 			{
@@ -106,21 +119,26 @@ export const MessageList = {
 		{
 			return this.formattedCollection.length === 0;
 		},
+		isHistoryLimitExceeded(): boolean
+		{
+			return !FeatureManager.chatHistory.isAvailable() && this.dialog.tariffRestrictions.isHistoryLimitExceeded;
+		},
 		showDialogStatus(): boolean
 		{
 			return this.messageCollection.some((message) => {
 				return message.id === this.dialog.lastMessageId;
 			});
 		},
-		statusComponent(): BitrixVueComponentProps
+		showEmptyState(): boolean
 		{
-			return DialogStatus;
+			return this.dialogInited && this.noMessages && this.isUser && !this.isHistoryLimitExceeded;
 		},
 	},
 	created()
 	{
 		this.initContextMenu();
 		this.initCollectionManager();
+		this.initObserverManager();
 	},
 	mounted()
 	{
@@ -132,6 +150,38 @@ export const MessageList = {
 	},
 	methods:
 	{
+		subscribeToEvents(): void
+		{
+			EventEmitter.subscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+		},
+		unsubscribeFromEvents(): void
+		{
+			EventEmitter.unsubscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
+		},
+		insertTextQuote(message: ImModelMessage): void
+		{
+			EventEmitter.emit(EventType.textarea.insertText, {
+				text: Quote.prepareQuoteText(message),
+				withNewLine: true,
+				replace: false,
+				dialogId: this.dialogId,
+			});
+		},
+		insertMention(user: ImModelUser): void
+		{
+			EventEmitter.emit(EventType.textarea.insertMention, {
+				mentionText: user.name,
+				mentionReplacement: Utils.text.getMentionBbCode(user.id, user.name),
+				dialogId: this.dialogId,
+			});
+		},
+		openReplyPanel(messageId: number): void
+		{
+			EventEmitter.emit(EventType.textarea.replyMessage, {
+				messageId,
+				dialogId: this.dialogId,
+			});
+		},
 		needToShowAvatarMenuFor(user: ImModelUser): boolean
 		{
 			if (!user)
@@ -144,29 +194,14 @@ export const MessageList = {
 
 			return !isCurrentUser && !isBotChat;
 		},
-		subscribeToEvents(): void
-		{
-			EventEmitter.subscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
-		},
-		unsubscribeFromEvents(): void
-		{
-			EventEmitter.unsubscribe(EventType.dialog.onClickMessageContextMenu, this.onMessageContextMenuClick);
-		},
-		initCollectionManager()
-		{
-			this.getCollectionManager();
-		},
-		initContextMenu()
-		{
-			this.messageMenu = new MessageMenu();
-			this.messageMenu.subscribe(MessageMenu.events.onCloseMenu, () => {
-				this.messageMenuIsActiveForId = 0;
-			});
-
-			this.avatarMenu = new AvatarMenu();
-		},
 		onAvatarClick(params: { dialogId: string, $event: PointerEvent })
 		{
+			const permissionManager = PermissionManager.getInstance();
+			if (!permissionManager.canPerformAction(ChatActionType.openAvatarMenu, this.dialogId))
+			{
+				return;
+			}
+
 			const { dialogId, $event: event } = params;
 			const user: ImModelUser = this.$store.getters['users/get'](dialogId);
 			if (!this.needToShowAvatarMenuFor(user))
@@ -176,19 +211,46 @@ export const MessageList = {
 
 			if (Utils.key.isAltOrOption(event))
 			{
-				EventEmitter.emit(EventType.textarea.insertMention, {
-					mentionText: user.name,
-					mentionReplacement: Utils.text.getMentionBbCode(user.id, user.name),
-				});
+				this.insertMention(user);
 
+				return;
+			}
+
+			const copilotManager = new CopilotManager();
+			if (copilotManager.isCopilotBot(dialogId))
+			{
 				return;
 			}
 
 			this.avatarMenu.openMenu({ user, dialog: this.dialog }, event.currentTarget);
 		},
-		onMessageContextMenuClick(eventData: BaseEvent<{ message: ImModelMessage, event: PointerEvent }>)
+		onMessageContextMenuClick(eventData: BaseEvent<{ message: ImModelMessage, dialogId: string, event: PointerEvent }>)
 		{
-			const { message, event } = eventData.getData();
+			const permissionManager = PermissionManager.getInstance();
+			if (!permissionManager.canPerformAction(ChatActionType.openMessageMenu, this.dialogId))
+			{
+				return;
+			}
+
+			const { message, event, dialogId } = eventData.getData();
+			if (dialogId !== this.dialogId)
+			{
+				return;
+			}
+
+			if (Utils.key.isCombination(event, ['Alt+Ctrl']))
+			{
+				this.insertTextQuote(message);
+
+				return;
+			}
+
+			if (Utils.key.isCmdOrCtrl(event))
+			{
+				this.openReplyPanel(message.id);
+
+				return;
+			}
 
 			const context = { dialogId: this.dialogId, ...message };
 			this.messageMenu.openMenu(context, event.currentTarget);
@@ -198,56 +260,83 @@ export const MessageList = {
 		{
 			await Utils.browser.waitForSelectionToUpdate();
 			const selection = window.getSelection().toString().trim();
-			if (selection.length === 0 || this.isGuest)
+			if (selection.length === 0)
 			{
 				return;
 			}
 
-			this.$emit('showQuoteButton', message, event);
+			EventEmitter.emit(EventType.dialog.showQuoteButton, {
+				message,
+				event,
+			});
+		},
+		initObserverManager()
+		{
+			this.observer = new ObserverManager(this.dialogId);
+		},
+		initContextMenu()
+		{
+			const MessageMenuClass = this.messageMenuClass;
+			this.messageMenu = new MessageMenuClass();
+			this.messageMenu.subscribe(MessageMenu.events.onCloseMenu, () => {
+				this.messageMenuIsActiveForId = 0;
+			});
+
+			this.avatarMenu = new AvatarMenu();
 		},
 		getMessageComponentName(message: ImModelMessage): $Values<typeof MessageComponent>
 		{
 			return (new MessageComponentManager(message)).getName();
 		},
+		initCollectionManager()
+		{
+			this.collectionManager = new CollectionManager(this.dialogId);
+		},
 		getCollectionManager(): CollectionManager
 		{
-			if (!this.collectionManager)
-			{
-				this.collectionManager = new CollectionManager(this.dialogId);
-			}
-
 			return this.collectionManager;
 		},
 	},
 	template: `
-		<div class="bx-im-message-list__container">
-			<DialogLoader v-if="!dialogInited" :fullHeight="noMessages" />
-			<EmptyState v-else-if="noMessages && isUser" />
-			<DateGroup v-for="dateGroup in formattedCollection" :key="dateGroup.date.id" :item="dateGroup">
-				<!-- Slot for every date group item -->
-				<template #dateGroupItem="{ dateGroupItem, isMarkedBlock, isNewMessagesBlock, isAuthorBlock }">
-					<MarkedMessagesBlock v-if="isMarkedBlock" data-id="newMessages" />
-					<NewMessagesBlock v-else-if="isNewMessagesBlock" data-id="newMessages" />
-					<AuthorGroup v-else-if="isAuthorBlock" :item="dateGroupItem" @avatarClick="onAvatarClick">
-						<!-- Slot for every message -->
-						<template #message="{ message, index }">
-							<component
-								v-message-observer
-								:is="getMessageComponentName(message)"
-								:withTitle="index === 0"
-								:item="message"
-								:dialogId="dialogId"
-								:key="message.id"
-								:menuIsActiveForId="messageMenuIsActiveForId"
-								:data-viewed="message.viewed"
-								@mouseup="onMessageMouseUp(message, $event)"
-							>
-							</component>
-						</template>
-					</AuthorGroup>
-				</template>
-			</DateGroup>
-			<component :is="statusComponent" v-if="showDialogStatus" :dialogId="dialogId" />
-		</div>
+		<slot v-if="!dialogInited" name="loader">
+			<DialogLoader />
+		</slot>
+		<FadeAnimation :duration="200">
+			<div v-if="dialogInited" class="bx-im-message-list__container">
+				<EmptyState v-if="showEmptyState" :dialogId="dialogId" />
+				<slot name="before-messages" :getMessageComponentName="getMessageComponentName"></slot>
+				<HistoryLimitBanner v-if="isHistoryLimitExceeded" :dialogId="dialogId" :noMessages="noMessages" />
+				<DateGroup v-for="dateGroup in formattedCollection" :key="dateGroup.dateTitle" :item="dateGroup">
+					<!-- Slot for every date group item -->
+					<template #dateGroupItem="{ dateGroupItem, isMarkedBlock, isNewMessagesBlock, isAuthorBlock }">
+						<MarkedMessagesBlock v-if="isMarkedBlock" data-id="newMessages" />
+						<NewMessagesBlock v-else-if="isNewMessagesBlock" data-id="newMessages" />
+						<AuthorGroup 
+							v-else-if="isAuthorBlock" 
+							:item="dateGroupItem"
+							:contextDialogId="dialogId"
+							@avatarClick="onAvatarClick"
+						>
+							<!-- Slot for every message -->
+							<template #message="{ message, index }">
+								<component
+									v-message-observer
+									:is="getMessageComponentName(message)"
+									:withTitle="index === 0"
+									:item="message"
+									:dialogId="dialogId"
+									:key="message.id"
+									:menuIsActiveForId="messageMenuIsActiveForId"
+									:data-viewed="message.viewed"
+									@mouseup="onMessageMouseUp(message, $event)"
+								>
+								</component>
+							</template>
+						</AuthorGroup>
+					</template>
+				</DateGroup>
+				<DialogStatus v-if="showDialogStatus" :dialogId="dialogId" />
+			</div>
+		</FadeAnimation>
 	`,
 };

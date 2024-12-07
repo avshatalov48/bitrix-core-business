@@ -1,4 +1,5 @@
 <?php
+
 if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 {
 	die();
@@ -6,19 +7,21 @@ if (!defined('B_PROLOG_INCLUDED') || B_PROLOG_INCLUDED !== true)
 
 use \Bitrix\Main\Localization\Loc;
 
-return array(
-	'block' => array(
+return [
+	'block' => [
 		'name' => Loc::getMessage('LANDING_BLOCK_49_JUST_VIDEO_NAME'),
-		'section' => array('video', 'recommended'),
+		'type' => ['page', 'store', 'smn', 'knowledge', 'group', 'mainpage'],
+		'section' => ['video', 'recommended', 'widgets_video'],
 		'dynamic' => false,
-		'version' => '18.5.0', // old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
-	),
-	'nodes' => array(
-		'.landing-block-node-embed' => array(
+		'version' => '18.5.0',
+		// old param for backward compatibility. Can used for old versions of module via repo. Do not delete!
+	],
+	'nodes' => [
+		'.landing-block-node-embed' => [
 			'name' => Loc::getMessage('LANDING_BLOCK_49_JUST_VIDEO_EMBED'),
 			'type' => 'embed',
-		),
-	),
+		],
+	],
 	'style' => [
 		'block' => [],
 		'nodes' => [
@@ -28,7 +31,7 @@ return array(
 			],
 		],
 	],
-	'assets' => array(
-		'ext' => array('landing_inline_video'),
-	),
-);
+	'assets' => [
+		'ext' => ['landing_inline_video'],
+	],
+];

@@ -12,4 +12,17 @@ final class Service extends Base
 	{
 		return [ProductTable::TYPE_SERVICE];
 	}
+
+	protected function prepareFieldsForAdd(array $fields): ?array
+	{
+		$fields = parent::prepareFieldsForAdd($fields);
+		if ($fields === null)
+		{
+			return null;
+		}
+
+		$fields['TYPE'] = ProductTable::TYPE_SERVICE;
+
+		return $fields;
+	}
 }

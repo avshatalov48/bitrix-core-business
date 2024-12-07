@@ -1,3 +1,5 @@
+import { PopupManager } from 'main.popup';
+
 import { MessengerPopup } from 'im.v2.component.elements';
 
 import { UploadPreviewContent } from './upload-preview-content';
@@ -36,11 +38,11 @@ export const UploadPreviewPopup = {
 				width: 400,
 				targetContainer: document.body,
 				fixed: true,
-				draggable: true,
+				draggable: { restrict: true },
+				titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
 				offsetTop: 0,
 				padding: 0,
 				closeIcon: true,
-				titleBar: this.$Bitrix.Loc.getMessage('IM_TEXTAREA_UPLOAD_PREVIEW_POPUP_TITLE'),
 				contentColor: 'transparent',
 				contentPadding: 0,
 				className: 'bx-im-upload-preview__scope',
@@ -55,6 +57,10 @@ export const UploadPreviewPopup = {
 			this.$emit('sendFiles', event);
 			this.$emit('close');
 		},
+		onUpdateTitle(title: string)
+		{
+			PopupManager.getPopupById(POPUP_ID)?.setTitleBar(title);
+		},
 	},
 	template: `
 		<MessengerPopup
@@ -68,6 +74,7 @@ export const UploadPreviewPopup = {
 				:textareaValue="textareaValue"
 				@close="$emit('close')"
 				@sendFiles="onSendFiles"
+				@updateTitle="onUpdateTitle"
 			/>
 		</MessengerPopup>
 	`,

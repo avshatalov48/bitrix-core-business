@@ -1,5 +1,6 @@
 import { BaseEvent } from 'main.core.events';
 import { mapGetters } from 'ui.vue3.vuex';
+import { Client } from '../../api/client';
 import { EventTypes } from '../../const/event';
 import { KeyboardCodes } from '../../const/keyboard-codes';
 import { Modes } from '../../const/mode';
@@ -164,7 +165,19 @@ export const SpaceAddForm = {
 			ajax.runAction('socialnetwork.api.workgroup.createGroup', {
 				data: formData,
 			}).then((response) => {
-				location.href = `${LinkManager.getSpaceLink(response.data.groupId)}?empty-state=enabled`;
+				BX.Socialnetwork.Spaces.space.reloadPageContent(
+					`${LinkManager.getSpaceLink(response.data.groupId)}?empty-state=enabled`,
+				);
+				this.$bitrix.eventEmitter.emit(EventTypes.hideSpaceAddForm);
+
+				// eslint-disable-next-line promise/catch-or-return
+				Client.loadSpaceData(response.data.groupId)
+					// eslint-disable-next-line promise/no-nesting
+					.then((data) => {
+						this.$store.dispatch('addSpacesToView', { mode: Modes.recentSearch, spaces: [data.space] });
+						this.$store.dispatch('setSelectedSpace', data.space.id);
+					})
+				;
 			}, (errorResponse) => {
 				errorResponse.errors.forEach((error) => {
 					if (error.code === 'ERROR_GROUP_NAME_EXISTS')

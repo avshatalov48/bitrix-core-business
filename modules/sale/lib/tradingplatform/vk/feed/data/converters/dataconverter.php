@@ -16,11 +16,6 @@ abstract class DataConverter
 
 	abstract public function convert($data);
 
-	protected static function convertToUtf8($value): string
-	{
-		return Encoding::convertEncoding($value, SITE_CHARSET, 'UTF-8');
-	}
-
 	private static $specialCharsLength = [
 //		commented chars has no effect on the length
 		'"' => [
@@ -59,9 +54,9 @@ abstract class DataConverter
 			'count' => 6,
 			'regexp' => '$',
 		],
-//		'¹' => [
+//		'â„–' => [
 //			'count' => 7,
-//			'regexp' => '¹',
+//			'regexp' => 'â„–',
 //		],
 	];
 
@@ -114,7 +109,7 @@ abstract class DataConverter
 		}
 		else
 		{
-			$newPadLength = \Bitrix\Main\Text\BinaryString::getLength($string) - mb_strlen($string) + $padLength;
+			$newPadLength = strlen($string) - mb_strlen($string) + $padLength;
 
 			return str_pad($string, $newPadLength, $padString, $padType);
 		}

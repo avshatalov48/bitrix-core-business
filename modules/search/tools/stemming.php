@@ -107,7 +107,7 @@ function stemming_split($sText, $sLang="ru")
 
 	$tok = " ";
 	$sText = stemming_upper($sText, $sLang);
-	$sText = preg_replace("/[^".$arStemFunc["pcre_letters"]."]/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
+	$sText = preg_replace("/[^".$arStemFunc["pcre_letters"]."]/u", $tok, $sText);
 
 	$word = strtok($sText, $tok);
 	while($word !== false)
@@ -140,19 +140,19 @@ function stemming($sText, $sLang="ru", $bIgnoreStopWords = false, $bReturnPositi
 		$arStemInfo[$sLang] = stemming_init($sLang);
 
 	$stem_func = $arStemInfo[$sLang]["stem"];
-	$pcre_abc = "/[^".$arStemInfo[$sLang]["pcre_abc"]."]+/".BX_UTF_PCRE_MODIFIER;
+	$pcre_abc = "/[^".$arStemInfo[$sLang]["pcre_abc"]."]+/u";
 
 	//Delimiter of the words
 	$tok = " ";
 	$sText = stemming_upper($sText, $sLang);
 	if($bReturnPositions)
 	{
-		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"].".!?]+/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
-		$sText = preg_replace("/[!?]+/".BX_UTF_PCRE_MODIFIER, ".", $sText);
+		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"].".!?]+/u", $tok, $sText);
+		$sText = preg_replace("/[!?]+/u", ".", $sText);
 	}
 	else
 	{
-		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"]."]+/".BX_UTF_PCRE_MODIFIER, $tok, $sText);
+		$sText = preg_replace("/[^".$arStemInfo[$sLang]["pcre_letters"]."]+/u", $tok, $sText);
 	}
 
 	//Parse text
@@ -256,7 +256,7 @@ function stemming_detect($word, $arStemInfo, $skipLang)
 			continue;
 
 		//Word has letters not from ABC, so skip to next language
-		if(preg_match("/[^".$arInfo["pcre_abc"]."]+/".BX_UTF_PCRE_MODIFIER, $word))
+		if(preg_match("/[^".$arInfo["pcre_abc"]."]+/u", $word))
 			continue;
 
 		$stem = $arInfo["stem"]($word);
@@ -279,7 +279,7 @@ function stemming_detect($word, $arStemInfo, $skipLang)
 
 function stemming_upper_default($sText)
 {
-	return ToUpper($sText);
+	return mb_strtoupper($sText);
 }
 
 function stemming_default($sText)

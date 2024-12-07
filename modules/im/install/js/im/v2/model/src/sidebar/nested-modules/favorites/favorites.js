@@ -2,6 +2,8 @@ import type { JsonObject } from 'main.core';
 import { Type } from 'main.core';
 import { BuilderModel } from 'ui.vue3.vuex';
 
+import { Core } from 'im.v2.application.core';
+
 import { formatFieldsWithConfig } from '../../../utils/validate';
 import { sidebarFavoritesFieldsConfig } from './format/field-config';
 
@@ -21,6 +23,13 @@ type ChatState = {
 	lastId: number
 }
 
+type FavoritesPayload = {
+	chatId?: number,
+	favorites?: Object[],
+	hasNextPage?: boolean,
+	lastId?: number,
+}
+
 /* eslint-disable no-param-reassign */
 export class FavoritesModel extends BuilderModel
 {
@@ -29,6 +38,8 @@ export class FavoritesModel extends BuilderModel
 		return {
 			collection: {},
 			counters: {},
+			collectionSearch: {},
+			historyLimitExceededCollection: {},
 		};
 	}
 
@@ -112,6 +123,43 @@ export class FavoritesModel extends BuilderModel
 
 				return state.collection[chatId].lastId;
 			},
+			/** @function sidebar/favorites/getSearchResultCollectionLastId */
+			getSearchResultCollectionLastId: (state) => (chatId: number): number => {
+				if (!state.collectionSearch[chatId])
+				{
+					return 0;
+				}
+
+				return state.collectionSearch[chatId].lastId;
+			},
+			/** @function sidebar/favorites/hasNextPageSearch */
+			hasNextPageSearch: (state) => (chatId: number): boolean => {
+				if (!state.collectionSearch[chatId])
+				{
+					return false;
+				}
+
+				return state.collectionSearch[chatId].hasNextPage;
+			},
+			/** @function sidebar/favorites/getSearchResultCollection */
+			getSearchResultCollection: (state) => (chatId: number): ImModelSidebarFavoriteItem[] => {
+				if (!state.collectionSearch[chatId])
+				{
+					return [];
+				}
+
+				return [...state.collectionSearch[chatId].items.values()].sort((a, b) => b.id - a.id);
+			},
+			/** @function sidebar/favorites/isHistoryLimitExceeded */
+			isHistoryLimitExceeded: (state) => (chatId: number): boolean => {
+				const isAvailable = Core.getStore().getters['application/tariffRestrictions/isHistoryAvailable'];
+				if (isAvailable)
+				{
+					return false;
+				}
+
+				return state.historyLimitExceededCollection[chatId] ?? false;
+			},
 		};
 	}
 
@@ -133,13 +181,14 @@ export class FavoritesModel extends BuilderModel
 				{
 					payload.favorites = [payload.favorites];
 				}
-				const { chatId, favorites, hasNextPage, lastId } = payload;
+				const { chatId, favorites, hasNextPage, lastId, isHistoryLimitExceeded = false } = payload;
 
-				if (!Type.isArrayFilled(favorites) || !Type.isNumber(chatId))
+				if (!Type.isNumber(chatId))
 				{
 					return;
 				}
 
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
 				store.commit('setHasNextPage', { chatId, hasNextPage });
 				store.commit('setLastId', { chatId, lastId });
 
@@ -189,6 +238,28 @@ export class FavoritesModel extends BuilderModel
 
 				store.commit('delete', { chatId, id: targetLinkId });
 			},
+			/** @function sidebar/favorites/setSearch */
+			setSearch: (store, payload: FavoritesPayload) => {
+				const { chatId, favorites, hasNextPage, lastId, isHistoryLimitExceeded = false } = payload;
+
+				if (!Type.isNumber(chatId))
+				{
+					return;
+				}
+
+				store.commit('setHistoryLimitExceeded', { chatId, isHistoryLimitExceeded });
+				store.commit('setHasNextPageSearch', { chatId, hasNextPage });
+				store.commit('setLastIdSearch', { chatId, lastId });
+
+				favorites.forEach((favorite) => {
+					const preparedFavoriteMessage = { ...this.getElementState(), ...this.formatFields(favorite) };
+					store.commit('addSearch', { chatId, favorite: preparedFavoriteMessage });
+				});
+			},
+			/** @function sidebar/favorites/clearSearch */
+			clearSearch: (store) => {
+				store.commit('clearSearch', {});
+			},
 		};
 	}
 
@@ -205,6 +276,17 @@ export class FavoritesModel extends BuilderModel
 				}
 
 				state.collection[chatId].hasNextPage = hasNextPage;
+			},
+			setHasNextPageSearch: (state, payload: FavoritesPayload) => {
+				const { chatId, hasNextPage } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].hasNextPage = hasNextPage;
 			},
 			setCounter: (state, payload) => {
 				const { chatId, counter } = payload;
@@ -232,10 +314,49 @@ export class FavoritesModel extends BuilderModel
 
 				state.collection[chatId].items.set(favorite.id, favorite);
 			},
+			addSearch: (state, payload: {chatId: number, favorite: ImModelSidebarFavoriteItem}) => {
+				const { chatId, favorite } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].items.set(favorite.id, favorite);
+			},
+			clearSearch: (state) => {
+				state.collectionSearch = {};
+			},
+			setLastIdSearch: (state, payload: FavoritesPayload) => {
+				const { chatId, lastId } = payload;
+
+				const hasCollection = !Type.isNil(state.collectionSearch[chatId]);
+				if (!hasCollection)
+				{
+					state.collectionSearch[chatId] = this.getChatState();
+				}
+
+				state.collectionSearch[chatId].lastId = lastId;
+			},
 			delete: (state, payload: {chatId: number, id: number}) => {
 				const { chatId, id } = payload;
+				const hasCollectionSearch = !Type.isNil(state.collectionSearch[chatId]);
+				if (hasCollectionSearch)
+				{
+					state.collectionSearch[chatId].items.delete(id);
+				}
 				state.collection[chatId].items.delete(id);
 				state.counters[chatId]--;
+			},
+			setHistoryLimitExceeded: (state, payload) => {
+				const { chatId, isHistoryLimitExceeded } = payload;
+				if (state.historyLimitExceededCollection[chatId] && !isHistoryLimitExceeded)
+				{
+					return;
+				}
+
+				state.historyLimitExceededCollection[chatId] = isHistoryLimitExceeded;
 			},
 		};
 	}

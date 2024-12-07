@@ -23,18 +23,6 @@
 
 .ui-ear-left,
 .ui-ear-right {
-
-	background-repeat: no-repeat;
-	background-position: center;
-
-	cursor: pointer;
-	z-index: 11;
-	opacity: 0;
-	transition: .3s;
-}
-
-.ui-ear-left,
-.ui-ear-right {
 	top: 0;
 	bottom: 0;
 	width: 49px;
@@ -69,7 +57,6 @@
 	background-image: url(../image/ui-ears-bottom.svg);
 }
 
-
 .ui-ear:hover {
 	opacity: .3;
 }
@@ -95,13 +82,6 @@
 .ui-ears-wrapper-sm .ui-ear-left,
 .ui-ears-wrapper-sm .ui-ear-right {
 	background-size: 37px 71px;
-}
-
-.ui-ears-wrapper-sm .ui-ear.ui-ear-top,
-.ui-ears-wrapper-sm .ui-ear.ui-ear-bottom {
-	width: unset;
-	height: 37px;
-	background-size: 71px 37px;
 }
 
 .ui-ears-wrapper-sm .ui-ear.ui-ear-top,

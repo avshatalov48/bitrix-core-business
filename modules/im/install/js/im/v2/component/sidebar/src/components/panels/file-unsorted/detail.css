@@ -10,3 +10,7 @@
 	display: flex;
 	flex-direction: column;
 }
+
+.bx-im-sidebar-file-unsorted-detail__tariff-limit-container {
+	margin: 6px 0 6px 4px;
+}

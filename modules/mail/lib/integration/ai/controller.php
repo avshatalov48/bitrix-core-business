@@ -6,6 +6,8 @@ use Bitrix\Mail\MailMessageTable;
 use Bitrix\Main\ArgumentException;
 use Bitrix\Main\Event;
 use Bitrix\Mail\Helper\Message\MessageThreadLoader;
+use Bitrix\Mail;
+use Bitrix\Main\Engine\CurrentUser;
 use Bitrix\Main\ObjectPropertyException;
 use Bitrix\Main\SystemException;
 
@@ -79,6 +81,7 @@ final class Controller
 	 */
 	private static function loadMessages(array $messageIds): array
 	{
+		$userId = CurrentUser::get()->getId();
 		$messageIds = array_filter($messageIds, function ($item) {
 			return filter_var($item, FILTER_VALIDATE_INT) !== false;
 		});
@@ -89,12 +92,13 @@ final class Controller
 		}
 
 		$message = MailMessageTable::query()
-			->setSelect(['BODY'])
+			->setSelect(['*'])
 			->where('ID', end($messageIds))
-			->fetchObject()
+			->exec()
+			->fetch()
 		;
 
-		if (!$message)
+		if (!$message || !Mail\Helper\Message::hasAccess($message, $userId))
 		{
 			return ['messages' => []];
 		}

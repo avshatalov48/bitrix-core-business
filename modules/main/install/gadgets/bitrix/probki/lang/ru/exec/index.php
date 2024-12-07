@@ -17,7 +17,6 @@ $http->setTimeout(10);
 $res = $http->get("https://export.yandex.ru/bar/reginfo.xml?".$url);
 
 $res = str_replace("\xE2\x88\x92", "-", $res);
-$res = \Bitrix\Main\Text\Encoding::convertEncoding($res, 'UTF-8', SITE_CHARSET);
 
 $xml = new CDataXML();
 $xml->LoadString($res);
